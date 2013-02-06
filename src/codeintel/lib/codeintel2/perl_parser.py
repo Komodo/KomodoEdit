@@ -166,19 +166,19 @@ class PerlCommonClassifier:
     """Mixin class containing classifier callbacks"""
 
     def is_array_cb(self, tok):
-        tval = tok.text
+        tval = tok['text']
         return len(tval) >= 2 and tval[0] == '@' and tval[1] != '$'
         # @$name is more like an expression -- don't return it
 
     def is_scalar_cb(self, tok):
-        tval = tok.text
+        tval = tok['text']
         return len(tval) > 1 and tval[0] == '$' and (tval[1].isalnum or tval[1] == "_")
 
     def is_pod_cb(self, tok):
-        return tok.text[0] == '=' and tok.text[1].isalnum and tok.text.find("\n=cut", 5) > 0
+        return tok['text'][0] == '=' and tok['text'][1].isalnum and tok['text'].find("\n=cut", 5) > 0
     
     def is_string_qw_cb(self, tok):
-        return re_compile(r'^qw\s*[^\w\d_]').match(tok.text)
+        return re_compile(r'^qw\s*[^\w\d_]').match(tok['text'])
                                                    
 
     # Used for stripping the quotes off a string
@@ -194,7 +194,7 @@ class PerlCommonClassifier:
         return [self.quote_patterns_cb_aux(tok)]
 
     def quote_patterns_cb_aux(self, tok):
-        tval = tok.text
+        tval = tok['text']
         if tval[0] == '"':
             return self._quote_patterns[SCE_PL_STRING]
         elif tval[0] == '\'':
@@ -214,29 +214,29 @@ class PerlClassifier(PerlCommonClassifier, shared_parser.CommonClassifier):
         raise CILEError("Unexpected call to perl_parser.get_builtin_type")
         
     def is_any_operator(self, tok):
-        return tok.style == ScintillaConstants.SCE_PL_OPERATOR
+        return tok['style'] == ScintillaConstants.SCE_PL_OPERATOR
 
     def is_comment(self, tok):
-        return tok.style in (ScintillaConstants.SCE_PL_COMMENT,
+        return tok['style'] in (ScintillaConstants.SCE_PL_COMMENT,
                              ScintillaConstants.SCE_PL_POD)
 
     def is_comment_structured(self, tok, callback):
-        return tok.style == ScintillaConstants.SCE_PL_POD
+        return tok['style'] == ScintillaConstants.SCE_PL_POD
 
     def is_identifier(self, tok, allow_keywords=False):
-        return (tok.style == ScintillaConstants.SCE_PL_IDENTIFIER or
+        return (tok['style'] == ScintillaConstants.SCE_PL_IDENTIFIER or
             (allow_keywords and
-             tok.style == ScintillaConstants.SCE_PL_WORD))
+             tok['style'] == ScintillaConstants.SCE_PL_WORD))
 
     def is_index_op(self, tok, pattern=None):
-        if not (tok.style in (SCE_PL_OPERATOR, SCE_PL_VARIABLE_INDEXER)):
+        if not (tok['style'] in (SCE_PL_OPERATOR, SCE_PL_VARIABLE_INDEXER)):
             return False
         elif not pattern:
             return True
-        return len(tok.text) > 0 and pattern.search(tok.text)
+        return len(tok['text']) > 0 and pattern.search(tok['text'])
 
     def is_interpolating_string(self, tok, callback):
-        return tok.style in [ScintillaConstants.SCE_PL_STRING,
+        return tok['style'] in [ScintillaConstants.SCE_PL_STRING,
                              ScintillaConstants.SCE_PL_REGEX,
                              ScintillaConstants.SCE_PL_HERE_QQ,
                              ScintillaConstants.SCE_PL_STRING_QQ,
@@ -245,16 +245,16 @@ class PerlClassifier(PerlCommonClassifier, shared_parser.CommonClassifier):
                              ]
 
     def is_keyword(self, tok, target):
-        return tok.style == ScintillaConstants.SCE_PL_WORD and tok.text == target
+        return tok['style'] == ScintillaConstants.SCE_PL_WORD and tok['text'] == target
 
     def is_number(self, tok):
-        return tok.style == ScintillaConstants.SCE_PL_NUMBER
+        return tok['style'] == ScintillaConstants.SCE_PL_NUMBER
 
     def is_operator(self, tok, target):
-        return tok.style == ScintillaConstants.SCE_PL_OPERATOR and tok.text == target
+        return tok['style'] == ScintillaConstants.SCE_PL_OPERATOR and tok['text'] == target
 
     def is_string(self, tok):
-        return tok.style in [ScintillaConstants.SCE_PL_STRING,
+        return tok['style'] in [ScintillaConstants.SCE_PL_STRING,
                              ScintillaConstants.SCE_PL_CHARACTER,
                              ScintillaConstants.SCE_PL_HERE_Q,
                              ScintillaConstants.SCE_PL_HERE_QQ,
@@ -264,22 +264,22 @@ class PerlClassifier(PerlCommonClassifier, shared_parser.CommonClassifier):
                              ]
 
     def is_string_qw(self, tok, callback):
-        return tok.style == ScintillaConstants.SCE_PL_STRING_QW
+        return tok['style'] == ScintillaConstants.SCE_PL_STRING_QW
 
     def is_symbol(self, tok):
         return False
 
     def is_variable(self, tok):
-        return SCE_PL_SCALAR <= tok.style <= SCE_PL_SYMBOLTABLE
+        return SCE_PL_SCALAR <= tok['style'] <= SCE_PL_SYMBOLTABLE
 
     # Types of variables
     def is_variable_array(self, tok, callback=None):
-        return tok.style == ScintillaConstants.SCE_PL_ARRAY and \
-            len(tok.text) > 1 and tok.text[1] != '$'
+        return tok['style'] == ScintillaConstants.SCE_PL_ARRAY and \
+            len(tok['text']) > 1 and tok['text'][1] != '$'
         
     def is_variable_scalar(self, tok, callback=None):
-        return tok.style == ScintillaConstants.SCE_PL_SCALAR and \
-            len(tok.text) > 1 and tok.text[1] != '$'
+        return tok['style'] == ScintillaConstants.SCE_PL_SCALAR and \
+            len(tok['text']) > 1 and tok['text'][1] != '$'
         
     # Accessors for where we'd rather work with a style than call a predicate fn
 
@@ -879,7 +879,7 @@ class Parser:
         self.provide_full_docs = provide_full_docs
 
     def _is_stmt_end_op(self, tok):
-        tval = tok.text
+        tval = tok['text']
         if self.classifier.is_keyword(tok, 'or'):
             return True
         elif self.classifier.is_any_operator(tok):
@@ -887,7 +887,7 @@ class Parser:
         return False
 
     def _is_string(self, tok):
-        return tok.style in self.tokenizer.string_types
+        return tok['style'] in self.tokenizer.string_types
         
         
     def printHeader(self, mtime):
@@ -956,7 +956,7 @@ class Parser:
     def at_end_expression(self, tok):
         if not self.classifier.is_any_operator(tok):
             return False
-        return tok.text in (';', ',', '}')
+        return tok['text'] in (';', ',', '}')
 
         
     def collect_multiple_args(self, origLineNo, context, var_scope):
@@ -964,12 +964,12 @@ class Parser:
         while True:
             tok = self.tokenizer.get_next_token()
             if self.classifier.is_variable(tok):
-                nameList.append((tok.text, tok.start_line))
+                nameList.append((tok['text'], tok['start_line']))
             else:
                 break
             tok = self.tokenizer.get_next_token()
             if self.classifier.is_any_operator(tok):
-                tval = tok.text
+                tval = tok['text']
                 if tval == ")": break
                 elif tval != ",": break
         if not self.classifier.is_operator(tok, ")"):
@@ -978,7 +978,7 @@ class Parser:
         isArg = False
         if self.classifier.is_operator(tok, "="):
             tok = self.tokenizer.get_next_token()
-            if self.classifier.is_variable_array(tok, self.classifier.is_array_cb) and tok.text == "@_":
+            if self.classifier.is_variable_array(tok, self.classifier.is_array_cb) and tok['text'] == "@_":
                 tok = self.tokenizer.get_next_token()
                 isArg = self._is_stmt_end_op(tok)
             else:
@@ -996,7 +996,7 @@ class Parser:
             isArg = False
         else:
             tok = self.tokenizer.get_next_token()
-            if self.classifier.is_keyword(tok, 'shift') or tok.text == '@_':
+            if self.classifier.is_keyword(tok, 'shift') or tok['text'] == '@_':
                 tok = self.tokenizer.get_next_token()
                 isArg = self._is_stmt_end_op(tok)
                 self.tokenizer.put_back(tok)
@@ -1011,7 +1011,7 @@ class Parser:
                                  scope=var_scope)
         
     def de_quote_string(self, tok):
-        tval = tok.text
+        tval = tok['text']
         patterns = self.classifier.get_quote_patterns(tok, self.classifier.quote_patterns_cb)
         for p in patterns:
             m = p.match(tval)
@@ -1053,9 +1053,9 @@ class Parser:
                 'forceGlobal':forceGlobal }
         if inherited_args:
             args.update(inherited_args)
-        ttype = tok.style
+        ttype = tok['style']
         if self.classifier.is_variable_scalar(tok, self.classifier.is_scalar_cb):
-            rhs_StarterVal = tok.text
+            rhs_StarterVal = tok['text']
             tok = self.tokenizer.get_next_token()
             # Check and skip indexers
             if self.classifier.is_index_op(tok, self.find_open_indexer_re):
@@ -1068,7 +1068,7 @@ class Parser:
             
             accessors = []
             while self.classifier.is_operator(tok, "->") or self.classifier.is_index_op(tok, self.find_open_indexer_re):
-                if tok.text == "->":
+                if tok['text'] == "->":
                     tok = self.tokenizer.get_next_token()
                 if self.classifier.is_index_op(tok, self.find_open_indexer_re):
                     propertyName = self._get_property_token()
@@ -1079,7 +1079,7 @@ class Parser:
                 elif not self.classifier.is_identifier_or_keyword(tok):
                     break
                 else:
-                    fqName = self.get_rest_of_subpath(tok.text, 1)
+                    fqName = self.get_rest_of_subpath(tok['text'], 1)
                     accessors.append(fqName)
                     tok = self.tokenizer.get_next_token()
                 if self.classifier.is_operator(tok, "("):
@@ -1106,7 +1106,7 @@ class Parser:
                 self.tokenizer.put_back(tok)
             self.moduleInfo.doSetVar(**args)
         elif self.classifier.is_identifier(tok):
-            rhs_StarterVal = tok.text
+            rhs_StarterVal = tok['text']
             tok = self.tokenizer.get_next_token()
             updateVarInfo = None
             if self.classifier.is_operator(tok, "::"):
@@ -1116,7 +1116,7 @@ class Parser:
             if self.classifier.is_operator(tok, "->"):
                 # a->b is always good
                 tok = self.tokenizer.get_next_token()
-                if self.classifier.is_identifier_or_keyword(tok) and tok.text == "new":
+                if self.classifier.is_identifier_or_keyword(tok) and tok['text'] == "new":
                     # 80/20 rule: assume a new on a class gives an instance
                     args['aType'] = {'assign' : rhs_StarterVal }
             elif self.classifier.is_identifier_or_keyword(tok):
@@ -1125,7 +1125,7 @@ class Parser:
                     pass
                 elif rhs_StarterVal == 'new':
                     # 80/20 rule
-                    package_name = tok.text
+                    package_name = tok['text']
                     tok = self.tokenizer.get_next_token()
                     if self.classifier.is_operator(tok, "::"):
                         # new Package notation
@@ -1139,7 +1139,7 @@ class Parser:
         elif self.classifier.is_keyword(tok, 'new'):
             tok = self.tokenizer.get_next_token()
             if self.classifier.is_identifier(tok):
-                package_name = tok.text
+                package_name = tok['text']
                 tok = self.tokenizer.get_next_token()
             else:
                 package_name = ""
@@ -1168,21 +1168,21 @@ class Parser:
 
     def get_for_vars(self):
         tok = self.tokenizer.get_next_token()
-        if (tok.style == ScintillaConstants.SCE_PL_WORD
-            and tok.text in ('my', 'state')):
-            tlineNo = tok.start_line
+        if (tok['style'] == ScintillaConstants.SCE_PL_WORD
+            and tok['text'] in ('my', 'state')):
+            tlineNo = tok['start_line']
             tok = self.tokenizer.get_next_token()
             if self.classifier.is_variable(tok):
                 # Don't do any more processing, as we're probably looking
                 # at an open-paren.
-                self.moduleInfo.doSetVar(name=tok.text, line=tlineNo, scope='my')
+                self.moduleInfo.doSetVar(name=tok['text'], line=tlineNo, scope='my')
     
     def get_list_of_var_names(self):
         resArray = []
         while 1:
             tok = self.tokenizer.get_next_token()
             if self.classifier.is_variable(tok):
-                resArray.append([tok.text, tok.start_line])
+                resArray.append([tok['text'], tok['start_line']])
             else:
                 break
             tok = self.tokenizer.get_next_token()
@@ -1204,9 +1204,9 @@ class Parser:
                     break
                 tok = self.tokenizer.get_next_token()
                 if self.classifier.is_any_operator(tok):
-                    if tok.text == ")":
+                    if tok['text'] == ")":
                         break
-                    elif tok.text == ",":
+                    elif tok['text'] == ",":
                         continue
                     break
         elif self._is_string(tok):
@@ -1222,11 +1222,11 @@ class Parser:
         if self.classifier.is_operator(tok, "("):
             varNames = self.get_list_of_var_names()
         elif self.classifier.is_variable(tok):
-            tval = tok.text.strip()
+            tval = tok['text'].strip()
             if tval == '@ISA':
                 self.get_parent_namespaces(True)
             else:
-                lineNo = tok.start_line
+                lineNo = tok['start_line']
                 tok = self.tokenizer.get_next_token()
                 if self.classifier.is_operator(tok, "="):
                     self.finish_var_assignment(tval, lineNo, 0, scope=var_scope, context=context)
@@ -1262,7 +1262,7 @@ class Parser:
                   self.classifier.is_variable_scalar(tok, self.classifier.is_scalar_cb)):
             return ""
         else:
-            finalVal = tok.text
+            finalVal = tok['text']
         tok = self.tokenizer.get_next_token()
         
         if not self.classifier.is_index_op(tok, re_compile(r'\}')):
@@ -1271,7 +1271,7 @@ class Parser:
             # Consume everything until we find the close-brace
             while True:
                 tok = self.tokenizer.get_next_token()
-                if tok.style == SCE_PL_UNUSED:
+                if tok['style'] == SCE_PL_UNUSED:
                     break
                 elif self.classifier.is_index_op(tok, re_compile(r'[\}\]]')):
                     break
@@ -1280,8 +1280,8 @@ class Parser:
     def get_rest_of_subpath(self, retval, expectingDblColon):
         if expectingDblColon:
             tok = self.tokenizer.get_next_token()
-            ttype = tok.style
-            tval = tok.text
+            ttype = tok['style']
+            tval = tok['text']
             if not self.classifier.is_operator(tok, "::"):
                 self.tokenizer.put_back(tok)
                 return retval
@@ -1290,11 +1290,11 @@ class Parser:
             
         while 1:
             tok = self.tokenizer.get_next_token()
-            ttype = tok.style
+            ttype = tok['style']
             if not self.classifier.is_identifier(tok):
                 if ttype != self.classifier.style_word or len(retval) == 0:
                     break
-            retval += tok.text
+            retval += tok['text']
             tok = self.tokenizer.get_next_token()
             if not self.classifier.is_operator(tok, "::"):
                 break
@@ -1308,11 +1308,11 @@ class Parser:
         if self.classifier.is_string_qw(tok, self.classifier.is_string_qw_cb):
             res = []
             qw_re = re_compile(r'\Aqw\s*.(.*)\s*\S\s*\Z', re.DOTALL)
-            match_res = qw_re.match(tok.text)
+            match_res = qw_re.match(tok['text'])
             if match_res:
                 wordsPart = match_res.group(1)
                 # Find first line of token
-                finalLineNo = tok.start_line
+                finalLineNo = tok['start_line']
                 for line in wordsPart.split('\n'):
                     for var in re.split(r'\s', line):
                         if re_compile(r'\s*$').match(var):
@@ -1322,7 +1322,7 @@ class Parser:
             return res
         else:
             tval = self.de_quote_string(tok)
-            return [(tval, tok.start_line)]
+            return [(tval, tok['start_line'])]
         
     def get_used_vars(self, scope):
         tok = self.tokenizer.get_next_token()
@@ -1338,16 +1338,16 @@ class Parser:
                                      scope=scope)
     
     def look_for_object_var_assignment(self, tok, isInnerSub):
-        identifier = tok.text
+        identifier = tok['text']
         if re_compile(r'^\$[^_\w]').match(identifier) or identifier == '$_':
             # Ignore special variables, and $#$... array ref final-item index
             return
-        origLineNo = tok.start_line
+        origLineNo = tok['start_line']
         tok = self.tokenizer.get_next_token()
         if not self.classifier.is_index_op(tok):
             self.tokenizer.put_back(tok)
             return
-        elif tok.text != '=':
+        elif tok['text'] != '=':
             self.tokenizer.put_back(tok)
             return
         # Is it an implicit global?
@@ -1376,7 +1376,7 @@ class Parser:
     def look_for_var_assignment(self, tok1):
         # First make sure this var hasn't already been defined
         # Is it an implicit global?
-        var_name = tok1.text
+        var_name = tok1['text']
         if len(var_name) < 2 or var_name[1] == '$':
             return
         if self.moduleInfo.currentFunction:
@@ -1391,8 +1391,8 @@ class Parser:
             return
         tok2 = self.tokenizer.get_next_token()
         if self.classifier.is_operator(tok2, "="):
-            varInfo = (tok1.text, tok1.start_line)
-            self.moduleInfo.doSetVar(name=var_name, line=tok1.start_line,
+            varInfo = (tok1['text'], tok1['start_line'])
+            self.moduleInfo.doSetVar(name=var_name, line=tok1['start_line'],
                                      scope=scope)
         else:
             self.tokenizer.put_back(tok2)
@@ -1471,10 +1471,10 @@ class Parser:
         curr_pkg_line_no = self.tokenizer.curr_line_no()
         while 1:
             tok = self.tokenizer.get_next_token()
-            ttype = tok.style
+            ttype = tok['style']
             if ttype == shared_lexer.EOF_STYLE:
                 return
-            tval = tok.text
+            tval = tok['text']
             if ttype == self.classifier.style_word:
                 if tval == 'package':
                     packageName = self.get_rest_of_subpath("", 0)
@@ -1500,10 +1500,10 @@ class Parser:
                 elif tval == 'use':
                     self.process_use(0)
                 elif tval == 'require':
-                    origLineNo = tok.start_line
+                    origLineNo = tok['start_line']
                     tok = self.tokenizer.get_next_token()
-                    ttype = tok.style
-                    tval = tok.text
+                    ttype = tok['style']
+                    tval = tok['text']
                     if (self.classifier.is_identifier(tok) or
                         self.classifier.is_variable_scalar(tok,
                                                            self.classifier.is_scalar_cb)):
@@ -1551,11 +1551,11 @@ class Parser:
         parenCount = 0
         while True:
             tok = self.tokenizer.get_next_token()
-            ttype = tok.style
+            ttype = tok['style']
             if ttype == SCE_PL_UNUSED:
                 return
             # Expect a paren for args, the open-brace, or a semi-colon
-            tval = tok.text
+            tval = tok['text']
             if parenCount > 0:
                 if self.classifier.is_operator(tok, ")"):
                     parenCount -= 1
@@ -1577,10 +1577,10 @@ class Parser:
     
         while True:
             tok = self.tokenizer.get_next_token()
-            ttype = tok.style
+            ttype = tok['style']
             if ttype == SCE_PL_UNUSED:
                 break
-            tval = tok.text
+            tval = tok['text']
             if self.classifier.is_index_op(tok):
                 if tval == "{":
                     braceCount += 1
@@ -1595,7 +1595,7 @@ class Parser:
                     self.tokenizer.put_back(tok)
                     self.skip_to_end_of_stmt()
             elif ttype == self.classifier.style_word:
-                tlineNo = tok.start_line
+                tlineNo = tok['start_line']
                 if tval in ('my', 'state'):
                     tok = self.tokenizer.get_next_token()
                     if self.classifier.is_operator(tok, '('):
@@ -1603,7 +1603,7 @@ class Parser:
                         # are only visible locally.
                         self.collect_multiple_args(tlineNo, 'local', 'my')
                     elif self.classifier.is_variable(tok):
-                        self.collect_single_arg(tok.text, tlineNo, 'local', 'my')
+                        self.collect_single_arg(tok['text'], tlineNo, 'local', 'my')
                         if self.classifier.is_operator(tok, '{'):
                             braceCount += 1
                     else:
@@ -1619,15 +1619,15 @@ class Parser:
                     # Return an instance of type (module)
                     # Either it returned an identifier, or it put the token back
                     tok = self.tokenizer.get_next_token()
-                    ttype = tok.style
+                    ttype = tok['style']
                     if self.classifier.is_identifier(tok):
-                        subclass = self.get_rest_of_subpath(tok.text, 1)
+                        subclass = self.get_rest_of_subpath(tok['text'], 1)
                         tok = self.tokenizer.get_next_token()
-                        if tok.text != '->':
+                        if tok['text'] != '->':
                             self.tokenizer.put_back(tok)
                         else:
                             tok = self.tokenizer.get_next_token()
-                            if tok.text == 'new':
+                            if tok['text'] == 'new':
                                 if self.moduleInfo.currentFunction:
                                     self.moduleInfo.currentFunction.resultType.append(subclass)
                             else:
@@ -1636,10 +1636,10 @@ class Parser:
                         self.tokenizer.put_back(tok)
                 elif tval == 'require':
                     tok = self.tokenizer.get_next_token()
-                    ttype = tok.style
+                    ttype = tok['style']
                     if self.classifier.is_identifier(tok):
-                        origLineNo = tok.start_line
-                        fqModule = self.get_rest_of_subpath(tok.text, 1)
+                        origLineNo = tok['start_line']
+                        fqModule = self.get_rest_of_subpath(tok['text'], 1)
                         self.process_import(fqModule, origLineNo)
                 elif tval == 'use':
                     self.process_use(1)
@@ -1672,18 +1672,18 @@ class Parser:
     def process_use(self, local):
         tok = self.tokenizer.get_next_token()
         if self.classifier.is_identifier_or_keyword(tok):
-            origLineNo = tok.start_line
+            origLineNo = tok['start_line']
             #@@@ RE
-            if re_compile('^[a-z]+$').match(tok.text):
-                if tok.text == 'vars':
+            if re_compile('^[a-z]+$').match(tok['text']):
+                if tok['text'] == 'vars':
                     self.get_used_vars(local and 'local' or 'global')
                     return
-                elif tok.text == 'base':
+                elif tok['text'] == 'base':
                     if not local:
                         self.get_parent_namespaces(False)
                     return
-                elif self.pragmaNames.has_key(tok.text):
-                    firstMod = tok.text
+                elif self.pragmaNames.has_key(tok['text']):
+                    firstMod = tok['text']
                     tok = self.tokenizer.get_next_token()
                     if not self.classifier.is_operator(tok, "::"):
                         self.tokenizer.put_back(tok)
@@ -1691,9 +1691,9 @@ class Parser:
                     self.tokenizer.put_back(tok)
                     tval = firstMod
                 else:
-                    tval = tok.text
+                    tval = tok['text']
             else:
-                tval = tok.text
+                tval = tok['text']
             fqModule = self.get_rest_of_subpath(tval, 1)
             self.process_import(fqModule, origLineNo, import_vars=1)
     # end process_use
@@ -1708,11 +1708,11 @@ class Parser:
         nestedCount = 1
         while 1:
             tok = self.tokenizer.get_next_token()
-            ttype = tok.style
+            ttype = tok['style']
             if ttype == SCE_PL_UNUSED:
                 return
             elif self.classifier.is_index_op(tok):
-                tval = tok.text
+                tval = tok['text']
                 if self.opHash.has_key(tval):
                     if self.opHash[tval][1] == 1:
                         nestedCount += 1
@@ -1726,11 +1726,11 @@ class Parser:
         tok = self.tokenizer.get_next_token()
         nestedCount = 1
         while 1:
-            ttype = tok.style
+            ttype = tok['style']
             if ttype == SCE_PL_UNUSED:
                 return
             elif self.classifier.is_any_operator(tok):
-                tval = tok.text
+                tval = tok['text']
                 if tval == "(":
                     nestedCount += 1
                     tok = self.tokenizer.get_next_token()
@@ -1748,11 +1748,11 @@ class Parser:
         nestedCount = 0
         while 1:
             tok = self.tokenizer.get_next_token()
-            ttype = tok.style
+            ttype = tok['style']
             if ttype == SCE_PL_UNUSED:
                 break
             if self.classifier.is_index_op(tok):
-                tval = tok.text
+                tval = tok['text']
                 if self.opHash.has_key(tval):
                     if tval == "{":
                         if nestedCount == 0:
@@ -1779,15 +1779,15 @@ class Parser:
     def start_process_sub_definition(self, isInnerSub):
         tok = self.tokenizer.get_next_token()
         # Watch out for lexer buffoonery
-        if self.classifier.is_identifier(tok) and len(tok.text.strip()) == 0:
+        if self.classifier.is_identifier(tok) and len(tok['text'].strip()) == 0:
             tok = self.tokenizer.get_next_token()
         if (self.classifier.is_operator(tok, "{") or
             not self.classifier.is_identifier_or_keyword(tok)):
             self.tokenizer.put_back(tok)
             self.skip_to_end_of_stmt()
         else:
-            startLineNo = tok.start_line
-            fnName = self.get_rest_of_subpath(tok.text, 0)
+            startLineNo = tok['start_line']
+            fnName = self.get_rest_of_subpath(tok['text'], 0)
             if fnName:
                 tok = self.tokenizer.get_next_token()
                 if self.classifier.is_operator(tok, "("):

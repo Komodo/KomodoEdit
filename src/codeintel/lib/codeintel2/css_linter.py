@@ -52,13 +52,13 @@ log = logging.getLogger("css_linter")
 class _CSSLexerClassifier(object):
 
     def is_attribute(self, tok):
-        return tok.style == ScintillaConstants.SCE_CSS_ATTRIBUTE
+        return tok['style'] == ScintillaConstants.SCE_CSS_ATTRIBUTE
 
     def is_directive(self, tok):
-        return tok.style == ScintillaConstants.SCE_CSS_DIRECTIVE
+        return tok['style'] == ScintillaConstants.SCE_CSS_DIRECTIVE
 
     def is_identifier(self, tok):
-        return tok.style in (ScintillaConstants.SCE_CSS_IDENTIFIER,
+        return tok['style'] in (ScintillaConstants.SCE_CSS_IDENTIFIER,
                              ScintillaConstants.SCE_CSS_IDENTIFIER2,
                              ScintillaConstants.SCE_CSS_IDENTIFIER3,
                              ScintillaConstants.SCE_CSS_EXTENDED_IDENTIFIER,
@@ -66,10 +66,10 @@ class _CSSLexerClassifier(object):
                              ScintillaConstants.SCE_CSS_UNKNOWN_IDENTIFIER)
 
     def is_unknown_identifier(self, tok):
-        return tok.style == ScintillaConstants.SCE_CSS_UNKNOWN_IDENTIFIER
+        return tok['style'] == ScintillaConstants.SCE_CSS_UNKNOWN_IDENTIFIER
 
     def is_special_identifier(self, tok):
-        return tok.style in (ScintillaConstants.SCE_CSS_ID,
+        return tok['style'] in (ScintillaConstants.SCE_CSS_ID,
                              ScintillaConstants.SCE_CSS_CLASS,
                              ScintillaConstants.SCE_CSS_PSEUDOCLASS,
                              ScintillaConstants.SCE_CSS_PSEUDOELEMENT,
@@ -78,51 +78,51 @@ class _CSSLexerClassifier(object):
                              ScintillaConstants.SCE_CSS_EXTENDED_PSEUDOELEMENT,)
 
     def is_important(self, tok, text):
-        return (tok.style == ScintillaConstants.SCE_CSS_IMPORTANT
-                and tok.text == text) 
+        return (tok['style'] == ScintillaConstants.SCE_CSS_IMPORTANT
+                and tok['text'] == text) 
 
     def is_mixin(self, tok):
-        return tok.style == ScintillaConstants.SCE_CSS_MIXIN
+        return tok['style'] == ScintillaConstants.SCE_CSS_MIXIN
 
     _number_re = re.compile(r'-?(?:\d+(?:\.\d*)?|\.\d+)')
     def is_number(self, tok):
-        return (tok.style == ScintillaConstants.SCE_CSS_NUMBER
-                or (tok.style == ScintillaConstants.SCE_CSS_VALUE
-                    and self._number_re.match(tok.text)))
+        return (tok['style'] == ScintillaConstants.SCE_CSS_NUMBER
+                or (tok['style'] == ScintillaConstants.SCE_CSS_VALUE
+                    and self._number_re.match(tok['text'])))
 
     def is_operator(self, tok, target=None):
-        if tok.style != ScintillaConstants.SCE_CSS_OPERATOR:
+        if tok['style'] != ScintillaConstants.SCE_CSS_OPERATOR:
             return False
         elif target is None:
             return True
         else:
-            return target == tok.text
+            return target == tok['text']
         
     def is_operator_choose(self, tok, targets):
-        if tok.style != ScintillaConstants.SCE_CSS_OPERATOR:
+        if tok['style'] != ScintillaConstants.SCE_CSS_OPERATOR:
             return False
         else:
-            return tok.text in targets
+            return tok['text'] in targets
 
     def is_string(self, tok):
-        return tok.style in (ScintillaConstants.SCE_CSS_DOUBLESTRING,
+        return tok['style'] in (ScintillaConstants.SCE_CSS_DOUBLESTRING,
                              ScintillaConstants.SCE_CSS_SINGLESTRING,)
 
     def is_stringeol(self, tok):
-        return tok.style == ScintillaConstants.SCE_CSS_STRINGEOL
+        return tok['style'] == ScintillaConstants.SCE_CSS_STRINGEOL
 
     def is_tag(self, tok):
-        return (tok.style == ScintillaConstants.SCE_CSS_TAG
+        return (tok['style'] == ScintillaConstants.SCE_CSS_TAG
                 or self.is_operator(tok, "*"))
 
     def is_value(self, tok, target=None):
-        if not (tok.style in (ScintillaConstants.SCE_CSS_VALUE,
+        if not (tok['style'] in (ScintillaConstants.SCE_CSS_VALUE,
                               ScintillaConstants.SCE_CSS_NUMBER)):
             return False
         elif target is None:
             return True
         else:
-            return tok.text == target
+            return tok['text'] == target
 
     def is_value_or_identifier(self, tok):
         return self.is_value(tok) or self.is_identifier(tok)
@@ -168,63 +168,29 @@ class _CSSLexer(Lexer):
             
         self.classifier = _classifier
         get_silvercity_lexer(language)().tokenize_by_style(code, self._fix_token_list)
+        self.prepare_token_list_for_use()
         self.string_types = [ScintillaConstants.SCE_CSS_DOUBLESTRING,
                          ScintillaConstants.SCE_CSS_SINGLESTRING,
                          ]
         
     def _fix_token_list(self, **tok):
-        
         ttype = tok['style']
         tval = tok['text']
         if ttype == ScintillaConstants.SCE_CSS_OPERATOR and len(tval) > 1:
-            self.append_split_tokens(tok, self.multi_char_ops, self.q)
+            self.append_split_tokens(tok, self.multi_char_ops, end_column_offset=0)
         else:
-            self.q.append(tok)
-
-    def append_split_tokens(self, tok, multi_char_ops_dict, dest_q):
-        # This function doesn't subtract 1 from `col + len(stxt)`
-        tval = tok['text']
-        split_tokens = []
-        while len(tval) > 0:
-            if multi_char_ops_dict.has_key(tval):
-                split_tokens.append(tval)
-                break
-            else:
-                #XXX Handle allowed prefixes, as in "<<" and "<<="
-                found_something = False
-                for possible_op in multi_char_ops_dict.keys():
-                    if tval.startswith(possible_op):
-                        split_tokens.append(possible_op)
-                        tval = tval[len(possible_op):]
-                        found_something = True
-                        break
-                if not found_something:
-                    split_tokens.append(tval[0])
-                    tval = tval[1:]
-        if len(split_tokens) > 1:
-            col = tok['start_column']
-            for stxt in split_tokens:
-                new_tok = copy.copy(tok)
-                new_tok['text'] = stxt
-                new_tok['start_column'] = col
-                new_tok['end_column'] = col + len(stxt)
-                col = new_tok['end_column']
-                dest_q.append(new_tok)
-        else:
-            dest_q.append(tok)
+            self.complete_token_push(tok)
             
     def next_token_is_whitespace(self, tok):
-        if not self.q:
-            return False
-        return self.q[0]['style'] in (EOF_STYLE, self.classifier.style_comment,
+        return self.peek_next_token()['style'] in (EOF_STYLE, self.classifier.style_comment,
                                    self.classifier.style_default)
 
     def get_next_token(self):
         res = Lexer.get_next_token(self)
         # Column adjustment
-        #print "get_next_token: " + res.dump_ret()
-        if res.start_column is not None:
-            res.end_column = res.start_column + len(res.text)
+        #print "get_next_token: " + res
+        if res['start_column'] is not None:
+            res['end_column'] = res['start_column'] + len(res['text'])
         return res            
         
 class Result(object):
@@ -287,8 +253,8 @@ class _CSSParser(object):
 
     def _add_result(self, message, tok, status=1):
         self._add_result_tok_parts(message,
-                                   tok.start_line, tok.start_column,
-                                   tok.end_line, tok.end_column, tok.text,
+                                   tok['start_line'], tok['start_column'],
+                                   tok['end_line'], tok['end_column'], tok['text'],
                                    status)
 
     def _add_result_tok_parts(self, message, line_start, col_start, line_end, col_end, text, status=1):
@@ -327,7 +293,7 @@ class _CSSParser(object):
 
         while True:
             tok = self._tokenizer.get_next_token()
-            if tok.style == EOF_STYLE:
+            if tok['style'] == EOF_STYLE:
                 self._add_result("expecting a block of declarations", tok)
                 return
             self._check_tag_tok(tok, 1)
@@ -360,7 +326,7 @@ class _CSSParser(object):
                 self._saw_selector = True
             require_simple_selector = False
             tok = self._tokenizer.get_next_token()
-            if tok.style == EOF_STYLE:
+            if tok['style'] == EOF_STYLE:
                 # bug 94621 -- If we're on EOF while processing a selector,
                 # give up on this loop
                 break
@@ -373,8 +339,8 @@ class _CSSParser(object):
     def _pseudo_element_check(self, tok, saw_pseudo_element):
         if saw_pseudo_element:
             self._add_result_tok_parts("Pseudo elements must appear at the end of a selector chain",
-                                       tok.start_line, tok.start_column,
-                                       tok.end_line, tok.end_column,
+                                       tok['start_line'], tok['start_column'],
+                                       tok['end_line'], tok['end_column'],
                                        "", 1)
             
     def _reparse_structural_tokens(self, tok):
@@ -390,40 +356,43 @@ class _CSSParser(object):
         ret_toks = []
         num_ptn = re.compile(r'(\d+)(.*)')
         while True:
-            if (tok.style == EOF_STYLE or
-                (self._classifier.is_operator(tok) and tok.text in ");}{}")):
+            if (tok['style'] == EOF_STYLE or
+                (self._classifier.is_operator(tok) and tok['text'] in ");}{}")):
                 ret_toks.append(tok)
                 self._tokenizer.put_back(tok)
                 return ret_toks
-            tokText = tok.text
+            tokText = tok['text']
             while True:
                 if tokText.startswith("-") or tokText.startswith("+"):
-                    newTok = tok.clone('')
-                    tok.text = tokText[0]
-                    tok.end_column = tok.start_column + 1
-                    tok.style = ScintillaConstants.SCE_CSS_OPERATOR
+                    newTok = tok.copy()
+                    newTok['text'] = '-'
+                    tok['text'] = tokText[0]
+                    tok['end_column'] = tok['start_column'] + 1
+                    tok['style'] = ScintillaConstants.SCE_CSS_OPERATOR
                     ret_toks.append(tok)
-                    newTok.start_column = tok.end_column
+                    newTok['start_column'] = tok['end_column']
                     tok = newTok
                     tokText = tokText[1:]
                 else:
                     m = num_ptn.match(tokText)
                     if m:
-                        newTok = tok.clone('')
-                        tok.text = m.group(1)
-                        tok.end_column = tok.start_column + len(tok.text)
-                        tok.style = ScintillaConstants.SCE_CSS_NUMBER
+                        newTok = tok.copy()
+                        newTok['text'] = '-'
+                        tok['text'] = m.group(1)
+                        tok['end_column'] = tok['start_column'] + len(tok['text'])
+                        tok['style'] = ScintillaConstants.SCE_CSS_NUMBER
                         ret_toks.append(tok)
-                        newTok.start_column = tok.end_column
+                        newTok['start_column'] = tok['end_column']
                         tok = newTok
                         tokText = m.group(2)
                     elif tokText[0].lower() == "n":
-                        newTok = tok.clone('')
-                        tok.text = tokText[0]
-                        tok.end_column = tok.start_column + 1
-                        tok.style = ScintillaConstants.SCE_CSS_VALUE
+                        newTok = tok.copy()
+                        newTok['text'] = '-'
+                        tok['text'] = tokText[0]
+                        tok['end_column'] = tok['start_column'] + 1
+                        tok['style'] = ScintillaConstants.SCE_CSS_VALUE
                         ret_toks.append(tok)
-                        newTok.start_column = tok.end_column
+                        newTok['start_column'] = tok['end_column']
                         tok = newTok
                         tokText = tokText[1:]
                     else:
@@ -454,7 +423,7 @@ class _CSSParser(object):
         an unknown identifier
         """
         tok = self._tokenizer.get_next_token()
-        if self._classifier.is_tag(tok) and tok.text.lower() in ("odd", "even"):
+        if self._classifier.is_tag(tok) and tok['text'].lower() in ("odd", "even"):
             return
         tokens = self._reparse_structural_tokens(tok)
         end_tok = tokens.pop() # This was also put back
@@ -462,14 +431,14 @@ class _CSSParser(object):
             self._add_result("expecting a value", end_tok)
             return
         tok = tokens.pop(0)
-        if self._classifier.is_operator(tok) and tok.text in ('-', '+'):
+        if self._classifier.is_operator(tok) and tok['text'] in ('-', '+'):
             tokSign = tok
             if not tokens:
                 self._add_result("expecting a number or N", end_tok)
                 return
             tok = tokens.pop(0)
-            if tokSign.end_line != tok.start_line or tokSign.end_column != tok.start_column:
-                self._add_result("expecting no space before %s" % tok.text, tok)
+            if tokSign['end_line'] != tok['start_line'] or tokSign['end_column'] != tok['start_column']:
+                self._add_result("expecting no space before %s" % tok['text'], tok)
         met_requirement = False
         tokNum = None
         if self._classifier.is_number(tok):
@@ -478,12 +447,12 @@ class _CSSParser(object):
             met_requirement = True
             tokNum = tok
             tok = tokens.pop(0)
-        if self._classifier.is_value(tok) and tok.text.lower() == 'n':
+        if self._classifier.is_value(tok) and tok['text'].lower() == 'n':
             if not tokens:
                 return # all ok
-            if tokNum and (tokNum.end_line != tok.start_line
-                           or tokNum.end_column != tok.start_column):
-                self._add_result("expecting no space before %s" % tok.text, tok)
+            if tokNum and (tokNum['end_line'] != tok['start_line']
+                           or tokNum['end_column'] != tok['start_column']):
+                self._add_result("expecting no space before %s" % tok['text'], tok)
             tok = tokens.pop(0)
         elif not met_requirement:
             self._add_result("expecting a number or N", tok)
@@ -495,7 +464,7 @@ class _CSSParser(object):
             return
         # Look for a second 'sign'
         require_number = False
-        if self._classifier.is_operator(tok) and tok.text in ('-', '+'):
+        if self._classifier.is_operator(tok) and tok['text'] in ('-', '+'):
             if not tokens:
                 self._add_result("expecting a number", end_tok)
                 return
@@ -515,10 +484,10 @@ class _CSSParser(object):
         could_have_mixin = False
         while True:
             tok = self._tokenizer.get_next_token()
-            if tok.style == EOF_STYLE:
+            if tok['style'] == EOF_STYLE:
                 break
             self._check_tag_tok(tok, 3)
-            log.debug("_parse_simple_selector: got tok %s", tok.dump_ret())
+            log.debug("_parse_simple_selector: got tok %s", tok)
             if self._classifier.is_tag(tok):
                 # Namespace check
                 tok = self._tokenizer.get_next_token()
@@ -531,18 +500,18 @@ class _CSSParser(object):
                     self._tokenizer.put_back(tok)
                 num_selected_names += 1
                 self._pseudo_element_check(tok, saw_pseudo_element)
-                current_name = tok.text
+                current_name = tok['text']
                 could_have_mixin = False
             elif self._classifier.is_identifier(tok):
                 num_selected_names += 1
                 self._pseudo_element_check(tok, saw_pseudo_element)
                 if not self._supportsNestedDeclaration:
-                    self._add_result("expecting a tag name, got unrecognized name %s (style %d)" % (tok.text, tok.style),
+                    self._add_result("expecting a tag name, got unrecognized name %s (style %d)" % (tok['text'], tok['style']),
                                      tok, status=0)
-                current_name = tok.text
+                current_name = tok['text']
                 could_have_mixin = False
             elif self._classifier.is_operator(tok):
-                if tok.text == ":":
+                if tok['text'] == ":":
                     if resolve_selector_property_ambiguity and not self._saw_selector:
                         # This is the crucial point
                         # Are we looking at
@@ -559,40 +528,40 @@ class _CSSParser(object):
                     prev_tok = tok
                     tok = self._tokenizer.get_next_token()
                     if self._classifier.is_number(tok):
-                        self._tokenizer.put_back(prev_tok)
                         self._tokenizer.put_back(tok)
+                        self._tokenizer.put_back(prev_tok)
                         return False
                     if not self._check_special_identifier(prev_tok, tok):
                         return False
                     num_selected_names += 1
-                    current_name = tok.text
-                    if (tok.text in self._structural_pseudo_classes_with_args
-                        or tok.text in self._structural_pseudo_classes_other): # "not", "-moz-any"
+                    current_name = tok['text']
+                    if (tok['text'] in self._structural_pseudo_classes_with_args
+                        or tok['text'] in self._structural_pseudo_classes_other): # "not", "-moz-any"
                         prev_tok = tok
                         tok = self._tokenizer.get_next_token()
                         if self._classifier.is_operator(tok, "("):
-                            if prev_tok.text in self._structural_pseudo_classes_with_args:
+                            if prev_tok['text'] in self._structural_pseudo_classes_with_args:
                                 self._parse_structural_pseudo_class_arg()
                             else:
                                 # It's the CSS3 "not" or -moz-any selector
                                 while True:
                                     self._parse_simple_selector(True, resolve_selector_property_ambiguity=False)
                                     tok = self._tokenizer.get_next_token()
-                                    if not self._classifier.is_operator(tok) or tok.text != ",":
+                                    if not self._classifier.is_operator(tok) or tok['text'] != ",":
                                         self._parser_putback_recover(tok)
                                         break
                             self._parse_required_operator(")")
                         else:
-                            if prev_tok.text in self._structural_pseudo_classes_args:
+                            if prev_tok['text'] in self._structural_pseudo_classes_args:
                                 self._add_result("expecting a parenthesized structural pseudo-class argument")
                             self._tokenizer.put_back(tok)
-                    #elif tok.text in self._structural_pseudo_classes_no_args:
+                    #elif tok['text'] in self._structural_pseudo_classes_no_args:
                     #    pass # Nothing to do
                     could_have_mixin = False
-                elif tok.text in ("#", ".", "::",):
+                elif tok['text'] in ("#", ".", "::",):
                     prev_tok = tok
                     could_have_mixin = (self.language == "Less"
-                                        and prev_tok.text == '.'
+                                        and prev_tok['text'] == '.'
                                         and num_selected_names == 0)
                     tok = self._tokenizer.get_next_token()
                     if could_have_mixin and self._classifier.is_mixin(tok):
@@ -602,23 +571,23 @@ class _CSSParser(object):
                         return False
                     num_selected_names += 1
                     self._pseudo_element_check(tok, saw_pseudo_element)
-                    current_name = tok.text
-                    if prev_tok.text == "::":
+                    current_name = tok['text']
+                    if prev_tok['text'] == "::":
                         saw_pseudo_element = True
-                elif tok.text == '[':
+                elif tok['text'] == '[':
                     if resolve_selector_property_ambiguity:
                         # More than one simple selector in a row means it's not a property
                         self._saw_selector = True
                     self._parse_attribute()
                     num_selected_names += 1
                     could_have_mixin = False
-                elif tok.text == '{':
+                elif tok['text'] == '{':
                     if num_selected_names == 0 and match_required:
                         self._add_result("expecting a selector, got '{'", tok)
                     # Short-circuit the calling loop.
                     self._tokenizer.put_back(tok)
                     return False
-                elif tok.text == '}':
+                elif tok['text'] == '}':
                     if could_have_mixin and self._less_mixins.has_key(current_name):
                         self._inserted_mixin = True
                         self._tokenizer.put_back(tok)
@@ -627,14 +596,14 @@ class _CSSParser(object):
                     could_have_mixin = False
                     num_selected_names = 0
                     continue
-                elif tok.text == ';' and could_have_mixin and num_selected_names == 1:
+                elif tok['text'] == ';' and could_have_mixin and num_selected_names == 1:
                     self._inserted_mixin = True
                     self._tokenizer.put_back(tok)
                     return
-                elif tok.text == "&" and self.language == "SCSS":
+                elif tok['text'] == "&" and self.language == "SCSS":
                     self._saw_selector = True
                     num_selected_names += 1
-                elif tok.text == "&" and self.language == "Less":
+                elif tok['text'] == "&" and self.language == "Less":
                     tok = self._tokenizer.get_next_token()
                     if (self._classifier.is_operator_choose(tok, ("#", ".", ":", "::", ","))
                         or self._classifier.is_special_identifier(tok)):
@@ -648,7 +617,7 @@ class _CSSParser(object):
                 break
         if num_selected_names == 0:
             if match_required:
-                self._add_result("expecting a selector, got %s" % (tok.text,), tok)
+                self._add_result("expecting a selector, got %s" % (tok['text'],), tok)
                 tok = self._recover(allowEOF=False, opTokens=("{", "}"))
             # We got a { or }, so short-circuit the calling loop and
             # go parse the declaration
@@ -692,9 +661,9 @@ class _CSSParser(object):
         if (self._classifier.is_special_identifier(tok)
             or (self._supportsNestedDeclaration
                 and (self._classifier.is_unknown_identifier(tok)
-                     or tok.style == ScintillaConstants.SCE_CSS_VALUE))):
+                     or tok['style'] == ScintillaConstants.SCE_CSS_VALUE))):
             return True
-        self._add_result("expecting an identifier after %s, got %s" % (prev_tok.text, tok.text), tok)
+        self._add_result("expecting an identifier after %s, got %s" % (prev_tok['text'], tok['text']), tok)
         # Give up looking at selectors
         self._tokenizer.put_back(tok)
         return False
@@ -714,11 +683,11 @@ class _CSSParser(object):
             or self._is_scss_variable(tok)):
             tok2 = self._tokenizer.get_next_token()
             if not self._classifier.is_operator_choose(tok2, "="):
-                self._add_result("expecting '=' after substring operator '%s'" % tok.text, tok2)
+                self._add_result("expecting '=' after substring operator '%s'" % tok['text'], tok2)
                 tok = tok2
             else:
                 tok = self._tokenizer.get_next_token()
-        elif tok.text == ']':
+        elif tok['text'] == ']':
             return
         elif self._classifier.is_operator_choose(tok, attr_toks):
             tok = self._tokenizer.get_next_token()
@@ -752,21 +721,21 @@ class _CSSParser(object):
         tok = self._tokenizer.get_next_token()
         if not self._classifier.is_directive(tok):
             if (self._classifier.is_tag(tok)
-                and (prev_tok.end_line != tok.start_line or
-                     prev_tok.end_column != tok.start_column)):
+                and (prev_tok['end_line'] != tok['start_line'] or
+                     prev_tok['end_column'] != tok['start_column'])):
                 self._add_result_tok_parts("expecting a directive immediately after @",
-                                 prev_tok.end_line,
-                                 prev_tok.end_column,
-                                 tok.start_line,
-                                 tok.start_column, "")
+                                 prev_tok['end_line'],
+                                 prev_tok['end_column'],
+                                 tok['start_line'],
+                                 tok['start_column'], "")
             else:
-                self._add_result("expecting an identifier after %s" % (prev_tok.text), tok)
+                self._add_result("expecting an identifier after %s" % (prev_tok['text']), tok)
                 self._parser_putback_recover(tok)
             
-        if tok.text == "charset":
+        if tok['text'] == "charset":
             return self._parse_charset(tok)
 
-        elif tok.text.lower() == "import":
+        elif tok['text'].lower() == "import":
             if self._region > self._PARSE_REGION_SAW_IMPORT:
                 self._add_result("@import allowed only near start of file",
                                  tok)
@@ -775,19 +744,19 @@ class _CSSParser(object):
             return self._parse_import()
 
         self._region = self._PARSE_REGION_SAW_OTHER
-        if tok.text.lower() == "media":
+        if tok['text'].lower() == "media":
             self._parse_media()
 
-        elif tok.text.lower() == "page":
+        elif tok['text'].lower() == "page":
             self._parse_page()
 
-        elif tok.text.lower() == "font-face":
+        elif tok['text'].lower() == "font-face":
             self._parse_declarations()
 
-        elif tok.text.lower() == "namespace":
+        elif tok['text'].lower() == "namespace":
             self._parse_namespace()
 
-        elif tok.text.lower() == "-moz-document":
+        elif tok['text'].lower() == "-moz-document":
             self._parse_moz_document()
             
         elif self.language == "Less":
@@ -795,10 +764,10 @@ class _CSSParser(object):
         elif self.language == "SCSS":
             self._parse_scss_mixin_declaration(tok)
         else:
-            self._add_result("expecting a directive after %s" % (prev_tok.text), tok)
+            self._add_result("expecting a directive after %s" % (prev_tok['text']), tok)
             
     def _parse_scss_mixin_declaration(self, tok):
-        if not (self._classifier.is_directive(tok) and tok.text == "mixin"):
+        if not (self._classifier.is_directive(tok) and tok['text'] == "mixin"):
             self._add_result("expecting a directive or 'mixin'", tok)
             self._parser_putback_recover(tok)
         tok = self._tokenizer.get_next_token()
@@ -824,9 +793,9 @@ class _CSSParser(object):
         have_problem = False
         if not self._classifier.is_operator(tok):
             have_problem = True
-        elif tok.text not in (op, alt_op):
+        elif tok['text'] not in (op, alt_op):
             have_problem = True
-        elif tok.text == alt_op:
+        elif tok['text'] == alt_op:
             self._parser_putback_recover(tok)
         if have_problem:
             self._add_result("expecting '%s'" % op, tok)
@@ -837,7 +806,7 @@ class _CSSParser(object):
         if self._classifier.is_stringeol(tok):
             self._add_result("missing string close-quote", tok)
         elif not self._classifier.is_string(tok):
-            self._add_result("expecting a string after @charset, got %s" % (tok.text),
+            self._add_result("expecting a string after @charset, got %s" % (tok['text']),
                              tok)
             self._parser_putback_recover(tok)
         self._parse_required_operator(';')
@@ -866,7 +835,7 @@ class _CSSParser(object):
         self._parse_media_query()
         while True:
             tok = self._tokenizer.get_next_token()
-            if tok.style == EOF_STYLE:
+            if tok['style'] == EOF_STYLE:
                 self._add_result("expecting '{'", tok)
                 raise SyntaxErrorEOF()
             if not self._classifier.is_operator(tok, ","):
@@ -889,7 +858,7 @@ class _CSSParser(object):
                     raise SyntaxErrorEOF()
                 self._tokenizer.put_back(tok)
                 return
-            if tok.text.lower() in ("only", "not"):
+            if tok['text'].lower() in ("only", "not"):
                 tok = self._tokenizer.get_next_token()
                 if not (self._classifier.is_value_or_identifier(tok) and self._lex_identifier(tok)):
                     self._add_result("an identifier", tok)
@@ -901,7 +870,7 @@ class _CSSParser(object):
         # And parse [ AND expression ]*
         while True:
             tok = self._tokenizer.get_next_token()
-            if self._classifier.is_value(tok) and tok.text.lower() == "and":
+            if self._classifier.is_value(tok) and tok['text'].lower() == "and":
                 self._parse_media_expression()
             else:
                 self._tokenizer.put_back(tok)
@@ -928,7 +897,7 @@ class _CSSParser(object):
         self._parse_required_operator("{")
         while True:
             tok = self._tokenizer.get_next_token()
-            if tok.style == EOF_STYLE:
+            if tok['style'] == EOF_STYLE:
                 self._add_result("expecting '}'", tok)
                 return
             elif self._classifier.is_operator(tok, "}"):
@@ -952,10 +921,10 @@ class _CSSParser(object):
                 # Stay in this loop, maybe we're seeing more moz-doc items
                 self._add_result("expecting ',' or '{'", tok)
                 self._tokenizer.put_back(tok)
-            elif tok.text == "{":
+            elif tok['text'] == "{":
                 self._tokenizer.put_back(tok)
                 break
-            elif tok.text != ",":
+            elif tok['text'] != ",":
                 # Stay in this loop
                 self._add_result("expecting ',' or '{'", tok)
                 self._tokenizer.put_back(tok)
@@ -974,7 +943,7 @@ class _CSSParser(object):
         
     def _parse_namespace(self):
         tok = self._tokenizer.get_next_token()
-        if (not self._classifier.is_value(tok)) or tok.text == "url(":
+        if (not self._classifier.is_value(tok)) or tok['text'] == "url(":
             self._tokenizer.put_back(tok)
         if (not self._parse_url()) and (not self._parse_string()):
             self._add_result("expecting a string or url", tok)
@@ -1005,7 +974,7 @@ class _CSSParser(object):
                 if not self._classifier.is_directive(tok):
                     self._add_result("expecting a variable name", tok)
                     raise SyntaxError()
-                mixin_vars.append(tok.text)
+                mixin_vars.append(tok['text'])
                 tok = self._tokenizer.get_next_token()
                 if self._classifier.is_operator(tok, ":"):
                     self._parse_expression(consumeCommas=False)
@@ -1056,7 +1025,7 @@ class _CSSParser(object):
         self._parse_required_operator("{", tok)
         while True:
             tok = self._tokenizer.get_next_token()
-            if tok.style == EOF_STYLE:
+            if tok['style'] == EOF_STYLE:
                 self._add_result("expecting '}', hit end of file", tok)
                 raise SyntaxErrorEOF()
             if self._classifier.is_operator(tok, "}"):
@@ -1074,7 +1043,7 @@ class _CSSParser(object):
                     self._parse_declaration()
             except SyntaxError:
                 tok = self._recover(allowEOF=False, opTokens=(';',"{","}"))
-                t = tok.text
+                t = tok['text']
                 if t == ";":
                     pass # This is good -- continue doing declarations.
                 elif t == "}":
@@ -1086,7 +1055,7 @@ class _CSSParser(object):
     def _recover(self, allowEOF, opTokens):
         while True:
             tok = self._tokenizer.get_next_token()
-            if tok.style == EOF_STYLE:
+            if tok['style'] == EOF_STYLE:
                 if allowEOF:
                     return tok
                 raise SyntaxErrorEOF()
@@ -1133,7 +1102,7 @@ class _CSSParser(object):
             self._tokenizer.put_back(tok)
             return
         tok = self._tokenizer.get_next_token()
-        if not (self._classifier.is_directive(tok) and tok.text == "include"):
+        if not (self._classifier.is_directive(tok) and tok['text'] == "include"):
             self._add_result("expecting 'include'", tok)
             self._tokenizer.put_back(tok)
             return
@@ -1170,7 +1139,7 @@ class _CSSParser(object):
             return
         self._tokenizer.put_back(tok)
         if (self._classifier.is_identifier(tok)
-            and (tok.text in raw_word_lists[0] or tok.text in raw_word_lists[2])):
+            and (tok['text'] in raw_word_lists[0] or tok['text'] in raw_word_lists[2])):
             # We have a property
             self._parse_declaration()
             # Don't continue parsing declarations -- the next item could start a nested block.
@@ -1212,11 +1181,11 @@ class _CSSParser(object):
             self._add_result("expecting a property name", tok)
             self._parser_putback_recover(tok)
         if prev_tok is not None:
-            if prev_tok.end_column == tok.start_column:
+            if prev_tok['end_column'] == tok['start_column']:
                 self._add_result_tok_parts("Use of non-standard property-name '%s%s'" %
-                                           (prev_tok.text, tok.text),
-                                           prev_tok.start_line, prev_tok.start_column,
-                                           tok.end_line, tok.end_column, "",
+                                           (prev_tok['text'], tok['text']),
+                                           prev_tok['start_line'], prev_tok['start_column'],
+                                           tok['end_line'], tok['end_column'], "",
                                            status=0)
             else:
                 # Put the token back, trigger an error-message later
@@ -1233,10 +1202,10 @@ class _CSSParser(object):
         tok = self._tokenizer.get_next_token()
         if not self._classifier.is_operator(tok):
             self._tokenizer.put_back(tok)
-        elif tok.text == "/" or (tok.text == "," and consumeCommas):
+        elif tok['text'] == "/" or (tok['text'] == "," and consumeCommas):
             # use up
             pass
-        elif self.language == "Less" and tok.text in ("~", "*", "^", "-", "+", "/", "|", "&", "||", "&&",):
+        elif self.language == "Less" and tok['text'] in ("~", "*", "^", "-", "+", "/", "|", "&", "||", "&&",):
             # use up
             pass
         else:
@@ -1247,7 +1216,7 @@ class _CSSParser(object):
         if not self._classifier.is_operator(tok):
             self._tokenizer.put_back(tok)
             return False
-        elif not tok.text in ("+", "-"):
+        elif not tok['text'] in ("+", "-"):
             self._tokenizer.put_back(tok)
             return False
         else:
@@ -1273,17 +1242,17 @@ class _CSSParser(object):
         if not self._classifier.is_operator_choose(tok, ("~", '`')):
             self._tokenizer.put_back(tok)
             return False
-        if tok.text == '~':
+        if tok['text'] == '~':
             prev_tok = tok
             tok = self._tokenizer.get_next_token()
-            if not self._classifier.is_operator(tok) or tok.text not in ('"', '`'):
+            if not self._classifier.is_operator(tok) or tok['text'] not in ('"', '`'):
                 self._tokenizer.put_back(prev_tok)
                 self._tokenizer.put_back(tok)
                 return False
-        target = tok.text
+        target = tok['text']
         while True:
             tok = self._tokenizer.get_next_token()
-            if tok.style == EOF_STYLE:
+            if tok['style'] == EOF_STYLE:
                 self._add_result("expecting '%s', hit end of file" % (target,), tok)
                 raise SyntaxErrorEOF()
             elif self._classifier.is_operator(tok, target):
@@ -1324,15 +1293,15 @@ class _CSSParser(object):
         if self._classifier.is_number(tok):
             # Bug 94652: Look for unrecognized units
             nextTok = self._tokenizer.get_next_token()
-            if (nextTok.style == ScintillaConstants.SCE_CSS_VALUE
-                and nextTok.start_line == tok.end_line
-                and nextTok.start_column == tok.end_column):
-                self._add_result("got an unsupported or unrecognized numeric unit: '%s'" % nextTok.text, nextTok)
+            if (nextTok['style'] == ScintillaConstants.SCE_CSS_VALUE
+                and nextTok['start_line'] == tok['end_line']
+                and nextTok['start_column'] == tok['end_column']):
+                self._add_result("got an unsupported or unrecognized numeric unit: '%s'" % nextTok['text'], nextTok)
             else:
                 self._tokenizer.put_back(nextTok)
             return True
-        elif (tok.style == ScintillaConstants.SCE_CSS_UNKNOWN_PSEUDOCLASS
-              and self._simple_number_re.match(tok.text)):
+        elif (tok['style'] == ScintillaConstants.SCE_CSS_UNKNOWN_PSEUDOCLASS
+              and self._simple_number_re.match(tok['text'])):
             return True
         elif exp_num:
             self._add_result("expecting a number", tok)
@@ -1369,7 +1338,7 @@ class _CSSParser(object):
                 self._parse_expression()
                 return prev_tok # tok = self._tokenizer.get_next_token()
             if not (self._classifier.is_operator(tok)
-                    and tok.text in (":", ".")): # Microsoft additions
+                    and tok['text'] in (":", ".")): # Microsoft additions
                 self._tokenizer.put_back(tok)
                 return prev_tok
             op_tok = tok
@@ -1387,9 +1356,9 @@ class _CSSParser(object):
     def _parse_url(self):
         tok = self._tokenizer.get_next_token()
         if self._classifier.is_value(tok):
-            if self._url_re.match(tok.text):
+            if self._url_re.match(tok['text']):
                 return True
-            if tok.text == "url(":
+            if tok['text'] == "url(":
                 # Verify that the actual URL is a string
                 if not self._parse_string():
                     tok = self._tokenizer.get_next_token()
@@ -1397,7 +1366,7 @@ class _CSSParser(object):
                     self._parser_putback_recover(tok)
                 tok = self._tokenizer.get_next_token()
                 if not (self._classifier.is_operator(tok, ")")
-                        or (self._classifier.is_value(tok) and tok.text == ')')):
+                        or (self._classifier.is_value(tok) and tok['text'] == ')')):
                     self._add_result("expecting ')'", tok)
                     self._parser_putback_recover(tok)
                 else:
@@ -1409,9 +1378,9 @@ class _CSSParser(object):
     def _parse_url_item(self):
         tok = self._tokenizer.get_next_token()
         if self._classifier.is_value(tok):
-            if self._url_re.match(tok.text):
+            if self._url_re.match(tok['text']):
                 return True
-            if tok.text == "url(":
+            if tok['text'] == "url(":
                 # Verify that the actual URL is a string
                 if not self._parse_string():
                     tok = self._tokenizer.get_next_token()
@@ -1419,7 +1388,7 @@ class _CSSParser(object):
                     self._parser_putback_recover(tok)
                 tok = self._tokenizer.get_next_token()
                 if not (self._classifier.is_operator(tok, ")")
-                        or (self._classifier.is_value(tok) and tok.text == ')')):
+                        or (self._classifier.is_value(tok) and tok['text'] == ')')):
                     self._add_result("expecting ')'", tok)
                     self._parser_putback_recover(tok)
                 else:
@@ -1432,24 +1401,24 @@ class _CSSParser(object):
     moz_document_item_types_with_paren = tuple([x + "(" for x in moz_document_item_types])
     def _parse_moz_document_item(self):
         tok = self._tokenizer.get_next_token()
-        if not tok.text.startswith(self.moz_document_item_types_with_paren):
+        if not tok['text'].startswith(self.moz_document_item_types_with_paren):
             self._add_result("expecting a -moz-document url-item", tok)
             self._parser_putback_recover(tok)
-        if tok.text in self.moz_document_item_types_with_paren:
+        if tok['text'] in self.moz_document_item_types_with_paren:
             self._parse_string()
             self._parse_required_operator(")")
-        elif tok.text.startswith("regexp("):
+        elif tok['text'].startswith("regexp("):
             self._add_result("the regexp argument must be a quoted string", tok)
 
     _hex_color_re = re.compile(r'#(?:[\da-fA-F]{3}){1,2}\Z')
     def _parse_hex_color(self):
         tok = self._tokenizer.get_next_token()
         if (self._classifier.is_value(tok)
-            and self._hex_color_re.match(tok.text)):
+            and self._hex_color_re.match(tok['text'])):
             return True
         elif self.language != "CSS" and self._classifier.is_operator(tok, "#"):
             new_tok = self._tokenizer.get_next_token()
-            if self._hex_color_re.match("#" + new_tok.text):
+            if self._hex_color_re.match("#" + new_tok['text']):
                 return True
             self._tokenizer.put_back(tok)
             self._tokenizer.put_back(new_tok)
@@ -1519,7 +1488,7 @@ class _CSSParser(object):
                 if tok is None:
                     log.error("tok is None")
                     break
-                if tok.style == EOF_STYLE:
+                if tok['style'] == EOF_STYLE:
                     return
                 self._check_tag_tok(tok, 10)
             try:
@@ -1538,7 +1507,7 @@ class _CSSParser(object):
                 break
             except SyntaxError:
                 tok = self._recover(allowEOF=True, opTokens=("{", "}", "@"))
-                if tok.style == EOF_STYLE:
+                if tok['style'] == EOF_STYLE:
                     return
                 if self._classifier.is_operator(tok, "{"):
                     self._tokenizer.put_back(tok)
@@ -1550,26 +1519,25 @@ class _CSSParser(object):
 
     _identifier_lex_re = re.compile(r'(?:[a-zA-Z_\-\x80-\xff]|\\[^\r\n\f0-9a-fA-F])(?:[\w_\-\x80-\xff]|\\[^\r\n\f0-9a-fA-F])*$')
     def _lex_identifier(self, tok):
-        return self._identifier_lex_re.match(tok.text)
+        return self._identifier_lex_re.match(tok['text'])
 
     
     def _is_scss_variable(self, tok):
         if self.language != "SCSS":
             return False
         return (self._classifier.is_identifier(tok)
-                and tok.text[0] == "$")
+                and tok['text'][0] == "$")
 
     _check_tag_tok_count = 0
     def _check_tag_tok(self, tok, loop_id):
         tag = "_check_loop_%d" % (loop_id,)
-        if not hasattr(tok, tag):
+        if tag not in tok:
             self._check_tag_tok_count += 1
-            setattr(tok, tag, self._check_tag_tok_count)
-        elif getattr(tok, tag) == self._check_tag_tok_count:
-            raise Exception("Stuck in a loop with tok %s, tag %d" % (tok.dump_ret(), loop_id))
+            tok[tag] = self._check_tag_tok_count
+        elif tok[tag] == self._check_tag_tok_count:
+            raise Exception("Stuck in a loop with tok %s, tag %d" % (tok, loop_id))
 
 class CSSLinter(object):
     def lint(self, text, language="CSS"):
         self._parser = _CSSParser(language)
-        results = self._parser.parse(text)
-        return results
+        return self._parser.parse(text)

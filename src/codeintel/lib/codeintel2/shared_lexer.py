@@ -46,8 +46,9 @@ import sys
 from SilverCity import ScintillaConstants
 
 import logging
-#log.setLevel(logging.DEBUG)
 #---- global data
+log = logging.getLogger("codeintel_shared_lexer")
+#log.setLevel(logging.DEBUG)
 
 MAX_REASONABLE_LIMIT = 10000
 
@@ -57,33 +58,24 @@ trailing_spaces_re = re.compile("\n([ \t]*)$")
 trim_ws_re2 = re.compile(r'[\r\n\t]')
 trim_ws_re3 = re.compile(r' {2,}')
 
-class Token:
-    def __init__(self, style, text="", start_column=None, start_line=None, end_column=None, end_line=None):
-        self.style = style
-        self.text = text
-        self.start_column = start_column
-        self.start_line = start_line
-        self.end_column = end_column
-        self.end_line = end_line
-        
-    # Hardwired cloner for convenience
-    def clone(tok, text):
-        return Token(tok.style, text, tok.start_column, tok.start_line, tok.end_column, tok.end_line)
-    
-    def dump(self):
-        print self.dump_ret()
-
-    def dump_ret(self):
-        s = "[" + str(self.style) + ", " + repr(self.text)
-        for attr in ['start_column', 'start_line', 'end_column', 'end_line']:
-            if hasattr(self, attr):
-                val = getattr(self, attr)
-                s += ", " + attr + "=" + str(val)
-        s += "]"
-        return s
+def makeToken(style, text="", start_column=None, start_line=None, end_column=None, end_line=None):
+    return {
+        'style': style,
+        'text': text,
+        'start_column': start_column,
+        'start_line': start_line,
+        'end_column': end_column,
+        'end_line': end_line,
+    }
 
 EOF_STYLE = -1
-EOF_TOKEN = Token(EOF_STYLE)
+EOF_TOKEN = {'style': EOF_STYLE,
+             'text': None,
+             'start_column': None,
+             'start_line': None,
+             'end_column': None,
+             'end_line': None,
+             }
 
 class Signature:
     def __init__(self):
@@ -112,7 +104,6 @@ class Signature:
 class Lexer:
     def __init__(self):
         self.gen = self._get_next_token
-        self.pending_tokens = []
         self.curr_indentation = 0
         self.curr_comments = []
         self.finished_comment = True
@@ -120,6 +111,10 @@ class Lexer:
         self.signature = Signature()
         self.q = []
         self.curr_line = 1
+
+    def prepare_token_list_for_use(self):
+        self.q_position = 0
+        self.q_lim = len(self.q)
 
     def build_dict(self, ws_sep_str):
         the_dict = {}
@@ -129,7 +124,7 @@ class Lexer:
 
 
     def is_string_token(self, tok):
-        return tok.style in self.string_types
+        return tok['style'] in self.string_types
 
 
     def contains_nl(self, str2):
@@ -140,21 +135,24 @@ class Lexer:
             return None
         return line_num + 1
 
-    def _get_next_token(self):
-        if len(self.pending_tokens) > 0:
-            tok = self.pending_tokens[0]
-            del self.pending_tokens[0]
-        elif len(self.q) > 0:
-            raw_tok = self.q[0]
-            del self.q[0]
-            tok = Token(raw_tok['style'],
-                        raw_tok['text'],
-                        raw_tok['start_column'],
-                        self._adapt_line(raw_tok.get('start_line', None)),
-                        raw_tok.get('end_column',None),
-                        self._adapt_line(raw_tok.get('end_line',None)))
+    def complete_token_push(self, tok, adjust_line=True, dest_q=None):
+        if dest_q is not None:
+            dest_q.append(tok)
         else:
-            tok = EOF_TOKEN
+            self.q.append(tok)
+
+    def _get_next_token(self):
+        if self.q_position >= self.q_lim:
+            return EOF_TOKEN
+        tok = self.q[self.q_position]
+        self.q_position += 1
+        if 'adjust_lines' not in tok:
+            for s in ('start_line', 'end_line'):
+                if s not in tok:
+                    tok[s] = None
+                else:
+                    tok[s] += 1
+            tok['adjust_lines'] = True
         return tok
     
     def _get_eof_token(self):
@@ -215,21 +213,39 @@ class Lexer:
     # Main external routines
             
     def put_back(self, tok):
+        if tok['style'] == EOF_STYLE:
+            return
         if self.signature.is_gathering():
             sig = self.signature.text()
-            last_text = tok.text
+            last_text = tok['text']
             if sig[-len(last_text):] == last_text:
                 sig = sig[0:-len(last_text)]
                 self.signature.replace(sig)
-        self.pending_tokens.append(tok)
-        if not (tok.start_line is None):
+                
+        # Skip over white-space nodes
+        while True:
+            self.q_position -= 1
+            if self.q_position < 0:
+                raise Exception("Trying to put back a token when position is at start")
+            q_tok = self.q[self.q_position]
+            if q_tok['style'] == tok['style'] or q_tok['text'] == tok['text']:
+                break
+        
+        if tok.get('start_line') is not None:
             # Move back for the current line #
-            self.curr_line = tok.start_line
+            self.curr_line = self.q[self.q_position]['start_line']
+
+    def peek_next_token(self):
+        if self.q_position < self.q_lim:
+            return self.q[self.q_position]
+        return EOF_TOKEN
 
     def curr_line_no(self):
         return self.curr_line
 
-    def append_split_tokens(self, tok, multi_char_ops_dict, dest_q):
+    def append_split_tokens(self, tok, multi_char_ops_dict,
+                            adjust_line=False, dest_q=None, end_column_offset=1):
+        # Treat dest_q like a queue here.
         tval = tok['text']
         split_tokens = []
         while len(tval) > 0:
@@ -254,21 +270,21 @@ class Lexer:
                 new_tok = copy.copy(tok)
                 new_tok['text'] = stxt
                 new_tok['start_column'] = col
-                new_tok['end_column'] = col + len(stxt) - 1
+                new_tok['end_column'] = col + len(stxt) - end_column_offset
                 col = new_tok['end_column']
-                dest_q.append(new_tok)
+                self.complete_token_push(new_tok, adjust_line=adjust_line, dest_q=dest_q)
         else:
-            dest_q.append(tok)
+            self.complete_token_push(tok, adjust_line=adjust_line, dest_q=dest_q)
 
     
     def get_next_token(self, skip_ws=1):
         while True:
-            is_pending = len(self.pending_tokens) > 0
             tok = self.gen()
-            gather = self.signature.is_gathering() and not getattr(tok, "generated", False)
-            if not (tok.start_line is None):
-                self.curr_line = tok.start_line
-            ttype = tok.style
+            gather = self.signature.is_gathering()
+                
+            ttype = tok['style']
+            if tok.get('start_line') is not None:
+                self.curr_line = tok['start_line']
             if ttype == EOF_STYLE:
                 # Stop leaning on the queue, just return an eof_token
                 self.gen = self._get_eof_token
@@ -277,23 +293,23 @@ class Lexer:
                 if self.finished_comment:
                     self.curr_comments = []
                     self.finished_comment = False
-                self.curr_comments.append(tok.text)
+                self.curr_comments.append(tok['text'])
                 self.use_leading_spaces = False
                 if skip_ws:
                     continue
-            elif ttype == self.classifier.style_default and self.matches_whitespace(tok.text):
+            elif ttype == self.classifier.style_default and self.matches_whitespace(tok['text']):
                 if gather:
-                    self.signature.append(self.trim_ws(tok.text))
-                has_nl = self.contains_nl(tok.text)
+                    self.signature.append(self.trim_ws(tok['text']))
+                has_nl = self.contains_nl(tok['text'])
                 if has_nl or self.use_leading_spaces:
                     # Update this line's indentation only if we're at the start
                     if has_nl:
                         try:
-                            self.curr_indentation = len(trailing_spaces_re.findall(tok.text)[-1])
+                            self.curr_indentation = len(trailing_spaces_re.findall(tok['text'])[-1])
                         except:
                             self.curr_indentation = 0
                     else:
-                        self.curr_indentation = len(tok.text)
+                        self.curr_indentation = len(tok['text'])
                     # Do we still need to count white-space in subsequent tokens?
                     self.use_leading_spaces = (self.curr_indentation == 0)
                 if skip_ws:
@@ -301,7 +317,7 @@ class Lexer:
             else:
                 # At this point we're done with comments and leading white-space
                 if gather:
-                    self.signature.append(tok.text)
+                    self.signature.append(tok['text'])
                 self.finished_comment = True
                 self.use_leading_spaces = False
             # If the loop doesn't continue, break here
@@ -361,12 +377,12 @@ def main(argv, provide_sample_code, specificLexer):
     last_line = -1
     while 1:
         tok = lexer_wrapper.get_next_token(1)
-        if tok.style == EOF_STYLE:
+        if tok['style'] == EOF_STYLE:
             break
-        if last_line != tok.start_line:
-            print "[%d:%d] " % (tok.start_line, lexer_wrapper.curr_indentation),
-            last_line = tok.start_line
+        if last_line != tok['start_line']:
+            print "[%d:%d] " % (tok['start_line'], lexer_wrapper.curr_indentation),
+            last_line = tok['start_line']
         if lexer_wrapper.has_comment():
             comments = lexer_wrapper.curr_comment(1)
             print comments
-        tok.dump()
+        print tok

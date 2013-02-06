@@ -96,6 +96,7 @@ class RubyLexer(_CommonLexer):
         _CommonLexer.__init__(self)
         self.classifier = RubyLexerClassifier()
         Ruby.RubyLexer().tokenize_by_style(code, self._fix_token_list)
+        self.prepare_token_list_for_use()
         self.string_types = [ScintillaConstants.SCE_RB_STRING,
                 ScintillaConstants.SCE_RB_CHARACTER,
                 ScintillaConstants.SCE_RB_STRING_Q,
@@ -110,7 +111,7 @@ class RubyLexer(_CommonLexer):
         if tok['style'] == ScintillaConstants.SCE_RB_OPERATOR and len(tok['text']) > 1:
             self.append_split_tokens(tok, self.multi_char_ops, self.q)
         else:
-            self.q.append(tok)
+            self.complete_token_push(tok)
 
 class RubyMultiLangLexer(_CommonLexer):
     def __init__(self, token_source):
@@ -123,6 +124,7 @@ class RubyMultiLangLexer(_CommonLexer):
         self.classifier = shared_lexer.UDLLexerClassifier()
         self._contains_ssl = False
         self._build_tokens(token_source)
+        self.prepare_token_list_for_use()
 
     def _build_tokens(self, token_source):
         while True:
@@ -140,14 +142,16 @@ class RubyMultiLangLexer(_CommonLexer):
             if ttype == ScintillaConstants.SCE_UDL_CSL_OPERATOR and len(tval) > 1:
                 # Point the token splitter to the correct token queue
                 self.append_split_tokens(tok, self.js_multi_char_ops,
-                                         self.csl_tokens)
+                                         adjust_line=False,
+                                         dest_q=self.csl_tokens)
             else:
-                self.csl_tokens.append(tok)
+                self.complete_token_push(tok, adjust_line=False,
+                                         dest_q=self.csl_tokens)
         elif self.is_udl_ssl_family(ttype):
             if tok['style'] == ScintillaConstants.SCE_UDL_SSL_OPERATOR and len(tok['text']) > 1:
-                self.append_split_tokens(tok, self.multi_char_ops, self.q)
+                self.append_split_tokens(tok, self.multi_char_ops)
             else:
-                self.q.append(tok)
+                self.complete_token_push(tok)
             self._contains_ssl = True
         # The only reason to count TPL tokens is to provide RHTML/Ruby
         # triggers when "<%" or "<%=" falls at the end of the buffer,

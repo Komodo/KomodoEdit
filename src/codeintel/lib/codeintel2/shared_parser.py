@@ -67,7 +67,7 @@ class CommonClassifier:
     _quote_patterns = {}    
 
     def get_quote_patterns(self, tok, callback=None):
-        ttype = tok.style
+        ttype = tok['style']
         if self._quote_patterns.has_key(ttype):
             return [self._quote_patterns[ttype]]
         elif callback:
@@ -85,32 +85,32 @@ class UDLClassifier(CommonClassifier):
             return callback(tok, GENERIC_TYPE_NUMBER)
         elif self.is_string(tok):
             return callback(tok, GENERIC_TYPE_STRING)
-        elif tok.style == ScintillaConstants.SCE_UDL_SSL_REGEX:
+        elif tok['style'] == ScintillaConstants.SCE_UDL_SSL_REGEX:
             return callback(tok, GENERIC_TYPE_REGEX)
         else:
             return callback(tok, GENERIC_TYPE_UNKNOWN)
 
     def is_any_operator(self, tok):
-        return tok.style == ScintillaConstants.SCE_UDL_SSL_OPERATOR
+        return tok['style'] == ScintillaConstants.SCE_UDL_SSL_OPERATOR
 
     def is_comment(self, tok):
-        return tok.style in (ScintillaConstants.SCE_UDL_SSL_COMMENT,
+        return tok['style'] in (ScintillaConstants.SCE_UDL_SSL_COMMENT,
                              ScintillaConstants.SCE_UDL_SSL_COMMENTBLOCK)
 
     def is_comment_structured(self, tok, callback):
         return self.is_comment(tok) and callback and callback(tok)
 
     def is_identifier(self, tok, allow_keywords=False):
-        return (tok.style == ScintillaConstants.SCE_UDL_SSL_IDENTIFIER or
+        return (tok['style'] == ScintillaConstants.SCE_UDL_SSL_IDENTIFIER or
             (allow_keywords and
-             tok.style == ScintillaConstants.SCE_UDL_SSL_WORD))
+             tok['style'] == ScintillaConstants.SCE_UDL_SSL_WORD))
 
     def is_index_op(self, tok, pattern=None):
-        if tok.style != ScintillaConstants.SCE_UDL_SSL_OPERATOR:
+        if tok['style'] != ScintillaConstants.SCE_UDL_SSL_OPERATOR:
             return False
         elif not pattern:
             return True
-        return len(tok.text) > 0 and pattern.search(tok.text)
+        return len(tok['text']) > 0 and pattern.search(tok['text'])
 
     # Everything gets lexed as a string, so we need to look at its structure.
     # We call back to the main CILE parser, which knows more about which kinds
@@ -118,7 +118,7 @@ class UDLClassifier(CommonClassifier):
     # can interpolate.
 
     def is_interpolating_string(self, tok, callback):
-        if tok.style == ScintillaConstants.SCE_UDL_SSL_REGEX:
+        if tok['style'] == ScintillaConstants.SCE_UDL_SSL_REGEX:
             return callback(tok, GENERIC_TYPE_REGEX)
         elif not self.is_string(tok):
             return False
@@ -126,27 +126,27 @@ class UDLClassifier(CommonClassifier):
             return callback(tok, GENERIC_TYPE_STRING)
     
     def is_keyword(self, tok, target):
-        return tok.style == ScintillaConstants.SCE_UDL_SSL_WORD and tok.text == target
+        return tok['style'] == ScintillaConstants.SCE_UDL_SSL_WORD and tok['text'] == target
 
     def is_number(self, tok):
-        return tok.style == ScintillaConstants.SCE_UDL_SSL_NUMBER
+        return tok['style'] == ScintillaConstants.SCE_UDL_SSL_NUMBER
 
     def is_operator(self, tok, target):
-        return tok.style == ScintillaConstants.SCE_UDL_SSL_OPERATOR and tok.text == target
+        return tok['style'] == ScintillaConstants.SCE_UDL_SSL_OPERATOR and tok['text'] == target
 
     def is_string(self, tok):
-        return tok.style == ScintillaConstants.SCE_UDL_SSL_STRING
+        return tok['style'] == ScintillaConstants.SCE_UDL_SSL_STRING
 
     def is_string_qw(self, tok, callback=None):
-        return (tok.style == ScintillaConstants.SCE_UDL_SSL_STRING and
+        return (tok['style'] == ScintillaConstants.SCE_UDL_SSL_STRING and
                 callback and callback(tok))
 
     def is_symbol(self, tok, callback=None):
-        return (tok.style == ScintillaConstants.SCE_UDL_SSL_STRING and
+        return (tok['style'] == ScintillaConstants.SCE_UDL_SSL_STRING and
                 callback and callback(tok))
 
     def is_variable(self, tok):
-        return tok.style in (ScintillaConstants.SCE_UDL_SSL_VARIABLE,
+        return tok['style'] in (ScintillaConstants.SCE_UDL_SSL_VARIABLE,
                              ScintillaConstants.SCE_UDL_SSL_IDENTIFIER)
 
     # Types of variables
@@ -163,7 +163,7 @@ class UDLClassifier(CommonClassifier):
             return callback and callback(tok)
 
     def tokenStyleToContainerStyle(self, tok, callback):
-        return callback(tok, tok.style == ScintillaConstants.SCE_UDL_SSL_VARIABLE)
+        return callback(tok, tok['style'] == ScintillaConstants.SCE_UDL_SSL_VARIABLE)
 
     # Accessors for where we'd rather work with a style than call a predicate fn
 

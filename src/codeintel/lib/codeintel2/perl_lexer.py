@@ -102,7 +102,7 @@ class PerlLexer(_CommonLexer):
         self.classifier = PerlLexerClassifier()
         self._provide_full_docs = provide_full_docs
         Perl.PerlLexer().tokenize_by_style(code, self._fix_token_list)
-        # self._fix_token_list(q_tmp) # Updates self.q in place
+        self.prepare_token_list_for_use()
         self.string_types = [ScintillaConstants.SCE_PL_STRING,
                          ScintillaConstants.SCE_PL_CHARACTER,
                          ScintillaConstants.SCE_PL_HERE_Q,
@@ -136,10 +136,10 @@ class PerlLexer(_CommonLexer):
             # into syntactically different tokens, so we do it here.
             # A sequence of characters might need to be split into more than one token.
             # Push all but the last token on the pending block.
-            self.append_split_tokens(tok, self.multi_char_ops, self.q)
+            self.append_split_tokens(tok, self.multi_char_ops)
         elif ttype == ScintillaConstants.SCE_PL_IDENTIFIER:
             tok['text'] = tok['text'].strip()
-            self.q.append(tok)
+            self.complete_token_push(tok)
         elif (not self._provide_full_docs) and \
                 ttype in (ScintillaConstants.SCE_PL_DATASECTION,
                           ScintillaConstants.SCE_PL_POD):
@@ -158,18 +158,18 @@ class PerlLexer(_CommonLexer):
                     new_tok['start_column'] = col
                     new_tok['end_column'] = col + len(new_text) - 1
                     col = new_tok['end_column'] + 1
-                    self.q.append(new_tok)
+                    self.complete_token_push(new_tok)
                 tok['style'] = ScintillaConstants.SCE_PL_POD
                 tok['text'] = tval;
                 tok['start_column'] = col
                 if tok['start_line'] == tok['end_line']:
                     tok['end_column'] = tok['start_line'] + len(tok['text']) - 1
-                self.q.append(tok)
+                self.complete_token_push(tok)
             else:
                 # End of the queue => EOF
                 pass
         else:
-            self.q.append(tok)
+            self.complete_token_push(tok)
 
 class PerlMultiLangLexer(_CommonLexer):
     def __init__(self, token_source):
@@ -182,6 +182,7 @@ class PerlMultiLangLexer(_CommonLexer):
         self.classifier = shared_lexer.UDLLexerClassifier()
         self._contains_ssl = False
         self._build_tokens(token_source)
+        self.prepare_token_list_for_use()
 
     def _build_tokens(self, token_source):
         while True:
@@ -195,18 +196,23 @@ class PerlMultiLangLexer(_CommonLexer):
         """See perl_lexer.py for details on what this routine does."""
         ttype = tok['style']
         tval = tok['text']
+        
         if self.is_udl_csl_family(ttype):
+            # Don't adjust the line numbers of CSL tokens this time,
+            # have it done later.
             if ttype == ScintillaConstants.SCE_UDL_CSL_OPERATOR and len(tval) > 1:
                 # Point the token splitter to the correct token queue
                 self.append_split_tokens(tok, self.js_multi_char_ops,
-                                         self.csl_tokens)
+                                         adjust_line=False,
+                                         dest_q=self.csl_tokens)
             else:
-                self.csl_tokens.append(tok)
+                self.complete_token_push(tok, adjust_line=False,
+                                         dest_q=self.csl_tokens)
         elif self.is_udl_ssl_family(ttype):
             if tok['style'] == ScintillaConstants.SCE_UDL_SSL_OPERATOR and len(tok['text']) > 1:
-                self.append_split_tokens(tok, self.multi_char_ops, self.q)
+                self.append_split_tokens(tok, self.multi_char_ops)
             else:
-                self.q.append(tok)
+                self.complete_token_push(tok)
             self._contains_ssl = True
         # See comment in RubyMultiLangLexer._fix_token_list
         # on why we probably don't need this code.

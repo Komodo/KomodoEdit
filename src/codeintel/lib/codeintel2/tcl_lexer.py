@@ -97,8 +97,7 @@ class TclLexer(shared_lexer.Lexer):
         self.q = []
         self.classifier = TclLexerClassifier()
         lang_tcl.TclLexer().tokenize_by_style(code, self._fix_token_list)
-        # Tcl.TclLexer().tokenize_by_style(code, self._fix_token_list)
-        # self._fix_token_list(q_tmp) # Updates self.q in place
+        self.prepare_token_list_for_use()
         self.string_types = [ScintillaConstants.SCE_TCL_STRING,
                          ScintillaConstants.SCE_TCL_CHARACTER,
                          ScintillaConstants.SCE_TCL_LITERAL
@@ -115,7 +114,7 @@ class TclLexer(shared_lexer.Lexer):
             # In Tcl rely on white-space to separate operators except for braces, brackets, and backslashes
             new_tokens = [x for x in op_re.split(tval) if x] # drop empties
             if len(new_tokens) == 1:
-                self.q.append(tok)
+                self.complete_token_push(tok)
             else:
                 col = tok['start_column']
                 for stxt in new_tokens:
@@ -126,7 +125,7 @@ class TclLexer(shared_lexer.Lexer):
                     col = new_tok['end_column']
                     self.q.append(new_tok)
         else:
-            self.q.append(tok)
+            self.complete_token_push(tok)
 
 def provide_sample_code():
     return r"""# ----------------------------------------------------------------------------
