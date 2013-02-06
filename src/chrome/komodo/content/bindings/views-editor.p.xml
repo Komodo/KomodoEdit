@@ -162,7 +162,7 @@
                 if (minimap) {
                     //val.addView(minimap);
                     minimap.attachKoDoc(val);
-                }                
+                }
                 // we want to listen for any changes in the document
                 val.observerService.addObserverForTopics(this,
                                                          this._koDoc_observer_topics.length,
@@ -327,8 +327,7 @@
         
         <method name="createMinimap">
         <body><![CDATA[
-            var minimap = document.createElementNS(this.namespaceURI, 'view');
-            minimap.setAttribute('type', 'minimap');
+            var minimap = document.createElementNS(this.namespaceURI, 'minimap');
             minimap.setAttribute('flex','1');
             this.parentNode.appendChild(minimap); // this.parentNode is the tabbox container
             this.minimap = minimap;
@@ -680,8 +679,8 @@
         var minimap = this.minimap;
         this.showMinimap = editShowMinimap;
         if (editShowMinimap) {
-            minimap.classList.add("showMinimap");
             this.scimoz.vScrollBar = false;
+            minimap.classList.remove("hideMinimap");
             var obj = {};
             this.saveLocation(obj);
             this.updateEditorViewBoundaries();
@@ -694,7 +693,7 @@
                 //this.scintilla.focus();
             }.bind(this), 1);
         } else {
-            minimap.classList.remove("showMinimap");
+            minimap.classList.add("hideMinimap");
             this.scimoz.vScrollBar = true;
         }
         ]]>

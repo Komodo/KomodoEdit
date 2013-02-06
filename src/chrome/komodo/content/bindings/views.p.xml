@@ -335,7 +335,7 @@
                     // Skip comment nodes.
                     if (nodes[i].nodeType == nodes[i].COMMENT_NODE) continue;
 
-                    views = Array.slice(nodes[i].getElementsByTagNameNS(XUL_NS, "view")).filter(function(v) v.getAttribute("type") != "minimap");
+                    views = nodes[i].getElementsByTagNameNS(XUL_NS, "view");
                     for (var j = 0; j < views.length; ++j) {
                         view = views[j];
                         allViews = allViews.concat(view);
