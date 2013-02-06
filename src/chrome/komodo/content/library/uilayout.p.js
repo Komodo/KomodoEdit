@@ -70,10 +70,12 @@ this.toggleFullScreenToolboxAutoHide = function uilayout_toggleFullScreenToolbox
     // We need to update the menu state on a timeout because <menuitem
     // type="checkbox"> itself fiddles with it after our even handler exits
     var menuitem = document.getElementById("menu_toolbars_fullscreen_autohide");
-    if (Services.prefs.getBoolPref(kPrefName)) {
-      menuitem.setAttribute("checked", true);
-    } else {
-      menuitem.removeAttribute("checked");
+    if (menuitem) {
+      if (Services.prefs.getBoolPref(kPrefName)) {
+        menuitem.setAttribute("checked", true);
+      } else {
+        menuitem.removeAttribute("checked");
+      }
     }
   }, 0);
 };
@@ -674,11 +676,6 @@ this.updateFullScreen = function uilayout_updateFullScreen() {
  */
 this.fullScreen = function uilayout_FullScreen()
 {
-    // bug 92669 - full screen is broken on Mac.
-    if (Services.appinfo.OS == "Darwin") {
-        window.fullScreen = false;
-        return;
-    }
   window.fullScreen = !window.fullScreen;
   // We no longer need to do any extra handling; the UI changes are done via
   // CSS.  If we do end up needing logic, we should do so in a "fullscreen"
@@ -706,9 +703,6 @@ this.onFullScreen = function uilayout_onFullScreen()
           docElem.setAttribute("kosizemode", "normal");
       }
     }
-    // Sadly, using CSS to hide menu items doesn't work on OSX.
-    document.getElementById("popup_toolbars_fullscreen_separator").hidden = !window.fullScreen;
-    document.getElementById("menu_toolbars_fullscreen_autohide").hidden = !window.fullScreen;
   }, 0);
 };
 //#endif
@@ -1562,8 +1556,7 @@ this.setTabPaneLayout = function uilayout_setTabPaneLayout() {
 this.onloadDelayed = function uilayout_onloadDelayed()
 {
     try {
-        // XXX Disable full screen on MacOSX due to SciMoz corruption, bug 92669
-        if (_gPrefs.getBooleanPref("startupFullScreen") && Services.appinfo.OS != "Darwin") {
+        if (_gPrefs.getBooleanPref("startupFullScreen")) {
             window.fullScreen = true;
         }
         else if (_gPrefs.getBooleanPref("startupMaximized")) {

@@ -79,6 +79,7 @@
         ondragover="return ko.dragdrop.onDragOver(event);"
         ondrop="return ko.dragdrop.onDrop(event);"
         toggletoolbar="true"
+        fullscreenbutton="true"
         >
 	
 	
@@ -1132,16 +1133,18 @@
                                               />
                                     <menuseparator id="popup_toolbars_custom_separator"
                                                    collapsed="true"/>
-                                    <menuseparator id="popup_toolbars_fullscreen_separator"
-                                                   fullscreencontrol="true"
-                                                   ordinal="1073741824"/>
-                                    <menuitem id="menu_toolbars_fullscreen_autohide"
-                                              fullscreencontrol="true"
-                                              label="&menuViewToolbarsAutoHide.label;"
-                                              type="checkbox"
-                                              persist="checked"
-                                              ordinal="1073741824"
-                                              oncommand="ko.uilayout.toggleFullScreenToolboxAutoHide();"/>
+                                    <!-- #if PLATFORM != "darwin" -->
+                                        <menuseparator id="popup_toolbars_fullscreen_separator"
+                                                       fullscreencontrol="true"
+                                                       ordinal="1073741824"/>
+                                        <menuitem id="menu_toolbars_fullscreen_autohide"
+                                                  fullscreencontrol="true"
+                                                  label="&menuViewToolbarsAutoHide.label;"
+                                                  type="checkbox"
+                                                  persist="checked"
+                                                  ordinal="1073741824"
+                                                  oncommand="ko.uilayout.toggleFullScreenToolboxAutoHide();"/>
+                                    <!-- #endif -->
                                 </menupopup>
                             </menu>
                             <menuitem
@@ -1634,11 +1637,7 @@
         </toolbar>
 
         <hbox>
-            <toolboxrow id="main-toolboxrow" flex="1" align="start" persist="hidden mode collapsed" mode="icons"
-<!-- #if PLATFORM == "darwin" -->
-                fullscreentoolbar="true"
-<!-- #endif -->
-                >
+            <toolboxrow id="main-toolboxrow" flex="1" align="start" persist="hidden mode collapsed" mode="icons">
 					
                 <toolbar
                     id="standardToolbar"
@@ -1945,14 +1944,6 @@
                 </toolbar>
 
             </toolboxrow>
-<!-- #if PLATFORM == "darwin" -->
-            <toolbaritem id="window-controls" fullscreencontrol="true"
-                         ordinal="9999" pack="end">
-                <!-- no minimize/close on mac -->
-                <toolbarbutton id="restore-button" class="rightarrow-button-a"
-                               oncommand="ko.uilayout.fullScreen();"/>
-            </toolbaritem>
-<!-- #endif -->
         </hbox>
         <toolbar id="findToolbar"
                  align="start"

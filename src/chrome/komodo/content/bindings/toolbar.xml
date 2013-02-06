@@ -91,6 +91,10 @@
             </property>
             <property name="_autoHideEnabled">
                 <getter>
+                    if (/^Mac/.test(navigator.platform))
+                    {
+                        return false; // Never autohide on mac
+                    }
                     if (this._prefs.getPrefType(this._kAutoHidePrefName) !=
                         this._prefs.PREF_BOOL)
                     {
