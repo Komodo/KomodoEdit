@@ -113,6 +113,7 @@ this.updateAutoAbbreviations = function updateAutoAbbreviations(event) {
     try {
         var activeAutoAbbreviations;
         activeAutoAbbreviations = this.activeAutoAbbreviations = {};
+        this.activeManualAbbreviations = {};
     
         var tbSvc = Components.classes["@activestate.com/koToolbox2Service;1"]
             .getService(Components.interfaces.koIToolbox2Service);
@@ -207,9 +208,6 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
         }
         var wordStartPos = this.getWordStart(scimoz, prevPos, isHTMLLanguage);
         abbrev = scimoz.getTextRange(wordStartPos, pos);
-    }
-    if (!this._checkPossibleAbbreviation(abbrev)) {
-        return false;
     }
     if (!lang || !sublang) {
         [lang, sublang, languageObj] = this._getLangAndSublangNames(koDoc, languageObj, prevPos);
@@ -467,11 +465,18 @@ this._checkOpenTag = function _checkOpenTag(languageObj, scimoz, wordStartPos) {
 
 this._getCachedSnippet = function _getCachedSnippet(abbrev, lang, sublang,
                                                     isAutoAbbrev) {
-    var abbrevInfo = this.activeAutoAbbreviations[abbrev];
+    var abbrevInfo, snippet;
+    var collection = isAutoAbbrev ? this.activeAutoAbbreviations: this.activeManualAbbreviations;
     var langKey = (sublang || lang) + ":" + (isAutoAbbrev ? "1" : "0");
-    var snippet = abbrevInfo[langKey];
-    if (typeof(snippet) !== "undefined") {
-        return snippet;
+    if (abbrev in collection) {
+        abbrevInfo = collection[abbrev];
+        if (abbrevInfo) {
+            if (langKey in abbrevInfo) {
+                return abbrevInfo[langKey];
+            }
+        }
+    } else {
+        abbrevInfo = null;
     }
     // Find the snippet for this abbrev, if any, and insert it.
     // We know that the current abbrev is an auto-abbreviation for
@@ -483,6 +488,9 @@ this._getCachedSnippet = function _getCachedSnippet(abbrev, lang, sublang,
                                           lang,
                                           sublang,
                                           isAutoAbbrev);
+    if (!abbrevInfo) {
+        abbrevInfo = collection[abbrev] = {};
+    }
     if (snippet) {
         // Cache the snippet until the next time anything in the
         // toolbox changes.
