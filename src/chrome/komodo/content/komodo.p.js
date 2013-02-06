@@ -328,7 +328,10 @@ function onloadDelay() {
         // Fix for getting keybindings working in new windows - bug 87979.
         // TODO: Better fix needed?
         if (ko.windowManager.getWindows().length > 1) {
-            ko.toolbox2.applyKeybindings();
+            // Bug 97191: Sometimes new windows don't start because
+            // the toolbox hasn't been initialized
+            ko.widgets.getWidgetAsync("toolbox2viewbox",
+                                      function() { ko.toolbox2.applyKeybindings(); });
         }
 
         // the offer to restore the workspace needs to be after the
