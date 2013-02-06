@@ -43,6 +43,9 @@ if (ko.skin == undefined)
     // Self pointer for use in observer, as .bind() doesn't work with xpcom
     var self;
     
+    // Helper vars
+    var _clearCacheTimer = null;
+    
     ko.skin.prototype  =
     {
         PREF_CUSTOM_ICONS: 	PREF_CUSTOM_ICONS,
@@ -336,11 +339,23 @@ if (ko.skin == undefined)
          * Clear skin caches
          *
          * We'll need to reload any css files that have been affected
+         *
+         * @param   {Boolean} noDelay   Whether to execute immediately or after
+         *                              a short delay, used to prevent multiple
+         *                              reloads in a short time
          * 
          * @returns {Void} 
          */
-        clearCache: function()
+        clearCache: function(noDelay = false)
         {
+            // Prevent multiple calls in a short time
+            if ( ! noDelay)
+            {
+                clearTimeout(_clearCacheTimer);
+                _clearCacheTimer = setTimeout(this.clearCache.bind(this, true), 50);
+                return;
+            }
+            
             try
             {
                 // Flush image caches first to ensure that if we end up
