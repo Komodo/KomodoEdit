@@ -2447,7 +2447,8 @@ def BuildQuickBuildDB(cfg, argv):
     elif cfg.platform == "win":
         skinPlat = 'win'
     else:
-          skinPlat = 'gnome'
+        skinPlat = 'gnome'
+
     _addFiles(cfg, sourceSubdir='src/chrome/komodo/skin/plat/'+skinPlat,
                targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin'),
                extensions=['css', 'less', 'png'],
@@ -2458,7 +2459,7 @@ def BuildQuickBuildDB(cfg, argv):
                extensions=['css', 'less', 'png', 'manifest'],
                preserveSubtrees=1)
 
-     _addFiles(cfg, sourceSubdir='src/chrome/iconsets',
+    _addFiles(cfg, sourceSubdir='src/chrome/iconsets',
                targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'iconsets'),
                extensions=['css', 'less', 'png', 'svg', 'manifest', 'jar'],
                preserveSubtrees=1)
