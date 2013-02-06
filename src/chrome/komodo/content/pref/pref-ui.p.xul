@@ -128,11 +128,6 @@
                     </menupopup>
                 </menulist>
             </hbox>
-            <hbox align="center">
-                <label value="&iconset.label;"
-                       style="visibility: hidden;"/>
-                <span class="legend">&restartRequired.span;</span>
-            </hbox>
         </groupbox>
 
         <groupbox id="ui.tabs.sidepanes.groupbox">

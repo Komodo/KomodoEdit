@@ -747,14 +747,13 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY interface.caption "Interface">
 <!ENTITY iconset.label "Icon Set: ">
 <!ENTITY iconsetClassic.label "Classic">
-<!ENTITY iconsetAmbiance.label "IcoMoon - Ambiance *">
-<!ENTITY iconsetBlue.label "IcoMoon - Blue *">
-<!ENTITY iconsetCupertino.label "IcoMoon - Cupertino *">
-<!ENTITY iconsetCupertinoBlue.label "IcoMoon - Cupertino Blue *">
-<!ENTITY iconsetDark.label "IcoMoon - Dark *">
-<!ENTITY iconsetLight.label "IcoMoon - Light *">
-<!ENTITY iconsetOrange.label "IcoMoon - Orange *">
-<!ENTITY restartRequired.span "* - Restart Required">
+<!ENTITY iconsetAmbiance.label "IcoMoon - Ambiance">
+<!ENTITY iconsetBlue.label "IcoMoon - Blue">
+<!ENTITY iconsetCupertino.label "IcoMoon - Cupertino">
+<!ENTITY iconsetCupertinoBlue.label "IcoMoon - Cupertino Blue">
+<!ENTITY iconsetDark.label "IcoMoon - Dark">
+<!ENTITY iconsetLight.label "IcoMoon - Light">
+<!ENTITY iconsetOrange.label "IcoMoon - Orange">
 
 <!--pref-perl.xul-->
 <!ENTITY noPerlInterpreter.description "No Perl interpreter was found on your system. If you would like to debug and run Perl programs in Komodo you will need to install Perl. You can get Perl from ActiveState at">

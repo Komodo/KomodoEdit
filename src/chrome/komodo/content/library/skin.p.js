@@ -19,7 +19,10 @@ if (ko.skin == undefined)
 }
 
 (function() {
-    
+
+    const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+    const {Services} = Cu.import("resource://gre/modules/Services.jsm");
+
     // Make prefs accessible across "class"
     var prefs = Components.classes['@activestate.com/koPrefService;1']
                     .getService(Components.interfaces.koIPrefService).prefs;
@@ -287,6 +290,8 @@ if (ko.skin == undefined)
                log.error("Failed loading manifest: '" + file.path + "'. " + e.message);
 	       return false;
             }
+            
+            this.clearCache();
 	    
 	    var initFile = file.parent;
 	    initFile.appendRelativePath('init.js');
@@ -294,18 +299,14 @@ if (ko.skin == undefined)
 	    {
 		try
 		{
-		    Components.utils.import("resource://gre/modules/Services.jsm");
-		    Services.scriptloader.loadSubScript(
-			"file://" + initFile.path, {koSkin: this}
-		    );
+                    let uri = Services.io.newFileURI(initFile);
+                    Services.scriptloader.loadSubScript(uri.spec, {koSkin: this});
 		}
 		catch (e)
 		{
 		    log.error("Failed loading skin init: '" + initFile.path + "'. " + e.message);
 		}
 	    }
-	    
-            this.clearCache();
         },
 	
         /**
@@ -332,7 +333,7 @@ if (ko.skin == undefined)
         },
         
         /**
-         * Clear less cache
+         * Clear skin caches
          *
          * We'll need to reload any css files that have been affected
          * 
@@ -342,6 +343,19 @@ if (ko.skin == undefined)
         {
             try
             {
+                // Flush image caches first to ensure that if we end up
+                // switching skins, we get the new images
+                let observers = Services.obs.enumerateObservers("chrome-flush-caches");
+                while (observers.hasMoreElements())
+                {
+                    let observer = observers.getNext();
+                    if (observer instanceof Ci.imgICache)
+                    {
+                        observer.clearCache(true /*chrome*/);
+                    }
+                }
+                
+                // Clear less cache
                 if (typeof less !== 'undefined' && less.clearFileCache != undefined)
                 {
                     less.clearFileCache();
