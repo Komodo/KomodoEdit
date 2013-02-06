@@ -3947,6 +3947,10 @@ var getFile = function(fileUri) {
 			}
 		} else if (filePath.scheme == 'chrome') {
 		    return getFile(filePath.prePath + filePath.path);
+		} else if (filePath.scheme == 'resource') {
+                    Components.utils.import("resource://gre/modules/Services.jsm");
+                    filePath = Services.io.newURI(filePath.prePath + filePath.path, null,null)
+                                    .QueryInterface(Components.interfaces.nsIFileURL).file.path;
 		} else {
 			filePath = filePath.path;
 			

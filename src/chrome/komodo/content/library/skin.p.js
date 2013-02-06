@@ -288,7 +288,8 @@ if (ko.skin == undefined)
 	       return false;
             }
 	    
-	    var initFile = this._getFile(file.parent.path + '/init.js', true);
+	    var initFile = file.parent;
+	    initFile.appendRelativePath('init.js');
 	    if (initFile.exists())
 	    {
 		try
