@@ -1233,10 +1233,14 @@ def target_configure(argv):
             gxx = which.which("g++")
         assert gcc
         assert gxx
-        if "gcc" in gcc and osx_major_ver <= 10: # aka Snow Leopard or lesser
-            # Disable jemalloc, as it fails to build when using gcc.
-            mozBuildOptions.append("disable-jemalloc")
+
+        # Bug 95983 - jemalloc is killing us when forking (Python subprocess).
+        mozBuildOptions.append("disable-jemalloc")
+        #if "gcc" in gcc and osx_major_ver <= 10: # aka Snow Leopard or lesser
+        #    # Disable jemalloc, as it fails to build when using gcc.
+        #    mozBuildOptions.append("disable-jemalloc")
         # check if we're using gcc or clang
+
         version_string = _capture_output("%s --version" % (gcc,))
         is_gcc = ("Free Software Foundation" in version_string)
         if osx_major_ver >= 10: # aka Snow Leopard or greater
