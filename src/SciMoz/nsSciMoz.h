@@ -259,7 +259,6 @@ protected:
     int width;
     int height;
     EventListeners listeners;
-    koNPObjectPtr mIMEHelper;
     bool bCouldUndoLastTime;
     bool bCouldRedoLastTime;
 
@@ -335,7 +334,6 @@ public:
     bool Invoke(NPP instance, NPIdentifier name, const NPVariant *args, uint32_t argCount, NPVariant *result);
 
     // NPRuntime custom methods
-    bool Init(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool DoBraceMatch(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool MarkClosed(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool HookEvents(const NPVariant *args, uint32_t argCount, NPVariant *result);

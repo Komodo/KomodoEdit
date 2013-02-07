@@ -30,7 +30,7 @@ manualFunctions = """
     doBraceMatch markClosed hookEvents unhookEvents getStyledText getCurLine getLine
     assignCmdKey clearCmdKey getTextRange charPosAtPosition
     sendUpdateCommands getWCharAt replaceTarget replaceTargetRE
-    searchInTarget addChar buttonDown buttonUp buttonMove endDrop init
+    searchInTarget addChar buttonDown buttonUp buttonMove endDrop
     """.split()
 """ Implemented by hand
     note: items returning strings or complex types are easier to

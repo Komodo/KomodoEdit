@@ -52,12 +52,6 @@ __ISCIMOZ_JS_WRAPPER_GEN__
 koSciMozWrapper.prototype.QueryInterface =
     XPCOMUtils.generateQI(koSciMozWrapper.prototype._interfaces);
 
-// Override handleTextEvent, since we use the IME helper for that
-koSciMozWrapper.prototype.handleTextEvent =
-    function handleTextEvent(aEvent, aBoxObject) {
-        return this._IMEHelper.handleTextEvent(aEvent, aBoxObject);
-    };
-
 // setWordChars compatibility wrapper; see bug 80095 - new code should be using
 // scimoz.wordChars = "xxx" instead of scimoz.setWordChars("xxx")
 koSciMozWrapper.prototype.setWordChars =
@@ -83,10 +77,6 @@ XPCOMUtils.defineLazyGetter(koSciMozWrapper.prototype, "_log", function() {
 koSciMozWrapper.prototype.init =
     function koSciMozWrapper_init(aPlugin, aFocusElement) {
         this.__scimoz = aPlugin;
-        this._IMEHelper = Cc["@activestate.com/koSciMozIMEHelper;1"]
-                            .createInstance(Ci.koISciMozIMEHelper);
-        this._IMEHelper.init(this, aFocusElement);
-        this.__scimoz.init(this._IMEHelper);
     };
 
 // XPCOM registration of class.

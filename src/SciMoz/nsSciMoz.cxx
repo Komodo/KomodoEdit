@@ -202,30 +202,6 @@ void SciMoz::Create(WinID hWnd) {
 	SendEditor(SCI_SETMOUSEDOWNCAPTURES, 0);
 }
 
-bool SciMoz::Init(const NPVariant *args, uint32_t argCount, NPVariant * /*result*/) {
-	if (argCount != 1) {
-		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
-				    __FUNCTION__,
-				    argCount);
-		return false;
-	}
-	if (!NPVARIANT_IS_OBJECT(args[0])) {
-		SCIMOZ_DEBUG_PRINTF("%s: arg is not an object\n", __FUNCTION__);
-		return false;
-	}
-	if (!NPN_HasMethod(mPlugin->GetNPP(),
-			   NPVARIANT_TO_OBJECT(args[0]),
-			   NPN_GetStringIdentifier("abortComposing")))
-	{
-		SCIMOZ_DEBUG_PRINTF("%s: object has no abortComposing method\n",
-				    __FUNCTION__);
-		return false;
-	}
-
-	mIMEHelper = NPVARIANT_TO_OBJECT(args[0]);
-	return true;
-}
-
 static bool IsBrace(char ch) {
 	return ch == '[' || ch == ']' || ch == '(' || ch == ')' || ch == '{' || ch == '}';
 }
