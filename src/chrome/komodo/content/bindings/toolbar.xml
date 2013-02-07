@@ -282,7 +282,7 @@
                 var scrollRect = this.container.getBoundingClientRect();
                 var children = Array.slice(this.childNodes); // XBL, so this.childNodes is right :|
                 var first_overflow = this.querySelector("[first-overflow]");
-                var first_child_overflow = this.querySelector("[first-overflow] > [first-child-overflow]");
+                var first_child_overflow = this.querySelector("[first-overflow] [first-child-overflow]");
                 var overflow = false;
 
                 for (var [i, child] in Iterator(children)) {
@@ -339,7 +339,7 @@
                 }
 
                 // need to figure out which children to hide
-                children = Array.slice(first_overflow.childNodes);
+                children = Array.slice(first_overflow.querySelectorAll('toolbaritem > *'));
                 for ([i, child] in Iterator(children)) {
                     childRect = child.getBoundingClientRect();
                     if (childRect.right > scrollRect.right) {
@@ -370,8 +370,7 @@
                 }
                 
                 var build = (function build_(elem) {
-                    var {height, width} = elem.getBoundingClientRect();
-                    if (width == 0 && height == 0) {
+                    if (elem.hasAttribute("kohidden") || elem.hasAttribute("hidden")) {
                         // this item is hidden, don't do anything here
                         return;
                     }
@@ -426,24 +425,36 @@
                     }
                     this.popup.appendChild(item);
                 }).bind(this);
-                var child = this.querySelector("[first-overflow]");
-                if (child) {
-                    var grandchild = child.querySelector("[first-child-overflow]");
-                    if (grandchild) {
-                        // the fist overflowing element is itself a container;
-                        // figure out if any of its children need hiding
-                        for (; grandchild; grandchild = grandchild.nextSibling) {
-                            build(grandchild);
+                
+                /* Hide overflown elements */
+                
+                // First, check for the first overflown child and its next siblings
+                Array.slice(this.querySelectorAll(
+                    "[first-child-overflow], [first-child-overflow] ~ *" 
+                )).forEach(build);
+                
+                // Then, check if the first overflown child is part of a larger
+                // set of toolbaritems, and process the next sibling toolbaritems
+                var firstChild = this.querySelector("[first-child-overflow]");
+                if (firstChild.parentNode.localName == 'toolbaritem' &&
+                    firstChild.parentNode.parentNode.localName == 'toolbar') {
+                    var _build = false;
+                    for (var [i, parent] in Iterator(firstChild.parentNode.parentNode.childNodes)) {
+                        if (_build) {
+                            build(parent); // build knows how to handle toolbaritems
                         }
-                    } else {
-                        // the first overflowing element is not a child.
-                        // just hide it.
-                        build(child);
+                        else if (parent == firstChild.parentNode) {
+                            _build = true;
+                            // We've passed the first-child-overflow's parent
+                            // subsequent loops will be passed to build()
+                        }
                     }
                 }
-                for (child = child.nextSibling; child; child = child.nextSibling) {
-                    build(child);
-                }
+                
+                // Finally, check the toolbars following the first-overflow toolbar
+                Array.slice(this.querySelectorAll(
+                    "[first-overflow] ~ *" 
+                )).forEach(build);
 
                 this.dirty = false;
             ]]>

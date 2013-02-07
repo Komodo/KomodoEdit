@@ -131,8 +131,8 @@ toolbar[printpreview="true"] {
 }
 
 #main-toolboxrow > [first-overflow] ~ *,
-#main-toolboxrow > [first-overflow] > [first-child-overflow],
-#main-toolboxrow > [first-overflow] > [first-child-overflow] ~ * {
+#main-toolboxrow > [first-overflow] [first-child-overflow],
+#main-toolboxrow > [first-overflow] [first-child-overflow] ~ * {
   /* things that would overflow in the toolboxrow */
   visibility: hidden;
 }
