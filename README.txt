@@ -27,7 +27,7 @@ Build steps on Windows (creating a Komodo 8.10 version):
     REM ---- Build Mozilla
     cd openkomodo\mozilla
     setenv-moz-msvc9.bat
-    python build.py configure -k 8.10 --moz-src=1700 --release --no-strip --moz-objdir=koobj
+    python build.py configure -k 8.10 --moz-src=1800 --release --no-strip --moz-objdir=koobj
     python build.py distclean all
     cd ..
     REM ---- Build Komodo
@@ -41,7 +41,7 @@ Build steps on Linux and Mac OS X:
 
     #---- Build Mozilla
     cd openkomodo/mozilla
-    python build.py configure -k 8.10 --moz-src=1700 --release --no-strip
+    python build.py configure -k 8.10 --moz-src=1800 --release --no-strip
     python build.py distclean all
     cd ..
     #---- Build Komodo
@@ -253,11 +253,11 @@ for Komodo, you should only need to do this once (in a while).
 3. Configure for the mozilla build. On Windows you currently want
    something like:
 
-        python build.py configure -k 8.10 --moz-src=1700 --release --no-strip --moz-objdir=koobj
+        python build.py configure -k 8.10 --moz-src=1800 --release --no-strip --moz-objdir=koobj
 
    On other platforms:
    
-        python build.py configure -k 8.10 --moz-src=1700 --release --no-strip
+        python build.py configure -k 8.10 --moz-src=1800 --release --no-strip
 
    What this configure-step does is create a "config.py" file that guides
    the build step (next). This is akin to the "./configure" in the common
@@ -265,7 +265,7 @@ for Komodo, you should only need to do this once (in a while).
    
    What this configuration is saying is:
    - configure for a Komodo Edit 8.10.x build
-   - use the latest Mozilla 17 (1700) source code
+   - use the latest Mozilla 18 (1800) source code
    - do a release (i.e. non-debug) build
    - don't strip symbol information from binaries (i.e. *don't* put
      --enable-strip in .mozconfig)

@@ -66,10 +66,10 @@ r"""
     
     Suggested configurations are:
     * Komodo 8.0.x release builds:
-        python build.py configure -k 8.0 --moz-src=1700 \
+        python build.py configure -k 8.0 --moz-src=1800 \
             --release --no-strip --with-crashreport-symbols
     * Komodo 8.0 development builds:
-        python build.py configure -k 8.10 --moz-src=1700 --release --no-strip
+        python build.py configure -k 8.10 --moz-src=1800 --release --no-strip
 """
 #
 # Development Notes:
