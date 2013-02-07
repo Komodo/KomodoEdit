@@ -47,6 +47,7 @@
     NOTES:
     scintilla requires functions from:
     chrome://komodo/content/library/color_functions.js
+    chrome://xtk/content/controller.js (ForwardingController)
     -->
     <binding id="scintilla">
         <content>
@@ -56,6 +57,8 @@
                         pluginAllowsFocusEvents="false"
                         pluginHandlesDomEvents="false"
                         />
+            <xul:textbox anonid="ime-input" class="plain"
+                         style="position: absolute; opacity: 0;"/>
             <xul:panel anonid="autocompletepopup" noautofocus="true">
                 <xul:hbox>
                     <xul:grid/>
@@ -147,6 +150,7 @@
             </method>
 
             <field name="_embed">document.getAnonymousElementByAttribute(this, 'anonid', 'scimoz')</field>
+            <field name="_ime">document.getAnonymousElementByAttribute(this, 'anonid', 'ime-input')</field>
 
             <field name="__scimoz_wrapper">null</field>
             <field name="_scimoz">null</field>
@@ -167,8 +171,15 @@
             <property name="log">
                 <getter><![CDATA[
                 if (!this._log) {
-                    this._log = ko.logging.getLogger('scintilla');
-                    //this._log.setLevel(ko.logging.LOG_DEBUG);
+                    if (ko !== undefined && ("logging" in ko)) {
+                        this._log = ko.logging.getLogger('scintilla');
+                        //this._log.setLevel(ko.logging.LOG_DEBUG);
+                    } else {
+                        this._log = {};
+                        for (let n of ["debug", "exception", "info", "warn"]) {
+                            this._log[n] = function() {};
+                        }
+                    }
                 }
                 return this._log;
                 ]]></getter>
@@ -201,6 +212,13 @@
                 ]]>
                 </getter>
             </property>
+
+            <field name="_IMEEnabled" readonly="true">
+                Components.classes['@activestate.com/koPrefService;1'].
+                    getService(Components.interfaces.koIPrefService).
+                    prefs.
+                    getBoolean("editor.IME.enabled", true);
+            </field>
 
             <field name="inited">false</field> <!--Set to true once initialization complete.-->
 
@@ -259,11 +277,56 @@
             <!-- If true, gaining focus will not cause soft characters to harden -->
             <field name="suppressSoftCharHardeningOnFocus">false</field>
 
+            <constructor>
+            <![CDATA[
+                this._ime.addEventListener("focus", (function(event) {
+                    this.scimoz.isFocused = true;
+                }).bind(this), false);
+                this._ime.addEventListener("compositionstart", (function(event) {
+                    try {
+                        let scimoz = this.scimoz;
+                        let x = scimoz.pointXFromPosition(scimoz.currentPos),
+                            y = scimoz.pointYFromPosition(scimoz.currentPos),
+                            obj = {};
+                        this._ime.style.setProperty("margin-left", x + "px", "important");
+                        this._ime.style.setProperty("margin-top", y + "px", "important");
+                        scimoz.beginUndoAction();
+                    } catch (ex) {
+                        this.log.exception(ex);
+                    }
+                }).bind(this), false);
+                this._ime.addEventListener("compositionupdate", (function(event) {
+                    let pos = this.scimoz.selectionStart;
+                    this.scimoz.replaceSel(event.data);
+                    this.scimoz.anchor = pos;
+                }).bind(this), false);
+                this._ime.addEventListener("compositionend", (function(event) {
+                    this.scimoz.anchor = this.scimoz.selectionEnd;
+                    this.scimoz.endUndoAction();
+                    if (!this._ime.value) {
+                        // cancelled
+                        this.scimoz.undo();
+                    }
+                    this._ime.value = "";
+                }).bind(this), false);
+            ]]>
+            </constructor>
             <destructor>
             <![CDATA[
             this.unload();
             ]]>
             </destructor>
+
+            <property name="isFocused">
+                <getter>
+                <![CDATA[
+                    let elem = document.commandDispatcher.focusedElement;
+                    return (!elem || elem == this ||
+                            this.compareDocumentPosition(elem) &
+                                Node.DOCUMENT_POSITION_CONTAINED_BY);
+                ]]>
+                </getter>
+            </property>
 
             <field name="pref_topics">['editor-scheme', 'scrollEndAtLastLine']</field>
 
@@ -272,16 +335,48 @@
                 <![CDATA[
             try {
                 this.log.debug('scintilla init');
-                var prefs = Components.classes['@activestate.com/koPrefService;1'].
-                                getService(Components.interfaces.koIPrefService).prefs;
+                const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+                const {XPCOMUtils} = Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+                var prefs = Cc['@activestate.com/koPrefService;1'].
+                                getService(Ci.koIPrefService).prefs;
                 // NOTE: This method is really a helper - if you want more
                 // control, you can do all this yourself!
                 var scimoz = this.scimoz;
                 try {
-                    var controller = Components.classes['@ActiveState.com/scintilla/controller;1'].createInstance().QueryInterface(Components.interfaces.ISciMozController);
+                    var controller = Cc['@ActiveState.com/scintilla/controller;1'].
+                        createInstance(Ci.ISciMozController);
                     controller.init( scimoz );
-                    controller = controller.QueryInterface(Components.interfaces.nsIController);
                     this.controllers.appendController(controller);
+                    // Remove all the existing controllers from the IME textbox;
+                    // we don't want it to do anything, and it interfers with
+                    // our own controllers.
+                    for (let i = this._ime.controllers.getControllerCount() - 1; i >= 0; --i) {
+                        this._ime.controllers.removeControllerAt(i);
+                    }
+                    // Insert a controller to forward all the commands to the
+                    // <scintilla> element.  This has to implement ISciMozController
+                    // to signal to scintilla-overlay.xul that we should handle
+                    // scintilla commands.
+                    let forwarder = new xtk.ForwardingController([this]);
+                    forwarder.QueryInterface = XPCOMUtils.generateQI([Ci.nsIController,
+                                                                      Ci.ISciMozController]);
+                    for (let prop of Object.getOwnPropertyNames(controller.ISciMozController)) {
+                        if (prop in forwarder) {
+                            continue;
+                        }
+                        let val = controller.ISciMozController[prop];
+                        if (val instanceof Function) {
+                            forwarder[prop] = val.bind(controller);
+                        } else {
+                            Object.defineProperty(forwarder, prop, {
+                                get: function() controller[prop],
+                                set: function(v) controller[prop] = v,
+                                enumerable: true,
+                                configurable: true,
+                            });
+                        }
+                    }
+                    this._ime.controllers.appendController(forwarder);
                 } catch(e) {
                     this.log.exception(e);
                 }
@@ -714,8 +809,10 @@
                 <![CDATA[
                 //dump("scintilla:: focus\n");
                 var focusedElement = window.document.commandDispatcher.focusedElement;
-                if (focusedElement != this && focusedElement != this._embed) {
+                if ([null, this, this._embed, this._ime].indexOf(focusedElement) == -1) {
                     // something else inside <scintilla>; ignore focus on that.
+                    //this.log.debug("Ignoring; focus is on " + focusedElement.localName +
+                    //               " (state=" + this.scimoz.isFocused + ")");
                     return;
                 }
                 var scimoz = this.scimoz;
@@ -727,8 +824,9 @@
                 // Ensure the command dispatcher is referencing the scintilla
                 // element, not the plugin element. Otherwise commands will not
                 // work correctly.
-                if (focusedElement !== this) {
-                    window.document.commandDispatcher.focusedElement = this;
+                let elementToFocus = this._IMEEnabled ? this._ime : this;
+                if (focusedElement !== elementToFocus) {
+                    window.document.commandDispatcher.focusedElement = elementToFocus;
                 }
                 ]]>
             </handler>
@@ -736,6 +834,14 @@
             <handler event="blur" phase="capturing">
                 <![CDATA[
                 //dump("scintilla:: blur\n");
+                let focusedElement = window.document.commandDispatcher.focusedElement;
+                if ([null, this, this._embed, this._ime].indexOf(focusedElement) != -1) {
+                    // we're just moving focus to inside something we handle
+                    //this.log.debug("ignoring focus to known element " +
+                    //               (focusedElement ? focusedElement.localName : "(null)"));
+                    return;
+                }
+
                 // We need to send mouseUps if we are blurred before a mouseup naturally occurs (e.g. if the user alt-tabs).
                 // Otherwise the mouseup is never picked up by scintilla and selection "keeps going on".
                 if (this._inMouseDown != -1 && event.originalTarget == this) {

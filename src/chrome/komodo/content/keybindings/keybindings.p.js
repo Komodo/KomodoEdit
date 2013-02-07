@@ -2189,7 +2189,8 @@ this.Manager.prototype.event2keylabel = function (event, useShift, isKeyPressEve
         var use_vi = gVimController.enabled &&
                      !(event.metaKey || event.ctrlKey || event.altKey) &&
                      (event.target.nodeName == 'view') &&
-                     (!('originalTarget' in event) || (event.originalTarget.nodeName != "html:input"));
+                     (!('originalTarget' in event) ||
+                      (event.target.scintilla && event.target.scintilla.isFocused));
 
         var keypressed = null;
         // keydown and keyup events do not set the charCode, they only set the
@@ -2387,7 +2388,9 @@ this.Manager.prototype.keypressHandler = function (event, ignorePhase) {
         // Vi mode does not need to check this.
         if (gVimController.enabled &&
             (event.target.nodeName == 'view') &&
-            (!('originalTarget' in event) || (event.originalTarget.nodeName != "html:input"))) {
+            event.target.scintilla &&
+            event.target.scintilla.isFocused)
+        {
             if (gVimController.inSpecialModeHandler(event)) {
                 return;
             }

@@ -1195,7 +1195,7 @@ viewManager.prototype.updateCommands = function() {
         // controller, which means these Scintilla commands will not fail to get
         // updated/enabled.
         window.setTimeout(function(view) {
-                if (window.document.commandDispatcher.focusedElement != view.scintilla) {
+                if (!view.scintilla.isFocused) {
                     window.document.commandDispatcher.focusedElement = view.scintilla;
                 }
             }, 1, this.currentView);
@@ -2700,13 +2700,20 @@ this.focusedScintilla = function view_focusedScintilla() {
     // Find out if a scintilla (or its child html:embed element) has focus,
     // and if so, return it (not the html:embed element in the latter case).
     // Otherwise, return null.
+    function isScintillaTag(elem)
+        elem.namespaceURI == "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" &&
+            elem.localName == "scintilla";
     try {
         var commandDispatcher = top.document.commandDispatcher;
         var focusedElement = commandDispatcher.focusedElement;
         if (!focusedElement) return null;
-        if (focusedElement.tagName == 'xul:scintilla') return focusedElement;
-        if (focusedElement.tagName == 'html:embed' &&
-            focusedElement.parentNode.tagName == 'xul:scintilla') return focusedElement.parentNode;
+        if (isScintillaTag(focusedElement)) {
+            return focusedElement;
+        }
+        let bindingParent = document.getBindingParent(focusedElement);
+        if (bindingParent && isScintillaTag(bindingParent)) {
+            return bindingParent;
+        }
     } catch (e) {
         log.exception(e);
     }

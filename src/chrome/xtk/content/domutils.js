@@ -45,19 +45,17 @@ if (typeof(xtk) == 'undefined') {
 xtk.domutils = {
 
 /**
- * is this element or an ancestor focused?
+ * is this element or a descendent focused?
  *
  * @param {Element} element
  * @return {Boolean} 
  */
 elementInFocus: function(el) {
     try {
-        var commandDispatcher = top.document.commandDispatcher
+        var commandDispatcher = top.document.commandDispatcher;
         var focusedElement = commandDispatcher.focusedElement;
-        while (focusedElement != null) {
-            if (el == focusedElement) return true;
-            focusedElement = focusedElement.parentNode;
-        }
+        return (el === focusedElement ||
+                el.compareDocumentPosition(focusedElement) & Node.DOCUMENT_POSITION_CONTAINED_BY);
     } catch (e) {
         log.exception(e);
     }

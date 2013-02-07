@@ -1718,6 +1718,12 @@
         </handler>
         <handler event="blur" phase="capturing">
             <![CDATA[
+            if (this.scintilla.isFocused) {
+                // This is a blur event going from the hidden IME textbox to the
+                // scintilla element, or something along those lines - don't
+                // actually treat this as a blur, we're still logically focused.
+                return;
+            }
             // Remove editor tooltip.
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined')
                 gEditorTooltipHandler.hide();

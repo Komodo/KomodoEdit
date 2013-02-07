@@ -1883,10 +1883,10 @@
     <handlers>
         <handler event="keypress" phase="capturing">
             <![CDATA[
-            if (document.commandDispatcher.focusedElement != this.scintilla) {
+            if (!this.scintilla.isFocused) {
                 // something other than the <scintilla> is focused; ignore
                 // key presses for the purposes of vi key binding emulation
-                return;
+                return undefined;
             }
 
             var vi_mode_enabled = (typeof(gVimController) != 'undefined' &&
@@ -1900,7 +1900,7 @@
                     event.stopPropagation();
                     event.preventDefault();
                     event.cancelBubble = true;
-                    return;
+                    return undefined;
                 }
             }
 
@@ -1959,6 +1959,7 @@
                 }
                return true;
             }
+            return undefined;
             ]]>
         </handler>
         

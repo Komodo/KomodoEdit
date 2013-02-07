@@ -900,7 +900,7 @@ VimController.prototype.handleCommand = function(event, commandname, keylabel, m
         if (!view.scintilla) {
             return false;
         }
-        if (document.commandDispatcher.focusedElement != view.scintilla) {
+        if (!view.scintilla.isFocused) {
             // focusing somewhere else in the view
             return false;
         }
@@ -2617,9 +2617,19 @@ function vim_doCommand(command, event)
     if (event) {
         // The command was called directly from the vim commandset handler.
         // Ensure to only process vi commands when focused on a Scintilla view.
-        if ((event.target.nodeName != 'view') ||
-            !('originalTarget' in event) ||
-            (event.originalTarget.nodeName == "html:input")) {
+        let view = event.target;
+        if (view.nodeName != 'view') {
+            vimlog.debug("Skipping " + command + " event from " + view.nodeName);
+            return false;
+        }
+        try {
+            while (view.currentView) {
+                view = view.currentView;
+            }
+        } catch (ex) {
+            // Some views don't implement .currentView, that's okay
+        }
+        if (!view.scintilla || !view.scintilla.isFocused) {
             return false;
         }
     }
