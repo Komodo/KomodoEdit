@@ -1636,7 +1636,7 @@
             </toolbaritem>
         </toolbar>
 
-        <hbox>
+        <hbox id="main-toolboxrow-wrapper">
             <toolboxrow id="main-toolboxrow" flex="1" align="start" persist="hidden mode collapsed" mode="icons">
 					
                 <toolbar
@@ -1942,121 +1942,108 @@
 					</toolbaritem>
 					
                 </toolbar>
-
             </toolboxrow>
+
+            <toolbaritem>
+            <toolbar id="findToolbar"
+                     align="end"
+                     valign="middle"
+                     broadcaster="cmd_viewfindtoolbar"
+                     mode="icons"
+                     persist="kohidden collapsed buttonstyle mode"
+                     tooltiptext="&openFindToolbar.tooltiptext;"
+                    >
+
+<!--                    <textbox id="textbox_open"
+                         tooltiptext="&open.tooltiptext;"
+                         type="autocomplete"
+                         style="min-height: 16px;"
+                         class="search-box-open-icon"
+                         flex="1"
+                         maxrows="10"
+                         size="30"
+                         onfocus="if (event.target.nodeName == 'html:input') {
+                                    var textbox = this.parentNode.parentNode.parentNode;
+                                    textbox.searchParam = ko.window.getCwd();
+                                  }"
+                         onmousedown="this.searchParam = ko.window.getCwd();"
+                         autocompletesearch="filepath"
+                         autocompletepopup="popupTextboxAutoComplete"
+                         enablehistory="true"
+                         tabscrolling="true"
+                         completeselectedindex="true"
+                         ontextentered="this.focus();
+                                        this.setSelectionRange(this.textLength, this.textLength);"
+                         onkeypress="ko.findtoolbar.openTextboxKeyPress(this, event);"-->
+    <!-- #if PLATFORM == "darwin" -->
+<!--                             accesskey="&openLabel.accesskey;"-->
+    <!-- #endif -->
+<!--                         />-->
+                <hbox class="unified-textbox-wrapper">
+                    <textbox id="textbox_find"
+                             tooltiptext="&pressEnterToFind.tooltiptext;"
+                             placeholder="&komodoFindToolbarFind.label;"
+                             type="autocomplete"
+                             style="min-height: 16px;"
+                             class="search-box"
+                             flex="1"
+                             maxrows="10"
+                             size="20"
+                             autocompletesearch="mru"
+                             autocompletepopup="popupTextboxAutoComplete"
+                             autocompletesearchparam="find-patternMru"
+                             enablehistory="true"
+                             tabscrolling="true"
+                             completeselectedindex="true"
+                             ontextentered="this.focus();
+                                            this.setSelectionRange(0, this.textLength);"
+                             onkeypress="ko.findtoolbar.findTextboxKeyPress(this, event);"
+    <!-- #if PLATFORM == "darwin" -->
+                             accesskey="&findLabel.accesskey;"
+    <!-- #endif -->
+                         />
+                    <textbox id="textbox_findInFiles"
+                             tooltiptext="&pressEnterToFindInFiles.tooltiptext;"
+                             placeholder="&komodoFindToolbarIn.label;"
+                             type="autocomplete"
+                             style="min-height: 16px;"
+                             class="search-box-no-icon"
+                             flex="1"
+                             size="20"
+                             maxrows="10"
+                             autocompletesearch="mru_and_filepath"
+                             autocompletepopup="popupTextboxAutoComplete"
+                             autocompletesearchparam="mru: find_findInFilesFieldMru; maxmru: 5"
+                             enablehistory="true"
+                             completeselectedindex="true"
+                             tabscrolling="true"
+                             onmousedown="this.searchParam = ko.stringutils.updateSubAttr(
+                                            this.searchParam, 'cwd', ko.window.getCwd());"
+                             ontextentered="this.focus();
+                                            this.setSelectionRange(0, this.textLength);"
+                             onkeypress="ko.findtoolbar.findFilesKeyPress(this, event);"
+                             onfocus="ko.findtoolbar.findFilesOnFocus(this, event);"
+    <!-- #if PLATFORM != "darwin" -->
+                             onblur="document.getElementById('findButton').setAttribute('class', 'find');"
+    <!-- #endif -->
+                    />
+                </hbox>
+                <toolbarbutton id="find-toolbar-browsedirectory"
+                               class="native_open_icon solo-button" accesskey="&findToolbarBrowsedirectory.accesskey;"
+                               tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
+                               oncommand="ko.findtoolbar.addBrowsedDirectory();"/>
+            </toolbar>
+            </toolbaritem>
+            
+<!-- #if PLATFORM == "darwin" -->
+            <toolbaritem id="window-controls" fullscreencontrol="true"
+                         ordinal="9999" pack="end">
+                <!-- no minimize/close on mac -->
+                <toolbarbutton id="restore-button" class="rightarrow-button-a"
+                               oncommand="ko.uilayout.fullScreen();"/>
+            </toolbaritem>
+<!-- #endif -->
         </hbox>
-        <toolbar id="findToolbar"
-                 align="start"
-                 kohidden="true"
-                 broadcaster="cmd_viewfindtoolbar"
-                 mode="icons"
-                 persist="kohidden collapsed buttonstyle mode"
-                 tooltiptext="&openFindToolbar.tooltiptext;"
-                >
-          <toolbaritem id="findToolbaritem"
-                       class="chromeclass-toolbar"
-                       flex="1"
-                       align="center"
-                       buttonstyle="pictures"
-                >
-<!-- #if PLATFORM != "darwin" -->
-            <image id="openButton"
-                   class="native_folder_icon"
-                   style="margin-left: 7px;"/>
-            <label value="&komodoFindToolbarOpen.label;"
-                   accesskey="&openLabel.accesskey;"
-                   control="textbox_open"
-                   id="open_label"
-                   style="margin-right: 0px"/>
-<!-- #endif -->
-            <textbox id="textbox_open"
-                     tooltiptext="&open.tooltiptext;"
-                     type="autocomplete"
-                     style="min-height: 16px;"
-                     class="search-box-open-icon"
-                     flex="1"
-                     maxrows="10"
-                     size="30"
-                     onfocus="if (event.target.nodeName == 'html:input') {
-                                var textbox = this.parentNode.parentNode.parentNode;
-                                textbox.searchParam = ko.window.getCwd();
-                              }"
-                     onmousedown="this.searchParam = ko.window.getCwd();"
-                     autocompletesearch="filepath"
-                     autocompletepopup="popupTextboxAutoComplete"
-                     enablehistory="true"
-                     tabscrolling="true"
-                     completeselectedindex="true"
-                     ontextentered="this.focus();
-                                    this.setSelectionRange(this.textLength, this.textLength);"
-                     onkeypress="ko.findtoolbar.openTextboxKeyPress(this, event);"
-<!-- #if PLATFORM == "darwin" -->
-                     accesskey="&openLabel.accesskey;"
-<!-- #endif -->
-                     />
-            <toolbarseparator/>
-<!-- #if PLATFORM != "darwin" -->
-            <image id="findButton" class="find"/>
-            <label value="&komodoFindToolbarFind.label;"
-                   accesskey="&findLabel.accesskey;"
-                   id="find_label"
-                   control="textbox_find"
-                   style="margin-right: 0px"/>
-<!-- #endif -->
-            <textbox id="textbox_find"
-                     tooltiptext="&pressEnterToFind.tooltiptext;"
-                     type="autocomplete"
-                     style="min-height: 16px;"
-                     class="search-box"
-                     flex="1"
-                     maxrows="10"
-                     size="20"
-                     autocompletesearch="mru"
-                     autocompletepopup="popupTextboxAutoComplete"
-                     autocompletesearchparam="find-patternMru"
-                     enablehistory="true"
-                     tabscrolling="true"
-                     completeselectedindex="true"
-                     ontextentered="this.focus();
-                                    this.setSelectionRange(0, this.textLength);"
-                     onkeypress="ko.findtoolbar.findTextboxKeyPress(this, event);"
-<!-- #if PLATFORM == "darwin" -->
-                     accesskey="&findLabel.accesskey;"
-<!-- #endif -->
-                     />
-            <label value="&komodoFindToolbarIn.label;"
-                   style="margin-left: 0px; margin-right: 0px"/>
-            <textbox id="textbox_findInFiles"
-                     tooltiptext="&pressEnterToFindInFiles.tooltiptext;"
-                     type="autocomplete"
-                     style="min-height: 16px;"
-                     class="search-box-no-icon"
-                     flex="1"
-                     size="30"
-                     maxrows="10"
-                     autocompletesearch="mru_and_filepath"
-                     autocompletepopup="popupTextboxAutoComplete"
-                     autocompletesearchparam="mru: find_findInFilesFieldMru; maxmru: 5"
-                     enablehistory="true"
-                     completeselectedindex="true"
-                     tabscrolling="true"
-                     onmousedown="this.searchParam = ko.stringutils.updateSubAttr(
-                                    this.searchParam, 'cwd', ko.window.getCwd());"
-                     ontextentered="this.focus();
-                                    this.setSelectionRange(0, this.textLength);"
-                     onkeypress="ko.findtoolbar.findFilesKeyPress(this, event);"
-                     onfocus="ko.findtoolbar.findFilesOnFocus(this, event);"
-<!-- #if PLATFORM != "darwin" -->
-                     onblur="document.getElementById('findButton').setAttribute('class', 'find');"
-<!-- #endif -->
-                />
-            <toolbarbutton id="find-toolbar-browsedirectory"
-                           class="native_open_icon solo-button" accesskey="&findToolbarBrowsedirectory.accesskey;"
-                           style="min-width: 0px; margin: 0px"
-                           tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
-                           oncommand="ko.findtoolbar.addBrowsedDirectory();"/>
-          </toolbaritem>
-        </toolbar>
 
         <toolbarpalette id="komodo-toolbarpalette"/>
         <toolbarset id="customToolbars" context="context-toolbox-menu"/>

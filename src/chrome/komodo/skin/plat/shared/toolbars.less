@@ -140,7 +140,17 @@
     -moz-appearance: none;
     margin: 0;
     padding: 0;
-    margin-top: -10px;
+    margin-top: 5px;
+    
+    .toolbarbutton-text
+    {
+        visibility: collapse;
+    }
+    
+    menuitem label
+    {
+        color: inherit;
+    }
 }
 
 #main-toolboxrow toolbar[mode="full"]
@@ -179,6 +189,7 @@
 {
     -moz-appearance: none;
     background: @menubar-background;
+    border-bottom: @menubar-border-bottom !important;
 }
 
 #toolbar-menubar
@@ -186,11 +197,94 @@
     margin-bottom: -1px; /* so bottom border doesn't look weird if the toolbox row is hidden */
 }
 
+#main-toolboxrow-wrapper
+{
+    -moz-appearance: toolbar !important;  
+}
+
 #main-toolboxrow
 {
+    -moz-appearance: none !important;
     padding-bottom: 3px;
     padding-top: 3px;
-    border-bottom: @menubar-border-bottom !important;
+    border-bottom: none !important;
+}
+
+#findToolbar
+{
+    -moz-appearance: none;
+    border: 0;
+    padding-top: 0;
+    
+    hbox
+    {
+        -moz-appearance: none;
+    }
+    
+    .unified-textbox-wrapper
+    {
+        background: @menubar-findtoolbar-background;
+        border-radius: 8px;
+        
+        border: @menubar-findtoolbar-border;
+        box-shadow: @menubar-findtoolbar-shadow;
+    }
+    
+    textbox
+    {
+        -moz-appearance: none;
+        width: 180px;
+        padding: 2px;
+        margin: 0;
+        
+        border: 0 !important;
+        background: transparent;
+        color: @menubar-findtoolbar-color;
+        
+        input
+        {
+            -moz-appearance: none;
+            border: 0 !important;
+        }
+        
+        &#textbox_find 
+        {
+            padding-right: 0px;
+            margin-right: 0;
+        }
+        
+        &#textbox_findInFiles
+        {
+            margin-left: 0;
+            
+            & > hbox
+            {
+                padding-left: 4px;
+                border-left: 1px solid ThreeDShadow !important;
+            }
+            
+            dropmarker
+            {
+                visibility: collapse;
+            }
+            
+        }
+        
+        dropmarker
+        {
+            list-style-image: @icon-dropdownmarker;
+            -moz-appearance: none;
+            border: 0;
+            background: none;
+        }
+    }
+    
+    #find-toolbar-browsedirectory
+    {
+        min-width: 0px;
+        margin: 0;
+    }
+
 }
 
 /* Generic Toolbars */

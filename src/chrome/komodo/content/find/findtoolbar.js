@@ -164,6 +164,13 @@ this.findTextboxKeyPress = function Findtoolbar_FindTextboxKeyPress(field, event
                 if (! field.value || ko.views.manager.currentView.getAttribute('type') != 'editor') {
                     return;
                 }
+                
+                if (_findInFilesTextbox.value != '')
+                {
+                    this.findFilesKeyPress(_findInFilesTextbox, event);
+                    return;
+                }
+                
                 ko.mru.addFromACTextbox(field);
                 // Ctrl+Enter (however Mozilla calls that by platform) opens
                 // this search in the find dialog.
