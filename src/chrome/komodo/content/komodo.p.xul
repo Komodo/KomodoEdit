@@ -1944,7 +1944,6 @@
                 </toolbar>
             </toolboxrow>
 
-            <toolbaritem>
             <toolbar id="findToolbar"
                      align="end"
                      valign="middle"
@@ -1953,32 +1952,6 @@
                      persist="kohidden collapsed buttonstyle mode"
                      tooltiptext="&openFindToolbar.tooltiptext;"
                     >
-
-<!--                    <textbox id="textbox_open"
-                         tooltiptext="&open.tooltiptext;"
-                         type="autocomplete"
-                         style="min-height: 16px;"
-                         class="search-box-open-icon"
-                         flex="1"
-                         maxrows="10"
-                         size="30"
-                         onfocus="if (event.target.nodeName == 'html:input') {
-                                    var textbox = this.parentNode.parentNode.parentNode;
-                                    textbox.searchParam = ko.window.getCwd();
-                                  }"
-                         onmousedown="this.searchParam = ko.window.getCwd();"
-                         autocompletesearch="filepath"
-                         autocompletepopup="popupTextboxAutoComplete"
-                         enablehistory="true"
-                         tabscrolling="true"
-                         completeselectedindex="true"
-                         ontextentered="this.focus();
-                                        this.setSelectionRange(this.textLength, this.textLength);"
-                         onkeypress="ko.findtoolbar.openTextboxKeyPress(this, event);"-->
-    <!-- #if PLATFORM == "darwin" -->
-<!--                             accesskey="&openLabel.accesskey;"-->
-    <!-- #endif -->
-<!--                         />-->
                 <hbox class="unified-textbox-wrapper">
                     <textbox id="textbox_find"
                              tooltiptext="&pressEnterToFind.tooltiptext;"
@@ -1998,9 +1971,7 @@
                              ontextentered="this.focus();
                                             this.setSelectionRange(0, this.textLength);"
                              onkeypress="ko.findtoolbar.findTextboxKeyPress(this, event);"
-    <!-- #if PLATFORM == "darwin" -->
                              accesskey="&findLabel.accesskey;"
-    <!-- #endif -->
                          />
                     <textbox id="textbox_findInFiles"
                              tooltiptext="&pressEnterToFindInFiles.tooltiptext;"
@@ -2023,9 +1994,6 @@
                                             this.setSelectionRange(0, this.textLength);"
                              onkeypress="ko.findtoolbar.findFilesKeyPress(this, event);"
                              onfocus="ko.findtoolbar.findFilesOnFocus(this, event);"
-    <!-- #if PLATFORM != "darwin" -->
-                             onblur="document.getElementById('findButton').setAttribute('class', 'find');"
-    <!-- #endif -->
                     />
                 </hbox>
                 <toolbarbutton id="find-toolbar-browsedirectory"
@@ -2033,16 +2001,6 @@
                                tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
                                oncommand="ko.findtoolbar.addBrowsedDirectory();"/>
             </toolbar>
-            </toolbaritem>
-            
-<!-- #if PLATFORM == "darwin" -->
-            <toolbaritem id="window-controls" fullscreencontrol="true"
-                         ordinal="9999" pack="end">
-                <!-- no minimize/close on mac -->
-                <toolbarbutton id="restore-button" class="rightarrow-button-a"
-                               oncommand="ko.uilayout.fullScreen();"/>
-            </toolbaritem>
-<!-- #endif -->
         </hbox>
 
         <toolbarpalette id="komodo-toolbarpalette"/>

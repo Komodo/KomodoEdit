@@ -199,7 +199,7 @@
 
 #main-toolboxrow-wrapper
 {
-    -moz-appearance: toolbar !important;  
+    -moz-appearance: toolbar;  
 }
 
 #main-toolboxrow
@@ -215,11 +215,6 @@
     -moz-appearance: none;
     border: 0;
     padding-top: 0;
-    
-    hbox
-    {
-        -moz-appearance: none;
-    }
     
     .unified-textbox-wrapper
     {
@@ -241,7 +236,7 @@
         background: transparent;
         color: @menubar-findtoolbar-color;
         
-        input
+        input, hbox
         {
             -moz-appearance: none;
             border: 0 !important;

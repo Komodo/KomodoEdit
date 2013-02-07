@@ -787,7 +787,7 @@
 <!--komodo.xul-->
 <!ENTITY projectPanelName.label "Name">
 <!ENTITY lockUnlockFindResults.tooltiptext "Lock/Unlock Find Results">
-<!ENTITY komodoFindToolbarFind.label "Find ..">
+<!ENTITY komodoFindToolbarFind.label "Find &#8230;">
 <!ENTITY komodoFindToolbarOpen.label "Open">
 <!ENTITY komodoFindToolbarIn.label "In current file">
 <!ENTITY menuHelpCheckForUpdates.accesskey "U">
