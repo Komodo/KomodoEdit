@@ -36,6 +36,7 @@ this.addPartWithURLAndType = function(url, typename, parent) {
 }
 
 this._getDirFromPart = function(part) {
+    log.deprecated("_getDirFromPart: Nothing in core Komodo calls this code, and it shouldn't be used");
     var defaultDir = null;
     try {
         // project => dirName
