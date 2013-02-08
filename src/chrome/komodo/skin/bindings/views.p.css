@@ -36,6 +36,15 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+/* #if PLATFORM == "darwin" */
+#topview tabpanel view {
+  /* Remove borders caused by non-css margins (scintilla?) */
+  margin-left: -1px;
+  margin-right: -1px;
+  margin-bottom: -1px;
+}
+/* #endif */
+
 view[type='base-dont-use-directly']  {
   -moz-binding: url('chrome://komodo/content/bindings/views.xml#view-base');
 }
@@ -77,7 +86,16 @@ minimap {
   width: 150px;
   max-width: 150px;
   padding-left: 1px;
-  background-color: -moz-default-color;
+  background-color: ThreeDShadow;
+      /* -moz-default-color; looks bad on a dark theme
+         transparent; looks bad on a light theme. */
+
+  /* #if PLATFORM == "darwin" */
+  /* Remove borders caused by non-css margins (scintilla?) */
+  margin-left: -1px;
+  margin-right: -1px;
+  margin-bottom: -1px;
+  /* #endif */
 }
 minimap.hideMinimap  {
   visibility: collapse;
