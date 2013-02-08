@@ -675,10 +675,16 @@ projectManager.prototype.revertProject = function(project) {
 
 projectManager.prototype.updateProjectMenu = function(event, menupopup) {
     //XXX: See places.js:initFilesContextMenu if there's a problem
-    var projectRootName = ko.projects.manager.projectBaseName();
-    this._projectLabel = projectRootName && (" (" + projectRootName + ")");
+    var projectBaseName = this.projectBaseName(this.selectedOrCurrentProject());
+    this._projectLabel = (projectBaseName
+                          ? (" (" + projectBaseName + ")")
+                          : null);
     this._finishUpdateProjectMenu(menupopup);
 }
+
+projectManager.prototype.selectedOrCurrentProject = function() {
+    return this.getSelectedProject() || this.currentProject;
+};
 
 projectManager.prototype.projectBaseName = function(project) {
     if (typeof(project) == "undefined") {
@@ -692,29 +698,37 @@ projectManager.prototype.projectBaseName = function(project) {
 projectManager.prototype._projectMenuMatcher = /^(.*?)( \(.*\))$/;
 projectManager.prototype._projectTestLabelMatcher = /^t:project\|(.+)\|(.+)$/;
 projectManager.prototype._finishUpdateProjectMenu = function(menuNode) {
-    var childNodes = menuNode.childNodes;
+    var childNodes = menuNode.childNodes, addLabel, label;
+    var selectedProjectIsClosed = ko.projects.manager.getSelectedProject() === null;
     for (var i = 0; i < childNodes.length; i++) {
         var node = childNodes[i];
         switch(node.nodeName) {
             case "menuitem":
-                if (node.getAttribute("addProjectName") == "true") {
-                    var label = node.getAttribute("label");
+                label = node.getAttribute("label");
+                if (node.getAttribute("disableIfSelectedProjectIsClosed") == "true"
+                    && selectedProjectIsClosed) {
+                    node.setAttribute("disabled", 'true');
+                    addLabel = false;
+                } else {
+                    node.removeAttribute("disabled");
+                    if (node.getAttribute("addProjectName") == "true") {
+                        addLabel = true;
+                    } else {
+                        break; // do nothing
+                    }
+                }
+                if (addLabel !== null) {
                     var m = this._projectMenuMatcher.exec(label);
                     if (!m) {
-                        if (!this._projectLabel) {
-                            // nothing to do
-                        } else {
+                        if (this._projectLabel && addLabel) {
                             node.setAttribute("label", label + this._projectLabel);
                         }
+                    } else if (!this._projectLabel || !addLabel) {
+                        node.setAttribute("label", m[1]);
                     } else {
-                        if (!this._projectLabel) {
-                            node.setAttribute("label", m[1]);
-                            // nothing to do
-                        } else {
-                            // Note that project might have changed since the
-                            // last time this menu was updated, so update it.
-                            node.setAttribute("label", m[1] + this._projectLabel);
-                        }
+                        // Note that project might have changed since the
+                        // last time this menu was updated, so update it.
+                        node.setAttribute("label", m[1] + this._projectLabel);
                     }
                 }
                 break;
@@ -926,7 +940,7 @@ projectManager.prototype.getSelectedProject = function() {
     if (this.viewMgr) {
         var node = this.viewMgr.getSelectedItem();
         if (node) {
-            return node.project;
+            return node.type == "project" ? node.project : null;
         }
     }
     return this.currentProject;
@@ -978,10 +992,12 @@ projectManager.prototype.supportsCommand = function(command, item) {
 }
 
 projectManager.prototype.isCommandEnabled = function(command) {
+    var project;
     try {
     switch(command) {
     case "cmd_setActiveProject":
-        return this.currentProject != this.getSelectedProject();
+        var selectedProject = this.getSelectedProject();
+        return selectedProject && this.currentProject != selectedProject;
         break;
     case "cmd_newProject":
     case "cmd_importPackageToToolbox":
@@ -996,16 +1012,17 @@ projectManager.prototype.isCommandEnabled = function(command) {
     case "cmd_saveProjectAs":
         return this.getSelectedProject() != null;
     case "cmd_renameProject":
-        return this.getSelectedProject() && !this.getSelectedProject().isDirty;
+        project = this.getSelectedProject();
+        return project && !project.isDirty;
     case "cmd_showProjectInPlaces":
         // Verify places is loaded
         if (!ko.places) return false;
-        var project = this.getSelectedProject();
+        project = this.getSelectedProject();
         if (!project) return false;
         return !ko.places.manager.placeIsAtProjectDir(project);
     case "cmd_saveProject":
     case "cmd_revertProject":
-        var project = this.getSelectedProject();
+        project = this.getSelectedProject();
         return (project && project.isDirty);
     case "cmd_closeAllProjects":
         return this._projects.length > 0;
@@ -1027,15 +1044,40 @@ projectManager.prototype.createNewProject = function() {
     return this.newProject(uri);
 };
 
+
+/**
+ * Get the selected project, and pass it to the callback
+ * @param callback function
+ * @param noProjectCallback function
+ * @returns whatever the callbacks return, or undefined
+ */
+
+projectManager.prototype.workOnSelectedProject = function(callback, noProjectCallback) {
+    var project = this.getSelectedProject();
+    if (project) {
+        return callback(project);
+    } else if (noProjectCallback) {
+        return noProjectCallback();
+    } else {
+        ko.statusBar.AddMessage("The selected item isn't an opened project; request ignored", "Projects", 3000, true);
+        return undefined;
+    }
+}
+
 projectManager.prototype.doCommand = function(command) {
     var filename, uri;
     var project;
+    var this_ = this;
     switch(command) {
     case "cmd_showProjectInPlaces":
-        ko.places.manager.moveToProjectDir(this.getSelectedProject());
+        this.workOnSelectedProject(function(project) {
+            ko.places.manager.moveToProjectDir(project);
+        });
         break;
     case "cmd_setActiveProject":
-        this.currentProject = this.getSelectedProject();
+        this.workOnSelectedProject(function(project) {
+            this_.currentProject = project;
+        });
         break;
     case "cmd_newProject":
         this.createNewProject();
@@ -1063,29 +1105,43 @@ projectManager.prototype.doCommand = function(command) {
         }
         break;
     case "cmd_closeProject":
-        this.closeProject(this.getSelectedProject());
+        this.workOnSelectedProject(function(project) {
+            this_.closeProject(project);
+        });
         break;
     case "cmd_closeAllProjects":
         this.closeAllProjects();
         break;
     case "cmd_saveProject":
-        this.saveProject(this.getSelectedProject());
+        this.workOnSelectedProject(function(project) {
+            this_.saveProject(project);
+        });
         break;
     case "cmd_saveProjectAs":
-        ko.projects.saveProjectAs(this.getSelectedProject());
+        this.workOnSelectedProject(function(project) {
+            ko.projects.saveProjectAs(project);
+        });
         break;
     case "cmd_revertProject":
-        this.revertProject(this.getSelectedProject());
+        this.workOnSelectedProject(function(project) {
+            this_.revertProject(project);
+        });
         break;
     case "cmd_projectProperties":
-        var item = ko.places.getItemWrapper(this.getSelectedProject().url, 'project');
-        ko.projects.fileProperties(item, null, true);
+        this.workOnSelectedProject(function(project) {
+            var item = ko.places.getItemWrapper(project.url, 'project');
+            ko.projects.fileProperties(item, null, true);
+        });
         break;
     case "cmd_renameProject":
-        ko.projects.renameProject(this.getSelectedProject());
+        this.workOnSelectedProject(function(project) {
+            this_.renameProject(project);
+        });
         break;
     case "cmd_saveProjectAsTemplate":
-        this.saveProjectAsTemplate(this.getSelectedProject());
+        this.workOnSelectedProject(function(project) {
+            this_.saveProjectAsTemplate(project);
+        });
         break;
     case "cmd_importPackageToToolbox":
         ko.toolboxes.importPackage();
