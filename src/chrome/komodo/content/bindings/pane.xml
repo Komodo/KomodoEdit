@@ -204,6 +204,14 @@
                   continue; // skip first widget
                 }
                 let splitter = this.ownerDocument.createElementNS(this.namespaceURI, "splitter");
+                splitter.classList.add("widget_splitter");
+                
+                // Append hbox child to splitter so that we can flexibly style
+                // the splitter without having to resort to images or compromises
+                let hbox = this.ownerDocument.createElementNS(this.namespaceURI, "hbox");
+                hbox.setAttribute("flex", 1);
+                splitter.appendChild(hbox);
+                
                 tabpanel.insertBefore(splitter, widget);
                 splitter.addEventListener("contextmenu",
                                           (function(event) {
