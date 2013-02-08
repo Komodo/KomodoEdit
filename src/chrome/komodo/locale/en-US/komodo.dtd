@@ -718,6 +718,7 @@
 <!ENTITY userInterfaceShowHideRightPane.desc "User Interface: Show/Hide Right Pane">
 <!ENTITY userInterfaceShowHideToolboxTab.desc "User Interface: Show/Hide Toolbox Tab">
 <!ENTITY userInterfaceShowHideToolsToolbar.desc "User Interface: Show/Hide Tools Toolbar">
+<!ENTITY userInterfaceShowHideMinimap.desc "User Interface: Show/Hide Editor Minimap">
 <!ENTITY userInterfaceShowHideWhitespace.desc "User Interface: Show/Hide Whitespace">
 <!ENTITY userInterfaceShowHideWorkspaceToolbar.desc "User Interface: Show/Hide Workspace Toolbar">
 <!ENTITY userInterfaceSplitViewOfTab.desc "User Interface: Split view of tab">
@@ -736,6 +737,8 @@
 <!ENTITY viewIndentationGuides.label "View Indentation Guides">
 <!ENTITY viewLineNumbers.accesskey "N">
 <!ENTITY viewLineNumbers.label "View Line Numbers">
+<!ENTITY showHideMinimap.accesskey "M">
+<!ENTITY showHideMinimap.label "View Minimap">
 <!ENTITY viewWhitespace.accesskey "H">
 <!ENTITY viewWhitespace.label "View Whitespace">
 <!ENTITY watchFile.label "Watch File...">

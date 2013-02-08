@@ -1706,6 +1706,19 @@
             desc="&editorDelete.desc;"/>
     </commandset>
 
+    <commandset
+        id="cmdset_for_showHideMinimap"
+        oncommandupdate="ko.commands.updateCommandset(this);"
+        commandupdater="true"
+        events="currentview_is_editor,current_view_changed">
+        <command
+            id="cmd_showHideMinimap" key="key_cmd_showHideMinimap"
+            type="checkbox"
+            oncommand="ko.commands.doCommandAsync('cmd_showHideMinimap', event)"
+            disabled="true"
+            desc="&userInterfaceShowHideMinimap.desc;"/>
+    </commandset>
+
     <commandset id="cmdset_parts"/>
 
 </commandset>

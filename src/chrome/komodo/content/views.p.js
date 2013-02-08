@@ -2261,6 +2261,32 @@ viewManager.prototype.do_cmd_reloadBrowserPreview = function() {
     }
 }
 
+viewManager.prototype.is_cmd_showHideMinimap_enabled = function () {
+    var menuitem = document.getElementById("menu_showHideMinimap");
+    var inEditorView = (this.currentView
+                        && this.currentView.getAttribute('type') == 'editor');
+    if (!inEditorView) {
+        menuitem.disabled = true;
+        return false;
+    } else {
+        if (this.currentView.minimap) {
+            menuitem.setAttribute("checked", "true");
+        } else {
+            menuitem.removeAttribute("checked");
+        }
+        menuitem.disabled = false;
+        return true;
+    }
+};
+
+viewManager.prototype.do_cmd_showHideMinimap = function () {
+    var view = this.currentView;
+    if (!view) {
+        return;
+    }
+    view.prefs.setBooleanPref("editShowMinimap",
+                              !view.prefs.getBoolean("editShowMinimap", false));
+};
 
 viewManager.prototype.notify_visited_directory = function(path) {
     var event = document.createEvent("DataContainerEvents");
