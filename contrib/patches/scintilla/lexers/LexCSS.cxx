@@ -889,7 +889,7 @@ static void FoldCSSDoc(unsigned int startPos, int length, int, WordList *[], Acc
 	unsigned int endPos = startPos + length;
 	int visibleChars = 0;
 	int lineCurrent = styler.GetLine(startPos);
-	int levelPrev = styler.LevelAt(lineCurrent) & SC_FOLDLEVELNUMBERMASK;
+	int levelPrev = (styler.LevelAt(lineCurrent) & SC_FOLDLEVELNUMBERMASK) | SC_FOLDLEVELBASE;
 	int levelCurrent = levelPrev;
 	char chNext = styler[startPos];
 	bool inComment = (styler.StyleAt(startPos-1) == SCE_CSS_COMMENT);
