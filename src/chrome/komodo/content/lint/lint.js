@@ -92,6 +92,7 @@ const HTML_LIST = ["HTML", "XML", "HTML5"];
 
 var global_pref_observer_topics = {
     "editUseLinting" : null,
+    "lintDelay": null,
     "lintEOLs" : null,
     "endOfLine" : null,
     "lintClearOnTextChange" : null,
@@ -212,11 +213,19 @@ this.lintBuffer = function LintBuffer(view) {
     _log.info("LintBuffer["+view.title+"].constructor()");
     try {
         this.view = view;
-        this.lintingEnabled = this.view.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting");
-        this._lintClearOnTextChange = this.view.koDoc.getEffectivePrefs().getBooleanPref("lintClearOnTextChange");
+        var effectivePrefs = this.view.koDoc.getEffectivePrefs();
+        this.lintingEnabled = effectivePrefs.getBooleanPref("editUseLinting");
+        this.lintDelay = effectivePrefs.getLongPref("lintDelay");
+        if (this.lintDelay <= 0) {
+            this.lintDelay = 1;
+        }
+        this._lintClearOnTextChange = effectivePrefs.getBooleanPref("lintClearOnTextChange");
         this.lintResults = null;
         this.errorString = null;
         this._lastRequestId = 0; // used to ensure only the last request is used
+        this._lastTimeoutId = 0;
+        // this._lastTimeoutId is always set to the current setTimeout function
+        // this._lastRequestId is set to any setTimeout IDs that get to fire.
 
         var globalPrefObserverService = ko.prefs.prefObserverService;
         globalPrefObserverService.addObserverForTopics(this,
@@ -228,9 +237,6 @@ this.lintBuffer = function LintBuffer(view) {
                                                      global_pref_observer_topic_names.length,
                                                      global_pref_observer_topic_names, false);
 
-        this._lintTimer = null; // used to control when lint requests are issued
-        
-        this.pendingRequest = false; // set when a pref changes for a different buffer
         // Used by the lintDisplayer
         this.handleScroll = null;
     } catch(ex) {
@@ -256,7 +262,6 @@ this.lintBuffer.prototype.destructor = function()
     _log.info("LintBuffer["+this.view.title+"].destructor()");
     try {
         _lintSvc.cancelPendingRequests(this.view.uid);
-        this._cancelDelayedRequest();
         this._clearResults();
 
         var viewPrefObserverService = this.view.prefs.prefObserverService;
@@ -293,9 +298,8 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
     //               subject+", topic="+topic+", data="+data);
                 
     try {
-        var lintingEnabled = this.view.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting");
         var setupRequest = false;
-        if (lintingEnabled
+        if (this.lintingEnabled
             && global_pref_observer_topics[topic]) {
             if (this.usingSubLanguage(global_pref_observer_topics[topic])) {
                 // Generic way of determining if the current buffer is affected
@@ -308,17 +312,24 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
             }
         } else {
             switch (topic) {
+                case "lintDelay":
+                this.lintDelay = this.view.koDoc.getEffectivePrefs().getLongPref("lintDelay");
+                if (this.lintDelay <= 0) {
+                    this.lintDelay = 1;
+                }
+                // FALLTHRU
                 case "lintEOLs":
                 case "endOfLine":
                 _log.info("LintBuffer["+this.view.title+
                           "].observed EOL pref change, re-linting");
-                if (lintingEnabled) {
+                if (this.lintingEnabled) {
                     setupRequest = true;
                 }
                 break;
                 case "editUseLinting":
                 _log.info("LintBuffer["+this.view.title+
                           "].observe: lintingEnabled="+lintingEnabled);
+                var lintingEnabled = this.view.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting");
                 if (lintingEnabled != this.lintingEnabled) {
                     // Do whatever must be done when the lintingEnabled state changes.
                     this.lintingEnabled = lintingEnabled;
@@ -326,7 +337,6 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
                         setupRequest = true;
                     } else {
                         _lintSvc.cancelPendingRequests(this.view.uid);
-                        this._cancelDelayedRequest();
                         this._clearResults();
                         this._notify();
                     }
@@ -337,17 +347,8 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
                 break;
             }
         }
-        if (setupRequest) {
-            if (this.view == ko.views.manager.currentView){
-                this.request("language changed");
-            } else {
-                // dump("Ignoring a lint pref change for doc "
-                //      + (this.view.document
-                //         ? (this.view.koDoc.displayPath || "<untitled>")
-                //         : "<no doc>")
-                //      + "\n");
-                this.pendingRequest = true;
-            }
+        if (setupRequest && this.view == ko.views.manager.currentView) {
+            this.request("language changed");
         }
     } catch(ex) {
         _log.exception(ex);
@@ -364,6 +365,19 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
 //
 this.lintBuffer.prototype.request = function(reason /* = "" */)
 {
+    if (!this.lintingEnabled) {
+        //dump("<< lintBuffer.request, !this.lintingEnabled\n");
+        return;
+    }
+    // clearTimeout ignores timeout ID 0
+    clearTimeout(this._lastTimeoutId);
+    this._lastTimeoutId = setTimeout(this._continueRequest.bind(this),
+                                     this.lintDelay, reason);
+};
+
+this.lintBuffer.prototype._continueRequest = function(reason /* = "" */) {
+    this._lastRequestId = this._lastTimeoutId;
+    this._lastTimeoutId = 0;
     if (typeof(reason) == "undefined" || reason == null) reason = "";
     _log.info("LintBuffer["+this.view.title+"].request(reason='"+
                   reason+"')");
@@ -374,27 +388,8 @@ this.lintBuffer.prototype.request = function(reason /* = "" */)
             this._clearResults();
         }
 
-        // Increment this here instead of in ._issueRequest() to ensure that
-        // a request issued at time T1 is not considered current when its
-        // results are reported at time T2 if the buffer has changed between
-        // those two times.
-        this._lastRequestId += 1;
-
-        // cancel the pending timeout if the request comes
-        // in before the request timeout has expired
-        if (this._lintTimer) {
-            this._lintTimer.stopTimeout();
-        }
-        this._lintTimer = new ko.objectTimer(this, this._issueRequest, []);
-        var delay;
-        if (!this.view.koDoc.getEffectivePrefs().getBooleanPref('editUseLinting')) {
-            delay = 0;
-        } else {
-            delay = ko.prefs.getLongPref('lintDelay'); // lint request delay (in ms)
-        }
-        this._lintTimer.startTimeout(delay);
-
         this._notify();
+        this._issueRequest();
     } catch(ex) {
         _log.exception(ex);
     }
@@ -446,30 +441,12 @@ this.lintBuffer.prototype._issueRequest = function(alwaysLint)
             lr.alwaysLint = alwaysLint;
             _lintSvc.addRequest(lr);
         }
-        this._cancelDelayedRequest();
     } catch(ex) {
         if (ex.message.indexOf("Internal Error creating a linter with CID") >= 0) {
             _log.debug("No linter for component " + linterLanguageName);
         } else {
             _log.exception(ex);
         }
-    }
-}
-
-
-// Cancel the delayed request if there is one.
-this.lintBuffer.prototype._cancelDelayedRequest = function()
-{
-    _log.debug("LintBuffer["+this.view.title+"]._cancelDelayedRequest()");
-    try {
-        this.pendingRequest = false;
-        if (this._lintTimer) {
-            this._lintTimer.stopTimeout();
-            this._lintTimer.free();
-            this._lintTimer = null;
-        }
-    } catch(ex) {
-        _log.exception(ex);
     }
 }
 
@@ -670,6 +647,7 @@ this.jumpToNextLintResult = function lint_jumpToNextLintResult()
 }
 
 
+// ko.lint.doRequest never delays.  Several other modules call it.
 this.doRequest = function lint_doRequest(alwaysLint) {
     try {
         var view = ko.views.manager.currentView;
