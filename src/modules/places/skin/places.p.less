@@ -157,6 +157,12 @@ undo-button {
   font-weight: bold;
 }
 
+/* #if PLATFORM == "darwin" */
+#placesViewbox_placesWrapper {
+  margin-top: 9px; /* Bring in line with other widgets */
+}
+/* #endif */
+
 #placesViewbox_placesWrapper tree,
 #placesViewbox_placesWrapper tree treechildren,
 #placesViewbox_placesWrapper tree treechildren::-moz-tree-row {
