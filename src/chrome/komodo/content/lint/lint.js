@@ -89,6 +89,7 @@ const JS_LIST = ["JavaScript"];
 const NODEJS_LIST = ["Node.js"];
 const JS_NODEJS_LIST = [JS_LIST[0], NODEJS_LIST[0]];
 const HTML_LIST = ["HTML", "XML", "HTML5"];
+const MIN_DELAY = 200; // msec
 
 var global_pref_observer_topics = {
     "editUseLinting" : null,
@@ -216,8 +217,8 @@ this.lintBuffer = function LintBuffer(view) {
         var effectivePrefs = this.view.koDoc.getEffectivePrefs();
         this.lintingEnabled = effectivePrefs.getBooleanPref("editUseLinting");
         this.lintDelay = effectivePrefs.getLongPref("lintDelay");
-        if (this.lintDelay <= 0) {
-            this.lintDelay = 1;
+        if (this.lintDelay < MIN_DELAY) {
+            this.lintDelay = MIN_DELAY;
         }
         this._lintClearOnTextChange = effectivePrefs.getBooleanPref("lintClearOnTextChange");
         this.lintResults = null;
@@ -315,7 +316,7 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
                 case "lintDelay":
                 this.lintDelay = this.view.koDoc.getEffectivePrefs().getLongPref("lintDelay");
                 if (this.lintDelay <= 0) {
-                    this.lintDelay = 1;
+                    this.lintDelay = MIN_DELAY;
                 }
                 // FALLTHRU
                 case "lintEOLs":
