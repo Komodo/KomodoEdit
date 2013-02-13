@@ -264,10 +264,12 @@ sub _addLexer {
 map { _addLexer($cons, $_); } @lexers;
 
 my $cxxFlags = " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES";
-if ($buildType eq 'debug') {
-    $cxxFlags .= " -g -DDEBUG=1";
-} elsif ($buildFlavour eq 'dev') {
-    $cxxFlags .= " -g";
+if ($buildType eq 'debug'
+    || $buildFlavour eq 'dev') {
+    $cxxFlags .= " -DDEBUG=1 -g";
+    $cxxFlags .= " -DUDL_DEBUG_TIME=1" if ($ENV{UDL_DEBUG_TIME});
+    $cxxFlags .= " -DUDL_DEBUG=1" if ($ENV{UDL_DEBUG});
+    $cxxFlags .= " -DUDL_DEBUG_OTHER=1" if ($ENV{UDL_DEBUG_OTHER});
 }
 
 %consLocal = $cons->copy();

@@ -21,10 +21,18 @@
 #define PCRE_STATIC
 #include <pcre.h>
 
+#ifndef UDL_DEBUG
 #define UDL_DEBUG 0
+#endif
+#ifndef UDL_DEBUG_OTHER
 #define UDL_DEBUG_OTHER 0
+#endif
+#ifndef UDL_DEBUG_TIME
 #define UDL_DEBUG_TIME 0
+#endif
+#ifndef UDL_WINDEBUG
 #define UDL_WINDEBUG 0
+#endif
 
 #if UDL_DEBUG_TIME
 #include <sys/time.h>
@@ -3105,7 +3113,7 @@ static void ShowElapsedTime(const char *where,
         msecDiff += 1000000;
         secDiff -= 1;
     }
-    fprintf(stderr, "UDL fold calc time (%s): %f msecs\n",
+    fprintf(stderr, "UDL %s time: %f msecs\n",
             where,
             1000 * secDiff + msecDiff/1000.0);
 }
@@ -3310,7 +3318,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                         }
                     }
                 }
-                styler.SetLineState(iLine, newLineState);
+                styler.SetLineStateNoNotify(iLine, newLineState);
             }
             lineStartUpdateState = lineCurrent;
         }

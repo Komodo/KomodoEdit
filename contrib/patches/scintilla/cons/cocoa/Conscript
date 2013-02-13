@@ -58,8 +58,12 @@ $libName = '../bin/libscintilla.dylib';
 
 # build scintilla
 my $makeFlags = "-DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES";
-if ($buildType eq 'debug') {
+if ($buildType eq 'debug' || $buildFlavour eq 'dev') {
     $makeFlags .= " -DDEBUG=1";
+    $makeFlags .= " -DUDL_DEBUG_TIME=1" if ($ENV{UDL_DEBUG_TIME});
+    $makeFlags .= " -DUDL_DEBUG=1" if ($ENV{UDL_DEBUG});
+    $makeFlags .= " -DUDL_DEBUG_OTHER=1" if ($ENV{UDL_DEBUG_OTHER});
+    $makeFlags .= " -DUDL_WINDEBUG=1" if ($ENV{UDL_WINDEBUG});
 }
 
 # The SciMoz build on Linux explicitly links the Lex*.o files from the
