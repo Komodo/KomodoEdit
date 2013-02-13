@@ -136,11 +136,18 @@
             oncommand="ko.commands.doCommandAsync('cmd_viewworkspacetoolbar', event)"/>
         <broadcaster
             id="cmd_viewfindtoolbar" key="key_cmd_viewfindtoolbar"
-            desc="&userInterfaceShowHideOpenFindToolbar.desc;"
+            desc="&userInterfaceShowHideFindToolbar.desc;"
             autoCheck="false"
             checked="false"
             persist="checked"
             oncommand="ko.commands.doCommandAsync('cmd_viewfindtoolbar', event)"/>
+        <broadcaster
+            id="cmd_viewopentoolbar" key="key_cmd_viewopentoolbar"
+            desc="&userInterfaceShowHideOpenToolbar.desc;"
+            autoCheck="false"
+            checked="false"
+            persist="checked"
+            oncommand="ko.commands.doCommandAsync('cmd_viewopentoolbar', event)"/>
         <broadcaster
             id="cmd_openextmgr"
             oncommand="ko.launch.openAddonsMgr();"/>

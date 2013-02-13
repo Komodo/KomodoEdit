@@ -488,10 +488,11 @@
 <!ENTITY notifications.label "Notifications">
 <!ENTITY open.label "Open">
 <!ENTITY open.tooltiptext "Open">
+<!ENTITY openFile.placeholder "Open File &#8230;">
 <!ENTITY openFile.label "Open File">
 <!ENTITY openFile.tooltiptext "Open File">
-<!ENTITY openFind.label "Open/Find">
-<!ENTITY openFindToolbar.tooltiptext "Open / Find Toolbar">
+<!ENTITY findInFilesToolbar.label "Find in Files Toolbar">
+<!ENTITY openFileToolbar.label "Open File Toolbar">
 <!ENTITY openLabel.accesskey "n">
 <!ENTITY openLine.desc "Editor: Open Line">
 <!ENTITY splitLine.desc "Editor: Split Line">
@@ -709,7 +710,8 @@
 <!ENTITY userInterfaceShowHideEndOfLines.desc "User Interface: Show/Hide End of Lines">
 <!ENTITY userInterfaceShowHideKomodoResourcesToolbar.desc "User Interface: Show/Hide Komodo Resources Toolbar">
 <!ENTITY userInterfaceShowHideMacrosToolbar.desc "User Interface: Show/Hide Macros Toolbar">
-<!ENTITY userInterfaceShowHideOpenFindToolbar.desc "User Interface: Show/Hide Open/Find Toolbar">
+<!ENTITY userInterfaceShowHideFindToolbar.desc "User Interface: Show/Hide Find Toolbar">
+<!ENTITY userInterfaceShowHideOpenToolbar.desc "User Interface: Show/Hide Open Toolbar">
 <!ENTITY userInterfaceShowHideBottomPane.desc "User Interface: Show/Hide Bottom Pane">
 <!ENTITY userInterfaceShowHideLeftPane.desc "User Interface: Show/Hide Left Pane">
 <!ENTITY userInterfaceShowHideStandardToolbar.desc "User Interface: Show/Hide Standard Toolbar">

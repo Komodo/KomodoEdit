@@ -60,6 +60,7 @@ var handlers = {
     'cmd_viewworkspacetoolbar': 'ko.uilayout.toggleToolbarVisibility(\'workspaceToolbar\')',
     'cmd_viewdebugtoolbar': 'ko.uilayout.toggleToolbarVisibility(\'debuggerToolbar\')',
     'cmd_viewfindtoolbar': 'ko.uilayout.toggleToolbarVisibility(\'findToolbar\')',
+    'cmd_viewopentoolbar': 'ko.uilayout.toggleToolbarVisibility(\'openToolbar\')',
     'cmd_viewFullScreen': 'ko.uilayout.fullScreen()',
     'cmd_editPrefs': 'prefs_doGlobalPrefs(null)',
     'cmd_openStartPage': 'ko.open.startPage()',

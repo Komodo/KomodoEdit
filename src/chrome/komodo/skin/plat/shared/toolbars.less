@@ -210,7 +210,7 @@
     border-bottom: none !important;
 }
 
-#findToolbar
+#openToolbar, #findToolbar
 {
     -moz-appearance: none;
     border: 0;
@@ -223,6 +223,21 @@
         
         border: @menubar-findtoolbar-border;
         box-shadow: @menubar-findtoolbar-shadow;
+        
+        &.focus
+        {
+            box-shadow: @menubar-findtoolbar-shadow-focus;
+        }
+    }
+    
+    &#openToolbar
+    {
+        margin-right: 4px;
+        
+        .unified-textbox-wrapper
+        {
+            border-radius: 4px;
+        }
     }
     
     textbox
@@ -265,13 +280,14 @@
             
         }
         
-        dropmarker
-        {
-            list-style-image: @icon-dropdownmarker;
-            -moz-appearance: none;
-            border: 0;
-            background: none;
-        }
+    }
+    
+    dropmarker
+    {
+        list-style-image: @icon-dropdownmarker;
+        -moz-appearance: none;
+        border: 0;
+        background: none;
     }
     
     #find-toolbar-browsedirectory
