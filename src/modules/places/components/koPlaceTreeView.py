@@ -57,6 +57,7 @@ from xpcom.server import WrapObject, UnwrapObject
 
 from koTreeView import TreeView
 from koLanguageServiceBase import sendStatusMessage
+from koUnicodeEncoding import autoDetectEncoding
 log = logging.getLogger("koPlaceTreeView")
 #log.setLevel(logging.DEBUG)
 
@@ -2337,10 +2338,21 @@ class KoPlaceTreeView(TreeView):
 
     def getDirListFromLocalPath(self, uri):
         path = uriparse.URIToPath(uri)
+        assert isinstance(path, unicode)
+        # Bug 97419: by spec, os.listdir(unicode) returns unicode encodings
+        # of each member as long as it can decode them. On Linux it can't
+        # handle latin* encodings, so it returns a str.
         names = os.listdir(path)
         items = []
         for name in names:
-            full_name = os.path.join(path, name)
+            try:
+                full_name = os.path.join(path, name)
+            except UnicodeDecodeError:
+                try:
+                    full_name = os.path.join(path, autoDetectEncoding(name)[0])
+                except:
+                    log.error("Can't combine path %r with name %r", path, name)
+                    continue
             if fileutils.isHiddenFile(full_name):
                 continue
             if os.path.isdir(full_name):
