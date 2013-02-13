@@ -109,7 +109,7 @@
                          oncommand="updateCommandList()"
                          tooltiptext="&filterCommands.tooltiptext;"/>
             </hbox>
-            <deck id="deck" style="min-height: 150px" flex="1">
+            <deck id="deck" style="min-height: 100px" flex="1">
                 <description id="nohits" style="padding: 5px">
                     &noCommandsMatch.description;
                 </description>
