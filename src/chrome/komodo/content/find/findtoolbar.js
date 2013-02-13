@@ -165,7 +165,7 @@ this.findTextboxKeyPress = function Findtoolbar_FindTextboxKeyPress(field, event
                     return;
                 }
                 
-                if (! _findInFilesTextbox.value) {
+                if (_findInFilesTextbox.value != '') {
                     this.findFilesKeyPress(_findInFilesTextbox, event);
                     return;
                 }
