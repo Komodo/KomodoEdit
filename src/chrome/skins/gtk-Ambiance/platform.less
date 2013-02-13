@@ -5,6 +5,14 @@
     -moz-appearance: none !important;
 }
 
+/* GTK apps on Ambiance have a very faint line underneath the the titlebar
+ * which is barely visible, but it makes the gradient of the menubar stand out
+ */
+#toolbox_main
+{
+    border-top: 1px solid #3F3E3B;
+}
+
 #main-toolboxrow toolbar > toolbaritem > toolbarbutton
 {
     padding: 4px !important;
