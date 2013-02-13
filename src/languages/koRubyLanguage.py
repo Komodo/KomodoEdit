@@ -723,7 +723,7 @@ class KoRubyCompileLinter:
         is a problem.
         """
         
-        prefset = request.koDoc.getEffectivePrefs()
+        prefset = request.prefset
         cwd = request.cwd
         
         # Remove a possible "-d" in the shebang line, this will tell Ruby to
