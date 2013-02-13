@@ -220,6 +220,12 @@ int BufferAccessor::SetLineState(int line, int state) {
 	return stateOld;
 }
 
+int BufferAccessor::SetLineStateNoNotify(int line, int state) {
+    // This is used for UDL and Scintilla to avoid editor repaints.
+    // It's only here to provide SilverCity a compatible Scintilla interface
+    return SetLineState(line, state);
+}
+
 int SCI_METHOD BufferAccessor::SetLevel(int line, int level) {
 	if ((line >= 0) && (line < lv.GetNumLines())) {
         int prev = lv[line].level;

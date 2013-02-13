@@ -70,6 +70,7 @@ public:
 	void SCI_METHOD DecorationSetCurrentIndicator(int indicator);
 	void SCI_METHOD DecorationFillRange(int position, int value, int fillLength);
 	int SCI_METHOD SetLineState(int line, int state);
+	int SCI_METHOD SetLineStateNoNotify(int line, int state);
 	int SCI_METHOD GetLineState(int line) const;
 	void SCI_METHOD ChangeLexerState(int start, int end);
 };
