@@ -46,6 +46,7 @@
 Import(
     'cons',
     'buildType',
+    'buildFlavour',
     'mozPluginsDir',
     'unsiloedPythonExe',
     'scintillaBuildDir',
