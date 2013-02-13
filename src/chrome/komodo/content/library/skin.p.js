@@ -21,7 +21,8 @@ if (ko.skin == undefined)
 (function() {
 
     const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-    const {Services} = Cu.import("resource://gre/modules/Services.jsm");
+    const {Services} = Cu.import("resource://gre/modules/Services.jsm", {});
+    const {ctypes} = Cu.import("resource://gre/modules/ctypes.jsm", {});
 
     // Make prefs accessible across "class"
     var prefs = Components.classes['@activestate.com/koPrefService;1']
@@ -511,6 +512,67 @@ if (ko.skin == undefined)
                 {
                     callbackSuccess.call(this,this._themeInfo);
                     return;
+                }
+
+                // Try to get the theme name through gtk
+                {
+                    let gtk = null, g_free = null;
+                    let name_pointer = ctypes.void_t.ptr();
+                    try
+                    {
+                        gtk = ctypes.open("libgtk-x11-2.0.so");
+                        let gtk_settings_get_default =
+                            gtk.declare("gtk_settings_get_default",
+                                        ctypes.default_abi,
+                                        ctypes.void_t.ptr);
+                        let g_object_get =
+                            gtk.declare("g_object_get",
+                                        ctypes.default_abi,
+                                        ctypes.void_t,
+                                        ctypes.void_t.ptr,
+                                        ctypes.char.ptr,
+                                        ctypes.void_t.ptr,
+                                        ctypes.void_t.ptr);
+                        g_free =
+                            gtk.declare("g_free",
+                                        ctypes.default_abi,
+                                        ctypes.void_t,
+                                        ctypes.void_t.ptr);
+
+                        let settings = gtk_settings_get_default();
+                        g_object_get(settings,
+                                     "gtk-theme-name",
+                                     name_pointer.address(),
+                                     null);
+                        if ( ! name_pointer.isNull())
+                        {
+                            this._themeInfo =
+                            {
+                                name: ctypes.cast(name_pointer, ctypes.char.ptr)
+                                            .readString(),
+                            }
+                            log.debug("Got theme: " + this._themeInfo.name);
+                            callbackSuccess.call(this, this._themeInfo);
+                            return;
+                        }
+                    }
+                    catch (ex)
+                    {
+                        log.exception("Failed to get gtk theme name, " +
+                                        "falling back to shell",
+                                      ex);
+                    }
+                    finally
+                    {
+                        if (g_free && ! name_pointer.isNull())
+                        {
+                            g_free(name_pointer);
+                        }
+                        if (gtk)
+                        {
+                            gtk.close();
+                        }
+                    }
                 }
                 
                 // Possible commands to retrieve gtk theme name
