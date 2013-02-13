@@ -67,7 +67,7 @@
          as it adds a scrollbar when the contents are too long. -->
     <vbox id="keybinding-prefs-vbox" flex="1" class="autoscroll">
 
-        <groupbox style="padding:6px;" orient="vertical">
+        <groupbox style="padding:6px;" orient="vertical" flex="1">
             <caption label="&keyBindings.label;" />
             <description>&keyBindingsConfiguration.description;</description>
 <!-- #if PLATFORM != 'darwin' -->
@@ -109,7 +109,7 @@
                          oncommand="updateCommandList()"
                          tooltiptext="&filterCommands.tooltiptext;"/>
             </hbox>
-            <deck id="deck" style="height: 150px">
+            <deck id="deck" style="min-height: 150px" flex="1">
                 <description id="nohits" style="padding: 5px">
                     &noCommandsMatch.description;
                 </description>
