@@ -363,9 +363,10 @@ this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
     
     // The list of sub-folder names under an "Abbreviations" folder in
     // which to look for the snippet.
-    var subnames = [];
-    if (sublang) subnames.push(sublang);
-    if (lang && subnames.indexOf(lang) == -1) subnames.push(lang);
+    // Never look for both sublang's and langs.  For example, if we're
+    // in a script block we want JS abbrev'ns, but never want HTML abbrev'ns.
+    var subnames = (sublang ? [sublang]
+                    : (lang ? [lang] : []));
     if (subnames.indexOf("General") == -1) subnames.push("General");
     
     return ko.toolbox2.getAbbreviationSnippet(abbrev, subnames, isAutoAbbrev);
