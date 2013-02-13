@@ -888,10 +888,12 @@ class Scheme:
     def _hasDarkColoredBackground(self):
         return not self._hasLightColoredBackground()
 
-    def get_isDarkBackground(self):
+    @property
+    def isDarkBackground(self):
         return self._hasDarkColoredBackground()
 
-    def get_backgroundColor(self):
+    @property
+    def backgroundColor(self):
         return scincolor2mozcolor(self._defaultBackColor())
 
     def getHighlightColorInfo(self, languageObj):
