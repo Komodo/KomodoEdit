@@ -362,7 +362,12 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             if symbolstype == "string":
                 cplns = [("variable", "__main__")]
             elif symbolstype == "def":
-                cplns = [("function", t + "(self") for t in _g_python_magic_method_names]
+                posttext = trg.extra.get("posttext", "")
+                posttext = posttext.split("\n", 1)[0]
+                if posttext and "(" in posttext:
+                    cplns = [("function", t) for t in _g_python_magic_method_names]
+                else:
+                    cplns = [("function", t + "(self") for t in _g_python_magic_method_names]
             elif symbolstype == "global":
                 text = trg.extra.get("text")
                 if text.endswith("if"):
@@ -895,11 +900,15 @@ class PythonBuffer(CitadelBuffer):
             text = accessor.text_range(max(0,last_pos-20), last_pos-1).strip()
             if beforeChar and beforeChar in " \t":
                 if text.endswith("def"):
+                    posttext = accessor.text_range(pos,
+                                                   min(accessor.length, pos+20)
+                                                  ).replace(" ", "")
                     if DEBUG:
                         print "trg_from_pos:: magic-symbols - def"
                     return Trigger(self.lang, TRG_FORM_CPLN,
                                    "magic-symbols", last_pos-1, implicit,
-                                   symbolstype="def")
+                                   symbolstype="def",
+                                   posttext=posttext)
             if DEBUG:
                 print "trg_from_pos:: magic-symbols - global"
             return Trigger(self.lang, TRG_FORM_CPLN,
