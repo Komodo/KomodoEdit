@@ -191,7 +191,7 @@
                     this._scheme = val;
                     // dump("applying scheme!\n");
                     if (this.inited) {
-                        this._scheme.applyScheme(this.scimoz, this.language, this.encoding, this.alternateFaceType);
+                        this.applyColorScheme();
                     }
                 ]]>
                 </setter>
@@ -231,7 +231,7 @@
                     var old = this._language;
                     this._language = val;
                     if (old != val && this.inited) {
-                        this.scheme.applyScheme(this.scimoz, this._language, this.encoding, this.alternateFaceType);
+                        this.applyColorScheme();
                     } // Otherwise we'll let init do it;
                 ]]></setter>
             </property>
@@ -248,7 +248,7 @@
                     var old = this._encoding;
                     this._encoding = val;
                     if (old != val && this.inited) {
-                        this.scheme.applyScheme(this.scimoz, this.language, this._encoding, this.alternateFaceType);
+                        this.applyColorScheme();
                     }
                 ]]></setter>
             </property>
@@ -263,8 +263,7 @@
                     if (old != val) {
                         this._alternateFaceType = val;
                         if (this.inited) {
-                            this.scheme.applyScheme(this.scimoz, this.language,
-                                this.encoding, this._alternateFaceType);
+                            this.applyColorScheme();
                         }
                     }
                 ]]></setter>
@@ -457,7 +456,8 @@
                 // there is a rectangular selection.
                 scimoz.tabIndents = true;
 
-                this.scheme.applyScheme(scimoz, this.language, this.encoding, this.alternateFaceType); // Shouldn't do these for editor views?
+                this.applyColorScheme();
+
                 this.inited = true;
                 prefs.prefObserverService.addObserverForTopics(this,
                                                                this.pref_topics.length,
@@ -502,6 +502,17 @@
                 this.scimoz.markClosed();
                 this._scimoz = null;
             ]]></body>
+            </method>
+
+            <method name="applyColorScheme">
+                <body>
+                <![CDATA[
+                this.scheme.applyScheme(this.scimoz, this.language, this.encoding, this.alternateFaceType);
+                // Set a fallback background color for the plugin, to avoid
+                // flashes of color when closing tabs - bug 97061.
+                this._embed.style.backgroundColor = this.scheme.backgroundColor;
+                ]]>
+                </body>
             </method>
 
             <method name="getSupportedFlavours">

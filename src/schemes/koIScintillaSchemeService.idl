@@ -54,7 +54,12 @@ interface koIScintillaScheme : nsISupports {
      * The isDarkBackground attribute returns whether the default background
      * color is dark or light.
      */
-    attribute boolean isDarkBackground;
+    readonly attribute boolean isDarkBackground;
+    /**
+     * backgroundColor is a RGB hex value and contains a starting "#", e.g.:
+     *   #33AA9F
+     */
+    readonly attribute AString backgroundColor;
 
     koIScintillaScheme clone(in wstring newname);
     

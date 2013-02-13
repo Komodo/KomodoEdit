@@ -847,14 +847,40 @@ class Scheme:
         return not self._isLightScintillaColor(scincolor)
 
     def _defaultForeColor(self):
-        defaultForeColor = 0 # fallback - white
-        names = ['default_fixed', 'default_proportional', 'default']
+        defaultForeColor = None
+        useFixed = self._booleans.get('preferFixed', True)
+        if useFixed:
+            names = ['default_fixed', 'default_proportional', 'default']
+        else:
+            names = ['default_proportional', 'default_fixed', 'default']
         for name in names:
             if name in self._commonStyles:
                 defaultForeColor = self._commonStyles[name].get('fore')
                 if defaultForeColor is not None:
                     break
+        if defaultForeColor is None:
+            log.warn("Unable to find a default foreground color in scheme %r",
+                     self.name)
+            defaultForeColor = 0x000000 # fallback - black
         return defaultForeColor
+
+    def _defaultBackColor(self):
+        defaultBackColor = None # fallback - white
+        useFixed = self._booleans.get('preferFixed', True)
+        if useFixed:
+            names = ['default_fixed', 'default_proportional', 'default']
+        else:
+            names = ['default_proportional', 'default_fixed', 'default']
+        for name in names:
+            if name in self._commonStyles:
+                defaultBackColor = self._commonStyles[name].get('back')
+                if defaultBackColor is not None:
+                    break
+        if defaultBackColor is None:
+            log.warn("Unable to find a default background color in scheme %r",
+                     self.name)
+            defaultBackColor = 0xFFFFFF # fallback - white
+        return defaultBackColor
 
     def _hasLightColoredBackground(self):
         """Light refers to the background color of the scheme."""
@@ -864,6 +890,9 @@ class Scheme:
 
     def get_isDarkBackground(self):
         return self._hasDarkColoredBackground()
+
+    def get_backgroundColor(self):
+        return scincolor2mozcolor(self._defaultBackColor())
 
     def getHighlightColorInfo(self, languageObj):
         """
