@@ -1825,7 +1825,17 @@ class CplnTestCase(CodeintelPythonTestCase):
     def test_complete_magic_symbols(self):
         content, positions = unmark_text(dedent("""\
             class myclass(object):
-                def __<1>init__(self):
+                def __<1>init__
+                    pass
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [('function', '__init__(self'),
+             ('function', '__eq__(self'),
+             ('function', '__repr__(self')])
+
+        content, positions = unmark_text(dedent("""\
+            class myclass(object):
+                def __init__(self):
                     pass
             def main():
                 name = __<2>file__
@@ -1833,10 +1843,6 @@ class CplnTestCase(CodeintelPythonTestCase):
             if __<4>name__ == '__main__':
                 main()
         """))
-        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [('function', '__init__(self'),
-             ('function', '__eq__(self'),
-             ('function', '__repr__(self')])
         self.assertCompletionsAre(markup_text(content, pos=positions[2]),
             [('variable', '__file__'),
              ('variable', '__loader__'),
@@ -1850,6 +1856,25 @@ class CplnTestCase(CodeintelPythonTestCase):
              ('variable', '__loader__'),
              ('variable', "__name__ == '__main__':"),
              ('variable', '__package__')])
+
+    @tag("bug97194")
+    def test_complete_magic_symbols_smart(self):
+        content, positions = unmark_text(dedent("""\
+            class foo:
+                def __<1>x(self):
+                    pass
+                def __<2>y(self, arg1):
+                    pass
+                def __<3>z(self, *args, **kwargs):
+                    pass
+        """))
+        for pos in range(1, 4):
+            self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
+                    [('function', '__init__'),
+                     ('function', '__call__')])
+            self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[pos]),
+                    [('function', '__init__(self'),
+                     ('function', '__call__(self')])
 
     @tag("bug88419")
     def test_set_literals(self):
