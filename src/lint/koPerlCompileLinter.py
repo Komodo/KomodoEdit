@@ -36,7 +36,7 @@
 # ***** END LICENSE BLOCK *****
 
 from xpcom import components, nsError, ServerException
-from koLintResult import KoLintResult, getProxiedEffectivePrefs
+from koLintResult import KoLintResult
 from koLintResults import koLintResults
 import os, re, sys
 import tempfile
@@ -416,7 +416,7 @@ class KoPerlCompileLinter(_CommonPerlLinter):
 
     def lint_with_text(self, request, text):
         cwd = request.cwd
-        prefset = getProxiedEffectivePrefs(request)
+        prefset = request.prefset
         # Remove a possible "-d" in the shebang line, this will tell Perl to
         # launch the debugger which, if the PDK is installed, is the PDK
         # debugger.  Be careful to handle single-line files correctly.
@@ -487,7 +487,7 @@ class KoPerlCriticLinter(_CommonPerlLinter):
         return self.lint_with_text(request, text)        
         
     def lint_with_text(self, request, text):
-        prefset = getProxiedEffectivePrefs(request)
+        prefset = request.prefset
         criticLevel = prefset.getStringPref('perl_lintOption_perlCriticLevel')
         if criticLevel == 'off':
             return

@@ -58,7 +58,7 @@ import logging
 from pprint import pprint# , pformat
 
 import koLintResult
-from koLintResult import KoLintResult, getProxiedEffectivePrefs
+from koLintResult import KoLintResult
 from koLintResults import koLintResults
 
 import projectUtils
@@ -127,7 +127,7 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
     def lint_with_text(self, request, text):
         if not text:
             return None
-        prefset = getProxiedEffectivePrefs(request)
+        prefset = request.prefset
         if not prefset.getBooleanPref(self.lint_prefname):
             return
         # if not prefset.getBooleanPref("lintWithPylint"): return
@@ -261,7 +261,7 @@ class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
     def lint_with_text(self, request, text):
         if not text:
             return None
-        prefset = getProxiedEffectivePrefs(request)
+        prefset = request.prefset
         if not prefset.getBooleanPref(self.lint_prefname):
             return
         pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
@@ -331,7 +331,7 @@ class KoPythonCommonPycheckerLinter(_GenericPythonLinter):
     def lint_with_text(self, request, text):
         if not text:
             return None
-        prefset = getProxiedEffectivePrefs(request)
+        prefset = request.prefset
         if not prefset.getBooleanPref(self.lint_prefname):
             return
         pychecker = prefset.getStringPref(self.wrapper_location)
@@ -506,7 +506,7 @@ class KoPythonCommonLinter(_GenericPythonLinter):
     def lint_with_text(self, request, text):
         encoding_name = request.encoding.python_encoding_name
         cwd = request.cwd
-        prefset = getProxiedEffectivePrefs(request)
+        prefset = request.prefset
         prefName = "lint_%s_with_standard_python" % self.language_name_lc
         if not prefset.getBooleanPref(prefName):
             return

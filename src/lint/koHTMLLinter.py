@@ -38,7 +38,7 @@
 
 from xpcom import components, ServerException
 from xpcom.server import UnwrapObject
-from koLintResult import KoLintResult, getProxiedEffectivePrefs
+from koLintResult import KoLintResult
 from koLintResults import koLintResults
 from xpcom.server.enumerator import *
 import os, sys, re
@@ -633,8 +633,7 @@ class _CommonHTMLLinter(object):
                     elif koDoc_language not in ("HTML", "HTML5"):
                         # For HTML markup langs and templating langs, use the
                         # default HTML decl to see if they want HTML5 - bug 88884.
-                        prefset = getProxiedEffectivePrefs(request)
-                        if "HTML 5" in prefset.getStringPref("defaultHTMLDecl"):
+                        if "HTML 5" in request.prefset.getStringPref("defaultHTMLDecl"):
                             langName = "HTML5"
             linter = self._linterByName(langName, lintersByName)
             if linter:
@@ -771,7 +770,7 @@ class CommonTidyLinter(object):
 
     _xhtml_doctype_re = re.compile(r'(?:<\?xml[^>]*>)?<!doctype\b[^>]*?(?://W3C//DTD XHTML|/xhtml\d*\.dtd)[^>]*>', re.DOTALL|re.IGNORECASE)
     def lint_with_text(self, request, text):
-        prefset = getProxiedEffectivePrefs(request)
+        prefset = request.prefset
         if not prefset.getBooleanPref("lintHTMLTidy"):
             return
         cwd = request.cwd
@@ -981,7 +980,7 @@ class _invokePerlLinter(object):
         if not text:
             #log.debug("<< no text")
             return
-        prefset = getProxiedEffectivePrefs(request)
+        prefset = request.prefset
         if not prefset.getBooleanPref(perlHTMLCheckerPrefName):
             return
         perlLintDir = os.path.join(components.classes["@activestate.com/koDirs;1"].\
@@ -1113,7 +1112,7 @@ class KoHTML5_html5libLinter:
     def lint_with_text(self, request, text):
         if not text:
             return
-        prefset = getProxiedEffectivePrefs(request)
+        prefset = request.prefset
         if not prefset.getBooleanPref('lintHTML5Lib'):
             return
         textLines = text.splitlines()

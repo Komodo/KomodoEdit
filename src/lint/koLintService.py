@@ -39,9 +39,11 @@ import os, sys
 import threading
 import time
 import urllib2
+
+from zope.cachedescriptors.property import Lazy as LazyProperty
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import WrapObject, UnwrapObject
-from koLintResult import KoLintResult, getProxiedEffectivePrefs
+from koLintResult import KoLintResult
 from koLintResults import koLintResults
 
 import logging
@@ -252,6 +254,10 @@ class KoLintRequest:
         # Komodo may crash!
         self._koDoc = val
 
+    @LazyProperty
+    def prefset(self):
+        return self.koDoc.getEffectivePrefs()
+
     def describe(self):
         return "<KoLintRequest: %s on uid %s>" % (self.linterType, self.uid)
 
@@ -277,8 +283,6 @@ class KoLintService:
         _observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
         _observerSvc.addObserver(self._wrapped, 'xpcom-shutdown', 1)
-        self._prefs = components.classes["@activestate.com/koPrefService;1"].\
-            getService(components.interfaces.koIPrefService).prefs
 
         # dict of { 'terminals' => array of linters, 'aggregators' => array of linters }
         self._linterCIDsByLanguageName = {}
@@ -544,7 +548,7 @@ class KoLintService:
     # Also, it's too bad that doc prefs aren't versioned.
     _no_longer_generic_languages = ["Python3", "HTML5"]
     def _passesGenericCheck(self, request):
-        prefs = request.koDoc.prefs
+        prefs = request.prefset
         languageName = request.koDoc.language
         genericCheck = "genericLinter:" + languageName
         if not prefs.hasPref(genericCheck):
@@ -609,8 +613,7 @@ class KoLintService:
                         log.debug("manager thread: linter.lint(request) returned")
                     if TIME_LINTS: endlintlint = time.clock()
 
-                    prefset = getProxiedEffectivePrefs(request)
-                    if prefset.getBooleanPref("lintEOLs"):
+                    if request.prefset.getBooleanPref("lintEOLs"):
                         # Also look for mixed-line endings warnings.
                         self._addMixedEOLWarnings(results, request.content,
                             request.koDoc.new_line_endings)

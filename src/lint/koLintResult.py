@@ -45,12 +45,6 @@ import process
 from xpcom import components
 from koLintResults import koLintResults
 
-def getProxiedEffectivePrefs(request):
-    return request.koDoc.getEffectivePrefs()
-
-def getProxiedEffectivePrefsByName(request, prefName):
-    return request.koDoc.getEffectivePrefsByName(prefName)
-
 SEV_ERROR = 2   # No xpcom here :(
 SEV_WARNING = 1
 SEV_INFO = 0

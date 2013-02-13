@@ -50,7 +50,7 @@ from xpcom import components, nsError, ServerException
 from xpcom.server import WrapObject, UnwrapObject
 from koXMLLanguageBase import KoDjangoTemplateFamilyBase
 
-from koLintResult import KoLintResult, getProxiedEffectivePrefs
+from koLintResult import KoLintResult
 from koLintResults import koLintResults
 
 log = logging.getLogger("koDjangoLanguage")
@@ -182,7 +182,6 @@ class KoDjangoLinter(object):
     def lint_with_text(self, request, text):
         if not text.strip():
             return None
-        prefset = getProxiedEffectivePrefs(request)
         cwd = request.cwd
         env = koprocessutils.getUserEnv()
         settingsDir = env.get("DJANGO_SETTINGS_MODULE", None)
@@ -198,7 +197,7 @@ class KoDjangoLinter(object):
 
                 #XXX: How to tell whether we're using Python or Python3?
                 prefName = "pythonExtraPaths"
-                pythonPath =  prefset.hasPref(prefName) and prefset.getStringPref(prefName) or None
+                pythonPath =  request.prefset.getString(prefName, "")
                 pythonPathEnv = env.get("PYTHONPATH", "")
                 if pythonPathEnv:
                     if pythonPath:

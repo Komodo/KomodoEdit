@@ -11,7 +11,7 @@ import re
 import tempfile
 import which
 
-from koLintResult import createAddResult, KoLintResult, getProxiedEffectivePrefs
+from koLintResult import createAddResult, KoLintResult
 import koLintResult
 from koLintResults import koLintResults
 import koprocessutils
@@ -69,7 +69,7 @@ class KoSCSSCommonLinter(KoCommonCSSLintCode):
     _syntaxErrorPtn = re.compile(r'^Syntax error:\s*(.*)$')
     def lint_with_text(self, request, text):
         try:
-            prefset = getProxiedEffectivePrefs(request)
+            prefset = request.prefset
             linterPrefName = "%sLinterType" % self.cmd
             scssLinterType = prefset.getStringPref(linterPrefName)
             if scssLinterType == "none":
@@ -179,7 +179,7 @@ class KoLessLinter(KoCSSLinter):
     _less_emsg_ptn = re.compile(r'^.*?Error:\s*(.*?)\s+on\s+line\s+(\d+)\s+in\s')
     def lint_with_text(self, request, text):
         try:
-            prefset = getProxiedEffectivePrefs(request)
+            prefset = request.prefset
             lessLinterType = prefset.getStringPref("lessLinterType")
             if lessLinterType == "none":
                 return

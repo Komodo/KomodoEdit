@@ -52,6 +52,7 @@
 #include "nsIObserverService.idl"
 interface koIDocument;
 interface koILintRequest;
+interface koIPreferenceSet;
 
 [scriptable, uuid(2164884D-492F-11d4-AC24-0090273E6A60)]
 interface koILintResult : nsISupports
@@ -161,6 +162,7 @@ interface koILintRequest : nsISupports {
     attribute long rid; // relatively-unique request id
     attribute koIDocument document; // DEPRECATED in Komodo 6.0.0, use `koDoc`
     attribute koIDocument koDoc;
+    attribute koIPreferenceSet prefset;
     attribute string uid;        // a unique view id
     // Specifying a null linterType will just result in an encoding check
     // on the document.

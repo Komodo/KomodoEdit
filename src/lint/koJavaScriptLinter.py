@@ -38,7 +38,7 @@
 
 from xpcom import components
 import koLintResult
-from koLintResult import KoLintResult, getProxiedEffectivePrefs, getProxiedEffectivePrefsByName
+from koLintResult import KoLintResult
 from koLintResults import koLintResults
 import os, sys, re, which
 import tempfile
@@ -159,7 +159,7 @@ class CommonJSLinter(object):
         cmd = [jsInterp, "-c"]
 
         # Set the JS linting preferences.
-        prefset = getProxiedEffectivePrefsByName(request, 'lintJavaScriptEnableWarnings')
+        prefset = request.prefset
         if not prefset.getBooleanPref("lintJavaScript_SpiderMonkey"):
             return
         enableWarnings = prefset.getBooleanPref('lintJavaScriptEnableWarnings')
@@ -317,7 +317,7 @@ class GenericJSLinter(CommonJSLinter):
         if not text:
             #log.debug("<< no text")
             return
-        prefset = getProxiedEffectivePrefsByName(request, prefSwitchName)
+        prefset = request.prefset
         if not prefset.getBooleanPref(prefSwitchName):
             return
         jsfilename, isMacro, datalines = self._make_tempfile_from_text(request, text)
@@ -489,7 +489,7 @@ class KoCoffeeScriptLinter(object):
     def lint_with_text(self, request, text):
         if not text:
             return None
-        prefset = getProxiedEffectivePrefsByName(request, "lint_coffee_script")
+        prefset = request.prefset
         if not prefset.getBooleanPref("lint_coffee_script"):
             return
         try:
