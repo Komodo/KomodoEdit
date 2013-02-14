@@ -402,6 +402,12 @@ this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(tool
         toolboxrow.removeAttribute('kohidden');
     }
     document.persist("main-toolboxrow", "kohidden");
+
+    // Update toolbar child visibility as otherwise it does not get updated
+    // when the visible children have changed but no overflow events
+    // were fired
+    document.getElementById('main-toolboxrow')._updateChildVisibility();
+
 }).bind(this);
 addEventListener("load", this._updateToolbarViewStates, false);
 

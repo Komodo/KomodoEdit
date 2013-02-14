@@ -370,7 +370,7 @@
                 }
                 
                 var build = (function build_(elem) {
-                    if (elem.hasAttribute("kohidden") || elem.hasAttribute("hidden")) {
+                    if (elem.getAttribute("kohidden")=="true" || elem.hasAttribute("hidden")) {
                         // this item is hidden, don't do anything here
                         return;
                     }
@@ -430,7 +430,7 @@
                 
                 // First, check for the first overflown child and its next siblings
                 Array.slice(this.querySelectorAll(
-                    "[first-child-overflow], [first-child-overflow] ~ *" 
+                    "[first-child-overflow], [first-child-overflow] ~ *"
                 )).forEach(build);
                 
                 // Then, check if the first overflown child is part of a larger
