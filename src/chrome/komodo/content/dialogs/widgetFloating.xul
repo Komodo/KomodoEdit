@@ -56,7 +56,50 @@
                 } catch (ex) {
                     ko.logging.getLogger("ko.widgets.floating").exception(ex);
                 }
+
+                // Steal keys from the main window
+                var log = ko.logging.getLogger("ko.widgets.floating");
+                var oldKeyset = opener.document.getElementById('widekeyset');
+                var newKeyset = document.importNode(oldKeyset, true);
+                document.documentElement.appendChild(newKeyset);
+                var commandset = document.createElement("commandset");
+                document.documentElement.appendChild(commandset);
+                 for (let key of newKeyset.querySelectorAll("key[command]")) {
+                    let elem = document.createElement("command");
+                    elem.setAttribute("id", key.getAttribute("command"));
+                    // The <command> element _must_ have an oncommand= attribute
+                    // in order to get triggered.  So we use a global function.
+                    elem.setAttribute("oncommand", "doProxiedCommand(event)");
+                    commandset.appendChild(elem);
+                }
             }, false);
+
+            /**
+             * Handle a key command from a <key> command by attempting to proxy
+             * it to the main Komodo window.
+             */
+            function doProxiedCommand(event) {
+                let command_id = event.target.id;
+                let proxy = opener.document.getElementById(command_id);
+                if (proxy) {
+                    // Prefer using a <command> element in the opener
+                    // to dispatch commands
+                    proxy.doCommand();
+                    return;
+                }
+                // Didn't find a useful <command> element; try using the
+                // command dispatcher system instead.
+                let controller = opener.document.commandDispatcher
+                                       .getControllerForCommand(command_id);
+                if (controller && controller.isCommandEnabled(command_id)) {
+                    log.debug("Dispatching " + command_id +
+                              " via command dispatcher: " + controller);
+                    controller.doCommand(command_id);
+                    return;
+                }
+                log.info("Failed to dispatch command " + command_id +
+                         ": couldn't find anything in the main window");
+            }
         ]]>
     </script>
     
