@@ -80,11 +80,6 @@ button[type="moreinfo"] > .button-box > .button-icon
     list-style-image: @icon-help;
 }
 
-#main-toolboxrow .help-icon
-{
-    list-style-image: @icon-help-toolbar;
-}
-
 .double-down-icon,
 .more-icon
 {
@@ -261,11 +256,6 @@ button[type="moreinfo"] > .button-box > .button-icon
     list-style-image: @icon-new-file;
 }
 
-toolbaritem .native-new-file-icon
-{
-    list-style-image: @icon-new-file-toolbar;
-}
-
 .new-window-icon
 {
     list-style-image: @icon-new-window;
@@ -275,11 +265,6 @@ toolbaritem .native-new-file-icon
 .open-file-icon
 {
     list-style-image: @icon-open-file;
-}
-
-#findToolbar .native_open_icon
-{
-    list-style-image: @icon-open-file-toolbar;
 }
 
 .native_folder_icon
@@ -304,12 +289,6 @@ toolbaritem .native-new-file-icon
 {
     list-style-image: @icon-native-save;
 }
-
-#main-toolboxrow .native-save-icon
-{
-    list-style-image: @icon-save-toolbar;
-}
-
 
 .run-command-icon
 {
@@ -488,6 +467,277 @@ treechildren::-moz-tree-image(remotefile)
 }
 
 /* Toolbars */
+#main-toolboxrow-wrapper
+{
+    .history-back-icon
+    {
+        list-style-image: @icon-toolbar-back;
+    }
+    
+    .history-forward-icon
+    {
+        list-style-image: @icon-toolbar-forward;
+    }
+    
+    .native-undo-icon
+    {
+        list-style-image: @icon-toolbar-undo;
+    }
+    
+    .native-redo-icon
+    {
+        list-style-image: @icon-toolbar-redo;
+    }
+    
+    .native-new-file-icon
+    {
+        list-style-image: @icon-toolbar-new-file;
+    }
+    
+    .native_open_icon
+    {
+        list-style-image: @icon-toolbar-open-file;
+    }
+    
+    .native-save-icon
+    {
+        list-style-image: @icon-toolbar-save;
+    }
+    
+    .save-all-buffers-icon
+    {
+        list-style-image: @icon-toolbar-save-all;
+    }
+    
+    .cut-button, /* deprecated since Komodo 7 */
+    .native-cut-icon
+    {
+        list-style-image: @icon-toolbar-cut;
+    }
+    
+    .copy-button, /* deprecated since Komodo 7 */
+    .native-copy-icon
+    {
+        list-style-image: @icon-toolbar-copy;
+    }
+    
+    .paste-button, /* deprecated since Komodo 7 */
+    .native-paste-icon
+    {
+        list-style-image: @icon-toolbar-paste;
+    }
+    
+    .print-button, /* deprecated since Komodo 7 */
+    .native-print-icon
+    {
+        list-style-image: @icon-toolbar-print;
+    }
+    
+    .native-help-icon,
+    .help-icon
+    {
+        list-style-image: @icon-toolbar-help;
+    }
+    
+    #buttonBrowserPreview
+    {
+        list-style-image: @icon-toolbar-browser-preview;
+    }
+    
+    /* Addon Icons */
+    
+    .rx-icon
+    {
+        list-style-image: @icon-toolbar-rx;
+    }
+    
+    .http-inspector
+    {
+        list-style-image: @icon-toolbar-http-inspector !important;
+    }
+    
+    .ishell-icon
+    {
+        list-style-image: @icon-toolbar-ishell !important;
+    }
+    
+    #tb_tdkTclMenu
+    {
+        list-style-image: @icon-toolbar-tcldevkit !important;
+    }
+    
+    #tb_pdkPerlMenu
+    {
+        list-style-image: @icon-toolbar-perldevkit !important;
+    }
+    
+    #toggleLeftPane
+    {
+        list-style-image: @icon-toolbar-toggle-left-pane;
+    }
+    
+    #toggleRightPane
+    {
+        list-style-image: @icon-toolbar-toggle-right-pane;
+    }
+    
+    #toggleBottomPane
+    {
+        list-style-image: @icon-toolbar-toggle-bottom-pane;
+    }
+    
+    #toggleLeftPane[checked="true"]
+    {
+        list-style-image: @icon-toolbar-toggle-left-pane-checked;
+    }
+    
+    #toggleRightPane[checked="true"]
+    {
+        list-style-image: @icon-toolbar-toggle-right-pane-checked;
+    }
+    
+    #toggleBottomPane[checked="true"]
+    {
+        list-style-image: @icon-toolbar-toggle-bottom-pane-checked;
+    }
+    
+    .tabPicker-icon
+    {
+        list-style-image: @icon-toolbar-tabpicker;
+    }
+
+    // SCC overrides have !important because platform.less is included before SCC.css
+    
+    .scc-button-menu
+    {
+        list-style-image: @icon-toolbar-scc !important;
+    }
+    
+    .scc-button-checkout
+    {
+        list-style-image: @icon-toolbar-scc-checkout !important;
+    }
+    
+    .scc-button-add
+    {
+        list-style-image: @icon-toolbar-scc-add !important;
+    }
+    
+    .scc-button-edit
+    {
+        list-style-image: @icon-toolbar-scc-edit !important;
+    }
+    
+    .scc-button-revert
+    {
+        list-style-image: @icon-toolbar-scc-revert !important;
+    }
+    
+    .scc-button-remove
+    {
+        list-style-image: @icon-toolbar-scc-remove !important;
+    }
+    
+    .scc-button-update
+    {
+        list-style-image: @icon-toolbar-scc-update !important;
+    }
+    
+    .scc-button-diff
+    {
+        list-style-image: @icon-toolbar-scc-diff !important;
+    }
+    
+    .scc-button-history
+    {
+        list-style-image: @icon-toolbar-scc-history !important;
+    }
+    
+    .scc-button-commit
+    {
+        list-style-image: @icon-toolbar-scc-commit !important;
+    }
+    
+    .scc-button-push
+    {
+        list-style-image: @icon-toolbar-scc-push !important;
+    }
+
+    // Debug overrides have !important because platform.less is included before debugger.css
+    
+    .debug-stepin-icon
+    {
+        list-style-image: @icon-toolbar-debug-stepin !important;
+    }
+    
+    .debug-stepover-icon
+    {
+        list-style-image: @icon-toolbar-debug-stepover !important;
+    }
+    
+    .debug-stepout-icon
+    {
+        list-style-image: @icon-toolbar-debug-stepout !important;
+    }
+    
+    .debug-continue-icon
+    {
+        list-style-image: @icon-toolbar-debug-continue !important;
+    }
+    
+    .debug-break-icon
+    {
+        list-style-image: @icon-toolbar-debug-break !important;
+    }
+    
+    .debug-stop-icon
+    {
+        list-style-image: @icon-toolbar-debug-stop !important;
+    }
+    
+    .macro-play-icon
+    {
+        list-style-image: @icon-toolbar-macro-play !important;
+    }
+    
+    .macro-pause-icon
+    {
+        list-style-image: @icon-toolbar-macro-pause !important;
+    }
+    
+    .macro-record-icon
+    {
+        list-style-image: @icon-toolbar-macro-record !important;
+    }
+    
+    .macro-stop-icon
+    {
+        list-style-image: @icon-toolbar-macro-stop !important;
+    }
+    
+    .macro-save-icon
+    {
+        list-style-image: @icon-toolbar-macro-save !important;
+    }
+    
+    .komodo-button-community
+    {
+        list-style-image: @icon-community;
+    }
+    
+    .komodo-button-maillist
+    {
+        list-style-image: @icon-maillist;
+    }
+    
+    .komodo-button-bugs
+    {
+        list-style-image: @icon-bugs;
+    }
+
+}
+
+/* Icons that appear in menu's and misc places */
 #buttonBrowserPreview
 {
     list-style-image: @icon-browser-preview;
@@ -539,41 +789,6 @@ treechildren::-moz-tree-image(remotefile)
 #tabs-closebutton
 {
     list-style-image: @icon-close;
-}
-
-#toggleLeftPane
-{
-    list-style-image: @icon-toggle-left-pane;
-}
-
-#toggleRightPane
-{
-    list-style-image: @icon-toggle-right-pane;
-}
-
-#toggleBottomPane
-{
-    list-style-image: @icon-toggle-bottom-pane;
-}
-
-#toggleLeftPane[checked="true"]
-{
-    list-style-image: @icon-toggle-left-pane-checked;
-}
-
-#toggleRightPane[checked="true"]
-{
-    list-style-image: @icon-toggle-right-pane-checked;
-}
-
-#toggleBottomPane[checked="true"]
-{
-    list-style-image: @icon-toggle-bottom-pane-checked;
-}
-
-.tabPicker-icon
-{
-    list-style-image: @icon-tabpicker;
 }
 
 #main-toolboxrow .overflow-toolbarbutton .toolbarbutton-icon
@@ -641,6 +856,8 @@ treechildren::-moz-tree-image(remotefile)
 
 /* SCC Icons */
 
+// SCC overrides have !important because platform.less is included before SCC.css
+
 .scc-button-menu
 {
     list-style-image: @icon-addon-scc !important;
@@ -698,87 +915,46 @@ treechildren::-moz-tree-image(remotefile)
 
 /* Debug Icons */
 
+// Debug overrides have !important because platform.less is included before debugger.css
+
 .debug-stepin-icon
 {
-    list-style-image: @icon-addon-debug-stepin !important;
+    list-style-image: @icon-debug-stepin !important;
 }
 
 .debug-stepover-icon
 {
-    list-style-image: @icon-addon-debug-stepover !important;
+    list-style-image: @icon-debug-stepover !important;
 }
 
 .debug-stepout-icon
 {
-    list-style-image: @icon-addon-debug-stepout !important;
+    list-style-image: @icon-debug-stepout !important;
 }
 
 .debug-continue-icon
 {
-    list-style-image: @icon-addon-debug-continue !important;
+    list-style-image: @icon-debug-continue !important;
 }
 
 .debug-break-icon
 {
-    list-style-image: @icon-addon-debug-break !important;
+    list-style-image: @icon-debug-break !important;
 }
 
 .debug-stop-icon
 {
-    list-style-image: @icon-addon-debug-stop !important;
+    list-style-image: @icon-debug-stop !important;
 }
 
 .debug-detach-icon
 {
-    list-style-image: @icon-addon-debug-detach !important;
+    list-style-image: @icon-debug-detach !important;
 }
 
 .debug-inspect-icon
 {
-    list-style-image: @icon-addon-debug-inspect !important;
-}
-
-#main-toolboxrow
-{
-    .debug-stepin-icon
-    {
-        list-style-image: @icon-addon-debug-stepin-toolbox !important;
-    }
-    
-    .debug-stepover-icon
-    {
-        list-style-image: @icon-addon-debug-stepover-toolbox !important;
-    }
-    
-    .debug-stepout-icon
-    {
-        list-style-image: @icon-addon-debug-stepout-toolbox !important;
-    }
-    
-    .debug-continue-icon
-    {
-        list-style-image: @icon-addon-debug-continue-toolbox !important;
-    }
-    
-    .debug-break-icon
-    {
-        list-style-image: @icon-addon-debug-break-toolbox !important;
-    }
-    
-    .debug-stop-icon
-    {
-        list-style-image: @icon-addon-debug-stop-toolbox !important;
-    }
-    
-    .debug-detach-icon
-    {
-        list-style-image: @icon-addon-debug-detach-toolbox !important;
-    }
-    
-    .debug-inspect-icon
-    {
-        list-style-image: @icon-addon-debug-inspect-toolbox !important;
-    }
+    list-style-image: @icon-debug-inspect !important;
 }
 
 /* Macro Icons */
