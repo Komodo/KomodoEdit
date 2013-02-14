@@ -580,10 +580,10 @@ if ( ! ("less" in ko))
                     var resolvedPath    = Services.io.newURI(fileUri, "UTF-8", null);
                     resolvedPath        = nsIChromeReg.convertChromeURL(resolvedPath);
                     
-                    if (resolvedPath instanceof Components.interfaces.nsINestedURI)
+                    if (resolvedPath instanceof Ci.nsINestedURI)
                     {
                         resolvedPath = resolvedPath.innermostURI;
-                        if (resolvedPath instanceof Components.interfaces.nsIFileURL)
+                        if (resolvedPath instanceof Ci.nsIFileURL)
                         {
                             return this.resolveFile(resolvedPath.file.path);
                         }
@@ -597,12 +597,14 @@ if ( ! ("less" in ko))
                 // resource:// uri, load it up and return the path
                 case 'resource':
                     filePath = Services.io.newURI(fileUri, null,null)
-                                .QueryInterface(Components.interfaces.nsIFileURL).file.path;
+                                .QueryInterface(Ci.nsIFileURL).file.path;
                     break;
                 
                 // file:// uri, just strip the prefix and get on with it
                 case 'file':
-                    filePath = NetUtil.newURI(fileUri).path;
+                    filePath = NetUtil.newURI(fileUri)
+                                      .QueryInterface(Ci.nsIFileURL)
+                                      .file.path;
                     break;
                 
                 // Looks like we already have the correct path
