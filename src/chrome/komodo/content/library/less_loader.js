@@ -22,10 +22,16 @@
         
         if (topWindow.ko == undefined || topWindow.ko.less == undefined)
         {
-            window.addEventListener('ko.less.initialized', load);
+            topWindow.addEventListener('ko.less.initialized', init);
             return;
         }
-        
+
+        if (typeof ko === "undefined")
+        {
+            window.ko = {};
+        }
+        ko.less = topWindow.ko.less;
+
         load();
     }
     
