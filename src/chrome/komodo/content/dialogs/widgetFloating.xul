@@ -56,19 +56,6 @@
                 } catch (ex) {
                     ko.logging.getLogger("ko.widgets.floating").exception(ex);
                 }
-                /* for mac only, fake dependent windows */
-                if (Services.appinfo.widgetToolkit == "cocoa") {
-                    let getXULWin = function(win)
-                        win.QueryInterface(Ci.nsIInterfaceRequestor)
-                           .getInterface(Ci.nsIWebNavigation)
-                           .QueryInterface(Ci.nsIDocShellTreeItem)
-                           .treeOwner
-                           .QueryInterface(Ci.nsIInterfaceRequestor)
-                           .getInterface(Ci.nsIXULWindow);
-                    Cc["@activestate.com/koIWindowManagerUtils;1"]
-                      .getService(Ci.koIWindowManagerUtils);
-                      //.setOnTop(getXULWin(window), getXULWin(opener), true);
-                }
             }, false);
         ]]>
     </script>
