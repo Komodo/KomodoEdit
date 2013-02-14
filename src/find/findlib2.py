@@ -812,7 +812,7 @@ class ReplaceHitGroup(Hit):
         a = self.path
         if not sys.platform == "win32":
             home = os.environ["HOME"]
-            if a.startswith(home):
+            if a.startswith(home + os.sep):
                 a = "~" + a[len(home):]
         if len(r) < len(a):
             return r
@@ -939,7 +939,7 @@ class JournalReplaceRecord(Event):
         a = self.path
         if not sys.platform == "win32":
             home = os.environ["HOME"]
-            if a.startswith(home):
+            if a.startswith(home + os.sep):
                 a = "~" + a[len(home):]
         if len(r) < len(a):
             return r

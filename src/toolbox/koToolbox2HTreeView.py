@@ -178,6 +178,12 @@ def _koToolHViewFromTool(tool):
 
 #---- Toolbox tree view
 
+
+def _appendDirSepIfNeeded(s):
+    if s[-1] == os.sep:
+        return s
+    return s + os.sep
+    
 class KoToolbox2HTreeView(TreeView):
     """
     There are actually four tree views here.  They each contain an
@@ -548,7 +554,7 @@ class KoToolbox2HTreeView(TreeView):
                     #TODO: Bundle all the problems into one string that gets raised back.
                     log.debug("Path %s doesn't exist", path)
                 elif os.path.isdir(path):
-                    if targetPath.startswith(path):
+                    if targetPath.startswith(_appendDirSepIfNeeded(path)):
                         log.error("Refuse to copy path %s into one of its descendants (%s)",
                                   path, targetPath)
                         continue
@@ -573,7 +579,7 @@ class KoToolbox2HTreeView(TreeView):
                 log.debug("Path %s doesn't exist", path)
                 continue
             if os.path.isdir(path):
-                if targetPath.startswith(path):
+                if targetPath.startswith(_appendDirSepIfNeeded(path)):
                     log.error("Refuse to move path %s into one of its descendants (%s)",
                               path, targetPath)
                     continue
@@ -619,7 +625,7 @@ class KoToolbox2HTreeView(TreeView):
             #TODO: Bundle all the problems into one string that gets raised back.
             log.debug("Path %s doesn't exist", srcPath)
         elif os.path.isdir(srcPath):
-            if targetPath.startswith(srcPath):
+            if targetPath.startswith(_appendDirSepIfNeeded(srcPath)):
                 log.error("Refuse to copy path %s into one of its descendants (%s)",
                           srcPath, targetPath)
                 return

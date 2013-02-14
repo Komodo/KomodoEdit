@@ -282,20 +282,30 @@ this.contractUser = function(path) {
     if (!homePath) {
         return path;
     }
-    if (path.indexOf(homePath) == 0) {
+    if (path == homePath) {
+	return "~";
+    }
+    var sep = Components.classes["@activestate.com/koOs;1"].
+	      getService(Components.interfaces.koIOs).sep;
+    if (path.indexOf(homePath + sep) == 0) {
         return "~" + path.substr(homePath.length);
     }
+    // Try to contract paths like /home/otherGuy/dir1/dir2 to
+    // ~otherGuy/dir1/dir2
     var userName = userEnvironment.get("USER");
     if (!userName) {
         return path;
     }
+    // Find the dir that contains all the users.
     var idx = homePath.lastIndexOf(userName);
     if (idx == -1) {
         return path;
     }
-    var userPrefix = homePath.substr(0, idx) + userName;
+    var userPrefix = homePath.substr(0, idx);
+    // If this dir is a prefix of the current dir, assume the first part
+    // is a different user, and ~-contract it.
     if (path.indexOf(userPrefix) == 0) {
-        return "~" + userName + path.substr(userPrefix.length);
+        return "~" + path.substr(userPrefix.length);
     }
     return path;
 };

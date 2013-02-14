@@ -168,7 +168,7 @@ class PathHit(Hit):
             d = self.dir
             if isabs(d) and "HOME" in os.environ:
                 home = os.environ["HOME"]
-                if self.dir_normcase.startswith(home):
+                if self.dir_normcase.startswith(home + os.sep):
                     d = "~" + d[len(home):]
             self._nicedirCache = d
         return self._nicedirCache
