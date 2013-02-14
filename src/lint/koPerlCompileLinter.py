@@ -88,6 +88,11 @@ def PerlWarnsToLintResults(warns, perlfilename, actualFileName, perlcode):
     if type(perlfilename) == unicode:
         perlfilename = perlfilename.encode('utf-8')
     escPerlName = re.escape(perlfilename)
+    # Fix bug 96303 (again): Replace any runs of non-ascii characters with unescaped '.*'
+    # The other parts of the filename do get escaped.
+    perlfilename_ascii_parts = re.split(r'([^\x00-\x7f]+)', perlfilename)
+    escaped_even_parts = [re.escape(part) for part in perlfilename_ascii_parts[0::2]]
+    escPerlName = ".*?".join(escaped_even_parts)
     warnRe = re.compile(r'(?P<description>.*) at %s line (?P<lineNum>\d+)(?P<hint>.*)' % escPerlName)
     successRe = re.compile(r'%s syntax OK' % escPerlName)
     compilationFailedRe = re.compile(r'Compilation failed in require at %s' % escPerlName)
