@@ -51,7 +51,7 @@
     <script src="chrome://stackatotools/content/stackato.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://stackatotools/content/stackatoTrees.js" type="application/x-javascript;version=1.7"/>
 	
-	<script src="chrome://komodo/content/contrib/lessLoader.js" 	type="application/x-javascript" id="lessLoader"/>
+	<script src="chrome://komodo/content/library/less_loader.js" 	type="application/x-javascript"/>
 
   <!-- Commands -->
     <commandset id="stackato_commandset">

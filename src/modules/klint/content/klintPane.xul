@@ -94,8 +94,8 @@
         </tree>
     </vbox>
     
-    <script src="chrome://komodo/content/contrib/lessLoader.js"
-            type="application/x-javascript" id="lessLoader"/>
+    <script src="chrome://komodo/content/library/less_loader.js"
+            type="application/x-javascript"/>
 
 </page>
 

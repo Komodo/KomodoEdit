@@ -18,6 +18,8 @@ if (ko.skin == undefined)
     };
 }
 
+var _lessClearCache = undefined;
+
 (function() {
 
     const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
@@ -110,7 +112,7 @@ if (ko.skin == undefined)
                     // Unload the previous skin
                     try {
                         var file = self._getFile(prefOld[topic], true);
-                        self.unloadCustomSkin(file, true);
+                        self.unloadCustomSkin(file);
                     } catch (e) {}
                     
                     // Store new value for future updates
@@ -143,7 +145,7 @@ if (ko.skin == undefined)
                     // Unload current skin
                     try {
                         var file = self._getFile(prefOld[PREF_CUSTOM_SKIN], true);
-                        this.unloadCustomSkin(file, true);
+                        this.unloadCustomSkin(file);
                     } catch (e) {}
                     
                     // Store new value for future updates
@@ -295,7 +297,10 @@ if (ko.skin == undefined)
 	       return false;
             }
             
-            this.clearCache();
+            if (this.skinHasChanged)
+            {
+                this.clearCache();
+            }
 	    
 	    var initFile = file.parent;
 	    initFile.appendRelativePath('init.js');
@@ -372,23 +377,21 @@ if (ko.skin == undefined)
                 }
                 
                 // Clear less cache
-                if (typeof less !== 'undefined' && less.clearFileCache != undefined)
+                if ("less" in ko && "initialized" in ko.less)
                 {
-                    less.clearFileCache();
-                    less.refresh();
-                    
-                    for (let k in less.contextAware)
+                    var clearLessCache = function()
                     {
-                        if ( ! less.contextAware.hasOwnProperty(k))
+                        if ( ! ko.less.initialized)
                         {
-                            continue;
+                            // Need to account for the use-case where the
+                            // initialization may still be in progress
+                            setTimeout(clearLessCache, 50);
+                            return;
                         }
                         
-                        less.setContext(less.contextAware[k].window);
-                        less.refresh();
+                        ko.less.reload(true);
                     }
-                    
-                    less.restoreContext();
+                    clearLessCache();
                     
                     return;
                 }
@@ -397,11 +400,7 @@ if (ko.skin == undefined)
                 log.error(e.message);
             }
             
-            if (typeof window.less == 'undefined')
-            {
-                window.less = {};
-            }
-            window.less._clearFileCache = true;
+            _lessClearCache = true;
         },
         
         /**
@@ -453,7 +452,6 @@ if (ko.skin == undefined)
                     // Retrieving theme failed
                     if (prefs.getString(PREF_CUSTOM_SKIN, '') != '')
                     {
-                        this.koSkin.clearCache();
                         prefs.setStringPref(PREF_CUSTOM_SKIN,'');
                     }
                 }.bind(this));
@@ -487,11 +485,8 @@ if (ko.skin == undefined)
                 }
                 catch(e)
                 {
-                    if (typeof file == 'undefined' || prefs.getString(PREF_CUSTOM_SKIN, '') == file.path)
-                    {
-                        prefs.setStringPref(PREF_CUSTOM_SKIN,'');
-                        return;
-                    }
+                    prefs.setStringPref(PREF_CUSTOM_SKIN,'');
+                    return;
                 }
                 
                 if (prefs.getString(PREF_CUSTOM_SKIN, '') != file.path)

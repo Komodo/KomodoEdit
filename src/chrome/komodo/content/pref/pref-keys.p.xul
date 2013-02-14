@@ -61,7 +61,7 @@
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/koPrefUtils.js" type="application/x-javascript;version=1.7" />
 	
-	<script src="chrome://komodo/content/contrib/lessLoader.js" type="application/x-javascript" id="lessLoader"/>
+	<script src="chrome://komodo/content/library/less_loader.js" type="application/x-javascript"/>
 
     <!-- This main vbox is to ensure *all* the pref widgets are accessible,
          as it adds a scrollbar when the contents are too long. -->

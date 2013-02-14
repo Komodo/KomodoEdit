@@ -1,0 +1,175 @@
+--- smallstuff/less.js  1.3.3
++++ smallstuff/less.js  trunk
+@@ -1,3 +1,7 @@
++window.less = {};
++
++(function() {
++
+ //
+ // LESS - Leaner CSS v1.3.3
+ // http://lesscss.org
+@@ -223,6 +227,19 @@
+             var that = this;
+             this.queue.push(path);
+ 
++            var pId = env.sheet.href;
++            var id  = path;
++            
++            if (typeof ko.less.hierarchy.parents[id] == 'undefined') {
++                ko.less.hierarchy.parents[id] = {};
++            }
++            if (typeof ko.less.hierarchy.children[pId] == 'undefined') {
++                ko.less.hierarchy.children[pId] = {};
++            }
++            
++            ko.less.hierarchy.parents[id][pId] = true;
++            ko.less.hierarchy.children[pId][id] = true;
++
+             //
+             // Import a file asynchronously
+             //
+@@ -1636,7 +1653,7 @@
+         // We pass `true` as 3rd argument, to force the reload of the import.
+         // This is so we can get the syntax tree as opposed to just the CSS output,
+         // as we need this to evaluate the current stylesheet.
+-        loadStyleSheet({ 
++        ko.less.loadSheet({
+             href: path, 
+             title: path, 
+             type: env.mime, 
+@@ -3952,31 +3969,12 @@
+ 	}
+ }
+ 
+-if (/!watch/.test(location.hash)) {
+-	less.watch();
+-}
+-
+ var cache = null;
+ 
+ if (less.env != 'development') {
+     try {
+         cache = (typeof(window.localStorage) === 'undefined') ? null : window.localStorage;
+     } catch (_) {}
+-}
+-
+-//
+-// Get all <link> tags with the 'rel' attribute set to "stylesheet/less"
+-//
+-var links = document.getElementsByTagName('link');
+-var typePattern = /^text\/(x-)?less$/;
+-
+-less.sheets = [];
+-
+-for (var i = 0; i < links.length; i++) {
+-    if (links[i].rel === 'stylesheet/less' || (links[i].rel.match(/stylesheet/) &&
+-       (links[i].type.match(typePattern)))) {
+-        less.sheets.push(links[i]);
+-    }
+ }
+ 
+ //
+@@ -4014,8 +4012,6 @@
+     loadStyles();
+ };
+ less.refreshStyles = loadStyles;
+-
+-less.refresh(less.env === 'development');
+ 
+ function loadStyles() {
+     var styles = document.getElementsByTagName('style');
+@@ -4112,83 +4108,6 @@
+     returner.fileUrl = returner.path + (urlParts[4] || "");
+     returner.url = returner.fileUrl + (urlParts[5] || "");
+     return returner;
+-}
+-
+-function loadStyleSheet(sheet, callback, reload, remaining) {
+-    // sheet may be set to the stylesheet for the initial load or a collection of properties including
+-    // some env variables for imports
+-    var contents  = sheet.contents || {};
+-    var files     = sheet.files || {};
+-    var hrefParts = extractUrlParts(sheet.href, window.location.href);
+-    var href      = hrefParts.url;
+-    var css       = cache && cache.getItem(href);
+-    var timestamp = cache && cache.getItem(href + ':timestamp');
+-    var styles    = { css: css, timestamp: timestamp };
+-    var rootpath;
+-
+-    if (less.relativeUrls) {
+-        if (less.rootpath) {
+-            if (sheet.entryPath) {
+-                rootpath = extractUrlParts(less.rootpath + pathDiff(hrefParts.path, sheet.entryPath)).path;
+-            } else {
+-                rootpath = less.rootpath;
+-            }
+-        } else {
+-            rootpath = hrefParts.path;
+-        }
+-    } else  {
+-        if (less.rootpath) {
+-            rootpath = less.rootpath;
+-        } else {
+-            if (sheet.entryPath) {
+-                rootpath = sheet.entryPath;
+-            } else {
+-                rootpath = hrefParts.path;
+-            }
+-        }
+-    }
+-
+-    xhr(href, sheet.type, function (data, lastModified) {
+-        // Store data this session
+-        session_cache += data.replace(/@import .+?;/ig, '');
+-
+-        if (!reload && styles && lastModified &&
+-           (new(Date)(lastModified).valueOf() ===
+-            new(Date)(styles.timestamp).valueOf())) {
+-            // Use local copy
+-            createCSS(styles.css, sheet);
+-            callback(null, null, data, sheet, { local: true, remaining: remaining }, href);
+-        } else {
+-            // Use remote copy (re-parse)
+-            try {
+-                contents[href] = data;  // Updating top importing parser content cache
+-                new(less.Parser)({
+-                    optimization: less.optimization,
+-                    paths: [hrefParts.path],
+-                    entryPath: sheet.entryPath || hrefParts.path,
+-                    mime: sheet.type,
+-                    filename: href,
+-                    rootpath: rootpath,
+-                    relativeUrls: sheet.relativeUrls,
+-                    contents: contents,    // Passing top importing parser content cache ref down.
+-                    files: files,
+-                    dumpLineNumbers: less.dumpLineNumbers
+-                }).parse(data, function (e, root) {
+-                    if (e) { return error(e, href) }
+-                    try {
+-                        callback(e, root, data, sheet, { local: false, lastModified: lastModified, remaining: remaining }, href);
+-                        removeNode(document.getElementById('less-error-message:' + extractId(href)));
+-                    } catch (e) {
+-                        error(e, href);
+-                    }
+-                });
+-            } catch (e) {
+-                error(e, href);
+-            }
+-        }
+-    }, function (status, url) {
+-        throw new(Error)("Couldn't load " + url + " (" + status + ")");
+-    });
+ }
+ 
+ function extractId(href) {
+@@ -4412,3 +4331,9 @@
+ }
+ })(window);
+ 
++window.less.initialized = true;
++var evt = document.createEvent("Event");
++evt.initEvent("lessLoaded",true,true);
++window.dispatchEvent(evt);
++
++}).call();
+
