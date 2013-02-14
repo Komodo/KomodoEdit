@@ -99,14 +99,19 @@ if ( ! ("less" in ko))
             }
             
             this.initialized = true;
-            
-            // Let the less loaders know wer're ready
-            xtk.domutils.fireEvent(window, 'ko.less.initialized');
 
-            if (typeof _lessClearCache != 'undefined')
+            // Clear the less cache if Komodo has been up/down-graded
+            // or if an external lib (eg. ko.skin) has told us to
+            var cacheVersion    = ko.prefs.getString('lessCacheVersion', '');
+            var platVersion     = Services.prefs.getCharPref("extensions.lastPlatformVersion");
+            if (typeof _lessClearCache != 'undefined' || cacheVersion != platVersion)
             {
+                ko.prefs.setStringPref('lessCacheVersion', platVersion);
                 this.cache.clear();
             }
+
+            // Let the less loaders know wer're ready
+            xtk.domutils.fireEvent(window, 'ko.less.initialized');
             
             this.load();
         },
@@ -501,7 +506,7 @@ if ( ! ("less" in ko))
              */
             clear: function ko_less_cache_clear()
             {
-                self.debug('Clearing local and file cache');
+                self.warn('Clearing local and file cache');
                 
                 // Reset localCache
                 for (let [,k] in Iterator(Object.keys(self.localCache)))
@@ -679,6 +684,18 @@ if ( ! ("less" in ko))
             log.debug('ko.less {' + (time - this.timer) + '}: ' + message);
         },
         
+        /**
+         * Log Warn Wrapper
+         *
+         * @param   {String} message
+         *
+         * @returns {Void}
+         */
+        warn: function ko_less_warn(message)
+        {
+            log.warn(message);
+        },
+
         /**
          * Log Error Wrapper
          * 
