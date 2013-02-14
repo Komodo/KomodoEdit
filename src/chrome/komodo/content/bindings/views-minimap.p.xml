@@ -30,7 +30,8 @@
         <body><![CDATA[
         try {
             this.view = view;
-	    var koDoc = view.koDoc;
+            //this.log.setLevel(ko.logging.LOG_DEBUG);
+            var koDoc = view.koDoc;
             this.koDoc = koDoc;
             var scintilla = this.scintilla;
             scintilla.language = koDoc.language;
@@ -42,7 +43,9 @@
             this.view._setupHighlightColors(scintilla);
             scintilla.scimoz.hookEvents(this);
             var mm_scimoz = scintilla.scimoz;
-            mm_scimoz.zoom = -100;
+            // -10 is the lowest possible zoom. Lower values are accepted, but
+            // have no effect, and make it look like ctrl-scroll doesn't work.
+            mm_scimoz.zoom = koDoc.prefs.getLong("minimap.zoom", -10);
             mm_scimoz.hScrollBar = false;
             mm_scimoz.vScrollBar = true;
             mm_scimoz.setMarginWidthN(2, 0);
@@ -64,6 +67,7 @@
         <body>
         <![CDATA[
             this.koDoc = koDoc;
+            this.scimoz.zoom = koDoc.prefs.getLong("minimap.zoom", -10);
             koDoc.addScimoz(this.scimoz);
         ]]>
         </body>
@@ -73,6 +77,7 @@
         <body>
         <![CDATA[
             if (this.koDoc) {
+                this.koDoc.prefs.setLongPref("minimap.zoom", this.scimoz.zoom);
                 this.koDoc.releaseScimoz(this.scimoz)
             }
         ]]>
@@ -152,7 +157,7 @@
         
         <field name="ignoreUpdateUIStartTime">0</field>
         <!-- wait 500 msec after handling a click before responding to UI updates -->
-	<field name="ignoreUpdateUIPeriod">500</field> 
+        <field name="ignoreUpdateUIPeriod">500</field> 
         <method name="onUpdateUI">
         <body>
         <![CDATA[
@@ -237,7 +242,7 @@
         <parameter name="event" />
         <body>
         <![CDATA[
-            this.log("views-minimap: "
+            this.log.debug("views-minimap: "
 + event.type + ": event.button: " + event.button
 + ", phase: " + event.eventPhase);
         ]]>
@@ -327,12 +332,18 @@
         <handler event="mousedown" phase="capturing">
         <![CDATA[
         //this._reportEvent(event);
+        if (event.button != 0) {
+            return true;
+        }
         return this._squelchEvent(event);
         ]]>
         </handler>
         
         <handler event="mousedown">
         <![CDATA[
+        if (event.button != 0) {
+            return true;
+        }
         return this._squelchEvent(event);
         ]]>
         </handler>
@@ -340,10 +351,23 @@
         <handler event="mouseup" phase="capturing">
         <![CDATA[
         //this._reportEvent(event);
+        if (event.button != 0) {
+            return true;
+        }
         if (event.button === 0) {   // 0: primary button (usually the left)
             this.handleButtonClick(event);
         }
         return this._squelchEvent(event);
+        ]]>
+        </handler>
+        
+        <handler event="mouseup">
+        <![CDATA[
+        //this._reportEvent(event);
+        if (event.button != 0) {
+            return true;
+        }
+        return undefined;
         ]]>
         </handler>
         

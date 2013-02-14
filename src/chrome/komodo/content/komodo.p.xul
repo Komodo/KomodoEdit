@@ -313,6 +313,30 @@
                 label="&propertiesAndSettings.label;"
                 observes="cmd_editPrefsCurrent"/>
     </menupopup>
+    
+    <menupopup id="minimapContextMenu"
+               class="has-iconic-menuitems">
+        <menuitem label="&increaseFont.label;"
+                  id="menu_minimap_fontZoomIn"
+                  accesskey="&increaseFont.accesskey;"
+                  observes="cmd_minimap_fontZoomIn"
+                  />
+        <menuitem label="&decreaseFont.label;"
+                  id="menu_minimap_fontZoomOut"
+                  accesskey="&decreaseFont.accesskey;"
+                  observes="cmd_minimap_fontZoomOut"
+                  />
+        <menuitem label="&resetFontSize.label;"
+                  id="menu_minimap_fontZoomReset"
+                  accesskey="&resetFontSize.accesskey;"
+                  observes="cmd_minimap_fontZoomReset"
+                  />
+        <menuitem label="&hideMinimap.label;"
+                  id="menu_minimap_hide"
+                  accesskey="&hideMinimap.accesskey;"
+                  observes="cmd_minimap_hide"
+                  />
+    </menupopup>
 
 <!-- Popup for clicking on the *tab* in the Editor -->
     <menupopup id="tabContextMenu">

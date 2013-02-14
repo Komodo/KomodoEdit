@@ -2288,6 +2288,52 @@ viewManager.prototype.do_cmd_showHideMinimap = function () {
                               !view.prefs.getBoolean("editShowMinimap", false));
 };
 
+viewManager.prototype.is_cmd_minimap_fontZoom_enabled = function () {
+    // As long as we have an editor/view, mark all minimap menu items enabled.
+    var view = this.currentView;
+    return view && view.getAttribute("type") == "editor";
+};
+viewManager.prototype.is_cmd_minimap_fontZoomIn_enabled = function () {
+    return this.is_cmd_minimap_fontZoom_enabled();
+};
+viewManager.prototype.is_cmd_minimap_fontZoomOut_enabled = function () {
+    return this.is_cmd_minimap_fontZoom_enabled();
+};
+viewManager.prototype.is_cmd_minimap_fontZoomReset_enabled = function () {
+    return this.is_cmd_minimap_fontZoom_enabled();
+};
+viewManager.prototype.is_cmd_minimap_hide_enabled = function () {
+    return this.is_cmd_minimap_fontZoom_enabled();
+};
+
+viewManager.prototype._do_cmd_minimap_fontZoom = function(arg) {
+    var minimap, view = this.currentView;
+    if (!view || !(minimap = view.minimap)) {
+        return;
+    }
+    minimap.scimoz.zoom += arg;
+};
+viewManager.prototype.do_cmd_minimap_fontZoomIn = function () {
+    this._do_cmd_minimap_fontZoom(1);
+};
+viewManager.prototype.do_cmd_minimap_fontZoomOut = function () {
+    this._do_cmd_minimap_fontZoom(-1);
+};
+viewManager.prototype.do_cmd_minimap_fontZoomReset = function () {
+    var minimap, view = this.currentView;
+    if (!view || !(minimap = view.minimap)) {
+        return;
+    }
+    minimap.scimoz.zoom = -10;
+};
+viewManager.prototype.do_cmd_minimap_hide = function () {
+    var view = this.currentView;
+    if (view) {
+        view.prefs.setBooleanPref("editShowMinimap", false);
+        document.getElementById("menu_showHideMinimap").removeAttribute("checked");
+    }
+};
+
 viewManager.prototype.notify_visited_directory = function(path) {
     var event = document.createEvent("DataContainerEvents");
     event.initEvent('visit_directory_proposed', true, true);

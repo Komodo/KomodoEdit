@@ -1319,6 +1319,26 @@
             oncommand="ko.commands.doCommandAsync('cmd_invokeHyperlink', event)"
             disabled="true"
             desc="&editorInvokeHyperlink.desc;"/>
+        <command
+            id="cmd_minimap_fontZoomIn" key="key_cmd_minimap_fontZoomIn"
+            oncommand="ko.commands.doCommandAsync('cmd_minimap_fontZoomIn', event)"
+            disabled="true"
+            desc="&minimapZoomFontSizeUp.desc;"/>
+        <command
+            id="cmd_minimap_fontZoomOut" key="key_cmd_minimap_fontZoomOut"
+            oncommand="ko.commands.doCommandAsync('cmd_minimap_fontZoomOut', event)"
+            disabled="true"
+            desc="&minimapZoomFontSizeDown.desc;"/>
+        <command
+            id="cmd_minimap_fontZoomReset" key="key_cmd_minimap_fontZoomReset"
+            oncommand="ko.commands.doCommandAsync('cmd_minimap_fontZoomReset', event)"
+            disabled="true"
+            desc="&minimapZoomFontSizeReset.desc;"/>
+        <command
+            id="cmd_minimap_hide" key="key_cmd_minimap_hide"
+            oncommand="ko.commands.doCommandAsync('cmd_minimap_hide', event)"
+            disabled="true"
+            desc="&minimapHide.desc;"/>
     </commandset>
 
     <!-- Commands that need updating when the foldability of

@@ -458,6 +458,10 @@
 <!ENTITY menuView.accesskey "V">
 <!ENTITY menuViewToolbarsAutoHide.label "Hide Toolbars">
 <!ENTITY menuWatchThread.accesskey "W">
+<!ENTITY minimapZoomFontSizeReset.desc "Minimap: Zoom: Reset to Default Size">
+<!ENTITY minimapZoomFontSizeDown.desc "Minimap: Zoom Font Size Down">
+<!ENTITY minimapZoomFontSizeUp.desc "Minimap: Zoom Font Size Up">
+<!ENTITY minimapHide.desc "Minimap: Hide this Minimap">
 <!ENTITY move.label "Move">
 <!ENTITY moveToOtherTabGroup.label "Move to Split View">
 <!ENTITY moveTabToNewWindow.label "Move to a New Window">
@@ -573,6 +577,8 @@
 <!ENTITY replace.label "Replace...">
 <!ENTITY replaceInFiles.label "Replace in Files...">
 <!ENTITY replaceInCurrProject.label "Replace in Current Project...">
+<!ENTITY resetFontSize.label "Reset Font Size">
+<!ENTITY resetFontSize.accesskey "R">
 <!ENTITY revert.label "Revert">
 <!ENTITY revertProject.label "Revert Project">
 <!ENTITY rotateTabGroups.label "Rotate Split View">
@@ -741,6 +747,8 @@
 <!ENTITY viewLineNumbers.label "View Line Numbers">
 <!ENTITY showHideMinimap.accesskey "M">
 <!ENTITY showHideMinimap.label "View Minimap">
+<!ENTITY hideMinimap.label "Hide Minimap">
+<!ENTITY hideMinimap.accesskey "H">
 <!ENTITY viewWhitespace.accesskey "H">
 <!ENTITY viewWhitespace.label "View Whitespace">
 <!ENTITY watchFile.label "Watch File...">

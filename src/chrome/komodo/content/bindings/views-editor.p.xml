@@ -329,6 +329,7 @@
         <body><![CDATA[
             var minimap = document.createElementNS(this.namespaceURI, 'minimap');
             minimap.setAttribute('flex','1');
+            minimap.setAttribute('type', 'minimap'); // needed for view-list-base.log
             this.parentNode.appendChild(minimap); // this.parentNode is the tabbox container
             this.minimap = minimap;
             minimap.initWithView(this);
