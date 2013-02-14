@@ -315,54 +315,30 @@ button[type="moreinfo"] > .button-box > .button-icon
     list-style-image: @icon-previous-buffer-disabled;
 }
 
+// List items have !important to override the disabled state from global
 .list-item-down-icon
 {
-    list-style-image: @icon-list-item-down;
-}
-
-.list-item-down-icon[disabled="true"]
-{
-    list-style-image: @icon-list-item-down-disabled;
+    list-style-image: @icon-list-item-down !important;
 }
 
 .list-item-up-icon
 {
-    list-style-image: @icon-list-item-up;
-}
-
-.list-item-up-icon[disabled="true"]
-{
-    list-style-image: @icon-list-item-up-disabled;
+    list-style-image: @icon-list-item-up !important;
 }
 
 .list-item-add-icon
 {
-    list-style-image: @icon-list-item-add;
-}
-
-.list-item-add-icon[disabled="true"]
-{
-    list-style-image: @icon-list-item-add-disabled;
+    list-style-image: @icon-list-item-add !important;
 }
 
 .list-item-edit-icon
 {
-    list-style-image: @icon-list-item-edit;
-}
-
-.list-item-edit-icon[disabled="true"]
-{
-    list-style-image: @icon-list-item-edit-disabled;
+    list-style-image: @icon-list-item-edit !important;
 }
 
 .list-item-remove-icon
 {
-    list-style-image: @icon-list-item-remove;
-}
-
-.list-item-remove-icon[disabled="true"]
-{
-    list-style-image: @icon-list-item-remove-disabled;
+    list-style-image: @icon-list-item-remove !important;
 }
 
 .green-undo-icon
@@ -786,6 +762,13 @@ treechildren::-moz-tree-image(remotefile)
     list-style-image: @icon-bugs;
 }
 
+.tabs-select-button
+{
+    // override hover effect in debugger panel with !important
+    list-style-image: @icon-tab-select !important;
+}
+
+
 #tabs-closebutton
 {
     list-style-image: @icon-close;
@@ -955,6 +938,42 @@ treechildren::-moz-tree-image(remotefile)
 .debug-inspect-icon
 {
     list-style-image: @icon-debug-inspect !important;
+}
+
+.dbg_status_icon[dbg_language]
+{
+    &[dbg_status="starting"]
+    {
+      list-style-image: @icon-debug-tab-starting !important;
+    }
+    &[dbg_status="running"]
+    {
+      list-style-image: @icon-debug-tab-running !important;
+    }
+    &[dbg_status="break"]
+    {
+      list-style-image: @icon-debug-tab-break !important;
+    }
+    &[dbg_status="stopping"]
+    {
+      list-style-image: @icon-debug-tab-stopping !important;
+    }
+    &[dbg_status="stopped"]
+    {
+      list-style-image: @icon-debug-tab-stopped !important;
+    }
+    &[dbg_status="interactive"]
+    {
+      list-style-image: @icon-debug-tab-interactive !important;
+    }
+}
+
+#DebuggerPanelContent
+{
+    .show-hidden-vars-icon
+    {
+      list-style-image: @icon-debug-below-show-hidden !important;
+    }
 }
 
 /* Macro Icons */

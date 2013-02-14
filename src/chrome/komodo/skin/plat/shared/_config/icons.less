@@ -39,7 +39,7 @@
 /* Scrolltabs */
 @icon-tab-select-sidebar:       url("chrome://komodo/skin/tabs/tab-bkgnd.png");
 @icon-tab-select-sidebar-hover: url("chrome://komodo/skin/tabs/tab-bkgnd.png");
-@icon-tab-close-button:         url("chrome://global/skin/icons/close.png");
+@icon-tab-close-button:         url("@{icon-url-prefix}close2.png");
 @icon-tab-select:               url("chrome://fugue/skin/icons/arrow-270-small.png");
 
 /* File/Folder actions */
@@ -109,15 +109,10 @@
 @icon-scroll-arrow-left-disabled: url("chrome://komodo/skin/images/scrollArrowLeft_disable.png");
 @icon-gear:                     url("@{icon-url-prefix}ko_cog_small.png");
 @icon-list-item-down:           url("chrome://komodo/skin/images/small-arrow.png");
-@icon-list-item-down-disabled:  url("chrome://komodo/skin/images/small-arrow_disable.png");
 @icon-list-item-up:             url("chrome://komodo/skin/images/small-arrow-up.png");
-@icon-list-item-up-disabled:    url("chrome://komodo/skin/images/small-arrow-up_disable.png");
-@icon-list-item-add:            url("chrome://komodo/skin/images/list_item_add.png");
-@icon-list-item-add-disabled:   url("chrome://komodo/skin/images/list_item_add_disable.png");
-@icon-list-item-edit:           url("chrome://komodo/skin/images/list_item_edit.png");
-@icon-list-item-edit-disabled:  url("chrome://komodo/skin/images/list_item_edit_disable.png");
-@icon-list-item-remove:         url("chrome://komodo/skin/images/list_item_remove.png");
-@icon-list-item-remove-disabled:url("chrome://komodo/skin/images/list_item_remove_disable.png");
+@icon-list-item-add:            url("@{icon-url-prefix}plus.png");
+@icon-list-item-edit:           url("@{icon-url-prefix}pencil2.png");
+@icon-list-item-remove:         url("@{icon-url-prefix}remove.png");
 @icon-button-moreinfo-open:     url("chrome://komodo/skin/images/less.gif");
 @icon-button-moreinfo:          url("chrome://komodo/skin/images/more.gif");
 @icon-stopsign-small:           url("chrome://komodo/content/icons/stop.png");
@@ -245,14 +240,23 @@
 @icon-addon-scc-push:           url("@{icon-url-prefix}ko_scc_push.png");
 
 /* Debug Icons */
-@icon-debug-stepin:       url("@{icon-url-prefix}ko_step-into.png");
-@icon-debug-stepover:     url("@{icon-url-prefix}ko_step-over.png");
-@icon-debug-stepout:      url("@{icon-url-prefix}ko_step-out.png");
-@icon-debug-continue:     url("@{icon-url-prefix}play4.png");
-@icon-debug-break:        url("@{icon-url-prefix}pause2.png");
-@icon-debug-stop:         url("@{icon-url-prefix}stop2.png");
-@icon-debug-detach:       url("@{icon-url-prefix}forward3.png");
-@icon-debug-inspect:      url("@{icon-url-prefix}ko_forward3.png");
+@icon-debug-stepin:             url("@{icon-url-prefix}ko_step-into.png");
+@icon-debug-stepover:           url("@{icon-url-prefix}ko_step-over.png");
+@icon-debug-stepout:            url("@{icon-url-prefix}ko_step-out.png");
+@icon-debug-continue:           url("@{icon-url-prefix}play4.png");
+@icon-debug-break:              url("@{icon-url-prefix}pause2.png");
+@icon-debug-stop:               url("@{icon-url-prefix}stop2.png");
+@icon-debug-detach:             url("@{icon-url-prefix}forward3.png");
+@icon-debug-inspect:            url("@{icon-url-prefix}ko_forward3.png");
+
+@icon-debug-tab-starting:       url("@{icon-url-prefix}arrow-right3.png");
+@icon-debug-tab-running:        url("@{icon-url-prefix}play4.png");
+@icon-debug-tab-break:          url("@{icon-url-prefix}pause2.png");
+@icon-debug-tab-stopping:       url("@{icon-url-prefix}checkbox-partial2.png");
+@icon-debug-tab-stopped:        url("@{icon-url-prefix}stop2.png");
+@icon-debug-tab-interactive:    url("@{icon-url-prefix}last.png");
+
+@icon-debug-below-show-hidden:  url("@{icon-url-prefix}eye3.png");
 
 /* Macro Icons */
 @icon-macro-play:               url("@{icon-url-prefix}play3.png");
