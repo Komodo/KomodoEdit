@@ -417,20 +417,29 @@ class KoFastOpenSession(KoFastOpenTreeView):
         possibile_paths = []
         gatherers, cwds, dirShortcuts = self.gatherersAndCwds
 
+        def pathStartsWith(path, prefix):
+            """ Make sure taht a path starts with a prefix at a directory
+            boundary.  Bug 89371, bug 97415. """
+            if not path.startswith(prefix):
+                return False
+            if len(path) == len(prefix):
+                return True
+            if path[len(prefix)] in (os.sep, '/'):
+                return True
+            return False
+
+
         if "HOME" in os.environ:
             home = os.environ["HOME"]
-            if path.startswith(home):
+            if pathStartsWith(path, home):
                 possibile_paths.append("~" + path[len(home):])
         if dirShortcuts:
             for alias, dirpath in dirShortcuts.items():
-                if dirpath and path.startswith(dirpath):
-                    # Ensure the path matches against a directory boundary,
-                    # bug 89371.
-                    if len(path) == len(dirpath) or path[len(dirpath)] in "/\\":
-                        possibile_paths.append(alias + path[len(dirpath):])
+                if dirpath and pathStartsWith(path, dirpath):
+                    possibile_paths.append(alias + path[len(dirpath):])
         for gatherer in gatherers:
             if isinstance(gatherer, fastopen.CachingKomodoProjectGatherer):
-                if path.startswith(gatherer.base_dir):
+                if pathStartsWith(path, gatherer.base_dir):
                     possibile_paths.append("{%s}%s" % (gatherer.project_name,
                                             path[len(gatherer.base_dir):]))
 
