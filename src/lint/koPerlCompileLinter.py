@@ -312,16 +312,14 @@ class _CommonPerlLinter(object):
         self._perlTrayDir = os.path.join(supportDir, "perl", "perltray").replace('\\', '/')
         # appInfoEx has to be created on the main thread, linters run on background threads.
 
-    @components.ProxyToMainThread
     def isPerlCriticInstalled(self, forceCheck):
         appInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].\
-            createInstance(components.interfaces.koIPerlInfoEx)
+            getService(components.interfaces.koIPerlInfoEx)
         return appInfoEx.isPerlCriticInstalled(False)
     
-    @components.ProxyToMainThread
     def getPerlCriticVersion(self):
         appInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].\
-            createInstance(components.interfaces.koIPerlInfoEx)
+            getService(components.interfaces.koIPerlInfoEx)
         return appInfoEx.getPerlCriticVersion()
 
     def _writeTempFile(self, cwd, text):
