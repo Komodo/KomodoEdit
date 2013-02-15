@@ -7,7 +7,7 @@ added to the main downloads area.
 """
 
 def applicable(config):
-    return config.mozVer == 18.0 and \
+    return config.mozVer >= 18.0 and config.mozVer <= 18.99 and \
            config.patch_target == "mozilla"
 
 def patch_args(config):
