@@ -405,7 +405,7 @@ class _CommonHTMLLinter(object):
                         elif self._ends_with_gt.search(prevText):
                             currState |= self._IN_CSS_STYLE
                         elif prevWasMarkup:
-                            log.error("Hit weird block of CSS <<<\n%r\n>>> preceded by HTML <<<\n%r>>>", self._trim(currText), self._trim(prevText))
+                            log.warn("Hit weird block of CSS <<<\n%r\n>>> preceded by HTML <<<\n%r>>>", self._trim(currText), self._trim(prevText))
                             currState |= self._IN_CSS_SQUELCH
                         m = self._starts_with_cdata_re.match(currText)
                         if m:
@@ -484,7 +484,7 @@ class _CommonHTMLLinter(object):
                             self._emittedCodeLineNumbers.add(currLineNum)
                             currState |= self._IN_JS_FUNCTION_DEF
                         else:
-                            log.error("Hit weird block of JS (%s) starting with HTML %s", self._trim(currText), self._trim(prevText))
+                            log.warn("Hit weird block of JS (%s) starting with HTML %s", self._trim(currText), self._trim(prevText))
                             currState |= self._IN_JS_SQUELCH
                         m = self._starts_with_cdata_re.match(currText)
                         if m:
