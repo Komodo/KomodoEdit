@@ -1146,7 +1146,7 @@
                                               id="menu_viewfindtoolbar"
                                               observes="cmd_viewopentoolbar"
                                               persist="checked"
-                                              checked="true"
+                                              checked="false"
                                               type="checkbox"
                                               />
                                     <menuitem label="&macro.label;"

@@ -138,7 +138,7 @@
             id="cmd_viewfindtoolbar" key="key_cmd_viewfindtoolbar"
             desc="&userInterfaceShowHideFindToolbar.desc;"
             autoCheck="false"
-            checked="false"
+            checked="true"
             persist="checked"
             oncommand="ko.commands.doCommandAsync('cmd_viewfindtoolbar', event)"/>
         <broadcaster
