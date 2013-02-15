@@ -335,15 +335,32 @@
             minimap.initWithView(this);
             minimap.attachKoDoc(this.koDoc);
             this.updateMinimapDisplay(true);
+            this.addModifiedHandler(this.updateMinimapOnBufferModified,
+                                    this,
+                                    1000, // high numbers indicate low priority
+                                    (Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT
+                                     |Components.interfaces.ISciMoz.SC_MOD_DELETETEXT));
         ]]>
         </body>
         </method>
         
         <method name="destroyMinimap">
         <body><![CDATA[
+            this.removeModifiedHandler(this.updateMinimapOnBufferModified);
             this.minimap.releaseKoDoc();
             this.parentNode.removeChild(this.minimap);
             this.minimap = null;
+        ]]>
+        </body>
+        </method>
+        
+        <field name="_lastTimeoutId">0</field> 
+        <method name="updateMinimapOnBufferModified">
+        <body><![CDATA[
+	    clearTimeout(this._lastTimeoutId);
+	    this._lastTimeoutId = setTimeout(function(minimap) {
+		minimap.syncMinimapFromBuffer();
+	    }, 250, this.minimap);
         ]]>
         </body>
         </method>
