@@ -56,6 +56,18 @@ Index: cocoa/ScintillaCocoa.mm
    if (sel.Empty())
      return;
  
+@@ -1328,6 +1335,11 @@ bool ScintillaCocoa::PerformDragOperation(id <NSDraggingInfo> info)
+     for (NSString* uri in files)
+       NotifyURIDropped([uri UTF8String]);
+   }
++  else if ([[pasteboard types] containsObject: NSURLPboardType])
++  {
++    NSString* uri = [[NSURL URLFromPasteboard:pasteboard] absoluteString];
++    NotifyURIDropped([uri UTF8String]);
++  }
+   else
+   {
+     SelectionText text;
 @@ -1541,7 +1548,7 @@ void ScintillaCocoa::SetHorizontalScrollPos()
      maxXOffset = 0;
    if (xOffset > maxXOffset)

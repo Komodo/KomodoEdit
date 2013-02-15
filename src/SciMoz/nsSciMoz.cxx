@@ -567,6 +567,15 @@ void SciMoz::Notify(long lParam) {
 			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnOtherNotification(mask, notification->position, NS_LITERAL_STRING(""), notification->modifiers);
 			break;
+		case SCN_URIDROPPED:
+			if (notification->text) {
+				NS_ConvertUTF8toUTF16 uText(notification->text);
+				mask = ISciMozEvents::SME_URIDROPPED;
+				while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+					eventSink->OnOtherNotification(mask, 0, uText, 0);
+			}
+			break;
+
 		default: {
                     /*  XXX
                         We don't handle all the scimoz notifications any longer,
