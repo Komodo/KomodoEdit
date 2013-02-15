@@ -1143,7 +1143,7 @@
                                               type="checkbox"
                                               />
                                     <menuitem label="&openFileToolbar.label;"
-                                              id="menu_viewfindtoolbar"
+                                              id="menu_viewopentoolbar"
                                               observes="cmd_viewopentoolbar"
                                               persist="checked"
                                               checked="false"
