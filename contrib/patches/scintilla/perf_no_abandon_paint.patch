@@ -1,6 +1,6 @@
 Index: /Users/toddw/as/komodo-devel_clean/src/scintilla/src/Editor.cxx
---- /Users/toddw/as/komodo-devel_clean/src/scintilla/src/Editor.cxx
-+++ /Users/toddw/as/komodo-devel_clean/src/scintilla/src/Editor.cxx (unsaved)
+--- src/Editor.cxx
++++ src/Editor.cxx (unsaved)
 @@ -593,6 +593,10 @@
   * @return true if calling code should stop drawing.
   */
