@@ -3536,6 +3536,17 @@ static void FoldUDLDoc(unsigned int startPos, int length, int
     int lineEnd = styler.GetLine(endPos);
     int startLinePos;
     int endLinePos = styler.LineStart(lineStart);
+    if (endPos < styler.Length()) {
+        // Bug 97299: don't recalc the folding on the last line of this
+        // segment if it's an empty line, as it will be set to
+        // whitespace only this time, and then possibly reset to
+        // a non-whitespace line when lex-folding the following segment,
+        // which will start with the same line.
+        int endPosColumn = endPos - styler.LineStart(lineEnd);
+        if (endPosColumn == 0) {
+            lineEnd -= 1;
+        }
+    }
 #if UDL_DEBUG_TIME
     struct timeval t1, t2;
     gettimeofday(&t1, NULL);
