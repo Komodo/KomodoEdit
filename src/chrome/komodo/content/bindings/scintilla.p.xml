@@ -58,7 +58,8 @@
                         pluginHandlesDomEvents="false"
                         />
             <xul:textbox anonid="ime-input" class="plain"
-                         style="position: absolute; opacity: 0;"/>
+                         style="position: absolute; opacity: 0;"
+                         xbl:inherits="context=mozcontext"/>
             <xul:panel anonid="autocompletepopup" noautofocus="true">
                 <xul:hbox>
                     <xul:grid/>
