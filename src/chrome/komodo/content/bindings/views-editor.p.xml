@@ -696,8 +696,9 @@
         <![CDATA[
         var minimap = this.minimap;
         this.showMinimap = editShowMinimap;
+        var scimoz = this.scimoz;
         if (editShowMinimap) {
-            this.scimoz.vScrollBar = false;
+            scimoz.vScrollBar = false;
             minimap.classList.remove("hideMinimap");
             var obj = {};
             this.saveLocation(obj);
@@ -707,12 +708,19 @@
             minimap.syncMinimapFromBuffer();
             setTimeout(function() {
                 this.restoreLocation(obj, false/*inner doTimeout */);
-                //this.scimoz.gotoPos(currentPos);
+                //scimoz.gotoPos(currentPos);
                 //this.scintilla.focus();
             }.bind(this), 1);
         } else {
             minimap.classList.add("hideMinimap");
-            this.scimoz.vScrollBar = true;
+            scimoz.vScrollBar = true;
+<!-- #if PLATFORM != "linux" -->
+            // Bug 97483: Make sure the scroll bar's position is correct.
+            if (scimoz.firstVisibleLine > 0) {
+                scimoz.lineScrollUp();
+                scimoz.lineScrollDown();
+            }
+<!-- #endif -->
         }
         ]]>
         </body>
