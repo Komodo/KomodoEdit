@@ -954,19 +954,15 @@ class koLiveFolderPart(koFolderPart):
     def observe(self, subject, topic, message):
         koFolderPart.observe(self, subject, topic, message)
         # now, if one of our import properties has changed, lets update
-        prefs = self.get_prefset()
-        if UnwrapObject(subject) is not prefs:
-            return
         #print "livefolder got notified of change [%s][%s][%s]"%(subject,topic, message)
         #print "livefolder change in project %s" % self._project.get_name()
-        if message == "import_live":
+        if message in ("import_live"
+                       "import_dirname",
+                       "import_include_matches",
+                       "import_exclude_matches"):
             self.needrefresh = 1
-        elif message == "import_dirname":
-            self._removeLiveChildrenRecursiveSaveUnded()
-            self.needrefresh = 1
-        elif message in ["import_include_matches",
-                       "import_exclude_matches"]:
-            self.needrefresh = 1
+            if message == "import_dirname":
+                self._removeLiveChildrenRecursiveSaveUnded()
 
     def _removeLiveChildrenRecursiveSaveUnded(self):
         undead = self._removeLiveChildrenRecursive()
@@ -1612,8 +1608,6 @@ class koProject(koLiveFolderPart):
         self._loaded_from_url = self._url
         self.set_url(url)
 
-        prefs = self.get_prefset()
-        
         #self.validateParts()
         # this kicks off background status checking for the projects base path
         # the project url's will be added later, from partWrapper.js
