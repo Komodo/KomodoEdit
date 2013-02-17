@@ -2132,18 +2132,13 @@
                 (e.g. the find dialog) load. -->
                 <textbox id="hidden-input-buffer" collapsed="true"
                      onfocus="InputBuffer_OnFocus(event);"/>
-                <vbox id="customizingPlaceHolder">
+                <vbox id="customizingPlaceHolder" align="center" valign="middle">
                     <!-- This box is used in the widget/pane customization mode
                        - (hiding the main text editing area).
                        -->
-                    <vbox flex="1">
-                        <description>&pane.customize.placeholder.label;</description>
-                    </vbox>
-                    <hbox pack="end">
-                        <!-- buttons -->
-                        <button label="&pane.customize.done.label;"
-                                oncommand="ko.uilayout._customizeComplete(true);"/>
-                    </hbox>
+                    <description>&pane.customize.placeholder.label;</description>
+                    <button label="&pane.customize.done.label;"
+                            oncommand="ko.uilayout._customizeComplete(true);"/>
                 </vbox>
             </deck>
             <splitter id="workspace_right_splitter"

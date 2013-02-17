@@ -56,8 +56,6 @@ mappededitor {
   -moz-binding: url("chrome://komodo/content/bindings/widgets.xml#tree-mappededitor");
 }
 
-
-
 /* a listbox that manages a list of checkbox elements */
 checklistbox  {
   -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#listbox-checklist');
@@ -87,46 +85,11 @@ menu.menulist-subLevel > menupopup  > menuitem {
   list-style-image: none;
 }
 
-:root[customizing] > #toolbox_main {
-  opacity: 0.25;
-}
-
 /* A pane to hold widgets, as in kd 272 */
 ko-pane {
   -moz-binding: url("chrome://komodo/content/bindings/pane.xml#pane");
 }
-ko-pane .pane-empty-container description {
-  color: graytext;
-  width: 0;
-  margin: 2em;
-  text-align: center;
-}
-ko-pane:not([customizing]) .pane-drop-target {
-  display: none;
-}
-ko-pane .pane-drop-target {
-  /**
-   * Having a non-transparent background makes sure we catch the mouse events,
-   * rather than the plugin getting it and giving us non-sensical data
-   */
-  background-color: rgba(255, 255, 255, 0.01);
-}
-ko-pane .pane-drop-placeholders > :not(splitter) {
-  background-color: rgb(0, 255, 0);
-  background-image: url("chrome://icomoon/skin/icons/move.png");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 24px;
-  opacity: 0.25;
-}
-ko-pane[ko-pane-drag-status] .pane-drop-placeholders {
-  display: none;
-}
-ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback {
-  /* While customizing, display the drag-over effect on panes
-   */
-  background-color: rgba(0, 0, 255, 0.25);
-}
+
 ko-pane .pane-tabs-container tabs {
   -moz-box-flex: 1;
 }
@@ -315,8 +278,69 @@ menuitem.menuitem-file-status {
   min-width: 26px;
 }
 
-#customizingPlaceHolder {
-  margin: 3em 2em 1em;
+/* Customization styling */
+
+/* Drop target :: The wrapper for drag/drop indicators */
+ko-pane:not([customizing]) .pane-drop-target {
+  display: none;
+}
+
+ko-pane .pane-drop-target {
+  /**
+   * Having a non-transparent background makes sure we catch the mouse events,
+   * rather than the plugin getting it and giving us non-sensical data
+   */
+  background-color: rgba(255, 255, 255, 0.01);
+}
+
+/* Empty Container */
+ko-pane .pane-empty-container description {
+  color: graytext;
+  width: 0;
+  margin: 2em;
+  text-align: center;
+}
+
+/* Draggable Widget */
+ko-pane:not([ko-pane-drag-status]) .pane-drop-placeholders > :not(splitter) {
+  background-color: rgba(255, 255, 255, 0.5);
+  background-image: url("chrome://icomoon/skin/icons/move.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 2px dashed rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+ko-pane:not([ko-pane-drag-status]) .pane-drop-placeholders > :not(splitter):hover {
+  border: 2px dashed rgba(0, 0, 0, 0.5);
+}
+
+/* Drop Area */
+ko-pane[ko-pane-drag-status] .pane-drop-placeholders {
+  background-color: rgba(255, 255, 255, 0.3);
+  background-image: url("chrome://icomoon/skin/icons/download3.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 2px dashed rgba(0, 0, 0, 0.3);
+  cursor: move;
+}
+
+/* Drop Area on Drag hover */
+ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback {
+  /* While customizing, display the drag-over effect on panes
+   */
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* View overlay */
+#customizingPlaceHolder button
+{
+  margin-top: 1em;
+}
+
+/* Menu & toolbar Overlay */
+:root[customizing] > #toolbox_main {
+  opacity: 0.25;
 }
 :root[customizing] #toolbox_main {
   display: -moz-stack;
