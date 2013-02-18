@@ -71,6 +71,11 @@ var _lessClearCache = undefined;
         {
             self = this;
             
+            for (let pref in prefOld)
+            {
+                prefs.prefObserverService.addObserver(this, pref, false);
+            }
+
             this.loadPreferredSkin();
             this.loadPreferredIcons();
             
@@ -78,11 +83,6 @@ var _lessClearCache = undefined;
             if (this.gtk.init(this) && prefs.getBoolean(PREF_USE_GTK_DETECT, true))
             {
                 this.gtk.loadDetectedTheme();
-            }
-	    
-            for (let pref in prefOld)
-            {
-                prefs.prefObserverService.addObserver(this, pref, false);
             }
         },
         
@@ -102,7 +102,7 @@ var _lessClearCache = undefined;
                 // Handle skin changes
                 case PREF_CUSTOM_ICONS:
                 case PREF_CUSTOM_SKIN:
-                    
+
                     // Skip if the value hasn't changed
                     let value = prefs.getString(topic, '');
                     if (value == prefOld[topic])
