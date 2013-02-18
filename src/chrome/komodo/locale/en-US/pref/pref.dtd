@@ -745,6 +745,10 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY uiPaneVerticalTabs.menuitem.label "Vertical tabs">
 <!ENTITY uiPaneIconTabs.menuitem.label "Icons in tabs">
 <!ENTITY interface.caption "Interface">
+<!ENTITY useGtkDetection.label "Auto detect skin">
+<!ENTITY skin.label "Skin: ">
+<!ENTITY skinDefault.label "Default">
+<!ENTITY skinAmbiance.label "Ambiance (GTK)">
 <!ENTITY iconset.label "Icon Set: ">
 <!ENTITY iconsetClassic.label "Classic">
 <!ENTITY iconsetAmbiance.label "IcoMoon - Ambiance">

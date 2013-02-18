@@ -82,8 +82,41 @@
             </hbox>
         </groupbox>
         
-        <groupbox id="pref_appearance_iconsets">
+        <groupbox id="pref_appearance_interface">
             <caption label="&interface.caption;" />
+<!-- #if PLATFORM == "linux" -->
+            <hbox>
+                <checkbox id="koSkin_use_gtk_detection"
+                          label="&useGtkDetection.label;"
+                          pref="true"
+                          prefdefault="true"
+                          prefattribute="checked"/>
+            </hbox>
+<!-- #endif -->
+            <!-- Skins -->
+            <hbox align="center" id="pref_appearance_skin_hbox">
+                <label id="pref_appearance_skin_label"
+                       value="&skin.label;" />
+                <menulist id="koSkin_custom_skin"
+                          pref="true"
+                          preftype="string"
+                          prefdefault=""
+                          prefattribute="value">
+                    <menupopup>
+                        <menuitem id="pref_appearance_skin_default"
+                                  label="&skinDefault.label;"
+                                  value=""
+                                  />
+<!-- #if PLATFORM == "linux" -->
+                        <menuitem id="pref_appearance_skin_ambiance"
+                                  label="&skinAmbiance.label;"
+                                  value="gtk-Ambiance"
+                                  />
+<!-- #endif -->
+                    </menupopup>
+                </menulist>
+            </hbox>
+            <!-- Icons -->
             <hbox align="center">
                 <label id="pref_appearance_iconsets_label"
                        value="&iconset.label;" />
