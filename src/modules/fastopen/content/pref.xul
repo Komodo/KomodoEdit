@@ -70,10 +70,10 @@
             <description>
               &goToolIntegration.description;
             </description>
-            <button label="Visit the go-tool project site."
+            <button label="&goToolUrl.label;"
                 class="button-link"
-                style="margin: -10px; color: #b82619;"
-                onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://code.google.com/p/go-tool/');"/>
+                style="color: #b82619;"
+                onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('&goToolUrl.url;');"/>
         </vbox>
         <hbox>
           <checkbox id="fastopen_enable_history_gatherer"

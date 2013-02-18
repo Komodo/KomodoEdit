@@ -11,12 +11,14 @@
 <!ENTITY goToFile.shortcut.delete.tooltipText "Remove shortcut">
 <!ENTITY enableCwdGatherer.label "Enable 'Current Working Directory(ies)' gatherer">
 <!ENTITY goToFileDialogFilters.desc "Exclude files matching the following patterns (leave empty for the default):">
-<!ENTITY enableGoToolIntegration.label "Enable go-tool integration">
+<!ENTITY enableGoToolIntegration.label "Enable shortcuts gatherer">
 <!ENTITY enableHistoryGatherer.label "Enable 'History' gatherer. Maximum number of entries:">
 <!ENTITY enableOpenFilesGatherer.label "Enable 'Open Files' gatherer">
 <!ENTITY enableProjectGatherer.label "Enable 'Current Project' gatherer">
 <!ENTITY enableProjectDirectoryGatherer.label "Include project directory names">
-<!ENTITY goToolIntegration.description "go-tool is a small command-line tool for changing directories quickly.">
+<!ENTITY goToolIntegration.description "Komodo shortcuts are compatible with go-tool shortcuts.">
+<!ENTITY goToolUrl.label "Visit the go-tool project site.">
+<!ENTITY goToolUrl.url "http://code.google.com/p/go-tool/">
 <!ENTITY followSymlinks.label "Follow symlinks when recursing into directories">
 <!ENTITY followSymlinks.tooltiptext "When enabled, fast open will recursive into symlinked directories to report hits.">
 <!ENTITY invokeTool.accesskey "K">
