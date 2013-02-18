@@ -671,10 +671,6 @@ this.updateFullScreen = function uilayout_updateFullScreen() {
     } else {
         menuitem.removeAttribute('checked');
     }
-    // bug 92669 - full screen is broken on Mac.
-    if (Services.appinfo.OS == "Darwin") {
-        menuitem.hidden = true;
-    }
 }
 
 /**
