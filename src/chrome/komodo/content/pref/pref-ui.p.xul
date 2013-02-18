@@ -108,6 +108,10 @@
                                   value=""
                                   />
 <!-- #if PLATFORM == "linux" -->
+                        <menuitem id="pref_appearance_skin_dark"
+                                  label="&skinDark.label;"
+                                  value="gtk-Dark"
+                                  />
                         <menuitem id="pref_appearance_skin_ambiance"
                                   label="&skinAmbiance.label;"
                                   value="gtk-Ambiance"
