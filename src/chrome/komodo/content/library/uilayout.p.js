@@ -143,7 +143,7 @@ this.toggleToolbars = function uilayout_toggleToolbars()
         toolbarsShowing = true;
     }
     
-    var toolboxrow = document.getElementById('main-toolboxrow');
+    var toolboxrow = document.getElementById('main-toolboxrow-wrapper');
     if (toolbarsShowing)
     {
 	toolboxrow.removeAttribute('collapsed');
@@ -393,15 +393,6 @@ this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(tool
         }
     }
     
-    var toolboxrow         = document.getElementById("main-toolboxrow");
-    var visibleToolbars = toolboxrow.querySelectorAll("toolbar:not([kohidden='true'])");
-    if (visibleToolbars.length == 0) {
-        toolboxrow.setAttribute('kohidden', 'true');
-    } else {
-        toolboxrow.removeAttribute('kohidden');
-    }
-    document.persist("main-toolboxrow", "kohidden");
-
     // Update toolbar child visibility as otherwise it does not get updated
     // when the visible children have changed but no overflow events
     // were fired
@@ -1478,22 +1469,33 @@ this.unload = function uilayout_unload()
 
 this.onload = function uilayout_onload()
 {
-    // The main toolbox may be hidden from using Komodo 7.0b1.  If it is,
-    // unhide it (otherwise the app is pretty unusable).  This can probably
-    // go away by Komodo 8...
+    // As of Komodo 8.0 RC1 the toolbox is hidden using the parent wrapper
+    // We should therefore remove the collapsed state (if any) on the main toolbox
+    // This can probably be removed by Komodo 8.*
     var maintoolboxrow = document.getElementById("main-toolboxrow");
-    if (maintoolboxrow && maintoolboxrow.hidden) {
-        maintoolboxrow.hidden = false;
-        // unassert things so we don't keep setting hidden=""
+    if (maintoolboxrow &&
+	(maintoolboxrow.hasAttribute('collapsed') ||
+	 maintoolboxrow.hasAttribute('hidden') ||
+	 maintoolboxrow.hasAttribute('kohidden'))) {
+
+        maintoolboxrow.removeAttribute('collapsed');
+	maintoolboxrow.removeAttribute('kohidden');
+	maintoolboxrow.removeAttribute('hidden');
+
+        // unassert things so we don't keep setting hidde, collapsed, kohidden
         var rdfs = Components.classes["@mozilla.org/rdf/rdf-service;1"]
                              .getService(Components.interfaces.nsIRDFService);
         var ds = rdfs.GetDataSource("rdf:local-store");
         var source = rdfs.GetResource(document.location.href + "#" + maintoolboxrow.id);
-        var prop = rdfs.GetResource("hidden");
-        var arcs = ds.GetTargets(source, prop, true);
-        while (arcs.hasMoreElements()) {
-            ds.Unassert(source, prop, arcs.getNext());
-        }
+
+	for (let [,attr] in Iterator(['collapsed','kohidden', 'hidden'])) {
+	    var prop = rdfs.GetResource(attr);
+	    var arcs = ds.GetTargets(source, prop, true);
+	    while (arcs.hasMoreElements()) {
+		ds.Unassert(source, prop, arcs.getNext());
+	    }
+	}
+
     }
 
     ko.uilayout.updateToolbarArrangement();

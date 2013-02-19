@@ -1683,7 +1683,7 @@
             </toolbaritem>
         </toolbar>
 
-        <hbox id="main-toolboxrow-wrapper">
+        <hbox id="main-toolboxrow-wrapper" persist="collapsed">
             <toolboxrow id="main-toolboxrow" flex="1" align="start" persist="hidden mode collapsed" mode="icons">
 					
                 <toolbar
