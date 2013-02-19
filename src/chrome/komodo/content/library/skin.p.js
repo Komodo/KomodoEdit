@@ -190,6 +190,18 @@ var _lessClearCache = undefined;
                 return false;
             }
             
+            if (window.matchMedia("(min-resolution: 2dppx)").matches)
+            {
+                fileHiDPI = file.parent;
+                fileHiDPI.append('hidpi');
+                fileHiDPI.append('chrome.manifest');
+
+                if (fileHiDPI.exists())
+                {
+                    file = fileHiDPI;
+                }
+            }
+
             return file;
         },
         
