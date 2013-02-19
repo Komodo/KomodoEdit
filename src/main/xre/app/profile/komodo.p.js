@@ -169,3 +169,6 @@ pref("extensions.shownSelectionUI", true);
 
 // Allow for skin switching during runtime
 pref("extensions.dss.enabled", true);
+
+// Used for the Help window
+pref("accessibility.typeaheadfind.flashBar", 1);
