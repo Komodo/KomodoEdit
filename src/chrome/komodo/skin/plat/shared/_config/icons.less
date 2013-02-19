@@ -47,11 +47,12 @@
 @icon-newfolder:                url("chrome://komodo/skin/global/images/newDirectory.png");
 @icon-refreshFile:              url("chrome://komodo/skin/global/images/refreshFile.png");
 @icon-new-project:              url("chrome://komodo/skin/images/project_icon.png");
-@icon-new-file:                 url("chrome://komodo/skin/images/existing_file.png");
+@icon-new-file-startpage:       url("chrome://komodo/skin/images/existing_file.png");
+@icon-new-file:                 url("@{icon-url-prefix}file-plus.png");
 @icon-new-window:               url("chrome://komodo/skin/images/komodo_16x16.png");
 @icon-open-file:                url("@{icon-url-prefix}folder-open.png");
 @icon-native-folder:            url("chrome://global/skin/dirListing/folder.png");
-@icon-new-template:             url("chrome://komodo/skin/images/newTemplate.png");
+@icon-new-template:             url("@{icon-url-prefix}file6.png");
 @icon-remotefolder:             url('chrome://komodo/skin/images/folder-closed.png');
 @icon-remotefile:               url('chrome://komodo/skin/images/file_icon.png');
 
@@ -122,16 +123,16 @@
 @icon-close:                    url("@{icon-url-prefix}close2.png");
 
 /* Browser Icons */
-@icon-browser-firefox:          url("chrome://famfamfamsilk/skin/icons/browser_firefox.png");
-@icon-browser-camino:           url("chrome://famfamfamsilk/skin/icons/browser_camino.png");
-@icon-browser-ie:               url("chrome://famfamfamsilk/skin/icons/browser_internetexplorer.png");
-@icon-browser-konqueror:        url("chrome://famfamfamsilk/skin/icons/browser_konqueror.png");
-@icon-browser-mozilla:          url("chrome://famfamfamsilk/skin/icons/browser_mozilla.png");
-@icon-browser-msnexplorer:      url("chrome://famfamfamsilk/skin/icons/browser_msnexplorer.png");
-@icon-browser-netscape:         url("chrome://famfamfamsilk/skin/icons/browser_netscape.png");
-@icon-browser-opera:            url("chrome://famfamfamsilk/skin/icons/browser_opera.png");
-@icon-browser-safari:           url("chrome://famfamfamsilk/skin/icons/browser_safari.png");
-@icon-browser-chrome:           url("chrome://famfamfamsilk/skin/icons/browser_chrome.png");
+@icon-browser-firefox:          url("@{icon-url-prefix}firefox.png");
+@icon-browser-camino:           url("@{icon-url-prefix}earth.png");
+@icon-browser-ie:               url("@{icon-url-prefix}IE.png");
+@icon-browser-konqueror:        url("@{icon-url-prefix}earth.png");
+@icon-browser-mozilla:          url("@{icon-url-prefix}earth.png");
+@icon-browser-msnexplorer:      url("@{icon-url-prefix}earth.png");
+@icon-browser-netscape:         url("@{icon-url-prefix}earth.png");
+@icon-browser-opera:            url("@{icon-url-prefix}opera.png");
+@icon-browser-safari:           url("@{icon-url-prefix}safari.png");
+@icon-browser-chrome:           url("@{icon-url-prefix}chrome.png");
 @icon-browser-preview:          url("@{icon-url-prefix}earth.png");
 
 /* Miscellaneous */
@@ -172,7 +173,7 @@
 /* Toolbars - Tools */
 @icon-toolbar-browser-preview:  url("@{icon-toolbar-url-prefix}earth.png");
 @icon-toolbar-rx:               url("@{icon-toolbar-url-prefix}ko_regexp.png");
-@icon-toolbar-http-inspector:   url("@{icon-toolbar-url-prefix}direction.png");
+@icon-toolbar-http-inspector:   url("@{icon-toolbar-url-prefix}ko_http_inspector.png");
 @icon-toolbar-ishell:           url("@{icon-toolbar-url-prefix}console.png");
 @icon-toolbar-tcldevkit:        url("@{icon-toolbar-url-prefix}quill3.png");
 @icon-toolbar-perldevkit:       url("@{icon-toolbar-url-prefix}ko_perl.png");
@@ -265,6 +266,19 @@
 @icon-macro-stop:               url("@{icon-url-prefix}stop.png");
 @icon-macro-save:               url("@{icon-url-prefix}ko_save-circle.png");
 
+/* Breakpoint Icons */
+@icon-breakpoint:               url("@{icon-url-prefix}ko_breakpoint.png");
+@icon-breakpoint-new:           url("@{icon-url-prefix}ko_breakpoint_add.png");
+@icon-spawnpoint-new:           url("@{icon-url-prefix}arrow-right2.png");
+@icon-breakpoint-delete:        url("@{icon-url-prefix}ko_breakpoint_remove.png");
+@icon-breakpoint-delete-all:    url("@{icon-url-prefix}ko_breakpoint_delete_all.png");
+@icon-breakpoint-toggle-state:  url("@{icon-url-prefix}ko_breakpoint_toggle.png");
+@icon-breakpoint-go-to:         url("@{icon-url-prefix}ko_breakpoint_goto.png");
+@icon-breakpoint-properties:    url("@{icon-url-prefix}ko_breakpoint_properties.png");
+
+/* Sync Icons */
+@icon-sync:                     url("@{icon-url-prefix}spinner10.png");
+
 /* Widget Icons */
 @icon-widget-default:               url("@{icon-widget-url-prefix}file5.png");
 @icon-widget-default-selected:      url("@{icon-selected-url-prefix}file5.png");
@@ -278,8 +292,8 @@
 @icon-widget-dbexplorer-selected:   url("@{icon-selected-url-prefix}ko_database.png");
 @icon-widget-dom:                   url("@{icon-widget-url-prefix}ko_markup.png");
 @icon-widget-dom-selected:          url("@{icon-selected-url-prefix}ko_markup.png");
-@icon-widget-collab:                url("@{icon-widget-url-prefix}users.png");
-@icon-widget-collab-selected:       url("@{icon-selected-url-prefix}users.png");
+@icon-widget-collab:                url("@{icon-widget-url-prefix}ko_collab.png");
+@icon-widget-collab-selected:       url("@{icon-selected-url-prefix}ko_collab.png");
 @icon-widget-toolbox:               url("@{icon-widget-url-prefix}briefcase3.png");
 @icon-widget-toolbox-selected:      url("@{icon-selected-url-prefix}briefcase3.png");
 @icon-widget-breakpoints:           url("@{icon-widget-url-prefix}ko_breakpoint.png");
@@ -296,10 +310,10 @@
 @icon-widget-klint-selected:        url("@{icon-selected-url-prefix}warning2.png");
 
 /* Notification Widget */
-@icon-filter-error:             url("chrome://global/skin/icons/error-16.png");
-@icon-filter-warning:           url("chrome://global/skin/icons/warning-16.png");
-@icon-filter-info:              url("chrome://global/skin/icons/information-16.png");
-@icon-filter-progress:          url("chrome://fugue/skin/icons/clock-history.png");
+@icon-filter-error:             url("@{icon-url-prefix}close3.png");
+@icon-filter-warning:           url("@{icon-url-prefix}warning2.png");
+@icon-filter-info:              url("@{icon-url-prefix}info2.png");
+@icon-filter-progress:          url("@{icon-url-prefix}history.png");
 
 /* Code Browser Widget */
 @icon-codebrowser-locate:       url("@{icon-url-prefix}ko_locate_small.png");

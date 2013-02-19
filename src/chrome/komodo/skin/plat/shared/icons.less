@@ -34,6 +34,13 @@ button[type="moreinfo"] > .button-box > .button-icon
     opacity: 0.6;
 }
 
+/* Allow the icons in menus to determine for themselves what size they require */
+.menu-iconic-icon
+{
+    width: auto;
+    height: auto;
+}
+
 /* Folder Icons */
 
 .upfolder-icon
@@ -254,6 +261,14 @@ button[type="moreinfo"] > .button-box > .button-icon
 .native-new-file-icon
 {
     list-style-image: @icon-new-file;
+}
+
+#tabbed-view
+{
+    .native-new-file-icon
+    {
+        list-style-image: @icon-new-file-startpage;
+    }
 }
 
 .new-window-icon
@@ -1001,6 +1016,56 @@ treechildren::-moz-tree-image(remotefile)
     list-style-image: @icon-macro-save !important;
 }
 
+/* Breakpoint Icons */
+
+.breakpoint-icon
+{
+    list-style-image: @icon-breakpoint !important;
+}
+
+.breakpoint-new-icon
+{
+    list-style-image: @icon-breakpoint-new !important;
+}
+
+.spawnpoint-new-icon
+{
+    list-style-image: @icon-spawnpoint-new !important;
+}
+
+.breakpoint-delete-icon
+{
+    list-style-image: @icon-breakpoint-delete !important;
+}
+
+.breakpoint-delete-all-icon
+{
+    list-style-image: @icon-breakpoint-delete-all !important;
+}
+
+.breakpoint-toggle-icon,
+.breakpoint-toggle-state-icon
+{
+    list-style-image: @icon-breakpoint-toggle-state !important;
+}
+
+.breakpoint-go-to-source-code-icon
+{
+    list-style-image: @icon-breakpoint-go-to !important;
+}
+
+.breakpoint-properties-icon
+{
+    list-style-image: @icon-breakpoint-properties !important;
+}
+
+/* Sync */
+
+#sync-setup, #sync-menu
+{
+    list-style-image: @icon-sync;
+}
+
 /* Widget Icons */
 
 ko-pane[type="icons"]
@@ -1227,14 +1292,10 @@ ko-pane[type="icons"]
     list-style-image: @icon-klint-refresh;
 }
 
-/* Code Browser Widget */
-
-#codeBrowserPane
+/* Code Browser */
+.codeintel-locate
 {
-    .codeintel-locate
-    {
-        list-style-image: @icon-codebrowser-locate !important;
-    }
+    list-style-image: @icon-codebrowser-locate !important;
 }
 
 /* Dom Browser Widget */
