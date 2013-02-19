@@ -341,10 +341,9 @@ this._customizeComplete = (function uilayout__customizeComplete() {
 }).bind(this);
 
 /**
- * Mac only: update the toolbar classes to add first-child and last-child
+ * Update the toolbar classes to add first-child and last-child
  * to the first/last toolbar items that are not hidden
- * This is used to get the rounded corner effect; only on Mac because only that
- * platform does rounded toolbar buttons.
+ * This is used to get the rounded corner effect
  * @param toolbox {<toolbox>} The toolbox to update
  */
 this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(toolbox)
@@ -381,17 +380,17 @@ this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(tool
             
             if (i==0) {
                 toolbar.classList.add('first-child');
-            } else if (typeof previousToolbar != 'undefined') {
-                previousToolbar.classList.remove('last-child');
+            } else if (typeof previousLastChild != 'undefined') {
+                previousLastChild.classList.remove('last-child');
             }
             toolbar.classList.add('last-child');
+
+	    var previousLastChild = toolbar;
         } else {
             toolbarItem.setAttribute("kohidden", "true");
             toolbarItem.classList.add('no-children');
             toolbarItem.classList.remove('has-children');
         }
-        
-        var previousToolbar = toolbar;
     }
     
     var toolboxrow         = document.getElementById("main-toolboxrow");
