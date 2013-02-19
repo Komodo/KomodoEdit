@@ -77,8 +77,11 @@ menu, menuitem
 {
     padding-left: 26px;
 
-    .menu-iconic-left
+    .menu-iconic-icon:not([disabled])
     {
+	/* force 16px width as some menuitems have an image element with
+	 * no actual image src */
+	width: 16px;
 	margin-left: -21px;
     }
 }
