@@ -315,7 +315,6 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
  * Eventually, toolbar customization should be moved here as well.
  */
 this.customize = (function uilayout_customize() {
-    let dialogStrings = Services.strings.createBundle("chrome://global/locale/dialog.properties");
     document.documentElement.setAttribute("customizing", "true");
     let placeholder = document.getElementById("customizingPlaceHolder");
     document.getElementById("editorviewbox").selectedPanel = placeholder;
@@ -332,8 +331,8 @@ this._customizeComplete = (function uilayout__customizeComplete() {
     document.documentElement.removeAttribute("customizing");
     document.getElementById("editorviewbox").selectedPanel =
         document.getElementById("topview");
-    for (let pane of document.querySelectorAll("ko-pane")) {
-        pane.customizing = false;
+    for (let paneId of ko.widgets.panes) {
+        ko.widgets.getPaneAt(paneId).customizing = false;
     }
     let toolbox = document.getElementById("toolbox_main");
     let hoverBox = document.getAnonymousElementByAttribute(toolbox, "anonid", "hover-box");

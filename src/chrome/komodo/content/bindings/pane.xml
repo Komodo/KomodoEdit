@@ -1554,12 +1554,9 @@
               elem.setAttribute("orient", this.orient);
             } else {
               elem = document.createElement("box");
-              if (this.orient == "vertical") {
-                elem.setAttribute("height", child.getBoundingClientRect().height);
-              } else {
-                elem.setAttribute("width", child.getBoundingClientRect().width);
-              }
-              elem.setAttribute("flex", "0");
+              let dim = (this.orient === "vertical") ? "height" : "width";
+              elem.setAttribute(dim, child.getBoundingClientRect()[dim]);
+              elem.setAttribute("flex", getComputedStyle(child).MozBoxFlex);
             }
             this._drop_placeholders.appendChild(elem);
           }
