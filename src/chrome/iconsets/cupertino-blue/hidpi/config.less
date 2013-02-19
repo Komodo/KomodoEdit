@@ -1,12 +1,23 @@
 @import url("resource://app/chrome/iconsets/cupertino-blue/config.less");
 
-[class*='-icon '] > image,
-[class$='-icon'] > image,
-toolbaritem > image,
+button, toolbarbutton, menuitem
+{
+    &[class$='-icon'], [class$='-icon'],
+    &[class$='_icon'], [class$='_icon']
+    {
+        & > image
+        {
+            max-width: 16px;
+        }
+    }
+}
+
 .toolbarbutton-icon,
 .button-icon,
 .menu-iconic-icon,
-treechildren::-moz-tree-image
+treechildren::-moz-tree-image,
+.textbox-search-icon,
+dropmarker > image
 {
     max-width: 16px;
 }

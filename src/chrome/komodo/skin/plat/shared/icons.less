@@ -26,12 +26,16 @@ button[type="moreinfo"] > .button-box > .button-icon
     margin-left: 2px;
 }
 
-[class*='-icon '][disabled="true"] > image,
-[class$='-icon'][disabled="true"] > image,
-[class*='_icon '][disabled="true"] > image,
-[class$='_icon'][disabled="true"] > image
+button, toolbarbutton, menuitem
 {
-    opacity: 0.6;
+    &[class$='-icon'], [class$='-icon'],
+    &[class$='_icon'], [class$='_icon']
+    {
+        &[disabled="true"] > image
+        {
+            opacity: 0.6;
+        }
+    }
 }
 
 /* Allow the icons in menus to determine for themselves what size they require */
