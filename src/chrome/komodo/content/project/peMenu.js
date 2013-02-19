@@ -330,7 +330,7 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         toolbar.setAttribute('tooltiptext', part.name);
         toolbar.setAttribute('broadcaster', cmd_id);
         if (! visible) {
-            toolbar.setAttribute('hidden', 'true');
+            toolbar.setAttribute('kohidden', 'true');
         }
         toolbar.setAttribute('mode', toolbox.getAttribute('mode'));
         var ordinal = base_ordinal + part.getLongAttribute('priority');
