@@ -72,6 +72,17 @@
     min-width: 20px;
 }
 
+/* Fix menu alignment when icons are visible */
+menu, menuitem
+{
+    padding-left: 26px;
+
+    .menu-iconic-left
+    {
+	margin-left: -21px;
+    }
+}
+
 @-moz-document url(chrome://komodo/content/notifications/notificationsWidget.xul) {
     notification .twisty > .twistyImageWrapper {
         padding-left: 0;
