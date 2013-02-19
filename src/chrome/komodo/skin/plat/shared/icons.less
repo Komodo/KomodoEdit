@@ -785,10 +785,39 @@ treechildren::-moz-tree-image(remotefile)
     list-style-image: @icon-tab-select !important;
 }
 
-
 #tabs-closebutton
 {
     list-style-image: @icon-close;
+}
+
+.tab-arrowscrollbox
+{
+    .scrollbutton-up
+    {
+        list-style-image: @icon-tab-scroll-left;
+    }
+    .scrollbutton-down
+    {
+        list-style-image: @icon-tab-scroll-right;
+    }
+
+    &[orient="vertical"]
+    {
+        .scrollbutton-up
+        {
+            list-style-image: @icon-tab-scroll-up;
+        }
+        .scrollbutton-down
+        {
+            list-style-image: @icon-tab-scroll-down;
+        }
+    }
+
+    .scrollbutton-up > image,
+    .scrollbutton-down > image
+    {
+        -moz-appearance: none;
+    }
 }
 
 #main-toolboxrow .overflow-toolbarbutton .toolbarbutton-icon
