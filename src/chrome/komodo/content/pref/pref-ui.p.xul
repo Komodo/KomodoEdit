@@ -89,6 +89,7 @@
                 <checkbox id="koSkin_use_gtk_detection"
                           label="&useGtkDetection.label;"
                           pref="true"
+                          preftype="boolean"
                           prefdefault="true"
                           prefattribute="checked"/>
             </hbox>
