@@ -356,7 +356,6 @@ class KoFindResultsView(TreeView):
             # Tuple of (in_words, out_words)
             self._filter_words = (tuple(set(words).difference(out_words)),
                                   tuple([x[1:] for x in out_words if len(x) > 1]))
-            print 'self._filter_words: %r' % (self._filter_words, )
 
         if old_words != self._filter_words:
             # Re-filter the unfiltered rows.
