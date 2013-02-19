@@ -72,24 +72,25 @@ def _getUserPath():
     return koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
 
 def _localTmpFileName(cwd):
-    """
-    Try to find a temporary filename that doesn't exist.
-    Note that there is a race condition here (testing for 
-    file's non-existence succeeds, then the file is created
-    by an external event or another thread, and then this
-    routine returns the file's name.
-    """
-    for i in range(100):
-        # Allow for collisions
-        baseName = os.path.basename(tempfile.mktemp() + '.py')
-        if cwd:
-            finalName = os.path.join(cwd, baseName)
-        else:
-            finalName =  baseName
-        if not os.path.exists(finalName):
-            return finalName
-    # Give up, return whatever name we last saw
-    return finalName
+    # Keep files out of places default view by prepending a "#"
+    # Keep in mind that the pylint section strips out complains about
+    # modules whose names start with '#'
+    args = {'suffix':".py", 'prefix':"#"}
+    if cwd:
+        args["dir"] = cwd
+    # There are problems with the safer versions of tempfile:
+    # tempfile.mkstemp returns an os-level file descriptor integer,
+    # and using os.fdopen(fd, 'w') didn't create a writable object.
+    # Using tempfile.TemporaryFile and tempfile.NamedTemporaryFile
+    # return pseudo-file objects that give the error
+    #
+    # "TypeError: 'str' does not support the buffer interface"
+    #
+    # when I try to write to them.
+    # written up at http://bugs.python.org/issue11818
+    tmpFileName = tempfile.mktemp(**args)
+    fout = open(tmpFileName, 'w')
+    return fout, tmpFileName
 
 class _GenericPythonLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
@@ -123,7 +124,7 @@ class _GenericPythonLinter(object):
 
 class KoPythonCommonPyLintChecker(_GenericPythonLinter):
     nonIdentChar_RE = re.compile(r'^\w_.,=')
-    invalidModuleName_RE = re.compile(r'(C0103.*?Invalid name ")(\w+)(" \(should match )(.*)(\))')
+    invalidModuleName_RE = re.compile(r'(C0103.*?Invalid name ")(.+?)(" \(should match )(.*)(\))')
     def lint_with_text(self, request, text):
         if not text:
             return None
@@ -135,9 +136,8 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
         if not pythonExe:
             return
         cwd = request.cwd
-        tmpfilename = _localTmpFileName(cwd)
-        tmpBaseName = os.path.basename(tmpfilename)
-        fout = open(tmpfilename, 'wb')
+        fout, tmpfilename = _localTmpFileName(cwd)
+        tmpBaseName = os.path.splitext(os.path.basename(tmpfilename))[0]
         fout.write(text)
         fout.close()
         textlines = text.splitlines()
@@ -164,8 +164,16 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
             p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
             stdout, stderr = p.communicate()
             if stderr:
-                log.error("Error in pylint: %s", stderr)
-                return
+                origStderr = stderr
+                okStrings = ["No config file found, using default configuration",]
+                for okString in okStrings:
+                    idx = stderr.find(okString)
+                    if idx >= 0:
+                        stderr = stderr[:idx] + stderr[idx + len(okString):]
+                stderr = stderr.strip()
+                if stderr:
+                    log.error("Error in pylint: %s (reduced to %s)", origStderr, stderr)
+                    return
             warnLines = stdout.splitlines(0) # Don't need the newlines.
         except:
             log.exception("Failed to run %s", cmd)
@@ -174,6 +182,8 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
         finally:
             os.unlink(tmpfilename)
         ptn = re.compile(r'^([A-Z])(\d+):\s*(\d+)(?:,\d+)?:\s*(.*)')
+        # dependency: _localTmpFileName(cwd) prepends a '#' on the basename
+        #invalid_name_ptn = pe.compile(r'C0103:\s*[\d:,]+\s*Invalid name "#.+?"')
         results = koLintResults()
         for line in warnLines:
             m = ptn.match(line)
@@ -268,8 +278,7 @@ class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
         if not pythonExe:
             return
         cwd = request.cwd
-        tmpfilename = _localTmpFileName(cwd)
-        fout = open(tmpfilename, 'wb')
+        fout, tmpfilename = _localTmpFileName(cwd)
         fout.write(text)
         fout.close()
         textlines = text.splitlines()
@@ -345,8 +354,7 @@ class KoPythonCommonPycheckerLinter(_GenericPythonLinter):
         if not os.path.exists(pychecker):
             return
         cwd = request.cwd
-        tmpfilename = _localTmpFileName(cwd)
-        fout = open(tmpfilename, 'wb')
+        fout, tmpfilename = _localTmpFileName(cwd)
         fout.write(text)
         fout.close()
         textlines = text.splitlines()
@@ -543,8 +551,10 @@ class KoPythonCommonLinter(_GenericPythonLinter):
 
             # Save the current buffer to a temporary file.
             cwd = cwd or None
-            tmpFileName = _localTmpFileName(cwd)
-            fout = open(tmpFileName, 'wb')
+            # Standard Python syntax-checking files can live in a tmp directory
+            # because the checker doesn't attempt to verify or read imported
+            # modules.
+            fout, tmpFileName = _localTmpFileName(None)
             fout.write(text)
             fout.close()
     
