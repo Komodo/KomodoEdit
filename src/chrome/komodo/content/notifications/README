@@ -2,7 +2,26 @@ Komodo Notifications Plugin
 ===========================
 
 This plugin provides a user notification service for Komodo.
+Most of this document is out-of-date, but here's how to
+add a notification with a button-callback:
 
+
+var msg = <some message>
+var options = {
+    severity: Components.interfaces.koINotification.SEVERITY_INFO,
+    details: msg };
+var identifier = <some identifier>
+var act = { label: <label>,
+            identifier: <another identifier?? not really documented>,
+            handler: function(notification, url) {
+                  // callback code...
+            }
+};
+options.actions = [act];
+ko.notifications.add(msg, [<Category>], identifier, options);
+
+I haven't bothered determining how much of the rest of this file
+is still up-to-date.
 
 Using the Notification Service
 ------------------------------

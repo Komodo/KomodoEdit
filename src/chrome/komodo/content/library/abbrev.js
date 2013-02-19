@@ -306,8 +306,19 @@ this.expandAutoAbbreviation = function(currView) {
         scimoz.anchor = currentPos;
         if (ko.abbrev.insertAbbrevSnippet(snippet, currView)) {
             var pathPart = ko.snippets.snippetPathShortName(snippet);
-            var msg = _bundle.formatStringFromName("inserted autoabbreviation X", [pathPart], 1);
-            ko.statusBar.AddMessage(msg, "Editor", 1000, false);
+            var options = {
+                severity: Components.interfaces.koINotification.SEVERITY_INFO };
+            var identifier = "edit-snippet-" + pathPart;
+            var act = { label: _bundle.GetStringFromName("Edit Snippet"),
+                        identifier: snippet.url,
+                        handler: function(notification, url) {
+                              ko.open.URI(url);
+                        }
+            };
+            options.actions = [act];
+            var msg = _bundle.formatStringFromName("inserted autoabbreviation X",
+                                                   [pathPart], 1);
+            ko.notifications.add(msg, ["Snippets"], identifier, options);
             return true;
         }
         scimoz.currentPos = origPos;
