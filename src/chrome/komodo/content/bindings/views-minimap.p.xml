@@ -106,9 +106,13 @@
             var epos = vs.getLineEndPosition(lastDocLineOnScreen);
             
             var msz = this.scimoz;
-            msz.gotoPos(spos);
-            msz.selectionStart = spos;
-            msz.selectionEnd = epos;
+            if (msz.selectionStart !== spos) {
+                msz.gotoPos(spos);
+                msz.selectionStart = spos;
+            }
+            if (msz.selectionEnd !== epos) {
+                msz.selectionEnd = epos;
+            }
         ]]>
         </body>
         </method>
