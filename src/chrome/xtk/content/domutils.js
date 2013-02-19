@@ -42,6 +42,8 @@
 if (typeof(xtk) == 'undefined') {
     var xtk = {};
 }
+(function(){
+var log = ko.logging.getLogger('xtk.domutils');
 xtk.domutils = {
 
 /**
@@ -54,8 +56,9 @@ elementInFocus: function(el) {
     try {
         var commandDispatcher = top.document.commandDispatcher;
         var focusedElement = commandDispatcher.focusedElement;
-        return (el === focusedElement ||
-                el.compareDocumentPosition(focusedElement) & Node.DOCUMENT_POSITION_CONTAINED_BY);
+        return (focusedElement &&
+                (el === focusedElement ||
+                 el.compareDocumentPosition(focusedElement) & Node.DOCUMENT_POSITION_CONTAINED_BY));
     } catch (e) {
         log.exception(e);
     }
@@ -244,3 +247,5 @@ this.getHandler = function(tooltipName) {
 }
 
 }).apply(xtk.domutils.tooltips);
+
+})();
