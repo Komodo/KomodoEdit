@@ -1,0 +1,2 @@
+override chrome://komodo/skin/iconset/config.less resource://app/chrome/iconsets/cupertino-blue/hidpi/config.less
+skin icomoon cupertino jar:cupertino-blue-hidpi.jar!/skin/
