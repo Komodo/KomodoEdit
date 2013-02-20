@@ -408,7 +408,7 @@ class koDocumentBase:
         else:
             lang_prefs = components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
             lang_prefs.id = lang_pref_name;
-            all_lang_prefs.setPref(lang_pref_name, prefs);
+            all_lang_prefs.setPref(lang_pref_name, lang_prefs);
 
         original_parent = self.prefs.parent
         if original_parent.id == lang_pref_name:
