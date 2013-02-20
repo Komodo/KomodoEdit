@@ -808,6 +808,13 @@
 
         <method name="closeUnconditionally">
             <body><![CDATA[
+                if (this.minimap) {
+                    try {
+                        this.destroyMinimap();
+                    } catch(ex) {
+                        this.log.exception(ex, "problem in destroyMinimap");
+                    }
+                }
                 // isSpecial typicaly denotes sockets and such, is also
                 // used by us to identify things like dbgp files
                 // we don't want special files in our mru
