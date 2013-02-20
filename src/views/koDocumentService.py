@@ -88,6 +88,7 @@ class KoDocumentService:
         obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                        getService(components.interfaces.nsIObserverService)
         obsSvc.addObserver(self, 'xpcom-shutdown', 1)
+        obsSvc.addObserver(self, 'current_project_changed', False)
         
         # set up the background thread
         self.shutdown = 0
@@ -105,7 +106,12 @@ class KoDocumentService:
             self.shutdownAutoSave()
             obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                            getService(components.interfaces.nsIObserverService)
+            obsSvc.removeObserver(self, 'current_project_changed')
             obsSvc.removeObserver(self, 'xpcom-shutdown')
+        elif topic == "current_project_changed":
+            # Reset koDoc preferences.
+            for doc in self.getAllDocuments():
+                doc.resetPreferenceChain()
 
     def getAutoSaveDocuments(self):
         # this does about the same as getAllDocuments, but doesn't

@@ -1204,8 +1204,8 @@ class koProject(koLiveFolderPart):
     def create(self):
         self._name = _makeNewProjectName()
         self.setLongAttribute("kpf_version", KPF_VERSION)
-        prefset = UnwrapObject(components.classes["@activestate.com/koPreferenceSet;1"].\
-                                        createInstance(components.interfaces.koIPreferenceSet))
+        prefset = UnwrapObject(components.classes["@activestate.com/koProjectPreferenceSet;1"].\
+                                        createInstance(components.interfaces.koIProjectPreferenceSet))
         self.set_prefset(prefset)
 
     def createPartFromType(self, type):
@@ -1233,8 +1233,8 @@ class koProject(koLiveFolderPart):
     
     def get_prefset(self):
         if self.prefset is None:
-            prefset = components.classes["@activestate.com/koPreferenceSet;1"] \
-                .createInstance(components.interfaces.koIPreferenceSet)
+            prefset = components.classes["@activestate.com/koProjectPreferenceSet;1"] \
+                .createInstance(components.interfaces.koIProjectPreferenceSet)
             self.set_prefset(UnwrapObject(prefset))
         return self.prefset
 
@@ -1243,10 +1243,14 @@ class koProject(koLiveFolderPart):
         if self.prefset is not None:
             self.prefset.get_prefObserverService().removeObserver(self, "")
         if prefset is not None:
+            if prefset.preftype != 'project':
+                log.warn("prefset is not a koIProjectPreferenceSet %r", prefset)
+            prefset.id = "project"
             prefset.idref = self.id
             prefset.chainNotifications = 1
-            prefset.set_parent(components.classes["@activestate.com/koPrefService;1"].\
-                getService(components.interfaces.koIPrefService).prefs)
+            globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
+                getService(components.interfaces.koIPrefService).prefs
+            prefset.set_parent(UnwrapObject(globalPrefs))
         self.prefset = prefset
         if prefset is not None:
             prefset.get_prefObserverService().addObserver(self, "", 1)
@@ -1408,7 +1412,9 @@ class koProject(koLiveFolderPart):
                     if len(partstack) != 1:
                         #log.debug('node.tagName == "preference-set": len(partstack) =%d, ignoring pref %s', len(partstack), node.toxml())
                         continue
-                    # make a dom for the prefset, turn it into a prefset
+                    # Turn dom node into a prefset. We set the 'preftype' field
+                    # to ensure we get back a koIProjectPreferenceSet.
+                    node.attributes['preftype'] = 'project'
                     prefset = UnwrapObject(NodeToPrefset(node, self._relativeBasedir, 1))
 
                     if kpfVer < 3 or \

@@ -169,7 +169,9 @@ interface koIDocument : nsISupports
     // if the document is not in a project, the return is the prefs above
     koIPreferenceSet getEffectivePrefs();
     koIPreferenceSet getEffectivePrefsByName(in AString prefName);
-    
+    // Set the appropriate preference chain (takes into account project prefs).
+    void resetPreferenceChain();
+
     void saveState(in koIScintillaView scintilla);
     
     // Maintain a list of editor views that are using this document.

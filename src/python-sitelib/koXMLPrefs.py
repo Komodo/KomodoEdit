@@ -216,8 +216,16 @@ class koPreferenceSetDeserializer:
     def DOMDeserialize(self, rootElement, parentPref, prefFactory, basedir=None, chainNotifications=0):
         """We know how to deserialize preferent-set elements."""
         # Create a new preference set and rig it into the preference set hierarchy.
-        xpPrefSet = components.classes["@activestate.com/koPreferenceSet;1"] \
-                  .createInstance(components.interfaces.koIPreferenceSet)
+        preftype = rootElement.getAttribute('preftype')
+        if preftype == 'project':
+            xpPrefSet = components.classes["@activestate.com/koProjectPreferenceSet;1"] \
+                      .createInstance(components.interfaces.koIProjectPreferenceSet)
+        elif preftype == 'file':
+            xpPrefSet = components.classes["@activestate.com/koFilePreferenceSet;1"] \
+                      .createInstance(components.interfaces.koIFilePreferenceSet)
+        else:
+            xpPrefSet = components.classes["@activestate.com/koPreferenceSet;1"] \
+                      .createInstance(components.interfaces.koIPreferenceSet)
         newPrefSet = UnwrapObject(xpPrefSet)
         newPrefSet.chainNotifications = chainNotifications
         try:

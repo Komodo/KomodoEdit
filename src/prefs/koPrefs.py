@@ -167,13 +167,16 @@ class koPreferenceSetObjectFactory(koXMLPreferenceSetObjectFactory):
 
 _validations = {}
 
-class koPreferenceSet:
+class koPreferenceSet(object):
     _com_interfaces_ = [components.interfaces.koIPreferenceSet,
                         components.interfaces.koIPreferenceObserver,
                         components.interfaces.koISerializableFast]
     _reg_desc_ = "Komodo Preference Set"
     _reg_contractid_ = "@activestate.com/koPreferenceSet;1"
     _reg_clsid_ = "{EE71E26E-7394-4d3f-8B4A-CA58E6F8154D}"
+
+    # '' for default, 'file' for file preferences, 'project' for project preferences.
+    preftype = ''
 
     chainNotifications = 0
 
@@ -184,10 +187,7 @@ class koPreferenceSet:
         self._commonInit()
         
     def __str__(self):
-        if hasattr(self, 'idref'):
-            return '<PrefSet: id=%s idref=%s>' % (str(self.id), str(self.idref))
-        else:
-            return '<PrefSet: id=%s>' % (str(self.id))
+        return '<PrefSet: id=%s type=%s idref=%s>' % (self.id, self.preftype, self.idref)
     __repr__ = __str__
 
     def _commonInit(self):
@@ -222,17 +222,22 @@ class koPreferenceSet:
                 except COMException:
                     pass
             prefs[id] = val, typ
-        if hasattr(self, 'idref'):
-            return (self.id, self.idref, prefs)
-        return (self.id, prefs)
+        return (self.id, self.preftype, self.idref, prefs)
 
     def __setstate__(self, data):
         self._commonInit()
-        if len(data) == 3:
+
+        if len(data) == 4:
+            self.id, self.preftype, self.idref, self.prefs = data
+        # Allow older style pickle states.
+        elif len(data) == 3:
             self.id, self.idref, self.prefs = data
+            self.preftype = ""
         else:
             self.id, self.prefs = data
             self.idref = ""
+            self.preftype = ""
+
         for [child, childType] in self.prefs.values():
             log.debug("deserializing: child %r", child)
             if isinstance(child, koPreferenceSet):
@@ -477,10 +482,12 @@ class koPreferenceSet:
             # dont serialize empty prefsets
             return
         attrs = []
-        if hasattr(self, 'idref') and self.idref:
+        if self.idref:
             attrs.append('idref="%s"' % cgi.escape(self.idref))
         if self.id:
             attrs.append('id="%s"' % cgi.escape(self.id))
+        if self.preftype:
+            attrs.append('preftype="%s"' % cgi.escape(self.preftype))
         stream.write('<preference-set %s>%s' % (' '.join(attrs), newl))
         for prefName in sorted(self.prefs):
             try:
@@ -1088,11 +1095,36 @@ class koPreferenceCache:
 
 ###################################################
 #
+# Per-project and per-file preferences.
+#
+# These are exactly the same as a regular preference set, but can be
+# QueryInterface'd to see if it belongs to a file or project.
+#
+###################################################
+
+class koProjectPreferenceSet(koPreferenceSet):
+    _com_interfaces_ = [components.interfaces.koIProjectPreferenceSet] + \
+                       koPreferenceSet._com_interfaces_
+    _reg_desc_ = "Komodo Project Preferences"
+    _reg_contractid_ = "@activestate.com/koProjectPreferenceSet;1"
+    _reg_clsid_ = "{961bad79-65e1-964e-bc84-e65941a8c5f1}"
+    preftype = 'project'
+
+class koFilePreferenceSet(koPreferenceSet):
+    _com_interfaces_ = [components.interfaces.koIFilePreferenceSet] + \
+                       koPreferenceSet._com_interfaces_
+    _reg_desc_ = "Komodo File Preferences"
+    _reg_contractid_ = "@activestate.com/koFilePreferenceSet;1"
+    _reg_clsid_ = "{433a740b-bcb1-b747-8dcf-c570be6d905e}"
+    preftype = 'file'
+
+###################################################
+#
 # The global preferences service.
 #
 ###################################################
 
-class koGlobalPrefService:
+class koGlobalPrefService(object):
     _com_interfaces_ = [components.interfaces.koIPrefService,
                         components.interfaces.nsIObserver]
     _reg_desc_ = "Komodo Global Preference Service"
@@ -1171,6 +1203,9 @@ class koGlobalPrefService:
             # No user filename - so the prefset is just the defaults.
             assert defaultPrefs is not None, "No default prefs, and no user prefs - what do you expect me to do?"
             prefs = UnwrapObject(defaultPrefs)
+
+        if not prefs.id:
+            prefs.id = prefName
 
         self.pref_map[prefName] = prefs, defn
 

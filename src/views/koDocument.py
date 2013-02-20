@@ -278,14 +278,16 @@ class koDocumentBase:
             docState = docStateMRU.getPref(url)
             self.prefs = docState
         else:
-            self.prefs = components.classes['@activestate.com/koPreferenceSet;1'].\
-                                     createInstance(components.interfaces.koIPreferenceSet)
+            self.prefs = components.classes['@activestate.com/koFilePreferenceSet;1'].\
+                                     createInstance(components.interfaces.koIFilePreferenceSet)
             if self.isUntitled:
                 self.prefs.id = self._untitledName
             else:
                 self.prefs.id = self.file.URI
             docStateMRU.setPref(self.prefs)
-        self.prefs.parent = self._globalPrefs
+
+        # Hook up the preference chain.
+        self._setupPreferenceChain()
 
         # Set the default encoding for the file
         self.encoding = components.classes['@activestate.com/koEncoding;1'].\
@@ -312,12 +314,73 @@ class koDocumentBase:
         prefObserver = self.prefs.prefObserverService
         prefObserver.addObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'], True)
 
+    def _walkPrefChain(self, prefs):
+        """Debug method to help show the preference chain."""
+        depth = 1
+        while prefs:
+            print "%s%r" % (" " * depth, UnwrapObject(prefs), )
+            prefs = prefs.parent
+            depth += 1
+
+    def _setupPreferenceChain(self):
+        """Set the preference chain for this document.
+        
+        Takes into account project preferences and whether they should apply for
+        this document.
+        
+        Should be called once at initialization, and whenever:
+          * the current project changes
+          * the file path changes
+        """
+        prefs = self.prefs
+        if not prefs:
+            return
+
+        #print "\nBefore:"
+        #self._walkPrefChain(prefs)
+
+        # Walk up until we find project or global preferences.
+        parent = prefs.parent
+        child = prefs
+        oldprojectprefs = None
+        while parent:
+            try:
+                oldprojectprefs = parent.QueryInterface(components.interfaces.koIProjectPreferenceSet)
+                break
+            except COMException:
+                # It's not a project preference set - look higher.
+                if parent.id in ('global', 'default'):
+                    # No need to look any higher.
+                    break
+                child = parent
+                parent = parent.parent
+
+        assert child is not None
+
+        newprojectprefs = None
+        if not self.isUntitled:
+            newprojectprefs = self._partSvc.getEffectivePrefsForURL(self.file.URI)
+
+        # Replace existing project prefs with the new one. Child is either a
+        # descendent of the global prefs, or a descendent of the old project
+        # prefs.
+        if newprojectprefs:
+            child.parent = newprojectprefs
+        else:
+            child.parent = self._globalPrefs
+
+        # TODO: If the preference chain is different - we should compare
+        #       observed pref values to see if any have changed - and send
+        #       appropriate notifications.
+
+        #print "After:"
+        #self._walkPrefChain(prefs)
+
+    def resetPreferenceChain(self):
+        self._setupPreferenceChain()
+
     def getEffectivePrefs(self):
         # this returns either a prefset from a project, or my own prefset
-        if self.file and self.file.URI:
-            prefset = self._partSvc.getEffectivePrefsForURL(self.file.URI)
-            if prefset:
-                return prefset
         return self.prefs
     
     def getEffectivePrefsByName(self, prefName):
@@ -336,16 +399,23 @@ class koDocumentBase:
         return docPrefset
     
     def _setLangPrefs(self):
-        lprefs = self._globalPrefs.getPref("languages")
-        if lprefs.hasPref("languages/"+self._language):
-            prefs = lprefs.getPref("languages/"+self._language)
+        all_lang_prefs = self._globalPrefs.getPref("languages")
+        # Why the hell do we use the name "languages/" - it's already underneath
+        # a "languages" preferenceset!?!?
+        lang_pref_name = "languages/" + self._language
+        if all_lang_prefs.hasPref(lang_pref_name):
+            lang_prefs = all_lang_prefs.getPref(lang_pref_name)
         else:
-            prefs = components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
-            prefs.id = 'languages/'+self._language;
-            lprefs.setPref(prefs.id, prefs);
-            
-        self.prefs.parent = prefs
-        prefs.parent = self._globalPrefs
+            lang_prefs = components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+            lang_prefs.id = lang_pref_name;
+            all_lang_prefs.setPref(lang_pref_name, prefs);
+
+        original_parent = self.prefs.parent
+        if original_parent.id == lang_pref_name:
+            # When lang prefs are already set - use the parent of it.
+            original_parent = original_parent.parent
+        lang_prefs.parent = original_parent
+        self.prefs.parent = lang_prefs
         # Reset indentation settings - bug 95329.
         self._indentWidth = None
         self._tabWidth = None
@@ -665,10 +735,11 @@ class koDocumentBase:
         if language == '':
             if self.prefs.hasPrefHere('language'):
                 self.prefs.deletePref('language')
+            # _guessLanguage always calls _setLangPrefs()
             self._guessLanguage()
         else:
             self.prefs.setStringPref('language', language)
-        self._setLangPrefs()
+            self._setLangPrefs()
 
         self._ciBuf = None # need a new codeintel Buffer for this lang
 

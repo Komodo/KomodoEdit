@@ -214,6 +214,16 @@ interface koIUIPreferenceSet : koIPreference {
     //nsISimpleEnumerator enumPrefs(in AString prefType);
 };
 
+// Project preferences - to allow checking if a prefset is project based.
+[scriptable, uuid(b3c0ca87-6187-ac43-a61f-3f6ff68147c3)]
+interface koIProjectPreferenceSet : nsISupports {
+};
+
+// File preferences - to allow checking if a prefset is file based.
+[scriptable, uuid(dacb9866-5ea5-5547-a69f-36b202c3d30c)]
+interface koIFilePreferenceSet : nsISupports {
+};
+
 /* A preference set cache - a collection of preference sets that can
    be indexed by a unique ID, and automatically maintains a maximum
    size.
