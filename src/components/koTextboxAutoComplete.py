@@ -608,7 +608,30 @@ def _genPathCompletions(pattern, cwd, dirsOnly=False):
         cwd_with_sep = (cwd[-1] in (os.sep, os.altsep)
                         and cwd or cwd+os.sep)
 
-    for path in sorted(glob.glob(abspattern+"*")):
+    try:
+        flist = glob.glob(abspattern+"*")
+    except UnicodeDecodeError, ex:
+        # Python's os.listdir doesn't handle names with high-bit characters,
+        # since it doesn't know which encoding to use, and doesn't bother
+        # trying to guess.
+        dirPart, restPart = os.path.split(abspattern)
+        if not dirPart:
+            # os.path.split(<no slashes>) => ('', <no slashes>)
+            return
+        if restPart:
+            # os.path.split(<ends-with-slash>) => (x, '')
+            restPartStar = restPart + "*"
+        names = os.listdir(dirPart)
+        flist = []
+        for name in names:
+            if not restPart or glob.fnmatch.fnmatch(name, restPartStar):
+                try:
+                    flist.append(os.path.join(dirPart, name))
+                except UnicodeDecodeError:
+                    from koUnicodeEncoding import autoDetectEncoding
+                    flist.append(os.path.join(dirPart, autoDetectEncoding(name)[0]))
+        
+    for path in sorted(flist):
         if fileutils.isHiddenFile(path):
             continue
         elif isdir(path) or (sys.platform == "win32" and ismount(path)):
