@@ -19,7 +19,10 @@
                        allowIME="false"
                        onblur="leaveView();"
                        onmouseout="leaveView();"
-                       mozcontext="minimapContextMenu"/>
+<!-- #if PLATFORM != "linux" -->
+                       mozcontext="minimapContextMenu"
+<!-- #endif -->
+                       />
     </content>
     <implementation name="viewminimap" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
 
@@ -43,9 +46,8 @@
             this.view._setupHighlightColors(scintilla);
             scintilla.scimoz.hookEvents(this);
             var mm_scimoz = scintilla.scimoz;
-            // -10 is the lowest possible zoom. Lower values are accepted, but
-            // have no effect, and make it look like ctrl-scroll doesn't work.
-            mm_scimoz.zoom = koDoc.prefs.getLong("minimap.zoom", -10);
+            mm_scimoz.zoom = koDoc.prefs.getLong("minimap.zoom",
+                                                 ko.views.manager.DEFAULT_MINIMAP_ZOOM);
             mm_scimoz.hScrollBar = false;
             mm_scimoz.vScrollBar = true;
             mm_scimoz.setMarginWidthN(2, 0);
@@ -67,7 +69,8 @@
         <body>
         <![CDATA[
             this.koDoc = koDoc;
-            this.scimoz.zoom = koDoc.prefs.getLong("minimap.zoom", -10);
+            this.scimoz.zoom = koDoc.prefs.getLong("minimap.zoom",
+                                                   ko.views.manager.DEFAULT_MINIMAP_ZOOM);
             koDoc.addScimoz(this.scimoz);
         ]]>
         </body>

@@ -2291,7 +2291,7 @@ viewManager.prototype.do_cmd_showHideMinimap = function () {
 viewManager.prototype.is_cmd_minimap_fontZoom_enabled = function () {
     // As long as we have an editor/view, mark all minimap menu items enabled.
     var view = this.currentView;
-    return view && view.getAttribute("type") == "editor";
+    return view && view.minimap;
 };
 viewManager.prototype.is_cmd_minimap_fontZoomIn_enabled = function () {
     return this.is_cmd_minimap_fontZoom_enabled();
@@ -2305,6 +2305,12 @@ viewManager.prototype.is_cmd_minimap_fontZoomReset_enabled = function () {
 viewManager.prototype.is_cmd_minimap_hide_enabled = function () {
     return this.is_cmd_minimap_fontZoom_enabled();
 };
+
+// Minimap setting:
+// -8 is the lowest possible zoom. Lower values are accepted, but
+// have no effect, and make it look like ctrl-scroll doesn't work.
+// Ref bug 97447
+viewManager.prototype.DEFAULT_MINIMAP_ZOOM = -8;
 
 viewManager.prototype._do_cmd_minimap_fontZoom = function(arg) {
     var minimap, view = this.currentView;
@@ -2324,7 +2330,7 @@ viewManager.prototype.do_cmd_minimap_fontZoomReset = function () {
     if (!view || !(minimap = view.minimap)) {
         return;
     }
-    minimap.scimoz.zoom = -10;
+    minimap.scimoz.zoom = this.DEFAULT_MINIMAP_ZOOM;
 };
 viewManager.prototype.do_cmd_minimap_hide = function () {
     var view = this.currentView;
