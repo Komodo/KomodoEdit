@@ -213,7 +213,7 @@
                                      ontextentered="this.focus();
                                             this.setSelectionRange(this.textLength, this.textLength);"
                              />
-                <button label="&browse.label;" oncommand="browseToFile('postgreSQLPath');"/>
+                <button label="&browse.label;" oncommand="browseToFile('postgresqlPath');"/>
               </hbox>
             </vbox>
           </vbox>
