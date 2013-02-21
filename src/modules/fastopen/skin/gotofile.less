@@ -4,6 +4,7 @@
 
 /* Spinning busy throbber. */
 .throbber {
+    visibility: collapse;
     list-style-image: none;
     width: 16px;
     height: 16px;
@@ -16,15 +17,14 @@
 }
 
 .throbber[busy="true"] {
+    visibility: visible;
     list-style-image: url("chrome://global/skin/icons/loading_16.png");
 }
 
 toolbarbutton {
     -moz-appearance: none;
-    min-width: 24px;
-    height: 24px;
-    max-height: 24px;
-    padding: 0 5px;
+    margin-left: 5px;
+    max-width: 16px;
 }
 
 #shortcut-show {
@@ -34,8 +34,7 @@ toolbarbutton {
     padding: 0.2em;
 }
 #shortcut-panel > toolbarbutton {
-    width: 16px;
-    height: 16px;
+    max-width: 16px;
 }
 #shortcut-textbox {
     min-width: 20em;
