@@ -67,7 +67,7 @@
                 </xul:hbox>
             </xul:panel>
         </content>
-        <implementation implements="nsIObserver">
+        <implementation implements="nsIObserver,nsIDOMXULTextBoxElement">
             <field name='_inMouseDown'>-1</field>
 
             <!-- x,y coord list containing position initiating a drag or null -->
@@ -149,6 +149,11 @@
             ]]>
             </body>
             </method>
+
+            <!-- nsIDOMXULTextBoxElement implementation -->
+            <property name="inputField">
+                <getter>return this._ime;</getter>
+            </property>
 
             <field name="_embed">document.getAnonymousElementByAttribute(this, 'anonid', 'scimoz')</field>
             <field name="_ime">document.getAnonymousElementByAttribute(this, 'anonid', 'ime-input')</field>
@@ -847,7 +852,7 @@
                 <![CDATA[
                 //dump("scintilla:: blur\n");
                 let focusedElement = window.document.commandDispatcher.focusedElement;
-                if ([null, this, this._embed, this._ime].indexOf(focusedElement) != -1) {
+                if ([this, this._embed, this._ime].indexOf(focusedElement) != -1) {
                     // we're just moving focus to inside something we handle
                     //this.log.debug("ignoring focus to known element " +
                     //               (focusedElement ? focusedElement.localName : "(null)"));
