@@ -93,8 +93,8 @@
         
         <method name="syncMinimapFromBuffer">
         <body><![CDATA[
-            this.update_FVL_FromEditor();
-            this.updateSelectionFromEditor();
+        this.update_FVL_FromEditor();
+        this.updateSelectionFromEditor();
         ]]>
         </body>
         </method>
@@ -103,10 +103,9 @@
         <body><![CDATA[
             var firstDocLine, lastDocLineOnScreen;
             [firstDocLine, lastDocLineOnScreen] = this.view.getEditorViewBoundaries();
-            var before_check = this.getEditorViewBoundaries();
             var vs = this.view.scimoz;
             var spos = vs.positionFromLine(firstDocLine);
-            var epos = vs.getLineEndPosition(lastDocLineOnScreen);
+            var epos = vs.positionFromLine(Math.min(lastDocLineOnScreen + 1, vs.lineCount));
             
             var msz = this.scimoz;
             if (msz.selectionStart !== spos) {
@@ -120,7 +119,7 @@
         </body>
         </method>
         
-        <method name="update_FVL_FromEditor">
+        <method name="getNewFirstVisibleLineFromEditor">
         <body><![CDATA[
             var vs = this.view.scimoz;
             var numLines = vs.lineCount;
@@ -137,18 +136,21 @@
                 var lastTopMSZVisibleLine = numMSZVisibleLines - msz.linesOnScreen;
                 var portion_covered = firstVisibleLine / lastTopVisibleLine;
                 var firstMSZVisibleLine = Math.round(lastTopMSZVisibleLine * portion_covered);
-                if (firstMSZVisibleLine != msz.firstVisibleLine) {
-                    // Save and restore the selection after changing
-                    // the first visible line.(yeesh)
-                    ////var sp = msz.selectionStart;
-                    ////var se = msz.selectionEnd;
-                    msz.firstVisibleLine = firstMSZVisibleLine;
-                    ////msz.selectionStart = sp;
-                    ////msz.selectionEnd = se;
-                    this.updateEditorViewBoundaries();
-                } else {
-                    //dump("views-minimap.p.xml: update_FVL_FromEditor: no need to update minimap.fvl\n");
-                }
+                return firstMSZVisibleLine;
+            }
+            return -1;
+        ]]>
+        </body>
+        </method>
+        
+        <method name="update_FVL_FromEditor">
+        <body><![CDATA[
+            var firstMSZVisibleLine = this.getNewFirstVisibleLineFromEditor();
+            if (firstMSZVisibleLine != -1) {
+                this.scimoz.firstVisibleLine = firstMSZVisibleLine;
+                this.updateEditorViewBoundaries();
+            } else {
+                //dump("views-minimap.p.xml: update_FVL_FromEditor: no need to update minimap.fvl\n");
             }
         ]]>
         </body>
@@ -170,30 +172,38 @@
         <method name="onUpdateUI">
         <body>
         <![CDATA[
-            if (this._followMouseMove && this._doMouseUp) {
+            if (!this.minimapActive) {
+                //dump("<< !this.minimapActive\n");
+                return;
+            }
+            if (this._followMouseMove) {
+                //dump("**************** Ignore, _followMouseMove\n");
                 return;
             }
             var now = new Date().valueOf();
             if (now - this.ignoreUpdateUIStartTime < this.ignoreUpdateUIPeriod) {
                 this.updateEditorViewBoundaries();
+                //dump("In ignore period\n");
                 return;
             }
+            
             var firstDocLine, lastDocLineOnScreen;
             [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
-            
             var updateMinimap = (this.firstDocLine !== firstDocLine
                                  || this.lastDocLine !== lastDocLineOnScreen);
             if (!updateMinimap) {
+                //dump("<< mm:onUpdateUI: lines haven't changed\n")
                 return;
             }
-            this.view.syncBufferFromMinimap(this, false);
-            this.syncMinimapFromBuffer();
+            this.view.syncBufferFromMinimap(this);
+            this.updateSelectionFromEditor();
             this.updateEditorViewBoundaries();
             this.view.updateEditorViewBoundaries();
+            this.scimoz.dragPosition = -1;
         ]]>
         </body>
         </method>
-
+                
         <method name="getClickedLineAndPosition">
         <parameter name="event" />
         <parameter name="scimoz" />
@@ -233,16 +243,10 @@
             this.update_FVL_FromEditor();
             
             // 3: Update the minimap selection
-            var firstDocLine = scimoz.docLineFromVisible(firstVisibleLine);
-            var lastDocLine = scimoz.docLineFromVisible(firstVisibleLine + vs.linesOnScreen);
-
-            var selectionStart = scimoz.positionFromLine(firstDocLine);
-            scimoz.gotoPos(selectionStart);
-            scimoz.selectionStart = selectionStart;
-            scimoz.selectionEnd = scimoz.positionFromLine(lastDocLine);
+            this.updateSelectionFromEditor();
             this.updateEditorViewBoundaries();
             this.ignoreUpdateUIStartTime = new Date().valueOf();
-            
+            this.scimoz.dragPosition = -1;
         ]]>
         </body>
         </method>
@@ -270,19 +274,12 @@
         </body>
         </method>
 
+        <field name="minimapActive">false</field>
         <method name="enterView">
         <parameter name="event" />
         <body>
         <![CDATA[
-        // Make the scimoz readonly when the minimap is entered, but
-        // only if needed.
-        var scimoz = this.scimoz;
-        if (!("_scimoz_readOnly" in this) && !scimoz.readOnly) {
-            this._scimoz_readOnly = scimoz.readOnly;
-            this._scimoz_cursor = scimoz.cursor;
-            scimoz.readOnly = true;
-            scimoz.cursor = scimoz.SC_CURSORARROW;
-        }
+            this.minimapActive = true;
         ]]>
         </body>
         </method>
@@ -291,13 +288,7 @@
         <parameter name="event" />
         <body>
         <![CDATA[
-        if ('_scimoz_readOnly' in this) {
-            var scimoz = this.scimoz;
-            scimoz.readOnly = this._scimoz_readOnly;
-            scimoz.cursor = this._scimoz_cursor;
-            delete this._scimoz_readOnly;
-            delete this._scimoz_cursor;
-        }
+            this.minimapActive = false;
         ]]>
         </body>
         </method>
@@ -332,7 +323,7 @@
         ]]>
         </handler>
         
-        <handler name="mouseout" phase="capturing">
+        <handler name="mouseout" phase="bubbling">
         <![CDATA[
         this.leaveView();
         ]]>
@@ -340,12 +331,14 @@
         
         <handler event="mousedown" phase="capturing">
         <![CDATA[
-        //this._reportEvent(event);
+        this._reportEvent(event);
+        this._followMouseMove = true;
+        this._doMouseUp = false;
         if (event.button != 0) {
             return true;
         }
         return this._squelchEvent(event);
-        ]]>
+            ]]>
         </handler>
         
         <handler event="mousedown">
@@ -359,13 +352,11 @@
         
         <handler event="mouseup" phase="capturing">
         <![CDATA[
-        //this._reportEvent(event);
         if (event.button != 0) {
             return true;
         }
-        if (event.button === 0) {   // 0: primary button (usually the left)
-            this.handleButtonClick(event);
-        }
+        this._reportEvent(event);
+        this._followMouseMove = this._doMouseUp = false;
         return this._squelchEvent(event);
         ]]>
         </handler>
@@ -382,14 +373,30 @@
         
         <handler event="mousemove" phase="capturing">
         <![CDATA[
+            if (this._followMouseMove) {
+                this._doMouseUp = true;
+            }
         return this._squelchEvent(event);
         ]]>
         </handler>
 
         <handler event="click" phase="capturing">
             <![CDATA[
+            this._reportEvent(event);
+            setTimeout(function() {
+                // timeout in case the user clicked on an existing
+                // minimap selection. If we don't pause, the selection
+                // will be cleared.
+                this.handleButtonClick(event);
+                }.bind(this), 10);
+            return this._squelchEvent(event);
+            ]]>
+        </handler>
+
+        <!-- these drag events don't fire -->
+        <handler event="dragstart">
+            <![CDATA[
             // This is all handled via mousedown/mouseup events.
-            //this._reportEvent(event);
             return this._squelchEvent(event);
             ]]>
         </handler>

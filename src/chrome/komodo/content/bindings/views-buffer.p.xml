@@ -888,6 +888,9 @@
         var firstVisibleLine = scimoz.firstVisibleLine;
         var firstDocLine = scimoz.docLineFromVisible(firstVisibleLine);
         var lastDocLineOnScreen = scimoz.docLineFromVisible(firstVisibleLine + scimoz.linesOnScreen);
+        if (lastDocLineOnScreen > scimoz.lineCount) {
+            lastDocLineOnScreen = scimoz.lineCount;
+        }
         return [firstDocLine, lastDocLineOnScreen];
         ]]>
         </body>

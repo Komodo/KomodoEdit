@@ -1532,15 +1532,10 @@
         </body>
         </method>
         
-        <method name="syncBufferFromMinimap">
+        <method name="getNewFirstVisibleLineFromMinimap">
         <parameter name="minimap" />
-        <parameter name="syncMinimap" />
         <body><![CDATA[
-            if (!this.showMinimap) {
-                return;
-            }
             var scimoz = this.scimoz;
-            if (typeof(syncMinimap) == "undefined") syncMinimap = false;
             var docCoordsStart, docCoordsEnd;
             docCoordsStart = this.getEditorViewBoundaries();
             var msz = minimap.scimoz;
@@ -1550,36 +1545,28 @@
             var numMSZVisibleLines = msz.visibleFromDocLine(msz.lineCount);
             var lastTopMSZVisibleLine = numMSZVisibleLines - msz.linesOnScreen;
             var msz_portion_covered = firstMSZVisibleLine / lastTopMSZVisibleLine;
-
             var numVisibleLines = scimoz.visibleFromDocLine(numLines);
             var lastTopVisibleLine = numVisibleLines - linesOnScreen;
             var firstVisibleLine = Math.round(lastTopVisibleLine * msz_portion_covered);
-            //dump("views-editor.p.xml: sync: set firstVisibleLine to "
-            //     + firstVisibleLine
-            //     + "\n");
+            return firstVisibleLine;
+        //]]>
+        </body>
+        </method>
+        
+        <method name="syncBufferFromMinimap">
+        <parameter name="minimap" />
+        <body><![CDATA[
+            if (!this.showMinimap) {
+                return;
+            }
+            var firstVisibleLine = this.getNewFirstVisibleLineFromMinimap(minimap);
+            var scimoz = this.scimoz;
             scimoz.firstVisibleLine = firstVisibleLine;
             // And make sure the updateUI routine doesn't do anything.
             var currentPos = scimoz.currentPos;
             this._lastPosLineAndCol = [currentPos, scimoz.lineFromPosition(currentPos),
                                        scimoz.getColumn(currentPos), firstVisibleLine];
-            // And update the selection (???)
-            
-            // Update the boundary checkers so we don't ask the minimap to update in
-            // the onUpdateUI method that will get called next.
-            [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
-            docCoordsEnd = this.getEditorViewBoundaries();
-            this.updateEditorViewBoundaries(docCoordsEnd[0], docCoordsEnd[1]);
-            
-            if (!syncMinimap) {
-                //dump("Don't sync the minimap\n");
-            } else if (docCoordsStart[0] != docCoordsEnd[0]
-                || docCoordsStart[1] != docCoordsEnd[1]) {
-                minimap.syncMinimapFromBuffer();
-            } else {
-                //dump("In view: syncBufferFromMinimap: nothing changed, don't update minimap\n");
-            }
-            this.ignoreNextUIUpdate = true;
-            minimap.ignoreNextUIUpdate = true;
+            this.updateEditorViewBoundaries();
             ]]>
         </body>
         </method>
