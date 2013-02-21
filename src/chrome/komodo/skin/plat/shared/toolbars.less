@@ -8,7 +8,7 @@
 /* Button Group */
 #main-toolboxrow toolbar > toolbaritem
 {
-    
+
     .border(@menubar-group-border-width, @menubar-group-border-style, @menubar-group-border-color);
     height: 24px;
     
@@ -205,8 +205,8 @@
 #main-toolboxrow
 {
     -moz-appearance: none !important;
-    padding-bottom: 3px;
-    padding-top: 3px;
+    padding-bottom: 1px;
+    padding-top: 1px;
     border-bottom: none !important;
 }
 
@@ -215,6 +215,7 @@
     -moz-appearance: none;
     border: 0;
     padding-top: 0;
+    padding-bottom: 0;
     
     .unified-textbox-wrapper
     {
@@ -312,10 +313,4 @@ toolbarbutton[disabled="true"] > dropmarker
 {
     opacity: 0.6;
     border-bottom: none !important;
-    
-    & > hbox
-    {
-        padding-bottom: 3px;
-        padding-top: 3px;
-    }
 }
