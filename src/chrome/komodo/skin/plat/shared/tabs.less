@@ -244,9 +244,9 @@
         -moz-appearance: @tab-moz-appearance;
         outline: none !important;
         background: @tab-background;
-        border-radius: 0 !important;
+        border-radius: 0;
         box-shadow: @tab-box-shadow;
-        border-right: @tab-border !important;
+        border-right: @tab-border;
         margin: 0;
         padding: 0;
         text-align: center;
@@ -399,17 +399,37 @@ ko-pane[type="icons"] .pane-tabs-container tabs .tabstrip-box
 ko-pane[type="icons"] tab
 {
     -moz-appearance: @tab-moz-appearance-icons;
+    padding: 2px 4px;
     
-    background: none !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    min-width: 20px;
-    
-    &:not([selected]):not([icon-inactive])
+    opacity: @tab-icons-unselected-opacity;
+
+    background: @tab-icons-background;
+    border: @tab-icons-border !important;
+    border-radius: @tab-icons-border-radius;
+    box-shadow: @tab-icons-box-shadow;
+
+    &:hover
     {
-        opacity: @tab-icons-unselected-opacity;
+        background: @tab-icons-hover-background;
+        border: @tab-icons-hover-border !important;
+        border-radius: @tab-icons-hover-border-radius;
+        box-shadow: @tab-icons-hover-box-shadow;
     }
-    
+
+    &[selected="true"]
+    {
+        background: @tab-icons-selected-background;
+        border: @tab-icons-selected-border !important;
+        border-radius: @tab-icons-selected-border-radius;
+        box-shadow: @tab-icons-selected-box-shadow;
+        opacity: @tab-icons-selected-opacity;
+    }
+
+    .tab-middle
+    {
+        padding: 0;
+    }
+
     .tab-icon
     {
         width: 16px;
@@ -519,4 +539,3 @@ ko-pane[type="icons"] tab
         padding: 0px;
     }
 }
-

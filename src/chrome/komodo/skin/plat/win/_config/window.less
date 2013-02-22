@@ -108,9 +108,6 @@
 @tab-background-vertical:               @tab-background;
 @tab-box-shadow-vertical:               @tab-box-shadow;
 
-@tab-icons-selected-opacity:            1.0;
-@tab-icons-unselected-opacity:          1.0;
-
 @tab-selected-border:                   @tab-border;
 @tab-selected-background:               rgb(255, 255, 255);
 @tab-selected-box-shadow:               inherit;
@@ -131,6 +128,24 @@
 @tab-active-color:                      inherit;
 @tab-active-background-vertical:        @tab-active-background;
 @tab-active-box-shadow-vertical:        @tab-active-box-shadow;
+
+@tab-icons-background:                  none;
+@tab-icons-border:                      1px solid transparent;
+@tab-icons-border-radius:               4px;
+@tab-icons-box-shadow:                  none;
+
+@tab-icons-hover-background:            -moz-linear-gradient(90deg , rgba(100,100,100,0.3) 0%, rgba(200,200,200,0.3) 100%);
+@tab-icons-hover-border:                1px solid rgba(0,0,0, 0.25);
+@tab-icons-hover-border-radius:         4px;
+@tab-icons-hover-box-shadow:            none;
+
+@tab-icons-selected-background:         -moz-linear-gradient(90deg , rgba(100,100,100,0.1) 0%, rgba(200,200,200,0.1) 100%);
+@tab-icons-selected-border:             1px solid rgba(0,0,0, 0.40);
+@tab-icons-selected-border-radius:      4px;
+@tab-icons-selected-box-shadow:         inset 0px 1px 5px rgba(0,0,0,0.15);
+
+@tab-icons-selected-opacity:            1.0;
+@tab-icons-unselected-opacity:          1.0;
 
 @tab-debug-box-background:              Window;
 
@@ -163,3 +178,4 @@
 @tab-debug-selected-font-weight:        bold;
 @tab-debug-selected-text-shadow:        none;
 @tab-debug-selected-box-shadow:         none;
+
