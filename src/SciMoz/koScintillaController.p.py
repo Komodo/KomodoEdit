@@ -359,13 +359,10 @@ class koScintillaController:
                 # selection -- we need to accumulate the lines into the cut
                 # buffer
                 self._cutbuffer += line
-            # Add one, otherwise a LF on a Windows CRLF line terminator
-            # does not make it into the clipboard. Note that we *should*
-            # add one on Unix as well even though there the EOL is only
-            # one character. (c.f. bug 29236).
             decoded = self._cutbuffer.encode('utf-8')
-            byteLen = len(decoded) + 1
+            byteLen = len(decoded)
             #print "cut copyText %d %r" % (byteLen, decoded)
+            # Editor::CopyText takes utf-8-length, unicode-chars
             sm.copyText(byteLen, self._cutbuffer)
             sm.chooseCaretX()
         finally:
