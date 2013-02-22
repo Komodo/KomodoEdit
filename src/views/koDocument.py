@@ -1942,6 +1942,11 @@ class koDocumentBase:
             ondisk = tmpfile.read(-1)
             (ondisk, encoding, bom) = self._detectEncoding(ondisk)
             ondisk = ondisk.splitlines(1)
+        except:
+            # If we cannot read the file - then either it doesn't exist yet, or
+            # we don't have the correct permissions - either way we will treat
+            # it as having all lines changed - bug 97642.
+            ondisk = ''
         finally:
             tmpfile.close()        #self.file.open('rb')
 
