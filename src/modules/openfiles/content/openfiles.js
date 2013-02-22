@@ -167,7 +167,7 @@ if (typeof ko.openfiles == 'undefined')
                 this.addItem(e.originalTarget);
             }.bind(this));
             
-            koWindow.addEventListener('view_closed', function(e)
+            koWindow.addEventListener('view_closing', function(e)
             {
                 this.removeItem(e.originalTarget);
             }.bind(this));
@@ -683,7 +683,7 @@ if (typeof ko.openfiles == 'undefined')
             // Check for items which have the same name, in case there's only
             // one then we can remove the css class indicating duplicate names
             var duplicates = listbox.querySelectorAll(
-                                ".file-title[value='"+editorView.title+"']");
+                                '.file-title[value="'+editorView.title+'"]');
             if (duplicates.length == 1)
             {
                 duplicates[0].parentNode.classList.remove('duplicate-name');
