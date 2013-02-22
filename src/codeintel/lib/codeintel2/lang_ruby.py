@@ -340,6 +340,7 @@ class RubyLangIntel(CitadelLangIntel,
         except which.WhichError:
             return None
 
+    _gem_ver_ptn = re.compile(r'(.+?)(-[\d+\.]+)$')
     def _ruby_info_from_ruby(self, ruby, env):
         """Call the given Ruby and return:
             (<version>, <lib-dir>, <site-lib-dir>, <import-dirs>, <gem-dirs>)
@@ -392,6 +393,7 @@ class RubyLangIntel(CitadelLangIntel,
                     return join(cand_ver, "gems")
             return None
 
+        
         # Get the list of relevant Gem lib dirs.
         def gem_ver_from_ver_str(ver_str):
             parts = ver_str.split('.')
@@ -409,7 +411,10 @@ class RubyLangIntel(CitadelLangIntel,
             for dir in glob(join(gems_dir, "*-*")):
                 if not isdir(dir):
                     continue
-                name, ver_str = basename(dir).split('-', 1)
+                m = self._gem_ver_ptn.match(basename(dir))
+                if not m:
+                    continue
+                name, ver_str = m.groups()
                 gem_ver = gem_ver_from_ver_str(ver_str)
                 if name in gem_ver_and_dir_from_name:
                     if gem_ver > gem_ver_and_dir_from_name[name][0]:
