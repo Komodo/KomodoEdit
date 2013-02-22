@@ -51,15 +51,15 @@
     -->
     <binding id="scintilla">
         <content>
+            <xul:textbox anonid="ime-input" class="plain"
+                         style="position: absolute; opacity: 0;"
+                         xbl:inherits="context=mozcontext"/>
             <html:embed type="application/x-scimoz-plugin"
                         anonid="scimoz"
                         style="-moz-box-flex: 1;"
                         pluginAllowsFocusEvents="false"
                         pluginHandlesDomEvents="false"
                         />
-            <xul:textbox anonid="ime-input" class="plain"
-                         style="position: absolute; opacity: 0;"
-                         xbl:inherits="context=mozcontext"/>
             <xul:panel anonid="autocompletepopup" noautofocus="true">
                 <xul:hbox>
                     <xul:grid/>
