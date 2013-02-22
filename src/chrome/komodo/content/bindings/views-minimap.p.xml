@@ -87,7 +87,6 @@
         </body>
         </method>
         
-        <field name="_doMouseUp">false</field>
         <field name="firstDocLine">-1</field>
         <field name="lastDocLine">-1</field>
         
@@ -122,7 +121,6 @@
         <method name="getNewFirstVisibleLineFromEditor">
         <body><![CDATA[
             var vs = this.view.scimoz;
-            var numLines = vs.lineCount;
             var firstVisibleLine = vs.firstVisibleLine;
 
             var msz = this.scimoz;
@@ -173,11 +171,7 @@
         <body>
         <![CDATA[
             if (!this.minimapActive) {
-                //dump("<< !this.minimapActive\n");
-                return;
-            }
-            if (this._followMouseMove) {
-                //dump("**************** Ignore, _followMouseMove\n");
+                //dump("<< !this.minimapActive\n"); 
                 return;
             }
             var now = new Date().valueOf();
@@ -328,57 +322,6 @@
         this.leaveView();
         ]]>
         </handler>
-        
-        <handler event="mousedown" phase="capturing">
-        <![CDATA[
-        this._reportEvent(event);
-        this._followMouseMove = true;
-        this._doMouseUp = false;
-        if (event.button != 0) {
-            return true;
-        }
-        return this._squelchEvent(event);
-            ]]>
-        </handler>
-        
-        <handler event="mousedown">
-        <![CDATA[
-        if (event.button != 0) {
-            return true;
-        }
-        return this._squelchEvent(event);
-        ]]>
-        </handler>
-        
-        <handler event="mouseup" phase="capturing">
-        <![CDATA[
-        if (event.button != 0) {
-            return true;
-        }
-        this._reportEvent(event);
-        this._followMouseMove = this._doMouseUp = false;
-        return this._squelchEvent(event);
-        ]]>
-        </handler>
-        
-        <handler event="mouseup">
-        <![CDATA[
-        //this._reportEvent(event);
-        if (event.button != 0) {
-            return true;
-        }
-        return undefined;
-        ]]>
-        </handler>
-        
-        <handler event="mousemove" phase="capturing">
-        <![CDATA[
-            if (this._followMouseMove) {
-                this._doMouseUp = true;
-            }
-        return this._squelchEvent(event);
-        ]]>
-        </handler>
 
         <handler event="click" phase="capturing">
             <![CDATA[
@@ -392,14 +335,7 @@
             return this._squelchEvent(event);
             ]]>
         </handler>
-
-        <!-- these drag events don't fire -->
-        <handler event="dragstart">
-            <![CDATA[
-            // This is all handled via mousedown/mouseup events.
-            return this._squelchEvent(event);
-            ]]>
-        </handler>
+        
     </handlers>
 
 </binding>
