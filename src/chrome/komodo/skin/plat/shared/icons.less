@@ -45,6 +45,14 @@ button, toolbarbutton, menuitem
     height: auto;
 }
 
+/* Enforce 16px height for checked menuitem's as they use background-image
+ * instead of list-style-image, which requires fixed dimensions */
+:not(menulist) > menupopup > :-moz-any(menuitem[selected="true"], menuitem[checked="true"]) > .menu-iconic-left .menu-iconic-icon
+{
+
+    height: 16px;
+}
+
 /* Folder Icons */
 
 .upfolder-icon
