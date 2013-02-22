@@ -86,6 +86,16 @@ menu, menuitem
     }
 }
 
+/* Disable main menubar menu icons */
+#toolbar-menubar menu.menu-iconic,
+#toolbar-menubar menuitem.menuitem-iconic
+{
+    /* Requires important due to some icon rules having an !important rule
+     * These icons in turn require the rule due to the hierarchy of platform.less
+     * See bug #97665 */
+    list-style-image: none !important;
+}
+
 @-moz-document url(chrome://komodo/content/notifications/notificationsWidget.xul) {
     notification .twisty > .twistyImageWrapper {
         padding-left: 0;
