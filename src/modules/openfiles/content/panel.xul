@@ -26,17 +26,23 @@
                     src="chrome://komodo/skin/images/existing_file.png"/>
                 
                 <label
-                    class="file-title"/>
+                    class="file-title"
+                    crop="end"
+                    flex="1"/>
                 
                 <label
                     class="file-dirty"
                     collapsed="true"
                     value="*"/>
                 
+                <!--
+                    XUL crop is bugged when using 2 cropped & flexed elements
+                    under the same parent, see bug #97298 for more info
+                -->
                 <label
                     class="file-path"
                     crop="start"
-                    flex="99"/>
+                    flex="2147483647"/>
                 
                 <toolbarbutton
                     class="file-close-button"
