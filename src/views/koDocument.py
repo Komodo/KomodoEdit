@@ -632,8 +632,10 @@ class koDocumentBase:
     def _get_buffer_from_file(self, file):
         try:
             file.open('rb')
-            data = file.read(-1)
-            file.close()
+            try:
+                data = file.read(-1)
+            finally:
+                file.close()
         except COMException, ex:
             # koFileEx.open(), .read(), and .close() will already
             # setLastError on failure so don't need to do it again. The
