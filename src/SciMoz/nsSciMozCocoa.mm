@@ -24,21 +24,35 @@ using namespace Scintilla;
 
 #ifdef SCIMOZ_COCOA_DEBUG
 static char *getClipStr(NPWindow *win, char *buf) {
-  sprintf(buf, "l:%d, t:%d, r:%d, b:%d",
+  sprintf(buf, "x:%3d, y:%3d, w:%3d, h:%3d",
 	  win->clipRect.left,
 	  win->clipRect.top,
-	  win->clipRect.right,
-	  win->clipRect.bottom);
+	  win->clipRect.right - win->clipRect.left,
+	  win->clipRect.bottom - win->clipRect.top);
   return buf;
 }
 
+static bool differentClipRect(NPWindow *old, NPWindow *now) {
+  return (old->clipRect.left != now->clipRect.left ||
+          old->clipRect.right != now->clipRect.right ||
+          old->clipRect.top != now->clipRect.top ||
+          old->clipRect.bottom != now->clipRect.bottom);
+}
+
 static char *getRectStr(NPWindow *win, char *buf) {
-  sprintf(buf, "x:%d, y:%d w:%d, h:%d",
+  sprintf(buf, "x:%3d, y:%3d, w:%3d, h:%3d",
 	  win->x,
 	  win->y,
 	  win->width,
 	  win->height);
   return buf;
+}
+
+static bool differentWindowRect(NPWindow *old, NPWindow *now) {
+  return (old->x != now->x ||
+          old->y != now->y ||
+          old->width != now->width ||
+          old->height != now->height);
 }
 
 static char *getNSRectStr(NSRect rect, char *buf) {
@@ -187,6 +201,7 @@ void SciMoz::NotifySignal(intptr_t windowid, unsigned int iMessage, uintptr_t wP
 void SciMoz::PlatformNew(void) {
 #ifdef SCIMOZ_COCOA_DEBUG
     fprintf(stderr,">> SciMoz::PlatformNew\n");
+    memset(&fPlatform.lastWindow, 0, sizeof(NPWindow));
 #endif
     fPlatform.viewIsVisible = false;
     portMain = NULL;
@@ -242,7 +257,7 @@ void SciMoz::PlatformMarkClosed() {
 
 nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 #ifdef SCIMOZ_COCOA_DEBUG
-  char buf[160];
+  char buf[400];
   fprintf(stderr,"SciMoz::PlatformSetWindow wEditor:%p npwindow:%p, fWindow:%p\n",
 	  wEditor, npwindow, fWindow);
 #endif
@@ -281,17 +296,25 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
     // fWindow is set to npWindow from an earlier call.
     // What is the plugin trying to tell us this time?
 #ifdef SCIMOZ_COCOA_DEBUG
-    fprintf(stderr, "SciMoz::PlatformSetWindow: fWindow already set\n");
-    fprintf(stderr, "portMain  == npwindow->window, \n    fWindow clip: %s, current: %s, fWindow rect:%s, current:%s\n",
-	    getClipStr(fWindow, buf),
-	    getClipStr(npwindow, &buf[40]),
-	    getRectStr(fWindow, &buf[80]),
-	    getRectStr(npwindow, &buf[120]));
+    fprintf(stderr, "\nSciMoz::PlatformSetWindow: %p fWindow already set\n", wEditor);
+    fprintf(stderr, "  last clip: %s\n  curr clip: %s (changed: %d)\n  last rect: %s\n  curr rect: %s (changed %d)\n",
+	    getClipStr(&fPlatform.lastWindow, buf),
+	    getClipStr(npwindow, &buf[100]),
+            differentClipRect(&fPlatform.lastWindow, npwindow),
+	    getRectStr(&fPlatform.lastWindow, &buf[200]),
+	    getRectStr(npwindow, &buf[300]),
+            differentWindowRect(&fPlatform.lastWindow, npwindow));
     fprintf(stderr, "fWindow == npwindow: %d\n",
 	    fWindow == npwindow);
 #endif
     HideScintillaView(WINDOW_DISABLED(fWindow));
     Resize();
+
+//#ifdef SCIMOZ_COCOA_DEBUG
+    // Remember the window information.
+    fPlatform.lastWindow = *fWindow;
+//#endif
+
     return NS_OK;
   }
 
