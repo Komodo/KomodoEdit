@@ -310,10 +310,10 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
     HideScintillaView(WINDOW_DISABLED(fWindow));
     Resize();
 
-//#ifdef SCIMOZ_COCOA_DEBUG
+#ifdef SCIMOZ_COCOA_DEBUG
     // Remember the window information.
     fPlatform.lastWindow = *fWindow;
-//#endif
+#endif
 
     return NS_OK;
   }
