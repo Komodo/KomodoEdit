@@ -170,8 +170,13 @@ class GenericCommandHandler:
             sm.wrapMode = sm.SC_WRAP_WORD
             sm.layoutCache = sm.SC_CACHE_PAGE
         else:
+            # Bug 97600:
+            # Scintilla doesn't update scimoz.firstVisibleLine,
+            # but it needs to point it to the docLine
+            docFirstLine = sm.docLineFromVisible(sm.firstVisibleLine)
             sm.wrapMode = sm.SC_WRAP_NONE
             sm.layoutCache = sm.SC_CACHE_NONE
+            sm.firstVisibleLine = docFirstLine
 
 
     def _resolveDiffPath(self, diff, diff_file, paths):
