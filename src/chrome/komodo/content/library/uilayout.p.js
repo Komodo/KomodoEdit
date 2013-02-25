@@ -515,24 +515,21 @@ this.toggleTab = function uilayout_toggleTab(widgetId, collapseIfFocused /* =tru
         // the specified tab is focused and will not collapse any panels
         if (typeof(collapseIfFocused) == 'undefined')
             collapseIfFocused = true;
-        var widget = document.getElementById(widgetId);
-        if (!widget) {
+        var widget = ko.widgets.getWidget(widgetId, false);
+        if (!widget || !widget.containerPane) {
             throw("Can't find widget " + widgetId);
         }
-        if (!widget.tabbox.collapsed &&
-            widget.tabbox.selectedTab == widget.tab &&
-            collapseIfFocused)
-        {
+        if (this.isTabShown(widgetId) && collapseIfFocused) {
             // The widget is currently selected and visible; we want to toggle
             // it so it's not.
             // Before we collapse it, figure out whether the focus is in
             // this widget.  If so, then move it back to the editor
-            if (xtk.domutils.elementInFocus(widget.tabbox)) {
+            if (xtk.domutils.elementInFocus(widget.containerPane)) {
                 if (ko.views.manager.currentView) {
                     ko.views.manager.currentView.setFocus();
                 }
             }
-            widget.tabbox.collapsed = true;
+            widget.containerPane.collapsed = true;
             return;
         }
         // If we get here, we want to force show and focus the widget.
@@ -1262,20 +1259,27 @@ this.rightPaneShown = function uilayout_rightPaneShown()
 
 this.isCodeBrowserTabShown = function uilayout_isCodeBrowserTabShown()
 {
-    var widget = window.document.getElementById("codebrowserviewbox");
-    return !widget.tabbox.collapsed &&
-           widget.tabbox.selectedTab == widget.tab;
+    _log.deprecated('ko.uilayout.isCodeBrowserTabShown is just an alias for ' +
+                    'ko.uilayout.isTabShown("codebrowserviewbox")');
+    return this.isTabShown("codebrowserviewbox");
 };
 
 this.ensureOutputPaneShown = function uilayout_ensureOutputPaneShown()
 {
-    window.document.getElementById("workspace_bottom_area").collapsed = false;
+    // This is just hilariously badly named
+    _log.deprecated('ko.uilayout.ensureOutputPaneShown is unlikely to be ' +
+                    'what you wanted to call; try something like ' +
+                    '"<your-widget>.containerPane.collapsed = false" instead.');
+    ko.widgets.getPaneAt('workspace_bottom_area').collapsed = false;
 };
 
 this.ensurePaneForTabHidden = function uilayout_ensurePaneForTabHidden(tabName)
 {
     // given a tab id, collapse the pane that the tab is in.
-    document.getElementById(tabName).tabbox.collapsed = true;
+    let widget = ko.widgets.getWidget(tabName);
+    if (widget && widget.containerPane) {
+        widget.containerPane.collapsed = true;
+    }
 };
 
 /**
@@ -1302,17 +1306,18 @@ this.isPaneShown = function uilayout_isPaneShown(pane) {
  *
  * @param pane {object | id} - The pane element, or the id of the pane element.
  */
-this.ensurePaneShown = function uilayout_ensurePaneShown(pane) {
-    if (typeof(pane) == 'string') {
-        // It's the id of the pane.
-        var paneId = pane;
-        pane = document.getElementById(paneId);
-        if (!pane) {
-            log.error("ensurePaneShown: no pane with the id: " + paneId);
-            return;
-        }
+this.ensurePaneShown = function uilayout_ensurePaneShown(aPane) {
+    let pane = ko.widgets.getWidget(aPane) || aPane;
+    if (pane && pane.containerPane) {
+        pane = pane.containerPane;
     }
-    pane.tabbox.collapsed = false;
+    if (!pane || !pane.id || (ko.widgets.panes.indexOf(pane.id) < 0)) {
+        pane = ko.widgets.getPaneAt(aPane) || aPane;
+    }
+    if (!pane || !pane.id || (ko.widgets.panes.indexOf(pane.id) < 0)) {
+        log.error("ensurePaneShown: no pane with the id: " + aPane);
+    }
+    pane.collapsed = false;
 };
 
 this.isTabShown = function uilayout_isTabShown(widgetId) {
@@ -1338,8 +1343,8 @@ this.isTabShown = function uilayout_isTabShown(widgetId) {
             }
         }
 
-        return this.isPaneShown(widget.tabbox) &&
-               widget.tabbox.selectedPanel == widget;
+        return this.isPaneShown(widget.containerPane) &&
+               xtk.domutils.containsElement(widget.containerPane.selectedPanel, widget);
     } catch (e) {
         _log.exception(e);
     }

@@ -56,10 +56,30 @@ elementInFocus: function(el) {
     try {
         var commandDispatcher = top.document.commandDispatcher;
         var focusedElement = commandDispatcher.focusedElement;
-        return (focusedElement &&
-                (el === focusedElement ||
-                 el.compareDocumentPosition(focusedElement) & Node.DOCUMENT_POSITION_CONTAINED_BY));
+        return this.containsElement(el, focusedElement);
     } catch (e) {
+        log.exception(e);
+    }
+    return false;
+},
+
+/**
+ * is this element a descendent (or same node!) of an ancestor?
+ * @param ancestor {Element} The ancestor to check
+ * @param element {Element} The element that might be a descendent
+ * @return {Boolean}
+ */
+containsElement: function(ancestor, element) {
+    try {
+        if (!ancestor || !element) {
+            return false;
+        }
+        if (element.ownerDocument !== ancestor.ownerDocument) {
+            return false;
+        }
+        return (ancestor === element) ||
+               !!(ancestor.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_CONTAINED_BY);
+    } catch(e) {
         log.exception(e);
     }
     return false;
