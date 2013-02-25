@@ -2227,6 +2227,40 @@
                 </deck>
             </deck>
         </statusbarpanel>
+
+        <statusbarpanel id="statusbar-encoding"
+                        tooltiptext="&fileEncoding.tooltiptext;"
+                        style="min-width: 6em;">
+            <toolbarbutton class="statusbar-label"
+                  id="statusbar-encoding-label"
+                  flex="1"
+                  orient="horizontal"
+                  type="menu"
+                  persist="buttonstyle"
+				  label="--"
+                  buttonstyle="text">
+                <menupopup id="statusbar-encoding-menupopup"
+                           onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
+            </toolbarbutton>
+        </statusbarpanel>
+
+        <statusbarpanel id="statusbar-language"
+                        pack="end"
+                        style="min-width: 8em; max-width: 12em;">
+            <toolbarbutton class="statusbar-label languageicon"
+                  id="statusbar-language-menu"
+                  tooltiptext="&fileType.tooltiptext;"
+                  flex="1"
+                  orient="horizontal"
+                  type="menu"
+                  persist="buttonstyle"
+				  label="--"
+                  buttonstyle="text">
+                <menupopup id="statusbar-filetype-menu"
+                           position="before_end"
+                           onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
+            </toolbarbutton>
+        </statusbarpanel>
         
         <statusbarpanel id="statusbar-line-col"
                         tooltiptext="&filePosition.tooltiptext;"
