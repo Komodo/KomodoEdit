@@ -461,6 +461,31 @@ console.log(event.name);
                 "expected %r, got %r" % (
                     name, new_line_endings, koDoc.new_line_endings))
     
+    def test_language_reset(self):
+        manifest = [
+            ("Python", tempfile.mktemp(".py"), """\
+#!/usr/bin/env python
+print 'should be py'
+"""),
+            ("Python3", tempfile.mktemp(".py"), """\
+#  -*- python3 -*-
+print('should be py3')
+"""),
+            ("JavaScript", tempfile.mktemp(".js"), """\
+alert('should be js')
+"""),
+        ]
+        for lang, name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, lang)
+            koDoc.language = "Perl"
+            self.assertEqual(koDoc.language, "Perl")
+            koDoc.language = ""
+            self.assertEqual(koDoc.language, lang)
+
 
 class TestKoDocumentBase(_KoDocTestCase):
     def test_createFile(self):

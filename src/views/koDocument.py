@@ -78,6 +78,7 @@ class koDocumentBase:
     _reg_clsid_ = "{A9F51FD2-CF82-4290-87B8-BD07CEBD1CD1}"
 
     re_firstline = re.compile(ur'(.*?)(?:\r|\n|$)')
+    _lang_prefs = None
     _indentWidth = None
     _tabWidth = None
     _useTabs = None
@@ -416,11 +417,13 @@ class koDocumentBase:
             all_lang_prefs.setPref(lang_pref_name, lang_prefs);
 
         original_parent = self.prefs.parent
-        if original_parent.id == lang_pref_name:
+        if original_parent is self._lang_prefs or \
+           original_parent.id == lang_pref_name:
             # When lang prefs are already set - use the parent of it.
             original_parent = original_parent.parent
         lang_prefs.parent = original_parent
         self.prefs.parent = lang_prefs
+        self._lang_prefs = lang_prefs
         # Reset indentation settings - bug 95329.
         self._indentWidth = None
         self._tabWidth = None
