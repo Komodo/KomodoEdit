@@ -89,7 +89,10 @@ def _localTmpFileName(cwd):
     # when I try to write to them.
     # written up at http://bugs.python.org/issue11818
     tmpFileName = tempfile.mktemp(**args)
-    fout = open(tmpFileName, 'w')
+    # Open files in binary mode. On windows, if we open in default text mode
+    # CR/LFs  => CR/CR/LF, extra CR in each line.  Lines then get the wrong
+    # line # reported with each message.
+    fout = open(tmpFileName, 'wb')
     return fout, tmpFileName
 
 class _GenericPythonLinter(object):
