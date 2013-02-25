@@ -317,8 +317,13 @@ class koDocumentBase:
     def _walkPrefChain(self, prefs):
         """Debug method to help show the preference chain."""
         depth = 1
+        seen = set()
         while prefs:
-            print "%s%r" % (" " * depth, UnwrapObject(prefs), )
+            uprefs = UnwrapObject(prefs)
+            if id(uprefs) in seen:
+                raise ValueError("already seen prefs %r" % (uprefs, ))
+            seen.add(id(uprefs))
+            print "%s%r" % (" " * depth, uprefs)
             prefs = prefs.parent
             depth += 1
 
