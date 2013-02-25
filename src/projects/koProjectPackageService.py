@@ -27,18 +27,21 @@ class koProjectPackageService:
 
     def _gatherIcons(self, part):
         icons = []
+        self._gatherIconsAux(part, icons)
+        return icons
+
+    def _gatherIconsAux(self, part, icons):
         part = UnwrapObject(part)
         icon = part.get_iconurl()
         if self.test:
             print "icon [%s]"%icon
-        if not icon.startswith('chrome://'):
+        if not icon.startswith(('chrome://', 'moz-icon://stock/')):
             newicon = os.path.join('.icons', os.path.basename(icon))
             part.set_iconurl(newicon)
             icons.append((uriparse.URIToLocalPath(icon),newicon))
         if hasattr(part, 'getChildren'):
             for p in part.getChildren():
-                icons += self._gatherIcons(p)
-        return icons
+                self._gatherIconsAux(p, icons)
 
     def _gatherLiveFileUrls(self, part, relativeDir, extradir):
         #_getImportConfig(self, recursive=0, type="makeFlat")
