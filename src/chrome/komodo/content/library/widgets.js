@@ -463,7 +463,7 @@ if (typeof(ko.widgets)=='undefined') {
             if (aTemplatePane) {
                 if (Element && (aTemplatePane instanceof Element)) {
                     for (let attr of Array.slice(aTemplatePane.attributes)) {
-                        if (["persist", "id"].indexOf(attr.name) != -1) {
+                        if (["persist", "id", "ready"].indexOf(attr.name) != -1) {
                             continue;
                         }
                         let override = ["type"].indexOf(attr.name) != -1;
@@ -500,6 +500,7 @@ if (typeof(ko.widgets)=='undefined') {
                 }
               }
             }
+            pane.setAttribute("ready", "true");
 
             aCallback(pane);
         }).bind(this);
@@ -602,7 +603,10 @@ if (typeof(ko.widgets)=='undefined') {
             for (let side of ["left", "right", "bottom"]) {
                 let id = "workspace_" + side + "_area";
                 let data = this._persist_state.panes[id] || {};
-                data.collapsed = prefs.getBoolean("uilayout_" + side + "TabBox_collapsed", false);
+                let pane = this.getPaneAt(id);
+                let collapsed = pane ? pane.getAttribute("collapsed") : false;
+                data.collapsed = prefs.getBoolean("uilayout_" + side + "TabBox_collapsed",
+                                                  (collapsed && collapsed != "false"));
                 let selected = prefs.getString("uilayout_" + side + "TabBoxSelectedTabId", "");
                 if (selected) {
                     data.selectedTab = selected;
@@ -842,6 +846,8 @@ if (typeof(ko.widgets)=='undefined') {
                 } else {
                     pane.collapsed = true;
                 }
+                // panes can now un-collapse as appropriate
+                pane.setAttribute("ready", "true");
             }
 
             appStartupCompleted = true;

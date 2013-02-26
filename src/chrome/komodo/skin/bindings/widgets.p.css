@@ -90,6 +90,11 @@ ko-pane {
   -moz-binding: url("chrome://komodo/content/bindings/pane.xml#pane");
 }
 
+ko-pane:not([ready]) {
+  /* panes should initially be collapsed */
+  visibility: collapse;
+}
+
 ko-pane .pane-tabs-container tabs {
   -moz-box-flex: 1;
 }

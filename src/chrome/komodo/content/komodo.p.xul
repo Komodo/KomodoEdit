@@ -2107,7 +2107,6 @@
         <hbox id="komodo-hbox" flex="1">
             <ko-pane id="workspace_left_area"
                      width="200"
-                     collapsed="true"
                      rotation="270"
                      class="native"
                      pref="ui.tabs.sidepanes.left.layout"
