@@ -184,6 +184,14 @@ tabpanels {
   background: transparent;
 }
 
+#toolbox2-hierarchy-vbox tree treechildren::-moz-tree-row(selected) {
+    background: -moz-cellhighlight;
+}
+
+#toolbox2-hierarchy-vbox tree treechildren::-moz-tree-row(selected, focus) {
+    background: Highlight;
+}
+
 tree treechildren::-moz-tree-cell-text(selected)
 {
     color: inherit;
@@ -192,11 +200,6 @@ tree treechildren::-moz-tree-cell-text(selected)
 tree treechildren::-moz-tree-cell-text(selected, focus)
 {
     color: HighlightText;
-}
-
-#toolbox2-hierarchy-vbox tree treechildren::-moz-tree-row(selected, focus)
-{
-    background: Highlight !important;
 }
 
 .panel-label,

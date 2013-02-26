@@ -56,6 +56,7 @@ $cons->Preprocess('toolbar.p.css', 'toolbar.css');
 $cons->InstallInChrome('toolbar.css');
 $cons->InstallInChrome('browser.css');
 $cons->InstallInChrome('extmgr.css');
+$cons->Preprocess('codeintel.p.css', 'codeintel.css');
 $cons->InstallInChrome('codeintel.css');
 $cons->InstallInChrome('hyperlinks.css');
 $cons->InstallInChrome('tree.css');
@@ -96,3 +97,4 @@ $cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/",
 
 $cons->InstallInChrome('iconset/config.less');
 $cons->InstallInChrome('iconset/rules.less');
+

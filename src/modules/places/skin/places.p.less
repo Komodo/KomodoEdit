@@ -169,9 +169,17 @@ undo-button {
 	background: transparent;
 }
 
+#placesViewbox_placesWrapper tree treechildren::-moz-tree-row(selected) {
+/* #if PLATFORM == "darwin" */
+    background: -moz-mac-secondaryhighlight;
+/* #else */
+    background: -moz-cellhighlight;
+/* #endif */
+}
+
 #placesViewbox_placesWrapper tree treechildren::-moz-tree-row(selected, focus)
 {
-    background: highlight !important;
+    background: Highlight;
 }
 
 #placesRootButton > image
