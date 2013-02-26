@@ -4,7 +4,7 @@ Index: src/Editor.cxx
 ===================================================================
 --- src/Editor.cxx	(revision 73425)
 +++ src/Editor.cxx	(working copy)
-@@ -851,20 +851,25 @@
+@@ -856,20 +856,25 @@
  			sel.Range(r).End().Position())) {
  			return true;
  		}
@@ -30,7 +30,7 @@ Index: src/Editor.cxx
  		pos.SetPosition(posMoved);
  	if (vs.ProtectionActive()) {
  		int mask = pdoc->stylingBitsMask;
-@@ -882,20 +887,23 @@
+@@ -887,20 +892,23 @@
  			}
  		}
  	}
@@ -54,7 +54,7 @@ Index: src/Editor.cxx
  		sel.SetSelection(rangeMain);
  	}
  	if (!sel.IsRectangular() && (selt == Selection::selRectangle)) {
-@@ -1719,31 +1727,31 @@
+@@ -1724,31 +1732,31 @@
  			size_t end = i;
  			int style = st.styles[i + start];
  			while (end < length-1 && st.styles[start+end+1] == style)
@@ -88,7 +88,7 @@ Index: src/Editor.cxx
  void Editor::PaintSelMargin(Surface *surfWindow, PRectangle &rc) {
  	if (vs.fixedColumnWidth == 0)
  		return;
-@@ -1965,22 +1973,24 @@
+@@ -1970,22 +1978,24 @@
  					} else if (wrapVisualFlags & SC_WRAPVISUALFLAG_MARGIN) {
  						PRectangle rcWrapMarker = rcMarker;
  						rcWrapMarker.right -= 3;
@@ -115,7 +115,7 @@ Index: src/Editor.cxx
  					}
  				}
  
-@@ -2635,21 +2645,27 @@
+@@ -2639,21 +2649,27 @@
  			int startPos = posLineStart + lineStart;
  			if (!deco->rs.ValueAt(startPos)) {
  				startPos = deco->rs.EndRun(startPos);
@@ -143,7 +143,7 @@ Index: src/Editor.cxx
  		int braceIndicator = (bracesMatchStyle == STYLE_BRACELIGHT) ? vs.braceHighlightIndicator : vs.braceBadLightIndicator;
  		if (under == vsDraw.indicators[braceIndicator].under) {
  			Range rangeLine(posLineStart + lineStart, posLineEnd);
-@@ -5003,20 +5013,23 @@
+@@ -5014,20 +5030,23 @@
  		}
  	}
  	SetLastXChosen();
@@ -167,7 +167,7 @@ Index: src/Editor.cxx
  	}
  
  	Point pt = LocationFromPosition(caretToUse);
-@@ -5058,20 +5071,23 @@
+@@ -5069,20 +5088,23 @@
  			posNew.Add(-1);
  			posNew.SetVirtualSpace(0);
  			ptNew = LocationFromPosition(posNew.Position());
@@ -191,7 +191,7 @@ Index: src/Editor.cxx
  					MovePositionTo(SelectionPosition(pdoc->LineEndPosition(savedPos)));
  				}
  				break;
-@@ -6098,33 +6114,41 @@
+@@ -6119,33 +6141,41 @@
  		x += vs.ms[margin].width;
  	}
  	return Window::cursorReverseArrow;
@@ -236,7 +236,7 @@ Index: src/Editor.cxx
  		} else if (lineAnchorPos_ > lineCurrentPos_) {
  			selCurrentPos = StartEndDisplayLine(lineCurrentPos_, true);
  			selAnchorPos = StartEndDisplayLine(lineAnchorPos_, false) + 1;
-@@ -6350,21 +6374,28 @@
+@@ -6371,21 +6401,28 @@
  			}
  		}
  	}
@@ -266,7 +266,30 @@ Index: src/Editor.cxx
  }
  
  void Editor::SetHotSpotRange(Point *pt) {
-@@ -8795,36 +8826,41 @@
+@@ -7396,21 +7433,21 @@
+ 		return GetTag(CharPtrFromSPtr(lParam), wParam);
+ 
+ 	case SCI_POSITIONBEFORE:
+ 		return pdoc->MovePositionOutsideChar(wParam - 1, -1, true);
+ 
+ 	case SCI_POSITIONAFTER:
+ 		return pdoc->MovePositionOutsideChar(wParam + 1, 1, true);
+ 
+ 	case SCI_LINESCROLL:
+ 		ScrollTo(topLine + lParam);
+-		HorizontalScrollTo(xOffset + wParam * vs.spaceWidth);
++		HorizontalScrollTo(xOffset + static_cast<int>(wParam) * vs.spaceWidth);
+ 		return 1;
+ 
+ 	case SCI_SETXOFFSET:
+ 		xOffset = wParam;
+ 		ContainerNeedsUpdate(SC_UPDATE_H_SCROLL);
+ 		SetHorizontalScrollPos();
+ 		Redraw();
+ 		break;
+ 
+ 	case SCI_GETXOFFSET:
+@@ -8831,36 +8868,41 @@
  		return 0;
  
  	case SCI_SELECTIONISRECTANGLE:
@@ -308,7 +331,7 @@ Index: src/Editor.cxx
  		case Selection::selRectangle:
  			return SC_SEL_RECTANGLE;
  		case Selection::selLines:
-@@ -8947,20 +8983,45 @@
+@@ -8983,20 +9025,45 @@
  
  	case SCI_GETHOTSPOTSINGLELINE:
  		return vs.hotspotSingleLine ? 1 : 0;
