@@ -107,6 +107,9 @@ ko-pane > [anonid="tabs_popup"][_tabsInPane="1"] .tab_popup_multiple_tabs {
 ko-pane > [anonid="tabs_popup"][_widgetsInPane="1"] .tab_popup_multiple_widgets {
   display: none;
 }
+ko-pane[floating] > [anonid="tabs_popup"] [anonid="tabs_popup_detach"] {
+  display: none; /* don't allow detaching floating panes, it does nothing */
+}
 ko-pane[type="sidebar"] > [anonid="tabs_popup"] > .tab_popup_move_tab {
   /* "Move Above X" and "Move Below X" don't make sense for single-tab view */
   display: none;

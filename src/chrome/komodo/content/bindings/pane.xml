@@ -124,6 +124,7 @@
                       anonid="tabs_popup_move_tab_down"
                       oncommand="_moveTabUpDown(false);"/>
         <xul:menuitem label="&pane.detach.label;"
+                      anonid="tabs_popup_detach"
                       oncommand="_detachAllWidgets(event);"/>
         <xul:menuseparator/>
         <xul:menuitem label="&pane.customize.label;"
