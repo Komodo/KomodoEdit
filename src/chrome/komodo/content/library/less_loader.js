@@ -13,13 +13,13 @@
         }
         
         var topWindow = _topWindow();
-        
+
         if (topWindow == window)
         {
             // This script should never be in a top window, bail!
             return;
         }
-        
+
         if (topWindow.ko == undefined || topWindow.ko.less == undefined)
         {
             topWindow.addEventListener('ko.less.initialized', init);
@@ -34,12 +34,12 @@
 
         load();
     }
-    
+
     function load()
     {
         ko.less.load(window);
     }
-    
+
     function _topWindow(currentWindow = window)
     {
         var win = currentWindow;
@@ -64,6 +64,14 @@
         }
     }
     
-    init();
+    // Do not init until the main document has been parsed
+    // See Bug #97745
+    document.addEventListener("readystatechange", function ()
+    {
+        if (document.readyState != "uninitialized" && document.readyState != "loading")
+        {
+            init();
+        }
+    });
 
 })();
