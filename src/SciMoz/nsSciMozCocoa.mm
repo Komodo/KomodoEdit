@@ -65,8 +65,13 @@ static char *getNSRectStr(NSRect rect, char *buf) {
 }
 #endif
 
+// When we get a cliprect positioned at (0,0) and it has a width & height of 0,
+// then it means we are hiding the plugin from view, otherwise we are either
+// re-showing the plugin or re-sizing the plugin - bug 97395.
 #define WINDOW_DISABLED(a) (!a || \
-				  (a->clipRect.bottom <= a->clipRect.top && \
+                                  (npwindow->clipRect.left == 0 && \
+                                   npwindow->clipRect.top == 0 && \
+				   a->clipRect.bottom <= a->clipRect.top && \
 				   a->clipRect.right  <= a->clipRect.left))
 
 void SciMoz::PlatformCreate(WinID) {
@@ -80,13 +85,6 @@ void SciMoz::Resize() {
   char buf[80];
   fprintf(stderr, ">> SciMoz::Resize, wEditor:%p, wMain:%p\n", wEditor, wMain);
 #endif
-
-  if (!fPlatform.viewIsVisible) {
-#ifdef SCIMOZ_COCOA_DEBUG
-    fprintf(stderr, "SciMoz::Resize: not visible - ignoring\n");
-#endif
-    return;
-  }
 
   // Get the bounds for plugin view.
   NSView *parentView = (NSView*)wMain;
@@ -279,11 +277,6 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
       [scView setWantsLayer: YES];
 #endif
       Create(wEditor);
-    } else if (fPlatform.viewIsVisible) {
-#ifdef SCIMOZ_COCOA_DEBUG
-      fprintf(stderr, "    fPlatform.viewIsVisible, time to hide it\n");
-#endif
-      HideScintillaView(true);
     }
     return NS_OK;
   }
@@ -308,7 +301,6 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 	    fWindow == npwindow);
 #endif
     HideScintillaView(WINDOW_DISABLED(fWindow));
-    Resize();
 
 #ifdef SCIMOZ_COCOA_DEBUG
     // Remember the window information.
@@ -355,7 +347,6 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
   [scView setAutoresizesSubviews: YES];
   [scView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
 
-  HideScintillaView(false);
   Resize();
 
   //fprintf(stderr, "<< SciMoz::PlatformSetWindow\n");
@@ -386,8 +377,6 @@ void SciMoz::HideScintillaView(bool hide) {
 #ifdef SCIMOZ_COCOA_DEBUG
       fprintf(stderr, "    -scintilla->SetTicking(true)\n");
 #endif
-      [scView setNeedsDisplay:YES];
-      scintilla->SetTicking(true);
       fPlatform.viewIsVisible = true;
     }
   }
