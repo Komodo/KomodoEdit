@@ -2,9 +2,9 @@
   "keyboard_shortcut": "", 
   "name": "for", 
   "value": [
-    "for [[%tabstop1:i]] in [[%tabstop:range([[%tabstop:len([[%tabstop:obj]])]])]][[%soft::]]",
+    "for [[%tabstop1:i]][[%soft: in ]][[%tabstop:range]][[%soft::]]",
     "\t[[%tabstop:code]]",
-    "[[%tabstop: ]]!@#_currentPos!@#_anchor"
+    "!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 
