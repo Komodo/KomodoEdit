@@ -2,7 +2,7 @@
   "keyboard_shortcut": "", 
   "name": "for", 
   "value": [
-    "for [[%soft:(]][[%tabstop:init]][[%soft:; ]][[%tabstop:test]][[%soft:; ]][[%tabstop:incr]][[%soft:) {]]", 
+    "for [[%soft:(]][[%tabstop:test]][[%soft:) {]]",
     "\t[[%tabstop://code]]", 
     "}"
   ], 
