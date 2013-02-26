@@ -59,7 +59,7 @@
                       align="center">
                 <xul:vbox>
                     <xul:spring flex="1"/>
-                    <xul:image class="closebox-icon" tooltiptext="&hidePane.tooltiptext;"
+                    <xul:image class="less-icon" tooltiptext="&hidePane.tooltiptext;"
                                anonid="toggle-button"
                                onclick="window.document.getBindingParent(this).toggleBox();"/>
                     <xul:spring flex="1"/>
@@ -247,9 +247,8 @@
                                 "anonid", "children-box");
 
                 box.setAttribute("collapsed", "true");
-                box.style.setProperty("margin-bottom", "0px", "");
 
-                button.setAttribute("class", "openbox-icon");
+                button.setAttribute("class", "more-icon");
                 button.setAttribute("tooltiptext",
                     this._bundle.GetStringFromName("showPane.tooltiptext"));
 
@@ -283,9 +282,8 @@
 
                 if (box.hasAttribute("collapsed"))
                     box.removeAttribute("collapsed");
-                box.style.setProperty("margin-bottom", "1px", "");
 
-                button.setAttribute("class", "closebox-icon");
+                button.setAttribute("class", "less-icon");
                 button.setAttribute("tooltiptext",
                     this._bundle.GetStringFromName("hidePane.tooltiptext"));
 
@@ -399,8 +397,10 @@
         <field name="_dateFormat">true</field>
         <field name="_projects">null</field>
         <field name="_files">null</field>
+        <field name="_templates">null</field>
         <field name="_updateProjectMRUWhenVisible">true</field>
         <field name="_updateFileMRUWhenVisible">true</field>
+        <field name="_updateTemplateMRUWhenVisible">true</field>
         <field name="_log">null</field>
         <property name="log">
             <getter><![CDATA[
@@ -454,8 +454,10 @@
             window.setTimeout(function (me) {
                 me._projects = me.addTopRow(me._bundle.GetStringFromName("recentProjects.message"));
                 me._files = me.addTopRow(me._bundle.GetStringFromName("recentFiles.message"));
+                me._templates = me.addTopRow(me._bundle.GetStringFromName("recentTemplates.message"));
                 me.updateProjectMRUTable();
                 me.updateFileMRUTable();
+                me.updateTemplateMRUTable();
             }, 0, this);
         ]]> </body>
         </method>
@@ -497,6 +499,7 @@
             this._dateFormat = ko.prefs.getStringPref(name);
             this.updateProjectMRUTable();
             this.updateFileMRUTable();
+            this.updateTemplateMRUTable();
         ]]> </body>
         </method>
 
@@ -507,6 +510,14 @@
             var tree = document.getAnonymousElementByAttribute(this, "anonid", "mru-tree");
             var item = tree.view.getItemAtIndex(tree.currentIndex);
             var url = item.getAttribute('url');
+            var index = item.getAttribute('_index');
+            var mru = item.getAttribute('mru');
+
+            if (mru == 'template') {
+                ko.uilayout.newFileFromTemplateOrTrimMRU(url, url, index);
+                return;
+            }
+
             if (url)
                 ko.open.URI(url);
         ]]> </body>
@@ -538,6 +549,14 @@
                 var urls = new Array();
                 for (var i=0; i< items.length; i++) {
                     var url = items[i].getAttribute('url');
+                    var index = items[i].getAttribute('_index');
+                    var mru = items[i].getAttribute('mru');
+
+                    if (mru == 'template') {
+                        ko.uilayout.newFileFromTemplateOrTrimMRU(url, url, index);
+                        return; // creating multiple files from templates is not supported
+                    }
+
                     if (url)
                         urls.push(url);
                 }
@@ -561,12 +580,15 @@
                     item = items[i];
                     if (item.parentNode == this._files.lastChild) {
                         ko.mru.del("mruFileList", item.getAttribute("_index"), false);
+                    } else if (item.parentNode == this._templates.lastChild) {
+                        ko.mru.del("mruTemplateList", item.getAttribute("_index"), false);
                     } else {
                         ko.mru.del("mruProjectList", item.getAttribute("_index"), false);
                     }
                 }
                 this.updateProjectMRUTable();
                 this.updateFileMRUTable();
+                this.updateTemplateMRUTable();
             } catch (ex) {
                 this.log.error("removeSelected error: "+ex);
             }
@@ -649,6 +671,62 @@
         ]]> </body>
         </method>
 
+        <method name="updateTemplateMRUTable">
+        <body> <![CDATA[
+            this.log.info("updateTemplateMRUTable()");
+
+            try {
+                var children = this._templates.lastChild;
+
+                // Get the MRU info.
+                var mru = null;
+                if (ko.prefs.hasPref("mruTemplateList")) {
+                    mru = ko.prefs.getPref("mruTemplateList");
+                }
+
+                // If no templates are defined in the mru, add some default
+                // ones to populate the list and help new users, as well
+                // as to ensure new users aren't presented with a big empty tree
+                if (!mru || mru.length == 0) {
+                    var gTemplateSvc = Components.classes["@activestate.com/koTemplateService?type=file;1"].getService();
+                    var templateDir = gTemplateSvc.getDefaultTemplatesDir();
+                    var templates = ko.prefs.getPref('start_page_default_templates');
+
+                    Components.utils.import("resource://gre/modules/Services.jsm", {});
+                    var Ci = Components.interfaces;
+
+                    for (let i=templates.length-1; i>=0; i--) {
+                        let filePath = templates.getStringPref(i);
+                        if (filePath.substr(0,9) == 'resource:') {
+                            filePath = Services.io.newURI(filePath, null,null)
+                                    .QueryInterface(Ci.nsIFileURL).file.path;
+                        } else {
+                            filePath = templateDir + filePath;
+                        }
+
+                        if (mru && mru.findStringPref(filePath) != -1) continue;
+
+                        ko.mru.addURL('mruTemplateList', filePath);
+                    }
+
+                    mru = ko.prefs.getPref("mruTemplateList");
+                }
+
+                // Clear the table (don't clear the header row).
+                while (children.firstChild)  {
+                    children.removeChild(children.firstChild)
+                }
+
+                for (let i=0; i<mru.length; i++) {
+                    this._addMRURow(children, "template", i, mru.getStringPref(i));
+                }
+
+            } catch(ex) {
+                this.log.exception(ex, "updateTemplateMRUTable error: ");
+            }
+        ]]> </body>
+        </method>
+
         <method name="_contractHomePart">
         <parameter name="filePath"/>
         <body> <![CDATA[
@@ -696,17 +774,27 @@
                 // Build the XUL.
                 var hbox, checkbox, image, button, label;
                 var item = document.createElementNS(XUL_NS, "treeitem");
+                item.setAttribute('mru', mru);
                 item.setAttribute('url', url);
                 item.setAttribute('_index', index);
                 var row = document.createElementNS(XUL_NS, "treerow");
                 var fncell = document.createElementNS(XUL_NS, "treecell");
-                fncell.setAttribute("label", this._contractHomePart(filePath));
+
+                if (mru == 'template') {
+                    fncell.setAttribute("label", filePath.split(/\/|\\/).splice(-3).join('/'));
+                } else {
+                    fncell.setAttribute("label", this._contractHomePart(filePath));
+                }
                 fncell.setAttribute("tooltiptext", filePath);
                 fncell.setAttribute("properties", mru+"-icon");
                 row.appendChild(fncell);
-                var fndate = document.createElementNS(XUL_NS, "treecell");
-                fndate.setAttribute("label", this._getLastModifiedMessage(url));
-                row.appendChild(fndate);
+
+                if (mru != 'template') {
+                    var fndate = document.createElementNS(XUL_NS, "treecell");
+                    fndate.setAttribute("label", this._getLastModifiedMessage(url));
+                    row.appendChild(fndate);
+                }
+
                 item.appendChild(row);
 
                 children.appendChild(item);
@@ -788,6 +876,12 @@
                             this.updateFileMRUTable();
                         } else {
                             this._updateFileMRUWhenVisible = true;
+                        }
+                    } else if (data == "mruTemplateList") {
+                        if (visible) {
+                            this.updateTemplateMRUTable();
+                        } else {
+                            this._updateTemplateMRUWhenVisible = true;
                         }
                     }
                     break;
@@ -892,7 +986,7 @@
                      onboxopen="
                         window.document.getBindingParent(this).loadLandingPage();
                      ">
-            <xul:browser anonid="landingPage" style="height: 200px;" flex="1"
+            <xul:browser anonid="landingPage" flex="1"
                          type="content" disablehistory="true"
                          onmousedown="window.document.getBindingParent(this).browserOnClick(event);"
                          onclick="
@@ -909,22 +1003,36 @@
             </xul:box>
             
             <xul:box type="startpage" anonid="quick-links-box" title="&quickLinks.title;"
-                     pref="start_page_quick_links_box_closed" ordinal="1">
+                     pref="start_page_quick_links_box_closed" ordinal="1" flex="1">
                 <xul:hbox flex="1">
-                    <xul:box>
-                        <xul:box type="startpage-bullet"
-                                 title="&openSampleProject.title;"
-                                 oncommand="window.document.getBindingParent(this).openSampleProject();"
-                                 class="open-sample">
-                            <xul:description width="240px">&openSampleProject.description;</xul:description>
-                        </xul:box>
-                        <xul:box type="startpage-bullet"
-                                 title="&checkConfiguration.title;"
-                                 oncommand="window.document.getBindingParent(this).checkConfiguration();"
-                                 class="properties-icon">
-                            <xul:description width="240px">&checkConfiguration.description;</xul:description>  
-                        </xul:box>
-                    </xul:box>
+                    <xul:vbox anonid="mru-box" flex="1">
+                        <xul:hbox flex="1">
+                        </xul:hbox>
+                    </xul:vbox>
+                    <xul:vbox anonid="quicklinks-right">
+                        <xul:vbox>
+                            <xul:box type="startpage-bullet"
+                                     title="&newFile.label;"
+                                     tooltiptext="&newFile.tooltip;"
+                                     oncommand="ko.commands.doCommandAsync('cmd_newTemplate', event)"
+                                     class="native-new-file-icon"/>
+                            <xul:box type="startpage-bullet"
+                                     title="&newProject.label;"
+                                     tooltiptext="&newProject.tooltip;"
+                                     oncommand="ko.commands.doCommandAsync('cmd_newProject', event)"
+                                     class="new-project-icon"/>
+                            <xul:box type="startpage-bullet"
+                                     title="&checkConfiguration.title;"
+                                     tooltiptext="&checkConfiguration.tooltip;"
+                                     oncommand="window.document.getBindingParent(this).checkConfiguration();"
+                                     class="properties-icon"/>
+                            <xul:box type="startpage-bullet"
+                                     title="&onlineHelp.title;"
+                                     tooltiptext="&onlineHelp.tooltip;"
+                                     oncommand="ko.help.open();"
+                                     class="help-icon"/>
+                        </xul:vbox>
+                    </xul:vbox>
                 </xul:hbox>
             </xul:box>
 
@@ -964,8 +1072,6 @@
         <property name="title" readonly="true" onget="return '&startPage.title;';"/>
         
         <field name="widgets">null</field>
-
-        <field name="_updateTemplateMRUWhenVisible">true</field>
         
         <field name="_requestedFeatureStatuses">false</field>
 
@@ -1106,7 +1212,6 @@
                 // Finalize all the widgets that use pref observers.
                 this.widgets.quickLinksBox.finalize();
                 this.widgets.landingPageBox.finalize();
-                this.widgets.mrubox.finalize();
             } catch(ex) {
                 this.log.error(ex);
             }
@@ -1151,15 +1256,12 @@
             try {
                 // Lazily rebuild the MRU tables, as necessary, when this
                 // view is made visible.
-                var mru = this.widgets.mrubox.firstChild.firstChild
-                this.log.info("setFocus: update project table="+mru.nodeName);
-                if (mru.nodeName == "mrutree") {
+                var mru = this.widgets.mrubox.firstChild.firstChild;
+                if (mru && mru.nodeName == "mrutree") {
+                    this.log.info("setFocus: update project table="+mru.nodeName);
                     mru.updateProjectMRUTable();
                     mru.updateFileMRUTable();
-                }
-                if (this._updateTemplateMRUWhenVisible) {
-                    this._updateTemplateMRU();
-                    this._updateTemplateMRUWhenVisible = false;
+                    mru.updateTemplateMRUTable();
                 }
 
                 // Update the focus, otherwise the command system may think the
@@ -1197,10 +1299,11 @@
                     //     means, among other things, that we will stat every file in
                     //     the MRU for every file open.
                     if (prefName == "mruTemplateList") {
+                        var mru = this.widgets.mrubox.firstChild.firstChild;
                         if (this.isCurrent) {
-                            this._updateTemplateMRU();
+                            mru.updateTemplateMRUTable();
                         } else {
-                            this._updateTemplateMRUWhenVisible = true;
+                            mru.updateTemplateMRUWhenVisible = true;
                         }
                     }
                     break;
@@ -1210,70 +1313,6 @@
             }
         ]]> </body>
         </method>
-
-        <method name="_updateTemplateMRU">
-        <body> <![CDATA[
-            this.log.info("_updateTemplateMRU()");
-            try {
-                // Get the MRU info.
-                var mru = null;
-                if (ko.prefs.hasPref("mruTemplateList")) {
-                    mru = ko.prefs.getPref("mruTemplateList");
-                }
-
-                // Clear the table (don't clear the header row).
-                while (this.widgets.templateMRURows.nextSibling)  {
-                    var row = this.widgets.templateMRURows.nextSibling;
-                    this.widgets.templateMRURows.parentNode.removeChild(row);
-                }
-
-                if (mru && mru.length > 0) {
-                    for (var i=0; i<mru.length; i++) {
-                        this._addMRUButton("template", i, mru.getStringPref(i));
-                    }
-                }
-            } catch(ex) {
-                this.log.exception(ex, "_updateTemplateMRU error: ");
-            }
-        ]]> </body>
-        </method>
-
-
-
-        <method name="_addMRUButton">
-        <parameter name="mru"/>
-        <parameter name="index"/>
-        <parameter name="url"/>
-        <body> <![CDATA[
-            this.log.debug("_addMRUButton(mru='"+mru+"')");
-            try {
-                // Add a "No Recent Files/Projects" row.
-                //    "mru" is either "project" or "file", indicating which MRU.
-                //
-                // One like this:
-                //    <xul:button label="&newProjectFromTemplate.label;"
-                //              anonid="menu_newProjectFromTemplate"
-                //              class="button-link new-project-icon"
-                //              observes="cmd_newProjectFromTemplate"
-                //              />
-
-                var hbox, label;
-
-                var btn = document.createElement("button");
-                btn.setAttribute("class", "button-link native-new-file-icon");
-                var name = ko.uriparse.baseName(url);
-                btn.setAttribute("label", name);
-
-                btn.setAttribute("oncommand",
-                    "ko.uilayout.newFileFromTemplateOrTrimMRU('"+url+"', '"+name+"',"+index+");");
-
-                this.widgets.templateMRURows.parentNode.appendChild(btn);
-            } catch (ex) {
-                this.log.error("_addMRUButton error: "+ex);
-            }
-        ]]> </body>
-        </method>
-
 
         <method name="openSampleProject">
         <body> <![CDATA[

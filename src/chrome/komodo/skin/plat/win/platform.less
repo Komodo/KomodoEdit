@@ -232,3 +232,9 @@ tabbox.native tab
 .tabs-closebutton:hover:active {
   -moz-image-region: rect(0px, 48px, 16px, 32px);
 }
+
+/* The project icon used on Windows has some empty space on the right
+ * that should be accounted for */
+view[type='startpage'] .new-project-icon .button-icon {
+  margin-right: -6px;
+}

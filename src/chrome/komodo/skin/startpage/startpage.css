@@ -57,10 +57,18 @@ box[type='startpage-bullet']  {
 }
 
 button.tutorial-button {
-  margin: -4px 16px -4px 16px;
+  margin: -4px 0;
 }
 
 .startpage-vbox {
+}
+
+mrutree > tree {
+  -moz-appearance: none;
+}
+
+vbox[anonid="mru-box"] {
+  background: -moz-eventreerow;
 }
 
 .startpage-vbox > .startpage-header {
@@ -76,15 +84,25 @@ button.tutorial-button {
 
 .startpage-vbox > .children-box {
   background-color: #F7F3EF;
-  margin: 1px 1px 0px 0px;
+  margin: 0 !important; /* Important  */
+}
+
+box[type="startpage-bullet"] button
+{
+  margin-bottom: 4px;
+}
+box[type="startpage-bullet"]:first-child button
+{
+  margin-top: 4px;
 }
 .bullet-vbox {
-    padding-left: 32px;
-    padding-bottom: 6px;
+  visibility: collapse;
 }
 /* Button styles */
 treechildren::-moz-tree-image(file-icon),
-.file-icon {
+.file-icon,
+treechildren::-moz-tree-image(template-icon),
+.template-icon{
   list-style-image: url('chrome://komodo/skin/images/file_icon.png');
 }
 treechildren::-moz-tree-image(project-icon),
@@ -103,36 +121,17 @@ treechildren::-moz-tree-image(project-icon),
     list-style-image: url("chrome://komodo/skin/startpage/images/config_icon.gif");
 }
 
-.openbox-icon {
-    list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_down.gif");
-    padding: 1px 3px 1px 3px;
-    margin: 1px;
+.less-icon, .more-icon {
+  margin: 0 0 0 5px;
+  cursor: pointer;
 }
 
-.openbox-icon:hover {
-    list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_down.gif");
-}
-
-.openbox-icon[disabled="true"],
-.openbox-icon[disabled="true"]:hover,
-.openbox-icon[disabled="true"]:hover:active
+vbox[anonid="quicklinks-right"]
 {
-    list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_down.gif");
+  width: 250px;
 }
 
-.closebox-icon {
-    list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_up.gif");
-    padding: 1px 3px 1px 3px;
-    margin: 1px;
-}
-
-.closebox-icon:hover {
-    list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_up.gif");
-}
-
-.closebox-icon[disabled="true"],
-.closebox-icon[disabled="true"]:hover,
-.closebox-icon[disabled="true"]:hover:active
+browser[anonid="landingPage"]
 {
-    list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_up.gif");
+  height: 200px;
 }

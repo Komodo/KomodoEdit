@@ -37,14 +37,17 @@
 <!ENTITY checkConfiguration.title "Check Configuration">
 <!ENTITY hidePane.tooltiptext "Hide Pane">
 <!ENTITY open.label "Open">
-<!ENTITY openSampleProject.title "Open Sample Project">
+<!ENTITY openSampleProject.title "Sample Project">
 <!ENTITY quickLinks.title "Quick Links">
 <!ENTITY remove.label "Remove">
 <!ENTITY whatSNew.title "What's New">
 
 <!--startpage.xml-->
-<!ENTITY openSampleProject.description "Contains a number of files showing many of the features of Komodo.">
-<!ENTITY checkConfiguration.description "Checks system configuration to ensure all Komodo features are working properly.">
+<!ENTITY newFile.tooltip "Create new file from a template">
+<!ENTITY newProject.tooltip "Start a new project">
+<!ENTITY openSampleProject.tooltip "Contains a number of files showing many of the features of Komodo">
+<!ENTITY checkConfiguration.tooltip "Checks system configuration to ensure all Komodo features are working properly">
+<!ENTITY onlineHelp.tooltip "Check our online documentation for help on various topics">
 <!ENTITY recentProjectFiles.title "Recent Projects and Files">
 <!ENTITY actions.label "Actions:">
 <!ENTITY startPage.title "Start Page">
