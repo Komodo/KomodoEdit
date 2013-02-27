@@ -2,15 +2,9 @@
   "keyboard_shortcut": "", 
   "name": "class", 
   "value": [
-    "/*", 
-    " * class [[%tabstop1:class]]", 
-    " */", 
-    "", 
-    "class [[%tabstop1]] [[%tabstop:extends [[%tabstop:class]]]] {", 
-    "\tfunction __construct($[[%tabstop2]]) {", 
-    "\t\t[[%tabstop:parent]]", 
-    "\t}", 
-    "}[[%tabstop:]]", 
+    "class [[%tabstop:name]][[%soft: {]]",
+    "\t[[%tabstop:#code]]",
+    "}",
     "!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "false", 
