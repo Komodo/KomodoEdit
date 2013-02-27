@@ -8,5 +8,5 @@
   "version": "1.0.11", 
   "type": "snippet", 
   "indent_relative": "true", 
-  "auto_abbreviation": "true"
+  "auto_abbreviation": "false"
 }
