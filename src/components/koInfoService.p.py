@@ -112,16 +112,21 @@ class KoInfoService(object):
                         getService(components.interfaces.koIPrefService).prefs
         if prefs.hasPref("windowWorkspace"):
             windowWorkspacePrefs = prefs.getPref("windowWorkspace")
-            prefIds = windowWorkspacePrefs.getPrefIds()
+            # Get only numbered members of the windowWorkspace pref (bug 97717)
+            prefIds = [x for x in windowWorkspacePrefs.getPrefIds() if
+                       all([y.isdigit() for y in x])]
             for prefId in prefIds:
-                pref = windowWorkspacePrefs.getPref(prefId)
-                if pref.hasLongPref('windowNum'):
-                    try:
-                        windowNum = pref.getLongPref('windowNum')
-                        loadedWindowNums.append(windowNum)
-                    except:
-                        log.exception("nextWindowNum: can't get window # for workspace %r",
-                                      prefId)
+                try:
+                    pref = windowWorkspacePrefs.getPref(prefId)
+                    if pref.hasLongPref('windowNum'):
+                        try:
+                            windowNum = pref.getLongPref('windowNum')
+                            loadedWindowNums.append(windowNum)
+                        except:
+                            log.exception("nextWindowNum: can't get window # for workspace %r",
+                                          prefId)
+                except:
+                    log.exception("nextWindowNum: can't get pref windowWorkspace/%s", prefId)
         retVal = self._nextAvailWindowNum
         if retVal in self._usedWindowNums:
             while True:
