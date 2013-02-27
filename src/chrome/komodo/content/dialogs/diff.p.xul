@@ -49,6 +49,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" ?>
 
 <?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
 
@@ -81,6 +82,8 @@
     <script src="chrome://komodo/content/markers.js" type="application/x-javascript;version=1.7"/>
 
     <script src="chrome://komodo/content/dialogs/diff.js" type="application/x-javascript;version=1.7"/>
+
+    <script src="chrome://komodo/content/library/less_loader.js" type="application/x-javascript;version=1.7"/>
 
     <keyset>
         <key keycode="VK_ESCAPE" oncommand="window.close()"/>

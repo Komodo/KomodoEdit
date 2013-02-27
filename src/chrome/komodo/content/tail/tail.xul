@@ -47,6 +47,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" ?>
 <?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
 
 <dialog  
@@ -82,6 +83,8 @@
     <script src="chrome://komodo/content/markers.js"              type="application/x-javascript;version=1.7"/>
 
     <script src="chrome://komodo/content/tail/tail.js" type="application/x-javascript;version=1.7"/>
+
+    <script src="chrome://komodo/content/library/less_loader.js" type="application/x-javascript;version=1.7"/>
 
     <hbox id="scintillaOverlayXul"/>
 
