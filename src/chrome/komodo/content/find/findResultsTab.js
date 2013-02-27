@@ -182,7 +182,7 @@ this.getManager = function FindResultsTab_GetManager(id)
 // is moved.
 this.create = function _FindResultsTab_Create(id)
 {
-    var panel = parent.document.getElementById("findresults"+id+"_tabpanel");
+    var panel = ko.widgets.getWidget("findresults"+id+"_tabpanel");
     var tab = panel.tab;
     tab.removeAttribute("collapsed");
     // <tabbox> Ctrl+Tab handling uses the "hidden" attribute.
@@ -224,8 +224,8 @@ this.FindResultsTabManager.prototype.initialize = function(id)
         // depend on |window| or |document| (or other normally window-specific
         // globals) to help us distinguish which document we want.  We need
         // to go ask the containing browser instead.
-        var browser = parent.document.getElementById("findresults" + id + "_tabpanel");
-        this.doc = browser.contentDocument;
+        var widget = ko.widgets.getWidget("findresults" + id + "_tabpanel");
+        this.doc = widget.contentDocument;
 
         // Ensure the nsITreeView instance is bound to the <tree>.
         var treeWidget = this.doc.getElementById("findresults");
@@ -240,7 +240,6 @@ this.FindResultsTabManager.prototype.initialize = function(id)
         boxObject.view = this.view;
 
         // Make sure the tab can find its own manager
-        var widget = parent.document.getElementById(this._idprefix + "_tabpanel");
         if (widget) {
             widget.contentWindow.gFindResultsTabManager = this;
         }
