@@ -262,6 +262,44 @@ if ( ! ("less" in ko))
             // Grab the contents of the stylesheet
             this.readFile(sheet.href, function(data)
             {
+                var _parseCallback = function(e, root)
+                {
+                    // Validate parsed result
+                    if (e)
+                    {
+                        return this.errorLess(e, sheet.href);
+                    }
+
+                    // If we have a callback this is a call from the less parser
+                    // and we should just return the data it wants.
+                    if ( ! isInternalCall)
+                    {
+                        var bogus = { local: false, lastModified: null, remaining: 0 };
+                        callback(e, root, data, sheet, bogus, sheet.href);
+                    }
+                    else // Otherwise it's an internal (ko.less) call
+                    {
+                        // Write it to cache
+                        try
+                        {
+                            var cacheFile = this.cache.writeFile(sheet.href, root.toCSS(), true);
+                            var cacheUri = NetUtil.newURI(cacheFile).spec;
+                        }
+                        catch (e)
+                        {
+                            return this.error('Error creating cache for ' + sheet.href + ': ' + e.message);
+                        }
+
+                        this.localCache.sheetPaths[sheet.href] = cacheUri;
+                        this.injectSheet(cacheUri, sheet);
+
+                        if (loadDuplicates)
+                        {
+                            this._loadDupeSheets(sheet, cacheUri);
+                        }
+                    }
+                };
+
                 // Run it through the LESS parser
                 try
                 {
@@ -276,40 +314,11 @@ if ( ! ("less" in ko))
                         sheet: sheet,
                         contents: contents,
                         dumpLineNumbers: less.dumpLineNumbers
-                    }).parse(data, function (e, root)
-                    {
-                        // Validate parsed result
-                        if (e)
-                        {
-                            return this.errorLess(e, sheet.href);
-                        }
-                        
-                        // If we have a callback this is a call from the less parser
-                        // and we should just return the data it wants.
-                        if ( ! isInternalCall)
-                        {
-                            var bogus = { local: false, lastModified: null, remaining: 0 };
-                            callback(e, root, data, sheet, bogus, sheet.href);
-                        }
-                        else // Otherwise it's an internal (ko.less) call
-                        {
-                            // Write it to cache
-                            var cacheFile = this.cache.writeFile(sheet.href, root.toCSS(), true);
-                            var cacheUri = NetUtil.newURI(cacheFile).spec;
-                            this.localCache.sheetPaths[sheet.href] = cacheUri;
-                            
-                            this.injectSheet(cacheUri, sheet);
-                            
-                            if (loadDuplicates)
-                            {
-                                this._loadDupeSheets(sheet, cacheUri);
-                            }
-                        }
-                    }.bind(this));
+                    }).parse(data, _parseCallback.bind(this));
                 }
                 catch (e)
                 {
-                    this.error(e, sheet.href);
+                    this.error('Parsing error for ' + sheet.href + ': ' + e.message);
                 }
                 
             }.bind(this));
@@ -453,14 +462,14 @@ if ( ! ("less" in ko))
              */
             writeFile: function(fileUri, data, noDelay = false)
             {
-                self.debug('Writing to ' + fileUri);
-                
                 if ( ! noDelay)
                 {
                     clearTimeout(this._writeTimer);
                     this._writeTimer = setTimeout(this.writeFile.bind(this, fileUri, data, true), 500);
                     return;
                 }
+
+                self.debug('Writing to ' + fileUri);
                 
                 var file = this.getFile(fileUri);
                 
