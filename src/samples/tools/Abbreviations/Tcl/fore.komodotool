@@ -2,9 +2,9 @@
   "keyboard_shortcut": "", 
   "name": "fore", 
   "value": [
-    "foreach [[%tabstop:VAR]] [[%tabstop]] {", 
+    "foreach [[%tabstop:VAR]][[%soft: {]]",
     "\t[[%tabstop]]", 
-    "}[[%tabstop:]]!@#_currentPos!@#_anchor"
+    "}!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 

@@ -2,9 +2,9 @@
   "keyboard_shortcut": "", 
   "name": "proc", 
   "value": [
-    "proc [[%tabstop:NAME]] {[[%tabstop:ARGS]]} {", 
+    "proc [[%tabstop:NAME]][[%soft: {]][[%tabstop:ARGS]][[%soft:} {]]",
     "\t[[%tabstop]]", 
-    "}[[%tabstop:]]!@#_currentPos!@#_anchor"
+    "}!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 

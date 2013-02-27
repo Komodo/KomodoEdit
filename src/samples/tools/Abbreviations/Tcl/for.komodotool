@@ -2,9 +2,9 @@
   "keyboard_shortcut": "", 
   "name": "for", 
   "value": [
-    "for {set [[%tabstop:START]]} {[[%tabstop:TEST]]} {[[%tabstop:NEXT]]}", 
+    "for {set [[%tabstop:START]][[%soft:} {]][[%tabstop:TEST]][[%soft:} {]][[%tabstop:NEXT]][[%soft:}]]",
     "\t[[%tabstop]]", 
-    "}[[%tabstop:]]!@#_currentPos!@#_anchor"
+    "!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 

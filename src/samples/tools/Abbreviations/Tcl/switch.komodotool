@@ -2,11 +2,11 @@
   "keyboard_shortcut": "", 
   "name": "switch", 
   "value": [
-    "switch [[%tabstop:STRING]] {", 
-    "\t[[%tabstop:PATTERN]] {", 
+    "switch [[%tabstop:STRING]][[%soft: {]]",
+    "\t[[%tabstop:PATTERN]][[%soft: {]]",
     "\t\t[[%tabstop:ACTION]]", 
     "\t}", 
-    "\t[[%tabstop:PATTERN2]]", 
+    "\t[[%tabstop:PATTERN2]][[%soft: {]]",
     "\t\t[[%tabstop:ACTION2]]", 
     "\t}", 
     "}!@#_currentPos!@#_anchor"
