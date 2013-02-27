@@ -1035,29 +1035,6 @@
                     </xul:vbox>
                 </xul:hbox>
             </xul:box>
-
-            <xul:box type="startpage" anonid="mru-box" title="&recentProjectFiles.title;"
-                     pref="start_page_mru_box_closed" flex="1" ordinal="2">
-                <xul:hbox flex="1">
-
-                    <xul:separator/>
-                    <xul:vbox style="padding: 2px 5px 0px 5px">
-                        <xul:label value="&actions.label;" style="font-weight: bold"/>
-                        <xul:button anonid="menu_file_newFile"
-                                  label="&newFile.label;"
-                                  align="left" pack="center"
-                                  class="button-link native-new-file-icon"
-                                  observes="cmd_newTemplate"
-                                  />
-                        <xul:button label="&newProject.label;"
-                                  anonid="menu_newProject"
-                                  class="button-link new-project-icon"
-                                  observes="cmd_newProject"
-                                  />
-                        <xul:menuseparator anonid="sp-template-mru-rows"/>
-                    </xul:vbox>
-                </xul:hbox>
-            </xul:box>
         </xul:vbox>  <!-- end getting-started-box -->
 
     </content>

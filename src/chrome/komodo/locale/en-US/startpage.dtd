@@ -36,6 +36,7 @@
 
 <!ENTITY checkConfiguration.title "Check Configuration">
 <!ENTITY hidePane.tooltiptext "Hide Pane">
+<!ENTITY onlineHelp.title "Tutorials and Documentation">
 <!ENTITY open.label "Open">
 <!ENTITY openSampleProject.title "Sample Project">
 <!ENTITY quickLinks.title "Quick Links">
