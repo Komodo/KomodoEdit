@@ -614,7 +614,7 @@
 <!ENTITY showHideLeftPane.tooltiptext "Show/Hide Left Pane">
 <!ENTITY showHideRightPane.tooltiptext "Show/Hide Right Pane">
 
-<!ENTITY pane.moveTo.tab.label "Move To Tab">
+<!ENTITY pane.moveTo.tab.label "Combine With Tab">
 <!ENTITY pane.moveTo.tab.new.label "New Tab">
 <!ENTITY pane.moveTo.tab.new.single.label "Move To New Tab">
 <!ENTITY pane.moveTo.pane.label "Move To Pane">
