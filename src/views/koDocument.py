@@ -315,8 +315,8 @@ class koDocumentBase:
         prefObserver = self.prefs.prefObserverService
         prefObserver.addObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'], True)
 
-    def _walkPrefChain(self, prefs):
-        """Debug method to help show the preference chain."""
+    def _walkPrefChain(self, prefs, doPrint=True):
+        """Debug method to help validate and show the preference chain."""
         depth = 1
         seen = set()
         while prefs:
@@ -324,7 +324,8 @@ class koDocumentBase:
             if id(uprefs) in seen:
                 raise ValueError("already seen prefs %r" % (uprefs, ))
             seen.add(id(uprefs))
-            print "%s%r" % (" " * depth, uprefs)
+            if doPrint:
+                print "%s%r" % (" " * depth, uprefs)
             prefs = prefs.parent
             depth += 1
 
@@ -417,7 +418,7 @@ class koDocumentBase:
             all_lang_prefs.setPref(lang_pref_name, lang_prefs);
 
         original_parent = self.prefs.parent
-        if original_parent is self._lang_prefs or \
+        if original_parent == self._lang_prefs or \
            original_parent.id == lang_pref_name:
             # When lang prefs are already set - use the parent of it.
             original_parent = original_parent.parent

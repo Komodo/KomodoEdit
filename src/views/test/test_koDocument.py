@@ -485,6 +485,9 @@ alert('should be js')
             self.assertEqual(koDoc.language, "Perl")
             koDoc.language = ""
             self.assertEqual(koDoc.language, lang)
+            # Validate the documents preference chain - bug 97728.
+            doc = UnwrapObject(koDoc)
+            doc._walkPrefChain(doc.prefs, doPrint=False)
 
 
 class TestKoDocumentBase(_KoDocTestCase):
