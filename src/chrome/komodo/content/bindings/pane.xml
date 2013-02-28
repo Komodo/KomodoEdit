@@ -1165,7 +1165,15 @@
                                       tab: params.tab,
                                       insertBefore: params.insertBefore || null});
           newWidget.getBoundingClientRect(); // force binding to apply
+          // Need to remove and re-attach the web progress listeners, otherwise
+          // they stay crossed over (the progress listener for the new widget
+          // is a property of the old widget and vice versa), causing issues
+          // when we kill the old widget.  See bug 97775.
+          widget._unhookProgressListener();
+          newWidget._unhookProgressListener();
           newWidget.swapDocShells(widget);
+          widget._hookProgressListener();
+          newWidget._hookProgressListener();
 
           // move the observers over
           var oldBroadcasters = widget.ownerDocument.getAnonymousElementByAttribute(widget, "anonid", "pane_broadcasterset");
@@ -2358,6 +2366,18 @@
         </getter>
       </property>
 
+      <method name="_unhookProgressListener">
+        <body>
+          this.removeProgressListener(this._webProgressListener);
+        </body>
+      </method>
+      <method name="_hookProgressListener">
+        <body>
+          this.addProgressListener(this._webProgressListener,
+                                   Ci.nsIWebProgress.NOTIFY_STATE_WINDOW);
+        </body>
+      </method>
+
       <constructor>
       <![CDATA[
         const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
@@ -2401,8 +2421,8 @@
           QueryInterface: XPCOMUtils.generateQI([Ci.nsIWebProgressListener,
                                                  Ci.nsISupportsWeakReference]),
         };
-        this.addProgressListener(this._webProgressListener,
-                                 Ci.nsIWebProgress.NOTIFY_STATE_WINDOW);
+
+        this._hookProgressListener();
 
       ]]>
       </constructor>
