@@ -2159,15 +2159,6 @@
                      label="&paneNameRight;"
                      orient="vertical"
                      rotation="90">
-<!-- #if WITH_CODE_BROWSER -->
-                <browser type="ko-widget"
-                         id="codebrowserviewbox"
-                         label="&code.label;"
-			 icon="chrome://icomoon/skin/icons/ko_code2.png"
-                         src="chrome://komodo/content/codeintel/codebrowser.xul"
-                         tab_oncommand="ko.codebrowser.manager.focus();"
-                         tab_onfocus="ko.codebrowser.manager.focus();" />
-<!-- #endif -->
                 <browser type="ko-widget"
                          id="toolbox2viewbox"
                          label="&toolbox2.label;"
