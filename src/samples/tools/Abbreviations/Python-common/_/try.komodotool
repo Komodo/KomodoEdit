@@ -3,7 +3,7 @@
   "name": "try", 
   "value": [
     "try:", 
-    "\t[[%tabstop:your code here]]", 
+    "\t[[%tabstop:#code]]",
     "except [[%tabstop:Exception]]:",
     "\t[[%tabstop:pass]]!@#_currentPos!@#_anchor"
   ], 
