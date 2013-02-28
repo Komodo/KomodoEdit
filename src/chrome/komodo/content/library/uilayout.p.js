@@ -1330,7 +1330,7 @@ this.checkTabsVisibility = function uilayout_checkTabboxState() {
     var _views = ko.views.manager.topView.getViews(true);
     var views = [];
 
-    for (i=0; i<_views.length; i++) {
+    for (var i=0; i<_views.length; i++) {
 	if (viewTypes.indexOf(_views[i].getAttribute("type")) != -1) {
 	    views.push(_views[i]);
 	}
