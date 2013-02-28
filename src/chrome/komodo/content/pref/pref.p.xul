@@ -47,6 +47,8 @@
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 
+<?xml-stylesheet href="chrome://komodo/skin/plat/shared/icons.less" type="stylesheet/less"?>
+
 <window id="prefWindow"
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -71,6 +73,7 @@
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/koPrefWindow.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/koPrefUtils.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/koFilteredPrefTree.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/less_loader.js"/>
 
     <script><![CDATA[
     var hPrefWindow = null;

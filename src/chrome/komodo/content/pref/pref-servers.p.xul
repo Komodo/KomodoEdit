@@ -46,6 +46,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/plat/shared/icons.less" type="stylesheet/less"?>
 
 <window id="serversPrefWindow"
     xmlns:html="http://www.w3.org/1999/xhtml"
@@ -59,6 +60,7 @@
     <script src="chrome://komodo/content/pref/pref-servers.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/editor/fileops.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/less_loader.js" type="application/x-javascript;version=1.7"/>
 
     <menupopup id="dialogTooltip" />
 

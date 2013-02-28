@@ -485,7 +485,7 @@ var _lessClearCache = undefined;
                 }
                 
                 Components.utils.import("resource://gre/modules/Services.jsm");
-                
+
                 try
                 {
                     var file = Services.io.newURI("resource://app/chrome/skins/gtk-"+themeInfo.name+"/chrome.manifest", null,null)

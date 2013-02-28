@@ -99,6 +99,11 @@ button, toolbarbutton, menuitem
     list-style-image: @icon-help;
 }
 
+menu .help-icon, menuitem .help-icon
+{
+    list-style-image: @icon-menu-help;
+}
+
 .double-down-icon,
 .more-icon
 {
@@ -299,6 +304,7 @@ button, toolbarbutton, menuitem
     list-style-image: @icon-native-folder;
 }
 
+#invoketool_toolbar_options,
 .collab-sessions-menu-icon,
 .codeintel-settings-button,
 .project-tools-icon
@@ -772,6 +778,12 @@ treechildren::-moz-tree-image(remotefile)
     list-style-image: @icon-print;
 }
 
+/* Use same image for checked as the button itself already has a toggle effect */
+#pin-btn, #pin-btn[checked]
+{
+    list-style-image: @icon-pin;
+}
+
 .komodo-button-community
 {
     list-style-image: @icon-community;
@@ -831,6 +843,18 @@ treechildren::-moz-tree-image(remotefile)
 #main-toolboxrow .overflow-toolbarbutton .toolbarbutton-icon
 {
     list-style-image: @icon-toolbar-overflow;
+}
+
+/* Misc Specific Icons */
+
+#php_debugger_config_status_image
+{
+    list-style-image: @icon-status-invalid;
+}
+
+#php_debugger_config_status_image[configured="true"]
+{
+    list-style-image: @icon-status-valid;
 }
 
 /* Images for the Diff Toolbar  */
@@ -1030,6 +1054,14 @@ treechildren::-moz-tree-image(remotefile)
     }
 }
 
+/* Unit Testing */
+
+.edit-testplan-icon
+{
+    /* Requires !important due to hierarchy of platform.less - Bug #97665 */
+    list-style-image: @icon-unittest-edit-plan !important;
+}
+
 /* Macro Icons */
 
 .macro-play-icon
@@ -1104,7 +1136,8 @@ treechildren::-moz-tree-image(remotefile)
 
 #sync-setup, #sync-menu
 {
-    list-style-image: @icon-sync;
+    /* Requires !important due to hierarchy of platform.less - Bug #97665 */
+    list-style-image: @icon-sync !important;
 }
 
 /* Widget Icons */

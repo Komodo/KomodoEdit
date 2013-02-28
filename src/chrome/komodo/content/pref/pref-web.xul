@@ -115,13 +115,13 @@
           
             <hbox align="center">
                 <description flex="1" control="connectionSettings">&connectionDesc.label;</description>
-                <button id="connectionSettings" icon="network" label="&connectionSettings.label;"
+                <button id="connectionSettings" label="&connectionSettings.label;"
                       accesskey="&connectionSettings.accesskey;"
                       oncommand="configureProxies();"/>
             </hbox>
             <hbox align="center">
                 <description flex="1" control="showCertificates">&certManager.description;</description>
-                <button id="showCertificates" icon="network"
+                <button id="showCertificates"
                         label="&certManager.label;"
                         accesskey="&certManager.accesskey;"
                         oncommand="showCertificates();"/>

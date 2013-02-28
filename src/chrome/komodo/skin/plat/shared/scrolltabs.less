@@ -16,20 +16,13 @@ tab[type="file-tab"]
 
 .tabs-select-button
 {
-    list-style-image: @icon-tab-select-sidebar;
     margin: 0;
     padding-left: 0;
     padding-right: 0;
     /* Avoid bgcolor alpha-channel tweaks for .tabs-select-button not
          in a sidebar. */
     background-color: inherit !important;
-    
-    &:hover
-    {
-        list-style-image: @icon-tab-select-sidebar-hover;
-        background-color: rgba(0,0,0,0.10);
-    }
-    
+
     &:hover:active,
     &[open="true"]
     {

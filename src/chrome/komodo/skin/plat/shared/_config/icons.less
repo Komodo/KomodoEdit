@@ -37,10 +37,8 @@
 @icon-open-subpanel:            url("chrome://fugue/skin/icons/control-090.png");
 
 /* Scrolltabs */
-@icon-tab-select-sidebar:       url("chrome://komodo/skin/tabs/tab-bkgnd.png");
-@icon-tab-select-sidebar-hover: url("chrome://komodo/skin/tabs/tab-bkgnd.png");
 @icon-tab-close-button:         url("@{icon-url-prefix}close2.png");
-@icon-tab-select:               url("chrome://fugue/skin/icons/arrow-270-small.png");
+@icon-tab-select:               url("@{icon-url-prefix}ko_tab-down.png");
 @icon-tab-scroll-left:          url("@{icon-url-prefix}arrow-left2.png");
 @icon-tab-scroll-right:         url("@{icon-url-prefix}arrow-right3.png");
 @icon-tab-scroll-up:            url("@{icon-url-prefix}arrow-up2.png");
@@ -78,7 +76,7 @@
 @icon-next-buffer-disabled:     url("chrome://komodo/skin/images/scrollArrowRight_disable.png");
 @icon-previous-buffer:          url("chrome://komodo/skin/images/scrollArrowLeft.png");
 @icon-previous-buffer-disabled: url("chrome://komodo/skin/images/scrollArrowLeft_disable.png");
-@icon-green-undo:               url("chrome://komodo/content/icons/undo.png");
+@icon-green-undo:               url("@{icon-url-prefix}undo.png");
 @icon-cut-small:                url("chrome://komodo/content/icons/cut.png");
 @icon-cut:                      url("@{icon-url-prefix}scissors.png");
 @icon-copy:                     url("@{icon-url-prefix}files.png");
@@ -113,11 +111,11 @@
 @icon-scroll-arrow-left-hover:  url("chrome://komodo/skin/images/scrollArrowLeft_hover.png");
 @icon-scroll-arrow-left-disabled: url("chrome://komodo/skin/images/scrollArrowLeft_disable.png");
 @icon-gear:                     url("@{icon-url-prefix}ko_cog_small.png");
-@icon-list-item-down:           url("chrome://komodo/skin/images/small-arrow.png");
-@icon-list-item-up:             url("chrome://komodo/skin/images/small-arrow-up.png");
+@icon-list-item-down:           url("@{icon-url-prefix}arrow-down4.png");
+@icon-list-item-up:             url("@{icon-url-prefix}arrow-up4.png");
 @icon-list-item-add:            url("@{icon-url-prefix}plus.png");
-@icon-list-item-edit:           url("@{icon-url-prefix}pencil2.png");
-@icon-list-item-remove:         url("@{icon-url-prefix}remove.png");
+@icon-list-item-edit:           url("@{icon-url-prefix}pencil6.png");
+@icon-list-item-remove:         url("@{icon-url-prefix}minus.png");
 @icon-button-moreinfo-open:     url("chrome://komodo/skin/images/less.gif");
 @icon-button-moreinfo:          url("chrome://komodo/skin/images/more.gif");
 @icon-stopsign-small:           url("chrome://komodo/content/icons/stop.png");
@@ -125,6 +123,11 @@
 @icon-textbox-search:           url("@{icon-url-prefix}search3.png");
 @icon-dropdownmarker:           url("@{icon-url-prefix}arrow-down2.png");
 @icon-close:                    url("@{icon-url-prefix}close2.png");
+@icon-status-invalid:           url("@{icon-url-prefix}warning2.png");
+@icon-status-valid:             url("@{icon-url-prefix}checkmark.png");
+
+/* Menu Specific Icons */
+@icon-menu-help:                url("@{icon-url-prefix}question2.png");
 
 /* Browser Icons */
 @icon-browser-firefox:          url("@{icon-url-prefix}firefox.png");
@@ -141,8 +144,9 @@
 
 /* Miscellaneous */
 @icon-server-pref:              url("chrome://komodo/skin/global/images/serverAccount.png");
-@icon-run-command:              url("chrome://komodo/skin/images/run_commands.png");
+@icon-run-command:              url("@{icon-url-prefix}play4.png");
 @icon-print:                    url("@{icon-url-prefix}print.png");
+@icon-pin:                      url("@{icon-url-prefix}pushpin.png");
 @icon-community:                url("@{icon-url-prefix}users4.png");
 @icon-maillist:                 url("@{icon-url-prefix}envelop.png");
 @icon-bugs:                     url("@{icon-url-prefix}bug.png");
@@ -263,6 +267,10 @@
 
 @icon-debug-below-show-hidden:  url("@{icon-url-prefix}eye3.png");
 
+/* Unit Test Icons */
+
+@icon-unittest-edit-plan:       url("@{icon-url-prefix}pencil6.png");
+
 /* Macro Icons */
 @icon-macro-play:               url("@{icon-url-prefix}play3.png");
 @icon-macro-pause:              url("@{icon-url-prefix}pause.png");
@@ -314,7 +322,7 @@
 @icon-widget-klint-selected:        url("@{icon-selected-url-prefix}warning2.png");
 
 /* Notification Widget */
-@icon-filter-error:             url("@{icon-url-prefix}close3.png");
+@icon-filter-error:             url("@{icon-url-prefix}cancel-circle2.png");
 @icon-filter-warning:           url("@{icon-url-prefix}warning2.png");
 @icon-filter-info:              url("@{icon-url-prefix}info2.png");
 @icon-filter-progress:          url("@{icon-url-prefix}history.png");
