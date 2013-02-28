@@ -2374,7 +2374,8 @@
       <method name="_hookProgressListener">
         <body>
           this.addProgressListener(this._webProgressListener,
-                                   Ci.nsIWebProgress.NOTIFY_STATE_WINDOW);
+                                   Components.interfaces.nsIWebProgress
+                                             .NOTIFY_STATE_WINDOW);
         </body>
       </method>
 
