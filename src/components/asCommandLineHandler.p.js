@@ -243,9 +243,12 @@ komodoCmdLineHandler.prototype = {
    * instead of the normal Mozilla one to make sure it's gone from Python's copy
    * too.  Also, we want a very small white list, since the user might have set
    * some of these on purpose.
+   *
+   * Note that _KOMODO_VERUSERDATADIR must not be removed, otherwise add-on
+   * restart no longer works - bug 97625.
    */
   _cleanupEnvironmentVariables: function cleanupEnvironmentVariables() {
-    const kVarNames = ["_KOMODO_VERUSERDATADIR", "_XRE_USERAPPDATADIR",
+    const kVarNames = ["_XRE_USERAPPDATADIR",
                        "MOZ_APP_RESTART", "MOZ_CRASHREPORTER_DATA_DIRECTORY",
                        "MOZ_CRASHREPORTER_DISABLE", "MOZ_CRASHREPORTER_NO_REPORT",
                        "MOZ_CRASHREPORTER_RESTART_ARG_0", "MOZ_LAUNCHED_CHILD",
