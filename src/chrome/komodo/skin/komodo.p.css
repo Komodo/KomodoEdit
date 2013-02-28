@@ -445,6 +445,10 @@ separator.groovy-thin
     height: 0px;
 }
 
+view.startpage-single-tab tabbox tabs {
+  visibility: collapse !important;
+}
+
 /* add some exra space between a tab icon and the tab text */
 tab > .tab-text {
   padding-left: 3px;

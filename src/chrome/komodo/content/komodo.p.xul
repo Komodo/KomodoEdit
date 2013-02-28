@@ -71,7 +71,7 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        width="960"
+        width="890"
         height="650"
         screenX="20"
         screenY="20"
@@ -1778,21 +1778,24 @@
 					
 						<toolbarbutton id="cutButton"
 							tooltiptext="&cut.tooltiptext;"
-							persist="buttonstyle"
+                                                        kohidden="true"
+							persist="buttonstyle kohidden"
 							buttonstyle="pictures"
 							observes="cmd_cut"
 							class="native-cut-icon"
 							label="&cut.label;"/>
 						<toolbarbutton id="copyButton"
 							tooltiptext="&copy.tooltiptext;"
-							persist="buttonstyle"
+                                                        kohidden="true"
+							persist="buttonstyle kohidden"
 							buttonstyle="pictures"
 							observes="cmd_copy"
 							class="native-copy-icon"
 							label="&copy.label;"/>
 						<toolbarbutton id="pasteButton"
 							tooltiptext="&paste.tooltiptext;"
-							persist="buttonstyle"
+                                                        kohidden="true"
+							persist="buttonstyle kohidden"
 							buttonstyle="pictures"
 							observes="cmd_paste"
 							class="native-paste-icon"
@@ -2112,6 +2115,7 @@
                      pref="ui.tabs.sidepanes.left.layout"
                      label="&paneNameLeft;"
                      orient="vertical"
+                     collapsed="true"
                      persist="width type">
             </ko-pane>
             <splitter id="workspace_left_splitter"
@@ -2155,6 +2159,15 @@
                      label="&paneNameRight;"
                      orient="vertical"
                      rotation="90">
+<!-- #if WITH_CODE_BROWSER -->
+                <browser type="ko-widget"
+                         id="codebrowserviewbox"
+                         label="&code.label;"
+			 icon="chrome://icomoon/skin/icons/ko_code2.png"
+                         src="chrome://komodo/content/codeintel/codebrowser.xul"
+                         tab_oncommand="ko.codebrowser.manager.focus();"
+                         tab_onfocus="ko.codebrowser.manager.focus();" />
+<!-- #endif -->
                 <browser type="ko-widget"
                          id="toolbox2viewbox"
                          label="&toolbox2.label;"
