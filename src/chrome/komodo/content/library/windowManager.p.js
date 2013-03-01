@@ -56,10 +56,16 @@ ko.windowManager = {
     fixupOpenDialogFeatures: function(features /* ="" */) {
         if (typeof(features) == "undefined") features = "";
     
-// #if PLATFORM == "darwin"
+// #if PLATFORM != "win"
         if (!features) {
             features = "chrome,dialog=no";
         } else if (features.indexOf("dialog") < 0) {
+// #if PLATFORM == "linux"
+            if (features.indexOf("modal") >= 0) {
+                // Don't set dialog=no on Linux modal dialogs.
+                return features;
+            }
+// #endif
             features = "dialog=no,"+features;
         }
 // #endif
