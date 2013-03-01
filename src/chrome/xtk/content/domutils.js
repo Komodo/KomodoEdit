@@ -43,7 +43,17 @@ if (typeof(xtk) == 'undefined') {
     var xtk = {};
 }
 (function(){
-var log = ko.logging.getLogger('xtk.domutils');
+if ((typeof(ko) != 'undefined') && ('logging' in ko)) {
+    var log = ko.logging.getLogger('xtk.domutils');
+} else {
+    // The 'ko' namespace is undefined - fake a logger.
+    var log = {
+        "exception": function() {},
+        "error": function() {},
+        "warn": function() {},
+        "debug": function() {},
+    };
+}
 xtk.domutils = {
 
 /**
