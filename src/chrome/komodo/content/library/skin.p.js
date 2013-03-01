@@ -212,7 +212,19 @@ var _lessClearCache = undefined;
          */
         loadPreferredSkin: function(pref)
         {
-            this._loadPreferred(PREF_CUSTOM_SKIN);
+            var preferredSkin = prefs.getString(PREF_CUSTOM_SKIN, '');
+            if (preferredSkin == '')
+            {
+                return;
+            }
+
+            var file = this._getFile(preferredSkin);
+            if ( ! file || ! file.exists())
+            {
+                return;
+            }
+
+            this.loadCustomSkin(file);
         },
         
         /**
@@ -222,8 +234,15 @@ var _lessClearCache = undefined;
          */
         loadPreferredIcons: function()
         {
+	    var file = false;
 	    var iconset = prefs.getString(PREF_CUSTOM_ICONS,'');
-	    if (iconset == '')
+
+	    if (iconset != '')
+	    {
+		file = this._getFile(iconset);
+	    }
+
+	    if (iconset == '' || (file && ! file.exists()))
 	    {
 		Components.utils.import("resource://gre/modules/Services.jsm");
 		var path = Services.io.newURI("resource://app/chrome/iconsets/" +
@@ -237,31 +256,7 @@ var _lessClearCache = undefined;
 		prefs.setStringPref(PREF_CUSTOM_ICONS, path);
 	    }
 	    
-            this._loadPreferred(PREF_CUSTOM_ICONS);
-        },
-        
-        /**
-         * Load skin based on preference
-         * 
-         * @param   {String} pref 
-         * 
-         * @returns {Void} 
-         */
-        _loadPreferred: function(pref)
-        {
-            var preferredSkin = prefs.getString(pref, '');
-            if (preferredSkin == '')
-            {
-                return;
-            }
-            
-            var file = this._getFile(preferredSkin);
-            if ( ! file || ! file.exists())
-            {
-                return;
-            }
-            
-            this.loadCustomSkin(file);
+	    this.loadCustomSkin(file);
         },
         
         /**
