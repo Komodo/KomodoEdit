@@ -362,7 +362,8 @@
           // so we can have things like oncommand
           let widget = tabpanel.firstChild;
           this._mutationObserver.callback([{target: widget, attributeName: attr.name}
-                                           for ([,attr] in Iterator(widget.attributes))]);
+                                           for ([,attr] in Iterator(widget.attributes))
+                                           if (attr)]);
         ]]>
         </body>
       </method>
@@ -690,7 +691,8 @@
           // copy any attributes over that start with "tab_" without the prefix
           // so we can have things like oncommand
           this._mutationObserver.callback([{target: widget, attributeName: attr.name}
-                                           for ([,attr] in Iterator(widget.attributes))]);
+                                           for ([,attr] in Iterator(widget.attributes))
+                                           if (attr)]);
           this.addWidget(widget, {focus: true, tab: tab});
         ]]>
         </body>
