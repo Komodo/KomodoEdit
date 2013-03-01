@@ -92,7 +92,15 @@ def _localTmpFileName(cwd):
     # Open files in binary mode. On windows, if we open in default text mode
     # CR/LFs  => CR/CR/LF, extra CR in each line.  Lines then get the wrong
     # line # reported with each message.
-    fout = open(tmpFileName, 'wb')
+    try:
+        fout = open(tmpFileName, 'wb')
+    except IOError:
+        if 'dir' not in args:
+            raise
+        # Bug 97854: cwd is most likely a readonly directory.
+        del args['dir']
+        tmpFileName = tempfile.mktemp(**args)
+        fout = open(tmpFileName, 'wb')
     return fout, tmpFileName
 
 class _GenericPythonLinter(object):
