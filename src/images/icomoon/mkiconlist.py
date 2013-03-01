@@ -26,7 +26,7 @@ imgtemplate = """
      ondblclick="parent.ValidatedPickIcon('chrome://icomoon/%(fname)s');"
      onclick="parent.Pick_Icon('chrome://icomoon/%(fname)s');"
      src="chrome://icomoon/%(fname)s"
-     alt="%(fname)s"
+     alt="%(basename)s"
      style="padding: 4px;"/>
 """
 
@@ -46,7 +46,7 @@ try:
     for f in sorted(zipFiles):
         extension = os.path.splitext(f)[-1].lower()
         if extension in extensions:
-            content.append(imgtemplate % {'fname': f})
+            content.append(imgtemplate % {'fname': f, 'basename': os.path.basename(f)})
     fp.write('\n'.join(content))
     fp.write(footer)
 finally:
