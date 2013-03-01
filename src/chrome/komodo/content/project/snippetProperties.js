@@ -458,7 +458,7 @@ function pick_icon(useDefault /* false */)
             URI = ko.dialogs.pickIcon();
             if (!URI) return;
         } else {
-            URI = 'chrome://komodo/skin/images/snippet.png';
+            URI = 'chrome://komodo/skin/images/cut.png';
         }
         update_icon(URI);
         updateOK();
