@@ -98,7 +98,7 @@ class CSSLintTest(CodeIntelTestCase):
 
     def test_komodo_skin_files_01(self):
         # Test these under CSS, SCSS, and Less
-        self.assertTrue(os.path.exists(join(self._skin_dir, "codeintel.css")), "%s: missing codeintel.css" % self._skin_dir)
+        self.assertTrue(os.path.exists(join(self._skin_dir, "codeintel.p.css")), "%s: missing codeintel.p.css" % self._skin_dir)
         os.path.walk(self._skin_dir, self._walk_skin_files, None)
 
     def test_komodo_skin_files_02(self):
