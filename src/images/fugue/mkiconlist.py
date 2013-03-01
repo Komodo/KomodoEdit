@@ -14,8 +14,10 @@ Example command line:
 
 header = """<html>
 <body>
-<style>img:hover { border-color: black; }</style>
-<style>img { border-width: 1px; border-color: white; padding: 4px; }</style>
+<style>
+img { padding: 4px; }
+img.hide { display: none; }
+</style>
 <script>
 function ValidatedPickIcon(imgElement) {
     parent.ValidatedPickIcon(imgElement.getAttribute('src'));

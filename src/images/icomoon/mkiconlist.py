@@ -14,20 +14,20 @@ is the relative path to the directory where the icons are stored.
 
 header = """<html>
 <body>
-<style>img:hover { border-color: black; }</style>
-<style>img { border-color: white; }</style>
+<style>
+img { padding: 4px; }
+img.hide { display: none; }
+</style>
 """
 
 footer = """</body>
 </html>"""
 
 imgtemplate = """
-<img border="1"
-     ondblclick="parent.ValidatedPickIcon('chrome://icomoon/%(fname)s');"
+<img ondblclick="parent.ValidatedPickIcon('chrome://icomoon/%(fname)s');"
      onclick="parent.Pick_Icon('chrome://icomoon/%(fname)s');"
      src="chrome://icomoon/%(fname)s"
-     alt="%(basename)s"
-     style="padding: 4px;"/>
+     alt="%(basename)s" />
 """
 
 import sys, os, zipfile

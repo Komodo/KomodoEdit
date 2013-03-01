@@ -86,6 +86,20 @@
             tooltip="aHTMLTooltip"/>
     <separator class="thin"/>
     <hbox>
+      <label value="&search.label;"/>
+      <textbox id="iconFilter"
+               style="min-width:40px;"
+               accesskey="&iconFilter.accessKey;"
+               rows="1"
+               type="search"
+               flex="1"
+               timeout="500"
+               onfocus="this.select();"
+               oncommand="doUpdateFilter(this.value);"
+               tooltiptext="&search.tooltiptext;"/>
+    </hbox>
+    <separator class="thin"/>
+    <hbox>
         <image id="icon32" style="width: 32px; height: 32px;"/>
         <spring width="15"/>
         <vbox>

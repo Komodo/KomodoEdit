@@ -50,20 +50,20 @@ is the relative path to the directory where the icons are stored.
 
 header = """<html>
 <body>
-<style>img:hover { border-color: black; }</style>
-<style>img { border-color: white; }</style>
+<style>
+img { padding: 4px; }
+img.hide { display: none; }
+</style>
 """
 
 footer = """</body>
 </html>"""
 
 imgtemplate = """
-<img border="1"
-     ondblclick="parent.ValidatedPickIcon('chrome://famfamfamsilk/skin/icons/%(fname)s');"
+<img ondblclick="parent.ValidatedPickIcon('chrome://famfamfamsilk/skin/icons/%(fname)s');"
      onclick="parent.Pick_Icon('chrome://famfamfamsilk/skin/icons/%(fname)s');"
      src="chrome://famfamfamsilk/skin/icons/%(fname)s"
-     alt="%(fname)s"
-     style="padding: 4px;"/>
+     alt="%(fname)s" />
 """
 
 import sys, os

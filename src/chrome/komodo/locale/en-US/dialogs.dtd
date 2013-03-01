@@ -141,6 +141,9 @@
 
 <!--iconpicker.xul-->
 <!ENTITY iconpicker.description "Select an icon to use from Komodo's standard set or click on 'Choose Other' to pick your own.  Choose a 16x16 image file for best results.">
+<!ENTITY iconFilter.accessKey "s">
+<!ENTITY search.label "Search:">
+<!ENTITY search.tooltiptext "Search icons by name">
 
 <!--internalError.xul-->
 <!ENTITY pleaseReport.label "You can help make Komodo better by reporting this to:">

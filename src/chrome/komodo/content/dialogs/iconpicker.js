@@ -54,6 +54,8 @@ var gCurrentURI;
 var files;
 var os = Components.classes["@activestate.com/koOs;1"].getService();
 
+var gIframe, gImgList, gWordList, gWordIndex, gIconFilter;
+
 function OnLoad()
 {
     try {
@@ -66,6 +68,15 @@ function OnLoad()
         var menulist = document.getElementById("icon-families");
         var lastSelectedIndex = parseInt(menulist.getAttribute("lastSelectedIndex"));
         menulist.selectedIndex = lastSelectedIndex;
+        gIconFilter = document.getElementById("iconFilter");
+        document.getElementById('iframe').
+            addEventListener('load',
+                             function() {
+                                 if (gIconFilter.value) {
+                                     doUpdateFilter(gIconFilter.value);
+                                     gIconFilter.select();
+                                 }
+                             }, true); // bubbling events aren't fired
         selectIconFamily();
     } catch (e) {
         log.exception(e);
@@ -98,6 +109,9 @@ function Pick_Icon(uri) {
 function selectIconFamily(event) {
     var selected = document.getElementById('icon-families').selectedItem;
     document.getElementById('iframe').setAttribute('src', selected.getAttribute('src'));
+    gIframe = gImgList = null;
+    // The iframe load eventListener will update filtering,
+    // so there's nothing else to do here.
 }
 
 /**
@@ -172,3 +186,33 @@ function Cancel()
     return true;
 }
 
+var getLastPart_RE = /([^/]+?)(?:\.[^\.\/]+)?$/;
+function doUpdateFilter(s) {
+    if (!gIframe) {
+        // Just index the current list of words. We can index each
+        // set of words for each iframe if it comes to that, but I
+        // assume most people will stick with one set of icons for
+        // consistency.
+        gIframe = document.getElementById("iframe");
+        gImgList = Array.slice(gIframe.contentDocument.getElementsByTagName("img"));
+        gWordList = [];
+        gWordIndex = {};
+        var lim = gImgList.length;
+        for (var i = 0; i < lim; i++) {
+            var word = gImgList[i].getAttribute('src').match(getLastPart_RE)[1];
+            gWordList.push(word);
+            gWordIndex[word] = i;
+        }
+    }
+    if (!s) {
+        gImgList.forEach(function(elt) elt.classList.remove("hide"));
+        return;
+    }
+    // Mark everything to hide and then reveal only the hits.
+    gImgList.forEach(function(elt) elt.classList.add("hide"));
+    s = s.toLowerCase();
+    var matchedWords = gWordList.filter(function(word) word.indexOf(s) >= 0);
+    matchedWords.forEach(function(hitWord) {
+            gImgList[gWordIndex[hitWord]].classList.remove("hide");
+        });
+}
