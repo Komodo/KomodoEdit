@@ -2368,7 +2368,11 @@
 
       <method name="_unhookProgressListener">
         <body>
-          this.removeProgressListener(this._webProgressListener);
+          try {
+            this.removeProgressListener(this._webProgressListener);
+          } catch(e) {
+            /* ignore; maybe we don't have them in the first place */
+          }
         </body>
       </method>
       <method name="_hookProgressListener">
