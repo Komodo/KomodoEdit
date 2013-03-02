@@ -73,7 +73,7 @@ class TestKoInterpolationService(unittest.TestCase):
         # long pref test
         interpolateData(strings = ['%(pref:tabWidth)'], expect = ['%d' % prefs.getLongPref('tabWidth')]),
         # boolean pref test
-        interpolateData(strings = ['%(pref:cvsEnabled)'], expect = ['%d' % prefs.getBooleanPref('cvsEnabled')]),
+        interpolateData(strings = ['%(pref:useTabs)'], expect = ['%d' % prefs.getBooleanPref('useTabs')]),
     
         # koIDirs test
         interpolateData(strings = ['%(path:userDataDir)',
