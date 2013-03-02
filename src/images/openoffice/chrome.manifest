@@ -1,2 +1,2 @@
-content openoffice jar:industrial.jar!/content/ xpcnativewrappers=yes
+content openoffice jar:industrial.jar!/content/
 skin openoffice classic/1.0 jar:industrial.jar!/skin/

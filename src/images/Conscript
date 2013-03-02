@@ -206,6 +206,9 @@ $cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/silkicons.jar", 'famfamfa
 $cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/install.rdf", 'famfamfam/install.rdf');
 $cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/chrome.manifest", 'famfamfam/chrome.manifest');
 
+# Install the icomoon icon listing for the icon picker
+$cons->InstallAs("$mozChromeDir/komodo/content/dialogs/iconlist_icomoon.html", "icomoon/icomoon.html");
+
 # install openoffice extension
 $cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/industrial.jar", 'openoffice/industrial.jar');
 $cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/install.rdf", 'openoffice/install.rdf');

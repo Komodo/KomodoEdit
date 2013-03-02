@@ -76,7 +76,6 @@
         <menuitem label="&icomoon.label;" src="chrome://komodo/content/dialogs/iconlist_icomoon.html"/>
         <menuitem label="&openOfficeIcons.label;" src="chrome://openoffice/content/industrial.html"/>
         <menuitem label="&famFamFamSilkIcons.label;" src="chrome://famfamfamsilk/content/silk.html"/>
-        <menuitem label="&icomoon.label;" src="chrome://icomoon/content/icons.html"/>
       </menupopup>
     </menulist>
     <separator class="thin"/>

@@ -58,8 +58,7 @@ footer = """</body>
 </html>"""
 
 imgtemplate = """
-<img border="1"
-     ondblclick="parent.ValidatedPickIcon('chrome://openoffice/skin/icons/%(fname)s');"
+<img ondblclick="parent.ValidatedPickIcon('chrome://openoffice/skin/icons/%(fname)s');"
      onclick="parent.Pick_Icon('chrome://openoffice/skin/icons/%(fname)s');"
      src="chrome://openoffice/skin/icons/%(fname)s"
      alt="%(fname)s"
