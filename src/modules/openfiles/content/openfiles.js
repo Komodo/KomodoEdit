@@ -167,7 +167,7 @@ if (typeof ko.openfiles == 'undefined')
                 this.addItem(e.originalTarget);
             }.bind(this));
             
-            koWindow.addEventListener('view_closing', function(e)
+            koWindow.addEventListener('view_closed', function(e)
             {
                 this.removeItem(e.originalTarget);
             }.bind(this));
@@ -671,22 +671,25 @@ if (typeof ko.openfiles == 'undefined')
             // Delete entry from internal record
             delete openViews[editorView.uid.number];
             
-            // Delete from DOM
+            // Find item in richlist
             var listItem = listbox.querySelector(
                 'richlistitem[id="'+editorView.uid.number+'"]'
             );
             if (listItem)
             {
+                var title = listItem.querySelector(".file-title").getAttribute("value");
+
+                // Delete from DOM
                 listItem.parentNode.removeChild(listItem);
-            }
-            
-            // Check for items which have the same name, in case there's only
-            // one then we can remove the css class indicating duplicate names
-            var duplicates = listbox.querySelectorAll(
-                                '.file-title[value="'+editorView.title+'"]');
-            if (duplicates.length == 1)
-            {
-                duplicates[0].parentNode.classList.remove('duplicate-name');
+
+                // Check for items which have the same name, in case there's only
+                // one then we can remove the css class indicating duplicate names
+                var duplicates = listbox.querySelectorAll(
+                                    '.file-title[value="'+title+'"]');
+                if (duplicates.length == 1)
+                {
+                    duplicates[0].parentNode.classList.remove('duplicate-name');
+                }
             }
             
             // Remove empty groups caused by removing this item
