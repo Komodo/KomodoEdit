@@ -201,7 +201,6 @@ void SciMoz::PlatformNew(void) {
     fprintf(stderr,">> SciMoz::PlatformNew\n");
     memset(&fPlatform.lastWindow, 0, sizeof(NPWindow));
 #endif
-    fPlatform.viewIsVisible = false;
     portMain = NULL;
     fWindow = NULL;
     wEditor = NULL;
@@ -233,7 +232,6 @@ nsresult SciMoz::PlatformDestroy(void) {
     portMain = NULL;
     wMain = NULL;
     fWindow = NULL;
-    fPlatform.viewIsVisible = false;
     return NS_OK;
  }
 
@@ -356,21 +354,20 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 void SciMoz::HideScintillaView(bool hide) {
   ScintillaView *scView = (ScintillaView *) wEditor;
 #ifdef SCIMOZ_COCOA_DEBUG
-  fprintf(stderr, "HideScintillaView: hide:%d, isVisible:%d\n",
-	  hide, fPlatform.viewIsVisible);
+  fprintf(stderr, "HideScintillaView: hide:%d, isHidden:%d\n",
+	  hide, [scView isHidden]);
 #endif
     
   if (hide) {
-    if (fPlatform.viewIsVisible) {
+    if (![scView isHidden]) {
 #ifdef SCIMOZ_COCOA_DEBUG
       fprintf(stderr, "    -scintilla->SetTicking(false)\n");
 #endif
       scintilla->SetTicking(false);
       [scView setHidden:YES];
-      fPlatform.viewIsVisible = false;
     }
   } else {
-    if (!fPlatform.viewIsVisible) {
+    if ([scView isHidden]) {
       // Make Scintilla visible.
 
       // Necessary hack to ensure the view will become visible - bug 97801.
@@ -380,7 +377,6 @@ void SciMoz::HideScintillaView(bool hide) {
 #ifdef SCIMOZ_COCOA_DEBUG
       fprintf(stderr, "    -scintilla->SetTicking(true)\n");
 #endif
-      fPlatform.viewIsVisible = true;
     }
   }
 }

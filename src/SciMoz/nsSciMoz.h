@@ -212,7 +212,6 @@ PlatformInstance;
 #if defined(XP_MACOSX)
 #include <Cocoa/Cocoa.h>
 typedef struct _PlatformInstance {
-    bool       viewIsVisible;
 #ifdef SCIMOZ_COCOA_DEBUG
     NPWindow   lastWindow;
 #endif
