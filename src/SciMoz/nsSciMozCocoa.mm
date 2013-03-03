@@ -371,8 +371,11 @@ void SciMoz::HideScintillaView(bool hide) {
     }
   } else {
     if (!fPlatform.viewIsVisible) {
-      // It's time to move the scintilla view from the offscreen window to the
-      // Plugin's ChildView
+      // Make Scintilla visible.
+
+      // Necessary hack to ensure the view will become visible - bug 97801.
+      [scView setHidden:YES];
+
       [scView setHidden:NO];
 #ifdef SCIMOZ_COCOA_DEBUG
       fprintf(stderr, "    -scintilla->SetTicking(true)\n");
