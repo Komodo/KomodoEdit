@@ -201,6 +201,7 @@ void SciMoz::PlatformNew(void) {
     fprintf(stderr,">> SciMoz::PlatformNew\n");
     memset(&fPlatform.lastWindow, 0, sizeof(NPWindow));
 #endif
+    fPlatform.firstVisibilityRequest = true;
     portMain = NULL;
     fWindow = NULL;
     wEditor = NULL;
@@ -354,8 +355,8 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 void SciMoz::HideScintillaView(bool hide) {
   ScintillaView *scView = (ScintillaView *) wEditor;
 #ifdef SCIMOZ_COCOA_DEBUG
-  fprintf(stderr, "HideScintillaView: hide:%d, isHidden:%d\n",
-	  hide, [scView isHidden]);
+  fprintf(stderr, "HideScintillaView: hide:%d, isHidden:%d, firstVisibilityRequest:%d\n",
+	  hide, [scView isHidden], fPlatform.firstVisibilityRequest);
 #endif
     
   if (hide) {
@@ -370,13 +371,15 @@ void SciMoz::HideScintillaView(bool hide) {
     if ([scView isHidden]) {
       // Make Scintilla visible.
 
-      // Necessary hack to ensure the view will become visible - bug 97801.
-      [scView setHidden:YES];
-
       [scView setHidden:NO];
 #ifdef SCIMOZ_COCOA_DEBUG
       fprintf(stderr, "    -scintilla->SetTicking(true)\n");
 #endif
+    } else if (fPlatform.firstVisibilityRequest) {
+      // Necessary hack to ensure the view will become visible - bug 97801.
+      [scView setHidden:YES];
+      [scView setHidden:NO];
+      fPlatform.firstVisibilityRequest = false;
     }
   }
 }
