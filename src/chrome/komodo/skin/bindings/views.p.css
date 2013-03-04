@@ -37,7 +37,7 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 /* #if PLATFORM == "darwin" */
-#topview tabpanel view:not[type="startpage"]) {
+#topview tabpanel view:not([type="startpage"]) {
   /* Remove borders caused by non-css margins (scintilla?) */
   margin-left: -1px;
   margin-right: -1px;
