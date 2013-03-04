@@ -326,6 +326,11 @@
 
         <handler event="click" phase="capturing">
             <![CDATA[
+            if (event.button !== 0) {
+                // Rebuild the selection, because the right-click destroys it (?)
+                this.updateSelectionFromEditor();
+                return;
+            }
             this._reportEvent(event);
             setTimeout(function() {
                 // timeout in case the user clicked on an existing
