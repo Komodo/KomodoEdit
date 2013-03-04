@@ -66,7 +66,7 @@ pref("extensions.getAddons.recommended.browseURL", "http://community.activestate
 pref("extensions.getAddons.recommended.url", "http://community.activestate.com/xpi/api/%API_VERSION%/list/featured/all/10");
 pref("extensions.getAddons.search.browseURL", "http://community.activestate.com/search/node/%TERMS%+type%3Axpi");
 pref("extensions.getAddons.search.url", "http://community.activestate.com/xpi/api/%API_VERSION%/search/%TERMS%");
-pref("extensions.webservice.discoverURL", "http://community.activestate.com/addons/recommended7?id=%ID%&version=%VERSION%&os=%OS%&abi=%XPCOMABI%");
+pref("extensions.webservice.discoverURL", "http://community.activestate.com/addons/recommended8?id=%ID%&version=%VERSION%&os=%OS%&abi=%XPCOMABI%");
 
 // Blocklist preferences
 pref("extensions.blocklist.enabled", false);
