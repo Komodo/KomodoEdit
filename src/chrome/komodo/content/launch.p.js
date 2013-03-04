@@ -178,7 +178,10 @@ this.language = function(searchTerm) {
                    0, // parseOutput
                    '', // parseRegex
                    0, // showParsedOutputList
-                   name); // name
+                   name,   // name
+                   true,   // clearOutputWindow
+                   null,   // terminationCallback
+                   false); // saveInMRU
 }
 
 
