@@ -52,6 +52,7 @@
             mm_scimoz.vScrollBar = true;
             mm_scimoz.setMarginWidthN(2, 0);
             mm_scimoz.selEOLFilled = true;
+            mm_scimoz.caretStyle = mm_scimoz.CARETSTYLE_INVISIBLE;
             mm_scimoz.setXCaretPolicy(0, 0);
             mm_scimoz.setYCaretPolicy(0, 0);
             setTimeout(function() {
