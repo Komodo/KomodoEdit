@@ -63,6 +63,9 @@
 #define snprintf _snprintf
 #define strcasecmp _stricmp
 #endif
+#ifdef XP_MACOSX
+#include <CoreFoundation/CoreFoundation.h>
+#endif /* XP_MACOSX */
 #include "BinaryPath.h"
 
 #include "nsXPCOMPrivate.h" // for MAXPATHLEN and XPCOM_DLL
@@ -187,6 +190,13 @@ static int do_main(const char *exePath, int argc, char* argv[])
     Output("Couldn't read application.ini");
     return 255;
   }
+  #ifdef XP_MACOSX
+    // Mac OSX: Disable press-and-hold for OSX 10.7, see bug 90870
+    CFPreferencesSetAppValue(CFSTR("ApplePressAndHoldEnabled"),
+                             kCFBooleanFalse,
+                             kCFPreferencesCurrentApplication);
+    CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
+  #endif /* XP_MACOSX */
 
 #ifdef KOSTART_PLACEHOLDER
     // The special Komodo startup gymnastics are only done when the
