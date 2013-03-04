@@ -97,15 +97,12 @@
         <xul:menu anonid="tabs_popup_widget"
                   class="tab_popup_multiple_widgets" collapsed="true">
           <xul:menupopup>
-            <xul:menu label="&pane.moveTo.tab.label;" class="tab_popup_multiple_tabs">
-              <xul:menupopup anonid="tabs_popup_moveto_tab">
-                <xul:menuitem label="&pane.moveTo.tab.new.label;"
-                              class="tab_popup_multiple_widgets"/>
-              </xul:menupopup>
-            </xul:menu>
             <xul:menuitem anonid="tabs_popup_moveto_new_single_tab"
                           label="&pane.moveTo.tab.new.single.label;"
-                          class="tab_popup_multiple_widgets tab_popup_single_tab"/>
+                          class="tab_popup_multiple_widgets"/>
+            <xul:menu label="&pane.moveTo.tab.label;" class="tab_popup_multiple_tabs">
+              <xul:menupopup anonid="tabs_popup_moveto_tab"/>
+            </xul:menu>
             <xul:menu label="&pane.moveTo.pane.label;">
               <xul:menupopup anonid="tabs_popup_moveto_pane">
                 <xul:menuitem label="&pane.moveTo.pane.new.label;"/>
@@ -772,10 +769,6 @@
                                                             {tab: tab}),
                                         false);
             }
-            popup.lastChild.addEventListener("command",
-                                             this._separateWidget.bind(this,
-                                                                       refWidget),
-                                             false);
             widgetMenu.querySelector('[anonid="tabs_popup_moveto_new_single_tab"]')
                       .addEventListener("command",
                                         this._separateWidget.bind(this, refWidget),
@@ -866,11 +859,10 @@
             let widgetMenu = widgetMenuTemplate.firstChild.cloneNode(true);
             // Stash the cloned menu somewhere so that event listeners can hook
             // up correctly.
-            popup.insertBefore(widgetMenu, widgetMenuTemplate);
             popup.appendChild(widgetMenu);
             try {
               updateWidgetMenu(widgetMenu, widget);
-              for (let child of widgetMenu.childNodes) {
+              for (let child of Array.slice(widgetMenu.childNodes)) {
                 popup.insertBefore(child, widgetMenuTemplate);
                 child.setAttribute("_generated_item_", "true");
               }

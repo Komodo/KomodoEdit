@@ -616,7 +616,7 @@
 
 <!ENTITY pane.moveTo.tab.label "Combine With Tab">
 <!ENTITY pane.moveTo.tab.new.label "New Tab">
-<!ENTITY pane.moveTo.tab.new.single.label "Move To New Tab">
+<!ENTITY pane.moveTo.tab.new.single.label "Separate Tab">
 <!ENTITY pane.moveTo.pane.label "Move To Pane">
 <!ENTITY pane.moveTo.pane.new.label "New Floating Pane">
 <!ENTITY pane.detach.label "Detach Pane">
