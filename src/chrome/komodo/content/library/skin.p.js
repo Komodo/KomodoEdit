@@ -245,16 +245,21 @@ var _lessClearCache = undefined;
 	    if (iconset == '' || (file && ! file.exists()))
 	    {
 		Components.utils.import("resource://gre/modules/Services.jsm");
-		var path = Services.io.newURI("resource://app/chrome/iconsets/" +
+		file = Services.io.newURI("resource://app/chrome/iconsets/" +
 // #if PLATFORM == "darwin"
 					      "cupertino" +
 // #else
 					      "dark" +
 // #endif
 					      "/chrome.manifest", null,null)
-			    .QueryInterface(Components.interfaces.nsIFileURL).file.path;
-		prefs.setStringPref(PREF_CUSTOM_ICONS, path);
+			    .QueryInterface(Components.interfaces.nsIFileURL).file;
+		prefs.setStringPref(PREF_CUSTOM_ICONS, file.path);
 	    }
+
+            if ( ! file || ! file.exists())
+            {
+                return;
+            }
 	    
 	    this.loadCustomSkin(file);
         },
