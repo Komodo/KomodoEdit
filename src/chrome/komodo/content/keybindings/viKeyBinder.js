@@ -892,10 +892,13 @@ VimController.prototype.handleCommand = function(event, commandname, keylabel, m
                  cmd_delete or cursor movement events.
         */
         var view = event.target;
-        var viewType = event.target.getAttribute("type");
-        if (viewType == "multiview") {
-            // Get the current child view.
-            view = view.currentView.currentView; // multiview -> tabbedview -> editorview
+        try {
+            // Multiview handling, we want the editor view - bug 97891.
+            while (view.currentView) {
+                view = view.currentView;
+            }
+        } catch (ex) {
+            // Some views don't implement .currentView, that's okay
         }
         if (!view.scintilla) {
             return false;
