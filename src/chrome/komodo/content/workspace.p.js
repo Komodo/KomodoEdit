@@ -54,7 +54,7 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
     // to restore it.
     if (!ko.prefs.hasPref(multiWindowWorkspacePrefName) && !ko.prefs.hasPref('workspace')) {
         return;
-    } else if (false && !was_normal_shutdown) {   // Komodo crashed
+    } else if (was_normal_shutdown) {   // Komodo crashed
         if (ko.prefs.getBooleanPref("donotask_restore_workspace") &&
             ko.prefs.getStringPref("donotask_action_restore_workspace") == "No") {
             // The user has explictly asked never to restore the workspace.
