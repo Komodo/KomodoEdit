@@ -1242,9 +1242,13 @@
                 // Use by blur event for handling text selection with the mouse.
                 this._lastMousePos = [x,y];
 
-                // Note we seem to get mousemove messages every second or so.  I
-                // think it is related to the cursor, but not sure.  It seems to originate
-                // from Windows itself, but I don't know what triggers it.  mh.
+/* #if PLATFORM == "darwin" */
+                // Hack to get scintilla to send us dwell events - as the plugin
+                // stops regular mousemove events from going to Scintilla, so
+                // this manually resets the dwell countdown - bug 97756.
+                scimoz.mouseDwellTime = 500;
+/* #endif */
+
             } catch (e) {
                 this.log.exception(e);
             }

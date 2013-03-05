@@ -800,6 +800,11 @@
             <parameter name="x"/>
             <parameter name="y"/>
         <body><![CDATA[
+/* #if PLATFORM == "darwin" */
+            // The position given to use from Scintilla on the Mac are bogus, as
+            // it doesn't receive regular mousemove events - bug 97756.
+            [x,y] = this._last_mousemove_xy;
+/* #endif */
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined') {
                 gEditorTooltipHandler.show(this, x, y, -1 /* no timeout */);
             }
