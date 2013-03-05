@@ -624,8 +624,44 @@ projectManager.prototype.newProjectFromTemplate = function(templatePath) {
     return false;
 }
 
+projectManager.prototype._getRemoteURIs = function (project) {
+    var items;
+    var o1 = {}, o2 = {};
+    project.getChildrenByType("file", true, o1, {});
+    project.getChildrenByType("livefolder", true, o2, {});
+    return (o1.value.concat(o2.value).
+            map(function(item) item.getFile()).
+            filter(function(koFile) koFile.isRemoteFile).
+            map(function(koFile) koFile.URI));
+};
 projectManager.prototype.saveProjectAsTemplate = function (project) {
     try {
+        var remote_uris = this._getRemoteURIs(project);
+        if (remote_uris.length) {
+            const sep = ", ";
+            var uriList = remote_uris.join(sep);
+            if (uriList.length > 300) {
+                var lastSep = uriList.substring(0, 300).lastIndexof(sep);
+                var part1 = uriList.substring(0, lastSep);
+                var part2 = uriList.substring(lastSep + sep.length);
+                var remainingParts = part2.split(sep).length;
+                uriList = part1;
+                if (remainingParts.length == 1) {
+                    uriList += _bundle.GetStringFromName("and 1 other");
+                } else {
+                    uriList += _bundle.formatStringFromName("and X others",
+                                                        [remainingParts.length], 1);
+                }
+            }
+            uriList = (remote_uris.length == 1 ?
+                       _bundle.formatStringFromName("For URI X", [uriList], 1) :
+                       _bundle.formatStringFromName("For URIs X", [uriList], 1));
+                       
+            var msg = _bundle.GetStringFromName("Project templates with remote items arent supported");
+            ko.notifications.add(msg, ["projects"], "saveProjectAsTemplate", { details: uriList,
+                                 severity: Components.interfaces.koINotification.SEVERITY_INFO,} );
+            return;
+        }
         if (project.isDirty) {
             var strYes = "Yes";
             var res = ko.dialogs.yesNo(
