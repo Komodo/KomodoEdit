@@ -2186,11 +2186,19 @@ this.Manager.prototype.event2keylabel = function (event, useShift, isKeyPressEve
         // events, some only show up in keywowns.
         // if it is a modified key, then use this manager only
         //ko.logging.dumpEvent(event);
-        var use_vi = gVimController.enabled &&
-                     !(event.metaKey || event.ctrlKey || event.altKey) &&
-                     (event.target.nodeName == 'view') &&
-                     (!('originalTarget' in event) ||
-                      (event.target.scintilla && event.target.scintilla.isFocused));
+        var use_vi = false;
+        if (gVimController.enabled &&
+            !(event.metaKey || event.ctrlKey || event.altKey) &&
+            (event.target.nodeName == 'view')) {
+            let view = event.target;
+            // Check if it's the multiview (topview) - bug 97891.
+            if (view.getAttribute('type') == 'multiview') {
+                view = view.currentView.currentView; // multiview -> tabbedview -> editorview
+            }
+            if (view.scintilla && view.scintilla.isFocused) {
+                use_vi = true;
+            }
+        }
 
         var keypressed = null;
         // keydown and keyup events do not set the charCode, they only set the
