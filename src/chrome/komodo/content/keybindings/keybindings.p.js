@@ -2191,9 +2191,13 @@ this.Manager.prototype.event2keylabel = function (event, useShift, isKeyPressEve
             !(event.metaKey || event.ctrlKey || event.altKey) &&
             (event.target.nodeName == 'view')) {
             let view = event.target;
-            // Check if it's the multiview (topview) - bug 97891.
-            if (view.getAttribute('type') == 'multiview') {
-                view = view.currentView.currentView; // multiview -> tabbedview -> editorview
+            try {
+                // Multiview handling, we want the editor view - bug 97891.
+                while (view.currentView) {
+                    view = view.currentView;
+                }
+            } catch (ex) {
+                // Some views don't implement .currentView, that's okay
             }
             if (view.scintilla && view.scintilla.isFocused) {
                 use_vi = true;
