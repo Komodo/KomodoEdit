@@ -1128,7 +1128,9 @@ viewManager.prototype.observe = function(subject, topic, data)
                         break;
                     }
                 }
-                this.handle_open_file(topic, data);
+                ko.workspace.waitForProjectManager(function() {
+                        this.handle_open_file(topic, data);
+                    }.bind(this));
             }
             break;
         case 'file_status':

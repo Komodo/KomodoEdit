@@ -1423,13 +1423,11 @@ projectManager.prototype.setState = function(pref)
             this._mpv_urls = [];
         }
         var urlList = this.single_project_view ? this._spv_urls : this._mpv_urls;
-        setTimeout(function() {
-                urlList.forEach(function(url) {
-                        ko.projects.open(url,
-                                         false /* skipRecentOpenFeature */,
-                                         false /* ensureVisible */);
-                    });
-        }, 1000);
+        urlList.forEach(function(url) {
+                ko.projects.open(url,
+                                 false /* skipRecentOpenFeature */,
+                                 false /* ensureVisible */);
+            });
     } catch (e) {
         this.log.exception(e);
     }
@@ -1519,6 +1517,10 @@ function _finish_handle_view_document_detaching(detaching_url) {
 this.open = function project_openProjectFromURL(url,
                                                 skipRecentOpenFeature /* false */,
                                                 ensureVisible /* true */) {
+    if (ko.projects.manager.getAllProjects().map(function(p) p.url).indexOf(url) >= 0) {
+        this.log.debug("Project " + url + " is already opened\n");
+        return false;
+    }
     if (url.indexOf("file:/") != 0) {
         ko.dialogs.alert(_bundle.formatStringFromName("remote projects arent supported for X",
                                                       [url], 1));

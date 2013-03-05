@@ -14,15 +14,10 @@ if (typeof(ko.workspace) == "undefined") {
 
 var log = ko.logging.getLogger('workspace');
 //log.setLevel(ko.logging.LOG_DEBUG);
-var _restoreInProgress = false;
 var _saveInProgress = false;
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/views.properties");
-
-this.restoreInProgress = function() {
-    return _restoreInProgress;
-}
 
 this.saveInProgress = function() {
     return _saveInProgress;
@@ -59,7 +54,7 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
     // to restore it.
     if (!ko.prefs.hasPref(multiWindowWorkspacePrefName) && !ko.prefs.hasPref('workspace')) {
         return;
-    } else if (!was_normal_shutdown) {   // Komodo crashed
+    } else if (false && !was_normal_shutdown) {   // Komodo crashed
         if (ko.prefs.getBooleanPref("donotask_restore_workspace") &&
             ko.prefs.getStringPref("donotask_action_restore_workspace") == "No") {
             // The user has explictly asked never to restore the workspace.
@@ -259,7 +254,6 @@ function _checkWindowCoordinateBounds(candidateValue,
 const _nsIDOMChromeWindow = Components.interfaces.nsIDOMChromeWindow;
 this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBounds)
 {
-    _restoreInProgress = true;
     try {
         var wko = currentWindow.ko;
         var cnt = new Object();
@@ -359,28 +353,53 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
             } else {
                 currentProjectURI = null;
             }
-            if (use_v7_mode) {
-                wko.projects.manager.setState(pref);
-            } else {
-                wko.projects.manager.setState_v6(pref);
-            }
-            if (currentProjectURI) {
-                setTimeout(function() {
-                        // If a project with that url is loaded, make it current
-                        var proj = wko.projects.manager.getProjectByURL(currentProjectURI);
-                        if (proj) {
-                            wko.projects.manager.currentProject = proj;
-                        }
-                    }, 1000);
-            }
+            // Don't load projects until places has initialized the projects view
+            this.waitForProjectManager(function() {
+                if (use_v7_mode) {
+                    wko.projects.manager.setState(pref);
+                } else {
+                    wko.projects.manager.setState_v6(pref);
+                }
+                if (currentProjectURI) {
+                    // If a project with that url is loaded, make it current
+                    var proj = wko.projects.manager.getProjectByURL(currentProjectURI);
+                    if (proj) {
+                        wko.projects.manager.currentProject = proj;
+                    }
+                }
+                });
         }
         wko._hasFocus = (workspace.hasBooleanPref('hasFocus')
                          && workspace.getBooleanPref('hasFocus'));
     } catch(ex) {
         log.exception(ex, "Error restoring workspace:");
-    } finally {
-        _restoreInProgress = false;
     }
+};
+
+this.waitForProjectManager = function(callback) {
+    // First make sure the places widget exists ,and then verify
+    // the project manager has been hooked up, so the tree is loaded.
+    ko.widgets.getWidgetAsync('placesViewbox', function() {
+            var delayFunc;
+            var limit = 100; // iterations
+            var delay = 50;  // time in msec
+            delayFunc = function(tryNum) {
+                try {
+                    if (ko.projects.manager.viewMgr.owner.projectsTreeView) {
+                        callback();
+                        return;
+                    }
+                } catch(ex) {
+                    log.info("waitForProjectManager: Failure: " + tryNum + ": "  + ex);
+                };
+                if (tryNum < limit) {
+                    setTimeout(delayFunc, delay, tryNum + 1);
+                } else {
+                    log.error("waitForProjectManager: Gave up trying to restore the projects workspace");
+                }
+            }
+            setTimeout(delayFunc, delay, 0);
+        });
 };
 
 this._calledInitializeEssentials = false;
