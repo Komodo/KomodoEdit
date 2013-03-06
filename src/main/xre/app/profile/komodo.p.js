@@ -113,7 +113,8 @@ pref("extensions.update.url", "https://komodo.activestate.com/update/VersionChec
 pref("extensions.getMoreExtensionsURL", "http://community.activestate.com/addons");
 pref("extensions.getMoreThemesURL", "http://community.activestate.com/addons");
 // Add-on metadata query (screenshots, description, ratings, downloads, ...)
-pref("extensions.getAddons.cache.enabled", true);
+// Not used by Komodo - and it actually causes our ads to be blocked - bug 97923.
+pref("extensions.getAddons.cache.enabled", false);
 
 pref("xpinstall.whitelist.add", "komodo.activestate.com");
 
