@@ -55,7 +55,10 @@
             mm_scimoz.caretStyle = mm_scimoz.CARETSTYLE_INVISIBLE;
             mm_scimoz.setXCaretPolicy(0, 0);
             mm_scimoz.setYCaretPolicy(0, 0);
+// #ifdef PLATFORM == "linux"
+            // bug 97956: Avoid implicit copy to the X-windows clipboard
             mm_scimoz.rejectSelectionClaim = true;
+// #endif
             setTimeout(function() {
                 this.syncMinimapFromBuffer();
             }.bind(this), 10);
