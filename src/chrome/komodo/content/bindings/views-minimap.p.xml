@@ -55,6 +55,7 @@
             mm_scimoz.caretStyle = mm_scimoz.CARETSTYLE_INVISIBLE;
             mm_scimoz.setXCaretPolicy(0, 0);
             mm_scimoz.setYCaretPolicy(0, 0);
+            mm_scimoz.rejectSelectionClaim = true;
             setTimeout(function() {
                 this.syncMinimapFromBuffer();
             }.bind(this), 10);

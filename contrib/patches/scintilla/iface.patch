@@ -9,7 +9,7 @@ retrieving revision 1.307
 diff -u -r1.307 include/Scintilla.iface
 --- include/Scintilla.iface	23 Apr 2007 02:26:05 -0000	1.307
 +++ include/Scintilla.iface	24 May 2007 01:36:19 -0000
-@@ -1559,22 +1559,22 @@
+@@ -1559,23 +1559,23 @@
  get int GetPrintWrapMode=2407(,)
  
  # Set a fore colour for active hotspots.
@@ -38,3 +38,4 @@ diff -u -r1.307 include/Scintilla.iface
  
  # Limit hotspots to single line so hotspots on two lines don't merge.
  set void SetHotspotSingleLine=2421(bool singleLine,)
+ 

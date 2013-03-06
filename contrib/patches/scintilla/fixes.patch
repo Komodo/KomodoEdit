@@ -270,6 +270,16 @@ diff -r -du src/Document.h src/Document.h
 diff -r -du src/Editor.h src/Editor.h
 --- src/Editor.h	2005-08-29 18:09:20.000000000 -0700
 +++ src/Editor.h	2007-05-01 17:00:17.000000000 -0700
+@@ -287,6 +287,9 @@
+ 	int lastSegItalicsOffset; // the offset so as not to clip italic characters at EOLs
+ 
+ 	Document *pdoc;
++    
++	// XXX ActiveState prevent minimap selection-claiming (bug 97956)
++	bool rejectSelectionClaim;
+ 
+ 	Editor();
+ 	virtual ~Editor();
 @@ -361,7 +361,11 @@
  	void SetEmptySelection(int currentPos_);
  	bool RangeContainsProtected(int start, int end) const;

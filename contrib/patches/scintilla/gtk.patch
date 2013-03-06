@@ -302,6 +302,17 @@ Scintilla buffer before shutting down, bug 81293.
  }
  
  void ScintillaGTK::CopyToClipboard(const SelectionText &selectedText) {
+@@ -1492,6 +1609,10 @@
+ void ScintillaGTK::ClaimSelection() {
+ 	// X Windows has a 'primary selection' as well as the clipboard.
+ 	// Whenever the user selects some text, we become the primary selection
++	if (rejectSelectionClaim) {
++		// Don't claim minimap selection
++		return;
++	}
+ 	if (!sel.Empty() && IS_WIDGET_REALIZED(GTK_WIDGET(PWidget(wMain)))) {
+ 		primarySelection = true;
+ 		gtk_selection_owner_set(GTK_WIDGET(PWidget(wMain)),
 @@ -1470,6 +1543,118 @@
  static GdkAtom TypeOfGSD(GtkSelectionData *sd) { return sd->type; }
  static GdkAtom SelectionOfGSD(GtkSelectionData *sd) { return sd->selection; }
@@ -481,6 +492,17 @@ Scintilla buffer before shutting down, bug 81293.
  }
  
  void ScintillaGTK::ClipboardGetSelection(GtkClipboard *, GtkSelectionData *selection_data, guint info, void *data) {
+@@ -1707,6 +1950,10 @@
+ }
+ 
+ void ScintillaGTK::UnclaimSelection(GdkEventSelection *selection_event) {
++	if (rejectSelectionClaim) {
++		// Don't claim minimap selection (bug 97956)
++		return;
++	}
+ 	try {
+ 		//Platform::DebugPrintf("UnclaimSelection\n");
+ 		if (selection_event->selection == GDK_SELECTION_PRIMARY) {
 @@ -1742,8 +1932,10 @@
  void ScintillaGTK::Resize(int width, int height) {
  	//Platform::DebugPrintf("Resize %d %d\n", width, height);
