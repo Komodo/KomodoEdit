@@ -289,8 +289,7 @@
         </method>
     </implementation>
     <handlers>
-<!--  phase="capturing" -->
-        <handler event="keypress"> 
+        <handler event="keypress" phase="capturing"> 
             <![CDATA[
             // Dispatch all keypress events on the minimap onto the main view.
             var newEvent = document.createEvent("KeyEvents");
