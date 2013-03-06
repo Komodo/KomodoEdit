@@ -654,8 +654,20 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                         break
                     elif style != last_style:
                         return None
+                extentLength = last_pos - pos
+                # cover ": " following the identifier if it's there (since we
+                # add it to the autocomplete in _async_eval_at_trg)
+                following_text = ac.text_range(last_pos + 1, last_pos + 3)
+                for idx, char in enumerate(": "):
+                    try:
+                        if following_text[idx] == char:
+                            extentLength += 1
+                        else:
+                            break
+                    except IndexError:
+                        break
                 return Trigger("CSS", TRG_FORM_CPLN, "property-names",
-                               pos+1, implicit, extra={"ac": ac})
+                               pos+1, implicit, extentLength=extentLength, extra={"ac": ac})
 
             elif styleClassifier.is_value(last_style, ac):
                 p, ch, style = ac.getPrevPosCharStyle(ignore_styles=styleClassifier.comment_styles)

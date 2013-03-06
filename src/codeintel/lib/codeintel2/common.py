@@ -265,9 +265,14 @@ class Trigger(object):
     #       Foo::Bar-><|>   # trigger token is '->', length = 2
     # This default to 1.
     length = None
+    # The number of characters after pos that should be replaced.  Most of the
+    # time this will be zero.  For example
+    #      foo.<|>prop      # extentLength is 4, for "prop"
+    # Note that this goes in the opposite direction of .length
+    extentLength = None
     retriggerOnCompletion = False
 
-    def __init__(self, lang, form, type, pos, implicit, length=1,
+    def __init__(self, lang, form, type, pos, implicit, length=1, extentLength=0,
                  **extra):
         self.lang = lang
         self.form = form
@@ -275,6 +280,7 @@ class Trigger(object):
         self.pos = pos
         self.implicit = implicit
         self.length = length
+        self.extentLength = extentLength
         self.extra = extra # Trigger-specific extra data, if any
 
     @property

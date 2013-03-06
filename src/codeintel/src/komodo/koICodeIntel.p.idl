@@ -106,6 +106,7 @@ interface koICodeIntelTrigger: nsISupports {
     readonly attribute long pos;
     readonly attribute boolean implicit;
     readonly attribute long length;     // num chars of the trigger token
+    readonly attribute long extentLength; // num bytes forward trigger covers
 
     readonly attribute wstring name;
 

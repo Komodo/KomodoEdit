@@ -556,7 +556,9 @@ ko.codeintel = {};
                     this.completionFillups.indexOf(typedAlready[oldText.length]) != -1)
                 {
                     // only one character was added, and it was a fillup character
-                    autoc.applyCompletion(this._lastTriggerPos, scimoz.currentPos,
+                    let endPos = Math.max(this._lastTriggerPos + this._lastTriggerExtentLength,
+                                          scimoz.currentPos);
+                    autoc.applyCompletion(this._lastTriggerPos, endPos,
                                           lastCompletion + typedAlready[oldText.length]);
                     return;
                 }
@@ -600,7 +602,9 @@ ko.codeintel = {};
             }
         } else if (event.type === "command") {
             // the user selected the item with the mouse
-            autoc.applyCompletion(this._lastTriggerPos, scimoz.currentPos);
+            let endPos = Math.max(this._lastTriggerPos + this._lastTriggerExtentLength,
+                                  scimoz.currentPos);
+            autoc.applyCompletion(this._lastTriggerPos, endPos);
             return;
         } else if (event.type === "completion") {
             // completion was applied; re-trigger codeintel
@@ -631,11 +635,12 @@ ko.codeintel = {};
                 // we need to wait to apply the completion, in order to make
                 // sure we don't close the popup too early - we still need to
                 // capture the corresponding keypress event.
-                setTimeout(autoc.applyCompletion.bind(autoc,
-                                                      this._lastTriggerPos,
-                                                      scimoz.currentPos,
-                                                      autoc.selectedText),
-                           0);
+                setTimeout((function() {
+                    let endPos = Math.max(this._lastTriggerPos + this._lastTriggerExtentLength,
+                                          scimoz.currentPos);
+                    autoc.applyCompletion(this._lastTriggerPos, endPos,
+                                          autoc.selectedText);
+                }).bind(this), 0);
             }
             event.stopPropagation();
             event.preventDefault();
@@ -685,7 +690,9 @@ ko.codeintel = {};
             // Adding a new fillup character (and there's no command)
             log.debug("Fillup character '" + newChar +
                       "' detected, applying fillup '" + autoc.selectedText + "'");
-            autoc.applyCompletion(this._lastTriggerPos, scimoz.currentPos,
+            let endPos = Math.max(this._lastTriggerPos + this._lastTriggerExtentLength,
+                                  scimoz.currentPos);
+            autoc.applyCompletion(this._lastTriggerPos, endPos,
                                   autoc.selectedText);
             return;
         }
@@ -750,6 +757,7 @@ ko.codeintel = {};
             // Show the completions UI.
             this._lastTriggerPos = triggerPos;
             this._retriggerOnCompletion = trg.retriggerOnCompletion;
+            this._lastTriggerExtentLength = trg.extentLength;
             var autoc = scintilla.autocomplete;
             autoc.listener = this;
             autoc.reset();
