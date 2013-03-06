@@ -172,3 +172,10 @@ pref("extensions.dss.enabled", true);
 
 // Used for the Help window
 pref("accessibility.typeaheadfind.flashBar", 1);
+
+// Required for "Web & Browser > Proxy" preferences.
+#ifdef XP_WIN
+pref("browser.preferences.instantApply", false);
+#else
+pref("browser.preferences.instantApply", true);
+#endif
