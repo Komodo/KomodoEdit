@@ -1075,6 +1075,9 @@ class LoadedFileTextFactory(object):
                     @components.ProxyToMainThread
                     def undoChanges(self, *args):
                         self.obj.undoChanges(*args)
+                    @components.ProxyToMainThread
+                    def applySetText(self, *args):
+                        self.obj.applySetText(*args)
                 self.loaded_path_accessor = loaded_path_accessor
                 self.loadedPathAccessorProxy = LoadedPathProxy(loaded_path_accessor)
             else:
