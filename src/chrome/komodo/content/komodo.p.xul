@@ -1698,130 +1698,130 @@
                     customizable="true"
                     broadcaster="cmd_viewedittoolbar"
                     tooltiptext="&standardToolbar.tooltiptext;">
-					
-					<toolbaritem>
-					
-						<toolbarbutton id="historyBackButton"
-							tooltiptext="&historyBack.tooltiptext;"
-							class="history-back-icon"
-							persist="buttonstyle"
-							buttonstyle="pictures"
-							observes="cmd_historyBack"
-							label="&historyBack.label;"/>
-						<toolbarbutton id="historyForwardButton"
-							class="history-forward-icon"
-							tooltiptext="&historyForward.tooltiptext;"
-							observes="cmd_historyForward"
-							persist="buttonstyle"
-							buttonstyle="pictures"
-							label="&historyForward.label;"/>
-						<toolbarbutton id="historyRecentLocations"
-							type="menu"
-							tooltiptext="&historyRecentLocations.tooltiptext;">
-							<menupopup id="historyRecentLocationsMenu"
-									   position="after_start"
-									   onpopupshowing="ko.history.init_popup_menu_recent_locations(event);"
-									   oncommand="event.stopPropagation();"
-									   />
-						</toolbarbutton>
-						<toolbarbutton id="undoButton"
-							tooltiptext="&undoLastAction.tooltiptext;"
-							persist="buttonstyle"
-							buttonstyle="pictures"
-							class="native-undo-icon"
-							observes="cmd_undo"
-							label="&undo.label;"/>
-						<toolbarbutton id="redoButton"
-							tooltiptext="&redoLastAction.tooltiptext;"
-							observes="cmd_redo"
-							persist="buttonstyle"
-							buttonstyle="pictures"
-							class="native-redo-icon"
-							label="&redo.label;"/>
-						
-					</toolbaritem>
-					
-					<toolbaritem>
-				
-						<toolbarbutton id="newButton"
-							tooltiptext="&newFileUsingDefaultLanguage.tooltiptext;"
-							observes="cmd_new"
-							persist="buttonstyle"
-							buttonstyle="pictures"
-							class="native-new-file-icon"
-							label="&new.label;"/>
-						<toolbarbutton id="openButton"
-							tooltiptext="&openFile.tooltiptext;"
-							persist="buttonstyle"
-							buttonstyle="pictures"
-							class="native_open_icon"
-							observes="cmd_open"
-							label="&open.label;"/>
-						<toolbarbutton id="saveButton"
-							tooltiptext="&saveFile.tooltiptext;"
-							persist="buttonstyle"
-							buttonstyle="pictures"
-							observes="cmd_save"
-							class="native-save-icon"
-							label="&saveFile.label;"/>
-						<toolbarbutton id="saveAllButton"
-							tooltiptext="&saveAllFiles.tooltiptext;"
-							kohidden="true"
-							persist="buttonstyle kohidden"
-							buttonstyle="pictures"
-							observes="cmd_saveAll"
-							class="save-all-buffers-icon"
-							label="&saveAll.label;"/>
-					
-					</toolbaritem>
-					<toolbaritem>
-					
-						<toolbarbutton id="cutButton"
-							tooltiptext="&cut.tooltiptext;"
-                                                        kohidden="true"
-							persist="buttonstyle kohidden"
-							buttonstyle="pictures"
-							observes="cmd_cut"
-							class="native-cut-icon"
-							label="&cut.label;"/>
-						<toolbarbutton id="copyButton"
-							tooltiptext="&copy.tooltiptext;"
-                                                        kohidden="true"
-							persist="buttonstyle kohidden"
-							buttonstyle="pictures"
-							observes="cmd_copy"
-							class="native-copy-icon"
-							label="&copy.label;"/>
-						<toolbarbutton id="pasteButton"
-							tooltiptext="&paste.tooltiptext;"
-                                                        kohidden="true"
-							persist="buttonstyle kohidden"
-							buttonstyle="pictures"
-							observes="cmd_paste"
-							class="native-paste-icon"
-							label="&paste.label;"/>
-					
-					</toolbaritem>
-					<toolbaritem>
-					
-						<toolbarbutton id="printButton"
-							tooltiptext="&print.tooltiptext;"
-							kohidden="true"
-							persist="buttonstyle kohidden"
-							buttonstyle="pictures"
-							class="native-print-icon"
-							observes="cmd_print"
-							label="&print.label;"/>
-						<toolbarbutton id="helpButton"
-							tooltiptext="&help.tooltiptext;"
-							kohidden="true"
-							persist="buttonstyle kohidden"
-							buttonstyle="pictures"
-							class="help-icon"
-							observes="cmd_helpHelp"
-							label="&help.label;"/>
-						
-					</toolbaritem>
+
+                    <toolbaritem>
+
+                        <toolbarbutton id="historyBackButton"
+                                tooltiptext="&historyBack.tooltiptext;"
+                                class="history-back-icon"
+                                persist="buttonstyle"
+                                buttonstyle="pictures"
+                                observes="cmd_historyBack"
+                                label="&historyBack.label;"/>
+                        <toolbarbutton id="historyForwardButton"
+                                class="history-forward-icon"
+                                tooltiptext="&historyForward.tooltiptext;"
+                                observes="cmd_historyForward"
+                                persist="buttonstyle"
+                                buttonstyle="pictures"
+                                label="&historyForward.label;"/>
+                        <toolbarbutton id="historyRecentLocations"
+                                type="menu"
+                                tooltiptext="&historyRecentLocations.tooltiptext;">
+                            <menupopup id="historyRecentLocationsMenu"
+                                       position="after_start"
+                                       onpopupshowing="ko.history.init_popup_menu_recent_locations(event);"
+                                       oncommand="event.stopPropagation();"
+                                       />
+                        </toolbarbutton>
+                        <toolbarbutton id="undoButton"
+                                tooltiptext="&undoLastAction.tooltiptext;"
+                                persist="buttonstyle"
+                                buttonstyle="pictures"
+                                class="native-undo-icon"
+                                observes="cmd_undo"
+                                label="&undo.label;"/>
+                        <toolbarbutton id="redoButton"
+                                tooltiptext="&redoLastAction.tooltiptext;"
+                                observes="cmd_redo"
+                                persist="buttonstyle"
+                                buttonstyle="pictures"
+                                class="native-redo-icon"
+                                label="&redo.label;"/>
+
+                    </toolbaritem>
+
+                    <toolbaritem>
+
+                        <toolbarbutton id="newButton"
+                                tooltiptext="&newFileUsingDefaultLanguage.tooltiptext;"
+                                observes="cmd_new"
+                                persist="buttonstyle"
+                                buttonstyle="pictures"
+                                class="native-new-file-icon"
+                                label="&new.label;"/>
+                        <toolbarbutton id="openButton"
+                                tooltiptext="&openFile.tooltiptext;"
+                                persist="buttonstyle"
+                                buttonstyle="pictures"
+                                class="native_open_icon"
+                                observes="cmd_open"
+                                label="&open.label;"/>
+                        <toolbarbutton id="saveButton"
+                                tooltiptext="&saveFile.tooltiptext;"
+                                persist="buttonstyle"
+                                buttonstyle="pictures"
+                                observes="cmd_save"
+                                class="native-save-icon"
+                                label="&saveFile.label;"/>
+                        <toolbarbutton id="saveAllButton"
+                                tooltiptext="&saveAllFiles.tooltiptext;"
+                                kohidden="true"
+                                persist="buttonstyle kohidden"
+                                buttonstyle="pictures"
+                                observes="cmd_saveAll"
+                                class="save-all-buffers-icon"
+                                label="&saveAll.label;"/>
+
+                    </toolbaritem>
+                    <toolbaritem>
+
+                        <toolbarbutton id="cutButton"
+                                tooltiptext="&cut.tooltiptext;"
+                                kohidden="true"
+                                persist="buttonstyle kohidden"
+                                buttonstyle="pictures"
+                                observes="cmd_cut"
+                                class="native-cut-icon"
+                                label="&cut.label;"/>
+                        <toolbarbutton id="copyButton"
+                                tooltiptext="&copy.tooltiptext;"
+                                kohidden="true"
+                                persist="buttonstyle kohidden"
+                                buttonstyle="pictures"
+                                observes="cmd_copy"
+                                class="native-copy-icon"
+                                label="&copy.label;"/>
+                        <toolbarbutton id="pasteButton"
+                                tooltiptext="&paste.tooltiptext;"
+                                kohidden="true"
+                                persist="buttonstyle kohidden"
+                                buttonstyle="pictures"
+                                observes="cmd_paste"
+                                class="native-paste-icon"
+                                label="&paste.label;"/>
+
+                    </toolbaritem>
+                    <toolbaritem>
+
+                        <toolbarbutton id="printButton"
+                                tooltiptext="&print.tooltiptext;"
+                                kohidden="true"
+                                persist="buttonstyle kohidden"
+                                buttonstyle="pictures"
+                                class="native-print-icon"
+                                observes="cmd_print"
+                                label="&print.label;"/>
+                        <toolbarbutton id="helpButton"
+                                tooltiptext="&help.tooltiptext;"
+                                kohidden="true"
+                                persist="buttonstyle kohidden"
+                                buttonstyle="pictures"
+                                class="help-icon"
+                                observes="cmd_helpHelp"
+                                label="&help.label;"/>
+
+                    </toolbaritem>
                 </toolbar>
                 <toolbar class="chromeclass-toolbar"
                          id="toolsToolbar"
@@ -1834,17 +1834,18 @@
                          persist="kohidden collapsed buttonstyle mode"
                          buttonstyle="pictures"
                          tooltiptext="&toolsToolbar.tooltiptext;">
-					<toolbaritem id="toolsToolbarGroup">
-						<toolbarbutton id="buttonBrowserPreview"
-									   tooltiptext="&previewBufferInBrowser.tooltiptext;"
-									   type="menu-button"
-									   persist="buttonstyle"
-									   buttonstyle="pictures"
-									   observes="cmd_browserPreview"
-									   label="&preview.label;">
-							<menupopup id="buttonBrowserPreviewPopup" onpopupshowing="ko.uilayout.populatePreviewToolbarButton(this);"/>
-						</toolbarbutton>
-					</toolbaritem>
+                    <toolbaritem id="toolsToolbarGroup">
+                        <toolbarbutton id="buttonBrowserPreview"
+                                       tooltiptext="&previewBufferInBrowser.tooltiptext;"
+                                       type="menu-button"
+                                       persist="buttonstyle"
+                                       buttonstyle="pictures"
+                                       observes="cmd_browserPreview"
+                                       label="&preview.label;">
+                            <menupopup id="buttonBrowserPreviewPopup"
+                                       onpopupshowing="ko.uilayout.populatePreviewToolbarButton(this);"/>
+                        </toolbarbutton>
+                    </toolbaritem>
                 </toolbar>
                 <toolbar class="chromeclass-toolbar"
                          id="workspaceToolbar"
@@ -1910,47 +1911,47 @@
                          persist="kohidden collapsed buttonstyle mode"
                          buttonstyle="pictures"
                          tooltiptext="&macroToolbar.tooltiptext;">
-					
-					<toolbaritem>
-					
-						<toolbarbutton id="macroRecord"
-							label="&record.label;"
-							tooltiptext="&recordMacro.tooltiptext;"
-							persist="buttonstyle"
-							class="macro-record-icon"
-							buttonstyle="pictures"
-							observes="cmd_startMacroMode"/>
-						<toolbarbutton id="macroPause"
-							label="&pause.label;"
-							tooltiptext="&pauseMacroRecording.tooltiptext;"
-							persist="buttonstyle"
-							buttonstyle="pictures"
-							class="macro-pause-icon"
-							observes="cmd_pauseMacroMode"/>
-						<toolbarbutton id="macroStop"
-							label="&stop.label;"
-							tooltiptext="&stopRecordingMacro.tooltiptext;"
-							persist="buttonstyle"
-							class="macro-stop-icon"
-							buttonstyle="pictures"
-							observes="cmd_stopMacroMode"/>
-						<toolbarbutton id="macroPlay"
-							label="&runLast.label;"
-							tooltiptext="&playLastMacro.tooltiptext;"
-							persist="buttonstyle"
-							buttonstyle="pictures"
-							class="macro-play-icon"
-							observes="cmd_executeLastMacro"/>
-						<toolbarbutton id="macroSave"
-							label="&save.label;"
-							tooltiptext="&saveLastMacroToToolbox.tooltiptext;"
-							persist="buttonstyle"
-							class="macro-save-icon"
-							buttonstyle="pictures"
-							observes="cmd_saveMacroToToolbox"/>
-						
-						</toolbaritem>
-						
+
+                    <toolbaritem>
+
+                        <toolbarbutton id="macroRecord"
+                                label="&record.label;"
+                                tooltiptext="&recordMacro.tooltiptext;"
+                                persist="buttonstyle"
+                                class="macro-record-icon"
+                                buttonstyle="pictures"
+                                observes="cmd_startMacroMode"/>
+                        <toolbarbutton id="macroPause"
+                                label="&pause.label;"
+                                tooltiptext="&pauseMacroRecording.tooltiptext;"
+                                persist="buttonstyle"
+                                buttonstyle="pictures"
+                                class="macro-pause-icon"
+                                observes="cmd_pauseMacroMode"/>
+                        <toolbarbutton id="macroStop"
+                                label="&stop.label;"
+                                tooltiptext="&stopRecordingMacro.tooltiptext;"
+                                persist="buttonstyle"
+                                class="macro-stop-icon"
+                                buttonstyle="pictures"
+                                observes="cmd_stopMacroMode"/>
+                        <toolbarbutton id="macroPlay"
+                                label="&runLast.label;"
+                                tooltiptext="&playLastMacro.tooltiptext;"
+                                persist="buttonstyle"
+                                buttonstyle="pictures"
+                                class="macro-play-icon"
+                                observes="cmd_executeLastMacro"/>
+                        <toolbarbutton id="macroSave"
+                                label="&save.label;"
+                                tooltiptext="&saveLastMacroToToolbox.tooltiptext;"
+                                persist="buttonstyle"
+                                class="macro-save-icon"
+                                buttonstyle="pictures"
+                                observes="cmd_saveMacroToToolbox"/>
+
+                    </toolbaritem>
+
                 </toolbar>
                 <toolbar id="komodoToolbar"
                          broadcaster="cmd_viewkomodotoolbar"
@@ -1965,32 +1966,32 @@
                          buttonstyle="pictures"
                          tooltiptext="&komodoResourcesToolbar.tooltiptext;">
 					
-					<toolbaritem>
-					
-						<toolbarbutton id="komodoButtonCommunity"
-							tooltiptext="&komodoCommunity.tooltiptext;"
-							observes="cmd_helpCommunity"
-							persist="buttonstyle"
-							class="komodo-button-community"
-							buttonstyle="pictures"
-							label="&community.label;"/>
-						<toolbarbutton id="komodoButtonMaillist"
-							tooltiptext="&komodoEmailLists.tooltiptext;"
-							persist="buttonstyle"
-							buttonstyle="pictures"
-							observes="cmd_helpKomodoMailLists"
-							class="komodo-button-maillist"
-							label="&mailLists.label;"/>
-						<toolbarbutton id="komodoButtonBugDB"
-							tooltiptext="&komodoBugDatabase.tooltiptext;"
-							persist="buttonstyle"
-							buttonstyle="pictures"
-							class="komodo-button-bugs"
-							observes="cmd_helpViewBugs"
-							label="&bugs.label;"/>
-						
-					</toolbaritem>
-					
+                    <toolbaritem>
+
+                        <toolbarbutton id="komodoButtonCommunity"
+                                tooltiptext="&komodoCommunity.tooltiptext;"
+                                observes="cmd_helpCommunity"
+                                persist="buttonstyle"
+                                class="komodo-button-community"
+                                buttonstyle="pictures"
+                                label="&community.label;"/>
+                        <toolbarbutton id="komodoButtonMaillist"
+                                tooltiptext="&komodoEmailLists.tooltiptext;"
+                                persist="buttonstyle"
+                                buttonstyle="pictures"
+                                observes="cmd_helpKomodoMailLists"
+                                class="komodo-button-maillist"
+                                label="&mailLists.label;"/>
+                        <toolbarbutton id="komodoButtonBugDB"
+                                tooltiptext="&komodoBugDatabase.tooltiptext;"
+                                persist="buttonstyle"
+                                buttonstyle="pictures"
+                                class="komodo-button-bugs"
+                                observes="cmd_helpViewBugs"
+                                label="&bugs.label;"/>
+
+                    </toolbaritem>
+
                 </toolbar>
             </toolboxrow>
             
