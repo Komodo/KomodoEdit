@@ -56,6 +56,8 @@ _JS_STATE_EXP_MESSAGE = 0
 _JS_STATE_EXP_CODE = 1
 _JS_STATE_EXP_DOTS = 2
 
+_complained = {}
+
 class CommonJSLinter(object):
     _is_macro_re = re.compile("macro2?://")
 
@@ -479,7 +481,10 @@ class KoCoffeeScriptLinter(object):
         try:
             self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         except:
-            log.exception("KoCoffeeScriptLinter: can't get user path")
+            msg = "KoCoffeeScriptLinter: can't get user path"
+            if msg not in _complained:
+                _complained[msg] = None
+                log.exception(msg)
             self._userPath = None
         
     def lint(self, request):
@@ -496,8 +501,13 @@ class KoCoffeeScriptLinter(object):
             coffeeExe = which.which("coffee", path=self._userPath)
             if not coffeeExe:
                 return
+            if sys.platform.startswith("win") and os.path.exists(coffeeExe + ".cmd"):
+                coffeeExe += ".cmd"
         except which.WhichError:
-            log.exception("coffee not found")
+            msg = "coffee not found"
+            if msg not in _complained:
+                _complained[msg] = None
+                log.error(msg)
             return
         tmpfilename = tempfile.mktemp() + '.coffee'
         fout = open(tmpfilename, 'wb')
@@ -513,6 +523,7 @@ class KoCoffeeScriptLinter(object):
             warnLines = stderr.splitlines(0) # Don't need the newlines.
         except:
             log.exception("Problem running %s", coffeeExe)
+            warnLines = []
         finally:
             os.unlink(tmpfilename)
         ptn = re.compile(r'^Error: In (.*),\s*(.*) on line (\d+):\s*(.*)')
