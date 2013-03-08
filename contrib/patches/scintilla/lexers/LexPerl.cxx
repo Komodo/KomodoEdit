@@ -28,11 +28,13 @@ using namespace Scintilla;
 #endif
 
 inline bool safeIswordchar(int ch) {
-    return ch < 0 || iswordchar(ch);
+    // bug 98001: iswordchar allows '.'
+    return ch < 0 || IsAlphaNumeric(ch) || ch == '_';
 }
 
 inline bool safeIswordstart(int ch) {
-    return ch < 0 || iswordchar(ch);
+    // bug 98001: iswordchar allows '.' (and digits)
+    return ch < 0 || IsLowerCase(ch) || IsUpperCase(ch) || ch == '_';
 }
     
 
