@@ -84,8 +84,12 @@ containsElement: function(ancestor, element) {
         if (!ancestor || !element) {
             return false;
         }
-        if (element.ownerDocument !== ancestor.ownerDocument) {
-            return false;
+        while (element.ownerDocument !== ancestor.ownerDocument) {
+            // Different documents; check to see if the element is in a frame
+            if (!element.ownerDocument.defaultView.frameElement) {
+                return false;
+            }
+            element = element.ownerDocument.defaultView.frameElement;
         }
         return (ancestor === element) ||
                !!(ancestor.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_CONTAINED_BY);
