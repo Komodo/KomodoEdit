@@ -2,7 +2,7 @@
   "keyboard_shortcut": "", 
   "name": "def", 
   "value": [
-    "<% if (ko.snippets.rightOfFirstRubyKeyword()) {%>", 
+    "<% if (ko.snippets.rightOfFirstKeyword()) {%>", 
     "def [[%tabstop:name]][[%tabstop:([[%tabstop:args]])]]", 
     "\t[[%tabstop:#code]]", 
     "end<% } else {", 

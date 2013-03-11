@@ -2,7 +2,7 @@
   "keyboard_shortcut": "", 
   "name": "if", 
   "value": [
-    "<% if (ko.snippets.rightOfFirstRubyKeyword()) {%>", 
+    "<% if (ko.snippets.rightOfFirstKeyword()) {%>", 
     "if [[%tabstop:test]]", 
     "\t[[%tabstop:#code]]", 
     "end", 

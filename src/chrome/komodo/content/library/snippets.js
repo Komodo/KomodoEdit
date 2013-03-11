@@ -46,15 +46,19 @@ if (typeof(ko.snippets)=='undefined') {
     };
 
     this._leadingKeywordRE = /(?:^|[;=])\s*\w+$/;
-    this.rightOfFirstRubyKeyword =  function ko_snippet_rightOfFirstRubyKeyword() {
+    this.rightOfFirstKeyword =  function ko_snippet_rightOfFirstKeyword() {
         var text = this.getTextLine();
         return this._leadingKeywordRE.test(text);
     };
-    this.verifyAtRightOfFirstRubyKeyword = function ko_snippet_verifyAtRightOfFirstRubyKeyword() {
-        if (!this.rightOfFirstRubyKeyword()) {
+    this.verifyAtRightOfFirstKeyword = function ko_snippet_verifyAtRightOfFirstKeyword() {
+        if (!this.rightOfFirstKeyword()) {
             throw new ko.snippets.RejectedSnippet("not at start of line");
         }
     };
+    // Bug 98056: these checks are for Perl, not just Ruby, so use a
+    // more generic name, but support the old name for compatibility.
+    this.rightOfFirstRubyKeyword = this.rightOfFirstKeyword;
+    this.verifyAtRightOfFirstRubyKeyword = this.verifyAtRightOfFirstKeyword;
 
     this.inPythonClass =  function ko_snippet_inPythonClass() {
         // Move up, looking for a line that starts with 'class', but not 'def'

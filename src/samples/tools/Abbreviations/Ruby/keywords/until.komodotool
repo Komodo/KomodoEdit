@@ -2,7 +2,7 @@
   "keyboard_shortcut": "", 
   "name": "until", 
   "value": [
-    "<% if (ko.snippets.rightOfFirstRubyKeyword()) {%>", 
+    "<% if (ko.snippets.rightOfFirstKeyword()) {%>", 
     "until [[%tabstop:test]]", 
     "\t[[%tabstop:#code]]", 
     "end", 

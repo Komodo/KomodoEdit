@@ -2,9 +2,13 @@
   "keyboard_shortcut": "", 
   "name": "while", 
   "value": [
+    "<% if (ko.snippets.rightOfFirstKeyword()) {%>", 
     "while [[%soft:(]][[%tabstop:EXPR]][[%soft:) {]]",
     "\t[[%tabstop]]", 
     "}"
+    "<% } else {", 
+    "  throw new ko.snippets.RejectedSnippet(\"not at start of line\");", 
+    "   } %>", 
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 

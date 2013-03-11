@@ -2,7 +2,7 @@
   "keyboard_shortcut": "", 
   "name": "while", 
   "value": [
-    "<% if (ko.snippets.rightOfFirstRubyKeyword()) {%>", 
+    "<% if (ko.snippets.rightOfFirstKeyword()) {%>", 
     "while [[%tabstop:test]]", 
     "\t[[%tabstop:#code]]", 
     "end<% } else {", 

@@ -2,7 +2,7 @@
   "keyboard_shortcut": "", 
   "name": "when", 
   "value": [
-    "<% if (ko.snippets.rightOfFirstRubyKeyword()) {%>", 
+    "<% if (ko.snippets.rightOfFirstKeyword()) {%>", 
     "when [[%tabstop:test]]", 
     "\t[[%tabstop:#code]]<% } else {", 
     "  throw new ko.snippets.RejectedSnippet(\"not at start of line\");", 
