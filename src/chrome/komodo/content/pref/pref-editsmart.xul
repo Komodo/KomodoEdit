@@ -82,7 +82,7 @@
                 edgeCheckbox.setAttribute('label', highlightCharactersBeyondEdgeLine);
             }
             widgets.autoAbbreviationTriggerCharacters = document.getElementById("autoAbbreviationTriggerCharacters");
-            widgets.autoAbbreviationTriggerCharacters_value = widgets.autoAbbreviationTriggerCharacters.value;
+            widgets.autoAbbreviationTriggerCharacters_FactorySetting = prefset.getStringPref("autoAbbreviationTriggerCharacters_FactorySetting");
             widgets.restoreAutoAbbreviationTriggerCharacters = document.getElementById("restoreAutoAbbreviationTriggerCharacters");
             check_trigger_characters_changed();
         } catch (ex) {
@@ -149,12 +149,12 @@
     }
     
     function pref_autoAbbreviations_restoreDefaults() {
-        widgets.autoAbbreviationTriggerCharacters.value = widgets.autoAbbreviationTriggerCharacters_value;
+        widgets.autoAbbreviationTriggerCharacters.value = widgets.autoAbbreviationTriggerCharacters_FactorySetting;
         check_trigger_characters_changed();
     }
 
     function check_trigger_characters_changed() {
-        widgets.restoreAutoAbbreviationTriggerCharacters.disabled = widgets.autoAbbreviationTriggerCharacters_value == widgets.autoAbbreviationTriggerCharacters.value;
+        widgets.restoreAutoAbbreviationTriggerCharacters.disabled = widgets.autoAbbreviationTriggerCharacters_FactorySetting == widgets.autoAbbreviationTriggerCharacters.value;
     }
 
     ]]>
