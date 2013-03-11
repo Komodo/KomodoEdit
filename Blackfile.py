@@ -2541,7 +2541,7 @@ def BuildCrashReportSymbols(cfg):
         moz_crashreporter_src_dir = join(cfg.mozSrc, "mozilla", "toolkit",
                                          "crashreporter")
         py_symbol_script = join(moz_crashreporter_src_dir, "tools", "symbolstore.py")
-        options = ""
+        options = "-c"
         if sys.platform.startswith("win"):
             if not cfg.compiler.startswith("vc"):
                 raise black.BlackError("unexpected compiler %r" % (cfg.compiler, ))
@@ -2549,7 +2549,7 @@ def BuildCrashReportSymbols(cfg):
             dump_symbols_exe = join(moz_crashreporter_src_dir, "tools", "win32",
                                     "dump_syms_vc%d.exe" % (msc_ver, ))
         else:
-            options = "-a i386"   # the wanted architecture
+            options += " -a " + cfg.architecture   # the wanted architecture
             dump_symbols_exe = join(cfg.mozDist, "host", "bin", "dump_syms")
         cmd = ["python",
                py_symbol_script,       # python script to generate symbol info
