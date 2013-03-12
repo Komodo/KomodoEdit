@@ -260,7 +260,7 @@
 	<key>CFBundleIconFile</key>
 	<string>komodo.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.activestate.Komodo</string>
+	<string>com.activestate.PP_KO_APPDATADIR_NAME</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
