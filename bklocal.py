@@ -3138,7 +3138,7 @@ class InstallRelDir(black.configure.Datum):
             assert ' ' not in productName
             komodoMarketingVersion = black.configure.items["komodoMarketingVersion"].Get()
             buildNum = black.configure.items["buildNum"].Get()
-            platName = _getDefaultPlatform()
+            platName = _getDefaultPlatform(macUniversal=False)
             base = "%s-%s-%s-%s" % (productName, komodoMarketingVersion,
                                       buildNum, platName)
             self.value = os.path.join("install", buildType, base)
