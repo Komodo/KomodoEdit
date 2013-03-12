@@ -56,16 +56,16 @@ interface koILastErrorService : nsISupports {
     //      those calling getLastError, if it is not intended to be used
     //      then zero (0) should be used.
     //  "message" is a description of the error.
-    void setLastError(in long code, in wstring message);
+    void setLastError(in nsresult code, in wstring message);
 
     // Get the last error for the calling thread.
     // If no error has ever been set for this thread then (0, '') is
     // returned.
-    void getLastError(out long code, out wstring message);
+    void getLastError(out nsresult code, out wstring message);
 
     // Convenience functions because XPCOM methods with multiple out
     // parameters are a pain to use in JavaScript.
-    long getLastErrorCode();
+    nsresult getLastErrorCode();
     wstring getLastErrorMessage();
 };
 
