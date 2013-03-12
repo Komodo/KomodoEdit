@@ -1356,7 +1356,7 @@ def _PackageKomodoDMG(cfg):
     for original_dir in ditto_these_dirs:
         # Strip into a new directory, then copy back the stripped parts.
         stripped_dir = "%s.stripped" % (original_dir, )
-        _run('ditto --rsrc --arch i386 --arch x86_64 "%s" "%s"' % (original_dir, stripped_dir))
+        _run('ditto --rsrc --arch x86_64 "%s" "%s"' % (original_dir, stripped_dir))
         _rmtree(original_dir)
         os.rename(stripped_dir, original_dir)
 
