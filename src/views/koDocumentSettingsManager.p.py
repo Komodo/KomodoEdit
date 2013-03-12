@@ -413,12 +413,10 @@ class koDocumentSettingsManager:
             for scintilla in self._scintillas:
                 scimoz = scintilla.scimoz
                 scimoz.wrapMode = editWrapType
-                scimoz.layoutCache = scimoz.SC_CACHE_PAGE
         else:
             for scintilla in self._scintillas:
                 scimoz = scintilla.scimoz
                 scimoz.wrapMode = scimoz.SC_WRAP_NONE
-                scimoz.layoutCache = scimoz.SC_CACHE_NONE
 
     def _apply_editWordWrapMarker(self, prefSet):
         editWordWrapMarker= prefSet.getLongPref('editWordWrapMarker')

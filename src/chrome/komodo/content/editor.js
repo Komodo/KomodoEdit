@@ -444,14 +444,12 @@ editor_editorController.prototype.do_cmd_wordWrap = function() {
     }
     if (scimoz.wrapMode == scimoz.SC_WRAP_NONE) {
         scimoz.wrapMode = scimoz.SC_WRAP_WORD;
-        scimoz.layoutCache = scimoz.SC_CACHE_PAGE;
     } else {
         // Bug 97600:
         // Scintilla doesn't update scimoz.firstVisibleLine,
         // but it needs to point it to the docLine
         var docFirstLine = scimoz.docLineFromVisible(scimoz.firstVisibleLine);
         scimoz.wrapMode = scimoz.SC_WRAP_NONE;
-        scimoz.layoutCache = scimoz.SC_CACHE_NONE;
         // Bug 97600: If lines are folded above the original firstVisibleLine,
         // we need to let the editor redraw everything before we can rely
         // on the visibleFromDocLine function.
