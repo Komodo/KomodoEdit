@@ -118,14 +118,14 @@ def _capture_stdout(argv, ignore_retval=False, cwd=None):
     return stdout
 
 
-def _getValidPlatforms(linuxDistro=False):
+def _getValidPlatforms(linuxDistro=False, macUniversal=True):
     """Return a list of platforms for which Mozilla can be built from
     the current machine.
 
-        "linuxDistro" is a boolean indicating if that
-            condition should be included in the platform start (in the
-            <config> part). By default they are all false.
-    
+    @param linuxDistro {bool} Indicates if linux distro should be included
+        in the name.
+    @param macUniversal {bool} Indicates if the package/whatever using this
+        platform name is universal (i.e. shouldn't include the arch).
     """
     validPlats = []
     if sys.platform == "win32":
@@ -162,21 +162,33 @@ def _getValidPlatforms(linuxDistro=False):
             raise ConfigureError("unknown Solaris architecture: '%s'"
                                  % uname[4])
     elif sys.platform == "darwin":
-        validPlats = ["macosx"]
+        if macUniversal:
+            validPlats = ["macosx"]
+        else:
+            uname = os.uname()
+            if uname[-1] == 'i386':
+                validPlats = ["macosx-x86"]
+            elif uname[-1] == 'x86_64':
+                validPlats = ["macosx-x86_64"]
+            else:
+                raise ConfigureError("unexpected macosx architecture: '%s'"
+                                     % uname[4])
     return validPlats
 
 
-def _getDefaultPlatform(linuxDistro=False):
+def _getDefaultPlatform(linuxDistro=False, macUniversal=True):
     """Return an appropriate default target platform for the current machine.
     
-        "linuxDistro" is a boolean indicating if that
-            condition should be included in the platform start (in the
-            <config> part). By default they are all false.
+    @param linuxDistro {bool} Indicates if linux distro should be included
+        in the name.
+    @param macUniversal {bool} Indicates if the package/whatever using this
+        platform name is universal (i.e. shouldn't include the arch).
     
-    A "platform" is a string of the form "<os>[-<config>]-<arch>".
+    A "platform" is a string of the form "<os>[-<config>][-<arch>]".
     """
     try:
-        return _getValidPlatforms(linuxDistro=linuxDistro)[0]
+        return _getValidPlatforms(linuxDistro=linuxDistro,
+                                  macUniversal=macUniversal)[0]
     except IndexError, ex:
         raise ConfigureError("cannot build mozilla on this platform: '%s'"
                              % sys.platform)
