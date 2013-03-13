@@ -1749,6 +1749,7 @@ viewManager.prototype.do_cmd_goToDefinition = function() {
         // We do it asynchronously
         var ctlr = Components.classes["@activestate.com/koCodeIntelEvalController;1"].
                     createInstance(Components.interfaces.koICodeIntelEvalController);
+        // This calls CompletionUIHandler._setDefinitionsInfo when done
         ctlr.set_ui_handler(view.ciCompletionUIHandler);
         ciBuf.async_eval_at_trg(trg, ctlr);
     }
