@@ -130,7 +130,7 @@ var _lastNotificationTime = 0; // last time user interacted with statusbar notif
  */
 function _handle_notification(data) {
     try {
-        if (!ko.prefs.getBoolean("message_notifications_enabled")) {
+        if (!ko.prefs.getBoolean("message_notifications_enabled", true)) {
             return;
         }
         var notificationDetails = JSON.parse(data);
