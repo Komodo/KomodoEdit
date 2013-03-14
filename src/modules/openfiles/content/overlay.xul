@@ -29,6 +29,14 @@
                  type="checkbox"
                  desc="&viewEditorTabs.label;"
                  oncommand="ko.openfiles.toggleTabBar()"/>
+    <broadcaster id="cmd_toggleOpenFiles" key="key_cmd_toggleOpenFiles"
+                 desc="&userInterfaceShowHideOpenFilesTab.desc;"
+                 autoCheck="false"
+                 oncommand="ko.openfiles.togglePane()"/>
+    <broadcaster id="cmd_focusOpenFiles" key="key_cmd_focusOpenFiles"
+                 desc="&userInterfaceFocusOpenFilesTab.desc;"
+                 autoCheck="false"
+                 oncommand="ko.openfiles.togglePane(false)"/>
   </broadcasterset>
   
   <menupopup id="popup_view">

@@ -1,3 +1,6 @@
 <!ENTITY openFiles.label "Open Files">
 <!ENTITY viewEditorTabs.label "View Editor Tabs">
 <!ENTITY closeFile.tooltip "Close File">
+
+<!ENTITY userInterfaceShowHideOpenFilesTab.desc "User Interface: Show/Hide Open Files Pane">
+<!ENTITY userInterfaceFocusOpenFilesTab.desc "User Interface: Focus on Open Files Pane">

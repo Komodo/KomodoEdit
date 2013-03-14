@@ -102,6 +102,18 @@ if (typeof ko.openfiles == 'undefined')
             this.bindListeners();
             this.reload();
         },
+
+        /**
+         * Toggle Open Files pane visibility
+         *
+         * @param {Boolean} collapseIfFocused   If true this will only focus the tab
+         *
+         * @returns {Boolean}
+         */
+        togglePane: function openfiles_togglePane(collapseIfFocused = true)
+        {
+          ko.uilayout.toggleTab('openfilesViewbox', collapseIfFocused);
+        },
         
         /**
          * Check if tab bar is visible
