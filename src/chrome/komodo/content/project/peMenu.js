@@ -611,6 +611,11 @@ function _fillToolbarFromPart(toolbar, part)
         button = _createToolbaritemFromPart(toolbar, part);
         toolbar.firstChild.appendChild(button);
     }
+
+    var toolboxRow = document.getElementById("main-toolboxrow");
+    if (toolboxRow) {
+        toolboxRow.dirty = true;
+    }
 }
 
 function _sortItems(a,b) {
