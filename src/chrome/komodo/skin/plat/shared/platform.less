@@ -93,19 +93,42 @@ tabpanels {
 .widget_splitter
 {
     -moz-appearance: none;
-    margin-top: 3px;
-    margin-bottom: 3px;
-    padding-top: 2px;
-    padding-bottom: 2px;
     background-image: none;
     background: transparent;
     border: 0;
     
-    & > hbox
+    &[orient="vertical"] // This splitter is in a vertical pane
     {
-	height: 1px;
-	background: @widget-splitter-background;
+        margin-top: 3px;
+        margin-bottom: 3px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+
+        & > box
+        {
+            -moz-box-orient: horizontal;
+            height: 1px;
+            background: @widget-splitter-background;
+        }
     }
+
+    &:not([orient="vertical"]) // This splitter is in a horizontal pane
+    {
+        position: relative;
+        z-index: 999;
+
+        margin-left: -2px;
+        margin-right: -3px;
+
+        & > box
+        {
+            -moz-box-orient: vertical;
+            width: 2px;
+            padding-left: 2px;
+            border-left: @panel-border;
+        }
+    }
+
 }
 
 #workspace_left_area, #workspace_right_area

@@ -206,9 +206,9 @@
                 
                 // Append hbox child to splitter so that we can flexibly style
                 // the splitter without having to resort to images or compromises
-                let hbox = this.ownerDocument.createElementNS(this.namespaceURI, "hbox");
-                hbox.setAttribute("flex", 1);
-                splitter.appendChild(hbox);
+                let box = this.ownerDocument.createElementNS(this.namespaceURI, "box");
+                box.setAttribute("flex", 1);
+                splitter.appendChild(box);
                 
                 tabpanel.insertBefore(splitter, widget);
                 splitter.addEventListener("contextmenu",
