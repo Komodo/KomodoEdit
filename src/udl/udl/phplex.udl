@@ -433,6 +433,7 @@ delimiter : keep_delimiter, paint(upto, SSL_STRING), => IN_SSL_IN_FOUND_HEREDOC_
 /\z/ : paint(upto, SSL_STRING)
 
 state IN_SSL_IN_HEREDOC_2:
+/\\./: # stay here, escape next char (usually a '$'): bug 98190
 /\$[$NMSTART][$NMCHAR]*/: paint(upto, SSL_STRING), paint(include, SSL_VARIABLE) #stay
 /$/ : => IN_SSL_IN_HEREDOC_1
 /\z/ : paint(upto, SSL_STRING)
