@@ -132,18 +132,16 @@ this.updateAutoAbbreviations = function updateAutoAbbreviations(event) {
 // sufficient. There is the (rare) TextMate tabTrigger that
 // mixes word and non-word chars.
 this._isWordChar_re = /[\w\d\-_=\+\.]/;
-this.getWordStart = function(scimoz, lastCharPos, isHTMLLanguage) {
+this.getWordStart = function(scimoz, lastCharPos, useWordBoundary) {
     var prevStyle = scimoz.getStyleAt(lastCharPos);
     var prevPos, firstPos = lastCharPos;
-    // Match characters, not styles, if we're in default html
-    var htmlCheck = (isHTMLLanguage && prevStyle == scimoz.SCE_UDL_M_DEFAULT);
     var prevChar;
     while (firstPos >= 1) {
         prevPos = scimoz.positionBefore(firstPos);
         if (prevStyle !== scimoz.getStyleAt(prevPos)) {
             break;
         }
-        if (htmlCheck) {
+        if (useWordBoundary) {
             prevChar = scimoz.getWCharAt(prevPos);
             if (!this._isWordChar_re.test(prevChar)) {
                 break;
@@ -184,17 +182,34 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
         if (pos < scimoz.currentPos) {
             pos = scimoz.currentPos;
         }
-        var prevPos = pos == 0 ? 0 : scimoz.positionBefore(pos);
-        var isHTMLLanguage = languageObj.isHTMLLanguage;
-        if (pos < scimoz.textLength
-            && pos > 0
-            && (scimoz.getStyleAt(prevPos) == scimoz.getStyleAt(pos)
-                && (!isHTMLLanguage
-                    || scimoz.getStyleAt(pos) != scimoz.SCE_UDL_M_DEFAULT
-                    || this._isWordChar_re.test(scimoz.getWCharAt(pos))))) {
-            // Don't expand if the cursor is not at the right of a possible
-            // abbreviation.
+        if (pos == 0) {
+            // No abbrevs in an empty buffer
             return false;
+        }
+        var prevPos = pos == 0 ? 0 : scimoz.positionBefore(pos);
+        // Don't expand if the cursor is not at the right of a possible
+        // abbreviation.
+        if (this._isWordChar_re.test(scimoz.getWCharAt(pos))) {
+            return false;
+        }
+        var currStyle = scimoz.getStyleAt(pos);
+        // Allow abbreviations in comments, strings, HTML default,
+        // and HTML PIs and cdata sections.
+        var useWordBoundary = false;
+        if (currStyle == scimoz.getStyleAt(prevPos)) {
+            // Normally we expect an abbrev to be in a different style
+            // from the current character, but this isn't the case in
+            // comments, strings, and a few specific HTML styles.
+            if (languageObj.getCommentStyles().indexOf(currStyle) >= 0
+                || languageObj.getStringStyles().indexOf(currStyle) >= 0
+                || languageObj.getNamedStyles("default").indexOf(currStyle) >= 0
+                || (languageObj.isHTMLLanguage && ([scimoz.SCE_UDL_M_PI,
+                                                    scimoz.SCE_UDL_M_CDATA].
+                                                   indexOf(currStyle) >= 0))) {
+                useWordBoundary = true;
+            } else {
+                return false;
+            }
         }
         if (scimoz.anchor == scimoz.currentPos) {
             // Only do abbreviation expansion if next to a word char,
@@ -206,7 +221,7 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
                 return false;
             }
         }
-        var wordStartPos = this.getWordStart(scimoz, prevPos, isHTMLLanguage);
+        var wordStartPos = this.getWordStart(scimoz, prevPos, useWordBoundary);
         abbrev = scimoz.getTextRange(wordStartPos, pos);
     }
     if (!lang || !sublang) {
@@ -282,7 +297,9 @@ this.expandAutoAbbreviation = function(currView) {
     if (allowedStyles.indexOf(prevStyle) == -1) {
         return false;
     }
-    var wordStartPos = this.getWordStart(scimoz, prevPos, languageObj.isHTMLLanguage);
+    var useWordBoundary = (languageObj.isHTMLLanguage
+                           && prevStyle == scimoz.SCE_UDL_M_DEFAULT);
+    var wordStartPos = this.getWordStart(scimoz, prevPos, useWordBoundary);
     var abbrev = scimoz.getTextRange(wordStartPos, currentPos);
     if (!this._checkPossibleAbbreviation(abbrev)) {
         return false;
