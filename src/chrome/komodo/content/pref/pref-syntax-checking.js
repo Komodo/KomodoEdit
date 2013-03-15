@@ -666,7 +666,15 @@ function python_setup() {
                     pylintStatusByExecutable[pythonExe] = res;
                 }
                 if (!(pythonExe in pyflakesStatusByExecutable)) {
-                    res = appInfoEx.haveModules(1, ['pyflakes.scripts.pyflakes']);
+                    res = null;
+                    try {
+                        res = sysUtils.Which("pyflakes");
+                    } catch(ex) {
+                        log.debug("which(pyflakes) failed: " + ex);
+                    }
+                    if (!res) {
+                        res = appInfoEx.haveModules(1, ['pyflakes.scripts.pyflakes']);
+                    }
                     pyflakesStatusByExecutable[pythonExe] = res;
                 }
                 languageInfo.Python.updateUI(pythonExe);

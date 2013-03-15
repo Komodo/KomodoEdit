@@ -51,6 +51,7 @@
 import os, sys
 import re, which
 import tempfile
+import time
 import process
 import koprocessutils
 from xpcom import components, nsError, ServerException
@@ -68,16 +69,27 @@ log = logging.getLogger('koPythonLinter')
 
 _leading_ws_re = re.compile(r'(\s*)')
 
+# Give identical complaints only once every 60 minutes
+_COMPLAINT_PERIOD = 60 * 60 # seconds
+# Map (path,message) => time
+_complaints = {}
+
+def _complainIfNeeded(messageKey, header, *parts):
+    timeNow = time.time()
+    if (messageKey not in _complaints
+        or (timeNow - _complaints[messageKey] > _COMPLAINT_PERIOD)):
+        log.error(header, *parts)
+        _complaints[messageKey] = timeNow
+
 def _getUserPath():
     return koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
 
-def _localTmpFileName(cwd):
+def _localTmpFileName():
     # Keep files out of places default view by prepending a "#"
     # Keep in mind that the pylint section strips out complains about
     # modules whose names start with '#'
     args = {'suffix':".py", 'prefix':"#"}
-    if cwd:
-        args["dir"] = cwd
+    
     # There are problems with the safer versions of tempfile:
     # tempfile.mkstemp returns an os-level file descriptor integer,
     # and using os.fdopen(fd, 'w') didn't create a writable object.
@@ -89,18 +101,14 @@ def _localTmpFileName(cwd):
     # when I try to write to them.
     # written up at http://bugs.python.org/issue11818
     tmpFileName = tempfile.mktemp(**args)
+    
     # Open files in binary mode. On windows, if we open in default text mode
     # CR/LFs  => CR/CR/LF, extra CR in each line.  Lines then get the wrong
     # line # reported with each message.
-    try:
-        fout = open(tmpFileName, 'wb')
-    except IOError:
-        if 'dir' not in args:
-            raise
-        # Bug 97854: cwd is most likely a readonly directory.
-        del args['dir']
-        tmpFileName = tempfile.mktemp(**args)
-        fout = open(tmpFileName, 'wb')
+     
+    # Related to bug97364: if we can't open the temporary file,
+    # just throw the exception. Something is very wrong if this happens.
+    fout = open(tmpFileName, 'wb')
     return fout, tmpFileName
 
 class _GenericPythonLinter(object):
@@ -115,16 +123,16 @@ class _GenericPythonLinter(object):
         text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)
 
-    def _get_fixed_env(self, prefset):
+    def _get_fixed_env(self, prefset, cwd=None):
         env = koprocessutils.getUserEnv()
         prefName = "%sExtraPaths" % self.language_name_lc
-        if not prefset.hasPref(prefName):
+        newParts = filter(bool, prefset.getString(prefName, "").split(os.pathsep))
+        if cwd:
+            newParts.append(cwd)
+        if not newParts:
             # Nothing to fix up
             return env
-        pythonPath = prefset.getStringPref(prefName)
-        if not pythonPath:
-            # Still nothing to fix up
-            return env
+        pythonPath = os.pathsep.join(newParts)
         pythonPathEnv = env.get("PYTHONPATH", "")
         if pythonPathEnv:
             pythonPath += os.pathsep + pythonPathEnv
@@ -134,7 +142,6 @@ class _GenericPythonLinter(object):
         return env
 
 class KoPythonCommonPyLintChecker(_GenericPythonLinter):
-    nonIdentChar_RE = re.compile(r'^\w_.,=')
     invalidModuleName_RE = re.compile(r'(C0103.*?Invalid name ")(.+?)(" \(should match )(.*)(\))')
     def lint_with_text(self, request, text):
         if not text:
@@ -147,53 +154,50 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
         if not pythonExe:
             return
         cwd = request.cwd
-        fout, tmpfilename = _localTmpFileName(cwd)
-        tmpBaseName = os.path.splitext(os.path.basename(tmpfilename))[0]
-        fout.write(text)
-        fout.close()
-        textlines = text.splitlines()
-        env = self._get_fixed_env(prefset)
-        rcfilePath = prefset.getStringPref(self.rcfile_prefname)
-        if rcfilePath and os.path.exists(rcfilePath):
-            if self.nonIdentChar_RE.search(rcfilePath):
-                rcfilePath = '"' + rcfilePath + '"'
-            extraArgs = [ "--rcfile=" + rcfilePath ]
-        else:
-            # Hardwire in these three messages:
-            extraArgs = []# [ "-d", "C0103", "-d" , "C0111", "-d", "F0401"]
-        preferredLineWidth = prefset.getLongPref("editAutoWrapColumn")
-        if preferredLineWidth > 0:
-            extraArgs.append("--max-line-length=%d" % preferredLineWidth)
-
-        baseArgs = [pythonExe, '-c', 'import sys; from pylint.lint import Run; Run(sys.argv[1:])']
-        cmd = baseArgs + ["-f", "text", "-r", "n", "-i", "y"] + extraArgs
-        # Put config file entry here: .rcfile=<file>
-        cmd.append(tmpfilename)
-        cwd = request.cwd or None
-        # We only need the stdout result.
+        fout, tmpfilename = _localTmpFileName()
         try:
-            p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
-            stdout, stderr = p.communicate()
-            if stderr:
-                origStderr = stderr
-                okStrings = ["No config file found, using default configuration",]
-                for okString in okStrings:
-                    idx = stderr.find(okString)
-                    if idx >= 0:
-                        stderr = stderr[:idx] + stderr[idx + len(okString):]
-                stderr = stderr.strip()
+            tmpBaseName = os.path.splitext(os.path.basename(tmpfilename))[0]
+            fout.write(text)
+            fout.close()
+            textlines = text.splitlines()
+            env = self._get_fixed_env(prefset, cwd)
+            rcfilePath = prefset.getStringPref(self.rcfile_prefname)
+            if rcfilePath and os.path.exists(rcfilePath):
+                extraArgs = [ '--config="%s"' % (rcfilePath,) ]
+            else:
+                extraArgs = []
+            preferredLineWidth = prefset.getLongPref("editAutoWrapColumn")
+            if preferredLineWidth > 0:
+                extraArgs.append("--max-line-length=%d" % preferredLineWidth)
+    
+            baseArgs = [pythonExe, '-c', 'import sys; from pylint.lint import Run; Run(sys.argv[1:])']
+            cmd = baseArgs + ["-f", "text", "-r", "n", "-i", "y"] + extraArgs
+            cmd.append(tmpfilename)
+            cwd = request.cwd or None
+            # We only need the stdout result.
+            try:
+                p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
+                stdout, stderr = p.communicate()
                 if stderr:
-                    log.error("Error in pylint: %s (reduced to %s)", origStderr, stderr)
-                    return
-            warnLines = stdout.splitlines(0) # Don't need the newlines.
-        except:
-            log.exception("Failed to run %s", cmd)
-            stdout = ""
-            warnLines = []
+                    origStderr = stderr
+                    okStrings = ["No config file found, using default configuration",]
+                    for okString in okStrings:
+                        stderr = stderr.replace(okString, "", 1)
+                    stderr = stderr.strip()
+                    if stderr:
+                        pathMessageKey = "%s-%s" % (request.koDoc.displayPath, origStderr)
+                        _complainIfNeeded(pathMessageKey,
+                                          "Error in pylint: %s", origStderr)
+                        return
+                warnLines = stdout.splitlines(0) # Don't need the newlines.
+            except:
+                log.exception("Failed to run %s", cmd)
+                stdout = ""
+                warnLines = []
         finally:
             os.unlink(tmpfilename)
         ptn = re.compile(r'^([A-Z])(\d+):\s*(\d+)(?:,\d+)?:\s*(.*)')
-        # dependency: _localTmpFileName(cwd) prepends a '#' on the basename
+        # dependency: _localTmpFileName() prepends a '#' on the basename
         #invalid_name_ptn = pe.compile(r'C0103:\s*[\d:,]+\s*Invalid name "#.+?"')
         results = koLintResults()
         for line in warnLines:
@@ -288,25 +292,24 @@ class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
         pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
         if not pythonExe:
             return
-        cwd = request.cwd
-        fout, tmpfilename = _localTmpFileName(cwd)
-        fout.write(text)
-        fout.close()
-        textlines = text.splitlines()
-        env = self._get_fixed_env(prefset)
         try:
             checkerExe = which.which("pyflakes", path=_getUserPath())
         except which.WhichError:
-            log.warn("pyflakes not found")
-            return
+            checkerExe = None
         if not checkerExe:
             log.warn("pyflakes not found")
             return
-            
-        cmd = [pythonExe, checkerExe, tmpfilename]
-        # stdout for pyflakes.checker.Checker
-        # stderr for __builtin__.compile()
+        fout, tmpfilename = _localTmpFileName()
         try:
+            fout.write(text)
+            fout.close()
+            textlines = text.splitlines()
+            cwd = request.cwd
+            env = self._get_fixed_env(prefset, cwd)
+            
+            cmd = [pythonExe, checkerExe, tmpfilename]
+            # stdout for pyflakes.checker.Checker
+            # stderr for __builtin__.compile()
             p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
             stdout, stderr = p.communicate()
             errorLines = stderr.splitlines(0) # Don't need the newlines.
@@ -347,7 +350,6 @@ class KoPythonCommonPycheckerLinter(_GenericPythonLinter):
       this one lints    your Python code using pychecker.
     """
         
-    nonIdentChar_RE = re.compile(r'^\w_.,=')
     def lint_with_text(self, request, text):
         if not text:
             return None
@@ -364,30 +366,33 @@ class KoPythonCommonPycheckerLinter(_GenericPythonLinter):
                 pychecker = pychecker + ".exe"
         if not os.path.exists(pychecker):
             return
-        cwd = request.cwd
-        fout, tmpfilename = _localTmpFileName(cwd)
-        fout.write(text)
-        fout.close()
-        textlines = text.splitlines()
-        env = self._get_fixed_env(prefset)
-        rcfilePath = prefset.getStringPref(self.rcfile_prefname)
-        if rcfilePath and os.path.exists(rcfilePath):
-            if self.nonIdentChar_RE.search(rcfilePath):
-                rcfilePath = '"' + rcfilePath + '"'
-            extraArgs = [ "--config=" + rcfilePath ]
-        else:
-            extraArgs = []
-            
-        cmd = [pychecker, "--keepgoing", "--only"] + extraArgs + [tmpfilename]
-        cwd = request.cwd or None
-        # We only need the stdout result.
+        fout, tmpfilename = _localTmpFileName()
         try:
+            fout.write(text)
+            fout.close()
+            textlines = text.splitlines()
+            cwd = request.cwd
+            env = self._get_fixed_env(prefset, cwd)
+            rcfilePath = prefset.getStringPref(self.rcfile_prefname)
+            if rcfilePath and os.path.exists(rcfilePath):
+                extraArgs = [ '--config="%s"' % (rcfilePath,) ]
+            else:
+                extraArgs = []
+                
+            cmd = [pychecker, "--keepgoing", "--only"] + extraArgs + [tmpfilename]
+            cwd = request.cwd or None
+            # We only need the stdout result.
             p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
             stdout, stderr = p.communicate()
             warnLines = stdout.splitlines(0) # Don't need the newlines.
             errorLines = stderr.splitlines(0)
         finally:
-            os.unlink(tmpfilename)
+            try:
+                os.unlink(tmpfilename)
+                 # pychecker leaves .pyc files around, so delete them as well
+                os.unlink(tmpfilename + "c")
+            except:
+                pass
         # Check raw output for an exception
         results = koLintResults()
         re_escaped_filename = re.escape(tmpfilename)
@@ -565,7 +570,7 @@ class KoPythonCommonLinter(_GenericPythonLinter):
             # Standard Python syntax-checking files can live in a tmp directory
             # because the checker doesn't attempt to verify or read imported
             # modules.
-            fout, tmpFileName = _localTmpFileName(None)
+            fout, tmpFileName = _localTmpFileName()
             fout.write(text)
             fout.close()
     
