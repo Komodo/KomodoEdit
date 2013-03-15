@@ -1574,26 +1574,15 @@
 
         <method name="restoreLocation">
         <parameter name="obj"/>
-        <parameter name="doTimeout"/>
         <body>
         <![CDATA[
-            if (typeof(doTimeout) == "undefined") doTimeout = true;
             var scimoz = this.scimoz;
             scimoz.currentPos = obj.currentPos;
             scimoz.anchor = obj.anchor;
             scimoz.selectionStart = obj.selectionStart;
             scimoz.selectionEnd = obj.selectionEnd;
-            var f = function() {
-                scimoz.firstVisibleLine = obj.firstVisibleLine;
-                scimoz.xOffset = obj.xOffset;
-            };
-            if (doTimeout) {
-                // Do this in a timeout because for saveAs, some other code will try
-                // to update the horiz and vert locations, and get it wrong.
-                setTimeout(f, 300);
-            } else {
-                f();
-            }
+	    scimoz.firstVisibleLine = obj.firstVisibleLine;
+	    scimoz.xOffset = obj.xOffset;
         ]]>
         </body>
         </method>

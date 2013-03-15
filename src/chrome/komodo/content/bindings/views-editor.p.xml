@@ -701,16 +701,10 @@
             scimoz.vScrollBar = false;
             minimap.classList.remove("hideMinimap");
             var obj = {};
-            this.saveLocation(obj);
             this.updateEditorViewBoundaries();
             
             this.updateMinimapFromViewFoldpoints();
             minimap.syncMinimapFromBuffer();
-            setTimeout(function() {
-                this.restoreLocation(obj, false/*inner doTimeout */);
-                //scimoz.gotoPos(currentPos);
-                //this.scintilla.focus();
-            }.bind(this), 1);
         } else {
             minimap.classList.add("hideMinimap");
             scimoz.vScrollBar = true;
