@@ -488,7 +488,7 @@
                      <hbox id="pylint3_checking_hbox_rcfile">
                        <textbox id="pylint3_checking_rcfile" pref="true"
                                 prefstring="pylint3_checking_rcfile" flex="1"/>
-                       <button id="pylint3_browse_rcfile" label="&browse.label;" oncommand="languageInfo.Python3.loadPylintRcfile();"/>
+                       <button id="pylint3_browse_rcfile" label="&browse.label;" oncommand="languageInfo.Python3.loadPylint3Rcfile();"/>
                     </hbox>
                   </vbox>
                   <separator class="thin"/>
