@@ -561,6 +561,10 @@ this.markClosedWindows = function() {
             loadedWindowNums[win._koNum] = 1;
         });
     for (var i = 0; i < lim; i++) {
+        if (windowWorkspacePref.getPrefType(prefIds[i]) != "object") {
+            log.warning("markClosedWindows: ignoring invalid pref " + prefIds[i]);
+            continue;
+        }
         pref = windowWorkspacePref.getPref(prefIds[i]);
         if (pref.hasLongPref("windowNum")) {
             var windowNum = pref.getLongPref("windowNum");

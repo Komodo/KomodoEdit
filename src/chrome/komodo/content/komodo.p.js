@@ -75,6 +75,10 @@ this.quitApplication = function() {
         ko.main.windowIsClosing = true;
         ko.workspace.markClosedWindows();
         saveWorkspaceIfNeeded();
+    } catch(ex) {
+        _log.exception(ex);
+    }
+    try {
         goQuitApplication();
     } catch(ex) {
         _log.exception(ex);
@@ -358,10 +362,10 @@ function onloadDelay() {
             // being smart enough to restore things twice.
             let prefs = ko.prefs;
             if (prefs.hasPref("windowWorkspace")) {
-                prefs = prefs.getPref("windowWorkspace");
-            }
-            if (prefs.hasPref("1")) {
-                prefs = prefs.getPref("1");
+                let workspacePrefs = prefs.getPref("windowWorkspace");
+                if (windowWorkspace.hasPref("1")) {
+                    prefs = windowWorkspace.getPref("1");
+                }
             }
             ko.widgets.restoreLayout(prefs);
         } else {
