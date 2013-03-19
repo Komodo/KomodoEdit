@@ -122,8 +122,7 @@ treechildren::-moz-tree-image(project-icon),
 }
 
 .less-icon, .more-icon {
-  margin: 0 0 0 5px;
-  cursor: pointer;
+  list-style-image: none !important;
 }
 
 vbox[anonid="quicklinks-right"]

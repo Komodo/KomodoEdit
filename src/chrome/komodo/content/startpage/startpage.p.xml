@@ -246,7 +246,8 @@
                 var box = document.getAnonymousElementByAttribute(this,
                                 "anonid", "children-box");
 
-                box.setAttribute("collapsed", "true");
+                // Disabled due to bug 98007
+                //box.setAttribute("collapsed", "true");
 
                 button.setAttribute("class", "more-icon");
                 button.setAttribute("tooltiptext",
@@ -280,8 +281,8 @@
                 var box = document.getAnonymousElementByAttribute(this,
                                 "anonid", "children-box");
 
-                if (box.hasAttribute("collapsed"))
-                    box.removeAttribute("collapsed");
+                //if (box.hasAttribute("collapsed"))
+                //    box.removeAttribute("collapsed");
 
                 button.setAttribute("class", "less-icon");
                 button.setAttribute("tooltiptext",
@@ -1088,9 +1089,7 @@
                 
                 obSvc.addObserver(this, 'mru_changed', false);
 
-                if (!ko.prefs.getBooleanPref("start_page_landing_box_closed")) {
-                    this.loadLandingPage();
-                }
+                this.loadLandingPage();
             } catch(ex) {
                 this.log.error("init error: "+ex);
             }

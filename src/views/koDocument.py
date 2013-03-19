@@ -296,7 +296,7 @@ class koDocumentBase:
         if not encoding_name:
             if self._language:
                 language = self._language
-            elif self.prefs.hasPref('language'):
+            elif self.prefs.hasPrefHere('language'):
                 language = self.prefs.getStringPref('language')
             else:
                 language = None
@@ -304,7 +304,7 @@ class koDocumentBase:
         self.encoding.python_encoding_name = self.encodingServices.get_canonical_python_encoding_name(
             self.encodingServices.get_encoding_info(encoding_name).python_encoding_name)
 
-        if self.prefs.hasPref('language'):
+        if self.prefs.hasPrefHere('language'):
             #print "found language in prefs: ", self.prefs.getStringPref('language')
             self.set_language(self.prefs.getStringPref('language'))
 
