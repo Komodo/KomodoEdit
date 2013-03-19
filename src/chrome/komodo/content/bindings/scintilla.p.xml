@@ -295,6 +295,7 @@
                             obj = {};
                         this._ime.style.setProperty("margin-left", x + "px", "important");
                         this._ime.style.setProperty("margin-top", y + "px", "important");
+                        this._ime.hasAction = false;
                         scimoz.beginUndoAction();
                     } catch (ex) {
                         this.log.exception(ex);
@@ -304,11 +305,12 @@
                     let pos = this.scimoz.selectionStart;
                     this.scimoz.replaceSel(event.data);
                     this.scimoz.anchor = pos;
+                    this._ime.hasAction = true;
                 }).bind(this), false);
                 this._ime.addEventListener("compositionend", (function(event) {
                     this.scimoz.anchor = this.scimoz.selectionEnd;
                     this.scimoz.endUndoAction();
-                    if (!this._ime.value) {
+                    if (!this._ime.value && this._ime.hasAction) {
                         // cancelled
                         this.scimoz.undo();
                     }
