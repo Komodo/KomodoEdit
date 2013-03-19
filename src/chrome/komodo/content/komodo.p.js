@@ -363,8 +363,8 @@ function onloadDelay() {
             let prefs = ko.prefs;
             if (prefs.hasPref("windowWorkspace")) {
                 let workspacePrefs = prefs.getPref("windowWorkspace");
-                if (windowWorkspace.hasPref("1")) {
-                    prefs = windowWorkspace.getPref("1");
+                if (workspacePrefs.hasPref("1")) {
+                    prefs = workspacePrefs.getPref("1");
                 }
             }
             ko.widgets.restoreLayout(prefs);
