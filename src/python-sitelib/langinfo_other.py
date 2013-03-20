@@ -67,15 +67,15 @@ class CSSLangInfo(_CSSLangInfoCommon):
 
 class SCSSLangInfo(_CSSLangInfoCommon):
     name = "SCSS"
-    exts = [".scss"]
+    exts = [".scss", ".css.scss"]
 
 class LessLangInfo(_CSSLangInfoCommon):
     name = "Less"
-    exts = [".less"]
+    exts = [".less", ".css.less"]
 
 class SassLangInfo(_CSSLangInfoCommon):
     name = "Sass"
-    exts = [".sass"]
+    exts = [".sass", ".css.sass"]
     section_regexes = [
         ("production", re.compile(r"^(\w\S+?),?", re.M)),
     ]
