@@ -28,6 +28,7 @@ if ( ! ("less" in ko))
     const { Services }      =   Cu.import("resource://gre/modules/Services.jsm", {});
     const { FileUtils }     =   Cu.import("resource://gre/modules/FileUtils.jsm", {});
     const { NetUtil }       =   Cu.import("resource://gre/modules/NetUtil.jsm", {});
+    const { logging }       =   Cu.import("chrome://komodo/content/library/logging.js", {});
     
     const nsIChromeReg      =   Cc['@mozilla.org/chrome/chrome-registry;1']
                                     .getService(Ci["nsIChromeRegistry"]);
@@ -53,16 +54,8 @@ if ( ! ("less" in ko))
         init: function ko_less_init() 
         {
             self = this;
-            
-            if ( ! ("logging" in ko))
-            {
-                // Wait for logging to be ready, at least while this library
-                // is still new
-                setTimeout(this.init.bind(this), 50);
-                return;
-            }
-            
-            log = ko.logging.getLogger('ko.less');
+
+            log = logging.getLogger('ko.less');
             
             this.debug('Initializing ko.less');
             
