@@ -2097,6 +2097,10 @@
                                tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
                                oncommand="ko.findtoolbar.addBrowsedDirectory();"/>
             </toolbar>
+            <!-- #if PLATFORM == "darwin" -->
+                <toolbarbutton id="fullscreen-restore-button" fullscreencontrol="true"
+                               oncommand="ko.uilayout.fullScreen();"/>
+            <!-- #endif -->
         </hbox>
 
         <toolbarpalette id="komodo-toolbarpalette"/>

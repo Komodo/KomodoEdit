@@ -47,6 +47,8 @@ ko.main = {};
 
 (function() { /* ko.main */
 
+const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+
 var _log = ko.logging.getLogger("ko.main");
 // a default logger that can be used anywhere (ko.main.log)
 //_log.setLevel(ko.logging.LOG_DEBUG);
@@ -441,6 +443,25 @@ function _check_native_mozicon_availability() {
     }, 0);
 }
 
+/**
+ * Set constant attributes for CSS
+ */
+function _set_docelement_css_classes() {
+    var sysInfo = Cc["@mozilla.org/system-info;1"].getService(Ci.nsIPropertyBag2);
+    var elem = document.documentElement;
+    const props = {
+        "os-name": "name",
+        "os-version": "version",
+        "cpu-arch": "arch",
+    };
+    for (let [attr, prop] in Iterator(props)) {
+        let value = sysInfo.get(prop);
+        if (value !== null) {
+            elem.setAttribute(attr, value);
+        }
+    }
+}
+
 window.onload = function(event) {
     _log.debug(">> window.onload");
     //dump(">>> window.onload\n");
@@ -456,6 +477,13 @@ window.onload = function(event) {
 
         /* services needed for even the most basic operation of komodo */
         ko.keybindings.onload();
+
+        /* set up things needed for CSS */
+        try {
+            _set_docelement_css_classes();
+        } catch(ex) {
+            _log.exception(ex);
+        }
 
         window.setTimeout(function() {
             // These routines use the handlers defined in this module.

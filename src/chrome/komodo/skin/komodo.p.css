@@ -119,6 +119,23 @@
   list-style-image: url("chrome://global/skin/icons/Close.gif");
 }
 
+/* #if PLATFORM == "darwin" */
+/* OS X 10.6 is Darwin 10.* */
+:root:not([os-version^="10."]) #fullscreen-restore-button {
+  display: none;
+}
+#fullscreen-restore-button {
+  list-style-image: url("chrome://global/skin/media/fullscreenButton.png");
+  -moz-image-region: rect(0px, 32px, 16px, 16px);
+}
+@media screen and (min-resolution: 2dppx) {
+  #fullscreen-restore-button {
+    list-style-image: url("chrome://global/skin/media/fullscreenButton@2x.png");
+    -moz-image-region: rect(0px, 64px, 32px, 32px);
+  }
+}
+/* #endif */
+
 toolbar[printpreview="true"] {
   -moz-binding: url("chrome://global/content/printPreviewBindings.xml#printpreviewtoolbar");
 }
