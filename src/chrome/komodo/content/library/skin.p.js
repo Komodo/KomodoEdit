@@ -52,13 +52,13 @@ var _lessClearCache = undefined;
     
     ko.skin.prototype  =
     {
-        PREF_CUSTOM_ICONS: 	PREF_CUSTOM_ICONS,
-	PREF_CUSTOM_SKIN: 	PREF_CUSTOM_SKIN,
-	PREF_USE_GTK_DETECT: 	PREF_USE_GTK_DETECT,
-	
-	skinHasChanged: false,
-	iconsetHasChanged: false,
-	
+        PREF_CUSTOM_ICONS:      PREF_CUSTOM_ICONS,
+        PREF_CUSTOM_SKIN:       PREF_CUSTOM_SKIN,
+        PREF_USE_GTK_DETECT:    PREF_USE_GTK_DETECT,
+        
+        skinHasChanged: false,
+        iconsetHasChanged: false,
+        
         /**
          * Constructor
          *
@@ -97,77 +97,39 @@ var _lessClearCache = undefined;
          */
         observe: function(subject, topic, data)
         {
-            switch (topic)
+            if ([PREF_CUSTOM_ICONS,PREF_CUSTOM_SKIN].indexOf(topic)!=-1)
             {
-                // Handle skin changes
-                case PREF_CUSTOM_ICONS:
-                case PREF_CUSTOM_SKIN:
-
-                    // Skip if the value hasn't changed
-                    let value = prefs.getString(topic, '');
-                    if (value == prefOld[topic])
-                    {
-                        return;
-                    }
-		    
-                    // Unload the previous skin
-                    try {
-                        var file = self._getFile(prefOld[topic], true);
-                        self.unloadCustomSkin(file);
-                    } catch (e) {}
-                    
-                    // Store new value for future updates
-                    prefOld[topic] = value;
-                    
-                    // Reload relevant skin
-                    if (topic == PREF_CUSTOM_SKIN)
-                    {
-			self.skinHasChanged = true;
-                        self.loadPreferredSkin();
-                    }
-                    else if (topic == PREF_CUSTOM_ICONS)
-                    {
-			self.iconsetHasChanged = true;
-                        self.loadPreferredIcons();
-                    }
-                    
-                    break;
-                
-                // Handle GTK detection toggle
-                case PREF_USE_GTK_DETECT:
-                    
-                    // Skip if value hasn't really changed or if gtk is not enabled
-                    let enabled = prefs.getBoolean(topic, true);
-                    if ( ! self.gtk.enabled || enabled == prefOld[topic])
-                    {
-                        return;
-                    }
-                    
-                    // Unload current skin
-                    try {
-                        var file = self._getFile(prefOld[PREF_CUSTOM_SKIN], true);
-                        this.unloadCustomSkin(file);
-                    } catch (e) {}
-                    
-                    // Store new value for future updates
-                    prefOld[topic] = enabled;
-                    
-                    self.gtk.koSkin = null;
-                    
-                    // Detect new skin info
-                    if (enabled)
-                    {
-                        self.gtk.loadDetectedTheme();
-                    }
-                    
-                    break;
-                default:
+                // Skip if the value hasn't changed
+                let value = prefs.getString(topic, '');
+                if (value == prefOld[topic])
+                {
                     return;
-                    break;
+                }
+
+                // Unload the previous skin
+                try {
+                    var file = self._getFile(prefOld[topic], true);
+                    self.unloadCustomSkin(file);
+                } catch (e) {}
+
+                // Store new value for future updates
+                prefOld[topic] = value;
+
+                // Reload relevant skin
+                if (topic == PREF_CUSTOM_SKIN)
+                {
+                    self.skinHasChanged = true;
+                    self.loadPreferredSkin();
+                }
+                else if (topic == PREF_CUSTOM_ICONS)
+                {
+                    self.iconsetHasChanged = true;
+                    self.loadPreferredIcons();
+                }
             }
             
         },
-	
+
         /**
          * Get nsILocalFile from path
          * 
@@ -234,34 +196,34 @@ var _lessClearCache = undefined;
          */
         loadPreferredIcons: function()
         {
-	    var file = false;
-	    var iconset = prefs.getString(PREF_CUSTOM_ICONS,'');
-
-	    if (iconset != '')
-	    {
-		file = this._getFile(iconset);
-	    }
-
-	    if (iconset == '' || (file && ! file.exists()))
-	    {
-		Components.utils.import("resource://gre/modules/Services.jsm");
-		file = Services.io.newURI("resource://app/chrome/iconsets/" +
+            var file = false;
+            var iconset = prefs.getString(PREF_CUSTOM_ICONS,'');
+    
+            if (iconset != '')
+            {
+                file = this._getFile(iconset);
+            }
+    
+            if (iconset == '' || (file && ! file.exists()))
+            {
+                Components.utils.import("resource://gre/modules/Services.jsm");
+                file = Services.io.newURI("resource://app/chrome/iconsets/" +
 // #if PLATFORM == "darwin"
-					      "cupertino" +
+                              "cupertino" +
 // #else
-					      "dark" +
+                              "dark" +
 // #endif
-					      "/chrome.manifest", null,null)
-			    .QueryInterface(Components.interfaces.nsIFileURL).file;
-		prefs.setStringPref(PREF_CUSTOM_ICONS, file.path);
-	    }
+                              "/chrome.manifest", null,null)
+                    .QueryInterface(Components.interfaces.nsIFileURL).file;
+                prefs.setStringPref(PREF_CUSTOM_ICONS, file.path);
+            }
 
             if ( ! file || ! file.exists())
             {
                 return;
             }
-	    
-	    this.loadCustomSkin(file);
+            
+            this.loadCustomSkin(file);
         },
         
         /**
@@ -306,31 +268,31 @@ var _lessClearCache = undefined;
             }
             catch (e)
             {
-               log.error("Failed loading manifest: '" + file.path + "'. " + e.message);
-	       return false;
+                log.error("Failed loading manifest: '" + file.path + "'. " + e.message);
+                return false;
             }
             
             if (this.skinHasChanged)
             {
                 this.clearCache();
             }
-	    
-	    var initFile = file.parent;
-	    initFile.appendRelativePath('init.js');
-	    if (initFile.exists())
-	    {
-		try
-		{
+            
+            var initFile = file.parent;
+            initFile.appendRelativePath('init.js');
+            if (initFile.exists())
+            {
+                try
+                {
                     let uri = Services.io.newFileURI(initFile);
                     Services.scriptloader.loadSubScript(uri.spec, {koSkin: this});
-		}
-		catch (e)
-		{
-		    log.error("Failed loading skin init: '" + initFile.path + "'. " + e.message);
-		}
-	    }
-        },
-	
+                }
+                catch (e)
+                {
+                    log.error("Failed loading skin init: '" + initFile.path + "'. " + e.message);
+                }
+            }
+         },
+         
         /**
          * Unload a custom skin
          * 
@@ -463,10 +425,8 @@ var _lessClearCache = undefined;
                 this.getThemeInfo(this._loadTheme.bind(this), function() 
                 {
                     // Retrieving theme failed
-                    if (prefs.getString(PREF_CUSTOM_SKIN, '') != '')
-                    {
-                        prefs.setStringPref(PREF_CUSTOM_SKIN,'');
-                    }
+                    prefs.setStringPref(PREF_CUSTOM_SKIN,'');
+                    prefs.setStringPref(PREF_CUSTOM_ICONS,'');
                 }.bind(this));
             },
             
@@ -484,21 +444,11 @@ var _lessClearCache = undefined;
                     return;
                 }
                 
-                Components.utils.import("resource://gre/modules/Services.jsm");
-
-                try
-                {
-                    var file = Services.io.newURI("resource://app/chrome/skins/gtk-"+themeInfo.name+"/chrome.manifest", null,null)
-                                .QueryInterface(Components.interfaces.nsIFileURL).file;
-                    
-                    if ( ! file.exists())
-                    {
-                        throw new Error;
-                    }
-                }
-                catch(e)
+                var file = this.resolveSkin(themeInfo);
+                if ( ! file)
                 {
                     prefs.setStringPref(PREF_CUSTOM_SKIN,'');
+                    prefs.setStringPref(PREF_CUSTOM_ICONS,'');
                     return;
                 }
                 
@@ -508,6 +458,28 @@ var _lessClearCache = undefined;
                 }
             },
             
+            /**
+             * Use the provided theme info to resolve to a relevant komodo skin
+             *
+             * @param   {Object} themeInfo Theme information object (contains name key)
+             *
+             * @returns {Boolean|nsIFile}
+             */
+            resolveSkin: function(themeInfo)
+            {
+                Components.utils.import("resource://gre/modules/Services.jsm");
+
+                var file = Services.io.newURI("resource://app/chrome/skins/gtk-"+themeInfo.name+"/chrome.manifest", null,null)
+                            .QueryInterface(Components.interfaces.nsIFileURL).file;
+
+                if ( ! file.exists())
+                {
+                    return false;
+                }
+
+                return file;
+            },
+
             /**
              * Retrieve gtk theme information
              * 

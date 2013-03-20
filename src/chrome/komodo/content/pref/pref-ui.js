@@ -31,14 +31,36 @@ function PrefUi_OnLoad() {
     };
     
     // Load Icons
-    var items = document.querySelectorAll('#koSkin_custom_icons menuitem');
+    var iconSelector    = document.getElementById('koSkin_custom_icons');
+    var items           = iconSelector.querySelectorAll('menuitem');
     parseItems(items, 'iconsets');
 
     // Load Skins
-    items = document.getElementById('koSkin_custom_skin')
-                            .querySelectorAll('menuitem');
+    var skinSelector    = document.getElementById('koSkin_custom_skin')
+    items               = skinSelector.querySelectorAll('menuitem');
     parseItems(items, 'skins');
     
+    /*
+     * Update the selected icon set relative to the selected skin
+     */
+    var updateIconSetSel = function()
+    {
+        var iconSet = skinSelector.selectedItem.getAttribute('iconset');
+        if ( ! iconSet)
+        {
+            return;
+        }
+
+        var iconSetElem = iconSelector.querySelector('menuitem#pref_appearance_iconset_' + iconSet);
+        if (iconSetElem)
+        {
+            iconSelector.selectedItem = iconSetElem;
+        }
+    };
+
+    // Update the selected iconset when a skin is changed (if required)
+    skinSelector.addEventListener('select', updateIconSetSel);
+
     // Hide the skin selector if there are no skins
     document.getElementById('pref_appearance_skin_hbox').collapsed = (items.length == 0);
     
@@ -50,10 +72,39 @@ function PrefUi_OnLoad() {
     {
         var checkboxDetect  = document.getElementById('koSkin_use_gtk_detection');
         var menuSkin        = document.getElementById('koSkin_custom_skin');
+        var menuIcons       = document.getElementById('koSkin_custom_icons');
 
         var setSkinState = function()
         {
             menuSkin.disabled = checkboxDetect.checked;
+            menuIcons.disabled = checkboxDetect.checked;
+
+            // If gtk detection is enabled, detect the current gtk theme
+            // and select the relevant komodo skin (if available)
+            if (checkboxDetect.checked)
+            {
+                getKoObject('skin').gtk.getThemeInfo(function(themeInfo) {
+                    var skinFile = getKoObject('skin').gtk.resolveSkin(themeInfo);
+                    var menuItemValue =  "";
+                    if (skinFile)
+                    {
+                        menuItemValue = skinFile.path;
+                    }
+
+                    var menuItem = skinSelector.querySelector('menuitem[value="' + menuItemValue + '"]');
+                    if (menuItem)
+                    {
+                        if (skinSelector.selectedItem == menuItem)
+                        {
+                            updateIconSetSel();
+                        }
+                        else
+                        {
+                            skinSelector.selectedItem = menuItem;
+                        }
+                    }
+                });
+            }
         }
 
         checkboxDetect.addEventListener('click', setSkinState);

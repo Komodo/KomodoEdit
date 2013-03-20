@@ -95,41 +95,50 @@
             </hbox>
 <!-- #endif -->
             <!-- Skins -->
-            <hbox align="center" id="pref_appearance_skin_hbox">
+            <hbox align="center" id="pref_appearance_skin_hbox" style="margin-left: 20px">
                 <label id="pref_appearance_skin_label"
                        value="&skin.label;" />
                 <menulist id="koSkin_custom_skin"
                           pref="true"
                           preftype="string"
                           prefdefault=""
-                          prefattribute="value">
+                          prefattribute="value"
+                          tooltiptext="&skin.tooltip;">
                     <menupopup>
                         <menuitem id="pref_appearance_skin_default"
                                   label="&skinDefault.label;"
                                   value=""
+<!-- #if PLATFORM == "darwin" -->
+                                  iconset="cupertino"
+<!-- #else -->
+                                  iconset="dark"
+<!-- #endif -->
                                   />
 <!-- #if PLATFORM == "linux" -->
                         <menuitem id="pref_appearance_skin_dark"
                                   label="&skinDark.label;"
                                   value="gtk-Dark"
+                                  iconset="light"
                                   />
                         <menuitem id="pref_appearance_skin_ambiance"
                                   label="&skinAmbiance.label;"
                                   value="gtk-Ambiance"
+                                  iconset="ambiance"
                                   />
 <!-- #endif -->
                     </menupopup>
                 </menulist>
             </hbox>
             <!-- Icons -->
-            <hbox align="center">
+            <hbox align="center" style="margin-left: 20px">
                 <label id="pref_appearance_iconsets_label"
                        value="&iconset.label;" />
                 <menulist id="koSkin_custom_icons"
                           pref="true"
                           preftype="string"
                           prefdefault="dark"
-                          prefattribute="value">
+                          prefattribute="value"
+                          tooltiptext="&iconset.tooltip;">
                     <menupopup>
                         <menuitem id="pref_appearance_iconset_classic"
                                   label="&iconsetClassic.label;"
