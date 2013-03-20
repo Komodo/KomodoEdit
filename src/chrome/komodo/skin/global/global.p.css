@@ -459,6 +459,17 @@ button[type="moreinfo"]  {
   list-style-image: url("chrome://komodo/skin/images/more.gif");
 }
 
+/*
+ * Force width/height for hidpi icons (max width/height does not work)
+ *
+ * Added to global as all our tree images are 16x16, it's therefore easier
+ * to opt-out than it is to opt-in
+ */
+treechildren::-moz-tree-image
+{
+  height: 16px;
+}
+
 treechildren::-moz-tree-image(remotefolder)
 {
   list-style-image: url('chrome://komodo/skin/images/folder-closed.png');
