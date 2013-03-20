@@ -45,6 +45,7 @@
         label="&viewEditorTabs.label;"
         observes="cmd_toggleTabBar"
         insertafter="view_menu_editor_settings_menuseparator"
+        tooltiptext="&viewEditorTabs.tooltip;"
         />
   </menupopup>
 </overlay>
