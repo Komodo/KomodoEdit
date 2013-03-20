@@ -118,7 +118,7 @@ class KoLanguageRegistryService:
     # 'Internal' languages are those that the user shouldn't see as a language
     # name choice directly. E.g. "Rx", "Regex".
     _internalLanguageNames = {}   # use dict for lookup speed
-    
+
     _namespaceMap = {}
     _publicIdMap = {}
     _systemIdMap = {}
@@ -249,7 +249,11 @@ class KoLanguageRegistryService:
             self.__languageNameFromOther.pop(pattern, None)
             self.__patternsFromLanguageName[languageName].remove(pattern)
 
-            base, ext = splitext(pattern)
+            # Don't use splitext, as we want all extensions, not just the last
+            # one, e.g. 'foo.django.html' > ('foo', 'django.html') - bug 97967.
+            pattern_split = pattern.split('.', 1)
+            base = pattern_split[0]
+            ext = pattern_split[1] if len(pattern_split) > 1 else ''
             if base == '*':  # i.e. pattern == "*.FOO"
                 if languageName == self.__languageNameFromExtOrBasename.get(ext.lower()):
                     del self.__languageNameFromExtOrBasename[ext.lower()]
@@ -284,7 +288,11 @@ class KoLanguageRegistryService:
             self.__patternsFromLanguageName[languageName] = []
         self.__patternsFromLanguageName[languageName].append(pattern)
 
-        base, ext = splitext(pattern)
+        # Don't use splitext, as we want all extensions, not just the last
+        # one, e.g. 'foo.django.html' > ('foo', 'django.html') - bug 97967.
+        pattern_split = pattern.split('.', 1)
+        base = pattern_split[0]
+        ext = pattern_split[1] if len(pattern_split) > 1 else ''
         if base == '*' and '*' not in ext:  # i.e. pattern == "*.FOO"
             self.__languageNameFromExtOrBasename[ext.lower()] = languageName
         elif '*' not in pattern:  # e.g. "Conscript", "Makefile"
@@ -475,10 +483,15 @@ class KoLanguageRegistryService:
         # plain basename: faster.  We use the longest possible extension so
         # we can match things like *.django.html
         basename = basename.lower()
-        base_split = basename.split('.')
-        base = base_split[0]
-        exts = ["." + x for x in base_split[1:]]
-        #print 'suggestLanguageForFile: exts %r' % (exts, )
+        exts = basename.split(".")[1:]
+        if len(exts) >= 2:
+            # Bug 97967: use the longest compounded extension first, then
+            #            look for each component after the first dot:
+            # e.g. "foo.blatz.html.erb" => ['.blatz.html.erb', '.html.erb',
+            #                               '.blatz', '.html', '.erb']
+            # so .html.erb => RHTML if there is a '*.html.erb' association.
+            compoundParts = ['.'.join(exts[i:]) for i in range(len(exts) - 1)]
+            exts = compoundParts + exts
 
         for ext in exts:
             lang = self.__languageNameFromExtOrBasename.get(ext)
