@@ -80,15 +80,9 @@
 /* #endif */
 /* when not in fullscreen mode, hide any elements marked as [fullscreencontrol]
    (i.e. those that should only be shown in full screen) */
-/* #if PLATFORM == "darwin" */
-:root:not([kosizemode="fullscreen"]) [fullscreencontrol] {
-  display: none;
-}
-/* #else */
 :root:not([sizemode="fullscreen"]) [fullscreencontrol] {
   display: none;
 }
-/* #endif */
 
 #toolbox_main #toolbar-menubar {
   padding-top: 0;
