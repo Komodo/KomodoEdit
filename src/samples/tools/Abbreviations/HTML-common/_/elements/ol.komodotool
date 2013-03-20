@@ -3,7 +3,7 @@
   "name": "ol", 
   "value": [
     "<%= ko.snippets.HTML_emitLessThanIfNeeded()", 
-    "%>ol id=\"[[%tabstop:id]]\">", 
+    "%>ol>", 
     "\t<li>[[%tabstop:text]]</li>[[%tabstop:]]", 
     "</ol>[[%tabstop:]]!@#_currentPos!@#_anchor"
   ], 
