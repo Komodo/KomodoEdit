@@ -348,21 +348,14 @@ print('should be py3')
 #  -*- python3 -*-
 print('should be py3')
 """),
-            (tempfile.mktemp(".py"), """\
-# Not many markers for python3, but here's one:
-a = 0O456
-"""),
-            (tempfile.mktemp(".py"), """\
-# Not many markers for python3, but here's one:
-b = 0o456
-"""),
         ]
         for name, content in manifest:
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
             koDoc.load()
-            self.assertEqual(koDoc.language, "Python3")
+            self.assertEqual(koDoc.language, "Python3",
+                             "%r found, expected 'Python3', content %r" % (koDoc.language, content))
 
     def test_recognize_javascript_file(self):
         manifest = [
@@ -414,7 +407,8 @@ console.log(event.name);
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
             koDoc.load()
-            self.assertEqual(koDoc.language, "Node.js")
+            self.assertEqual(koDoc.language, "Node.js",
+                             "%r found, expected 'Node.js', content %r" % (koDoc.language, content))
 
     def _mk_eol_test_files(self):
         """Create the EOL test files. Relying on SCC systems to result in

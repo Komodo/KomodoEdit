@@ -211,9 +211,6 @@ def _calc_py2_py3_scores(textWrapper):
                 if token_string.endswith("L"):
                     sk.inc_2()
                     #log.debug("2-11: except at line %d", curr_token[2][0])
-                elif token_string.startswith("0o") or token_string.startswith("0O"):
-                    sk.inc_3()
-                    #log.debug("3-12: except at line %d", curr_token[2][0])
                 elif _octal_pattern.match(token_string):
                     sk.inc_2()
                     #log.debug("2-13: except at line %d", curr_token[2][0])
