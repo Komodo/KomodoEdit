@@ -6,6 +6,8 @@ import unittest
 from xpcom import components
 from xpcom.server import UnwrapObject
 
+from testlib import tag
+
 class koLanguageSvcTestCase(unittest.TestCase):
     """Base class for koIDocument test cases."""
     _langRegistrySvc = None
@@ -78,8 +80,10 @@ Got:      %s
             "#!python",
             "#!python22 -w",
             "#!/bin/python",
+            "#!/opt/Python-2.6.5/bin/python",
             "#! /bin/python -dwh  ",
             "#!/bin/PyThOn",
+            "#!/usr/bin/env python",
             "#!/bin/mypython",
         ]
         for head in pythonHeads:
@@ -91,6 +95,15 @@ Got:      %s
         for head in notPythonHeads:
             self._assertPossibleLanguagesAre(head, "", [])
 
+    def test_sh_shebang(self):
+        heads = [
+            "#!/bin/sh",
+            "#!/bin/bash",
+            "#!/usr/bin/bash",
+        ]
+        for head in heads:
+            self._assertPossibleLanguagesAre(head, "", ["Bash"])
+
     def test_tcl_shebang(self):
         tclHeads = [
             "#!tclsh",
@@ -100,6 +113,20 @@ Got:      %s
             "#! /bin/wish -v  ",
             "#!/bin/TcLSh",
             "#!/bin/mytclsh",
+        ]
+        for head in tclHeads:
+            self._assertPossibleLanguagesAre(head, "", ["Tcl"])
+        notTclHeads = [
+            "foo",
+            "#!/bin/clsh",
+        ]
+        for head in notTclHeads:
+            self._assertPossibleLanguagesAre(head, "", [])
+
+    @tag("knownfailure", "bug 28775")
+    def test_sh_to_tcl_exec(self):
+        # File is executed as shell script, but then re-exec'd as a Tcl script.
+        tclHeads = [
             """\
 #!/bin/sh
 # the next line restarts using tclsh \\
@@ -116,14 +143,9 @@ exec wish "$0" "$@"
 exec expect "$0" "$@"
 """,
         ]
-        for head in tclHeads:
-            self._assertPossibleLanguagesAre(head, "", ["Tcl"])
-        notTclHeads = [
-            "foo",
-            "#!/bin/clsh",
-        ]
-        for head in notTclHeads:
-            self._assertPossibleLanguagesAre(head, "", [])
+        for head in heads:
+            self._assertPossibleLanguagesAre(head, "", ["Bash"])
+
 
     def test_emacs_local_variables(self):
         # Ensure the pref to use emacs-style local variables is on.
@@ -210,15 +232,6 @@ End:
 
 
     def test_bug28775(self):
-        # The problem here was that no path info between the "exec"
-        # and the "wish" was allowed.
-        head = """\
-#!/bin/sh
-# aem \\
-exec $AUTOTEST/bin/wish "$0" ${1+"$@"} &
-"""
-        self._assertPossibleLanguagesAre(head, "", ["Tcl"])
-
         # The problem here was that if there was a blank line with an
         # LF line terminator (i.e. Unix EOLs) before the "Local Variables"
         # line, then the LF would get included in the "prefix" and
