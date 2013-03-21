@@ -18,6 +18,7 @@ Import(
     'mozVersion',
     'sdkDir',
     'mozSrc',
+    'supportDir',
 );
 
 # Toolbox2 items
@@ -32,3 +33,5 @@ $cons->InstallXpcomComponent('koToolbox2Components.py');
 $cons->InstallXpcomComponent('koTools.py');
 $cons->Install(File::Spec::Functions::catfile($komodoPythonUtilsDir,
                                               "toolbox"), 'koToolbox.sql');
+
+$cons->Install("$supportDir/toolbox", 'Restore Samples.komodotool');

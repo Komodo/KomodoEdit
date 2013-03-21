@@ -922,6 +922,7 @@ class KoInitService(object):
             "schemes": "schemes",
             "toolbox.sqlite": "toolbox.sqlite",
             "tools": "tools",
+            "obsolete-tools": "obsolete-tools",
             "doc-state.xmlc": "doc-state.xmlc", 
             "view-state.xmlc": "view-state.xmlc", 
             "apicatalogs": "apicatalogs",
@@ -1111,6 +1112,7 @@ class KoInitService(object):
             log.exception("installSamples")
 
     def installSampleTools(self):
+        pref_prefix = "haveInstalledSampleToolbox-Komodo"
         try:
             prefs = components.classes["@activestate.com/koPrefService;1"].\
                     getService(components.interfaces.koIPrefService).prefs
@@ -1120,11 +1122,12 @@ class KoInitService(object):
             koDirs = components.classes["@activestate.com/koDirs;1"].\
                      getService(components.interfaces.koIDirs)
             stdToolsFolder = os.path.join(koDirs.userDataDir, 'tools')
+            obsoleteToolsFolder = os.path.join(koDirs.userDataDir, 'obsolete-tools')
             if not os.path.exists(stdToolsFolder):
                 os.mkdir(stdToolsFolder)
                 lookAtPrefName = False
                 
-            prefName = "haveInstalledSampleToolbox-Komodo" + infoSvc.version
+            prefName = pref_prefix + infoSvc.version
             if lookAtPrefName and prefs.hasBooleanPref(prefName) and prefs.getBooleanPref(prefName):
                 return
 
@@ -1150,7 +1153,45 @@ class KoInitService(object):
                     # traceback as well.
                     log.exception("Failed to copy srcChild:%s to dest destDir:%s", srcChild, destDir)
                     installedSampleTools = False
-                    
+
+            # Remove old samples
+            import json
+            macro_template_path = os.path.join(koDirs.supportDir, 'toolbox',
+                                               'Restore Samples.komodotool')
+            with open(macro_template_path, "r") as macro_source:
+                macro_template = macro_source.read()
+            for existing_pref_name in prefs.getPrefIds():
+                try:
+                    if not existing_pref_name.startswith(pref_prefix):
+                        continue
+                    version = existing_pref_name[len(pref_prefix):]
+                    if version == str(infoSvc.version):
+                        continue # shouldn't have reached here!?
+                    folder_name = "Samples (%s)" % (version,)
+                    old_dir = os.path.join(stdToolsFolder, folder_name)
+                    if not os.path.isdir(old_dir):
+                        continue # already removed (by user or us)
+                    log.warn("%s is obsolete; moving it to %s",
+                             folder_name, obsoleteToolsFolder)
+                    if not os.path.exists(obsoleteToolsFolder):
+                        os.makedirs(obsoleteToolsFolder)
+                    dest_dir = os.path.join(obsoleteToolsFolder, folder_name)
+                    os.rename(old_dir, dest_dir)
+                    # Plop in a macro to restore the sample...
+                    macro_contents = macro_template\
+                                        .replace("{{version}}", version) \
+                                        .replace("{{script_version}}", str(infoSvc.version))
+                    macro_dir = os.path.join(stdToolsFolder, "Obsolete samples")
+                    if not os.path.isdir(macro_dir):
+                        os.makedirs(macro_dir)
+                    macro_name = json.loads(macro_contents)["name"]
+                    macro_path = os.path.join(macro_dir,
+                                              macro_name + ".komodotool")
+                    with open(macro_path, "w") as f:
+                        f.write(macro_contents)
+                except Exception:
+                    log.exception("Removing old samples")
+
             prefs.setBooleanPref(prefName, installedSampleTools)
         except Exception:
             log.exception("installSampleTools")
