@@ -2099,16 +2099,10 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("komodo-config.py"),
         mozbinpath("komodo-config"),
 
-        mozbinpath("chrome", "app-chrome.manifest"),
         mozbinpath("chrome", "icons"),
-        mozbinpath("chrome", "jaguar"), # for old time sakes
-        mozbinpath("chrome", "jaguar.manifest"),
         mozbinpath("chrome", "xtk"),
         mozbinpath("chrome", "xtk.jar"),
         mozbinpath("chrome", "xtk.manifest"),
-        mozbinpath("chrome", "ascore"),
-        mozbinpath("chrome", "ascore.jar"),
-        mozbinpath("chrome", "ascore.manifest"),
         mozbinpath("chrome", "komodo-jstest"),
         mozbinpath("chrome", "komodo-jstest.manifest"),
         mozbinpath("chrome", "komodo"),
@@ -2117,7 +2111,6 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("chrome", "komododoc"),
         mozbinpath("chrome", "komododoc.jar"),
         mozbinpath("chrome", "komododoc.manifest"),
-        mozbinpath("chrome", "user-skins.rdf"), # used on linux
         mozbinpath("chrome", "iconsets"),
         mozbinpath("chrome", "skins"),
         mozbinpath("components", "komodo.manifest"),
