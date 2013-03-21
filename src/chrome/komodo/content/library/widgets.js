@@ -766,7 +766,10 @@ if (typeof(ko.widgets)=='undefined') {
                             continue;
                         }
                         let data = this._get(w_info.id);
-                        if (data && data.browser) {
+                        if (!data) {
+                            log.warning("Could not restore widget " + w_info.id);
+                            continue;
+                        } else if (data.browser) {
                             log.debug(w_info.id +
                                       " already loaded, moving it to be with " +
                                       (tab ? tab.label : "(null)"));
@@ -779,14 +782,11 @@ if (typeof(ko.widgets)=='undefined') {
                             if (!tab) {
                                 tab = data.browser.tab;
                             }
+                        } else if (data.show === false) {
+                            // Explicity flagged as don't restore
+                            log.debug("Not restoring don't-show widget " + w_info.id);
+                            continue;
                         } else {
-                            if (!data) {
-                                log.debug("no data for " + w_info.id);
-                            } else if (data.show === false) {
-                                // Explicity flagged as don't restore
-                                log.debug("Not restoring don't-show widget " + w_info.id);
-                                continue;
-                            }
                             let widget = pane.addWidget(w_info.id,
                                                         {focus: false,
                                                          tab: tab,
