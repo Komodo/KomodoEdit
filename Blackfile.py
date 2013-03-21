@@ -2118,6 +2118,7 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("chrome", "komododoc.jar"),
         mozbinpath("chrome", "komododoc.manifest"),
         mozbinpath("chrome", "user-skins.rdf"), # used on linux
+        mozbinpath("chrome", "iconsets"),
         mozbinpath("chrome", "skins"),
         mozbinpath("components", "komodo.manifest"),
         mozbinpath("components", "ko*.py"),
