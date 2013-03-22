@@ -1,0 +1,83 @@
+/* "workspace_splitter": A splitter used between main panes in the
+ * Komodo window.
+ */
+
+splitter
+{
+    &[orient="vertical"].workspace_splitter
+    {
+        -moz-appearance: none;
+        min-height: 3px;
+        height: 3px;
+        border: none;
+        z-index: 100;
+        position: relative;
+        background: transparent;
+        margin-bottom: -2px;
+        border-top: @main-border;
+
+        &:-moz-window-inactive
+        {
+            border-top: @main-border-inactive;
+        }
+    }
+
+    &[orient="horizontal"]
+    {
+        &.workspace_splitter
+        {
+            -moz-appearance: none;
+            min-width: 3px;
+            width: 3px;
+            border: none;
+        }
+
+        &.workspace_splitter_left
+        {
+            min-width: 3px;
+            width: 3px;
+            z-index: 100;
+            position: relative;
+            margin-left: -2px;
+
+            background: transparent;
+            border-right: @panel-border;
+        }
+
+        &.workspace_splitter_right
+        {
+            min-width: 3px;
+            width: 3px;
+            z-index: 100;
+            position: relative;
+            margin-right: -2px;
+
+            background: transparent;
+            border-left: @panel-border;
+        }
+    }
+}
+
+/* Statusbar */
+
+statusbar
+{
+    padding: 0 !important;
+    font-family: @statusbar-font;
+    font-size: @statusbar-font-size;
+    color: @statusbar-text-color;
+
+    statusbarpanel
+    {
+        -moz-appearance: none;
+        padding: 2px;
+        background: @statusbar-background;
+        .border(@statusbar-border-width, @statusbar-border-style, @statusbar-border-color);
+        -moz-border-image: @statusbar-panel-border-image;
+
+        &:last-child, &#statusbar-line-col
+        {
+            border-right: 0;
+        }
+    }
+}

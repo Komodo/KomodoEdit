@@ -1,0 +1,53 @@
+@import url("chrome://komodo/skin/plat/shared/_config/toolbars.less");
+
+@menubar-background:                    inherit;
+@menubar-border-bottom:                 1px solid #696969;
+
+@menubar-group-first-border-width:      inherit;
+@menubar-group-last-border-width:       inherit;
+@menubar-group-border-width:            0;
+@menubar-group-border-style:            inherit;
+@menubar-group-border-color:            inherit;
+
+@menubar-button-first-border-width:     1px 0 1px 1px;
+@menubar-button-last-border-width:      1px 1px 1px 0;
+@menubar-button-single-border-width:    1px;
+
+@menubar-button-border-width:           1px 0 1px 0;
+@menubar-button-border-style:           solid;
+@menubar-button-border-color:           #969696;
+@menubar-button-border-radius:          0;
+
+@_menubar-button-separator:             url('chrome://komodo/skin/images/menubar-button-separator.png');
+@_menubar-button-gradient:              -moz-linear-gradient(top, #f6f6f6 0%, #f6f6f6 20%, #cfcfcf 100%);
+@_menubar-button-gradient-active:       -moz-linear-gradient(top, #8E8E8E 0%, #b3b3b3 5%, #d8d8d8 65%);
+
+@menubar-button-background-color:       #f6f6f6;
+@menubar-button-background-image:       @_menubar-button-separator, @_menubar-button-gradient;
+@menubar-button-background-position:    left center;
+@menubar-button-background-repeat:      no-repeat;
+@menubar-button-shadow:                 1px 1px 0 rgba(255,255,255,0.30), inset 0 1px 0 rgba(255,255,255,0.40);
+
+@menubar-group-border-color-inactive:   inherit;
+@menubar-button-border-color-inactive:   #C4C4C4;
+
+@menubar-button-background-color-hover: inherit;
+@menubar-button-background-image-hover: @menubar-button-background-image;
+@menubar-button-shadow-hover:           @menubar-button-shadow;
+@menubar-button-border-width-hover:     @menubar-button-border-width;
+@menubar-button-border-style-hover:     @menubar-button-border-style;
+@menubar-button-border-color-hover:     @menubar-button-border-color;
+
+@menubar-button-background-color-active:inherit;
+@menubar-button-background-image-active:@_menubar-button-separator, @_menubar-button-gradient-active;
+@menubar-button-shadow-active:          @menubar-button-shadow;
+@menubar-button-border-width-active:    @menubar-button-border-width;
+@menubar-button-border-style-active:    @menubar-button-border-style;
+@menubar-button-border-color-active:    @menubar-button-border-color;
+
+@menubar-findtoolbar-color:             #5B5B5B;
+@menubar-findtoolbar-background:        -moz-Field;
+@menubar-findtoolbar-separator-color:   ThreeDShadow;
+@menubar-findtoolbar-border:            1px solid rgba(142, 142, 142, 0.8);
+@menubar-findtoolbar-shadow:            0px 1px 0px 0px rgba(255, 255, 255, 0.3), 0px 1px 3px 0px rgba(0, 0, 0, 0.2) inset;
+@menubar-findtoolbar-shadow-focus:      0px 0px 3px rgba(0, 150, 255, 0.7), 0px 1px 3px 0px rgba(0, 0, 0, 0.2) inset;

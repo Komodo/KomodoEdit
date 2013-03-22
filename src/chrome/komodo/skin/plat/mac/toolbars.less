@@ -1,0 +1,45 @@
+@import url("chrome://komodo/skin/plat/shared/toolbars.less");
+
+/* Inactive button */
+#main-toolboxrow
+{
+    padding: 4px 0;
+
+    toolbar > toolbaritem > toolbarbutton
+    {
+        margin-right: 0;
+
+        &:-moz-window-inactive {
+            border-color: @menubar-button-border-color-inactive;
+        }
+    }
+
+    & > hbox
+    {
+        padding-bottom: 3px;
+        padding-top: 0;
+    }
+}
+
+#toolbox_main
+{
+    border-bottom: 0 !important;
+}
+
+#toolbox2-hierarchy-vbox tree treechildren::-moz-tree-row(selected) {
+    background: -moz-mac-secondaryhighlight;
+}
+
+#toolbox2-hierarchy-vbox tree treechildren::-moz-tree-row(selected, focus) {
+    background: Highlight;
+}
+
+#find-toolbar-browsedirectory
+{
+    margin: 0 4px 2px 4px !important;
+}
+
+#historyRecentLocations
+{
+    background: @_menubar-button-gradient !important;
+}

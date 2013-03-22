@@ -1,0 +1,41 @@
+@import url("chrome://komodo/skin/plat/shared/modules.less");
+
+#notificationWidget
+{
+    notification .twisty > .twistyImageWrapper
+    {
+        padding-left: 0;
+        padding-bottom: 0;
+    }
+
+    notification .twistyImage
+    {
+        list-style-image: none;
+        -moz-appearance: treetwisty;
+    }
+
+    notification[open] .twistyImage
+    {
+        list-style-image: none;
+        -moz-appearance: treetwistyopen;
+    }
+}
+
+/* Fix Notification twistyImage on Mac */
+notification .twistyImage
+{
+    margin: -3px -10px 0 20px !important;
+}
+
+#dbExplorerPane > vbox > hbox > toolbarseparator
+{
+    display: none !important;
+}
+
+#openfilesListbox
+{
+    richlistitem label
+    {
+        font-size: 8pt !important;
+    }
+}

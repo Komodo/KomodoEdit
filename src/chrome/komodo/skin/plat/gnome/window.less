@@ -1,0 +1,13 @@
+@import url("chrome://komodo/skin/plat/shared/window.less");
+
+/**
+ * Don't style the toolbar elements that wrap around the menubar - otherwise
+ * you end up with a double-border at the bottom of the menubar - ToddW.
+ */
+#toolbar-menubar,
+#menubar-items {
+  -moz-appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}

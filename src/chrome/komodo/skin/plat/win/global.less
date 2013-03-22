@@ -1,0 +1,16 @@
+@import url("chrome://komodo/skin/plat/shared/global.less");
+
+/* Fix disabled autocomplete-textbox styling on Linux and Vista (bug 75996).
+ *
+ * Only *specifically* doing this for non-MacOSX and for textboxes of
+ * type autocomplete because for those other cases the result is a
+ * properly colored hbox inside the textbox **with a white border area
+ * around it that I am unable to style**.
+ *
+ * As well, on Mac OS X the border of the textbox is the standard (albeit
+ * subtle) distinguishing UI for the readonly-ness of the textbox. The
+ * current XUL theme handles that already.
+ */
+textbox[type="autocomplete"][disabled="true"] > hbox {
+  background-color: -moz-Dialog;
+}

@@ -1,5 +1,6 @@
 /* Variables & Helpers */
 @import-once url("chrome://komodo/skin/_config/window.less");
+@import-once url("chrome://komodo/skin/_config/toolbars.less");
 @import-once url("chrome://komodo/skin/_helpers/shortcuts.less");
 
 /* Skinning Variables */
@@ -185,6 +186,12 @@
 }
 
 /* Main toolbox (menu bar and toolbars) */
+#main-toolboxrow-wrapper
+{
+    -moz-appearance: @main-toolbox-appearance;
+    background: @main-toolbox-background;
+}
+
 #toolbox_main
 {
     -moz-appearance: none;
@@ -197,10 +204,6 @@
     margin-bottom: -1px; /* so bottom border doesn't look weird if the toolbox row is hidden */
 }
 
-#main-toolboxrow-wrapper
-{
-    -moz-appearance: toolbar;  
-}
 
 #main-toolboxrow
 {

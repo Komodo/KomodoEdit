@@ -1,0 +1,228 @@
+/* Variables & Helpers */
+@import-once url("chrome://komodo/skin/_config/window.less");
+@import-once url("chrome://komodo/skin/_config/modules.less");
+
+#placesViewbox_placesWrapper tree scrollbar
+{
+    opacity: 0.3;
+    -moz-transition: opacity 0.15s linear;
+}
+
+#placesViewbox_placesWrapper tree:hover scrollbar
+{
+    opacity: 1;
+}
+
+#breakpoints-tabpanel-hbox, #runoutput-button-box
+{
+    padding: 5px;
+}
+
+#debuggerPanel > hbox.toolbar-background
+{
+    padding: 4px;
+}
+
+#DebuggerPanelContent #viewer-splitter
+{
+    -moz-appearance: none;
+    position: relative;
+    z-index: 100;
+    width: 4px;
+    min-width: 4px;
+    margin-right: -4px;
+
+    background: transparent;
+    border-left: @main-border;
+
+    grippy
+    {
+        background-image: none;
+    }
+}
+
+/* Debug Output Tabs */
+
+#DebuggerPanelContent tabbox
+{
+    -moz-appearance: none;
+
+    tabs
+    {
+        height: 25px;
+        padding: 0px;
+        margin: 0px;
+        -moz-appearance: none;
+        border: none;
+
+        .tabstrip-box
+        {
+            margin-top: 0;
+            padding-left: 2px;
+            padding-right: 2px;
+            border: none;
+            border-top: @main-border;
+            background: @tab-debug-box-background;
+        }
+    }
+
+    tab
+    {
+        -moz-appearance: none;
+        -moz-transition: @tab-transition;
+        height: 18px !important;
+        max-height: 18px;
+        max-width: 20em;
+        margin: 2px;
+        padding: 0;
+
+        background: @tab-debug-background;
+        .border(@tab-debug-border-width,@tab-debug-border-style,@tab-debug-border-color);
+        border-radius: @tab-debug-border-radius;
+        font-weight: @tab-debug-font-weight;
+        color: @tab-debug-color;
+        text-shadow: @tab-debug-text-shadow;
+        box-shadow: @tab-debug-box-shadow;
+
+        &:hover
+        {
+            background: @tab-debug-hover-background;
+            .border(@tab-debug-hover-border-width,@tab-debug-hover-border-style,@tab-debug-hover-border-color);
+            border-radius: @tab-debug-hover-border-radius;
+            font-weight: @tab-debug-hover-font-weight;
+            color: @tab-debug-hover-color;
+            text-shadow: @tab-debug-hover-text-shadow;
+            box-shadow: @tab-debug-hover-box-shadow;
+        }
+
+        &[selected="true"]
+        {
+            background: @tab-debug-selected-background;
+            .border(@tab-debug-selected-border-width,@tab-debug-selected-border-style,@tab-debug-selected-border-color);
+            border-radius: @tab-debug-selected-border-radius;
+            font-weight: @tab-debug-selected-font-weight;
+            color: @tab-debug-selected-color;
+            text-shadow: @tab-debug-selected-text-shadow;
+            box-shadow: @tab-debug-selected-box-shadow;
+        }
+
+        & > hbox
+        {
+            -moz-appearance: none;
+            padding: 0;
+        }
+
+    }
+
+    tabpanels
+    {
+        -moz-appearance: none;
+        border: None;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    tabpanels > tabpanel
+    {
+        padding: 0px;
+        margin: 0px;
+    }
+
+    view
+    {
+        border: none;
+        margin: 0px;
+        padding: 0px;
+    }
+}
+
+#callstack-listbox
+{
+    -moz-appearance: none;
+}
+
+#toolbox2-hierarchy-vbox tree,
+#toolbox2-hierarchy-vbox tree treechildren,
+#toolbox2-hierarchy-vbox tree treechildren::-moz-tree-row {
+  background: transparent;
+}
+
+#toolbox2-hierarchy-vbox tree treechildren::-moz-tree-row(selected) {
+    background: -moz-cellhighlight;
+}
+
+#toolbox2-hierarchy-vbox tree treechildren::-moz-tree-row(selected, focus) {
+    background: Highlight;
+}
+
+.panel-label,
+#collab-sessions-label,
+#collab-friends-label,
+#placesRootButton,
+#placesSubpanelSplitterProjectLabel
+{
+    color: @panel-label-color;
+    font-weight: @panel-label-weight;
+    text-transform: @panel-label-transform;
+    text-shadow: @panel-label-shadow;
+    font-family: @panel-label-font;
+}
+
+#notificationWidget
+{
+    #toolbar
+    {
+        border-right: 0px;
+    }
+
+    #message-container
+    {
+        margin-left: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        border-left: 0px !important;
+        border-right: 0px !important;
+
+        notification
+        {
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+    }
+}
+
+/* Start Page Styling
+ *
+ * Ideally this would be in it's own dedicated .less file, but due
+ * to the way the startpage is currently structured it is not compatible
+ * with the less loader.
+ *
+ * The main styling for the startpage is still in startpage.css, styling here
+ * is only for platform specific tweaks (eg. colors) */
+
+view[type='startpage']
+{
+    background: @startpage-background;
+
+    .startpage-header
+    {
+	font-family: @startpage-heading-font;
+	background: @startpage-heading-background;
+	color: @startpage-heading-color;
+	text-shadow: @startpage-heading-text-shadow;
+	border: 0;
+	border-top: 1px solid @startpage-border-color;
+	border-bottom: 1px solid @startpage-border-color;
+    }
+
+    box[type="startpage"]:first-child .startpage-header
+    {
+	border-top: 0;
+    }
+
+    vbox[anonid="quicklinks-right"]
+    {
+	background: @startpage-quicklinks-background;
+	border-left: 1px solid @startpage-border-color;
+    }
+}

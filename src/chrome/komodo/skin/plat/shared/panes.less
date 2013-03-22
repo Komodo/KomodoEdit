@@ -1,0 +1,92 @@
+/* Variables & Helpers */
+@import-once url("chrome://komodo/skin/_config/window.less");
+@import-once url("chrome://komodo/skin/_config/panes.less");
+
+/* Widgets & Panes */
+
+page,
+page .toolbar-background
+{
+    -moz-appearance: none;
+    background-color: transparent;
+}
+
+tree
+{
+    background: transparent;
+}
+
+tabpanels
+{
+    background-color: transparent !important;
+}
+
+.widget_splitter
+{
+    -moz-appearance: none;
+    background-image: none;
+    background: transparent;
+    border: 0;
+
+    &[orient="vertical"] // This splitter is in a vertical pane
+    {
+        margin-top: 3px;
+        margin-bottom: 3px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+
+        & > box
+        {
+            -moz-box-orient: horizontal;
+            height: 1px;
+            background: @widget-splitter-background;
+        }
+    }
+
+    &:not([orient="vertical"]) // This splitter is in a horizontal pane
+    {
+        position: relative;
+        z-index: 999;
+
+        margin-left: -2px;
+        margin-right: -3px;
+
+        & > box
+        {
+            -moz-box-orient: vertical;
+            width: 2px;
+            padding-left: 2px;
+            border-left: @panel-border;
+        }
+    }
+
+}
+
+#workspace_left_area, #workspace_right_area
+{
+    background: @sidebar-background;
+
+    &:-moz-window-inactive
+    {
+        background: @sidebar-inactive-background;
+    }
+}
+
+#workspace_bottom_area
+{
+    background: @bottom-background;
+
+    &:-moz-window-inactive
+    {
+        background: @bottom-inactive-background;
+    }
+}
+
+#breakpoints-tree, #runoutput-scintilla, #sleuthPane > .sleuth-flex,
+#notificationWidget #message-container, #klint-tree,
+#DebuggerPanelContent
+{
+    border-top: @main-border;
+    box-shadow: @panel-separator-shadow;
+    background-color: -moz-EvenTreeRow;
+}
