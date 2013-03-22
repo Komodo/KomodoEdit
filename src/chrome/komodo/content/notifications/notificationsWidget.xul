@@ -17,27 +17,30 @@
 <page id="notificationWidget" title="(Notifications Widget)"
       xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <vbox flex="1">
-    <toolbar id="toolbar" class="toolbar-background">
-      <toolbargroup class="solo-toolbaritem">
-        <toolbarbutton type="checkbox" id="filter-error"
-                       tooltiptext="&filterErrorTooltip;"
-                       oncommand="NotificationsWidgetController.updateFilters()"/>
-        <toolbarbutton type="checkbox" id="filter-warning"
-                       tooltiptext="&filterWarningTooltip;"
-                       oncommand="NotificationsWidgetController.updateFilters()"/>
-        <toolbarbutton type="checkbox" id="filter-info"
-                       tooltiptext="&filterInfoTooltip;"
-                       oncommand="NotificationsWidgetController.updateFilters()"/>
-        <toolbarseparator/>
-        <toolbarbutton type="checkbox" id="filter-progress"
-                       tooltiptext="&filterProgressTooltip;"
-                       oncommand="NotificationsWidgetController.updateFilters()"/>
-      </toolbargroup>
-      <toolbarseparator/>
-      <textbox id="filter-search" emptytext="&filterSearchEmpty;" type="search"
-               oninput="NotificationsWidgetController.updateFilters()"
-               oncommand="NotificationsWidgetController.updateFilters()"/>
-    </toolbar>
+    <box class="widgetToolbarWrap">
+        <toolbar id="toolbar" class="widgetToolbar">
+          <toolbargroup class="solo-toolbaritem">
+            <toolbarbutton type="checkbox" id="filter-error"
+                           tooltiptext="&filterErrorTooltip;"
+                           oncommand="NotificationsWidgetController.updateFilters()"/>
+            <toolbarbutton type="checkbox" id="filter-warning"
+                           tooltiptext="&filterWarningTooltip;"
+                           oncommand="NotificationsWidgetController.updateFilters()"/>
+            <toolbarbutton type="checkbox" id="filter-info"
+                           tooltiptext="&filterInfoTooltip;"
+                           oncommand="NotificationsWidgetController.updateFilters()"/>
+            <toolbarseparator/>
+            <toolbarbutton type="checkbox" id="filter-progress"
+                           tooltiptext="&filterProgressTooltip;"
+                           oncommand="NotificationsWidgetController.updateFilters()"/>
+          </toolbargroup>
+        </toolbar>
+        <toolbarseparator flex="1"/>
+        <textbox id="filter-search" flex="1"
+		 emptytext="&filterSearchEmpty;" type="search"
+                 oninput="NotificationsWidgetController.updateFilters()"
+                 oncommand="NotificationsWidgetController.updateFilters()"/>
+    </box>
     <richlistbox id="message-container" seltype="multiple"/>
   </vbox>
 

@@ -317,3 +317,27 @@ toolbarbutton[disabled="true"] > dropmarker
     opacity: 0.6;
     border-bottom: none !important;
 }
+
+/* Widget Toolbar */
+
+.widgetToolbarWrap
+{
+    -moz-box-align: center;
+    border-bottom: @main-border;
+    box-shadow: @panel-separator-shadow;
+    min-height: 30px;
+
+    .widgetToolbar
+    {
+        -moz-appearance: none;
+        border: 0;
+    }
+
+    & > :-moz-any(textbox, menulist)
+    {
+        margin-top: 0;
+        margin-bottom: 0;
+        -moz-box-align: center;
+    }
+
+}

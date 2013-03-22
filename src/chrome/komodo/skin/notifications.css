@@ -24,10 +24,13 @@
 
 #filter-search {
   -moz-box-flex: 1;
+  margin: 0;
 }
 
 #message-container {
   -moz-box-flex: 1;
+  -moz-appearance: none;
+  margin: 0;
 }
 
 notification {

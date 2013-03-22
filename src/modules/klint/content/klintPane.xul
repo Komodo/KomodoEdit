@@ -21,18 +21,7 @@
             src="chrome://klint/content/klintPane.js" />
 
     <vbox flex="1">
-        <hbox align="center" class="panel-toolbar-buttons">
-            <label flex="1" id="klint-count" value=""/>
-            <separator flex="1"/>
-            <hbox align="center">
-                <image id="klint-icon-filter-pattern"
-                       tooltiptext="&klint.filter.by.description.tooltiptext;"
-                       class="klint-filter-pattern" />
-                <textbox id="klint-filter-pattern"
-                    tooltiptext="&klint.filter.by.description.tooltiptext;"
-                    onkeypress="gKlint.onTextFilterKeypress(event)"
-                    oninput="gKlint.onTextFilterInput(event);" />
-            </hbox>
+        <box class="widgetToolbarWrap">
             <menulist id="klint-filter-type">
                 <menupopup>
                     <menuitem id="klint-filter-error"
@@ -54,15 +43,23 @@
                         oncommand="gKlint.filterVisibleItems(KlintTreeView.NONE)"/>
                 </menupopup>
             </menulist>
-            <toolbarbutton id="klint-disable-syntax-checking"
-                    class="button-klint-disable-syntax-checking"
-                    tooltiptext="&klint.disable.syntax.checking.by.file.pattern.label;"
-                    oncommand="gKlint.onOpenLintFiltersDialog();"/>
-            <toolbarbutton id="klint-refresh"
-                    class="button-klint-refresh"
-                    tooltiptext="&klint.refresh.label;"
-                    oncommand="ko.lint.doRequest();"/>
-        </hbox>
+            <toolbar class="widgetToolbar">
+                <toolbarbutton id="klint-disable-syntax-checking"
+                        class="button-klint-disable-syntax-checking"
+                        tooltiptext="&klint.disable.syntax.checking.by.file.pattern.label;"
+                        oncommand="gKlint.onOpenLintFiltersDialog();"/>
+                <toolbarbutton id="klint-refresh"
+                        class="button-klint-refresh"
+                        tooltiptext="&klint.refresh.label;"
+                        oncommand="ko.lint.doRequest();"/>
+            </toolbar>
+            <label id="klint-count" value=""/>
+            <separator flex="1"/>
+            <textbox id="klint-filter-pattern" type="search" flex="1"
+                emptytext="&klint.filter.by.description.tooltiptext;"
+                onkeypress="gKlint.onTextFilterKeypress(event)"
+                oninput="gKlint.onTextFilterInput(event);" />
+        </box>
         <tree id="klint-tree"
               flex="1"
               seltype="single">
