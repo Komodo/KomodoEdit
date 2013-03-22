@@ -834,6 +834,10 @@ class koRemoteSSH(koRFConnection):
             logger = paramiko.util.get_logger(logger_name)
             logger.setLevel(logging.CRITICAL)
 
+            if self._globalPrefs.getBoolean('remotefiles_sftp_compression_enabled', True):
+                # Turn on compression (if supported by the server) - bug 98376.
+                self._connection.use_compression()
+
             # Start the SSH negotiation
             event = threading.Event()
             self._connection.start_client(event)
