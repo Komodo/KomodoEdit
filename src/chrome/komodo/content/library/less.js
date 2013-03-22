@@ -56,6 +56,7 @@ if ( ! ("less" in ko))
             self = this;
 
             log = logging.getLogger('ko.less');
+            //log.setLevel(ko.logging.LOG_DEBUG);
             
             this.debug('Initializing ko.less');
             
@@ -552,7 +553,7 @@ if ( ! ("less" in ko))
             }
             catch (e)
             {
-                this.error(e.message);
+                this.error('Failed reading file: ' + fileUri + "\n" + e.message);
             }
         },
         
@@ -710,7 +711,7 @@ if ( ! ("less" in ko))
          */
         error: function ko_less_error(message, noBacktrace = false)
         {
-            log.error(message, noBacktrace);
+            log.error(message + "\n", noBacktrace);
         },
         
         /**
@@ -724,16 +725,10 @@ if ( ! ("less" in ko))
         errorLess: function ko_less_errorLess(e, href) {
             var error = [];
             
-            if ( ! e.message)
-            {
-                var filename = e.filename || href;
-                var filenameNoPath = filename.match(/[^\/]+$/)[0];
-            }
-            
             var errorString = (
                 e.message ||
                 'There is an error in your .less file'
-            ) + ' (' + filenameNoPath + ")\n";
+            ) + ' (' + (e.filename || href) + ")\n";
             
             var errorline = function (e, i, classname)
             {
