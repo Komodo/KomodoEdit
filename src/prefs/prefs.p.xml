@@ -421,6 +421,7 @@
  '*.yaml': 'YAML',
  '*.yml': 'YAML',
  '*.zcml': 'XML',
+ '.htaccess': 'Apache',
  'Conscript': 'Perl',
  'Construct': 'Perl',
  'Gemfile': 'Ruby',
