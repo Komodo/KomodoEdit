@@ -163,7 +163,7 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
             env = self._get_fixed_env(prefset, cwd)
             rcfilePath = prefset.getStringPref(self.rcfile_prefname)
             if rcfilePath and os.path.exists(rcfilePath):
-                extraArgs = [ '--config="%s"' % (rcfilePath,) ]
+                extraArgs = [ '--rcfile="%s"' % (rcfilePath,) ]
             else:
                 extraArgs = []
             preferredLineWidth = prefset.getLongPref("editAutoWrapColumn")
