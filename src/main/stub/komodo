@@ -6,21 +6,77 @@ STUB=$0
 while [ -h "$STUB" ]; do
     ls=`ls -ld "$STUB"`
     link=`expr "$ls" : '.*-> \(.*\)$'`
+    unset ls
     if expr "$link" : '/.*' > /dev/null; then
         STUB="$link"
     else
         STUB="`dirname $STUB`/$link"
     fi
+    unset link
 done
 
 INSTALLDIR="`dirname $STUB`/.."
-isdevtree="$INSTALLDIR/../bin/is_dev_tree.txt"
-if test -f "$isdevtree"; then
+unset STUB
+if test -f "$INSTALLDIR/../bin/is_dev_tree.txt"; then
     mozdir=$INSTALLDIR/../bin
 else
     mozdir=$INSTALLDIR/lib/mozilla
 fi
-"$mozdir/komodo" "$@" &
+unset INSTALLDIR
+executable="$mozdir/komodo"
+exe_type=`file "$executable"`
+warn_arch ( ) {
+    # This function just spits out a warning if we're trying to run a bad binary
+    if [ -n "$KOMODO_FORCE_ARCH" ] ; then
+        return # suppress arch warning
+    fi
+    case `uname -m` in
+        x86_64)
+            machine_arch=".*executable, x86-64, "
+            wanted_arch="x86_64";;
+        i?86)
+            machine_arch=".*executable, Intel 80386, "
+            wanted_arch="x86";;
+        *)
+            # I dunno what you're doing, hopefully you're smart enough
+            return;;
+    esac
+    if [ "0" -ne `expr "$exe_type" : "$machine_arch"` ] ; then
+        return # arch match
+    fi
+    "$mozdir/mozpython" -c ""
+    if [ "$?" -eq "0" ] ; then
+        return # can run given binary - maybe it's i686 on x86_64
+    fi
+    msg=$(cat <<-EOF
+	This Komodo binary is not meant for your computer's architecture.
+	Please download the $wanted_arch version at:
+	http://www.activestate.com/komodo-edit/downloads
+	EOF
+	)
+    # Figure out a command to display errors with; assume $DISPLAY is set
+    # (since you need that to run Komodo).  We try to use the GUI dialogs here
+    # because stdout/stderr is probably redirected to a file.
+    if which zenity ; then
+        # Use the gtk error dialog
+        zenity --error --text "$msg"
+    elif which kdialog ; then
+        # Use the KDE/Qt error dialog
+        kdialog --error "$msg"
+    else
+        # Don't have anything, fall back to console
+        printf "\033[31;1m$msg\033[0m\n" >&1
+    fi
+    unset msg
+    # Run the executable anyway
+}
+warn_arch
+unset warn_arch
+unset machine_arch
+unset wanted_arch
+unset exe_type
+unset mozdir
+"$executable" "$@" &
 if test `uname` = "SunOS"; then
     sleep 1
 else

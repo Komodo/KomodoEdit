@@ -43,8 +43,34 @@
 #   ./install.sh -h
 
 dname=`dirname $0`
+# use the python2.7 (or whatever) binary here, because `python` can be a shell
+# script, and that will give us the wrong result
+exe_type=`file "$dname"/INSTALLDIR/lib/python/bin/python*.*`
+case `uname -m` in
+    x86_64)
+        machine_arch=".*executable, x86-64, "
+        wanted_arch="x86_64";;
+    i?86)
+        machine_arch=".*executable, Intel 80386, "
+        wanted_arch="x86";;
+    *)
+        # I dunno what you're doing, hopefully you're smart enough
+        KOMODO_FORCE_ARCH=1;;
+esac
+print_arch_warning ( ) { true; }
+if [ -z "$KOMODO_FORCE_ARCH" -a "0" -eq `expr "$exe_type" : "$machine_arch"` ] ; then
+    print_arch_warning ( ) {
+        cat >&1 <<-EOF
+	[31;1m
+	This Komodo binary is not meant for your computer's architecture.
+	Please download the $wanted_arch version at:
+	http://www.activestate.com/komodo-edit/downloads
+	[0m
+	EOF
+        }
+fi
+print_arch_warning
 LD_LIBRARY_PATH="$dname/INSTALLDIR/lib/mozilla:"$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH
 $dname/INSTALLDIR/lib/python/bin/python -E $dname/support/_install.py "$@"
-
-
+print_arch_warning
