@@ -62,7 +62,7 @@
 import sys
 import os
 from os.path import (abspath, expanduser, normpath, join, dirname, basename,
-                     isdir, exists)
+                     isdir, islink, exists, relpath)
 import shutil
 import socket
 import tempfile
@@ -468,6 +468,38 @@ def _install(installDir, userDataDir, suppressShortcut, destDir=None):
     import activestate
     activestate.relocate_python(pyRelocDir,
                                 verbose=log.isEnabledFor(logging.DEBUG))
+
+    # Make sure that we use symlinks for libpython.so, bug 98337
+    pyLibName = "libpython%s.%s.so" % sys.version_info[:2]
+    pyLibReal = abspath(join(pyInstallDir, "lib", "%s.1.0" % (pyLibName,)))
+    pyLibs = set(abspath(join(libdir, libname))
+                 for libdir in (mozInstallDir, join(pyInstallDir, "lib"))
+                 for libname in (pyLibName, "%s.1.0" % (pyLibName,)))
+    pyLibs.discard(pyLibReal)
+    if not exists(pyLibReal) or islink(pyLibReal):
+        # we don't have the real file? See if we can grab one of the others
+        log.warning("%s is not a file; trying to find alternative...", pyLibReal)
+        for pyLib in pyLibs:
+            if not exists(pyLib) or islink(pyLib):
+                continue
+            if exists(pyLibReal):
+                os.unlink(pyLibReal)
+            os.rename(pyLib, pyLibReal)
+            break
+        else:
+            log.error("Could not find a valid libpython; your Komodo is broken."
+                      "  Please try re-downloading the installer.")
+            sys.exit(1)
+    for pyLib in pyLibs:
+        if exists(pyLib):
+            os.unlink(pyLib)
+        try:
+            os.symlink(relpath(pyLibReal, dirname(pyLib)), pyLib)
+        except OSError:
+            log.error("Failed to create a symlink at %s; Komodo will be broken."
+                      "  Komodo needs to be installed on a filesystem that "
+                      "supports symlinks.", pyLib)
+            sys.exit(1)
 
     log.debug("pre-compile .py files in siloed Python")
     pyLibDir = join(pyInstallDir, "lib", "python%s.%s" % sys.version_info[:2])
