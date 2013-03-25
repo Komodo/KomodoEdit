@@ -1528,3 +1528,13 @@ write
 xor
 year_month
 zerofill""".split()
+
+    
+    def __init__(self):
+        koCommonSQLLanguage.__init__(self)
+        # See http://dev.mysql.com/doc/refman/5.0/en/comments.html:
+        # MySQL comments need a space after the '--'
+        # Copy the delimiter to avoid changing the base classes' delimiter info
+        self.commentDelimiterInfo = self.commentDelimiterInfo.copy()
+        self.commentDelimiterInfo["line"] = ["-- "]
+        
