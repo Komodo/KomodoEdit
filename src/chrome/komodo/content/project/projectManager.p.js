@@ -709,9 +709,10 @@ projectManager.prototype.revertProject = function(project) {
     }
 }
 
-projectManager.prototype.updateProjectMenu = function(event, menupopup) {
+projectManager.prototype.updateProjectMenu = function(event, menupopup, projectType) {
     //XXX: See places.js:initFilesContextMenu if there's a problem
-    var projectBaseName = this.projectBaseName(this.selectedOrCurrentProject());
+    var project = this[projectType + "Project"] || this.selectedOrCurrentProject();
+    var projectBaseName = this.projectBaseName(project);
     this._projectLabel = (projectBaseName
                           ? (" (" + projectBaseName + ")")
                           : null);
@@ -982,6 +983,11 @@ projectManager.prototype.getSelectedProject = function() {
     return this.currentProject;
 }
 
+Object.defineProperty(projectManager.prototype, "selectedProject", {
+    get: function() this.getSelectedProject(),
+    configurable: true, enumerable: true,
+});
+
 projectManager.prototype.registerCommands = function() {
     var em = ko.projects.extensionManager;
     em.registerCommand("cmd_closeProject",this);
@@ -1046,19 +1052,19 @@ projectManager.prototype.isCommandEnabled = function(command) {
     case "cmd_projectProperties":
     case "cmd_replaceInCurrProject":
     case "cmd_saveProjectAs":
-        return this.getSelectedProject() != null;
+        return this.currentProject != null;
     case "cmd_renameProject":
-        project = this.getSelectedProject();
+        project = this.currentProject;
         return project && !project.isDirty;
     case "cmd_showProjectInPlaces":
         // Verify places is loaded
         if (!ko.places) return false;
-        project = this.getSelectedProject();
+        project = this.currentProject;
         if (!project) return false;
         return !ko.places.manager.placeIsAtProjectDir(project);
     case "cmd_saveProject":
     case "cmd_revertProject":
-        project = this.getSelectedProject();
+        project = this.currentProject;
         return (project && project.isDirty);
     case "cmd_closeAllProjects":
         return this._projects.length > 0;
@@ -1141,43 +1147,41 @@ projectManager.prototype.doCommand = function(command) {
         }
         break;
     case "cmd_closeProject":
-        this.workOnSelectedProject(function(project) {
-            this_.closeProject(project);
-        });
+        this.closeProject(this.currentProject);
         break;
     case "cmd_closeAllProjects":
         this.closeAllProjects();
         break;
     case "cmd_saveProject":
-        this.workOnSelectedProject(function(project) {
-            this_.saveProject(project);
-        });
+        if (this.currentProject) {
+            this.saveProject(this.currentProject);
+        }
         break;
     case "cmd_saveProjectAs":
-        this.workOnSelectedProject(function(project) {
-            ko.projects.saveProjectAs(project);
-        });
+        if (this.currentProject) {
+            ko.projects.saveProjectAs(this.currentProject);
+        }
         break;
     case "cmd_revertProject":
-        this.workOnSelectedProject(function(project) {
-            this_.revertProject(project);
-        });
+        if (this.currentProject) {
+            this.revertProject(this.currentProject);
+        }
         break;
     case "cmd_projectProperties":
-        this.workOnSelectedProject(function(project) {
-            var item = ko.places.getItemWrapper(project.url, 'project');
+        if (this.currentProject) {
+            var item = ko.places.getItemWrapper(this.currentProject.url, 'project');
             ko.projects.fileProperties(item, null, true);
-        });
+        }
         break;
     case "cmd_renameProject":
-        this.workOnSelectedProject(function(project) {
-            this_.renameProject(project);
-        });
+        if (this.currentProject) {
+            ko.projects.renameProject(this.currentProject);
+        }
         break;
     case "cmd_saveProjectAsTemplate":
-        this.workOnSelectedProject(function(project) {
-            this_.saveProjectAsTemplate(project);
-        });
+        if (this.currentProject) {
+            this.saveProjectAsTemplate(this.currentProject);
+        }
         break;
     case "cmd_importPackageToToolbox":
         ko.toolboxes.importPackage();

@@ -731,9 +731,9 @@
     </menupopup>
     
     <menupopup id="placesSubpanelProjectsToolsPopup_SPV"
-        onpopupshowing="ko.projects.manager.updateProjectMenu(event, this);"/>
+        onpopupshowing="ko.projects.manager.updateProjectMenu(event, this, 'selected');"/>
     <menupopup id="placesSubpanelProjectsToolsPopup_MPV"
-        onpopupshowing="ko.projects.manager.updateProjectMenu(event, this);"/>
+        onpopupshowing="ko.projects.manager.updateProjectMenu(event, this, 'selected');"/>
     <menupopup id="projectPlacesCog_SortMenu">
         <menuitem id="projectPlacesSortAscending"
                   observes="cmd_sortProjectsAscending"

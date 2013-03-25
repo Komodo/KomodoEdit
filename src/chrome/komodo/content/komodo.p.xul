@@ -1309,7 +1309,7 @@
                           label="&project.label;"
                           accesskey="&menuProject.accesskey;">
                         <menupopup id="popup_project"
-                                   onpopupshowing="ko.projects.manager.updateProjectMenu(event, this)">
+                                   onpopupshowing="ko.projects.manager.updateProjectMenu(event, this, 'current')">
                             <menuitem label="&openProject.label;"
                                       id="menu_openProject"
                                       observes="cmd_openProject"
