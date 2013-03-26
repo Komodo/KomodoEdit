@@ -55,7 +55,7 @@ def _add_libs():
 
     # Must be using the same Python version as Komodo's internal Python
     # because SilverCity is a binary ext.
-    assert sys.version_info[:2] == (2, 5), "you must use Python 2.5.x"
+    assert sys.version_info[:2] == (2, 7), "you must use Python 2.7.x"
 
     if is_source_tree_layout():
         ko_dev_dir = dirname(dirname(abspath(__file__)))
