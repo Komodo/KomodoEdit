@@ -180,3 +180,9 @@ pref("browser.preferences.instantApply", false);
 #else
 pref("browser.preferences.instantApply", true);
 #endif
+
+#ifdef XP_MACOSX
+// Horizontal scroll is broken for high-precision scrolling (Mighty Mouse,
+// new trackpads) when pixel-scrolling; see bug 97964
+pref("mousewheel.enable_pixel_scrolling", false);
+#endif
