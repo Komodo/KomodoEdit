@@ -83,11 +83,12 @@ a = 10L + 0xFEEL + 034
             "Expected score of %r for code %s, got %s" % (exp_scores, code, scores))
 
     def test_py3_num_literals(self):
+	# Both Python 2.7 and Python 3 support this syntax.
         code= """\
 a = 0o34
 """
         scores = pythonVersionUtils.getScores(code)
-        exp_scores = (0, 1)
+        exp_scores = (0, 0)
         self.assertEqual(scores, exp_scores,
             "Expected score of %r for code %s, got %s" % (exp_scores, code, scores))
     
