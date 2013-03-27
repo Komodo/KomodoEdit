@@ -390,6 +390,19 @@ console.log('should be node')
 #!/usr/bin/env node
 console.log('should be node')
 """),
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, "Node.js",
+                             "%r found, expected 'Node.js', content %r" % (koDoc.language, content))
+
+    def test_recognize_nodejs_file_with_interpreter(self):
+        # If we have a node interpreter on our path, then these will be seen as
+        # Node.js files, otherwise they are seen as JavaScript files.
+        manifest = [
             (tempfile.mktemp(".js"), """\
 require('console');
 """),
@@ -402,13 +415,15 @@ console.log(event.name);
 });
 """),
         ]
+        import which
+        lang = "Node.js" if which.which("node") else "JavaScript"
         for name, content in manifest:
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
             koDoc.load()
-            self.assertEqual(koDoc.language, "Node.js",
-                             "%r found, expected 'Node.js', content %r" % (koDoc.language, content))
+            self.assertEqual(koDoc.language, lang,
+                             "%r found, expected %r, content %r" % (koDoc.language, lang, content))
 
     def _mk_eol_test_files(self):
         """Create the EOL test files. Relying on SCC systems to result in
