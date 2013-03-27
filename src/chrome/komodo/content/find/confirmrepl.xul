@@ -52,7 +52,7 @@
         windowtype="komodo_confirm_repl"
         title="&confirmReplacement.title;"
         orient="vertical"
-        style="min-width: 40em; max-width: 50em;"
+        style="min-width: 40em;"
         screenX="110"
         screenY="110"
         persist="height width"

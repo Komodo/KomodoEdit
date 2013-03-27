@@ -53,7 +53,7 @@
         windowtype="komodo_undo_repl"
         title="&undoReplacements.title;"
         orient="vertical"
-        style="min-width: 40em; max-width: 50em;"
+        style="min-width: 40em;"
         persist="height width"
         flex="1"
         onload="on_load()"

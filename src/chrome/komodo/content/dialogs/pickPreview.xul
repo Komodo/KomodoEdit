@@ -49,7 +49,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="OnLoad()"
         orient="vertical"
-        style="min-width: 35em; max-width: 40em;"
+        style="min-width: 35em;"
         flex="1"
         buttons="accept,cancel"
         ondialogaccept="return Preview();"

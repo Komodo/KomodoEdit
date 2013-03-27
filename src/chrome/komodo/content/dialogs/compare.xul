@@ -50,7 +50,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="OnLoad()"
         orient="vertical"
-        style="min-width: 45em; max-width: 45em;"
+        style="min-width: 45em;"
         flex="1"
         persist="screenX screenY width height"
         buttons="accept,cancel"

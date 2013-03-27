@@ -63,7 +63,7 @@
         onunload="OnUnload()"
         orient="vertical"
         flex="1"
-        style="min-width: 30em; max-width: 45em;"
+        style="min-width: 30em;"
         buttons="accept"
         ondialogaccept="return Kill();"
         ondialogcancel="return Cancel();">

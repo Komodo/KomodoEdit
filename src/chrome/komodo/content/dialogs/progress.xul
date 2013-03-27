@@ -45,7 +45,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="OnLoad()"
         orient="vertical"
-        style="min-width: 40em; max-width: 50em;"
+        style="min-width: 40em;"
         flex="1"
         buttons="cancel"
         defaultButton="cancel"
