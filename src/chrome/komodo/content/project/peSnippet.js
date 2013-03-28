@@ -297,6 +297,8 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
     var relativeIndent = snippet.hasAttribute('indent_relative')
             && snippet.getStringAttribute('indent_relative') == 'true';
     var viewData = ko.interpolate.getViewData(window);
+    var treat_as_ejs = (snippet.hasAttribute('treat_as_ejs')
+                       && snippet.getStringAttribute('treat_as_ejs') == 'true');
     var text = snippet.value;
     
     // Normalize the text to use the target view's preferred EOL.
@@ -314,7 +316,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         eol_str = "\r";
         break;
     };
-    if (text.indexOf("<%") >= 0) {
+    if (treat_as_ejs && text.indexOf("<%") >= 0) {
         text = this._textFromEJSTemplate(text, eol, eol_str);
     } else {
         text = text.replace(/\r\n|\n|\r/g, eol_str);

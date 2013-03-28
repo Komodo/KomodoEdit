@@ -6,5 +6,7 @@
     "<% link_to(\"[[%tabstop:text]]\", :controller => \"[[%tabstop:items]]\", :action => \"[[%tabstop:index]]\", :id => [[%tabstop:@item]] %>!@#_currentPos!@#_anchor"
   ], 
   "type": "snippet", 
-  "indent_relative": "true"
+  "indent_relative": "true",
+  "treat_as_ejs": "false",
+  "version": "1.0.13"
 }

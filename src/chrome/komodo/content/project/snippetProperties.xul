@@ -206,6 +206,9 @@
                 <checkbox id="auto_abbreviation"
                           label="&AutoAbbreviation.label;"
                           checked="false"/>
+                <checkbox id="treat_as_ejs"
+                          label="&TreatAsEJS.label;"
+                          checked="false"/>
             </vbox>
             <vbox id="shortcut_tabpanel">
                 <!-- header -->

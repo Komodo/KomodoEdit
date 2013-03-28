@@ -74,6 +74,7 @@ create table snippet (
     set_selection bool default false,
     indent_relative bool default false,
     auto_abbreviation bool default false
+    treat_as_ejs bool default false
 );
 
 create table macro (

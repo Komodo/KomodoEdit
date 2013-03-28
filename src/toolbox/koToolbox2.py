@@ -115,7 +115,8 @@ class Database(object):
     # - 1.0.11: add auto_abbreviation property to snippets, default is false
     # - 1.0.12: signal change moving from 11 to 12, to update tool item versions,
     #           and add auto_abbreviation fields to snippets
-    VERSION = "1.0.12"
+    # - 1.0.13: add treat_as_ejs property to snippets, default is false
+    VERSION = "1.0.13"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -147,7 +148,8 @@ class Database(object):
                      'parseOutput', 'runIn', 'cwd', 'env', ],
             'macro':['async', 'trigger_enabled', 'trigger',
                           'language', 'rank'],
-            'snippet':['set_selection', 'indent_relative', 'auto_abbreviation'],
+            'snippet':['set_selection', 'indent_relative', 'auto_abbreviation',
+                       'treat_as_ejs'],
             'menu':['accesskey', 'priority'],
             'toolbar':['priority'],
             'folder':[],
@@ -279,6 +281,13 @@ class Database(object):
         with self.connect(commit=True) as cu:
             cu.execute("alter table snippet add column auto_abbreviation bool default false")
         
+    def _add_treat_as_ejs_to_snippets(self, curr_ver, result_ver):
+        """
+        Add this field: treat_as_ejs bool default false
+        """
+        with self.connect(commit=True) as cu:
+            cu.execute("alter table snippet add column treat_as_ejs bool default false")
+        
     _upgrade_info_from_curr_ver = {
         # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
         "1.0.5": ('1.0.6',  _delete_directory_shortcuts, None),
@@ -288,6 +297,7 @@ class Database(object):
         "1.0.9": ('1.0.10', _signal_check_remove_scc_dir, None),
         "1.0.10": ('1.0.11', _add_auto_abbreviation_field_to_snippets, None),
         "1.0.11": ('1.0.12',  _signal_item_version_change, None),
+        "1.0.12": ('1.0.13', _add_treat_as_ejs_to_snippets, None),
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -703,11 +713,13 @@ class Database(object):
             ('set_selection', False),
             ('indent_relative', False),
             ('auto_abbreviation', False),
+            ('treat_as_ejs', False),
             ]
         valueList = self._getValuesFromDataAndDelete(id, data, names_and_defaults)
         stmt = '''insert into snippet(
-                  path_id, set_selection, indent_relative, auto_abbreviation)
-                  values(?, ?, ?, ?)'''
+                  path_id, set_selection, indent_relative, auto_abbreviation,
+                  treat_as_ejs)
+                  values(?, ?, ?, ?, ?)'''
         cu.execute(stmt, valueList)
         if data:
             return self.addMiscProperties(id, data, cu)
@@ -1650,6 +1662,14 @@ class ToolboxLoader(object):
         except KeyError:
             pass
         self._update_version(curr_ver, result_ver, json_data, path)
+
+    def _add_treat_as_ejs_to_snippets(self, curr_ver, result_ver, json_data, path):
+        try:
+            if json_data['type'] == "snippet" and "treat_as_ejs" not in json_data:
+                json_data["treat_as_ejs"] = "false"
+        except KeyError:
+            pass
+        self._update_version(curr_ver, result_ver, json_data, path)
             
 
     _upgrade_item_info_from_curr_ver = {
@@ -1658,6 +1678,7 @@ class ToolboxLoader(object):
         '1.0.6': ('1.0.7', _remove_id_field),
         # DB changes 1.0.8, 1.0.9, 1.0.10 don't affect snippets.
         '1.0.7': ('1.0.11', _add_auto_abbrev_field_to_snippets),
+        '1.0.11': ('1.0.12', _add_treat_as_ejs_to_snippets),
      }
 
     def upgradeItem(self, json_data, path):
