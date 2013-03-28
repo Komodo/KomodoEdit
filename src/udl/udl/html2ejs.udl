@@ -5,6 +5,8 @@ family markup
 # '<' that brought us here.
 
 state IN_M_STAG_EXP_TNAME:
+# Treat <%% as <%
+'%%' : paint(include, TPL_OPERATOR) => IN_M_DEFAULT
 /%#/ : paint(include, TPL_COMMENT), spush_check(IN_M_DEFAULT) => IN_TPL_COMMENT
 /%=?/ : paint(include, TPL_OPERATOR), spush_check(IN_M_DEFAULT) => IN_CSL_DEFAULT
 

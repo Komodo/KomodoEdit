@@ -114,7 +114,6 @@ class KoKomodoSnippetLinter(object):
                     thisBit = textAsBytes[i:]
                 else:
                     thisBit = textAsBytes[i:idx]
-                    haveJS = True
                 lineNum += thisBit.count("\n")
                 self._addVerbatimPieces(finalPieces, thisBit)
                 if idx == -1:
@@ -122,9 +121,11 @@ class KoKomodoSnippetLinter(object):
                 try:
                     c = textAsBytes[idx + 2]
                     if c == '=':
-                        state = 1
+                        haveJS = True
                     elif c == '#':
-                        state = 3
+                        haveJS = True
+                    elif c == '%':
+                        pass # stay at state 0
                     else:
                         raise IndexError()
                     i = idx + 3
@@ -134,6 +135,11 @@ class KoKomodoSnippetLinter(object):
                     i = idx + 2
                     finalPieces.append("  ")
             else:
+                idx = textAsBytes.find("%%>", i)
+                if idx >= 0:
+                    finalPieces.append("   ")
+                    i = idx + 3
+                    continue
                 idx = textAsBytes.find("%>", i)
                 if idx == -1:
                     thisBit = textAsBytes[i:]

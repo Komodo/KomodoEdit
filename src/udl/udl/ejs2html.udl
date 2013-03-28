@@ -3,19 +3,29 @@
 family csl
 
 state IN_CSL_DEFAULT:
+/%%>/: # stay
 /-?%>/ : paint(upto, CSL_DEFAULT), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT
 
 state IN_TPL_COMMENT:
+/%%>/: # stay
 /-?%>/ : paint(upto, TPL_COMMENT), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT
 
-state IN_CSL_STRING:
+state IN_CSL_CSTRING:
+/%%>/: # stay
+/-?%>/ : paint(upto, CSL_STRING), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT
+
+state IN_CSL_DSTRING:
+/%%>/: # stay
 /-?%>/ : paint(upto, CSL_STRING), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT
 
 state IN_CSL_COMMENT_1:
+/%%>/: # stay
 /-?%>/ : paint(upto, CSL_COMMENT), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT
 
 state IN_CSL_COMMENT_LINE_1:
+/%%>/: # stay
 /-?%>/ : paint(upto, CSL_COMMENT), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT
 
 state IN_CSL_REGEX:
+/%%>/: # stay
 /-?%>/ : paint(upto, CSL_REGEX), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT
