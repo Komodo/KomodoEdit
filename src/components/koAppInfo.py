@@ -77,7 +77,7 @@ class KoAppInfoEx:
         self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService)
 
-        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
+        self._userPath = koprocessutils.getUserEnv().get("PATH", "").split(os.pathsep)
 
         # Listen for changes to the user environment. This must be called on the
         # main thread - bug 96530.
@@ -101,7 +101,7 @@ class KoAppInfoEx:
             self.reset()
         elif topic == "user_environment_changed":
             # Re-create the user path and drop any caches.
-            self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
+            self._userPath = koprocessutils.getUserEnv().get("PATH", "").split(os.pathsep)
             self.reset()
 
     def reset(self):
