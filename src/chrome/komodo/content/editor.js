@@ -429,8 +429,16 @@ editor_editorController.prototype.do_cmd_pasteHtml= function() {
     scimoz.replaceSel(html);
 }
 
-editor_editorController.prototype.is_cmd_wordWrap_enabled = function() {
+editor_editorController.prototype.is_cmd_wordWrap_supported = function() {
     return !!_getCurrentScimozView();
+};
+
+editor_editorController.prototype.is_cmd_wordWrap_enabled = function() {
+    var v = _getCurrentScimozView();
+    if (!v) {
+        return false;
+    }
+    return v.scimoz.wrapMode;
 };
 
 editor_editorController.prototype.do_cmd_wordWrap = function() {
