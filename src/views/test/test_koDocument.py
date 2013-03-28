@@ -416,7 +416,15 @@ console.log(event.name);
 """),
         ]
         import which
-        lang = "Node.js" if which.which("node") else "JavaScript"
+        try:
+            which.which("node")
+            lang = "Node.js"
+        except which.WhichError:
+            # Could not find node interpreter.
+            import logging
+            log = logging.getLogger("test")
+            log.warn("No node interpreter was found on the path")
+            lang = "JavaScript"
         for name, content in manifest:
             path = join(self.data_dir, name)
             _writefile(path, content)
