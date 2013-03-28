@@ -66,9 +66,9 @@ r"""
     
     Suggested configurations are:
     * Komodo 8.0.x release builds:
-        python build.py configure -k 8.0 --moz-src=1800 --with-crashreport-symbols
+        python build.py configure -k 8.0 --with-crashreport-symbols
     * Komodo 8.0 development builds:
-        python build.py configure -k 8.10 --moz-src=1800
+        python build.py configure -k 8.10
 """
 #
 # Development Notes:
@@ -861,24 +861,20 @@ def target_configure(argv):
         
         --moz-src=<scheme>
             Specify what mozilla source to use. Can be:
-                <path-to-tarball>
-                    A path to a mozilla/firefox source tarball to use
-                    for the source.
                 ver[:TAG]
                     A version string indicating a specific
                     mozilla/firefox version - the repository or tarball will be
                     automatically worked out by the build system.
+                <path-to-tarball>
+                    A path to a mozilla/firefox source tarball to use
+                    for the source.
             
             This table might help you pick a relevant scheme and tag.
 
             Scheme      Tag                     KoVer   FFVer   MozVer
             ----------  ----------------------  ------  ------  ----------
-            200         FIREFOX_4_0_0_RELEASE   7.0.X   4.0.X   2.00
-            500         FIREFOX_5_0_0_RELEASE   7.0.X   5.0.X   5.00
-            600         FIREFOX_6_0_0_RELEASE   7.0.X   6.0.X   6.00
             700         FIREFOX_7_0_0_RELEASE   7.0.X   7.0.X   7.00
-            800         FIREFOX_8_0_0_RELEASE   7.0.X   8.0.X   8.00
-            900         FIREFOX_9_0_0_RELEASE   7.0.X   9.0.X   9.00
+            1800        FIREFOX_18_0_0_RELEASE  8.0.X  18.0.X   18.00
 
     Other Options:
         -r, --reconfigure
@@ -1002,8 +998,7 @@ def target_configure(argv):
         "mozconfig": None,
         "mozApp": "komodo",
         "jsStandalone": False,
-        "mozSrcScheme": BuildError("don't have a mozilla source scheme: "
-                                   "use '--moz-src'"),
+        "mozSrcScheme": "1800",
         "official": False,      # i.e. a plain Mozilla/Firefox build w/o Komodo stuff
         "withCrashReportSymbols": False,
         "stripBuild": False,
