@@ -67,9 +67,9 @@ r"""
     Suggested configurations are:
     * Komodo 8.0.x release builds:
         python build.py configure -k 8.0 --moz-src=1800 \
-            --release --no-strip --with-crashreport-symbols
+            --release --with-crashreport-symbols
     * Komodo 8.0 development builds:
-        python build.py configure -k 8.10 --moz-src=1800 --release --no-strip
+        python build.py configure -k 8.10 --moz-src=1800 --release
 """
 #
 # Development Notes:
@@ -902,7 +902,7 @@ def target_configure(argv):
 
         --strip, --no-strip
             Whether to strip libraries after the build. By default
-            stripping *is* done.
+            stripping is *not* done.
 
         --with-crashreport-symbols
             Enable builds that contain crash reporting symbols.
@@ -1007,7 +1007,7 @@ def target_configure(argv):
                                    "use '--moz-src'"),
         "official": False,      # i.e. a plain Mozilla/Firefox build w/o Komodo stuff
         "withCrashReportSymbols": False,
-        "stripBuild": True,
+        "stripBuild": False,
         "compiler": None, # Windows-only; 'vc9' (the default)
         "gcc": None, # Unix-only; 'gcc44' (the default)
         "gxx": None, # Unix-only; 'g++44' (the default)
