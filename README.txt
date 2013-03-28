@@ -27,10 +27,10 @@ Build steps on Windows (creating a Komodo 8.10 version):
     REM ---- Build Mozilla
     cd openkomodo\mozilla
     setenv-moz-msvc9.bat
-    python build.py configure -k 8.10 --moz-src=1800 --release --no-strip --moz-objdir=koobj
+    python build.py configure -k 8.10
     python build.py distclean all
     cd ..
-    REM ---- Build Komodo
+    REM ---- Build Komodo, version (8.10) must match between Komodo and Mozilla
     set PATH=util\black;%PATH%
     bk configure -V 8.10.0-devel
     bk build
@@ -41,10 +41,10 @@ Build steps on Linux and Mac OS X:
 
     #---- Build Mozilla
     cd openkomodo/mozilla
-    python build.py configure -k 8.10 --moz-src=1800 --release --no-strip
+    python build.py configure -k 8.10
     python build.py distclean all
     cd ..
-    #---- Build Komodo
+    #---- Build Komodo, version (8.10) must match between Komodo and Mozilla
     export PATH=`pwd`/util/black:$PATH   # Komodo's "bk" build tool
     bk configure -V 8.10.0-devel
     bk build
@@ -250,26 +250,14 @@ for Komodo, you should only need to do this once (in a while).
 
         setenv-moz-msvc9.bat
 
-3. Configure for the mozilla build. On Windows you currently want
-   something like:
+3. Configure for the mozilla build. You'll want to use something like:
 
-        python build.py configure -k 8.10 --moz-src=1800 --release --no-strip --moz-objdir=koobj
-
-   On other platforms:
-   
-        python build.py configure -k 8.10 --moz-src=1800 --release --no-strip
+        python build.py configure -k 8.10
 
    What this configure-step does is create a "config.py" file that guides
    the build step (next). This is akin to the "./configure" in the common
    "./configure; make; make install" build trinity.
    
-   What this configuration is saying is:
-   - configure for a Komodo Edit 8.10.x build
-   - use the latest Mozilla 18 (1800) source code
-   - do a release (i.e. non-debug) build
-   - don't strip symbol information from binaries (i.e. *don't* put
-     --enable-strip in .mozconfig)
-     
    Run `python build.py -h configure` for more details.
 
 4. Build away:
