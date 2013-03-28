@@ -198,7 +198,7 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
                 var errmsg = lastErrorSvc.getLastErrorMessage();
                 ko.dialogs.alert("Error inserting snippet: " + errmsg);
             } else {
-                log.error(ex);
+                log.exception(ex, "Error with snippet");
                 ko.dialogs.internalError(ex, "Error inserting snippet");
             }
         }
@@ -317,7 +317,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         break;
     };
     if (treat_as_ejs && text.indexOf("<%") >= 0) {
-        text = this._textFromEJSTemplate(text, eol, eol_str);
+        text = this._textFromEJSTemplate(text, eol, eol_str, snippet);
     } else {
         text = text.replace(/\r\n|\n|\r/g, eol_str);
     }
@@ -509,7 +509,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
     return enteredUndoableTabstop;
 }
 
-this._textFromEJSTemplate = function _textFromEJSTemplate(text, eol, eol_str) {
+this._textFromEJSTemplate = function _textFromEJSTemplate(text, eol, eol_str, snippet) {
     // ejs will convert all \r and \r\n's to \n, so we'll need to
     // convert them back to eol_str on return
     // But make sure the snippet metadata isn't caught inside an EJS part
