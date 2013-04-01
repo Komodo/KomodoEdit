@@ -332,6 +332,7 @@
             minimap.setAttribute('type', 'minimap'); // needed for view-list-base.log
             this.parentNode.appendChild(minimap); // this.parentNode is the tabbox container
             this.minimap = minimap;
+            window.setTimeout(window.updateCommands, 1, 'minimap_changed');
             minimap.initWithView(this);
             minimap.attachKoDoc(this.koDoc);
             this.updateMinimapDisplay(true);
@@ -350,6 +351,7 @@
             this.minimap.releaseKoDoc();
             this.parentNode.removeChild(this.minimap);
             this.minimap = null;
+            window.setTimeout(window.updateCommands, 1, 'minimap_changed');
         ]]>
         </body>
         </method>

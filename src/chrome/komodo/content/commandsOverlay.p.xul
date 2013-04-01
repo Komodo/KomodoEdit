@@ -1319,6 +1319,14 @@
             oncommand="ko.commands.doCommandAsync('cmd_invokeHyperlink', event)"
             disabled="true"
             desc="&editorInvokeHyperlink.desc;"/>
+    </commandset>
+
+    <commandset
+        id="cmdset_minimap"
+        oncommandupdate="ko.commands.updateCommandset(this)"
+        commandupdater="true"
+        events="minimap_changed,currentview_is_editor"
+        >
         <command
             id="cmd_minimap_fontZoomIn" key="key_cmd_minimap_fontZoomIn"
             oncommand="ko.commands.doCommandAsync('cmd_minimap_fontZoomIn', event)"
