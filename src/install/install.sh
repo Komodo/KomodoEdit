@@ -64,7 +64,7 @@ if [ -z "$KOMODO_FORCE_ARCH" -a "0" -eq `expr "$exe_type" : "$machine_arch"` ] ;
 	[31;1m
 	This Komodo binary may not be correct for your computer's architecture.
 	You can download the $wanted_arch Komodo version at:
-	http://www.activestate.com/komodo-ide/downloads
+	http://www.activestate.com/komodo-edit/downloads
 	[0m
 	EOF
         }
