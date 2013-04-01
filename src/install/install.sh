@@ -48,10 +48,10 @@ dname=`dirname $0`
 exe_type=`file "$dname"/INSTALLDIR/lib/python/bin/python*.*`
 case `uname -m` in
     x86_64)
-        machine_arch=".*executable, x86-64, "
+        machine_arch=".*64-bit"
         wanted_arch="x86_64";;
     i?86)
-        machine_arch=".*executable, Intel 80386, "
+        machine_arch=".*32-bit"
         wanted_arch="x86";;
     *)
         # I dunno what you're doing, hopefully you're smart enough
@@ -62,9 +62,9 @@ if [ -z "$KOMODO_FORCE_ARCH" -a "0" -eq `expr "$exe_type" : "$machine_arch"` ] ;
     print_arch_warning ( ) {
         cat >&1 <<-EOF
 	[31;1m
-	This Komodo binary is not meant for your computer's architecture.
-	Please download the $wanted_arch version at:
-	http://www.activestate.com/komodo-edit/downloads
+	This Komodo binary may not be correct for your computer's architecture.
+	You can download the $wanted_arch Komodo version at:
+	http://www.activestate.com/komodo-ide/downloads
 	[0m
 	EOF
         }
