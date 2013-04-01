@@ -1123,20 +1123,6 @@ class CplnTestCase(CodeintelPythonTestCase):
         self.assertNoDuplicateCompletions(
             markup_text(foo_py_content, pos=foo_py_positions[1]))
 
-    def test_sitelib(self):
-        # If this is ActivePython, let's make sure we can 'import
-        # activestate'. This is essentially a test of a Python buffer's
-        # "sitelib".
-        import subprocess
-        cmd = ["python", "-m", "activestate"]
-        try:
-            subprocess.check_call(cmd)
-        except subprocess.CalledProcessError:
-            pass # not ActivePython, can't test
-        else:
-            self.assertCompletionsInclude("import <|>",
-                [("module", "activestate")])
-
     def test_calltip_call_signature(self):
         markedup_content = dedent("""\
             class Foo:
