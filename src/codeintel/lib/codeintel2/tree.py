@@ -327,6 +327,7 @@ class TreeEvaluator(CitadelEvaluator):
             else:  # self.trg.form == TRG_FORM_DEFN
                 defns = self.eval_defns()
                 if defns:
+                    defns = Definition.unique_definitions(defns)
                     defns = self.post_process_defns(defns)
                 self.info("    defns: %r", defns)
                 if defns:
