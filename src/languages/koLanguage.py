@@ -485,13 +485,12 @@ class KoLanguageRegistryService:
         basename = basename.lower()
         exts = basename.split(".")[1:]
         if len(exts) >= 2:
-            # Bug 97967: use the longest compounded extension first, then
-            #            look for each component after the first dot:
+            # Bug 97967: use the longest compounded extension first, 
+            #            until we're down to the final extension.
             # e.g. "foo.blatz.html.erb" => ['.blatz.html.erb', '.html.erb',
-            #                               '.blatz', '.html', '.erb']
+            #                               '.erb']
             # so .html.erb => RHTML if there is a '*.html.erb' association.
-            compoundParts = ['.'.join(exts[i:]) for i in range(len(exts) - 1)]
-            exts = compoundParts + exts
+            exts = ['.'.join(exts[i:]) for i in range(len(exts))]
 
         for ext in exts:
             lang = self.__languageNameFromExtOrBasename.get(ext)

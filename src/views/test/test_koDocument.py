@@ -298,6 +298,20 @@ use moz bindings with CSS to acheive everything we have here.
             koDoc.load()
             self.assertEqual(koDoc.language, "Smarty")
 
+    # bug 98264
+    def test_recognize_php_file_01(self):
+        manifest = [
+            (tempfile.mktemp(".tpl.php"), """\
+{{ hello }}
+{% import 'macro/std.macro.twig' as macro_std %}"""),
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, "PHP")
+
     def test_recognize_twig_file(self):
         manifest = [
             (tempfile.mktemp(".twig"), """\
