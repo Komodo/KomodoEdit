@@ -47,6 +47,11 @@ SciMozMock.prototype._indicatorKeys =
               .map(function(n) parseInt(n, 10) + start)
               .sort(function(a, b) a - b);
 
+SciMozMock.prototype.addText =
+    function SciMozMock_addText(aLength, aText) {
+        this.text = this.text.substr(0, this.currentPos) + aText + this.text.substr(this.currentPos);
+    }
+
 SciMozMock.prototype.charPosAtPosition =
     function SciMozMock_charPosAtPosition(pos)
         pos < 0 ? this.currentPos : pos;
@@ -258,8 +263,8 @@ SciMozMock.prototype.indicatorValueAt =
     };
 
 SciMozMock.prototype.insertText =
-    function SciMozMock_insertText(aLength, aText) {
-        this.text = this.text.substr(0, this.currentPos) + aText + this.text.substr(this.currentPos);
+    function SciMozMock_insertText(pos, aText) {
+        this.text = this.text.substr(0, pos) + aText + this.text.substr(pos);
     }
 
 Object.defineProperty(SciMozMock.prototype, "length", {
