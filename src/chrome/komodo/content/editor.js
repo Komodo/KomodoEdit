@@ -429,45 +429,6 @@ editor_editorController.prototype.do_cmd_pasteHtml= function() {
     scimoz.replaceSel(html);
 }
 
-editor_editorController.prototype.is_cmd_wordWrap_supported = function() {
-    return !!_getCurrentScimozView();
-};
-
-editor_editorController.prototype.is_cmd_wordWrap_enabled = function() {
-    var v = _getCurrentScimozView();
-    if (!v) {
-        return false;
-    }
-    return v.scimoz.wrapMode;
-};
-
-editor_editorController.prototype.do_cmd_wordWrap = function() {
-    var v = _getCurrentScimozView();
-    if (!v) {
-        return;
-    }
-    var scimoz = v.scimoz;
-    if (!scimoz) {
-        return;
-    }
-    if (scimoz.wrapMode == scimoz.SC_WRAP_NONE) {
-        scimoz.wrapMode = scimoz.SC_WRAP_WORD;
-    } else {
-        // Bug 97600:
-        // Scintilla doesn't update scimoz.firstVisibleLine,
-        // but it needs to point it to the docLine
-        var docFirstLine = scimoz.docLineFromVisible(scimoz.firstVisibleLine);
-        scimoz.wrapMode = scimoz.SC_WRAP_NONE;
-        // Bug 97600: If lines are folded above the original firstVisibleLine,
-        // we need to let the editor redraw everything before we can rely
-        // on the visibleFromDocLine function.
-        setTimeout(function() {
-                scimoz.firstVisibleLine = scimoz.visibleFromDocLine(docFirstLine);
-            }, 50);
-    }
-};
-
-
 window.controllers.appendController(new editor_editorController());
 
 }).apply(); // apply into the global namespace

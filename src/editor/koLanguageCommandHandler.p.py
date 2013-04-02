@@ -161,6 +161,22 @@ class GenericCommandHandler:
     def _do_cmd_viewEOL(self):
         self._view.scimoz.viewEOL = not self._view.scimoz.viewEOL
 
+    def _is_cmd_wordWrap_enabled(self):
+        return self._view.scimoz.wrapMode
+
+    def _do_cmd_wordWrap(self):
+        sm = self._view.scimoz
+        if sm.wrapMode == sm.SC_WRAP_NONE:
+            sm.wrapMode = sm.SC_WRAP_WORD
+        else:
+            # Bug 97600:
+            # Scintilla doesn't update scimoz.firstVisibleLine,
+            # but it needs to point it to the docLine
+            docFirstLine = sm.docLineFromVisible(sm.firstVisibleLine)
+            sm.wrapMode = sm.SC_WRAP_NONE
+            sm.firstVisibleLine = docFirstLine
+
+
     def _resolveDiffPath(self, diff, diff_file, paths):
         """Return a resolved absolute and existing path for the given
         file path indicated in a diff.
