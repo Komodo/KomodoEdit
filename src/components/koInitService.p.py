@@ -404,17 +404,20 @@ class KoInitService(object):
                 # media is accessed, but not available
                 # (eg, when a file from a floppy is on the MRU,
                 # but no floppy is in the drive)
-                import platform
                 import ctypes
                 SetErrorMode = ctypes.windll.kernel32.SetErrorMode
                 SetErrorMode.argtypes = [ctypes.c_uint32]
                 SetErrorMode.restype = ctypes.c_uint32
                 SEM_FAILCRITICALERRORS = 1
-                if platform.win32_ver()[0] == "XP":
-                    # Windows XP does not have GetErrorMode.
+                try:
+                    GetErrorMode = ctypes.windll.kernel32.GetErrorMode
+                except AttributeError:
+                    # Windows XP and Windows 2003 do not have GetErrorMode.
+                    import platform
+                    log.warn("setPlatformErrorMode:: GetErrorMode not available on platform: %s",
+                             platform.win32_ver()[0])
                     SetErrorMode(SEM_FAILCRITICALERRORS)
                 else:
-                    GetErrorMode = ctypes.windll.kernel32.GetErrorMode
                     GetErrorMode.restype = ctypes.c_uint32
                     SetErrorMode(GetErrorMode() | SEM_FAILCRITICALERRORS)
             except ImportError:
