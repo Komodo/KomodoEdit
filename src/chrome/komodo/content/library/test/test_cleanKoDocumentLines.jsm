@@ -70,11 +70,16 @@ TestCleanKoDocumentLines.prototype.test_clean_changed_lines_only_01 = function t
     var file = this.fileSvc.makeTempFile(".txt", 'w');
     try {
         ("file's path: " + file.path + "\n");
-        var origBuf = "line 0, no space\n"
+        var origBuf   = "line 0, no space\n"
                       + "line 1, ends with 2 spaces  \n"
                       + "line 2, ends with 4 spaces    \n"
                       + "line 3, ends with no\n"
                       + "line 4, ends with 4 spaces    \n";
+        var resultBuf = "line 0, no space\n"
+                      + "line 1, ends with 2 spaces\n"  // modified, stripped
+                      + "line 2, ends with 4 spaces    \n"
+                      + "line 3, ends with no\n"
+                      + "line 4, ends with 4 spaces\n"; // modified, stripped
         file.puts(origBuf);
         file.close();
         var koDoc = this.docSvc.createNewDocumentFromURI(file.URI);
@@ -85,25 +90,21 @@ TestCleanKoDocumentLines.prototype.test_clean_changed_lines_only_01 = function t
         koDoc.addView(view.scintilla);
         //koDoc.save(1);
         //this.assertEqual(view.scintilla, koDoc.getView());
-        var expectedLines = origBuf.split(/\r?\n/).map(function(s) s.replace(/\s*$/, ''));
+        var expectedLines = resultBuf.split(/\r?\n/);
         // Now allow for the modifications we'll do.
         // Line 0: no change
         // Line 1: add 2 spaces to end
         // Line 2: no change
         // Line 3: add 4 spaces to end
         // Line 4: delete 1 space from end
-        expectedLines[1] += this.sp(4);
-        expectedLines[2] += this.sp(4); // no change
-        // expectedLines[3] -- should be same
-        expectedLines[4] += this.sp(3);
 
         // Modify the lines
         var scimoz = view.scimoz;
 
         scimoz.currentPos = scimoz.getLineEndPosition(1);
-        scimoz.insertText(2, this.sp(2));
+        scimoz.addText(2, this.sp(2));
         scimoz.currentPos = scimoz.getLineEndPosition(3);
-        scimoz.insertText(4, this.sp(4));
+        scimoz.addText(4, this.sp(4));
         scimoz.targetEnd = scimoz.getLineEndPosition(4);
         scimoz.targetStart = scimoz.targetEnd - 1;
         scimoz.replaceTarget(0, "");
@@ -141,7 +142,7 @@ TestCleanKoDocumentLines.prototype.test_clean_all_lines_02 = function test_clean
         // Modify the lines
         var scimoz = view.scimoz;
         scimoz.currentPos = scimoz.getLineEndPosition(1);
-        scimoz.insertText(1, this.sp(1));
+        scimoz.addText(1, this.sp(1));
         //scimoz.targetEnd = scimoz.getLineEndPosition(2);
         //scimoz.targetStart = scimoz.targetEnd - 1;
         scimoz.replaceTarget(0, "");
@@ -176,7 +177,7 @@ TestCleanKoDocumentLines.prototype.test_clean_no_lines_03 = function test_clean_
         // Modify the lines
         var scimoz = view.scimoz;
         scimoz.currentPos = scimoz.getLineEndPosition(1);
-        scimoz.insertText(1, this.sp(1));
+        scimoz.addText(1, this.sp(1));
         expectedLines[1] += " ";
         scimoz.targetEnd = scimoz.getLineEndPosition(2);
         scimoz.targetStart = scimoz.targetEnd - 1;
