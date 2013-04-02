@@ -59,6 +59,8 @@
             // bug 97956: Avoid implicit copy to the X-windows clipboard
             mm_scimoz.rejectSelectionClaim = true;
 // #endif
+            // bug 97159: Suppress drag/drop involving minimaps
+            mm_scimoz.suppressDragDrop = true;
             setTimeout(function() {
                 this.syncMinimapFromBuffer();
             }.bind(this), 10);
@@ -341,7 +343,21 @@
                 // will be cleared.
                 this.handleButtonClick(event);
                 }.bind(this), 10);
-            return this._squelchEvent(event);
+            this._squelchEvent(event);
+            ]]>
+        </handler>
+        
+        <handler event="dragstart" phase="capturing">
+            <![CDATA[
+            // Bug 97159 : Don't allow drag/drop in the minimap
+            return false;
+            ]]>
+        </handler>
+        
+        <handler event="dragover" phase="capturing">
+            <![CDATA[
+            // Bug 97159 : Don't allow drag/drop in the minimap
+            event.dataTransfer.dropEffect = "none";
             ]]>
         </handler>
         

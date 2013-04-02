@@ -4,13 +4,16 @@ Index: src/Editor.cxx
 ===================================================================
 --- src/Editor.cxx	(revision 73425)
 +++ src/Editor.cxx	(working copy)
-@@ -227,6 +227,9 @@
+@@ -227,6 +227,12 @@
  
  	llc.SetLevel(LineLayoutCache::llcCaret);
  	posCache.SetSize(0x400);
 +
 +	// XXX ActiveState prevent minimap selection-claiming (bug 97956)
 +	rejectSelectionClaim = false;
++
++	// ActiveState suppress drag/drop when in minimap (bug 97159)
++	suppressDragDrop = false;
  }
  
  Editor::~Editor() {
@@ -201,6 +204,17 @@ Index: src/Editor.cxx
  					MovePositionTo(SelectionPosition(pdoc->LineEndPosition(savedPos)));
  				}
  				break;
+@@ -6006,7 +6006,10 @@
+ 
+ void Editor::DropAt(SelectionPosition position, const char *value, bool moving, bool rectangular) {
+ 	//Platform::DebugPrintf("DropAt %d %d\n", inDragDrop, position);
++	if (suppressDragDrop) {
++		return; // bug 97159
++	}
+ 	if (inDragDrop == ddDragging)
+ 		dropWentOutside = false;
+ 
+ 	bool positionWasInSelection = PositionInSelection(position.Position());
 @@ -6119,33 +6141,45 @@
  		x += vs.ms[margin].width;
  	}
@@ -280,6 +294,15 @@ Index: src/Editor.cxx
  }
  
  void Editor::SetHotSpotRange(Point *pt) {
+@@ -6436,7 +6486,7 @@
+ 	movePos = MovePositionOutsideChar(movePos, sel.MainCaret() - movePos.Position());
+ 
+ 	if (inDragDrop == ddInitial) {
+-		if (DragThreshold(ptMouseLast, pt)) {
++		if (!suppressDragDrop && DragThreshold(ptMouseLast, pt)) {
+ 			SetMouseCapture(false);
+ 			SetDragPosition(movePos);
+ 			CopySelectionRange(&drag);
 @@ -7396,21 +7433,21 @@
  		return GetTag(CharPtrFromSPtr(lParam), wParam);
  
@@ -345,7 +368,7 @@ Index: src/Editor.cxx
  		case Selection::selRectangle:
  			return SC_SEL_RECTANGLE;
  		case Selection::selLines:
-@@ -8983,20 +9026,53 @@
+@@ -8983,20 +9026,59 @@
  
  	case SCI_GETHOTSPOTSINGLELINE:
  		return vs.hotspotSingleLine ? 1 : 0;
@@ -387,8 +410,14 @@ Index: src/Editor.cxx
 +	case SCI_GETREJECTSELECTIONCLAIM: //  bug 97956
 +		return rejectSelectionClaim;
 +
-+	// END ACTIVESTATE
++	case SCI_SETSUPPRESSDRAGDROP: // bug 97159
++		suppressDragDrop = wParam;
++		break;
 +
++	case SCI_GETSUPPRESSDRAGDROP: //  bug 97159
++		return suppressDragDrop;
++
++	// END ACTIVESTATE
  
  	case SCI_GETCHARACTERPOINTER:
  		return reinterpret_cast<sptr_t>(pdoc->BufferPointer());

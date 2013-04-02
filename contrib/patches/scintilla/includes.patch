@@ -1,6 +1,6 @@
 --- include/Scintilla.iface	2007-11-04 02:03:56.000000000 -0800
 +++ include/Scintilla.iface	2007-11-11 17:14:56.000000000 -0800
-@@ -2112,14 +2112,40 @@
+@@ -2112,14 +2112,44 @@
  # Retrieve the number of bits the current lexer needs for styling.
  get int GetStyleBitsNeeded=4011(,)
  
@@ -33,6 +33,10 @@
 +
 +# Returns whether the editor is not claiming selections
 +get bool GetRejectSelectionClaim=5009(,)
++
++# Tell the editor the current scintilla object is a minimap
++set void SetSuppressDragDrop=5010(bool suppressDragDrop,)
++get bool GetSuppressDragDrop=5011(,)
 +
  # For private communication between an application and a known lexer.
  fun int PrivateLexerCall=4013(int operation, int pointer)
@@ -335,7 +339,7 @@
  evt void StyleNeeded=2000(int position)
 --- include/Scintilla.h   Thu Sep 27 11:10:30 2007
 +++ include/Scintilla.h Mon Oct 29 16:38:27 2007
-@@ -680,7 +680,15 @@
+@@ -680,7 +680,17 @@
  #define SCI_GETPROPERTYEXPANDED 4009
  #define SCI_GETPROPERTYINT 4010
  #define SCI_GETSTYLEBITSNEEDED 4011
@@ -348,6 +352,8 @@
 +#define SCI_RELEASEMOUSECAPTURE 5007
 +#define SCI_SETREJECTSELECTIONCLAIM 5008
 +#define SCI_GETREJECTSELECTIONCLAIM 5009
++#define SCI_SETSUPPRESSDRAGDROP 5010
++#define SCI_GETSUPPRESSDRAGDROP 5011
  #define SCI_PRIVATELEXERCALL 4013
  #define SCI_PROPERTYNAMES 4014
  #define SC_TYPE_BOOLEAN 0
