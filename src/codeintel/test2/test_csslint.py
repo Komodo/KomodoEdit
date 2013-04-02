@@ -4048,3 +4048,21 @@ div {
         code = 'E[foo$"bar"] {}'
         for lang in self.langs:
             self._check_one_result_check_error_on_line(code, "expecting '=' after substring operator '$'", '"bar"', language=lang)
+
+    @tag("bug98538")
+    def test_resolution_suffixes(self):
+        code = dedent("""\
+@media screen and (min-resolution: 2dppx) {
+}
+@media screen and (min-resolution: 8dpcm) {
+}
+@media screen and (min-resolution: 16dpi) {
+}
+""")
+        self._check_zero_results_show_error(code)
+        # Verify an invalid suffix
+        code = dedent("""\
+@media screen and (min-resolution: 23dppxdpi) {
+}
+""")
+        self._check_one_result_check_error_on_line(code, "got an unsupported or unrecognized numeric unit:", 'dppxdpi')

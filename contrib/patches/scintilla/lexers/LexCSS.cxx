@@ -486,15 +486,18 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 		
 		case SCE_CSS_NUMBER:
 			if (!IsADigit(ch) && ch != '.') {
-				if (sc.MatchIgnoreCase("grad")
-				    && !IsAWordChar(styler.SafeGetCharAt(sc.currentPos + 4))) {
+				if ((sc.MatchIgnoreCase("grad")
+					 || sc.MatchIgnoreCase("dpcm")
+					 || sc.MatchIgnoreCase("dppx"))
+					&& !IsAWordChar(styler.SafeGetCharAt(sc.currentPos + 4))) {
 					sc.Forward();
 					sc.Forward();
 					sc.Forward();
 					sc.ForwardSetState(SCE_CSS_DEFAULT);
 				} else if ((sc.MatchIgnoreCase("deg")
 					    || sc.MatchIgnoreCase("rad")
-					    || sc.MatchIgnoreCase("khz"))
+					    || sc.MatchIgnoreCase("khz")
+					    || sc.MatchIgnoreCase("dpi"))
 					   && !IsAWordChar(styler.SafeGetCharAt(sc.currentPos + 3))) {
 					sc.Forward();
 					sc.Forward();
