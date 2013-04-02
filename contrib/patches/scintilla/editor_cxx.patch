@@ -201,7 +201,7 @@ Index: src/Editor.cxx
  					MovePositionTo(SelectionPosition(pdoc->LineEndPosition(savedPos)));
  				}
  				break;
-@@ -6119,33 +6141,41 @@
+@@ -6119,33 +6141,45 @@
  		x += vs.ms[margin].width;
  	}
  	return Window::cursorReverseArrow;
@@ -235,6 +235,10 @@ Index: src/Editor.cxx
  		} else { // Same line, select it
 -			selCurrentPos = pdoc->LineStart(lineAnchor_ + 1);
 +			nextLineNo = nextVisibleLine(lineAnchor_, cs);
++			if (nextLineNo <= lineAnchor_ && lineAnchor_ < pdoc->LinesTotal()) {
++				// Bug 98494 -- Make sure we advance with wrapped lines.
++				nextLineNo = lineAnchor_ + 1;
++			}
 +			selCurrentPos = pdoc->LineStart(nextLineNo);
  			selAnchorPos = pdoc->LineStart(lineAnchor_);
  		}
