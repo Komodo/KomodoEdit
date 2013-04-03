@@ -64,6 +64,7 @@ class KoCoffeeScriptLexerLanguageService(KoLexerLanguageService):
         self.setKeywords(0, CoffeeScriptLangInfo.keywords)
 
 class koJSLikeLanguage(KoLanguageBase):
+    variableIndicators = '$'
     def __init__(self):
         KoLanguageBase.__init__(self)
         self._style_info.update(
