@@ -84,6 +84,7 @@
 <!ENTITY placesForward.tooltiptext "Next directory in history">
 <!ENTITY goNextPlace.desc "Places: Load previous place">
 <!ENTITY goPreviousPlace.desc "Places: Reload next place">
+<!ENTITY showCurrentFileInPlaces.desc "Places: Show Current File in Places">
 
 <!ENTITY showInFinder.desc "Places: Show file/folder in the system's file manager">
 <!ENTITY renamePlaceItem.label "Rename...">

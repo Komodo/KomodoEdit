@@ -216,6 +216,7 @@
           key="key_cmd_placeView_showCurrent_TabInPlaces"
           oncommand="ko.commands.doCommand('cmd_placeView_showCurrent_TabInPlaces', event)"
           disabled="true"
+	  desc="&showCurrentFileInPlaces.desc;"
          />
     </commandset>
 
