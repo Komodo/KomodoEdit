@@ -284,6 +284,13 @@
                           prefstring="editShowMinimap"
                           prefattribute="checked" />
             </hbox>
+            <hbox id="editEnableMouseZoom_hbox" align="center"
+                  class="load-context-check" showIfLoadContext="global">
+                <checkbox id="editEnableMouseZoom"
+                          label="&enableMouseZoom.label;"
+                          tooltiptext="&enableMouseZoomHow.tooltiptext;"
+                          pref="true" />
+            </hbox>
         </groupbox>
 
         <groupbox orient="vertical">

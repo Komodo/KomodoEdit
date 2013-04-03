@@ -142,6 +142,9 @@
                         // XXX this doesn't seem to work right
                         this.scimoz.endAtLastLine = prefs.getBooleanPref('scrollEndAtLastLine');
                         break;
+                    case 'editEnableMouseZoom': // pref notification
+                        this.editEnableMouseZoom = prefs.getBoolean('editEnableMouseZoom', true);
+                        break;
                 }
             } catch (e) {
                 this.log.exception(e);
@@ -335,7 +338,7 @@
                 </getter>
             </property>
 
-            <field name="pref_topics">['editor-scheme', 'scrollEndAtLastLine']</field>
+            <field name="pref_topics">['editor-scheme', 'scrollEndAtLastLine', 'editEnableMouseZoom']</field>
 
             <method name="init">
                 <body>
@@ -418,6 +421,7 @@
                 // perhaps make it a pref
                 if (prefs.getBooleanPref("scrollEndAtLastLine"))
                     scimoz.endAtLastLine = false;
+                this.editEnableMouseZoom = prefs.getBoolean('editEnableMouseZoom', true);
 
 <!-- #if PLATFORM == "win" -->
                 scimoz.eOLMode = scimoz.SC_EOL_CRLF;
@@ -1261,10 +1265,13 @@
             <![CDATA[
             var rows = event.detail;
             if (event.ctrlKey && event.shiftKey) {
-                if (rows > 0)
-                    this.scimoz.zoomIn();
-                else if (rows < 0)
-                    this.scimoz.zoomOut();
+                if (this.editEnableMouseZoom) {
+                    if (rows > 0) {
+                        this.scimoz.zoomIn();
+                    } else if (rows < 0) {
+                        this.scimoz.zoomOut();
+                    }
+                }
             } else {
                 if (rows == UIEvent.SCROLL_PAGE_UP ||
                     (rows < 0 && event.ctrlKey))

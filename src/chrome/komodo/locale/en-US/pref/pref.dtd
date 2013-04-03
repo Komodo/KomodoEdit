@@ -612,7 +612,10 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!-- These three entities are special and must match the button labels from the
      drag/drop dialog, which are set in the "library.properties" file. -->
 <!ENTITY addAURIMapping.label "Map the URL">
+<!ENTITY enableMouseZoom.label "Enable Font Zooming via the Mouse Wheel">
+<!ENTITY enableMouseZoomHow.tooltiptext "Change font size by Shift-Ctrl-Mouse-Wheel">
 <!ENTITY useMinimapScrollbar.label "Use the Minimap Scrollbar">
+
 <!ENTITY viewSource.label "View source">
 <!ENTITY dropAsText.label "Drop as text">
 

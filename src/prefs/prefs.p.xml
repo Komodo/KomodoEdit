@@ -118,6 +118,7 @@
 
   <!-- editFoldLines: whether to show horizontal lines on fold marks -->
   <boolean id="editFoldLines">1</boolean>
+  <boolean id="editEnableMouseZoom">1</boolean>
 
   <!-- strip extra whitespace on file save -->
   <boolean id="cleanLineEnds">0</boolean>
