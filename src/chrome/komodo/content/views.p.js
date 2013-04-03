@@ -429,6 +429,12 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
     }
 
     // Load the template.
+    if (/^(?:\/|\w:\\)/.test(uri)) {
+        // Bug 81096: store templates as URIs
+        try {
+            uri = ko.uriparse.localPathToURI(uri);
+        } catch(ex) {}
+    }
     ko.mru.addURL("mruTemplateList", uri);
     if (saveto && !liveTextInfo) {
         doc.save(1);

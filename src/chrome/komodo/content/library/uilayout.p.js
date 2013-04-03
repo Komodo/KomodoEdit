@@ -771,7 +771,34 @@ function _updateMRUMenu(prefName, limit, addManageItem, MRUName)
                 menuitem.setAttribute("accesskey", "0");
             }
             let koFile = fileSvc.getFileFromURINoCache(url);
+            if (!koFile.exists) {
+                // Don't put non-existent items in a MRU menu
+                mruList.deletePref(i);
+                // And update the menu, and redo item i
+                length -= 1;
+                i -= 1; // gets incremented in the for-loop
+                continue;
+            }
             if (prefName == "mruTemplateList") {
+                // Check the template names
+                // Bug 81096: If the "url" is actually a path, and we're on
+                // Windows, convert it to a URI to get rid of the backslashes.
+                // Otherwise the backslashes get destroyed by the JS parser
+                // when it processes the oncommand value.
+                // In any case, get the canonical URL
+                //
+                // This should be done once during startup.
+                // And who's writing out the templates as paths anyway?
+                //
+                // Also make sure the template file exists.  Don't put
+                // bad entries in the menu.
+// #if PLATFORM == "win"
+                if (url != koFile.URI) {
+                    url = koFile.URI;
+                    mruList.deletePref(i);
+                    mruList.insertStringPref(i, url);
+                }
+// #endif
                 menuitem.setAttribute("label", labelNum + " " + koFile.baseName);
             } else {
                 let pathPart = ko.views.labelFromPathInfo(koFile.baseName, koFile.dirName);
@@ -795,8 +822,13 @@ function _updateMRUMenu(prefName, limit, addManageItem, MRUName)
             // ignored when the menu item is inside a popup, so we call
             // ko.commands.doCommand directly. THIS IS NOT A GOOD THING!
             if (prefName == "mruTemplateList") {
+                let args = ["'" + url + "'",
+                            "'" + prefName + "'",
+                            i];
                 menuitem.setAttribute("oncommand",
-                    "ko.uilayout.newFileFromTemplateOrTrimMRU('"+url+"', '"+prefName+"',"+i+");");
+                    "ko.uilayout.newFileFromTemplateOrTrimMRU("
+                                      + args.join(", ")
+                                      + ");");
             } else {
                 menuitem.setAttribute("oncommand",
                                       "ko.open.recentURI('" + url + "')");
