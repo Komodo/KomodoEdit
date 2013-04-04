@@ -95,7 +95,7 @@ function choose(which)
     var prefName = "compare.choose." + which;
     var default_dir = textbox.value;
     if (default_dir) {
-        var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
+        var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].
             getService(Components.interfaces.koIOsPath);
         default_dir = osPathSvc.dirname(default_dir);
         if (!osPathSvc.isdir(default_dir) || !osPathSvc.exists(default_dir)) {
