@@ -95,6 +95,21 @@ keywords = ["after", "append", "apply", "array", "auto_execok",
             "ttk::scrollbar", "ttk::separator", "ttk::sizegrip",
             "ttk::style", "ttk::treeview", "ttk::style", "winfo", "wm"]
 
+# Codeintel will assume we're running v 8.6+
+# Other clients can pick and choose the keywords they want.
+v8_6_keywords = ["coroutine",
+                 "finally"
+                 "lmap"
+                 "on"
+                 "tailcall",
+                 "throw",
+                 "trap"
+                 "try",
+                 "yield",
+                 "yieldto",
+                 "zlib",
+                 ]
+                  
 
 line_end_re = re.compile("(?:\r\n|\r)")
 
@@ -107,7 +122,7 @@ class TclLexer(Lexer):
         self._properties = SilverCity.PropertySet()
         self._lexer = SilverCity.find_lexer_module_by_id(ScintillaConstants.SCLEX_TCL)
         self._keyword_lists = [
-            SilverCity.WordList(' '.join(keywords))
+            SilverCity.WordList(' '.join(sorted(keywords + v8_6_keywords)))
         ]
 
 

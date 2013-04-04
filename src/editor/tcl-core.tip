@@ -57,6 +57,9 @@ binary scan <string> <formatString> ?<varName> <varName> ...?
 
 break
 
+# Introduced in 8.6
+coroutine 
+
 catch <script> ?<varName>? ?<optionsArray>?
 
 cd ?dirName?
@@ -72,7 +75,11 @@ chan flush <channelId>
 chan gets <channelId> ?<varName>?
 chan names ?pattern?
 chan pending input|output  <channelId>
+# Introduced in 8.6
+chan pop <channelId>
 chan postevent <channelId> {read|write ...}
+# Introduced in 8.6
+chan push <channelId> ?<cmdPrefix>?
 chan puts ?-nonewline? ?channelId? <string>
 chan read ?-nonewline? <channelId>
 chan read <channelId> <numChars>
@@ -96,6 +103,9 @@ concat ?arg arg ...?
 
 continue
 
+# Introduced in 8.6
+coroutine <name> <command> ?arg...?
+
 dde servername ?-force? ?-handler proc? ?--? ?topic?
 dde execute <service> <topic> <data>
 dde poke <service> <topic> <item> <data>
@@ -118,6 +128,8 @@ dict incr <dictionaryVariable> <key> ?increment?
 dict info <dictionaryValue>
 dict keys <dictionaryValue> ?globPattern?
 dict lappend <dictionaryVariable> <key> ?value ...?
+# Introduced in 8.6
+dict map {<keyVar> <valueVar>} <dictionaryValue> <body> 
 dict merge ?<dictionaryValue> ...?
 dict remove <dictionaryValue> ?key ...?
 dict replace <dictionaryValue> ?key value ...?
@@ -246,6 +258,8 @@ interp alias <srcPath> <srcCmd> {}
 interp alias <srcPath> <srcCmd> <targetPath> <targetCmd> ?arg arg ...?
 interp aliases ?path?
 interp bgerror <path> ?cmdprefix?
+# Introduced in 8.6
+interp cancel ?-unwind? ?--? ?path? ?result?
 interp create ?-safe? ?--? ?path?
 interp delete ?path ...?
 interp eval <path> <arg> ?arg ...?
@@ -277,6 +291,10 @@ linsert <list> <index> <element> ?element element ...?
 list ?arg arg ...?
 
 llength <list>
+
+# Introduced in 8.6
+lmap <varname> <list> <body>
+lmap <varlist1> <list1> ?<varlist2> <list2> ...? <body>
 
 load <fileName> ?packageName ?interp??
 
@@ -329,6 +347,9 @@ namespace tail <string>
 namespace unknown ?script?
 namespace upvar <namespace> <otherVar> <myVar> ?otherVar myVar ...?
 namespace which ?-command? ?-variable? <name>
+
+# Introduced in 8.6
+on <code> <variableList> <script>
 
 open <fileName> ?access ?permissions??
 
@@ -450,9 +471,18 @@ subst ?-nobackslashes? ?-nocommands? ?-novariables? <string>
 switch ?options? <string> <pattern> <body> ?pattern body ...?
 switch ?options? <string> {pattern body ?pattern body ...?}
 
+# Introduced in 8.6
+tailcall <command> ?arg...?
+
 tell <channelId>
 
+# Introduced in 8.6
+throw <type> <message>
+
 time <script> ?count?
+
+# Introduced in 8.6
+trap <pattern> <variableList> <script>
 
 trace add command <name> <ops> <commandPrefix>
 trace add execution <name> <ops> <commandPrefix>
@@ -466,6 +496,9 @@ trace info variable <varName>
 trace variable <varName> rwu <command>
 trace vdelete <varName> rwu <command>
 trace vinfo <varName>
+
+# Introduced in 8.6
+try <body> <?handler...? ?finally <script>?
 
 unknown <cmdName> ?arg arg ...?
 
@@ -485,6 +518,29 @@ variable ?name value...? <name> ?value?
 vwait <varName>
 
 while <test> <body>
+
+# Introduced in 8.6
+yield ?value?
+yieldto <command> ?arg...? <name> ?value...?
+
+# Introduced in 8.6
+zlib compress <string> ?level? 
+zlib decompress <string> ?<bufferSize>? 
+zlib deflate <string> ?<level>? 
+zlib gunzip <string> ?-<headerVar> <varName>?
+zlib gzip <string> ?-level <level>? ?-<header> <dict>?
+zlib inflate <string> ?<bufferSize>? 
+zlib push <mode> <channel> ?options ...?
+
+zlib stream compress ?-dictionary <bindata>? ?-level <level>? 
+zlib stream decompress ?-dictionary <bindata>? 
+zlib stream deflate ?-dictionary <bindata>? ?-level <level>? 
+zlib stream gunzip 
+zlib stream gzip ?-header <header>? ?-level <level>? 
+zlib stream inflate ?-dictionary <bindata>? 
+zlib adler32 <string> ?initValue? 
+zlib crc32 <string> ?initValue? 
+
 
 tcltest::test <name> <desc> ?constraint? <script> <expectedAnswer>
 tcltest::cleanupTests ?runningMultipleTests?

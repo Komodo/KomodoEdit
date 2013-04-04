@@ -119,7 +119,15 @@ class koTclLanguage(KoLanguageBase):
         if self._lexer is None:
             self._lexer = KoLexerLanguageService()
             self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_TCL)
-            self._lexer.setKeywords(0, lang_tcl.keywords)
+            keywords = lang_tcl.keywords
+            try:
+                version = components.classes["@activestate.com/koAppInfoEx?app=Tcl;1"].createInstance().version.split(".", 2)
+                versionNum = tuple([int(x) for x in version])
+                if versionNum >= (8, 6):
+                    keywords = sorted(keywords + lang_tcl.v8_6_keywords)
+            except:
+                log.exception("Couldn't get the version")
+            self._lexer.setKeywords(0, keywords)
             self._lexer.supportsFolding = 1
         return self._lexer
 
