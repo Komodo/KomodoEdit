@@ -606,6 +606,9 @@
                                         <menuitem id="indicator_style_menuitem_1"
                                                   value="1"
                                                   label="&indicStyleSquiggle.label;" />
+                                        <menuitem id="indicator_style_menuitem_13"
+                                                  value="13"
+                                                  label="&indicStyleSquigglePixmap.label;" />
                                         <menuitem id="indicator_style_menuitem_2"
                                                   value="2"
                                                   label="&indicStyleTT.label;" />
