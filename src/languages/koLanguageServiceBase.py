@@ -1863,6 +1863,11 @@ class KoLanguageBase:
         for pos in range(lineStartPos, lineEndPos):
             if getActualStyle(scimoz, pos) in commentStyles and \
                (pos == 0 or getActualStyle(scimoz, pos - 1) not in commentStyles):
+                # Bug 98467 note
+                # Don't continue if scimoz.getCharAt(pos - 1) == 10
+                # because block comments look like this.
+                #
+                # The LexOther lexer doesn't end comments at newline.
                 line_pos = pos - lineStartPos
                 for marker in commentStartMarkerList:
                     if curLine[line_pos : line_pos + len(marker)] == marker:
@@ -2096,6 +2101,15 @@ class KoLanguageBase:
 
     def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
         try:
+            currentPos = scimoz.currentPos
+            prevPos = scimoz.positionBefore(currentPos)
+            prevStyle = scimoz.getStyleAt(prevPos)
+            if continueComments and prevStyle in style_info._comment_styles:
+                # bug 98467: If we're continuing comments in any type of
+                # language (including non-indenting ones), check comments first.
+                possibleIndent = self._getSmartBraceIndent(scimoz, continueComments, style_info)
+                if possibleIndent:
+                    return possibleIndent
             if indentStyle == 'none':
                 return ''
             if indentStyle == 'plain':
