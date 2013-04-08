@@ -110,6 +110,10 @@
 <!ENTITY showInPlaces.label "Show In Places">
 <!ENTITY trackCurrentTab.label "Synchronize Current File In Places">
 <!ENTITY multiple_project_view.label "Allow Multiple Open Projects">
+<!ENTITY places.allowDragDrop.label "Allow Drag &amp; Drop Items to Folders">
+<!ENTITY places.askMeWhatToDo.label "Ask if Items should be Dragged to Folders">
+<!ENTITY places.alwaysDragItems.label "Always Drag/Drop Items">
+<!ENTITY places.neverDragItems.label "Never Drag/Drop Items">
 
 <!ENTITY pref_places_dblClickRebases.accesskey "D">
 <!ENTITY pref_places_showProjectPath.accesskey "F">

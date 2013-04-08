@@ -79,6 +79,20 @@
                     label="&multiple_project_view.label;"
                     accesskey="&places.multiple_project_view.accesskey;"
                     pref="true"/>
+          <separator class="thin"/>
+          <hbox>
+          <label>&places.allowDragDrop.label;</label>
+          <menulist id="places.allowDragDropItemsToFolders"
+                    pref="true" prefattribute="data"
+                    flex="1"
+                    prefstrings="donotask_placesAllowDragDropItemsToFolders,donotask_action_placesAllowDragDropItemsToFolders">
+                    <menupopup>
+                        <menuitem data="false," label="&places.askMeWhatToDo.label;"/>
+                        <menuitem data="true,Yes" label="&places.alwaysDragItems.label;"/>
+                        <menuitem data="true,No" label="&places.neverDragItems.label;"/>
+                    </menupopup>
+                </menulist>
+          </hbox>
         </groupbox>
 
     </vbox>

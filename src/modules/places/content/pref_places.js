@@ -33,6 +33,9 @@ function OnPreferencePageInitalize(prefset) {
             placePrefs.getBoolean('show_fullPath_tooltip', true);
         document.getElementById("pref_places_showProjectPathExtension").checked =
             placePrefs.getBoolean('showProjectPathExtension', false);
+        //// This pref has doNotAsk dependents, so it has to be a global pref.
+        //document.getElementById("places.allowDragDropItemsToFolders").checked =
+        //    prefset.getBoolean("placesAllowDragDropItemsToFolders", false);
     } catch(ex) {
         alert("Places prefs: " + ex);
     }
@@ -49,6 +52,8 @@ function OnPreferencePageOK(prefset) {
                                   document.getElementById("pref_places_show_fullPath_tooltip").checked);
         placePrefs.setBooleanPref('showProjectPathExtension',
                                   document.getElementById("pref_places_showProjectPathExtension").checked);
+        //prefset.setBooleanPref("placesAllowDragDropItemsToFolders",
+        // document.getElementById("places.allowDragDropItemsToFolders").checked);
         g_defaultFilterPrefs = placePrefs.getPref("filters").
             getPref(DEFAULT_FILTER_NAME);
         g_defaultFilterPrefs.setStringPref("include_matches",

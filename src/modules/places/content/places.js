@@ -813,6 +813,47 @@ viewMgrClass.prototype = {
                 return false;
             }
         }
+        // Bug 98484: If we're moving, prompt the user to ask if they really want to do this
+        if (!copying) {
+            let basePrefName = "placesAllowDragDropItemsToFolders";
+            if (!_globalPrefs.hasBooleanPref(basePrefName)) {
+                // The doNotAsk system uses the global prefs widget, so put them there.
+                _globalPrefs.setBooleanPref(basePrefName, false);
+                _globalPrefs.setBooleanPref("donotask_" + basePrefName, false);
+                _globalPrefs.setStringPref("donotask_action_" + basePrefName,
+                                           "No");
+            }
+            var targetBaseName = ko.uriparse.baseName(target_uri);
+            var prompt = (from_uris.length == 1
+                          ? _bundle.formatStringFromName("Drag item X to folder Y", [ko.uriparse.baseName(from_uris[0]), targetBaseName], 2)
+                          : _bundle.formatStringFromName("Drag these N items to folder Y", [from_uris.length, targetBaseName], 2));
+            var response = "No";
+            var text = null;
+            var title = "Places Drag/Drop in Progress";
+            // This pref has to be stored globally to work with the doNotAsk pref system
+            var thisResponse = ko.dialogs.yesNoCancel(prompt, response, text, title, basePrefName);
+            if (thisResponse != "Yes") {
+                if (thisResponse == "No"
+                    && _globalPrefs.getBooleanPref("donotask_" + basePrefName)
+                    && (_globalPrefs.getStringPref("donotask_action_" + basePrefName) == "No")) {
+                    var msg = _bundle.GetStringFromName("Drag-drop suppressed due to Preferences-Places-Drag");
+                    var options = {
+                        severity: Components.interfaces.koINotification.SEVERITY_INFO ,
+                        actions: [{ label: _bundle.GetStringFromName("PreferencesDot3"),
+                                    identifier: "goToPreferences",
+                             handler: function(notification) {
+                                parent.prefs_doGlobalPrefs("placesPref");
+                            }
+                        }]
+                    };
+                    ko.notifications.add(msg, ["Places"], "dragDropSuppressed", options);
+                }
+                event.stopPropagation();
+                event.cancelBubble = true;
+                event.preventDefault();
+                return false;
+            }
+        }
         try {
             this.finishFileCopyOperation(from_uris, target_uri, index, copying);
         } catch(ex) {
