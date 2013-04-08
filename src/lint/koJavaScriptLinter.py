@@ -182,6 +182,7 @@ class CommonJSLinter(object):
             warnLines = stderr.splitlines(0) # Don't need the newlines.
         except:
             log.exception("Problem running CommonJSLinter")
+            warnLines = []
         finally:
             os.unlink(jsfilename)
         
