@@ -111,7 +111,7 @@
 <!ENTITY trackCurrentTab.label "Synchronize Current File In Places">
 <!ENTITY multiple_project_view.label "Allow Multiple Open Projects">
 <!ENTITY places.allowDragDrop.label "Allow Drag &amp; Drop Items to Folders">
-<!ENTITY places.askMeWhatToDo.label "Ask if Items should be Dragged to Folders">
+<!ENTITY places.askMeWhatToDo.label "Ask if items should be dragged to folders">
 <!ENTITY places.alwaysDragItems.label "Always Drag/Drop Items">
 <!ENTITY places.neverDragItems.label "Never Drag/Drop Items">
 

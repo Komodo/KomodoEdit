@@ -818,15 +818,16 @@ viewMgrClass.prototype = {
             let basePrefName = "placesAllowDragDropItemsToFolders";
             if (!_globalPrefs.hasBooleanPref(basePrefName)) {
                 // The doNotAsk system uses the global prefs widget, so put them there.
+                // Make the default to *not* ask, but it writes a notification
                 _globalPrefs.setBooleanPref(basePrefName, false);
-                _globalPrefs.setBooleanPref("donotask_" + basePrefName, false);
+                _globalPrefs.setBooleanPref("donotask_" + basePrefName, true);
                 _globalPrefs.setStringPref("donotask_action_" + basePrefName,
-                                           "No");
+                                           "Yes");
             }
-            var targetBaseName = ko.uriparse.baseName(target_uri);
+            var target_uri_as_path = ko.uriparse.URIToPath(target_uri);
             var prompt = (from_uris.length == 1
-                          ? _bundle.formatStringFromName("Drag item X to folder Y", [ko.uriparse.baseName(from_uris[0]), targetBaseName], 2)
-                          : _bundle.formatStringFromName("Drag these N items to folder Y", [from_uris.length, targetBaseName], 2));
+                          ? _bundle.formatStringFromName("Drag item X to folder Y", [ko.uriparse.baseName(from_uris[0]), target_uri_as_path], 2)
+                          : _bundle.formatStringFromName("Drag these N items to folder Y", [from_uris.length, target_uri_as_path], 2));
             var response = "No";
             var text = null;
             var title = "Places Drag/Drop in Progress";
@@ -1150,6 +1151,13 @@ viewMgrClass.prototype = {
             this.view.refreshFullTreeView();
             this.tree.treeBoxObject.invalidate();
         }
+        let items = finalSrcURIs.map(function(uri) ko.uriparse.URIToPath(uri)).join(", ");
+        if (items.length > 1000) {
+            items = finalSrcURIs.map(function(uri) ko.uriparse.baseName(uri)).join(", ");
+        }
+        let msg = _bundle.formatStringFromName(copying ? "Copied X to Y" : "Moved X to Y",
+                                               [items, ko.uriparse.URIToPath(to_uri)], 2);
+        ko.notifications.add(msg, ["Places"], "itemsMovedTo_" + (new Date()).valueOf());
         this.view.selection.clearSelection();
         return true;
     },
