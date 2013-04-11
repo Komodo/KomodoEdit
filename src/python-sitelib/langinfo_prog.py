@@ -39,6 +39,9 @@
 import re
 from langinfo import LangInfo
 
+import logging
+log = logging.getLogger("langinfo_prog")
+#log.setLevel(logging.DEBUG)
 
 class _PythonCommonLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
@@ -205,14 +208,18 @@ class NodeJSLangInfo(_JSLikeLangInfo):
 class CoffeeScriptLangInfo(_JSLikeLangInfo):
     name = "CoffeeScript"
     exts = ['.coffee']
-    def __init__(self, _database):
-        _JSLikeLangInfo.__init__(self, _database)
-        # Clone and modify the JS keywords
-        self.common_keywords = set().union(self.common_keywords)
-        try:
-            self.common_keywords.remove("var")
-        except KeyError:
-            pass
+    
+    common_keywords = set().union(_JSLikeLangInfo.common_keywords)
+    try:
+        common_keywords.remove("var")
+    except KeyError:
+        log.exception("Can't remove 'var'")
+    _new_keywords = set(['__bind__indexOf', '__extends', '__hasProp',
+                         '__slice', 'and', 'arguments', 'await', 'by', 'defer',
+                         'enumexport', 'eval', 'is', 'isnt', 'loop', 'no',
+                         'not', 'of', 'onoff', 'or', 'protectedpublic', 'then',
+                         'unless', 'until', 'when', 'yes'])
+    keywords = common_keywords.union(_new_keywords)
 
 class CLangInfo(LangInfo):
     #TODO: rationalize with C++ and Komodo's usage
