@@ -81,19 +81,31 @@ if ($platform eq "darwin") {
     $cons->InstallRecursive("$mozChromeDir/komodo/skin/",
                             cwd()."/src/chrome/komodo/skin/plat/mac/",
                             ('\.svn', 'chrome\.manifest'));
+
+    $cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/current/",
+                            cwd()."/src/chrome/komodo/skin/plat/mac/",
+                            ('\.svn', 'chrome\.manifest'));
 } elsif ($platform eq "win") {
     $cons->InstallRecursive("$mozChromeDir/komodo/skin/",
+                            cwd()."/src/chrome/komodo/skin/plat/win/",
+                            ('\.svn', 'chrome\.manifest'));
+
+    $cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/current/",
                             cwd()."/src/chrome/komodo/skin/plat/win/",
                             ('\.svn', 'chrome\.manifest'));
 } else {
     $cons->InstallRecursive("$mozChromeDir/komodo/skin/",
                             cwd()."/src/chrome/komodo/skin/plat/gnome/",
                             ('\.svn', 'chrome\.manifest'));
+
+    $cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/current/",
+                            cwd()."/src/chrome/komodo/skin/plat/gnome/",
+                            ('\.svn', 'chrome\.manifest'));
 }
 
-$cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/",
-                        cwd()."/src/chrome/komodo/skin/plat/",
-                        ('\.svn', 'chrome\.manifest'));
+    $cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/shared/",
+                            cwd()."/src/chrome/komodo/skin/plat/shared/",
+                            ('\.svn', 'chrome\.manifest'));
 
 $cons->InstallInChrome('iconset/config.less');
 $cons->InstallInChrome('iconset/rules.less');
