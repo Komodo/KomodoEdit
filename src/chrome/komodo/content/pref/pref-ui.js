@@ -83,12 +83,13 @@ function PrefUi_OnLoad() {
             // and select the relevant komodo skin (if available)
             if (checkboxDetect.checked)
             {
-                getKoObject('skin').gtk.getThemeInfo(function(themeInfo) {
+                getKoObject('skin').gtk.getThemeInfo(function(themeInfo)
+                {
                     var skinFile = getKoObject('skin').gtk.resolveSkin(themeInfo);
                     var menuItemValue =  "";
                     if (skinFile)
                     {
-                        menuItemValue = skinFile.path;
+                        menuItemValue = skinFile;
                     }
 
                     var menuItem = skinSelector.querySelector('menuitem[value="' + menuItemValue + '"]');
