@@ -5,7 +5,7 @@
   <!-- This version field is used by Komodo to upgrade preferences.
        The value should be kept in sync with "../components/koInitService.p.py"
   -->
-  <long id="version">6</long>
+  <long id="version">7</long>
 
   <boolean id="startupMaximized">0</boolean>
   <boolean id="startupFullScreen">0</boolean>
@@ -1085,11 +1085,11 @@
   </string>
 
   <!-- Record the custom manifests that need to be loaded at runtime (startup) -->
-  <ordered-preference id="stored_runtime_manifests">
+  <string id="runtime_manifests">
     <!-- #if PLATFORM == "darwin" -->
-      <string>resource://app/chrome/iconsets/cupertino/chrome.manifest</string>
+      ["resource://app/chrome/iconsets/cupertino/chrome.manifest"]
     <!-- #else -->
-      <string>resource://app/chrome/iconsets/dark/chrome.manifest</string>
+      ["resource://app/chrome/iconsets/dark/chrome.manifest"]
     <!-- #endif -->
-  </ordered-preference>
+  </string>
 </preference-set>

@@ -11,7 +11,7 @@ function koManifestLoader()
     const { NetUtil }   = Cu.import("resource://gre/modules/NetUtil.jsm", {});
     const { Services }  =   Cu.import("resource://gre/modules/Services.jsm", {});
 
-    var loggingSvc, prefSvc, log, prefs, manifests;
+    var loggingSvc, prefSvc, log, prefs;
 
     var initialized = false;
 
@@ -38,17 +38,15 @@ function koManifestLoader()
             log        = loggingSvc.getLogger('koManifestLoader');
             prefs      = prefSvc.prefs;
 
-            manifests  = prefs.getPref('stored_runtime_manifests')
-                                .QueryInterface(Ci.koIOrderedPreference);
-
             log.setLevel(10);
             
+            var manifests = this._getManifests();
             log.debug("Loading " + manifests.length + " manifests");
 
             // Load manifests
             for (let i=0; i<manifests.length; i++)
             {
-                this.loadManifest(manifests.getStringPref(i), false);
+                this.loadManifest(manifests[i], false);
             }
 
             initialized = true;
@@ -65,7 +63,7 @@ function koManifestLoader()
 
             var file = this._getFile(uri);
 
-            if ( ! file ||  ! this._validateFile(file))
+            if ( ! this._validateFile(file))
             {
                 return false;
             }
@@ -119,20 +117,14 @@ function koManifestLoader()
 
         addManifest: function(uri)
         {
-            this.deleteManifest(uri);
-
             log.debug("Storing " + uri);
-
-            manifests.appendStringPref(uri);
-            prefs.setPref('stored_runtime_manifests', manifests);
+            this._addManifest(uri);
         },
 
         deleteManifest: function(uri)
         {
             log.debug("Deleting " + uri);
-
-            manifests.findAndDeleteStringPref(uri);
-            prefs.setPref('stored_runtime_manifests', manifests);
+            this._deleteManifest(uri);
         },
 
         _getFile: function(uri)
@@ -176,6 +168,12 @@ function koManifestLoader()
 
         _validateFile: function(file)
         {
+            if ( ! file)
+            {
+                log.error("File is not defined");
+                return false;
+            }
+
             if ( ! (file instanceof Components.interfaces.nsIFile))
             {
                 log.error("File should be instance of nsIFile");
@@ -195,6 +193,58 @@ function koManifestLoader()
             }
 
             return true;
+        },
+
+        _manifests: false,
+        _getManifests: function()
+        {
+            if ( ! this._manifests)
+            {
+                var manifests = prefs.getString('runtime_manifests', '[]');
+
+                try
+                {
+                    this._manifests = JSON.parse(manifests)
+                }
+                catch (e)
+                {
+                    log.error("Error parsing manifest JSON: " + e.message);
+                    this._manifests = [];
+                }
+            }
+
+            return this._manifests;
+        },
+
+        _addManifest: function(uri)
+        {
+            this._deleteManifest(uri);
+            
+            var manifests = this._getManifests();
+            manifests.push(uri);
+            
+            this._setManifests(manifests);
+        },
+
+        _deleteManifest: function(uri)
+        {
+            var manifests = this._getManifests();
+            var i = manifests.length;
+            while (i--)
+            {
+                if (manifests[i] == uri)
+                {
+                    manifests.splice(i, 1);
+                }
+            }
+
+            this._setManifests(manifests);
+        },
+
+        _setManifests: function(manifests)
+        {
+            prefs.setStringPref("runtime_manifests", JSON.stringify(manifests));
+            this._manifests = manifests;
         },
 
         observe: function() {}
