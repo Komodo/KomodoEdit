@@ -14,7 +14,8 @@
         <vbox flex="99">
             <richlistbox
                 flex="1"
-                id="openfilesListbox"/>
+                id="openfilesListbox"
+                class="bg_transparent" />
             
             <richlistitem
                 id="fileTemplate"

@@ -29,7 +29,7 @@
         border: none;
         -moz-box-pack: center;
         -moz-box-align: stretch;
-        height: 25px;
+        min-height: 25px;
         padding-bottom: 0;
         
         /* remove the -12px margin set by the global tabbox.css */
@@ -246,6 +246,7 @@
         background: @tab-background;
         border-radius: 0;
         box-shadow: @tab-box-shadow;
+        border: 0;
         border-right: @tab-border;
         margin: 0;
         padding: 0;
@@ -261,6 +262,7 @@
         {
             font-family: @tab-font;
             font-size: @tab-font-size;
+            font-weight: @tab-font-weight;
             color: @tab-color;
             margin: 0;
             text-shadow: @tab-text-shadow;
@@ -452,6 +454,7 @@ ko-pane[type="icons"] tab
 #workspace_bottom_area .tab-text
 {
     font-size: @tab-bottom-font-size;
+    font-weight: @tab-bottom-font-weight;
     padding: 0 5px;
 }
 

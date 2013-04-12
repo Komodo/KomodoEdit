@@ -60,6 +60,18 @@ splitter
     }
 }
 
+/* Main Window */
+
+#komodo_main
+{
+    background: @window-background !important;
+}
+
+.blank-workspace
+{
+    background: @workspace-background !important;
+}
+
 /* Statusbar */
 
 statusbar
@@ -69,6 +81,7 @@ statusbar
     font-family: @statusbar-font;
     font-size: @statusbar-font-size;
     color: @statusbar-text-color;
+    border: 0 !important;
 
     statusbarpanel
     {
@@ -83,4 +96,72 @@ statusbar
             border-right: 0;
         }
     }
+}
+
+/* Tree Elements */
+
+page, view[type='startpage'], #komodo_main
+{
+
+    tree,
+    richlistbox:not(.bg_transparent),
+    listbox
+    {
+        background: @tree-background;
+    }
+
+    tree treecol:not([hideheader]),
+    tree treecolpicker,
+    listheader
+    {
+        -moz-appearance: @tree-treecol-appearance;
+        background: @tree-treecol-background;
+        border: 0;
+        padding: 2px;
+        border-top: @tree-treecol-border;
+        border-bottom: @tree-treecol-border;
+        color: @tree-treecol-color;
+    }
+
+    treechildren::-moz-tree-cell-text,
+    richlistitem,
+    listitem
+    {
+        color: @tree-color !important;
+    }
+
+    treechildren::-moz-tree-row
+    {
+        background: @tree-row-background;
+
+        &(odd)
+        {
+            background: @tree-row-background-odd;
+        }
+    }
+
+    treechildren::-moz-tree-row(selected)
+    {
+        background: @tree-row-background-selected !important;
+    }
+
+    treechildren::-moz-tree-cell-text(selected)
+    {
+        color: @tree-color-selected !important;
+    }
+
+    treechildren::-moz-tree-row(selected, focus),
+    richlistitem[selected],
+    richlistbox notification[selected]
+    {
+        background: @tree-row-background-selected-focus !important;
+    }
+
+    treechildren::-moz-tree-cell-text(selected, focus),
+    richlistitem[selected],
+    richlistbox notification[selected]
+    {
+        color: @tree-color-selected-focus !important;
+    }
+
 }

@@ -53,7 +53,7 @@
                         tooltiptext="&klint.refresh.label;"
                         oncommand="ko.lint.doRequest();"/>
             </toolbar>
-            <label id="klint-count" value=""/>
+            <label id="klint-count" value="" class="pane-text"/>
             <separator flex="1"/>
             <textbox id="klint-filter-pattern" type="search" flex="1"
                 emptytext="&klint.filter.by.description.tooltiptext;"

@@ -82,9 +82,16 @@ tabpanels
     }
 }
 
-#breakpoints-tree, #runoutput-scintilla, #sleuthPane > .sleuth-flex,
-#notificationWidget #message-container, #klint-tree,
-#DebuggerPanelContent
+page .pane-text,
+page .toolbarbutton-text,
+page .menulist-label,
+page description
 {
-    background-color: -moz-EvenTreeRow;
+    color: @pane-text-color;
+}
+
+page toolbarseparator
+{
+    -moz-appearance: @pane-splitter-appearance !important;
+    border-right: @pane-splitter-border;
 }

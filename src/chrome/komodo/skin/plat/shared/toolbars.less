@@ -10,7 +10,7 @@
 #main-toolboxrow toolbar > toolbaritem
 {
 
-    .border(@menubar-group-border-width, @menubar-group-border-style, @menubar-group-border-color);
+    .border(@main-toolbox-group-border-width, @main-toolbox-group-border-style, @main-toolbox-group-border-color);
     height: 24px;
     
     toolbarbutton
@@ -27,14 +27,14 @@
         padding: 0 5px 0 5px !important;
         margin: 0 1px 0 0;
         
-        .border(@menubar-button-border-width, @menubar-button-border-style, @menubar-button-border-color);
-        box-shadow: @menubar-button-shadow;
+        .border(@main-toolbox-button-border-width, @main-toolbox-button-border-style, @main-toolbox-button-border-color);
+        box-shadow: @main-toolbox-button-shadow;
         
-        border-radius: @menubar-button-border-radius;
-        background-color: @menubar-button-background-color;
-        background-image: @menubar-button-background-image;
-        background-position: @menubar-button-background-position;
-        background-repeat: @menubar-button-background-repeat;
+        border-radius: @main-toolbox-button-border-radius;
+        background-color: @main-toolbox-button-background-color;
+        background-image: @main-toolbox-button-background-image;
+        background-position: @main-toolbox-button-background-position;
+        background-repeat: @main-toolbox-button-background-repeat;
         
         -moz-transition: all 0.20s linear;
         
@@ -52,30 +52,30 @@
         /* Hovered Icon */
         &:hover
         {
-            box-shadow: @menubar-button-shadow-hover;
-            background-color: @menubar-button-background-color-hover;
-            background-image: @menubar-button-background-image-hover;
-            border-width: @menubar-button-border-width-hover;
-            border-style: @menubar-button-border-style-hover;
-            border-color: @menubar-button-border-color-hover;
+            box-shadow: @main-toolbox-button-shadow-hover;
+            background-color: @main-toolbox-button-background-color-hover;
+            background-image: @main-toolbox-button-background-image-hover;
+            border-width: @main-toolbox-button-border-width-hover;
+            border-style: @main-toolbox-button-border-style-hover;
+            border-color: @main-toolbox-button-border-color-hover;
         }
         
         /* Checked / Active Button */
         &[checked], &[open="true"], &:active
         {
-            box-shadow: @menubar-button-shadow-active;
-            background-color: @menubar-button-background-color-active;
-            background-image: @menubar-button-background-image-active;
-            border-width: @menubar-button-border-width-active;
-            border-style: @menubar-button-border-style-active;
-            border-color: @menubar-button-border-color-active;
+            box-shadow: @main-toolbox-button-shadow-active;
+            background-color: @main-toolbox-button-background-color-active;
+            background-image: @main-toolbox-button-background-image-active;
+            border-width: @main-toolbox-button-border-width-active;
+            border-style: @main-toolbox-button-border-style-active;
+            border-color: @main-toolbox-button-border-color-active;
         }
         
         /* First button in group */
         &.first-child
         {
             background-position: 100px, center center;
-            border-width: @menubar-button-first-border-width;
+            border-width: @main-toolbox-button-first-border-width;
             border-top-left-radius: 3px;
             border-bottom-left-radius: 3px;
         }
@@ -84,7 +84,7 @@
         &.last-child
         {
             padding-right: 5px !important;
-            border-width: @menubar-button-last-border-width;
+            border-width: @main-toolbox-button-last-border-width;
             border-top-right-radius: 3px;
             border-bottom-right-radius: 3px;
             padding-right: 0;
@@ -97,7 +97,7 @@
         
         &.first-child.last-child
         {
-            border-width: @menubar-button-single-border-width;
+            border-width: @main-toolbox-button-single-border-width;
         }
         
         /*
@@ -176,27 +176,26 @@
 
     &:not([kohidden="true"]).first-child toolbaritem.has-children:first-child
     {
-        border-width: @menubar-group-first-border-width;
+        border-width: @main-toolbox-group-first-border-width;
     }
     
     &:not([kohidden="true"]).last-child toolbaritem.has-children:last-child
     {
-        border-width: @menubar-group-last-border-width;
+        border-width: @main-toolbox-group-last-border-width;
     }
 }
 
 /* Main toolbox (menu bar and toolbars) */
 #main-toolboxrow-wrapper
 {
-    -moz-appearance: @main-toolbox-appearance;
-    background: @main-toolbox-background;
+    -moz-appearance: @main-toolbox-wrapper-appearance;
 }
 
 #toolbox_main
 {
     -moz-appearance: none;
-    background: @menubar-background;
-    border-bottom: @menubar-border-bottom !important;
+    background: @main-toolbox-background;
+    border-bottom: @main-toolbox-border-bottom !important;
 }
 
 #toolbar-menubar
@@ -222,15 +221,15 @@
     
     .unified-textbox-wrapper
     {
-        background: @menubar-findtoolbar-background;
+        background: @main-toolbox-findtoolbar-background;
         border-radius: 8px;
         
-        border: @menubar-findtoolbar-border;
-        box-shadow: @menubar-findtoolbar-shadow;
+        border: @main-toolbox-findtoolbar-border;
+        box-shadow: @main-toolbox-findtoolbar-shadow;
         
         &.focus
         {
-            box-shadow: @menubar-findtoolbar-shadow-focus;
+            box-shadow: @main-toolbox-findtoolbar-shadow-focus;
         }
     }
     
@@ -253,7 +252,7 @@
         
         border: 0 !important;
         background: transparent;
-        color: @menubar-findtoolbar-color;
+        color: @main-toolbox-findtoolbar-color;
         
         input, hbox
         {
@@ -274,7 +273,7 @@
             & > hbox
             {
                 padding-left: 4px;
-                border-left: 1px solid @menubar-findtoolbar-separator-color !important;
+                border-left: 1px solid @main-toolbox-findtoolbar-separator-color !important;
             }
             
             dropmarker

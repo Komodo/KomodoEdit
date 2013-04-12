@@ -1,16 +1,29 @@
 @import url("chrome://komodo/skin/plat/current/panes.less");
+@import url("chrome://komodo/skin/plat/current/toolbars.less");
 
-page treechildren::-moz-tree-cell-text, page richlistitem
+page toolbarbutton label,
+page statusbarpanel label
 {
-    color: #EDEDED !important;
+    text-shadow: none !important;
 }
 
-page treechildren::-moz-tree-row(selected)
+page textbox, page menulist
 {
-    background: #3F3F3F !important;
+    -moz-appearance: none;
+    width: 180px;
+    padding: 2px;
+
+    background: @main-toolbox-findtoolbar-background;
+    border-radius: 8px;
+
+    border: @main-toolbox-findtoolbar-border;
+    box-shadow: @main-toolbox-findtoolbar-shadow;
+    
+    color: @main-toolbox-findtoolbar-color;
 }
 
-page treechildren::-moz-tree-row(selected, focus), page richlistitem[selected]
+page menulist
 {
-    background: #424B56 !important;
+    background: #161616 -moz-linear-gradient(-90deg , rgba(255,255,255,0) 0%, rgba(0,0,0,0.2) 20px);
+    border: 1px solid #262626;
 }

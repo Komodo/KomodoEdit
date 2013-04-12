@@ -2,17 +2,6 @@
 @import url("chrome://komodo/skin/_config/window.less");
 @import url("chrome://komodo/skin/_config/modules.less");
 
-#placesViewbox_placesWrapper tree scrollbar
-{
-    opacity: 0.3;
-    -moz-transition: opacity 0.15s linear;
-}
-
-#placesViewbox_placesWrapper tree:hover scrollbar
-{
-    opacity: 1;
-}
-
 #debuggerPanel > hbox.toolbar-background
 {
     padding: 4px;
@@ -78,6 +67,11 @@
         color: @tab-debug-color;
         text-shadow: @tab-debug-text-shadow;
         box-shadow: @tab-debug-box-shadow;
+
+        -moz-border-top-colors: none;
+        -moz-border-right-colors: none;
+        -moz-border-bottom-colors: none;
+        -moz-border-left-colors: none;
 
         &:hover
         {
@@ -201,23 +195,28 @@ view[type='startpage']
 
     .startpage-header
     {
-	font-family: @startpage-heading-font;
-	background: @startpage-heading-background;
-	color: @startpage-heading-color;
-	text-shadow: @startpage-heading-text-shadow;
-	border: 0;
-	border-top: 1px solid @startpage-border-color;
-	border-bottom: 1px solid @startpage-border-color;
+        font-family: @startpage-heading-font;
+        background: @startpage-heading-background;
+        color: @startpage-heading-color;
+        text-shadow: @startpage-heading-text-shadow;
+        border: 0;
+        border-top: 1px solid @startpage-border-color;
+        border-bottom: 1px solid @startpage-border-color;
     }
 
     box[type="startpage"]:first-child .startpage-header
     {
-	border-top: 0;
+        border-top: 0;
     }
 
     vbox[anonid="quicklinks-right"]
     {
-	background: @startpage-quicklinks-background;
-	border-left: 1px solid @startpage-border-color;
+        background: @startpage-quicklinks-background;
+        border-left: 1px solid @startpage-border-color;
+    }
+
+    .button-text
+    {
+        color: @startpage-color;
     }
 }

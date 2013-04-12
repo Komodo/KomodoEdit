@@ -1,0 +1,69 @@
+@import url("chrome://komodo/skin/_config/menus.less");
+
+/* Menu Bar */
+
+#menubar_main
+{
+    -moz-appearance: @main-menu-appearance !important;
+    
+    & > menu
+    {
+        -moz-appearance:@main-menu-item-appearance;
+
+        margin:         0;
+        padding:        4px;
+
+        background:     @main-menu-item-background;
+        border-width:   @main-menu-item-border-width;
+        border-style:   @main-menu-item-border-style;
+        border-color:   @main-menu-item-border-color;
+        box-shadow:     @main-menu-item-box-shadow;
+
+        -moz-border-top-colors: none;
+        -moz-border-right-colors: none;
+        -moz-border-bottom-colors: none;
+        -moz-border-left-colors: none;
+
+        &:first-child
+        {
+            padding-left: 8px;
+        }
+
+        .menubar-text
+        {
+            margin: 0 !important; // for some reason skin/menu.css uses !important
+            color:       @main-menu-item-color;
+            text-shadow: @main-menu-item-text-shadow;
+        }
+
+        &:hover
+        {
+            background:     @main-menu-item-background-hover;
+            border-width:   @main-menu-item-border-width-hover;
+            border-style:   @main-menu-item-border-style-hover;
+            border-color:   @main-menu-item-border-color-hover;
+            box-shadow:     @main-menu-item-box-shadow-hover;
+
+            .menubar-text
+            {
+                color:       @main-menu-item-color-hover;
+                text-shadow: @main-menu-item-text-shadow-hover;
+            }
+        }
+
+        &[open="true"]
+        {
+            background:     @main-menu-item-background-open;
+            border-width:   @main-menu-item-border-width-open;
+            border-style:   @main-menu-item-border-style-open;
+            border-color:   @main-menu-item-border-color-open;
+            box-shadow:     @main-menu-item-box-shadow-open;
+
+            .menubar-text
+            {
+                color:       @main-menu-item-color-open;
+                text-shadow: @main-menu-item-text-shadow-open;
+            }
+        }
+    }
+}

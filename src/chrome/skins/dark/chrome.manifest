@@ -2,8 +2,17 @@ override chrome://komodo/skin/_config/window.less resource://app/chrome/skins/da
 override chrome://komodo/skin/_config/toolbars.less resource://app/chrome/skins/dark/_config/toolbars.less
 override chrome://komodo/skin/_config/tabs.less resource://app/chrome/skins/dark/_config/tabs.less
 override chrome://komodo/skin/_config/panes.less resource://app/chrome/skins/dark/_config/panes.less
+override chrome://komodo/skin/_config/modules.less resource://app/chrome/skins/dark/_config/modules.less
+override chrome://komodo/skin/_config/icons.less resource://app/chrome/skins/dark/_config/icons.less
+override chrome://komodo/skin/_config/menus.less resource://app/chrome/skins/dark/_config/menus.less
 
 override chrome://komodo/skin/window.less resource://app/chrome/skins/dark/window.less
 override chrome://komodo/skin/panes.less resource://app/chrome/skins/dark/panes.less
+override chrome://komodo/skin/tabs.less resource://app/chrome/skins/dark/tabs.less
 
 override chrome://global/skin/scrollbars.css resource://app/chrome/skins/dark/scrollbars.css
+
+override chrome://komodo/skin/images/folder-closed.png chrome://fugue/skin/icons/blue-folder.png
+override moz-icon://stock/gtk-directory?size=16 chrome://fugue/skin/icons/blue-folder.png
+override chrome://komodo/skin/images/project_icon.png chrome://fugue/skin/icons/blue-folder-open-document.png
+override moz-icon://stock/gtk-home?size=16 chrome://fugue/skin/icons/blue-folder-open-document.png
