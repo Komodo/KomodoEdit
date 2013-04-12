@@ -370,9 +370,9 @@ less.Parser = function Parser(env) {
 
     function getInput(e, env) {
         if (e.filename && env.filename && (e.filename !== env.filename)) {
-            return parser.imports.contents[e.filename];
+            return parser.imports.contents[e.filename] || "";
         } else {
-            return input;
+            return input || "";
         }
     }
 

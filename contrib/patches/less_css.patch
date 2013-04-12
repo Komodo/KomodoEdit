@@ -1,6 +1,6 @@
 --- smallstuff/less.js  1.3.3
 +++ smallstuff/less.js  trunk
-@@ -1,3 +1,7 @@
+@@ -1,8 +1,12 @@
 +window.less = {};
 +
 +(function() {
@@ -8,6 +8,12 @@
  //
  // LESS - Leaner CSS v1.3.3
  // http://lesscss.org
+ // 
+-// Copyright (c) 2009-2011, Alexis Sellier
++// Copyright (c) 2009-2013, Alexis Sellier
+ // Licensed under the Apache 2.0 License.
+ //
+ (function (window, undefined) {
 @@ -223,6 +227,19 @@
              var that = this;
              this.queue.push(path);
@@ -28,6 +34,18 @@
              //
              // Import a file asynchronously
              //
+@@ -353,9 +370,9 @@
+ 
+     function getInput(e, env) {
+         if (e.filename && env.filename && (e.filename !== env.filename)) {
+-            return parser.imports.contents[e.filename];
++            return parser.imports.contents[e.filename] || "";
+         } else {
+-            return input;
++            return input || "";
+         }
+     }
+ 
 @@ -1636,7 +1653,7 @@
          // We pass `true` as 3rd argument, to force the reload of the import.
          // This is so we can get the syntax tree as opposed to just the CSS output,
@@ -78,6 +96,15 @@
  
  function loadStyles() {
      var styles = document.getElementsByTagName('style');
+@@ -4075,7 +4071,7 @@
+     // urlParts[4] = filename
+     // urlParts[5] = parameters
+ 
+-    var urlPartsRegex = /^((?:[a-z-]+:)?\/\/(?:[^\/\?#]+\/)|([\/\\]))?((?:[^\/\\\?#]+[\/\\])*)([^\/\\\?#]*)([#\?].*)?$/,
++    var urlPartsRegex = /^((?:[a-z-]+:)?\/\/(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$/,
+         urlParts = url.match(urlPartsRegex),
+         returner = {}, directories = [], i, baseUrlParts;
+ 
 @@ -4112,83 +4108,6 @@
      returner.fileUrl = returner.path + (urlParts[4] || "");
      returner.url = returner.fileUrl + (urlParts[5] || "");
@@ -162,14 +189,16 @@
  }
  
  function extractId(href) {
-@@ -4412,3 +4331,9 @@
+@@ -4411,3 +4330,12 @@
+     define("less", [], function () { return less; } );
  }
  })(window);
- 
++
++// Fire window event indicating this lib has been loaded
++// allowing ko.less to kick itself off
 +window.less.initialized = true;
 +var evt = document.createEvent("Event");
 +evt.initEvent("lessLoaded",true,true);
 +window.dispatchEvent(evt);
 +
 +}).call();
-

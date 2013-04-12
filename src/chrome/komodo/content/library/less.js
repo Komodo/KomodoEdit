@@ -273,15 +273,31 @@ if ( ! ("less" in ko))
                     }
                     else // Otherwise it's an internal (ko.less) call
                     {
+                        try
+                        {
+                            var parsedCss = root.toCSS();
+                        }
+                        catch (e)
+                        {
+                            if ("extract" in e)
+                            {
+                                return this.errorLess(e, sheet.href);
+                            }
+                            else
+                            {
+                                return this.exception(e,'Error converting less to css in ' + sheet.href);
+                            }
+                        }
+
                         // Write it to cache
                         try
                         {
-                            var cacheFile = this.cache.writeFile(sheet.href, root.toCSS(), true);
+                            var cacheFile = this.cache.writeFile(sheet.href, parsedCss, true);
                             var cacheUri = NetUtil.newURI(cacheFile).spec;
                         }
                         catch (e)
                         {
-                            return this.error('Error creating cache for ' + sheet.href + ': ' + e.message);
+                            return this.exception(e, 'Error creating cache for ' + sheet.href);
                         }
 
                         this.localCache.sheetPaths[sheet.href] = cacheUri;
@@ -714,6 +730,19 @@ if ( ! ("less" in ko))
             log.error(message + "\n", noBacktrace);
         },
         
+        /**
+         * Log Exception Wrapper
+         *
+         * @param   {Object} exception
+         * @param   {String} message
+         *
+         * @returns {Void}
+         */
+        exception: function ko_less_error(exception, message = "")
+        {
+            log.exception(exception, message);
+        },
+
         /**
          * Log a LESS error message, contains a LESS backtrace if available
          * 
