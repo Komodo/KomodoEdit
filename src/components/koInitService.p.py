@@ -811,7 +811,7 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 6
+    _current_pref_version = 7
 
     def _upgradeUserPrefs(self):
         """Upgrade any specific info in the user's prefs.xml.
@@ -867,9 +867,13 @@ class KoInitService(object):
                 log.exception("Error updating import_exclude_matches")
 
         if version < 6: # Komodo 8.0.0a2
-            prefs.setStringPref("ui.tabs.sidepanes.left.layout", "icons");
-            prefs.setStringPref("ui.tabs.sidepanes.right.layout", "icons");
-                
+            prefs.setStringPref("ui.tabs.sidepanes.left.layout", "icons")
+            prefs.setStringPref("ui.tabs.sidepanes.right.layout", "icons")
+
+        if version < 7: # Komodo 8.1
+            prefs.deletePref("koSkin_custom_skin")
+            prefs.deletePref("koSkin_custom_icons")
+
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)
 
