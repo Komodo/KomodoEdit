@@ -1,0 +1,16 @@
+@import url("chrome://komodo/skin/plat/current/panes.less");
+
+page treechildren::-moz-tree-cell-text, page richlistitem
+{
+    color: #EDEDED !important;
+}
+
+page treechildren::-moz-tree-row(selected)
+{
+    background: #3F3F3F !important;
+}
+
+page treechildren::-moz-tree-row(selected, focus), page richlistitem[selected]
+{
+    background: #424B56 !important;
+}

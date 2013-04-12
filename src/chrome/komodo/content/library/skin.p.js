@@ -350,6 +350,8 @@ var _lessClearCache = undefined;
                         observer.clearCache(true /*chrome*/);
                     }
                 }
+
+                Services.obs.notifyObservers(null, "chrome-flush-caches", null);
                 
                 // Clear less cache
                 if ("less" in ko && "initialized" in ko.less)

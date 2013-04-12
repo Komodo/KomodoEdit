@@ -1,2 +1,9 @@
 override chrome://komodo/skin/_config/window.less resource://app/chrome/skins/dark/_config/window.less
-override chrome://komodo/skin/platform.less resource://app/chrome/skins/dark/platform.less
+override chrome://komodo/skin/_config/toolbars.less resource://app/chrome/skins/dark/_config/toolbars.less
+override chrome://komodo/skin/_config/tabs.less resource://app/chrome/skins/dark/_config/tabs.less
+override chrome://komodo/skin/_config/panes.less resource://app/chrome/skins/dark/_config/panes.less
+
+override chrome://komodo/skin/window.less resource://app/chrome/skins/dark/window.less
+override chrome://komodo/skin/panes.less resource://app/chrome/skins/dark/panes.less
+
+override chrome://global/skin/scrollbars.css resource://app/chrome/skins/dark/scrollbars.css
