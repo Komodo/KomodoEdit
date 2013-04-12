@@ -14,14 +14,14 @@ function PrefUi_OnLoad() {
                 continue;
             }
 
-            var file = Services.io.newURI("resource://app/chrome/" + dir + "/" +
-                                          item.getAttribute('value') +
-                                          "/chrome.manifest", null,null)
+            var uri = "resource://app/chrome/" + dir + "/" +
+                        item.getAttribute('value') + "/chrome.manifest";
+            var file = Services.io.newURI(uri, null,null)
                         .QueryInterface(Ci.nsIFileURL).file;
 
             if (file.exists())
             {
-                item.setAttribute('value', file.path);
+                item.setAttribute('value', uri);
             }
             else
             {

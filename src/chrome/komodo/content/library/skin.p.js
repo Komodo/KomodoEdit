@@ -24,8 +24,9 @@ var _lessClearCache = undefined;
 (function() {
 
     const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
-    const {Services} = Cu.import("resource://gre/modules/Services.jsm", {});
-    const {ctypes} = Cu.import("resource://gre/modules/ctypes.jsm", {});
+    const {NetUtil}     = Cu.import("resource://gre/modules/NetUtil.jsm", {});
+    const {Services}    = Cu.import("resource://gre/modules/Services.jsm", {});
+    const {ctypes}      = Cu.import("resource://gre/modules/ctypes.jsm", {});
 
     // Make prefs accessible across "class"
     var prefs = Components.classes['@activestate.com/koPrefService;1']
@@ -76,9 +77,6 @@ var _lessClearCache = undefined;
                 prefs.prefObserverService.addObserver(this, pref, false);
             }
 
-            this.loadPreferredSkin();
-            this.loadPreferredIcons();
-            
             // Check whether we need to load a custom skin manually
             if (this.gtk.init(this) && prefs.getBoolean(PREF_USE_GTK_DETECT, true))
             {
@@ -108,13 +106,16 @@ var _lessClearCache = undefined;
 
                 // Unload the previous skin
                 try {
-                    var file = self._getFile(prefOld[topic], true);
-                    self.unloadCustomSkin(file);
+                    if (prefOld[topic] != '')
+                    {
+                        self.unloadCustomSkin(prefOld[topic]);
+                    }
                 } catch (e) {}
 
                 // Store new value for future updates
                 prefOld[topic] = value;
 
+                setTimeout(function() {
                 // Reload relevant skin
                 if (topic == PREF_CUSTOM_SKIN)
                 {
@@ -126,45 +127,8 @@ var _lessClearCache = undefined;
                     self.iconsetHasChanged = true;
                     self.loadPreferredIcons();
                 }
+                }, 50);
             }
-            
-        },
-
-        /**
-         * Get nsILocalFile from path
-         * 
-         * @param   {String} path
-         * @param   {Boolean} silent    whether to log exceptions
-         * 
-         * @returns {nsILocalFile|Boolean} 
-         */
-        _getFile: function(path, silent = false)
-        {
-            try
-            {
-                var file = Components.classes["@mozilla.org/file/local;1"]
-                            .createInstance(Components.interfaces.nsILocalFile);
-                file.initWithPath(path);
-            }
-            catch(e)
-            {
-               	silent || ko.logging.getLogger('koSkin').error(file.path + ": " + e.message);
-                return false;
-            }
-            
-            if (window.matchMedia("(min-resolution: 2dppx)").matches)
-            {
-                fileHiDPI = file.parent;
-                fileHiDPI.append('hidpi');
-                fileHiDPI.append('chrome.manifest');
-
-                if (fileHiDPI.exists())
-                {
-                    file = fileHiDPI;
-                }
-            }
-
-            return file;
         },
         
         /**
@@ -180,13 +144,7 @@ var _lessClearCache = undefined;
                 return;
             }
 
-            var file = this._getFile(preferredSkin);
-            if ( ! file || ! file.exists())
-            {
-                return;
-            }
-
-            this.loadCustomSkin(file);
+            this.loadCustomSkin(preferredSkin);
         },
         
         /**
@@ -196,95 +154,58 @@ var _lessClearCache = undefined;
          */
         loadPreferredIcons: function()
         {
-            var file = false;
-            var iconset = prefs.getString(PREF_CUSTOM_ICONS,'');
-    
-            if (iconset != '')
+            var uri = prefs.getString(PREF_CUSTOM_ICONS,'');
+
+            if (uri == '')
             {
-                file = this._getFile(iconset);
-            }
-    
-            if (iconset == '' || (file && ! file.exists()))
-            {
-                Components.utils.import("resource://gre/modules/Services.jsm");
-                file = Services.io.newURI("resource://app/chrome/iconsets/" +
-// #if PLATFORM == "darwin"
-                              "cupertino" +
-// #else
-                              "dark" +
-// #endif
-                              "/chrome.manifest", null,null)
-                    .QueryInterface(Components.interfaces.nsIFileURL).file;
-                prefs.setStringPref(PREF_CUSTOM_ICONS, file.path);
+                if (window.navigator.platform.toLowerCase().indexOf("mac") === 0)
+                {
+                    var uri = "resource://app/chrome/iconsets/cupertino/chrome.manifest";
+                }
+                else
+                {
+                    var uri = "resource://app/chrome/iconsets/dark/chrome.manifest";
+                }
+                
+                prefs.setStringPref(PREF_CUSTOM_ICONS, uri);
             }
 
-            if ( ! file || ! file.exists())
-            {
-                return;
-            }
-            
-            this.loadCustomSkin(file);
-        },
-        
-        /**
-         * Validate if file is valid as a skin file
-         * 
-         * @param   {nsIFile} file 
-         * 
-         * @returns {Void} 
-         */
-        _validateSkinFile: function(file)
-        {
-            if ( ! file instanceof Components.interfaces.nsIFile)
-            {
-                throw new Error("First attribute should be instance of nsILocalFile");
-            }
-            
-            if ( ! file.exists())
-            {
-                throw new Error("Custom skin file does not exist: " + file.path);
-            }
-            
-            if (file.leafName != 'chrome.manifest')
-            {
-                throw new Error("Filename should be 'chrome.manifest'");
-            }
+            this.loadCustomSkin(uri);
         },
         
         /**
          * Load a custom skin
          * 
-         * @param   {nsIFile} file       File pointer of chrome.manifest
+         * @param   {String} uri
          * 
          * @returns {Void}
          */
-        loadCustomSkin: function(file)
+        loadCustomSkin: function(uri)
         {
-            this._validateSkinFile(file);
-            
-            try
+            log.debug("Loading custom skin: " + uri);
+
+            var manifestLoader = Cc["@activestate.com/koManifestLoader;1"]
+                                    .getService(Ci.koIManifestLoader);
+            if ( ! manifestLoader.loadManifest(uri, true))
             {
-                Components.manager.addBootstrappedManifestLocation(file.parent);
-            }
-            catch (e)
-            {
-                log.error("Failed loading manifest: '" + file.path + "'. " + e.message);
-                return false;
+                log.error("Failed loading manifest: '" + uri);
+                return;
             }
             
             if (this.skinHasChanged)
             {
                 this.clearCache();
             }
-            
+
+            var file = this._getFile(uri);
             var initFile = file.parent;
             initFile.appendRelativePath('init.js');
             if (initFile.exists())
             {
                 try
                 {
-                    let uri = Services.io.newFileURI(initFile);
-                    Services.scriptloader.loadSubScript(uri.spec, {koSkin: this});
+                    let initUri = Services.io.newFileURI(initFile);
+                    Services.scriptloader.loadSubScript(initUri.spec, {koSkin: this});
                 }
                 catch (e)
                 {
@@ -296,21 +217,20 @@ var _lessClearCache = undefined;
         /**
          * Unload a custom skin
          * 
-         * @param   {NsIFile} file 
+         * @param   {String} uri
          * 
          * @returns {Void} 
          */
-        unloadCustomSkin: function(file)
+        unloadCustomSkin: function(uri)
         {
-            this._validateSkinFile(file);
-            
-            try
+            log.debug("Unloading custom skin: " + uri);
+
+            var manifestLoader = Cc["@activestate.com/koManifestLoader;1"]
+                                    .getService(Ci.koIManifestLoader);
+            if ( ! manifestLoader.unloadManifest(uri, true))
             {
-                Components.manager.removeBootstrappedManifestLocation(file.parent);
-            }
-            catch (e)
-            {
-               log.error("Failed unloading manifest: '" + file.path + "'. " + e.message);
+                log.error("Failed unloading manifest: '" + uri);
+                return;
             }
             
             this.clearCache();
@@ -379,6 +299,43 @@ var _lessClearCache = undefined;
             
             _lessClearCache = true;
         },
+
+        _getFile: function(uri)
+        {
+            try
+            {
+
+                var match = uri.match(/([a-z]{2,})\:/);
+
+                switch (match ? match[1] : '')
+                {
+                    case 'resource':
+                        var file = Services.io.newURI(uri, null,null)
+                                    .QueryInterface(Ci.nsIFileURL).file;
+                        break;
+
+                    case 'file':
+                        var file = NetUtil.newURI(uri)
+                                    .QueryInterface(Ci.nsIFileURL)
+                                    .file;
+                        break;
+
+                    default:
+                        var file = Cc["@mozilla.org/file/local;1"]
+                                    .createInstance(Components.interfaces.nsILocalFile);
+                        file.initWithPath(uri);
+                        break;
+                }
+
+                return file;
+
+            }
+            catch(e)
+            {
+                log.error("Error retrieving file: " + uri + ": " + e.message);
+                return false;
+            }
+        },
         
         /**
          * GTK specific functionality
@@ -446,17 +403,17 @@ var _lessClearCache = undefined;
                     return;
                 }
                 
-                var file = this.resolveSkin(themeInfo);
-                if ( ! file)
+                var uri = this.resolveSkin(themeInfo);
+                if ( ! uri)
                 {
                     prefs.setStringPref(PREF_CUSTOM_SKIN,'');
                     prefs.setStringPref(PREF_CUSTOM_ICONS,'');
                     return;
                 }
                 
-                if (prefs.getString(PREF_CUSTOM_SKIN, '') != file.path)
+                if (prefs.getString(PREF_CUSTOM_SKIN, '') != uri)
                 {
-                    prefs.setStringPref(PREF_CUSTOM_SKIN, file.path);
+                    prefs.setStringPref(PREF_CUSTOM_SKIN, uri);
                 }
             },
             
@@ -465,13 +422,14 @@ var _lessClearCache = undefined;
              *
              * @param   {Object} themeInfo Theme information object (contains name key)
              *
-             * @returns {Boolean|nsIFile}
+             * @returns {Boolean|String}
              */
             resolveSkin: function(themeInfo)
             {
                 Components.utils.import("resource://gre/modules/Services.jsm");
 
-                var file = Services.io.newURI("resource://app/chrome/skins/gtk-"+themeInfo.name+"/chrome.manifest", null,null)
+                var uri = "resource://app/chrome/skins/gtk-"+themeInfo.name+"/chrome.manifest";
+                var file = Services.io.newURI(uri, null,null)
                             .QueryInterface(Components.interfaces.nsIFileURL).file;
 
                 if ( ! file.exists())
@@ -479,7 +437,7 @@ var _lessClearCache = undefined;
                     return false;
                 }
 
-                return file;
+                return uri;
             },
 
             /**

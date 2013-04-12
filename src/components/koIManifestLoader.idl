@@ -1,0 +1,12 @@
+#include "nsISupports.idl"
+
+[scriptable, uuid(2CD6E730-6284-47C7-8087-CF591D94E799)]
+interface koIManifestLoader : nsISupports
+{
+    bool loadManifest(in wstring uri,
+                      [optional] in bool store);
+    bool unloadManifest(in wstring uri,
+                      [optional] in bool del);
+    void addManifest(in wstring uri);
+    void deleteManifest(in wstring uri);
+};

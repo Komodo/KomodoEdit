@@ -1074,4 +1074,22 @@
 
   <!-- ActiveState auto-update notification messages -->
   <boolean id="activestate_notification_messages_enabled">1</boolean>
+
+  <!-- Default icon set, must be defined as it's used to unload it -->
+  <string id="koSkin_custom_icons">
+    <!-- #if PLATFORM == "darwin" -->
+      resource://app/chrome/iconsets/cupertino/chrome.manifest
+    <!-- #else -->
+      resource://app/chrome/iconsets/dark/chrome.manifest
+    <!-- #endif -->
+  </string>
+
+  <!-- Record the custom manifests that need to be loaded at runtime (startup) -->
+  <ordered-preference id="stored_runtime_manifests">
+    <!-- #if PLATFORM == "darwin" -->
+      <string>resource://app/chrome/iconsets/cupertino/chrome.manifest</string>
+    <!-- #else -->
+      <string>resource://app/chrome/iconsets/dark/chrome.manifest</string>
+    <!-- #endif -->
+  </ordered-preference>
 </preference-set>
