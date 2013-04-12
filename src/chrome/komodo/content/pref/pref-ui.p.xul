@@ -114,14 +114,19 @@
                                   iconset="dark"
 <!-- #endif -->
                                   />
-<!-- #if PLATFORM == "linux" -->
                         <menuitem id="pref_appearance_skin_dark"
                                   label="&skinDark.label;"
+                                  value="dark"
+                                  iconset="cupertino-blue"
+                                  />
+<!-- #if PLATFORM == "linux" -->
+                        <menuitem id="pref_appearance_skin_dark_compatibility"
+                                  label="&skinDarkCompat.label;"
                                   value="gtk-Dark"
                                   iconset="light"
                                   />
-                        <menuitem id="pref_appearance_skin_ambiance"
-                                  label="&skinAmbiance.label;"
+                        <menuitem id="pref_appearance_skin_ambiance_compatibility"
+                                  label="&skinAmbianceCompat.label;"
                                   value="gtk-Ambiance"
                                   iconset="ambiance"
                                   />
@@ -156,7 +161,7 @@
                                   label="&iconsetCupertino.label;"
                                   value="cupertino"
                                   />
-                        <menuitem id="pref_appearance_iconset_cupertino_blue"
+                        <menuitem id="pref_appearance_iconset_cupertino-blue"
                                   label="&iconsetCupertinoBlue.label;"
                                   value="cupertino-blue"
                                   />
