@@ -7,11 +7,11 @@ function koManifestLoader()
 
 (function() {
 
-    const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+    const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
     const { NetUtil }   = Cu.import("resource://gre/modules/NetUtil.jsm", {});
     const { Services }  =   Cu.import("resource://gre/modules/Services.jsm", {});
 
-    var loggingSvc, prefSvc, log, prefs;
+    var loggingSvc, prefSvc, log, prefs, koResolve;
 
     var initialized = false;
 
@@ -38,8 +38,11 @@ function koManifestLoader()
             log        = loggingSvc.getLogger('koManifestLoader');
             prefs      = prefSvc.prefs;
 
-            log.setLevel(10);
+            //log.setLevel(10);
             
+            koResolve = Cc["@activestate.com/koResolve;1"]
+                            .getService(Ci.koIResolve);
+
             var manifests = this._getManifests();
             log.debug("Loading " + manifests.length + " manifests");
 
@@ -129,39 +132,15 @@ function koManifestLoader()
 
         _getFile: function(uri)
         {
-            try
+            var filePath = koResolve.uriToPath(uri);
+            if ( ! filePath)
             {
-
-                var match = uri.match(/([a-z]{2,})\:/);
-
-                switch (match ? match[1] : '')
-                {
-                    case 'resource':
-                        var file = Services.io.newURI(uri, null,null)
-                                    .QueryInterface(Ci.nsIFileURL).file;
-                        break;
-
-                    case 'file':
-                        var file = NetUtil.newURI(uri)
-                                    .QueryInterface(Ci.nsIFileURL)
-                                    .file;
-                        break;
-
-                    default:
-                        var file = Cc["@mozilla.org/file/local;1"]
-                                    .createInstance(Components.interfaces.nsILocalFile);
-                        file.initWithPath(uri);
-                        break;
-                }
-
-                return file;
-
-            }
-            catch(e)
-            {
-                log.error("Error retrieving file: " + uri + ": " + e.message);
                 return false;
             }
+
+            var file = Cc["@mozilla.org/file/local;1"]
+                        .createInstance(Components.interfaces.nsILocalFile);
+            file.initWithPath(filePath);
 
             return file;
         },

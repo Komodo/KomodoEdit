@@ -583,68 +583,18 @@ if ( ! ("less" in ko))
          */
         resolveFile: function ko_less_resolveFile(fileUri)
         {
-            if (fileUri in this.localCache.resolveFile)
-            {
-                return this.localCache.resolveFile[fileUri];
-            }
-            
-            var filePath = false;
-            var match = fileUri.match(/([a-z]{2,})\:/);
-            
-            // Handle different file protocols
-            switch (match ? match[1] : '')
-            {
-                // chrome:// uri, convert it and pass it back into _resolveFile
-                case 'chrome':
-                    var resolvedPath    = Services.io.newURI(fileUri, "UTF-8", null);
-                    resolvedPath        = nsIChromeReg.convertChromeURL(resolvedPath);
-                    
-                    if (resolvedPath instanceof Ci.nsINestedURI)
-                    {
-                        resolvedPath = resolvedPath.innermostURI;
-                        if (resolvedPath instanceof Ci.nsIFileURL)
-                        {
-                            return this.resolveFile(resolvedPath.file.path);
-                        }
-                    }
-                    else 
-                    {
-                        return this.resolveFile(resolvedPath.spec);
-                    }
-                    break;
-                
-                // resource:// uri, load it up and return the path
-                case 'resource':
-                    filePath = Services.io.newURI(fileUri, null,null)
-                                .QueryInterface(Ci.nsIFileURL).file.path;
-                    break;
-                
-                // file:// uri, just strip the prefix and get on with it
-                case 'file':
-                    filePath = NetUtil.newURI(fileUri)
-                                      .QueryInterface(Ci.nsIFileURL)
-                                      .file.path;
-                    break;
-                
-                // Looks like we already have the correct path
-                case '':
-                    filePath = fileUri
-                    break;
-            }
-            
-            // Check if we received a path
+            var koResolve = Cc["@activestate.com/koResolve;1"]
+                                    .getService(Ci.koIResolve);
+
+            var filePath = koResolve.uriToPath(fileUri);
             if ( ! filePath)
             {
-                return this.error('File uri could not be resolved: ' + fileUri);
+                return false;
             }
-            
-            this.debug('Resolved "' + fileUri + '" as "' + filePath + '"');
             
             // Create nsIFile with path
             var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
             file.initWithPath(filePath);
-            
-            this.localCache.resolveFile[fileUri] = file;
             
             return file;
         },

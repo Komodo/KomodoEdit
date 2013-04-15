@@ -33,6 +33,7 @@ var _lessClearCache = undefined;
                     .getService(Components.interfaces.koIPrefService).prefs;
                     
     var log = ko.logging.getLogger('koSkin');
+    //log.setLevel(ko.logging.LOG_DEBUG);
     
     // Preference constants
     const   PREF_CUSTOM_ICONS     = 'koSkin_custom_icons',
@@ -103,6 +104,8 @@ var _lessClearCache = undefined;
                 {
                     return;
                 }
+
+                log.debug("Pref changed: " + topic + ", old value: " + prefOld[topic] + ", new value: " + value);
 
                 // Unload the previous skin
                 try {
@@ -198,6 +201,11 @@ var _lessClearCache = undefined;
             }
 
             var file = this._getFile(uri);
+            if ( ! file)
+            {
+                return;
+            }
+
             var initFile = file.parent;
             initFile.appendRelativePath('init.js');
             if (initFile.exists())
@@ -253,7 +261,7 @@ var _lessClearCache = undefined;
             if ( ! noDelay)
             {
                 clearTimeout(_clearCacheTimer);
-                _clearCacheTimer = setTimeout(this.clearCache.bind(this, true), 50);
+                _clearCacheTimer = setTimeout(this.clearCache.bind(this, true), 100);
                 return;
             }
             
@@ -305,27 +313,18 @@ var _lessClearCache = undefined;
             try
             {
 
-                var match = uri.match(/([a-z]{2,})\:/);
+                var koResolve = Cc["@activestate.com/koResolve;1"]
+                                        .getService(Ci.koIResolve);
 
-                switch (match ? match[1] : '')
+                var filePath = koResolve.uriToPath(uri);
+                if ( ! filePath)
                 {
-                    case 'resource':
-                        var file = Services.io.newURI(uri, null,null)
-                                    .QueryInterface(Ci.nsIFileURL).file;
-                        break;
-
-                    case 'file':
-                        var file = NetUtil.newURI(uri)
-                                    .QueryInterface(Ci.nsIFileURL)
-                                    .file;
-                        break;
-
-                    default:
-                        var file = Cc["@mozilla.org/file/local;1"]
-                                    .createInstance(Components.interfaces.nsILocalFile);
-                        file.initWithPath(uri);
-                        break;
+                    return false;
                 }
+
+                // Create nsIFile with path
+                var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+                file.initWithPath(filePath);
 
                 return file;
 

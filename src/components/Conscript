@@ -91,6 +91,12 @@ $cons->InstallXpcomComponent('koManifestLoader.js',
 $cons->Install($idlExportDir, 'koIManifestLoader.idl');
 $cons->BuildAndInstallXpt('koIManifestLoader.idl');
 
+# koResolve
+$cons->InstallXpcomComponent('koResolve.js',
+                             {'@activestate.com/koResolve;1' => "{2584BC91-0AEE-4DB1-B73F-2F1610979ED1}"});
+$cons->Install($idlExportDir, 'koIResolve.idl');
+$cons->BuildAndInstallXpt('koIResolve.idl');
+
 # koIInitServive
 $cons->Preprocess('koInitService.p.py',
                   'koInitService.py');

@@ -1,0 +1,7 @@
+#include "nsISupports.idl"
+
+[scriptable, uuid(B4DAE426-2F35-4857-B6A0-4C64613EC1F3)]
+interface koIResolve : nsISupports
+{
+    wstring uriToPath(in wstring uri);
+};
