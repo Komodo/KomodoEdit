@@ -809,6 +809,7 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
     int numDots = 0;  // For numbers --
                       // Don't start lexing in the middle of a num
     int num_e_s = 0;  // Also for floating-point numbers
+    int supportISymbolArray = styler.GetPropertyInt("supportISymbolArray");
 
     synchronizeDocStart(startPos, length, initStyle, styler // ref args
                         );
@@ -834,8 +835,10 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
                              SCE_RB_STRING_QR,
                              SCE_RB_STRING_QW,
                              SCE_RB_STRING_QW,
+                             SCE_RB_STRING_QI,
+                             SCE_RB_STRING_QI,
                              SCE_RB_STRING_QX};
-    static const char* q_chars = "qQrwWx";
+    static const char* q_chars = "qQrwWiIx";
 
     // In most cases a value of 2 should be ample for the code in the
     // Ruby library, and the code the user is likely to enter.
@@ -1093,7 +1096,10 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
             } else if (ch == '%') {
                 styler.ColourTo(i - 1, state);
                 bool have_string = false;
-                if (strchr(q_chars, chNext) && !isSafeWordcharOrHigh(chNext2)) {
+                if (strchr(q_chars, chNext)
+                           && !isSafeWordcharOrHigh(chNext2)
+                           && ((chNext != 'i' && chNext != 'I')
+                               || supportISymbolArray)) {
                     Quote.New();
                     const char *hit = strchr(q_chars, chNext);
                     if (hit != NULL) {
@@ -1101,7 +1107,7 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
                         Quote.Open(chNext2);
                         i += 2;
                         ch = chNext2;
-            chNext = styler.SafeGetCharAt(i + 1);
+                        chNext = styler.SafeGetCharAt(i + 1);
                         have_string = true;
                     }
                 } else if (preferRE && !isSafeWordcharOrHigh(chNext)) {
@@ -1486,6 +1492,7 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
         // Quotes of all kinds...
         } else if (state == SCE_RB_STRING_Q || state == SCE_RB_STRING_QQ || 
                    state == SCE_RB_STRING_QX || state == SCE_RB_STRING_QW ||
+                   state == SCE_RB_STRING_QI ||
                    state == SCE_RB_STRING || state == SCE_RB_CHARACTER ||
                    state == SCE_RB_BACKTICKS) {
             if (!Quote.Down && !isspacechar(ch)) {
@@ -1496,6 +1503,9 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
             } else if (ch == Quote.Down) {
                 Quote.Count--;
                 if (Quote.Count == 0) {
+                    if (state == SCE_RB_STRING_QI) {
+                        state = SCE_RB_SYMBOL;
+                    }
                     styler.ColourTo(i, state);
                     state = SCE_RB_DEFAULT;
                     preferRE = false;
