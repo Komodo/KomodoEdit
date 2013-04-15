@@ -63,9 +63,6 @@ function PrefUi_OnLoad() {
 
     // Hide the skin selector if there are no skins
     document.getElementById('pref_appearance_skin_hbox').collapsed = (items.length == 0);
-    
-    // Run default actions (load prefs and their selected state)
-    parent.hPrefWindow.onpageload();
 
     // If gtk detection is true, disable the skin selection
     if (window.navigator.platform.toLowerCase().indexOf("linux") != -1)
@@ -111,4 +108,7 @@ function PrefUi_OnLoad() {
         checkboxDetect.addEventListener('click', setSkinState);
         setSkinState();
     }
+
+    // Run default actions (load prefs and their selected state)
+    parent.hPrefWindow.onpageload();
 }

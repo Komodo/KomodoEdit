@@ -402,6 +402,7 @@ Build(
     "$build/modules/rails/Conscript",
     "$build/modules/spellcheck/Conscript",
     "$build/modules/zendframework/Conscript",
+    "$build/modules/abyss_skin/Conscript",
 
     # 3rd-party contributed code in contrib/...
     "$contribBuild/Conscript",
