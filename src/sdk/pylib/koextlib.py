@@ -717,7 +717,7 @@ def dev_install(base_dir, force=False, dry_run=False, log=None):
     if not dry_run:
         open(ext_file, 'w').write(dev_dir)
 
-def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None):
+def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None, unjarred=False):
     """Install the extension in `base_dir` into a Komodo build.
         
     This command is for building *core* Komodo extensions into a Komodo
@@ -733,6 +733,9 @@ def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None):
         preprocessing, *all* of the source tree except "build" and "tmp" subdirs
         are traversed.
     @param log {logging.Logger} Optional.
+    @param unjarred {bool} Whether to leave the chrome directory unjarred.
+        Default is False, meaning all chrome files (skin, content, locale)
+        are zipped up into a '$ext-name.jar' file.
     """
     if log is None: log = _log
     if not is_ext_dir(base_dir):
@@ -744,7 +747,7 @@ def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None):
     
     # `build_ext` knows how to build the extension. We just call it and
     # use the .xpi it produces.
-    xpi_path = build_ext(base_dir, ppdefines=ppdefines, log=log)
+    xpi_path = build_ext(base_dir, ppdefines=ppdefines, log=log, unjarred=unjarred)
     
     # Unzip the .xpi into that dir.
     komodo_unpack_xpi(xpi_path)

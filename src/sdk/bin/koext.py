@@ -163,6 +163,8 @@ class KoExtShell(cmdln.Cmdln):
                  "See `koext help build`.")
     @option("--define", action="append", dest="defines",
             help="Define a preprocessor variable, format 'name=value'.")
+    @option("--unjarred", action="store_true", dest="unjarred",
+            help="Do not jar the chrome directory.")
     def _do_koinstall(self, subcmd, opts):
         """${cmd_name}: build and install this extension into a Komodo build
 
@@ -187,7 +189,8 @@ class KoExtShell(cmdln.Cmdln):
         if opts.disable_preprocessing:
             ppdefines = None
         koextlib.komodo_build_install(opts.source_dir,
-            ppdefines=ppdefines, log=log)
+            ppdefines=ppdefines, log=log,
+            unjarred=opts.unjarred)
 
     def _do_kounpack(self, subcmd, opts, xpi_path):
         """${cmd_name}: unpack a .xpi file and install it into a Komodo build
