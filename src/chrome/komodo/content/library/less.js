@@ -583,6 +583,11 @@ if ( ! ("less" in ko))
          */
         resolveFile: function ko_less_resolveFile(fileUri)
         {
+            if (fileUri in this.localCache.resolveFile)
+            {
+                return this.localCache.resolveFile[fileUri];
+            }
+            
             var koResolve = Cc["@activestate.com/koResolve;1"]
                                     .getService(Ci.koIResolve);
 
@@ -596,6 +601,8 @@ if ( ! ("less" in ko))
             var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
             file.initWithPath(filePath);
             
+            this.localCache.resolveFile[fileUri] = file;
+
             return file;
         },
         
