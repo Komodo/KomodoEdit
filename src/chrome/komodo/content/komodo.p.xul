@@ -532,18 +532,18 @@
                                   >
                                 <menupopup id="close_menupopup">
                                     <menuitem id="close_tab_menuitem"
-                                              label="&closeTab.menuitem.label;"
-                                              accesskey="&closeTab.menuitem.accesskey;"
+                                              label="&closeFile.menuitem.label;"
+                                              accesskey="&closeFile.menuitem.accesskey;"
                                               observes="cmd_bufferClose"
                                         />
                                     <menuitem id="close_other_tabs_menuitem"
-                                              label="&closeOtherTabs.menuitem.label;"
-                                              accesskey="&closeOtherTabs.menuitem.accesskey;"
+                                              label="&closeOtherFiles.menuitem.label;"
+                                              accesskey="&closeOtherFiles.menuitem.accesskey;"
                                               observes="cmd_bufferCloseOthers"
                                               />
                                     <menuitem id="menu_closeAll"
-                                              label="&closeAllTabs.menuitem.label;"
-                                              accesskey="&closeAllTabs.menuitem.accesskey;"
+                                              label="&closeAllFiles.menuitem.label;"
+                                              accesskey="&closeAllFiles.menuitem.accesskey;"
                                               observes="cmd_closeAll"
                                     />
                                 </menupopup>

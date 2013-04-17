@@ -38,14 +38,23 @@ if (typeof ko.openfiles == 'undefined')
     /* Registered options */
     var groupOptions        = {};
     var sortOptions         = {};
-    
+
+    /* Keep track of listeners so we can remove them if needed */
+    var listeners            = {};
+
     /* Pref Constants */
     const
         PREF_GROUPING       = 'openfiles_grouping',
         PREF_GROUPING_TYPE  = 'openfiles_grouping_type',
         PREF_SORTING_TYPE   = 'openfiles_sorting_type',
+        PREF_SORTING_DIR    = 'openfiles_sorting_direction',
         PREF_SHOW_TAB_BAR   = 'openfiles_show_tab_bar';
+
+    /* Logging */
+    var log = ko.logging.getLogger('koOpenfiles');
+    //log.setLevel(ko.logging.LOG_DEBUG);
         
+    /* Class Pointer */
     var self;
     
     ko.openfiles.prototype  =
@@ -80,6 +89,24 @@ if (typeof ko.openfiles == 'undefined')
             template.groupItem.removeAttribute('collapsed');
             template.groupItem.removeAttribute('id')
             tpl.parentNode.removeChild(tpl);
+
+            // Register built in sorting options
+            this.registerSortOption(
+                'byName',
+                this.sorters.byName
+            );
+            this.registerSortOption(
+                'byIndex',
+                this.sorters.byIndex
+            );
+            this.registerSortOption(
+                'byLastOpen',
+                this.sorters.byLastOpen
+            );
+            this.registerSortOption(
+                'byAccessNo',
+                this.sorters.byAccessNo
+            );
             
             // Register built in grouping options 
             this.registerGroupOption(
@@ -97,10 +124,113 @@ if (typeof ko.openfiles == 'undefined')
             
             // Set the tab bar visibility 
             this.setTabBarVisibility(ko.prefs.getBoolean(PREF_SHOW_TAB_BAR, true));
+
+            if ( ! ko.prefs.getBoolean(PREF_GROUPING, true))
+            {
+                document.getElementById("openfilesPrefPopup_ToggleGrouping").removeAttribute("checked");
+            }
             
             // Bind listeners and reload (initialize) the list of open files 
             this.bindListeners();
             this.reload();
+        },
+
+        controller:
+        {
+            // Grouping Toggle
+            do_cmd_openfilesGrouping: function()
+            {
+                self.toggleGrouping();
+                this._updateCommands();
+            },
+
+            // Group by Language
+            is_cmd_openfilesGroupByLang_enabled: function()
+            {
+                return !! ko.prefs.getBoolean(PREF_GROUPING, true);
+            },
+
+            do_cmd_openfilesGroupByLang: function()
+            {
+                self.activateGroupOption('byLanguage');
+            },
+
+            // Group by Extension
+            is_cmd_openfilesGroupByExt_enabled: function()
+            {
+                return !! ko.prefs.getBoolean(PREF_GROUPING, true);
+            },
+
+            do_cmd_openfilesGroupByExt: function()
+            {
+                self.activateGroupOption('byExt');
+            },
+
+            // Sort by Name
+            do_cmd_openfilesSortAlpha: function()
+            {
+                self.activateSortOption('byName');
+            },
+
+            // Sort Naturally
+            do_cmd_openfilesSortNatural: function()
+            {
+                self.activateSortOption('byIndex');
+            },
+
+            // Sort by Last Opened
+            do_cmd_openfilesSortLastOpened: function()
+            {
+                self.activateSortOption('byLastOpen');
+                self.setSortDirection('DESC');
+            },
+
+            // Sort by Access No
+            do_cmd_openfilesSortAccessNo: function()
+            {
+                self.activateSortOption('byAccessNo');
+                self.setSortDirection('DESC');
+            },
+
+            // Sort direction
+            do_cmd_openfilesSortAscending: function()
+            {
+                self.setSortDirection('ASC');
+            },
+            do_cmd_openfilesSortDescending: function()
+            {
+                self.setSortDirection('DESC');
+            },
+
+            // Re-Sort
+            do_cmd_openfilesReSort: function()
+            {
+                self.sort();
+            },
+
+            // Update commands helper
+            _updateCommands: function()
+            {
+                var set = document.getElementById('cmdset_openfiles');
+                ko.commands.updateCommandset(set);
+            },
+
+            // Overloading
+            supportsCommand: function(command)
+            {
+                return ("do_" + command) in this;
+            },
+
+            isCommandEnabled: function(command)
+            {
+                var method = "is_" + command + "_enabled";
+                return (method in this) ? this["is_" + command + "_enabled"]() : true;
+            },
+
+            doCommand: function(command)
+            {
+                return this["do_" + command]();
+            }
         },
 
         /**
@@ -194,7 +324,7 @@ if (typeof ko.openfiles == 'undefined')
                 this.removeItem(e.originalTarget);
                 this.addItem(e.originalTarget);
             }.bind(this));
-            
+
             koWindow.addEventListener('workspace_restored', this.reload.bind(this));
             
             /**** OpenFiles Events ******/
@@ -219,6 +349,10 @@ if (typeof ko.openfiles == 'undefined')
                 
                 return selectItem.call(this, item);
             }
+
+            // Register controller
+            window.controllers.appendController(this.controller);
+            parent.controllers.appendController(this.controller);
         },
         
         /**
@@ -367,11 +501,37 @@ if (typeof ko.openfiles == 'undefined')
                 {
                     this.selectItem(editorView);
                 }
+
+                var tab = editorView.parentNode._tab;
+                if ( ! ("_OF_dragMonitoring" in tab))
+                {
+                    tab._OF_dragMonitoring = true;
+                    tab.addEventListener('dragstart', function(e)
+                    {
+                        var _tab = e.target;
+                        e.target.parentNode.addEventListener('drop', function(e)
+                        {
+                            _tab.parentNode.removeEventListener('drop', arguments.callee, false);
+                            
+                            var uid =   koWindow.document.getElementById(
+                                            _tab.linkedPanel
+                                        ).firstChild.uid;
+                            if (uid in openViews)
+                            {
+                                var listItem = listbox.querySelector('richlistitem[id="'+uid+'"]');
+                                this.sortItem(
+                                    listbox.querySelector('richlistitem[id="'+uid+'"]'),
+                                    true
+                                );
+                            }
+                        }.bind(this));
+                    }.bind(this));
+                }
             }
             
             // Render the groups and splits
             this.drawGroups();
-            
+            this.updateLabelCounter();
         },
         
         /**
@@ -384,12 +544,6 @@ if (typeof ko.openfiles == 'undefined')
          */
         drawGroups: function openfiles_drawGroups()
         {
-            // Skip if grouping is disabled
-            if ( ! ko.prefs.getBoolean(PREF_GROUPING, true))
-            {
-                return;
-            }
-            
             // Get the preferred grouping type (eg. by language)
             var groupOption = ko.prefs.getString(PREF_GROUPING_TYPE, 'byLanguage');
             groupOption     = groupOptions[groupOption];
@@ -481,7 +635,7 @@ if (typeof ko.openfiles == 'undefined')
                     }
                     
                     // Check if we're in a group and render it
-                    if (previous.group != groupInfo.name)
+                    if (previous.group != groupInfo.name && ko.prefs.getBoolean(PREF_GROUPING, true))
                     {
                         previous.group = groupInfo.name;
                         
@@ -612,10 +766,10 @@ if (typeof ko.openfiles == 'undefined')
          * 
          * @returns {Void} 
          */
-        removeGroups: function openfiles_removeGroups()
+        removeGroups: function openfiles_removeGroups(includeSplits = true)
         {
             var groups = listbox.querySelectorAll(
-                'richlistitem.group-item,richlistitem.split-item'
+                'richlistitem.group-item' + (includeSplits ? ',richlistitem.split-item' : '')
             );
             
             for (let group of groups)
@@ -706,8 +860,21 @@ if (typeof ko.openfiles == 'undefined')
             
             // Remove empty groups caused by removing this item
             this.removeEmptyGroups();
-            
+            this.updateLabelCounter();
+
             return true;
+        },
+
+        /**
+         * Update the panel label counter
+         *
+         * @returns {Void}
+         */
+        updateLabelCounter: function()
+        {
+            var label = document.getElementById('openFilesPaneLabel');
+            var size = listbox.querySelectorAll('richlistitem.file-item').length;
+            label.value = label.value.replace(/^(.*\:\s*)[0-9]+$/,'$1' + size);
         },
     
         /*
@@ -835,14 +1002,22 @@ if (typeof ko.openfiles == 'undefined')
          * Sort one item
          * 
          * @param   {Object} item Item DOM element
+         * @param   {Boolean} resort Whether to resort the item entirely
          * 
          * @returns {Void} 
          */
-        sortItem: function openfiles_sortItem(item)
+        sortItem: function openfiles_sortItem(item, resort = false)
         {
+            if (resort)
+            {
+                item.parentNode.appendChild(item);
+            }
             // Retrieve relevant view and user preferred grouping option
             var editorView  = openViews[item.getAttribute('id')];
+            var sortOption  = this.getActiveSortOption();
             var groupOption = this.getActiveGroupOption();
+            var direction   = this.getSortDirection();
+            var grouping    = ko.prefs.getBoolean(PREF_GROUPING, true);
             
             // Loop until this item is positioned at its highest possible
             // position
@@ -861,14 +1036,19 @@ if (typeof ko.openfiles == 'undefined')
                 // >0 - this item goes above the previous
                 // <0 - this item goes below the previous
                 //  0 - they are essentially the same
-                var byName  = this.sorters.byName(editorView,editorViewPrev);
-                var byGroup = groupOption.callbackSort.call(this,editorView,editorViewPrev);
+                var bySort  = sortOption.callback.call(this,editorView,editorViewPrev);
+                var byGroup = grouping ? groupOption.callbackSort.call(this,editorView,editorViewPrev) : 0;
                 var bySplit = this.groupers.bySplit.sort(editorView,editorViewPrev);
+
+                if (direction == 'DESC')
+                {
+                    bySort *= -1;
+                }
                 
                 // Validate whether this item should be moved above the previous
                 if ((
                         // sort by name, provided the sibling has a higher or equivalent ext||split 
-                        byName > 0 && byGroup >=0 && bySplit >= 0
+                        bySort > 0 && byGroup >=0 && bySplit >= 0
                     ) ||
                     (
                         // sort by ext, provided the sibling has a higher or equivalent split 
@@ -902,6 +1082,61 @@ if (typeof ko.openfiles == 'undefined')
                 return previous.title.toLowerCase().localeCompare(
                     current.title.toLowerCase()
                 );
+            },
+            
+            /**
+             * Sort the item by tab index
+             *
+             * @param   {Object} current  The current view for this item
+             * @param   {Object} previous The previous view for this item
+             *
+             * @returns {Integer} positive=higher,negative=lower,0=same
+             */
+            byIndex: function openfiles_byIndex(current,previous)
+            {
+                var currentTab = current.parentNode._tab;
+                current = Array.prototype.indexOf.call(
+                            currentTab.parentNode.childNodes,
+                            currentTab);
+
+                var previousTab = previous.parentNode._tab;
+                previous = Array.prototype.indexOf.call(
+                            previousTab.parentNode.childNodes,
+                            previousTab);
+
+                return previous - current;
+            },
+
+            /**
+             * Sort the item by last open time
+             *
+             * @param   {Object} current  The current view for this item
+             * @param   {Object} previous The previous view for this item
+             *
+             * @returns {Integer} positive=higher,negative=lower,0=same
+             */
+            byLastOpen: function openfiles_byLastOpen(current,previous)
+            {
+                current  = current.koDoc ? current.koDoc.fileLastOpened : 0;
+                previous  = previous.koDoc ? previous.koDoc.fileLastOpened : 0;
+
+                return current - previous;
+            },
+
+            /**
+             * Sort the item by how frequently it was accessed
+             *
+             * @param   {Object} current  The current view for this item
+             * @param   {Object} previous The previous view for this item
+             *
+             * @returns {Integer} positive=higher,negative=lower,0=same
+             */
+            byAccessNo: function openfiles_byAccessNo(current,previous)
+            {
+                current  = current.koDoc ? current.koDoc.fileAccessNo : 0;
+                previous  = previous.koDoc ? previous.koDoc.fileAccessNo : 0;
+
+                return current - previous;
             }
             
         },
@@ -946,9 +1181,9 @@ if (typeof ko.openfiles == 'undefined')
                 group: function openfiles_group(editorView)
                 {
                     return {
-                        name: editorView.koDoc.file ?
+                        name: editorView.koDoc.file && editorView.koDoc.file.ext ?
                                 editorView.koDoc.file.ext :
-                                editorView.title.replace(/.*(?:\/|\\)(.*)/,'$1')
+                                editorView.title.replace(/.*(\..*)/,'$1') || 'none'
                     };
                 }
             },
@@ -1034,8 +1269,7 @@ if (typeof ko.openfiles == 'undefined')
          */
         getSortDirection: function openfiles_getSortDirection()
         {
-            Components.Exception("Not implemented",
-                                 Components.results.NS_ERROR_NOT_IMPLEMENTED);
+            return ko.prefs.getString(PREF_SORTING_DIR, 'ASC');
         },
         
         /**
@@ -1047,8 +1281,10 @@ if (typeof ko.openfiles == 'undefined')
          */
         setSortDirection: function openfiles_setSortDirection(direction)
         {
-            Components.Exception("Not implemented",
-                                 Components.results.NS_ERROR_NOT_IMPLEMENTED);
+            var dir = ko.prefs.getString(PREF_SORTING_DIR, 'ASC');
+            ko.prefs.setStringPref(PREF_SORTING_DIR, dir == 'ASC' ? 'DESC' : 'ASC');
+
+            this.sort();
         },
     
         /**
@@ -1056,17 +1292,15 @@ if (typeof ko.openfiles == 'undefined')
          *
          * {String}     id          A unique identifier for this sorting option
          * {Function}   callback    The callback used for sorting
-         * {String}     label       The localisation used to select this sorting
-         *                          option
-         * {Array}      events      Optional array of additional events that the
-         *                          sort should be triggered on
          *
          * @returns {Void}
          */
-        registerSortOption: function openfiles_registerSortOption(id, callback, label, events)
+        registerSortOption: function openfiles_registerSortOption(id, callback)
         {
-            Components.Exception("Not implemented",
-                                 Components.results.NS_ERROR_NOT_IMPLEMENTED);
+            sortOptions[id] = {
+                id              :   id,
+                callback        :   callback
+            };
         },
     
         /*
@@ -1077,21 +1311,18 @@ if (typeof ko.openfiles == 'undefined')
          * {Function}   callbackSort    The callback used for grouping
          * {Function}   callbackGroup   The callback used to retrieve the
          *                              current group name and icon
-         * {String}     label           The localisation used to select this
-         *                              group option
          *
          * @returns {Void}
          */
-        registerGroupOption: function openfiles_registerGroupOption(id, callbackSort, callbackGroup, label)
+        registerGroupOption: function openfiles_registerGroupOption(id, callbackSort, callbackGroup)
         {
             groupOptions[id] = {
                 id              :   id,
                 callbackSort    :   callbackSort,
                 callbackGroup   :   callbackGroup,
-                label           :   label
             };
         },
-    
+
     
         /*
          * Activate the given sorting option
@@ -1102,8 +1333,24 @@ if (typeof ko.openfiles == 'undefined')
          */
         activateSortOption: function openfiles_activateSortOption(id)
         {
-            Components.Exception("Not implemented",
-                                 Components.results.NS_ERROR_NOT_IMPLEMENTED);
+            if (sortOptions[id] === undefined)
+            {
+                return false;
+            }
+            
+            ko.prefs.setStringPref(PREF_SORTING_TYPE, id);
+
+            var hiddenState = (id == 'byAccessNo' ? 'false' : 'true');
+            document.getElementById('openfilesPrefPopup_ReSort').setAttribute(
+                'kohidden', hiddenState
+            );
+            document.getElementById('openfilesPrefPopupSeparatorSortDir').setAttribute(
+                'kohidden', hiddenState
+            );
+
+            this.sort();
+
+            return true;
         },
         
         /*
@@ -1134,25 +1381,33 @@ if (typeof ko.openfiles == 'undefined')
          */
         toggleGrouping: function openfiles_toggleGrouping()
         {
-            this._removeGroups();
-            ko.prefs.setBooleanPref(PREF_GROUPING, false);
+            this.removeGroups();
+
+            var grouping = ! ko.prefs.getBoolean(PREF_GROUPING, true);
+            ko.prefs.setBooleanPref(PREF_GROUPING, grouping);
+
+            if (grouping)
+            {
+                this.drawGroups();
+            }
+
+            this.sort();
         },
     
         /*
          * Retrieve array of SortItem objects
          *
-         * @returns {Boolean|Array}  false if none exist
+         * @returns {Object}
          */
         getSortOptions: function openfiles_getSortOptions()
         {
-            Components.Exception("Not implemented",
-                                 Components.results.NS_ERROR_NOT_IMPLEMENTED);
+            return sortOptions;
         },
         
         /*
          * Retrieve array of GroupItem objects
          *
-         * @returns {Boolean|Array}  false if none exist
+         * @returns {Object}
          */
         getGroupOptions: function openfiles_getGroupOptions()
         {
@@ -1166,8 +1421,8 @@ if (typeof ko.openfiles == 'undefined')
          */
         getActiveSortOption: function openfiles_getActiveSortOption()
         {
-            Components.Exception("Not implemented",
-                                 Components.results.NS_ERROR_NOT_IMPLEMENTED);
+            var id = ko.prefs.getString(PREF_SORTING_TYPE, 'byName');
+            return sortOptions[id];
         },
     
         /*

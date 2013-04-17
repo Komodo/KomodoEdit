@@ -55,12 +55,12 @@
 <!ENTITY close.label "Close">
 <!ENTITY close.menu.accesskey "C">
 <!ENTITY close.menu.label "Close">
-<!ENTITY closeAllTabs.menuitem.accesskey "A">
-<!ENTITY closeAllTabs.menuitem.label "All Tabs">
-<!ENTITY closeOtherTabs.menuitem.accesskey "O">
-<!ENTITY closeOtherTabs.menuitem.label "Other Tabs">
-<!ENTITY closeTab.menuitem.accesskey "T">
-<!ENTITY closeTab.menuitem.label "Current Tab">
+<!ENTITY closeAllFiles.menuitem.accesskey "A">
+<!ENTITY closeAllFiles.menuitem.label "All Files">
+<!ENTITY closeOtherFiles.menuitem.accesskey "O">
+<!ENTITY closeOtherFiles.menuitem.label "Other Files">
+<!ENTITY closeFile.menuitem.accesskey "T">
+<!ENTITY closeFile.menuitem.label "Current File">
 <!ENTITY closeProject.label "Close Project">
 <!ENTITY closeAllProjects.label "Close All Projects">
 <!ENTITY code.label "Code">

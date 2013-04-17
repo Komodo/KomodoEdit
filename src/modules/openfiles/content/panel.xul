@@ -2,6 +2,8 @@
 <!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
   <!ENTITY % openfilesDTD SYSTEM "chrome://openfiles/locale/openfiles.dtd">
   %openfilesDTD;
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
 ]>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
@@ -12,6 +14,114 @@
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <vbox flex="1" id="openfilesWrapper">
         <vbox flex="99">
+            <hbox id="openfilesPrefHbox">
+                <label
+                       id="openFilesPaneLabel"
+                       value="&openFiles.label;: 0"
+                       class="panel-label"/>
+                <spacer flex="1"/>
+                <toolbarbutton
+                    id="openfilesPrefButton"
+                    class="cog-icon"
+                    buttonstyle="pictures"
+                    type="menu"
+                    orient="horizontal">
+                    
+                    <menupopup id="openfilesPrefPopup">
+
+                        <menuitem
+                            id="openfilesPrefPopup_ToggleGrouping"
+                            observes="cmd_openfilesGrouping"
+                            label="&groupFiles.label;"
+                            checked="true"
+                            type="checkbox"/>
+
+                        <menuseparator id="openfilesPrefPopupSeparatorGrouping"/>
+
+                        <menuitem
+                            id="openfilesPrefPopup_GroupLang"
+                            observes="cmd_openfilesGroupByLang"
+                            label="&groupByLang.label;"
+                            checked="true"
+                            persist="checked"
+                            name="groupBy"
+                            type="radio"/>
+                        <menuitem
+                            id="openfilesPrefPopup_GroupExt"
+                            observes="cmd_openfilesGroupByExt"
+                            label="&groupByExt.label;"
+                            checked="false"
+                            persist="checked"
+                            name="groupBy"
+                            type="radio"/>
+
+                        <menuseparator id="openfilesPrefPopupSeparatorGroupBy"/>
+
+                        <menuitem
+                            id="openfilesPrefPopup_SortAlpha"
+                            observes="cmd_openfilesSortAlpha"
+                            label="&sortAlpha.label;"
+                            checked="true"
+                            persist="checked"
+                            name="sortBy"
+                            type="radio"/>
+                        <menuitem
+                            id="openfilesPrefPopup_SortNatural"
+                            observes="cmd_openfilesSortNatural"
+                            label="&sortNatural.label;"
+                            checked="false"
+                            persist="checked"
+                            name="sortBy"
+                            type="radio"/>
+                        <menuitem
+                            id="openfilesPrefPopup_SortByLastOpen"
+                            observes="cmd_openfilesSortLastOpened"
+                            label="&sortLastOpened.label;"
+                            checked="false"
+                            persist="checked"
+                            name="sortBy"
+                            type="radio"/>
+                        <menuitem
+                            id="openfilesPrefPopup_SortByAccessNo"
+                            observes="cmd_openfilesSortAccessNo"
+                            label="&sortAccessNo.label;"
+                            checked="false"
+                            persist="checked"
+                            name="sortBy"
+                            type="radio"/>
+
+                        <menuseparator id="openfilesPrefPopupSeparatorSortBy"/>
+
+                        <menuitem
+                            id="openfilesPrefPopup_SortAscending"
+                            observes="cmd_openfilesSortAscending"
+                            label="&sortAscending.label;"
+                            checked="true"
+                            persist="checked"
+                            name="sortDir"
+                            type="radio"/>
+                        <menuitem
+                            id="openfilesPrefPopup_SortDescending"
+                            observes="cmd_openfilesSortDescending"
+                            label="&sortDescending.label;"
+                            checked="false"
+                            persist="checked"
+                            name="sortDir"
+                            type="radio"/>
+
+                        <menuseparator id="openfilesPrefPopupSeparatorSortDir"
+                                       kohidden="true" />
+
+                        <menuitem
+                            id="openfilesPrefPopup_ReSort"
+                            observes="cmd_openfilesReSort"
+                            kohidden="true"
+                            label="&reSort.label;"/>
+
+                    </menupopup>
+                    
+                </toolbarbutton>
+            </hbox>
             <richlistbox
                 flex="1"
                 id="openfilesListbox"
@@ -68,10 +178,72 @@
             </richlistitem>
         </vbox>
     </vbox>
+
+    <commandset
+        id="cmdset_openfiles"
+        oncommandupdate="ko.commands.updateCommandset(this, event)"
+        commandupdater="true">
+
+        <command
+            id="cmd_openfilesGrouping"
+            key="key_cmd_openfilesGrouping"
+            oncommand="ko.commands.doCommand('cmd_openfilesGrouping', event)"
+            desc="&groupFiles.desc;"/>
+
+        <command
+            id="cmd_openfilesGroupByLang"
+            key="key_cmd_openfilesGroupByLang"
+            oncommand="ko.commands.doCommand('cmd_openfilesGroupByLang', event)"
+            desc="&groupByLang.desc;"/>
+        <command
+            id="cmd_openfilesGroupByExt"
+            key="key_cmd_openfilesGroupByExt"
+            oncommand="ko.commands.doCommand('cmd_openfilesGroupByExt', event)"
+            desc="&groupByExt.desc;"/>
+
+        <command
+            id="cmd_openfilesSortAlpha"
+            key="key_cmd_openfilesSortAlpha"
+            oncommand="ko.commands.doCommand('cmd_openfilesSortAlpha', event)"
+            desc="&sortAlpha.desc;"/>
+        <command
+            id="cmd_openfilesSortNatural"
+            key="key_cmd_openfilesSortNatural"
+            oncommand="ko.commands.doCommand('cmd_openfilesSortNatural', event)"
+            desc="&sortNatural.desc;"/>
+        <command
+            id="cmd_openfilesSortLastOpened"
+            key="key_cmd_openfilesSortLastOpened"
+            oncommand="ko.commands.doCommand('cmd_openfilesSortLastOpened', event)"
+            desc="&sortLastOpened.desc;"/>
+        <command
+            id="cmd_openfilesSortAccessNo"
+            key="key_cmd_openfilesSortAccessNo"
+            oncommand="ko.commands.doCommand('cmd_openfilesSortAccessNo', event)"
+            desc="&sortAccessNo.desc;"/>
+
+        <command
+            id="cmd_openfilesSortAscending"
+            key="key_cmd_openfilesSortAscending"
+            oncommand="ko.commands.doCommand('cmd_openfilesSortAscending', event)"
+            desc="&sortAscending.desc;"/>
+        <command
+            id="cmd_openfilesSortDescending"
+            key="key_cmd_openfilesSortDescending"
+            oncommand="ko.commands.doCommand('cmd_openfilesSortDescending', event)"
+            desc="&sortDescending.desc;"/>
+
+        <command
+            id="cmd_openfilesReSort"
+            key="key_cmd_openfilesReSort"
+            oncommand="ko.commands.doCommand('cmd_openfilesReSort', event)"
+            desc="&reSort.desc;"/>
+
+    </commandset>
   
-  <script src="chrome://openfiles/content/openfiles.js"
-          type="application/x-javascript"/>
-  <script src="chrome://komodo/content/library/less_loader.js"
-          type="application/x-javascript"/>
+    <script src="chrome://openfiles/content/openfiles.js"
+            type="application/x-javascript"/>
+    <script src="chrome://komodo/content/library/less_loader.js"
+            type="application/x-javascript"/>
  
 </page>

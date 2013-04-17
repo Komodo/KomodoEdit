@@ -17,35 +17,110 @@
   
   <!-- ****************    Content    ****************** -->
  
-  <ko-pane id="workspace_left_area">
-    <browser type="ko-widget" id="openfilesViewbox" label="&openFiles.label;"
-             insertafter="placesViewbox" icon="chrome://icomoon/skin/icons/files.png"
-             src="chrome://openfiles/content/panel.xul"/>
-  </ko-pane>
-  
-  <broadcasterset id="broadcasterset_global">
-    <broadcaster id="cmd_toggleTabBar"
-                 key="key_cmd_toggleTabBar"
-                 type="checkbox"
-                 desc="&viewEditorTabs.label;"
-                 oncommand="ko.openfiles.toggleTabBar()"/>
-    <broadcaster id="cmd_toggleOpenFiles" key="key_cmd_toggleOpenFiles"
-                 desc="&userInterfaceShowHideOpenFilesTab.desc;"
-                 autoCheck="false"
-                 oncommand="ko.openfiles.togglePane()"/>
-    <broadcaster id="cmd_focusOpenFiles" key="key_cmd_focusOpenFiles"
-                 desc="&userInterfaceFocusOpenFilesTab.desc;"
-                 autoCheck="false"
-                 oncommand="ko.openfiles.togglePane(false)"/>
-  </broadcasterset>
-  
-  <menupopup id="popup_view">
-    <menuitem
-        id="menu_toggleTabBar"
-        label="&viewEditorTabs.label;"
-        observes="cmd_toggleTabBar"
-        insertafter="view_menu_editor_settings_menuseparator"
-        tooltiptext="&viewEditorTabs.tooltip;"
-        />
-  </menupopup>
+    <ko-pane id="workspace_left_area">
+        <browser
+            type="ko-widget"
+            id="openfilesViewbox"
+            label="&openFiles.label;"
+            insertafter="placesViewbox"
+            icon="chrome://icomoon/skin/icons/files.png"
+            src="chrome://openfiles/content/panel.xul"/>
+    </ko-pane>
+
+    <broadcasterset id="broadcasterset_global">
+
+        <broadcaster
+            id="cmd_toggleTabBar"
+            key="key_cmd_toggleTabBar"
+            type="checkbox"
+            desc="&viewEditorTabs.label;"
+            oncommand="ko.openfiles.toggleTabBar()"/>
+        <broadcaster
+            id="cmd_toggleOpenFiles"
+            key="key_cmd_toggleOpenFiles"
+            desc="&userInterfaceShowHideOpenFilesTab.desc;"
+            autoCheck="false"
+            oncommand="ko.openfiles.togglePane()"/>
+        <broadcaster
+            id="cmd_focusOpenFiles"
+            key="key_cmd_focusOpenFiles"
+            desc="&userInterfaceFocusOpenFilesTab.desc;"
+            autoCheck="false"
+            oncommand="ko.openfiles.togglePane(false)"/>
+        
+        <broadcaster
+            id="cmd_openfilesGrouping"
+            observes="cmd_openfilesGrouping"
+            key="key_cmd_openfilesGrouping"
+            desc="&groupFiles.desc;"
+            autoCheck="false"/>
+
+        <broadcaster
+            id="cmd_openfilesGroupByLang"
+            observes="cmd_openfilesGroupByLang"
+            key="key_cmd_openfilesGroupByLang"
+            desc="&groupByLang.desc;"
+            autoCheck="false"/>
+        <broadcaster
+            id="cmd_openfilesGroupByExt"
+            observes="cmd_openfilesGroupByExt"
+            key="key_cmd_openfilesGroupByExt"
+            desc="&groupByExt.desc;"
+            autoCheck="false"/>
+
+        <broadcaster
+            id="cmd_openfilesSortAlpha"
+            observes="cmd_openfilesSortAlpha"
+            key="key_cmd_openfilesSortAlpha"
+            desc="&sortAlpha.desc;"
+            autoCheck="false"/>
+        <broadcaster
+            id="cmd_openfilesSortNatural"
+            observes="cmd_openfilesSortNatural"
+            key="key_cmd_openfilesSortNatural"
+            desc="&sortNatural.desc;"
+            autoCheck="false"/>
+        <broadcaster
+            id="cmd_openfilesSortLastOpened"
+            observes="cmd_openfilesSortLastOpened"
+            key="key_cmd_openfilesSortLastOpened"
+            desc="&sortLastOpened.desc;"
+            autoCheck="false"/>
+        <broadcaster
+            id="cmd_openfilesSortAccessNo"
+            observes="cmd_openfilesSortAccessNo"
+            key="key_cmd_openfilesSortAccessNo"
+            desc="&sortAccessNo.desc;"
+            autoCheck="false"/>
+
+        <broadcaster
+            id="cmd_openfilesSortAscending"
+            observes="cmd_openfilesSortAscending"
+            key="key_cmd_openfilesSortAscending"
+            desc="&sortAscending.desc;"
+            autoCheck="false"/>
+        <broadcaster
+            id="cmd_openfilesSortDescending"
+            observes="cmd_openfilesSortDescending"
+            key="key_cmd_openfilesSortDescending"
+            desc="&sortDescending.desc;"
+            autoCheck="false"/>
+
+        <broadcaster
+            id="cmd_openfilesReSort"
+            observes="cmd_openfilesReSort"
+            key="key_cmd_openfilesReSort"
+            desc="&reSort.desc;"
+            autoCheck="false"/>
+
+    </broadcasterset>
+
+    <menupopup id="popup_view">
+        <menuitem
+            id="menu_toggleTabBar"
+            label="&viewEditorTabs.label;"
+            observes="cmd_toggleTabBar"
+            insertafter="view_menu_editor_settings_menuseparator"
+            tooltiptext="&viewEditorTabs.tooltip;"/>
+    </menupopup>
 </overlay>
