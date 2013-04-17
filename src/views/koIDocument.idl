@@ -162,6 +162,33 @@ interface koIDocument : nsISupports
 
     void setBufferAndEncoding(in AString buffer, in string encoding_name);
 
+    /**
+     * Notify koDoc that the file has been accessed. This will update the
+     * last access time and access amount.
+     *
+     * Access refers literally to how often a file is "accessed" by the user,
+     * not just opened. Ie. any time a user switches to a file (eg. through
+     * tabs) this counts as "access".
+     */
+    void setFileAccessed();
+
+    /*
+     * Retrieve unix timestamp representing when the file was last opened
+     */
+    readonly attribute long fileLastOpened;
+
+    /*
+     * Retrieve number of times this file has been accessed, see
+     * setFileAccessed() in-line doc for more info.
+     */
+    readonly attribute long fileAccessNo;
+
+    /*
+     * Retrieve unix timestamp representing when the file was accessed.
+     * See setFileAccessed() in-line doc for more info.
+     */
+    readonly attribute long fileLastAccessed;
+
     // document prefset
     readonly attribute koIPreferenceSet prefs;
     // see if this document is in the current project, if so, use those

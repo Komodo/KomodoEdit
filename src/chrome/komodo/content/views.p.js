@@ -1173,6 +1173,11 @@ viewManager.prototype.handle_current_view_changed = function(event) {
     // This has to happen always since one can do ctrl+tab,ctrl+i, and that
     // needs to find the right view.
     this.currentView = event.originalTarget;
+
+    if ("koDoc" in this.currentView) {
+        this.currentView.koDoc.setFileAccessed();
+    }
+
     if (this.batchMode) {
         // break out early -- we don't want to update controllers at this point.
         return;

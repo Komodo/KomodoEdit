@@ -193,6 +193,9 @@ class koDocumentBase:
         if self._language is None:
             self._guessLanguage()
 
+        self.prefs.setLongPref('kodoc_file_last_opened', time.time())
+        self.setFileAccessed()
+
         # This gets called again unnecessarily in self.load(). Can't
         # follow the koDocument spaghetti to be assured that
         # self._ciBuf is reset for all cases.
@@ -768,6 +771,20 @@ class koDocumentBase:
                 getService(components.interfaces.koILanguageRegistryService)
             self._languageObj = registryService.getLanguage(self._language)
         return self._languageObj
+
+    def setFileAccessed(self):
+        accessNo = self.prefs.getLong('kodoc_file_access_no', 0) + 1
+        self.prefs.setLongPref('kodoc_file_access_no', accessNo)
+        self.prefs.setLongPref('kodoc_file_last_accessed', time.time())
+
+    def get_fileLastOpened(self):
+        return self.prefs.getLong('kodoc_file_last_opened', 0);
+
+    def get_fileAccessNo(self):
+        return self.prefs.getLong('kodoc_file_access_no', 0);
+
+    def get_fileLastAccessed(self):
+        return self.prefs.getLong('kodoc_file_last_accessed', 0);
 
     # Note: The "get_subLanguage" and "languageForPosition" methods could also
     #       use the koIDocument.ciBuf.lang_from_pos() code, instead of their
