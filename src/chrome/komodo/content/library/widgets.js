@@ -762,12 +762,12 @@ if (typeof(ko.widgets)=='undefined') {
                             w_info = {id: w_info};
                         }
                         if (!("id" in w_info)) {
-                            log.warning("Found a widget with no id, ignoring");
+                            log.warn("Found a widget with no id, ignoring");
                             continue;
                         }
                         let data = this._get(w_info.id);
                         if (!data) {
-                            log.warning("Could not restore widget " + w_info.id);
+                            log.warn("Could not restore widget " + w_info.id);
                             continue;
                         } else if (data.browser) {
                             log.debug(w_info.id +
