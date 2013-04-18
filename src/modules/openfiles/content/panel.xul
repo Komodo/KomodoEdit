@@ -54,6 +54,30 @@
                             persist="checked"
                             name="groupBy"
                             type="radio"/>
+                        <menuitem
+                            id="openfilesPrefPopup_GroupFolder"
+                            observes="cmd_openfilesGroupByFolder"
+                            label="&groupByFolder.label;"
+                            checked="false"
+                            persist="checked"
+                            name="groupBy"
+                            type="radio"/>
+                        <menuitem
+                            id="openfilesPrefPopup_GroupByLocation"
+                            observes="cmd_openfilesGroupByLocation"
+                            label="&groupByLocation.label;"
+                            checked="false"
+                            persist="checked"
+                            name="groupBy"
+                            type="radio"/>
+                        <menuitem
+                            id="openfilesPrefPopup_GroupPattern"
+                            observes="cmd_openfilesGroupByPattern"
+                            label="&groupByPattern.label;"
+                            checked="false"
+                            persist="checked"
+                            name="groupBy"
+                            type="radio"/>
 
                         <menuseparator id="openfilesPrefPopupSeparatorGroupBy"/>
 
@@ -173,6 +197,8 @@
                 
                 <label
                     class="group-title"
+                    crop="start"
+                    flex="1"
                     value="__group-title"/>
                 
             </richlistitem>
@@ -200,6 +226,21 @@
             key="key_cmd_openfilesGroupByExt"
             oncommand="ko.commands.doCommand('cmd_openfilesGroupByExt', event)"
             desc="&groupByExt.desc;"/>
+        <command
+            id="cmd_openfilesGroupByFolder"
+            key="key_cmd_openfilesGroupByFolder"
+            oncommand="ko.commands.doCommand('cmd_openfilesGroupByFolder', event)"
+            desc="&groupByFolder.desc;"/>
+        <command
+            id="cmd_openfilesGroupByLocation"
+            key="key_cmd_openfilesGroupByLocation"
+            oncommand="ko.commands.doCommand('cmd_openfilesGroupByLocation', event)"
+            desc="&groupByLocation.desc;"/>
+        <command
+            id="cmd_openfilesGroupByPattern"
+            key="key_cmd_openfilesGroupByPattern"
+            oncommand="ko.commands.doCommand('cmd_openfilesGroupByPattern', event)"
+            desc="&groupByPattern.desc;"/>
 
         <command
             id="cmd_openfilesSortAlpha"

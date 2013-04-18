@@ -12,6 +12,12 @@
 <!ENTITY groupByLang.desc "OpenFiles Widget: Group Open Files by Language">
 <!ENTITY groupByExt.label "Group By Extension">
 <!ENTITY groupByExt.desc "OpenFiles Widget: Group Open Files by Extension">
+<!ENTITY groupByFolder.label "Group By Folder">
+<!ENTITY groupByFolder.desc "OpenFiles Widget: Group Open Files by Folder">
+<!ENTITY groupByLocation.label "Group By Location">
+<!ENTITY groupByLocation.desc "OpenFiles Widget: Group Open Files by Location">
+<!ENTITY groupByPattern.label "Group By Pattern">
+<!ENTITY groupByPattern.desc "OpenFiles Widget: Group Open Files by Pattern">
 <!ENTITY sortAlpha.label "Sort By Name">
 <!ENTITY sortAlpha.desc "OpenFiles Widget: Sort Open Files Alphabetically">
 <!ENTITY sortNatural.label "Sort By Tab Index">

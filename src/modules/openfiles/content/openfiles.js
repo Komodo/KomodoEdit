@@ -121,6 +121,24 @@ if (typeof ko.openfiles == 'undefined')
                 this.groupers.byLanguage.group,
                 'Language'
             );
+            this.registerGroupOption(
+                'byFolder',
+                this.groupers.byFolder.sort,
+                this.groupers.byFolder.group,
+                'Folder'
+            );
+            this.registerGroupOption(
+                'byLocation',
+                this.groupers.byLocation.sort,
+                this.groupers.byLocation.group,
+                'Location'
+            );
+            this.registerGroupOption(
+                'byPattern',
+                this.groupers.byPattern.sort,
+                this.groupers.byPattern.group,
+                'Pattern'
+            );
             
             // Set the tab bar visibility 
             this.setTabBarVisibility(ko.prefs.getBoolean(PREF_SHOW_TAB_BAR, true));
@@ -164,6 +182,39 @@ if (typeof ko.openfiles == 'undefined')
             do_cmd_openfilesGroupByExt: function()
             {
                 self.activateGroupOption('byExt');
+            },
+
+            // Group by Folder
+            is_cmd_openfilesGroupByFolder_enabled: function()
+            {
+                return !! ko.prefs.getBoolean(PREF_GROUPING, true);
+            },
+
+            do_cmd_openfilesGroupByFolder: function()
+            {
+                self.activateGroupOption('byFolder');
+            },
+
+            // Group by Location
+            is_cmd_openfilesGroupByLocation_enabled: function()
+            {
+                return !! ko.prefs.getBoolean(PREF_GROUPING, true);
+            },
+
+            do_cmd_openfilesGroupByLocation: function()
+            {
+                self.activateGroupOption('byLocation');
+            },
+
+            // Group by Pattern
+            is_cmd_openfilesGroupByPattern_enabled: function()
+            {
+                return !! ko.prefs.getBoolean(PREF_GROUPING, true);
+            },
+
+            do_cmd_openfilesGroupByPattern: function()
+            {
+                self.activateGroupOption('byPattern');
             },
 
             // Sort by Name
@@ -326,6 +377,7 @@ if (typeof ko.openfiles == 'undefined')
             }.bind(this));
 
             koWindow.addEventListener('workspace_restored', this.reload.bind(this));
+            koWindow.addEventListener('project_opened', this.reload.bind(this));
             
             /**** OpenFiles Events ******/
             listbox.addEventListener('select', function(e) {
@@ -1036,8 +1088,8 @@ if (typeof ko.openfiles == 'undefined')
                 // >0 - this item goes above the previous
                 // <0 - this item goes below the previous
                 //  0 - they are essentially the same
-                var bySort  = sortOption.callback.call(this,editorView,editorViewPrev);
-                var byGroup = grouping ? groupOption.callbackSort.call(this,editorView,editorViewPrev) : 0;
+                var bySort  = sortOption.callback(editorView,editorViewPrev);
+                var byGroup = grouping ? groupOption.callbackSort(editorView,editorViewPrev) : 0;
                 var bySplit = this.groupers.bySplit.sort(editorView,editorViewPrev);
 
                 if (direction == 'DESC')
@@ -1226,6 +1278,241 @@ if (typeof ko.openfiles == 'undefined')
                 }
             },
             
+            // Group by Folder
+            byFolder:
+            {
+                /**
+                 * Sort the item by its folder name
+                 *
+                 * @param   {Object} current  The current view for this item
+                 * @param   {Object} previous The previous view for this item
+                 *
+                 * @returns {Integer} positive=higher,negative=lower,0=same
+                 */
+                sort: function openfiles_sort(current,previous)
+                {
+                    current = self.groupers.byFolder._getFolderName(current);
+                    previous = self.groupers.byFolder._getFolderName(previous)
+
+                    return previous.localeCompare(current);
+                },
+
+                /**
+                 * Retrieve group information
+                 *
+                 * @param   {Object} editorView     The current view for this item
+                 *
+                 * @returns {Object}    Object containing group info
+                 *                      keys: name, classlist, attributes
+                 */
+                group: function openfiles_group(editorView)
+                {
+                    return {
+                        name: self.groupers.byFolder._getFolderName(editorView)
+                    };
+                },
+
+                _getFolderName: function(editorView)
+                {
+                    if ("koDoc" in editorView && "file" in editorView.koDoc)
+                    {
+                        return editorView.koDoc.file.dirName.replace(/.*\/(.*)/, '$1');
+                    }
+                    else
+                    {
+                        return '(root)';
+                    }
+                }
+            },
+
+            // Group by Location
+            byLocation:
+            {
+                /**
+                 * Sort the item by its folder name
+                 *
+                 * @param   {Object} current  The current view for this item
+                 * @param   {Object} previous The previous view for this item
+                 *
+                 * @returns {Integer} positive=higher,negative=lower,0=same
+                 */
+                sort: function openfiles_sort(current,previous)
+                {
+                    current = self.groupers.byLocation._getPath(current);
+                    previous = self.groupers.byLocation._getPath(previous)
+
+                    return previous.localeCompare(current) || (current == '/' ? 1 : -1);
+                },
+
+                /**
+                 * Retrieve group information
+                 *
+                 * @param   {Object} editorView     The current view for this item
+                 *
+                 * @returns {Object}    Object containing group info
+                 *                      keys: name, classlist, attributes
+                 */
+                group: function openfiles_group(editorView)
+                {
+                    return {
+                        name: self.groupers.byLocation._getPath(editorView)
+                    };
+                },
+
+                _getPath: function(editorView)
+                {
+                    if ("koDoc" in editorView && "file" in editorView.koDoc)
+                    {
+                        var path = editorView.koDoc.file.dirName;
+
+                        if (ko.projects.manager.currentProject)
+                        {
+                            var projectFolder = ko.projects.manager.currentProject.liveDirectory;
+                            if (path.indexOf(projectFolder) === 0)
+                            {
+                                path = path.substring(projectFolder.length);
+                            }
+                        }
+
+                        return path || '/';
+                    }
+                    else
+                    {
+                        return '/';
+                    }
+                }
+            },
+
+            // Group by Pattern
+            byPattern:
+            {
+                patterns: [
+                    {
+                        name:       'Model',
+                        pattern:    /\/(?:model|models)(?:\/|$)/i,
+                        classlist:  ['pattern_model']
+                    },
+                    {
+                        name:       'View',
+                        pattern:    /\/(?:view|views)(?:\/|$)/i,
+                        classlist:  ['pattern_view']
+                    },
+                    {
+                        name:       'Controller',
+                        pattern:    /\/(?:controller|controllers)(?:\/|$)/i,
+                        classlist:  ['pattern_controller']
+                    },
+                    {
+                        name:       'Vendor',
+                        pattern:    /\/vendor(?:\/|$)/i,
+                        classlist:  ['pattern_vendor']
+                    },
+                    {
+                        name:       'Public',
+                        pattern:    /\/public(?:\/|$)/i,
+                        classlist:  ['pattern_vendor']
+                    },
+                    {
+                        name:       'Config',
+                        pattern:    /\/config(?:\/|$)/i,
+                        classlist:  ['pattern_config']
+                    },
+                    {
+                        name:       'Locale',
+                        pattern:    /\/locale(?:\/|$)/i,
+                        classlist:  ['pattern_locale']
+                    },
+                    {
+                        name:       'Lang',
+                        pattern:    /\/lang(?:\/|$)/i,
+                        classlist:  ['pattern_lang']
+                    },
+                    {
+                        name:       'Skin',
+                        pattern:    /\/skin(?:\/|$)/i,
+                        classlist:  ['pattern_skin']
+                    },
+                    {
+                        name:       'Module',
+                        pattern:    /\/(?:module|modules)(?:\/|$)/i,
+                        classlist:  ['pattern_module']
+                    },
+                    {
+                        name:       'Component',
+                        pattern:    /\/(?:component|components)(?:\/|$)/i,
+                        classlist:  ['pattern_component']
+                    },
+                ],
+
+                /**
+                 * Sort the item by its folder name
+                 *
+                 * @param   {Object} current  The current view for this item
+                 * @param   {Object} previous The previous view for this item
+                 *
+                 * @returns {Integer} positive=higher,negative=lower,0=same
+                 */
+                sort: function openfiles_sort(current,previous)
+                {
+                    current = self.groupers.byPattern._getPattern(current).name;
+                    previous = self.groupers.byPattern._getPattern(previous).name;
+
+                    return previous.localeCompare(current) || (current == 'None' ? 1 : -1);
+                },
+
+                /**
+                 * Retrieve group information
+                 *
+                 * @param   {Object} editorView     The current view for this item
+                 *
+                 * @returns {Object}    Object containing group info
+                 *                      keys: name, classlist, attributes
+                 */
+                group: function openfiles_group(editorView)
+                {
+                    return self.groupers.byPattern._getPattern(editorView);
+                },
+
+                _getPattern: function(editorView)
+                {
+                    var path = self.groupers.byPattern._getPath(editorView);
+                    if (path != '/')
+                    {
+                        var patterns = self.groupers.byPattern.patterns;
+                        for (let [i,p] in Iterator(patterns))
+                        {
+                            if (path.match(p.pattern))
+                            {
+                                return p;
+                            }
+                        }
+                    }
+                    
+                    return {name: 'None'};
+                },
+
+                _getPath: function(editorView)
+                {
+                    var path = '/';
+                    
+                    if ("koDoc" in editorView && "file" in editorView.koDoc)
+                    {
+                        var path = editorView.koDoc.file.path;
+
+                        if (ko.projects.manager.currentProject)
+                        {
+                            var projectFolder = ko.projects.manager.currentProject.liveDirectory;
+                            if (path.indexOf(projectFolder) === 0)
+                            {
+                                path = path.substring(projectFolder.length);
+                            }
+                        }
+                    }
+
+                    return path || '/';
+                }
+            },
+
             // Group by split - this is only used internally
             bySplit:
             {

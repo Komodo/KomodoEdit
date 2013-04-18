@@ -62,10 +62,22 @@
             desc="&groupByLang.desc;"
             autoCheck="false"/>
         <broadcaster
-            id="cmd_openfilesGroupByExt"
-            observes="cmd_openfilesGroupByExt"
-            key="key_cmd_openfilesGroupByExt"
-            desc="&groupByExt.desc;"
+            id="cmd_openfilesGroupByFolder"
+            observes="cmd_openfilesGroupByFolder"
+            key="key_cmd_openfilesGroupByFolder"
+            desc="&groupByFolder.desc;"
+            autoCheck="false"/>
+        <broadcaster
+            id="cmd_openfilesGroupByLocation"
+            observes="cmd_openfilesGroupByLocation"
+            key="key_cmd_openfilesGroupByLocation"
+            desc="&groupByLocation.desc;"
+            autoCheck="false"/>
+        <broadcaster
+            id="cmd_openfilesGroupByPattern"
+            observes="cmd_openfilesGroupByPattern"
+            key="key_cmd_openfilesGroupByPattern"
+            desc="&groupByPattern.desc;"
             autoCheck="false"/>
 
         <broadcaster
