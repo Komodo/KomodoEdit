@@ -84,7 +84,7 @@ pattern NMSTART = '_\w\x80-\xff'   # inside cset
 pattern CS = '$NMSTART\d'   # inside cset
 pattern VARNAME = '[$NMSTART][$CS]*'
 pattern WS = '\s\t\r\n'           # inside cset
-pattern OP = '~!%#^&*()-=+\[\]\{\}\\\|;:,<.>\/\?' # Every char
+pattern OP = '~!#^&*()-=+\[\]\{\}\\\|;:,<.>\/\?' # Every char
 
 initial IN_SSL_DEFAULT
 state IN_SSL_DEFAULT:
@@ -110,9 +110,9 @@ state IN_SSL_DEFAULT:
 /->(?=\s*[$NMSTART])/ : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR), \
 => IN_SSL_NON_KEYWORD_IDENTIFIER_1
 
-'$' : paint(upto, SSL_DEFAULT), => IN_SSL_FINISH_DOLLAR
+/\$#?/ : paint(upto, SSL_DEFAULT), => IN_SSL_FINISH_DOLLAR
 '@' : paint(upto, SSL_DEFAULT), => IN_SSL_FINISH_AT_SIGN
-'%' : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR) => IN_SSL_FINISH_PERCENT
+'%' : paint(upto, SSL_DEFAULT) => IN_SSL_FINISH_PERCENT
 
 /(?:m|qr)([\{\[\(\<])/ : paint(upto, SSL_DEFAULT), set_opposite_delimiter(1), => IN_SSL_REGEX1_TARGET
 /(?:m|qr)([^\w\d])/ : paint(upto, SSL_DEFAULT), set_delimiter(1), => IN_SSL_REGEX1_TARGET

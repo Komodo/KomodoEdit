@@ -150,7 +150,7 @@ state IN_TPL_COMPONENT_DEFAULT:
 /$VARNAME/ : paint(upto, TPL_DEFAULT), paint(include, TPL_IDENTIFIER)
 '"' : paint(upto, TPL_DEFAULT), => IN_TPL_C_DSTRING
 '\'' : paint(upto, TPL_DEFAULT), => IN_TPL_C_SSTRING
-/[\$%@]$VARNAME/ : paint(upto, TPL_DEFAULT), paint(include, TPL_VARIABLE)
+/(?:\$\#?|[%@])$VARNAME/ : paint(upto, TPL_DEFAULT), paint(include, TPL_VARIABLE)
 /[$OP]+/: paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR)
 
 state IN_TPL_C_DSTRING:
