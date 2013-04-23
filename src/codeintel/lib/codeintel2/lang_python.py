@@ -547,9 +547,9 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             paths_from_libname = {"sitelib": [], "envlib": [], "stdlib": []}
             canon_sitelibdir = sitelibdir and normcase(sitelibdir) or None
             canon_prefix = prefix and normcase(prefix) or None
-            canon_libdir = normcase(libdir)
-            canon_libdir_plat_prefix = normcase(join(libdir, "plat-"))
-            canon_libdir_lib_prefix = normcase(join(libdir, "lib-"))
+            canon_libdir = libdir and normcase(libdir) or None
+            canon_libdir_plat_prefix = libdir and normcase(join(libdir, "plat-")) or None
+            canon_libdir_lib_prefix = libdir and normcase(join(libdir, "lib-")) or None
             for dir in sys_path:
                 STATE = "envlib"
                 canon_dir = normcase(dir)
