@@ -27,9 +27,9 @@ function OnPreferencePageLoading(prefset) {
                            "file_associations_primary_languages");
 }
 
-function OnPreferencePageClosing(prefset, ok) {
+function OnPreferencePageOK(prefset) {
     gLanguageStatusView.save();
-    parent.hPrefWindow.onpageload();
+    return true;
 }
 
 // Handlers for the language status tree

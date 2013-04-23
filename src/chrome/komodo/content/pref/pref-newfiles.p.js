@@ -48,16 +48,14 @@ function OnPreferencePageLoading(prefset) {
     document.getElementById("fileDefaultNew").selection = newLang;
 }
 
+var _resetMRU = false;
 function OnPreferencePageOK(prefset) {
     prefset.setStringPref("fileDefaultNew",
                           document.getElementById("fileDefaultNew").selection);
-    return true;
-}
-
-var _resetMRU = false;
-function OnPreferencePageClosing(prefset, ok) {
-    if (ok && _resetMRU)
+    if (_resetMRU) {
         ko.mru.reset("mruTemplateList");
+    }
+    return true;
 }
 
 function PrefNewFiles_ClearTemplateMRU() {

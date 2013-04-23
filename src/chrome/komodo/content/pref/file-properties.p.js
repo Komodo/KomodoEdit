@@ -163,11 +163,6 @@ function OnPreferencePageOK(prefset) {
     if (g_isProject) {
         pfi_OnPreferencePageOK(prefset);
     }
-    return true;
-}
-
-function OnPreferencePageClosing(prefset, ok) {
-    if (!ok) return ok;
     try {
         var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                            getService(Components.interfaces.koILastErrorService);

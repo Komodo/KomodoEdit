@@ -238,7 +238,13 @@ koPrefWindow.prototype =
             prefset = this._getCurrentPrefSet();
             contentFrame = this.contentFrames[frameName];
             if( contentFrame && ('OnPreferencePageOK' in contentFrame.contentWindow)) { // is there a start function.
-                if (!contentFrame.contentWindow.OnPreferencePageOK(prefset)) {
+                let ok = false;
+                try {
+                    ok = contentFrame.contentWindow.OnPreferencePageOK(prefset);
+                } catch(e) {
+                    prefLog.exception(e);
+                }
+                if (!ok) {
                     prefLog.debug("OK handler for " + frameName + " returned false - not closing dialog");
                     return false;
                 }
