@@ -251,7 +251,6 @@
 <!ENTITY findReplaceInCurrProject.desc "Find: Replace in Current Project...">
 <!ENTITY findResults1.label "Find Results 1">
 <!ENTITY findResults2.label "Find Results 2">
-<!ENTITY findToolbarBrowsedirectory.accesskey "y">
 <!ENTITY fold.accesskey "O">
 <!ENTITY fold.label "Fold">
 <!ENTITY folderContextExistingFile.accesskey "i">

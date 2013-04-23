@@ -2093,7 +2093,7 @@
                     />
                 </hbox>
                 <toolbarbutton id="find-toolbar-browsedirectory"
-                               class="native_open_icon solo-button" accesskey="&findToolbarBrowsedirectory.accesskey;"
+                               class="native_open_icon solo-button"
                                tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
                                oncommand="ko.findtoolbar.addBrowsedDirectory();"/>
             </toolbar>
