@@ -379,6 +379,10 @@ this.lintBuffer.prototype.request = function(reason /* = "" */)
 this.lintBuffer.prototype._continueRequest = function(reason /* = "" */) {
     this._lastRequestId = this._lastTimeoutId;
     this._lastTimeoutId = 0;
+    if (!this.view) {
+        // buffer has been closed.
+        return;
+    }
     if (typeof(reason) == "undefined" || reason == null) reason = "";
     _log.info("LintBuffer["+this.view.title+"].request(reason='"+
                   reason+"')");
