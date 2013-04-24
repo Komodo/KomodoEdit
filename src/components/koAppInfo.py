@@ -213,9 +213,10 @@ class KoAppInfoEx:
         if isvalid is None:
             try:
                 isvalid = self._isValidExecutableVersion(exe)
-            except:
+            except Exception as ex:
                 # Something went wrong; report that the executable is unusable
-                return False # don't update the cache
+                log.exception("Failed to check version of executable %s" % (exe,))
+                isvalid = False
             self._executable_is_valid_cache[exe] = isvalid
         #print '    isvalid: %r' % (isvalid, )
         return isvalid
