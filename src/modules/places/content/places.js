@@ -235,8 +235,7 @@ viewMgrClass.prototype = {
                 // Let Mozilla do the default action, even though
                 // I'm trying to squelch the event handler and all that.
                 // Best to let Mozilla do things the way it wants...
-                // Implicit code:
-                // ko.places.viewMgr.view.toggleOpenState(index);
+                return;
             }
         }
         // Don't handle this event further for both files and folders.
