@@ -1092,4 +1092,9 @@
       ["resource://app/chrome/iconsets/dark/chrome.manifest"]
     <!-- #endif -->
   </string>
+
+  <!-- Projects & Places -->
+  <!-- See bug Bug #98484 - comments #4 and #5 -->
+  <boolean id="donotask_placesAllowDragDropItemsToFolders">0</boolean>
+  <string id="donotask_action_placesAllowDragDropItemsToFolders"></string>
 </preference-set>
