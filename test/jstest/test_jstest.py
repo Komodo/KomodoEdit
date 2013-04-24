@@ -3,7 +3,7 @@ from os.path import abspath, basename, dirname, join, splitext
 from xpcom import components
 from testsupport import paths_from_path_patterns
 
-class JSTestResult:
+class JSTestResult(object):
     _com_interfaces_ = [components.interfaces.koIJSTestResult]
     class TracebackFrame:
         """A fake traceback frame"""
@@ -38,7 +38,8 @@ class JSTestResult:
 
             self.tb_frame.f_code.co_name = line
 
-    def __init__(self):
+    def __init__(self, result=None):
+        self.result = result
         self.clear()
     def clear(self):
         self.exception = None
@@ -50,16 +51,25 @@ class JSTestResult:
             tb_frame = JSTestResult.TracebackFrame(frame, tb_frame)
         self.exception = (aErrorType, aErrorMessage, tb_frame)
 
+    @unittest.result.failfast
+    def addFailure(self, test, err):
+        """Overrides unittest.result.TestResult.addFailure
+        Called when an error has occurred. 'err' is a tuple of values as
+        returned by sys.exc_info()."""
+        return self.result.addFailure(test, self.exception or err)
+
+    def __getattr__(self, name):
+        # forward everything we don't have to the underlying result
+        return getattr(self.result, name)
+
 class _JSTestTestCase(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        self._jstest_result = JSTestResult()
-        unittest.TestCase.__init__(self, *args, **kwargs)
 
     def run(self, result=None):
         """
         Override unittest.TestCase.run so we can access the TestResult
         """
         if result is None: result = self.defaultTestResult()
+        self._jstest_result = result = JSTestResult(result=result)
         self._jstest_result.clear()
         return unittest.TestCase.run(self, result=result)
 
@@ -85,14 +95,6 @@ class _JSTestTestCase(unittest.TestCase):
             if self._jstest_result.exception[0] is not None:
                 raise self.failureException()
             raise Exception()
-
-    def _exc_info(self):
-        """
-        Override the exception info fetching to report exceptions raised from JS
-        """
-        if self._jstest_result.exception is not None:
-            return self._jstest_result.exception
-        return unittest.TestCase._exc_info(self)
 
 def test_paths():
     """Generate the potential JS test files."""
