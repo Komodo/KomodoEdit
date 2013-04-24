@@ -646,7 +646,8 @@ def _parse_opts(args, default_tags):
         elif opt == "-L":
             # Optarg is of the form '<logname>:<levelname>', e.g.
             # "codeintel:DEBUG", "codeintel.db:INFO".
-            lname, llevelname = optarg.split(':', 1)
+            # if :<levelname> is not given, default to DEBUG
+            lname, llevelname = (optarg.split(':', 1) + ["DEBUG"])[:2]
             llevel = getattr(logging, llevelname)
             logging.getLogger(lname).setLevel(llevel)
 
