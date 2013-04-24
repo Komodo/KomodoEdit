@@ -132,6 +132,11 @@ class POVRayLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
     exts = [".pov"]
 
+class PORayLangInfo(LangInfo):
+    name = "GetText"
+    conforms_to_bases = ["Text"]
+    exts = [".po"]
+
 class MatlabLangInfo(LangInfo):
     """A high-performance language for technical computing.
     http://www.mathworks.com/
