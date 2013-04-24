@@ -59,9 +59,12 @@ if ($platform eq "win") {
 
 
 my $landmark = "$komodoPythonUtilsDir/SilverCity/__init__.py";
+my $archFlags = "";
 my $debugFlags = $buildType eq "debug" ? "--debug" : "";
 my $consLocal = $cons;
 if ($platform eq "darwin") {
+    # Specify our wanted architecture.
+    $archFlags = 'ARCHFLAGS="-arch x86_64"';
     my %consLocal = $cons->copy();
     $consLocal{'CFLAGS'} .= " -arch x86_64";
     $consLocal{'CXXFLAGS'} .= " -arch x86_64";
@@ -87,7 +90,7 @@ $consLocal->Command(
     qq(
         cd %1:d && $mkwriteable PySilverCity/SilverCity/ScintillaConstants.py
         cd %1:d && $siloedPython PySilverCity/Src/write_scintilla.py ../scintilla/include ../scintilla/include/Scintilla.iface PySilverCity/SilverCity/ScintillaConstants.py
-        cd %1:d && $siloedPython setup.py build $debugFlags
+        cd %1:d && export && $archFlags $siloedPython setup.py build $debugFlags
         cd %1:d && $siloedPython setup.py install --skip-build --install-lib=$komodoPythonUtilsDir --install-scripts=bitbucket --install-data=bitbucket --prefix=bitbucket
     )
 );
