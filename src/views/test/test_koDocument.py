@@ -559,11 +559,7 @@ class TestKoDocumentBase(_KoDocTestCase):
         path = tempfile.mktemp()
         try:
             # Init the test file with some content.
-            if sys.platform.startswith('win'):
-                eol = "\r\n"
-            else:
-                eol = "\n"
-            _writefile(path, eol.join(["blah", "blah", "blah"]))
+            _writefile(path, "blah\nblah\nblah")
 
             koDoc = self._koDocFromPath(path)
             koDoc.load()
@@ -602,7 +598,11 @@ class TestKoDocumentBase(_KoDocTestCase):
         path = tempfile.mktemp()
         try:
             # Init the test file with some content.
-            _writefile(path, "blah\nblah\nblah")
+            if sys.platform.startswith('win'):
+                eol = "\r\n"
+            else:
+                eol = "\n"
+            _writefile(path, eol.join(["blah", "blah", "blah"]))
 
             koDoc = self._koDocFromPath(path)
             koDoc.load()
