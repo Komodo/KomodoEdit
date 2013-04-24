@@ -88,7 +88,7 @@ TestCleanKoDocumentLines.prototype.test_clean_changed_lines_only_01 = function t
         var view = new ko.views.ViewMock();
         view.koDoc = koDoc;
         koDoc.addView(view.scintilla);
-        //koDoc.save(1);
+        koDoc.save(1); // Ensure original buffer content is sane - for Windows.
         //this.assertEqual(view.scintilla, koDoc.getView());
         var expectedLines = resultBuf.split(/\r?\n/);
         // Now allow for the modifications we'll do.
