@@ -1818,7 +1818,13 @@ class KoPlaceTreeView(TreeView):
     def getImageSrc(self, row_idx, column):
         """Return the image for the given cell."""
         if column.id == 'name':
-            return self._rows[row_idx].cellImageURL
+            prefs = components.classes["@activestate.com/koPrefService;1"].\
+                getService(components.interfaces.koIPrefService).prefs
+
+            if prefs.getBoolean("showFileIcons", True):
+                return self._rows[row_idx].cellImageURL
+            else:
+                return ""
 
     def _updateFileProperties(self, idx):
         rowNode = self._rows[idx]

@@ -20,6 +20,9 @@
  */
 treechildren#places-files-tree-body::-moz-tree-image {
   margin-right: 5px;
+/* #if PLATFORM == "darwin" */
+  margin-left: -5px;
+/* #endif */
 }
 treechildren#places-files-tree-body::-moz-tree-image(places_folder_open) {
   list-style-image: @icon-folder-open;
@@ -184,4 +187,35 @@ undo-button {
 #placesRootButton > image
 {
 	display: none;
+}
+
+/* Hidden Icons State */
+
+#places-files-tree.hideIcons {
+
+  treechildren#places-files-tree-body::-moz-tree-image {
+    width: 0;
+    height: 0;
+  }
+
+  treechildren#places-files-tree-body::-moz-tree-indentation {
+    width: 10px;
+    margin: 0;
+  }
+
+  treechildren#places-files-tree-body::-moz-tree-cell-text {
+    background-image: none;
+/* #if PLATFORM == "darwin" */
+    margin-left: -8px;
+/* #else */
+    margin-left: 2px;
+/* #endif */
+    padding-left: 0;
+  }
+
+  treechildren#places-files-tree-body::-moz-tree-cell-text(places_folder_open),
+  treechildren#places-files-tree-body::-moz-tree-cell-text(places_folder_closed) {
+    font-weight: bold;
+  }
+
 }

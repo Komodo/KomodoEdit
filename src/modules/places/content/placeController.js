@@ -267,6 +267,53 @@ PlacesController.prototype.do_cmd_goNextPlace = function() {
     ko.places.manager.goNextPlace();
 }
 
+PlacesController.prototype.is_cmd_places_showFileIcons_enabled = function() {
+    if ( ! ko.prefs.getBoolean('pref_places_showFileIcons', true)) {
+        document.getElementById('places_showFileIcons').removeAttribute('checked');
+    }
+
+    return true;
+}
+
+PlacesController.prototype.do_cmd_places_showFileIcons = function() {
+    var value = ko.prefs.getBoolean('pref_places_showFileIcons', true);
+    var tree = document.getElementById("places-files-tree");
+
+    if (value) {
+        ko.prefs.setBooleanPref('pref_places_showFileIcons', false);
+        tree.classList.add("hideIcons");
+    }
+    else
+    {
+        ko.prefs.setBooleanPref('pref_places_showFileIcons', true);
+        tree.classList.remove("hideIcons");
+    }
+
+    var boxOb = tree.boxObject.QueryInterface(Components.interfaces.nsITreeBoxObject)
+    boxOb.clearStyleAndImageCaches();
+    boxOb.invalidate();
+}
+
+PlacesController.prototype.is_cmd_places_singleClickExpand_enabled = function() {
+    if (ko.prefs.getBoolean('pref_places_singleClickExpand', false)) {
+        document.getElementById('places_singleClickExpand').setAttribute('checked', 'true');
+    }
+
+    return true;
+}
+
+PlacesController.prototype.do_cmd_places_singleClickExpand = function() {
+    var value = ko.prefs.getBoolean('pref_places_singleClickExpand', true);
+
+    if (value) {
+        ko.prefs.setBooleanPref('pref_places_singleClickExpand', false);
+    }
+    else
+    {
+        ko.prefs.setBooleanPref('pref_places_singleClickExpand', true);
+    }
+}
+
 // Add SCC controller items
 
 PlacesController.prototype.is_cmd_placeView_undoTreeOperation_enabled = function() {

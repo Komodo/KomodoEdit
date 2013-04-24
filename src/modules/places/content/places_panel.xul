@@ -55,7 +55,17 @@
                 label="&placesBack.tooltiptext;" />
             <menuitem id="placesForwardButton"
                 observes="cmd_goNextPlace"
-                label="&placesForward.tooltiptext;" />   
+                label="&placesForward.tooltiptext;" />
+            <menuseparator id="places_ui_separator" />
+            <menuitem id="places_showFileIcons"
+                observes="cmd_places_showFileIcons"
+                label="&showFileIcons.label;"
+                checked="true"
+                type="checkbox" />
+            <menuitem id="places_singleClickExpand"
+                observes="cmd_places_singleClickExpand"
+                label="&singleClickExpand.label;"
+                type="checkbox" />
             <menuseparator id="places_view_separator" />
             <menuitem id="placeView_defaultView"
                 observes="cmd_placeView_defaultView"
@@ -123,6 +133,7 @@
             context="places-files-popup"
             hidecolumnpicker="true"
             class="placestree"
+            persist="class"
             seltype="multiple">
           <treecols id="places-files-treecols">
               <treecol id="name" flex="1"

@@ -373,6 +373,10 @@ viewMgrClass.prototype = {
         } else {
             this.view.markRow(index);
         }
+
+        if (ko.prefs.getBoolean('pref_places_singleClickExpand', false)) {
+            this.view.toggleOpenState(index);
+        }
     },
 
     handleReturnKeyPress: function(event) {

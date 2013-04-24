@@ -110,6 +110,18 @@
           disabled="true"
           desc="&renamePlaceItem.desc;"/>
       <command
+          id="cmd_places_showFileIcons"
+          key="key_cmd_places_showFileIcons"
+          oncommand="ko.commands.doCommand('cmd_places_showFileIcons', event)"
+          disabled="true"
+          desc="&showFileIcons.desc;"/>
+      <command
+          id="cmd_places_singleClickExpand"
+          key="key_cmd_places_singleClickExpand"
+          oncommand="ko.commands.doCommand('cmd_places_singleClickExpand', event)"
+          disabled="true"
+          desc="&singleClickExpand.desc;"/>
+      <command
           id="cmd_placeView_defaultView"
           key="key_cmd_placeView_defaultView"
           oncommand="ko.commands.doCommand('cmd_placeView_defaultView', event)"
