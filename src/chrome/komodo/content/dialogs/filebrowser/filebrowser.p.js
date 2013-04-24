@@ -1144,6 +1144,11 @@ function doEnabling() {
   // Maybe add check if textInput.value would resolve to an existing
   // file or directory in .modeOpen. Too costly I think.
   var enable = (textInput.value != "");
+  if (!enable && filePickerMode == modeGetFolder && sfile.path) {
+    // If we have a directory listing, allow selection of the current folder,
+    // bug 97991.
+    enable = true;
+  }
 
   okButton.disabled = !enable;
 }
@@ -1386,6 +1391,7 @@ function gotoDirectory(remoteDir) {
             //           trying to save a file with a different name.
             textInput.value = "";
         }
+        doEnabling();
         addToHistory(path);
     
         sfile = remoteDir;
