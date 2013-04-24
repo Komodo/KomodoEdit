@@ -87,6 +87,16 @@ def setup():
     finally:
         del sys.path[0]
 
+    # Remove Komodo specific paths from the PATH. This is so components don't
+    # find/use the siloed python interpreter.
+    if sys.platform == "darwin":
+        paths = os.environ.get("PATH", "").split(":")
+        for i, p in reversed(list(enumerate(paths))):
+            if "Komodo.app" in p:
+                # Remove it
+                paths.pop(i)
+        os.environ["PATH"] = ":".join(paths)
+
 def _setup_for_xpcom():
     # The tests are run outside of Komodo. If run with PyXPCOM up
     # parts codeintel will try to use the nsIDirectoryService and
