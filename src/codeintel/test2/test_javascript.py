@@ -1199,6 +1199,19 @@ class JSDocTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
             [("variable", "poit")])
 
+    @tag("bug98344", "knownfailure")
+    def test_jsdoc_type_comments(self):
+        content, positions = unmark_text(dedent("""\
+            function Blah() {
+                /** @type Array */
+                Object.defineProperty(this, "propName", { get: function() { return something}});
+            }
+            b = new Blah();
+            b.propNam.<1>;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("method", "push"), ("method", "shift")])
+
 class MochiKitTestCase(CodeIntelTestCase):
     lang = "JavaScript"
 
