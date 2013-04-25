@@ -105,9 +105,19 @@ def _setup_for_xpcom():
     # The KoTestService provides a backup.
     from xpcom import _xpcom
     from xpcom import components
+    from xpcom.server import UnwrapObject
     koTestSvc = components.classes["@activestate.com/koTestService;1"] \
         .getService(components.interfaces.koITestService)
     koTestSvc.init()
+
+    # Reset the startup-env.tmp file (normally done by komodo.exe), otherwise
+    # we'll be reading stale environment settings from whenever Komodo was last
+    # run on this machine.
+    koEnvironSvc = components.classes["@activestate.com/koUserEnviron;1"] \
+        .getService(components.interfaces.koIUserEnviron)
+    pyEnvironSvc = UnwrapObject(koEnvironSvc)
+    os.remove(pyEnvironSvc.startupEnvFileName)
+    pyEnvironSvc._UpdateFromStartupEnv()
 
 if __name__ == "__main__":
     _setup_for_xpcom()
