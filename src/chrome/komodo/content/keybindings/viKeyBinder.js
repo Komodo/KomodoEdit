@@ -3294,7 +3294,10 @@ function cmd_vim_dedentOperation(scimoz) {
 }
 
 function cmd_vim_insert_newline_next(scimoz) {
-    ko.commands.doCommand('cmd_end');
+    var currentPos = scimoz.currentPos;
+    var lineNo = scimoz.lineFromPosition(currentPos);
+    var lineEndPos = scimoz.getLineEndPosition(lineNo);
+    scimoz.currentPos = scimoz.anchor = lineEndPos;
     ko.commands.doCommand('cmd_newline');
 }
 
