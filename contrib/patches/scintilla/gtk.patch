@@ -535,6 +535,15 @@ Scintilla buffer before shutting down, bug 81293.
  		if (event->button == 1) {
  			// On X, instead of sending literal modifiers use the user specified
  			// modifier, defaulting to control instead of alt.
+@@ -1846,7 +2100,7 @@
+ 			        (event->state & GDK_SHIFT_MASK) != 0,
+ 			        (event->state & GDK_CONTROL_MASK) != 0,
+ 			        (event->state & modifierTranslated(rectangularSelectionModifier)) != 0);
+-		} else if (event->button == 2) {
++		} else if (event->button == 2 && !rejectSelectionClaim) {
+ 			// Grab the primary selection if it exists
+ 			SelectionPosition pos = SPositionFromLocation(pt, false, false, UserVirtualSpace());
+ 			if (OwnPrimarySelection() && primary.s == NULL)
 @@ -1890,7 +2090,7 @@
  	} catch (...) {
  		errorStatus = SC_STATUS_FAILURE;
