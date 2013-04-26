@@ -116,7 +116,11 @@ def _setup_for_xpcom():
     koEnvironSvc = components.classes["@activestate.com/koUserEnviron;1"] \
         .getService(components.interfaces.koIUserEnviron)
     pyEnvironSvc = UnwrapObject(koEnvironSvc)
-    os.remove(pyEnvironSvc.startupEnvFileName)
+    try:
+        os.remove(pyEnvironSvc.startupEnvFileName)
+    except OSError:
+        # Doesn't exist, or we don't have the correct permissions... ignore.
+        pass
     pyEnvironSvc._UpdateFromStartupEnv()
 
 if __name__ == "__main__":
