@@ -1,0 +1,30 @@
+Index: src/Editor.cxx
+===================================================================
+--- src/Editor.cxx	(revision 73425)
++++ src/Editor.cxx	(working copy)
+@@ -1196,20 +1214,25 @@
+ */
+ 
+ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const bool useMargin, const bool vert, const bool horiz) {
+ 	PRectangle rcClient = GetTextRectangle();
+ 	const SelectionPosition posCaret = posDrag.IsValid() ? posDrag : sel.RangeMain().caret;
+ 	const Point pt = LocationFromPosition(posCaret);
+ 	const Point ptBottomCaret(pt.x, pt.y + vs.lineHeight - 1);
+ 	const int lineCaret = DisplayFromPosition(posCaret.Position());
+ 
+ 	XYScrollPosition newXY(xOffset, topLine);
++	if (rcClient.right <= rcClient.left || rcClient.bottom <= rcClient.top) {
++		// Komodo Bug 98716: Scintilla hasn't finished painting, 
++		// so there's no point trying to calc the position to move to
++		return newXY;
++	}
+ 
+ 	// Vertical positioning
+ 	if (vert && (pt.y < rcClient.top || ptBottomCaret.y >= rcClient.bottom || (caretYPolicy & CARET_STRICT) != 0)) {
+ 		const int linesOnScreen = LinesOnScreen();
+ 		const int halfScreen = Platform::Maximum(linesOnScreen - 1, 2) / 2;
+ 		const bool bSlop = (caretYPolicy & CARET_SLOP) != 0;
+ 		const bool bStrict = (caretYPolicy & CARET_STRICT) != 0;
+ 		const bool bJump = (caretYPolicy & CARET_JUMPS) != 0;
+ 		const bool bEven = (caretYPolicy & CARET_EVEN) != 0;
+ 
