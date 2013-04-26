@@ -89,6 +89,20 @@ Only in src: CVS
 diff -r -du src/CellBuffer.cxx src/CellBuffer.cxx
 --- src/CellBuffer.cxx	2005-08-29 18:09:20.000000000 -0700
 +++ src/CellBuffer.cxx	2007-05-01 17:00:17.000000000 -0700
+@@ -245,7 +245,11 @@
+
+ }
+ 
+ void UndoHistory::EndUndoAction() {
+-	PLATFORM_ASSERT(undoSequenceDepth > 0);
++	if (undoSequenceDepth <= 0) {
++		// ACTIVESTATE Komodo bug 92695
++		PLATFORM_ASSERT(undoSequenceDepth > 0);
++		return;
++	}
+ 	EnsureUndoRoom();
+ 	undoSequenceDepth--;
+ 	if (0 == undoSequenceDepth) {
 @@ -769,6 +773,11 @@
  void CellBuffer::BasicDeleteChars(int position, int deleteLength) {
  	if (deleteLength == 0)

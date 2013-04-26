@@ -194,9 +194,32 @@ this.moveToNextTabstop = function(view) {
     if (setupLinkedSet) {
         view.scintilla.inLinkedTabstop = true;
         scimoz.beginUndoAction();
+        view.addEventListener('current_view_linecol_changed',
+                              this.checkForObsoleteTabstopsHandler, false);
     }
     this._ensureInsertMode();
     return true;
+};
+
+this.checkForObsoleteTabstopsHandler = function(event) {
+    return ko.tabstops.checkForObsoleteTabstops(event);
+};
+
+this.checkForObsoleteTabstops = function(event) {
+    var view = event.target;
+    var scimoz = view.scimoz;
+    if (!scimoz) {
+        view.removeEventListener('current_view_linecol_changed',
+                                   this.checkForObsoleteTabstopsHandler, false);
+        // No more scimoz
+        return;
+    }
+    if (!scimoz.indicatorAllOnFor(scimoz.selectionStart, TS_BITMASK)) {
+        // Bailing out of the current tabstop, as we've moved away\n");
+        view.removeEventListener('current_view_linecol_changed',
+                                 this.checkForObsoleteTabstopsHandler, false);
+        scimoz.endUndoAction();
+    }
 };
 
 this._hasOtherLinks = function(tabstopInsertionTable, backrefNumber, idx) {
@@ -452,6 +475,8 @@ this.clearLinkedTabstops = function(scimoz, view) {
     }
     if (view.scintilla.inLinkedTabstop) {
         // Guard multiple sequential undo's.
+        view.removeEventListener('current_view_linecol_changed',
+                                 this.checkForObsoleteTabstopsHandler, false);
         scimoz.endUndoAction();
         view.scintilla.inLinkedTabstop = false;
         scimoz.indicatorCurrent = TSC;
