@@ -3553,7 +3553,7 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
              ("variable", "x1"), ("variable", "y1"), ("variable", "z1"),
              ("function", "mine"), ])
 
-    @tag("bug71870")
+    @tag("bug71870", "bug93859")
     def test_completions_on_files_with_the_same_name(self):
         # In PHP, only one of these files would win, but since we include
         # everything in Komodo, we don't know which one it would be so
@@ -3566,22 +3566,29 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         test_content, test_positions = unmark_text(php_markup(dedent("""\
             $rdata = new <1>Reg_Data();
             Reg_Data::<2>xxx;
+
+            class MyData extends <3>Foo_Data {}
+            $mdata = new MyData();
+            $mdata-><4>;
         """)))
 
         manifest = [
             (join(test_dir, "include_a", "Data.php"), php_markup(dedent("""
                 class blah_Data {
                     public static $a_pub_var;
+                    public $a_var;
                 }
              """))),
             (join(test_dir, "include_b", "Data.php"), php_markup(dedent("""
                 class Reg_Data {
                     public static $b_pub_var;
+                    public $b_var;
                 }
              """))),
             (join(test_dir, "include_c", "Data.php"), php_markup(dedent("""
                 class Foo_Data {
                     public static $c_pub_var;
+                    public $c_var;
                 }
              """))),
             (join(test_dir, "test.php"), test_content),
@@ -3601,6 +3608,12 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             [("variable", "$b_pub_var")])
         self.assertCompletionsDoNotInclude2(buf, test_positions[2],
             [("variable", "$a_pub_var"), ("variable", "$c_pub_var")])
+        self.assertCompletionsInclude2(buf, test_positions[3],
+            [("class", "blah_Data"), ("class", "Reg_Data"), ("class", "Foo_Data")])
+        self.assertCompletionsInclude2(buf, test_positions[4],
+            [("variable", "c_var")])
+        self.assertCompletionsDoNotInclude2(buf, test_positions[4],
+            [("variable", "a_var"), ("variable", "b_var")])
 
     @tag("bug83192", "php53")
     def test_imported_namespace_completions(self):
