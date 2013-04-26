@@ -73,7 +73,7 @@ create table snippet (
     path_id INTEGER PRIMARY KEY NOT NULL,
     set_selection bool default false,
     indent_relative bool default false,
-    auto_abbreviation bool default false
+    auto_abbreviation bool default false,
     treat_as_ejs bool default false
 );
 
