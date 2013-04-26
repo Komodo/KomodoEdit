@@ -102,7 +102,10 @@ _icons = {
 
 if sys.platform.startswith('linux'):
     _icons.update({
-        'project'    :   'moz-icon://stock/gtk-home?size=16'
+        'file'          :   'moz-icon://stock/gtk-file?size=16',
+        'project'       :   'moz-icon://stock/gtk-home?size=16',
+        'folder'        :   'moz-icon://stock/gtk-directory?size=16',
+        'live-folder'   :   'moz-icon://stock/gtk-network?size=16',
     })
 
 #---- support routines
@@ -937,7 +940,7 @@ class koLiveFolderPart(koFolderPart):
                         components.interfaces.koIPart_folder]
     type = 'livefolder'
     prettytype = 'Live Folder'
-    _iconurl = 'live-folder'
+    _iconurl = _icons.get('live-folder')
     primaryInterface = 'koIPart_livefolder'
 
     def __init__(self, project):
