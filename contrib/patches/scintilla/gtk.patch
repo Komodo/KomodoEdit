@@ -549,7 +549,7 @@ Scintilla buffer before shutting down, bug 81293.
  		errorStatus = SC_STATUS_FAILURE;
  	}
 -	return TRUE;
-+	return FALSE; /* ACTIVESTATE, must return false to let even through to mozilla */
++	return FALSE; /* ACTIVESTATE, must return false to let events fall through to mozilla */
  }
  
  gint ScintillaGTK::Press(GtkWidget *widget, GdkEventButton *event) {
