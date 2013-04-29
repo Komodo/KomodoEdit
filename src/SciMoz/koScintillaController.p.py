@@ -894,16 +894,20 @@ class koScintillaController:
     def _do_cmd_wordRightPastPunctuation(self):
         sm = self.scimoz()
         sm.currentPos = max(sm.currentPos, sm.anchor)
+        if sm.currentPos >= sm.length:
+            return
         lineno = sm.lineFromPosition(sm.currentPos)
         lineEndPos = sm.getLineEndPosition(lineno)
         # XXX - Byte lengths?? Do we need to get character lengths??
-        line = sm.getTextRange(sm.positionAfter(sm.currentPos), lineEndPos)
-        searchMatch = re.search("\\s", line)
-        if searchMatch:
-            sm.gotoPos(sm.currentPos + searchMatch.start() + 1)
-            sm.wordRight()
-        else:
-            self._do_cmd_lineNextHome()
+        nextPos = sm.positionAfter(sm.currentPos)
+        if nextPos < lineEndPos:
+            line = sm.getTextRange(nextPos, lineEndPos)
+            searchMatch = re.search("\\s", line)
+            if searchMatch:
+                sm.gotoPos(sm.currentPos + searchMatch.start() + 1)
+                sm.wordRight()
+                return
+        self._do_cmd_lineNextHome()
 
     # Used by vim binding E
     def _do_cmd_wordRightEndPastPunctuation(self):
@@ -1117,9 +1121,15 @@ class koScintillaController:
 
     def _do_cmd_lineNextHome(self):
         sm = self.scimoz()
-        sm.currentPos = max(sm.currentPos, sm.anchor)
-        sm.lineDown()
-        sm.home()
+        currentPos = max(sm.currentPos, sm.anchor)
+        if currentPos >= sm.length:
+            # We're there, go no further
+            return
+        nextLine = sm.lineFromPosition(currentPos) + 1
+        if nextLine >= sm.lineCount:
+            # We can't go any further
+            return
+        sm.gotoPos(sm.positionFromLine(nextLine))
         sm.vCHomeWrap()
 
     def _do_cmd_home(self):
