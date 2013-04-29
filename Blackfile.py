@@ -1239,6 +1239,13 @@ def ImageKomodo(cfg, argv):
             dst2 = join(dst, "Contents", "MacOS")
             _run('rm -rf "%s"' % dst2)
             _run('%s "%s" "%s"' % (cplink, src2, dst2))
+            # We need the MacOS/mozpython executable to be a symlink though, but
+            # the above commands will make a copy of the file instead. We
+            # correct that here - bug 98441.
+            assert os.path.islink(join(src2, "mozpython"))
+            os.remove(join(dst2, "mozpython"))
+            _run('cp -R "%s" "%s"' % (join(src2, "mozpython"),
+                                      join(dst2, "mozpython")))
         elif data[0] == "cp":
             action, src, dst = data
             if not dst:
