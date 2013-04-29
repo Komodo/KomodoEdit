@@ -856,7 +856,7 @@ class koScintillaController:
             finally:
                 sm.endUndoAction()
         
-    # Used by vim binding W
+    # Used by vim binding B
     def _do_cmd_wordLeftPastPunctuation(self):
         sm = self.scimoz()
         sm.currentPos = min(sm.currentPos, sm.anchor)
@@ -890,7 +890,7 @@ class koScintillaController:
         else:
             sm.home()
 
-    # Used by vim binding B
+    # Used by vim binding W
     def _do_cmd_wordRightPastPunctuation(self):
         sm = self.scimoz()
         sm.currentPos = max(sm.currentPos, sm.anchor)
