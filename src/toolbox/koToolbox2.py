@@ -1582,7 +1582,8 @@ def updateToolName(path, newBaseName):
 class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
 
-    ITEM_VERSION = "1.0.11" 
+    # When ITEM_VERSION changes update util/upgradeExtensionTools.py
+    ITEM_VERSION = "1.0.12" 
     FIRST_ITEM_VERSION = "1.0.5"
 
     def __init__(self, db_path, db):
