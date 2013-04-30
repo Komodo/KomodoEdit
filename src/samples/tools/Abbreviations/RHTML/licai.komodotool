@@ -1,12 +1,13 @@
 {
   "keyboard_shortcut": "", 
-  "set_selection": "false", 
   "name": "licai", 
   "value": [
     "<% link_to(\"[[%tabstop:text]]\", :controller => \"[[%tabstop:items]]\", :action => \"[[%tabstop:index]]\", :id => [[%tabstop:@item]] %>!@#_currentPos!@#_anchor"
   ], 
+  "set_selection": "false", 
+  "version": "1.0.12", 
+  "indent_relative": "true", 
   "type": "snippet", 
-  "indent_relative": "true",
-  "treat_as_ejs": "false",
-  "version": "1.0.13"
+  "treat_as_ejs": "false", 
+  "auto_abbreviation": "false"
 }

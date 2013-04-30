@@ -7,6 +7,7 @@
     "wc -w", 
     ""
   ], 
+  "version": "1.0.12", 
   "env": "", 
   "doNotOpenOutputWindow": "0", 
   "type": "command", 

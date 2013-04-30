@@ -3,17 +3,17 @@
   "name": "while", 
   "value": [
     "<% if (ko.snippets.rightOfFirstKeyword()) {%>", 
-    "while [[%soft:(]][[%tabstop:EXPR]][[%soft:) {]]",
+    "while [[%soft:(]][[%tabstop:EXPR]][[%soft:) {]]", 
     "\t[[%tabstop]]", 
-    "}",
+    "}", 
     "<% } else {", 
     "  throw new ko.snippets.RejectedSnippet(\"not at start of line\");", 
     "   } %>"
   ], 
   "set_selection": "false", 
-  "version": "1.0.13", 
-  "type": "snippet", 
+  "version": "1.0.12", 
   "indent_relative": "true", 
-  "auto_abbreviation": "true",
-  "treat_as_ejs": "true"
+  "type": "snippet", 
+  "treat_as_ejs": "true", 
+  "auto_abbreviation": "true"
 }

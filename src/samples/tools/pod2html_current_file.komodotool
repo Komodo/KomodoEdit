@@ -6,9 +6,10 @@
   "value": [
     "\"%(perl)\" -e print && pod2html \"%F\" > \"c:\\temp\\pod.html\" && %(browser) c:\\temp\\pod.html"
   ], 
-  "cwd": "", 
+  "version": "1.0.12", 
   "env": "", 
   "doNotOpenOutputWindow": "0", 
   "type": "command", 
+  "cwd": "", 
   "runIn": "command-output-window"
 }

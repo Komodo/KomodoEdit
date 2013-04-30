@@ -16,7 +16,7 @@
     "}", 
     ""
   ], 
-  "version": "1.0.7", 
+  "version": "1.0.12", 
   "async": "0", 
   "type": "macro", 
   "icon": "chrome://famfamfamsilk/skin/icons/script_edit.png"

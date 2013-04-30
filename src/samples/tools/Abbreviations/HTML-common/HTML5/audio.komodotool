@@ -5,7 +5,9 @@
     "<audio[[%tabstop: src=\"[[%tabstop]]\"]][[%tabstop: controls]]>[[%tabstop0:]]!@#_currentPos!@#_anchor</audio>"
   ], 
   "set_selection": "true", 
-  "version": "1.0.7", 
+  "version": "1.0.12", 
+  "indent_relative": "true", 
   "type": "snippet", 
-  "indent_relative": "true"
+  "treat_as_ejs": "false", 
+  "auto_abbreviation": "false"
 }

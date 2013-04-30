@@ -1,14 +1,15 @@
 {
-  "keyboard_shortcut": "",
-  "name": "class",
+  "keyboard_shortcut": "", 
+  "name": "class", 
   "value": [
-    "class [[%tabstop:name]][[%soft::]]",
-    "\t[[%tabstop:#code]]",
+    "class [[%tabstop:name]][[%soft::]]", 
+    "\t[[%tabstop:#code]]", 
     "!@#_currentPos!@#_anchor"
-  ],
-  "set_selection": "false",
-  "version": "1.0.11",
-  "type": "snippet",
-  "indent_relative": "true",
+  ], 
+  "set_selection": "false", 
+  "version": "1.0.12", 
+  "treat_as_ejs": "false", 
+  "type": "snippet", 
+  "indent_relative": "true", 
   "auto_abbreviation": "true"
 }

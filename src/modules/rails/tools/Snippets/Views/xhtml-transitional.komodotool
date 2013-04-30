@@ -8,7 +8,9 @@
     "!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "true", 
-  "version": "1.0.7", 
+  "version": "1.0.12", 
+  "indent_relative": "false", 
   "type": "snippet", 
-  "indent_relative": "false"
+  "treat_as_ejs": "false", 
+  "auto_abbreviation": "false"
 }

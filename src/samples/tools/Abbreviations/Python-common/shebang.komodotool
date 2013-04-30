@@ -11,7 +11,8 @@
     "!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "true", 
-  "version": "1.0.11", 
+  "version": "1.0.12", 
+  "treat_as_ejs": "false", 
   "type": "snippet", 
   "indent_relative": "false", 
   "auto_abbreviation": "false"

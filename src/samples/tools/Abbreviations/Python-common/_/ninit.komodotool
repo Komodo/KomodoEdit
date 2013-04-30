@@ -8,12 +8,12 @@
     "def __init__(self<%", 
     "if (numReps === 0) {", 
     "\t// Allow for args", 
-    "\t%>[[%tabstop:]]<%",
+    "\t%>[[%tabstop:]]<%", 
     "} else {", 
     "\tfor (i = 1; i <= numReps; i++) {", 
     "\t\t%>[[%soft:,]][[%soft: ]][[%tabstop<%= i %>:arg<%= i %>]]<%", 
     "\t}", 
-    "} %>[[%soft:)]][[%soft::]]",
+    "} %>[[%soft:)]][[%soft::]]", 
     "<% for (i = 1; i <= numReps; i++) { %>", 
     "\tself.[[%tabstop<%= i %>:arg<%= i %>]] = [[%tabstop<%= i %>:arg<%= i %>]]", 
     "<% } %>", 
@@ -21,9 +21,9 @@
     "!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "false", 
-  "version": "1.0.13", 
-  "type": "snippet", 
+  "version": "1.0.12", 
   "indent_relative": "true", 
-  "auto_abbreviation": "true",
-  "treat_as_ejs": "true"
+  "type": "snippet", 
+  "treat_as_ejs": "true", 
+  "auto_abbreviation": "true"
 }

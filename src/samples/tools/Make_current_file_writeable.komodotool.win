@@ -6,9 +6,10 @@
   "value": [
     "attrib -R \"%F\""
   ], 
-  "cwd": "", 
+  "version": "1.0.12", 
   "env": "", 
   "doNotOpenOutputWindow": "0", 
   "type": "command", 
+  "cwd": "", 
   "runIn": "command-output-window"
 }

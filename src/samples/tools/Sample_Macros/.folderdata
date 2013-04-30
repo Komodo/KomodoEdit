@@ -1,1 +1,5 @@
-{"type": "folder", "name": "Sample Macros"}
+{
+  "version": "1.0.12", 
+  "type": "folder", 
+  "name": "Sample Macros"
+}

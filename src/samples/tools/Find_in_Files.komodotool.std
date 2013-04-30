@@ -4,10 +4,11 @@
   "name": "Find in Files", 
   "parseRegex": "^(?P<file>.+?):(?P<line>\\d+):(?P<content>.*)$", 
   "operateOnSelection": "0", 
-  "cwd": "%(ask:Start Directory:%D)", 
   "value": [
     "find . -name \"%(ask:File Pattern:*)\" | xargs -l grep -nH \"%(w:orask:Search Term)\""
   ], 
+  "cwd": "%(ask:Start Directory:%D)", 
+  "version": "1.0.12", 
   "env": "", 
   "doNotOpenOutputWindow": "0", 
   "showParsedOutputList": "1", 

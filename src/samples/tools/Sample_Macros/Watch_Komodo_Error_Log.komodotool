@@ -16,6 +16,7 @@
     "    ", 
     ""
   ], 
+  "version": "1.0.12", 
   "async": "0", 
   "type": "macro"
 }

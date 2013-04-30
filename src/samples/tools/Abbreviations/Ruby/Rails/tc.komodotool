@@ -5,7 +5,8 @@
     "t.[[%tabstop:string]] :[[%tabstop:column]]!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "false", 
-  "version": "1.0.11", 
+  "version": "1.0.12", 
+  "treat_as_ejs": "false", 
   "type": "snippet", 
   "indent_relative": "true", 
   "auto_abbreviation": "false"

@@ -34,6 +34,7 @@
   ], 
   "trigger": "trigger_postopen", 
   "rank": 100, 
+  "version": "1.0.12", 
   "async": 0, 
   "type": "macro"
 }
