@@ -159,6 +159,15 @@ this.invoke_insertSnippet = function(tool) {
         tool = this._getSelectedTool('snippet');
         if (!tool) return;
     }
+    if (!tool.value) {
+        // Bug 98835: initially, we don't always have the item's text
+        // Don't know why, but getting its value will make an initial
+        // call to the database to init the tool
+        var koFileEx = tool.getFile();
+        koFileEx.open("r");
+        tool.value = koFileEx.readfile();
+        koFileEx.close();
+    }
     ko.projects.snippetInsert(tool);
 };
 
