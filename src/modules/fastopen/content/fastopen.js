@@ -299,11 +299,16 @@ ko.fastopen.invoketool = {};
      */
     function _invokeHits(hits) {
         var hit;
-        for (var i in hits) {
-            if (hits[i] instanceof CommandHit) {
-                ko.commands.doCommand(hits[i].commandId);
-            } else {
-                ko.toolbox2.invokeTool(hits[i].koTool);
+        for (var i = 0; i < hits.length; i++) {
+            hit = hits[i];
+            try {
+                if (hit instanceof CommandHit) {
+                    ko.commands.doCommand(hit.commandId);
+                } else {
+                    ko.toolbox2.invokeTool(hit.koTool);
+                }
+            } catch(e) {
+                log.exception(e, "Failed to invoke tool: ");
             }
         }
     }
@@ -313,7 +318,6 @@ ko.fastopen.invoketool = {};
      * @param hits {list of koIToolInfo} The hits.
      */
     function _editPropertiesHits(hits) {
-        var hit;
         for (var i in hits) {
             ko.toolbox2.editPropertiesTool(hits[i].koTool);
         }
