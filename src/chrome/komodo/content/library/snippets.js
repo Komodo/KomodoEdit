@@ -12,6 +12,7 @@ if (typeof(ko.snippets)=='undefined') {
     ko.snippets = {};
 }
 (function() {
+    this.invokedExplicitly = true;
     // Throw one of these objects in any EJS snippet if the snippet
     // should be rejected, as in
     // <% throw new ko.snippets.RejectedSnippet() %>
@@ -46,9 +47,12 @@ if (typeof(ko.snippets)=='undefined') {
     };
 
     this._leadingKeywordRE = /(?:^|[;=])\s*\w+$/;
+    this._leadingKeywordRE_invokedExplicitly = /(?:^|[;=])\s*$/;
     this.rightOfFirstKeyword =  function ko_snippet_rightOfFirstKeyword() {
         var text = this.getTextLine();
-        return this._leadingKeywordRE.test(text);
+        return (this.invokedExplicitly
+                ? this._leadingKeywordRE_invokedExplicitly
+                : this._leadingKeywordRE).test(text);
     };
     this.verifyAtRightOfFirstKeyword = function ko_snippet_verifyAtRightOfFirstKeyword() {
         if (!this.rightOfFirstKeyword()) {

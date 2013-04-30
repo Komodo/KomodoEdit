@@ -424,11 +424,13 @@ this.insertAbbrevSnippet = function(snippet, view /* =<curr view> */) {
     ko.tabstops.clearTabstopInfo(view); // could call endUndoAction() if there are active links
     scimoz.beginUndoAction();
     try {
+        ko.snippets.invokedExplicitly = false;
         enteredUndoableTabstop = ko.projects.snippetInsertImpl(snippet, view);
     } catch(ex) {
         //dump("snippetInsertImpl failed: " + ex + "\n");
         return false;
     } finally {
+        ko.snippets.invokedExplicitly = true;
         if (!enteredUndoableTabstop) {
             scimoz.endUndoAction();
         }
