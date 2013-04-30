@@ -49,6 +49,9 @@ class ToolUpdater(object):
                     
     def walkFunc(self, notifyNow, dirname, fnames):
         log.debug("walkFunc: dirname: %s, fnames:%s", dirname, fnames)
+        if basename(dirname) == ".svn":
+            fnames[:] = []
+            return
         for fname in fnames:
             if '.komodotool' in fname or fname == ".folderdata":
                 child_path = join(dirname, fname)
