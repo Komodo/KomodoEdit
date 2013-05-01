@@ -313,6 +313,23 @@
         <method name="close">
         <body>
         <![CDATA[
+            return this._close_browser();
+        ]]>
+        </body>
+        </method>
+
+        <method name="closeUnconditionally">
+        <body>
+        <![CDATA[
+            // Bug 98867: If we call this, just do the same as close()
+            return this._close_browser();
+        ]]>
+        </body>
+        </method>
+
+        <method name="_close_browser">
+        <body>
+        <![CDATA[
             if (this.sourceView) {
                 this.sourceView.preview = null;
                 this.sourceView = null;
