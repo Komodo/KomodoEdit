@@ -558,7 +558,7 @@ class PHPTreeEvaluator(TreeEvaluator):
     def _interfaces_from_scope(self, expr, scoperef):
         """Return all available interface names beginning with expr"""
         # Need to work from the global scope for this one
-        return self._element_names_from_scope_starting_with_expr(expr,
+        return self._element_names_from_scope_starting_with_expr(expr or None,
                             scoperef,
                             "interface",
                             ("namespace", "globals", "imports",),

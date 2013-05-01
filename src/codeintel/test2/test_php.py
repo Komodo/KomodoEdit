@@ -783,8 +783,16 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markedup_content,
             [("class", "MyClass")])
 
+    @tag("bug98831")
+    def test_complete_global_interfaces(self):
+        markedup_content = dedent(php_markup("""\
+            class MyClass implements <|> {}
+       """))
+        self.assertCompletionsInclude(markedup_content,
+            [("interface", "ArrayAccess"),
+             ("interface", "Serializable"),])
+
     def test_complete_interfaces_for_local_file(self):
-        name = "php-complete-interfaces"
         markedup_content = dedent(php_markup("""\
             interface IMyClass {}
             class MyClass implements <|>IMyClass {}
