@@ -803,7 +803,11 @@
         </method>
 
         <method name="closeUnconditionally">
+        <parameter name="shuttingDown"/>
             <body><![CDATA[
+                if (typeof(shuttingDown) == "undefined") {
+                    shuttingDown = false;
+                }
                 if (this.minimap) {
                     try {
                         this.destroyMinimap();
@@ -811,10 +815,20 @@
                         this.log.exception(ex, "problem in destroyMinimap");
                     }
                 }
-                // isSpecial typicaly denotes sockets and such, is also
+                // isSpecial typically denotes sockets and such, is also
                 // used by us to identify things like dbgp files
                 // we don't want special files in our mru
-                if (!this.koDoc.isUntitled && this.koDoc.file && !this.koDoc.file.isSpecial) {
+                //
+                // We also don't need to put files in the MRU during shutdown,
+                // because they'll be loaded at next startup (bug 98857), but
+                // only if we know we'll always load them.
+                if (!this.koDoc.isUntitled
+                    && this.koDoc.file
+                    && !this.koDoc.file.isSpecial
+                    && !(shuttingDown
+                         && ko.prefs.getBooleanPref("donotask_restore_workspace")
+                         && ko.prefs.getStringPref("donotask_action_restore_workspace") == "Yes"))
+                {
                     ko.mru.addURL("mruFileList", this.koDoc.file.URI);
                 }
 
@@ -916,7 +930,7 @@
                                 && this.selectMostRecentBufferOnBufferClose)
                                ? ko.views.manager.topView.viewhistory.getNextMostRecentView()
                                : null);
-                var retval = this.closeUnconditionally();
+                var retval = this.closeUnconditionally(doNotOfferToSave);
                 if (newView && newView != ko.views.manager.currentView) {
                     newView.makeCurrent();
                     xtk.domutils.fireEvent(newView, 'current_view_changed');
