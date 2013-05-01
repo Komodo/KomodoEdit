@@ -104,8 +104,8 @@ if sys.platform.startswith('linux'):
     _icons.update({
         'file'          :   'moz-icon://stock/gtk-file?size=16',
         'project'       :   'moz-icon://stock/gtk-home?size=16',
-        'folder'        :   'moz-icon://stock/gtk-directory?size=16',
-        'live-folder'   :   'moz-icon://stock/gtk-network?size=16',
+        'folder'        :   'chrome://fugue/skin/icons/box.png',
+        'live-folder'   :   'moz-icon://stock/gtk-directory?size=16',
     })
 
 #---- support routines
