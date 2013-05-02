@@ -1,0 +1,21 @@
+scintilla: cocoa: support setting fontQuality
+http://bugs.activestate.com/show_bug.cgi?id=98150
+https://sourceforge.net/p/scintilla/code/ci/3b2f50/
+diff --git cocoa/ScintillaCocoa.mm cocoa/ScintillaCocoa.mm
+--- cocoa/ScintillaCocoa.mm
++++ cocoa/ScintillaCocoa.mm
+@@ -1525,6 +1525,14 @@
+   Surface *sw = Surface::Allocate(SC_TECHNOLOGY_DEFAULT);
+   if (sw)
+   {
++    CGContextSetAllowsAntialiasing((CGContextRef)gc,
++                                   vs.extraFontFlag != SC_EFF_QUALITY_NON_ANTIALIASED);
++#if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
++    if (CGContextSetAllowsFontSubpixelPositioning != NULL)
++      CGContextSetAllowsFontSubpixelPositioning((CGContextRef)gc,
++						vs.extraFontFlag == SC_EFF_QUALITY_DEFAULT ||
++						vs.extraFontFlag == SC_EFF_QUALITY_LCD_OPTIMIZED);
++#endif
+     sw->Init(gc, wMain.GetID());
+     Paint(sw, rc);
+     succeeded = paintState != paintAbandoned;
