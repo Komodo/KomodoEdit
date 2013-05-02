@@ -62,9 +62,10 @@
               <textbox id="default" readonly="true" class="plain" flex="1" />
           </hbox>
         </vbox>
-        <checkbox id="fastopen_enable_go_tool"
+        <checkbox id="fastopen_enable_shortcuts"
                   label="&enableGoToolIntegration.label;"
-                  pref="true" prefattribute="checked"
+                  pref="true"
+                  prefdefault="true"
                   preftype="boolean" />
         <vbox style="margin-left: 22px">
             <description>

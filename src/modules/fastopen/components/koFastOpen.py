@@ -210,15 +210,12 @@ class KoFastOpenSession(KoFastOpenTreeView):
         return excludes
     
     @property
-    def pref_enable_go_tool(self):
-        """Whether to enable go-tool integration.
+    def pref_enable_shortcuts(self):
+        """Whether to enable shortcuts (go-tool) integration.
         
         http://code.google.com/p/go-tool
         """
-        enable = False
-        if self._globalPrefs.hasBooleanPref("fastopen_enable_go_tool"):
-            enable = self._globalPrefs.getBooleanPref("fastopen_enable_go_tool")
-        return enable
+        return self._globalPrefs.getBoolean("fastopen_enable_shortcuts", True)
 
     @property
     def pref_enable_open_views_gatherer(self):
@@ -363,7 +360,7 @@ class KoFastOpenSession(KoFastOpenTreeView):
                     g.append(kovg)
                 cwds = list(kovg.cwds)
 
-            if self.pref_enable_go_tool:
+            if self.pref_enable_shortcuts:
                 g.append(self._go_gatherer)
                 dirShortcuts = self._go_gatherer.getShortcuts()
             else:
