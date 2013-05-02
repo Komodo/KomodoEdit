@@ -1144,7 +1144,7 @@ function doEnabling() {
   // Maybe add check if textInput.value would resolve to an existing
   // file or directory in .modeOpen. Too costly I think.
   var enable = (textInput.value != "");
-  if (!enable && filePickerMode == modeGetFolder && sfile.path) {
+  if (!enable && filePickerMode == modeGetFolder && sfile && sfile.path) {
     // If we have a directory listing, allow selection of the current folder,
     // bug 97991.
     enable = true;
