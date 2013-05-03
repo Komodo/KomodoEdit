@@ -68,18 +68,6 @@
                       pref="true"
                       prefstring="show_start_page"
                       prefattribute="checked"/>
-            <separator class="thin"/>
-      
-            <hbox>
-                <separator style="width: 10px;"/>
-                <vbox>
-                    <checkbox id="start_page_quick_links_box_closed"
-                              label="&hideQuickLinksPane.label;"
-                              pref="true"
-                              prefattribute="checked"/>
-    
-                </vbox>
-            </hbox>
         </groupbox>
         
         <groupbox id="pref_appearance_interface">
