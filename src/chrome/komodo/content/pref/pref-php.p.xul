@@ -75,7 +75,7 @@
                 <vbox flex="1" align="center">
                     <description style="font-weight: bold;">&noPhpInterpreter.description;</description>
                     <button label="&httpAspnActiveStateComASPNPHP.label;" class="button-link-a" style="cursor:pointer;"
-                            oncommand="alert('&noteRestartPhp.alert;'); globalPrefs('browse').openUrlInDefaultBrowser('http://php.net/');"/>
+                            oncommand="alert('&noteRestartPhp.alert;'); getKoObject('browse').openUrlInDefaultBrowser('http://php.net/');"/>
                 </vbox>
             </vbox>
             <vbox flex="1">
