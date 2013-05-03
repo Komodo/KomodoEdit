@@ -778,7 +778,10 @@ class koOrderedPreference:
                index > -len(self._collection)
 
     def appendPref(self, pref):
-        self._collection.append((UnwrapObject(pref), "object"))
+        pref = UnwrapObject(pref)
+        assert isinstance(pref, (koOrderedPreference, koPreferenceSet)), \
+            "Appending a pref that is neither an ordered pref nor a pref set"
+        self._collection.append((pref, "object"))
 
     def appendStringPref(self, pref):
         self._collection.append((unicode(pref), "string"))
@@ -790,10 +793,13 @@ class koOrderedPreference:
         self._collection.append((float(pref), "double"))
 
     def appendBooleanPref(self, pref):
-        self._collection.append(operator.truth(pref), "boolean")
+        self._collection.append((operator.truth(pref), "boolean"))
 
     def insertPref(self, index, pref):
-        self._collection.insert(index, (UnwrapObject(pref), "object"))
+        pref = UnwrapObject(pref)
+        assert isinstance(pref, (koOrderedPreference, koPreferenceSet)), \
+            "Inserting a pref that is neither an ordered pref nor a pref set"
+        self._collection.insert(index, (pref, "object"))
 
     def insertStringPref(self, index, pref):
         self._collection.insert(index, (pref,"string"))
@@ -880,8 +886,11 @@ class koOrderedPreference:
         ret = koOrderedPreference()
         ret.id = self.id
         for val in self._collection:
-            if type(val) == types.InstanceType:
-                val = val.clone()
+            assert isinstance(val, tuple), \
+                "something in the collection that isn't a tuple"
+            assert len(val) == 2, "invalid tuple in collection"
+            if val[1] == "object":
+                val = (val[0].clone(), "object")
             ret._collection.append(val)
         return ret
 

@@ -60,6 +60,7 @@ testdir_from_ns = {
     "run": join("..", "src", "run", "test"),
     "components": join("..", "src", "components", "test"),
     "jstest": "jstest",
+    "prefs": join("..", "src", "prefs", "test"),
 }
 default_tags = ["-knownfailure", "-casper"]
 
