@@ -818,7 +818,7 @@ if (typeof(ko.widgets)=='undefined') {
                     let selected = panes[id].selectedTab;
                     // make sure what we want to select actually works..
                     let alternate = null;
-                    if (!selected || children.indexOf(selected) == -1) {
+                    if (!selected || children.indexOf(selected) == -1 || !this._get(selected)) {
                         alternate = children[0];
                     } else if (selected) {
                         let widget = this._get(selected).browser;
