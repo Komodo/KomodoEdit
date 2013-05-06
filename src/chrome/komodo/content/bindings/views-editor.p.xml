@@ -1550,12 +1550,21 @@
             var numLines = scimoz.lineCount;
             var linesOnScreen = scimoz.linesOnScreen;
             var firstMSZVisibleLine = msz.firstVisibleLine;
+            var firstVisibleLine = scimoz.firstVisibleLine;
             var numMSZVisibleLines = msz.visibleFromDocLine(msz.lineCount);
             var lastTopMSZVisibleLine = numMSZVisibleLines - msz.linesOnScreen;
+            if (lastTopMSZVisibleLine <= 0) {
+                // bug98577: when the minimap is completely displayed,
+                // we don't want its first-visible-line to affect the
+		// editor's first-visible-line, because it's always 0.
+                // Just return the editor's current FVL.
+                // Otherwise it scrolls the editor to line 0.
+                return firstVisibleLine;
+            }
             var msz_portion_covered = firstMSZVisibleLine / lastTopMSZVisibleLine;
             var numVisibleLines = scimoz.visibleFromDocLine(numLines);
             var lastTopVisibleLine = numVisibleLines - linesOnScreen;
-            var firstVisibleLine = Math.round(lastTopVisibleLine * msz_portion_covered);
+            firstVisibleLine = Math.round(lastTopVisibleLine * msz_portion_covered);
             return firstVisibleLine;
         //]]>
         </body>
