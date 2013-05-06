@@ -1801,7 +1801,15 @@ class SetPath(black.configure.SetPathEnvVar):
         # for now append to PATH because of interaction with vcvars32.bat
         systemDirs = black.configure.items["systemDirs"].Get()
         paths = self.value + ["$PATH"] + systemDirs
-        stream.write('export PATH=%s\n' % (os.pathsep.join(paths)))
+        pathsep = os.pathsep
+        if sys.platform.startswith("win"):
+            for i, path in enumerate(paths):
+                if len(path) > 1 and path[1] == ":":
+                    path = "/%s/%s" % (path[0], path[3:])
+                path = path.replace(os.sep, "/")
+                paths[i] = path
+            pathsep = ":"
+        stream.write('export PATH=%s\n' % (pathsep.join(paths)))
 
 
 class SetupMozEnv(black.configure.RunEnvScript):
