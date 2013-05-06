@@ -50,6 +50,7 @@ from UserDict import UserDict
 if sys.platform.startswith('win'):
     import _winreg
 import black
+import itertools
 
 try:
     basestring
@@ -256,10 +257,7 @@ class Datum(Item):
     def _Serialize_AsPython(self, stream):
         if self.value is None:
             pass
-        elif sys.version_info[:2] >= (2,3) and isinstance(self.value, bool):
-            stream.write('%s = %s\n' % (self.name, repr(int(self.value))))
-        elif type(self.value) in (type(""), type(0), type((0,0)),
-            type([0,0]), type({})):
+        elif isinstance(self.value, (basestring, int, bool, list, tuple, dict)):
             stream.write('%s = %s\n' % (self.name, repr(self.value)))
         else:
             stream.write('%s = %s\n' % (self.name, repr(str(self.value))))
@@ -278,23 +276,20 @@ class Datum(Item):
                                      "to Perl because can't convert it to "
                                      "a string: %s" % (self.name, ex))
             stream.scalarExports.append(self.name)
-        elif sys.version_info[:2] >= (2,3) and isinstance(self.value, bool):
-            stream.write('$%s = %s;\n' % (self.name, repr(int(self.value))))
+        elif isinstance(self.value, bool):
+            stream.write('$%s = %s;\n' % (self.name, int(self.value)))
             stream.scalarExports.append(self.name)
         elif isinstance(self.value, int):
-            stream.write('$%s = %s;\n' % (self.name, repr(self.value)))
+            stream.write('$%s = %s;\n' % (self.name, self.value))
             stream.scalarExports.append(self.name)
-        elif type(self.value) in (type((0,0)), type([0,0])):
-            stream.write('@%s = %s;\n' % (self.name, tuple(self.value)))
-            stream.arrayExports.append(self.name)
-        elif type(self.value) == type({}):
+        elif isinstance(self.value, dict):
             # write it as:  %name = (key0,val0,key1,val1,...);
-            merge = []
-            for k,v in self.value.items():
-                merge.append(k)
-                merge.append(v)
+            merge = itertools.chain(*map(list, self.value.items()))
             stream.write('%%%s = %s;\n' % (self.name, tuple(merge)))
             stream.hashExports.append(self.name)
+        elif isinstance(self.value, (list, tuple)):
+            stream.write('@%s = %s;\n' % (self.name, tuple(self.value)))
+            stream.arrayExports.append(self.name)
         else:
             raise ConfigureError("Don't know how to serialize datum %s of "\
                 "type %s as Perl code.\n" % (self.name, type(self.value)))
@@ -302,9 +297,9 @@ class Datum(Item):
     def _Serialize_AsCHeader(self, stream):
         if self.value is None:
             pass
-        elif type(self.value) == type(""):
+        elif isinstance(self.value, str):
             stream.write('#define %s "%s"\n' % (self.name, self.value))
-        elif type(self.value) == type(0):
+        elif isinstance(self.value, (int, long)):
             stream.write('#define %s %d\n' % (self.name, self.value))
         else:
             raise ConfigureError("Don't know how to serialize datum %s of "\
@@ -314,9 +309,9 @@ class Datum(Item):
     def _Serialize_AsBatch(self, stream):
         if self.value is None:
             pass
-        elif type(self.value) == type(""):
+        elif isinstance(self.value, str):
             stream.write('set %s=%s\n' % (self.name, self.value))
-        elif type(self.value) == type(0):
+        elif isinstance(self.value, int):
             stream.write('set %s=%d\n' % (self.name, self.value))
         else:
             raise ConfigureError("Don't know how to serialize datum %s of "\
@@ -326,12 +321,12 @@ class Datum(Item):
     def _Serialize_AsBash(self, stream):
         if self.value is None:
             pass
-        elif type(self.value) == type(""):
+        elif isinstance(self.value, str):
             value = self.value
             if sys.platform.startswith("win"):
                 value = value.replace(os.sep, "/")
             stream.write('export %s=%s\n' % (self.name, value))
-        elif type(self.value) == type(0):
+        elif isinstance(self.value, int):
             stream.write('export %s=%d\n' % (self.name, self.value))
         else:
             raise ConfigureError("Don't know how to serialize datum %s of "\
@@ -378,7 +373,7 @@ class SetEnvVar(Item):
 
     def _Serialize_AsPython(self, stream):
         stream.write("import os")
-        if type(self.value) in (type(""), type(None)):
+        if self.value is None or isinstance(self.value, basestring):
             stream.write("os.environ[%s] = %s\n" %\
                (repr(self.name), repr(self.value)))
         else:
@@ -387,12 +382,12 @@ class SetEnvVar(Item):
                 (self.name, type(self.value)))
 
     def _Serialize_AsPerl(self, stream):
-        if type(self.value) == type(None):
+        if self.value is None:
             stream.write('$ENV{%s} = "";\n' % repr(self.name))
-        elif type(self.value) == type(""):
+        elif isinstance(self.value, str):
             stream.write('$ENV{%s} = %s;\n' %\
                 (repr(self.name), repr(self.value)))
-        elif type(self.value) == type(0):
+        elif isinstance(self.value, int):
             stream.write('$ENV{%s} = %d;\n' % (repr(self.name), self.value))
         else:
             raise ConfigureError("Don't know how to serialize setting "\
@@ -400,11 +395,11 @@ class SetEnvVar(Item):
                 (self.name, type(self.value)))
 
     def _Serialize_AsBatch(self, stream):
-        if type(self.value) == type(None):
+        if self.value is None:
             stream.write('set %s=\n' % self.name)
-        elif type(self.value) in (type(""), type(0)):
+        elif isinstance(self.value, (str, int)):
             stream.write('set %s=%s\n' % (self.name, self.value))
-        elif type(self.value) in (type((0,0)), type([0,0])):
+        elif isinstance(self.value, (list, tuple)):
             stream.write('set %s=%s\n' %\
                 (self.name, os.pathsep.join(self.value)))
         else:
@@ -415,18 +410,20 @@ class SetEnvVar(Item):
     def _Serialize_AsBash(self, stream):
         if self.value is None:
             stream.write('unset %s\n' % self.name)
-        elif type(self.value) is type(""):
+        elif isinstance(self.value, str):
             value = self.value
             if sys.platform.startswith("win"):
                 value = value.replace(os.sep, "/")
             stream.write('export %s=%s\n' % (self.name, value))
-        elif type(self.value) is type(0):
+        elif isinstance(self.value, int):
             stream.write('export %s=%s\n' % (self.name, self.value))
-        elif type(self.value) in (type((0,0)), type([0,0])):
+        elif isinstance(self.value, (list, tuple)):
             value = self.value
             pathsep = os.pathsep
-            if sys.platform.startswith("win") and type(value[0]) is type(""):
-                value = [v.replace("\\", "\\\\") for v in value]
+            if sys.platform.startswith("win"):
+                for i, v in enumerate(value):
+                    if isinstance(v, str):
+                        value[i] = v.replace("\\", "\\\\")
                 pathsep = "\\;" # escape for bash
             stream.write('export %s=%s\n' %\
                 (self.name, pathsep.join(value)))
@@ -495,11 +492,9 @@ class Items(UserDict):
         UserDict.__init__(self)
     
         for name, item in rawItems.items():
-            if type(item) == types.NoneType:
+            if item is None:
                 continue
-            elif type(item) in (types.IntType, types.LongType, types.FloatType,
-              types.StringType, types.TupleType, types.ListType,
-              types.DictType, types.DictionaryType):
+            elif isinstance(item, (int, long, float, str, tuple, list, dict)):
                 # this is a simple Datum()
                 self.data[name] = Datum(name, value=item)
             elif type(item) == types.InstanceType:
