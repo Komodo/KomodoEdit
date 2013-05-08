@@ -918,7 +918,6 @@ from ciElementTree import Element, SubElement, dump
 if _xpcom_:
     from xpcom import xpt
     _xpcom_ = True
-    import xpcom.xpt
     from gencix_utils import *
     
     # Dictionary of known xpcom types and what they map to in JavaScript

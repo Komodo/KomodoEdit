@@ -67,8 +67,6 @@ from codeintel2.udl import XMLParsingBufferMixin, UDLBuffer
 import langinfo
 
 if _xpcom_:
-    from xpcom import components, COMException
-    from xpcom.client import WeakReference
     from xpcom.server import UnwrapObject
 
 

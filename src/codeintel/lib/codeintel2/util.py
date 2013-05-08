@@ -643,7 +643,6 @@ def getProfiler():
                 self.prof = cProfile.Profile()
                 if _xpcom_:
                     from xpcom import components
-                    from xpcom.server import WrapObject
                     _KoCProfileManager._com_interfaces_ = [components.interfaces.nsIObserver]
                     obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                                    getService(components.interfaces.nsIObserverService)
