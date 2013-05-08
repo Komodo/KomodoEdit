@@ -464,16 +464,13 @@ try {
             checkWidget.setAttribute('class', 'syntax-okay');
         }
     } else {
-        var resultsObj = new Object();
-        var numResultsObj = new Object();
-        lintResults.getResults(resultsObj, numResultsObj);
-        if (numResultsObj.value == 0) {
+        var numErrors = lintResults.getNumErrors();
+        var numWarnings = lintResults.getNumWarnings();
+        if (numErrors <= 0 && numWarnings <= 0) {
             checkWidget.setAttribute('class', 'syntax-okay');
             checkWidget.setAttribute("tooltiptext",
                 _bundle.GetStringFromName("syntaxCheckingStatusOk.tooltip"));
         } else {
-            var numErrors = lintResults.getNumErrors();
-            var numWarnings = lintResults.getNumWarnings();
             if (numErrors > 0) {
                 checkWidget.setAttribute('class', 'syntax-error');
             } else {
