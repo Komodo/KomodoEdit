@@ -44,6 +44,7 @@ from os.path import join, dirname, abspath, exists, basename, expanduser
 import unittest
 import logging
 from glob import glob
+from distutils.version import LooseVersion
 
 import which
 
@@ -656,6 +657,18 @@ class CplnTestCase(CodeIntelTestCase):
         super(CplnTestCase, self).setUp()
         init_xml_catalogs()
 
+    @property
+    def version(self):
+        if not hasattr(self, "_version"):
+            langintel = self.mgr.langintel_from_lang(self.lang)
+            env = self.mgr.env
+            phpexe = langintel._php_from_env(env)
+            ver_str = None
+            if phpexe:
+                ver_str, _ = langintel._php_info_from_php(phpexe, env)
+            setattr(self, "_version", LooseVersion(ver_str or "0"))
+        return self._version
+
     @tag("bug75490")
     def test_html_markup_completion(self):
         self.assertTriggerMatches("<<|>",
@@ -891,11 +904,15 @@ class CplnTestCase(CodeIntelTestCase):
         content, positions = unmark_text(php_markup("""\
             $e = new Exception(<1>'error name', 0);
        """))
-        expected_calltip = """__construct(message=NULL, code=0)
+        if self.version < "5.4":
+            expected_calltip = """__construct(message=NULL, code=0)
 Construct an exception
 
 @param $message Some text describing the exception
 @param $code    Some code describing the exception"""
+        else:
+            expected_calltip = """__construct(string message, int code [, Exception previous])
+Exception constructor"""
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
                              expected_calltip)
 
