@@ -25,6 +25,7 @@ _log.setLevel(ko.logging.LOG_INFO);
 
 const DECORATOR_ERROR = Components.interfaces.koILintResult.DECORATOR_ERROR;
 const DECORATOR_WARNING = Components.interfaces.koILintResult.DECORATOR_WARNING;
+const SEV_ERROR = Components.interfaces.koILintResult.SEV_ERROR;
 
 this._in_display = 0; // recursion protection.
 
@@ -122,6 +123,8 @@ this._display = function(lintBuffer, lintResults) {
 
 this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
                                           lintResults) {
+  //var time_start = performance.now();
+  //try {
     //var time1 = new Date();
     for each (var indicType in [DECORATOR_ERROR, DECORATOR_WARNING]) {
         scimoz.indicatorCurrent = indicType;
@@ -137,9 +140,13 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
     var offsetsAndValues = [];
     var r, newValue;
 
+    var scimoz_length = scimoz.length;
+    var scimoz_lineCount = scimoz.lineCount;
+
     for (var i = 0; i < lim; i++) {
         r = displayableResults[i];
         if (!r) continue;
+
         // sanity check lint results
         //if ((r.columnStart >= 1 && r.columnEnd >= 1
         //     && r.lineStart >= 1 && r.lineEnd >= 1
@@ -147,38 +154,33 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
         //         || (r.lineEnd == r.lineStart
         //             && r.columnEnd >= r.columnStart)))) {
 
-            var linepos = scimoz.positionFromLine(r.lineStart - 1);
-            var offsetStart = scimoz.positionAtChar(linepos, r.columnStart - 1);
-            linepos = scimoz.positionFromLine(r.lineEnd - 1);
-            var offsetEnd = scimoz.positionAtChar(linepos, r.columnEnd - 1);
-            if (offsetEnd > scimoz.getLineEndPosition(r.lineEnd - 1)) {
-                // This can happen when there are high-bit characters in a line
-                // of code that a linter has flagged.
-                offsetEnd = scimoz.getLineEndPosition(r.lineEnd - 1);
-            }
-
-            if (offsetEnd <= scimoz.length && offsetEnd >= offsetStart) {
-                if (r.lineEnd > scimoz.lineCount) {
-                    offsetEnd = scimoz.length;
+            // Convert linter line positions into scimoz doc positions.
+            var lineStart = r.lineStart - 1;
+            var linepos = scimoz.positionFromLine(lineStart);
+            var indicStart = scimoz.positionAtChar(linepos, r.columnStart - 1);
+            var lineEnd = r.lineEnd - 1;
+            if (lineEnd > scimoz_lineCount) {
+                if (lineStart > scimoz_lineCount) {
+                    // It's on a line beyond the end of the document!?
+                    continue;
                 }
-                newValue = (r.severity == r.SEV_ERROR
-                            ? DECORATOR_ERROR
-                            : DECORATOR_WARNING);
-                offsetsAndValues.push([offsetStart, offsetEnd - offsetStart,
-                                       newValue]);
-            } else {
-                log.error("Suspicious lint result discarded (offsetEnd "
-                          + "> scimoz.length || offsetStart > offsetEnd): "
-                          + "lineStart="
-                          + r.lineStart
-                          + ", columnStart="
-                          + r.columnStart
-                          + ", lineEnd="
-                          + r.lineEnd
-                          + ", columnEnd="
-                          + r.columnEnd
-                          + "\n");
+                lineEnd = scimoz_lineCount;
             }
+            linepos = scimoz.positionFromLine(lineEnd);
+            var indicEnd = scimoz.positionAtChar(linepos, r.columnEnd - 1);
+            // Ensure offsetEnd does not extend beyond the end of the line. This
+            // can happen if there are high-bit characters in a line of code
+            // that has been flagged by a linter.
+            indicEnd = Math.min(indicEnd, scimoz.getLineEndPosition(lineEnd));
+
+            var indic = (r.severity == SEV_ERROR ? DECORATOR_ERROR : DECORATOR_WARNING);
+            var indicLen = indicEnd - indicStart;
+            if (indicLen <= 0) {
+                // Ignore zero-length results.
+                continue;
+            }
+            offsetsAndValues.push([indicStart, indicLen, indic]);
+
         //} else {
         //    log.error("Suspicious lint result discarded (sanity "
         //              + "check failed): lineStart="
@@ -205,14 +207,10 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
     var start, length, value;
     var finalNewIndicators = [];
     var currentLine = scimoz.lineFromPosition(scimoz.currentPos);
-    var lastLine = scimoz.lineCount - 1;
+    var lastLine = scimoz_lineCount - 1;
     var onLastLine = currentLine == lastLine;
     for each (var offsetAndValue in offsetsAndValues) {
         [start, length, value] = offsetAndValue;
-        if (length > 0) {
-            if (start + length > scimoz.length) { // one last sanity check, as if that's not true it can cause a lockup
-                length = scimoz.length - start;
-            }
             if (onLastLine
                 && scimoz.lineFromPosition(start) == lastLine) {
                 continue;
@@ -225,7 +223,6 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
             //          start + length - 1 - scimoz.positionFromLine(scimoz.lineFromPosition(start + length - 1)))
             scimoz.indicatorCurrent = value;
             scimoz.indicatorFillRange(start, length);
-        }
     }
     //var time3 = new Date();
     //dump("                                       drawing: " + (time3 - time2) + "msec\n");
@@ -236,6 +233,9 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
                   + "/ scimoz.endStyled:"
                   + scimoz.endStyled);
     }
+  //} finally {
+  //  dump("lint updateDisplayedIndicators took: " + (performance.now() - time_start) + " ms\n");
+  //}
 };
 
 this.doConstrainedUpdate = function(scimoz, lintResults, lintBuffer) {
