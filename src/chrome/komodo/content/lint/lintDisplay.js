@@ -141,12 +141,12 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
         r = displayableResults[i];
         if (!r) continue;
         // sanity check lint results
-        if ((r.columnStart >= 1 && r.columnEnd >= 1
-             && r.lineStart >= 1 && r.lineEnd >= 1
-             && (r.lineEnd > r.lineStart
-                 || (r.lineEnd == r.lineStart
-                     && r.columnEnd >= r.columnStart)))) {
-                
+        //if ((r.columnStart >= 1 && r.columnEnd >= 1
+        //     && r.lineStart >= 1 && r.lineEnd >= 1
+        //     && (r.lineEnd > r.lineStart
+        //         || (r.lineEnd == r.lineStart
+        //             && r.columnEnd >= r.columnStart)))) {
+
             var linepos = scimoz.positionFromLine(r.lineStart - 1);
             var offsetStart = scimoz.positionAtChar(linepos, r.columnStart - 1);
             linepos = scimoz.positionFromLine(r.lineEnd - 1);
@@ -179,18 +179,18 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
                           + r.columnEnd
                           + "\n");
             }
-        } else {
-            log.error("Suspicious lint result discarded (sanity "
-                      + "check failed): lineStart="
-                      + r.lineStart
-                      + ", columnStart="
-                      + r.columnStart
-                      + ", lineEnd="
-                      + r.lineEnd
-                      + ", columnEnd="
-                      + r.columnEnd
-                      + "\n");
-        }
+        //} else {
+        //    log.error("Suspicious lint result discarded (sanity "
+        //              + "check failed): lineStart="
+        //              + r.lineStart
+        //              + ", columnStart="
+        //              + r.columnStart
+        //              + ", lineEnd="
+        //              + r.lineEnd
+        //              + ", columnEnd="
+        //              + r.columnEnd
+        //              + "\n");
+        //}
     }
 
     if (!offsetsAndValues.length) {
