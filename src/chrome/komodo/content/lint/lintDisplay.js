@@ -87,20 +87,17 @@ this._display = function(lintBuffer, lintResults) {
     }
     var view = lintBuffer.view;
     var scimoz = view.scimoz;
-    var startPos = 0;
-    var styleLen = scimoz.length;
+    var doclen = scimoz.length;
     if (scimoz.length == 0) {
         return;
     }
 
     // stash these for efficiency
     //var time1 = new Date();
-    var firstLine = scimoz.lineFromPosition(startPos);
-    var doclen = startPos + styleLen;
     var endLine = scimoz.lineFromPosition(doclen);
 
     var displayableResults = {};
-    lintResults.getResultsInLineRange(firstLine + 1, endLine + 1, displayableResults, {});
+    lintResults.getResultsInLineRange(1, endLine + 1, displayableResults, {});
     displayableResults = displayableResults.value;
     var lim = displayableResults.length;
     // optimization: if there aren't any lint results, clear the indicators and leave.
@@ -109,7 +106,7 @@ this._display = function(lintBuffer, lintResults) {
     if (lim === 0) {
         for each (var indicType in [DECORATOR_ERROR, DECORATOR_WARNING]) {
             scimoz.indicatorCurrent = indicType;
-            scimoz.indicatorClearRange(startPos, doclen);
+            scimoz.indicatorClearRange(0, doclen);
         }
         return;
     } else if (lim > 50) {
