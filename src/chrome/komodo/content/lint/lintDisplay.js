@@ -94,12 +94,7 @@ this._display = function(lintBuffer, lintResults) {
 
     // stash these for efficiency
     //var time1 = new Date();
-    var endLine = scimoz.lineFromPosition(doclen);
-
-    var displayableResults = {};
-    lintResults.getResultsInLineRange(1, endLine + 1, displayableResults, {});
-    displayableResults = displayableResults.value;
-    var lim = displayableResults.length;
+    var lim = lintResults.getNumResults();
     // optimization: if there aren't any lint results, clear the indicators and leave.
     //var time2 = new Date();
     //dump("lintDisplay.js display: time spent deciding: " + (time2 - time1) + "msec\n");
@@ -121,21 +116,27 @@ this._display = function(lintBuffer, lintResults) {
         view.addEventListener("current_view_scroll_changed", handleScroll, false);
     } else {
         // No change
-        this.updateDisplayedIndicators(scimoz, 0, scimoz.length, lintResults,
-                                       displayableResults);
+        this.updateDisplayedIndicators(scimoz, 0, scimoz.length, lintResults);
     }
 };
 
 this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
-                                          lintResults, displayableResults) {
+                                          lintResults) {
     //var time1 = new Date();
-    var offsetsAndValues = [];
-    var r, newValue;
     for each (var indicType in [DECORATOR_ERROR, DECORATOR_WARNING]) {
         scimoz.indicatorCurrent = indicType;
         scimoz.indicatorClearRange(startPos, docLen);
     }
+
+    var startLine = scimoz.lineFromPosition(startPos);
+    var endLine = scimoz.lineFromPosition(startPos + docLen);
+    var displayableResults = {};
+    lintResults.getResultsInLineRange(startLine + 1, endLine + 1, displayableResults, {});
+    displayableResults = displayableResults.value;
     var lim = displayableResults.length;
+    var offsetsAndValues = [];
+    var r, newValue;
+
     for (var i = 0; i < lim; i++) {
         r = displayableResults[i];
         if (!r) continue;
@@ -250,12 +251,9 @@ this.doConstrainedUpdate = function(scimoz, lintResults, lintBuffer) {
     } else {
         lastActualPos = scimoz.length;
     }
-    var displayableResults = {};
-    lintResults.getResultsInLineRange(firstActualLine + 1, lastActualLine + 1, displayableResults, {});
-    displayableResults = displayableResults.value;
     //var time2 = new Date();
     //dump("                                regathering: " + (time2 - time1) + "msec\n");
-    this.updateDisplayedIndicators(scimoz, firstActualPos, lastActualPos - firstActualPos, lintResults, displayableResults);
+    this.updateDisplayedIndicators(scimoz, firstActualPos, lastActualPos - firstActualPos, lintResults);
 };
 
 }).apply(ko.lint.displayer);
