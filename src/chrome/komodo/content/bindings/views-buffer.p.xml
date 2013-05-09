@@ -539,24 +539,7 @@
 
         <field name="_inInitPhase">true</field>
 
-        <field name="_lintBuffer">null</field>
-        <property name="lintBuffer">
-            <setter><![CDATA[
-            if (this._lintBuffer)
-                this._lintBuffer.destructor();
-            this._lintBuffer = val;
-            ]]></setter>
-            <getter><![CDATA[
-            try {
-                if (!this._lintBuffer && this.koDoc && ko.lint)
-                    this._lintBuffer = new ko.lint.lintBuffer(this);
-            } catch (e) {
-                // If we have not loaded lint.js into chrome, then we
-                // do not care about linting and we ignore this error.
-            }
-            return this._lintBuffer;
-            ]]></getter>
-        </property>
+        <field name="lintBuffer">null</field>
 
         <method name="close_viewbufferbase">
         <body>
@@ -581,7 +564,6 @@
                 // if anything bad happened, we still want to close the view!
                 this.log.exception(e);
             }
-            this.lintBuffer = null;
             this.ciCompletionUIHandler = null;
             this._ciLastTrg = null;
 

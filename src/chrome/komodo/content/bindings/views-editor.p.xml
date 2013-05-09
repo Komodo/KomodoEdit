@@ -82,7 +82,26 @@
             ]]></getter>
         </property>
 
+        <field name="lintingEnabled">false</field>
         <field name="_everLinted">false</field>
+
+        <property name="lintBuffer">
+            <setter><![CDATA[
+            if (this._lintBuffer)
+                this._lintBuffer.destructor();
+            this._lintBuffer = val;
+            ]]></setter>
+            <getter><![CDATA[
+            try {
+                if (!this._lintBuffer && this.lintingEnabled)
+                    this._lintBuffer = new ko.lint.lintBuffer(this);
+            } catch (e) {
+                // If we have not loaded lint.js into chrome, then we
+                // do not care about linting and we ignore this error.
+            }
+            return this._lintBuffer;
+            ]]></getter>
+        </property>
 
         <field name="_view_pref_observer_topics">
             [
@@ -95,7 +114,8 @@
             [
                 'buffer_dirty',
                 'language_changed',
-                'encoding_changed'
+                'encoding_changed',
+                'editUseLinting',
             ]
         </field>
 
@@ -138,6 +158,7 @@
             // new objects will be recreated on request
             this.item = null;
             this.lintBuffer = null;
+            this.lintingEnabled = false;
             this.isCICitadelStuffEnabled = false;
             this.isCIXMLStuffEnabled = false;
             this.isCICplnEnabled = false;
@@ -187,9 +208,8 @@
                     ko.uilayout.updateTitlebar(this);
                 }
 
-                if (!ko.views.manager.batchMode &&
-                    this.lintBuffer &&
-                    this.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting")) {
+                this.lintingEnabled = this.prefs.getBooleanPref("editUseLinting");
+                if (!ko.views.manager.batchMode && this.lintBuffer) {
                     this.lintBuffer.request("reset the view's document");
                     this._everLinted = true;
                 }
@@ -481,11 +501,7 @@
         <body>
         <![CDATA[
             try {
-                if (this.koDoc &&
-                    !ko.views.manager.batchMode &&
-                    !this._everLinted &&
-                    this.lintBuffer &&
-                    this.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting")) {
+                if (!ko.views.manager.batchMode && !this._everLinted && this.lintBuffer) {
                     this.lintBuffer.request("focussing view and have not yet linted");
                     this._everLinted = true;
                 }
@@ -564,11 +580,12 @@
                 this.commandCompletionSvc = null;
                 this._languageObj = null;
                 if (this == ko.views.manager.currentView) {
-                    if (this.lintBuffer && this.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting")) {
+                    if (this.lintBuffer) {
                         //XXX What if the language of a view other than the
                         //    current is changed (not possible in Komodo
                         //    right now?). This will not re-lint in that case.
                         this.lintBuffer.request("language changed");
+                        this._everLinted = true;
                     }
                     xtk.domutils.fireEvent(this, 'current_view_language_changed');
                     this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
@@ -603,6 +620,14 @@
                 // got notification from document, update the statusbar
                 if (this.isCurrent) {
                     xtk.domutils.fireEvent(window, 'current_view_encoding_changed');
+                }
+                break;
+            case 'editUseLinting':
+                this.lintBuffer = null;
+                this.lintingEnabled = this.prefs.getBooleanPref("editUseLinting");
+                if (this.lintBuffer) {
+                    this.lintBuffer.request("linting preference enabled");
+                    this._everLinted = true;
                 }
                 break;
             case 'ySlop':
