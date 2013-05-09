@@ -1699,6 +1699,12 @@ def _disablePythonUserSiteFeature(site_filepath):
     assert "ENABLE_USER_SITE = None" in contents
     contents = contents.replace("ENABLE_USER_SITE = None",
                                 "ENABLE_USER_SITE = False")
+
+    # Disable system site-packages on the Mac - bug 98957.
+    if sys.platform == "darwin":
+        assert contents.count('if sys.platform == "darwin":') == 1
+        contents = contents.replace('if sys.platform == "darwin":', 'if 0: # disabled for KOMODO')
+
     file(site_filepath, "wb").write(contents)
 
 
