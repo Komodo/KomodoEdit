@@ -625,12 +625,13 @@ viewMgrClass.prototype = {
         this.complainIfNotAContainer = true;  // used for internal logging only
         var dt = event.dataTransfer;
         var uri, lim = uris.length;
+        var currentPlaceIsLocal = ko.places.manager.currentPlaceIsLocal;
         for (var i = 0; i < lim && (uri = uris[i]); i++) {
-            if (this.currentPlaceIsLocal) {
+            if (currentPlaceIsLocal) {
                 // Do this for drag/drop onto things like file managers.
                 var nsLocalFile = Components.classes["@mozilla.org/file/local;1"]
                     .createInstance(Components.interfaces.nsILocalFile);
-                path = ko.uriparse.URIToLocalPath(uri);
+                var path = ko.uriparse.URIToLocalPath(uri);
                 nsLocalFile.initWithPath(path);
                 dt.mozSetDataAt("application/x-moz-file", nsLocalFile, i);
                 dt.mozSetDataAt("text/x-moz-url", uri, i);
@@ -684,14 +685,20 @@ viewMgrClass.prototype = {
         var inDragSource = ko.places.manager.currentPlace && this._checkDragSource(event);
         if (inDragSource) {
             var dt = event.dataTransfer;
+            var currentPlace = ko.places.manager.currentPlace;
             for (var i = 0; i < dt.mozItemCount; i++) {
-                if (dt.mozGetDataAt("text/uri-list", i) == this.currentPlace) {
+                if (dt.mozGetDataAt("text/uri-list", i) == currentPlace) {
                     inDragSource = false;
                     break;
                 }
             }
         }
-        event.dataTransfer.effectAllowed = inDragSource ? this.originalEffect : "none";
+        if (inDragSource) {
+            event.dataTransfer.effectAllowed = this.originalEffect;
+            event.preventDefault();
+        } else {
+            event.dataTransfer.effectAllowed = "none";
+        }
         
     },
     _checkDrag: function(event) {
@@ -706,6 +713,7 @@ viewMgrClass.prototype = {
         }
         if (event.dataTransfer) {
             event.dataTransfer.effectAllowed = "copyMove";
+            event.preventDefault();
         } else {
             log.debug("_checkDrag: no event.dataTransfer");
         }
