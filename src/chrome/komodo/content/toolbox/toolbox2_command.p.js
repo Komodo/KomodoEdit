@@ -1110,6 +1110,11 @@ this._currentRow = function(event, tree) {
     return row.value;
 };
 
+this.doDragDefault = function(event) {
+    event.preventDefault();
+    return true;
+};
+
 this.doDrop = function(event, tree) {
     var index = this._currentRow(event, this.manager.widgets.tree);
     // Here we have to verify what we're doing.
