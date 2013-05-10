@@ -47,12 +47,15 @@ Import(
     'mozSrc',
     'mozDevelDist',
     'mozObjDir',
+    'mozBin',
     'platform',
     'architecture',
     'buildType',
     'supportDir',
     'withSymbols',
     'unsiloedPerlExe',
+    'unsiloedPythonExe',
+    'mozVersion',
     'mozVersionNumber',
     'mozDist',
     'sdkDir',
@@ -85,7 +88,7 @@ if ($platform eq "win") {
 
     $CXXFLAGS .= ' -I./include';
     $CXXFLAGS .= ' -I./include/private';
-    $LDFLAGS .= " xpcom.lib nspr4.lib xpcom_core.lib ";
+    $LDFLAGS .= " xpcom.lib nspr4.lib ";
     $LDFLAGS .= " /dll";
     $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 -DMOZILLA_INTERNAL_API=1 ";
     $CXXFLAGS .= " -D_IMPL_NS_LAYOUT -DMOZ_VERSION=$mozVersionNumber";
@@ -127,7 +130,7 @@ else {
 
     $consLocal{'CXX'} = "g++";
     $consLocal{'CC'} = "gcc";
-    $consLocal{'LIBS'} = "-lxpcom -lnspr4 -lplds4 -lplc4 -lxpcom_core ";
+    $consLocal{'LIBS'} = "-lxpcom -lnspr4 -lplds4 -lplc4 ";
     if ($platform eq "darwin") {
 	$consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
 	$consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";

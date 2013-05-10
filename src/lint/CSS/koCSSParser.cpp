@@ -36,27 +36,25 @@
 #include "nsXPCOM.h"
 #include "nsCOMPtr.h"
 
-#if MOZ_VERSION < 199
-  #include "nsIGenericFactory.h"
-#else
-#endif
-
 #include "nsILocalFile.h"
 #include "nsNetUtil.h"
 
 #include "nsContentCID.h"
 #include "koICSSParser.h"
 
-#if MOZ_VERSION < 199
-  #include "nsICSSLoader.h"
-  #include "nsICSSStyleSheet.h"
-#else
-  #include "mozilla/css/Loader.h"
-  #include "nsCSSStyleSheet.h"
-#endif
+#include "mozilla/css/Loader.h"
+#include "nsCSSStyleSheet.h"
 
-static NS_DEFINE_CID(kCSSLoaderCID, NS_CSS_LOADER_CID);
+#include "mozilla/ModuleUtils.h"
 
+
+// {7D82F06D-CF2D-11DA-AE2F-000D935D3368}
+#define KO_CSSPARSER_CID \
+{ 0x7D82F06D, 0xCF2D, 0x11DA, { 0xAE, 0x2F, 0x00, 0x0D, 0x93, 0x5D, 0x33, 0x68 } }
+#define KO_CSSPARSER_CONTRACTID "@activestate.com/koCSSParser;1"
+
+static NS_DEFINE_CID(kCSSLoaderCID, KO_CSSPARSER_CID);
+NS_DEFINE_NAMED_CID(KO_CSSPARSER_CID);
 
 
 class koCSSParser : public koICSSParser
@@ -84,32 +82,27 @@ static already_AddRefed<nsIURI>
 FileToURI(const char *aFilename, nsresult *aRv = 0)
 {
     nsCOMPtr<nsILocalFile> lf(do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, aRv));
-    NS_ENSURE_TRUE(lf, nsnull);
+    NS_ENSURE_TRUE(lf, nullptr);
     // XXX Handle relative paths somehow.
     lf->InitWithNativePath(nsDependentCString(aFilename));
 
-    nsIURI *uri = nsnull;
+    nsIURI *uri = nullptr;
     nsresult rv = NS_NewFileURI(&uri, lf);
     if (aRv)
         *aRv = rv;
     return uri;
 }
 
-#if MOZ_VERSION < 199
 NS_IMETHODIMP koCSSParser::ParseFile(const char *filename)
 {
-    nsCOMPtr<nsICSSLoader> loader(do_CreateInstance(kCSSLoaderCID));
-    nsCOMPtr<nsICSSStyleSheet> sheet;
+    nsRefPtr<mozilla::css::Loader> loader = new mozilla::css::Loader();
+    nsRefPtr<nsCSSStyleSheet> sheet;
     nsresult rv;
     nsCOMPtr<nsIURI> aSheetURI = FileToURI(filename, &rv);
     if (!aSheetURI) {
       return NS_ERROR_FILE_NOT_FOUND;
     }
-#if MOZ_VERSION < 190
-    loader->LoadAgentSheet(aSheetURI, getter_AddRefs(sheet));
-#else
     loader->LoadSheetSync(aSheetURI, getter_AddRefs(sheet));
-#endif
     NS_ASSERTION(sheet, "sheet load failed");
     /* This can happen if the file can't be found (e.g. you
      * ask for a relative path and xpcom/io rejects it)
@@ -117,63 +110,32 @@ NS_IMETHODIMP koCSSParser::ParseFile(const char *filename)
     if (!sheet) {
         return NS_ERROR_FILE_NOT_FOUND;
     }
-    PRBool complete;
-    sheet->GetComplete(complete);
-    NS_ASSERTION(complete, "synchronous load did not complete");
-    if (!complete) {
-        return NS_ERROR_UNEXPECTED;
-    }
     return NS_OK;
 }
-#else
-NS_IMETHODIMP koCSSParser::ParseFile(const char *filename)
-{
-    nsCOMPtr<nsICSSLoader> loader(do_CreateInstance(kCSSLoaderCID));
-    nsCOMPtr<nsICSSStyleSheet> sheet;
-    nsresult rv;
-    nsCOMPtr<nsIURI> aSheetURI = FileToURI(filename, &rv);
-    if (!aSheetURI) {
-      return NS_ERROR_FILE_NOT_FOUND;
-    }
-#if MOZ_VERSION < 190
-    loader->LoadAgentSheet(aSheetURI, getter_AddRefs(sheet));
-#else
-    loader->LoadSheetSync(aSheetURI, getter_AddRefs(sheet));
-#endif
-    NS_ASSERTION(sheet, "sheet load failed");
-    /* This can happen if the file can't be found (e.g. you
-     * ask for a relative path and xpcom/io rejects it)
-     */
-    if (!sheet) {
-        return NS_ERROR_FILE_NOT_FOUND;
-    }
-    PRBool complete;
-    sheet->GetComplete(complete);
-    NS_ASSERTION(complete, "synchronous load did not complete");
-    if (!complete) {
-        return NS_ERROR_UNEXPECTED;
-    }
-    return NS_OK;
-}
-#endif
-
-// {7D82F06D-CF2D-11DA-AE2F-000D935D3368}
-#define KO_CSSPARSER_CID \
-{ 0x7D82F06D, 0xCF2D, 0x11DA, { 0xAE, 0x2F, 0x00, 0x0D, 0x93, 0x5D, 0x33, 0x68 } }
-#define KO_CSSPARSER_CONTRACTID "@activestate.com/koCSSParser;1"
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(koCSSParser)
 
-static nsModuleComponentInfo components[] =
-{
-  { 
-    "Komodo CSS Parser",
-    KO_CSSPARSER_CID,
-    KO_CSSPARSER_CONTRACTID,
-    koCSSParserConstructor,
-    NULL, // RegistrationProc /* NULL if you dont need one */,
-    NULL // UnregistrationProc /* NULL if you dont need one */
-  }
+static const mozilla::Module::CIDEntry kModuleCIDs[] = {
+    { &kKO_CSSPARSER_CID, true, NULL, koCSSParserConstructor },
+    { NULL }
 };
 
-NS_IMPL_NSGETMODULE("koCSSParserModule", components)
+static const mozilla::Module::ContractIDEntry kModuleContracts[] = {
+    { KO_CSSPARSER_CONTRACTID, &kKO_CSSPARSER_CID },
+    { NULL }
+};
+
+static const mozilla::Module::CategoryEntry kModuleCategories[] = {
+    { NULL }
+};
+
+static const mozilla::Module kModule = {
+    mozilla::Module::kVersion,
+    kModuleCIDs,
+    kModuleContracts,
+    kModuleCategories
+};
+
+// The following line implements the one-and-only "NSModule" symbol exported from this
+// shared library.
+NSMODULE_DEFN(koCSSParserModule) = &kModule;

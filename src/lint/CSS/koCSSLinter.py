@@ -51,9 +51,9 @@ log = logging.getLogger("koCSSLinter")
 class KoCSSLinter:
     _com_interfaces_ = [components.interfaces.koILinter,
                         components.interfaces.nsIConsoleListener]
-    _reg_desc_ = "Komodo CSS Linter"
+    _reg_desc_ = "Komodo Mozilla CSS Linter"
     _reg_clsid_ = "{F770CBE7-2AAF-492C-8900-CC512CAF5046}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=CSS;1"
+    _reg_contractid_ = "@activestate.com/koLinter?language=CSS-Mozilla;1"
     _reg_categories_ = [
          ("category-komodo-linter", 'CSS'),
          ]
