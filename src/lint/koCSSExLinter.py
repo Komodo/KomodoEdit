@@ -168,7 +168,7 @@ class KoSassLinter(KoSCSSCommonLinter):
 class KoLessLinter(KoCSSLinter):
     _com_interfaces_ = [components.interfaces.koILinter,
                         components.interfaces.nsIConsoleListener]
-    _reg_desc_ = "Komodo CSS Linter"
+    _reg_desc_ = "Komodo Less Linter"
     _reg_clsid_ = "{e499324f-e35b-48ec-86fe-618c7f54f013}"
     
     _reg_contractid_ = "@activestate.com/koLinter?language=Less;1"
