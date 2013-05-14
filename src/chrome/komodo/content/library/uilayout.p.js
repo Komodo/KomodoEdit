@@ -608,9 +608,6 @@ this.togglePane = function uilayout_togglePane(paneId, force)
                 // view, and doesn't adjust the document's scroll.
                 setTimeout(function(selectedTabItem) {
                     scimoz.scrollCaret();
-                    if (selectedTabItem) {
-                        selectedTabItem.focus();
-                    }
                 }, 100, pane.selectedTab);
             }
         } else {
