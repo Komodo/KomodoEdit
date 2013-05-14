@@ -272,17 +272,19 @@ this.endSession = function RunOutput_EndSession(retval)
 
 /**
  * Show the command output window.
- *    "editor" is the XUL window holding the command output window.
- *    "showParseOutputList" is a boolean indicating whether to show the
- *        tree parsed output list.
+ *
+ * @param {Object} editor  The XUL window holding the command output window.
+ * @param {bool} showParseOutputList  Indicated whether to show the
+ *                                    parsed output list view.
+ * @param {bool} focusPane  Whether focus is changed to the command output pane.
  */
-this.show = function RunOutput_Show(editor, showParsedOutputList)
+this.show = function RunOutput_Show(editor, showParsedOutputList, focusPane)
 {
     if (!editor) {
         _log.error("show: 'editor' is not true");
     }
     // Make sure the tab is visible
-    ko.uilayout.ensureTabShown(window.frameElement.id, true);
+    ko.uilayout.ensureTabShown(window.frameElement.id, focusPane);
 
     // open the proper command output view
     _SetView(editor, showParsedOutputList);

@@ -593,15 +593,6 @@ try {
         editor.ko.macros.recorder.appendCode(runtxt);
     }
 
-    // Put focus back on previous view. SciMoz's undo action stuff requires
-    // this and even if not inserting output, it is nice to have focus back in
-    // the file being editted.
-    if (view) {
-        // Focus must be done in a timeout, otherwise the command output will
-        // get focused instead - bug 98414.
-        setTimeout(function(v) { v.setFocus(); }, 1, view);
-    }
-
     // Insert the returned output if requested and select it.
     if (insertOutput && view && output) {
         scimoz.targetStart = Math.min(scimoz.anchor, scimoz.currentPos);
