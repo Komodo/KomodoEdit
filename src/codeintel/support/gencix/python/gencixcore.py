@@ -28,9 +28,11 @@ except ImportError:
 
 import sys, time, os
 _gIsPy3 = True
+_gLanguage = "Python3"
 if sys.version_info < (3, ):
     import __builtin__
     _gIsPy3 = False
+    _gLanguage = "Python"
 from pydoc import visiblename, classname, _split_list, isdata, ispackage, getdoc
 import re
 from parsedocs import parseDocSummary, parsePyFuncDoc
@@ -308,7 +310,7 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
         except ImportError:
             ex = sys.exc_info()[1]
             cixfile = SubElement(root, "file",
-                                 lang="Python",
+                                 lang=_gLanguage,
                                  mtime=str(int(time.time())),
                                  path=os.path.basename(modinfo[1]),
                                  error=str(ex))
@@ -333,14 +335,14 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
         filename = '(built-in)'
     if usefile:
         cixfile = SubElement(root, "file",
-                             lang="Python",
+                             lang=_gLanguage,
                              mtime=str(int(time.time())),
                              path=os.path.basename(filename))
     else:
         cixfile = root
     module = obj
     doc = getsdoc(obj) or None
-    moduleElt = SubElement(cixfile, "scope", ilk="blob", name=name, lang="Python")
+    moduleElt = SubElement(cixfile, "scope", ilk="blob", name=name, lang=_gLanguage)
     if doc: moduleElt.set('doc', doc)
     skips = module_skips.get(name, [])
     callables = {}
