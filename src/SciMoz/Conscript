@@ -425,11 +425,6 @@ if ($platform eq "win") {
     }
     $dllName = 'koSciDoc.dll';
 
-    if ($mozVersionNumber le 699) {
-        # See discussion above for same option for nsSciMoz.cxx build.
-        $CXXFLAGS .= " -Zc:wchar_t-";
-    }
-
     $cons->Command($dllName,
         "nsSciDoc.cxx",
         "ISciDoc.idl",
@@ -469,7 +464,7 @@ else {
     }
     $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -Wno-non-virtual-dtor -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
-    if ($platform eq "darwin" or $mozVersionNumber le 699) {
+    if ($platform eq "darwin") {
 	$consLocal{'CXXFLAGS'} .= " -fshort-wchar";
     } else {
 	# TODO: Some versions may not support this - get CXXFLAGS from Moz build?
