@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+<assemblyIdentity
+        version="1.0.0.0"
+        processorArchitecture="*"
+        name="Komodo"
+        type="win32" />
+<description>ActiveState Komodo</description>
+
+<!-- This will be needed, e.g., for a vc8 build. See
+     "src/main/xre/app/komodo.exe.p.manifest" in the Komodo source tree.
+<dependency>
+  <dependentAssembly>
+    <assemblyIdentity type="win32" name="Microsoft.VC80.CRT" version="8.0.50727.762" processorArchitecture="x86" publicKeyToken="1fc8b3b9a1e18e3b" />
+  </dependentAssembly>
+</dependency>
+-->
+
+<dependency>
+  <dependentAssembly>
+    <assemblyIdentity
+      type="win32"
+      name="Microsoft.Windows.Common-Controls"
+      version="6.0.0.0"
+      processorArchitecture="*"
+      publicKeyToken="6595b64144ccf1df"
+      language="*" />
+  </dependentAssembly>
+</dependency>
+
+</assembly>
