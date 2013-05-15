@@ -875,6 +875,7 @@ def target_configure(argv):
             ----------  ----------------------  ------  ------  ----------
             700         FIREFOX_7_0_0_RELEASE   7.0.X   7.0.X   7.00
             1800        FIREFOX_18_0_0_RELEASE  8.0.X  18.0.X   18.00
+            2400        FIREFOX_24_0_0_RELEASE  8.1.X  24.0.X   24.00
 
     Other Options:
         -r, --reconfigure
@@ -1251,9 +1252,6 @@ def target_configure(argv):
             mozRawOptions.append('export CXX="%s -arch x86_64"' % (gxx,))
             mozBuildOptions.append('target=x86_64-apple-darwin10')
             mozRawOptions.append("mk_add_options AUTOCONF=autoconf213")
-        if not is_gcc and "clang" in version_string:
-            if mozVer < 18:  # dropped mac support of this feature in moz 18
-                mozBuildOptions.append('enable-stdcxx-compat')
         config["gcc"] = gcc
         config["gxx"] = gxx
 
@@ -2416,26 +2414,6 @@ def target_komodoapp(argv=["komodoapp"]):
     _run_in_dir(_get_make_command(config, topsrcdir), komodo_objdir, log.info)
     return argv[1:]
 
-def target_pluginsdk(argv=["mozilla"]):
-    # Build the plugin toolkit seperately
-    # (Komodo's SciMoz build depends on the plugingate_s.lib from
-    # make'ing in $mozObjDir\modules\plugin\tools\sdk\samples\common).
-    config = _importConfig()
-    _setupMozillaEnv()
-    topsrcdir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
-    native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
-    if config.mozVer >= 5.0:
-        # Nothing to do - Komodo uses npapi sdk from google code.
-        return argv[1:]
-    else:
-        pluginDir = os.path.join(native_objdir, 'modules', 'plugin', 'sdk')
-    log.info("entering directory '%s' (to build plugin separately)",
-             pluginDir)
-    _run_in_dir(_get_make_command(config, topsrcdir), pluginDir, log.info)
-
-    return argv[1:]
-
-
 def target_mbsdiff(argv=["mozilla"]):
     """Build mbsdiff module needed for building update .mar packages."""
     config = _importConfig()
@@ -2480,7 +2458,6 @@ def target_all(argv):
     target_patch_komodo()
     target_configure_mozilla()
     target_mozilla()
-    target_pluginsdk()
     target_mbsdiff()
     target_libmar()
     target_pyxpcom()
