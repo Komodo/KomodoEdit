@@ -348,7 +348,7 @@ NS_IMETHODIMP SciDoc::DeleteChars(PRInt32 pos, PRInt32 len, bool *_retval)
 NS_IMETHODIMP SciDoc::InsertString(PRInt32 position, const PRUnichar *s, bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
-    nsCAutoString text = NS_ConvertUTF16toUTF8(s);
+    nsAutoCString text = NS_ConvertUTF16toUTF8(s);
     *_retval = documentPointer->InsertString(position,
                                              reinterpret_cast<const char *>(text.get()),
                                              text.Length());
@@ -495,7 +495,7 @@ NS_IMETHODIMP SciDoc::Indent(bool forwards, PRInt32 lineBottom, PRInt32 lineTop)
 NS_IMETHODIMP SciDoc::TransformLineEnds(const PRUnichar *s, PRInt32 eolMode, PRUnichar **_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
-    nsCAutoString text = NS_ConvertUTF16toUTF8(s);
+    nsAutoCString text = NS_ConvertUTF16toUTF8(s);
     int lenOut = 0;
     char *buffer = documentPointer->TransformLineEnds(&lenOut,
                                              reinterpret_cast<const char *>(text.get()),
@@ -817,7 +817,7 @@ NS_IMETHODIMP SciDoc::FindText(PRInt32 minPos, PRInt32 maxPos,
                                bool posix, PRInt32 *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
-    nsCAutoString text = NS_ConvertUTF16toUTF8(s);
+    nsAutoCString text = NS_ConvertUTF16toUTF8(s);
     int length = text.Length();
     CaseFolderTable cf;
     *_retval = documentPointer->FindText(minPos, maxPos, reinterpret_cast<const char *>(text.get()),
@@ -829,7 +829,7 @@ NS_IMETHODIMP SciDoc::FindText(PRInt32 minPos, PRInt32 maxPos,
 NS_IMETHODIMP SciDoc::SubstituteByPosition(const PRUnichar *s, PRUnichar **_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
-    nsCAutoString text = NS_ConvertUTF16toUTF8(s);
+    nsAutoCString text = NS_ConvertUTF16toUTF8(s);
     int length = text.Length();
     const char *buffer = documentPointer->SubstituteByPosition(reinterpret_cast<const char *>(text.get()), &length);
     if (documentPointer->dbcsCodePage == 0) {

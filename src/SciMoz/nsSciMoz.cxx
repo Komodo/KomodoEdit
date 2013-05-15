@@ -1387,7 +1387,7 @@ bool SciMoz::GetWCharAt(const NPVariant *args, uint32_t argCount, NPVariant *res
 }
 
 NS_IMETHODIMP SciMoz::ConvertUTF16StringSendMessage(int message, PRInt32 length, const PRUnichar *text, PRInt32  *_retval) {
-	nsCAutoString utf8Text;
+	nsAutoCString utf8Text;
 	if (length == -1) {
 		utf8Text = NS_ConvertUTF16toUTF8(text);
 	} else {
