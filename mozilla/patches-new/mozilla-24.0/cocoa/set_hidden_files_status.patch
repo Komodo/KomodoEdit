@@ -53,11 +53,15 @@ diff -r 6db116c397b1 widget/cocoa/nsFilePicker.mm
  
    NS_OBJC_END_TRY_ABORT_BLOCK;
  }
-@@ -339,7 +313,21 @@
+@@ -338,16 +338,32 @@
+     [observer setOpenPanel:thePanel];
+     [observer setFilePicker:this];
+ 
+     [[NSNotificationCenter defaultCenter]
+       addObserver:observer
        selector:@selector(menuChangedItem:)
        name:NSMenuWillSendActionNotification object:nil];
  
--    [thePanel setDirectoryURL:[[NSURL alloc] initWithString:theDir]];
 +    bool treatAsPath;
 +    if ([theDir length] == 0) {
 +      treatAsPath = false;
@@ -73,6 +77,12 @@ diff -r 6db116c397b1 widget/cocoa/nsFilePicker.mm
 +                     ? [NSURL fileURLWithPath:theDir]
 +                     : [[[NSURL alloc] initWithString:theDir] autorelease]);
 +    [thePanel setDirectoryURL:theURL];
++
      UpdatePanelFileTypes(thePanel, filters);
      result = [thePanel runModal];
  
+     [[NSNotificationCenter defaultCenter] removeObserver:observer];
+     [observer release];
+   } else {
+     // If we show all file types, also "expose" bundles' contents.
+     if (!filters) {
