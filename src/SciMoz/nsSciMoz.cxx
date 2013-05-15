@@ -55,19 +55,6 @@ using namespace Scintilla;
 #endif
 #endif
 
-// XXX Mook hack to avoid including the internal string api
-#define nsString_h___
-
-// IME support
-#include "nsIPrivateTextEvent.h"
-#include "nsIPrivateTextRange.h"
-#include "nsGUIEvent.h"
-#if 0
-#include "nsUnitConversion.h"
-#include "nsIDeviceContext.h"
-#endif
-// -- IME support
-
 #ifdef SCIMOZ_DEBUG
 	#define SCIMOZ_DEBUG_PRINTF(...) fprintf(stderr, __VA_ARGS__)
 #else
