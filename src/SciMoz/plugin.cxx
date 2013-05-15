@@ -388,7 +388,10 @@ SciMozPluginInstance::SetWindow(NPWindow* window)
     *	info to the previous window (if any) to note window
     *	size changes, etc.
     */
-    return scimozInstance->PlatformSetWindow(window);
+    if (!NS_SUCCEEDED(scimozInstance->PlatformSetWindow(window))) {
+        return NPERR_INVALID_PLUGIN_ERROR;
+    }
+    return NPERR_NO_ERROR;
 }
 
 uint16_t
