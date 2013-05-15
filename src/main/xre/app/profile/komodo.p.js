@@ -122,7 +122,7 @@ pref("keyword.enabled", true);
 
 pref("general.useragent.locale", "@AB_CD@");
 pref("general.skins.selectedSkin", "classic/1.0");
-pref("general.useragent.extra.firefox", "@APP_UA_NAME@/@APP_VERSION@");
+pref("general.useragent.extra.firefox", "@MOZ_APP_UA_NAME@/@APP_VERSION@");
 
 #ifndef XP_WIN
 // Show hidden files in the file picker; bug 81075
