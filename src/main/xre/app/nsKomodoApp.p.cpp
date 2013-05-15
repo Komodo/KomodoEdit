@@ -343,7 +343,6 @@ int main(int argc, char* argv[])
     result = do_main(exePath, argc, argv);
   }
 
-  XPCOMGlueShutdown();
   return result;
 }
 
