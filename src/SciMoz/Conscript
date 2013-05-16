@@ -149,7 +149,11 @@ if ($platform eq "win") {
 
     %consLocal = $cons->copy();
 
-    my $LDFLAGS = $consLocal{'LDFLAGS'} . " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xpcom.lib nspr4.lib mozalloc.lib";
+    if ($mozVersionNumber le 1899) {
+	my $LDFLAGS = $consLocal{'LDFLAGS'} . " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xpcom.lib nspr4.lib mozalloc.lib";
+    } else {
+	my $LDFLAGS = $consLocal{'LDFLAGS'} . " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xul.lib nspr4.lib mozalloc.lib";
+    }
     foreach my $libDir (split(';', $mozLibPath)) {
         $LDFLAGS .= " /libpath:$libDir";
     }
@@ -221,7 +225,11 @@ elsif ($platform eq "darwin") {
     $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
 #    $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
     $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozBin";
-    $consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a -lxpcom -lnspr4 -lmozalloc ";
+    if ($mozVersionNumber le 1899) {
+	$consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a -lxpcom -lnspr4 -lmozalloc ";
+    } else {
+	$consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a -lxul -lnspr4 -lmozalloc ";
+    }
     # add required frameworks
     $consLocal{'LIBS'} .= "-framework Carbon -framework CoreFoundation ";
     # scintilla
@@ -318,7 +326,11 @@ else {
     # PCRE is built from contrib/pcre and is required by LexUDL.
     $consLocal{'LIBS'} .= " $xScintillaBuildDir/gtk/libpcre.a";
     $consLocal{'LIBS'} .= " `pkg-config --libs gthread-2.0 gtk+-2.0 gmodule-no-export-2.0`";
-    $consLocal{'LIBS'} .= " -lxpcomglue_s -lxpcom -lmozalloc -lplds4 -lplc4 -lnspr4 ";
+    if ($mozVersionNumber le 1899) {
+	$consLocal{'LIBS'} .= " -lxpcomglue_s -lxpcom -lmozalloc -lplds4 -lplc4 -lnspr4 ";
+    } else {
+	$consLocal{'LIBS'} .= " -lxpcomglue_s -lxul -lmozalloc -lplds4 -lplc4 -lnspr4 ";
+    }
     $consLocal{'LDFLAGS'} = " -fPIC -Wl,-z,defs -shared";
 
     $consLocal{'CPPPATH'} = "$mozIncludePath:$scintillaBuildDir/include";
@@ -409,7 +421,11 @@ if ($platform eq "win") {
     $CXXFLAGS .= ' -I./include/private';
     $CXXFLAGS .= ' -DMOZ_NO_MOZALLOC';
     $LDFLAGS .= " xpcomglue_s_nomozalloc.lib";
-    $LDFLAGS .= " xpcom.lib nspr4.lib SciLexer.lib ";
+    if ($mozVersionNumber le 1899) {
+	$LDFLAGS .= " xpcom.lib nspr4.lib SciLexer.lib ";
+    } else {
+	$LDFLAGS .= " xul.lib nspr4.lib SciLexer.lib ";
+    }
     $LDFLAGS .= " /dll";
     $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 ";
     $CXXFLAGS .= " -D_IMPL_NS_LAYOUT -DMOZ_VERSION=$mozVersionNumber";
@@ -448,7 +464,11 @@ else {
                             " -DMOZ_VERSION=$mozVersionNumber ";
 
     $consLocal{'LIBS'} = "-lxpcomglue_s ";
-    $consLocal{'LIBS'} .= "-bundle -lxpcomglue_s -lxpcom -lnspr4 -lplc4 -lplds4 -lscintilla -lmozalloc ";
+    if ($mozVersionNumber le 1899) {
+	$consLocal{'LIBS'} .= "-bundle -lxpcomglue_s -lxpcom -lnspr4 -lplc4 -lplds4 -lscintilla -lmozalloc ";
+    } else {
+	$consLocal{'LIBS'} .= "-bundle -lxpcomglue_s -lxul -lnspr4 -lplc4 -lplds4 -lscintilla -lmozalloc ";
+    }
     if ($platform eq "darwin") {
         $consLocal{'LDFLAGS'} = "-framework Carbon -bundle";
         $consLocal{'CXXFLAGS'} .= " -DMACOSX=1 -DXP_MACOSX=1 -DNO_X11=1 ";
