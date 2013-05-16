@@ -196,18 +196,26 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
         // Allow abbreviations in comments, strings, HTML default,
         // and HTML PIs and cdata sections.
         var useWordBoundary = false;
-        if (currStyle == scimoz.getStyleAt(prevPos)) {
+        let defaultStyles = languageObj.getNamedStyles("default");
+        let isDefaultStyle = defaultStyles.indexOf(currStyle) >= 0;
+        let prevStyle = scimoz.getStyleAt(prevPos);
+        if (isDefaultStyle || currStyle == prevStyle) {
+            // Reopened bug 98154: always look at the previous style,
+            // in case the current one is a default style.
+            currStyle = prevStyle;
             // Normally we expect an abbrev to be in a different style
             // from the current character, but this isn't the case in
             // comments, strings, and a few specific HTML styles.
             if (languageObj.getCommentStyles().indexOf(currStyle) >= 0
                 || languageObj.getStringStyles().indexOf(currStyle) >= 0
-                || languageObj.getNamedStyles("default").indexOf(currStyle) >= 0
+                || defaultStyles.indexOf(currStyle) >= 0
                 || (languageObj.isHTMLLanguage && ([scimoz.SCE_UDL_M_PI,
                                                     scimoz.SCE_UDL_M_CDATA].
                                                    indexOf(currStyle) >= 0))) {
                 useWordBoundary = true;
-            } else {
+            } else if (!isDefaultStyle) {
+                // Bug 98154:  If we aren't on one of the above styles,
+                // and we weren't on a default point, return.
                 return false;
             }
         }
