@@ -97,6 +97,10 @@ function onUnload()
     try {
         if (gSession) {
             gSession.abortSearch();
+            // Cleanup XPCOM references to avoid memory leak - bug 99023.
+            gSession.finalize();
+            gSession = null;
+            gWidgets.results.treeBoxObject.view = null;
         }
     } catch(ex) {
         log.exception(ex, "error unloading gotofile dialog");

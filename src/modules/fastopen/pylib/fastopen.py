@@ -580,7 +580,10 @@ class Driver(threading.Thread):
                 else:
                     resultsView.searchCompleted()
             except:
-                log.error("error signalling end of fastopen search")
+                if aborted:
+                    log.info("error signalling end of fastopen search")
+                else:
+                    log.error("error signalling end of fastopen search")
             request.complete()
             
 

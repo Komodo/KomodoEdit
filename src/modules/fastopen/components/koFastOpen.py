@@ -189,6 +189,17 @@ class KoFastOpenSession(KoFastOpenTreeView):
                 self.obj.setCurrPath(*args)
         self.uiDriver = UIDriverProxy(uiDriver)
 
+    def finalize(self):
+        """Cleanup working variables"""
+        del self.driver
+        del self.uiDriver
+        del self.project
+        del self.views
+        del self.currentPlace
+        del self._gatherers_cache
+        self._rows = []
+        self._tree = None
+
     @LazyProperty
     def _globalPrefs(self):
         return components.classes["@activestate.com/koPrefService;1"].\

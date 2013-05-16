@@ -80,6 +80,9 @@ interface koIFastOpenSession: nsISupports {
     // Abort a current search (if any).
     void abortSearch();
 
+    // Cleanup any working references.
+    void finalize();
+
     // Truncate the path as best as possible, such as relavatizing from the
     // home directory or relavatizing from the base project directory.
     AString relavatizePath(in AString path);
