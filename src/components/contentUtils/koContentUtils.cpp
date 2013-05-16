@@ -17,7 +17,9 @@
 #include "nsIDOMWindow.h"
 
 #include "nsIScriptGlobalObjectOwner.h"
+#if MOZ_VERSION <= 1899
 #include "nsIJSContextStack.h"
+#endif
 
 #include "nsContentCID.h"
 #include "koIContentUtils.h"
@@ -33,7 +35,9 @@
 
 static NS_DEFINE_CID(kContentUtilsCID, KO_CONTENT_UTILS_CID);
 
+#if MOZ_VERSION <= 1899
 static const char kJSStackContractID[] = "@mozilla.org/js/xpc/ContextStack;1";
+#endif
 
 
 class koContentUtils : public koIContentUtils
@@ -46,10 +50,14 @@ public:
   virtual ~koContentUtils();
   
 private:
+#if MOZ_VERSION <= 1899
+  nsIThreadJSContextStack *sThreadJSContextStack;
+#else
+  nsCOMPtr<nsIXPConnect> mXPConnect;
+#endif
   nsIDOMDocument *GetDocumentFromCaller();
   nsIDocShell *GetDocShellFromCaller();
   nsIScriptGlobalObject *GetStaticScriptGlobal(JSContext* aContext, JSObject* aObj);
-  nsIThreadJSContextStack *sThreadJSContextStack;
   nsIScriptGlobalObject *GetDynamicScriptGlobal(JSContext* aContext);
   nsIScriptContext *GetDynamicScriptContext(JSContext *aContext);
   nsIDOMWindow *GetWindowFromCaller();
@@ -61,7 +69,11 @@ koContentUtils::koContentUtils()
 {
   NS_INIT_ISUPPORTS();
 
+#if MOZ_VERSION <= 1899
   CallGetService(kJSStackContractID, &sThreadJSContextStack);
+#else
+  mXPConnect = do_GetService("@mozilla.org/js/xpc/XPConnect;1");
+#endif
 }
 
 koContentUtils::~koContentUtils()
@@ -130,7 +142,11 @@ nsIDocShell *
 koContentUtils::GetDocShellFromCaller()
 {
   JSContext *cx = nullptr;
+#if MOZ_VERSION <= 1899
   sThreadJSContextStack->Peek(&cx);
+#else
+  cx = mXPConnect->GetCurrentJSContext();
+#endif
 
   if (cx) {
     nsIScriptGlobalObject *sgo = GetDynamicScriptGlobal(cx);
@@ -148,7 +164,11 @@ nsIDOMWindow *
 koContentUtils::GetWindowFromCaller()
 {
   JSContext *cx = nullptr;
+#if MOZ_VERSION <= 1899
   sThreadJSContextStack->Peek(&cx);
+#else
+  cx = mXPConnect->GetCurrentJSContext();
+#endif
 
   if (cx) {
     nsIScriptGlobalObject *sgo = GetDynamicScriptGlobal(cx);
