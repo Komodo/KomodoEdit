@@ -2114,7 +2114,6 @@ def target_src(argv=["src"]):
         os.makedirs(buildDir)
 
     if mozSrcType == "hg":
-        import sys
         supportDir = os.path.abspath("support")
         try:
             sys.path.append(supportDir)
