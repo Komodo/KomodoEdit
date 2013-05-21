@@ -1,6 +1,9 @@
 /* Variables & Helpers */
+@import url("chrome://komodo/skin/_config/icons.less");
 @import url("chrome://komodo/skin/_config/window.less");
 @import url("chrome://komodo/skin/_config/modules.less");
+
+@import url("chrome://komodo/skin/iconset/config.less");
 
 #debuggerPanel > hbox.toolbar-background
 {
@@ -219,4 +222,84 @@ view[type='startpage']
     {
         color: @startpage-color;
     }
+}
+
+/* Breadcrumbs */
+
+#breadcrumbBar
+{
+
+    -moz-appearance: none;
+    border: 0;
+    padding: 0;
+    
+    background: @breadcrumb-bar-background;
+    border-top: @breadcrumb-bar-border;
+
+    &.position-top
+    {
+        border-top: 0;
+        border-bottom: @breadcrumb-bar-border;
+    }
+
+    .breadcrumb
+    {
+        label
+        {
+            color: @breadcrumb-color;
+        }
+
+        &.breadcrumb-file-icon
+        {
+            list-style-image: @icon-breadcrumb-file;
+        }
+
+        &.breadcrumb-folder-icon:not(.project-folder)
+        {
+            list-style-image: @icon-breadcrumb-folder;
+
+            .toolbarbutton-icon.native
+            {
+                list-style-image: @icon-native-folder;
+            }
+        }
+
+        &.breadcrumb-folder-icon.project-folder
+        {
+            list-style-image: @icon-breadcrumb-project;
+
+            .toolbarbutton-icon.native
+            {
+                list-style-image: @icon-project;
+            }
+        }
+
+        &.folder .breadcrumb-arrow
+        {
+            background-image: @icon-breadcrumb-arrow;
+            margin-right: -16px;
+            width: 16px;
+            height: 16px;
+            opacity: 0.6;
+        }
+    }
+
+    &:not(.native-icons) .breadcrumb
+    {
+        .toolbarbutton-icon
+        {
+            opacity: 0.8;
+        }
+    }
+
+    &.native-icons .breadcrumb .toolbarbutton-icon:not(.native)
+    {
+        visibility: collapse;
+    }
+
+    &:not(.native-icons) .breadcrumb .toolbarbutton-icon.native
+    {
+        visibility: collapse;
+    }
+
 }

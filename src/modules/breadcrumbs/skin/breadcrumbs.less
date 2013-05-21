@@ -1,0 +1,84 @@
+#breadcrumbBar
+{
+    overflow: hidden;
+    -moz-appearance: none;
+
+    .breadcrumb
+    {
+        -moz-binding: url("chrome://breadcrumbs/content/bindings/toolbarbutton.xml#toolbarbutton");
+        position: relative;
+
+        margin-left: 6px;
+
+        &:empty
+        {
+            visibility: visible;
+        }
+        
+        &.overflown
+        {
+            -moz-appearance: none;
+            width: 0;
+            height: 0;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+
+            & > :not(menupopup)
+            {
+                visibility: collapse;
+            }
+            /*visibility: collapse;*/
+        }
+
+        &.first-child
+        {
+            margin-left: 4px;
+        }
+
+        .toolbarbutton-icon
+        {
+            margin-right: 4px;
+        }
+
+        menuitem
+        {
+            .menu-iconic-left
+            {
+                visibility: visible; /* Override OS preference */
+            }
+
+            .menu-accel
+            {
+                opacity: 0.6;
+            }
+        }
+    }
+
+    &.is-remote
+    {
+        menuitem[anonid="findInFolder"],
+        menuitem[anonid="fastOpenHere"],
+        menuitem[anonid="showInPlaces"]
+        {
+            visibility: collapse;
+        }
+    }
+
+    #breadcrumbOverflowBtn
+    {
+        dropmarker
+        {
+            visibility: collapse;
+        }
+
+        menuitem
+        {
+            .menu-iconic-left
+            {
+                visibility: visible; /* Override OS preference */
+            }
+        }
+    }
+}
+

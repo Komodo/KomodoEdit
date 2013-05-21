@@ -1,0 +1,12 @@
+# #if MODE == "dev"
+content breadcrumbs content/
+skin breadcrumbs classic/1.0 skin/
+locale breadcrumbs en-US locale/en-US/
+# #else
+content breadcrumbs jar:breadcrumbs.jar!/content/
+skin breadcrumbs classic/1.0 jar:breadcrumbs.jar!/skin/
+locale breadcrumbs en-US jar:breadcrumbs.jar!/locale/en-US/
+# #endif
+
+overlay chrome://komodo/content/komodo.xul chrome://breadcrumbs/content/overlay/komodo.xul
+overlay chrome://komodo/content/bindings/views-tabbed.xml chrome://breadcrumbs/content/overlay/views-tabbed.xml

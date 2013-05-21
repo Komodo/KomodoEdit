@@ -398,6 +398,7 @@ Build(
     "$build/modules/fastopen/Conscript",
     "$build/modules/koextgen/Conscript",
     "$build/modules/places/Conscript",
+    "$build/modules/breadcrumbs/Conscript",
     "$build/modules/openfiles/Conscript",
     "$build/modules/rails/Conscript",
     "$build/modules/spellcheck/Conscript",

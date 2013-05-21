@@ -1,0 +1,7 @@
+<!ENTITY fastopenHere.label "Fast Open Here">
+<!ENTITY findInFolder.label "Find in Folder">
+<!ENTITY showInPlaces.label "Show in Places">
+<!ENTITY reload.label "Reload">
+<!ENTITY filter.placeholder "Filter">
+
+<!ENTITY openCrumbMenu.desc "Breadcrumbs: Open Crumb Menu">

@@ -1537,7 +1537,7 @@ ManagerClass.prototype = {
                                 baseName:baseName,
                                 onSuccess:successFunc});
     },
-    
+
     showCurrentEditorTab: function(forceNewPlaceDir) {
         var view = ko.views.manager.currentView;
         if (!view
@@ -1551,6 +1551,11 @@ ManagerClass.prototype = {
             || !this._schemeIsPlaceable(scheme)) {
             return;
         }
+
+        this.showTreeItemByFile(file.URI, forceNewPlaceDir, view.setFocus.bind(this));
+    },
+
+    showTreeItemByFile: function(URI, forceNewPlaceDir, callback) {
         if (forceNewPlaceDir) {
             ko.uilayout.ensureTabShown("placesViewbox", true);
         }
@@ -1559,13 +1564,12 @@ ManagerClass.prototype = {
             treeSelection.currentIndex = index;
             treeSelection.select(index);
             gPlacesViewMgr.tree.treeBoxObject.ensureRowIsVisible(index);
-            // And make sure the tab keeps the focus.
-            view.setFocus();
+            if (callback) callback();
         };
         var successFunc;
         var findFileFunc = function() {
             var currentPlace = ko.places.manager.currentPlace;
-            var targetURI = file.URI;
+            var targetURI = URI;
             var index = targetURI.indexOf(currentPlace + "/");
             if (index !== 0) {
                 log.error("Expecting to see ["
@@ -1603,7 +1607,7 @@ ManagerClass.prototype = {
             findPiecesFunc(currentPlace, pieces);
         };
         successFunc = function() {
-            var index = gPlacesViewMgr.view.getRowIndexForURI(file.URI);
+            var index = gPlacesViewMgr.view.getRowIndexForURI(URI);
             if (index > -1) {
                 showTreeItem(index);
             } else {
@@ -1612,7 +1616,7 @@ ManagerClass.prototype = {
             // view.scintilla.focus();
         };
         try {
-            var uri = file.URI;
+            var uri = URI;
             var index = uri.lastIndexOf("/");
             if (index == -1) {
                 log.error("Can't find a '/' in uri [" + uri + "]\n");
@@ -1662,8 +1666,8 @@ ManagerClass.prototype = {
                 successFunc();
             }
         } catch(ex) {
-            log.exception("openCurrentFile: failed to open "
-                               + file.URI + ": " + ex)
+            log.exception("showTreeItemByFile: failed to open "
+                               + URI + ": " + ex)
         }
     },
  

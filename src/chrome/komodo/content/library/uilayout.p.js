@@ -194,7 +194,7 @@ this.updateToolbarArrangement = function uilayout_updateToolbarArrangement(butto
         fromloading = true;
     }
     _buttonTextShowing = buttonTextShowing;
-    var toolbars = document.getElementsByTagName('toolbar');
+    var toolbars = document.getElementById('main-toolboxrow').querySelectorAll('toolbar');
     var i;
     for (i = 0; i < toolbars.length; i++ ) {
         // Note: this can include custom toolbars
@@ -623,6 +623,9 @@ this.togglePane = function uilayout_togglePane(paneId, force)
             }
             pane.collapsed = !pane.collapsed;
         }
+
+		// technically the window resized, so fire the appropriate event
+		xtk.domutils.fireEvent(window, "resize");
     } catch (e) {
         _log.exception(e);
     }

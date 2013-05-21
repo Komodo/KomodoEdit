@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2013 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
+  <!ENTITY % bindingsDTD SYSTEM "chrome://komodo/locale/bindings.dtd">
+  %bindingsDTD;
+]>
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <binding id="toolbarbutton" display="xul:button"
+        extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton">
+        <content>
+            <children includes="observes|template|menupopup|panel|tooltip"/>
+            <xul:image class="toolbarbutton-icon" xbl:inherits="validate,src=image,label"/>
+            <xul:image class="toolbarbutton-icon native" xbl:inherits="validate,src=native-image"/>
+            <xul:label class="toolbarbutton-text" crop="right" flex="1" xbl:inherits="value=label,accesskey,crop"/>
+            <xul:box class="breadcrumb-arrow"/>
+        </content>
+    </binding>
+    
+</bindings>

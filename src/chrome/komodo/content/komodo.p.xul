@@ -2131,11 +2131,13 @@
                 <observes element="workspace_left_area" attribute="collapsed"/>
             </splitter>
             <deck id="editorviewbox" flex="1" class="blank-workspace">
-                <view id="topview"
-                      type="multiview"
-                      orient="vertical"
-                      persist="orient"
-                      flex="1"/>
+                <vbox id="editorvbox">
+                    <view id="topview"
+                          type="multiview"
+                          orient="vertical"
+                          persist="orient"
+                          flex="1"/>
+                </vbox>
                 <!-- This is used for capturing user input while slow dialogs
                 (e.g. the find dialog) load. -->
                 <textbox id="hidden-input-buffer" collapsed="true"
