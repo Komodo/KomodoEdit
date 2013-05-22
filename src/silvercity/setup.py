@@ -19,6 +19,17 @@ class komodo_build_ext(build_ext):
                 args = {}
                 args['compiler_so'] = compiler + ' ' + ccshared + ' ' + cflags
                 self.compiler.set_executables(**args)
+        elif sys.platform == "darwin":
+            compiler = os.environ.get('CC')
+            if compiler is not None:
+                import sysconfig
+                (ccshared,cflags) = sysconfig.get_config_vars('CCSHARED','CFLAGS')
+                args = {}
+                # clang does not support the '-std=gnu99' option - so remove it.
+                cflags = cflags.replace('-std=gnu99', '')
+                args['compiler_so'] = compiler + ' ' + ccshared + ' ' + cflags
+                self.compiler.set_executables(**args)
+            
         build_ext.build_extensions(self)
 
 class fixed_install_data(install_data):
