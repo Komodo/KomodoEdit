@@ -1506,6 +1506,8 @@ VimController.prototype.performSearch = function (scimoz, searchString,
         // Vi starts searching from the position after the cursor/currentPos, so
         // remember currentPos then move past the current position.
         var orig_currentPos = scimoz.currentPos;
+        var orig_firstVisibleLine = scimoz.firstVisibleLine;
+        var orig_xOffset = scimoz.xOffset;
         var searchDirection = this._searchDirection;
         if (reverseDirection) {
             searchDirection = Number(!searchDirection);
@@ -1566,6 +1568,10 @@ VimController.prototype.performSearch = function (scimoz, searchString,
                     msg = "No occurrences of '" + searchString + "' were found";
                     // Didn't find anything, ensure we move back to the start position
                     scimoz.currentPos = orig_currentPos;
+                    // Bug 99018: If the original caret was in the caret slop,
+                    // make sure it's still there
+                    scimoz.firstVisibleLine = orig_firstVisibleLine;
+                    scimoz.xOffset = orig_xOffset;
                     break;
                 } else {
                     // The search engine highlights the selection, we don't want this:
