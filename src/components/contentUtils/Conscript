@@ -123,7 +123,7 @@ else {
     if ($mozVersionNumber le 1899) {
 	$consLocal{'LIBS'} .= "-lmozalloc -lxpcomglue_s -lxpcom -lnspr4 ";
     } else {
-	$consLocal{'LIBS'} .= "-lmozalloc -lxpcomglue_s -lxul -lnspr4 ";
+	$consLocal{'LIBS'} .= "-lmozalloc -lxpcomglue_s -lnspr4 ";
     }
     $consLocal{'CXXFLAGS'} .= " -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
