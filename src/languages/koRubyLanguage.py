@@ -170,9 +170,15 @@ class KoRubyLanguage(KoLanguageKeywordBase):
         return self._style_info._variable_styles
 
     def updateLexerVersionProperties(self):
-        version = self.rubyInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Ruby;1"].\
-                  getService(components.interfaces.koIAppInfoEx).version
-        majorVersion, minorVersion = [int(x) for x in version.split(".")[0:2]]
+        try:
+            version = self.rubyInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Ruby;1"].\
+                      getService(components.interfaces.koIAppInfoEx).version
+            majorVersion = int(version.split(".", 1)[0])
+        except ServerException:
+            majorVersion = 1
+        except:
+            majorVersion = 1
+            log.exception("Unexpected exception in KoRubyLanguage.updateLexerVersionProperties")            
         self._lexer.setProperty("supportISymbolArray",
                                 majorVersion >= 2 and "1" or "0")
 
