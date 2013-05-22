@@ -110,6 +110,17 @@ this._display = function(lintBuffer, lintResults) {
         this.doConstrainedUpdate(scimoz, lintResults, lintBuffer);
         var this_ = this;
         var handleScroll = function(event) {
+            // Bug 97965:
+            // Sometimes when text has changed, the coordinates for the
+            // current set of markers are now out-of-date.  The point of
+            // this handler is to show the markers in other viewports,
+            // since we create them on-demand.  But if the text changed,
+            // the markers will sometimes be incorrect.  Better to just
+            // let scintilla shove existing markers around than update
+            // against an older set of markers.
+            if (lintBuffer.recalculatingResults) {
+                return;
+            }
             this_.doConstrainedUpdate(scimoz, lintResults, lintBuffer);
         };
         lintBuffer.handleScroll = handleScroll;

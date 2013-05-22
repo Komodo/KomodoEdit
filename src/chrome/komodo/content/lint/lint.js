@@ -223,6 +223,9 @@ this.lintBuffer = function LintBuffer(view) {
         this._lintClearOnTextChange = effectivePrefs.getBooleanPref("lintClearOnTextChange");
         this.lintResults = null;
         this.errorString = null;
+        // Bug 97965: Let the displayer know when we're recalculating
+        // the current set of lint markers.
+        this.recalculatingResults = false;
         this._lastRequestId = 0; // used to ensure only the last request is used
         this._lastTimeoutId = 0;
         // this._lastTimeoutId is always set to the current setTimeout function
@@ -370,6 +373,15 @@ this.lintBuffer.prototype.request = function(reason /* = "" */)
         //dump("<< lintBuffer.request, !this.lintingEnabled\n");
         return;
     }
+    if (!this._lastTimeoutId) {
+        // Bug 97965: don't update markers until a new set is created.
+        this.recalculatingResults = true;
+        if (this._lintClearOnTextChange || reason == "language changed") {
+            // Bug 97965: clear the markers at the start of an editing session,
+            // not when the new set of markers are ready.
+            this._clearResults();
+        }
+    }
     // clearTimeout ignores timeout ID 0
     clearTimeout(this._lastTimeoutId);
     this._lastTimeoutId = setTimeout(this._continueRequest.bind(this),
@@ -389,9 +401,6 @@ this.lintBuffer.prototype._continueRequest = function(reason /* = "" */) {
     try {
         _lintSvc.cancelPendingRequests(this.view.uid);
         ko.lint.displayer.cancelPendingItems(this);
-        if (this._lintClearOnTextChange || reason == "language changed") {
-            this._clearResults();
-        }
 
         this._notify();
         this._issueRequest();
@@ -417,6 +426,7 @@ this.lintBuffer.prototype.reportResults = function(request)
             this.errorString = request.errorString;
             if (this.lintResults) {
                 ko.lint.displayer.display(this, this.lintResults);
+                this.recalculatingResults = false;
             }
             if (this.view == ko.views.manager.currentView) {
                 xtk.domutils.fireEvent(window, "current_view_lint_results_done");
