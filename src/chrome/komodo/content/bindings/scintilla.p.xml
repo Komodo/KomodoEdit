@@ -981,10 +981,17 @@
                         break;
                     case event.DOM_VK_TAB:
                         if (scimoz.selectionIsRectangle) {
-                            if (event.shiftKey) {
-                                scimoz.backTab();
-                            } else {
-                                scimoz.tab();
+                            // Bug 99068: rect-select tab and backTab
+                            // aren't wrapped in an undo-block (but backTab is).
+                            scimoz.beginUndoAction();
+                            try {
+                                if (event.shiftKey) {
+                                    scimoz.backTab();
+                                } else {
+                                    scimoz.tab();
+                                }
+                            } finally {
+                                scimoz.endUndoAction();
                             }
                             event.stopPropagation();
                             event.preventDefault();
