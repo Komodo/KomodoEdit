@@ -1532,9 +1532,62 @@ class DefnTestCase(CodeintelPerlTestCase):
             self.assertDefnMatches2(buf, foo_positions[2],
                                     **barpkg_expectations)
 
+    @tag("bug99113", "knownfailure")
+    def test_scope_bounds(self):
+        test_dir = join(self.test_dir, "test_scope_bounds")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            #!/usr/bin/env perl
+            use strict;
+            use warnings;
+            # my $stump = "trees";
+            sub testx {
+                my $i = shift;
+                my $b = 0;
+                if ($i > 0) {
+                    $b = $i;
+                }
+            }
+            my $t1 = test<1>x(0);
+            print("$t1\n");
+            1;
+        """))
+        path = join(test_dir, "scope_bounds.pl")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="function", name="testx", line=5,
+            path=path, )
+        self.assertDefnMatches2(buf, foo_positions[1],
+            scopestart=1)
+
+    @tag("bug99113", "knownfailure")
+    def test_scope_bounds_01(self):
+        test_dir = join(self.test_dir, "test_scope_bounds_01")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            #!/usr/bin/env perl
+            use strict;
+            use warnings;
+            # my $stump = "trees";
+            sub testx {
+                my $i = shift;
+                my $b = 0;
+                if ($i > 0) {
+                    $b = $i;
+                }
+            }
+            my $t1 = test<1>x(0);
+            print("$t1\n");
+            1;
+        """))
+        path = join(test_dir, "scope_bounds.pl")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            scopeend=0)
+
     @tag("bug99112", "knownfailure")
-    def test_scope_bounds_02(self):
-        test_dir = join(self.test_dir, "test_defn")
+    def test_get_sub_defn_with_digit(self):
+        test_dir = join(self.test_dir, "test_get_sub_defn_with_digit")
         foo_content, foo_positions = unmark_text(dedent("""\
             #!/usr/bin/env perl
             use strict;
