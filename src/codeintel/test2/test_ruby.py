@@ -2766,6 +2766,55 @@ class _BaseTestCase(CodeIntelTestCase):
                                     ])
         self.assertDefnMatches2(buf, main_positions[5],
             ilk="variable", name="@@cls_var", citdl="Fixnum", line=3)
+                                                      
+    @tag("bug99108")
+    def test_scope_bounds(self):
+        test_dir = join(self.test_dir, "test_defn")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            require 'net/http'
+            # And a comment
+            def test1(i)
+                b = i > 0 ? i : 0
+                return b
+            end
+            t = test1<1>(0)
+            print(t)
+        """))
+        path = join(test_dir, "scope_bounds.rb")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="function", name="test1", line=3,
+            scopestart=1, scopeend=0, path=path, )
+                                                      
+    @tag("bug99108")
+    def test_scope_bounds_02(self):
+        test_dir = join(self.test_dir, "test_defn")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            require 'net/http'
+            # And a comment
+            class C
+                def test1(i)
+                    b = i > 0 ? i : 0
+                end
+                def cheeseboogie(j)
+                    return test1<1>(j - 5)
+                end
+            end
+            cx = C.new
+            t = cx.cheeseboogie<2>(7)
+            puts(t)
+        """))
+        path = join(test_dir, "scope_bounds_02.rb")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="function", name="test1", line=4,
+            scopestart=3, scopeend=10, path=path, )
+        self.assertDefnMatches2(buf, foo_positions[2],
+            ilk="function", name="cheeseboogie", line=7,
+            scopestart=3, scopeend=10, path=path, )
+
 
 class PureTestCase(_BaseTestCase):
     lang = "Ruby"

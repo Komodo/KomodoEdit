@@ -4274,6 +4274,29 @@ class DefnTestCase(CodeIntelTestCase):
              ("function", "showRabbit"),
             ])
 
+    @tag("bug99108")
+    def test_scope_scopestart_is_int(self):
+        test_dir = join(self.test_dir, "test_defn")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            <?php
+            function test1($i) {
+                $b = 0;
+                if ($i > 0) {
+                    $b = $;
+                }
+                return $b;
+            }
+            $t = test<1>1(7);
+            echo($t);
+            ?>
+        """))
+        path = join(test_dir, "scope_bounds.php")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="function", name="test1", line=2,
+            scopestart=1, scopeend=0, path=path, )
+
 
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"

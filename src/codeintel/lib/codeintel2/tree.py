@@ -635,11 +635,17 @@ class TreeEvaluator(CitadelEvaluator):
         returns = elem.get("returns", None)
         try:
             scope = self._elem_from_scoperef((blob, lpath))
-            scopestart = scope.get("line", 1)
-            scopeend = scope.get("lineend", 0)
         except AttributeError:
             scopestart = 1
             scopeend = 0
+        else:
+            def safe_int_get(attr, default_value):
+                try:
+                    return int(scope.get(attr, default_value))
+                except (ValueError, AttributeError):
+                    return default_value
+            scopestart = safe_int_get("line", 1)
+            scopeend = safe_int_get("lineend", 0)
 
         # Only fixup paths that do not look like URIs.
         if path and not re.match(r"^\w+:\/\/", path):

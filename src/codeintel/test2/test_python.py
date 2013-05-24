@@ -187,7 +187,33 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertDefnMatches2(buf, foo_py_positions[1],
             ilk="variable", name="bar", line=2, citdl="int",
             path=join(test_dir, "bar.py"), )
+        
+    @tag("bug99108")
+    def test_scope_bounds(self):
+        test_dir = join(self.test_dir, "test_defn")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            import os, sys, ibix
+            # And a comment
+            def test1(i):
+                b = 0;
+                if i > 0:
+                    b = i
+                def cheeseboogie(j):
+                    return b + j
+                return cheeseboogie<2>(i + 1)
 
+            t = test<1>1(0)
+            print(t)
+        """))
+        path = join(test_dir, "scope_bounds.py")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="function", name="test1", line=3,
+            scopestart=1, scopeend=0, path=path, )
+        self.assertDefnMatches2(buf, foo_positions[2],
+            ilk="function", name="cheeseboogie", line=7,
+            scopestart=3, scopeend=9, path=path, )
 
 class PythonDocTestCase(CodeIntelTestCase):
     lang = "Python"

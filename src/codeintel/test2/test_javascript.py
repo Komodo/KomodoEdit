@@ -1763,6 +1763,37 @@ class DefnTestCase(CodeIntelTestCase):
         buf = self.mgr.buf_from_path(path)
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="function", name="test1", line=1, path=path, )
+        
+    @tag("bug99108")
+    def test_scope_scopestart_is_int(self):
+        test_dir = join(self.test_dir, "test_defn")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            // Leading comments and stuff
+            // La dee dah
+            // var stump = "trees";
+            function test1(i) {
+                var b = 0;
+                if (i > 0) {
+                    b = i;
+                }
+                var cheeseboogie = function bebsi(j) {
+                    return b + j;
+                }
+                return cheeseboogie<2>(i + 1);
+            }    
+            var t = test<1>1(0);
+            print(t);
+        """))
+        path = join(test_dir, "scope_bounds.js")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="function", name="test1", line=4,
+            scopestart=1, scopeend=0, path=path, )
+        self.assertDefnMatches2(buf, foo_positions[2],
+            ilk="function", name="cheeseboogie", line=9,
+            scopestart=4, scopeend=13, path=path, )
+
 
     @tag("knownfailure")
     def test_simple_import(self):
