@@ -1532,6 +1532,26 @@ class DefnTestCase(CodeintelPerlTestCase):
             self.assertDefnMatches2(buf, foo_positions[2],
                                     **barpkg_expectations)
 
+    @tag("bug99112", "knownfailure")
+    def test_scope_bounds_02(self):
+        test_dir = join(self.test_dir, "test_defn")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            #!/usr/bin/env perl
+            use strict;
+            use warnings;
+            sub test1 {
+                3
+            }
+            my $t1 = test<1>1(0);
+            print("$t1\n");
+            1;
+        """))
+        path = join(test_dir, "scope_bounds.pl")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="function", name="test1", line=4, path=path, )
+
     @tag("gisle")
     def test_lwp(self):
         content, positions = unmark_text(dedent("""\
