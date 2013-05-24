@@ -1404,7 +1404,7 @@ class PerlCILEDriver(CILEDriver):
 #---- internal support stuff
 
 def _is_perl_var_char(char):
-    return "a" <= char <= "z" or "A" <= char <= "Z" \
+    return "a" <= char <= "z" or "A" <= char <= "Z" or "0" <= char <= "9" \
            or char in "_:$%@"
 
 
