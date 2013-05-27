@@ -1560,7 +1560,7 @@ class DefnTestCase(CodeintelPerlTestCase):
             ilk="variable", name="%keys", line=9,
             path=path)
 
-    @tag("bug99113", "knownfailure")
+    @tag("bug99113")
     def test_scope_bounds(self):
         test_dir = join(self.test_dir, "test_scope_bounds")
         foo_content, foo_positions = unmark_text(dedent("""\
@@ -1584,36 +1584,43 @@ class DefnTestCase(CodeintelPerlTestCase):
         buf = self.mgr.buf_from_path(path)
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="function", name="testx", line=5,
-            path=path, )
-        self.assertDefnMatches2(buf, foo_positions[1],
-            scopestart=1)
-
-    @tag("bug99113", "knownfailure")
+            path=path, scopestart=1, scopeend=0)
+        
+    @tag("bug99113")
     def test_scope_bounds_01(self):
         test_dir = join(self.test_dir, "test_scope_bounds_01")
         foo_content, foo_positions = unmark_text(dedent("""\
             #!/usr/bin/env perl
             use strict;
             use warnings;
-            # my $stump = "trees";
-            sub testx {
-                my $i = shift;
-                my $b = 0;
-                if ($i > 0) {
-                    $b = $i;
-                }
+            my $stump = "trees";
+            print $stump<1>;
+            my @stuff = qw/abc def/;
+            print $stuff<2>[1];
+            sub subby {
+               my %keys = (abc => 1, defg => 2);
+               print $keys<3>{abc};
             }
-            my $t1 = test<1>x(0);
-            print("$t1\n");
+            subby<4>;
             1;
         """))
-        path = join(test_dir, "scope_bounds.pl")
+        path = join(test_dir, "scope_bounds_01.pl")
         writefile(path, foo_content)
         buf = self.mgr.buf_from_path(path)
         self.assertDefnMatches2(buf, foo_positions[1],
-            scopeend=0)
+            ilk="variable", name="$stump", line=4,
+            path=path, scopestart=1, scopeend=0)
+        self.assertDefnMatches2(buf, foo_positions[2],
+            ilk="variable", name="@stuff", line=6,
+            path=path, scopestart=1, scopeend=0)
+        self.assertDefnMatches2(buf, foo_positions[3],
+            ilk="variable", name="%keys", line=9,
+            path=path, scopestart=8, scopeend=11)
+        self.assertDefnMatches2(buf, foo_positions[4],
+            ilk="function", name="subby", line=8,
+            path=path, scopestart=1, scopeend=0)
 
-    @tag("bug99112", "knownfailure")
+    @tag("bug99112")
     def test_get_sub_defn_with_digit(self):
         test_dir = join(self.test_dir, "test_get_sub_defn_with_digit")
         foo_content, foo_positions = unmark_text(dedent("""\
