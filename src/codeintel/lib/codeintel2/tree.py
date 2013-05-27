@@ -422,7 +422,7 @@ class TreeEvaluator(CitadelEvaluator):
                 s = [msg]
             if kwargs.get("cached"):
                 s.append(" (cached)")
-            self.info(''.join(s))
+            self.info('%s', ''.join(s))
         else:       # capture log for latter printing
             self._log.append(msg, args, kwargs)
 
