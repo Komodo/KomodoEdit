@@ -448,7 +448,7 @@ sub buildtoptarget {
 		print qq($0: nothing to be built in "$path".\n) if $param::build;
 	    }
 	} else {
-	    print qq($0: don\'t know how to construct "$path".\n); #'
+	    print qq($0: buildtoptarget: \$status: $status: don\'t know how to construct "$path".\n); #'
 	    $errors++;
 	}
     }
@@ -944,7 +944,7 @@ sub _Object {
     if ($builder) {
 	$obj->bind((find $builder($objenv)), $src);
     } else {
-	die("don't know how to construct ${\$obj->path} from " .
+	die("_Object: don't know how to construct ${\$obj->path} from " .
 	    "${\$src->path}.\n");
     }
     $obj
@@ -2517,7 +2517,8 @@ sub _build {
 	    return $self->{status} = 'handled';
 	} else {
 	    my($name) = $self->path;
-	    print("$0: don't know how to construct \"$name\"\n");
+	    print("$0: _build: don't know how to construct \"$name\"\n");
+	    print("   builder: !exists " . $self->{builder} . "\n");
 	    exit(1) unless $param::kflag;
 	    return $self->{status} = 'errors'; # xxx used to be 'unknown'
 	}
