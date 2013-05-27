@@ -1531,6 +1531,34 @@ class DefnTestCase(CodeintelPerlTestCase):
         for pos in (2,3):
             self.assertDefnMatches2(buf, foo_positions[2],
                                     **barpkg_expectations)
+        
+    @tag("bug99105")
+    def test_compound_variable_defns(self):
+        test_dir = join(self.test_dir, "test_compound_variable_defns")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            #!/usr/bin/env perl
+            use strict;
+            use warnings;
+            my $stump = "trees";
+            print $stump<1>;
+            my @stuff = qw/abc def/;
+            print $stuff<2>[1];
+            sub subby {
+               my %keys = (abc => 1, defg => 2);
+               print $keys<3>{abc};
+            }
+            subby<4>;
+            1;
+        """))
+        path = join(test_dir, "scope_bounds_01.pl")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[2],
+            ilk="variable", name="@stuff", line=6,
+            path=path)
+        self.assertDefnMatches2(buf, foo_positions[3],
+            ilk="variable", name="%keys", line=9,
+            path=path)
 
     @tag("bug99113", "knownfailure")
     def test_scope_bounds(self):

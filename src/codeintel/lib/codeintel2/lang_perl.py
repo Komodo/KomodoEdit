@@ -975,6 +975,16 @@ class PerlLangIntel(CitadelLangIntel,
                 ctlr.done("no trigger")
                 return
             line = buf.accessor.line_from_pos(trg.pos)
+            if trg.id[1] == TRG_FORM_DEFN and citdl_expr[0] == '$':
+                current_pos = trg.pos
+                lim = buf.accessor.length
+                while buf.accessor.style_at_pos(current_pos) == ScintillaConstants.SCE_PL_SCALAR and current_pos < lim:
+                    current_pos += 1
+                c = buf.accessor.char_at_pos(current_pos)
+                if c == '[':
+                    citdl_expr = '@' + citdl_expr[1:]
+                elif c == '{':
+                    citdl_expr = '%' + citdl_expr[1:]
             evalr = PerlTreeEvaluator(ctlr, buf, trg, citdl_expr,
                                       line, filter)
             buf.mgr.request_eval(evalr)
