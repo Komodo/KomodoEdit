@@ -430,7 +430,7 @@ class Manager(threading.Thread, Queue):
         Dev Notes:
         - XXX Add a timeout to the put and raise error on timeout?
         """
-        #self._handle_eval_sess(evalr)
+        #evalr.eval(self)
         self.put((evalr, False))
     
     def request_reeval(self, evalr):
