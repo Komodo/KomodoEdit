@@ -1999,6 +1999,7 @@
                 }
             }
             if (this.enableAutoAbbreviations && charCodeChar !== null
+                && !this.scintilla.autocomplete.active
                 && this.autoAbbreviationTriggerCharacters_Processed.indexOf(charCodeChar) >= 0) {
                 
 <!-- #if PLATFORM != "darwin" -->
