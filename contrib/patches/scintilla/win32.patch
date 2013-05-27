@@ -363,7 +363,8 @@ diff -r -du win32/scintilla_vc6.mak win32/scintilla_vc6.mak
 +++ win32/scintilla_vc6.mak	2007-05-01 17:00:17.000000000 -0700
 @@ -44,7 +44,7 @@
  # If you have problems with lexers being linked, try removing -OPT:REF and replacing with -OPT:NOREF
- LDFLAGS=-OPT:NOWIN98 -OPT:REF
+-LDFLAGS=-OPT:NOWIN98 -OPT:REF
++LDFLAGS=
  LDDEBUG=
 -LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.LIB
 +LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.LIB libpcre.lib

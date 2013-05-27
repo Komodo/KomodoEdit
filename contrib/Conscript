@@ -328,12 +328,14 @@ $consLocal->InstallPythonUtility("inflector/Rules/Spanish.py", "inflector/Rules"
 #---- htmltidy 
 {
 local $build = substr($build, 1, length($build)); # drop the leading '#'
-my ($exeName, $make, $makefile);
+my ($exeName, $make, $makefile, $makeflags);
 if ($platform eq "win") {
     $exeName = "tidy\\bin\\tidy.exe";
     $make = "nmake";
     $makefile = "Makefile.vc6";
     $tidyDir = "$build\\contrib\\tidy\\build\\msvc\\";
+    # Get rid of -opt:ref -opt:nowin98, which is no longer supported on new compilers
+    $makeflags = "LDNDEBUG=";
 } else {
     $exeName = "tidy/bin/tidy";
     if ($platform eq "darwin") {
@@ -343,6 +345,7 @@ if ($platform eq "win") {
     }
     $makefile = "Makefile";
     $tidyDir = "$build/contrib/tidy/build/gmake";
+    $makeflags = "";
 }
 
 
@@ -409,7 +412,7 @@ $consTidy->Command($exeName,
                     "tidy/src/win32tc.c",
                     "tidy/src/win32tc.h",
                     "tidy/obj/empty.txt",
-                    qq{cd $tidyDir && $make -f $makefile}
+                    qq{cd $tidyDir && $make -f $makefile $makeflags}
                    );
 $consTidy->Install("$supportDir/html", $exeName);
 }

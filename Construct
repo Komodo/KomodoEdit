@@ -90,6 +90,7 @@ my @toExport = (
 
     'compiler',
     'idlExportDir',
+    'mozMake',
     'mozGcc',
     'mozGxx',
     'mozCFlags',
@@ -111,6 +112,7 @@ my @toExport = (
     'mozIdlIncludePath',
     'mozLibPath',
     'mozSrc',
+    'envScriptName',
     'nsprIncludePath',
     'nsprPrivateIncludePath',
     'scintillaBuildDir',        # for the SciMoz build
@@ -168,6 +170,7 @@ my @toExport = (
 
     'platformPathSep',
 );
+$mozMake = join(" ", @mozMake);
 if ($platform eq "linux") {
     push(@toExport, (
         "linuxDistro",

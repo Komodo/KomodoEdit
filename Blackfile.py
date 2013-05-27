@@ -681,6 +681,7 @@ configuration = {
     "MOZ_DEBUG": black.configure.mozilla.SetMozDebug(),
     "XPCOM_DEBUG_BREAK": black.configure.mozilla.SetXpcomDebugBreakDebug(),
     "MOZ_SRC": SetMozSrc(),
+    "MOZBUILD_STATE_PATH": SetMozStatePath(),
     "LD_LIBRARY_PATH": SetLdLibraryPath(),
     # TODO: setup mozLdLibraryPath and have a custom LD_LIBRARY_PATH *or*
     #       setup a generic SetPathEnvVar("LD_LIBRARY_PATH", [list of
@@ -689,6 +690,7 @@ configuration = {
 
     #---- Microsoft Visual Studio setup ----
     "compiler": SetupCompiler(),
+    "mozMake": MozMake(),
     "mozGcc": MozGcc(),
     "mozGxx": MozGxx(),
     "mozCFlags": MozCFlags(),

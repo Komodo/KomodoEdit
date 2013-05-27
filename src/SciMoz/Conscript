@@ -148,11 +148,12 @@ if ($platform eq "win") {
     $pluginName = 'npscimoz.dll';
 
     %consLocal = $cons->copy();
+    my $LDFLAGS = $consLocal{'LDFLAGS'};
 
     if ($mozVersionNumber le 1899) {
-	my $LDFLAGS = $consLocal{'LDFLAGS'} . " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xpcom.lib nspr4.lib mozalloc.lib";
+	$LDFLAGS .= " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xpcom.lib nspr4.lib mozalloc.lib";
     } else {
-	my $LDFLAGS = $consLocal{'LDFLAGS'} . " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xul.lib nspr4.lib mozalloc.lib";
+	$LDFLAGS .= " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xul.lib nspr4.lib mozalloc.lib";
     }
     foreach my $libDir (split(';', $mozLibPath)) {
         $LDFLAGS .= " /libpath:$libDir";

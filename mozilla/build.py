@@ -449,6 +449,8 @@ def _setupMozillaEnv():
     os.environ["FORCE_BUILD_REFCNT_LOGGING"] = "0"
     os.environ["MOZ_CURRENT_PROJECT"] \
         = os.environ["MOZ_CO_PROJECT"] = _determineMozCoProject(config.mozApp)
+
+    os.environ["MOZBUILD_STATE_PATH"] = join(config.buildDir, "moz-state")
     
     if config.withCrashReportSymbols:
         os.environ['MOZ_DEBUG_SYMBOLS'] = '1'
@@ -459,7 +461,7 @@ def _setupMozillaEnv():
 
     # ensure the mozilla build system uses our python to build with
     if config.python:
-        os.environ["PYTHON"] = config.python
+        os.environ["PYTHON"] = _pymake_path_from_path(config.python)
         if sys.platform == 'darwin':
             python_so = dirname(dirname(config.python))
             if 'DYLD_LIBRARY_PATH' in os.environ:
@@ -1293,7 +1295,25 @@ def target_configure(argv):
     if sys.platform == "win32":
         defaultWinCompiler = "vc9"
         if not config["compiler"]:
-            config["compiler"] = defaultWinCompiler
+            # Attempt to auto-detect the compiler version number
+            try:
+                ver_info = _capture_output("cl -?", capture_stderr=True).splitlines()[0]
+                # Match for 4 runs of digits separated by period or comma
+                # (to account for European locales)
+                match = re.search(r"([0-9]+[.,]){3}[0-9]", ver_info)
+                if match:
+                    version = match.group(0).split(",", 1)[0].split(".", 1)[0]
+                else:
+                    version = None
+            except:
+                version = None # Failed to auto-detect version
+            config["compiler"] = {
+                # version numbers taken from https://en.wikipedia.org/wiki/Visual_C++
+                "14": "vc8",
+                "15": "vc9",
+                "16": "vc10",
+                "17": "vc11",
+            }.get(version, defaultWinCompiler)
         if config["compiler"] != defaultWinCompiler:
             config["buildOpt"].append(config["compiler"])
 
@@ -1472,10 +1492,7 @@ def target_configure(argv):
         #TODO: This is being overridden by PYTHON being set in the
         #      environment for building in _setupMozillaEnv(). Probably
         #      best to remove the other and keep this one.
-        if sys.platform == "win32":
-            python = _msys_path_from_path(config["python"])
-        else:
-            python = config["python"]
+        python = _pymake_path_from_path(config["python"])
         config["mozconfig"] += "PYTHON=%s\nexport PYTHON\n" % python
 
         if config["stripBuild"]:
@@ -1944,7 +1961,7 @@ def target_pyxpcom(argv=["pyxpcom"]):
     pyxpcom_obj_dir = join(moz_obj_dir, "extensions", "python")
     if not exists(pyxpcom_obj_dir):
         os.makedirs(pyxpcom_obj_dir)
-    configure_flags = 'PYTHON="%s"' % (_msys_path_from_path(config.python), )
+    configure_flags = 'PYTHON="%s"' % (_pymake_path_from_path(config.python), )
     configure_options = []
     if sys.platform.startswith("linux"):
         configure_flags += " ac_cv_visibility_pragma=no"
@@ -2214,6 +2231,7 @@ def _get_mozilla_objdir(convert_to_native_win_path=False, force_echo_variable=Fa
     # the moz tree.
     objdir = None
     cmds = [ # one of these command should work
+        'python build/pymake/make.py -s -f client.mk echo-variable-OBJDIR',
         'make -f client.mk echo-variable-OBJDIR',
         'make -f client.mk echo_objdir',
     ]
@@ -2234,7 +2252,7 @@ def _get_mozilla_objdir(convert_to_native_win_path=False, force_echo_variable=Fa
     finally:
         os.chdir(old_cwd)
 
-    if convert_to_native_win_path and sys.platform == "win32":
+    if convert_to_native_win_path and sys.platform == "win32" and objdir.startswith("/"):
         # Expected output example:
         #   /c/trentm/as/Mozilla-devel/build/cvs1.8-ko4.11-play/mozilla/ko-rel-ns
         # Convert that to something sane.
@@ -2252,6 +2270,11 @@ def _msys_path_from_path(path):
     msys_path = "/%s%s" % (drive[0].lower(),
                            subpath.replace('\\', '/'))
     return msys_path
+
+
+def _pymake_path_from_path(path):
+    """Convert a path to pymake-compatible (i.e. forward-slash) path."""
+    return path.replace(os.sep, "/")
 
 
 def _get_exe_path(cmd):
@@ -2275,9 +2298,9 @@ def _get_make_command(config, srcDir):
     Returns a pymake command line on Windows, and make elsewhere
     (because pymake is broken for Gecko17, fixed later)
     """
-    # Disabled - pymake doesn't seem to work correctly on Windows either.
-    #if sys.platform.startswith("win"):
-    #    return "%s %s/build/pymake/make.py" % (config.python, srcDir)
+
+    if sys.platform.startswith("win"):
+        return "%s %s/build/pymake/make.py" % (config.python, srcDir)
 
     return "make"
 
@@ -2365,7 +2388,16 @@ def target_mozilla(argv=["mozilla"]):
             ldLibPath.append(pythonLibDir)
             os.environ["LD_LIBRARY_PATH"] = os.pathsep.join(filter(bool, ldLibPath))
 
-        _run_in_dir("%s -f client.mk build" % _get_make_command(config, buildDir),
+        # Make sure mach has the state directory working
+        try:
+            _run_in_dir("%s mach mach-commands" % config.python,
+                        buildDir, log.info)
+        except OSError:
+            pass # mach errors out on first run, that's okay
+
+        # do the build
+        _run_in_dir("%s mach --log-file %s build" %
+                        (config.python, join(buildDir, "mach.log")),
                     buildDir, log.info)
 
         if config.mozApp == "komodo":
@@ -2687,10 +2719,14 @@ def _relpath(path, relto=None):
 
 #---- some remote file utils
 
-def _capture_output(cmd):
-    o = os.popen(cmd)
-    output = o.read()
-    retval = o.close()
+def _capture_output(cmd, capture_stderr=False):
+    if capture_stderr:
+        stderr = subprocess.STDOUT
+    else:
+        stderr = None
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=stderr, shell=True)
+    output = p.stdout.read()
+    retval = p.returncode
     if retval:
         raise OSError("error capturing output of `%s': %r" % (cmd, retval))
     return output

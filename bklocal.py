@@ -1829,11 +1829,59 @@ class SetupMozEnv(black.configure.RunEnvScript):
             self.applicable = 1
             mozillaDevDir = black.configure.items['mozillaDevDir'].Get()
             compiler = black.configure.items['compiler'].Get()
-            setenvFile = {
-                "vc8": "setenv-moz-msvc8.bat",
-                "vc9": "setenv-moz-msvc9.bat",
-            }[compiler]
-            self.value = join(mozillaDevDir, setenvFile)
+            compiler_ver = compiler
+            if compiler_ver.startswith("vc"):
+                compiler_ver = compiler_ver[2:]
+            setenvFile = "setenv-moz-msvc%s.bat" % compiler_ver
+            setenvFile = join(mozillaDevDir, setenvFile)
+            if not exists(setenvFile):
+                # No version available...
+                mozBuild = os.environ.get("MOZILLABUILD")
+                startMozFile = "start-msvc%s.bat" % compiler_ver
+                startMozFile = join(mozBuild, startMozFile)
+                if not exists(startMozFile):
+                    raise ConfigureError("No Mozilla environment for %s "
+                                         "available" % compiler)
+                # Try to build our file from the Mozilla one
+                try:
+                    with open(setenvFile, "w") as out_file:
+                        out_file.write("@rem This file is automatically "
+                                       "generated from Mozilla's "
+                                       "start-msvc%s.bat.  Do not modify this "
+                                       "file manually; just delete it and "
+                                       "re-run bk configure.\n" % compiler_ver)
+                        out_file.write("@pushd")
+                        with open(startMozFile, "r") as in_file:
+                            for line in in_file:
+                                if r'msys\bin\bash" --login -i' in line:
+                                    continue
+                                # This file is in the wrong directory; be dumber
+                                # about locating MozillaBuild.
+                                line = line.replace("%~dp0",
+                                                    os.environ["MOZILLABUILD"])
+                                out_file.write(line)
+                        # Add in extra paths
+                        for prefix in ("msys/local/bin", "msys/bin", "wget",
+                                       "info-zip", "wix-351728", "yasm"):
+                            out_file.write("set PATH=%%MOZILLABUILD%%\%s;%%PATH%%\n"
+                                           % prefix.replace("/", os.sep))
+                        # Include NSIS just so mozilla configure doesn't complain
+                        for suffix in "nsis-2.46u", "nsis-2.33u", "nsis-2.22":
+                            out_file.write("set PATH=%%PATH%%;%%MOZILLABUILD%%\%s\n"
+                                           % suffix.replace("/", os.sep))
+                        # Force the first directory on the path to be our own custom
+                        # bin directory to use our patch.exe
+                        out_file.write("set PATH=%s;%%PATH%%\n" %
+                                       join(dirname(abspath(__file__)), "mozilla",
+                                            "bin-%s" % (sys.platform)))
+                        out_file.write("popd");
+                except:
+                    os.remove(setenvFile) # Remove broken file
+                    raise
+            if not exists(setenvFile):
+                raise ConfigureError("No Mozilla environment for %s "
+                                     "available" % compiler)
+            self.value = setenvFile
         else:
             self.applicable = 0
             self.value = None
@@ -2096,7 +2144,8 @@ class MozObjDir(black.configure.Datum):
         os.chdir(srcdir)
         # XXX we cannot get the version number yet, so try both
         trycmd = ['make -f client.mk echo_objdir', # 180+
-                  'make -f client.mk echo-variable-OBJDIR' # 190+
+                  'make -f client.mk echo-variable-OBJDIR', # 190+
+                  'python build/pymake/make.py -s -f client.mk echo-variable-OBJDIR', # 24.0+
                   ]
         try:
             for cmd in trycmd:
@@ -2114,14 +2163,19 @@ class MozObjDir(black.configure.Datum):
             os.chdir(oldcwd)
 
         if sys.platform == "win32":
-            # This is an msys path:
-            #   /c/trentm/as/Mozilla-devel/build/...
-            # Convert that to something sane.
-            #   C:\trentm\as\Mozilla-devel\build\...
-            assert re.match(r"/\w/", objdir), \
-                "unexpected objdir path on Windows: '%s'" % objdir
-            objdir = objdir[1:] # drop leading '/'
-            objdir = objdir[0].upper() + ':' + objdir[1:].replace('/', '\\')
+            if re.match(r"/\w/", objdir):
+                # This is an msys path:
+                #   /c/trentm/as/Mozilla-devel/build/...
+                # Convert that to something sane.
+                #   C:\trentm\as\Mozilla-devel\build\...
+                objdir = objdir[1:] # drop leading '/'
+                objdir = objdir[0].upper() + ':' + objdir[1:].replace('/', '\\')
+            elif re.match(".:/", objdir):
+                # This is a half-mingw path, with forward slashes
+                objdir = objdir.replace('/', '\\')
+            else:
+                assert re.match(".:\\", objdir), \
+                    "unexpected objdir path on Windows: " + objdir
 
         return objdir
 
@@ -2223,6 +2277,24 @@ class MozDist(black.configure.Datum):
             self.value = os.path.join(baseDir, "instdir")
         else:
             self.value = black.configure.items['mozDevelDist'].Get()
+        self.determined = 1
+
+class SetMozStatePath(black.configure.SetEnvVar):
+    """The Mozilla/mach state path, MOZBUILD_STATE_PATH.
+    """
+    def __init__(self):
+        black.configure.SetEnvVar.__init__(self, "MOZBUILD_STATE_PATH",
+            "The Mozilla mach state directory")
+
+    def _Determine_Sufficient(self):
+        if self.value is None:
+            raise black.configure.ConfigureError(
+                "Could not determine value for %s.\n" % self.desc)
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        self.value = join(dirname(black.configure.items['mozSrc'].Get()),
+                          "moz-state")
         self.determined = 1
 
 class MozBin(black.configure.Datum):
@@ -2895,10 +2967,7 @@ class MSIVccrtMsmPath(black.configure.Datum):
             assert architecture == "x86", \
                 "get the right merge module path for arch=%r" % architecture
             compiler = black.configure.items["compiler"].Get()
-            base = {
-                "vc8": "Microsoft_VC80_CRT_x86.msm",
-                "vc9": "Microsoft_VC90_CRT_x86.msm",
-            }[compiler]
+            base = "Microsoft_%s0_CRT_x86.msm" % compiler.upper()
             mergeModulesDir = join(os.environ["CommonProgramFiles"],
                                    "Merge Modules")
             self.value = join(mergeModulesDir, base)
@@ -2920,10 +2989,10 @@ class MSIVccrtPolicyMsmPath(black.configure.Datum):
             assert architecture == "x86", \
                 "get the right merge module path for arch=%r" % architecture
             compiler = black.configure.items["compiler"].Get()
-            base = {
-                "vc8": "policy_8_0_Microsoft_VC80_CRT_x86.msm",
-                "vc9": "policy_9_0_Microsoft_VC90_CRT_x86.msm",
-            }[compiler]
+            assert compiler.startswith("vc"), "Invalid compiler version"
+            compiler_ver = compiler[2:]
+            base = "policy_%s_0_Microsoft_%s_CRT_x86.msm" % \
+                (compiler_ver, compiler.upper())
             mergeModulesDir = join(os.environ["CommonProgramFiles"],
                                    "Merge Modules")
             self.value = join(mergeModulesDir, base)
@@ -3826,7 +3895,7 @@ class SetupCompiler(black.configure.Datum):
             desc="compiler used for Mozilla build")
 
     def _Determine_Sufficient(self):
-        if sys.platform == "win32" and self.value not in ("vc8", "vc9"):
+        if sys.platform == "win32" and re.match(r"vc\d+$", self.value) is None:
             raise black.configure.ConfigureError(\
                 "unexpected compiler value for win32: %r" % self.value)
 
@@ -3840,6 +3909,38 @@ class SetupCompiler(black.configure.Datum):
             self.value = ''
         self.determined = 1
 
+
+
+class MozMake(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "mozMake",
+            desc="make to use for Mozilla build")
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        if sys.platform.startswith("win"):
+            with open(join(black.configure.items['mozObjDir'].Get(),
+                           "config.status")) as status:
+                for line in status:
+                    if line.startswith("topsrcdir ="):
+                        # Python style config.status
+                        path = line.split("=", 1)[-1].strip().strip("'")
+                        if path[1:3] == ":/":
+                            # Python-style path, using pymake
+                            mozSrc = black.configure.items['mozSrc'].Get()
+                            pymake = join(mozSrc, "mozilla", "build", "pymake",
+                                          "make.py")
+                            self.value = [sys.executable, pymake, "-s"]
+                        else:
+                            self.value = [which.which("make")]
+                        break
+                else:
+                    # Shell-style config.status; too old to be pymake
+                    self.value = [which.which("make")]
+        else:
+            self.value = [which.which("make")]
+        assert self.value is not None
+        self.determined = 1
 
 
 class MozGcc(black.configure.Datum):
@@ -3880,7 +3981,7 @@ class MozCFlags(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         mozObjDir = black.configure.items['mozObjDir'].Get()
-        cmd = ["make", "echo-variable-CFLAGS"]
+        cmd = black.configure.items['mozMake'].Get() + ["echo-variable-CFLAGS"]
         self.value = _capture_stdout(cmd, cwd=mozObjDir).strip()
         self.determined = 1
 
@@ -3893,7 +3994,7 @@ class MozCxxFlags(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         mozObjDir = black.configure.items['mozObjDir'].Get()
-        cmd = ["make", "echo-variable-CXXFLAGS"]
+        cmd = black.configure.items['mozMake'].Get() + ["echo-variable-CXXFLAGS"]
         self.value = _capture_stdout(cmd, cwd=mozObjDir).strip()
         self.determined = 1
 
@@ -3906,6 +4007,6 @@ class MozLdFlags(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         mozObjDir = black.configure.items['mozObjDir'].Get()
-        cmd = ["make", "echo-variable-LDFLAGS"]
+        cmd = black.configure.items['mozMake'].Get() + ["echo-variable-LDFLAGS"]
         self.value = _capture_stdout(cmd, cwd=mozObjDir).strip()
         self.determined = 1

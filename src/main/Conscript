@@ -60,6 +60,7 @@ Import(
     "mozResourcesDir",
     'mozDevelDist',
     "mozVersion",
+    "mozMake",
     "idlExportDir",
     "version",
     "komodoVersion",
@@ -77,6 +78,8 @@ Import(
     "stubDir",
     "xulrunner",
     "xulrunnerBuildId",
+    "envScriptName",
+    "unsiloedPerlBinDir",
 );
 
 
@@ -174,6 +177,17 @@ my %ppData = (
     'PP_CURR_YEAR' => "$currYear",
 );
 
+open(my $config, "<", "$mozObjDir/config/autoconf.mk")
+    or die "Can't read Mozilla build config";
+while (<$config>) {
+    if (m/^GRE_MILESTONE\s*=\s*(.*)/) {
+        $ppData{PP_GRE_MILESTONE} = $1;
+        last;
+    }
+}
+close($config);
+
+
 if ($platform eq "win") {
     $cp = "copy";
     $mozKomodoSrcDir = "$mozSrc\\mozilla\\komodo";
@@ -188,7 +202,28 @@ if ($platform eq "win") {
     if ($mozVersion ge 6.0) {
         $envVars .= " KOMODO_USE_WMAIN=1";
     }
-    $buildCmd = "cd $mozKomodoSrcDir\\app && touch *.c && touch *.cpp && cd $mozKomodoObjDir\\app && del *.obj && make $envVars";
+    #$unsiloedPerlExe =~ s/\\/\//g;
+    #$envVars .= " PERL=$unsiloedPerlExe";
+    #$buildCmd = "cd $mozKomodoSrcDir\\app && touch *.c && touch *.cpp && cd $mozKomodoObjDir\\app && del *.obj && $mozMake $envVars";
+    my $mozSrcMsys = $mozSrc;
+    $mozSrcMsys =~ s/\\/\//g;
+    my $mozObjDirMsys = $mozObjDir;
+    $mozObjDirMsys =~ s/\\/\//g;
+    my $envScriptMsys = $envScriptName;
+    $envScriptMsys =~ s/\\/\//g;
+    $envScriptMsys =~ s/\.bat$/.sh/;
+    $mozPython = "$mozObjDirMsys/_virtualenv/Scripts/python.exe";
+    $buildCmd = qq(cd $mozKomodoSrcDir\\app &&
+                   touch *.c *.cpp &&
+                   call $envScriptName &&
+                   $ENV{MOZILLABUILD}\\msys\\bin\\bash --login -c "
+                        unset PYTHONPATH &&
+                        unset PYTHONHOME &&
+                        cd $mozSrcMsys/mozilla &&
+                        export NUMBER_OF_PROCESSORS=$ENV{NUMBER_OF_PROCESSORS} &&
+                        ./mach -v build -v $mozObjDirMsys/komodo
+                    ");
+    $buildCmd =~ s/\r?\n//g;
 } else {
     $cp = "cp -f";
     $mozKomodoSrcDir = "$mozSrc/mozilla/komodo";
@@ -196,6 +231,9 @@ if ($platform eq "win") {
     $buildCmd = "cd $mozKomodoObjDir && rm -f my_getopt.o koStart.o && make";
 }
 
+if ($xulrunner) {
+    die "XULRunner builds not currently supported";
+}
 
 if (!$xulrunner) {
     my @xreFiles = (
@@ -275,6 +313,8 @@ if (!$xulrunner) {
                       "xre/app/profile/channel-prefs.js", \%ppData);
     $cons->Install("$mozBin/defaults/pref", "xre/app/profile/channel-prefs.js");
     
+    $cons->Preprocess("xre/app/application.p.ini",
+                      "$mozBin/application.ini", \%ppData);
     
     my $buildOutputs;
     if ($platform eq "win" || $platform eq "darwin") {
