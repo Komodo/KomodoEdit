@@ -1634,11 +1634,58 @@ class DefnTestCase(CodeintelPerlTestCase):
             print("$t1\n");
             1;
         """))
-        path = join(test_dir, "scope_bounds.pl")
+        path = join(test_dir, "get_sub_defn_with_digit.pl")
         writefile(path, foo_content)
         buf = self.mgr.buf_from_path(path)
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="function", name="test1", line=4, path=path, )
+
+    @tag("bug99108")
+    def test_lpath(self):
+        test_dir = join(self.test_dir, "test_lpath")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            #!/usr/bin/env perl
+            use strict;
+            use warnings;
+            sub test1<1> {
+                3<5>
+            }
+	    { 
+	      package Outer {
+	        sub test2<2> {
+		    4
+		}
+            }
+            my $t1 = test<3>1(0);
+	    $t1 += Outer::test2<4>;
+            print("$t1\n");
+            1;
+        """))
+        path = join(test_dir, "lpath.pl")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[3],
+            ilk="function", name="test1", line=4, path=path,
+                                lpath=[],
+            #scopestart=4, scopeend=6)
+            scopestart=1, scopeend=0)
+        self.assertDefnMatches2(buf, foo_positions[4],
+            ilk="function", name="test2", line=9, path=path,
+                                lpath=['Outer'],
+            #scopestart=9, scopeend=11)
+            scopestart=8, scopeend=17)
+#        self.assertScopeLpathIs(
+#            markup_text(foo_content, pos=foo_positions[1]),
+#            [])
+#        self.assertScopeLpathIs(
+#            markup_text(foo_content, pos=foo_positions[5]),
+#            ["test1"])
+#        self.assertScopeLpathIs(
+#            markup_text(foo_content, pos=foo_positions[2]),
+#                                ["Outer", "test2"])
+#        self.assertScopeLpathIs(
+#            markup_text(foo_content, pos=foo_positions[4]),
+#                                [])
 
     @tag("gisle")
     def test_lwp_02(self):
@@ -1653,7 +1700,7 @@ class DefnTestCase(CodeintelPerlTestCase):
                 package RequestAgent;
                 @ISA = qw(LWP::UserAgent);
 
-                sub new
+                sub new<10>
                 { 
                     my $self = LWP::UserAgent::new(@_);
                     $self->agent("lwp-request/$main::VERSION");
@@ -1662,14 +1709,14 @@ class DefnTestCase(CodeintelPerlTestCase):
 
                 sub foobar {}
 
-                sub get_basic_credentials
+                sub get_basic_credentials<12>
                 {
                     my($self, $realm, $uri) = @_;
                     #...
                 }
             }
 
-            my $ra = Reque<6>stAgent->ne<7>w();
+            my $ra<11> = Reque<6>stAgent->ne<7>w();
             $r<8>a->get_basic_<9>credentials();
         """))
         
@@ -1687,13 +1734,19 @@ class DefnTestCase(CodeintelPerlTestCase):
                                ilk="class", name="RequestAgent", line=8)
         self.assertDefnMatches(markup_text(content, positions[7]),
                                ilk="function", name="new", line=11,
-                               lpath=["RequestAgent", "new"])
+                               lpath=["RequestAgent"])
         self.assertDefnMatches(markup_text(content, positions[8]),
                                ilk="variable", name="$ra", line=27,
-                               lpath=["$ra"])
+                               lpath=[])
         self.assertDefnMatches(markup_text(content, positions[9]),
                                ilk="function", name="get_basic_credentials",
-                               line=20, lpath=["RequestAgent", "get_basic_credentials"])
+                               line=20, lpath=["RequestAgent"])
+        self.assertScopeLpathIs(markup_text(content, positions[10]),
+                          ["RequestAgent", "new"])
+        self.assertScopeLpathIs(markup_text(content, positions[11]),
+                          lpath=[])
+        self.assertScopeLpathIs(markup_text(content, positions[12]),
+                          lpath=["RequestAgent", "get_basic_credentials"])
 
 
 

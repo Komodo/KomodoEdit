@@ -190,7 +190,7 @@ class DefnTestCase(CodeIntelTestCase):
         
     @tag("bug99108")
     def test_scope_bounds(self):
-        test_dir = join(self.test_dir, "test_defn")
+        test_dir = join(self.test_dir, "scope_bounds")
         foo_content, foo_positions = unmark_text(dedent("""\
             import os, sys, ibix
             # And a comment
@@ -214,6 +214,40 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertDefnMatches2(buf, foo_positions[2],
             ilk="function", name="cheeseboogie", line=7,
             scopestart=3, scopeend=9, path=path, )
+        
+    @tag("bug99108")
+    def test_lpath(self):
+        test_dir = join(self.test_dir, "test_defn")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            import os, sys, ibix
+            # And a comment
+            class C(object):
+                b = 0
+                def foo(self, a, b):
+		    x = 3
+		    y = 3 + x
+		    def inner():
+		        return a + b
+		    return inner<1>() + x + y
+
+            c = C<2>()
+            print(c.f<3>oo(4, 6))
+        """))
+        path = join(test_dir, "lpath.py")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="function", name="inner", line=8,
+	    lpath=["C", "foo"],
+            scopestart=5, scopeend=10, path=path, )
+        self.assertDefnMatches2(buf, foo_positions[2],
+            ilk="class", name="C", line=3,
+	    lpath=[],
+            scopestart=1, scopeend=0, path=path, )
+        self.assertDefnMatches2(buf, foo_positions[3],
+            ilk="function", name="foo", line=5,
+	    lpath=["C"],
+            scopestart=3, scopeend=10, path=path, )
 
 class PythonDocTestCase(CodeIntelTestCase):
     lang = "Python"

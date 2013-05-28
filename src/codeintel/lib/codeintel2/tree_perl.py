@@ -605,7 +605,11 @@ class PerlTreeEvaluator(PerlTreeEvaluatorBase):
         start_scoperef = self.get_start_scoperef()
         self.info("start scope is %r", start_scoperef)
         hit = self._hit_from_citdl(self.expr, start_scoperef, defn_only=True)
-        return [ self._defn_from_hit(hit) ]
+        elem, (blob, lpath) = hit
+        # Bug 99113 - Unlike all the other languages, the Perl scoperef
+        # contains the item we're trying to resolve, so drop it.
+        fixed_hit = (elem, (blob, lpath[:-1]))
+        return [ self._defn_from_hit(fixed_hit) ]
 
     def _perl_type_from_elem(self, elem):
         if elem.tag == "scope":

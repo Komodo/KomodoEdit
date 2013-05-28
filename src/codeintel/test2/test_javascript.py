@@ -489,6 +489,7 @@ class CplnTestCase(CodeIntelTestCase):
             [("namespace", "FighterStyles"),
              ("variable", "hitBox")])
 
+    @tag("assertScopeLpathIs")
     def test_intermixed_class_definitions(self):
         # JS completion when intermixing class definitions
         content, positions = unmark_text(dedent("""\
@@ -531,6 +532,7 @@ class CplnTestCase(CodeIntelTestCase):
             markup_text(content, pos=positions[2]),
             [("variable", "keyCode"), ("variable", "ctrlKey")])
 
+    @tag("assertScopeLpathIs")
     def test_finding_start_scope_in_var_scope(self):
         content, positions = unmark_text(dedent("""\
             <1>
@@ -1771,7 +1773,7 @@ class DefnTestCase(CodeIntelTestCase):
             // Leading comments and stuff
             // La dee dah
             // var stump = "trees";
-            function test1(i) {
+            function test1(i)<4> {
                 var b = 0;
                 if (i > 0) {
                     b = i;
@@ -1781,7 +1783,7 @@ class DefnTestCase(CodeIntelTestCase):
                 }
                 return cheeseboogie<2>(i + 1);
             }    
-            var t = test<1>1(0);
+            var t = test<1>1(0)<3>;
             print(t);
         """))
         path = join(test_dir, "scope_bounds.js")
@@ -1789,10 +1791,18 @@ class DefnTestCase(CodeIntelTestCase):
         buf = self.mgr.buf_from_path(path)
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="function", name="test1", line=4,
+                                lpath=[],
             scopestart=1, scopeend=0, path=path, )
         self.assertDefnMatches2(buf, foo_positions[2],
             ilk="function", name="cheeseboogie", line=9,
+                                lpath=['test1'],
             scopestart=4, scopeend=13, path=path, )
+        self.assertScopeLpathIs(
+            markup_text(foo_content, pos=foo_positions[3]),
+            [])
+        self.assertScopeLpathIs(
+            markup_text(foo_content, pos=foo_positions[4]),
+                                ["test1"])
 
 
     @tag("knownfailure")
