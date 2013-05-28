@@ -605,10 +605,6 @@ class PerlTreeEvaluator(PerlTreeEvaluatorBase):
         start_scoperef = self.get_start_scoperef()
         self.info("start scope is %r", start_scoperef)
         hit = self._hit_from_citdl(self.expr, start_scoperef, defn_only=True)
-        # bug 99113: to resolve the defn we want to point to the definition's
-        # container, not itself.
-        if hit[1][1]:
-            hit[1][1].pop()
         return [ self._defn_from_hit(hit) ]
 
     def _perl_type_from_elem(self, elem):
