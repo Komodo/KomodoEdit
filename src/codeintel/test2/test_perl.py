@@ -1641,7 +1641,7 @@ class DefnTestCase(CodeintelPerlTestCase):
             ilk="function", name="test1", line=4, path=path, )
 
     @tag("gisle")
-    def test_lwp(self):
+    def test_lwp_02(self):
         content, positions = unmark_text(dedent("""\
             use LWP;
 
