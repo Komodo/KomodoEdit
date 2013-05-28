@@ -150,7 +150,7 @@ komodoCmdLineHandler.prototype = {
     }
 
     // Logging
-    // Syntax: -L test:DEBUG -L foo:10,bar:20
+    // Syntax: -log test:DEBUG -log foo:10,bar:20
     let {logging} = Components.utils.import("chrome://komodo/content/library/logging.js");
     while (null !== (ar = cmdLine.handleFlagWithParam("log", false))) {
       for (let pair of ar.split(",")) {
