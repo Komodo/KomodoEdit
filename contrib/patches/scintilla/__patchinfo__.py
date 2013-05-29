@@ -17,5 +17,7 @@ def add(config):
     return [
         ("cons", "."),
         ("lexers", "lexers", "force"),
+        ("headless", "headless", "force"),
+        ("include", "include", "force"),
     ]
 
