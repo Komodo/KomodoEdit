@@ -2390,17 +2390,23 @@ def target_mozilla(argv=["mozilla"]):
             ldLibPath.append(pythonLibDir)
             os.environ["LD_LIBRARY_PATH"] = os.pathsep.join(filter(bool, ldLibPath))
 
-        # Make sure mach has the state directory working
-        try:
-            _run_in_dir("%s mach mach-commands" % config.python,
-                        buildDir, log.info)
-        except OSError:
-            pass # mach errors out on first run, that's okay
+        if config.mozVer >= 24.0:
+            # New enough to use mach
+            # Make sure mach has the state directory working
+            try:
+                _run_in_dir("%s mach mach-commands" % config.python,
+                            buildDir, log.info)
+            except OSError:
+                pass # mach errors out on first run, that's okay
 
-        # do the build
-        _run_in_dir("%s mach --log-file %s build" %
-                        (config.python, join(buildDir, "mach.log")),
-                    buildDir, log.info)
+            # do the build
+            _run_in_dir("%s mach --log-file %s build" %
+                            (config.python, join(buildDir, "mach.log")),
+                        buildDir, log.info)
+        else:
+            # Too old to use mach; use GNU make directly
+            _run_in_dir("%s -f client.mk build" % _get_make_command(config, buildDir),
+                        buildDir, log.info)
 
         if config.mozApp == "komodo":
             # argh, komodo dir does not get entered, call make there seperately
