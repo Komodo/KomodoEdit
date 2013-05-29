@@ -1921,6 +1921,8 @@ def target_src_pyxpcom(argv=["src_pyxpcom"]):
         if config.mozVer <= 8.99:
             # Requires the matching branch.
             repo_rev = "TAG_MOZILLA_%d_0_0" % (int(config.mozVer), )
+        elif 18.0 <= config.mozVer <= 18.99:
+            repo_rev = "MOZILLA_18"
         cmd = "hg clone"
         if repo_rev is not None:
             cmd += " -r %s" % (repo_rev, )
