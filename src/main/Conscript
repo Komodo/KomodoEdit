@@ -224,7 +224,7 @@ if ($platform eq "win") {
                             unset PYTHONHOME &&
                             cd $mozSrcMsys/mozilla &&
                             export NUMBER_OF_PROCESSORS=$ENV{NUMBER_OF_PROCESSORS} &&
-                            ./mach -v build -v $mozObjDirMsys/komodo
+                            ./mach -v build -v komodo
                         ");
         $buildCmd =~ s/\r?\n//g;
     }
