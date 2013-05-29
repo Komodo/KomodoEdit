@@ -180,7 +180,7 @@ my %ppData = (
 open(my $config, "<", "$mozObjDir/config/autoconf.mk")
     or die "Can't read Mozilla build config";
 while (<$config>) {
-    if (m/^GRE_MILESTONE\s*=\s*(.*)/) {
+    if (m/^MOZILLA_VERSION\s*=\s*(.*)/) {
         $ppData{PP_GRE_MILESTONE} = $1;
         last;
     }
