@@ -507,6 +507,8 @@ def _setupMozillaEnv():
         if not "PERL" in os.environ:
             os.environ["PERL"] = os.path.join(os.environ["MOZILLABUILD"],
                                               "msys", "bin", "perl.exe").replace("\\", "/")
+        # Tell pymake to use msys
+        os.environ["MSYSTEM"] = "MINGW32"
 
 
 def _applyMozillaPatch(patchFile, mozSrcDir):
