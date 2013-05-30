@@ -105,7 +105,19 @@ KoJSTestCase.prototype.runTest = function KoJSTestCase_runTest(aResult, aTestNam
 
 KoJSTestCase.prototype.setUp = function KoJSTestCase_setUp(aResult) {
     Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService).reset();
-    this.instance = new this.clazz();
+    try {
+        this.instance = new this.clazz();
+    } catch (ex if ex instanceof Error) {
+        let stack = this._getStackForException(ex);
+        aResult.reportError("While creating " + this.name + ": " + (ex.message || ex),
+                            stack, stack.length,
+                            ex.constructor.name);
+        return;
+    } catch (ex) {
+        aResult.reportError("While creating " + this.name + ": " + (ex.message || ex),
+                            [], 0, ex.constructor ? ex.constructor.name : "Error");
+        return;
+    }
     try {
         this.instance.setUp();
     } catch (ex if ex instanceof Error) {

@@ -52,6 +52,13 @@ class JSTestResult(object):
         self.exception = (aErrorType, aErrorMessage, tb_frame)
 
     @unittest.result.failfast
+    def addError(self, test, err):
+        """Overrides unittest.result.TestResult.addError
+        Called when an error has occurred. 'err' is a tuple of values as
+        returned by sys.exc_info()."""
+        return self.result.addError(test, self.exception or err)
+
+    @unittest.result.failfast
     def addFailure(self, test, err):
         """Overrides unittest.result.TestResult.addFailure
         Called when an error has occurred. 'err' is a tuple of values as
