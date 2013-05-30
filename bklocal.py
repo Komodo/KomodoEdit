@@ -2362,7 +2362,7 @@ class MozExe(black.configure.Datum):
         self.applicable = 1
         if sys.platform == "darwin":
             mozBin = black.configure.items['mozBin'].Get()
-            self.value = os.path.join(mozBin, "komodo-bin")
+            self.value = os.path.join(mozBin, "komodo")
         else:
             self.value = black.configure.items['mozApp'].Get()
         self.determined = 1
