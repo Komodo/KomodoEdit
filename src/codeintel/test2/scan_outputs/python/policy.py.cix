@@ -5,26 +5,26 @@
       <import line="21" module="porcupine.db" symbol="db" />
       <import line="22" module="porcupine" symbol="serverExceptions" />
       <scope ilk="function" line="24" lineend="60" name="policymethod" returns="policymethod.PolicyMethod" signature="policymethod(policyid)">
-        <variable ilk="argument" name="policyid" />
+        <variable ilk="argument" line="24" name="policyid" />
         <scope classrefs="object" ilk="class" line="25" lineend="58" name="PolicyMethod">
           <scope attributes="__ctor__" ilk="function" line="26" lineend="29" name="__init__" signature="PolicyMethod(function)">
-            <variable citdl="PolicyMethod" ilk="argument" name="self" />
-            <variable ilk="argument" name="function" />
+            <variable citdl="PolicyMethod" ilk="argument" line="26" name="self" />
+            <variable ilk="argument" line="26" name="function" />
           </scope>
           <variable attributes="__instancevar__" line="27" name="func" />
           <variable attributes="__instancevar__" citdl="function.func_name" line="28" name="name" />
           <variable attributes="__instancevar__" citdl="function.func_doc" line="29" name="__doc__" />
           <scope ilk="function" line="31" lineend="40" name="__get__" returns="types.MethodType()" signature="__get__(servlet, servlet_class)">
-            <variable citdl="PolicyMethod" ilk="argument" name="self" />
-            <variable ilk="argument" name="servlet" />
-            <variable ilk="argument" name="servlet_class" />
+            <variable citdl="PolicyMethod" ilk="argument" line="31" name="self" />
+            <variable ilk="argument" line="31" name="servlet" />
+            <variable ilk="argument" line="31" name="servlet_class" />
             <variable citdl="db.getItem()" line="32" name="policy" />
             <variable citdl="servlet.session.user" line="33" name="user" />
           </scope>
           <scope ilk="function" line="42" lineend="58" name="userHasPolicy" returns="bool" signature="userHasPolicy(user, policy)">
-            <variable citdl="PolicyMethod" ilk="argument" name="self" />
-            <variable ilk="argument" name="user" />
-            <variable ilk="argument" name="policy" />
+            <variable citdl="PolicyMethod" ilk="argument" line="42" name="self" />
+            <variable ilk="argument" line="42" name="user" />
+            <variable ilk="argument" line="42" name="policy" />
             <variable citdl="policy.policyGranted.value" line="43" name="policyGranted" />
             <variable citdl="user._id" line="45" name="userID" />
             <variable citdl="list" line="49" name="memberOf" />

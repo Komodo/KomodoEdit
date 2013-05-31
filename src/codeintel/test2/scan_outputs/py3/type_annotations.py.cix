@@ -3,12 +3,12 @@
     <scope ilk="blob" lang="Python3" name="type_annotations" src="scan_inputs/py3/type_annotations.py">
       <scope ilk="function" line="3" lineend="4" name="func" signature="func()" />
       <scope ilk="function" line="6" lineend="7" name="funk" signature="funk(self, it, recursive)">
-        <variable ilk="argument" name="self" />
-        <variable ilk="argument" name="it" />
-        <variable ilk="argument" name="recursive" />
+        <variable ilk="argument" line="6" name="self" />
+        <variable ilk="argument" line="6" name="it" />
+        <variable ilk="argument" line="6" name="recursive" />
       </scope>
       <scope ilk="function" line="9" lineend="10" name="punk" signature="punk(boo=lambda foo: &apos;bar&apos;)">
-        <variable ilk="argument" name="boo" />
+        <variable ilk="argument" line="9" name="boo" />
       </scope>
     </scope>
   </file>

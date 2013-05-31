@@ -4,8 +4,8 @@
       <import line="3" module="os" />
       <scope classrefs="Mammal" ilk="class" line="5" lineend="8" name="Person">
         <scope attributes="__ctor__" ilk="function" line="6" lineend="8" name="__init__" signature="Person(name)">
-          <variable citdl="Person" ilk="argument" name="self" />
-          <variable ilk="argument" name="name" />
+          <variable citdl="Person" ilk="argument" line="6" name="self" />
+          <variable ilk="argument" line="6" name="name" />
         </scope>
         <variable attributes="__instancevar__" line="7" name="name" />
         <variable attributes="__instancevar__" citdl="str" line="8" name="genus" />

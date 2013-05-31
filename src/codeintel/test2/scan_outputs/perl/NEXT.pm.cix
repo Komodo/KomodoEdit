@@ -5,15 +5,15 @@
         <import line="3" module="Carp" symbol="*" />
         <variable line="2" name="$VERSION" />
         <scope ilk="function" line="6" lineend="16" name="NEXT::ELSEWHERE::ancestors" signature="NEXT::ELSEWHERE::ancestors(@inlist)">
-          <variable ilk="argument" name="@inlist" />
+          <variable ilk="argument" line="8" name="@inlist" />
           <variable attributes="__local__" line="9" name="@outlist" />
         </scope>
         <scope ilk="function" line="18" lineend="30" name="NEXT::ELSEWHERE::ordered_ancestors" signature="NEXT::ELSEWHERE::ordered_ancestors(@inlist)">
-          <variable ilk="argument" name="@inlist" />
+          <variable ilk="argument" line="20" name="@inlist" />
           <variable attributes="__local__" line="21" name="@outlist" />
         </scope>
         <scope ilk="function" line="32" lineend="81" name="AUTOLOAD" signature="AUTOLOAD($self)">
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="34" name="$self" />
           <variable attributes="__local__" line="35" name="$caller" />
           <variable attributes="__local__" line="36" name="$wanted" />
           <variable attributes="__local__" line="38" name="$caller_class" />
@@ -34,7 +34,7 @@
       <scope classrefs="EVERY" ilk="class" line="92" lineend="92" name="EVERY::LAST" />
       <scope classrefs="NEXT" ilk="class" line="93" lineend="157" name="EVERY">
         <scope ilk="function" line="94" lineend="154" name="AUTOLOAD" signature="AUTOLOAD($self)">
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="96" name="$self" />
           <variable attributes="__local__" line="97" name="$caller" />
           <variable attributes="__local__" line="98" name="$wanted" />
           <variable attributes="__local__" line="100" name="$wanted_class" />

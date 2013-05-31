@@ -26,8 +26,8 @@
       <variable line="53" name="$d" />
       <variable attributes="__local__" line="57" name="$d1" />
       <scope ilk="function" line="50" lineend="55" name="foo" signature="foo($a, $b)">
-        <variable ilk="argument" name="$a" />
-        <variable ilk="argument" name="$b" />
+        <variable ilk="argument" line="51" name="$a" />
+        <variable ilk="argument" line="51" name="$b" />
         <variable attributes="__local__" citdl="LWP::UserAgent" line="52" name="$c" />
       </scope>
     </scope>

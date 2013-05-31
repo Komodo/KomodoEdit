@@ -3,14 +3,14 @@
     <scope ilk="blob" lang="Python" name="multiple_inheritance" src="scan_inputs/python/multiple_inheritance.py">
       <scope ilk="class" line="1" name="Alice">
         <scope attributes="__ctor__" doc="give me an A" ilk="function" line="2" name="__init__" signature="Alice(a)">
-          <variable citdl="Alice" ilk="argument" name="self" />
-          <variable ilk="argument" name="a" />
+          <variable citdl="Alice" ilk="argument" line="2" name="self" />
+          <variable ilk="argument" line="2" name="a" />
         </scope>
       </scope>
       <scope ilk="class" line="4" name="Bob">
         <scope attributes="__ctor__" doc="give me a B" ilk="function" line="5" name="__init__" signature="Bob(b)">
-          <variable citdl="Bob" ilk="argument" name="self" />
-          <variable ilk="argument" name="b" />
+          <variable citdl="Bob" ilk="argument" line="5" name="self" />
+          <variable ilk="argument" line="5" name="b" />
         </scope>
       </scope>
       <scope classrefs="Alice Bob" ilk="class" line="7" lineend="8" name="Carl" />

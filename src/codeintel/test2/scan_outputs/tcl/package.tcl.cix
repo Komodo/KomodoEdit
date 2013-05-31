@@ -3,8 +3,8 @@
     <scope ilk="blob" lang="Tcl" name="package" src="scan_inputs/tcl/package.tcl">
       <variable line="7" name="b" />
       <scope ilk="function" line="3" lineend="5" name="a" signature="a {foo bar}">
-        <variable ilk="argument" name="foo" />
-        <variable ilk="argument" name="bar" />
+        <variable ilk="argument" line="3" name="foo" />
+        <variable ilk="argument" line="3" name="bar" />
       </scope>
     </scope>
   </file>

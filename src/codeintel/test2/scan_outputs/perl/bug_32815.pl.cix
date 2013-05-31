@@ -2,9 +2,9 @@
   <file lang="Perl" mtime="42" path="scan_inputs/perl/bug_32815.pl">
     <scope ilk="blob" lang="Perl" name="bug_32815" src="scan_inputs/perl/bug_32815.pl">
       <scope ilk="function" line="1" lineend="21" name="CheckOnly" signature="CheckOnly($section, $line, $input)">
-        <variable ilk="argument" name="$section" />
-        <variable ilk="argument" name="$line" />
-        <variable ilk="argument" name="$input" />
+        <variable ilk="argument" line="3" name="$section" />
+        <variable ilk="argument" line="3" name="$line" />
+        <variable ilk="argument" line="3" name="$input" />
         <variable attributes="__local__" line="4" name="$tmpSection" />
         <variable attributes="__local__" line="4" name="@results" />
         <variable attributes="__local__" line="8" name="$premsg" />

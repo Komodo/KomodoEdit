@@ -22,107 +22,107 @@
           <variable attributes="__local__" citdl="FileUtils" line="85" name="self" />
         </scope>
         <scope doc="Options: noop verbose" ilk="function" line="101" lineend="106" name="cd" signature="cd(dir, options = {}, &amp;block)">
-          <variable ilk="argument" name="dir" />
-          <variable ilk="argument" name="options" />
-          <variable ilk="argument" name="&amp;block" />
+          <variable ilk="argument" line="101" name="dir" />
+          <variable ilk="argument" line="101" name="options" />
+          <variable ilk="argument" line="101" name="&amp;block" />
           <variable attributes="__local__" citdl="FileUtils" line="101" name="self" />
         </scope>
         <scope doc="Options: (none)" ilk="function" line="120" lineend="131" name="uptodate?" signature="uptodate?(new, old_list, options = nil)">
-          <variable ilk="argument" name="new" />
-          <variable ilk="argument" name="old_list" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="120" name="new" />
+          <variable ilk="argument" line="120" name="old_list" />
+          <variable ilk="argument" line="120" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="120" name="self" />
           <variable attributes="__local__" line="124" name="new_time" />
         </scope>
         <scope doc="Options: mode noop verbose" ilk="function" line="144" lineend="153" name="mkdir" signature="mkdir(list, options = {})">
-          <variable ilk="argument" name="list" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="144" name="list" />
+          <variable ilk="argument" line="144" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="144" name="self" />
           <variable attributes="__local__" line="146" name="list" />
         </scope>
         <scope doc="Options: mode noop verbose" ilk="function" line="171" lineend="201" name="mkdir_p" signature="mkdir_p(list, options = {})">
-          <variable ilk="argument" name="list" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="171" name="list" />
+          <variable ilk="argument" line="171" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="171" name="self" />
           <variable attributes="__local__" line="173" name="list" />
           <variable attributes="__local__" citdl="Array" line="186" name="stack" />
           <variable attributes="__local__" line="189" name="path" />
         </scope>
         <scope ilk="function" line="206" lineend="214" name="fu_mkdir" signature="fu_mkdir(path, mode)">
-          <variable ilk="argument" name="path" />
-          <variable ilk="argument" name="mode" />
+          <variable ilk="argument" line="206" name="path" />
+          <variable ilk="argument" line="206" name="mode" />
           <variable attributes="__local__" citdl="FileUtils" line="206" name="self" />
           <variable attributes="__local__" line="207" name="path" />
         </scope>
         <scope doc="Options: noop, verbose" ilk="function" line="228" lineend="237" name="rmdir" signature="rmdir(list, options = {})">
-          <variable ilk="argument" name="list" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="228" name="list" />
+          <variable ilk="argument" line="228" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="228" name="self" />
           <variable attributes="__local__" line="230" name="list" />
         </scope>
         <scope doc="Options: force noop verbose" ilk="function" line="262" lineend="271" name="ln" signature="ln(src, dest, options = {})">
-          <variable ilk="argument" name="src" />
-          <variable ilk="argument" name="dest" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="262" name="src" />
+          <variable ilk="argument" line="262" name="dest" />
+          <variable ilk="argument" line="262" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="262" name="self" />
         </scope>
         <scope doc="Options: force noop verbose" ilk="function" line="297" lineend="306" name="ln_s" signature="ln_s(src, dest, options = {})">
-          <variable ilk="argument" name="src" />
-          <variable ilk="argument" name="dest" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="297" name="src" />
+          <variable ilk="argument" line="297" name="dest" />
+          <variable ilk="argument" line="297" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="297" name="self" />
         </scope>
         <scope doc="Options: noop verbose" ilk="function" line="316" lineend="321" name="ln_sf" signature="ln_sf(src, dest, options = {})">
-          <variable ilk="argument" name="src" />
-          <variable ilk="argument" name="dest" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="316" name="src" />
+          <variable ilk="argument" line="316" name="dest" />
+          <variable ilk="argument" line="316" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="316" name="self" />
           <variable attributes="__local__" line="318" name="options" />
         </scope>
         <scope doc="Options: preserve noop verbose" ilk="function" line="336" lineend="344" name="cp" signature="cp(src, dest, options = {})">
-          <variable ilk="argument" name="src" />
-          <variable ilk="argument" name="dest" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="336" name="src" />
+          <variable ilk="argument" line="336" name="dest" />
+          <variable ilk="argument" line="336" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="336" name="self" />
         </scope>
         <scope doc="Options: preserve noop verbose" ilk="function" line="371" lineend="386" name="cp_r" signature="cp_r(src, dest, options = {})">
-          <variable ilk="argument" name="src" />
-          <variable ilk="argument" name="dest" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="371" name="src" />
+          <variable ilk="argument" line="371" name="dest" />
+          <variable ilk="argument" line="371" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="371" name="self" />
           <variable attributes="__local__" citdl="CopyContext_" line="379" name="ctx" />
         </scope>
         <scope ilk="function" line="388" lineend="401" name="fu_traverse" signature="fu_traverse(prefix, dereference_root = true)">
-          <variable ilk="argument" name="prefix" />
-          <variable ilk="argument" name="dereference_root" />
+          <variable ilk="argument" line="388" name="prefix" />
+          <variable ilk="argument" line="388" name="dereference_root" />
           <variable attributes="__local__" citdl="FileUtils" line="388" name="self" />
           <variable attributes="__local__" citdl="Array" line="389" name="stack" />
           <variable attributes="__local__" citdl="dereference_root" line="390" name="deref" />
           <variable attributes="__local__" line="392" name="st" />
         </scope>
         <scope doc="Copies a file system entry +src+ to +dest+." ilk="function" line="415" lineend="417" name="copy_entry" signature="copy_entry(src, dest, preserve = false, dereference = false)">
-          <variable ilk="argument" name="src" />
-          <variable ilk="argument" name="dest" />
-          <variable ilk="argument" name="preserve" />
-          <variable ilk="argument" name="dereference" />
+          <variable ilk="argument" line="415" name="src" />
+          <variable ilk="argument" line="415" name="dest" />
+          <variable ilk="argument" line="415" name="preserve" />
+          <variable ilk="argument" line="415" name="dereference" />
           <variable attributes="__local__" citdl="FileUtils" line="415" name="self" />
         </scope>
         <scope doc="Copies file contents of +src+ to +dest+." ilk="function" line="423" lineend="425" name="copy_file" signature="copy_file(src, dest, preserve = false, dereference = true)">
-          <variable ilk="argument" name="src" />
-          <variable ilk="argument" name="dest" />
-          <variable ilk="argument" name="preserve" />
-          <variable ilk="argument" name="dereference" />
+          <variable ilk="argument" line="423" name="src" />
+          <variable ilk="argument" line="423" name="dest" />
+          <variable ilk="argument" line="423" name="preserve" />
+          <variable ilk="argument" line="423" name="dereference" />
           <variable attributes="__local__" citdl="FileUtils" line="423" name="self" />
         </scope>
         <scope doc="Copies stream +src+ to +dest+." ilk="function" line="431" lineend="433" name="copy_stream" signature="copy_stream(src, dest)">
-          <variable ilk="argument" name="src" />
-          <variable ilk="argument" name="dest" />
+          <variable ilk="argument" line="431" name="src" />
+          <variable ilk="argument" line="431" name="dest" />
           <variable attributes="__local__" citdl="FileUtils" line="431" name="self" />
         </scope>
         <scope ilk="function" line="435" lineend="442" name="fu_copy_stream0" signature="fu_copy_stream0(src, dest, blksize)">
-          <variable ilk="argument" name="src" />
-          <variable ilk="argument" name="dest" />
-          <variable ilk="argument" name="blksize" />
+          <variable ilk="argument" line="435" name="src" />
+          <variable ilk="argument" line="435" name="dest" />
+          <variable ilk="argument" line="435" name="blksize" />
           <variable attributes="__local__" citdl="FileUtils" line="435" name="self" />
         </scope>
         <scope classrefs="Object" ilk="class" line="445" lineend="553" name="CopyContext_">
@@ -131,158 +131,158 @@
           <variable attributes="__instancevar__ __local__" citdl="dereference" line="450" name="@dereference" />
           <variable attributes="__instancevar__ __local__" citdl="stat" line="451" name="@stat" />
           <scope attributes="__ctor__" ilk="function" line="448" lineend="452" name="initialize" signature="initialize(preserve = false, dereference = false, stat = nil)">
-            <variable ilk="argument" name="preserve" />
-            <variable ilk="argument" name="dereference" />
-            <variable ilk="argument" name="stat" />
+            <variable ilk="argument" line="448" name="preserve" />
+            <variable ilk="argument" line="448" name="dereference" />
+            <variable ilk="argument" line="448" name="stat" />
             <variable attributes="__local__" citdl="CopyContext_" line="448" name="self" />
           </scope>
           <scope ilk="function" line="454" lineend="458" name="copy_entry" signature="copy_entry(src, dest)">
-            <variable ilk="argument" name="src" />
-            <variable ilk="argument" name="dest" />
+            <variable ilk="argument" line="454" name="src" />
+            <variable ilk="argument" line="454" name="dest" />
             <variable attributes="__local__" citdl="CopyContext_" line="454" name="self" />
           </scope>
           <scope ilk="function" line="460" lineend="464" name="copy_content" signature="copy_content(src, dest)">
-            <variable ilk="argument" name="src" />
-            <variable ilk="argument" name="dest" />
+            <variable ilk="argument" line="460" name="src" />
+            <variable ilk="argument" line="460" name="dest" />
             <variable attributes="__local__" citdl="CopyContext_" line="460" name="self" />
           </scope>
           <scope ilk="function" line="468" lineend="498" name="_copy_entry" signature="_copy_entry(src, dest)">
-            <variable ilk="argument" name="src" />
-            <variable ilk="argument" name="dest" />
+            <variable ilk="argument" line="468" name="src" />
+            <variable ilk="argument" line="468" name="dest" />
             <variable attributes="__local__" citdl="CopyContext_" line="468" name="self" />
             <variable attributes="__local__" line="469" name="st" />
           </scope>
           <scope ilk="function" line="500" lineend="507" name="_copy_content" signature="_copy_content(src, dest)">
-            <variable ilk="argument" name="src" />
-            <variable ilk="argument" name="dest" />
+            <variable ilk="argument" line="500" name="src" />
+            <variable ilk="argument" line="500" name="dest" />
             <variable attributes="__local__" citdl="CopyContext_" line="500" name="self" />
             <variable attributes="__local__" line="501" name="st" />
           </scope>
           <scope ilk="function" line="509" lineend="522" name="preserve" signature="preserve(src, dest)">
-            <variable ilk="argument" name="src" />
-            <variable ilk="argument" name="dest" />
+            <variable ilk="argument" line="509" name="src" />
+            <variable ilk="argument" line="509" name="dest" />
             <variable attributes="__local__" citdl="CopyContext_" line="509" name="self" />
             <variable attributes="__local__" line="511" name="st" />
           </scope>
           <scope ilk="function" line="524" lineend="526" name="stat" signature="stat(path)">
-            <variable ilk="argument" name="path" />
+            <variable ilk="argument" line="524" name="path" />
             <variable attributes="__local__" citdl="CopyContext_" line="524" name="self" />
           </scope>
           <scope ilk="function" line="528" lineend="539" name="chmod" signature="chmod(mode, path)">
-            <variable ilk="argument" name="mode" />
-            <variable ilk="argument" name="path" />
+            <variable ilk="argument" line="528" name="mode" />
+            <variable ilk="argument" line="528" name="path" />
             <variable attributes="__local__" citdl="CopyContext_" line="528" name="self" />
           </scope>
           <scope ilk="function" line="541" lineend="552" name="chown" signature="chown(uid, gid, path)">
-            <variable ilk="argument" name="uid" />
-            <variable ilk="argument" name="gid" />
-            <variable ilk="argument" name="path" />
+            <variable ilk="argument" line="541" name="uid" />
+            <variable ilk="argument" line="541" name="gid" />
+            <variable ilk="argument" line="541" name="path" />
             <variable attributes="__local__" citdl="CopyContext_" line="541" name="self" />
           </scope>
         </scope>
         <scope doc="Options: force noop verbose" ilk="function" line="567" lineend="591" name="mv" signature="mv(src, dest, options = {})">
-          <variable ilk="argument" name="src" />
-          <variable ilk="argument" name="dest" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="567" name="src" />
+          <variable ilk="argument" line="567" name="dest" />
+          <variable ilk="argument" line="567" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="567" name="self" />
         </scope>
         <scope ilk="function" line="595" lineend="597" name="rename_cannot_overwrite_file?" signature="rename_cannot_overwrite_file?">
           <variable attributes="__local__" citdl="FileUtils" line="595" name="self" />
         </scope>
         <scope doc="Options: force noop verbose" ilk="function" line="611" lineend="620" name="rm" signature="rm(list, options = {})">
-          <variable ilk="argument" name="list" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="611" name="list" />
+          <variable ilk="argument" line="611" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="611" name="self" />
           <variable attributes="__local__" line="613" name="list" />
         </scope>
         <scope doc="Options: noop verbose" ilk="function" line="630" lineend="635" name="rm_f" signature="rm_f(list, options = {})">
-          <variable ilk="argument" name="list" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="630" name="list" />
+          <variable ilk="argument" line="630" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="630" name="self" />
           <variable attributes="__local__" line="632" name="options" />
         </scope>
         <scope doc="Options: force noop verbose" ilk="function" line="649" lineend="667" name="rm_r" signature="rm_r(list, options = {})">
-          <variable ilk="argument" name="list" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="649" name="list" />
+          <variable ilk="argument" line="649" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="649" name="self" />
           <variable attributes="__local__" line="651" name="list" />
           <variable attributes="__local__" line="657" name="st" />
         </scope>
         <scope doc="Options: noop verbose" ilk="function" line="675" lineend="680" name="rm_rf" signature="rm_rf(list, options = {})">
-          <variable ilk="argument" name="list" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="675" name="list" />
+          <variable ilk="argument" line="675" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="675" name="self" />
           <variable attributes="__local__" line="677" name="options" />
         </scope>
         <scope ilk="function" line="684" lineend="699" name="remove_file" signature="remove_file(fname, force = false)">
-          <variable ilk="argument" name="fname" />
-          <variable ilk="argument" name="force" />
+          <variable ilk="argument" line="684" name="fname" />
+          <variable ilk="argument" line="684" name="force" />
           <variable attributes="__local__" citdl="FileUtils" line="684" name="self" />
           <variable attributes="__local__" line="685" name="first_time_p" />
         </scope>
         <scope ilk="function" line="701" lineend="718" name="remove_dir" signature="remove_dir(dir, force = false)">
-          <variable ilk="argument" name="dir" />
-          <variable ilk="argument" name="force" />
+          <variable ilk="argument" line="701" name="dir" />
+          <variable ilk="argument" line="701" name="force" />
           <variable attributes="__local__" citdl="FileUtils" line="701" name="self" />
           <variable attributes="__local__" citdl="String" line="704" name="path" />
         </scope>
         <scope doc="Returns true if the contents of a file A and a file B are&#xA;identical." ilk="function" line="727" lineend="734" name="compare_file" signature="compare_file(a, b)">
-          <variable ilk="argument" name="a" />
-          <variable ilk="argument" name="b" />
+          <variable ilk="argument" line="727" name="a" />
+          <variable ilk="argument" line="727" name="b" />
           <variable attributes="__local__" citdl="FileUtils" line="727" name="self" />
         </scope>
         <scope doc="Returns true if the contents of a stream +a+ and +b+ are&#xA;identical." ilk="function" line="742" lineend="755" name="compare_stream" signature="compare_stream(a, b)">
-          <variable ilk="argument" name="a" />
-          <variable ilk="argument" name="b" />
+          <variable ilk="argument" line="742" name="a" />
+          <variable ilk="argument" line="742" name="b" />
           <variable attributes="__local__" citdl="FileUtils" line="742" name="self" />
           <variable attributes="__local__" line="743" name="bsize" />
           <variable attributes="__local__" line="744" name="sa" />
           <variable attributes="__local__" line="747" name="sb" />
         </scope>
         <scope doc="Options: mode noop verbose" ilk="function" line="767" lineend="781" name="install" signature="install(src, dest, options = {})">
-          <variable ilk="argument" name="src" />
-          <variable ilk="argument" name="dest" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="767" name="src" />
+          <variable ilk="argument" line="767" name="dest" />
+          <variable ilk="argument" line="767" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="767" name="self" />
           <variable attributes="__local__" line="775" name="st" />
         </scope>
         <scope doc="Options: noop verbose" ilk="function" line="794" lineend="800" name="chmod" signature="chmod(mode, list, options = {})">
-          <variable ilk="argument" name="mode" />
-          <variable ilk="argument" name="list" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="794" name="mode" />
+          <variable ilk="argument" line="794" name="list" />
+          <variable ilk="argument" line="794" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="794" name="self" />
           <variable attributes="__local__" line="796" name="list" />
         </scope>
         <scope doc="Options: noop verbose" ilk="function" line="812" lineend="828" name="touch" signature="touch(list, options = {})">
-          <variable ilk="argument" name="list" />
-          <variable ilk="argument" name="options" />
+          <variable ilk="argument" line="812" name="list" />
+          <variable ilk="argument" line="812" name="options" />
           <variable attributes="__local__" citdl="FileUtils" line="812" name="self" />
           <variable attributes="__local__" line="814" name="list" />
           <variable attributes="__local__" line="818" name="t" />
         </scope>
         <scope ilk="function" line="832" lineend="838" name="fu_check_options" signature="fu_check_options(options, *optdecl)">
-          <variable ilk="argument" name="options" />
-          <variable ilk="argument" name="*optdecl" />
+          <variable ilk="argument" line="832" name="options" />
+          <variable ilk="argument" line="832" name="*optdecl" />
           <variable attributes="__local__" citdl="FileUtils" line="832" name="self" />
           <variable attributes="__local__" line="833" name="h" />
         </scope>
         <scope ilk="function" line="840" lineend="842" name="fu_list" signature="fu_list(arg)">
-          <variable ilk="argument" name="arg" />
+          <variable ilk="argument" line="840" name="arg" />
           <variable attributes="__local__" citdl="FileUtils" line="840" name="self" />
         </scope>
         <scope ilk="function" line="844" lineend="849" name="fu_each_src_dest" signature="fu_each_src_dest(src, dest)">
-          <variable ilk="argument" name="src" />
-          <variable ilk="argument" name="dest" />
+          <variable ilk="argument" line="844" name="src" />
+          <variable ilk="argument" line="844" name="dest" />
           <variable attributes="__local__" citdl="FileUtils" line="844" name="self" />
         </scope>
         <scope ilk="function" line="851" lineend="863" name="fu_each_src_dest0" signature="fu_each_src_dest0(src, dest)">
-          <variable ilk="argument" name="src" />
-          <variable ilk="argument" name="dest" />
+          <variable ilk="argument" line="851" name="src" />
+          <variable ilk="argument" line="851" name="dest" />
           <variable attributes="__local__" citdl="FileUtils" line="851" name="self" />
         </scope>
         <scope ilk="function" line="865" lineend="875" name="fu_same?" signature="fu_same?(a, b)">
-          <variable ilk="argument" name="a" />
-          <variable ilk="argument" name="b" />
+          <variable ilk="argument" line="865" name="a" />
+          <variable ilk="argument" line="865" name="b" />
           <variable attributes="__local__" citdl="FileUtils" line="865" name="self" />
           <variable attributes="__local__" line="867" name="st1" />
           <variable attributes="__local__" line="868" name="st2" />
@@ -291,12 +291,12 @@
           <variable attributes="__local__" citdl="FileUtils" line="877" name="self" />
         </scope>
         <scope ilk="function" line="881" lineend="888" name="fu_stream_blksize" signature="fu_stream_blksize(*streams)">
-          <variable ilk="argument" name="*streams" />
+          <variable ilk="argument" line="881" name="*streams" />
           <variable attributes="__local__" citdl="FileUtils" line="881" name="self" />
           <variable attributes="__local__" line="884" name="size" />
         </scope>
         <scope ilk="function" line="890" lineend="895" name="fu_blksize" signature="fu_blksize(st)">
-          <variable ilk="argument" name="st" />
+          <variable ilk="argument" line="890" name="st" />
           <variable attributes="__local__" citdl="FileUtils" line="890" name="self" />
           <variable attributes="__local__" line="891" name="s" />
         </scope>
@@ -304,12 +304,12 @@
           <variable attributes="__local__" citdl="FileUtils" line="897" name="self" />
         </scope>
         <scope ilk="function" line="904" lineend="908" name="fu_output_message" signature="fu_output_message(msg)">
-          <variable ilk="argument" name="msg" />
+          <variable ilk="argument" line="904" name="msg" />
           <variable attributes="__local__" citdl="FileUtils" line="904" name="self" />
         </scope>
         <scope ilk="function" line="910" lineend="917" name="fu_update_option" signature="fu_update_option(args, new)">
-          <variable ilk="argument" name="args" />
-          <variable ilk="argument" name="new" />
+          <variable ilk="argument" line="910" name="args" />
+          <variable ilk="argument" line="910" name="new" />
           <variable attributes="__local__" citdl="FileUtils" line="910" name="self" />
         </scope>
         <scope doc="This module has all methods of FileUtils module, but it&#xA;outputs messages before acting." ilk="namespace" line="959" lineend="972" name="Verbose">

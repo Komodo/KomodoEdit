@@ -8,11 +8,11 @@
         <variable attributes="__instancevar__ __local__" citdl="Fixnum" line="4" name="@wtr" />
         <scope ilk="function" line="2" lineend="2" name="acc" />
         <scope ilk="function" line="2" lineend="2" name="acc=">
-          <variable ilk="argument" name="acc" />
+          <variable ilk="argument" line="2" name="acc" />
         </scope>
         <scope ilk="function" line="3" lineend="3" name="rdr" />
         <scope ilk="function" line="4" lineend="4" name="wtr=">
-          <variable ilk="argument" name="wtr" />
+          <variable ilk="argument" line="4" name="wtr" />
         </scope>
         <scope attributes="__ctor__" ilk="function" line="5" lineend="9" name="initialize" signature="initialize">
           <variable attributes="__local__" citdl="Bug62338" line="5" name="self" />

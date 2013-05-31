@@ -5,15 +5,15 @@
         <variable line="4" name="$VERSION" />
         <variable attributes="__local__" line="130" name="$tmpdir" />
         <scope ilk="function" line="35" lineend="58" name="canonpath" signature="canonpath($self, $path)">
-          <variable ilk="argument" name="$self" />
-          <variable ilk="argument" name="$path" />
+          <variable ilk="argument" line="36" name="$self" />
+          <variable ilk="argument" line="36" name="$path" />
           <variable attributes="__local__" line="43" name="$node" />
         </scope>
         <scope ilk="function" line="70" lineend="74" name="catdir" signature="catdir($self)">
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="71" name="$self" />
         </scope>
         <scope ilk="function" line="83" lineend="90" name="catfile" signature="catfile($self)">
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="84" name="$self" />
           <variable attributes="__local__" line="85" name="$file" />
           <variable attributes="__local__" line="87" name="$dir" />
         </scope>
@@ -21,54 +21,54 @@
         <scope ilk="function" line="106" lineend="106" name="devnull" signature="devnull()" />
         <scope ilk="function" line="114" lineend="114" name="rootdir" signature="rootdir()" />
         <scope ilk="function" line="131" lineend="150" name="_tmpdir" signature="_tmpdir($self, @dirlist)">
-          <variable ilk="argument" name="$self" />
-          <variable ilk="argument" name="@dirlist" />
+          <variable ilk="argument" line="133" name="$self" />
+          <variable ilk="argument" line="134" name="@dirlist" />
           <import line="138" module="Scalar::Util" />
         </scope>
         <scope ilk="function" line="152" lineend="156" name="tmpdir" signature="tmpdir($self)">
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="154" name="$self" />
         </scope>
         <scope ilk="function" line="164" lineend="164" name="updir" signature="updir()" />
         <scope ilk="function" line="173" lineend="176" name="no_upwards" signature="no_upwards($self)">
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="174" name="$self" />
         </scope>
         <scope ilk="function" line="185" lineend="185" name="case_tolerant" signature="case_tolerant()" />
         <scope ilk="function" line="197" lineend="200" name="file_name_is_absolute" signature="file_name_is_absolute($self, $file)">
-          <variable ilk="argument" name="$self" />
-          <variable ilk="argument" name="$file" />
+          <variable ilk="argument" line="198" name="$self" />
+          <variable ilk="argument" line="198" name="$file" />
         </scope>
         <scope ilk="function" line="208" lineend="213" name="path" signature="path()">
           <variable attributes="__local__" line="210" name="@path" />
         </scope>
         <scope ilk="function" line="221" lineend="224" name="join" signature="join($self)">
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="222" name="$self" />
         </scope>
         <scope ilk="function" line="246" lineend="261" name="splitpath" signature="splitpath($self, $path, $nofile)">
-          <variable ilk="argument" name="$self" />
-          <variable ilk="argument" name="$path" />
-          <variable ilk="argument" name="$nofile" />
+          <variable ilk="argument" line="247" name="$self" />
+          <variable ilk="argument" line="247" name="$path" />
+          <variable ilk="argument" line="247" name="$nofile" />
           <variable attributes="__local__" line="249" name="$directory" />
           <variable attributes="__local__" line="249" name="$file" />
           <variable attributes="__local__" line="249" name="$volume" />
         </scope>
         <scope ilk="function" line="288" lineend="290" name="splitdir" signature="splitdir()" />
         <scope ilk="function" line="302" lineend="317" name="catpath" signature="catpath($self, $volume, $directory, $file)">
-          <variable ilk="argument" name="$self" />
-          <variable ilk="argument" name="$volume" />
-          <variable ilk="argument" name="$directory" />
-          <variable ilk="argument" name="$file" />
+          <variable ilk="argument" line="303" name="$self" />
+          <variable ilk="argument" line="303" name="$volume" />
+          <variable ilk="argument" line="303" name="$directory" />
+          <variable ilk="argument" line="303" name="$file" />
         </scope>
         <scope ilk="function" line="347" lineend="395" name="abs2rel" signature="abs2rel($self, $path, $base)">
-          <variable ilk="argument" name="$self" />
-          <variable ilk="argument" name="$path" />
-          <variable ilk="argument" name="$base" />
+          <variable ilk="argument" line="348" name="$self" />
+          <variable ilk="argument" line="348" name="$path" />
+          <variable ilk="argument" line="348" name="$base" />
           <variable attributes="__local__" line="370" name="@pathchunks" />
           <variable attributes="__local__" line="371" name="@basechunks" />
         </scope>
         <scope ilk="function" line="423" lineend="444" name="rel2abs" signature="rel2abs($self, $path, $base)">
-          <variable ilk="argument" name="$self" />
-          <variable ilk="argument" name="$path" />
-          <variable ilk="argument" name="$base" />
+          <variable ilk="argument" line="424" name="$self" />
+          <variable ilk="argument" line="424" name="$path" />
+          <variable ilk="argument" line="424" name="$base" />
         </scope>
         <scope ilk="function" line="457" lineend="460" name="_cwd" signature="_cwd()">
           <import line="458" module="Cwd" />

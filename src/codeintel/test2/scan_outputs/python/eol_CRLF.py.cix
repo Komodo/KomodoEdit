@@ -5,8 +5,8 @@
       <import line="4" module="time" />
       <import line="5" module="thread" />
       <scope ilk="function" line="7" lineend="10" name="counting" signature="counting(name, duration=10)">
-        <variable ilk="argument" name="name" />
-        <variable citdl="int" ilk="argument" name="duration" />
+        <variable ilk="argument" line="7" name="name" />
+        <variable citdl="int" ilk="argument" line="7" name="duration" />
       </scope>
     </scope>
   </file>

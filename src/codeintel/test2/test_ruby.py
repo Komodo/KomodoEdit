@@ -2815,6 +2815,33 @@ class _BaseTestCase(CodeIntelTestCase):
             ilk="function", name="cheeseboogie", line=7,
             scopestart=3, scopeend=10, path=path, )
 
+    @tag("bug99177")
+    def test_argument_defn_line(self):
+        test_dir = join(self.test_dir, "argument_defn_line")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            # And a comment
+            def nop
+            end
+            def test1(ibix,
+                      llama)
+                b = lla<1>ma
+                return b + ibix<2> + 1
+
+            t = test1(0, 3)
+            print(t)
+        """))
+        path = join(test_dir, "scope_bounds.rb")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        # Although llama is defined at line 5,
+        # we only get enough information to tie it to the function
+        # defined at line 4
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="argument", name="llama", line=4,
+            path=path)
+        self.assertDefnMatches2(buf, foo_positions[2],
+            ilk="argument", name="ibix", line=4, path=path, )
+
 
 class PureTestCase(_BaseTestCase):
     lang = "Ruby"

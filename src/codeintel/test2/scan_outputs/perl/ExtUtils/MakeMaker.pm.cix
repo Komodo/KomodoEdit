@@ -29,12 +29,12 @@
         <variable attributes="__local__" line="195" name="$PACKNAME" />
         <variable line="648" name="$ExtUtils::Manifest::Quiet" />
         <scope attributes="__exported__" ilk="function" line="45" lineend="57" name="WriteMakefile" signature="WriteMakefile(%att)">
-          <variable ilk="argument" name="%att" />
+          <variable ilk="argument" line="49" name="%att" />
           <import line="48" module="ExtUtils::MY" />
           <variable attributes="__local__" citdl="MM" line="53" name="$mm" />
         </scope>
         <scope ilk="function" line="105" lineend="127" name="_verify_att" signature="_verify_att($att)">
-          <variable ilk="argument" name="$att" />
+          <variable ilk="argument" line="106" name="$att" />
           <variable attributes="__local__" line="109" name="$sig" />
           <variable attributes="__local__" line="115" name="@sigs" />
           <variable attributes="__local__" line="116" name="$given" />
@@ -42,14 +42,14 @@
           <variable attributes="__local__" line="121" name="$has" />
         </scope>
         <scope attributes="__exported__" ilk="function" line="129" lineend="158" name="prompt" signature="prompt($mess, $def)">
-          <variable ilk="argument" name="$mess" />
-          <variable ilk="argument" name="$def" />
+          <variable ilk="argument" line="130" name="$mess" />
+          <variable ilk="argument" line="130" name="$def" />
           <variable attributes="__local__" line="134" name="$isa_tty" />
           <variable attributes="__local__" line="136" name="$dispdef" />
           <variable attributes="__local__" line="143" name="$ans" />
         </scope>
         <scope ilk="function" line="160" lineend="173" name="eval_in_subdirs" signature="eval_in_subdirs($self)">
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="161" name="$self" />
           <import line="162" module="Cwd" symbol="cwd" />
           <import line="162" module="Cwd" symbol="abs_path" />
           <variable attributes="__local__" line="163" name="$pwd" />
@@ -57,8 +57,8 @@
           <variable attributes="__local__" line="169" name="$abs" />
         </scope>
         <scope ilk="function" line="175" lineend="191" name="eval_in_x" signature="eval_in_x($self, $dir)">
-          <variable ilk="argument" name="$self" />
-          <variable ilk="argument" name="$dir" />
+          <variable ilk="argument" line="176" name="$self" />
+          <variable ilk="argument" line="176" name="$dir" />
         </scope>
         <scope ilk="function" line="197" lineend="323" name="full_setup" signature="full_setup()">
           <variable attributes="__local__" line="200" name="@attrib_help" />
@@ -66,8 +66,8 @@
         </scope>
         <scope attributes="__exported__" ilk="function" line="325" lineend="343" name="writeMakefile" signature="writeMakefile()" />
         <scope attributes="__ctor__" ilk="function" line="345" lineend="613" name="new" signature="new($class, $self)">
-          <variable ilk="argument" name="$class" />
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="346" name="$class" />
+          <variable ilk="argument" line="346" name="$self" />
           <import line="355" module="Data::Dumper" />
           <import line="433" module="ExtUtils::MY" />
           <import line="498" module="VMS::Filespec" />
@@ -95,7 +95,7 @@
           <variable attributes="__local__" line="603" name="%a" />
         </scope>
         <scope ilk="function" line="615" lineend="642" name="WriteEmptyMakefile" signature="WriteEmptyMakefile(%att)">
-          <variable ilk="argument" name="%att" />
+          <variable ilk="argument" line="618" name="%att" />
           <variable attributes="__local__" citdl="MM" line="619" name="$self" />
         </scope>
         <scope ilk="function" line="644" lineend="658" name="check_manifest" signature="check_manifest()">
@@ -103,8 +103,8 @@
           <variable attributes="__local__" line="649" name="@missed" />
         </scope>
         <scope ilk="function" line="660" lineend="728" name="parse_args" signature="parse_args($self, @args)">
-          <variable ilk="argument" name="$self" />
-          <variable ilk="argument" name="@args" />
+          <variable ilk="argument" line="661" name="$self" />
+          <variable ilk="argument" line="661" name="@args" />
           <variable attributes="__local__" line="667" name="$name" />
           <variable attributes="__local__" line="667" name="$value" />
           <variable attributes="__local__" line="682" name="$msg" />
@@ -113,7 +113,7 @@
           <variable attributes="__local__" line="721" name="$mmkey" />
         </scope>
         <scope ilk="function" line="730" lineend="757" name="check_hints" signature="check_hints($self)">
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="731" name="$self" />
           <import line="734" module="File::Spec" />
           <variable attributes="__local__" line="735" name="$curdir" />
           <variable attributes="__local__" line="737" name="$hint_dir" />
@@ -126,32 +126,32 @@
           <variable attributes="__local__" line="772" name="$error" />
         </scope>
         <scope ilk="function" line="777" lineend="835" name="mv_all_methods" signature="mv_all_methods($from, $to)">
-          <variable ilk="argument" name="$from" />
-          <variable ilk="argument" name="$to" />
+          <variable ilk="argument" line="778" name="$from" />
+          <variable ilk="argument" line="778" name="$to" />
           <variable attributes="__local__" line="780" name="$symtab" />
           <variable attributes="__local__" line="791" name="$method" />
         </scope>
         <scope ilk="function" line="837" lineend="860" name="skipcheck" signature="skipcheck($section)">
-          <variable ilk="argument" name="$section" />
+          <variable ilk="argument" line="839" name="$section" />
           <variable attributes="__local__" line="838" name="$self" />
         </scope>
         <scope ilk="function" line="862" lineend="890" name="flush" signature="flush($self)">
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="863" name="$self" />
           <variable attributes="__local__" line="864" name="$chunk" />
           <variable attributes="__local__" line="876" name="$finalname" />
           <variable attributes="__local__" line="881" name="%keep" />
         </scope>
         <scope ilk="function" line="894" lineend="899" name="_rename" signature="_rename($src, $dest)">
-          <variable ilk="argument" name="$src" />
-          <variable ilk="argument" name="$dest" />
+          <variable ilk="argument" line="895" name="$src" />
+          <variable ilk="argument" line="895" name="$dest" />
         </scope>
         <scope ilk="function" line="902" lineend="906" name="_unlink" signature="_unlink(@files)">
-          <variable ilk="argument" name="@files" />
+          <variable ilk="argument" line="903" name="@files" />
         </scope>
         <scope attributes="__exportable__" ilk="function" line="912" lineend="918" name="mkbootstrap" signature="mkbootstrap()" />
         <scope attributes="__exportable__" ilk="function" line="921" lineend="927" name="mksymlists" signature="mksymlists()" />
         <scope attributes="__exportable__" ilk="function" line="929" lineend="951" name="neatvalue" signature="neatvalue($v)">
-          <variable ilk="argument" name="$v" />
+          <variable ilk="argument" line="930" name="$v" />
           <variable attributes="__local__" line="932" name="$t" />
           <variable attributes="__local__" line="935" name="@m" />
           <variable attributes="__local__" line="935" name="@neat" />
@@ -160,7 +160,7 @@
           <variable attributes="__local__" line="945" name="$val" />
         </scope>
         <scope ilk="function" line="953" lineend="967" name="selfdocument" signature="selfdocument($self)">
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="954" name="$self" />
           <variable attributes="__local__" line="955" name="@m" />
           <variable attributes="__local__" line="958" name="$key" />
           <variable attributes="__local__" line="960" name="$v" />

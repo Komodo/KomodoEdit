@@ -731,7 +731,10 @@ class ModuleInfo:
             for argName in funcInfo.argList:
                 argInfo = funcInfo.aArg.get(argName)
                 if argInfo:
-                    argNode = SubElement(funcNode, 'variable', ilk='argument', name=argInfo[0]['name'])
+                    kwargs = {'ilk':'argument', 'name':argInfo[0]['name']}
+                    if 'line' in argInfo[0]:
+                        kwargs['line'] = str(argInfo[0]['line'])
+                    argNode = SubElement(funcNode, 'variable', **kwargs)
                     self.printTypeInfo(argInfo, argNode)
             if self.provide_full_docs:
                 if not docString:

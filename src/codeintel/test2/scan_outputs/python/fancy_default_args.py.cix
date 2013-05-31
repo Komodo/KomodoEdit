@@ -5,58 +5,58 @@
       <import line="3" module="re" />
       <variable citdl="int" line="5" name="BLAH" />
       <scope ilk="function" line="7" lineend="14" name="foo" signature="foo(strarg=&apos;1&apos;, intarg=2, variablearg=BLAH, getattrarg=os.curdir, listarg=[&apos;1&apos;, 2, BLAH], dictarg={1: &apos;one&apos;, 2: &apos;two&apos;, 3: BLAH}, tuplearg=(&apos;1&apos;, 2, BLAH))">
-        <variable citdl="str" ilk="argument" name="strarg" />
-        <variable citdl="int" ilk="argument" name="intarg" />
-        <variable citdl="int" ilk="argument" name="variablearg" />
-        <variable citdl="os.curdir" ilk="argument" name="getattrarg" />
-        <variable citdl="list" ilk="argument" name="listarg" />
-        <variable citdl="dict" ilk="argument" name="dictarg" />
-        <variable citdl="tuple" ilk="argument" name="tuplearg" />
+        <variable citdl="str" ilk="argument" line="7" name="strarg" />
+        <variable citdl="int" ilk="argument" line="7" name="intarg" />
+        <variable citdl="int" ilk="argument" line="7" name="variablearg" />
+        <variable citdl="os.curdir" ilk="argument" line="7" name="getattrarg" />
+        <variable citdl="list" ilk="argument" line="7" name="listarg" />
+        <variable citdl="dict" ilk="argument" line="7" name="dictarg" />
+        <variable citdl="tuple" ilk="argument" line="7" name="tuplearg" />
       </scope>
       <scope ilk="function" line="16" lineend="28" name="mathy" signature="mathy(unaryaddarg=+1, unarysubarg=-1, addarg=1+2, subarg=1-2, mularg=1*2, divarg=1/2, floordivarg=1//2, bitorarg=1|2|3, bitandarg=1&amp;2&amp;3, bitxorarg=1^2^3, bitmixedarg=((1|BLAH)&amp;3)^4)">
-        <variable citdl="int" ilk="argument" name="unaryaddarg" />
-        <variable citdl="int" ilk="argument" name="unarysubarg" />
-        <variable citdl="int" ilk="argument" name="addarg" />
-        <variable citdl="int" ilk="argument" name="subarg" />
-        <variable citdl="int" ilk="argument" name="mularg" />
-        <variable citdl="int" ilk="argument" name="divarg" />
-        <variable citdl="int" ilk="argument" name="floordivarg" />
-        <variable citdl="int" ilk="argument" name="bitorarg" />
-        <variable citdl="int" ilk="argument" name="bitandarg" />
-        <variable citdl="int" ilk="argument" name="bitxorarg" />
-        <variable citdl="int" ilk="argument" name="bitmixedarg" />
+        <variable citdl="int" ilk="argument" line="16" name="unaryaddarg" />
+        <variable citdl="int" ilk="argument" line="16" name="unarysubarg" />
+        <variable citdl="int" ilk="argument" line="16" name="addarg" />
+        <variable citdl="int" ilk="argument" line="16" name="subarg" />
+        <variable citdl="int" ilk="argument" line="16" name="mularg" />
+        <variable citdl="int" ilk="argument" line="16" name="divarg" />
+        <variable citdl="int" ilk="argument" line="16" name="floordivarg" />
+        <variable citdl="int" ilk="argument" line="16" name="bitorarg" />
+        <variable citdl="int" ilk="argument" line="16" name="bitandarg" />
+        <variable citdl="int" ilk="argument" line="16" name="bitxorarg" />
+        <variable citdl="int" ilk="argument" line="16" name="bitmixedarg" />
       </scope>
       <scope ilk="function" line="30" lineend="35" name="lambdafuncdefaults" signature="lambdafuncdefaults(argsarg=lambda a,b: &apos;foo&apos;, varargsarg=lambda *a: &apos;foo&apos;, kwargsarg=lambda **a: &apos;foo&apos;, defaultsarg=lambda a=1,b=&apos;2&apos;: &apos;foo&apos;, allarg=lambda a,b=1,*c,**d: &apos;foo&apos;)">
-        <variable ilk="argument" name="argsarg" />
-        <variable ilk="argument" name="varargsarg" />
-        <variable ilk="argument" name="kwargsarg" />
-        <variable ilk="argument" name="defaultsarg" />
-        <variable ilk="argument" name="allarg" />
+        <variable ilk="argument" line="30" name="argsarg" />
+        <variable ilk="argument" line="30" name="varargsarg" />
+        <variable ilk="argument" line="30" name="kwargsarg" />
+        <variable ilk="argument" line="30" name="defaultsarg" />
+        <variable ilk="argument" line="30" name="allarg" />
       </scope>
       <scope attributes="protected" ilk="function" line="39" lineend="43" name="_decode" returns="unicode()" signature="_decode(data, encoding, is8bit=re.compile(&apos;[\x80-\xff]&apos;).search)">
-        <variable citdl="unicode()" ilk="argument" name="data" />
-        <variable ilk="argument" name="encoding" />
-        <variable ilk="argument" name="is8bit" />
+        <variable citdl="unicode()" ilk="argument" line="39" name="data" />
+        <variable ilk="argument" line="39" name="encoding" />
+        <variable ilk="argument" line="39" name="is8bit" />
       </scope>
       <scope doc="Create and return a temporary file (opened read-write by default)." ilk="function" line="46" name="TemporaryFile" signature="TemporaryFile(mode=&apos;w+b&apos;, bufsize=-1, suffix=&apos;&apos;)">
-        <variable citdl="str" ilk="argument" name="mode" />
-        <variable citdl="int" ilk="argument" name="bufsize" />
-        <variable citdl="str" ilk="argument" name="suffix" />
+        <variable citdl="str" ilk="argument" line="46" name="mode" />
+        <variable citdl="int" ilk="argument" line="46" name="bufsize" />
+        <variable citdl="str" ilk="argument" line="46" name="suffix" />
       </scope>
       <scope doc="copy data from file-like object fsrc to file-like object fdst" ilk="function" line="50" name="copyfileobj" signature="copyfileobj(fsrc, fdst, length=16*1024)">
-        <variable ilk="argument" name="fsrc" />
-        <variable ilk="argument" name="fdst" />
-        <variable citdl="int" ilk="argument" name="length" />
+        <variable ilk="argument" line="50" name="fsrc" />
+        <variable ilk="argument" line="50" name="fdst" />
+        <variable citdl="int" ilk="argument" line="50" name="length" />
       </scope>
       <scope ilk="function" line="54" lineend="54" name="joinseq" signature="joinseq()" />
       <scope ilk="function" line="55" lineend="61" name="formatargspec" signature="formatargspec(args, varargs=None, varkw=None, defaults=None, formatarg=str, formatvarargs=lambda name: &apos;*&apos;+name, join=joinseq)">
-        <variable ilk="argument" name="args" />
-        <variable ilk="argument" name="varargs" />
-        <variable ilk="argument" name="varkw" />
-        <variable ilk="argument" name="defaults" />
-        <variable citdl="str" ilk="argument" name="formatarg" />
-        <variable ilk="argument" name="formatvarargs" />
-        <variable citdl="joinseq" ilk="argument" name="join" />
+        <variable ilk="argument" line="55" name="args" />
+        <variable ilk="argument" line="55" name="varargs" />
+        <variable ilk="argument" line="55" name="varkw" />
+        <variable ilk="argument" line="55" name="defaults" />
+        <variable citdl="str" ilk="argument" line="55" name="formatarg" />
+        <variable ilk="argument" line="55" name="formatvarargs" />
+        <variable citdl="joinseq" ilk="argument" line="55" name="join" />
       </scope>
     </scope>
   </file>

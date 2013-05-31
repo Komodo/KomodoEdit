@@ -4,8 +4,8 @@
       <import line="2" module="base64" symbol="*" />
       <variable line="8" name="b" />
       <scope ilk="function" line="4" lineend="6" name="a" signature="a {foo bar}">
-        <variable ilk="argument" name="foo" />
-        <variable ilk="argument" name="bar" />
+        <variable ilk="argument" line="4" name="foo" />
+        <variable ilk="argument" line="4" name="bar" />
       </scope>
     </scope>
   </file>

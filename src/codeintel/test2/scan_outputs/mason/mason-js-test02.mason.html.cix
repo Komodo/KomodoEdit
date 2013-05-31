@@ -14,9 +14,9 @@
       <scope ilk="function" line="24" lineend="25" name="ab" signature="ab()" />
       <scope ilk="function" line="26" lineend="27" name="myfunc" signature="myfunc()" />
       <scope ilk="function" line="31" lineend="33" name="foo2" signature="foo2($p1, $p2, @p_rest)">
-        <variable ilk="argument" name="$p1" />
-        <variable ilk="argument" name="$p2" />
-        <variable ilk="argument" name="@p_rest" />
+        <variable ilk="argument" line="32" name="$p1" />
+        <variable ilk="argument" line="32" name="$p2" />
+        <variable ilk="argument" line="32" name="@p_rest" />
       </scope>
     </scope>
   </file>

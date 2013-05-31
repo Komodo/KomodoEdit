@@ -27,24 +27,24 @@
         <variable line="156" name="$attr_list" />
         <variable attributes="__local__" line="204" name="$self_mod_time" />
         <scope attributes="__exported__" ilk="function" line="160" lineend="169" name="autosplit" signature="autosplit($file, $autodir, $keep, $ckal, $ckmt)">
-          <variable ilk="argument" name="$file" />
-          <variable ilk="argument" name="$autodir" />
-          <variable ilk="argument" name="$keep" />
-          <variable ilk="argument" name="$ckal" />
-          <variable ilk="argument" name="$ckmt" />
+          <variable ilk="argument" line="161" name="$file" />
+          <variable ilk="argument" line="161" name="$autodir" />
+          <variable ilk="argument" line="161" name="$keep" />
+          <variable ilk="argument" line="161" name="$ckal" />
+          <variable ilk="argument" line="161" name="$ckmt" />
         </scope>
         <scope attributes="__exported__" ilk="function" line="175" lineend="199" name="autosplit_lib_modules" signature="autosplit_lib_modules(@modules)">
-          <variable ilk="argument" name="@modules" />
+          <variable ilk="argument" line="176" name="@modules" />
           <variable attributes="__local__" line="184" name="$lib" />
           <variable attributes="__local__" line="190" name="$dir" />
           <variable attributes="__local__" line="190" name="$name" />
         </scope>
         <scope ilk="function" line="206" lineend="433" name="autosplit_file" signature="autosplit_file($filename, $autodir, $keep, $check_for_autoloader, $check_mod_time)">
-          <variable ilk="argument" name="$filename" />
-          <variable ilk="argument" name="$autodir" />
-          <variable ilk="argument" name="$keep" />
-          <variable ilk="argument" name="$check_for_autoloader" />
-          <variable ilk="argument" name="$check_mod_time" />
+          <variable ilk="argument" line="207" name="$filename" />
+          <variable ilk="argument" line="207" name="$autodir" />
+          <variable ilk="argument" line="207" name="$keep" />
+          <variable ilk="argument" line="207" name="$check_for_autoloader" />
+          <variable ilk="argument" line="207" name="$check_mod_time" />
           <variable attributes="__local__" line="209" name="@outfiles" />
           <variable attributes="__local__" line="233" name="$pm_mod_time" />
           <variable attributes="__local__" line="234" name="$autoloader_seen" />
@@ -83,15 +83,15 @@
           <variable attributes="__local__" line="419" name="$fqs" />
         </scope>
         <scope ilk="function" line="435" lineend="452" name="_modpname" signature="_modpname($package)">
-          <variable ilk="argument" name="$package" />
+          <variable ilk="argument" line="436" name="$package" />
           <variable attributes="__local__" line="437" name="$modpname" />
           <variable attributes="__local__" line="441" name="@modpnames" />
         </scope>
         <scope ilk="function" line="454" lineend="482" name="_check_unique" signature="_check_unique($filename, $maxlen, $warn, @outfiles)">
-          <variable ilk="argument" name="$filename" />
-          <variable ilk="argument" name="$maxlen" />
-          <variable ilk="argument" name="$warn" />
-          <variable ilk="argument" name="@outfiles" />
+          <variable ilk="argument" line="455" name="$filename" />
+          <variable ilk="argument" line="455" name="$maxlen" />
+          <variable ilk="argument" line="455" name="$warn" />
+          <variable ilk="argument" line="455" name="@outfiles" />
           <variable attributes="__local__" line="456" name="%notuniq" />
           <variable attributes="__local__" line="457" name="%shorts" />
           <variable attributes="__local__" line="458" name="@toolong" />

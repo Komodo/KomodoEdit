@@ -2,8 +2,8 @@
   <file lang="Python" mtime="42" path="scan_inputs/python/func_spaced_params.py">
     <scope ilk="blob" lang="Python" name="func_spaced_params" src="scan_inputs/python/func_spaced_params.py">
       <scope ilk="function" line="3" lineend="4" name="foo" signature="foo(bar, baz)">
-        <variable ilk="argument" name="bar" />
-        <variable ilk="argument" name="baz" />
+        <variable ilk="argument" line="3" name="bar" />
+        <variable ilk="argument" line="3" name="baz" />
       </scope>
     </scope>
   </file>

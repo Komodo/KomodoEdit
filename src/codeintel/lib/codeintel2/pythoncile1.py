@@ -631,6 +631,7 @@ class AST2CIXVisitor:
                                 "nspath": nspath+(argName,),
                                 "doc": None,
                                 "types": {},
+                                "line": node.lineno,
                                 "symbols": {}}
                     arguments.append(argument)
             else:
@@ -639,6 +640,7 @@ class AST2CIXVisitor:
                             "nspath": nspath+(argName,),
                             "doc": None,
                             "types": {},
+                            "line": node.lineno,
                             "symbols": {}}
                 if i == kwargsIndex:
                     argument["attributes"] = "kwargs"

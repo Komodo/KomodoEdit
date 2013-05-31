@@ -24,13 +24,13 @@
         <variable line="244" name="USE_TCLs_LIST_FUNCTIONS" />
         <variable attributes="__instancevar__ __local__" line="54" name="@cmdtbl" />
         <scope doc="[0]-cmdid, [1]-winid for backward compatibility" ilk="function" line="43" lineend="45" name="Tk_CMDTBL.method_missing" signature="Tk_CMDTBL.method_missing(id, *args)">
-          <variable ilk="argument" name="id" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="43" name="id" />
+          <variable ilk="argument" line="43" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="43" name="self" />
         </scope>
         <scope ilk="function" line="48" lineend="50" name="Tk_WINDOWS.method_missing" signature="Tk_WINDOWS.method_missing(id, *args)">
-          <variable ilk="argument" name="id" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="48" name="id" />
+          <variable ilk="argument" line="48" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="48" name="self" />
         </scope>
         <scope doc="*** ATTENTION *** &apos;current_configinfo&apos; method always returns&#xA;a Hash under all cases of above." ilk="function" line="72" lineend="78" name="error_at" signature="error_at">
@@ -38,7 +38,7 @@
           <variable attributes="__local__" line="73" name="frames" />
         </scope>
         <scope ilk="function" line="81" lineend="178" name="_genobj_for_tkwidget" signature="_genobj_for_tkwidget(path)">
-          <variable ilk="argument" name="path" />
+          <variable ilk="argument" line="81" name="path" />
           <variable attributes="__local__" citdl="TkComm" line="81" name="self" />
           <variable attributes="__local__" line="86" name="tk_class" />
           <variable attributes="__local__" citdl="String" line="92" name="ruby_class_name" />
@@ -50,91 +50,91 @@
           <variable attributes="__local__" citdl="Object" line="164" name="base" />
         </scope>
         <scope ilk="function" line="182" lineend="188" name="_at" signature="_at(x,y=nil)">
-          <variable ilk="argument" name="x" />
-          <variable ilk="argument" name="y" />
+          <variable ilk="argument" line="182" name="x" />
+          <variable ilk="argument" line="182" name="y" />
           <variable attributes="__local__" citdl="TkComm" line="182" name="self" />
         </scope>
         <scope ilk="function" line="191" lineend="237" name="tk_tcl2ruby" signature="tk_tcl2ruby(val, enc_mode = false, listobj = true)">
-          <variable ilk="argument" name="val" />
-          <variable ilk="argument" name="enc_mode" />
-          <variable ilk="argument" name="listobj" />
+          <variable ilk="argument" line="191" name="val" />
+          <variable ilk="argument" line="191" name="enc_mode" />
+          <variable ilk="argument" line="191" name="listobj" />
           <variable attributes="__local__" citdl="TkComm" line="191" name="self" />
         </scope>
       </scope>
       <scope doc="use Tcl function version of split_list" ilk="function" line="252" lineend="254" name="tk_split_escstr" signature="tk_split_escstr(str)">
-        <variable ilk="argument" name="str" />
+        <variable ilk="argument" line="252" name="str" />
       </scope>
       <scope ilk="function" line="256" lineend="271" name="tk_split_sublist" signature="tk_split_sublist(str, depth=-1)">
-        <variable ilk="argument" name="str" />
-        <variable ilk="argument" name="depth" />
+        <variable ilk="argument" line="256" name="str" />
+        <variable ilk="argument" line="256" name="depth" />
         <variable attributes="__local__" citdl="Array" line="261" name="list" />
       </scope>
       <scope ilk="function" line="273" lineend="278" name="tk_split_list" signature="tk_split_list(str, depth=0)">
-        <variable ilk="argument" name="str" />
-        <variable ilk="argument" name="depth" />
+        <variable ilk="argument" line="273" name="str" />
+        <variable ilk="argument" line="273" name="depth" />
       </scope>
       <scope ilk="function" line="280" lineend="288" name="tk_split_simplelist" signature="tk_split_simplelist(str)">
-        <variable ilk="argument" name="str" />
+        <variable ilk="argument" line="280" name="str" />
       </scope>
       <scope ilk="function" line="290" lineend="306" name="array2tk_list" signature="array2tk_list(ary)">
-        <variable ilk="argument" name="ary" />
+        <variable ilk="argument" line="290" name="ary" />
         <variable attributes="__local__" line="293" name="dst" />
         <variable attributes="__local__" citdl="Array" line="297" name="tmp_ary" />
       </scope>
       <scope doc="use Ruby script version of split_list (traditional methods)" ilk="function" line="313" lineend="332" name="tk_split_escstr" signature="tk_split_escstr(str)">
-        <variable ilk="argument" name="str" />
+        <variable ilk="argument" line="313" name="str" />
         <variable attributes="__local__" citdl="Array" line="315" name="list" />
         <variable attributes="__local__" line="316" name="token" />
         <variable attributes="__local__" line="317" name="escape" />
         <variable attributes="__local__" citdl="Fixnum" line="318" name="brace" />
       </scope>
       <scope ilk="function" line="334" lineend="352" name="tk_split_sublist" signature="tk_split_sublist(str, depth=-1)">
-        <variable ilk="argument" name="str" />
-        <variable ilk="argument" name="depth" />
+        <variable ilk="argument" line="334" name="str" />
+        <variable ilk="argument" line="334" name="depth" />
         <variable attributes="__local__" line="340" name="str" />
         <variable attributes="__local__" citdl="Array" line="341" name="list" />
       </scope>
       <scope ilk="function" line="354" lineend="357" name="tk_split_list" signature="tk_split_list(str, depth=0)">
-        <variable ilk="argument" name="str" />
-        <variable ilk="argument" name="depth" />
+        <variable ilk="argument" line="354" name="str" />
+        <variable ilk="argument" line="354" name="depth" />
       </scope>
       <scope ilk="function" line="399" lineend="423" name="tk_split_simplelist" signature="tk_split_simplelist(str)">
-        <variable ilk="argument" name="str" />
+        <variable ilk="argument" line="399" name="str" />
         <variable attributes="__local__" citdl="Array" line="401" name="list" />
         <variable attributes="__local__" line="402" name="token" />
         <variable attributes="__local__" line="403" name="escape" />
         <variable attributes="__local__" citdl="Fixnum" line="404" name="brace" />
       </scope>
       <scope ilk="function" line="425" lineend="438" name="array2tk_list" signature="array2tk_list(ary)">
-        <variable ilk="argument" name="ary" />
+        <variable ilk="argument" line="425" name="ary" />
         <variable attributes="__local__" line="434" name="s" />
       </scope>
       <scope ilk="function" line="531" lineend="533" name="list" signature="list(val, depth=0)">
-        <variable ilk="argument" name="val" />
-        <variable ilk="argument" name="depth" />
+        <variable ilk="argument" line="531" name="val" />
+        <variable ilk="argument" line="531" name="depth" />
       </scope>
       <scope ilk="function" line="534" lineend="536" name="simplelist" signature="simplelist(val)">
-        <variable ilk="argument" name="val" />
+        <variable ilk="argument" line="534" name="val" />
       </scope>
       <scope ilk="function" line="537" lineend="545" name="window" signature="window(val)">
-        <variable ilk="argument" name="val" />
+        <variable ilk="argument" line="537" name="val" />
       </scope>
       <scope ilk="function" line="546" lineend="552" name="image_obj" signature="image_obj(val)">
-        <variable ilk="argument" name="val" />
+        <variable ilk="argument" line="546" name="val" />
       </scope>
       <scope ilk="function" line="553" lineend="562" name="procedure" signature="procedure(val)">
-        <variable ilk="argument" name="val" />
+        <variable ilk="argument" line="553" name="val" />
       </scope>
       <scope ilk="function" line="568" lineend="570" name="_toUTF8" signature="_toUTF8(str, encoding = nil)">
-        <variable ilk="argument" name="str" />
-        <variable ilk="argument" name="encoding" />
+        <variable ilk="argument" line="568" name="str" />
+        <variable ilk="argument" line="568" name="encoding" />
       </scope>
       <scope ilk="function" line="571" lineend="573" name="_fromUTF8" signature="_fromUTF8(str, encoding = nil)">
-        <variable ilk="argument" name="str" />
-        <variable ilk="argument" name="encoding" />
+        <variable ilk="argument" line="571" name="str" />
+        <variable ilk="argument" line="571" name="encoding" />
       </scope>
       <scope ilk="function" line="577" lineend="579" name="_callback_entry?" signature="_callback_entry?(obj)">
-        <variable ilk="argument" name="obj" />
+        <variable ilk="argument" line="577" name="obj" />
       </scope>
       <scope ilk="function" line="706" lineend="709" name="_curr_cmd_id" signature="_curr_cmd_id">
         <variable attributes="__local__" line="708" name="id" />
@@ -143,143 +143,143 @@
         <variable attributes="__local__" citdl="_curr_cmd_id" line="711" name="id" />
       </scope>
       <scope ilk="function" line="719" lineend="733" name="install_cmd" signature="install_cmd(cmd)">
-        <variable ilk="argument" name="cmd" />
+        <variable ilk="argument" line="719" name="cmd" />
         <variable attributes="__local__" citdl="_next_cmd_id" line="721" name="id" />
       </scope>
       <scope ilk="function" line="734" lineend="738" name="uninstall_cmd" signature="uninstall_cmd(id)">
-        <variable ilk="argument" name="id" />
+        <variable ilk="argument" line="734" name="id" />
         <variable attributes="__local__" line="735" name="id" />
       </scope>
       <scope doc="private :install_cmd, :uninstall_cmd" ilk="function" line="761" lineend="782" name="install_win" signature="install_win(ppath,name=nil)">
-        <variable ilk="argument" name="ppath" />
-        <variable ilk="argument" name="name" />
+        <variable ilk="argument" line="761" name="ppath" />
+        <variable ilk="argument" line="761" name="name" />
         <variable attributes="__local__" line="772" name="name" />
       </scope>
       <scope ilk="function" line="784" lineend="787" name="uninstall_win" signature="uninstall_win()" />
       <scope ilk="function" line="790" lineend="798" name="_epath" signature="_epath(win)">
-        <variable ilk="argument" name="win" />
+        <variable ilk="argument" line="790" name="win" />
       </scope>
       <scope doc="define TkComm module (step 2: event binding)" ilk="namespace" line="803" lineend="987" name="TkComm">
         <import line="804" symbol="TkEvent" />
         <scope ilk="function" line="807" lineend="825" name="tk_event_sequence" signature="tk_event_sequence(context)">
-          <variable ilk="argument" name="context" />
+          <variable ilk="argument" line="807" name="context" />
           <variable attributes="__local__" citdl="TkComm" line="807" name="self" />
           <variable attributes="__local__" line="809" name="context" />
         </scope>
         <scope ilk="function" line="827" lineend="836" name="_bind_core" signature="_bind_core(mode, what, context, cmd, *args)">
-          <variable ilk="argument" name="mode" />
-          <variable ilk="argument" name="what" />
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="cmd" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="827" name="mode" />
+          <variable ilk="argument" line="827" name="what" />
+          <variable ilk="argument" line="827" name="context" />
+          <variable ilk="argument" line="827" name="cmd" />
+          <variable ilk="argument" line="827" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="827" name="self" />
           <variable attributes="__local__" line="828" name="id" />
         </scope>
         <scope ilk="function" line="838" lineend="840" name="_bind" signature="_bind(what, context, cmd, *args)">
-          <variable ilk="argument" name="what" />
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="cmd" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="838" name="what" />
+          <variable ilk="argument" line="838" name="context" />
+          <variable ilk="argument" line="838" name="cmd" />
+          <variable ilk="argument" line="838" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="838" name="self" />
         </scope>
         <scope ilk="function" line="842" lineend="844" name="_bind_append" signature="_bind_append(what, context, cmd, *args)">
-          <variable ilk="argument" name="what" />
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="cmd" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="842" name="what" />
+          <variable ilk="argument" line="842" name="context" />
+          <variable ilk="argument" line="842" name="cmd" />
+          <variable ilk="argument" line="842" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="842" name="self" />
         </scope>
         <scope ilk="function" line="846" lineend="848" name="_bind_remove" signature="_bind_remove(what, context)">
-          <variable ilk="argument" name="what" />
-          <variable ilk="argument" name="context" />
+          <variable ilk="argument" line="846" name="what" />
+          <variable ilk="argument" line="846" name="context" />
           <variable attributes="__local__" citdl="TkComm" line="846" name="self" />
         </scope>
         <scope ilk="function" line="850" lineend="875" name="_bindinfo" signature="_bindinfo(what, context=nil)">
-          <variable ilk="argument" name="what" />
-          <variable ilk="argument" name="context" />
+          <variable ilk="argument" line="850" name="what" />
+          <variable ilk="argument" line="850" name="context" />
           <variable attributes="__local__" citdl="TkComm" line="850" name="self" />
           <variable attributes="__local__" line="862" name="l" />
         </scope>
         <scope ilk="function" line="877" lineend="886" name="_bind_core_for_event_class" signature="_bind_core_for_event_class(klass, mode, what, context, cmd, *args)">
-          <variable ilk="argument" name="klass" />
-          <variable ilk="argument" name="mode" />
-          <variable ilk="argument" name="what" />
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="cmd" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="877" name="klass" />
+          <variable ilk="argument" line="877" name="mode" />
+          <variable ilk="argument" line="877" name="what" />
+          <variable ilk="argument" line="877" name="context" />
+          <variable ilk="argument" line="877" name="cmd" />
+          <variable ilk="argument" line="877" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="877" name="self" />
           <variable attributes="__local__" line="878" name="id" />
         </scope>
         <scope ilk="function" line="888" lineend="890" name="_bind_for_event_class" signature="_bind_for_event_class(klass, what, context, cmd, *args)">
-          <variable ilk="argument" name="klass" />
-          <variable ilk="argument" name="what" />
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="cmd" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="888" name="klass" />
+          <variable ilk="argument" line="888" name="what" />
+          <variable ilk="argument" line="888" name="context" />
+          <variable ilk="argument" line="888" name="cmd" />
+          <variable ilk="argument" line="888" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="888" name="self" />
         </scope>
         <scope ilk="function" line="892" lineend="894" name="_bind_append_for_event_class" signature="_bind_append_for_event_class(klass, what, context, cmd, *args)">
-          <variable ilk="argument" name="klass" />
-          <variable ilk="argument" name="what" />
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="cmd" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="892" name="klass" />
+          <variable ilk="argument" line="892" name="what" />
+          <variable ilk="argument" line="892" name="context" />
+          <variable ilk="argument" line="892" name="cmd" />
+          <variable ilk="argument" line="892" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="892" name="self" />
         </scope>
         <scope ilk="function" line="896" lineend="898" name="_bind_remove_for_event_class" signature="_bind_remove_for_event_class(klass, what, context)">
-          <variable ilk="argument" name="klass" />
-          <variable ilk="argument" name="what" />
-          <variable ilk="argument" name="context" />
+          <variable ilk="argument" line="896" name="klass" />
+          <variable ilk="argument" line="896" name="what" />
+          <variable ilk="argument" line="896" name="context" />
           <variable attributes="__local__" citdl="TkComm" line="896" name="self" />
         </scope>
         <scope ilk="function" line="900" lineend="902" name="_bindinfo_for_event_class" signature="_bindinfo_for_event_class(klass, what, context=nil)">
-          <variable ilk="argument" name="klass" />
-          <variable ilk="argument" name="what" />
-          <variable ilk="argument" name="context" />
+          <variable ilk="argument" line="900" name="klass" />
+          <variable ilk="argument" line="900" name="what" />
+          <variable ilk="argument" line="900" name="context" />
           <variable attributes="__local__" citdl="TkComm" line="900" name="self" />
         </scope>
         <scope doc="def bind(tagOrClass, context, cmd=Proc.new, *args)&#xA;_bind([&quot;bind&quot;, tagOrClass], context, cmd, *args) tagOrClass&#xA;end" ilk="function" line="914" lineend="923" name="bind" signature="bind(tagOrClass, context, *args)">
-          <variable ilk="argument" name="tagOrClass" />
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="914" name="tagOrClass" />
+          <variable ilk="argument" line="914" name="context" />
+          <variable ilk="argument" line="914" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="914" name="self" />
           <variable attributes="__local__" citdl="Proc" line="917" name="cmd" />
         </scope>
         <scope doc="def bind_append(tagOrClass, context, cmd=Proc.new, *args)&#xA;_bind_append([&quot;bind&quot;, tagOrClass], context, cmd, *args)&#xA;tagOrClass end" ilk="function" line="929" lineend="938" name="bind_append" signature="bind_append(tagOrClass, context, *args)">
-          <variable ilk="argument" name="tagOrClass" />
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="929" name="tagOrClass" />
+          <variable ilk="argument" line="929" name="context" />
+          <variable ilk="argument" line="929" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="929" name="self" />
           <variable attributes="__local__" citdl="Proc" line="932" name="cmd" />
         </scope>
         <scope ilk="function" line="940" lineend="943" name="bind_remove" signature="bind_remove(tagOrClass, context)">
-          <variable ilk="argument" name="tagOrClass" />
-          <variable ilk="argument" name="context" />
+          <variable ilk="argument" line="940" name="tagOrClass" />
+          <variable ilk="argument" line="940" name="context" />
           <variable attributes="__local__" citdl="TkComm" line="940" name="self" />
         </scope>
         <scope ilk="function" line="945" lineend="947" name="bindinfo" signature="bindinfo(tagOrClass, context=nil)">
-          <variable ilk="argument" name="tagOrClass" />
-          <variable ilk="argument" name="context" />
+          <variable ilk="argument" line="945" name="tagOrClass" />
+          <variable ilk="argument" line="945" name="context" />
           <variable attributes="__local__" citdl="TkComm" line="945" name="self" />
         </scope>
         <scope doc="def bind_all(context, cmd=Proc.new, *args) _bind([&apos;bind&apos;,&#xA;&apos;all&apos;], context, cmd, *args) TkBindTag::ALL end" ilk="function" line="953" lineend="962" name="bind_all" signature="bind_all(context, *args)">
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="953" name="context" />
+          <variable ilk="argument" line="953" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="953" name="self" />
           <variable attributes="__local__" citdl="Proc" line="956" name="cmd" />
         </scope>
         <scope doc="def bind_append_all(context, cmd=Proc.new, *args)&#xA;_bind_append([&apos;bind&apos;, &apos;all&apos;], context, cmd, *args)&#xA;TkBindTag::ALL end" ilk="function" line="968" lineend="977" name="bind_append_all" signature="bind_append_all(context, *args)">
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="968" name="context" />
+          <variable ilk="argument" line="968" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="968" name="self" />
           <variable attributes="__local__" citdl="Proc" line="971" name="cmd" />
         </scope>
         <scope ilk="function" line="979" lineend="982" name="bind_remove_all" signature="bind_remove_all(context)">
-          <variable ilk="argument" name="context" />
+          <variable ilk="argument" line="979" name="context" />
           <variable attributes="__local__" citdl="TkComm" line="979" name="self" />
         </scope>
         <scope ilk="function" line="984" lineend="986" name="bindinfo_all" signature="bindinfo_all(context=nil)">
-          <variable ilk="argument" name="context" />
+          <variable ilk="argument" line="984" name="context" />
           <variable attributes="__local__" citdl="TkComm" line="984" name="self" />
         </scope>
       </scope>
@@ -314,18 +314,18 @@
         <scope classrefs="Object" ilk="class" line="1059" lineend="1066" name="Tk_OBJECT_TABLE">
           <variable attributes="__instancevar__ __local__" citdl="id" line="1061" name="@id" />
           <scope attributes="__ctor__" ilk="function" line="1060" lineend="1062" name="initialize" signature="initialize(id)">
-            <variable ilk="argument" name="id" />
+            <variable ilk="argument" line="1060" name="id" />
             <variable attributes="__local__" citdl="Tk_OBJECT_TABLE" line="1060" name="self" />
           </scope>
           <scope ilk="function" line="1063" lineend="1065" name="method_missing" signature="method_missing(m, *args, &amp;b)">
-            <variable ilk="argument" name="m" />
-            <variable ilk="argument" name="*args" />
-            <variable ilk="argument" name="&amp;b" />
+            <variable ilk="argument" line="1063" name="m" />
+            <variable ilk="argument" line="1063" name="*args" />
+            <variable ilk="argument" line="1063" name="&amp;b" />
             <variable attributes="__local__" citdl="Tk_OBJECT_TABLE" line="1063" name="self" />
           </scope>
         </scope>
         <scope ilk="function" line="1068" lineend="1070" name="INTERP.tk_object_table" signature="INTERP.tk_object_table(id)">
-          <variable ilk="argument" name="id" />
+          <variable ilk="argument" line="1068" name="id" />
           <variable attributes="__local__" citdl="TkCore" line="1068" name="self" />
         </scope>
         <scope ilk="function" line="1071" lineend="1083" name="INTERP.create_table" signature="INTERP.create_table">
@@ -333,22 +333,22 @@
           <variable attributes="__local__" line="1072" name="id" />
         </scope>
         <scope ilk="function" line="1085" lineend="1087" name="INTERP.get_cb_entry" signature="INTERP.get_cb_entry(cmd)">
-          <variable ilk="argument" name="cmd" />
+          <variable ilk="argument" line="1085" name="cmd" />
           <variable attributes="__local__" citdl="TkCore" line="1085" name="self" />
         </scope>
         <scope ilk="function" line="1088" lineend="1090" name="INTERP.cb_eval" signature="INTERP.cb_eval(cmd, *args)">
-          <variable ilk="argument" name="cmd" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1088" name="cmd" />
+          <variable ilk="argument" line="1088" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1088" name="self" />
         </scope>
         <scope ilk="function" line="1092" lineend="1095" name="INTERP.init_ip_env" signature="INTERP.init_ip_env(script = Proc.new)">
-          <variable ilk="argument" name="script" />
+          <variable ilk="argument" line="1092" name="script" />
           <variable attributes="__local__" citdl="TkCore" line="1092" name="self" />
         </scope>
         <scope ilk="function" line="1096" lineend="1099" name="INTERP.add_tk_procs" signature="INTERP.add_tk_procs(name, args = nil, body = nil)">
-          <variable ilk="argument" name="name" />
-          <variable ilk="argument" name="args" />
-          <variable ilk="argument" name="body" />
+          <variable ilk="argument" line="1096" name="name" />
+          <variable ilk="argument" line="1096" name="args" />
+          <variable ilk="argument" line="1096" name="body" />
           <variable attributes="__local__" citdl="TkCore" line="1096" name="self" />
         </scope>
         <scope ilk="function" line="1100" lineend="1104" name="INTERP.init_ip_internal" signature="INTERP.init_ip_internal">
@@ -362,16 +362,16 @@
           <variable attributes="__local__" citdl="TkCore" line="1172" name="self" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1176" lineend="1199" name="callback" signature="TkCore.callback(*arg)">
-          <variable ilk="argument" name="*arg" />
+          <variable ilk="argument" line="1176" name="*arg" />
           <variable attributes="__local__" line="1185" name="msg" />
         </scope>
         <scope ilk="function" line="1239" lineend="1241" name="load_cmd_on_ip" signature="load_cmd_on_ip(tk_cmd)">
-          <variable ilk="argument" name="tk_cmd" />
+          <variable ilk="argument" line="1239" name="tk_cmd" />
           <variable attributes="__local__" citdl="TkCore" line="1239" name="self" />
         </scope>
         <scope ilk="function" line="1243" lineend="1265" name="after" signature="after(ms, cmd=Proc.new)">
-          <variable ilk="argument" name="ms" />
-          <variable ilk="argument" name="cmd" />
+          <variable ilk="argument" line="1243" name="ms" />
+          <variable ilk="argument" line="1243" name="cmd" />
           <variable attributes="__local__" citdl="TkCore" line="1243" name="self" />
           <variable attributes="__local__" line="1244" name="crit_bup" />
           <variable attributes="__local__" citdl="_curr_cmd_id" line="1247" name="myid" />
@@ -379,7 +379,7 @@
           <variable attributes="__local__" line="1248" name="ret" />
         </scope>
         <scope ilk="function" line="1267" lineend="1277" name="after_idle" signature="after_idle(cmd=Proc.new)">
-          <variable ilk="argument" name="cmd" />
+          <variable ilk="argument" line="1267" name="cmd" />
           <variable attributes="__local__" citdl="TkCore" line="1267" name="self" />
           <variable attributes="__local__" line="1268" name="crit_bup" />
           <variable attributes="__local__" citdl="_curr_cmd_id" line="1271" name="myid" />
@@ -390,177 +390,177 @@
           <variable attributes="__local__" citdl="TkCore" line="1279" name="self" />
         </scope>
         <scope ilk="function" line="1283" lineend="1289" name="scaling" signature="scaling(scale=nil)">
-          <variable ilk="argument" name="scale" />
+          <variable ilk="argument" line="1283" name="scale" />
           <variable attributes="__local__" citdl="TkCore" line="1283" name="self" />
         </scope>
         <scope ilk="function" line="1290" lineend="1296" name="scaling_displayof" signature="scaling_displayof(win, scale=nil)">
-          <variable ilk="argument" name="win" />
-          <variable ilk="argument" name="scale" />
+          <variable ilk="argument" line="1290" name="win" />
+          <variable ilk="argument" line="1290" name="scale" />
           <variable attributes="__local__" citdl="TkCore" line="1290" name="self" />
         </scope>
         <scope ilk="function" line="1298" lineend="1300" name="appname" signature="appname(name=None)">
-          <variable ilk="argument" name="name" />
+          <variable ilk="argument" line="1298" name="name" />
           <variable attributes="__local__" citdl="TkCore" line="1298" name="self" />
         </scope>
         <scope ilk="function" line="1302" lineend="1304" name="appsend_deny" signature="appsend_deny">
           <variable attributes="__local__" citdl="TkCore" line="1302" name="self" />
         </scope>
         <scope ilk="function" line="1306" lineend="1321" name="appsend" signature="appsend(interp, async, *args)">
-          <variable ilk="argument" name="interp" />
-          <variable ilk="argument" name="async" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1306" name="interp" />
+          <variable ilk="argument" line="1306" name="async" />
+          <variable ilk="argument" line="1306" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1306" name="self" />
           <variable attributes="__local__" line="1314" name="async" />
         </scope>
         <scope ilk="function" line="1323" lineend="1339" name="rb_appsend" signature="rb_appsend(interp, async, *args)">
-          <variable ilk="argument" name="interp" />
-          <variable ilk="argument" name="async" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1323" name="interp" />
+          <variable ilk="argument" line="1323" name="async" />
+          <variable ilk="argument" line="1323" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1323" name="self" />
           <variable attributes="__local__" line="1331" name="async" />
           <variable attributes="__local__" line="1334" name="args" />
         </scope>
         <scope ilk="function" line="1341" lineend="1357" name="appsend_displayof" signature="appsend_displayof(interp, win, async, *args)">
-          <variable ilk="argument" name="interp" />
-          <variable ilk="argument" name="win" />
-          <variable ilk="argument" name="async" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1341" name="interp" />
+          <variable ilk="argument" line="1341" name="win" />
+          <variable ilk="argument" line="1341" name="async" />
+          <variable ilk="argument" line="1341" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1341" name="self" />
           <variable attributes="__local__" citdl="String" line="1347" name="win" />
           <variable attributes="__local__" line="1350" name="async" />
         </scope>
         <scope ilk="function" line="1359" lineend="1376" name="rb_appsend_displayof" signature="rb_appsend_displayof(interp, win, async, *args)">
-          <variable ilk="argument" name="interp" />
-          <variable ilk="argument" name="win" />
-          <variable ilk="argument" name="async" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1359" name="interp" />
+          <variable ilk="argument" line="1359" name="win" />
+          <variable ilk="argument" line="1359" name="async" />
+          <variable ilk="argument" line="1359" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1359" name="self" />
           <variable attributes="__local__" citdl="String" line="1365" name="win" />
           <variable attributes="__local__" line="1368" name="async" />
           <variable attributes="__local__" line="1371" name="args" />
         </scope>
         <scope ilk="function" line="1378" lineend="1380" name="info" signature="info(*args)">
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1378" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1378" name="self" />
         </scope>
         <scope ilk="function" line="1382" lineend="1384" name="mainloop" signature="mainloop(check_root = true)">
-          <variable ilk="argument" name="check_root" />
+          <variable ilk="argument" line="1382" name="check_root" />
           <variable attributes="__local__" citdl="TkCore" line="1382" name="self" />
         </scope>
         <scope ilk="function" line="1386" lineend="1389" name="mainloop_watchdog" signature="mainloop_watchdog(check_root = true)">
-          <variable ilk="argument" name="check_root" />
+          <variable ilk="argument" line="1386" name="check_root" />
           <variable attributes="__local__" citdl="TkCore" line="1386" name="self" />
         </scope>
         <scope ilk="function" line="1391" lineend="1393" name="do_one_event" signature="do_one_event(flag = TclTkLib::EventFlag::ALL)">
-          <variable ilk="argument" name="flag" />
+          <variable ilk="argument" line="1391" name="flag" />
           <variable attributes="__local__" citdl="TkCore" line="1391" name="self" />
         </scope>
         <scope ilk="function" line="1395" lineend="1397" name="set_eventloop_tick" signature="set_eventloop_tick(timer_tick)">
-          <variable ilk="argument" name="timer_tick" />
+          <variable ilk="argument" line="1395" name="timer_tick" />
           <variable attributes="__local__" citdl="TkCore" line="1395" name="self" />
         </scope>
         <scope ilk="function" line="1399" lineend="1401" name="get_eventloop_tick" signature="get_eventloop_tick()">
           <variable attributes="__local__" citdl="TkCore" line="1399" name="self" />
         </scope>
         <scope ilk="function" line="1403" lineend="1405" name="set_no_event_wait" signature="set_no_event_wait(wait)">
-          <variable ilk="argument" name="wait" />
+          <variable ilk="argument" line="1403" name="wait" />
           <variable attributes="__local__" citdl="TkCore" line="1403" name="self" />
         </scope>
         <scope ilk="function" line="1407" lineend="1409" name="get_no_event_wait" signature="get_no_event_wait()">
           <variable attributes="__local__" citdl="TkCore" line="1407" name="self" />
         </scope>
         <scope ilk="function" line="1411" lineend="1413" name="set_eventloop_weight" signature="set_eventloop_weight(loop_max, no_event_tick)">
-          <variable ilk="argument" name="loop_max" />
-          <variable ilk="argument" name="no_event_tick" />
+          <variable ilk="argument" line="1411" name="loop_max" />
+          <variable ilk="argument" line="1411" name="no_event_tick" />
           <variable attributes="__local__" citdl="TkCore" line="1411" name="self" />
         </scope>
         <scope ilk="function" line="1415" lineend="1417" name="get_eventloop_weight" signature="get_eventloop_weight()">
           <variable attributes="__local__" citdl="TkCore" line="1415" name="self" />
         </scope>
         <scope ilk="function" line="1419" lineend="1430" name="restart" signature="restart(app_name = nil, keys = {})">
-          <variable ilk="argument" name="app_name" />
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="1419" name="app_name" />
+          <variable ilk="argument" line="1419" name="keys" />
           <variable attributes="__local__" citdl="TkCore" line="1419" name="self" />
         </scope>
         <scope ilk="function" line="1432" lineend="1443" name="event_generate" signature="event_generate(window, context, keys=nil)">
-          <variable ilk="argument" name="window" />
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="1432" name="window" />
+          <variable ilk="argument" line="1432" name="context" />
+          <variable ilk="argument" line="1432" name="keys" />
           <variable attributes="__local__" citdl="TkCore" line="1432" name="self" />
         </scope>
         <scope ilk="function" line="1445" lineend="1447" name="messageBox" signature="messageBox(keys)">
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="1445" name="keys" />
           <variable attributes="__local__" citdl="TkCore" line="1445" name="self" />
         </scope>
         <scope ilk="function" line="1449" lineend="1451" name="getOpenFile" signature="getOpenFile(keys = nil)">
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="1449" name="keys" />
           <variable attributes="__local__" citdl="TkCore" line="1449" name="self" />
         </scope>
         <scope ilk="function" line="1453" lineend="1455" name="getSaveFile" signature="getSaveFile(keys = nil)">
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="1453" name="keys" />
           <variable attributes="__local__" citdl="TkCore" line="1453" name="self" />
         </scope>
         <scope ilk="function" line="1457" lineend="1459" name="chooseColor" signature="chooseColor(keys = nil)">
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="1457" name="keys" />
           <variable attributes="__local__" citdl="TkCore" line="1457" name="self" />
         </scope>
         <scope ilk="function" line="1461" lineend="1463" name="chooseDirectory" signature="chooseDirectory(keys = nil)">
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="1461" name="keys" />
           <variable attributes="__local__" citdl="TkCore" line="1461" name="self" />
         </scope>
         <scope ilk="function" line="1465" lineend="1478" name="_ip_eval_core" signature="_ip_eval_core(enc_mode, cmd_string)">
-          <variable ilk="argument" name="enc_mode" />
-          <variable ilk="argument" name="cmd_string" />
+          <variable ilk="argument" line="1465" name="enc_mode" />
+          <variable ilk="argument" line="1465" name="cmd_string" />
           <variable attributes="__local__" citdl="TkCore" line="1465" name="self" />
           <variable attributes="__local__" line="1468" name="res" />
         </scope>
         <scope ilk="function" line="1481" lineend="1483" name="ip_eval" signature="ip_eval(cmd_string)">
-          <variable ilk="argument" name="cmd_string" />
+          <variable ilk="argument" line="1481" name="cmd_string" />
           <variable attributes="__local__" citdl="TkCore" line="1481" name="self" />
         </scope>
         <scope ilk="function" line="1485" lineend="1487" name="ip_eval_without_enc" signature="ip_eval_without_enc(cmd_string)">
-          <variable ilk="argument" name="cmd_string" />
+          <variable ilk="argument" line="1485" name="cmd_string" />
           <variable attributes="__local__" citdl="TkCore" line="1485" name="self" />
         </scope>
         <scope ilk="function" line="1489" lineend="1491" name="ip_eval_with_enc" signature="ip_eval_with_enc(cmd_string)">
-          <variable ilk="argument" name="cmd_string" />
+          <variable ilk="argument" line="1489" name="cmd_string" />
           <variable attributes="__local__" citdl="TkCore" line="1489" name="self" />
         </scope>
         <scope ilk="function" line="1493" lineend="1506" name="_ip_invoke_core" signature="_ip_invoke_core(enc_mode, *args)">
-          <variable ilk="argument" name="enc_mode" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1493" name="enc_mode" />
+          <variable ilk="argument" line="1493" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1493" name="self" />
           <variable attributes="__local__" line="1496" name="res" />
         </scope>
         <scope ilk="function" line="1509" lineend="1511" name="ip_invoke" signature="ip_invoke(*args)">
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1509" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1509" name="self" />
         </scope>
         <scope ilk="function" line="1513" lineend="1515" name="ip_invoke_without_enc" signature="ip_invoke_without_enc(*args)">
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1513" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1513" name="self" />
         </scope>
         <scope ilk="function" line="1517" lineend="1519" name="ip_invoke_with_enc" signature="ip_invoke_with_enc(*args)">
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1517" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1517" name="self" />
         </scope>
         <scope ilk="function" line="1521" lineend="1552" name="_tk_call_core" signature="_tk_call_core(enc_mode, *args)">
-          <variable ilk="argument" name="enc_mode" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1521" name="enc_mode" />
+          <variable ilk="argument" line="1521" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1521" name="self" />
           <variable attributes="__local__" line="1526" name="args" />
           <variable attributes="__local__" line="1532" name="res" />
         </scope>
         <scope ilk="function" line="1555" lineend="1557" name="tk_call" signature="tk_call(*args)">
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1555" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1555" name="self" />
         </scope>
         <scope ilk="function" line="1559" lineend="1561" name="tk_call_without_enc" signature="tk_call_without_enc(*args)">
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1559" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1559" name="self" />
         </scope>
         <scope ilk="function" line="1563" lineend="1565" name="tk_call_with_enc" signature="tk_call_with_enc(*args)">
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1563" name="*args" />
           <variable attributes="__local__" citdl="TkCore" line="1563" name="self" />
         </scope>
       </scope>
@@ -576,7 +576,7 @@
         <variable line="1585" name="TK_MINOR_VERSION" />
         <variable line="1587" name="JAPANIZED_TK" />
         <scope attributes="__classmethod__" ilk="function" line="1590" lineend="1658" name="const_missing" signature="Tk.const_missing(sym)">
-          <variable ilk="argument" name="sym" />
+          <variable ilk="argument" line="1590" name="sym" />
           <variable attributes="__local__" citdl="Hash" line="1634" name="priv" />
           <variable attributes="__local__" citdl="String" line="1636" name="var_nam" />
         </scope>
@@ -589,102 +589,102 @@
           <variable attributes="__local__" citdl="Tk" line="1679" name="self" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1683" lineend="1690" name="load_tclscript" signature="Tk.load_tclscript(file, enc=nil)">
-          <variable ilk="argument" name="file" />
-          <variable ilk="argument" name="enc" />
+          <variable ilk="argument" line="1683" name="file" />
+          <variable ilk="argument" line="1683" name="enc" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1692" lineend="1694" name="load_tcllibrary" signature="Tk.load_tcllibrary(file, pkg_name=None, interp=None)">
-          <variable ilk="argument" name="file" />
-          <variable ilk="argument" name="pkg_name" />
-          <variable ilk="argument" name="interp" />
+          <variable ilk="argument" line="1692" name="file" />
+          <variable ilk="argument" line="1692" name="pkg_name" />
+          <variable ilk="argument" line="1692" name="interp" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1696" lineend="1705" name="unload_tcllibrary" signature="Tk.unload_tcllibrary(*args)">
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1696" name="*args" />
           <variable attributes="__local__" line="1698" name="keys" />
           <variable attributes="__local__" line="1699" name="nocomp" />
           <variable attributes="__local__" line="1700" name="keeplib" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1707" lineend="1714" name="bell" signature="Tk.bell(nice = false)">
-          <variable ilk="argument" name="nice" />
+          <variable ilk="argument" line="1707" name="nice" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1716" lineend="1723" name="bell_on_display" signature="Tk.bell_on_display(win, nice = false)">
-          <variable ilk="argument" name="win" />
-          <variable ilk="argument" name="nice" />
+          <variable ilk="argument" line="1716" name="win" />
+          <variable ilk="argument" line="1716" name="nice" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1725" lineend="1734" name="destroy" signature="Tk.destroy(*wins)">
-          <variable ilk="argument" name="*wins" />
+          <variable ilk="argument" line="1725" name="*wins" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1736" lineend="1738" name="exit" signature="Tk.exit" />
         <scope attributes="__classmethod__" ilk="function" line="1740" lineend="1743" name="pack" signature="Tk.pack(*args)">
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1740" name="*args" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1745" lineend="1747" name="grid" signature="Tk.grid(*args)">
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="1745" name="*args" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1749" lineend="1755" name="update" signature="Tk.update(idle=nil)">
-          <variable ilk="argument" name="idle" />
+          <variable ilk="argument" line="1749" name="idle" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1756" lineend="1758" name="update_idletasks" signature="Tk.update_idletasks" />
         <scope ilk="function" line="1759" lineend="1763" name="update" signature="update(idle=nil)">
-          <variable ilk="argument" name="idle" />
+          <variable ilk="argument" line="1759" name="idle" />
           <variable attributes="__local__" citdl="Tk" line="1759" name="self" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1779" lineend="1785" name="current_grabs" signature="Tk.current_grabs(win = nil)">
-          <variable ilk="argument" name="win" />
+          <variable ilk="argument" line="1779" name="win" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1787" lineend="1793" name="focus" signature="Tk.focus(display=nil)">
-          <variable ilk="argument" name="display" />
+          <variable ilk="argument" line="1787" name="display" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1795" lineend="1801" name="focus_to" signature="Tk.focus_to(win, force=false)">
-          <variable ilk="argument" name="win" />
-          <variable ilk="argument" name="force" />
+          <variable ilk="argument" line="1795" name="win" />
+          <variable ilk="argument" line="1795" name="force" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1803" lineend="1805" name="focus_lastfor" signature="Tk.focus_lastfor(win)">
-          <variable ilk="argument" name="win" />
+          <variable ilk="argument" line="1803" name="win" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1807" lineend="1809" name="focus_next" signature="Tk.focus_next(win)">
-          <variable ilk="argument" name="win" />
+          <variable ilk="argument" line="1807" name="win" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1811" lineend="1813" name="focus_prev" signature="Tk.focus_prev(win)">
-          <variable ilk="argument" name="win" />
+          <variable ilk="argument" line="1811" name="win" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1815" lineend="1817" name="strictMotif" signature="Tk.strictMotif(bool=None)">
-          <variable ilk="argument" name="bool" />
+          <variable ilk="argument" line="1815" name="bool" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1819" lineend="1826" name="show_kinsoku" signature="Tk.show_kinsoku(mode=&apos;both&apos;)">
-          <variable ilk="argument" name="mode" />
+          <variable ilk="argument" line="1819" name="mode" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1827" lineend="1838" name="add_kinsoku" signature="Tk.add_kinsoku(chars, mode=&apos;both&apos;)">
-          <variable ilk="argument" name="chars" />
-          <variable ilk="argument" name="mode" />
+          <variable ilk="argument" line="1827" name="chars" />
+          <variable ilk="argument" line="1827" name="mode" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1839" lineend="1847" name="delete_kinsoku" signature="Tk.delete_kinsoku(chars, mode=&apos;both&apos;)">
-          <variable ilk="argument" name="chars" />
-          <variable ilk="argument" name="mode" />
+          <variable ilk="argument" line="1839" name="chars" />
+          <variable ilk="argument" line="1839" name="mode" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1849" lineend="1851" name="toUTF8" signature="Tk.toUTF8(str, encoding = nil)">
-          <variable ilk="argument" name="str" />
-          <variable ilk="argument" name="encoding" />
+          <variable ilk="argument" line="1849" name="str" />
+          <variable ilk="argument" line="1849" name="encoding" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1853" lineend="1855" name="fromUTF8" signature="Tk.fromUTF8(str, encoding = nil)">
-          <variable ilk="argument" name="str" />
-          <variable ilk="argument" name="encoding" />
+          <variable ilk="argument" line="1853" name="str" />
+          <variable ilk="argument" line="1853" name="encoding" />
         </scope>
       </scope>
       <scope doc="string with Tcl&apos;s encoding" ilk="namespace" line="1861" lineend="1877" name="Tk">
         <scope attributes="__classmethod__" ilk="function" line="1862" lineend="1864" name="subst_utf_backslash" signature="Tk.subst_utf_backslash(str)">
-          <variable ilk="argument" name="str" />
+          <variable ilk="argument" line="1862" name="str" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1865" lineend="1867" name="subst_tk_backslash" signature="Tk.subst_tk_backslash(str)">
-          <variable ilk="argument" name="str" />
+          <variable ilk="argument" line="1865" name="str" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1868" lineend="1870" name="utf_to_backslash_sequence" signature="Tk.utf_to_backslash_sequence(str)">
-          <variable ilk="argument" name="str" />
+          <variable ilk="argument" line="1868" name="str" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1871" lineend="1873" name="utf_to_backslash" signature="Tk.utf_to_backslash(str)">
-          <variable ilk="argument" name="str" />
+          <variable ilk="argument" line="1871" name="str" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="1874" lineend="1876" name="to_backslash_sequence" signature="Tk.to_backslash_sequence(str)">
-          <variable ilk="argument" name="str" />
+          <variable ilk="argument" line="1874" name="str" />
         </scope>
       </scope>
       <scope classrefs="Object" doc="convert kanji string to/from utf-8" ilk="class" line="1884" lineend="2006" name="TclTkIp">
@@ -697,14 +697,14 @@
         <variable attributes="__instancevar__ __local__" line="1886" name="@encoding" />
         <scope ilk="function" line="1886" lineend="1886" name="encoding" />
         <scope ilk="function" line="1886" lineend="1886" name="encoding=">
-          <variable ilk="argument" name="encoding" />
+          <variable ilk="argument" line="1886" name="encoding" />
         </scope>
         <scope doc="from tkencoding.rb by ttate@jaist.ac.jp" ilk="function" line="1943" lineend="1945" name="_eval" signature="_eval(cmd)">
-          <variable ilk="argument" name="cmd" />
+          <variable ilk="argument" line="1943" name="cmd" />
           <variable attributes="__local__" citdl="TclTkIp" line="1943" name="self" />
         </scope>
         <scope ilk="function" line="1947" lineend="1949" name="_invoke" signature="_invoke(*cmds)">
-          <variable ilk="argument" name="*cmds" />
+          <variable ilk="argument" line="1947" name="*cmds" />
           <variable attributes="__local__" citdl="TclTkIp" line="1947" name="self" />
         </scope>
       </scope>
@@ -714,7 +714,7 @@
           <variable attributes="__alias__" citdl="encoding_convertfrom" line="2040" name="encoding_convert_from" />
           <variable attributes="__alias__" citdl="encoding_convertto" line="2049" name="encoding_convert_to" />
           <scope ilk="function" line="2014" lineend="2016" name="encoding=" signature="encoding=(name)">
-            <variable ilk="argument" name="name" />
+            <variable ilk="argument" line="2014" name="name" />
             <variable attributes="__local__" citdl="Encoding" line="2014" name="self" />
           </scope>
           <scope ilk="function" line="2018" lineend="2020" name="encoding" signature="encoding">
@@ -727,18 +727,18 @@
             <variable attributes="__local__" citdl="Encoding" line="2026" name="self" />
           </scope>
           <scope ilk="function" line="2030" lineend="2032" name="encoding_system=" signature="encoding_system=(enc)">
-            <variable ilk="argument" name="enc" />
+            <variable ilk="argument" line="2030" name="enc" />
             <variable attributes="__local__" citdl="Encoding" line="2030" name="self" />
           </scope>
           <scope ilk="function" line="2034" lineend="2039" name="encoding_convertfrom" signature="encoding_convertfrom(str, enc=nil)">
-            <variable ilk="argument" name="str" />
-            <variable ilk="argument" name="enc" />
+            <variable ilk="argument" line="2034" name="str" />
+            <variable ilk="argument" line="2034" name="enc" />
             <variable attributes="__local__" citdl="Encoding" line="2034" name="self" />
             <variable attributes="__local__" citdl="encoding_system" line="2037" name="enc" />
           </scope>
           <scope ilk="function" line="2042" lineend="2048" name="encoding_convertto" signature="encoding_convertto(str, enc=nil)">
-            <variable ilk="argument" name="str" />
-            <variable ilk="argument" name="enc" />
+            <variable ilk="argument" line="2042" name="str" />
+            <variable ilk="argument" line="2042" name="enc" />
             <variable attributes="__local__" citdl="Encoding" line="2042" name="self" />
             <variable attributes="__local__" citdl="encoding_system" line="2046" name="enc" />
           </scope>
@@ -755,7 +755,7 @@
           <variable attributes="__alias__" citdl="encoding_convertfrom" line="2117" name="encoding_convert_from" />
           <variable attributes="__alias__" citdl="encoding_convertto" line="2122" name="encoding_convert_to" />
           <scope ilk="function" line="2098" lineend="2100" name="encoding=" signature="encoding=(name)">
-            <variable ilk="argument" name="name" />
+            <variable ilk="argument" line="2098" name="name" />
             <variable attributes="__local__" citdl="Encoding" line="2098" name="self" />
           </scope>
           <scope ilk="function" line="2101" lineend="2103" name="encoding" signature="encoding">
@@ -768,40 +768,40 @@
             <variable attributes="__local__" citdl="Encoding" line="2107" name="self" />
           </scope>
           <scope ilk="function" line="2110" lineend="2112" name="encoding_system=" signature="encoding_system=(enc)">
-            <variable ilk="argument" name="enc" />
+            <variable ilk="argument" line="2110" name="enc" />
             <variable attributes="__local__" citdl="Encoding" line="2110" name="self" />
           </scope>
           <scope ilk="function" line="2114" lineend="2116" name="encoding_convertfrom" signature="encoding_convertfrom(str, enc=None)">
-            <variable ilk="argument" name="str" />
-            <variable ilk="argument" name="enc" />
+            <variable ilk="argument" line="2114" name="str" />
+            <variable ilk="argument" line="2114" name="enc" />
             <variable attributes="__local__" citdl="Encoding" line="2114" name="self" />
           </scope>
           <scope ilk="function" line="2119" lineend="2121" name="encoding_convertto" signature="encoding_convertto(str, enc=None)">
-            <variable ilk="argument" name="str" />
-            <variable ilk="argument" name="enc" />
+            <variable ilk="argument" line="2119" name="str" />
+            <variable ilk="argument" line="2119" name="enc" />
             <variable attributes="__local__" citdl="Encoding" line="2119" name="self" />
           </scope>
         </scope>
       </scope>
       <scope ilk="namespace" line="2128" lineend="2162" name="TkBindCore">
         <scope doc="def bind(context, cmd=Proc.new, *args) Tk.bind(self,&#xA;context, cmd, *args) end" ilk="function" line="2132" lineend="2140" name="bind" signature="bind(context, *args)">
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="2132" name="context" />
+          <variable ilk="argument" line="2132" name="*args" />
           <variable attributes="__local__" citdl="TkBindCore" line="2132" name="self" />
           <variable attributes="__local__" citdl="Proc" line="2135" name="cmd" />
         </scope>
         <scope doc="def bind_append(context, cmd=Proc.new, *args)&#xA;Tk.bind_append(self, context, cmd, *args) end" ilk="function" line="2145" lineend="2153" name="bind_append" signature="bind_append(context, *args)">
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="2145" name="context" />
+          <variable ilk="argument" line="2145" name="*args" />
           <variable attributes="__local__" citdl="TkBindCore" line="2145" name="self" />
           <variable attributes="__local__" citdl="Proc" line="2148" name="cmd" />
         </scope>
         <scope ilk="function" line="2155" lineend="2157" name="bind_remove" signature="bind_remove(context)">
-          <variable ilk="argument" name="context" />
+          <variable ilk="argument" line="2155" name="context" />
           <variable attributes="__local__" citdl="TkBindCore" line="2155" name="self" />
         </scope>
         <scope ilk="function" line="2159" lineend="2161" name="bindinfo" signature="bindinfo(context=nil)">
-          <variable ilk="argument" name="context" />
+          <variable ilk="argument" line="2159" name="context" />
           <variable attributes="__local__" citdl="TkBindCore" line="2159" name="self" />
         </scope>
       </scope>
@@ -816,7 +816,7 @@
           <variable attributes="__local__" citdl="TkTreatFont" line="2171" name="self" />
         </scope>
         <scope ilk="function" line="2178" lineend="2205" name="font_configinfo" signature="font_configinfo(key = nil)">
-          <variable ilk="argument" name="key" />
+          <variable ilk="argument" line="2178" name="key" />
           <variable attributes="__local__" citdl="TkTreatFont" line="2178" name="self" />
           <variable attributes="__local__" citdl="__font_optkeys" line="2179" name="optkeys" />
           <variable attributes="__local__" line="2187" name="pathname" />
@@ -824,7 +824,7 @@
           <variable attributes="__local__" line="2197" name="key" />
         </scope>
         <scope ilk="function" line="2208" lineend="2271" name="font_configure" signature="font_configure(slot)">
-          <variable ilk="argument" name="slot" />
+          <variable ilk="argument" line="2208" name="slot" />
           <variable attributes="__local__" citdl="TkTreatFont" line="2208" name="self" />
           <variable attributes="__local__" citdl="__pathname" line="2209" name="pathname" />
           <variable attributes="__local__" line="2211" name="slot" />
@@ -837,8 +837,8 @@
           <variable attributes="__local__" line="2237" name="kfnt" />
         </scope>
         <scope ilk="function" line="2273" lineend="2322" name="latinfont_configure" signature="latinfont_configure(ltn, keys=nil)">
-          <variable ilk="argument" name="ltn" />
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="2273" name="ltn" />
+          <variable ilk="argument" line="2273" name="keys" />
           <variable attributes="__local__" citdl="TkTreatFont" line="2273" name="self" />
           <variable attributes="__local__" line="2275" name="key" />
           <variable attributes="__local__" line="2276" name="ltn" />
@@ -849,8 +849,8 @@
           <variable attributes="__local__" citdl="Hash" line="2307" name="conf" />
         </scope>
         <scope ilk="function" line="2325" lineend="2374" name="kanjifont_configure" signature="kanjifont_configure(knj, keys=nil)">
-          <variable ilk="argument" name="knj" />
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="2325" name="knj" />
+          <variable ilk="argument" line="2325" name="keys" />
           <variable attributes="__local__" citdl="TkTreatFont" line="2325" name="self" />
           <variable attributes="__local__" line="2327" name="key" />
           <variable attributes="__local__" line="2328" name="knj" />
@@ -861,25 +861,25 @@
           <variable attributes="__local__" citdl="Hash" line="2359" name="conf" />
         </scope>
         <scope ilk="function" line="2376" lineend="2397" name="font_copy" signature="font_copy(window, wintag=nil, winkey=nil, targetkey=nil)">
-          <variable ilk="argument" name="window" />
-          <variable ilk="argument" name="wintag" />
-          <variable ilk="argument" name="winkey" />
-          <variable ilk="argument" name="targetkey" />
+          <variable ilk="argument" line="2376" name="window" />
+          <variable ilk="argument" line="2376" name="wintag" />
+          <variable ilk="argument" line="2376" name="winkey" />
+          <variable ilk="argument" line="2376" name="targetkey" />
           <variable attributes="__local__" citdl="TkTreatFont" line="2376" name="self" />
           <variable attributes="__local__" line="2379" name="fnt" />
         </scope>
         <scope ilk="function" line="2399" lineend="2421" name="latinfont_copy" signature="latinfont_copy(window, wintag=nil, winkey=nil, targetkey=nil)">
-          <variable ilk="argument" name="window" />
-          <variable ilk="argument" name="wintag" />
-          <variable ilk="argument" name="winkey" />
-          <variable ilk="argument" name="targetkey" />
+          <variable ilk="argument" line="2399" name="window" />
+          <variable ilk="argument" line="2399" name="wintag" />
+          <variable ilk="argument" line="2399" name="winkey" />
+          <variable ilk="argument" line="2399" name="targetkey" />
           <variable attributes="__local__" citdl="TkTreatFont" line="2399" name="self" />
         </scope>
         <scope ilk="function" line="2424" lineend="2446" name="kanjifont_copy" signature="kanjifont_copy(window, wintag=nil, winkey=nil, targetkey=nil)">
-          <variable ilk="argument" name="window" />
-          <variable ilk="argument" name="wintag" />
-          <variable ilk="argument" name="winkey" />
-          <variable ilk="argument" name="targetkey" />
+          <variable ilk="argument" line="2424" name="window" />
+          <variable ilk="argument" line="2424" name="wintag" />
+          <variable ilk="argument" line="2424" name="winkey" />
+          <variable ilk="argument" line="2424" name="targetkey" />
           <variable attributes="__local__" citdl="TkTreatFont" line="2424" name="self" />
         </scope>
       </scope>
@@ -923,16 +923,16 @@
           <variable attributes="__local__" citdl="TkConfigMethod" line="2510" name="self" />
         </scope>
         <scope ilk="function" line="2515" lineend="2535" name="__conv_keyonly_opts" signature="__conv_keyonly_opts(keys)">
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="2515" name="keys" />
           <variable attributes="__local__" citdl="TkConfigMethod" line="2515" name="self" />
           <variable attributes="__local__" citdl="__keyonly_optkeys" line="2517" name="keyonly" />
           <variable attributes="__local__" citdl="Hash" line="2518" name="keys2" />
           <variable attributes="__local__" line="2520" name="optkey" />
         </scope>
         <scope ilk="function" line="2537" lineend="2539" name="config_hash_kv" signature="config_hash_kv(keys, enc_mode = nil, conf = nil)">
-          <variable ilk="argument" name="keys" />
-          <variable ilk="argument" name="enc_mode" />
-          <variable ilk="argument" name="conf" />
+          <variable ilk="argument" line="2537" name="keys" />
+          <variable ilk="argument" line="2537" name="enc_mode" />
+          <variable ilk="argument" line="2537" name="conf" />
           <variable attributes="__local__" citdl="TkConfigMethod" line="2537" name="self" />
         </scope>
         <scope ilk="function" line="2543" lineend="2545" name="[]" signature="[](id">
@@ -942,7 +942,7 @@
           <variable attributes="__local__" citdl="TkConfigMethod" line="2547" name="self" />
         </scope>
         <scope ilk="function" line="2552" lineend="2608" name="cget" signature="cget(slot)">
-          <variable ilk="argument" name="slot" />
+          <variable ilk="argument" line="2552" name="slot" />
           <variable attributes="__local__" citdl="TkConfigMethod" line="2552" name="self" />
           <variable attributes="__local__" line="2553" name="slot" />
           <variable attributes="__local__" line="2581" name="conf" />
@@ -951,20 +951,20 @@
           <variable attributes="__local__" line="2594" name="fnt" />
         </scope>
         <scope ilk="function" line="2610" lineend="2660" name="configure" signature="configure(slot, value=None)">
-          <variable ilk="argument" name="slot" />
-          <variable ilk="argument" name="value" />
+          <variable ilk="argument" line="2610" name="slot" />
+          <variable ilk="argument" line="2610" name="value" />
           <variable attributes="__local__" citdl="TkConfigMethod" line="2610" name="self" />
           <variable attributes="__local__" line="2612" name="slot" />
           <variable attributes="__local__" line="2615" name="value" />
           <variable attributes="__local__" line="2620" name="conf" />
         </scope>
         <scope ilk="function" line="2662" lineend="2664" name="configure_cmd" signature="configure_cmd(slot, value)">
-          <variable ilk="argument" name="slot" />
-          <variable ilk="argument" name="value" />
+          <variable ilk="argument" line="2662" name="slot" />
+          <variable ilk="argument" line="2662" name="value" />
           <variable attributes="__local__" citdl="TkConfigMethod" line="2662" name="self" />
         </scope>
         <scope ilk="function" line="2666" lineend="3194" name="configinfo" signature="configinfo(slot = nil)">
-          <variable ilk="argument" name="slot" />
+          <variable ilk="argument" line="2666" name="slot" />
           <variable attributes="__local__" citdl="TkConfigMethod" line="2666" name="self" />
           <variable attributes="__local__" line="2669" name="fontkey" />
           <variable attributes="__local__" line="2670" name="conf" />
@@ -975,7 +975,7 @@
           <variable attributes="__local__" line="2908" name="fontconf" />
         </scope>
         <scope ilk="function" line="3196" lineend="3227" name="current_configinfo" signature="current_configinfo(slot = nil)">
-          <variable ilk="argument" name="slot" />
+          <variable ilk="argument" line="3196" name="slot" />
           <variable attributes="__local__" citdl="TkConfigMethod" line="3196" name="self" />
           <variable attributes="__local__" citdl="slot" line="3199" name="org_slot" />
           <variable attributes="__local__" line="3201" name="conf" />
@@ -994,33 +994,33 @@
           <variable attributes="__local__" citdl="TkObject" line="3245" name="self" />
         </scope>
         <scope ilk="function" line="3249" lineend="3251" name="tk_send" signature="tk_send(cmd, *rest)">
-          <variable ilk="argument" name="cmd" />
-          <variable ilk="argument" name="*rest" />
+          <variable ilk="argument" line="3249" name="cmd" />
+          <variable ilk="argument" line="3249" name="*rest" />
           <variable attributes="__local__" citdl="TkObject" line="3249" name="self" />
         </scope>
         <scope ilk="function" line="3252" lineend="3254" name="tk_send_without_enc" signature="tk_send_without_enc(cmd, *rest)">
-          <variable ilk="argument" name="cmd" />
-          <variable ilk="argument" name="*rest" />
+          <variable ilk="argument" line="3252" name="cmd" />
+          <variable ilk="argument" line="3252" name="*rest" />
           <variable attributes="__local__" citdl="TkObject" line="3252" name="self" />
         </scope>
         <scope ilk="function" line="3255" lineend="3257" name="tk_send_with_enc" signature="tk_send_with_enc(cmd, *rest)">
-          <variable ilk="argument" name="cmd" />
-          <variable ilk="argument" name="*rest" />
+          <variable ilk="argument" line="3255" name="cmd" />
+          <variable ilk="argument" line="3255" name="*rest" />
           <variable attributes="__local__" citdl="TkObject" line="3255" name="self" />
         </scope>
         <scope doc="private :tk_send, :tk_send_without_enc, :tk_send_with_enc" ilk="function" line="3260" lineend="3282" name="method_missing" signature="method_missing(id, *args)">
-          <variable ilk="argument" name="id" />
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="3260" name="id" />
+          <variable ilk="argument" line="3260" name="*args" />
           <variable attributes="__local__" citdl="TkObject" line="3260" name="self" />
           <variable attributes="__local__" line="3261" name="name" />
         </scope>
         <scope ilk="function" line="3295" lineend="3307" name="event_generate" signature="event_generate(context, keys=nil)">
-          <variable ilk="argument" name="context" />
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="3295" name="context" />
+          <variable ilk="argument" line="3295" name="keys" />
           <variable attributes="__local__" citdl="TkObject" line="3295" name="self" />
         </scope>
         <scope ilk="function" line="3309" lineend="3314" name="tk_trace_variable" signature="tk_trace_variable(v)">
-          <variable ilk="argument" name="v" />
+          <variable ilk="argument" line="3309" name="v" />
           <variable attributes="__local__" citdl="TkObject" line="3309" name="self" />
         </scope>
         <scope ilk="function" line="3317" lineend="3319" name="destroy" signature="destroy">
@@ -1063,8 +1063,8 @@
         <variable attributes="__alias__" citdl="thread_wait_destroy" line="3890" name="thread_tkwait_window" />
         <scope attributes="__classmethod__" doc="WidgetClassNames[WidgetClassName] = self ==&gt; If self is a&#xA;widget class, entry to the WidgetClassNames table." ilk="function" line="3333" lineend="3335" name="to_eval" signature="self.to_eval" />
         <scope attributes="__ctor__" ilk="function" line="3337" lineend="3404" name="initialize" signature="initialize(parent=nil, keys=nil)">
-          <variable ilk="argument" name="parent" />
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="3337" name="parent" />
+          <variable ilk="argument" line="3337" name="keys" />
           <variable attributes="__local__" citdl="TkWindow" line="3337" name="self" />
           <variable attributes="__local__" line="3339" name="keys" />
           <variable attributes="__local__" line="3340" name="parent" />
@@ -1076,7 +1076,7 @@
           <variable attributes="__local__" line="3390" name="key" />
         </scope>
         <scope ilk="function" line="3406" lineend="3420" name="create_self" signature="create_self(keys)">
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="3406" name="keys" />
           <variable attributes="__local__" citdl="TkWindow" line="3406" name="self" />
           <variable attributes="__local__" line="3409" name="cmd" />
         </scope>
@@ -1096,12 +1096,12 @@
         <scope attributes="__classmethod__" ilk="function" line="3442" lineend="3444" name="database_classname" signature="self.database_classname" />
         <scope attributes="__classmethod__" ilk="function" line="3445" lineend="3447" name="database_class" signature="self.database_class" />
         <scope ilk="function" line="3449" lineend="3457" name="pack" signature="pack(keys = nil)">
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="3449" name="keys" />
           <variable attributes="__local__" citdl="TkWindow" line="3449" name="self" />
         </scope>
         <scope ilk="function" line="3459" lineend="3469" name="pack_in" signature="pack_in(target, keys = nil)">
-          <variable ilk="argument" name="target" />
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="3459" name="target" />
+          <variable ilk="argument" line="3459" name="keys" />
           <variable attributes="__local__" citdl="TkWindow" line="3459" name="self" />
           <variable attributes="__local__" citdl="Hash" line="3461" name="keys" />
         </scope>
@@ -1109,27 +1109,27 @@
           <variable attributes="__local__" citdl="TkWindow" line="3471" name="self" />
         </scope>
         <scope ilk="function" line="3478" lineend="3489" name="pack_config" signature="pack_config(slot, value=None)">
-          <variable ilk="argument" name="slot" />
-          <variable ilk="argument" name="value" />
+          <variable ilk="argument" line="3478" name="slot" />
+          <variable ilk="argument" line="3478" name="value" />
           <variable attributes="__local__" citdl="TkWindow" line="3478" name="self" />
         </scope>
         <scope ilk="function" line="3492" lineend="3500" name="pack_info" signature="pack_info()">
           <variable attributes="__local__" citdl="TkWindow" line="3492" name="self" />
         </scope>
         <scope ilk="function" line="3502" lineend="3515" name="pack_propagate" signature="pack_propagate(mode=None)">
-          <variable ilk="argument" name="mode" />
+          <variable ilk="argument" line="3502" name="mode" />
           <variable attributes="__local__" citdl="TkWindow" line="3502" name="self" />
         </scope>
         <scope ilk="function" line="3517" lineend="3520" name="pack_slaves" signature="pack_slaves()">
           <variable attributes="__local__" citdl="TkWindow" line="3517" name="self" />
         </scope>
         <scope ilk="function" line="3522" lineend="3530" name="grid" signature="grid(keys = nil)">
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="3522" name="keys" />
           <variable attributes="__local__" citdl="TkWindow" line="3522" name="self" />
         </scope>
         <scope ilk="function" line="3532" lineend="3542" name="grid_in" signature="grid_in(target, keys = nil)">
-          <variable ilk="argument" name="target" />
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="3532" name="target" />
+          <variable ilk="argument" line="3532" name="keys" />
           <variable attributes="__local__" citdl="TkWindow" line="3532" name="self" />
           <variable attributes="__local__" citdl="Hash" line="3534" name="keys" />
         </scope>
@@ -1137,44 +1137,44 @@
           <variable attributes="__local__" citdl="TkWindow" line="3544" name="self" />
         </scope>
         <scope ilk="function" line="3551" lineend="3554" name="grid_bbox" signature="grid_bbox(*args)">
-          <variable ilk="argument" name="*args" />
+          <variable ilk="argument" line="3551" name="*args" />
           <variable attributes="__local__" citdl="TkWindow" line="3551" name="self" />
         </scope>
         <scope ilk="function" line="3556" lineend="3567" name="grid_config" signature="grid_config(slot, value=None)">
-          <variable ilk="argument" name="slot" />
-          <variable ilk="argument" name="value" />
+          <variable ilk="argument" line="3556" name="slot" />
+          <variable ilk="argument" line="3556" name="value" />
           <variable attributes="__local__" citdl="TkWindow" line="3556" name="self" />
         </scope>
         <scope ilk="function" line="3570" lineend="3573" name="grid_columnconfig" signature="grid_columnconfig(index, keys)">
-          <variable ilk="argument" name="index" />
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="3570" name="index" />
+          <variable ilk="argument" line="3570" name="keys" />
           <variable attributes="__local__" citdl="TkWindow" line="3570" name="self" />
         </scope>
         <scope ilk="function" line="3576" lineend="3579" name="grid_rowconfig" signature="grid_rowconfig(index, keys)">
-          <variable ilk="argument" name="index" />
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="3576" name="index" />
+          <variable ilk="argument" line="3576" name="keys" />
           <variable attributes="__local__" citdl="TkWindow" line="3576" name="self" />
         </scope>
         <scope ilk="function" line="3582" lineend="3594" name="grid_columnconfiginfo" signature="grid_columnconfiginfo(index, slot=nil)">
-          <variable ilk="argument" name="index" />
-          <variable ilk="argument" name="slot" />
+          <variable ilk="argument" line="3582" name="index" />
+          <variable ilk="argument" line="3582" name="slot" />
           <variable attributes="__local__" citdl="TkWindow" line="3582" name="self" />
         </scope>
         <scope ilk="function" line="3596" lineend="3608" name="grid_rowconfiginfo" signature="grid_rowconfiginfo(index, slot=nil)">
-          <variable ilk="argument" name="index" />
-          <variable ilk="argument" name="slot" />
+          <variable ilk="argument" line="3596" name="index" />
+          <variable ilk="argument" line="3596" name="slot" />
           <variable attributes="__local__" citdl="TkWindow" line="3596" name="self" />
         </scope>
         <scope ilk="function" line="3610" lineend="3613" name="grid_info" signature="grid_info()">
           <variable attributes="__local__" citdl="TkWindow" line="3610" name="self" />
         </scope>
         <scope ilk="function" line="3615" lineend="3618" name="grid_location" signature="grid_location(x, y)">
-          <variable ilk="argument" name="x" />
-          <variable ilk="argument" name="y" />
+          <variable ilk="argument" line="3615" name="x" />
+          <variable ilk="argument" line="3615" name="y" />
           <variable attributes="__local__" citdl="TkWindow" line="3615" name="self" />
         </scope>
         <scope ilk="function" line="3620" lineend="3633" name="grid_propagate" signature="grid_propagate(mode=None)">
-          <variable ilk="argument" name="mode" />
+          <variable ilk="argument" line="3620" name="mode" />
           <variable attributes="__local__" citdl="TkWindow" line="3620" name="self" />
         </scope>
         <scope ilk="function" line="3635" lineend="3639" name="grid_remove" signature="grid_remove()">
@@ -1184,16 +1184,16 @@
           <variable attributes="__local__" citdl="TkWindow" line="3641" name="self" />
         </scope>
         <scope ilk="function" line="3646" lineend="3649" name="grid_slaves" signature="grid_slaves(args)">
-          <variable ilk="argument" name="args" />
+          <variable ilk="argument" line="3646" name="args" />
           <variable attributes="__local__" citdl="TkWindow" line="3646" name="self" />
         </scope>
         <scope ilk="function" line="3651" lineend="3655" name="place" signature="place(keys)">
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="3651" name="keys" />
           <variable attributes="__local__" citdl="TkWindow" line="3651" name="self" />
         </scope>
         <scope ilk="function" line="3657" lineend="3667" name="place_in" signature="place_in(target, keys = nil)">
-          <variable ilk="argument" name="target" />
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="3657" name="target" />
+          <variable ilk="argument" line="3657" name="keys" />
           <variable attributes="__local__" citdl="TkWindow" line="3657" name="self" />
           <variable attributes="__local__" citdl="Hash" line="3659" name="keys" />
         </scope>
@@ -1201,12 +1201,12 @@
           <variable attributes="__local__" citdl="TkWindow" line="3669" name="self" />
         </scope>
         <scope ilk="function" line="3676" lineend="3683" name="place_config" signature="place_config(slot, value=None)">
-          <variable ilk="argument" name="slot" />
-          <variable ilk="argument" name="value" />
+          <variable ilk="argument" line="3676" name="slot" />
+          <variable ilk="argument" line="3676" name="value" />
           <variable attributes="__local__" citdl="TkWindow" line="3676" name="self" />
         </scope>
         <scope ilk="function" line="3686" lineend="3701" name="place_configinfo" signature="place_configinfo(slot = nil)">
-          <variable ilk="argument" name="slot" />
+          <variable ilk="argument" line="3686" name="slot" />
           <variable attributes="__local__" citdl="TkWindow" line="3686" name="self" />
         </scope>
         <scope ilk="function" line="3703" lineend="3711" name="place_info" signature="place_info()">
@@ -1216,11 +1216,11 @@
           <variable attributes="__local__" citdl="TkWindow" line="3713" name="self" />
         </scope>
         <scope ilk="function" line="3718" lineend="3725" name="set_focus" signature="set_focus(force=false)">
-          <variable ilk="argument" name="force" />
+          <variable ilk="argument" line="3718" name="force" />
           <variable attributes="__local__" citdl="TkWindow" line="3718" name="self" />
         </scope>
         <scope ilk="function" line="3728" lineend="3753" name="grab" signature="grab(opt = nil)">
-          <variable ilk="argument" name="opt" />
+          <variable ilk="argument" line="3728" name="opt" />
           <variable attributes="__local__" citdl="TkWindow" line="3728" name="self" />
         </scope>
         <scope ilk="function" line="3755" lineend="3757" name="grab_current" signature="grab_current">
@@ -1239,26 +1239,26 @@
           <variable attributes="__local__" citdl="TkWindow" line="3771" name="self" />
         </scope>
         <scope ilk="function" line="3775" lineend="3780" name="lower" signature="lower(below=None)">
-          <variable ilk="argument" name="below" />
+          <variable ilk="argument" line="3775" name="below" />
           <variable attributes="__local__" citdl="TkWindow" line="3775" name="self" />
           <variable attributes="__local__" line="3777" name="below" />
         </scope>
         <scope ilk="function" line="3781" lineend="3786" name="raise" signature="raise(above=None)">
-          <variable ilk="argument" name="above" />
+          <variable ilk="argument" line="3781" name="above" />
           <variable attributes="__local__" citdl="TkWindow" line="3781" name="self" />
           <variable attributes="__local__" line="3783" name="above" />
         </scope>
         <scope ilk="function" line="3788" lineend="3796" name="command" signature="command(cmd=nil, &amp;b)">
-          <variable ilk="argument" name="cmd" />
-          <variable ilk="argument" name="&amp;b" />
+          <variable ilk="argument" line="3788" name="cmd" />
+          <variable ilk="argument" line="3788" name="&amp;b" />
           <variable attributes="__local__" citdl="TkWindow" line="3788" name="self" />
         </scope>
         <scope ilk="function" line="3798" lineend="3801" name="colormodel" signature="colormodel(model=None)">
-          <variable ilk="argument" name="model" />
+          <variable ilk="argument" line="3798" name="model" />
           <variable attributes="__local__" citdl="TkWindow" line="3798" name="self" />
         </scope>
         <scope ilk="function" line="3803" lineend="3805" name="caret" signature="caret(keys=nil)">
-          <variable ilk="argument" name="keys" />
+          <variable ilk="argument" line="3803" name="keys" />
           <variable attributes="__local__" citdl="TkWindow" line="3803" name="self" />
         </scope>
         <scope ilk="function" line="3807" lineend="3834" name="destroy" signature="destroy">
@@ -1267,7 +1267,7 @@
           <variable attributes="__local__" line="3810" name="rexp" />
         </scope>
         <scope ilk="function" line="3836" lineend="3846" name="wait_visibility" signature="wait_visibility(on_thread = true)">
-          <variable ilk="argument" name="on_thread" />
+          <variable ilk="argument" line="3836" name="on_thread" />
           <variable attributes="__local__" citdl="TkWindow" line="3836" name="self" />
         </scope>
         <scope ilk="function" line="3847" lineend="3849" name="eventloop_wait_visibility" signature="eventloop_wait_visibility">
@@ -1277,7 +1277,7 @@
           <variable attributes="__local__" citdl="TkWindow" line="3850" name="self" />
         </scope>
         <scope ilk="function" line="3862" lineend="3872" name="wait_destroy" signature="wait_destroy(on_thread = true)">
-          <variable ilk="argument" name="on_thread" />
+          <variable ilk="argument" line="3862" name="on_thread" />
           <variable attributes="__local__" citdl="TkWindow" line="3862" name="self" />
         </scope>
         <scope ilk="function" line="3874" lineend="3876" name="eventloop_wait_destroy" signature="eventloop_wait_destroy">
@@ -1287,11 +1287,11 @@
           <variable attributes="__local__" citdl="TkWindow" line="3878" name="self" />
         </scope>
         <scope ilk="function" line="3892" lineend="3912" name="bindtags" signature="bindtags(taglist=nil)">
-          <variable ilk="argument" name="taglist" />
+          <variable ilk="argument" line="3892" name="taglist" />
           <variable attributes="__local__" citdl="TkWindow" line="3892" name="self" />
         </scope>
         <scope ilk="function" line="3914" lineend="3917" name="bindtags=" signature="bindtags=(taglist)">
-          <variable ilk="argument" name="taglist" />
+          <variable ilk="argument" line="3914" name="taglist" />
           <variable attributes="__local__" citdl="TkWindow" line="3914" name="self" />
         </scope>
         <scope ilk="function" line="3919" lineend="3924" name="bindtags_shift" signature="bindtags_shift">
@@ -1300,7 +1300,7 @@
           <variable attributes="__local__" line="3921" name="tag" />
         </scope>
         <scope ilk="function" line="3926" lineend="3928" name="bindtags_unshift" signature="bindtags_unshift(tag)">
-          <variable ilk="argument" name="tag" />
+          <variable ilk="argument" line="3926" name="tag" />
           <variable attributes="__local__" citdl="TkWindow" line="3926" name="self" />
         </scope>
       </scope>

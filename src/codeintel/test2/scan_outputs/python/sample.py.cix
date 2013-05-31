@@ -11,54 +11,54 @@
       <scope doc="func_no_args doc" ilk="function" line="14" lineend="16" name="func_no_args" signature="func_no_args()" />
       <scope ilk="function" line="18" lineend="20" name="func_one_arg" signature="func_one_arg(a)">
         <import line="19" module="string" />
-        <variable ilk="argument" name="a" />
+        <variable ilk="argument" line="18" name="a" />
       </scope>
       <scope ilk="function" line="22" lineend="23" name="func_default_arg" signature="func_default_arg(a=None)">
-        <variable ilk="argument" name="a" />
+        <variable ilk="argument" line="22" name="a" />
       </scope>
       <scope ilk="function" line="25" lineend="26" name="func_args" signature="func_args(*args)">
-        <variable attributes="varargs" ilk="argument" name="args" />
+        <variable attributes="varargs" ilk="argument" line="25" name="args" />
       </scope>
       <scope ilk="function" line="28" lineend="29" name="func_complex_args" signature="func_complex_args(a, b=None, c=&apos;foo&apos;, *args, **kwargs)">
-        <variable ilk="argument" name="a" />
-        <variable ilk="argument" name="b" />
-        <variable citdl="str" ilk="argument" name="c" />
-        <variable attributes="varargs" ilk="argument" name="args" />
-        <variable attributes="kwargs" ilk="argument" name="kwargs" />
+        <variable ilk="argument" line="28" name="a" />
+        <variable ilk="argument" line="28" name="b" />
+        <variable citdl="str" ilk="argument" line="28" name="c" />
+        <variable attributes="varargs" ilk="argument" line="28" name="args" />
+        <variable attributes="kwargs" ilk="argument" line="28" name="kwargs" />
       </scope>
       <scope doc="class docstring" ilk="class" line="31" lineend="41" name="ClassNoBase">
         <scope attributes="__ctor__" doc="constructor docstring" ilk="function" line="33" lineend="35" name="__init__" signature="ClassNoBase()">
-          <variable citdl="ClassNoBase" ilk="argument" name="self" />
+          <variable citdl="ClassNoBase" ilk="argument" line="33" name="self" />
         </scope>
         <scope ilk="function" line="36" lineend="37" name="plain_method" signature="plain_method(a)">
           <import line="37" module="math" />
-          <variable citdl="ClassNoBase" ilk="argument" name="self" />
-          <variable ilk="argument" name="a" />
+          <variable citdl="ClassNoBase" ilk="argument" line="36" name="self" />
+          <variable ilk="argument" line="36" name="a" />
         </scope>
         <scope attributes="protected" ilk="function" line="38" lineend="39" name="_protected_method" signature="_protected_method(a)">
-          <variable citdl="ClassNoBase" ilk="argument" name="self" />
-          <variable ilk="argument" name="a" />
+          <variable citdl="ClassNoBase" ilk="argument" line="38" name="self" />
+          <variable ilk="argument" line="38" name="a" />
         </scope>
         <scope attributes="private" ilk="function" line="40" lineend="41" name="__private_method" signature="__private_method(a)">
-          <variable citdl="ClassNoBase" ilk="argument" name="self" />
-          <variable ilk="argument" name="a" />
+          <variable citdl="ClassNoBase" ilk="argument" line="40" name="self" />
+          <variable ilk="argument" line="40" name="a" />
         </scope>
       </scope>
       <scope classrefs="ClassNoBase" doc="class docstring" ilk="class" line="43" lineend="53" name="ClassOneBase">
         <scope attributes="__ctor__" doc="constructor docstring" ilk="function" line="45" lineend="47" name="__init__" signature="ClassOneBase()">
-          <variable citdl="ClassOneBase" ilk="argument" name="self" />
+          <variable citdl="ClassOneBase" ilk="argument" line="45" name="self" />
         </scope>
         <scope ilk="function" line="48" lineend="49" name="plain_method_2" signature="plain_method_2(a)">
-          <variable citdl="ClassOneBase" ilk="argument" name="self" />
-          <variable ilk="argument" name="a" />
+          <variable citdl="ClassOneBase" ilk="argument" line="48" name="self" />
+          <variable ilk="argument" line="48" name="a" />
         </scope>
         <scope attributes="protected" ilk="function" line="50" lineend="51" name="_protected_method" signature="_protected_method(a)">
-          <variable citdl="ClassOneBase" ilk="argument" name="self" />
-          <variable ilk="argument" name="a" />
+          <variable citdl="ClassOneBase" ilk="argument" line="50" name="self" />
+          <variable ilk="argument" line="50" name="a" />
         </scope>
         <scope attributes="private" ilk="function" line="52" lineend="53" name="__private_method" signature="__private_method(a)">
-          <variable citdl="ClassOneBase" ilk="argument" name="self" />
-          <variable ilk="argument" name="a" />
+          <variable citdl="ClassOneBase" ilk="argument" line="52" name="self" />
+          <variable ilk="argument" line="52" name="a" />
         </scope>
       </scope>
     </scope>

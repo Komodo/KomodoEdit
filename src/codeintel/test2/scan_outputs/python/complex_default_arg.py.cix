@@ -3,11 +3,11 @@
     <scope ilk="blob" lang="Python" name="complex_default_arg" src="scan_inputs/python/complex_default_arg.py">
       <import line="1" module="datetime" />
       <scope ilk="function" line="2" lineend="5" name="getTimeDifference" signature="getTimeDifference(now, then, markup=True, closeLimit=datetime.timedelta(days=3), farAwayLimit=datetime.timedelta(days=7))">
-        <variable ilk="argument" name="now" />
-        <variable ilk="argument" name="then" />
-        <variable citdl="True" ilk="argument" name="markup" />
-        <variable citdl="datetime.timedelta()" ilk="argument" name="closeLimit" />
-        <variable citdl="datetime.timedelta()" ilk="argument" name="farAwayLimit" />
+        <variable ilk="argument" line="2" name="now" />
+        <variable ilk="argument" line="2" name="then" />
+        <variable citdl="True" ilk="argument" line="2" name="markup" />
+        <variable citdl="datetime.timedelta()" ilk="argument" line="2" name="closeLimit" />
+        <variable citdl="datetime.timedelta()" ilk="argument" line="2" name="farAwayLimit" />
       </scope>
     </scope>
   </file>

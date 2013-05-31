@@ -3,7 +3,7 @@
     <scope ilk="blob" lang="Perl" name="bug_32615" src="scan_inputs/perl/bug_32615.pl">
       <variable line="7" name="$updating" />
       <scope ilk="function" line="1" lineend="88" name="autoupdate" signature="autoupdate($onlyifmandatory)">
-        <variable ilk="argument" name="$onlyifmandatory" />
+        <variable ilk="argument" line="6" name="$onlyifmandatory" />
         <variable attributes="__local__" line="22" name="$description" />
         <variable attributes="__local__" line="22" name="$newestversion" />
         <variable attributes="__local__" line="22" name="$oldestversion" />

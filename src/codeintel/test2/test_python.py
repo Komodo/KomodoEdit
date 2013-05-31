@@ -248,6 +248,39 @@ class DefnTestCase(CodeIntelTestCase):
             ilk="function", name="foo", line=5,
 	    lpath=["C"],
             scopestart=3, scopeend=10, path=path, )
+        
+    @tag("bug99177")
+    def test_argument_defn_line(self):
+        test_dir = join(self.test_dir, "argument_defn_line")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            import os, sys, ibix
+            # And a comment
+            def test1(ibix,
+                      llama):
+                b = lla<1>ma;
+                if i > 0:
+                    b = i
+                def cheeseboogie(jammie):
+                    return b + jam<2>mie
+                return cheeseboogie>(ibix<3> + 1)
+
+            t = test1(0)
+            print(t)
+        """))
+        path = join(test_dir, "scope_bounds.py")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        # Although llama is defined at line 4,
+        # we only get enough information to tie it to the function
+        # defined at line 3
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="argument", name="llama", line=3,
+            path=path)
+        self.assertDefnMatches2(buf, foo_positions[2],
+            ilk="argument", name="jammie", line=8,
+            path=path)
+        self.assertDefnMatches2(buf, foo_positions[3],
+            ilk="argument", name="ibix", line=3, path=path, )
 
 class PythonDocTestCase(CodeIntelTestCase):
     lang = "Python"

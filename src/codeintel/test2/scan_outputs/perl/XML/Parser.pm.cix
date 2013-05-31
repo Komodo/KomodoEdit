@@ -7,8 +7,8 @@
         <variable line="15" name="$VERSION" />
         <variable line="22" name="$LWP_load_failed" />
         <scope attributes="__ctor__" ilk="function" line="26" lineend="108" name="new" signature="new($class, %args)">
-          <variable ilk="argument" name="$class" />
-          <variable ilk="argument" name="%args" />
+          <variable ilk="argument" line="27" name="$class" />
+          <variable ilk="argument" line="27" name="%args" />
           <variable attributes="__local__" line="28" name="$style" />
           <variable attributes="__local__" line="30" name="$nonexopt" />
           <variable attributes="__local__" line="43" name="$handlers" />
@@ -19,15 +19,15 @@
           <variable attributes="__local__" line="74" name="$hname" />
         </scope>
         <scope ilk="function" line="110" lineend="130" name="setHandlers" signature="setHandlers($self, @handler_pairs)">
-          <variable ilk="argument" name="$self" />
-          <variable ilk="argument" name="@handler_pairs" />
+          <variable ilk="argument" line="111" name="$self" />
+          <variable ilk="argument" line="111" name="@handler_pairs" />
           <variable attributes="__local__" line="116" name="@ret" />
           <variable attributes="__local__" line="118" name="$type" />
           <variable attributes="__local__" line="119" name="$handler" />
           <variable attributes="__local__" line="121" name="@types" />
         </scope>
         <scope ilk="function" line="132" lineend="158" name="parse_start" signature="parse_start($self)">
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="133" name="$self" />
           <variable attributes="__local__" line="134" name="@expat_options" />
           <variable attributes="__local__" line="136" name="$key" />
           <variable attributes="__local__" line="136" name="$val" />
@@ -37,8 +37,8 @@
           <variable attributes="__local__" citdl="XML::Parser::ExpatNB" line="146" name="$expatnb" />
         </scope>
         <scope ilk="function" line="160" lineend="208" name="parse" signature="parse($self, $arg)">
-          <variable ilk="argument" name="$self" />
-          <variable ilk="argument" name="$arg" />
+          <variable ilk="argument" line="161" name="$self" />
+          <variable ilk="argument" line="162" name="$arg" />
           <variable attributes="__local__" line="163" name="@expat_options" />
           <variable attributes="__local__" line="164" name="$key" />
           <variable attributes="__local__" line="164" name="$val" />
@@ -51,11 +51,11 @@
           <variable attributes="__local__" line="189" name="$err" />
         </scope>
         <scope ilk="function" line="210" lineend="213" name="parsestring" signature="parsestring($self)">
-          <variable ilk="argument" name="$self" />
+          <variable ilk="argument" line="211" name="$self" />
         </scope>
         <scope ilk="function" line="215" lineend="242" name="parsefile" signature="parsefile($self, $file)">
-          <variable ilk="argument" name="$self" />
-          <variable ilk="argument" name="$file" />
+          <variable ilk="argument" line="216" name="$self" />
+          <variable ilk="argument" line="217" name="$file" />
           <variable attributes="__local__" line="221" name="@ret" />
           <variable attributes="__local__" line="222" name="$ret" />
           <variable attributes="__local__" line="236" name="$err" />
@@ -65,15 +65,15 @@
           <variable attributes="__local__" line="267" name="$cmsg" />
         </scope>
         <scope ilk="function" line="279" lineend="316" name="file_ext_ent_handler" signature="file_ext_ent_handler($xp, $base, $path)">
-          <variable ilk="argument" name="$xp" />
-          <variable ilk="argument" name="$base" />
-          <variable ilk="argument" name="$path" />
+          <variable ilk="argument" line="280" name="$xp" />
+          <variable ilk="argument" line="280" name="$base" />
+          <variable ilk="argument" line="280" name="$path" />
           <import line="299" module="IO::File" />
           <variable attributes="__local__" line="287" name="$newpath" />
           <variable attributes="__local__" citdl="IO::File" line="300" name="$fh" />
         </scope>
         <scope ilk="function" line="318" lineend="326" name="file_ext_ent_cleanup" signature="file_ext_ent_cleanup($xp)">
-          <variable ilk="argument" name="$xp" />
+          <variable ilk="argument" line="319" name="$xp" />
           <variable attributes="__local__" line="321" name="$fh" />
           <variable attributes="__local__" line="324" name="$base" />
         </scope>

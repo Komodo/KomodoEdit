@@ -2,49 +2,49 @@
   <file lang="Python" mtime="42" path="scan_inputs/python/doc_processing.py">
     <scope doc="This is the summary line for this module. So is this." ilk="blob" lang="Python" name="doc_processing" src="scan_inputs/python/doc_processing.py">
       <scope doc="Read s characters, or the rest of the string" ilk="function" line="14" lineend="16" name="read" signature="read([s])">
-        <variable ilk="argument" name="s" />
+        <variable ilk="argument" line="14" name="s" />
       </scope>
       <scope doc=" Encode a string using quoted-printable encoding. &#xA;&#xA;On encoding, when istext is set, newlines are not encoded, and white &#xA;space at end of lines is.  When istext is not set, &#xA; and &#xA; (CR/LF) are &#xA;both encoded.  When quotetabs is set, space and tabs are encoded." ilk="function" line="18" lineend="25" name="b2a_qp" signature="b2a_qp(data, quotetabs=0, istext=1, header=0) -&gt; s;">
-        <variable ilk="argument" name="data" />
-        <variable citdl="int" ilk="argument" name="quotetabs" />
-        <variable citdl="int" ilk="argument" name="istext" />
-        <variable citdl="int" ilk="argument" name="header" />
+        <variable ilk="argument" line="18" name="data" />
+        <variable citdl="int" ilk="argument" line="18" name="quotetabs" />
+        <variable citdl="int" ilk="argument" line="18" name="istext" />
+        <variable citdl="int" ilk="argument" line="18" name="header" />
       </scope>
       <scope doc="Create a new module.  Do not enter it in sys.modules.&#xA;The module name must include the full package name, if any." ilk="function" line="27" name="new_module" signature="new_module(name) -&gt; module">
-        <variable ilk="argument" name="name" />
+        <variable ilk="argument" line="27" name="name" />
       </scope>
       <scope doc="-&gt; list of (family, socktype, proto, canonname, sockaddr)&#xA;&#xA;Resolve host and port into addrinfo struct." ilk="function" line="33" name="getaddrinfo" signature="getaddrinfo(host, port [, family, socktype, proto, flags])">
-        <variable ilk="argument" name="host" />
-        <variable ilk="argument" name="port" />
-        <variable ilk="argument" name="family" />
-        <variable ilk="argument" name="socktype" />
-        <variable ilk="argument" name="proto" />
-        <variable ilk="argument" name="flags" />
+        <variable ilk="argument" line="33" name="host" />
+        <variable ilk="argument" line="33" name="port" />
+        <variable ilk="argument" line="33" name="family" />
+        <variable ilk="argument" line="33" name="socktype" />
+        <variable ilk="argument" line="33" name="proto" />
+        <variable ilk="argument" line="33" name="flags" />
       </scope>
       <scope doc="call Windows MessageBeep(x). x defaults to MB_OK." ilk="function" line="41" name="MessageBeep" signature="MessageBeep(x)">
-        <variable ilk="argument" name="x" />
+        <variable ilk="argument" line="41" name="x" />
       </scope>
       <scope doc="Create a log-reader for the timing information file." ilk="function" line="44" lineend="47" name="logreader" signature="logreader(filename) --&gt; log-iterator">
-        <variable ilk="argument" name="filename" />
+        <variable ilk="argument" line="44" name="filename" />
       </scope>
       <scope ilk="function" line="49" lineend="51" name="resolution" signature="resolution() -&gt; (performance-counter-ticks, update-frequency)" />
       <scope doc="Return the IP address (a string of the form &apos;255.255.255.255&apos;) for a host." ilk="function" line="53" lineend="58" name="gethostbyname" signature="gethostbyname(host) -&gt; address">
-        <variable ilk="argument" name="host" />
+        <variable ilk="argument" line="53" name="host" />
       </scope>
       <scope doc="Return a copy of string str with all occurrences of substring&#xA;old replaced by new. If the optional argument maxsplit is&#xA;given, only the first maxsplit occurrences are replaced." ilk="function" line="60" lineend="67" name="replace" signature="replace (str, old, new[, maxsplit]) -&gt; string">
-        <variable ilk="argument" name="str" />
-        <variable ilk="argument" name="old" />
-        <variable ilk="argument" name="new" />
-        <variable ilk="argument" name="maxsplit" />
+        <variable ilk="argument" line="60" name="str" />
+        <variable ilk="argument" line="60" name="old" />
+        <variable ilk="argument" line="60" name="new" />
+        <variable ilk="argument" line="60" name="maxsplit" />
       </scope>
       <scope doc="Return a string composed of the words in list, with&#xA;intervening occurrences of sep.  Sep defaults to a single&#xA;space.&#xA;&#xA;(join and joinfields are synonymous)" ilk="function" line="69" name="joinfields" signature="join(list [,sep]) -&gt; string&#xA;joinfields(list [,sep]) -&gt; string">
-        <variable ilk="argument" name="list" />
-        <variable ilk="argument" name="sep" />
+        <variable ilk="argument" line="69" name="list" />
+        <variable ilk="argument" line="69" name="sep" />
       </scope>
       <variable citdl="joinfields" line="80" name="join" />
       <scope doc="Retrieves the type and data for a specified value name&#xA;associated with an open registry key." ilk="function" line="82" lineend="88" name="QueryValueEx" signature="QueryValueEx(key, value_name) -&gt; value,type_id">
-        <variable ilk="argument" name="key" />
-        <variable ilk="argument" name="value_name" />
+        <variable ilk="argument" line="82" name="key" />
+        <variable ilk="argument" line="82" name="value_name" />
       </scope>
     </scope>
   </file>

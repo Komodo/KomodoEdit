@@ -3,7 +3,7 @@
     <scope doc="this is how you close a CDATA section: ]]&gt; the CIX for this&#xA;doc string should properly escape that" ilk="blob" lang="Python" name="cdata_close" src="scan_inputs/python/cdata_close.py">
       <scope doc="likewise: ]]&gt;" ilk="class" line="7" name="Foo">
         <scope doc="likewise: ]]&gt;" ilk="function" line="9" name="bar" signature="bar()">
-          <variable citdl="Foo" ilk="argument" name="self" />
+          <variable citdl="Foo" ilk="argument" line="9" name="self" />
         </scope>
       </scope>
     </scope>

@@ -87,6 +87,12 @@ def get_arguments_cix(parse_tree_node, cix_node):
         attrs['name'] = c.get_full_name()
         if not c.arg_attrs is None:
             attrs['attributes'] = c.arg_attrs
+        try:
+            lineno = parse_tree_node.line_num
+            if lineno is not None:
+                attrs['line'] = str(lineno)
+        except AttributeError:
+            pass
         SubElement(cix_node, 'variable', ilk='argument', **attrs)
 
 def get_docstring_cix(parse_tree_node, cix_node):

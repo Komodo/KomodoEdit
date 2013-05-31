@@ -3,8 +3,8 @@
     <scope ilk="blob" lang="Perl" name="bug_36954" src="scan_inputs/perl/bug_36954.pm">
       <scope ilk="class" line="1" lineend="29" name="WF_Support">
         <scope ilk="function" line="22" lineend="29" name="read_matrixkeys" signature="read_matrixkeys($wf_config_file, $tag)">
-          <variable ilk="argument" name="$wf_config_file" />
-          <variable ilk="argument" name="$tag" />
+          <variable ilk="argument" line="27" name="$wf_config_file" />
+          <variable ilk="argument" line="27" name="$tag" />
           <import line="24" module="READ_CFG" symbol="*" />
         </scope>
       </scope>

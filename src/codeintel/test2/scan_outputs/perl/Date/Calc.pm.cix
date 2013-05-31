@@ -10,21 +10,21 @@
         <variable line="15" name="@EXPORT_OK" />
         <variable line="15" name="@ISA" />
         <scope attributes="__exportable__" ilk="function" line="105" lineend="175" name="Decode_Date_EU2" signature="Decode_Date_EU2($buffer)">
-          <variable ilk="argument" name="$buffer" />
+          <variable ilk="argument" line="110" name="$buffer" />
           <variable attributes="__local__" line="111" name="$day" />
           <variable attributes="__local__" line="111" name="$length" />
           <variable attributes="__local__" line="111" name="$month" />
           <variable attributes="__local__" line="111" name="$year" />
         </scope>
         <scope attributes="__exportable__" ilk="function" line="177" lineend="283" name="Decode_Date_US2" signature="Decode_Date_US2($buffer)">
-          <variable ilk="argument" name="$buffer" />
+          <variable ilk="argument" line="182" name="$buffer" />
           <variable attributes="__local__" line="183" name="$day" />
           <variable attributes="__local__" line="183" name="$length" />
           <variable attributes="__local__" line="183" name="$month" />
           <variable attributes="__local__" line="183" name="$year" />
         </scope>
         <scope attributes="__exportable__" ilk="function" line="285" lineend="313" name="Parse_Date" signature="Parse_Date($date)">
-          <variable ilk="argument" name="$date" />
+          <variable ilk="argument" line="290" name="$date" />
           <variable attributes="__local__" line="291" name="$day" />
           <variable attributes="__local__" line="291" name="$month" />
           <variable attributes="__local__" line="291" name="$year" />

@@ -7,8 +7,8 @@
         <variable attributes="__exported__" line="2" name="%myhash" />
         <variable attributes="__exported__" line="2" name="@myarray" />
         <scope attributes="__exported__" ilk="function" line="9" lineend="11" name="myfunc" signature="myfunc($a, $b)">
-          <variable ilk="argument" name="$a" />
-          <variable ilk="argument" name="$b" />
+          <variable ilk="argument" line="10" name="$a" />
+          <variable ilk="argument" line="10" name="$b" />
         </scope>
       </scope>
       <scope classrefs="Exporter" ilk="class" line="18" lineend="34" name="PerlModule::SubModule">
@@ -17,8 +17,8 @@
         <variable attributes="__exported__" line="19" name="%subhash" />
         <variable attributes="__exported__" line="19" name="@subarray" />
         <scope attributes="__exported__" ilk="function" line="26" lineend="28" name="subfunc" signature="subfunc($a, $b)">
-          <variable ilk="argument" name="$a" />
-          <variable ilk="argument" name="$b" />
+          <variable ilk="argument" line="27" name="$a" />
+          <variable ilk="argument" line="27" name="$b" />
         </scope>
       </scope>
     </scope>

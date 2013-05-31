@@ -3,7 +3,7 @@
     <scope ilk="blob" lang="Python" name="class_instance_variables_bug89416" src="scan_inputs/python/class_instance_variables_bug89416.py">
       <scope classrefs="object" ilk="class" line="1" lineend="9" name="AClass">
         <scope attributes="__ctor__" ilk="function" line="2" lineend="6" name="__init__" signature="AClass()">
-          <variable citdl="AClass" ilk="argument" name="self" />
+          <variable citdl="AClass" ilk="argument" line="2" name="self" />
         </scope>
         <variable attributes="__instancevar__" line="3" name="three" />
         <variable attributes="__instancevar__" line="3" name="two" />

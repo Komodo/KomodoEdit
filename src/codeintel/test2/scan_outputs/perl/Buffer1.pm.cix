@@ -14,7 +14,7 @@
         <import line="39" module="Digest::MD5" symbol="md5_hex" />
         <import line="39" module="Digest::MD5" symbol="md5_base64" />
         <scope ilk="function" line="41" lineend="45" name="sub2" signature="sub2($text)">
-          <variable ilk="argument" name="$text" />
+          <variable ilk="argument" line="42" name="$text" />
           <variable attributes="__local__" line="43" name="$digest" />
         </scope>
       </scope>
@@ -30,7 +30,7 @@
       </scope>
       <scope ilk="function" line="20" lineend="21" name="sub1" signature="sub1()" />
       <scope ilk="function" line="25" lineend="28" name="f" signature="f($code)">
-        <variable ilk="argument" name="$code" />
+        <variable ilk="argument" line="26" name="$code" />
       </scope>
       <scope ilk="function" line="65" lineend="66" name="sub5" signature="sub5()" />
     </scope>
