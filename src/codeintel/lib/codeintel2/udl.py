@@ -112,6 +112,7 @@ class UDLLexer(Lexer):
     the first keywords list.
     """
     _lock = threading.Lock()
+    _lexer_dirs = None
 
     def __init__(self):
         self._properties = SilverCity.PropertySet()
@@ -134,7 +135,8 @@ class UDLLexer(Lexer):
         # Presume we are running under Komodo. Look in the available
         # lexres dirs from extensions.
 
-        def _gen_lexer_dirs(self):
+        @classmethod
+        def _get_lexer_dirs(klass):
             """Return all possible lexer resource directories (i.e. those ones
             that can include compiled UDL .lexres files).
     
@@ -142,19 +144,21 @@ class UDLLexer(Lexer):
     
             This doesn't filter out non-existant directories.
             """
-            koDirs = components.classes["@activestate.com/koDirs;1"] \
-                .getService(components.interfaces.koIDirs)
-    
-            yield join(koDirs.userDataDir, "lexers")    # user
-            for extensionDir in directoryServiceUtils.getExtensionDirectories():
-                yield join(extensionDir, "lexers")      # user-install extensions
-            yield join(koDirs.commonDataDir, "lexers")  # site/common
-            yield join(koDirs.supportDir, "lexers")     # factory
+            if klass._lexer_dirs is None:
+                lexer_dirs = []
+                koDirs = components.classes["@activestate.com/koDirs;1"] \
+                    .getService(components.interfaces.koIDirs)
+
+                lexer_dirs.append(join(koDirs.userDataDir, "lexers"))    # user
+                for extensionDir in directoryServiceUtils.getExtensionDirectories():
+                    lexer_dirs.append(join(extensionDir, "lexers"))      # user-install extensions
+                lexer_dirs.append(join(koDirs.commonDataDir, "lexers"))  # site/common
+                lexer_dirs.append(join(koDirs.supportDir, "lexers"))     # factory
+                klass._lexer_dirs = lexer_dirs
+            return klass._lexer_dirs
 
         def _get_lexres_path(self):
-            for lexer_dir in self._gen_lexer_dirs():
-                if not exists(lexer_dir):
-                    continue
+            for lexer_dir in self._get_lexer_dirs():
                 candidate = join(lexer_dir, self.lang+".lexres")
                 if exists(candidate):
                     return candidate
