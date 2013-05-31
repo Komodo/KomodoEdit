@@ -60,6 +60,7 @@ import sys
 import os
 from os.path import join, dirname, splitext, basename, exists, isfile, \
                     abspath, normpath
+import io
 import re
 import unittest
 import difflib
@@ -67,7 +68,6 @@ import pprint
 import shutil
 import StringIO
 import pprint
-import codecs
 import warnings
 import traceback
 
@@ -214,11 +214,12 @@ def _testOneInputFile(self, fpath, tags=None):
             error = traceback.format_exc()
         else:
             error = None
-            fout = codecs.open(tmpfile, "wt", "utf-8")
-            try:
-                fout.write(cix)
-            finally:
-                fout.close()
+            if isinstance(cix, unicode):
+                with io.open(tmpfile, mode="wt", encoding="utf-8") as fout:
+                    fout.write(cix)
+            else:
+                with open(tmpfile, mode="wt") as fout:
+                    fout.write(cix)
     finally:
         stdout = sys.stdout.getvalue()
         stderr = sys.stderr.getvalue()
@@ -244,10 +245,12 @@ def _testOneInputFile(self, fpath, tags=None):
             return match.group(1)+path+match.group(3)
         path_pat = re.compile(r'(<file .*?path=")(.*?)(".*?>)', re.S)
 
-        expected = codecs.open(outfile, 'rb', 'utf-8').read()
-        expected = path_pat.sub(to_native_sep, expected)
-        actual = codecs.open(tmpfile, 'rb', 'utf-8').read()
-        actual = path_pat.sub(to_native_sep, actual)
+        # Note that we don't really care about line endings here, so we read
+        # both files in universal newlines mode (i.e. translate to \n)
+        with io.open(outfile, mode='rt', encoding='utf-8') as fout:
+            expected = path_pat.sub(to_native_sep, fout.read())
+        with io.open(tmpfile, mode='rt', encoding='utf-8') as ftmp:
+            actual = path_pat.sub(to_native_sep, ftmp.read())
         
         if expected != actual:
             do_fail = True
@@ -449,9 +452,8 @@ end
         # Unicode chars in the file path.
         content, cix = content_and_cix_from_lang[lang]
         open(inpath, 'wt').write(content)
-        fout = codecs.open(outpath, 'wt', encoding='utf-8')
-        fout.write(cix)
-        fout.close()
+        with io.open(outpath, mode="wt", encoding="utf-8") as fout:
+            fout.write(cix)
 
         subpath = join("unicode", unicode_marker, basename(inpath))
         testFunction \
