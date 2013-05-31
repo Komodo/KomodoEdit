@@ -135,8 +135,8 @@ class UDLLexer(Lexer):
         # Presume we are running under Komodo. Look in the available
         # lexres dirs from extensions.
 
-        @classmethod
-        def _get_lexer_dirs(klass):
+        @staticmethod
+        def _get_lexer_dirs():
             """Return all possible lexer resource directories (i.e. those ones
             that can include compiled UDL .lexres files).
     
@@ -144,7 +144,7 @@ class UDLLexer(Lexer):
     
             This doesn't filter out non-existant directories.
             """
-            if klass._lexer_dirs is None:
+            if UDLLexer._lexer_dirs is None:
                 lexer_dirs = []
                 koDirs = components.classes["@activestate.com/koDirs;1"] \
                     .getService(components.interfaces.koIDirs)
@@ -154,8 +154,9 @@ class UDLLexer(Lexer):
                     lexer_dirs.append(join(extensionDir, "lexers"))      # user-install extensions
                 lexer_dirs.append(join(koDirs.commonDataDir, "lexers"))  # site/common
                 lexer_dirs.append(join(koDirs.supportDir, "lexers"))     # factory
-                klass._lexer_dirs = lexer_dirs
-            return klass._lexer_dirs
+                UDLLexer._lexer_dirs = lexer_dirs
+                print 'lexer_dirs: %s\n  ' % ("\n  ".join(lexer_dirs), )
+            return UDLLexer._lexer_dirs
 
         def _get_lexres_path(self):
             for lexer_dir in self._get_lexer_dirs():
