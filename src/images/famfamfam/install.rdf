@@ -52,6 +52,7 @@
 		<em:homepageURL>http://www.famfamfam.com/lab/icons/</em:homepageURL>
 		<em:iconURL>chrome://famfamfamsilk/skin/famfamfam.ico</em:iconURL>
 		<em:type>2</em:type> <!-- type=extension --> 
+		<em:unpack>true</em:unpack>
 
 		<em:targetApplication>
 			<Description>
