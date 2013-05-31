@@ -155,7 +155,6 @@ class UDLLexer(Lexer):
                 lexer_dirs.append(join(koDirs.commonDataDir, "lexers"))  # site/common
                 lexer_dirs.append(join(koDirs.supportDir, "lexers"))     # factory
                 UDLLexer._lexer_dirs = lexer_dirs
-                print 'lexer_dirs: %s\n  ' % ("\n  ".join(lexer_dirs), )
             return UDLLexer._lexer_dirs
 
         def _get_lexres_path(self):
