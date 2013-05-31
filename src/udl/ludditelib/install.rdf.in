@@ -10,7 +10,8 @@
 		<em:description>${description}</em:description>
 		<em:creator>${creator}</em:creator>
 		<em:homepageURL>http://komodo.activestate.com/addons/${codename}/</em:homepageURL>
-		<em:type>2</em:type> <!-- type=extension --> 
+		<em:type>2</em:type> <!-- type=extension -->
+		<em:unpack>true</em:unpack>
 
 		<em:targetApplication>
 			<Description>
