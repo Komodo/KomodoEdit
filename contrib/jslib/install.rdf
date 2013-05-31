@@ -6,6 +6,7 @@
   <Description about="urn:mozilla:install-manifest">
     <em:id>{DF8E5247-8E0A-4de6-B393-0735A39DFD80}</em:id>
     <em:version>0.1.356</em:version>
+    <em:unpack>true</em:unpack>
     
     <!-- Target Application this extension can install into, 
         with minimum and maximum supported versions. -->
