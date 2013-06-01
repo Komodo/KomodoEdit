@@ -88,6 +88,14 @@ class KoTestDirectoryProvider:
                 p = join(extensionsDir, f)
                 if isdir(p):
                     paths.append(p)
+                else:
+                    try:
+                        with open(p, "r") as p_data:
+                            p = p_data.read().strip()
+                            if isdir(p):
+                                paths.append(p)
+                    except:
+                        pass
         except EnvironmentError:
             # The extensions dir may not exist yet.
             pass
