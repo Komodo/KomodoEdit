@@ -105,11 +105,8 @@ class GenericCommandHandler:
                         getService(components.interfaces.koIHistoryService)
 
     def set_view(self, view):
-        if self._view:
-            self._view.removeEventListener("codeintel_autocomplete_selected", self, False)
         if view:
             self._view = view.QueryInterface(components.interfaces.koIScintillaView)
-            view.addEventListener("codeintel_autocomplete_selected", self, False, False)
         else:
             self._view = None
 
@@ -811,10 +808,8 @@ class GenericCommandHandler:
     def _do_cmd_newlineSame(self):
         self._do_cmd_newline('plain', 0)
 
-    def handleEvent(self, event):
-        if event.type == "codeintel_autocomplete_selected":
-            event.QueryInterface(components.interfaces.nsIDOMDataContainerEvent)
-            self._finish_autocomplete(event.getData("position"))
+    def codeintel_autocomplete_selected(self, position, text):
+        self._finish_autocomplete(position)
 
     def _finish_autocomplete(self, start_pos):
         shouldAdjust = False

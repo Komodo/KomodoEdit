@@ -43,4 +43,5 @@ interface koIView;
 interface koIViewController : nsISupports
 {
     attribute koIView view;
+    void codeintel_autocomplete_selected(in long position, in AString text);
 };

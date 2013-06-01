@@ -2050,6 +2050,9 @@
             } catch(ex) {
                 this.log.exception("codeintel_autocomplete_selected handler failed");
             }
+
+            // Notify the command handler that autocompleted fired.
+            this._genericController.codeintel_autocomplete_selected(startPos, insertedText);
         ]]>
             </handler>
     </handlers>
