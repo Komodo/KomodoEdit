@@ -112,7 +112,7 @@ class UDLLexer(Lexer):
     the first keywords list.
     """
     _lock = threading.Lock()
-    _lexer_dirs = None
+    _lexresfile_from_lang = None
 
     def __init__(self):
         self._properties = SilverCity.PropertySet()
@@ -136,37 +136,48 @@ class UDLLexer(Lexer):
         # lexres dirs from extensions.
 
         @staticmethod
-        def _get_lexer_dirs():
-            """Return all possible lexer resource directories (i.e. those ones
-            that can include compiled UDL .lexres files).
+        def _generate_lexer_mapping():
+            """Return dict {name > filename} of all lexer resource files (i.e.
+            those ones that can include compiled UDL .lexres files).
     
             It yields directories that should "win" first.
-    
-            This doesn't filter out non-existant directories.
             """
-            if UDLLexer._lexer_dirs is None:
-                lexer_dirs = []
-                koDirs = components.classes["@activestate.com/koDirs;1"] \
-                    .getService(components.interfaces.koIDirs)
+            from glob import glob
+            lexresfile_from_lang = {}
+            koDirs = components.classes["@activestate.com/koDirs;1"] \
+                .getService(components.interfaces.koIDirs)
 
-                lexer_dirs.append(join(koDirs.userDataDir, "lexers"))    # user
-                for extensionDir in directoryServiceUtils.getExtensionDirectories():
-                    lexer_dirs.append(join(extensionDir, "lexers"))      # user-install extensions
-                lexer_dirs.append(join(koDirs.commonDataDir, "lexers"))  # site/common
-                lexer_dirs.append(join(koDirs.supportDir, "lexers"))     # factory
-                UDLLexer._lexer_dirs = lexer_dirs
-            return UDLLexer._lexer_dirs
+            # Find all possible lexer dirs.
+            lexer_dirs = []
+            lexer_dirs.append(join(koDirs.userDataDir, "lexers"))    # user
+            for extensionDir in directoryServiceUtils.getExtensionDirectories():
+                lexer_dirs.append(join(extensionDir, "lexers"))      # user-install extensions
+            lexer_dirs.append(join(koDirs.commonDataDir, "lexers"))  # site/common
+            lexer_dirs.append(join(koDirs.supportDir, "lexers"))     # factory
+
+            # Find all .lexeres files in these lexer dirs.
+            for d in reversed(lexer_dirs):  # first come, first served
+                lexer_files = glob(join(d, "*.lexres"))
+                for f in lexer_files:
+                    # Get lowered name without the ".lexres" extension.
+                    name = basename(f).lower().rsplit(".", 1)[0]
+                    lexresfile_from_lang[name] = f
+            return lexresfile_from_lang
 
         def _get_lexres_path(self):
-            for lexer_dir in self._get_lexer_dirs():
-                candidate = join(lexer_dir, self.lang+".lexres")
-                if exists(candidate):
-                    return candidate
-            else:
+            lexresfile_from_lang = UDLLexer._lexresfile_from_lang
+            if lexresfile_from_lang is None:
+                # Generate and cache it.
+                lexresfile_from_lang = self._generate_lexer_mapping()
+                UDLLexer._lexresfile_from_lang = lexresfile_from_lang
+
+            lexres_file = lexresfile_from_lang.get(self.lang.lower())
+            if lexres_file is None:
                 raise CodeIntelError("could not find lexres file for %s: "
                                      "`%s.lexres' does not exist in any "
                                      "of the lexer dirs"
                                      % (self.lang, self.lang))
+            return lexres_file
     else:
         def _get_lexres_path(self):
             candidate = join(dirname(__file__), "lexers", self.lang+".lexres")
