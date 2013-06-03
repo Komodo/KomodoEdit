@@ -275,6 +275,28 @@
             padding: 3px 0;
         }
         
+        &:hover {
+            border-right: @tab-hover-border;
+            background: @tab-hover-background;
+            box-shadow: @tab-hover-box-shadow;
+
+            .tab-text
+            {
+                color: @tab-hover-color;
+            }
+        }
+
+        &:active {
+            border-right: @tab-active-border;
+            background: @tab-active-background;
+            box-shadow: @tab-active-box-shadow;
+
+            .tab-text
+            {
+                color: @tab-active-color;
+            }
+        }
+
         &[selected="true"]
         {
             -moz-user-focus: normal;
@@ -286,28 +308,6 @@
             {
                 color: @tab-selected-color;
                 opacity: @tab-text-opacity-selected;
-            }
-        }
-        
-        &:hover {
-            border-right: @tab-hover-border;
-            background: @tab-hover-background;
-            box-shadow: @tab-hover-box-shadow;
-            
-            .tab-text
-            {
-                color: @tab-hover-color;
-            }
-        }
-        
-        &:active {
-            border-right: @tab-active-border;
-            background: @tab-active-background;
-            box-shadow: @tab-active-box-shadow;
-            
-            .tab-text
-            {
-                color: @tab-active-color;
             }
         }
         

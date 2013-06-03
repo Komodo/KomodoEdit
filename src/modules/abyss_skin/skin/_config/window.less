@@ -1,39 +1,40 @@
 @import url("chrome://komodo/skin/plat/current/_config/window.less");
 
+@window-color:                          #CACCD1;
 @window-background:                     #27282B;
 @workspace-background:                  #27282B;
 
-@panel-border-color:                    #161616;
-@panel-border:                          1px solid @panel-border-color;
-
-@sidebar-background:                    #202020 -moz-linear-gradient(-90deg , rgba(255,255,255,0) 0%, rgba(0,0,0,0.1) 500px);
+@sidebar-background:                    darken(@window-background, 1%) -moz-linear-gradient(-90deg , rgba(255,255,255,0) 0%, rgba(0,0,0,0.1) 500px);
 @sidebar-inactive-background:           @sidebar-background;
 
-@bottom-background:                     #202020 -moz-linear-gradient(-90deg , rgba(255,255,255,0) 0%, rgba(0,0,0,0.1) 50px);
+@bottom-background:                     darken(@window-background, 3%) -moz-linear-gradient(-90deg , rgba(255,255,255,0) 0%, rgba(0,0,0,0.1) 50px);
 @bottom-inactive-background:            @bottom-background;
 
-@main-border-color:                     #161616;
-@main-border-color-inactive:            #161616;
+@main-border-color:                     #151516;
+@main-border-color-inactive:            @main-border-color;
 @main-border:                           1px solid @main-border-color;
 @main-border-inactive:                  1px solid @main-border-color-inactive;
 
+@panel-border-color:                    lighten(@main-border-color, 2%);
+@panel-border:                          1px solid @panel-border-color;
+
 @statusbar-appearance:                  none;
-@statusbar-background:                  #202020;
-@statusbar-text-color:                  #AFAFAF;
+@statusbar-background:                  darken(@window-background, 5%) -moz-linear-gradient(-90deg , rgba(255,255,255,0) 0%, rgba(0,0,0,0.1) 50px);
+@statusbar-text-color:                  darken(@window-color, 10%);
 @statusbar-font:                        inherit;
 @statusbar-font-size:                   inherit;
 @statusbar-border-width:                1px 0 0 0;
 @statusbar-border-style:                solid;
-@statusbar-border-color:                #161616;
+@statusbar-border-color:                @main-border-color;
 @statusbar-panel-border-image:          none;
 
-@tree-background:                       #27282B;
-@tree-color:                            #EDEDED;
+@tree-background:                       @window-background;
+@tree-color:                            @window-color;
 @tree-treecol-appearance:               none;
-@tree-treecol-background:               rgb(45, 45, 45) -moz-linear-gradient(90deg , rgb(45, 45, 45) 0%, rgb(55, 55, 55) 100%);
-@tree-treecol-border:                   1px solid rgb(25, 25, 25);
-@tree-treecol-color:                    #EDEDED;
+@tree-treecol-background:               darken(@window-background, 2%) -moz-linear-gradient(-90deg , rgba(255,255,255,0) 0%, rgba(0,0,0,0.1) 100%);
+@tree-treecol-border:                   1px solid @main-border-color;
+@tree-treecol-color:                    darken(@window-color, 5%);
 @tree-row-background:                   transparent;
 @tree-row-background-odd:               rgba(0, 0, 0, 0.1);
 @tree-row-background-selected:          rgba(0, 0, 0, 0.15);
-@tree-row-background-selected-focus:    #141416;
+@tree-row-background-selected-focus:    darken(@window-background, 2%);
