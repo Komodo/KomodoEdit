@@ -18,13 +18,11 @@ AB_CD = en-US
 
 DEFINES += \
   -DAB_CD=$(AB_CD) \
+  -DAPP_VERSION="$(MOZ_APP_VERSION)" \
   -DMOZ_APP_BASENAME="$(MOZ_APP_BASENAME)" \
   -DMOZ_APP_VENDOR="$(MOZ_APP_VENDOR)" \
+  -DXPCOM_GLUE \
   $(NULL)
-
-
-APP_VERSION = $(shell cat $(srcdir)/../config/version.txt)
-DEFINES += -DAPP_VERSION="$(APP_VERSION)"
 
 # Build a binary bootstrapping with XRE_main
 
@@ -33,11 +31,13 @@ CSRCS = my_getopt.c \
 	koStart.c \
 	$(NULL)
 
-LOCAL_INCLUDES += -I$(topsrcdir)/toolkit/xre
-LOCAL_INCLUDES += -I$(topsrcdir)/xpcom/base
-LOCAL_INCLUDES += -I$(topsrcdir)/xpcom/build
+LOCAL_INCLUDES += \
+  -I$(topsrcdir)/toolkit/xre \
+  -I$(topsrcdir)/xpcom/base \
+  -I$(topsrcdir)/xpcom/build \
+  -I$(DEPTH)/build \
+  $(NULL)
 
-DEFINES += -DXPCOM_GLUE
 STL_FLAGS=
 
 LIBS += \
@@ -186,7 +186,7 @@ libs repackage:: $(PROGRAM) application.ini
 	rsync -a --exclude CVS --exclude "*.in" $(srcdir)/macbuild/Contents $(DIST)/$(APP_NAME).app --exclude English.lproj
 	$(MKDIR) -p $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj
 	rsync -a --exclude CVS --exclude "*.in" $(srcdir)/macbuild/Contents/Resources/English.lproj/ $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj
-	sed -e "s/%APP_VERSION%/$(APP_VERSION)/" -e "s/%APP_NAME%/$(APP_NAME)/" -e "s/%LOWER_APP_NAME%/$(LOWER_APP_NAME)/" $(srcdir)/macbuild/Contents/Info.plist.in > $(DIST)/$(APP_NAME).app/Contents/Info.plist
+	sed -e "s/%APP_VERSION%/$(MOZ_APP_VERSION)/" -e "s/%APP_NAME%/$(APP_NAME)/" -e "s/%LOWER_APP_NAME%/$(LOWER_APP_NAME)/" $(srcdir)/macbuild/Contents/Info.plist.in > $(DIST)/$(APP_NAME).app/Contents/Info.plist
 	sed -e "s/%APP_NAME%/$(APP_NAME)/" $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj/InfoPlist.strings
 	rsync -a $(DIST)/bin/ $(DIST)/$(APP_NAME).app/Contents/$(APPFILES)
 	$(RM) $(DIST)/$(APP_NAME).app/Contents/$(APPFILES)/mangle $(DIST)/$(APP_NAME).app/Contents/$(APPFILES)/shlibsign

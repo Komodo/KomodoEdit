@@ -2,6 +2,8 @@
 
 #include "nsXPCOMGlue.h"
 #include "nsXULAppAPI.h"
+#include "mozilla/AppData.h"
+#include "application.ini.h"
 #if defined(XP_WIN)
 #include <windows.h>
 #include <stdlib.h>
@@ -35,6 +37,8 @@
 #include "mozilla/Telemetry.h"
 
 #include "koStart.h"
+
+using namespace mozilla;
 
 static void Output(const char *fmt, ... )
 {
