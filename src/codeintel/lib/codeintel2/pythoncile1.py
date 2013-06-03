@@ -891,6 +891,20 @@ class AST2CIXVisitor:
             raise PythonCILEError("unexpected type of LHS of assignment: %r"
                                   % lhsNode)
 
+    def visitFor(self, node):
+        log.info("visitFor:%d: %r", node.lineno,
+                 self.lines and self.lines[node.lineno-1])
+        forAssign = node.assign
+        if isinstance(forAssign, ast.AssName):
+            # E.g.:
+            #   for foo in ...
+            # None: don't bother trying to resolve the type of the RHS
+            self._visitSimpleAssign(forAssign, None, node.lineno)
+        elif isinstance(forAssign, ast.AssTuple):
+            for anode in forAssign.nodes:
+                self._visitSimpleAssign(anode, None, node.lineno)
+        self.visit(node.body)
+
     def _resolveObjectRef(self, expr):
         """Try to resolve the given expression to a variable namespace.
         

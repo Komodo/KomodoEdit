@@ -282,6 +282,34 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertDefnMatches2(buf, foo_positions[3],
             ilk="argument", name="ibix", line=3, path=path, )
 
+    @tag("bug99178")
+    def test_argument_defn_for_loop(self):
+        test_dir = join(self.test_dir, "argument_defn_for_loop")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            import os, sys, ibix
+            # And a comment
+            class Bickle(Frog):
+                def test1():
+                    for hit in hits:
+                        elem, scoperef = hit<1>
+                        for bickle, child, dog in elem:
+                            if child<2>.tag == "variable":
+                                print "Yes, found it"
+                                return True
+                    return False
+            b = Bickle()
+            print(b.test1())
+        """))
+        path = join(test_dir, "defn_for_loop.py")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="variable", name="hit", line=5,
+            path=path)
+        self.assertDefnMatches2(buf, foo_positions[2],
+            ilk="variable", name="child", line=7,
+            path=path)
+
 class PythonDocTestCase(CodeIntelTestCase):
     lang = "Python"
     test_dir = join(os.getcwd(), "tmp")
