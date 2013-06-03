@@ -148,7 +148,7 @@ if (typeof ko.breadcrumbs == 'undefined')
 
             // Allow css styling to differentiate between local and remote files
             breadcrumbBar.classList.remove('is-remote');
-            if (view.koDoc.file.isRemoteFile)
+            if (view.koDoc && view.koDoc.file.isRemoteFile)
             {
                 breadcrumbBar.classList.add('is-remote');
             }
