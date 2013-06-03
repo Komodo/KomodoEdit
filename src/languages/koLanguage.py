@@ -1047,7 +1047,10 @@ class KoLanguageStatusTreeView(TreeView):
         else:
             return False
 
-    def getColumnProperties(self, col, properties):
+    def getColumnProperties(self, col, properties=None):
+        # Mozilla 22+ does not have a properties argument.
+        if properties is None:
+            return "sort-column"
         if col.id[len("languageStatus-"):] == self._sortData[0]:
             properties.AppendElement(self._sortColAtom)
 

@@ -220,9 +220,7 @@ class KoCodeIntelCatalogsTreeView(TreeView):
             return ''
         def isContainer(self, index):
             return False
-        def getRowProperties(self, col, properties):
-            pass
-        def getCellProperties(self, row, column, properties):
+        def getRowProperties(self, col, properties=None):
             pass
         
     def get_rowCount(self):
@@ -255,15 +253,23 @@ class KoCodeIntelCatalogsTreeView(TreeView):
         else:
             return False
 
-    def getColumnProperties(self, col, properties):
+    def getColumnProperties(self, col, properties=None):
         if col.id[len("catalogs-"):] == self._sortData[0]:
-            properties.AppendElement(self._sortColAtom)
+            # Mozilla 22+ does not have a properties argument.
+            if properties is None:
+                return "sort-column"
+            else:
+                properties.AppendElement(self._sortColAtom)
 
-    def getCellProperties(self, row_idx, col, properties):
+    def getCellProperties(self, row_idx, col, properties=None):
         if col.id == "catalogs-lang":
             try:
-                lang = self._rows[row_idx]["lang"]
-                properties.AppendElement(self.atomSvc.getAtom("Language" + lang))
+                langprop = "Language" + self._rows[row_idx]["lang"]
+                # Mozilla 22+ does not have a properties argument.
+                if properties is None:
+                    return langprop
+                else:
+                    properties.AppendElement(self.atomSvc.getAtom(langprop))
             except KeyError, ex:
                 raise ValueError("getCellText: unexpected col.id: %r" % col.id)
 

@@ -155,15 +155,20 @@ KlintTreeView.NONE = -1;
 
 // Properties to style tree
 KlintTreeView.props = [];
-KlintTreeView.props[KlintTreeView.INFO] =
+KlintTreeView.props[KlintTreeView.INFO] = "info";
+KlintTreeView.props[KlintTreeView.ERROR] = "error";
+KlintTreeView.props[KlintTreeView.WARNING] = "warning";
+// Mozilla 21 and older uses the atom service.
+KlintTreeView.atomprops = [];
+KlintTreeView.atomprops[KlintTreeView.INFO] =
     Components.classes["@mozilla.org/atom-service;1"]
         .getService(Components.interfaces.nsIAtomService)
         .getAtom("info");
-KlintTreeView.props[KlintTreeView.ERROR] =
+KlintTreeView.atomprops[KlintTreeView.ERROR] =
     Components.classes["@mozilla.org/atom-service;1"]
         .getService(Components.interfaces.nsIAtomService)
         .getAtom("error");
-KlintTreeView.props[KlintTreeView.WARNING] =
+KlintTreeView.atomprops[KlintTreeView.WARNING] =
     Components.classes["@mozilla.org/atom-service;1"]
         .getService(Components.interfaces.nsIAtomService)
         .getAtom("warning");
@@ -267,16 +272,16 @@ KlintTreeView.prototype = {
     },
 
     getCellProperties: function(row, column, props) {
-        var prop = null;
-
         switch (column.id || column) {
             case "klint-message":
                 var severity = this._visibleItems[row].severity;
-                prop = KlintTreeView.props[severity];
+                // Mozilla 22+ does not have a properties argument.
+                if (typeof(props) == "undefined") {
+                    return KlintTreeView.props[severity];
+                } else {
+                    props.AppendElement(KlintTreeView.atomprops[severity]);
+                }
                 break;
-        }
-        if (prop) {
-            props.AppendElement(prop);
         }
     },
 

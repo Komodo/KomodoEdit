@@ -35,6 +35,8 @@
  * ***** END LICENSE BLOCK ***** */
 
 // Globals
+Components.utils.import("resource://gre/modules/Services.jsm");
+
 const nsIScriptableDateFormat = Components.interfaces.nsIScriptableDateFormat;
 const nsScriptableDateFormat_CONTRACTID = "@mozilla.org/intl/scriptabledateformat;1";
 const nsIAtomService = Components.interfaces.nsIAtomService;
@@ -116,6 +118,11 @@ function filebrowseview() {
                       .getService(nsIAtomService);
   this.mDirectoryAtom = atomService.getAtom("remotefolder");
   this.mFileAtom = atomService.getAtom("remotefile");
+
+  // Mozilla 22 changed the way tree properties work.
+  if ((parseInt(Services.appinfo.platformVersion)) < 22) {
+    this.getCellProperties = this.getCellPropertiesMoz21AndOlder;
+  }
 }
 
 /* class constants */
@@ -157,8 +164,18 @@ filebrowseview.prototype = {
   /* void getRowProperties(in long index, in nsISupportsArray properties); */
   getRowProperties: function(index, properties) { },
 
+  /* void getCellProperties(in long row, in DOMElement column); */
+  getCellProperties: function(row, column) {
+    if (column.id != "FilenameColumn")
+      return;
+    if (row < this.mDirList.length)
+      return "remotefolder";
+    else if ((row - this.mDirList.length) < this.mFilteredFiles.length)
+      return "remotefile";
+  },
+
   /* void getCellProperties(in long row, in wstring colID, in nsISupportsArray properties); */
-  getCellProperties: function(row, column, properties) {
+  getCellPropertiesMoz21AndOlder: function(row, column, properties) {
     if (column.id != "FilenameColumn")
       return;
     if (row < this.mDirList.length)

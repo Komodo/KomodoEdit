@@ -61,6 +61,11 @@ window.addEventListener("load", function() {
         this._toolbars = toolbars.map(function(t) new Toolbar(t));
         xtk.hierarchicalTreeView.call(this, this._toolbars);
 
+        // Mozilla 22 changed the way tree properties work.
+        if ((parseInt(Services.appinfo.platformVersion)) < 22) {
+            this.getCellProperties = this.getCellPropertiesMoz21AndOlder;
+        }
+
         // set up ordinals for reordering support
         var container = toolbox.querySelector("toolboxrow") || toolbox;
         var elems = toolbars.filter(function(n) n.parentNode === container)
@@ -101,10 +106,18 @@ window.addEventListener("load", function() {
         return this._rows[index].elem.getAttribute("kohidden") != "true";
     };
 
-    ToolboxTreeView.prototype.getCellProperties = function(row, col, properties) {
-        if (col.id != "colCheck") {
-            return;
+    ToolboxTreeView.prototype.getCellProperties = function(row, col) {
+        var properties = "col-checkbox";
+        var parent = this.getParentIndex(row);
+        if (parent < 0) {
+            properties += " no-parent";
+        } else if (this.getCellValue(parent, col)) {
+            properties += " parent-checked";
         }
+        return properties;
+    };
+
+    ToolboxTreeView.prototype.getCellPropertiesMoz21AndOlder = function(row, col, properties) {
         properties.AppendElement(this._atom_col_checkbox);
         var parent = this.getParentIndex(row);
         if (parent < 0) {

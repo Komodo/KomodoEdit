@@ -873,19 +873,27 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
             else:
                 return str(event)
 
-    def getCellProperties(self, row_idx, col, properties):
+    def getCellProperties(self, row_idx, col, properties=None):
         if col.id != "repls-desc":
             return
         with self._lock:
             event = self.events[row_idx]
         if isinstance(event, findlib2.SkipPath):
-            properties.AppendElement(self._warning_atom)
+            # Mozilla 22+ does not have a properties argument.
+            if properties is None:
+                return "warning"
+            else:
+                properties.AppendElement(self._warning_atom)
 
-    def getRowProperties(self, row_idx, properties):
+    def getRowProperties(self, row_idx, properties=None):
         with self._lock:
             event = self.events[row_idx]
         if isinstance(event, findlib2.SkipPath):
-            properties.AppendElement(self._warning_atom)
+            # Mozilla 22+ does not have a properties argument.
+            if properties is None:
+                return "warning"
+            else:
+                properties.AppendElement(self._warning_atom)
 
 def _get_loaded_path_accessor():
     global _g_loaded_path_accessor

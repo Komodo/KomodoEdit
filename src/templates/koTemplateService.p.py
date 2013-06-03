@@ -441,25 +441,32 @@ class KoTemplatesView(TreeView):
         else:
             return 1
 
-    def getCellProperties(self, row, column, properties):
+    def _getCellPropertiesNames(self, row, column):
+        # Add a default language image.
+        properties = ["DefaultLanguage"]
         try:
-            # Add a default language image.
-            properties.AppendElement(self.defaultLanguageAtom)
-
             # Add individual language icon if we have one.
             lang = self._data[row]['language']
             if lang:
                 # Remove some special chararacters from the language name, so
                 # it can be styled via CSS.
                 lang = lang.replace("+", "").replace(".", "")
-                atom = self.atomSvc.getAtom("Language" + lang)
-                if atom is not None:
-                    properties.AppendElement(atom)
+                properties.append(lang)
         except IndexError:
             # Silence this, it is too annoying.
             # c.f. http://bugs.activestate.com/show_bug.cgi?id=27487
             #log.error("no %sth result" % row)
             pass
+
+    def getCellProperties(self, row, column, properties=None):
+        names = self._getCellPropertiesNames(row, column)
+        # Mozilla 22+ does not have a properties argument.
+        if properties is None:
+            return " ".join(names)
+        for name in names:
+            atom = self.atomSvc.getAtom(name)
+            if atom is not None:
+                properties.AppendElement(atom)
 
 class KoTemplateCategoriesView(TreeView):
     _com_interfaces_ = [components.interfaces.koITemplateCategoriesView,

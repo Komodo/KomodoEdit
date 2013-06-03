@@ -86,18 +86,26 @@ class KoFindResultsView(TreeView):
             datum = str(datum)
         return datum
 
-    def getCellProperties(self, row_idx, col, properties):
+    def getCellProperties(self, row_idx, col, properties=None):
         # Only for the "Content" column cells.
         if not col.id.endswith("-context"):
             return
         datum = self._data[row_idx]
         if datum["type"] == "warning":
-            properties.AppendElement(self._warning_atom)
+            # Mozilla 22+ does not have a properties argument.
+            if properties is None:
+                return "warning"
+            else:
+                properties.AppendElement(self._warning_atom)
 
-    def getRowProperties(self, row_idx, properties):
+    def getRowProperties(self, row_idx, properties=None):
         datum = self._data[row_idx]
         if datum["type"] == "warning":
-            properties.AppendElement(self._warning_atom)
+            # Mozilla 22+ does not have a properties argument.
+            if properties is None:
+                return "warning"
+            else:
+                properties.AppendElement(self._warning_atom)
 
     def Clear(self):
         length = len(self._data)

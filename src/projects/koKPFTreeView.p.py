@@ -722,7 +722,7 @@ class KPFTreeView(TreeView):
     def get_rowCount(self):
         return len(self._rows)
 
-    def getRowProperties( self, index, properties ):
+    def getRowProperties( self, index, properties=None):
         pass
 
     def _buildCellProperties(self, row, column):
@@ -766,7 +766,7 @@ class KPFTreeView(TreeView):
                     prop.append("isReadOnly")
         return prop
         
-    def getCellProperties(self, index, column, properties):
+    def getCellProperties(self, index, column, properties=None):
         # here we build a list of properties that are used to get the icon
         # for the tree item, text style, etc.  *If getImageSrc returns
         # a url to an icon, the icon matched by properties here will be
@@ -795,13 +795,17 @@ class KPFTreeView(TreeView):
         plist.extend(row.properties)
 
         #print "row %d %s : %r"% (index, column.id, plist)
+
+        # Mozilla 22+ does not have a properties argument.
+        if properties is None:
+            return " ".join(plist)
         for p in plist:
             properties.AppendElement(self.atomService.getAtom(p))
 
     # in nsITreeColumn col, in nsISupportsArray properties
     def getColumnProperties(self, 
                             column,
-                            properties):
+                            properties=None):
         # Result: void - None
         # In: param0: wstring
         # In: param1: nsIDOMElement
