@@ -4043,5 +4043,6 @@ class MozGreMilestone(black.configure.Datum):
         self.applicable = 1
         mozObjDir = black.configure.items['mozObjDir'].Get()
         mozDefines, mozSubsts = _getMozDefinesAndSubsts(mozObjDir)
-        self.value = mozSubsts.get("GRE_MILESTONE")
+        # GRE_MILESTONE is not defined on older Mozilla builds (e.g. moz 18).
+        self.value = mozSubsts.get("GRE_MILESTONE") or mozSubsts.get("MOZILLA_VERSION")
         self.determined = 1
