@@ -2313,7 +2313,7 @@ def _get_make_command(config, srcDir):
     (because pymake is broken for Gecko17, fixed later)
     """
 
-    if sys.platform.startswith("win"):
+    if config.mozVer >= 24.0 and sys.platform.startswith("win") :
         return "%s %s/build/pymake/make.py" % (config.python, srcDir)
 
     return "make"
