@@ -402,19 +402,30 @@ class KoPlaceTreeView(TreeView):
         self._refreshOnUpdateCurrentPlace = set()
         
     def initialize(self):
-        self.atomSvc = components.classes["@mozilla.org/atom-service;1"].\
-                  getService(components.interfaces.nsIAtomService)
-        self._atomsFromName = {}
-        for name in ["places_busy",
-                     "places_folder_open",
-                     "places_folder_closed",
-                     "places_file",
-                     "places_folder_symlink_open",
-                     "places_folder_symlink_closed",
-                     "places_file_symlink",
-                     "missing_file_symlink",
-                     ]:
-            self._atomsFromName[name] = self.atomSvc.getAtom(name)
+        mozMajorVer = 10000
+        nsXulAppInfo = components.classes["@mozilla.org/xre/app-info;1"].getService(components.interfaces.nsIXULAppInfo)
+        try:
+            mozMajorVer = int(nsXulAppInfo.platformVersion.split(".")[0])
+        except:
+            pass
+        if mozMajorVer < 22:
+            # Older mozilla versions used a different properties mechanism.
+            self.getCellProperties = self.getCellPropertiesMoz21
+
+            self.atomSvc = components.classes["@mozilla.org/atom-service;1"].\
+                      getService(components.interfaces.nsIAtomService)
+            self._atomsFromName = {}
+            for name in ["places_busy",
+                         "places_folder_open",
+                         "places_folder_closed",
+                         "places_file",
+                         "places_folder_symlink_open",
+                         "places_folder_symlink_closed",
+                         "places_file_symlink",
+                         "missing_file_symlink",
+                         ]:
+                self._atomsFromName[name] = self.atomSvc.getAtom(name)
+        
         prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
         prefs.prefObserverService.addObserver(self, 'native_mozicons_available', 0)
@@ -1788,9 +1799,10 @@ class KoPlaceTreeView(TreeView):
             log.debug("getCellText: No id %s at row %d", col_id, row)
             return "?"
 
-    def getCellProperties(self, row_idx, column, properties):
-        #assert col.id == "name"
+    def getCellPropertiesMoz21(self, row_idx, column, properties):
+        """Return cell properties - Mozilla 21 and before"""
         col_id = column.id
+        assert col_id == "name"
         try:
             rowNode = self._rows[row_idx]
 ####        zips = rowNode.getCellPropertyNames(col_id)
@@ -1814,7 +1826,25 @@ class KoPlaceTreeView(TreeView):
             rowNode.properties = atomProperties
         for atomProp in rowNode.properties:
             properties.AppendElement(atomProp)
-    
+
+    def getCellProperties(self, row_idx, column):
+        """Return cell properties - Mozilla 22+ version"""
+        col_id = column.id
+        assert col_id == "name"
+        property_names = []
+        try:
+            rowNode = self._rows[row_idx]
+            property_names = rowNode.getCellPropertyNames(col_id)
+        except AttributeError:
+            log.exception("getCellProperties(row_idx:%d, col_id:%r",
+                          row_idx, col_id)
+            return ""
+        if rowNode.properties is None:
+            # These values are cached, until there is a file_status change.
+            rowNode.properties = self._buildCellProperties(rowNode)
+        property_names += rowNode.properties
+        return " ".join(property_names)
+
     def getImageSrc(self, row_idx, column):
         """Return the image for the given cell."""
         if column.id == 'name':
