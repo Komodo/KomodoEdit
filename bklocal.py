@@ -193,6 +193,22 @@ def _getDefaultPlatform(linuxDistro=False, macUniversal=True):
         raise ConfigureError("cannot build mozilla on this platform: '%s'"
                              % sys.platform)
 
+gMozDefines = None
+gMozSubsts = None
+def _getMozDefinesAndSubsts(mozObjDir):
+    """Load Mozilla's config.status Python file."""
+    # TODO: This should eventually use Mozilla's ConfigStatus.py file.
+    global gMozDefines
+    global gMozSubsts
+    if gMozDefines is None:
+        mozconfig = join(mozObjDir, "config.status")
+        cfg_globals = {"__file__": mozconfig}
+        cfg_locals = {}
+        execfile(mozconfig, cfg_globals, cfg_locals)
+        gMozDefines = dict(cfg_locals.get("defines"))
+        gMozSubsts = dict(cfg_locals.get("substs"))
+    return gMozDefines, gMozSubsts
+
 
 
 #---- particular Data for the Komodo world
@@ -4015,4 +4031,17 @@ class MozLdFlags(black.configure.Datum):
         mozObjDir = black.configure.items['mozObjDir'].Get()
         cmd = black.configure.items['mozMake'].Get() + ["echo-variable-LDFLAGS"]
         self.value = _capture_stdout(cmd, cwd=mozObjDir).strip()
+        self.determined = 1
+
+
+class MozGreMilestone(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "mozGreMilestone",
+            desc="GRE_MILESTONE set for Mozilla build")
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        mozObjDir = black.configure.items['mozObjDir'].Get()
+        mozDefines, mozSubsts = _getMozDefinesAndSubsts(mozObjDir)
+        self.value = mozSubsts.get("GRE_MILESTONE")
         self.determined = 1

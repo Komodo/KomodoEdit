@@ -60,6 +60,7 @@ Import(
     "mozResourcesDir",
     'mozDevelDist',
     "mozVersion",
+    "mozGreMilestone",
     "mozMake",
     "idlExportDir",
     "version",
@@ -175,6 +176,7 @@ my %ppData = (
     'PP_IS_GTK2_SILOED' => "$isGTK2Siloed",
     'PP_COMPILER' => "$compiler",
     'PP_CURR_YEAR' => "$currYear",
+    'PP_MOZ_GRE_MILESTONE' => "$mozGreMilestone",
 );
 
 open(my $config, "<", "$mozObjDir/config/autoconf.mk")

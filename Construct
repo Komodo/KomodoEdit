@@ -96,6 +96,7 @@ my @toExport = (
     'mozCFlags',
     'mozCxxFlags',
     'mozLdFlags',
+    'mozGreMilestone',
     'mozSrc',
     'mozObjDir',
     'mozResourcesDir',

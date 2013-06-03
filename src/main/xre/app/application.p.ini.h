@@ -10,8 +10,8 @@
                  "Copyright (c) 1999 - PP_CURR_YEAR ActiveState", // copyright
                  0,                     // flags
                  NULL,                  // xreDirectory
-                 "24.0a1",              // XRE minVersion
-                 "24.0a1",              // XRE maxVersion
+                 "PP_MOZ_GRE_MILESTONE", // XRE minVersion
+                 "PP_MOZ_GRE_MILESTONE", // XRE maxVersion
                  "https://komodo.activestate.com/crash/submit", // crash report
                  NULL                   // profile directory
              };
