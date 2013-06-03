@@ -1731,6 +1731,7 @@ def _disablePythonUserSiteFeature(site_filepath):
 
 
 def target_silo_python(argv=["silo_python"]):
+    argv = argv[1:]
     log.info("target: silo_python")
     config = _importConfig()
     pyver = tuple(map(int, config.pyVer.split('.')))
@@ -1777,8 +1778,12 @@ def target_silo_python(argv=["silo_python"]):
     else:
         landmark = os.path.join(siloDir, "bin", "python")
     if landmark and exists(landmark):
-        log.info("siloed Python already exists at `%s'", siloDir)
-        return argv[1:]
+        if argv and argv[0] == "--force":
+            argv = argv[1:]
+            shutil.rmtree(siloDir)
+        else:
+            log.info("siloed Python already exists at `%s'", siloDir)
+            return argv
 
     # Copy the configured Python to the silo dir.
     if sys.platform == "win32":
@@ -1896,7 +1901,7 @@ def target_silo_python(argv=["silo_python"]):
         siteFile = join(siloDir, "lib", "python%s" % (config.pyVer), "site.py")
         _disablePythonUserSiteFeature(siteFile)
 
-    return argv[1:]
+    return argv
 
 
 def target_pyxpcom_distclean(argv=["pyxpcom_distclean"]):
