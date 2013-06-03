@@ -1095,6 +1095,7 @@ if (typeof ko.openfiles == 'undefined')
                 if (direction == 'DESC')
                 {
                     bySort *= -1;
+                    byGroup *= -1;
                 }
                 
                 // Validate whether this item should be moved above the previous
@@ -1568,9 +1569,7 @@ if (typeof ko.openfiles == 'undefined')
          */
         setSortDirection: function openfiles_setSortDirection(direction)
         {
-            var dir = ko.prefs.getString(PREF_SORTING_DIR, 'ASC');
-            ko.prefs.setStringPref(PREF_SORTING_DIR, dir == 'ASC' ? 'DESC' : 'ASC');
-
+            ko.prefs.setStringPref(PREF_SORTING_DIR, direction);
             this.sort();
         },
     
