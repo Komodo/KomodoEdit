@@ -244,7 +244,7 @@ view[type='startpage']
 
     .breadcrumb
     {
-        label
+        .toolbarbutton-text
         {
             color: @breadcrumb-color;
         }
@@ -257,21 +257,11 @@ view[type='startpage']
         &.breadcrumb-folder-icon:not(.project-folder)
         {
             list-style-image: @icon-breadcrumb-folder;
-
-            .toolbarbutton-icon.native
-            {
-                list-style-image: @icon-native-folder;
-            }
         }
 
         &.breadcrumb-folder-icon.project-folder
         {
             list-style-image: @icon-breadcrumb-project;
-
-            .toolbarbutton-icon.native
-            {
-                list-style-image: @icon-project;
-            }
         }
 
         &.folder .breadcrumb-arrow
@@ -282,24 +272,6 @@ view[type='startpage']
             height: 16px;
             opacity: 0.6;
         }
-    }
-
-    &:not(.native-icons) .breadcrumb
-    {
-        .toolbarbutton-icon
-        {
-            opacity: 0.8;
-        }
-    }
-
-    &.native-icons .breadcrumb .toolbarbutton-icon:not(.native)
-    {
-        visibility: collapse;
-    }
-
-    &:not(.native-icons) .breadcrumb .toolbarbutton-icon.native
-    {
-        visibility: collapse;
     }
 
 }

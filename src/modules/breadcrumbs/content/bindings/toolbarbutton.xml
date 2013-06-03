@@ -18,7 +18,6 @@
         <content>
             <children includes="observes|template|menupopup|panel|tooltip"/>
             <xul:image class="toolbarbutton-icon" xbl:inherits="validate,src=image,label"/>
-            <xul:image class="toolbarbutton-icon native" xbl:inherits="validate,src=native-image"/>
             <xul:label class="toolbarbutton-text" crop="right" flex="1" xbl:inherits="value=label,accesskey,crop"/>
             <xul:box class="breadcrumb-arrow"/>
         </content>

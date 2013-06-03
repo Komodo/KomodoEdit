@@ -815,7 +815,7 @@ if (typeof ko.breadcrumbs == 'undefined')
                 ko.prefs.getBoolean("native_mozicons_available", false))
             {
                 crumb.setAttribute(
-                    'native-image', "moz-icon://" + file.getFilename() + "?size=16"
+                    'image', "moz-icon://" + file.getFilename() + "?size=16"
                 );
             }
 
