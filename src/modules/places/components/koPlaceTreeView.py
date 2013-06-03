@@ -407,7 +407,7 @@ class KoPlaceTreeView(TreeView):
         try:
             mozMajorVer = int(nsXulAppInfo.platformVersion.split(".")[0])
         except:
-            pass
+            log.warn("Unable to parse nsXulAppInfo.platformVersion")
         if mozMajorVer < 22:
             # Older mozilla versions used a different properties mechanism.
             self.getCellProperties = self.getCellPropertiesMoz21
