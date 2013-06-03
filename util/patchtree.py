@@ -514,7 +514,8 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
     #if sys.platform.startswith("win"):
     #    baseArgv.insert(1, "--binary")
     patchFile = os.path.join(baseDir, patchRelPath)
-    patchContent = open(patchFile, 'r').read()
+    with open(patchFile, "r") as patchStream:
+        patchContent = patchStream.read()
 
     # Skip out if the patch has already been applied.
     argv = baseArgv + ["--dry-run"]
@@ -525,6 +526,25 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
         log.info("skip application of '%s'%s: already applied", patchRelPath,
                  inReverse)
         return
+
+    lineEndingFixes = {} # path -> expected line ending
+    if not dryRun and sys.platform.startswith("win"):
+        # on Windows, we need to convert everything to use DOS line endings, so
+        # that patch.exe can deal with them - and then convert back after
+        patchDepth = int(filter(lambda arg: arg.startswith("-p"), baseArgv)[-1][2:])
+        for line in patchContent.splitlines():
+            if line.startswith("+++"):
+                resultRelPath = line.split("\t", 1)[0].split(" ", 1)[-1]
+                resultRelPath= "/".join(resultRelPath.split("/")[patchDepth:])
+                resultPath = join(sourceDir, resultRelPath)
+                if exists(resultPath):
+                    with open(resultPath, "rU") as destFile:
+                        filter(lambda n: False, destFile)
+                        lineEndingFixes[resultRelPath] = destFile.newlines
+                else:
+                    log.debug("Failed to find file %s", resultPath)
+
+    log.debug("line endings: %s", lineEndingFixes)
 
     # Apply the patch.
     if dryRun:
@@ -543,6 +563,27 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
         raise Error("error applying patch '%s'%s: argv=%r, cwd=%r, retval=%r"
                     % (patchFile, inReverse, argv, sourceDir, retval))
 
+    # Fix up line endings
+    if not dryRun and sys.platform.startswith("win"):
+        for resultRelPath, lineEnds in lineEndingFixes.items():
+            log.debug("File %s: %r", resultRelPath, lineEnds)
+            if lineEnds == "\n":
+                path = join(sourceDir, resultRelPath)
+                if not exists(path):
+                    continue
+                log.debug("Fixing line endings for %s", path)
+                tempDir = tempfile.mkdtemp()
+                tempFile = join(tempDir, basename(resultRelPath))
+                os.rename(path, tempFile)
+                try:
+                    with open(tempFile, "rU") as infile:
+                        with open(path, "wb") as outfile:
+                            for line in infile.read().splitlines(False):
+                                outfile.write(line + "\n")
+                    os.remove(tempFile)
+                except:
+                    if exists(tempFile):
+                        os.rename(tempFile, path)
 
 
 #---- public API
