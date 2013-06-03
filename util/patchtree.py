@@ -281,7 +281,7 @@ def _shouldBeApplied((base, actions, config), dirname, names):
     # Add "apply" actions for patch files.
     for pattern in ("*.patch", "*.diff"):
         for patchfile in glob.glob(os.path.join(dirname, pattern)):
-            patchfile = patchfile[len(base+os.sep):]
+            patchfile = os.path.relpath(patchfile, base)
             if patch_applicable_fn and not patch_applicable_fn(config, patchfile):
                 log.debug("    skip: patchfile_applicable() returned false for %r", patchfile)
                 continue
