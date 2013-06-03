@@ -37,6 +37,8 @@
 
 #include "nsXPCOMGlue.h"
 #include "nsXULAppAPI.h"
+#include "mozilla/AppData.h"
+#include "komodo_application.ini.h"
 #if defined(XP_WIN)
 #include <windows.h>
 #include <stdlib.h>
@@ -73,6 +75,8 @@
 #include "mozilla/Telemetry.h"
 
 #include "koStart.h"
+
+using namespace mozilla;
 
 static void Output(const char *fmt, ... )
 {
@@ -166,30 +170,29 @@ static void SetAppUserModel()
 }
 #endif
 
-static int do_main(const char *exePath, int argc, char* argv[])
+static int do_main(const char *xpcomDllPath, int argc, char* argv[])
 {
-  nsCOMPtr<nsIFile> appini;
+  nsCOMPtr<nsIFile> xpcomFile;
 #ifdef XP_WIN
-  // exePath comes from mozilla::BinaryPath::Get, which returns a UTF-8
+  // xpcomDllPath comes from mozilla::BinaryPath::Get, which returns a UTF-8
   // encoded path, so it is safe to convert it
-  nsresult rv = NS_NewLocalFile(NS_ConvertUTF8toUTF16(exePath), PR_FALSE,
-                                getter_AddRefs(appini));
+  nsresult rv = NS_NewLocalFile(NS_ConvertUTF8toUTF16(xpcomDllPath), PR_FALSE,
+                                getter_AddRefs(xpcomFile));
 #else
-  nsresult rv = NS_NewNativeLocalFile(nsDependentCString(exePath), PR_FALSE,
-                                      getter_AddRefs(appini));
+  nsresult rv = NS_NewNativeLocalFile(nsDependentCString(xpcomDllPath), PR_FALSE,
+                                      getter_AddRefs(xpcomFile));
 #endif
   if (NS_FAILED(rv)) {
-    Output("Couldn't get nsILocalFile for '%s'", exePath);
+    Output("Couldn't get nsILocalFile for '%s'", xpcomDllPath);
     return 255;
   }
 
-  appini->SetNativeLeafName(NS_LITERAL_CSTRING("application.ini"));
-  nsXREAppData *appData;
-  rv = XRE_CreateAppData(appini, &appData);
-  if (NS_FAILED(rv)) {
-    Output("Couldn't read application.ini");
-    return 255;
-  }
+  nsCOMPtr<nsIFile> xreDirectory;
+  xpcomFile->GetParent(getter_AddRefs(xreDirectory));
+
+  ScopedAppData appData(&sAppData);
+  appData.xreDirectory = xreDirectory;
+
   #ifdef XP_MACOSX
     // Mac OSX: Disable press-and-hold for OSX 10.7, see bug 90870
     CFPreferencesSetAppValue(CFSTR("ApplePressAndHoldEnabled"),
@@ -203,7 +206,7 @@ static int do_main(const char *exePath, int argc, char* argv[])
     // properly configured koStart.h|c are built in as part of the
     // *Komodo* build. After the default Mozilla build (in
     // Mozilla-devel/...) we simply start the XRE.
-    return XRE_main(argc, argv, appData, 0);
+    return XRE_main(argc, argv, &appData, 0);
 #else
     int retval = 0;
     KoStartOptions options;
@@ -245,7 +248,7 @@ static int do_main(const char *exePath, int argc, char* argv[])
         #if defined( XP_WIN )
         SetAppUserModel();
         #endif /* defined( XP_WIN ) */
-        retval = XRE_main(xreArgc, xreArgv, appData, 0);
+        retval = XRE_main(xreArgc, xreArgv, &appData, 0);
     }
     goto main_exit;
 

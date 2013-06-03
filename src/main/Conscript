@@ -266,7 +266,7 @@ if (!$xulrunner) {
         ["preprocess",       "app/brand.p.dtd", "app/brand.dtd"],
         ["preprocess",       "app/brand.p.properties", "app/brand.properties"],
 
-        ["preprocess",       "app/application.p.ini", "app/application.ini"],
+        ["preprocess",       "app/application.p.ini.h", "app/komodo_application.ini.h"],
 
         #TODO: Add ko_project.ico.
         ["cp",               "app/komodo.$productType.ico", "app/komodo.ico"],
