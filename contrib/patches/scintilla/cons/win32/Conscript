@@ -267,5 +267,4 @@ $cons->Command(
 $cons->Install($mozBin, $pluginName);
 
 # Running regxpcom depends on SciLexer.dll being installed.
-my $installedPluginPath = File::Spec->catfile($mozBin, basename($pluginName));
-$cons->Depends($ranRegxpcomStateFileName, $installedPluginPath);
+$cons->Depends($ranRegxpcomStateFileName, $pluginName);
