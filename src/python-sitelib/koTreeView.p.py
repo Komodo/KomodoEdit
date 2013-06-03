@@ -69,15 +69,15 @@ class TreeView(object):
         if self.log:
             self.log.debug("get_rowCount()")
         return False
-    def getRowProperties(self, index, properties):
+    def getRowProperties(self, index, properties=None):
         if self.log:
             self.log.debug("getRowProperties(%s, %r)", index, properties)
         pass
-    def getCellProperties(self, row, column, properties):
+    def getCellProperties(self, row, column, properties=None):
         if self.log:
             self.log.debug("getCellProperties()")
         pass
-    def getColumnProperties(self, column, properties):
+    def getColumnProperties(self, column, properties=None):
         if self.log:
             self.log.debug("getColumnProperties(column=%s, props=%r)",
                 column, properties)

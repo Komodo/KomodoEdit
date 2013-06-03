@@ -90,17 +90,21 @@ xtk.baseTreeView.prototype = {
 
   /* nsITreeView methods */
 
+  /* AString getRowProperties(in long index); // mozilla 22+ */
   /* void getRowProperties(in long index, in nsISupportsArray properties); */
   getRowProperties: function(index, properties) {
   },
 
-  /* void getCellProperties(in long row, in wstring colID, in nsISupportsArray properties); */
-  getCellProperties: function(row, colID, properties) {
+  /* AString getCellProperties(in long row, in nsIDOMElement colElt); // mozilla 22+ */
+  /* void getCellProperties(in long row, in nsIDOMElement colElt,
+                            in nsISupportsArray properties); */
+  getCellProperties: function(row, colElt, properties) {
   },
 
-  /* void getColumnProperties(in wstring colID, in nsIDOMElement colElt,
-     in nsISupportsArray properties); */
-  getColumnProperties: function(colID, colElt, properties) {
+  /* AString getColumnProperties(nsIDOMElement colElt); // for mozilla 22+ */
+  /* void getColumnProperties(in nsIDOMElement colElt,
+                              in nsISupportsArray properties); */
+  getColumnProperties: function(colElt, properties) {
   },
 
   /* boolean isContainer(in long index); */
