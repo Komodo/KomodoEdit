@@ -195,13 +195,13 @@ if ($platform eq "win") {
         "SciMozEvents.cxx"
         );
 
-    $cons->Command("npscimoz.res",
+    $consLocal->Command("npscimoz.res",
         "npscimoz.rc",
         qq(
             rc /fo%> %<
         )
     );
-    $cons->Command($pluginName,
+    $consLocal->Command($pluginName,
         "npscimoz.def",
         "npscimoz.res",
         @scimozobjs,
