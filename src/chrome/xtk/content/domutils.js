@@ -99,6 +99,60 @@ containsElement: function(ancestor, element) {
     return false;
 },
 
+getChildrenByProperty: function(parent, propKey, propVal, returnFirst = false)
+{
+    var results = returnFirst ? false : [];
+
+    if ( ! parent || ! parent.hasChildNodes()) return results;
+    if ( ! (propVal instanceof Array)) propVal = [propVal]; // Allow multiple vals
+
+    for (let [k,child] in Iterator(parent.childNodes)) {
+        if ((propKey in child) && propVal.indexOf(child[propKey]) !== -1) {
+            if (returnFirst) return child;
+            results.push(child);
+        }
+    }
+
+    return results;
+},
+
+getChildrenByAttribute: function(parent, attrKey, attrVal, returnFirst = false)
+{
+    var results = returnFirst ? false : [];
+
+    if ( ! parent || ! parent.hasChildNodes()) return results;
+    if ( ! (attrVal instanceof Array)) attrVal = [attrVal]; // Allow multiple vals
+
+    for (let [k,child] in Iterator(parent.childNodes)) {
+        if (child.getAttribute(attrKey) && attrVal.indexOf(child.getAttribute(attrKey)) !== -1) {
+            if (returnFirst) return child;
+            results.push(child);
+        }
+    }
+
+    return results;
+},
+
+getChildByProperty: function(parent, propKey, propVal)
+{
+    return xtk.domutils.getChildrenByProperty(parent, propKey, propVal, true);
+},
+
+getChildByAttribute: function(parent, attrKey, attrVal)
+{
+    return xtk.domutils.getChildrenByAttribute(parent, attrKey, attrVal, true);
+},
+
+addEventListenerOnce: function(elem, event, listener)
+{
+    var _listener = function(event)
+    {
+        elem.removeEventListener(_listener);
+        return listener(event);
+    };
+    elem.addEventListener(event, listener);
+},
+
 /**
  * is the focused element, or it's ancestor a element with a matching localName?
  *

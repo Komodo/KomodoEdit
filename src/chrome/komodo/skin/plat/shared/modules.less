@@ -249,21 +249,6 @@ view[type='startpage']
             color: @breadcrumb-color;
         }
 
-        &.breadcrumb-file-icon
-        {
-            list-style-image: @icon-breadcrumb-file;
-        }
-
-        &.breadcrumb-folder-icon:not(.project-folder)
-        {
-            list-style-image: @icon-breadcrumb-folder;
-        }
-
-        &.breadcrumb-folder-icon.project-folder
-        {
-            list-style-image: @icon-breadcrumb-project;
-        }
-
         &.folder .breadcrumb-arrow
         {
             background-image: @icon-breadcrumb-arrow;
@@ -272,6 +257,21 @@ view[type='startpage']
             height: 16px;
             opacity: 0.6;
         }
+    }
+
+    .breadcrumb-file-icon
+    {
+        list-style-image: @icon-breadcrumb-file;
+    }
+
+    .breadcrumb-folder-icon:not(.project-folder)
+    {
+        list-style-image: @icon-breadcrumb-folder;
+    }
+
+    .breadcrumb-folder-icon.project-folder
+    {
+        list-style-image: @icon-breadcrumb-project;
     }
 
 }

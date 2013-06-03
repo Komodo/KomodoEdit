@@ -46,36 +46,6 @@
                     id="breadcrumbTemplateFolder"
                     anonid="breadcrumbFolder"
                     class="breadcrumb folder breadcrumb-folder-icon">
-                    <menupopup ignorekeys="true">
-                        <menuseparator anonid="reloadSeparator" preserve="true" />
-                        <menuitem
-                            anonid="fastOpenHere"
-                            label="&fastopenHere.label;"
-                            oncommand="ko.breadcrumbs.onCommandMenuItem('FastOpen', this)"
-                            acceltext="Ctrl+Shift+LMB"
-                            preserve="true"/>
-                        <menuitem
-                            anonid="findInFolder"
-                            label="&findInFolder.label;"
-                            oncommand="ko.breadcrumbs.onCommandMenuItem('Find', this)"
-                            acceltext="Ctrl+LMB"
-                            preserve="true"/>
-                        <menuitem
-                            anonid="showInPlaces"
-                            label="&showInPlaces.label;"
-                            oncommand="ko.breadcrumbs.onCommandMenuItem('ShowPlaces', this)"
-                            acceltext="Shift+LMB"
-                            preserve="true"/>
-                        <menuitem
-                            label="&reload.label;"
-                            oncommand="ko.breadcrumbs.reload()"
-                            preserve="true"/>
-                        <menuseparator anonid="filterSeparator" preserve="true" />
-                        <textbox
-                            anonid="filter"
-                            preserve="true"
-                            placeholder="&filter.placeholder;" />
-                    </menupopup>
                 </toolbarbutton>
 
                 <toolbarbutton
@@ -85,13 +55,52 @@
                     native-image="chrome://komodo/skin/images/existing_file.png"/>
 
                 <menuitem
-                    id="breadcrumbMenuTemplate"
+                    id="breadcrumbMenuFileTemplate"
                     class="menuitem-iconic file-item"
                     oncommand="ko.breadcrumbs.onCommandMenuItem('Select', this)"
                     image="chrome://komodo/skin/images/existing_file.png"/>
 
                 <menu
-                    id="overflowMenuTemplate"/>
+                    id="breadcrumbMenuFolderTemplate"
+                    class="menu-iconic folder-item breadcrumb-folder-icon"/>
+
+                <menupopup
+                    id="breadcrumbMenupopupTemplate"
+                    ignorekeys="true">
+
+                    <menuseparator anonid="reloadSeparator" preserve="true" />
+                    <menuitem
+                        anonid="fastOpenHere"
+                        label="&fastopenHere.label;"
+                        oncommand="ko.breadcrumbs.onCommandMenuItem('FastOpen', this)"
+                        acceltext="Ctrl+Shift+LMB"
+                        preserve="true"/>
+                    <menuitem
+                        anonid="findInFolder"
+                        label="&findInFolder.label;"
+                        oncommand="ko.breadcrumbs.onCommandMenuItem('Find', this)"
+                        acceltext="Ctrl+LMB"
+                        preserve="true"/>
+                    <menuitem
+                        anonid="showInPlaces"
+                        label="&showInPlaces.label;"
+                        oncommand="ko.breadcrumbs.onCommandMenuItem('ShowPlaces', this)"
+                        acceltext="Shift+LMB"
+                        preserve="true"/>
+                    <menuitem
+                        label="&reload.label;"
+                        oncommand="ko.breadcrumbs.reload()"
+                        preserve="true"/>
+                    <menuseparator anonid="filterSeparator" preserve="true" />
+                    <textbox
+                        anonid="filter"
+                        preserve="true"
+                        placeholder="&filter.placeholder;" />
+                </menupopup>
+
+                <menu
+                    id="overflowMenuTemplate"
+                    class="menu-iconic folder-item breadcrumb-folder-icon"/>
             </box>
 
         </hbox>

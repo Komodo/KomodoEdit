@@ -39,16 +39,11 @@ if (typeof ko.breadcrumbs == 'undefined')
     var breadcrumbBar, overflowBtn;
 
     /* Templates */
-    var template = {
-        crumbFile: null,
-        crumbFolder: null,
-        crumbMenu: null,
-        overflowItem: null
-    };
+    var template = {};
 
     /* Contextual information for events */
     var eventContext = {
-        activeCrumb: null,
+        activePopup: null,
         menuShowing: false,
         loadInProgress: false
     };
@@ -82,7 +77,9 @@ if (typeof ko.breadcrumbs == 'undefined')
             breadcrumbBar           = document.getElementById('breadcrumbBar');
             template.crumbFile      = document.getElementById('breadcrumbTemplateFile');
             template.crumbFolder    = document.getElementById('breadcrumbTemplateFolder');
-            template.crumbMenu      = document.getElementById('breadcrumbMenuTemplate');
+            template.crumbMenuFile  = document.getElementById('breadcrumbMenuFileTemplate');
+            template.crumbMenuFolder= document.getElementById('breadcrumbMenuFolderTemplate');
+            template.crumbMenupopup = document.getElementById('breadcrumbMenupopupTemplate');
             template.overflowItem   = document.getElementById('overflowMenuTemplate');
             overflowBtn             = document.getElementById('breadcrumbOverflowBtn');
 
@@ -181,6 +178,12 @@ if (typeof ko.breadcrumbs == 'undefined')
                                     this.checkOverflow.bind(this, false));
             window.addEventListener('keydown',
                                     this.onCrumbMenuKeypress.bind(this));
+
+            /* Misc */
+            var overflowMenu = xtk.domutils.getChildByProperty(
+                overflowBtn, 'nodeName', 'menupopup'
+            );
+            this.bindCrumbPopupListeners(overflowMenu);
         },
 
         /**
@@ -198,41 +201,6 @@ if (typeof ko.breadcrumbs == 'undefined')
             // Bind listeners specific to a folder crumb
             if (crumb.node.getAttribute("anonid") == 'breadcrumbFolder')
             {
-                // Bind menupopup listeners
-                var menupopup = crumb.node.querySelector("menupopup");
-                var textbox = menupopup.querySelector("textbox");
-                textbox.addEventListener(
-                    'keyup', this.onCrumbMenuFilter.bind(this, crumb)
-                );
-
-                // We want to load the menupopup contents only when accessed
-                menupopup.addEventListener(
-                    'popupshowing', this.onCrumbMenuShowing.bind(this,crumb)
-                );
-                menupopup.addEventListener(
-                    'popupshown', this.onCrumbMenuShown.bind(this,crumb)
-                );
-                menupopup.addEventListener(
-                    'popuphidden', this.onCrumbMenuHidden.bind(this,crumb)
-                );
-
-                // On mouse move remove menuactive attribute from irrelevant
-                // items
-                menupopup.addEventListener(
-                    'mousemove', function(e)
-                {
-                    var elems = crumb.node.querySelectorAll(
-                        "menuitem[_moz-menuactive]"
-                    );
-                    for (let [k,elem] in Iterator(elems))
-                    {
-                        if (elem != e.target)
-                        {
-                            elem.removeAttribute("_moz-menuactive");
-                        }
-                    }
-                });
-
                 // Track mouse click events for stuff like Shift+LMB
                 // to view the file in Places
                 crumb.node.addEventListener('mousedown', function(e)
@@ -263,7 +231,9 @@ if (typeof ko.breadcrumbs == 'undefined')
                     // Default - open menupopup
                     else
                     {
-                        var menupopup = crumb.node.querySelector("menupopup");
+                        var menupopup = xtk.domutils.getChildByProperty(
+                            crumb.node, 'nodeName', 'menupopup'
+                        );
                         menupopup.openPopup(crumb.node, 'before_start');
                         return;
                     }
@@ -282,6 +252,64 @@ if (typeof ko.breadcrumbs == 'undefined')
                     contextMenu.openPopup(crumb.node, 'before_start');
                 }.bind(this));
             }
+        },
+
+        /**
+         * Bind listeners on a crumb menupopup
+         *
+         * @param   {Object} crumb
+         *
+         * @returns {Void} 
+         */
+        bindCrumbPopupListeners: function breadcrumbs_bindCrumbPopupListeners(menupopup)
+        {
+            // Bind menupopup listeners
+            var textbox = xtk.domutils.getChildByProperty(
+                menupopup, 'nodeName', 'textbox'
+            );
+            if (textbox)
+            {
+                textbox.addEventListener(
+                    'keyup', this.onCrumbMenuFilter.bind(this, menupopup)
+                );
+            }
+
+            // We want to load the menupopup contents only when accessed
+            //menupopup.addEventListener(
+            //    'popupshowing', this.onCrumbMenuShowing.bind(this, menupopup)
+            //);
+            menupopup.addEventListener(
+                'popupshowing', this.onCrumbMenuShowing.bind(this)
+            );
+            //menupopup.addEventListener(
+            //    'popupshown', this.onCrumbMenuShown.bind(this, menupopup)
+            //);
+            menupopup.addEventListener(
+                'popupshown', this.onCrumbMenuShown.bind(this)
+            );
+            //menupopup.addEventListener(
+            //    'popuphidden', this.onCrumbMenuHidden.bind(this, menupopup)
+            //);
+            menupopup.addEventListener(
+                'popuphidden', this.onCrumbMenuHidden.bind(this)
+            );
+
+            // On mouse move remove menuactive attribute from irrelevant
+            // items
+            menupopup.addEventListener(
+                'mousemove', function(e)
+            {
+                var elems = xtk.domutils.getChildrenByAttribute(
+                    e.target, '_moz-menuactive', 'true'
+                );
+                for (let [k,elem] in Iterator(elems))
+                {
+                    if (elem != e.target)
+                    {
+                        elem.removeAttribute("_moz-menuactive");
+                    }
+                }
+            });
         },
 
         /*
@@ -360,7 +388,7 @@ if (typeof ko.breadcrumbs == 'undefined')
         onCommandMenuItem: function breadcrumbs_onCommandMenuItem(command,
                                                                   menuitem)
         {
-            crumb = crumbs[menuitem.parentNode.parentNode.getAttribute('id')];
+            var crumb = menuitem.parentNode.crumb;
 
             if ( ! ('doCommand' + command in this))
             {
@@ -424,29 +452,35 @@ if (typeof ko.breadcrumbs == 'undefined')
         /**
          * Filter crumb menu items based on input
          *
-         * @param   {Object} crumb
+         * @param   {Object} menupopup node
          *
-         * @returns {Void} 
+         * @returns {Void}
          */
-        onCrumbMenuFilter: function breadcrumbs_onCrumbMenuFilter(crumb)
+        onCrumbMenuFilter: function breadcrumbs_onCrumbMenuFilter(menupopup)
         {
             // Set element references
-            var textbox = crumb.node.querySelector("textbox");
-            var items = crumb.node.querySelectorAll("menuitem");
+            var textbox = xtk.domutils.getChildByProperty(
+                menupopup, 'nodeName', 'textbox'
+            );
+            var items = xtk.domutils.getChildrenByProperty(
+                menupopup, 'nodeName', ['menuitem', 'menu']
+            );
             var highlighted = false; // Record whether we have a highlighted item
 
             // Prepare the filter Regex
-            var filter = textbox.value;
+            var filter = textbox.value.toLowerCase();
             filter = filter.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
             filter = filter.replace(/\s+?/, '.*?');
             filter = new RegExp(filter);
 
             // Iterate over menu items and apply the filter to them
+            var firstItem = null;
             for (let [k,item] in Iterator(items))
             {
-                if (item.classList.contains('file-item')
+                if ((item.classList.contains('file-item') ||
+                     item.classList.contains('folder-item'))
                     && textbox.value != ""
-                    && ! item.label.match(filter))
+                    && ! item.label.toLowerCase().match(filter))
                 {
                     item.removeAttribute("_moz-menuactive");
                     item.setAttribute("collapsed", true);
@@ -454,6 +488,12 @@ if (typeof ko.breadcrumbs == 'undefined')
                 }
 
                 item.removeAttribute("collapsed");
+
+                // Record first visible item
+                if ( ! firstItem && item.classList.contains('file-item'))
+                {
+                    firstItem = item;
+                }
 
                 // Record whether the unfiltered item is highlighted so we
                 // don't need to highlight anything ourselves
@@ -467,12 +507,10 @@ if (typeof ko.breadcrumbs == 'undefined')
             // manually
             if ( ! highlighted)
             {
-                var item = crumb.node.querySelector(
-                    "menuitem.file-item:not([collapsed])"
-                );
-                if (item)
+
+                if (firstItem)
                 {
-                    item.setAttribute("_moz-menuactive", "true");
+                    firstItem.setAttribute("_moz-menuactive", "true");
                 }
             }
         },
@@ -480,47 +518,62 @@ if (typeof ko.breadcrumbs == 'undefined')
         /**
          * Triggered right before a crumb popupmenu is shown
          *
-         * @param   {Object} crumb 
+         * @param   {Object} menupopup node
          *
-         * @returns {Void} 
+         * @returns {Void}
          */
-        onCrumbMenuShowing: function breadcrumb_onCrumbMenuShowing(crumb)
+        onCrumbMenuShowing: function breadcrumb_onCrumbMenuShowing(event)
         {
-            log.debug("Showing menu for crumb: " + crumb.view.title);
+            var menupopup = event.target;
 
-            // Ensure we aren't showing multiple menu popups
-            if (eventContext.activeCrumb && eventContext.menuShowing)
-            {
-                eventContext.activeCrumb.node.querySelector("menupopup")
-                                             .hidePopup();
-            }
+            //var lastPopup = eventContext.popupChain.slice(-1)[0];
+            //if (eventContext.popupChain.length && lastPopup != menupopup.parentNode)
+            //{
+            //    eventContext.popupChain[0].hidePopup();
+            //    eventContext.popupChain = [];
+            //}
+            //
+            //eventContext.popupChain.push(menupopup);
 
-            // Record the currently active crumb for events
-            eventContext.activeCrumb = crumb;
-
-            this.drawCrumbMenuItems(crumb);
+            this.drawCrumbMenuItems(menupopup);
         },
 
         /**
          * Triggered once the crumb popupmenu is shown
          *
-         * @param   {Object} crumb
+         * @param   {Object} menupopup node
          *
-         * @returns {Void} 
+         * @returns {Void}
          */
-        onCrumbMenuShown: function breadcrumb_onCrumbMenuShown(crumb)
+        onCrumbMenuShown: function breadcrumb_onCrumbMenuShown( event)
         {
-            // Record element references
-            var menupopup = crumb.node.querySelector("menupopup");
-            var textbox = menupopup.querySelector("textbox");
+            var menupopup = event.target;
 
-            // Ensure textbox is selected and ready to be typed in
-            textbox.focus();
-            textbox.setSelectionRange(0,0);
+            if ("file" in menupopup)
+            {
+                log.debug("Showing menu for crumb: " + menupopup.file.getFilename());
+            }
+            eventContext.activePopup = menupopup;
+
+            // Record element references
+            var textbox = xtk.domutils.getChildByProperty(
+                menupopup, 'nodeName', 'textbox'
+            );
+            if (textbox)
+            {
+                // Ensure textbox is selected and ready to be typed in
+                textbox.focus();
+                textbox.setSelectionRange(0,0);
+            }
 
             // Highlight the first menu item
-            menupopup.querySelector("menuitem").setAttribute("_moz-menuactive",
-                                                             "true");
+            var menuItem = xtk.domutils.getChildByProperty(
+                menupopup, 'nodeName', ['menu','menuitem']
+            );
+            if (menuItem)
+            {
+                menuItem.setAttribute("_moz-menuactive", "true");
+            }
 
             // Set contextual information for events
             eventContext.menuShowing = true;
@@ -529,21 +582,39 @@ if (typeof ko.breadcrumbs == 'undefined')
         /**
          * Triggered once the crumb popupmenu has been hidden
          *
-         * @param   {Object} crumb
+         * @param   {Object} menupopup node
          *
-         * @returns {Void} 
+         * @returns {Void}
          */
-        onCrumbMenuHidden: function breadcrumb_onCrumbMenuHidden(crumb)
+        onCrumbMenuHidden: function breadcrumb_onCrumbMenuHidden(event)
         {
+            if (event.eventPhase == 3)
+            {
+                return;
+            }
+
+            var menupopup = event.target;
+
             // Set contextual information for events
             eventContext.menuShowing = false;
 
             // Reset textbox (filter) value
-            var textbox = crumb.node.querySelector("textbox");
+            var textbox = xtk.domutils.getChildByProperty(
+                menupopup, 'nodeName', 'textbox'
+            );
             if (textbox)
             {
                 textbox.value = "";
                 xtk.domutils.fireEvent(textbox, "keyup");
+            }
+
+            // Clear selection
+            var elems = xtk.domutils.getChildrenByAttribute(
+                menupopup, '_moz-menuactive', 'true'
+            );
+            for (let [k,elem] in Iterator(elems))
+            {
+                elem.removeAttribute("_moz-menuactive");
             }
 
             // Ensure editor has focus
@@ -558,7 +629,7 @@ if (typeof ko.breadcrumbs == 'undefined')
          *
          * @param   {Object} e Event
          *
-         * @returns {Void} 
+         * @returns {Void}
          */
         onCrumbMenuKeypress: function breadcrumb_onCrumbMenuKeypress(e)
         {
@@ -579,9 +650,9 @@ if (typeof ko.breadcrumbs == 'undefined')
                     e.preventDefault();
                     e.stopPropagation();
 
-                    var crumb = eventContext.activeCrumb.node;
-                    var menuitem = crumb.querySelector(
-                        'menuitem[_moz-menuactive="true"]'
+                    var popup = eventContext.activePopup;
+                    var menuitem = xtk.domutils.getChildByAttribute(
+                        popup, '_moz-menuactive', 'true'
                     );
 
                     xtk.domutils.fireEvent(menuitem, 'command');
@@ -598,8 +669,10 @@ if (typeof ko.breadcrumbs == 'undefined')
                     e.preventDefault();
                     e.stopPropagation();
 
-                    var crumb = eventContext.activeCrumb.node;
-                    var textbox = crumb.querySelector("textbox");
+                    var popup = eventContext.activePopup;
+                    var textbox = xtk.domutils.getChildByProperty(
+                        popup, 'nodeName', 'textbox'
+                    );
 
                     if (textbox && textbox.value != "")
                     {
@@ -608,7 +681,21 @@ if (typeof ko.breadcrumbs == 'undefined')
                     }
                     else
                     {
-                        crumb.querySelector("menupopup").hidePopup();
+                        popup.hidePopup();
+
+                        if ("parentMenu" in popup)
+                        {
+                            eventContext.activePopup = popup.parentMenu;
+                            var menuitem = xtk.domutils.getChildByAttribute(
+                                popup.parentMenu, '_moz-menuactive', 'true'
+                            );
+
+                            // Todo: figure out a way to do this without setTimeout,
+                            // popuphidden event is called before the menuitem is blurred
+                            setTimeout(function() {
+                                menuitem.setAttribute("_moz-menuactive", "true");
+                            },10);
+                        }
                     }
 
                     break;
@@ -620,95 +707,154 @@ if (typeof ko.breadcrumbs == 'undefined')
                  */
                 case 37:
                 case 39:
-                    // Allow left / right on textbox elem
-                    var crumbNode = eventContext.activeCrumb.node;
-                    if ((e.target.nodeName == 'textbox' && e.target.value != ''))
-                    {
-                        return;
-                    }
-
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    // Get the next / previous sibling crumb
-                    var sibCrumb = e.keyCode == 37 ?
-                                        crumbNode.previousSibling :
-                                        crumbNode.nextSibling;
-                    var sibMenu = sibCrumb.querySelector("menupopup");
-                    if ( ! sibMenu)
-                    {
-                        return;
-                    }
-
-                    // Show the sibling crumb's menu
-                    sibMenu.openPopup(sibCrumb, 'before_start');
-
+                    this.onCrumbMenuNavX(e);
                     break;
 
                 // Up / Down arrow
                 case 38:
                 case 40:
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    // Get the active menu item to start from, if any
-                    var crumbNode = eventContext.activeCrumb.node;
-                    var menuitem = crumbNode.querySelector(
-                        'menuitem[_moz-menuactive="true"]'
-                    );
-                    if ( ! menuitem)
-                    {
-                        // No active menu, get the first or last menu item
-                        var sibMenu = crumbNode.querySelectorAll('menuitem');
-                        sibMenu = sibMenu[(e.keyCode == 38 ?
-                                        sibMenu.length -1 : 0)];
-                    }
-                    else
-                    {
-                        /* Get the sibling for the given menu */
-                        var _sibling = function(menu)
-                        {
-                            var sibling = e.keyCode == 38 ?
-                                            menu.previousSibling :
-                                            menu.nextSibling;
-                            if ( ! sibling)
-                            {
-                                // Get first / last menu item, depending on keycode
-                                sibling = crumbNode.querySelectorAll('menuitem');
-                                return sibling[(e.keyCode == 38 ?
-                                                    sibling.length -1 : 0)];
-                            }
-                            // Skip over irrelevant items
-                            if (sibling.nodeName != 'menuitem'
-                                || sibling.hasAttribute("collapsed"))
-                            {
-                                return _sibling(sibling, e.keyCode);
-                            }
-                            return sibling;
-                        }
-                        var sibMenu = _sibling(menuitem);
-                    }
-
-                    // No sibling menu was found
-                    if ( ! sibMenu)
-                    {
-                        return;
-                    }
-
-                    // Remove active indicator from previous menu
-                    if (menuitem)
-                    {
-                        menuitem.removeAttribute("_moz-menuactive");
-                        menuitem.blur();
-                    }
-
-                    // Select new menu item
-                    //sibMenu.scrollIntoView(true); // Todo: implement after moz upgrade
-                    sibMenu.setAttribute("_moz-menuactive", "true");
-                    sibMenu.focus();
-
+                    this.onCrumbMenuNavY(e);
                     break;
             }
+        },
+
+        onCrumbMenuNavX: function breadcrumbs_onCrumbMenuNavX(e)
+        {
+            // Allow left / right on textbox elem
+            var popup = eventContext.activePopup;
+            if ((e.target.nodeName == 'textbox' && e.target.value != ''))
+            {
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            var menuitem = xtk.domutils.getChildByAttribute(
+                popup, '_moz-menuactive', 'true'
+            );
+
+            if ("parentMenu" in popup && e.keyCode == 37)
+            {
+                popup.hidePopup();
+
+                eventContext.activePopup = popup.parentMenu;
+                var menuitem = xtk.domutils.getChildByAttribute(
+                    popup.parentMenu, '_moz-menuactive', 'true'
+                );
+
+                // Todo: figure out a way to do this without setTimeout,
+                // popuphidden event is called before the menuitem is blurred
+                setTimeout(function() {
+                    menuitem.setAttribute("_moz-menuactive", "true");
+                },10);
+            }
+            else if (menuitem && menuitem.nodeName == "menu" && e.keyCode == 39)
+            {
+                var childPopup = xtk.domutils.getChildByProperty(
+                    menuitem, 'nodeName', 'menupopup'
+                );
+                if (childPopup)
+                {
+                    childPopup.openPopup(menuitem, 'end_after');
+                }
+            }
+            else
+            {
+                var _sibling = function(node)
+                {
+                    var sibCrumb = e.keyCode == 37 ?
+                                        node.previousSibling :
+                                        node.nextSibling;
+                    if (sibCrumb && sibCrumb.classList.contains('overflown'))
+                    {
+                        return _sibling(sibCrumb);
+                    }
+                    return sibCrumb;
+                };
+
+                // Get the next / previous sibling crumb
+                if ("crumb" in popup)
+                {
+                    var crumbNode = popup.crumb.node;
+                    var sibCrumb = _sibling(crumbNode);
+                    var sibMenu = xtk.domutils.getChildByProperty(
+                        sibCrumb, 'nodeName', 'menupopup'
+                    );
+                }
+                
+                if (typeof sibMenu == 'undefined' || ! sibMenu)
+                {
+                    log.debug('Reached end of iterable crumbs');
+                    return;
+                }
+
+                // Show the sibling crumb's menu
+                eventContext.activePopup.hidePopup();
+                sibMenu.openPopup(sibCrumb, 'before_start');
+            }
+        },
+
+        onCrumbMenuNavY: function breadcrumbs_onCrumbMenuNavY(e)
+        {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Get the active menu item to start from, if any
+            var menupopup = eventContext.activePopup;
+            var menuitem = xtk.domutils.getChildByAttribute(
+                menupopup, '_moz-menuactive', 'true'
+            );
+            if ( ! menuitem)
+            {
+                // No active menu, get the first or last menu item
+                var sibMenu = xtk.domutils.getChildrenByProperty(menupopup, 'nodeName', ['menu', 'menuitem']);
+                sibMenu = sibMenu[(e.keyCode == 38 ?
+                                sibMenu.length -1 : 0)];
+            }
+            else
+            {
+                /* Get the sibling for the given menu */
+                var _sibling = function(menu)
+                {
+                    var sibling = e.keyCode == 38 ?
+                                    menu.previousSibling :
+                                    menu.nextSibling;
+                    if ( ! sibling)
+                    {
+                        // Get first / last menu item, depending on keycode
+                        sibling = xtk.domutils.getChildrenByProperty(menupopup, 'nodeName', ['menu', 'menuitem'])
+                        return sibling[(e.keyCode == 38 ?
+                                            sibling.length -1 : 0)];
+                    }
+                    // Skip over irrelevant items
+                    if (['menuitem','menu'].indexOf(sibling.nodeName) == -1
+                        || sibling.hasAttribute("collapsed"))
+                    {
+                        return _sibling(sibling, e.keyCode);
+                    }
+                    return sibling;
+                }
+                var sibMenu = _sibling(menuitem);
+            }
+
+            // No sibling menu was found
+            if ( ! sibMenu)
+            {
+                return;
+            }
+
+            // Remove active indicator from previous menu
+            if (menuitem)
+            {
+                menuitem.removeAttribute("_moz-menuactive");
+                menuitem.blur();
+            }
+
+            // Select new menu item
+            //sibMenu.scrollIntoView(true); // Todo: implement after moz upgrade
+            sibMenu.setAttribute("_moz-menuactive", "true");
+            sibMenu.focus();
         },
 
         /**
@@ -827,14 +973,103 @@ if (typeof ko.breadcrumbs == 'undefined')
                 crumb.classList.add("project-folder");
             }
 
-            // Add the created breadcrumb to the DOM
-            breadcrumbBar.appendChild(crumb);
-
             // Record important breadcrumb information
             crumbs[uid] = {node: crumb, view: view, file: file};
 
+            if ( file && file.isDirectory())
+            {
+                // Inject menupopup element
+                var menupopup = this._getTemplate('crumbMenupopup');
+                menupopup.file = file;
+                menupopup.crumb = crumbs[uid];
+                crumb.appendChild(menupopup);
+
+                // Bind listeners
+                this.bindCrumbPopupListeners(menupopup);
+            }
+
+            // Add the created breadcrumb to the DOM
+            breadcrumbBar.appendChild(crumb);
+
             // Bind listeners
             this.bindCrumbListeners(crumbs[uid]);
+        },
+
+        /**
+         * Draw the menu items for a crumb menu
+         *
+         * @param   {Object} menupopup node
+         *
+         * @returns {Void}
+         */
+        drawCrumbMenuItems: function breadcrumbs_drawCrumMenuItems(menupopup)
+        {
+            if ( ! ("file" in menupopup))
+            {
+                return;
+            }
+            
+            // Skip rendering the menu contents if it was already done
+            if (menupopup.hasAttribute("rendered"))
+            {
+                log.debug("Already rendered - skip populating");
+                return;
+            }
+
+            log.debug("Populating menu");
+
+            var file = menupopup.file;
+
+            // Get the first menu separator, we'll beed it to inser items before
+            var separator = xtk.domutils.getChildByProperty(
+                menupopup, 'nodeName', 'menuseparator'
+            );
+
+            // Iterate through child files of current file
+            var children = file.getChildrenSorted();
+            for (let [k,child] in Iterator(children))
+            {
+                // Create menu item
+                if (child.isFile())
+                {
+                    var elem = this._getTemplate('crumbMenuFile');
+
+                    // Set native file icon if available
+                    if (ko.prefs.getBoolean("native_mozicons_available", false))
+                    {
+                        elem.setAttribute(
+                            'image', "moz-icon://" + child.getFilename() + "?size=16"
+                        );
+                    }
+                }
+                else
+                {
+                    var elem = this._getTemplate('crumbMenuFolder');
+
+                    var popup = this._getTemplate('crumbMenupopup');
+                    popup.file = child;
+                    popup.crumb = menupopup.crumb;
+                    popup.parentMenu = menupopup;
+                    elem.appendChild(popup);
+
+                    //this.bindCrumbPopupListeners(popup);
+                }
+
+                elem.setAttribute('label', child.getFilename());
+
+                menupopup.insertBefore(elem, separator);
+            }
+
+            log.debug("Added " + children.length + " items");
+
+            // If there are no menu items we don't need a separator
+            if (children.length==0)
+            {
+                separator.setAttribute('collapsed', true);
+            }
+
+            // Prevent the menu from being rendered again
+            menupopup.setAttribute('rendered', true);
         },
 
         /**
@@ -899,8 +1134,12 @@ if (typeof ko.breadcrumbs == 'undefined')
         drawOverflowMenu: function breadcrumbs_drawOverflowMenu()
         {
             // Start off with removing old items
-            var menupopup = overflowBtn.querySelector("menupopup");
-            var items = menupopup.querySelectorAll("menu");
+            var menupopup = xtk.domutils.getChildByProperty(
+                overflowBtn, 'nodeName', 'menupopup'
+            );
+            var items = xtk.domutils.getChildrenByProperty(
+                menupopup, 'nodeName', 'menu'
+            );
             for (let [k,item] in Iterator(items))
             {
                 item.parentNode.removeChild(item);
@@ -917,67 +1156,23 @@ if (typeof ko.breadcrumbs == 'undefined')
 
                 // Bind event listener to open the menupopup when the menu
                 // is hovered, as the menupopup is not a child of the menu
-                item.addEventListener("mouseover", function(item,crumb)
-                {
-                    var menupopup = crumb.querySelector("menupopup");
-                    menupopup.openPopup(item, 'end_before');
-                }.bind(this, item, button));
+                //item.addEventListener("mouseover", function(item,crumb)
+                //{
+                //    var menupopup = crumb.querySelector("menupopup");
+                //    menupopup.openPopup(item, 'end_before');
+                //}.bind(this, item, button));
+
+                var id = button.getAttribute("id");
+                var crumb = crumbs[id];
+
+                var popup = this._getTemplate('crumbMenupopup');
+                popup.file = crumb.file;
+                popup.crumb = crumb;
+                popup.parentMenu = menupopup;
+                item.appendChild(popup);
 
                 menupopup.appendChild(item);
             }
-        },
-
-        /**
-         * Draw the menu items for a crumb menu
-         *
-         * @param   {Object} crumb
-         *
-         * @returns {Void}
-         */
-        drawCrumbMenuItems: function breadcrumbs_drawCrumMenuItems(crumb)
-        {
-            // Skip rendering the menu contents if it was already done
-            var menupopup = crumb.node.querySelector("menupopup");
-            if (menupopup.hasAttribute('rendered'))
-            {
-                log.debug("Already rendered - skip populating");
-                return;
-            }
-
-            log.debug("Populating menu");
-
-            // Get the first menu separator, we'll beed it to inser items before
-            var separator = menupopup.querySelector("menuseparator");
-
-            // Iterate through child files of current crumb
-            var children = crumb.file.getChildrenSorted();
-            for (let [k,child] in Iterator(children))
-            {
-                // Create menu item
-                var elem = this._getTemplate('crumbMenu');
-                elem.setAttribute('label', child.getFilename());
-
-                // Set native file icon if available
-                if (ko.prefs.getBoolean("native_mozicons_available", false))
-                {
-                    elem.setAttribute(
-                        'image', "moz-icon://" + child.getFilename() + "?size=16"
-                    );
-                }
-
-                menupopup.insertBefore(elem, separator);
-            }
-
-            log.debug("Added " + children.length + " items");
-
-            // If there are no menu items we don't need a separator
-            if (children.length==0)
-            {
-                separator.setAttribute('collapsed', true);
-            }
-
-            // Prevent the menu from being rendered again
-            menupopup.setAttribute('rendered', true);
         },
 
         /**
@@ -1044,10 +1239,7 @@ if (typeof ko.breadcrumbs == 'undefined')
                 var children = os.listdir(path, {});
                 for (let [k,file] in Iterator(children))
                 {
-                    if (osPath.isfile(path + pathSeparator + file))
-                    {
-                        cache.children[file] = new fileLocal(path + pathSeparator + file);
-                    }
+                    cache.children[file] = new fileLocal(path + pathSeparator + file);
                 }
             }
             return cache.children;
@@ -1066,6 +1258,8 @@ if (typeof ko.breadcrumbs == 'undefined')
                 }
 
                 cache.childrenSorted.sort(function(a,b) {
+                    if (a.isDirectory() && b.isFile()) return -1;
+                    if (a.isFile() && b.isDirectory()) return 1;
                     return a.getFilename().localeCompare(b.getFilename());
                 });
             }
@@ -1105,9 +1299,15 @@ if (typeof ko.breadcrumbs == 'undefined')
         return this;
     };
 
-    var fileRemote = function(path, conn, isFile)
+    var fileRemote = function(path, conn, isFile = null)
     {
         var cache = {};
+
+        if (typeof path == "object")
+        {
+            cache.file = path;
+            path = this.getPath();
+        }
 
         if (typeof conn == "string")
         {
@@ -1150,10 +1350,7 @@ if (typeof ko.breadcrumbs == 'undefined')
                 var children = this._getFile().getChildren({});
                 for (let [k,child] in Iterator(children))
                 {
-                    if (child.isFile())
-                    {
-                        cache.children[child.getFilename()] = new fileRemote(path + pathSeparator + child.getFilename(), conn);
-                    }
+                    cache.children[child.getFilename()] = new fileRemote(child);
                 }
             }
             return cache.children;
@@ -1172,8 +1369,9 @@ if (typeof ko.breadcrumbs == 'undefined')
                 }
 
                 cache.childrenSorted.sort(function(a,b) {
+                    if (a.isDirectory() && b.isFile()) return -1;
                     return a.getFilename().localeCompare(b.getFilename());
-                });
+                }.bind(this));
             }
             return cache.childrenSorted;
         };
@@ -1222,12 +1420,17 @@ if (typeof ko.breadcrumbs == 'undefined')
 
         this.isFile = function()
         {
+            if (isFile === null)
+            {
+                isFile = this._getFile().isFile();
+            }
+
             return isFile;
         };
 
         this.isDirectory = function()
         {
-            return ! isFile;
+            return ! this.isFile();
         };
 
         this.isRemote = function()

@@ -17,18 +17,7 @@
         
         &.overflown
         {
-            -moz-appearance: none;
-            width: 0;
-            height: 0;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-
-            & > :not(menupopup)
-            {
-                visibility: collapse;
-            }
-            /*visibility: collapse;*/
+            visibility: collapse;
         }
 
         &.first-child
@@ -40,18 +29,18 @@
         {
             margin-right: 4px;
         }
+    }
 
-        menuitem
+    menuitem, menu
+    {
+        .menu-iconic-left
         {
-            .menu-iconic-left
-            {
-                visibility: visible; /* Override OS preference */
-            }
+            visibility: visible; /* Override OS preference */
+        }
 
-            .menu-accel
-            {
-                opacity: 0.6;
-            }
+        .menu-accel
+        {
+            opacity: 0.6;
         }
     }
 
