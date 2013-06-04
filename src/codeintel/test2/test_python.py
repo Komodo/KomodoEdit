@@ -310,6 +310,56 @@ class DefnTestCase(CodeIntelTestCase):
             ilk="variable", name="child", line=7,
             path=path)
 
+    @tag("bug99205")
+    def test_argument_in_with(self):
+        test_dir = join(self.test_dir, "argument_in_with")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            import os, sys, ibix
+            # And a comment
+            class Bickle(Frog):
+                def test1(self, zog):
+                    with self.db.lookup(zog) as cu:
+                        for a, b in cu<1>.search():
+                            return a<2> + b<3>
+            b = Bickle()
+            print(b.test1())
+        """))
+        path = join(test_dir, "in_with.py")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="variable", name="cu", line=5,
+            path=path)
+        self.assertDefnMatches2(buf, foo_positions[2],
+            ilk="variable", name="a", line=6,
+            path=path)
+        self.assertDefnMatches2(buf, foo_positions[3],
+            ilk="variable", name="b", line=6,
+            path=path)
+
+    @tag("bug99205")
+    def test_argument_in_except(self):
+        test_dir = join(self.test_dir, "argument_in_except")
+        foo_content, foo_positions = unmark_text(dedent("""\
+            import os, sys, ibix
+            # And a comment
+            class Bickle(Frog):
+                def test1(self, zog):
+                    try:
+                        a = zog / 0
+                    except ZeroDivideError as ex:
+                        print "error: %s" % ex<1>.message
+                    return 41
+            b = Bickle()
+            print(b.test1())
+        """))
+        path = join(test_dir, "in_except.py")
+        writefile(path, foo_content)
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="variable", name="ex", line=7,
+            path=path)
+
 class PythonDocTestCase(CodeIntelTestCase):
     lang = "Python"
     test_dir = join(os.getcwd(), "tmp")

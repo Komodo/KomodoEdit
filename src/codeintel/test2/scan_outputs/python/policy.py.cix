@@ -28,6 +28,7 @@
             <variable citdl="policy.policyGranted.value" line="43" name="policyGranted" />
             <variable citdl="user._id" line="45" name="userID" />
             <variable citdl="list" line="49" name="memberOf" />
+            <variable line="54" name="groupid" />
           </scope>
         </scope>
       </scope>

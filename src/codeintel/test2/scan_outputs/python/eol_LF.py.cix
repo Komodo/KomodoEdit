@@ -7,6 +7,7 @@
       <scope ilk="function" line="7" lineend="10" name="counting" signature="counting(name, duration=10)">
         <variable ilk="argument" line="7" name="name" />
         <variable citdl="int" ilk="argument" line="7" name="duration" />
+        <variable line="8" name="i" />
       </scope>
     </scope>
   </file>

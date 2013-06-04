@@ -230,10 +230,14 @@
         <scope ilk="function" line="348" lineend="353" name="getValueByQName" signature="getValueByQName(name)">
           <variable citdl="AttributesNSImpl" ilk="argument" line="348" name="self" />
           <variable ilk="argument" line="348" name="name" />
+          <variable line="349" name="qname" />
+          <variable line="349" name="nsname" />
         </scope>
-        <scope ilk="function" line="355" lineend="360" name="getNameByQName" returns="nsname" signature="getNameByQName(name)">
+        <scope ilk="function" line="355" lineend="360" name="getNameByQName" signature="getNameByQName(name)">
           <variable citdl="AttributesNSImpl" ilk="argument" line="355" name="self" />
           <variable ilk="argument" line="355" name="name" />
+          <variable line="356" name="qname" />
+          <variable line="356" name="nsname" />
         </scope>
         <scope ilk="function" line="362" lineend="363" name="getQNameByName" signature="getQNameByName(name)">
           <variable citdl="AttributesNSImpl" ilk="argument" line="362" name="self" />

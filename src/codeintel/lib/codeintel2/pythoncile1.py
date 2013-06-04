@@ -891,19 +891,46 @@ class AST2CIXVisitor:
             raise PythonCILEError("unexpected type of LHS of assignment: %r"
                                   % lhsNode)
 
+    def _handleUnknownAssignment(self, assignNode, lineno):
+        if isinstance(assignNode, ast.AssName):
+            self._visitSimpleAssign(assignNode, None, lineno)
+        elif isinstance(assignNode, ast.AssTuple):
+            for anode in assignNode.nodes:
+                self._visitSimpleAssign(anode, None, lineno)
+
     def visitFor(self, node):
         log.info("visitFor:%d: %r", node.lineno,
                  self.lines and self.lines[node.lineno-1])
-        forAssign = node.assign
-        if isinstance(forAssign, ast.AssName):
-            # E.g.:
-            #   for foo in ...
-            # None: don't bother trying to resolve the type of the RHS
-            self._visitSimpleAssign(forAssign, None, node.lineno)
-        elif isinstance(forAssign, ast.AssTuple):
-            for anode in forAssign.nodes:
-                self._visitSimpleAssign(anode, None, node.lineno)
+        # E.g.:
+        #   for foo in ...
+        # None: don't bother trying to resolve the type of the RHS
+        self._handleUnknownAssignment(node.assign, node.lineno)
         self.visit(node.body)
+
+    def visitWith(self, node):
+        log.info("visitWith:%d: %r", node.lineno,
+                 self.lines and self.lines[node.lineno-1])
+        self._handleUnknownAssignment(node.vars, node.lineno)
+        self.visit(node.body)
+
+    def visitTryExcept(self, node):
+        log.info("visitTryExcept:%d: %r", node.lineno,
+                 self.lines and self.lines[node.lineno-1])
+        self.visit(node.body)
+        for handler in node.handlers:
+            try:
+                if handler[1]:
+                    try:
+                        lineno = handler[1].lineno
+                    except AttributeError:
+                        lineno = node.lineno
+                    self._handleUnknownAssignment(handler[1], lineno)
+                if handler[2]:
+                    self.visit(handler[2])
+            except IndexError:
+                pass
+        if node.else_:
+            self.visit(node.else_)
 
     def _resolveObjectRef(self, expr):
         """Try to resolve the given expression to a variable namespace.

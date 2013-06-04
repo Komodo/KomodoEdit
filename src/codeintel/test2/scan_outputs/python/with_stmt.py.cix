@@ -3,7 +3,10 @@
     <scope ilk="blob" lang="Python" name="with_stmt" src="scan_inputs/python/with_stmt.py">
       <import line="1" module="__future__" symbol="with_statement" />
       <import line="2" module="threading" />
-      <scope ilk="function" line="4" lineend="8" name="do_something" signature="do_something()" />
+      <scope ilk="function" line="4" lineend="8" name="do_something" signature="do_something()">
+        <variable line="5" name="f" />
+        <variable line="7" name="line" />
+      </scope>
       <scope ilk="function" line="10" lineend="14" name="foo" signature="foo()">
         <variable citdl="threading.Lock()" line="11" name="lock" />
       </scope>
