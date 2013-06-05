@@ -41,13 +41,13 @@
     var log = ko.logging.getLogger('hyperlinks::GotoDefinition');
 
     /**
-     * A goto defintion hyperlink handler.
+     * A goto definition hyperlink handler.
      *
      * @class
      * @base ko.hyperlinks.BaseHandler
      */
     this.GotoDefinitionHandler = function() {
-        var name = "Goto Defintion";
+        var name = "Goto Definition";
         var fn = function(args) {
             ko.views.manager.do_cmd_goToDefinition.apply(null, args);
         };
