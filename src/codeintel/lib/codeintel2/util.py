@@ -372,23 +372,29 @@ def unmark_text(markedup_text):
     
     See the matching markup_text() below.
     """
-    splitter = re.compile(r"(<(?:\+|\||\$|\d{1,2})>)")
+    splitter = re.compile(r"(<(?:[\|\+\$\[\]<]|\d+)>)")
     text = ""
     data = {}
+    posNameFromSymbol = {
+        "<|>": "pos",
+        "<+>": "trg_pos",
+        "<$>": "start_pos",
+        "<[>": "start_selection",
+        "<]>": "end_selection",
+    }
+    bracketed_digits_re = re.compile(r'<\d+>$')
     for token in splitter.split(markedup_text):
-        if token == "<|>":
-            data["pos"] = len(text)
-        elif token == "<+>":
-            data["trg_pos"] = len(text)
-        elif token == "<$>":
-            data["start_pos"] = len(text)
-        elif token and token[0] == '<' and isdigit(token[1:-1])\
-             and token[-1] == '>':
+        if token in posNameFromSymbol:
+            data[posNameFromSymbol[token]] = len(text)
+        elif token == "<<>": # escape sequence
+            text += "<"
+        elif bracketed_digits_re.match(token):
             data[int(token[1:-1])] = len(text)
         else:
             text += token
     if "pos" not in data:
         data["pos"] = len(text)
+    #sys.stderr.write(">> text:%r, data:%s\n" % (text, data))
     return text, data
 
 def markup_text(text, pos=None, trg_pos=None, start_pos=None):
