@@ -1846,7 +1846,7 @@ def target_silo_python(argv=["silo_python"]):
                 activestate_py_path = join(siloDir, "lib",
                                            "python"+config.pyVer,
                                            "activestate.py")
-            cmd = "%s %s --relocate" % (sys.executable, activestate_py_path)
+            cmd = "%s %s --relocate" % (config.python, activestate_py_path)
             _run(cmd, log.info)
 
         # Create a bunch of symlinks.  Note that relocating will force copy
