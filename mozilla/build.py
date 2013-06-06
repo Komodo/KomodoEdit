@@ -459,23 +459,6 @@ def _setupMozillaEnv():
             os.environ['CFLAGS'] = "-gdwarf-2"
             os.environ['CXXFLAGS'] = "-gdwarf-2"
 
-    # ensure the mozilla build system uses our python to build with
-    if config.python:
-        os.environ["PYTHON"] = _pymake_path_from_path(config.python)
-        if sys.platform == 'darwin':
-            python_so = dirname(dirname(config.python))
-            if 'DYLD_LIBRARY_PATH' in os.environ:
-                ld_path =  ':%s' % os.environ['DYLD_LIBRARY_PATH']
-            else:
-                ld_path = ''
-            os.environ["DYLD_LIBRARY_PATH"] = "%s%s" % (python_so, ld_path)
-        elif sys.platform.startswith('linux'):
-            python_so_dir = join(dirname(dirname(config.python)), "lib")
-            ld_paths = [python_so_dir]
-            if 'LD_LIBRARY_PATH' in os.environ:
-                ld_paths.append(os.environ['LD_LIBRARY_PATH'])
-            os.environ["LD_LIBRARY_PATH"] = os.path.pathsep.join(ld_paths)
-    
     if sys.platform != "win32":
         #TODO: drop what isn't necessary here
         
@@ -1496,12 +1479,6 @@ def target_configure(argv):
         if config["mozApp"] == "komodo":
             mozBuildOptions.append('enable-application=komodo')
 
-        #TODO: This is being overridden by PYTHON being set in the
-        #      environment for building in _setupMozillaEnv(). Probably
-        #      best to remove the other and keep this one.
-        python = _pymake_path_from_path(config["python"])
-        config["mozconfig"] += "PYTHON=%s\nexport PYTHON\n" % python
-
         if config["stripBuild"]:
             mozBuildOptions.append('enable-strip')
 
@@ -1845,17 +1822,6 @@ def target_silo_python(argv=["silo_python"]):
         siteFile = join(siloDir, "Python.framework", "Versions", config.pyVer,
                         "lib", "python%s" % (config.pyVer), "site.py")
         _disablePythonUserSiteFeature(siteFile)
-
-        # We have to also fixup the Mozilla _virtualenv Python.
-        vePythonBinary = join(dirname(distDir), "_virtualenv", "bin",
-                                   "python")
-        os.remove(vePythonBinary)
-        appname = "KomodoDebug.app" if config.buildType == 'debug' else "Komodo.app"
-        relativeVePythonBin = join("..", "..", "dist", appname,
-                                        "Contents", "Frameworks",
-                                        "Python.framework", "Versions",
-                                        config.pyVer, "bin", "python")
-        os.symlink(relativeVePythonBin, vePythonBinary)
 
     else:
         _run('cp -R "%s" "%s"' % (srcDir, siloDir), log.info)
