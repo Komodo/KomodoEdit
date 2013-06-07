@@ -1264,7 +1264,7 @@ class KoScintillaSchemeService:
         if not self.schemeNameIsValid(schemeName):
             raise ServerException(nsError.NS_ERROR_INVALID_ARG,
                                   _viewsBundle.formatStringFromName(
-                                      "schemeBasenameHasInvalidCharacters.template",
+                                      "schemeNameHasInvalidCharacters.template",
                                       [schemeBaseName]))
             
         koFileExSrc = fileSvc.getFileFromURI(uri);
