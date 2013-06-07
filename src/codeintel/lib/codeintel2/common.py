@@ -322,18 +322,6 @@ class Trigger(object):
         else:
             return False
 
-    @classmethod
-    def unique_definitions(cls, defns):
-        """Takes a collection of defns and returns the unique list of defns."""
-        unique_defns = []
-        for defn in defns:
-            for unique_defn in unique_defns:
-                if unique_defn.path == defn.path and unique_defn == defn:
-                    # defn is already in the unique_defn list.
-                    break
-            else:
-                unique_defns.append(defn)
-        return unique_defns
 
 class Definition(object):
     if _xpcom_:
@@ -398,6 +386,18 @@ class Definition(object):
         """ toString implementation for XPCOM """
         return repr(self)
 
+    @classmethod
+    def unique_definitions(cls, defns):
+        """Takes a collection of defns and returns the unique list of defns."""
+        unique_defns = []
+        for defn in defns:
+            for unique_defn in unique_defns:
+                if unique_defn.path == defn.path and unique_defn == defn:
+                    # defn is already in the unique_defn list.
+                    break
+            else:
+                unique_defns.append(defn)
+        return unique_defns
 
 class CILEDriver(object):
     """Base class for all CILE drivers.
