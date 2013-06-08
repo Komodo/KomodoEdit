@@ -486,9 +486,10 @@ class KPFTreeView(TreeView):
         return self._rows.index(row)
     
     def invalidate(self):
-        self._tree.beginUpdateBatch()
-        self._tree.invalidate()
-        self._tree.endUpdateBatch()
+        if self._tree:
+            self._tree.beginUpdateBatch()
+            self._tree.invalidate()
+            self._tree.endUpdateBatch()
 
     def refresh(self, part):
         """ return the row that should be selected if that's relevant"""
