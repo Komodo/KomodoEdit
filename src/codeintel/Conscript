@@ -63,8 +63,6 @@ $cons->Preprocess('src/komodo/koICodeIntel.p.idl',
                   'src/komodo/koICodeIntel.idl');
 $cons->Install($idlExportDir, "src/komodo/koICodeIntel.idl");
 $cons->BuildAndInstallXpt("src/komodo/koICodeIntel.idl");
-$cons->Preprocess('src/komodo/koCodeIntel.p.py',
-                  'src/komodo/koCodeIntel.py');
 $cons->InstallXpcomComponent("src/komodo/koCodeIntel.py");
 $cons->InstallXpcomComponent("src/komodo/koCatalogsTree.py");
 
