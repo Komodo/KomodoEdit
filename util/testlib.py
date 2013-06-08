@@ -480,11 +480,14 @@ class ConsoleTestResult(unittest.TestResult):
         self.stream = stream
 
     def getDescription(self, test):
-        if test._testlib_explicit_tags_:
-            return "%s [%s]" % (test._testlib_shortname_,
-                                ', '.join(test._testlib_explicit_tags_))
-        else:
-            return test._testlib_shortname_
+        try:
+            if test._testlib_explicit_tags_:
+                return "%s [%s]" % (test._testlib_shortname_,
+                                    ', '.join(test._testlib_explicit_tags_))
+            else:
+                return test._testlib_shortname_
+        except:
+            return "<Error getting description for %s>" % (test,)
 
     def startTest(self, test):
         unittest.TestResult.startTest(self, test)
