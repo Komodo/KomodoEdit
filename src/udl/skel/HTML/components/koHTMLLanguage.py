@@ -41,8 +41,6 @@ from xpcom import components, ServerException
 from koLanguageServiceBase import *
 from koXMLLanguageBase import koHTMLLanguageBase
 
-from codeintel2 import lang_javascript, lang_php
-
 def registerLanguage(registery):
     registery.registerLanguage(KoHTMLLanguage())
     registery.registerLanguage(KoHTML5Language())
