@@ -273,10 +273,11 @@ class KoLanguageRegistryService:
                 the associations in the "fileAssociations" pref still wins.
         """
         if not override and pattern in self.__languageNameFromPattern:
-            log.debug("KoLanguageRegistryService: not using default '%s' "
-                      "pattern for '%s' language (already mapped to '%s')",
-                      pattern, languageName,
-                      self.__languageNameFromPattern[pattern])
+            if languageName != self.__languageNameFromPattern[pattern]:
+                log.debug("KoLanguageRegistryService: not using default '%s' "
+                          "pattern for '%s' language (already mapped to '%s')",
+                          pattern, languageName,
+                          self.__languageNameFromPattern[pattern])
             return
         #elif not override:
         #    print "using fallback defaultExtension: '%s' -> '%s'" \
