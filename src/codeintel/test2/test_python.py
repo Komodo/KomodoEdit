@@ -1161,11 +1161,15 @@ class CplnTestCase(CodeintelPythonTestCase):
         for file, content in manifest:
             path = join(test_dir, file)
             writefile(path, content)
+        old_python_path = os.environ.get("PYTHONPATH")
         os.environ["PYTHONPATH"] = join(test_dir, "lib")
 
-        self.assertCompletionsInclude(
-            markup_text(oracle_content, pos=oracle_positions[1]),
-            [("variable", "ULTIMATE")])
+        try:
+            self.assertCompletionsInclude(
+                markup_text(oracle_content, pos=oracle_positions[1]),
+                [("variable", "ULTIMATE")])
+        finally:
+            os.environ["PYTHONPATH"] = old_python_path or ""
 
     def test_extradirslib(self):
         test_dir = join(self.test_dir, "test_extradirslib")
