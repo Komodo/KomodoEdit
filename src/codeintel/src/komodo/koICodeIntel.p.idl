@@ -293,21 +293,6 @@ interface koICodeIntelService: nsISupports {
                                     out wstring imageURL,
                                     out wstring desc);
 
-    // Versions of the getScope* methods above that apply heuristics to
-    // try to adjust for recent edits -- where "recent" means since the last
-    // scan.
-    void getAdjustedCurrentScope(in ISciMoz scimoz,
-                                 in long position,
-                                 out long file_id,
-                                 out string table,
-                                 out long row);
-    void getAdjustedCurrentScopeInfo(in ISciMoz scimoz,
-                                     in long position,
-                                     out string typeName,
-                                     out wstring symbolName,
-                                     out wstring imageURL,
-                                     out wstring desc);
-
     // Return a list of likely members/calltips for the given expression
     // and scope.
     //
