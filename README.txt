@@ -71,7 +71,7 @@ Read/write developer access is available via:
 Build Prerequisites for Windows
 ===============================
 
-- Python >=2.6 (but not Python 3.x yet). You can install ActivePython from here:
+- Python >=2.7 (but not Python 3.x yet). You can install ActivePython from here:
   <http://downloads.activestate.com/ActivePython/releases/>
 
 - Visual C++ 9.0 (aka Visual Studio 2008) and all the Platform SDKs for
@@ -97,7 +97,7 @@ Build Prerequisites for Windows
 Build Prerequisites for Mac OS X
 ================================
 
-- Python >=2.6 (but not Python 3.x yet). You can install ActivePython from here:
+- Python >=2.7 (but not Python 3.x yet). You can install ActivePython from here:
   <http://downloads.activestate.com/ActivePython/releases/>
 
   If you prefer the Python builds from python.org should be sufficient
@@ -157,10 +157,10 @@ above steps is *meant to be sufficient* to get building Komodo.
 Build Prerequisites for Linux
 =============================
 
-- Python >=2.6 (but not Python 3.x yet). You can install ActivePython from here:
+- Python >=2.7 (but not Python 3.x yet). You can install ActivePython from here:
   <http://downloads.activestate.com/ActivePython/releases/>
 
-  If you prefer, your distro's Python 2.6 should be sufficient.
+  If you prefer, your distro's Python 2.7 should be sufficient.
 
 - Everything mentioned in the Mozilla Linux build prerequisites:
 
@@ -209,7 +209,7 @@ Step 1: Building Python
 -----------------------
 
 Currently the Komodo source tree includes *prebuilt* Python binaries
-in `mozilla/prebuilt/python2.6`. Basically these are vanilla Python 2.6
+in `mozilla/prebuilt/python2.7`. Basically these are vanilla Python 2.7
 builds with the following tweaks:
 
 - [Windows] a patch to disable looking in the registry for sys.path info
@@ -356,9 +356,9 @@ Build Troubleshooting Notes
             stdout, stderr, retval = _run(argv, cwd=sourceDir, stdin=patchContent)
           File "..\util\patchtree.py", line 157, in _run
             stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-          File "C:\Python26\lib\subprocess.py", line 633, in __init__
+          File "C:\Python27\lib\subprocess.py", line 633, in __init__
             errread, errwrite)
-          File "C:\Python26\lib\subprocess.py", line 842, in _execute_child
+          File "C:\Python27\lib\subprocess.py", line 842, in _execute_child
             startupinfo)
         WindowsError: [Error 740] The requested operation requires elevation
 
