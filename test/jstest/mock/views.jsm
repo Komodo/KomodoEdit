@@ -448,7 +448,14 @@ function ViewMock(aParams) {
                  .generateUUID()
                  .number;
     this.koDoc = new KoDocMock({});
-    this.scimoz = new SciMozMock(aParams.text || "");
+    if ('@activestate.com/ISciMozHeadless;1' in Cc) {
+        // Headless SciMoz is only available on Linux.
+        this.scimoz = Cc['@activestate.com/ISciMozHeadless;1']
+                     .createInstance(Ci.ISciMoz);
+    } else {
+        this.scimoz = new SciMozMock();
+    }
+    this.scimoz.text = aParams.text || "";
     this.scintilla = new ScintillaMock(this);
 }
 this.ViewMock = ViewMock;
