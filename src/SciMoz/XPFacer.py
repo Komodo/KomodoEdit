@@ -1,7 +1,7 @@
 # Copyright (c) 2000-2011 ActiveState Software Inc.
 # See the file LICENSE.txt for licensing information.
 
-import os, sys, uuid, logging
+import os, sys, logging
 
 # Some MH hacks to avoid duplicate files.
 # "Face.py" and 'Scintilla.iface' are in the scintilla directory
@@ -224,14 +224,8 @@ manualSetterProperties = {
                 #endif
                 return false;
             }
-            SendEditor(SCI_SETMODEVENTMASK,
-                       NPVARIANT_TO_INT32(*value),
-                       0);
-
-            // Void the cached text - see bug 85194 for why.
-            _cachedText.SetIsVoid(PR_TRUE);
-
-            return true;
+            nsresult rv = SetModEventMask(NPVARIANT_TO_INT32(*value));
+            return NS_SUCCEEDED(rv);
             """
     },
 }
@@ -280,7 +274,15 @@ def interCaps(name, upper=0):
     else:
         return name[0].lower() + name[1:]
 
-def idlName(ifaceName):
+def idlName(ifaceName, cxxVersion=False):
+    x = ifaceName.find("Get")
+    # If "Get" appears later in the name - remove it.
+    if cxxVersion and x > 0:
+        ifaceName = "Get" + ifaceName[:x]+ifaceName[x+3:]
+    # If "Set" appears later in the name - remove it.
+    x = ifaceName.find("Set")
+    if cxxVersion and x > 0:
+        ifaceName = "Set" + ifaceName[:x]+ifaceName[x+3:]
     return interCaps(ifaceName)
 
 def DEFINEName(ifaceName):
@@ -601,6 +603,18 @@ def generate_idl_full_fragment(face):
     """.split()
 
     outputfile = file("ISciMoz_gen.idl.fragment", "w")
+    static_guids = [  # Keep the GUIDs the same across builds.
+        "a53c386b-99e2-4b2e-85e7-fb5a29322369",
+        "4645e5bd-4cd1-44dc-9d70-00b38dc87d29",
+        "52a719ee-a335-4da8-8b83-d83b38257239",
+        "70c2de0f-2935-481b-a034-9d4426d5f77c",
+        "2d6994c8-f637-438b-82dc-89ffbe0d42b8",
+        "2a3167f7-7e46-4e5d-8126-23f71142d987",
+        "cea8e58f-1f27-41cd-b16b-3a463f28d25a",
+        "2d5da494-7942-4fac-923c-42e9b01ab5e5",
+        "bfcfe675-77f8-4a55-ae90-4e70f395bc7b",
+        "bbd11f0d-262a-46a9-9c98-321397b42567",
+    ]
     idlTemplateHead = """
         [scriptable, uuid(%s)]
         interface ISciMoz_Part%i : nsISupports {
@@ -610,7 +624,7 @@ def generate_idl_full_fragment(face):
     slotCount = 0
 
     print "Dumping ISciMoz inteface to %s" % outputfile.name
-    _(idlTemplateHead % (uuid.uuid4(), interfaceCount), file=outputfile)
+    _(idlTemplateHead % (static_guids[interfaceCount], interfaceCount), file=outputfile)
     for name in face.order:
         if idlName(name) in suppressedFeatures:
             # don't write this out - either we don't use it, or it conflicts
@@ -619,6 +633,8 @@ def generate_idl_full_fragment(face):
         feature = face.features[name]
         if "isLite" in feature:
             # this is a Lite feature, skip it
+            continue
+        if idlName(name) in manualFunctions:
             continue
         if feature["FeatureType"] == "fun":
             slotCount += generate_idl_method_fragment(feature, outputfile)
@@ -638,7 +654,7 @@ def generate_idl_full_fragment(face):
             slotCount = 0
             interfaceCount += 1
             _(idlTemplateTail, file=outputfile)
-            _(idlTemplateHead % (uuid.uuid4(), interfaceCount), file=outputfile)
+            _(idlTemplateHead % (static_guids[interfaceCount], interfaceCount), file=outputfile)
     _(idlTemplateTail, file=outputfile)
     generate_wrapper(face, interfaceCount)
 
@@ -652,7 +668,11 @@ def generate_cxx_xpcom_method_fragment(feature, file):
     generate_idl_method_fragment(feature, file, 8);
     _("#endif", file=file, indent=4)
     args = []
-    sciArgs = [DEFINEName(feature["Name"])]
+    sciApiName = DEFINEName(feature["Name"])
+    sciArgs = [sciApiName]
+    pre = ""
+    post = ""
+    cxxGetterResultOverride = None
     for param in feature["Params"]:
         if param["Type"] == "void":
             # scintilla takes an empty param at this position
@@ -672,6 +692,13 @@ def generate_cxx_xpcom_method_fragment(feature, file):
         sciArgs.append(" ".join(_(info["xpcomToSci"],
                                   replacements={
                                     "var": param["Name"]})))
+        pre += " ".join(_(info.get("xpcomToSciPre", ""),
+                                  replacements={
+                                    "var": param["Name"]}))
+        post += " ".join(_(info.get("xpcomToSciPost", ""),
+                                  replacements={
+                                    "var": param["Name"]}))
+    returnsetter = ""
     if feature["ReturnType"] != "void":
         assert feature["ReturnType"] in typeInfo, \
             "No type info for return type %s while generating %s" % (
@@ -680,19 +707,31 @@ def generate_cxx_xpcom_method_fragment(feature, file):
         assert "cxxReturnType" in info, \
             "No C++ return type available for %s while generating %s" % (
                 feature["ReturnType"], feature["Name"])
+        returnsetter = "*_retval = "
         args.append("%s _retval" % (info["cxxReturnType"]))
+        if "cxxGetterResultOverride" in info:
+            cxxGetterResultOverride = info.get("cxxGetterResultOverride", "")
     replacements = {
         "name": interCaps(idlName(feature["Name"]), 1),
         "args": ", ".join(args),
-        "sciArgs": ", ".join(sciArgs)
+        "pre": pre,
+        "post": post,
+        "returnsetter": returnsetter,
+        "sciArgs": ", ".join(sciArgs),
+        "sciApiName": sciApiName,
     }
+
+    resultline = "%(returnsetter)sSendEditor(%(sciArgs)s);"
+    if cxxGetterResultOverride:
+        resultline = cxxGetterResultOverride
+
     _(r"""
         NS_IMETHODIMP SciMoz::%(name)s(%(args)s) {
             #ifdef SCIMOZ_DEBUG
                 printf("SciMoz::%(name)s\n");
             #endif
             SCIMOZ_CHECK_VALID("%(name)s")
-            SendEditor(%(sciArgs)s);
+            %(pre)s""" + resultline + """%(post)s
             return NS_OK;
         }
 
@@ -710,7 +749,13 @@ def generate_cxx_xpcom_attribute_fragment(feature, file, mode="Get"):
     generate_idl_attribute_fragment(feature, file, 8);
     _("#endif", file=file, indent=4)
     args = []
-    sciArgs = [DEFINEName(feature["Name"])]
+    sciApiName = DEFINEName(feature["Name"])
+    sciArgs = [sciApiName]
+    if feature["Name"] in manualGetterProperties or feature["Name"] in manualSetterProperties:
+        return
+    pre = ""
+    post = ""
+    cxxGetterResultOverride = None
     for param in feature["Params"]:
         if param["Type"] == "void":
             # scintilla takes an empty param at this position
@@ -730,6 +775,12 @@ def generate_cxx_xpcom_attribute_fragment(feature, file, mode="Get"):
         sciArgs.append(" ".join(_(info["xpcomToSci"],
                                   replacements={
                                     "var": param["Name"]})))
+        pre += " ".join(_(info.get("xpcomToSciPre", ""),
+                                  replacements={
+                                    "var": param["Name"]}))
+        post += " ".join(_(info.get("xpcomToSciPost", ""),
+                                  replacements={
+                                    "var": param["Name"]}))
     if feature["ReturnType"] != "void":
         assert feature["ReturnType"] in typeInfo, \
             "No type info for return type %s while generating %s" % (
@@ -739,19 +790,32 @@ def generate_cxx_xpcom_attribute_fragment(feature, file, mode="Get"):
             "No C++ return type available for %s while generating %s" % (
                 feature["ReturnType"], feature["Name"])
         args.append("%s _retval" % (info["cxxReturnType"]))
+        if "cxxGetterResultOverride" in info:
+            cxxGetterResultOverride = info.get("cxxGetterResultOverride", "")
+    name = interCaps(idlName(feature["Name"], cxxVersion=True), 1)
+    if not name.startswith(mode):
+        name = mode + name
     replacements = {
-        "name": interCaps(idlName(feature["Name"]), 1),
+        "name": name,
         "args": ", ".join(args),
+        "pre": pre,
+        "post": post,
         "sciArgs": ", ".join(sciArgs),
+        "sciApiName": sciApiName,
         "result": mode == "Get" and "*_retval = " or "",
     }
+
+    resultline = "%(result)sSendEditor(%(sciArgs)s);"
+    if cxxGetterResultOverride:
+        resultline = cxxGetterResultOverride
+
     _(r"""
         NS_IMETHODIMP SciMoz::%(name)s(%(args)s) {
             #ifdef SCIMOZ_DEBUG
                 printf("SciMoz::%(name)s\n");
             #endif
             SCIMOZ_CHECK_VALID("%(name)s")
-            %(result)sSendEditor(%(sciArgs)s);
+            %(pre)s""" + resultline + """%(post)s
             return NS_OK;
         }
 
@@ -775,9 +839,9 @@ def generate_cxx_xpcom_fragment(face):
             # skip manually implemented functions
             continue
         feature = face.features[name]
-        if not "isLite" in feature:
-            # we don't need xpcom implementations for non-lite features
-            continue
+        #if not "isLite" in feature:
+        #    # we don't need xpcom implementations for non-lite features
+        #    continue
         if feature["FeatureType"] == "fun":
             generate_cxx_xpcom_method_fragment(feature, outputfile)
         elif feature["FeatureType"] == "get":
@@ -1416,7 +1480,7 @@ def generate_wrapper(face, interfaceCount):
           koSciMozWrapper.prototype._interfaces.push(Components.interfaces.ISciMoz_Part%(i)s);
           """,
           replacements={
-            "i": i
+            "i": i,
           },
           file=outputfile)
 
@@ -1488,7 +1552,7 @@ typeInfo = {
     "stringresult": {
         "idlDirection": "out",
         "idlType": "AString",
-        "cxxParamType": "const nsAString&",
+        "cxxParamType": "nsAString&",
         "checkNPVariant": "NPVARIANT_IS_OBJECT",
         "fromNPVariantPre": r"""static char _buffer_%(i)s[32 * 1024];
                                 _buffer_%(i)s[32 * 1024-1] = '\0';
@@ -1506,6 +1570,11 @@ typeInfo = {
                                                 NPN_GetStringIdentifier("value"),
                                                 &_variant_%(i)s);
                                 """,
+        "xpcomToSciPre": r"""   static char _buffer[32 * 1024];
+                                _buffer[32 * 1024-1] = '\0';
+                                """,
+        "xpcomToSci": "reinterpret_cast<long>(_buffer)",
+        "xpcomToSciPost": "%(var)s.Assign(NS_ConvertUTF8toUTF16(_buffer));", # TODO: Need a length here?
     },
     "int": {
         "idlDirection": "in",
@@ -1529,7 +1598,8 @@ typeInfo = {
         # nibbles and print as an offset from 'A' (i.e. 0 = 'A', 15 = 'P')
         "idlDirection": "in",
         "idlType": "ACString",
-        "cxxParamType": "nsACString&",
+        "cxxParamType": "const nsACString&",
+        "cxxReturnType": "nsACString&",
         "checkNPVariant": "NPVARIANT_IS_STRING",
         "fromNPVariantPre": """
             PRWord _arg_%(i)s;
@@ -1574,6 +1644,27 @@ typeInfo = {
             }
             STRINGN_TO_NPVARIANT(_buf_$, sizeof(PRWord) * 2, *result);
             """ % (DEFINEName(n)),
+        "xpcomToSciPre": r"""
+            PRWord ptr;
+            const char *_buf = PromiseFlatCString(%(var)s).get();
+            for (PRSize i = 0; i < sizeof(PRWord); ++i) {
+                reinterpret_cast<unsigned char*>(&ptr)[i] =
+                    (((_buf[i * 2] - 'A') & 0x0F) << 4) |
+                    ((_buf[i * 2 + 1] - 'A') & 0x0F);
+            }
+            """,
+        "xpcomToSci": "ptr",
+        "cxxGetterResultOverride": """
+            PRWord _ptr = SendEditor(%(sciApiName)s, 0, 0);
+            static char _buf[(sizeof(PRWord) * 2) + 1];
+            _buf[(sizeof(PRWord) * 2)] = '\\0';
+            for (PRSize i = 0; i < sizeof(PRWord); ++i) {
+                _buf[i * 2] = ((reinterpret_cast<unsigned char*>(&_ptr)[i] & 0xF0) >> 4) + 'A';
+                _buf[i * 2 + 1] = (reinterpret_cast<unsigned char*>(&_ptr)[i] & 0x0F) + 'A';
+            }
+            nsAutoCString tmpString(_buf);
+            _retval = tmpString;
+            """,
     },
     "bool": {
         "idlDirection": "in",
@@ -1601,6 +1692,7 @@ typeInfo = {
         "idlDirection": "in",
         "idlType": "long",
         "cxxParamType": "PRInt32",
+        "cxxReturnType": "PRInt32*",
         "checkNPVariant": "NPVARIANT_IS_INT32",
         "fromNPVariant": "NPVARIANT_TO_INT32(%(arg)s)",
         "toNPVariant": "INT32_TO_NPVARIANT(rv, %(target)s);",
@@ -1627,6 +1719,7 @@ typeInfo = {
         "cxxParamType": "const char *",
         "checkNPVariant": "NPVARIANT_IS_STRING",
         "fromNPVariant": "%(cast)s(NPVARIANT_TO_STRING(%(arg)s).UTF8Characters)",
+        "xpcomToSci": "reinterpret_cast<long>(PromiseFlatCString(%(var)s).get())",
     },
     "textrange": {
         "idlDirection": "inout",

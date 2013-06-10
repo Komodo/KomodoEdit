@@ -63,12 +63,15 @@ using namespace Scintilla;
 
 #include "plugin.h"
 
-NS_INTERFACE_MAP_BEGIN(SciMoz)
-  NS_INTERFACE_MAP_ENTRY(nsIClassInfo)
-  NS_INTERFACE_MAP_ENTRY(nsISupportsWeakReference)
-  NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIClassInfo)
-NS_INTERFACE_MAP_END
 
+NS_IMPL_QUERY_INTERFACE7(SciMoz,
+			 ISciMoz,
+			 ISciMoz_Part0,
+			 ISciMoz_Part1,
+			 ISciMoz_Part2,
+			 ISciMoz_Part3,
+			 nsIClassInfo,
+			 nsISupportsWeakReference)
 
 
 SciMoz::SciMoz(SciMozPluginInstance* aPlugin)
@@ -78,42 +81,9 @@ SciMoz::SciMoz(SciMozPluginInstance* aPlugin)
 #endif
 
     SciMozInitNPIdentifiers();
-
-    isClosed = 0;
     mPlugin = aPlugin;
 
-    // XXX what do we need here?
-    wMain = 0;
-    wEditor = 0;
-
-#ifdef USE_SCIN_DIRECT
-    fnEditor = 0;
-    ptrEditor = 0;
-#endif
-
-    wParkingLot = 0;
-    parked = true;
-    initialised = true;
-    width = 100;
-    height = 100;
-    bCouldUndoLastTime = PR_FALSE;
-    fWindow = 0;
-
-#ifdef _WINDOWS
-    LoadScintillaLibrary();
-#endif
-#if defined(XP_UNIX) && !defined(XP_MACOSX)
-    sInGrab = 0;
-#endif
-
-    bracesStyle = 10;
-    bracesCheck = true;
-    bracesSloppy = true;
-
-    // There is no cached text to start with.
-    _cachedText.SetIsVoid(TRUE);
-
-    PlatformNew();
+    SciMozInit();
 }
 
 SciMoz::~SciMoz()
@@ -157,6 +127,41 @@ NS_IMETHODIMP_(nsrefcnt) SciMoz::Release()
   return mRefCnt;
 }
 #endif
+
+void SciMoz::SciMozInit() {
+    isClosed = 0;
+    wMain = 0;
+    wEditor = 0;
+
+#ifdef USE_SCIN_DIRECT
+    fnEditor = 0;
+    ptrEditor = 0;
+#endif
+
+    wParkingLot = 0;
+    parked = true;
+    initialised = true;
+    width = 100;
+    height = 100;
+    bCouldUndoLastTime = PR_FALSE;
+    fWindow = 0;
+
+#ifdef _WINDOWS
+    LoadScintillaLibrary();
+#endif
+#if defined(XP_UNIX) && !defined(XP_MACOSX)
+    sInGrab = 0;
+#endif
+
+    bracesStyle = 10;
+    bracesCheck = true;
+    bracesSloppy = true;
+
+    // There is no cached text to start with.
+    _cachedText.SetIsVoid(TRUE);
+
+    PlatformNew();
+}
 
 long SciMoz::SendEditor(unsigned int Msg, unsigned long wParam, long lParam) {
     if (isClosed) {
@@ -594,25 +599,26 @@ NS_IMETHODIMP SciMoz::GetIsFocused(bool  * /*_retval*/) {
 
 NS_IMETHODIMP SciMoz::MarkClosed() 
 {
-	return NS_ERROR_NOT_IMPLEMENTED;
+	if (!isClosed) {
+		SCIMOZ_DEBUG_PRINTF("SciMoz::MarkClosed\n");
+		// Disable ondwell handlers.
+		SendEditor(SCI_SETMOUSEDWELLTIME, SC_TIME_FOREVER, 0);
+		// Turn off all of the scintilla timers.
+		SendEditor(SCI_STOPTIMERS, 0, 0);
+		PlatformMarkClosed();
+		isClosed = true;
+	}
+	return NS_OK;
 }
 
 bool SciMoz::MarkClosed(const NPVariant * /*args*/, uint32_t argCount, NPVariant * /*result*/) {
-	SCIMOZ_DEBUG_PRINTF("SciMoz::MarkClosed\n");
 	if (argCount != 0) {
 		SCIMOZ_DEBUG_PRINTF("%s: expected 0 argument, got %i\n",
 				    __FUNCTION__,
 				    argCount);
 		return false;
 	}
-	if (!isClosed) {
-		// Disable ondwell handlers.
-                SendEditor(SCI_SETMOUSEDWELLTIME, SC_TIME_FOREVER, 0);
-		// Turn off all of the scintilla timers.
-		SendEditor(SCI_STOPTIMERS, 0, 0);
-		PlatformMarkClosed();
-		isClosed = true;
-	}
+	MarkClosed();
 	return true;
 }
 
@@ -981,9 +987,37 @@ bool SciMoz::ClearCmdKey(const NPVariant *args, uint32_t argCount, NPVariant * /
 /* string getTextRange (in long min, in long max); */
 NS_IMETHODIMP SciMoz::GetTextRange(PRInt32 min, PRInt32 max, nsAString & _retval) 
 {
-	// OBSOLETE; see the NPAPI version (which doesn't require excessively
+	SCIMOZ_CHECK_VALID("GetTextRange");
 	// converting the string UTF8->UTF16->UTF8)
-	return NS_ERROR_NOT_IMPLEMENTED;
+#ifdef SCIMOZ_DEBUG
+	fprintf(stderr,"SciMoz::GetTextRange\n");
+#endif
+	if (max == -1)
+		max = SendEditor(SCI_GETTEXTLENGTH, 0, 0);
+	PRInt32 length = max - min;
+	if (length < 0 || min < 0 || max < 0) {
+		return NS_ERROR_INVALID_ARG;
+	}
+	char *buffer = new char[length + 1];
+	if (!buffer)
+		return NS_ERROR_OUT_OF_MEMORY;
+	buffer[length]=0;
+#ifdef USE_SCIN_DIRECT
+	::GetTextRange(fnEditor, ptrEditor, min, max, buffer);
+#else
+	::GetTextRange(wEditor, min, max, buffer);
+#endif
+        NS_ASSERTION(buffer[length] == NULL, "Buffer overflow");
+
+	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
+	if (codePage == 0) {
+	    _retval =  NS_ConvertASCIItoUTF16(buffer, length);
+	} else {
+	    _retval =  NS_ConvertUTF8toUTF16(buffer, length);
+	}
+
+	delete []buffer;
+	return NS_OK;
 }
 
 bool SciMoz::GetTextRange(const NPVariant *args, uint32_t argCount, NPVariant *result) {
@@ -1034,6 +1068,28 @@ NS_IMETHODIMP SciMoz::SetName(const nsAString &val) {
 	fprintf(stderr,"SciMoz::SetName\n");
 #endif
 	name = val;
+	return NS_OK;
+}
+
+/**
+ * We override the modEventMask handling in order to workaround a
+ * "scimoz.text" problem, where the scimoz text attribute does not
+ * return the correct contents. The terminal-view's turn off the
+ * modEventMask, which results in SciMoz not voiding the cached text it
+ * holds - resulting in stale text. To work around this SciMoz overrides
+ * this method and manually nulls the text when the eventmask is
+ * changed. Bug 85194.
+ */
+NS_IMETHODIMP SciMoz::SetModEventMask(PRInt32 mask)
+{
+	SCIMOZ_CHECK_VALID("SetModEventMask");
+#ifdef SCIMOZ_DEBUG
+	fprintf(stderr,"SciMoz::SetModEventMask\n");
+#endif
+	SendEditor(SCI_SETMODEVENTMASK, mask, 0);
+
+	// Void the cached text - see bug 85194 for why.
+	_cachedText.SetIsVoid(PR_TRUE);
 	return NS_OK;
 }
 

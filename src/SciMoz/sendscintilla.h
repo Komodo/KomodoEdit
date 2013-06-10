@@ -41,7 +41,10 @@
 // Font and Window used both by Mozilla and Scintilla.
 // Implemented by Neil Hodgson
 
-#if defined(__APPLE__)
+#if defined(HEADLESS_SCIMOZ)
+// Use a fake window handle.
+typedef void *WinID;
+#elif defined(__APPLE__)
 typedef NSObject *WinID;
 #else
 #if defined(GTK) || !defined(_WIN32)

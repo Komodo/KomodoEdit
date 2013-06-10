@@ -175,8 +175,40 @@ class nsClassInfoMixin : public nsIClassInfo
     {*aImplementationLanguage = nsIProgrammingLanguage::CPLUSPLUS;
      return NS_OK;}
   // The rest of the methods can safely return error codes...
-  NS_IMETHOD GetInterfaces(PRUint32 * /*count*/, nsIID * ** /*array*/)
-    {return NS_ERROR_NOT_IMPLEMENTED;}
+  NS_IMETHOD GetInterfaces(PRUint32 * aCount, nsIID * ** aArray)
+    {
+      /* Return the list of interfaces that nsSciMoz supports. */
+      const uint32_t count = 5;
+      *aCount = count;
+      nsIID **array;
+      *aArray = array = static_cast<nsIID**>(nsMemory::Alloc(count * sizeof(nsIID*)));
+      if (!array)
+        return NS_ERROR_OUT_OF_MEMORY;
+
+      uint32_t index = 0;
+      nsIID* clone;
+#define PUSH_IID(id)                                                          \
+      clone = static_cast<nsIID *>(nsMemory::Clone(&NS_GET_IID( id ),           \
+                                                   sizeof(nsIID)));             \
+      if (!clone)                                                               \
+          goto oom;                                                             \
+      array[index++] = clone;
+
+      PUSH_IID(ISciMoz)
+      PUSH_IID(ISciMoz_Part0)
+      PUSH_IID(ISciMoz_Part1)
+      PUSH_IID(ISciMoz_Part2)
+      PUSH_IID(ISciMoz_Part3)
+#undef PUSH_IID
+
+      return NS_OK;
+oom:
+      while (index)
+        nsMemory::Free(array[--index]);
+      nsMemory::Free(array);
+      *aArray = nullptr;
+      return NS_ERROR_OUT_OF_MEMORY;
+    }
   NS_IMETHOD GetHelperForLanguage(PRUint32 /*language*/, nsISupports ** /*_retval*/)
     {return NS_ERROR_NOT_IMPLEMENTED;}
   NS_IMETHOD GetContractID(char * * /*aContractID*/)
@@ -188,6 +220,15 @@ class nsClassInfoMixin : public nsIClassInfo
   NS_IMETHOD GetClassIDNoAlloc(nsCID * /*aClassIDNoAlloc*/)
     {return NS_ERROR_NOT_IMPLEMENTED;}
 };
+
+#if defined(HEADLESS_SCIMOZ)
+// Dummy platform holder.
+typedef struct _PlatformInstance {
+	void *foo;
+}
+PlatformInstance;
+
+#else
 
 #ifdef XP_PC
 static const char* gInstanceLookupString = "instance->pdata";
@@ -220,7 +261,13 @@ typedef struct _PlatformInstance {
 PlatformInstance;
 #endif
 
+#endif  // else not HEADLESS_SCIMOZ
+
 class SciMoz : public ISciMoz,
+               public ISciMoz_Part0,
+               public ISciMoz_Part1,
+               public ISciMoz_Part2,
+               public ISciMoz_Part3,
                public nsClassInfoMixin,
                public nsSupportsWeakReference
                
@@ -238,6 +285,9 @@ private:
     void BraceMatch();
     
 public:
+#if defined(HEADLESS_SCIMOZ)
+  SciMoz();
+#endif
   SciMoz(SciMozPluginInstance* plugin);
   ~SciMoz();
 
@@ -268,6 +318,7 @@ protected:
     long SendEditor(unsigned int Msg, unsigned long wParam = 0, long lParam = 0);
     NS_IMETHODIMP ConvertUTF16StringSendMessage(int message, PRInt32 length, const PRUnichar *text, PRInt32  *_retval);
 
+    void SciMozInit();  // Shared initialization code.
     void Create(WinID hWnd);
     void PlatformCreate(WinID hWnd);
     void Notify(long lParam);
@@ -289,6 +340,10 @@ public:
   NS_DECL_ISUPPORTS
   NS_DECL_ISCIMOZLITE
   NS_DECL_ISCIMOZ
+  NS_DECL_ISCIMOZ_PART0
+  NS_DECL_ISCIMOZ_PART1
+  NS_DECL_ISCIMOZ_PART2
+  NS_DECL_ISCIMOZ_PART3
 
     void PlatformNew(void);
 
