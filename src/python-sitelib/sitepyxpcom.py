@@ -101,3 +101,5 @@ def redirect_std_handles():
 if not os.environ.has_key("KOMODO_VERBOSE"):
     redirect_std_handles()
 
+if __debug__ or os.environ.has_key("KOMODO_DEVELOPER"):
+    import thread_helper

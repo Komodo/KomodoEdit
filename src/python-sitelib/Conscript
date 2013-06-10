@@ -87,6 +87,7 @@ $cons->InstallPythonUtility('upgradeutils.py');
 $cons->InstallPythonUtility('mozutils.py');
 $cons->InstallPythonUtility('fileutils.py');
 $cons->InstallPythonUtility('memutils.py');
+$cons->InstallPythonUtility('thread_helper.py');
 
 $cons->InstallPythonUtility('langinfo.py');
 $cons->InstallPythonUtility('langinfo_binary.py');
