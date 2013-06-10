@@ -88,7 +88,8 @@ interface ISciMozEvents : nsISupports {
     // onKey is specific to the GTK+ version
     // void onKey(in long ch, in long modifiers);
     void onDoubleClick();
-    void onUpdateUI();
+    void onUpdateUI(in long updated,
+                    in long horizScrollPageIncrement);
     void onModified(in long position, in long modificationType,
                     in AString text, in uint32_t length,
                     in long linesAdded, in long line,

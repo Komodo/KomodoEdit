@@ -54,12 +54,27 @@
             <xul:textbox anonid="ime-input" class="plain"
                          style="position: absolute; opacity: 0;"
                          xbl:inherits="context=mozcontext"/>
-            <html:embed type="application/x-scimoz-plugin"
-                        anonid="scimoz"
-                        style="-moz-box-flex: 1;"
-                        pluginAllowsFocusEvents="false"
-                        pluginHandlesDomEvents="false"
-                        />
+            <xul:grid flex="1">
+                <xul:columns>
+                    <xul:column flex="1"/>
+                    <xul:column/>
+                </xul:columns>
+                <xul:rows>
+                    <xul:row flex="1">
+                        <html:embed type="application/x-scimoz-plugin"
+                                    anonid="scimoz"
+                                    style="-moz-box-flex: 1;"
+                                    pluginAllowsFocusEvents="false"
+                                    pluginHandlesDomEvents="false"
+                                    />
+                        <xul:scrollbar orient="vertical" anonid="scrollbar_v"/>
+                    </xul:row>
+                    <xul:row>
+                        <xul:scrollbar orient="horizontal" anonid="scrollbar_h"/>
+                        <xul:spacer/>
+                    </xul:row>
+                </xul:rows>
+            </xul:grid>
             <xul:panel anonid="autocompletepopup" noautofocus="true">
                 <xul:hbox>
                     <xul:grid/>
@@ -94,6 +109,69 @@
             <!-- mouse_handler: Javascript function which gets first dibs on mouse events -->
             <field name="mouse_handler">null</field>
             <field name='_mozcontext'>null</field>
+
+            <property name="hScrollBar">
+                <getter>
+                    return this.getAttribute("hscroll") != "off";
+                </getter>
+                <setter>
+                    this.setAttribute("hscroll", val ? "on" : "off");
+                </setter>
+            </property>
+            <property name="vScrollBar">
+                <getter>
+                    return this.getAttribute("vscroll") != "off";
+                </getter>
+                <setter>
+                    this.setAttribute("vscroll", val ? "on" : "off");
+                </setter>
+            </property>
+            <field name="_scrollEventHandler">
+            <![CDATA[
+                ({
+                    scintilla: this,
+                    horizontal: document.getAnonymousElementByAttribute(this,
+                                            "anonid", "scrollbar_h"),
+                    vertical: document.getAnonymousElementByAttribute(this,
+                                            "anonid", "scrollbar_v"),
+                    onUpdateUI: (function(updated, horizScrollPageIncrement) {
+                        const ISciMoz = Components.interfaces.ISciMoz;
+                        const scimoz = this.scimoz;
+                        if (updated & ISciMoz.SC_UPDATE_H_SCROLL) {
+                            let scrollbar = this._scrollEventHandler.horizontal;
+                            if (!scrollbar.suppress) {
+                                scrollbar.setAttribute("curpos", scimoz.xOffset);
+                                scrollbar.setAttribute("pageincrement", horizScrollPageIncrement);
+                                scrollbar.setAttribute("maxpos", scimoz.scrollWidth - horizScrollPageIncrement);
+                                scrollbar.setAttribute("can-scroll",
+                                                       scimoz.scrollWidth > horizScrollPageIncrement);
+                            }
+                        }
+                        if (updated & ISciMoz.SC_UPDATE_V_SCROLL) {
+                            let scrollbar = this._scrollEventHandler.vertical;
+                            let lastDocLine = scimoz.lineFromPosition(1<<30);
+                            if (!scrollbar.suppress) {
+                                scrollbar.setAttribute("curpos", scimoz.firstVisibleLine);
+                                scrollbar.setAttribute("pageincrement", scimoz.linesOnScreen);
+                                let maxVisibleLine = scimoz.visibleFromDocLine(lastDocLine) +
+                                                     scimoz.wrapCount(lastDocLine);
+                                scrollbar.setAttribute("maxpos",
+                                                       maxVisibleLine -
+                                                            scimoz.linesOnScreen);
+                                scrollbar.setAttribute("can-scroll",
+                                                       maxVisibleLine >
+                                                            scimoz.linesOnScreen);
+                            }
+                        }
+                    }).bind(this),
+                    QueryInterface:
+                        Components.utils
+                                  .import("resource://gre/modules/XPCOMUtils.jsm", {})
+                                  .XPCOMUtils
+                                  .generateQI([Components.interfaces.ISciMozEvents]),
+                })
+            ]]>
+            </field>
 
             <field name='symbolMargin'>true</field>
 <!-- #if PLATFORM != "darwin" -->
@@ -319,6 +397,32 @@
                     }
                     this._ime.value = "";
                 }).bind(this), false);
+                this.scimoz.hookEvents(this._scrollEventHandler,
+                                       Components.interfaces.ISciMozEvents.SME_UPDATEUI);
+                new MutationObserver(function() {
+                    this._scrollEventHandler.horizontal.suppress = true;
+                    try {
+                        let curpos =
+                            parseInt(this._scrollEventHandler.horizontal.getAttribute("curpos"), 10);
+                        if (curpos != this.scimoz.xOffset) {
+                            this.scimoz.xOffset = curpos;
+                        }
+                    } finally {
+                        this._scrollEventHandler.horizontal.suppress = false;
+                    }
+                }.bind(this)).observe(this._scrollEventHandler.horizontal,
+                                      {attributes: true, attributeFilter: ["curpos"]});
+                new MutationObserver(function() {
+                    this._scrollEventHandler.vertical.suppress = true;
+                    try {
+                        this.scimoz.firstVisibleLine =
+                            parseInt(this._scrollEventHandler.vertical.getAttribute("curpos"), 10);
+                    } finally {
+                        this._scrollEventHandler.vertical.suppress = false;
+                    }
+                }.bind(this)).observe(this._scrollEventHandler.vertical,
+                                      {attributes: true, attributeFilter: ["curpos"]});
+                this.scimoz.useCustomScrollBars = true;
             ]]>
             </constructor>
             <destructor>

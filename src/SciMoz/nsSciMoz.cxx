@@ -394,7 +394,8 @@ void SciMoz::Notify(long lParam) {
 		case SCN_UPDATEUI:
 			mask = ISciMozEvents::SME_UPDATEUI;
 			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnUpdateUI();
+				eventSink->OnUpdateUI(notification->updated,
+						      notification->length);
 			break;
 		case SCN_MODIFIED: {
 			// if we are deleting or inserting on a fold, expand

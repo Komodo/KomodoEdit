@@ -26,8 +26,13 @@ NS_IMETHODIMP SciMozEventsWrapper::OnSavePointLeft() {
 NS_IMETHODIMP SciMozEventsWrapper::OnDoubleClick() {
 	return Invoke("onDoubleClick", nullptr, 0);
 }
-NS_IMETHODIMP SciMozEventsWrapper::OnUpdateUI() {
-	return Invoke("onUpdateUI", nullptr, 0);
+NS_IMETHODIMP SciMozEventsWrapper::OnUpdateUI(int updated,
+					      int horizScrollPageIncrement)
+{
+	NPVariant args[2];
+	INT32_TO_NPVARIANT(updated, args[0]);
+	INT32_TO_NPVARIANT(horizScrollPageIncrement, args[1]);
+	return Invoke("onUpdateUI", args, 2);
 }
 NS_IMETHODIMP SciMozEventsWrapper::OnModified(PRInt32 position,
 					      PRInt32 modificationType,

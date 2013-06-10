@@ -18,6 +18,7 @@
                        anonid="minimap"
                        allowIME="false"
                        onblur="leaveView();"
+                       hscroll="off"
                        onmouseout="leaveView();"
 <!-- #if PLATFORM != "linux" -->
                        mozcontext="minimapContextMenu"
@@ -48,8 +49,6 @@
             var mm_scimoz = scintilla.scimoz;
             mm_scimoz.zoom = koDoc.prefs.getLong("minimap.zoom",
                                                  ko.views.manager.DEFAULT_MINIMAP_ZOOM);
-            mm_scimoz.hScrollBar = false;
-            mm_scimoz.vScrollBar = true;
             mm_scimoz.setMarginWidthN(2, 0);
             mm_scimoz.selEOLFilled = true;
             mm_scimoz.caretStyle = mm_scimoz.CARETSTYLE_INVISIBLE;

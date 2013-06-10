@@ -1012,6 +1012,7 @@
         </method>
 
         <method name="onUpdateUI">
+        <parameter name="updated"/>
         <body>
         <![CDATA[
             // often painting during onUpdateUI doesn't work correctly since it

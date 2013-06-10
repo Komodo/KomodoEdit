@@ -44,6 +44,13 @@ scintilla {
   overflow: hidden; /* Don't affect split views - bug 92272 */
 }
 
+scintilla[hscroll="off"] [anonid="scrollbar_h"],
+scintilla[vscroll="off"] [anonid="scrollbar_v"],
+scintilla [anonid="scrollbar_h"][can-scroll="false"],
+scintilla [anonid="scrollbar_v"][can-scroll="false"] {
+  display: none;
+}
+
 ko-findbar {
   -moz-binding: url('chrome://komodo/content/find/findbar.xml#findbar');
 }
