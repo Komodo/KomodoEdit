@@ -187,11 +187,8 @@ static int do_main(const char *xpcomDllPath, int argc, char* argv[])
     return 255;
   }
 
-  nsCOMPtr<nsIFile> xreDirectory;
-  xpcomFile->GetParent(getter_AddRefs(xreDirectory));
-
   ScopedAppData appData(&sAppData);
-  appData.xreDirectory = xreDirectory;
+  xpcomFile->GetParent(&appData.xreDirectory);
 
   #ifdef XP_MACOSX
     // Mac OSX: Disable press-and-hold for OSX 10.7, see bug 90870
