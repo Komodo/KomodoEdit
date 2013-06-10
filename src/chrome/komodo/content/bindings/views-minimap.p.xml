@@ -178,7 +178,8 @@
         <field name="ignoreUpdateUIStartTime">0</field>
         <!-- wait 500 msec after handling a click before responding to UI updates -->
         <field name="ignoreUpdateUIPeriod">500</field> 
-        <method name="onUpdateUI">
+        <!-- Called in a timer from onUpdateUI. -->
+        <method name="doUpdateUI">
         <body>
         <![CDATA[
             if (!this.minimapActive) {
