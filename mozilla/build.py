@@ -2280,7 +2280,7 @@ def _get_make_command(config, srcDir):
     """
 
     if config.mozVer >= 24.0 and sys.platform.startswith("win") :
-        return "%s %s/build/pymake/make.py" % (config.python, srcDir)
+        return "python %s/build/pymake/make.py" % (srcDir, )
 
     return "make"
 
@@ -2359,27 +2359,17 @@ def target_mozilla(argv=["mozilla"]):
     else:
         koDir = os.path.join(native_objdir, 'komodo')
 
-        # Mozilla now does a virtualenv setup of python, and it is broken on
-        # Linux due to not copying libpython*.so over... so hack around that
-        # using LD_LIBRARY_PATH
-        if config.platform.startswith("linux"):
-            pythonLibDir = join(dirname(dirname(config.python)), "lib")
-            ldLibPath = os.environ.get("LD_LIBRARAY_PATH", "").split(os.pathsep)
-            ldLibPath.append(pythonLibDir)
-            os.environ["LD_LIBRARY_PATH"] = os.pathsep.join(filter(bool, ldLibPath))
-
         if config.mozVer >= 24.0:
             # New enough to use mach
             # Make sure mach has the state directory working
             try:
-                _run_in_dir("%s mach mach-commands" % config.python,
-                            buildDir, log.info)
+                _run_in_dir("python mach mach-commands", buildDir, log.info)
             except OSError:
                 pass # mach errors out on first run, that's okay
 
             # do the build
-            _run_in_dir("%s mach --log-file %s build" %
-                            (config.python, join(buildDir, "mach.log")),
+            _run_in_dir("python mach --log-file %s build" %
+                            (join(buildDir, "mach.log")),
                         buildDir, log.info)
         else:
             # Too old to use mach; use GNU make directly
