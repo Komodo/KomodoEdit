@@ -33,7 +33,7 @@ if (typeof ko.breadcrumbs == 'undefined')
 
     /* Logging */
     var log = ko.logging.getLogger('koBreadcrumbs');
-    log.setLevel(ko.logging.LOG_DEBUG);
+    //log.setLevel(ko.logging.LOG_DEBUG);
 
     /* Element References */
     var breadcrumbBar, overflowBtn;
