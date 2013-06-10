@@ -1,0 +1,21 @@
+Fix to work on files that don't contain symbols.
+https://bugzilla.mozilla.org/show_bug.cgi?id=880500
+Index: /as/komodo-devel_moz24/mozilla/build/moz2400-ko8.13/mozilla/toolkit/crashreporter/tools/symbolstore.py
+--- a/toolkit/crashreporter/tools/symbolstore.py	Thu Jun 06 10:44:11 2013 +0100
++++ b/toolkit/crashreporter/tools/symbolstore.py	Thu Jun 06 15:50:01 2013 -0700
+@@ -827,13 +827,15 @@
+         # dsymutil takes --arch=foo instead of -a foo like everything else
+         subprocess.call(["dsymutil"] + [a.replace('-a ', '--arch=') for a in self.archs if a]
+                         + [file],
+                         stdout=open("/dev/null","w"))
+         if not os.path.exists(dsymbundle):
+             # dsymutil won't produce a .dSYM for files without symbols
++            self.output_pid(sys.stderr, "No symbols found in file: %s" % (file,))
+             result['status'] = False
++            result['files'] = (file, )
+             return result
+ 
+         result['status'] = True
+         result['files'] = (dsymbundle, file)
+         return result
+ 
