@@ -178,7 +178,7 @@ class Test(object):
         """
         flattened = []
         for t in tags:
-            flattened += t.split('/')
+            flattened += t.replace(os.sep, '/').split('/')
         return flattened
     def explicit_tags(self):
         tags = []
