@@ -58,7 +58,7 @@ interface nsIBoxObject;
 interface ISciMozLite : nsISupports {
 	// Manually created features
 	attribute DOMString name; // a "name" for debugging/diagnostic purposes.
-	void hookEvents(in ISciMozEvents eventListener);
+	void hookEvents(in ISciMozEvents eventListener, [optional] in long mask);
 	void unhookEvents(in ISciMozEvents eventListener);
 	// this one is more of a hack to avoid exposing the
 	// non-scriptable nsIDOMWindow to Python!

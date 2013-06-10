@@ -300,6 +300,7 @@
         <body>
         <![CDATA[
         try {
+            const SME = Components.interfaces.ISciMozEvents;
             this.log.info("view-editor:initWithDocument");
             this.scintilla.language = doc.language;
             this.scintilla.symbolMargin = true;
@@ -322,7 +323,7 @@
             xtk.domutils.fireEvent(this, 'current_view_changed');
             this.addEventListener('current_view_linecol_changed',
                                     this.handle_current_view_linecol_changed, false);
-            this.scintilla.scimoz.hookEvents(this);
+            this._hookSciMozEvents(SME.SME_UPDATEUI | SME.SME_MARGINCLICK);
             this._inInitPhase = false;
             // This field is used by views-buffer.isCICplnEnabled
             this._isCICplnEnabledViewPref = this.prefs.getBooleanPref('codeintel_enabled');

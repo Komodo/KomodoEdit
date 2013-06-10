@@ -623,15 +623,15 @@ bool SciMoz::MarkClosed(const NPVariant * /*args*/, uint32_t argCount, NPVariant
 	return true;
 }
 
-/* void HookEvents (in nsISupports eventListener); */
-NS_IMETHODIMP SciMoz::HookEvents(ISciMozEvents *eventListener) {
+/* void HookEvents (in nsISupports eventListener, [optional] in PRInt32 mask); */
+NS_IMETHODIMP SciMoz::HookEvents(ISciMozEvents *eventListener, PRInt32 mask) {
 	return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 bool SciMoz::HookEvents(const NPVariant *args, uint32_t argCount, NPVariant * /*result*/) {
-	SCIMOZ_DEBUG_PRINTF("SciMoz::HookEvents\n");
-	if (argCount != 1) {
-		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
+	SCIMOZ_DEBUG_PRINTF("SciMoz::HookEvents (%u args)\n", argCount);
+	if (argCount != 1 && argCount != 2) {
+		SCIMOZ_DEBUG_PRINTF("%s: expected 1 or 2 arguments, got %i\n",
 				    __FUNCTION__,
 				    argCount);
 		return false;
@@ -649,7 +649,24 @@ bool SciMoz::HookEvents(const NPVariant *args, uint32_t argCount, NPVariant * /*
 				    __FUNCTION__);
 		return false;
 	}
-	// we need to get a nsIDOMWindowInternal IID, wrapped in JS and then
+
+	// Default to all events
+	int mask = ISciMozEvents::SME_ALL; /*& ~ISciMozEvents::SME_PAINTED*/
+	if (argCount > 1) {
+		if (!NPVARIANT_IS_INT32(args[1])) {
+			SCIMOZ_DEBUG_PRINTF("%s: second parameter is not an integer\n",
+					    __FUNCTION__, argCount);
+			return false;
+		}
+		// Don't touch the mask if the user gave 0 (assume that means
+		// they want everything).
+		PRUint32 given_mask = NPVARIANT_TO_INT32(args[1]);
+		if (given_mask) {
+			mask = mask & given_mask;
+		}
+	}
+
+	// we need to get a ISciMozEvents IID, wrapped in JS and then
 	// wrapped in NPAPI.  The easiest way is to ask JS to do it for us.
 	NPString script = { "Components.interfaces.ISciMozEvents" };
 	script.UTF8Length = strlen(script.UTF8Characters);
@@ -679,10 +696,11 @@ bool SciMoz::HookEvents(const NPVariant *args, uint32_t argCount, NPVariant * /*
 		SCIMOZ_DEBUG_PRINTF("%s: QI result is not an object", __FUNCTION__);
 		return false;
 	}
+	SCIMOZ_DEBUG_PRINTF("%s: Hooking with mask %08X\n", __FUNCTION__, mask);
 	return listeners.Add(mPlugin->GetNPP(),
 			     NPVARIANT_TO_OBJECT(eventListenerVar),
 			     PR_FALSE,
-			     ISciMozEvents::SME_ALL /*& ~ISciMozEvents::SME_PAINTED*/);
+			     mask);
 }
 
 /* void UnhookEvents (in ISciMozEvents eventListener); */

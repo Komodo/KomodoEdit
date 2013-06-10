@@ -45,7 +45,7 @@
             scintilla.readOnly = true;
             
             this.view._setupHighlightColors(scintilla);
-            scintilla.scimoz.hookEvents(this);
+            this._hookSciMozEvents(Components.interfaces.ISciMozEvents.SME_UPDATEUI);
             var mm_scimoz = scintilla.scimoz;
             mm_scimoz.zoom = koDoc.prefs.getLong("minimap.zoom",
                                                  ko.views.manager.DEFAULT_MINIMAP_ZOOM);

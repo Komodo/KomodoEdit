@@ -99,7 +99,7 @@
             this._genericController = Components.classes['@activestate.com/koGenericCommandHandler;1'].createInstance();
             this._genericController.view = this;
             this.scintilla.controllers.appendController(this._genericController);
-            this.scimoz.hookEvents(this);
+            this._hookSciMozEvents();
             this.scimoz.wrapMode = Components.interfaces.ISciMoz.SC_WRAP_WORD;
             this.scimoz.useTabs = 0; // don't use tabs in a terminal
             this.scimoz.setProperty('smartCloseTags', '0');

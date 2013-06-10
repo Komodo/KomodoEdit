@@ -626,8 +626,7 @@
             // the scintilla element is the one that will have the focus!
             this.scintilla.controllers.appendController(this._genericController);
 
-            this.scimoz.hookEvents(this);
-
+            this._hookSciMozEvents();
             this.setBufferText(buffer);
             this._inInitPhase = false;
         } catch (e) {
@@ -635,6 +634,24 @@
         }
         ]]>
         </body>
+        </method>
+
+        <method name="_hookSciMozEvents">
+            <parameter name="extras"/>
+            <body>
+                const SME = Components.interfaces.ISciMozEvents;
+                this.scimoz.hookEvents(this,
+                                       SME.SME_CHARADDED | SME.SME_SAVEPOINTREACHED |
+                                       SME.SME_SAVEPOINTLEFT | SME.SME_DOUBLECLICK |
+                                       SME.SME_UPDATEUI | SME.SME_MODIFIED |
+                                       SME.SME_MARGINCLICK |
+                                       SME.SME_USERLISTSELECTION |
+                                       SME.SME_URIDROPPED |
+                                       SME.SME_DWELLSTART | SME.SME_DWELLEND |
+                                       SME.SME_ZOOM | SME.SME_HOTSPOTDOUBLECLICK |
+                                       SME.SME_COMMANDUPDATE |
+                                       (extras >>> 0));
+            </body>
         </method>
 
         <method name="setBufferText">
