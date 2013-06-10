@@ -29,6 +29,11 @@
 
         <property name="scintilla" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'minimap');"/>
         
+        <field name="SCIMOZ_EVENT_MASK" readonly="true">
+            Components.interfaces.ISciMozEvents.SME_UPDATEUI |
+            Components.interfaces.ISciMozEvents.SME_URIDROPPED
+        </field>
+
         <method name="initWithView">
         <parameter name="view" />
         <body><![CDATA[
