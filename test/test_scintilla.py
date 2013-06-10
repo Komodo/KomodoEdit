@@ -45,8 +45,10 @@ import os
 import sys
 import re
 from os.path   import join, dirname, abspath
-
 import unittest
+
+from xpcom import components
+
 from testlib import TestFailed
 
 class IfaceTestCase(unittest.TestCase):
@@ -77,3 +79,40 @@ class IfaceTestCase(unittest.TestCase):
                         len(msgs) > 1 and "s" or "", filename))
             raise TestFailed("\n".join(msgs))
 
+if sys.platform.startswith("linux"):
+    # Headless SciMoz is only enabled on Linux thus far.
+    class SciMozHeadlessContext(object):
+        def __init__(self):
+            self._sm = components.classes["@activestate.com/ISciMozHeadless;1"]. \
+                            createInstance(components.interfaces.ISciMoz)
+        def __enter__(self):
+            return self._sm
+        def __exit__(self, exc_type, exc_value, traceback):
+            """Mark as closed, so ~SciMoz() doesn't show stderr messages."""
+            try:
+                self._sm.markClosed()
+            except Exception:
+                pass
+            self._sm = None
+
+    class ScintillaHeadless(unittest.TestCase):
+        def test_scintilla_headless(self):
+            with SciMozHeadlessContext() as sm:
+                text = "def foo():\n    pass\n"
+                sm.text = text
+                sm.lexer = sm.SCLEX_PYTHON
+                sm.colourise(0, sm.length)
+                #from binascii import hexlify
+                #print '\n\nsm.text: %r\n' % (sm.text, )
+                from binascii import hexlify
+                styledText = sm.getStyledText(0, sm.length)
+                self.assertEqual(styledText[0::2], text)
+                self.assertEqual(hexlify(styledText[1::2]),
+                                 "0b0b0b"      # 'def'
+                                 "00"          # ' '
+                                 "0b0b0b"      # 'foo'
+                                 "0a0a0a"      # '():'
+                                 "0000000000"  # '\n    '
+                                 "0b0b0b0b"    # 'pass'
+                                 "00"          # '\n'
+                                 )
