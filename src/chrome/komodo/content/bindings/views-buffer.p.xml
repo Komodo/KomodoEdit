@@ -636,21 +636,29 @@
         </body>
         </method>
 
+        <field name="SCIMOZ_EVENT_MASK" readonly="true">
+            Components.interfaces.ISciMozEvents.SME_CHARADDED |
+            Components.interfaces.ISciMozEvents.SME_SAVEPOINTREACHED |
+            Components.interfaces.ISciMozEvents.SME_SAVEPOINTLEFT |
+            Components.interfaces.ISciMozEvents.SME_DOUBLECLICK |
+            Components.interfaces.ISciMozEvents.SME_UPDATEUI |
+            Components.interfaces.ISciMozEvents.SME_MODIFIED |
+            Components.interfaces.ISciMozEvents.SME_MARGINCLICK |
+            Components.interfaces.ISciMozEvents.SME_USERLISTSELECTION |
+            Components.interfaces.ISciMozEvents.SME_URIDROPPED |
+            Components.interfaces.ISciMozEvents.SME_DWELLSTART |
+            Components.interfaces.ISciMozEvents.SME_DWELLEND |
+            Components.interfaces.ISciMozEvents.SME_ZOOM |
+            Components.interfaces.ISciMozEvents.SME_HOTSPOTDOUBLECLICK |
+            Components.interfaces.ISciMozEvents.SME_COMMANDUPDATE
+        </field>
+
         <method name="_hookSciMozEvents">
             <parameter name="extras"/>
             <body>
                 const SME = Components.interfaces.ISciMozEvents;
                 this.scimoz.hookEvents(this,
-                                       SME.SME_CHARADDED | SME.SME_SAVEPOINTREACHED |
-                                       SME.SME_SAVEPOINTLEFT | SME.SME_DOUBLECLICK |
-                                       SME.SME_UPDATEUI | SME.SME_MODIFIED |
-                                       SME.SME_MARGINCLICK |
-                                       SME.SME_USERLISTSELECTION |
-                                       SME.SME_URIDROPPED |
-                                       SME.SME_DWELLSTART | SME.SME_DWELLEND |
-                                       SME.SME_ZOOM | SME.SME_HOTSPOTDOUBLECLICK |
-                                       SME.SME_COMMANDUPDATE |
-                                       (extras >>> 0));
+                                       this.SCIMOZ_EVENT_MASK | (extras >>> 0));
             </body>
         </method>
 
