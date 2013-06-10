@@ -164,6 +164,19 @@
                             }
                         }
                     }).bind(this),
+                    // Other unused methods on ISciMozEvents
+                    onCharAdded: function() {},
+                    onSavePointReached: function() {},
+                    onSavePointLeft: function() {},
+                    onDoubleClick: function() {},
+                    onModified: function() {},
+                    onMarginClick: function() {},
+                    onZoom: function() {},
+                    onHotSpotDoubleClick: function() {},
+                    onDwellStart: function() {},
+                    onDwellEnd: function() {},
+                    onCommandUpdate: function() {},
+                    onOtherNotification: function() {},
                     QueryInterface:
                         Components.utils
                                   .import("resource://gre/modules/XPCOMUtils.jsm", {})
