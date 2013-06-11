@@ -431,9 +431,6 @@ else {
 	    "headless/nsSciMozHeadless.cxx",
 	    "headless/SciMozEvents.cxx",
 	    "headless/sendscintilla.cxx",
-	    # this object file is built by src/license/Conscript
-	    "../license/licenseUtil.o",
-	    "../license/License_V8/Runtime/License.o",
 	);
 	$consLocal->Depends($headlessSciMoz, "sendscintilla.h");
 	$consLocal->Depends($headlessSciMoz, "nsSciMoz.h");
