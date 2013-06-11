@@ -986,7 +986,7 @@ def target_configure(argv):
         "mozconfig": None,
         "mozApp": "komodo",
         "jsStandalone": False,
-        "mozSrcScheme": "1800",
+        "mozSrcScheme": "2400",
         "official": False,      # i.e. a plain Mozilla/Firefox build w/o Komodo stuff
         "withCrashReportSymbols": False,
         "stripBuild": False,
