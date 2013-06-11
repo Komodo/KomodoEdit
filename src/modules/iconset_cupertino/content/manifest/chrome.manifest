@@ -1,0 +1,4 @@
+override chrome://komodo/skin/iconset/config.less chrome://iconset-cupertino/skin/config.less
+
+skin icomoon cupertino jar:../cupertino.jar!/skin/
+skin icomoon-blue cupertino jar:../../../iconset_cupertino-blue@activestate.com/content/cupertino-blue.jar!/skin/

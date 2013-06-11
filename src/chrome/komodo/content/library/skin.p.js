@@ -344,6 +344,7 @@ var _lessClearCache = undefined;
             enabled: false,
             koSkin: null,
             _themeInfo: null,
+            catMan: null,
             
             /**
              * Constructor
@@ -363,6 +364,9 @@ var _lessClearCache = undefined;
                 
                 this.enabled = true;
                 this.koSkin = koSkin;
+
+                this.catMan = Cc["@mozilla.org/categorymanager;1"]
+                                .getService(Ci.nsICategoryManager);
                 
                 return true;
             },
@@ -425,19 +429,20 @@ var _lessClearCache = undefined;
              */
             resolveSkin: function(themeInfo)
             {
+                var entries = this.catMan.enumerateCategory('ko-gtk-compat');
                 Components.utils.import("resource://gre/modules/Services.jsm");
 
-                var name = themeInfo.name.charAt(0).toUpperCase() + themeInfo.name.slice(1).toLowerCase();
-                var uri = "resource://app/chrome/skins/gtk-"+name+"/chrome.manifest";
-                var file = Services.io.newURI(uri, null,null)
-                            .QueryInterface(Components.interfaces.nsIFileURL).file;
-
-                if ( ! file.exists())
+                while (entries.hasMoreElements())
                 {
-                    return false;
+                    var entry = entries.getNext().QueryInterface(Ci.nsISupportsCString);
+                    if (entry == themeInfo.name.toLowerCase())
+                    {
+                        var uri = this.catMan.getCategoryEntry('ko-gtk-compat', entry);
+                        return uri;
+                    }
                 }
 
-                return uri;
+                return false;
             },
 
             /**

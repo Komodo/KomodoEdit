@@ -1,0 +1,4 @@
+content iconset-radiance content/
+skin iconset-radiance classic/1.0 skin/
+locale iconset-radiance en-US locale/en-US/
+overlay chrome://komodo/content/pref/pref-ui.xul chrome://iconset-radiance/content/overlay_pref-ui.xul

@@ -1,0 +1,4 @@
+content iconset-classic content/
+skin iconset-classic classic/1.0 skin/
+locale iconset-classic en-US locale/en-US/
+overlay chrome://komodo/content/pref/pref-ui.xul chrome://iconset-classic/content/overlay_pref-ui.xul

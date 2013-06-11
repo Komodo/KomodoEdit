@@ -1,0 +1,32 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2010 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    'cons',
+    'platform',
+    'productType',
+    'buildFlavour',
+    'sdkDir',
+    'idlExportDir',
+    'build',
+    'mozBin',
+    'unsiloedPythonExe',
+    'mozVersion',
+    'mozExtensionDir',
+    'mozIdlIncludePath',
+);
+
+$cons->KoExt("koinstall --unjarred");   
+
+# For quick development, comment out the "KoExt" call above and 
+# use the following. The first time this is run, it will setup the
+# appropriate extension link. Then you need to *manually* do
+# a local "koext" dev build via:
+#       python ../../sdk/bin/koext.py build --dev
+# You need to re-run "koext build --dev" every time you change or add
+# files that are built, e.g.: preprocessed files, idl files. However for
+# files that are not built -- e.g. XUL, CSS, JS, Python -- you don't
+# need to build at all, just re-start Komodo.
+#
+#$cons->KoExtSourceDevInstall();

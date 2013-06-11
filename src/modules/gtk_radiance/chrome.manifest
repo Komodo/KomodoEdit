@@ -1,0 +1,5 @@
+content gtk-radiance content/
+skin gtk-radiance classic/1.0 skin/
+locale gtk-radiance en-US locale/en-US/
+overlay chrome://komodo/content/pref/pref-ui.xul chrome://gtk-radiance/content/overlay_pref-ui.xul
+category ko-gtk-compat radiance chrome://gtk-radiance/content/manifest/chrome.manifest

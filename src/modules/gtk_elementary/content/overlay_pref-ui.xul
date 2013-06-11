@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2013 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % gtkElementaryDTD SYSTEM "chrome://gtk-elementary/locale/gtk-elementary.dtd">
+  %gtkElementaryDTD;
+]>
+
+<overlay id="gtkElementaryPrefUiOverlay"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <menupopup id="koSkin_custom_skin_menupopup">
+        <menuitem id="pref_appearance_skin_elementary_compatibility"
+                  label="&skinElementaryCompat.label;"
+                  value="chrome://gtk-elementary/content/manifest/chrome.manifest"
+                  iconset="cupertino"
+                  insertafter="pref_appearance_skin_dark_compatibility"
+                  />
+    </menupopup>
+
+</overlay>

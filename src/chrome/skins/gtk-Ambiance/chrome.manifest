@@ -1,4 +1,0 @@
-override chrome://komodo/skin/_config/toolbars.less resource://app/chrome/skins/gtk-Ambiance/_config/toolbars.less
-override chrome://komodo/skin/_config/menus.less resource://app/chrome/skins/gtk-Ambiance/_config/menus.less
-override chrome://komodo/skin/_config/modules.less resource://app/chrome/skins/gtk-Ambiance/_config/modules.less
-override chrome://komodo/skin/toolbars.less resource://app/chrome/skins/gtk-Ambiance/toolbars.less

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2013 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % iconsetLightDTD SYSTEM "chrome://iconset-light/locale/iconset-light.dtd">
+  %iconsetLightDTD;
+]>
+
+<overlay id="iconsetLightPrefUiOverlay"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <menupopup id="koSkin_custom_icons_menupopup">
+        <menuitem id="pref_appearance_iconset_light"
+                  label="&iconsetLight.label;"
+                  value="chrome://iconset-light/content/manifest/chrome.manifest"
+                  />
+    </menupopup>
+
+</overlay>

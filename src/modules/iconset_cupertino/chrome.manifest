@@ -1,0 +1,4 @@
+content iconset-cupertino content/
+skin iconset-cupertino classic/1.0 skin/
+locale iconset-cupertino en-US locale/en-US/
+overlay chrome://komodo/content/pref/pref-ui.xul chrome://iconset-cupertino/content/overlay_pref-ui.xul

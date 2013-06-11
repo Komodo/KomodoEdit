@@ -1,0 +1,4 @@
+content iconset-dark content/
+skin iconset-dark classic/1.0 skin/
+locale iconset-dark en-US locale/en-US/
+overlay chrome://komodo/content/pref/pref-ui.xul chrome://iconset-dark/content/overlay_pref-ui.xul

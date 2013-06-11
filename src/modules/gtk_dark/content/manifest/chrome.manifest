@@ -1,0 +1,4 @@
+override chrome://komodo/skin/_config/window.less chrome://gtk-dark/skin/_config/window.less
+override chrome://komodo/skin/_config/panes.less chrome://gtk-dark/skin/_config/panes.less
+override chrome://komodo/skin/_config/tabs.less chrome://gtk-dark/skin/_config/tabs.less
+override chrome://komodo/skin/tabs.less chrome://gtk-dark/skin/tabs.less

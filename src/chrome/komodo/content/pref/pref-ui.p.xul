@@ -103,31 +103,6 @@
 <!-- #endif -->
                                   />
 <!-- #if PLATFORM == "linux" -->
-                        <menuitem id="pref_appearance_skin_adwaita_compatibility"
-                                  label="&skinAdwaitaCompat.label;"
-                                  value="gtk-Adwaita"
-                                  iconset="cupertino"
-                                  />
-                        <menuitem id="pref_appearance_skin_ambiance_compatibility"
-                                  label="&skinAmbianceCompat.label;"
-                                  value="gtk-Ambiance"
-                                  iconset="ambiance"
-                                  />
-                        <menuitem id="pref_appearance_skin_dark_compatibility"
-                                  label="&skinDarkCompat.label;"
-                                  value="gtk-Dark"
-                                  iconset="light"
-                                  />
-                        <menuitem id="pref_appearance_skin_elementary_compatibility"
-                                  label="&skinElementaryCompat.label;"
-                                  value="gtk-Elementary"
-                                  iconset="cupertino"
-                                  />
-                        <menuitem id="pref_appearance_skin_radiance_compatibility"
-                                  label="&skinRadianceCompat.label;"
-                                  value="gtk-Radiance"
-                                  iconset="radiance"
-                                  />
 <!-- #endif -->
                     </menupopup>
                 </menulist>
@@ -142,43 +117,7 @@
                           prefdefault="dark"
                           prefattribute="value"
                           tooltiptext="&iconset.tooltip;">
-                    <menupopup>
-                        <menuitem id="pref_appearance_iconset_classic"
-                                  label="&iconsetClassic.label;"
-                                  value="classic"
-                                  />
-                        <menuitem id="pref_appearance_iconset_ambiance"
-                                  label="&iconsetAmbiance.label;"
-                                  value="ambiance"
-                                  />
-                        <menuitem id="pref_appearance_iconset_blue"
-                                  label="&iconsetBlue.label;"
-                                  value="blue"
-                                  />
-                        <menuitem id="pref_appearance_iconset_cupertino"
-                                  label="&iconsetCupertino.label;"
-                                  value="cupertino"
-                                  />
-                        <menuitem id="pref_appearance_iconset_cupertino-blue"
-                                  label="&iconsetCupertinoBlue.label;"
-                                  value="cupertino-blue"
-                                  />
-                        <menuitem id="pref_appearance_iconset_dark"
-                                  label="&iconsetDark.label;"
-                                  value="dark"
-                                  />
-                        <menuitem id="pref_appearance_iconset_light"
-                                  label="&iconsetLight.label;"
-                                  value="light"
-                                  />
-                        <menuitem id="pref_appearance_iconset_orange"
-                                  label="&iconsetOrange.label;"
-                                  value="orange"
-                                  />
-                        <menuitem id="pref_appearance_iconset_radiance"
-                                  label="&iconsetRadiance.label;"
-                                  value="radiance"
-                                  />
+                    <menupopup id="koSkin_custom_icons_menupopup">
                     </menupopup>
                 </menulist>
             </hbox>

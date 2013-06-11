@@ -1,0 +1,41 @@
+@import url("resource://app/chrome/iconsets/cupertino/config.less");
+
+button, toolbarbutton, menuitem
+{
+    &[class$='-icon'], [class$='-icon'],
+    &[class$='_icon'], [class$='_icon']
+    {
+        & > image
+        {
+            max-width: 16px;
+        }
+    }
+}
+
+.toolbarbutton-icon,
+.button-icon,
+.menu-iconic-icon,
+treechildren::-moz-tree-image,
+.textbox-search-icon,
+dropmarker > image
+{
+    max-width: 16px;
+}
+
+#placesViewbox_placesWrapper
+#findresults_tabpanel-toolbarbox,
+.panel-toolbar-buttons
+{
+    toolbarbutton image &.toolbarbutton-icon,
+    button image &.toolbarbutton-icon
+    {
+        max-width: 14px;
+    }
+}
+
+.scrollbutton-down > image,
+.scrollbutton-up > image,
+button > hbox.button-box > image.button-icon
+{
+    max-width: none;
+}
