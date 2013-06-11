@@ -1482,14 +1482,22 @@ if (typeof ko.openfiles == 'undefined')
                         var patterns = self.groupers.byPattern.patterns;
                         for (let [i,p] in Iterator(patterns))
                         {
-                            if (path.match(p.pattern))
+                            let matched = path.match(p.pattern);
+                            if (matched)
                             {
-                                return p;
+                                let result = Object.create(p);
+                                
+                                if (matched.length > 1)
+                                {
+                                    result.name = result.name.replace('%match%', matched[1]);
+                                }
+
+                                return result;
                             }
                         }
                     }
                     
-                    return {name: 'None'};
+                    return {name: editorView.koDoc ? editorView.koDoc.language : 'None'};
                 },
 
                 _getPath: function(editorView)
