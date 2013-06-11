@@ -427,7 +427,8 @@ var _lessClearCache = undefined;
             {
                 Components.utils.import("resource://gre/modules/Services.jsm");
 
-                var uri = "resource://app/chrome/skins/gtk-"+themeInfo.name+"/chrome.manifest";
+                var name = themeInfo.name.charAt(0).toUpperCase() + themeInfo.name.slice(1).toLowerCase();
+                var uri = "resource://app/chrome/skins/gtk-"+name+"/chrome.manifest";
                 var file = Services.io.newURI(uri, null,null)
                             .QueryInterface(Components.interfaces.nsIFileURL).file;
 

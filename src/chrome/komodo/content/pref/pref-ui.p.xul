@@ -103,15 +103,20 @@
 <!-- #endif -->
                                   />
 <!-- #if PLATFORM == "linux" -->
+                        <menuitem id="pref_appearance_skin_ambiance_compatibility"
+                                  label="&skinAmbianceCompat.label;"
+                                  value="gtk-Ambiance"
+                                  iconset="ambiance"
+                                  />
                         <menuitem id="pref_appearance_skin_dark_compatibility"
                                   label="&skinDarkCompat.label;"
                                   value="gtk-Dark"
                                   iconset="light"
                                   />
-                        <menuitem id="pref_appearance_skin_ambiance_compatibility"
-                                  label="&skinAmbianceCompat.label;"
-                                  value="gtk-Ambiance"
-                                  iconset="ambiance"
+                        <menuitem id="pref_appearance_skin_elementary_compatibility"
+                                  label="&skinElementaryCompat.label;"
+                                  value="gtk-Elementary"
+                                  iconset="cupertino"
                                   />
                         <menuitem id="pref_appearance_skin_radiance_compatibility"
                                   label="&skinRadianceCompat.label;"
