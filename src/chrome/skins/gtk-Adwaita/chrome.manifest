@@ -1,0 +1,7 @@
+override chrome://komodo/skin/_config/window.less resource://app/chrome/skins/gtk-Adwaita/_config/window.less
+override chrome://komodo/skin/_config/menus.less resource://app/chrome/skins/gtk-Adwaita/_config/menus.less
+override chrome://komodo/skin/_config/toolbars.less resource://app/chrome/skins/gtk-Adwaita/_config/toolbars.less
+override chrome://komodo/skin/_config/tabs.less resource://app/chrome/skins/gtk-Adwaita/_config/tabs.less
+
+override chrome://komodo/skin/tabs.less resource://app/chrome/skins/gtk-Adwaita/tabs.less
+override chrome://komodo/skin/toolbars.less resource://app/chrome/skins/gtk-Adwaita/toolbars.less

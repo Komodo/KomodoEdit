@@ -103,6 +103,11 @@
 <!-- #endif -->
                                   />
 <!-- #if PLATFORM == "linux" -->
+                        <menuitem id="pref_appearance_skin_adwaita_compatibility"
+                                  label="&skinAdwaitaCompat.label;"
+                                  value="gtk-Adwaita"
+                                  iconset="cupertino"
+                                  />
                         <menuitem id="pref_appearance_skin_ambiance_compatibility"
                                   label="&skinAmbianceCompat.label;"
                                   value="gtk-Ambiance"
