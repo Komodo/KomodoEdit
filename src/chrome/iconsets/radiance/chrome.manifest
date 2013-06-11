@@ -1,0 +1,3 @@
+override chrome://komodo/skin/iconset/config.less resource://app/chrome/iconsets/radiance/config.less
+skin icomoon radiance jar:../dark/dark.jar!/skin/
+skin icomoon-orange radiance jar:../orange/orange.jar!/skin/

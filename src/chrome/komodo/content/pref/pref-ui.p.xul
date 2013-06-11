@@ -113,6 +113,11 @@
                                   value="gtk-Ambiance"
                                   iconset="ambiance"
                                   />
+                        <menuitem id="pref_appearance_skin_radiance_compatibility"
+                                  label="&skinRadianceCompat.label;"
+                                  value="gtk-Radiance"
+                                  iconset="radiance"
+                                  />
 <!-- #endif -->
                     </menupopup>
                 </menulist>
@@ -159,6 +164,10 @@
                         <menuitem id="pref_appearance_iconset_orange"
                                   label="&iconsetOrange.label;"
                                   value="orange"
+                                  />
+                        <menuitem id="pref_appearance_iconset_radiance"
+                                  label="&iconsetRadiance.label;"
+                                  value="radiance"
                                   />
                     </menupopup>
                 </menulist>
