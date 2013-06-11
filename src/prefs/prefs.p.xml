@@ -1077,18 +1077,18 @@
   <!-- Default icon set, must be defined as it's used to unload it -->
   <string id="koSkin_custom_icons">
     <!-- #if PLATFORM == "darwin" -->
-      resource://app/chrome/iconsets/cupertino/chrome.manifest
+        chrome://iconset-cupertino/content/manifest/chrome.manifest
     <!-- #else -->
-      resource://app/chrome/iconsets/dark/chrome.manifest
+        chrome://iconset-dark/content/manifest/chrome.manifest
     <!-- #endif -->
   </string>
 
   <!-- Record the custom manifests that need to be loaded at runtime (startup) -->
   <string id="runtime_manifests">
     <!-- #if PLATFORM == "darwin" -->
-      ["resource://app/chrome/iconsets/cupertino/chrome.manifest"]
+      ["chrome://iconset-cupertino/content/manifest/chrome.manifest"]
     <!-- #else -->
-      ["resource://app/chrome/iconsets/dark/chrome.manifest"]
+      ["chrome://iconset-dark/content/manifest/chrome.manifest"]
     <!-- #endif -->
   </string>
 

@@ -873,6 +873,7 @@ class KoInitService(object):
         if version < 7: # Komodo 8.1
             prefs.deletePref("koSkin_custom_skin")
             prefs.deletePref("koSkin_custom_icons")
+            prefs.deletePref("runtime_manifests")
 
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)
