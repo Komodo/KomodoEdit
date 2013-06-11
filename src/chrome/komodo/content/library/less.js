@@ -323,7 +323,8 @@ if ( ! ("less" in ko))
                         filename: sheet.href,
                         sheet: sheet,
                         contents: contents,
-                        dumpLineNumbers: less.dumpLineNumbers
+                        dumpLineNumbers: less.dumpLineNumbers,
+                        strictImports: false
                     }).parse(data, _parseCallback.bind(this));
                 }
                 catch (e)
@@ -597,9 +598,17 @@ if ( ! ("less" in ko))
                 return false;
             }
             
-            // Create nsIFile with path
-            var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
-            file.initWithPath(filePath);
+            try
+            {
+                // Create nsIFile with path
+                var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+                file.initWithPath(filePath);
+            }
+            catch (e)
+            {
+                this.exception(e, "Error loading file: " + fileUri);
+                return false;
+            }
             
             this.localCache.resolveFile[fileUri] = file;
 
