@@ -2,4 +2,4 @@ override chrome://komodo/skin/iconset/config.less chrome://iconset-cupertino-blu
 override chrome://komodo/skin/iconset/rules.less chrome://iconset-cupertino-blue/skin/rules.less
 
 skin icomoon cupertino-blue jar:../cupertino-blue.jar!/skin/
-skin icomoon-hidpi cupertino jar:../../cupertino-blue-hidpi.jar!/skin/
+skin icomoon-hidpi cupertino jar:../cupertino-blue-hidpi.jar!/skin/
