@@ -109,7 +109,7 @@ def compile(udl_path, output_dir=None, include_path=None, log=None):
 
 
 def deprecated_compile(udl_path, skel=False, guid=None, guid_from_lang=None,
-                       ext=None, force=False, log=None):
+                       ext=None, force=False, add_missing=False, log=None):
     """Compile the given .udl file to Komodo language resources.
     
     DEPRECATED: The 'skel' generation in luddite has been deprecated in
@@ -169,41 +169,52 @@ def deprecated_compile(udl_path, skel=False, guid=None, guid_from_lang=None,
 
     # Generate all outputs.
     lexres_path = join(build_dir, "lexers", safe_lang_name+".lexres")
-    if exists(lexres_path):
-        if not force: raise_force_error(lexres_path)
-        log.debug("rm `%s'", lexres_path)
-        os.remove(lexres_path)
-    if not exists(dirname(lexres_path)):
-        os.makedirs(dirname(lexres_path))
-    log.info("create lexres `%s'", lexres_path)
-    mainObj.dumpAsTable(constants.vals, lexres_path)
+    lexres_exists = exists(lexres_path)
+    if lexres_exists and not force:
+        if not add_missing:
+            raise_force_error(lexres_path)
+    else:
+        if lexres_exists:
+            log.debug("rm `%s'", lexres_path)
+            os.remove(lexres_path)
+        elif not exists(dirname(lexres_path)):
+            os.makedirs(dirname(lexres_path))
+        log.info("create lexres `%s'", lexres_path)
+        mainObj.dumpAsTable(constants.vals, lexres_path)
 
     if skel:
         lang_service_path \
             = join(build_dir, "components", "ko%s_UDL_Language.py" % safe_lang_name)
-        if exists(lang_service_path):
-            if not force: raise_force_error(lang_service_path)
-            log.debug("rm `%s'", lang_service_path)
-            os.remove(lang_service_path)
-        if not exists(dirname(lang_service_path)):
-            os.makedirs(dirname(lang_service_path))
-        log.info("create lang service `%s'", lang_service_path)
-        if guid is not None:
-            assert guid_pat.match(guid)
-            guid = norm_guid(guid)
-        elif guid_from_lang:
-            try:
-                guid = guid_from_lang[mainObj.languageName]
-            except KeyError:
-                raise LudditeError("could not find `%s' in GUIDs text file"
-                                   % mainObj.languageName)
+        lang_service_exists = exists(lang_service_path)
+        if lang_service_exists and not force:
+            if not add_missing:
+                raise_force_error(lang_service_path)
         else:
-            log.warn("generating new GUID for `%s' language service: it is "
-                     "recommended that you use the -g|--guid option to ensure "
-                     "a constant GUID from build to build",
-                     mainObj.languageName)
-            guid = generate_guid()
-        mainObj.dumpLanguageService(lang_service_path, guid, ext=ext)
+            if lang_service_exists:
+                log.debug("rm `%s'", lang_service_path)
+                os.remove(lang_service_path)
+            elif not exists(dirname(lang_service_path)):
+                os.makedirs(dirname(lang_service_path))
+            log.info("create lang service `%s'", lang_service_path)
+            if guid is not None:
+                assert guid_pat.match(guid)
+                guid = norm_guid(guid)
+            elif guid_from_lang:
+                try:
+                    guid = guid_from_lang[mainObj.languageName]
+                except KeyError:
+                    if not add_missing:
+                        raise LudditeError("could not find `%s' in GUIDs text file"
+                                           % mainObj.languageName)
+            else:
+                log.warn("generating new GUID for `%s' language service: it is "
+                         "recommended that you use the -g|--guid option to ensure "
+                         "a constant GUID from build to build",
+                         mainObj.languageName)
+                guid = generate_guid()
+            if guid is not None:
+                mainObj.dumpLanguageService(lang_service_path, guid, ext=ext,
+                                            add_missing=add_missing)
 
         if not ext:
             log.warn("no file extension was given: no skeleton "
@@ -215,14 +226,18 @@ def deprecated_compile(udl_path, skel=False, guid=None, guid_from_lang=None,
                 join(build_dir, "templates", "Common", safe_lang_name+ext),
             ]
             for template_path in template_paths:
-                if exists(template_path):
-                    if not force: raise_force_error(template_path)
-                    log.debug("rm `%s'", template_path)
-                    os.remove(template_path)
-                if not exists(dirname(template_path)):
-                    os.makedirs(dirname(template_path))
-                log.info("create template `%s'", template_path)
-                mainObj.generateKomodoTemplateFile(template_path)
+                template_exists = exists(template_path)
+                if template_exists and not force:
+                    if not add_missing:
+                        raise_force_error(template_path)
+                else:
+                    if template_exists:
+                        log.debug("rm `%s'", template_path)
+                        os.remove(template_path)
+                    elif not exists(dirname(template_path)):
+                        os.makedirs(dirname(template_path))
+                    log.info("create template `%s'", template_path)
+                    mainObj.generateKomodoTemplateFile(template_path)
 
     # Clean up after PLY. It leaves some turds that can break subsequent
     # parsing if the parser source is changed.

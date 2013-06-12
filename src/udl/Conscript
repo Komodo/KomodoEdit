@@ -126,6 +126,7 @@ my @lexers = (
                codename => "smarty_language",
                udl_path => "php-smarty-mainlex.udl",
                ext => ".tpl",
+               skel => "skel/Smarty",
               },
               {
                language_name => "Mason",
@@ -237,12 +238,13 @@ foreach my $info (@lexers) {
         $cons->Command(
             $xpi_path,
             "luddite.py",
+            "GUIDs.txt",
             $udl_path,
             qq(
                 cd %1:d && $rmdir_cmd
                 cd %1:d && $mkdir_cmd
                 cd %1:d && $COPY $skel_dir $build_dir
-                cd %1:d && python %1:f compile $udl_path
+                cd %1:d && python %1:f compile --skel --add-missing --ext=$info->{ext} -g GUIDs.txt $udl_path
                 cd %1:d && python %1:f package -f -c "$creator" -V $version "$language_name"
             ));
         $cons->DependsRecursive($xpi_path, $info->{skel}, ('\.svn'));

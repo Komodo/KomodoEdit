@@ -103,8 +103,18 @@ class CodeIntelTestCase(unittest.TestCase):
             env = None
             if self._ci_env_prefs_ is not None:
                 env = SimplePrefsEnvironment(**self._ci_env_prefs_)
+
+            def get_extra_module_dirs():
+                spec = join(dirname(__file__), "..", "..", "udl", "skel", "*", "pylib")
+                for d in glob(spec):
+                    if glob(join(spec, "lang_*.py")):
+                        yield d
+
+                for d in self._ci_extra_module_dirs_ or []:
+                    yield d
+
             self.mgr = Manager(
-                extra_module_dirs=self._ci_extra_module_dirs_,
+                extra_module_dirs=get_extra_module_dirs(),
                 db_base_dir=self._ci_db_base_dir_ or test_db_base_dir,
                 db_catalog_dirs=self._ci_db_catalog_dirs_,
                 db_import_everything_langs=self._ci_db_import_everything_langs,

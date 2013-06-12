@@ -38,7 +38,7 @@
 
 import copy
 import os
-from os.path import basename, join, exists
+from os.path import basename, dirname, join, exists
 import re
 import sys
 import datetime
@@ -763,9 +763,21 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                                           self.families[new_family_name]))
         fout.close()
 
-    def dumpLanguageService(self, path, guid, ext=None):
+    def dumpLanguageService(self, path, guid, ext=None, add_missing=False):
         if not self.languageName:
             raise LudditeError("'language' was not specified in .udl file")
+
+        if add_missing:
+            manifest_path = join(dirname(path), "chrome.manifest")
+            if exists(manifest_path):
+                leaf = basename(path)
+                with open(manifest_path, "rU") as manifest:
+                    for line in manifest:
+                        directive = line.split()
+                        if directive[:2] == ["component", guid]:
+                            if directive[2:3] != ["components/%s" % leaf]:
+                                return # file exists
+                            break
 
         lang_from_udl_family = {}
         for udl_family, curr_info in self.familyList.items():

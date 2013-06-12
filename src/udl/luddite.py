@@ -158,6 +158,8 @@ class Shell(cmdln.Cmdln):
                   help="create a new XPCOM component GUID for this build")
     @cmdln.option("--skel", action="store_true",
                   help="also build skeleton Language Service and template files")
+    @cmdln.option("--add-missing", action="store_true",
+                  help="only add in missing files for skeleton")
     @cmdln.option("-f", "--force", action="store_true",
                   help="allow build outputs to overwrite existing files")
     @cmdln.alias("compile")
@@ -188,7 +190,8 @@ class Shell(cmdln.Cmdln):
                  "of the 'koext' tool")
         guid = guid_from_lang = None
         if not opts.skel:
-            pass
+            if opts.add_missing:
+                raise Luddite("cannot specify --add-missing without --skel")
         elif opts.new_guid and opts.guid:
             raise LudditeError("cannot specify both -G and -g|--guid "
                                "options at the same time")
@@ -209,10 +212,13 @@ class Shell(cmdln.Cmdln):
                     guid_from_lang[lang] = norm_guid(g)
         else:
             raise LudditeError("must specify one of -G or -g|--guid")
+        if opts.force and opts.add_missing:
+            raise LudditeError("cannot specify both -f|--force and "
+                               "--add-missing options at the same time")
         return commands.deprecated_compile(
             udl_path, skel=opts.skel, guid=guid, 
             guid_from_lang=guid_from_lang, ext=opts.ext,
-            force=opts.force, log=log)
+            force=opts.force, add_missing=opts.add_missing, log=log)
 
     def _do_parse(self, subcmd, opts, *udl_paths):
         """${cmd_name}: parse the given .udl file (for debugging)
