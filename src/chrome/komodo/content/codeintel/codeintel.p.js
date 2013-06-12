@@ -54,7 +54,7 @@ ko.codeintel = {};
     const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
     var {XPCOMUtils} = Cu.import("resource://gre/modules/XPCOMUtils.jsm", {});
 
-    var log = ko.logging.getLogger("codeintel_js");
+    var log = ko.logging.getLogger("codeintel.komodo.js");
     //log.setLevel(ko.logging.LOG_DEBUG);
 
     var _codeintelSvc = Components.classes["@activestate.com/koCodeIntelService;1"]
@@ -66,92 +66,30 @@ ko.codeintel = {};
 
 
     // Internal helper routines.
-
-    /* Upgrade the codeintel database, if necessary.
-     * This should only be done once per Komodo *app* (not once per window).
-     */
-    function _CodeIntel_UpgradeDBIfNecessary()
-    {
-        log.debug("_CodeIntel_UpgradeDBIfNecessary()");
-        var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
-                            getService(Components.interfaces.koILastErrorService);
-        var needToUpgrade = null;
-        try {
-            needToUpgrade = _codeintelSvc.needToUpgradeDB();
-        } catch(ex) {
-            var err = lastErrorSvc.getLastErrorMessage();
-            if (!err) {
-                err = "<no error message: see 'pystderr.log' error log in your Komodo user data dir>";
-            }
-            ko.dialogs.alert("Could not upgrade your Code Intelligence Database "+
-                         "because: "+err+". Your database will be backed up "+
-                         "and a new empty database will be created.", null,
-                         "Code Intelligence Database");
-            _codeintelSvc.resetDB();
-            return;
-        }
-    
-        if (needToUpgrade) {
-            var upgrader = Components.classes["@activestate.com/koCodeIntelDBUpgrader;1"]
-                            .createInstance(Components.interfaces.koIShowsProgress);
-            ko.dialogs.progress(upgrader,
-                            "Upgrading Code Intelligence Database.",
-                            "Code Intelligence",
-                            false);  // cancellable
-        }
-    }
-    
-    
-    function _CodeIntel_PreloadDBIfNecessary()
-    {
-        log.debug("_CodeIntel_PreloadDBIfNecessary()");
-        try {
-            if (! ko.prefs.getBooleanPref("codeintel_have_preloaded_database")) {
-                var preloader = Components.classes["@activestate.com/koCodeIntelDBPreloader;1"]
-                                .createInstance(Components.interfaces.koICodeIntelDBPreloader);
-                preloader.start();
-            }
-        } catch(e) {
-            log.exception(e);
-        }
-    }
-    
-    //function CodeIntel_UpdateCatalogZoneIfNecessary()
-    //{
-    //    log.debug("CodeIntel_UpdateCatalogZoneIfNecessary()");
-    //    try {
-    //        if (! ko.prefs.getBooleanPref("codeintel_have_preloaded_database")) {
-    //            var preloader = Components.classes["@activestate.com/koCodeIntelDBPreloader;1"]
-    //                            .createInstance(Components.interfaces.koIShowsProgress);
-    //            ko.dialogs.progress(preloader,
-    //                            "Pre-loading Code Intelligence Database. "
-    //                                +"This process will improve the speed of first "
-    //                                +"time autocomplete and calltips. It typically "
-    //                                +"takes less than a minute.",
-    //                            "Code Intelligence",
-    //                            true,   // cancellable
-    //                            null,   // cancel warning
-    //                            false); // modal
-    //        }
-    //    } catch(e) {
-    //        log.exception(e);
-    //    }
-    //}
-    
     
     function _CodeIntel_ActivateWindow()
     {
         log.debug("_CodeIntel_ActivateWindow()");
         try {
             // Setup services.
-            //TODO: Race condition on startup here! If two Komodo windows
-            //      open quickly then they'll both start the "upgrade if
-            //      necessary".
             if (! _codeintelSvc.isBackEndActive) {
                 try {
-                    _CodeIntel_UpgradeDBIfNecessary();
-                    _codeintelSvc.activateBackEnd();
-                    _CodeIntel_PreloadDBIfNecessary();
+                    log.debug("Attempting to activate codeintel service");
+                    _codeintelSvc.activate(function(result, data) {
+                        log.debug("codeintel service activation complete: " +
+                                  result.toString(16));
+                        if (result != Ci.koIAsyncCallback.RESULT_SUCCESSFUL) {
+                            var message = String(data);
+                            if (data instanceof Ci.koIErrorInfo) {
+                                message = String(data.koIErrorInfo.message);
+                            }
+                            ko.dialogs.internalError("Failed to start codeintel",
+                                                     message);
+                        } else {
+                            log.debug("codeintel activated");
+                            ko.codeintel.isActive = true;
+                        }
+                    });
                 } catch(ex2) {
                     log.exception(ex2);
                     var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
@@ -162,8 +100,6 @@ ko.codeintel = {};
                     return;
                 }
             }
-    
-            ko.codeintel.isActive = true;
         } catch(ex) {
             log.exception(ex);
         }
@@ -294,30 +230,31 @@ ko.codeintel = {};
      */
     this.trigger = function ko_codeintel_trigger(view) {
 
+        log.debug("ko.codeintel.trigger: " + view);
         var scimoz = view.scimoz;
-        var ciBuffer = view.koDoc.ciBuf;
+        var pos = scimoz.currentPos;
 
-        this.linkCurrentProjectWithBuffer(ciBuffer);
+        var ciBuf = _codeintelSvc.buf_from_koIDocument(view.koDoc);
+        log.debug("Got buffer " + ciBuf);
+        ciBuf.trg_from_pos(pos, true, function(trg) {
+            if (!trg) {
+                // Can't make a trigger from the buffer
+                log.debug("No trigger found");
+                return;
+            }
+            if (view.scintilla.autocomplete.active && view._ciLastTrg &&
+                trg.is_same(view._ciLastTrg))
+            {
+                // Bug 55378: Don't re-eval trigger if same one is showing.
+                // PERF: Consider passing _ciLastTrg to trg_from_pos() if
+                //       autoCActive to allow to abort early if looks like
+                //       equivalent trigger will be generated.
+                log.debug("Not re-evaluating trigger");
+                return;
+            }
+            ciBuf.async_eval_at_trg(trg, view.ciCompletionUIHandler);
+        });
 
-        var trg = ciBuffer.trg_from_pos(scimoz.currentPos, true);
-        if (!trg) {
-            // Do nothing.
-        } else if (view.scintilla.autocomplete.active && view._ciLastTrg &&
-                   trg.is_same(view._ciLastTrg))
-        {
-            // Bug 55378: Don't re-eval trigger if same one is showing.
-            // PERF: Consider passing _ciLastTrg to trg_from_pos() if
-            //       autoCActive to allow to abort early if looks like
-            //       equivalent trigger will be generated.
-        } else {
-            // PERF: Should we re-use controllers? Need a pool then?
-            //       Try to save and re-use ctlr on each view.
-            var ctlr = Components.classes["@activestate.com/koCodeIntelEvalController;1"].
-                        createInstance(Components.interfaces.koICodeIntelEvalController);
-            ctlr.set_ui_handler(view.ciCompletionUIHandler);
-            view._ciLastTrg = trg;
-            ciBuffer.async_eval_at_trg(trg, ctlr);
-        }
     }
 
 
@@ -358,7 +295,6 @@ ko.codeintel = {};
             log.exception(ex);
         }
     }
-    this.CompletionUIHandler.prototype.constructor = this.CompletionUIHandler;
 
     this.CompletionUIHandler.prototype.QueryInterface = XPCOMUtils.generateQI([
         Ci.koICodeIntelCompletionUIHandler,
@@ -482,23 +418,19 @@ ko.codeintel = {};
                     startPos = scimoz.currentPos;
                 }
             }
-            var ciBuf = this.view.koDoc.ciBuf;
+            var ciBuf = _codeintelSvc.buf_from_koIDocument(this.view.koDoc);
             ko.codeintel.linkCurrentProjectWithBuffer(ciBuf);
             // Hand off to language service to find and display.
-            var trg = ciBuf.preceding_trg_from_pos(startPos,
-                                                      scimoz.currentPos);
-            if (trg) {
-                this._setLastRecentPrecedingCompletionAttemptPos(trg.pos);
-                var ctlr = 
-                    Components.classes["@activestate.com/koCodeIntelEvalController;1"].
-                    createInstance(Components.interfaces.koICodeIntelEvalController);
-                ctlr.set_ui_handler(this);
-                ciBuf.async_eval_at_trg(trg, ctlr);
-            } else if (typeof(ko.statusBar.AddMessage) != "undefined") {
-                this._setLastRecentPrecedingCompletionAttemptPos(null);
-                ko.statusBar.AddMessage("No preceding trigger point within range of current position.",
-                                     "codeintel", 3000, false);
-            }
+            ciBuf.preceding_trg_from_pos(startPos, scimoz.currentPos, function(trg) {
+                if (trg) {
+                    this._setLastRecentPrecedingCompletionAttemptPos(trg.pos);
+                    ciBuf.async_eval_at_trg(trg, this);
+                } else if (typeof(ko.statusBar.AddMessage) != "undefined") {
+                    this._setLastRecentPrecedingCompletionAttemptPos(null);
+                    ko.statusBar.AddMessage("No preceding trigger point within range of current position.",
+                                         "codeintel", 3000, false);
+                }
+            }.bind(this));
         } catch(ex) {
             log.exception(ex);
         }
@@ -785,6 +717,53 @@ ko.codeintel = {};
         try {
             var scimoz = this.view.scimoz;
             var curPos = scimoz.currentPos;
+
+            var show_calltip = function (start, end) {
+                log.debug("showing calltip at " + start + ", " + end);
+                var curPos = scimoz.currentPos;
+                // If the trigger is no longer relevant, then drop the calltip.
+                // - if the current position is before the trigger pos
+                if (curPos < triggerPos) {
+                    log.info("aborting calltip at "+triggerPos+
+                                         ": cursor is before trigger position");
+                    return;
+                }
+
+                // Show the callip.
+                if (scimoz.callTipActive()) {
+                    scimoz.callTipCancel();
+                }
+                this._lastTriggerPos = triggerPos;
+
+                // Ensure the calltip line width and number of calltip lines shown
+                // is not more than the user wants to see.
+                var max_line_width = ko.prefs.getLongPref("codeintel_calltip_max_line_width");
+                var max_lines = ko.prefs.getLongPref("codeintel_calltip_max_lines");
+                var textUtils = Cc["@activestate.com/koTextUtils;1"]
+                                    .getService(Ci.koITextUtils);
+                calltip = textUtils.break_up_lines(calltip, max_line_width);
+                var calltip_lines = calltip.split(/\r\n|\n|\r/g);
+                if (calltip_lines.length > max_lines) {
+                    calltip_lines = calltip_lines.slice(0, max_lines);
+                }
+                calltip = calltip_lines.join("\n");
+
+                // Ensure the calltip is displayed relative to the current
+                // cursor position - bug 87587.
+                var curLine = scimoz.lineFromPosition(curPos);
+                var callTipLine = scimoz.lineFromPosition(triggerPos);
+                if (callTipLine != curLine) {
+                    var triggerColumn = scimoz.getColumn(triggerPos);
+                    triggerPos = scimoz.positionAtColumn(curLine, triggerColumn);
+                }
+
+                this.view.scintilla.autocomplete.close();
+                scimoz.callTipShow(triggerPos, calltip);
+                scimoz.callTipSetHlt(start, end);
+                var callTipItem = {"triggerPos": triggerPos, "calltip": calltip};
+                this.callTipStack.push(callTipItem);
+            }.bind(this);
+
             if (!explicit) {
                 // If the trigger is no longer relevant, then drop the calltip.
                 // - if the current position is before the trigger pos
@@ -795,53 +774,21 @@ ko.codeintel = {};
                 }
                 // - if the current position is outside the call region
                 //   c.f. http://kd.nas/kd-0100.html#autocomplete-and-calltips
-                var hltStartObj = new Object();
-                var hltEndObj = new Object();
                 var ciBuf = this.view.koDoc.ciBuf;
-                ciBuf.curr_calltip_arg_range(
-                    triggerPos, calltip, curPos, hltStartObj, hltEndObj);
-                var hltStart = hltStartObj.value;
-                var hltEnd = hltEndObj.value;
-                if (hltStart == -1) {
-                    log.info("aborting calltip at "+triggerPos+
-                                         ": cursor is outside call region");
-                    return;
-                }
+                var callback = function(start, end) {
+                    log.debug("Got calltip arg range: " + start + ", " + end);
+                    if (start == -1) {
+                        log.info("aborting calltip at "+triggerPos+
+                                             ": cursor is outside call region");
+                    } else {
+                        show_calltip(start, end);
+                    }
+                }.bind(this);
+                ciBuf.get_calltip_arg_range(triggerPos, calltip, curPos, callback);
+            } else {
+                show_calltip(0, 0);
             }
-    
-            // Show the callip.
-            if (scimoz.callTipActive()) {
-                scimoz.callTipCancel();
-            }
-            this._lastTriggerPos = triggerPos;
-    
-            // Ensure the calltip line width and number of calltip lines shown
-            // is not more than the user wants to see.
-            var max_line_width = ko.prefs.getLongPref("codeintel_calltip_max_line_width");
-            var max_lines = ko.prefs.getLongPref("codeintel_calltip_max_lines");
-            var textUtils = Components.classes["@activestate.com/koTextUtils;1"]
-                                .getService(Components.interfaces.koITextUtils);
-            calltip = textUtils.break_up_lines(calltip, max_line_width);
-            var calltip_lines = calltip.split(/\r\n|\n|\r/g);
-            if (calltip_lines.length > max_lines) {
-                calltip_lines = calltip_lines.slice(0, max_lines);
-            }
-            calltip = calltip_lines.join("\n");
-    
-            // Ensure the calltip is displayed relative to the current
-            // cursor position - bug 87587.
-            var curLine = scimoz.lineFromPosition(curPos);
-            var callTipLine = scimoz.lineFromPosition(triggerPos);
-            if (callTipLine != curLine) {
-                var triggerColumn = scimoz.getColumn(triggerPos);
-                triggerPos = scimoz.positionAtColumn(curLine, triggerColumn);
-            }
-    
-            this.view.scintilla.autocomplete.close();
-            scimoz.callTipShow(triggerPos, calltip);
-            scimoz.callTipSetHlt(hltStart, hltEnd);
-            var callTipItem = {"triggerPos": triggerPos, "calltip": calltip};
-            this.callTipStack.push(callTipItem);
+
         } catch(ex) {
             log.exception(ex);
         }
@@ -866,26 +813,11 @@ ko.codeintel = {};
             var calltip = callTipItem["calltip"];
             var callTipPos, triggerColumn;
     
-            // Determine if we should cancel the calltip.
-            var cancel = curPos < triggerPos; // cancel if cursor before trigger
-            var region, hltStart, hltEnd;
-            if (!cancel) {
-                var hltStartObj = new Object();
-                var hltEndObj = new Object();
-                var ciBuf = this.view.koDoc.ciBuf;
-                ciBuf.curr_calltip_arg_range(
-                    triggerPos, calltip, curPos, hltStartObj, hltEndObj);
-                hltStart = hltStartObj.value;
-                hltEnd = hltEndObj.value;
-                cancel = hltStart == -1;  // cancel if cursor out of call region
-            }
-    
-            // Cancel if required and fallback to previous calltip, if any.
-            if (cancel) {
+            var cancel = function () {
                 // Cancel the current call tip.
                 scimoz.callTipCancel();
                 this.callTipStack.pop();
-    
+
                 // Start the calltip one up in the stack, if there is one.
                 if (this.callTipStack.length) {
                     callTipItem = this.callTipStack[this.callTipStack.length-1];
@@ -902,25 +834,42 @@ ko.codeintel = {};
                     }
                 }
                 return;
+            }.bind(this);
+
+            // Determine if we should cancel the calltip.
+            if (curPos < triggerPos) {
+                cancel();
+                return;
             }
-    
-            // If the cursor is on a different line from the current display
-            // point then we need to move the calltip up or down.
-            callTipPos = scimoz.callTipPosStart();
-            var callTipLine = scimoz.lineFromPosition(callTipPos);
-            if (callTipLine != curLine) {
-                scimoz.callTipCancel();
-                triggerColumn = scimoz.getColumn(triggerPos);
-                var newCallTipPos = scimoz.positionAtColumn(curLine, triggerColumn);
-                this._lastTriggerPos = triggerPos;
-                this.view.scintilla.autocomplete.close();
-                scimoz.callTipShow(newCallTipPos, calltip);
-                //dump("XXX moved the calltip to "+newCallTipPos+
-                //     ", now it is at "+scimoz.callTipPosStart()+"\n");
-            }
-    
-            // Update the highlighting.
-            scimoz.callTipSetHlt(hltStart, hltEnd);
+
+            var region;
+            var ciBuf = this.view.koDoc.ciBuf;
+            var callback = function(start, end) {
+                if (start < 0) {
+                    cancel();
+                    return;
+                }
+
+                // If the cursor is on a different line from the current display
+                // point then we need to move the calltip up or down.
+                callTipPos = scimoz.callTipPosStart();
+                var callTipLine = scimoz.lineFromPosition(callTipPos);
+                if (callTipLine != curLine) {
+                    scimoz.callTipCancel();
+                    triggerColumn = scimoz.getColumn(triggerPos);
+                    var newCallTipPos = scimoz.positionAtColumn(curLine, triggerColumn);
+                    this._lastTriggerPos = triggerPos;
+                    this.view.scintilla.autocomplete.close();
+                    scimoz.callTipShow(newCallTipPos, calltip);
+                    //dump("XXX moved the calltip to "+newCallTipPos+
+                    //     ", now it is at "+scimoz.callTipPosStart()+"\n");
+                }
+
+                // Update the highlighting.
+                scimoz.callTipSetHlt(start, end);
+
+            }.bind(this);
+            ciBuf.get_calltip_arg_range(triggerPos, calltip, curPos, callback);
         } catch(ex) {
             log.exception(ex);
         }
@@ -1379,13 +1328,14 @@ ko.codeintel = {};
                 done: function() onDone(this.count)
             };
             let buf = view.koDoc.ciBuf;
-            let trg = buf.defn_trg_from_pos(pos);
-            let ctlr = Cc["@activestate.com/koCodeIntelEvalController;1"]
-                .createInstance(Ci.koICodeIntelEvalController);
-            ctlr.silent = true;
-            ctlr.keep_existing = true;
-            ctlr.set_ui_handler(cplnHandler);
-            buf.async_eval_at_trg(trg, ctlr);
+            buf.defn_trg_from_pos(pos, function(trg) {
+                if (!trg) {
+                    return;
+                }
+                buf.async_eval_at_trg(trg, cplnHandler,
+                                      Ci.koICodeIntelBuffer.EVAL_SILENT |
+                                        Ci.koICodeIntelBuffer.EVAL_QUEUE);
+            });
         }
 
         var sourceVarDefns = [];

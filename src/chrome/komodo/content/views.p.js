@@ -1753,17 +1753,13 @@ viewManager.prototype.do_cmd_goToDefinition = function() {
     var view = ko.views.manager.currentView;
     var ciBuf = view.koDoc.ciBuf;
     ko.codeintel.linkCurrentProjectWithBuffer(ciBuf);
-    var trg = ciBuf.defn_trg_from_pos(view.scimoz.currentPos);
-    if (!trg) {
-        // Do nothing.
-    } else {
-        // We do it asynchronously
-        var ctlr = Components.classes["@activestate.com/koCodeIntelEvalController;1"].
-                    createInstance(Components.interfaces.koICodeIntelEvalController);
-        // This calls CompletionUIHandler._setDefinitionsInfo when done
-        ctlr.set_ui_handler(view.ciCompletionUIHandler);
-        ciBuf.async_eval_at_trg(trg, ctlr);
-    }
+    ciBuf.defn_trg_from_pos(view.scimoz.currentPos, function(trg) {
+        if (trg) {
+            // We do it asynchronously
+            // This calls CompletionUIHandler._setDefinitionsInfo when done
+            ciBuf.async_eval_at_trg(trg, view.ciCompletionUIHandler);
+        }
+    });
 }
 
 // cmd_save

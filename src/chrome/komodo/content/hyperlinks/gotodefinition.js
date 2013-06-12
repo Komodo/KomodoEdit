@@ -221,18 +221,17 @@
             ko.codeintel.linkCurrentProjectWithBuffer(ciBuf);
             // Create a trigger, it must be a specific position in the document,
             // due to variable scope implications etc...
-            var trg = ciBuf.defn_trg_from_pos(currentPos);
-            // Create a codeintel completion handler
-            var ciUIHandler = new GotoDefinitionUIHandler();
-            // Create a controller to handle results
-            var ctlr = Components.classes["@activestate.com/koCodeIntelEvalController;1"].
-                        createInstance(Components.interfaces.koICodeIntelEvalController);
-            // Add our special controller handler
-            ctlr.set_ui_handler(ciUIHandler);
-    
-            // Fire off the codeintel call, which will call setDefinitionsInfo when done
-            ciBuf.async_eval_at_trg(trg, ctlr);
-            //dump("async_called\n");
+            ciBuf.defn_trg_from_pos(currentPos, function(trg) {
+                if (!trg) {
+                    return;
+                }
+                // Create a codeintel completion handler
+                var ciUIHandler = new GotoDefinitionUIHandler();
+                // Fire off the codeintel call, which will call
+                // setDefinitionsInfo when done
+                ciBuf.async_eval_at_trg(trg, ciUIHandler);
+                //dump("async_called\n");
+            });
     
         } catch (ex) {
             log.exception(ex);

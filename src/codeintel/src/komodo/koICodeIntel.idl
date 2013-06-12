@@ -42,9 +42,9 @@ interface koIDocument;
 interface koIShowsProgress;
 interface koIProject;
 interface koIPreference;
-interface koICodeIntelBuffer;
 interface koICodeIntelService;
 interface koINotificationProgress;
+interface koIAsyncCallback;
 
 [scriptable, uuid(8BFCA31B-3781-4F96-A7D2-60D6D6294889)]
 interface koICodeIntelCatalogsTreeView : nsITreeView {
@@ -182,165 +182,200 @@ interface koICodeIntelCompletionUIHandler : nsISupports {
     void done();
 };
 
-[scriptable, uuid(5B6F1D4D-FB32-4462-A3A7-E6FA2B9FE128)]
-interface koICodeIntelEvalController: nsISupports {
-    void set_ui_handler(in koICodeIntelCompletionUIHandler ui_handler);
-    void start(in koICodeIntelBuffer buf,
-               in koICodeIntelTrigger trg);
-
-    boolean is_done();
-    void abort();
-    boolean is_aborted();
-
-    //XXX May need special handling for "None" timeout. Say 0?
-    void wait(in long timeout);
-
+[scriptable, function, uuid(2d047c58-2d63-444b-b5c1-dd64b13b55d2)]
+interface koICodeIntelGetTriggerCallback: nsISupports {
     /**
-     * If true, no errors/warnings/status will be reported
+     * @param trg The trigger
      */
-    attribute boolean silent;
+    void onGetTrigger([optional] in koICodeIntelTrigger trg);
+};
 
-    /**
-     * If set, evaluating this will not first stop existing queued evals
-     */
-    attribute boolean keep_existing;
+[scriptable, function, uuid(f940a4ea-65e2-4a63-a17a-7df1c470e769)]
+interface koICodeIntelGetSectionCallback : nsISupports {
+    void onGetSection([optional] in koICodeIntelSection section);
+};
+
+[scriptable, function, uuid(67071688-7607-499e-9aa4-2fab61c54dc9)]
+interface koICodeIntelGetSectionsCallback : nsISupports {
+    void onGetSections([array, size_is(count)] in koICodeIntelSection sections,
+                       in unsigned long count);
+};
+
+[scriptable, function, uuid(d2f1ceed-7e80-4a99-8d81-2c190bc2cc6e)]
+interface koICodeIntelGetIndexCallback : nsISupports {
+    void onGetIndex([optional] in long index);
+};
+
+/**
+ * Callback for get_calltip_arg_range
+ * @param start The start of the arg range; -1 if the text has exited the call
+ *      region.
+ * @param end The end of the arg range
+ */
+[scriptable, function, uuid(81925d5b-4c65-4982-a9bb-f516a7c8bd11)]
+interface koICodeIntelGetCallTipRangeCallback : nsISupports {
+    void onGetCalltipRange(in long start, in long end);
 };
 
 [scriptable, uuid(AA6B3D1B-BB61-4FFF-A0B0-98320C3C3EE6)]
 interface koICodeIntelBuffer: nsISupports {
-    readonly attribute wstring path;
-    readonly attribute wstring lang;
+    readonly attribute AString path;
+    readonly attribute ACString lang;
 
     attribute koIProject project;  // The current Komodo project.
 
-    readonly attribute wstring cpln_fillup_chars;
-    readonly attribute wstring cpln_stop_chars;
-    readonly attribute wstring scintilla_cpln_sep;
-    readonly attribute long scintilla_cpln_sep_ord;
-    
-    koICodeIntelTrigger trg_from_pos(in long pos, in boolean implicit);
-    koICodeIntelTrigger preceding_trg_from_pos(in long pos, in long curr_pos);
+    readonly attribute AString cpln_fillup_chars;
+    readonly attribute AString cpln_stop_chars;
+
+    /**
+     * Flags for async_eval_at_trig()
+     */
+
+    /**
+     * If given, no errors/warnings/statuses will be reported
+     */
+    const unsigned long EVAL_SILENT = 1 << 0;
+    /**
+     * If given, this evaluation will not first stop existing queued evals
+     */
+    const unsigned long EVAL_QUEUE = 1 << 1;
+
+    /**
+     * Evaluate a trigger
+     * @param trg The trigger to evaluate
+     * @param ui_handler The handler to report evaluation results to
+     * @param flags Some combination of EVAL_* constants above
+     */
     void async_eval_at_trg(in koICodeIntelTrigger trg,
-                           in koICodeIntelEvalController ctlr);
+                           in koICodeIntelCompletionUIHandler ui_handler,
+                           [optional] in unsigned long flags);
 
-    koICodeIntelTrigger defn_trg_from_pos(in long trg_pos);
+    /**
+     * Return a trigger for a given position if that position is a _likely_
+     * trigger point.
+     * @param pos The position at which to check for a trigger point.
+     * @param implicit True if this trigger is being implicitly checked (e.g.
+     *      as a side-effect of typing).
+     * @param callback The callback to invoke when the trigger has been found
+     *      (or not found).
+     */
+    void trg_from_pos(in long pos, in boolean implicit,
+                      in koICodeIntelGetTriggerCallback callback);
 
-    void curr_calltip_arg_range(in long trg_pos,
-                                in wstring calltip,
-                                in long curr_pos,
-                                out long start,
-                                out long end);
+    /**
+     * Look back from the given position for a trigger point within range.
+     * @param pos The position at which to begin backtracking.
+     * @param curr_pos The current position; used to determine the range in
+     *      which to look for triggers.
+     * @param callback The callback to invoke when the trigger has been found
+     *      (or not found).
+     */
+    void preceding_trg_from_pos(in long pos, in long curr_pos,
+                                in koICodeIntelGetTriggerCallback callback);
+
+    /**
+     * Get a trigger for a given position which will provide a list of codeintel
+     * definitions for thee citdl expression at the given position
+     * @param pos The position to look up definitions for
+     * @param callback The callback to invoke once the trigger has been
+     *      constructed (or been determined to not exist)
+     */
+    void defn_trg_from_pos(in long pos,
+                           in koICodeIntelGetTriggerCallback callback);
+
+    /**
+     * Get the range in the given calltip for the argument; i.e. what argument
+     * is being entered.
+     * @param trg_pos The trigger position.
+     * @param calltip The full calltip text.
+     * @param curr_pos The current position in the buffer
+     */
+    void get_calltip_arg_range(in long trg_pos,
+                               in AString calltip,
+                               in long cur_pos,
+                               in koICodeIntelGetCallTipRangeCallback callback);
 };
 
-
-[scriptable, uuid(f0396f8e-2d40-4c59-a616-ec1bcb41c07d)]
-interface koICodeIntelManager: nsISupports {
+[scriptable, function, uuid(4788a643-7f1b-4a49-9919-60076dd70869)]
+interface koICodeIntelServiceGetBufCallback: nsISupports {
+    void callback(in koICodeIntelBuffer buffer);
 };
 
-[scriptable, uuid(2FDAB19C-B243-49C8-916C-BEAD369FCF97)]
+[scriptable, uuid(4bd3e48f-6e37-4334-994d-7787f526d700)]
 interface koICodeIntelService: nsISupports {
-    readonly attribute koICodeIntelManager mgr;
 
-    // Handling upgrades of the CIDB.
-    // Whenever the CodeIntel system is activated these should be used to
-    // upgrade if necessary.
-    boolean needToUpgradeDB();
-    void upgradeDB();
-    void resetDB();
-
-    // Is the codeintel system enabled for this Komodo run?
+    /**
+     * Is the codeintel system enabled for this Komodo run?
+     */
     readonly attribute boolean enabled;
-    // Has the codeintel backend being started yet? This can be delayed if,
-    // e.g. upgrading of the codeintel db is being done.
+    /**
+     * Has the codeintel backend being started yet? This can be delayed if,
+     * e.g. upgrading of the codeintel db is being done. The backend may go back
+     * to being inactive after activating.
+     */
     readonly attribute boolean isBackEndActive;
-    // An error is set on koILastErrorService if backend activation fails.
-    void activateBackEnd();
 
-    // Request a scan of the given koIDocument.
-    // ...
-    // @param useFileMtime {boolean} indicates if the document file's
-    //      mtime should be used for the scan request. If true, this
-    //      typically means that the file won't be re-scanned if the
-    //      database has already scanned the file with that mtime. To
-    //      force a scan of *unsaved* changes, use false.
+    /**
+     * Activate the codeintel service.
+     *
+     * @param callback A callback that will be invoked after the database has
+     *      been activated.  The data provided to the callback will be an
+     *      instance of koIErrorInfo or null.
+     * @param resetBrokenDB If true, will automatically reset the database if
+     *      it appears to be broken.
+     */
+    void activate(in koIAsyncCallback callback,
+                  [optional] in boolean resetBrokenDB);
+
+    /**
+     * Deactivate the codeintel service.
+     */
+    void deactivate();
+
+    /**
+     * Request a scan of the given koIDocument.
+     *
+     * @param useFileMtime {boolean} indicates if the document file's
+     *      mtime should be used for the scan request. If true, this
+     *      typically means that the file won't be re-scanned if the
+     *      database has already scanned the file with that mtime. To
+     *      force a scan of *unsaved* changes, use false.
+     */
     void scan_document(in koIDocument document, in long linesAdded,
                        in boolean useFileMtime);
 
+    /**
+     * Get a codeintel buffer given a document.
+     */
     koICodeIntelBuffer buf_from_koIDocument(in koIDocument doc);
 
+    /**
+     * Check whether a given language supports code completion
+     */
     boolean is_cpln_lang(in wstring lang);
+    /**
+     * Get the list of languages which support code completion
+     */
     void get_cpln_langs(out unsigned long count,
                         [array, size_is(count)] out wstring langs);
+    /**
+     * Check whether a given language is a citadel language
+     */
     boolean is_citadel_lang(in wstring lang);
+    /**
+     * Get the list of all citadel languages
+     */
     void get_citadel_langs(out unsigned long count,
                            [array, size_is(count)] out wstring langs);
+    /**
+     * Check whether a given language is a XML-based language
+     */
     boolean is_xml_lang(in wstring lang);
-
-    // Return the likely scope for the current file and line number.
-    //  "path" is a full (absolute) path to the file.
-    //  "line" is a 1-based line number.
-    //
-    // The first one is a rawer interface than the latter -- which is
-    // intended for providing information for display in a UI.
-    void getScopeForFileAndLine(in wstring path, in long line,
-                                out string table, out long row);
-    void getScopeInfoForFileAndLine(in wstring path, in long line,
-                                    in string language,
-                                    out string typeName,
-                                    out wstring symbolName,
-                                    out wstring imageURL,
-                                    out wstring desc);
-
-    // Return a list of likely members/calltips for the given expression
-    // and scope.
-    //
-    //  "language" is a language name (e.g., "Python", "Perl") of the
-    //      working file. This can be relevant for some things, e.g.
-    //      import semantics.
-    //  "path" and "line" together indicate the scope from which to
-    //      interpret the expression. (However, see "scopeTable" and
-    //      "scopeRow" below.)
-    //  "citdl" is a CITDL expression identifying the object/symbol/type
-    //      for which to return members.
-    //  "explicit" is a boolean indicating if the user explicitly requesting
-    //      this data. This affect how errors are handled.
-    //  "scopeTable" and "scopeRow" (optional) can be passed it to express
-    //      the scope more accurately (see getAdjustedCurrentScope()). Use
-    //      NULL and 0 to mean that these are not being expressed.
-    //  "content" (optional) is the file content. This may be used, if
-    //      passed in, for fallback "dumb" completion handling.
-    //
-    void getMembers(in wstring language, in wstring path, in long line,
-                    in wstring citdl, in boolean explicit,
-                    in long scopeFileId, in string scopeTable, in long scopeRow,
-                    in wstring content,
-                    out unsigned long count,
-                    [array, size_is(count)] out wstring types,
-                    [array, size_is(count)] out wstring members);
-    void getCallTips(in wstring language, in wstring path, in long line,
-                     in wstring citdl, in boolean explicit,
-                     in long scopeFileId, in string scopeTable, in long scopeRow,
-                     in wstring content,
-                     out unsigned long count,
-                     [retval, array, size_is(count)] out wstring members);
-
-    // Return a list of available modules to import under the given module
-    // prefix.
-    //
-    //  "language" is a language name (e.g., "Python", "Perl") of the
-    //      working file. This can be relevant for some things, e.g.
-    //      import semantics.
-    //  "module" is the current module prefix.
-    //  "cwd" is the current working directory. This is sometimes required
-    //      to resolve relative import paths.
-    //
-    void getSubimports(in wstring language,
-                       in wstring module_,
-                       in wstring cwd,
-                       in boolean explicit,
-                       out unsigned long count,
-                       [retval, array, size_is(count)] out wstring subimports);
-
+    /**
+     * Get the list of all XML-based languages
+     */
+    void get_xml_langs(out unsigned long count,
+                       [array, size_is(count)] out wstring langs);
 };
 
 [scriptable, uuid(aca8a5c6-7ae2-4646-8706-e1e7790ee416)]

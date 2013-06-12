@@ -1,1032 +1,127 @@
-#!python
-# ***** BEGIN LICENSE BLOCK *****
-# Version: MPL 1.1/GPL 2.0/LGPL 2.1
-#
-# The contents of this file are subject to the Mozilla Public License
-# Version 1.1 (the "License"); you may not use this file except in
-# compliance with the License. You may obtain a copy of the License at
-# http://www.mozilla.org/MPL/
-#
-# Software distributed under the License is distributed on an "AS IS"
-# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-# License for the specific language governing rights and limitations
-# under the License.
-#
-# The Original Code is Komodo code.
-#
-# The Initial Developer of the Original Code is ActiveState Software Inc.
-# Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
-# ActiveState Software Inc. All Rights Reserved.
-#
-# Contributor(s):
-#   ActiveState Software Inc
-#
-# Alternatively, the contents of this file may be used under the terms of
-# either the GNU General Public License Version 2 or later (the "GPL"), or
-# the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
-# in which case the provisions of the GPL or the LGPL are applicable instead
-# of those above. If you wish to allow use of your version of this file only
-# under the terms of either the GPL or the LGPL, and not to allow others to
-# use your version of this file under the terms of the MPL, indicate your
-# decision by deleting the provisions above and replace them with the notice
-# and other provisions required by the GPL or the LGPL. If you do not delete
-# the provisions above, a recipient may use your version of this file under
-# the terms of any one of the MPL, the GPL or the LGPL.
-#
-# ***** END LICENSE BLOCK *****
-
-"""The glue between the Komodo-independent 'codeintel' Python package
-and Komodo's Code Intelligence functionality.
-"""
-
-import os
-from os.path import basename, dirname, join, exists
-import sys
-import string
-import re
-import threading
-import logging
-import time
-from pprint import pprint, pformat
-import weakref
-import operator
-from bisect import bisect_left
-import traceback
-import shutil
-from collections import defaultdict
-
-from xpcom import components, nsError, ServerException, COMException
+from xpcom.components import classes as Cc, interfaces as Ci, ProxyToMainThreadAsync, ProxyToMainThread
+from xpcom import nsError as Cr, COMException
 from xpcom.server import UnwrapObject
-
 from zope.cachedescriptors.property import Lazy as LazyProperty
 
-from koTreeView import TreeView
-import uriparse
+from argparse import Namespace
+from codeintel2.common import PRIORITY_CURRENT, PRIORITY_IMMEDIATE
+from os.path import join
+import atexit
+import bisect
+import collections
 import directoryServiceUtils
-
-from codeintel2.common import *
-from codeintel2.manager import Manager
-from codeintel2.environment import Environment
-from codeintel2.util import indent
-from codeintel2.indexer import ScanRequest, XMLParseRequest
-from codeintel2.database.database import Database
-
-
-
-
-#---- globals
-
-log = logging.getLogger("koCodeIntel")
-#log.setLevel(logging.DEBUG)
-
-
-
-#---- component implementations
-
-class KoCodeIntelEnvironment(Environment):
-    """Provide a codeintel (runtime) Environment that uses koIUserEnviron and
-    Komodo's prefs.
-    """
-    _com_interfaces_ = [components.interfaces.nsIObserver]
-    _reg_clsid_ = "{94A112F1-97BA-4ADC-BE20-EAB712CBBB35}"
-    _reg_contractid_ = "@activestate.com/koCodeIntelEnvironment;1"
-    _reg_desc_ = "Komodo CodeIntel Environment"
-
-    _ko_pref_name_from_ci_pref_name = {
-        "python": "pythonDefaultInterpreter",
-        "python3": "python3DefaultInterpreter",
-        "perl": "perlDefaultInterpreter",
-        "php": "phpDefaultInterpreter",
-        "ruby": "rubyDefaultInterpreter",
-    }
-    _ci_pref_name_from_ko_pref_name = dict((v,k)
-       for k,v in _ko_pref_name_from_ci_pref_name.items())
-    _converter_from_ko_pref_name = {
-        "codeintel_selected_catalogs": eval,
-    }
-    _ko_pref_type_from_ko_pref_name = {
-        # All prefs retrieved from the Komodo prefs system are presumed to be
-        # string prefs, unless indicated here. Allowed values here are:
-        # "string", "long", "boolean".
-        "codeintel_max_recursive_dir_depth": "long",
-    }
-
-    name = "Default"
-    _unwrapped_proj_weakref = None
-
-    def __init__(self, proj=None, prefset=None):
-        Environment.__init__(self)
-
-        # 'self.prefsets' is the ordered list of prefsets in which to look
-        # for prefs.
-        prefSvc = components.classes["@activestate.com/koPrefService;1"]\
-            .getService(components.interfaces.koIPrefService)
-        self.prefsets = [
-            # global prefset
-            prefSvc.prefs,
-        ]
-        if prefset is not None:
-            # Per-file preferences.
-            self.prefsets.insert(0, prefset)
-
-        if proj:
-            self.set_project(proj)
-
-        # <pref-name> -> <callback-id> -> <observer-callback>
-        self._pref_observer_callbacks_from_name = {}
-
-        self._userEnvSvc = components.classes["@activestate.com/koUserEnviron;1"]\
-                            .getService()
-        self._langRegSvc = components.classes['@activestate.com/koLanguageRegistryService;1']\
-                            .getService(components.interfaces.koILanguageRegistryService)
-
-
-    def __repr__(self):
-        return "<%s Environment>" % self.name
-
-    def set_project(self, proj):
-        if len(self.prefsets) > 2:
-            # Remove the old projects prefset.
-            self.prefsets.pop(1)
-        if proj is None:
-            self.name = "Default"
-            self._unwrapped_proj_weakref = None
-        else:
-            self.name = proj.name
-            proj_weakref = weakref.ref(UnwrapObject(proj))
-            if proj_weakref != self._unwrapped_proj_weakref:
-                self._unwrapped_proj_weakref = proj_weakref
-                # Ensure the cache is cleared, so any project settings get
-                # re-created.
-                self.cache = {}
-            # This is prefset for the current Komodo project.
-            self.prefsets.insert(1, proj.prefset)
-
-    def has_envvar(self, name):
-        return self._userEnvSvc.has(name)
-    def get_envvar(self, name, default=None):
-        if not self.has_envvar(name):
-            return default
-        return self._userEnvSvc.get(name)
-    def get_all_envvars(self):
-        import koprocessutils
-        return koprocessutils.getUserEnv()
-
-    def has_pref(self, name):
-        ko_name = self._ko_pref_name_from_ci_pref_name.get(name, name)
-        for prefset in self.prefsets:
-            if prefset.hasPref(ko_name):
-                return True
-        else:
-            return False
-
-    def get_pref(self, name, default=None):
-        ko_name = self._ko_pref_name_from_ci_pref_name.get(name, name)
-        ko_type = self._ko_pref_type_from_ko_pref_name.get(name, None)
-        if ko_type is None:
-            ko_type = "string"
-            # Try to use the default value as the type needed.
-            if default is not None:
-                # Bool must be first, as 'isinstance(True, int) => True'
-                if isinstance(default, bool):
-                    ko_type = "bool"
-                elif isinstance(default, (int, long)):
-                    ko_type = "long"
-        for prefset in self.prefsets:
-            if prefset.hasPref(ko_name):
-                if ko_type == "string":
-                    pref = prefset.getStringPref(ko_name)
-                elif ko_type == "long":
-                    pref = prefset.getLongPref(ko_name)
-                elif ko_type == "bool":
-                    pref = prefset.getBooleanPref(ko_name)
-                else:
-                    raise CodeIntelError("unknown Komodo pref type: %r"
-                                         % ko_type)
-                if ko_name in self._converter_from_ko_pref_name:
-                    pref = self._converter_from_ko_pref_name[ko_name](pref)
-                return pref
-        else:
-            return default
-
-    def get_all_prefs(self, name, default=None):
-        ko_name = self._ko_pref_name_from_ci_pref_name.get(name, name)
-        prefs = []
-        for prefset in self.prefsets:
-            pref = default
-            if prefset.hasPref(ko_name):
-                pref = prefset.getStringPref(ko_name)
-                if ko_name in self._converter_from_ko_pref_name:
-                    pref = self._converter_from_ko_pref_name[ko_name](pref)
-            prefs.append(pref)
-        return prefs
-
-    def add_pref_observer(self, name, callback):
-        """Add a callback for when the named pref changes.
-
-        Note that this can be called multiple times for the same name
-        and callback without having to worry about duplicates.
-        """
-        if name not in self._pref_observer_callbacks_from_name:
-            log.debug("%s: start observing '%s' pref", self, name)
-            for prefset in self.prefsets:
-                try:
-                    prefset.QueryInterface(components.interfaces.koIPreferenceObserver)
-                except COMException:
-                    # doesn't support the pref observer interface?
-                    continue
-                prefset.prefObserverService.addObserver(
-                    self, name, 0)
-
-            self._pref_observer_callbacks_from_name[name] = {}
-
-        self._pref_observer_callbacks_from_name[name][id(callback)] = callback
-
-    def remove_pref_observer(self, name, callback):
-        try:
-            del self._pref_observer_callbacks_from_name[name][id(callback)]
-        except KeyError:
-            pass
-        if not self._pref_observer_callbacks_from_name[name]:
-            log.debug("%s: stop observing '%s' pref", self, name)
-            for prefset in self.prefsets:
-                prefset.prefObserverService.removeObserver(
-                    self, name)
-            del self._pref_observer_callbacks_from_name[name]
-
-    def _notify_pref_observers(self, name):
-        if name not in self._pref_observer_callbacks_from_name:
-            log.warn("observed '%s' pref change without a callback "
-                     "for it: this is unexpected", name)
-            return
-        callbacks = self._pref_observer_callbacks_from_name[name].values()
-        for callback in callbacks:
-            try:
-                callback(self, name)
-            except:
-                log.exception("error in pref observer for pref '%s' change",
-                              name)
-
-    def observe(self, subject, ko_pref_name, data):
-        name = self._ci_pref_name_from_ko_pref_name.get(
-                    ko_pref_name, ko_pref_name)
-        log.debug("%r: observe '%s' pref change (ko_pref_name=%r)",
-                  self, name, ko_pref_name)
-        self._notify_pref_observers(name)
-
-    def assoc_patterns_from_lang(self, lang):
-        return self._langRegSvc.patternsFromLanguageName(lang)
-
-    def get_proj_base_dir(self):
-        if self._unwrapped_proj_weakref is None:
-            return None
-        unwrapped_proj = self._unwrapped_proj_weakref()
-        if unwrapped_proj is None:
-            return None
-        return unwrapped_proj.get_importDirectoryLocalPath()
-
-
-class KoJavaScriptMacroEnvironment(KoCodeIntelEnvironment):
-    """A codeintel runtime Environment class for Komodo JS macros. Basically
-    the Komodo JavaScript API catalog should always be selected.
-    """
-    def __init__(self):
-        KoCodeIntelEnvironment.__init__(self)
-        self.name = "JavaScript Macro"
-    def get_pref(self, name, default=None):
-        if name != "codeintel_selected_catalogs":
-            return KoCodeIntelEnvironment.get_pref(self, name, default)
-
-        value = KoCodeIntelEnvironment.get_pref(self, name, default)
-        if value is None:
-            value = []
-        value.append("komodo")
-        return value
-
-class KoPythonMacroEnvironment(KoCodeIntelEnvironment):
-    """A codeintel runtime Environment class for Komodo Python macros.
-    Basically the Komodo Python libs are added to the extra dirs.
-    """
-    def __init__(self):
-        KoCodeIntelEnvironment.__init__(self)
-        self.name = "Python Macro"
-
-    _komodo_python_lib_dir_cache = None
-    @property
-    def komodo_python_lib_dir(self):
-        if self._komodo_python_lib_dir_cache is None:
-            koDirSvc = components.classes["@activestate.com/koDirs;1"].\
-                getService(components.interfaces.koIDirs)
-            self._komodo_python_lib_dir_cache \
-                = os.path.join(koDirSvc.mozBinDir, "python")
-        return self._komodo_python_lib_dir_cache
-
-    def get_all_prefs(self, name, default=None):
-        if name != "pythonExtraPaths":
-            return KoCodeIntelEnvironment.get_all_prefs(self, name, default)
-
-        value = KoCodeIntelEnvironment.get_all_prefs(self, name, default)
-        if value is None:
-            value = []
-        value.append(self.komodo_python_lib_dir)
-        return value
-
-
-class KoCodeIntelManager(Manager):
-    """Subclass the Manager class:
-    - to notify relevant parts of the Komodo UI when a certain scan requests
-      complete
-    - to add smarts to determine the current scope more efficiently
-      (hopefully) -- by caching CIDB data on the current file -- and more
-      correctly -- given recent edits and language-specific smarts.
-    """
-    _com_interfaces_ = [components.interfaces.koICodeIntelManager]
-
-    def __init__(self, db_base_dir=None, extension_pylib_dirs=None,
-                 db_event_reporter=None, db_catalog_dirs=None):
-        Manager.__init__(self, db_base_dir,
-                         on_scan_complete=self._on_scan_complete,
-                         extra_module_dirs=extension_pylib_dirs,
-                         env=KoCodeIntelEnvironment(),
-                         db_event_reporter=db_event_reporter,
-                         db_catalog_dirs=db_catalog_dirs)
-
-        # Vars for current scope (CS) smarts.
-        self._csLock = threading.RLock()
-        self._currFileName = None
-        self._currLanguage = None
-        #self._flushCSCache()
-        self._batchUpdateProgressUIHandler = None
-
-    @LazyProperty
-    def _observerSvc(self):
-        return components.classes["@mozilla.org/observer-service;1"]\
-                        .getService(components.interfaces.nsIObserverService)
-    @LazyProperty
-    def _phpInfo(self):
-        return components.classes["@activestate.com/koPHPInfoInstance;1"]\
-                        .getService(components.interfaces.koIPHPInfoEx)
-
-    @components.ProxyToMainThreadAsync
-    def notifyObservers(self, subject, topic, data):
-        self._observerSvc.notifyObservers(subject, topic, data)
-
-    def _on_scan_complete(self, request):
-        if request.status == "changed":
-            # Don't bother if no scan change.
-            self.notifyObservers(request.buf, "codeintel_buffer_scanned", None)
-
-    def set_lang_info(self, lang, silvercity_lexer=None, buf_class=None,
-                      import_handler_class=None, cile_driver_class=None,
-                      is_cpln_lang=False, langintel_class=None,
-                      import_everything=False):
-        """Override some specific lang handling for Komodo.
-
-        Currently just need to tweak some of the import handlers.
-        """
-        Manager.set_lang_info(self, lang, silvercity_lexer, buf_class,
-                              import_handler_class, cile_driver_class,
-                              is_cpln_lang,
-                              langintel_class=langintel_class,
-                              import_everything=import_everything)
-
-        if lang not in ("Python", "Python3", "PHP", "Perl", "Tcl", "Ruby"):
-            return
-
-        #TODO: drop all this. Should be handled by Environment classes now.
-
-        import_handler = self.citadel.import_handler_from_lang(lang)
-        if lang in ("Python", "Python3"):
-            # Set the "environment path" using the _user's_ Python
-            # environment settings, because Komodo messes with that
-            # environment.
-            import koprocessutils
-            userenv = koprocessutils.getUserEnv()
-            PYTHONPATH = userenv.get(import_handler.PATH_ENV_VAR, "")
-            import_handler.setEnvPath(PYTHONPATH)
-        elif lang == "PHP":
-            # Getting the PHP include_path is quite difficult and the
-            # codeintel package has not yet learned how to do it.
-            # Override the PHPImportHandler's .setCorePath()
-            # with one smart enough to do it.
-            _phpInfo = self._phpInfo
-            def _setPHPIncludePath(self, compiler=None, extra=None):
-                if compiler:
-                    _phpInfo.executablePath = compiler
-                if extra:
-                    _phpInfo.cfg_file_path = extra
-                self.corePath = _phpInfo.include_path.split(os.pathsep)
-            import_handler.__class__.setCorePath = _setPHPIncludePath
-
-        # Add the "Additional Perl/Python/Tcl Import Directories" (in that
-        # language's preferences panel) to the import path.
-        extra_paths_pref_from_lang = {
-            "Python": "pythonExtraPaths",
-            "Python3": "python3ExtraPaths",
-            "Perl": "perlExtraPaths",
-            "Tcl": "tclExtraPaths",
-            "Ruby": "rubyExtraPaths",
-        }
-        #Note: this is called once per language at module registration time,
-        # so it can't change search paths by project or document.
-        if lang in extra_paths_pref_from_lang:
-            extra_paths_pref = extra_paths_pref_from_lang[lang]
-            prefSvc = components.classes["@activestate.com/koPrefService;1"]\
-                                .getService().prefs # global prefs
-            if prefSvc.hasStringPref(extra_paths_pref):
-                extra_paths = prefSvc.getStringPref(extra_paths_pref) \
-                                .strip().split(os.pathsep)
-                if extra_paths:
-                    import_handler.setCustomPath(extra_paths)
-
-    def reportMemory(self, callback, closure):
-        """Report memory usage - returns total number of bytes used."""
-        log.debug("collecting memory reports")
-        total_mem_usage = 0
-        for zone in self.db.get_all_zones():
-            try:
-                total_mem_usage += zone.reportMemory(callback, closure)
-            except:
-                log.exception("Failed to report memory for zone %r", zone)
-        return total_mem_usage
-
-    def report_message(self, msg, details=None, notification_name="codeintel-message"):
-        """Reports a unique codeintel notification message."""
-        koINMgr = components.interfaces.koINotificationManager
-        nm = components.classes["@activestate.com/koNotification/manager;1"]\
-                       .getService(koINMgr)
-        notification_types = koINMgr.TYPE_STATUS
-        if details:
-            notification_types |= koINMgr.TYPE_TEXT
-        n = nm.createNotification(notification_name,
-                                  ["codeintel"],
-                                  None,
-                                  notification_types)
-        n.msg = msg
-        n.timeout = 5000
-        n.highlight = True
-        if details:
-            n.details = details
-        try:
-            self.notifyObservers(n, "status_message", None)
-        except COMException, ex:
-            pass
-
-class KoCodeIntelEvalController(EvalController):
-    _com_interfaces_ = [components.interfaces.koICodeIntelEvalController]
-    _reg_clsid_ = "{020FE3F2-BDFD-4F45-8F13-D70A1D6F4D82}"
-    _reg_contractid_ = "@activestate.com/koCodeIntelEvalController;1"
-    _reg_desc_ = "Komodo CodeIntel Evaluation Controller"
-
-    log = None
-    have_errors = have_warnings = False
-    got_results = False
-    ui_handler = None
-
-    def __init__(self, *args, **kwargs):
-        EvalController.__init__(self, *args, **kwargs)
-        self.log = []
-        self.silent = False
-
-    def close(self):
-        """Done with this eval controller, clear any references"""
-        EvalController.close(self)
-        # Will leak JavaScript evaluators if the log is not cleared, bug 65502.
-        self.log = []
-
-    def debug(self, msg, *args):
-        self.log.append(("debug", msg, args))
-    def info(self, msg, *args):
-        self.log.append(("info", msg, args))
-    def warn(self, msg, *args):
-        self.log.append(("warn", msg, args))
-        self.have_warnings = True
-    def error(self, msg, *args):
-        self.log.append(("error", msg, args))
-        self.have_errors = True
-
-    def set_ui_handler(self, ui_handler):
-        # All ui_handler calls must be done sync on the main thread. The set_xxx
-        # functions in the UI wrap themselves in a setTimeout() call to
-        # avoid delaying this codepath. Calling setDefinitionsInfo
-        # asynchronously caused hard crash, see bug:
-        # http://bugs.activestate.com/show_bug.cgi?id=65188
-        class UIHandlerProxy:
-            def __init__(self, obj):
-                self.obj = obj
-            @components.ProxyToMainThread
-            def setAutoCompleteInfo(self, *args):
-                return self.obj.setAutoCompleteInfo(*args)
-            @components.ProxyToMainThread
-            def setCallTipInfo(self, *args):
-                return self.obj.setCallTipInfo(*args)
-            @components.ProxyToMainThread
-            def setDefinitionsInfo(self, *args):
-                return self.obj.setDefinitionsInfo(*args)
-            @components.ProxyToMainThread
-            def setStatusMessage(self, *args):
-                return self.obj.setStatusMessage(*args)
-            @components.ProxyToMainThread
-            def done(self, *args):
-                return self.obj.done(*args)
-        self.ui_handler = UIHandlerProxy(ui_handler)
-
-    def set_cplns(self, cplns):
-        if not cplns:
-            return
-        self.got_results = True
-        types, strings = zip(*cplns) # split into separate lists
-        #XXX Might want to include relevant string info leading up to
-        #    the trigger char so the Completion Stack can decide
-        #    whether the completion info is still relevant.
-        self.ui_handler.setAutoCompleteInfo(strings, types, self.trg)
-
-    def set_calltips(self, calltips):
-        self.got_results = True
-        calltip = calltips[0]
-        self.ui_handler.setCallTipInfo(calltip, self.trg, not self.trg.implicit)
-
-    def set_defns(self, defns):
-        self.got_results = True
-        self.ui_handler.setDefinitionsInfo(defns, self.trg)
-
-    def setStatusMessage(self, msg, highlight):
-        self.ui_handler.setStatusMessage(msg, highlight)
-
-    def abort(self):
-        EvalController.abort(self)
-        log.debug("abort: trigger=%r", self.trg)
-
-    def done(self, reason):
-        # This part of the spec describes what the IDE user UI should be
-        # on autocomplete/calltips:
-        #   http://specs.tl.activestate.com/kd/kd-0100.html#k4-completion-ui-notes
-        # Currently 'reason' isn't a reliable mechanism for determining
-        # state.
-        log.debug("done: trigger=%r aborted=%r",
-                  self.trg, self.is_aborted())
-        if self.got_results:
-            #XXX What about showing warnings even if got results?
-            pass # success: show the completions, already done
-        elif self.is_aborted():
-            pass # aborted: we've moved on to another completion
-        elif not self.silent:
-            # We'll show a statusbar message -- highlighted if the trigger
-            # was explicit (Ctrl+J). The message will mention warnings
-            # and errors, if any. If explicit the whole controller log is
-            # dumped to Komodo's log for possible bug reporting.
-            desc = self.desc
-            if not desc:
-                desc = {TRG_FORM_CPLN: "completions",
-                        TRG_FORM_CALLTIP: "calltip",
-                        TRG_FORM_DEFN: "definition"}.get(self.trg.form, "???")
-            try:
-                eval_log_bits = []  # Do string interp of the eval log entries once.
-                if self.have_errors or self.have_warnings:
-                    for lvl, m, args in self.log:
-                        if args:
-                            eval_log_bits.append((lvl, m % args))
-                        else:
-                            eval_log_bits.append((lvl, m))
-                if self.have_errors:
-                    # ERRORS... (error(s) determining completions)
-                    msg = '; '.join(m for lvl, m in eval_log_bits if lvl == "error")
-                    msg += " (error determining %s)" % desc
-                    log.error("error evaluating %s:\n  trigger: %s\n  log:\n%s",
-                        desc, self.trg,
-                        indent('\n'.join("%s: %s" % e for e in eval_log_bits)))
-                else:
-                    # No calltip|completions found (WARNINGS...)
-                    msg = "No %s found" % desc
-                    if self.have_warnings:
-                        warns = ', '.join("warning: "+m
-                            for lvl, m in eval_log_bits if lvl == "warn")
-                        msg += " (%s)" % warns
-            except TypeError, ex:
-                # Guard against this common problem in log formatting above:
-                #   TypeError: not enough arguments for format string
-                log.exception("problem logging eval failure: self.log=%r", self.log)
-                msg = "error evaluating '%s'" % desc
-            self.setStatusMessage(msg, (self.trg and not self.trg.implicit or False))
-
-        EvalController.done(self, reason)
-        self.close()
-        self.ui_handler.done()
-        self.ui_handler = None
-
-
-class KoCodeIntelDBUpgrader(threading.Thread):
-    """Upgrade the DB and show progress."""
-    _com_interfaces_ = [components.interfaces.koIShowsProgress]
-    _reg_clsid_ = "{911F5139-2648-4FAB-A774-2F8595B3A396}"
-    _reg_contractid_ = "@activestate.com/koCodeIntelDBUpgrader;1"
-    _reg_desc_ = "Komodo CodeIntel Database Upgrader"
-
-    controller = None
-    def set_controller(self, controller):
-        # All controller calls must be done sync on the main thread.
-        class ControllerProxy:
-            def __init__(self, obj):
-                self.obj = obj
-            @components.ProxyToMainThread
-            def set_progress_mode(self, *args):
-                return self.obj.set_progress_mode(*args)
-            @components.ProxyToMainThread
-            def done(self, *args):
-                return self.obj.done(*args)
-        self.controller = ControllerProxy(controller)
-        self.controller.set_progress_mode("undetermined")
-        self.start()
-
-    def run(self):
-        try:
-            ciSvc = components.classes["@activestate.com/koCodeIntelService;1"].\
-                       getService(components.interfaces.koICodeIntelService)
-            UnwrapObject(ciSvc).upgradeDB()
-        except DatabaseError, ex:
-            errmsg = ("Could not upgrade your Code Intelligence Database "
-                      "because: %s. Your database will be backed up "
-                      "and a new empty database will be created." % ex)
-            errtext = None
-            ciSvc.resetDB();
-        except:
-            errmsg = ("Unexpected error upgrading your database. "
-                      "Your database will be backed up "
-                      "and a new empty database will be created.")
-            errtext = traceback.format_exc()
-            ciSvc.resetDB();
-        else:
-            errmsg = None
-            errtext = None
-
-        prefs = components.classes["@activestate.com/koPrefService;1"]\
-                    .getService().prefs # global prefs
-        prefs.setBooleanPref("codeintel_have_preloaded_database", 0)
-
-        self.controller.done(errmsg, errtext)
-        self.controller = None
-
-
-class KoCodeIntelDBPreloader(threading.Thread):
-    _com_interfaces_ = [components.interfaces.koICodeIntelDBPreloader]
-    _reg_clsid_ = "{A456B064-2A30-4F87-8BCF-39F6B19C4D53}"
-    _reg_contractid_ = "@activestate.com/koCodeIntelDBPreloader;1"
-    _reg_desc_ = "Komodo CodeIntel Database Preloader"
-
-    cancelling = False
-    _notification = None
-
-    def __init__(self):
-        threading.Thread.__init__(self)
-
-        ciSvc = components.classes["@activestate.com/koCodeIntelService;1"].\
-                   getService(components.interfaces.koICodeIntelService)
-        self._mgr = UnwrapObject(ciSvc).mgr
-
-        nm = components.classes["@activestate.com/koNotification/manager;1"]\
-                .getService(components.interfaces.koINotificationManager)
-        self._nm = UnwrapObject(nm)
-
-    def start(self):
-        if self.is_alive():
-            raise COMException(nsError.NS_ERROR_IN_PROGRESS,
-                               "CodeIntel preloading is already running")
-        self.notification.progress = 0
-        self.cancelling = False
-        threading.Thread.start(self)
-        log.debug("Starting codeintel preloader")
-
-    def cancel(self):
-        if self.is_alive():
-            self.notification.details += "\nAborting..."
-            action = self.notification.getActions("stop")[0]
-            action.enabled = False
-            action.label = "Aborting..."
-            self.cancelling = True
-
-    @property
-    def notification(self):
-        if self._notification is None:
-            stopAction = {
-                "identifier": "stop",
-                "label": "Abort",
-                "handler": lambda notification, action: self.cancel(),
-            }
-            self._notification = self._nm.add("Pre-loading code intelligence database",
-                                              ["codeintel"], "codeintel-db-preload",
-                                              timeout=0,
-                                              progress=0,
-                                              maxProgress=components.interfaces.koINotificationProgress.PROGRESS_INDETERMINATE,
-                                              actions=[stopAction],
-                                              details=
-                                              "Pre-loading code intelligence database. "
-                                              "This process will improve the speed of first "
-                                              "time autocomplete and calltips. It typically "
-                                              "takes less than a minute.")
-        return self._notification
-
-    @components.ProxyToMainThread
-    def _updateStatus(self):
-        """ When notifications explicitly support status messages, they must
-        be updated via the status_message observer topic to get pushed into
-        the status bar.  This method is a wrapper to do that on the main
-        thread, since the observer service is only accessible from there.
-        """
-        obs = components.classes["@mozilla.org/observer-service;1"]\
-                .getService(components.interfaces.nsIObserverService)
-        obs.notifyObservers(self.notification, "status_message", None)
-
-    def run(self):
-        try:
-            # Stage 1: stdlibs zone
-            # Currently updates the stdlibs for languages that Komodo is
-            # configured to use (first found on the PATH or set in prefs).
-            # TODO: Eventually would want to tie this to answers from a
-            #       "Komodo Startup Wizard" that would ask the user what
-            #       languages they use.
-            self.notification.description = "Pre-loading standard library data..."
-            stdlibs_zone = self._mgr.db.get_stdlibs_zone()
-            if stdlibs_zone.can_preload():
-                stdlibs_zone.preload(self.progress_cb)
-            else:
-                self.notification.progress = 0
-                langs = ["JavaScript", "Ruby", "Perl", "PHP", "Python",
-                         "Python3"]
-                value_base = 5
-                value_incr = 80/len(langs) # stage 1 goes up to 80%
-                self.notification.maxProgress = 100
-                for i, lang in enumerate(langs):
-                    if self.cancelling:
-                        return
-                    self.notification.description = "%s standard library..." % (lang,)
-                    self.value_span = (value_base, value_base+value_incr)
-                    self.progress_cb(None, 0)
-                    ver = None
-                    try:
-                        langAppInfo = components.classes["@activestate.com/koAppInfoEx?app=%s;1" % lang] \
-                                     .getService(components.interfaces.koIAppInfoEx)
-                    except COMException:
-                        # No AppInfo, update everything for this lang.
-                        stdlibs_zone.update_lang(lang, self.progress_cb)
-                    else:
-                        if langAppInfo.executablePath:
-                            # Get the version and update this lang.
-                            try:
-                                ver_match = re.search("([0-9]+.[0-9]+)", langAppInfo.version)
-                                if ver_match:
-                                    ver = ver_match.group(1)
-                                self.notification.description = "%s %s standard library..." % (lang, ver)
-                            except:
-                                log.error("KoCodeIntelDBPreloader.run: failed to get langAppInfo.version for language %s", lang)
-                            stdlibs_zone.update_lang(lang, self.progress_cb, ver=ver)
-                        else:
-                            # Just update the progress.
-                            self.progress_cb(None, value_base)
-                    value_base += value_incr
-                    self._updateStatus()
-
-            # Stage 2: catalog zone
-            # Preload catalogs that are enabled by default (or perhaps
-            # more than that). For now we preload all of them.
-            self.notification.description = "Pre-loading catalogs..."
-            self._updateStatus()
-            self.value_span = (self.value_span[-1], 100)
-            catalogs_zone = self._mgr.db.get_catalogs_zone()
-            catalog_selections = self._mgr.env.get_pref("codeintel_selected_catalogs")
-            catalogs_zone.update(catalog_selections,
-                                 progress_cb=self.progress_cb)
-
-            prefs = components.classes["@activestate.com/koPrefService;1"]\
-                        .getService(components.interfaces.koIPrefService).prefs
-            prefs.setBooleanPref("codeintel_have_preloaded_database", 1)
-            self.notification.summary = "Code intelligence database preloaded."
-            self.progress_cb("Done.", self.value_span[-1])
-            self.notification.description = ""
-        except Exception, ex:
-            self.notification.severity = components.interfaces.koINotification.SEVERITY_ERROR
-            self.notification.description = "Error preloading DB: %s" % ex
-            self.notification.details += "\n\n" + traceback.format_exc()
-        finally:
-            self.notification.timeout = 3000
-            self.notification.maxProgress = components.interfaces.koINotificationProgress.PROGRESS_NOT_APPLICABLE
-            self.notification.getActions("stop")[0].visible = False
-            self._updateStatus()
-
-    def progress_cb(self, desc, value):
-        """Progress callback passed to db .update() methods.
-        Scale the given value by `self.value_span'.
-        """
-        if value is None:
-            self.notification.maxProgress = components.interfaces.koINotificationProgress.PROGRESS_INDETERMINATE
-        else:
-            # value is a percentage within ths span, bounded by self.value_span
-            lower, upper = self.value_span
-            self.notification.progress = int((upper - lower) * (value / 100.0) + lower)
-            log.debug("preload progress: %r / %r ( %r of %r)",
-                      self.notification.progress, self.notification.maxProgress,
-                      value, self.value_span)
-        if desc is not None:
-            self.notification.details += "\n" + desc
-        self._updateStatus()
-
-class KoCodeIntelEventReporter(object):
-    """An event reporter object to report on code intel progress
-    """
-    def __init__(self):
-        # hash of (unicode: dir name) ->
-        #    [int: number of outstanding scans, bool: scanned]
-        self._dirs = defaultdict(lambda: list([0, False]))
-
-    def __call__(self, msg):
-        """Old-style status messages before long-running jobs
-        @param msg {str} The message to display
-        """
-        if not msg and len(self._dirs):
-            # there are new-style scans outstanding; don't do anything
-            return
-
-        koINP= components.interfaces.koINotificationProgress
-        if msg is None:
-            if self._notification.maxProgress == koINP.PROGRESS_NOT_APPLICABLE:
-                # it's already done; don't refresh the notification
-                return
-        else:
-            self._notification.msg = msg
-            self._notification.timeout = 5000
-            self._notification.highlight = False
-        self._notification.maxProgress = koINP.PROGRESS_NOT_APPLICABLE
-        self._notification.iconURL = None # remove any markings
-
-        try:
-            if msg is None:
-                # don't send as a status bar message, there's no text to update
-                self._nm.addNotification(self._notification)
-            else:
-                self._updateStatusMessage()
-        except COMException, ex:
-            pass
-
-    @property
-    def _notification(self):
-        if hasattr(self, "__notification"):
-            return getattr(self, "__notification")
-        nm = components.classes["@activestate.com/koNotification/manager;1"]\
-                       .getService(components.interfaces.koINotificationManager)
-        n = nm.createNotification("codeintel-status-message",
-                                  ["codeintel"],
-                                  None,
-                                  components.interfaces.koINotificationManager.TYPE_PROGRESS |
-                                    components.interfaces.koINotificationManager.TYPE_STATUS)
-        n.log = True
-        setattr(self, "__notification", n)
-        setattr(self, "_nm", nm)
-        return n
-
-    @components.ProxyToMainThread
-    def _updateStatusMessage(self):
-        """ When notifications explicitly support status messages, they must
-        be updated via the status_message observer topic to get pushed into
-        the status bar.  This method is a wrapper to do that on the main
-        thread, since the observer service is only accessible from there.
-        """
-        # must dispatch synchronously to make sure self.notification is
-        # still alive when this thread ends
-        try:
-            if self._notification.msg is not None:
-                self._nm.addNotification(self._notification)
-                obs = components.classes["@mozilla.org/observer-service;1"]\
-                        .getService(components.interfaces.nsIObserverService)
-                obs.notifyObservers(self._notification, "status_message", None)
-            else:
-                self._nm.removeNotification(self._notification)
-        except COMException, ex:
-            pass
-
-    def onScanStarted(self, description, dirs=set()):
-        """Called when a directory scan is about to start
-        @param description {unicode} A string suitable for showing the user
-            about the upcoming operation
-        @param dirs {set of unicode} The directories about to be scanned
-        """
-        log.debug("onScanStarted: started scanning %r dirs: [%s]",
-                  len(dirs), description)
-        assert dirs, "onScanStarted expects non-empty directories"
-        if not dirs: # empty set - we shouldn't have gotten here, but be nice
-            return
-        for dir in dirs:
-            self._dirs[dir][0] += 1
-        self._notification.iconURL = None # remove any markings
-        self._notification.timeout = 5000
-        if len(self._dirs) < 2:
-            # use indeterminate for one item, since jumping from empty progress
-            # bar to full (and invisible) is useless
-            self._notification.maxProgress = \
-                components.interfaces.koINotificationProgress.PROGRESS_INDETERMINATE
-        else:
-            self._notification.maxProgress = len(self._dirs)
-            self._notification.progress = \
-                reduce(lambda p, v: p + v[1], self._dirs.values(), 0)
-        assert description, "Blank description in onScanStarted"
-        self._notification.msg = description
-        self._updateStatusMessage()
-
-    def onScanDirectory(self, description, dir, current=None, total=None):
-        """Called when a directory is being scanned (out of possibly many)
-        @param description {unicode} A string suitable for showing the user
-                regarding the progress
-        @param dir {unicode} The directory currently being scanned
-        @param current {int} The current progress
-        @param total {int} The total number of directories to scan in this
-                request
-        """
-        assert dir, "onScanDirectory got no directory"
-        if not dir: # shouldn't happen, but be nice
-            return
-        self._dirs[dir][1] = True
-        self._notification.maxProgress = len(self._dirs)
-        self._notification.progress = \
-            reduce(lambda p, v: p + v[1], self._dirs.values(), 0)
-        assert description, "Blank description in onScanDirectory"
-        self._notification.msg = description
-        self._notification.timeout = 0
-        log.debug("onScanDirectory: scanning %r [%s] %r/%r",
-                  dir, description, self._notification.progress, len(self._dirs))
-        self._updateStatusMessage()
-
-    def onScanComplete(self, dirs, scanned=set()):
-        """Called when a scan operation is complete
-        @param dirs {set of unicode} The directories that were intially
-                requested to be scanned (as pass in onScanStarted)
-        @param scanned {set of unicode} Directories which were successfully
-                scanned.  This may be a subset of dirs if the scan was aborted.
-        """
-        log.debug("onScanComplete: scanned %r/%r dirs",
-                  len(scanned), len(dirs))
-        for dir in dirs:
-            self._dirs[dir][0] -= 1
-            if self._dirs[dir][0] < 1:
-                del self._dirs[dir]
-        if self._dirs:
-            # there are outstanding scans from other scans
-            self._notification.maxProgress = len(self._dirs)
-            self._notification.progress = \
-                reduce(lambda p, v: p + v[1], self._dirs.values(), 0)
-            self._notification.timeout = 0
-        else:
-            # all done
-            self._notification.maxProgress = \
-                components.interfaces.koINotificationProgress.PROGRESS_NOT_APPLICABLE
-            self._notification.iconURL = "chrome://fugue/skin/icons/tick.png"
-            self._notification.timeout = 5000
-
-        assert self._notification.msg is not None, "Blank description in onScanComplete"
-        # always send the message to the status bar - otherwise the status
-        # bar will have a never-timing-out message.
-        self._updateStatusMessage()
+import functools
+import json
+import logging
+import os.path
+import operator
+import process
+import Queue
+import socket
+import sys
+import threading
+import time
+import urllib
+import weakref
+
+log = logging.getLogger("codeintel.komodo")
 
 class KoCodeIntelService:
-    _com_interfaces_ = [components.interfaces.koICodeIntelService,
-                        components.interfaces.nsIObserver,
-                        components.interfaces.koIPythonMemoryReporter]
-    _reg_clsid_ = "{CF1F65B6-25EC-4FB3-A2CB-241CB436E377}"
+    _com_interfaces_ = [Ci.koICodeIntelService,
+                        Ci.nsIObserver]
+    _reg_clsid_ = "{fc4ca276-64a7-4d87-ab89-791ba463188d}"
     _reg_contractid_ = "@activestate.com/koCodeIntelService;1"
     _reg_desc_ = "Komodo Code Intelligence Service"
-    _reg_categories_ = [
-        ("python-memory-reporter", "codeintel"),
-    ]
 
-    enabled = False
-    isBackEndActive = False
+    _enabled = False
+    _queue = None # queue of requests submitted before the manager initialized
+
     mgr = None
+    buffers = {}
 
     def __init__(self):
-        prefSvc = components.classes["@activestate.com/koPrefService;1"]\
-            .getService(components.interfaces.koIPrefService)
-        self.enabled = prefSvc.prefs.getBooleanPref("codeintel_enabled")
-        if not self.enabled:
-            return
+        self.log = log.getChild(self.__class__.__name__)
+        self.debug = self.log.debug
+        self.debug("__init__")
 
-        # Find extensions that may have codeintel lang-support modules.
-        extension_pylib_dirs = []
-        for ext_dir in directoryServiceUtils.getExtensionDirectories():
-            ext_codeintel_dir = join(ext_dir, "pylib")
-            if exists(ext_codeintel_dir):
-                extension_pylib_dirs.append(ext_codeintel_dir)
+        # Outstanding (asynchronus) requests
+        # The key is the request id; the value is ???
+        self.requests = {}
 
-        self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
-                   getService(components.interfaces.koIDirs)
-        self.mgr = KoCodeIntelManager(
-            os.path.join(self._koDirSvc.userDataDir, "codeintel"),
-            extension_pylib_dirs=extension_pylib_dirs,
-            db_event_reporter=KoCodeIntelEventReporter(),
-            db_catalog_dirs=list(self._genDBCatalogDirs()))
+        self._queue = Queue.Queue()
 
-        obsSvc = components.classes["@mozilla.org/observer-service;1"]\
-            .getService(components.interfaces.nsIObserverService)
-        self.partSvc = components.classes["@activestate.com/koPartService;1"]\
-            .getService(components.interfaces.koIPartService)
+        self.buffers = weakref.WeakKeyDictionary()
 
-        obsSvc.addObserver(self, 'quit-application', False)
+        # The codeintel process; an instance of runtils.KoRunProcess
+        self._proc = None
+
+        self._koDirSvc = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
+
+        self._mgr_lock = threading.Lock()
+
+    __db_preloader = None
+    @property
+    def _db_preloader(self):
+        if not self.__db_preloader:
+            self.__db_preloader = KoCodeIntelDBPreloader(self)
+        return self.__db_preloader
+
+
+    def activate(self, xpcom_callback, resetBrokenDB=False):
+        self.debug("activating codeintel service: %r, %r",
+                   xpcom_callback, resetBrokenDB)
+
+        self._enabled = True
+
+        if not xpcom_callback:
+            # Make a dummy callback
+            xpcom_callback = lambda *args: None
+
+        # wrap things in a supports-interface-pointer to make sure we get the
+        # correct interface for the callback :(
+        sip = Cc["@mozilla.org/supports-interface-pointer;1"]\
+                .createInstance(Ci.nsISupportsInterfacePointer)
+        sip.data = xpcom_callback
+        xpcom_callback = sip.data.QueryInterface(Ci.koIAsyncCallback)
+        sip = None
+
+        def callback(result=Cr.NS_OK, message=None, success=None):
+            if success is None:
+                if Cr.NS_SUCCEEDED(result):
+                    success = Ci.koIAsyncCallback.RESULT_SUCCESSFUL
+                else:
+                    success = Ci.koIAsyncCallback.RESULT_ERROR
+            data = Namespace(result=result,
+                             message=message,
+                             _com_interfaces_=[Ci.koIErrorInfo])
+            xpcom_callback.koIAsyncCallback.callback(success, data)
+
+        self._db_preloader.callback = callback
+
+        # clean up dead managers
+        with self._mgr_lock:
+            if self.mgr and not self.mgr.is_alive():
+                self.mgr = None
+            # create a new manager as necessary
+            if not self.mgr:
+                self.mgr = KoCodeIntelManager(self,
+                                              init_callback=self._db_preloader.progress,
+                                              shutdown_callback=self._on_mgr_shutdown)
+                while True:
+                    try:
+                        # Tell the manager to deal with it; note that this request
+                        # will get queued by the manager for now, since we haven't
+                        # actually started the manager.
+                        self.mgr.send(**self._queue.get(False))
+                    except Queue.Empty:
+                        break # no more items
+                # new codeintel manager; update all the buffers to use this new one
+                for buf in self.buffers.values():
+                    buf.mgr = self.mgr
+
+        # run the new manager
+        if not self.mgr.is_alive():
+            self.mgr.start(resetBrokenDB)
 
     def _genDBCatalogDirs(self):
         """Yield all possible dirs in which to look for API Catalogs.
@@ -1039,216 +134,1213 @@ class KoCodeIntelService:
         yield join(self._koDirSvc.commonDataDir, "apicatalogs")  # site/common
         # factory: handled by codeintel system (codeintel2/catalogs/...)
 
-    def needToUpgradeDB(self):
-        """Return true if the db needs to be upgraded. Raise an
-        exception and setLastError() if cannot upgrade or if db looks
-        inappropriate.
-        """
-        try:
-            state, details = self.mgr.db.upgrade_info()
-        except CodeIntelError, ex:
-            msg = "unexpected error getting DB upgrade info (see error log): %s" % ex
-            log.exception(msg)
-            lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                           .getService(components.interfaces.koILastErrorService)
-            lastErrorSvc.setLastError(0, msg)
-            raise ServerException(nsError.NS_ERROR_FAILURE, msg)
-        if state == Database.UPGRADE_NOT_NECESSARY:
-            return False
-        elif state == Database.UPGRADE_NECESSARY:
-            return True
-        elif state == Database.UPGRADE_NOT_POSSIBLE:
-            lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                           .getService(components.interfaces.koILastErrorService)
-            lastErrorSvc.setLastError(0, details)
-            raise ServerException(nsError.NS_ERROR_FAILURE, details)
+    @property
+    def enabled(self):
+        return self._enabled
 
-    def resetDB(self):
-        self.mgr.db.reset(backup=True)
+    @property
+    def isBackEndActive(self):
+        return bool(self.mgr and self.mgr.ready)
 
-    def upgradeDB(self):
-        self.mgr.db.upgrade()
+    def deactivate(self):
+        with self._mgr_lock:
+            if self.mgr:
+                self.mgr.shutdown()
+                self.mgr = None
+        self._enabled = False
 
-    def activateBackEnd(self):
-        if self.isBackEndActive: return
-        try:
-            self.mgr.initialize()
-        except (CodeIntelError, EnvironmentError), ex:
-            err = "Error activating Code Intelligence backend: "+str(ex)
-            lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                           .getService(components.interfaces.koILastErrorService)
-            lastErrorSvc.setLastError(0, err)
-            raise ServerException(nsError.NS_ERROR_FAILURE, err)
+    def cancel(self):
+        mgr = self.mgr
+        if mgr:
+            mgr.abort()
+
+    def scan_document(self, doc, linesAdded, useFileMtime):
+        """ Scan a given document """
+        if not self.enabled:
+            return
+        lang = doc.language
+        if doc.file:
+            path = doc.file.path
+        else: # unsaved
+            path = join("<Unsaved>", doc.baseName)
+        mtime = None
+        if not useFileMtime:
+            mtime = time.time()
+        if (not doc.file) or doc.isDirty or not doc.file.isLocal:
+            text = doc.buffer
         else:
-            self.isBackEndActive = True
+            text = None
 
-    def _deactivate(self):
-        if self.isBackEndActive:
-            self.isBackEndActive = False
-            self.mgr.finalize()
+        self.send(command="scan-document",
+                  discardable=True,
+                  path=path,
+                  priority=PRIORITY_IMMEDIATE if linesAdded
+                           else PRIORITY_CURRENT,
+                  language=doc.language,
+                  encoding=doc.encoding.python_encoding_name,
+                  text=text,
+                  mtime=mtime,
+                  callback=lambda request, response: None)
+
+    def buf_from_koIDocument(self, doc):
+        if not self.enabled:
+            return
+        try:
+            doc = UnwrapObject(doc)
+        except:
+            pass
+        self.debug("buf_from_koIDocument: %r [%s]", doc, doc.get_language())
+        try:
+            buf = self.buffers[doc]
+            buf.lang = doc.get_language()
+        except KeyError:
+            if doc.file:
+                path = doc.file.path
+            else:
+                path = os.path.join("<Unsaved>", doc.baseName)
+            self.debug("creating new %s document %s", doc.get_language(), path)
+            buf = KoCodeIntelBuffer(lang=doc.get_language(),
+                                    path=path,
+                                    doc=doc,
+                                    svc=self)
+            self.buffers[doc] = buf
+        return buf
+
+    def is_cpln_lang(self, language):
+        return language in self.get_cpln_langs()
+    def get_cpln_langs(self):
+        if not self.mgr:
+            return []
+        return self.mgr.cpln_langs
+
+    def is_citadel_lang(self, language):
+        return language in self.get_citadel_langs()
+    def get_citadel_langs(self):
+        if not self.mgr:
+            return []
+        return self.mgr.citadel_langs
+
+    def is_xml_lang(self, language):
+        return language in self.get_xml_langs()
+    def get_xml_langs(self):
+        return self.mgr.xml_langs if self.mgr else []
+
+    @property
+    def available_catalogs(self):
+        """Used for the codeintel catalog tree view (prefs window)"""
+        return self.mgr.available_catalogs if self.mgr else []
+
+    def update_catalogs(self, update_callback=None):
+        if self.mgr:
+            self.mgr.update_catalogs(update_callback=update_callback)
+
+    def send(self, discardable=False, **kwargs):
+        """Send a request to the manager; the parameters are the same as
+        KoCodeIntelManager.send
+            @param discardable {boolean} If true, the request is discarded
+                instead of being queued if the manager is not available
+            @note This is used directly by the code browser implementation
+        """
+        assert self._enabled, \
+            "KoCodeIntelManager.send() shouldn't be called when not enabled"
+        if self.mgr:
+            self.mgr.send(**kwargs)
+        elif not discardable:
+            self._queue.put(kwargs)
+            self.activate(None)
+        else:
+            self.debug("discarding request %r", kwargs)
+
+    def _on_mgr_shutdown(self, mgr):
+        # The codeintel manager is going away, drop the reference to it
+        with self._mgr_lock:
+            if self.mgr is mgr:
+                self.mgr = None
+
+class KoCodeIntelDBPreloader(object):
+    """Class to handle DB preloading notifications"""
+    def __init__(self, svc, resetBrokenDB=False):
+        """Start the database preloading
+        @param svc {KoCodeIntelService} The service instance
+        @param callback {FunctionType} A callback function; takes the arguments:
+            @param result {nsresult} The status
+            @param message {str or None} Some text about something
+            Note that the callback may be called multiple times due to a DB
+            reset.
+        @param resetBrokenDB {bool} Whether to automatically attempt to reset
+            the database.  If false, the user can still manually reset it via
+            the notification actions.
+        """
+        self.svc = svc
+        self.callback = None
+        self.resetBrokenDB = resetBrokenDB
+        self.log = log.getChild(self.__class__.__name__)
+        self.debug = self.log.debug
+
+    _notification = None
+    @property
+    def notification(self):
+        if not self._notification:
+            nm = UnwrapObject(Cc["@activestate.com/koNotification/manager;1"]
+                                .getService(Ci.koINotificationManager))
+            actions = [{
+                "identifier": "stop",
+                "label": "Abort",
+                "handler": lambda notification, action: self.cancel(),
+            }, {
+                "identifier": "restart",
+                "label": "Restart",
+                "handler": lambda notification, action: self.restart(),
+                "visible": False,
+            }, {
+                "identifier": "reset-db",
+                "label": "Reset Database",
+                "handler": lambda notification, action: self.resetDB(),
+                "visible": False,
+            }]
+
+            self._notification = nm.add("Pre-loading code intelligence database",
+                                       ["codeintel"], "codeintel-db-preload",
+                                       timeout=0,
+                                       progress=0,
+                                       maxProgress=Ci.koINotificationProgress.PROGRESS_INDETERMINATE,
+                                       actions=actions,
+                                       details=
+                                       "Pre-loading code intelligence database. "
+                                       "This process will improve the speed of first "
+                                       "time autocomplete and calltips. It typically "
+                                       "takes less than a minute.")
+        return self._notification
+
+    def cancel(self):
+        action = self.notification.getActions("stop")[0]
+        action.label = "Aborting..."
+        self.notification.updateAction(action)
+        self.svc.cancel()
+
+    def restart(self, *args, **kwargs):
+        # This is a tad ugly...
+        self.notification.summary = "Pre-loading code intelligence database"
+        self.notification.severity = Ci.koINotification.SEVERITY_INFO
+        self.notification.maxProgress = \
+            Ci.koINotificationProgress.PROGRESS_INDETERMINATE
+        self.showAction("stop")
+        # clean up dead managers
+        if self.svc.mgr and not self.svc.mgr.is_alive():
+            self.svc.mgr = None
+        # create a new manager as necessary
+        if not self.svc.mgr:
+            self.svc.mgr = KoCodeIntelManager(self.svc, self.progress)
+        # run the new manager
+        if not self.svc.mgr.is_alive():
+            self.svc.mgr.start(self.resetBrokenDB)
+
+    def resetDB(self, *args, **kwargs):
+        self.resetBrokenDB = True
+        self.restart()
+
+    def showAction(self, *actions):
+        self.notification.getActions("stop")[0].label = "Abort"
+        for action in self.notification.getActions():
+            action.visible = action.identifier in actions
+            action.enabled = True
+            self.notification.updateAction(action)
+
+    def progress(self, message, progress):
+        assert threading.current_thread().name == "MainThread", \
+            "KoCodeIntelService.activate::post_startup() should run on main thread!"
+        self.debug("Progress: [%s] %s @%s", message, progress,
+                   self.mgr.state if self.mgr else "<None>")
+        if progress == "(ABORTED)":
+            # abort
+            self.debug("Got abort message")
+            self.showAction("restart")
+            self.notification.summary = \
+                "Code Intelligence Initialization Aborted"
+            self.notification.severity = \
+                Ci.koINotification.SEVERITY_ERROR
+            self.notification.maxProgress = \
+                Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE
+            self.callback(result=Cr.NS_ERROR_FAILURE,
+                          message=message,
+                          success=Ci.koIAsyncCallback.RESULT_SUCCESSFUL)
+        elif not self.mgr or self.mgr.state is KoCodeIntelManager.STATE.DESTROYED:
+            # Startup died
+            self.debug("startup failed: %s", message)
+            self.notification.summary = message
+            self.showAction()
+            self.notification.maxProgress = \
+                Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE
+            self.notification.severity = \
+                Ci.koINotification.SEVERITY_ERROR
+            self.callback(result=Cr.NS_ERROR_FAILURE,
+                          message=message)
+        elif self.mgr.state is KoCodeIntelManager.STATE.BROKEN:
+            # db is broken, needs manual intervention
+            self.notification.summary = "There is an error with your code " \
+                                         "intelligence database; it must be " \
+                                         "reset before it can be used."
+            self.notification.details = ""
+            self.notification.severity = \
+                Ci.koINotification.SEVERITY_ERROR
+            self.notification.maxProgress = \
+                Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE
+            self.showAction("reset-db")
+            self.callback(result=Cr.NS_ERROR_FAILURE,
+                          message="Code intelligence database error",
+                          success=Ci.koIAsyncCallback.RESULT_SUCCESSFUL)
+        elif self.mgr.state is KoCodeIntelManager.STATE.READY:
+            # db is good
+            if self._notification:
+                self.notification.maxProgress = \
+                    Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE
+                self.showAction()
+            self.callback(result=Cr.NS_OK, message=None,
+                          success=Ci.koIAsyncCallback.RESULT_SUCCESSFUL)
+        elif message is None and progress is None:
+            pass # nothing to report
+        else:
+            # progress update, not finished yet
+            if progress is Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE:
+                self.notification.maxProgress = progress
+            else:
+                self.notification.progress = progress
+                self.notification.maxProgress = 100
+            if message is not None:
+                details = self.notification.details
+                if details:
+                    details += "\n"
+                self.notification.details = details + message
+            # don't invoke callback
+
+    @property
+    def mgr(self):
+        return self.svc.mgr
+
+class KoCodeIntelManager(threading.Thread):
+    """This class manages a connection to an out-of-process codeintel process.
+    """
+
+    class STATE(object):
+        """The intialization state of the codeintel manager.
+        This is used as an internal enum; not for external use."""
+        UNINITIALIZED = ("uninitialized",) # not initialized
+        CONNECTED = ("connected",) # child process spawned, connection up; not ready
+        BROKEN = ("broken",) # database is broken and needs to be reset
+        READY = ("ready",) # ready for use
+        QUITTING = ("quitting",) # shutting down
+        DESTROYED = ("destroyed",) # connection shut down, child process dead
+
+    svc = None # reference to KoCodeIntelService
+    proc = None # the child proces
+    conn = None # A (TCP) connection to the child process
+    pipe = None # file-like object to read/write with
+    state = STATE.UNINITIALIZED
+    _abort = None # things to abort
+
+    requests = {} # Outstanding requests; the key is the request id,
+                  # the value is (callback, dict-of-request-args)
+    unsent_requests = [] # requests that have not yet been sent
+                         # list of (callback, dict-of-request-args)
+
+    _reset_db_as_necessary = False # whether to reset the db if it's broken
+    _watchdog_thread = None # background thread to watch for process termination
+
+    cpln_langs = []
+    citadel_langs = []
+    xml_langs = []
+    languages = {}
+    available_catalogs = [] # see get-available-catalogs command
+
+    def __init__(self, service, init_callback=None, shutdown_callback=None):
+        """Construct a code intel manager
+        @param service {KoCodeIntelService} Reference to the owning service
+        @param init_callback {callable} A callback to be fired for
+            initialization status updates. It has the following arguments:
+                {str} An update message for the user
+                {float} A percentage for the current progress
+            The callback should inspect the manager for the current status.
+        @param shutdown_callback {callback} A callback to be invoked when the
+            manager is shutting down.  It takes one argument, which is this
+            manager instance.
+        """
+        self.log = log.getChild(self.__class__.__name__)
+        self.debug = self.log.debug
+        self.debug("initializing")
+        self.svc = service
+        self._init_callback = ProxyToMainThreadAsync(init_callback)
+        self._shutdown_callback = ProxyToMainThreadAsync(shutdown_callback)
+        self._next_id = 0
+        self._abort = set()
+        self.requests = {} # keyed by request id; value is tuple
+                           # (callback, request data, time sent)
+                           # requests will time out at some point...
+        self.unsent_requests = []
+        threading.Thread.__init__(self,
+                                  name="Komodo Codeintel Manager %s" % (id(self)))
+        self.daemon = True
+        atexit.register(self.kill)
+
+        env = Cc["@activestate.com/koUserEnviron;1"].getService()
+        self._global_env = KoCodeIntelEnvironment(environment=env,
+                                                  pref_change_callback=self.set_global_environment)
+
+    def start(self, resetDBAsNecessary=False):
+        self._reset_db_as_necessary = resetDBAsNecessary
+        threading.Thread.start(self)
+
+    def init_child(self):
+        """Initialize the manager, spawning the child process and set up
+        communication.  This runs on the background thread.
+        """
+        assert threading.current_thread().name != "MainThread", \
+            "KoCodeIntelService.init_child should run on background thread!"
+        self.debug("initializing child process")
+        try:
+            koDirSvc = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
+            cmd = [koDirSvc.pythonExe,
+                   join(koDirSvc.supportDir, "codeintel", "oop-driver.py"),
+                   "--import-path", koDirSvc.komodoPythonLibDir,
+                   "--database-dir", join(koDirSvc.userDataDir, "codeintel")]
+
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.bind(("localhost", 0))
+            sock.listen(0)
+
+            cmd += ["--connect", "%s:%s" % sock.getsockname()]
+
+            # Logging
+            try:
+                for log_name in logging.Logger.manager.loggerDict.keys():
+                    if logging.getLogger(log_name).level is logging.NOTSET:
+                        continue
+                    cmd += ["--log-level", "%s:%s" %
+                            (log_name, logging.getLogger(log_name).getEffectiveLevel())]
+            except:
+                pass
+
+            cmd += ["--log-file", join(koDirSvc.userDataDir, "codeintel.log")]
+            self.debug("Running: %s", " ".join('"' + c + '"' for c in cmd))
+            self.proc = process.ProcessOpen(cmd, cwd=None, env=None,
+                                            stdin=None,
+                                            stdout=None,
+                                            stderr=None)
+            self._watchdog_thread = threading.Thread(target=self._watchdog_thread,
+                                                     name="CodeIntel Subprocess Watchdog",
+                                                     args=(self.proc,))
+            self._watchdog_thread.start()
+            assert self.proc.returncode is None, "Early process death"
+
+            self.conn = sock.accept()
+            sock.close() # no need to keep listening
+            self.pipe = self.conn[0].makefile("r+b", 0)
+            self.state = KoCodeIntelManager.STATE.CONNECTED
+        except Exception as ex:
+            self.debug("Error initing child: %s", ex)
+            self.pipe = None
+            self.kill()
+            self._init_callback(str(ex))
+        else:
+            self._send_init_requests()
+
+    def _send_init_requests(self):
+        assert threading.current_thread().name != "MainThread", \
+            "KoCodeIntelService._send_init_requests should run on background thread!"
+        self.debug("sending internal initial requests")
+
+        outstanding_cpln_langs = set()
+
+        def update(summary, response=None, state=KoCodeIntelManager.STATE.DESTROYED,
+                   progress=Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE):
+            STATE = KoCodeIntelManager.STATE
+            if state in (STATE.DESTROYED, STATE.BROKEN):
+                self.kill()
+            if state is not None:
+                self.state = state
+            message = summary
+            if response is not None:
+                message += "\n" + response.get("message",
+                                               "(No further information available)")
+            self._init_callback(message, progress)
+
+        def get_cpln_langs(request, response):
+            if not response.get("success", False):
+                update("Failed to get completion languages:", response)
+                return
+            self.cpln_langs = sorted(response.get("languages"))
+            for lang in self.cpln_langs:
+                outstanding_cpln_langs.add(lang)
+                self._send(callback=get_lang_info, command="get-language-info",
+                           language=lang)
+
+        def get_citadel_langs(request, response):
+            if not response.get("success", False):
+                update("Failed to get citadel languages:", response)
+                return
+            self.citadel_langs = sorted(response.get("languages"))
+
+        def get_xml_langs(request, response):
+            if not response.get("success", False):
+                update("Failed to get XML languages:", response)
+                return
+            self.xml_langs = sorted(response.get("languages"))
+
+        def get_lang_info(request, response):
+            lang = request["language"]
+            if not response.get("success", False):
+                update("Failed to get information for %s:" % (lang,), response)
+                return
+            info = self.languages[lang] = Namespace()
+            info.cpln_fillup_chars = response["completion-fillup-chars"]
+            info.cpln_stop_chars = response["completion-stop-chars"]
+            outstanding_cpln_langs.discard(lang)
+
+            if not outstanding_cpln_langs:
+                fixup_db({}, {"success": True})
+
+        def fixup_db(request, response):
+            command = request.get("command")
+            previous_command = request.get("previous-command")
+            state = response.get("state")
+            req_id = response.get("req_id")
+
+            if req_id in self._abort:
+                self.debug("Aborting startup")
+                update("Codeintel startup aborted", progress="(ABORTED)")
+                return
+
+            update(response.get("message"),
+                   state=None,
+                   progress=response.get("progress"))
+
+            if "success" not in response:
+                # status update
+                return
+
+            if command != "database-info":
+                if response.get("abort", False):
+                    # The request was aborted, don't retry
+                    return
+                # We just ran some sort of db-fixing command; check current status
+                self._send(callback=fixup_db, command="database-info",
+                           previous_command=command)
+                return
+
+            # Possible db progression:
+            # preload-needed -> (preload) -> ready
+            # upgrade-needed -> (upgrade) -> preload-needed -> (preload) -> ready
+            # upgrade-blocked -> (reset) -> preload-needed -> (preload) -> ready
+            # broken -> (reset) -> preload-needed -> (preload) -> ready
+
+            if state == "ready":
+                # db is fine
+                initialization_completed()
+                return
+
+            if state == "preload-needed":
+                # database needs preloading
+                if not previous_command in (None, "database-reset"):
+                    update("Unexpected empty database after %s" %
+                            (previous_command,),
+                           state=KoCodeIntelManager.STATE.BROKEN)
+                    return
+                self._send(callback=fixup_db, command="database-preload")
+                return
+            if state == "upgrade-needed":
+                # database needs to be upgraded
+                if previous_command is not None:
+                    update("Unexpected database upgrade needed after %s" %
+                            (previous_command,),
+                           state=KoCodeIntelManager.STATE.BROKEN)
+                self._send(callback=fixup_db, command="database-upgrade")
+                return
+            if state == "upgrade-blocked" or state == "broken":
+                # database can't be upgraded but can't be used either
+                if previous_command is not None:
+                    update("Unexpected database requires wiping after %s" %
+                            (previous_command,),
+                           state=KoCodeIntelManager.STATE.BROKEN)
+                if self._reset_db_as_necessary:
+                    self._send(callback=fixup_db, command="database-reset")
+                else:
+                    update("Database is broken and must be reset",
+                           state=KoCodeIntelManager.STATE.BROKEN)
+                return
+            update("Unexpected database state %s" % (state,),
+                   state=KoCodeIntelManager.STATE.BROKEN)
+
+
+
+        def initialization_completed():
+            self.debug("internal initial requests completed")
+            update("Codeintel ready.",
+                   state=KoCodeIntelManager.STATE.READY)
+            while self.unsent_requests:
+                callback, kwargs = self.unsent_requests.pop(0)
+                self.send(callback, **kwargs)
+
+        # register any extensions we have first
+        try:
+            catman = Cc["@mozilla.org/categorymanager;1"]\
+                       .getService(Ci.nsICategoryManager)
+            extension_contract_ids = catman.enumerateCategory("codeintel-command-extension")
+            extension_contract_ids.QueryInterface(Ci.nsISimpleEnumerator)
+            self.debug("got category entry %r", extension_contract_ids)
+            while extension_contract_ids.hasMoreElements():
+                try:
+                    contractIdIface = extension_contract_ids.getNext()
+                    contractIdIface.QueryInterface(Ci.nsISupportsCString)
+                    contractId = urllib.unquote(contractIdIface.data)
+                    self.debug("got contract id: %s", contractId)
+                    extension_data = Cc[contractId].createInstance()
+                    for path, name in UnwrapObject(extension_data):
+                        self._send(command="load-extension",
+                                   callback=lambda request, response:None,
+                                   **{"module-path": path,
+                                      "module-name": name})
+                except:
+                    log.exception("Error registering codeintel command extension")
+        except:
+            log.exception("Error registering codeintel extensions")
+
+        # Extra catlogs
+        extra_dirs = {}
+        extra_dirs["catalog-dirs"] = \
+            filter(os.path.exists, self.svc._genDBCatalogDirs())
+
+        # Find extensions that may have codeintel lang-support modules.
+        ext_module_dirs = set()
+        ext_lexer_dirs = set()
+        for ext_dir in directoryServiceUtils.getExtensionDirectories():
+            ext_module_dir = join(ext_dir, "pylib")
+            if os.path.exists(ext_module_dir):
+                ext_module_dirs.add(ext_module_dir)
+            ext_lexer_dir = join(ext_dir, "lexers")
+            if os.path.exists(ext_lexer_dir):
+                ext_lexer_dirs.add(ext_lexer_dir)
+        extra_dirs["module-dirs"] = list(ext_module_dirs)
+        extra_dirs["lexer-dirs"] = list(ext_lexer_dirs)
+
+        self._send(callback=lambda request, response: None,
+                   command="add-dirs",
+                   **extra_dirs)
+
+        self._send(callback=get_cpln_langs, command="get-languages",
+                   type="cpln")
+        self._send(callback=get_citadel_langs, command="get-languages",
+                   type="citadel")
+        self._send(callback=get_xml_langs, command="get-languages",
+                   type="xml")
+
+        self.set_global_environment()
+        def update_callback(response):
+            if not response.get("success", False):
+                update("Failed to get available catalogs:", response)
+
+        self.update_catalogs(update_callback=update_callback)
+
+    def set_global_environment(self):
+        self._send(command="set-environment",
+                   env=self._global_env.env)
+
+    def shutdown(self):
+        """Abort any outstanding requests and shut down gracefully"""
+        self.abort = True
+        if self.state is KoCodeIntelManager.STATE.DESTROYED:
+            return # already dead
+        if not self.pipe:
+            # not quite dead, but already disconnected... ungraceful shutdown
+            self.kill()
+            return
+        self._send(command="quit", callback=self.do_quit)
+        self.state = KoCodeIntelManager.STATE.QUITTING
+
+    def send(self, callback=None, **kwargs):
+        """Public API for sending a request.
+        Requests are expected to be well-formed (has a command, etc.)
+        The callback recieves two arguments, the request and the response,
+        both as dicts."""
+        if self.state is KoCodeIntelManager.STATE.DESTROYED:
+            raise RuntimeError("Manager already shut down")
+        if self.state is not KoCodeIntelManager.STATE.READY:
+            self.unsent_requests.append((callback, kwargs))
+            return
+        self._send(callback, **kwargs)
+
+    def _send(self, callback=None, **kwargs):
+        """Private API for sending; ignores the current state of the manager and
+        just dumps things over.  The caller should check that it things are in
+        the expected state. (Used for initialization.)"""
+
+        if self.state is KoCodeIntelManager.STATE.QUITTING:
+            return # Nope, eating all commands during quit
+        data = kwargs.copy()
+        req_id = hex(self._next_id)
+        self.requests[req_id] = (callback, kwargs.copy(), time.time())
+        data["req_id"] = req_id
+        self._next_id += 1
+        text = json.dumps(data, separators=(",", ":"))
+        self.debug("sending frame: %s", text)
+        self.pipe.write("%i%s" % (len(text), text))
+
+    def run(self):
+        """Event loop for the codeintel manager background thread"""
+        assert threading.current_thread().name != "MainThread", \
+            "KoCodeIntelService.run should run on background thread!"
+        self.init_child()
+        if not self.proc:
+            return # init child failed
+        first_buf = True
+        discard_time = 0.0
+        try:
+            buf = ""
+            while self.proc and self.pipe:
+                # Loop to read from the pipe
+                ch = self.pipe.read(1)
+                if ch == "{":
+                    length = int(buf, 10)
+                    buf = ch + self.pipe.read(length - 1)
+                    self.debug("Got codeintel response: %s" % (buf,))
+                    if first_buf and buf == "{}":
+                        first_buf = False
+                        buf = ""
+                        continue
+                    response = json.loads(buf)
+                    # handle runs asynchronously and shouldn't raise exceptions
+                    self.handle(response)
+                    buf = ""
+                else:
+                    if ch not in "0123456789":
+                        raise ValueError("Invalid frame length character " + ch)
+                    buf += ch
+                now = time.time()
+                if now - discard_time > 60: # discard some stale results
+                    for req_id, (callback, request, sent_time) in self.requests.items():
+                        if sent_time < now - 5 * 60:
+                            # sent 5 minutes ago - it's irrelevant now
+                            try:
+                                callback(request, {})
+                            except:
+                                self.log.exception("Failed timing out request")
+                            else:
+                                self.debug("Discarding request %r", request)
+                            del self.requests[req_id]
+        except:
+            self.log.exception("Error reading data from codeintel")
+            self.kill()
+
+    @ProxyToMainThread
+    def handle(self, response):
+        """Handle a response from the codeintel process"""
+        assert threading.current_thread().name == "MainThread", \
+            "KoCodeIntelService.handle() should run on main thread!"
+        self.debug("handling: %s", json.dumps(response))
+        req_id = response.get("req_id")
+        if not req_id:
+            # unsolicited response, look for a handler
+            try:
+                command = str(response.get("command", ""))
+                if not command:
+                    raise ValueError("Invalid response frame %s" % (json.dumps(response),))
+                meth = getattr(self, "do_" + command.replace("-", "_"), None)
+                if not meth:
+                    raise ValueError("Unknown unsolicited response \"%s\"" % (command,))
+                meth(response)
+            except:
+                log.exception("Error handling unsolicited response")
+            return
+        callback, request, sent_time = self.requests.get(req_id, (None, None, None))
+        if not request:
+            try:
+                log.error("Discard reponse for unknown request %s (command %s): have %s",
+                          req_id, response["command"],
+                          sorted(self.requests.keys()))
+            except KeyError:
+                log.error("Discard reponse for unknown request %s (%r): have %s",
+                          req_id, response,
+                          sorted(self.requests.keys()))
+            return
+        command = request.get("command", "")
+        assert response.get("command", command) == command, \
+            "Got unexpected response command %s from request %s" % (
+                response.get("command"), command)
+        if "success" in response:
+            self.debug("Removing completed request %s", req_id)
+            del self.requests[req_id]
+        else:
+            # unfinished reponse; update the sent time so it doesn't time out
+            self.requests[req_id] = (callback, request, time.time())
+
+        if callback:
+            callback(request, response)
+
+    def abort(self):
+        """Abort something"""
+        for req in list(self.requests.keys()):
+            self._abort.add(req)
+            self._send(command="abort", id=req,
+                       callback=lambda request, response: None)
+
+    def do_scan_complete(self, response):
+        """Scan complete unsolicited response"""
+        path = response.get("path")
+        if path:
+            Cc["@mozilla.org/observer-service;1"]\
+              .getService(Ci.nsIObserverService)\
+              .notifyObservers(None, "codeintel_buffer_scanned", path)
+
+    def do_report_message(self, response):
+        """Report a message from codeintel (typically, scan status) unsolicited
+        response"""
+        self.debug("Report: %r", response)
+
+    def do_global_prefs_observe(self, response):
+        """Add or remove global preference observers"""
+        for name in response.get("remove", []):
+            self._global_env.remove_pref_observer(name)
+
+        for name in response.get("add", []):
+            self._global_env.add_pref_observer(name)
+
+    @LazyProperty
+    def _codeintel_logger(self):
+        return logging.getLogger("koCodeIntel")
+
+    def do_report_error(self, response):
+        """Report a codeintel error into the error log"""
+        message = response.get("message")
+        if message:
+            self._codeintel_logger.error(message.rstrip())
+
+    def do_quit(self, request, response):
+        """Quit successful"""
+        self.kill()
+        self.debug("do_quit")
+        assert threading.current_thread().name == "MainThread", \
+            "KoCodeIntelService.activate::do_quit() should run on main thread!"
+        if self.is_alive():
+            self.join(1)
+
+    def _watchdog_thread(self, proc):
+        """Thread handler to watch when the subprocess dies"""
+        self.debug("Waiting for process to die...")
+        proc.wait()
+        self.debug("Child process died: %i", proc.returncode)
+        try:
+            self.kill()
+        except:
+            pass # At app shutdown this can die uncleanly
+                 # because KoCodeIntelManager is missing
+
+    def kill(self):
+        """Kill the subprocess. This may be safely called when the process has
+        already exited.  This should *always* be called no matter how the
+        process exits, in order to maintain the correct state."""
+        try:
+            self.proc.kill()
+        except:
+            pass
+        try:
+            self.pipe.close()
+        except:
+            pass # The other end is dead, this is kinda pointless
+        try:
+            self._global_env.clear_pref_observers()
+        except:
+            pass # not expecting that... but let it go anyway
+        self.state = KoCodeIntelManager.STATE.DESTROYED
+        self.pipe = None
+        self._shutdown_callback(self)
+
+    @property
+    def ready(self):
+        return self.state is KoCodeIntelManager.STATE.READY
+
+    def update_catalogs(self, update_callback=None):
+        if not update_callback:
+            update_callback = lambda *args, **kwargs: None
+        def get_available_catalogs(request, response):
+            if response.get("success", False):
+                self.available_catalogs = response.get("catalogs", [])
+            update_callback(response)
+
+        self._send(callback=get_available_catalogs,
+                   command="get-available-catalogs")
+
+
+class TriggerWrapper(object):
+    """Wrapper class to XPCOM-ify a trigger"""
+    _com_interfaces_ = [Ci.koICodeIntelTrigger]
+    def __init__(self, trg):
+        assert trg is not None, "Null trigger!"
+        self._trg_ = trg
+    def __getattr__(self, name):
+        try:
+            return self._trg_[name]
+        except KeyError:
+            raise AttributeError("The attribute %s was not found on the trigger" % (name,))
+
+
+class KoCodeIntelBuffer(object):
+    """A buffer-like object for codeintel; this is specific to a
+    KoCodeIntelManager instance."""
+    _com_interfaces_ = [Ci.koICodeIntelBuffer]
+
+    path = None # The path to the file for this buffer
+    lang = None # The language name for this buffer
+    project = None
+    send = None
+
+    def __init__(self, lang, path=None, doc=None, svc=None):
+        """Create a buffer
+        @param lang {str} The language name for this buffer
+        @param mgr {KoCodeIntelManager} The owning manager
+        @param path {unicode} The path for this buffer, or something like
+            "<Unsaved>/Text-1.txt" for an unsaved file
+        """
+        self.log = log.getChild("KoCodeIntelBuffer")
+        self.path = path
+        self.lang = lang
+        self.doc = doc
+        self.send = svc.send
+        self.svc = svc
+
+    @property
+    def cpln_fillup_chars(self):
+        return self.svc.mgr.languages[self.lang].cpln_fillup_chars
+
+    @property
+    def cpln_stop_chars(self):
+        return self.svc.mgr.languages[self.lang].cpln_stop_chars
+
+    @property
+    def env(self):
+        """Get the buffer-specific codeintel environment information for this
+        buffer (including prefs).
+        @returns None if this has no codeintel environment, or a dict containing
+            "env" and "prefs" keys.  See the codeintel oop spec (kd 290) for
+            details.
+        """
+        return KoCodeIntelEnvironment(self.doc, self.project).env
+
+    def trg_from_pos(self, pos, implicit, callback):
+        def callback_wrapper(request, response):
+            trg = response["trg"]
+            if trg:
+                trg = TriggerWrapper(trg)
+            try:
+                callback.onGetTrigger(trg)
+            except:
+                self.log.exception("Error calling trg_from_pos callback")
+
+        self.send(command="trg-from-pos",
+                  path=self.path,
+                  language=self.lang,
+                  pos=pos,
+                  env=self.env,
+                  implicit=implicit,
+                  text=self.doc.buffer if self.doc else None,
+                  callback=callback_wrapper)
+
+    def preceding_trg_from_pos(self, pos, curr_pos, callback):
+        def callback_wrapper(request, response):
+            trg = response["trg"]
+            if trg:
+                trg = TriggerWrapper(trg)
+            try:
+                callback.onGetTrigger(trg)
+            except:
+                self.log.exception("Error calling preceding_trg_from_pos callback")
+
+        self.send(command="trg-from-pos",
+                  path=self.path,
+                  language=self.lang,
+                  pos=pos,
+                  env=self.env,
+                  text=self.doc.buffer if self.doc else None,
+                  callback=callback_wrapper,
+                  **{"curr-pos": curr_pos})
+
+    def defn_trg_from_pos(self, trg_pos, callback):
+        def callback_wrapper(request, response):
+            trg = response["trg"]
+            if trg:
+                trg = TriggerWrapper(trg)
+            try:
+                callback.onGetTrigger(trg)
+            except:
+                self.log.exception("Error calling defn_trg_from_pos callback")
+
+        self.send(command="trg-from-pos",
+                  type="defn",
+                  path=self.path,
+                  language=self.lang,
+                  pos=trg_pos,
+                  env=self.env,
+                  text=self.doc.buffer if self.doc else None,
+                  callback=callback_wrapper)
+
+    EVAL_SILENT = Ci.koICodeIntelBuffer.EVAL_SILENT
+    EVAL_QUEUE = Ci.koICodeIntelBuffer.EVAL_QUEUE
+
+    def async_eval_at_trg(self, trg, handler, flags=0):
+        """Evaluate a trigger
+        @param trg {TriggerWrapper} The trigger to evaluate
+        @param handler {koICodeIntelCompletionUIHandler} Handler to report
+            results to
+        @param flags {int} bitfield of EVAL_* constants
+        """
+        trg = UnwrapObject(trg)
+        assert isinstance(trg, TriggerWrapper), "Invalid trigger"
+
+        @ProxyToMainThreadAsync
+        def callback(request, response):
+            if "success" not in response:
+                try:
+                    handler.setStatusMessage(response.get("message", ""),
+                                             response.get("highlight", False))
+                except:
+                    self.log.exception("Error reporting async_eval_at_trg error: %s",
+                                       response.get("message", "<error not available>"))
+                return
+            try:
+                if not response["success"]:
+                    return
+                elif "cplns" in response:
+                    # split into separate lists
+                    types, strings = zip(*response["cplns"])
+                    try:
+                        handler.setAutoCompleteInfo(strings, types, trg)
+                    except:
+                        self.log.exception("Error calling setAutoCompleteInfo")
+                elif "calltip" in response:
+                    try:
+                        handler.setCallTipInfo(response["calltip"],
+                                               trg,
+                                               request.get("explicit", False))
+                    except:
+                        self.log.exception("Error calling setCallTipInfo")
+                elif "defns" in response:
+                    defns = map(KoCodeIntelDefinition,
+                                response["defns"])
+                    handler.setDefinitionsInfo(defns, trg)
+            finally:
+                handler.done()
+
+        self.send(command="eval",
+                  trg=trg._trg_,
+                  silent=bool(flags & KoCodeIntelBuffer.EVAL_SILENT),
+                  keep_existing=bool(flags & KoCodeIntelBuffer.EVAL_QUEUE),
+                  callback=callback)
+
+    def get_calltip_arg_range(self, trg_pos, calltip, curr_pos, callback):
+        @ProxyToMainThreadAsync
+        def callback_wrapper(request, response):
+            start = response.get("start", -1)
+            end = response.get("end", -1)
+            try:
+                callback.onGetCalltipRange(start, end)
+            except:
+                self.log.exception("Error calling get_calltip_arg_range callback")
+
+        self.send(command="calltip-arg-range",
+                  path=self.path,
+                  language=self.lang,
+                  text=self.doc.buffer if self.doc else None,
+                  trg_pos=trg_pos,
+                  calltip=calltip,
+                  curr_pos=curr_pos,
+                  env=self.env,
+                  callback=callback_wrapper)
+
+
+class KoCodeIntelEnvironment(object):
+    """Helper object to get the environment to use for codeintel"""
+
+    _com_interfaces_ = [Ci.nsIObserver]
+
+    # XXX marky: we only support observing the global prefs for now; this is
+    # fine because we re-send all prefs on each request
+    def __init__(self, doc=None, project=None, environment=None,
+                 pref_change_callback=None):
+        self.doc = doc
+        self.project = project
+        self.environment = environment
+        self._observed_prefs = {}
+        self._global_prefs = Cc["@activestate.com/koPrefService;1"] \
+                               .getService(Ci.koIPrefService) \
+                               .prefs
+        self._pref_change_callback = pref_change_callback
+
+    @property
+    def env(self):
+        """Get the buffer-specific codeintel environment information for this
+        buffer (including prefs).  If this environment has no buffer, the global
+        enviroment is used.
+        @returns None if this has no codeintel environment, or a dict containing
+            "env" and "prefs" keys.  See the codeintel oop spec (kd 290) for
+            details.
+        """
+        if self.doc:
+            if not self.doc.prefs:
+                return None # nothing document-specific
+            doc_prefs = self.doc.prefs
+        else:
+            # global environment
+            doc_prefs = None
+        proj_prefs = getattr(self.project, "prefset", None)
+
+        result = {"prefs": []}
+        if self.environment:
+            result["env"] = dict((name, self.environment.get(name))
+                                 for name in self.environment.keys())
+        prefsets = (doc_prefs,
+                    proj_prefs,
+                    self._global_prefs)
+        for prefset in prefsets:
+            if not prefset:
+                continue
+            level = {}
+            for name, data in self._prefs_allowed.items():
+                komodo_name = data.komodo_name or name
+                if not prefset.hasPref(komodo_name):
+                    continue
+                try:
+                    level[name] = data.getter(prefset, komodo_name)
+                except:
+                    log.exception("Error getting preference %s", komodo_name)
+
+            result["prefs"].append(level)
+        return result
+
+    def add_pref_observer(self, name):
+        if name not in self._prefs_allowed:
+            log.debug("Refusing to observe pref %s", name)
+            return # Nope!
+        try:
+            self._observed_prefs[name] += 1
+            log.debug("Reusing pref observer for %s", name)
+        except KeyError:
+            # new pref being observed
+            self._observed_prefs[name] = 1
+            komodo_name = self._prefs_allowed[name].komodo_name or name
+            log.debug("Adding new pref observer for %s (%s)",
+                      name, komodo_name)
+            self._global_prefs\
+                .prefObserverService\
+                .addObserverForTopics(self,
+                                      [komodo_name],
+                                      False)
+
+    def remove_pref_observer(self, name):
+        if name not in self._prefs_allowed:
+            return # Nope!
+        self._observed_prefs[name] -= 1
+        if self._observed_prefs[name] < 1:
+            komodo_name = self._prefs_allowed[name].komodo_name or name
+            self._global_prefs\
+                .prefObserverService\
+                .removeObserverForTopics(self,
+                                         [name],
+                                         False)
+            del self._observed_prefs[name]
+
+    def clear_pref_observers(self):
+        for name in self._observed_prefs.keys()[:]:
+            self.remove_pref_observer(name)
+
+    @LazyProperty
+    def _prefs_allowed(self):
+        """Return the whitelist of allowed preferences"""
+        _T = collections.namedtuple("PrefData", "getter komodo_name")
+
+        def get_str(prefset, name, default=None):
+            """Get a string preference"""
+            return prefset.getString(name, default)
+        def get_int(prefset, name, default=None):
+            """Get an integer preference"""
+            return prefset.getLong(name, default)
+        def get_bool(prefset, name, default=None):
+            """Get a boolean preference"""
+            return prefset.getBoolean(name, default)
+
+        def get_json(prefset, name, default=None):
+            """Get a JSON-serialized preference"""
+            return json.loads(prefset.getString(name, default))
+
+        def get_json_or_eval(prefset, name, default=None):
+            """Special fallback for cases where we used eval()"""
+            data = prefset.getString(name, default)
+            try:
+                return json.loads(data)
+            except ValueError:
+                return eval(data)
+
+
+        def T(getter=get_str, komodo_name=None):
+            """Create a codeintel pref whitelist entry
+            @param getter {callable} A function that gets the preference;
+                defaults to the string pref getter.  Takes the folloing
+                arguments:
+                    @param prefset {koIPreferenceSet} The preference set
+                    @param name {str} The name of the preference
+                    @param default {object} (optional) The default value
+            @param komodo_name {str} The preference name Komodo uses;
+                defaults to the same as the name codeintel uses.
+            """
+            return _T(getter=getter, komodo_name=komodo_name)
+
+        # Preferences that may be used for codeintel (whitelist)
+        # Each preference may have a "getter" parameter; it should be a callable
+        # similar to get_str above.  This defaults to get_str.
+        # Each preference may have a "komodo_name" parameter; if given, the
+        # pref name codeintel uses does not match the pref name Komodo uses (and the
+        # value given is the Komodo name).
+        result = {
+            "codeintel_scan_files_in_project": T(getter=get_bool),
+            "codeintel_max_recursive_dir_depth": T(getter=get_int),
+            "codeintel_selected_catalogs": T(getter=get_json_or_eval),
+            "javascriptExtraPaths": T(),
+            "nodejsDefaultInterpreter": T(),
+            "nodejsExtraPaths": T(),
+            "perl": T(komodo_name="perlDefaultInterpreter"),
+            "perlExtraPaths": T(),
+            "php": T(komodo_name="phpDefaultInterpreter"),
+            "phpConfigFile": T(),
+            "phpExtraPaths": T(),
+            "python": T(komodo_name="pythonDefaultInterpreter"),
+            "pythonExtraPaths": T(),
+            "python3": T(komodo_name="python3DefaultInterpreter"),
+            "python3ExtraPaths": T(),
+            "ruby": T(komodo_name="rubyDefaultInterpreter"),
+            "rubyExtraPaths": T(),
+        }
+        # Set the result on the class, no need to recompute
+        setattr(self.__class__, "_prefs_allowed", result)
+        return result
 
     def observe(self, subject, topic, data):
+        """Observe a preference change (at the global level)"""
+        if self._pref_change_callback:
+            self._pref_change_callback()
+
+class KoCodeIntelDefinition(object):
+    _com_interfaces_ = [Ci.koICodeIntelDefinition]
+    def __init__(self, data):
+        self.__dict__.update(data)
+
+    def equals(self, other):
+        """ Equality comparision for XPCOM """
         try:
-            if topic == 'quit-application':
-                self._deactivate()
-                obsSvc = components.classes["@mozilla.org/observer-service;1"]\
-                    .getService(components.interfaces.nsIObserverService)
-                obsSvc.removeObserver(self, topic)
-        except Exception, e:
-            log.exception("Unexpected error observing notification.")
+            other = UnwrapObject(other)
+        except:
+            pass
+        for attr in ("lang", "path", "blobname", "lpath", "name", "line", "ilk",
+                     "citdl", "doc", "signature", "attributes", "returns"):
+            if getattr(self, attr) != getattr(other, attr):
+                return False
+        return True
 
-    def _getCIPath(self, document):
-        if document.isUntitled:
-            cipath = os.path.join("<Unsaved>", document.displayPath)
-        else:
-            cipath = document.displayPath
-        return cipath
+    def toString(self):
+        return repr(self)
 
-    def scan_document(self, document, linesAdded, useFileMtime):
-        if not self.enabled:
-            return
-        lang = document.language
-        #TODO: is this still necessary? (Was: XXX FIXME post beta 1)
-        #if self.mgr.is_xml_lang(lang):
-        #    request = XMLParseRequest(document.ciBuf, PRIORITY_CURRENT)
-        #    self.mgr.idxr.stage_request(request, 0.5)
-        if self.mgr.is_citadel_lang(lang):
-            mtime = None
-            if useFileMtime and document.file:
-                mtime = document.file.lastModifiedTime
-            if linesAdded:
-                request = ScanRequest(document.ciBuf, PRIORITY_IMMEDIATE,
-                                      mtime=mtime)
-                self.mgr.idxr.stage_request(request, 0)
-            else:
-                request = ScanRequest(document.ciBuf, PRIORITY_CURRENT,
-                                      mtime=mtime)
-                self.mgr.idxr.stage_request(request, 1.5)
-
-    def _env_from_koIDocument(self, doc):
-        """Return an Environment instance appropriate for the given
-        koIDocument. If this doc is part of an open Komodo project then
-        the Environment instance will include that project's prefs.
-
-        Returns None, if this document does not have a prefset.
-        """
-        if not self.enabled:
-            return None
-        prefset = doc.prefs
-        if prefset is not None:
-            env = KoCodeIntelEnvironment(proj=None, prefset=prefset)
-            return env
-        return None
-
-    _js_macro_environment = None
-    @property
-    def js_macro_environment(self):
-        """A singleton instance to be used for all JavaScript macro editing."""
-        if self._js_macro_environment is None:
-            self._js_macro_environment = KoJavaScriptMacroEnvironment()
-        return self._js_macro_environment
-
-    _py_macro_environment = None
-    @property
-    def py_macro_environment(self):
-        """A singleton instance to be used for all Python macro editing."""
-        if self._py_macro_environment is None:
-            self._py_macro_environment = KoPythonMacroEnvironment()
-        return self._py_macro_environment
-
-    def buf_from_koIDocument(self, doc, prefset=None):
-        if not self.enabled:
-            return
-        path = doc.displayPath
-        if path.startswith("macro://"):
-            # Ensure macros get completion for the relevant Komodo APIs.
-            if path.endswith(".js"):
-                env = self.js_macro_environment
-            elif path.endswith(".py"):
-                env = self.py_macro_environment
-            else:
-                log.warn("unexpected 'macro://' document that doesn't end "
-                         "with '.js' or '.py': '%s'", path)
-                env = None
-        else:
-            # If this document is part of an open project, hook up that
-            # project's prefset.
-            env = self._env_from_koIDocument(doc)
-        return self.mgr.buf_from_koIDocument(doc, env=env)
-
-    def is_cpln_lang(self, lang):
-        return self.mgr.is_cpln_lang(lang)
-    def get_cpln_langs(self):
-        return self.mgr.get_cpln_langs()
-    def is_citadel_lang(self, lang):
-        return self.mgr.is_citadel_lang(lang)
-    def get_citadel_langs(self):
-        return self.mgr.get_citadel_langs()
-    def is_xml_lang(self, lang):
-        return self.mgr.is_xml_lang(lang)
-
-    def getScopeForFileAndLine(self, path, line):
-        return self.mgr.getScopeForFileAndLine(path, line)[:3]
-    def getScopeInfoForFileAndLine(self, path, line, language):
-        return self.mgr.getScopeInfoForFileAndLine(path, line, language)
-
-    ##
-    # koIPythonMemoryReporter - tie's into koIMemoryReporter.
-    def reportMemory(self, callback, closure):
-        """Report memory usage - returns total number of bytes used."""
-        return self.mgr.reportMemory(callback, closure)
-
-#XXX Obsolete
-#    def getMembers(self, language, path, line, citdl, explicit,
-#                   scopeFileId=0, scopeTable=None, scopeId=0, content=None):
-#        self._sendStatusMessage("XXX: NYI: getMembers", explicit)
-#        return [], []
-#
-#        types, members = [], []
-#        try:
-#            typesAndMembers = self.manager.getMembers(language, path, line,
-#                citdl, scopeFileId, scopeTable, scopeId, content)
-#            if not typesAndMembers:
-#                self._sendStatusMessage(
-#                    "No AutoComplete members for '%s'" % citdl, explicit)
-#            else:
-#                for t,m in typesAndMembers:
-#                    types.append(t)
-#                    members.append(m)
-#        except CodeIntelError, ex:
-#            self._sendStatusMessage("error determining members: "+str(ex),
-#                                    explicit)
-#        return types, members
-#
-#    def getCallTips(self, language, path, line, citdl, explicit,
-#                    scopeFileId=0, scopeTable=None, scopeId=0, content=None):
-#        self._sendStatusMessage("XXX: NYI: getCallTips", explicit)
-#        return []
-#
-#        try:
-#            calltips = self.manager.getCallTips(language, path, line, citdl,
-#                scopeFileId, scopeTable, scopeId, content)
-#            if not calltips:
-#                self._sendStatusMessage("No CallTip for '%s'" % citdl,
-#                                        explicit)
-#        except CodeIntelError, ex:
-#            self._sendStatusMessage("error determining CallTip: "+str(ex),
-#                                    explicit)
-#            calltips = []
-#        return calltips
-#
-#    def getSubimports(self, language, module, cwd, explicit):
-#        self._sendStatusMessage("XXX: NYI: getSubimports", explicit)
-#        return []
-#
-#        try:
-#            subimports = self.manager.getSubimports(language, module, cwd,
-#                                                    explicit)
-#            if not subimports:
-#                self._sendStatusMessage("No available subimports for '%s'" % module,
-#                                        explicit)
-#        except CodeIntelError, ex:
-#            self._sendStatusMessage("error determining subimports: "+str(ex),
-#                                    explicit)
-#            subimports = []
-#        return subimports

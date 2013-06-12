@@ -161,7 +161,6 @@
             this.lintingEnabled = false;
             this.isCICitadelStuffEnabled = false;
             this.isCIXMLStuffEnabled = false;
-            this.isCICplnEnabled = false;
 
             this._koDoc = val;
             if (val) {
@@ -220,6 +219,21 @@
             }
         ]]>
         </setter>
+        </property>
+
+        <property name="_isCICplnEnabled">
+            <!-- override views-buffer -->
+            <getter>
+            <![CDATA[
+                var val = ko.codeintel.isActive &&
+                          ko.codeintel.is_cpln_lang(this.language);
+                if (val && !this.ciCompletionUIHandler) {
+                    this.ciCompletionUIHandler =
+                        new ko.codeintel.CompletionUIHandler(this);
+                }
+                return val;
+            ]]>
+            </getter>
         </property>
 
         <field name="_languageObj">null</field>
@@ -537,7 +551,6 @@
             this.language = language;
 
             // Update codeintel variables.
-            this.isCICplnEnabled = (ko.codeintel.isActive && ko.codeintel.is_cpln_lang(language));
             this.isCICitadelStuffEnabled = (ko.codeintel.isActive && ko.codeintel.is_citadel_lang(language));
             this.isCIXMLStuffEnabled = (ko.codeintel.isActive && ko.codeintel.is_xml_lang(language));
         ]]>

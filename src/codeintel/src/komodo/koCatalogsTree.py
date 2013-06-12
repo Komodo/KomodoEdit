@@ -43,6 +43,7 @@ import os
 from os.path import basename, join, exists, normpath, normcase, dirname
 import sys
 from pprint import pprint, pformat
+import json
 import logging
 import operator
 import threading
@@ -50,6 +51,7 @@ import traceback
 import shutil
 
 from xpcom import components
+from xpcom.components import classes as Cc, interfaces as Ci
 from xpcom.server import UnwrapObject
 
 from koTreeView import TreeView
@@ -75,6 +77,9 @@ class KoCodeIntelCatalogsTreeView(TreeView):
     def __init__(self):
         TreeView.__init__(self) # for debug logging: , debug="catalogs")
         self._rows = []
+        self.selections = []
+        """The current selection; the name (or full path) of the relevant
+        catalogs"""
 
         koDirSvc = components.classes["@activestate.com/koDirs;1"].\
                    getService(components.interfaces.koIDirs)
@@ -87,19 +92,12 @@ class KoCodeIntelCatalogsTreeView(TreeView):
         self._sortColAtom = self.atomSvc.getAtom("sort-column")
 
     def init(self, ciSvc, prefSet, prefName):
-        self.ciSvc = ciSvc
+        self.ciSvc = UnwrapObject(ciSvc)
+        self.send = self.ciSvc.send
         self.prefSet = prefSet
         self.prefName = prefName
         self.load()
         self._wasChanged = False
-
-    _catalogs_zone_cache = None
-    @property
-    def catalogs_zone(self):
-        if self._catalogs_zone_cache is None:
-            self._catalogs_zone_cache \
-                = UnwrapObject(self.ciSvc).mgr.db.get_catalogs_zone()
-        return self._catalogs_zone_cache
 
     def load(self):
         prefStr = self.prefSet.getStringPref(self.prefName)
@@ -108,15 +106,16 @@ class KoCodeIntelCatalogsTreeView(TreeView):
         except ValueError, ex:
             self.selections = []
         self._sortData = (None, None)
-        self._reload(self.selections)
+        self._reload()
 
-    def _reload(self, selections=None):
-        if selections is None: # by default use the current selections data
-            selections = [r["selection"] or r["cix_path"] for r in self._rows
-                          if r["selected"]]
+    def _reload(self):
+        selections = self.selections
 
         old_row_count = len(self._rows)
-        self._rows = list( self.catalogs_zone.avail_catalogs(selections) )
+        self._rows = [c.copy() for c in self.ciSvc.available_catalogs]
+        for r in self._rows:
+            r["selected"] = (r["selection"] in self.selections)
+
         if self._sortData == (None, None):
             self._rows.sort(key=lambda r: (r["lang"], r["name"].lower()))
         else:
@@ -134,9 +133,8 @@ class KoCodeIntelCatalogsTreeView(TreeView):
         if not self._wasChanged:
             return
 
-        selections = [r["selection"] or r["cix_path"] for r in self._rows
-                      if r["selected"]]
-        selections.sort()
+        selections = sorted(r["selection"] for r in self._rows if r["selected"])
+        # This should probably use JSON, but that involves pref migration...
         self.prefSet.setStringPref(self.prefName, repr(selections))
 
     def toggleSelection(self, row_idx):
@@ -150,34 +148,41 @@ class KoCodeIntelCatalogsTreeView(TreeView):
 
     @components.ProxyToMainThread
     def post_add(self, added_cix_paths):
-        self._reload()
+        def post_refresh(*args, **kwargs):
+            self._reload()
 
-        # Figure out which rows to select.
-        row_idxs = []
-        for added_cix_path in added_cix_paths:
-            for i, row in enumerate(self._rows):
-                if row["cix_path"] == added_cix_path:
-                    row_idxs.append(i)
-                    break
-            else:
-                log.warn("could not select `%s': not found in "
-                         "available catalogs", added_cix_path)
+            # Figure out which rows to select.
+            row_idxs = []
+            for added_cix_path in added_cix_paths:
+                for i, row in enumerate(self._rows):
+                    if row["cix_path"] == added_cix_path:
+                        row_idxs.append(i)
+                        break
+                else:
+                    log.warn("could not select `%s': not found in "
+                             "available catalogs", added_cix_path)
 
-        # Select and UI-select the added rows.
-        self.selection.clearSelection()
-        for row_idx in row_idxs:
-            self._wasChanged = True
-            self._rows[row_idx]["selected"] = True
-            if self._tree:
-                self._tree.invalidateRow(i)
-            self.selection.rangedSelect(row_idx, row_idx, True)
+            # Select and UI-select the added rows.
+            self.selection.clearSelection()
+            for row_idx in row_idxs:
+                self._wasChanged = True
+                self._rows[row_idx]["selected"] = True
+                if self._tree:
+                    self._tree.invalidateRow(i)
+                self.selection.rangedSelect(row_idx, row_idx, True)
+
+        self.ciSvc.update_catalogs(post_refresh)
+
 
     def addPaths(self, paths):
-        return KoCodeIntelCatalogAdder(paths, self.post_add)
+        return KoCodeIntelCatalogAdder(paths, self.ciSvc, self.post_add)
 
     @components.ProxyToMainThread
     def post_remove(self, removed_cix_paths):
-        self._reload()
+        def post_refresh(*args, **kwargs):
+            self._reload()
+
+        self.ciSvc.update_catalogs(post_refresh)
 
     def removeUISelectedPaths(self):
         paths = []
@@ -185,7 +190,7 @@ class KoCodeIntelCatalogsTreeView(TreeView):
             start, end = self.selection.getRangeAt(i)
             for row_idx in range(start, end+1):
                 paths.append(self._rows[row_idx]["cix_path"])
-        self.post_remove()
+        return KoCodeIntelCatalogRemover(paths, self.ciSvc, self.post_remove)
 
     def areUISelectedRowsRemovable(self):
         num_sel_ranges = self.selection.getRangeCount()
@@ -295,16 +300,12 @@ class KoCodeIntelCatalogsTreeView(TreeView):
 
 class KoCodeIntelCatalogAdder(threading.Thread):
     """Add the given .cix paths to the catalogs zone."""
-    _com_interfaces_ = [#components.interfaces.koICodeIntelCatalogAdder,
-                        components.interfaces.koIShowsProgress]
-    _reg_clsid_ = "{C6935748-1C42-4EB7-83CD-DC450A6650CD}"
-    _reg_contractid_ = "@activestate.com/koCodeIntelCatalogAdder;1"
-    _reg_desc_ = "Komodo CodeIntel Database API Catalog Adder"
+    _com_interfaces_ = [components.interfaces.koIShowsProgress]
 
     controller = None
     cancelling = False
 
-    def __init__(self, cix_paths, on_complete=None):
+    def __init__(self, cix_paths, driver, on_complete=None):
         """
             'on_complete' (optional) is callback called as follows:
                 on_complete(<added-cix-paths>). Note that the added
@@ -314,6 +315,7 @@ class KoCodeIntelCatalogAdder(threading.Thread):
         """
         threading.Thread.__init__(self, name="CodeIntel Catalog Adder")
         self.cix_paths = cix_paths
+        self.driver = driver
         self.on_complete = on_complete
 
     def set_controller(self, controller):
@@ -343,9 +345,6 @@ class KoCodeIntelCatalogAdder(threading.Thread):
         try:
             koDirSvc = components.classes["@activestate.com/koDirs;1"].\
                        getService(components.interfaces.koIDirs)
-            ciSvc = components.classes["@activestate.com/koCodeIntelService;1"].\
-                       getService(components.interfaces.koICodeIntelService)
-            mgr = UnwrapObject(ciSvc).mgr
 
             errors = []
             added_cix_paths = []
@@ -364,15 +363,19 @@ class KoCodeIntelCatalogAdder(threading.Thread):
                     dst_path = join(user_apicatalogs_dir, basename(src_path))
                     shutil.copy(src_path, dst_path)
 
-                    # Load it into CatalogsZone.
-                    mgr.db.get_catalogs_zone().update(selections=[dst_path])
-
                     added_cix_paths.append(dst_path)
                 except Exception, ex:
                     errors.append((
                         "error adding `%s' API catalog: %s" % (src_path, ex),
                         traceback.format_exc()
                     ))
+
+            # Load it into CatalogsZone.
+            # No need to send any directories over, the user catalog dir is listed
+            self.driver.send(command="add-dirs",
+                             callback=lambda request, response: None,
+                             **{"catalog-dirs": []})
+
             if errors:
                 errmsg = '\n'.join(e[0] for e in errors)
                 errtext = '\n---\n'.join(e[1] for e in errors)
@@ -389,20 +392,18 @@ class KoCodeIntelCatalogAdder(threading.Thread):
 class KoCodeIntelCatalogRemover(threading.Thread):
     """Remove the given .cix paths from the catalogs zone."""
     _com_interfaces_ = [components.interfaces.koIShowsProgress]
-    _reg_clsid_ = "{90504450-1DC6-4216-B12A-47DB081DF137}"
-    _reg_contractid_ = "@activestate.com/koCodeIntelCatalogRemover;1"
-    _reg_desc_ = "Komodo CodeIntel Database API Catalog Remover"
 
     controller = None
     cancelling = False
 
-    def __init__(self, cix_paths, on_complete=None):
+    def __init__(self, cix_paths, driver, on_complete=None):
         """
             'on_complete' (optional) is callback called as follows:
                 on_complete(<added-cix-paths>).
         """
         threading.Thread.__init__(self, name="CodeIntel Catalog Remover")
         self.cix_paths = cix_paths
+        self.driver = driver
         self.on_complete = on_complete
 
     def set_controller(self, controller):
@@ -435,10 +436,6 @@ class KoCodeIntelCatalogRemover(threading.Thread):
             norm_user_apicatalogs_dir \
                 = normpath(normcase(join(koDirSvc.userDataDir, "apicatalogs")))
 
-            ciSvc = components.classes["@activestate.com/koCodeIntelService;1"].\
-                       getService(components.interfaces.koICodeIntelService)
-            mgr = UnwrapObject(ciSvc).mgr
-
             errors = []
             removed_cix_paths = []
             for cix_path in self.cix_paths:
@@ -456,14 +453,19 @@ class KoCodeIntelCatalogRemover(threading.Thread):
                     if exists(cix_path):
                         os.remove(cix_path)
 
-                    # Update CatalogsZone accordingly
-                    mgr.db.get_catalogs_zone().update(selections=[cix_path])
                     removed_cix_paths.append(cix_path)
                 except Exception, ex:
                     errors.append((
                         "error removing `%s' API catalog: %s" % (cix_path, ex),
                         traceback.format_exc()
                     ))
+
+            # Update CatalogsZone accordingly
+            # No need to send any directories over, the user catalog dir is listed
+            self.driver.send(command="add-dirs",
+                             callback=lambda request, response: None,
+                             **{"catalog-dirs": []})
+
             if errors:
                 errmsg = '\n'.join(e[0] for e in errors)
                 errtext = '\n---\n'.join(e[1] for e in errors)

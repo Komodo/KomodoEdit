@@ -55,6 +55,7 @@ testdir_from_ns = {
     "pyxpcom": "pyxpcom",
     "pyxpcom/views": join("..", "src", "views", "test"),
     "ci": join("..", "src", "codeintel", "test2"),
+    "ci-xpcom": join("..", "src", "codeintel", "src", "komodo", "test"),
     "hist": join("..", "src", "history"),
     "languages": join("..", "src", "languages", "test"),
     "run": join("..", "src", "run", "test"),
