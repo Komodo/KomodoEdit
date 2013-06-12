@@ -92,7 +92,7 @@ KoJSTestCase.prototype.runTest = function KoJSTestCase_runTest(aResult, aTestNam
         aResult.reportError(ex.message || ex,
                             stack, stack.length,
                             ex.type);
-    } catch (ex if ex instanceof Error) {
+    } catch (ex if ex instanceof Error || ex instanceof Ci.nsIException) {
         let stack = this._getStackForException(ex);
         aResult.reportError("While testing " + aTestName + ": " + (ex.message || ex),
                             stack, stack.length,
@@ -107,7 +107,7 @@ KoJSTestCase.prototype.setUp = function KoJSTestCase_setUp(aResult) {
     Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService).reset();
     try {
         this.instance = new this.clazz();
-    } catch (ex if ex instanceof Error) {
+    } catch (ex if ex instanceof Error || ex instanceof Ci.nsIException) {
         let stack = this._getStackForException(ex);
         aResult.reportError("While creating " + this.name + ": " + (ex.message || ex),
                             stack, stack.length,
@@ -120,7 +120,7 @@ KoJSTestCase.prototype.setUp = function KoJSTestCase_setUp(aResult) {
     }
     try {
         this.instance.setUp();
-    } catch (ex if ex instanceof Error) {
+    } catch (ex if ex instanceof Error || ex instanceof Ci.nsIException) {
         let stack = this._getStackForException(ex);
         aResult.reportError("While setting up " + this.name + ": " + (ex.message || ex),
                             stack, stack.length,
@@ -134,7 +134,7 @@ KoJSTestCase.prototype.setUp = function KoJSTestCase_setUp(aResult) {
 KoJSTestCase.prototype.tearDown = function KoJSTestCase_tearDown(aResult) {
     try {
         this.instance.tearDown();
-    } catch (ex if ex instanceof Error) {
+    } catch (ex if ex instanceof Error || ex instanceof Ci.nsIException) {
         let stack = this._getStackForException(ex);
         aResult.reportError("While tearing down " + this.name + ": " + (ex.message || ex),
                             stack, stack.length,
@@ -176,6 +176,9 @@ KoJSTestCase.prototype.tearDown = function KoJSTestCase_tearDown(aResult) {
  * Given an exception, return a filtered array of strings for the stack trace
  */
 KoJSTestCase.prototype._getStackForException = function KoJSTestCase__getStackForException(ex) {
+    if (ex instanceof Ci.nsIException) {
+        return this._getStackFornsIException(ex);
+    }
     let stack = ex.stack.split(/\n/);
     stack = stack.map(function(line) {
         let fileName = "", lineNumber = "";
@@ -201,6 +204,19 @@ KoJSTestCase.prototype._getStackForException = function KoJSTestCase__getStackFo
         }
         return line + fileName + lineNumber;
     }).filter(function(line) typeof(line) != "undefined");
+    return stack;
+};
+
+/**
+ * Given a nsIException, returned a filtered array of strings for the stack trace
+ */
+KoJSTestCase.prototype._getStackFornsIException = function KoJSTestCase__getStackFornsIException(ex) {
+    let stack = [];
+    for (let frame = ex.location; frame; frame = frame.caller) {
+        // Drop the subscript loader info
+        let filename = String(frame.filename).replace(/^.*->\s*/, "");
+        stack.push(frame.name + "@" + filename + ":" + frame.lineNumber);
+    }
     return stack;
 };
 
