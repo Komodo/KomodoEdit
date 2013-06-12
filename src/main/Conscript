@@ -201,9 +201,7 @@ if ($platform eq "win") {
         #    --dev/--full.
         $envVars = "MOZ_WINCONSOLE=0";
     }
-    if ($mozVersion ge 6.0) {
-        $envVars .= " KOMODO_USE_WMAIN=1";
-    }
+    $envVars .= " KOMODO_USE_WMAIN=1";
     #$unsiloedPerlExe =~ s/\\/\//g;
     #$envVars .= " PERL=$unsiloedPerlExe";
     #$buildCmd = "cd $mozKomodoSrcDir\\app && touch *.c && touch *.cpp && cd $mozKomodoObjDir\\app && del *.obj && $mozMake $envVars";
