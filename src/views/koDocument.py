@@ -912,6 +912,13 @@ class koDocumentBase:
         self.prefs.setStringPref("encoding",
                                  self.encoding.python_encoding_name)
 
+    @property
+    def buffer(self):
+        return self.get_buffer()
+    @buffer.setter
+    def buffer(self, text):
+        return self.set_buffer(text)
+
     @components.ProxyToMainThread
     def _set_buffer_encoded(self,text,makeDirty=1):
         was_dirty = self.get_isDirty()

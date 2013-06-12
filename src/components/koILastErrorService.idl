@@ -69,3 +69,21 @@ interface koILastErrorService : nsISupports {
     wstring getLastErrorMessage();
 };
 
+/**
+ * A paricular error state
+ * This is to be used with asynchronous operations where multiple error states
+ * may exist at once in the application, instead of a singleton as found in
+ * koILastErrorService.
+ */
+[scriptable, uuid(ff89538a-de9d-4186-878a-ec6c5aa19e7f)]
+interface koIErrorInfo : nsISupports {
+    /**
+     * The error code.  If everything succeeded, this should be a success code
+     * such as NS_OK (0).
+     */
+    attribute nsresult result;
+    /**
+     * A description of the error.
+     */
+    attribute AString message;
+};

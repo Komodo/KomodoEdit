@@ -114,7 +114,7 @@ class Buffer(object):
         self.mgr = mgr
         self.accessor = accessor # an Accessor instance
         self._env = env
-        self.path = path
+        self.path = path if path is not None else "<Unsaved>"
         self.encoding = encoding
         if lang is not None:
             self.lang = lang
@@ -125,7 +125,8 @@ class Buffer(object):
             (s, True) for s in self.number_styles())
 
     def __repr__(self):
-        return "<%s buf '%s'>" % (self.lang, basename(self.path))
+        return "<%s buf '%s'>" % (self.lang,
+                                  basename(self.path) if self.path is not None else "(no file)")
 
     @property
     def env(self):

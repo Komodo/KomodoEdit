@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+
+"""
+Experimental out-of-process driver for codeintel2
+Reference: http://bugs.activestate.com/show_bug.cgi?id=93455
+"""
+
+import argparse
+import contextlib
+import ctypes
+import logging
+import os
+import os.path
+from os.path import abspath, dirname, join
+import socket
+import sys
+import threading
+
+log = None
+
+class DummyStream(object):
+    def write(self, message):
+        pass
+    def flush(self):
+        pass
+
+def main(argv=[]):
+    global log
+
+    # Don't redirect output
+    os.environ["KOMODO_VERBOSE"] = "1"
+
+    parser = argparse.ArgumentParser()
+    parser.description = "Komodo out-of-process codeintel driver"
+    parser.add_argument("--database-dir", default=os.path.expanduser("~/.codeintel"),
+                        help="The base directory for the codeintel database.")
+    parser.add_argument("--log-level", action="append", default=[],
+                        help="<log name>:<level> Set log level")
+    parser.add_argument("--log-file", default=None,
+                        help="The name of the file to log to")
+    parser.add_argument("--connect", default=None,
+                        help="Connect over TCP instead of using stdin/stdout")
+    parser.add_argument("--import-path", action="append", default=["", "../lib"],
+                        help="Paths to add to the Python import path")
+    args = parser.parse_args()
+
+    if args.log_file:
+        stream = open(args.log_file, "w", 0)
+        logging.basicConfig(stream=stream)
+        # XXX marky horrible ugly hack
+        sys.stderr = stream
+        sys.stdout = stream
+    else:
+        logging.basicConfig(stream=DummyStream())
+
+    for log_level in args.log_level:
+        if ":" in log_level:
+            name, level = log_level.rsplit(":", 1)
+        else:
+            name, level = ["", log_level]
+        try:
+            level = int(level, 10)
+        except ValueError:
+            try:
+                level = getattr(logging, level)
+            except AttributeError:
+                pass
+        if isinstance(level, int):
+            logging.getLogger(name).setLevel(level)
+
+    log = logging.getLogger("codeintel.oop.executable")
+
+    old_sys_path = set(abspath(join(p)) for p in sys.path)
+
+    for relpath in args.import_path:
+        import_path = abspath(join(dirname(__file__), relpath))
+        if import_path not in old_sys_path:
+            sys.path.append(import_path)
+
+    # importing codeintel imports pyxpcom, which seems to break logging;
+    # work around it for now by putting the original handler back
+    handler = logging.root.handlers[0]
+    from codeintel2.oop import Driver
+    logging.root.handlers[0] = handler
+
+    if args.connect:
+        log.debug("connecting to: %s", args.connect)
+        conn = socket.create_connection(args.connect.rsplit(":", 1))
+        fd_in = conn.makefile("r+b", 0)
+        fd_out = fd_in
+    else:
+        # force unbuffered stdout
+        fd_in = sys.stdin
+        fd_out = os.fdopen(sys.stdout.fileno(), "wb", 0)
+    driver = Driver(db_base_dir=args.database_dir,
+                    fd_in=fd_in, fd_out=fd_out)
+    driver.start()
+
+
+if __name__ == '__main__':
+    main(argv=sys.argv)

@@ -62,6 +62,11 @@ interface koIUserEnviron : nsISupports {
   
     boolean has(in wstring key);
     wstring get(in wstring key);
+    /**
+     * Get all the keys in the environment
+     */
+    void keys([optional] out unsigned long count,
+              [retval, array, size_is(count)] out wstring keys);
 
     // return all the env vars as "<name>=<value>" strings
     //  - this is a convenience function for passing to process creation

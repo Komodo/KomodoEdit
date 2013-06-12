@@ -425,6 +425,9 @@ class KoUserEnviron:
             key = key.upper()  # put everything upper on Windows
         return self._userEnviron.get(key)
 
+    def keys(self):
+        return self._userEnviron.keys()
+
     def GetEnvironmentStrings(self):
         self._initialize()
         return ["%s=%s" % (item[0], item[1])\
