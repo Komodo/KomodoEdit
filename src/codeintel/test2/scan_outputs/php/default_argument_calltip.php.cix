@@ -3,7 +3,7 @@
     <scope ilk="blob" lang="PHP" name="default_argument_calltip.php" src="scan_inputs/php/default_argument_calltip.php">
       <scope ilk="class" line="3" lineend="5" name="bug88618">
         <scope attributes="public __ctor__" ilk="function" line="4" lineend="4" name="__construct" signature="__construct(Point $point=null)">
-          <variable citdl="Point" ilk="argument" name="point" />
+          <variable citdl="Point" ilk="argument" line="4" name="point" />
         </scope>
       </scope>
     </scope>

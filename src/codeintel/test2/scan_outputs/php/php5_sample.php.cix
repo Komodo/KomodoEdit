@@ -3,7 +3,7 @@
     <scope ilk="blob" lang="PHP" name="php5_sample.php" src="scan_inputs/php/php5_sample.php">
       <import line="2" module="soap.php" />
       <scope doc="simpleFunc&#xA;&#xA;an example doc string in php" ilk="function" line="9" lineend="10" name="simpleFunc" signature="simpleFunc($ttt)">
-        <variable ilk="argument" name="ttt" />
+        <variable ilk="argument" line="9" name="ttt" />
       </scope>
       <scope ilk="class" line="12" lineend="16" name="SimpleClass">
         <variable line="13" name="x" />
@@ -12,9 +12,9 @@
       <scope classrefs="SimpleClass" ilk="class" line="18" lineend="37" name="SimpleClass2">
         <variable line="19" name="x" />
         <scope doc="foo&#xA;&#xA;since php functions can retrieve arguments dynamically, base arguments&#xA;could appear in the comments, but not in the code&#xA;&#xA;@param string $x&#xA;@param integer $y&#xA;@param MyClass $z&#xA;&#xA;@return string" ilk="function" line="33" lineend="36" name="foo" returns="string" signature="string foo(string $x, integer $y, MyClass $z)">
-          <variable citdl="string" ilk="argument" name="x" />
-          <variable citdl="integer" ilk="argument" name="y" />
-          <variable citdl="MyClass" ilk="argument" name="z" />
+          <variable citdl="string" ilk="argument" line="33" name="x" />
+          <variable citdl="integer" ilk="argument" line="33" name="y" />
+          <variable citdl="MyClass" ilk="argument" line="33" name="z" />
           <variable citdl="func_get_args()" line="34" name="args" />
         </scope>
       </scope>
@@ -26,14 +26,14 @@
       </scope>
       <scope attributes="abstract" doc="AbstractClass&#xA;&#xA;an example doc string in php" ilk="class" line="53" lineend="66" name="AbstractClass">
         <scope attributes="abstract public" ilk="function" line="55" lineend="55" name="test" signature="test($x, $y, $z = NULL)">
-          <variable ilk="argument" name="x" />
-          <variable ilk="argument" name="y" />
-          <variable default="NULL" ilk="argument" name="z" />
+          <variable ilk="argument" line="55" name="x" />
+          <variable ilk="argument" line="55" name="y" />
+          <variable default="NULL" ilk="argument" line="55" name="z" />
         </scope>
         <scope attributes="abstract public" doc="@param string $x&#xA;@param integer $y&#xA;@param MyClass $z&#xA;&#xA;@return string" ilk="function" line="65" lineend="65" name="test2" returns="string" signature="string test2(string $x, integer $y, MyClass $z = NULL)">
-          <variable citdl="string" ilk="argument" name="x" />
-          <variable citdl="integer" ilk="argument" name="y" />
-          <variable citdl="MyClass" default="NULL" ilk="argument" name="z" />
+          <variable citdl="string" ilk="argument" line="65" name="x" />
+          <variable citdl="integer" ilk="argument" line="65" name="y" />
+          <variable citdl="MyClass" default="NULL" ilk="argument" line="65" name="z" />
         </scope>
       </scope>
       <scope classrefs="AbstractClass" ilk="class" interfacerefs="TestInterface TestMethodsInterface" line="68" lineend="114" name="MyClass">
@@ -47,14 +47,14 @@
         <scope ilk="function" line="82" lineend="84" name="__destruct" signature="__destruct()" />
         <scope attributes="public" ilk="function" line="86" lineend="90" name="printHello" signature="printHello()" />
         <scope attributes="public" ilk="function" line="92" lineend="95" name="test" signature="test($x, $y, $z = NULL)">
-          <variable ilk="argument" name="x" />
-          <variable ilk="argument" name="y" />
-          <variable default="NULL" ilk="argument" name="z" />
+          <variable ilk="argument" line="92" name="x" />
+          <variable ilk="argument" line="92" name="y" />
+          <variable default="NULL" ilk="argument" line="92" name="z" />
         </scope>
         <scope attributes="public" ilk="function" line="97" lineend="98" name="test2" signature="test2($x, $y, $z = NULL)">
-          <variable ilk="argument" name="x" />
-          <variable ilk="argument" name="y" />
-          <variable default="NULL" ilk="argument" name="z" />
+          <variable ilk="argument" line="97" name="x" />
+          <variable ilk="argument" line="97" name="y" />
+          <variable default="NULL" ilk="argument" line="97" name="z" />
         </scope>
         <scope attributes="private" ilk="function" line="101" lineend="103" name="aPrivateMethod" signature="aPrivateMethod()" />
         <scope attributes="protected" ilk="function" line="106" lineend="109" name="aProtectedMethod" signature="aProtectedMethod()" />

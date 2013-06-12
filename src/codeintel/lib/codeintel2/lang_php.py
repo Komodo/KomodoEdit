@@ -1403,10 +1403,12 @@ class PHPArg:
         else:
             self.signature = "%s %s" % (citdl, self.signature.split(" ", 1)[1])
 
-    def toElementTree(self, cixelement):
+    def toElementTree(self, cixelement, linestart=None):
         cixarg = addCixArgument(cixelement, self.name, argtype=self.citdl)
         if self.default:
             cixarg.attrib["default"] = self.default
+        if linestart is not None:
+            cixarg.attrib["line"] = str(linestart)
 
 
 class PHPVariable:
@@ -1595,7 +1597,7 @@ class PHPFunction:
             setCixDoc(cixelement, self.doc)
         if self.args:
             for phpArg in self.args:
-                phpArg.toElementTree(cixelement)
+                phpArg.toElementTree(cixelement, self.linestart)
         if self.returnType:
             addCixReturns(cixelement, self.returnType)
         # Add a "this" and "self" member for class functions
