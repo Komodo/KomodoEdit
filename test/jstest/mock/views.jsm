@@ -76,7 +76,9 @@ SciMozMock.prototype.getColumn =
 SciMozMock.prototype.getLine =
     function SciMozMock_getLine(aLineNum, o) {
         var startPos = this.positionFromLine(aLineNum),
-            endPos = this.positionFromLine(aLineNum + 1);
+            endPos = (aLineNum < this.lineCount
+                      ? this.positionFromLine(aLineNum + 1)
+                      : this.length);
         o.value = this.getTextRange(startPos, endPos);
         return endPos - startPos;
     }
