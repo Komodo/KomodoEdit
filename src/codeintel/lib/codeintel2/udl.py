@@ -113,6 +113,7 @@ class UDLLexer(Lexer):
     """
     _lock = threading.Lock()
     _lexresfile_from_lang = None
+    _extra_lexer_dirs = set()
 
     def __init__(self):
         self._properties = SilverCity.PropertySet()
@@ -130,6 +131,11 @@ class UDLLexer(Lexer):
             return Lexer.tokenize_by_style(self, text, call_back)
         finally:
             self._lock.release()
+
+    @staticmethod
+    def add_extra_lexer_dirs(dirs):
+        UDLLexer._extra_lexer_dirs.update(dirs)
+        UDLLexer._lexresfile_from_lang = None
 
     if _xpcom_:
         # Presume we are running under Komodo. Look in the available
@@ -154,6 +160,8 @@ class UDLLexer(Lexer):
                 lexer_dirs.append(join(extensionDir, "lexers"))      # user-install extensions
             lexer_dirs.append(join(koDirs.commonDataDir, "lexers"))  # site/common
             lexer_dirs.append(join(koDirs.supportDir, "lexers"))     # factory
+            for extra_dir in UDLLexer._extra_lexer_dirs:
+                lexer_dirs.append(extra_dir)
 
             # Find all .lexeres files in these lexer dirs.
             for d in reversed(lexer_dirs):  # first come, first served
@@ -178,6 +186,8 @@ class UDLLexer(Lexer):
             # Find all possible lexer dirs.
             lexer_dirs = []
             lexer_dirs.append(join(dirname(__file__), "lexers"))
+            for extra_dir in UDLLexer._extra_lexer_dirs:
+                lexer_dirs.append(extra_dir)
 
             # Find all .lexeres files in these lexer dirs.
             for d in reversed(lexer_dirs):  # first come, first served
