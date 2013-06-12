@@ -55,7 +55,7 @@ __version_info__ = (0, 2, 1)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
-from os.path import join, exists, abspath, dirname
+from os.path import join, exists, abspath, dirname, normcase
 import sys
 import optparse
 import logging
@@ -264,7 +264,11 @@ class _MozBuildRegistry:
             for attr, value in conditions.items():
                 if value is None: continue
                 try:
-                    if getattr(config, attr) != value:
+                    if sys.platform.startswith("win") and attr == "buildDir":
+                        # on Windows, paths are not case sensitive...
+                        if normcase(getattr(config, attr)) != normcase(value):
+                            break
+                    elif getattr(config, attr) != value:
                         break
                 except AttributeError, ex:
                     # This attr is a likely a new configuration items
