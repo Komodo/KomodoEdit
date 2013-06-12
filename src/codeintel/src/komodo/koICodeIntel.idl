@@ -37,9 +37,7 @@
 #include "nsISupports.idl"
 #include "nsISimpleEnumerator.idl"
 #include "nsITreeView.idl"
-#include "nsIDOMDocument.idl"
 
-interface ISciMoz;
 interface koIDocument;
 interface koIShowsProgress;
 interface koIProject;
@@ -325,7 +323,7 @@ interface koICodeIntelService: nsISupports {
                      in wstring content,
                      out unsigned long count,
                      [retval, array, size_is(count)] out wstring members);
-    
+
     // Return a list of available modules to import under the given module
     // prefix.
     //

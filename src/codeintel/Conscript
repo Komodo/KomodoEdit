@@ -59,8 +59,6 @@ Import(
 
 
 # src/komodo/...
-$cons->Preprocess('src/komodo/koICodeIntel.p.idl',
-                  'src/komodo/koICodeIntel.idl');
 $cons->Install($idlExportDir, "src/komodo/koICodeIntel.idl");
 $cons->BuildAndInstallXpt("src/komodo/koICodeIntel.idl");
 $cons->InstallXpcomComponent("src/komodo/koCodeIntel.py");
