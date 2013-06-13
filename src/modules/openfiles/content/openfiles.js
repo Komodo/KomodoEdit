@@ -153,33 +153,6 @@ if (typeof ko.openfiles == 'undefined')
             this.reload();
         },
 
-        /**
-         * Observe custom events (in this case only file_status)
-         *
-         * @param   {String} subject
-         * @param   {String} topic
-         * @param   {String} data
-         *
-         * @returns {Void} 
-         */
-        observe: function(subject, topic, data)
-        {
-            if (topic != 'file_status') return; // shouldn't ever happen
-
-            var urllist = data.split('\n');
-            var topView = koWindow.document.getElementById('topview');
-            var views;
-            
-            for (var u=0; u < urllist.length; ++u)
-            {
-                views = topView.findViewsForURI(urllist[u]);
-                for (var i=0; i < views.length; ++i)
-                {
-                    this.onUpdateFileStatus(views[i]);
-                }
-            }
-        },
-
         controller:
         {
             // Grouping Toggle
@@ -432,11 +405,6 @@ if (typeof ko.openfiles == 'undefined')
             // Register controller
             window.controllers.appendController(this.controller);
             parent.controllers.appendController(this.controller);
-
-            // Register observer
-            var _observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-                                getService(Components.interfaces.nsIObserverService);
-            _observerSvc.addObserver(this, "file_status", false);
         },
         
         /**
@@ -492,70 +460,6 @@ if (typeof ko.openfiles == 'undefined')
             }
         },
         
-        /**
-         * Update the SCC file status for the given view
-         *
-         * @param   {Object} view
-         *
-         * @returns {Void} 
-         */
-        onUpdateFileStatus: function openfiles_onUpdateFileStatus(view)
-        {
-            var viewType = view.getAttribute("type");
-            var koFile = view && view.koDoc && view.koDoc.file;
-            if (! koFile || view.koDoc.isUntitled ||
-                (viewType == "startpage" && viewType == "browser" ))
-            {
-                return;
-            }
-
-            var sccIndicator = listbox.querySelector(
-                'richlistitem[id="'+view.uid.number+'"] .file-scc'
-            );
-            var sccIndicatorExtra = listbox.querySelector(
-                'richlistitem[id="'+view.uid.number+'"] .file-scc-extra'
-            );
-
-            // Scc status.
-            if (koFile.sccType == '')
-            {
-                sccIndicator.setAttribute("collapsed", "true");
-                sccIndicatorExtra.setAttribute("collapsed", "true");
-            }
-            else
-            {
-                sccIndicator.removeAttribute("collapsed");
-                sccIndicatorExtra.removeAttribute("collapsed");
-
-                var action = koFile.sccAction;
-                var hasConflict = (action == 'conflict') || koFile.sccConflict;
-
-                // Set SCC Extra Status
-                if (hasConflict)
-                {
-                    sccIndicatorExtra.setAttribute('file_scc_status_extra', 'scc_conflict');
-                }
-                else if (koFile.sccNeedSync)
-                {
-                    sccIndicatorExtra.setAttribute('file_scc_status_extra', 'scc_needSync');
-                }
-                else
-                {
-                    sccIndicatorExtra.removeAttribute('file_scc_status_extra');
-                }
-
-                // Set SCC status
-                if (action && action != 'conflict')
-                {
-                    sccIndicator.setAttribute('file_scc_status', 'scc_' + action);
-                }
-                else if (!hasConflict)
-                {
-                    sccIndicator.setAttribute('file_scc_status', 'scc_ok');
-                }
-            }
-        },
-
         /*
          * Reloads (or initializes) the open files list. This retreives the list 
          * of editor views and calls addItem() for each.
@@ -675,8 +579,6 @@ if (typeof ko.openfiles == 'undefined')
                         }.bind(this));
                     }.bind(this));
                 }
-
-                this.onUpdateFileStatus(editorView);
             }
             
             // Render the groups and splits
