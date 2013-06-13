@@ -219,14 +219,14 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
     var finalNewIndicators = [];
     for each (var offsetAndValue in offsetsAndValues) {
         [start, length, value] = offsetAndValue;
-            //log.debug("Draw squiggle:%d at pos[%d:%d], line %d:%d => %d:%d",
-            //          value, start, start + length,
-            //          scimoz.lineFromPosition(start),
-            //          start - scimoz.positionFromLine(scimoz.lineFromPosition(start)),
-            //          scimoz.lineFromPosition(start + length - 1),
-            //          start + length - 1 - scimoz.positionFromLine(scimoz.lineFromPosition(start + length - 1)))
-            scimoz.indicatorCurrent = value;
-            scimoz.indicatorFillRange(start, length);
+        //log.debug("Draw squiggle:%d at pos[%d:%d], line %d:%d => %d:%d",
+        //          value, start, start + length,
+        //          scimoz.lineFromPosition(start),
+        //          start - scimoz.positionFromLine(scimoz.lineFromPosition(start)),
+        //          scimoz.lineFromPosition(start + length - 1),
+        //          start + length - 1 - scimoz.positionFromLine(scimoz.lineFromPosition(start + length - 1)))
+        scimoz.indicatorCurrent = value;
+        scimoz.indicatorFillRange(start, length);
     }
     //var time3 = new Date();
     //dump("                                       drawing: " + (time3 - time2) + "msec\n");
