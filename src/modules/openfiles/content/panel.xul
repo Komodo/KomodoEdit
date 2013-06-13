@@ -8,6 +8,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/SCC.css" type="text/css"?>
 <?xml-stylesheet href="chrome://openfiles/skin/openfiles.less" type="stylesheet/less" media="less"?>
 <?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
  
@@ -160,6 +161,12 @@
                     class="file-icon"
                     src="chrome://komodo/skin/images/existing_file.png"/>
                 
+                <image
+                    class="file-scc file-status-icon"/>
+
+                <image
+                    class="file-scc-extra file-scc-status-extra-icon"/>
+
                 <label
                     class="file-title"
                     crop="end"
