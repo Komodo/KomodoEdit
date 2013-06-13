@@ -106,17 +106,28 @@ diff --git gtk/ScintillaGTK.cxx gtk/ScintillaGTK.cxx
 index d07d464..15481d0 100644
 --- gtk/ScintillaGTK.cxx
 +++ gtk/ScintillaGTK.cxx
-@@ -1989,7 +1989,7 @@ void ScintillaGTK::Resize(int width, int height) {
+@@ -1740,10 +1982,7 @@
  
  	// These allocations should never produce negative sizes as they would wrap around to huge
  	// unsigned numbers inside GTK+ causing warnings.
 -	bool showSBHorizontal = horizontalScrollBarVisible && (wrapState == eWrapNone);
+-	int horizontalScrollBarHeight = scrollBarHeight;
+-	if (!showSBHorizontal)
+-		horizontalScrollBarHeight = 0;
 +	bool showSBHorizontal = horizontalScrollBarVisible && (wrapState == eWrapNone) && !useCustomScrollBars;
- 	int horizontalScrollBarHeight = scrollBarHeight;
- 	if (!showSBHorizontal)
- 		horizontalScrollBarHeight = 0;
-@@ -2006,7 +2006,7 @@ void ScintillaGTK::Resize(int width, int height) {
+ 
+ 	GtkAllocation alloc;
+ 	if (showSBHorizontal) {
+@@ -1751,23 +1990,23 @@
+ 		alloc.x = 0;
+ 		alloc.y = height - scrollBarHeight;
+ 		alloc.width = Platform::Maximum(1, width - scrollBarWidth);
+-		alloc.height = horizontalScrollBarHeight;
++		alloc.height = scrollBarWidth;
+ 		gtk_widget_size_allocate(GTK_WIDGET(PWidget(scrollbarh)), &alloc);
+ 	} else {
  		gtk_widget_hide(GTK_WIDGET(PWidget(scrollbarh)));
++		scrollBarHeight = 0; // in case horizontalScrollBarVisible is true.
  	}
  
 -	if (verticalScrollBarVisible) {
@@ -124,6 +135,28 @@ index d07d464..15481d0 100644
  		gtk_widget_show(GTK_WIDGET(PWidget(scrollbarv)));
  		alloc.x = width - scrollBarWidth;
  		alloc.y = 0;
+ 		alloc.width = scrollBarWidth;
+ 		alloc.height = Platform::Maximum(1, height - scrollBarHeight);
+-		if (!showSBHorizontal)
+-			alloc.height += scrollBarWidth-1;
+ 		gtk_widget_size_allocate(GTK_WIDGET(PWidget(scrollbarv)), &alloc);
+ 	} else {
+ 		gtk_widget_hide(GTK_WIDGET(PWidget(scrollbarv)));
++		scrollBarWidth = 0; // in case verticalScrollBarVisible is true.
+ 	}
+ 	if (IS_WIDGET_MAPPED(PWidget(wMain))) {
+ 		ChangeSize();
+@@ -1777,10 +2016,6 @@
+ 	alloc.y = 0;
+ 	alloc.width = Platform::Maximum(1, width - scrollBarWidth);
+ 	alloc.height = Platform::Maximum(1, height - scrollBarHeight);
+-	if (!showSBHorizontal)
+-		alloc.height += scrollBarHeight;
+-	if (!verticalScrollBarVisible)
+-		alloc.width += scrollBarWidth;
+ 	gtk_widget_size_allocate(GTK_WIDGET(PWidget(wText)), &alloc);
+ }
+ 
 diff --git include/Scintilla.iface include/Scintilla.iface
 index 2c23ef2..91293e6 100644
 --- include/Scintilla.iface
