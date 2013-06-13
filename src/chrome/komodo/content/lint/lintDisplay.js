@@ -217,15 +217,8 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
     var prevEndStyled = scimoz.endStyled;
     var start, length, value;
     var finalNewIndicators = [];
-    var currentLine = scimoz.lineFromPosition(scimoz.currentPos);
-    var lastLine = scimoz_lineCount - 1;
-    var onLastLine = currentLine == lastLine;
     for each (var offsetAndValue in offsetsAndValues) {
         [start, length, value] = offsetAndValue;
-            if (onLastLine
-                && scimoz.lineFromPosition(start) == lastLine) {
-                continue;
-            }
             //log.debug("Draw squiggle:%d at pos[%d:%d], line %d:%d => %d:%d",
             //          value, start, start + length,
             //          scimoz.lineFromPosition(start),
