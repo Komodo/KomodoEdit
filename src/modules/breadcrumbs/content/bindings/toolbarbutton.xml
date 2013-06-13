@@ -18,6 +18,8 @@
         <content>
             <children includes="observes|template|menupopup|panel|tooltip"/>
             <xul:image class="toolbarbutton-icon" xbl:inherits="validate,src=image,label"/>
+            <xul:image class="file-scc file-status-icon" xbl:inherits="file_scc_status"/>
+            <xul:image class="file-scc-extra file-scc-status-extra-icon" xbl:inherits="file_scc_status_extra"/>
             <xul:label class="toolbarbutton-text" crop="right" flex="1" xbl:inherits="value=label,accesskey,crop"/>
             <xul:box class="breadcrumb-arrow"/>
         </content>

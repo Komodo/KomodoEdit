@@ -48,8 +48,9 @@ if (typeof ko.breadcrumbs == 'undefined')
         loadInProgress: false
     };
 
-    /* Crumb ache */
+    /* Crumb cache */
     var crumbs = {};
+    var crumbFile = null;
 
     /* timeout helpers - I know Mook .. */
     var timers = {};
@@ -153,6 +154,9 @@ if (typeof ko.breadcrumbs == 'undefined')
             // Update overflow whenever breadcrumbs are loaded
             this.checkOverflow();
 
+            // Manually set file status as no event is triggered at this point
+            this.onUpdateFileStatus(view);
+
             // Done loading, allow another queued load in case the user
             // is faster than us (slow filesystem?)
             eventContext.loadInProgress = false;
@@ -184,6 +188,11 @@ if (typeof ko.breadcrumbs == 'undefined')
                 overflowBtn, 'nodeName', 'menupopup'
             );
             this.bindCrumbPopupListeners(overflowMenu);
+
+            // Register observer
+            var _observerSvc = Cc["@mozilla.org/observer-service;1"].
+                                getService(Ci.nsIObserverService);
+            _observerSvc.addObserver(this, "file_status", false);
         },
 
         /**
@@ -373,6 +382,91 @@ if (typeof ko.breadcrumbs == 'undefined')
             doCommand: function(command)
             {
                 return this["do_" + command]();
+            }
+        },
+
+        /**
+         * Observe custom events (in this case only file_status)
+         *
+         * @param   {String} subject
+         * @param   {String} topic
+         * @param   {String} data
+         *
+         * @returns {Void}
+         */
+        observe: function(subject, topic, data)
+        {
+            if (topic != 'file_status') return; // shouldn't ever happen
+
+            var urllist = data.split('\n');
+            var topView = document.getElementById('topview');
+            var views;
+
+            for (var u=0; u < urllist.length; ++u)
+            {
+                views = topView.findViewsForURI(urllist[u]);
+                for (var i=0; i < views.length; ++i)
+                {
+                    this.onUpdateFileStatus(views[i]);
+                }
+            }
+        },
+
+        /**
+         * Update the SCC file status for the given view
+         *
+         * @param   {Object} view
+         *
+         * @returns {Void}
+         */
+        onUpdateFileStatus: function openfiles_onUpdateFileStatus(view)
+        {
+            var viewType = view.getAttribute("type");
+            var koFile = view && view.koDoc && view.koDoc.file;
+            if (! koFile || view.koDoc.isUntitled ||
+                koFile.path != crumbFile.file.getPath() ||
+                (viewType == "startpage" && viewType == "browser" ))
+            {
+                return;
+            }
+
+            var element = crumbFile.node;
+
+            // Scc status.
+            if (koFile.sccType == '')
+            {
+                element.setAttribute("collapsed", "true");
+            }
+            else
+            {
+                element.removeAttribute("collapsed");
+
+                var action = koFile.sccAction;
+                var hasConflict = (action == 'conflict') || koFile.sccConflict;
+
+                // Set SCC Extra Status
+                if (hasConflict)
+                {
+                    element.setAttribute('file_scc_status_extra', 'scc_conflict');
+                }
+                else if (koFile.sccNeedSync)
+                {
+                    element.setAttribute('file_scc_status_extra', 'scc_needSync');
+                }
+                else
+                {
+                    element.removeAttribute('file_scc_status_extra');
+                }
+
+                // Set SCC status
+                if (action && action != 'conflict')
+                {
+                    element.setAttribute('file_scc_status', 'scc_' + action);
+                }
+                else if (!hasConflict)
+                {
+                    element.setAttribute('file_scc_status', 'scc_ok');
+                }
             }
         },
 
@@ -986,6 +1080,11 @@ if (typeof ko.breadcrumbs == 'undefined')
 
                 // Bind listeners
                 this.bindCrumbPopupListeners(menupopup);
+            }
+
+            if ( file && file.isFile())
+            {
+                crumbFile = crumbs[uid];
             }
 
             // Add the created breadcrumb to the DOM
