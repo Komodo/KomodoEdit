@@ -190,17 +190,6 @@ interface koICodeIntelGetTriggerCallback: nsISupports {
     void onGetTrigger([optional] in koICodeIntelTrigger trg);
 };
 
-[scriptable, function, uuid(f940a4ea-65e2-4a63-a17a-7df1c470e769)]
-interface koICodeIntelGetSectionCallback : nsISupports {
-    void onGetSection([optional] in koICodeIntelSection section);
-};
-
-[scriptable, function, uuid(67071688-7607-499e-9aa4-2fab61c54dc9)]
-interface koICodeIntelGetSectionsCallback : nsISupports {
-    void onGetSections([array, size_is(count)] in koICodeIntelSection sections,
-                       in unsigned long count);
-};
-
 [scriptable, function, uuid(d2f1ceed-7e80-4a99-8d81-2c190bc2cc6e)]
 interface koICodeIntelGetIndexCallback : nsISupports {
     void onGetIndex([optional] in long index);
