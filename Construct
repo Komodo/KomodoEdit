@@ -290,6 +290,16 @@ elsif ($platform eq "darwin") {
     $environ{CXXFLAGS} .= ' -mmacosx-version-min=10.6';
     $environ{LDFLAGS} .= ' -mmacosx-version-min=10.6';
 }
+elsif ($platform eq "win") {
+    # VSnnCOMNTOOLS is needed to let Python distutils figure out where MSVC
+    # lives; this is used to build Python modules using the correct compiler.
+    # http://bugs.activestate.com/show_bug.cgi?id=99294
+    while (my ($key, $value) = each %ENV) {
+	if ($key =~ m/^VS\d+COMNTOOLS$/) {
+	    $environ{$key} = $value;
+	}
+    }
+}
 
 
 # Needed for p4 calls in processes kicked off by Cons.
