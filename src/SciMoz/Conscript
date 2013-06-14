@@ -432,11 +432,11 @@ else {
 	    "headless/SciMozEvents.cxx",
 	    "headless/sendscintilla.cxx",
 	);
-	$consLocal->Depends($headlessSciMoz, "sendscintilla.h");
-	$consLocal->Depends($headlessSciMoz, "nsSciMoz.h");
-	$consLocal->Depends($headlessSciMoz, $pluginName); # build real SciMoz first
+	$consHeadless->Depends($headlessSciMoz, "sendscintilla.h");
+	$consHeadless->Depends($headlessSciMoz, "nsSciMoz.h");
+	$consHeadless->Depends($headlessSciMoz, $pluginName); # build real SciMoz first
 
-	$cons->InstallXpcomComponent($headlessSciMoz);
+	$consHeadless->InstallXpcomComponent($headlessSciMoz);
     }
 }
 
