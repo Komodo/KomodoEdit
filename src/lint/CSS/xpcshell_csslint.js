@@ -82,22 +82,23 @@ KoCSSLinter.prototype.observe = function(message)
     }
 
     // Guess the end of the error by finding a word boundary.
-    var line = this.lines[message.lineNumber-1].substr(message.columnNumber-1);
+    var columnStart = message.columnNumber;
+    var line = this.lines[message.lineNumber-1].substr(columnStart-1);
+    var columnEnd = line.length;
     var linesplit = line.split(/\b/);
     if (linesplit.length > 1) {
-        columnEnd = message.columnNumber + linesplit[0].length;
-        if (columnEnd <= message.columnNumber) {
+        columnEnd = columnStart + linesplit[0].length;
+        if (columnEnd <= columnStart) {
             columnEnd = line.length;
         }
     }
-    columnEnd = Math.min(line.length, columnEnd);
 
     // Store the lint entry.
     let entry = {
         'description': desc,
         'lineStart': message.lineNumber,
         'lineEnd': message.lineNumber,
-        'columnStart': message.columnNumber,
+        'columnStart': columnStart,
         'columnEnd': columnEnd,
         'severity': severity,
     };
