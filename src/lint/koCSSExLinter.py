@@ -56,11 +56,17 @@ class KoCSSLinter(KoCommonCSSLintCode):
                         components.interfaces.nsIConsoleListener]
     _reg_desc_ = "Komodo CSS Linter"
     _reg_clsid_ = "{ded22115-148a-4a2f-aef1-2ae7e12395b0}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=CSS;1"
+    _reg_contractid_ = "@activestate.com/koLinter?language=CSS&type=Komodo;1"
     _reg_categories_ = [
-         ("category-komodo-linter", 'CSS'),
+         ("category-komodo-linter", 'CSS&type=Komodo'),
          ]
-    
+    lint_prefname = "lint_css_komodo_parser_enabled"
+
+    def lint_with_text(self, request, text):
+        if not request.prefset.getBoolean(self.lint_prefname, False):
+            return None  # It's turned off.
+        return KoCommonCSSLintCode.lint_with_text(self, request, text)
+
 class KoSCSSCommonLinter(KoCommonCSSLintCode):
     """Handle both scss and sass here. They both use ruby, and are essentially
     using the same processor.

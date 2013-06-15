@@ -2,6 +2,8 @@
 <!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
   <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
   %prefDTD;
+  <!ENTITY % prefSyntaxCheckingDTD SYSTEM "chrome://komodo/locale/pref/pref-syntax-checking.dtd">
+  %prefSyntaxCheckingDTD;
 ]>
 
 <!-- Copyright (c) 2000-2011 ActiveState Software Inc.
@@ -308,6 +310,24 @@
         
             </vbox>
         
+            <vbox id="langSyntaxCheck-CSS">
+                <groupbox orient="vertical">
+                    <checkbox id="lint_css_mozilla_parser_enabled"
+                              label="&lintCSSWithMozillaParser.checkbox.label;"
+                              pref="true"
+                              preftype="boolean"
+                              prefdefault="true"
+                              />
+                    <separator class="thin"/>
+                    <checkbox id="lint_css_komodo_parser_enabled"
+                              label="&lintCSSWithKomodoParser.checkbox.label;"
+                              pref="true"
+                              preftype="boolean"
+                              prefdefault="false"
+                              />
+                </groupbox>
+            </vbox>
+
             <vbox id="langSyntaxCheck-Less">
                 <groupbox orient="vertical">
                     <radiogroup id="lessLinterType"

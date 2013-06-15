@@ -63,4 +63,5 @@ Import(
 
 
 $cons->InstallXpcomComponent('koCSSLinter.py');
+$cons->Install("$supportDir/lint/css", "xpcshell_csslint.js");
 

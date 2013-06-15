@@ -35,141 +35,123 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-import os, sys, traceback, re, time
-from xpcom import components
-from koLintResult import *
-from koLintResults import koLintResults
-import eollib, tempfile
+import os
+import sys
+import json
 import logging
-import URIlib
+import tempfile
 
-from codeintel2.lang_css import CSSLangIntel
+from xpcom import components
+
+import URIlib
+import process
+import koprocessutils
+from koLintResult import KoLintResult
+from koLintResults import koLintResults
+from codeintel2.lang_css import CSSLangIntel   # TODO ?
 
 log = logging.getLogger("koCSSLinter")
 
 
 class KoCSSLinter:
-    _com_interfaces_ = [components.interfaces.koILinter,
-                        components.interfaces.nsIConsoleListener]
+    _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "Komodo Mozilla CSS Linter"
     _reg_clsid_ = "{F770CBE7-2AAF-492C-8900-CC512CAF5046}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=CSS-Mozilla;1"
+    _reg_contractid_ = "@activestate.com/koLinter?language=CSS&type=Mozilla;1"
     _reg_categories_ = [
-         ("category-komodo-linter", 'CSS'),
+         ("category-komodo-linter", 'CSS&type=Mozilla'),
          ]
+    lint_prefname = "lint_css_mozilla_parser_enabled"
 
-    results = None
+    @property
+    # Lazily computed property that is cached onto the class on it's first call.
+    def koDirs(self):
+        self.koDirs = KoCSSLinter.koDirs = components.classes["@activestate.com/koDirs;1"]\
+                         .getService(components.interfaces.koIDirs)
+        return KoCSSLinter.koDirs
 
-    def __init__(self):
-        # XXX unfortunately we have to do this here, since doing it in lint
-        # below (which would be optimal) will not work.  The console service
-        # creates a proxy back to this object which fails since either lint
-        # is in a thread, or because this is a python object.  Not sure which.
-        self.csvc = components.classes["@mozilla.org/consoleservice;1"].\
-                getService(components.interfaces.nsIConsoleService)
-        self.csvc.registerListener(self)
+    @property
+    # Lazily computed property that is cached onto the class on it's first call.
+    def mozBinDir(self):
+        self.mozBinDir = KoCSSLinter.mozBinDir = self.koDirs.mozBinDir
+        return KoCSSLinter.mozBinDir
+
+    @property
+    # Lazily computed property that is cached onto the class on it's first call.
+    def csslint_filepath(self):
+        self.csslint_filepath = KoCSSLinter.csslint_filepath = \
+               os.path.join(self.koDirs.supportDir, "lint", "css", "xpcshell_csslint.js")
+        return KoCSSLinter.csslint_filepath
+
+    @property
+    # Lazily computed property that is cached onto the class on it's first call.
+    def xpcshell_exe(self):
+        if sys.platform.startswith("win"):
+            xpcshell_exe = os.path.join(self.koDirs.mozBinDir, "xpcshell.exe")
+        else:
+            xpcshell_exe = os.path.join(self.koDirs.mozBinDir, "xpcshell")
+        self.xpcshell_exe = KoCSSLinter.xpcshell_exe = xpcshell_exe
+        return xpcshell_exe
+
+    def _setLDLibraryPath(self):
+        env = koprocessutils.getUserEnv()
+        ldLibPath = env.get("LD_LIBRARY_PATH", None)
+        if ldLibPath:
+            env["LD_LIBRARY_PATH"] = self.koDirs.mozBinDir + ":" + ldLibPath
+        else:
+            env["LD_LIBRARY_PATH"] = self.koDirs.mozBinDir
+        return env
 
     def lint(self, request):
         """Lint the given CSS content.
         
         Raise an exception  if there is a problem.
         """
-
         text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)
-        
+
     def lint_with_text(self, request, text):
-        self.datalines = re.split('\r\n|\r|\n',text)
-        cwd = request.cwd
+        if not text:
+            return None
+        if not request.prefset.getBoolean(self.lint_prefname, True):
+            return None
 
-        self.results = koLintResults()
-
-        fn = None
-        # save buffer to a temporary file
+        # Save buffer to a temporary file and parse it.
+        cwd = request.cwd or None
+        fn = tempfile.mktemp()
         try:
-            self.fn = fn = tempfile.mktemp()
-            self.uri = URIlib.URIParser(self.fn)
-            fout = open(fn, 'wb')
-            fout.write(text)
-            fout.close()
-            
-            parser = components.classes["@activestate.com/koCSSParser;1"].createInstance(components.interfaces.koICSSParser)
-            parser.parseFile(fn)
-            
+            file(fn, 'wb').write(text)
+            return self.parse(fn, cwd=cwd)
         except Exception, e:
             log.exception(e)
-
-        if fn:
+        finally:
             os.unlink(fn)
-        
-        # XXX on windows, the CSS parsing appears to be asynchronous rather than
-        # synchronous like OSX.  We have to do something about this, but
-        # generally CSS parsing is extremely fast so we'll just sleep a little.
-        time.sleep(.5)
-        
-        self.fn = None
-        self.datalines = None
-        r = self.results
-        self.results = None
-        return r
 
-    def observe(self, message):
-        if self.results is None:
-            return
-        
-        message = message.queryInterface(components.interfaces.nsIScriptError)
+    def parse(self, filepath, cwd=None):
+        results = koLintResults()
 
-        #print "[%s s:%s f:%s l:%s flags:%d]"%(message.errorMessage,
-        #                             message.sourceName,
-        #                             message.sourceLine,
-        #                             message.lineNumber,
-        #                             message.flags)
+        entries = []
+        cmd = [self.xpcshell_exe, self.csslint_filepath, filepath]
 
-        desc = message.errorMessage
+        # We only need the stdout result.
+        try:
+            p = process.ProcessOpen(cmd, cwd=cwd, env=self._setLDLibraryPath(),
+                                    stdin=None)
+            stdout, stderr = p.communicate()
+            entries = json.loads(stdout)
+        except:
+            log.exception("Problem running xcshell: %r", cmd)
+            return results
 
-        # Filter out bogus CSS warnings about unknown properties - bug 87425.
-        if desc.startswith("Unknown property "):
-            known_css_prop_names = CSSLangIntel.CSS_PROPERTY_NAMES
-            sp = desc.split("'")
-            if len(sp) >= 2 and sp[1].lower() in known_css_prop_names:
-                # It really is a known css property (according to codeintel).
-                return
-        elif desc.startswith("Unrecognized at-rule "):
-            known_css_atrule_names = CSSLangIntel.CSS_AT_RULE_NAMES
-            sp = desc.split("'")
-            if len(sp) >= 2:
-                name = sp[1].lower()
-                if name.startswith("@"):
-                    name = name[1:]
-                if name in known_css_atrule_names:
-                    # It really is a known css at-rule (according to codeintel).
-                    return
+        for entry in entries:
+            # Convert to Komodo lint result object.
+            #print 'entry: %r' % (entry, )
+            results.addResult(KoLintResult(description=entry.get('description', ''),
+                                           severity=entry.get('severity', 1),
+                                           lineStart=entry.get('lineStart', 0),
+                                           lineEnd=entry.get('lineEnd', -1),
+                                           columnStart=entry.get('columnStart', 0),
+                                           columnEnd=entry.get('columnEnd', 0)))
 
-        if desc.endswith(" Declaration dropped."):
-            # We are just a syntax checker - not actually applying.
-            desc = desc[:-21]
+        return results
 
-        # XXX TODO a better match between sourceName and self.fn
-        uri = URIlib.URIParser(message.sourceName)
-        if self.uri.path == uri.path:
-            result = KoLintResult()
-            result.description = desc
-            result.lineStart = result.lineEnd = message.lineNumber
-            result.columnStart = 1
-            result.columnEnd = len(self.datalines[result.lineEnd-1]) + 1
-            if message.flags == components.interfaces.nsIScriptError.errorFlag:
-                result.severity = result.SEV_ERROR
-            elif message.flags == components.interfaces.nsIScriptError.warningFlag:
-                result.severity = result.SEV_WARNING
-            elif message.flags == components.interfaces.nsIScriptError.exceptionFlag:
-                result.severity = result.SEV_ERROR
-            elif message.flags == components.interfaces.nsIScriptError.strictFlag:
-                result.severity = result.SEV_INFO
-            self.results.addResult(result)
-
-            #print "line: %d le: %d cs: %d ce: %d msg: %s" %(result.lineStart,
-            #                                                result.lineEnd,
-            #                                                result.columnStart,
-            #                                                result.columnEnd,
-            #                                                result.description)
-            
