@@ -113,6 +113,27 @@ window#komodo_main :not(toolbarbutton):not(toolbaritem)
     }
 }
 
+/* Textbox Elements */
+:-moz-any(page, window#komodo_main) :-moz-any(textbox, menulist)
+{
+    &:-moz-any(textbox)
+    {
+        -moz-appearance: @textbox-appearance;
+    }
+
+    &:-moz-any(menulist)
+    {
+        -moz-appearance: @menulist-appearance;
+    }
+
+    background: @textbox-background;
+    color: @textbox-color;
+    box-shadow: @textbox-box-shadow;
+
+    border: @textbox-border;
+    border-radius: @textbox-border-radius;
+}
+
 /* Statusbar */
 
 statusbar
@@ -148,7 +169,7 @@ page, view[type='startpage'], #komodo_main
     richlistbox:not(.bg_transparent),
     listbox
     {
-        background: @tree-background;
+        background: @tree-background !important; /* Sectionlist tree background is stubborn */
     }
 
     tree treecol:not([hideheader]),
