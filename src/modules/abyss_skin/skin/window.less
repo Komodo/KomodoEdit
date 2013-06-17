@@ -19,3 +19,21 @@ minimap
 {
     background-color: @main-border-color;
 }
+
+page :not(toolbarbutton):not(toolbaritem),
+window#komodo_main :not(toolbarbutton):not(toolbaritem)
+{
+    & > :-moz-any(button,toolbarbutton):not(.tab-close-button):not(.tabs-closebutton)
+    {
+        padding: 2px;
+        margin: 2px;
+
+        transition: all 0.2s ease;
+
+        & > :-moz-any(button, toolbarbutton)
+        {
+            margin: 0;
+            -moz-appearance: none;
+        }
+    }
+}

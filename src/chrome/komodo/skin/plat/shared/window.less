@@ -72,6 +72,47 @@ splitter
     background: @workspace-background !important;
 }
 
+/* Buttons */
+
+page :not(toolbarbutton):not(toolbaritem),
+window#komodo_main :not(toolbarbutton):not(toolbaritem)
+{
+    & > :-moz-any(button,toolbarbutton):not(.tab-close-button):not(.tabs-closebutton)
+    {
+        &:-moz-any(button)
+        {
+            -moz-appearance: @button-appearance;
+        }
+
+        &:-moz-any(toolbarbutton)
+        {
+            -moz-appearance: @toolbarbutton-appearance;
+        }
+
+        background: @button-background;
+        color: @button-color;
+        border: @button-border;
+        text-shadow: @button-text-shadow;
+        border-radius: @button-border-radius;
+
+        &:hover
+        {
+            background: @button-background-hover;
+            color: @button-color-hover;
+            border: @button-border-hover;
+            text-shadow: @button-text-shadow-hover;
+        }
+
+        &:active
+        {
+            background: @button-background-active;
+            color: @button-color-active;
+            border: @button-border-active;
+            text-shadow: @button-text-shadow-active;
+        }
+    }
+}
+
 /* Statusbar */
 
 statusbar

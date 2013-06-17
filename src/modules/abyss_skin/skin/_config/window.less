@@ -18,6 +18,25 @@
 @panel-border-color:                    lighten(@main-border-color, 2%);
 @panel-border:                          1px solid @panel-border-color;
 
+@button-appearance:                     none;
+@toolbarbutton-appearance:              none;
+@button-border-radius:                  4px;
+
+@button-background:                     transparent;
+@button-color:                          inherit;
+@button-border:                         1px solid transparent;
+@button-text-shadow:                    inherit;
+
+@button-background-hover:               -moz-linear-gradient(top, rgba(80, 157, 212, 0.05) 15%, rgba(80, 157, 212, 0.2) 100%);
+@button-color-hover:                    @button-color;
+@button-border-hover:                   1px solid lighten(@main-border-color, 15%);
+@button-text-shadow-hover:              0 1px 0 rgba(0, 0, 0, 0.7);
+
+@button-background-active:              -moz-linear-gradient(top, rgba(80, 157, 212, 0.1) 15%, rgba(80, 157, 212, 0.3) 100%);
+@button-color-active:                   @button-color-hover;
+@button-border-active:                  1px solid lighten(@main-border-color, 5%);
+@button-text-shadow-active:             @button-text-shadow-hover;
+
 @statusbar-appearance:                  none;
 @statusbar-background:                  darken(@window-background, 5%) -moz-linear-gradient(-90deg , rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 50px);
 @statusbar-text-color:                  darken(@window-color, 10%);
