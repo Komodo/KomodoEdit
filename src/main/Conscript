@@ -232,7 +232,10 @@ if ($platform eq "win") {
     $cp = "cp -f";
     $mozKomodoSrcDir = "$mozSrc/mozilla/komodo";
     $mozKomodoObjDir = "$mozObjDir/komodo";
-    $buildCmd = "cd $mozKomodoObjDir && rm -f my_getopt.o koStart.o && make";
+    # Mozilla will use it's own virtualenv Python - we must set it's home
+    # directory, else it will complain about being unable to find modules.
+    my $pythonHome = "$mozObjDir/_virtualenv";
+    $buildCmd = "cd $mozKomodoObjDir && rm -f my_getopt.o koStart.o && make PYTHONHOME='" . $pythonHome . "'";
 }
 
 if ($xulrunner) {
