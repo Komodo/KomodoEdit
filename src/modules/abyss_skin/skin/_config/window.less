@@ -30,11 +30,13 @@
 
 @tree-background:                       @window-background;
 @tree-color:                            @window-color;
+@tree-color-selected:                   lighten(@tree-color, 40%);
+@tree-color-selected-focus:             lighten(@tree-color, 60%);
 @tree-treecol-appearance:               none;
 @tree-treecol-background:               darken(@window-background, 2%) -moz-linear-gradient(-90deg , rgba(255,255,255,0) 0%, rgba(0,0,0,0.1) 100%);
 @tree-treecol-border:                   1px solid @main-border-color;
 @tree-treecol-color:                    darken(@window-color, 5%);
 @tree-row-background:                   transparent;
 @tree-row-background-odd:               rgba(0, 0, 0, 0.1);
-@tree-row-background-selected:          rgba(0, 0, 0, 0.15);
-@tree-row-background-selected-focus:    darken(@window-background, 2%);
+@tree-row-background-selected:          -moz-linear-gradient(top, rgba(80, 157, 212, 0.05) 15%, rgba(80, 157, 212, 0.2) 100%);
+@tree-row-background-selected-focus:    -moz-linear-gradient(top, rgba(80, 157, 212, 0.1) 15%, rgba(80, 157, 212, 0.2) 100%);
