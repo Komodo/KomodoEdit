@@ -818,36 +818,24 @@ sub cons::BuildAndInstallXpt {
 
     defined($mozVersion) or \
         die "When building rule for $idlFileName: Mozilla version unknown, please Import 'mozVersion'";
-    if ($mozVersion > 1.99) {
-        defined($unsiloedPythonExe) or \
-            die "When building rule for $idlFileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
-        defined($mozComponentsDir) or \
-            die "When building rule for $idlFileName: Component directory not found, please Import 'mozComponentsDir'";
-        $env->Command("$xptFileName.manifest.landmark",
-                      "$mozComponentsDir/$xptBaseName",
-                      "$mozComponentsDir/komodo.manifest",
-                      "$sdkDir/pylib/chromereg.py",
-                      qq(
-                        $unsiloedPythonExe %3 %2 %1
-                        touch %>
-                      ));
+    defined($unsiloedPythonExe) or \
+	die "When building rule for $idlFileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
+    defined($mozComponentsDir) or \
+	die "When building rule for $idlFileName: Component directory not found, please Import 'mozComponentsDir'";
+    $env->Command("$xptFileName.manifest.landmark",
+		  "$mozComponentsDir/$xptBaseName",
+		  "$mozComponentsDir/komodo.manifest",
+		  "$sdkDir/pylib/chromereg.py",
+		  qq(
+		    $unsiloedPythonExe %3 %2 %1
+		    touch %>
+		  ));
 
-        # make sure to export the file to the sdk
-        # depending on $ranRegxpcomStateFileName here is wrong, but is used
-        # to make sure all the koext consumers have a flag for it
-        $env->Depends($ranRegxpcomStateFileName, "$sdkDir/idl/$idlBaseName");
-        $env->Depends($ranRegxpcomStateFileName, "$xptFileName.manifest.landmark");
-    } else {
-        # make the typelib dependent on registration with the XPCOM registry
-        # - this is necessary because the components require the typelib for
-        #   registration
-        # - XXX I don't know if this will cause reregistration if the typelibs
-        #   change but the implementations do not, nor if this is even required
-        #   or useful
-        $env->Depends($ranRegxpcomStateFileName, "$mozComponentsDir/$xptBaseName");
-        $env->Depends($ranRegxpcomStateFileName, "$sdkDir/idl/$idlBaseName");
-    }
-
+    # make sure to export the file to the sdk
+    # depending on $ranRegxpcomStateFileName here is wrong, but is used
+    # to make sure all the koext consumers have a flag for it
+    $env->Depends($ranRegxpcomStateFileName, "$sdkDir/idl/$idlBaseName");
+    $env->Depends($ranRegxpcomStateFileName, "$xptFileName.manifest.landmark");
 }
 
 
