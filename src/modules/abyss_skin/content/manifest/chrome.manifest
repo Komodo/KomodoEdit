@@ -12,6 +12,7 @@ override chrome://komodo/skin/window.less               chrome://abyss-skin/skin
 override chrome://komodo/skin/panes.less                chrome://abyss-skin/skin/panes.less
 override chrome://komodo/skin/tabs.less                 chrome://abyss-skin/skin/tabs.less
 override chrome://komodo/skin/toolbars.less             chrome://abyss-skin/skin/toolbars.less
+override chrome://komodo/skin/menus.less                chrome://abyss-skin/skin/menus.less
 
 # Override scrollbars.css specifically as it's hard coded in some places of the mozilla code
 override chrome://global/skin/scrollbars.css            chrome://abyss-skin/skin/scrollbars.css

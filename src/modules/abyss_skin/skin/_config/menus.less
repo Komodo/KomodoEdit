@@ -26,3 +26,14 @@
 @main-menu-item-border-style-open:      solid;
 @main-menu-item-border-color-open:      transparent;
 @main-menu-item-box-shadow-open:        none;
+
+@menupopup-appearance:                  none;
+@menupopup-menuitem-appearance:         none;
+@menupopup-background:                  lighten(@window-background, 2%);
+@menupopup-color:                       @window-color;
+@menupopup-background-active:           -moz-linear-gradient(top, rgba(80, 157, 212, 0.05) 15%, rgba(80, 157, 212, 0.2) 100%);
+@menupopup-color-active:                lighten(@window-color, 10%);
+@menupopup-disabled-color:              fade(@window-color, 30%);
+@menupopup-accelerator-color:           fade(@window-color, 15%);
+@menupopup-separator-appearance:        none;
+@menupopup-separator-background:        -moz-linear-gradient(left, fade(@window-background, 100%) 0%, rgba(80, 157, 212, 0.2) 50%, fade(@window-background, 100%) 100%);

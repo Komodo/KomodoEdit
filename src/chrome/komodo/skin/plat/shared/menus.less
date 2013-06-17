@@ -67,3 +67,48 @@
         }
     }
 }
+
+/* Menu Popups */
+
+:-moz-any(page, window#komodo_main) menupopup
+{
+    -moz-appearance: @menupopup-appearance;
+
+    background: @menupopup-background;
+
+    menuitem, menu
+    {
+        -moz-appearance: @menupopup-menuitem-appearance;
+        
+        label
+        {
+            color: @menupopup-color;
+        }
+
+        &[_moz-menuactive="true"]
+        {
+            background: @menupopup-background-active;
+
+            label
+            {
+                color: @menupopup-color-active;
+            }
+        }
+
+        &[disabled="true"] label
+        {
+            color: @menupopup-disabled-color;
+        }
+
+        label:-moz-any(.menu-iconic-accel,.menu-accel)
+        {
+            color: @menupopup-accelerator-color;
+        }
+    }
+
+    menuseparator
+    {
+        -moz-appearance: @menupopup-separator-appearance !important;
+        background: @menupopup-separator-background;
+    }
+}
