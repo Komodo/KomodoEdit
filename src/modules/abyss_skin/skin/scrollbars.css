@@ -14,7 +14,7 @@ scrollbar {
 }
 
 scrollbar:hover {
-  background: rgba(0, 0, 0, 0.1);
+  background: #212223;
 }
 
 /* ..... track ..... */
@@ -22,13 +22,13 @@ scrollbar:hover {
 slider {
   -moz-appearance: none;
   background: transparent;
-  height: 14px;
+  height: 10px;
   padding: 2px;
 }
 
 slider[orient="vertical"] {
   -moz-appearance: none;
-  width: 14px;
+  width: 10px;
   height: auto;
 }
 
@@ -36,16 +36,30 @@ slider[orient="vertical"] {
 
 thumb {
   -moz-appearance: none;
-  background: rgb(45, 45, 45) -moz-linear-gradient(90deg , rgb(45, 45, 45) 0%, rgb(60, 60, 60) 100%);
+  background: #323335;
   border-radius: 4px;
-  border: 1px solid rgb(65, 65, 65);
-  min-width: 14px;
+  border: 0;
+  min-width: 10px;
+}
+
+thumb:hover {
+  background: #2D323A;
 }
 
 thumb[orient="vertical"] {
-  background: rgb(45, 45, 45) -moz-linear-gradient(180deg , rgb(45, 45, 45) 0%, rgb(60, 60, 60) 100%);
-  min-height: 14px;
+  min-height: 10px;
   min-width: auto;
+}
+
+page thumb
+{
+  opacity: 0.2;
+  transition: all 0.2s ease;
+}
+
+page:hover thumb
+{
+  opacity: 1.0;
 }
 
 /* ..... increment ..... */
