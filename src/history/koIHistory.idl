@@ -26,6 +26,25 @@ interface koIHistoryLocation : nsISupports
     attribute wstring session_name;
 };
 
+/**
+ * Callback interface for get_recent_locs
+ */
+[scriptable, function, uuid(442d1e53-cce2-4700-83d7-fa6354f850a3)]
+interface koIHistoryGetLocationsCallback : nsISupports
+{
+    void onHaveLocations([array, size_is(count)] in koIHistoryLocation locs,
+                         in unsigned long current_idx,
+                         in unsigned long count);
+};
+
+/**
+ * Callback interface for methods returning a single location
+ */
+[scriptable, function, uuid(7157dc13-dfc9-4cde-8c14-25270492b5d3)]
+interface koIHistoryGetLocationCallback : nsISupports
+{
+    void onHaveLocation(in koIHistoryLocation locs);
+};
 
 [scriptable, uuid(5fac7c33-bed3-405e-8183-216a91e8a1b5)]
 interface koIHistoryService : nsISupports
@@ -42,19 +61,23 @@ interface koIHistoryService : nsISupports
     koIHistoryLocation note_loc(in koIHistoryLocation loc,
                                 in boolean check_section_change,
                                 in koIScintillaView view);
-    koIHistoryLocation note_curr_editor_loc(in koIScintillaView view);
-    koIHistoryLocation loc_from_view_info(
-        in wstring view_type,
-        in unsigned long window_num,
-        in unsigned long tabbed_view_id,
-        in koIView view,
-        in long pos,
-        in wstring session_name);
+    /**
+     * Asynchronously note the current location of the given view
+     */
+    void note_curr_editor_loc(in koIScintillaView view);
+    /**
+     * Get a location from the given parameters
+     */
+    void loc_from_view_info(in ACString view_type,
+                            in unsigned long window_num,
+                            in unsigned long tabbed_view_id,
+                            in koIView view,
+                            in long pos,
+                            in AString session_name,
+                            in koIHistoryGetLocationCallback callback);
     void get_recent_locs(in koIHistoryLocation loc,
-                         in wstring session_name,
-                         out unsigned long current_idx,
-                         [array, size_is(count)] out koIHistoryLocation locs,
-                         out unsigned long count);
+                         in AString session_name,
+                         in koIHistoryGetLocationsCallback callback);
     void recent_uris_as_array(in unsigned long num_requested,
                               in wstring session_name,
                               [array, size_is(count)] out wstring uris,

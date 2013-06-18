@@ -62,7 +62,8 @@ class KoHistoryService(History):
 
     def loc_from_view_info(self, view_type,
                            window_num, tabbed_view_id, view,
-                           pos=-1, session_name=""):
+                           pos=-1, session_name="",
+                           callback=None):
         """Create a Location instance from the given view info.
         
         @param view_type {string}
@@ -74,7 +75,8 @@ class KoHistoryService(History):
             ignored for some non-editor views, conventionally -1
         @param session_name {str} the current history session. Default is the
             empty string.
-        @returns {Location}
+        @param callback {callable} The callback to invoke when the location has
+            been found; takes a single Location argument.
         """
         if view.koDoc.file:
             uri = view.koDoc.file.URI
@@ -83,6 +85,19 @@ class KoHistoryService(History):
             uri = "kotemporary://" + view.uid + "/" + view.koDoc.displayPath;
         else:
             uri = ""
+
+        def on_have_location(section=None):
+            if section:
+                loc.section_title = section.title
+            loc.window_num = window_num
+            loc.tabbed_view_id = tabbed_view_id
+            loc.session_name = session_name
+            if hasattr(callback, "onHaveLocation"):
+                callback.onHaveLocation(loc)
+            elif loc:
+                callback(loc)
+
+        pending = False
         if view_type == 'editor':
             view = view.QueryInterface(components.interfaces.koIScintillaView)
             scimoz = view.scimoz
@@ -94,22 +109,22 @@ class KoHistoryService(History):
                            view_type)
             loc.marker_handle = scimoz.markerAdd(line, self.MARKNUM_HISTORYLOC)
             ciBuf = view.koDoc.ciBuf
-            if ciBuf and hasattr(ciBuf, "curr_section_from_line"):
+            if ciBuf and hasattr(ciBuf, "section_from_line"):
                 try:
-                    section = ciBuf.curr_section_from_line(line + 1)
+                    ciBuf.section_from_line(line + 1,
+                                            ciBuf.SECTION_CURRENT,
+                                            False,
+                                            on_have_location)
                 except COMException:
                     # See bug 82776.  Don't know why we get this when
                     # ctrl-tabbing across a tab group.
                     log.exception("can't get the section")
                 else:
-                    if section:
-                        loc.section_title = section.title
+                    pending = True
         else:
             loc = Location(uri, -1, -1, view_type)
-        loc.window_num = window_num
-        loc.tabbed_view_id = tabbed_view_id
-        loc.session_name = session_name
-        return loc
+        if not pending:
+            on_have_location()
 
     def note_loc(self, loc, check_section_change=False, view=None):
         # If the given loc is sufficiently close to the previous one, then
@@ -169,7 +184,6 @@ class KoHistoryService(History):
         @param view {koIScintillaView} The view from which to get location
             information. Optional. If not given, defaults to the current
             view.
-        @returns {Location}
         """
         if view is None:
             try:
@@ -178,13 +192,14 @@ class KoHistoryService(History):
                        .QueryInterface(components.interfaces.koIScintillaView)
             except:
                 return None
-        loc = self.loc_from_view_info("editor",
-                                      view.windowNum, view.tabbedViewId, 
-                                      view, view.scimoz.currentPos,
-                                      view.historySessionName)
-        return self.note_loc(loc)
 
-    def get_recent_locs(self, curr_loc, session_name=""):
+        self.loc_from_view_info("editor",
+                                view.windowNum, view.tabbedViewId,
+                                view, view.scimoz.currentPos,
+                                view.historySessionName,
+                                self.note_loc)
+
+    def get_recent_locs(self, curr_loc, session_name="", callback=None):
         idx = 0
         curr_idx = 0
         loc_list = []
@@ -197,4 +212,4 @@ class KoHistoryService(History):
                 idx += 1
         except StopIteration:
             pass
-        return curr_idx, loc_list
+        callback.onHaveLocations(loc_list, curr_idx)

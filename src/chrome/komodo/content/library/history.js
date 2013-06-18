@@ -51,7 +51,11 @@ if (typeof(ko)=='undefined') {
 ko.history = {};
 (function() {
 
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+
 const _SKIP_DBGP_FALLBACK_LIMIT = 100;
+
+const { Promise } = Cu.import("resource://gre/modules/Promise.jsm", {});
 
 var _curr_session_name = null; // window ID might not be available at startup
     
@@ -189,19 +193,22 @@ this.curr_session_name = function() {
  *      a current loc).
  */
 function _get_curr_loc(view /* =current view */,
-                       pos /* =<view.scimoz.currentPos || -1> */) {
+                       pos /* =<view.scimoz.currentPos || -1> */,
+                       callback) {
     if (typeof(view) == "undefined" || view == null) {
         view = ko.views.manager.currentView;
     }
     if (view == null) {
-        return null;
+        callback(null);
+        return;
     }
     var viewType = view.getAttribute("type");
     if (typeof(pos) == "undefined" || pos == null) {
         if (viewType == 'editor') {
             if (!view.scimoz) {
                 // Probably shutting down
-                return null;
+                callback(null);
+                return;
             }
             pos = view.scimoz.currentPos;
         } else {
@@ -215,15 +222,17 @@ function _get_curr_loc(view /* =current view */,
         var tabbedViewId = view.tabbedViewId;
     } catch (ex if (ex instanceof TypeError && ex.message == "tabbedViewContainer is null")) {
         // no tabbed view id
-        return null;
+        callback(null);
+        return;
     }
-    return _controller.historySvc.loc_from_view_info(
-            viewType,
-            window._koNum,
-            tabbedViewId,
-            view,
-            pos,
-            _curr_session_name);
+    _controller.historySvc.loc_from_view_info(
+        viewType,
+        window._koNum,
+        tabbedViewId,
+        view,
+        pos,
+        _curr_session_name,
+        callback);
 };
 
 const MARKNUM_HISTORYLOC = 13; // Keep in sync with content/markers.js
@@ -255,8 +264,6 @@ function _mark_pos_info(view) {
  *
  * @param {view} view An optional view in which to get the current location.
  *      If not given the current view is used.
- * @returns {koILocation} The noted location (or null if could not determine
- *      a current loc).
  */
 this.note_curr_loc = function note_curr_loc(view, /* = currentView */
                                             check_section_change /* false */
@@ -264,15 +271,15 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
     if (typeof(view) == "undefined" || view == null) view = ko.views.manager.currentView;
     if (typeof(check_section_change) == "undefined") check_section_change = false;
     this._recently_did_history = false;
-    var loc = _get_curr_loc(view);
-    if (!loc) {
-        return null;
-    }
-    _mark_pos_info(view);
-    if (view.getAttribute('type') != 'editor') {
-        view = null;
-    }
-    return _controller.historySvc.note_loc(loc, check_section_change, view);
+    _get_curr_loc(view, null, (loc) => {
+        if (loc) {
+            _mark_pos_info(view);
+            if (view.getAttribute('type') != 'editor') {
+                view = null;
+            }
+            _controller.historySvc.note_loc(loc, check_section_change, view);
+        }
+    });
 };
 
 /**
@@ -471,55 +478,67 @@ this.init_popup_menu_recent_locations = function(event) {
     while (popupMenu.hasChildNodes()) {
         popupMenu.removeChild(popupMenu.lastChild);
     }
+
+    let deferred = Promise.defer();
+
     var locList = {};
     var currentLocIdx = {};
-    // _get_curr_loc can be null here
-    _controller.historySvc.get_recent_locs(_get_curr_loc(),
-                                           _curr_session_name,
-                                           currentLocIdx, locList, {});
-    currentLocIdx = currentLocIdx.value;
-    locList = locList.value;
-    
-    var menuitem, loc;
-    for (var i = 0; i < locList.length; ++i) {
-        loc = locList[i];
-        if (!loc) {
-            // Null items can come from unhandled views, like the startPage
-            continue;
+
+    _get_curr_loc(null, null, deferred.resolve);
+
+    deferred.promise.then(curr_loc => {
+        // curr_loc can be null here
+        let nested = Promise.defer();
+        _controller.historySvc
+                   .get_recent_locs(curr_loc,
+                                    _curr_session_name,
+                                    (locs, current_idx) =>
+                                        nested.resolve([locs, current_idx]));
+        return nested.promise;
+    }).then(([locList, currentLocIdx]) => {
+        var menuitem;
+        for (let i = 0; i < locList.length; ++i) {
+            let loc = locList[i];
+            if (!loc) {
+                // Null items can come from unhandled views, like the startPage
+                continue;
+            }
+            var tooltip;
+            var label = _label_from_loc(loc);
+            if (!label) {
+                // Don't display unloaded unloaded dbgp URIs in the dropdown.
+                // Otherwise they show up as blank lines.
+                continue;
+            }
+            menuitem = document.createElement("menuitem");
+            menuitem.setAttribute("label", label);
+            menuitem.setAttribute("index", 0);
+            var handler = null;
+            var delta = currentLocIdx - i;
+            var cssClass = "history-nav-item";
+            if (delta == 0) {
+                cssClass += " history-nav-current";
+                menuitem.setAttribute("type", "checkbox");
+                menuitem.setAttribute("checked", "true");
+                handler = "event.stopPropagation()";
+                tooltip = _bundle.GetStringFromName("historyStayAtCurrentLocation");
+            } else if (delta > 0) {
+                // move forward, with explicit=true
+                handler = "ko.history.history_forward(" + delta + ", true)";
+                tooltip = _bundle.GetStringFromName("historyGoForwardToThisLocation");
+            } else {
+                // move back, with explicit=true
+                handler = "ko.history.history_back(" + (-1 * delta) + ", true)";
+                tooltip = _bundle.GetStringFromName("historyGoBackToThisLocation");
+            }
+            menuitem.setAttribute("class", cssClass);
+            menuitem.setAttribute("tooltiptext", tooltip);
+            menuitem.setAttribute("oncommand", handler);
+            popupMenu.appendChild(menuitem);
         }
-        var tooltip;
-        var label = _label_from_loc(loc);
-        if (!label) {
-            // Don't display unloaded unloaded dbgp URIs in the dropdown.
-            // Otherwise they show up as blank lines.
-            continue;
-        }
-        menuitem = document.createElement("menuitem");
-        menuitem.setAttribute("label", label);
-        menuitem.setAttribute("index", 0);
-        var handler = null;
-        var delta = currentLocIdx - i;
-        var cssClass = "history-nav-item";
-        if (delta == 0) {
-            cssClass += " history-nav-current";
-            menuitem.setAttribute("type", "checkbox");
-            menuitem.setAttribute("checked", "true");
-            handler = "event.stopPropagation()";
-            tooltip = _bundle.GetStringFromName("historyStayAtCurrentLocation");
-        } else if (delta > 0) {
-            // move forward, with explicit=true
-            handler = "ko.history.history_forward(" + delta + ", true)";
-            tooltip = _bundle.GetStringFromName("historyGoForwardToThisLocation");
-        } else {
-            // move back, with explicit=true
-            handler = "ko.history.history_back(" + (-1 * delta) + ", true)";
-            tooltip = _bundle.GetStringFromName("historyGoBackToThisLocation");
-        }
-        menuitem.setAttribute("class", cssClass);
-        menuitem.setAttribute("tooltiptext", tooltip);
-        menuitem.setAttribute("oncommand", handler);
-        popupMenu.appendChild(menuitem);
-    }
+    }).then(null, ex => {
+        _log.exception("init_popup_menu_recent_locations: " + ex);
+    });
     } catch(ex) {
         _log.exception("init_popup_menu_recent_locations: " + ex);
     }
@@ -540,72 +559,87 @@ function _on_load_failure(loc, is_moving_back, delta) {
 }
 
 /** Common function for moving forward or back
- * @param {String} go_method_name either 'go_back' or 'go_forward',
- *        used to make this routine work for both directins.
- * @param {String} check_method_name either 'can_go_back' or 'can_go_forward',
- *        Same rationale as go_method_name
- * @param {Integer} delta # of hops to make
+ * @param {Integer} delta # of hops to make; negative numbers means going back,
+ *        positive numbers go forward.
  * @param {Boolean} explicit if true, the user pressed the "Recent
  *        Locations" button.  Otherwise they hit the go_back
  *        or go_forward command.
  */
 this._history_move = function(go_method_name, check_method_name, delta,
                               explicit) {
-    if (typeof(explicit) == "undefined") explicit=false;
+    explicit = explicit || false;
+    if (!delta) {
+        return; // Not going anywhere...?
+    }
     var view = ko.views.manager.currentView;
-    var curr_loc = _get_curr_loc(view); // curr_loc can be null here
     _mark_pos_info(view);
-    var is_moving_back = (go_method_name == 'go_back');
-    for (var i = 0; i < _SKIP_DBGP_FALLBACK_LIMIT; i++) {
-        var loc = _controller.historySvc[go_method_name](curr_loc, delta, _curr_session_name);
-        try {
-            // This function could load a file asynchronously,
-            // so unless it throws an exception, there's no point
-            // continuing after it's called.
-            this._go_to_location(loc,
-                function() {
-                    _on_load_failure(loc, is_moving_back, delta);
-                });
-            return;
-        } catch(ex if ex instanceof UnloadableLocError) {
-            // Remove the loc we tried to move to from the history,
-            // and then either keep trying to move to the next/prev loc
-            // if we didn't get here via [History|Recent Locations]
-            _controller.historySvc.obsolete_uri(loc.uri, delta, is_moving_back,
-                                                _curr_session_name);
-            if (!_controller.historySvc[check_method_name](_curr_session_name)) {
-                window.updateCommands("history_changed");
-                break;
+
+    let historySvc = _controller.historySvc;
+
+    let deferred = Promise.defer();
+    _get_curr_loc(view, null, deferred.resolve);
+
+    let is_moving_back = (delta < 0);
+    delta = Math.abs(delta);
+    let curr_loc;
+
+    let go = is_moving_back ? historySvc.go_back.bind(historySvc) :
+                              historySvc.go_forward.bind(historySvc);
+    let check = is_moving_back ? historySvc.can_go_back.bind(historySvc) :
+                                 historySvc.can_go_forward.bind(historySvc);
+
+    deferred.promise.then(_curr_loc => {
+        curr_loc = _curr_loc;
+
+        for (var i = 0; i < _SKIP_DBGP_FALLBACK_LIMIT; i++) {
+            var loc = go(curr_loc, delta, _curr_session_name);
+            try {
+                // This function could load a file asynchronously,
+                // so unless it throws an exception, there's no point
+                // continuing after it's called.
+                this._go_to_location(loc,
+                    () => _on_load_failure(loc, is_moving_back, delta));
+                return;
+            } catch(ex if ex instanceof UnloadableLocError) {
+                // Remove the loc we tried to move to from the history,
+                // and then either keep trying to move to the next/prev loc
+                // if we didn't get here via [History|Recent Locations]
+                historySvc.obsolete_uri(loc.uri, delta, is_moving_back,
+                                        _curr_session_name);
+                if (!check(_curr_session_name)) {
+                    window.updateCommands("history_changed");
+                    break;
+                }
+                if (explicit) {
+                    break;
+                }
+                // assert(delta == 1)
+
+                // We hit an obsolete URI on an arrow command.
+                // Keep going in the same direction until we either
+                // reach a valid URI, the end, or hit the fallback limit.
             }
-            if (explicit) {
-                break;
-            }
-            // assert(delta == 1)
-            
-            // We hit an obsolete URI on an arrow command.
-            // Keep going in the same direction until we either
-            // reach a valid URI, the end, or hit the fallback limit.
         }
-    }
-    var msg1;
-    if (explicit) {
-        msg1 = _bundle.formatStringFromName("temporaryBufferNoLongerAccessible.templateFragment",
-                                          [loc.uri], 1);
-    } else if (i == _SKIP_DBGP_FALLBACK_LIMIT) {
-        msg1 = _bundle.formatStringFromName("historyRanIntoSequence.templateFragment",
-                                          [_SKIP_DBGP_FALLBACK_LIMIT], 1);
-    } else {
-        msg1 = _bundle.GetStringFromName("historyRemainingLocationsAreObsolete.fragment");
-    }
-    var msg2 = _bundle.formatStringFromName(is_moving_back
-                                         ? "historyCouldntMoveBack.template"
-                                         : "historyCouldntMoveForward.template",
-                                         [msg1], 1);
-    ko.statusBar.AddMessage(msg2, "editor", 3000, true);
+        var msg1;
+        if (explicit) {
+            msg1 = _bundle.formatStringFromName("temporaryBufferNoLongerAccessible.templateFragment",
+                                              [loc.uri], 1);
+        } else if (i == _SKIP_DBGP_FALLBACK_LIMIT) {
+            msg1 = _bundle.formatStringFromName("historyRanIntoSequence.templateFragment",
+                                              [_SKIP_DBGP_FALLBACK_LIMIT], 1);
+        } else {
+            msg1 = _bundle.GetStringFromName("historyRemainingLocationsAreObsolete.fragment");
+        }
+        var msg2 = _bundle.formatStringFromName(is_moving_back
+                                             ? "historyCouldntMoveBack.template"
+                                             : "historyCouldntMoveForward.template",
+                                             [msg1], 1);
+        ko.statusBar.AddMessage(msg2, "editor", 3000, true);
+    });
 };
 
 this.history_back = function(delta, explicit) {
-    this._history_move('go_back', 'can_go_back', delta, explicit);
+    this._history_move('go_back', 'can_go_back', -Math.abs(delta), explicit);
 };
 
 this.history_forward = function(delta, explicit) {
