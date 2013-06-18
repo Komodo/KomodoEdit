@@ -2,10 +2,13 @@
 Module to get the mozilla tree corresponding to a version number
 """
 
+import logging
 import urllib2, re, subprocess
 import os.path
 from subprocess import check_call
 from distutils.version import LooseVersion, StrictVersion
+
+log = logging.getLogger("get_mozilla_tree")
 
 try:
     from which import which
@@ -24,12 +27,14 @@ def getTreeFromVersion(version=None):
         - The name of the tag/hash to check out, e.g. "FIREFOX_7_0_1_RELEASE"
     @note This makes network requests
     """
-
-    response = urllib2.urlopen("http://hg.mozilla.org/releases/mozilla-release/tags")
+    log.debug("Getting tree for version %s", version)
 
     if version is None:
         # use default
         version = "7.0.1"
+
+    # Prefer a specific tag in mozilla-release
+    response = urllib2.urlopen("http://hg.mozilla.org/releases/mozilla-release/tags")
 
     max_ver = 0.0
     tags = {}
@@ -50,6 +55,9 @@ def getTreeFromVersion(version=None):
             if ver > max_ver:
                 max_ver = ver
 
+    log.debug("tags: %r", tags)
+    log.debug("mozilla_release is at: %s", max_ver)
+
     try:
         if not "." in version:
             matches = re.match(r"FIREFOX_(?P<version>(?:\d+_)*)RELEASE", version)
@@ -60,16 +68,50 @@ def getTreeFromVersion(version=None):
                 # assume version string like "700" which should be mapped to "7.0.0"
                 version = ("%s00" % (version))[:max(3,len(version))]
                 version = ".".join((version[:-2], version[-2], version[-1]))
-        ver = StrictVersion(version)
+        wanted_version = StrictVersion(version)
     except ValueError:
-        ver = LooseVersion(version)
+        wanted_version = LooseVersion(version)
+
+    log.debug("looking for version: %s", wanted_version)
+
     for verstr, tag in tags.items():
-        if ver == verstr:
+        if wanted_version == verstr:
+            log.debug("Found matching version %s (%s)", wanted_version, verstr)
             return ("mozilla-release", tag)
-    ver = float(version.split(".")[0])
-    if ver <= max_ver + 1:
+
+    # No specific tag; try the defaults of the branches, starting from the newest
+    # Note that once we get here we only check the major version, so you can't,
+    # for example, specifically ask for beta 2 of a branch
+    for branch_part in "mozilla-central", "releases/mozilla-aurora", "releases/mozilla-beta":
+        mstone_url = "https://hg.mozilla.org/%s/raw-file/default/config/milestone.txt" % (branch_part,)
+        branch = branch_part.split("/")[-1]
+        mstone_file = urllib2.urlopen(mstone_url)
+        try:
+            for line in mstone_file:
+                ver_str = line.strip()
+                if (ver_str + "#").startswith("#"):
+                    continue # comment line
+                try:
+                    ver = StrictVersion(ver_str)
+                except ValueError:
+                    ver = LooseVersion(ver_str)
+                break
+        finally:
+            mstone_file.close()
+        if ver and ver.version[0] == wanted_version.version[0]:
+            # Have the right tree (going by major version only)
+            log.debug("%s major version %s matches %s",
+                      branch, ver, wanted_version)
+            return (branch, "default")
+        log.debug("%s major version %s does not match %s",
+                  branch, ver, wanted_version)
+
+    # Ugh... Try for... anything?
+    if wanted_version.version[0] <= max_ver:
+        return ("mozilla-release", "default")
+    elif wanted_version.version[0] <= max_ver + 1:
         return ("mozilla-beta", "default")
-    elif ver <= max_ver + 2:
+    elif wanted_version.version[0] <= max_ver + 2:
         return ("mozilla-aurora", "default")
     return ("mozilla-central", "default")
 
@@ -123,6 +165,10 @@ def fixRemoteRepo(tree, repo):
         f.close()
 
 if __name__ == '__main__':
+    logging.basicConfig()
+    log.setLevel(logging.DEBUG)
     import sys
     tree, tag = getTreeFromVersion((sys.argv + [None])[1])
-    cloneFromTree(tree, tag=tag)
+    log.debug("tree: %s, tag: %s", tree, tag)
+    if "--dry-run" not in sys.argv:
+        cloneFromTree(tree, tag=tag)
