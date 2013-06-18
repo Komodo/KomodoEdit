@@ -553,32 +553,6 @@ if (typeof ko.openfiles == 'undefined')
                 {
                     this.selectItem(editorView);
                 }
-
-                var tab = editorView.parentNode._tab;
-                if ( ! ("_OF_dragMonitoring" in tab))
-                {
-                    tab._OF_dragMonitoring = true;
-                    tab.addEventListener('dragstart', function(e)
-                    {
-                        var _tab = e.target;
-                        e.target.parentNode.addEventListener('drop', function(e)
-                        {
-                            _tab.parentNode.removeEventListener('drop', arguments.callee, false);
-                            
-                            var uid =   koWindow.document.getElementById(
-                                            _tab.linkedPanel
-                                        ).firstChild.uid;
-                            if (uid in openViews)
-                            {
-                                var listItem = listbox.querySelector('richlistitem[id="'+uid+'"]');
-                                this.sortItem(
-                                    listbox.querySelector('richlistitem[id="'+uid+'"]'),
-                                    true
-                                );
-                            }
-                        }.bind(this));
-                    }.bind(this));
-                }
             }
             
             // Render the groups and splits
