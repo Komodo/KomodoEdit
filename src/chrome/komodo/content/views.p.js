@@ -1766,7 +1766,7 @@ viewManager.prototype.do_cmd_goToDefinition = function() {
             // This calls CompletionUIHandler._setDefinitionsInfo when done
             ciBuf.async_eval_at_trg(trg, view.ciCompletionUIHandler);
         }
-    });
+    }, ko.codeintel.handleError);
 }
 
 // cmd_save

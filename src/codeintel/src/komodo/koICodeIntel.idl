@@ -30,8 +30,7 @@
  * decision by deleting the provisions above and replace them with the notice
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL, the GPL or the LGPL.
- * 
+ * the terms of any one of the MPL, the GPL or the  * 
  * ***** END LICENSE BLOCK ***** */
 
 #include "nsISupports.idl"
@@ -195,6 +194,25 @@ interface koICodeIntelGetIndexCallback : nsISupports {
     void onGetIndex([optional] in long index);
 };
 
+[scriptable, function, uuid(2d047c58-2d63-444b-b5c1-dd64b13b55d2)]
+interface koICodeIntelGetTriggerCallback: nsISupports {
+    /**
+     * @param trg The trigger
+     */
+    void onGetTrigger([optional] in koICodeIntelTrigger trg);
+};
+
+/**
+ * koICodeIntelErrorCallback: Used to pass a richer error message to the
+ * client on failure.  Otherwise the server passes a binary indication
+ * to the client (e.g. passing null rather than an object or list of
+ * objects).
+ */
+[scriptable, function, uuid(d291a7f5-4e27-41c0-b3a7-0af622a8b602)]
+interface koICodeIntelErrorCallback: nsISupports {
+    void onError(in AString message);
+};
+
 /**
  * Callback for get_calltip_arg_range
  * @param start The start of the arg range; -1 if the text has exited the call
@@ -215,7 +233,7 @@ interface koICodeIntelBuffer: nsISupports {
 
     readonly attribute AString cpln_fillup_chars;
     readonly attribute AString cpln_stop_chars;
-
+    
     /**
      * Flags for async_eval_at_trig()
      */
@@ -247,9 +265,12 @@ interface koICodeIntelBuffer: nsISupports {
      *      as a side-effect of typing).
      * @param callback The callback to invoke when the trigger has been found
      *      (or not found).
+     * @param errorCallback The callback to pass a richer error message
+     *      to the client.
      */
     void trg_from_pos(in long pos, in boolean implicit,
-                      in koICodeIntelGetTriggerCallback callback);
+                      in koICodeIntelGetTriggerCallback callback,
+                      [optional] in koICodeIntelErrorCallback errorCallback);
 
     /**
      * Look back from the given position for a trigger point within range.
@@ -258,9 +279,12 @@ interface koICodeIntelBuffer: nsISupports {
      *      which to look for triggers.
      * @param callback The callback to invoke when the trigger has been found
      *      (or not found).
+     * @param errorCallback The callback to pass a richer error message
+     *      to the client.
      */
     void preceding_trg_from_pos(in long pos, in long curr_pos,
-                                in koICodeIntelGetTriggerCallback callback);
+                                in koICodeIntelGetTriggerCallback callback,
+                                [optional] in koICodeIntelErrorCallback errorCallback);
 
     /**
      * Get a trigger for a given position which will provide a list of codeintel
@@ -268,9 +292,12 @@ interface koICodeIntelBuffer: nsISupports {
      * @param pos The position to look up definitions for
      * @param callback The callback to invoke once the trigger has been
      *      constructed (or been determined to not exist)
+     * @param errorCallback The callback to pass a richer error message
+     *      to the client.
      */
     void defn_trg_from_pos(in long pos,
-                           in koICodeIntelGetTriggerCallback callback);
+                           in koICodeIntelGetTriggerCallback callback,
+                           [optional] in koICodeIntelErrorCallback errorCallback);
 
     /**
      * Get the range in the given calltip for the argument; i.e. what argument
@@ -278,11 +305,16 @@ interface koICodeIntelBuffer: nsISupports {
      * @param trg_pos The trigger position.
      * @param calltip The full calltip text.
      * @param curr_pos The current position in the buffer
+     * @param callback The callback to invoke once the calltip has been
+     *      constructed (or been determined to not exist)
+     * @param errorCallback The callback to pass a richer error message
+     *      to the client.
      */
     void get_calltip_arg_range(in long trg_pos,
                                in AString calltip,
                                in long cur_pos,
-                               in koICodeIntelGetCallTipRangeCallback callback);
+                               in koICodeIntelGetCallTipRangeCallback callback,
+                               [optional] in koICodeIntelErrorCallback errorCallback);
 };
 
 [scriptable, function, uuid(4788a643-7f1b-4a49-9919-60076dd70869)]

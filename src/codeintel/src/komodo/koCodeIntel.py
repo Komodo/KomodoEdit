@@ -1023,16 +1023,33 @@ class KoCodeIntelBuffer(object):
         """
         return KoCodeIntelEnvironment(self.doc, self.project).env
 
-    def trg_from_pos(self, pos, implicit, callback):
-        def callback_wrapper(request, response):
+    def _do_error_callback(self, errorCallback, msg):
+        if hasattr(errorCallback, "onError"):
+            errorCallback.onError(msg)
+        else:
+            errorCallback(msg)
+
+    def _post_trg_from_pos_handler(self, callback, errorCallback,
+                                  context, request, response):
+        if not response.get("success"):
+            if errorCallback:
+                msg = (response.get("message")
+                       or ("%s: Can't get a trigger for position %d" %
+                           (context, pos)))
+                self._do_error_callback(errorCallback, msg)
+                return
+            else:
+                trg = None
+        else:
             trg = response["trg"]
             if trg:
                 trg = TriggerWrapper(trg)
-            try:
-                callback.onGetTrigger(trg)
-            except:
-                self.log.exception("Error calling trg_from_pos callback")
+        try:
+            callback.onGetTrigger(trg)
+        except:
+            self.log.exception("Error calling %s callback", context)
 
+    def trg_from_pos(self, pos, implicit, callback, errorCallback=None):
         self.send(command="trg-from-pos",
                   path=self.path,
                   language=self.lang,
@@ -1040,37 +1057,23 @@ class KoCodeIntelBuffer(object):
                   env=self.env,
                   implicit=implicit,
                   text=self.doc.buffer if self.doc else None,
-                  callback=callback_wrapper)
+                  callback=functools.partial(self._post_trg_from_pos_handler,
+                                             callback, errorCallback,
+                                             "trg_from_pos"))
 
-    def preceding_trg_from_pos(self, pos, curr_pos, callback):
-        def callback_wrapper(request, response):
-            trg = response["trg"]
-            if trg:
-                trg = TriggerWrapper(trg)
-            try:
-                callback.onGetTrigger(trg)
-            except:
-                self.log.exception("Error calling preceding_trg_from_pos callback")
-
+    def preceding_trg_from_pos(self, pos, curr_pos, callback, errorCallback=None):
         self.send(command="trg-from-pos",
                   path=self.path,
                   language=self.lang,
                   pos=pos,
                   env=self.env,
                   text=self.doc.buffer if self.doc else None,
-                  callback=callback_wrapper,
+                  callback=functools.partial(self._post_trg_from_pos_handler,
+                                             callback, errorCallback,
+                                             "preceding_trg_from_pos"),
                   **{"curr-pos": curr_pos})
 
-    def defn_trg_from_pos(self, trg_pos, callback):
-        def callback_wrapper(request, response):
-            trg = response["trg"]
-            if trg:
-                trg = TriggerWrapper(trg)
-            try:
-                callback.onGetTrigger(trg)
-            except:
-                self.log.exception("Error calling defn_trg_from_pos callback")
-
+    def defn_trg_from_pos(self, trg_pos, callback, errorCallback=None):
         self.send(command="trg-from-pos",
                   type="defn",
                   path=self.path,
@@ -1078,7 +1081,9 @@ class KoCodeIntelBuffer(object):
                   pos=trg_pos,
                   env=self.env,
                   text=self.doc.buffer if self.doc else None,
-                  callback=callback_wrapper)
+                  callback=functools.partial(self._post_trg_from_pos_handler,
+                                             callback, errorCallback,
+                                             "defn_trg_from_pos"))
 
     EVAL_SILENT = Ci.koICodeIntelBuffer.EVAL_SILENT
     EVAL_QUEUE = Ci.koICodeIntelBuffer.EVAL_QUEUE
@@ -1095,7 +1100,7 @@ class KoCodeIntelBuffer(object):
 
         @ProxyToMainThreadAsync
         def callback(request, response):
-            if "success" not in response:
+            if not response.get("success"):
                 try:
                     handler.setStatusMessage(response.get("message", ""),
                                              response.get("highlight", False))
@@ -1104,9 +1109,7 @@ class KoCodeIntelBuffer(object):
                                        response.get("message", "<error not available>"))
                 return
             try:
-                if not response["success"]:
-                    return
-                elif "cplns" in response:
+                if "cplns" in response:
                     # split into separate lists
                     types, strings = zip(*response["cplns"])
                     try:
@@ -1133,9 +1136,16 @@ class KoCodeIntelBuffer(object):
                   keep_existing=bool(flags & KoCodeIntelBuffer.EVAL_QUEUE),
                   callback=callback)
 
-    def get_calltip_arg_range(self, trg_pos, calltip, curr_pos, callback):
+    def get_calltip_arg_range(self, trg_pos, calltip, curr_pos,
+                              callback, errorCallback=None):
         @ProxyToMainThreadAsync
         def callback_wrapper(request, response):
+            if not response.get("success") and errorCallback:
+                msg = (response.get("message")
+                       or ("get_calltip_arg_range: Can't get a calltip at position %d"
+                           % (curr_pos)))
+                self._do_error_callback(errorCallback, msg)
+                return
             start = response.get("start", -1)
             end = response.get("end", -1)
             try:
