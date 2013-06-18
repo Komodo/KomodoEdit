@@ -163,13 +163,15 @@ new file mode 100644
 diff --git a/layout/style/moz.build b/layout/style/moz.build
 --- a/layout/style/moz.build
 +++ b/layout/style/moz.build
-@@ -9,8 +9,13 @@
+@@ -9,8 +9,15 @@
  
  MODULE = 'layout'
  
 +XPIDL_SOURCES += [
 +    'koICSSParser.idl',
 +]
++
++XPIDL_MODULE = 'layout_style'
 +
  EXPORTS += [
      'AnimationCommon.h',
