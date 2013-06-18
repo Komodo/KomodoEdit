@@ -86,7 +86,9 @@
           </Component>
 
           <Merge Id="CRT" Language="0" SourceFile="$(var.VccrtMsmPath)" DiskId="1" />
-          <Merge Id="CRT Policy" Language="0" SourceFile="$(var.VccrtPolicyMsmPath)" DiskId="1" />
+          <?if $(var.VccrtPolicyMsmPath) != "" ?>
+            <Merge Id="CRT Policy" Language="0" SourceFile="$(var.VccrtPolicyMsmPath)" DiskId="1" />
+          <?endif?>
         </Directory>
       </Directory>
 
@@ -138,7 +140,9 @@
       <ComponentRef Id="comp.INSTALLDIR" />
 
       <MergeRef Id="CRT" />
-      <MergeRef Id="CRT Policy" />
+      <?if $(var.VccrtPolicyMsmPath) != "" ?>
+        <MergeRef Id="CRT Policy" />
+      <?endif?>
 
       <Feature Id="env" Title="Desktop Integration"
           Description="Changes such as Desktop and Quick Launch shortcuts, PATH changes and file associations."

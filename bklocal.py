@@ -3006,11 +3006,15 @@ class MSIVccrtPolicyMsmPath(black.configure.Datum):
             compiler = black.configure.items["compiler"].Get()
             assert compiler.startswith("vc"), "Invalid compiler version"
             compiler_ver = compiler[2:]
-            base = "policy_%s_0_Microsoft_%s_CRT_x86.msm" % \
-                (compiler_ver, compiler.upper())
-            mergeModulesDir = join(os.environ["CommonProgramFiles"],
-                                   "Merge Modules")
-            self.value = join(mergeModulesDir, base)
+            if 7 <= float(compiler_ver) <= 10:
+                base = "policy_%s_0_Microsoft_%s_CRT_x86.msm" % \
+                    (compiler_ver, compiler.upper())
+                mergeModulesDir = join(os.environ["CommonProgramFiles"],
+                                       "Merge Modules")
+                self.value = join(mergeModulesDir, base)
+            else:
+                # MSVC, as of 2012 / VC11, no longer has policy msms
+                self.value = ""
         else:
             # Helps with Cons to have *some* value defined.
             self.value = ""
