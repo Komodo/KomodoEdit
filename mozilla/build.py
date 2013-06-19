@@ -1007,11 +1007,6 @@ def target_configure(argv):
         # Avoid having a dependency on libstdc++
         mozBuildOptions.append('enable-stdcxx-compat')
 
-    if sys.platform.startswith("win") and config["buildDir"][1] == ":":
-        # NSS builds fail if the object directory doesn't use a lower case
-        # drive letter :(
-        config["buildDir"] = config["buildDir"][0].lower() + config["buildDir"][1:]
-
     mozMakeOptions = []
     mozBuildExtensions = []
     mozRawOptions = []
@@ -1150,6 +1145,11 @@ def target_configure(argv):
         if isinstance(value, Exception):
             raise value
     assert config["mozApp"] in ("komodo", "xulrunner", "suite", "browser")
+
+    if sys.platform.startswith("win") and config["buildDir"][1] == ":":
+        # NSS builds fail if the object directory doesn't use a lower case
+        # drive letter :(
+        config["buildDir"] = config["buildDir"][0].lower() + config["buildDir"][1:]
 
     # Now determine the rest of the configuration items given the user
     # options.
