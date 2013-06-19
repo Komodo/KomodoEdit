@@ -525,7 +525,9 @@ class CoreHandler(CommandHandler):
                     message="Pre-loading catalogs...")
         progress_base = 80
         progress_max = 100
-        catalogs_zone = self.mgr.db.get_catalogs_zone()
+        catalogs_zone = driver.mgr.db.get_catalogs_zone()
+        catalogs = request.get("catalogs",
+                               driver.env.get_pref("codeintel_selected_catalogs", None))
         catalogs_zone.update(request.get("catalogs"),
                              progress_cb=progress_callback)
 
