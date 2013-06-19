@@ -243,14 +243,10 @@ my %environ = (
     'CFLAGS' => $ENV{CFLAGS},
     'CXXFLAGS' => $ENV{CXXFLAGS},
     'LDFLAGS' => $ENV{LDFLAGS},
-    'INCLUDE' => $ENV{INCLUDE},  #XXX should be Win only
-    'LIB' => $ENV{LIB},  #XXX should be WIn only
     'TEMP' => $ENV{TEMP} || "/tmp",
     'TMP' => $ENV{TMP} || $ENV{TEMP} || "/tmp",
     'MOZ_SRC' => $ENV{MOZ_SRC},   #XXX required for perldbglistener, goes away when that makefile goes. (but now I am scared too --TM :)
     'PYTHONPATH' => $ENV{PYTHONPATH},           # needed for 'regxpcom' 
-    'LD_LIBRARY_PATH' => $ENV{LD_LIBRARY_PATH}, # needed for 'regxpcom' on Linux
-    'DYLD_LIBRARY_PATH' => $ENV{DYLD_LIBRARY_PATH}, # needed for 'regxpcom' on MacOSX
     'MOZILLA_FIVE_HOME' => $ENV{MOZILLA_FIVE_HOME}, # needed for 'regxpcom' on Linux
     # Needed for when XPCOM stuff is invoked, so our patched Mozilla
     # appdata dir determination code can use it.
@@ -263,34 +259,10 @@ my %environ = (
     'SystemDrive' => $ENV{SystemDrive},
 );
 
-# Set compiler when not already set via the users environment.
-if ($platform ne "win") {
-    if (!$environ{CC} and $mozGcc) {
-	$environ{CC} = $mozGcc;
-    }
-    if (!$environ{CXX} and $mozGxx) {
-	$environ{CXX} = $mozGxx;
-    }
-}
-# Global compiler flags.
-$environ{CFLAGS} .= " $mozCFlags";
-$environ{CXXFLAGS} .= " $mozCxxFlags";
-$environ{LDFLAGS} .= " $mozLdFlags";
-if ($platform eq "linux") {
-    $environ{CFLAGS} .= " -fPIC";
-    $environ{CXXFLAGS} .= " -fPIC";
-}
-elsif ($platform eq "darwin") {
-    # we only want x86_64
-    $environ{CXXFLAGS} .= " -arch x86_64";
-    $environ{LDFLAGS} .= " -arch x86_64";
-
-    # Use 10.6 as the minimum required version.
-    $environ{CFLAGS} .= ' -mmacosx-version-min=10.6';
-    $environ{CXXFLAGS} .= ' -mmacosx-version-min=10.6';
-    $environ{LDFLAGS} .= ' -mmacosx-version-min=10.6';
-}
-elsif ($platform eq "win") {
+if ($platform eq "win") {
+    # Nmake chokes without, at least, the "SystemRoot" environment variable.
+    $environ{SystemRoot} = $ENV{SystemRoot};
+    $environ{SystemDrive} = $ENV{SystemDrive};
     # VSnnCOMNTOOLS is needed to let Python distutils figure out where MSVC
     # lives; this is used to build Python modules using the correct compiler.
     # http://bugs.activestate.com/show_bug.cgi?id=99294
@@ -299,6 +271,35 @@ elsif ($platform eq "win") {
 	    $environ{$key} = $value;
 	}
     }
+} else {
+    # Set compiler when not already set via the users environment.
+    if (!$environ{CC} and $mozGcc) {
+	$environ{CC} = $mozGcc;
+    }
+    if (!$environ{CXX} and $mozGxx) {
+	$environ{CXX} = $mozGxx;
+    }
+}
+
+# Global compiler flags.
+$environ{CFLAGS} .= " $mozCFlags";
+$environ{CXXFLAGS} .= " $mozCxxFlags";
+$environ{LDFLAGS} .= " $mozLdFlags";
+if ($platform eq "linux") {
+    $environ{LD_LIBRARY_PATH} = $ENV{LD_LIBRARY_PATH}; # needed for 'regxpcom'
+    $environ{CFLAGS} .= " -fPIC";
+    $environ{CXXFLAGS} .= " -fPIC";
+}
+elsif ($platform eq "darwin") {
+    $environ{DYLD_LIBRARY_PATH} = $ENV{DYLD_LIBRARY_PATH}; # needed for 'regxpcom'
+    # we only want x86_64
+    $environ{CXXFLAGS} .= " -arch x86_64";
+    $environ{LDFLAGS} .= " -arch x86_64";
+
+    # Use 10.6 as the minimum required version.
+    $environ{CFLAGS} .= ' -mmacosx-version-min=10.6';
+    $environ{CXXFLAGS} .= ' -mmacosx-version-min=10.6';
+    $environ{LDFLAGS} .= ' -mmacosx-version-min=10.6';
 }
 
 
