@@ -143,21 +143,19 @@ ko.fastopen.invoketool = {};
         if (!this._all_commands) {
             this._all_commands = [];
             var desc;
-            var category;
             var commandname;
             if (!ko.keybindings.manager.commanditems) {
                 // Load the keybinding description information.
                 ko.keybindings.manager.parseGlobalData();
             }
             var commanditems = ko.keybindings.manager.commanditems;
-            var command2key = ko.keybindings.manager.command2key;
             for (var i=0; i < commanditems.length; i++) {
                 commandname = commanditems[i].name;
-                if (commandname in command2key) {
-                    desc = ko.keybindings.manager.commandId2tabledesc(commandname, '');
-                    category = desc.slice(0, desc.indexOf(': '));
-                    this._all_commands.push(new CommandHit(desc, commandname));
+                desc = commanditems[i].desc;
+                if (!commandname || !desc) {
+                    continue;
                 }
+                this._all_commands.push(new CommandHit(desc, commandname));
             }
         }
 
