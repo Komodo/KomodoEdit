@@ -23,10 +23,10 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz1800-ko8.9/mozilla/layout/b
                          presContext->DevPixelsToAppUnits(bounds.height));
              aViewToPaint->GetViewManager()->InvalidateViewNoSuppression(aViewToPaint, rect);
              presContext->NotifyInvalidation(bounds, 0);
-+          } else {
++          } else if (shouldInvalidate) {
 +            aViewToPaint->GetViewManager()->InvalidateView(aViewToPaint);
            }
--        } else {
+-        } else if (shouldInvalidate) {
 -          aViewToPaint->GetViewManager()->InvalidateView(aViewToPaint);
          }
  
