@@ -1,4 +1,4 @@
-Version = 8
+Version = 9
 
 Booleans = {'preferFixed': 1, 'useSelFore': False, 'caretLineVisible': False}
 
@@ -245,6 +245,12 @@ Indicators = {
     'tag_matching': {
         'style' : 7,       # scimoz.INDIC_ROUNDBOX
         'color': 0x0080ff, # color format is BGR
+        'alpha': 100,
+        'draw_underneath' : True,
+    },
+    'multiple_caret_area': {
+        'style' : 6,       # scimoz.INDIC_BOX
+        'color': 0xff9999, # color format is BGR
         'alpha': 100,
         'draw_underneath' : True,
     },

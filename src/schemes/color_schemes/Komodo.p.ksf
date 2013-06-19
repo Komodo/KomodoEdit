@@ -1,4 +1,4 @@
-Version = 8
+Version = 9
 
 Booleans = {'caretLineVisible': False, 'preferFixed': True, 'useSelFore': False}
 
@@ -202,4 +202,9 @@ Indicators = {'collab_local_change': {'alpha': 30,
  'tag_matching': {'alpha': 100,
                   'color': 33023,
                   'draw_underneath': True,
-                  'style': 7}}
+                  'style': 7},
+ 'multiple_caret_area': {'alpha': 100,
+                     'color': 16751001,
+                     'draw_underneath': True,
+                     'style': 6},
+}

@@ -2,7 +2,7 @@
 # User: nautilebleu
 # Link: http://www.kolormodo.com/scheme/preview/56001/nautilusunderwater
 
-Version = 8
+Version = 9
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 
@@ -203,4 +203,9 @@ Indicators = {'find_highlighting': {'alpha': 100,
  'tag_matching': {'alpha': 100,
                   'color': 33023,
                   'draw_underneath': True,
-                  'style': 7}}
+                  'style': 7},
+ 'multiple_caret_area': {'alpha': 100,
+                     'color': 16751001,
+                     'draw_underneath': True,
+                     'style': 6},
+}

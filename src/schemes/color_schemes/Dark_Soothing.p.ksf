@@ -2,7 +2,7 @@
 # User: bluepicaso
 # Link: http://community.activestate.com/forum-topic/where-to-find-komodo-edit
 
-Version = 8
+Version = 9
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 
@@ -452,4 +452,9 @@ Indicators = {'find_highlighting': {'alpha': 100,
  'tag_matching': {'alpha': 100,
                   'color': 247036,
                   'draw_underneath': True,
-                  'style': 7}}
+                  'style': 7},
+ 'multiple_caret_area': {'alpha': 100,
+                     'color': 12615808,
+                     'draw_underneath': True,
+                     'style': 6},
+}
