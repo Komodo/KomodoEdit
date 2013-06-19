@@ -260,6 +260,10 @@ my %environ = (
 );
 
 if ($platform eq "win") {
+    # Ensure to use any custom cl and link flags.
+    $environ{INCLUDE} = $ENV{INCLUDE};
+    $environ{LIB} = $ENV{LIB};
+    $environ{LINK} = $ENV{LINK};
     # Nmake chokes without, at least, the "SystemRoot" environment variable.
     $environ{SystemRoot} = $ENV{SystemRoot};
     $environ{SystemDrive} = $ENV{SystemDrive};
