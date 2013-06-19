@@ -30,7 +30,7 @@
  * decision by deleting the provisions above and replace them with the notice
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL, the GPL or the  * 
+ * the terms of any one of the MPL, the GPL or the LGPL. *
  * ***** END LICENSE BLOCK ***** */
 
 #include "nsISupports.idl"
@@ -194,14 +194,6 @@ interface koICodeIntelGetIndexCallback : nsISupports {
     void onGetIndex([optional] in long index);
 };
 
-[scriptable, function, uuid(2d047c58-2d63-444b-b5c1-dd64b13b55d2)]
-interface koICodeIntelGetTriggerCallback: nsISupports {
-    /**
-     * @param trg The trigger
-     */
-    void onGetTrigger([optional] in koICodeIntelTrigger trg);
-};
-
 /**
  * koICodeIntelErrorCallback: Used to pass a richer error message to the
  * client on failure.  Otherwise the server passes a binary indication
@@ -233,7 +225,7 @@ interface koICodeIntelBuffer: nsISupports {
 
     readonly attribute AString cpln_fillup_chars;
     readonly attribute AString cpln_stop_chars;
-    
+
     /**
      * Flags for async_eval_at_trig()
      */
