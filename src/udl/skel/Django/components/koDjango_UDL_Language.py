@@ -114,14 +114,26 @@ class KoDjangoLinter(object):
     def _blankMatchedText(self, m):
         return self._nonNewline.sub(" ", m.group(1))
 
+    def _isSettingsIn(directory):
+        return exists(join(directory, 'settings.py'))
+
     def _walkUpDir(self, directory):
+        if self._isSettingsIn(directory):
+            return directory
         count = 10 # Look up at most 10 levels.
         while True:
-            if exists(join(directory, "settings.py")):
-                return directory
             parent = dirname(directory)
             if not parent or parent == directory:
                 return None
+            if self._isSettingsIn(parent):
+                return parent
+            # Look for settings.py file in the sibling dirs as well - bug 99362.
+            sibling_dirs = (join(parent, d) for d in os.listdir(parent))
+            for d in sibling_dirs:
+                if d == directory:
+                    continue  # already checked this dir
+                if self._isSettingsIn(d):
+                    return d
             directory = parent
             # In case the dirname logic fails...
             count -= 1
