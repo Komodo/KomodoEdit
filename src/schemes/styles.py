@@ -481,7 +481,7 @@ StateMap = {
                            'SCE_RB_HERE_Q',
                            'SCE_RB_HERE_QQ',
                            'SCE_RB_HERE_QX'),
-        'symbols': ('SCE_RB_SYMBOL',),
+        'symbols': ('SCE_RB_SYMBOL', 'SCE_RB_STRING_QI',),
         'regex': ('SCE_RB_REGEX',),
         'data sections': ('SCE_RB_DATASECTION',),
         'stdin': ('SCE_RB_STDIN',),
