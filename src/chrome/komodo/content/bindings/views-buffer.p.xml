@@ -1279,6 +1279,11 @@
             const SC_PERFORMED_USER = Components.interfaces.ISciMoz.SC_PERFORMED_USER;
             const SC_PERFORMED_UNDO = Components.interfaces.ISciMoz.SC_PERFORMED_UNDO;
 
+            let koDoc = this.koDoc;
+            if (!koDoc) {
+                return;
+            }
+
             if (modificationType & (SC_MOD_INSERTTEXT | SC_MOD_BEFOREDELETE)) {
                 let koILintResult = Components.interfaces.koILintResult;
                 this._clearIndicatorsNearRange(koILintResult.DECORATOR_FIND_HIGHLIGHT, position, length);
@@ -1289,36 +1294,32 @@
             if (modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))
             {
                 if (this.lintBuffer &&
-                    this.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting"))
+                    koDoc.getEffectivePrefs().getBooleanPref("editUseLinting"))
                 {
                     this.lintBuffer.request("buffer was modified");
                 }
 
-                if (this.koDoc
-                    && (this.isCICitadelStuffEnabled || this.isCIXMLStuffEnabled)
+                if ((this.isCICitadelStuffEnabled || this.isCIXMLStuffEnabled)
                     && this._isCICplnEnabledViewPref
                     && this._isCIRescanningEnabled)
                 {
-                    ko.codeintel.scan_document(this.koDoc, linesAdded, true /* forcedScan */);
+                    ko.codeintel.scan_document(koDoc, linesAdded, true /* forcedScan */);
                 }
 
-                if (this.koDoc) {
-                    if ((modificationType & SC_MOD_DELETETEXT)
-                        && this.commandCompletionSvc
-                        && this._doAutoComplete
-                        && !(this.commandCompletionSvc.triggers ||
-                             (text && this.commandCompletionSvc.triggers.indexOf(text[0]) > -1)
-                            )
-                        && this.scimoz.autoCActive())
-                    {
-                        this.scimoz.autoCCancel();
-                    }
+                if ((modificationType & SC_MOD_DELETETEXT)
+                    && this.commandCompletionSvc
+                    && this._doAutoComplete
+                    && !(this.commandCompletionSvc.triggers ||
+                         (text && this.commandCompletionSvc.triggers.indexOf(text[0]) > -1)
+                        )
+                    && this.scimoz.autoCActive())
+                {
+                    this.scimoz.autoCCancel();
                 }
             }
             if ((modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT | SC_MOD_BEFOREDELETE))
                 && (modificationType & (SC_PERFORMED_USER|SC_PERFORMED_UNDO))
-                && this.koDoc
-                && this.koDoc.hasTabstopInsertionTable
+                && koDoc.hasTabstopInsertionTable
                 && window == ko.windowManager.getMainWindow() // : don't handle updates in other windows
                 && this == ko.window.focusedView() // focusedView: don't handle updates in other views
                ) {
