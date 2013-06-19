@@ -111,7 +111,7 @@ class Scheme:
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 8
+    _current_scheme_version = 9
 
     def _execfile(self, fname, namespace):
         try:
@@ -249,6 +249,11 @@ class Scheme:
                         tmp_styles = self._languageStyles.get("C++", {}).copy()
                         tmp_styles.update(self._languageStyles["CoffeeScript"])
                         self._languageStyles["CoffeeScript"] = tmp_styles
+                version += 1
+
+            if version == 8:
+                if self.writeable:
+                    self._indicators['multiple_caret_area'] = self._indicators['tabstop_pending'].copy()
                 version += 1
 
             try:
