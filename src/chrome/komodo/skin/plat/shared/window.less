@@ -182,9 +182,9 @@ statusbar
 page, view[type='startpage'], #komodo_main
 {
 
-    tree,
+    tree:not(.bg_transparent),
     richlistbox:not(.bg_transparent),
-    listbox
+    listbox:not(.bg_transparent)
     {
         background: @tree-background !important; /* Sectionlist tree background is stubborn */
     }
@@ -213,7 +213,7 @@ page, view[type='startpage'], #komodo_main
     {
         background: @tree-row-background;
         border: 0;
-        
+
         &(odd)
         {
             background: @tree-row-background-odd;
