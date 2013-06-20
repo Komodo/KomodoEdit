@@ -443,7 +443,7 @@ class KoTemplatesView(TreeView):
 
     def _getCellPropertiesNames(self, row, column):
         # Add a default language image.
-        properties = ["DefaultLanguage"]
+        names = ["DefaultLanguage"]
         try:
             # Add individual language icon if we have one.
             lang = self._data[row]['language']
@@ -451,22 +451,27 @@ class KoTemplatesView(TreeView):
                 # Remove some special chararacters from the language name, so
                 # it can be styled via CSS.
                 lang = lang.replace("+", "").replace(".", "")
-                properties.append(lang)
+                names.append(lang)
         except IndexError:
             # Silence this, it is too annoying.
             # c.f. http://bugs.activestate.com/show_bug.cgi?id=27487
             #log.error("no %sth result" % row)
             pass
+        return names
 
-    def getCellProperties(self, row, column, properties=None):
-        names = self._getCellPropertiesNames(row, column)
-        # Mozilla 22+ does not have a properties argument.
-        if properties is None:
-            return " ".join(names)
+    def getCellProperties_Old(self, row, column, names, properties):
         for name in names:
             atom = self.atomSvc.getAtom(name)
             if atom is not None:
                 properties.AppendElement(atom)
+
+    def getCellProperties(self, row, column, properties=None):
+        names = self._getCellPropertiesNames(row, column)
+        if properties is not None:
+            self.getCellProperties_Old(row, column, names, properties)
+            return
+        # Mozilla 22+ does not have a properties argument.
+        return " ".join(names)
 
 class KoTemplateCategoriesView(TreeView):
     _com_interfaces_ = [components.interfaces.koITemplateCategoriesView,
@@ -499,6 +504,7 @@ class KoTemplateCategoriesView(TreeView):
         self.atomSvc = components.classes["@mozilla.org/atom-service;1"].\
                   getService(components.interfaces.nsIAtomService)
         self.folderOpenAtom = self.atomSvc.getAtom("folderOpen")
+                               
         self.folderClosedAtom = self.atomSvc.getAtom("folderClosed")
 
     def initialize(self, templateSvc, templatesView):
@@ -688,12 +694,21 @@ class KoTemplateCategoriesView(TreeView):
         cdict = self._data[index]
         self.templatesView.setData(cdict["node"].files)
 
-    def getCellProperties(self, row, column, properties):
+    def getCellProperties_Old(self, row, column, properties):
         categoryPath = self._data[row]["category-path"]
         if self.categoryIsOpen.get(categoryPath, 0):
             properties.AppendElement(self.folderOpenAtom)
         else:
             properties.AppendElement(self.folderClosedAtom)
+
+    def getCellProperties(self, row, column, properties=None):
+        if properties is not None:
+            self.getCellProperties_Old(row, column, properties)
+            return
+        categoryPath = self._data[row]["category-path"]
+        if self.categoryIsOpen.get(categoryPath, 0):
+            return "folderOpen"
+        return "folderClosed"
 
     def hasNextSibling(self, rowIndex, afterIndex):
         """From the nsITreeView.idl docs:
