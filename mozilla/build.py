@@ -2169,12 +2169,22 @@ def target_src(argv=["src"]):
                 if not targetVer in versions:
                     raise BuildError("Can't find version %s" % (config.mozVer,))
                 branch = "FIREFOX_%s_RELEASE" % (targetVer.vstring.replace(".", "_"),)
-            elif lastVerMajor == targetVer.version[0] - 1:
-                branch = "beta"
-            elif lastVerMajor == targetVer.version[0] - 2:
-                branch = "aurora"
             else:
-                branch = "master"
+                for branch in ("beta", "aurora", "master"):
+                    milestone = _capture_output("git --git-dir=\"%s/.git\" show "
+                                                "origin/%s:config/milestone.txt" %
+                                                (srcRepo, branch))
+                    for line in milestone.splitlines():
+                        if (line.lstrip() + "#").startswith("#"):
+                            continue # empty or comment
+                        break
+                    else:
+                        continue
+                    version = LooseVersion(line.strip())
+                    if version.version[0] == targetVer.version[0]:
+                        break
+                else:
+                    raise BuildError("Can't find branch for %s" % targetVer)
         else:
             raise BuildError("unknown git version \"%s\"" % (config.mozSrcGitRev,))
         _run_in_dir("git checkout %s" % (branch,), srcRepo)
