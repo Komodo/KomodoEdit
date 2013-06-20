@@ -56,7 +56,6 @@ private:
   nsCOMPtr<nsIXPConnect> mXPConnect;
 #endif
   nsIScriptGlobalObject *GetDynamicScriptGlobal(JSContext* aContext);
-  nsIScriptContext *GetDynamicScriptContext(JSContext *aContext);
   already_AddRefed<nsIDOMWindow> GetWindowFromCaller();
 };
 
@@ -80,16 +79,10 @@ koContentUtils::~koContentUtils()
 nsIScriptGlobalObject *
 koContentUtils::GetDynamicScriptGlobal(JSContext* aContext)
 {
-  nsIScriptContext *scriptCX = GetDynamicScriptContext(aContext);
+  nsIScriptContext *scriptCX = GetScriptContextFromJSContext(aContext);
   if (!scriptCX)
     return nullptr;
   return scriptCX->GetGlobalObject();
-}
-
-nsIScriptContext *
-koContentUtils::GetDynamicScriptContext(JSContext *aContext)
-{
-  return GetScriptContextFromJSContext(aContext);
 }
 
 already_AddRefed<nsIDOMWindow>
