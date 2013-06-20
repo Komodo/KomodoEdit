@@ -116,6 +116,16 @@ static char* getCurrentWord(unsigned int start, unsigned int end, Accessor &styl
     return s;
 }
 
+static int getCurrentStyleSpanReverse(unsigned int pos, int currStyle,
+                                      Accessor &styler) {
+    while (--pos >= 0) {
+        if (actual_style(styler.StyleAt(pos)) != currStyle) {
+            break;
+        }
+    }
+    return pos + 1;
+}
+
 static int ClassifyWordRb(unsigned int start, unsigned int end, WordList &keywords, Accessor &styler, char *currWord, char *prevWord) {
     int chAttr;
     if (!currWord) {
@@ -508,17 +518,32 @@ static bool haveTargetMatch(int currPos,
     return true;
 }
 
+static bool lookingAtTerm(char *term,
+                          int targetWordLength,
+                          int pos,
+                          Accessor &styler) {
+    int lim = pos + targetWordLength; 
+    for (pos; pos < lim; pos++, term++) {
+        if (styler[pos] != *term) {
+            return false;
+        }
+    }
+    return true;
+}
+
 // We need a check because the form
 // [identifier] <<[target]
 // is ambiguous.  The Ruby lexer/parser resolves it by
 // looking to see if [identifier] names a variable or a
-// function.  If it's the first, it's the start of a here-doc.
+// function.  If it's a function or certain keyword,
+// it's the start of a here-doc.
 // If it's a var, it's an operator.  This lexer doesn't
 // maintain a symbol table, so it looks ahead to see what's
 // going on, in cases where we have
 // ^[white-space]*[identifier([.|::]identifier)*][white-space]*<<[target]
 //
-// If there's no occurrence of [target] on a line, assume we don't.
+// If there's no occurrence of [target] on a line, assume we probably
+// aren't looking at a heredoc.
 
 // return true == yes, we have no heredocs
 
@@ -598,6 +623,51 @@ static bool sureThisIsNotHeredoc(int lt2StartPos,
     }
     // From this point on no more styling, since we're looking ahead
 
+    // If we're looking at an identifier, move back, looking to see
+    // if it's used earlier in the buffer.
+    int wordStartPos, wordEndPos;
+    if (isSafeAlnum(styler[j])) {
+        wordStartPos = j;
+        wordEndPos = lengthDoc;
+        for (; j < lengthDoc; j++) {
+            if (!isSafeAlnum(styler[j])) {
+                wordEndPos = j;
+                break;
+            }
+        }
+        char *currWord = getCurrentWord(wordStartPos, wordEndPos - 1, styler);
+        // Now move backwards
+        int targetWordLength = wordEndPos - wordStartPos;
+        for (j = lt2StartPos - 1; j > targetWordLength; j--) {
+            int style = actual_style(styler.StyleAt(j));
+            if (style == SCE_RB_IDENTIFIER || style == SCE_RB_WORD) {
+                int styleStart = getCurrentStyleSpanReverse(j, style, styler);
+                if (style == SCE_RB_IDENTIFIER) {
+                    if (styleStart == j - targetWordLength + 1
+                        && lookingAtTerm(currWord, targetWordLength,
+                                         styleStart,
+                                         styler)) {
+                        return definitely_not_a_here_doc;
+                    }
+                } else if (style == SCE_RB_WORD) {
+                    if (styleStart + 4 == j
+                        && lookingAtTerm("class", 5, styleStart, styler)) {
+                        break;
+                    }
+                    if (styleStart + 2 == j
+                        && lookingAtTerm("def", 3, styleStart, styler)) {
+                        // Is this def at start of line?
+                        lineStart = styler.GetLine(j);
+                        if (styler.LineStart(lineStart) == j - 2) {
+                            break;
+                        }
+                    }
+                }
+                j = styleStart;
+            }
+        }
+    }
+
     // Allow for quoted targets.
     char target_quote = 0;
     switch (styler[j]) {
@@ -660,7 +730,7 @@ static bool sureThisIsNotHeredoc(int lt2StartPos,
     
     if (isSafeAlnum(styler[j])) {
         // Could be if or unless after
-        char buf[8], *dst = buf;;
+        char buf[8], *dst = buf;
         int endWordPos = j + 7;
         if (endWordPos > lengthDoc) {
             endWordPos = lengthDoc;
