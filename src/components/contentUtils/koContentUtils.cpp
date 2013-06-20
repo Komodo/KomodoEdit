@@ -57,7 +57,7 @@ private:
 #endif
   nsIScriptGlobalObject *GetDynamicScriptGlobal(JSContext* aContext);
   nsIScriptContext *GetDynamicScriptContext(JSContext *aContext);
-  nsIDOMWindow *GetWindowFromCaller();
+  already_AddRefed<nsIDOMWindow> GetWindowFromCaller();
 };
 
 NS_IMPL_THREADSAFE_ISUPPORTS1(koContentUtils, koIContentUtils)
@@ -92,7 +92,7 @@ koContentUtils::GetDynamicScriptContext(JSContext *aContext)
   return GetScriptContextFromJSContext(aContext);
 }
 
-nsIDOMWindow *
+already_AddRefed<nsIDOMWindow>
 koContentUtils::GetWindowFromCaller()
 {
   JSContext *cx = nullptr;
@@ -107,7 +107,7 @@ koContentUtils::GetWindowFromCaller()
     nsCOMPtr<nsIDOMWindow> win(do_QueryInterface(sgo));
 
     if (win) {
-      return win;
+      return win.forget();
     }
   }
 
@@ -118,8 +118,7 @@ NS_IMETHODIMP koContentUtils::GetWindowFromCaller(nsIDOMWindow **callingDoc)
 {
     NS_ENSURE_ARG_POINTER(callingDoc);
   
-    *callingDoc = GetWindowFromCaller();
-    NS_IF_ADDREF(*callingDoc);
+    *callingDoc = GetWindowFromCaller().get();
     return NS_OK;
 }
 
