@@ -1,6 +1,6 @@
 --- smallstuff/less.js  1.3.3
 +++ smallstuff/less.js  trunk
-@@ -1,8 +1,12 @@
+@@ -1,3 +1,7 @@
 +window.less = {};
 +
 +(function() {
@@ -8,12 +8,6 @@
  //
  // LESS - Leaner CSS v1.3.3
  // http://lesscss.org
- // 
--// Copyright (c) 2009-2011, Alexis Sellier
-+// Copyright (c) 2009-2013, Alexis Sellier
- // Licensed under the Apache 2.0 License.
- //
- (function (window, undefined) {
 @@ -223,6 +227,19 @@
              var that = this;
              this.queue.push(path);
@@ -55,7 +49,28 @@
              href: path, 
              title: path, 
              type: env.mime, 
-@@ -3952,31 +3969,12 @@
+@@ -3239,8 +3256,11 @@
+ tree.Rule.prototype.toCSS = function (env) {
+     if (this.variable) { return "" }
+     else {
++        var value = this.value.toCSS(env);
++        if (value == 'disabled') return;
++
+         return this.name + (env.compress ? ':' : ': ') +
+-               this.value.toCSS(env) +
++               value +
+                this.important + (this.inline ? "" : ";");
+     }
+ };
+@@ -3828,6 +3848,7 @@
+             }
+         })) { 
+             this.evaluating = false;
++            
+             return variable;
+         }
+         else {
+@@ -3952,31 +3973,12 @@
  	}
  }
  
@@ -87,7 +102,7 @@
  }
  
  //
-@@ -4014,8 +4012,6 @@
+@@ -4014,8 +4016,6 @@
      loadStyles();
  };
  less.refreshStyles = loadStyles;
@@ -96,16 +111,7 @@
  
  function loadStyles() {
      var styles = document.getElementsByTagName('style');
-@@ -4075,7 +4071,7 @@
-     // urlParts[4] = filename
-     // urlParts[5] = parameters
- 
--    var urlPartsRegex = /^((?:[a-z-]+:)?\/\/(?:[^\/\?#]+\/)|([\/\\]))?((?:[^\/\\\?#]+[\/\\])*)([^\/\\\?#]*)([#\?].*)?$/,
-+    var urlPartsRegex = /^((?:[a-z-]+:)?\/\/(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$/,
-         urlParts = url.match(urlPartsRegex),
-         returner = {}, directories = [], i, baseUrlParts;
- 
-@@ -4112,83 +4108,6 @@
+@@ -4112,83 +4112,6 @@
      returner.fileUrl = returner.path + (urlParts[4] || "");
      returner.url = returner.fileUrl + (urlParts[5] || "");
      return returner;
@@ -189,7 +195,7 @@
  }
  
  function extractId(href) {
-@@ -4411,3 +4330,12 @@
+@@ -4411,3 +4334,12 @@
      define("less", [], function () { return less; } );
  }
  })(window);

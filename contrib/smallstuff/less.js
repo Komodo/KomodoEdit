@@ -3256,8 +3256,11 @@ tree.Rule = function (name, value, important, index, inline) {
 tree.Rule.prototype.toCSS = function (env) {
     if (this.variable) { return "" }
     else {
+        var value = this.value.toCSS(env);
+        if (value == 'disabled') return;
+
         return this.name + (env.compress ? ':' : ': ') +
-               this.value.toCSS(env) +
+               value +
                this.important + (this.inline ? "" : ";");
     }
 };
@@ -3845,6 +3848,7 @@ tree.Variable.prototype = {
             }
         })) { 
             this.evaluating = false;
+            
             return variable;
         }
         else {
