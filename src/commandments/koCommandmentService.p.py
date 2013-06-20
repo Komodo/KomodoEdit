@@ -439,7 +439,7 @@ class KoCommandmentService(object):
     _reg_contractid_ = "@activestate.com/koCommandmentService;1"
     _reg_desc_ = "Komodo commandment system service"
     _reg_categories_ = [
-        ("komodo-delayed-startup-service", "koCommandmentService", True),
+        ("komodo-delayed-startup-service", "koCommandmentService"),
     ]
 
     def __init__(self):
