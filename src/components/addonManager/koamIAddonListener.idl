@@ -40,20 +40,20 @@
  * @see https://developer.mozilla.org/en/Addons/Add-on_Manager/AddonListener
  */
 
-interface amIAddon;
+interface koamIAddon;
 
 [scriptable, uuid(7de011eb-ac24-4196-9c9c-3935fa0ef7c9)]
-interface amIAddonListener: nsISupports {
-    void onEnabling(in amIAddon addon, in boolean needsRestart);
-    void onEnabled(in amIAddon addon);
-    void onDisabling(in amIAddon addon, in boolean needsRestart);
-    void onDisabled(in amIAddon addon);
-    void onInstalling(in amIAddon addon, in boolean needsRestart);
-    void onInstalled(in amIAddon addon);
-    void onUninstalling(in amIAddon addon, in boolean needsRestart);
-    void onUninstalled(in amIAddon addon);
-    void onOperationCancelled(in amIAddon addon);
-    void onPropertyChanged(in amIAddon addon,
+interface koamIAddonListener: nsISupports {
+    void onEnabling(in koamIAddon addon, in boolean needsRestart);
+    void onEnabled(in koamIAddon addon);
+    void onDisabling(in koamIAddon addon, in boolean needsRestart);
+    void onDisabled(in koamIAddon addon);
+    void onInstalling(in koamIAddon addon, in boolean needsRestart);
+    void onInstalled(in koamIAddon addon);
+    void onUninstalling(in koamIAddon addon, in boolean needsRestart);
+    void onUninstalled(in koamIAddon addon);
+    void onOperationCancelled(in koamIAddon addon);
+    void onPropertyChanged(in koamIAddon addon,
                            [array, size_is(propertyCount)] in string properties,
                            [optional] in unsigned long propertyCount);
 };

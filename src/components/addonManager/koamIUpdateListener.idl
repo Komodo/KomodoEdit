@@ -36,27 +36,24 @@
 
 #include "nsISupports.idl"
 
-/* XPCOM wrapper for AddonManager InstallListener
- * @see https://developer.mozilla.org/en/Addons/Add-on_Manager/InstallListener
+/* XPCOM wrapper for AddonManager UpdateListener
+ * @see https://developer.mozilla.org/en/Addons/Add-on_Manager/UpdateListener
  */
 
-interface amIAddon;
-interface amIAddonInstall;
+interface koamIAddon;
+interface koamIAddonInstall;
 
-[scriptable, uuid(51401eb3-14f5-4c32-b713-ea308b844b2b)]
-interface amIInstallListener: nsISupports {
-    boolean onNewInstall(in amIAddonInstall install);
-    boolean onDownloadStarted(in amIAddonInstall install);
-    boolean onDownloadProgress(in amIAddonInstall install);
-    boolean onDownloadEnded(in amIAddonInstall install);
-    boolean onDownloadCancelled(in amIAddonInstall install);
-    boolean onDownloadFailed(in amIAddonInstall install);
-    boolean onInstallStarted(in amIAddonInstall install);
-    boolean onInstallEnded(in amIAddonInstall install,
-                           in amIAddon addon);
-    boolean onInstallCancelled(in amIAddonInstall install);
-    boolean onInstallFailed(in amIAddonInstall install);
-    boolean onExternalInstall(in amIAddon addon,
-                           in amIAddon existingAddon,
-                           in boolean needsRestart);
+[scriptable, uuid(2c3a0cc4-cf95-48e3-98e9-3f459a22bd97)]
+interface koamIUpdateListener: nsISupports {
+    void onCompatibilityUpdateAvailable(in koamIAddon addon);
+    void onNoCompatibilityUpdateAvailable(in koamIAddon addon);
+    void onUpdateAvailable(in koamIAddon addon, in koamIAddonInstall install);
+    void onNoUpdateAvailable(in koamIAddon addon);
+    void onUpdateFinished(in koamIAddon addon, in long error);
+    
+    /**
+     * Check whether we should have the given method (since you can't have
+     * interfaces with half the methods)
+     */
+    boolean hasMethod(in ACString methodName);
 };

@@ -36,42 +36,27 @@
 
 #include "nsISupports.idl"
 
-/* XPCOM wrapper for AddonManager AddonInstall
- * @see https://developer.mozilla.org/en/Addons/Add-on_Manager/AddonInstall
+/* XPCOM wrapper for AddonManager InstallListener
+ * @see https://developer.mozilla.org/en/Addons/Add-on_Manager/InstallListener
  */
 
-interface amIAddon;
-interface amIInstallListener;
+interface koamIAddon;
+interface koamIAddonInstall;
 
-interface nsIFile;
-interface nsIURI;
-interface nsIX509Cert;
-
-[scriptable, uuid(a70387a0-f758-40dc-95ba-eef654082952)]
-interface amIAddonInstall: nsISupports {
-    void install();
-    void cancel();
-    void addListener(in amIInstallListener listener);
-    void removeListener(in amIInstallListener listener);
-
-    attribute AString name;
-    attribute AUTF8String version;
-    attribute AUTF8String iconURL;
-    attribute nsIURI releaseNotesURI;
-    attribute ACString type;
-    attribute long state;
-    attribute long error;
-    attribute nsIURI sourceURI;
-    attribute nsIFile file;
-    attribute long progress;
-    attribute long maxProgress;
-    attribute nsIX509Cert certificate;
-    attribute AString certName;
-    attribute amIAddon existingAddon;
-    attribute amIAddon addon;
-
-    // mysterious undocumented attributes
-    /* amIAddonInstall[] linkedInstalls */
-    void getLinkedInstalls([optional] out unsigned long linkedCount,
-                           [retval, array, size_is(linkedCount)] out amIAddonInstall linkedInstalls);
+[scriptable, uuid(51401eb3-14f5-4c32-b713-ea308b844b2b)]
+interface koamIInstallListener: nsISupports {
+    boolean onNewInstall(in koamIAddonInstall install);
+    boolean onDownloadStarted(in koamIAddonInstall install);
+    boolean onDownloadProgress(in koamIAddonInstall install);
+    boolean onDownloadEnded(in koamIAddonInstall install);
+    boolean onDownloadCancelled(in koamIAddonInstall install);
+    boolean onDownloadFailed(in koamIAddonInstall install);
+    boolean onInstallStarted(in koamIAddonInstall install);
+    boolean onInstallEnded(in koamIAddonInstall install,
+                           in koamIAddon addon);
+    boolean onInstallCancelled(in koamIAddonInstall install);
+    boolean onInstallFailed(in koamIAddonInstall install);
+    boolean onExternalInstall(in koamIAddon addon,
+                           in koamIAddon existingAddon,
+                           in boolean needsRestart);
 };

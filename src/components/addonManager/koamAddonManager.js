@@ -77,7 +77,7 @@ function getCachedValue(cache, item, wrapped) {
 }
 
 /**
- * Given a Addon, return a amIAddon
+ * Given a Addon, return a koamIAddon
  */
 function xpcAddon(aAddon) {
     if (!aAddon) return aAddon;
@@ -132,7 +132,7 @@ function xpcAddon(aAddon) {
             aAddon.reviewCount === null ? -1 : aAddon.dailyUsers,
         get repositoryStatus()
             aAddon.repositoryStatus === null ? -1 : aAddon.repositoryStatus,
-        QueryInterface: XPCOMUtils.generateQI([Ci.amIAddon,
+        QueryInterface: XPCOMUtils.generateQI([Ci.koamIAddon,
                                                Ci.nsISupportsWeakReference])
     };
     wrapped.__proto__ = aAddon;
@@ -141,7 +141,7 @@ function xpcAddon(aAddon) {
 }
 
 /**
- * Given an AddonInstall, return a amIAddonInstall
+ * Given an AddonInstall, return a koamIAddonInstall
  */
 function xpcAddonInstall(aInstall) {
     if (!aInstall) return aInstall;
@@ -162,7 +162,7 @@ function xpcAddonInstall(aInstall) {
                 count.value = wrapped.linkedInstalls.length;
             return [].concat(wrapped.linkedInstalls);
         },
-        QueryInterface: XPCOMUtils.generateQI([Ci.amIAddonInstall,
+        QueryInterface: XPCOMUtils.generateQI([Ci.koamIAddonInstall,
                                                Ci.nsISupportsWeakReference])
     };
     wrapped.wrappedJSObject = wrapped;
@@ -170,7 +170,7 @@ function xpcAddonInstall(aInstall) {
 }
 
 /**
- * Given a amIInstallListener, return a InstallListener
+ * Given a koamIInstallListener, return a InstallListener
  */
 function jsInstallListener(aListener) {
     var wrapped = {
@@ -205,7 +205,7 @@ function jsInstallListener(aListener) {
 }
 
 /**
- * Given a amIAddonListener, return a AddonListener
+ * Given a koamIAddonListener, return a AddonListener
  */
 function jsAddonListener(aListener) {
     var wrapped = {
@@ -237,7 +237,7 @@ function jsAddonListener(aListener) {
 }
 
 /**
- * Given a amIUpdateListener, return a UpdateListener
+ * Given a koamIUpdateListener, return a UpdateListener
  */
 function jsUpdateListener(aListener) {
     if (!aListener)
@@ -265,28 +265,28 @@ function jsUpdateListener(aListener) {
 }
 
 /**
- * Given a amIAddonCallback, return a AddonCallback
+ * Given a koamIAddonCallback, return a AddonCallback
  */
 function jsAddonCallback(callback)
     callback && function(addon)
         callback.AddonCallback(xpcAddon(addon))
 
 /**
- * Given a amIAddonListCallback, return a AddonListCallback
+ * Given a koamIAddonListCallback, return a AddonListCallback
  */
 function jsAddonListCallback(callback)
     callback && function(addons)
         callback.AddonListCallback(addons.map(xpcAddon), addons.length)
 
 /**
- * Given a amIInstallCallback, return a InstallCallback
+ * Given a koamIInstallCallback, return a InstallCallback
  */
 function jsInstallCallback(callback)
     callback && function(install)
         callback.InstallCallback(xpcAddonInstall(install))
 
 /**
- * Given a amIInstallListCallback, return a InstallListCallback
+ * Given a koamIInstallListCallback, return a InstallListCallback
  */
 function jsInstallListCallback(callback)
     callback && function(installs)
@@ -345,7 +345,7 @@ amAddonManager.prototype = {
     classID:          Components.ID("{15f8ee3a-1b7f-43c8-bdd9-6add07b52e1d}"),
     contractID:       "@mozilla.org/addons/addon-manager;1",
     
-    QueryInterface: XPCOMUtils.generateQI([Ci.amIAddonManager])
+    QueryInterface: XPCOMUtils.generateQI([Ci.koamIAddonManager])
 };
 
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([amAddonManager]);

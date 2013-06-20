@@ -308,8 +308,8 @@ class KoLanguageRegistryService:
         # bug 94778: the addon manager is async, so it needs to be
         # pre-populated at startup-time
         try:
-            addonMgr = components.classes["@mozilla.org/addons/addon-manager;1"]. \
-                        getService(components.interfaces.amIAddonManager)
+            addonMgr = components.classes["@activestate.com/platform/addons/addon-manager;1"]. \
+                        getService(components.interfaces.koamIAddonManager)
             def addonListCallback(addons):
                 for addon in addons:
                     self._addonsEnabled[addon.id] = addon.isActive
@@ -328,8 +328,8 @@ class KoLanguageRegistryService:
             return True
 
         try:
-            addonMgr = components.classes["@mozilla.org/addons/addon-manager;1"]. \
-                        getService(components.interfaces.amIAddonManager)
+            addonMgr = components.classes["@activestate.com/platform/addons/addon-manager;1"]. \
+                        getService(components.interfaces.koamIAddonManager)
             def addonCallback(addon):
                 if addon is not None:
                     self._addonsEnabled[id] = addon.isActive

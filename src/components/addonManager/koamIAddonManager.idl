@@ -41,15 +41,15 @@
  * @see https://developer.mozilla.org/en/Addons/Add-on_Manager/AddonManager
  */
 
-interface amIAddonCallback;
-interface amIAddonListCallback;
-interface amIInstallCallback;
-interface amIInstallListCallback;
+interface koamIAddonCallback;
+interface koamIAddonListCallback;
+interface koamIInstallCallback;
+interface koamIInstallListCallback;
 
-interface amIAddon;
-interface amIAddonInstall;
-interface amIAddonListener;
-interface amIInstallListener;
+interface koamIAddon;
+interface koamIAddonInstall;
+interface koamIAddonListener;
+interface koamIInstallListener;
 
 interface nsIDOMWindow;
 interface nsIFile;
@@ -57,9 +57,9 @@ interface nsILoadGroup;
 interface nsIURI;
 
 [scriptable, uuid(40356a2f-c12e-4f71-b4f4-0b761d84b110)]
-interface amIAddonManager: nsISupports {
+interface koamIAddonManager: nsISupports {
     void getInstallForURL(in AUTF8String url,
-                          in amIInstallCallback callback,
+                          in koamIInstallCallback callback,
                           in ACString mimetype,
                           [optional] in ACString hash,
                           [optional] in AString name,
@@ -68,45 +68,45 @@ interface amIAddonManager: nsISupports {
                           [optional] in nsILoadGroup loadGroup);
 
     void getInstallForFile(in nsIFile file,
-                           in amIInstallCallback callback,
+                           in koamIInstallCallback callback,
                            [optional] in ACString mimetype);
 
-    void getAllInstalls(in amIInstallListCallback callback);
+    void getAllInstalls(in koamIInstallListCallback callback);
 
     void getInstallsByTypes([array, size_is(typeCount)] in string types,
-                            in amIInstallListCallback callback,
+                            in koamIInstallListCallback callback,
                             in unsigned long typeCount);
 
     void installAddonsFromWebpage(in ACString mimetype,
                                   in nsIDOMWindow source,
                                   in nsIURI uri,
-                                  [array, size_is(installCount)] in amIAddonInstall installs,
+                                  [array, size_is(installCount)] in koamIAddonInstall installs,
                                   in unsigned long installCount);
 
-    void addInstallListener(in amIInstallListener listener);
+    void addInstallListener(in koamIInstallListener listener);
 
-    void removeInstallListener(in amIInstallListener listener);
+    void removeInstallListener(in koamIInstallListener listener);
 
-    void getAllAddons(in amIAddonListCallback callback);
+    void getAllAddons(in koamIAddonListCallback callback);
 
     void getAddonByID(in AUTF8String id,
-                      in amIAddonCallback callback);
+                      in koamIAddonCallback callback);
 
     void getAddonsByIDs([array, size_is(idCount)] in wstring ids,
-                        in amIAddonListCallback callback,
+                        in koamIAddonListCallback callback,
                         in unsigned long idCount);
 
     void getAddonsByTypes([array, size_is(typeCount)] in string types,
-                          in amIAddonListCallback callback,
+                          in koamIAddonListCallback callback,
                           in unsigned long typeCount);
 
     void getAddonsWithOperationsByTypes([array, size_is(typeCount)] in string types,
-                                        in amIAddonListCallback callback,
+                                        in koamIAddonListCallback callback,
                                         in unsigned long typeCount);
 
-    void addAddonListener(in amIAddonListener listener);
+    void addAddonListener(in koamIAddonListener listener);
 
-    void removeAddonListener(in amIAddonListener listener);
+    void removeAddonListener(in koamIAddonListener listener);
 
     // mystery undocumented method!
     boolean isInstallAllowed(in ACString mimetype,
@@ -172,20 +172,20 @@ interface amIAddonManager: nsISupports {
 };
 
 [scriptable, function, uuid(9a3c8c2e-e3a2-47b1-a8d8-0abd5963c28c)]
-interface amIAddonCallback: nsISupports {
-    void AddonCallback(in amIAddon addon);
+interface koamIAddonCallback: nsISupports {
+    void AddonCallback(in koamIAddon addon);
 };
 [scriptable, function, uuid(c6afa05c-2682-4fa3-9f23-3ce6867b0e18)]
-interface amIAddonListCallback: nsISupports {
-    void AddonListCallback([array, size_is(addonCount)] in amIAddon addons,
+interface koamIAddonListCallback: nsISupports {
+    void AddonListCallback([array, size_is(addonCount)] in koamIAddon addons,
                            [optional] in unsigned long addonCount);
 };
 [scriptable, function, uuid(f985d564-33d0-4d2e-8a2e-35de506e2694)]
-interface amIInstallCallback: nsISupports {
-    void InstallCallback(in amIAddonInstall install);
+interface koamIInstallCallback: nsISupports {
+    void InstallCallback(in koamIAddonInstall install);
 };
 [scriptable, function, uuid(a3d8236a-5cd4-4561-875f-8e2a9896ad01)]
-interface amIInstallListCallback: nsISupports {
-    void InstallListCallback([array, size_is(installCount)] in amIAddonInstall installs,
+interface koamIInstallListCallback: nsISupports {
+    void InstallListCallback([array, size_is(installCount)] in koamIAddonInstall installs,
                              [optional] in unsigned long installCount);
 };

@@ -40,20 +40,20 @@
  * @see https://developer.mozilla.org/en/Addons/Add-on_Manager/Addon
  */
 
-interface amIAddon;
-interface amIAddonAuthor;
-interface amIAddonInstall;
-interface amIAddonScreenshot;
-interface amIUpdateListener;
+interface koamIAddon;
+interface koamIAddonAuthor;
+interface koamIAddonInstall;
+interface koamIAddonScreenshot;
+interface koamIUpdateListener;
 
 interface nsIURI;
 
 [scriptable, uuid(35ecb02a-b7db-49bc-89ba-c4b8152d3681)]
-interface amIAddon: nsISupports {
+interface koamIAddon: nsISupports {
     boolean isCompatibleWith([optional] in AUTF8String appVersion,
                              [optional] in AUTF8String platformVersion);
 
-    void findUpdates(in amIUpdateListener listener,
+    void findUpdates(in koamIUpdateListener listener,
                      in long reason,
                      [optional] in AUTF8String appVersion,
                      [optional] in AUTF8String platformVersion);
@@ -65,7 +65,7 @@ interface amIAddon: nsISupports {
     /* required attributes */
     attribute boolean appDisabled;
     attribute long blocklistState;
-    attribute amIAddonAuthor creator;
+    attribute koamIAddonAuthor creator;
     attribute AUTF8String id;
     attribute boolean isActive;
     attribute boolean isCompatible;
@@ -84,25 +84,25 @@ interface amIAddon: nsISupports {
     attribute long applyBackgroundUpdates;
     readonly attribute boolean hasContributors;
     void getContributors([optional] out unsigned long contributorCount,
-                         [retval, array, size_is(contributorCount)] out amIAddonAuthor contributors);
+                         [retval, array, size_is(contributorCount)] out koamIAddonAuthor contributors);
     attribute AString description;
     readonly attribute boolean hasDevelopers;
     void getDevelopers([optional] out unsigned long developerCount,
-                       [retval, array, size_is(developerCount)] out amIAddonAuthor developers);
+                       [retval, array, size_is(developerCount)] out koamIAddonAuthor developers);
     attribute AUTF8String homepageURL;
     attribute AUTF8String iconURL;
-    attribute amIAddonInstall install;
+    attribute koamIAddonInstall install;
     attribute PRTime installDate;
     attribute AUTF8String optionsURL;
-    attribute amIAddon pendingUpgrade;
+    attribute koamIAddon pendingUpgrade;
     attribute nsIURI releaseNotesURI;
     void getScreenshots([optional] out unsigned long screenshotCount,
-                        [retval, array, size_is(screenshotCount)] out amIAddonScreenshot screenshots);
+                        [retval, array, size_is(screenshotCount)] out koamIAddonScreenshot screenshots);
     attribute unsigned long size;
     attribute nsIURI sourceURI;
     readonly attribute boolean hasTranslators;
     void getTranslators([optional] out unsigned long translatorCount,
-                        [retval, array, size_is(translatorCount)] out amIAddonAuthor translators);
+                        [retval, array, size_is(translatorCount)] out koamIAddonAuthor translators);
     attribute PRTime updateDate;
     attribute long operationsRequiringRestart;
     // special undocumented things being tested for!
@@ -124,14 +124,14 @@ interface amIAddon: nsISupports {
 };
 
 [scriptable, uuid(d0f5fa06-22cd-43e7-b68d-c759fca62787)]
-interface amIAddonAuthor: nsISupports {
+interface koamIAddonAuthor: nsISupports {
     attribute AString name;
     attribute ACString url; /* optional */
     AString toString();
 };
 
 [scriptable, uuid(161d45d2-0ce7-44c4-a9c6-1b2149bbbf67)]
-interface amIAddonScreenshot: nsISupports {
+interface koamIAddonScreenshot: nsISupports {
     attribute AUTF8String url;
     attribute AUTF8String thumbnailURL;
     attribute AString caption;

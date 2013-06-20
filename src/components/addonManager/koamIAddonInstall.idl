@@ -36,24 +36,42 @@
 
 #include "nsISupports.idl"
 
-/* XPCOM wrapper for AddonManager UpdateListener
- * @see https://developer.mozilla.org/en/Addons/Add-on_Manager/UpdateListener
+/* XPCOM wrapper for AddonManager AddonInstall
+ * @see https://developer.mozilla.org/en/Addons/Add-on_Manager/AddonInstall
  */
 
-interface amIAddon;
-interface amIAddonInstall;
+interface koamIAddon;
+interface koamIInstallListener;
 
-[scriptable, uuid(2c3a0cc4-cf95-48e3-98e9-3f459a22bd97)]
-interface amIUpdateListener: nsISupports {
-    void onCompatibilityUpdateAvailable(in amIAddon addon);
-    void onNoCompatibilityUpdateAvailable(in amIAddon addon);
-    void onUpdateAvailable(in amIAddon addon, in amIAddonInstall install);
-    void onNoUpdateAvailable(in amIAddon addon);
-    void onUpdateFinished(in amIAddon addon, in long error);
-    
-    /**
-     * Check whether we should have the given method (since you can't have
-     * interfaces with half the methods)
-     */
-    boolean hasMethod(in ACString methodName);
+interface nsIFile;
+interface nsIURI;
+interface nsIX509Cert;
+
+[scriptable, uuid(a70387a0-f758-40dc-95ba-eef654082952)]
+interface koamIAddonInstall: nsISupports {
+    void install();
+    void cancel();
+    void addListener(in koamIInstallListener listener);
+    void removeListener(in koamIInstallListener listener);
+
+    attribute AString name;
+    attribute AUTF8String version;
+    attribute AUTF8String iconURL;
+    attribute nsIURI releaseNotesURI;
+    attribute ACString type;
+    attribute long state;
+    attribute long error;
+    attribute nsIURI sourceURI;
+    attribute nsIFile file;
+    attribute long progress;
+    attribute long maxProgress;
+    attribute nsIX509Cert certificate;
+    attribute AString certName;
+    attribute koamIAddon existingAddon;
+    attribute koamIAddon addon;
+
+    // mysterious undocumented attributes
+    /* koamIAddonInstall[] linkedInstalls */
+    void getLinkedInstalls([optional] out unsigned long linkedCount,
+                           [retval, array, size_is(linkedCount)] out koamIAddonInstall linkedInstalls);
 };
