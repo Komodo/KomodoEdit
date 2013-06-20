@@ -28,11 +28,15 @@ class OOPEvalController(EvalController):
         self.silent = request.get("silent", False)
         self.keep_existing = request.get("keep_existing", self.keep_existing)
 
-        # Set up a logger to record any errors
-        # Note that the output will be discarded if there it no error
+        # Set up a *new* logger to record any errors
+        # Note that the output will be discarded if there is no error
         self.log_stream = cStringIO.StringIO()
         self.log_hndlr = logging.StreamHandler(self.log_stream)
-        self.log = logging.getLogger("codeintel.evaluator")
+        loggerClass = logging.Logger.manager.loggerClass
+        if not loggerClass:
+            loggerClass = logging.getLoggerClass()
+        self.log = loggerClass("codeintel.evaluator")
+        self.log.manager = logging.Logger.manager
         self.log.propagate = False
         self.log.addHandler(self.log_hndlr)
         self.best_msg = (0, "")
@@ -101,6 +105,7 @@ class OOPEvalController(EvalController):
                 msg = "error evaluating '%s'" % desc
             self.driver.fail(request=self.request, message=msg)
 
+        self.log = log # If we have any more problems, put it in the main log
         self.log_stream.close()
         EvalController.done(self, reason)
 
