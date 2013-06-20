@@ -55,9 +55,6 @@ private:
 #else
   nsCOMPtr<nsIXPConnect> mXPConnect;
 #endif
-  nsIDOMDocument *GetDocumentFromCaller();
-  nsIDocShell *GetDocShellFromCaller();
-  nsIScriptGlobalObject *GetStaticScriptGlobal(JSContext* aContext, JSObject* aObj);
   nsIScriptGlobalObject *GetDynamicScriptGlobal(JSContext* aContext);
   nsIScriptContext *GetDynamicScriptContext(JSContext *aContext);
   nsIDOMWindow *GetWindowFromCaller();
@@ -81,49 +78,6 @@ koContentUtils::~koContentUtils()
 }
 
 nsIScriptGlobalObject *
-koContentUtils::GetStaticScriptGlobal(JSContext* aContext, JSObject* aObj)
-{
-  JSClass* clazz;
-  JSObject* glob = aObj; // starting point for search
-
-  if (!glob)
-    return nullptr;
-
-  glob = JS_GetGlobalForObject(aContext, glob);
-  NS_ABORT_IF_FALSE(glob, "Infallible returns null");
-
-  clazz = JS_GetClass(glob);
-
-  // Whenever we end up with globals that are JSCLASS_IS_DOMJSCLASS
-  // and have an nsISupports DOM object, we will need to modify this
-  // check here.
-  MOZ_ASSERT(!(clazz->flags & JSCLASS_IS_DOMJSCLASS));
-  nsISupports* supports;
-  if (!(clazz->flags & JSCLASS_HAS_PRIVATE) ||
-      !(clazz->flags & JSCLASS_PRIVATE_IS_NSISUPPORTS) ||
-      !(supports = (nsISupports*)::JS_GetPrivate(glob))) {
-    return nullptr;
-  }
-
-  // We might either have a window directly (e.g. if the global is a
-  // sandbox whose script object principal pointer is a window), or an
-  // XPCWrappedNative for a window.  We could also have other
-  // sandbox-related script object principals, but we can't do much
-  // about those short of trying to walk the proto chain of |glob|
-  // looking for a window or something.
-  nsCOMPtr<nsIScriptGlobalObject> sgo(do_QueryInterface(supports));
-  if (!sgo) {
-    nsCOMPtr<nsIXPConnectWrappedNative> wrapper(do_QueryInterface(supports));
-    NS_ENSURE_TRUE(wrapper, nullptr);
-    sgo = do_QueryWrappedNative(wrapper);
-  }
-
-  // We're returning a pointer to something that's about to be
-  // released, but that's ok here.
-  return sgo;
-}
-
-nsIScriptGlobalObject *
 koContentUtils::GetDynamicScriptGlobal(JSContext* aContext)
 {
   nsIScriptContext *scriptCX = GetDynamicScriptContext(aContext);
@@ -136,28 +90,6 @@ nsIScriptContext *
 koContentUtils::GetDynamicScriptContext(JSContext *aContext)
 {
   return GetScriptContextFromJSContext(aContext);
-}
-
-nsIDocShell *
-koContentUtils::GetDocShellFromCaller()
-{
-  JSContext *cx = nullptr;
-#if MOZ_VERSION <= 1899
-  sThreadJSContextStack->Peek(&cx);
-#else
-  cx = mXPConnect->GetCurrentJSContext();
-#endif
-
-  if (cx) {
-    nsIScriptGlobalObject *sgo = GetDynamicScriptGlobal(cx);
-    nsCOMPtr<nsPIDOMWindow> win(do_QueryInterface(sgo));
-
-    if (win) {
-      return win->GetDocShell();
-    }
-  }
-
-  return nullptr;
 }
 
 nsIDOMWindow *
@@ -180,15 +112,6 @@ koContentUtils::GetWindowFromCaller()
   }
 
   return nullptr;
-}
-
-NS_IMETHODIMP koContentUtils::GetDocShellFromCaller(nsIDocShell **callingDoc)
-{
-    NS_ENSURE_ARG_POINTER(callingDoc);
-  
-    *callingDoc = GetDocShellFromCaller();
-    NS_IF_ADDREF(*callingDoc);
-    return NS_OK;
 }
 
 NS_IMETHODIMP koContentUtils::GetWindowFromCaller(nsIDOMWindow **callingDoc)
