@@ -121,9 +121,9 @@ class KoFileStatusService:
     _reg_contractid_ = "@activestate.com/koFileStatusService;1"
     _reg_desc_ = "Komodo File Status Service"
     _reg_categories_ = [
-         ("komodo-startup-service", "koFileStatusService", True),
+         ("komodo-startup-service", "koFileStatusService"),
          ("python-memory-reporter", "file_status"),
-         ]
+    ]
 
     monitoredFileNotifications = ("file_update_now", "file_status_now")
 

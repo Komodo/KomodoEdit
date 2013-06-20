@@ -18,8 +18,8 @@ class KoMemoryReporter:
     _reg_contractid_ = "@activestate.com/koMemoryReporter;1"
     _reg_desc_ = "Komodo Memory Reporter"
     _reg_categories_ = [
-         ("komodo-delayed-startup-service", "KoMemoryReporter", True),
-         ]
+         ("komodo-delayed-startup-service", "KoMemoryReporter"),
+    ]
 
     def __init__(self):
         # Register ourself with the memory manager.
