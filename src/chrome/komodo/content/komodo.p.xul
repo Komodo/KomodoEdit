@@ -1093,6 +1093,15 @@
                             </menu>
                             <menu id="menu_toolbars" label="&toolbars.label;">
                                 <menupopup id="popup_toolbars">
+<!-- #if PLATFORM != "darwin" -->
+                                    <menuitem label="&showMenubar.label;"
+                                              id="menu_toggleMenubar"
+                                              observes="cmd_toggleMenubar"
+                                              checked="true"
+                                              persist="checked"
+                                              type="checkbox"
+                                              />
+<!-- #endif -->
                                     <menuitem label="&showToolbars.label;"
                                               id="menu_toggleToolbars"
                                               observes="cmd_toggleToolbars"
@@ -2097,6 +2106,23 @@
                                tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
                                oncommand="ko.findtoolbar.addBrowsedDirectory();"/>
             </toolbar>
+
+            <toolbarbutton id="unifiedMenuButton"
+                tooltiptext="&menu.tooltiptext;"
+                type="menu"
+                orient="horizontal"
+                class="menu-icon"
+                buttonstyle="pictures"
+                collapsed="true"
+            >
+                <menupopup>
+                    <hbox>
+                        <vbox id="unifiedMenuPrimaryPane"/>
+                        <vbox id="unifiedMenuSecondaryPane"/>
+                    </hbox>
+                </menupopup>
+            </toolbarbutton>
+
             <!-- #if PLATFORM == "darwin" -->
                 <toolbarbutton id="fullscreen-restore-button" fullscreencontrol="true"
                                oncommand="ko.uilayout.fullScreen();"/>

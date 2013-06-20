@@ -85,6 +85,15 @@
             desc="&userInterfaceFullScreen.desc;"
             autoCheck="false"
             oncommand="ko.commands.doCommandAsync('cmd_viewFullScreen', event)"/>
+<!-- #if PLATFORM != "darwin" -->
+        <broadcaster
+            id="cmd_toggleMenubar" key="key_cmd_toggleMenubar"
+            desc="&userInterfaceShowHideMenubar.desc;"
+            oncommand="ko.commands.doCommandAsync('cmd_toggleMenubar', event)"
+            persist="checked"
+            checked="true"
+            autoCheck="false" />
+<!-- #endif -->
         <broadcaster
             id="cmd_toggleToolbars" key="key_cmd_toggleToolbars"
             desc="&userInterfaceShowHideToolbars.desc;"

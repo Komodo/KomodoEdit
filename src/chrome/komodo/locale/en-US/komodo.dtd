@@ -393,6 +393,7 @@
 <!ENTITY mailLists.label "Mail Lists">
 <!ENTITY makeLowercase.label "Make Lowercase">
 <!ENTITY makeUppercase.label "Make Uppercase">
+<!ENTITY menu.tooltiptext "Menu">
 <!ENTITY menuBlockSelect.accesskey "B">
 <!ENTITY menuBookmarkGotoNext.accesskey "N">
 <!ENTITY menuBookmarkGotoPrevious.accesskey "P">
@@ -608,6 +609,7 @@
 <!ENTITY selection.label "selection">
 <!ENTITY selectionInformation.tooltiptext "Selection Information">
 <!ENTITY showButtonText.label "Show Button Text">
+<!ENTITY showMenubar.label "Show Menubar">
 <!ENTITY showToolbars.label "Show Toolbars">
 <!ENTITY showHideBottomPane.tooltiptext "Show/Hide Bottom Pane">
 <!ENTITY showHideLeftPane.tooltiptext "Show/Hide Left Pane">
@@ -720,6 +722,7 @@
 <!ENTITY userInterfaceShowHideBottomPane.desc "User Interface: Show/Hide Bottom Pane">
 <!ENTITY userInterfaceShowHideLeftPane.desc "User Interface: Show/Hide Left Pane">
 <!ENTITY userInterfaceShowHideStandardToolbar.desc "User Interface: Show/Hide Standard Toolbar">
+<!ENTITY userInterfaceShowHideMenubar.desc "User Interface: Show/Hide All Toolbars">
 <!ENTITY userInterfaceShowHideToolbars.desc "User Interface: Show/Hide All Toolbars">
 <!ENTITY userInterfaceShowHideToolbarButtonText.desc "User Interface: Show/Hide Toolbar Button Text">
 <!ENTITY userInterfaceShowHideRightPane.desc "User Interface: Show/Hide Right Pane">

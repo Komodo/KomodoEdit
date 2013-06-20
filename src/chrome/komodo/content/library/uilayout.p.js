@@ -182,6 +182,68 @@ this.toggleButtons = function uilayout_toggleButtons()
     document.persist('cmd_toggleButtonText', 'checked');
 }
 
+// #if PLATFORM != "darwin"
+this.toggleMenubar = function uilayout_toggleMenubar() {
+    var menubarShowing;
+    var broadcaster = document.getElementById('cmd_toggleMenubar');
+    if (broadcaster.hasAttribute('checked') && broadcaster.getAttribute('checked') == 'true') {
+        broadcaster.setAttribute("checked", "false");
+        menubarShowing = false;
+    } else {
+        broadcaster.setAttribute("checked", "true");
+        menubarShowing = true;
+    }
+
+    document.persist('cmd_toggleToolbars', 'checked');
+
+    ko.uilayout.setMenubarVisibility(menubarShowing);
+}
+
+this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowing) {
+    if (menubarShowing === undefined) {
+        menubarShowing = true;
+        var broadcaster = document.getElementById('cmd_toggleMenubar');
+        if ( ! broadcaster.hasAttribute('checked') || broadcaster.getAttribute('checked') == 'false')
+        {
+            menubarShowing = false;
+        }
+    }
+
+    var menuWrap      = document.getElementById('toolbar-menubar');
+    var menubar       = document.getElementById('menubar_main');
+    var popupFile     = document.getElementById('popup_file');
+    var menuButton    = document.getElementById('unifiedMenuButton');
+    var panePrimary   = document.getElementById('unifiedMenuPrimaryPane');
+    var paneSecondary = document.getElementById('unifiedMenuSecondaryPane');
+
+    if (menubarShowing && menuWrap.collapsed) {
+        var length = panePrimary.childNodes.length;
+        for (let x=0;x<length;x++) {
+            popupFile.appendChild(panePrimary.childNodes[0]);
+        }
+
+        var length = paneSecondary.childNodes.length;
+        for (let x=0;x<length;x++) {
+            menubar.appendChild(paneSecondary.childNodes[0]);
+        }
+        menuButton.collapsed = true;
+        menuWrap.collapsed = false;
+    } else if ( ! menubarShowing && menuButton.collapsed) {
+        var length = popupFile.childNodes.length;
+        for (let x=0;x<length;x++) {
+            panePrimary.appendChild(popupFile.childNodes[0]);
+        }
+
+        var length = menubar.childNodes.length;
+        for (let x=1;x<length;x++) {
+            paneSecondary.appendChild(menubar.childNodes[1]);
+        }
+        menuButton.collapsed = false;
+        menuWrap.collapsed = true;
+    }
+};
+// #endif
+
 this.updateToolbarArrangement = function uilayout_updateToolbarArrangement(buttonTextShowing /* default: look it up */)
 {
     var menuItem = document.getElementById('menu_toggleButtonText');
@@ -1543,6 +1605,10 @@ this.onload = function uilayout_onload()
     _updateAccesskeys();
     _updateHiddenToolbars();
     ko.main.addWillCloseHandler(ko.uilayout.unload);
+
+// #if PLATFORM != "darwin"
+    ko.uilayout.setMenubarVisibility();
+// #endif
 }
 
 this._setTabPaneLayoutForTabbox = function(layout, pane, position) {
