@@ -4,29 +4,20 @@
 #include "nsCOMPtr.h"
 
 #include "jsapi.h"
-#include "jsdbgapi.h"
-#include "prprf.h"
 #include "nsIScriptContext.h"
 #include "nsIScriptGlobalObject.h"
-#include "nsIServiceManager.h"
-#include "nsIXPConnect.h"
-#include "nsPIDOMWindow.h"
-
-#include "mozilla/ModuleUtils.h"
-#include "nsIDocShell.h"
-#include "nsIDOMWindow.h"
-
-#include "nsIScriptGlobalObjectOwner.h"
 #if MOZ_VERSION <= 1899
 #include "nsIJSContextStack.h"
 #endif
-
-#include "nsContentCID.h"
-#include "koIContentUtils.h"
+#include "nsDOMJSUtils.h"
 
 #include "nsIServiceManager.h"
+#include "nsIXPConnect.h"
+#include "nsIDOMWindow.h"
 
-#include "nsDOMJSUtils.h"
+#include "mozilla/ModuleUtils.h"
+
+#include "koIContentUtils.h"
 
 // {631e72c5-3779-5a43-870b-9b5d58e1ca91}
 #define KO_CONTENT_UTILS_CID \
