@@ -111,9 +111,7 @@ class koViewService:
         return all_views
 
     def getReferencedViewCount(self, viewtype=""):
-        views = [x() for x in self._all_views_wr_list]
-        live_views = [x for x in views if x is not None]
-        return len(live_views)
+        return len([1 for x in self._all_views_wr_list if x() is not None])
 
     def getAllViewMgrs(self):
         return self._viewMgr.values()
