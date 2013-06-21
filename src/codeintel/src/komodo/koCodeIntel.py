@@ -304,13 +304,24 @@ class KoCodeIntelDBPreloader(object):
                                        timeout=0,
                                        progress=0,
                                        maxProgress=Ci.koINotificationProgress.PROGRESS_INDETERMINATE,
+                                       interactive=False, # force status message
                                        actions=actions,
                                        details=
                                        "Pre-loading code intelligence database. "
                                        "This process will improve the speed of first "
                                        "time autocomplete and calltips. It typically "
                                        "takes less than a minute.")
+            self._update_status_message()
         return self._notification
+
+    @ProxyToMainThreadAsync
+    def _update_status_message(self):
+        """Update the status bar message with the notification"""
+        if not self._notification:
+            return
+        Cc["@mozilla.org/observer-service;1"]\
+          .getService(Ci.nsIObserverService)\
+          .notifyObservers(self._notification, "status_message", None)
 
     def cancel(self):
         action = self.notification.getActions("stop")[0]
@@ -361,6 +372,7 @@ class KoCodeIntelDBPreloader(object):
                 Ci.koINotification.SEVERITY_ERROR
             self.notification.maxProgress = \
                 Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE
+            self._update_status_message()
             self.callback(result=Cr.NS_ERROR_FAILURE,
                           message=message,
                           success=Ci.koIAsyncCallback.RESULT_SUCCESSFUL)
@@ -373,6 +385,7 @@ class KoCodeIntelDBPreloader(object):
                 Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE
             self.notification.severity = \
                 Ci.koINotification.SEVERITY_ERROR
+            self._update_status_message()
             self.callback(result=Cr.NS_ERROR_FAILURE,
                           message=message)
         elif self.mgr.state is KoCodeIntelManager.STATE.BROKEN:
@@ -386,6 +399,7 @@ class KoCodeIntelDBPreloader(object):
             self.notification.maxProgress = \
                 Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE
             self.showAction("reset-db")
+            self._update_status_message()
             self.callback(result=Cr.NS_ERROR_FAILURE,
                           message="Code intelligence database error",
                           success=Ci.koIAsyncCallback.RESULT_SUCCESSFUL)
@@ -395,6 +409,11 @@ class KoCodeIntelDBPreloader(object):
                 self.notification.maxProgress = \
                     Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE
                 self.showAction()
+                try:
+                    self.notification.expiresAt = 1 # dawn of time; removes it
+                    self._update_status_message()
+                except:
+                    log.exception("failed")
             self.callback(result=Cr.NS_OK, message=None,
                           success=Ci.koIAsyncCallback.RESULT_SUCCESSFUL)
         elif message is None and progress is None:
