@@ -708,7 +708,7 @@ if ( ! ("less" in ko))
                     if ( ! this.sheets[href][i].get() || ! this.sheets[href][i].get().parentNode.location)
                     {
                         this.debug('Cleaning up dead reference for: ' + href);
-                        delete this.sheets[href][i];
+                        this.sheets[href].splice(i);
                     }
                 }
 
