@@ -429,6 +429,37 @@ editor_editorController.prototype.do_cmd_pasteHtml= function() {
     scimoz.replaceSel(html);
 }
 
+editor_editorController.prototype.is_cmd_addAdditionalCaret_enabled = function() {
+    return !!_getCurrentScimozView();
+}
+
+editor_editorController.prototype.do_cmd_addAdditionalCaret = function() {
+    var view = _getCurrentScimozView();
+    if (!view) {
+        return;
+    }
+    var scimoz = view.scimoz;
+    var multiCaretSession = ko.selections.getMultiCaretSession(view);
+    if (multiCaretSession.isDormant) {
+        multiCaretSession.startAddingRanges();
+        multiCaretSession.addRange(scimoz.selectionStart, scimoz.selectionEnd);
+        view.addEventListener("keypress", onKeypressInGatheringSession, true);
+    } else if (multiCaretSession.isGatheringCarets) {
+        multiCaretSession.addRange(scimoz.selectionStart, scimoz.selectionEnd);
+    }
+}
+
+function onKeypressInGatheringSession(event) {
+    var view = event.currentTarget;
+    view.removeEventListener("keypress", onKeypressInGatheringSession, true);
+    var multiCaretSession = ko.selections.getMultiCaretSession(view);
+    if (multiCaretSession.isTypingEvent(event)) {
+        multiCaretSession.doneAddingRanges();
+    } else {
+        multiCaretSession.endSession();
+    }
+}
+        
 window.controllers.appendController(new editor_editorController());
 
 }).apply(); // apply into the global namespace

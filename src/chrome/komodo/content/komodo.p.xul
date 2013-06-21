@@ -274,6 +274,9 @@
         </menu>
 
         <menuseparator id="context-sep-paste"/>
+        <menuitem id="editor-context-addAdditionalCaret"
+                label="&addAdditionalCaret.label;"
+                observes="cmd_addAdditionalCaret"/>
 
         <menuitem id="editor-context-makeSnippet"
                 label="&addAsSnippetInToolbox.label;"

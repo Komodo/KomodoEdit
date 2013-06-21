@@ -2041,6 +2041,16 @@
             ]]>
         </handler>
         
+        <handler event="mouseup" phase="bubbling" modifiers="control">
+        <![CDATA[
+            var multiCaretSession = ko.selections.getMultiCaretSession(this);
+            if (multiCaretSession.isGatheringCarets) {
+                let scimoz = this.scimoz;
+                multiCaretSession.addRange(scimoz.selectionStart, scimoz.selectionEnd);
+            }
+        ]]>
+        </handler>
+
         <handler event="codeintel_autocomplete_selected" phase="bubbling">
         <![CDATA[
             var startPos = event.getData("position");

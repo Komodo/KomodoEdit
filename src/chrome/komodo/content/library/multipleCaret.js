@@ -16,7 +16,7 @@
  * 
  * Methods:
  * 
- * ko.editor.MultiCaretSession(koIView) 
+ * ko.selections.MultiCaretSession(koIView) 
  * - returns an instance of a MultiCaretSession
  * 
  * boolean readonly property isDormant => boolean: whether session is dormant
@@ -65,7 +65,7 @@
  * To support interactive editing on a set of carets/selections:
  * When the user first invokes the command to add the current caret or selection
  * as an additional caret, get the view's multiCaret session via
- *    ko.editor.getMultiCaretSession(view)
+ *    ko.selections.getMultiCaretSession(view)
  *
  * A multi-caret session object can have three states, represented by
  * the boolean properties isDormant, isGatheringCarets, and isActive.
@@ -92,8 +92,8 @@ if (typeof(ko) == 'undefined') {
     var ko = {};
 }
 
-if (typeof(ko.editor)=='undefined') {
-    ko.editor = {};
+if (typeof(ko.selections)=='undefined') {
+    ko.selections = {};
 }
 
 (function() {
@@ -399,6 +399,4 @@ this.getMultiCaretSession = function getMultiCaretSession(view) {
     return session;
 };
 
-}).apply(ko.editor);
-
-
+}).apply(ko.selections);
