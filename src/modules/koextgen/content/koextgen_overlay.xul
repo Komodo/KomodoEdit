@@ -3,8 +3,6 @@
   <!ENTITY % koextgenDTD SYSTEM "chrome://koextgen/locale/koextgen.dtd">
   %koextgenDTD;
 ]>
-<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 
 <overlay id="koextgenOverlay"
          xmlns:html="http://www.w3.org/1999/xhtml"
