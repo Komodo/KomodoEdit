@@ -903,8 +903,6 @@ def target_configure(argv):
         --no-mar
             Do not build the bsdiff and mar modules.
 
-        --perf      build with timeline and profiling support
-
         --options=
             additional mozilla build options that may
             not be in our default configuration
@@ -1024,7 +1022,7 @@ def target_configure(argv):
              "strip", "no-strip",
              "no-mar",
              "with-tests", "without-tests", 
-             "perf", "js",
+             "js",
              "options=", "extensions=", "moz-config=",
              "build-dir=",
              "src-tree-name=",
@@ -1075,8 +1073,6 @@ def target_configure(argv):
             config["komodoVersion"] = None
         elif opt == "--no-mar":
             config["enableMar"] = False
-        elif opt == "--perf":
-            config["buildOpt"].append("perf")
         elif opt in ("-k", "--komodo-version"):
             if not re.match("^\d+\.\d+$", optarg):
                 raise BuildError("illegal value for --komodo-version, it "\
@@ -1422,10 +1418,6 @@ def target_configure(argv):
                 mozRawOptions.append('export CFLAGS="-gdwarf-2"')
                 mozRawOptions.append('export CXXFLAGS="-gdwarf-2"')
 
-        if "perf" in config["buildOpt"]:
-            mozBuildOptions.append('enable-xpctools')
-            mozBuildOptions.append('enable-timeline')
-            
         if config["mozApp"] in ("browser", "komodo"):
             # Needed for building update-service packages.
             mozBuildOptions.append('enable-update-packaging')
