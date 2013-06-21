@@ -59,7 +59,9 @@
             </toolbarbutton>
         </hbox >
         <!-- #endif -->
-        <tree flex="1" id="toolbox2-hierarchy-tree bg_transparent"
+        <tree flex="1"
+              id="toolbox2-hierarchy-tree"
+              class="bg_transparent"
               ondblclick="ko.toolbox2.onDblClick(event);"
               onclick="ko.toolbox2.onTreeClick(event);"
               seltype="multiple"
