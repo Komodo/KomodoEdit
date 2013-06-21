@@ -197,7 +197,8 @@ class Driver(threading.Thread):
                 except OSError:
                     # Can't read the file
                     buf = self.mgr.buf_from_content("", lang, path=path)
-                assert not request.path.startswith("<")
+                assert not request.path.startswith("<"), \
+                    "Can't create an unsaved buffer with no text"
 
         if request.get("text") is not None:
             # overwrite the buffer contents if we have new ones
