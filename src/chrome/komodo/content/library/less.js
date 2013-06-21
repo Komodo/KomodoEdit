@@ -56,7 +56,7 @@ if ( ! ("less" in ko))
             self = this;
 
             log = logging.getLogger('ko.less');
-            log.setLevel(ko.logging.LOG_DEBUG);
+            //log.setLevel(ko.logging.LOG_DEBUG);
             
             this.debug('Initializing ko.less');
             
