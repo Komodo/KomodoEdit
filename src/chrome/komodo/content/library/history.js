@@ -273,10 +273,10 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
     this._recently_did_history = false;
     _get_curr_loc(view, null, (loc) => {
         if (loc) {
-            _mark_pos_info(view);
-            if (view.getAttribute('type') != 'editor') {
+            if (!view.scimoz) {
                 view = null;
             }
+            _mark_pos_info(view);
             _controller.historySvc.note_loc(loc, check_section_change, view);
         }
     });
