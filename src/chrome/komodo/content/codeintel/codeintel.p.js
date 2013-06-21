@@ -116,16 +116,18 @@ ko.codeintel = {};
         }
     }
 
+    function handleError(msg) {
+        ko.statusBar.AddMessage(msg, "codeintel", 3000, false, true);
+    };
+
+
     //---- public routines
     
     const kObservedPrefNames = ["codeintel_highlight_variables_auto_mouse",
                                 "codeintel_highlight_variables_auto_keyboard",
                                 "codeintel_highlight_variables_auto_delay"];
 
-    this.handleError = function handleError(msg) {
-        ko.statusBar.AddMessage(msg, "codeintel", 3000, false, true);
-    };
-
+    this.handleError = handleError;
     this.initialize = (function CodeIntel_InitializeWindow()
     {
         log.debug("initialize()");
@@ -257,7 +259,7 @@ ko.codeintel = {};
                 return;
             }
             ciBuf.async_eval_at_trg(trg, view.ciCompletionUIHandler);
-        }, this.handleError);
+        }, handleError);
 
     }
 
@@ -434,7 +436,7 @@ ko.codeintel = {};
                     ko.statusBar.AddMessage("No preceding trigger point within range of current position.",
                                          "codeintel", 3000, false);
                 }
-            }.bind(this), this.handleError);
+            }.bind(this), handleError);
         } catch(ex) {
             log.exception(ex);
         }
@@ -788,7 +790,7 @@ ko.codeintel = {};
                         show_calltip(start, end);
                     }
                 }.bind(this);
-                ciBuf.get_calltip_arg_range(triggerPos, calltip, curPos, callback, this.handleError);
+                ciBuf.get_calltip_arg_range(triggerPos, calltip, curPos, callback, handleError);
             } else {
                 show_calltip(0, 0);
             }
@@ -873,7 +875,8 @@ ko.codeintel = {};
                 scimoz.callTipSetHlt(start, end);
 
             }.bind(this);
-            ciBuf.get_calltip_arg_range(triggerPos, calltip, curPos, callback, this.handleError);
+            ciBuf.get_calltip_arg_range(triggerPos, calltip, curPos, callback,
+                                        handleError);
         } catch(ex) {
             log.exception(ex);
         }
@@ -1339,7 +1342,7 @@ ko.codeintel = {};
                 buf.async_eval_at_trg(trg, cplnHandler,
                                       Ci.koICodeIntelBuffer.EVAL_SILENT |
                                         Ci.koICodeIntelBuffer.EVAL_QUEUE);
-            }, this.handleError);
+            }, handleError);
         }
 
         var sourceVarDefns = [];
