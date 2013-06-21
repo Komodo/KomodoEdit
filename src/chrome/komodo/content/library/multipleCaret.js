@@ -152,10 +152,7 @@ this.MultiCaretSession.prototype = {
             [startPos, endPos] = [endPos, startPos];
         }
         this._ranges.push([startPos, endPos]);
-        if (this._ranges.length == 1) {
-            scimoz.currentPos = startPos;
-            scimoz.anchor = endPos;
-        } else {
+        if (this._ranges.length > 1) {
             scimoz.addSelection(startPos, endPos);
             scimoz.indicatorCurrent = CHANGE_INDICATOR;
             scimoz.indicatorFillRange(startPos, endPos - startPos);
