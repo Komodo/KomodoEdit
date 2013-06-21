@@ -56,7 +56,7 @@ if ( ! ("less" in ko))
             self = this;
 
             log = logging.getLogger('ko.less');
-            //log.setLevel(ko.logging.LOG_DEBUG);
+            log.setLevel(ko.logging.LOG_DEBUG);
             
             this.debug('Initializing ko.less');
             
@@ -136,7 +136,7 @@ if ( ! ("less" in ko))
                 
                 // Only load the first sheet, then iterate through duplicates
                 // and use results from the first one to load them
-                this.loadSheet(this.sheets[href][0], false, true);
+                this.loadSheet(this.sheets[href][0].get(), false, true);
             }
         },
         
@@ -147,7 +147,7 @@ if ( ! ("less" in ko))
          */
         load: function ko_less_load(_window = window)
         {
-            this.debug('Loading ' + window.document.title);
+            this.debug('Loading ' + _window.location.href);
             this.loadSheets(_window);
         },
         
@@ -160,6 +160,7 @@ if ( ! ("less" in ko))
         {
             var childNodes = Array.slice(_window.document.childNodes);
             var attrMatch = /([a-z]*)=("|')([a-z0-9:/_.-]*)\2/.source;
+            var sheetHrefs = [];
             
             for (let [i, child] in Iterator(childNodes))
             {
@@ -183,12 +184,17 @@ if ( ! ("less" in ko))
                 
                 if ( ! ("_isLoaded" in child))
                 {
-                    this.sheets[child.href].push(child);
+                    this.sheets[child.href].push(Cu.getWeakReference(child));
                     child._isLoaded = true;
                 }
+
+                sheetHrefs.push(child.href);
                 
                 this.loadSheet(child);
             }
+
+
+            this.cleanupReferences(sheetHrefs);
         },
         
         /**
@@ -352,12 +358,12 @@ if ( ! ("less" in ko))
             
             for (let [,dupeSheet] in Iterator(this.sheets[sheet.href]))
             {
-                if (dupeSheet == sheet)
+                if (dupeSheet.get() == sheet || ! dupeSheet.get())
                 {
                     continue;
                 }
                 
-                this.injectSheet(loadHref, dupeSheet);
+                this.injectSheet(loadHref, dupeSheet.get());
             }
         },
         
@@ -658,6 +664,60 @@ if ( ! ("less" in ko))
             return youngest;
         },
         
+        _cleanTimer: null,
+        _cleanHrefs: [],
+
+        /**
+         * Clean up references to dead nodes (eg. fast open being reopened)
+         * See Bug #99405
+         *
+         * This runs on a timeout such that it does not slow down the less
+         * loading process
+         *
+         * @param   {Array} hrefs
+         * @param   {Boolean} noDelay
+         *
+         * @returns {Void} 
+         */
+        cleanupReferences: function ko_less_cleanupReferences(hrefs, noDelay = false)
+        {
+            if ( ! noDelay)
+            {
+                this.debug('Delaying reference cleanup for ' + (hrefs.length) + ' sheet hrefs');
+                
+                this._cleanHrefs = this._cleanHrefs.concat(hrefs);
+                clearTimeout(this._cleanTimer);
+                this._cleanTimer = setTimeout(this.cleanupReferences.bind(this, this._cleanHrefs, true), 100);
+                return;
+            }
+
+            this.debug('Starting reference cleanup for ' + (hrefs.length) + ' sheet hrefs');
+
+            var doneHrefs = [];
+            for (let [,href] in Iterator(hrefs))
+            {
+                this.debug('Checking dead references for: ' + href);
+
+                if (doneHrefs.indexOf(href) !== -1)
+                {
+                    continue;
+                }
+                
+                for (let i=this.sheets[href].length-1;i>=0;i--)
+                {
+                    if ( ! this.sheets[href][i].get() || ! this.sheets[href][i].get().parentNode.location)
+                    {
+                        this.debug('Cleaning up dead reference for: ' + href);
+                        delete this.sheets[href][i];
+                    }
+                }
+
+                doneHrefs.push(href);
+            }
+
+            this._cleanHrefs = [];
+        },
+
         /**
          * Log Debug Wrapper
          * 
