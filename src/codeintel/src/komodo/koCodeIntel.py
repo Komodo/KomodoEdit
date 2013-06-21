@@ -454,14 +454,16 @@ class KoCodeIntelManager(threading.Thread):
     proc = None # the child proces
     conn = None # A (TCP) connection to the child process
     pipe = None # file-like object to read/write with
-    state = STATE.UNINITIALIZED
+    _state = STATE.UNINITIALIZED
+    _state_condvar = None
     _abort = None # things to abort
 
     requests = {} # Outstanding requests; the key is the request id,
                   # the value is (callback, dict-of-request-args)
-    unsent_requests = [] # requests that have not yet been sent
-                         # list of (callback, dict-of-request-args)
+    unsent_requests = None # requests that have not yet been sent
+                           # list of (callback, dict-of-request-args)
 
+    _send_request_thread = None # background thread to send unsent requests
     _reset_db_as_necessary = False # whether to reset the db if it's broken
     _watchdog_thread = None # background thread to watch for process termination
 
@@ -491,10 +493,11 @@ class KoCodeIntelManager(threading.Thread):
         self._shutdown_callback = ProxyToMainThreadAsync(shutdown_callback)
         self._next_id = 0
         self._abort = set()
+        self._state_condvar = threading.Condition()
         self.requests = {} # keyed by request id; value is tuple
                            # (callback, request data, time sent)
                            # requests will time out at some point...
-        self.unsent_requests = []
+        self.unsent_requests = Queue.Queue()
         threading.Thread.__init__(self,
                                   name="Komodo Codeintel Manager %s" % (id(self)))
         self.daemon = True
@@ -503,6 +506,16 @@ class KoCodeIntelManager(threading.Thread):
         env = Cc["@activestate.com/koUserEnviron;1"].getService()
         self._global_env = KoCodeIntelEnvironment(environment=env,
                                                   pref_change_callback=self.set_global_environment)
+
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        with self._state_condvar:
+            self._state = value
+            self._state_condvar.notifyAll()
 
     def start(self, resetDBAsNecessary=False):
         self._reset_db_as_necessary = resetDBAsNecessary
@@ -692,11 +705,13 @@ class KoCodeIntelManager(threading.Thread):
 
         def initialization_completed():
             self.debug("internal initial requests completed")
+            self._send_request_thread = threading.Thread(
+                target=self._send_queued_requests,
+                name="Komodo Codeintel Manager Request Sending Thread")
+            self._send_request_thread.daemon = True
+            self._send_request_thread.start()
             update("Codeintel ready.",
                    state=KoCodeIntelManager.STATE.READY)
-            while self.unsent_requests:
-                callback, kwargs = self.unsent_requests.pop(0)
-                self.send(callback, **kwargs)
 
         # register any extensions we have first
         try:
@@ -781,15 +796,29 @@ class KoCodeIntelManager(threading.Thread):
         both as dicts."""
         if self.state is KoCodeIntelManager.STATE.DESTROYED:
             raise RuntimeError("Manager already shut down")
-        if self.state is not KoCodeIntelManager.STATE.READY:
-            self.unsent_requests.append((callback, kwargs))
-            return
-        self._send(callback, **kwargs)
+        self.unsent_requests.put((callback, kwargs))
+
+    def _send_queued_requests(self):
+        """Worker to send unsent requests"""
+        while True:
+            with self._state_condvar:
+                if self.state is KoCodeIntelManager.STATE.DESTROYED:
+                    break # Manager already shut down
+                if self.state is not KoCodeIntelManager.STATE.READY:
+                    self._state_condvar.wait()
+                    continue # wait...
+            callback, kwargs = self.unsent_requests.get()
+            if callback is None and kwargs is None:
+                # end of queue (shutting down)
+                break
+            self._send(callback, **kwargs)
 
     def _send(self, callback=None, **kwargs):
         """Private API for sending; ignores the current state of the manager and
         just dumps things over.  The caller should check that it things are in
-        the expected state. (Used for initialization.)"""
+        the expected state. (Used for initialization.)  This will block the
+        calling thread until the data has been written (though possibly not yet
+        received on the other end)."""
 
         if self.state is KoCodeIntelManager.STATE.QUITTING:
             return # Nope, eating all commands during quit
@@ -967,6 +996,11 @@ class KoCodeIntelManager(threading.Thread):
             self._global_env.clear_pref_observers()
         except:
             pass # not expecting that... but let it go anyway
+        # Shut down the request sending thread (self._send_request_thread)
+        try:
+            self.unsent_requests.put((None, None))
+        except:
+            pass # umm... no idea?
         self.state = KoCodeIntelManager.STATE.DESTROYED
         self.pipe = None
         self._shutdown_callback(self)
