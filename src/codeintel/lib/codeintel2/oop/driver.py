@@ -608,7 +608,7 @@ class CoreHandler(CommandHandler):
                                                       priority,
                                                       mtime=mtime,
                                                       on_complete=on_complete)
-        if priority >= codeintel2.common.PRIORITY_CURRENT:
+        if priority <= codeintel2.common.PRIORITY_IMMEDIATE:
             delay = 0
         else:
             delay = 1.5
