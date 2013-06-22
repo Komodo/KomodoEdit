@@ -196,7 +196,7 @@ class KoCodeIntelService:
             buf.lang = doc.get_language()
         except KeyError:
             if doc.file:
-                path = doc.file.path
+                path = doc.file.displayPath
             else:
                 path = os.path.join("<Unsaved>", doc.baseName)
             self.debug("creating new %s document %s", doc.get_language(), path)
@@ -1103,7 +1103,18 @@ class KoCodeIntelBuffer(object):
             "env" and "prefs" keys.  See the codeintel oop spec (kd 290) for
             details.
         """
-        return KoCodeIntelEnvironment(self.doc, self.project).env
+        cls = KoCodeIntelEnvironment
+        try:
+            path = self.doc.file.displayPath
+            if path.startswith("macro://") or path.startswith("macro2://"):
+                # Ensure macros get completion for the relevant Komodo APIs.
+                if path.endswith(".js"):
+                    cls = KoCodeIntelJavaScriptMacroEnvironment
+                elif path.endswith(".py"):
+                    cls = KoCodeIntelPythonMacroEnvironment
+        except AttributeError:
+            pass # use default environment
+        return cls(self.doc, self.project).env
 
     def _do_error_callback(self, errorCallback, msg):
         if hasattr(errorCallback, "onError"):
@@ -1415,6 +1426,35 @@ class KoCodeIntelEnvironment(object):
         """Observe a preference change (at the global level)"""
         if self._pref_change_callback:
             self._pref_change_callback()
+
+class KoCodeIntelJavaScriptMacroEnvironment(KoCodeIntelEnvironment):
+    """A codeintel runtime Environment class for Komodo JS macros. Basically
+    the Komodo JavaScript API catalog should always be selected.
+    """
+    @property
+    def env(self):
+        env = KoCodeIntelEnvironment.env.__get__(self)
+        env["prefs"].insert(0, {"codeintel_selected_catalogs": ["komodo"]})
+        return env
+
+class KoCodeIntelPythonMacroEnvironment(KoCodeIntelEnvironment):
+    """A codeintel runtime Environment class for Komodo Python macros. Basically
+    the Komodo Python libs are added to the extra dirs.
+    """
+    _komodo_python_lib_dir = None
+    @LazyProperty
+    def komodo_python_lib_dir(self):
+        if KoCodeIntelPythonMacroEnvironment._komodo_python_lib_dir is None:
+            koDirSvc = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
+            KoCodeIntelPythonMacroEnvironment._komodo_python_lib_dir = \
+                join(koDirSvc.mozBinDir, "python")
+        return KoCodeIntelPythonMacroEnvironment._komodo_python_lib_dir
+
+    @property
+    def env(self):
+        env = KoCodeIntelEnvironment.env.__get__(self)
+        env["prefs"].insert(0, {"pythonExtraPaths": self.komodo_python_lib_dir})
+        return env
 
 class KoCodeIntelDefinition(object):
     _com_interfaces_ = [Ci.koICodeIntelDefinition]
