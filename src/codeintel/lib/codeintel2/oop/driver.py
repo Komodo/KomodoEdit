@@ -397,7 +397,7 @@ class CoreHandler(CommandHandler):
     This class is a stateless singleton.  (Other command handlers don't have to
     be)."""
 
-    _DEFAULT_LANGS = ["JavaScript", "Ruby", "Perl", "PHP", "Python","Python3"]
+    _stdlib_langs = None
 
     def __init__(self):
         supportedCommands = set()
@@ -428,17 +428,18 @@ class CoreHandler(CommandHandler):
             state, details = driver.mgr.db.upgrade_info()
             if state == Database.UPGRADE_NOT_NECESSARY:
                 # we _might_ need to deal with the stdlib stuff.
+                # assume that having one stdlib per language is good enough
                 std_libs = driver.mgr.db.get_stdlibs_zone()
-                for lang in self._DEFAULT_LANGS:
+                std_lib_langs = set()
+                for lang in self._get_stdlib_langs(driver):
                     for ver, name in std_libs.vers_and_names_from_lang(lang):
                         lib_path = os.path.join(std_libs.base_dir, name)
-                        if not os.path.exists(lib_path):
-                            log.debug("lib %s does not exist", lib_path)
-                            driver.send(state="preload-needed")
+                        if os.path.exists(lib_path):
                             break
                     else:
-                        continue
-                    break
+                        log.debug("no stdlib found for %s", lang)
+                        driver.send(state="preload-needed")
+                        break
                 else:
                     driver.send(state="ready")
             elif state == Database.UPGRADE_NECESSARY:
@@ -496,10 +497,10 @@ class CoreHandler(CommandHandler):
             progress_max = 80
             stdlibs_zone.preload(progress_callback)
         else:
-            try:
-                langs = request.languages
-            except AttributeError:
-                langs = dict(zip(self._DEFAULT_LANGS, itertools.repeat(None)))
+            langs = request.get("languages", None)
+            if not langs:
+                langs = dict(zip(self._get_stdlib_langs(driver),
+                                 itertools.repeat(None)))
             progress_base = 5
             progress_incr = (80 - progress_base) / len(langs) # stage 1 goes up to 80%
             for lang, version in sorted(langs.items()):
@@ -546,8 +547,20 @@ class CoreHandler(CommandHandler):
         elif typ == "multilang":
             driver.send(languages=filter(driver.mgr.is_multilang,
                                          driver.mgr.buf_class_from_lang.keys()))
+        elif typ == "stdlib-supported":
+            driver.send(languages=self._get_stdlib_langs(driver))
         else:
             raise RequestFailure(message="Unknown language type %s" % (typ,))
+
+    def _get_stdlib_langs(self, driver):
+        if self._stdlib_langs is None:
+            stdlibs_zone = driver.mgr.db.get_stdlibs_zone()
+            langs = set()
+            for lang in driver.mgr.buf_class_from_lang.keys():
+                if stdlibs_zone.vers_and_names_from_lang(lang):
+                    langs.add(lang)
+            self._stdlib_langs = sorted(langs)
+        return self._stdlib_langs
 
     def do_get_language_info(self, request, driver):
         try:

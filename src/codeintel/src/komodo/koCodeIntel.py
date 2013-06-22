@@ -17,6 +17,7 @@ import os.path
 import operator
 import process
 import Queue
+import re
 import socket
 import sys
 import threading
@@ -470,6 +471,7 @@ class KoCodeIntelManager(threading.Thread):
     cpln_langs = []
     citadel_langs = []
     xml_langs = []
+    _stdlib_langs = [] # languages which support standard libraries
     languages = {}
     available_catalogs = [] # see get-available-catalogs command
 
@@ -617,6 +619,12 @@ class KoCodeIntelManager(threading.Thread):
                 return
             self.xml_langs = sorted(response.get("languages"))
 
+        def get_stdlib_langs(request, response):
+            if not response.get("success", False):
+                update("Failed to get languages which support standard libraries:", response)
+                return
+            self._stdlib_langs = sorted(response.get("languages"))
+
         def get_lang_info(request, response):
             lang = request["language"]
             if not response.get("success", False):
@@ -676,7 +684,26 @@ class KoCodeIntelManager(threading.Thread):
                             (previous_command,),
                            state=KoCodeIntelManager.STATE.BROKEN)
                     return
-                self._send(callback=fixup_db, command="database-preload")
+                langs = {}
+                for lang in self._stdlib_langs:
+                    ver = None
+                    try:
+                        langAppInfo = Cc["@activestate.com/koAppInfoEx?app=%s;1" % lang] \
+                                     .getService(Ci.koIAppInfoEx)
+                        if langAppInfo.executablePath:
+                            # Get the version and update this lang.
+                            try:
+                                ver_match = re.search("([0-9]+.[0-9]+)", langAppInfo.version)
+                                if ver_match:
+                                    ver = ver_match.group(1)
+                            except:
+                                self.log.error("failed to get langAppInfo.version for language %s", lang)
+                    except:
+                        # No AppInfo, update everything for this lang.
+                        pass
+                    langs[lang] = ver
+                self._send(callback=fixup_db, command="database-preload",
+                           languages=langs)
                 return
             if state == "upgrade-needed":
                 # database needs to be upgraded
@@ -765,6 +792,8 @@ class KoCodeIntelManager(threading.Thread):
                    type="citadel")
         self._send(callback=get_xml_langs, command="get-languages",
                    type="xml")
+        self._send(callback=get_stdlib_langs, command="get-languages",
+                   type="stdlib-supported")
 
         self.set_global_environment()
         def update_callback(response):
