@@ -217,7 +217,7 @@
           height="100"
           hidecolumnpicker="true"
           context="places-projects-popup-MPV"
-          class="projectPlacesTree"
+          class="projectPlacesTree bg_transparent"
           seltype="multiple">
         <treecols id="placesSubpanelProjectsTreecols_MPV">
           <treecol id="placesSubpanelProjectNameTreecol_MPV"
@@ -238,6 +238,7 @@
       </tree>
       <!-- subpanel 1: v6.0-style Projects -->
       <tree id="placesSubpanelProjects_SPV"
+          class="bg_transparent"
           flex="1"
           height="100"
           hidecolumnpicker="true"
