@@ -482,7 +482,7 @@ if (typeof ko.breadcrumbs == 'undefined')
         onCommandMenuItem: function breadcrumbs_onCommandMenuItem(command,
                                                                   menuitem)
         {
-            var crumb = menuitem.parentNode.crumb;
+            var popupmenu = menuitem.parentNode;
 
             if ( ! ('doCommand' + command in this))
             {
@@ -491,7 +491,7 @@ if (typeof ko.breadcrumbs == 'undefined')
                 );
             }
 
-            this['doCommand' + command](crumb, menuitem);
+            this['doCommand' + command](popupmenu, menuitem);
         },
 
         /**
@@ -502,9 +502,9 @@ if (typeof ko.breadcrumbs == 'undefined')
          *
          * @returns {Void} 
          */
-        doCommandSelect: function breadcrumbs_onCommandSelect(crumb, menuitem)
+        doCommandSelect: function breadcrumbs_onCommandSelect(popupmenu, menuitem)
         {
-            crumb.file.getChild(menuitem.getAttribute("label")).open();
+            popupmenu.file.getChild(menuitem.getAttribute("label")).open();
         },
 
         /**
@@ -514,11 +514,11 @@ if (typeof ko.breadcrumbs == 'undefined')
          *
          * @returns {Void} 
          */
-        doCommandFind: function breadcrumbs_onCommandFind(crumb)
+        doCommandFind: function breadcrumbs_onCommandFind(popupmenu)
         {
-            if ( ! crumb.file || crumb.file.isRemote()) return;
+            if ( ! popupmenu.file || popupmenu.file.isRemote()) return;
             
-            ko.launch.findInFiles(null, [crumb.file.getPath()]);
+            ko.launch.findInFiles(null, [popupmenu.file.getPath()]);
         },
 
         /**
@@ -528,11 +528,11 @@ if (typeof ko.breadcrumbs == 'undefined')
          *
          * @returns {Void} 
          */
-        doCommandShowPlaces: function breadcrumbs_onCommandShowPlaces(crumb)
+        doCommandShowPlaces: function breadcrumbs_onCommandShowPlaces(popupmenu)
         {
-            if ( ! crumb.file || crumb.file.isRemote()) return;
+            if ( ! popupmenu.file || popupmenu.file.isRemote()) return;
             
-            var URI = crumb.file.getUri();
+            var URI = popupmenu.file.getUri();
 
             // Strip trailing slash
             if (['/', '\\'].indexOf(URI.substr(-1)) !== -1)
