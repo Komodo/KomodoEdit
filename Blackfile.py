@@ -2174,6 +2174,7 @@ def DistCleanKomodoBuild(cfg, argv):
         join(cfg.komodoDevDir, "packages"),
         join(cfg.komodoDevDir, "install"),
         join(cfg.komodoDevDir, "src", "scintilla"),
+        join(cfg.komodoDevDir, "generated.pdb"),
     ]
     for path in bits:
         out.write("remove '%s'\n" % path)
