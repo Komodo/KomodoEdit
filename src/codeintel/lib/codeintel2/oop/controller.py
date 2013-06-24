@@ -88,8 +88,6 @@ class OOPEvalController(EvalController):
                              request=self.request)
         elif self.is_aborted():
             pass # already reported the abort
-        elif self.silent:
-            pass # don't output any errors
         elif self.best_msg[0]:
             try:
                 msg = "No %s found" % (self.desc,)
@@ -104,6 +102,9 @@ class OOPEvalController(EvalController):
                 log.exception("problem logging eval failure: self.log=%r", self.log_entries)
                 msg = "error evaluating '%s'" % desc
             self.driver.fail(request=self.request, message=msg)
+        else:
+            # ERROR
+            self.driver.fail(request=self.request, msg=reason)
 
         self.log = log # If we have any more problems, put it in the main log
         self.log_stream.close()
