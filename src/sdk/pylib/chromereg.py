@@ -231,12 +231,11 @@ class ChromeReg(object):
                     if not "category" in componentData:
                         componentData["category"] = []
                     entryData = list(map(lambda k: self.get(k, clazz.name), entry.elts))
-                    if len(entryData) < 3:
-                        entryData.append(False)
-                    assert isinstance(entryData[2], bool), \
-                        "%s line %i: category entry %s for class %s has non-bool third arg %s" % (
+                    assert len(entryData) == 2 or len(entryData) == 3, \
+                        "%s line %i: category entry %s for class %s has " \
+                        "incorrect number of args: %d (expected 2 or 3)" % (
                             self.source_file, entry.lineno, entryData[0],
-                            clazz.name, ast.dump(entry.elts[2]))
+                            clazz.name, entryData)
                     componentData["category"].append(entryData)
 
         if "contractid" in componentData and "clsid" in componentData:
@@ -245,12 +244,13 @@ class ChromeReg(object):
             if "category" in componentData:
                 for entry in componentData["category"]:
                     category = entry[0]
-                    contractid = componentData["contractid"]
-                    if category == "app-startup" and entry[2] == True:
-                        # app-startup with a true third arg means use as service
-                        contractid = "service,%s" % (contractid)
                     entryname = urllib.quote(entry[1])
-                    self.new_lines.add("category {category} {entryname} {contractid}".format(**locals()))
+                    if len(entry) == 3:
+                        entryvalue = entry[2]
+                    else:
+                        # Default to using the contract id.
+                        entryvalue = componentData["contractid"]
+                    self.new_lines.add("category {category} {entryname} {entryvalue}".format(**locals()))
 
     def register(self):
         """Main entry point to register the component in the chrome registry"""
