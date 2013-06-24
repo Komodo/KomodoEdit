@@ -282,7 +282,7 @@ class KoInitService(object):
     _reg_contractid_ = "@activestate.com/koInitService;1"
     _reg_desc_ = "Komodo Init Service"
     _reg_categories_ = [
-        ("app-startup", "koInitService", True),
+        ("app-startup", "koInitService", "service," + _reg_contractid_),
     ]
     
     def __init__(self):
