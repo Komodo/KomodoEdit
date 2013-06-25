@@ -123,7 +123,7 @@ index d07d464..15481d0 100644
  		alloc.y = height - scrollBarHeight;
  		alloc.width = Platform::Maximum(1, width - scrollBarWidth);
 -		alloc.height = horizontalScrollBarHeight;
-+		alloc.height = scrollBarWidth;
++		alloc.height = scrollBarHeight;
  		gtk_widget_size_allocate(GTK_WIDGET(PWidget(scrollbarh)), &alloc);
  	} else {
  		gtk_widget_hide(GTK_WIDGET(PWidget(scrollbarh)));
