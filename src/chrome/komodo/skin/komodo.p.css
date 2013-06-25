@@ -55,7 +55,7 @@
   -moz-transition-delay: 0.25s;
 }
 #toolbox_main[_fullscreen]:hover > [anonid="children-box"] {
-  height: -moz-initial;
+  height: initial;
   -moz-transition-duration: 5s;
   -moz-transition-delay: 0.25s;
 }
