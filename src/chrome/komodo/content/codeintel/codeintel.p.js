@@ -62,17 +62,34 @@ ko.codeintel = {};
 
     // ko.codeintel.isActive is true iff the Code Intel system is enabled,
     // initialized, and active.
-    this.isActive = false;
+    var _isActive = false;
+    Object.defineProperty(this, "isActive", {
+        get: function() _isActive,
+        set: function(val) {
+            if (val) {
+                _CodeIntel_ActivateWindow();
+            } else {
+                _CodeIntel_DeactivateWindow();
+            }
+        },
+        enumerable: true,
+        configurable: false,
+    });
 
 
     // Internal helper routines.
-    
+
     function _CodeIntel_ActivateWindow()
     {
         log.debug("_CodeIntel_ActivateWindow()");
         try {
             // Setup services.
-            if (! _codeintelSvc.isBackEndActive) {
+            if (_isActive) {
+                return;
+            }
+            if (_codeintelSvc.isBackEndActive) {
+                _isActive = true;
+            } else {
                 try {
                     log.debug("Attempting to activate codeintel service");
                     _codeintelSvc.activate(function(result, data) {
@@ -87,7 +104,7 @@ ko.codeintel = {};
                                                      message);
                         } else {
                             log.debug("codeintel activated");
-                            ko.codeintel.isActive = true;
+                            _isActive = true;
                             window.updateCommands("codeintel_enabled");
                         }
                     });
@@ -111,7 +128,10 @@ ko.codeintel = {};
     {
         log.debug("_CodeIntel_DeactivateWindow()");
         try {
-            ko.codeintel.isActive = false;
+            if (!_isActive) {
+                return;
+            }
+            _isActive = false;
             if (!isShuttingDown) {
                 window.updateCommands("codeintel_enabled");
             }
