@@ -98,9 +98,8 @@ function onLoad(event) {
         snippetvalue.initWithBuffer(text, language);
 
         if (navigator.platform.match(/^Mac/)) {
-            // Bug 96209 - hack around scintilla display problems on the mac.
-            snippetvalue.hidden = true;
-            setTimeout(function() { snippetvalue.hidden = false; }, 10);
+            // Bug 96209, bug 99277 - hack around scintilla display problems on the mac.
+            setTimeout(function() { snippetvalue.scintilla.setAttribute("flex", "2"); }, 1);
         }
 
         scin = snippetvalue.scimoz;

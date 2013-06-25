@@ -72,9 +72,8 @@ function TailOnLoad() {
         dh.setAttribute('value',filepath);
         window.setInterval('CheckFile()', 200);
         if (navigator.platform.match(/^Mac/)) {
-            // Bug 96209 - hack around scintilla display problems on the mac.
-            gView.hidden = true;
-            setTimeout(function() { gView.hidden = false; }, 10);
+            // Bug 96209, bug 99277 - hack around scintilla display problems on the mac.
+            setTimeout(function() { gView.scintilla.setAttribute("flex", "2"); }, 1);
         }
     } catch(e) {
         log.error(e);

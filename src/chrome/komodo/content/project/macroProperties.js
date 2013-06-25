@@ -133,9 +133,8 @@ function onLoad() {
         gScintilla.useTabs = 0;
 
         if (navigator.platform.match(/^Mac/)) {
-            // Bug 96209 - hack around scintilla display problems on the mac.
-            gMacroContents.hidden = true;
-            setTimeout(function() { gMacroContents.hidden = false; }, 10);
+            // Bug 96209, bug 99277 - hack around scintilla display problems on the mac.
+            setTimeout(function() { gMacroContents.scintilla.setAttribute("flex", "2"); }, 1);
         }
 
         setupTriggers();
