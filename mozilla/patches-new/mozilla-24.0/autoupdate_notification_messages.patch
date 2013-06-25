@@ -40,7 +40,7 @@ Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/toolkit/mozapps/upda
        try {
          var update = new Update(updateElement);
        } catch (e) {
-         LOG("Checker:updates get - invalid <update/>, ignoring...");
+         LOG("Checker:_updates get - invalid <update/>, ignoring...");
          continue;
        }
        update.serviceURL = this.getUpdateURL(this._forced);
