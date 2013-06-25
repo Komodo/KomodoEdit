@@ -771,7 +771,7 @@ NS_IMETHODIMP SciMoz::GetStyledText(PRInt32 min, PRInt32 max, PRUint32 *count, P
 	fprintf(stderr,"SciMoz::GetStyledText\n");
 #endif
 	size_t length = (max - min + 1) * 2;
-	char *buffer = new char[length + 1];
+	char *buffer = static_cast<char*>(NS_Alloc(length + 1));
 	if (!buffer)
 		return NS_ERROR_OUT_OF_MEMORY;
         buffer[length] = 0;
@@ -781,8 +781,7 @@ NS_IMETHODIMP SciMoz::GetStyledText(PRInt32 min, PRInt32 max, PRUint32 *count, P
 	long bytesCopied = GetStyledRange(wEditor, min, max, buffer);
 #endif
         NS_ASSERTION(buffer[length] == NULL, "Buffer overflow");
-	*str = reinterpret_cast<PRUint8*>(nsAllocator::Clone(buffer, bytesCopied));
-	delete []buffer;
+	*str = reinterpret_cast<PRUint8*>(buffer);
 	*count = bytesCopied;
 	return (*str) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
