@@ -174,6 +174,19 @@ index 2c23ef2..91293e6 100644
  enu IndentView=SC_IV_
  val SC_IV_NONE=0
  val SC_IV_REAL=1
+Index: /as/komodo-devel/src/scintilla/include/Scintilla.h
+--- include/Scintilla.h
++++ include/Scintilla.h (unsaved)
+@@ -855,7 +855,8 @@
+ #define SCI_VCHOMEDISPLAY 2652
+ #define SCI_VCHOMEDISPLAYEXTEND 2653
+ #define SCI_GETCARETLINEVISIBLEALWAYS 2654
+-#define SCI_SETCARETLINEVISIBLEALWAYS 2655
++#define SCI_SETUSECUSTOMSCROLLBARS 2656
++#define SCI_GETUSECUSTOMSCROLLBARS 2657
+ #define SCI_STARTRECORD 3001
+ #define SCI_STOPRECORD 3002
+ #define SCI_SETLEXER 4001
 diff --git src/Editor.cxx src/Editor.cxx
 index 288118d..8304633 100644
 --- src/Editor.cxx
