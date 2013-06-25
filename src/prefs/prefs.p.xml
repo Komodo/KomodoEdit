@@ -97,6 +97,7 @@
   <long id="mruProjectSize">15</long>
   <long id="mruFileSize">30</long>
   <long id="mruTemplateSize">10</long>
+  <long id="mruMenuItemSize">10</long>
   <string id="mruDirectory">.</string>
 
   <!--For optimization purposes, we don't restore fold points by default - it's-->

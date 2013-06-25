@@ -215,6 +215,7 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
     var menuButton    = document.getElementById('unifiedMenuButton');
     var panePrimary   = document.getElementById('unifiedMenuPrimaryPane');
     var paneSecondary = document.getElementById('unifiedMenuSecondaryPane');
+    var menuSeparator = document.getElementById('unifiedMenuMruSeparator');
 
     if (menubarShowing && menuWrap.collapsed) {
         var length = panePrimary.childNodes.length;
@@ -224,8 +225,17 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
 
         var length = paneSecondary.childNodes.length;
         for (let x=0;x<length;x++) {
-            menubar.appendChild(paneSecondary.childNodes[0]);
+	    if (paneSecondary.childNodes[0] == menuSeparator && ! menuSeparator.collapsed) 
+		break;
+	    
+	    menubar.appendChild(paneSecondary.childNodes[0]);
         }
+
+	while (menuSeparator.nextSibling) {
+	    let item = menuSeparator.nextSibling;
+	    item.parentNode.removeChild(item);
+	}
+
         menuButton.collapsed = true;
         menuWrap.collapsed = false;
     } else if ( ! menubarShowing && menuButton.collapsed) {
@@ -240,6 +250,8 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
         }
         menuButton.collapsed = false;
         menuWrap.collapsed = true;
+
+	MruMenusUpdate();
     }
 };
 // #endif
@@ -731,6 +743,43 @@ this.fullScreen = function uilayout_FullScreen()
   // CSS.  If we do end up needing logic, we should do so in a "fullscreen"
   // event handler attached to the window.
 }
+
+// #if PLATFORM != "darwin"
+function MruMenusAddItem(menuitem) {
+    if ( ! menuitem.hasAttribute('id')) return;
+    ko.mru.add('mruMenuItemList', menuitem.getAttribute('id'));
+    MruMenusUpdate();
+}
+
+function MruMenusUpdate() {
+    var menupopup = document.getElementById('unifiedMenuSecondaryPane');
+    var menuSeparator = document.getElementById('unifiedMenuMruSeparator');
+    menuSeparator.collapsed = true;
+
+    // Remove old entries
+    if (menuSeparator.previousSibling) {
+	while (menuSeparator.nextSibling) {
+	    let item = menuSeparator.nextSibling;
+	    item.parentNode.removeChild(item);
+	}
+    }
+
+    mruList = _gPrefs.getPref('mruMenuItemList');
+    if ( ! mruList || ! mruList.length) return;
+
+    menuSeparator.collapsed = false;
+    menupopup.appendChild(menuSeparator);
+
+    for (var i=0; i<mruList.length; i++) {
+        var menuitem = document.getElementById(mruList.getStringPref(i));
+        if ( ! menuitem) continue;
+	let _item = menuitem.cloneNode(true);
+	_item.setAttribute('ordinal', 9999);
+	_item.removeAttribute('id');
+        menupopup.appendChild(_item);
+    }
+}
+// #endif
 
 function _addManageMRUMenuItem(prefName, parentNode, MRUName) {
     var menuitem = document.createElementNS(XUL_NS, 'menuseparator');
@@ -1607,6 +1656,14 @@ this.onload = function uilayout_onload()
     ko.main.addWillCloseHandler(ko.uilayout.unload);
 
 // #if PLATFORM != "darwin"
+    function trackMenuItemMru(e) {
+	if (e.target.nodeName != 'menuitem') return;
+	MruMenusAddItem(e.target);
+    }
+
+    document.getElementById('unifiedMenuButton').addEventListener('click', trackMenuItemMru);
+    document.getElementById('menubar_main').addEventListener('click', trackMenuItemMru);
+    
     ko.uilayout.setMenubarVisibility();
 // #endif
 }

@@ -2121,7 +2121,9 @@
                 <menupopup>
                     <hbox>
                         <vbox id="unifiedMenuPrimaryPane"/>
-                        <vbox id="unifiedMenuSecondaryPane"/>
+                        <vbox id="unifiedMenuSecondaryPane">
+                            <menuseparator id="unifiedMenuMruSeparator" ordinal="9999"/>
+                        </vbox>
                     </hbox>
                 </menupopup>
             </toolbarbutton>
