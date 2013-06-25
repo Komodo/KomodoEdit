@@ -53,7 +53,7 @@
            * default browser
            */
           var href = this.href;
-          if (!href || this.disabled || aEvent.getPreventDefault())
+          if (!href || this.disabled || aEvent.defaultPrevented)
             return;
 
           var uri = null;

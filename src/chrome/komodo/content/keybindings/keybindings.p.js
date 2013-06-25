@@ -2358,7 +2358,7 @@ this.Manager.prototype.startPrefixCapture = function() {
 }
 
 var gKeyHandler = function (event) {
-    if (event.getPreventDefault()) {
+    if (event.defaultPrevented) {
         // somebody wanted to skip this
         return;
     }

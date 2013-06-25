@@ -997,7 +997,7 @@
             <handler event="keypress">
                 <![CDATA[
                 //dump("scintilla: keypress, event.keyCode: " + event.keyCode + "\n");
-                if (event.getPreventDefault()) {
+                if (event.defaultPrevented) {
                     // somebody else already tried to cancel this event
                     return;
                 }

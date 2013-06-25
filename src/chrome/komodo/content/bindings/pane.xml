@@ -1046,7 +1046,7 @@
             event.setData(key, params[key]);
           }
           target.dispatchEvent(event);
-          return !event.getPreventDefault();
+          return !event.defaultPrevented;
         ]]>
         </body>
       </method>
