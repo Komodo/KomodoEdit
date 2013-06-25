@@ -88,6 +88,7 @@ ko.codeintel = {};
                         } else {
                             log.debug("codeintel activated");
                             ko.codeintel.isActive = true;
+                            window.updateCommands("codeintel_enabled");
                         }
                     });
                 } catch(ex2) {
@@ -111,6 +112,9 @@ ko.codeintel = {};
         log.debug("_CodeIntel_DeactivateWindow()");
         try {
             ko.codeintel.isActive = false;
+            if (!isShuttingDown) {
+                window.updateCommands("codeintel_enabled");
+            }
         } catch(ex) {
             log.exception(ex);
         }

@@ -1429,6 +1429,13 @@
             oncommand="ko.commands.doCommand('cmd_uncomment')"
             disabled="true"
             desc="&sourceCodeUnCommentRegion.desc;"/>
+    </commandset>
+    <commandset
+        id="cmdset_view_codeintel_changed"
+        oncommandupdate="ko.commands.updateCommandset(this)"
+        commandupdater="true"
+        events="language_changed,current_view_changed,codeintel_enabled"
+        >
         <command
             id="cmd_findPreviousFunction" key="key_cmd_findPreviousFunction"
             disabled="true"

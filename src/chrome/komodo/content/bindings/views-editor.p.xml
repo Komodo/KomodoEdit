@@ -159,8 +159,8 @@
             this.item = null;
             this.lintBuffer = null;
             this.lintingEnabled = false;
-            this.isCICitadelStuffEnabled = false;
-            this.isCIXMLStuffEnabled = false;
+            this.isCICitadelStuffEnabled = undefined;
+            this.isCIXMLStuffEnabled = undefined;
 
             this._koDoc = val;
             if (val) {
@@ -551,11 +551,57 @@
             this.language = language;
 
             // Update codeintel variables.
-            this.isCICitadelStuffEnabled = (ko.codeintel.isActive && ko.codeintel.is_citadel_lang(language));
-            this.isCIXMLStuffEnabled = (ko.codeintel.isActive && ko.codeintel.is_xml_lang(language));
+            this.isCICitadelStuffEnabled = undefined;
+            this.isCIXMLStuffEnabled = undefined;
         ]]>
         </body>
         </method>
+
+        <property name="isCICitadelStuffEnabled">
+            <getter>
+            <![CDATA[
+                if (this._isCICitadelStuffEnabled === undefined) {
+                    if (!this._isCICplnEnabledViewPref) {
+                        this._isCICitadelStuffEnabled = false;
+                    } else if (!ko.codeintel.isActive) {
+                        // Still waiting to initialize
+                        return false;
+                    } else {
+                        this._isCICitadelStuffEnabled =
+                            ko.codeintel.is_citadel_lang(this.language);
+                    }
+                }
+                return this._isCICitadelStuffEnabled;
+            ]]>
+            </getter>
+            <setter>
+                return this._isCICitadelStuffEnabled = val;
+            </setter>
+        </property>
+        <field name="_isCICitadelStuffEnabled">undefined</field>
+
+        <property name="isCIXMLStuffEnabled">
+            <getter>
+            <![CDATA[
+                if (this._isCIXMLStuffEnabled === undefined) {
+                    if (!this._isCICplnEnabledViewPref) {
+                        this._isCIXMLStuffEnabled = false;
+                    } else if (!ko.codeintel.isActive) {
+                        // Still waiting to initialize
+                        return false;
+                    } else {
+                        this._isCIXMLStuffEnabled =
+                            ko.codeintel.is_xml_lang(this.language);
+                    }
+                }
+                return this._isCIXMLStuffEnabled;
+            ]]>
+            </getter>
+            <setter>
+                return this._isCICitadelStuffEnabled = val;
+            </setter>
+        </property>
+        <field name="_isCIXMLStuffEnabled">undefined</field>
 
         <!--nsIObserver implementation-->
         <method name="observe">
