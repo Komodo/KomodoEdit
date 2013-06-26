@@ -117,6 +117,19 @@ if sys.platform.startswith("linux"):
                                  "00"          # '\n'
                                  )
 
+        def test_selText(self):
+            with SciMozHeadlessContext() as sm:
+                text = "def foo():\n    pass\n"
+                sm.text = text
+
+                sm.currentPos = currentPos = 8
+                sm.anchor = anchor = 4
+                self.assertEqual(sm.selText, text[anchor:currentPos])
+
+                sm.currentPos = currentPos = 8
+                sm.anchor = anchor = 20
+                self.assertEqual(sm.selText, text[currentPos:anchor])
+
         def test_getStyleRange(self):
             with SciMozHeadlessContext() as sm:
                 text = "def foo():\n    pass\n"

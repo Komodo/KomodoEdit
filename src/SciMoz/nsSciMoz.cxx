@@ -1221,25 +1221,7 @@ NS_IMETHODIMP SciMoz::GetText(nsAString &text)
 		text = _cachedText;
 		return NS_OK;
 	}
-	size_t length = SendEditor(SCI_GETTEXTLENGTH, 0, 0);
-	char *buffer = new char[length + 1];
-	if (!buffer)
-		return NS_ERROR_OUT_OF_MEMORY;
-	buffer[length]=0;
-#ifdef USE_SCIN_DIRECT
-	::GetTextRange(fnEditor, ptrEditor, 0, length, buffer);
-#else
-	::GetTextRange(wEditor, 0, length, buffer);
-#endif
-	NS_ASSERTION(buffer[length] == NULL, "Buffer overflow");
-
-	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
-	if (codePage == 0) {
-	    _cachedText = NS_ConvertASCIItoUTF16(buffer, length);
-	} else {
-	    _cachedText = NS_ConvertUTF8toUTF16(buffer, length);
-	}
-	delete []buffer;
+	GetTextRange(0, -1, _cachedText);
 	text = _cachedText;
 	return NS_OK;
 }
@@ -1336,27 +1318,7 @@ NS_IMETHODIMP SciMoz::GetSelText(nsAString & aSelText)
 #endif
 	int min = SendEditor(SCI_GETSELECTIONSTART, 0, 0);
 	int max = SendEditor(SCI_GETSELECTIONEND, 0, 0);
-	size_t length = max - min;
-	char *buffer = new char[length + 1];
-	if (!buffer)
-		return NS_ERROR_OUT_OF_MEMORY;
-        buffer[length]=0;
-#ifdef USE_SCIN_DIRECT
-	::GetTextRange(fnEditor, ptrEditor, min, max, buffer);
-#else
-	::GetTextRange(wEditor, min, max, buffer);
-#endif
-        NS_ASSERTION(buffer[length] == NULL, "Buffer overflow");
-
-	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
-	if (codePage == 0) {
-	    aSelText =  NS_ConvertASCIItoUTF16(buffer, length);
-	} else {
-	    aSelText =  NS_ConvertUTF8toUTF16(buffer, length);
-	}
-
-	delete []buffer;
-	return NS_OK;
+	return GetTextRange(min, max, aSelText);
 }
 
 
