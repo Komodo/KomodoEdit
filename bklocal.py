@@ -2991,6 +2991,39 @@ class MSIVccrtMsmPath(black.configure.Datum):
             self.value = ""
         self.determined = 1
 
+class MSIVccrtRedistPath(black.configure.Datum):
+    """Path to MSVC redistributables, needed for upgrades across CRT versions
+    (Komodo 8.0 shipped with MSVC9, 8.5 shipped with MSVC11, and app update
+    can't update the MSM installer)"""
+    def __init__(self):
+        black.configure.Datum.__init__(self, "msiVccrtRedistPath",
+            desc="full path to Visual C++ CRT redistributables")
+
+    def _Determine_Do(self):
+        if sys.platform != "win32":
+            self.applicable = False
+            return
+        compiler = black.configure.items["compiler"].Get()
+        assert compiler.startswith("vc"), "Invalid compiler version"
+        compiler_ver = compiler[2:]
+        self.applicable = True
+        if int(compiler_ver) < 11:
+            # We don't need this
+            self.value = ""
+            self.determined = True
+            return
+        import _winreg
+        with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
+                             r"SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7"
+                             ) as regkey:
+            vc_path, value_type = _winreg.QueryValueEx(regkey, "%s.0" % (compiler_ver,))
+            redist_dir = join(vc_path, "redist", "x86",
+                              "Microsoft.VC%s0.CRT" % (compiler_ver,))
+            if not exists(redist_dir):
+                raise ConfigureError("Failed to find CRT redist")
+            self.value = redist_dir
+            self.determined = True
+
 class MSIVccrtPolicyMsmPath(black.configure.Datum):
     # Note: I don't know *what* the "policy" MSM is for.
     def __init__(self):

@@ -735,6 +735,7 @@ configuration = {
     "macKomodoAppInstallName": MacKomodoAppInstallName(),           # e.g. "Komodo IDE.app"
     "msiKomodoPrettyId": MSIKomodoPrettyId(),
     "msiVccrtMsmPath": MSIVccrtMsmPath(),
+    "msiVccrtRedistPath": MSIVccrtRedistPath(),
     "msiVccrtPolicyMsmPath": MSIVccrtPolicyMsmPath(),
 
     # OSX packagig:
@@ -1088,6 +1089,13 @@ def ImageKomodo(cfg, argv):
             ("cp", stubpath("komodo"+EXE), iicorebinpath("komodo"+EXE)),
             ("cp", stubpath("ko"+EXE), iicorebinpath("ko"+EXE)),
         ]
+        if cfg.msiVccrtRedistPath:
+            # Need to copy the C libraries; for Python, need the CRT too.
+            crt = "msvcr%s0.dll" % (cfg.compiler[2:],)
+            ibits += [
+                ("cp", join(cfg.msiVccrtRedistPath, "*"), iimozbinpath()),
+                ("cp", join(cfg.msiVccrtRedistPath, crt), dirname(iipylibpath())),
+            ]
     else:
         ibits += [
             ("cp", stubpath("komodo"+EXE), iicorebinpath("komodo"+EXE)),

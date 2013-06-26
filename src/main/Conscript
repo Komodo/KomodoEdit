@@ -379,7 +379,7 @@ if (!$xulrunner) {
                          "xre/app/komodo.$productType.ico");
     
         # Build the Komodo starter stub (ko.exe: console, komodo.exe: windows)
-        my $CFLAGS = " /W3 /Ox /DNDEBUG /D_NDEBUG /DWIN32 /DXP_WIN /DXRE_DONT_PROTECT_DLL_LOAD /MD /Zi";
+        my $CFLAGS = " /W3 /Ox /DNDEBUG /D_NDEBUG /DWIN32 /DXP_WIN /DXRE_DONT_PROTECT_DLL_LOAD /MT /Zi";
         my $stub_CFLAGS = " -DMOZ_NO_MOZALLOC -TP -I$mozObjDir/dist/include -FI $mozObjDir/dist/include/mozilla-config.h";
         my $LDFLAGS = "kernel32.lib user32.lib gdi32.lib advapi32.lib shlwapi.lib ws2_32.lib shell32.lib";
         $cons->Command(
