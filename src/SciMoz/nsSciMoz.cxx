@@ -846,6 +846,100 @@ bool SciMoz::GetStyledText(const NPVariant *args, uint32_t argCount, NPVariant *
 	return true;
 }
 
+nsresult SciMoz::_GetStyleBuffer(PRInt32 min, PRInt32 max, char *buffer)
+{
+	PRInt32 length = max - min;
+	size_t dlength = length * 2;
+	char *dbuffer = new char[dlength+2]; // +2 as getstyledtext adds two \0 bytes at the end
+	if (!dbuffer)
+		return NS_ERROR_OUT_OF_MEMORY;
+	dbuffer[dlength]=0;
+#ifdef USE_SCIN_DIRECT
+	::GetStyledRange(fnEditor, ptrEditor, min, max, dbuffer);
+#else
+	::GetStyledRange(wEditor, min, max, dbuffer);
+#endif
+        NS_ASSERTION(buffer[dlength] == NULL, "Buffer overflow");
+
+	size_t pos;
+	size_t i;
+	for (pos=0, i=1; i < dlength; ++pos, i+=2) {
+		buffer[pos] = dbuffer[i];
+	}
+
+	delete []dbuffer;
+	buffer[length] = 0;
+	return NS_OK;
+}
+
+/* string getStyleRange (in long min, in long max); */
+NS_IMETHODIMP SciMoz::GetStyleRange(PRInt32 min, PRInt32 max, nsAString & _retval)
+{
+	SCIMOZ_CHECK_VALID("GetStyleRange");
+	// converting the string UTF8->UTF16->UTF8)
+#ifdef SCIMOZ_DEBUG
+	fprintf(stderr,"SciMoz::GetStyleRange\n");
+#endif
+	PRInt32 textlength = SendEditor(SCI_GETTEXTLENGTH, 0, 0);
+	if (max == -1)
+		max = textlength;
+	PRInt32 length = (max - min);
+	if (length < 0 || min < 0 || max < 0 || max > textlength) {
+		return NS_ERROR_INVALID_ARG;
+	}
+
+	char *buffer = static_cast<char*>(NS_Alloc(length + 1));
+	if (!buffer) {
+		return NS_ERROR_OUT_OF_MEMORY;
+	}
+
+	_GetStyleBuffer(min, max, buffer);
+	_retval =  NS_ConvertASCIItoUTF16(buffer, length);
+	delete []buffer;
+	return NS_OK;
+}
+
+bool SciMoz::GetStyleRange(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+#ifdef SCIMOZ_DEBUG
+	fprintf(stderr,"SciMoz::GetStyleRange\n");
+#endif
+	if (argCount != 2) return false;
+	if (!NPVARIANT_IS_INT32(args[0])) return false;
+	if (!NPVARIANT_IS_INT32(args[1])) return false;
+	int min = NPVARIANT_TO_INT32(args[0]);
+	int max = NPVARIANT_TO_INT32(args[1]);
+	int textlength = SendEditor(SCI_GETTEXTLENGTH, 0, 0);
+	if (max == -1)
+		max = textlength;
+	int length = max - min;
+	if (length < 0 || min < 0 || max < 0 || max > textlength) {
+		return false;
+	}
+	NPUTF8* buf = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(length + 1));
+	if (!buf)
+		return false;
+
+	_GetStyleBuffer(min, max, buf);
+	NPN_ReleaseVariantValue(result);
+	STRINGN_TO_NPVARIANT(buf, length, *result);
+	return true;
+}
+
+/* readonly attribute string style; */
+/**
+ * The style value is cached in this routine in order to avoid having to
+ * regenerate the "text" property when the Scintilla buffer has not changed.
+ * See bug 83216 for further details.
+ */
+NS_IMETHODIMP SciMoz::GetStyle(nsAString &style)
+{
+	SCIMOZ_CHECK_VALID("GetStyle");
+#ifdef SCIMOZ_DEBUG
+	fprintf(stderr,"SciMoz::GetStyle\n");
+#endif
+	return GetStyleRange(0, -1, style);
+}
+
 /* long getCurLine (out string text); */
 NS_IMETHODIMP SciMoz::GetCurLine(nsAString & text, PRInt32 *_retval) {
 	SCIMOZ_CHECK_VALID("GetCurLine");

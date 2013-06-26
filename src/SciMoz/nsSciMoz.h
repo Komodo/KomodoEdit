@@ -383,6 +383,9 @@ public:
     static void NotifySignal(GtkWidget *, gint wParam, gpointer lParam, SciMoz *scimoz);
 #endif 
 
+    // Shared XPCOM/NPRuntime methods.
+    nsresult _GetStyleBuffer(PRInt32 min, PRInt32 max, char *buffer);
+
     // NPRuntime support
     static void SciMozInitNPIdentifiers();
     bool HasProperty(NPIdentifier name);
@@ -397,6 +400,7 @@ public:
     bool HookEvents(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool UnhookEvents(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool GetStyledText(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool GetStyleRange(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool GetCurLine(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool GetLine(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool AssignCmdKey(const NPVariant *args, uint32_t argCount, NPVariant *result);

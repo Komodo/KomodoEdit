@@ -116,3 +116,32 @@ if sys.platform.startswith("linux"):
                                  "0b0b0b0b"    # 'pass'
                                  "00"          # '\n'
                                  )
+
+        def test_getStyleRange(self):
+            with SciMozHeadlessContext() as sm:
+                text = "def foo():\n    pass\n"
+                sm.text = text
+                sm.lexer = sm.SCLEX_PYTHON
+                sm.colourise(0, sm.length)
+                from binascii import hexlify
+                styledText = sm.getStyleRange(0, sm.length)
+                self.assertEqual(hexlify(styledText),
+                                 "0b0b0b"      # 'def'
+                                 "00"          # ' '
+                                 "0b0b0b"      # 'foo'
+                                 "0a0a0a"      # '():'
+                                 "0000000000"  # '\n    '
+                                 "0b0b0b0b"    # 'pass'
+                                 "00"          # '\n'
+                                 )
+                # Now try with readonly style attribute.
+                styledText = sm.style
+                self.assertEqual(hexlify(styledText),
+                                 "0b0b0b"      # 'def'
+                                 "00"          # ' '
+                                 "0b0b0b"      # 'foo'
+                                 "0a0a0a"      # '():'
+                                 "0000000000"  # '\n    '
+                                 "0b0b0b0b"    # 'pass'
+                                 "00"          # '\n'
+                                 )

@@ -65,6 +65,8 @@ interface ISciMozLite : nsISupports {
 	void sendUpdateCommands(in string commandset);
 	void getStyledText(in long min, in long max, out unsigned long count, 
 		[array, size_is(count), retval] out octet str);
+	AString getStyleRange(in long min, in long max);
+	readonly attribute AString style;
 	long getCurLine(out AString text);
 	void assignCmdKey(in long key, in long modifiers, in long msg);
 	void clearCmdKey(in long key, in long modifiers);
