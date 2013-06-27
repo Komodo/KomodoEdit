@@ -289,7 +289,6 @@ push(@args, (qq(
              )));
 
 $consLocal->Command(@args);
-
-
+$consLocal->Depends($libName, "../include/pcre.h"); # depends upon contrib/pcre
 
 
