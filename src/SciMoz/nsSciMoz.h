@@ -384,7 +384,7 @@ public:
 #endif 
 
     // Shared XPCOM/NPRuntime methods.
-    nsresult _GetStyleBuffer(PRInt32 min, PRInt32 max, char *buffer);
+    nsresult _GetStyleBuffer(PRInt32 min, PRInt32 max, PRUint16 *buffer);
 
     // NPRuntime support
     static void SciMozInitNPIdentifiers();

@@ -786,6 +786,45 @@ NS_IMETHODIMP SciMoz::GetStyledText(PRInt32 min, PRInt32 max, PRUint32 *count, P
 	return (*str) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
+/**
+ * Convert each `buf` array element into a JS array element (of integer type).
+ *
+ * `element_size` is the C array element size, e.g. (1 for char, 2 for short, 4 for int, ...).
+ */
+bool _NPN_ConvertCArrayToJSNumberArray(NPP instance, PRUint32 count, PRUint8 element_size, void *array_ptr, NPVariant *result)
+{
+	NPObject *win = nullptr;
+	NPError err = NPN_GetValue(instance, NPNVWindowNPObject, &win);
+	if (err != NPERR_NO_ERROR) {
+		SCIMOZ_DEBUG_PRINTF("%s: failed to get window\n",
+				    __FUNCTION__);
+		return false;
+	}
+	NPString script = { "new Array()" };
+	script.UTF8Length = strlen(script.UTF8Characters);
+	if (!NPN_Evaluate(instance,
+			  win,
+			  &script,
+			  result))
+	{
+		SCIMOZ_DEBUG_PRINTF("%s: failed to create array\n",
+				    __FUNCTION__);
+		return false;
+	}
+	NPN_RetainObject(NPVARIANT_TO_OBJECT(*result));
+	PRUint8 *pthis = (PRUint8 *)array_ptr;
+	PRUint32 mask = (1 << (element_size * 8)) - 1;
+	for (PRUint32 i = 0; i < count; ++i, pthis += element_size) {
+		NPVariant v;
+		INT32_TO_NPVARIANT(*pthis & mask, v);
+		NPN_SetProperty(instance,
+				NPVARIANT_TO_OBJECT(*result),
+				NPN_GetIntIdentifier(i),
+				&v);
+	}
+	return true;
+}
+
 bool SciMoz::GetStyledText(const NPVariant *args, uint32_t argCount, NPVariant *result) {
 	if (argCount != 3) return false;
 	if (!NPVARIANT_IS_INT32(args[0])) return false;
@@ -811,42 +850,19 @@ bool SciMoz::GetStyledText(const NPVariant *args, uint32_t argCount, NPVariant *
 	}
 
 	NPN_ReleaseVariantValue(result);
+
 	// gah, this is an [array] octet, not a string. allocate a JS array :|
-	NPObject *win = nullptr;
-	NPError err = NPN_GetValue(mPlugin->GetNPP(), NPNVWindowNPObject, &win);
-	if (err != NPERR_NO_ERROR) {
-		SCIMOZ_DEBUG_PRINTF("%s: failed to get window\n",
-				    __FUNCTION__);
+	if (!_NPN_ConvertCArrayToJSNumberArray(mPlugin->GetNPP(), count, sizeof(PRUint8), buf, result)) {
 		NS_Free(buf);
 		return false;
 	}
-	NPString script = { "new Array()" };
-	script.UTF8Length = strlen(script.UTF8Characters);
-	if (!NPN_Evaluate(mPlugin->GetNPP(),
-			  win,
-			  &script,
-			  result))
-	{
-		SCIMOZ_DEBUG_PRINTF("%s: failed to create array\n",
-				    __FUNCTION__);
-		NS_Free(buf);
-		return false;
-	}
-	NPN_RetainObject(NPVARIANT_TO_OBJECT(*result));
-	for (PRUint32 i = 0; i < count; ++i) {
-		NPVariant v;
-		INT32_TO_NPVARIANT(buf[i], v);
-		NPN_SetProperty(mPlugin->GetNPP(),
-				NPVARIANT_TO_OBJECT(*result),
-				NPN_GetIntIdentifier(i),
-				&v);
-	}
+
 	NS_Free(buf);
 	NPN_ReleaseObject(NPVARIANT_TO_OBJECT(*result));
 	return true;
 }
 
-nsresult SciMoz::_GetStyleBuffer(PRInt32 min, PRInt32 max, char *buffer)
+nsresult SciMoz::_GetStyleBuffer(PRInt32 min, PRInt32 max, PRUint16 *buffer)
 {
 	PRInt32 length = max - min;
 	size_t dlength = length * 2;
@@ -855,9 +871,9 @@ nsresult SciMoz::_GetStyleBuffer(PRInt32 min, PRInt32 max, char *buffer)
 		return NS_ERROR_OUT_OF_MEMORY;
 	dbuffer[dlength]=0;
 #ifdef USE_SCIN_DIRECT
-	::GetStyledRange(fnEditor, ptrEditor, min, max, dbuffer);
+	GetStyledRange(fnEditor, ptrEditor, min, max, dbuffer);
 #else
-	::GetStyledRange(wEditor, min, max, dbuffer);
+	GetStyledRange(wEditor, min, max, dbuffer);
 #endif
         NS_ASSERTION(buffer[dlength] == NULL, "Buffer overflow");
 
@@ -872,8 +888,8 @@ nsresult SciMoz::_GetStyleBuffer(PRInt32 min, PRInt32 max, char *buffer)
 	return NS_OK;
 }
 
-/* string getStyleRange (in long min, in long max); */
-NS_IMETHODIMP SciMoz::GetStyleRange(PRInt32 min, PRInt32 max, nsAString & _retval)
+/* void getStyleRange (in long min, in long max, out unsigned long count, [array, size_is (count), retval] out octet styles); */
+NS_IMETHODIMP SciMoz::GetStyleRange(PRInt32 min, PRInt32 max, PRUint32 *count, PRUint16 **str)
 {
 	SCIMOZ_CHECK_VALID("GetStyleRange");
 	// converting the string UTF8->UTF16->UTF8)
@@ -888,14 +904,19 @@ NS_IMETHODIMP SciMoz::GetStyleRange(PRInt32 min, PRInt32 max, nsAString & _retva
 		return NS_ERROR_INVALID_ARG;
 	}
 
-	char *buffer = static_cast<char*>(NS_Alloc(length + 1));
+	PRUint16 *buffer = static_cast<PRUint16*>(NS_Alloc(sizeof(PRUint16) * (length + 1)));
 	if (!buffer) {
 		return NS_ERROR_OUT_OF_MEMORY;
 	}
 
-	_GetStyleBuffer(min, max, buffer);
-	_retval =  NS_ConvertASCIItoUTF16(buffer, length);
-	delete []buffer;
+	nsresult rv = _GetStyleBuffer(min, max, buffer);
+	if (NS_FAILED(rv)) {
+		NS_Free(buffer);
+		return rv;
+	}
+
+	*str = buffer;
+	*count = length;
 	return NS_OK;
 }
 
@@ -903,9 +924,11 @@ bool SciMoz::GetStyleRange(const NPVariant *args, uint32_t argCount, NPVariant *
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::GetStyleRange\n");
 #endif
-	if (argCount != 2) return false;
+	if (argCount != 3) return false;
 	if (!NPVARIANT_IS_INT32(args[0])) return false;
 	if (!NPVARIANT_IS_INT32(args[1])) return false;
+	if (!NPVARIANT_IS_OBJECT(args[2])) return false;
+
 	int min = NPVARIANT_TO_INT32(args[0]);
 	int max = NPVARIANT_TO_INT32(args[1]);
 	int textlength = SendEditor(SCI_GETTEXTLENGTH, 0, 0);
@@ -915,29 +938,38 @@ bool SciMoz::GetStyleRange(const NPVariant *args, uint32_t argCount, NPVariant *
 	if (length < 0 || min < 0 || max < 0 || max > textlength) {
 		return false;
 	}
-	NPUTF8* buf = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(length + 1));
+	uint16_t *buf = static_cast<uint16_t*>(NPN_MemAlloc(sizeof(uint16_t) * (length + 1)));
 	if (!buf)
 		return false;
 
-	_GetStyleBuffer(min, max, buf);
-	NPN_ReleaseVariantValue(result);
-	STRINGN_TO_NPVARIANT(buf, length, *result);
-	return true;
-}
+	nsresult rv = _GetStyleBuffer(min, max, buf);
+	if (NS_FAILED(rv)) {
+		NPN_MemFree(buf);
+		return false;
+	}
 
-/* readonly attribute string style; */
-/**
- * The style value is cached in this routine in order to avoid having to
- * regenerate the "text" property when the Scintilla buffer has not changed.
- * See bug 83216 for further details.
- */
-NS_IMETHODIMP SciMoz::GetStyle(nsAString &style)
-{
-	SCIMOZ_CHECK_VALID("GetStyle");
-#ifdef SCIMOZ_DEBUG
-	fprintf(stderr,"SciMoz::GetStyle\n");
-#endif
-	return GetStyleRange(0, -1, style);
+	NPVariant npCount;
+	INT32_TO_NPVARIANT(length, npCount);
+	bool success = NPN_SetProperty(mPlugin->GetNPP(),
+				       NPVARIANT_TO_OBJECT(args[2]),
+				       NPN_GetStringIdentifier("value"),
+				       &npCount);
+	if (!success) {
+		NPN_MemFree(buf);
+		return false;
+	}
+
+	NPN_ReleaseVariantValue(result);
+
+	// gah, this is an [array] octet, not a string. allocate a JS array :|
+	if (!_NPN_ConvertCArrayToJSNumberArray(mPlugin->GetNPP(), length, sizeof(uint16_t), buf, result)) {
+		NPN_MemFree(buf);
+		return false;
+	}
+
+	NPN_MemFree(buf);
+	NPN_ReleaseObject(NPVARIANT_TO_OBJECT(*result));
+	return true;
 }
 
 /* long getCurLine (out string text); */

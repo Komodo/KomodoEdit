@@ -28,7 +28,7 @@ except ImportError:
 
 manualFunctions = """
     doBraceMatch markClosed hookEvents unhookEvents getStyledText getCurLine getLine
-    assignCmdKey clearCmdKey getTextRange charPosAtPosition
+    getStyleRange assignCmdKey clearCmdKey getTextRange charPosAtPosition
     sendUpdateCommands getWCharAt replaceTarget replaceTargetRE
     searchInTarget addChar buttonDown buttonUp buttonMove endDrop
     """.split()
