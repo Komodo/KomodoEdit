@@ -136,25 +136,20 @@ if sys.platform.startswith("linux"):
                 sm.text = text
                 sm.lexer = sm.SCLEX_PYTHON
                 sm.colourise(0, sm.length)
-                from binascii import hexlify
-
-                hexstyling = (
-                              "0b0b0b"      # 'def'
-                              "00"          # ' '
-                              "0b0b0b"      # 'foo'
-                              "0a0a0a"      # '():'
-                              "0000000000"  # '\n    '
-                              "0b0b0b0b"    # 'pass'
-                              "00"          # '\n'
-                             )
-
-                # Test readonly style attribute.
-                styledText = sm.style
-                self.assertEqual(hexlify(styledText), hexstyling)
+                expected_styles = (
+                           [0xb] * len('def')  +
+                           [0x0] * len(' ')    +
+                           [0xb] * len('foo')  +
+                           [0xa] * len('():')  +
+                           [0x0] * len('\n')   +
+                           [0x0] * len('    ') +
+                           [0xb] * len('pass') +
+                           [0x0] * len('\n')
+                          )
 
                 # Test getStyleRange method.
-                styledText = sm.getStyleRange(0, sm.length)
-                self.assertEqual(hexlify(styledText), hexstyling)
+                styles = sm.getStyleRange(0, sm.length)
+                self.assertEqual(styles, expected_styles)
                 # Test getStyleRange method with a partial range.
-                styledText = sm.getStyleRange(5, 10)
-                self.assertEqual(hexlify(styledText), hexstyling[5*2:10*2])
+                styles = sm.getStyleRange(5, 10)
+                self.assertEqual(styles, expected_styles[5:10])
