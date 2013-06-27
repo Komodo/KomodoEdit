@@ -213,12 +213,10 @@ class KoFastOpenSession(KoFastOpenTreeView):
         as separators). Whitespace is stripped. Preceed a separator char with
         '\' to have it *not* separate.
         """
-        excludes = None
-        if self._globalPrefs.hasStringPref("fastopen_path_excludes"):
-            excludes_str = self._globalPrefs.getStringPref("fastopen_path_excludes")
-            if excludes_str.strip():  # empty means "use default"
-                excludes = self._excludes_from_str(excludes_str)
-        return excludes
+        excludes = self._globalPrefs.getString("fastopen_path_excludes", "")
+        if not excludes.strip():  # empty means "use default"
+            return None
+        return self._excludes_from_str(excludes)
     
     @property
     def pref_enable_shortcuts(self):
@@ -230,38 +228,23 @@ class KoFastOpenSession(KoFastOpenTreeView):
 
     @property
     def pref_enable_open_views_gatherer(self):
-        enable = True
-        if self._globalPrefs.hasBooleanPref("fastopen_enable_open_views_gatherer"):
-            enable = self._globalPrefs.getBooleanPref("fastopen_enable_open_views_gatherer")
-        return enable
+        return self._globalPrefs.getBoolean("fastopen_enable_open_views_gatherer", True)
 
     @property
     def pref_enable_history_gatherer(self):
-        enable = True
-        if self._globalPrefs.hasBooleanPref("fastopen_enable_history_gatherer"):
-            enable = self._globalPrefs.getBooleanPref("fastopen_enable_history_gatherer")
-        return enable
+        return self._globalPrefs.getBoolean("fastopen_enable_history_gatherer", True)
 
     @property
     def pref_enable_cwd_gatherer(self):
-        enable = True
-        if self._globalPrefs.hasBooleanPref("fastopen_enable_cwd_gatherer"):
-            enable = self._globalPrefs.getBooleanPref("fastopen_enable_cwd_gatherer")
-        return enable
+        return self._globalPrefs.getBoolean("fastopen_enable_cwd_gatherer", True)
 
     @property
     def pref_enable_project_gatherer(self):
-        enable = True
-        if self._globalPrefs.hasBooleanPref("fastopen_enable_project_gatherer"):
-            enable = self._globalPrefs.getBooleanPref("fastopen_enable_project_gatherer")
-        return enable
+        return self._globalPrefs.getBoolean("fastopen_enable_project_gatherer", True)
 
     @property
     def pref_enable_project_dir_gatherer(self):
-        enable = True
-        if self._globalPrefs.hasBooleanPref("fastopen_enable_project_dir_gatherer"):
-            enable = self._globalPrefs.getBooleanPref("fastopen_enable_project_dir_gatherer")
-        return enable
+        return self._globalPrefs.getBoolean("fastopen_enable_project_dir_gatherer", True)
 
     @property
     def pref_follow_symlinks(self):
@@ -269,10 +252,7 @@ class KoFastOpenSession(KoFastOpenTreeView):
 
     @property
     def pref_history_num_entries(self):
-        value = 50
-        if self._globalPrefs.hasLongPref("fastopen_history_num_entries"):
-            value = self._globalPrefs.getLongPref("fastopen_history_num_entries")
-        return value
+        return self._globalPrefs.getLong("fastopen_history_num_entries", 50)
     
     _excludes_splitter = re.compile(r'(?<!\\)[;:,]') # be liberal about splitter char
     def _excludes_from_str(self, excludes_str):
