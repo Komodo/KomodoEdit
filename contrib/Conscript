@@ -234,7 +234,6 @@ if ($platform eq "win") {
                     copy %1:d\\Win32\\pcre.h $scintilla_dir\\include\\pcre.h
                     copy %1:d\\Win32\\Release\\libpcre.lib $silvercity_dir\\libpcre.lib
                    ));
-    }
     $consLocal->DependsRecursive($landmark, "pcre",
                             ('\.svn', 'doc', 'testdata'));
 
