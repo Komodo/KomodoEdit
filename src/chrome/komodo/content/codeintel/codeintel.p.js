@@ -1086,8 +1086,7 @@ ko.codeintel = {};
                 return false;
             }
             // check variable styles
-            let styles = scimoz.getStyledText(rangeStart, rangeEnd, {})
-                               .filter(function(c, i) i % 2);
+            let styles = scimoz.getStyleRange(rangeStart, rangeEnd);
             if (styles.some(function(s) varStyles.indexOf(s) == -1)) {
                 log.debug("variable highlighting: found word char with non-var style")
                 return false;
@@ -1224,12 +1223,10 @@ ko.codeintel = {};
                         return;
                     }
                 }
-                let styles = scimoz.getStyledText(start, end, {});
-                for (let i = 1; i < styles.length; i += 2) {
-                    if (varStyles.indexOf(styles[i]) == -1) {
-                        // text in range that isn't a variable style
-                        return;
-                    }
+                let styles = scimoz.getStyleRange(start, end);
+                if (styles.some(function(s) varStyles.indexOf(s) == -1 )) {
+                    // text in range isn't a variable style
+                    return;
                 }
                 acceptHit(start, end);
             }).bind(findHitCallback);
@@ -1258,12 +1255,10 @@ ko.codeintel = {};
                             return;
                         }
                     }
-                    let styles = scimoz.getStyledText(start, end, {});
-                    for (let i = 1; i < styles.length; i += 2) {
-                        if (varStyles.indexOf(styles[i]) == -1) {
-                            // text in range that isn't a variable style
-                            return;
-                        }
+                    let styles = scimoz.getStyleRange(start, end);
+                    if (styles.some(function(s) varStyles.indexOf(s) == -1 )) {
+                        // text in range isn't a variable style
+                        return;
                     }
                 }
                 acceptHit(start, end);
