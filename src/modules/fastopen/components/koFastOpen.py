@@ -349,7 +349,11 @@ class KoFastOpenSession(KoFastOpenTreeView):
                 kovg = KomodoOpenViewsGatherer(self.views)
                 if self.pref_enable_open_views_gatherer:
                     g.append(kovg)
-                cwds = list(kovg.cwds)
+                if self.pref_enable_cwd_gatherer:
+                    cwds = list(kovg.cwds)
+                else:
+                    # Just the first one (which is the current view).
+                    cwds = list(kovg.cwds)[:1]
 
             if self.pref_enable_shortcuts:
                 g.append(self._go_gatherer)
