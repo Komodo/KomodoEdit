@@ -1070,8 +1070,7 @@ viewManager.prototype.handle_open_file = function(topic, data)
                             // Don't expand tabs.  But do handle Unicode => utf8 expansion,
                             // to avoid selecting a partial character.
                             lineStartPos = scimoz.positionFromLine(anchorLine);
-                            numBytes = scimoz.getStyledText(lineStartPos, lineStartPos + anchorCol, {}).length/2;
-                            anchor = lineStartPos + numBytes;
+                            anchor = scimoz.positionAtChar(lineStartPos, anchorCol);
                         } else {
                             var anchorCol = Math.max(Number(subparts[1]) - 1, 0);
                             anchor = scimoz.positionAtColumn(anchorLine, anchorCol);
@@ -1086,8 +1085,7 @@ viewManager.prototype.handle_open_file = function(topic, data)
                         if (subparts[1][0] == 'p') {
                             currentPosCol = Math.max(Number(subparts[1].substr(1)) - 1, 0);
                             lineStartPos = scimoz.positionFromLine(currentPosLine);
-                            numBytes = scimoz.getStyledText(lineStartPos, lineStartPos + currentPosCol, {}).length/2;
-                            currentPos = lineStartPos + numBytes;
+                            currentPos = scimoz.positionAtChar(lineStartPos, currentPosCol);
                         } else {
                             currentPosCol = Math.max(Number(subparts[1]) - 1, 0);
                             currentPos = view.positionAtColumn(currentPosLine, currentPosCol);
