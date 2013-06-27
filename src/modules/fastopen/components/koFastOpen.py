@@ -572,68 +572,71 @@ class KomodoOpenViewsGatherer(fastopen.Gatherer):
     
     def __init__(self, views):
         self.views = views
-    
+
+    @components.ProxyToMainThread
+    def _getViewData(self):
+        ifaceFromViewType = {
+            "browser": components.interfaces.koIBrowserView,
+            "startpage": components.interfaces.koIStartPageView,
+            # Also "diff" view.
+            "editor": components.interfaces.koIScintillaView,
+        }
+        viewData = []
+        viewDataFromPath = defaultdict(list)
+        viewIds = set()
+        for view in self.views:
+            viewType = view.getAttribute("type")
+            try:
+                iface = ifaceFromViewType[viewType]
+            except KeyError:
+                log.debug("skip `%s' view: don't know interface for it", viewType)
+                continue
+            try:
+                view = view.QueryInterface(iface)
+            except Exception:
+                log.debug("skip `%s' view: QI failed", viewType)
+                continue
+            if viewType in ("editor", "browser"):
+                koFileEx = view.koDoc.file
+                if koFileEx:
+                    uri = koFileEx.URI
+                    isLocal = koFileEx.isLocal
+                else:
+                    uri = None
+                    isLocal = False
+                path = view.koDoc.displayPath
+            elif viewType == "startpage":
+                uri = None
+                path = "Start Page"
+                isLocal = False
+            else:
+                continue
+
+            # Guard against bogus duplicate entries from viewhistory --
+            # a problem in workspace restore, I believe. No bug yet.
+            viewId = (viewType, path, view.windowNum, view.tabbedViewId)
+            if viewId in viewIds:
+                continue
+            viewIds.add(viewId)
+
+            datum = dict(view=view, viewType=viewType, path=path,
+                windowNum=view.windowNum, tabGroupId=view.tabbedViewId,
+                uri=uri, isLocal=isLocal,
+                multi=False)
+            viewData.append(datum)
+            multi = path in viewDataFromPath
+            viewDataFromPath[path].append(datum)
+            if multi:
+                for d in viewDataFromPath[path]:
+                    d["multi"] = True
+        #pprint(viewData)
+        return viewData
+
     _viewDataCache = None
     @property
     def viewData(self):
         if self._viewDataCache is None:
-            ifaceFromViewType = {
-                "browser": components.interfaces.koIBrowserView,
-                "startpage": components.interfaces.koIStartPageView,
-                # Also "diff" view.
-                "editor": components.interfaces.koIScintillaView,
-            }
-            viewData = []
-            viewDataFromPath = defaultdict(list)
-            viewIds = set()
-            for view in self.views:
-                viewType = view.getAttribute("type")
-                try:
-                    iface = ifaceFromViewType[viewType]
-                except KeyError:
-                    log.debug("skip `%s' view: don't know interface for it", viewType)
-                    continue
-                try:
-                    view = view.QueryInterface(iface)
-                except Exception:
-                    log.debug("skip `%s' view: QI failed", viewType)
-                    continue
-                if viewType in ("editor", "browser"):
-                    koFileEx = view.koDoc.file
-                    if koFileEx:
-                        uri = koFileEx.URI
-                        isLocal = koFileEx.isLocal
-                    else:
-                        uri = None
-                        isLocal = False
-                    path = view.koDoc.displayPath
-                elif viewType == "startpage":
-                    uri = None
-                    path = "Start Page"
-                    isLocal = False
-                else:
-                    continue
-                
-                # Guard against bogus duplicate entries from viewhistory --
-                # a problem in workspace restore, I believe. No bug yet.
-                viewId = (viewType, path, view.windowNum, view.tabbedViewId)
-                if viewId in viewIds:
-                    continue
-                viewIds.add(viewId)
-                
-                datum = dict(view=view, viewType=viewType, path=path,
-                    windowNum=view.windowNum, tabGroupId=view.tabbedViewId,
-                    uri=uri, isLocal=isLocal,
-                    multi=False)
-                viewData.append(datum)
-                multi = path in viewDataFromPath
-                viewDataFromPath[path].append(datum)
-                if multi:
-                    for d in viewDataFromPath[path]:
-                        d["multi"] = True
-            #pprint(viewData)
-            self._viewDataCache = viewData
-        
+            self._viewDataCache = self._getViewData()
         return self._viewDataCache
     
     @property
