@@ -154,8 +154,7 @@
         this.controllers.appendController(controller);
         // Disable forwarding editing commands that are needed in the textbox
         // Some users prefer not having this behaviour, see bug 92559
-        if (this._prefs.hasBooleanPref("isearchKeysToEditor") &&
-            this._prefs.getBooleanPref("isearchKeysToEditor"))
+        if (this._prefs.getBoolean("isearchKeysToEditor", false))
         {
           // we want our controller to be used before the textbox's default
           // controller, so that things like cursor movement go into the editor

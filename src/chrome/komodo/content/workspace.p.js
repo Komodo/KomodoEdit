@@ -369,8 +369,7 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
                 }
                 });
         }
-        wko._hasFocus = (workspace.hasBooleanPref('hasFocus')
-                         && workspace.getBooleanPref('hasFocus'));
+        wko._hasFocus = workspace.getBoolean('hasFocus', false);
     } catch(ex) {
         log.exception(ex, "Error restoring workspace:");
     }

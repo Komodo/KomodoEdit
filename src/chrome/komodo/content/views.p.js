@@ -2840,8 +2840,7 @@ this.checkDiskFiles = function view_checkDiskFiles(event)
     }
     if (event && event.eventPhase != event.AT_TARGET) return true;
 
-    var checkDisk = (ko.prefs.hasBooleanPref("checkDiskFile") &&
-                     ko.prefs.getBooleanPref("checkDiskFile"));
+    var checkDisk = ko.prefs.getBoolean("checkDiskFile", false);
     if (!checkDisk) return true;
     _gInCheckDiskFiles = true;
     log.info('Checking Disk Files');
