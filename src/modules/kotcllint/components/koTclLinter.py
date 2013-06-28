@@ -46,8 +46,15 @@ from xpcom import components, nsError, ServerException
 
 import process
 import koprocessutils
-from koLintResult import KoLintResult, getProxiedEffectivePrefs
+from koLintResult import KoLintResult
 from koLintResults import koLintResults
+
+try:
+    from koLintResult import getProxiedEffectivePrefs
+    gHaveGetProxiedEffectivePrefs = True
+except ImportError:
+    # getProxiedEffectivePrefs was removed in Komodo 8.
+    gHaveGetProxiedEffectivePrefs = False
 
 
 log = logging.getLogger("koTclLinter")
@@ -261,7 +268,11 @@ class KoTclCompileLinter:
         
         Raise an exception if there is a problem.
         """
-        prefset = getProxiedEffectivePrefs(request)
+        if gHaveGetProxiedEffectivePrefs:
+            prefset = getProxiedEffectivePrefs(request)
+        else:
+            # Komodo 8 sets the prefet on the request.
+            prefset = request.prefset
         argv = self._getLinterArgv(prefset)
         env = koprocessutils.getUserEnv()
 
