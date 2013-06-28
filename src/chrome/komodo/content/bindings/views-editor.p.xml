@@ -1399,8 +1399,8 @@
                 ids = ids.value;
                 for (var i=0; i < ids.length; i++) {
                     var storedPrefs = root.getPref(ids[i]);
-                    if (storedPrefs.hasStringPref("filename") && docOld.file &&
-                        storedPrefs.getStringPref("filename") == docOld.file.path) {
+                    if (docOld.file &&
+                        storedPrefs.getString("filename", "") == docOld.file.path) {
                         storedPrefs.deletePref("filename");
                     }
                 }
@@ -1817,12 +1817,9 @@
             // Return the user's chosen preview path for this document,
             // asking if necessary. This may return null, meaning the
             // action calling this method should abort.
-            var previewPath = null;
-            if (this.koDoc.prefs.hasStringPref("preview_path")) {
-                previewPath = this.koDoc.prefs.getStringPref("preview_path");
-            }
-            if (!browserType && this.koDoc.prefs.hasStringPref("preview_browser")) {
-                browserType = this.koDoc.prefs.getStringPref("preview_browser");
+            var previewPath = this.koDoc.prefs.getString("preview_path", "");
+            if (!browserType) {
+                browserType = this.koDoc.prefs.getString("preview_browser", "");
             }
             if (!previewPath) {
                 var pick = ko.dialogs.pickPreview(this.koDoc.file.displayPath,

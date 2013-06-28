@@ -113,11 +113,7 @@ function PrefRuby_OnLoad()
 {
     appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Ruby;1"].
             createInstance(Components.interfaces.koIAppInfoEx);
-    if (parent.hPrefWindow.prefset.hasStringPref('rubyDefaultInterpreter') &&
-        parent.hPrefWindow.prefset.getStringPref('rubyDefaultInterpreter'))
-        prefExecutable = parent.hPrefWindow.prefset.getStringPref('rubyDefaultInterpreter');
-    else
-        prefExecutable = '';
+    prefExecutable = parent.hPrefWindow.prefset.getString('rubyDefaultInterpreter', '');
     PrefRuby_PopulateRubyInterps();
 
     var origWindow = ko.windowManager.getMainWindow();

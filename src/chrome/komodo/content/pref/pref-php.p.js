@@ -50,11 +50,7 @@ function PrefPhp_OnLoad()  {
     phpAppInfoEx = Components.classes["@activestate.com/koPHPInfoInstance;1"].
             createInstance(Components.interfaces.koIPHPInfoEx);
 
-    if (parent.hPrefWindow.prefset.hasStringPref('phpDefaultInterpreter') &&
-        parent.hPrefWindow.prefset.getStringPref('phpDefaultInterpreter'))
-        prefExecutable = parent.hPrefWindow.prefset.getStringPref('phpDefaultInterpreter');
-    else
-        prefExecutable = '';
+    prefExecutable = parent.hPrefWindow.prefset.getString('phpDefaultInterpreter', '');
     PrefPhp_PopulatePHPInterps();
 
     parent.hPrefWindow.onpageload();

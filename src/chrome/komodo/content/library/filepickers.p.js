@@ -1120,12 +1120,10 @@ this.openFiles = function filepicker_openFiles(defaultDirectory /* =null */,
  * @returns {String} last stored directory if dir is null, dir if dir isn't null
  */
 this.internDefaultDir = function internDefaultDir(label, dir) {
-    if (typeof(dir) === "undefined" || !dir) {
-        if (prefs.hasStringPref(label)) {
-            dir = prefs.getStringPref(label);
-            if (osPathSvc.exists(dir) && osPathSvc.isdir(dir)) {
-                return dir;
-            }
+    if (!dir) {
+        dir = prefs.getString(label, "");
+        if (dir && osPathSvc.isdir(dir)) {
+            return dir;
         }
         return null;
     }

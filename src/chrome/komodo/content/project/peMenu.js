@@ -436,10 +436,10 @@ this.updateToolbarForPart = function(part) {
 this.isToolbarRememberedAsHidden = function peMenu_isToolbarRememberedAsHidden(id) {
         try {
         var prefs = prefSvc.prefs
-        if (!prefs.hasStringPref('hidden_toolbars')) {
+        var hidden_toolbar_ids = prefs.getString('hidden_toolbars', '');
+        if (!hidden_toolbar_ids) {
             return false;
         }
-        var hidden_toolbar_ids = prefs.getStringPref('hidden_toolbars')
         var ids = hidden_toolbar_ids.split(',');
         var found = false;
         for (var i = 0; i < ids.length; i++) {
@@ -455,10 +455,7 @@ this.isToolbarRememberedAsHidden = function peMenu_isToolbarRememberedAsHidden(i
 this.toggleToolbarHiddenStateInPref = function peMenu_toggleToolbarHiddenStateInPref(id) {
     try {
         var prefs = prefSvc.prefs
-        var hidden_toolbar_ids = '';
-        if (prefs.hasStringPref('hidden_toolbars')) {
-            hidden_toolbar_ids = prefs.getStringPref('hidden_toolbars')
-        }
+        var hidden_toolbar_ids = prefs.getString('hidden_toolbars', '');
         var ids = hidden_toolbar_ids.split(',');
         var found = false;
         for (var i = 0; i < ids.length; i++) {

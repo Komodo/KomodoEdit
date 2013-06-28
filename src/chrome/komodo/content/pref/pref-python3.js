@@ -76,11 +76,7 @@ function loadPython3Executable()
 
 function PrefPython3_OnLoad()
 {
-    var prefExecutable = '';
-    if (parent.hPrefWindow.prefset.hasStringPref('python3DefaultInterpreter') &&
-        parent.hPrefWindow.prefset.getStringPref('python3DefaultInterpreter')) {
-        prefExecutable = parent.hPrefWindow.prefset.getStringPref('python3DefaultInterpreter');
-    }
+    var prefExecutable = parent.hPrefWindow.prefset.getString('python3DefaultInterpreter', '');
     PrefPython3_PopulatePythonInterps(prefExecutable);
     parent.hPrefWindow.onpageload();
 

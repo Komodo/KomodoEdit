@@ -88,11 +88,7 @@ function PrefPerl_PopulatePerlInterps()
 
 function PrefPerl_OnLoad()
 {
-    if (parent.hPrefWindow.prefset.hasStringPref('perlDefaultInterpreter') &&
-        parent.hPrefWindow.prefset.getStringPref('perlDefaultInterpreter'))
-        prefExecutable = parent.hPrefWindow.prefset.getStringPref('perlDefaultInterpreter');
-    else
-        prefExecutable = '';
+    prefExecutable = parent.hPrefWindow.prefset.getString('perlDefaultInterpreter', '');
     PrefPerl_PopulatePerlInterps();
 
     parent.hPrefWindow.onpageload();

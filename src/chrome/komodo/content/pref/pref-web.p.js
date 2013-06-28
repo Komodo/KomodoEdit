@@ -41,13 +41,7 @@ var gBrowserMenulist;
 
 function PrefWeb_OnLoad()
 {
-    var prefbrowser;
-    if (parent.hPrefWindow.prefset.hasStringPref('browser') &&
-        parent.hPrefWindow.prefset.getStringPref('browser')) {
-        prefbrowser = parent.hPrefWindow.prefset.getStringPref('browser');
-    } else {
-        prefbrowser = '';
-    }
+    var prefbrowser = parent.hPrefWindow.prefset.getString('browser', '');
 
     // Get the list of available browsers.
     var koWebbrowser = Components.classes['@activestate.com/koWebbrowser;1'].

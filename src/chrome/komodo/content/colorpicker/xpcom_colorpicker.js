@@ -61,10 +61,7 @@ koColorPicker.prototype = {
          */
         var prefs = Components.classes["@activestate.com/koPrefService;1"].
                         getService(Components.interfaces.koIPrefService).prefs;
-        var colorMode = 'h';
-        if (prefs.hasStringPref("colorpicker.colorMode")) {
-            colorMode = prefs.getStringPref("colorpicker.colorMode");
-        }
+        var colorMode = prefs.getString("colorpicker.colorMode", "h");
 
         var args = {
             hexColor: hexColor,
@@ -123,10 +120,7 @@ koColorPicker.prototype = {
          */
         var prefs = Components.classes["@activestate.com/koPrefService;1"].
                         getService(Components.interfaces.koIPrefService).prefs;
-        var colorMode = 'h';
-        if (prefs.hasStringPref("colorpicker.colorMode")) {
-            colorMode = prefs.getStringPref("colorpicker.colorMode");
-        }
+        var colorMode = prefs.getString("colorpicker.colorMode", "h");
 
         var args = {
             hexColor: colorString,

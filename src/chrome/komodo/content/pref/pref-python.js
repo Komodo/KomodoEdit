@@ -109,11 +109,7 @@ function loadPythonExecutable()
 
 function PrefPython_OnLoad()
 {
-    var prefExecutable = '';
-    if (parent.hPrefWindow.prefset.hasStringPref('pythonDefaultInterpreter') &&
-        parent.hPrefWindow.prefset.getStringPref('pythonDefaultInterpreter')) {
-        prefExecutable = parent.hPrefWindow.prefset.getStringPref('pythonDefaultInterpreter');
-    }
+    var prefExecutable = parent.hPrefWindow.prefset.getString('pythonDefaultInterpreter', '');
     PrefPython_PopulatePythonInterps(prefExecutable);
     parent.hPrefWindow.onpageload();
 
