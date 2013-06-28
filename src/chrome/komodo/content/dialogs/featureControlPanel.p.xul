@@ -51,16 +51,17 @@
         title="&featureControlPanel.title;"
         onload="OnLoad()"
         onunload="OnUnload()"
+        flex="1"
+        width="640"
         screenX="20"
         screenY="20"
-        persist="screenX screenY"
+        persist="width screenX screenY"
         orient="vertical"
         style="background-image: url(chrome://komodo/skin/startpage/images/bg.gif);
                background-repeat: no-repeat;
                background-color: white;
                overflow: auto;
                padding: 10px;"
-        flex="1"
         buttonpack="center"
         buttons="cancel"
         ondialogcancel="return Cancel();">

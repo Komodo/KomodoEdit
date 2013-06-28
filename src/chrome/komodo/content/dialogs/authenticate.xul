@@ -54,6 +54,8 @@
         orient="vertical"
         style="min-width: 35em;"
         flex="1"
+        width="640"
+        persist="width"
         buttons="accept,cancel"
         ondialogaccept="return Login();"
         ondialogcancel="return Cancel();">
