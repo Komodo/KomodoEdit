@@ -38,7 +38,7 @@
 """XMLCatalogService - ..."""
 
 from xpcom import components, COMException, ServerException, nsError
-from codeintel2.lang_xml import getService
+from koXMLDatasetInfo import getService
 
 class XMLCatalogService:
     _com_interfaces_ = [components.interfaces.koIXMLCatalogService]
