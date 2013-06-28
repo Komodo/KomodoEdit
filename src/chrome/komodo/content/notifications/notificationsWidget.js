@@ -58,10 +58,7 @@ this.addNotification = (function NWC_addNotification(notification) {
   }
 
   // Limit the number of notifications
-  var maxItems = 50;
-  if (this.prefs.hasLongPref("notifications.ui.maxItems")) {
-    maxItems = this.prefs.getLongPref("notifications.ui.maxItems");
-  }
+  var maxItems = this.prefs.getLong("notifications.ui.maxItems", 50);
   while (this.container.children.length > maxItems) {
     this.removeNotification(this.container.firstChild.notification);
   }
