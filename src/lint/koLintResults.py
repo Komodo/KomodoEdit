@@ -137,17 +137,12 @@ class koLintResults:
                 self._resultMap[lineNum] = [result]
 
     def addResults(self, other):
-        # Returns a new object
-        newLintResults = koLintResults()
         try:
             other_results = other._results
         except AttributeError:
             other_results = UnwrapObject(other)._results
-        newLintResults._results = self._results
-        newLintResults._resultMap = self._resultMap
         for result in other_results:
-            newLintResults.addResult(result)
-        return newLintResults
+            self.addResult(result)
 
     # Convenience methods (for status bar UI).
     def getNumResults(self):
