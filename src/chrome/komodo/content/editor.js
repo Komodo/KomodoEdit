@@ -429,36 +429,30 @@ editor_editorController.prototype.do_cmd_pasteHtml= function() {
     scimoz.replaceSel(html);
 }
 
+ var is_cmd_addAdditionalCaret_enabled_aux = function() {
+    var view = _getCurrentScimozView();
+    if (!view) {
+        return null;
+    }
+    var scimoz = view.scimoz;
+    if (!scimoz) {
+        return null;
+    }
+    return scimoz && scimoz.selectionMode == scimoz.SC_SEL_STREAM ? view : null;
+};
+
 editor_editorController.prototype.is_cmd_addAdditionalCaret_enabled = function() {
-    return !!_getCurrentScimozView();
+    return !!is_cmd_addAdditionalCaret_enabled_aux();
 }
 
 editor_editorController.prototype.do_cmd_addAdditionalCaret = function() {
-    var view = _getCurrentScimozView();
+    var view = is_cmd_addAdditionalCaret_enabled_aux();
     if (!view) {
         return;
     }
-    var scimoz = view.scimoz;
-    var multiCaretSession = ko.selections.getMultiCaretSession(view);
-    if (multiCaretSession.isDormant) {
-        multiCaretSession.startAddingRanges();
-        multiCaretSession.addRange(scimoz.selectionStart, scimoz.selectionEnd);
-        view.addEventListener("keypress", onKeypressInGatheringSession, true);
-    } else if (multiCaretSession.isGatheringCarets) {
-        multiCaretSession.addRange(scimoz.selectionStart, scimoz.selectionEnd);
-    }
+    ko.views.startOrContinueMultiCaretSession(view);
 }
 
-function onKeypressInGatheringSession(event) {
-    var view = event.currentTarget;
-    view.removeEventListener("keypress", onKeypressInGatheringSession, true);
-    var multiCaretSession = ko.selections.getMultiCaretSession(view);
-    if (multiCaretSession.isTypingEvent(event)) {
-        multiCaretSession.doneAddingRanges();
-    } else {
-        multiCaretSession.endSession();
-    }
-}
         
 window.controllers.appendController(new editor_editorController());
 
