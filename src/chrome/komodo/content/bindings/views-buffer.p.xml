@@ -1711,16 +1711,21 @@
             }
             if (event.button == 0 && this._hyperlink) {
                 var scintilla = this.scintilla;
+                var scimoz = this.scimoz;
                 // Bug 76721: Go to definition on Ctrl+click, but only if we
                 // aren't in the middle of a drag/drop, or have a selection, or
-                // a modified click.
+                // a modified click, or are in a multi-selection session.
                 if (scintilla.inDragDrop) {
+                    this.removeHyperlinks("mouseup");
+                    return;
+                }
+                if (ko.selections.getMultiCaretSession(this).isGatheringCarets
+                    && scimoz.selections > 1) {
                     this.removeHyperlinks("mouseup");
                     return;
                 }
                 var x = event.clientX < 0 ? 0 : event.clientX - this.scintilla.boxObject.x;
                 var y = event.clientY - this.scintilla.boxObject.y;
-                var scimoz = this.scimoz;
                 var pos = scimoz.positionFromPointClose(x, y);
                 var anchor = scimoz.anchor;
                 var currentPos = scimoz.currentPos;

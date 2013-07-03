@@ -2084,13 +2084,25 @@
             ]]>
         </handler>
         
-        <handler event="mouseup" phase="bubbling" modifiers="control">
+        <handler event="mouseup" phase="bubbling" 
+<!-- #if PLATFORM != "darwin" -->
+                modifiers="control"
+<!-- #endif -->
+                modifiers="meta"
+<!-- #else -->
+>
         <![CDATA[
-            var multiCaretSession = ko.selections.getMultiCaretSession(this);
-            if (multiCaretSession.isGatheringCarets) {
-                let scimoz = this.scimoz;
-                multiCaretSession.addRange(scimoz.selectionStart, scimoz.selectionEnd);
+            var ignoreKey = (event.shiftKey || event.altKey || 
+<!-- #if PLATFORM != "darwin" -->
+                event.metaKey
+<!-- #else -->
+                event.ctrlKey
+<!-- #endif -->
+                            );
+            if (ignoreKey) {
+                return;
             }
+            ko.views.startOrContinueMultiCaretSession(this);
         ]]>
         </handler>
 

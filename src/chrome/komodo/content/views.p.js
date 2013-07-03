@@ -2757,6 +2757,29 @@ this.addDeprecatedGetter = function(deprecatedName, namespaceName, propertyName)
         });
 };
 
+var onKeypressInGatheringSession = function onKeypressInGatheringSession(event){
+    var view = event.currentTarget;
+    view.removeEventListener("keypress", onKeypressInGatheringSession, true);
+    var multiCaretSession = ko.selections.getMultiCaretSession(view);
+    if (multiCaretSession.isTypingEvent(event)) {
+        multiCaretSession.doneAddingRanges();
+    } else {
+        multiCaretSession.endSession();
+    }
+};
+
+this.startOrContinueMultiCaretSession = function startOrContinueMultiCaretSession(view) {
+    var scimoz = view.scimoz;
+    var multiCaretSession = ko.selections.getMultiCaretSession(view);
+    if (multiCaretSession.isDormant) {
+        multiCaretSession.startAddingRanges();
+        multiCaretSession.addRange(scimoz.selectionStart, scimoz.selectionEnd);
+        view.addEventListener("keypress", onKeypressInGatheringSession, true);
+    } else if (multiCaretSession.isGatheringCarets) {
+        multiCaretSession.addRange(scimoz.selectionStart, scimoz.selectionEnd);
+    }
+};
+
 }).apply(ko.views);
 
 
