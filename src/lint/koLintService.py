@@ -42,7 +42,7 @@ import urllib2
 
 from zope.cachedescriptors.property import Lazy as LazyProperty
 from xpcom import components, nsError, ServerException, COMException
-from xpcom.server import WrapObject, UnwrapObject
+from xpcom.server import UnwrapObject
 from koLintResult import KoLintResult
 from koLintResults import koLintResults
 
@@ -279,10 +279,9 @@ class KoLintService:
         self.manager.setDaemon(True)
         self.manager.start()
 
-        self._wrapped = WrapObject(self, components.interfaces.nsIObserver)
         _observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
-        _observerSvc.addObserver(self._wrapped, 'xpcom-shutdown', 1)
+        _observerSvc.addObserver(self, 'xpcom-shutdown', 0)
 
         # dict of { 'terminals' => array of linters, 'aggregators' => array of linters }
         self._linterCIDsByLanguageName = {}
@@ -335,7 +334,7 @@ class KoLintService:
         return self._getLinterCIDByLanguageName(languageName)
         
     def observe(self, subject, topic, data):
-        #print "file status service observed %r %s %s" % (subject, topic, data)
+        #print "lint service observed %r %s %s" % (subject, topic, data)
         if topic == 'xpcom-shutdown':
             log.debug("file status got xpcom-shutdown, unloading");
             self.terminate()
