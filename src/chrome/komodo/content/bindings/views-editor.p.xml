@@ -2087,9 +2087,9 @@
         <handler event="mouseup" phase="bubbling" 
 <!-- #if PLATFORM != "darwin" -->
                 modifiers="control"
-<!-- #endif -->
-                modifiers="meta"
 <!-- #else -->
+                modifiers="meta"
+<!-- #endif -->
 >
         <![CDATA[
             var ignoreKey = (event.shiftKey || event.altKey || 
