@@ -1004,6 +1004,8 @@ def target_configure(argv):
     if sys.platform.startswith("linux"):
         # Avoid having a dependency on libstdc++
         mozBuildOptions.append('enable-stdcxx-compat')
+        # Disable gstreamer.
+        mozBuildOptions.append('disable-gstreamer')
 
     mozMakeOptions = []
     mozBuildExtensions = []
