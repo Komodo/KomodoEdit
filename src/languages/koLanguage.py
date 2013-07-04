@@ -45,6 +45,7 @@ import logging
 from pprint import pprint, pformat
 
 from xpcom import components, nsError, ServerException, COMException, _xpcom
+from xpcom.components import classes as Cc, interfaces as Ci
 import xpcom.server
 from xpcom.server import WrapObject, UnwrapObject
 from koTreeView import TreeView
@@ -962,14 +963,15 @@ class KoLanguageStatusTreeView(TreeView):
             self._tree.invalidate()
             self._tree.endUpdateBatch()
 
-    def save(self):
+    def save(self, prefs):
         if not self._wasChanged:
             return
-        langRegistry = UnwrapObject(components.classes["@activestate.com/koLanguageRegistryService;1"].getService(components.interfaces.koILanguageRegistryService))
-        prefs = components.classes["@activestate.com/koPrefService;1"].\
-                            getService(components.interfaces.koIPrefService).\
-                            prefs
+        langRegistry = UnwrapObject(Cc["@activestate.com/koLanguageRegistryService;1"]
+                                      .getService(Ci.koILanguageRegistryService))
         languageSpecificPrefs = prefs.getPref("languages")
+        if not prefs.hasPrefHere("languages"):
+            languageSpecificPrefs = languageSpecificPrefs.clone()
+            prefs.setPref("languages", languageSpecificPrefs)
         for row in self._rows:
             langName, status, origStatus = row['name'], row['status'], row['origStatus']
             if status != origStatus:
@@ -983,13 +985,12 @@ class KoLanguageStatusTreeView(TreeView):
                         createInstance(components.interfaces.koIPreferenceSet)
                     prefSet.setBooleanPref("primary", bool(status))
                     languageSpecificPrefs.setPref(languageKey, prefSet)
-        prefs.setPref("languages", languageSpecificPrefs) # bug 95660
         self.notifyObservers(None, 'primary_languages_changed', '')
 
     @components.ProxyToMainThread
     def notifyObservers(self, subject, topic, data):
-        obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                 getService(components.interfaces.nsIObserverService)
+        obsSvc = Cc["@mozilla.org/observer-service;1"]\
+                   .getService(Ci.nsIObserverService)
         obsSvc.notifyObservers(subject, topic, data)
 
     def toggleStatus(self, row_idx):

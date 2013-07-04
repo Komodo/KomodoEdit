@@ -28,7 +28,7 @@ function OnPreferencePageLoading(prefset) {
 }
 
 function OnPreferencePageOK(prefset) {
-    gLanguageStatusView.save();
+    gLanguageStatusView.save(prefset);
     return true;
 }
 

@@ -43,6 +43,7 @@
 #include "koIHierarchyItem.idl"
 
 interface ISciMoz;
+interface koIPreferenceSet;
 interface koIScintillaView;
 interface koIScintillaAutoCompleteController;
 
@@ -272,7 +273,7 @@ interface koICommenterLanguageService : koILanguageService {
 [scriptable, uuid(f49776db-ff6b-452e-93be-352dfd41c206)]
 interface koILanguageStatusTreeView : nsITreeView {
     void init();
-    void save();
+    void save(in koIPreferenceSet prefset);
     readonly attribute wstring sortColId;
     readonly attribute wstring sortDirection;
     attribute wstring filter;

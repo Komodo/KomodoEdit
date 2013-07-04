@@ -1144,8 +1144,12 @@ _Observer.prototype.observe = function(subject, topic, data)
         }
         break;
     case 'primary_languages_changed':
-        var viewAsMenupopup = document.getElementById("popup_viewAsLanguage");
-        viewAsMenupopup.removeAttribute("komodo_language_menu_already_built");
+        for (let id of ["statusbar-filetype-menu", "popup_viewAsLanguage"]) {
+            let popup = document.getElementById(id);
+            if (popup) {
+                popup.removeAttribute("komodo_language_menu_already_built");
+            }
+        }
         break;
     case 'current_project_changed':
     case 'project_opened':
