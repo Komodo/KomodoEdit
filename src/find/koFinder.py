@@ -2243,7 +2243,23 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
         # because it wasn't allowing for low-precedence operators in the
         # wrapped pattern (namely '|').  Also, it's simpler to just use '\b'
         # rather than look-not-behind for \w and lookahead for \w
-        pattern = r'\b(?:' + pattern + r')\b'
+        #
+        # Bug 96871: Even simpler: put a \b at the start of the pattern
+        # if pattern[0] isn't alphanumeric, and \b at end.  Note that
+        # this can easily break with regexes that start with
+        # '(?:X' or end with 'X)' where X is alnum
+        # Don't worry about wrapping weird pattern P as (?:P) because
+        # if they're asking for search-word, it most likely looks a
+        # lot like a word.
+        patternParts = []
+        if re.compile('\\w').match(pattern[0]):
+            patternParts.append("\\b")
+        patternParts.append("(?:")
+        patternParts.append(pattern)
+        patternParts.append(")")
+        if re.compile('\\w').match(pattern[-1]):
+            patternParts.append("\\b")
+        pattern = "".join(patternParts)
     if '$' in pattern:
         # Modifies the pattern such that the '$' anchor will match at
         # '\r\n' and '\r'-style EOLs. To do this we replace occurrences
