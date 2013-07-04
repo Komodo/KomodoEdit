@@ -476,13 +476,14 @@ class KoLanguageRegistryService:
 
         return self.__languageFromLanguageName[language]
 
-    def suggestLanguageForFile(self, basename):
+    def suggestLanguageForFile(self, basename, os_path_basename=os.path.basename):
         if self.__languageNameFromPattern is None:
             self._resetFileAssociationData()
 
         # First try to look up the language name from the file extension or
         # plain basename: faster.  We use the longest possible extension so
         # we can match things like *.django.html
+        basename = os_path_basename(basename) # want a basename, not a path
         basename = basename.lower()
         exts = basename.split(".")[1:]
         if len(exts) >= 2:
