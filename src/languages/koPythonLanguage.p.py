@@ -57,41 +57,6 @@ import sciutils
 log = logging.getLogger("koPythonLanguage")
 #log.setLevel(logging.DEBUG)
 
-#---- internal support routines
-
-def classifyws(s, tabwidth):
-    # taken from IDLE
-    # Look at the leading whitespace in s.
-    # Return pair (# of leading ws characters,
-    #              effective # of leading blanks after expanding
-    #              tabs to width tabwidth)
-    foundTabs = 0
-    raw = effective = 0
-    for ch in s:
-        if ch == ' ':
-            raw = raw + 1
-            effective = effective + 1
-        elif ch == '\t':
-            foundTabs = 1
-            raw = raw + 1
-            effective = (effective / tabwidth + 1) * tabwidth
-        else:
-            break
-    return raw, effective, foundTabs
-
-def isident(char):
-    return "a" <= char <= "z" or "A" <= char <= "Z" or char == "_"
-
-def isdigit(char):
-    return "0" <= char <= "9"
-
-def getLastLogicalLine(text):
-    lines = text.splitlines(0) or ['']
-    logicalline = lines.pop()
-    while lines and lines[-1].endswith('\\'):
-        logicalline = lines.pop()[:-1] + ' ' + logicalline
-    return logicalline
-
 
 #---- Language Service component implementations
 
