@@ -199,18 +199,22 @@ class _GenericAggregator(object):
         
     def lint_with_text(self, request, text):
         linters = self._koLintService.getTerminalLintersForLanguage(self._languageName)
-        finalLintResults = koLintResults()
+        finalLintResults = None  # Becomes the first results that has entries.
         for linter in linters:
             try:
                 newLintResults = UnwrapObject(linter).lint_with_text(request, text)
             except:
                 log.exception("lint_with_text exception")
             else:
-                if newLintResults and newLintResults.getNumResults():
-                    if finalLintResults.getNumResults():
-                        finalLintResults = finalLintResults.addResults(newLintResults)
-                    else:
-                        finalLintResults = newLintResults
+                if finalLintResults is None:
+                    finalLintResults = newLintResults
+                elif newLintResults:
+                    # Keep the lint results that has the most entries, then copy
+                    # the other result with lesser entries into it.
+                    if newLintResults.getNumResults() > finalLintResults.getNumResults():
+                        # Swap them around, so final has the most entries.
+                        finalLintResults, newLintResults = newLintResults, finalLintResults
+                    finalLintResults.addResults(newLintResults)
         return finalLintResults
 
     
