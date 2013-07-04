@@ -95,9 +95,18 @@
         <property name="commandId"
                   onget="return this.getAttribute('commandId');"
                   onset="this.setAttribute('commandId',val);"/>
-        <property name="commandParam"
-                  onget="return this.getAttribute('commandParam');"
-                  onset="this.setAttribute('commandParam',val);"/>
+        <property name="commandParam">
+            <getter>
+                return this.getAttribute('commandParam');
+            </getter>
+            <setter>
+                if (val) {
+                    this.setAttribute('commandParam', val);
+                } else {
+                    this.removeAttribute('commandParam');
+                }
+            </setter>
+        </property>
         <constructor>
             <![CDATA[
                 this.part = null; // If set, then changes to the bindings will
