@@ -242,6 +242,7 @@ class CPlusPlusLangInfo(LangInfo):
     exts = [
               ".c++", ".cpp", ".cxx",
         ".h", ".h++", ".hpp", ".hxx",
+        ".inl", # Inline C++ files.
         ".xs",  # Perl extension modules. *Are* they legal C++?
     ]
 
