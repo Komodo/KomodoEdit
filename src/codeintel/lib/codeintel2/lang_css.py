@@ -545,21 +545,21 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                         if DEBUG:
                             print " _trg_from_pos: space => property-values"
                         return Trigger("CSS", TRG_FORM_CPLN, "property-values",
-                                       pos, implicit, extra={"ac": ac})
+                                       pos, implicit)
                     elif styleClassifier.is_tag(last_style, ac):
                         if DEBUG:
                             print " _trg_from_pos: space => tag-names"
                         return Trigger("CSS", TRG_FORM_CPLN, "tag-names",
-                               pos, implicit, extra={"ac": ac})
+                               pos, implicit)
                     elif styleClassifier.is_identifier(last_style, ac):
                         if DEBUG:
                             print " _trg_from_pos: space => property-names"
                         return Trigger("CSS", TRG_FORM_CPLN, "property-names",
-                               pos, implicit, extra={"ac": ac})
+                               pos, implicit)
                 if DEBUG:
                     print " _trg_from_pos: couldn't resolve space, settling on property-names"
                 return Trigger("CSS", TRG_FORM_CPLN, "property-values",
-                                   pos, implicit, extra={"ac": ac})
+                                   pos, implicit)
 
             elif styleClassifier.is_operator(last_style, ac):
                 # anchors
@@ -567,7 +567,7 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                     print "  _trg_from_pos:: OPERATOR style"
                 if last_char == '#':
                     return Trigger("CSS", TRG_FORM_CPLN, "anchors",
-                                   pos, implicit, extra={"ac": ac})
+                                   pos, implicit)
 
                 elif last_char == ':':
                     try:
@@ -585,17 +585,17 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                     #   styleClassifier.is_class(style, ac):
                         # complete for pseudo-class-names
                         return Trigger("CSS", TRG_FORM_CPLN, "pseudo-class-names",
-                                       pos, implicit, extra={"ac": ac})
+                                       pos, implicit)
                     else:
                     #if styleClassifier.is_identifier(style, ac):
                         # calltip for property-values
                         return Trigger("CSS", TRG_FORM_CALLTIP, "property-values",
-                                       pos, implicit, extra={"ac": ac})
+                                       pos, implicit)
 
                 # class-names
                 elif last_char == '.':
                     return Trigger("CSS", TRG_FORM_CPLN, "class-names",
-                                   pos, implicit, extra={"ac": ac})
+                                   pos, implicit)
 
                 # at-rule
                 elif last_char == '@':
@@ -603,7 +603,7 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                     # XXX - Should check not beyond first rule set
                     #     - Should check not within a rule block.
                     return Trigger("CSS", TRG_FORM_CPLN, "at-rule",
-                                   pos, implicit, extra={"ac": ac})
+                                   pos, implicit)
 
                 elif last_char == '/':
                     try:
@@ -639,7 +639,7 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                 except IndexError:
                     p = 0
                 return Trigger("CSS", TRG_FORM_CPLN, "tag-names",
-                               p, implicit, extra={"ac": ac})
+                               p, implicit)
 
             elif styleClassifier.is_identifier(last_style, ac):
                 if DEBUG:
@@ -667,7 +667,7 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                     except IndexError:
                         break
                 return Trigger("CSS", TRG_FORM_CPLN, "property-names",
-                               pos+1, implicit, extentLength=extentLength, extra={"ac": ac})
+                               pos+1, implicit, extentLength=extentLength)
 
             elif styleClassifier.is_value(last_style, ac):
                 p, ch, style = ac.getPrevPosCharStyle(ignore_styles=styleClassifier.comment_styles)
@@ -683,7 +683,7 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                 #       in straight CSS.
                 if last_char in WHITESPACE:
                     return Trigger("CSS", TRG_FORM_CPLN, "property-values",
-                                   last_pos+1, implicit, extra={"ac": ac})
+                                   last_pos+1, implicit)
                 elif ch in WHITESPACE or ch in ":,%)":
                     # Check to ensure this is not a pseudo-class! Bug:
                     #   http://bugs.activestate.com/show_bug.cgi?id=71073
@@ -701,7 +701,7 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                                 print "pseudo-class style found, no trigger."
                             return None
                     return Trigger("CSS", TRG_FORM_CPLN, "property-values",
-                                   p+1, implicit, extra={"ac": ac})
+                                   p+1, implicit)
                 # For explicit, we can also be inside a property already
                 if not implicit and isident(ch):
                     # If there is already part of a value there, we need to move
@@ -709,7 +709,7 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                     while isident(ch):
                         p, ch, style = ac.getPrevPosCharStyle()
                     return Trigger("CSS", TRG_FORM_CPLN, "property-values",
-                                   p+1, implicit, extra={"ac": ac})
+                                   p+1, implicit)
                 return None
 
             elif DEBUG:
@@ -750,9 +750,6 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
         # be blocked on this. If processing might be slow (e.g. scanning
         # a number of project files for appropriate anchors, etc.), then
         # this should be made asynchronous.
-        if _xpcom_:
-            trg = UnwrapObject(trg)
-            ctlr = UnwrapObject(ctlr)
         DEBUG = DebugStatus
         #DEBUG = True
         if DEBUG:
