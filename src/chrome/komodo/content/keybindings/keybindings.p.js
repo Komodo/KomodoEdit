@@ -321,6 +321,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 36: Komodo 8.5.0b2 - add Ctrl+K, Ctrl+Y for cmd_addAdditionalCaret
  * 34: Komodo 8.0.0a1 - add Ctrl+K, Ctrl+R for reloadBrowserPreview.
  * 33: Komodo 7.0.1 - drop Cmd++ for cmd_fontZoomIn, still conflicts with cmd_replace
  * 32: Komodo 7.0.0b2 - remove Cmd+= for font zoom, conflicts with cmd_replace.
@@ -356,7 +357,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 35;
+const currentKeybindingVersionNumber = 37;
 
 /**
  * Remove this dictionary of keybinds.
@@ -890,6 +891,11 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
                 }); 
 // #endif
             }
+            break;
+        case 36:
+            this._add_keybinding_sequences({
+                    'cmd_addAdditionalCaret': ["Ctrl+K, Ctrl+Y"],
+                });
             break;        
         }
         from_version += 1;

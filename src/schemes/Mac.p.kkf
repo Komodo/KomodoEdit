@@ -1,4 +1,4 @@
-version 35
+version 37
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -168,3 +168,5 @@ binding cmd_goToFile Meta+Shift+O
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
 binding cmd_invokeTool Meta+Shift+K
+
+binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y

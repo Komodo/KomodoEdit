@@ -1,4 +1,4 @@
-version 35
+version 37
 
 # Movement and selection
 binding cmd_left  Left
@@ -200,3 +200,5 @@ binding cmd_goToFile Ctrl+Shift+O
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
 binding cmd_invokeTool Ctrl+Shift+K
+
+binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y

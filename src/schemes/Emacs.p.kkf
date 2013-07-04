@@ -1,4 +1,4 @@
-version 35
+version 37
 
 # Needs a few things to be finished
 #  - ?? insert forward tab / insert backward tab
@@ -229,3 +229,5 @@ binding cmd_goToFile Ctrl+Shift+O
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
 binding cmd_invokeTool Ctrl+Shift+K
+
+binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y
