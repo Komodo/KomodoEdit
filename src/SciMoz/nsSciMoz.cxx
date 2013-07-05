@@ -158,7 +158,7 @@ void SciMoz::SciMozInit() {
     bracesSloppy = true;
 
     // There is no cached text to start with.
-    _cachedText.SetIsVoid(TRUE);
+    _textHasChanged = true;
 
     PlatformNew();
 }
@@ -437,7 +437,7 @@ void SciMoz::Notify(long lParam) {
 			bool isInsertOrDeleteText = notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT);
 			if (isInsertOrDeleteText) {
 				// Buffer has changed, reset the text cache.
-				_cachedText.SetIsVoid(TRUE);
+				_textHasChanged = true;
 			}
 
 			nsAutoString uString;
@@ -1233,7 +1233,18 @@ NS_IMETHODIMP SciMoz::SetModEventMask(PRInt32 mask)
 	SendEditor(SCI_SETMODEVENTMASK, mask, 0);
 
 	// Void the cached text - see bug 85194 for why.
-	_cachedText.SetIsVoid(PR_TRUE);
+	_textHasChanged = true;
+	return NS_OK;
+}
+
+/* readonly attribute boolean textHasChanged; */
+NS_IMETHODIMP SciMoz::GetTextHasChanged(bool *hasChanged)
+{
+	SCIMOZ_CHECK_VALID("GetTextHasChanged");
+#ifdef SCIMOZ_DEBUG
+	fprintf(stderr,"SciMoz::GetTextHasChanged\n");
+#endif
+	*hasChanged = _textHasChanged;
 	return NS_OK;
 }
 
@@ -1249,12 +1260,8 @@ NS_IMETHODIMP SciMoz::GetText(nsAString &text)
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::GetText\n");
 #endif
-	if (!_cachedText.IsVoid()) {
-		text = _cachedText;
-		return NS_OK;
-	}
-	GetTextRange(0, -1, _cachedText);
-	text = _cachedText;
+	GetTextRange(0, -1, text);
+	_textHasChanged = false;
 	return NS_OK;
 }
 

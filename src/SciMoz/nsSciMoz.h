@@ -274,7 +274,7 @@ class SciMoz : public ISciMoz,
 {
 private:
     // Used to cache the "text" property - resets when the buffer changes.
-    nsString _cachedText;
+    bool _textHasChanged;
     
     // brace match support
     long bracesStyle;

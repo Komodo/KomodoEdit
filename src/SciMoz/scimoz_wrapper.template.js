@@ -43,6 +43,8 @@ koSciMozWrapper.prototype = {
            Ci.nsIClassInfo.EAGER_CLASSINFO,
 
     __scimoz: null,
+
+    __cachedText: null,
 };
 
 __ISCIMOZ_JS_WRAPPER_GEN__
@@ -59,6 +61,16 @@ koSciMozWrapper.prototype.setWordChars =
         this._log.deprecated('scimoz.setWordChars() is deprecated, use scimoz.wordChars = "abc" instead');
         this.wordChars = aCharacters;
     };
+
+// Override text to use locally cached text (for performance). Only reload the
+// text when it's out-dated.
+koSciMozWrapper.prototype.__defineGetter__("text", function get_text() {
+    if (this.__scimoz.textHasChanged) {
+        this.__cachedText = this.__scimoz.text;
+    }
+    return this.__cachedText;
+});
+
 
 XPCOMUtils.defineLazyGetter(koSciMozWrapper.prototype, "_log", function() {
     return Cu.import("chrome://komodo/content/library/logging.js", {})

@@ -52,7 +52,7 @@ manualGetterProperties = {
             if (gettext.IsVoid()) {
                 NULL_TO_NPVARIANT(*result);
             } else {
-                NS_ConvertUTF16toUTF8 cachedTextUtf8(_cachedText);
+                NS_ConvertUTF16toUTF8 cachedTextUtf8(gettext);
                 NPUTF8 *p = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(cachedTextUtf8.Length()));
                 if (!p) {
                     return false;
@@ -62,6 +62,15 @@ manualGetterProperties = {
             }
             return true;
             """
+    },
+    "textHasChanged": {
+        "ReturnType": "bool",
+        "code": """
+            bool myresult;
+            GetTextHasChanged(&myresult);
+            BOOLEAN_TO_NPVARIANT(myresult, *result);
+            return true;
+            """,
     },
     "selText": {
         "ReturnType": "string",
