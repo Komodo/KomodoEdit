@@ -274,33 +274,16 @@ class koDocumentSettingsManager:
         if prefs.hasPrefHere('tabWidth'):
             prefs.setLongPref('tabWidth', scimoz.tabWidth)
 
-        lineCount = scimoz.lineCount;
-        i = 0
-        foldedLines = {}
-        # Do a quick check to see if any lines are folded - as most of the time
-        # there will be zero folded lines.
-        # FUTURE: This can later use "if not scimoz.allLinesVisible:".
-        effectivePrefs = self.koDoc.getEffectivePrefs()
-        if effectivePrefs.getBooleanPref("editRestoreFoldPoints") and \
-           scimoz.visibleFromDocLine(lineCount) != lineCount:
-            # TODO: Perf: This could be optimized using a bisect approach, using
-            #       visibleFromDocLine to find where the folded lines are. Even
-            #       better to create a SciMoz specific method to return the
-            #       folded lines (as a string, like "3,11,33,39,101,105").
-            for i in range(lineCount):
-                if not scimoz.getLineVisible(i):
-                    foldParent = scimoz.getFoldParent(i)
-                    if (not scimoz.getFoldExpanded(foldParent) and 
-                        foldParent not in foldedLines):
-                        foldedLines[foldParent] = 1
-        if foldedLines:
-            foldPoints = components.classes[
-                '@activestate.com/koOrderedPreference;1'].createInstance()
-            foldPoints.id = "foldPoints"
-            foldPoints.reset()
-            for lineNo in foldedLines:
-                foldPoints.appendLongPref(lineNo)
-            prefs.setPref("foldPoints", foldPoints)
+        if prefs.getBooleanPref("editRestoreFoldPoints"):
+            i = scimoz.contractedFoldNext(0)
+            if i >= 0:
+                foldPoints = components.classes[
+                    '@activestate.com/koOrderedPreference;1'].createInstance()
+                foldPoints.id = "foldPoints"
+                while i != -1:
+                    foldPoints.appendLongPref(i)
+                    i = scimoz.contractedFoldNext(i+1)
+                prefs.setPref("foldPoints", foldPoints)
         else:
             # we don't want to store foldpoints if there are none
             # reloading them is expensive.
