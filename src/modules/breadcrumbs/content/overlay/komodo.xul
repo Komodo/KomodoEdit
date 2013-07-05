@@ -8,7 +8,7 @@
   %komodoDTD;
 ]>
 
-<?xml-stylesheet href="chrome://breadcrumbs/skin/breadcrumbs.less" type="stylesheet/less" media="less"?>
+<?xml-stylesheet href="less://breadcrumbs/skin/breadcrumbs.less" type="text/css"?>
  
 <overlay id="breadcrumbsOverlay"
          xmlns:html="http://www.w3.org/1999/xhtml"

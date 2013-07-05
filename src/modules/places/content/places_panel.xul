@@ -10,9 +10,8 @@
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/sidebar.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo-places/skin/places.less" type="stylesheet/less" media="less"?>
+<?xml-stylesheet href="less://komodo-places/skin/places.less" type="text/css" ?>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <vbox flex="1" id="placesViewbox_placesWrapper">
@@ -784,8 +783,6 @@
           type="application/x-javascript"/>
   <script src="chrome://komodo-places/content/placeController.js"
           type="application/x-javascript"/>
-  <script src="chrome://komodo/content/library/less_loader.js"
-		  type="application/x-javascript"/>
   <script type="application/x-javascript">
   <![CDATA[
   window.addEventListener("workspace_restored", ko.places.onLoad, false);

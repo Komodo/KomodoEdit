@@ -19,8 +19,6 @@ if (ko.skin == undefined)
     };
 }
 
-var _lessClearCache = undefined;
-
 (function() {
 
     const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
@@ -267,45 +265,15 @@ var _lessClearCache = undefined;
             
             try
             {
-                // Flush image caches first to ensure that if we end up
-                // switching skins, we get the new images
-                let observers = Services.obs.enumerateObservers("chrome-flush-caches");
-                while (observers.hasMoreElements())
-                {
-                    let observer = observers.getNext();
-                    if (observer instanceof Ci.imgICache)
-                    {
-                        observer.clearCache(true /*chrome*/);
-                    }
-                }
+                // Reload Stylesheets
+                var koLess = Cu.import("chrome://komodo/content/library/less.js").koLess;
+                koLess.reload();
 
-                Services.obs.notifyObservers(null, "chrome-flush-caches", null);
-                
-                // Clear less cache
-                if ("less" in ko && "initialized" in ko.less)
-                {
-                    var clearLessCache = function()
-                    {
-                        if ( ! ko.less.initialized)
-                        {
-                            // Need to account for the use-case where the
-                            // initialization may still be in progress
-                            setTimeout(clearLessCache, 50);
-                            return;
-                        }
-                        
-                        ko.less.reload(true);
-                    }
-                    clearLessCache();
-                    
-                    return;
-                }
             }
             catch (e) {
                 log.error(e.message);
             }
             
-            _lessClearCache = true;
         },
 
         _getFile: function(uri)

@@ -1,34 +1,27 @@
 --- smallstuff/less.js  1.3.3
 +++ smallstuff/less.js  trunk
-@@ -1,3 +1,7 @@
+@@ -1,3 +1,11 @@
++var window = {};
++var EXPORTED_SYMBOLS = [];
++
 +window.less = {};
++less = window.less;
 +
 +(function() {
 +
  //
  // LESS - Leaner CSS v1.3.3
  // http://lesscss.org
-@@ -223,6 +227,19 @@
+@@ -223,6 +231,8 @@
              var that = this;
              this.queue.push(path);
  
-+            var pId = env.sheet.href;
-+            var id  = path;
++            koLess.addToHierarchy(path, env.sheet.href);
 +            
-+            if (typeof ko.less.hierarchy.parents[id] == 'undefined') {
-+                ko.less.hierarchy.parents[id] = {};
-+            }
-+            if (typeof ko.less.hierarchy.children[pId] == 'undefined') {
-+                ko.less.hierarchy.children[pId] = {};
-+            }
-+            
-+            ko.less.hierarchy.parents[id][pId] = true;
-+            ko.less.hierarchy.children[pId][id] = true;
-+
              //
              // Import a file asynchronously
              //
-@@ -353,9 +370,9 @@
+@@ -353,9 +363,9 @@
  
      function getInput(e, env) {
          if (e.filename && env.filename && (e.filename !== env.filename)) {
@@ -40,16 +33,25 @@
          }
      }
  
-@@ -1636,7 +1653,7 @@
+@@ -1636,7 +1646,7 @@
          // We pass `true` as 3rd argument, to force the reload of the import.
          // This is so we can get the syntax tree as opposed to just the CSS output,
          // as we need this to evaluate the current stylesheet.
 -        loadStyleSheet({ 
-+        ko.less.loadSheet({
++        koLess.loadSheet({
              href: path, 
              title: path, 
              type: env.mime, 
-@@ -3239,8 +3256,11 @@
+@@ -1651,7 +1661,7 @@
+             } else {
+                 callback.call(null, e, root, path);
+             }
+-        }, true);
++        });
+     };
+ }
+ 
+@@ -3239,8 +3249,11 @@
  tree.Rule.prototype.toCSS = function (env) {
      if (this.variable) { return "" }
      else {
@@ -62,7 +64,7 @@
                 this.important + (this.inline ? "" : ";");
      }
  };
-@@ -3828,6 +3848,7 @@
+@@ -3828,6 +3841,7 @@
              }
          })) { 
              this.evaluating = false;
@@ -70,7 +72,33 @@
              return variable;
          }
          else {
-@@ -3952,31 +3973,12 @@
+@@ -3889,14 +3903,9 @@
+ // browser.js - client-side engine
+ //
+ 
+-var isFileProtocol = /^(file|chrome(-extension)?|resource|qrc|app):/.test(location.protocol);
++var isFileProtocol = true;
+ 
+-less.env = less.env || (location.hostname == '127.0.0.1' ||
+-                        location.hostname == '0.0.0.0'   ||
+-                        location.hostname == 'localhost' ||
+-                        location.port.length > 0         ||
+-                        isFileProtocol                   ? 'development'
+-                                                         : 'production');
++less.env = 'production'; // 'development'
+ 
+ // Load styles asynchronously (default: false)
+ //
+@@ -3917,7 +3926,7 @@
+    }
+ }
+ 
+-var dumpLineNumbers = /!dumpLineNumbers:(comments|mediaquery|all)/.exec(location.hash);
++var dumpLineNumbers = false;
+ if (dumpLineNumbers) {
+     less.dumpLineNumbers = dumpLineNumbers[1];
+ }
+@@ -3952,10 +3961,6 @@
  	}
  }
  
@@ -81,12 +109,10 @@
  var cache = null;
  
  if (less.env != 'development') {
-     try {
-         cache = (typeof(window.localStorage) === 'undefined') ? null : window.localStorage;
-     } catch (_) {}
--}
--
--//
+@@ -3965,21 +3970,6 @@
+ }
+ 
+ //
 -// Get all <link> tags with the 'rel' attribute set to "stylesheet/less"
 -//
 -var links = document.getElementsByTagName('link');
@@ -99,24 +125,25 @@
 -       (links[i].type.match(typePattern)))) {
 -        less.sheets.push(links[i]);
 -    }
- }
- 
- //
-@@ -4014,8 +4016,6 @@
-     loadStyles();
- };
- less.refreshStyles = loadStyles;
--
--less.refresh(less.env === 'development');
- 
- function loadStyles() {
-     var styles = document.getElementsByTagName('style');
-@@ -4112,83 +4112,6 @@
-     returner.fileUrl = returner.path + (urlParts[4] || "");
-     returner.url = returner.fileUrl + (urlParts[5] || "");
-     return returner;
 -}
 -
+-//
+ // With this function, it's possible to alter variables and re-render
+ // CSS without reloading less-files
+ //
+@@ -4015,8 +4005,6 @@
+ };
+ less.refreshStyles = loadStyles;
+ 
+-less.refresh(less.env === 'development');
+-
+ function loadStyles() {
+     var styles = document.getElementsByTagName('style');
+     for (var i = 0; i < styles.length; i++) {
+@@ -4114,83 +4102,6 @@
+     return returner;
+ }
+ 
 -function loadStyleSheet(sheet, callback, reload, remaining) {
 -    // sheet may be set to the stylesheet for the initial load or a collection of properties including
 -    // some env variables for imports
@@ -192,19 +219,14 @@
 -    }, function (status, url) {
 -        throw new(Error)("Couldn't load " + url + " (" + status + ")");
 -    });
- }
- 
+-}
+-
  function extractId(href) {
-@@ -4411,3 +4334,12 @@
+     return href.replace(/^[a-z]+:\/\/?[^\/]+/, '' )  // Remove protocol & domain
+                .replace(/^\//,                 '' )  // Remove root /
+@@ -4411,3 +4322,5 @@
      define("less", [], function () { return less; } );
  }
  })(window);
-+
-+// Fire window event indicating this lib has been loaded
-+// allowing ko.less to kick itself off
-+window.less.initialized = true;
-+var evt = document.createEvent("Event");
-+evt.initEvent("lessLoaded",true,true);
-+window.dispatchEvent(evt);
 +
 +}).call();

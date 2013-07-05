@@ -8,8 +8,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
-<?xml-stylesheet href="chrome://openfiles/skin/openfiles.less" type="stylesheet/less" media="less"?>
-<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
+<?xml-stylesheet href="less://openfiles/skin/openfiles.less" type="text/css" ?>
  
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <vbox flex="1" id="openfilesWrapper">
@@ -283,8 +282,6 @@
     </commandset>
   
     <script src="chrome://openfiles/content/openfiles.js"
-            type="application/x-javascript"/>
-    <script src="chrome://komodo/content/library/less_loader.js"
             type="application/x-javascript"/>
  
 </page>

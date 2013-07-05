@@ -1,4 +1,8 @@
+var window = {};
+var EXPORTED_SYMBOLS = [];
+
 window.less = {};
+less = window.less;
 
 (function() {
 
@@ -227,19 +231,8 @@ less.Parser = function Parser(env) {
             var that = this;
             this.queue.push(path);
 
-            var pId = env.sheet.href;
-            var id  = path;
+            koLess.addToHierarchy(path, env.sheet.href);
             
-            if (typeof ko.less.hierarchy.parents[id] == 'undefined') {
-                ko.less.hierarchy.parents[id] = {};
-            }
-            if (typeof ko.less.hierarchy.children[pId] == 'undefined') {
-                ko.less.hierarchy.children[pId] = {};
-            }
-            
-            ko.less.hierarchy.parents[id][pId] = true;
-            ko.less.hierarchy.children[pId][id] = true;
-
             //
             // Import a file asynchronously
             //
@@ -1653,7 +1646,7 @@ if (less.mode === 'browser' || less.mode === 'rhino') {
         // We pass `true` as 3rd argument, to force the reload of the import.
         // This is so we can get the syntax tree as opposed to just the CSS output,
         // as we need this to evaluate the current stylesheet.
-        ko.less.loadSheet({
+        koLess.loadSheet({
             href: path, 
             title: path, 
             type: env.mime, 
@@ -1668,7 +1661,7 @@ if (less.mode === 'browser' || less.mode === 'rhino') {
             } else {
                 callback.call(null, e, root, path);
             }
-        }, true);
+        });
     };
 }
 
@@ -3910,14 +3903,9 @@ tree.jsify = function (obj) {
 // browser.js - client-side engine
 //
 
-var isFileProtocol = /^(file|chrome(-extension)?|resource|qrc|app):/.test(location.protocol);
+var isFileProtocol = true;
 
-less.env = less.env || (location.hostname == '127.0.0.1' ||
-                        location.hostname == '0.0.0.0'   ||
-                        location.hostname == 'localhost' ||
-                        location.port.length > 0         ||
-                        isFileProtocol                   ? 'development'
-                                                         : 'production');
+less.env = 'production'; // 'development'
 
 // Load styles asynchronously (default: false)
 //
@@ -3938,7 +3926,7 @@ if (less.functions) {
    }
 }
 
-var dumpLineNumbers = /!dumpLineNumbers:(comments|mediaquery|all)/.exec(location.hash);
+var dumpLineNumbers = false;
 if (dumpLineNumbers) {
     less.dumpLineNumbers = dumpLineNumbers[1];
 }
@@ -4334,12 +4322,5 @@ if (typeof define === "function" && define.amd) {
     define("less", [], function () { return less; } );
 }
 })(window);
-
-// Fire window event indicating this lib has been loaded
-// allowing ko.less to kick itself off
-window.less.initialized = true;
-var evt = document.createEvent("Event");
-evt.initEvent("lessLoaded",true,true);
-window.dispatchEvent(evt);
 
 }).call();

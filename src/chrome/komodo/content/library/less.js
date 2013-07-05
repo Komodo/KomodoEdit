@@ -4,20 +4,15 @@
  
 /* Komodo Less Parsing
  *
- * Defines the "ko.less" namespace.
+ * Defines the "koLess" namespace.
  */
-if (typeof ko == 'undefined')
-{
-    var ko = {};
-}
 
-if ( ! ("less" in ko))
+var EXPORTED_SYMBOLS = ["koLess"];
+
+var koLess = function koLess()
 {
-    ko.less = function()
-    {
-        this.init();
-    };
-}
+    this.init();
+};
 
 (function() {
     
@@ -29,42 +24,36 @@ if ( ! ("less" in ko))
     const { FileUtils }     =   Cu.import("resource://gre/modules/FileUtils.jsm", {});
     const { NetUtil }       =   Cu.import("resource://gre/modules/NetUtil.jsm", {});
     const { logging }       =   Cu.import("chrome://komodo/content/library/logging.js", {});
-    
+    const Timer             =   Cu.import("resource://gre/modules/Timer.jsm", {});
+
     const nsIChromeReg      =   Cc['@mozilla.org/chrome/chrome-registry;1']
                                     .getService(Ci["nsIChromeRegistry"]);
     const nsIFilePh         =   Services.io.getProtocolHandler("file")
                                     .QueryInterface(Ci.nsIFileProtocolHandler);
+
+    const prefs             =   Cc['@activestate.com/koPrefService;1']
+                                .getService(Ci.koIPrefService).prefs;
     
-    ko.less.prototype =
+    koLess.prototype =
     {
         
-        sheets: {},
+        localCache: {getFile: {}, resolveFile: {}, resolveYoungestChild: {}, sheetPaths: []},
         hierarchy: null,
-        
-        localCache: {getFile: {}, resolveFile: {}, resolveYoungestChild: {}, sheetPaths: {}},
-        
-        initialized: false,
-        timer: Date.now(),
-        
-        /**
-         * Initialize library
-         * 
-         * @returns {Void} 
-         */
-        init: function ko_less_init() 
+
+        init: function()
         {
             self = this;
 
-            log = logging.getLogger('ko.less');
-            //log.setLevel(ko.logging.LOG_DEBUG);
-            
-            this.debug('Initializing ko.less');
-            
+            log = logging.getLogger('koLess');
+            //log.setLevel(10); // debug
+
+            this.debug('Initializing koLess');
+
             // Load cache hierarchy (if available)
             if (this.hierarchy === null)
             {
                 var hierarchyCache = this.cache.getFile('hierarchy.json');
-                
+
                 if (hierarchyCache.exists())
                 {
                     // No need to wrap this part in a try/catch, readFile takes care of that
@@ -81,7 +70,7 @@ if ( ! ("less" in ko))
                             this.cache.clear();
                             this.error(e.message);
                         }
-                        
+
                         this.init();
                     }.bind(this));
                     return;
@@ -91,174 +80,78 @@ if ( ! ("less" in ko))
                     this.hierarchy = {parents: {}, children: {}};
                 }
             }
-            
-            this.initialized = true;
 
             // Clear the less cache if Komodo has been up/down-graded
             // or if an external lib (eg. ko.skin) has told us to
-            var cacheVersion    = ko.prefs.getString('lessCacheVersion', '');
-            var platVersion     = Services.prefs.getCharPref("extensions.lastPlatformVersion");
-            if (typeof _lessClearCache != 'undefined' || cacheVersion != platVersion)
+            var cacheVersion = prefs.getString('lessCacheVersion', '');
+            var infoSvc = Cc["@activestate.com/koInfoService;1"].getService(Ci.koIInfoService);
+            var platVersion = infoSvc.buildPlatform + infoSvc.buildNumber;
+            if (cacheVersion != platVersion)
             {
-                ko.prefs.setStringPref('lessCacheVersion', platVersion);
+                prefs.setStringPref('lessCacheVersion', platVersion);
                 this.cache.clear();
             }
 
-            // Let the less loaders know wer're ready
-            xtk.domutils.fireEvent(window, 'ko.less.initialized');
-            
-            this.load();
         },
-        
+
         /**
          * Reload stylesheets in current window
          *
-         * @param {Boolean} full    Whether to clear the file and local cache
-         * 
-         * @returns {Void} 
+         * @returns {Void}
          */
-        reload: function ko_less_reload(full = false)
+        reload: function()
         {
-            this.debug('Reloading known stylesheets');
-            this.timer = Date.now();
-            
-            if (full)
-            {
-                this.cache.clear();
-            }
-            
-            for (let href in this.sheets)
-            {
-                if ( ! this.sheets.hasOwnProperty(href))
-                {
-                    continue;
-                }
-                
-                // Only load the first sheet, then iterate through duplicates
-                // and use results from the first one to load them
-                this.loadSheet(this.sheets[href][0].get(), false, true);
-            }
-        },
-        
-        /**
-         * Load up stylesheets for the current window
-         * 
-         * @returns {Void} 
-         */
-        load: function ko_less_load(_window = window)
-        {
-            this.debug('Loading ' + _window.location.href);
-            this.loadSheets(_window);
-        },
-        
-        /**
-         * Load current windows less stylesheets
-         * 
-         * @returns {Void} 
-         */
-        loadSheets: function ko_less_loadSheets(_window = window)
-        {
-            var childNodes = Array.slice(_window.document.childNodes);
-            var attrMatch = /([a-z]*)=("|')([a-z0-9:/_.-]*)\2/.source;
-            var sheetHrefs = [];
-            
-            for (let [i, child] in Iterator(childNodes))
-            {
-                // Parse stylesheet attributes from nodeValue
-                if (child.nodeName != 'xml-stylesheet' ||
-                    ! child.nodeValue.match(/type=('|")stylesheet\/less\1/))
-                {
-                    continue;
-                }
-                
-                var re = new RegExp(attrMatch, "gi"), match;
-                while ((match = re.exec(child.nodeValue)))
-                {
-                    child[match[1]] = match[3];
-                }
-                
-                if ( ! (child.href in this.sheets))
-                {
-                    this.sheets[child.href] = [];
-                }
-                
-                if ( ! ("_isLoaded" in child))
-                {
-                    this.sheets[child.href].push(Cu.getWeakReference(child));
-                    child._isLoaded = true;
-                }
+           this.cache.clear();
 
-                sheetHrefs.push(child.href);
-                
-                this.loadSheet(child);
+            let observers = Services.obs.enumerateObservers("chrome-flush-caches");
+            while (observers.hasMoreElements())
+            {
+                let observer = observers.getNext();
+                if (observer instanceof Ci.imgICache)
+                {
+                    observer.clearCache(true /*chrome*/);
+                }
             }
+            Services.obs.notifyObservers(null, "chrome-flush-caches", null);
 
-
-            this.cleanupReferences(sheetHrefs);
+            Cc["@mozilla.org/chrome/chrome-registry;1"]
+              .getService(Ci.nsIXULChromeRegistry)
+              .refreshSkins();
         },
-        
+
         /**
          * Load a specific stylesheet
-         * 
+         *
          * @param   {Element}       sheet           xml-stylesheet element
          * @param   {Function}      callback        If no callback is provided
          *                                          this will be considered an
          *                                          internal call, and the results
          *                                          will be injected into the DOM
-         * @paran   {Boolean}       loadDuplicates  If true, loads all sheets
-         *                                          with the same url in other
-         *                                          windows
-         * 
-         * @returns {Void} 
+         * @param   {Boolean}       isInternalCall  Whether the loadSheet is called
+         *                                          internally or from the compiler
+         *
+         * @returns {Void}
          */
-        loadSheet: function ko_less_loadSheet(sheet, callback = false, loadDuplicates = false)
+        loadSheet: function koLess_loadSheet(sheet, callback = function() {}, isInternalCall = false)
         {
-            var isInternalCall = typeof callback != "function";
-            
             if (isInternalCall)
             {
-                // Check if we can load the sheet via the localCache
-                if (sheet.href in this.localCache.sheetPaths)
-                {
-                    this.debug('Loading from local cache: ' + sheet.href);
-                    
-                    var loadHref = this.localCache.sheetPaths[sheet.href];
-                    this.injectSheet(loadHref, sheet);
-                    
-                    if (loadDuplicates)
-                    {
-                        this._loadDupeSheets(sheet, loadHref);
-                    }
-                    
-                    return;
-                }
-                
                 // Check if we can load the sheet via the file cache
                 var cacheFile = this.cache.getFile(sheet.href);
                 if (cacheFile && cacheFile.exists())
                 {
-                    var youngest = this.resolveYoungestChild(sheet.href);
-                    
-                    if (youngest && youngest.file.lastModifiedTime < cacheFile.lastModifiedTime)
+                    if (this.localCache.sheetPaths.indexOf(sheet.href) !== -1 ||
+                        ((youngest = this.resolveYoungestChild(sheet.href)) &&
+                         youngest.file.lastModifiedTime < cacheFile.lastModifiedTime))
                     {
-                        this.debug('Loading from file cache: ' + sheet.href);
-                        
-                        var cacheUri = NetUtil.newURI(cacheFile).spec;
-                        this.localCache.sheetPaths[sheet.href] = cacheUri;
-                        this.injectSheet(cacheUri, sheet);
-                        
-                        if (loadDuplicates)
-                        {
-                            this._loadDupeSheets(sheet, cacheUri);
-                        }
-                        
+                        callback(cacheFile)
                         return;
                     }
                 }
+               
+                this.debug('Loading new version: ' + sheet.href);
             }
-            
-            this.debug('Loading new version: ' + sheet.href);
-            
+
             // Grab the contents of the stylesheet
             this.readFile(sheet.href, function(data)
             {
@@ -277,7 +170,7 @@ if ( ! ("less" in ko))
                         var bogus = { local: false, lastModified: null, remaining: 0 };
                         callback(e, root, data, sheet, bogus, sheet.href);
                     }
-                    else // Otherwise it's an internal (ko.less) call
+                    else // Otherwise it's an internal (koLess) call
                     {
                         try
                         {
@@ -299,20 +192,17 @@ if ( ! ("less" in ko))
                         try
                         {
                             var cacheFile = this.cache.writeFile(sheet.href, parsedCss, true);
-                            var cacheUri = NetUtil.newURI(cacheFile).spec;
+                            this.localCache.sheetPaths.push(sheet.href);
                         }
                         catch (e)
                         {
                             return this.exception(e, 'Error creating cache for ' + sheet.href);
                         }
 
-                        this.localCache.sheetPaths[sheet.href] = cacheUri;
-                        this.injectSheet(cacheUri, sheet);
+                        callback(cacheFile);
 
-                        if (loadDuplicates)
-                        {
-                            this._loadDupeSheets(sheet, cacheUri);
-                        }
+                        // Perfect time to cache the sheet hierarchy
+                        this.cache.writeFile('hierarchy.json', JSON.stringify(this.hierarchy));
                     }
                 };
 
@@ -321,7 +211,7 @@ if ( ! ("less" in ko))
                 {
                     var contents = {};
                     contents[sheet.href] = data;
-                    
+
                     new(less.Parser)({
                         optimization: less.optimization,
                         paths: [sheet.href.replace(/[^/]*$/, '')],
@@ -337,166 +227,74 @@ if ( ! ("less" in ko))
                 {
                     this.error('Parsing error for ' + sheet.href + ': ' + e.message);
                 }
-                
+
             }.bind(this));
         },
-        
-        /**
-         * Load duplicate sheets
-         * 
-         * @param   {Object} sheet    
-         * @param   {String} loadHref 
-         * 
-         * @returns {Void} 
-         */
-        _loadDupeSheets: function ko_less_loadDupeSheets(sheet, loadHref)
-        {
-            if ( ! (sheet.href in this.sheets))
-            {
-                return;
-            }
-            
-            for (let [,dupeSheet] in Iterator(this.sheets[sheet.href]))
-            {
-                if (dupeSheet.get() == sheet || ! dupeSheet.get())
-                {
-                    continue;
-                }
-                
-                this.injectSheet(loadHref, dupeSheet.get());
-            }
-        },
-        
-        /**
-         * Inject a sheet into XUL using the given filePath
-         * 
-         * @param   {String} fileUri
-         * @param   {Object} sheet    
-         * 
-         * @returns {Void} 
-         */
-        injectSheet: function ko_less_injectSheet(fileUri, sheet)
-        {
-            var cssSheet = sheet.previousSibling || {};
-            var ts = Math.round(Date.now() / 1000);
-            
-            if (cssSheet._lessParent == sheet)
-            {
-                // Replace existing sheet href with updated url and timestamp
-                fileUri = fileUri + '?t=' + ts;
-                cssSheet.nodeValue = cssSheet.nodeValue.replace(/(href=").*?"/i, 'href="' + fileUri + '"');
-            }
-            else
-            {
-                cssSheet = window.document.createProcessingInstruction(
-                            'xml-stylesheet', 'type="text/css" href="' + fileUri + '"');
-                cssSheet._lessParent = sheet;
-                sheet.parentNode.insertBefore(cssSheet, sheet);
-            }
-            
-            var time = Date.now();
-            this.debug('Loaded ' + (time - this.timer) + 'ms after init: ' + fileUri);
-            
-            // Perfect time to cache the sheet hierarchy
-            this.cache.writeFile('hierarchy.json', JSON.stringify(this.hierarchy));
-        },
-        
+
         /**
          * Caching functionality, takes care of both file caching and
          * variable caching
          */
         cache: {
-            
+
             /**
              * Get a file through the cache
-             * 
+             *
              * @param   {String} fileUri
-             * 
-             * @returns {nsIFile|Boolean} 
+             *
+             * @returns {nsIFile|Boolean}
              */
-            getFile: function ko_less_cache_getFile(fileUri)
+            getFile: function koLess_cache_getFile(fileUri)
             {
                 if (fileUri in self.localCache.getFile)
                 {
                     return self.localCache.getFile[fileUri];
                 }
-                
-                var cacheUri = fileUri;
-                
-                // Convert path to relative path, if possible
-                if (cacheUri.match(/\/|\\/))
-                {
-                    try
-                    {
-                        let _cacheUri = NetUtil.newURI(cacheUri);
-                        if ((_cacheUri instanceof Ci.nsIFileURL))
-                        {
-                            let ProfD = Services.dirsvc.get("ProfD", Ci.nsIFile);
-                            if (ProfD.contains(_cacheUri.file, true))
-                            {
-                                cacheUri = _cacheUri.file.getRelativeDescriptor(ProfD);
-                            }
 
-                            let AppD = Services.io.newURI("resource://app/", null, null)
-                                        .QueryInterface(Ci.nsIFileURL).file;
-                            if (AppD.contains(_cacheUri.file, true))
-                            {
-                                cacheUri = _cacheUri.file.getRelativeDescriptor(AppD);
-                            }
-                        }
-                    }
-                    catch (e)
-                    {
-                        self.error('Error while resolving relative path for ' + cacheUri + "\n" + e.message);
-                    }
-                }
+                var cacheUri = this.getRelativePath(fileUri);
 
-                cacheUri = cacheUri.replace(/\:/g, '');
-                
-                cacheUri = cacheUri.split(/\/|\\/);
-                cacheUri.unshift("lessCache");
-                
                 // Create cache pointer
                 var cacheFile = FileUtils.getFile("ProfD", cacheUri, true);
-                
+
                 self.debug('Resolved cache for "' + fileUri + '" as "' + cacheFile.path + '"');
-                
+
                 self.localCache.getFile[fileUri] = cacheFile;
-                
+
                 return cacheFile;
             },
-            
-            _writeTimer: null,
-            
+
+            _writeTimer: {},
+
             /**
              * Write data to cache file
-             * 
-             * @param   {String} fileUri 
+             *
+             * @param   {String} fileUri
              * @param   {String} data
              * @param   {Boolean} noDelay
-             * 
-             * @returns {nsIFile|Boolean|Void} 
+             *
+             * @returns {nsIFile|Boolean|Void}
              */
             writeFile: function(fileUri, data, noDelay = false)
             {
                 if ( ! noDelay)
                 {
-                    clearTimeout(this._writeTimer);
-                    this._writeTimer = setTimeout(this.writeFile.bind(this, fileUri, data, true), 500);
+                    if (fileUri in this._writeTimer) Timer.clearTimeout(this._writeTimer[fileUri]);
+                    this._writeTimer[fileUri] = Timer.setTimeout(this.writeFile.bind(this, fileUri, data, true), 500);
                     return;
                 }
 
-                self.debug('Writing to ' + fileUri);
-                
+                self.debug('Writing to cache for ' + fileUri);
+
                 var file = this.getFile(fileUri);
-                
                 if ( ! file)
                 {
                     return false;
                 }
-                
+
                 try
                 {
+                    self.debug('Writing to ' + file.path);
+
                     // Open stream to file
                     var foStream = Cc["@mozilla.org/network/file-output-stream;1"].
                     createInstance(Ci.nsIFileOutputStream);
@@ -504,18 +302,18 @@ if ( ! ("less" in ko))
                         file,
                         0x02 /* PR_WRONLY */ | 0x08 /* PR_CREATE_FILE */ | 0x20 /* PR_TRUNCATE */,
                         parseInt('0666', 8), 0);
-                    
+
                     // Use converter to ensure UTF-8 encoding
                     var converter = Cc["@mozilla.org/intl/converter-output-stream;1"].
                     createInstance(Ci.nsIConverterOutputStream);
-                            
+
                     // Write to file
                     converter.init(foStream, "UTF-8", 0, 0);
                     converter.writeString(data);
                     converter.close();
-                    
-                    self.debug('Written to ' + fileUri);
-                    
+
+                    self.debug('Written to ' + file.path);
+
                     return file;
                 }
                 catch(e)
@@ -524,37 +322,80 @@ if ( ! ("less" in ko))
                     return false;
                 }
             },
-            
+
             /**
              * Clear the local and file cache
-             * 
-             * @returns {Void} 
+             *
+             * @returns {Void}
              */
-            clear: function ko_less_cache_clear()
+            clear: function koLess_cache_clear()
             {
                 self.warn('Clearing local and file cache');
-                
+
                 // Reset localCache
                 for (let [,k] in Iterator(Object.keys(self.localCache)))
                 {
-                    self.localCache[k] = {};
+                    self.localCache[k] = k == 'sheetPaths' ? [] : {};
                 }
-                
+
                 // Clear file cache
+                try {
                 FileUtils.getFile("ProfD", ["lessCache"], true).remove(true);
+                } catch (e) {} // don't care if this fails
+            },
+
+            /**
+             * Convert path to relative path, if possible
+             *
+             * @returns {Array}
+             */
+            getRelativePath: function koLess_cache_getRelativePath(filePath)
+            {
+                if (filePath.match(/\/|\\/))
+                {
+                    try
+                    {
+                        let _filePath = NetUtil.newURI(filePath);
+                        if ((_filePath instanceof Ci.nsIFileURL))
+                        {
+                            let ProfD = Services.dirsvc.get("ProfD", Ci.nsIFile);
+                            if (ProfD.contains(_filePath.file, true))
+                            {
+                                filePath = _filePath.file.getRelativeDescriptor(ProfD);
+                            }
+
+                            let AppD = Services.io.newURI("resource://app/", null, null)
+                                        .QueryInterface(Ci.nsIFileURL).file;
+                            if (AppD.contains(_filePath.file, true))
+                            {
+                                filePath = _filePath.file.getRelativeDescriptor(AppD);
+                            }
+                        }
+                    }
+                    catch (e)
+                    {
+                        self.error('Error while resolving relative path for ' + filePath + "\n" + e.message);
+                    }
+                }
+
+                filePath = filePath.replace(/\:/g, '');
+                filePath = filePath.replace(/.less$/, '.css');
+                filePath = filePath.split(/\/|\\/);
+                filePath.unshift("lessCache");
+                return filePath;
             }
-            
+
         },
-        
+
         /**
          * Read a file using file uri, basically a shortcut for NetUtil.asyncFetch
-         * 
-         * @param   {String} fileUri  
-         * @param   {Function} callback 
-         * 
-         * @returns {Void} 
+         *
+         * @param   {String} fileUri
+         * @param   {Function} callback
+         *
+         * @returns {Void}
          */
-        readFile: function ko_less_readFile(fileUri, callback)
+        readFile: function koLess_readFile(fileUri, callback)
         {
             // Grab the contents of the stylesheet
             try
@@ -567,10 +408,10 @@ if ( ! ("less" in ko))
                         this.error("asyncFetch failed for uri: " + fileUri + " :: " + status);
                         return;
                     }
-                    
+
                     // Parse contents
                     var data = NetUtil.readInputStreamToString(inputStream, inputStream.available());
-                    
+
                     callback.call(this, data);
                 }.bind(this));
             }
@@ -579,22 +420,22 @@ if ( ! ("less" in ko))
                 this.error('Failed reading file: ' + fileUri + "\n" + e.message);
             }
         },
-        
+
         /**
          * Resolve a file uri to a nsIFile. Note - if the uri points to a
          * file residing within a jar, the jar file is returned.
-         * 
-         * @param   {String} fileUri 
-         * 
-         * @returns {nsIFile|Boolean} 
+         *
+         * @param   {String} fileUri
+         *
+         * @returns {nsIFile|Boolean}
          */
-        resolveFile: function ko_less_resolveFile(fileUri)
+        resolveFile: function koLess_resolveFile(fileUri)
         {
             if (fileUri in this.localCache.resolveFile)
             {
                 return this.localCache.resolveFile[fileUri];
             }
-            
+
             var koResolve = Cc["@activestate.com/koResolve;1"]
                                     .getService(Ci.koIResolve);
 
@@ -603,7 +444,7 @@ if ( ! ("less" in ko))
             {
                 return false;
             }
-            
+
             try
             {
                 // Create nsIFile with path
@@ -615,32 +456,32 @@ if ( ! ("less" in ko))
                 this.exception(e, "Error loading file: " + fileUri);
                 return false;
             }
-            
+
             this.localCache.resolveFile[fileUri] = file;
 
             return file;
         },
-        
+
         /**
          * Resolve the youngest child sheet (ie. youngest @import)
-         * 
-         * @param   {String} href 
-         * 
-         * @returns {Object} 
+         *
+         * @param   {String} href
+         *
+         * @returns {Object}
          */
-        resolveYoungestChild: function ko_less_resolveYoungestChild(href)
+        resolveYoungestChild: function koLess_resolveYoungestChild(href)
         {
             if (href in this.localCache.resolveYoungestChild)
             {
                 return this.localCache.resolveYoungestChild[href];
             }
-            
+
             var file = this.resolveFile(href);
             if ( ! file || ! file.exists())
             {
                 return null;
             }
-            
+
             var youngest = {
                 file: file,
                 href: href
@@ -657,80 +498,38 @@ if ( ! ("less" in ko))
                     }
                 }
             }
-            
+
             this.debug('Youngest child for "' + href + '" is "' + youngest.href + '"');
-            
+
             this.localCache.resolveYoungestChild[href] = youngest;
             return youngest;
         },
-        
-        _cleanTimer: null,
-        _cleanHrefs: [],
 
-        /**
-         * Clean up references to dead nodes (eg. fast open being reopened)
-         * See Bug #99405
-         *
-         * This runs on a timeout such that it does not slow down the less
-         * loading process
-         *
-         * @param   {Array} hrefs
-         * @param   {Boolean} noDelay
-         *
-         * @returns {Void} 
-         */
-        cleanupReferences: function ko_less_cleanupReferences(hrefs, noDelay = false)
+        addToHierarchy: function koLess_addToHierarchy(id, pId)
         {
-            if ( ! noDelay)
-            {
-                this.debug('Delaying reference cleanup for ' + (hrefs.length) + ' sheet hrefs');
-                
-                this._cleanHrefs = this._cleanHrefs.concat(hrefs);
-                clearTimeout(this._cleanTimer);
-                this._cleanTimer = setTimeout(this.cleanupReferences.bind(this, this._cleanHrefs, true), 100);
-                return;
+            if (typeof this.hierarchy.parents[id] == 'undefined') {
+                this.hierarchy.parents[id] = {};
+            }
+            if (typeof this.hierarchy.children[pId] == 'undefined') {
+                this.hierarchy.children[pId] = {};
             }
 
-            this.debug('Starting reference cleanup for ' + (hrefs.length) + ' sheet hrefs');
-
-            var doneHrefs = [];
-            for (let [,href] in Iterator(hrefs))
-            {
-                this.debug('Checking dead references for: ' + href);
-
-                if (doneHrefs.indexOf(href) !== -1)
-                {
-                    continue;
-                }
-                
-                for (let i=this.sheets[href].length-1;i>=0;i--)
-                {
-                    if ( ! this.sheets[href][i].get() || ! this.sheets[href][i].get().parentNode.location)
-                    {
-                        this.debug('Cleaning up dead reference for: ' + href);
-                        this.sheets[href].splice(i);
-                    }
-                }
-
-                doneHrefs.push(href);
-            }
-
-            this._cleanHrefs = [];
+            this.hierarchy.parents[id][pId] = true;
+            this.hierarchy.children[pId][id] = true;
         },
 
         /**
          * Log Debug Wrapper
-         * 
-         * @param   {String} message 
-         * 
-         * @returns {Void} 
+         *
+         * @param   {String} message
+         *
+         * @returns {Void}
          */
-        debug: function ko_less_debug(message)
+        debug: function koLess_debug(message)
         {
-            var time = Date.now();
-            log.debug('ko.less {' + (time - this.timer) + '}: ' + message);
+            log.debug(message);
         },
-        
+
         /**
          * Log Warn Wrapper
          *
@@ -738,24 +537,24 @@ if ( ! ("less" in ko))
          *
          * @returns {Void}
          */
-        warn: function ko_less_warn(message)
+        warn: function koLess_warn(message)
         {
             log.warn(message);
         },
 
         /**
          * Log Error Wrapper
-         * 
-         * @param   {String} message     
-         * @param   {Boolean} noBacktrace 
-         * 
-         * @returns {Void} 
+         *
+         * @param   {String} message
+         * @param   {Boolean} noBacktrace
+         *
+         * @returns {Void}
          */
-        error: function ko_less_error(message, noBacktrace = false)
+        error: function koLess_error(message, noBacktrace = false)
         {
             log.error(message + "\n", noBacktrace);
         },
-        
+
         /**
          * Log Exception Wrapper
          *
@@ -764,27 +563,27 @@ if ( ! ("less" in ko))
          *
          * @returns {Void}
          */
-        exception: function ko_less_error(exception, message = "")
+        exception: function koLess_error(exception, message = "")
         {
             log.exception(exception, message);
         },
 
         /**
          * Log a LESS error message, contains a LESS backtrace if available
-         * 
-         * @param   {Object} e    
-         * @param   {String} href 
-         * 
-         * @returns {Void} 
+         *
+         * @param   {Object} e
+         * @param   {String} href
+         *
+         * @returns {Void}
          */
-        errorLess: function ko_less_errorLess(e, href) {
+        errorLess: function koLess_errorLess(e, href) {
             var error = [];
-            
+
             var errorString = (
                 e.message ||
                 'There is an error in your .less file'
             ) + ' (' + (e.filename || href) + ")\n";
-            
+
             var errorline = function (e, i, classname)
             {
                 var template = ' - {line}: {content}' + "\n";
@@ -794,7 +593,7 @@ if ( ! ("less" in ko))
                                        .replace("{content}", e.extract[i]), "g");
                 }
             };
-        
+
             if (e.stack) {
                 errorString += "\n" + e.stack.split('\n').slice(1).join("\n");
             } else if (e.extract) {
@@ -804,25 +603,16 @@ if ( ! ("less" in ko))
                 errorString += 'on line ' + e.line + ', column ' + (e.column + 1) + ':' + "\n" +
                             error.join('');
             }
-            
+
             this.error(errorString, (e.stack || e.extract));
         }
         
     };
     
-    if (("less" in window) && "initialized" in window.less)
-    {
-        ko.less = new ko.less();
-    }
-    else
-    {
-        window.addEventListener('lessLoaded', function()
-        {
-            if ( ! ("initialized" in ko.less) || ! ko.less.initialized)
-            {
-                ko.less = new ko.less(); 
-            }
-        });
-    }
+    koLess = new koLess();
     
+    var subScriptLoader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
+                          .getService(Ci.mozIJSSubScriptLoader);
+    subScriptLoader.loadSubScript("resource://app/chrome/komodo/content/contrib/less.js");
+
 }).apply();

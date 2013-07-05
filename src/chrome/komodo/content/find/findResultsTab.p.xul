@@ -10,7 +10,6 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <box id="findresults_tabpanel-toolbarbox"
@@ -79,7 +78,5 @@
     </tree>
 
     <script src="chrome://komodo/content/find/findResultsTab.js"          type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/less_loader.js"
-            type="application/x-javascript"/>
 </page>
 

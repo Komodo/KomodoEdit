@@ -15,3 +15,6 @@ overlay chrome://mozapps/content/extensions/extensions.xul chrome://komodo/conte
 overlay chrome://mozapps/content/update/updates.xul chrome://komodo/content/update/overlay.xul
 
 category komodo-startup-service koManifestLoader @activestate.com/koManifestLoader;1
+
+override chrome://global/skin/global.css less://komodo/skin/platform.less
+
