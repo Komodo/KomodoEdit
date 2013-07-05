@@ -988,12 +988,7 @@ NS_IMETHODIMP SciMoz::GetCurLine(nsAString & text, PRInt32 *_retval) {
 	*_retval = SendEditor(SCI_GETCURLINE, lineLength, reinterpret_cast<long>(buffer));
 	NS_ASSERTION(buffer[lineLength] == NULL, "Buffer overflow");
 
-	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
-	if (codePage == 0) {
-	    text =  NS_ConvertASCIItoUTF16(buffer, lineLength);
-	} else {
-	    text =  NS_ConvertUTF8toUTF16(buffer, lineLength);
-	}
+	text =  NS_ConvertUTF8toUTF16(buffer, lineLength);
 
 	delete []buffer;
 	return NS_OK;
@@ -1042,12 +1037,7 @@ NS_IMETHODIMP SciMoz::GetLine(PRInt32 line, nsAString & text, PRInt32  *_retval)
 	*_retval = SendEditor(SCI_GETLINE, line, reinterpret_cast<long>(buffer));
 	NS_ASSERTION(buffer[lineLength] == NULL, "Buffer overflow");
 
-	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
-	if (codePage == 0) {
-	    text =  NS_ConvertASCIItoUTF16(buffer, lineLength);
-	} else {
-	    text =  NS_ConvertUTF8toUTF16(buffer, lineLength);
-	}
+	text =  NS_ConvertUTF8toUTF16(buffer, lineLength);
 
 	delete []buffer;
 	return NS_OK;
@@ -1153,12 +1143,7 @@ NS_IMETHODIMP SciMoz::GetTextRange(PRInt32 min, PRInt32 max, nsAString & _retval
 #endif
         NS_ASSERTION(buffer[length] == NULL, "Buffer overflow");
 
-	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
-	if (codePage == 0) {
-	    _retval =  NS_ConvertASCIItoUTF16(buffer, length);
-	} else {
-	    _retval =  NS_ConvertUTF8toUTF16(buffer, length);
-	}
+	_retval =  NS_ConvertUTF8toUTF16(buffer, length);
 
 	delete []buffer;
 	return NS_OK;
@@ -1273,13 +1258,7 @@ NS_IMETHODIMP SciMoz::SetText(const nsAString &aText)
 #endif
 
 	SendEditor(SCI_CLEARALL, 0, 0);
- 	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
-	nsCString convertedText;
- 	if (codePage == 0) {
-	    convertedText = NS_LossyConvertUTF16toASCII(aText);
- 	} else {
-	    convertedText = NS_ConvertUTF16toUTF8(aText);
- 	}
+	nsCString convertedText = NS_ConvertUTF16toUTF8(aText);
 
 	// To support null bytes, Komodo needs to use SCI_ADDTEXT instead of
 	// the traditional SCI_SETTEXT call, as the add text method supports
