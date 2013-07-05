@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-from xpcom import components, nsError, ServerException, COMException, _xpcom
+from xpcom import components, nsError, COMException
 import logging
 import itertools
 import contextlib
