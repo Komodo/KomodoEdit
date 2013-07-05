@@ -1509,33 +1509,43 @@ def generate_wrapper(face, interfaceCount):
         elif feature["FeatureType"] == "fun":
             methods.add(idlName(name))
 
+    add_logging = False  # set to True to dump all scimoz calls
     for name in getters:
         _("""
           koSciMozWrapper.prototype.__defineGetter__("%(name)s",
-                                                     function get_%(name)s()this.__scimoz.%(name)s);
+                                                     function get_%(name)s() {
+                                                        %(logme)s return this.__scimoz.%(name)s;
+                                                     });
           """,
           replacements={
-            "name": name
+            "name": name,
+            "logme": 'dump("scimoz: %s (getter)\\n");' % (name) if add_logging else "",
           },
           file=outputfile)
 
     for name in setters:
         _("""
           koSciMozWrapper.prototype.__defineSetter__("%(name)s",
-                                                     function set_%(name)s(v)this.__scimoz.%(name)s=v);
+                                                     function set_%(name)s(v) {
+                                                        %(logme)s this.__scimoz.%(name)s=v;
+                                                     });
           """,
           replacements={
-            "name": name
+            "name": name,
+            "logme": 'dump("scimoz: %s (setter)\\n");' % (name) if add_logging else "",
           },
           file=outputfile)
 
     for name in methods:
         _("""
           koSciMozWrapper.prototype.%(name)s =
-              function meth_%(name)s() this.__scimoz.%(name)s.apply(this.__scimoz, arguments);
+              function meth_%(name)s() {
+                %(logme)s return this.__scimoz.%(name)s.apply(this.__scimoz, arguments);
+              }
           """,
           replacements={
-            "name": idlName(name)
+            "name": idlName(name),
+            "logme": 'dump("scimoz: %s()\\n");' % (name) if add_logging else "",
           },
           file=outputfile)
 
