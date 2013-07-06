@@ -137,7 +137,7 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 
 	// look back to set chPrevNonWhite properly for better regex colouring
 	int endPos = startPos + length;
-	if (startPos > 0) {
+        if (startPos > 0 && IsSpaceEquiv(initStyle)) {
 		unsigned int back = startPos;
 		styler.Flush();
 		while (back > 0 && IsSpaceEquiv(styler.StyleAt(--back)))
@@ -147,6 +147,9 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 		}
 		if (startPos != back) {
 			initStyle = styler.StyleAt(back);
+			if (IsSpaceEquiv(initStyle)) {
+				initStyle = SCE_C_DEFAULT;
+			}
 		}
 		startPos = back;
 	}
@@ -321,7 +324,6 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 				break;
 			case SCE_COFFEESCRIPT_COMMENTBLOCK:
 				if (sc.Match("###")) {
-					sc.ChangeState(SCE_C_COMMENT);
 					sc.Forward();
 					sc.Forward();
 					sc.ForwardSetState(SCE_C_DEFAULT);
@@ -333,10 +335,8 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 				if (sc.Match("///")) {
 					sc.Forward();
 					sc.Forward();
-					sc.ChangeState(SCE_C_REGEX);
 					sc.ForwardSetState(SCE_C_DEFAULT);
 				} else if (sc.Match('#')) {
-					sc.ChangeState(SCE_C_REGEX);
 					sc.SetState(SCE_COFFEESCRIPT_VERBOSE_REGEX_COMMENT);
 				} else if (sc.ch == '\\') {
 					sc.Forward();
@@ -344,7 +344,6 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 				break;
 			case SCE_COFFEESCRIPT_VERBOSE_REGEX_COMMENT:
 				if (sc.atLineStart) {
-					sc.ChangeState(SCE_C_COMMENT);
 					sc.SetState(SCE_COFFEESCRIPT_VERBOSE_REGEX);
 				}
 				break;
@@ -378,6 +377,8 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 				sc.Forward();	// Eat the * so it isn't used for the end of the comment
 			} else if (sc.Match("///")) {
 				sc.SetState(SCE_COFFEESCRIPT_VERBOSE_REGEX);
+				sc.Forward();
+				sc.Forward();
 			} else if (sc.ch == '/'
 				   && (setOKBeforeRE.Contains(chPrevNonWhite)
 				       || followsReturnKeyword(sc, styler))
@@ -392,11 +393,14 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 			} else if (sc.ch == '\'') {
 				sc.SetState(SCE_C_CHARACTER);
 			} else if (sc.ch == '#') {
-                if (sc.Match("###")) {
-                    sc.SetState(SCE_COFFEESCRIPT_COMMENTBLOCK);
-                } else {
-                    sc.SetState(SCE_C_COMMENTLINE);
-                }
+				if (sc.Match("###")) {
+					sc.SetState(SCE_COFFEESCRIPT_COMMENTBLOCK);
+					sc.Forward();
+					sc.Forward();
+					
+				} else {
+					sc.SetState(SCE_C_COMMENTLINE);
+				}
 			} else if (isoperator(static_cast<char>(sc.ch))) {
 				sc.SetState(SCE_C_OPERATOR);
 			}
@@ -408,18 +412,6 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 		}
 		continuationLine = false;
 	}
-    // Change temporary coffeescript states into standard C ones.
-    switch (sc.state) {
-        case SCE_COFFEESCRIPT_COMMENTBLOCK:
-            sc.ChangeState(SCE_C_COMMENT);
-            break;
-        case SCE_COFFEESCRIPT_VERBOSE_REGEX:
-            sc.ChangeState(SCE_C_REGEX);
-            break;
-        case SCE_COFFEESCRIPT_VERBOSE_REGEX_COMMENT:
-            sc.ChangeState(SCE_C_COMMENTLINE);
-            break;
-    }
 	sc.Complete();
 }
 
