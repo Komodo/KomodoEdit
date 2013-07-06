@@ -55,7 +55,7 @@ Index: lexers/LexCoffeeScript.cxx
 -
  	// look back to set chPrevNonWhite properly for better regex colouring
  	int endPos = startPos + length;
- 	if (startPos > 0) {
+ 	if (startPos > 0 && IsSpaceEquiv(initStyle)) {
  		unsigned int back = startPos;
  		styler.Flush();
  		while (back > 0 && IsSpaceEquiv(styler.StyleAt(--back)))
@@ -145,7 +145,7 @@ Index: lexers/LexCoffeeScript.cxx
  					if (sc.chNext == '\"' || sc.chNext == '\'' || sc.chNext == '\\') {
  						sc.Forward();
  					}
-@@ -362,27 +287,20 @@
+@@ -362,29 +287,22 @@
  				} else {
  					sc.SetState(SCE_C_NUMBER);
  				}
@@ -165,6 +165,8 @@ Index: lexers/LexCoffeeScript.cxx
 -				sc.Forward();	// Eat the * so it isn't used for the end of the comment
  			} else if (sc.Match("///")) {
  				sc.SetState(SCE_COFFEESCRIPT_VERBOSE_REGEX);
+ 				sc.Forward();
+ 				sc.Forward();
  			} else if (sc.ch == '/'
  				   && (setOKBeforeRE.Contains(chPrevNonWhite)
  				       || followsReturnKeyword(sc, styler))
