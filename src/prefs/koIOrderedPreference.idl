@@ -45,37 +45,37 @@
 interface koIOrderedPreference : koIPreference {
   // Append a preference to the end of the collection.
   void appendPref(in koIPreference pref);
-  void appendStringPref(in wstring pref);
-  void appendLongPref(in long pref);
-  void appendDoublePref(in double pref);
-  void appendBooleanPref(in boolean pref);
+  void appendString(in wstring pref);
+  void appendLong(in long pref);
+  void appendDouble(in double pref);
+  void appendBoolean(in boolean pref);
 
   // Insert a preference at a particular index in the collection,
   // pushing elements to "the right" as necessary.
   void insertPref(in long index, in koIPreference pref);
-  void insertStringPref(in long index, in wstring pref);
-  void insertLongPref(in long index, in long pref);
-  void insertDoublePref(in long index, in double pref);
-  void insertBooleanPref(in long index, in boolean pref);
+  void insertString(in long index, in wstring pref);
+  void insertLong(in long index, in long pref);
+  void insertDouble(in long index, in double pref);
+  void insertBoolean(in long index, in boolean pref);
   
   // Retrieve a particular preference from the preference set.
   // It is an error to "get" a preference which does not exist or is of the
   // wrong type. Use "has*Pref" to ensure the pref exists.
   string getPrefType(in long index);
   koIPreference getPref(in long index);
-  wstring getStringPref(in long index);
-  long getLongPref(in long index);
-  double getDoublePref(in long index);
-  boolean getBooleanPref(in long index);
- 
+  wstring getString(in long index);
+  long getLong(in long index);
+  double getDouble(in long index);
+  boolean getBoolean(in long index);
+
   // Utility methods for finding strings in an ordered preference, returns the
   // index at which the string was found, or -1 when not found.
-  long findStringPref(in wstring pref);
-  long findStringPrefIgnoringCase(in wstring pref);
+  long findString(in wstring pref);
+  long findStringIgnoringCase(in wstring pref);
   // Utility methods for finding and deleting strings in an ordered preference,
   // returns true when the string found, or false when not found.
-  boolean findAndDeleteStringPref(in wstring pref);
-  boolean findAndDeleteStringPrefIgnoringCase(in wstring pref);
+  boolean findAndDeleteString(in wstring pref);
+  boolean findAndDeleteStringIgnoringCase(in wstring pref);
 
   // The number of preferences contained in the ordered collection.
   readonly attribute long length;
@@ -84,4 +84,30 @@ interface koIOrderedPreference : koIPreference {
   void deletePref(in long index);
   // Reset to an empty preference collection.
   void reset();
+
+
+  /***********************************************************************
+   * @deprecated since Komodo 8.5
+   * Use the shorter versions (appendString, insertString, etc...)
+   */
+  void appendStringPref(in wstring pref);
+  void appendLongPref(in long pref);
+  void appendDoublePref(in double pref);
+  void appendBooleanPref(in boolean pref);
+
+  void insertStringPref(in long index, in wstring pref);
+  void insertLongPref(in long index, in long pref);
+  void insertDoublePref(in long index, in double pref);
+  void insertBooleanPref(in long index, in boolean pref);
+
+  wstring getStringPref(in long index);
+  long getLongPref(in long index);
+  double getDoublePref(in long index);
+  boolean getBooleanPref(in long index);
+
+  boolean findAndDeleteStringPref(in wstring pref);
+  boolean findAndDeleteStringPrefIgnoringCase(in wstring pref);
+  long findStringPref(in wstring pref);
+  long findStringPrefIgnoringCase(in wstring pref);
+  /**********************************************************************/
 };

@@ -785,16 +785,16 @@ class koOrderedPreference(object):
             "Appending a pref that is neither an ordered pref nor a pref set"
         self._collection.append((pref, "object"))
 
-    def appendStringPref(self, pref):
+    def appendString(self, pref):
         self._collection.append((unicode(pref), "string"))
 
-    def appendLongPref(self, pref):
+    def appendLong(self, pref):
         self._collection.append((int(pref), "long"))
 
-    def appendDoublePref(self, pref):
+    def appendDouble(self, pref):
         self._collection.append((float(pref), "double"))
 
-    def appendBooleanPref(self, pref):
+    def appendBoolean(self, pref):
         self._collection.append((operator.truth(pref), "boolean"))
 
     def insertPref(self, index, pref):
@@ -803,16 +803,16 @@ class koOrderedPreference(object):
             "Inserting a pref that is neither an ordered pref nor a pref set"
         self._collection.insert(index, (pref, "object"))
 
-    def insertStringPref(self, index, pref):
+    def insertString(self, index, pref):
         self._collection.insert(index, (pref,"string"))
 
-    def insertLongPref(self, index, pref):
+    def insertLong(self, index, pref):
         self._collection.insert(index, (pref, "long"))
 
-    def insertDoublePref(self, index, pref):
+    def insertDouble(self, index, pref):
         self._collection.insert(index, (pref, "double"))
 
-    def insertBooleanPref(self, index, pref):
+    def insertBoolean(self, index, pref):
         self._collection.insert(index, (operator.truth(pref), "boolean"))
 
     def _getPref(self, index, expected_type):
@@ -830,23 +830,23 @@ class koOrderedPreference(object):
     def getPref(self, index):
         return self._getPref(index, "object")
 
-    def getStringPref(self, index):
+    def getString(self, index):
         return self._getPref(index, "string")
 
-    def getLongPref(self, index):
+    def getLong(self, index):
         return self._getPref(index, "long")
 
-    def getDoublePref(self, index):
+    def getDouble(self, index):
         return self._getPref(index, "double")
 
-    def getBooleanPref(self, index):
+    def getBoolean(self, index):
         return self._getPref(index, "boolean")
 
     def getPrefType(self, index):
         assert self._inCollection(index)
         return self._collection[index][1]
 
-    def findStringPref(self, pref):
+    def findString(self, pref):
         i = 0
         for val, typ in self._collection:
             if typ == "string" and val == pref:
@@ -854,7 +854,7 @@ class koOrderedPreference(object):
             i += 1
         return -1
 
-    def findStringPrefIgnoringCase(self, pref):
+    def findStringIgnoringCase(self, pref):
         i = 0
         pref = pref.lower()
         for val, typ in self._collection:
@@ -863,15 +863,15 @@ class koOrderedPreference(object):
             i += 1
         return -1
 
-    def findAndDeleteStringPref(self, pref):
-        i = self.findStringPref(pref)
+    def findAndDeleteString(self, pref):
+        i = self.findString(pref)
         if i >= 0:
             self.deletePref(i)
             return True
         return False
 
-    def findAndDeleteStringPrefIgnoringCase(self, pref):
-        i = self.findStringPrefIgnoringCase(pref)
+    def findAndDeleteStringIgnoringCase(self, pref):
+        i = self.findStringIgnoringCase(pref)
         if i >= 0:
             self.deletePref(i)
             return True
@@ -905,13 +905,13 @@ class koOrderedPreference(object):
         for i in range(source.length):
             typ = source.getPrefType(i)
             if typ == "string":
-                val = source.getStringPref(i)
+                val = source.getString(i)
             elif typ == "long":
-                val = source.getLongPref(i)
+                val = source.getLong(i)
             elif typ == "double":
-                val = source.getDoublePref(i)
+                val = source.getDouble(i)
             elif typ == "boolean":
-                val = source.getBooleanPref(i)
+                val = source.getBoolean(i)
             elif typ == "object":
                 val = UnwrapObject(source.getPref(i))
             else:
@@ -945,6 +945,24 @@ class koOrderedPreference(object):
                 subPref.dump(indent + 1)
             else:
                 print '%s  %s' % ("  " * indent, pref)
+
+    # Deprecated pref accessors - we don't care to log them as deprecated though.
+    appendStringPref = appendString
+    appendLongPref = appendLong
+    appendDoublePref = appendDouble
+    appendBooleanPref = appendBoolean
+    insertStringPref = insertString
+    insertLongPref = insertLong
+    insertDoublePref = insertDouble
+    insertBooleanPref = insertBoolean
+    getStringPref = getString
+    getLongPref = getLong
+    getDoublePref = getDouble
+    getBooleanPref = getBoolean
+    findStringPref = findString
+    findStringPrefIgnoringCase = findStringIgnoringCase
+    findAndDeleteStringPref = findAndDeleteString
+    findAndDeleteStringPrefIgnoringCase = findAndDeleteStringIgnoringCase
 
 ###################################################
 #
