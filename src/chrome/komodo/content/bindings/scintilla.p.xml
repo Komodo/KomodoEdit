@@ -670,17 +670,9 @@
                     scimoz.setMarginSensitiveN(whichMargin, whichMargin);
                     switch (foldstyle) {
                         case 'none':
-                            scimoz.showLines(0, scimoz.lineCount-1);
-                            for (line = 0; line < scimoz.lineCount; line++) {
-                                if (scimoz.getFoldLevel(line) &
-                                    scimoz.SC_FOLDLEVELHEADERFLAG) {
-                                    scimoz.setFoldExpanded(line, 1);
-                                }
-                            }
-                            // If we don't do this, folding trails off
-                            // into other buffers.
-                            scimoz.setProperty("fold", "0");
-                            scimoz.setMarginWidthN(1, 0);
+                            // Handled by koDocumentSettingsManager, should not
+                            // get called.
+                            log.error("setFoldStyle called with style none");
                             break;
                         case 'arrows':
                             // Arrow pointing right for contracted folders,
