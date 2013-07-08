@@ -465,12 +465,6 @@ class koPreferenceSet(object):
             del self.prefs[prefName]
             self._notifyPreferenceChange(prefName)
 
-    def set_id(self, newId):
-        self.id = newId
-
-    def get_id(self):
-        return self.id
-
     def serializeToFileFast(self, filename):
         pickleCache(self, filename)
 
@@ -659,16 +653,17 @@ primitivesMap = {
     'boolean' : components.interfaces.nsISupportsPRBool,
 }
 
-class koPrefSupportsString:
+class koPrefSupportsString(object):
     _com_interfaces_ = [components.interfaces.nsISupportsString]
     def __init__(self, pref):
         self.pref = pref
-    def get_data(self):
+    @property
+    def data(self):
         return self.pref._get_data()
     def toString(self):
         return unicode(self.pref)
 
-class koPrefWrapper:
+class koPrefWrapper(object):
     # Only need to list the interfaces we dont have explicit support for.
     # Our QI function below handles the nsISupports ones.
     _com_interfaces_ = [components.interfaces.koIPreferenceSimpleValue]
@@ -680,7 +675,8 @@ class koPrefWrapper:
         self.id = name
         self.type = type
 
-    def get_data(self):
+    @property
+    def data(self):
         return self._get_data()
 
     def _get_data(self):
@@ -695,7 +691,8 @@ class koPrefWrapper:
         else:
             return self._owner.getPref(self.id)
 
-    def get_primitiveIID(self):
+    @property
+    def primitiveIID(self):
         return primitivesMap[self.type];
 
     def __int__(self):
@@ -746,7 +743,7 @@ class koPrefWrapper:
 ###################################################
 
 
-class koOrderedPreference:
+class koOrderedPreference(object):
     _com_interfaces_ = [components.interfaces.koIOrderedPreference]
     _reg_desc_ = "Komodo Ordered Preference"
     _reg_contractid_ = "@activestate.com/koOrderedPreference;1"
@@ -880,7 +877,8 @@ class koOrderedPreference:
             return True
         return False
 
-    def get_length(self):
+    @property
+    def length(self):
         return len(self._collection)
 
     def deletePref(self, index):
@@ -1086,13 +1084,16 @@ class koPreferenceCache:
         assert self._is_sane()
         return self.pref_map.has_key(id)
 
-    def get_length(self):
+    @property
+    def length(self):
         assert self._is_sane()
         return len(self.index_map)
 
-    def get_max_length(self):
+    @property
+    def max_length(self):
         return self._maxsize
-    def set_max_length(self, size):
+    @max_length.setter
+    def max_length(self, size):
         if size < 2:
             raise COMException(nsError.NS_ERROR_UNEXPECTED, "Max size must be >=2")
         self._maxsize = size
@@ -1270,7 +1271,8 @@ class koGlobalPrefService(object):
         if defn.save_format in [koGlobalPreferenceDefinition.SAVE_DEFAULT, koGlobalPreferenceDefinition.SAVE_FAST_ONLY]:
             UnwrapObject(prefs).serializeToFileFast(fname + "c")
         
-    def get_effectivePrefs(self):
+    @property
+    def effectivePrefs(self):
         if self._partSvc.currentProject:
             return self._partSvc.currentProject.prefset
         return self.prefs
