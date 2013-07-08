@@ -291,15 +291,20 @@ class koDocumentSettingsManager:
                 prefs.deletePref('foldPoints')
 
         # Get the bookmarks.
-        bookmarks = components.classes[
-            '@activestate.com/koOrderedPreference;1'].createInstance()
-        bookmarks.id = "bookmarks"
-        prefs.setPref("bookmarks", bookmarks)
+        bookmarks = None
         marker_mask = 1 << MARKNUM_BOOKMARK
         lineNo = scimoz.markerNext(0, marker_mask)
         while lineNo >= 0:
+            if bookmarks is None:
+                bookmarks = components.classes['@activestate.com/koOrderedPreference;1'] \
+                                .createInstance()
+                bookmarks.id = "bookmarks"
+                prefs.setPref("bookmarks", bookmarks)
             bookmarks.appendLongPref(lineNo)
             lineNo = scimoz.markerNext(lineNo+1, marker_mask)
+        if bookmarks is None and prefs.hasPrefHere("bookmarks"):
+            # Remove old bookmarks.
+            prefs.deletePref("bookmarks")
 
         #XXX Breakpoint restoring is now done elsewhere. Note that taking this
         #    out of the view prefs here breaks the transfer of breakpoints
