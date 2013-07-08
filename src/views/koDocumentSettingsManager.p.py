@@ -336,32 +336,14 @@ class koDocumentSettingsManager:
     def observe(self, prefSet, topic, data):
         # Dispatch a preference change...
         #print 'topic: %r' % (topic, )
-        self._dispatchPrefChange(prefSet, topic)
+        # Always use the document prefs to lookup pref values.
+        self._dispatchPrefChange(self.koDoc.prefs, topic)
 
     # Probably should make this function table-based to reduce
     # duplication of effort.
     def _dispatchPrefChange(self, prefSet, prefName):
         if hasattr(self, "_apply_" + prefName):
             getattr(self, "_apply_" + prefName)(prefSet)
-
-    def _accept_change(self, prefSet, prefName):
-        # Implement the pref hierarchy here.
-        if prefSet == self.koDoc.prefs:
-            # Doc pref changes are always carried out.
-            return True
-        if self.koDoc.prefs.hasPrefHere(prefName):
-            # Otherwise if the doc has this pref, ignore this change
-            return False
-        effectivePrefs = self.koDoc.getEffectivePrefs()
-        if prefSet == effectivePrefs:
-            # changes on the effectivePrefs (must be project now) are always carried out
-            return True
-        elif effectivePrefs.hasPrefHere(prefName):
-            # Ignore global changes when the project sets the pref
-            return False
-        else:
-            # Carry out global change
-            return True
 
     def _apply_ySlop(self, prefSet):
         for scintilla in self._scintillas:
@@ -370,21 +352,15 @@ class koDocumentSettingsManager:
                                    prefSet.getLongPref('ySlop'))
 
     def _apply_useTabs(self, prefSet):
-        if not self._accept_change(prefSet, 'useTabs'):
-            return
         for scintilla in self._scintillas:
             scintilla.scimoz.useTabs = prefSet.getBooleanPref('useTabs')
 
     def _apply_indentWidth(self, prefSet):
         #print 'setting indentWidth = ', prefSet.getLongPref('indentWidth')
-        if not self._accept_change(prefSet, 'indentWidth'):
-            return
         for scintilla in self._scintillas:
             scintilla.scimoz.indent = prefSet.getLongPref('indentWidth')
 
     def _apply_tabWidth(self, prefSet):
-        if not self._accept_change(prefSet, 'tabWidth'):
-            return
         for scintilla in self._scintillas:
             scintilla.scimoz.tabWidth = prefSet.getLongPref('tabWidth')
 
