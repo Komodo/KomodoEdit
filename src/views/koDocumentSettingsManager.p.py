@@ -149,61 +149,59 @@ class koDocumentSettingsManager:
         # capable document -- if it doesn't know something, it can figure it out.
         languageOb = self.koDoc.languageObj
         koDoc = self.koDoc
+        prefs = koDoc.prefs
         lexer = koDoc.lexer
         if lexer is None:
             lexer = languageOb.getLanguageService(components.interfaces.koILexerLanguageService)
         lexer.setCurrent(scimoz)
         self._setIndicators(languageOb, scimoz)
-        self._applyPrefs(koDoc.prefs, scimoz)
+        self._applyPrefs(prefs, scimoz)
         
-        prefs = self.koDoc.prefs
-        effectivePrefs = self.koDoc.getEffectivePrefs()
-
         if prefs.hasLongPref('anchor'):
             scimoz.currentPos = scimoz.anchor = prefs.getLongPref('anchor')
 
         if prefs.hasLongPref('currentPos'):
             scimoz.currentPos = prefs.getLongPref('currentPos')
 
-        if effectivePrefs.hasPrefHere('indentWidth'):
-            scimoz.indent = effectivePrefs.getLongPref('indentWidth')
+        if prefs.hasPrefHere('indentWidth'):
+            scimoz.indent = prefs.getLongPref('indentWidth')
         else:
             scimoz.indent = koDoc.indentWidth
 
-        if effectivePrefs.hasPrefHere('editUseAlternateFaceType'):
-            useAlternate = effectivePrefs.getBooleanPref('editUseAlternateFaceType')
+        if prefs.hasPrefHere('editUseAlternateFaceType'):
+            useAlternate = prefs.getBooleanPref('editUseAlternateFaceType')
         else:
             useAlternate = 0
         scintilla.alternateFaceType = useAlternate
-        self._updateEdge(effectivePrefs)
+        self._updateEdge(prefs)
             
-        if effectivePrefs.hasPrefHere('useTabs'):
-            scimoz.useTabs = effectivePrefs.getBooleanPref('useTabs')
+        if prefs.hasPrefHere('useTabs'):
+            scimoz.useTabs = prefs.getBooleanPref('useTabs')
         else:
             scimoz.useTabs = koDoc.useTabs
 
-        if effectivePrefs.hasPrefHere('tabWidth'):
-            scimoz.tabWidth = effectivePrefs.getLongPref('tabWidth')
+        if prefs.hasPrefHere('tabWidth'):
+            scimoz.tabWidth = prefs.getLongPref('tabWidth')
         else:
             scimoz.tabWidth = koDoc.tabWidth
 
-        slop = effectivePrefs.getLongPref('ySlop')
+        slop = prefs.getLongPref('ySlop')
         scimoz.setYCaretPolicy(scimoz.CARET_SLOP | scimoz.CARET_STRICT | scimoz.CARET_EVEN, slop)
         scimoz.setVisiblePolicy(scimoz.VISIBLE_SLOP | scimoz.VISIBLE_STRICT, slop)
 
-        if effectivePrefs.hasLongPref('firstVisibleLine'):
-            scimoz.lineScroll(0, effectivePrefs.getLongPref('firstVisibleLine'))
+        if prefs.hasLongPref('firstVisibleLine'):
+            scimoz.lineScroll(0, prefs.getLongPref('firstVisibleLine'))
 
-        if effectivePrefs.hasLongPref('scrollWidth'):
-            scimoz.scrollWidth = effectivePrefs.getLongPref("scrollWidth")
+        if prefs.hasLongPref('scrollWidth'):
+            scimoz.scrollWidth = prefs.getLongPref("scrollWidth")
         else:
             log.warn('should set default scroll width?')
 
-        if effectivePrefs.getBooleanPref('scrollWidthTracking'):
-            scimoz.scrollWidthTracking = effectivePrefs.getBooleanPref("scrollWidthTracking")
+        if prefs.getBooleanPref('scrollWidthTracking'):
+            scimoz.scrollWidthTracking = prefs.getBooleanPref("scrollWidthTracking")
 
-        if effectivePrefs.hasLongPref('xOffset'):
-            scimoz.xOffset = effectivePrefs.getLongPref('xOffset')
+        if prefs.hasLongPref('xOffset'):
+            scimoz.xOffset = prefs.getLongPref('xOffset')
         else:
             scimoz.xOffset = 0
 
@@ -216,10 +214,9 @@ class koDocumentSettingsManager:
         # restore fold points if the user has checked that pref off.
         # We don't do it by default because the colourise(.., -1) call below
         # can be quite slow.
-        prefs = koDoc.prefs
-        # Bug 93190: effectivePrefs are boolean for foldPoints,
+        # Bug 93190: prefs are boolean for foldPoints,
         # but get the actual foldPoints off the document prefs
-        if effectivePrefs.getBooleanPref("editRestoreFoldPoints") and \
+        if prefs.getBooleanPref("editRestoreFoldPoints") and \
                 prefs.hasPref('foldPoints') and \
                 scimoz.getPropertyInt("fold"):
             foldPoints = prefs.getPref("foldPoints")
