@@ -97,7 +97,7 @@
 #   The canonical example of how preference sets work is to be found in
 #   koPrefs.py. Look at the koGlobalPrefService class for details on
 #   serializing and deserializing; the setting and retrieving of preferences is
-#   fairly straightforward (i.e. setStringPref, getStringPref, etc..) -- none
+#   fairly straightforward (i.e. setString, getString, etc..) -- none
 #   of that has changed :)
 #   
 
@@ -336,26 +336,31 @@ class koPreferenceSet(object):
         # log.warn("setting preference " + prefName + " to " + str(pref));
         self._notifyPreferenceChange(prefName)
 
-    def setStringPref(self, prefName, pref):
+    def setString(self, prefName, pref):
         self._checkPrefType(prefName, "string", 0, pref)
         if self.prefs.get(prefName, (None,None))[0] != pref:
             self.prefs[prefName] = unicode(pref), "string"
             self._notifyPreferenceChange(prefName)
-    def setLongPref(self, prefName, pref):
+    def setLong(self, prefName, pref):
         self._checkPrefType(prefName, "long", 0, pref)
         if self.prefs.get(prefName, (None,None))[0] != pref:
             self.prefs[prefName] = long(pref), "long"
             self._notifyPreferenceChange(prefName)
-    def setDoublePref(self, prefName, pref):
+    def setDouble(self, prefName, pref):
         self._checkPrefType(prefName, "double", 0, pref)
         if self.prefs.get(prefName, (None,None))[0] != pref:
             self.prefs[prefName] = float(pref), "double"
             self._notifyPreferenceChange(prefName)
-    def setBooleanPref(self, prefName, pref):
+    def setBoolean(self, prefName, pref):
         self._checkPrefType(prefName, "boolean", 0, pref)
         if self.prefs.get(prefName, (None,None))[0] != pref:
             self.prefs[prefName] = operator.truth(pref), "boolean"
             self._notifyPreferenceChange(prefName)
+    # Deprecated pref setters - we don't care to log them as deprecated though.
+    setStringPref = setString
+    setLongPref = setLong
+    setDoublePref = setDouble
+    setBooleanPref = setBoolean
 
     def validateString(self, prefName, value):
         self._checkPrefType(prefName, "string", 0, pref)

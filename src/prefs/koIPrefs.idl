@@ -150,6 +150,14 @@ interface koIPreferenceSet : koIPreference {
   
   // If any of these fail, use the lastErrorSvc to find out why
   void setPref(in AString prefName, in koIPreference pref);
+  void setString(in AString prefName, in AString pref);
+  void setLong(in AString prefName, in long pref);
+  void setDouble(in AString prefName, in double pref);
+  void setBoolean(in AString prefName, in boolean pref);
+  /**
+   * @deprecated since Komodo 8.5
+   * Use the shorter versions (setString, setLong, etc...)
+   */
   void setStringPref(in AString prefName, in AString pref);
   void setLongPref(in AString prefName, in long pref);
   void setDoublePref(in AString prefName, in double pref);
