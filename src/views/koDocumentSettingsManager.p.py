@@ -486,10 +486,10 @@ class koDocumentSettingsManager:
             for scintilla in self._scintillas:
                 scimoz = scintilla.scimoz
                 scimoz.showLines(0, scimoz.lineCount-1)
-                for line in range(scimoz.lineCount):
-                    if (scimoz.getFoldLevel(line) &
-                        scimoz.SC_FOLDLEVELHEADERFLAG):
-                        scimoz.setFoldExpanded(line, 1)
+                i = scimoz.contractedFoldNext(0)
+                while i != -1:
+                    scimoz.setFoldExpanded(i, 1)
+                    i = scimoz.contractedFoldNext(i+1)
                 # If we don't do this, folding trails off into other buffers.
                 scimoz.setProperty("fold", "0")
                 scimoz.setMarginWidthN(1, 0)
