@@ -35,6 +35,7 @@
 # ***** END LICENSE BLOCK *****
 
 from xpcom import components, COMException, ServerException
+from xpcom.server import UnwrapObject
 import logging
 import eollib
 
@@ -150,6 +151,11 @@ class koDocumentSettingsManager:
         languageOb = self.koDoc.languageObj
         koDoc = self.koDoc
         prefs = koDoc.prefs
+        try:
+            # Unwrap prefs, as it will be faster to work outside of XPCOM.
+            prefs = UnwrapObject(prefs)
+        except:
+            pass
         lexer = koDoc.lexer
         if lexer is None:
             lexer = languageOb.getLanguageService(components.interfaces.koILexerLanguageService)
@@ -244,6 +250,11 @@ class koDocumentSettingsManager:
 
     def applyViewSettingsToDocument(self, scintilla):
         prefs = self.koDoc.prefs
+        try:
+            # Unwrap prefs, as it will be faster to work outside of XPCOM.
+            prefs = UnwrapObject(prefs)
+        except:
+            pass
         # these should all be conditional on not being the
         # default prefs.
         scimoz = scintilla.scimoz
