@@ -17,8 +17,6 @@
 
     <script src="chrome://breadcrumbs/content/breadcrumbs.js"
             type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/less_loader.js"
-            type="application/x-javascript;version=1.7"/>
 
     <vbox id="editorvbox">
         <hbox position="2">
