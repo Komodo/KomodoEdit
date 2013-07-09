@@ -137,6 +137,7 @@ this.MultiCaretSession.prototype = {
         var scimoz = this.view.scimoz;
         this._clearSelections_preservePos(scimoz);
         scimoz.multipleSelection = true;
+        this.additionalSelectionTyping = scimoz.additionalSelectionTyping;
         scimoz.additionalSelectionTyping = true;
         scimoz.multiPaste = scimoz.SC_MULTIPASTE_EACH;
         this._state = SETTING_CARETS;
@@ -260,7 +261,7 @@ this.MultiCaretSession.prototype = {
         var scimoz = view.scimoz;
         this._endUndoBlock(view, scimoz);
         scimoz.multiPaste = scimoz.SC_MULTIPASTE_ONCE;
-        scimoz.additionalSelectionTyping = false;
+        scimoz.additionalSelectionTyping = this.additionalSelectionTyping;
         scimoz.multipleSelection = false;
         this._clearSelections_preservePos(scimoz);
         scimoz.indicatorCurrent = CHANGE_INDICATOR;

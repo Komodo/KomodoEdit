@@ -2093,16 +2093,29 @@
 >
         <![CDATA[
             var ignoreKey = (event.shiftKey || event.altKey || 
-<!-- #if PLATFORM != "darwin" -->
+// #if PLATFORM != "darwin"
                 event.metaKey
-<!-- #else -->
+// #else
                 event.ctrlKey
-<!-- #endif -->
+// #endif
                             );
             if (ignoreKey) {
                 return;
             }
+// #if PLATFORM == "linux"
+            // Bug 99611: On Linux ctrl-click is used both to set 
+            // rectangular selections and add multiple selections.
+            // Resolve the ambiguity by requiring linux users to use the
+            // command (via menu or keybinding) to start a session, and
+            // then map ctrl-click to a multi-caret session only if we're in one.
+	    let multiCaretSession = ko.selections.getMultiCaretSession(this);
+            let scimoz = this.scimoz;
+            if (multiCaretSession.isGatheringCarets) {
+                multiCaretSession.addRange(scimoz.selectionStart, scimoz.selectionEnd);
+            }
+// #else
             ko.views.startOrContinueMultiCaretSession(this);
+// #endif
         ]]>
         </handler>
 
