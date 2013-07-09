@@ -3118,6 +3118,8 @@ class MSIInstallName(black.configure.Datum):
         self.value = "ActiveState %s %s" % (productName, majorVer)
         if updateChannel == "nightly":
             self.value += " nightly"
+        elif updateChannel == "beta":
+            self.value += " Beta"
         self.determined = 1
 
 
