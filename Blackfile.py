@@ -1222,7 +1222,7 @@ def ImageKomodo(cfg, argv):
     GenerateCaches(cfg)
 
     # Start with a fresh image
-    basedir = "install" #ipkgpath()
+    basedir = abspath("install") #ipkgpath()
     if exists(basedir): # start with a fresh INSTALLDIR/...
         shutil.rmtree(basedir)
     os.makedirs(basedir)
@@ -1451,6 +1451,9 @@ def _PackageKomodoMSI(cfg):
     _run("copy /y %s %s"
          % (join("src", "install", "rmtree", "rmtreew.exe"),
             join(wrkDir, "rmtreew.exe")))
+    _run("copy /y %s %s"
+         % (join("src", "install", "wix", "custom_actions", "custom_actions.dll"),
+            join(wrkDir, "custom_actions.dll")))
     _run("copy /y %s %s"
          % (join(cfg.buildRelDir, "license_text", "LICENSE.rtf"),
             join(wrkDir, "aswixui", "License.rtf")))

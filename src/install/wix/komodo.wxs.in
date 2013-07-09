@@ -187,6 +187,10 @@
          because it ends with '\': which would escape the close quote. -->
     <CustomAction Id="RemoveInstallDir" BinaryKey="rmtreew.exe"
         ExeCommand='"[INSTALLDIR]."' Return="ignore" Execute="commit" />
+
+    <CustomAction Id="CheckDirectoryEmpty" BinaryKey="custom_actions.dll"
+        DllEntry="CheckEmptyDir" Return="check" Execute="immediate"/>
+
     <InstallExecuteSequence>
       <RemoveExistingProducts After="InstallInitialize" /> 
       <Custom Action="RemoveInstallDir" After="RemoveFiles">REMOVE="ALL"</Custom>
@@ -199,6 +203,7 @@
     <Icon Id="$(var.KomodoId).exe" SourceFile="feature-core\INSTALLDIR\komodo.exe" />
     <Binary Id="startw.exe" SourceFile="startw.exe" />
     <Binary Id="rmtreew.exe" SourceFile="rmtreew.exe" />
+    <Binary Id="custom_actions.dll" SourceFile="custom_actions.dll" />
   </Product>
 </Wix>
 

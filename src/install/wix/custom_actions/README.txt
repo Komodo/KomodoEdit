@@ -1,0 +1,1 @@
+This directory contains the custom actions we use for Komodo's WiX installer.

@@ -3,7 +3,13 @@
   <Fragment>
     <UI>
       <Dialog Id="CustomizeDlg" Width="370" Height="270" Title="[ProductName]" TrackDiskSpace="yes">
-        <Control Id="Tree" Type="SelectionTree" X="10" Y="70" Width="218" Height="118" Property="_BrowseProperty" Sunken="yes" TabSkip="no" Text="Tree of selections" />
+        <Control Id="Tree" Type="SelectionTree" X="10" Y="70" Width="218" Height="118" Property="_BrowseProperty" Sunken="yes" TabSkip="no" Text="Tree of selections">
+          <Publish Event="DoAction" Value="CheckDirectoryEmpty">1</Publish>
+          <!-- Re-publish the property to have it affect UI; see
+             - http://www.mail-archive.com/wix-users@lists.sourceforge.net/msg05097.html -->
+          <Publish Property="TEMP_DIR_EMPTY" Value="[CheckDirectoryEmpty]">1</Publish>
+          <Publish Property="CheckDirectoryEmpty" Value="[TEMP_DIR_EMPTY]"/>
+        </Control>
         <Control Id="Browse" Type="PushButton" X="304" Y="200" Width="56" Height="17" Text="&amp;Change...">
           <Publish Event="SelectionBrowse" Value="BrowseDlg">1</Publish>
           <Condition Action="hide">Installed</Condition>
@@ -23,12 +29,17 @@
           <Publish Event="NewDialog" Value="[WixUI_CustomizeDlg_BackCustom]">InstallMode = "Custom"</Publish>
           <Publish Event="NewDialog" Value="[WixUI_CustomizeDlg_BackFeatureTree]">WixUI_Mode = "FeatureTree"</Publish>
         </Control>
-        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="&amp;Next">
+        <Control Id="Next_FakeDisabled" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="&amp;Next" Disabled="yes">
+          <!-- This is used to disable the dialog when the directory is not empty -->
+        </Control>
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="&amp;Next" Hidden="yes">
           <Publish Property="InstallMode" Value="Install">1</Publish>
           <Publish Property="Progress1" Value="Installing">1</Publish>
           <Publish Property="Progress2" Value="installs">1</Publish>
           <Publish Event="NewDialog" Value="[WixUI_CustomizeDlg_Next]">1</Publish>
           <Subscribe Event="SelectionNoItems" Attribute="Enabled" />
+          <Condition Action="show">IsDirectoryEmpty=1</Condition>
+          <Condition Action="hide"><![CDATA[IsDirectoryEmpty<>1]]></Condition>
         </Control>
         <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="Cancel">
           <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
@@ -63,6 +74,11 @@
         <Control Id="LocationLabel" Type="Text" X="10" Y="190" Width="50" Height="10" Text="Install to:">
           <Subscribe Event="SelectionPathOn" Attribute="Visible" />
           <Condition Action="hide">Installed</Condition>
+        </Control>
+        <Control Id="LocationInvalidLabel" Type="Text" X="10" Y="216" Width="291" Height="13" Hidden="yes">
+          <Text>Please Install into an empty directory.</Text>
+          <Condition Action="show"><![CDATA[IsDirectoryEmpty<>1]]></Condition>
+          <Condition Action="hide">IsDirectoryEmpty=1</Condition>
         </Control>
       </Dialog>
     </UI>
