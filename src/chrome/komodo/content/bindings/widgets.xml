@@ -745,6 +745,7 @@
                             tooltiptext="&moveDown.tooltiptext;"/>
             </xul:hbox>
             <xul:tree anonid="mapping" flex="1"
+                      hidecolumnpicker="true"
                       onselect="document.getBindingParent(this).updateButtons();"
                       ondblclick="document.getBindingParent(this).edit();">
                 <xul:treecols>

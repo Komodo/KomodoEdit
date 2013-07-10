@@ -87,6 +87,7 @@
             <separator class="thin"/>
             <tree id="languageStatus" flex="1"
                   seltype="multiple" class="no-border"
+                  hidecolumnpicker="true"
                   editable="true"
                   rows="8"
                   onclick="return PrefLanguages_OnClick(event);"

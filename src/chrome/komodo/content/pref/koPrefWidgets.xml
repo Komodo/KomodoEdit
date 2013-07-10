@@ -499,6 +499,7 @@
         <content>
             <xul:vbox flex="1">
                 <xul:tree id="envVars" flex="1"
+                          hidecolumnpicker="true"
                           onclick="this.parentNode.parentNode.onSelect(event);"
                           ondblclick="this.parentNode.parentNode.editVar();">
                     <xul:treecols>
