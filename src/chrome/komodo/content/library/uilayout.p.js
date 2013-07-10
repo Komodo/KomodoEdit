@@ -698,8 +698,8 @@ this.togglePane = function uilayout_togglePane(paneId, force)
             pane.collapsed = !pane.collapsed;
         }
 
-		// technically the window resized, so fire the appropriate event
-		xtk.domutils.fireEvent(window, "resize");
+        // technically the window resized, so fire the appropriate event
+        xtk.domutils.fireEvent(window, "resize");
     } catch (e) {
         _log.exception(e);
     }
