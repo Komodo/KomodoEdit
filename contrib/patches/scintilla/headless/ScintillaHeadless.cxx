@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include "Platform.h"
 #include "Scintilla.h"
@@ -39,11 +40,13 @@
 #include "ViewStyle.h"
 #include "Decoration.h"
 #include "CharClassify.h"
+#include "CaseFolder.h"
 #include "Document.h"
 #include "Selection.h"
 #include "PositionCache.h"
 #include "Editor.h"
 #include "UniConversion.h"
+#include "CaseConvert.h"
 #include "ScintillaBase.h"
 
 #ifdef SCI_LEXER
