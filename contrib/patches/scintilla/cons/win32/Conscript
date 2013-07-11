@@ -160,7 +160,7 @@ my @lexers = qw(
 
 $cons->Command(
     [$pluginName],              # %0
-    "scintilla_vc6.mak",        # %1
+    "scintilla.mak",            # %1
     "../include/HFacer.py",     # %2
     "../include/Face.py",
     "../include/ILexer.h",
