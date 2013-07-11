@@ -385,6 +385,7 @@
  '*.plx': 'Perl',
  '*.plsql': 'PL-SQL',
  '*.pm': 'Perl',
+ '*.po': 'GetText',
  '*.pov': 'POVRay',
  '*.ps': 'PostScript',
  '*.ps1': 'PowerShell',
