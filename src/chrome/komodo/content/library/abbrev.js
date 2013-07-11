@@ -266,17 +266,13 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
 
 this._allowedStylesNameSets = ['keywords', 'classes', 'functions', 'identifiers',
                                'tags', 'classes', 'functions', 'keywords2',
-                               'variables', 'modules'];
+                               'variables', 'modules', 'default'];
 this._cachedAllowedStylesForLanguage = {};
 this._allowedStylesForLanguage = function(languageObj) {
     var languageName = languageObj.name;
     if (!(languageName in this._cachedAllowedStylesForLanguage)) {
-        var name_sets = this._allowedStylesNameSets;
-        if (languageObj.isHTMLLanguage) {
-            name_sets = name_sets.concat("default");
-        }
         var allowedStyles = [];
-        name_sets.forEach(function(name) {
+        this._allowedStylesNameSets.forEach(function(name) {
                 allowedStyles = allowedStyles.concat(languageObj.getNamedStyles(name));
             });
         this._cachedAllowedStylesForLanguage[languageName] = allowedStyles;
@@ -284,6 +280,10 @@ this._allowedStylesForLanguage = function(languageObj) {
     return this._cachedAllowedStylesForLanguage[languageName];
 };
 
+this._textLikeLanguages = ["Markdown", "reStructuredText", "YAML",
+                           "XML", "LaTeX", "troff", "POD",
+                           "ASN.1", "PostScript", "SGML", "TeX", "ConTeX",
+                           "PO", "TracWiki", "RTF"];
 this.expandAutoAbbreviation = function(currView) {
     var scimoz = currView.scimoz;
     var currentPos = scimoz.anchor;
@@ -305,8 +305,10 @@ this.expandAutoAbbreviation = function(currView) {
     if (allowedStyles.indexOf(prevStyle) == -1) {
         return false;
     }
-    var useWordBoundary = (languageObj.isHTMLLanguage
-                           && prevStyle == scimoz.SCE_UDL_M_DEFAULT);
+    var useWordBoundary = (languageObj.name == "Text"
+                           || (prevStyle == scimoz.SCE_UDL_M_DEFAULT
+                               && (languageObj.isHTMLLanguage
+                                   || this._textLikeLanguages.indexOf(languageObj.name) >= 0)));
     var wordStartPos = this.getWordStart(scimoz, prevPos, useWordBoundary);
     var abbrev = scimoz.getTextRange(wordStartPos, currentPos);
     if (!this._checkPossibleAbbreviation(abbrev)) {

@@ -243,7 +243,7 @@ StateMap = {
                               ),
         'cdata' : ('SCE_UDL_M_CDATA', )
     },
-    'Text': {},
+    'Text': {'default': ('SCE_P_DEFAULT',)},
     'Perl': {
         'default':('SCE_PL_DEFAULT',
                    'SCE_PL_UNKNOWN_FIELD',
