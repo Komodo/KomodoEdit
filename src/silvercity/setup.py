@@ -82,6 +82,7 @@ src_files.extend(
             ["WordList.cxx",
              "PropSetSimple.cxx",
              "Accessor.cxx",
+             "CharacterCategory.cxx",
              "CharacterSet.cxx",
              "LexerBase.cxx",
              "LexerNoExceptions.cxx",
