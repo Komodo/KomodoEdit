@@ -27,10 +27,28 @@ extern NSString *SCIUpdateUINotification;
 @end
 
 /**
+ * MarginView draws line numbers and other margins next to the text view.
+ */
+@interface MarginView : NSRulerView
+{
+@private
+  int marginWidth;
+  ScintillaView *owner;
+  NSMutableArray *currentCursors;
+}
+
+@property (assign) int marginWidth;
+@property (assign) ScintillaView *owner;
+
+- (id)initWithScrollView:(NSScrollView *)aScrollView;
+
+@end
+
+/**
  * InnerView is the Cocoa interface to the Scintilla backend. It handles text input and
  * provides a canvas for painting the output.
  */
-@interface InnerView : NSView <NSTextInput>
+@interface InnerView : NSView <NSTextInputClient, NSUserInterfaceValidations>
 {
 @private
   ScintillaView* mOwner;
@@ -60,14 +78,11 @@ extern NSString *SCIUpdateUINotification;
   // It uses the content view for display.
   Scintilla::ScintillaCocoa* mBackend;
   
-  // The object (eg NSDocument) that controls the ScintillaView.
-  NSObject* mOwner;
-  
   // This is the actual content to which the backend renders itself.
   InnerView* mContent;
   
-  NSScroller* mHorizontalScroller;
-  NSScroller* mVerticalScroller;
+  NSScrollView *scrollView;
+  MarginView *marginView;
   
   CGFloat zoomDelta;
   
@@ -79,9 +94,9 @@ extern NSString *SCIUpdateUINotification;
   id<ScintillaNotificationProtocol> mDelegate;
 }
 
-@property (nonatomic, assign) Scintilla::ScintillaCocoa* backend;
-@property (nonatomic, assign) NSObject* owner;
+@property (nonatomic, readonly) Scintilla::ScintillaCocoa* backend;
 @property (nonatomic, assign) id<ScintillaNotificationProtocol> delegate;
+@property (nonatomic, readonly) NSScrollView *scrollView;
 
 - (void) dealloc;
 - (void) positionSubViews;
@@ -94,11 +109,7 @@ extern NSString *SCIUpdateUINotification;
 - (void) suspendDrawing: (BOOL) suspend;
 
 // Scroller handling
-- (BOOL) setVerticalScrollRange: (int) range page: (int) page;
-- (void) setVerticalScrollPosition: (float) position;
-- (BOOL) setHorizontalScrollRange: (int) range page: (int) page;
-- (void) setHorizontalScrollPosition: (float) position;
-
+- (void) setMarginWidth: (int) width;
 - (void) scrollerAction: (id) sender;
 - (InnerView*) content;
 
@@ -120,6 +131,9 @@ extern NSString *SCIUpdateUINotification;
 // Native call through to the backend.
 + (sptr_t) directCall: (ScintillaView*) sender message: (unsigned int) message wParam: (uptr_t) wParam
                lParam: (sptr_t) lParam;
+- (sptr_t) message: (unsigned int) message wParam: (uptr_t) wParam lParam: (sptr_t) lParam;
+- (sptr_t) message: (unsigned int) message wParam: (uptr_t) wParam;
+- (sptr_t) message: (unsigned int) message;
 
 // Back end properties getters and setters.
 - (void) setGeneralProperty: (int) property parameter: (long) parameter value: (long) value;

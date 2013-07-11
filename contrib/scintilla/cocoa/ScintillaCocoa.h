@@ -29,7 +29,6 @@
 #include "PropSetSimple.h"
 #endif
 
-#include "SVector.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -45,16 +44,19 @@
 #include "ViewStyle.h"
 #include "CharClassify.h"
 #include "Decoration.h"
+#include "CaseFolder.h"
 #include "Document.h"
 #include "Selection.h"
 #include "PositionCache.h"
 #include "Editor.h"
-//#include "ScintillaCallTip.h"
 
 #include "ScintillaBase.h"
+#include "CaseConvert.h"
 
 extern "C" NSString* ScintillaRecPboardType;
 
+@class InnerView;
+@class MarginView;
 @class ScintillaView;
 
 @class FindHighlightLayer;
@@ -109,6 +111,8 @@ private:
 
   bool capturedMouse;
 
+  bool enteredSetScrollingSize;
+
   // Private so ScintillaCocoa objects can not be copied
   ScintillaCocoa(const ScintillaCocoa &) : ScintillaBase() {}
   ScintillaCocoa &operator=(const ScintillaCocoa &) { return * this; }
@@ -120,10 +124,12 @@ private:
   int scrollTicks;
   NSTimer* tickTimer;
   NSTimer* idleTimer;
+  CFRunLoopObserverRef observer;
 	
   FindHighlightLayer *layerFindIndicator;
 
 protected:
+  Point GetVisibleOriginInMain();
   PRectangle GetClientRectangle();
   Point ConvertPoint(NSPoint point);
   
@@ -132,19 +138,21 @@ protected:
   virtual CaseFolder *CaseFolderForEncoding();
   virtual std::string CaseMapString(const std::string &s, int caseMapping);
   virtual void CancelModes();
-public:
-  NSView* ContentView();
 
-  ScintillaCocoa(NSView* view);
+public:
+  ScintillaCocoa(InnerView* view, MarginView* viewMargin);
   virtual ~ScintillaCocoa();
 
   void RegisterNotifyCallback(intptr_t windowid, SciNotifyFunc callback);
   sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
 
   ScintillaView* TopContainer();
+  NSScrollView* ScrollContainer();
+  InnerView* ContentView();
 
   bool SyncPaint(void* gc, PRectangle rc);
   bool Draw(NSRect rect, CGContextRef gc);
+  void PaintMargin(NSRect aRect);
 
   virtual sptr_t DefWndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
   void SetTicking(bool on);
@@ -155,9 +163,10 @@ public:
   void SetVerticalScrollPos();
   void SetHorizontalScrollPos();
   bool ModifyScrollBars(int nMax, int nPage);
+  bool SetScrollingSize(void);
   void Resize();
-  void DoScroll(float position, NSScrollerPart part, bool horizontal);
-    
+  void UpdateForScroll();
+
   // Notifications for the owner.
   void NotifyChange();
   void NotifyFocus(bool focus);
@@ -184,8 +193,15 @@ public:
 
   void TimerFired(NSTimer* timer);
   void IdleTimerFired();
+  static void UpdateObserver(CFRunLoopObserverRef observer, CFRunLoopActivity activity, void *sci);
+  void ObserverAdd();
+  void ObserverRemove();
+  virtual void IdleWork();
+  virtual void QueueIdleWork(WorkNeeded::workItems items, int upTo);
   int InsertText(NSString* input);
-  
+  void SelectOnlyMainSelection();
+  virtual void SetDocPointer(Document *document);
+
   bool KeyboardInput(NSEvent* event);
   void MouseDown(NSEvent* event);
   void MouseMove(NSEvent* event);

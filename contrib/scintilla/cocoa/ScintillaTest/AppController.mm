@@ -271,6 +271,11 @@ static const char * box_xpm[] = {
     [self showAutocompletion];
 }
 
+-(IBAction) setFontQuality: (id) sender
+{
+    [ScintillaView directCall:mEditor message:SCI_SETFONTQUALITY wParam:[sender tag] lParam:0];
+}
+
 @end
 
 //--------------------------------------------------------------------------------------------------

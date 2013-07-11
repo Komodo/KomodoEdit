@@ -34,7 +34,10 @@ endif
 ALL:	$(COMPONENT) $(LEXCOMPONENT) $(LEXLIB) ScintillaWinS.o
 
 clean:
-	$(DEL) *.exe *.o *.obj *.dll *.res *.map
+	$(DEL) *.exe *.o *.obj *.dll *.res *.map *.plist
+
+analyze:
+	clang --analyze -D DISABLE_D2D $(CXXFLAGS) *.cxx ../src/*.cxx ../lexlib/*.cxx ../lexers/*.cxx
 
 deps:
 	$(CC) -MM $(CXXFLAGS) *.cxx ../src/*.cxx ../lexlib/*.cxx ../lexers/*.cxx >deps.mak
@@ -45,7 +48,10 @@ LEXOBJS:=$(addsuffix .o,$(basename $(notdir $(wildcard ../lexers/Lex*.cxx))))
 BASEOBJS = \
 	AutoComplete.o \
 	CallTip.o \
+	CaseConvert.o \
+	CaseFolder.o \
 	CellBuffer.o \
+	CharacterCategory.o \
 	CharacterSet.o \
 	CharClassify.o \
 	ContractionState.o \
@@ -107,7 +113,7 @@ ScintillaBaseL.o: ScintillaBase.cxx Platform.h \
  CharClassify.h Decoration.h Document.h \
  Selection.h PositionCache.h Editor.h \
  ScintillaBase.h LexAccessor.h Accessor.h \
- LexerModule.h Catalogue.h
+ LexerModule.h Catalogue.h CaseFolder.h
 
 ScintillaWinL.o: ScintillaWin.cxx Platform.h \
  ILexer.h Scintilla.h SplitVector.h \
@@ -118,7 +124,8 @@ ScintillaWinL.o: ScintillaWin.cxx Platform.h \
  Document.h Selection.h PositionCache.h \
  Editor.h ScintillaBase.h UniConversion.h \
  LexAccessor.h Accessor.h \
- LexerModule.h Catalogue.h
+ LexerModule.h Catalogue.h CaseConvert.h \
+ CaseFolder.h
 
 ScintillaWinS.o: ScintillaWin.cxx Platform.h \
  ILexer.h Scintilla.h SplitVector.h \
@@ -127,7 +134,8 @@ ScintillaWinS.o: ScintillaWin.cxx Platform.h \
  XPM.h LineMarker.h Style.h AutoComplete.h \
  ViewStyle.h CharClassify.h Decoration.h \
  Document.h Selection.h PositionCache.h \
- Editor.h ScintillaBase.h UniConversion.h
+ Editor.h ScintillaBase.h UniConversion.h \
+ CaseConvert.h CaseFolder.h
 
 ScintillaBaseL.o:
 	$(CC) $(CXXFLAGS) -D SCI_LEXER -c $< -o $@

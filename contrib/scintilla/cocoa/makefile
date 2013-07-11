@@ -5,9 +5,8 @@
 # This makefile assumes that Apple's version of GCC 3.1 is used and changes will be needed to use other compilers.
 # GNU make does not like \r\n line endings so should be saved to CVS in binary form.
 
-.SUFFIXES: .cxx .c .o .h .a
-CC = g++
-CCOMP = gcc
+.SUFFIXES: .cxx .c .o .h .a .mm
+CC = $(CXX)
 LIBTOOL = libtool
 
 GCC_MAJOR    := $(shell $(CC) -v 2>&1 | \
@@ -16,24 +15,21 @@ GCC_MAJOR    := $(shell $(CC) -v 2>&1 | \
 # We call it "libscintilla" so when you add it to a Project Builder project,
 # Project Builder will link it correctly.
 STATICLIB=../bin/libscintilla.a
-DYNAMICLIB=../bin/libscintilla.dylib
+DYNAMICLIB_BASE=libscintilla.dylib
+DYNAMICLIB=../bin/$(DYNAMICLIB_BASE)
 
 vpath %.h ../src ../include ../lexlib
 vpath %.cxx ../src ../lexlib ../lexers
 
-INCLUDEDIRS=-I ../include -I ../src -I ../lexlib
+INCLUDEDIRS=-I. -I ../include -I ../src -I ../lexlib
 
-ifeq ($(GCC_MAJOR),3)
-# 10.4 will have GCC 4 or better, so this should only ever happen
-# on a 10.3 or older PPC box
-ARCHFLAGS=-arch ppc -faltivec -mcpu=7400 -mtune=7400 -mpowerpc -mpowerpc-gfxopt
-else
 ifndef NATIVE
 ARCH_BASE_FLAGS=/Developer/SDKs/MacOSX10.5.sdk -arch i386
 ARCHFLAGS=-isysroot $(ARCH_BASE_FLAGS)
 LINK_FLAGS=-Wl,-syslibroot,$(ARCH_BASE_FLAGS)
-DYN_FLAGS=$(LINK_FLAGS) -framework Cocoa -framework QuartzCore -bundle
-endif
+DYN_FLAGS=$(LINK_FLAGS) -framework Cocoa -framework QuartzCore -dynamiclib -install_name @executable_path/$(DYNAMICLIB_BASE)
+else
+DYN_FLAGS=$(LDFLAGS) -framework Cocoa -framework QuartzCore -dynamiclib -install_name @executable_path/$(DYNAMICLIB_BASE) -L. -lpcre
 endif
 
 # See http://stackoverflow.com/questions/127426/gnu-compiler-warning-class-has-virtual-functions-but-non-virtual-destructor
@@ -53,10 +49,11 @@ endif
 
 ifdef EXT_INPUT
 EXT_INPUT=-DEXT_INPUT
-EXTOBS=ExtInput.o
 endif
 
 .cxx.o:
+	$(CC) $(CXXFLAGS) $(OPTIONS) $(DFLAGS) $(CONTAINER) $(ARCHFLAGS) $(EXT_INPUT) $(INCLUDEDIRS) -c $<
+.mm.o:
 	$(CC) $(CXXFLAGS) $(OPTIONS) $(DFLAGS) $(CONTAINER) $(ARCHFLAGS) $(EXT_INPUT) $(INCLUDEDIRS) -c $<
 .c.o:
 	$(CCOMP) $(CXXFLAGS) $(OPTIONS) $(DFLAGS) $(CONTAINER) $(ARCHFLAGS) $(EXT_INPUT) $(INCLUDEDIRS) -w -c $<
@@ -73,14 +70,14 @@ clean:
 	rm -f *.o $(COMPLIB)
 
 deps:
-	$(CC) -MM -DSCI_NAMESPACE -DMACOSX -DSCI_LEXER  $(CXXFLAGS) $(INCLUDEDIRS) *.cxx ../src/*.cxx ../lexlib/*.cxx ../src/*.cxx >deps.mak
+	$(CC) -MM -DSCI_NAMESPACE -DMACOSX -DSCI_LEXER  $(CXXFLAGS) $(INCLUDEDIRS) -I. *.mm ../src/*.cxx ../lexlib/*.cxx ../src/*.cxx >deps.mak
 
-COMPLIB=Accessor.o CharacterSet.o LexerBase.o LexerModule.o LexerSimple.o StyleContext.o WordList.o \
-	CharClassify.o Decoration.o Document.o PerLine.o Catalogue.o CallTip.o \
-	ScintillaBase.o ContractionState.o Editor.o ExternalLexer.o PropSetSimple.o PlatMacOSX.o \
-	KeyMap.o LineMarker.o PositionCache.o ScintillaMacOSX.o CellBuffer.o ViewStyle.o \
+COMPLIB=Accessor.o CharacterCategory.o CharacterSet.o LexerBase.o LexerModule.o LexerSimple.o StyleContext.o WordList.o \
+	CaseConvert.o CaseFolder.o CharClassify.o Decoration.o Document.o PerLine.o Catalogue.o CallTip.o \
+	ScintillaBase.o ContractionState.o Editor.o ExternalLexer.o PropSetSimple.o \
+	KeyMap.o LineMarker.o PositionCache.o CellBuffer.o ViewStyle.o \
 	RESearch.o RunStyles.o Selection.o Style.o Indicator.o AutoComplete.o UniConversion.o XPM.o \
-        TCarbonEvent.o TView.o ScintillaCallTip.o $(EXTOBS) \
+        InfoBar.o PlatCocoa.o ScintillaCocoa.o ScintillaView.o \
 	$(LEXOBJS)
 
 $(STATICLIB): $(COMPLIB)

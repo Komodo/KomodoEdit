@@ -3,17 +3,17 @@ PlatGTK.o: PlatGTK.cxx \
  ../src/UniConversion.h ../src/XPM.h Converter.h
 ScintillaGTK.o: ScintillaGTK.cxx \
  ../include/ILexer.h ../include/Scintilla.h ../include/ScintillaWidget.h \
- ../include/SciLexer.h ../src/SVector.h ../src/SplitVector.h \
- ../src/Partitioning.h ../src/RunStyles.h ../src/ContractionState.h \
- ../src/CellBuffer.h ../src/CallTip.h ../src/KeyMap.h ../src/Indicator.h \
- ../src/XPM.h ../src/LineMarker.h ../src/Style.h ../src/AutoComplete.h \
+ ../include/SciLexer.h ../src/SplitVector.h ../src/Partitioning.h \
+ ../src/RunStyles.h ../src/ContractionState.h ../src/CellBuffer.h \
+ ../src/CallTip.h ../src/KeyMap.h ../src/Indicator.h ../src/XPM.h \
+ ../src/LineMarker.h ../src/Style.h ../src/AutoComplete.h \
  ../src/ViewStyle.h ../src/Decoration.h ../src/CharClassify.h \
  ../src/Document.h ../src/Selection.h ../src/PositionCache.h \
  ../src/Editor.h ../src/ScintillaBase.h ../src/UniConversion.h \
  scintilla-marshal.h ../lexlib/LexerModule.h ../src/ExternalLexer.h \
  Converter.h
 AutoComplete.o: ../src/AutoComplete.cxx ../include/Platform.h \
- ../lexlib/CharacterSet.h ../src/AutoComplete.h
+ ../lexlib/CharacterSet.h ../src/AutoComplete.h ../include/Scintilla.h
 CallTip.o: ../src/CallTip.cxx ../include/Platform.h \
  ../include/Scintilla.h ../src/CallTip.h
 Catalogue.o: ../src/Catalogue.cxx ../include/ILexer.h \
@@ -21,7 +21,7 @@ Catalogue.o: ../src/Catalogue.cxx ../include/ILexer.h \
  ../src/Catalogue.h
 CellBuffer.o: ../src/CellBuffer.cxx ../include/Platform.h \
  ../include/Scintilla.h ../src/SplitVector.h ../src/Partitioning.h \
- ../src/CellBuffer.h
+ ../src/CellBuffer.h ../src/UniConversion.h
 CharClassify.o: ../src/CharClassify.cxx ../src/CharClassify.h
 ContractionState.o: ../src/ContractionState.cxx ../include/Platform.h \
  ../src/SplitVector.h ../src/Partitioning.h ../src/RunStyles.h \
@@ -39,13 +39,13 @@ Editor.o: ../src/Editor.cxx ../include/Platform.h ../include/ILexer.h \
  ../src/RunStyles.h ../src/ContractionState.h ../src/CellBuffer.h \
  ../src/KeyMap.h ../src/Indicator.h ../src/XPM.h ../src/LineMarker.h \
  ../src/Style.h ../src/ViewStyle.h ../src/CharClassify.h \
- ../src/Decoration.h ../src/Document.h ../src/Selection.h \
- ../src/PositionCache.h ../src/Editor.h
+ ../src/Decoration.h ../src/Document.h ../src/UniConversion.h \
+ ../src/Selection.h ../src/PositionCache.h ../src/Editor.h
 ExternalLexer.o: ../src/ExternalLexer.cxx ../include/Platform.h \
  ../include/ILexer.h ../include/Scintilla.h ../include/SciLexer.h \
  ../lexlib/LexerModule.h ../src/Catalogue.h ../src/ExternalLexer.h
 Indicator.o: ../src/Indicator.cxx ../include/Platform.h \
- ../include/Scintilla.h ../src/Indicator.h
+ ../include/Scintilla.h ../src/XPM.h ../src/Indicator.h
 KeyMap.o: ../src/KeyMap.cxx ../include/Platform.h ../include/Scintilla.h \
  ../src/KeyMap.h
 LineMarker.o: ../src/LineMarker.cxx ../include/Platform.h \

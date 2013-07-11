@@ -28,8 +28,6 @@
 
 #import <Foundation/NSGeometry.h>
 
-#import <Carbon/Carbon.h> // Temporary
-
 using namespace Scintilla;
 
 extern sptr_t scintilla_send_message(void* sci, unsigned int iMessage, uptr_t wParam, sptr_t lParam);
@@ -236,26 +234,23 @@ void SurfaceImpl::InitPixMap(int width, int height, Surface* /* surface_ */, Win
   
   // Create the bitmap.
   bitmapData = new uint8_t[bitmapByteCount];
-  if (bitmapData != NULL)
-  {
-    // create the context
-    gc = CGBitmapContextCreate(bitmapData,
-                               width,
-                               height,
-                               BITS_PER_COMPONENT,
-                               bitmapBytesPerRow,
-                               colorSpace,
-                               kCGImageAlphaPremultipliedLast);
+  // create the context
+  gc = CGBitmapContextCreate(bitmapData,
+                             width,
+                             height,
+                             BITS_PER_COMPONENT,
+                             bitmapBytesPerRow,
+                             colorSpace,
+                             kCGImageAlphaPremultipliedLast);
     
-    if (gc == NULL)
-    {
-      // the context couldn't be created for some reason,
-      // and we have no use for the bitmap without the context
-      delete[] bitmapData;
-      bitmapData = NULL;
-    }
-    textLayout->setContext (gc);
+  if (gc == NULL)
+  {
+    // the context couldn't be created for some reason,
+    // and we have no use for the bitmap without the context
+    delete[] bitmapData;
+    bitmapData = NULL;
   }
+  textLayout->setContext (gc);
   
   // the context retains the color space, so we can release it
   CGColorSpaceRelease(colorSpace);
@@ -408,7 +403,7 @@ void SurfaceImpl::Polygon(Scintilla::Point *pts, int npts, ColourDesired fore,
                           ColourDesired back)
 {
   // Allocate memory for the array of points.
-  CGPoint *points = new CGPoint[npts];
+  std::vector<CGPoint> points(npts);
   
   for (int i = 0;i < npts;i++)
   {
@@ -424,15 +419,11 @@ void SurfaceImpl::Polygon(Scintilla::Point *pts, int npts, ColourDesired fore,
   PenColour(fore);
   
   // Draw the polygon
-  CGContextAddLines(gc, points, npts);
+  CGContextAddLines(gc, points.data(), npts);
   
   // Explicitly close the path, so it is closed for stroking AND filling (implicit close = filling only)
   CGContextClosePath( gc );
   CGContextDrawPath( gc, kCGPathFillStroke );
-  
-  // Deallocate memory.
-  delete points;
-  points = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1488,7 +1479,6 @@ typedef std::map<NSInteger, NSImage*> ImageMap;
 class ListBoxImpl : public ListBox, IListBox
 {
 private:
-  ControlRef lb;
   ImageMap images;
   int lineHeight;
   bool unicodeMode;
@@ -1510,7 +1500,7 @@ private:
   void* doubleClickActionData;
 
 public:
-  ListBoxImpl() : lb(NULL), lineHeight(10), unicodeMode(false),
+  ListBoxImpl() : lineHeight(10), unicodeMode(false),
     desiredVisibleRows(5), maxItemWidth(0), aveCharWidth(8), maxIconWidth(0),
     doubleClickAction(NULL), doubleClickActionData(NULL)
   {
@@ -1698,36 +1688,31 @@ void ListBoxImpl::SetList(const char* list, char separator, char typesep)
 {
   Clear();
   size_t count = strlen(list) + 1;
-  char* words = new char[count];
-  if (words)
+  std::vector<char> words(list, list+count);
+  char* startword = words.data();
+  char* numword = NULL;
+  int i = 0;
+  for (; words[i]; i++)
   {
-    memcpy(words, list, count);
-    char* startword = words;
-    char* numword = NULL;
-    int i = 0;
-    for (; words[i]; i++)
+    if (words[i] == separator)
     {
-      if (words[i] == separator)
-      {
-        words[i] = '\0';
-        if (numword)
-          *numword = '\0';
-        Append(startword, numword?atoi(numword + 1):-1);
-        startword = words + i + 1;
-        numword = NULL;
-      }
-      else if (words[i] == typesep)
-      {
-        numword = words + i;
-      }
-    }
-    if (startword)
-    {
+      words[i] = '\0';
       if (numword)
         *numword = '\0';
       Append(startword, numword?atoi(numword + 1):-1);
+      startword = words.data() + i + 1;
+      numword = NULL;
     }
-    delete []words;
+    else if (words[i] == typesep)
+    {
+      numword = words.data() + i;
+    }
+  }
+  if (startword)
+  {
+    if (numword)
+      *numword = '\0';
+    Append(startword, numword?atoi(numword + 1):-1);
   }
   [table reloadData];
 }
@@ -1793,7 +1778,7 @@ void ListBoxImpl::RegisterImage(int type, const char* xpm_data)
 
 void ListBoxImpl::RegisterRGBAImage(int type, int width, int height, const unsigned char *pixelsImage) {
 	CGImageRef imageRef = ImageCreateFromRGBA(width, height, pixelsImage, false);
-	NSSize sz = {width, height};
+	NSSize sz = {static_cast<CGFloat>(width), static_cast<CGFloat>(height)};
 	NSImage *img = [[[NSImage alloc] initWithSize: sz] autorelease];
 	NSBitmapImageRep *bitmapRep = [[NSBitmapImageRep alloc] initWithCGImage: imageRef];
 	[img addRepresentation: bitmapRep];
@@ -2010,7 +1995,7 @@ unsigned int Platform::DoubleClickTime()
                      @"com.apple.mouse.doubleClickThreshold"];
   if (threshold == 0)
     threshold = 0.5;
-  return static_cast<unsigned int>(threshold / kEventDurationMillisecond);
+  return static_cast<unsigned int>(threshold * 1000.0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2023,7 +2008,7 @@ bool Platform::MouseButtonBounce()
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Helper method for the backend to reach through to the scintiall window.
+ * Helper method for the backend to reach through to the scintilla window.
  */
 long Platform::SendScintilla(WindowID w, unsigned int msg, unsigned long wParam, long lParam) 
 {
@@ -2033,7 +2018,7 @@ long Platform::SendScintilla(WindowID w, unsigned int msg, unsigned long wParam,
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Helper method for the backend to reach through to the scintiall window.
+ * Helper method for the backend to reach through to the scintilla window.
  */
 long Platform::SendScintillaPointer(WindowID w, unsigned int msg, unsigned long wParam, void *lParam)
 {

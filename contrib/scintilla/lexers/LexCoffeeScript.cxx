@@ -137,7 +137,7 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 
 	// look back to set chPrevNonWhite properly for better regex colouring
 	int endPos = startPos + length;
-	if (startPos > 0 && IsSpaceEquiv(initStyle)) {
+        if (startPos > 0 && IsSpaceEquiv(initStyle)) {
 		unsigned int back = startPos;
 		styler.Flush();
 		while (back > 0 && IsSpaceEquiv(styler.StyleAt(--back)))

@@ -21,8 +21,6 @@
 #import <QuartzCore/CAAnimation.h>
 #import <QuartzCore/CATransaction.h>
 
-#import <Carbon/Carbon.h> // Temporary
-
 #include "ScintillaView.h"
 #include "PlatCocoa.h"
 
@@ -381,10 +379,22 @@ const CGFloat paddingHighlightY = 2;
 
 //----------------- ScintillaCocoa -----------------------------------------------------------------
 
-ScintillaCocoa::ScintillaCocoa(NSView* view)
+ScintillaCocoa::ScintillaCocoa(InnerView* view, MarginView* viewMargin)
 {
+  vs.marginInside = false;
   wMain = view; // Don't retain since we're owned by view, which would cause a cycle
+  wMargin = viewMargin;
   timerTarget = [[TimerTarget alloc] init: this];
+  lastMouseEvent = NULL;
+  notifyObj = NULL;
+  notifyProc = NULL;
+  capturedMouse = false;
+  enteredSetScrollingSize = false;
+  scrollSpeed = 1;
+  scrollTicks = 2000;
+  tickTimer = NULL;
+  idleTimer = NULL;
+  observer = NULL;
   layerFindIndicator = NULL;
   Initialise();
 }
@@ -393,7 +403,7 @@ ScintillaCocoa::ScintillaCocoa(NSView* view)
 
 ScintillaCocoa::~ScintillaCocoa()
 {
-  SetTicking(false);
+  Finalise();
   [timerTarget release];
 }
 
@@ -404,16 +414,7 @@ ScintillaCocoa::~ScintillaCocoa()
  */
 void ScintillaCocoa::Initialise() 
 {
-  static bool initedLexers = false;
-  if (!initedLexers)
-  {
-    initedLexers = true;
-    Scintilla_LinkLexers();
-  }
-  notifyObj = NULL;
-  notifyProc = NULL;
-  
-  capturedMouse = false;
+  Scintilla_LinkLexers();
   
   // Tell Scintilla not to buffer: Quartz buffers drawing for us.
   WndProc(SCI_SETBUFFEREDDRAW, 0, 0);
@@ -434,8 +435,66 @@ void ScintillaCocoa::Initialise()
  */
 void ScintillaCocoa::Finalise()
 {
+  ObserverRemove();
   SetTicking(false);
   ScintillaBase::Finalise();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ScintillaCocoa::UpdateObserver(CFRunLoopObserverRef observer, CFRunLoopActivity activity, void *info) {
+  ScintillaCocoa* sci = reinterpret_cast<ScintillaCocoa*>(info);
+  sci->IdleWork();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Add an observer to the run loop to perform styling as high-priority idle task.
+ */
+
+void ScintillaCocoa::ObserverAdd() {
+  if (!observer) {
+    CFRunLoopObserverContext context;
+    context.version = 0;
+    context.info = this;
+    context.retain = NULL;
+    context.release = NULL;
+    context.copyDescription = NULL;
+
+    CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
+    observer = CFRunLoopObserverCreate(NULL, kCFRunLoopEntry | kCFRunLoopBeforeWaiting,
+      true, 0, UpdateObserver, &context);
+    CFRunLoopAddObserver(mainRunLoop, observer, kCFRunLoopCommonModes);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Remove the run loop observer.
+ */
+void ScintillaCocoa::ObserverRemove() {
+  if (observer) {
+    CFRunLoopRef mainRunLoop = CFRunLoopGetMain();
+    CFRunLoopRemoveObserver(mainRunLoop, observer, kCFRunLoopCommonModes);
+    CFRelease(observer);
+  }
+  observer = NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ScintillaCocoa::IdleWork() {
+  Editor::IdleWork();
+  ObserverRemove();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void ScintillaCocoa::QueueIdleWork(WorkNeeded::workItems items, int upTo) {
+  Editor::QueueIdleWork(items, upTo);
+  ObserverAdd();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -462,37 +521,6 @@ static char *EncodedBytes(CFStringRef cfsRef, CFStringEncoding encoding) {
 /**
  * Case folders.
  */
-
-class CaseFolderUTF8 : public CaseFolderTable {
-public:
-	CaseFolderUTF8() {
-		StandardASCII();
-	}
-	virtual size_t Fold(char *folded, size_t sizeFolded, const char *mixed, size_t lenMixed) {
-		if ((lenMixed == 1) && (sizeFolded > 0)) {
-			folded[0] = mapping[static_cast<unsigned char>(mixed[0])];
-			return 1;
-		} else {
-            CFStringRef cfsVal = CFStringCreateWithBytes(kCFAllocatorDefault,
-                                                         reinterpret_cast<const UInt8 *>(mixed), 
-                                                         lenMixed, kCFStringEncodingUTF8, false);
-
-            NSString *sMapped = [(NSString *)cfsVal stringByFoldingWithOptions:NSCaseInsensitiveSearch
-                                                            locale:[NSLocale currentLocale]];
-
-            const char *cpMapped = [sMapped UTF8String];
-			size_t lenMapped = cpMapped ? strlen(cpMapped) : 0;
-			if (lenMapped < sizeFolded) {
-				memcpy(folded, cpMapped,  lenMapped);
-			} else {
-				lenMapped = 0;
-			}
-			if (cfsVal)
-				CFRelease(cfsVal);
-			return lenMapped;
-		}
-	}
-};
 
 class CaseFolderDBCS : public CaseFolderTable {
 	CFStringEncoding encoding;
@@ -533,7 +561,7 @@ public:
 
 CaseFolder *ScintillaCocoa::CaseFolderForEncoding() {
 	if (pdoc->dbcsCodePage == SC_CP_UTF8) {
-		return new CaseFolderUTF8();
+		return new CaseFolderUnicode();
 	} else {
         CFStringEncoding encoding = EncodingFromCharacterSet(IsUnicodeMode(),
                                                              vs.styles[STYLE_DEFAULT].characterSet);
@@ -547,6 +575,8 @@ CaseFolder *ScintillaCocoa::CaseFolderForEncoding() {
                 CFStringRef cfsVal = CFStringCreateWithBytes(kCFAllocatorDefault,
                                                              reinterpret_cast<const UInt8 *>(sCharacter), 
                                                              1, encoding, false);
+                if (!cfsVal)
+                        continue;
                 
                 NSString *sMapped = [(NSString *)cfsVal stringByFoldingWithOptions:NSCaseInsensitiveSearch
                                                                             locale:[NSLocale currentLocale]];
@@ -576,6 +606,17 @@ CaseFolder *ScintillaCocoa::CaseFolderForEncoding() {
  */
 std::string ScintillaCocoa::CaseMapString(const std::string &s, int caseMapping)
 {
+  if ((s.size() == 0) || (caseMapping == cmSame))
+    return s;
+  
+  if (IsUnicodeMode()) {
+    std::string retMapped(s.length() * maxExpansionCaseConversion, 0);
+    size_t lenMapped = CaseConvertString(&retMapped[0], retMapped.length(), s.c_str(), s.length(), 
+      (caseMapping == cmUpper) ? CaseConversionUpper : CaseConversionLower);
+    retMapped.resize(lenMapped);
+    return retMapped;
+  }
+
   CFStringEncoding encoding = EncodingFromCharacterSet(IsUnicodeMode(),
                                                        vs.styles[STYLE_DEFAULT].characterSet);
   CFStringRef cfsVal = CFStringCreateWithBytes(kCFAllocatorDefault,
@@ -621,7 +662,17 @@ void ScintillaCocoa::CancelModes() {
 ScintillaView* ScintillaCocoa::TopContainer()
 {
   NSView* container = static_cast<NSView*>(wMain.GetID());
-  return static_cast<ScintillaView*>([container superview]);
+  return static_cast<ScintillaView*>([[[container superview] superview] superview]);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Helper function to get the scrolling view.
+ */
+NSScrollView* ScintillaCocoa::ScrollContainer() {
+  NSView* container = static_cast<NSView*>(wMain.GetID());
+  return static_cast<NSScrollView*>([[container superview] superview]);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -629,9 +680,21 @@ ScintillaView* ScintillaCocoa::TopContainer()
 /**
  * Helper function to get the inner container which represents the actual "canvas" we work with.
  */
-NSView* ScintillaCocoa::ContentView()
+InnerView* ScintillaCocoa::ContentView()
 {
-  return static_cast<NSView*>(wMain.GetID());
+  return static_cast<InnerView*>(wMain.GetID());
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Return the top left visible point relative to the origin point of the whole document.
+ */
+Scintilla::Point ScintillaCocoa::GetVisibleOriginInMain()
+{
+  NSScrollView *scrollView = ScrollContainer();
+  NSRect contentRect = [[scrollView contentView] bounds];
+  return Point(contentRect.origin.x, contentRect.origin.y);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -639,26 +702,29 @@ NSView* ScintillaCocoa::ContentView()
 /**
  * Instead of returning the size of the inner view we have to return the visible part of it
  * in order to make scrolling working properly.
+ * The returned value is in document coordinates.
  */
 PRectangle ScintillaCocoa::GetClientRectangle()
 {
-  NSView* host = ContentView();
-  NSSize size = [host frame].size;
-  return PRectangle(0, 0, size.width, size.height);
+  NSScrollView *scrollView = ScrollContainer();
+  NSSize size = [[scrollView contentView] bounds].size;
+  Point origin = GetVisibleOriginInMain();
+  return PRectangle(origin.x, origin.y, origin.x+size.width, origin.y + size.height);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 /**
  * Converts the given point from base coordinates to local coordinates and at the same time into
- * a native Point structure. Base coordinates are used for the top window used in the view hierarchy. 
+ * a native Point structure. Base coordinates are used for the top window used in the view hierarchy.
+ * Returned value is in view coordinates. 
  */
 Scintilla::Point ScintillaCocoa::ConvertPoint(NSPoint point)
 {
   NSView* container = ContentView();
   NSPoint result = [container convertPoint: point fromView: nil];
-  
-  return Point(result.x, result.y);
+  Scintilla::Point ptOrigin = GetVisibleOriginInMain();
+  return Point(result.x - ptOrigin.x, result.y - ptOrigin.y);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -695,10 +761,10 @@ sptr_t scintilla_send_message(void* sci, unsigned int iMessage, uptr_t wParam, s
 
 //--------------------------------------------------------------------------------------------------
 
-/** 
+/**
  * That's our fake window procedure. On Windows each window has a dedicated procedure to handle
  * commands (also used to synchronize UI and background threads), which is not the case in Cocoa.
- * 
+ *
  * Messages handled here are almost solely for special commands of the backend. Everything which
  * would be sytem messages on Windows (e.g. for key down, mouse move etc.) are handled by
  * directly calling appropriate handlers.
@@ -714,14 +780,14 @@ sptr_t ScintillaCocoa::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lPar
       return reinterpret_cast<sptr_t>(this);
       
     case SCI_GRABFOCUS:
-	  [[ContentView() window] makeFirstResponder:ContentView()];
+      [[ContentView() window] makeFirstResponder:ContentView()];
       break;
-
+      
     case SCI_SETBUFFEREDDRAW:
-      // Buffered drawing not supported on Cocoa 
+      // Buffered drawing not supported on Cocoa
       bufferedDraw = false;
       break;
-
+      
     case SCI_FINDINDICATORSHOW:
       ShowFindIndicatorForRange(NSMakeRange(wParam, lParam-wParam), YES);
       return 0;
@@ -729,12 +795,12 @@ sptr_t ScintillaCocoa::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lPar
     case SCI_FINDINDICATORFLASH:
       ShowFindIndicatorForRange(NSMakeRange(wParam, lParam-wParam), NO);
       return 0;
-		  
+      
     case SCI_FINDINDICATORHIDE:
       HideFindIndicator();
       return 0;
-		  
-    case WM_UNICHAR: 
+      
+    case WM_UNICHAR:
       // Special case not used normally. Characters passed in this way will be inserted
       // regardless of their value or modifier states. That means no command interpretation is
       // performed.
@@ -746,7 +812,7 @@ sptr_t ScintillaCocoa::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lPar
         return 1;
       }
       return 0;
-
+      
     default:
       sptr_t r = ScintillaBase::WndProc(iMessage, wParam, lParam);
       
@@ -872,20 +938,20 @@ void ScintillaCocoa::Paste(bool forceRectangular)
   if (forceRectangular)
     selectedText.rectangular = forceRectangular;
   
-  if (!ok || !selectedText.s)
+  if (!ok || selectedText.Empty())
     // No data or no flavor we support.
     return;
   
   pdoc->BeginUndoAction();
   ClearSelection(false);
-  int length = selectedText.len - 1; // One less to avoid inserting the terminating 0 character.
+  int length = selectedText.Length();
   if (selectedText.rectangular)
   {
     SelectionPosition selStart = sel.RangeMain().Start();
-    PasteRectangular(selStart, selectedText.s, length);
+    PasteRectangular(selStart, selectedText.Data(), length);
   }
   else 
-    if (pdoc->InsertString(sel.RangeMain().caret.Position(), selectedText.s, length))
+    if (pdoc->InsertString(sel.RangeMain().caret.Position(), selectedText.Data(), length))
       SetEmptySelection(sel.RangeMain().caret.Position() + length);
   
   pdoc->EndUndoAction();
@@ -1326,12 +1392,12 @@ bool ScintillaCocoa::PerformDragOperation(id <NSDraggingInfo> info)
     SelectionText text;
     GetPasteboardData(pasteboard, &text);
     
-    if (text.len > 0)
+    if (text.Length() > 0)
     {
       NSDragOperation operation = [info draggingSourceOperationMask];
       bool moving = (operation & NSDragOperationMove) != 0;
       
-      DropAt(posDrag, text.s, moving, text.rectangular);
+      DropAt(posDrag, text.Data(), text.Length(), moving, text.rectangular);
     };
   }
 
@@ -1342,19 +1408,19 @@ bool ScintillaCocoa::PerformDragOperation(id <NSDraggingInfo> info)
 
 void ScintillaCocoa::SetPasteboardData(NSPasteboard* board, const SelectionText &selectedText)
 {
-  if (selectedText.len == 0)
+  if (selectedText.Length() == 0)
     return;
 
   CFStringEncoding encoding = EncodingFromCharacterSet(selectedText.codePage == SC_CP_UTF8,
                                                        selectedText.characterSet);
   CFStringRef cfsVal = CFStringCreateWithBytes(kCFAllocatorDefault,
-                                               reinterpret_cast<const UInt8 *>(selectedText.s), 
-                                               selectedText.len-1, encoding, false);
+                                               reinterpret_cast<const UInt8 *>(selectedText.Data()),
+                                               selectedText.Length(), encoding, false);
 
-  [board declareTypes:[NSArray arrayWithObjects:
-                       NSStringPboardType,
-                       selectedText.rectangular ? ScintillaRecPboardType : nil,
-                       nil] owner:nil];
+  NSArray *pbTypes = selectedText.rectangular ?
+    [NSArray arrayWithObjects: NSStringPboardType, ScintillaRecPboardType, nil] :
+    [NSArray arrayWithObjects: NSStringPboardType, nil];
+  [board declareTypes:pbTypes owner:nil];
   
   if (selectedText.rectangular)
   {
@@ -1387,24 +1453,23 @@ bool ScintillaCocoa::GetPasteboardData(NSPasteboard* board, SelectionText* selec
     {
       CFStringEncoding encoding = EncodingFromCharacterSet(IsUnicodeMode(),
                                                            vs.styles[STYLE_DEFAULT].characterSet);
-      CFRange rangeAll = {0, [data length]};
+      CFRange rangeAll = {0, static_cast<CFIndex>([data length])};
       CFIndex usedLen = 0;
       CFStringGetBytes((CFStringRef)data, rangeAll, encoding, '?',
                        false, NULL, 0, &usedLen);
 
-      UInt8 *buffer = new UInt8[usedLen];
+      std::vector<UInt8> buffer(usedLen);
     
       CFStringGetBytes((CFStringRef)data, rangeAll, encoding, '?',
-                       false, buffer,usedLen, NULL);
+                       false, buffer.data(),usedLen, NULL);
 
       bool rectangular = bestType == ScintillaRecPboardType;
 
       int len = static_cast<int>(usedLen);
-      char *dest = Document::TransformLineEnds(&len, (char *)buffer, len, pdoc->eolMode);
+      std::string dest = Document::TransformLineEnds((char *)buffer.data(), len, pdoc->eolMode);
 
-      selectedText->Set(dest, len+1, pdoc->dbcsCodePage, 
+      selectedText->Copy(dest, pdoc->dbcsCodePage,
                          vs.styles[STYLE_DEFAULT].characterSet , rectangular, false);
-      delete []buffer;
     }
     return true;
   }
@@ -1417,16 +1482,6 @@ bool ScintillaCocoa::GetPasteboardData(NSPasteboard* board, SelectionText* selec
 void ScintillaCocoa::SetMouseCapture(bool on)
 {
   capturedMouse = on;
-  /*
-  if (mouseDownCaptures)
-  {
-    if (capturedMouse)
-      WndProc(SCI_SETCURSOR, Window::cursorArrow, 0);
-    else
-      // Reset to normal. Actual image will be set on mouse move.
-      WndProc(SCI_SETCURSOR, (unsigned int) SC_CURSORNORMAL, 0);
-  }
-   */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1451,6 +1506,16 @@ bool ScintillaCocoa::SyncPaint(void* gc, PRectangle rc)
   Surface *sw = Surface::Allocate(SC_TECHNOLOGY_DEFAULT);
   if (sw)
   {
+    CGContextSetAllowsAntialiasing((CGContextRef)gc,
+                                   vs.extraFontFlag != SC_EFF_QUALITY_NON_ANTIALIASED);
+    CGContextSetAllowsFontSmoothing((CGContextRef)gc,
+                                    vs.extraFontFlag == SC_EFF_QUALITY_LCD_OPTIMIZED);
+#if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
+    if (CGContextSetAllowsFontSubpixelPositioning != NULL)
+      CGContextSetAllowsFontSubpixelPositioning((CGContextRef)gc,
+						vs.extraFontFlag == SC_EFF_QUALITY_DEFAULT ||
+						vs.extraFontFlag == SC_EFF_QUALITY_LCD_OPTIMIZED);
+#endif
     sw->Init(gc, wMain.GetID());
     Paint(sw, rc);
     succeeded = paintState != paintAbandoned;
@@ -1458,91 +1523,81 @@ bool ScintillaCocoa::SyncPaint(void* gc, PRectangle rc)
     delete sw;
   }
   paintState = notPainting;
+  if (!succeeded)
+  {
+    NSView *marginView = static_cast<NSView*>(wMargin.GetID());
+    [marginView setNeedsDisplay:YES];
+  }
   return succeeded;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Scrolls the pixels in the window some number of lines.
- * Invalidates the pixels scrolled into view.
+ * Paint the margin into the MarginView space.
  */
-void ScintillaCocoa::ScrollText(int linesToMove)
+void ScintillaCocoa::PaintMargin(NSRect aRect)
 {
-	// Move those pixels
-	NSView *content = ContentView();
-	if ([content layer]) {
-		[content setNeedsDisplay: YES];
-		MoveFindIndicatorWithBounce(NO);
-		return;
-	}
-    
-	[content lockFocus];
-	int diff = vs.lineHeight * linesToMove;
-	PRectangle textRect = GetTextRectangle();
-	// Include margins as they must scroll
-	textRect.left = 0;
-	NSRect textRectangle = PRectangleToNSRect(textRect);
-	NSPoint destPoint = textRectangle.origin;
-    destPoint.y += diff;
-	NSCopyBits(0, textRectangle, destPoint);
+  CGContextRef gc = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
 
-	// Paint them nice
-	NSRect redrawRectangle = textRectangle;
-	if (linesToMove < 0) {
-		// Repaint bottom
-		redrawRectangle.origin.y = redrawRectangle.origin.y + redrawRectangle.size.height + diff;
-		redrawRectangle.size.height = -diff;
-	} else {
-		// Repaint top
-		redrawRectangle.size.height = diff;
-	}
-	
-	[content drawRect: redrawRectangle];
-	[content unlockFocus];
-
-	// If no flush done here then multiple scrolls will get buffered and screen 
-	// will only update a few times a second.
-	//[[content window] flushWindow];
-    // However, doing the flush leads to the caret updating as a separate operation
-    // which looks bad when scrolling by holding down the down arrow key.
-
-	// Could invalidate instead of synchronous draw but that may not be as smooth
-	//[content setNeedsDisplayInRect: redrawRectangle];
+  PRectangle rc = NSRectToPRectangle(aRect);
+  rcPaint = rc;
+  Surface *sw = Surface::Allocate(SC_TECHNOLOGY_DEFAULT);
+  if (sw)
+  {
+    sw->Init(gc, wMargin.GetID());
+    PaintSelMargin(sw, rc);
+    sw->Release();
+    delete sw;
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Modfies the vertical scroll position to make the current top line show up as such.
+ * ScrollText is empty because scrolling is handled by the NSScrollView.
  */
-void ScintillaCocoa::SetVerticalScrollPos()
+void ScintillaCocoa::ScrollText(int linesToMove)
 {
-  ScintillaView* topContainer = TopContainer();
-  
-  // Convert absolute coordinate into the range [0..1]. Keep in mind that the visible area
-  // does *not* belong to the scroll range.
-  int maxScrollPos = MaxScrollPos();
-  float relativePosition = (maxScrollPos > 0) ? ((float) topLine / maxScrollPos) : 0.0f;
-  [topContainer setVerticalScrollPosition: relativePosition];
 }
 
 //--------------------------------------------------------------------------------------------------
 
+/**
+ * Modifies the vertical scroll position to make the current top line show up as such.
+ */
+void ScintillaCocoa::SetVerticalScrollPos()
+{
+  NSScrollView *scrollView = ScrollContainer();
+  if (scrollView) {
+    NSClipView *clipView = [scrollView contentView];
+    NSRect contentRect = [clipView bounds];
+    [clipView scrollToPoint: NSMakePoint(contentRect.origin.x, topLine * vs.lineHeight)];
+    [scrollView reflectScrolledClipView:clipView];
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Modifies the horizontal scroll position to match xOffset.
+ */
 void ScintillaCocoa::SetHorizontalScrollPos()
 {
-  ScintillaView* topContainer = TopContainer();
   PRectangle textRect = GetTextRectangle();
-  
-  // Convert absolute coordinate into the range [0..1]. Keep in mind that the visible area
-  // does *not* belong to the scroll range.
+
   int maxXOffset = scrollWidth - textRect.Width();
   if (maxXOffset < 0)
     maxXOffset = 0;
   if (xOffset > maxXOffset)
     xOffset = maxXOffset;
-  float relativePosition = (float) xOffset / maxXOffset;
-  [topContainer setHorizontalScrollPosition: relativePosition];
+  NSScrollView *scrollView = ScrollContainer();
+  if (scrollView) {
+    NSClipView * clipView = [scrollView contentView];
+    NSRect contentRect = [clipView bounds];
+    [clipView scrollToPoint: NSMakePoint(xOffset, contentRect.origin.y)];
+    [scrollView reflectScrolledClipView:clipView];
+  }
   MoveFindIndicatorWithBounce(NO);
 }
 
@@ -1550,6 +1605,7 @@ void ScintillaCocoa::SetHorizontalScrollPos()
 
 /**
  * Used to adjust both scrollers to reflect the current scroll range and position in the editor.
+ * Arguments no longer used as NSScrollView handles details of scroll bar sizes.
  *
  * @param nMax Number of lines in the editor.
  * @param nPage Number of lines per scroll page.
@@ -1557,105 +1613,66 @@ void ScintillaCocoa::SetHorizontalScrollPos()
  */
 bool ScintillaCocoa::ModifyScrollBars(int nMax, int nPage)
 {
-#pragma unused(nPage)
-  // Input values are given in lines, not pixels, so we have to convert.
-  int lineHeight = static_cast<int>(WndProc(SCI_TEXTHEIGHT, 0, 0));
-  PRectangle bounds = GetTextRectangle();
-  ScintillaView* topContainer = TopContainer();
+#pragma unused(nMax, nPage)
+  return SetScrollingSize();
+}
 
-  // Set page size to the same value as the scroll range to hide the scrollbar.
-  int scrollRange = lineHeight * (nMax + 1); // +1 because the caller subtracted one.
-  int pageSize;
-  if (verticalScrollBarVisible)
-    pageSize = bounds.Height();
-  else
-    pageSize = scrollRange;
-  bool verticalChange = [topContainer setVerticalScrollRange: scrollRange page: pageSize];
-  
-  scrollRange = scrollWidth;
-  if (horizontalScrollBarVisible)
-    pageSize = bounds.Width();
-  else
-    pageSize = scrollRange;
-  bool horizontalChange = [topContainer setHorizontalScrollRange: scrollRange page: pageSize];
-
-  MoveFindIndicatorWithBounce(NO);	
-  
-  return verticalChange || horizontalChange;
+bool ScintillaCocoa::SetScrollingSize(void) {
+	bool changes = false;
+	InnerView *inner = ContentView();
+	if (!enteredSetScrollingSize) {
+		enteredSetScrollingSize = true;
+		NSScrollView *scrollView = ScrollContainer();
+		NSClipView *clipView = [ScrollContainer() contentView];
+		NSRect clipRect = [clipView bounds];
+		int docHeight = (cs.LinesDisplayed()+1) * vs.lineHeight;
+		if (!endAtLastLine)
+			docHeight += (int([scrollView bounds].size.height / vs.lineHeight)-3) * vs.lineHeight;
+		// Allow extra space so that last scroll position places whole line at top
+		int clipExtra = int(clipRect.size.height) % vs.lineHeight;
+		docHeight += clipExtra;
+		// Ensure all of clipRect covered by Scintilla drawing
+		if (docHeight < clipRect.size.height)
+			docHeight = clipRect.size.height;
+		int docWidth = scrollWidth;
+		bool showHorizontalScroll = horizontalScrollBarVisible &&
+			(wrapState == eWrapNone);
+		if (!showHorizontalScroll)
+			docWidth = clipRect.size.width;
+		NSRect contentRect = {0, 0, docWidth, docHeight};
+		NSRect contentRectNow = [inner frame];
+		changes = (contentRect.size.width != contentRectNow.size.width) ||
+			(contentRect.size.height != contentRectNow.size.height);
+		if (changes) {
+			[inner setFrame: contentRect];
+		}
+		[scrollView setHasVerticalScroller: verticalScrollBarVisible];
+		[scrollView setHasHorizontalScroller: showHorizontalScroll];
+		SetVerticalScrollPos();
+		enteredSetScrollingSize = false;
+	}
+	[inner.owner setMarginWidth: vs.fixedColumnWidth];
+	return changes;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 void ScintillaCocoa::Resize()
 {
+  SetScrollingSize();
   ChangeSize();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Called by the frontend control when the user manipulates one of the scrollers.
- *
- * @param position The relative position of the scroller in the range of [0..1].
- * @param part Specifies which part was clicked on by the user, so we can handle thumb tracking
- *             as well as page and line scrolling.
- * @param horizontal True if the horizontal scroller was hit, otherwise false.
+ * Update fields to match scroll position after receiving a notification that the user has scrolled.
  */
-void ScintillaCocoa::DoScroll(float position, NSScrollerPart part, bool horizontal)
-{
-  // If the given scroller part is not the knob (or knob slot) then the given position is not yet
-  // current and we have to update it.
-  if (horizontal)
-  {
-    // Horizontal offset is given in pixels.
-    PRectangle textRect = GetTextRectangle();
-    int offset = (int) (position * (scrollWidth - textRect.Width()));
-    int smallChange = (int) (textRect.Width() / 30);
-    if (smallChange < 5)
-      smallChange = 5;
-    switch (part)
-    {
-      case NSScrollerDecrementLine:
-        offset -= smallChange;
-        break;
-      case NSScrollerDecrementPage:
-        offset -= textRect.Width();
-        break;
-      case NSScrollerIncrementLine:
-        offset += smallChange;
-        break;
-      case NSScrollerIncrementPage:
-        offset += textRect.Width();
-        break;
-    };
-    HorizontalScrollTo(offset);
-  }
-  else
-  {
-    // VerticalScrolling is by line. If the user is scrolling using the knob we can directly
-    // set the new scroll position. Otherwise we have to compute it first.
-    if (part == NSScrollerKnob)
-      ScrollTo(position * MaxScrollPos(), false);
-    else
-    {
-    switch (part)
-    {
-      case NSScrollerDecrementLine:
-          ScrollTo(topLine - 1, true);
-        break;
-      case NSScrollerDecrementPage:
-          ScrollTo(topLine - LinesOnScreen(), true);
-        break;
-      case NSScrollerIncrementLine:
-          ScrollTo(topLine + 1, true);
-        break;
-      case NSScrollerIncrementPage:
-          ScrollTo(topLine + LinesOnScreen(), true);
-        break;
-    };
-      
-    }
-  }
+void ScintillaCocoa::UpdateForScroll() {
+  Point ptOrigin = GetVisibleOriginInMain();
+  xOffset = ptOrigin.x;
+  int newTop = Platform::Minimum(ptOrigin.y / vs.lineHeight, MaxScrollPos());
+  SetTopLine(newTop);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1873,19 +1890,48 @@ int ScintillaCocoa::InsertText(NSString* input)
 {
   CFStringEncoding encoding = EncodingFromCharacterSet(IsUnicodeMode(),
                                                          vs.styles[STYLE_DEFAULT].characterSet);
-  CFRange rangeAll = {0, [input length]};
+  CFRange rangeAll = {0, static_cast<CFIndex>([input length])};
   CFIndex usedLen = 0;
   CFStringGetBytes((CFStringRef)input, rangeAll, encoding, '?',
                    false, NULL, 0, &usedLen);
     
-  UInt8 *buffer = new UInt8[usedLen];
+  std::vector<UInt8> buffer(usedLen);
     
   CFStringGetBytes((CFStringRef)input, rangeAll, encoding, '?',
-                     false, buffer,usedLen, NULL);
+                     false, buffer.data(),usedLen, NULL);
     
-  AddCharUTF((char*) buffer, static_cast<unsigned int>(usedLen), false);
-  delete []buffer;
+  AddCharUTF((char*) buffer.data(), static_cast<unsigned int>(usedLen), false);
   return static_cast<int>(usedLen);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Used to ensure that only one selection is active for input composition as composition
+ * does not support multi-typing.
+ * Also drop virtual space as that is not supported by composition.
+ */
+void ScintillaCocoa::SelectOnlyMainSelection()
+{
+  SelectionRange mainSel = sel.RangeMain();
+  mainSel.ClearVirtualSpace();
+  sel.SetSelection(mainSel);
+  Redraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+/**
+ * When switching documents discard any incomplete character composition state as otherwise tries to
+ * act on the new document.
+ */
+void ScintillaCocoa::SetDocPointer(Document *document)
+{
+  // Drop input composition.
+  NSTextInputContext *inctxt = [NSTextInputContext currentInputContext];
+  [inctxt discardMarkedText];
+  InnerView *inner = ContentView();
+  [inner unmarkText];
+  Editor::SetDocPointer(document);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1930,7 +1976,7 @@ void ScintillaCocoa::MouseDown(NSEvent* event)
 void ScintillaCocoa::MouseMove(NSEvent* event)
 {
   lastMouseEvent = event;
-  
+
   ButtonMove(ConvertPoint([event locationInWindow]));
 }
 
@@ -1949,10 +1995,7 @@ void ScintillaCocoa::MouseUp(NSEvent* event)
 void ScintillaCocoa::MouseWheel(NSEvent* event)
 {
   bool command = ([event modifierFlags] & NSCommandKeyMask) != 0;
-  int dX = 0;
   int dY = 0;
-
-  dX = 10 * [event deltaX]; // Arbitrary scale factor.
 
     // In order to make scrolling with larger offset smoother we scroll less lines the larger the 
     // delta value is.
@@ -1972,8 +2015,6 @@ void ScintillaCocoa::MouseWheel(NSEvent* event)
   }
   else
   {
-    HorizontalScrollTo(xOffset - dX);
-    ScrollTo(topLine - dY, true);
   }
 }
 
@@ -2102,6 +2143,8 @@ void ScintillaCocoa::MoveFindIndicatorWithBounce(BOOL bounce)
     CGPoint ptText = CGPointMake(
       WndProc(SCI_POINTXFROMPOSITION, 0, layerFindIndicator.positionFind),
       WndProc(SCI_POINTYFROMPOSITION, 0, layerFindIndicator.positionFind));
+    ptText.x = ptText.x - vs.fixedColumnWidth + xOffset;
+    ptText.y += topLine * vs.lineHeight;
     if (!layerFindIndicator.geometryFlipped)
     {
       NSView *content = ContentView();
