@@ -18,14 +18,17 @@ diff --git cocoa/ScintillaCocoa.mm cocoa/ScintillaCocoa.mm
 index 8ad44bd..6ee932f 100644
 --- cocoa/ScintillaCocoa.mm
 +++ cocoa/ScintillaCocoa.mm
-@@ -1625,6 +1625,7 @@
- 		NSScrollView *scrollView = ScrollContainer();
- 		NSClipView *clipView = [ScrollContainer() contentView];
- 		NSRect clipRect = [clipView bounds];
-+		//[scrollView setScrollForceHide: useCustomScrollBars]; // How to do this now?
- 		int docHeight = (cs.LinesDisplayed()+1) * vs.lineHeight;
- 		if (!endAtLastLine)
- 			docHeight += (int([scrollView bounds].size.height / vs.lineHeight)-3) * vs.lineHeight;
+@@ -1660,8 +1660,8 @@
+ 		if (changes) {
+ 			[inner setFrame: contentRect];
+ 		}
+-		[scrollView setHasVerticalScroller: verticalScrollBarVisible];
+-		[scrollView setHasHorizontalScroller: showHorizontalScroll];
++		[scrollView setHasVerticalScroller: verticalScrollBarVisible && !useCustomScrollBars];
++		[scrollView setHasHorizontalScroller: showHorizontalScroll && !useCustomScrollBars];
+ 		SetVerticalScrollPos();
+ 		enteredSetScrollingSize = false;
+ 	}
 diff --git cocoa/ScintillaView.h cocoa/ScintillaView.h
 index 29bf559..8b97410 100644
 --- cocoa/ScintillaView.h
