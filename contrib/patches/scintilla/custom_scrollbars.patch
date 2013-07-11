@@ -18,15 +18,14 @@ diff --git cocoa/ScintillaCocoa.mm cocoa/ScintillaCocoa.mm
 index 8ad44bd..6ee932f 100644
 --- cocoa/ScintillaCocoa.mm
 +++ cocoa/ScintillaCocoa.mm
-@@ -1581,6 +1581,8 @@ bool ScintillaCocoa::ModifyScrollBars(int nMax, int nPage)
-   PRectangle bounds = GetTextRectangle();
-   ScintillaView* topContainer = TopContainer();
- 
-+  [topContainer setScrollForceHide: useCustomScrollBars];
-+
-   // Set page size to the same value as the scroll range to hide the scrollbar.
-   int scrollRange = lineHeight * (nMax + 1); // +1 because the caller subtracted one.
-   int pageSize;
+@@ -1625,6 +1625,7 @@
+ 		NSScrollView *scrollView = ScrollContainer();
+ 		NSClipView *clipView = [ScrollContainer() contentView];
+ 		NSRect clipRect = [clipView bounds];
++		//[scrollView setScrollForceHide: useCustomScrollBars]; // How to do this now?
+ 		int docHeight = (cs.LinesDisplayed()+1) * vs.lineHeight;
+ 		if (!endAtLastLine)
+ 			docHeight += (int([scrollView bounds].size.height / vs.lineHeight)-3) * vs.lineHeight;
 diff --git cocoa/ScintillaView.h cocoa/ScintillaView.h
 index 29bf559..8b97410 100644
 --- cocoa/ScintillaView.h
@@ -41,55 +40,27 @@ index 29bf559..8b97410 100644
  
  @property (nonatomic, assign) Scintilla::ScintillaCocoa* backend;
 @@ -98,6 +100,7 @@ extern NSString *SCIUpdateUINotification;
- - (void) setVerticalScrollPosition: (float) position;
- - (BOOL) setHorizontalScrollRange: (int) range page: (int) page;
- - (void) setHorizontalScrollPosition: (float) position;
-+- (void) setScrollForceHide: (BOOL) hide;
- 
+ // Scroller handling
+ - (void) setMarginWidth: (int) width;
  - (void) scrollerAction: (id) sender;
++- (void) setScrollForceHide: (BOOL) hide;
  - (InnerView*) content;
+ 
+ // NSTextView compatibility layer.
 diff --git cocoa/ScintillaView.mm cocoa/ScintillaView.mm
 index 92aacdb..da2ef4d 100644
 --- cocoa/ScintillaView.mm
 +++ cocoa/ScintillaView.mm
-@@ -879,6 +879,8 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
-     [mVerticalScroller setTarget: self];
-     [mVerticalScroller setAction: @selector(scrollerAction:)];
-     [self addSubview: mVerticalScroller];
+@@ -1073,6 +1073,8 @@
+     [scrollView setHasHorizontalRuler:NO];
+     [scrollView setHasVerticalRuler:YES];
+     [scrollView setRulersVisible:YES];
 +
 +    mScrollerForceHide = NO;
      
-     // Establish a connection from the back end to this container so we can handle situations
-     // which require our attention.
-@@ -1065,11 +1067,11 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
-   BOOL result = NO;
-   BOOL hideScroller = page >= range;
-   
--  if ([mVerticalScroller isHidden] != hideScroller)
-+  if ([mVerticalScroller isHidden] != (hideScroller || mScrollerForceHide))
-   {
-     result = YES;
--    [mVerticalScroller setHidden: hideScroller];
--    if (!hideScroller)
-+    [mVerticalScroller setHidden: (hideScroller || mScrollerForceHide)];
-+    if (!(hideScroller || mScrollerForceHide))
-       [mVerticalScroller setFloatValue: 0];
-     [self positionSubViews];
-   }
-@@ -1117,10 +1119,10 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
-   BOOL hideScroller = (page >= range) || 
-     (mBackend->WndProc(SCI_GETWRAPMODE, 0, 0) != SC_WRAP_NONE);
-   
--  if ([mHorizontalScroller isHidden] != hideScroller)
-+  if ([mHorizontalScroller isHidden] != (hideScroller || mScrollerForceHide))
-   {
-     result = YES;
--    [mHorizontalScroller setHidden: hideScroller];
-+    [mHorizontalScroller setHidden: (hideScroller || mScrollerForceHide)];
-     [self positionSubViews];
-   }
-   
-@@ -1153,6 +1155,12 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
+     mBackend = new ScintillaCocoa(mContent, marginView);
+ 
+@@ -1181,6 +1181,12 @@
  }
  
  //--------------------------------------------------------------------------------------------------
@@ -101,62 +72,29 @@ index 92aacdb..da2ef4d 100644
 +//--------------------------------------------------------------------------------------------------
  
  /**
-  * Triggered by one of the scrollers when it gets manipulated by the user. Notify the backend
+  * Set the width of the margin.
 diff --git gtk/ScintillaGTK.cxx gtk/ScintillaGTK.cxx
 index d07d464..15481d0 100644
 --- gtk/ScintillaGTK.cxx
 +++ gtk/ScintillaGTK.cxx
-@@ -1740,10 +1982,7 @@
+@@ -1740,7 +1982,7 @@
  
  	// These allocations should never produce negative sizes as they would wrap around to huge
  	// unsigned numbers inside GTK+ causing warnings.
 -	bool showSBHorizontal = horizontalScrollBarVisible && (wrapState == eWrapNone);
--	int horizontalScrollBarHeight = scrollBarHeight;
--	if (!showSBHorizontal)
--		horizontalScrollBarHeight = 0;
 +	bool showSBHorizontal = horizontalScrollBarVisible && (wrapState == eWrapNone) && !useCustomScrollBars;
  
  	GtkAllocation alloc;
  	if (showSBHorizontal) {
-@@ -1751,23 +1990,23 @@
- 		alloc.x = 0;
- 		alloc.y = height - scrollBarHeight;
- 		alloc.width = Platform::Maximum(1, width - scrollBarWidth);
--		alloc.height = horizontalScrollBarHeight;
-+		alloc.height = scrollBarHeight;
- 		gtk_widget_size_allocate(GTK_WIDGET(PWidget(scrollbarh)), &alloc);
- 	} else {
- 		gtk_widget_hide(GTK_WIDGET(PWidget(scrollbarh)));
-+		scrollBarHeight = 0; // in case horizontalScrollBarVisible is true.
+@@ -1691,7 +1691,7 @@
+ 		horizontalScrollBarHeight = 0; // in case horizontalScrollBarVisible is true.
  	}
  
 -	if (verticalScrollBarVisible) {
 +	if (verticalScrollBarVisible && !useCustomScrollBars) {
  		gtk_widget_show(GTK_WIDGET(PWidget(scrollbarv)));
- 		alloc.x = width - scrollBarWidth;
+ 		alloc.x = width - verticalScrollBarWidth;
  		alloc.y = 0;
- 		alloc.width = scrollBarWidth;
- 		alloc.height = Platform::Maximum(1, height - scrollBarHeight);
--		if (!showSBHorizontal)
--			alloc.height += scrollBarWidth-1;
- 		gtk_widget_size_allocate(GTK_WIDGET(PWidget(scrollbarv)), &alloc);
- 	} else {
- 		gtk_widget_hide(GTK_WIDGET(PWidget(scrollbarv)));
-+		scrollBarWidth = 0; // in case verticalScrollBarVisible is true.
- 	}
- 	if (IS_WIDGET_MAPPED(PWidget(wMain))) {
- 		ChangeSize();
-@@ -1777,10 +2016,6 @@
- 	alloc.y = 0;
- 	alloc.width = Platform::Maximum(1, width - scrollBarWidth);
- 	alloc.height = Platform::Maximum(1, height - scrollBarHeight);
--	if (!showSBHorizontal)
--		alloc.height += scrollBarHeight;
--	if (!verticalScrollBarVisible)
--		alloc.width += scrollBarWidth;
- 	gtk_widget_size_allocate(GTK_WIDGET(PWidget(wText)), &alloc);
- }
- 
 diff --git include/Scintilla.iface include/Scintilla.iface
 index 2c23ef2..91293e6 100644
 --- include/Scintilla.iface
@@ -168,8 +106,8 @@ index 2c23ef2..91293e6 100644
 +# Turn on custom (owner-drawn) scroll bars.  All necessary calculations will
 +# still be done, it just won't be shown.  Note that this applies to both
 +# horizontal and vertical scroll bars.
-+set void SetUseCustomScrollBars=2656(bool custom,)
-+get bool GetUseCustomScrollBars=2657(,)
++set void SetUseCustomScrollBars=2900(bool custom,)
++get bool GetUseCustomScrollBars=2901(,)
 +
  enu IndentView=SC_IV_
  val SC_IV_NONE=0
@@ -199,14 +137,14 @@ index 288118d..8304633 100644
  	endAtLastLine = true;
  	caretSticky = SC_CARETSTICKY_OFF;
  	marginOptions = SC_MARGINOPTION_NONE;
-@@ -4448,6 +4449,7 @@ void Editor::NotifyUpdateUI() {
- 	SCNotification scn = {0};
- 	scn.nmhdr.code = SCN_UPDATEUI;
- 	scn.updated = needUpdateUI;
-+	scn.length = GetTextRectangle().Width();
- 	NotifyParent(scn);
- }
- 
+@@ -4506,6 +4506,7 @@ void Editor::NotifyUpdateUI() {
+ 		SCNotification scn = {0};
+ 		scn.nmhdr.code = SCN_UPDATEUI;
+ 		scn.updated = needUpdateUI;
++		scn.length = GetTextRectangle().Width();
+ 		NotifyParent(scn);
+ 		needUpdateUI = 0;
+ 		return true;
 @@ -8080,6 +8082,17 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
  	case SCI_FINDCOLUMN:
  		return pdoc->FindColumn(wParam, lParam);

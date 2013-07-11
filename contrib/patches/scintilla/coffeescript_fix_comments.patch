@@ -26,17 +26,11 @@ Index: lexers/LexCoffeeScript.cxx
  // Preconditions: sc.currentPos points to a character after '+' or '-'.
  // The test for pos reaching 0 should be redundant,
  // and is in only for safety measures.
-@@ -112,36 +109,20 @@
- 		setWord.Add('$');
- 	}
- 
- 	int chPrevNonWhite = ' ';
- 	int visibleChars = 0;
- 	bool lastWordWasUUID = false;
+@@ -118,22 +118,6 @@
  	int styleBeforeDCKeyword = SCE_C_DEFAULT;
  	bool continuationLine = false;
  	bool isIncludePreprocessor = false;
- 
+-
 -	if (initStyle == SCE_C_PREPROCESSOR) {
 -		// Set continuationLine if last character of previous line is '\'
 -		int lineCurrent = styler.GetLine(startPos);
@@ -52,17 +46,9 @@ Index: lexers/LexCoffeeScript.cxx
 -			continuationLine = lineEndChar == '\\';
 -		}
 -	}
--
+ 
  	// look back to set chPrevNonWhite properly for better regex colouring
  	int endPos = startPos + length;
- 	if (startPos > 0 && IsSpaceEquiv(initStyle)) {
- 		unsigned int back = startPos;
- 		styler.Flush();
- 		while (back > 0 && IsSpaceEquiv(styler.StyleAt(--back)))
- 			;
- 		if (styler.StyleAt(back) == SCE_C_OPERATOR) {
- 			chPrevNonWhite = styler.SafeGetCharAt(back);
- 		}
 @@ -194,81 +175,25 @@
  						lastWordWasUUID = strcmp(s, "uuid") == 0;
  						sc.ChangeState(SCE_C_WORD);

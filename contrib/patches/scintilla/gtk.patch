@@ -56,15 +56,15 @@ Scintilla buffer before shutting down, bug 81293.
  	void StoreOnClipboard(SelectionText *clipText);
  	static void ClipboardGetSelection(GtkClipboard* clip, GtkSelectionData *selection_data, guint info, void *data);
  	static void ClipboardClearSelection(GtkClipboard* clip, void *data);
-@@ -273,6 +287,7 @@
+@@ -283,6 +283,7 @@
  	static void SelectionGet(GtkWidget *widget, GtkSelectionData *selection_data,
  	                         guint info, guint time);
  	static gint SelectionClear(GtkWidget *widget, GdkEventSelection *selection_event);
 +#ifndef KOMODO_DISABLE_DRAG_DROP
- 	static void DragBegin(GtkWidget *widget, GdkDragContext *context);
  	gboolean DragMotionThis(GdkDragContext *context, gint x, gint y, guint dragtime);
  	static gboolean DragMotion(GtkWidget *widget, GdkDragContext *context,
-@@ -286,7 +301,8 @@
+ 	                           gint x, gint y, guint dragtime);
+@@ -295,6 +296,7 @@
  	                             gint x, gint y, GtkSelectionData *selection_data, guint info, guint time);
  	static void DragDataGet(GtkWidget *widget, GdkDragContext *context,
  	                        GtkSelectionData *selection_data, guint info, guint time);
@@ -72,7 +72,6 @@ Scintilla buffer before shutting down, bug 81293.
  	static gboolean TimeOut(ScintillaGTK *sciThis);
  	static gboolean IdleCallback(ScintillaGTK *sciThis);
  	static gboolean StyleIdle(ScintillaGTK *sciThis);
- 	virtual void QueueStyling(int upTo);
 @@ -298,6 +314,10 @@
  
  	static sptr_t DirectFunction(ScintillaGTK *sciThis,
@@ -194,14 +193,14 @@ Scintilla buffer before shutting down, bug 81293.
  	inDragDrop = ddDragging;
  	GtkTargetList *tl = gtk_target_list_new(clipboardCopyTargets, nClipboardCopyTargets);
  	gtk_drag_begin(GTK_WIDGET(PWidget(wMain)),
-@@ -887,6 +946,7 @@
+@@ -846,6 +846,7 @@
  	               static_cast<GdkDragAction>(GDK_ACTION_COPY | GDK_ACTION_MOVE),
- 	               evbtn.button,
- 	               reinterpret_cast<GdkEvent *>(&evbtn));
-+#endif
+ 	               evbtn->button,
+ 	               reinterpret_cast<GdkEvent *>(evbtn));
+++#endif
  }
-
- static char *ConvertText(int *lenResult, char *s, size_t len, const char *charSetDest,
+ 
+ static std::string ConvertText(const char *s, size_t len, const char *charSetDest,
 @@ -1014,7 +1074,8 @@
  		switch (iMessage) {
  
@@ -414,29 +413,15 @@ Scintilla buffer before shutting down, bug 81293.
  
  // Detect rectangular text, convert line ends to current mode, convert from or to UTF-8
  void ScintillaGTK::GetGtkSelectionText(GtkSelectionData *selectionData, SelectionText &selText) {
-@@ -1496,7 +1681,7 @@
- 	char *dest;
+@@ -1487,7 +1487,7 @@
+ 
+ 	std::string dest = Document::TransformLineEnds(data, len, pdoc->eolMode);
  	if (selectionTypeData == GDK_TARGET_STRING) {
- 		dest = Document::TransformLineEnds(&len, data, len, pdoc->eolMode);
 -		if (IsUnicodeMode()) {
 +		if (IsUnicodeMode() && !isUTF8((unsigned char *)dest, len)) {
  			// Unknown encoding so assume in Latin1
- 			char *destPrevious = dest;
- 			dest = UTF8FromLatin1(dest, len);
-@@ -1545,8 +1771,12 @@
- 					sel.Range(sel.Main()).Start();
- 
- 				if (selText.rectangular) {
--					PasteRectangular(selStart, selText.s, selText.len);
-+					PasteRectangular(selStart.Position(), selText.s, selText.len);
- 				} else {
- 					InsertPaste(selStart, selText.s, selText.len);
-+ 					// XXX ActiveState bug 33804
-+ 					if (ac.Active()) {
-+ 						AutoCompleteMoveToCurrentWord();
-+					}
- 				}
- 				EnsureCaretVisible();
+ 			dest = UTF8FromLatin1(dest.c_str(), dest.length());
+ 			selText.Copy(dest, SC_CP_UTF8, 0, isRectangular, false);
 @@ -1563,6 +1752,7 @@
  	}
  }
@@ -513,14 +498,14 @@ Scintilla buffer before shutting down, bug 81293.
  }
  
  gint ScintillaGTK::Press(GtkWidget *widget, GdkEventButton *event) {
-@@ -2521,6 +2721,7 @@
+@@ -2548,6 +2548,7 @@
  	return TRUE;
  }
  
 +#ifndef KOMODO_DISABLE_DRAG_DROP
- void ScintillaGTK::DragBegin(GtkWidget *, GdkDragContext *) {
- 	//Platform::DebugPrintf("DragBegin\n");
- }
+ gboolean ScintillaGTK::DragMotionThis(GdkDragContext *context,
+                                  gint x, gint y, guint dragtime) {
+ 	try {
 @@ -2625,9 +2873,11 @@
  		sciThis->errorStatus = SC_STATUS_FAILURE;
  	}

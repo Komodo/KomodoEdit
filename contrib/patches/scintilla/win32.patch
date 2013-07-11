@@ -48,7 +48,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  	/// Implement IUnknown
  	STDMETHODIMP QueryInterface(REFIID riid, PVOID *ppv);
  	STDMETHODIMP_(ULONG)AddRef();
-@@ -263,17 +269,17 @@
+@@ -307,17 +307,18 @@
  
  	/// Implement important part of IDataObject
  	STDMETHODIMP GetData(FORMATETC *pFEIn, STGMEDIUM *pSTM);
@@ -56,19 +56,19 @@ diff -u -r1.156 win32/ScintillaWin.cxx
 +#endif
  	static bool Register(HINSTANCE hInstance_);
  	static bool Unregister();
--
+ 
 +#ifndef DISABLE_DRAG_DROP
  	friend class DropSource;
  	friend class DataObject;
  	friend class DropTarget;
- 	bool DragIsRectangularOK(CLIPFORMAT fmt) {
+ 	bool DragIsRectangularOK(CLIPFORMAT fmt) const {
  		return drag.rectangular && (fmt == cfColumnSelect);
  	}
 -
 +#endif
  private:
  	// For use in creating a system caret
- 	bool HasCaretSizeChanged();
+ 	bool HasCaretSizeChanged() const;
 @@ -289,6 +295,11 @@
  	int sysCaretWidth;
  	int sysCaretHeight;
@@ -183,15 +183,6 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  void ScintillaWin::ScrollText(int /* linesToMove */) {
  	//Platform::DebugPrintf("ScintillaWin::ScrollText %d\n", linesToMove);
  	//::ScrollWindow(MainHWND(), 0,
-@@ -1326,7 +1381,7 @@
- 
- void ScintillaWin::InsertPasteText(const char *text, int len, SelectionPosition selStart, bool isRectangular, bool isLine) {
- 	if (isRectangular) {
--		PasteRectangular(selStart, text, len);
-+		PasteRectangular(selStart.Position(), text, len);
- 	} else {
- 		char *convertedText = 0;
- 		if (convertPastes) {
 @@ -1345,8 +1400,16 @@
  			}
  			if (sel.MainCaret() == insertPos) {

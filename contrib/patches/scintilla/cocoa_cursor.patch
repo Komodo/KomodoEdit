@@ -4,12 +4,7 @@ Index: cocoa/ScintillaView.mm
 ===================================================================
 --- cocoa/ScintillaView.mm	(revision 77517)
 +++ cocoa/ScintillaView.mm	(working copy)
-@@ -97,16 +97,17 @@
-     default:
-       mCurrentCursor = [NSCursor arrowCursor];
-       break;
-   }
-   
+@@ -202,6 +202,7 @@
    [mCurrentCursor retain];
    
    // Trigger recreation of the cursor rectangle(s).
@@ -17,8 +12,3 @@ Index: cocoa/ScintillaView.mm
    [[self window] invalidateCursorRectsForView: self];
  }
  
- //--------------------------------------------------------------------------------------------------
- 
- /**
-  * This method is called to give us the opportunity to define our mouse sensitive rectangle.
-  */

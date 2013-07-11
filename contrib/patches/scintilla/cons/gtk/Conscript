@@ -140,6 +140,7 @@ my @lexers = qw(
     Specman
     Spice
     SQL
+    STTXT
     TACL
     TADS3
     TAL
@@ -175,6 +176,8 @@ my @args = (
 
     "../lexlib/Accessor.cxx",
     "../lexlib/Accessor.h",
+    "../lexlib/CharacterCategory.cxx",
+    "../lexlib/CharacterCategory.h",
     "../lexlib/CharacterSet.cxx",
     "../lexlib/CharacterSet.h",
     "../lexlib/LexAccessor.h",
@@ -192,6 +195,7 @@ my @args = (
     "../lexlib/SparseState.h",
     "../lexlib/StyleContext.cxx",
     "../lexlib/StyleContext.h",
+    "../lexlib/SubStyles.h",
     "../lexlib/WordList.cxx",
     "../lexlib/WordList.h",
 
@@ -199,6 +203,10 @@ my @args = (
     "../src/AutoComplete.h",
     "../src/CallTip.cxx",
     "../src/CallTip.h",
+    "../src/CaseConvert.cxx",
+    "../src/CaseConvert.h",
+    "../src/CaseFolder.cxx",
+    "../src/CaseFolder.h",
     "../src/Catalogue.cxx",
     "../src/Catalogue.h",
     "../src/CellBuffer.cxx",
@@ -241,6 +249,7 @@ my @args = (
     "../src/SVector.h",
     "../src/UniConversion.cxx",
     "../src/UniConversion.h",
+    "../src/UnicodeFromUTF8.h",
     "../src/ViewStyle.cxx",
     "../src/ViewStyle.h",
     "../src/XPM.cxx",

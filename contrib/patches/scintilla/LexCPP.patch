@@ -118,21 +118,21 @@
  			}
  			// Reset states to begining of colourise so no surprises
  			// if different sets of lines lexed.
-@@ -576,7 +666,7 @@
+@@ -632,7 +632,7 @@
  				}
  				break;
  			case SCE_C_IDENTIFIER:
--				if (!setWord.Contains(sc.ch) || (sc.ch == '.')) {
-+				if (!setWord.Contains(sc.ch) || (sc.ch == '.') || (sc.ch == '$')) {
+-				if (sc.atLineStart || sc.atLineEnd || !setWord.Contains(sc.ch) || (sc.ch == '.')) {
++				if (sc.atLineStart || sc.atLineEnd || !setWord.Contains(sc.ch) || (sc.ch == '.') || (sc.ch == '$')) {
  					char s[1000];
  					if (caseSensitive) {
  						sc.GetCurrent(s, sizeof(s));
-@@ -775,7 +865,7 @@
+@@ -875,7 +875,7 @@
  				} else {
  					sc.SetState(SCE_C_NUMBER|activitySet);
  				}
--			} else if (setWordStart.Contains(sc.ch) || (sc.ch == '@')) {
-+			} else if (setWordStart.Contains(sc.ch) || (sc.ch == '@') || (sc.ch == '$')) {
+-			} else if (!sc.atLineEnd && (setWordStart.Contains(sc.ch) || (sc.ch == '@'))) {
++			} else if (!sc.atLineEnd && (setWordStart.Contains(sc.ch) || (sc.ch == '@') || (sc.ch == '$'))) {
  				if (lastWordWasUUID) {
  					sc.SetState(SCE_C_UUID|activitySet);
  					lastWordWasUUID = false;

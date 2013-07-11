@@ -204,9 +204,9 @@ Index: src/Editor.cxx
  					MovePositionTo(SelectionPosition(pdoc->LineEndPosition(savedPos)));
  				}
  				break;
-@@ -6006,7 +6006,10 @@
+@@ -6079,6 +6079,9 @@
  
- void Editor::DropAt(SelectionPosition position, const char *value, bool moving, bool rectangular) {
+ void Editor::DropAt(SelectionPosition position, const char *value, size_t lengthValue, bool moving, bool rectangular) {
  	//Platform::DebugPrintf("DropAt %d %d\n", inDragDrop, position);
 +	if (suppressDragDrop) {
 +		return; // bug 97159
@@ -214,15 +214,7 @@ Index: src/Editor.cxx
  	if (inDragDrop == ddDragging)
  		dropWentOutside = false;
  
- 	bool positionWasInSelection = PositionInSelection(position.Position());
-@@ -6119,33 +6141,45 @@
- 		x += vs.ms[margin].width;
- 	}
- 	return Window::cursorReverseArrow;
- }
- 
- void Editor::TrimAndSetSelection(int currentPos_, int anchor_) {
- 	sel.TrimSelection(SelectionRange(currentPos_, anchor_));
+@@ -6204,19 +6204,31 @@
  	SetSelection(currentPos_, anchor_);
  }
  
@@ -257,43 +249,6 @@ Index: src/Editor.cxx
  			selAnchorPos = pdoc->LineStart(lineAnchor_);
  		}
  	} else {
- 		if (lineAnchorPos_ < lineCurrentPos_) {
- 			selCurrentPos = StartEndDisplayLine(lineCurrentPos_, false) + 1;
- 			selCurrentPos = pdoc->MovePositionOutsideChar(selCurrentPos, 1);
- 			selAnchorPos = StartEndDisplayLine(lineAnchorPos_, true);
- 		} else if (lineAnchorPos_ > lineCurrentPos_) {
- 			selCurrentPos = StartEndDisplayLine(lineCurrentPos_, true);
- 			selAnchorPos = StartEndDisplayLine(lineAnchorPos_, false) + 1;
-@@ -6371,21 +6401,28 @@
- 			}
- 		}
- 	}
- 	lastClickTime = curTime;
- 	lastClick = pt;
- 	lastXChosen = pt.x + xOffset;
- 	ShowCaretAtCurrentPosition();
- }
- 
- bool Editor::PositionIsHotspot(int position) {
--	return vs.styles[pdoc->StyleAt(position) & pdoc->stylingBitsMask].hotspot;
-+	// return vs.styles[pdoc->StyleAt(position) & pdoc->stylingBitsMask].hotspot;
-+	// StyleAt returns _signed_ chars, which don't play well with array indexing
-+	// for "large" style numbers like -80 =)
-+	// The signature of StyleAt should probably be changed.
-+	// Also, styleAt currently doesn't "filter out" indicator bits, which again points
-+	// in never-never land.
-+	int style = (unsigned char)(pdoc->StyleAt(position)) & pdoc->stylingBitsMask;
-+	return vs.styles[style].hotspot;
- }
- 
- bool Editor::PointIsHotspot(Point pt) {
- 	int pos = PositionFromLocation(pt, true);
- 	if (pos == INVALID_POSITION)
- 		return false;
- 	return PositionIsHotspot(pos);
- }
- 
- void Editor::SetHotSpotRange(Point *pt) {
 @@ -6436,7 +6486,7 @@
  	movePos = MovePositionOutsideChar(movePos, sel.MainCaret() - movePos.Position());
  
@@ -303,29 +258,6 @@ Index: src/Editor.cxx
  			SetMouseCapture(false);
  			SetDragPosition(movePos);
  			CopySelectionRange(&drag);
-@@ -7396,21 +7433,21 @@
- 		return GetTag(CharPtrFromSPtr(lParam), wParam);
- 
- 	case SCI_POSITIONBEFORE:
- 		return pdoc->MovePositionOutsideChar(wParam - 1, -1, true);
- 
- 	case SCI_POSITIONAFTER:
- 		return pdoc->MovePositionOutsideChar(wParam + 1, 1, true);
- 
- 	case SCI_LINESCROLL:
- 		ScrollTo(topLine + lParam);
--		HorizontalScrollTo(xOffset + wParam * vs.spaceWidth);
-+		HorizontalScrollTo(xOffset + static_cast<int>(wParam) * vs.spaceWidth);
- 		return 1;
- 
- 	case SCI_SETXOFFSET:
- 		xOffset = wParam;
- 		ContainerNeedsUpdate(SC_UPDATE_H_SCROLL);
- 		SetHorizontalScrollPos();
- 		Redraw();
- 		break;
- 
- 	case SCI_GETXOFFSET:
 @@ -8831,36 +8868,41 @@
  		return 0;
  

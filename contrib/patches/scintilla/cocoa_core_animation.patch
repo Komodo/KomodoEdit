@@ -2,7 +2,7 @@ Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaView.mm
 ===================================================================
 --- cocoa/ScintillaView.mm	(revision 74856)
 +++ cocoa/ScintillaView.mm	(working copy)
-@@ -851,6 +868,19 @@
+@@ -1142,6 +1129,17 @@
  
  //--------------------------------------------------------------------------------------------------
  
@@ -11,14 +11,12 @@ Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaView.mm
 + // Set all child views to be layer *backed* views.
 +  if (mContent)
 +    [mContent setWantsLayer: flag];
-+  if (mHorizontalScroller)
-+    [mHorizontalScroller setWantsLayer: flag];
-+  if (mVerticalScroller)
-+    [mVerticalScroller setWantsLayer: flag];
++  if (scrollView)
++    [scrollView setWantsLayer: flag];
 +}
 +
 +//--------------------------------------------------------------------------------------------------
 +
  - (void) dealloc
  {
-   [mInfoBar release];
+   [[NSNotificationCenter defaultCenter] removeObserver:self];

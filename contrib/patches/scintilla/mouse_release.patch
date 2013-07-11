@@ -6,14 +6,7 @@ Index: src/Editor.cxx
 ===================================================================
 --- src/Editor.cxx	(revision 73425)
 +++ src/Editor.cxx	(working copy)
-@@ -9310,20 +9310,24 @@
- 		pdoc->ChangeLexerState(wParam, lParam);
- 		break;
- 	
- 	case SCI_SETIDENTIFIER:
- 		SetCtrlID(wParam);
- 		break;
- 	
+@@ -9607,6 +9607,10 @@
  	case SCI_GETIDENTIFIER:
  		return GetCtrlID();
  
@@ -24,10 +17,3 @@ Index: src/Editor.cxx
  	case SCI_SETTECHNOLOGY:
  		// No action by default
  		break;
- 	
- 	case SCI_GETTECHNOLOGY:
- 		return technology;
- 
- 	case SCI_COUNTCHARACTERS:
- 		return pdoc->CountCharacters(wParam, lParam);
- 

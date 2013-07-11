@@ -2,14 +2,7 @@ Index: lexlib/LexAccessor.h
 ===================================================================
 --- lexlib/LexAccessor.h	(revision 76954)
 +++ lexlib/LexAccessor.h	(working copy)
-@@ -106,20 +106,23 @@
- 			startPosStyling += validLen;
- 			validLen = 0;
- 		}
- 	}
- 	int GetLineState(int line) {
- 		return pAccess->GetLineState(line);
- 	}
+@@ -113,6 +152,9 @@
  	int SetLineState(int line, int state) {
  		return pAccess->SetLineState(line, state);
  	}
@@ -19,25 +12,11 @@ Index: lexlib/LexAccessor.h
  	// Style setting
  	void StartAt(unsigned int start, char chMask=31) {
  		// Store the mask specified for use with StyleAt.
- 		mask = chMask;
- 		pAccess->StartStyling(start, chMask);
- 		startPosStyling = start;
- 	}
- 	void SetFlags(char chFlags_, char chWhile_) {
- 		chFlags = chFlags_;
- 		chWhile = chWhile_;
 Index: include/ILexer.h
 ===================================================================
 --- include/ILexer.h	(revision 76954)
 +++ include/ILexer.h	(working copy)
-@@ -26,20 +26,21 @@
- 	virtual void SCI_METHOD SetErrorStatus(int status) = 0;
- 	virtual int SCI_METHOD Length() const = 0;
- 	virtual void SCI_METHOD GetCharRange(char *buffer, int position, int lengthRetrieve) const = 0;
- 	virtual char SCI_METHOD StyleAt(int position) const = 0;
- 	virtual int SCI_METHOD LineFromPosition(int position) const = 0;
- 	virtual int SCI_METHOD LineStart(int line) const = 0;
- 	virtual int SCI_METHOD GetLevel(int line) const = 0;
+@@ -33,6 +33,7 @@
  	virtual int SCI_METHOD SetLevel(int line, int level) = 0;
  	virtual int SCI_METHOD GetLineState(int line) const = 0;
  	virtual int SCI_METHOD SetLineState(int line, int state) = 0;
@@ -45,25 +24,11 @@ Index: include/ILexer.h
  	virtual void SCI_METHOD StartStyling(int position, char mask) = 0;
  	virtual bool SCI_METHOD SetStyleFor(int length, char style) = 0;
  	virtual bool SCI_METHOD SetStyles(int length, const char *styles) = 0;
- 	virtual void SCI_METHOD DecorationSetCurrentIndicator(int indicator) = 0;
- 	virtual void SCI_METHOD DecorationFillRange(int position, int value, int fillLength) = 0;
- 	virtual void SCI_METHOD ChangeLexerState(int start, int end) = 0;
- 	virtual int SCI_METHOD CodePage() const = 0;
- 	virtual bool SCI_METHOD IsDBCSLeadByte(char ch) const = 0;
- 	virtual const char * SCI_METHOD BufferPointer() = 0;
- 	virtual int SCI_METHOD GetLineIndentation(int line) = 0;
 Index: src/Document.cxx
 ===================================================================
 --- src/Document.cxx	(revision 76954)
 +++ src/Document.cxx	(working copy)
-@@ -1717,28 +1717,32 @@
- }
- 
- void Document::LexerChanged() {
- 	// Tell the watchers the lexer has changed.
- 	for (int i = 0; i < lenWatchers; i++) {
- 		watchers[i].watcher->NotifyLexerChanged(this, watchers[i].userData);
- 	}
+@@ -1724,7 +1777,7 @@
  }
  
  int SCI_METHOD Document::SetLineState(int line, int state) {
@@ -72,7 +37,7 @@ Index: src/Document.cxx
  	if (state != statePrevious) {
  		DocModification mh(SC_MOD_CHANGELINESTATE, LineStart(line), 0, 0, 0, line);
  		NotifyModified(mh);
- 	}
+@@ -1732,6 +1785,10 @@
  	return statePrevious;
  }
  
@@ -83,25 +48,11 @@ Index: src/Document.cxx
  int SCI_METHOD Document::GetLineState(int line) const {
  	return static_cast<LineState *>(perLineData[ldState])->GetLineState(line);
  }
- 
- int Document::GetMaxLineState() {
- 	return static_cast<LineState *>(perLineData[ldState])->GetMaxLineState();
- }
- 
- void SCI_METHOD Document::ChangeLexerState(int start, int end) {
- 	DocModification mh(SC_MOD_LEXERSTATE, start, end-start, 0, 0, 0);
 Index: src/Document.h
 ===================================================================
 --- src/Document.h	(revision 76954)
 +++ src/Document.h	(working copy)
-@@ -377,20 +377,21 @@
- 	void EnsureStyledTo(int pos);
- 	void LexerChanged();
- 	int GetStyleClock() { return styleClock; }
- 	void IncrementStyleClock();
- 	void SCI_METHOD DecorationSetCurrentIndicator(int indicator) {
- 		decorations.SetCurrentIndicator(indicator);
- 	}
+@@ -377,6 +377,7 @@
  	void SCI_METHOD DecorationFillRange(int position, int value, int fillLength);
  
  	int SCI_METHOD SetLineState(int line, int state);
@@ -109,10 +60,3 @@ Index: src/Document.h
  	int SCI_METHOD GetLineState(int line) const;
  	int GetMaxLineState();
  	void SCI_METHOD ChangeLexerState(int start, int end);
- 
- 	StyledText MarginStyledText(int line);
- 	void MarginSetStyle(int line, int style);
- 	void MarginSetStyles(int line, const unsigned char *styles);
- 	void MarginSetText(int line, const char *text);
- 	int MarginLength(int line) const;
- 	void MarginClearAll();

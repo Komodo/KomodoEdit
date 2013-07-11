@@ -53,11 +53,11 @@ Index: /Users/toddw/as/komodo-devel_12/src/scintilla/cocoa/ScintillaView.mm
  }
  
  //--------------------------------------------------------------------------------------------------
-@@ -429,6 +445,7 @@
- - (void) scrollWheel: (NSEvent *) theEvent
+@@ -614,6 +614,7 @@
  {
-   mOwner.backend->MouseWheel(theEvent);
-+  [super scrollWheel:theEvent];  // Send through the DOM as well.
- }
- 
- //--------------------------------------------------------------------------------------------------
+   if (([theEvent modifierFlags] & NSCommandKeyMask) != 0) {
+     mOwner.backend->MouseWheel(theEvent);
++    [super scrollWheel:theEvent];  // Send through the DOM as well.
+   } else {
+     [super scrollWheel:theEvent];
+   }

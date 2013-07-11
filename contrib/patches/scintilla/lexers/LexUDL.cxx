@@ -3156,7 +3156,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
 #endif
     bool rc;
     WordList &wl = *keywordlists[0];
-    char *p_subLanguage = wl.words[0];
+    const char *p_subLanguage = wl.WordAt(0);
     if (!p_subLanguage || !p_subLanguage[0]) {
         // This happens as part of a fallback in
         // koTemplateLanguageBase.py::koTemplateLanguage.get_lexer
@@ -3170,7 +3170,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
         return;
     }
     
-    MainInfo *p_MainInfo = LexerList.Intern(p_subLanguage);
+    MainInfo *p_MainInfo = LexerList.Intern(const_cast<char *>(p_subLanguage));
     if (!p_MainInfo) {
         fprintf(stderr, "udl: ColouriseTemplate1Doc: couldn't create a MainInfo\n");
         assert(0 && "Can't create a MainInfo");
@@ -3489,7 +3489,7 @@ static void FoldUDLDoc(unsigned int startPos, int length, int
     }
     LogEvent(true, "FoldUDLDoc", &styler);
 #endif
-    MainInfo *p_MainInfo = LexerList.Intern((*(keywordlists[0])).words[0]);
+    MainInfo *p_MainInfo = LexerList.Intern(const_cast<char *>((*(keywordlists[0])).WordAt(0)));
     if (!p_MainInfo || !p_MainInfo->IsReady()) {
         return;
     }

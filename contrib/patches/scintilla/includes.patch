@@ -45,18 +45,16 @@
  fun int PropertyNames=4014(, stringresult names)
  
  enu TypeProperty=SC_TYPE_
-@@ -2279,8 +2297,11 @@
- val SCLEX_ECL=105
- val SCLEX_OSCRIPT=106
+@@ -2580,6 +2580,9 @@
  val SCLEX_VISUALPROLOG=107
-+val SCLEX_XSLT=108
+ val SCLEX_LITERATEHASKELL=108
+ val SCLEX_STTXT=109
++val SCLEX_XSLT=110
 +# User-defined languages
-+val SCLEX_UDL=109
++val SCLEX_UDL=111
  
  # When a lexer specifies its language as SCLEX_AUTOMATIC it receives a
  # value assigned in sequence from SCLEX_AUTOMATIC+1.
- val SCLEX_AUTOMATIC=1000
- # Lexical states for SCLEX_PYTHON
 @@ -2302,14 +2323,19 @@
  val SCE_P_DEFNAME=9
  val SCE_P_OPERATOR=10
@@ -77,16 +75,18 @@
  val SCE_C_COMMENT=1
  val SCE_C_COMMENTLINE=2
  val SCE_C_COMMENTDOC=3
-@@ -2347,6 +2373,9 @@
- val SCE_C_TRIPLEVERBATIM=21
+@@ -2631,7 +2631,10 @@
  val SCE_C_HASHQUOTEDSTRING=22
  val SCE_C_PREPROCESSORCOMMENT=23
-+val SCE_C_STDIN=24
-+val SCE_C_STDOUT=25
-+val SCE_C_STDERR=26
- # Lexical states for SCLEX_D
+ val SCE_C_PREPROCESSORCOMMENTDOC=24
+-# Lexical states for SCLEX_D
++val SCE_C_STDIN=25
++val SCE_C_STDOUT=26
++val SCE_C_STDERR=27
++ # Lexical states for SCLEX_D
  lex D=SCLEX_D SCE_D_
  val SCE_D_DEFAULT=0
+ val SCE_D_COMMENT=1
 @@ -2354,34 +2383,30 @@
  val SCE_D_WORD5=20
  val SCE_D_WORD6=21

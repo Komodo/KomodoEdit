@@ -167,20 +167,20 @@ Index: src/Document.h
  public:
  	Position start;
  	Position end;
-@@ -78,11 +78,11 @@
+@@ -176,11 +176,11 @@
  
  /**
   */
--class Document : PerLine, public IDocument, public ILoader {
-+class SCIAPI Document : PerLine, public IDocument, public ILoader {
+-class Document : PerLine, public IDocumentWithLineEnd, public ILoader {
++class SCIAPI Document : PerLine, public IDocumentWithLineEnd, public ILoader {
  
  public:
  	/** Used to pair watcher pointer with user data. */
--	class WatcherWithUserData {
-+	class SCIAPI WatcherWithUserData {
- 	public:
+-	struct WatcherWithUserData {
++	struct SCIAPI WatcherWithUserData {
  		DocWatcher *watcher;
  		void *userData;
+ 		WatcherWithUserData(DocWatcher *watcher_=0, void *userData_=0) :
 @@ -261,7 +261,7 @@
   * scope of the change.
   * If the DocWatcher is a document view then this can be used to optimise screen updating.
