@@ -197,7 +197,7 @@ Scintilla buffer before shutting down, bug 81293.
  	               static_cast<GdkDragAction>(GDK_ACTION_COPY | GDK_ACTION_MOVE),
  	               evbtn->button,
  	               reinterpret_cast<GdkEvent *>(evbtn));
-++#endif
++#endif
  }
  
  static std::string ConvertText(const char *s, size_t len, const char *charSetDest,
@@ -359,7 +359,7 @@ Scintilla buffer before shutting down, bug 81293.
 +};
 +
 +
-+static int isUTF8 (unsigned char *data, int len)
++static int isUTF8 (const char *data, int len)
 +{
 +    /* figure out whether the input is UTF-8 */
 +    unsigned char *p = data;
@@ -418,7 +418,7 @@ Scintilla buffer before shutting down, bug 81293.
  	std::string dest = Document::TransformLineEnds(data, len, pdoc->eolMode);
  	if (selectionTypeData == GDK_TARGET_STRING) {
 -		if (IsUnicodeMode()) {
-+		if (IsUnicodeMode() && !isUTF8((unsigned char *)dest, len)) {
++		if (IsUnicodeMode() && !isUTF8(dest.c_str(), dest.length())) {
  			// Unknown encoding so assume in Latin1
  			dest = UTF8FromLatin1(dest.c_str(), dest.length());
  			selText.Copy(dest, SC_CP_UTF8, 0, isRectangular, false);
@@ -451,7 +451,7 @@ Scintilla buffer before shutting down, bug 81293.
 +	// a crash upon shutdown, see bug 81293. The "gtk_clipboard_set_text"
 +	// can result in more memory getting used (in the case where a copy is
 +	// never pasted).
-+	gtk_clipboard_set_text(clipBoard, clipText->s, clipText->len);
++	gtk_clipboard_set_text(clipBoard, clipText->Data(), clipText->Length());
 +	//if (gtk_clipboard_set_with_data(clipBoard, clipboardCopyTargets, nClipboardCopyTargets,
 +	//			    ClipboardGetSelection, ClipboardClearSelection, clipText)) {
 +	//	gtk_clipboard_set_can_store(clipBoard, clipboardCopyTargets, nClipboardCopyTargets);
