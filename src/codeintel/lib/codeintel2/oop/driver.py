@@ -607,6 +607,8 @@ class CoreHandler(CommandHandler):
         buf = driver.get_buffer(request)
         if not driver.mgr.is_citadel_lang(buf.lang):
             driver.send() # Nothing to do here
+        if not hasattr(buf, "scan"):
+            driver.send() # Can't scan this buffer (e.g. Text)
         priority = request.get("priority", codeintel2.common.PRIORITY_CURRENT)
         mtime = request.get("mtime")
         if mtime is not None:
