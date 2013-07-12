@@ -70,8 +70,7 @@ class KoPHPCompileLinter:
         try:
             self.phpInfoEx = components.classes["@activestate.com/koAppInfoEx?app=PHP;1"].\
                              getService(components.interfaces.koIPHPInfoEx)
-            koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
-            self._html_linter = UnwrapObject(koLintService.getLinterForLanguage("HTML"))
+            self._koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
         except:
             log.exception("Problem getting phpInfoEx")
             raise
@@ -104,8 +103,8 @@ class KoPHPCompileLinter:
     _tplPatterns = ("PHP", re.compile('<\?(?:php\s+echo\b[^_]|=)', re.IGNORECASE|re.DOTALL), re.compile(r'\?>\s*\Z', re.DOTALL))
     def lint(self, request):
         try:
-            return self._html_linter.lint(request,
-                                          TPLInfo=self._tplPatterns)
+            html_linter = UnwrapObject(self._koLintService.getLinterForLanguage("HTML"))
+            return html_linter.lint(request, TPLInfo=self._tplPatterns)
         except:
             if "lint" not in self._checkValidVersion_complained:
                 self._checkValidVersion_complained["lint"] = True

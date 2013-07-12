@@ -677,8 +677,8 @@
   <!-- Allow XML declaration tags to override file settings, except
        in the case of HTML and XSLT. -->
   <boolean id="xmlDeclDetection">1</boolean>
-  <string id="defaultHTMLDecl">-//W3C//DTD HTML 4.01//EN</string>
-  <string id="defaultHTMLDeclSystemIdentifier">"http://www.w3.org/TR/html4/strict.dtd"</string>
+  <string id="defaultHTMLDecl">-//W3C//DTD HTML 5//EN</string>
+  <string id="defaultHTMLDeclSystemIdentifier">"http://www.w3.org/TR/html5/html5.dtd"</string>
   <string id="defaultHTML5Decl">-//W3C//DTD HTML 5//EN</string>
   <string id="defaultHTML5DeclSystemIdentifier">"http://www.w3.org/TR/html5/html5.dtd"</string>
   <!-- Allow #! lines to override filename associations. -->
