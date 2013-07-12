@@ -362,7 +362,7 @@ Scintilla buffer before shutting down, bug 81293.
 +static int isUTF8 (const char *data, int len)
 +{
 +    /* figure out whether the input is UTF-8 */
-+    unsigned char *p = data;
++    const char *p = data;
 +    while (p - data < len) {
 +        switch (UTF8lead[*p++]) {
 +	  case end:
