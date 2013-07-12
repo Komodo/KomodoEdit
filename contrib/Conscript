@@ -269,8 +269,12 @@ if ($platform eq "win") {
                     cp %1:d/.libs/libpcre.a $silvercity_dir/libpcre.a
                     ranlib $silvercity_dir/libpcre.a
                    ));
-    $consLocal->DependsRecursive($landmark, "pcre",
-                            ('\.svn', 'doc', 'testdata'));
+    # Needs depends recursive for all three landmark files!
+    $consLocal->DependsRecursive([$landmark,
+                                  "$scintilla_dir_for_cons/include/pcre.h",
+                                  "$silvercity_dir_for_cons/libpcre.a"],
+                                 "pcre",
+                                 ('\.svn', 'doc', 'testdata'));
 }
 
 
