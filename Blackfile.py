@@ -2552,11 +2552,14 @@ def BuildCrashReportSymbols(cfg):
     
     # Needs to run with the Mozilla environment, otherwise will receive errors
     # about being unable to load required libraries.
-    tmShUtil.RunInContext(cfg.envScriptName, [
+    cmds = [
         "cd %s/mozilla" % (cfg.mozSrc,),
-        "# 2>nul & set MSYSTEM=MINGW32", # Set only on Windows (cmd.exe)
         "%s mach buildsymbols" % (sys.executable,)
-    ])
+    ]
+    if sys.platform.startswith("win"):
+        # Fake being in MINGW32 terminal, so paths are properly converted.
+        cmds.insert(1, "set MSYSTEM=MINGW32")
+    tmShUtil.RunInContext(cfg.envScriptName, cmds)
     if sys.platform.startswith("win") or sys.platform == "darwin":
         # Need to include the Komodo bits separately.
         output_dir = join(cfg.mozDist, "crashreporter-symbols")
