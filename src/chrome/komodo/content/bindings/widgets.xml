@@ -423,13 +423,14 @@
                                     defaultDir = null;
                                 }
                             }
+                        } else if (this.cwd) {
+                            defaultDir = this.cwd;
                         } else {
                             defaultDir = null;
-                            
                         }
                         var prefName = "listbox.pathEditor.add"
                         if (!defaultDir) {
-                            default_dir = ko.filepicker.internDefaultDir(prefName);
+                            defaultDir = ko.filepicker.internDefaultDir(prefName);
                         } else {
                             defaultDir = osPath.normpath(defaultDir);
                         }
