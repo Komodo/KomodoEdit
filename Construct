@@ -389,7 +389,7 @@ Build(
     "$build/install/Conscript",
     "$build/languages/Conscript",
     "$build/lint/Conscript",
-    "$build/lint/CSS/Conscript", # commented out due to bug 89710
+    "$build/lint/CSS/Conscript",
     "$build/lint/javascript/Conscript",
     "$build/lint/perl/Conscript",
     "$build/main/Conscript",
