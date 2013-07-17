@@ -613,6 +613,6 @@ var koLess = function koLess()
     
     var subScriptLoader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
                           .getService(Ci.mozIJSSubScriptLoader);
-    subScriptLoader.loadSubScript("resource://app/chrome/komodo/content/contrib/less.js");
+    subScriptLoader.loadSubScript("chrome://komodo/content/contrib/less.js");
 
 }).apply();
