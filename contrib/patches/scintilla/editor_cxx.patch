@@ -156,6 +156,29 @@ Index: src/Editor.cxx
  		int braceIndicator = (bracesMatchStyle == STYLE_BRACELIGHT) ? vs.braceHighlightIndicator : vs.braceBadLightIndicator;
  		if (under == vsDraw.indicators[braceIndicator].under) {
  			Range rangeLine(posLineStart + lineStart, posLineEnd);
+@@ -4366,21 +4389,21 @@
+ 	if (!RangeContainsProtected(sel.MainCaret(), sel.MainCaret() + 1)) {
+ 		pdoc->DelChar(sel.MainCaret());
+ 	}
+ 	// Avoid blinking during rapid typing:
+ 	ShowCaretAtCurrentPosition();
+ }
+ 
+ void Editor::DelCharBack(bool allowLineStartDeletion) {
+ 	if (!sel.IsRectangular())
+ 		FilterSelections();
+-	if (sel.IsRectangular())
++	if (sel.IsRectangular() || sel.Count() > 1)
+ 		allowLineStartDeletion = false;
+ 	UndoGroup ug(pdoc, (sel.Count() > 1) || !sel.Empty());
+ 	if (sel.Empty()) {
+ 		for (size_t r=0; r<sel.Count(); r++) {
+ 			if (!RangeContainsProtected(sel.Range(r).caret.Position() - 1, sel.Range(r).caret.Position())) {
+ 				if (sel.Range(r).caret.VirtualSpace()) {
+ 					sel.Range(r).caret.SetVirtualSpace(sel.Range(r).caret.VirtualSpace() - 1);
+ 					sel.Range(r).anchor.SetVirtualSpace(sel.Range(r).caret.VirtualSpace());
+ 				} else {
+ 					int lineCurrentPos = pdoc->LineFromPosition(sel.Range(r).caret.Position());
 @@ -5014,20 +5030,23 @@
  		}
  	}

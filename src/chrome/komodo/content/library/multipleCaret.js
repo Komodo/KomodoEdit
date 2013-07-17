@@ -143,6 +143,27 @@ this.MultiCaretSession.prototype = {
         this._state = SETTING_CARETS;
         this._ranges = [];
     },
+
+    _rebuildSelections: function _rebuildSelections(scimoz, lim) {
+        // scintilla weirdness (or what?) -- rebuild the carets based
+        // on this._ranges
+        scimoz.clearSelections();
+        for (let i = 0; i <= lim; i++) {
+            let startPos, endPos;
+            [startPos, endPos] = this._ranges[i];
+            scimoz.addSelection(startPos, endPos);
+            scimoz.setSelectionNAnchor(i, startPos);
+            scimoz.setSelectionNCaret(i, endPos);
+        }
+    },
+
+    _finishNewSelection: function _finishNewSelection(scimoz, caretNum,
+                                                      startPos, endPos){
+        scimoz.addSelection(startPos, endPos);
+        scimoz.indicatorFillRange(startPos, endPos - startPos);
+        scimoz.setSelectionNAnchor(caretNum, startPos);
+        scimoz.setSelectionNCaret(caretNum, endPos);
+    },        
     
     addRange: function addRange(startPos, endPos) {
         var scimoz = this.view.scimoz;
@@ -153,11 +174,10 @@ this.MultiCaretSession.prototype = {
             [startPos, endPos] = [endPos, startPos];
         }
         this._ranges.push([startPos, endPos]);
-        if (this._ranges.length > 1) {
-            scimoz.addSelection(startPos, endPos);
-            scimoz.indicatorCurrent = CHANGE_INDICATOR;
-            scimoz.indicatorFillRange(startPos, endPos - startPos);
-        }
+        scimoz.indicatorCurrent = CHANGE_INDICATOR;
+        var prevLim = this._ranges.length - 1;
+        this._rebuildSelections(scimoz, prevLim);
+        this._finishNewSelection(scimoz, prevLim, startPos, endPos);
     },
 
     _addRanges: function _addRanges(ranges) {
@@ -179,22 +199,22 @@ this.MultiCaretSession.prototype = {
         scimoz.indicatorCurrent = CHANGE_INDICATOR;
         scimoz.indicatorClearRange(0, scimoz.length);
         scimoz.indicatorFillRange(startPos, endPos - startPos);
-        for each ([startPos, endPos] in ranges.slice(1)) {
+        scimoz.setSelectionNAnchor(0, startPos);
+        scimoz.setSelectionNCaret(0, endPos);
+        this._ranges = ranges;
+        for (var i = 1; i < ranges.length; ++i) {
+            [startPos, endPos] = ranges[i];
             if (startPos > endPos) {
                 throw new Error("multipleCaret.js: _addRanges: startPos:"
                                 + startPos + " > endPos:" + endPos);
             }
-            //log.debug("startPos: " + startPos + ", endPos: " + endPos);
-            scimoz.addSelection(startPos, endPos);
-            scimoz.indicatorFillRange(startPos, endPos - startPos);
+            this._finishNewSelection(scimoz, i, startPos, endPos);
         }
         scimoz.mainSelection = 0;
         this._state = PROCESSING_CHARS;
         this._startUndoBlock(this.view, scimoz);
-        //log.debug("scimoz.selectionStart: "
-        //          + scimoz.selectionStart
-        //          + ", scimoz.selectionEnd:"
-        //          + scimoz.selectionEnd);
+        // And do this to handle the first keypress
+        setTimeout(this._watchMultipleSelectionKeypress_bubble.bind(this), 0);
     },
     
     addRangesAtomically: function addRangesAtomically(ranges) {
@@ -212,27 +232,11 @@ this.MultiCaretSession.prototype = {
             this.endSession();
             return;
         }
-        var i;
-        if (0) {
-            var scimoz = this.view.scimoz;
-            // There's a problem here: although I call scimoz.clearSelections(),
-            // the first selection in the previous session keeps bouncing
-            // back, and I'm not sure why.
-            //
-            // 
-            for (i = 0; i < scimoz.selections; i++) {
-                ranges.push([scimoz.getSelectionNCaret(i),
-                             scimoz.getSelectionNAnchor(i)]);
-                //dump("Add scimoz.caret/anchor "
-                //     + ranges[ranges.length - 1]
-                //     + "\n");
-            }
-        }
         ranges.sort(function(a, b) (a[0] - b[0]) || (a[1] - b[1]) );
         
         // Remove duplicates and overlaps from this._ranges
         var r1, r2;
-        for (i = ranges.length - 2; i >= 0; --i) {
+        for (let i = ranges.length - 2; i >= 0; --i) {
             r2 = ranges[i + 1];
             r1 = ranges[i];
             if (r1[0] == r2[0]) {
@@ -308,20 +312,8 @@ this.MultiCaretSession.prototype = {
         // Whitelist the keys and commands that will not
         // cause the multi-selection edit session to end.
         
-        // Consider this: if we backspace before the first pos,
-        // end the multi-edit session?  Maybe not...
         if (event.keyCode == event.DOM_VK_BACK_SPACE) {
-            switch(this._state) {
-            case INACTIVE: // Shouldn't happen
-                return false;
-            case SETTING_CARETS: // This should end the session
-                return false;
-            case PROCESSING_CHARS:
-                // If we're about to move to the left of the caret,
-                // end this multi-caret session.
-                return (this.view.scimoz.getSelectionNCaret(0)
-                        > this.firstSelectionStartPos);
-            }
+            return this._state != INACTIVE;
         } else if ((event.charCode && !event.ctrlKey
                     && !event.altKey && !event.metaKey)
                    || event.keyCode == event.DOM_VK_TAB) {
@@ -343,7 +335,7 @@ this.MultiCaretSession.prototype = {
     _watchMultipleSelectionKeypress: function _watchMultipleSelectionKeypress(event) {
         var view = event.currentTarget;
         var this_ = view._multiCaretSession;
-
+        
         if (this_.isTypingEvent(event)) {
             // We need to use a setTimeout handler because the
             // keypress bubbling event is usually consumed
@@ -371,6 +363,8 @@ this.MultiCaretSession.prototype = {
             // Back at start, nothing to do
             return;
         } else if (caret < pos) {
+            this.firstSelectionStartPos = caret;
+            return;
             throw new Error("multipleCaret.js: Unexpected occurrence: caret = "
                             + caret
                             + " < pos: "
