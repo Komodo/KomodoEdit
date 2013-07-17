@@ -438,7 +438,7 @@ editor_editorController.prototype.do_cmd_pasteHtml= function() {
     if (!scimoz) {
         return null;
     }
-    return scimoz && scimoz.selectionMode == scimoz.SC_SEL_STREAM ? view : null;
+    return ko.views.allowMultiCaretSession(scimoz) ? view : null;
 };
 
 editor_editorController.prototype.is_cmd_addAdditionalCaret_enabled = function() {

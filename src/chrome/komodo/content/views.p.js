@@ -2768,16 +2768,28 @@ var onKeypressInGatheringSession = function onKeypressInGatheringSession(event){
     }
 };
 
-this.startOrContinueMultiCaretSession = function startOrContinueMultiCaretSession(view) {
+this.startOrContinueMultiCaretSession =
+    function startOrContinueMultiCaretSession(view, dormantSelStart, dormantSelEnd) {
     var scimoz = view.scimoz;
     var multiCaretSession = ko.selections.getMultiCaretSession(view);
+    if (typeof dormantSelStart == "undefined")
+        dormantSelStart = scimoz.selectionStart;
+    if (typeof dormantSelEnd == "undefined")
+        dormantSelEnd = scimoz.selectionEnd;
     if (multiCaretSession.isDormant) {
         multiCaretSession.startAddingRanges();
-        multiCaretSession.addRange(scimoz.selectionStart, scimoz.selectionEnd);
+        multiCaretSession.addRange(dormantSelStart, dormantSelEnd);
         view.addEventListener("keypress", onKeypressInGatheringSession, true);
     } else if (multiCaretSession.isGatheringCarets) {
         multiCaretSession.addRange(scimoz.selectionStart, scimoz.selectionEnd);
     }
+};
+
+this.allowMultiCaretSession = function allowMultiCaretSession(scimoz) {
+    // Return true if we have an in-line rect selection
+    return (scimoz.selectionMode != scimoz.SC_SEL_RECTANGLE
+            || (scimoz.lineFromPosition(scimoz.selectionStart)
+                == scimoz.lineFromPosition(scimoz.selectionEnd)));
 };
 
 }).apply(ko.views);
