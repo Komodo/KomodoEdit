@@ -103,8 +103,58 @@
         
         <method name="syncMinimapFromBuffer">
         <body><![CDATA[
+        this.updateFoldLevelsFromEditor();
         this.update_FVL_FromEditor();
         this.updateSelectionFromEditor();
+        ]]>
+        </body>
+        </method>
+        
+        <method name="updateFoldLevelsFromEditor">
+        <body><![CDATA[
+        // Use scimoz.contractedFoldNext to quickly move through the list of
+        // fold points, and sync the minimap's with the editor's.
+        var vs = this.view.scimoz;
+        var msz = this.scimoz;
+        var vsNextFoldLine = 0, msNextFoldLine = 0;
+        // Special case the first line
+        if (vs.getFoldExpanded(0) !== msz.getFoldExpanded(0)) {
+            // Fold at first line differs
+            msz.toggleFold(0);
+        }
+        while (true) {
+            // If either is -1 we need to toggle all the rest
+            if (vsNextFoldLine === -1) {
+                // Close remaining folds in minimap
+                while (msNextFoldLine !== -1) {
+                    msz.toggleFold(msNextFoldLine);
+                    msNextFoldLine = msz.contractedFoldNext(msNextFoldLine + 1);
+                }
+                break;
+            }
+            if (msNextFoldLine === -1) {
+                // The editor has a bunch of folds we need to apply to the minimap.
+                while (vsNextFoldLine !== -1) {
+                    msz.toggleFold(vsNextFoldLine);
+                    vsNextFoldLine = vs.contractedFoldNext(vsNextFoldLine + 1);
+                }
+                break;
+            }
+            if (vsNextFoldLine < msNextFoldLine) {
+                // open fold in minimap based on editor at vsNextFoldLine
+                msz.toggleFold(vsNextFoldLine);
+                vsNextFoldLine = vs.contractedFoldNext(vsNextFoldLine + 1);
+            } else if (vsNextFoldLine > msNextFoldLine) {
+                // close fold in minimap based on editor at msNextFoldLine
+                msz.toggleFold(msNextFoldLine);
+                msNextFoldLine = msz.contractedFoldNext(msNextFoldLine + 1);
+            } else {
+                // editor and minimap are in sync here, move to next point
+                // vsNextFoldLine === msNextFoldLine
+                vsNextFoldLine = vs.contractedFoldNext(vsNextFoldLine + 1);
+                msNextFoldLine = msz.contractedFoldNext(msNextFoldLine + 1);
+            }
+        }
         ]]>
         </body>
         </method>

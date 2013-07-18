@@ -1443,16 +1443,12 @@ class GenericCommandHandler:
     _is_cmd_foldCollapseAll_enabled = _is_cmd_folding_enabled
     _is_cmd_foldToggle_enabled = _is_cmd_folding_enabled
 
-    def _toggleFoldAndNotify(self, view, scimoz, lineno):
-        scimoz.toggleFold(lineno)
-        view.onFoldChanged(lineno)
-    
     def _do_cmd_foldExpand(self):
         sm = self._view.scimoz
         lineno = sm.lineFromPosition(sm.currentPos);
         if (sm.getFoldLevel(lineno) & sm.SC_FOLDLEVELHEADERFLAG) and \
             not sm.getFoldExpanded(lineno):
-            self._toggleFoldAndNotify(self._view, sm, lineno)
+            sm.toggleFold(lineno)
 
     def _do_cmd_foldExpandRecursive(self):
         sm = self._view.scimoz
@@ -1462,7 +1458,7 @@ class GenericCommandHandler:
         # start at the level just inside the fold
         if _is_header_line(sm, lineno):
             if not sm.getFoldExpanded(lineno):
-                self._toggleFoldAndNotify(self._view, sm, lineno)
+                sm.toggleFold(lineno)
             lineno += 1
         # skip non-header top-level lines
         elif _fold_level(sm, lineno) == sm.SC_FOLDLEVELBASE:
@@ -1474,7 +1470,7 @@ class GenericCommandHandler:
         line_count = sm.lineCount  # Bug 82524 defensive check
         while (lineno < line_count and _fold_level(sm, lineno) >= origlevel):
             if _is_header_line(sm, lineno) and not sm.getFoldExpanded(lineno):
-                self._toggleFoldAndNotify(self._view, sm, lineno)
+                sm.toggleFold(lineno)
             lineno += 1
 
     def _do_cmd_foldExpandAll(self):
@@ -1482,7 +1478,7 @@ class GenericCommandHandler:
         for lineno in range(0, sm.lineCount):
             if (sm.getFoldLevel(lineno) & sm.SC_FOLDLEVELHEADERFLAG) and \
                 not sm.getFoldExpanded(lineno):
-                    self._toggleFoldAndNotify(self._view, sm, lineno)
+                    sm.toggleFold(lineno)
 
     def _do_cmd_foldCollapse(self):
         sm = self._view.scimoz
@@ -1491,7 +1487,7 @@ class GenericCommandHandler:
             if lineno == 0 or not sm.getFoldExpanded(lineno):
                 return
             lineno -= 1
-        self._toggleFoldAndNotify(self._view, sm, lineno)
+        sm.toggleFold(lineno)
         sm.gotoLine(lineno)
 
     def _do_cmd_foldCollapseAll(self):
@@ -1501,7 +1497,7 @@ class GenericCommandHandler:
         for lineno in range(0, sm.lineCount):
             if (sm.getFoldLevel(lineno) & sm.SC_FOLDLEVELHEADERFLAG) and \
                 sm.getFoldExpanded(lineno):
-                self._toggleFoldAndNotify(self._view, sm, lineno)
+                sm.toggleFold(lineno)
         
     def _do_cmd_foldCollapseRecursive(self):
         sm = self._view.scimoz
@@ -1525,7 +1521,7 @@ class GenericCommandHandler:
         # close em up
         for this_lineno in lines:
             if _is_header_line(sm, this_lineno) and sm.getFoldExpanded(this_lineno):
-                self._toggleFoldAndNotify(self._view, sm, this_lineno)
+                sm.toggleFold(this_lineno)
         sm.gotoLine(lineno)
 
     def _do_cmd_foldToggle(self):
@@ -1533,7 +1529,7 @@ class GenericCommandHandler:
         lineno = sm.lineFromPosition(sm.currentPos)
         if (sm.getFoldLevel(lineno) & sm.SC_FOLDLEVELHEADERFLAG):
             if not sm.getFoldExpanded(lineno):
-                self._toggleFoldAndNotify(self._view, sm, lineno)
+                sm.toggleFold(lineno)
             else:
                 self._do_cmd_foldCollapse()
 

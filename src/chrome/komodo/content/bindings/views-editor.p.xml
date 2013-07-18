@@ -1571,6 +1571,36 @@
         </body>
         </method>
         
+        <method name="_needsUpdate">
+        <parameter name="firstDocLine"/>
+        <parameter name="lastDocLineOnScreen"/>
+        <body>
+        <![CDATA[
+        if (this.firstDocLine !== firstDocLine
+            || this.lastDocLine !== lastDocLineOnScreen) {
+            return true;
+        }
+        // Is the minimap's fold points out of sync w.r.t. the editor's?
+        var scimoz = this.scimoz;
+        var msz = this.minimap.scimoz;
+        var conf1 = 0, conf2 = 0;
+        // Special case the first line
+        if (scimoz.getFoldExpanded(0) !== msz.getFoldExpanded(0)) {
+            // Fold at first line differs
+            return true;
+        }
+        // Whether line 0 is folded or not, we can start by
+        // looking at the next line.  Looking at scimoz.contractedFoldNext(1)
+        // for an empty file is harmless.
+        while (conf1 === conf2 && conf1 !== -1) {
+            conf1 = scimoz.contractedFoldNext(conf1 + 1);
+            conf2 = msz.contractedFoldNext(conf2 + 1);
+        }
+        return conf1 !== conf2;
+        ]]>
+        </body>
+        </method>
+        
         <method name="onUpdateUI">
         <parameter name="updated"/>
         <body>
@@ -1580,8 +1610,7 @@
         if (this.minimap && this.showMinimap) {
             var firstDocLine, lastDocLineOnScreen;
             [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
-            var updateMinimap = (this.firstDocLine !== firstDocLine
-                                 || this.lastDocLine !== lastDocLineOnScreen);
+            var updateMinimap = this._needsUpdate(firstDocLine, lastDocLineOnScreen);
             if (updateMinimap) {
                 this.minimap.syncMinimapFromBuffer();
                 this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
