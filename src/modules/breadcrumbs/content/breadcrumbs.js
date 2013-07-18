@@ -421,53 +421,7 @@ if (typeof ko.breadcrumbs == 'undefined')
          */
         onUpdateFileStatus: function openfiles_onUpdateFileStatus(view)
         {
-            var viewType = view.getAttribute("type");
-            var koFile = view && view.koDoc && view.koDoc.file;
-            if (! koFile || view.koDoc.isUntitled ||
-                koFile.path != crumbFile.file.getPath() ||
-                (viewType == "startpage" && viewType == "browser" ))
-            {
-                return;
-            }
-
-            var element = crumbFile.node;
-
-            // Scc status.
-            if (koFile.sccType == '')
-            {
-                element.setAttribute("collapsed", "true");
-            }
-            else
-            {
-                element.removeAttribute("collapsed");
-
-                var action = koFile.sccAction;
-                var hasConflict = (action == 'conflict') || koFile.sccConflict;
-
-                // Set SCC Extra Status
-                if (hasConflict)
-                {
-                    element.setAttribute('file_scc_status_extra', 'scc_conflict');
-                }
-                else if (koFile.sccNeedSync)
-                {
-                    element.setAttribute('file_scc_status_extra', 'scc_needSync');
-                }
-                else
-                {
-                    element.removeAttribute('file_scc_status_extra');
-                }
-
-                // Set SCC status
-                if (action && action != 'conflict')
-                {
-                    element.setAttribute('file_scc_status', 'scc_' + action);
-                }
-                else if (!hasConflict)
-                {
-                    element.setAttribute('file_scc_status', 'scc_ok');
-                }
-            }
+            // Nothing to do for Komodo Edit.
         },
 
         /**
