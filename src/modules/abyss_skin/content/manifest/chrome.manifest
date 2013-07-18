@@ -6,6 +6,7 @@ override chrome://komodo/skin/_config/panes.less        chrome://abyss-skin/skin
 override chrome://komodo/skin/_config/modules.less      chrome://abyss-skin/skin/_config/modules.less
 override chrome://komodo/skin/_config/icons.less        chrome://abyss-skin/skin/_config/icons.less
 override chrome://komodo/skin/_config/menus.less        chrome://abyss-skin/skin/_config/menus.less
+override chrome://komodo/skin/_config/scrollbars.less   chrome://abyss-skin/skin/_config/scrollbars.less
 
 # Override LESS rules
 override chrome://komodo/skin/window.less               chrome://abyss-skin/skin/window.less
@@ -13,9 +14,6 @@ override chrome://komodo/skin/panes.less                chrome://abyss-skin/skin
 override chrome://komodo/skin/tabs.less                 chrome://abyss-skin/skin/tabs.less
 override chrome://komodo/skin/toolbars.less             chrome://abyss-skin/skin/toolbars.less
 override chrome://komodo/skin/menus.less                chrome://abyss-skin/skin/menus.less
-
-# Override scrollbars.css specifically as it's hard coded in some places of the mozilla code
-override chrome://global/skin/scrollbars.css            chrome://abyss-skin/skin/scrollbars.css
 
 # Override images that are hard coded in the source and therefore can't be overriden with css
 override chrome://komodo/skin/images/folder-closed.png  chrome://fugue/skin/icons/blue-folder.png

@@ -1,7 +1,9 @@
 const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
+Cu.import("resource://gre/modules/NetUtil.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://gre/modules/FileUtils.jsm");
 
 var koLess;
 
@@ -14,7 +16,8 @@ LessProtocolHandler.prototype = {
     allowPort: function() false,
     protocolFlags:  Ci.nsIProtocolHandler.URI_IS_LOCAL_RESOURCE |
                     Ci.nsIProtocolHandler.URI_NON_PERSISTABLE |
-                    Ci.nsIProtocolHandler.URI_SYNC_LOAD_IS_OK,
+                    Ci.nsIProtocolHandler.URI_SYNC_LOAD_IS_OK |
+                    Ci.nsIProtocolHandler.URI_IS_UI_RESOURCE,
 
     newURI: function Proto_newURI(aSpec, aOriginCharset) {
         let uri = Cc["@mozilla.org/network/simple-uri;1"].createInstance(Ci.nsIURI);
@@ -23,12 +26,12 @@ LessProtocolHandler.prototype = {
     },
 
     newChannel: function Proto_newChannel(aURI) {
-        var URI = Services.io.newURI(aURI.spec.replace(/^less/, 'chrome'), null, null);
-
         var channel = new LessChannel();
-        channel.name = URI.spec;
-        channel.originalURI = URI;
-        channel.URI = URI;
+
+        channel._URI = aURI.spec.replace(/^less/, 'chrome');
+        channel.name = aURI.spec;
+        channel.originalURI = aURI;
+        channel.URI = aURI;
         
         return channel;
     },
@@ -41,6 +44,8 @@ function LessChannel() {
 }
 
 LessChannel.prototype = {
+    _URI: null,
+
     name: null,
     originalURI: null,
     URI: null,
@@ -66,22 +71,61 @@ LessChannel.prototype = {
     suspend: function() {},
     resume: function() {},
 
-    asyncOpen: function(aListener, aContext) {
-        if ( ! koLess) koLess = Cu.import("chrome://komodo/content/library/less.js").koLess;
+    open: function() {
+        try {
+            if (!koLess) {
+                koLess = Cu.import("chrome://komodo/content/library/less.js").koLess;
+            }
 
-        var listener = new WrapperListener(aListener, this);
+            var file;
+            koLess.loadSheet({href: this._URI}, function(_file) {
+                file = _file;
+            }, true);
 
-        koLess.loadSheet({href: this.URI.spec}, function(file) {
-            this.contentLength = file.fileSize;
-            var uri = Services.io.newFileURI(file);
-            var channel = Services.io.newChannelFromURI(uri);
-
+            var channel = NetUtil.newChannel(file, null, null);
+           
             this.contentType = channel.contentType;
             this.contentCharset = channel.contentCharset;
-            this.contentLength = channel.contentLength;
 
-            channel.asyncOpen(listener, aContext);
-        }.bind(this), true);
+            if (channel.contentLength < 0) {
+                // content length unknown; this *must* be known for the sync
+                // load service to work...
+                this.contentLength = file.fileSize;
+            } else {
+                this.contentLength = channel.contentLength;
+            }
+
+            return channel.open();
+        } catch (ex) {
+            Cu.reportError(ex);
+            throw new Components.Exception("Failed to open stream",
+                                           Cr.NS_ERROR_FAILURE);
+        }
+    },
+
+    asyncOpen: function(aListener, aContext) {
+        try {
+            if (!koLess) {
+                koLess = Cu.import("chrome://komodo/content/library/less.js").koLess;
+            }
+
+            var listener = new WrapperListener(aListener, this);
+
+            koLess.loadSheet({href: this._URI}, function(file) {
+                var uri = Services.io.newFileURI(file);
+                var channel = Services.io.newChannelFromURI(uri);
+
+                this.contentType = channel.contentType;
+                this.contentCharset = channel.contentCharset;
+                this.contentLength = channel.contentLength;
+
+                channel.asyncOpen(listener, aContext);
+            }, true);
+        } catch (ex) {
+            Cu.reportError(ex);
+            throw new Components.Exception("Failed to open async stream",
+                                           Cr.NS_ERROR_FAILURE);
+        }
     },
     
     classID: Components.ID("{55DA7157-3B1C-43AB-98BA-0DB65A31AC9F}"),

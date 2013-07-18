@@ -1,0 +1,89 @@
+@import url("chrome://komodo/skin/_config/scrollbars.less");
+
+/* Scrollbar Helper */
+.scrollbar(@id)
+{
+    .appearance(@id, @elem, @state)
+    {
+        -moz-appearance: ~"@{scrollbar-@{id}-@{elem}-appearance}";
+        background: ~"@{scrollbar-@{id}-@{elem}-background@{state}}";
+        transition: ~"@{scrollbar-@{id}-@{elem}-transition}";
+        visibility: ~"@{scrollbar-@{id}-@{elem}-visibility}";
+        border-radius: ~"@{scrollbar-@{id}-@{elem}-border-radius@{state}}";
+        border: ~"@{scrollbar-@{id}-@{elem}-border@{state}}";
+    }
+
+    .sizing(@id, @elem, @orient, @state)
+    {
+        margin: ~"@{scrollbar-@{id}-@{orient}-@{elem}-margin@{state}}";
+        height: ~"@{scrollbar-@{id}-@{orient}-@{elem}-height@{state}}";
+        width: ~"@{scrollbar-@{id}-@{orient}-@{elem}-width@{state}}";
+    }
+
+    .rules(@id, @orient)
+    {
+        .appearance(@id, wrapper, "");
+        .sizing(@id, wrapper, @orient, "");
+
+        slider {
+            .appearance(@id, slider, "");
+            .sizing(@id, slider, @orient, "");
+        }
+        thumb {
+            .appearance(@id, thumb, "");
+            .sizing(@id, thumb, @orient, "");
+        }
+        thumb:hover {
+            .appearance(@id, thumb, -hover);
+            .sizing(@id, thumb, @orient, -hover);
+        }
+
+        &:hover
+        {
+            .appearance(@id, wrapper, -hover);
+            .sizing(@id, wrapper, @orient, -hover);
+
+            slider {
+                .appearance(@id, slider, -hover);
+                .sizing(@id, slider, @orient, -hover);
+            }
+        }
+    }
+
+    .rules(@id, x);
+
+    thumb {
+        min-width: 25px;
+    }
+
+    &[orient="vertical"]
+    {
+        .rules(@id, y);
+
+        thumb {
+            min-width: 0;
+            min-height: 25px;
+        }
+    }
+
+    scrollbarbutton[type="increment"] { .appearance(@id, button-inc, ""); }
+    scrollbarbutton[type="decrement"] { .appearance(@id, button-dec, ""); }
+
+}
+
+/* Scrollbar definitions */
+
+scrollbar { .scrollbar(default); }
+page scrollbar
+{
+    .scrollbar(pane); opacity: 0.3;
+
+    &[orient="vertical"]
+    {
+        position: relative;
+        z-index: 999;
+        margin-left: (0 - @scrollbar-pane-y-wrapper-width);
+    }
+}
+page:hover scrollbar { opacity: 1.0; }
+view[type="editor"] scrollbar { .scrollbar(editor); }

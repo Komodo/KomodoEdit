@@ -627,6 +627,11 @@
                 // Set a fallback background color for the plugin, to avoid
                 // flashes of color when closing tabs - bug 97061.
                 this._embed.style.backgroundColor = this.scheme.backgroundColor;
+
+                // Provide background color on wrapper so scrollbars can use
+                // transparency
+                if (document.getBindingParent(this))
+                    document.getBindingParent(this).style.backgroundColor = this.scheme.backgroundColor;
                 ]]>
                 </body>
             </method>
