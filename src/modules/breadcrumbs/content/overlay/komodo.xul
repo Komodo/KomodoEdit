@@ -71,19 +71,19 @@
                         anonid="fastOpenHere"
                         label="&fastopenHere.label;"
                         oncommand="ko.breadcrumbs.onCommandMenuItem('FastOpen', this)"
-                        acceltext="Ctrl+Shift+LMB"
+                        acceltext="Ctrl+Shift+Click"
                         preserve="true"/>
                     <menuitem
                         anonid="findInFolder"
                         label="&findInFolder.label;"
                         oncommand="ko.breadcrumbs.onCommandMenuItem('Find', this)"
-                        acceltext="Ctrl+LMB"
+                        acceltext="Ctrl+Click"
                         preserve="true"/>
                     <menuitem
                         anonid="showInPlaces"
                         label="&showInPlaces.label;"
                         oncommand="ko.breadcrumbs.onCommandMenuItem('ShowPlaces', this)"
-                        acceltext="Shift+LMB"
+                        acceltext="Shift+Click"
                         preserve="true"/>
                     <menuitem
                         label="&reload.label;"
