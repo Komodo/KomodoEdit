@@ -2763,6 +2763,8 @@ var onKeypressInGatheringSession = function onKeypressInGatheringSession(event){
     var multiCaretSession = ko.selections.getMultiCaretSession(view);
     if (multiCaretSession.isTypingEvent(event)) {
         multiCaretSession.doneAddingRanges();
+        // And do this to handle the first keypress
+        setTimeout(multiCaretSession.watchMultipleSelectionKeypress_bubble.bind(multiCaretSession), 0);
     } else {
         multiCaretSession.endSession();
     }

@@ -213,8 +213,6 @@ this.MultiCaretSession.prototype = {
         scimoz.mainSelection = 0;
         this._state = PROCESSING_CHARS;
         this._startUndoBlock(this.view, scimoz);
-        // And do this to handle the first keypress
-        setTimeout(this._watchMultipleSelectionKeypress_bubble.bind(this), 0);
     },
     
     addRangesAtomically: function addRangesAtomically(ranges) {
@@ -340,7 +338,7 @@ this.MultiCaretSession.prototype = {
             // We need to use a setTimeout handler because the
             // keypress bubbling event is usually consumed
             // XXX: Bug 99366: Use an onModified handler instead of this:
-            setTimeout(this_._watchMultipleSelectionKeypress_bubble.bind(this_),
+            setTimeout(this_.watchMultipleSelectionKeypress_bubble.bind(this_),
                        0);
             return;
         }
@@ -350,7 +348,7 @@ this.MultiCaretSession.prototype = {
         this_.endSession();
     },
     
-    _watchMultipleSelectionKeypress_bubble: function() {
+    watchMultipleSelectionKeypress_bubble: function() {
         /** The distance between the first caret and the recorded
           * first selection lets us know how long each active
           * indicator needs to be.
