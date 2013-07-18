@@ -111,7 +111,19 @@ class koViewService:
         return all_views
 
     def getReferencedViewCount(self, viewtype=""):
-        return len([1 for x in self._all_views_wr_list if x() is not None])
+        count = 0
+        for i, view_weakref in enumerate(self._all_views_wr_list[:]):
+            view = None
+            try:
+                view = view_weakref()
+                count += 1
+            except COMException, ex:
+                # No longer a valid XPCOM object.
+                pass
+            if view is None:
+                # Remove it from the list.
+                self._all_views_wr_list.pop(i)
+        return count
 
     def getAllViewMgrs(self):
         return self._viewMgr.values()
