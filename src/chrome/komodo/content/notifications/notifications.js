@@ -98,6 +98,7 @@ function KoNotificationManagerWrapper_add(aSummary, aTags, aIdentifier, aArgs) {
                                                  aTags.length,
                                                  this.context,
                                                  types);
+  // QI without throwing.  XPConnect flattens the QI results.
   notification instanceof Ci.koINotificationActionable;
   notification instanceof Ci.koINotificationProgress;
   notification instanceof Ci.koINotificationText;
@@ -110,12 +111,13 @@ function KoNotificationManagerWrapper_add(aSummary, aTags, aIdentifier, aArgs) {
         notification[key] = value;
         break;
       case "actions":
-        for each (let action_data in value) {
-          var action = Cc["@activestate.com/koNotification/action;1"]
-                         .createInstance(Ci.koINotificationAction);
+        for (let action_data of value) {
+          let action;
           if (action_data instanceof Ci.koINotificationAction) {
             action = action_data;
           } else {
+            action = Cc["@activestate.com/koNotification/action;1"]
+                       .createInstance(Ci.koINotificationAction);
             for (let [key, value] in Iterator(action_data)) {
               if (!(key in action)) {
                 throw CE("invalid action argument " + key,
