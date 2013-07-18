@@ -5,7 +5,7 @@
 {
     .appearance(@id, @elem, @state)
     {
-        -moz-appearance: ~"@{scrollbar-@{id}-@{elem}-appearance}";
+        -moz-appearance: ~"@{scrollbar-@{id}-@{elem}-appearance}" !important;
         background: ~"@{scrollbar-@{id}-@{elem}-background@{state}}";
         transition: ~"@{scrollbar-@{id}-@{elem}-transition}";
         visibility: ~"@{scrollbar-@{id}-@{elem}-visibility}";
