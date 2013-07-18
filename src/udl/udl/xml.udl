@@ -46,3 +46,6 @@ sublanguage XML
 
 state IN_M_STAG_POST_ATTRNAME_2
 /[^$WS]/ : paint(upto, M_TAGSPACE), redo, => IN_M_DEFAULT
+
+state IN_M_STAG_ATTR_USTRING:
+/[^$WS]/ : paint(upto, M_TAGSPACE), redo, => IN_M_DEFAULT
