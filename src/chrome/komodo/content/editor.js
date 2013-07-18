@@ -429,7 +429,7 @@ editor_editorController.prototype.do_cmd_pasteHtml= function() {
     scimoz.replaceSel(html);
 }
 
- var is_cmd_addAdditionalCaret_enabled_aux = function() {
+var is_cmd_addAdditionalCaret_enabled_aux = function() {
     var view = _getCurrentScimozView();
     if (!view) {
         return null;
