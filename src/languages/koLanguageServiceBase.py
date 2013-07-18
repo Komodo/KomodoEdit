@@ -2674,7 +2674,11 @@ class KoLanguageBase:
                     charPos = charPos + 1 - len(blockCommentEndMarker)
                     # Fix bug 42792 -- do this in one place
 
-        if self._editSmartSoftCharacters and ch in self.matchingSoftChars:
+        # Something in scintilla breaks on multiple-carets after a soft
+        # character is inserted, and updates only happen at first caret.
+        if (self._editSmartSoftCharacters
+            and ch in self.matchingSoftChars
+            and scimoz.selections == 1):
             soft_chars = self.determine_soft_char(ch, scimoz, charPos, style_info)
         else:
             soft_chars = None
