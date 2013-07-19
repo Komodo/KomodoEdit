@@ -138,9 +138,9 @@ class KoCSSLinter:
             p = process.ProcessOpen(cmd, cwd=cwd, env=self._setLDLibraryPath(),
                                     stdin=None)
             stdout, stderr = p.communicate()
-            entries = json.loads(stdout)
+            entries = json.loads(stdout or "[]")
         except:
-            log.exception("Problem running xcshell: %r", cmd)
+            log.exception("Problem running xcshell: %r\n,output:%r\n", cmd, stdout)
             return results
 
         for entry in entries:
