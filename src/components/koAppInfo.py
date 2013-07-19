@@ -305,6 +305,7 @@ class KoAppInfoEx:
         t = threading.Thread(target=FindExecutablesThread,
                              args=(self, callback),
                              name="koIAppInfoEx.FindExecutablesThread for %r" % (self.exenames[:1]))
+        t.setDaemon(True)
         t.start()
 
     def FindInstallationPaths(self):
