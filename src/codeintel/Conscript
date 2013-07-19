@@ -70,6 +70,10 @@ $cons->InstallXpcomComponent("src/komodo/koScintillaAutoCompleteController.js",
                              {'@activestate.com/koScintillaAutoCompleteController;1' => '{88febdcd-e6f0-4542-9d16-464413967757}'});
 
 
+$cons->InstallXpcomComponent("src/komodo/koCodeIntelXPCOMSupport.py");
+$cons->InstallXpcomComponent("src/komodo/xpcomJSElements.py");
+
+
 my @codeintel2_files = (
     "lib/codeintel2/accessor.py",
     "lib/codeintel2/buffer.py",
@@ -200,10 +204,8 @@ my @catalog_files = (
     "lib/codeintel2/catalogs/xbl.cix",
     #TODO: "lib/codeintel2/catalogs/pecl.cix",
     #TODO: "lib/codeintel2/catalogs/drupal.cix",
+    "lib/codeintel2/catalogs/xpcom.cix",
 );
-if ($buildFlavour eq "dev") {
-    push(@catalog_files, "lib/codeintel2/catalogs/mozilla_toolkit.cix");
-}
 foreach my $file (@catalog_files) {
     $cons->InstallPythonUtility($file, "codeintel2/catalogs");
 }

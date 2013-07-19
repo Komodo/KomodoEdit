@@ -59,8 +59,10 @@ log = logging.getLogger("test")
 
 
 
-class LangJavaScriptTestCase(unittest.TestCase):
+class LangJavaScriptTestCase(CodeIntelTestCase):
     """Direct testing of the lang_javascript ciler."""
+    lang = "JavaScript"
+
     @tag("bug92884")
     def test_getVariableType(self):
         # Ensure variable ciling is working for "new this."
@@ -81,6 +83,35 @@ class LangJavaScriptTestCase(unittest.TestCase):
         citdl, p, isAlias = ciler._getVariableType(styles, text, p=1)
         self.assertEqual(citdl, ["this", "Internal1"])
         self.assertEqual(p, 8)
+
+    @tag("bug99286")
+    def test_tokenize_citdl(self):
+        """Direct testing of the citdl tokenizer"""
+        buf, trg = self._get_buf_and_trg("foo.<|>", self.lang)
+        ctlr = EvalController()
+
+        from codeintel2 import tree_javascript
+        evlr = tree_javascript.CandidatesForTreeEvaluator(ctlr, buf, trg,
+                                                          None, None)
+        def get_tokens(expr):
+            return list(evlr._tokenize_citdl_expr(expr))
+
+        self.assertEqual(get_tokens(""), [])
+        self.assertEqual(get_tokens("array_members[]"),
+                         ["array_members", "[]"])
+        self.assertEqual(get_tokens("property.access"),
+                         ["property", "access"])
+        self.assertEqual(get_tokens("method_call()"),
+                         ["method_call", "()"])
+        self.assertEqual(get_tokens("array['member']"),
+                         ["array", "member"])
+        self.assertEqual(get_tokens('array["string_member"]'),
+                         ["array", "string_member"])
+        self.assertEqual(get_tokens("chained['string']['member']"),
+                         ["chained", "string", "member"])
+        # This one isn't actually possible
+        #self.assertEqual(get_tokens("nested[string['member']]"),
+        #                 ["nested", "string", "member"])
 
 
 class TriggerTestCase(CodeIntelTestCase):
@@ -1887,123 +1918,6 @@ class DefnTestCase(CodeIntelTestCase):
             ilk="class", name="class_test", line=4, path=path, )
         self.assertDefnMatches2(buf, positions[3],
             ilk="function", name="getName", line=5, path=path, )
-
-class XPCOMTestCase(CodeIntelTestCase):
-    __tags__ = ["pyxpcom"]
-    lang = "JavaScript"
-    test_dir = join(os.getcwd(), "tmp")
-
-    def test_xpcom_cplns(self):
-        # JS completion for stuff in just the local file.
-        content, positions = unmark_text(dedent("""\
-            var observerSvc = Components.<1>classes["@mozilla.org/observer-service;1"].
-                           getService(Components.interfaces.<2>nsIObserverService);
-            observerSvc.<3>;
-            observerSvc.addObserver(<4>);
-        """))
-        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("namespace", "classes"),
-             ("namespace", "interfaces")])
-        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("class", "nsIObserverService"),
-             ("class", "nsIFile")])
-        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-            [("function", "addObserver"),
-             ("function", "notifyObservers")])
-        self.assertCalltipIs(markup_text(content, pos=positions[4]),
-                             "addObserver(in nsIObserver, in String, in Boolean)")
-
-    def test_xpcom_returns(self):
-        content, positions = unmark_text(dedent("""\
-            var url = Components.classes["@mozilla.org/network/standard-url;1"]
-                                .createInstance(Components.interfaces.nsIURL);
-            var uri = url.<1>clone();
-            uri.<2>;
-        """))
-        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "spec"),
-             ("variable", "scheme"),
-             ("function", "clone"),
-             ("variable", "query"),
-             ("function", "getCommonBaseSpec")])
-        # clone should return a nsIURI object
-        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("variable", "spec"),
-             ("variable", "scheme"),
-             ("function", "clone")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
-            [("variable", "query"),
-             ("function", "getCommonBaseSpec")])
-
-    def test_query_interface(self):
-        content, positions = unmark_text(dedent("""\
-            var aFile = Components.classes["@mozilla.org/file/local;1"].createInstance();
-            if (aFile) {
-                var qiFile = aFile.QueryInterface(Components.interfaces.nsILocalFile);
-                // Should now know that this supports nsILocalFile
-                qiFile.<1>;
-            }
-        """))
-        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "followLinks"),
-             ("variable", "path"),
-             ("function", "clone"),
-             ("function", "exists"),
-             ("function", "initWithPath")])
-
-    @tag("knownfailure")
-    def test_query_interface_2(self):
-        content, positions = unmark_text(dedent("""\
-            var aFile = Components.classes["@mozilla.org/file/local;1"].createInstance();
-            if (aFile) {
-                aFile.QueryInterface(Components.interfaces.nsILocalFile);
-                // Should now know that this supports nsILocalFile
-                aFile.<1>;
-            }
-        """))
-        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "followLinks"),
-             ("variable", "path"),
-             ("function", "clone"),
-             ("function", "exists"),
-             ("function", "initWithPath")])
-
-    @tag("bug73872")
-    def test_xpcom_classes_array_cplns(self):
-        content, positions = unmark_text(dedent("""\
-            var observerCls = Components.classes["<1>@mozilla.org/observer-service;1"];
-            observerCls.<2>;
-        """))
-        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "@mozilla.org/observer-service;1"),
-             ("variable", "@mozilla.org/embedcomp/prompt-service;1")])
-        # If the array items in the "classes" elem had the correct citdl:
-        #self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-        #    [("function", "getService"),
-        #     ("function", "createInstance")])
-
-    def test_xpcom_full_expression_cplns_bug80581(self):
-        content, positions = unmark_text(dedent("""\
-            var ko_prefSvc = Components.classes["@activestate.com/koPrefService;1"]
-                           .getService(Components.interfaces.koIPrefService);
-            ko_prefSvc.<1>;
-            var ko_gPrefs = Components.classes["@activestate.com/koPrefService;1"]
-                           .getService(Components.interfaces.koIPrefService)
-                           .prefs;
-            ko_gPrefs.<2>;
-        """))
-        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "prefs"),
-             ("function", "saveState")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
-            [("variable", "type"),
-             ("function", "serialize")])
-        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("variable", "type"),
-             ("function", "serialize")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
-            [("variable", "prefs"),
-             ("function", "saveState")])
 
 
 #---- mainline

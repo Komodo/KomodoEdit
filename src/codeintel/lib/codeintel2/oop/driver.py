@@ -85,6 +85,7 @@ class Driver(threading.Thread):
     """
 
     # static
+    _instance = None
     _command_handler_map = collections.defaultdict(list)
     """Registered command handlers"""
     _default_handler = None
@@ -94,6 +95,8 @@ class Driver(threading.Thread):
 
     def __init__(self, db_base_dir=None, fd_in=sys.stdin, fd_out=sys.stdout):
         threading.Thread.__init__(self, name="Codeintel OOP Driver")
+        assert Driver._instance is None, "Driver should be a singleton"
+        Driver._instance = self
         self.daemon = True
 
         self.fd_in = fd_in
@@ -390,6 +393,10 @@ class Driver(threading.Thread):
         """Register a command handler"""
         for command in handlerInstance.supportedCommands:
             cls._command_handler_map[command].append(handlerInstance)
+
+    @classmethod
+    def getInstance(cls):
+        return Driver._instance
 
 
 class CoreHandler(CommandHandler):

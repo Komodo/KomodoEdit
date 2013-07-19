@@ -103,7 +103,7 @@ if _xpcom_:
 
 lang = "JavaScript"
 # Setup the logger
-log = logging.getLogger("codeintel.javascript")
+log = logging.getLogger("codeintel.javascript.lang")
 #log.setLevel(logging.DEBUG)
 #log.setLevel(logging.INFO)
 util.makePerformantLogger(log)
@@ -794,6 +794,23 @@ class JavaScriptLangIntel(CitadelLangIntel,
         return set(lpath for child in blob
                    for lpath in _walk_js_symbols(child))
 
+
+    def citdl_expr_from_trg(self, buf, trg):
+        """Return a CITDL expression preceding the given trigger.  This is the
+        JavaScript specialization; all it does is set array_as_attr to True.
+        """
+        DEBUG=False
+        if trg.form != TRG_FORM_DEFN:
+            if trg.type == 'array-members':
+                # Get everything before the bracket position.
+                pos = trg.extra.get('bracket_pos') - 1
+            else:
+                pos = trg.pos - 2   # skip past the trigger char
+            return self._citdl_expr_from_pos(buf, pos, implicit=trg.implicit,
+                                             DEBUG=DEBUG, trg=trg,
+                                             array_as_attr=True)
+
+        return PythonCITDLExtractorMixin.citdl_expr_from_trg(self, buf, trg)
 
 class JavaScriptBuffer(CitadelBuffer):
     lang = lang
@@ -2807,6 +2824,15 @@ class JavaScriptCiler:
                 if last_style != self.JS_OPERATOR:
                     break
                 ids.append(text[pos])
+            elif style == self.JS_OPERATOR and text[pos] == "[" and \
+                len(styles) - pos > 2 and styles[pos + 1] in self.JS_STRINGS and \
+                text[pos + 2] == "]":
+                # blah["string here"]
+                part = text[pos + 1]
+                if len(part) > 1 and part[0] in ("'", '"') and part[-1] == part[0]:
+                    part = part[1:-1] # trim quotes
+                ids.append(part)
+                pos += 2
             elif style != self.JS_OPERATOR or text[pos] != "." or \
                 last_style != self.JS_IDENTIFIER:
                 break
@@ -4044,7 +4070,9 @@ def _walk_js_symbols(elem, _prefix=None):
     else:
         lpath = (elem.get("name"), )
     yield lpath
-    if not (elem.tag == "scope" and elem.get("ilk") == "function"):
+    if elem.tag == "variable":
+        pass # don't descend into variables
+    elif not (elem.tag == "scope" and elem.get("ilk") == "function"):
         for child in elem:
             for child_lpath in _walk_js_symbols(child, lpath):
                 yield child_lpath

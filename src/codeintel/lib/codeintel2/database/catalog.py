@@ -802,7 +802,7 @@ class CatalogLib(object):
 
     def hits_from_lpath(self, lpath, ctlr=None, curr_buf=None):
         assert isinstance(lpath, tuple)  # common mistake to pass in a string
-        
+
         hits = []
         for blobname in self._blobnames_from_toplevelname(lpath[0]):
             lpaths = self.catalogs_zone.lpaths_from_lang_and_blobname(
@@ -901,11 +901,12 @@ class CatalogLib(object):
 
 def _elem_from_scoperef(scoperef):
     """A scoperef is (<blob>, <lpath>). Return the actual elem in
-    the <blob> ciElementTree being referred to.
+    the <blob> ciElementTree being referred to.  Returns None if not found.
     """
     elem = scoperef[0]
     for lname in scoperef[1]:
-        elem = elem.names[lname]
+        try:
+            elem = elem.names[lname]
+        except KeyError:
+            return None
     return elem
-
-
