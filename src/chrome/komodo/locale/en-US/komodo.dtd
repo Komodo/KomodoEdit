@@ -82,6 +82,7 @@
 <!ENTITY compareFiles.label "Compare Files...">
 <!ENTITY completeWord.label "Complete Word">
 <!ENTITY content.label "Content">
+<!ENTITY controlClick.accesskey "Ctrl+Click">
 <!ENTITY copy.label "Copy">
 <!ENTITY copy.tooltiptext "Copy">
 <!ENTITY copyButton.accesskey "C">
