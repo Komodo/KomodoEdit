@@ -36,6 +36,7 @@
 
 #include "nsISupports.idl"
 #include "koIDocument.idl"
+interface koIAsyncCallback;
 
 /**
  * This allows for querying of information on a particular installation of an
@@ -47,8 +48,12 @@
 [scriptable, uuid(61a45a55-0cb0-4019-b1a7-8096ab2cca88)]
 interface koIAppInfoEx : nsISupports {
     // Query for a list of found installation executables for this application.
+    // Can be slow, as some executables may require validation, which means
+    // running the interpreters in a process.
     void FindExecutables(out unsigned long count,
                          [retval, array, size_is(count)] out wstring strs);
+    // Async version of FindExecutables.
+    void FindExecutablesAsync(in koIAsyncCallback callback);
 
     // Query for a list of found installation paths for this application. These
     // are the installation directories for the paths found by

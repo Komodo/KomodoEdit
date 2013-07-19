@@ -38,6 +38,7 @@
 import sys, os, re, string
 import os.path
 import tempfile
+import threading
 from xpcom import components, ServerException, COMException, nsError
 
 import process
@@ -288,6 +289,23 @@ class KoAppInfoEx:
                 else:
                     self._executables += self._locateExecutables(exename)
         return self._executables
+
+    def FindExecutablesAsync(self, callback):
+        # The function run by the thread, passing results to the callback.
+        def FindExecutablesThread(instance, callbackObj):
+            executables = []
+            result = components.interfaces.koIAsyncCallback.RESULT_ERROR
+            try:
+                executables = instance.FindExecutables()
+                result = components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL
+            except Exception, ex:
+                log.warn("FindExecutables failed: %r", str(ex))
+            callbackObj.callback(result, executables)
+        # Start the thread.
+        t = threading.Thread(target=FindExecutablesThread,
+                             args=(self, callback),
+                             name="koIAppInfoEx.FindExecutablesThread for %r" % (self.exenames[:1]))
+        t.start()
 
     def FindInstallationPaths(self):
         exepaths = self.FindExecutables()

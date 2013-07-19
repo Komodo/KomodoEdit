@@ -127,6 +127,72 @@ class _BaseAppInfoTestCase(unittest.TestCase):
         self.assertFilepathsEqual(self.freshAppInfo.FindExecutables(), expected_exe_paths)
         self.assertFilepathsEqual(self.cachedAppInfo.FindExecutables(), expected_exe_paths)
 
+    def test_FindExecutablesAsync(self):
+        import time
+        import threading
+        self.prefs.setStringPref(self.defaultInterpreterPrefName, "")
+
+        # Check it without a default pref.
+        exe_paths = self._getPathsForInterpreters(self.exenames)
+        results = {}
+        event = threading.Event()
+        def callback(result, data):
+            results["result"] = result
+            results["exe_paths"] = data
+            event.set()
+        def wait(timeout=None):
+            # Process pending Mozilla events in order to receive the observer
+            # notifications, based on Mozilla xpcshell test class here:
+            # http://mxr.mozilla.org/mozilla-central/source/testing/xpcshell/head.js#75
+            currentThread = components.classes["@mozilla.org/thread-manager;1"] \
+                                .getService().currentThread
+            start_time = time.time()
+            while 1:
+                if timeout is not None:
+                    if (time.time() - start_time) > timeout:
+                        break
+                # Give some time to gather more events.
+                event.wait(0.1)
+                if event.isSet():
+                    break
+                # Process events, such as the pending observer notifications.
+                while currentThread.hasPendingEvents():
+                    currentThread.processNextEvent(True)
+
+        event.clear()
+        results.clear()
+        self.freshAppInfo.FindExecutablesAsync(callback)
+        wait(30)
+        self.assertEqual(components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL, results.get("result", -1))
+        self.assertFilepathsEqual(exe_paths, results.get("exe_paths"))
+
+        event.clear()
+        results.clear()
+        self.cachedAppInfo.FindExecutablesAsync(callback)
+        wait(30)
+        self.assertEqual(components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL, results.get("result", -1))
+        self.assertFilepathsEqual(exe_paths, results.get("exe_paths"))
+
+        # Set the pref and then check it.
+        expected_executablePath = normcase(normpath(abspath(__file__)))
+        expected_installationPath = dirname(expected_executablePath)
+        expected_exe_paths = [expected_executablePath] + exe_paths
+        self.prefs.setStringPref(self.defaultInterpreterPrefName, expected_executablePath)
+
+        event.clear()
+        results.clear()
+        self.freshAppInfo.FindExecutablesAsync(callback)
+        wait(30)
+        self.assertEqual(components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL, results.get("result", -1))
+        self.assertFilepathsEqual(expected_exe_paths, results.get("exe_paths"))
+
+        event.clear()
+        results.clear()
+        self.cachedAppInfo.FindExecutablesAsync(callback)
+        wait(30)
+        self.assertEqual(components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL, results.get("result", -1))
+        self.assertFilepathsEqual(expected_exe_paths, results.get("exe_paths"))
+
     def test_FindInstallationPaths(self):
         self.prefs.setStringPref(self.defaultInterpreterPrefName, "")
 
