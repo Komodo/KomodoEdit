@@ -112,6 +112,7 @@ def set_idle_priority():
     except AttributeError:
         pass # No os.nice on Windows
     if sys.platform.startswith("linux"):
+        import ctypes.util
         import platform
         # Try using a syscall to set io priority...
         __NR_ioprio_set = { # see Linux sources, Documentation/block/ioprio.txt
@@ -126,6 +127,7 @@ def set_idle_priority():
             libc.syscall(__NR_ioprio_set, IOPRIO_WHO_PROCESS, 0,
                          IOPRIO_CLASS_IDLE << IOPRIO_CLASS_SHIFT)
     elif sys.platform.startswith("win"):
+        import ctypes
         from ctypes import wintypes
         SetPriorityClass = ctypes.windll.kernel32.SetPriorityClass
         SetPriorityClass.argtypes = [wintypes.HANDLE, wintypes.DWORD]

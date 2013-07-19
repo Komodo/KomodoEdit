@@ -46,7 +46,7 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         self.svc.activate(self._activate_callback, True)
         # Let codeintel start up...
         self._wait_for_callback(lambda: not self._waiting_for_activation,
-                                timeout=30, action="startup")
+                                timeout=60, action="startup")
         self.assertTrue(self._active)
 
     def _wait_for_callback(self, callback, timeout=None, action=""):
