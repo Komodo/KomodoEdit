@@ -397,7 +397,9 @@ public:
 	}
 	const char *Find(int character) {
 		const std::vector<int>::iterator it = std::lower_bound(characters.begin(), characters.end(), character);
-		if (*it == character)
+		if (it == characters.end())
+			return 0;
+		else if (*it == character)
 			return conversions[it - characters.begin()].conversion;
 		else
 			return 0;

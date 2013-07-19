@@ -443,11 +443,20 @@
     </h3>
     <ul>
 	<li>
-	Released 29 December 2013.
+	Released 19 July 2013.
+	</li>
+	<li>
+	Handling of UTF-8 and DBCS text in lexers improved with methods ForwardBytes and
+	GetRelativeCharacter added to StyleContext.
+	<a href="http://sourceforge.net/p/scintilla/bugs/1483/">Bug #1483</a>.
 	</li>
 	<li>
 	For Unicode text, case-insensitive searching and making text upper or lower case is now
 	compliant with Unicode standards on all platforms and is much faster for non-ASCII characters.
+	</li>
+	<li>
+	A CategoriseCharacter function was added to return the Unicode general category of a character
+	which can be useful in lexers.
 	</li>
 	<li>
 	On Cocoa, the LCD Optimized font quality level turns font smoothing on.
@@ -457,11 +466,6 @@
 	</li>
 	<li>
 	Font quality exposed in SciTE as font.quality setting.
-	</li>
-	<li>
-	Handling of UTF-8 and DBCS text in lexers improved with methods ForwardBytes and
-	GetRelativeCharacter added to StyleContext.
-	<a href="http://sourceforge.net/p/scintilla/bugs/1483/">Bug #1483</a>.
 	</li>
 	<li>
 	On Cocoa, message:... methods simplify direct access to Scintilla and avoid call layers..
@@ -543,6 +547,16 @@
 	</li>
 	<li>
 	Compile time checks for Digital Mars C++ removed.
+	</li>
+	<li>
+	Visual C++ 2013 supported.
+	<a href="http://sourceforge.net/p/scintilla/bugs/1492/">Bug #1492</a>.
+	</li>
+	<li>
+	Python scripts used for building and maintenance improved and moved into scripts directory.
+	</li>
+	<li>
+	Testing scripts now work on Linux using Qt and PySide.
 	</li>
 	<li>
 	Tk platform defined.
