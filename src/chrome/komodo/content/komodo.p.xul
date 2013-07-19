@@ -272,8 +272,8 @@
         <menuseparator id="context-sep-paste"/>
         <menuitem id="editor-context-addAdditionalCaret"
                 label="&addAdditionalCaret.label;"
-                observes="cmd_addAdditionalCaret"/>
-
+                observes="cmd_addAdditionalCaret"
+                acceltext="&controlClick.accesskey;"/>
         <menuitem id="editor-context-makeSnippet"
                 label="&addAsSnippetInToolbox.label;"
                 observes="cmd_makeSnippetFromSelection"/>
@@ -773,6 +773,11 @@
                                               id="menu_selectToMatchingBrace"
                                               accesskey="&selectToMatchingBrace.menu.accesskey;"
                                               observes="cmd_selectToMatchingBrace"
+                                              />
+                                    <menuitem label="&addAdditionalCaret.label;"
+                                              id="menu_addAdditionalCaret"
+                                              acceltext="&controlClick.accesskey;"
+                                              observes="cmd_addAdditionalCaret"
                                               />
                                 </menupopup>
                             </menu>
