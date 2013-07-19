@@ -291,6 +291,11 @@ class KoAppInfoEx:
         return self._executables
 
     def FindExecutablesAsync(self, callback):
+        # Remeber the thread who called us.
+        threadMgr = components.classes["@mozilla.org/thread-manager;1"]\
+                        .getService(components.interfaces.nsIThreadManager)
+        starting_thread = threadMgr.currentThread
+
         # The function run by the thread, passing results to the callback.
         def FindExecutablesThread(instance, callbackObj):
             executables = []
@@ -300,7 +305,24 @@ class KoAppInfoEx:
                 result = components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL
             except Exception, ex:
                 log.warn("FindExecutables failed: %r", str(ex))
-            callbackObj.callback(result, executables)
+
+            class CallbackRunnable(object):
+                """Used to fire callback on the original thread."""
+                _com_interfaces_ = [components.interfaces.nsIRunnable]
+                def __init__(self, handler, result, executables):
+                    self.handler = handler
+                    self.args = (result, executables)
+                def run(self, *args):
+                    self.handler.callback(*self.args)
+                    # Null out values.
+                    self.handler = None
+                    self.args = None
+            runnable = CallbackRunnable(callbackObj, result, executables)
+            try:
+                starting_thread.dispatch(runnable, components.interfaces.nsIThread.DISPATCH_SYNC)
+            except COMException, e:
+                log.warn("FindExecutables: callback failed: %s", str(e))
+
         # Start the thread.
         t = threading.Thread(target=FindExecutablesThread,
                              args=(self, callback),
