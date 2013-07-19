@@ -231,10 +231,9 @@ class KoAppInfoEx:
         return self._isValidExecutable(exe)
 
     def getExecutableFromPrefs(self, prefset):
-        if prefset.hasPref(self.defaultInterpreterPrefName):
-            interpPath = prefset.getStringPref(self.defaultInterpreterPrefName)
-            if interpPath and os.path.exists(interpPath):
-                return interpPath
+        interpPath = prefset.getString(self.defaultInterpreterPrefName, "")
+        if interpPath and os.path.exists(interpPath):
+            return interpPath
         return self.get_executablePath()
 
     def getExecutableFromDocument(self, koDoc):
@@ -261,24 +260,22 @@ class KoAppInfoEx:
             executables = valid_executables
                     
         if interpreterPrefName:
-            prefs = self._prefs
-            if prefs.hasStringPref(interpreterPrefName):
-                prefexe = prefs.getStringPref(interpreterPrefName)
-                if prefexe and os.path.exists(prefexe):
-                    if is_windows or sys.platform.startswith('darwin'):
-                        prefexe_lc = prefexe.lower()
-                        executables_lc = [x.lower() for x in executables]
-                    else:
-                        prefexe_lc = prefexe
-                        executables_lc = executables
-                    # Make sure the user-chosen interpreter is always first
-                    if prefexe_lc not in executables_lc:
+            prefexe = self._prefs.getString(interpreterPrefName, "")
+            if prefexe and os.path.exists(prefexe):
+                if is_windows or sys.platform.startswith('darwin'):
+                    prefexe_lc = prefexe.lower()
+                    executables_lc = [x.lower() for x in executables]
+                else:
+                    prefexe_lc = prefexe
+                    executables_lc = executables
+                # Make sure the user-chosen interpreter is always first
+                if prefexe_lc not in executables_lc:
+                    executables.insert(0, prefexe)
+                else:
+                    found_prefexe = executables_lc.index(prefexe_lc)
+                    if found_prefexe > 0:
+                        del executables[found_prefexe]
                         executables.insert(0, prefexe)
-                    else:
-                        found_prefexe = executables_lc.index(prefexe_lc)
-                        if found_prefexe > 0:
-                            del executables[found_prefexe]
-                            executables.insert(0, prefexe)
         return [os.path.normcase(os.path.normpath(exe)) for exe in executables]
 
     def FindExecutables(self):
