@@ -249,7 +249,17 @@ class KoAppInfoEx:
         executables = which.whichall(exeName, exts=exts, path=paths)
         if self.versionCheckExecutables:
             # Only want supported versions.
-            executables = [exe for exe in executables if self._isValidExecutable(exe)]
+            # _isValidExecutable can throw exceptions, so don't use a
+            # list comprehension
+            valid_executables = []
+            for exe in executables:
+                try:
+                    if self._isValidExecutable(exe):
+                        valid_executables.append(exe)
+                except ValueError:
+                    pass
+            executables = valid_executables
+                    
         if interpreterPrefName:
             prefs = self._prefSvc.prefs
             if prefs.hasStringPref(interpreterPrefName):
