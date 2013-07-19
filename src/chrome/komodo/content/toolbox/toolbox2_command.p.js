@@ -1487,7 +1487,7 @@ ToolboxController.prototype = {
      document.getElementById("toolbox2-hierarchy-tree").controllers.insertControllerAt(0, new ToolboxController());
      window.addEventListener("focus", ko.toolbox2.onFocusWindow, false);
    } catch(ex) {
-     log.error("Failed to set a toolbox controller: " + ex + "\n");
+     log.exception(ex, "Failed to set a toolbox controller");
    }
  }, true);
 
