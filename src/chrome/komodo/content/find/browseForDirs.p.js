@@ -40,7 +40,7 @@
  *  All dialog interaction is done via an object passed in and out as the first
  *  window argument: window.arguments[0].
  *      .encodedFolders is a pathsep-separated list of selected diretories
- *      .currentDir     is a directory in which to start browsing (XXX:TODO)
+ *      .cwd     is a directory in which to start browsing
  *  On return window.arguments[0] has:
  *      .retval         "OK" or "Cancel"
  *      .encodedFolders (only iff .retval=="OK") a list of the selected dirs
@@ -76,8 +76,6 @@ function OnLoad()
         if (window.arguments[0].cwd) {
             gWidgets.pathlist.setCwd(window.arguments[0].cwd);
         }
-        // .currentDir
-        var currentDir = window.arguments[0].currentDir;
         gWidgets.pathlist.init();
     } catch(ex) {
         log.exception(ex);
