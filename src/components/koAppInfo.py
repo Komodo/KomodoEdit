@@ -74,8 +74,8 @@ class KoAppInfoEx:
     def __init__(self):
 
         self._executable_is_valid_cache = {}
-        self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
-            getService(components.interfaces.koIPrefService)
+        self._prefs = components.classes["@activestate.com/koPrefService;1"].\
+            getService(components.interfaces.koIPrefService).prefs
 
         self._userPath = koprocessutils.getUserEnv().get("PATH", "").split(os.pathsep)
 
@@ -91,7 +91,7 @@ class KoAppInfoEx:
         ProxyAddObserver(self)
 
         try:
-            self._prefSvc.prefs.prefObserverService.addObserver(self, self.defaultInterpreterPrefName, 0)
+            self._prefs.prefObserverService.addObserver(self, self.defaultInterpreterPrefName, 0)
         except Exception, e:
             log.warn("Unable to listen for preference change for: %r",
                      self.defaultInterpreterPrefName)
@@ -261,7 +261,7 @@ class KoAppInfoEx:
             executables = valid_executables
                     
         if interpreterPrefName:
-            prefs = self._prefSvc.prefs
+            prefs = self._prefs
             if prefs.hasStringPref(interpreterPrefName):
                 prefexe = prefs.getStringPref(interpreterPrefName)
                 if prefexe and os.path.exists(prefexe):
@@ -383,9 +383,7 @@ class KoPerlInfoEx(KoAppInfoEx):
     
     # koIPerlInfoEx routines
     def getExtraPaths(self):
-        if not self._prefSvc.effectivePrefs.hasPref("perlExtraPaths"):
-            return []
-        perlExtraPaths = self._prefSvc.effectivePrefs.getStringPref("perlExtraPaths")
+        perlExtraPaths = self._prefs.getString("perlExtraPaths", "")
         if not perlExtraPaths:
             return []
         if sys.platform.startswith("win"):
@@ -738,7 +736,7 @@ class KoPHPInfoInstance(KoAppInfoEx):
         self._executable = None
         self._info = {}
         try:
-            self._prefSvc.prefs.prefObserverService.addObserver(self, "phpConfigFile", 0)
+            self._prefs.prefObserverService.addObserver(self, "phpConfigFile", 0)
         except Exception, e:
             log.warn("Unable to listen for preference change for: 'phpConfigFile'")
 
@@ -955,8 +953,7 @@ class KoPHPInfoInstance(KoAppInfoEx):
 
     def autoConfigureDebugger(self):
         # get the phpconfigurator and autoconfigure
-        if self._prefSvc.prefs.hasStringPref("phpConfigFile") and\
-                   self._prefSvc.prefs.getStringPref("phpConfigFile"):
+        if self._prefs.getString("phpConfigFile", ""):
             if not self.get_isDebuggerExtensionLoadable():
                 return "Unable to load XDebug"
             return "" 
@@ -988,9 +985,7 @@ class KoPHPInfoEx(KoPHPInfoInstance):
         # Not using the proxied pref observer due to getting Komodo lockups
         # at start time:
         # http://bugs.activestate.com/show_bug.cgi?id=74474
-        prefset = self._prefSvc.prefs
-        if prefset.hasStringPref("phpConfigFile"):
-            phpConfigFile = prefset.getStringPref("phpConfigFile")
+        phpConfigFile = self._prefs.getString("phpConfigFile", "")
         return phpConfigFile or KoPHPInfoInstance._getInterpreterConfig(self)
 
     def _get_namedExe(self, name):
