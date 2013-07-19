@@ -67,6 +67,8 @@ var gProcessor = null;
 var gProgressController = null;
 var gCancelButton = null;
 var gCancelWarning = null;
+var gCancelThreshold = 5;
+var gCancelAttempts;
 
 
 //---- interface routines for XUL
@@ -120,6 +122,8 @@ function OnLoad()
     gProgressController = new ProgressController(is_cancellable);
     gProcessor = window.arguments[0].processor;
     gProcessor.set_controller(gProgressController);
+
+    gCancelAttempts = 0;
 }
 
 
@@ -127,8 +131,15 @@ function Cancel()
 {
     
     if (!gProgressController.is_cancellable) {
-        log.debug("Cancel: not cancellable, ignore");
-        return;
+        if (++gCancelAttempts < gCancelThreshold) {
+            log.debug("Cancel: not cancellable, ignore");
+            log.warning("Try "
+                      + (gCancelThreshold - gCancelAttempts)
+                      + " more time"
+                      + ((gCancelThreshold - gCancelAttempts) > 1 ? "s" : "")
+                      + " to really cancel\n");
+            return;
+        }
     } else if (gProgressController.cancelling) {
         log.debug("Cancel: already cancelling, ignore");
         return;
