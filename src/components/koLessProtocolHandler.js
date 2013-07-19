@@ -80,7 +80,7 @@ LessChannel.prototype = {
             var file;
             koLess.loadSheet({href: this._URI}, function(_file) {
                 file = _file;
-            }, true);
+            }, true); // isInternalCall
 
             var channel = NetUtil.newChannel(file, null, null);
            
@@ -120,7 +120,7 @@ LessChannel.prototype = {
                 this.contentLength = channel.contentLength;
 
                 channel.asyncOpen(listener, aContext);
-            }, true);
+            }, true, true); // isInternalCall, async
         } catch (ex) {
             Cu.reportError(ex);
             throw new Components.Exception("Failed to open async stream",

@@ -33,7 +33,7 @@ var koLess = function koLess()
 
     const prefs             =   Cc['@activestate.com/koPrefService;1']
                                 .getService(Ci.koIPrefService).prefs;
-    
+
     koLess.prototype =
     {
         
@@ -42,11 +42,24 @@ var koLess = function koLess()
         initialized: false,
         initialising: false,
 
-        init: function(callback = function() {})
+        /**
+         * Initialize koLess,
+         * this method must be idempotent as sync calls might run it multiple
+         * times if it had not completed before
+         *
+         * @param   {bool|function} callback
+         * @param   {bool} async
+         *
+         * @returns {Void}
+         */
+        init: function(callback = false, async = false)
         {
-            onInit.push(callback);
+            if (callback)
+            {
+                onInit.push(callback);
+            }
 
-            if (this.initialising)
+            if (this.initialising && async)
             {
                 if (log)
                 {
@@ -61,34 +74,7 @@ var koLess = function koLess()
             //log.setLevel(10); // debug
 
             this.debug('Initializing koLess');
-
-            // Load cache hierarchy (if available)
-            if (this.hierarchy === null)
-            {
-                var hierarchyCache = this.cache.getFile('hierarchy.json');
-
-                if (hierarchyCache.exists())
-                {
-                    // No need to wrap this part in a try/catch, readFile takes care of that
-                    var data = this.readFile(hierarchyCache);
-                    try
-                    {
-                        this.hierarchy = JSON.parse(data);
-                        this.hierarchy.parents  = this.hierarchy.parents || {};
-                        this.hierarchy.children = this.hierarchy.children || {};
-                    }
-                    catch (e)
-                    {
-                        this.cache.clear();
-                        this.error(e.message);
-                    }
-                }
-                else
-                {
-                    this.hierarchy = {parents: {}, children: {}};
-                }
-            }
-
+           
             // Clear the less cache if Komodo has been up/down-graded
             // or if an external lib (eg. ko.skin) has told us to
             var cacheVersion = prefs.getString('lessCacheVersion', '');
@@ -100,12 +86,53 @@ var koLess = function koLess()
                 this.cache.clear();
             }
 
+            // Load cache hierarchy (if available)
+            if (this.hierarchy === null)
+            {
+                this.hierarchy = {parents:{}, children: {}};
+
+                var hierarchyCache = this.cache.getFile('hierarchy.json');
+                if (hierarchyCache.exists())
+                {
+                    // No need to wrap this part in a try/catch, readFile takes care of that
+                    this.readFile(hierarchyCache, function(data)
+                    {
+                        try
+                        {
+                            this.hierarchy = JSON.parse(data);
+                            this.hierarchy.parents  = this.hierarchy.parents || {};
+                            this.hierarchy.children = this.hierarchy.children || {};
+                        }
+                        catch (e)
+                        {
+                            this.cache.clear();
+                            this.error(e.message);
+                        }
+
+                        this._onInit();
+                    }.bind(this), async);
+                    return;
+                }
+            }
+           
+            this._onInit();
+        },
+
+        _onInit: function()
+        {
             this.initialized = true;
 
-            for (let x=onInit.length-1;x>=0;x--)
+            var _callback;
+            while ((_callback = onInit.pop()) !== undefined)
             {
-                onInit[x].call(this);
-                delete onInit[x];
+                try
+                {
+                    _callback.call(this);
+                }
+                catch (e)
+                {
+                    this.exception(e, "Error calling initialization callback");
+                }
             }
         },
 
@@ -138,23 +165,19 @@ var koLess = function koLess()
          * Load a specific stylesheet
          *
          * @param   {Element}       sheet           xml-stylesheet element
-         * @param   {Function}      callback        Despite this method being synchronous
-         *                                          it takes a callback argument as
-         *                                          this is the way the less parser
-         *                                          operates and modifying it to work
-         *                                          differently would cause more problems
-         *                                          than it solves
+         * @param   {Function}      callback       
          * @param   {Boolean}       isInternalCall  Whether the loadSheet is called
          *                                          internally or from the compiler
+         * @param   {Boolean}       async           Whether to execute this call
+         *                                          asynchronously
          *
          * @returns {Void}
          */
-        loadSheet: function koLess_loadSheet(sheet, callback = function() {}, isInternalCall = false)
+        loadSheet: function koLess_loadSheet(sheet, callback = function() {}, isInternalCall = false, async = false)
         {
             if ( ! this.initialized)
             {
-                dump("\nDelaying " + sheet.href + "\n");
-                this.init(function() { this.loadSheet(sheet, callback, isInternalCall); }.bind(this));
+                this.init(this.loadSheet.bind(this, sheet, callback, isInternalCall), async);
                 return;
             }
 
@@ -177,98 +200,99 @@ var koLess = function koLess()
                     }
                 }
                
-                this.debug('Loading new version: ' + sheet.href);
+                this.debug('Loading new version ' + (async ? 'a' : '') + 'synchronously: ' + sheet.href);
             }
             else
             {
                 //this.debug('Loading import: ' + sheet.href);
             }
 
-            var _parseCallback = function(e, root)
-            {
-                // Validate parsed result
-                if (e)
-                {
-                    return this.errorLess(e, sheet.href);
-                }
-
-                // If we have a callback this is a call from the less parser
-                // and we should just return the data it wants.
-                if ( ! isInternalCall)
-                {
-                    //this.debug('Returning: ' + sheet.href);
-                    var bogus = { local: false, lastModified: null, remaining: 0 };
-                    callback(e, root, data, sheet, bogus, sheet.href);
-                }
-                else // Otherwise it's an internal (koLess) call
-                {
-                    try
-                    {
-                        var parsedCss = root.toCSS();
-                    }
-                    catch (e)
-                    {
-                        if ("extract" in e)
-                        {
-                            return this.errorLess(e, sheet.href);
-                        }
-                        else
-                        {
-                            return this.exception(e,'Error converting less to css in ' + sheet.href);
-                        }
-                    }
-
-                    // Write it to cache
-                    try
-                    {
-                        var cacheFile = this.cache.writeFile(sheet.href, parsedCss, true);
-                        this.localCache.sheetPaths.push(sheet.href);
-                    }
-                    catch (e)
-                    {
-                        return this.exception(e, 'Error creating cache for ' + sheet.href);
-                    }
-
-                    this.debug('Returning ' + cacheFile.fileSize + ' bytes for: ' + sheet.href);
-                    callback(cacheFile);
-
-                    // Perfect time to cache the sheet hierarchy
-                    this.cache.writeFile('hierarchy.json', JSON.stringify(this.hierarchy));
-                }
-            };
-
+            var uri = Services.io.newURI(sheet.href, null, null);
             // Grab the contents of the stylesheet
-            var file = this.resolveFile(sheet.href);
-            var data = this.readFile(sheet.href);
-
-            // Run it through the LESS parser
-            try
+            this.readFile(uri, function(data)
             {
-                var contents = {};
-                contents[sheet.href] = data;
+                var _parseCallback = function(e, root)
+                {
+                    // Validate parsed result
+                    if (e)
+                    {
+                        return this.errorLess(e, sheet.href);
+                    }
 
-                if (sheet instanceof less.tree.parseEnv)
-                {
-                    var env = new less.tree.parseEnv(sheet);
-                }
-                else
-                {
-                    var env = new less.tree.parseEnv(less);
-                    env.mime = sheet.type;
-                    env.sheet = sheet;
-                }
+                    // If we have a callback this is a call from the less parser
+                    // and we should just return the data it wants.
+                    if ( ! isInternalCall)
+                    {
+                        //this.debug('Returning: ' + sheet.href);
+                        var bogus = { local: false, lastModified: null, remaining: 0 };
+                        callback(e, root, data, sheet, bogus, sheet.href);
+                    }
+                    else // Otherwise it's an internal (koLess) call
+                    {
+                        try
+                        {
+                            var parsedCss = root.toCSS();
+                        }
+                        catch (e)
+                        {
+                            if ("extract" in e)
+                            {
+                                return this.errorLess(e, sheet.href);
+                            }
+                            else
+                            {
+                                return this.exception(e,'Error converting less to css in ' + sheet.href);
+                            }
+                        }
+
+                        // Write it to cache
+                        try
+                        {
+                            var cacheFile = this.cache.writeFile(sheet.href, parsedCss, true);
+                            this.localCache.sheetPaths.push(sheet.href);
+                        }
+                        catch (e)
+                        {
+                            return this.exception(e, 'Error creating cache for ' + sheet.href);
+                        }
+
+                        this.debug('Returning ' + cacheFile.fileSize + ' bytes for: ' + sheet.href);
+                        callback(cacheFile);
+
+                        // Perfect time to cache the sheet hierarchy
+                        this.cache.writeFile('hierarchy.json', JSON.stringify(this.hierarchy));
+                    }
+                };
                
-                env.paths = [sheet.href.replace(/[^/]*$/, '')];
-                env.contents = contents;
-                env.dumpLineNumbers = false;
-                env.strictImports = false;
+                // Run it through the LESS parser
+                try
+                {
+                    var contents = {};
+                    contents[sheet.href] = data;
 
-                new(less.Parser)(env).parse(data, _parseCallback.bind(this));
-            }
-            catch (e)
-            {
-                this.exception(e, 'Parsing error for ' + sheet.href + ': ' + e.message);
-            }
+                    if (sheet instanceof less.tree.parseEnv)
+                    {
+                        var env = new less.tree.parseEnv(sheet);
+                    }
+                    else
+                    {
+                        var env = new less.tree.parseEnv(less);
+                        env.mime = sheet.type;
+                        env.sheet = sheet;
+                    }
+
+                    env.paths = [sheet.href.replace(/[^/]*$/, '')];
+                    env.contents = contents;
+                    env.dumpLineNumbers = false;
+                    env.strictImports = false;
+
+                    new(less.Parser)(env).parse(data, _parseCallback.bind(this));
+                }
+                catch (e)
+                {
+                    this.exception(e, 'Parsing error for ' + sheet.href + ': ' + e.message);
+                }
+            }.bind(this), async);
         },
 
         /**
@@ -430,18 +454,27 @@ var koLess = function koLess()
         /**
          * Read a file using file uri
          *
-         * @param   {String} fileUri
-         * @param   {Function} callback
+         * @param   {nsIFile|nsIURI} fileUri
+         * @param   {Function} callback     callback(String) returns file contents
+         * @param   {Boolean} async
          *
          * @returns {Void}
          */
-        readFile: function koLess_readFile(fileUri)
+        readFile: function koLess_readFile(file, callback, async = false)
         {
+            this.debug("Reading file: " + (file.spec || file.path));
+
+            if (async)
+            {
+                return this.readFileAsync(file, callback);
+            }
+
             // Grab the contents of the stylesheet
+            var _success = false;
             try
             {
                 var data = "";
-                var fstream = NetUtil.newChannel(fileUri, null, null).open();
+                var fstream = NetUtil.newChannel(file, null, null).open();
                 var cstream = Components.classes["@mozilla.org/intl/converter-input-stream;1"].
                               createInstance(Components.interfaces.nsIConverterInputStream);
                 cstream.init(fstream, "UTF-8", 0, 0);
@@ -457,12 +490,43 @@ var koLess = function koLess()
                 }
                 cstream.close();
 
-                return data;
+                _success = true;
             }
             catch (e)
             {
-                this.exception(e, 'Failed reading file: ' + fileUri + "\n" + e.message);
+                this.exception(e, 'Failed reading file synchronously: ' + file.path + "\n" + e.message);
             }
+
+            if (_success)
+            {
+                callback(data);
+            }
+        },
+
+        /**
+         * Async version of readFile
+         *
+         * @param   {nsIFile|nsIURI} file
+         * @param   {Function} callback     callback(String) returns file contents
+         *
+         * @returns {Void} 
+         */
+        readFileAsync: function koLess_readFile(file, callback)
+        {
+            // Grab the contents of the stylesheet
+            NetUtil.asyncFetch(file, function(inputStream, status)
+            {
+                // Validate result
+                if ( ! Components.isSuccessCode(status))
+                {
+                    this.error("asyncFetch failed for uri: " + file.path + " :: " + status);
+                    return;
+                }
+
+                // Parse contents
+                var data = NetUtil.readInputStreamToString(inputStream, inputStream.available());
+                callback(data);
+            }.bind(this));
         },
 
         /**
@@ -624,9 +688,13 @@ var koLess = function koLess()
             var error = [];
 
             var errorString = (
-                e.message ||
                 'There is an error in your .less file'
             ) + ' (' + (e.filename || href) + ")\n";
+
+            if (e.message)
+            {
+                errorString += e.message + "\n";
+            }
 
             var errorline = function (e, i, classname)
             {
@@ -648,7 +716,7 @@ var koLess = function koLess()
                             error.join('');
             }
 
-            this.error(errorString, (e.stack || e.extract));
+            this.exception(errorString);
         }
         
     };
