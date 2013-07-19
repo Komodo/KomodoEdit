@@ -151,6 +151,17 @@ window#komodo_main :not(toolbarbutton):not(toolbaritem)
     border-radius: @textbox-border-radius;
 }
 
+/* Fix autocomplete text styling - TODO: integrate this into less skinning */
+textbox[enablehistory="true"] > .autocomplete-textbox-container
+{
+    -moz-appearance: none;
+}
+
+ko-findbar.ko-findbar-status-not-found .ko-findbar-textbox
+{
+    color: red;
+}
+
 /* Statusbar */
 
 statusbar
