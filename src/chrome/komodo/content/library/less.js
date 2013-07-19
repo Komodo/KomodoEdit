@@ -11,13 +11,13 @@ var EXPORTED_SYMBOLS = ["koLess"];
 
 var koLess = function koLess()
 {
-    this.init();
 };
 
 (function() {
     
     var self;
     var log;
+    var onInit = [];
     
     const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
     const { Services }      =   Cu.import("resource://gre/modules/Services.jsm", {});
@@ -39,11 +39,24 @@ var koLess = function koLess()
         
         localCache: {getFile: {}, resolveFile: {}, resolveYoungestChild: {}, sheetPaths: []},
         hierarchy: null,
+        initialized: false,
+        initialising: false,
 
         init: function(callback = function() {})
         {
-            self = this;
+            onInit.push(callback);
 
+            if (this.initialising)
+            {
+                if (log)
+                {
+                    this.debug("Init in progress - delaying load of: " + sheet.href);
+                }
+                return;
+            }
+
+            initialising = true;
+            self = this;
             log = logging.getLogger('koLess');
             //log.setLevel(10); // debug
 
@@ -85,6 +98,14 @@ var koLess = function koLess()
             {
                 prefs.setStringPref('lessCacheVersion', platVersion);
                 this.cache.clear();
+            }
+
+            this.initialized = true;
+
+            for (let x=onInit.length-1;x>=0;x--)
+            {
+                onInit[x].call(this);
+                delete onInit[x];
             }
         },
 
@@ -130,6 +151,13 @@ var koLess = function koLess()
          */
         loadSheet: function koLess_loadSheet(sheet, callback = function() {}, isInternalCall = false)
         {
+            if ( ! this.initialized)
+            {
+                dump("\nDelaying " + sheet.href + "\n");
+                this.init(function() { this.loadSheet(sheet, callback, isInternalCall); }.bind(this));
+                return;
+            }
+
             if (isInternalCall)
             {
                 this.debug("Loading: " + sheet.href);
