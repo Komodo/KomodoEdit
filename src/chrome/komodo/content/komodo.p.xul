@@ -1620,15 +1620,12 @@
                                         label="&helpTroubleshootingViewErrorLog.label;"
                                         observes="cmd_helpViewErrorLog"
                                     />
-<!-- Cannot use "about:memory" on the Mac, due to bug 95983. -->
-<!-- #if PLATFORM != "darwin" -->
                                     <menuitem
                                         id="troubleshootingAboutMemory"
                                         accesskey="&helpTroubleshootingAboutMemory.accesskey;"
                                         label="&helpTroubleshootingAboutMemory.label;"
                                         observes="cmd_komodoMemoryUsage"
                                     />
-<!-- #endif -->
                                     <menuitem
                                         id="troubleshootingViewBugsMenuItem"
                                         accesskey="&komodoBugDatabase.accesskey;"
