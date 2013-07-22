@@ -52,8 +52,10 @@ log = logging.getLogger("process")
 try:
     from subprocess32 import Popen, PIPE
 except ImportError:
+    # Not available on Windows - fallback to using regular subprocess module.
     from subprocess import Popen, PIPE
-    log.warn("Could not import subprocess32 module, falling back to subprocess module")
+    if sys.platform != "win32":
+        log.warn("Could not import subprocess32 module, falling back to subprocess module")
 
 
 CREATE_NEW_CONSOLE = 0x10 # same as win32process.CREATE_NEW_CONSOLE
