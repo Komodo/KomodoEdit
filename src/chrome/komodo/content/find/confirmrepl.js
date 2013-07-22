@@ -139,7 +139,8 @@ function show_selected_changes()
         var selected_indeces = _get_selected_indeces();
         var diff = _g_replacer.diff_from_indeces(selected_indeces.length,
                                                  selected_indeces);
-        ko.launch.diff(diff, "Selected Changes");
+        ko.launch.diff(diff, "Selected Changes", null,
+                       {modalChild: navigator.platform.match(/^Mac/)});
     } catch(ex) {
         log.exception(ex);
     }

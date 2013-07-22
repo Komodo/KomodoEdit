@@ -511,7 +511,8 @@ this.runCommand = function() {
  * @param {String} title
  * @param {String} message
  */
-this.diff = function(diff, title /* ="Diff" */, message /* =null */)
+this.diff = function(diff, title /* ="Diff" */, message /* =null */,
+                     options /* = {} */)
 {
     if (typeof(title) == "undefined") {
         title = "Diff";
@@ -519,15 +520,22 @@ this.diff = function(diff, title /* ="Diff" */, message /* =null */)
     if (typeof(message) == "undefined") {
         message = null;
     }
+    if (typeof(options) == "undefined") {
+      options = { modalChild: false };
+    }
 
     var obj = new Object();
     obj.title = title;
     obj.diff = diff;
     obj.message = message;
+    var features = "chrome,close=yes,resizable=yes,scrollbars=yes,centerscreen";
+    if (options.modalChild) {
+       features += ",modal=yes";
+    }
     return ko.windowManager.openDialog(
         "chrome://komodo/content/dialogs/diff.xul",
         "_blank",
-        "chrome,all,close=yes,resizable=yes,scrollbars=yes,centerscreen",
+        features,
         obj);
 }
 
