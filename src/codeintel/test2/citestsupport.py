@@ -144,7 +144,11 @@ class CodeIntelTestCase(unittest.TestCase):
             # Try to ensure no accidental re-use of the same buffer name
             # across the whole test suite. Also try to keep the buffer
             # names relatively short (keeps tracebacks cleaner).
-            name = "buf-" + md5(markedup_content).hexdigest()[:16]
+            if isinstance(markedup_content, unicode):
+                markedup_bytes = markedup_content.encode("utf-8")
+            else:
+                markedup_bytes = markedup_content
+            name = "buf-" + md5(markedup_bytes).hexdigest()[:16]
             path = os.path.join("<Unsaved>", name)
         content, data = unmark_text(self.adjust_content(markedup_content))
         #print banner(path)

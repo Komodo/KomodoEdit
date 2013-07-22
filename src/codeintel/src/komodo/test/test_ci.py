@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import logging
 from os.path import dirname
 import sys
@@ -6,6 +8,7 @@ from xpcom.components import interfaces as Ci
 from codeintel2.common import TRG_FORM_CPLN, TRG_FORM_CALLTIP, TRG_FORM_DEFN
 from codeintel2.util import dedent, unmark_text, lines_from_pos
 from functools import partial
+from testlib import tag
 
 sys.path.insert(0, dirname(__file__))
 try:
@@ -41,7 +44,8 @@ class PythonBufferTestCase(_BufferTestCaseBase):
     longMessage = True
     def setUp(self):
         _BufferTestCaseBase.setUp(self)
-        self.doc.buffer, self.positions = unmark_text(dedent("""
+        self.doc.buffer, self.positions = unmark_text(dedent(u"""
+            # Ťĥíš ƒíłé ĥáš Ůɳíčóďé ťéхť ťó ťéšť ƀýťé νš čĥář ƿóšíťíóɳš
             def silly():
                 indent = 4<5>
                 import <1>pprint
@@ -129,3 +133,35 @@ class PythonBufferTestCase(_BufferTestCaseBase):
                          lines_from_pos(self.doc.buffer, [self.positions[5]]))
         self.assertEqual(handler.defns[0].ilk, "variable")
 
+class PerlBufferTestCase(_BufferTestCaseBase):
+    language = "Perl"
+    longMessage = True
+
+    @tag("bug99676")
+    def test_unicode_in_defn(self):
+        self.doc.buffer, self.positions = unmark_text(dedent(u"""
+            #Ůɳíčóďé<3>
+            my $pCnt = 0;<1>
+            # Some filler text to make sure we do not accidentally find the
+            # previous definition
+            $p<2>Cnt++;
+            """).strip())
+        self.assertGreater(self.positions[3], len("#Unicode"),
+                           "Unicode positions are character positions "
+                           "instead of byte positions")
+        spinner = AsyncSpinner(self, callback=partial(setattr, self, "trg"))
+        with spinner:
+            self.buf.defn_trg_from_pos(self.positions[2], spinner)
+        self.assertIsNotNone(self.trg)
+        self.assertEqual(self.trg.form, TRG_FORM_DEFN)
+        handler = UIHandler(spinner)
+        with spinner:
+            spinner.callback = None
+            self.buf.async_eval_at_trg(self.trg, handler,
+                                       Ci.koICodeIntelBuffer.EVAL_SILENT)
+        self.assertEqual(len(handler.defns), 1)
+        self.assertEqual(handler.defns[0].lang, "Perl")
+        self.assertEqual(handler.defns[0].name, "$pCnt")
+        self.assertEqual([handler.defns[0].line],
+                         lines_from_pos(self.doc.buffer, [self.positions[1]]))
+        self.assertEqual(handler.defns[0].ilk, "variable")

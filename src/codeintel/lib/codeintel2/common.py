@@ -256,7 +256,7 @@ class Trigger(object):
     lang = None  # e.g. "Python", "CSS"
     form = None  # TRG_FORM_CPLN or TRG_FORM_CALLTIP
     type = None  # e.g. "object-members"
-    pos = None
+    pos = None # Trigger position, in bytes (of UTF 8)
     implicit = None
     # The number characters of the trigger. For most (but not all) triggers
     # there is a clear distinction between a trigger token and a preceding
