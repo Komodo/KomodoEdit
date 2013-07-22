@@ -531,3 +531,14 @@ if ($withDocs) {
 if ($platform eq "win") {
     $consLocal->InstallPythonUtility('smallstuff/winprocess.py');
 }
+
+#---- Newer subprocess module back-ported from Python 3.2.
+# http://code.google.com/p/python-subprocess32/
+$landmark = "$komodoPythonUtilsDir/subprocess32.py";
+$consLocal->Command($landmark,
+               "subprocess32/setup.py",
+               qq(
+                cd %1:d && $siloedPython %1:f build $debugFlags
+                cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
+               ));
+$consLocal->DependsRecursive($landmark, "subprocess32", ("build", '\.svn'));
