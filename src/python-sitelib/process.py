@@ -43,12 +43,18 @@ if sys.platform != "win32":
 import logging
 import threading
 import warnings
-from subprocess import Popen, PIPE
 
 #-------- Globals -----------#
 
 log = logging.getLogger("process")
 #log.setLevel(logging.DEBUG)
+
+try:
+    from subprocess32 import Popen, PIPE
+except ImportError:
+    from subprocess import Popen, PIPE
+    log.warn("Could not import subprocess32 module, falling back to subprocess module")
+
 
 CREATE_NEW_CONSOLE = 0x10 # same as win32process.CREATE_NEW_CONSOLE
 CREATE_NEW_PROCESS_GROUP = 0x200 # same as win32process.CREATE_NEW_PROCESS_GROUP
