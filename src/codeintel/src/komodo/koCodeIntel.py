@@ -554,6 +554,8 @@ class KoCodeIntelManager(threading.Thread):
             # Logging
             try:
                 for log_name in logging.Logger.manager.loggerDict.keys():
+                    if not log_name.startswith("codeintel"):
+                        continue
                     if logging.getLogger(log_name).level is logging.NOTSET:
                         continue
                     cmd += ["--log-level", "%s:%s" %
