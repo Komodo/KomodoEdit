@@ -25,6 +25,7 @@ if (ko.skin == undefined)
     const {NetUtil}     = Cu.import("resource://gre/modules/NetUtil.jsm", {});
     const {Services}    = Cu.import("resource://gre/modules/Services.jsm", {});
     const {ctypes}      = Cu.import("resource://gre/modules/ctypes.jsm", {});
+    const {koLess}      = Cu.import("chrome://komodo/content/library/less.js", {});
 
     // Make prefs accessible across "class"
     var prefs = Components.classes['@activestate.com/koPrefService;1']
@@ -46,9 +47,6 @@ if (ko.skin == undefined)
     
     // Self pointer for use in observer, as .bind() doesn't work with xpcom
     var self;
-    
-    // Helper vars
-    var _clearCacheTimer = null;
     
     ko.skin.prototype  =
     {
@@ -116,7 +114,6 @@ if (ko.skin == undefined)
                 // Store new value for future updates
                 prefOld[topic] = value;
 
-                setTimeout(function() {
                 // Reload relevant skin
                 if (topic == PREF_CUSTOM_SKIN)
                 {
@@ -128,7 +125,6 @@ if (ko.skin == undefined)
                     self.iconsetHasChanged = true;
                     self.loadPreferredIcons();
                 }
-                }, 50);
             }
         },
         
@@ -140,11 +136,6 @@ if (ko.skin == undefined)
         loadPreferredSkin: function(pref)
         {
             var preferredSkin = prefs.getString(PREF_CUSTOM_SKIN, '');
-            if (preferredSkin == '')
-            {
-                return;
-            }
-
             this.loadCustomSkin(preferredSkin);
         },
         
@@ -174,6 +165,9 @@ if (ko.skin == undefined)
             this.loadCustomSkin(uri);
         },
         
+        _loadCustomSkinTimer: null,
+        _loadCustomSkinQueue: [],
+        
         /**
          * Load a custom skin
          * 
@@ -183,8 +177,28 @@ if (ko.skin == undefined)
          */
         loadCustomSkin: function(uri)
         {
+            if (this.skinHasChanged)
+            {
+                log.debug("Queueing up load of custom skin: " + uri);
+                
+                clearTimeout(this._loadCustomSkinTimer)
+                this._loadCustomSkinQueue.push(uri);
+                this._loadCustomSkinTimer = setTimeout(this._loadCustomSkins.bind(this), 50);
+            }
+            else
+            {
+                this._loadCustomSkin(uri);
+            }
+        },
+        
+        _loadCustomSkin: function(uri)
+        {
+            if (uri == "") {
+                return;
+            }
+            
             log.debug("Loading custom skin: " + uri);
-
+            
             var manifestLoader = Cc["@activestate.com/koManifestLoader;1"]
                                     .getService(Ci.koIManifestLoader);
             if ( ! manifestLoader.loadManifest(uri, true))
@@ -193,17 +207,7 @@ if (ko.skin == undefined)
                 return;
             }
             
-            if (this.skinHasChanged)
-            {
-                this.clearCache();
-            }
-
             var file = this._getFile(uri);
-            if ( ! file)
-            {
-                return;
-            }
-
             var initFile = file.parent;
             initFile.appendRelativePath('init.js');
             if (initFile.exists())
@@ -218,6 +222,22 @@ if (ko.skin == undefined)
                     log.error("Failed loading skin init: '" + initFile.path + "'. " + e.message);
                 }
             }
+        },
+        
+        _loadCustomSkins: function()
+        {
+            log.debug("Loading " + this._loadCustomSkinQueue.length + " custom skins");
+            
+            koLess.cache.clear();
+
+            var uri;
+            while ((uri = this._loadCustomSkinQueue.pop()) !== undefined)
+            {
+                log.debug("Processing " + uri);
+                this._loadCustomSkin(uri);
+            }
+
+            koLess.reload();
          },
          
         /**
@@ -238,42 +258,6 @@ if (ko.skin == undefined)
                 log.error("Failed unloading manifest: '" + uri);
                 return;
             }
-            
-            this.clearCache();
-        },
-        
-        /**
-         * Clear skin caches
-         *
-         * We'll need to reload any css files that have been affected
-         *
-         * @param   {Boolean} noDelay   Whether to execute immediately or after
-         *                              a short delay, used to prevent multiple
-         *                              reloads in a short time
-         * 
-         * @returns {Void} 
-         */
-        clearCache: function(noDelay = false)
-        {
-            // Prevent multiple calls in a short time
-            if ( ! noDelay)
-            {
-                clearTimeout(_clearCacheTimer);
-                _clearCacheTimer = setTimeout(this.clearCache.bind(this, true), 100);
-                return;
-            }
-            
-            try
-            {
-                // Reload Stylesheets
-                var koLess = Cu.import("chrome://komodo/content/library/less.js").koLess;
-                koLess.reload();
-
-            }
-            catch (e) {
-                log.error(e.message);
-            }
-            
         },
 
         _getFile: function(uri)

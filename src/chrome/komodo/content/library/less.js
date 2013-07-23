@@ -77,12 +77,12 @@ var koLess = function koLess()
            
             // Clear the less cache if Komodo has been up/down-graded
             // or if an external lib (eg. ko.skin) has told us to
-            var cacheVersion = prefs.getString('lessCacheVersion', '');
+            var cacheVersion = prefs.getString('lessCachePlatVersion', '');
             var infoSvc = Cc["@activestate.com/koInfoService;1"].getService(Ci.koIInfoService);
             var platVersion = infoSvc.buildPlatform + infoSvc.buildNumber;
             if (cacheVersion != platVersion)
             {
-                prefs.setStringPref('lessCacheVersion', platVersion);
+                prefs.setStringPref('lessCachePlatVersion', platVersion);
                 this.cache.clear();
             }
 
@@ -139,23 +139,19 @@ var koLess = function koLess()
         /**
          * Reload stylesheets in current window
          *
+         * @param   {Boolean}   clearCache
+         *
          * @returns {Void}
          */
-        reload: function()
+        reload: function(clearCache = false)
         {
-           this.cache.clear();
-
-            let observers = Services.obs.enumerateObservers("chrome-flush-caches");
-            while (observers.hasMoreElements())
+            self.warn('Reloading Skin');
+            
+            if (clearCache)
             {
-                let observer = observers.getNext();
-                if (observer instanceof Ci.imgICache)
-                {
-                    observer.clearCache(true /*chrome*/);
-                }
+                this.cache.clear();
             }
-            Services.obs.notifyObservers(null, "chrome-flush-caches", null);
-
+            
             Cc["@mozilla.org/chrome/chrome-registry;1"]
               .getService(Ci.nsIXULChromeRegistry)
               .refreshSkins();
@@ -395,17 +391,114 @@ var koLess = function koLess()
             clear: function koLess_cache_clear()
             {
                 self.warn('Clearing local and file cache');
+                
+                let observers = Services.obs.enumerateObservers("chrome-flush-caches");
+                while (observers.hasMoreElements())
+                {
+                    let observer = observers.getNext();
+                    if (observer instanceof Ci.imgICache)
+                    {
+                        observer.clearCache(true /*chrome*/);
+                    }
+                }
+                Services.obs.notifyObservers(null, "chrome-flush-caches", null);
 
                 // Reset localCache
                 for (let [,k] in Iterator(Object.keys(self.localCache)))
                 {
                     self.localCache[k] = k == 'sheetPaths' ? [] : {};
                 }
+                
+                // Cleanup old caches
+                this.cleanup();
 
                 // Clear file cache
-                try {
-                FileUtils.getFile("ProfD", ["lessCache"], true).remove(true);
-                } catch (e) {} // don't care if this fails
+                var file = FileUtils.getFile("ProfD", ["lessCache", prefs.getString("lessCacheVersion", "0")], true);
+                try
+                {
+                    file.remove(true);
+                }
+                catch (e)
+                {
+                    self.exception(e, "Failed deleting lessCache folder: " + file.path + ", changing lessCache path");
+                    
+                    this.addToCleanup(prefs.getString("lessCacheVersion", "0"));
+                    prefs.setString("lessCacheVersion", new Date().getTime());
+                }
+            },
+            
+            /**
+             * Cleanup old caches that failed to delete at previous runtime
+             *
+             * @returns {Void}
+             */
+            cleanup: function koLess_cache_cleanup()
+            {
+                var cleanup = this._getCleanup();
+                if ( ! cleanup.length)
+                {
+                    return
+                }
+                
+                self.warn("Cleaning up " + cleanup.length + " old caches");
+                
+                for (let x=cleanup.length-1; x>=0; x--)
+                {
+                    let file = FileUtils.getFile("ProfD", ["lessCache", cleanup[x]], true);
+                    
+                    try
+                    {
+                        if (file.exists())
+                        {
+                            file.remove(true);
+                        }
+                        cleanup.splice(x,1);
+                    }
+                    catch (e)
+                    {
+                        self.exception(e, "Failed cleaning up lessCache version '" + cleanup[x] + "', leaving for future cleanup");
+                    }
+                }
+                
+                prefs.setString("lessCacheCleanup", JSON.stringify(cleanup));
+            },
+            
+            /**
+             * Add less cache version to cleanup
+             *
+             * @param   {String}    version
+             *
+             * @returns {Void}
+             */
+            addToCleanup: function koLess_cache_addToCleanup(version)
+            {
+                var cleanup = this._getCleanup();
+                cleanup.push(version);
+                prefs.setString("lessCacheCleanup", JSON.stringify(cleanup));
+            },
+            
+            /**
+             * Retrieve the array of old less caches that need to be cleaned up
+             *
+             * @returns {Void}
+             */
+            _getCleanup: function koLess_cache_getCleanup()
+            {
+                var cleanup = [];
+                var _cleanup = prefs.getString("lessCacheCleanup", "");
+                if (_cleanup)
+                {
+                    try
+                    {
+                        cleanup = JSON.parse(_cleanup);
+                    }
+                    catch(e)
+                    {
+                        log.exception(e, "Failed parsing lessCacheCleanup pref");
+                    }
+                }
+                
+                return cleanup;
             },
 
             /**
@@ -445,7 +538,9 @@ var koLess = function koLess()
                 filePath = filePath.replace(/\:/g, '');
                 filePath = filePath.replace(/.less$/, '.css');
                 filePath = filePath.split(/\/|\\/);
-                filePath.unshift("lessCache");
+                
+                filePath.unshift("lessCache", prefs.getString("lessCacheVersion", "0"));
+                
                 return filePath;
             }
 
