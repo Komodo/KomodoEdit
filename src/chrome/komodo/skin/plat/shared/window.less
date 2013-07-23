@@ -136,6 +136,11 @@ window#komodo_main :not(toolbarbutton):not(toolbaritem)
     &:-moz-any(textbox)
     {
         -moz-appearance: @textbox-appearance;
+        &[enablehistory=true] > .autocomplete-textbox-container
+        {
+            /* Override the -moz-appearance set on autocomplete textboxes. */
+            -moz-appearance: @textbox-appearance;
+        }
     }
 
     &:-moz-any(menulist)

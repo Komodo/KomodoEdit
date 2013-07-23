@@ -35,17 +35,9 @@ ko-findbar .ko-findbar-textbox {
   -moz-user-focus: normal;
 }
 
-ko-findbar.ko-findbar-status-not-found .ko-findbar-textbox {
-  background: rgba(255, 64, 64, 0.8);
-  border: none;
-  color: white;
-  -moz-appearance: none;
-}
-
 ko-findbar.ko-findbar-status-not-found .ko-findbar-textbox > .autocomplete-textbox-container {
-  /* on linux, this normally gets -moz-appearance: menulist-textfield due to
-     enablehistory="true" */
-  -moz-appearance: none;
+  box-shadow: 0 0 0 1em rgba(255, 64, 64, 0.8) inset;  /* background color */
+  color: white;
 }
 
 ko-findbar .ko-findbar-status {
