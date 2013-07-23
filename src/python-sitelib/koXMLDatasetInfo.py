@@ -131,7 +131,7 @@ class DatasetHandlerService:
     resolver = None
     def __init__(self):
         self._default_public_ids = {
-            "HTML": "-//W3C//DTD HTML 4.01//EN"
+            "HTML": "-//W3C//DTD HTML 5//EN",
         }
         self._default_namespace_ids = {}
         self.defaultHandler = EmptyDatasetHandler()
