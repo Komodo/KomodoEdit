@@ -1665,8 +1665,8 @@ this.onload = function uilayout_onload()
 	MruMenusAddItem(e.target);
     }
 
-    document.getElementById('unifiedMenuButton').addEventListener('click', trackMenuItemMru);
-    document.getElementById('menubar_main').addEventListener('click', trackMenuItemMru);
+    document.getElementById('unifiedMenuButton').addEventListener('command', trackMenuItemMru);
+    document.getElementById('menubar_main').addEventListener('command', trackMenuItemMru);
     
     ko.uilayout.setMenubarVisibility();
 // #endif
