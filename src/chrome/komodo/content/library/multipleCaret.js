@@ -134,6 +134,10 @@ this.MultiCaretSession.prototype = {
     get isGatheringCarets() this._state == SETTING_CARETS,
     
     startAddingRanges: function startAddingRanges() {
+        if (gVimController && gVimController.enabled) {
+            // Bug 99502: If vi-mode is active, ensure it's in insert-mode 
+            gVimController.mode = VimController.MODE_INSERT;
+        }
         var scimoz = this.view.scimoz;
         this._clearSelections_preservePos(scimoz);
         scimoz.multipleSelection = true;
