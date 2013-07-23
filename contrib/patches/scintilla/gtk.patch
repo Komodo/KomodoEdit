@@ -498,6 +498,16 @@ Scintilla buffer before shutting down, bug 81293.
  }
  
  gint ScintillaGTK::Press(GtkWidget *widget, GdkEventButton *event) {
+@@ -1991,7 +2191,8 @@
+ 			sciThis->HorizontalScrollTo(sciThis->xOffset + cLineScroll);
+ 
+ 			// Text font size zoom
+-		} else if (event->state & GDK_CONTROL_MASK) {
++		} else if ((event->state & GDK_CONTROL_MASK)
++                           && !sciThis->suppressZoomOnScrollWheel) {
+ 			if (cLineScroll < 0) {
+ 				sciThis->KeyCommand(SCI_ZOOMIN);
+ 			} else {
 @@ -2548,6 +2548,7 @@
  	return TRUE;
  }

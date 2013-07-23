@@ -194,7 +194,7 @@ diff -r -du src/Document.h src/Document.h
 diff -r -du src/Editor.h src/Editor.h
 --- src/Editor.h	2005-08-29 18:09:20.000000000 -0700
 +++ src/Editor.h	2007-05-01 17:00:17.000000000 -0700
-@@ -287,6 +287,11 @@
+@@ -287,6 +287,13 @@
  	int lastSegItalicsOffset; // the offset so as not to clip italic characters at EOLs
  
  	Document *pdoc;
@@ -203,6 +203,8 @@ diff -r -du src/Editor.h src/Editor.h
 +	bool rejectSelectionClaim;
 +	// ActiveState: suppress drag/drop when in minimap (bug 97159)
 +	bool suppressDragDrop;
++	// ActiveState: hook {ctrl,cmd}-scroll-wheel zooming (bug 98938)
++	bool suppressZoomOnScrollWheel; // default false
  
  	Editor();
  	virtual ~Editor();

@@ -222,6 +222,7 @@
                         break;
                     case 'editEnableMouseZoom': // pref notification
                         this.editEnableMouseZoom = prefs.getBoolean('editEnableMouseZoom', true);
+                        this.scimoz.suppressZoomOnScrollWheel = !this.editEnableMouseZoom;
                         break;
                 }
             } catch (e) {
@@ -526,6 +527,7 @@
                 if (prefs.getBooleanPref("scrollEndAtLastLine"))
                     scimoz.endAtLastLine = false;
                 this.editEnableMouseZoom = prefs.getBoolean('editEnableMouseZoom', true);
+                this.scimoz.suppressZoomOnScrollWheel = !this.editEnableMouseZoom;
 
 <!-- #if PLATFORM == "win" -->
                 scimoz.eOLMode = scimoz.SC_EOL_CRLF;

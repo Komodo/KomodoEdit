@@ -4,7 +4,7 @@ Index: src/Editor.cxx
 ===================================================================
 --- src/Editor.cxx	(revision 73425)
 +++ src/Editor.cxx	(working copy)
-@@ -227,6 +227,12 @@
+@@ -227,6 +227,15 @@
  
  	llc.SetLevel(LineLayoutCache::llcCaret);
  	posCache.SetSize(0x400);
@@ -14,6 +14,9 @@ Index: src/Editor.cxx
 +
 +	// ActiveState suppress drag/drop when in minimap (bug 97159)
 +	suppressDragDrop = false;
++
++	// ActiveState hook cmd-scroll-wheel zooming pref (bug 98938)
++	suppressZoomOnScrollWheel = false;
  }
  
  Editor::~Editor() {
@@ -323,7 +326,7 @@ Index: src/Editor.cxx
  		case Selection::selRectangle:
  			return SC_SEL_RECTANGLE;
  		case Selection::selLines:
-@@ -8983,20 +9026,59 @@
+@@ -8983,20 +9026,66 @@
  
  	case SCI_GETHOTSPOTSINGLELINE:
  		return vs.hotspotSingleLine ? 1 : 0;
@@ -371,6 +374,13 @@ Index: src/Editor.cxx
 +
 +	case SCI_GETSUPPRESSDRAGDROP: //  bug 97159
 +		return suppressDragDrop;
++
++	case SCI_SETSUPPRESSZOOMONSCROLLWHEEL: // bug 98938
++		suppressZoomOnScrollWheel = wParam;
++		break;
++
++	case SCI_GETSUPPRESSZOOMONSCROLLWHEEL: //  bug 98938
++		return suppressZoomOnScrollWheel;
 +
 +	// END ACTIVESTATE
  

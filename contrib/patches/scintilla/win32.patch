@@ -121,6 +121,16 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  			break;
  
  		case WM_COMMAND:
+@@ -669,7 +684,7 @@
+
+ 				else
+ 					wheelDelta = - (-wheelDelta % WHEEL_DELTA);
+ 
+-				if (wParam & MK_CONTROL) {
++				if ((wParam & MK_CONTROL) && !suppressZoomOnScrollWheel) {
+ 					// Zoom! We play with the font sizes in the styles.
+ 					// Number of steps/line is ignored, we just care if sizing up or down
+ 					if (linesToScroll < 0) {
 @@ -675,6 +690,7 @@
  		case WM_TIMER:
  			if (wParam == standardTimerID && timer.ticking) {

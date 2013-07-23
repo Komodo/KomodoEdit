@@ -51,3 +51,13 @@ Index: cocoa/ScintillaCocoa.mm
  //--------------------------------------------------------------------------------------------------
  
  void ScintillaCocoa::NotifyChange()
+@@ -2004,7 +2023,8 @@
+     else
+     dY = (int) sqrt(10.0 * [event deltaY]);
+   
+-  if (command)
++    
++  if (command && !suppressZoomOnScrollWheel)
+   {
+     // Zoom! We play with the font sizes in the styles.
+     // Number of steps/line is ignored, we just care if sizing up or down.
