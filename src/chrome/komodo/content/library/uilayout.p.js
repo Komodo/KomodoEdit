@@ -136,12 +136,18 @@ this.toggleToolbars = function uilayout_toggleToolbars()
     var toolbarsShowing;
     var broadcaster = document.getElementById('cmd_toggleToolbars');
     if (broadcaster.hasAttribute('checked') && broadcaster.getAttribute('checked') == 'true') {
-        broadcaster.setAttribute("checked", "false");
         toolbarsShowing = false;
     } else {
-        broadcaster.setAttribute("checked", "true");
         toolbarsShowing = true;
     }
+
+    this.setToolbarsVisibility(toolbarsShowing);
+}
+
+this.setToolbarsVisibility = function uilayout_setToolbarsVisibility(toolbarsShowing)
+{
+    var broadcaster = document.getElementById('cmd_toggleToolbars');
+    broadcaster.setAttribute("checked", toolbarsShowing);
     
     var toolboxrow = document.getElementById('main-toolboxrow-wrapper');
     if (toolbarsShowing)
@@ -151,6 +157,9 @@ this.toggleToolbars = function uilayout_toggleToolbars()
     else
     {
 	toolboxrow.setAttribute('collapsed', 'true');
+// #if PLATFORM != "darwin"
+	this.setMenubarVisibility(true);
+// #endif
     }
 
     document.persist('cmd_toggleToolbars', 'checked');
@@ -187,26 +196,28 @@ this.toggleMenubar = function uilayout_toggleMenubar() {
     var menubarShowing;
     var broadcaster = document.getElementById('cmd_toggleMenubar');
     if (broadcaster.hasAttribute('checked') && broadcaster.getAttribute('checked') == 'true') {
-        broadcaster.setAttribute("checked", "false");
         menubarShowing = false;
     } else {
-        broadcaster.setAttribute("checked", "true");
         menubarShowing = true;
     }
-
-    document.persist('cmd_toggleToolbars', 'checked');
 
     ko.uilayout.setMenubarVisibility(menubarShowing);
 }
 
 this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowing) {
+    var broadcaster = document.getElementById('cmd_toggleMenubar');
+
     if (menubarShowing === undefined) {
         menubarShowing = true;
-        var broadcaster = document.getElementById('cmd_toggleMenubar');
         if ( ! broadcaster.hasAttribute('checked') || broadcaster.getAttribute('checked') == 'false')
         {
             menubarShowing = false;
         }
+    }
+    else
+    {
+	broadcaster.setAttribute("checked", menubarShowing);
+	document.persist('cmd_toggleToolbars', 'checked');
     }
 
     var menuWrap      = document.getElementById('toolbar-menubar');
@@ -252,6 +263,11 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
         menuWrap.collapsed = true;
 
 	MruMenusUpdate();
+    }
+
+    if ( ! menubarShowing)
+    {
+	this.setToolbarsVisibility(true);
     }
 };
 // #endif
