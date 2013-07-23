@@ -969,7 +969,64 @@ class KoCodeIntelManager(threading.Thread):
     def do_report_message(self, response):
         """Report a message from codeintel (typically, scan status) unsolicited
         response"""
+        if response.get("message") is not None:
+            self._notification.msg = response["message"]
+        if response.get("type") == "scan-progress":
+            total = response["total"]
+            completed = response["completed"]
+            if total <= 0:
+                # remove the message
+                self._notification.msg = None
+            elif total <= completed:
+                # all done!
+                self._notification.maxProgress = \
+                    Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE
+                self._notification.iconURL = "chrome://fugue/skin/icons/tick.png"
+                self._notification.timeout = 5000
+            else:
+                if total < 2:
+                    # use indeterminate for one item, since jumping from empty to
+                    # full (and invisibile) is useless
+                    self._notification.maxProgress = \
+                        Ci.koINotificationProgress.PROGRESS_INDETERMINATE
+                else:
+                    self._notification.progress = completed
+                    self._notification.maxProgress = total
+                self._notification.iconURL = None # remove any markings
+                self._notification.timeout = 0
+        self._update_notification()
         self.debug("Report: %r", response)
+
+    @LazyProperty
+    def _notification(self):
+        """The notification used for database scan progress &c"""
+        n = Cc["@activestate.com/koNotification/manager;1"]\
+              .getService(Ci.koINotificationManager)\
+              .createNotification("codeintel-status-message",
+                                  ["codeintel"],
+                                  None,
+                                  Ci.koINotificationManager.TYPE_PROGRESS |
+                                    Ci.koINotificationManager.TYPE_STATUS)
+        n.log = True
+        return n
+
+    @ProxyToMainThreadAsync
+    def _update_notification(self):
+        """The notification must be updated from the main thread"""
+        try:
+            if self._notification.msg is not None:
+                Cc["@activestate.com/koNotification/manager;1"]\
+                  .getService(Ci.koINotificationManager)\
+                  .addNotification(self._notification)
+                Cc["@mozilla.org/observer-service;1"]\
+                  .getService(Ci.nsIObserverService)\
+                  .notifyObservers(self._notification, "status_message", None)
+            else:
+                Cc["@activestate.com/koNotification/manager;1"]\
+                  .getService(Ci.koINotificationManager)\
+                  .removeNotification(self._notification)
+        except COMException, ex:
+            pass
 
     def do_global_prefs_observe(self, response):
         """Add or remove global preference observers"""

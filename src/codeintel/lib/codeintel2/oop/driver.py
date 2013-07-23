@@ -124,6 +124,7 @@ class Driver(threading.Thread):
         log.debug("using db base dir %s", db_base_dir)
         self.mgr = Manager(db_base_dir=db_base_dir,
                            db_catalog_dirs=[],
+                           db_event_reporter=self._DBEventReporter(self),
                            env=self.env,
                            on_scan_complete=self._on_scan_complete)
         self.mgr.initialize()
@@ -136,6 +137,85 @@ class Driver(threading.Thread):
                       path=buf.path,
                       language=buf.lang,
                       command="scan-complete")
+
+    class _DBEventReporter(object):
+        def __init__(self, driver):
+            self.driver = driver
+            self.log = log.getChild("DBEventReporter")
+            self.debug = self.log.debug
+
+            # directories being scanned (completed or not)
+            # key is unicode path, value is number of times it's active
+            self._dirs = collections.defaultdict(int)
+            # directories which are complete (unicode path)
+            self._completed_dirs = set()
+
+        def send(self, **kwargs):
+            self.driver.send(request=None, command="report-message", **kwargs)
+
+        def __call__(self, message):
+            """Old-style status messages before long-running jobs
+            @param msg {str or None} The message to display
+            """
+            if len(self._dirs):
+                return # ignore old-style db events if we're doing a scan
+            self.debug("db event: %s", message)
+            self.send(message=message)
+
+        def onScanStarted(self, description, dirs=set()):
+            """Called when a directory scan is about to start
+            @param description {unicode} A string suitable for showing the user
+                about the upcoming operation
+            @param dirs {set of unicode} The directories about to be scanned
+            """
+            self.debug("scan started: %s (%s dirs)", description, len(dirs))
+
+            assert dirs, "onScanStarted expects non-empty directories"
+            if not dirs: # empty set - we shouldn't have gotten here, but be nice
+                return
+            for dir_path in dirs:
+                self._dirs[dir_path] += 1
+            self.send(type="scan-progress", message=description,
+                      completed=len(self._completed_dirs),
+                      total=len(self._dirs))
+
+        def onScanDirectory(self, description, dir_path, current=None, total=None):
+            """Called when a directory is being scanned (out of possibly many)
+            @param description {unicode} A string suitable for showing the user
+                    regarding the progress
+            @param dir {unicode} The directory currently being scanned
+            @param current {int} The current progress
+            @param total {int} The total number of directories to scan in this
+                    request
+            """
+            self.debug("scan directory: %s (%s %s/%s)",
+                      description, dir_path, current, total)
+
+            assert dir_path, "onScanDirectory got no directory"
+            if dir_path:
+                self._completed_dirs.add(dir_path)
+            self.send(type="scan-progress", message=description,
+                      completed=len(self._completed_dirs),
+                      total=len(self._dirs))
+
+        def onScanComplete(self, dirs=set(), scanned=set()):
+            """Called when a scan operation is complete
+            @param dirs {set of unicode} The directories that were intially
+                   requested to be scanned (as pass in onScanStarted)
+            @param scanned {set of unicode} Directories which were successfully
+                   scanned.  This may be a subset of dirs if the scan was
+                   aborted.
+            """
+            self.debug("scan complete: scanned %r/%r dirs",
+                      len(scanned), len(dirs))
+
+            for dir_path in dirs:
+                self._dirs[dir_path] -= 1
+                if not self._dirs[dir_path]:
+                    del self._dirs[dir_path]
+                    self._completed_dirs.discard(dir_path)
+            self.send(type="scan-progress", completed=len(self._completed_dirs),
+                      total=len(self._dirs))
 
     REQUEST_DEFAULT = object()
 
