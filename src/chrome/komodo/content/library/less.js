@@ -420,10 +420,13 @@ var koLess = function koLess()
                 }
                 catch (e)
                 {
-                    self.exception(e, "Failed deleting lessCache folder: " + file.path + ", changing lessCache path");
-                    
-                    this.addToCleanup(prefs.getString("lessCacheVersion", "0"));
-                    prefs.setString("lessCacheVersion", new Date().getTime());
+                    if (e.name != 'NS_ERROR_FILE_TARGET_DOES_NOT_EXIST')
+                    {
+                        self.warn(e, "Failed deleting lessCache folder: " + file.path + ", changing lessCache path (" + e.name + ")");
+
+                        this.addToCleanup(prefs.getString("lessCacheVersion", "0"));
+                        prefs.setString("lessCacheVersion", new Date().getTime());
+                    }
                 }
             },
             
@@ -456,7 +459,7 @@ var koLess = function koLess()
                     }
                     catch (e)
                     {
-                        self.exception(e, "Failed cleaning up lessCache version '" + cleanup[x] + "', leaving for future cleanup");
+                        self.warn("Failed cleaning up lessCache version '" + cleanup[x] + "', leaving for future cleanup");
                     }
                 }
                 
