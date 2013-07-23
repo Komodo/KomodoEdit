@@ -52,7 +52,8 @@ class LoadSchemeTestCase(unittest.TestCase):
         uri = self.uriBase + "ok_eric.ksf"
         fname = "shOUld__nEvEr__bE__A__vAlId__schEmE_namE.ksf"
         newPath = os.path.join(self.schemeDir, fname)
-        self.assertFalse(os.path.exists(newPath))
+        if os.path.exists(newPath):
+            os.remove(newPath)
         res = self.schemeService.loadSchemeFromURI(uri, fname)
         self.assertTrue(os.path.exists(newPath))
         os.unlink(newPath)
