@@ -26,7 +26,7 @@ Build steps on Windows (creating a Komodo 8.10 version):
 
     REM ---- Build Mozilla
     cd openkomodo\mozilla
-    setenv-moz-msvc9.bat
+    setenv-moz-msvc11.bat
     python build.py configure -k 8.10
     python build.py distclean all
     cd ..
@@ -74,10 +74,10 @@ Build Prerequisites for Windows
 - Python >=2.7 (but not Python 3.x yet). You can install ActivePython from here:
   <http://downloads.activestate.com/ActivePython/releases/>
 
-- Visual C++ 9.0 (aka Visual Studio 2008) and all the Platform SDKs for
-  building Mozilla with vc9 as described here:
+- Visual C++ 11.0 (aka Visual Studio 2012) and all the Platform SDKs for
+  building Mozilla with vc11 as described here:
     http://developer.mozilla.org/en/docs/Windows_Build_Prerequisites  
-  All of Komodo's core runtime C/C++ is built with Visual C++ 9.0.
+  All of Komodo's core runtime C/C++ is built with Visual C++ 11.0.
   
 - Install the latest "MozillaBuild-$ver.exe" package into *the default dir*
   (i.e. "C:\mozilla-build").
@@ -103,52 +103,26 @@ Build Prerequisites for Mac OS X
   If you prefer the Python builds from python.org should be sufficient
   as well.
 
-- Xcode. Install the latest one (avoid Xcode 2.0, though).
+- Xcode. Install the latest one.
 
   <http://developer.apple.com/tools/download/>
 
-  Be sure to install the Cross-Development SDKs, which is
-  only available by choosing a Customized build in the Xcode installer.
+- Xcode Command Line Tools.
+
+  Open the Xcode preferences, then in the Downloads tab, select and install the
+  Command Line Tools.
 
 - MacPorts (<http://www.macports.org/>).
 
   (Note: Fink may work too but most of the build testing and instructions is
   done with MacPorts.)
 
-- libIDL-2.0 >= 0.8.0. Once you have MacPorts installed you need just run::
-
-    sudo port sync
-    sudo port install libidl +universal
-
-  Warning: You must use "+universal" in the above command if you are using Mac
-  OS X 10.6 (Snow Leopard), otherwise you'll get a x86_64 build of libidl,
-  where as your 32-bit Mozilla build requires an x86 build. To backout and
-  get the universal one do this:
-
-    sudo port -f uninstall installed
-    sudo port install libidl +universal
-
-  The failure will look like this:
-
-         dyld: Library not loaded: /opt/local/lib/libIDL-2.0.dylib
-          Referenced from: /Users/trentm/as/komodo/mozilla/build/moz700-ko8.10/mozilla/ko-rel-ns/dist/Komodo.app/Contents/MacOS/xpidl
-          Reason: no suitable image found.  Did find:
-                /opt/local/lib/libIDL-2.0.dylib: mach-o, but wrong architecture 
-
-  (c.f. http://richwklein.com/2009/10/27/fail-libidl-on-mac-os-x-10-6-snow-leopard/)
-
 - autoconf v2.13. Once you have MacPorts installed you need just run::
 
     sudo port install autoconf213
 
-- ensure you are using gcc 4.0::
+- ensure you are using clang or gcc 4.2 (or higher)::
 
-    gcc --version
-  
-  Gcc 4.0 is require to build for x86, and it works to build for powerpc
-  (just limits to 10.3.9 compatibility -- which is sufficient for Komodo).
-  TODO: check this at build/configure-time.
- 
 See <http://developer.mozilla.org/en/docs/Mac_OS_X_Build_Prerequisites>
 for more details on Mac OS X build prerequisites. However, following the
 above steps is *meant to be sufficient* to get building Komodo.
@@ -213,7 +187,7 @@ in `mozilla/prebuilt/python2.7`. Basically these are vanilla Python 2.7
 builds with the following tweaks:
 
 - [Windows] a patch to disable looking in the registry for sys.path info
-- [Windows] built with VC9 (atypical of all current Python distros)
+- [Windows] built with VC11 (atypical of all current Python distros)
 - [Mac OS X] a patch to the Python frameworks bin/python stub to allow
   running `python` in this framework without it having to be installed
   in one of the standard "/Library/Frameworks",
@@ -248,7 +222,7 @@ for Komodo, you should only need to do this once (in a while).
 
    - Setup your Mozilla environment:
 
-        setenv-moz-msvc9.bat
+        setenv-moz-msvc11.bat
 
 3. Configure for the mozilla build. You'll want to use something like:
 
@@ -370,7 +344,7 @@ Build Troubleshooting Notes
   The solution is to explicitly mark this executable to request those privs.
 
         cd komodo\mozilla
-        setenv-moz-msvc9.bat      (if you haven't already)
+        setenv-moz-msvc11.bat      (if you haven't already)
         cd bin-win32
         mt -manifest patch.exe.manifest -outputresource:patch.exe;1
 
