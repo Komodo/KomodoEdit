@@ -759,6 +759,13 @@ class CoreHandler(CommandHandler):
                                                 request.curr_pos)
         driver.send(start=start, end=end)
 
+    def do_set_xml_catalogs(self, request, driver):
+        catalogs = request["catalogs"]
+        import koXMLDatasetInfo
+        datasetHandler = koXMLDatasetInfo.getService()
+        datasetHandler.setCatalogs(catalogs)
+        driver.send(request=request)
+
 Driver._default_handler = CoreHandler()
 
 

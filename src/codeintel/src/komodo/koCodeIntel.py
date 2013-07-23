@@ -441,6 +441,8 @@ class KoCodeIntelManager(threading.Thread):
     """This class manages a connection to an out-of-process codeintel process.
     """
 
+    _com_interfaces_ = [Ci.nsIObserver]
+
     class STATE(object):
         """The intialization state of the codeintel manager.
         This is used as an internal enum; not for external use."""
@@ -508,6 +510,12 @@ class KoCodeIntelManager(threading.Thread):
         env = Cc["@activestate.com/koUserEnviron;1"].getService()
         self._global_env = KoCodeIntelEnvironment(environment=env,
                                                   pref_change_callback=self.set_global_environment)
+
+        Cc["@activestate.com/koPrefService;1"]\
+          .getService(Ci.koIPrefService)\
+          .prefs\
+          .prefObserverService\
+          .addObserverForTopics(self, ["xmlCatalogPaths"], True)
 
     @property
     def state(self):
@@ -801,6 +809,9 @@ class KoCodeIntelManager(threading.Thread):
                 update("Failed to get available catalogs:", response)
 
         self.update_catalogs(update_callback=update_callback)
+
+        # Send the initial XML catalogs
+        ProxyToMainThreadAsync(self.observe)(None, "xmlCatalogPaths", None)
 
     def set_global_environment(self):
         self._send(command="set-environment",
@@ -1107,6 +1118,32 @@ class KoCodeIntelManager(threading.Thread):
         self._send(callback=get_available_catalogs,
                    command="get-available-catalogs")
 
+    def observe(self, subject, topic, data):
+        """Preference observer"""
+        if topic == "xmlCatalogPaths":
+            prefSvc = Cc["@activestate.com/koPrefService;1"].getService()
+            catalogs = prefSvc.prefs.getString("xmlCatalogPaths", "")
+            catalogs = filter(None, catalogs.split(os.pathsep))
+
+            # get xml catalogs from extensions
+            from directoryServiceUtils import getExtensionDirectories
+            for dir in getExtensionDirectories():
+                candidates = [
+                    # The new, cleaner, location.
+                    os.path.join(dir, "xmlcatalogs", "catalog.xml"),
+                    # The old location (for compat). This is DEPRECATED
+                    # and should be removed in a future Komodo version.
+                    os.path.join(dir, "catalog.xml"),
+                ]
+                for candidate in candidates:
+                    if os.path.exists(candidate):
+                        catalogs.append(candidate)
+                        break
+
+            # add our default catalog file
+            koDirs = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
+            catalogs.append(os.path.join(koDirs.supportDir, "catalogs", "catalog.xml"))
+            self.send(command="set-xml-catalogs", catalogs=catalogs)
 
 class TriggerWrapper(object):
     """Wrapper class to XPCOM-ify a trigger"""
