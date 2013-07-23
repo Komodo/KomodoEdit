@@ -122,7 +122,6 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  
  		case WM_COMMAND:
 @@ -669,7 +684,7 @@
-
  				else
  					wheelDelta = - (-wheelDelta % WHEEL_DELTA);
  
