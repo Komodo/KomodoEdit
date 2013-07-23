@@ -1023,6 +1023,11 @@
                                      oncommand="ko.commands.doCommandAsync('cmd_newProject', event)"
                                      class="new-project-icon"/>
                             <xul:box type="startpage-bullet"
+                                     title="&openSampleProject.title;"
+                                     tooltiptext="&openSampleProject.title;"
+                                     class="project-icon"
+                                     oncommand="window.document.getBindingParent(this).openSampleProject();"/>
+                            <xul:box type="startpage-bullet"
                                      title="&checkConfiguration.title;"
                                      tooltiptext="&checkConfiguration.tooltip;"
                                      oncommand="window.document.getBindingParent(this).checkConfiguration();"
