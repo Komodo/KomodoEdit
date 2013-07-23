@@ -613,6 +613,7 @@ class _KoCommandTool(_KoTool):
         self.saveToolToDisk()
         _tbdbSvc.saveCommandInfo(self.id, self.name, self.value, self._attributes)
         self._postSave()
+        _toolsManager.removeChangedCachedTool(self.id)
 
     def updateSelf(self):
         if self.initialized:
@@ -665,6 +666,7 @@ class _KoMacroTool(_KoTool):
         _tbdbSvc.saveContent(self.id, self.value)
         _tbdbSvc.saveMacroInfo(self.id, self.name, self.value, self._attributes)
         self._postSave()
+        _toolsManager.removeChangedCachedTool(self.id)
 
     def saveProperties(self):
         # Write the changed data to the file system
@@ -718,6 +720,7 @@ class _KoSnippetTool(_KoTool):
         self.saveToolToDisk()
         _tbdbSvc.saveSnippetInfo(self.id, self.name, self.value, self._attributes)
         self._postSave()
+        _toolsManager.removeChangedCachedTool(self.id)
 
     def updateSelf(self):
         if self.initialized:
@@ -756,6 +759,7 @@ class _KoURLToolBase(_KoTool):
         self.saveToolToDisk()
         _tbdbSvc.saveSimpleToolInfo(self.id, self.name, self.value, self._attributes)
         self._postSave()
+        _toolsManager.removeChangedCachedTool(self.id)
 
     def updateSelf(self):
         if self.initialized:
@@ -1134,6 +1138,12 @@ class KoToolbox2ToolManager(object):
 
     def renameItem(self, id, newName):
         self._renameObject(id, newName, isContainer=False)
+
+    def removeChangedCachedTool(self, id):
+        try:
+            del self._tools[id]
+        except:
+            pass
 
     def getToolRoot(self, id):
         return self.toolbox_db.getRootId(id)
