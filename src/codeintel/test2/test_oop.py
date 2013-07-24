@@ -150,7 +150,7 @@ class OOPTestCase(unittest.TestCase):
         log.debug("writing: [%s]", data)
         self.stdio.write(str(len(data)) + data)
 
-    def _test_with_commands(self, commands):
+    def _test_with_commands(self, commands, ignore_unsolicited=True):
         """
         A serial test where we run a bunch of commands serially and check the
         results.  The commands should be an iterable, where each item is a tuple
@@ -160,6 +160,10 @@ class OOPTestCase(unittest.TestCase):
         unless explicitly marked.  If no response checking is desired, each
         element of the iterable should just be a dict of the request, instead of
         a tuple.
+        @param commands {list of tuple} Commands to send; each entry is a tuple
+            of (command to send), (expected response)
+        @param ignore_unsolicited {bool} If true, ignore unsolicited responses
+            (i.e. responses with no request id)
         """
         for i, command in enumerate(commands):
             try:
@@ -175,7 +179,11 @@ class OOPTestCase(unittest.TestCase):
                     length = int(buf, 10)
                     buf = ch + self.stdio.read(length - 1)
                     result = json.loads(buf)
-                    log.debug(buf)
+                    log.debug("receive: %r", result)
+                    if ignore_unsolicited:
+                        if "req_id" not in result:
+                            buf = ""
+                            continue
                     break
                 else:
                     self.assertIn(ch, "0123456789",
