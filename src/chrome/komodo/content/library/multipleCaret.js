@@ -26,6 +26,11 @@
  * 
  * boolean readonly property isActive => boolean: whether session 
  *   is processing characters
+ *
+ * void setEndSessionCallback(onSessionEnd: function(newText:string) => void)
+ *   If a multi-caret session ends with an ESC keypress event and
+ *   onSessionEnd is non-null, it will be invoked with the new value
+ *   at each edit point.
  * 
  * void addRangesAtomically(ranges)
  * - Call this when you have a list of carets and selections you want
@@ -42,9 +47,12 @@
  * void doneAddingRanges()
  * - Call this when it's time to apply modifications to each range.
  * 
- * void endSession()
+ * void endSession(event: [optional] DOM event)
  * - Call this when it's time to remove the multiple selections,
  *   remove any multi-caret indicators, and resume single-selection typing.
+ *   If a DOM event is passed, it represents a VK_ESC keypress, and
+ *   there's a non-null session-end callback,
+ *   it will be called.
  * 
  * void destroy()
  * - Removes the view's reference to the multiCaretSession, and the
@@ -123,6 +131,7 @@ this.MultiCaretSession = function MultiCaretSession(view) {
     this._state = INACTIVE;
     this._inUndoSession = false;
     this._ranges = [];
+    this._onSessionEnd = null; // optional callback
 };
 
 this.MultiCaretSession.prototype = {
@@ -218,6 +227,10 @@ this.MultiCaretSession.prototype = {
         this._state = PROCESSING_CHARS;
         this._startUndoBlock(this.view, scimoz);
     },
+
+    setEndSessionCallback: function setEndSessionCallback(callback) {
+        this._onSessionEnd = callback;
+    },
     
     addRangesAtomically: function addRangesAtomically(ranges) {
         /*
@@ -242,12 +255,18 @@ this.MultiCaretSession.prototype = {
             r2 = ranges[i + 1];
             r1 = ranges[i];
             if (r1[0] == r2[0]) {
+                // r1 is a subset of r2
                 ranges.splice(i, 1);
-            } else if (r1[1] > r2[0]) {
-                // The two adjacent ranges overlap, so just combine
-                // them into r[i + 1], and delete r[i]
-                r2[0] = r1[0];
-                ranges.splice(i, 1);
+            } else if (r1[1] >= r2[0]) {
+                if (r1[1] >= r2[1]) {
+                    // r1 contains r2, so drop r2
+                    ranges.splice(i + 1, 1);
+                } else {
+                    // The two adjacent ranges overlap, so just combine
+                    // them into r[i + 1], and delete r[i]
+                    r2[0] = r1[0];
+                    ranges.splice(i, 1);
+                }
             }
         }
         this._addRanges(ranges);
@@ -262,9 +281,21 @@ this.MultiCaretSession.prototype = {
         scimoz.anchor = anchor;
     },
     
-    endSession: function endSession() {
+    endSession: function endSession(event) {
+        if (typeof(event) == "undefined") event = null;
         var view = this.view;
         var scimoz = view.scimoz;
+        var newText;
+        var doSessionEndCallback;
+        if (this._onSessionEnd) {
+            doSessionEndCallback = (event && event.type == "keypress"
+                                    && event.keyCode == event.DOM_VK_ESCAPE);
+            if (doSessionEndCallback) {
+                let pos = this.firstSelectionStartPos;
+                let caret = scimoz.getSelectionNCaret(0);
+                newText = scimoz.getTextRange(pos, caret);
+            }
+        }
         this._endUndoBlock(view, scimoz);
         scimoz.multiPaste = scimoz.SC_MULTIPASTE_ONCE;
         scimoz.additionalSelectionTyping = this.additionalSelectionTyping;
@@ -273,6 +304,12 @@ this.MultiCaretSession.prototype = {
         scimoz.indicatorCurrent = CHANGE_INDICATOR;
         scimoz.indicatorClearRange(0, scimoz.length);
         this._state = INACTIVE;
+        if (this._onSessionEnd) {
+            if (doSessionEndCallback) {
+                this._onSessionEnd(newText);
+            }
+            this._onSessionEnd = null;
+        }
     },
     
     _startUndoBlock: function _startUndoBlock(view, scimoz) {
@@ -349,7 +386,7 @@ this.MultiCaretSession.prototype = {
         if (view.scintilla.autocomplete.active) {
             return;
         }
-        this_.endSession();
+        this_.endSession(event);
     },
     
     watchMultipleSelectionKeypress_bubble: function() {
