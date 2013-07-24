@@ -1021,6 +1021,18 @@
             on menu showing.
     -->
     <commandset
+        id="cmdset_currentview_is_editor_on_html"
+        oncommandupdate="ko.commands.updateCommandset(this)"
+        commandupdater="true"
+        events="currentview_is_editor,current_view_changed,language_changed"
+        >
+        <command
+            id="cmd_rename_tag" key="key_cmd_rename_tag"
+            oncommand="ko.commands.doCommandAsync('cmd_rename_tag', event)"
+            disabled="true"
+            desc="&renameTag.desc;"/>
+    </commandset>
+    <commandset
         id="cmdset_currentview_is_editor"
         oncommandupdate="ko.commands.updateCommandset(this)"
         commandupdater="true"

@@ -294,6 +294,11 @@
                 observes="cmd_replace"
                 class="menuitem-iconic"
                 />
+        <menuitem id="editor-context-rename-tag"
+                label="&renameTag.label;"
+                observes="cmd_rename_tag"
+                class="menuitem-iconic"
+                />
         <menuitem label="&toggleBookmark.label;"
                 id="menu_bookmarkToggle"
                 observes="cmd_bookmarkToggle"/>

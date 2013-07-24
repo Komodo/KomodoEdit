@@ -453,6 +453,154 @@ editor_editorController.prototype.do_cmd_addAdditionalCaret = function() {
     ko.views.startOrContinueMultiCaretSession(view);
 }
 
+editor_editorController.prototype._aux_is_cmd_rename_tag_enabled = function() {
+    var view = _getCurrentScimozView();
+    if (!view || view.getAttribute("type") != "editor") {
+        return false;
+    }
+    var koDoc = view.koDoc;
+    if (!koDoc) {
+        return false;
+    }
+    var scimoz = view.scimoz;
+    if (!scimoz) {
+        return false;
+    }
+    if (koDoc.languageObj.supportsSmartIndent != "XML") {
+        return false;
+    }
+    return [true, view, koDoc, scimoz];
+}
+
+editor_editorController.prototype.is_cmd_rename_tag_enabled = function() {
+    return this._aux_is_cmd_rename_tag_enabled()[0];
+    // Because there aren't any events that fire when the doc position
+    // changes, we need to check if we're on a tag in the do-part
+}
+
+editor_editorController.prototype.do_cmd_rename_tag = function() {
+    var parts, isEnabled, view, koDoc, scimoz;
+    parts = this._aux_is_cmd_rename_tag_enabled();
+    if (!parts[0]) {
+        ko.statusBar.AddMessage("Invalid context for renaming a tag", "editor", 3000, true);
+        return;
+    }
+    [isEnabled, view, koDoc, scimoz] = parts;
+    var currentPos = scimoz.currentPos;
+    var prevPos = currentPos > 0 ? scimoz.positionBefore(currentPos) : 0;
+    var anchorOffset = currentPos - scimoz.anchor;
+    var currentStyle = scimoz.getStyleAt(currentPos);
+    var prevStyle = scimoz.getStyleAt(prevPos);
+    var validStyles = [scimoz.SCE_UDL_M_STAGO,
+                       scimoz.SCE_UDL_M_TAGNAME,
+                       scimoz.SCE_UDL_M_TAGSPACE,
+                       scimoz.SCE_UDL_M_ATTRNAME,
+                       scimoz.SCE_UDL_M_OPERATOR,
+                       scimoz.SCE_UDL_M_STAGC,
+                       scimoz.SCE_UDL_M_STRING,
+                       scimoz.SCE_UDL_M_ETAGO,
+                       scimoz.SCE_UDL_M_ETAGC,
+                       ];
+    if (validStyles.indexOf(prevStyle) === -1
+        && validStyles.indexOf(currentStyle) === -1) {
+        return;
+    }
+    var tagNameStartPos;
+    var isStartTag;
+    // Move to the start of TAGNAME
+    // First, if we're on the start of a start-tag, move right.
+    if (prevStyle == scimoz.SCE_UDL_M_STAGO) {
+        isStartTag = true;
+        tagNameStartPos = currentPos;
+    } else if (currentStyle == scimoz.SCE_UDL_M_STAGO) {
+        isStartTag = true;
+        tagNameStartPos = currentPos + 1;
+    } else if (prevStyle == scimoz.SCE_UDL_M_ETAGO) {
+        isStartTag = false;
+        tagNameStartPos = currentPos;
+    } else if (currentStyle == scimoz.SCE_UDL_M_ETAGO) {
+        isStartTag = false;
+        tagNameStartPos = currentPos + 1;
+    } else {
+        // Move to a "<" and then figure out where we're at
+        let style, pos;
+        for (pos = prevPos - 1; pos >= 0; --pos) {
+            style = scimoz.getStyleAt(pos);
+            if (style == scimoz.SCE_UDL_M_STAGO) {
+                isStartTag = true;
+                tagNameStartPos = pos + 1;
+                break;
+            } else if (style == scimoz.SCE_UDL_M_ETAGO) {
+                isStartTag = false;
+                tagNameStartPos = pos + 1;
+                break;
+            } else if (validStyles.indexOf(style) == -1) {
+                ko.statusBar.AddMessage(_bundle.GetStringFromName("RenameTag not in a start or end tag"),
+                                        "editor", 3000, true);
+                return;
+            }
+        }
+    }
+    var offset = currentPos - tagNameStartPos;
+    let tagNameEndPos = tagNameStartPos + 1;
+    let lim = scimoz.length;
+    for (tagNameEndPos = tagNameStartPos + 1; tagNameEndPos < lim; tagNameEndPos++) {
+        if (scimoz.getStyleAt(tagNameEndPos) !== scimoz.SCE_UDL_M_TAGNAME) {
+            break;
+        }
+    }
+    var tagName = scimoz.getTextRange(tagNameStartPos, tagNameEndPos);
+    var result = {};
+    koDoc.languageObj.getMatchingTagInfo(scimoz, tagNameStartPos - 1, false, result, {});
+    gResult = result.value;
+    if (!result.value || !result.value.length) {
+        ko.statusBar.AddMessage(_bundle.formatStringFromName("RenameTag Failed to find a matching tag for X",
+                                                             [tagName], 1),
+                                "editor", 3000, true);
+        return;
+    }
+    let atStartTag, s1, s2, e1, e2, sn1, en1;
+    [atStartTag, s1, s2, e1, e2] = result.value;
+    var multiCaretSession = ko.selections.getMultiCaretSession(view);
+    if (multiCaretSession.isActive) {
+        multiCaretSession.endSession();
+    }
+    // Now find the tag boundaries.
+    s1 += 1;
+    e1 += 2;
+    if (scimoz.getStyleAt(s1 != scimoz.SCE_UDL_M_TAGNAME)
+        || scimoz.getStyleAt(e1 != scimoz.SCE_UDL_M_TAGNAME)) {
+        ko.statusBar.AddMessage(_bundle.GetStringFromName("RenameTag Cant find the start of a tagname"),
+                                "editor", 3000, true);
+        return;
+    }
+    for (sn1 = s1 + 1; sn1 <= lim && scimoz.getStyleAt(sn1) == scimoz.SCE_UDL_M_TAGNAME; ++sn1) {
+        // empty
+    }
+    for (en1 = e1 + 1; en1 <= lim && scimoz.getStyleAt(en1) == scimoz.SCE_UDL_M_TAGNAME; ++en1) {
+        // empty
+    }
+    multiCaretSession.addRangesAtomically([[s1, sn1], [e1, en1]]);
+    multiCaretSession.setEndSessionCallback(function(newText) {
+        // If we started at the end-tag, move back there, and if we started
+        // on the n'th character of the tag, try to end up there as well.
+        var newTextLen = newText.length;
+        var tagSizeChange = newTextLen - tagName.length;
+        var finalPos = isStartTag ? s1 : e1 + tagSizeChange;
+        if (tagSizeChange > 0) {
+            finalPos += offset;
+        } else if (newTextLen <= offset) {
+            finalPos += newTextLen;
+        } else {
+            finalPos += offset;
+        }
+        var finalAnchor = finalPos - anchorOffset;
+        scimoz.currentPos = finalPos;
+        scimoz.anchor = finalAnchor;
+        scimoz.scrollCaret();
+    });
+}
+
         
 window.controllers.appendController(new editor_editorController());
 
