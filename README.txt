@@ -66,6 +66,10 @@ Read/write developer access is available via:
 
     svn co https://svn.openkomodo.com/repos/openkomodo/trunk openkomodo
 
+The source code is also available (mirrored) on GitHub:
+
+   https://github.com/ActiveState/komodoedit
+   git clone https://github.com/ActiveState/komodoedit.git
 
 
 Build Prerequisites for Windows
