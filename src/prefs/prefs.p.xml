@@ -852,8 +852,8 @@
         - string pref == "Yes": Restore desktop at startup
         - string pref == "No":  Do nothing at startup
   -->
-  <boolean id="donotask_restore_workspace">0</boolean>
-  <string id="donotask_action_restore_workspace"></string>
+  <boolean id="donotask_restore_workspace">1</boolean>
+  <string id="donotask_action_restore_workspace">Yes</string>
 
   <!-- Dealing with workspaces when Komodo did not shutdown correctly (crashed).
          komodo_normal_shutdown: set to false when Komodo initially starts up
