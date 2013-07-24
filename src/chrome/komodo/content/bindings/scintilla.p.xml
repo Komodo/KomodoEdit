@@ -1033,6 +1033,20 @@
                                 }
                             }
                             // And let standard handling of the backspace take place.
+                        } else if (event.keyCode == event.DOM_VK_TAB) {
+                            // Bug 95685: Tab over all soft characters to the right.
+                            let pos;
+                            for (pos = scimoz.currentPos;
+                                 scimoz.indicatorValueAt(this.DECORATOR_SOFT_CHAR, pos) && pos < scimoz.length;
+                                 pos = scimoz.positionAfter(pos)) {
+                                // empty
+                            }
+                            scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
+                            scimoz.indicatorClearRange(currentPos, pos - currentPos);
+                            scimoz.gotoPos(pos);
+                            event.stopPropagation();
+                            event.preventDefault();
+                            return;
                         } else {
                             // harden any soft characters we move away from.  The only
                             // range of soft chars in a document are immediately to the right
