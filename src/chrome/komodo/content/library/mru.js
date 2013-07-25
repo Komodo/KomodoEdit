@@ -525,13 +525,25 @@ this.manageMRUList = function(prefName) {
                                     : "full_path");
     var stringifier = (pathDisplayers[mru_project_path_display]
                        || pathDisplayers["full_path"]);
-    var res = ko.dialogs.selectFromList(title, prompt, items,
+    var projectURIs = ko.dialogs.selectFromList(title, prompt, items,
                                         selectionCondition, stringifier);
-    if (res) {
-        for (var i = res.length; i >= 0; i--) {
-            var uri = res[i];
-            this.removeURL(prefName, uri);
-        }
+    if (projectURIs && projectURIs.length) {
+        var projectsTreeView = ((ko.places && ko.places.projects)
+                                ? ko.projects.manager.viewMgr.owner.projectsTreeView
+                                : null);
+        projectURIs.forEach(function(uri) {
+            try {
+                this.removeURL(prefName, uri);
+                if (projectsTreeView) {
+                    var part = projectsTreeView.getRowItemByURI(uri);
+                    if (part) {
+                        projectsTreeView.removeProject(part);
+                    }
+                }
+            } catch(ex) {
+                _log.exception(ex, "mru.js:manageMRUList: Problemo: ");
+            }
+        }.bind(this));
     }
 }
 
