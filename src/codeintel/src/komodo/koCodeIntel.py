@@ -29,7 +29,8 @@ log = logging.getLogger("codeintel.komodo")
 
 class KoCodeIntelService:
     _com_interfaces_ = [Ci.koICodeIntelService,
-                        Ci.nsIObserver]
+                        Ci.nsIObserver,
+                        Ci.nsIMemoryMultiReporter]
     _reg_clsid_ = "{fc4ca276-64a7-4d87-ab89-791ba463188d}"
     _reg_contractid_ = "@activestate.com/koCodeIntelService;1"
     _reg_desc_ = "Komodo Code Intelligence Service"
@@ -59,6 +60,10 @@ class KoCodeIntelService:
         self._koDirSvc = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
 
         self._mgr_lock = threading.Lock()
+
+        Cc["@mozilla.org/memory-reporter-manager;1"]\
+          .getService(Ci.nsIMemoryReporterManager)\
+          .registerMultiReporter(self)
 
     __db_preloader = None
     @property
@@ -257,6 +262,39 @@ class KoCodeIntelService:
         with self._mgr_lock:
             if self.mgr is mgr:
                 self.mgr = None
+
+    # nsIMemoryMultiReporter
+    name = "codeintel"
+    def collectReports(self, cb, closure):
+        have_response = set()
+        def on_have_report(request, response):
+            for path, data in response.get("memory", {}).items():
+                amount = data.get("amount")
+                if amount is None:
+                    continue # This value was unavailable
+                units = {"bytes": Ci.nsIMemoryReporter.UNITS_BYTES,
+                         "count": Ci.nsIMemoryReporter.UNITS_COUNT}.get(
+                    data.get("units"), Ci.nsIMemoryReporter.UNITS_COUNT)
+                if path.startswith("explicit/"):
+                    kind = Ci.nsIMemoryReporter.KIND_HEAP
+                else:
+                    kind = Ci.nsIMemoryReporter.KIND_OTHER
+                try:
+                    cb.callback("Code Intelligence", # process
+                                path, kind, units, amount,
+                                data.get("desc", "No description available."),
+                                closure)
+                except COMException as ex:
+                    log.exception("Failed to report %s: %r", path, ex)
+            have_response.add(True)
+
+        self.send(command="memory-report", callback=on_have_report)
+        thread = Cc["@mozilla.org/thread-manager;1"]\
+                   .getService(Ci.nsIThreadManager)\
+                   .currentThread
+        while not have_response:
+            thread.processNextEvent(True)
+
 
 class KoCodeIntelDBPreloader(object):
     """Class to handle DB preloading notifications"""

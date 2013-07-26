@@ -215,6 +215,7 @@ my @codeintel2_oop_files = (
     "lib/codeintel2/oop/__init__.py",
     "lib/codeintel2/oop/controller.py",
     "lib/codeintel2/oop/driver.py",
+    "lib/codeintel2/oop/memory_reporter.py",
 );
 
 foreach my $file (@codeintel2_oop_files) {

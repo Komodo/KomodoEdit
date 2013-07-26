@@ -17,7 +17,6 @@ from codeintel2.database.database import Database, DatabaseError
 import codeintel2.environment
 import collections
 import functools
-import hashlib
 import imp
 import itertools
 import json
@@ -25,7 +24,6 @@ import logging
 import os.path
 import shutil
 import sys
-import textinfo
 import threading
 import traceback
 import uuid
@@ -87,7 +85,9 @@ class Driver(threading.Thread):
     # static
     _instance = None
     _command_handler_map = collections.defaultdict(list)
-    """Registered command handlers"""
+    """Registered command handlers; the key is the command name (a str), and the
+    value is a list of command handler instances or (for lazy handlers) a
+    single-element tuple containing the callable to get the real handler."""
     _default_handler = None
     """The default (core) command handler; instance of a CoreHandler"""
     _builtin_commands = {}
@@ -453,6 +453,25 @@ class Driver(threading.Thread):
                     # The default handler can deal with this, put it at the end
                     handlers.append(self._default_handler)
                 for handler in handlers:
+                    if isinstance(handler, tuple):
+                        try:
+                            real_handler = handler[0]()
+                        except Exception as ex:
+                            log.exception("Failed to get lazy handler for %s", command)
+                            real_handler = None
+                        if real_handler is None:
+                            # Handler failed to instantiate, drop it
+                            try:
+                                self._command_handler_map["command"].remove(handler)
+                            except ValueError:
+                                pass # ... shouldn't happen, but tolerate it
+                            continue
+                        for handlers in self._command_handler_map.values():
+                            try:
+                                handlers[handlers.index(handler)] = real_handler
+                            except ValueError:
+                                pass # handler not in this list
+                        handler = real_handler
                     if handler.canHandleRequest(request):
                         handler.handleRequest(request, self)
                         break
@@ -475,7 +494,21 @@ class Driver(threading.Thread):
             cls._command_handler_map[command].append(handlerInstance)
 
     @classmethod
+    def registerLazyCommandHandler(cls, supported_commands, constructor):
+        """Register a lazy command handler
+        @param supported_commands {iterable} The commands to handle; each
+            element should be a str of the command name.
+        @param constructor {callable} Function to be called to get the real
+            command handler; it should take no arguments and return a command
+            handler instance.  It may return None if the command is not
+            available; it will not be asked again.
+        """
+        for command in supported_commands:
+            cls._command_handler_map[command].append((constructor,))
+
+    @classmethod
     def getInstance(cls):
+        """Get the singleton instance of the driver"""
         return Driver._instance
 
 
@@ -900,3 +933,9 @@ class Environment(codeintel2.environment.Environment):
         environment or preferences.
         """
         return bool(self._env or self._prefs)
+
+def _get_memory_reporter():
+    from .memory_reporter import MemoryCommandHandler
+    return MemoryCommandHandler()
+Driver.registerLazyCommandHandler(("memory-report",), _get_memory_reporter)
+del _get_memory_reporter

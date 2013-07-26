@@ -258,30 +258,27 @@ class CatalogsZone(object):
         finally:
             self._lock.release()
 
-    def reportMemory(self, reporter, closure=None):
+    def reportMemory(self):
         """
-        Report on memory usage from this CatalogsZone. See nsIMemoryMultiReporter
+        Report on memory usage from this CatalogsZone.
+        @returns {dict} memory usage; keys are the paths, values are a dict of
+            "amount" -> number
+            "units" -> "bytes" | "count"
+            "desc" -> str description
         """
         log.debug("CatalogsZone: reporting memory")
-
         import memutils
-        from xpcom import components
-        process = ""
 
         total_mem_usage = 0
+        result = {}
         for lang, blob_and_atime_from_blobname in self._blob_and_atime_from_blobname_from_lang_cache.items():
-            for blobname, blob_and_atime in blob_and_atime_from_blobname.items():
-                blob, atime = blob_and_atime
-                blob_mem_usage = memutils.memusage(blob)
-                total_mem_usage += blob_mem_usage
-                reporter.callback(process,
-                                  "explicit/python/codeintel/%s/catalog/%s" % (lang, blobname),
-                                  components.interfaces.nsIMemoryReporter.KIND_HEAP,
-                                  components.interfaces.nsIMemoryReporter.UNITS_BYTES,
-                                  blob_mem_usage,
-                                  "The number of bytes of %s codeintel %s catalog blobs." % (lang, blobname),
-                                  closure)
-        return total_mem_usage
+            for blobname, [blob, atime] in blob_and_atime_from_blobname.items():
+                result["explicit/python/codeintel/%s/catalog/%s" % (lang, blobname)] = {
+                    "amount": memutils.memusage(blob),
+                    "units": "bytes",
+                    "desc": "The number of bytes of %s codeintel %s catalog blobs." % (lang, blobname),
+                }
+        return result
 
     def avail_catalogs(self, selections=None):
         """Generate a list of available catalogs.
