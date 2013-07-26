@@ -79,17 +79,11 @@ class KoCodeIntelService:
 
         self._enabled = True
 
-        if not xpcom_callback:
-            # Make a dummy callback
-            xpcom_callback = lambda *args: None
-
-        # wrap things in a supports-interface-pointer to make sure we get the
-        # correct interface for the callback :(
-        sip = Cc["@mozilla.org/supports-interface-pointer;1"]\
-                .createInstance(Ci.nsISupportsInterfacePointer)
-        sip.data = xpcom_callback
-        xpcom_callback = sip.data.QueryInterface(Ci.koIAsyncCallback)
-        sip = None
+        try:
+            self._init_callbacks.put(xpcom_callback.callback)
+        except AttributeError:
+            if callable(xpcom_callback):
+                self._init_callbacks.put(xpcom_callback)
 
         def callback(result=Cr.NS_OK, message=None, success=None):
             if success is None:
@@ -100,7 +94,15 @@ class KoCodeIntelService:
             data = Namespace(result=result,
                              message=message,
                              _com_interfaces_=[Ci.koIErrorInfo])
-            xpcom_callback.koIAsyncCallback.callback(success, data)
+            while True:
+                try:
+                    cb = self._init_callbacks.get_nowait()
+                    try:
+                        cb(success, data)
+                    except:
+                        self.log.exception("Failed to invoke init callback %r", cb)
+                except Queue.Empty:
+                    break # no more callbacks
 
         self._db_preloader.callback = callback
 
@@ -126,8 +128,12 @@ class KoCodeIntelService:
                     buf.mgr = self.mgr
 
         # run the new manager
-        if not self.mgr.is_alive():
+        try:
             self.mgr.start(resetBrokenDB)
+        except RuntimeError:
+            # thread already started
+            if self.mgr.state == self.mgr.STATE.CONNECTED:
+                callback()
 
     def _genDBCatalogDirs(self):
         """Yield all possible dirs in which to look for API Catalogs.
@@ -396,7 +402,7 @@ class KoCodeIntelDBPreloader(object):
             action.enabled = True
             self.notification.updateAction(action)
 
-    def progress(self, message, progress):
+    def progress(self, message, progress=None):
         assert threading.current_thread().name == "MainThread", \
             "KoCodeIntelService.activate::post_startup() should run on main thread!"
         self.debug("Progress: [%s] %s @%s", message, progress,
@@ -461,9 +467,12 @@ class KoCodeIntelDBPreloader(object):
             # progress update, not finished yet
             if progress is Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE:
                 self.notification.maxProgress = progress
-            else:
+            elif isinstance(progress, (int, float)):
                 self.notification.progress = progress
                 self.notification.maxProgress = 100
+            else:
+                pass # No useful progress (updating message only, most likely
+                     # because an error occurred in init_child).
             if message is not None:
                 details = self.notification.details
                 if details:
