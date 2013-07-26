@@ -61,7 +61,7 @@ class koViewService:
         self.wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
                         getService(components.interfaces.nsIWindowMediator);
         self.wm.addListener(self.wrapped)
-        self._all_views_wr_list = []
+        self._all_views_wr = set()
 
     def onWindowTitleChange(self, xulwindow, newTitle):
         pass
@@ -101,7 +101,7 @@ class koViewService:
             log.error("Trying to get topView from the koViewService but no viewMgr has been set")
 
     def registerView(self, view):
-        self._all_views_wr_list.append(WeakReference(view))
+        self._all_views_wr.add(WeakReference(view))
 
     def getAllViews(self, viewtype=""):
         all_views = []
@@ -112,17 +112,11 @@ class koViewService:
 
     def getReferencedViewCount(self, viewtype=""):
         count = 0
-        for i, view_weakref in enumerate(self._all_views_wr_list[:]):
-            view = None
-            try:
-                view = view_weakref()
+        for view_weakref in list(self._all_views_wr):
+            if view_weakref() is None:
+                self._all_views_wr.discard(view_weakref)
+            else:
                 count += 1
-            except COMException, ex:
-                # No longer a valid XPCOM object.
-                pass
-            if view is None:
-                # Remove it from the list.
-                self._all_views_wr_list.pop(i)
         return count
 
     def getAllViewMgrs(self):
