@@ -1,0 +1,16 @@
+Index: /as/komodo-devel/contrib/subprocess32/_posixsubprocess.c
+--- subprocess32/_posixsubprocess.c
++++ subprocess32/_posixsubprocess.c (unsaved)
+@@ -13,6 +13,12 @@
+ # define HAVE_SYS_TYPES_H 1  /* From 3.2's configure script, undef if reqd. */
+ # define HAVE_SYS_SYSCALL_H 1  /* From 3.2's configure script, undef if reqd. */
+ # define HAVE_SYS_DIRENT_H 1  /* From 3.2's configure script, undef if reqd. */
++
++/* KOMODO, on Centos 5 - we don't have pipe2 if we don't have O_CLOEXEC. */
++#ifndef O_CLOEXEC
++# undef HAVE_PIPE2
++#endif
++
+ #endif
+ #ifdef HAVE_SYS_TYPES_H
+ #include <sys/types.h>
