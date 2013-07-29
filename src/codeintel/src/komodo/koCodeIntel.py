@@ -866,8 +866,10 @@ class KoCodeIntelManager(threading.Thread):
         ProxyToMainThreadAsync(self.observe)(None, "xmlCatalogPaths", None)
 
     def set_global_environment(self):
+        env = self._global_env.env
         self._send(command="set-environment",
-                   env=self._global_env.env)
+                   env=env["env"],
+                   prefs=env["prefs"])
 
     def shutdown(self):
         """Abort any outstanding requests and shut down gracefully"""
