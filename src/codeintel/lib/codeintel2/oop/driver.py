@@ -799,6 +799,20 @@ class CoreHandler(CommandHandler):
         datasetHandler.setCatalogs(catalogs)
         driver.send(request=request)
 
+    def do_get_xml_catalogs(self, request, driver):
+        import koXMLDatasetInfo
+        public = set()
+        system = set()
+        datasetHandler = koXMLDatasetInfo.getService()
+        for catalog in datasetHandler.resolver.catalogMap.values():
+            public.update(catalog.public.keys())
+            system.update(catalog.system.keys())
+        namespaces = datasetHandler.resolver.getWellKnownNamspaces().keys()
+        driver.send(request=request,
+                    public=list(public),
+                    system=list(system),
+                    namespaces=namespaces)
+
 Driver._default_handler = CoreHandler()
 
 

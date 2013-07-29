@@ -37,32 +37,36 @@
 
 """XMLCatalogService - ..."""
 
-from xpcom import components, COMException, ServerException, nsError
-from koXMLDatasetInfo import getService
+from xpcom.components import classes as Cc, interfaces as Ci
+from xpcom.server import UnwrapObject
 
 class XMLCatalogService:
-    _com_interfaces_ = [components.interfaces.koIXMLCatalogService]
+    _com_interfaces_ = [Ci.koIXMLCatalogService]
     _reg_clsid_ = "{86d67309-70fe-11db-9e86-000d935d3368}"
     _reg_contractid_ = "@activestate.com/koXMLCatalogService;1"
-    _reg_desc_ = "..."
+    _reg_desc_ = "Service to help list available XML catalogs"
 
-    def __init__(self):
-        self.datasethandler = getService()
+    def _get(self, kind, callback):
+        def on_have_catalogs(request, response):
+            try:
+                cb = callback.callback
+            except AttributeError:
+                cb = callback # not XPCOM?
+            items = response.get(kind)
+            if items is None or not response.get("success"):
+                cb(Ci.koIAsyncCallback.RESULT_ERROR, [])
+            else:
+                cb(Ci.koIAsyncCallback.RESULT_SUCCESSFUL, items)
 
-    def getPublicIDList(self):
-        publicid = []
-        for c in self.datasethandler.resolver.catalogMap.values():
-            publicid.extend(c.public.keys())
-        publicid.sort()
-        return publicid
+        cisvc = UnwrapObject(Cc["@activestate.com/koCodeIntelService;1"]
+                               .getService())
+        cisvc.send(command="get-xml-catalogs", callback=on_have_catalogs)
+
+    def getPublicIDList(self, callback):
+        self._get("public", callback)
     
-    def getSystemIDList(self):
-        sysid = []
-        for c in self.datasethandler.resolver.catalogMap.values():
-            sysid.extend(c.system.keys())
-        sysid.sort()
-        return sysid
+    def getSystemIDList(self, callback):
+        self._get("system", callback)
     
-    def getNamespaceList(self):
-        return self.datasethandler.resolver.getWellKnownNamspaces().keys()
-    
+    def getNamespaceList(self, callback):
+        self._get("namespaces", callback)

@@ -127,20 +127,30 @@ function initDocumentType(prefset) {
     try {
         var catSvc = Components.classes["@activestate.com/koXMLCatalogService;1"].
                            getService(Components.interfaces.koIXMLCatalogService);
-        var decl = null;
-        var idlist;
-        if (prefset.hasPrefHere(data.declPrefName)) {
-            decl = prefset.getStringPref(data.declPrefName);
-        }
-        idlist = catSvc.getPublicIDList(new Object());
-        _initTypePopup(idlist, "doctypePopup", decl, /\/\/DTD/);
-        
-        decl = null;
-        if (prefset.hasPrefHere(data.nsPrefName)) {
-            decl = prefset.getStringPref(data.nsPrefName);
-        }
-        idlist = catSvc.getNamespaceList(new Object());
-        _initTypePopup(idlist, "namespacePopup", decl, null);
+
+        catSvc.getPublicIDList(function (result, idlist) {
+            try {
+                var decl = null;
+                if (prefset.hasPrefHere(data.declPrefName)) {
+                    decl = prefset.getStringPref(data.declPrefName);
+                }
+                _initTypePopup(idlist, "doctypePopup", decl, /\/\/DTD/);
+            } catch(e) {
+                log.exception(e);
+            }
+        });
+
+        catSvc.getNamespaceList(function (result, idlist) {
+            try {
+                var decl = null;
+                if (prefset.hasPrefHere(data.nsPrefName)) {
+                    decl = prefset.getStringPref(data.nsPrefName);
+                }
+                _initTypePopup(idlist, "namespacePopup", decl, null);
+            } catch(e) {
+                log.exception(e);
+            }
+        });
     } catch(e) {
         log.exception(e);
     }

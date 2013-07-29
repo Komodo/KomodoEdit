@@ -62,22 +62,30 @@
 
 function OnPreferencePageLoading(prefset) {
     try {
-    var catSvc = Components.classes["@activestate.com/koXMLCatalogService;1"].
-                       getService(Components.interfaces.koIXMLCatalogService);
-    var decl = prefset.getStringPref("defaultHTMLDecl");
-    var idlist = catSvc.getPublicIDList({});
-    var popup = document.getElementById("doctypePopup");
-    var selected = null;
-    for (var i = 0; i < idlist.length; i++) {
-        // is this an HTML decl?
-        if (idlist[i].match(/DTD X?HTML/)) {
-            var el = document.createElement("menuitem");
-            el.setAttribute("label", idlist[i]);
-            popup.appendChild(el);
-            if (idlist[i] == decl) selected = el;
-        }
-    }
-    popup.parentNode.selectedItem = selected;
+        const { classes: Cc, interfaces: Ci } = Components;
+        var catSvc = Cc["@activestate.com/koXMLCatalogService;1"]
+                       .getService(Ci.koIXMLCatalogService);
+        catSvc.getPublicIDList(function(result, idlist) {
+            try {
+                var decl = prefset.getStringPref("defaultHTMLDecl");
+                var popup = document.getElementById("doctypePopup");
+                var selected = null;
+                for (let id of idlist) {
+                    // is this an HTML decl?
+                    if (/DTD X?HTML/.test(id)) {
+                        var el = document.createElement("menuitem");
+                        el.setAttribute("label", id);
+                        popup.appendChild(el);
+                        if (id == decl) {
+                            selected = el;
+                        }
+                    }
+                }
+                popup.parentNode.selectedItem = selected;
+            } catch (e) {
+                log.exception(e);
+            }
+        });
     } catch(e) {
         log.exception(e);
     }
