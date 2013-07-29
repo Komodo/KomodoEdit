@@ -12,5 +12,5 @@
   "treat_as_ejs": "false", 
   "type": "snippet", 
   "indent_relative": "true", 
-  "auto_abbreviation": "true"
+  "auto_abbreviation": "false"
 }
