@@ -9,6 +9,9 @@
         <variable ilk="argument" line="6" name="b" />
         <variable attributes="kwargs" ilk="argument" line="6" name="kwargs" />
       </scope>
+      <scope ilk="function" line="9" lineend="10" name="f" signature="f(a=1)">
+        <variable citdl="int" ilk="argument" line="9" name="a" />
+      </scope>
     </scope>
   </file>
 </codeintel>

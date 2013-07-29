@@ -532,7 +532,10 @@ def py_expr_grammar():
                 if not in_lambda:
                     if self.token.id == ":":
                         self.advance(":")
-                        type = self.expression()
+                        type = self.expression()        
+                        if self.token.id == "=":
+                            self.advance("=")
+                            val = self.expression()
                     
             arglist.append((arg, val, type))
                 

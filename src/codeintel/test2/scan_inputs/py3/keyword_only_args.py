@@ -6,3 +6,5 @@ def sortwords(*wordlist, case_sensitive=False):
 def compare(a, b, *, key=None):
     pass
 
+def f(a: int=1):
+    print(a)
