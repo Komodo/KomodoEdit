@@ -657,7 +657,7 @@ def main(argv):
     hdlr = logging.FileHandler(gInstallLog, mode='w')
     formatter = logging.Formatter('%(asctime)s: %(levelname)s: %(name)s: %(message)s')
     hdlr.setFormatter(formatter)
-    root.setLevel(logging.DEBUG)
+    root.setLevel(logging.WARN)
     root.addHandler(hdlr)
 
     console = logging.StreamHandler()
