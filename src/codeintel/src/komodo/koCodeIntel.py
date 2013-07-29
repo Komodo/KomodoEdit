@@ -61,6 +61,9 @@ class KoCodeIntelService:
 
         self._mgr_lock = threading.Lock()
 
+        self._init_callbacks = Queue.Queue()
+        """Callbacks that should be invoked on init"""
+
         Cc["@mozilla.org/memory-reporter-manager;1"]\
           .getService(Ci.nsIMemoryReporterManager)\
           .registerMultiReporter(self)
