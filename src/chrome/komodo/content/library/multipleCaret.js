@@ -424,6 +424,9 @@ this.MultiCaretSession.prototype = {
 };
 
 this.getMultiCaretSession = function getMultiCaretSession(view) {
+    if (!view) {
+        view = ko.views.manager.currentView;
+    }
     if ('_multiCaretSession' in view) {
         return view._multiCaretSession;
     }
