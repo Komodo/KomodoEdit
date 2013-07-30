@@ -200,10 +200,11 @@ interface koIDocument : nsISupports
      */
     [deprecated] koIPreferenceSet getEffectivePrefs();
 
-    // see if this document is in the current project, if so, use those
-    // prefs, if not, find it in any open project and use those prefs.
-    // if the document is not in a project, the return is the prefs above
-    koIPreferenceSet getEffectivePrefsByName(in AString prefName);
+    /**
+     * Deprecated method, do not use.
+     */
+    [deprecated] koIPreferenceSet getEffectivePrefsByName(in AString prefName);
+
     // Set the appropriate preference chain (takes into account project prefs).
     void resetPreferenceChain();
 
