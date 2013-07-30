@@ -189,12 +189,20 @@ interface koIDocument : nsISupports
      */
     readonly attribute long fileLastAccessed;
 
-    // document prefset
+    /**
+     * Document preferences (chains to project/global prefs)
+     */
     readonly attribute koIPreferenceSet prefs;
+
+    /**
+     * Get the document prefset (obsolete alias) - this used to do something
+     * different, but no longer.
+     */
+    [deprecated] koIPreferenceSet getEffectivePrefs();
+
     // see if this document is in the current project, if so, use those
     // prefs, if not, find it in any open project and use those prefs.
     // if the document is not in a project, the return is the prefs above
-    koIPreferenceSet getEffectivePrefs();
     koIPreferenceSet getEffectivePrefsByName(in AString prefName);
     // Set the appropriate preference chain (takes into account project prefs).
     void resetPreferenceChain();
