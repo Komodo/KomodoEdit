@@ -1351,6 +1351,9 @@ class KoCodeIntelBuffer(object):
                                        response.get("message", "<error not available>"))
                 return
             try:
+                if "retrigger" in response:
+                    trg.retriggerOnCompletion = response["retrigger"]
+
                 if "cplns" in response:
                     # split into separate lists
                     types, strings = zip(*response["cplns"])

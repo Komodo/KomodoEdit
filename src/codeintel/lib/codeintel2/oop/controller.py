@@ -15,7 +15,7 @@ class OOPEvalController(EvalController):
     have_errors = have_warnings = False
     silent = False
 
-    def __init__(self, driver=None, request=None, *args, **kwargs):
+    def __init__(self, driver=None, request=None, trg=None, *args, **kwargs):
         """Create an eval controller
         @param driver {Driver} The OOP driver instance to communicate via
         @param request {Request} The request causing the evaluation
@@ -25,6 +25,7 @@ class OOPEvalController(EvalController):
 
         self.driver = driver
         self.request = request
+        self.trg = trg
         self.silent = request.get("silent", False)
         self.keep_existing = request.get("keep_existing", self.keep_existing)
 
@@ -75,17 +76,21 @@ class OOPEvalController(EvalController):
         log.debug("done: %s %s", reason,
                   "(aborted)" if self.is_aborted() else "")
 
+        retrigger = self.trg.retriggerOnCompletion if self.trg else False
+
         if self.cplns:
             # Report completions
-            self.driver.send(cplns=self.cplns, request=self.request)
+            self.driver.send(cplns=self.cplns, request=self.request,
+                             retrigger=retrigger)
         elif self.calltips:
-            self.driver.send(calltip=self.calltips[0], request=self.request)
+            self.driver.send(calltip=self.calltips[0], request=self.request,
+                             retrigger=retrigger)
         elif self.defns:
             # We can't exactly serialize blobs directly...
             def defn_serializer(defn):
                 return defn.__dict__
             self.driver.send(defns=map(defn_serializer, self.defns or []),
-                             request=self.request)
+                             request=self.request, retrigger=retrigger)
         elif self.is_aborted():
             pass # already reported the abort
         elif self.best_msg[0]:

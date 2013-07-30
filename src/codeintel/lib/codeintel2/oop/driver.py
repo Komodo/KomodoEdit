@@ -781,7 +781,7 @@ class CoreHandler(CommandHandler):
         except AttributeError:
             driver.fail(message="No trigger to evaluate")
             return
-        ctlr = controller.OOPEvalController(driver, request)
+        ctlr = controller.OOPEvalController(driver, request, trg)
         log.debug("evaluating trigger: %s", trg.to_dict())
         buf.async_eval_at_trg(trg, ctlr)
 
