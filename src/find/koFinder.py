@@ -2186,6 +2186,10 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
     
     # Determine the flags.
     flags = re.MULTILINE   # Generally always want line-based searching.
+    if caseSensitivity not in (FOC_INSENSITIVE, FOC_SENSITIVE, FOC_SMART):
+        log.warn("Unrecognized case-sensitivity %r, setting to insensitive",
+                 caseSensitivity)
+        caseSensitivity = FOC_INSENSITIVE
     if caseSensitivity == FOC_INSENSITIVE:
         desc_flag_bits.append("ignore case")
         flags |= re.IGNORECASE
@@ -2201,8 +2205,8 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
         if pattern == pattern.lower():
             flags |= re.IGNORECASE
     else:
-        raise ValueError("unrecognized case-sensitivity: %r"
-                         % caseSensitivity)
+        raise AssertionError("unrecognized case-sensitivity %r, failed to fallback"
+                             % caseSensitivity)
     if (flags & re.IGNORECASE) and _high_bit_chr_re.search(pattern):
         # Fix bug 89863:
         # eg: re.UNICODE will allow AGRAVE to match agrave when ignoring case.
