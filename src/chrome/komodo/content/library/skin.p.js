@@ -37,7 +37,8 @@ if (ko.skin == undefined)
     // Preference constants
     const   PREF_CUSTOM_ICONS     = 'koSkin_custom_icons',
             PREF_CUSTOM_SKIN      = 'koSkin_custom_skin',
-            PREF_USE_GTK_DETECT   = 'koSkin_use_gtk_detection';
+            PREF_USE_GTK_DETECT   = 'koSkin_use_gtk_detection',
+            PREF_USE_CUSTOM_SCROLLBARS = 'koSkin_use_custom_scrollbars';
     
     // Old preference value reference
     var prefOld = {};
@@ -235,6 +236,23 @@ if (ko.skin == undefined)
             {
                 log.debug("Processing " + uri);
                 this._loadCustomSkin(uri);
+            }
+
+            var skinName = prefs.getString(PREF_CUSTOM_SKIN, "");
+            try
+            {
+                Cc["@mozilla.org/categorymanager;1"]
+                  .getService(Ci.nsICategoryManager)
+                  .getCategoryEntry("komodo-skins-use-custom-scrollbars",
+                                    skinName);
+                prefs.setBooleanPref(PREF_USE_CUSTOM_SCROLLBARS, true);
+                log.debug("Using custom scrollbars for " + skinName);
+            }
+            catch (ex)
+            {
+                // no category entry
+                prefs.setBooleanPref(PREF_USE_CUSTOM_SCROLLBARS, false);
+                log.debug("Not using custom scrollbars for " + skinName);
             }
 
             koLess.reload();

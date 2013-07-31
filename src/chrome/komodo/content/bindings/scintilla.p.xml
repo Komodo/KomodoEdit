@@ -67,10 +67,12 @@
                                     pluginAllowsFocusEvents="false"
                                     pluginHandlesDomEvents="false"
                                     />
-                        <xul:scrollbar orient="vertical" anonid="scrollbar_v"/>
+                        <xul:scrollbar orient="vertical" anonid="scrollbar_v"
+                                       can-scroll="false"/>
                     </xul:row>
                     <xul:row>
-                        <xul:scrollbar orient="horizontal" anonid="scrollbar_h"/>
+                        <xul:scrollbar orient="horizontal" anonid="scrollbar_h"
+                                       can-scroll="false"/>
                         <xul:spacer/>
                     </xul:row>
                 </xul:rows>
@@ -223,6 +225,9 @@
                     case 'editEnableMouseZoom': // pref notification
                         this.editEnableMouseZoom = prefs.getBoolean('editEnableMouseZoom', true);
                         this.scimoz.suppressZoomOnScrollWheel = !this.editEnableMouseZoom;
+                        break;
+                    case 'koSkin_use_custom_scrollbars': // pref notification
+                        this.useCustomScrollBars = prefs.getBoolean(topic, false);
                         break;
                 }
             } catch (e) {
@@ -398,32 +403,9 @@
                     }
                     this._ime.value = "";
                 }).bind(this), false);
-                this.scimoz.hookEvents(this._scrollEventHandler,
-                                       Components.interfaces.ISciMozEvents.SME_UPDATEUI);
-                new MutationObserver(function() {
-                    this._scrollEventHandler.horizontal.suppress = true;
-                    try {
-                        let curpos =
-                            parseInt(this._scrollEventHandler.horizontal.getAttribute("curpos"), 10);
-                        if (curpos != this.scimoz.xOffset) {
-                            this.scimoz.xOffset = curpos;
-                        }
-                    } finally {
-                        this._scrollEventHandler.horizontal.suppress = false;
-                    }
-                }.bind(this)).observe(this._scrollEventHandler.horizontal,
-                                      {attributes: true, attributeFilter: ["curpos"]});
-                new MutationObserver(function() {
-                    this._scrollEventHandler.vertical.suppress = true;
-                    try {
-                        this.scimoz.firstVisibleLine =
-                            parseInt(this._scrollEventHandler.vertical.getAttribute("curpos"), 10);
-                    } finally {
-                        this._scrollEventHandler.vertical.suppress = false;
-                    }
-                }.bind(this)).observe(this._scrollEventHandler.vertical,
-                                      {attributes: true, attributeFilter: ["curpos"]});
-                this.scimoz.useCustomScrollBars = true;
+                let prefs = Components.classes['@activestate.com/koPrefService;1']
+                                      .getService(Components.interfaces.koIPrefService).prefs;
+                this.useCustomScrollBars = prefs.getBoolean('koSkin_use_custom_scrollbars', false);
             ]]>
             </constructor>
             <destructor>
@@ -431,6 +413,75 @@
             this.unload();
             ]]>
             </destructor>
+
+            <field name="_customScrollbarObservers">undefined</field>
+            <property name="useCustomScrollBars">
+                <getter>return !!this._customScrollbarObservers</getter>
+                <setter>
+                <![CDATA[
+                    const {ISciMozEvents} = Components.interfaces;
+                    if (!(this._customScrollbarObservers === undefined) &&
+                        !!val === !!this._customScrollbarObservers) {
+                        return; // no change
+                    }
+                    if (val) {
+                        let ob = {};
+                        this.scimoz.hookEvents(this._scrollEventHandler,
+                                               ISciMozEvents.SME_UPDATEUI);
+                        ob.horizontal = new MutationObserver(mutations => {
+                            this._scrollEventHandler.horizontal.suppress = true;
+                            try {
+                                let curpos = parseInt(this._scrollEventHandler
+                                                          .horizontal
+                                                          .getAttribute("curpos"),
+                                                      10);
+                                if (curpos != this.scimoz.xOffset) {
+                                    this.scimoz.xOffset = curpos;
+                                }
+                            } finally {
+                                this._scrollEventHandler.horizontal.suppress = false;
+                            }
+                        });
+                        ob.horizontal.observe(this._scrollEventHandler.horizontal,
+                                              {attributes: true, attributeFilter: ["curpos"]});
+                        ob.vertical = new MutationObserver(mutations => {
+                            this._scrollEventHandler.vertical.suppress = true;
+                            try {
+                                this.scimoz.firstVisibleLine =
+                                    parseInt(this._scrollEventHandler
+                                                 .vertical
+                                                 .getAttribute("curpos"),
+                                             10);
+                            } finally {
+                                this._scrollEventHandler.vertical.suppress = false;
+                            }
+                        });
+                        ob.vertical.observe(this._scrollEventHandler.vertical,
+                                            {attributes: true, attributeFilter: ["curpos"]});
+                        this.scimoz.useCustomScrollBars = true;
+                        this._customScrollbarObservers = ob;
+                    } else {
+                        try {
+                            this.scimoz.unhookEvents(this._scrollEventHandler);
+                        } catch (ex) {
+                            // throws if we were never hooked
+                        }
+                        this.scimoz.useCustomScrollBars = false;
+                        if (this._customScrollbarObservers) {
+                            this._customScrollbarObservers.horizontal.disconnect();
+                            this._customScrollbarObservers.vertical.disconnect();
+                            this._customScrollbarObservers = null;
+                        }
+                        // Hide the fake scroll bars
+                        this._scrollEventHandler.horizontal.setAttribute("can-scroll", "false");
+                        this._scrollEventHandler.vertical.setAttribute("can-scroll", "false");
+                        // Tell scintilla whether we want scrollbars
+                        this.scimoz.hScrollBar = this.hScrollBar;
+                        this.scimoz.vScrollBar = this.vScrollBar;
+                    }
+                ]]>
+                </setter>
+            </property>
 
             <property name="isFocused">
                 <getter>
@@ -443,7 +494,12 @@
                 </getter>
             </property>
 
-            <field name="pref_topics">['editor-scheme', 'scrollEndAtLastLine', 'editEnableMouseZoom']</field>
+            <field name="pref_topics">
+                ['editor-scheme',
+                 'scrollEndAtLastLine',
+                 'editEnableMouseZoom',
+                 'koSkin_use_custom_scrollbars']
+            </field>
 
             <method name="init">
                 <body>
