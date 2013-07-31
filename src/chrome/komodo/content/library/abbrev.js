@@ -305,10 +305,16 @@ this.expandAutoAbbreviation = function(currView) {
     if (allowedStyles.indexOf(prevStyle) == -1) {
         return false;
     }
-    var useWordBoundary = (languageObj.name == "Text"
-                           || (prevStyle == scimoz.SCE_UDL_M_DEFAULT
-                               && (languageObj.isHTMLLanguage
-                                   || this._textLikeLanguages.indexOf(languageObj.name) >= 0)));
+    var useWordBoundary;
+    if (languageObj.name == "Text") {
+        useWordBoundary = true;
+    } else if (this._textLikeLanguages.indexOf(languageObj.name) >= 0
+               || languageObj.isHTMLLanguage) {
+        let defaultStyles = languageObj.getNamedStyles("default");
+        useWordBoundary = defaultStyles.indexOf(prevStyle) >= 0;
+    } else {
+        useWordBoundary = false;
+    }
     var wordStartPos = this.getWordStart(scimoz, prevPos, useWordBoundary);
     var abbrev = scimoz.getTextRange(wordStartPos, currentPos);
     if (!this._checkPossibleAbbreviation(abbrev)) {
