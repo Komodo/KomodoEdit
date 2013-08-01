@@ -322,21 +322,21 @@
             <deck id="msg-deck" selectedIndex="0">
               <hbox />
               <hbox id="msg-info-box" align="center"
-                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; -moz-border-radius: 7px; border: 1px solid #bbb;">
+                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; border-radius: 7px; border: 1px solid #bbb;">
                 <hbox align="start" style="padding-right: 3px;">
                   <image src="chrome://famfamfamsilk/skin/icons/information.png"/>
                 </hbox>
                 <description id="msg-info" flex="1">blank</description>
               </hbox>
               <hbox id="msg-warn-box" align="center"
-                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; -moz-border-radius: 7px; border: 1px solid #bbb; padding: 2px;">
+                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; border-radius: 7px; border: 1px solid #bbb; padding: 2px;">
                 <hbox align="start" style="padding-right: 3px;">
                   <image src="chrome://famfamfamsilk/skin/icons/error.png"/>
                 </hbox>
                 <description id="msg-warn" flex="1">blank</description>
               </hbox>
               <hbox id="msg-error-box" align="center"
-                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; -moz-border-radius: 7px;  border: 1px solid #bbb; padding: 2px;">
+                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; border-radius: 7px;  border: 1px solid #bbb; padding: 2px;">
                 <hbox align="start" style="padding-right: 3px;">
                   <image src="chrome://famfamfamsilk/skin/icons/exclamation.png"/>
                 </hbox>
