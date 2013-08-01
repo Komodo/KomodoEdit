@@ -322,6 +322,7 @@ function cloneObject(what) {
  *
  * Version history:
  * 37: Komodo 8.5.0b2 - add Crtl+Shift+Z for cmd_htmlTagRelocator
+ *                      add Meta+Shift++ for cmd_fontZoomIn
  * 36: Komodo 8.5.0b2 - add Ctrl+K, Ctrl+Y for cmd_addAdditionalCaret
  * 34: Komodo 8.0.0a1 - add Ctrl+K, Ctrl+R for reloadBrowserPreview.
  * 33: Komodo 7.0.1 - drop Cmd++ for cmd_fontZoomIn, still conflicts with cmd_replace
@@ -902,6 +903,7 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
             this._add_keybinding_sequences({
 // #if PLATFORM == 'darwin'
                 'cmd_htmlTagRelocator' : ["Meta+Shift+Z"],
+                'cmd_fontZoomIn' :       ["Meta+Shift++"],
 // #else
                 'cmd_htmlTagRelocator' : ["Ctrl+Shift+Z"]
 // #endif
