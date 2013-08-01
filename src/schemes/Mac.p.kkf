@@ -1,4 +1,4 @@
-version 37
+version 38
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -170,3 +170,4 @@ binding cmd_invokeHyperlink Ctrl+Shift+G
 binding cmd_invokeTool Meta+Shift+K
 
 binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y
+binding cmd_htmlTagRelocator Meta+Shift+Z

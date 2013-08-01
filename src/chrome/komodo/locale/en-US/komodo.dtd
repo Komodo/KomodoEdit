@@ -213,6 +213,7 @@
 <!ENTITY editorZoomFontSizeReset.desc "Editor: Zoom: Reset to Default Size">
 <!ENTITY editorZoomFontSizeDown.desc "Editor: Zoom Font Size Down">
 <!ENTITY editorZoomFontSizeUp.desc "Editor: Zoom Font Size Up">
+<!ENTITY editorHTMLTagRelocator.desc "Editor: HTML Tag Relocator...">
 <!ENTITY enterNextCharacterAsRawLiteral.label "Enter Next Character as Raw Literal">
 <!ENTITY executeMacro.label "Execute Macro">
 <!ENTITY existingFile.label "Existing File...">

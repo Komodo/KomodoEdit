@@ -1553,6 +1553,11 @@
             oncommand="ko.commands.doCommandAsync('cmd_exportHTMLSelection', event)"
             disabled="true"
             desc="&generalExportSelectionAsHTML.desc;"/>
+        <command
+            id="cmd_htmlTagRelocator" key="key_cmd_htmlTagRelocator"
+            oncommand="ko.commands.doCommand('cmd_htmlTagRelocator')"
+            disabled="true"
+            desc="&editorHTMLTagRelocator.desc;"/>
 <!-- #if PLATFORM != "darwin" -->
         <command
             id="cmd_printPreviewSelection" key="key_cmd_printPreviewSelection"

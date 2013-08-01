@@ -48,11 +48,27 @@ xtk.include("clipboard");
 // hide this controller from our global namespace, we simply dont need to
 // touch anything in it from the outside world
 (function() {
-    
+var log = ko.logging.getLogger("ko.editor");
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/editor.properties");
 
+const ISCIMOZ = Components.interfaces.ISciMoz;
+// Scintilla styling
+const DEFAULT_STYLE = ISCIMOZ.SCE_UDL_M_DEFAULT;
+const START_TAG_OPEN = ISCIMOZ.SCE_UDL_M_STAGO;
+const END_TAG_OPEN = ISCIMOZ.SCE_UDL_M_ETAGO;
+const START_TAG_CLOSE = ISCIMOZ.SCE_UDL_M_STAGC;
+const END_TAG_CLOSE = ISCIMOZ.SCE_UDL_M_ETAGC;
+const VALID_TAG_STYLES = [START_TAG_OPEN,
+                          END_TAG_OPEN,
+                          START_TAG_CLOSE,
+                          END_TAG_CLOSE,
+                          ISCIMOZ.SCE_UDL_M_COMMENT];
+const OPEN_TAG_STYLES = [START_TAG_OPEN,
+                         END_TAG_OPEN,
+                         ISCIMOZ.SCE_UDL_M_COMMENT];
+    
 function editor_editorController() {
     ko.main.addWillCloseHandler(this.destructor, this);
 }
@@ -601,7 +617,316 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
     });
 }
 
+
+/**
+ * Select and move xml style tags easily 
+ * @postcondition view._htmlRelocator exists.
+ */
+editor_editorController.prototype.do_cmd_htmlTagRelocator = function() {
+    var view = _getCurrentScimozView();
+    
+    log.debug("Running html tag relocator: " +
+              "_htmlTagRelocator is in view: " + ("_htmlTagRelocator" in view));
+    
+    var scimoz = view.scimoz;
+    var currentPos = scimoz.currentPos;
+    
+    if (!("_htmlTagRelocator" in view)) {
+        makeRelocatorSelection(view, scimoz);
+    } else {
+        var {savedSelectionStart,savedSelectionEnd} = view._htmlTagRelocator;
+        // warning terrible function name coming
+        if(!isContextCorrect(scimoz, view)){
+            var statMsg = _bundle.GetStringFromName("htmlRelocatorLostContext");
+            ko.statusBar.AddMessage(statMsg, "htmlTagRelocator", 3000, true,
+                                    true);
+            deleteHtmlRelocator();
+            return;
+        }
+        // Empty selection
+        if (currentPos == scimoz.anchor) {
+            // Check that the script is not being run inside another tag 
+            if (scimoz.getStyleAt(currentPos) == DEFAULT_STYLE ||
+                scimoz.getWCharAt(currentPos) ==  '<')
+            {
+                var text = scimoz.getTextRange(savedSelectionStart,
+                                               savedSelectionEnd);
+                moveRelocatorText(savedSelectionStart,
+                                  savedSelectionEnd - savedSelectionStart,
+                                  currentPos,
+                                  text);
+            } else {
+                var sttMsg = _bundle.GetStringFromName("htmlRelocatorRunExist");
+                ko.statusBar.AddMessage(sttMsg, "htmlTagRelocator", 3000, true,
+                                        true);
+                makeRelocatorSelection(view, scimoz);
+            }
+        }
+        // Check that the user hasn't highlighted something else since
+        // makeRelocatorSelection() was last run.
+        // Protection agains accidentally running the script and chopping up the 
+        // user's code.  Restart the process.
+        else if (scimoz.selectionEnd != savedSelectionEnd ||
+                 scimoz.selectionStart != savedSelectionStart)
+        {
+            makeRelocatorSelection(view, scimoz);
+        } else {
+            skipWordsTagsRight(view, scimoz);
+        }
+    }
+}
+
+/**
+ * highlights the initial tag and sets view variables;
+ * @precondition view be defined
+ * @postcondition current tag is selected based on scimoz.currentPos
+ * @postcondition view._htmlTagRelocator is set/reset
+ */
+function makeRelocatorSelection(view, scimoz) {
+    // If there is a selection, get rid of it and reset it to currentPos
+    // assumption being that the user will not drag the selection to OUTSIDE
+    // the tag they want to select.
+    log.debug("Running makeRelocatorSelection() in ko.editor.");
+    
+    if ("_htmlrelocator" in view) { deleteHtmlRelocator(); };
+    
+    scimoz.anchor = scimoz.currentPos;
+    var currentPos = scimoz.currentPos;
+    var startOfCurrentLine =
+        scimoz.positionFromLine(scimoz.lineFromPosition(currentPos));
+    var endOfDocument = scimoz.length;
+    var currentStyle = scimoz.getStyleAt(currentPos);
+    var startOfCurrentTag;
+    if(!relocatorInsideTag(scimoz)){
+        var sttMsg = _bundle.GetStringFromName("htmlRelocateNotInTagNotCosed");
+        ko.statusBar.AddMessage(sttMsg, "htmlTagRelocator", 3000, true, true);
+        log.debug("htmlTagRelocator stopped. Not in tag or tag does not close");
+        return;
+    }
+    
+    if (OPEN_TAG_STYLES.indexOf(scimoz.getStyleAt(currentPos)) >= 0) {
+        startOfCurrentTag = currentPos;
+    } else {
+        startOfCurrentTag = findNextValidCloseOpenSymbol(
+                            currentPos, startOfCurrentLine, "<");
+    }
+    var posAfterStart = scimoz.positionAfter(startOfCurrentTag);
+    var endOfCurrentTag = findNextValidCloseOpenSymbol(
+                            posAfterStart, endOfDocument, ">");
+    var nextStartTagOpen = findNextValidCloseOpenSymbol(
+                            posAfterStart, endOfDocument, "<");
+    
+    if (nextStartTagOpen < endOfCurrentTag && nextStartTagOpen != -1) {
+        var sttMsg = _bundle.GetStringFromName("htmlRelocatorNotClosed");
+        ko.statusBar.AddMessage(sttMsg, "htmlTagRelocator", 3000, true, true);
+        return;
+    } 
+    endOfCurrentTag  = scimoz.positionAfter(endOfCurrentTag);
+    
+    log.debug("tag_relocator: makeRelocatorSelection: \nStart of Current Tag: "+
+              startOfCurrentTag +
+              "\nEnd of current tag: " + endOfCurrentTag);
+    
+    if (startOfCurrentTag == endOfCurrentTag) {
+        var stMg = _bundle.GetStringFromName("htmlRelocatorNothingSelected");
+        ko.statusBar.AddMessage(stMg, "htmlTagRelocator", 3000, true, true);
+    } else {
+        scimoz.setSel(startOfCurrentTag, endOfCurrentTag);
+        saveRelocatorSelection(scimoz.selectionStart, scimoz.selectionEnd);
+        log.debug("tag_relocator: makeRelocatorSelection: Saved selection " +
+                  "start: " + view._htmlTagRelocator.savedSelectionStart +
+                  "\nSaved selection end: " +
+                  view._htmlTagRelocator.savedSelectionEnd);
+    }
+}
+ /**
+  * Skip tags/words manually to the right
+  * @precondition scimoz.currentPos != anchor
+  * @precondition view._htmlTagRelocator is set
+  * @postcondition view._htmlTagRelocator is deleted
+  */
+function skipWordsTagsRight(view, scimoz) {
+    log.debug("Running skipWordsTagsRight() in ko.editor.");
+    var endOfDocument = scimoz.length;
+    var {savedSelectionStart, savedSelectionEnd} = view._htmlTagRelocator;
+    var text = scimoz.selText;
+    
+    var whitespaceObject = {};
+    scimoz.getWhitespaceChars(whitespaceObject);
+    var whiteSpace = whitespaceObject.value;
+    var currentLine = scimoz.lineFromPosition(savedSelectionEnd)
+    var shufflePos = savedSelectionEnd;
+
+    // skip the white space to the start of the next character
+    // Wrapping this in a while accounts for EOL characters.
+    while(whiteSpace.contains(scimoz.getWCharAt(shufflePos)))
+    {
+        shufflePos = scimoz.wordEndPosition(shufflePos, false);
         
-window.controllers.appendController(new editor_editorController());
+    }
+
+    // Check if that next character is a tag and jump over the
+    // whole tag if it is
+    var styleOfNextChar = scimoz.getStyleAt(shufflePos);
+    if (VALID_TAG_STYLES.indexOf(styleOfNextChar) >= 0)
+    {
+        // Move to the position after the next ">" that is a valid closing
+        // character
+        var nextValidChar = findNextValidCloseOpenSymbol(
+                                shufflePos, endOfDocument, ">")
+        // If there are no more then just jump past everything to the end
+        // of the doc.  It's what the user would have wanted...
+        if (nextValidChar == -1) {
+            var statMsg =  _bundle.GetStringFromName("htmlRelocatorNoEnd");
+            ko.statusBar.AddMessage(statMsg,"htmlTagRelocator",
+                                    3000, true, true);
+            nextValidChar = endOfDocument;
+        }
+        shufflePos = scimoz.positionAfter(nextValidChar);
+    } else {
+        shufflePos = scimoz.wordEndPosition(shufflePos, false);
+    }
+    moveRelocatorText(savedSelectionStart,
+             savedSelectionEnd - savedSelectionStart,
+             shufflePos,
+             text);
+}
+
+/*
+ * move text from one position to a another
+ * @postcondition view._htmlRelocator is set.
+ */
+function moveRelocatorText(startDelete, lenDelete, newPos, text) {
+    log.debug("Running moveRelocatorText()");
+    var view = _getCurrentScimozView()
+    var scimoz = view.scimoz;
+    // If the cursor has been moved to a position past the tag, then its new
+    // paste position must be offset by the length of the removed text
+    if (newPos >= view._htmlTagRelocator.savedSelectionEnd) {
+         newPos -= lenDelete;
+    }
+    scimoz.beginUndoAction();
+    try {
+        scimoz.deleteRange(startDelete, lenDelete);
+        scimoz.insertText(newPos, text);
+        scimoz.anchor = newPos;
+        scimoz.currentPos = newPos + lenDelete;
+        saveRelocatorSelection(scimoz.selectionStart, scimoz.selectionEnd);
+    } catch(e) {
+        log.exception(e.message);
+    } finally {
+        scimoz.endUndoAction();
+    }
+    log.debug("moveRelocatorText: Text moved: " + text);
+}
+
+/**
+ * This function searches for the next close or open symbol with a valid style
+ *
+ * @param searchStart {Number} the position to start searching
+ * @param searchEnd {Number}
+ * @return the position {Number} of the 1st character after searchStart that
+ *  isn't whitespace; -1 if no results.
+ */
+function findNextValidCloseOpenSymbol (searchStart, searchEnd, searchChar) {
+        log.debug("Running findNextValidCloseOpenSymbol()");
+        var view = _getCurrentScimozView();
+        var scimoz = view.scimoz;
+        scimoz.targetStart = searchStart;
+        scimoz.targetEnd = searchEnd;
+
+        var pos = scimoz.searchInTarget(1, searchChar);
+        scimoz.targetEnd = searchEnd;
+        while (pos >= 0 &&
+               VALID_TAG_STYLES.indexOf(scimoz.getStyleAt(pos)) < 0)
+        {
+            if (searchEnd > searchStart){
+                scimoz.targetStart = scimoz.positionAfter(pos)
+            } else {
+                scimoz.targetStart = scimoz.positionBefore(pos);
+            }
+            scimoz.targetEnd    = searchEnd;
+            pos = scimoz.searchInTarget(1, searchChar);
+        }
+    return pos;
+}
+
+/**
+ * Is the scimoz.currentPos inside of any tag?
+ * Look behind the currentPos, find closest < and >.  If < is closer then > then
+ * You must be in a tag.  
+ */
+function relocatorInsideTag(scimoz) {
+    currentPos = scimoz.currentPos;
+    startOfLine = scimoz.positionFromLine(scimoz.lineFromPosition(currentPos));
+    startTagChar = findNextValidCloseOpenSymbol(currentPos, startOfLine,"<");
+    endTagChar = findNextValidCloseOpenSymbol(currentPos, startOfLine, ">");
+    return startTagChar > endTagChar;
+}
+
+/**
+ * save the current tag selected for moving
+ * @postcondition view._htmlTagRelocator.relTimeout is reset
+ * relTimeout is set so view._htmlTagRelocator doesn't stick around forever
+ */
+function saveRelocatorSelection(selStart, selEnd){
+    var view = _getCurrentScimozView();
+    if (view._htmlTagRelocator) {
+        clearTimeout(view._htmlTagRelocator.relTimeout);
+    }
+    log.debug("saveRelocatorSelection: \nSel Start: " + selStart +
+              "\nsel End: " + selEnd +
+              "\nselText: " + view.scimoz.getTextRange(selStart, selEnd));
+    
+    view._htmlTagRelocator = {savedSelectionStart : selStart,
+                              savedSelectionEnd   : selEnd,
+                              savedText : view.scimoz.getTextRange(selStart,
+                                                                   selEnd),
+                              // XXX move relTimeout to preference
+                              relTimeout: setTimeout(relocateTimeoutDelete,9999)
+                              };
+}
+/**
+ * Wraps deleteHtmlRelocator to added appropriate logging referencing the use
+ * of setTimeout() in saveRelocatorSelection()
+ */
+function relocateTimeoutDelete(){
+    log.debug("Timeout delete relocator variables");
+    var sttMsg = _bundle.GetStringFromName("htmlRelocateRmVars");
+    var bundle = ko.statusBar.AddMessage(sttMsg,"htmlTagRelocator",3000, true);
+    deleteHtmlRelocator();
+}
+/**
+ * make sure saved location is the tag wanted 
+ * @returns true saved tag matches location found between savedSelectionStart
+ * and savedSelectionEnd
+ * This will happen when the user runs undo, can't update view._htmlTagRelocator
+ */
+function isContextCorrect(scimoz, view)  {
+    var {savedSelectionStart,savedSelectionEnd,savedText} =
+                                                    view._htmlTagRelocator;
+    // If the user uses undo, the saved position of the tag is old.
+    // Running the script again will use the pre-undo location.
+    // Check if the saved location matches the previous tag.
+    var prevTagLocation = scimoz.getTextRange(savedSelectionStart,
+                                              savedSelectionEnd);
+    return (savedText == prevTagLocation) 
+}
+
+/**
+ * Remove _htmlTagRelocator variables
+ */
+function deleteHtmlRelocator() {
+    log.debug("removing view._htmlRelocator");
+    delete _getCurrentScimozView()._htmlTagRelocator;
+}
+
+// No window while testing so skip (jsTest)
+if (typeof(window) != "undefined") {
+    window.controllers.appendController(new editor_editorController());
+} else {
+    ko.editor = new editor_editorController();
+}
+
 
 }).apply(); // apply into the global namespace

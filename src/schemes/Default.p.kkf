@@ -1,4 +1,4 @@
-version 37
+version 38
 
 # Movement and selection
 binding cmd_left  Left
@@ -39,6 +39,7 @@ binding cmd_selectEnd  Shift+End
 binding cmd_selectDocumentEnd  Ctrl+Shift+End
 binding cmd_selectAll Ctrl+A
 binding cmd_blockSelect Ctrl+B
+binding cmd_htmlTagRelocator Ctrl+Shift+Z
 
 # Cut, copy, paste, delete
 binding cmd_copy Ctrl+C

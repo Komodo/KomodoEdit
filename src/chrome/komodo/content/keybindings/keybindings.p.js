@@ -321,6 +321,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 37: Komodo 8.5.0b2 - add Crtl+Shift+Z for cmd_htmlTagRelocator
  * 36: Komodo 8.5.0b2 - add Ctrl+K, Ctrl+Y for cmd_addAdditionalCaret
  * 34: Komodo 8.0.0a1 - add Ctrl+K, Ctrl+R for reloadBrowserPreview.
  * 33: Komodo 7.0.1 - drop Cmd++ for cmd_fontZoomIn, still conflicts with cmd_replace
@@ -357,7 +358,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 37;
+const currentKeybindingVersionNumber = 38;
 
 /**
  * Remove this dictionary of keybinds.
@@ -897,6 +898,15 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
                     'cmd_addAdditionalCaret': ["Ctrl+K, Ctrl+Y"],
                 });
             break;        
+        case 37:
+            this._add_keybinding_sequences({
+// #if PLATFORM == 'darwin'
+                'cmd_htmlTagRelocator' : ["Meta+Shift+Z"],
+// #else
+                'cmd_htmlTagRelocator' : ["Ctrl+Shift+Z"]
+// #endif
+            });
+            break;
         }
         from_version += 1;
     }
@@ -2784,3 +2794,4 @@ this.VKLabels = VKLabels;
 ko.logging.globalDeprecatedByAlternative("keylabel2keysequence", "ko.keybindings.keylabel2keysequence");
 ko.logging.globalDeprecatedByAlternative("keysequence2keylabel", "ko.keybindings.keysequence2keylabel");
 ko.logging.globalDeprecatedByAlternative("gKeybindingMgr", "ko.keybindings.manager");
+z
