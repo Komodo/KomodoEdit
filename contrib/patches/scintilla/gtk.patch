@@ -1,4 +1,4 @@
-Three parts to this patch:
+Multiple parts to this patch:
 
 1. General gtk patches
 
@@ -7,6 +7,9 @@ Komodo was crashing at shutdown if the user performed a copy operation on a
 Scintilla buffer before shutting down, bug 81293.
 
 3. gtk-dragscroll.patch
+
+4. Prevent the resize handler from recursing.  Switching off custom
+scrollbars was causing an infinite loop.
 
 --- gtk/ScintillaGTK.cxx	2007-10-12 15:09:56.000000000 -0700
 +++ gtk/ScintillaGTK.cxx	2007-10-12 16:04:00.000000000 -0700
