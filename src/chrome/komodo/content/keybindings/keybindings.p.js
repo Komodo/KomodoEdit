@@ -324,6 +324,7 @@ function cloneObject(what) {
  * 37: Komodo 8.5.0b2 - add Crtl+Shift+Z for cmd_htmlTagRelocator
  *                      add Meta+Shift++ for cmd_fontZoomIn
  *                      fixup Meta+Shift keybindings - bug 92880.
+ *                      changed cmd_jumpToMatchingBrace to Meta+Shift+M
  * 36: Komodo 8.5.0b2 - add Ctrl+K, Ctrl+Y for cmd_addAdditionalCaret
  * 34: Komodo 8.0.0a1 - add Ctrl+K, Ctrl+R for reloadBrowserPreview.
  * 33: Komodo 7.0.1 - drop Cmd++ for cmd_fontZoomIn, still conflicts with cmd_replace
@@ -924,6 +925,7 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
                 'cmd_viewIndentationGuides' :  ["Meta+Shift+%"],
                 'cmd_viewWhitespace' :         ["Meta+Shift+*"],
                 'cmd_wordWrap' :               ["Meta+Shift+("],
+                'cmd_jumpToMatchingBrace' :    ["Meta+Shift+M"],
 // #else
                 'cmd_htmlTagRelocator' : ["Ctrl+Shift+Z"]
 // #endif

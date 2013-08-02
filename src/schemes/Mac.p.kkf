@@ -82,7 +82,7 @@ binding cmd_helpLanguageAlternate  Ctrl+/
 binding cmd_home  Home 
 binding cmd_home  Meta+Left 
 binding cmd_join Ctrl+K Ctrl+J
-binding cmd_jumpToMatchingBrace  Meta+Shift+{
+binding cmd_jumpToMatchingBrace  Meta+Shift+M
 binding cmd_killLine Ctrl+Delete
 binding cmd_killLine Ctrl+Backspace
 binding cmd_left  Left
