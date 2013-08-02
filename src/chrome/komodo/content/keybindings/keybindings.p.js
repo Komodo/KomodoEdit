@@ -2818,4 +2818,4 @@ this.VKLabels = VKLabels;
 ko.logging.globalDeprecatedByAlternative("keylabel2keysequence", "ko.keybindings.keylabel2keysequence");
 ko.logging.globalDeprecatedByAlternative("keysequence2keylabel", "ko.keybindings.keysequence2keylabel");
 ko.logging.globalDeprecatedByAlternative("gKeybindingMgr", "ko.keybindings.manager");
-z
+
