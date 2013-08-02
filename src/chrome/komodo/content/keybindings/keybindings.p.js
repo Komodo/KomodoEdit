@@ -917,7 +917,6 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
 // #endif
             this._add_keybinding_sequences({
 // #if PLATFORM == 'darwin'
-                'cmd_htmlTagRelocator' :       ["Meta+Shift+Z"],
                 'cmd_fontZoomIn' :             ["Meta+Shift++"],
                 'cmd_dbgGo' :                  ["Meta+Shift+>"],
                 'cmd_splittab' :               ['Meta+Shift+"'],
@@ -926,9 +925,8 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
                 'cmd_viewWhitespace' :         ["Meta+Shift+*"],
                 'cmd_wordWrap' :               ["Meta+Shift+("],
                 'cmd_jumpToMatchingBrace' :    ["Meta+Shift+M"],
-// #else
-                'cmd_htmlTagRelocator' : ["Ctrl+Shift+Z"]
 // #endif
+                'cmd_htmlTagRelocator' : ["Ctrl+Shift+Z"],
             });
             break;
         }

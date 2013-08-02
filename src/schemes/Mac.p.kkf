@@ -170,4 +170,4 @@ binding cmd_invokeHyperlink Ctrl+Shift+G
 binding cmd_invokeTool Meta+Shift+K
 
 binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y
-binding cmd_htmlTagRelocator Meta+Shift+Z
+binding cmd_htmlTagRelocator Ctrl+Shift+Z
