@@ -1538,6 +1538,14 @@ function loadColorpickerPreferences(prefset) {
     menulist.selectedIndex = selectedIndex;
 }
 
+function setFontQuality() {
+    var menulist = document.getElementById("font_quality_menulist");
+    if (menulist.selectedItem) {
+        let scimoz = gDialog.bufferView.scimoz;
+        scimoz.fontQuality = parseInt(menulist.selectedItem.getAttribute("data"));
+    }
+}
+
 function setColorpicker() {
     var menulist = document.getElementById("colorpicker_menulist");
     if (menulist.selectedItem) {

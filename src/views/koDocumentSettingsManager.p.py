@@ -67,6 +67,7 @@ class koDocumentSettingsManager:
                      'editWrapType', 'editAutoWrapColumn', 'editUseEdge',
                      'encoding', 'editFoldStyle', 'anchor', 'currentPos',
                      'editFoldLines', 'indentWidth', 'caretStyle', 'caretWidth',
+                     'editor_font_quality',
                      # Code Intelligence stuff:
                      'codeintel_completion_triggering_enabled',
                      'codeintel_rescan_while_typing_enabled',
@@ -446,6 +447,11 @@ class koDocumentSettingsManager:
         caretWidth = prefSet.getLongPref('caretWidth')
         for scintilla in self._scintillas:
             scintilla.scimoz.caretWidth = caretWidth
+
+    def _apply_editor_font_quality(self, prefSet):
+        fontQuality = prefSet.getLongPref('editor_font_quality')
+        for scintilla in self._scintillas:
+            scintilla.scimoz.fontQuality = fontQuality
 
     def _apply_editFoldLines(self, prefSet):
         on = prefSet.getBooleanPref('editFoldLines')

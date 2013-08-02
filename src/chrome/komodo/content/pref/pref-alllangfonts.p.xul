@@ -662,6 +662,29 @@
             </tabbox>
         </vbox>
 
+        <!-- #if PLATFORM != "linux" -->
+        <!-- Font quality - anti-aliasing and font-smoothing. -->
+        <separator class="thin"/>
+
+        <vbox id="font_quality_vbox" style="padding: 6px;">
+            <hbox id="font_quality_hbox" align="center">
+                <label id="font_quality_label"
+                       value="&fontQuality.label;"/>
+                <menulist id="editor_font_quality"
+                          pref="true"
+                          prefattribute="data"
+                          oncommand="setFontQuality();">
+                    <menupopup id="font_quality_menupopup">
+                        <menuitem data="0" label="&fontQuality.default.menulabel;" />
+                        <menuitem data="1" label="&fontQuality.no_antialiasing.menulabel;" />
+                        <menuitem data="2" label="&fontQuality.antialiased.menulabel;" />
+                        <menuitem data="3" label="&fontQuality.antialiasedWithSmoothing.menulabel;" />
+                    </menupopup>
+                </menulist>
+            </hbox>
+        </vbox>
+        <!-- #endif -->
+
         <separator class="thin"/>
 
       <!-- Custom color picker to use -->
