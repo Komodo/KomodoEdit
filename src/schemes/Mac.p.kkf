@@ -82,7 +82,7 @@ binding cmd_helpLanguageAlternate  Ctrl+/
 binding cmd_home  Home 
 binding cmd_home  Meta+Left 
 binding cmd_join Ctrl+K Ctrl+J
-binding cmd_jumpToMatchingBrace  Meta+{
+binding cmd_jumpToMatchingBrace  Meta+Shift+{
 binding cmd_killLine Ctrl+Delete
 binding cmd_killLine Ctrl+Backspace
 binding cmd_left  Left
@@ -135,10 +135,9 @@ binding cmd_selectRectLineNext Ctrl+Shift+Down
 binding cmd_selectRectLinePrevious Ctrl+Shift+Up
 binding cmd_selectRectPageDown Ctrl+Shift+Page_Down
 binding cmd_selectRectPageUp Ctrl+Shift+Page_Up
-binding cmd_selectToMatchingBrace  Meta+}
 binding cmd_selectWordLeft  Alt+Shift+Left
 binding cmd_endOfWordExtend  Alt+Shift+Right
-binding cmd_splittab Meta+"
+binding cmd_splittab Meta+Shift+"
 binding cmd_startIncrementalSearch Meta+F
 binding cmd_startIncrementalSearch Meta+I
 binding cmd_startIncrementalSearchBackwards Meta+Shift+I
@@ -153,17 +152,17 @@ binding cmd_undo Meta+Z
 binding cmd_viewBottomPane Ctrl+Shift+M
 
 binding cmd_reopenLastClosedTab Meta+Shift+T
-binding cmd_viewEOL Meta+&
-binding cmd_viewIndentationGuides Meta+%
+binding cmd_viewEOL Meta+Shift+&
+binding cmd_viewIndentationGuides Meta+Shift+%
 binding cmd_viewLineNumbers Meta+Ctrl+4
 binding cmd_viewPlaces Ctrl+Shift+P
 binding cmd_viewToolbox Ctrl+Shift+L
-binding cmd_viewWhitespace Meta+*
+binding cmd_viewWhitespace Meta+Shift+*
 binding cmd_wordLeft  Alt+Left
 binding cmd_historyBack  Meta+[
 binding cmd_historyForward  Meta+]
 binding cmd_endOfWord  Alt+Right
-binding cmd_wordWrap Meta+(
+binding cmd_wordWrap Meta+Shift+(
 
 binding cmd_goToFile Meta+Shift+O
 
