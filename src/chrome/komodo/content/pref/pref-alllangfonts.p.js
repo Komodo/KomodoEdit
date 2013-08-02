@@ -1539,7 +1539,7 @@ function loadColorpickerPreferences(prefset) {
 }
 
 function setFontQuality() {
-    var menulist = document.getElementById("font_quality_menulist");
+    var menulist = document.getElementById("editor_font_quality");
     if (menulist.selectedItem) {
         let scimoz = gDialog.bufferView.scimoz;
         scimoz.fontQuality = parseInt(menulist.selectedItem.getAttribute("data"));
