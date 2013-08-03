@@ -836,6 +836,44 @@ _COMMENT_STYLE_RUN_SPACE_COMMENT = 3
 class _NextLineException(Exception):
     pass
 
+class FastCharData(object):
+    """Used to determine when a termination character should move
+    to the end of a run of soft characters, as long as that run
+    ends at the end of the line.
+    Format:
+    FastCharData(trigger_char, # only one allowed, the char to move to the end
+                 style_list, # [array of allowed styles]
+                  # array for both UDL and standard
+                 skippable_chars, #{hash of style : list of characters to skip},
+                for_check # boolean
+                )
+    The idea is that if a fast_character is typed, and its style is one of
+    the styles we're interested in, we pick it up and move it to the right
+    of a contiguous sequence of soft characters where the character's style
+    is in the hash, and the character's byte value is in that hash's list.
+
+    The 'for_check' option prevents moving ';' after
+    for(<init>;[)]
+    and 
+    for(<init>; <cond>;[)]
+    but allows it to move with the unlikely
+    for(<init>; <cond>; <postAction>;[)]
+    """
+    def __init__(self, trigger_char, style_list,
+                 skippable_chars_by_style, for_check=False):
+        self.trigger_char = trigger_char
+        self.style_list = style_list
+        # pairs hashes styles to strings
+        # convert the strings to a list of ord(c)
+        #if sci_constants.SCE_UDL_SSL_OPERATOR in style_list:
+        #    log.debug("FastCharData.__init__: skippable_chars_by_style:%s",
+        #              skippable_chars_by_style)
+        self.skippable_chars = dict([(closeCharStyle,
+                                       [ord(c) for c in closeChars])
+                                      for (closeCharStyle, closeChars)
+                                      in skippable_chars_by_style.items()])
+        self.for_check = for_check
+
 class KoLanguageBase:
     _com_interfaces_ = [components.interfaces.koILanguage,
     			components.interfaces.nsIObserver]
@@ -1000,6 +1038,7 @@ class KoLanguageBase:
         self._editSmartSoftCharacters = self.prefset.getBooleanPref("editSmartSoftCharacters")
         self._dedentOnColon = self.prefset.getBooleanPref("dedentOnColon")
         self._codeintelAutoInsertEndTag = self.prefset.getBooleanPref("codeintelAutoInsertEndTag")
+        self._fastCharData = None
 
     def observe(self, subject, topic, data):
         if topic == 'xpcom-shutdown':
@@ -2591,6 +2630,10 @@ class KoLanguageBase:
         return self._keyPressed(ch, scimoz, self._style_info)
 
     def _keyPressed(self, ch, scimoz, style_info):
+        if (self._fastCharData
+            and ch == self._fastCharData.trigger_char
+            and self._moveCharThroughSoftChars(ch, scimoz)):
+            return
         currentPos = scimoz.currentPos
         charPos = scimoz.positionBefore(currentPos)
         style = scimoz.getStyleAt(charPos) & self.stylingBitsMask
@@ -2900,6 +2943,104 @@ class KoLanguageBase:
                 scimoz.braceHighlight(charPos, matchedPos)
         finally:
             scimoz.endUndoAction()
+            
+    _ends_with_for_re = re.compile(r'\bfor\s*\Z')
+    def _finishingForStmt(self, scimoz, pos):
+        """
+        Return True only if the current close-paren has a matching
+        open-paren that follows the 'for' keyword.
+
+        If we're doing this here, we're in a language where 'for'
+        is a reserved keyword, so we don't need to check the style.
+        """
+        openPos = scimoz.braceMatch(pos)
+        if openPos == scimoz.INVALID_POSITION:
+            return False, openPos
+        lineStartPos = scimoz.positionFromLine(scimoz.lineFromPosition(openPos))
+        leadingText = scimoz.getTextRange(lineStartPos, openPos)
+        m = self._ends_with_for_re.search(leadingText)
+        if m:
+            return True, lineStartPos + m.start()
+        return False, openPos
+    
+    def _sawAllForHeaderSemiColons(self, scimoz, forStartPos, pos, opStyle):
+        assert forStartPos < pos
+        charsAndStyles = scimoz.getStyledText(forStartPos + 3, pos)
+        # Keep only the operator-styled characters between the end of
+        # the 'for' and the current semi-colon.  Note that we count
+        # both the opening '(' and the current ';'.
+        opChars = [charsAndStyles[2 * i]
+                   for i, style in enumerate(charsAndStyles[1::2])
+                   if ord(style) == opStyle]
+        nestingLevel = 0
+        numSemiColons = 0
+        # Have we seen two semi-colons at the top-level?
+        # Note the top-level should be at nestingLevel = 1
+        # because we're starting at "for ("
+        for ch in opChars:
+            if ch in ("(", "[", "{"):
+                nestingLevel += 1
+            elif ch in ("}", "]", ")") and nestingLevel > 0:
+                nestingLevel -= 1
+            elif nestingLevel == 1 and ch == ";":
+                numSemiColons += 1
+                if numSemiColons == 3:
+                    return True
+        return False
+ 
+    def _moveCharThroughSoftChars(self, ch, scimoz):
+        """
+        If the language has defined a FastCharData structure, move the character
+        we typed to the end of the appropriate sequence of soft characters,
+        and return True.  Otherwise return None.
+        """
+        currentPos = scimoz.currentPos # char to right of trigger-char
+        currentLineNo = scimoz.lineFromPosition(currentPos)
+        lineEndPos = scimoz.getLineEndPosition(currentLineNo)
+        # If we have some non-soft characters between the current pos
+        # and eol, don't move the character
+        pos = currentPos
+        while pos < lineEndPos:
+            if not scimoz.indicatorValueAt(_softCharDecorator, pos):
+                return False
+            pos = scimoz.positionAfter(pos)
+        
+        fastCharData = self._fastCharData
+        opStyle = scimoz.getStyleAt(currentPos - 1)
+        if opStyle not in fastCharData.style_list:
+            return False
+        startOfRange_Left = endOfRange_Left = currentPos - 1
+        pos = currentPos
+        allowed_pairs = fastCharData.skippable_chars
+        while pos < lineEndPos:
+            style = scimoz.getStyleAt(pos)
+            chars = allowed_pairs.get(style)
+            if chars is None:
+                break
+            if scimoz.getCharAt(pos) not in chars:
+                break
+            if fastCharData.for_check and scimoz.getCharAt(pos) == ord(")"):
+                inForStmt, forStartPos = self._finishingForStmt(scimoz, pos)
+                if inForStmt:
+                    # Check to see if we've completed it
+                    if not self._sawAllForHeaderSemiColons(scimoz, forStartPos, pos, opStyle):
+                        break
+            endOfRange_Left = pos
+            pos = pos + 1 # ascii-safe, as we work with byte values here.
+        if startOfRange_Left < endOfRange_Left:
+            scimoz.beginUndoAction()
+            try:
+                scimoz.indicatorCurrent = _softCharDecorator
+                scimoz.indicatorClearRange(startOfRange_Left + 1,
+                                           endOfRange_Left - startOfRange_Left)
+                scimoz.insertText(endOfRange_Left + 1, ch)
+                scimoz.targetStart = currentPos - 1
+                scimoz.targetEnd = currentPos
+                scimoz.replaceTarget(0, "")
+                scimoz.gotoPos(endOfRange_Left + 1)
+            finally:
+                scimoz.endUndoAction()
+            return True
 
     def supportsXMLIndentHere(self, scimoz, caretPos):
         if self.supportsSmartIndent == "XML":

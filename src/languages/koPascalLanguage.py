@@ -37,7 +37,7 @@
 from xpcom import components, ServerException
 
 from koLanguageKeywordBase import KoLanguageKeywordBase
-from koLanguageServiceBase import KoLexerLanguageService
+from koLanguageServiceBase import KoLexerLanguageService, FastCharData
 
 sci_constants = components.interfaces.ISciMoz
 
@@ -107,6 +107,11 @@ end.
                                  sci_constants.SCE_PAS_COMMENTLINE,
                                  sci_constants.SCE_PAS_NUMBER],
             )
+        self._fastCharData = \
+            FastCharData(trigger_char=";",
+                         style_list=(sci_constants.SCE_PAS_OPERATOR, ),
+                         skippable_chars_by_style={ sci_constants.SCE_PAS_OPERATOR : "])" },
+                         for_check=True)
 
     def get_lexer(self):
         if self._lexer is None:

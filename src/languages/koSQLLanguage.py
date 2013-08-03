@@ -71,6 +71,11 @@ class koCommonSQLLanguage(KoLanguageBase):
             _block_comment_styles = [sci_constants.SCE_SQL_COMMENT]
             )
         del self.matchingSoftChars['"']
+        self._fastCharData = \
+            FastCharData(trigger_char=";",
+                         style_list=(sci_constants.SCE_SQL_OPERATOR,),
+                         skippable_chars_by_style={ sci_constants.SCE_SQL_OPERATOR : "])",
+                                    })
     
     def get_lexer(self):
         if self._lexer is None:

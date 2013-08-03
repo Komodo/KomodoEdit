@@ -79,7 +79,20 @@ class koErlangLanguage(KoLanguageBase):
 
 fac(0) -> 1;
 fac(N) -> N * fac(N-1).
-"""
+"""    
+    def __init__(self):
+        KoLanguageBase.__init__(self)
+        self._fastCharData = \
+            FastCharData(trigger_char=".",
+                         style_list=(sci_constants.SCE_ERLANG_OPERATOR,),
+                         skippable_chars_by_style={ sci_constants.SCE_ERLANG_OPERATOR : "])",
+                                                    })
+
+    _keywords="""
+        after begin case catch cond end fun if let of query receive when
+        define record export import include include_lib ifdef ifndef else endif undef
+        apply attribute call do in letrec module primop try""".split()
+
     def get_lexer(self):
         if self._lexer is None:
             self._lexer = KoLexerLanguageService()
@@ -87,7 +100,17 @@ fac(N) -> N * fac(N-1).
             self._lexer.setKeywords(0, self._keywords)
         return self._lexer
 
-    _keywords="""
-        after begin case catch cond end fun if let of query receive when
-        define record export import include include_lib ifdef ifndef else endif undef
-        apply attribute call do in letrec module primop try""".split()
+    def _moveCharThroughSoftChars(self, ch, scimoz):
+        """
+        In Erlang "." is both a statement terminator and the usual
+        decimal point.  And unfortunately when it's pressed, it's colored
+        as an operator, not a number, because no number follows.
+
+        So if the previous character is numeric, return
+        False, otherwise do the superclass method.
+        """
+        pos = scimoz.currentPos # char to right of the "."
+        prevPos = scimoz.positionBefore(pos) - 1 # char to left of the '.'
+        if scimoz.getStyleAt(prevPos) == scimoz.SCE_ERLANG_NUMBER:
+            return False
+        return KoLanguageBase._moveCharThroughSoftChars(self, ch, scimoz)

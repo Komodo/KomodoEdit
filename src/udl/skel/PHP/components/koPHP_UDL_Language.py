@@ -123,6 +123,12 @@ echo $foo1->mul()."";
                                       components.interfaces.nsIObserver)
         self.__prefs.prefObserverService.addObserver(self._observer, "phpCommentStyle", 0)
         self._setupIndentCheckSoftChar()
+        self._fastCharData = \
+            FastCharData(trigger_char=";",
+                         style_list=(sci_constants.SCE_UDL_SSL_OPERATOR,),
+                         skippable_chars_by_style={ sci_constants.SCE_UDL_SSL_OPERATOR : "])",},
+                         
+                         for_check=True)
     
     def observe(self, subject, topic, data):
         if topic == "phpCommentStyle":

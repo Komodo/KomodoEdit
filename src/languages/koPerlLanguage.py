@@ -142,6 +142,14 @@ oranges 3
         self.matchingSoftChars["/"] = ("/", self.softchar_accept_matching_forward_slash)
         self.matchingSoftChars["("] = (")", self.softchar_check_special_then_return_char)
         self.matchingSoftChars["["] = ("]", self.softchar_check_special_then_return_char)
+        self._fastCharData = \
+            FastCharData(trigger_char=";",
+                         style_list=(sci_constants.SCE_PL_OPERATOR,
+                                     sci_constants.SCE_UDL_SSL_OPERATOR, ),
+                         skippable_chars_by_style={ sci_constants.SCE_PL_OPERATOR : "])",
+                                                    sci_constants.SCE_PL_VARIABLE_INDEXER : "])",
+                                                    sci_constants.SCE_UDL_SSL_OPERATOR : "])",},
+                         for_check=True)
         
     def getVariableStyles(self):
         return self._style_info._variable_styles

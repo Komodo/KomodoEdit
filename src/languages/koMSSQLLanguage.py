@@ -83,6 +83,10 @@ SAMPLE NOT AVAILABLE
     def __init__(self):
         KoLanguageBase.__init__(self)
         del self.matchingSoftChars['"']
+        self._fastCharData = \
+            FastCharData(trigger_char=";",
+                         style_list=(sci_constants.SCE_MSSQL_OPERATOR, ),
+                         skippable_chars_by_style= { sci_constants.SCE_MSSQL_OPERATOR : "])", })
     
     def get_lexer(self):
         if self._lexer is None:

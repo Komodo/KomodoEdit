@@ -111,6 +111,11 @@ public class Showtime extends Frame implements Runnable {
                                      sci_constants.SCE_C_COMMENTDOCKEYWORDERROR]
             )
         self._setupIndentCheckSoftChar()
+        self._fastCharData = \
+            FastCharData(trigger_char=";",
+                         style_list=(sci_constants.SCE_C_OPERATOR, ),
+                         skippable_chars_by_style={ sci_constants.SCE_C_OPERATOR : "])", },
+                         for_check=True)
 
     def get_lexer(self):
         if self._lexer is None:

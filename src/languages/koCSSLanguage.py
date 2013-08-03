@@ -78,6 +78,12 @@ body {
             _lineup_close_styles = [sci_constants.SCE_CSS_OPERATOR],
             _block_comment_styles = [sci_constants.SCE_CSS_COMMENT]
             )
+        self._fastCharData = \
+            FastCharData(trigger_char=";",
+                         style_list=(sci_constants.SCE_CSS_OPERATOR, sci_constants.SCE_UDL_CSS_OPERATOR,),
+                         skippable_chars_by_style={ sci_constants.SCE_CSS_OPERATOR : ")",
+                                                    sci_constants.SCE_UDL_CSS_OPERATOR : ")",
+                                                    })
 
     def get_lexer(self):
         if self._lexers_by_name.get(self.name, None) is None:

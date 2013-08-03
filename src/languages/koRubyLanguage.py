@@ -154,6 +154,10 @@ class KoRubyLanguage(KoLanguageKeywordBase):
             _datasection_styles = [sci_constants.SCE_RB_DATASECTION]
         )
         self.matchingSoftChars["`"] = ("`", self.softchar_accept_matching_backquote)
+        self._fastCharData = \
+            FastCharData(trigger_char=";",
+                         style_list=(sci_constants.SCE_RB_OPERATOR, ),
+                         skippable_chars_by_style={ sci_constants.SCE_RB_OPERATOR: "])", })
         
     def observe(self, subject, topic, data):
         if topic == "editAutoIndentStyle":
