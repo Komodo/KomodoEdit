@@ -132,6 +132,34 @@ want to use a different name, we need to pass it:
     '5.66'
 
 
+LazyClassAttribute
+~~~~~~~~~~~~~~~~~~
+
+Similar to Lazy, but the resulting value is stored on the class, instead
+of the instance. Example:
+
+    >>> def generate_pi():
+    ...     print 'computing pi'
+    ...     return 3.14159
+    ... class Circle(object):
+    ...     pi = lambda(x: generate_pi())
+
+    >>> c1 = Circle()
+    ... c1.pi
+    computing pi
+    3.14159
+
+    >>> c1.pi
+    3.14159
+
+A second instance will not need to recalculate the value. This is the major
+difference to a `Lazy` property.
+
+    >>> c2 = Circle()
+    ... c2.pi
+    3.14159
+
+
 readproperty
 ~~~~~~~~~~~~
 

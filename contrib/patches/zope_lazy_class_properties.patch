@@ -1,0 +1,93 @@
+Index: contrib/zope/cachedescriptors/src/zope/cachedescriptors/property.txt
+===================================================================
+--- contrib/zope/cachedescriptors/src/zope/cachedescriptors/property.txt	(revision 81010)
++++ contrib/zope/cachedescriptors/src/zope/cachedescriptors/property.txt	(working copy)
+@@ -125,20 +125,48 @@
+     >>> def d(point):
+     ...     print 'computing diameter'
+     ...     return 2*point.radius
+ 
+     >>> Point.diameter = property.Lazy(d, 'diameter')
+     >>> '%.2f' % point.diameter
+     computing diameter
+     '5.66'
+ 
+ 
++LazyClassAttribute
++~~~~~~~~~~~~~~~~~~
++
++Similar to Lazy, but the resulting value is stored on the class, instead
++of the instance. Example:
++
++    >>> def generate_pi():
++    ...     print 'computing pi'
++    ...     return 3.14159
++    ... class Circle(object):
++    ...     pi = lambda(x: generate_pi())
++
++    >>> c1 = Circle()
++    ... c1.pi
++    computing pi
++    3.14159
++
++    >>> c1.pi
++    3.14159
++
++A second instance will not need to recalculate the value. This is the major
++difference to a `Lazy` property.
++
++    >>> c2 = Circle()
++    ... c2.pi
++    3.14159
++
++
+ readproperty
+ ~~~~~~~~~~~~
+ 
+ readproperties are like lazy computed attributes except that the
+ attribute isn't set by the property:
+ 
+ 
+     >>> class Point:
+     ... 
+     ...     def __init__(self, x, y):
+Index: contrib/zope/cachedescriptors/src/zope/cachedescriptors/property.py
+===================================================================
+--- contrib/zope/cachedescriptors/src/zope/cachedescriptors/property.py	(revision 81010)
++++ contrib/zope/cachedescriptors/src/zope/cachedescriptors/property.py	(working copy)
+@@ -67,20 +67,35 @@
+         if inst is None:
+             return self
+ 
+         func, name = self.data
+         value = func(inst)
+         inst.__dict__[name] = value
+ 
+         return value
+ 
+ 
++class LazyClassAttribute(Lazy):
++    """Lazy Class Attributes.
++    """
++
++    def __get__(self, inst, class_):
++        if inst is None:
++            return self
++
++        func, name = self.data
++        value = func(inst)
++        class_.__dict__[name] = value
++
++        return value
++
++
+ class readproperty(object):
+ 
+     def __init__(self, func):
+         self.func = func
+ 
+     def __get__(self, inst, class_):
+         if inst is None:
+             return self
+ 
+         func = self.func

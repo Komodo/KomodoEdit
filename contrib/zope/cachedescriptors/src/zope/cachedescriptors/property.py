@@ -74,6 +74,21 @@ class Lazy(object):
         return value
 
 
+class LazyClassAttribute(Lazy):
+    """Lazy Class Attributes.
+    """
+
+    def __get__(self, inst, class_):
+        if inst is None:
+            return self
+
+        func, name = self.data
+        value = func(inst)
+        class_.__dict__[name] = value
+
+        return value
+
+
 class readproperty(object):
 
     def __init__(self, func):
