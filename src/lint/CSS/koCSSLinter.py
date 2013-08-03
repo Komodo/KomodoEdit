@@ -46,6 +46,7 @@ from xpcom import components
 import URIlib
 import process
 import koprocessutils
+from zope.cachedescriptors.property import LazyClassAttribute
 from koLintResult import KoLintResult
 from koLintResults import koLintResults
 from codeintel2.lang_css import CSSLangIntel   # TODO ?
@@ -63,43 +64,19 @@ class KoCSSLinter:
          ]
     lint_prefname = "lint_css_mozilla_parser_enabled"
 
-    @property
-    # Lazily computed property that is cached onto the class on it's first call.
-    def koDirs(self):
-        self.koDirs = KoCSSLinter.koDirs = components.classes["@activestate.com/koDirs;1"]\
-                         .getService(components.interfaces.koIDirs)
-        return KoCSSLinter.koDirs
-
-    @property
-    # Lazily computed property that is cached onto the class on it's first call.
-    def mozBinDir(self):
-        self.mozBinDir = KoCSSLinter.mozBinDir = self.koDirs.mozBinDir
-        return KoCSSLinter.mozBinDir
-
-    @property
-    # Lazily computed property that is cached onto the class on it's first call.
-    def csslint_filepath(self):
-        self.csslint_filepath = KoCSSLinter.csslint_filepath = \
-               os.path.join(self.koDirs.supportDir, "lint", "css", "xpcshell_csslint.js")
-        return KoCSSLinter.csslint_filepath
-
-    @property
-    # Lazily computed property that is cached onto the class on it's first call.
-    def xpcshell_exe(self):
-        if sys.platform.startswith("win"):
-            xpcshell_exe = os.path.join(self.koDirs.mozBinDir, "xpcshell.exe")
-        else:
-            xpcshell_exe = os.path.join(self.koDirs.mozBinDir, "xpcshell")
-        self.xpcshell_exe = KoCSSLinter.xpcshell_exe = xpcshell_exe
-        return xpcshell_exe
+    # Lazily generated class properties.
+    koDirs = LazyClassAttribute(lambda cls: components.classes["@activestate.com/koDirs;1"].getService(components.interfaces.koIDirs))
+    mozBinDir = LazyClassAttribute(lambda cls: cls.koDirs.mozBinDir)
+    csslint_filepath = LazyClassAttribute(lambda cls: os.path.join(cls.koDirs.supportDir, "lint", "css", "xpcshell_csslint.js"))
+    xpcshell_exe = LazyClassAttribute(lambda cls: os.path.join(cls.mozBinDir, "xpcshell.exe" if sys.platform.startswith("win") else "xpcshell"))
 
     def _setLDLibraryPath(self):
         env = koprocessutils.getUserEnv()
         ldLibPath = env.get("LD_LIBRARY_PATH", None)
         if ldLibPath:
-            env["LD_LIBRARY_PATH"] = self.koDirs.mozBinDir + ":" + ldLibPath
+            env["LD_LIBRARY_PATH"] = self.mozBinDir + ":" + ldLibPath
         else:
-            env["LD_LIBRARY_PATH"] = self.koDirs.mozBinDir
+            env["LD_LIBRARY_PATH"] = self.mozBinDir
         return env
 
     def lint(self, request):
