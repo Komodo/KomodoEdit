@@ -134,6 +134,10 @@ class koDocumentBase:
         return components.classes['@activestate.com/koLanguageRegistryService;1'].\
                     getService(components.interfaces.koILanguageRegistryService)
     @LazyClassAttribute
+    def fileSvc(self):
+        return components.classes["@activestate.com/koFileService;1"].\
+                    getService(components.interfaces.koIFileService)
+    @LazyClassAttribute
     def autoSaveDirectory(self):
         """Where koDocument auto-save is stored."""
         koDirs = components.classes["@activestate.com/koDirs;1"].\
@@ -549,10 +553,7 @@ class koDocumentBase:
         self._setLangPrefs()
 
     def loadFromURI(self, uri):
-        filesvc = components.classes["@activestate.com/koFileService;1"] \
-                        .createInstance(components.interfaces.koIFileService)
-        file = filesvc.getFileFromURI(uri)
-        self._loadFromFile(file)
+        self._loadFromFile(self.fileSvc.getFileFromURI(uri))
         
     def load(self):
         if self.isUntitled or self.file.URI.startswith('chrome://'):
