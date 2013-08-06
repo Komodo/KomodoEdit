@@ -103,6 +103,8 @@ if ($platform ne "win" && $platform ne "darwin") { # i.e. GTK
                      "komodo32.$productType.png");
     $cons->InstallAs("$mozBin/chrome/icons/default/default48.png",
                      "komodo48.$productType.png");
+    $cons->InstallAs("$mozBin/chrome/icons/default/default.png",
+                     "komodo128.$productType.png");
 }
 
 # Install these images into the Komodo chrome, so the application UI can make
