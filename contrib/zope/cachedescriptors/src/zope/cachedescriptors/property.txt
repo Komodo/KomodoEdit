@@ -142,7 +142,9 @@ of the instance. Example:
     ...     print 'computing pi'
     ...     return 3.14159
     ... class Circle(object):
-    ...     pi = lambda(x: generate_pi())
+    ...     @LazyClassAttribute
+    ...     def pi(cls):
+    ...         return generate_pi()
 
     >>> c1 = Circle()
     ... c1.pi

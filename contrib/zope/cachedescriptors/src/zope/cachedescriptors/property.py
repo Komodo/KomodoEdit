@@ -84,7 +84,7 @@ class LazyClassAttribute(Lazy):
 
         func, name = self.data
         value = func(inst)
-        class_.__dict__[name] = value
+        setattr(class_, name, value)
 
         return value
 
