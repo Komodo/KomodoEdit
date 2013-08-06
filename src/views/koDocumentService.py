@@ -51,6 +51,7 @@ from xpcom.client import WeakReference
 
 import eollib
 import difflibex
+from zope.cachedescriptors.property import LazyClassAttribute
 
 
 #---- globals and support routines
@@ -76,19 +77,36 @@ class KoDocumentService:
     _reg_desc_ = "Komodo Document Service Component"
     _reg_contractid_ = "@activestate.com/koDocumentService;1"
     _reg_clsid_ = "{D65E6673-8DA2-40DE-8B50-18FFCC07F659}"
-    
+
+    # Lazily loaded class variables.
+    @LazyClassAttribute
+    def obsSvc(self):
+        return components.classes["@mozilla.org/observer-service;1"].\
+                    getService(components.interfaces.nsIObserverService)
+    @LazyClassAttribute
+    def langRegistrySvc(self):
+        return components.classes['@activestate.com/koLanguageRegistryService;1'].\
+                    getService(components.interfaces.koILanguageRegistryService)
+    @LazyClassAttribute
+    def lastErrorSvc(self):
+        return components.classes["@activestate.com/koLastErrorService;1"].\
+                    getService(components.interfaces.koILastErrorService)
+    @LazyClassAttribute
+    def _fileSvc(self):
+        return components.classes["@activestate.com/koFileService;1"].\
+                    getService(components.interfaces.koIFileService)
+    @LazyClassAttribute
+    def _globalPrefs(self):
+        return components.classes["@activestate.com/koPrefService;1"].\
+                    getService(components.interfaces.koIPrefService).\
+                    prefs
+
     def __init__(self):
         self._docCounters = {}
         self._documents = {}
-        self._fileSvc = components.classes["@activestate.com/koFileService;1"]\
-            .getService(components.interfaces.koIFileService)
-        self._globalPrefsvc = components.classes["@activestate.com/koPrefService;1"]\
-            .getService(components.interfaces.koIPrefService)
 
-        obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                       getService(components.interfaces.nsIObserverService)
-        obsSvc.addObserver(self, 'xpcom-shutdown', 1)
-        obsSvc.addObserver(self, 'current_project_changed', False)
+        self.obsSvc.addObserver(self, 'xpcom-shutdown', 1)
+        self.obsSvc.addObserver(self, 'current_project_changed', False)
         
         # set up the background thread
         self.shutdown = 0
@@ -104,10 +122,8 @@ class KoDocumentService:
     def observe(self, subject, topic, data):
         if topic == "xpcom-shutdown":
             self.shutdownAutoSave()
-            obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                           getService(components.interfaces.nsIObserverService)
-            obsSvc.removeObserver(self, 'current_project_changed')
-            obsSvc.removeObserver(self, 'xpcom-shutdown')
+            self.obsSvc.removeObserver(self, 'current_project_changed')
+            self.obsSvc.removeObserver(self, 'xpcom-shutdown')
         elif topic == "current_project_changed":
             # Reset koDoc preferences.
             for doc in self.getAllDocuments():
@@ -140,7 +156,6 @@ class KoDocumentService:
         log.info("starting autosave thread")
         try:
           autosave_seconds = 30
-          prefs = self._globalPrefsvc.prefs
           while not self.shutdown:
             try:
                 self._cv.acquire()
@@ -155,7 +170,7 @@ class KoDocumentService:
                     return
 
                 # Reset the autosave period from the prefs (in case it changed).
-                autosave_seconds = prefs.getLongPref("autoSaveSeconds")
+                autosave_seconds = self._globalPrefs.getLongPref("autoSaveSeconds")
                 if autosave_seconds <= 0:
                     # Disabled, wait 30 seconds and then check again.
                     autosave_seconds = 30
@@ -222,11 +237,8 @@ class KoDocumentService:
 
     def _getEncodingFromFilename(self, fname):
         try:
-            registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
-                                getService(components.interfaces.koILanguageRegistryService)
-            prefs = self._globalPrefsvc.prefs
-            languagesPrefs = prefs.getPref('languages')
-            language = registryService.suggestLanguageForFile(fname)
+            languagesPrefs = self._globalPrefs.getPref('languages')
+            language = self.langRegistrySvc.suggestLanguageForFile(fname)
             if not language:
                 language = 'Text'
             encoding = 'Default Encoding'
@@ -235,16 +247,16 @@ class KoDocumentService:
                 if langPref.hasStringPref(language+'/newEncoding'):
                     encoding = langPref.getStringPref(language+'/newEncoding')
             if encoding == 'Default Encoding':
-                encoding = prefs.getStringPref('encodingDefault')
+                encoding = self._globalPrefs.getStringPref('encodingDefault')
         except Exception, e:
             log.error("Error getting newEncoding for %s", language, exc_info=1)
-            encoding = prefs.getStringPref('encodingDefault')
+            encoding = self._globalPrefs.getStringPref('encodingDefault')
         return encoding
 
     def _fixupEOL(self, doc):
         """fixupEOL is used when creating new files from templates in order
            to set the document's EOL"""
-        eolPref = self._globalPrefsvc.prefs.getStringPref("endOfLine")
+        eolPref = self._globalPrefs.getStringPref("endOfLine")
         try:
             eol = eollib.eolPref2eol[eolPref]
         except KeyError:
@@ -288,9 +300,7 @@ class KoDocumentService:
             # language registry defaults to Text if no language
         
         # Determine the document base name.
-        languageRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
-            .getService(components.interfaces.koILanguageRegistryService)
-        koLanguage = languageRegistry.getLanguage(language)
+        koLanguage = self.langRegistrySvc.getLanguage(language)
         try:
             ext = koLanguage.defaultExtension
         except:
@@ -309,7 +319,7 @@ class KoDocumentService:
         doc = components.classes["@activestate.com/koDocumentBase;1"]\
             .createInstance(components.interfaces.koIDocument)
         doc.initUntitled(leafName, encoding)
-        eolPref = self._globalPrefsvc.prefs.getStringPref("endOfLine")
+        eolPref = self._globalPrefs.getStringPref("endOfLine")
         try:
             eol = eollib.eolPref2eol[eolPref]
         except KeyError:
@@ -487,8 +497,12 @@ class KoDiff:
     _reg_contractid_ = "@activestate.com/koDiff;1"
     _reg_clsid_ = "{5faaa9b1-4c2f-41d1-936d-22d2e24768c5}"
     
+    @LazyClassAttribute
+    def docSvc(self):
+        return components.classes["@activestate.com/koDocumentService;1"].\
+                    getService(components.interfaces.koIDocumentService)
+
     def __init__(self):
-        self.__docSvc = None
         self._reset()
 
     def _reset(self):
@@ -497,12 +511,6 @@ class KoDiff:
         self.diff = None
         self._diffex = None
         self.warning = None
-
-    def _getDocSvc(self):
-        if self.__docSvc is None:
-            self.__docSvc = components.classes["@activestate.com/koDocumentService;1"]\
-                            .getService(components.interfaces.koIDocumentService)
-        return self.__docSvc
 
     @property
     def diffex(self):
@@ -516,10 +524,9 @@ class KoDiff:
 
     def initByDiffingFiles(self, fname1, fname2):
         # XXX upgrade to deal with remote files someday?
-        docSvc = self._getDocSvc()
-        doc1 = docSvc.createDocumentFromURI(fname1)
+        doc1 = self.docSvc.createDocumentFromURI(fname1)
         doc1.load()
-        doc2 = docSvc.createDocumentFromURI(fname2)
+        doc2 = self.docSvc.createDocumentFromURI(fname2)
         doc2.load()
         self.initByDiffingDocuments(doc1, doc2)
 
@@ -536,9 +543,7 @@ class KoDiff:
             content1_eol_clean = re.sub("\r\n|\r|\n", native_eol, doc1.buffer)
             content2_eol_clean = re.sub("\r\n|\r|\n", native_eol, doc2.buffer)
         except IOError, ex:
-            lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                           .getService(components.interfaces.koILastErrorService)
-            lastErrorSvc.setLastError(0, str(ex))
+            self.lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
 
         if doc1.existing_line_endings != doc2.existing_line_endings:
@@ -561,9 +566,7 @@ class KoDiff:
         try:
             return self.diffex.file_pos_from_diff_pos(line, column)
         except difflibex.DiffLibExError, ex:
-            lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                           .getService(components.interfaces.koILastErrorService)
-            lastErrorSvc.setLastError(0, str(ex))
+            self.lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
 
     def inferCwdAndStripFromPath(self, pathInDiff, actualPath):
