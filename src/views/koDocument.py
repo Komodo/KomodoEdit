@@ -125,6 +125,10 @@ class koDocumentBase:
     def _historySvc(self):
         return components.classes["@activestate.com/koHistoryService;1"].\
                     getService(components.interfaces.koIHistoryService)
+    @LazyClassAttribute
+    def codeIntelSvc(self):
+        return components.classes['@activestate.com/koCodeIntelService;1'].\
+                    getService(components.interfaces.koICodeIntelService)
 
     # Lazily loaded instance variables.
     @LazyProperty
@@ -180,11 +184,10 @@ class koDocumentBase:
         prefObserver.removeObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'])
         self._ciBuf = None
 
-    def get_ciBuf(self):
+    @property
+    def ciBuf(self):
         if self._ciBuf is None:
-            codeIntelSvc = components.classes['@activestate.com/koCodeIntelService;1'] \
-                            .getService(components.interfaces.koICodeIntelService)
-            self._ciBuf = codeIntelSvc.buf_from_koIDocument(self)
+            self._ciBuf = self.codeIntelSvc.buf_from_koIDocument(self)
         return self._ciBuf
 
     def initWithFile(self, file, untitled):
