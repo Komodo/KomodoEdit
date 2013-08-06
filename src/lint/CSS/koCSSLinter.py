@@ -65,10 +65,22 @@ class KoCSSLinter:
     lint_prefname = "lint_css_mozilla_parser_enabled"
 
     # Lazily generated class properties.
-    koDirs = LazyClassAttribute(lambda cls: components.classes["@activestate.com/koDirs;1"].getService(components.interfaces.koIDirs))
-    mozBinDir = LazyClassAttribute(lambda cls: cls.koDirs.mozBinDir)
-    csslint_filepath = LazyClassAttribute(lambda cls: os.path.join(cls.koDirs.supportDir, "lint", "css", "xpcshell_csslint.js"))
-    xpcshell_exe = LazyClassAttribute(lambda cls: os.path.join(cls.mozBinDir, "xpcshell.exe" if sys.platform.startswith("win") else "xpcshell"))
+    @LazyClassAttribute
+    def koDirs(self):
+        return components.classes["@activestate.com/koDirs;1"].\
+                getService(components.interfaces.koIDirs)
+    @LazyClassAttribute
+    def mozBinDir(self):
+        return self.koDirs.mozBinDir
+    @LazyClassAttribute
+    def csslint_filepath(self):
+        return os.path.join(self.koDirs.supportDir, "lint", "css",
+                            "xpcshell_csslint.js")
+    @LazyClassAttribute
+    def xpcshell_exe(self):
+        if sys.platform.startswith("win"):
+            return "xpcshell.exe"
+        return "xpcshell"
 
     def _setLDLibraryPath(self):
         env = koprocessutils.getUserEnv()
