@@ -224,11 +224,11 @@ class DefnTestCase(CodeIntelTestCase):
             class C(object):
                 b = 0
                 def foo(self, a, b):
-		    x = 3
-		    y = 3 + x
-		    def inner():
-		        return a + b
-		    return inner<1>() + x + y
+                    x = 3
+                    y = 3 + x
+                    def inner():
+                        return a + b
+                    return inner<1>() + x + y
 
             c = C<2>()
             print(c.f<3>oo(4, 6))
@@ -238,15 +238,15 @@ class DefnTestCase(CodeIntelTestCase):
         buf = self.mgr.buf_from_path(path)
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="function", name="inner", line=8,
-	    lpath=["C", "foo"],
+            lpath=["C", "foo"],
             scopestart=5, scopeend=10, path=path, )
         self.assertDefnMatches2(buf, foo_positions[2],
             ilk="class", name="C", line=3,
-	    lpath=[],
+            lpath=[],
             scopestart=1, scopeend=0, path=path, )
         self.assertDefnMatches2(buf, foo_positions[3],
             ilk="function", name="foo", line=5,
-	    lpath=["C"],
+            lpath=["C"],
             scopestart=3, scopeend=10, path=path, )
         
     @tag("bug99177")
