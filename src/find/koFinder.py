@@ -58,6 +58,7 @@ import findlib2
 import textutils
 import langinfo
 import textinfo
+from zope.cachedescriptors.property import Lazy as LazyProperty
 
 
 
@@ -1437,8 +1438,10 @@ class KoFindService(object):
         self.options = KoFindOptions()
         
         self._threadMap = {}
-        
-        self.env = KomodoRuntimeEnv()
+
+    @LazyProperty
+    def env(self):
+        return KomodoRuntimeEnv()
 
     def find(self, url, text, pattern, start, end):
         try:

@@ -49,6 +49,7 @@ import stat, os, time
 import eollib
 import difflibex
 import langinfo
+from zope.cachedescriptors.property import LazyClassAttribute
 from koLanguageServiceBase import getActualStyle
 from koUDLLanguageBase import udl_family_from_style
 import koUnicodeEncoding, codecs, types
@@ -91,6 +92,10 @@ class koDocumentBase:
     _globalPrefSvc = None
     _globalPrefs = None
     _partSvc = None
+
+    @LazyClassAttribute
+    def lidb(self, ):
+        return langinfo.get_default_database()
 
     def __init__(self):
         if koDocumentBase._globalPrefs is None:
@@ -148,8 +153,6 @@ class koDocumentBase:
         self._historySvc = components.classes["@activestate.com/koHistoryService;1"].\
                            getService(components.interfaces.koIHistoryService)
 
-
-        self.lidb = langinfo.get_default_database()
 
         self.init()
         self.isLargeDocument = False
