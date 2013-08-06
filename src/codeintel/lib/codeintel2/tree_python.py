@@ -431,6 +431,12 @@ class PythonTreeEvaluator(TreeEvaluator):
                          first_token, scoperef, elem.names[first_token])
                 return (elem.names[first_token], scoperef), 1
 
+            if first_token == elem.get("name"):
+                # The element itself is the thing we wanted...
+                self.log("is '%s' accessible on %s? yes: %s",
+                         first_token, scoperef, elem)
+                return (elem, scoperef), 1
+
             hit, nconsumed \
                 = self._hit_from_elem_imports(tokens, elem)
             if hit is not None:

@@ -47,7 +47,7 @@ from pprint import pprint
 import logging
 
 from codeintel2.common import *
-from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
+from codeintel2.util import indent, dedent, banner, markup_text, unmark_text, lines_from_pos
 from codeintel2.environment import SimplePrefsEnvironment
 
 from testlib import TestError, TestSkipped, TestFailed, tag
@@ -359,6 +359,29 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="variable", name="ex", line=7,
             path=path)
+
+    def test_defn_at_defn(self):
+        """Test that finding the definition at the declaration will return a
+        valid definition"""
+        test_dir = join(self.test_dir, "defn_at_defn")
+        content, pos = unmark_text(dedent("""\
+            class Foo<1>Class(object):
+                prop<2> = 3
+                def method<3>(self):
+                    local_<4>var = 5
+        """))
+        path = join(test_dir, "defn_at_defn.py")
+        writefile(path, content)
+        buf = self.mgr.buf_from_path(path)
+        lines = lines_from_pos(content, pos)
+        self.assertDefnMatches2(buf, pos[1], line=lines[1],
+                                ilk="class", name="FooClass", path=path)
+        self.assertDefnMatches2(buf, pos[2], line=lines[2],
+                                ilk="variable", name="prop", path=path)
+        self.assertDefnMatches2(buf, pos[3], line=lines[3],
+                                ilk="function", name="method", path=path)
+        self.assertDefnMatches2(buf, pos[4], line=lines[4],
+                                ilk="variable", name="local_var", path=path)
 
 class PythonDocTestCase(CodeIntelTestCase):
     lang = "Python"
