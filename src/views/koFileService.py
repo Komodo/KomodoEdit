@@ -42,6 +42,7 @@ from xpcom.client import WeakReference
 from URIlib import URIParser
 import tempfile, os
 import shutil
+from zope.cachedescriptors.property import LazyClassAttribute
 
 import logging
 log = logging.getLogger('koFileService')
@@ -61,14 +62,11 @@ class koFileService(object):
         self._uriParser = URIParser()
         self.obsSvc = components.classes["@mozilla.org/observer-service;1"].getService(components.interfaces.nsIObserverService)
         self.obsSvc.addObserver(WrapObject(self,components.interfaces.nsIObserver), "xpcom-shutdown", 0)
-        self._fileStatusSvc = None
 
-    @property
+    @LazyClassAttribute
     def fileStatusSvc(self):
-        if self._fileStatusSvc is None:
-            self._fileStatusSvc = components.classes["@activestate.com/koFileStatusService;1"].\
+        return components.classes["@activestate.com/koFileStatusService;1"].\
                     getService(components.interfaces.koIFileStatusService)
-        return self._fileStatusSvc
 
     #koIFileEx getFileFromURI(in wstring URI);
     def getFileFromURI(self, uri):
