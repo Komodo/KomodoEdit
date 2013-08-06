@@ -133,6 +133,16 @@ class koDocumentBase:
     def registryService(self):
         return components.classes['@activestate.com/koLanguageRegistryService;1'].\
                     getService(components.interfaces.koILanguageRegistryService)
+    @LazyClassAttribute
+    def autoSaveDirectory(self):
+        """Where koDocument auto-save is stored."""
+        koDirs = components.classes["@activestate.com/koDirs;1"].\
+                 getService(components.interfaces.koIDirs)
+        dname = os.path.join(koDirs.userDataDir,  "autosave")
+        # Ensure the directory exists.
+        if not os.path.exists(dname):
+            os.mkdir(dname)
+        return dname
 
     # Lazily loaded instance variables.
     @LazyProperty
@@ -1998,15 +2008,10 @@ class koDocumentBase:
             return [self._re_ending_eol.sub('', x) for x in difflines]
 
     def _getAutoSaveFileName(self):
-        koDirs = components.classes["@activestate.com/koDirs;1"].\
-                 getService(components.interfaces.koIDirs)
-        dname = os.path.join(koDirs.userDataDir,  "autosave")
-        if not os.path.exists(dname):
-            os.mkdir(dname)
         # retain part of the readable name
         autoSaveFilename = "%s-%s" % (self.file.md5name,self.file.baseName)
-        return os.path.join(dname, autoSaveFilename)
-        
+        return os.path.join(self.autoSaveDirectory, autoSaveFilename)
+
     def _getAutoSaveFile(self):
         autoSaveFile = components.classes["@activestate.com/koFileEx;1"] \
                       .createInstance(components.interfaces.koIFileEx)
