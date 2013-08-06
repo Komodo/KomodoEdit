@@ -191,50 +191,51 @@ class OOPTestCase(unittest.TestCase):
                     buf += ch
             if expected is not None:
                 expected = dict(expected)
-                expected["req_id"] = str(i)
-                if not "success" in expected:
-                    expected["success"] = True
+                expected[u"req_id"] = unicode(i)
+                if not u"success" in expected:
+                    expected[u"success"] = True
                 self.assertEqual(expected, result)
 
 class BaiscTest(OOPTestCase):
     def test_object_members(self):
         self._test_with_commands([
-            ({"command": "trg-from-pos",
-              "path": "<Unsaved>/1",
-              "language": "Python",
-              "text": "import array\narray.",
-              "pos": 2},
-             {"trg": None}),
-            ({"command": "trg-from-pos",
-              "path": "<Unsaved>/1",
-              "language": "Python",
-              "text": "import array\narray.",
-              "pos": 19},
-             {"trg": {"form": 0,
-                      "type": "object-members",
-                      "lang": "Python",
-                      "pos": 19,
-                      "implicit": True,
-                      "length": 1,
-                      "extentLength": 0,
-                      "retriggerOnCompletion": False,
-                      "path": "<Unsaved>/1",
+            ({u"command": u"trg-from-pos",
+              u"path": u"<Unsaved>/1",
+              u"language": u"Python",
+              u"text": u"import array\narray.",
+              u"pos": 2},
+             {u"trg": None}),
+            ({u"command": u"trg-from-pos",
+              u"path": u"<Unsaved>/1",
+              u"language": u"Python",
+              u"text": u"import array\narray.",
+              u"pos": 19},
+             {u"trg": {u"form": 0,
+                       u"type": u"object-members",
+                       u"lang": u"Python",
+                       u"pos": 19,
+                       u"implicit": True,
+                       u"length": 1,
+                       u"extentLength": 0,
+                       u"retriggerOnCompletion": False,
+                       u"path": u"<Unsaved>/1",
                       }}),
-            ({"command": "eval",
-              "trg": {"form": 0,
-                      "type": "object-members",
-                      "lang": "Python",
-                      "pos": 19,
-                      "implicit": True,
-                      "length": 1,
-                      "extentLength": 0,
-                      "retriggerOnCompletion": False,
-                      "path": "<Unsaved>/1",
+            ({u"command": u"eval",
+              u"trg": {u"form": 0,
+                       u"type": u"object-members",
+                       u"lang": u"Python",
+                       u"pos": 19,
+                       u"implicit": True,
+                       u"length": 1,
+                       u"extentLength": 0,
+                       u"retriggerOnCompletion": False,
+                       u"path": u"<Unsaved>/1",
                       }},
-             {"cplns": [["class", "array"],
-                        ["class", "ArrayType"],
-                        ["variable", "__doc__"]]}),
-            {"command": "quit"},
+             {u"cplns": [[u"class", u"array"],
+                         [u"class", u"ArrayType"],
+                         [u"variable", u"__doc__"]],
+              u"retrigger": False}),
+            {u"command": u"quit"},
         ])
 
 class CommandExtensionTestCase(OOPTestCase):
