@@ -49,6 +49,7 @@ import stat, os, time
 import eollib
 import difflibex
 import langinfo
+from zope.cachedescriptors.property import Lazy as LazyProperty
 from zope.cachedescriptors.property import LazyClassAttribute
 from koLanguageServiceBase import getActualStyle
 from koUDLLanguageBase import udl_family_from_style
@@ -93,19 +94,51 @@ class koDocumentBase:
     _globalPrefs = None
     _partSvc = None
 
+    # Lazily loaded class variables.
     @LazyClassAttribute
-    def lidb(self, ):
+    def lidb(self):
         return langinfo.get_default_database()
+    @LazyClassAttribute
+    def _globalPrefSvc(self):
+        return components.classes["@activestate.com/koPrefService;1"].\
+                    getService(components.interfaces.koIPrefService)
+    @LazyClassAttribute
+    def _globalPrefs(self):
+        return self._globalPrefSvc.prefs
+    @LazyClassAttribute
+    def _partSvc(self):
+        return components.classes["@activestate.com/koPartService;1"].\
+                    getService(components.interfaces.koIPartService)
+    @LazyClassAttribute
+    def encodingServices(self):
+        return components.classes['@activestate.com/koEncodingServices;1'].\
+                    getService(components.interfaces.koIEncodingServices)
+    @LazyClassAttribute
+    def lastErrorSvc(self):
+        return components.classes["@activestate.com/koLastErrorService;1"].\
+                    getService(components.interfaces.koILastErrorService)
+    @LazyClassAttribute
+    def _obsSvc(self):
+        return components.classes['@mozilla.org/observer-service;1'].\
+                    getService(components.interfaces.nsIObserverService)
+    @LazyClassAttribute
+    def _historySvc(self):
+        return components.classes["@activestate.com/koHistoryService;1"].\
+                    getService(components.interfaces.koIHistoryService)
+
+    # Lazily loaded instance variables.
+    @LazyProperty
+    def observerService(self):
+        # yes, createInstance.  We want to provide our own observer services
+        # for documents
+        return components.classes['@activestate.com/koObserverService;1'].\
+                    createInstance(components.interfaces.nsIObserverService)
+    @LazyProperty
+    def docSettingsMgr(self):
+        return components.classes['@activestate.com/koDocumentSettingsManager;1'].\
+            createInstance(components.interfaces.koIDocumentSettingsManager)
 
     def __init__(self):
-        if koDocumentBase._globalPrefs is None:
-            # Grab a reference to the global preference service - just the once.
-            koDocumentBase._globalPrefSvc = components.classes["@activestate.com/koPrefService;1"].\
-                                getService(components.interfaces.koIPrefService)
-            koDocumentBase._globalPrefs = self._globalPrefSvc.prefs
-            koDocumentBase._partSvc = components.classes["@activestate.com/koPartService;1"].\
-                                getService(components.interfaces.koIPartService)
-
         self._buffer = None # string The contents of the document
         self._codePage = 65001 # Komodo always uses 65001 (i.e. scintilla UTF-8 mode)
         self.encoding = None # string The name of the Unicode encoding -- undefined if codepage is not 65001
@@ -131,30 +164,9 @@ class koDocumentBase:
 
         self._refcount = 0
         self._ciBuf = None
-        self.docSettingsMgr = None
 
         self._tabstopInsertionNodes = None
 
-        self.encodingServices = components.classes['@activestate.com/koEncodingServices;1'].\
-                         getService(components.interfaces.koIEncodingServices);
-
-        # yes, createInstance.  We want to provide our own observer services
-        # for documents
-        self.observerService = components.classes['@activestate.com/koObserverService;1'].\
-                                createInstance(components.interfaces.nsIObserverService)
-
-        self.lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"].\
-                                getService(components.interfaces.koILastErrorService)
-        
-        self._obsSvc = components.classes['@mozilla.org/observer-service;1'].\
-                                getService(components.interfaces.nsIObserverService);
-        self.docSettingsMgr = components.classes['@activestate.com/koDocumentSettingsManager;1'].\
-            createInstance(components.interfaces.koIDocumentSettingsManager);
-        self._historySvc = components.classes["@activestate.com/koHistoryService;1"].\
-                           getService(components.interfaces.koIHistoryService)
-
-
-        self.init()
         self.isLargeDocument = False
         self._documentSizeFactor = self._DOCUMENT_SIZE_NOT_LARGE
 
@@ -163,22 +175,9 @@ class koDocumentBase:
         # usually text for a large document.
         self.lexer = None
     
-    #TODO: refactor so `init` and `_dereference` actually sound like they relate (which they do)
-    #      also make `init` internal
-    def init(self):
-        # when we reference count upwards, we might need to recreate some components
-        # this could happen if anyone keeps a reference to the document, and the document
-        # is reloaded
-        if not self.docSettingsMgr:
-            self.docSettingsMgr = components.classes['@activestate.com/koDocumentSettingsManager;1'].\
-                createInstance(components.interfaces.koIDocumentSettingsManager);
-
     def _dereference(self):
-        # prevent any chance of a circular reference
-        self.docSettingsMgr = None
-        if self.prefs:
-            prefObserver = self.prefs.prefObserverService
-            prefObserver.removeObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'])
+        prefObserver = self.prefs.prefObserverService
+        prefObserver.removeObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'])
         self._ciBuf = None
 
     def get_ciBuf(self):
@@ -216,8 +215,6 @@ class koDocumentBase:
 
     def addReference(self):
         self._refcount += 1
-        if self._refcount == 1:
-            self.init()
         log.debug('refcount = %d', self._refcount)
 
     def releaseReference(self):
