@@ -129,6 +129,10 @@ class koDocumentBase:
     def codeIntelSvc(self):
         return components.classes['@activestate.com/koCodeIntelService;1'].\
                     getService(components.interfaces.koICodeIntelService)
+    @LazyClassAttribute
+    def registryService(self):
+        return components.classes['@activestate.com/koLanguageRegistryService;1'].\
+                    getService(components.interfaces.koILanguageRegistryService)
 
     # Lazily loaded instance variables.
     @LazyProperty
@@ -247,9 +251,7 @@ class koDocumentBase:
         
     def _getEncodingNameForNewFile(self, language):
         if not language:
-            registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
-                                getService(components.interfaces.koILanguageRegistryService)
-            language = registryService.suggestLanguageForFile(self.get_displayPath())
+            language = self.registryService.suggestLanguageForFile(self.get_displayPath())
             if not language:
                 language = 'Text'
         languagePrefName = 'languages/' + language
@@ -770,9 +772,7 @@ class koDocumentBase:
         if self._language is None:
             log.error('Asked to get language Object with no language')
         if self._languageObj == None:
-            registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
-                getService(components.interfaces.koILanguageRegistryService)
-            self._languageObj = registryService.getLanguage(self._language)
+            self._languageObj = self.registryService.getLanguage(self._language)
         return self._languageObj
 
     def setFileAccessed(self):
@@ -1028,9 +1028,7 @@ class koDocumentBase:
     #---- Encoding
     
     def _getEncodingPrefFromBaseName(self, baseName):
-        registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
-                            getService(components.interfaces.koILanguageRegistryService)
-        language = registryService.suggestLanguageForFile(baseName)
+        language = self.registryService.suggestLanguageForFile(baseName)
         if not language:
             language = 'Text'
         try:
