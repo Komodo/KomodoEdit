@@ -36,7 +36,8 @@
 
 from xpcom import components, ServerException
 
-from koLanguageServiceBase import *
+from koLanguageServiceBase import FastCharData, KoLanguageBase, \
+                                  KoLexerLanguageService, sci_constants
 
 # Erlang info at http://www.erlang.org/
 
@@ -83,7 +84,7 @@ fac(N) -> N * fac(N-1).
     def __init__(self):
         KoLanguageBase.__init__(self)
         self._fastCharData = \
-            FastCharData(trigger_char=".",
+            ErlangFastCharData(trigger_char=".",
                          style_list=(sci_constants.SCE_ERLANG_OPERATOR,),
                          skippable_chars_by_style={ sci_constants.SCE_ERLANG_OPERATOR : "])",
                                                     })
@@ -100,7 +101,12 @@ fac(N) -> N * fac(N-1).
             self._lexer.setKeywords(0, self._keywords)
         return self._lexer
 
-    def _moveCharThroughSoftChars(self, ch, scimoz):
+class ErlangFastCharData(FastCharData):
+    """ Subclass FastCharData because in Erlang "." is used as
+        a statement delimiter, and we need to distinguish "."
+        as a decimal point from a statement delimiter.
+        """
+    def moveCharThroughSoftChars(self, ch, scimoz):
         """
         In Erlang "." is both a statement terminator and the usual
         decimal point.  And unfortunately when it's pressed, it's colored
@@ -113,4 +119,4 @@ fac(N) -> N * fac(N-1).
         prevPos = scimoz.positionBefore(pos) - 1 # char to left of the '.'
         if scimoz.getStyleAt(prevPos) == scimoz.SCE_ERLANG_NUMBER:
             return False
-        return KoLanguageBase._moveCharThroughSoftChars(self, ch, scimoz)
+        return FastCharData.moveCharThroughSoftChars(self, ch, scimoz)
