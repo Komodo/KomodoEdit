@@ -1906,6 +1906,46 @@ class DefnTestCase(CodeIntelTestCase):
         buf = self.mgr.buf_from_path(foo_path)
         self.assertNoDuplicateDefns2(buf, foo_positions[1])
 
+    def test_defn_at_defn(self):
+        """Test looking up definitions at the definition site"""
+        test_dir = join(self.test_dir, "test_defn_at_defn")
+        path = join(test_dir, "foo.js")
+        content, positions = unmark_text(dedent("""\
+            function Class<1>() {
+                this._foo<2> = 3;
+            }
+            Class.prototype.getFoo<3> = function() {
+                var bar<4> = this._foo<5> + 1;
+                return bar<6>;
+            }
+            var c<7> = Class<8>();
+            print(c<9>.getFoo<10>());
+        """))
+        writefile(path, content);
+        lines = lines_from_pos(content, positions);
+        buf = self.mgr.buf_from_path(path);
+
+        self.assertDefnMatches2(buf, path=path, pos=positions[1],
+                                ilk="class", name="Class", line=lines[1])
+        self.assertDefnMatches2(buf, path=path, pos=positions[2],
+                                ilk="variable", name="_foo", line=lines[2])
+        self.assertDefnMatches2(buf, path=path, pos=positions[3],
+                                ilk="function", name="getFoo", line=lines[3])
+        self.assertDefnMatches2(buf, path=path, pos=positions[4],
+                                ilk="variable", name="bar", line=lines[4])
+        self.assertDefnMatches2(buf, path=path, pos=positions[5],
+                                ilk="variable", name="_foo", line=lines[2])
+        self.assertDefnMatches2(buf, path=path, pos=positions[6],
+                                ilk="variable", name="bar", line=lines[4])
+        self.assertDefnMatches2(buf, path=path, pos=positions[7],
+                                ilk="variable", name="c", line=lines[7])
+        self.assertDefnMatches2(buf, path=path, pos=positions[8],
+                                ilk="class", name="Class", line=lines[1])
+        self.assertDefnMatches2(buf, path=path, pos=positions[9],
+                                ilk="variable", name="c", line=lines[7])
+        self.assertDefnMatches2(buf, path=path, pos=positions[10],
+                                ilk="function", name="getFoo", line=lines[3])
+
     @tag("bug70438")
     def test_list_tuple_exception(self):
         test_dir = join(self.test_dir, "test_defn")

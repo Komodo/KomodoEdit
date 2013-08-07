@@ -471,14 +471,19 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                             new_hits += self._hits_from_call(elem, scoperef)
                         except CodeIntelError, ex:
                             self.warn("could resolve call on %r: %s", elem, ex)
-                    else:
-                        try:
-                            new_hit = self._hit_from_getattr(
-                                        elem, scoperef, token)
-                        except CodeIntelError, ex:
-                            self.warn(str(ex))
+                        continue
+                    try:
+                        new_hit = self._hit_from_getattr(
+                                    elem, scoperef, token)
+                    except CodeIntelError, ex:
+                        if token == "prototype" and elem.get("ilk") == "class":
+                            self.debug("_hits_from_citdl: using class %r for "
+                                       "its prototype", elem)
+                            new_hits.append((elem, scoperef))
                         else:
-                            new_hits.append(new_hit)
+                            self.warn(str(ex))
+                    else:
+                        new_hits.append(new_hit)
                 hits = new_hits
 
             # Resolve any variable type inferences.
