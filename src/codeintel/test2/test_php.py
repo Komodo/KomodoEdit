@@ -49,7 +49,8 @@ from distutils.version import LooseVersion
 import which
 
 from codeintel2.common import *
-from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
+from codeintel2.util import (indent, dedent, banner, markup_text, unmark_text,
+                             lines_from_pos)
 from codeintel2.environment import SimplePrefsEnvironment
 from codeintel2.tree_php import (php_magic_global_method_data,
                                  php_magic_class_method_data)
@@ -4296,6 +4297,53 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="function", name="test1", line=2,
             scopestart=1, scopeend=0, path=path, )
+
+    def test_defn_at_defn(self):
+        """ Test that looking for definitions work at the definition site """
+        content, positions = unmark_text(php_markup(dedent("""\
+            class Foo<1> {
+                private $bar<2>;
+                function getBar<3>() {
+                    return $this->bar<4> + globalFunction<5>();
+                }
+            }
+            function globalFunction<6>() {
+                $local<7> = 3;
+                return $local<8>;
+            }
+            $foo<9> = new Foo<10>();
+            $foo<11>->getBar<12>();
+        """)))
+        test_dir = join(self.test_dir, "test_defn")
+        path = join(test_dir, "defn_at_defn.php")
+        writefile(path, content)
+        buf = self.mgr.buf_from_path(path)
+        lines = lines_from_pos(content, positions)
+
+        self.assertDefnMatches2(buf, positions[1], path=path,
+                                ilk="class", name="Foo", line=lines[1])
+        self.assertDefnMatches2(buf, positions[2], path=path,
+                                ilk="variable", name="bar", line=lines[2])
+        self.assertDefnMatches2(buf, positions[3], path=path,
+                                ilk="function", name="getBar", line=lines[3])
+        self.assertDefnMatches2(buf, positions[4], path=path,
+                                ilk="variable", name="bar", line=lines[2])
+        self.assertDefnMatches2(buf, positions[5], path=path,
+                                ilk="function", name="globalFunction", line=lines[6])
+        self.assertDefnMatches2(buf, positions[6], path=path,
+                                ilk="function", name="globalFunction", line=lines[6])
+        self.assertDefnMatches2(buf, positions[7], path=path,
+                                ilk="variable", name="local", line=lines[7])
+        self.assertDefnMatches2(buf, positions[8], path=path,
+                                ilk="variable", name="local", line=lines[7])
+        self.assertDefnMatches2(buf, positions[9], path=path,
+                                ilk="variable", name="foo", line=lines[9])
+        self.assertDefnMatches2(buf, positions[10], path=path,
+                                ilk="class", name="Foo", line=lines[1])
+        self.assertDefnMatches2(buf, positions[11], path=path,
+                                ilk="variable", name="foo", line=lines[9])
+        self.assertDefnMatches2(buf, positions[12], path=path,
+                                ilk="function", name="getBar", line=lines[3])
 
 
 class EscapingTestCase(CodeIntelTestCase):
