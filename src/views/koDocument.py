@@ -130,7 +130,7 @@ class koDocumentBase:
         return components.classes['@activestate.com/koCodeIntelService;1'].\
                     getService(components.interfaces.koICodeIntelService)
     @LazyClassAttribute
-    def registryService(self):
+    def langRegistrySvc(self):
         return components.classes['@activestate.com/koLanguageRegistryService;1'].\
                     getService(components.interfaces.koILanguageRegistryService)
     @LazyClassAttribute
@@ -265,7 +265,7 @@ class koDocumentBase:
         
     def _getEncodingNameForNewFile(self, language):
         if not language:
-            language = self.registryService.suggestLanguageForFile(self.get_displayPath())
+            language = self.langRegistrySvc.suggestLanguageForFile(self.get_displayPath())
             if not language:
                 language = 'Text'
         languagePrefName = 'languages/' + language
@@ -473,13 +473,10 @@ class koDocumentBase:
         # If a preferred language was specifically set for this document
         # then just use that, unless it's too large for Komodo.
 
-        langRegistrySvc = components.classes['@activestate.com/koLanguageRegistryService;1'].\
-                          getService(components.interfaces.koILanguageRegistryService)
-
         if self.prefs.hasPrefHere('language'):
             language = self.prefs.getStringPref('language')
             if language != "Text" \
-               and self._isConsideredLargeDocument(langRegistrySvc, language):
+               and self._isConsideredLargeDocument(self.langRegistrySvc, language):
                 self._setAsLargeDocument(language)
                 language = "Text"
             self._language = language
@@ -783,7 +780,7 @@ class koDocumentBase:
         if self._language is None:
             log.error('Asked to get language Object with no language')
         if self._languageObj == None:
-            self._languageObj = self.registryService.getLanguage(self._language)
+            self._languageObj = self.langRegistrySvc.getLanguage(self._language)
         return self._languageObj
 
     def setFileAccessed(self):
@@ -1039,7 +1036,7 @@ class koDocumentBase:
     #---- Encoding
     
     def _getEncodingPrefFromBaseName(self, baseName):
-        language = self.registryService.suggestLanguageForFile(baseName)
+        language = self.langRegistrySvc.suggestLanguageForFile(baseName)
         if not language:
             language = 'Text'
         try:
