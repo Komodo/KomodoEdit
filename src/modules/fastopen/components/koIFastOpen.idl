@@ -43,6 +43,12 @@ interface koIFastOpenViewHit: koIFastOpenHit {
     readonly attribute long windowNum;
     readonly attribute long tabGroupId;
 };
+/**
+ * A separator inserted between different gathers.
+ */
+[scriptable, uuid(06c74704-1a96-4e18-96a7-25be4fd0db07)]
+interface koIFastOpenSeparatorHit: koIFastOpenHit {
+};
 
 /* UI Driver API for the "Go to File" dialog.
  * This is a component implemented in the dialog's JavaScript.

@@ -105,6 +105,7 @@ class Hit(object):
     type = None  # all base classes must set this to some short string
     isdir = False
     shortcut = None # for use with gogatherer
+    isSeparator = False   # used for SeparatorHit
     
 class PathHit(Hit):
     if _xpcom_:
@@ -251,6 +252,22 @@ class ProjectHit(PathHit):
             else:
                 self._labelCache = u"%s %s %s" % (self.base, MDASH, self.nicedir)
         return self._labelCache
+
+
+class SeparatorHit(PathHit):
+    """Virtual base class for fastopen "hits", typically a path and other info
+    with which to open a file.
+    """
+    type = "separator"
+    isSeparator = True
+    if _xpcom_:
+        _com_interfaces_ = [components.interfaces.koIFastOpenHit,
+                            components.interfaces.koIFastOpenSeparatorHit]
+    def __init__(self, gathererOrPath):
+        if isinstance(gathererOrPath, basestring):
+            PathHit.__init__(self, gathererOrPath)
+        else:
+            PathHit.__init__(self, gathererOrPath.name)
 
 
 class ResultsView(object):
@@ -487,6 +504,7 @@ class Driver(threading.Thread):
             pathExcludes = request.pathExcludes
             if dirQueries:
                 hitPaths = set()
+                addedSomeHits = False
                 for dirQuery in dirQueries:
                     dir, baseQuery = split(dirQuery)
                     try:
@@ -521,7 +539,11 @@ class Driver(threading.Thread):
                                 hitPaths.add(path)
                         #log.debug("adding %d hits from %r (path mode)", len(hits), dirQuery)
                         if hits:
+                            if addedSomeHits:
+                                resultsView.addHit(SeparatorHit(dir))
+                                print "Added dir separator hit"
                             resultsView.addHits(sorted(hits))
+                            addedSomeHits = True
                             if stopAtNHits and len(hitPaths) >= stopAtNHits:
                                 aborted = False
                                 return
@@ -534,9 +556,11 @@ class Driver(threading.Thread):
                 if stopAtNHits:
                     BLOCK_SIZE = min(stopAtNHits, BLOCK_SIZE)
                 generators = [(g, g.gather()) for g in request.gatherers]
+                last_gatherer = None
                 while generators:
                     exhausted = []
                     for i, (gatherer, generator) in enumerate(generators):
+                        add_separator = True
                         hits = []
                         for j, hit in enumerate(generator):
                             path = hit.path
@@ -547,6 +571,12 @@ class Driver(threading.Thread):
                                     if fnmatch(path, exclude):
                                         break
                                 else:
+                                    if add_separator and gatherer is not last_gatherer:
+                                        # Add separators between different gathers.
+                                        if last_gatherer is not None:
+                                            hits.append(SeparatorHit(gatherer))
+                                        last_gatherer = gatherer
+                                        add_separator = False
                                     hits.append(hit)
                                     hitPaths.add(path)
                             if j >= BLOCK_SIZE - 1:

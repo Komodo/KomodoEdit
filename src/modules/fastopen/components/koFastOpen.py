@@ -149,6 +149,21 @@ class KoFastOpenTreeView(TreeView):
             else:
                 return "moz-icon://%s?size=16" % (hit.ext or ".txt")
 
+    def isSeparator(self, row):
+        try:
+            return self._rows[row].isSeparator
+        except IndexError:
+            pass
+        return False
+
+    # Note: isSelectable is never called - would have been nice if this worked.
+    #def isSelectable(self, row, col):
+    #    try:
+    #        return not self._rows[row].isSeparator
+    #    except IndexError:
+    #        pass
+    #    return True
+
 
 class KoFastOpenSession(KoFastOpenTreeView):
     _com_interfaces_ = [components.interfaces.koIFastOpenSession,
