@@ -46,7 +46,8 @@ import unittest
 import subprocess
 import logging
 
-from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
+from codeintel2.util import (indent, dedent, banner, markup_text, unmark_text,
+                             lines_from_pos)
 from codeintel2.environment import SimplePrefsEnvironment
 
 from testlib import TestError, TestSkipped, TestFailed, tag
@@ -1531,7 +1532,54 @@ class DefnTestCase(CodeintelPerlTestCase):
         for pos in (2,3):
             self.assertDefnMatches2(buf, foo_positions[2],
                                     **barpkg_expectations)
-        
+
+    def test_defn_at_defn(self):
+        test_dir = join(self.test_dir, "test_defn_at_defn")
+        content, positions = unmark_text(dedent("""\
+            {
+                package Foo<1>;
+                sub new {
+                    my $class<2> = shift;
+                    my $self = {_bar => 1};
+                    bless $self, $class<3>;
+                    return $self;
+                }
+                sub getBar<4>{
+                    my ($self) = @_;
+                    return $self->{_bar};
+                }
+            }
+            sub makeFoo<5> {
+                my $newFoo<6> = new Foo<7>;
+                return $newFoo<8>;
+            }
+            my $foo<9> = makeFoo<10>;
+        """))
+        path = join(test_dir, "defn_at_defn.pl")
+        writefile(path, content)
+        buf = self.mgr.buf_from_path(path)
+        lines = lines_from_pos(content, positions)
+        self.assertDefnMatches2(buf, path=path, pos=positions[1], line=lines[1],
+                                ilk="class", name="Foo")
+        self.assertDefnMatches2(buf, path=path, pos=positions[2], line=lines[2],
+                                ilk="argument", name="$class")
+        self.assertDefnMatches2(buf, path=path, pos=positions[3], line=lines[2],
+                                ilk="argument", name="$class")
+        self.assertDefnMatches2(buf, path=path, pos=positions[4], line=lines[4],
+                                ilk="function", name="getBar")
+        self.assertDefnMatches2(buf, path=path, pos=positions[5], line=lines[5],
+                                ilk="function", name="makeFoo")
+        self.assertDefnMatches2(buf, path=path, pos=positions[6], line=lines[6],
+                                ilk="variable", name="$newFoo")
+        self.assertDefnMatches2(buf, path=path, pos=positions[7], line=lines[1],
+                                ilk="class", name="Foo")
+        self.assertDefnMatches2(buf, path=path, pos=positions[8], line=lines[6],
+                                ilk="variable", name="$newFoo")
+        self.assertDefnMatches2(buf, path=path, pos=positions[9], line=lines[9],
+                                ilk="variable", name="$foo")
+        self.assertDefnMatches2(buf, path=path, pos=positions[10], line=lines[5],
+                                ilk="function", name="makeFoo")
+
     @tag("bug99105")
     def test_compound_variable_defns(self):
         test_dir = join(self.test_dir, "test_compound_variable_defns")
