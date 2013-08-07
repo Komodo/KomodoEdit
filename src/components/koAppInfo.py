@@ -45,6 +45,7 @@ import process
 import koprocessutils
 import which
 import logging
+from zope.cachedescriptors.property import LazyClassAttribute
 
 log = logging.getLogger('koAppInfo')
 #log.setLevel(logging.DEBUG)
@@ -72,13 +73,19 @@ class KoAppInfoEx:
     _installationPath = ''
     _executablePath = ''
 
+    # Lazily loaded class variables.
+    @LazyClassAttribute
+    def _prefs(self):
+        return components.classes["@activestate.com/koPrefService;1"].\
+                    getService(components.interfaces.koIPrefService).\
+                    prefs
+    @LazyClassAttribute
+    def _userPath(self):
+        return koprocessutils.getUserEnv().get("PATH", "").split(os.pathsep)
+
     def __init__(self):
 
         self._executable_is_valid_cache = {}
-        self._prefs = components.classes["@activestate.com/koPrefService;1"].\
-            getService(components.interfaces.koIPrefService).prefs
-
-        self._userPath = koprocessutils.getUserEnv().get("PATH", "").split(os.pathsep)
 
         # Listen for changes to the user environment. This must be called on the
         # main thread - bug 96530.
