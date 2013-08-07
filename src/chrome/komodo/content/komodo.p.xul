@@ -1634,6 +1634,7 @@
                                         id="troubleshootingViewBugsMenuItem"
                                         accesskey="&komodoBugDatabase.accesskey;"
                                         label="&komodoBugDatabase.label;"
+                                        tooltiptext="&komodoBugDatabase.tooltiptext;"
                                         observes="cmd_helpViewBugs"
                                         />
                                     <menuitem
