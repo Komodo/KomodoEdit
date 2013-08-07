@@ -2112,38 +2112,6 @@
             return undefined;
             ]]>
         </handler>
-
-        <handler event="mousedown" phase="capturing" 
-<!-- #if PLATFORM != "darwin" -->
-                modifiers="control"
-<!-- #else -->
-                modifiers="meta"
-<!-- #endif -->
->
-        <![CDATA[
-            var ignoreKey = (event.shiftKey || event.altKey || 
-// #if PLATFORM != "darwin"
-                event.metaKey
-// #else
-                event.ctrlKey
-// #endif
-                            );
-            if (ignoreKey) {
-                return;
-            }
-// #if PLATFORM != "linux"
-            // Bug 99611: On Linux ctrl-click is used both to set 
-            // rectangular selections and add multiple selections.
-	    // Assume ctrl-click is for a session if we don't have a
-	    // multi-line rectangular selection.
-            let multiCaretSession = ko.selections.getMultiCaretSession(this);
-            if (multiCaretSession.isDormant) {
-                let scimoz = this.scimoz;
-                ko.views.startOrContinueMultiCaretSession(this, scimoz.selectionStart, scimoz.selectionEnd);
-            }
-// #endif
-        ]]>
-        </handler>
         
         <handler event="mouseup" phase="bubbling" 
 <!-- #if PLATFORM != "darwin" -->
@@ -2163,23 +2131,16 @@
             if (ignoreKey) {
                 return;
             }
-// #if PLATFORM == "linux"
-            // Bug 99611: On Linux ctrl-click is used both to set 
-            // rectangular selections and add multiple selections.
-            // Resolve the ambiguity by requiring linux users to use the
-            // command (via menu or keybinding) to start a session, and
-            // then map ctrl-click to a multi-caret session only if we're in one.
+            // On all platforms, verify that we're gathering carets.  If we are,
+            // add another range or caret.  But we can't start a session 
+            // just by clicking.
+
+	    let multiCaretSession = ko.selections.getMultiCaretSession(this);
             let scimoz = this.scimoz;
-            if (!ko.views.allowMultiCaretSession(scimoz)) {
-                var multiCaretSession = ko.selections.getMultiCaretSession(this);
-                if (!multiCaretSession.isDormant) {
-                    
-                    multiCaretSession.endSession();
-                }
-                return;
+            if (multiCaretSession.isGatheringCarets) {
+                multiCaretSession.addRange(scimoz.selectionStart,
+                                           scimoz.selectionEnd);
             }
-// #endif
-            ko.views.startOrContinueMultiCaretSession(this);
         ]]>
         </handler>
 

@@ -781,7 +781,6 @@
                                               />
                                     <menuitem label="&addAdditionalCaret.label;"
                                               id="menu_addAdditionalCaret"
-                                              acceltext="&controlClick.accesskey;"
                                               observes="cmd_addAdditionalCaret"
                                               />
                                 </menupopup>
