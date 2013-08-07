@@ -50,7 +50,7 @@ import which
 import logging
 from pprint import pprint, pformat
 
-from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
+from codeintel2.util import indent, dedent, banner, markup_text, unmark_text, lines_from_pos
 
 from testlib import TestError, TestSkipped, TestFailed, tag
 from citestsupport import CodeIntelTestCase, writefile
@@ -2595,11 +2595,12 @@ class _BaseTestCase(CodeIntelTestCase):
         test_dir = join(self.test_dir, "test_inline_defns")
         main_filename = "main%s" % self.ext
         main_path = join(test_dir, main_filename)
+        # For this test, a variable at position N is defined at position 100+N
         main_content, main_positions = \
           unmark_text(self.adjust_content(dedent("""\
-          module M1
-            class C1
-              def f1a
+          module M1<101>
+            class C1<102>
+              def f1a<103>
               end
               def f1b
                 v1 = 22
@@ -2610,9 +2611,9 @@ class _BaseTestCase(CodeIntelTestCase):
               end
             end #C1
           end #M1
-          module M2
-            class C2
-              def f2a
+          module M2<104>
+            class C2<105>
+              def f2a<106>
               end
               def f2b
                 v2 = '22'
@@ -2630,19 +2631,35 @@ class _BaseTestCase(CodeIntelTestCase):
         """)))
         writefile(main_path, main_content)
         buf = self.mgr.buf_from_path(main_path)
+        lines = lines_from_pos(main_content, main_positions)
         self.assertDefnMatches2(buf, main_positions[1],
-            ilk="namespace", name="M1", line=1)
+            ilk="namespace", name="M1", line=lines[101])
         self.assertDefnMatches2(buf, main_positions[2],
-            ilk="class", name="C1", line=2)
+            ilk="class", name="C1", line=lines[102])
         self.assertDefnMatches2(buf, main_positions[3],
-            ilk="function", name="f1a", line=3)
+            ilk="function", name="f1a", line=lines[103])
 
         self.assertDefnMatches2(buf, main_positions[4],
-            ilk="namespace", name="M2", line=14)
+            ilk="namespace", name="M2", line=lines[104])
         self.assertDefnMatches2(buf, main_positions[5],
-            ilk="class", name="C2", line=15)
+            ilk="class", name="C2", line=lines[105])
         self.assertDefnMatches2(buf, main_positions[6],
-            ilk="function", name="f2a", line=16)
+            ilk="function", name="f2a", line=lines[106])
+
+        # Test that getting defns at their definition works
+        self.assertDefnMatches2(buf, main_positions[101],
+            ilk="namespace", name="M1", line=lines[101])
+        self.assertDefnMatches2(buf, main_positions[102],
+            ilk="class", name="C1", line=lines[102])
+        self.assertDefnMatches2(buf, main_positions[103],
+            ilk="function", name="f1a", line=lines[103])
+
+        self.assertDefnMatches2(buf, main_positions[104],
+            ilk="namespace", name="M2", line=lines[104])
+        self.assertDefnMatches2(buf, main_positions[105],
+            ilk="class", name="C2", line=lines[105])
+        self.assertDefnMatches2(buf, main_positions[106],
+            ilk="function", name="f2a", line=lines[106])
         
     @tag("defns")
     def test_peer_module_defns(self):
