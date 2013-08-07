@@ -1650,14 +1650,14 @@ class DefnTestCase(CodeintelPerlTestCase):
             sub test1<1> {
                 3<5>
             }
-	    { 
-	      package Outer {
-	        sub test2<2> {
-		    4
-		}
+            {
+              package Outer {
+                sub test2<2> {
+                    4
+                }
             }
             my $t1 = test<3>1(0);
-	    $t1 += Outer::test2<4>;
+            $t1 += Outer::test2<4>;
             print("$t1\n");
             1;
         """))
