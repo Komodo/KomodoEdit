@@ -39,7 +39,7 @@ from xpcom.server import UnwrapObject
 import logging
 import eollib
 
-from zope.cachedescriptors.property import Lazy as LazyProperty
+from zope.cachedescriptors.property import LazyClassAttribute
 
 log = logging.getLogger('koDocumentSettingsManager')
 #log.setLevel(logging.DEBUG)
@@ -80,7 +80,7 @@ class koDocumentSettingsManager:
         self._scintillas = []
         self._useAlternateFaceType = None
     
-    @LazyProperty
+    @LazyClassAttribute
     def _globalPrefs(self):
         return components.classes["@activestate.com/koPrefService;1"].\
                             getService(components.interfaces.koIPrefService).prefs
