@@ -81,6 +81,14 @@ for protocol in protocolsWithCrypto:
     addSchemeToParser(protocol)
     RemoteURISchemeTypes.append(protocol)
 
+def _is_single_char(s):
+    """ Bug 99683: When Windows paths with forward-slashes
+        are processed on a non-Windows machine, URIlib accepts
+        them as URIs, interpreting the drive-letter as a scheme.
+        This function points out those pseudo-schemes.
+    """
+    return len(s) == 1
+
 class URILibError(Exception):
     pass
 
@@ -336,7 +344,7 @@ class URIParser(object):
     URI = property(get_URI,set_URI)
 
     def get_displayPath(self):
-        if self.scheme == 'file':
+        if self.scheme == 'file' or _is_single_char(self.scheme):
             return self.get_path() 
         else:
             return self.get_URI()
@@ -561,7 +569,7 @@ class FileHandler(FileHandlerBase):
     def __init__(self,path):
         FileHandlerBase.__init__(self)
         uri = URIParser(path)
-        if uri.scheme != 'file':
+        if uri.scheme != 'file' and not _is_single_char(uri.scheme):
             raise URILibError("Invalid File Scheme: %s" % uri.scheme)
         self._path = uri.path
         self._decodedPath = uri.encodedPath
@@ -741,7 +749,7 @@ class URIHandler(FileHandlerBase):
     def __init__(self,path):
         FileHandlerBase.__init__(self)
         uri = URIParser(path)
-        if uri.scheme == 'file':
+        if uri.scheme == 'file' or _is_single_char(uri.scheme):
             raise URILibError("Invalid File Scheme: %s" % uri.scheme)
         self._path = uri.URI
     
