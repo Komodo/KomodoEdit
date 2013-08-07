@@ -6,6 +6,77 @@
 
 @import url("chrome://komodo/skin/iconset/config.less");
 
+/* Addons Page */
+page#addons-page,
+page#addons-page .main-content,
+page#addons-page .view-header
+{
+    background: @window-background;
+    color: @window-color;
+}
+
+page#addons-page
+{
+    .addon,
+    #search-filter,
+    .view-header
+    {
+        border-bottom: @main-border;
+    }
+
+    #view-port-container
+    {
+        border: @main-border;
+    }
+
+    #categories
+    {
+        border: @main-border;
+        border-right: 0;
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+    }
+
+    .category
+    {
+
+        &[selected="true"]
+        {
+            color: ~"@{list-listbox-item-color-selected}";
+            background: ~"@{list-listbox-row-background-selected}";
+            border: none;
+        }
+
+        &[selected="true"]:focus
+        {
+            color: ~"@{list-listbox-item-color-focus}";
+            background: ~"@{list-listbox-row-background-focus}";
+            border: none;
+        }
+
+    }
+}
+
+/* Account Setup Wizard */
+
+wizard#accountSetup,
+wizard#accountSetup wizardpage,
+wizard#accountSetup .wizard-header
+{
+    background: @window-background;
+    color: @window-color;
+}
+
+wizard#accountSetup
+{
+    .wizard-buttons
+    {
+        background: @bottom-background;
+        border-top: 2px solid @main-border-color;
+    }
+}
+
+
 #debuggerPanel > hbox.toolbar-background
 {
     padding: 4px;
