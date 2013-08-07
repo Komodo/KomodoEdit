@@ -1155,16 +1155,19 @@ if (typeof ko.breadcrumbs == 'undefined')
                 
                 // Iterate through the crumbs, collapsing one at a time until
                 // the breadcrumb bar is no longer overflown
-                var i = 0;
+                var i = 0, width = breadcrumbBar.scrollWidth;
                 buttons = breadcrumbBar.querySelectorAll("toolbarbutton.breadcrumb");
-                while (breadcrumbBar.scrollWidth > breadcrumbBar.boxObject.width)
+
+                while (width > breadcrumbBar.boxObject.width)
                 {
-                    if ( ! i in buttons)
+                    if ( ! (i in buttons))
                     {
                         break;
                     }
 
                     let button = buttons[i++];
+                    
+                    width -= button.boxObject.width;
                     button.classList.add("overflown");
                 }
 
