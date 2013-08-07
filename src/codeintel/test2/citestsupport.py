@@ -248,6 +248,34 @@ class CodeIntelTestCase(unittest.TestCase):
     def assertDefnMatches2(self, buf, pos, lang=None, **fields):
         self._assertDefnMatches(buf, pos, lang, **fields)
 
+    def assertDefnIncludes(self, buf, pos, lang=None, **fields):
+        """Check that a definition is found within one of the results for a
+        given position.
+        Note that this is not very useful; we normally only use the first
+        definition.  It can however be used to ensure we don't regress things
+        before they get fixed correctly.
+        """
+        ctlr = _CaptureEvalController()
+        trg = buf.defn_trg_from_pos(pos)
+        defns = buf.defns_from_trg(trg, ctlr=ctlr)
+        if not defns:
+            self.fail("unexpectedly did not find a definition in %r at pos %d\n"
+                "  eval log\n%s\n"
+                "  buffer:\n%s"
+                % (buf, pos,
+                   indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
+                   indent(buf.accessor.text)))
+        if "pos" in fields:
+            fields["pos"] = self.adjust_pos(fields["pos"])
+
+        # Copy defns over to filter for keys we care about
+        filtered_defns = []
+        for defn in defns:
+            filtered_defn = dict((key, getattr(defn, key, None))
+                                 for key in fields.keys())
+            filtered_defns.append(filtered_defn)
+        self.assertIn(fields, filtered_defns)
+
     def assertNoDuplicateDefns(self, markedup_content, lang=None):
         if lang is None:
             lang = self.lang

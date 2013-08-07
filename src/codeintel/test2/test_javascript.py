@@ -47,7 +47,8 @@ import subprocess
 import logging
 
 from codeintel2.common import *
-from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
+from codeintel2.util import (indent, dedent, banner, markup_text, unmark_text,
+                             lines_from_pos)
 from codeintel2.environment import SimplePrefsEnvironment
 
 from testlib import TestError, TestSkipped, TestFailed, tag
@@ -1837,7 +1838,7 @@ class DefnTestCase(CodeIntelTestCase):
 
 
     @tag("knownfailure")
-    def test_simple_import(self):
+    def test_simple_import(self, fn=None):
         test_dir = join(self.test_dir, "test_defn")
         foo_content, foo_positions = unmark_text(dedent("""\
             <html>
@@ -1851,25 +1852,35 @@ class DefnTestCase(CodeIntelTestCase):
             </html>
         """))
 
-        manifest = [
-            ("bar.js", dedent("""
-                function test1(i) {
-                    var b = 0;
-                    if (i > 0) {
-                        b = i;
-                    }
+        bar_content, bar_positions = unmark_text(dedent("""\
+            function test1(i)<2> {
+                var b = 0;
+                if (i > 0) {
+                    b = i;
                 }
-             """)),
+            }
+        """))
+
+        manifest = [
+            ("bar.js", bar_content),
             ("foo.js", foo_content),
         ]
         for file, content in manifest:
             path = join(test_dir, file)
             writefile(path, content)
 
+        bar_lines = lines_from_pos(bar_content, bar_positions)
+
         buf = self.mgr.buf_from_path(join(test_dir, "foo.js"))
-        self.assertDefnMatches2(buf, foo_positions[1],
-            ilk="function", name="test1", line=1,
+
+        if fn is None:
+            fn = self.assertDefnMatches2
+        fn(buf, foo_positions[1],
+            ilk="function", name="test1", line=bar_lines[2],
             path=join(test_dir, "bar.js"), )
+
+    def test_simple_import_incorrect_order(self):
+        self.test_simple_import(fn=self.assertDefnIncludes)
 
     @tag("bug65366")
     def test_duplicate_defns(self):
