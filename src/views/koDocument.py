@@ -490,7 +490,7 @@ class koDocumentBase:
         fileNameLanguage = None
         if baseName:
             # some uri's will not have a baseName, eg. http://www.google.com
-            fileNameLanguage = langRegistrySvc.suggestLanguageForFile(baseName)
+            fileNameLanguage = self.langRegistrySvc.suggestLanguageForFile(baseName)
             log.info("_guessLanguage: probable language from basename '%s': '%s'",
                      baseName, fileNameLanguage)
         
@@ -503,7 +503,7 @@ class koDocumentBase:
         buffer = self.get_buffer()
         # Unwrap so there's no need to marshal a long string
         if buffer:
-            contentLanguages = UnwrapObject(langRegistrySvc).\
+            contentLanguages = UnwrapObject(self.langRegistrySvc).\
                 guessLanguageFromFullContents(fileNameLanguage, buffer, self)
             log.info("_guessLanguage: possible languages from content: %s",
                      contentLanguages)
@@ -543,7 +543,7 @@ class koDocumentBase:
             # bugs 94335 and 94775: set pref here
             self.prefs.setStringPref('language', language)
         log.info("_guessLanguage: '%s' (content)", language)
-        if self._isConsideredLargeDocument(langRegistrySvc, language):
+        if self._isConsideredLargeDocument(self.langRegistrySvc, language):
             self._setAsLargeDocument(language)
             language = "Text"
         self._language = language
