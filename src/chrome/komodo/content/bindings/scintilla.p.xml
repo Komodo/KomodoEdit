@@ -159,7 +159,7 @@
                         }
                         if (updated & ISciMoz.SC_UPDATE_V_SCROLL) {
                             let scrollbar = this._scrollEventHandler.vertical;
-                            let lastDocLine = scimoz.lineFromPosition(1<<30);
+                            let lastDocLine = scimoz.lineCount - 1;
                             if (!scrollbar.suppress) {
                                 scrollbar.setAttribute("curpos", scimoz.firstVisibleLine);
                                 scrollbar.setAttribute("pageincrement", scimoz.linesOnScreen);
