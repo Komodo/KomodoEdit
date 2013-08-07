@@ -117,7 +117,11 @@
                     return this.getAttribute("hscroll") != "off";
                 </getter>
                 <setter>
+                    // Set both fake and real scrollbars.
                     this.setAttribute("hscroll", val ? "on" : "off");
+                    // Note: SciMoz scrollbar won't show when
+                    //       scimoz.useCustomScrollBars is enabled.
+                    this.scimoz.hScrollBar = val;
                 </setter>
             </property>
             <property name="vScrollBar">
@@ -125,7 +129,11 @@
                     return this.getAttribute("vscroll") != "off";
                 </getter>
                 <setter>
+                    // Set both fake and real scrollbars.
                     this.setAttribute("vscroll", val ? "on" : "off");
+                    // Note: SciMoz scrollbar won't show when
+                    //       scimoz.useCustomScrollBars is enabled.
+                    this.scimoz.vScrollBar = val;
                 </setter>
             </property>
             <field name="_scrollEventHandler">
@@ -475,9 +483,6 @@
                         // Hide the fake scroll bars
                         this._scrollEventHandler.horizontal.setAttribute("can-scroll", "false");
                         this._scrollEventHandler.vertical.setAttribute("can-scroll", "false");
-                        // Tell scintilla whether we want scrollbars
-                        this.scimoz.hScrollBar = this.hScrollBar;
-                        this.scimoz.vScrollBar = this.vScrollBar;
                     }
                 ]]>
                 </setter>
