@@ -81,14 +81,6 @@ for protocol in protocolsWithCrypto:
     addSchemeToParser(protocol)
     RemoteURISchemeTypes.append(protocol)
 
-def _is_single_char(s):
-    """ Bug 99683: When Windows paths with forward-slashes
-        are processed on a non-Windows machine, URIlib accepts
-        them as URIs, interpreting the drive-letter as a scheme.
-        This function points out those pseudo-schemes.
-    """
-    return len(s) == 1
-
 class URILibError(Exception):
     pass
 
@@ -344,7 +336,7 @@ class URIParser(object):
     URI = property(get_URI,set_URI)
 
     def get_displayPath(self):
-        if self.scheme == 'file' or _is_single_char(self.scheme):
+        if self.scheme == 'file':
             return self.get_path() 
         else:
             return self.get_URI()
@@ -397,6 +389,10 @@ class URIParser(object):
                     sortaURI = path2
             elif path[0] == '/':       # Absolute Unix path
                 sortaURI = "file://" + path
+            elif path[1:2] == ':':  # Looks like an absolute Windows path
+                # We allow Windows file paths on Unix, for things like mapped
+                # URIs - bug 99683.
+                sortaURI = "file:///" + path.replace('\\','/')
             else:
                 sortaURI = path
             self._setFileNames(sortaURI, doUnquote=False)
@@ -569,7 +565,7 @@ class FileHandler(FileHandlerBase):
     def __init__(self,path):
         FileHandlerBase.__init__(self)
         uri = URIParser(path)
-        if uri.scheme != 'file' and not _is_single_char(uri.scheme):
+        if uri.scheme != 'file':
             raise URILibError("Invalid File Scheme: %s" % uri.scheme)
         self._path = uri.path
         self._decodedPath = uri.encodedPath
@@ -749,7 +745,7 @@ class URIHandler(FileHandlerBase):
     def __init__(self,path):
         FileHandlerBase.__init__(self)
         uri = URIParser(path)
-        if uri.scheme == 'file' or _is_single_char(uri.scheme):
+        if uri.scheme == 'file':
             raise URILibError("Invalid File Scheme: %s" % uri.scheme)
         self._path = uri.URI
     

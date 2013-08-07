@@ -302,26 +302,20 @@ class TestKoFileEx(unittest.TestCase):
         if win32:
             # Verify nothing weird is happening on Windows
             path_bs =  os.path.normpath(__file__)
-            path = path_bs.replace('\\', '/')
-            self.__file.URI = path
-            assert self.__file.isFile
-            self.failUnlessEqual(self.__file.path, path_bs)
-            self.failUnlessEqual(self.__file.baseName, "test_koFileEx.py")
-            self.failUnlessEqual(self.__file.dirName,
-                                 path_bs[:path.rindex("/")])
-            self.failUnlessEqual(self.__file.scheme, "file")
-            assert self.__file.exists
+            path_fs = path_bs.replace('\\', '/')
         else:
-            # But on non-Windows these paths aren't usable.
-            path = "c:/nonexistent/placeholder/for/test_koFileEx.py"
-	    self.__file.URI = path
-            def setPath():
-		# Just hitting URIHandler.__init__ with this scheme
-		# should thrown an exception
-	        assert self.__file.scheme == "c"
-            # It's actually an instance of URILibError, but we can't
-            # find that, because it's in components, not python-sitelib
-            self.assertRaises(Exception, setPath)
+            path_bs = path_fs = "c:/nonexistent/placeholder/for/test_koFileEx.py"
+        self.__file.URI = path_fs
+        assert self.__file.scheme == "file"
+        if win32:
+            assert self.__file.isFile
+        self.failUnlessEqual(self.__file.path, path_bs)
+        self.failUnlessEqual(self.__file.baseName, "test_koFileEx.py")
+        self.failUnlessEqual(self.__file.dirName,
+                             path_bs[:path_fs.rindex("/")])
+        self.failUnlessEqual(self.__file.scheme, "file")
+        if win32:
+            assert self.__file.exists
 
 #---- mainline
 
