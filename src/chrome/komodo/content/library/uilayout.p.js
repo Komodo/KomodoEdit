@@ -774,10 +774,10 @@ function MruMenusUpdate() {
 
     // Remove old entries
     if (menuSeparator.previousSibling) {
-	while (menuSeparator.nextSibling) {
-	    let item = menuSeparator.nextSibling;
-	    item.parentNode.removeChild(item);
-	}
+        while (menuSeparator.nextSibling) {
+            let item = menuSeparator.nextSibling;
+            item.parentNode.removeChild(item);
+        }
     }
 
     mruList = _gPrefs.getPref('mruMenuItemList');
@@ -789,9 +789,11 @@ function MruMenusUpdate() {
     for (var i=0; i<mruList.length; i++) {
         var menuitem = document.getElementById(mruList.getStringPref(i));
         if ( ! menuitem) continue;
-	let _item = menuitem.cloneNode(true);
-	_item.setAttribute('ordinal', 9999);
-	_item.removeAttribute('id');
+
+        let _item = menuitem.cloneNode(true);
+        _item.setAttribute('ordinal', 9999);
+        _item.removeAttribute('id');
+
         menupopup.appendChild(_item);
     }
 }
@@ -1677,12 +1679,16 @@ this.onload = function uilayout_onload()
 
 // #if PLATFORM != "darwin"
     function trackMenuItemMru(e) {
-	if (e.target.nodeName != 'menuitem') return;
-	MruMenusAddItem(e.target);
+        if (e.target.nodeName != 'menuitem') return;
+        MruMenusAddItem(e.target);
     }
 
     document.getElementById('unifiedMenuButton').addEventListener('command', trackMenuItemMru);
     document.getElementById('menubar_main').addEventListener('command', trackMenuItemMru);
+
+    // Also track click events, as not all menuitem's fire a command event
+    document.getElementById('unifiedMenuButton').addEventListener('click', trackMenuItemMru);
+    document.getElementById('menubar_main').addEventListener('click', trackMenuItemMru);
     
     ko.uilayout.setMenubarVisibility();
 // #endif
