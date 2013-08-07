@@ -90,6 +90,14 @@ class TestURIParser(unittest.TestCase):
                          r'C:\Program Files\Microsoft Visual Studio\VC98\Include',  # dirName
                          'file://',  # prePath
                          ])
+    else:
+        # Test Windows file path handling on Unix (bug 99683).
+        filelist.append(['file:///c:/test/path/to/somefile.txt',  # uri
+                         'c:/test/path/to/somefile.txt',  # path
+                         'somefile.txt',  # baseName
+                         'c:/test/path/to',  # dirName
+                         'file://',  # prePath
+                         ])
     
     if win32:
         # linux basename/dirname/etc just choke on this
