@@ -1,18 +1,5 @@
-@import url("chrome://komodo/skin/_config/panes.less");
-
 #openfilesListbox
 {
-    -moz-appearance: none;
-    background: none;
-    margin: 0;
-
-    richlistitem
-    {
-        -moz-appearance: none;
-        background-color: inherit;
-        padding: 2px;
-    }
-    
     richlistitem.file-item
     {
         label.file-title
@@ -76,21 +63,10 @@
         
         &:hover
         {
-            -moz-transition: background-color 0.15s ease;
-            -moz-transition: color 0.15s ease;
-            
-            background: rgba(0,0,0,0.05);
-            
             toolbarbutton.file-close-button
             {
                 opacity: 0.8;
             }
-        }
-        
-        &[selected]
-        {
-            background: Highlight;
-            color: HighlightText;
         }
     }
     
@@ -115,7 +91,6 @@
         {
             font-size: 90%;
             font-weight: bold;
-            color: @panel-label-color;
             margin-left: 0;
         }
     }

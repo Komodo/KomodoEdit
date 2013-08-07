@@ -165,25 +165,6 @@ undo-button {
 }
 /* #endif */
 
-#placesViewbox_placesWrapper tree,
-#placesViewbox_placesWrapper tree treechildren,
-#placesViewbox_placesWrapper tree treechildren::-moz-tree-row {
-	background: transparent;
-}
-
-#placesViewbox_placesWrapper tree treechildren::-moz-tree-row(selected) {
-/* #if PLATFORM == "darwin" */
-    background: -moz-mac-secondaryhighlight;
-/* #else */
-    background: -moz-cellhighlight;
-/* #endif */
-}
-
-#placesViewbox_placesWrapper tree treechildren::-moz-tree-row(selected, focus)
-{
-    background: Highlight;
-}
-
 #placesRootButton > image
 {
 	display: none;

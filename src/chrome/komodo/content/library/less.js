@@ -157,6 +157,7 @@ var koLess = function koLess()
               .refreshSkins();
         },
 
+        _loadSheetNo: 0,
         /**
          * Load a specific stylesheet
          *
@@ -171,6 +172,8 @@ var koLess = function koLess()
          */
         loadSheet: function koLess_loadSheet(sheet, callback = function() {}, isInternalCall = false, async = false)
         {
+            var threadId = this._loadSheetNo++;
+            
             if ( ! this.initialized)
             {
                 this.init(this.loadSheet.bind(this, sheet, callback, isInternalCall), async);
@@ -179,7 +182,7 @@ var koLess = function koLess()
 
             if (isInternalCall)
             {
-                this.debug("Loading: " + sheet.href);
+                this.debug(threadId + " Loading: " + sheet.href);
 
                 // Check if we can load the sheet via the file cache
                 var cacheFile = this.cache.getFile(sheet.href);
@@ -189,14 +192,14 @@ var koLess = function koLess()
                         ((youngest = this.resolveYoungestChild(sheet.href)) &&
                          youngest.file.lastModifiedTime < cacheFile.lastModifiedTime))
                     {
-                        this.debug('Loading from cache: ' + sheet.href);
-                        this.debug('Returning ' + cacheFile.fileSize + ' bytes for: ' + sheet.href);
+                        this.debug(threadId + ' Loading from cache: ' + sheet.href);
+                        this.debug(threadId + ' Returning ' + cacheFile.fileSize + ' bytes for: ' + sheet.href);
                         callback(cacheFile)
                         return;
                     }
                 }
                
-                this.debug('Loading new version ' + (async ? 'a' : '') + 'synchronously: ' + sheet.href);
+                this.debug(threadId + ' Loading new version ' + (async ? 'a' : '') + 'synchronously: ' + sheet.href);
             }
             else
             {
@@ -212,7 +215,7 @@ var koLess = function koLess()
                     // Validate parsed result
                     if (e)
                     {
-                        return this.errorLess(e, sheet.href);
+                        return this.errorLess(e, sheet.href, threadId);
                     }
 
                     // If we have a callback this is a call from the less parser
@@ -233,11 +236,11 @@ var koLess = function koLess()
                         {
                             if ("extract" in e)
                             {
-                                return this.errorLess(e, sheet.href);
+                                return this.errorLess(e, sheet.href, threadId);
                             }
                             else
                             {
-                                return this.exception(e,'Error converting less to css in ' + sheet.href);
+                                return this.exception(e, threadId + ' Error converting less to css in ' + sheet.href);
                             }
                         }
 
@@ -249,10 +252,10 @@ var koLess = function koLess()
                         }
                         catch (e)
                         {
-                            return this.exception(e, 'Error creating cache for ' + sheet.href);
+                            return this.exception(e, threadId + ' Error creating cache for ' + sheet.href);
                         }
 
-                        this.debug('Returning ' + cacheFile.fileSize + ' bytes for: ' + sheet.href);
+                        this.debug(threadId + ' Returning ' + cacheFile.fileSize + ' bytes for: ' + sheet.href);
                         callback(cacheFile);
 
                         // Perfect time to cache the sheet hierarchy
@@ -286,7 +289,7 @@ var koLess = function koLess()
                 }
                 catch (e)
                 {
-                    this.exception(e, 'Parsing error for ' + sheet.href + ': ' + e.message);
+                    this.exception(e, threadId + ' Parsing error for ' + sheet.href + ': ' + e.message);
                 }
             }.bind(this), async);
         },
@@ -782,11 +785,11 @@ var koLess = function koLess()
          *
          * @returns {Void}
          */
-        errorLess: function koLess_errorLess(e, href) {
+        errorLess: function koLess_errorLess(e, href, threadId) {
             var error = [];
 
             var errorString = (
-                'There is an error in your .less file'
+                threadId + ' There is an error in your .less file'
             ) + ' (' + (e.filename || href) + ")\n";
 
             if (e.message)

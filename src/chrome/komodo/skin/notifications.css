@@ -29,21 +29,10 @@
 
 #message-container {
   -moz-box-flex: 1;
-  -moz-appearance: none;
-  margin: 0;
 }
 
 notification {
   -moz-binding: url("chrome://komodo/content/notifications/notification.xml#notificationMessage");
-}
-
-notification[selected] {
-  background-color: -moz-cellhighlight;
-  color: -moz-cellhighlighttext;
-}
-#message-container:focus > notification[selected] {
-  background-color: Highlight;
-  color: HighlightText;
 }
 
 notification .twisty > box {

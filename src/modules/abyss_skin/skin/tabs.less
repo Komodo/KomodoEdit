@@ -1,6 +1,6 @@
 @import url("chrome://komodo/skin/plat/current/tabs.less");
 
-.native .tab-arrowscrollbox
+.tab-arrowscrollbox
 {
 
     & > .scrollbutton-up,
@@ -19,16 +19,21 @@
 }
 
 
-.native .tabs-select-button
+.tabs-select-button
 {
     border-left: 1px solid !important;
     padding-left: 4px;
     -moz-border-left-colors: rgb(30, 30, 30) !important;
 }
 
-.native tabs tab:first-child
+tabs tab:first-child
 {
-    margin-left: 0;
+    margin-left: 0 !important;
+}
+
+.tabs-left
+{
+    visibility: collapse;
 }
 
 ko-pane[type="icons"] tab

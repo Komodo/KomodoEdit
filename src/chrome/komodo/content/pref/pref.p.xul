@@ -224,7 +224,6 @@
             <deck id="pref-deck" selectedIndex="0" flex="1">
                 <!-- tree sidebar -->
                 <tree id="prefsTree" style="min-width: 14em;"
-                      class="inset"
                       persist="width"
                       hidecolumnpicker="true" seltype="single"
                       onselect="if( hPrefWindow ) hPrefWindow.switchPage();">
@@ -520,7 +519,6 @@
                 </tree>
                 <!-- The dynamically built nsITreeView tree -->
                 <tree id="filteredPrefsTree" style="min-width: 14em;"
-                      class="inset"
                       persist="width"
                       hidecolumnpicker="true" seltype="single"
                       onselect="if( hPrefWindow ) hPrefWindow.switchPage();">
@@ -536,8 +534,7 @@
                 </tree>
             </deck>
         </vbox>
-        <splitter orient="horizontal"
-                  style="margin: 0px; padding: 0px; border: none;"/>
+        <splitter orient="horizontal"/>
         <!-- Main prefs panel -->
         <vbox flex="1">
             <deck id="panelFrame" name="panelFrame" style="width:0px"

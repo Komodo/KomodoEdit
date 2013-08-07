@@ -191,6 +191,17 @@
     -moz-appearance: @main-toolbox-wrapper-appearance;
 }
 
+toolbox
+{
+    -moz-appearance: @toolbox-appearance;
+    background: @toolbox-background;
+
+    & > toolbar
+    {
+        -moz-appearance: @toolbox-toolbar-appearance;
+    }
+}
+
 #toolbox_main
 {
     -moz-appearance: none;

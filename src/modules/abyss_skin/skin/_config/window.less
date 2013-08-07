@@ -2,6 +2,7 @@
 
 @window-color:                          #CACCD1;
 @window-background:                     #27282B;
+@window-appearance:                     none;
 @workspace-background:                  #27282B;
 
 @sidebar-background:                    darken(@window-background, 1%);
@@ -18,40 +19,77 @@
 @panel-border-color:                    lighten(@main-border-color, 2%);
 @panel-border:                          1px solid @panel-border-color;
 
-@view-splitter-appearance:              none;
-@view-splitter-background-color:        @main-border-color;
-@view-splitter-background-image:        ~"none !important";
+@outset-border:                         @main-border;
+@inset-border:                          @main-border;
+
+@splitter-appearance:                   none;
+@splitter-background-color:             @main-border-color;
+@splitter-background-image:             ~"none !important";
+@splitter-grippy-visibility:            collapse;
+
+/* separators */
+@separator-border-width:                1px 0;
+@separator-border-style:                solid;
+@separator-border-color:                fadeout(@main-border-color, 50%) #000 fadeout(@main-border-color, 80%);
 
 @button-appearance:                     none;
 @toolbarbutton-appearance:              none;
 @button-border-radius:                  4px;
 
-@button-background:                     transparent;
-@button-color:                          inherit;
-@button-border:                         1px solid transparent;
-@button-text-shadow:                    inherit;
+@button-background:                     -moz-linear-gradient(top, rgba(80, 157, 212, 0.1) 15%, rgba(80, 157, 212, 0.2) 100%);
+@button-color:                          @window-color;
+@button-border:                         1px solid lighten(@main-border-color, 15%);
+@button-text-shadow:                    0 1px 0 rgba(0, 0, 0, 0.7);
+@button-color-disabled:                 fadeout(@button-color, 60%);
 
 @button-background-hover:               -moz-linear-gradient(top, rgba(80, 157, 212, 0.05) 15%, rgba(80, 157, 212, 0.2) 100%);
 @button-color-hover:                    @button-color;
 @button-border-hover:                   1px solid lighten(@main-border-color, 15%);
 @button-text-shadow-hover:              0 1px 0 rgba(0, 0, 0, 0.7);
 
-@button-background-active:              -moz-linear-gradient(top, rgba(80, 157, 212, 0.1) 15%, rgba(80, 157, 212, 0.3) 100%);
+@button-background-active:              -moz-linear-gradient(top, rgba(80, 157, 212, 0.05) 15%, rgba(80, 157, 212, 0.1) 100%);
 @button-color-active:                   @button-color-hover;
 @button-border-active:                  1px solid lighten(@main-border-color, 5%);
 @button-text-shadow-active:             @button-text-shadow-hover;
 
+@button-embedded-background:            transparent;
+@button-embedded-color:                 @window-color;
+@button-embedded-border:                1px solid transparent;
+@button-embedded-text-shadow:           none;
+@button-embedded-color-disabled:        fadeout(@button-embedded-color, 60%);
+
 @textbox-appearance:                    none !important;
 @menulist-appearance:                   none !important;
-@textbox-background:                    #141414;
+@textbox-background:                    lighten(@window-background, 5%);
 @textbox-color:                         #F2F2F2;
 @textbox-box-shadow:                    none;
-@textbox-border:                        1px solid #2D2D2D;
-@textbox-border-radius:                 8px;
+@textbox-border:                        1px solid darken(@window-background, 2%);
+@textbox-border-radius:                 4px;
+
+@checkbox-appearance:                   none;
+@checkbox-color:                        @window-color;
+@checkbox-background-hover:             darken(@window-background, 2%);
+@checkbox-check-spacer-appearance:      none;
+@checkbox-check-spacer-border:          0;
+@checkbox-check-spacer-background:      transparent;
+@checkbox-check-border:                 0;
+@checkbox-check-background:             @icon-checkbox;
+@checkbox-check-background-checked:     @icon-checkbox-checked;
+@checkbox-disabled-opacity:             0.6;
+
+@radio-appearance:                   none;
+@radio-color:                        @window-color;
+@radio-background-hover:             darken(@window-background, 2%);
+@radio-check-appearance:             none;
+@radio-check-border:                 0;
+@radio-check-background:             @icon-radio;
+@radio-check-background-selected:    @icon-radio-selected;
+@radio-check-image-visibility:       collapse;
+@radio-disabled-opacity:             0.6;
 
 @statusbar-appearance:                  none;
-@statusbar-background:                  darken(@window-background, 5%) -moz-linear-gradient(-90deg , rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 50px);
-@statusbar-text-color:                  darken(@window-color, 10%);
+@statusbar-background:                  @window-background -moz-linear-gradient(-90deg , rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 50px);
+@statusbar-text-color:                  fadeout(@window-color, 30%);
 @statusbar-font:                        inherit;
 @statusbar-font-size:                   inherit;
 @statusbar-border-width:                1px 0 0 0;
@@ -59,15 +97,36 @@
 @statusbar-border-color:                @main-border-color;
 @statusbar-panel-border-image:          none;
 
-@tree-background:                       @window-background;
-@tree-color:                            @window-color;
-@tree-color-selected:                   lighten(@tree-color, 40%);
-@tree-color-selected-focus:             lighten(@tree-color, 60%);
-@tree-treecol-appearance:               none;
-@tree-treecol-background:               darken(@window-background, 2%) -moz-linear-gradient(-90deg , rgba(255,255,255,0) 0%, rgba(0,0,0,0.1) 100%);
-@tree-treecol-border:                   1px solid @main-border-color;
-@tree-treecol-color:                    darken(@window-color, 5%);
-@tree-row-background:                   transparent;
-@tree-row-background-odd:               rgba(0, 0, 0, 0.1);
-@tree-row-background-selected:          -moz-linear-gradient(top, rgba(80, 157, 212, 0.05) 15%, rgba(80, 157, 212, 0.2) 100%);
-@tree-row-background-selected-focus:    -moz-linear-gradient(top, rgba(80, 157, 212, 0.1) 15%, rgba(80, 157, 212, 0.2) 100%);
+@list-tree-appearance:                       none;
+@list-tree-background:                       lighten(@window-background, 5%);
+@list-tree-border:                           1px solid darken(@window-background, 2%);
+@list-tree-header-appearance:                none;
+@list-tree-header-background:                darken(@window-background, 2%) -moz-linear-gradient(-90deg , rgba(255,255,255,0) 0%, rgba(0,0,0,0.1) 100%);
+@list-tree-header-border-width:              0 0 1px 0;
+@list-tree-header-border-style:              solid;
+@list-tree-header-border-color:              darken(@window-background, 5%);
+@list-tree-header-color:                     darken(@window-color, 5%);
+@list-tree-item-color:                       @window-color;
+@list-tree-item-color-selected:              lighten(@list-tree-item-color, 10%);
+@list-tree-item-color-focus:                 lighten(@list-tree-item-color, 20%);
+@list-tree-row-background:                   transparent;
+@list-tree-row-background-odd:               rgba(0, 0, 0, 0.1);
+@list-tree-row-background-selected:          -moz-linear-gradient(top, rgba(80, 157, 212, 0.05) 15%, rgba(80, 157, 212, 0.1) 100%);
+@list-tree-row-background-focus:             -moz-linear-gradient(top, rgba(80, 157, 212, 0.1) 15%, rgba(80, 157, 212, 0.2) 100%);
+
+@list-listbox-appearance:                    @list-tree-appearance;
+@list-listbox-background:                    @list-tree-background;
+@list-listbox-border:                        @list-tree-border;
+@list-listbox-header-appearance:             @list-tree-header-appearance;
+@list-listbox-header-background:             @list-tree-header-background;
+@list-listbox-header-border-width:           @list-tree-header-border-width;
+@list-listbox-header-border-style:           @list-tree-header-border-style;
+@list-listbox-header-border-color:           @list-tree-header-border-color;
+@list-listbox-header-color:                  @list-tree-header-color;
+@list-listbox-item-color:                    @list-tree-item-color;
+@list-listbox-item-color-selected:           @list-tree-item-color-selected;
+@list-listbox-item-color-focus:              @list-tree-item-color-focus;
+@list-listbox-row-background:                @list-tree-row-background;
+@list-listbox-row-background-odd:            @list-tree-row-background-odd;
+@list-listbox-row-background-selected:       @list-tree-row-background-selected;
+@list-listbox-row-background-focus:          @list-tree-row-background-focus;

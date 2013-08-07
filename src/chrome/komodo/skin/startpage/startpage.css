@@ -40,7 +40,6 @@ view[type='startpage']  {
   -moz-binding: url('chrome://komodo/content/startpage/startpage.xml#view-startpage');
   /*background-image: url(chrome://komodo/skin/startpage/images/bg.gif);*/
   /*background-repeat: no-repeat;*/
-  background-color: grey;
   overflow: auto;
 }
 

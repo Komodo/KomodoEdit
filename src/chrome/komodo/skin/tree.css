@@ -55,10 +55,6 @@ treechildren::-moz-tree-checkbox(disabled)
     /* disabled checkbox treecells */
     opacity: 0.25;
 }
-treechildren::-moz-tree-column(sort-column)
-{
-    background: #eee;
-}
 
 .treecol-image {
     padding-left: 4px;

@@ -21,6 +21,11 @@ statusbar
     }
 }
 
+button
+{
+    min-height: 23px;
+}
+
 minimap
 {
     background-color: @main-border-color;
@@ -41,5 +46,15 @@ window#komodo_main :not(toolbarbutton):not(toolbaritem)
             margin: 0;
             -moz-appearance: none;
         }
+    }
+}
+
+#prefWindow
+{
+    padding: 0;
+
+    #pref-deck-vbox + splitter + vbox
+    {
+        padding: 6px;
     }
 }

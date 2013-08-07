@@ -211,7 +211,7 @@ menuitem.statusbar-label > label
 statusbarpanel > toolbarbutton {
   padding: 0px;
   margin: 0px;
-  border-style: none !important;
+  border-style: none;
   -moz-appearance: none;
 }
 statusbarpanel > toolbarbutton > .toolbarbutton-text {
@@ -465,18 +465,6 @@ tab > .tab-text {
   padding-left: 3px;
   padding-right: 3px;
 }
-
-
-/**
- * Remove tree margins and borders inside of a page (for the ko-panes, aka
- * Komodo "side panels").
- */
-page tree {
-  -moz-appearance: none;
-  margin: 0;
-  border: none;
-}
-
 
 #gotoLine_error_hbox {
     background-color: #FFF1A8;

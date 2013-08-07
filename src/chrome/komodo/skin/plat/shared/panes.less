@@ -4,21 +4,18 @@
 
 /* Widgets & Panes */
 
-page,
-page .toolbar-background
+page.widget,
+page.widget .toolbar-background
 {
     -moz-appearance: none;
     background-color: transparent;
 }
 
-tree
-{
-    background: transparent;
-}
-
-tabpanels
+ko-pane tabpanels
 {
     background-color: transparent !important;
+    padding: 0px;
+    margin: 0px;
 }
 
 .widget_splitter
@@ -82,15 +79,15 @@ tabpanels
     }
 }
 
-page .pane-text,
-page .toolbarbutton-text,
-page .menulist-label,
-page description
+page.widget .pane-text,
+page.widget .toolbarbutton-text,
+page.widget .menulist-label,
+page.widget description
 {
     color: @pane-text-color;
 }
 
-page toolbarseparator
+page.widget toolbarseparator
 {
     -moz-appearance: @pane-splitter-appearance !important;
     border-right: @pane-splitter-border;
@@ -100,3 +97,14 @@ page toolbarseparator
 {
     border-top: 0 !important;
 }
+
+page.widget[containerOrient="vertical"] tree { margin: 0; .list-styling.tree(pane-tree); }
+page.widget[containerOrient="vertical"] richlistbox, page.widget listbox { margin: 0; .list-styling.listbox(pane-listbox); }
+
+page.widget[containerOrient="horizontal"] :-moz-any(tree, richlistbox, page)
+{
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+

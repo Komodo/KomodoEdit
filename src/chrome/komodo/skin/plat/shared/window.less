@@ -1,10 +1,36 @@
 @import url("chrome://komodo/skin/_config/window.less");
 
-page, view[type='startpage'], #komodo_main
+window, page, dialog, wizard, prefwindow
 {
-    label#desc, label.desc, description
+    -moz-appearance: @window-appearance;
+    background: @window-background;
+    color: @window-color;
+}
+
+label#desc, label.desc, description
+{
+    color: @window-color;
+}
+
+.inset {
+    border: @inset-border;
+}
+
+.outset {
+    border: @outset-border;
+}
+
+/* Splitter */
+
+splitter
+{
+    -moz-appearance: @splitter-appearance;
+    background-color: @splitter-background-color;
+    background-image: @splitter-background-image;
+
+    grippy
     {
-        color: @window-color;
+        visibility: @splitter-grippy-visibility;
     }
 }
 
@@ -14,7 +40,7 @@ page, view[type='startpage'], #komodo_main
 
 splitter
 {
-    &[orient="vertical"].workspace_splitter
+    &[orient="vertical"]
     {
         -moz-appearance: none;
         min-height: 3px;
@@ -34,15 +60,12 @@ splitter
 
     &[orient="horizontal"]
     {
-        &.workspace_splitter
-        {
-            -moz-appearance: none;
-            min-width: 3px;
-            width: 3px;
-            border: none;
-        }
+        -moz-appearance: none;
+        min-width: 3px;
+        width: 3px;
+        border: none;
 
-        &.workspace_splitter_left
+        &:not(.workspace_splitter_right)
         {
             min-width: 3px;
             width: 3px;
@@ -68,21 +91,16 @@ splitter
     }
 }
 
-/* View Splitter */
+/* Separators */
 
-splitter.multiview_splitter
+separator.groovy-thin
 {
-    -moz-appearance: @view-splitter-appearance;
-    background-color: @view-splitter-background-color;
-    background-image: @view-splitter-background-image;
+    border-width: @separator-border-width !important;
+    border-style: @separator-border-style !important;
+    border-color: @separator-border-color !important;
 }
 
 /* Main Window */
-
-#komodo_main
-{
-    background: @window-background !important;
-}
 
 .blank-workspace
 {
@@ -91,47 +109,82 @@ splitter.multiview_splitter
 
 /* Buttons */
 
-page :not(toolbarbutton):not(toolbaritem),
-window#komodo_main :not(toolbarbutton):not(toolbaritem)
+button:not(.button-toolbar-b):not(.button-toolbar-c):not(.button-toolbar-d):not(.button-link):not([type="menu"]),
+:not(toolbarbutton):not(toolbaritem) > toolbarbutton
 {
-    & > :-moz-any(button,toolbarbutton):not(.tab-close-button):not(.tabs-closebutton):not(.button-link)
+    -moz-appearance: @button-appearance;
+    background: @button-background;
+    color: @button-color;
+    border: @button-border;
+    text-shadow: @button-text-shadow;
+    border-radius: @button-border-radius;
+
+    &[disabled]
     {
-        &:-moz-any(button)
-        {
-            -moz-appearance: @button-appearance;
-        }
-
-        &:-moz-any(toolbarbutton)
-        {
-            -moz-appearance: @toolbarbutton-appearance;
-        }
-
-        background: @button-background;
-        color: @button-color;
-        border: @button-border;
-        text-shadow: @button-text-shadow;
-        border-radius: @button-border-radius;
-
-        &:hover
-        {
-            background: @button-background-hover;
-            color: @button-color-hover;
-            border: @button-border-hover;
-            text-shadow: @button-text-shadow-hover;
-        }
-
-        &:active
-        {
-            background: @button-background-active;
-            color: @button-color-active;
-            border: @button-border-active;
-            text-shadow: @button-text-shadow-active;
-        }
+        color: @button-color-disabled;
     }
 }
 
-/* Textbox Elements */
-:-moz-any(page, window#komodo_main) :-moz-any(textbox, menulist)
+button:-moz-any(.button-toolbar-b, .button-toolbar-c, .button-toolbar-d),
+:not(toolbarbutton):not(toolbaritem) > toolbarbutton
+{
+    &:-moz-any(button)
+    {
+        -moz-appearance: @button-appearance;
+    }
+
+    &:-moz-any(toolbarbutton)
+    {
+        -moz-appearance: @toolbarbutton-appearance;
+    }
+
+    background: @button-embedded-background;
+    color: @button-embedded-color;
+    border: @button-embedded-border;
+    text-shadow: @button-embedded-text-shadow;
+    border-radius: @button-border-radius;
+
+    &[disabled]
+    {
+        color: @button-embedded-color-disabled;
+    }
+}
+
+/* Button States */
+button:not([disabled]):not(.button-link):not([type="menu"]),
+:not(toolbarbutton):not(toolbaritem) > toolbarbutton:not([disabled])
+{
+    border-radius: @button-border-radius;
+
+    &:-moz-any(button)
+    {
+        -moz-appearance: @button-appearance;
+    }
+
+    &:-moz-any(toolbarbutton)
+    {
+        -moz-appearance: @toolbarbutton-appearance;
+    }
+
+    &:hover
+    {
+        background: @button-background-hover !important;
+        color: @button-color-hover !important;
+        border: @button-border-hover !important;
+        text-shadow: @button-text-shadow-hover !important;
+    }
+
+    &:active
+    {
+        background: @button-background-active !important;
+        color: @button-color-active !important;
+        border: @button-border-active !important;
+        text-shadow: @button-text-shadow-active !important;
+    }
+}
+
+/* Textbox & Menu Elements */
+:-moz-any(textbox, menulist, button[type="menu"]):not(.plain)
 {
     &:-moz-any(textbox)
     {
@@ -143,17 +196,95 @@ window#komodo_main :not(toolbarbutton):not(toolbaritem)
         }
     }
 
-    &:-moz-any(menulist)
+    &:-moz-any(menulist, button[type="menu"])
     {
         -moz-appearance: @menulist-appearance;
     }
 
-    background: @textbox-background;
+    background-color: @textbox-background;
     color: @textbox-color;
     box-shadow: @textbox-box-shadow;
 
     border: @textbox-border;
     border-radius: @textbox-border-radius;
+}
+
+/* Checkboxes */
+
+checkbox
+{
+    -moz-appearance: @checkbox-appearance;
+    color: @checkbox-color;
+
+    .checkbox-spacer-box
+    {
+        -moz-appearance: @checkbox-check-spacer-appearance;
+        border: @checkbox-check-spacer-border;
+        background: @checkbox-check-spacer-background;
+    }
+
+    .checkbox-check
+    {
+        width: 16px;
+        height: 17px;
+
+        border: @checkbox-check-border;
+        background: @checkbox-check-background;
+        
+        &[checked="true"]
+        {
+            background: @checkbox-check-background-checked;
+        }
+    }
+
+    &[disabled="true"]
+    {
+        opacity: @checkbox-disabled-opacity;
+    }
+
+    &:hover
+    {
+        background: @checkbox-background-hover;
+    }
+}
+
+/* Radioboxes */
+
+radio
+{
+    -moz-appearance: @radio-appearance;
+    color: @radio-color;
+
+    .radio-spacer-box
+    {
+        -moz-appearance: @radio-check-appearance;
+
+        width: 16px;
+        height: 17px;
+
+        border: @radio-check-border;
+        background: @radio-check-background;
+
+        .radio-check-box1
+        {
+            visibility: @radio-check-image-visibility;
+        }
+    }
+
+    &[selected="true"] .radio-spacer-box
+    {
+        background: @radio-check-background-selected;
+    }
+
+    &[disabled="true"]
+    {
+        opacity: @radio-disabled-opacity;
+    }
+
+    &:hover
+    {
+        background: @radio-background-hover;
+    }
 }
 
 /* Statusbar */
@@ -184,72 +315,113 @@ statusbar
 
 /* Tree Elements */
 
-page, view[type='startpage'], #komodo_main
+.list-styling()
 {
-
-    tree:not(.bg_transparent),
-    richlistbox:not(.bg_transparent),
-    listbox:not(.bg_transparent)
+    ._self(@name)
     {
-        background: @tree-background !important; /* Sectionlist tree background is stubborn */
+        -moz-appearance: ~"@{list-@{name}-appearance}" !important;
+        background: ~"@{list-@{name}-background}" !important;
+        border: ~"@{list-@{name}-border}";
     }
 
-    tree treecol:not([hideheader]),
-    tree treecolpicker,
-    listheader
+    ._header-styling(@name)
     {
-        -moz-appearance: @tree-treecol-appearance;
-        background: @tree-treecol-background;
-        border: 0;
+        -moz-appearance: ~"@{list-@{name}-header-appearance}";
+        background: ~"@{list-@{name}-header-background}" !important;
         padding: 2px;
-        border-top: @tree-treecol-border;
-        border-bottom: @tree-treecol-border;
-        color: @tree-treecol-color;
+        color: ~"@{list-@{name}-header-color}";
+        border: 0;
+        border-width: ~"@{list-@{name}-header-border-width}";
+        border-style: ~"@{list-@{name}-header-border-style}";
+        border-color: ~"@{list-@{name}-header-border-color}";
     }
 
-    treechildren::-moz-tree-cell-text,
-    richlistitem,
-    listitem
+    ._list-item-styling(@name)
     {
-        color: @tree-color !important;
-    }
-
-    treechildren::-moz-tree-row
-    {
-        background: @tree-row-background;
+        color: ~"@{list-@{name}-item-color}";
+        background: ~"@{list-@{name}-row-background}";
         border: 0;
 
-        &(odd)
+        &[selected="true"]
         {
-            background: @tree-row-background-odd;
+            color: ~"@{list-@{name}-item-color-selected}";
+            background: ~"@{list-@{name}-row-background-selected}";
+        }
+
+        &[selected="true"]:focus
+        {
+            color: ~"@{list-@{name}-item-color-focus}";
+            background: ~"@{list-@{name}-row-background-focus}";
         }
     }
 
-    treechildren::-moz-tree-row(selected)
+    ._tree-item-styling(@name)
     {
-        background: @tree-row-background-selected !important;
+        color: ~"@{list-@{name}-item-color}";
+
+        &(selected)
+        {
+            color: ~"@{list-@{name}-item-color-selected}";
+        }
+
+        &(selected, focus)
+        {
+            color: ~"@{list-@{name}-item-color-focus}";
+        }
     }
 
-    treechildren::-moz-tree-cell-text(selected)
+    ._tree-item-wrap-styling(@name)
     {
-        color: @tree-color-selected !important;
+        background: ~"@{list-@{name}-row-background}";
+        border: 0;
+
+        &(multicol, odd)
+        {
+            background: ~"@{list-@{name}-row-background-odd}";
+        }
+
+
+        &(selected)
+        {
+            background: ~"@{list-@{name}-row-background-selected}";
+        }
+
+        &(selected, focus)
+        {
+            background: ~"@{list-@{name}-row-background-focus}";
+        }
     }
 
-    treechildren::-moz-tree-row(selected, focus),
-    richlistitem[selected],
-    richlistbox notification[selected]
+    .tree(@name)
     {
-        background: @tree-row-background-selected-focus !important;
+        .list-styling._self(@name);
+
+        treecol:not([hideheader]), treecolpicker { .list-styling._header-styling(@name) }
+        treechildren::-moz-tree-cell-text { .list-styling._tree-item-styling(@name); }
+        treechildren::-moz-tree-row { .list-styling._tree-item-wrap-styling(@name); }
     }
 
-    treechildren::-moz-tree-cell-text(selected, focus),
-    richlistitem[selected],
-    richlistbox notification[selected]
+    .listbox(@name)
     {
-        color: @tree-color-selected-focus !important;
+        .list-styling._self(@name);
+
+        listheader { .list-styling._header-styling(@name); }
+        listitem { .list-styling._list-item-styling(@name); }
+    }
+
+    .richlistbox(@name)
+    {
+        .list-styling._self(@name);
+
+        listheader { .list-styling._header-styling(@name); }
+        richlistitem, notification { .list-styling._list-item-styling(@name); }
     }
 
 }
+
+tree { .list-styling.tree(tree); }
+listbox { .list-styling.listbox(listbox); }
+richlistbox { .list-styling.richlistbox(listbox); }
 
 /* Unified Menu */
 

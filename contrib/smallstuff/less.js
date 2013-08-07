@@ -3215,7 +3215,7 @@ tree.Import = function (path, features, options, index, currentFileInfo) {
     this.features = features;
     this.currentFileInfo = currentFileInfo;
 
-    if (this.options.less !== undefined) {
+    if ((typeof this.options.less) != "undefined") {
         this.css = !this.options.less;
     } else {
         var pathValue = this.getPath();

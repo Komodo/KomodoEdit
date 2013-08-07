@@ -17,7 +17,7 @@
                 <label
                        id="openFilesPaneLabel"
                        value="&openFiles.label;: 0"
-                       class="panel-label"/>
+                       class="panel-label desc"/>
                 <spacer flex="1"/>
                 <toolbarbutton
                     id="openfilesPrefButton"
@@ -160,12 +160,12 @@
                     src="chrome://komodo/skin/images/existing_file.png"/>
                 
                 <label
-                    class="file-title"
+                    class="file-title desc"
                     crop="end"
                     flex="1"/>
                 
                 <label
-                    class="file-dirty"
+                    class="file-dirty desc"
                     collapsed="true"
                     value="*"/>
                 
@@ -174,7 +174,7 @@
                     under the same parent, see bug #97298 for more info
                 -->
                 <label
-                    class="file-path"
+                    class="file-path desc"
                     crop="start"
                     flex="2147483647"/>
                 
@@ -195,7 +195,7 @@
                 collapsed="true" >
                 
                 <label
-                    class="group-title"
+                    class="group-title desc"
                     crop="start"
                     flex="1"
                     value="__group-title"/>

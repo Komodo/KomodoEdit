@@ -14,6 +14,7 @@ override chrome://komodo/skin/panes.less                chrome://abyss-skin/skin
 override chrome://komodo/skin/tabs.less                 chrome://abyss-skin/skin/tabs.less
 override chrome://komodo/skin/toolbars.less             chrome://abyss-skin/skin/toolbars.less
 override chrome://komodo/skin/menus.less                chrome://abyss-skin/skin/menus.less
+override chrome://komodo/skin/modules.less               chrome://abyss-skin/skin/modules.less
 
 # Override images that are hard coded in the source and therefore can't be overriden with css
 override chrome://komodo/skin/images/folder-closed.png  chrome://fugue/skin/icons/blue-folder.png

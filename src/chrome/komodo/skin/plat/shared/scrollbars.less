@@ -50,10 +50,13 @@
         }
     }
 
-    .rules(@id, x);
+    &[orient="horizontal"]
+    {
+        .rules(@id, x);
 
-    thumb {
-        min-width: 25px;
+        thumb {
+            min-height: 25px;
+        }
     }
 
     &[orient="vertical"]
@@ -74,9 +77,14 @@
 /* Scrollbar definitions */
 
 scrollbar { .scrollbar(default); }
+
+// Can't use .widget here as this class is not added until after the document
+// is loaded and scrollbars apparently don't like having their style changed
+// after being loaded
 page scrollbar
 {
-    .scrollbar(pane); opacity: 0.3;
+    .scrollbar(pane);
+    opacity: 0.3;
 
     &[orient="vertical"]
     {
