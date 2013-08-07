@@ -1,7 +1,13 @@
+@import url("chrome://komodo/skin/_config/window.less");
+
 #breadcrumbBar
 {
     overflow: hidden;
     -moz-appearance: none;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+    border: 0;
 
     .breadcrumb
     {
@@ -22,12 +28,21 @@
 
         &.first-child
         {
-            margin-left: 4px !important;
+            margin-left: 0 !important;
         }
 
+        .toolbarbutton-text
+        {
+            color: @statusbar-text-color;
+            font-family: @statusbar-font;
+            font-size: @statusbar-font-size;
+        }
+
+        .file-scc,
         .toolbarbutton-icon
         {
-            margin-right: 4px !important;
+            visibility: collapse;
+            /*margin-right: 4px !important;*/
         }
     }
 

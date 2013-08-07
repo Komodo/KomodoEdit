@@ -235,7 +235,7 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
  * Status bar messages
  */
 
-#statusbar-message, #statusbar-message > label {
+#statusbar-message-wrap, #statusbar-message, #statusbar-message > label {
   border: none;
   min-width: 0;
   width: 0;
@@ -243,6 +243,13 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
   -moz-box-flex: 1;
   -moz-box-pack: start;
 }
+
+#statusbar-message-wrap button.close-button {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-width: 0;
+}
+
 #statusbar-message[category="notification-info"] {
     list-style-image: url("chrome://global/skin/icons/information-16.png");
 }

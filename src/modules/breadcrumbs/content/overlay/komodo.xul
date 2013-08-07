@@ -18,8 +18,8 @@
     <script src="chrome://breadcrumbs/content/breadcrumbs.js"
             type="application/x-javascript;version=1.7"/>
 
-    <vbox id="editorvbox">
-        <hbox position="2">
+    <deck id="statusbar-message-internal-deck">
+        <hbox position="1" id="breadcrumbbarWrap">
             <toolbar
                 id="breadcrumbBar"
                 class="native-icons"
@@ -100,9 +100,8 @@
                     id="overflowMenuTemplate"
                     class="menu-iconic folder-item breadcrumb-folder-icon"/>
             </box>
-
         </hbox>
-    </vbox>
+    </deck>
 
     <broadcasterset id="broadcasterset_global">
 

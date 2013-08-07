@@ -122,6 +122,9 @@ var updateMessageRequestID = 0;
 var _lastNotification = null; // last non-statusbar notification
 var _lastNotificationTime = 0; // last time user interacted with statusbar notifications
 
+var _deckIndex = {
+    messages: 0
+};
 
 //---- helper functions
 
@@ -511,12 +514,14 @@ function _updateMessage()
         return;
     }
     var sm = _messageStack.Top();
+    var internalDeck = document.getElementById('statusbar-message-internal-deck');
     var messageWidget = document.getElementById('statusbar-message');
     if (sm) {
         _log.debug("StatusBar: update message: top: msg='"+sm.msg+"', category='"+
              sm.category+"', timeout='"+sm.timeout+"', highlight='"+
              sm.highlight+"'");
 
+        internalDeck.selectedIndex = _deckIndex.messages;
         messageWidget.setAttribute("category", sm.category);
         messageWidget.setAttribute("label", sm.msg);
         messageWidget.setAttribute("tooltiptext", sm.msg);
@@ -584,6 +589,7 @@ function _updateMessage()
             }
             _lastNotification = notification;
         } else {
+            internalDeck.selectedIndex = 0;
             messageWidget.setAttribute("label", _bundle.GetStringFromName("ready.label"));
             messageWidget.removeAttribute("tooltiptext");
             messageWidget.removeAttribute("category");
@@ -639,6 +645,12 @@ function StatusBarObserver() {
     window.addEventListener('load', function() {
         document.getElementById('statusbar-message')
                 .addEventListener("dblclick", _statusBarDblClick, false);
+    }, false);
+    window.addEventListener('komodo-ui-started', function() {
+        if (document.getElementById('breadcrumbbarWrap'))
+        {
+            _deckIndex.messages++;
+        }
     }, false);
     ko.main.addWillCloseHandler(this.destroy, this);
 };
@@ -887,6 +899,12 @@ this.AddMessage = function(msg, category, timeout, highlight, interactive, log /
     }
     if (typeof(log) == "undefined") log = !interactive;
     return _addMessage(msg, category, timeout, highlight, interactive, log);
+};
+
+this.clearMessage = function() {
+    _messageStack = Components.classes["@activestate.com/koStatusMessageStack;1"].
+                          createInstance(Components.interfaces.koIStatusMessageStack);
+    _updateMessage(false);
 };
 
 /**

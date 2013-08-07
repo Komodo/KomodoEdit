@@ -109,7 +109,7 @@ separator.groovy-thin
 
 /* Buttons */
 
-button:not(.button-toolbar-b):not(.button-toolbar-c):not(.button-toolbar-d):not(.button-link):not([type="menu"]),
+button:not(.button-toolbar-b):not(.button-toolbar-c):not(.button-toolbar-d):not(.button-link):not(.button-plain):not([type="menu"]),
 :not(toolbarbutton):not(toolbaritem) > toolbarbutton
 {
     -moz-appearance: @button-appearance;
@@ -125,7 +125,7 @@ button:not(.button-toolbar-b):not(.button-toolbar-c):not(.button-toolbar-d):not(
     }
 }
 
-button:-moz-any(.button-toolbar-b, .button-toolbar-c, .button-toolbar-d),
+button:-moz-any(.button-toolbar-b, .button-toolbar-c, .button-toolbar-d, .button-plain),
 :not(toolbarbutton):not(toolbaritem) > toolbarbutton
 {
     &:-moz-any(button)

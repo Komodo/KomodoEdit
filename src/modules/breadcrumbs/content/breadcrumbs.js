@@ -1147,6 +1147,18 @@ if (typeof ko.breadcrumbs == 'undefined')
                 button.classList.remove('overflown');
             }
 
+            //var msgPane = document.getElementById('statusbar-message-panel');
+            //if (msgPane.scrollWidth > msgPane.boxObject.width)
+            //{
+            //    var statusbarWith = document.getElementById('statusbarviewbox').boxObject.width;
+            //    var width = Math.floor(statusbarWidth / 4);
+            //
+            //    if (breadcrumbbarWrap.boxObject.width > width)
+            //    {
+            //        breadcrumbbarWrap.setAttribute("width", width);
+            //    }
+            //}
+
             // Now check whether the breadcrumb bar is actually overflown
             if (breadcrumbBar.scrollWidth > breadcrumbBar.boxObject.width)
             {
