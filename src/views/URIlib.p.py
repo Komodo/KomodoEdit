@@ -46,6 +46,7 @@ import types, re
 win32 = sys.platform.startswith("win")
 from xpcom import components, COMException, ServerException, nsError
 from xpcom.server import UnwrapObject
+from zope.cachedescriptors.property import LazyClassAttribute
 
 if win32:
     WIN32_DRIVE_REMOTE = 4
@@ -155,6 +156,17 @@ class URIParser(object):
     _baseName = None
     _dirName = None
     _ext = None
+
+    # Lazily loaded class variables.
+    @LazyClassAttribute
+    def komodoStartupEncoding(self):
+        return components.classes['@activestate.com/koInitService;1'].\
+                    getService(components.interfaces.koIInitService).\
+                    getStartupEncoding()
+    @LazyClassAttribute
+    def encodingServices(self):
+        return components.classes['@activestate.com/koEncodingServices;1'].\
+                    getService(components.interfaces.koIEncodingServices);
 
     def __init__(self, uri=None):
         # _fileParsed contains broken up parts of the URI, indexes are:
@@ -285,8 +297,6 @@ class URIParser(object):
         # files with latin-1 or other 8 bit encodings on systems where
         # utf-8 support is incomplete (bug 29040)
         if type(filename) == types.UnicodeType:
-            encodingServices = components.classes['@activestate.com/koEncodingServices;1'].\
-                            getService(components.interfaces.koIEncodingServices);
             try:
                 fn_enc = sys.getfilesystemencoding()
                 if not fn_enc:
@@ -295,10 +305,8 @@ class URIParser(object):
                     elif sys.platform.startswith('darwin'):
                         fn_enc = 'utf-8'
                     else:
-                        initService = components.classes['@activestate.com/koInitService;1'].\
-                                        getService(components.interfaces.koIInitService);
-                        fn_enc = initService.getStartupEncoding()
-                filename = encodingServices.encode(filename, fn_enc, 'strict')
+                        fn_enc = self.komodoStartupEncoding
+                filename = self.encodingServices.encode(filename, fn_enc, 'strict')
             except COMException, e:
                 # happens on occasion, such as when windows system encoding is
                 # cp936. see bug #32814. falling back to the regular path allows
@@ -474,6 +482,11 @@ class FileHandlerBase(object):
 
     isNetworkFile = False
 
+    @LazyClassAttribute
+    def lastErrorSvc(self):
+        return components.classes["@activestate.com/koLastErrorService;1"].\
+                    getService(components.interfaces.koILastErrorService)
+
     def __init__(self):
         self.clearstat()
         self._file = None
@@ -521,9 +534,7 @@ class FileHandlerBase(object):
             else:
                 return self._file.read(nBytes)
         except EnvironmentError, ex:
-            lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                           .getService(components.interfaces.koILastErrorService)
-            lastErrorSvc.setLastError(ex.errno, ex.strerror)
+            self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
             raise ServerException(nsError.NS_ERROR_FAILURE, ex.strerror)
         except COMException:
             # Last error should already be set in this case
@@ -533,9 +544,7 @@ class FileHandlerBase(object):
         try:
             self._file.write(text)
         except EnvironmentError, ex:
-            lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                           .getService(components.interfaces.koILastErrorService)
-            lastErrorSvc.setLastError(ex.errno, ex.strerror)
+            self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
             raise ServerException(nsError.NS_ERROR_FAILURE, ex.strerror)
         except COMException:
             # Last error should already be set in this case
@@ -601,9 +610,7 @@ class FileHandler(FileHandlerBase):
             try:
                 self._file.close()
             except EnvironmentError, ex:
-                lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                               .getService(components.interfaces.koILastErrorService)
-                lastErrorSvc.setLastError(ex.errno, ex.strerror)
+                self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
                 raise ServerException(nsError.NS_ERROR_FAILURE, ex.strerror)
                 return 0
         finally:
@@ -632,9 +639,7 @@ class FileHandler(FileHandlerBase):
                     strerror = repr(ex.args)
                 else:
                     strerror = ex.strerror
-                lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                               .getService(components.interfaces.koILastErrorService)
-                lastErrorSvc.setLastError(errno, strerror)
+                self.lastErrorSvc.setLastError(errno, strerror)
                 raise ServerException(nsError.NS_ERROR_FAILURE, strerror)
                 return 0
         return self._file is not None
@@ -785,6 +790,17 @@ class StartPageHandler(FileHandlerBase):
     isLocal = 0
     isRemoteFile = 0
     
+    @LazyClassAttribute
+    def displayPath(self):
+        """A HACK to override the start page view's document.file.displayPath
+        until http://bugs.activestate.com/show_bug.cgi?id=25526 is
+        implemented.
+        """
+        bundle = components.classes["@mozilla.org/intl/stringbundle;1"].\
+                 getService(components.interfaces.nsIStringBundleService).\
+                 createBundle("chrome://komodo/locale/komodo.properties")
+        return bundle.GetStringFromName("startPageDisplayPath")
+
     def __init__(self, path):
         FileHandlerBase.__init__(self)
         if path != "chrome://komodo/content/startpage/startpage.xml#view-startpage":
@@ -815,16 +831,6 @@ class StartPageHandler(FileHandlerBase):
             self._stats = self.__get_stats()
         return self._stats
     stats = property(get_stats)
-
-    def get_displayPath(self):
-        """A HACK to override the start page view's document.file.displayPath
-        until http://bugs.activestate.com/show_bug.cgi?id=25526 is
-        implemented.
-        """
-        bundle = components.classes["@mozilla.org/intl/stringbundle;1"].\
-                 getService(components.interfaces.nsIStringBundleService).\
-                 createBundle("chrome://komodo/locale/komodo.properties")
-        return bundle.GetStringFromName("startPageDisplayPath")
 
     
 class xpURIHandler(FileHandlerBase):
@@ -898,6 +904,11 @@ class RemoteURIHandler(FileHandlerBase):
     isLocal = 0
     isRemoteFile = 1
     
+    @LazyClassAttribute
+    def remoteFileSvc(self):
+        return components.classes["@activestate.com/koRemoteConnectionService;1"].\
+                    getService(components.interfaces.koIRemoteConnectionService)
+
     def __init__(self,path):
         import re
         FileHandlerBase.__init__(self)
@@ -914,9 +925,7 @@ class RemoteURIHandler(FileHandlerBase):
         pass
 
     def _getConnection(self):
-        RFService = components.classes["@activestate.com/koRemoteConnectionService;1"].\
-                    getService(components.interfaces.koIRemoteConnectionService)
-        return RFService.getConnectionUsingUri(self._fulluri)
+        return self.remoteFileSvc.getConnectionUsingUri(self._fulluri)
         
     def _getRemotePathInfo(self, refresh=0):
         # Check that the file exists
@@ -996,16 +1005,19 @@ class RemoteURIHandler(FileHandlerBase):
         return 1
 
     def chmod(self, permissions):
-        RFService = components.classes["@activestate.com/koRemoteConnectionService;1"].\
-                    getService(components.interfaces.koIRemoteConnectionService)
-        connection = RFService.getConnectionUsingUri(self._fulluri)
+        connection = self.remoteFileSvc.getConnectionUsingUri(self._fulluri)
         connection.chmod(self._uri.path, permissions)
         self._stats['permissions'] = permissions
 
 class projectURIHandler(FileHandlerBase):
     isLocal = 0
     isRemoteFile = 0
-    
+
+    @LazyClassAttribute
+    def partSvc(self):
+        return components.classes["@activestate.com/koPartService;1"].\
+                    getService(components.interfaces.koIPartService)
+
     def __init__(self,URI):
         FileHandlerBase.__init__(self)
         self._uri = URI
@@ -1029,10 +1041,8 @@ class projectURIHandler(FileHandlerBase):
                     self.part.project.isDirty = True
                     # If the part resides in one of the toolboxes, then
                     # automatically save the toolbox as well - bug 82878.
-                    partSvc = components.classes["@activestate.com/koPartService;1"]\
-                                .getService(components.interfaces.koIPartService)
-                    if self.part.project in (partSvc.toolbox,
-                                             partSvc.sharedToolbox):
+                    if self.part.project in (self.partSvc.toolbox,
+                                             self.partSvc.sharedToolbox):
                         self.part.project.save()
         finally:
             try:
@@ -1052,9 +1062,7 @@ class projectURIHandler(FileHandlerBase):
             # get the part from the part service, get the value of the part,
             # and insert it into a stringio object
             if not self.part:
-                _partSvc = components.classes["@activestate.com/koPartService;1"]\
-                    .getService(components.interfaces.koIPartService)
-                self.part = _partSvc.getPartById(self._uri.server)
+                self.part = self.partSvc.getPartById(self._uri.server)
                 self._stats = None
             if mode and mode[0] == 'r':
                 # bug89131: work with read method, which returns octets
@@ -1105,15 +1113,19 @@ class projectURIHandler(FileHandlerBase):
     stats = property(get_stats)
 
 class projectURI2_Handler(projectURIHandler):
+
+    @LazyClassAttribute
+    def toolSvc(self):
+        return UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].\
+                               getService(components.interfaces.koIToolbox2ToolManager))
+
     def __del__(self):
         if self._file:
             self.close()
 
     def getMacroTool(self):
         # Should get snippets as well...
-        toolSvc = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].\
-                               getService(components.interfaces.koIToolbox2ToolManager))
-        return toolSvc.getToolById(self._uri.server)
+        return self.toolSvc.getToolById(self._uri.server)
 
     def close(self):
         if not self._file:
