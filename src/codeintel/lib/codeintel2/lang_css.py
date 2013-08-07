@@ -47,7 +47,13 @@ import logging
 import traceback
 from pprint import pprint
 
-from zope.cachedescriptors.property import LazyClassAttribute
+try:
+    from zope.cachedescriptors.property import LazyClassAttribute
+except ImportError:
+    import warnings
+    warnings.warn("Unable to import zope.cachedescriptors.property")
+    # Fallback to regular properties.
+    LazyClassAttribute = property
 
 import SilverCity
 from SilverCity.Lexer import Lexer
