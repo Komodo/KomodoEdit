@@ -79,8 +79,8 @@ class KoCSSLinter:
     @LazyClassAttribute
     def xpcshell_exe(self):
         if sys.platform.startswith("win"):
-            return "xpcshell.exe"
-        return "xpcshell"
+            return os.path.join(self.mozBinDir, "xpcshell.exe")
+        return os.path.join(self.mozBinDir, "xpcshell")
 
     def _setLDLibraryPath(self):
         env = koprocessutils.getUserEnv()
@@ -121,6 +121,7 @@ class KoCSSLinter:
 
         entries = []
         cmd = [self.xpcshell_exe, self.csslint_filepath, filepath]
+        stdout = None
 
         # We only need the stdout result.
         try:
