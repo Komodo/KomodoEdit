@@ -64,9 +64,14 @@ class KoCodeIntelService:
         self._init_callbacks = Queue.Queue()
         """Callbacks that should be invoked on init"""
 
-        Cc["@mozilla.org/memory-reporter-manager;1"]\
-          .getService(Ci.nsIMemoryReporterManager)\
-          .registerMultiReporter(self)
+        try:
+            Cc["@mozilla.org/memory-reporter-manager;1"]\
+              .getService(Ci.nsIMemoryReporterManager)\
+              .registerMultiReporter(self)
+        except COMException as ex:
+            if ex.errno != Cr.NS_ERROR_FAILURE:
+                raise
+            # This can fail during unit tests
 
     __db_preloader = None
     @property
@@ -83,7 +88,7 @@ class KoCodeIntelService:
         self._enabled = True
 
         try:
-            self._init_callbacks.put(xpcom_callback.callback)
+            self._init_callbacks.put(xpcom_callback.koIAsyncCallback.callback)
         except AttributeError:
             if callable(xpcom_callback):
                 self._init_callbacks.put(xpcom_callback)
