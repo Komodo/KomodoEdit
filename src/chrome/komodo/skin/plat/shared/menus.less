@@ -5,6 +5,7 @@
 menubar
 {
     -moz-appearance: @main-menu-appearance !important;
+    border: 0;
     
     & > menu
     {
@@ -74,6 +75,7 @@ menupopup
 {
     -moz-appearance: @menupopup-appearance;
     background: @menupopup-background;
+    border: @menupopup-border;
 
     menuitem, menu
     {
@@ -110,4 +112,9 @@ menupopup
         -moz-appearance: @menupopup-separator-appearance !important;
         background: @menupopup-separator-background;
     }
+}
+
+#unifiedMenuButton dropmarker
+{
+    visibility: collapse;
 }

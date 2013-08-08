@@ -21,6 +21,7 @@ page#addons-page
     #search-filter,
     .view-header
     {
+        border-top: 0;
         border-bottom: @main-border;
     }
 
@@ -36,25 +37,61 @@ page#addons-page
         border-top-left-radius: 4px;
         border-bottom-left-radius: 4px;
     }
+    
+    .addon, .name-container
+    {
+        color: @list-listbox-item-color;
+    }
 
     .category
     {
+        color: @list-listbox-item-color;
+        background: @list-listbox-row-background;
 
         &[selected="true"]
         {
-            color: ~"@{list-listbox-item-color-selected}";
-            background: ~"@{list-listbox-row-background-selected}";
+            color: @list-listbox-item-color-selected;
+            background: @list-listbox-row-background-selected;
             border: none;
         }
 
         &[selected="true"]:focus
         {
-            color: ~"@{list-listbox-item-color-focus}";
-            background: ~"@{list-listbox-row-background-focus}";
+            color: @list-listbox-item-color-focus;
+            background: @list-listbox-row-background-focus;
             border: none;
         }
 
     }
+    
+    #header-search, #header-search:hover, #header-search[focused]
+    {
+        -moz-appearance: @textbox-appearance !important;
+        background-color: @textbox-background !important;
+        color: @textbox-color !important;
+        box-shadow: @textbox-box-shadow !important;
+        border: @textbox-border !important;
+        border-radius: @textbox-border-radius !important;
+    }
+    
+    .header-button
+    {
+        -moz-appearance: @button-appearance;
+        background: @button-background;
+        color: @button-color;
+        border: @button-border;
+        text-shadow: @button-text-shadow;
+        border-radius: @button-border-radius;
+        
+        &:hover
+        {
+            background: @button-background-hover !important;
+            color: @button-color-hover !important;
+            border: @button-border-hover !important;
+            text-shadow: @button-text-shadow-hover !important;
+        }
+    }
+    
 }
 
 /* Account Setup Wizard */

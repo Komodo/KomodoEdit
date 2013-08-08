@@ -27,6 +27,7 @@ splitter
     -moz-appearance: @splitter-appearance;
     background-color: @splitter-background-color;
     background-image: @splitter-background-image;
+    border: @splitter-border;
 
     grippy
     {
@@ -200,6 +201,11 @@ button:not([disabled]):not(.button-link):not([type="menu"]),
     &:-moz-any(menulist, button[type="menu"])
     {
         -moz-appearance: @menulist-appearance;
+        
+        dropmarker
+        {
+            visibility: @menulist-dropmarker-visibility;
+        }
     }
 
     background-color: @textbox-background;
@@ -208,6 +214,11 @@ button:not([disabled]):not(.button-link):not([type="menu"]),
 
     border: @textbox-border;
     border-radius: @textbox-border-radius;
+}
+
+textbox.plain
+{
+    color: @textbox-color;
 }
 
 /* Checkboxes */
@@ -434,4 +445,18 @@ richlistbox { .list-styling.richlistbox(listbox); }
 #unifiedMenuPrimaryPane
 {
     border-right: @panel-border;
+}
+
+/* Groupboxes */
+
+groupbox
+{
+    -moz-appearance: @groupbox-appearance;
+    border: @groupbox-border;
+    
+    caption
+    {
+        font-weight: @groupbox-caption-font-weight;
+        background: @groupbox-caption-background;
+    }
 }
