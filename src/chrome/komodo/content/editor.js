@@ -472,18 +472,18 @@ editor_editorController.prototype.do_cmd_addAdditionalCaret = function() {
 editor_editorController.prototype._aux_is_cmd_rename_tag_enabled = function() {
     var view = _getCurrentScimozView();
     if (!view || view.getAttribute("type") != "editor") {
-        return false;
+        return [false];
     }
     var koDoc = view.koDoc;
     if (!koDoc) {
-        return false;
+        return [false];
     }
     var scimoz = view.scimoz;
     if (!scimoz) {
-        return false;
+        return [false];
     }
     if (koDoc.languageObj.supportsSmartIndent != "XML") {
-        return false;
+        return [false];
     }
     return [true, view, koDoc, scimoz];
 }
@@ -568,7 +568,6 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
     var tagName = scimoz.getTextRange(tagNameStartPos, tagNameEndPos);
     var result = {};
     koDoc.languageObj.getMatchingTagInfo(scimoz, tagNameStartPos - 1, false, result, {});
-    gResult = result.value;
     if (!result.value || !result.value.length) {
         ko.statusBar.AddMessage(_bundle.formatStringFromName("RenameTag Failed to find a matching tag for X",
                                                              [tagName], 1),
@@ -584,8 +583,8 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
     // Now find the tag boundaries.
     s1 += 1;
     e1 += 2;
-    if (scimoz.getStyleAt(s1 != scimoz.SCE_UDL_M_TAGNAME)
-        || scimoz.getStyleAt(e1 != scimoz.SCE_UDL_M_TAGNAME)) {
+    if (scimoz.getStyleAt(s1) != scimoz.SCE_UDL_M_TAGNAME
+        || scimoz.getStyleAt(e1) != scimoz.SCE_UDL_M_TAGNAME) {
         ko.statusBar.AddMessage(_bundle.GetStringFromName("RenameTag Cant find the start of a tagname"),
                                 "editor", 3000, true);
         return;
