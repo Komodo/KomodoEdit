@@ -478,10 +478,6 @@ editor_editorController.prototype._aux_is_cmd_rename_tag_enabled = function() {
     if (!koDoc) {
         return [false];
     }
-    var scimoz = view.scimoz;
-    if (!scimoz) {
-        return [false];
-    }
     if (koDoc.languageObj.supportsSmartIndent != "XML") {
         return [false];
     }
@@ -495,13 +491,14 @@ editor_editorController.prototype.is_cmd_rename_tag_enabled = function() {
 }
 
 editor_editorController.prototype.do_cmd_rename_tag = function() {
-    var parts, isEnabled, view, koDoc, scimoz;
+    var parts, isEnabled, view, koDoc;
     parts = this._aux_is_cmd_rename_tag_enabled();
     if (!parts[0]) {
         ko.statusBar.AddMessage("Invalid context for renaming a tag", "editor", 3000, true);
         return;
     }
-    [isEnabled, view, koDoc, scimoz] = parts;
+    [isEnabled, view, koDoc] = parts;
+    var scimoz = view.scimoz;
     var currentPos = scimoz.currentPos;
     var prevPos = currentPos > 0 ? scimoz.positionBefore(currentPos) : 0;
     var anchorOffset = currentPos - scimoz.anchor;
