@@ -267,7 +267,8 @@
                           prefattribute="checked"/>
                 <description></description>
             </vbox>
-            <hbox align="center">
+            <hbox align="center"
+                  class="load-context-check" showIfLoadContext="global">
                 <label value="&minimumNumberLineAboveBelowCursor.label;"/>
                 <textbox id="ySlop"
                             size="3"
@@ -275,7 +276,8 @@
                             prefstring="ySlop"
                             prefattribute="value"/>
             </hbox>
-            <hbox align="center">
+            <hbox align="center"
+                  class="load-context-check" showIfLoadContext="global">
                 <label value="&horizScrollWidth.label;"/>
                 <textbox id="scrollWidth"
                             size="6"
@@ -283,7 +285,8 @@
                             prefstring="scrollWidth"
                             prefattribute="value"/>
             </hbox>
-            <hbox id="scrollWidthTracking_hbox" align="center">
+            <hbox id="scrollWidthTracking_hbox" align="center"
+                  class="load-context-check" showIfLoadContext="global">
                 <checkbox id="scrollWidthTracking"
                           label="&horizScrollWidthTracking.label;"
                           pref="true"
