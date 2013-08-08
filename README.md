@@ -49,7 +49,7 @@ Mailing Lists: [komodo-discuss](http://code.activestate.com/lists/komodo-discuss
 ## Building Komodo
 
 Note that these are simplified steps of the building process, for a more in-depth
-guide check building.txt in the same directory as this readme.
+guide check <BUILD.txt>.
 
 ### Building on Windows
 
@@ -62,27 +62,15 @@ guide check building.txt in the same directory as this readme.
 
  * Visual C++ 11.0 (aka Visual Studio 2012) and all the Platform SDKs for
    building Mozilla with vc11 [as described here](http://developer.mozilla.org/en/docs/Windows_Build_Prerequisites).
-
- * Visual C++ 6.0 (aka Visual Studio 6). This is necessary to build the
-   binary Ruby 1.8 extension for Ruby debugging, because Ruby 1.8 is built
-   with VC6.
-
-   If you don't have VC6, you can configure as follows to exclude that
-   part of the build. `bk configure --without-binary-dbgp-clients ...`
-  
-   Note that this will also skip building the binary debugging bits for *Python*
-   debugging which doesn't require VC6.
    
  * Install [the latest "MozillaBuild-$ver.exe"](http://ftp.mozilla.org/pub/mozilla.org/mozilla/libraries/win32/) package into *the default dir*
    (i.e. "C:\mozilla-build").
 
  * Install the [latest ActivePerl](http://downloads.activestate.com/ActivePerl/releases/).
 
- * Install Ruby, at least version 1.8.4
-
 See <http://developer.mozilla.org/en/docs/Windows_Build_Prerequisites> for
 more details on Windows build prerequisites. However, following the above
-steps is *meant to be sufficient* to get building Komodo.
+steps is *meant to be sufficient* to get Komodo building.
 
 #### Building Steps
 
@@ -101,7 +89,8 @@ steps is *meant to be sufficient* to get building Komodo.
    to several hours to complete (depending on your specs). For most modern
    machines it should be about an hour.
 
- * Now lets go back to the main repo directory and build Komodo:
+ * After mozilla is built successfully go abck to the main repo directory and
+   build komodo:
 
    ```
     cd ..
@@ -151,7 +140,7 @@ should be a lot faster as much of the compiled data is cached.
 
 See <http://developer.mozilla.org/en/docs/Mac_OS_X_Build_Prerequisites>
 for more details on Mac OS X build prerequisites. However, following the
-above steps is *meant to be sufficient* to get building Komodo.
+above steps is *meant to be sufficient* to get Komodo building.
 
 #### Linux Prerequisites
 
@@ -189,7 +178,8 @@ above steps is *meant to be sufficient* to get building Komodo.
    to several hours to complete (depending on your specs). For most modern
    machines it should be about an hour.
 
- * Now lets go back to the main repo directory and build Komodo:
+ * After mozilla is built successfully go abck to the main repo directory and
+   build komodo:
 
    ```
     cd ..
