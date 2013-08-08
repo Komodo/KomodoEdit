@@ -185,3 +185,6 @@ pref("browser.preferences.instantApply", true);
 // new trackpads) when pixel-scrolling; see bug 97964
 pref("mousewheel.enable_pixel_scrolling", false);
 #endif
+
+// Disable unresponsive script checking - bug 91614.
+pref("dom.max_chrome_script_run_time", 0);
