@@ -244,6 +244,29 @@
 
        <groupbox orient="vertical">
             <caption label="&scrolling.label;"/>
+            <hbox id="editShowMinimap_hbox" align="center">
+                <checkbox id="editShowMinimap"
+                          label="&useMinimapScrollbar.label;"
+                          pref="true"
+                          prefstring="editShowMinimap"
+                          prefattribute="checked" />
+            </hbox>
+            <hbox id="editEnableMouseZoom_hbox" align="center"
+                  class="load-context-check" showIfLoadContext="global">
+                <checkbox id="editEnableMouseZoom"
+                          label="&enableMouseZoom.label;"
+                          tooltiptext="&enableMouseZoomHow.tooltiptext;"
+                          pref="true" />
+            </hbox>
+            <!-- This is only used in scintilla.p.xml, and it can't
+                 see it's containing koDoc object, so it can only
+                 use the global prefs -->
+            <vbox class="load-context-check" showIfLoadContext="global">
+                <checkbox id="scrollEndAtLastLine" label="&enableScrollingPastEndOfBufferOnlyAppliesToNewBuffers.label;"
+                          pref="true" prefstring="scrollEndAtLastLine"
+                          prefattribute="checked"/>
+                <description></description>
+            </vbox>
             <hbox align="center">
                 <label value="&minimumNumberLineAboveBelowCursor.label;"/>
                 <textbox id="ySlop"
@@ -267,29 +290,6 @@
                           prefstring="scrollWidthTracking"
                           prefattribute="checked"
                           tooltiptext="&horizScrollWidthTracking.tooltiptext;"/>
-            </hbox>
-            <!-- This is only used in scintilla.p.xml, and it can't
-                 see it's containing koDoc object, so it can only
-                 use the global prefs -->
-            <vbox class="load-context-check" showIfLoadContext="global">
-                <checkbox id="scrollEndAtLastLine" label="&enableScrollingPastEndOfBufferOnlyAppliesToNewBuffers.label;"
-                          pref="true" prefstring="scrollEndAtLastLine"
-                          prefattribute="checked"/>
-                <description></description>
-            </vbox>
-            <hbox id="editShowMinimap_hbox" align="center">
-                <checkbox id="editShowMinimap"
-                          label="&useMinimapScrollbar.label;"
-                          pref="true"
-                          prefstring="editShowMinimap"
-                          prefattribute="checked" />
-            </hbox>
-            <hbox id="editEnableMouseZoom_hbox" align="center"
-                  class="load-context-check" showIfLoadContext="global">
-                <checkbox id="editEnableMouseZoom"
-                          label="&enableMouseZoom.label;"
-                          tooltiptext="&enableMouseZoomHow.tooltiptext;"
-                          pref="true" />
             </hbox>
         </groupbox>
 
