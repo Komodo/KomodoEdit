@@ -52,6 +52,7 @@ var log = ko.logging.getLogger("ko.editor");
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/editor.properties");
+var editor_controller_instance = null;
 
 const ISCIMOZ = Components.interfaces.ISciMoz;
 // Scintilla styling
@@ -164,7 +165,7 @@ editor_editorController.prototype.is_cmd_findPreviousSelected_enabled = function
 }
 
 editor_editorController.prototype.do_cmd_findPreviousSelected = function() {
-    this.do_cmd_findNextSelected(/* backwards */ true);
+    editor_controller_instance.do_cmd_findNextSelected(/* backwards */ true);
 }
 
 editor_editorController.prototype.is_cmd_bookmarkToggle_enabled = function() {
@@ -373,7 +374,7 @@ editor_editorController.prototype.do_cmd_rawKey= function() {
         return;
     }
     var scintilla = v.scintilla;
-    scintilla.key_handler = this.rawHandler;
+    scintilla.key_handler = editor_controller_instance.rawHandler;
     scintilla.addEventListener('blur', gCancelRawHandler, false);
     scintilla.scimoz.isFocused = true;
     ko.statusBar.AddMessage(_bundle.GetStringFromName("enterControlCharacter"),
@@ -381,8 +382,8 @@ editor_editorController.prototype.do_cmd_rawKey= function() {
 }
 
 function gCancelRawHandler(event) {
-    if (this.key_handler) {
-        this.key_handler = null;
+    if (editor_controller_instance.key_handler) {
+        editor_controller_instance.key_handler = null;
         var v = _getCurrentScimozView();
         if (!v) {
             return;
@@ -485,14 +486,14 @@ editor_editorController.prototype._aux_is_cmd_rename_tag_enabled = function() {
 }
 
 editor_editorController.prototype.is_cmd_rename_tag_enabled = function() {
-    return this._aux_is_cmd_rename_tag_enabled()[0];
+    return editor_controller_instance._aux_is_cmd_rename_tag_enabled()[0];
     // Because there aren't any events that fire when the doc position
     // changes, we need to check if we're on a tag in the do-part
 }
 
 editor_editorController.prototype.do_cmd_rename_tag = function() {
     var parts, isEnabled, view, koDoc;
-    parts = this._aux_is_cmd_rename_tag_enabled();
+    parts = editor_controller_instance._aux_is_cmd_rename_tag_enabled();
     if (!parts[0]) {
         ko.statusBar.AddMessage("Invalid context for renaming a tag", "editor", 3000, true);
         return;
@@ -917,11 +918,14 @@ function deleteHtmlRelocator() {
     delete _getCurrentScimozView()._htmlTagRelocator;
 }
 
+// Keep a handle on the controller, for local functions to use.
+editor_controller_instance = new editor_editorController();
+
 // No window while testing so skip (jsTest)
 if (typeof(window) != "undefined") {
-    window.controllers.appendController(new editor_editorController());
+    window.controllers.appendController(editor_controller_instance);
 } else {
-    ko.editor = new editor_editorController();
+    ko.editor = editor_controller_instance;
 }
 
 
