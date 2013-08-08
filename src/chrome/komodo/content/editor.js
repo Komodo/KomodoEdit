@@ -481,7 +481,7 @@ editor_editorController.prototype._aux_is_cmd_rename_tag_enabled = function() {
     if (koDoc.languageObj.supportsSmartIndent != "XML") {
         return [false];
     }
-    return [true, view, koDoc, scimoz];
+    return [true, view, koDoc];
 }
 
 editor_editorController.prototype.is_cmd_rename_tag_enabled = function() {
