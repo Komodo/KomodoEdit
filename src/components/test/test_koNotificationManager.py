@@ -40,6 +40,16 @@ class NotificationManagerTestCase(unittest.TestCase):
             result.QueryInterface(aInterface)
         return result
 
+    def setUp(self):
+        """Remove any existing notifications, in case some other part of the
+        test suite has added anything.  Ignore any errors, so we actually show
+        them in the test case."""
+        try:
+            for notification in self.nm.getAllNotifications():
+                self.nm.removeNotification(notification)
+        except:
+            pass
+
     @contextmanager
     def check_called(self, notification, will_call=True, old_index=-1, new_index=-1,
                      reason=Ci.koINotificationListener.REASON_UPDATED):
