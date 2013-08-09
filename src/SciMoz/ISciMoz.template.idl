@@ -46,6 +46,7 @@
 #include "nsIDOMEvent.idl"
 
 interface ISciMozEvents;
+interface nsIVariant; // Needed for generated code
 // An interface purely to get around a 128 vtable limitation
 // on some parts of xpcom.
 // This is pretty much all methods available in C++ (or python) due to the split
@@ -173,9 +174,6 @@ interface ISciMoz : ISciMozLite {
 		      in boolean bCtrl,
 		      in boolean bAlt);
 	void buttonMove(in long x, in long y);
-	long replaceTarget(in long length, in wstring text);
-	long replaceTargetRE(in long length, in wstring text);
-	long searchInTarget(in long length, in wstring text);
 
 	// constants go here, because they don't take up any space in the xpt
 	// stub it's safe to have them all (and makes it easier to find the

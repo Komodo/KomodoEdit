@@ -29,12 +29,18 @@ except ImportError:
 manualFunctions = """
     doBraceMatch markClosed hookEvents unhookEvents getStyledText getCurLine getLine
     getStyleRange assignCmdKey clearCmdKey getTextRange charPosAtPosition
-    sendUpdateCommands getWCharAt replaceTarget replaceTargetRE
-    searchInTarget addChar buttonDown buttonUp buttonMove endDrop
+    sendUpdateCommands getWCharAt addChar buttonDown buttonUp buttonMove endDrop
     """.split()
 """ Implemented by hand
     note: items returning strings or complex types are easier to
     manage when we implement them by hand.
+    """
+
+textAndLengthFunctions = """
+    addText addStyledText replaceTarget replaceTargetRE searchInTarget appendText
+    """.split()
+""" Functions taking arguments of the form (length, text); these are converted
+    to taking a single UTF8 string instead.
     """
 
 discardedFeatures = """
@@ -508,6 +514,18 @@ def generate_idl_method_fragment(feature, file, indent=8):
                 typeInfo[param["Type"]]["idlDirection"],
                 typeInfo[param["Type"]]["idlType"],
                 param["Name"]))
+
+    if idlName(feature["Name"]) in textAndLengthFunctions:
+        # This is a function which takes a string length follow by a string
+        # prefer just getting a single string instead, for better API in
+        # JavaScript and Python
+        assert len(feature["Params"]) == 2
+        assert typeInfo[feature["Params"][0]["Type"]]["idlDirection"] == "in"
+        assert typeInfo[feature["Params"][0]["Type"]]["idlType"] == "long"
+        assert typeInfo[feature["Params"][1]["Type"]]["idlDirection"] == "in"
+        args = ["in nsIVariant text_or_length",
+                "[optional] in AUTF8String text_deprecated"]
+
     log.debug("Writing IDL method %s", feature.get("Name"))
     if missingType is not None:
         _("/* method %(name)s has missing type %(type)s */",
@@ -585,6 +603,8 @@ def generate_idl_lite_fragment(face):
         """)
     for name in face.order:
         if not (idlName(name) in liteFeatures or attributeName(name) in liteFeatures):
+            continue
+        if idlName(name) in manualFunctions:
             continue
         feature = face.features[name]
         if feature["FeatureType"] == "fun":
@@ -733,6 +753,37 @@ def generate_cxx_xpcom_method_fragment(feature, file):
     resultline = "%(returnsetter)sSendEditor(%(sciArgs)s);"
     if cxxGetterResultOverride:
         resultline = cxxGetterResultOverride
+
+    if idlName(feature["Name"]) in textAndLengthFunctions:
+        args = ["nsIVariant* v", "const nsACString& t"]
+        replacements["has_return"] = "0"
+        if feature["ReturnType"] == "int":
+            args.append("int32_t *_retval")
+            replacements["has_return"] = "1"
+        replacements["args"] = ", ".join(args)
+        resultline = """
+            nsresult rv;
+            int32_t result;
+            if (t.IsVoid()) {
+                nsCString text;
+                rv = v->GetAsACString(text);
+                NS_ENSURE_SUCCESS(rv, rv);
+                result = SendEditor(%(sciApiName)s, text.Length(),
+                                    reinterpret_cast<long>(text.get()));
+            } else {
+                int32_t length;
+                rv = v->GetAsInt32(&length);
+                NS_ENSURE_SUCCESS(rv, rv);
+                if (length > t.Length()) {
+                    length = t.Length();
+                }
+                result = SendEditor(%(sciApiName)s, length,
+                                    reinterpret_cast<long>(t.BeginReading()));
+            }
+            #if %(has_return)s
+                *_retval = result;
+            #endif /* %(has_return)s */
+        """
 
     _(r"""
         NS_IMETHODIMP SciMoz::%(name)s(%(args)s) {
@@ -1120,6 +1171,56 @@ def generate_npapi_invoke_manual_fragment(name, file):
       indent=4,
       file=file)
 
+def generate_npapi_invoke_text_and_length_fragment(feature, file):
+    """
+    Generate an NPAPI invoke fragment for a method that takes a length and a
+    string.
+    @param name: the name of the method
+    @param file: the file to write to
+    """
+    name = feature["Name"]
+    log.debug("Writing text-and-length invoke stub for method %s", name)
+    _(r"""
+      if (name == SM_METHOD_%(defineName)s) {
+          /* ## text-and-length method: %(idlName)s ## */
+          #ifdef SCIMOZ_DEBUG
+              printf("SciMoz::%(cxxName)s\n");
+          #endif
+          SCIMOZ_CHECK_THREAD("%(cxxName)s", false)
+          SCIMOZ_CHECK_ALIVE("%(cxxName)s", false)
+          if (argCount != 1) {
+              SCIMOZ_DEBUG_PRINTF("%%s: expected 1 argument, got %%i\n",
+                                  __FUNCTION__,
+                                  argCount);
+              return false;
+          }
+          if (!NPVARIANT_IS_STRING(args[0])) {
+              SCIMOZ_DEBUG_PRINTF("%%s: parameter is not int\n",
+                                  __FUNCTION__);
+              return false;
+          }
+
+          const NPUTF8* text = NPVARIANT_TO_STRING(args[0]).UTF8Characters;
+          int retval = SendEditor(%(messageName)s,
+                                  NPVARIANT_TO_STRING(args[0]).UTF8Length,
+                                  reinterpret_cast<sptr_t>(text));
+          if (%(hasReturn)s) {
+              NPN_ReleaseVariantValue(result);
+              INT32_TO_NPVARIANT(retval, *result);
+          }
+          return true;
+      }
+      """,
+      replacements={
+        "idlName": idlName(name),
+        "defineName": name.upper(),
+        "cxxName": interCaps(name, 1),
+        "messageName": DEFINEName(name),
+        "hasReturn": str(feature["ReturnType"] != "void").lower(),
+      },
+      indent=4,
+      file=file)
+
 def generate_npapi_invoke(face, file):
     """
     Generate the NPAPI Invoke method
@@ -1145,6 +1246,8 @@ def generate_npapi_invoke(face, file):
             continue
         if idlName(name) in manualFunctions:
             generate_npapi_invoke_manual_fragment(name, file)
+        elif idlName(name) in textAndLengthFunctions:
+            generate_npapi_invoke_text_and_length_fragment(feature, file)
         else:
             generate_npapi_invoke_scintilla_fragment(feature, file)
 
@@ -1537,17 +1640,40 @@ def generate_wrapper(face, interfaceCount):
           file=outputfile)
 
     for name in methods:
-        _("""
-          koSciMozWrapper.prototype.%(name)s =
-              function meth_%(name)s() {
-                %(logme)s return this.__scimoz.%(name)s.apply(this.__scimoz, arguments);
-              }
-          """,
-          replacements={
-            "name": idlName(name),
-            "logme": 'dump("scimoz: %s()\\n");' % (name) if add_logging else "",
-          },
-          file=outputfile)
+        if name in textAndLengthFunctions:
+            _("""
+              // length-then-text compatibility wrapper; see bug 95927.
+              // New code should not explicitly specify length.
+              koSciMozWrapper.prototype.%(name)s =
+                  function meth_%(name)s(aTextOrLength, aTextDeprecated) {
+                      var arg = aTextOrLength;
+                      if (typeof(aTextOrLength) == "number") {
+                          arg = String(aTextDeprecated).substring(0, aTextOrLength);
+                      } else if (typeof(aTextOrLength) != "string") {
+                          throw Components.Exception("The first argument of " + method +
+                                                     "should be a string",
+                                                     Cr.NS_ERROR_INVALID_ARG);
+                      }
+                      return this.__scimoz.%(name)s(arg);
+                  };
+              """,
+              replacements={
+                "name": idlName(name),
+                "logme": 'dump("scimoz: %s()\\n");' % (name) if add_logging else "",
+              },
+              file=outputfile)
+        else:
+            _("""
+              koSciMozWrapper.prototype.%(name)s =
+                  function meth_%(name)s() {
+                    %(logme)s return this.__scimoz.%(name)s.apply(this.__scimoz, arguments);
+                  }
+              """,
+              replacements={
+                "name": idlName(name),
+                "logme": 'dump("scimoz: %s()\\n");' % (name) if add_logging else "",
+              },
+              file=outputfile)
 
 
 #

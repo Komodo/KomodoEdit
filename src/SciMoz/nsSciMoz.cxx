@@ -46,6 +46,7 @@
 
 #include "nsSciMoz.h"
 #include "nsIClassInfoImpl.h"
+#include "nsIVariant.h" /* for generated code */
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -66,12 +67,13 @@ using namespace Scintilla;
 
 
 NS_IMPL_CLASSINFO(SciMoz, nullptr, 0, {0})
-NS_IMPL_ISUPPORTS6_CI(SciMoz,
+NS_IMPL_ISUPPORTS7_CI(SciMoz,
                       ISciMoz,
                       ISciMoz_Part0,
                       ISciMoz_Part1,
                       ISciMoz_Part2,
                       ISciMoz_Part3,
+                      ISciMoz_Part4,
                       nsISupportsWeakReference)
 
 SciMoz::SciMoz(SciMozPluginInstance* aPlugin)
@@ -1497,89 +1499,6 @@ bool SciMoz::GetWCharAt(const NPVariant *args, uint32_t argCount, NPVariant *res
 	NPUTF8* buf = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(retvalUtf8.Length()));
 	memcpy(buf, retvalUtf8.BeginReading(), retvalUtf8.Length());
 	STRINGN_TO_NPVARIANT(buf, retvalUtf8.Length(), *result);
-	return true;
-}
-
-NS_IMETHODIMP SciMoz::ConvertUTF16StringSendMessage(int message, PRInt32 length, const PRUnichar *text, PRInt32  *_retval) {
-	nsAutoCString utf8Text;
-	if (length == -1) {
-		utf8Text = NS_ConvertUTF16toUTF8(text);
-	} else {
-		utf8Text = NS_ConvertUTF16toUTF8(text, length);
-	}
-	*_retval = SendEditor(message, utf8Text.Length(), reinterpret_cast<long>(utf8Text.get()));
-	return NS_OK;
-}
-
-/* long replaceTarget(in long length, in wstring text); */
-NS_IMETHODIMP SciMoz::ReplaceTarget(PRInt32 length, const PRUnichar *text, PRInt32  *_retval) {
-#ifdef SCIMOZ_DEBUG
-	printf("SciMoz::ReplaceTarget\n");
-#endif
-	return ConvertUTF16StringSendMessage(SCI_REPLACETARGET, length, text, _retval);
-}
-
-bool SciMoz::ReplaceTarget(const NPVariant *args, uint32_t argCount, NPVariant *result) {
-	if (argCount != 2) return false;
-	if (!NPVARIANT_IS_INT32(args[0])) return false;
-	if (!NPVARIANT_IS_STRING(args[1])) return false;
-
-	NS_ConvertUTF8toUTF16 textUtf16(NPVARIANT_TO_STRING(args[1]).UTF8Characters,
-					NPVARIANT_TO_STRING(args[1]).UTF8Length);
-	PRInt32 retval;
-	nsresult rv;
-	rv = ReplaceTarget(NPVARIANT_TO_INT32(args[0]), textUtf16.get(), &retval);
-	if (NS_FAILED(rv)) return false;
-	NPN_ReleaseVariantValue(result);
-	INT32_TO_NPVARIANT(retval, *result);
-	return true;
-}
-
-/* long replaceTargetRE(in long length, in wstring text); */
-NS_IMETHODIMP SciMoz::ReplaceTargetRE(PRInt32 length, const PRUnichar *text, PRInt32  *_retval) {
-#ifdef SCIMOZ_DEBUG
-	printf("SciMoz::ReplaceTargetRE\n");
-#endif
-	return ConvertUTF16StringSendMessage(SCI_REPLACETARGETRE, length, text, _retval);
-}
-
-bool SciMoz::ReplaceTargetRE(const NPVariant *args, uint32_t argCount, NPVariant *result) {
-	if (argCount != 2) return false;
-	if (!NPVARIANT_IS_INT32(args[0])) return false;
-	if (!NPVARIANT_IS_STRING(args[1])) return false;
-
-	NS_ConvertUTF8toUTF16 textUtf16(NPVARIANT_TO_STRING(args[1]).UTF8Characters,
-					NPVARIANT_TO_STRING(args[1]).UTF8Length);
-	PRInt32 retval;
-	nsresult rv;
-	rv = ReplaceTargetRE(NPVARIANT_TO_INT32(args[0]), textUtf16.get(), &retval);
-	if (NS_FAILED(rv)) return false;
-	NPN_ReleaseVariantValue(result);
-	INT32_TO_NPVARIANT(retval, *result);
-	return true;
-}
-
-/* long searchInTarget(in long length, in wstring text); */
-NS_IMETHODIMP SciMoz::SearchInTarget(PRInt32 length, const PRUnichar *text, PRInt32  *_retval) {
-#ifdef SCIMOZ_DEBUG
-	printf("SciMoz::SearchInTarget\n");
-#endif
-	return ConvertUTF16StringSendMessage(SCI_SEARCHINTARGET, length, text, _retval);
-}
-
-bool SciMoz::SearchInTarget(const NPVariant *args, uint32_t argCount, NPVariant *result) {
-	if (argCount != 2) return false;
-	if (!NPVARIANT_IS_INT32(args[0])) return false;
-	if (!NPVARIANT_IS_STRING(args[1])) return false;
-
-	NS_ConvertUTF8toUTF16 textUtf16(NPVARIANT_TO_STRING(args[1]).UTF8Characters,
-					NPVARIANT_TO_STRING(args[1]).UTF8Length);
-	PRInt32 retval;
-	nsresult rv;
-	rv = SearchInTarget(NPVARIANT_TO_INT32(args[0]), textUtf16.get(), &retval);
-	if (NS_FAILED(rv)) return false;
-	NPN_ReleaseVariantValue(result);
-	INT32_TO_NPVARIANT(retval, *result);
 	return true;
 }
 

@@ -208,6 +208,7 @@ class SciMoz : public ISciMoz,
                public ISciMoz_Part1,
                public ISciMoz_Part2,
                public ISciMoz_Part3,
+               public ISciMoz_Part4,
                public nsSupportsWeakReference
                
 {
@@ -283,6 +284,7 @@ public:
   NS_DECL_ISCIMOZ_PART1
   NS_DECL_ISCIMOZ_PART2
   NS_DECL_ISCIMOZ_PART3
+  NS_DECL_ISCIMOZ_PART4
 
     void PlatformNew(void);
 
@@ -348,9 +350,6 @@ public:
     bool CharPosAtPosition(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool SendUpdateCommands(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool GetWCharAt(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool ReplaceTarget(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool ReplaceTargetRE(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool SearchInTarget(const NPVariant *args, uint32_t argCount, NPVariant *result);
 
     bool AddChar(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool ButtonDown(const NPVariant *args, uint32_t argCount, NPVariant *result);
