@@ -25,6 +25,8 @@ import time
 import urllib
 import weakref
 
+import koprocessutils
+
 log = logging.getLogger("codeintel.komodo")
 
 class KoCodeIntelService:
@@ -1268,7 +1270,16 @@ class KoCodeIntelBuffer(object):
                     cls = KoCodeIntelPythonMacroEnvironment
         except AttributeError:
             pass # use default environment
-        return cls(self.doc, self.project).env
+        try:
+            environ = koprocessutils.getUserEnv()
+        except COMException as ex:
+            if ex.errno == nsError.NS_ERROR_NOT_INITIALIZED:
+                koprocessutils.initialize()
+                environ = koprocessutils.getUserEnv()
+            else:
+                raise
+        return cls(doc=self.doc, project=self.project,
+                   environment=environ).env
 
     def _do_error_callback(self, errorCallback, msg):
         if hasattr(errorCallback, "onError"):
