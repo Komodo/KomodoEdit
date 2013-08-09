@@ -907,7 +907,12 @@
   <boolean id="new_file_add_to_project">1</boolean>
 
   <string id="editor-scheme">Default</string>
+
+  <!-- #if PLATFORM == "darwin" -->
+  <long id="editor_font_quality">3</long>
+  <!-- #else -->
   <long id="editor_font_quality">0</long>
+  <!-- #endif -->
 
   <boolean id="donotask_dragdrop_uri">0</boolean>
   <string id="donotask_action_dragdrop_uri"></string>
