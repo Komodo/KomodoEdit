@@ -1365,7 +1365,9 @@
                         // > dismissed again just by clicking in the same place.
                         event.clientX + 2,
                         event.clientY + 2,
-                        true);
+                        true, // isContextMenu
+                        false, // attributesOverride
+                        event);
                 }
                 ]]>
             </handler>
