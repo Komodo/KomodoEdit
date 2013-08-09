@@ -427,8 +427,11 @@ else {
 	$consHeadless->Program($headlessSciMoz,
 	    "headless/plugin.cxx",
 	    "headless/npn_gate.cpp",
-	    "headless/nsSciMoz.cxx",
+	    # nsSciMoz.cxx needs to be after nsSciMozHeadless.cxx because GNU
+	    # ld doesn't search for symbols in previous archives;
+	    # see bug 95927 comment 12
 	    "headless/nsSciMozHeadless.cxx",
+	    "headless/nsSciMoz.cxx",
 	    "headless/SciMozEvents.cxx",
 	    "headless/sendscintilla.cxx",
 	);

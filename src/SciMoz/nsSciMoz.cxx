@@ -45,6 +45,7 @@
 //
 
 #include "nsSciMoz.h"
+#include "nsIClassInfoImpl.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -64,15 +65,14 @@ using namespace Scintilla;
 #include "plugin.h"
 
 
-NS_IMPL_QUERY_INTERFACE7(SciMoz,
-			 ISciMoz,
-			 ISciMoz_Part0,
-			 ISciMoz_Part1,
-			 ISciMoz_Part2,
-			 ISciMoz_Part3,
-			 nsIClassInfo,
-			 nsISupportsWeakReference)
-
+NS_IMPL_CLASSINFO(SciMoz, nullptr, 0, {0})
+NS_IMPL_ISUPPORTS6_CI(SciMoz,
+                      ISciMoz,
+                      ISciMoz_Part0,
+                      ISciMoz_Part1,
+                      ISciMoz_Part2,
+                      ISciMoz_Part3,
+                      nsISupportsWeakReference)
 
 SciMoz::SciMoz(SciMozPluginInstance* aPlugin)
 {
@@ -98,35 +98,6 @@ SciMoz::~SciMoz()
 
     isClosed = 1;
 }
-
-// So we can debug reference issues we will implement our own addref/release
-// but we could use the macros if we wanted to:
-
-#ifndef SCIDEBUG_REFS
-NS_IMPL_ADDREF(SciMoz)
-NS_IMPL_RELEASE(SciMoz)
-#else
-NS_IMETHODIMP_(nsrefcnt) SciMoz::AddRef()
-{
-  ++mRefCnt;
-  //fprintf(stderr, "SciMoz::AddRef %d %08X\n", mRefCnt.get(), this);
-  return mRefCnt;
-}
-
-NS_IMETHODIMP_(nsrefcnt) SciMoz::Release()
-{
-  --mRefCnt;
-  if (mPlugin == NULL) {
-	fprintf(stderr, "SciMoz::Release %d plugin %p peer %p\n", mRefCnt.get(), mPlugin, this);
-  }
-  if (mRefCnt == 0) {
-	fprintf(stderr, "deleting SciMoz, no refcount %p peer %p\n", mPlugin, this);
-    delete this;
-    return 0;
-  }
-  return mRefCnt;
-}
-#endif
 
 void SciMoz::SciMozInit() {
     isClosed = 0;
