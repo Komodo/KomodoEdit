@@ -1435,6 +1435,8 @@
                 return false;
             }
 
+            var isUntitled = this.koDoc.isUntitled;
+
             // Copy over document prefs and other settings.
             this._copyDocumentPrefs(newdocument, this.koDoc);
             newdocument.new_line_endings = this.koDoc.new_line_endings;
@@ -1452,10 +1454,15 @@
                 ko.views.manager.showLargeFileProblem(this.koDoc.file.displayPath, oldLanguage);
                 newdocument.language = 'Text';
             }
+            let oldExt = isUntitled ? null : this.koDoc.file.ext;
             this.koDoc = newdocument;
             this.koDoc.codePage = codePage;
             if (!oldLargeDocument) {
-                this.koDoc.language = ''; // trigger a re-guessing of lang
+                // Only guess the language if the file extension has changed,
+                // or it was previously an untitled document - bug 99822.
+                if (!isUntitled && this.koDoc.file.ext !== oldExt) {
+                    this.koDoc.language = ''; // trigger a re-guessing of lang
+                }
             }
             this._doSave();
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
