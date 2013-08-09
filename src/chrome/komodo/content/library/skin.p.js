@@ -80,6 +80,8 @@ if (ko.skin == undefined)
             {
                 this.gtk.loadDetectedTheme();
             }
+
+            this._setupCustomScrollbars();
         },
         
         /**
@@ -238,6 +240,16 @@ if (ko.skin == undefined)
                 this._loadCustomSkin(uri);
             }
 
+            this._setupCustomScrollbars();
+
+            koLess.reload();
+        },
+
+        /**
+         * Apply the custom scrollbar preferences
+         */
+        _setupCustomScrollbars: function()
+        {
             var skinName = prefs.getString(PREF_CUSTOM_SKIN, "");
             try
             {
@@ -254,10 +266,8 @@ if (ko.skin == undefined)
                 prefs.setBooleanPref(PREF_USE_CUSTOM_SCROLLBARS, false);
                 log.debug("Not using custom scrollbars for " + skinName);
             }
+        },
 
-            koLess.reload();
-         },
-         
         /**
          * Unload a custom skin
          * 
