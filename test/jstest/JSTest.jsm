@@ -72,11 +72,14 @@ TestCase.prototype.failUnless = function TestCase_failUnless(expr, msg) {
     log.debug("PASS: " + msg);
 };
 TestCase.prototype.assertRaises =
-TestCase.prototype.failUnlessRaises = function TestCase_failUnlessRaises(excClass, callableObj, args, msg) {
+TestCase.prototype.failUnlessRaises = function TestCase_failUnlessRaises(excClass, callableObj, args, msg, callback) {
     try {
         callableObj.apply(this, args);
     } catch (ex if ex instanceof excClass) {
         // test passed
+        if (callback) {
+            callback(ex);
+        }
         log.debug("PASS: " + msg);
         return;
     }
