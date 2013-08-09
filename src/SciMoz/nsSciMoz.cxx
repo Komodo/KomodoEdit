@@ -1384,11 +1384,6 @@ bool SciMoz::SendUpdateCommands(const NPVariant *args, uint32_t argCount, NPVari
 	return NS_SUCCEEDED(rv);
 }
 
-NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* /*aTextEvent*/, nsIBoxObject * /*aBoxObject*/, nsAString & /*text*/)
-{
-	return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 /* wchar getWCharAt(in long pos); */
 NS_IMETHODIMP SciMoz::GetWCharAt(PRInt32 pos, PRUnichar *_retval) {
 #ifdef SCIMOZ_DEBUG
