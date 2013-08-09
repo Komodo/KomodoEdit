@@ -279,7 +279,9 @@ Object.defineProperty(SciMozMock.prototype, "lineCount", {
             dump('\n\nthis.text: ' + this.text + '\n');
             ko.logging.dumpStack();
         }
-        return (this.text.match(/\n/g) || []).length;
+        log.debug("lineCount: " + JSON.stringify(this.text) + " (" +
+                  ((this.text.match(/\n(?!$)/g) || []).length + 1) + " lines)");
+        return (this.text.match(/\n(?!$)/g) || []).length + 1;
     },
     enumerable: true, configurable: true});
 
