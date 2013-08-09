@@ -909,6 +909,7 @@
   <string id="editor-scheme">Default</string>
 
   <!-- #if PLATFORM == "darwin" -->
+  <!-- Use a different fontQuality setting on the Mac - see bug 99891. -->
   <long id="editor_font_quality">3</long>
   <!-- #else -->
   <long id="editor_font_quality">0</long>
