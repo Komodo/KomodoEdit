@@ -170,6 +170,15 @@ function _initTypePopup(list, popupId, defaultSetting, matchRx) {
 }
 
 function OnPreferencePageOK(prefset) {
+
+    /**
+     * Do not change anything on the view.prefs in OnPreferencePageOK, as it
+     * may be erased when "preset" is copied to view.prefs.
+     *
+     * Anything modifying view.prefs must be done in OnPreferencePageClosing,
+     * which is after the prefset has been copied - bug 99822.
+     */
+
     if (g_isProject) {
         pfi_OnPreferencePageOK(prefset);
     }
@@ -211,6 +220,41 @@ function OnPreferencePageOK(prefset) {
                 }
                 break;
 
+            case "encoding_and_or_bom":
+                var encodingName = data.encoding.getAttribute("data");
+                var bom = ((!data.bom.getAttribute("disabled") || data.bom.getAttribute("disabled") == "false")
+                           && data.bom.checked);
+                if (!applyEncodingAndBOM(encodingName, bom)) return false;
+                break;
+
+            case "language":
+            case "lineEndings":
+                // These are handled when the page is closing.
+                break;
+
+            default:
+                log.error("Don't know how to update changed field '"+field+"'.");
+            }
+        }
+
+        return true;
+    } catch (ex) {
+        log.exception(ex, "Error OK'ing dialog.");
+    }
+    return false;
+}
+
+function OnPreferencePageClosing(prefset, ok) {
+    if (!ok) {
+        return;
+    }
+
+    try {
+        var field, value;
+        for (field in data.changedFields) {
+            value = data.changedFields[field];
+            log.info("propogating changed field '"+field+"' to '"+value+"'\n");
+            switch(field) {
             case "language":
                 if (value == "" || value != parent.view.koDoc.language) {
                     parent.view.koDoc.language = value;
@@ -255,10 +299,6 @@ function OnPreferencePageOK(prefset) {
                 break;
 
             case "encoding_and_or_bom":
-                var encodingName = data.encoding.getAttribute("data");
-                var bom = ((!data.bom.getAttribute("disabled") || data.bom.getAttribute("disabled") == "false")
-                           && data.bom.checked);
-                if (!applyEncodingAndBOM(encodingName, bom)) return false;
                 xtk.domutils.fireEvent(window, 'current_view_encoding_changed');
                 break;
 
@@ -290,11 +330,9 @@ function OnPreferencePageOK(prefset) {
                     parent.view.prefs.deletePref(data.nsPrefName);
             }
         }
-        return true;
     } catch (ex) {
-        log.exception(ex, "Error OK'ing dialog.");
+        log.exception(ex, "Error OnPreferencePageClosing.");
     }
-    return false;
 }
 
 function setField(name, value)
