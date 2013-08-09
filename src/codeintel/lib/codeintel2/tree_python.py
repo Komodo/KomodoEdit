@@ -38,6 +38,7 @@
 """Completion evaluation code for Python"""
 
 from os.path import basename, dirname, join, exists, isdir
+import operator
 
 from codeintel2.common import *
 from codeintel2.tree import TreeEvaluator
@@ -164,6 +165,8 @@ class PythonTreeEvaluator(TreeEvaluator):
             return base_exception_class_completions
         start_scoperef = self.get_start_scoperef()
         self.info("start scope is %r", start_scoperef)
+        if self.trg.type == 'local-symbols':
+            return self._available_symbols(start_scoperef, self.expr)
         #if self.trg.type == 'available-classes':
         #    return self._available_classes(start_scoperef, self.trg.extra["consumed"])
         hit = self._hit_from_citdl(self.expr, start_scoperef)
@@ -210,6 +213,43 @@ class PythonTreeEvaluator(TreeEvaluator):
     #    matches_list = sorted(list(matches))
     #    return [('class', m) for m in matches_list]
     
+    def _available_symbols(self, scoperef, expr):
+        cplns = []
+        found_names = set()
+        while scoperef:
+            elem = self._elem_from_scoperef(scoperef)
+            if not elem:
+                break
+            for child in elem:
+                if child.tag == "import":
+                    name = child.get("alias") or child.get("symbol") or child.get("module")
+                    # TODO: Deal with "*" imports.
+                else:
+                    name = child.get("name", "")
+                if name.startswith(expr):
+                    if name not in found_names:
+                        found_names.add(name)
+                        ilk = child.get("ilk") or child.tag
+                        if ilk == "import":
+                            ilk = "module"
+                        cplns.append((ilk, name))
+            scoperef = self.parent_scoperef_from_scoperef(scoperef)
+
+        # Not adding keywords, as they are easily typed/remembered.
+        ## Add keywords, being smart about where they are allowed.
+        #accessor = self.buf.accessor
+        #start = accessor.line_start_pos_from_pos(self.trg.pos)
+        #preceeding_text = accessor.text_range(start, self.trg.pos).strip()
+        #from SilverCity.Keywords import python_keywords  # move to top-level
+        #for keyword in python_keywords.split(" "):
+        #    if len(keyword) > 3 and keyword.startswith(expr) and \
+        #       keyword not in found_names:
+        #        # Always allow: None, lambda
+        #        if not preceeding_text or keyword in ("None", "lambda"):
+        #            cplns.append(("keyword", keyword))
+
+        return sorted(cplns, key=operator.itemgetter(1))
+
     def _tokenize_citdl_expr(self, citdl):
         for token in citdl.split('.'):
             if token.endswith('()'):
@@ -747,12 +787,16 @@ class PythonTreeEvaluator(TreeEvaluator):
         self.log("resolve '%s' type inference:", citdl)
         return self._hit_from_citdl(citdl, scoperef)
 
+    @property
+    def stdlib(self):
+        #XXX Presume last lib is stdlib.
+        return self.buf.libs[-1]
+
     _built_in_blob = None
     @property
     def built_in_blob(self):
         if self._built_in_blob is None:
-            #XXX Presume last lib is stdlib.
-            self._built_in_blob = self.buf.libs[-1].get_blob("*")
+            self._built_in_blob = self.stdlib.get_blob("*")
         return self._built_in_blob
 
     def parent_scoperef_from_scoperef(self, scoperef):

@@ -623,6 +623,16 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertTriggerMatches("if __<|>", name=name, symbolstype="global",
                                   text="if")
 
+    def test_trigger_local_symbols(self):
+        name = "python-complete-local-symbols"
+        self.assertTriggerMatches("im<|>p", name=name)
+        self.assertNoTrigger("foo.im<|>p")
+        self.assertNoTrigger("i<|>mp")
+        self.assertNoTrigger("imp<|>")
+        self.assertTriggerMatches("(im<|>p", name=name)
+        self.assertNoTrigger("(i<|>")
+        self.assertNoTrigger("(imp<|>")
+
 class CodeintelPythonTestCase(CodeIntelTestCase):
     lang = "Python"
     _pyversion = None
@@ -2138,6 +2148,57 @@ class CplnTestCase(CodeintelPythonTestCase):
                      #('variable', 'lastgroup'), # Some interpreters don't expose lastgroup
                      #('variable', 'pos'),       # Some interpreters don't expose pos
                      ('function', 'start')])
+
+    def test_complete_local_symbols(self):
+        content, positions = unmark_text(dedent("""\
+            import football
+            footy = 1
+            def foofun():
+                pass
+            class fools:
+                pass
+            fo<1>
+
+            class fools2(object):
+                def foom(self, fooarg=2):
+                    foolocal = 'hello'
+                    fo<2>
+
+            class other(object):
+                fooother = 1
+                def otherfunc(self):
+                    fo<3>
+                fo<4>
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [('module', 'football'),
+                 ('variable', 'footy'),
+                 ('function', 'foofun'),
+                 ('class', 'fools'),
+                 ('class', 'fools2')])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+                [('module', 'football'),
+                 ('argument', 'fooarg'),
+                 ('variable', 'footy'),
+                 ('variable', 'foolocal'),
+                 ('function', 'foofun'),
+                 ('class', 'fools'),
+                 ('class', 'fools2')])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+                [('module', 'football'),
+                 ('variable', 'footy'),
+                 ('function', 'foofun'),
+                 ('class', 'fools'),
+                 ('class', 'fools2')])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[3]),
+                [('variable', 'fooother')])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
+                [('module', 'football'),
+                 ('variable', 'footy'),
+                 ('variable', 'fooother'),
+                 ('function', 'foofun'),
+                 ('class', 'fools'),
+                 ('class', 'fools2')])
 
 class OldCodeIntelTestCase(CodeIntelTestCase):
     """Test case from the old codeintel v1 test/test_citdl/... dir."""

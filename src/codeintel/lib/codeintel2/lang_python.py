@@ -356,6 +356,11 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     return
             evalr = PythonTreeEvaluator(ctlr, buf, trg, citdl_expr, line)
             buf.mgr.request_eval(evalr)
+        elif trg.id == (self.lang, TRG_FORM_CPLN, "local-symbols"):
+            line = buf.accessor.line_from_pos(trg.pos)
+            citdl_expr = trg.extra.get("citdl_expr")
+            evalr = PythonTreeEvaluator(ctlr, buf, trg, citdl_expr, line)
+            buf.mgr.request_eval(evalr)
         elif trg.id == (self.lang, TRG_FORM_CPLN, "magic-symbols"):
             symbolstype = trg.extra.get("symbolstype")
             cplns = []
@@ -664,6 +669,9 @@ class PythonBuffer(CitadelBuffer):
 
     cb_show_if_empty = True
 
+    keyword_style = ScintillaConstants.SCE_P_WORD
+    identifier_style = ScintillaConstants.SCE_P_IDENTIFIER
+
     @property
     def libs(self):
         return self.langintel.libs_from_buf(self)
@@ -696,10 +704,11 @@ class PythonBuffer(CitadelBuffer):
             print "  last_char: %r" % last_char
 
         # Quick out if the preceding char isn't a trigger char.
-        if last_char not in " .(@_":
-            if DEBUG:
-                print "trg_from_pos: no: %r is not in ' .(@'_" % last_char
-            return None
+        # Note: Cannot use this now that we have a 2-char locals trigger.
+        #if last_char not in " .(@_":
+        #    if DEBUG:
+        #        print "trg_from_pos: no: %r is not in ' .(@'_" % last_char
+        #    return None
 
         style = accessor.style_at_pos(last_pos)
         if DEBUG:
@@ -973,6 +982,32 @@ class PythonBuffer(CitadelBuffer):
             else:
                 if DEBUG: print "trg_from_pos: no: no chars preceding '('"
             return None
+
+        elif pos >= 2 and style in (self.identifier_style, self.keyword_style):
+            # 2 character trigger for local symbols
+            if DEBUG:
+                if style == self.identifier_style:
+                    print "Identifier style"
+                else:
+                    print "Identifier keyword style"
+            # Previous char also need to be an identifier/word, then the one
+            # before that needs to be something different (operator/space).
+            if (accessor.style_at_pos(last_pos-1) != style or
+                (pos > 2 and accessor.style_at_pos(last_pos-2) == style)):
+                if DEBUG:
+                    print "Not a block of two ident/word chars"
+                return None
+            if pos > 2 and accessor.char_at_pos(last_pos-2) == ".":
+                if DEBUG:
+                    print "  preceeded by '.' operator - not a trigger"
+                return None
+            citdl_expr = accessor.text_range(last_pos-1, last_pos+1)
+            if DEBUG:
+                print "  triggered 2 char symbol trigger: %r" % (citdl_expr, )
+            return Trigger(lang, TRG_FORM_CPLN, "local-symbols",
+                           last_pos-1, implicit,
+                           citdl_expr=citdl_expr)
+
 
     def _last_logical_line(self, text):
         lines = text.splitlines(0) or ['']
