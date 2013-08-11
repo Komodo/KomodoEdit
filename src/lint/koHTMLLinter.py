@@ -608,10 +608,10 @@ class _CommonHTMLLinter(object):
 
         lintResultsByLangName = {}
         for langName, textSubset in charsByLang.items():
-            #if not textSubset.strip():
-            #    # Don't bother linting empty documents.  XML-based languages
-            #    # require at least one element, but that could be annoying.
-            #    continue
+            if not textSubset.strip():
+                # Don't bother linting empty documents.  XML-based languages
+                # require at least one element, but that could be annoying.
+                continue
             if startCheck and langName in startCheck:
                 startPtn, insertion = startCheck[langName]
                 if not startPtn.match(textSubset):
