@@ -1057,11 +1057,6 @@ def ImageKomodo(cfg, argv):
             ("cp", mozdistpath("bin"),    iicorepath("lib", "mozilla")),
             ("cp", mozdistpath("python"), iicorepath("lib", "python")),
         ]
-        if sys.platform == "win32":
-            # Don't need Windows debug symbol files.
-            ibits += [
-                ("rtrim", "*.pdb"),
-            ]
     ibits += [
         ("cp", supportpath(), iisupportpath()),
         ("cp", sdkpath(), iisdkpath()),
@@ -1202,6 +1197,10 @@ def ImageKomodo(cfg, argv):
         #XXX (eventually) samples outside of support/...
     ]
     if sys.platform == "win32":
+        # Don't need Windows debug symbol files.
+        ibits += [
+            ("rtrim", "*.pdb"),
+        ]
         # We don't need the Python DLLs beside python.exe in the siloed
         # Python. The DLLs are already beside the main komodo.exe where
         # we *do* need them.
