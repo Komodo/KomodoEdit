@@ -84,6 +84,13 @@ finally:
 log = logging.getLogger("codeintel.ci2")
 
 
+#---- replace Manager with out own wrapper that sets up the environment.
+_Manager = Manager
+class Manager(_Manager):
+    def __init__(self):
+        extra_module_dirs = os.environ.get("PYTHONPATH", "").split(os.pathsep)
+        _Manager.__init__(self, extra_module_dirs=extra_module_dirs)
+
 
 #---- internal support stuff
 
