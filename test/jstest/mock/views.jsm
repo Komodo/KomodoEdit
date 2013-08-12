@@ -93,11 +93,6 @@ SciMozMock.prototype.getLineEndPosition =
         return lines.reduce(function(n, s) n + s.length, 0) + lastLine.length;
     };
 
-//Not part of the API, but this guy does no styling.
-SciMozMock.prototype.setStyles = function(aStyles) {
-    this.styles = [].concat(aStyles);
-}
-
 SciMozMock.prototype.startStyling =
     function SciMozMock_startStyling(pos, mask) {
         this.endStyled = pos;
