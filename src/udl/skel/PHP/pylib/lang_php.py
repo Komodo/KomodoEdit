@@ -3062,12 +3062,12 @@ class PHPParser:
                             return
                         extends = self._getExtendsArgument(styles, text, p)
                         self.addInterface(namelist[0], extends, doc=self.comment)
-                elif keyword == "return":
+                elif keyword in ("return", "yield"):
                     # Returning value for a function call
                     #   return 123;
                     #   return $x;
                     typeNames, p = self._getVariableType(styles, text, pos, assignmentChar=None)
-                    log.debug("typeNames:%r", typeNames)
+                    log.warn("typeNames:%r", typeNames)
                     if typeNames:
                         self.addReturnType(".".join(typeNames))
                 elif keyword == "catch" and pos+3 >= len(text):
