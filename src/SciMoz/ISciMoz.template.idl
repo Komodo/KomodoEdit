@@ -112,7 +112,7 @@ interface ISciMozLite : nsISupports {
         void markClosed();
 
         void addChar(in uint32_t ch);
-        long getLine(in long line, out AString text);
+        long getLine(in long line, out AUTF8String text);
 	
         // Needed on linux because of the way Mozilla works...
         // We do a grab_add on mousedown, but if you start dragging after that,

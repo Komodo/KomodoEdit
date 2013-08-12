@@ -996,23 +996,21 @@ bool SciMoz::GetCurLine(const NPVariant *args, uint32_t argCount, NPVariant *res
 }
 
 /* long getLine(in long line, out AUTF8String text); */
-NS_IMETHODIMP SciMoz::GetLine(PRInt32 line, nsAString & text, PRInt32  *_retval) 
+NS_IMETHODIMP SciMoz::GetLine(PRInt32 line, nsACString & text, PRInt32  *_retval)
 {
 	SCIMOZ_CHECK_VALID("GetLine");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::GetLine\n");
 #endif
 	int lineLength = SendEditor(SCI_LINELENGTH, line, 0);
-	char *buffer = new char[lineLength + 1];
-	if (!buffer)
+	char *buffer;
+	if (!text.BeginWriting(&buffer, NULL, lineLength + 1))
 		return NS_ERROR_OUT_OF_MEMORY;
-        buffer[lineLength]=0;
+	buffer[lineLength]=0;
 	*_retval = SendEditor(SCI_GETLINE, line, reinterpret_cast<long>(buffer));
 	NS_ASSERTION(buffer[lineLength] == NULL, "Buffer overflow");
 
-	text =  NS_ConvertUTF8toUTF16(buffer, lineLength);
-
-	delete []buffer;
+	text.SetLength(*_retval);
 	return NS_OK;
 }
 
@@ -1020,19 +1018,18 @@ bool SciMoz::GetLine(const NPVariant *args, uint32_t argCount, NPVariant *result
 	if (argCount != 2) return false;
 	if (!NPVARIANT_IS_INT32(args[0])) return false;
 	if (!NPVARIANT_IS_OBJECT(args[1])) return false;
-	nsString text;
-	PRInt32 retval;
-	nsresult rv = GetLine(NPVARIANT_TO_INT32(args[0]),
-			      text,
-			      &retval);
-	if (NS_FAILED(rv)) return false;
 
-	NS_ConvertUTF16toUTF8 textUtf8(text);
-	NPUTF8* buf = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(textUtf8.Length()));
-	if (!buf) return false;
-	memcpy(buf, textUtf8.get(), textUtf8.Length());
+	int line = NPVARIANT_TO_INT32(args[0]);
+	int lineLength = SendEditor(SCI_LINELENGTH, line, 0);
+	char *buffer = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(lineLength + 1));
+	if (!buffer) return false;
+        buffer[lineLength] = 0;
+	long actualLength = SendEditor(SCI_GETLINE, line,
+				       reinterpret_cast<sptr_t>(buffer));
+	NS_ASSERTION(buffer[lineLength] == NULL, "Buffer overflow");
+
 	NPVariant textNp;
-	STRINGN_TO_NPVARIANT(buf, textUtf8.Length(), textNp);
+	STRINGN_TO_NPVARIANT(buffer, actualLength, textNp);
 	bool success = NPN_SetProperty(mPlugin->GetNPP(),
 				       NPVARIANT_TO_OBJECT(args[1]),
 				       NPN_GetStringIdentifier("value"),
@@ -1043,7 +1040,7 @@ bool SciMoz::GetLine(const NPVariant *args, uint32_t argCount, NPVariant *result
 	}
 
 	NPN_ReleaseVariantValue(result);
-	INT32_TO_NPVARIANT(retval, *result);
+	INT32_TO_NPVARIANT(actualLength, *result);
 	return true;
 }
 
