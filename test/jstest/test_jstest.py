@@ -42,6 +42,7 @@ class JSTestResult(object):
         self.result = result
         self.clear()
     def clear(self):
+        self.skip_reason = None
         self.exception = None
     def reportError(self, aErrorMessage, aStack, aErrorType=None):
         tb_frame = None
@@ -50,6 +51,9 @@ class JSTestResult(object):
                 continue
             tb_frame = JSTestResult.TracebackFrame(frame, tb_frame)
         self.exception = (aErrorType, aErrorMessage, tb_frame)
+
+    def reportSkip(self, aReason):
+        self.skip_reason = aReason
 
     @unittest.result.failfast
     def addError(self, test, err):
@@ -83,6 +87,8 @@ class _JSTestTestCase(unittest.TestCase):
     def setUp(self):
         self._jstest_result.clear()
         self._case.setUp(self._jstest_result)
+        if self._jstest_result.skip_reason is not None:
+            raise testlib.TestSkipped(self._jstest_result.skip_reason)
         if self._jstest_result.exception:
             if self._jstest_result.exception[0] is not None:
                 raise self.failureException()
@@ -91,6 +97,8 @@ class _JSTestTestCase(unittest.TestCase):
     def tearDown(self):
         self._jstest_result.clear()
         self._case.tearDown(self._jstest_result)
+        if self._jstest_result.skip_reason is not None:
+            raise testlib.TestSkipped(self._jstest_result.skip_reason)
         if self._jstest_result.exception:
             if self._jstest_result.exception[0] is not None:
                 raise self.failureException()
@@ -98,6 +106,8 @@ class _JSTestTestCase(unittest.TestCase):
 
     def _run_one_test(self, testName):
         self._case.runTest(self._jstest_result, testName)
+        if self._jstest_result.skip_reason is not None:
+            raise testlib.TestSkipped(self._jstest_result.skip_reason)
         if self._jstest_result.exception:
             if self._jstest_result.exception[0] is not None:
                 raise self.failureException()

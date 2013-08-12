@@ -22,6 +22,12 @@ interface koIJSTestResult : nsISupports {
                      [array, size_is(aCount)] in wstring aStack,
                      in unsigned long aCount,
                      [optional] in ACString aErrorType);
+
+    /**
+     * Report that this test has been skipped.
+     * @param aReason The reason this test was skipped
+     */
+    void reportSkip([optional] in AString aReason);
 };
 
 /**

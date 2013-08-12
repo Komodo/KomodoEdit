@@ -2,7 +2,7 @@
  * JS test harness inspired by Python's unittest module
  */
 
-const EXPORTED_SYMBOLS = ["TestCase"];
+const EXPORTED_SYMBOLS = ["TestCase", "SkipTest"];
 
 let logging = Components.utils.import("chrome://komodo/content/library/logging.js", {}).logging;
 let log = logging.getLogger("jstest.TestCase");
@@ -23,6 +23,19 @@ function TestError(message, exceptionType) {
     this.stack = stack.join("\n");
 }
 TestError.prototype.__proto__ = new Error();
+
+function SkipTest(message) {
+    if (!(this instanceof SkipTest)) {
+        // throw SkipTest() instead of throw new SkipTest()
+        if (arguments.length < 1) {
+            return new SkipTest();
+        } else {
+            return new SkipTest(message);
+        }
+    }
+    this.message = arguments.length < 1 ? "" : String(message);
+    return this;
+}
 
 function keys(obj) {
     let hash = {}, proto = obj;

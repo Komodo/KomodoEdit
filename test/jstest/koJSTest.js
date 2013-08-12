@@ -3,7 +3,8 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const {TestCase, TestError} = Cu.import("resource://komodo-jstest/JSTest.jsm", {});
+const {TestCase, TestError, SkipTest} =
+    Cu.import("resource://komodo-jstest/JSTest.jsm", {});
 
 var log = null;
 
@@ -87,6 +88,8 @@ KoJSTestCase.prototype.getTestNames = function KoJSTestCase_getTestNames(aCount)
 KoJSTestCase.prototype.runTest = function KoJSTestCase_runTest(aResult, aTestName) {
     try {
         this.instance[aTestName]();
+    } catch (ex if ex instanceof SkipTest) {
+        aResult.reportSkip(ex.message);
     } catch (ex if ex instanceof TestError) {
         let stack = this._getStackForException(ex);
         aResult.reportError(ex.message || ex,
@@ -107,6 +110,9 @@ KoJSTestCase.prototype.setUp = function KoJSTestCase_setUp(aResult) {
     Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService).reset();
     try {
         this.instance = new this.clazz();
+    } catch (ex if ex instanceof SkipTest) {
+        aResult.reportSkip(ex.message);
+        return;
     } catch (ex if ex instanceof Error || ex instanceof Ci.nsIException) {
         let stack = this._getStackForException(ex);
         aResult.reportError("While creating " + this.name + ": " + (ex.message || ex),
@@ -120,6 +126,8 @@ KoJSTestCase.prototype.setUp = function KoJSTestCase_setUp(aResult) {
     }
     try {
         this.instance.setUp();
+    } catch (ex if ex instanceof SkipTest) {
+        aResult.reportSkip(ex.message);
     } catch (ex if ex instanceof Error || ex instanceof Ci.nsIException) {
         let stack = this._getStackForException(ex);
         aResult.reportError("While setting up " + this.name + ": " + (ex.message || ex),
@@ -134,6 +142,8 @@ KoJSTestCase.prototype.setUp = function KoJSTestCase_setUp(aResult) {
 KoJSTestCase.prototype.tearDown = function KoJSTestCase_tearDown(aResult) {
     try {
         this.instance.tearDown();
+    } catch (ex if ex instanceof SkipTest) {
+        aResult.reportSkip(ex.message);
     } catch (ex if ex instanceof Error || ex instanceof Ci.nsIException) {
         let stack = this._getStackForException(ex);
         aResult.reportError("While tearing down " + this.name + ": " + (ex.message || ex),
