@@ -223,4 +223,14 @@ class HTMLTestCase(CodeIntelTestCase):
             """),
             [("attribute_value", "ltr"), ("attribute_value", "rtl")])
 
+    @tag("bug99976")
+    def test_completions_invalid_html(self):
+        self.assertCompletionsInclude(
+            dedent("""
+                <html>
+                    </foo>
+                    <<|>
+                </html>
+            """),
+            [("element", 'img'), ("element", 'div')])
 
