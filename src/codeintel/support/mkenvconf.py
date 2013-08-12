@@ -125,7 +125,7 @@ def mkenvconf():
     ]
     udl_skel_dir = join(komodo_src_dir, "src", "udl", "skel")
     for d in os.listdir(udl_skel_dir):
-        pylib_dir = join(udl_skel_dir, "pylib")
+        pylib_dir = join(udl_skel_dir, d, "pylib")
         if exists(pylib_dir):
             pythonpaths.append(pylib_dir)
     if sys.platform == "win32":
