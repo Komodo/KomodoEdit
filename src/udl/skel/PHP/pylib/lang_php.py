@@ -3067,7 +3067,7 @@ class PHPParser:
                     #   return 123;
                     #   return $x;
                     typeNames, p = self._getVariableType(styles, text, pos, assignmentChar=None)
-                    log.warn("typeNames:%r", typeNames)
+                    log.debug("typeNames:%r", typeNames)
                     if typeNames:
                         self.addReturnType(".".join(typeNames))
                 elif keyword == "catch" and pos+3 >= len(text):
