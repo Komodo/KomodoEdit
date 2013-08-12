@@ -179,8 +179,6 @@ my @stdlibs_files = (
     "lib/codeintel2/stdlibs/ruby-1.9.2.cix",
     "lib/codeintel2/stdlibs/ruby-1.9.3.cix",
     "lib/codeintel2/stdlibs/php-4.4.cix",
-    "lib/codeintel2/stdlibs/php-5.0.cix",
-    "lib/codeintel2/stdlibs/php-5.1.cix",
     "lib/codeintel2/stdlibs/php-5.2.cix",
     "lib/codeintel2/stdlibs/php-5.3.cix",
     "lib/codeintel2/stdlibs/php-5.4.cix",
