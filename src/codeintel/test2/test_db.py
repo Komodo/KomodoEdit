@@ -735,35 +735,56 @@ class StdLibTestCase(DBTestCase):
         self._check_db()
 
     def test_php(self):
-        stdlib51 = self.mgr.db.get_stdlib("PHP", "5.1")
-        builtin51 = stdlib51.get_blob("*")
-        self.failUnless("PDO" in builtin51.names) # new in 5.1
+        builtin44 = self.mgr.db.get_stdlib("PHP", "4.4").get_blob("*")
+        builtin53 = self.mgr.db.get_stdlib("PHP", "5.3").get_blob("*")
+        builtin54 = self.mgr.db.get_stdlib("PHP", "5.4").get_blob("*")
+        builtin55 = self.mgr.db.get_stdlib("PHP", "5.5").get_blob("*")
+        # builtin should be the latest, i.e. PHP 5.5
+        builtin   = self.mgr.db.get_stdlib("PHP").get_blob("*")
 
-        stdlib50 = self.mgr.db.get_stdlib("PHP", "5.0")
-        builtin50 = stdlib50.get_blob("*")
-        self.failIf("PDO" in builtin50.names) # only in 5.1
-        self.failUnless("simplexml_load_file" in builtin50.names) # new in 5.0
+        # IMG_BOX constant was added in PHP 5.5
+        self.failIf("IMG_BOX" in builtin44.names)
+        self.failIf("IMG_BOX" in builtin53.names)
+        self.failIf("IMG_BOX" in builtin54.names)
+        self.failUnless("IMG_BOX" in builtin55.names)
+        self.failUnless("IMG_BOX" in builtin.names)
 
-        stdlib44 = self.mgr.db.get_stdlib("PHP", "4.4")
-        builtin44 = stdlib44.get_blob("*")
+        # password_hash function was added in PHP 5.5
+        self.failIf("password_hash" in builtin44.names)
+        self.failIf("password_hash" in builtin53.names)
+        self.failIf("password_hash" in builtin54.names)
+        self.failUnless("password_hash" in builtin55.names)
+        self.failUnless("password_hash" in builtin.names)
+
+        # php_logo_guid function was removed in PHP 5.5
+        self.failUnless("php_logo_guid" in builtin53.names)
+        self.failUnless("php_logo_guid" in builtin54.names)
+        self.failIf("php_logo_guid" in builtin55.names)
+        self.failIf("php_logo_guid" in builtin.names)
+
+        # http_response_code function was added in PHP 5.4
+        self.failIf("http_response_code" in builtin44.names)
+        self.failIf("http_response_code" in builtin53.names)
+        self.failUnless("http_response_code" in builtin54.names)
+        self.failUnless("http_response_code" in builtin55.names)
+        self.failUnless("http_response_code" in builtin.names)
+
+        # define_syslog_variables function was removed in PHP 5.4
+        self.failUnless("define_syslog_variables" in builtin53.names)
+        self.failIf("define_syslog_variables" in builtin54.names)
+        self.failIf("define_syslog_variables" in builtin55.names)
+        self.failIf("define_syslog_variables" in builtin.names)
+
         self.failIf("PDO" in builtin44.names) # only in >=5.1
         self.failIf("simplexml_load_file" in builtin44.names) # only in >=5.0
-
-        # Test that not specifying a version picks the *latest* version.
-        stdlib = self.mgr.db.get_stdlib("PHP")
-        builtin = stdlib.get_blob("*")
-        self.failUnless("PDO" in builtin.names) # i.e. we've picked the latest one
-        self.failUnless("phpversion" in builtin.names)
-        self.failUnless("GLOBALS" in builtin.names)
 
         self._check_db()
 
     @tag("bug58387")
     def test_php_isset(self):
         # Brought up by Alex Fernandez on komodo-beta list for k4b1.
-        stdlib51 = self.mgr.db.get_stdlib("PHP", "5.1")
-        builtin51 = stdlib51.get_blob("*")
-        self.failUnless("isset" in builtin51.names) # new in 5.1
+        builtin = self.mgr.db.get_stdlib("PHP").get_blob("*")
+        self.failUnless("isset" in builtin.names)
 
 
 class MultiLangLibTestCase(DBTestCase):
