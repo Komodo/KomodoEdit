@@ -56,6 +56,9 @@ keyword_style SSL_IDENTIFIER => SSL_WORD
 
 keywords [
                 # http://www.php.net/manual/en/reserved.keywords.php
+                # new to php 5.5
+                "finally", "yield",
+                "FINALLY", "YIELD",
                 # new to php 5.4
                 "insteadof", "trait",
                 "INSTEADOF", "TRAIT",
