@@ -203,7 +203,7 @@ class BaiscTest(OOPTestCase):
               u"path": u"<Unsaved>/1",
               u"language": u"Python",
               u"text": u"import array\narray.",
-              u"pos": 2},
+              u"pos": 1},
              {u"trg": None}),
             ({u"command": u"trg-from-pos",
               u"path": u"<Unsaved>/1",
