@@ -23,6 +23,9 @@ function SciMozMock(aText) {
     this.tabWidth = 8;
     this.targetStart = this.targetEnd = 0;
     this.docPointer = 1;
+    this.endStyled = 0;
+    this._styleMask = 0xFF;
+    this.styles = [];
 
     /**
      * Indexed by indicator id, then is an array of RLE things where the index
@@ -89,6 +92,76 @@ SciMozMock.prototype.getLineEndPosition =
         let lastLine = lines.pop().replace(/\n$/, "");
         return lines.reduce(function(n, s) n + s.length, 0) + lastLine.length;
     };
+
+//Not part of the API, but this guy does no styling.
+SciMozMock.prototype.setStyles = function(aStyles) {
+    this.styles = [].concat(aStyles);
+}
+
+SciMozMock.prototype.startStyling =
+    function SciMozMock_startStyling(pos, mask) {
+        this.endStyled = pos;
+        this._styleMask = mask;
+    };
+
+SciMozMock.prototype.setStyling =
+    function SciMozMock_setStyling(length, style) {
+        let end = Math.min(this.endStyled + length, this.text.length);
+        for (let i = this.endStyled; i < end; ++i) {
+            this.styles[i] = (this.styles[i] & ~this._styleMask) |
+                             (style & this._styleMask);
+        }
+        this.endStyled = end;
+    };
+
+SciMozMock.prototype.setStylingEx =
+    function SciMozMock_setStylingEx(length, styles) {
+        let end = Math.min(this.endStyled + length, this.text.length);
+        if (typeof(styles) == "string") {
+            styles = styles.split("").map(function(c) c.charCodeAt(0));
+        }
+        for (let i = this.endStyled; i < end; ++i) {
+            this.styles[i] = (this.styles[i] & ~this._styleMask) |
+                             (styles[i] & this._styleMask);
+        }
+        this.endStyled = end;
+    };
+
+SciMozMock.prototype.getStyledText =
+function SciMozMock_getStyledText(aStart, aEnd, outCount) {
+    var ret = [];
+    for (var i = aStart; i < aEnd; i++) {
+        ret.push(this.text.charCodeAt(i));
+        ret.push(this.styles[i]);
+    }
+    if (outCount) {
+        outCount.value = ret.length;
+    }
+    return ret;
+};
+
+SciMozMock.prototype.getStyleRange =
+    function SciMozMock_getStyleRange(min, max, count) {
+        var styles = this.styles.slice(min, max);
+        if (count) {
+            count.value = styles.length;
+        }
+        return styles;
+    };
+
+SciMozMock.prototype.setFoldLevels =
+    function SciMozMock_setFoldLevels(aLevels)
+        this.levels = [].concat(aLevels);
+
+SciMozMock.prototype.setFoldLevel = function SciMozMock_setFoldLevel(i, level) {
+    if (!('levels' in this)) {
+        this.levels = [];
+    }
+    this.levels[i] = level;
+};
+SciMozMock.prototype.getFoldLevel =
+    function SciMozMock_getFoldLevel(i)
+        this.levels[i];
 
 SciMozMock.prototype.getTextRange =
     function SciMozMock_getTextRange(aStart, aEnd)
