@@ -541,7 +541,7 @@ class Driver(threading.Thread):
                         if hits:
                             if addedSomeHits:
                                 resultsView.addHit(SeparatorHit(dir))
-                                print "Added dir separator hit"
+                                #print "Added dir separator hit"
                             resultsView.addHits(sorted(hits))
                             addedSomeHits = True
                             if stopAtNHits and len(hitPaths) >= stopAtNHits:
