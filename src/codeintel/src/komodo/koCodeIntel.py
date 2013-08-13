@@ -1042,6 +1042,14 @@ class KoCodeIntelManager(threading.Thread):
     def do_report_message(self, response):
         """Report a message from codeintel (typically, scan status) unsolicited
         response"""
+        if response.get("type") == "logging":
+            try:
+                logger = logging.getLogger(response["name"])
+                logger.log(response["level"], response["message"])
+            except Exception as ex:
+                log.warn("Failed to decode logging message: %r", ex)
+            return
+
         if response.get("message") is not None:
             self._notification.msg = response["message"]
         if response.get("type") == "scan-progress":

@@ -75,6 +75,27 @@ class CommandHandler(object):
         """
         raise NotImplementedError
 
+class LoggingHandler(logging.Handler):
+    """Log handler class to forward messages to the main process"""
+
+    def __init__(self, driver):
+        logging.Handler.__init__(self)
+        self._driver = driver
+
+    def emit(self, record):
+        """Emit a record.  Do this over the driver's normal pipe."""
+        try:
+            self._driver.send(request=None,
+                              command="report-message",
+                              type="logging",
+                              name=record.name,
+                              message=self.format(record),
+                              level=record.levelno)
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            self.handleError(record)
+
 class Driver(threading.Thread):
     """
     Out-of-process codeintel2 driver
@@ -97,6 +118,7 @@ class Driver(threading.Thread):
         threading.Thread.__init__(self, name="Codeintel OOP Driver")
         assert Driver._instance is None, "Driver should be a singleton"
         Driver._instance = self
+        logging.root.addHandler(LoggingHandler(self))
         self.daemon = True
 
         self.fd_in = fd_in
