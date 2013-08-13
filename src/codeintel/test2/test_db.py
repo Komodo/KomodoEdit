@@ -74,8 +74,8 @@ class DBTestCase(CodeIntelTestCase):
             % indent('\n'.join(errors)))
 
 
-class CorruptionTestCase(DBTestCase):
-    test_dir = join(os.getcwd(), "tmp", "db-corruption")
+class PHPCorruptionTestCase(DBTestCase):
+    test_dir = join(os.getcwd(), "tmp", "php-db-corruption")
 
     @tag("bug78401", "php")
     def test_missing_blob_file_recovery_multilang(self):
@@ -115,6 +115,9 @@ class CorruptionTestCase(DBTestCase):
         self.failUnlessEqual(blob[0].get("ilk"), "function")
         self.failUnlessEqual(blob[0].get("name"), "bar")
     
+class PythonCorruptionTestCase(DBTestCase):
+    test_dir = join(os.getcwd(), "tmp", "python-db-corruption")
+
     @tag("bug78401", "python")
     def test_missing_blob_file_recovery(self):
         # Create a Python file, load it into the database.
