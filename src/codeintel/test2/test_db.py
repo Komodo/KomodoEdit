@@ -201,14 +201,6 @@ class CatalogTestCase(DBTestCase):
     test_catalog_dir = join(os.getcwd(), "tmp")
     _ci_db_catalog_dirs_ = [test_catalog_dir]
 
-    def setUp(self):
-        DBTestCase.setUp(self)
-        if exists(self.test_catalog_dir):
-            import shutil
-            shutil.rmtree(self.test_catalog_dir)
-        log.debug("mkdir `%s'", self.test_catalog_dir)
-        os.makedirs(self.test_catalog_dir)
-
     def test_abspaths(self):
         # Ensure that loaded catalogs from the *core* catalog area
         # use the "area-relative paths".
@@ -791,15 +783,6 @@ class MultiLangLibTestCase(DBTestCase):
     test_dir = join(os.getcwd(), "tmp")
     _ci_db_import_everything_langs = set(["JavaScript", "PHP"])
 
-    def setUp(self):
-        DBTestCase.setUp(self)
-        #TODO: shouldn't be doing this here.
-        if exists(self.test_dir):
-            import shutil
-            shutil.rmtree(self.test_dir)
-        log.debug("mkdir `%s'", self.test_dir)
-        os.makedirs(self.test_dir)
-
     def test_scanning_error(self):
         # Hack into the Ruby multilang scanner so we can get RHTML
         # scanning to fail in controlled ways.
@@ -1062,14 +1045,6 @@ class MultiLangLibTestCase(DBTestCase):
 class LangLibTestCase(DBTestCase):
     """Test the db/$lang/... part of the database."""
     test_dir = join(os.getcwd(), "tmp")
-
-    def setUp(self):
-        DBTestCase.setUp(self)
-        if exists(self.test_dir):
-            import shutil
-            shutil.rmtree(self.test_dir)
-        log.debug("mkdir `%s'", self.test_dir)
-        os.makedirs(self.test_dir)
 
     def test_updating(self):
         lang = "Python"
@@ -1513,14 +1488,6 @@ class LangLibTestCase(DBTestCase):
 class ProjTestCase(DBTestCase):
     """Test the db/proj/... part of the database."""
     test_dir = join(os.getcwd(), "tmp")
-
-    def setUp(self):
-        DBTestCase.setUp(self)
-        if exists(self.test_dir):
-            import shutil
-            shutil.rmtree(self.test_dir)
-        log.debug("mkdir `%s'", self.test_dir)
-        os.makedirs(self.test_dir)
 
     def test_onedir(self):
         proj_dir = "proj-onedir"
