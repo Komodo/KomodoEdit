@@ -1178,32 +1178,6 @@ class CplnTestCase(CodeintelPythonTestCase):
             self.assertCompletionsInclude2(buf, bar_py_positions[2],
                                            [("module", "mymodule")])
 
-    def test_envlib(self):
-        test_dir = join(self.test_dir, "test_envlib")
-        oracle_content, oracle_positions = unmark_text(dedent("""\
-            import answers
-            print "The ultimate answer is %d" % answers.<1>ULTIMATE
-        """))
-        manifest = [
-            ("lib/answers.py", dedent("""
-                __version__ = '1.0.0'
-                ULTIMATE = 42
-             """)),
-            ("oracle.py", oracle_content),
-        ]
-        for file, content in manifest:
-            path = join(test_dir, file)
-            writefile(path, content)
-        old_python_path = os.environ.get("PYTHONPATH")
-        os.environ["PYTHONPATH"] = join(test_dir, "lib")
-
-        try:
-            self.assertCompletionsInclude(
-                markup_text(oracle_content, pos=oracle_positions[1]),
-                [("variable", "ULTIMATE")])
-        finally:
-            os.environ["PYTHONPATH"] = old_python_path or ""
-
     def test_extradirslib(self):
         test_dir = join(self.test_dir, "test_extradirslib")
         oracle_content, oracle_positions = unmark_text(dedent("""\
@@ -2199,6 +2173,42 @@ class CplnTestCase(CodeintelPythonTestCase):
                  ('function', 'foofun'),
                  ('class', 'fools'),
                  ('class', 'fools2')])
+
+
+class CplnTestCaseEnviron(CodeintelPythonTestCase):
+    """Must be a separate class test case - as it modifies the environ, which
+    will only be taken into consideration when the manager initializes (i.e.
+    once per class).
+    """
+
+    test_dir = join(os.getcwd(), "tmp")
+
+    def test_envlib(self):
+        test_dir = join(self.test_dir, "test_envlib")
+        oracle_content, oracle_positions = unmark_text(dedent("""\
+            import answers
+            print "The ultimate answer is %d" % answers.<1>ULTIMATE
+        """))
+        manifest = [
+            ("lib/answers.py", dedent("""
+                __version__ = '1.0.0'
+                ULTIMATE = 42
+             """)),
+            ("oracle.py", oracle_content),
+        ]
+        for file, content in manifest:
+            path = join(test_dir, file)
+            writefile(path, content)
+        old_python_path = os.environ.get("PYTHONPATH")
+        os.environ["PYTHONPATH"] = join(test_dir, "lib")
+
+        try:
+            self.assertCompletionsInclude(
+                markup_text(oracle_content, pos=oracle_positions[1]),
+                [("variable", "ULTIMATE")])
+        finally:
+            os.environ["PYTHONPATH"] = old_python_path or ""
+
 
 class OldCodeIntelTestCase(CodeIntelTestCase):
     """Test case from the old codeintel v1 test/test_citdl/... dir."""
