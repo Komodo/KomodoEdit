@@ -51,6 +51,10 @@ var moreKomodo = {
         if (!('moreKomodo' in ko.moreKomodo)) {
             ko.moreKomodo.moreKomodo = moreKomodo;
         }
+
+        document.getElementById("tabContextMenu")
+                .addEventListener("popupshowing",
+                                  this.goUpdateFileMenuItems.bind(this));
     },
 
     onUnLoad : function() {

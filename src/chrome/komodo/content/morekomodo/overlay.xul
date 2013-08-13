@@ -46,13 +46,6 @@
     <script type="application/x-javascript"
             src="chrome://komodo/content/morekomodo/overlay.js" />
 
-    <commandset id="allcommands">
-        <commandset id="morekomodo_filecommand"
-            oncommandupdate="moreKomodo.goUpdateFileMenuItems(this)"
-            commandupdater="true"
-            events="current_view_changed"/>
-    </commandset>
-
     <broadcasterset id="broadcasterset_global">
         <broadcaster
                 id="cmd_morekomodo_copyFullPath"
