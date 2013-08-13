@@ -1839,7 +1839,7 @@ class DefnTestCase(CodeIntelTestCase):
 
     @tag("knownfailure")
     def test_simple_import(self, fn=None):
-        test_dir = join(self.test_dir, "test_defn")
+        test_dir = join(self.test_dir, "test_simple_import")
         foo_content, foo_positions = unmark_text(dedent("""\
             <html>
             <head>
