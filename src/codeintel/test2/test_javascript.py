@@ -240,14 +240,6 @@ class CplnTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     test_dir = join(os.getcwd(), "tmp")
 
-    def setUp(self):
-        CodeIntelTestCase.setUp(self)
-        if exists(self.test_dir):
-            # Ensure a clean working test directory.
-            import shutil
-            shutil.rmtree(self.test_dir, ignore_errors=True)
-        os.makedirs(self.test_dir)
-
     def test_doctags(self):
         # Triggers after @ in a comment block
         #        /** @param
