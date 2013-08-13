@@ -327,7 +327,7 @@ class CplnTestCase(CodeIntelTestCase):
                     }
                     """,
         }
-        buf, positions = write_files(self, manifest=manifest, name="modules_updir")
+        buf, positions = write_files(self, manifest=manifest, name="require_extras")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "foo"),
              ("function", "bar"),
