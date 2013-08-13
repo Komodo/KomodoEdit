@@ -134,7 +134,7 @@ if (typeof ko.breadcrumbs == 'undefined')
 
             // Draw crumbs for current view only if the view has a koDoc
             // and file object
-            if ("koDoc" in view && "file" in view.koDoc &&
+            if ("koDoc" in view && "file" in view.koDoc && view.koDoc.file &&
                 (view.koDoc.file.isLocal || view.koDoc.file.isRemoteFile))
             {
                 this.drawCrumbs(view);
@@ -146,7 +146,7 @@ if (typeof ko.breadcrumbs == 'undefined')
 
             // Allow css styling to differentiate between local and remote files
             breadcrumbBar.classList.remove('is-remote');
-            if (view.koDoc && view.koDoc.file.isRemoteFile)
+            if (view.koDoc && view.koDoc.file && view.koDoc.file.isRemoteFile)
             {
                 breadcrumbBar.classList.add('is-remote');
             }
