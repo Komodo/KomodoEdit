@@ -85,6 +85,11 @@ class LoggingHandler(logging.Handler):
     def emit(self, record):
         """Emit a record.  Do this over the driver's normal pipe."""
         try:
+            if record.levelno < logging.WARNING:
+                # Don't log info/debug records. We can look at codeinte.log for
+                # those.  This gets especially bad when logging what's being
+                # sent over the wire...
+                return
             self._driver.send(request=None,
                               command="report-message",
                               type="logging",
