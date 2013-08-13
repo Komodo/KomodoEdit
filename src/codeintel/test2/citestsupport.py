@@ -88,7 +88,7 @@ class CodeIntelTestCase(unittest.TestCase):
     _ci_test_setup_mgr_ = True
     _ci_extra_module_dirs_ = None
 
-    def setUp(self):
+    def ci_setUpClass(cls):
         if _xpcom_:
             # The tests are run outside of Komodo. If run with PyXPCOM up
             # parts codeintel will try to use the nsIDirectoryService and
@@ -99,10 +99,10 @@ class CodeIntelTestCase(unittest.TestCase):
                 .getService(components.interfaces.koITestService)
             koTestSvc.init()
 
-        if self._ci_test_setup_mgr_:
+        if cls._ci_test_setup_mgr_:
             env = None
-            if self._ci_env_prefs_ is not None:
-                env = SimplePrefsEnvironment(**self._ci_env_prefs_)
+            if cls._ci_env_prefs_ is not None:
+                env = SimplePrefsEnvironment(**cls._ci_env_prefs_)
 
             def get_extra_module_dirs():
                 spec = join(dirname(__file__), "..", "..", "udl", "skel", "*", "pylib")
@@ -110,23 +110,36 @@ class CodeIntelTestCase(unittest.TestCase):
                     if glob(join(spec, "lang_*.py")):
                         yield d
 
-                for d in self._ci_extra_module_dirs_ or []:
+                for d in cls._ci_extra_module_dirs_ or []:
                     yield d
 
-            self.mgr = Manager(
+            cls.mgr = Manager(
                 extra_module_dirs=get_extra_module_dirs(),
-                db_base_dir=self._ci_db_base_dir_ or test_db_base_dir,
-                db_catalog_dirs=self._ci_db_catalog_dirs_,
-                db_import_everything_langs=self._ci_db_import_everything_langs,
+                db_base_dir=cls._ci_db_base_dir_ or test_db_base_dir,
+                db_catalog_dirs=cls._ci_db_catalog_dirs_,
+                db_import_everything_langs=cls._ci_db_import_everything_langs,
                 env=env)
-            self.mgr.upgrade()
-            self.mgr.initialize()
+            cls.mgr.upgrade()
+            cls.mgr.initialize()
+
         init_xml_catalogs()
 
-    def tearDown(self):
-        if self._ci_test_setup_mgr_:
-            self.mgr.finalize()
-            self.mgr = None
+    def ci_tearDownClass(cls):
+        if cls._ci_test_setup_mgr_:
+            cls.mgr.finalize()
+            cls.mgr = None
+
+    if sys.version_info[:2] < (2, 7):
+        # Python 2.6 and earlier does not support class setup/teardown, so we
+        # have to initialize the manager on every test, icky!
+        def setUp(self):
+            self.__class__.ci_setUpClass(self)
+        def tearDown(self):
+            self.__class__.ci_tearDownClass(self)
+    else:
+        # Python 2.7 provides classlevel methods for setup/teardown.
+        setUpClass = classmethod(ci_setUpClass)
+        tearDownClass = classmethod(ci_tearDownClass)
 
     def adjust_content(self, content):
         """A hook for subclasses to modify markedup_content before use in
