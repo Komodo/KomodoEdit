@@ -52,7 +52,7 @@ from codeintel2.common import *
 from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
 
 from testlib import TestError, TestSkipped, TestFailed, tag
-from citestsupport import CodeIntelTestCase, writefile, init_xml_catalogs
+from citestsupport import CodeIntelTestCase, writefile
 
 
 
@@ -171,9 +171,6 @@ class JavaScriptTestCase(_TheBasicsTestCase):
 
 class HTMLTestCase(_TheBasicsTestCase):
     lang = "HTML"
-    def setUp(self):
-        super(HTMLTestCase, self).setUp()
-        init_xml_catalogs()
     def test_trg_from_pos(self):
         self.assertTriggerMatches("<<|>",
             name="html-complete-tags-and-namespaces")
@@ -311,9 +308,6 @@ class MasonTestCase(HTMLTestCase):
 
 class XMLTestCase(_TheBasicsTestCase):
     lang = "XML"
-    def setUp(self):
-        super(XMLTestCase, self).setUp()
-        init_xml_catalogs()
     def test_trg_from_pos(self):
         self.assertTriggerMatches("<<|>",
             name="xml-complete-tags-and-namespaces")
@@ -335,9 +329,6 @@ class XMLTestCase(_TheBasicsTestCase):
 
 class XULTestCase(XMLTestCase):
     lang = "XUL"
-    def setUp(self):
-        super(XULTestCase, self).setUp()
-        init_xml_catalogs()
     def test_trg_from_pos(self):
         self.assertTriggerMatches("<<|>",
             name="xml-complete-tags-and-namespaces")
@@ -367,9 +358,6 @@ class XULTestCase(XMLTestCase):
 
 class XBLTestCase(XMLTestCase):
     lang = "XBL"
-    def setUp(self):
-        super(XBLTestCase, self).setUp()
-        init_xml_catalogs()
     def test_trg_from_pos(self):
         self.assertTriggerMatches("<<|>",
             name="xml-complete-tags-and-namespaces")
@@ -405,9 +393,6 @@ xslt_prefix = """<?xml version="1.0"?>
 class XSLTTestCase(XMLTestCase):
     lang = "XSLT"
     _ci_env_prefs_ = {"defaultHTMLDecl":"-//W3C//DTD HTML 4.01//EN"}
-    def setUp(self):
-        super(XSLTTestCase, self).setUp()
-        init_xml_catalogs()
     def test_trg_from_pos(self):
         self.assertTriggerMatches(xslt_prefix+"<<|>",
             name="xml-complete-tags-and-namespaces")

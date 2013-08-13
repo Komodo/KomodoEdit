@@ -121,7 +121,8 @@ class CodeIntelTestCase(unittest.TestCase):
                 env=env)
             self.mgr.upgrade()
             self.mgr.initialize()
-    
+        init_xml_catalogs()
+
     def tearDown(self):
         if self._ci_test_setup_mgr_:
             self.mgr.finalize()

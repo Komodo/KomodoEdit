@@ -50,7 +50,7 @@ from codeintel2.common import *
 from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
 
 from testlib import TestError, TestSkipped, TestFailed, tag
-from citestsupport import CodeIntelTestCase, init_xml_catalogs
+from citestsupport import CodeIntelTestCase
 
 
 
@@ -63,10 +63,6 @@ class HTMLTestCase(CodeIntelTestCase):
     _ci_env_prefs_ = {
         "defaultHTMLDecl": "-//W3C//DTD HTML 4.01//EN",
     }
-
-    def setUp(self):
-        super(HTMLTestCase, self).setUp()
-        init_xml_catalogs()
 
     def _test_xhtml_completions_base_test(self, raw_content, expected):
         xhmltdoctypes = [

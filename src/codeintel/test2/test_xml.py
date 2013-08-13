@@ -50,7 +50,7 @@ from codeintel2.common import *
 from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
 
 from testlib import TestError, TestSkipped, TestFailed, tag
-from citestsupport import CodeIntelTestCase, init_xml_catalogs
+from citestsupport import CodeIntelTestCase
 
 
 
@@ -67,10 +67,6 @@ xmlprefix = """<?xml version="1.0"?>
 
 class XULTestCase(CodeIntelTestCase):
     lang = "XUL"
-
-    def setUp(self):
-        super(XULTestCase, self).setUp()
-        init_xml_catalogs()
 
     def test_trg_from_pos(self):
         # Tests for markup(XML) mode in UDL files.

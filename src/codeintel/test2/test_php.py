@@ -56,7 +56,7 @@ from codeintel2.tree_php import (php_magic_global_method_data,
                                  php_magic_class_method_data)
 
 from testlib import TestError, TestSkipped, TestFailed, tag
-from citestsupport import CodeIntelTestCase, writefile, init_xml_catalogs
+from citestsupport import CodeIntelTestCase, writefile
 
 
 
@@ -653,10 +653,6 @@ class CplnTestCase(CodeIntelTestCase):
     _ci_env_prefs_ = {
         "defaultHTMLDecl": "-//W3C//DTD HTML 4.01//EN",
     }
-
-    def setUp(self):
-        super(CplnTestCase, self).setUp()
-        init_xml_catalogs()
 
     @property
     def version(self):
