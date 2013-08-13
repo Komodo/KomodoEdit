@@ -414,6 +414,8 @@
                 let prefs = Components.classes['@activestate.com/koPrefService;1']
                                       .getService(Components.interfaces.koIPrefService).prefs;
                 this.useCustomScrollBars = prefs.getBoolean('koSkin_use_custom_scrollbars', false);
+                this.scimoz.hScrollBar = this.hScrollBar;
+                this.scimoz.vScrollBar = this.vScrollBar;
             ]]>
             </constructor>
             <destructor>
