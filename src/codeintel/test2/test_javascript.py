@@ -1771,7 +1771,7 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertCITDLExprUnderPosIs("foo.pr<|>ototype(", "foo.prototype")
 
     def test_simple(self):
-        test_dir = join(self.test_dir, "test_defn")
+        test_dir = join(self.test_dir, "test_defn_simple")
         foo_content, foo_positions = unmark_text(dedent("""\
             function test1(i) {
                 var b = 0;
@@ -1792,7 +1792,7 @@ class DefnTestCase(CodeIntelTestCase):
         
     @tag("bug99108")
     def test_scope_scopestart_is_int(self):
-        test_dir = join(self.test_dir, "test_defn")
+        test_dir = join(self.test_dir, "test_defn_scope_scopestart_is_int")
         foo_content, foo_positions = unmark_text(dedent("""\
             // Leading comments and stuff
             // La dee dah
@@ -1940,7 +1940,7 @@ class DefnTestCase(CodeIntelTestCase):
 
     @tag("bug70438")
     def test_list_tuple_exception(self):
-        test_dir = join(self.test_dir, "test_defn")
+        test_dir = join(self.test_dir, "test_defn_list_tuple_exception")
         path = join(test_dir, "bug70438.js")
         content, positions = unmark_text(dedent("""\
             var ko = {};
