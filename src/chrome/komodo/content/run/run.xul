@@ -54,7 +54,8 @@
         onload="OnLoad()"
         onunload="OnUnload()"
         orient="vertical"
-        persist="screenX screenY"
+        width="640"
+        persist="width screenX screenY"
         style="padding: 10px;">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>

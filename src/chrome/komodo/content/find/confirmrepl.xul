@@ -55,6 +55,7 @@
         style="min-width: 40em;"
         screenX="110"
         screenY="110"
+        width="640"
         persist="height width"
         flex="1"
         onload="on_load()"

@@ -54,6 +54,7 @@
         title="&undoReplacements.title;"
         orient="vertical"
         style="min-width: 40em;"
+        width="640"
         persist="height width"
         flex="1"
         onload="on_load()"
