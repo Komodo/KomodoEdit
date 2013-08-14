@@ -1004,7 +1004,7 @@ class PythonBuffer(CitadelBuffer):
             citdl_expr = accessor.text_range(last_pos-1, last_pos+1)
             if DEBUG:
                 print "  triggered 2 char symbol trigger: %r" % (citdl_expr, )
-            return Trigger(lang, TRG_FORM_CPLN, "local-symbols",
+            return Trigger(self.lang, TRG_FORM_CPLN, "local-symbols",
                            last_pos-1, implicit,
                            citdl_expr=citdl_expr)
 
