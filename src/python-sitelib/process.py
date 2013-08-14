@@ -319,16 +319,13 @@ class ProcessOpen(Popen):
             # it by setting the handle to `subprocess.PIPE`, resulting in
             # a different and workable code path.
             if self._needToHackAroundStdHandles() \
-               and not (flags & CREATE_NEW_CONSOLE):
-                if stdin is None and sys.stdin \
-                   and sys.stdin.fileno() not in (0,1,2):
+              and not (flags & CREATE_NEW_CONSOLE):
+                if self._checkFileObjInheritable(sys.stdin, "STD_INPUT_HANDLE"):
                     stdin = PIPE
                     auto_piped_stdin = True
-                if stdout is None and sys.stdout \
-                   and sys.stdout.fileno() not in (0,1,2):
+                if self._checkFileObjInheritable(sys.stdout, "STD_OUTPUT_HANDLE"):
                     stdout = PIPE
-                if stderr is None and sys.stderr \
-                   and sys.stderr.fileno() not in (0,1,2):
+                if self._checkFileObjInheritable(sys.stderr, "STD_ERROR_HANDLE"):
                     stderr = PIPE
         else:
             # Set flags to 0, subprocess raises an exception otherwise.
@@ -375,6 +372,39 @@ class ProcessOpen(Popen):
                 else:
                     cls.__needToHackAroundStdHandles = False
         return cls.__needToHackAroundStdHandles
+
+    @classmethod
+    def _checkFileObjInheritable(cls, fileobj, handle_name):
+        """Check if a given file-like object (or whatever else subprocess.Popen
+        takes as a handle/stream) can be correctly inherited by a child process.
+        This just duplicates the code in subprocess.Popen._get_handles to make
+        sure we go down the correct code path; this to catch some non-standard
+        corner cases."""
+        import _subprocess
+        import ctypes
+        import msvcrt
+        new_handle = None
+        try:
+            if fileobj is None:
+                handle = _subprocess.GetStdHandle(getattr(_subprocess,
+                                                          handle_name))
+                if handle is None:
+                    return True # No need to check things we create
+            elif fileobj == subprocess.PIPE:
+                return True # No need to check things we create
+            elif isinstance(fileobj, int):
+                handle = msvcrt.get_osfhandle(fileobj)
+            else:
+                # Assuming file-like object
+                handle = msvcrt.get_osfhandle(fileobj.fileno())
+            new_handle = self._make_inheritable(handle)
+            return True
+        except:
+            return False
+        finally:
+            CloseHandle = ctypes.windll.kernel32.CloseHandle
+            if new_handle is not None:
+                CloseHandle(new_handle)
 
     # Override the returncode handler (used by subprocess.py), this is so
     # we can notify any listeners when the process has finished.
