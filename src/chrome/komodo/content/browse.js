@@ -237,13 +237,92 @@ this.updateHelpLanguagesPopup = function browse_UpdateHelpLanguagesPopup() {
 }
 
 
+// About build info (copied from about.js).
+function _getAboutBuildInfo() {
+    var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+            .getService(Components.interfaces.nsIStringBundleService)
+            .createBundle("chrome://komodo/locale/about.properties");
+    var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
+                  getService(Components.interfaces.koIInfoService);
+    var buildInfo = _bundle.formatStringFromName("aboutInfo.message",
+            [infoSvc.prettyProductType,
+             infoSvc.version,
+             infoSvc.buildNumber,
+             infoSvc.buildPlatform,
+             infoSvc.buildASCTime], 5);
+    var brandingPhrase = infoSvc.brandingPhrase;
+    if (brandingPhrase) {
+        buildInfo += "\n"+brandingPhrase;
+    }
+    return buildInfo;
+}
+
+/**
+ * Return an object containing Bugzilla HTTP query fields.
+ *
+ * E.g. {"op_sys": "linux", "version": "123"}.
+ */
+function getKomodoBugzillaQueryParams() {
+    // version      - the dumbed down Komodo version e.g. "8.0.2 IDE"
+    // rep_platform - the platform architecture
+    // op_sys       - the operating system
+    // comment      - the description of the bug
+    var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
+                  getService(Components.interfaces.koIInfoService);
+
+    var version = infoSvc.version.split("-")[0];
+    if (infoSvc.version.indexOf("-alpha") != -1) {
+        version += " Alpha " + infoSvc.version.substr(-1);
+    } else if (infoSvc.version.indexOf("-beta") != -1) {
+        version += " Beta " + infoSvc.version.substr(-1);
+    } else {
+        version += " " + infoSvc.prettyProductType;
+    }
+
+    var rep_platform = "Any";
+    var op_sys;
+    if (infoSvc.platform.startsWith("win32")) {
+        op_sys = "Windows (Any)";
+    } else if (infoSvc.platform.startsWith("linux")) {
+        op_sys = "Linux";
+        if (infoSvc.buildPlatform.indexOf("64")) {
+            rep_platform = "PC-64 bit";
+        } else {
+            rep_platform = "PC-32 bit";
+        }
+    } else if (infoSvc.platform == "darwin") {
+        op_sys = "Mac OS X / X Server";
+    }
+
+    var comment = _getAboutBuildInfo() + "\n\n";
+
+    return {
+        "version": version,
+        "rep_platform": rep_platform,
+        "op_sys" : op_sys,
+        "comment": comment,
+    };
+}
+
 // XXX move these to a properties file or prefs.js
 var tag2uri = {
     'mailLists': "http://aspn.activestate.com/ASPN/Mail/Browse/Threaded/komodo-discuss",
     'community': "http://community.activestate.com/products/Komodo",
-    'bugs': "http://bugs.activestate.com/enter_bug.cgi?product=Komodo",
     'contactus': "http://www.activestate.com/company/contact-us"
 };
+// Defines a lazy getter for "bugs" uri.
+Components.utils
+      .import("resource://gre/modules/XPCOMUtils.jsm", {})
+      .XPCOMUtils
+      .defineLazyGetter(tag2uri, "bugs", function()
+    {
+        var hash = getKomodoBugzillaQueryParams();
+        // Convert object pairs into an array of "foo=blah".
+        var params = Object.keys(hash).map(function(key) {
+                        return key+"="+encodeURIComponent(hash[key]);
+                     });
+        return "http://bugs.activestate.com/enter_bug.cgi?product=Komodo&" + params.join("&");
+    });
 
 /**
  * browse to a predefined url on activestate.com  see tag2uri in ko.browse
