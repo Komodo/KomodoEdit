@@ -1052,7 +1052,8 @@ class LangLibTestCase(DBTestCase):
     def test_updating(self):
         lang = "Python"
 
-        foo_py = join(self.test_dir, "foo.py")
+        blobname = "foo_updating"
+        foo_py = join(self.test_dir, blobname + ".py")
         writefile(foo_py, dedent("""
             def whiz(): pass
             class Boom: pass
@@ -1065,11 +1066,11 @@ class LangLibTestCase(DBTestCase):
 
         lib = self.mgr.db.get_lang_lib(lang, "test_updating lib",
                                        [self.test_dir])
-        self.failUnless(lib.has_blob("foo"))
-        blob = lib.get_blob("foo")
+        self.failUnless(lib.has_blob(blobname))
+        blob = lib.get_blob(blobname)
         #ET.dump(blob)
         self.assertEqual(blob.get("lang"), lang)
-        self.assertEqual(blob.get("name"), "foo")
+        self.assertEqual(blob.get("name"), blobname)
         self.assertEqual(blob.get("ilk"), "blob")
         self.assertEqual(blob[0].get("ilk"), "function")
         self.assertEqual(blob[0].get("name"), "whiz")
@@ -1079,13 +1080,13 @@ class LangLibTestCase(DBTestCase):
         self.assertEqual(blob[2].get("name"), "bang")
 
         buf.unload()
-        self.failIf(lib.has_blob_in_db("foo"))
+        self.failIf(lib.has_blob_in_db(blobname))
 
         # .has_blob() and .get_blob() should automatically scan in
         # if necessary.
-        self.failUnless(lib.has_blob("foo"))
+        self.failUnless(lib.has_blob(blobname))
         buf.unload()
-        self.failUnless(lib.get_blob("foo"))
+        self.failUnless(lib.get_blob(blobname))
 
         self._check_db()
 
