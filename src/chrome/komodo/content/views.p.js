@@ -1756,14 +1756,33 @@ viewManager.prototype.is_cmd_goToDefinition_enabled = function() {
 viewManager.prototype.do_cmd_goToDefinition = function() {
     // Get citdl defn trigger from where the cursor is located
     var view = ko.views.manager.currentView;
+    var pos = view.scimoz.currentPos;
     var ciBuf = view.koDoc.ciBuf;
     ko.codeintel.linkCurrentProjectWithBuffer(ciBuf);
-    ciBuf.defn_trg_from_pos(view.scimoz.currentPos, function(trg) {
-        if (trg) {
-            // We do it asynchronously
-            // This calls CompletionUIHandler._setDefinitionsInfo when done
-            ciBuf.async_eval_at_trg(trg, view.ciCompletionUIHandler);
+    ciBuf.defn_trg_from_pos(pos, function (trg) {
+        if (!trg) {
+            return;
         }
+        // We mostly want to use the normal UI handler, except that we override
+        // setDefinitionsInfo to do nothing if the user has moved on (i.e. when
+        // go to definition was too slow).
+        var handler = Object.create(view.ciCompletionUIHandler, {
+            setDefinitionsInfo: {
+                writable: true,
+                configurable: true,
+                value: function (count, defns, trg) {
+                    if (ko.views.manager.currentView !== view) {
+                        return; // view changed, the user has moved on
+                    }
+                    if (view.scimoz.currentPos !== pos) {
+                        return; // The user has moved on
+                    }
+                    view.ciCompletionUIHandler
+                        .setDefinitionsInfo(count, defns, trg);
+                }
+            },
+        });
+        ciBuf.async_eval_at_trg(trg, handler);
     }, ko.codeintel.handleError);
 }
 
