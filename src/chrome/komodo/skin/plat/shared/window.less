@@ -216,6 +216,27 @@ button:not([disabled]):not(.button-link):not([type="menu"]),
     border-radius: @textbox-border-radius;
 }
 
+/* Statusbar Buttons */
+
+statusbar button:not([type="menu"]), statusbar toolbarbutton
+{
+    -moz-appearance: @statusbar-button-appearance;
+    background: @statusbar-button-background;
+    color: @statusbar-button-color;
+    border: @statusbar-button-border;
+
+    margin: 0;
+    padding: 0 2px !important;
+    border-radius: 4px;
+
+    &:hover
+    {
+        background: @statusbar-button-background-hover;
+        color: @statusbar-button-color-hover;
+        border: @statusbar-button-border-hover;
+    }
+}
+
 textbox.plain
 {
     color: @textbox-color;
@@ -310,7 +331,7 @@ statusbar
     color: @statusbar-text-color;
     border: 0 !important;
 
-    statusbarpanel
+    & > statusbarpanel
     {
         -moz-appearance: none;
         padding: 2px;
