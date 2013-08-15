@@ -98,9 +98,6 @@ class CatalogsZone(object):
         if catalog_dirs is None:
             catalog_dirs = []
         assert isinstance(catalog_dirs, list)
-        std_catalog_dir = join(dirname(dirname(abspath(__file__))), "catalogs")
-        if std_catalog_dir not in catalog_dirs:
-            catalog_dirs.append(std_catalog_dir)
         self.catalog_dirs = catalog_dirs
 
         self.base_dir = join(self.db.base_dir, "db", "catalogs")
@@ -162,6 +159,25 @@ class CatalogsZone(object):
                 missing_selections.append(selection)
         log.debug("_res_ids_from_selections: res_ids=%r", res_ids)
         return tuple(res_ids), missing_selections
+
+    @LazyClassAttribute
+    def _std_catalog_dir(cls):
+        return join(dirname(dirname(abspath(__file__))), "catalogs")
+
+    _catalog_dirs = None
+    @property
+    def catalog_dirs(self):
+        return self._catalog_dirs
+    @catalog_dirs.setter
+    def catalog_dirs(self, value):
+        assert not isinstance(value, basestring), \
+            "catalog_dirs must be an iterable, not a string"
+        catalog_dirs = list(value)
+        if self._std_catalog_dir not in catalog_dirs:
+            catalog_dirs.append(self._std_catalog_dir)
+        self._catalog_dirs = catalog_dirs
+        # cause a rescan next time we try to get a catalog lib
+        self._have_updated_at_least_once = False
 
     def get_lib(self, lang, selections=None):
         """Return a CatalogLib for the given lang and selections."""

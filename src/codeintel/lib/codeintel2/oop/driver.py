@@ -359,13 +359,14 @@ class Driver(threading.Thread):
         catalog_dirs = request.get("catalog-dirs", None)
         if catalog_dirs is not None:
             self.mgr.db.catalog_dirs.extend(catalog_dirs)
+            catalog_dirs = self.mgr.db.catalog_dirs
         lexer_dirs = request.get("lexer-dirs", [])
         codeintel2.udl.UDLLexer.add_extra_lexer_dirs(lexer_dirs)
         module_dirs = request.get("module-dirs", [])
         if module_dirs:
             self.mgr._register_modules(module_dirs)
         if catalog_dirs is not None:
-            self.mgr.db.get_catalogs_zone().update()
+            self.mgr.db.get_catalogs_zone().catalog_dirs = catalog_dirs
 
     def do_load_extension(self, request):
         """Load an extension that, for example, might provide additional
