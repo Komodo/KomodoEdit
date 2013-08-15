@@ -105,6 +105,8 @@ class PHPLangInfo(LangInfo):
     #      and the XML prolog encoding check.
 
     keywords = set([
+            # new to php 5.5
+            "finally", "yield",
             # new to php 5.4
             "insteadof", "trait",
             # new to php 5.3
