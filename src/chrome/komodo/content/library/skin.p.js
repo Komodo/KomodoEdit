@@ -150,21 +150,6 @@ if (ko.skin == undefined)
         loadPreferredIcons: function()
         {
             var uri = prefs.getString(PREF_CUSTOM_ICONS,'');
-
-            if (uri == '')
-            {
-                if (window.navigator.platform.toLowerCase().indexOf("mac") === 0)
-                {
-                    var uri = "resource://app/chrome/iconsets/cupertino/chrome.manifest";
-                }
-                else
-                {
-                    var uri = "resource://app/chrome/iconsets/dark/chrome.manifest";
-                }
-                
-                prefs.setStringPref(PREF_CUSTOM_ICONS, uri);
-            }
-
             this.loadCustomSkin(uri);
         },
         
@@ -367,8 +352,8 @@ if (ko.skin == undefined)
                 this.getThemeInfo(this._loadTheme.bind(this), function() 
                 {
                     // Retrieving theme failed
-                    prefs.setStringPref(PREF_CUSTOM_SKIN,'');
-                    prefs.setStringPref(PREF_CUSTOM_ICONS,'');
+                    prefs.deletePref(PREF_CUSTOM_SKIN);
+                    prefs.deletePref(PREF_CUSTOM_ICONS);
                 }.bind(this));
             },
             
@@ -389,8 +374,8 @@ if (ko.skin == undefined)
                 var uri = this.resolveSkin(themeInfo);
                 if ( ! uri)
                 {
-                    prefs.setStringPref(PREF_CUSTOM_SKIN,'');
-                    prefs.setStringPref(PREF_CUSTOM_ICONS,'');
+                    prefs.deletePref(PREF_CUSTOM_SKIN,'');
+                    prefs.deletePref(PREF_CUSTOM_ICONS,'');
                     return;
                 }
                 
@@ -445,7 +430,7 @@ if (ko.skin == undefined)
                     let name_pointer = ctypes.void_t.ptr();
                     try
                     {
-                        gtk = ctypes.open("libgtk-x11-2.0.so");
+                        gtk = ctypes.open("libgtk-x11-2.0.so.0");
                         let gtk_settings_get_default =
                             gtk.declare("gtk_settings_get_default",
                                         ctypes.default_abi,
@@ -476,7 +461,7 @@ if (ko.skin == undefined)
                                 name: ctypes.cast(name_pointer, ctypes.char.ptr)
                                             .readString(),
                             }
-                            log.debug("Got theme: " + this._themeInfo.name);
+                            log.warn("Detected GTK theme via libgtk: " + this._themeInfo.name);
                             callbackSuccess.call(this, this._themeInfo);
                             return;
                         }
@@ -510,43 +495,62 @@ if (ko.skin == undefined)
                 // Prepare vars used by callbacks
                 var koRunSvc = Components.classes["@activestate.com/koRunService;1"]
                                 .getService(Components.interfaces.koIRunService);
-                var callbackPos = 0;
                 
                 // Callback handler for commands
                 var self = this;
+                var themeInfo = null;
+
+                var _callbackSuccess = function(themeInfo)
+                {
+                    // Split from callback so as not to log redundant
+                    // exceptions, should they occur
+                    setTimeout(function() {
+                        callbackSuccess.call(self, themeInfo);
+                    }, 0);
+                };
+
                 var callbackHandler =
                 {
                     "callback": function(command, returncode, stdout, stderr)
                     {
-                        callbackPos++;
-                        
                         // Check if we have a valid result 
-                        if (stdout && !stderr) 
+                        if (stdout && !stderr)
                         {
-                            var themeInfo = {
+                            themeInfo = {
                                 name: stdout.replace(/^(?:'|"|\s)*|(?:'|"|\s)*$/gm,'')
                             }
                             
-                            // Split from callback thread so as not to log redundant
-                            // exceptions, should they occur
-                            setTimeout(function() {
-                                callbackSuccess.call(this, themeInfo);
-                            }, 0);
+                            log.warn("Detected GTK theme via commands: " + themeInfo.name);
+
+                            // Adwaita is the gnome default so we need to ensure
+                            // that we're not just running with the default
+                            if (themeInfo.name != 'Adwaita')
+                            {
+                                _callbackSuccess(themeInfo);
+                                return;
+                            }
                         }
+
                         // If invalid result and we reached the end of our command list
-                        else if (callbackPos == commands.length)
+                        if ( ! commands.length)
                         {
-                            callbackFailed.call(this);
+                            if (themeInfo)
+                            {
+                                _callbackSuccess(themeInfo);
+                            }
+                            else
+                            {
+                                callbackFailed.call(this);
+                            }
                         }
                         else
                         {
-                            koRunSvc.RunAsync(commands[callbackPos], callbackHandler);
+                            koRunSvc.RunAsync(commands.shift(), callbackHandler);
                         }
                     }.bind(self)
                 };
                 
-                koRunSvc.RunAsync(commands[0], callbackHandler);
-                
+                koRunSvc.RunAsync(commands.shift(), callbackHandler);
             }
             
         }

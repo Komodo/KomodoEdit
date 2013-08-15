@@ -1084,22 +1084,18 @@
   <boolean id="activestate_notification_messages_enabled">1</boolean>
 
   <!-- Default icon set, must be defined as it's used to unload it -->
-  <string id="koSkin_custom_icons">
-    <!-- #if PLATFORM == "darwin" -->
-        chrome://iconset-cupertino/content/manifest/chrome.manifest
-    <!-- #else -->
-        chrome://iconset-dark/content/manifest/chrome.manifest
-    <!-- #endif -->
-  </string>
+  <!-- #if PLATFORM == "darwin" -->
+      <string id="koSkin_custom_icons">chrome://iconset-cupertino/content/manifest/chrome.manifest</string>
+  <!-- #else -->
+      <string id="koSkin_custom_icons">chrome://iconset-dark/content/manifest/chrome.manifest</string>
+  <!-- #endif -->
 
   <!-- Record the custom manifests that need to be loaded at runtime (startup) -->
-  <string id="runtime_manifests">
-    <!-- #if PLATFORM == "darwin" -->
-      ["chrome://iconset-cupertino/content/manifest/chrome.manifest"]
-    <!-- #else -->
-      ["chrome://iconset-dark/content/manifest/chrome.manifest"]
-    <!-- #endif -->
-  </string>
+  <!-- #if PLATFORM == "darwin" -->
+    <string id="runtime_manifests">["chrome://iconset-cupertino/content/manifest/chrome.manifest"]</string>
+  <!-- #else -->
+    <string id="runtime_manifests">["chrome://iconset-dark/content/manifest/chrome.manifest"]</string>
+  <!-- #endif -->
 
   <!-- Projects & Places -->
   <!-- See bug Bug #98484 - comments #4 and #5 -->
