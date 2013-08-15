@@ -191,6 +191,20 @@ button:not([disabled]):not(.button-link):not([type="menu"]),
 /* Textbox & Menu Elements */
 :-moz-any(textbox, menulist, button[type="menu"]):not(.plain)
 {
+    background-color: @textbox-background;
+    color: @textbox-color;
+    box-shadow: @textbox-box-shadow;
+
+    border: @textbox-border;
+    border-radius: @textbox-border-radius;
+    
+    &[disabled="true"]
+    {
+        background-color: @textbox-background-disabled;
+        color: @textbox-color-disabled;
+        border: @textbox-border-disabled;
+    }
+
     &:-moz-any(textbox)
     {
         -moz-appearance: @textbox-appearance;
@@ -218,13 +232,6 @@ button:not([disabled]):not(.button-link):not([type="menu"]),
             -moz-appearance: @menulist-dropmarker-appearance;
         }
     }
-
-    background-color: @textbox-background;
-    color: @textbox-color;
-    box-shadow: @textbox-box-shadow;
-
-    border: @textbox-border;
-    border-radius: @textbox-border-radius;
 }
 
 .menulist-editable-input
