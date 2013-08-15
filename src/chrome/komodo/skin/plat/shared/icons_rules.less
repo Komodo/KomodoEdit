@@ -58,7 +58,18 @@ button, toolbarbutton, menuitem
     list-style-image: @icon-newfolder;
 }
 
-menulist:not(.plain)
+menulist[editable="true"] dropmarker, textbox[type="autocomplete"] dropmarker
+{
+    background-image: @icon-dropmarker;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+
+    width: 16px;
+    height: 16px;
+}
+
+menulist:not(.plain):not([editable="true"])
 {
     background-image: @icon-dropmarker;
     background-position: right;

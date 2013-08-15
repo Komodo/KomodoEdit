@@ -205,9 +205,17 @@ button:not([disabled]):not(.button-link):not([type="menu"]),
     {
         -moz-appearance: @menulist-appearance;
         
+        .menulist-editable-box
+        {
+            -moz-appearance: @menulist-editable-box-appearance;
+        }
+    }
+
+    &:-moz-any(menulist, textbox[type="autocomplete"])
+    {
         dropmarker
         {
-            visibility: @menulist-dropmarker-visibility;
+            -moz-appearance: @menulist-dropmarker-appearance;
         }
     }
 
