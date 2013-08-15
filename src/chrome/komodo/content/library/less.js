@@ -595,7 +595,7 @@ var koLess = function koLess()
             }
             catch (e)
             {
-                this.exception(e, 'Failed reading file synchronously: ' + file.path + "\n" + e.message);
+                this.exception(e, 'Failed reading file synchronously: ' + (file.spec || file.path) + "\n" + e.message);
             }
 
             if (_success)
