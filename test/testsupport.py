@@ -172,6 +172,18 @@ def get_php_interpreter_path(ver):
             base_dir = base_dirs[0]
             break
     else:
+        import subprocess
+        # Look at PATH.
+        exe_paths = findPathsForInterpreters(["php"], "PHP")
+        for exe in exe_paths:
+            try:
+                p = subprocess.Popen([exe, '-r', 'echo phpversion();'],
+                                     stdout=subprocess.PIPE)
+                stdout, _ = p.communicate()
+                if stdout.strip().startswith(ver):
+                    return exe
+            except IOError:
+                pass
         raise TestSkipped("could not find PHP %s for testing: '%s' don't "
                           "exist" % (ver, "', '".join(candidates)))
     if sys.platform == "win32":
