@@ -264,6 +264,11 @@ ko.codeintel = {};
         var scimoz = view.scimoz;
         var pos = scimoz.currentPos;
 
+        if (view.scintilla.autocomplete.active) {
+            // No need to trigger if it's already open (bug 100035)
+            return;
+        }
+
         var ciBuf = _codeintelSvc.buf_from_koIDocument(view.koDoc);
         log.debug("Got buffer " + ciBuf);
         ciBuf.trg_from_pos(pos, true, function(trg) {
