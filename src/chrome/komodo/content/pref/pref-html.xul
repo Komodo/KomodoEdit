@@ -78,6 +78,7 @@ function OnPreferencePageLoading(prefset) {
                 var decl = prefset.getStringPref("defaultHTMLDecl");
                 var popup = document.getElementById("doctypePopup");
                 var selected = null;
+                idlist.sort();
                 for (let id of idlist.filter(isHTML_PublicID)) {
 		    var el = document.createElement("menuitem");
 		    el.setAttribute("label", id);
