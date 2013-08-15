@@ -504,8 +504,9 @@ ko.codeintel = {};
                 log.debug("showing popup");
                 var triggerPos = this._lastTriggerPos;
                 var curPos = scimoz.currentPos;
-                if (curPos < triggerPos) {
-                    // we went back past the trigger, let's die
+                if (curPos <= triggerPos) {
+                    // We have reached the trigger position; close the trigger
+                    // since none of the trigger text still exist.
                     log.debug("current position " + curPos + " is less than trigger " + triggerPos +
                               ", closing popup");
                     autoc.close();
