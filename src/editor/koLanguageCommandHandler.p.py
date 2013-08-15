@@ -1875,10 +1875,17 @@ class GenericCommandHandler:
         view = self._view
         sm = view.scimoz
 
-        if self._handle_tabstop():
+        # Bug 99067: If we have a multi-line selection and the user presses
+        # tab, favor indent over moving to a tabstop
+        selectionStart = sm.selectionStart
+        selectionEnd = sm.selectionEnd
+        selectionStartLine = sm.lineFromPosition(selectionStart)
+        selectionEndLine = sm.lineFromPosition(selectionEnd)
+        
+        if selectionStartLine == selectionEndLine and self._handle_tabstop():
             return
-
-        if sm.currentPos == sm.anchor and sm.selectionMode != sm.SC_SEL_LINES:
+        
+        if selectionStart == selectionEnd and sm.selectionMode != sm.SC_SEL_LINES:
             if self._try_complete_word(sm, view) and self._doCompleteWord(0):
                 return
     
@@ -1889,9 +1896,7 @@ class GenericCommandHandler:
         # If we have a selection, we first figure out if it's within-line or
         # either whole-line or multi-line.
         
-        selectionStartLine = sm.lineFromPosition(sm.selectionStart)
-        selectionEndLine = sm.lineFromPosition(sm.selectionEnd)
-        startColumn = sm.getColumn(sm.selectionStart)
+        startColumn = sm.getColumn(selectionStart)
         endOfSelectionStartLine = sm.getLineEndPosition(selectionStartLine)
         if (selectionStartLine != selectionEndLine or
             sm.selectionMode == sm.SC_SEL_LINES or

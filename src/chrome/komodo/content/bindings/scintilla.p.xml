@@ -1098,13 +1098,19 @@
                             // And let standard handling of the backspace take place.
                         } else if (event.keyCode == event.DOM_VK_TAB) {
                             // Bug 95685: Tab over all soft characters to the right.
-                            // Bug 100051: But don't bother if there's a pending tabstop
                             let skipSoftCharacters = true;
-                            let view = document.getBindingParent(this);
-                            if (view) {
-                                var tabstopInsertionTable = view.koDoc.getTabstopInsertionTable({});
-                                if (tabstopInsertionTable && tabstopInsertionTable.length) {
-                                    skipSoftCharacters = false;
+                            if (scimoz.lineFromPosition(scimoz.selectionStart)
+                                < scimoz.lineFromPosition(scimoz.selectionEnd)) {
+                                // Bug 99067: If we have a multi-line selection, don't skip soft characters
+                                skipSoftCharacters = false;
+                            } else {
+                                let view = document.getBindingParent(this);
+                                if (view) {
+                                    // Bug 100051: And don't bother if there's a pending tabstop
+                                    var tabstopInsertionTable = view.koDoc.getTabstopInsertionTable({});
+                                    if (tabstopInsertionTable && tabstopInsertionTable.length) {
+                                        skipSoftCharacters = false;
+                                    }
                                 }
                             }
                             if (skipSoftCharacters) {
