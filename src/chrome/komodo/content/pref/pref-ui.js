@@ -73,9 +73,13 @@ function PrefUi_OnLoad() {
         }
 
         checkboxDetect.addEventListener('click', setSkinState);
-        setSkinState();
     }
 
     // Run default actions (load prefs and their selected state)
     parent.hPrefWindow.onpageload();
+
+    if (window.navigator.platform.toLowerCase().indexOf("linux") != -1)
+    {
+        setSkinState();
+    }
 }
