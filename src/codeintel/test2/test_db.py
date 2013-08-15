@@ -1045,9 +1045,9 @@ class MultiLangLibTestCase(DBTestCase):
         self.failIfIn(toplevelname_index.data, (lang, "variable", "foo_var"))
 
 
-class LangLibTestCase(DBTestCase):
+class PythonLangLibTestCase(DBTestCase):
     """Test the db/$lang/... part of the database."""
-    test_dir = join(os.getcwd(), "tmp")
+    test_dir = join(os.getcwd(), "tmp", "pylanglib")
 
     def test_updating(self):
         lang = "Python"
@@ -1089,6 +1089,10 @@ class LangLibTestCase(DBTestCase):
         self.failUnless(lib.get_blob(blobname))
 
         self._check_db()
+
+class LangLibTestCase(DBTestCase):
+    """Test the db/$lang/... part of the database."""
+    test_dir = join(os.getcwd(), "tmp")
 
     def test_scanning_error(self):
         path = join(self.test_dir, "test_scanning_error.py")
