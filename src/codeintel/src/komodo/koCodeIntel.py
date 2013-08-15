@@ -1225,6 +1225,13 @@ class TriggerWrapper(object):
             return self._trg_[name]
         except KeyError:
             raise AttributeError("The attribute %s was not found on the trigger" % (name,))
+    def is_same(self, other):
+        """Check if this trigger is equivalent to some other trigger"""
+        other = UnwrapObject(other)
+        for key in ("pos", "type", "form", "lang"):
+            if self._trg_.get(key) != other._trg_.get(key):
+                return False
+        return True
 
 
 class KoCodeIntelBuffer(object):

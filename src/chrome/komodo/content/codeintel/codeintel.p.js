@@ -282,6 +282,7 @@ ko.codeintel = {};
                 log.debug("Not re-evaluating trigger");
                 return;
             }
+            view._ciLastTrg = trg;
             ciBuf.async_eval_at_trg(trg, view.ciCompletionUIHandler);
         }, handleError);
 
