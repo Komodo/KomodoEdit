@@ -1,7 +1,7 @@
 from xpcom.components import classes as Cc, interfaces as Ci, ProxyToMainThreadAsync, ProxyToMainThread
 from xpcom import nsError as Cr, COMException
 from xpcom.server import UnwrapObject
-from zope.cachedescriptors.property import Lazy as LazyProperty
+from zope.cachedescriptors.property import Lazy as LazyProperty, LazyClassAttribute
 
 from argparse import Namespace
 from codeintel2.common import PRIORITY_CURRENT, PRIORITY_IMMEDIATE
@@ -572,6 +572,16 @@ class KoCodeIntelManager(threading.Thread):
           .prefObserverService\
           .addObserverForTopics(self, ["xmlCatalogPaths"], True)
 
+    @LazyClassAttribute
+    def observerSvc(self):
+        return Cc["@mozilla.org/observer-service;1"]\
+                .getService(Ci.nsIObserverService)
+
+    @LazyClassAttribute
+    def notificationMgr(self):
+        return Cc["@activestate.com/koNotification/manager;1"]\
+                .getService(Ci.koINotificationManager)
+
     @property
     def state(self):
         return self._state
@@ -1033,9 +1043,8 @@ class KoCodeIntelManager(threading.Thread):
         """Scan complete unsolicited response"""
         path = response.get("path")
         if path:
-            Cc["@mozilla.org/observer-service;1"]\
-              .getService(Ci.nsIObserverService)\
-              .notifyObservers(None, "codeintel_buffer_scanned", path)
+            self.observerSvc.notifyObservers(None, "codeintel_buffer_scanned",
+                                             path)
 
     def do_report_message(self, response):
         """Report a message from codeintel (typically, scan status) unsolicited
@@ -1079,9 +1088,7 @@ class KoCodeIntelManager(threading.Thread):
     @LazyProperty
     def _notification(self):
         """The notification used for database scan progress &c"""
-        n = Cc["@activestate.com/koNotification/manager;1"]\
-              .getService(Ci.koINotificationManager)\
-              .createNotification("codeintel-status-message",
+        n = self.notificationMgr.createNotification("codeintel-status-message",
                                   ["codeintel"],
                                   None,
                                   Ci.koINotificationManager.TYPE_PROGRESS |
@@ -1094,16 +1101,11 @@ class KoCodeIntelManager(threading.Thread):
         """The notification must be updated from the main thread"""
         try:
             if self._notification.msg is not None:
-                Cc["@activestate.com/koNotification/manager;1"]\
-                  .getService(Ci.koINotificationManager)\
-                  .addNotification(self._notification)
-                Cc["@mozilla.org/observer-service;1"]\
-                  .getService(Ci.nsIObserverService)\
-                  .notifyObservers(self._notification, "status_message", None)
+                self.notificationMgr.addNotification(self._notification)
+                self.observerSvc.notifyObservers(self._notification,
+                                                 "status_message", None)
             else:
-                Cc["@activestate.com/koNotification/manager;1"]\
-                  .getService(Ci.koINotificationManager)\
-                  .removeNotification(self._notification)
+                self.notificationMgr.removeNotification(self._notification)
         except COMException, ex:
             pass
 
