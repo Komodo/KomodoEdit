@@ -2265,12 +2265,12 @@
             <!-- the deck is here to support vi mode -->
             <deck id="statusbar-message-deck" selectedIndex="0" flex="1">
                 <deck id="statusbar-message-internal-deck" selectedIndex="0" flex="1">
-                    <box id="statusbar-message-wrap">
+                    <hbox id="statusbar-message-wrap">
                         <statusbarpanel id="statusbar-message" value="&ready.label;"
                                         flex="1" crop="right"/>
                         <button id="statusbar-message-clear" class="close-button button-plain"
                                 onclick="ko.statusBar.clearMessage();"/>
-                    </box>
+                    </hbox>
                 </deck>
             </deck>
         </statusbarpanel>
