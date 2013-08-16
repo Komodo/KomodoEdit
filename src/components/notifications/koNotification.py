@@ -212,7 +212,8 @@ class KoNotificationText(KoNotificationBase):
 class KoNotificationStatus(KoNotificationBase):
     """Mixin to implement koIStatusMessage"""
     def __init__(self):
-        self.category = None
+        # Category becomes the first tag from constructor, or null.
+        self.category = self.tags and self.tags[0] or None
         self.timeout = 0
         self.highlight = 0
         self.expiresAt = 0
