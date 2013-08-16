@@ -388,7 +388,8 @@ this.MultiCaretSession.prototype = {
             return this._state != INACTIVE;
         } else if ((event.charCode && !event.ctrlKey
                     && !event.altKey && !event.metaKey)
-                   || event.keyCode == event.DOM_VK_TAB) {
+                   || (event.keyCode == event.DOM_VK_TAB
+                       && !event.shiftKey)) {
             return true;
         } else {
             var keylabel = ko.keybindings.manager.event2keylabel(event,

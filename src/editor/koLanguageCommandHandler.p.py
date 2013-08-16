@@ -1893,17 +1893,25 @@ class GenericCommandHandler:
             self._insertIndent()
             return
         
-        # If we have a selection, we first figure out if it's within-line or
-        # either whole-line or multi-line.
+        # Three kinds of selections:
+        # 1: Multi-line rectangular or thin line: insert tab at each caret/replace each sel with a tab
+        # 2: Multi-line "regular" selection: shift
+        # 3: Complete single line is selected: shift
+        # 4: Partial-line selection: replace with a tab
+        # 5: No selection: insert an indent
         
         startColumn = sm.getColumn(selectionStart)
         endOfSelectionStartLine = sm.getLineEndPosition(selectionStartLine)
-        if (selectionStartLine != selectionEndLine or
-            sm.selectionMode == sm.SC_SEL_LINES or
-            (startColumn == 0 and sm.selectionEnd == endOfSelectionStartLine)):
+        if (selectionStartLine != selectionEndLine):
+            if sm.selectionMode in (sm.SC_SEL_RECTANGLE, sm.SC_SEL_THIN):
+                # Whether we're in thin or rectangle, insert a tab at
+                # each spot
+                return sm.tab()
             return self._regionShift(1)
-        else:
-            return self._insertIndent()
+        if startColumn == 0 and sm.selectionEnd == endOfSelectionStartLine:
+            return self._regionShift(1)
+
+        return self._insertIndent()
 
     def _regionShift(self, shift):
         """ This code shifts regions of text left or right depending on the
