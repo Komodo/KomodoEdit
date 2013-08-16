@@ -374,10 +374,8 @@ XPCOMUtils.defineLazyGetter(this, "NotificationSvc", function() ({
    */
   removeAll: function Notifications_removeAll(title) {
     for each (let notification in Array.slice(this.manager)) {
-      if (notification.getTags() == ["sync"]) {
-        if (notification.summary == title || !title) {
-          this.manager.remove(notification);
-        }
+      if (!title || notification.summary == title) {
+        this.manager.remove(notification);
       }
     }
   },
@@ -395,7 +393,7 @@ XPCOMUtils.defineLazyGetter(this, "NotificationSvc", function() ({
  * This is not exported, but later attached to the NotificationSvc as
  * `NotificationSvc.Notification`.
  */
-function Notification(title, description, iconURL, priority, buttons) {
+function Notification(title, description, iconURL, priority, buttons=[], tags=[]) {
   var severity = ({ // map to koINotification severity levels
     "1": Ci.koINotification.SEVERITY_INFO,
     "4": Ci.koINotification.SEVERITY_WARNING,
@@ -411,7 +409,7 @@ function Notification(title, description, iconURL, priority, buttons) {
     params.actions = buttons;
   }
   
-  var notification = NotificationSvc.manager.add(title, ["sync"], title, params);
+  var notification = NotificationSvc.manager.add(title, tags, title, params);
   return Object.create(notification, { wrappedJSObject: { value: notification }});
 };
 
