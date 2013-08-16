@@ -212,12 +212,6 @@ var koLess = function koLess()
             {
                 var _parseCallback = function(e, root)
                 {
-                    // Validate parsed result
-                    if (e)
-                    {
-                        return this.errorLess(e, sheet.href, threadId);
-                    }
-
                     // If we have a callback this is a call from the less parser
                     // and we should just return the data it wants.
                     if ( ! isInternalCall)
@@ -232,16 +226,24 @@ var koLess = function koLess()
                         {
                             var parsedCss = root.toCSS();
                         }
-                        catch (e)
+                        catch (ex)
                         {
-                            if ("extract" in e)
+                            if ("extract" in ex)
                             {
-                                return this.errorLess(e, sheet.href, threadId);
+                                e = ex;
                             }
                             else
                             {
-                                return this.exception(e, threadId + ' Error converting less to css in ' + sheet.href);
+                                this.exception(e, threadId + ' Error converting less to css in ' + sheet.href);
+                                return callback();
                             }
+                        }
+
+                        // Validate parsed result
+                        if (e)
+                        {
+                            this.errorLess(e, sheet.href, threadId);
+                            return callback();
                         }
 
                         // Write it to cache
@@ -252,7 +254,8 @@ var koLess = function koLess()
                         }
                         catch (e)
                         {
-                            return this.exception(e, threadId + ' Error creating cache for ' + sheet.href);
+                            this.exception(e, threadId + ' Error creating cache for ' + sheet.href);
+                            return callback();
                         }
 
                         this.debug(threadId + ' Returning ' + cacheFile.fileSize + ' bytes for: ' + sheet.href);
@@ -284,12 +287,16 @@ var koLess = function koLess()
                     env.contents = contents;
                     env.dumpLineNumbers = false;
                     env.strictImports = false;
+                    env.currentFileInfo = {
+                        filename: sheet.href
+                    };
 
                     new(less.Parser)(env).parse(data, _parseCallback.bind(this));
                 }
                 catch (e)
                 {
                     this.exception(e, threadId + ' Parsing error for ' + sheet.href + ': ' + e.message);
+                    callback();
                 }
             }.bind(this), async);
         },

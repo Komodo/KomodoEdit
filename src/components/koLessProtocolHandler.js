@@ -82,6 +82,10 @@ LessChannel.prototype = {
                 file = _file;
             }, true); // isInternalCall
 
+            if ( ! file) {
+                file = NetUtil.newURI('data:text/plain,');
+            }
+
             var channel = NetUtil.newChannel(file, null, null);
            
             this.contentType = channel.contentType;
@@ -112,8 +116,11 @@ LessChannel.prototype = {
             var listener = new WrapperListener(aListener, this);
 
             koLess.loadSheet({href: this._URI}, function(file) {
-                var uri = Services.io.newFileURI(file);
-                var channel = Services.io.newChannelFromURI(uri);
+                if ( ! file) {
+                    file = NetUtil.newURI('data:text/plain,');
+                }
+
+                var channel = NetUtil.newChannel(file, null, null);
 
                 this.contentType = channel.contentType;
                 this.contentCharset = channel.contentCharset;
