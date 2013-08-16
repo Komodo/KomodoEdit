@@ -998,7 +998,7 @@ if (typeof ko.breadcrumbs == 'undefined')
             }
 
             // Set basic crumb attributes
-            crumb.setAttribute('id' ,uid);
+            crumb.setAttribute('id' , uid);
             crumb.setAttribute('label', name || "(root)");
             crumb.setAttribute(
                 'style',
@@ -1372,27 +1372,39 @@ if (typeof ko.breadcrumbs == 'undefined')
     {
         var cache = {};
 
-        if (typeof path == "object")
+        this.init = function()
         {
-            cache.file = path;
-            path = this.getPath();
-        }
+            if (typeof path == "object")
+            {
+                cache.file = path;
+                path = path.getFilepath();
+            }
 
-        if (typeof conn == "string")
-        {
-            cache.uri = conn;
-            conn = RCService.getConnectionUsingUri(conn);
-        }
+            if (typeof conn == "string")
+            {
+                cache.uri = conn;
+                conn = RCService.getConnectionUsingUri(conn);
+            }
+        };
 
-        this._getFile = function()
+        this._getFile = function(forListing, refresh = false)
         {
-            if ( ! ("file" in cache) ||
-                (cache.file.isDirectory() && cache.file.needsDirectoryListing) )
+            if ("file" in cache && forListing)
+            {
+                refresh = (cache.file.isDirectory() && cache.file.needsDirectoryListing);
+            }
+
+            if ( ! ("file" in cache) || refresh)
             {
                 log.debug("Initiating remote file: " + path);
-                
-                cache.file = conn.list(path, 1);
+                cache.file = conn.list(path, refresh);
+
+                if ( ! refresh && forListing && cache.file.isDirectory())
+                {
+                    return this._getFile(true, true);
+                }
             }
+            
             return cache.file;
         };
 
@@ -1416,10 +1428,10 @@ if (typeof ko.breadcrumbs == 'undefined')
             if ( ! ("children" in cache))
             {
                 cache.children = {};
-                var children = this._getFile().getChildren({});
-                for (let [k,child] in Iterator(children))
+                var children = this._getFile(true).getChildren({});
+                for (let [,child] in Iterator(children))
                 {
-                    cache.children[child.getFilename()] = new fileRemote(child);
+                    cache.children[child.getFilename()] = new fileRemote(child, conn);
                 }
             }
             return cache.children;
@@ -1439,8 +1451,9 @@ if (typeof ko.breadcrumbs == 'undefined')
 
                 cache.childrenSorted.sort(function(a,b) {
                     if (a.isDirectory() && b.isFile()) return -1;
+                    if (a.isFile() && b.isDirectory()) return 1;
                     return a.getFilename().localeCompare(b.getFilename());
-                }.bind(this));
+                });
             }
             return cache.childrenSorted;
         };
@@ -1448,7 +1461,7 @@ if (typeof ko.breadcrumbs == 'undefined')
         this.getFilename = function()
         {
             // parse filename from path so we don't need to query the server
-            return path.replace(/.*(?:\/|\\)/,'');
+            return this.getPath().replace(/.*(?:\/|\\)/,'');
         };
 
         this.getUri = function()
@@ -1489,23 +1502,20 @@ if (typeof ko.breadcrumbs == 'undefined')
 
         this.isFile = function()
         {
-            if (isFile === null)
-            {
-                isFile = this._getFile().isFile();
-            }
-
-            return isFile;
+            return ! this.isDirectory();
         };
 
         this.isDirectory = function()
         {
-            return ! this.isFile();
+            return this._getFile().isDirectory();
         };
 
         this.isRemote = function()
         {
             return true;
         };
+
+        this.init();
 
         return this;
     };
