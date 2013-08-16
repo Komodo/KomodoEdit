@@ -150,10 +150,6 @@ this.getPrefTreeView = function() {
         }
     }
     this.prefTreeView = new PrefTreeView(rows);
-    var s = [];
-    for (var p in this) {
-        s.push(p);
-    }
     return this.prefTreeView;
 };
 
@@ -582,10 +578,7 @@ FullTextManager.prototype = {
         }
     },
     getWordList: function() {
-        var wordList = [];
-        for (var w in this._hits_for_word) {
-            wordList.push(w);
-        }
+        var wordList = Object.keys(this._hits_for_word);
         wordList.sort();
         return wordList;
     },
@@ -596,10 +589,7 @@ FullTextManager.prototype = {
         } else if (word in this._hits_list) {
             return this._hits_list[word];
         } else {
-            var nums = [];
-            for (var p in this._hits_for_word[word]) {
-                nums.push(p);
-            }
+            var nums = Object.keys(this._hits_for_word[word]);
             nums.sort();
             this._hits_list[word] = nums;
             return nums;
@@ -735,10 +725,17 @@ this.loadPrefsFullText = function() {
     };
     DocLoader.prototype.getWordPrefixes = function(s) {
         // Handles latin1 characters only
-        return s.replace(/([a-zA-Z\xa0-\xff])[^a-zA-Z\xa0-\xff_\-\'\s]+/g, "$1").
-                 replace(/[^a-zA-Z\xa0-\xff\'\-\_]+/g, " ").
-                 replace(/'([a-zA-Z\xa0-\xff\-]*)'/, "$1").
-                 split(/\s+/);
+        const words = (s.replace(/([a-zA-Z\xa0-\xff])[^a-zA-Z\xa0-\xff_\-\'\s]+/g, "$1").
+                     replace(/[^a-zA-Z\xa0-\xff\'\-\_]+/g, " ").
+                     replace(/'([a-zA-Z\xa0-\xff\-]*)'/, "$1").
+                     split(/\s+/));
+        const nonAlpha = /[\-_\s]+/;
+        // build a flattened list of all terms in 'words' that can be
+        // split into multiple sub-words.
+        const subWords = words.filter(function(w) nonAlpha.test(w))
+                        .reduce(function(prevWords, w) prevWords.concat(w.split(nonAlpha)),
+                                []);
+        return words.concat(subWords);
     };
     DocLoader.prototype.internWords = function(url, words, owner) {
         var urlNum = owner.urlManager.intern(url);
