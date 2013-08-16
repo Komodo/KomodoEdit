@@ -142,8 +142,24 @@ static inline void advanceOneChar(int& i, char&ch, char& chNext, char chNext2) {
 
 #define popBitState(bitState) bitState >>= BITSTATE_MASK_SIZE;
 
-#define testBitStateNotTopLevel(bitState, mask) \
-  (((bitState) & BITSTATE_MASK) == (mask))
+static bool testBitStateNotTopLevel(unsigned int bitState,
+				    unsigned int mask,
+				    bool keepLooking=false) {
+    // Peel off BITSTATE_MASK bits at a time until we hit 0
+    while (bitState) {
+	if ((bitState & BITSTATE_MASK) == mask) {
+	    return true;
+	}
+	if (keepLooking
+	    && mask == BITSTATE_IN_BRACE
+	    && (bitState & BITSTATE_IN_COMMAND) == BITSTATE_IN_COMMAND) {
+	    bitState >>= BITSTATE_MASK_SIZE;
+	} else {
+	    return false;
+	}
+    }
+    return false;
+}
 
 static bool testBitStateOrTopLevel(unsigned int bitState,
 				   unsigned int mask) {
@@ -269,7 +285,11 @@ static void ColouriseTclDoc(unsigned int startPos_,
 	startPos = start_line_pos;
     }
     state = SCE_TCL_DEFAULT;
-    //fprintf(stderr, "After sync, start at pos %d, len %d, style %d\n", startPos, length, initStyle);
+    if(0) fprintf(stderr, "After sync, start at pos %d (line %d:%d), len %d, style %d\n",
+	    startPos,
+	    styler.GetLine(startPos),
+	    startPos - styler.LineStart(styler.GetLine(startPos)),
+	    length, initStyle);
     char chPrev		= ' ';
     char chNext		= styler[startPos];
 
@@ -357,7 +377,7 @@ static void ColouriseTclDoc(unsigned int startPos_,
 		}
 		cmdStart = false;
 	    } else if ((ch == '"') && !inEscape) {
-		if (testBitStateNotTopLevel(bitState, BITSTATE_IN_BRACE)) {
+		if (testBitStateNotTopLevel(bitState, BITSTATE_IN_BRACE, true)) {
 		    if (quotePrecedesClosingBrace(i + 1, lengthDoc, styler)) {
 			// Do nothing, treat it like a literal.
 			colourString(i-1, state, styler);
