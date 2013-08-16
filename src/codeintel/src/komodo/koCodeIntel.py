@@ -181,8 +181,9 @@ class KoCodeIntelService:
         if not self.enabled:
             return
         lang = doc.language
+        # Getting the path should match buf_from_koIDocument
         if doc.file:
-            path = doc.file.path
+            path = doc.file.displayPath
         else: # unsaved
             path = join("<Unsaved>", doc.baseName)
         mtime = None
@@ -207,10 +208,7 @@ class KoCodeIntelService:
     def buf_from_koIDocument(self, doc):
         if not self.enabled:
             return
-        try:
-            doc = UnwrapObject(doc)
-        except:
-            pass
+        doc = UnwrapObject(doc)
         self.debug("buf_from_koIDocument: %r [%s]", doc, doc.get_language())
         try:
             buf = self.buffers[doc]
