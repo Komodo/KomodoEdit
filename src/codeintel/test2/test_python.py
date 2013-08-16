@@ -632,6 +632,13 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertTriggerMatches("(im<|>p", name=name)
         self.assertNoTrigger("(i<|>")
         self.assertNoTrigger("(imp<|>")
+        # Ensure don't override another completion type.
+        self.assertNoTrigger("import fo<|>")
+        self.assertNoTrigger("from fo<|>")
+        self.assertNoTrigger("from collections import fo<|>")
+        self.assertNoTrigger("class fo<|>")
+        self.assertNoTrigger("def fo<|>")
+        self.assertNoTrigger("except fo<|>")
 
 class CodeintelPythonTestCase(CodeIntelTestCase):
     lang = "Python"
@@ -2143,6 +2150,9 @@ class CplnTestCase(CodeintelPythonTestCase):
                 def otherfunc(self):
                     fo<3>
                 fo<4>
+            cl<5>ass fam:
+                x = cl<6>
+                y = No<7>
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
                 [('module', 'football'),
@@ -2173,6 +2183,12 @@ class CplnTestCase(CodeintelPythonTestCase):
                  ('function', 'foofun'),
                  ('class', 'fools'),
                  ('class', 'fools2')])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
+                [('keyword', 'class')])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[6]),
+                [('keyword', 'class')])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[7]),
+                [('keyword', 'None')])
 
 
 class CplnTestCaseEnviron(CodeintelPythonTestCase):

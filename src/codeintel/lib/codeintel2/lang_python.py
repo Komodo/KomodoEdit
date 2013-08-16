@@ -334,6 +334,11 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
     
     citdl_from_literal_type = {"string": "str"}
 
+    @LazyClassAttribute
+    def keywords(self):
+        from SilverCity.Keywords import python_keywords
+        return python_keywords.split(" ")
+
     def async_eval_at_trg(self, buf, trg, ctlr):
         if _xpcom_:
             trg = UnwrapObject(trg)
@@ -1001,12 +1006,30 @@ class PythonBuffer(CitadelBuffer):
                 if DEBUG:
                     print "  preceeded by '.' operator - not a trigger"
                 return None
+
+            # Check if it makes sense to show the completions here. If defining
+            # a class name, or function name, you don't want to see completions.
+            # Also, do not override another completion type (e.g. imports).
+            start = accessor.line_start_pos_from_pos(pos)
+            preceeding_text = accessor.text_range(start, last_pos-2).strip()
+            if preceeding_text:
+                first_word = preceeding_text.split(" ")[0]
+                if first_word in ("class", "def", "import", "from", "except"):
+                    if DEBUG:
+                        print "  no trigger, as starts with %r" % (first_word, )
+                    # Don't trigger over the top of another trigger, i.e.
+                    #   complete-available-imports
+                    #   complete-module-members
+                    #   complete-available-exceptions
+                    return None
+
             citdl_expr = accessor.text_range(last_pos-1, last_pos+1)
             if DEBUG:
                 print "  triggered 2 char symbol trigger: %r" % (citdl_expr, )
             return Trigger(self.lang, TRG_FORM_CPLN, "local-symbols",
                            last_pos-1, implicit,
-                           citdl_expr=citdl_expr)
+                           citdl_expr=citdl_expr,
+                           preceeding_text=preceeding_text)
 
 
     def _last_logical_line(self, text):

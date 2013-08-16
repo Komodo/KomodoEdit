@@ -235,18 +235,14 @@ class PythonTreeEvaluator(TreeEvaluator):
                         cplns.append((ilk, name))
             scoperef = self.parent_scoperef_from_scoperef(scoperef)
 
-        # Not adding keywords, as they are easily typed/remembered.
-        ## Add keywords, being smart about where they are allowed.
-        #accessor = self.buf.accessor
-        #start = accessor.line_start_pos_from_pos(self.trg.pos)
-        #preceeding_text = accessor.text_range(start, self.trg.pos).strip()
-        #from SilverCity.Keywords import python_keywords  # move to top-level
-        #for keyword in python_keywords.split(" "):
-        #    if len(keyword) > 3 and keyword.startswith(expr) and \
-        #       keyword not in found_names:
-        #        # Always allow: None, lambda
-        #        if not preceeding_text or keyword in ("None", "lambda"):
-        #            cplns.append(("keyword", keyword))
+        # Add keywords, being smart about where they are allowed.
+        preceeding_text = self.trg.extra.get("preceeding_text", "")
+        for keyword in self.buf.langintel.keywords:
+            if len(keyword) < 3 or not keyword.startswith(expr):
+                continue
+            # Always add None and lambda, otherwise only at the start of lines.
+            if not preceeding_text or keyword in ("None", "lambda"):
+                cplns.append(("keyword", keyword))
 
         return sorted(cplns, key=operator.itemgetter(1))
 
