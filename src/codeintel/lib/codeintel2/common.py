@@ -59,6 +59,8 @@ __all__ = [
     "CorruptDatabase", "NotFoundInDatabase", "CITDLError",
     "NoModuleEntry", "NoCIDBModuleEntry",
 
+    "LazyClassAttribute",
+
     "ENABLE_HEURISTICS",
     "_xpcom_",
 ]
@@ -72,6 +74,14 @@ import time
 import threading
 import logging
 import warnings
+
+try:
+    from zope.cachedescriptors.property import LazyClassAttribute
+except ImportError:
+    import warnings
+    warnings.warn("Unable to import zope.cachedescriptors.property")
+    # Fallback to regular properties.
+    LazyClassAttribute = property
 
 import SilverCity
 from SilverCity.Lexer import Lexer
