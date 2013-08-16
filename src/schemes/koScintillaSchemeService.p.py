@@ -221,7 +221,7 @@ class Scheme:
                 # (but only if the user doesn't have that font)
                 # XXX: nsIFontEnumerator crashes komodo under bk test.
                 if (sys.platform.startswith("linux") and
-                    "koITestService" not in components.interfaces):
+                    "koITestService" not in components.interfaces.keys()):
                     if not hasattr(Scheme, "__has_bitstream_vera_sans_mono"):
                         fontenum = components.classes["@mozilla.org/gfx/fontenumerator;1"]\
                                              .getService(components.interfaces.nsIFontEnumerator)
