@@ -17,9 +17,7 @@
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
                        anonid="minimap"
                        allowIME="false"
-                       onblur="leaveView();"
                        hscroll="off"
-                       onmouseout="leaveView();"
 <!-- #if PLATFORM != "linux" -->
                        mozcontext="minimapContextMenu"
 <!-- #endif -->
@@ -230,10 +228,10 @@
         <field name="ignoreUpdateUIPeriod">500</field> 
 
         <method name="onUpdateUI">
+        <parameter name="reason"/>
         <body>
         <![CDATA[
-            if (!this.minimapActive) {
-                //dump("<< !this.minimapActive\n"); 
+            if ((reason & this.scimoz.SC_UPDATE_V_SCROLL) == 0) {
                 return;
             }
             var now = new Date().valueOf();
@@ -329,25 +327,6 @@
         ]]>
         </body>
         </method>
-
-        <field name="minimapActive">false</field>
-        <method name="enterView">
-        <parameter name="event" />
-        <body>
-        <![CDATA[
-            this.minimapActive = true;
-        ]]>
-        </body>
-        </method>
-
-        <method name="leaveView">
-        <parameter name="event" />
-        <body>
-        <![CDATA[
-            this.minimapActive = false;
-        ]]>
-        </body>
-        </method>
     </implementation>
     <handlers>
         <handler event="keypress" phase="capturing"> 
@@ -370,18 +349,6 @@
             event.stopPropagation();
             return false;
             ]]>
-        </handler>
-        
-        <handler event="mouseover">
-        <![CDATA[
-        this.enterView();
-        ]]>
-        </handler>
-        
-        <handler name="mouseout" phase="bubbling">
-        <![CDATA[
-        this.leaveView();
-        ]]>
         </handler>
 
         <handler event="click" phase="capturing">
