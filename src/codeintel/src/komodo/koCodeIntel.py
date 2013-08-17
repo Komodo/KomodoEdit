@@ -1101,6 +1101,9 @@ class KoCodeIntelManager(threading.Thread):
         """The notification must be updated from the main thread"""
         try:
             if self._notification.msg is not None:
+                # Don't need to addNotification, as the notification of
+                # status_message will do this anyway - bug 100077.
+                #self.notificationMgr.addNotification(self._notification)
                 self.observerSvc.notifyObservers(self._notification,
                                                  "status_message", None)
             else:
