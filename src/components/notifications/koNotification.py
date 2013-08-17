@@ -56,10 +56,6 @@ def _createProperty(name, defaultValue=None, setCheck=None):
             raise COMException(nsError.NS_ERROR_ILLEGAL_VALUE)
         oldVal = getattr(self, name, defaultValue)
         setattr(self, name, value)
-        if oldVal != value:
-            manager = self._manager
-            if manager:
-                manager.addNotification(self)
 
     return property(getter, setter)
 
@@ -221,16 +217,4 @@ class KoNotificationStatus(KoNotificationBase):
         self._log = True
 
     msg = _createProperty("_summary", None)
-    @property
-    def log(self):
-        return self._log
-    @log.setter
-    def log(self, value):
-        if value != self._log:
-            manager = self._manager
-            if manager:
-                if value:
-                    manager.addNotification(self)
-                else:
-                    manager.removeNotification(self)
-        self._log = value
+    log = _createProperty("_log", None)
