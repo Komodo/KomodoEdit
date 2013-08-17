@@ -225,12 +225,12 @@ class NotificationManagerTestCase(unittest.TestCase):
             self.assertEquals(notif.getTags(), ["tags"])
             self.assertEquals(notif.identifier, "notif-basic")
             for attr in ("summary", "iconURL", "description"):
-                with self.check_called(notif, old_index=0, new_index=0):
+                with self.check_called(notif, will_call=False):
                     setattr(notif, attr, attr * 2)
                 with self.check_called(notif, will_call=False):
                     setattr(notif, attr, attr * 2)
                     self.assertEquals(getattr(notif, attr), attr * 2)
-            with self.check_called(notif, old_index=0, new_index=0):
+            with self.check_called(notif, will_call=False):
                 notif.severity = 1
             self.assertEquals(notif.severity, 1)
 
@@ -251,42 +251,44 @@ class NotificationManagerTestCase(unittest.TestCase):
                 self.nm.removeNotification(notif)
             self.assertEquals(self.nm.notificationCount, 0)
 
-    def test_08_notification_progress(self):
-        """Check koINotificationProgress"""
-        self.assertEquals(self.nm.notificationCount, 0)
-        notif = self.nm.createNotification("notif-progress", ["tags"], None,
-                                           koINotificationManager.TYPE_PROGRESS)
-        notif.QueryInterface(Ci.koINotificationProgress)
-        self.nm.addNotification(notif)
-
-        try:
-            self.assertRaises(COMException,
-                              setattr, notif, "maxProgress", -2)
-            self.assertTrue(hasattr(Ci.koINotificationProgress,
-                                    "PROGRESS_INDETERMINATE"))
-            with self.check_called(notif, True, old_index=0, new_index=0):
-                notif.maxProgress = 5
-            self.assertAlmostEquals(notif.maxProgress, 5)
-            with self.check_called(notif, False):
-                notif.progress = 0
-            self.assertAlmostEquals(notif.progress, 0)
-            with self.check_called(notif, True, old_index=0, new_index=0):
-                notif.progress = 5
-            self.assertAlmostEquals(notif.progress, 5)
-            with self.check_called(notif, False):
-                notif.progress = 5
-            self.assertRaises(COMException,
-                              setattr, notif, "progress", 10) # > maxProgress
-            self.assertAlmostEquals(notif.progress, 5)
-            with self.check_called(notif, True, old_index=0, new_index=0):
-                notif.maxProgress = 10
-            self.assertAlmostEquals(notif.maxProgress, 10)
-            with self.check_called(notif, True, old_index=0, new_index=0):
-                notif.progress = 10
-            self.assertAlmostEquals(notif.progress, 10)
-        finally:
-            self.nm.removeNotification(notif)
-            self.assertEquals(self.nm.notificationCount, 0)
+    # No longer run, as notifications no longer notify listeners when they have
+    # been modified.
+    #def test_08_notification_progress(self):
+    #    """Check koINotificationProgress"""
+    #    self.assertEquals(self.nm.notificationCount, 0)
+    #    notif = self.nm.createNotification("notif-progress", ["tags"], None,
+    #                                       koINotificationManager.TYPE_PROGRESS)
+    #    notif.QueryInterface(Ci.koINotificationProgress)
+    #    self.nm.addNotification(notif)
+    #
+    #    try:
+    #        self.assertRaises(COMException,
+    #                          setattr, notif, "maxProgress", -2)
+    #        self.assertTrue(hasattr(Ci.koINotificationProgress,
+    #                                "PROGRESS_INDETERMINATE"))
+    #        with self.check_called(notif, True, old_index=0, new_index=0):
+    #            notif.maxProgress = 5
+    #        self.assertAlmostEquals(notif.maxProgress, 5)
+    #        with self.check_called(notif, False):
+    #            notif.progress = 0
+    #        self.assertAlmostEquals(notif.progress, 0)
+    #        with self.check_called(notif, True, old_index=0, new_index=0):
+    #            notif.progress = 5
+    #        self.assertAlmostEquals(notif.progress, 5)
+    #        with self.check_called(notif, False):
+    #            notif.progress = 5
+    #        self.assertRaises(COMException,
+    #                          setattr, notif, "progress", 10) # > maxProgress
+    #        self.assertAlmostEquals(notif.progress, 5)
+    #        with self.check_called(notif, True, old_index=0, new_index=0):
+    #            notif.maxProgress = 10
+    #        self.assertAlmostEquals(notif.maxProgress, 10)
+    #        with self.check_called(notif, True, old_index=0, new_index=0):
+    #            notif.progress = 10
+    #        self.assertAlmostEquals(notif.progress, 10)
+    #    finally:
+    #        self.nm.removeNotification(notif)
+    #        self.assertEquals(self.nm.notificationCount, 0)
 
     def test_09_notification_actionable(self):
         """Check koINotificationActionable"""
@@ -430,22 +432,23 @@ class NotificationManagerTestCase(unittest.TestCase):
                               nm.update, notif, progress=20)
 
             # check listeners get hooked up correctly
-            called = set()
-            def listener(aNotification, aOldIndex, aNewIndex, aReason):
-                self.assertEquals(aNotification, notif)
-                self.assertEquals(aOldIndex, 0)
-                self.assertEquals(aNewIndex, 0)
-                self.assertEquals(aReason, Ci.koINotificationListener.REASON_UPDATED)
-                called.add(True)
-            nm.addListener(listener)
-            notif.progress = 9
-            self._waitForCompletion()
-            self.assertTrue(called, "expected listener to be called due to progress change")
-            nm.removeListener(listener)
-            called.discard(True)
-            notif.progress = 10
-            self._waitForCompletion()
-            self.assertFalse(called, "did not expect listener to be called because it was removed")
+            # No longer tested as notification changes do not notify listeners.
+            #called = set()
+            #def listener(aNotification, aOldIndex, aNewIndex, aReason):
+            #    self.assertEquals(aNotification, notif)
+            #    self.assertEquals(aOldIndex, 0)
+            #    self.assertEquals(aNewIndex, 0)
+            #    self.assertEquals(aReason, Ci.koINotificationListener.REASON_UPDATED)
+            #    called.add(True)
+            #nm.addListener(listener)
+            #notif.progress = 9
+            #self._waitForCompletion()
+            #self.assertTrue(called, "expected listener to be called due to progress change")
+            #nm.removeListener(listener)
+            #called.discard(True)
+            #notif.progress = 10
+            #self._waitForCompletion()
+            #self.assertFalse(called, "did not expect listener to be called because it was removed")
 
             # test python iterable
             self.assertEquals(len(nm), 1)
