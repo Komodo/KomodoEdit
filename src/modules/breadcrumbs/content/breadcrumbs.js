@@ -916,40 +916,53 @@ if (typeof ko.breadcrumbs == 'undefined')
          */
         drawCrumbs: function breadcrumbs_drawCrumb(view)
         {
-            log.debug('Drawing crumbs for view: ' + view.title);
+            log.debug('Drawing crumbs for view: ' + view.title + ' :: ' + view.koDoc.file.path);
 
             // Reset the activeCrumb
             eventContext.activeCrumb = null;
 
-            // Init file pointer for currently opened file
-            var file = Cc["@mozilla.org/file/local;1"]
-                        .createInstance(Ci.nsILocalFile);
-            file.initWithPath(view.koDoc.file.path);
-
-            // Get project path so we can exclude it from the crumbs
-            var projectPath;
-            if (ko.projects.manager.currentProject)
+            if ( ! view.koDoc.file.isRemoteFile)
             {
-                projectPath = ko.projects.manager.currentProject.liveDirectory;
-            }
-
-            // Iterate through files in reverse and queue them to be drawn
-            // as breadcrumbs, stop at the project path
-            var files = [file];
-            while (file = file.parent)
-            {
-                files.push(file);
-
-                if (file.path == projectPath)
+                // Init file pointer for currently opened file
+                var file = Cc["@mozilla.org/file/local;1"]
+                            .createInstance(Ci.nsILocalFile);
+                file.initWithPath(view.koDoc.file.path);
+    
+                // Get project path so we can exclude it from the crumbs
+                var projectPath;
+                if (ko.projects.manager.currentProject)
                 {
-                    break;
+                    projectPath = ko.projects.manager.currentProject.liveDirectory;
+                }
+    
+                // Iterate through files in reverse and queue them to be drawn
+                // as breadcrumbs, stop at the project path
+                var files = [file];
+                while (file = file.parent)
+                {
+                    files.push(file);
+    
+                    if (file.path == projectPath)
+                    {
+                        break;
+                    }
+                }
+                
+                // Direct each file in the path to drawCrumb()
+                for (let x=files.length-1;x>=0;x--)
+                {
+                    this.drawCrumb(files[x].leafName, view, files[x]);
                 }
             }
-
-            // Direct each file in the path to drawCrumb()
-            for (let x=files.length-1;x>=0;x--)
+            else
             {
-                this.drawCrumb(files[x].leafName, view, files[x]);
+                var bits = view.koDoc.file.path.split(/\/|\\/);
+                while (bits.length)
+                {
+                    let filePath = bits.join('/');
+                    let leafName = bits.pop();
+                    this.drawCrumb(leafName, view, filePath);
+                }
             }
         },
 
@@ -958,11 +971,11 @@ if (typeof ko.breadcrumbs == 'undefined')
          *
          * @param   {String} name
          * @param   {Object} view currentView
-         * @param   {Object} file
+         * @param   {String} filePath
          *
          * @returns {Void} 
          */
-        drawCrumb: function breadcrumbs_drawCrumb(name, view, file = false)
+        drawCrumb: function breadcrumbs_drawCrumb(name, view, filePath = false)
         {
             log.debug('Drawing crumb: ' + name);
 
@@ -973,17 +986,18 @@ if (typeof ko.breadcrumbs == 'undefined')
             
             // Parse our file through our own file "classes" in order to have
             // a uniform interface to access them through
-            if (file)
+            var file;
+            if (filePath)
             {
                 if (view.koDoc.file.isRemoteFile)
                 {
-                    file = new fileRemote(file.path,
+                    file = new fileRemote(filePath,
                                           view.koDoc.file.URI,
-                                          view.koDoc.file.path == file.path);
+                                          view.koDoc.file.path == filePath);
                 }
                 else
                 {
-                    file = new fileLocal(file);
+                    file = new fileLocal(filePath);
                 }
             }
 
