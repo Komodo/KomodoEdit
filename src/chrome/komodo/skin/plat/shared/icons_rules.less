@@ -58,23 +58,10 @@ button, toolbarbutton, menuitem
     list-style-image: @icon-newfolder;
 }
 
-menulist[editable="true"] dropmarker, textbox[type="autocomplete"] dropmarker
+menulist dropmarker, textbox[type="autocomplete"] dropmarker
 {
-    background-image: @icon-dropmarker;
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: 16px;
-
+    list-style-image: @icon-dropmarker;
     width: 16px;
-    height: 16px;
-}
-
-menulist:not(.plain):not([editable="true"])
-{
-    background-image: @icon-dropmarker;
-    background-position: right;
-    background-repeat: no-repeat;
-    background-size: 16px;
 }
 
 /* General Icons */
