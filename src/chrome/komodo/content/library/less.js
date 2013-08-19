@@ -151,10 +151,15 @@ var koLess = function koLess()
             {
                 this.cache.clear();
             }
-            
-            Cc["@mozilla.org/chrome/chrome-registry;1"]
-              .getService(Ci.nsIXULChromeRegistry)
-              .refreshSkins();
+
+            // Give it some time to reload, _then_ refresh skins, in order to
+            // avoid incorrect icons.  Bug 99717.
+            // (The bug mainly happens when you switch away and back.)
+            Services.tm.currentThread.dispatch(() => {
+                Cc["@mozilla.org/chrome/chrome-registry;1"]
+                  .getService(Ci.nsIXULChromeRegistry)
+                  .refreshSkins();
+            }, Ci.nsIEventTarget.DISPATCH_NORMAL);
         },
 
         _loadSheetNo: 0,
