@@ -591,15 +591,6 @@
         </body>
         </method>
 
-        <method name="closeUnconditionally">
-        // Bug 98867: Allow for any kind of view to handle a closeUnconditionally method.
-        <body>
-        <![CDATA[
-            this.close_viewbufferbase();
-        ]]>
-        </body>
-        </method>
-
         <method name="init">
         <body>
         <![CDATA[
