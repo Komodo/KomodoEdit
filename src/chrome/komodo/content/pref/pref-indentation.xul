@@ -94,7 +94,6 @@ function OnPreferencePageOK(prefset)  {
     // save any updated prefs
     try {
         changeNewLanguage(null,null);
-        prefset.setPref('languages', langPrefs);
         for (var language in langData) {
             var prefs = langPrefs.getPref('languages/'+language);
             var o = langData[language];
