@@ -42,8 +42,27 @@ button, toolbarbutton, menuitem
  * instead of list-style-image, which requires fixed dimensions */
 :not(menulist) > menupopup > :-moz-any(menuitem[selected="true"], menuitem[checked="true"]) > .menu-iconic-left .menu-iconic-icon
 {
-
     height: 16px;
+}
+
+menuitem[type="checkbox"]
+{
+    list-style-image: @icon-checkbox;
+
+    &[checked="true"]
+    {
+        list-style-image: @icon-checkbox-checked;
+    }
+}
+
+menuitem[type="radio"]
+{
+    list-style-image: @icon-radio;
+
+    &[checked="true"]
+    {
+        list-style-image: @icon-radio-selected;
+    }
 }
 
 /* Folder Icons */
