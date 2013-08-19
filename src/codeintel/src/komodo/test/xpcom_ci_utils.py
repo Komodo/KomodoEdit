@@ -89,7 +89,7 @@ class _BufferTestCaseBase(_CodeIntelTestCaseBase):
         _CodeIntelTestCaseBase.tearDown(self)
 
 class AsyncSpinner(object):
-    def __init__(self, testcase, timeout=10, callback=None):
+    def __init__(self, testcase, timeout=30, callback=None):
         self.testcase = testcase
         self.timeout = timeout
         self.callback = callback
