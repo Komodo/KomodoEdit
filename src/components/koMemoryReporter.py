@@ -96,13 +96,22 @@ class KoMemoryReporter:
 
         koViewSvc = components.classes["@activestate.com/koViewService;1"] \
                         .getService(components.interfaces.koIViewService)
+        view_count, view_leak_count = koViewSvc.getReferencedViewCount()
         reportHandler.callback(process,
                                "komodo koIView instances", # name
                                kind_other,
                                units_count,
-                               koViewSvc.getReferencedViewCount(), # amount
+                               view_count, # amount
                                "The number of koIView instances being referenced.", # tooltip description
                                closure)
+        if view_leak_count:
+            reportHandler.callback(process,
+                                   "komodo koIView leaked instances", # name
+                                   kind_other,
+                                   units_count,
+                                   view_leak_count, # amount
+                                   "The number of koIView instances referencing .", # tooltip description
+                                   closure)
 
         koDocumentSvc = components.classes["@activestate.com/koDocumentService;1"] \
                         .getService(components.interfaces.koIDocumentService)

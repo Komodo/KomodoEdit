@@ -112,12 +112,20 @@ class koViewService:
 
     def getReferencedViewCount(self, viewtype=""):
         count = 0
+        leaked = 0
         for view_weakref in list(self._all_views_wr):
-            if view_weakref() is None:
-                self._all_views_wr.discard(view_weakref)
-            else:
+            try:
+                view = view_weakref()
+                if view is None:
+                    # An expired weak reference - remove it.
+                    self._all_views_wr.discard(view_weakref)
+                else:
+                    count += 1
+            except COMException:
+                # A dead view object, someone is still holding onto it...
                 count += 1
-        return count
+                leaked += 1
+        return count, leaked
 
     def getAllViewMgrs(self):
         return self._viewMgr.values()

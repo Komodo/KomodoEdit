@@ -50,11 +50,16 @@ interface koIViewService : nsISupports
     /**
      * These two methods are used to keep track of the number of alive views.
      * When a view is created it is registered, then the view service holds a
-     * weak reference to this view. Calling getReferencedViewCount will return
-     * the number of these views that are still alive.
+     * weak reference to this view.
      */
     void registerView(in koIView view);
-    long getReferencedViewCount();
+
+    /**
+     * Count of how many koIView instances are currently being referenced. The
+     * leak count is the number of those view instances which are referencing a
+     * closed view.
+     */
+    void getReferencedViewCount(out long count, out long leak_count);
 
     /**
      * Return all view instances for the given type. If viewtype is set, it
