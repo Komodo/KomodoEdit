@@ -490,16 +490,67 @@ KoScintillaAutoCompleteController.prototype = {
       throw Components.Exception("applyCompletion: start position " + aStartPos +
                                  " is after end position " + aEndPos);
     }
-    scimoz.setSel(aStartPos, aEndPos);
-    scimoz.replaceSel(aCompletion);
+    var selections = [];
+    if (scimoz.selections > 1) {
+        // Capture scimoz.selections, because as soon as we
+        // add the first text all selection info will be lost.
+        var numSelections = scimoz.selections;
+        var i;
+        var currentPos, anchor;
+        var delta = scimoz.getSelectionNAnchor(0) - aStartPos;
+        var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
+            getService(Components.interfaces.koISysUtils);
+        var byteLength = sysUtils.byteLength(aCompletion);
+        var numAddedChars = byteLength - delta;
+        for (i = 0; i < numSelections; i++) {
+            selections.push([scimoz.getSelectionNCaret(i),
+                             scimoz.getSelectionNAnchor(i)]);
+        }
+        scimoz.endUndoAction();
+        scimoz.beginUndoAction();
+        var continuedSelections = [];
+        for (i = numSelections - 1; i >= 0; --i) {
+            // Work backwards from the end so we don't have to recalc
+            // offsets for each character.
+            var sel = selections[i];
+            currentPos = sel[0];
+            anchor = sel[1];
+            scimoz.setSel(currentPos - delta, anchor);
+            scimoz.replaceSel(aCompletion);
+            continuedSelections.unshift(scimoz.currentPos + numAddedChars * i);
+        }
+        // And restore the multiple selections.
+        scimoz.endUndoAction();
+        scimoz.beginUndoAction();
+        // This is a lot like refactoring's finishWorkWithHits
+        scimoz.clearSelections();
+        scimoz.multipleSelection = true;
+        scimoz.additionalSelectionTyping = true;
+        scimoz.multiPaste = 1;
+        scimoz.currentPos = continuedSelections[0];
+        scimoz.anchor = continuedSelections[0];
+        continuedSelections.slice(1).forEach(function(pos) {
+                dump("Add selection " + pos + "\n");
+                scimoz.addSelection(pos, pos);
+            });
+        scimoz.mainSelection = 0;
+        if (scimoz.selections == numSelections + 1) {
+            dump("Have too many selections\n");
+        }
+    } else {
+        scimoz.setSel(aStartPos, aEndPos);
+        scimoz.replaceSel(aCompletion);
+    }
     this.close();
     // We have to colourise the line in order to get a
     // trigger - lang_css requires CSS styling, which
     // hasn't occurred yet for the inserted text.
-    var lineno = scimoz.lineFromPosition(aStartPos);
-    var lineStartPos = scimoz.positionFromLine(lineno);
-    lineno = scimoz.lineFromPosition(aEndPos);
-    var lineEndPos = scimoz.getLineEndPosition(lineno);
+    var lineStartNum = scimoz.lineFromPosition(aStartPos);
+    var lineStartPos = scimoz.positionFromLine(lineStartNum);
+    var lineEndNum = (scimoz.selections > 1 ?
+                      scimoz.lineFromPosition(selections[selections.length - 1]) :
+                      scimoz.lineFromPosition(aEndPos));
+    var lineEndPos = scimoz.getLineEndPosition(lineEndNum);
     scimoz.colourise(lineStartPos, lineEndPos);
     // Give colourise some time to finish, then retrigger codeintel.
     Services.tm.currentThread.dispatch(this._fireEvent.bind(this, "completion"),
