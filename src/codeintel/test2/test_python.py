@@ -1471,13 +1471,21 @@ class CplnTestCase(CodeintelPythonTestCase):
                 def a_staticmethod(c, d):
                     print "a_staticmethod(%r, %r)" % (c, d)
 
+                @classmethod
+                def a_classmethod(cls, c, d):
+                    print "a_classmethod(%r, %r)" % (c, d)
+
             a = AClass()
             a.a_method(1,2)
             a.a_staticmethod(<1>1,2)
+            a.a_classmethod(<2>1,2)
         """))
         self.assertCalltipIs(
             markup_text(content, pos=positions[1]),
             "a_staticmethod(c, d) - staticmethod")
+        self.assertCalltipIs(
+            markup_text(content, pos=positions[2]),
+            "a_classmethod(c, d) - classmethod")
 
     def test_string_literals(self):
         content, positions = unmark_text(dedent("""\
