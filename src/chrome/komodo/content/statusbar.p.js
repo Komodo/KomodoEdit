@@ -902,9 +902,15 @@ this.AddMessage = function(msg, category, timeout, highlight, interactive, log /
 };
 
 this.clearMessage = function() {
+    // Create a new message stack (effectively the same as clearing one).
     _messageStack = Components.classes["@activestate.com/koStatusMessageStack;1"].
                           createInstance(Components.interfaces.koIStatusMessageStack);
-    _updateMessage(false);
+    // Clear any existing message timeouts.
+    if (updateMessageRequestID) {
+        clearTimeout(updateMessageRequestID);
+        updateMessageRequestID = 0;
+    }
+    _updateMessage();
 };
 
 /**
