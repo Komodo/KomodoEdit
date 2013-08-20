@@ -1460,7 +1460,7 @@ class CplnTestCase(CodeintelPythonTestCase):
                 Exit the interpreter by raising SystemExit(status).""")
         )
 
-    @tag("bug66214", "knownfailure")
+    @tag("bug66214")
     def test_staticmethod(self):
         content, positions = unmark_text(dedent("""\
             class AClass(object):
@@ -1477,7 +1477,7 @@ class CplnTestCase(CodeintelPythonTestCase):
         """))
         self.assertCalltipIs(
             markup_text(content, pos=positions[1]),
-            "a_staticmethod(c, d)")
+            "a_staticmethod(c, d) - staticmethod")
 
     def test_string_literals(self):
         content, positions = unmark_text(dedent("""\
