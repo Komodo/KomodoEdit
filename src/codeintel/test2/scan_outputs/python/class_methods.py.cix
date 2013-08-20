@@ -1,0 +1,15 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs/python/class_methods.py">
+    <scope ilk="blob" lang="Python" name="class_methods" src="scan_inputs/python/class_methods.py">
+      <scope ilk="class" line="1" lineend="7" name="Foo">
+        <scope attributes="__staticmethod__" ilk="function" line="3" lineend="4" name="sm" signature="sm(name) - staticmethod">
+          <variable citdl="Foo" ilk="argument" line="3" name="name" />
+        </scope>
+        <scope attributes="__classmethod__" ilk="function" line="6" lineend="7" name="cm" signature="cm(name) - classmethod">
+          <variable citdl="Foo" ilk="argument" line="6" name="cls" />
+          <variable ilk="argument" line="6" name="name" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

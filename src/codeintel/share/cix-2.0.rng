@@ -388,6 +388,9 @@ below.
                     think most OO-capable languages have this distinct (at
                     least Python and Ruby do). Initially probably only Ruby
                     will use this.
+                __staticmethod__
+                    A special version of classmethod that knows nothing about
+                    the containing class. Specific to Python (@staticmethod).
                 __instancemethod__
                     Used to indicate the method can only be called off an
                     instance.  Functions that have neither the __classmethod__
