@@ -1870,6 +1870,14 @@ class GenericCommandHandler:
         return (sm.currentPos > 0
                 and view.prefs.getBooleanPref('editTabCompletes')
                 and self._unicode_word_char_re.match(sm.getWCharAt(sm.positionBefore(sm.currentPos))))
+
+    def _visible_tabstop_in_sight(self, sm, selectionEnd):
+        koILintResult = components.interfaces.koILintResult
+        for ts in range(koILintResult.DECORATOR_TABSTOP_TS1,
+                        koILintResult.DECORATOR_TABSTOP_TS5 + 1): #inclusive
+            if sm.indicatorEnd(ts, selectionEnd):
+                return True
+        return False
     
     def _do_cmd_indent(self):
         view = self._view
@@ -1882,7 +1890,11 @@ class GenericCommandHandler:
         selectionStartLine = sm.lineFromPosition(selectionStart)
         selectionEndLine = sm.lineFromPosition(selectionEnd)
         
-        if selectionStartLine == selectionEndLine and self._handle_tabstop():
+        # If there's a visible tabstop within sight, go for it
+        
+        if ((selectionStartLine == selectionEndLine
+             or self._visible_tabstop_in_sight(sm, selectionEnd))
+                and self._handle_tabstop()):
             return
         
         if selectionStart == selectionEnd and sm.selectionMode != sm.SC_SEL_LINES:
