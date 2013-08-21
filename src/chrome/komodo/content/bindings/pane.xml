@@ -333,7 +333,7 @@
                               .shift();
             this._updateContextPopup(widget);
             let popup = document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup");
-            popup.openPopup(tab, "after_pointer", 0, 0, true, false, event);
+            popup.openPopup(tab, "before_start", 0, 0, true, false, event);
           }).bind(this), false);
           // we never want to have flex by the attr; remove the flex generated
           // by the tab binding. (we can do it from css if we really want to.)
