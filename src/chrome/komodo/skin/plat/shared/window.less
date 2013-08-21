@@ -216,6 +216,7 @@ button:not([disabled]):not(.button-link):not([type="menu"]),
     &:-moz-any(menulist, button[type="menu"])
     {
         -moz-appearance: @menulist-appearance;
+        min-height: 20px;
         
         .menulist-editable-box
         {
@@ -230,6 +231,7 @@ button:not([disabled]):not(.button-link):not([type="menu"]),
             -moz-appearance: @menulist-dropmarker-appearance;
             background: @menulist-dropmarker-background;
             border: @menulist-dropmarker-border;
+            display: @menulist-dropmarker-display;
         }
     }
 }
