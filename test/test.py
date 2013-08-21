@@ -39,8 +39,11 @@
 
 import os
 from os.path import exists, join, abspath, dirname, normpath
-import sys
+import atexit
 import logging
+import shutil
+import sys
+import tempfile
 
 
 # This is to ensure sitepyxpcom does not redirect the stdio handles.
@@ -100,6 +103,11 @@ def setup():
         os.environ["PATH"] = ":".join(paths)
 
 def _setup_for_xpcom():
+    # Use a temporary user data dir
+    userDataRoot = tempfile.mkdtemp(prefix="ko-test-userdata-")
+    atexit.register(shutil.rmtree, userDataRoot)
+    os.environ["KOMODO_USERDATADIR"] = userDataRoot
+
     # The tests are run outside of Komodo. If run with PyXPCOM up
     # parts codeintel will try to use the nsIDirectoryService and
     # will query dirs only provided by nsXREDirProvider -- which

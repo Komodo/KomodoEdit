@@ -142,10 +142,11 @@ class KoTestService:
         # services (like the koIHistory service) will fail.
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         currUserDataDir = koDirSvc.userDataDir
-        if not os.path.exists(currUserDataDir):                 # 5.2
-            if not os.path.exists(dirname(currUserDataDir)):    # KomodoIDE
-                os.mkdir(dirname(currUserDataDir))
-            os.mkdir(currUserDataDir)
+        try:
+            os.makedirs(currUserDataDir)
+        except OSError:
+            if not os.path.isdir(currUserDataDir):
+                raise
 
         # Register the test directory provider, to pick up the slack from
         # the nsXREDirProvider not having been registered.
