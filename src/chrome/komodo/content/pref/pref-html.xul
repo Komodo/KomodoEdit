@@ -98,8 +98,12 @@ function OnPreferencePageLoading(prefset) {
 
 function OnPreferencePageOK(prefset) {
     var popup = document.getElementById("doctypePopup");
-    var decl = popup.parentNode.selectedItem.getAttribute("label");
-    prefset.setStringPref("defaultHTMLDecl", decl);
+    var decl = popup.parentNode.selectedItem;
+
+    if (decl) {
+        prefset.setStringPref("defaultHTMLDecl", decl.getAttribute("label"));
+    }
+    
     return true;
 }
 
