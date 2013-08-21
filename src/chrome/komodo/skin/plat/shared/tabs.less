@@ -9,7 +9,7 @@ tabbox.native
     margin-right: 0px;
 }
 
-tabbox:not(.native):not(#tabbed-view)
+tabbox:not(.native):not(#tabbed-view):not(#variables-tabpanels):not(.tabs-bottom)
 {
     tabpanels
     {
@@ -28,7 +28,7 @@ tabbox:not(.native):not(#tabbed-view)
     }
 }
 
-tabpanels
+tabbox:not(.tabs-bottom) tabpanels
 {
     -moz-appearance: none !important;
     border: none;
@@ -43,12 +43,12 @@ tabpanels
     }
 }
 
-tabbox#tabbed-view tabpanels
+tabbox#tabbed-view:not(.tabs-bottom) tabpanels
 {
     padding: 0;
 }
 
-tabs
+tabs:not(.tabs-bottom)
 {
     border: none;
     -moz-box-pack: center;
@@ -263,7 +263,7 @@ tabs
  * For some bizarre reason this does not work when placed properly
  * under "tabs .tabstrip-box"
  */
-tab
+tabs:not(.tabs-bottom) tab
 {
     -moz-appearance: @tab-moz-appearance;
     outline: none !important;

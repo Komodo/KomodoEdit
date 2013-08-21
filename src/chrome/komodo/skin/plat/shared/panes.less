@@ -101,7 +101,12 @@ page.widget toolbarseparator
 }
 
 page.widget[containerOrient="vertical"] tree { margin: 0; .list-styling.tree(pane-tree); }
-page.widget[containerOrient="vertical"] richlistbox, page.widget listbox { margin: 0; .list-styling.listbox(pane-listbox); }
+
+page.widget[containerOrient="vertical"] richlistbox,
+page.widget[containerOrient="vertical"] listbox {
+    margin: 0;
+    .list-styling.listbox(pane-listbox);
+}
 
 page.widget[containerOrient="horizontal"] :-moz-any(tree, richlistbox, page)
 {
