@@ -262,7 +262,7 @@ ko.hyperlinks.addHandler(ko.hyperlinks.handlers.ipAddressHandler);
 ko.hyperlinks.handlers.activestateBugHandler = 
     new ko.hyperlinks.RegexHandler(
         "ActiveState bugs",
-        new RegExp("bug\\s+(\\d{4,5})", "i"),
+        new RegExp("bug\\s+(1?\\d{4,5})", "i"),
         function(match) { ko.browse.openUrlInDefaultBrowser("http://bugs.activestate.com/show_bug.cgi?id=" + match[1]); },
         null,
         null   /* All language types */,
