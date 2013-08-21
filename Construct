@@ -1220,6 +1220,9 @@ sub cons::AddComponentManifestLines {
 	die "When building rule for $fileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
     defined($mozSrc) or
 	die "When building rule for $fileName: Mozilla source not found, please Import 'mozSrc'";
+    defined($mozComponentsDir) or
+	die "When building rule for $fileName: Mozilla components directory not found, " .
+	    "please Import 'mozComponentsDir'";
     defined($manifestLines) or
 	die "When building rule for $fileName: no manifest line was defined";
     my $quotedEntries = '"' . join('" "', @$manifestLines) . '"';
