@@ -1,0 +1,13 @@
+Send onUpdateUI notifications for scroll events - bug 100042.
+===================================================================
+--- cocoa/ScintillaCocoa.mm	(revision 81525)
++++ cocoa/ScintillaCocoa.mm	(working copy)
+@@ -1673,6 +1689,8 @@
+   xOffset = ptOrigin.x;
+   int newTop = Platform::Minimum(ptOrigin.y / vs.lineHeight, MaxScrollPos());
+   SetTopLine(newTop);
++  // Send pending scroll notifications.
++  NotifyUpdateUI();
+ }
+ 
+ //--------------------------------------------------------------------------------------------------
