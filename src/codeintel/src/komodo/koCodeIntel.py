@@ -605,7 +605,9 @@ class KoCodeIntelManager(threading.Thread):
         self.debug("initializing child process")
         try:
             koDirSvc = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
-            cmd = [koDirSvc.pythonExe,
+            # We need to use -O for python to disable asserts, because we rely
+            # on the lack of asserts in some places (see bug 99976).
+            cmd = [koDirSvc.pythonExe, "-O",
                    join(koDirSvc.supportDir, "codeintel", "oop-driver.py"),
                    "--import-path", koDirSvc.komodoPythonLibDir,
                    "--database-dir", join(koDirSvc.userDataDir, "codeintel")]
