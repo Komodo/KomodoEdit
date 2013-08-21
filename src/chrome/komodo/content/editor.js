@@ -455,11 +455,11 @@ var is_cmd_addAdditionalCaret_enabled_aux = function() {
     if (!scimoz) {
         return null;
     }
-    return ko.views.allowMultiCaretSession(scimoz) ? view : null;
+    return ko.selections.allowMultiCaretSession(scimoz) ? view : null;
 };
 
 editor_editorController.prototype.is_cmd_addAdditionalCaret_enabled = function() {
-    return !!is_cmd_addAdditionalCaret_enabled_aux();
+    return is_cmd_addAdditionalCaret_enabled_aux();
 }
 
 editor_editorController.prototype.do_cmd_addAdditionalCaret = function() {
@@ -467,8 +467,20 @@ editor_editorController.prototype.do_cmd_addAdditionalCaret = function() {
     if (!view) {
         return;
     }
-    ko.views.startOrContinueMultiCaretSession(view);
+    ko.selections.startOrContinueMultiCaretSession(view);
 }
+
+editor_editorController.prototype.is_cmd_addNextWordToCaretSet_enabled = function() {
+    return !!is_cmd_addAdditionalCaret_enabled_aux();
+}
+  
+editor_editorController.prototype.do_cmd_addNextWordToCaretSet = function() {
+    var view = is_cmd_addAdditionalCaret_enabled_aux();
+    if (!view) {
+        return;
+    }
+    ko.selections.addNextWordToCaretSet(view);
+};
 
 editor_editorController.prototype._aux_is_cmd_rename_tag_enabled = function() {
     var view = _getCurrentScimozView();

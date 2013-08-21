@@ -42,8 +42,10 @@
 <!ENTITY aboutMenu.accesskey "A">
 <!ENTITY aboutName.accesskey "A">
 <!ENTITY add.label "Add">
-<!ENTITY addAdditionalCaret.label "Add As Additional Caret/Selection">
+<!ENTITY addAdditionalCaret.label "Multiple Selection - Add">
 <!ENTITY addAdditionalCaret.desc "Editor: Add Current Selection or Caret to a Multi-Caret Set">
+<!ENTITY addNextWordToCaretSet.label "Multiple Selection - Add Next Occurrence">
+<!ENTITY addNextWordToCaretSet.desc "Editor: Add Next Word to a Multi-Caret Set">
 <!ENTITY addAsSnippetInToolbox.label "Add as Snippet into Toolbox">
 <!ENTITY browseForDirectoriesToAddToSearchList.tooltiptext "Browse for directories to add to search list">
 <!ENTITY browserPreview.menu.accesskey "B">

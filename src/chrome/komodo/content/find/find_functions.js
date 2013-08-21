@@ -1327,7 +1327,8 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
                        quiet /* =false */, useMRU /* =true */,
                        msgHandler /* =<statusbar notifier> */,
                        highlightMatches /* =true */,
-                       highlightTimeout /* =from pref */)
+                       highlightTimeout /* =from pref */,
+                       displayResultCallback /* = null */)
 {
     var win = editor, view;
     if (editor instanceof Components.interfaces.koIScintillaView) {
@@ -1345,6 +1346,9 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
         msgHandler = ko.find.getStatusbarMsgHandler(win);
     }
     if (typeof(highlightMatches) == 'undefined' || highlightMatches == null) highlightMatches = true;
+    if (typeof(displayResultCallback) == 'undefined' || !displayResultCallback) {
+        displayResultCallback = ko.find._displayFindResult;
+    }
     if (!ko.find.highlightingEnabled()) {
         highlightMatches = false;
     }
@@ -1397,7 +1401,7 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
 
     if (findResult) {
         findLog.debug("found a result " + findResult);
-        ko.find._displayFindResult(editor, findResult);
+        displayResultCallback(editor, findResult);
         if (highlightMatches && (mode == "find")) {
             ko.find.highlightAllMatches(scimoz, context, pattern, highlightTimeout);
         }

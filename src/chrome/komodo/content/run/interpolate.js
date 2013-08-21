@@ -110,6 +110,92 @@ this.getWordUnderCursor = function Interpolate_getWordUnderCursor(scimoz) {
     return scimoz.getTextRange(start, end);
 }
 
+/**
+ * Return the current word from the current scimoz character position.
+ *
+ * New version of getWordUnderCursor: allows specification of a position,
+ * and also looks at the position's context: on an alnum word, on punctuation,
+ * on whitespace, or on a boundary between the two types.
+ *
+ * Currently not used.
+ *
+ * @param scimoz {Components.interfaces.ISciMoz}
+ *        (Optional) The scimoz editor to retrieve the word from.
+ * @param pos {int}
+ *        (Optional) The position to get the word from
+ * @returns {string}  The word under the cursor.
+ */
+this.getWordUnderCursor2 = function Interpolate_getWordUnderCursor2(scimoz, pos) {
+    if (!scimoz) {
+        var view = ko.views.manager.currentView;
+        if (view.koDoc) {
+            scimoz = view.scimoz;
+        }
+        if (!scimoz) {
+            throw new Error("There is no current editor to retrieve the word from.");
+        }
+    }
+    if (typeof(pos) == "undefined") pos = scimoz.currentPos;
+    var start, end;
+    [start, end] = this.getBoundsForWordUnderCursor(scimoz, pos);
+    return scimoz.getTextRange(start, end);
+};
+
+
+/**
+ * Return the bounds of the current word from the given scimoz position,
+ * based on the type of characters to the left and right of the position.
+ * @param scimoz {Components.interfaces.ISciMoz}:
+ *        The scimoz editor to retrieve the bounds from.
+ * @param pos - {integer}: The position to get the word from
+ * @returns [startPos, endPos]: array of {integer}
+ */
+this.getBoundsForWordUnderCursor =
+    function getWordUnderCursorBounds(scimoz, currPos) {
+    var charLeft, charRight, prevPos = scimoz.positionBefore(currPos);
+    var wordChars = scimoz.wordChars;
+    charLeft = scimoz.getWCharAt(prevPos);
+    charRight = scimoz.getWCharAt(currPos);
+    
+    // Look at the characters to left and right of pos to determine
+    // how to get a word.  Favor alnum, than pure whitespace, then mixed.
+    
+    if (wordChars.indexOf(charLeft) !== -1) {
+        if (wordChars.indexOf(charRight) !== -1) {
+            // On an alnum word
+            return [scimoz.wordStartPosition(prevPos, true),
+                    scimoz.wordEndPosition(currPos, true)];
+        }
+        // word to the left only, so just use that
+        return [scimoz.wordStartPosition(prevPos, true),
+                scimoz.wordEndPosition(prevPos, true)];
+    }
+    if (wordChars.indexOf(charRight) !== -1) {
+        // Return the word to the right
+        return [scimoz.wordStartPosition(currPos, true),
+                scimoz.wordEndPosition(currPos, true)];
+    }
+    let wsPtn = /[ \t]/;
+    if (wsPtn.test(charLeft)) {
+        if (wsPtn.test(charRight)) {
+            // it's on white-space, return all of it
+            return [scimoz.wordStartPosition(currPos, false),
+                    scimoz.wordEndPosition(currPos, false)];
+        }
+        // ws to left, non-ws to right, favor the non-ws
+        return [scimoz.wordStartPosition(currPos, true),
+                scimoz.wordEndPosition(currPos, false)];
+    }
+    if (wsPtn.test(charRight)) {
+        // ws to right, non-ws to left, favor the non-ws
+        return [scimoz.wordStartPosition(prevPos, false),
+                scimoz.wordEndPosition(prevPos, false)];
+    }
+    // Choose the current non-alpha non-whitespace word
+    return [scimoz.wordStartPosition(currPos, false),
+            scimoz.wordEndPosition(currPos, false)];
+};
+
 this.currentFilePath = function Interpolate_CurrentFilePath() {
     var editor = ko.windowManager.getMainWindow();
     var view = editor.ko.views.manager.currentView;

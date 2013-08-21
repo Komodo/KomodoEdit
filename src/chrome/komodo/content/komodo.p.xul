@@ -267,14 +267,17 @@
                           accesskey="&selectToMatchingBrace.menu.accesskey;"
                           observes="cmd_selectToMatchingBrace"
                           />
+                <menuitem id="editor-context-addAdditionalCaret"
+                          label="&addAdditionalCaret.label;"
+                          observes="cmd_addAdditionalCaret"
+                          acceltext="&controlClick.accesskey;"/>
+                <menuitem id="editor-context-addNextWordToCaretSet"
+                          label="&addNextWordToCaretSet.label;"
+                          observes="cmd_addNextWordToCaretSet"/>
             </menupopup>
         </menu>
 
         <menuseparator id="context-sep-paste"/>
-        <menuitem id="editor-context-addAdditionalCaret"
-                label="&addAdditionalCaret.label;"
-                observes="cmd_addAdditionalCaret"
-                acceltext="&controlClick.accesskey;"/>
         <menuitem id="editor-context-makeSnippet"
                 label="&addAsSnippetInToolbox.label;"
                 observes="cmd_makeSnippetFromSelection"/>
@@ -783,6 +786,10 @@
                                     <menuitem label="&addAdditionalCaret.label;"
                                               id="menu_addAdditionalCaret"
                                               observes="cmd_addAdditionalCaret"
+                                              />
+                                    <menuitem label="&addNextWordToCaretSet.label;"
+                                              id="menu_addNextWordToCaretSet"
+                                              observes="cmd_addNextWordToCaretSet"
                                               />
                                 </menupopup>
                             </menu>
