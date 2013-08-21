@@ -1,4 +1,4 @@
-version 38
+version 39
 
 # Movement and selection
 binding cmd_left  Left
@@ -203,3 +203,4 @@ binding cmd_invokeHyperlink Ctrl+Shift+G
 binding cmd_invokeTool Ctrl+Shift+K
 
 binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y
+binding cmd_addNextWordToCaretSet Ctrl+D

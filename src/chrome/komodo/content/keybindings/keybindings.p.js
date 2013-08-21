@@ -320,7 +320,13 @@ function cloneObject(what) {
  * This number needs to be changed between Komodo releases to keep
  * the keybinding files in sync as the keybinding system gets changed.
  *
+ * NOTE: When you're changing currentKeybindingVersionNumber from N to N+1,
+ *       in _upgradeKeybingings add a case for N (not N+1) to modify
+ *       existing keybindings to move to the state you're implementing for N+1
+ *
  * Version history:
+ * 39: Komodo 8.5.0b3 - add Ctrl+D for cmd_addNextWordToCaretSet
+ * 38: Komodo 8.5.0b2 - ?
  * 37: Komodo 8.5.0b2 - add Crtl+Shift+Z for cmd_htmlTagRelocator
  *                      add Meta+Shift++ for cmd_fontZoomIn
  *                      fixup Meta+Shift keybindings - bug 92880.
@@ -361,7 +367,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 38;
+const currentKeybindingVersionNumber = 39;
 
 /**
  * Remove this dictionary of keybinds.
@@ -896,12 +902,12 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
 // #endif
             }
             break;
-        case 36:
+        case 35:
             this._add_keybinding_sequences({
                     'cmd_addAdditionalCaret': ["Ctrl+K, Ctrl+Y"],
                 });
             break;        
-        case 37:
+        case 36:
 // #if PLATFORM == 'darwin'
             this._remove_keybinding_sequences({
                 'cmd_dbgGo' :                  ["Meta+>"],
@@ -928,6 +934,11 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
 // #endif
                 'cmd_htmlTagRelocator' : ["Ctrl+Shift+Z"],
             });
+            break;
+        case 38:
+            this._add_keybinding_sequences({
+                    'cmd_addNextWordToCaretSet': ["Ctrl+D"],
+                });
             break;
         }
         from_version += 1;
