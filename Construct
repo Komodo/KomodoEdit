@@ -1255,6 +1255,18 @@ sub cons::InstallXpcomComponent {
             die "When building rule for $fileName: Mozilla source not found, please Import 'mozSrc'";
         defined($contracts) or \
             die "When building rule for $fileName: no contractid / cid defined";
+
+	my @manifestLines = [];
+        while (my $catEntry = shift) {
+            my ($category, $entry, $value) = @$catEntry;
+	    unshift @manifestLines, ["category $category $entry $value"];
+        }
+	$env->AddComponentManifestLines($fileName, @manifestLines);
+
+        my @deps = ("$fileName.manifest.landmark",
+                    "$mozComponentsDir/$baseName",
+                    "$mozComponentsDir/komodo.manifest",
+                    "$mozSrc/mozilla/config/buildlist.py");
         my @commands = ();
         while (my ($contractid, $cid) = each %$contracts) {
             push @commands, qq(
@@ -1262,16 +1274,6 @@ sub cons::InstallXpcomComponent {
                 $unsiloedPythonExe %3 %2 "component $cid %1:f"
             );
         }
-        while (my $catEntry = shift) {
-            my ($category, $entry, $value) = @$catEntry;
-            push @commands, qq(
-                $unsiloedPythonExe %3 %2 "category $category $entry $value"
-            );
-        }
-        my @deps = ("$fileName.manifest.landmark",
-                    "$mozComponentsDir/$baseName",
-                    "$mozComponentsDir/komodo.manifest",
-                    "$mozSrc/mozilla/config/buildlist.py");
         push @commands, "touch %>";
         push @deps, join("\n", @commands);
         $env->Command(@deps);

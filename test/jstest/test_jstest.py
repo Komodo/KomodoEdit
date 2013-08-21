@@ -115,12 +115,16 @@ class _JSTestTestCase(unittest.TestCase):
 
 def test_paths():
     """Generate the potential JS test files."""
-    self_dir = dirname(abspath(__file__))
-    komodo_src_dir = dirname(dirname(self_dir))
-    komodo_chrome_dir = join(komodo_src_dir, "src", "chrome", "komodo",
-                             "content")
-    for path in paths_from_path_patterns([komodo_chrome_dir, self_dir],
-                                         includes=["test_*.jsm"]):
+    catman = components.classes["@mozilla.org/categorymanager;1"]\
+                       .getService(components.interfaces.nsICategoryManager)
+    cat_enum = catman.enumerateCategory("komodo-jstest-paths")
+    dirs = []
+    while cat_enum.hasMoreElements():
+        entry = cat_enum.getNext()
+        value = catman.getCategoryEntry("komodo-jstest-paths", str(entry))
+        dirs.append(abspath(value))
+
+    for path in paths_from_path_patterns(dirs, includes=["test_*.jsm"]):
         yield path
 
 def test_cases():

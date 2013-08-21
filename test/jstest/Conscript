@@ -8,6 +8,7 @@ Import(
     'buildFlavour',
     'cons',
     'idlExportDir',
+    'komodoDevDir',
     'mozBin',
     'mozChromeDir',
     'mozComponentsDir',
@@ -26,6 +27,9 @@ $cons->BuildAndInstallXpt('koIJSTest.idl');
 $cons->InstallXpcomComponent("koJSTest.js",
                              {'@activestate.com/koJSTestService;1' =>
                                 '{036dc8b2-7527-469c-828e-50655b56880a}'});
+$cons->AddComponentManifestLines("test-registration",
+                                 ["category komodo-jstest-paths chrome $komodoDevDir/src/chrome/komodo/content",
+                                  "category komodo-jstest-paths test-root $komodoDevDir/test/jstest"]);
 $cons->Install("$mozChromeDir/komodo-jstest", "JSTest.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/mock.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/findresults.jsm");
