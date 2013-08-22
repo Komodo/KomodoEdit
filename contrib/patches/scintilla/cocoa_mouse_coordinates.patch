@@ -1,7 +1,8 @@
 Upsteam Scintilla patch, correct the mouse co-ordinates - bug 100140.
 http://sourceforge.net/p/scintilla/code/ci/a9d4b8143633152d0ca4aadc28d041cbc39308d4/
---- a/src/ViewStyle.h
-+++ b/src/ViewStyle.h
+===================================================================
+--- src/ViewStyle.h
++++ src/ViewStyle.h
 @@ -166,6 +166,7 @@
  	void ClearStyles();
  	void SetStyleFontName(int styleIndex, const char *name);
@@ -10,8 +11,9 @@ http://sourceforge.net/p/scintilla/code/ci/a9d4b8143633152d0ca4aadc28d041cbc3930
  	bool ValidStyle(size_t styleIndex) const;
  	void CalcLargestMarkerHeight();
  	ColourDesired WrapColour() const;
---- a/src/ViewStyle.cxx
-+++ b/src/ViewStyle.cxx
+===================================================================
+--- src/ViewStyle.cxx
++++ src/ViewStyle.cxx
 @@ -409,6 +409,10 @@
  	return someStylesProtected;
  }
@@ -23,8 +25,9 @@ http://sourceforge.net/p/scintilla/code/ci/a9d4b8143633152d0ca4aadc28d041cbc3930
  bool ViewStyle::ValidStyle(size_t styleIndex) const {
  	return styleIndex < styles.size();
  }
---- a/src/Editor.cxx
-+++ b/src/Editor.cxx
+===================================================================
+--- src/Editor.cxx
++++ src/Editor.cxx
 @@ -4578,7 +4578,7 @@
  	SCNotification scn = {0};
  	scn.nmhdr.code = state ? SCN_DWELLSTART : SCN_DWELLEND;
