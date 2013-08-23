@@ -42,7 +42,6 @@
 
 <!-- Komodo Prefs control panel -->
 
-<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 
 <window id="komodo_prefs_control"

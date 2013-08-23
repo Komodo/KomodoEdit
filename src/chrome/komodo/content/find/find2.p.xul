@@ -51,7 +51,6 @@
 <!-- #endif -->
 <?xml-stylesheet href="chrome://komodo/skin/dialogs/find2.css" type="text/css"?>
 
-<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>

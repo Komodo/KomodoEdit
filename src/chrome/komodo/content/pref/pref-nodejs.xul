@@ -9,7 +9,6 @@
 <!-- Copyright (c) 2000-2011 ActiveState Software Inc.
      See the file LICENSE.txt for licensing information. -->
 
-<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>

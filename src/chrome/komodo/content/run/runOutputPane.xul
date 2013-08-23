@@ -5,7 +5,7 @@
   <!ENTITY % debuggerDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %debuggerDTD;
 ]>
-<?xml-stylesheet href="chrome://komodo/skin/komodo.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/scrolltabs.css" type="text/css"?>
