@@ -1429,6 +1429,8 @@
                 var oldLanguage = this.koDoc.language;
             }
             this.koDoc.docSettingsMgr.applyViewSettingsToDocument(this);
+
+            // Note: This will re-guess the language from the file extension.
             var newdocument = this.__docsvc.createDocumentFromURI(uri);
             if (newdocument.file.exists && newdocument.file.isReadOnly) {
                 ko.dialogs.alert("Unable to overwrite a readonly file.");
@@ -1462,6 +1464,9 @@
                 // or it was previously an untitled document - bug 99822.
                 if (!isUntitled && this.koDoc.file.ext !== oldExt) {
                     this.koDoc.language = ''; // trigger a re-guessing of lang
+                } else if (this.koDoc.language != oldDocLanguage) {
+                    // Ensure the old language name is kept.
+                    this.koDoc.language = oldDocLanguage;
                 }
             }
             this._doSave();
