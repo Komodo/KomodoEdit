@@ -379,7 +379,10 @@ ko.fastopen.invoketool = {};
             var min = {}, max = {};
             this.selection.getRangeAt(i, min, max);
             for (var j = min.value; j <= max.value; ++j) {
-                hits.push(this._hits[j]);
+                if (this._hits[j]) {
+                    // Bug 100181: Don't push non-existent names.
+                    hits.push(this._hits[j]);
+                }
             }
         }
         return hits
