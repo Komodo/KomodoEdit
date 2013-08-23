@@ -1,8 +1,3 @@
-treechildren::-moz-tree-image(col-checkbox, checked) {
-    list-style-image: url("chrome://global/skin/checkbox/cbox-check-dis.gif");
-}
-
-treechildren::-moz-tree-image(col-checkbox, checked, parent-checked),
-treechildren::-moz-tree-image(col-checkbox, checked, no-parent) {
-    list-style-image: url("chrome://global/skin/checkbox/cbox-check.gif");
+#colCheck {
+    width: 22px;
 }

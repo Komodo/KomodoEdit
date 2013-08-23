@@ -45,6 +45,8 @@ button, toolbarbutton, menuitem
     height: 16px;
 }
 
+/* Check / Radio items */
+
 menuitem[type="checkbox"]
 {
     list-style-image: @icon-checkbox;
@@ -74,6 +76,33 @@ menuitem[type="radio"]
         background: @icon-radio-background;
     }
 }
+
+treechildren::-moz-tree-image(col-checkbox)
+{
+    list-style-image: @icon-checkbox-small;
+    opacity: 0.4;
+    -moz-appearance: none;
+    width: 16px;
+    height: 16px;
+}
+
+treechildren::-moz-tree-image(col-checkbox, checked)
+{
+    list-style-image: @icon-checkbox-small-checked;
+}
+
+treechildren::-moz-tree-image(col-checkbox, parent-checked),
+treechildren::-moz-tree-image(col-checkbox, no-parent)
+{
+    opacity: 1.0;
+}
+
+treechildren::-moz-tree-image(col-checkbox, checked, parent-checked),
+treechildren::-moz-tree-image(col-checkbox, checked, no-parent)
+{
+    list-style-image: @icon-checkbox-small-checked;
+}
+
 
 /* Folder Icons */
 
