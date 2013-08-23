@@ -121,17 +121,6 @@
   list-style-image : url("chrome://komodo/skin/images/less.gif");
 }
 
-.arrow-right-6x3-icon
-{
-  list-style-image : url("chrome://komodo/skin/images/arrow_right_6x3.png");
-}
-
-.arrow-right-6x3-icon .button-icon
-{
-    width: auto !important;
-    height: auto !important;
-}
-
 .project-icon
 {
   list-style-image : url("chrome://komodo/skin/images/project_icon.png");

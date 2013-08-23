@@ -112,7 +112,7 @@ separator.groove
 
 /* Buttons */
 
-button:not(.button-toolbar-b):not(.button-toolbar-c):not(.button-toolbar-d):not(.button-link):not(.button-plain):not([type="menu"]),
+button:not(.button-toolbar-a):not(.button-toolbar-b):not(.button-toolbar-c):not(.button-toolbar-d):not(.button-link):not(.button-plain):not([type="menu"]),
 :not(toolbarbutton):not(toolbaritem) > toolbarbutton
 {
     -moz-appearance: @button-appearance;
@@ -128,7 +128,9 @@ button:not(.button-toolbar-b):not(.button-toolbar-c):not(.button-toolbar-d):not(
     }
 }
 
-button:-moz-any(.button-toolbar-b, .button-toolbar-c, .button-toolbar-d, .button-plain),
+/* Embedded buttons - buttons that do not look like buttons unless interacted with */
+
+button:-moz-any(.button-toolbar-a, .button-toolbar-b, .button-toolbar-c, .button-toolbar-d, .button-plain),
 :not(toolbarbutton):not(toolbaritem) > toolbarbutton
 {
     &:-moz-any(button)
@@ -159,6 +161,11 @@ button:not([disabled]):not(.button-link):not([type="menu"]),
 {
     border-radius: @button-border-radius;
 
+    .button-internal-box
+    {
+        border: @button-internal-border;
+    }
+
     &:-moz-any(button)
     {
         -moz-appearance: @button-appearance;
@@ -175,6 +182,11 @@ button:not([disabled]):not(.button-link):not([type="menu"]),
         color: @button-color-hover !important;
         border: @button-border-hover !important;
         text-shadow: @button-text-shadow-hover !important;
+
+        .button-internal-box
+        {
+            border: @button-internal-border-hover;
+        }
     }
 
     &:active

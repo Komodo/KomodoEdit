@@ -55,6 +55,26 @@ colorpicker[type="button-flat"] {
     height: 16px;
 }
 
+/* Without the button appearance is more compatible across different skins
+ * plus it acutally looks better 
+ */
+colorpicker[type="button"] {
+    -moz-appearance: none;
+    width: 16px !important;
+    height: 16px !important;
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+colorpicker[type="button"]:hover {
+    opacity: 1.0;
+}
+
+colorpicker[type="button"] .colorpicker-button-colorbox {
+    border-radius: 2px;
+    border-color: grey;
+}
+
 colorpicker[type="button-flat"]:hover {
     border: 1px solid white;
 }

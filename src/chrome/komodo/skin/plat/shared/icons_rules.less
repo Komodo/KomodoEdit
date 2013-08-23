@@ -173,14 +173,16 @@ menu .help-icon, menuitem .help-icon
     list-style-image: @icon-less;
 }
 
-.arrow-right-6x3-icon
+.arrow-right-small-icon
 {
-    list-style-image: @icon-arrow-right-6x3;
+    list-style-image: none;
 
-    & > image
+    image
     {
-        width: 3px;
-        height: 5px;
+        background-image: @icon-arrow-right-small;
+        background-position: center;
+        width: 8px;
+        height: 8px;
     }
 }
 
