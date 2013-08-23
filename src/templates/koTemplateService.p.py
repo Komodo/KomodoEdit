@@ -451,7 +451,7 @@ class KoTemplatesView(TreeView):
                 # Remove some special chararacters from the language name, so
                 # it can be styled via CSS.
                 lang = lang.replace("+", "").replace(".", "")
-                names.append(lang)
+                names.append("Language" + lang)
         except IndexError:
             # Silence this, it is too annoying.
             # c.f. http://bugs.activestate.com/show_bug.cgi?id=27487
