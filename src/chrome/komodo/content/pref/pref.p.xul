@@ -172,14 +172,7 @@
 
     function onFilterKeypress(event) {
         try {
-            if (event.keyCode == event.DOM_VK_TAB && !event.ctrlKey) {
-                event.cancelBubble = true;
-                event.stopPropagation();
-                event.preventDefault();
-                //this.manager.widgets.tree.focus();
-                //TODO: Bring up the first item's panel.
-                return;
-            } else if (event.keyCode == event.DOM_VK_ESCAPE) {
+            if (event.keyCode == event.DOM_VK_ESCAPE) {
                 if (koFilterBox.value !== '') {
                     koFilterBox.value = '';
                     koFilteredTreeView.updateFilter("");
