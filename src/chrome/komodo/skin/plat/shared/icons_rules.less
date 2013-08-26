@@ -77,6 +77,10 @@ menuitem[type="radio"]
     }
 }
 
+/* Tree Checkboxes */
+
+/* Small */
+
 treechildren::-moz-tree-image(col-checkbox)
 {
     list-style-image: @icon-checkbox-small;
@@ -102,6 +106,28 @@ treechildren::-moz-tree-image(col-checkbox, checked, no-parent)
 {
     list-style-image: @icon-checkbox-small-checked;
 }
+
+/* Regular */
+
+treechildren::-moz-tree-checkbox
+{
+    list-style-image: @icon-checkbox !important;
+}
+
+treechildren::-moz-tree-checkbox(checked)
+{
+    list-style-image: @icon-checkbox-checked !important;
+}
+
+treechildren::-moz-tree-checkbox(nocheckbox),
+treechildren::-moz-tree-checkbox(sccLoading),
+treechildren::-moz-tree-checkbox(sccError),
+treechildren::-moz-tree-checkbox(syncLoading),
+treechildren::-moz-tree-checkbox(syncError)
+{
+    list-style-image: none !important;
+}
+
 
 
 /* Folder Icons */
