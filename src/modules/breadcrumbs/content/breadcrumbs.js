@@ -962,12 +962,14 @@ if (typeof ko.breadcrumbs == 'undefined')
             }
             else
             {
-                var bits = view.koDoc.file.path.split(/\/|\\/);
-                while (bits.length)
+                var filePath = '';
+                var splitter = view.koDoc.file.path.match(/^[a-z]\:\\/i) ? '\\' : '/';
+                var bits = view.koDoc.file.path.split(splitter);
+                
+                for (let x=0;x<bits.length;x++)
                 {
-                    let filePath = bits.join('/');
-                    let leafName = bits.pop();
-                    this.drawCrumb(leafName, view, filePath);
+                    filePath += (filePath == splitter ?  '' : splitter) + bits[x];
+                    this.drawCrumb(bits[x], view, filePath);
                 }
             }
         },
