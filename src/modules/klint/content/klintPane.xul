@@ -69,18 +69,19 @@
                          sortActive="true"
                          sortDirection="ascending"
                          onclick="gKlint.sort(event)"
-                         persist="width"/>
+                         persist="width ordinal hidden sortActive sortDirection"/>
                 <splitter class="tree-splitter"/>
                 <treecol id="klint-messageType"
                          style="min-width: 8em;"
                          onclick="gKlint.sort(event)"
-                         label="&klint.message.type.label;"/>
+                         label="&klint.message.type.label;"
+                         persist="width ordinal hidden sortActive sortDirection"/>
                 <splitter class="tree-splitter"/>
                 <treecol id="klint-message"
                          flex="1"
                          label="&klint.message.text.label;"
                          onclick="gKlint.sort(event)"
-                         persist="width"/>
+                         persist="width ordinal hidden sortActive sortDirection"/>
             </treecols>
             <treechildren id="klint-treechildren"
                           class="klintTreeChildren"
