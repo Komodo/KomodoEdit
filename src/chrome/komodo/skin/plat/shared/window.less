@@ -215,6 +215,11 @@ button:not([disabled="true"]):not(.button-link):not([type="menu"]),
         border: @textbox-border-disabled;
     }
 
+    &[type="autocomplete"][disabled="true"] > hbox
+    {
+        background-color: @textbox-background-disabled;
+    }
+
     &:-moz-any(textbox)
     {
         -moz-appearance: @textbox-appearance;
