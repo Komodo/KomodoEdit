@@ -480,6 +480,7 @@ this.lintBuffer.prototype._clearResults = function()
                 function(view) {
                     if (view && view.koDoc) {
                         ko.lint.displayer.displayClear(view.scimoz);
+                        xtk.domutils.fireEvent(window, "current_view_lint_results_done");
                     }
                 },
                 0, this.view
