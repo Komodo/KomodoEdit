@@ -47,33 +47,40 @@ button, toolbarbutton, menuitem
 
 /* Check / Radio items */
 
-menuitem[type="checkbox"]:not(.languageicon)
+menuitem[type="checkbox"]
 {
-    list-style-image: @icon-checkbox;
-
-    &[checked="true"]
+    & > .menu-iconic-left
     {
-        list-style-image: @icon-checkbox-checked;
+        -moz-appearance: none;
+        background-image: @icon-checkbox;
+        background-repeat: no-repeat;
+        background-position: top left;
+        width: 16px;
+        padding-left: 2px;
     }
 
-    .menu-iconic-left
+    &[checked="true"] > .menu-iconic-left
     {
-        background: @icon-checkbox-background;
+        background-image: @icon-checkbox-checked;
     }
 }
 
 menuitem[type="radio"]
 {
-    list-style-image: @icon-radio;
-
-    &[checked="true"]
+    & > .menu-iconic-left
     {
-        list-style-image: @icon-radio-selected;
+        -moz-appearance: none;
+        background-image: @icon-radio;
+        background-repeat: no-repeat;
+        background-position: top left;
+        width: 16px;
+        padding-left: 2px;
     }
 
-    .menu-iconic-left
+    &[checked="true"] > .menu-iconic-left,
+    &[selected="true"] > .menu-iconic-left
     {
-        background: @icon-radio-background;
+        background-image: @icon-radio-selected;
     }
 }
 
