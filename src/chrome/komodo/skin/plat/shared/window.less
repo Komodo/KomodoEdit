@@ -122,7 +122,7 @@ button:not(.button-toolbar-a):not(.button-toolbar-b):not(.button-toolbar-c):not(
     text-shadow: @button-text-shadow;
     border-radius: @button-border-radius;
 
-    &[disabled]
+    &[disabled="true"]
     {
         color: @button-color-disabled;
     }
@@ -149,15 +149,15 @@ button:-moz-any(.button-toolbar-a, .button-toolbar-b, .button-toolbar-c, .button
     text-shadow: @button-embedded-text-shadow;
     border-radius: @button-border-radius;
 
-    &[disabled]
+    &[disabled="true"]
     {
         color: @button-embedded-color-disabled;
     }
 }
 
 /* Button States */
-button:not([disabled]):not(.button-link):not([type="menu"]),
-:not(toolbarbutton):not(toolbaritem) > toolbarbutton:not([disabled])
+button:not([disabled="true"]):not(.button-link):not([type="menu"]),
+:not(toolbarbutton):not(toolbaritem) > toolbarbutton:not([disabled="true"])
 {
     border-radius: @button-border-radius;
 
