@@ -198,7 +198,7 @@ class KoInterpolationService:
             'S': ValueError("The command string includes %S, but there is no selection"),
             'P': ValueError("The command string includes %P, but there is no active project"),
             'p': ValueError("The command string includes %p, but there is no active project"),
-            'nodejs': lambda  interp='nodejs',  lang='Node.js': self._GetInterpreter(interp, lang, prefSet),
+            'nodejs': lambda  interp='node',    lang='NodeJS':  self._GetInterpreter(interp, lang, prefSet),
             'perl':   lambda  interp='perl',    lang='Perl':    self._GetInterpreter(interp, lang, prefSet),
             'php':    lambda  interp='php',     lang='PHP':     self._GetInterpreter(interp, lang, prefSet),
             'python': lambda  interp='python',  lang='Python':  self._GetInterpreter(interp, lang, prefSet),
