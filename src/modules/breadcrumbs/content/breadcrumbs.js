@@ -494,7 +494,11 @@ if (typeof ko.breadcrumbs == 'undefined')
                 URI = URI.substr(0, URI.length-1);
             }
 
-            ko.commands.doCommandAsync('cmd_viewPlaces');
+            if ( ! ko.uilayout.isTabShown('placesViewbox'))
+            {
+                ko.commands.doCommandAsync('cmd_viewPlaces');
+            }
+
             ko.places.manager.showTreeItemByFile(URI);
         },
 
