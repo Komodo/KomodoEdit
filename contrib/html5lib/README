@@ -1,39 +1,44 @@
-html5lib is a pure-python library for parsing HTML. It is designed to
-conform to the HTML 5 specification, which has formalized the error handling
-algorithms of popular web browsers.
+from distutils.core import setup
+import os
+import codecs
 
- = Installation =
+classifiers=[
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 2.6',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.2',
+    'Programming Language :: Python :: 3.3',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+    'Topic :: Text Processing :: Markup :: HTML'
+    ]
 
-html5lib is packaged with distutils. To install it use:
- $ python setup.py install
+packages = ['html5lib'] + ['html5lib.'+name
+                           for name in os.listdir(os.path.join('html5lib'))
+                           if os.path.isdir(os.path.join('html5lib', name)) and
+                           not name.startswith('.') and name != 'tests']
 
- = Tests =
+current_dir = os.path.dirname(__file__)
+with codecs.open(os.path.join(current_dir, 'README.rst'), 'r', 'utf8') as readme_file:
+    with codecs.open(os.path.join(current_dir, 'CHANGES.rst'), 'r', 'utf8') as changes_file:
+        long_description = readme_file.read() + '\n' + changes_file.read()
 
-You may wish to check that your installation has been a success by
-running the testsuite. All the tests can be run by invoking
-runtests.py in the tests/ directory
-
- = Usage =
-
-Simple usage follows this pattern:
-
-import html5lib
-f = open("mydocument.html")
-parser = html5lib.HTMLParser()
-document = parser.parse(f)
-
-
-More documentation is avaliable in the docstrings or from
-http://code.google.com/p/html5lib/wiki/UserDocumentation
-
- = Bugs =
-
-Please report any bugs on the issue tracker:
-http://code.google.com/p/html5lib/issues/list
-
- = Get Involved =
-
-Contributions to code or documenation are actively encouraged. Submit
-patches to the issue tracker or discuss changes on irc in the #whatwg
-channel on freenode.net
-
+setup(name='html5lib',
+      version='1.0b4',
+      url='https://github.com/html5lib/html5lib-python',
+      license="MIT License",
+      description='HTML parser based on the WHATWG HTML specifcation',
+      long_description=long_description,
+      classifiers=classifiers,
+      maintainer='James Graham',
+      maintainer_email='james@hoppipolla.co.uk',
+      packages=packages,
+      install_requires=[
+          'six',
+      ],
+      )
