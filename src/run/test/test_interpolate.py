@@ -162,3 +162,21 @@ class TestKoInterpolationService(unittest.TestCase):
             interpolateTest.doTest(self)
         finally:
             prefs.setStringPref("python3DefaultInterpreter", orig_py3exe)
+
+    def test_interpolate_nodejs(self):
+        prefs = components.classes["@activestate.com/koPrefService;1"].\
+            getService(components.interfaces.koIPrefService).prefs
+        orig_node_exe = prefs.getString("nodejsDefaultInterpreter")
+        prefs.setStringPref("nodejsDefaultInterpreter", __file__)
+        try:
+            interpolateTest = interpolateData(strings=['%node'],
+                                              expect=[__file__])
+            interpolateTest.doTest(self)
+            interpolateTest = interpolateData(strings=['%nodejs'],
+                                              expect=[__file__])
+            interpolateTest.doTest(self)
+            interpolateTest = interpolateData(strings=['%node.js'],
+                                              expect=[__file__])
+            interpolateTest.doTest(self)
+        finally:
+            prefs.setStringPref("nodejsDefaultInterpreter", orig_node_exe)
