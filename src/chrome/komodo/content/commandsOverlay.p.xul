@@ -412,7 +412,7 @@
             desc="&generalOpenProjectInNewWindow.desc;"/>
 	<command
             id="cmd_projectOpenRemoteProject" key="key_cmd_projectOpenRemoteProject"
-            oncommand="ko.commands.doCommandAsync('cmd_openRemoteProject, event)"
+            oncommand="ko.commands.doCommandAsync('cmd_openRemoteProject', event)"
             desc="&generalOpenRemoteProject.desc;"/>
         <command
             id="cmd_saveAll" key="key_cmd_saveAll"
