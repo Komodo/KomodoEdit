@@ -188,7 +188,7 @@
             <vbox id="gotoLine_vbox" maxwidth="420">
                 <description id="gotoLine_description">&gotoLine.prompt.description;</description>
                 <hbox id="gotoLine_hbox" align="center">
-                    <label id="gotoLine_label" value="&gotoLine.prompt.label;" />
+                    <label id="gotoLine_label" class="desc" value="&gotoLine.prompt.label;" />
                     <textbox id="gotoLine_textbox"
                              onkeypress="ko.views.gotoLine_onkeypress_handler(event);" />
                 </hbox>
