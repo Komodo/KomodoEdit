@@ -176,6 +176,8 @@ if (typeof ko.breadcrumbs == 'undefined')
                                     this.load.bind(this, false));
             window.addEventListener('project_opened',
                                     this.load.bind(this, false));
+            window.addEventListener('file_saved',
+                                    this.load.bind(this, false));
 
             /* DOM Events */
             window.addEventListener('resize',

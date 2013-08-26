@@ -1144,6 +1144,7 @@
                 }
             }
 
+            xtk.domutils.fireDataEvent(window, 'file_saved', {view: this});
             ko.macros.eventHandler.hookPostFileSave(this);
             return true;
         ]]>
