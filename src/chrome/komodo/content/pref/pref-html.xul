@@ -59,13 +59,6 @@
     <script type="application/x-javascript;version=1.7">
     <![CDATA[
 
-function isHTML_PublicID(publicID) {
-    // Filter out the HTML5 pseudo-public ID (bug 99783).
-    return (/DTD X?HTML/.test(publicID)
-            && publicID != "-//W3C//DTD HTML 5//EN");
-}
-
-
 function OnPreferencePageLoading(prefset) {
     try {
         const { classes: Cc, interfaces: Ci } = Components;
@@ -76,13 +69,15 @@ function OnPreferencePageLoading(prefset) {
                 var decl = prefset.getStringPref("defaultHTMLDecl");
                 var popup = document.getElementById("doctypePopup");
                 var selected = null;
-                idlist.sort();
-                for (let id of idlist.filter(isHTML_PublicID)) {
-                    var el = document.createElement("menuitem");
-                    el.setAttribute("label", id);
-                    popup.appendChild(el);
-                    if (id == decl) {
-                        selected = el;
+                for (let id of idlist) {
+                    // is this an HTML decl?
+                    if (/DTD X?HTML/.test(id)) {
+                        var el = document.createElement("menuitem");
+                        el.setAttribute("label", id);
+                        popup.appendChild(el);
+                        if (id == decl) {
+                            selected = el;
+                        }
                     }
                 }
                 popup.parentNode.selectedItem = selected;

@@ -134,9 +134,7 @@ function initDocumentType(prefset) {
                 if (prefset.hasPrefHere(data.declPrefName)) {
                     decl = prefset.getStringPref(data.declPrefName);
                 }
-                // Filter out the HTML5 pseudo-public ID (bug 99783).
-                _initTypePopup(idlist.filter(function(id) id != "-//W3C//DTD HTML 5//EN"),
-                               "doctypePopup", decl, /\/\/DTD/);
+                _initTypePopup(idlist, "doctypePopup", decl, /\/\/DTD/);
             } catch(e) {
                 log.exception(e);
             }
