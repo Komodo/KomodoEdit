@@ -234,7 +234,7 @@ this.MultiCaretSession.prototype = {
     
     addRange: function addRange(startPos, endPos) {
         var scimoz = this.view.scimoz;
-        if (typeof(endPos) == undefined) {
+        if (typeof(endPos) == "undefined") {
             endPos = startPos;
         }
         if (startPos > endPos) {
