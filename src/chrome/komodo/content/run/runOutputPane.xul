@@ -31,7 +31,7 @@
                     disabled="true"/>
         </toolbar>
         <hbox valign="middle">
-            <label id="runoutput-desc" crop="center" />
+            <label id="runoutput-desc" class="desc" crop="center" />
         </hbox>
     </box>
     <vbox flex="1" id="runoutput-desc-tabpanel-vbox">

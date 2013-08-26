@@ -80,7 +80,6 @@ function _ClearUI()
     _gParseOutput = 0;
 
     var descWidget = document.getElementById("runoutput-desc");
-    descWidget.style.setProperty("color", "black", "");
     descWidget.removeAttribute("value");
     descWidget.removeAttribute("_command");
 }
