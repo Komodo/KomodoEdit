@@ -116,3 +116,63 @@ page.widget[containerOrient="horizontal"] :-moz-any(tree, richlistbox, page)
     padding: 0;
 }
 
+
+/* Customization styling */
+
+/* Drop target :: The wrapper for drag/drop indicators */
+ko-pane:not([customizing]) .pane-drop-target
+{
+    display: none;
+}
+
+ko-pane .pane-drop-target
+{
+    /**
+     * Having a non-transparent background makes sure we catch the mouse events,
+     * rather than the plugin getting it and giving us non-sensical data
+     */
+    background-color: @pane-customize-droptarget-background;
+}
+
+/* Empty Container */
+ko-pane .pane-empty-container description
+{
+    color: @pane-customize-containerempty-color;
+    width: 0;
+    margin: 2em;
+    text-align: center;
+}
+
+/* Draggable Widget */
+ko-pane:not([ko-pane-drag-status]) .pane-drop-placeholders > :not(splitter)
+{
+    background-color: @pane-customize-draggable-background-color;
+    background-image: url("chrome://icomoon/skin/icons/move.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    border: @pane-customize-draggable-border;
+    cursor: pointer;
+}
+
+ko-pane:not([ko-pane-drag-status]) .pane-drop-placeholders > :not(splitter):hover {
+  border: @pane-customize-draggable-border-hover;
+}
+
+/* Drop Area */
+ko-pane[ko-pane-drag-status] .pane-drop-placeholders {
+  background-color: @pane-customize-droppable-background-color;
+  background-image: url("chrome://icomoon/skin/icons/download3.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  border: @pane-customize-droppable-border;
+  cursor: move;
+}
+
+/* Drop Area on Drag hover */
+ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback {
+  /* While customizing, display the drag-over effect on panes
+   */
+  background-color: @pane-customize-droppable-background-color;
+  border: @pane-customize-droppable-border;
+}
+
