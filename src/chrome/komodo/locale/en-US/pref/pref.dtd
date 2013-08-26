@@ -400,6 +400,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY remoteAccounts.label "Remote Accounts">
 <!ENTITY remove.label "Remove">
 <!ENTITY removeCatalog.label "Remove catalog">
+<!ENTITY repositionCaretAfterTab.label "Reposition &quot;caret&quot; after pressing tab.">
+<!ENTITY repositionCaretAfterTab.tooltiptext "After pressing tab, should an arrow key be based on the old location or the current one?">
 <!ENTITY requestVariable.label "Request Variable">
 <!ENTITY reset.label "Reset">
 <!ENTITY resetLanguageToTheDefaultForThisFileType.tooltiptext "Reset language to the default for this file type.">

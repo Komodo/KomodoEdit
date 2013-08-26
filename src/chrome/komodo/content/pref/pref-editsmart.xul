@@ -264,6 +264,12 @@
                       prefstring="editSmartCutCopyWithoutSelection"
                       prefattribute="checked"/>
             </vbox>
+            <!-- Show repositionCaretAfterTab in global and doc prefs -->
+            <separator class="thin"/>
+            <checkbox id="repositionCaretAfterTab"
+                      label="&repositionCaretAfterTab.label;" pref="true"
+                      tooltiptext="&repositionCaretAfterTab.tooltiptext;"
+                      />
         </groupbox>
     
         <!-- auto-abbreviations prefs are currently global

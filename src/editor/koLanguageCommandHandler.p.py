@@ -1736,19 +1736,30 @@ class GenericCommandHandler:
             sm.endUndoAction()
 
     def _do_cmd_dedent(self):
+        # Do the indentation and then reset the x-caret if the
+        # pref and the action call for it
+        self._wrap_indent_dedent(self._continue_cmd_dedent)
+
+    def _wrap_indent_dedent(self, indent_func):
         view = self._view
         sm = view.scimoz
+        x_pos_changed = indent_func(view, sm)
+        if x_pos_changed and self._view.prefs.getBooleanPref("repositionCaretAfterTab"):
+            # See bug 93681 (asks for pre-v7 behavior, where tab doesn't change caret)
+            # and bug 95409 (asks that tabbing repositions caret horizontally)
+            sm.chooseCaretX()
 
+    def _continue_cmd_dedent(self, view, sm):
         # Do tab autocompletion, assuming it's in progress.
         if sm.autoCActive():
             sm.autoCComplete()
             sm.scrollCaret()
-            return
+            return False
 
         if (sm.currentPos == sm.anchor
             and self._try_complete_word(sm, view)
             and self._doCompleteWord(1)):
-            return
+            return False
 
         selectionStartLine = sm.lineFromPosition(sm.selectionStart)
         endOfSelectionStartLine = sm.getLineEndPosition(selectionStartLine)
@@ -1763,7 +1774,7 @@ class GenericCommandHandler:
                 sm.currentPos = sm.anchor
             else:
                 self._insertDedent()
-            return
+            return True
 
         # If we have a selection, we first figure out if it's within-line or
         # either whole-line or multi-line.
@@ -1771,9 +1782,10 @@ class GenericCommandHandler:
         if (selectionStartLine != selectionEndLine or
             sm.selectionMode == sm.SC_SEL_LINES or
             (startColumn == 0 and sm.selectionEnd == endOfSelectionStartLine)):
-            return self._regionShift(-1)
+            self._regionShift(-1)
         else:
-            return self._insertDedent()
+            self._insertDedent()
+        return True
 
     def _do_cmd_completeWord(self):
         self._doCompleteWord(0)
@@ -1880,9 +1892,16 @@ class GenericCommandHandler:
         return False
     
     def _do_cmd_indent(self):
-        view = self._view
-        sm = view.scimoz
-
+        # Do the indentation and then reset the x-caret if the
+        # pref and the action call for it
+        self._wrap_indent_dedent(self._continue_cmd_indent)
+            
+    def _continue_cmd_indent(self, view, sm):
+        """
+        Return true if we should consider resetting the CaretX
+        Return false otherwise.
+        """
+        
         # Bug 99067: If we have a multi-line selection and the user presses
         # tab, favor indent over moving to a tabstop
         selectionStart = sm.selectionStart
@@ -1895,15 +1914,15 @@ class GenericCommandHandler:
         if ((selectionStartLine == selectionEndLine
              or self._visible_tabstop_in_sight(sm, selectionEnd))
                 and self._handle_tabstop()):
-            return
+            return False
         
         if selectionStart == selectionEnd and sm.selectionMode != sm.SC_SEL_LINES:
             if self._try_complete_word(sm, view) and self._doCompleteWord(0):
-                return
+                return False
     
             # Do we have a selection?  If no, then it's 'insert a tab'
             self._insertIndent()
-            return
+            return True
         
         # Three kinds of selections:
         # 1: Multi-line rectangular or thin line: insert tab at each caret/replace each sel with a tab
@@ -1918,12 +1937,16 @@ class GenericCommandHandler:
             if sm.selectionMode in (sm.SC_SEL_RECTANGLE, sm.SC_SEL_THIN):
                 # Whether we're in thin or rectangle, insert a tab at
                 # each spot
-                return sm.tab()
-            return self._regionShift(1)
+                sm.tab()
+                return True
+            self._regionShift(1)
+            return True
         if startColumn == 0 and sm.selectionEnd == endOfSelectionStartLine:
-            return self._regionShift(1)
+            self._regionShift(1)
+            return True
 
-        return self._insertIndent()
+        self._insertIndent()
+        return True
 
     def _regionShift(self, shift):
         """ This code shifts regions of text left or right depending on the

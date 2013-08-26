@@ -120,7 +120,12 @@
   <!-- editFoldLines: whether to show horizontal lines on fold marks -->
   <boolean id="editFoldLines">1</boolean>
   <boolean id="editEnableMouseZoom">1</boolean>
-
+  
+  <!-- Bug 93681 asks for pre-v7 behavior, where tab doesn't change caret
+       Bug 95409 asks that tabbing repositions caret horizontally
+  -->
+  <boolean id="repositionCaretAfterTab">0</boolean>
+  
   <!-- strip extra whitespace on file save -->
   <boolean id="cleanLineEnds">0</boolean>
   <boolean id="cleanLineEnds_CleanCurrentLine">0</boolean>
