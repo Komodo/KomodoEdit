@@ -2,12 +2,10 @@
 # Parent ca5dfcd6d612779d1fc9fdc2912ef93c72b3a41a
 mozilla bug 386245 - add some extra error reporting to mar
 
-Index: /Users/toddw/as/komodo-devel_clang1/mozilla/build/moz1700-ko8.13/mozilla/modules/libmar/src/mar_extract.c
---- a/modules/libmar/src/mar_extract.c	Wed Oct 24 15:00:36 2012 -0400
-+++ b/modules/libmar/src/mar_extract.c	Thu Oct 25 15:58:13 2012 -0700
-@@ -4,16 +4,17 @@
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+Index: /as/komodo-devel_clean/mozilla/build/moz2400-ko8.8/mozilla/modules/libmar/src/mar_extract.c
+--- a/modules/libmar/src/mar_extract.c	Tue Aug 27 11:44:54 2013 -0700
++++ b/modules/libmar/src/mar_extract.c	Tue Aug 27 13:05:23 2013 -0700
+@@ -6,12 +6,13 @@
  
  #include <sys/types.h>
  #include <sys/stat.h>
@@ -21,23 +19,11 @@ Index: /Users/toddw/as/komodo-devel_clang1/mozilla/build/moz1700-ko8.13/mozilla/
  #ifdef XP_WIN
  #include <io.h>
  #include <direct.h>
- #endif
- 
-@@ -43,38 +44,46 @@
-   if (mar_ensure_parent_dir(item->name))
+@@ -52,14 +53,17 @@
+     fprintf(stderr, "ERROR: could not create file in mar_test_callback()\n");
+     perror(item->name);
      return -1;
- 
- #ifdef XP_WIN
-   fd = _open(item->name, _O_BINARY|_O_CREAT|_O_TRUNC|_O_WRONLY, item->flags);
- #else
-   fd = creat(item->name, item->flags);
- #endif
--  if (fd == -1)
-+  if (fd == -1) {
-+    fprintf(stderr, "mar: ERROR(%d) %s: could not create `%s'\n",
-+            errno, strerror(errno), item->name);
-     return -1;
-+  }
+   }
  
    fp = fdopen(fd, "wb");
 -  if (!fp)
@@ -52,10 +38,7 @@ Index: /Users/toddw/as/komodo-devel_clang1/mozilla/build/moz1700-ko8.13/mozilla/
        break;
      offset += len;
    }
- 
-   fclose(fp);
-   return len == 0 ? 0 : -1;
- }
+@@ -70,14 +74,16 @@
  
  int mar_extract(const char *path) {
    MarFile *mar;
@@ -65,7 +48,7 @@ Index: /Users/toddw/as/komodo-devel_clang1/mozilla/build/moz1700-ko8.13/mozilla/
 -  if (!mar)
 -    return -1;
 +  if (!mar) {
-+    fprintf(stderr, "mar: ERROR: error opening `%s'\n", path);
++     fprintf(stderr, "mar: ERROR: error opening `%s'\n", path);
 +     return -1;
 +  }
  
