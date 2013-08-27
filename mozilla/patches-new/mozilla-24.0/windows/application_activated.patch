@@ -4,13 +4,8 @@ properly - komodo bug 46101.
 Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/widget/windows/nsWindow.cpp
 --- a/widget/windows/nsWindow.cpp
 +++ b/widget/windows/nsWindow.cpp
-@@ -102,16 +102,18 @@
- #include "nsTHashtable.h"
- #include "nsHashKeys.h"
- #include "nsString.h"
- #include "mozilla/Services.h"
- #include "nsNativeThemeWin.h"
- #include "nsWindowsDllInterceptor.h"
+@@ -111,6 +111,8 @@
+ #include "nsView.h"
  #include "nsIWindowMediator.h"
  #include "nsIServiceManager.h"
 +#include "nsXPCOM.h"
@@ -18,11 +13,6 @@ Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/widget/windows/nsWin
  #include "nsWindowGfx.h"
  #include "gfxWindowsPlatform.h"
  #include "Layers.h"
- #include "nsPrintfCString.h"
- #include "mozilla/Preferences.h"
- #include "nsISound.h"
- #include "WinTaskbar.h"
- #include "WinUtils.h"
 @@ -4509,16 +4511,33 @@
          obsServ->NotifyObservers(nullptr, "profile-before-change", context.get());
          // Then a controlled but very quick exit.
