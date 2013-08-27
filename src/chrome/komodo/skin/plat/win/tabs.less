@@ -50,39 +50,7 @@ ko-pane[type="icons"] tab {
   }
 }
 
-tabs:not(.tabs-bottom) tab
-{
-  border-top:               3px solid @tab-background;
-  border-left:              none;
-  border-bottom:            none;
-  -moz-border-top-colors:   rgba(0, 0, 0, 0.10);
-  -moz-border-right-colors: rgba(0, 0, 0, 0.25) !important;
-
-  &:last-child {
-    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-  }
-
-  &:hover:not([selected="true"]) {
-    -moz-border-top-colors:   mix(rgba(0, 0, 0, 0.25), #ff9000, 75%);
-  }
-
-  &[selected="true"] {
-    -moz-border-top-colors:   #ff9000 !important;
-  }
+tabs:not(.tabs-bottom) tab:last-child {
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
 }
 
-.tabs-closebutton {
-  -moz-appearance: none;
-  list-style-image: url("chrome://global/skin/icons/close.png");
-  margin-right: 2px;
-  -moz-image-region: rect(0px, 16px, 16px, 0px);
-}
-
-.tabs-closebutton:hover {
-  -moz-image-region: rect(0px, 32px, 16px, 16px);
-  border-color: transparent !important;
-}
-
-.tabs-closebutton:hover:active {
-  -moz-image-region: rect(0px, 48px, 16px, 32px);
-}

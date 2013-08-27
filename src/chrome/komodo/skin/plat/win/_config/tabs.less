@@ -19,12 +19,14 @@
 
 @tab-box-shadow:                        none;
 @tab-border:                            1px solid rgba(0,0,0,0.25);
+@tab-border-top:                        3px solid @tab-background;
 @tab-transition:                        all 0.20s linear;
 @tab-background:                        #e5e8ea;
 @tab-background-vertical:               @tab-background;
 @tab-box-shadow-vertical:               @tab-box-shadow;
 
 @tab-selected-border:                   @tab-border;
+@tab-selected-border-top:               3px solid #ff9000;
 @tab-selected-background:               rgb(255, 255, 255);
 @tab-selected-box-shadow:               inherit;
 @tab-selected-color:                    WindowText;
@@ -32,6 +34,7 @@
 @tab-selected-box-shadow-vertical:      @tab-selected-box-shadow;
 
 @tab-hover-border:                      @tab-border;
+@tab-hover-border-top:                  3px solid mix(rgba(0, 0, 0, 0.25), #ff9000, 75%);
 @tab-hover-background:                  rgba(255, 255, 255, 0.5);
 @tab-hover-box-shadow:                  @tab-box-shadow;
 @tab-hover-color:                       inherit;
@@ -39,6 +42,7 @@
 @tab-hover-box-shadow-vertical:         @tab-hover-box-shadow;
 
 @tab-active-border:                     @tab-border;
+@tab-active-border-top:                 3px solid mix(rgba(0, 0, 0, 0.25), #ff9000, 75%);
 @tab-active-background:                 @tab-hover-background;
 @tab-active-box-shadow:                 @tab-box-shadow;
 @tab-active-color:                      inherit;
