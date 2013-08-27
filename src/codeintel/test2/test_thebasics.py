@@ -319,12 +319,15 @@ class XMLTestCase(_TheBasicsTestCase):
     def test_cplns(self):
         self.assertCompletionsInclude(XHTML_DOCTYPE+"<<|>",
             [("element", "html")])
+    @tag("knownfailure")
     def test_curr_calltip_arg_range(self):
-        raise TestSkipped("no calltips in XML")
+        raise TestSkipped("no calltips in %s" % (self.lang))
+    @tag("knownfailure")
     def test_calltips(self):
-        raise TestSkipped("no calltips in XML")
+        raise TestSkipped("no calltips in %s" % (self.lang))
+    @tag("knownfailure")
     def test_defns(self):
-        raise TestSkipped("'Go To Definition' N/A for XML")
+        raise TestSkipped("'Go To Definition' N/A for %s" % (self.lang))
 
 
 class XULTestCase(XMLTestCase):
@@ -404,10 +407,6 @@ class XSLTTestCase(XMLTestCase):
             [("element", "xsl:template")])
         self.assertCompletionsInclude(xslt_prefix+"<xsl:template match='asdf'>\n<html><<|>",
             [("element", "body")])
-    def test_curr_calltip_arg_range(self):
-        raise TestSkipped("no calltips in XSLT")
-    def test_calltips(self):
-        raise TestSkipped("no calltips in XSLT")
 
 #class PerlTestCase(_TheBasicsTestCase):
 #    lang = "Perl"
