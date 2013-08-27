@@ -1520,6 +1520,11 @@
                     if (selection) {
                         event.dataTransfer.setData("text/plain", selection);
                         event.dataTransfer.effectAllowed = 'copyMove';
+                        // Set a dummy drag image, to avoid the default drag
+                        // image being the whole editor - bug 100041. We could
+                        // do better (drawing to a canvas), but I doubt it's not
+                        // worth the effort.
+                        event.dataTransfer.setDragImage(new Image(), 0, 0);
 <!-- #if PLATFORM != "darwin" -->
                         this._dragScrollHits = 0;
 <!-- #endif -->
