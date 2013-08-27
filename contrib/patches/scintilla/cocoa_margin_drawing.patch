@@ -4,13 +4,14 @@ Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaCocoa.mm
 ===================================================================
 --- cocoa/ScintillaCocoa.mm	(revision 81135)
 +++ cocoa/ScintillaCocoa.mm	(working copy)
-@@ -1545,6 +1558,9 @@
-   Surface *sw = Surface::Allocate(SC_TECHNOLOGY_DEFAULT);
-   if (sw)
-   {
-+    // KOMODO: Invalidate the margin, otherwise it will not update - bug 99808.
-+    wMargin.InvalidateAll();
-+    // KOMODO: end
-     sw->Init(gc, wMargin.GetID());
-     PaintSelMargin(sw, rc);
-     sw->Release();
+@@ -1669,6 +1682,10 @@
+  * Update fields to match scroll position after receiving a notification that the user has scrolled.
+  */
+ void ScintillaCocoa::UpdateForScroll() {
++  // KOMODO: Invalidate the margin, otherwise it will not update - bug 99808.
++  wMargin.InvalidateAll();
++  // KOMODO: end
++
+   Point ptOrigin = GetVisibleOriginInMain();
+   xOffset = ptOrigin.x;
+   int newTop = Platform::Minimum(ptOrigin.y / vs.lineHeight, MaxScrollPos());
