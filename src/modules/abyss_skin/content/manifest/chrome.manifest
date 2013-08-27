@@ -23,5 +23,6 @@ override chrome://komodo/skin/images/project_icon.png   chrome://fugue/skin/icon
 override moz-icon://stock/gtk-home?size=16              chrome://fugue/skin/icons/blue-folder-open-document.png
 
 # platform specific override - this gets a bit hacky
+# see: https://developer.mozilla.org/en/docs/Chrome_Registration#platform_.28Platform-specific_packages.29
 content  abyss-platform                                 ../platform/     platform
 override chrome://komodo/skin/platform.less             chrome://abyss-platform/content/platform.less

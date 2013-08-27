@@ -51,12 +51,9 @@ menuitem[type="checkbox"]
 {
     & > .menu-iconic-left
     {
-        -moz-appearance: none;
         background-image: @icon-checkbox;
         background-repeat: no-repeat;
-        background-position: top left;
-        width: 16px;
-        padding-left: 2px;
+        background-position: center;
     }
 
     &[checked="true"] > .menu-iconic-left
@@ -65,16 +62,18 @@ menuitem[type="checkbox"]
     }
 }
 
+menuitem.languageicon[type="checkbox"] > .menu-iconic-left
+{
+    background-position: top left !important;
+}
+
 menuitem[type="radio"]
 {
     & > .menu-iconic-left
     {
-        -moz-appearance: none;
         background-image: @icon-radio;
         background-repeat: no-repeat;
         background-position: top left;
-        width: 16px;
-        padding-left: 2px;
     }
 
     &[checked="true"] > .menu-iconic-left,
