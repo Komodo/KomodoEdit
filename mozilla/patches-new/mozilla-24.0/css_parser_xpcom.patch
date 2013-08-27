@@ -68,7 +68,7 @@ new file mode 100644
 +using namespace mozilla;
 +
 +
-+NS_IMPL_THREADSAFE_ISUPPORTS1(koCSSParser, koICSSParser)
++NS_IMPL_ISUPPORTS1(koCSSParser, koICSSParser)
 +
 +koCSSParser::koCSSParser()
 +{
@@ -130,7 +130,7 @@ new file mode 100644
 +class koCSSParser : public koICSSParser
 +{
 +public:
-+  NS_DECL_ISUPPORTS
++  NS_DECL_THREADSAFE_ISUPPORTS
 +  NS_DECL_KOICSSPARSER
 +
 +  koCSSParser();
