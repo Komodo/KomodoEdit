@@ -1012,11 +1012,11 @@ class KoCodeIntelManager(threading.Thread):
         callback, request, sent_time = self.requests.get(req_id, (None, None, None))
         if not request:
             try:
-                log.error("Discard reponse for unknown request %s (command %s): have %s",
+                log.error("Discard response for unknown request %s (command %s): have %s",
                           req_id, response["command"],
                           sorted(self.requests.keys()))
             except KeyError:
-                log.error("Discard reponse for unknown request %s (%r): have %s",
+                log.error("Discard response for unknown request %s (%r): have %s",
                           req_id, response,
                           sorted(self.requests.keys()))
             return
@@ -1028,7 +1028,7 @@ class KoCodeIntelManager(threading.Thread):
             self.debug("Removing completed request %s", req_id)
             del self.requests[req_id]
         else:
-            # unfinished reponse; update the sent time so it doesn't time out
+            # unfinished response; update the sent time so it doesn't time out
             self.requests[req_id] = (callback, request, time.time())
 
         if callback:
