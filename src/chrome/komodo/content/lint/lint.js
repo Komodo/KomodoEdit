@@ -429,7 +429,12 @@ this.lintBuffer.prototype.reportResults = function(request)
                 this.recalculatingResults = false;
             }
             if (this.view == ko.views.manager.currentView) {
-                xtk.domutils.fireEvent(window, "current_view_lint_results_done");
+                // Bug 100198: At startup the editor is sometimes ready before
+                // klint is receiving events, so verify that klint has been loaded.
+                ko.widgets.getWidgetAsync('klint_tabpanel',
+                    function() {
+                        xtk.domutils.fireEvent(window, "current_view_lint_results_done");
+                    });
             }
         }
     } catch(ex) {
