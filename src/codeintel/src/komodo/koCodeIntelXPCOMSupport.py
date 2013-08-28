@@ -33,17 +33,14 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self,
                                   name="Code Intel XPCOM Helper Thread")
+        self._ready_to_connect = threading.Event()
         self.daemon = True
         self.start()
 
     def send_connection_request(self):
         """Send the request over codeintel for the remote process to connect to
         this process (so it can ask for completions)"""
-        mgr = UnwrapObject(Cc["@activestate.com/koCodeIntelService;1"]
-                             .getService())
-        host, port = self._sock.getsockname()
-        log.debug("Requesting connection... (to %s %s)", host, port)
-        mgr.send(command="xpcom-connect", host=host, port=port)
+        self._ready_to_connect.set()
 
     def run(self):
         """Background thread to handle code intelligence queries"""
@@ -54,6 +51,14 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
             self._sock.bind(("localhost", 0))
             self._sock.listen(0)
             self._read_buffer = ""
+
+            self._ready_to_connect.wait()
+            mgr = UnwrapObject(Cc["@activestate.com/koCodeIntelService;1"]
+                                 .getService())
+            host, port = self._sock.getsockname()
+            log.debug("Requesting connection... (to %s %s)", host, port)
+            mgr.send(command="xpcom-connect", host=host, port=port)
+
             try:
                 conn = self._sock.accept()
                 self._pipe = conn[0]
