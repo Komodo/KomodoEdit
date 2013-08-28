@@ -2104,14 +2104,26 @@ viewManager.prototype.do_cmd_cancel = function() {
     if (!this.currentView || this.currentView.getAttribute('type') != 'editor') {
         return;
     }
-    var sm = this.currentView.scimoz
+    var view = this.currentView;
+    var sm = view.scimoz
     if (sm.callTipActive()) {
         sm.callTipCancel()
     } else if (sm.autoCActive()) {
         sm.autoCCancel()
     } else {
         ko.find.highlightClearAll(sm);
-        this.currentView.removeHyperlinks("cmd_cancel");
+        view.removeHyperlinks("cmd_cancel");
+        let currentPos = sm.currentPos;
+        const DECORATOR_SOFT_CHAR = Components.interfaces.koILintResult.DECORATOR_SOFT_CHAR;
+        let softPositionEnd = sm.indicatorEnd(DECORATOR_SOFT_CHAR, currentPos);
+        if (softPositionEnd > currentPos) {
+            sm.indicatorCurrent = DECORATOR_SOFT_CHAR;
+            sm.indicatorClearRange(currentPos, softPositionEnd - currentPos);
+        }
+        if (ko.tabstops) {
+            ko.tabstops.clearTabstopInfo(view);
+        }
+        view.clearMatchingTag(view);
     }
 }
 

@@ -1114,19 +1114,21 @@
                                 }
                             }
                             if (skipSoftCharacters) {
-                                let pos = scimoz.currentPos;
-                                while (pos < scimoz.length) {
-                                    if (!scimoz.indicatorValueAt(this.DECORATOR_SOFT_CHAR, pos)) {
-                                        break;
-                                    }
-                                    pos = scimoz.positionAfter(pos);
-                                }
+                                let softPositionEnd = scimoz.indicatorEnd(this.DECORATOR_SOFT_CHAR, currentPos);
                                 scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
-                                scimoz.indicatorClearRange(currentPos, pos - currentPos);
-                                scimoz.gotoPos(pos);
+                                scimoz.indicatorClearRange(currentPos, softPositionEnd - currentPos);
+                                scimoz.gotoPos(softPositionEnd);
                                 event.stopPropagation();
                                 event.preventDefault();
                                 return;
+                            }
+                        } else if (event.keyCode == event.DOM_VK_ESCAPE
+                                   && !scimoz.autoCActive()
+                                   && !scimoz.callTipActive()) {
+                            let softPositionEnd = scimoz.indicatorEnd(this.DECORATOR_SOFT_CHAR, currentPos);
+                            if (softPositionEnd > currentPos) {
+                                scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
+                                scimoz.indicatorClearRange(currentPos, softPositionEnd - currentPos);
                             }
                         } else {
                             // harden any soft characters we move away from.  The only
@@ -1138,7 +1140,7 @@
                                 if (newPosition == softPosition) {
                                     return;
                                 }
-                                var softPositionEnd = scimoz_.indicatorEnd(softCharDecorator, softPosition)
+                                var softPositionEnd = scimoz_.indicatorEnd(softCharDecorator, softPosition);
                                 var clearEndPos = ((newPosition < softPosition    // moved left
                                                     || newPosition >= softPositionEnd) // moved right of last soft char
                                                    ? softPositionEnd : newPosition);
@@ -1224,12 +1226,13 @@
                             event.preventDefault();
                             event.cancelBubble = true;
                             return;
-                        } else if (view && ko.tabstops) {
-                            ko.tabstops.clearTabstopInfo(view);
-                        }
-                        if (view) {
+                        } else if (view) {
+                            if (ko.tabstops) {
+                                ko.tabstops.clearTabstopInfo(view);
+                            }
                             view.clearMatchingTag();
                         }
+                        // REMINDER: Update viewManager.do_cmd_cancel to handle emacs-mode Ctrl-G & Mac Cmd-.
                         break;
                     case event.DOM_VK_DELETE:
                         if (ko.tabstops) {
