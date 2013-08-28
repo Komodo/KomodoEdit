@@ -102,6 +102,5 @@ NS_IMETHODIMP SciMozEventsWrapper::OnCommandUpdate(const char *commandset) {
 	STRINGN_TO_NPVARIANT(commandset, strlen(commandset), arg);
 	return Invoke("onCommandUpdate", &arg, 1);
 }
-NS_IMPL_THREADSAFE_ISUPPORTS2(SciMozEventsWrapper,
-			      SciMozEventsWrapper,
-			      ISciMozEvents)
+
+NS_IMPL_ISUPPORTS2(SciMozEventsWrapper, SciMozEventsWrapper, ISciMozEvents)
