@@ -162,6 +162,12 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/views.properties");
 
+function isEscapeEvent(event) {
+    return (event.type == "keypress"
+            && ((!event.charCode && event.keyCode == event.DOM_VK_ESCAPE)
+                || ko.keybindings.manager.eventMappedToCommand(event, "cmd_cancel")));
+}
+
 /*
  * MultiCaretSession
  * @param view
@@ -344,8 +350,7 @@ this.MultiCaretSession.prototype = {
         var newText;
         var doSessionEndCallback;
         if (this._onSessionEnd) {
-            doSessionEndCallback = (event && event.type == "keypress"
-                                    && event.keyCode == event.DOM_VK_ESCAPE);
+            doSessionEndCallback = (event && isEscapeEvent(event));
             if (doSessionEndCallback) {
                 let pos = this.firstSelectionStartPos;
                 let caret = scimoz.getSelectionNCaret(0);
@@ -444,7 +449,16 @@ this.MultiCaretSession.prototype = {
         if (view.scintilla.autocomplete.active) {
             return;
         }
-        this_.endSession(event);
+        // If the user did an ESCAPE or an arrow key of some kind,
+        // end the session.
+        // Assume arrow-key event #s will never change.
+        if ((!event.charCode
+             && event.keyCode >= event.DOM_VK_PAGE_UP
+             && event.keyCode <= event.DOM_VK_DOWN)
+            || isEscapeEvent(event))
+        {
+            this_.endSession(event);
+        }
     },
     
     watchMultipleSelectionKeypress_bubble: function() {
@@ -518,7 +532,7 @@ var onKeypressInGatheringSession = function onKeypressInGatheringSession(event){
         multiCaretSession.doneAddingRanges();
         // And do this to handle the first keypress
         setTimeout(multiCaretSession.watchMultipleSelectionKeypress_bubble.bind(multiCaretSession), 0);
-    } else if (event.keyCode === event.DOM_VK_ESCAPE) {
+    } else if (isEscapeEvent(event)) {
         multiCaretSession.endSession();
     } else {
         // Keep editing with everything else

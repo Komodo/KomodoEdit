@@ -2546,6 +2546,20 @@ this.Manager.prototype.keypressHandler = function (event, ignorePhase) {
     }
 }
 
+this.Manager.prototype.eventMappedToCommand = function(event, cmds) {
+    /**
+     * cmds can be a single string, or an array of strings.
+     *
+     * Returns whether the key represented by event is mapped to
+     * one of the supplied commands.
+     */
+    var label = this.event2keylabel(event, undefined, true);
+    if (!label) return false;
+    var cmd = this.key2command[label];
+    if (!cmd) return false;
+    return Array.isArray(cmds) ? cmds.indexOf(cmd) >= 0 : cmds == cmd;
+};
+
 this.onload = function keybindingManagerOnLoad()
 {
     try {
