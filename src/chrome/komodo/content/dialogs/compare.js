@@ -62,6 +62,15 @@ function OnLoad()
             opener.ko.views.manager.currentView.getAttribute('type') == 'editor' &&
             ! opener.ko.views.manager.currentView.koDoc.isUntitled) {
             first.value = opener.ko.views.manager.currentView.koDoc.displayPath;
+
+            let otherView = opener.ko.views.manager.currentView.alternateViewList.currentView;
+            if (otherView && otherView.getAttribute('type') === 'editor' && ! otherView.koDoc.isUntitled) {
+                let otherFile = otherView.koDoc.displayPath;
+                if (otherFile !== first.value) {
+                    second.value = otherFile;
+                }
+            }
+
             gCWD = opener.ko.window.getCwd();
             first.searchParam = ko.stringutils.updateSubAttr(
                 first.searchParam, "cwd", gCWD);
