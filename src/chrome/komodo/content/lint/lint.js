@@ -89,6 +89,7 @@ const JS_LIST = ["JavaScript"];
 const NODEJS_LIST = ["Node.js"];
 const JS_NODEJS_LIST = [JS_LIST[0], NODEJS_LIST[0]];
 const HTML_LIST = ["HTML", "XML", "HTML5"];
+const CSS_LIST = ["CSS", "SCSS", "Less"];
 const MIN_DELAY = 200; // msec
 
 var global_pref_observer_topics = {
@@ -145,6 +146,8 @@ var global_pref_observer_topics = {
     "scssDefaultInterpreter" : ["SCSS"],
     "lessLinterType" : ["Less"],
     "lessDefaultInterpreter" : ["Less"],
+    "lint_css_komodo_parser_enabled": CSS_LIST,
+    "lint_css_mozilla_parser_enabled": CSS_LIST,
 
     "lintHTMLTidy" : HTML_LIST,
     "lintHTML5Lib" : ["HTML5"],
