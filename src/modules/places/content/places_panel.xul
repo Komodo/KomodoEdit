@@ -184,6 +184,19 @@
         <!-- Note #2: this menu comes from popup_project
              via ko.places.projects.initProjectMRUCogMenu_MPV()
            -->
+        <spacer flex="1"/>
+        <toolbarbutton id="placesSubpanelToggle"
+            buttonstyle="pictures"
+            oncommand="ko.places.projects.toggleSubpanel()"
+            persist="state"
+            state="collapsed" />
+        <spacer flex="1"/>
+        <toolbarbutton id="placesSubpanelProjectsTools_SPV"
+            buttonstyle="pictures"
+            type="menu"
+            orient="horizontal"
+            class="project-tools-icon"
+            popup="placesSubpanelProjectsToolsPopup_SPV"/>
         <toolbarbutton id="placesSubpanelProjectsTools_MPV"
             buttonstyle="pictures"
             type="menu"
@@ -191,17 +204,6 @@
             orient="horizontal"
             class="project-tools-icon"
             popup="placesSubpanelProjectsToolsPopup_MPV"/>
-        <toolbarbutton id="placesSubpanelProjectsTools_SPV"
-            buttonstyle="pictures"
-            type="menu"
-            orient="horizontal"
-            class="project-tools-icon"
-            popup="placesSubpanelProjectsToolsPopup_SPV"/>
-        <toolbarbutton id="placesSubpanelToggle"
-            buttonstyle="pictures"
-            oncommand="ko.places.projects.toggleSubpanel()"
-            persist="state"
-            state="collapsed" />
             <!-- tooltiptext attr set dynamically in
             project_places.js._updateSubpanelFromState
             -->

@@ -137,9 +137,12 @@ undo-button {
 
 /* No default grippy image. Splitter-like cursor as appropriate. */
 #placesSubpanelSplitter {
+  -moz-appearance: none;
   background: transparent !important;
-  border: none;
-  border-top: solid 1px ThreeDShadow;
+  border: 0 !important;
+}
+#placesSubpanelSplitterHbox {
+  border-top: 1px dashed @panel-border-color;
 }
 #placesSubpanelSplitter > grippy {
   background-image: none !important;
