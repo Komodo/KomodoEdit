@@ -234,6 +234,9 @@
                         this.editEnableMouseZoom = prefs.getBoolean('editEnableMouseZoom', true);
                         this.scimoz.suppressZoomOnScrollWheel = !this.editEnableMouseZoom;
                         break;
+                    case 'enableSmartTabSkipsSoftCharacters':
+                        this[topic] = prefs.getBoolean(topic, true);
+                        break;
                     case 'koSkin_use_custom_scrollbars': // pref notification
                         this.useCustomScrollBars = prefs.getBoolean(topic, false);
                         break;
@@ -505,6 +508,7 @@
                 ['editor-scheme',
                  'scrollEndAtLastLine',
                  'editEnableMouseZoom',
+                 'enableSmartTabSkipsSoftCharacters',
                  'koSkin_use_custom_scrollbars']
             </field>
 
@@ -591,6 +595,7 @@
                     scimoz.endAtLastLine = false;
                 this.editEnableMouseZoom = prefs.getBoolean('editEnableMouseZoom', true);
                 this.scimoz.suppressZoomOnScrollWheel = !this.editEnableMouseZoom;
+                this.enableSmartTabSkipsSoftCharacters = prefs.getBoolean('enableSmartTabSkipsSoftCharacters', true);
 
 <!-- #if PLATFORM == "win" -->
                 scimoz.eOLMode = scimoz.SC_EOL_CRLF;
@@ -1096,7 +1101,8 @@
                                 }
                             }
                             // And let standard handling of the backspace take place.
-                        } else if (event.keyCode == event.DOM_VK_TAB) {
+                        } else if (event.keyCode == event.DOM_VK_TAB
+                                   && this.enableSmartTabSkipsSoftCharacters) {
                             // Bug 95685: Tab over all soft characters to the right.
                             let skipSoftCharacters = true;
                             if (scimoz.lineFromPosition(scimoz.selectionStart)

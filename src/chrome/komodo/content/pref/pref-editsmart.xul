@@ -257,6 +257,10 @@
                       style="margin-left: 27px;"
                       label="&enableSmartSoftCharactersInsideLine.label;"
                       pref="true"/>
+            <checkbox id="enableSmartTabSkipsSoftCharacters"
+                      style="margin-left: 27px;"
+                      label="&enableSmartTabSkipsSoftCharacters.label;"
+                      pref="true"/>
     
             <separator class="thin"/>
             <checkbox id="editSmartCutCopyWithoutSelection"
