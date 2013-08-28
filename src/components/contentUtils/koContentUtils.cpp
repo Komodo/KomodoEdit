@@ -50,7 +50,7 @@ private:
   already_AddRefed<nsIDOMWindow> GetWindowFromCaller();
 };
 
-NS_IMPL_THREADSAFE_ISUPPORTS1(koContentUtils, koIContentUtils)
+NS_IMPL_ISUPPORTS1(koContentUtils, koIContentUtils)
 
 koContentUtils::koContentUtils()
 {
