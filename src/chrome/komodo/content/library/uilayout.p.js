@@ -216,8 +216,8 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
     }
     else
     {
-	broadcaster.setAttribute("checked", menubarShowing);
-	document.persist('cmd_toggleToolbars', 'checked');
+        broadcaster.setAttribute("checked", menubarShowing);
+        document.persist('cmd_toggleToolbars', 'checked');
     }
 
     var menuWrap      = document.getElementById('toolbar-menubar');
@@ -236,16 +236,16 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
 
         var length = paneSecondary.childNodes.length;
         for (let x=0;x<length;x++) {
-	    if (paneSecondary.childNodes[0] == menuSeparator && ! menuSeparator.collapsed) 
-		break;
-	    
-	    menubar.appendChild(paneSecondary.childNodes[0]);
+            if (paneSecondary.childNodes[0] == menuSeparator && ! menuSeparator.collapsed)
+            break;
+
+            menubar.appendChild(paneSecondary.childNodes[0]);
         }
 
-	while (menuSeparator.nextSibling) {
-	    let item = menuSeparator.nextSibling;
-	    item.parentNode.removeChild(item);
-	}
+        while (menuSeparator.nextSibling) {
+            let item = menuSeparator.nextSibling;
+            item.parentNode.removeChild(item);
+        }
 
         menuButton.collapsed = true;
         menuWrap.collapsed = false;
@@ -262,12 +262,12 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
         menuButton.collapsed = false;
         menuWrap.collapsed = true;
 
-	MruMenusUpdate();
+        UpdateUnifiedMenuMru();
     }
 
     if ( ! menubarShowing)
     {
-	this.setToolbarsVisibility(true);
+        this.setToolbarsVisibility(true);
     }
 };
 // #endif
@@ -761,13 +761,25 @@ this.fullScreen = function uilayout_FullScreen()
 }
 
 // #if PLATFORM != "darwin"
-function MruMenusAddItem(menuitem) {
-    if ( ! menuitem.hasAttribute('id')) return;
-    ko.mru.add('mruMenuItemList', menuitem.getAttribute('id'));
-    MruMenusUpdate();
+function _MruMenuItemId(menuitem) {
+    return menuitem.getAttribute('id') || menuitem.getAttribute('refid') ||
+            ["ref", menuitem.getAttribute("label"), menuitem.getAttribute("oncommand")].join("\u000E");
 }
 
-function MruMenusUpdate() {
+function MruMenusAddItem(menuitem) {
+    if ( ! menuitem.hasAttribute('refid') && ! menuitem.hasAttribute('id'))
+    {
+        menuitem.setAttribute("id", _MruMenuItemId(menuitem));
+    }
+    ko.mru.add('mruMenuItemList', menuitem.getAttribute('id') || menuitem.getAttribute('refid'));
+
+    // Currently this method can be called twice due to us listening for both
+    // command and click events as command events don't properly bubble up the
+    // chain. We should properly fix this in a larger release 
+    setTimeout(UpdateUnifiedMenuMru.bind(this), 0);
+}
+
+function UpdateUnifiedMenuMru() {
     var menupopup = document.getElementById('unifiedMenuSecondaryPane');
     var menuSeparator = document.getElementById('unifiedMenuMruSeparator');
     menuSeparator.collapsed = true;
@@ -775,8 +787,7 @@ function MruMenusUpdate() {
     // Remove old entries
     if (menuSeparator.previousSibling) {
         while (menuSeparator.nextSibling) {
-            let item = menuSeparator.nextSibling;
-            item.parentNode.removeChild(item);
+            menuSeparator.parentNode.removeChild(menuSeparator.nextSibling);
         }
     }
 
@@ -787,11 +798,28 @@ function MruMenusUpdate() {
     menupopup.appendChild(menuSeparator);
 
     for (var i=0; i<mruList.length; i++) {
-        var menuitem = document.getElementById(mruList.getStringPref(i));
+        let id = mruList.getStringPref(i);
+        let menuitem;
+
+        if (id.startsWith("ref\u000E")) {
+            let [,label,oncommand] = id.split("\u000E");
+            var elems = menupopup.getElementsByAttribute("label", label);
+            for (let [,elem] in Iterator(elems)) {
+                if (elem.hasAttribute("refid")) continue;
+                if (elem.getAttribute('oncommand')== oncommand) {
+                    menuitem = elem;
+                    break;
+                }
+            }
+        } else {
+            menuitem = document.getElementById(id);
+        }
+        
         if ( ! menuitem) continue;
 
         let _item = menuitem.cloneNode(true);
         _item.setAttribute('ordinal', 9999);
+        _item.setAttribute('refid', _MruMenuItemId(_item));
         _item.removeAttribute('id');
 
         menupopup.appendChild(_item);
