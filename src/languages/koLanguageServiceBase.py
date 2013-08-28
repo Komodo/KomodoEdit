@@ -2909,6 +2909,14 @@ class KoLanguageBase:
         softchar_accept_* API instead to override base-class behavior.
         """
 
+        # Bug 92392:
+        # If we aren't in a stream selection, don't emit soft chars
+        # Also, in multi-selection mode, scimoz.selectionMode refers
+        # to the main selection, so no soft chars if we have multiple selections
+        if (scimoz.selectionMode != scimoz.SC_SEL_STREAM
+            or scimoz.selections > 1):
+            return None
+
         #1. First determine that the character isn't followed by an
         #   identifier character. (bug 70834)
         nextCharPos = scimoz.positionAfter(charPos)
