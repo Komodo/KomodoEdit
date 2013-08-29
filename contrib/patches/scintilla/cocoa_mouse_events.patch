@@ -53,7 +53,7 @@ Index: /Users/toddw/as/komodo-devel_12/src/scintilla/cocoa/ScintillaView.mm
  }
  
  //--------------------------------------------------------------------------------------------------
-@@ -612,10 +612,7 @@
+@@ -612,10 +612,9 @@
   */
  - (void) scrollWheel: (NSEvent *) theEvent
  {
@@ -62,7 +62,9 @@ Index: /Users/toddw/as/komodo-devel_12/src/scintilla/cocoa/ScintillaView.mm
 -  } else {
 -    [super scrollWheel:theEvent];
 -  }
++  // Send the event through mOwner, to avoid the NSScrollView handling it.
++  // We want it to go to the DOM instead. (Komodo bug 99862)
 +  mOwner.backend->MouseWheel(theEvent);
-+  [super scrollWheel:theEvent];  // Send through the DOM as well.
++  [mOwner scrollWheel:theEvent];
  }
  
