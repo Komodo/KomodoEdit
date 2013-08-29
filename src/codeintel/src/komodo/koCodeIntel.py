@@ -817,29 +817,40 @@ class KoCodeIntelManager(threading.Thread):
             update("Codeintel ready.",
                    state=KoCodeIntelManager.STATE.READY)
 
-        # register any extensions we have first
-        try:
-            catman = Cc["@mozilla.org/categorymanager;1"]\
-                       .getService(Ci.nsICategoryManager)
-            extension_contract_ids = catman.enumerateCategory("codeintel-command-extension")
-            extension_contract_ids.QueryInterface(Ci.nsISimpleEnumerator)
-            self.debug("got category entry %r", extension_contract_ids)
-            while extension_contract_ids.hasMoreElements():
-                try:
-                    contractIdIface = extension_contract_ids.getNext()
-                    contractIdIface.QueryInterface(Ci.nsISupportsCString)
-                    contractId = urllib.unquote(contractIdIface.data)
-                    self.debug("got contract id: %s", contractId)
-                    extension_data = Cc[contractId].createInstance()
-                    for path, name in UnwrapObject(extension_data):
-                        self._send(command="load-extension",
-                                   callback=lambda request, response:None,
-                                   **{"module-path": path,
-                                      "module-name": name})
-                except:
-                    log.exception("Error registering codeintel command extension")
-        except:
-            log.exception("Error registering codeintel extensions")
+        @ProxyToMainThread
+        def registerCodeIntelExtensions():
+            """ Register any codeintel command extensions we have.
+            This must be run on the main thread because the category manager
+            uses non-threadsafe components (nsSupportsPrimitiveCString); PyXPCOM
+            will cause it to be released on the main thread later, which will
+            abort in debug builds (and have difficult-to-track-down errors in
+            release builds).
+            This is synchronous to ensure that we have the extensions set up
+            before we attempt to actually use codeintel.
+            """
+            try:
+                catman = Cc["@mozilla.org/categorymanager;1"]\
+                           .getService(Ci.nsICategoryManager)
+                extension_contract_ids = catman.enumerateCategory("codeintel-command-extension")
+                extension_contract_ids.QueryInterface(Ci.nsISimpleEnumerator)
+                self.debug("got category entry %r", extension_contract_ids)
+                while extension_contract_ids.hasMoreElements():
+                    try:
+                        contractIdIface = extension_contract_ids.getNext()
+                        contractIdIface.QueryInterface(Ci.nsISupportsCString)
+                        contractId = urllib.unquote(contractIdIface.data)
+                        self.debug("got contract id: %s", contractId)
+                        extension_data = Cc[contractId].createInstance()
+                        for path, name in UnwrapObject(extension_data):
+                            self._send(command="load-extension",
+                                       callback=lambda request, response:None,
+                                       **{"module-path": path,
+                                          "module-name": name})
+                    except:
+                        log.exception("Error registering codeintel command extension")
+            except:
+                log.exception("Error registering codeintel extensions")
+        registerCodeIntelExtensions()
 
         # Extra catlogs
         extra_dirs = {}
