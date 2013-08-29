@@ -198,13 +198,6 @@ def getService():
     return __datasetSvc
 
 def get_tree_handler(tree, node=None, default=None):
-    if not tree:
-        # We don't have a tree; can't do anything other than try to use the
-        # defaults.
-        publicId, systemId, namespace = default or (None, None, None)
-        log.info("getting handler for (%s,%s,%s) (no tree)",
-                 publicId, systemId, namespace)
-        return getService().getDocumentHandler(publicId, systemId, namespace)
     # if we have a namespace, use it,  otherwise, fallback to the doctype
     namespace = None
     if node is None:

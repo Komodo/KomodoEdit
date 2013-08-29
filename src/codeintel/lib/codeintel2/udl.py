@@ -518,10 +518,7 @@ class XMLParsingBufferMixin(object):
     
     def xml_node_at_pos(self, pos):
         import koXMLTreeService
-        try:
-            self.xml_parse()
-        except:
-            return None # invalid XML
+        self.xml_parse()
         tree = self._xml_tree_cache
         if not tree:
             return None
