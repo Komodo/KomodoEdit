@@ -1,4 +1,4 @@
-Version = 10
+Version = 9
 
 Booleans = {'preferFixed': 1, 'useSelFore': False, 'caretLineVisible': True}
 
@@ -64,7 +64,6 @@ CommonStyles = {'attribute name': {'fore': 7872391},
  'stringeol': {'back': 10079487, 'eolfilled': 1},
  'strings': {'fore': 3368601},
  'tags': {'fore': 16724480},
- 'text': {'fore': 0},
  'variables': {'fore': 0},
 }
 

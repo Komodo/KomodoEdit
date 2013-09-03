@@ -1,4 +1,4 @@
-Version = 10
+Version = 9
 
 Booleans = {'preferFixed': 1, 'useSelFore': False, 'caretLineVisible': True}
 
@@ -64,7 +64,6 @@ CommonStyles = {'attribute name': {'fore': 8904824},
  'stringeol': {'back': 6697728, 'eolfilled': 1},
  'strings': {'fore': 7462108},
  'tags': {'fore': 52735},
- 'text': {'fore': 0xffffff},
  'variables': {},
 }
 
@@ -108,6 +107,7 @@ LanguageStyles = {'C#': {'UUIDs': {},
           'verbatim': {}},
  'PHP': {'identifiers': {'fore': 6711039}},
  'Perl': {'compound_document_defaults': {'back': 5966082},
+          'data sections': {'fore': 0xffffff},
           'here documents': {'bold': 1, 'fore': 8183004}},
 'Python': {'decorators': {'fore': 16741120},
            'keywords2': {'fore': 15989931},},
@@ -131,7 +131,9 @@ LanguageStyles = {'C#': {'UUIDs': {},
            'quantifier': {'bold': 1, 'fore': 10092543},
            'special': {'bold': 1, 'fore': 10092543},
            'text': {}},
- 'Ruby': {'compound_document_defaults': {'back': 90}},
+ 'Ruby': {'compound_document_defaults': {'back': 90},
+          'data sections': {'fore': 0xffffff},
+          },
  'XML': {'cdata': {'fore': 7667711},
          'cdata content': {'fore': 7632127},
          'cdata tags': {'fore': 7667711},

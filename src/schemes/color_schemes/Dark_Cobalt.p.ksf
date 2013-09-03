@@ -2,7 +2,7 @@
 # User: ckreutzer
 # Link: https://bitbucket.org/ckreutzer/komodo-color-schemes/src
 
-Version = 10
+Version = 9
 
 Booleans = {'caretLineVisible': True, 'preferFixed': 1, 'useSelFore': False}
 
@@ -64,7 +64,6 @@ CommonStyles = {'attribute name': {'fore': 7872391},
  'stringeol': {'back': 10079487, 'eolfilled': 1},
  'strings': {'fore': 839680},
  'tags': {'fore': 16724480},
- 'text': {'fore': 16777215},
  'variables': {'fore': 16777215},
 }
 
@@ -120,6 +119,7 @@ LanguageStyles = {'Apache': {'directives': {'fore': 9145088},
          'strings': {'fore': 10040115},
          'variables': {'fore': 16777215}},
  'Perl': {'compound_document_defaults': {'back': 16050922},
+          'data sections': {'fore': 16777215},
           'here documents': {'bold': 1, 'fore': 8594211}},
  'Python': {'bracehighlight': {'fore': 16749056},
             'compound_document_defaults': {'back': 16777173},
@@ -139,7 +139,9 @@ LanguageStyles = {'Apache': {'directives': {'fore': 9145088},
            'quantifier': {'bold': 1, 'fore': 16711680},
            'special': {'bold': 1, 'fore': 16711680},
            'text': {}},
- 'Ruby': {'compound_document_defaults': {'back': 15525631}},
+ 'Ruby': {'compound_document_defaults': {'back': 15525631},
+          'data sections': {'fore': 16777215},
+          },
  'Rx': {'breakpoints': {'back': 14540253},
         'children': {'back': 14540236},
         'default': {'bold': 1},

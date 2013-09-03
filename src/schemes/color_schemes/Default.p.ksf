@@ -1,4 +1,4 @@
-Version = 10
+Version = 9
 
 Booleans = {'preferFixed': 1, 'useSelFore': False, 'caretLineVisible': True}
 
@@ -64,7 +64,6 @@ CommonStyles = {'attribute name': {'fore': 7872391},
  'stringeol': {'back': 10079487, 'eolfilled': 1},
  'strings': {'fore': 9315107},
  'tags': {'fore': 16724480},
- 'text': {'fore': 0},
  'variables': {'fore': 0},
 }
 
@@ -125,6 +124,7 @@ LanguageStyles = {'Apache': {'directives': {'fore': 9145088},
          'strings': {'fore': 10040115},
          'variables': {'fore': 0}},
  'Perl': {'compound_document_defaults': {'back': 16050922},
+          'data sections': {'fore': 0},
           'here documents': {'bold': 1, 'fore': 8594211}},
 'Python': {'compound_document_defaults': {'back': 16777173},
             'decorators': {'fore': 39168},
@@ -148,7 +148,9 @@ LanguageStyles = {'Apache': {'directives': {'fore': 9145088},
            'quantifier': {'bold': 1, 'fore': 16711680},
            'special': {'bold': 1, 'fore': 16711680},
            'text': {}},
- 'Ruby': {'compound_document_defaults': {'back': 15525631},},
+ 'Ruby': {'compound_document_defaults': {'back': 15525631},
+          'data sections': {'fore': 0},
+          },
  'Rx': {'breakpoints': {'back': 14540253},
         'children': {'back': 14540236},
         'default': {'bold': 1},
