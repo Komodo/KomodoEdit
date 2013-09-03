@@ -98,6 +98,7 @@
         
         <field name="firstDocLine">-1</field>
         <field name="lastDocLine">-1</field>
+        <field name="inMinimap">false</field>
         
         <method name="syncMinimapFromBuffer">
         <body><![CDATA[
@@ -389,6 +390,27 @@
             ]]>
         </handler>
         
+        <handler event="mousemove">
+            <![CDATA[
+            // Implement bug 97641: scroll the minimap viewer
+            if (event.buttons === 1 && this.inMinimap) {
+                // "1": The primary mouse button is down; all others are up.
+                this.handleButtonClick(event);
+            }
+            ]]>
+        </handler>
+        
+        <handler event="mouseover">
+            <![CDATA[
+            this.inMinimap = true;
+            ]]>
+        </handler>
+        
+        <handler event="mouseout">
+            <![CDATA[
+            this.inMinimap = false;
+            ]]>
+        </handler>
     </handlers>
 
 </binding>
