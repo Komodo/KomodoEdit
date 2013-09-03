@@ -241,14 +241,6 @@ class koDocumentSettingsManager:
             for i in range(bookmarks.length):
                 scimoz.markerAdd(bookmarks.getLongPref(i), MARKNUM_BOOKMARK)
 
-    def setLongPrefIfDifferent(self, name, value):
-        if self._globalPrefs.getLongPref(name) != value:
-            self.koDoc.prefs.setLongPref(name, value)
-
-    def setBooleanPrefIfDifferent(self, name, value):
-        if self.koDoc.prefs.getBooleanPref(name) != value:
-            self.koDoc.prefs.setBooleanPref(name, value)
-
     def applyViewSettingsToDocument(self, scintilla):
         prefs = self.koDoc.prefs
         try:
@@ -262,17 +254,17 @@ class koDocumentSettingsManager:
         prefs.setLongPref('anchor', scimoz.anchor)
         prefs.setLongPref('currentPos', scimoz.currentPos)
         prefs.setLongPref("scrollWidth", scimoz.scrollWidth)
-        self.setBooleanPrefIfDifferent("scrollWidthTracking", scimoz.scrollWidthTracking)
+        prefs.setBooleanPref("scrollWidthTracking", scimoz.scrollWidthTracking)
         prefs.setLongPref('xOffset', scimoz.xOffset)
         prefs.setLongPref('firstVisibleLine', scimoz.firstVisibleLine)
-        self.setBooleanPrefIfDifferent('showWhitespace', scimoz.viewWS)
-        self.setBooleanPrefIfDifferent('showLineNumbers', scimoz.getMarginWidthN(0) != 0)
-        self.setBooleanPrefIfDifferent('showIndentationGuides', scimoz.indentationGuides)
-        self.setBooleanPrefIfDifferent('showEOL', scimoz.viewEOL)
-        self.setBooleanPrefIfDifferent('editFoldLines', self._foldFlags)
+        prefs.setBooleanPref('showWhitespace', scimoz.viewWS)
+        prefs.setBooleanPref('showLineNumbers', scimoz.getMarginWidthN(0) != 0)
+        prefs.setBooleanPref('showIndentationGuides', scimoz.indentationGuides)
+        prefs.setBooleanPref('showEOL', scimoz.viewEOL)
+        prefs.setBooleanPref('editFoldLines', self._foldFlags)
         #prefs.setStringPref('editFoldStyle', ... )
         #prefs.setStringPref('editUseFixedFont', ... )
-        self.setLongPrefIfDifferent('editWrapType', scimoz.wrapMode)
+        prefs.setLongPref('editWrapType', scimoz.wrapMode)
 
         # these should be saved only if they were explicitely
         # set, not if they were just computed
