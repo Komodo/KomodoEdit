@@ -848,7 +848,7 @@ nsresult SciMoz::_GetStyleBuffer(PRInt32 min, PRInt32 max, PRUint16 *buffer)
 #else
 	GetStyledRange(wEditor, min, max, dbuffer);
 #endif
-        NS_ASSERTION(buffer[dlength] == NULL, "Buffer overflow");
+        NS_ASSERTION(dbuffer[dlength] == NULL, "Buffer overflow");
 
 	size_t pos;
 	size_t i;
