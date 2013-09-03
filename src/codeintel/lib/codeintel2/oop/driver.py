@@ -839,9 +839,9 @@ class CoreHandler(CommandHandler):
             system.update(catalog.system.keys())
         namespaces = datasetHandler.resolver.getWellKnownNamspaces().keys()
         driver.send(request=request,
-                    public=list(public),
-                    system=list(system),
-                    namespaces=namespaces)
+                    public=sorted(public),
+                    system=sorted(system),
+                    namespaces=sorted(namespaces))
 
 Driver._default_handler = CoreHandler()
 

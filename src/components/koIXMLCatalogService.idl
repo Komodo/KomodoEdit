@@ -47,20 +47,22 @@ interface koIXMLCatalogService: nsISupports {
     /**
      * Asynchronously get the list of public ids.
      * @param callback The asynchronous callback to be notified of the ids.  The
-     *      callback data is an array of strings, each being a public id.
+     *      callback data is an array of strings, each being a public id.  The
+     *      IDs will be sorted by value.
      */
     void getPublicIDList(in koIAsyncCallback callback);
     /**
      * Asynchronously get the list of system ids.
      * @param callback The asynchronous callback to be notified of the ids.  The
-     *      callback data is an array of strings, each being a system id.
+     *      callback data is an array of strings, each being a system id.  The
+     *      IDs will be sorted by value.
      */
     void getSystemIDList(in koIAsyncCallback callback);
     /**
      * Asynchronously get the list of namespaces.
      * @param callback The asynchronous callback to be notified of the
      *      namespaces.  The callback data is an array of strings, each being a
-     *      namespace.
+     *      namespace.  The strings will be sorted.
      */
     void getNamespaceList(in koIAsyncCallback callback);
 };
