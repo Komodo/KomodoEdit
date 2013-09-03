@@ -2,7 +2,7 @@
 # User: lajevardi
 # Link: http://www.kolormodo.com/scheme/preview/122001/obliv
 
-Version = 9
+Version = 10
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 
@@ -64,9 +64,11 @@ CommonStyles = {'attribute name': {'fore': 7872391},
  'stringeol': {'back': 3552302, 'eolfilled': 1, 'fore': 11060979},
  'strings': {'fore': 54509},
  'tags': {'fore': 16724480},
+ 'text': {'fore': 13621203},
  'utf-8_fixed': {'back': 3552302},
  'utf-8_proportional': {'back': 3552302},
- 'variables': {'fore': 13621203}}
+ 'variables': {'fore': 13621203},
+}
 
 LanguageStyles = {'ActionScript': {'attribute name': {'fore': 9168614},
                   'attribute value': {'fore': 12557182},

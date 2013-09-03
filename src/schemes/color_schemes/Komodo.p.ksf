@@ -1,4 +1,4 @@
-Version = 9
+Version = 10
 
 Booleans = {'caretLineVisible': False, 'preferFixed': True, 'useSelFore': False}
 
@@ -62,7 +62,9 @@ CommonStyles = {'attribute name': {'fore': 7872391},
  'stringeol': {'back': 10079487, 'eolfilled': 1},
  'strings': {'fore': 3429231, 'italic': False},
  'tags': {'fore': 16724480},
- 'variables': {'fore': 0}}
+ 'text': {'fore': 262418},
+ 'variables': {'fore': 0},
+}
 
 LanguageStyles = {'CSS': {'classes': {'bold': True, 'fore': 7696503, 'italic': True},
          'compound_document_defaults': {'back': 13559807},

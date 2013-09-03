@@ -2,7 +2,7 @@
 # User: we3geeks (Ron)
 # Link: http://www.we3geeks.org/2011/06/23/solarized-color-schemes-for-komodo/
 
-Version = 9
+Version = 10
 
 Booleans = {'caretLineVisible': True, 'preferFixed': 1, 'useSelFore': True}
 
@@ -64,7 +64,9 @@ CommonStyles = {'attribute name': {'fore': 7872391},
  'stringeol': {'fore': 10002730},
  'strings': {'fore': 10002730},
  'tags': {'fore': 16724480},
- 'variables': {'fore': 0}}
+ 'text': {'fore': 8616805},
+ 'variables': {'fore': 0},
+}
 
 LanguageStyles = {'Apache': {'directives': {'fore': 9145088},
             'extensions': {'fore': 139},

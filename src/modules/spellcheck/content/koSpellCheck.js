@@ -183,6 +183,7 @@ var ko = {
             this.text_styles = {0:1};
             _addStyles(this.text_styles, langObj.getCommentStyles(count_obj));
             _addStyles(this.text_styles, langObj.getStringStyles(count_obj));
+            _addStyles(this.text_styles, langObj.getNamedStyles("text"));
             return null;
         },
 

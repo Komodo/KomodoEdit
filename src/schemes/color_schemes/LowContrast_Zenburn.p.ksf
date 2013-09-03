@@ -2,7 +2,7 @@
 # User: Pietra Arumaga
 # Link: http://www.phacks.net/zenburn-colorscheme-for-komodo-edit_ide/
 
-Version = 9
+Version = 10
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 
@@ -67,6 +67,7 @@ CommonStyles = {'attribute name': {'fore': 9168614},
  'strings': {'fore': 9474246},
  'tags': {'fore': 12557182},
  'UUIDs': {'fore': 0},
+ 'text': {'fore': 12767697},
  'variables': {'fore': 12767697},
 }
 

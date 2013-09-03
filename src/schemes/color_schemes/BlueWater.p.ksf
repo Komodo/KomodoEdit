@@ -2,7 +2,7 @@
 # User: nautilebleu
 # Link: http://www.kolormodo.com/scheme/preview/56001/nautilusunderwater
 
-Version = 9
+Version = 10
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 
@@ -67,7 +67,9 @@ CommonStyles = {'attribute name': {'fore': 8904824},
  'stringeol': {'back': 6697728, 'eolfilled': 1},
  'strings': {'fore': 4972937},
  'tags': {'fore': 52735},
- 'variables': {}}
+ 'text': {'fore': 16644328},
+ 'variables': {},
+}
 
 LanguageStyles = {'C#': {'UUIDs': {},
         'commentdockeyword': {},

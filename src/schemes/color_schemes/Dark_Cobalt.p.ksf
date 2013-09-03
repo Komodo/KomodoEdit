@@ -2,7 +2,7 @@
 # User: ckreutzer
 # Link: https://bitbucket.org/ckreutzer/komodo-color-schemes/src
 
-Version = 9
+Version = 10
 
 Booleans = {'caretLineVisible': True, 'preferFixed': 1, 'useSelFore': False}
 
@@ -64,7 +64,9 @@ CommonStyles = {'attribute name': {'fore': 7872391},
  'stringeol': {'back': 10079487, 'eolfilled': 1},
  'strings': {'fore': 839680},
  'tags': {'fore': 16724480},
- 'variables': {'fore': 16777215}}
+ 'text': {'fore': 16777215},
+ 'variables': {'fore': 16777215},
+}
 
 LanguageStyles = {'Apache': {'directives': {'fore': 9145088},
             'extensions': {'fore': 139},

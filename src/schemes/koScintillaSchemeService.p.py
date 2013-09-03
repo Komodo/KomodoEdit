@@ -111,7 +111,7 @@ class Scheme:
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 9
+    _current_scheme_version = 10
 
     def _execfile(self, fname, namespace):
         try:
@@ -256,6 +256,15 @@ class Scheme:
             if version == 8:
                 if self.writeable:
                     self._indicators['multiple_caret_area'] = self._indicators['tabstop_pending'].copy()
+                version += 1
+                
+            if version == 9:
+                if self.writeable:
+                    if 'text' not in self._commonStyles:
+                        defaultStyles = self._commonStyles.get('default_fixed', {})
+                        self._commonStyles['text'] = {'back': defaultStyles.get('back', 16777215),
+                                                      'fore': defaultStyles.get('fore', 0),
+                                                      }
                 version += 1
 
             try:

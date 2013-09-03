@@ -250,7 +250,8 @@ StateMap = {
                    'SCE_PL_SUB_ARGS',),
         'errors': ('SCE_PL_ERROR',),
         'comments': ('SCE_PL_COMMENTLINE',
-                     'SCE_PL_POD'),
+                     'SCE_PL_POD',
+                     'SCE_PL_POD_VERB',),
         'numbers': ('SCE_PL_NUMBER',),
         'keywords': ('SCE_PL_WORD',),
         'strings': ('SCE_PL_STRING',
@@ -283,6 +284,7 @@ StateMap = {
         'stdin': ('SCE_PL_STDIN',),
         'stdout': ('SCE_PL_STDOUT',),
         'stderr' : ('SCE_PL_STDERR',),
+        'text': ('SCE_PL_DATASECTION',),
     },
     'Properties': {
         'default': ('SCE_PROPS_DEFAULT',),
