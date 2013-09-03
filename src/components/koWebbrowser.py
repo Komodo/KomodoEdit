@@ -169,18 +169,6 @@ class KoWebbrowser(object):
         except:
             return 0
 
-    def _escapeUrl(self, url):
-        """Escape this URL so Mac OS X's 'open' command can deal with it.
-
-        Mainly this is to escape spaces.
-        """
-        import urllib
-        try:
-            return urllib.quote(url, safe="/:\\#?&= ")
-        except KeyError:
-            # Unicode paths will fail, fallback to the existing url - bug 93767.
-            return url
-        
     def open_new(self, url):
         """Open the given URL in the user's default browser.
         Return true iff successful.
@@ -192,7 +180,7 @@ class KoWebbrowser(object):
             if sys.platform.startswith("win"):
                 return self._winStartURL(url)
             elif sys.platform == "darwin":
-                return self._spawn(["/usr/bin/open", self._escapeUrl(url)])
+                return self._spawn(["/usr/bin/open", url])
             else:
                 # On Linux/Solaris we expect the browser preference to
                 # have been set before calling into koWebbrowser.
@@ -210,7 +198,7 @@ class KoWebbrowser(object):
         if browser[0] == '"':
             browser = browser[1:-1]
         if sys.platform == 'darwin':
-            return self._spawn(["/usr/bin/open", "-a", browser, self._escapeUrl(url)])
+            return self._spawn(["/usr/bin/open", "-a", browser, url])
         else:
             return self._spawn([browser, url])
 
