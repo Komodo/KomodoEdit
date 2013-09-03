@@ -2,7 +2,7 @@
 # User: Pietra Arumaga
 # Link: http://www.phacks.net/zenburn-colorscheme-for-komodo-edit_ide/
 
-Version = 9
+Version = 10
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 

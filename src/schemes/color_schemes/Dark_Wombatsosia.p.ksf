@@ -2,7 +2,7 @@
 # User: ennio.tr
 # Link: http://www.kolormodo.com/scheme/preview/76001/wombatsosia
 
-Version = 9
+Version = 10
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 

@@ -111,7 +111,7 @@ class Scheme:
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 9
+    _current_scheme_version = 10
 
     def _execfile(self, fname, namespace):
         try:
@@ -256,6 +256,21 @@ class Scheme:
             if version == 8:
                 if self.writeable:
                     self._indicators['multiple_caret_area'] = self._indicators['tabstop_pending'].copy()
+                version += 1
+                
+            if version == 9:
+                languages = ["Perl", "Ruby"]
+                for language in languages:
+                    styles = self._languageStyles.get(language, {})
+                    if language not in self._languageStyles:
+                        self._languageStyles[language] = styles
+                    if "data sections" not in styles:
+                        for nameType in ["comments", "strings", "regex", "default_fixed",]:
+                            if nameType in self._commonStyles:
+                                styles["data sections"] = self._commonStyles[nameType]
+                                break
+                        else:
+                            log.warn("No style for [%s/data sections]", language)
                 version += 1
 
             try:

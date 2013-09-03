@@ -2,7 +2,7 @@
 # User: Lori Berkowitz
 # Link: http://lorib.me/2009/03/03/chalkboard-color-scheme-for-komodo-edit/
 
-Version = 9
+Version = 10
 
 Booleans = {'caretLineVisible': True, 'preferFixed': 1, 'useSelFore': False}
 

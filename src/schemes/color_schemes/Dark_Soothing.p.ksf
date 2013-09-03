@@ -2,7 +2,7 @@
 # User: bluepicaso
 # Link: http://community.activestate.com/forum-topic/where-to-find-komodo-edit
 
-Version = 9
+Version = 10
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 

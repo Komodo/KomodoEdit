@@ -2,7 +2,7 @@
 # User: we3geeks (Ron)
 # Link: http://www.we3geeks.org/2011/06/23/solarized-color-schemes-for-komodo/
 
-Version = 9
+Version = 10
 
 Booleans = {'caretLineVisible': True, 'preferFixed': 1, 'useSelFore': True}
 
