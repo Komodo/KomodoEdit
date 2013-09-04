@@ -216,7 +216,7 @@ nsresult SciMoz::PlatformDestroy(void) {
     fprintf(stderr,"SciMoz::PlatformDestroy wEditor %p scintilla %p\n", wEditor, scintilla);
 #endif
     if (scintilla) {
-        scintilla->unregisterNotifyCallback();
+        scintilla->unregisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
         scintilla->SetTicking(false);
         scintilla = NULL;
     }
@@ -239,7 +239,7 @@ nsresult SciMoz::PlatformDestroy(void) {
 
 void SciMoz::PlatformMarkClosed() {
 	if (scintilla) {
-            scintilla->unregisterNotifyCallback();
+            scintilla->unregisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
 	}
 }
 

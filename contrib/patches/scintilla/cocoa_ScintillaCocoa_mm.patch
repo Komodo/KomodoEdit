@@ -38,19 +38,6 @@ Index: cocoa/ScintillaCocoa.mm
    else
    {
      SelectionText text;
-@@ -1672,6 +1679,12 @@
-   notifyProc = callback;
- }
- 
-+void ScintillaCocoa::unregisterNotifyCallback()
-+{
-+  notifyObj = NULL;
-+  notifyProc = NULL;
-+}
-+
- //--------------------------------------------------------------------------------------------------
- 
- void ScintillaCocoa::NotifyChange()
 @@ -2004,7 +2023,8 @@
      else
      dY = (int) sqrt(10.0 * [event deltaY]);
