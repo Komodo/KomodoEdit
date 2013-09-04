@@ -623,15 +623,20 @@ def _run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM, cwd=None):
 
     Raises OSError if the command returns a non-zero exit status.
     """
-    if cwd is not None:
-        __run_log(logstream, "running '%s' in '%s'", cmd, cwd)
+    if isinstance(cmd, (list, tuple)):
+        cmd = list(cmd)
+        cmdline = " ".join(cmd)
     else:
-        __run_log(logstream, "running '%s'", cmd)
+        cmdline = str(cmd)
+    if cwd is not None:
+        __run_log(logstream, "running '%s' in '%s'", cmdline, cwd)
+    else:
+        __run_log(logstream, "running '%s'", cmdline)
     p = subprocess.Popen(cmd, cwd=cwd, shell=True)
     status = p.wait()
     if status:
         #TODO: add std OSError attributes or pick more approp. exception
-        raise OSError("error running '%s': %r" % (cmd, status))
+        raise OSError("error running '%s': %r" % (cmdline, status))
 
 def _run_in_dir(cmd, cwd, logstream=_RUN_DEFAULT_LOGSTREAM):
     """Run the given command in the given working directory.
@@ -1539,16 +1544,16 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
     # (Bug 71493) Ensure that the relocated bits of the siloed Python
     # on Linux are never *patched* by a partial update (because the MD5
     # check will always fail).
-    mozupdate_clobber_arg = ""
+    mozupdate_clobber_arg = []
     if cfg.platform == "linux":
-        mozupdate_clobber_arg = " ".join([
-            r"-c lib/python/bin/python%s" % cfg.siloedPyVer,
-            r"-c lib/python/bin/python%s-config" % cfg.siloedPyVer,
-            r"-c lib/python/bin/python-config",
-            r"-c lib/python/bin/2to3",
-            r"-c lib/python/lib/python%s/config/Makefile" % cfg.siloedPyVer,
-            r"-c lib/python/lib/python%s/site-packages/activestate.py" % cfg.siloedPyVer,
-        ])
+        mozupdate_clobber_arg = [
+            "-c", "lib/python/bin/python%s" % cfg.siloedPyVer,
+            "-c", "lib/python/bin/python%s-config" % cfg.siloedPyVer,
+            "-c", "lib/python/bin/python-config",
+            "-c", "lib/python/bin/2to3",
+            "-c", "lib/python/lib/python%s/config/Makefile" % cfg.siloedPyVer,
+            "-c", "lib/python/lib/python%s/site-packages/activestate.py" % cfg.siloedPyVer,
+        ]
 
     # Partial update package(s).
     project = {"ide": "komodoide", "edit": "komodoedit",
@@ -1556,6 +1561,10 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
     guru = kopkglib.KomodoReleasesGuru(project, cfg.buildPlatform,
                                        cfg.komodoVersion)
     mar_cacher = kopkglib.KomodoMarCacher()
+
+    removed_file_list = join(wrk_dir, "removed-files-candidates.txt")
+    with open(removed_file_list, "w") as dummy_file:
+        pass # make sure the file exists and is empty
 
     # - Always want a partial update relative to last few (for now: 3)
     #   nightly builds (for the 'nightly' channel). E.g.:
@@ -1577,9 +1586,10 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
         print "creating '%s' (for 'nightly' channel)" % pkg_name
         if not dryRun:
             try:
-                _run('python %s -q partial %s --force %s "%s" "%s"'
-                     % (mozupdate, mozupdate_clobber_arg,
-                        pkg_path, ref_mar_dir, image_dir))
+                _run([sys.executable, mozupdate, "-q", "partial"] +
+                     mozupdate_clobber_arg +
+                     ["--removed-files-candidates", removed_file_list,
+                      "--force", pkg_path, ref_mar_dir, image_dir])
                 print "created '%s' (for 'nightly' channel)" % pkg_path
             except OSError, ex:
                 log.warn("'nightly' mar failed: %r", ex)
@@ -1617,9 +1627,10 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
         pkg_path = join(packagesDir, pkg_name)
         print "creating '%s' (for 'beta' channel)" % pkg_name
         if not dryRun:
-            _run('python %s -q partial %s --force %s "%s" "%s"'
-                 % (mozupdate, mozupdate_clobber_arg,
-                    pkg_path, ref_mar_dir, image_dir))
+            _run([sys.executable, mozupdate, "-q", "partial"] +
+                 mozupdate_clobber_arg +
+                 ["--removed-files-candidates", removed_file_list,
+                  "--force", pkg_path, ref_mar_dir, image_dir])
         print "created '%s' (for 'beta' channel)" % pkg_path
     
     # - For all builds, want a partial update relative to the last
@@ -1646,9 +1657,10 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
             pkg_path = join(packagesDir, pkg_name)
             print "creating '%s' (for 'release' channel)" % pkg_name
             if not dryRun:
-                _run('python %s -q partial %s --force %s "%s" "%s"'
-                     % (mozupdate, mozupdate_clobber_arg,
-                        pkg_path, ref_mar_dir, image_dir))
+                _run([sys.executable, mozupdate, "-q", "partial"] +
+                     mozupdate_clobber_arg +
+                     ["--removed-files-candidates", removed_file_list,
+                      "--force", pkg_path, ref_mar_dir, image_dir])
             print "created '%s' (for 'release' channel)" % pkg_path
 
     # Complete update package.
@@ -1656,8 +1668,9 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
     pkg_name = "%s-complete.mar" % cfg.komodoPackageBase
     pkg_path = join(packagesDir, pkg_name)
     if not dryRun:
-        _run('python %s -q complete --force %s "%s"'
-             % (mozupdate, pkg_path, image_dir))
+        _run([sys.executable, mozupdate, "-q", "complete"] +
+             ["--removed-files-candidates", removed_file_list,
+              "--force", pkg_path, image_dir])
     print "created '%s'" % pkg_path
 
 def _PackageKomodoCrashReportSymbols(cfg, dryRun=False):

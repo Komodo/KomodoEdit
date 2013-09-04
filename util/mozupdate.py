@@ -383,6 +383,9 @@ class Shell(cmdln.Cmdln):
                        "working dir")
     @cmdln.option("--no-cleanup", action="store_true", default=False,
                   help="do not remove temp working dir (for debugging)")
+    @cmdln.option("--removed-files-candidates", action="store",
+                  help="Specify a path to the list of files that might have "
+                       "been removed")
     @cmdln.alias("full")
     def do_complete(self, subcmd, opts, mar_path, dir):
         """${cmd_name}: create a complete Mozilla update package
@@ -417,6 +420,7 @@ class Shell(cmdln.Cmdln):
         try:
             manifest = []  # update.manifest instructions
             paths_to_mar = []
+            seen_files = set()
             for dname, dirnames, filenames in os.walk(dir):
                 for f in filenames:
                     src_path = join(dname, f)
@@ -424,6 +428,8 @@ class Shell(cmdln.Cmdln):
                     pkg_path = src_path[len(dir)+1:]
                     if sys.platform == "win32":
                         pkg_path = pkg_path.replace('\\', '/')
+
+                    seen_files.add(pkg_path)
 
                     if f in ("channel-prefs.js", "update.manifest"):
                         log.info("skipping `%s'", pkg_path)
@@ -441,7 +447,7 @@ class Shell(cmdln.Cmdln):
                     paths_to_mar.append(pkg_path)
                     self._manifest_add(manifest, pkg_path)
 
-            self._manifest_handle_removed_files(manifest, dir)
+            self._manifest_handle_removed_files(manifest, dir, seen_files)
             self._manifest_handle_extra(manifest, opts.manifest_extra)
 
             # Write 'update.manifest'.
@@ -457,6 +463,26 @@ class Shell(cmdln.Cmdln):
             paths_to_mar.append("update.manifest")
             manifest_str = '\n'.join(manifest) + '\n'
             open(manifest_path, 'wb').write(bz2.compress(manifest_str))
+
+            if opts.removed_files_candidates:
+                removed_files = set()
+                for line in open(opts.removed_files_candidates, "r"):
+                    removed_files.add(line.strip())
+
+                actually_removed_files = removed_files - seen_files
+                if actually_removed_files:
+                    # Write 'removed-files'.
+                    # This will be used by Komodo for the next update to determine
+                    # what files we fill need to delete in the future (things that
+                    # we used to ship, but don't any more).  This is only relevant
+                    # for complete updates: We might ship a file in Komodo 8.0.0,
+                    # delete it for 8.0.1, and then have a complete update for 8.0.2
+                    # which also needs to know to delete it.
+                    removed_path = join(img_dir, "removed-files")
+                    log.info("write `removed-files`")
+                    paths_to_mar.append("removed-files")
+                    manifest_str = '\n'.join(sorted(actually_removed_files)) + '\n'
+                    open(removed_path, 'wb').write(bz2.compress(manifest_str))
 
             log.info("create `%s'", mar_path)
             file_list_path = join(wrk_dir, "files")
@@ -496,6 +522,9 @@ class Shell(cmdln.Cmdln):
                        "working dir")
     @cmdln.option("--no-cleanup", action="store_true", default=False,
                   help="do not remove temp working dir (for debugging)")
+    @cmdln.option("--removed-files-candidates", action="store",
+                  help="Specify a path to the list of files that might have "
+                       "been removed; this list will be updated with new files")
     @cmdln.alias("incremental")
     def do_partial(self, subcmd, opts, mar_path, fromdir, todir):
         """${cmd_name}: create an incremental Mozilla update package
@@ -537,10 +566,20 @@ class Shell(cmdln.Cmdln):
         img_dir = join(wrk_dir, "image")
         log.debug("mkdir `%s'", img_dir)
         os.makedirs(img_dir)
+        removed_files = set() # using forward slashes, e.g. "lib/mozilla/ko.exe"
 
         try:
             manifest = []  # update.manifest instructions
             paths_to_mar = []
+
+            try:
+                # read the previous removed-files and add it to our set
+                # (to cover files that were previously removed)
+                with open(join(fromdir, "removed-files")) as old_list:
+                    for line in old_list:
+                        removed_files.add(line.strip())
+            except IOError:
+                log.warn("removed-files list not found from previous update")
 
             # Walk the "fromdir" to find updated and removed files.
             from_pkg_paths = set()
@@ -567,6 +606,7 @@ class Shell(cmdln.Cmdln):
                     if not exists(to_path):
                         log.info("`%s' was removed", pkg_path)
                         manifest.append('remove "%s"' % pkg_path)
+                        removed_files.add(pkg_path)
                         continue
                     if not _is_different(from_path, to_path):
                         log.debug("`%s' is unchanged", pkg_path)
@@ -615,6 +655,8 @@ class Shell(cmdln.Cmdln):
                         self._manifest_add(manifest, pkg_path)
                         os.remove(img_path+".patch")
 
+            seen_files = set()
+
             # Walk the "todir" to find newly added files.
             for dname, dirnames, filenames in os.walk(todir):
                 for f in filenames:
@@ -624,6 +666,8 @@ class Shell(cmdln.Cmdln):
                     pkg_path = to_path[len(todir)+1:]
                     if sys.platform == "win32":
                         pkg_path = pkg_path.replace('\\', '/')
+
+                    seen_files.add(pkg_path)
 
                     if pkg_path in from_pkg_paths:
                         continue
@@ -650,7 +694,17 @@ class Shell(cmdln.Cmdln):
                     paths_to_mar.append(pkg_path)
                     self._manifest_add(manifest, pkg_path)
 
-            self._manifest_handle_removed_files(manifest, todir)
+            if opts.removed_files_candidates:
+                # Read in the list of files that might have been removed
+                try:
+                    with open(opts.removed_files_candidates, "r") as old_list:
+                        for path in old_list:
+                            removed_files.add(path.strip())
+                except IOError:
+                    log.warn("removed files candidates list %s is missing",
+                             opts.removed_files_candidates)
+
+            removed_files.update(self._manifest_handle_removed_files(manifest, todir, seen_files))
             self._manifest_handle_extra(manifest, opts.manifest_extra)
 
             # Write 'update.manifest'.
@@ -666,6 +720,27 @@ class Shell(cmdln.Cmdln):
             paths_to_mar.append("update.manifest")
             manifest_str = '\n'.join(manifest) + '\n'
             open(manifest_path, 'wb').write(bz2.compress(manifest_str))
+
+            actually_removed_files = removed_files - seen_files
+            if actually_removed_files:
+                # Write 'removed-files'.
+                # This will be used by Komodo for the next update to determine
+                # what files we fill need to delete in the future (things that
+                # we used to ship, but don't any more).  This is only relevant
+                # for complete updates: We might ship a file in Komodo 8.0.0,
+                # delete it for 8.0.1, and then have a complete update for 8.0.2
+                # which also needs to know to delete it.
+                removed_path = join(img_dir, "removed-files")
+                log.info("write `removed-files`")
+                paths_to_mar.append("removed-files")
+                manifest_str = '\n'.join(sorted(actually_removed_files)) + '\n'
+                open(removed_path, 'wb').write(bz2.compress(manifest_str))
+
+            if opts.removed_files_candidates:
+                # also update the candidates list
+                with open(opts.removed_files_candidates, "w") as new_list:
+                    for path in sorted(removed_files):
+                        new_list.write(path + "\n")
 
             log.info("create `%s'", mar_path)
             file_list_path = join(wrk_dir, "files")
@@ -690,11 +765,16 @@ class Shell(cmdln.Cmdln):
         for line in open(extra_path, 'r'):
             manifest.append(line)
 
-    def _manifest_handle_removed_files(self, manifest, srcdir):
+    def _manifest_handle_removed_files(self, manifest, srcdir, seen_set):
         """Add 'remove' entries to the manifest as per the
         'removed-files' file (if any) in the srcdir.
+        @param manifest {list} The manifest to write
+        @param srcdir {basestring} The directory containing the image tree
+        @param seen_set {set} Files that are known to exist
+        @returns The removed files entries found
         """
         # Find the 'removed-files' to use (first one wins).
+        removed_files = set()
         removed_files_path = None
         removed_files_pkg_prefix = None
         for dname, dirnames, filenames in os.walk(srcdir):
@@ -707,7 +787,7 @@ class Shell(cmdln.Cmdln):
                 break
         else:
             # No 'removed-files' path.
-            return
+            return removed_files
         
         for line in open(removed_files_path, 'r'):
             line = line.strip()
@@ -722,8 +802,12 @@ class Shell(cmdln.Cmdln):
                 # remove entire directories.
                 log.info("ignoring remove instruction for dir `%s'", line)
                 continue
-            manifest.append('remove "%s"'
-                            % posixpath.join(removed_files_pkg_prefix, line))
+            path = posixpath.join(removed_files_pkg_prefix, line)
+            if path not in seen_set:
+                manifest.append('remove "%s"' % path)
+                removed_files.add(path)
+
+        return removed_files
 
 
     def _do_mar(self, argv):
