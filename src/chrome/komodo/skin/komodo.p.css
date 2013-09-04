@@ -290,7 +290,17 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
     min-width: 100px !important;
 }
 
-#statusbar-encoding, #statusbar-language, #statusbar-section {
+#statusbar-encoding {
+    min-width: 8em;
+    max-width: 8em;
+}
+
+#statusbar-language {
+    min-width: 8em;
+    max-width: 10em;
+}
+
+#statusbar-section {
     min-width: 150px !important;
 }
 

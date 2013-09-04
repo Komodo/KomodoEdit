@@ -2285,7 +2285,7 @@
 
         <statusbarpanel id="statusbar-encoding"
                         tooltiptext="&fileEncoding.tooltiptext;"
-                        style="min-width: 6em;">
+                        >
             <toolbarbutton class="statusbar-label"
                   id="statusbar-encoding-label"
                   flex="1"
@@ -2301,7 +2301,7 @@
 
         <statusbarpanel id="statusbar-language"
                         pack="end"
-                        style="min-width: 8em; max-width: 12em;">
+                        >
             <toolbarbutton class="statusbar-label languageicon"
                   id="statusbar-language-menu"
                   tooltiptext="&fileType.tooltiptext;"
