@@ -969,7 +969,13 @@ class KoCodeIntelManager(threading.Thread):
                 ch = self.pipe.read(1)
                 if ch == "{":
                     length = int(buf, 10)
-                    buf = ch + self.pipe.read(length - 1)
+                    buf = ch
+                    while len(buf) < length:
+                        last_size = len(buf)
+                        buf += self.pipe.read(length - len(buf))
+                        if len(buf) == last_size:
+                            # nothing read, EOF
+                            raise IOError("Failed to read frame from socket")
                     self.debug("Got codeintel response: %s" % (buf,))
                     if first_buf and buf == "{}":
                         first_buf = False
