@@ -713,12 +713,14 @@ function makeRelocatorSelection(view, scimoz) {
         return;
     }
     
-    if (OPEN_TAG_STYLES.indexOf(scimoz.getStyleAt(currentPos)) >= 0) {
-        startOfCurrentTag = currentPos;
-    } else {
-        startOfCurrentTag = findNextValidCloseOpenSymbol(
-                            currentPos, startOfCurrentLine, "<");
-    }
+    /**
+     * I know I'm within the boundaries of a tag so move forward one position
+     * before search for start so I don't miss when I'm at |<p>
+     */
+    var posAfterCurPos = scimoz.positionAfter(currentPos);
+    startOfCurrentTag = findNextValidCloseOpenSymbol(posAfterCurPos,
+                                                     startOfCurrentLine,
+                                                     "<");
     var posAfterStart = scimoz.positionAfter(startOfCurrentTag);
     var endOfCurrentTag = findNextValidCloseOpenSymbol(
                             posAfterStart, endOfDocument, ">");
