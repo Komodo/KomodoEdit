@@ -7,7 +7,7 @@ window, page, dialog, wizard, wizardpage, prefwindow
     color: @window-color;
 }
 
-label#desc, label.desc, description
+label#desc, label.desc, description, label.wizard-header-label
 {
     color: @window-color;
 }
@@ -527,7 +527,7 @@ groupbox
 {
     -moz-appearance: @groupbox-appearance;
     border: @groupbox-border;
-    
+
     caption
     {
         font-weight: @groupbox-caption-font-weight;
@@ -562,8 +562,14 @@ wizard
         color: @window-color;
     }
 
+    .wizard-header
+    {
+        -moz-appearance: @wizard-header-appearance;
+    }
+
     .wizard-buttons
     {
+        -moz-appearance: @wizard-buttons-appearance;
         background: @bottom-background;
         border-top: @wizard-buttons-border;
     }
