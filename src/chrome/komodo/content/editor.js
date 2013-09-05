@@ -886,13 +886,20 @@ function findNextValidCloseOpenSymbol (searchStart, searchEnd, searchChar) {
 /**
  * Is the scimoz.currentPos inside of any tag?
  * Look behind the currentPos, find closest < and >.  If < is closer then > then
- * You must be in a tag.  
+ * you must be in a tag.
+ * Note: I don't use the VALID_TAG_STYLES list as that broken in certain use
+ * cases, eg. Django templating <p attr="{{foo}}"> Needed a more generic way of
+ * checking if I was in a tag.
  */
 function relocatorInsideTag(scimoz) {
-    currentPos = scimoz.currentPos;
-    startOfLine = scimoz.positionFromLine(scimoz.lineFromPosition(currentPos));
-    startTagChar = findNextValidCloseOpenSymbol(currentPos, startOfLine,"<");
-    endTagChar = findNextValidCloseOpenSymbol(currentPos, startOfLine, ">");
+    var currentPos = scimoz.currentPos;
+    var startOfLine = scimoz.positionFromLine(scimoz.lineFromPosition(currentPos));
+    // posAfterCurPos is needed in case we are at the start of a tag, |<p>.
+    // Would always return false in that case otherwise as it would not find
+    // the "<".
+    var posAfterCurPos = scimoz.positionAfter(currentPos);
+    var startTagChar = findNextValidCloseOpenSymbol(posAfterCurPos, startOfLine,"<");
+    var endTagChar = findNextValidCloseOpenSymbol(currentPos, startOfLine, ">");
     return startTagChar > endTagChar;
 }
 
