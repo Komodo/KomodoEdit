@@ -1,0 +1,24 @@
+When using layer backed views (setWantsLayer:YES), Komodo will sometimes raise
+an objective-C runtime exception when trying to draw the margin view, and after
+that *all* Komodo editor views will become glitched and refuse to redraw. The
+exception message is usually one of:
+1) Unlocking Focus on wrong view (<InnerView:0x124298b90>), expected (null)
+2) unlockFocus called too many times
+
+See bug 99863 for full details.
+
+Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaView.mm
+===================================================================
+--- cocoa/ScintillaView.mm	(revision 81864)
++++ cocoa/ScintillaView.mm	(working copy)
+@@ -82,6 +82,10 @@
+   [[self window] invalidateCursorRectsForView: self];
+ }
+ 
++// Komodo - override lock focus methods to avoid drawing glitches - bug 99863.
++- (void)lockFocus {}
++- (void)unlockFocus {}
++
+ - (CGFloat)requiredThickness
+ {
+   return marginWidth;
