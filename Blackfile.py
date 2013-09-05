@@ -626,13 +626,15 @@ def _run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM, cwd=None):
     if isinstance(cmd, (list, tuple)):
         cmd = list(cmd)
         cmdline = " ".join(cmd)
+        shell = False
     else:
         cmdline = str(cmd)
+        shell = True
     if cwd is not None:
         __run_log(logstream, "running '%s' in '%s'", cmdline, cwd)
     else:
         __run_log(logstream, "running '%s'", cmdline)
-    p = subprocess.Popen(cmd, cwd=cwd, shell=True)
+    p = subprocess.Popen(cmd, cwd=cwd, shell=shell)
     status = p.wait()
     if status:
         #TODO: add std OSError attributes or pick more approp. exception
