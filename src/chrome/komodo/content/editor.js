@@ -793,7 +793,28 @@ function skipWordsTagsRight(view, scimoz) {
         }
         shufflePos = scimoz.positionAfter(nextValidChar);
     } else {
-        shufflePos = scimoz.wordEndPosition(shufflePos, false);
+        var curChar = scimoz.getWCharAt(shufflePos);
+        var curCharStyle = scimoz.getStyleAt(shufflePos);
+        if (scimoz.wordChars.contains(curChar)) {
+            shufflePos = scimoz.wordEndPosition(shufflePos, false);
+        } else {
+            /*
+             * Punctuation is not included in scimoz.wordChars.  Must manually
+             * skip until another word or tag is hit.
+             */
+            var relWordChars = scimoz.wordChars;
+            var docEnd = scimoz.length;
+            for(; shufflePos < docEnd; ++shufflePos) {
+                curCharStyle = scimoz.getStyleAt(shufflePos);
+                if (VALID_TAG_STYLES.indexOf(curCharStyle) >= 0) {
+                    break;
+                }
+                curChar = scimoz.getWCharAt(shufflePos);
+                if (relWordChars.contains(curChar)) {
+                    break;
+                }
+            }
+        }
     }
     moveRelocatorText(savedSelectionStart,
              savedSelectionEnd - savedSelectionStart,
