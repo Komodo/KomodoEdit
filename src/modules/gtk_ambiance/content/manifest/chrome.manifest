@@ -2,3 +2,4 @@ override chrome://komodo/skin/_config/toolbars.less chrome://gtk-ambiance/skin/_
 override chrome://komodo/skin/_config/menus.less chrome://gtk-ambiance/skin/_config/menus.less
 override chrome://komodo/skin/_config/modules.less chrome://gtk-ambiance/skin/_config/modules.less
 override chrome://komodo/skin/toolbars.less chrome://gtk-ambiance/skin/toolbars.less
+override chrome://komodo/skin/menus.less chrome://gtk-ambiance/skin/menus.less

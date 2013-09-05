@@ -6,6 +6,11 @@ menubar
 {
     -moz-appearance: @main-menu-appearance !important;
     border: 0;
+
+    &:not(#menubar_main)
+    {
+        background: @main-menu-background;
+    }
     
     & > menu
     {
