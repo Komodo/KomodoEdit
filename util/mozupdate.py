@@ -450,26 +450,12 @@ class Shell(cmdln.Cmdln):
             self._manifest_handle_removed_files(manifest, dir, seen_files)
             self._manifest_handle_extra(manifest, opts.manifest_extra)
 
-            # Write 'update.manifest'.
-            # 
-            # 'updater.exe' parses this (see ::Parse() methods in
-            # "toolkit\mozapps\update\src\updater\updater.cpp"). It can be
-            # picky:
-            # - The file must end with a newline.
-            # - It *might* require '\n' EOLs (i.e. not '\r\n' EOLs) but I
-            #   don't know this for sure.
-            manifest_path = join(img_dir, "update.manifest")
-            log.info("write `update.manifest'")
-            paths_to_mar.append("update.manifest")
-            manifest_str = '\n'.join(manifest) + '\n'
-            open(manifest_path, 'wb').write(bz2.compress(manifest_str))
-
             if opts.removed_files_candidates:
                 removed_files = set()
                 for line in open(opts.removed_files_candidates, "r"):
                     removed_files.add(line.strip())
 
-                actually_removed_files = removed_files - seen_files
+                actually_removed_files = sorted(removed_files - seen_files)
                 if actually_removed_files:
                     # Write 'removed-files'.
                     # This will be used by Komodo for the next update to determine
@@ -481,8 +467,27 @@ class Shell(cmdln.Cmdln):
                     removed_path = join(img_dir, "removed-files")
                     log.info("write `removed-files`")
                     paths_to_mar.append("removed-files")
-                    manifest_str = '\n'.join(sorted(actually_removed_files)) + '\n'
+                    manifest_str = '\n'.join(actually_removed_files) + '\n'
                     open(removed_path, 'wb').write(bz2.compress(manifest_str))
+                    for path in actually_removed_files:
+                        # Add remove instructions, but only if they aren't there
+                        instruction = 'remove "%s"' % (path,)
+                        if instruction not in manifest:
+                            manifest.append(instruction)
+
+            # Write 'update.manifest'.
+            #
+            # 'updater.exe' parses this (see ::Parse() methods in
+            # "toolkit\mozapps\update\src\updater\updater.cpp"). It can be
+            # picky:
+            # - The file must end with a newline.
+            # - It *might* require '\n' EOLs (i.e. not '\r\n' EOLs) but I
+            #   don't know this for sure.
+            manifest_path = join(img_dir, "update.manifest")
+            log.info("write `update.manifest'")
+            paths_to_mar.append("update.manifest")
+            manifest_str = '\n'.join(manifest) + '\n'
+            open(manifest_path, 'wb').write(bz2.compress(manifest_str))
 
             log.info("create `%s'", mar_path)
             file_list_path = join(wrk_dir, "files")
@@ -707,21 +712,7 @@ class Shell(cmdln.Cmdln):
             removed_files.update(self._manifest_handle_removed_files(manifest, todir, seen_files))
             self._manifest_handle_extra(manifest, opts.manifest_extra)
 
-            # Write 'update.manifest'.
-            # 
-            # 'updater.exe' parses this (see ::Parse() methods in
-            # "toolkit\mozapps\update\src\updater\updater.cpp"). It can be
-            # picky:
-            # - The file must end with a newline.
-            # - It *might* require '\n' EOLs (i.e. not '\r\n' EOLs) but I
-            #   don't know this for sure.
-            manifest_path = join(img_dir, "update.manifest")
-            log.info("write `update.manifest'")
-            paths_to_mar.append("update.manifest")
-            manifest_str = '\n'.join(manifest) + '\n'
-            open(manifest_path, 'wb').write(bz2.compress(manifest_str))
-
-            actually_removed_files = removed_files - seen_files
+            actually_removed_files = sorted(removed_files - seen_files)
             if actually_removed_files:
                 # Write 'removed-files'.
                 # This will be used by Komodo for the next update to determine
@@ -733,14 +724,33 @@ class Shell(cmdln.Cmdln):
                 removed_path = join(img_dir, "removed-files")
                 log.info("write `removed-files`")
                 paths_to_mar.append("removed-files")
-                manifest_str = '\n'.join(sorted(actually_removed_files)) + '\n'
+                manifest_str = '\n'.join(actually_removed_files) + '\n'
                 open(removed_path, 'wb').write(bz2.compress(manifest_str))
+                for path in actually_removed_files:
+                    # Add remove instructions, but only if they aren't there
+                    instruction = 'remove "%s"' % (path,)
+                    if instruction not in manifest:
+                        manifest.append(instruction)
 
             if opts.removed_files_candidates:
                 # also update the candidates list
                 with open(opts.removed_files_candidates, "w") as new_list:
                     for path in sorted(removed_files):
                         new_list.write(path + "\n")
+
+            # Write 'update.manifest'.
+            #
+            # 'updater.exe' parses this (see ::Parse() methods in
+            # "toolkit\mozapps\update\src\updater\updater.cpp"). It can be
+            # picky:
+            # - The file must end with a newline.
+            # - It *might* require '\n' EOLs (i.e. not '\r\n' EOLs) but I
+            #   don't know this for sure.
+            manifest_path = join(img_dir, "update.manifest")
+            log.info("write `update.manifest'")
+            paths_to_mar.append("update.manifest")
+            manifest_str = '\n'.join(manifest) + '\n'
+            open(manifest_path, 'wb').write(bz2.compress(manifest_str))
 
             log.info("create `%s'", mar_path)
             file_list_path = join(wrk_dir, "files")
