@@ -40,6 +40,8 @@ class KoCodeIntelService:
     _enabled = False
     _queue = None # queue of requests submitted before the manager initialized
 
+    _quit_application = False # app is shutting down, don't try to respawn
+
     mgr = None
     buffers = {}
 
@@ -75,6 +77,10 @@ class KoCodeIntelService:
                 raise
             # This can fail during unit tests
 
+        Cc["@mozilla.org/observer-service;1"]\
+            .getService(Ci.nsIObserverService)\
+            .addObserver(self, "quit-application", False)
+
     __db_preloader = None
     @property
     def _db_preloader(self):
@@ -86,6 +92,9 @@ class KoCodeIntelService:
     def activate(self, xpcom_callback, resetBrokenDB=False):
         self.debug("activating codeintel service: %r, %r",
                    xpcom_callback, resetBrokenDB)
+
+        if self._quit_application:
+            return # don't ever restart after quit-application
 
         self._enabled = True
 
@@ -332,6 +341,13 @@ class KoCodeIntelService:
                    .currentThread
         while not have_response:
             thread.processNextEvent(True)
+
+    def observe(self, subject, topic, data):
+        if topic == "quit-application":
+            self._quit_application = True
+            Cc["@mozilla.org/observer-service;1"]\
+                 .getService(Ci.nsIObserverService)\
+                 .removeObserver(self, "quit-application")
 
 
 class KoCodeIntelDBPreloader(object):
@@ -595,6 +611,7 @@ class KoCodeIntelManager(threading.Thread):
           .prefs\
           .prefObserverService\
           .addObserverForTopics(self, ["xmlCatalogPaths"], True)
+        self.observerSvc.addObserver(self, "quit-application", False)
 
     @LazyClassAttribute
     def observerSvc(self):
@@ -1026,7 +1043,10 @@ class KoCodeIntelManager(threading.Thread):
                             else:
                                 self.debug("Discarding request %r", request)
                             del self.requests[req_id]
-        except:
+        except Exception as ex:
+            if isinstance(ex, IOError) and \
+              self.state in (self.STATE.QUITTING, self.STATE.DESTROYED):
+                return # this is intentional
             self.log.exception("Error reading data from codeintel")
             self.kill()
 
@@ -1259,6 +1279,12 @@ class KoCodeIntelManager(threading.Thread):
             koDirs = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
             catalogs.append(os.path.join(koDirs.supportDir, "catalogs", "catalog.xml"))
             self.send(command="set-xml-catalogs", catalogs=catalogs)
+        elif topic == "quit-application":
+            # Possibly unclean shutdown; do a fast kill.
+            self.abort = True
+            self.state = KoCodeIntelManager.STATE.QUITTING
+            self.kill()
+            self.observerSvc.removeObserver(self, "quit-application")
 
 class TriggerWrapper(object):
     """Wrapper class to XPCOM-ify a trigger"""
