@@ -22,6 +22,7 @@ import itertools
 import json
 import logging
 import os.path
+import Queue
 import shutil
 import sys
 import threading
@@ -133,6 +134,11 @@ class Driver(threading.Thread):
         self.buffers = {} # path to Buffer objects
         self.next_buffer = 0
         self.active_request = None
+
+        self.send_queue = Queue.Queue()
+        self.send_thread = threading.Thread(target=self._send_proc)
+        self.send_thread.daemon = True
+        self.send_thread.start()
 
         self.queue = collections.deque()
         self.queue_cv = threading.Condition()
@@ -260,8 +266,19 @@ class Driver(threading.Thread):
         elif data["success"] is None:
             del data["success"]
         buf = json.dumps(data, separators=(',',':'))
-        log.debug("sending: [%s]", buf)
-        self.fd_out.write(str(len(buf)) + buf)
+        buf_len = str(len(buf))
+        log.debug("sending: %s:[%s]", buf_len, buf)
+        self.send_queue.put(buf)
+
+    def _send_proc(self):
+        while True:
+            buf = self.send_queue.get()
+            try:
+                buf_len = str(len(buf))
+                self.fd_out.write(buf_len)
+                self.fd_out.write(buf)
+            finally:
+                self.send_queue.task_done()
 
     def fail(self, request=REQUEST_DEFAULT, **kwargs):
         kwargs = kwargs.copy()
