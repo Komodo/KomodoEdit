@@ -157,7 +157,7 @@ class Driver(threading.Thread):
         self.mgr.initialize()
 
     def _on_scan_complete(self, scan_request):
-        if scan_request.status == "changed":
+        if scan_request.status in ("changed", "skipped"):
             # Send unsolicited response about the completed scan
             buf = scan_request.buf
             self.send(request=None,

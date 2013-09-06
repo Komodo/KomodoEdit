@@ -226,6 +226,30 @@ class KoCodeIntelService:
             self.buffers[doc] = buf
         return buf
 
+    def buf_from_path(self, path):
+        """
+        Get an existing buffer given the path
+        @note Prefer buf_from_koIDocument; this might be less accurate.
+            (multiple buffers might have the same path.)
+        """
+        if not self.enabled or not path:
+            return None
+        path = os.path.normpath(path) # Fix case on Windows
+        if path.startswith("<Unsaved>"):
+            baseName = path.split(os.sep, 1)[-1]
+            for doc, buf in self.buffers.items():
+                if doc.file:
+                    continue
+                if os.path.normcase(buf.baseName) == baseName:
+                    return buf
+        else:
+            for doc, buf in self.buffers.items():
+                if not doc.file:
+                    continue
+                if os.path.normcase(doc.file.displayPath) == path:
+                    return buf
+        return None
+
     def is_cpln_lang(self, language):
         return language in self.get_cpln_langs()
     def get_cpln_langs(self):
@@ -1061,8 +1085,9 @@ class KoCodeIntelManager(threading.Thread):
     def do_scan_complete(self, response):
         """Scan complete unsolicited response"""
         path = response.get("path")
+        buf = self.svc.buf_from_path(path)
         if path:
-            self.observerSvc.notifyObservers(None, "codeintel_buffer_scanned",
+            self.observerSvc.notifyObservers(buf, "codeintel_buffer_scanned",
                                              path)
 
     def do_report_message(self, response):
