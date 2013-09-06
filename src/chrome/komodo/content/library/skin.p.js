@@ -46,9 +46,6 @@ if (ko.skin == undefined)
     prefOld[PREF_CUSTOM_SKIN]       = prefs.getString(PREF_CUSTOM_SKIN, '');
     prefOld[PREF_USE_GTK_DETECT]    = prefs.getBoolean(PREF_USE_GTK_DETECT, true);
     
-    // Self pointer for use in observer, as .bind() doesn't work with xpcom
-    var self;
-    
     ko.skin.prototype  =
     {
         PREF_CUSTOM_ICONS:      PREF_CUSTOM_ICONS,
@@ -67,8 +64,6 @@ if (ko.skin == undefined)
          */
         init: function()
         {
-            self = this;
-            
             for (let pref in prefOld)
             {
                 prefs.prefObserverService.addObserver(this, pref, false);
@@ -109,7 +104,7 @@ if (ko.skin == undefined)
                 try {
                     if (prefOld[topic] != '')
                     {
-                        self.unloadCustomSkin(prefOld[topic]);
+                        this.unloadCustomSkin(prefOld[topic]);
                     }
                 } catch (e) {}
 
@@ -118,16 +113,16 @@ if (ko.skin == undefined)
 
                 // Queue a cache flush; both skins and iconsets might change the
                 // CSS generated (e.g. for icon URLs)
-                self.shouldFlushCaches = true;
+                this.shouldFlushCaches = true;
 
                 // Reload relevant skin
                 if (topic == PREF_CUSTOM_SKIN)
                 {
-                    self.loadPreferredSkin();
+                    this.loadPreferredSkin();
                 }
                 else if (topic == PREF_CUSTOM_ICONS)
                 {
-                    self.loadPreferredIcons();
+                    this.loadPreferredIcons();
                 }
             }
         },
