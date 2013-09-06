@@ -55,8 +55,7 @@ if (ko.skin == undefined)
         PREF_CUSTOM_SKIN:       PREF_CUSTOM_SKIN,
         PREF_USE_GTK_DETECT:    PREF_USE_GTK_DETECT,
         
-        skinHasChanged: false,
-        iconsetHasChanged: false,
+        shouldFlushCaches: false,
         
         /**
          * Constructor
@@ -117,15 +116,17 @@ if (ko.skin == undefined)
                 // Store new value for future updates
                 prefOld[topic] = value;
 
+                // Queue a cache flush; both skins and iconsets might change the
+                // CSS generated (e.g. for icon URLs)
+                self.shouldFlushCaches = true;
+
                 // Reload relevant skin
                 if (topic == PREF_CUSTOM_SKIN)
                 {
-                    self.skinHasChanged = true;
                     self.loadPreferredSkin();
                 }
                 else if (topic == PREF_CUSTOM_ICONS)
                 {
-                    self.iconsetHasChanged = true;
                     self.loadPreferredIcons();
                 }
             }
@@ -165,7 +166,7 @@ if (ko.skin == undefined)
          */
         loadCustomSkin: function(uri)
         {
-            if (this.skinHasChanged)
+            if (this.shouldFlushCaches)
             {
                 log.debug("Queueing up load of custom skin: " + uri);
                 
