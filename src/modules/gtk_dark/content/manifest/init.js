@@ -1,4 +1,4 @@
-if (koSkin.skinHasChanged)
+if (koSkin.shouldFlushCaches)
 {
     ko.prefs.setStringPref(
         koSkin.PREF_CUSTOM_ICONS,
