@@ -2319,7 +2319,7 @@ def TestKomodo(cfg, argv):
     # will work (paths, libs, etc. setup properly). See bug 66332.
     return tmShUtil.RunInContext(cfg.envScriptName, [
         'cd test',
-        'mozpython test.py %s' % ' '.join(argv[1:])
+        'mozpython -O test.py %s' % ' '.join(argv[1:])
     ])
 
 def TestKomodoPerf(cfg, argv):

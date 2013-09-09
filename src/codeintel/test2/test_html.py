@@ -228,5 +228,5 @@ class HTMLTestCase(CodeIntelTestCase):
                     <<|>
                 </html>
             """),
-            [("element", 'img'), ("element", 'div')])
+            [("element", 'p'), ("element", 'div')])
 
