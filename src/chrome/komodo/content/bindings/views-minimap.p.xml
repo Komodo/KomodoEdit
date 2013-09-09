@@ -66,6 +66,20 @@
             setTimeout(function() {
                 this.syncMinimapFromBuffer();
             }.bind(this), 10);
+
+
+            this._mouse_drag_handler = event => {
+                if (event.buttons === 1) {
+                    // "1": The primary mouse button is down; all others are up.
+                    // http://www.w3.org/TR/DOM-Level-3-Events/#events-MouseEvent-buttons
+                    this.handleButtonClick(event);
+                }
+            };
+            this._mouse_up_handler = event => {
+                window.removeEventListener("mousemove", this._mouse_drag_handler, true);
+                window.removeEventListener("mouseup", this._mouse_up_handler, true);
+                setTimeout(() => this.updateSelectionFromEditor(), 0);
+            };
         } catch (e) {
             this.log.exception(e, "Problem in initMinimap\n");
         }
@@ -389,29 +403,21 @@
             event.dataTransfer.dropEffect = "none";
             ]]>
         </handler>
-        
-        <handler event="mousemove">
+
+        <handler event="mousedown">
             <![CDATA[
-            // Implement bug 97641: scroll the minimap viewer
-            if (event.buttons === 1 && this.inMinimap) {
+            if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
+                return; // ignore mouse down if a modifier is pressed
+            }
+            if (event.buttons == 1) {
                 // "1": The primary mouse button is down; all others are up.
-                this.handleButtonClick(event);
+                // http://www.w3.org/TR/DOM-Level-3-Events/#events-MouseEvent-buttons
+                window.addEventListener("mousemove", this._mouse_drag_handler, true);
+                window.addEventListener("mouseup", this._mouse_up_handler, true);
             }
             ]]>
         </handler>
-        
-        <handler event="mouseover">
-            <![CDATA[
-            this.inMinimap = true;
-            ]]>
-        </handler>
-        
-        <handler event="mouseout">
-            <![CDATA[
-            this.inMinimap = false;
-            ]]>
-        </handler>
-    </handlers>
+   </handlers>
 
 </binding>
 
