@@ -32,35 +32,14 @@ def getTreeFromVersion(version=None):
     if version is None:
         # use default
         version = "7.0.1"
+    elif ":" in version:
+        # Obsolete syntax, version:TAG; just use the tag
+        version = version.split(":", 1)[1]
 
-    # Prefer a specific tag in mozilla-release
-    response = urllib2.urlopen("http://hg.mozilla.org/releases/mozilla-release/tags")
-
-    max_ver = 0.0
-    tags = {}
-    matcher = re.compile(r"(?P<tag>FIREFOX_(?P<version>(?:\d+_)*)RELEASE).*rev/(?P<hash>[0-9a-f]*)")
-    for line in response.read().splitlines():
-        if not "|" in line:
-            continue
-        for part in line.split("|"):
-            matches = matcher.search(part)
-            if not matches:
-                continue
-            ver = ".".join(matches.group("version").strip("_").split("_"))
-            if not ver:
-                # bad tag, e.g. "FIREFOX_RELEASE_5" - we don't care about that
-                continue
-            tags[ver] = matches.group("tag")
-            ver = float(ver.split(".")[0])
-            if ver > max_ver:
-                max_ver = ver
-
-    log.debug("tags: %r", tags)
-    log.debug("mozilla_release is at: %s", max_ver)
-
+    # Figure out what version the user actually asked for
     try:
         if not "." in version:
-            matches = re.match(r"FIREFOX_(?P<version>(?:\d+_)*)RELEASE", version)
+            matches = re.match(r"FIREFOX_(?P<version>(?:\d+_)*(?:\d+(?:a|b|rc)\d+)?_)?RELEASE", version)
             if matches:
                 # version is a tag, FIREFOX_0_0_0_RELEASE
                 version = ".".join(matches.group("version").strip("_").split("_"))
@@ -71,17 +50,30 @@ def getTreeFromVersion(version=None):
         wanted_version = StrictVersion(version)
     except ValueError:
         wanted_version = LooseVersion(version)
-
     log.debug("looking for version: %s", wanted_version)
 
-    for verstr, tag in tags.items():
-        if wanted_version == verstr:
-            log.debug("Found matching version %s (%s)", wanted_version, verstr)
-            return ("mozilla-release", tag)
+    # Look for a matching tag
+    max_ver = 0.0
+    for tree in ("mozilla-release", "mozilla-beta", "mozilla-aurora"):
+        tags_url = "http://hg.mozilla.org/releases/%s/raw-tags" % (tree,)
+        response = urllib2.urlopen(tags_url)
+        for line in response.read().splitlines():
+            tag, commitid = line.strip().rsplit("\t", 1)
+            if not tag.startswith("FIREFOX_") or not tag.endswith("_RELEASE"):
+                continue
+            ver = ".".join(tag.split("_", 1)[1].rsplit("_", 1)[0].split("_"))
+            if ver == wanted_version:
+                log.debug("Found exact match in %s: %s", tree, tag)
+                return (tree, tag)
+            if tree == "mozilla-release":
+                ver = float(ver.split(".")[0])
+                if ver > max_ver:
+                    max_ver = ver
 
     # No specific tag; try the defaults of the branches, starting from the newest
     # Note that once we get here we only check the major version, so you can't,
-    # for example, specifically ask for beta 2 of a branch
+    # for example, specifically ask for alpha 1. (They don't have that
+    # information anyway.)
     for branch_part in "mozilla-central", "releases/mozilla-aurora", "releases/mozilla-beta":
         mstone_url = "https://hg.mozilla.org/%s/raw-file/default/config/milestone.txt" % (branch_part,)
         branch = branch_part.split("/")[-1]
@@ -106,7 +98,7 @@ def getTreeFromVersion(version=None):
         log.debug("%s major version %s does not match %s",
                   branch, ver, wanted_version)
 
-    # Ugh... Try for... anything?
+    # Ugh... Try for... anything?  This doesn't really make sense.
     if wanted_version.version[0] <= max_ver:
         return ("mozilla-release", "default")
     elif wanted_version.version[0] <= max_ver + 1:
