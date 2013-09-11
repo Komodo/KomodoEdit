@@ -3047,7 +3047,8 @@ class JavaScriptCiler:
         if p+1 < len(styles) and styles[p+1] == self.JS_OPERATOR and text[p+1] == "{":
             # This is actually a newly created object
             return (TYPE_OBJECT, [], None, p+2)
-        elif p+2 < len(styles) and styles[p+1] == self.JS_WORD and \
+
+        if p+2 < len(styles) and styles[p+1] == self.JS_WORD and \
              text[p+1] == "function":
             # Skip over any function name
             # Example:  var f = function my_f(a, b) { }
@@ -3058,7 +3059,8 @@ class JavaScriptCiler:
                 p += 1
             args, p = self._getArgumentsFromPos(styles, text, p)
             return (TYPE_FUNCTION, [], args, p)
-        elif p+3 < len(styles) and styles[p+1] == self.JS_WORD and \
+
+        if p+3 < len(styles) and styles[p+1] == self.JS_WORD and \
              text[p+1] == "new" and text[p+2] == "function":
             # Skip over any function name
             # Example:  var f = new function my_f(a, b) { }
@@ -3069,16 +3071,32 @@ class JavaScriptCiler:
                 p += 1
             args, p = self._getArgumentsFromPos(styles, text, p)
             return (TYPE_FUNCTION, [], args, p)
-        else:
-            typeNames, p, isAlias = self._getVariableType(styles, text, p, assignmentChar)
-            if len(namelist) > 2 and namelist[-2:] == ["prototype", "constructor"]:
-                # Foo.prototype.constructor = bar; don't treat as an alias
-                pass
-            elif isAlias and typeNames != namelist:
-                log.debug("_getVariableDetail: %r is an alias to %r",
-                          namelist, typeNames)
-                return (TYPE_ALIAS, typeNames, None, p)
-            return (TYPE_VARIABLE, typeNames, None, p)
+
+        if "=>" in text[p:]:
+            # Check for ES6 fat arrow function
+            # Example: var f = (arg1, arg2) => { body }
+            #          var g = arg_only => expr
+
+            arrow_index = text.index("=>")
+            maybe_args = text[p + 1:arrow_index]
+            if maybe_args[0] == "(" and maybe_args[-1] == ")":
+                # Maybe have args...
+                args, new_p = self._getArgumentsFromPos(styles, text, p + 1)
+                if args is not None:
+                    return (TYPE_FUNCTION, [], args, arrow_index)
+            elif arrow_index == p + 2 and styles[p+1] == self.JS_IDENTIFIER:
+                # single argument
+                return (TYPE_FUNCTION, [], [text[p+1]], arrow_index)
+
+        typeNames, p, isAlias = self._getVariableType(styles, text, p, assignmentChar)
+        if len(namelist) > 2 and namelist[-2:] == ["prototype", "constructor"]:
+            # Foo.prototype.constructor = bar; don't treat as an alias
+            pass
+        elif isAlias and typeNames != namelist:
+            log.debug("_getVariableDetail: %r is an alias to %r",
+                      namelist, typeNames)
+            return (TYPE_ALIAS, typeNames, None, p)
+        return (TYPE_VARIABLE, typeNames, None, p)
 
     def _variableHandler(self, lineno, styles, text, p, namelist,
                          allowedAssignmentChars="=",
@@ -3894,7 +3912,10 @@ class JavaScriptCiler:
                                   self.lineno)
                         return
                 #log.debug("token_next: line %d, %r, text: %r" % (self.lineno, text, self.text))
-                for op in text:
+                next_op_index = 0
+                while next_op_index < len(text):
+                    op = text[next_op_index]
+                    next_op_index += 1
                     self.styles.append(style)
                     self.text.append(op)
                     #if self.state == S_OBJECT_ARGUMENT:
@@ -3927,6 +3948,15 @@ class JavaScriptCiler:
                         elif isinstance(self.lastScope, JSFunction) and self.text[-3:] == ['{', '(', ')']:
                             # It's a function argument closure.
                             self.lastScope = self._convertFunctionToClosureVariable(self.lastScope)
+                    elif op == "=":
+                        try:
+                            next_ch = text[next_op_index]
+                        except IndexError:
+                            continue
+                        if next_ch == ">":
+                            # ES6, => fat arrow function
+                            self.text[-1] = "=>"
+                            next_op_index += 1
                     #elif op == "=":
                     #    if text == op:
                     #        log.debug("Entering S_IN_ASSIGNMENT state, line: %d, col: %d", start_line, start_column)

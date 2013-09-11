@@ -1091,6 +1091,41 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("variable", "myWin")])
 
+    def test_fat_arrow_functions(self):
+        """Test fat arrow functions (ES6) for binding"""
+        buf, pos = self._get_buf_and_data(dedent("""\
+            function Class() {
+                this.member = 1;
+                this.private_method = arg_name => {
+                    this.<1>;
+                    arg<2>;
+                };
+                this.not_a_method = arg = > {
+                    "There cannot be spaces between = and >";
+                };
+            }
+            Class.prototype.method = function() {
+                var callback = (arg1, arg2) => {
+                    this.<3>;
+                    arg<4>
+                }
+                var lambda = arg => this.<5>;
+            };
+        """), lang=self.lang)
+
+        for i in (1, 3, 5):
+            self.assertCompletionsInclude2(buf, pos[i],
+                [("variable", "member"),
+                 ("function", "method"),
+                 ("function", "private_method")])
+            self.assertCompletionsDoNotInclude2(buf, pos[i],
+                [("function", "not_a_method")])
+        self.assertCompletionsInclude2(buf, pos[2],
+            [("argument", "arg_name")])
+        self.assertCompletionsInclude2(buf, pos[4],
+            [("argument", "arg1"),
+             ("argument", "arg2")])
+
 class DOMTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     @tag("bug86391")
