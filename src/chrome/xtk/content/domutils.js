@@ -278,7 +278,9 @@ tooltipHandler.prototype.show = function(parentElement, x, y, timeout /* 5000 ms
         // of mozilla reflow, which are not defined, and thus may
         // change in the future
         this._tooltip.setAttribute('style','height: 0px');
-        this._tooltip.openPopup(parentElement,"after_pointer",x,y,false);
+        // Bug 100394 -- 'after_pointer' positions the popup one line
+        // lower than 'overlap'
+        this._tooltip.openPopup(parentElement, "overlap", x, y, false);
         if (timeout > 0) {
             this._hideTimeout = window.setTimeout(function (me) { me.hide(); }, timeout, this);
         }
