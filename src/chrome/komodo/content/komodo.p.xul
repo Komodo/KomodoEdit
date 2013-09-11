@@ -2038,10 +2038,7 @@
                          flex="1"
                          maxrows="10"
                          size="30"
-                         onfocus="if (event.target.nodeName == 'html:input') {
-                                    var textbox = this.parentNode.parentNode.parentNode;
-                                    textbox.searchParam = ko.window.getCwd();
-                                  }
+                         onfocus="this.searchParam = ko.window.getCwd();
                                   event.currentTarget.parentNode.classList.add('focus')
                                   "
                          onblur="event.currentTarget.parentNode.classList.remove('focus')"
