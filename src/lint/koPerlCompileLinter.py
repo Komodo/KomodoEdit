@@ -44,6 +44,8 @@ import process
 import koprocessutils
 import logging
 
+from zope.cachedescriptors.property import LazyClassAttribute
+
 
 log = logging.getLogger("koPerlCompileLinter")
 #log.setLevel(logging.DEBUG)
@@ -302,25 +304,30 @@ def RemoveDashDFromShebangLine(line):
     return result
 
 class _CommonPerlLinter(object):
-    def __init__(self):
-        self.sysUtils = components.classes["@activestate.com/koSysUtils;1"].\
-            getService(components.interfaces.koISysUtils)
-        self._koVer = components.classes["@activestate.com/koInfoService;1"].\
-                       getService().version
+
+    @LazyClassAttribute
+    def sysUtils(self):
+        return components.classes["@activestate.com/koSysUtils;1"].\
+                    getService(components.interfaces.koISysUtils)
+    @LazyClassAttribute
+    def _koVer(self):
+        return components.classes["@activestate.com/koInfoService;1"].\
+                   getService().version
+    @LazyClassAttribute
+    def _perlTrayDir(self):
         supportDir = components.classes["@activestate.com/koDirs;1"].\
                     getService(components.interfaces.koIDirs).supportDir
-        self._perlTrayDir = os.path.join(supportDir, "perl", "perltray").replace('\\', '/')
-        # appInfoEx has to be created on the main thread, linters run on background threads.
+        return os.path.join(supportDir, "perl", "perltray").replace('\\', '/')
+    @LazyClassAttribute
+    def appInfoEx(self):
+        return components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].\
+                    getService(components.interfaces.koIPerlInfoEx)
 
     def isPerlCriticInstalled(self, forceCheck):
-        appInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].\
-            getService(components.interfaces.koIPerlInfoEx)
-        return appInfoEx.isPerlCriticInstalled(False)
+        return self.appInfoEx.isPerlCriticInstalled(False)
     
     def getPerlCriticVersion(self):
-        appInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].\
-            getService(components.interfaces.koIPerlInfoEx)
-        return appInfoEx.getPerlCriticVersion()
+        return self.appInfoEx.getPerlCriticVersion()
 
     def _writeTempFile(self, cwd, text):
         tmpFileName = None
