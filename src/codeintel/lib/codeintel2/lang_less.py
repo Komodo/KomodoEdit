@@ -94,7 +94,7 @@ class _NestedCSSLangIntel(CSSLangIntel):
                         if DEBUG:
                             print " _trg_from_pos: space => property-values"
                         return Trigger("CSS", TRG_FORM_CPLN, "property-values",
-                                       pos, implicit, extra={"ac": ac})
+                                       pos, implicit)
                     elif styleClassifier.is_tag(last_style, ac):
                         # Now we need to move further back to see which 
                         # region we're in.
@@ -105,11 +105,11 @@ class _NestedCSSLangIntel(CSSLangIntel):
                         if DEBUG:
                             print " _trg_from_pos: space => property-names"
                         return Trigger(self.lang, TRG_FORM_CPLN, "tag-or-property-names",
-                               pos, implicit, extra={"ac": ac})
+                               pos, implicit)
                 if DEBUG:
                     print " _trg_from_pos: couldn't resolve space, settling on property-names"
                 return Trigger("CSS", TRG_FORM_CPLN, "property-values",
-                                   pos, implicit, extra={"ac": ac})
+                                   pos, implicit)
 
             elif styleClassifier.is_operator(last_style, ac):
                 # anchors
@@ -117,7 +117,7 @@ class _NestedCSSLangIntel(CSSLangIntel):
                     print "  _trg_from_pos:: OPERATOR style"
                 if last_char == '#':
                     return Trigger("CSS", TRG_FORM_CPLN, "anchors",
-                                   pos, implicit, extra={"ac": ac})
+                                   pos, implicit)
 
                 elif last_char == ':':
                     try:
@@ -135,17 +135,17 @@ class _NestedCSSLangIntel(CSSLangIntel):
                     #   styleClassifier.is_class(style, ac):
                         # complete for pseudo-class-names
                         return Trigger("CSS", TRG_FORM_CPLN, "pseudo-class-names",
-                                       pos, implicit, extra={"ac": ac})
+                                       pos, implicit)
                     else:
                     #if styleClassifier.is_identifier(style, ac):
                         # calltip for property-values
                         return Trigger("CSS", TRG_FORM_CALLTIP, "property-values",
-                                       pos, implicit, extra={"ac": ac})
+                                       pos, implicit)
 
                 # class-names
                 elif last_char == '.':
                     return Trigger("CSS", TRG_FORM_CPLN, "class-names",
-                                   pos, implicit, extra={"ac": ac})
+                                   pos, implicit)
 
                 # at-rule
                 elif last_char == '@':
@@ -153,7 +153,7 @@ class _NestedCSSLangIntel(CSSLangIntel):
                     # XXX - Should check not beyond first rule set
                     #     - Should check not within a rule block.
                     return Trigger("CSS", TRG_FORM_CPLN, "at-rule",
-                                   pos, implicit, extra={"ac": ac})
+                                   pos, implicit)
                 # Not quite like CSS: don't handle </
 
             # tag-names
@@ -207,7 +207,7 @@ class _NestedCSSLangIntel(CSSLangIntel):
                 #       in straight CSS.
                 if last_char in WHITESPACE:
                     return Trigger("CSS", TRG_FORM_CPLN, "property-values",
-                                   last_pos+1, implicit, extra={"ac": ac})
+                                   last_pos+1, implicit)
                 elif ch in WHITESPACE or ch in ":,%)":
                     # Check to ensure this is not a pseudo-class! Bug:
                     #   http://bugs.activestate.com/show_bug.cgi?id=71073
@@ -225,7 +225,7 @@ class _NestedCSSLangIntel(CSSLangIntel):
                                 print "pseudo-class style found, no trigger."
                             return None
                     return Trigger("CSS", TRG_FORM_CPLN, "property-values",
-                                   p+1, implicit, extra={"ac": ac})
+                                   p+1, implicit)
                 # For explicit, we can also be inside a property already
                 if not implicit and isident(ch):
                     # If there is already part of a value there, we need to move
@@ -233,7 +233,7 @@ class _NestedCSSLangIntel(CSSLangIntel):
                     while isident(ch):
                         p, ch, style = ac.getPrevPosCharStyle()
                     return Trigger("CSS", TRG_FORM_CPLN, "property-values",
-                                   p+1, implicit, extra={"ac": ac})
+                                   p+1, implicit)
                 return None
 
             elif DEBUG:
@@ -250,7 +250,7 @@ class _NestedCSSLangIntel(CSSLangIntel):
             #        if DEBUG:
             #            print "Got a trigger for 'at-property-names'"
             #        return Trigger("CSS", TRG_FORM_CPLN, "at-property-names",
-            #                       pos-3, implicit, extra={"ac": ac})
+            #                       pos-3, implicit)
 
         except IndexError:
             # Wen't out of range of buffer before we found anything useful
@@ -270,7 +270,7 @@ class _NestedCSSLangIntel(CSSLangIntel):
         except IndexError:
             # We're at the start, so return tags only
             return Trigger("CSS", TRG_FORM_CPLN, "tag-names",
-                           pos, implicit, extra={"ac": ac})
+                           pos, implicit)
         
         # States:
         #
@@ -309,7 +309,7 @@ class _NestedCSSLangIntel(CSSLangIntel):
         else:
             lang = "CSS" # Use the parent class.
         return Trigger(lang, TRG_FORM_CPLN, cpln_type,
-                       pos, implicit, extra={"ac": ac})
+                       pos, implicit)
 
     def _async_eval_at_trg(self, buf, trg, ctlr, styleClassifier):
         if _xpcom_:

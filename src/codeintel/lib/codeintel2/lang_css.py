@@ -745,7 +745,7 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
             #        if DEBUG:
             #            print "Got a trigger for 'at-property-names'"
             #        return Trigger("CSS", TRG_FORM_CPLN, "at-property-names",
-            #                       pos-3, implicit, extra={"ac": ac})
+            #                       pos-3, implicit)
 
         except IndexError:
             # Wen't out of range of buffer before we found anything useful
