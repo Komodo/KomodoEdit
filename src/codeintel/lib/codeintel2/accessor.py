@@ -41,6 +41,7 @@ lexer-based styled buffers.
 """
 
 import bisect
+import math
 import threading
 
 from SilverCity import ScintillaConstants
@@ -183,8 +184,10 @@ class SilverCityAccessor(Accessor):
         #XXX Locality of reference should offer an optimization here.
         # Binary search for appropriate token.
         lower, upper = 0, len(self.tokens)  # [lower-limit, upper-limit)
-        sentinel = 15
-        while sentinel > 0:
+        # This being a binary search, we should have a maximum of log2(upper)
+        # iterations.  Enforce that in case we have an issue and hit an infinite
+        # loop.
+        for iter_count in range(int(math.log(upper, 2)) + 1):
             idx = ((upper - lower) / 2) + lower
             token = self.tokens[idx]
             #print "_token_at_pos %d: token idx=%d text[%d:%d]=%r"\
@@ -197,7 +200,6 @@ class SilverCityAccessor(Accessor):
                 lower = idx + 1
             else:
                 return token
-            sentinel -= 1
         else:
             raise CodeIntelError("style_at_pos binary search sentinel hit: "
                                  "there is likely a logic problem here!")
