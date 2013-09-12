@@ -37,6 +37,7 @@
 
 """support for codeintel test modules"""
 
+import json
 import os
 import sys
 from os.path import dirname, join, normpath, exists, basename, abspath
@@ -176,6 +177,14 @@ class CodeIntelTestCase(unittest.TestCase):
                          implicit=True, env=None):
         buf, data = self._get_buf_and_data(markedup_content, lang, path, env)
         trg = buf.trg_from_pos(data["pos"], implicit=implicit)
+        if trg is not None:
+            # We want to make sure that triggers are serializable (for oop);
+            # there doesn't seem to be more reasonable places for it.
+            # We don't actually care what the serialization is, though
+            try:
+                json.dumps(trg.to_dict())
+            except:
+                self.fail("Trigger could not be serialized")
         return buf, trg
 
     def assertCITDLExprUnderPosIs(self, markedup_content, citdl_expr, lang=None,
