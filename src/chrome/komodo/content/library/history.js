@@ -272,7 +272,7 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
     if (typeof(check_section_change) == "undefined") check_section_change = false;
     this._recently_did_history = false;
     _get_curr_loc(view, null, (loc) => {
-        if (loc) {
+        if (view.getAttribute("type") == "editor" && loc) {
             if (!view.scimoz) {
                 view = null;
             }
