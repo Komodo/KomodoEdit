@@ -45,7 +45,10 @@ def main(argv=[]):
     args = parser.parse_args()
 
     if args.log_file:
-        stream = open(args.log_file, "w", 0)
+        if args.log_file in ("stdout", "stderr"):
+            stream = getattr(sys, args.log_file)
+        else:
+            stream = open(args.log_file, "w", 0)
         logging.basicConfig(stream=stream)
         # XXX marky horrible ugly hack
         sys.stderr = stream

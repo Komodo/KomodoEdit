@@ -644,6 +644,7 @@ class KoCodeIntelManager(threading.Thread):
         assert threading.current_thread().name != "MainThread", \
             "KoCodeIntelService.init_child should run on background thread!"
         self.debug("initializing child process")
+        log_file = None
         try:
             koDirSvc = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
             # We need to use -O for python to disable asserts, because we rely
@@ -671,12 +672,13 @@ class KoCodeIntelManager(threading.Thread):
             except:
                 pass
 
-            cmd += ["--log-file", join(koDirSvc.userDataDir, "codeintel.log")]
+            log_file = open(join(koDirSvc.userDataDir, "codeintel.log"), "w")
+            cmd += ["--log-file", "stderr"]
             self.debug("Running: %s", " ".join('"' + c + '"' for c in cmd))
             self.proc = process.ProcessOpen(cmd, cwd=None, env=None,
                                             stdin=None,
-                                            stdout=None,
-                                            stderr=None)
+                                            stdout=log_file,
+                                            stderr=log_file)
             self._watchdog_thread = threading.Thread(target=self._watchdog_thread,
                                                      name="CodeIntel Subprocess Watchdog",
                                                      args=(self.proc,))
@@ -694,6 +696,9 @@ class KoCodeIntelManager(threading.Thread):
             self._init_callback(str(ex))
         else:
             self._send_init_requests()
+        finally:
+            if log_file:
+                log_file.close()
 
     def _send_init_requests(self):
         assert threading.current_thread().name != "MainThread", \
