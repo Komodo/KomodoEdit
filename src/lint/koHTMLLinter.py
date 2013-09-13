@@ -53,6 +53,8 @@ logging.basicConfig()
 log = logging.getLogger("KoHTMLLinter")
 #log.setLevel(logging.DEBUG)
 
+_doctype_re = re.compile("<!doctype\s+html\s*?(.*?)\s*>", re.IGNORECASE|re.DOTALL)
+
 class MultiLangStringBuilder(dict):
     """
     The HTML linter takes in its document's text, and then writes out subsets
@@ -203,7 +205,6 @@ class _CommonHTMLLinter(object):
         return "" # Give up.
 
     
-    _doctype_re = re.compile("<!doctype\s+html\s*?(.*?)\s*>", re.IGNORECASE|re.DOTALL)
     _ends_with_cdata_re = re.compile(r'(?:\s*\]\]>|\s*-->)+\s*\Z', re.DOTALL)
     _ends_with_gt = re.compile(r'>\s*\Z');
     _ends_with_quote_re = re.compile(r'[\"\']\Z');
@@ -621,7 +622,7 @@ class _CommonHTMLLinter(object):
                 if textSubset.startswith('<?xml '):
                     langName = "HTML"
                 else:
-                    m = self._doctype_re.match(textSubset)
+                    m = _doctype_re.match(textSubset)
                     if m:
                         if not m.group(1):
                             langName = "HTML5"
@@ -778,6 +779,17 @@ class CommonTidyLinter(object):
         prefset = request.prefset
         if not prefset.getBooleanPref("lintHTMLTidy"):
             return
+        languageName = request.koDoc.language
+        # Bug 100418: We're probably in a snippet for RHTML, Django, etc.,
+        # that doesn't start with a doctype/xml header, so there's no point
+        # asking Tidy to for all warning messages, as the first thing it
+        # will complain about is the missing Doctype header.
+        #
+        # Later on it's possible to request warnings and filter out ones
+        # that obviously don't make sense. 
+        allowTidyWarnings = (languageName in ("HTML", "HTML5", "XML")
+                             or _doctype_re.match(text)
+                             or text.startswith("<?xml "))
         cwd = request.cwd
 
         text = eollib.convertToEOLFormat(text, eollib.EOL_LF)
@@ -791,6 +803,8 @@ class CommonTidyLinter(object):
             configFile = None
             
         errorLevel = prefset.getStringPref('tidy_errorlevel')
+        if errorLevel != 'errors' and not allowTidyWarnings:
+            errorLevel = 'errors'
         accessibility = prefset.getStringPref('tidy_accessibility')
         
         #Character encodings
@@ -819,9 +833,9 @@ class CommonTidyLinter(object):
         if request.koDoc.language == "HTML" and self._xhtml_doctype_re.match(text):
             argv.append("-xml")
 
-        if accessibility != '0':
+        if allowTidyWarnings and accessibility != '0':
             argv += ['-access', accessibility]
-        if configFile:
+        if allowTidyWarnings and configFile:
             argv += ['-config', configFile]
         
         cwd = cwd or None
