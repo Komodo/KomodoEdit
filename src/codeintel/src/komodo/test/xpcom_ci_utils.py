@@ -59,7 +59,7 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         start = time.time()
         while not callback():
             if timeout is not None:
-                self.assertLess(time.time(), start + timeout,
+                self.assertLess(time.time() - start, timeout,
                                 "Timed out waiting: " + action)
             tm.currentThread.processNextEvent(True)
 
