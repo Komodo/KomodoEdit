@@ -238,7 +238,10 @@ class PythonTreeEvaluator(TreeEvaluator):
         # Add keywords, being smart about where they are allowed.
         preceeding_text = self.trg.extra.get("preceeding_text", "")
         for keyword in self.buf.langintel.keywords:
-            if len(keyword) < 3 or not keyword.startswith(expr):
+            # Don't remove short keywords, as that has a conflict with fill-up
+            # characters, see bug 100471.
+            #if len(keyword) < 3 or not keyword.startswith(expr):
+            if not keyword.startswith(expr):
                 continue
             # Always add None and lambda, otherwise only at the start of lines.
             if not preceeding_text or keyword in ("None", "lambda"):
