@@ -72,7 +72,7 @@ TestCase.prototype.assertFalse =
 TestCase.prototype.failIf = function TestCase_failIf(expr, msg) {
     if (expr) {
         throw new TestError(msg || ("failIf: " + expr + " != true"),
-                            "AsertFalse");
+                            "AssertFalse");
     }
     log.debug("PASS: " + msg);
 };
