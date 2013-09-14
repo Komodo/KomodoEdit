@@ -70,7 +70,6 @@ TestCleanKoDocumentLines.prototype.test_passed = function test_passed() {
 
 TestCleanKoDocumentLines.prototype.test_clean_changed_lines_only_01 = function test_clean_changed_lines_only_01() {
     var file = this.fileSvc.makeTempFile(".txt", 'wb');
-    //dump("file's path: " + file.path + "\n");
     var origBuf   = "line 0, no space\n"
                   + "line 1, ends with 2 spaces  \n"
                   + "line 2, ends with 4 spaces    \n"
@@ -88,7 +87,6 @@ TestCleanKoDocumentLines.prototype.test_clean_changed_lines_only_01 = function t
 
 TestCleanKoDocumentLines.prototype.test_clean_changed_lines_only_01_crlf = function test_clean_changed_lines_only_01_crlf() {
     var file = this.fileSvc.makeTempFile(".txt", 'wb');
-    //dump("file's path: " + file.path + "\n");
     var origBuf   = "line 0, no space\r\n"
                   + "line 1, ends with 2 spaces  \r\n"
                   + "line 2, ends with 4 spaces    \r\n"
@@ -106,7 +104,6 @@ TestCleanKoDocumentLines.prototype.test_clean_changed_lines_only_01_crlf = funct
 
 TestCleanKoDocumentLines.prototype.test_clean_changed_lines_only_01_unicode = function test_clean_changed_lines_only_01_unicode() {
     var file = this.fileSvc.makeTempFile(".txt", 'wb');
-    //dump("file's path: " + file.path + "\n");
     var origBuf   = "line 0, no space (¿ÀÑÜïŽ€๙)\n"
                   + "line 1, ends with 2 spaces (¿ÀÑÜïŽ€๙)  \n"
                   + "line 2, ends with 4 spaces (¿ÀÑÜïŽ€๙)    \n"
@@ -127,7 +124,6 @@ TestCleanKoDocumentLines.prototype.test_clean_changed_lines_only_01_unicode = fu
 
 TestCleanKoDocumentLines.prototype.test_clean_changed_lines_only_01_unicode_crlf = function test_clean_changed_lines_only_01_unicode_crlf() {
     var file = this.fileSvc.makeTempFile(".txt", 'wb');
-    //dump("file's path: " + file.path + "\n");
     var origBuf   = "line 0, no space (¿ÀÑÜïŽ€๙)\r\n"
                   + "line 1, ends with 2 spaces (¿ÀÑÜïŽ€๙)  \r\n"
                   + "line 2, ends with 4 spaces (¿ÀÑÜïŽ€๙)    \r\n"
@@ -158,9 +154,7 @@ TestCleanKoDocumentLines.prototype._finish_clean_changed_lines_1 = function(file
         koDoc.addView(view.scintilla);
         var scimoz = view.scimoz;
         
-        ////dump("Before save, scimoz.text:\n" + visString(scimoz.text) + "\n");
         koDoc.save(1); // Ensure original buffer content is sane - for Windows.
-        ////dump("After first save, scimoz.text:\n" + visString(scimoz.text) + "\n");
         //this.assertEqual(view.scintilla, koDoc.getView());
         
         // Now allow for the modifications we'll do.
@@ -175,13 +169,10 @@ TestCleanKoDocumentLines.prototype._finish_clean_changed_lines_1 = function(file
 
         scimoz.currentPos = scimoz.getLineEndPosition(1);
         scimoz.addText(2, this.sp(2));
-        ////dump("After add text at line 1, scimoz.text:\n" + visString(scimoz.text) + "\n");
         scimoz.currentPos = scimoz.getLineEndPosition(3);
         scimoz.addText(4, this.sp(4));
-        ////dump("After add text at line 3, scimoz.text:\n" + visString(scimoz.text) + "\n");
         scimoz.targetEnd = scimoz.getLineEndPosition(4);
         scimoz.targetStart = scimoz.targetEnd - 1;
-        ////dump("After del text at line 4, scimoz.text:\n" + visString(scimoz.text) + "\n");
         scimoz.replaceTarget(0, "");
 
         this.setPrefsShortcut({
@@ -246,10 +237,6 @@ TestCleanKoDocumentLines.prototype.splitlines = function splitlines(s) {
     if (lines.length > 0 & lines[lines.length - 1].length == 0) {
         lines.splice(lines.length - 1, 1);
     }
-    //dump("splitlines(" + visString(s) + ") => \n");
-    //lines.forEach(function(item, index) {
-    //    dump("line[" + index + "]:[" + visString(item) + "]\n");
-    //});
     return lines;
 }
 
@@ -302,7 +289,6 @@ function visString(s) {
 
 TestCleanKoDocumentLines.prototype._saveCheckLines = function _saveCheckLines(koDoc, scimoz, expectedLines) {
     koDoc.save(true);
-    ////dump("scimoz.text: " + visString(scimoz.text) + "\n")
     var postSaveLines = scimoz.text.split(/(\r?\n)/);
     postSaveLines = postSaveLines.reduce(function(prev, curr, index, array) {
         if (index % 2 === 1) {
@@ -312,17 +298,9 @@ TestCleanKoDocumentLines.prototype._saveCheckLines = function _saveCheckLines(ko
         }
         return prev;
     }, []);
-    ////dump("postSaveLines: " + postSaveLines + "\n");
-    ////postSaveLines.forEach(function(element, index, array) {
-    ////    dump("postSaveLines[" + index + "]= <<" + visString(element) + ">>\n");
-    ////})
     if (!postSaveLines[postSaveLines.length - 1].length) {
         postSaveLines.splice(postSaveLines.length - 1, 1);
     }
-    ////dump("postSaveLines after splice: " + postSaveLines + "\n");
-    ////postSaveLines.forEach(function(element, index, array) {
-    ////    dump("postSaveLines[" + index + "]= <<" + visString(element) + ">>\n");
-    ////})
     this.assertEquals(expectedLines.length, postSaveLines.length,
                       ("Expected "
                        + expectedLines.length
