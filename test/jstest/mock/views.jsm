@@ -89,7 +89,7 @@ SciMozMock.prototype.getLine =
 SciMozMock.prototype.getLineEndPosition =
     function SciMozMock_getLineEndPosition(aLine) {
         let lines = this.text.match(new RegExp("(?:[^\n]*\n){" + (aLine + 1) + "}", "m")) || [""];
-        let lastLine = lines.pop().replace(/\n$/, "");
+        let lastLine = lines.pop().replace(/\r?\n$/, "");
         return lines.reduce(function(n, s) n + s.length, 0) + lastLine.length;
     };
 
@@ -433,6 +433,13 @@ SciMozMock.prototype.setSel =
                   this.getTextRange(start, end));
         [this.anchor, this.currentPos] = [start, end];
     };
+
+
+SciMozMock.prototype.docLineFromVisible =
+    function SciMozMock_docLineFromVisible(lineNo) lineNo;
+
+SciMozMock.prototype.visibleFromDocLine =
+    function SciMozMock_visibleFromDocLine(lineNo) lineNo;
 
 /* Unimplemented stubs */
 SciMozMock.prototype.addRefDocument = function SciMozMock_addRefDocument() void(0);SciMozMock.prototype.setSavePoint = function SciMozMock_setSavePoint() void(0);
