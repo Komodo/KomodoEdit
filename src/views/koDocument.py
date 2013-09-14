@@ -1427,7 +1427,6 @@ class koDocumentBase:
         else:
             cleanChangedLinesOnly = False
         scintilla = self._views[0]
-        # In the case of any failure at all, we don't change the text.
         try:
             DEBUG = 0
             if DEBUG: print "-"*50 + " _clean:"
@@ -1441,59 +1440,67 @@ class koDocumentBase:
             anchorLine = scimoz.lineFromPosition(anchorPos)
             anchorCol = scimoz.anchor - scimoz.positionFromLine(anchorLine)
             firstVisibleLine = scimoz.firstVisibleLine
+            firstDocLine = scimoz.docLineFromVisible(firstVisibleLine)
             haveNoSelection = currPos == anchorPos
 
             # Clean the document content.
+            text = scimoz.text
+            lines = text.splitlines(True)
+            numLines = len(lines)
+            sciLength = scimoz.length # scimoz.length in _bytes_
             scimoz.beginUndoAction()
             try:
                 eolStr = eollib.eol2eolStr[eollib.scimozEOL2eol[scimoz.eOLMode]] # '\r\n' or '\n'...
+                
+                if ensureFinalEOL and not text.endswith(eolStr):
+                    if DEBUG:
+                        print "INSERT FINAL EOL: %r" % eolStr
+                    scimoz.insertText(sciLength, eolStr)
+
                 if cleanLineEnds:
                     if DEBUG: print "LINE  POSITION  CONTENT"
-                    pattern = re.compile("(.*?)([ \t]+)?(\r\n|\n|\r)?$")
-                    index = scimoz.length # scimoz.length in _bytes_??
-                    for i in range(scimoz.lineCount-1, -1, -1):
-                        length, line = scimoz.getLine(i) # length is in _bytes_
-                        if DEBUG:
-                            span = "%d-%d" % (index-length, index)
-                            print "%3d: %9s: %r" % (i, span, line)
+                    pattern = re.compile(".*?([ \t]*)(\r\n|\n|\r)?$")
+                    for i in range(numLines - 1, -1, -1):
+                        line = lines[i]
                         match = pattern.match(line)
-                        content, trailingWS, eol = match.groups()
-                        if eol and eol != eolStr:
-                            end = index
-                            start = end - len(eol)
-                            if DEBUG:
-                                print "REPLACE EOL: %d-%d: %r -> %r"\
-                                      % (start, end, eol, eolStr)
-                            scimoz.targetStart, scimoz.targetEnd = start, end
-                            scimoz.replaceTarget(len(eolStr), eolStr)
+                        trailingWS, eol = match.groups()
                         if trailingWS and (not cleanChangedLinesOnly or i in wsLinesToStrip):
-                            end = index
-                            if eol: end -= len(eol)
-                            start = end - len(trailingWS)
-                            if i == currPosLine:
-                                if cleanLineCurrentLineEnd:
-                                    scimoz.currentPos = currPos = end
-                                else:
-                                    start = max(start, currPos)
-                                    
-                            if DEBUG:
-                                print "REMOVE TRAILING WHITESPACE: %d-%d: %r"\
-                                      % (start, end, scimoz.getTextRange(start, end))
-                            scimoz.targetStart, scimoz.targetEnd = start, end
-                            scimoz.replaceTarget(0, '')
-                        index -= length
-                if ensureFinalEOL:
-                    sciLength = scimoz.length
-                    if sciLength >= 2:
-                        lastBit = scimoz.getTextRange(sciLength - 2, sciLength)
-                    else:
-                        lastBit = scimoz.text
-                    if not lastBit.endswith(eolStr):
+                            wsLen = len(trailingWS)
+                        else:
+                            wsLen = 0
+                        if eol and eol != eolStr:
+                            eolLen = len(eol)
+                        else:
+                            eolLen = 0
+                        if not wsLen and not eolLen:
+                            # No need to change anything on this line
+                            continue
+                        # Point startPos and endPos to the range of whitespace
+                        # to be replaced (by either the correct EOL, or nothing)
+                        lineEndPos = scimoz.getLineEndPosition(i)
+                        startPos = lineEndPos - wsLen
+                        endPos = lineEndPos + eolLen
+                        if eolLen:
+                            newText = eolStr
+                        else:
+                            # Drop the white-space, keep the EOL
+                            newText = ""
+
+                        if (not cleanLineCurrentLineEnd
+                            and i == currPosLine
+                            and startPos < currPos):
+                            # If the cursor is in the trailing whitespace
+                            # and cleanLineCurrentLineEnd is false,
+                            # just remove the spaces to the right of the cursor
+                            startPos = currPos
+                            
                         if DEBUG:
-                            print "INSERT FINAL EOL: %r" % eolStr
-                        scimoz.insertText(sciLength, eolStr)
-                if cleanLineEnds:
-                    
+                            span = "%d-%d" % (startPos, endPos)
+                            print "%3d: %9s: %r" % (i, span, line)
+                        scimoz.targetStart = startPos
+                        scimoz.targetEnd = endPos
+                        scimoz.replaceTarget(len(newText), newText)
+                
                     # If the buffer ends with > 1 blank line,
                     # Replace all of them with whatever the last line happens
                     # to be -- this keeps us from creating buffers that
@@ -1506,14 +1513,16 @@ class koDocumentBase:
                     # at the end of a file, when the user is higher up.
                     
                     if cleanLineCurrentLineEnd:
-                        firstDeletableLine = 1
+                        firstDeletableLine = 0
                     else:
                         firstDeletableLine = scimoz.lineFromPosition(max(currPos, scimoz.selectionEnd)) + 1
                     try:
                         lastDeletableLine = scimoz.lineCount - 1
-                        if '\n' not in scimoz.getTextRange(scimoz.positionFromLine(lastDeletableLine),
-                                                           scimoz.getLineEndPosition(lastDeletableLine)):
-                            lastDeletableLine -= 1
+                        lineStartPos = scimoz.positionFromLine(lastDeletableLine)
+                        lineEndPos = scimoz.getLineEndPosition(lastDeletableLine)
+                        if lineStartPos < lineEndPos:
+                            if '\n' not in scimoz.getTextRange(lineStartPos, lineEndPos):
+                                lastDeletableLine -= 1
                             
                         if cleanChangedLinesOnly:
                             # Now we'll only delete lines that are changed
@@ -1523,14 +1532,19 @@ class koDocumentBase:
                                         raise DontDeleteEndLines()
                                     firstDeletableLine = i + 1
                                     break
-                        for i in range(lastDeletableLine, firstDeletableLine - 1, -1):
+                        for i in range(lastDeletableLine - 1, firstDeletableLine - 1, -1):
                             if scimoz.markerGet(i):
                                 firstLineToDelete = i + 1
                                 break
-                            length, line = scimoz.getLine(i) # length is in _bytes_
-                            if re.search(r'\S', line):
-                                firstLineToDelete = i + 1
-                                break
+                            try:
+                                if re.search(r'\S', lines[i]):
+                                    firstLineToDelete = i + 1
+                                    break
+                            except IndexError:
+                                log.exception("Error indexing lines[i=%d], lastDeletableLine:%d, firstDeletableLine:%d, numLines:%d",
+                                              i, lastDeletableLine - 1,
+                                              firstDeletableLine - 1,
+                                              numLines)
                         else:
                             firstLineToDelete = firstDeletableLine
     
@@ -1575,9 +1589,14 @@ class koDocumentBase:
                     #log.debug("Pull new anchor from %d to %d", newPos, lineEndPos)
                     newPos = lineEndPos
                 scimoz.anchor = newPos
-            
-            scimoz.lineScroll(0, min(firstVisibleLine-scimoz.firstVisibleLine,
-                                     scimoz.lineCount-scimoz.firstVisibleLine))
+
+            if firstDocLine >= scimoz.lineCount - scimoz.linesOnScreen:
+                firstVisibleLine = (scimoz.visibleFromDocLine(scimoz.lineCount)
+                                    - scimoz.linesOnScreen)
+            else:
+                firstVisibleLine = scimoz.visibleFromDocLine(firstDocLine)
+            #scimoz.lineScroll(0, min(firstVisibleLine-scimoz.firstVisibleLine,
+            #                         scimoz.lineCount-scimoz.firstVisibleLine))
                     
             if DEBUG: print "-"*60
         except Exception, e:
