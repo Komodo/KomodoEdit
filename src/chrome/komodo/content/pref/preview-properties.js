@@ -35,7 +35,7 @@ function ClearPreviewSettings() {
 
 function OnPreferencePageLoading(prefset) {
     try {
-        var browserType = refset.getString("preview_browser", "");
+        var browserType = prefset.getString("preview_browser", "");
         LoadAvailableBrowsers(browserType);
     } catch (e) {
         log.exception(e);
