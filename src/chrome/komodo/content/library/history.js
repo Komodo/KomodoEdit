@@ -269,6 +269,10 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
                                             check_section_change /* false */
                                             ) {
     if (typeof(view) == "undefined" || view == null) view = ko.views.manager.currentView;
+    if (!view) {
+        // No views, we could be at startup
+        return;
+    }
     if (typeof(check_section_change) == "undefined") check_section_change = false;
     this._recently_did_history = false;
     _get_curr_loc(view, null, (loc) => {
