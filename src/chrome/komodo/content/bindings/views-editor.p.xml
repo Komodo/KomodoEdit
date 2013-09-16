@@ -84,6 +84,7 @@
 
         <field name="lintingEnabled">false</field>
         <field name="_everLinted">false</field>
+        <field name="_lintBuffer">null</field>
 
         <property name="lintBuffer">
             <setter><![CDATA[
@@ -102,6 +103,16 @@
             return this._lintBuffer;
             ]]></getter>
         </property>
+
+        <method name="_requestLinting">
+        <parameter name="reason"/>
+        <![CDATA[
+            if (this.lintBuffer) {
+                this.lintBuffer.request(reason);
+                this._everLinted = true;
+            }
+        ]]>
+        </method>
 
         <field name="_view_pref_observer_topics">
             [
@@ -208,9 +219,8 @@
                 }
 
                 this.lintingEnabled = this.prefs.getBooleanPref("editUseLinting");
-                if (!ko.views.manager.batchMode && this.lintBuffer) {
-                    this.lintBuffer.request("reset the view's document");
-                    this._everLinted = true;
+                if (!ko.views.manager.batchMode) {
+                    this._requestLinting("reset the view's document");
                 }
                 let language = val.language;
                 this._setLanguage(language);
@@ -516,9 +526,8 @@
         <body>
         <![CDATA[
             try {
-                if (!ko.views.manager.batchMode && !this._everLinted && this.lintBuffer) {
-                    this.lintBuffer.request("focussing view and have not yet linted");
-                    this._everLinted = true;
+                if (!ko.views.manager.batchMode && !this._everLinted) {
+                    this._requestLinting("focussing view and have not yet linted");
                 }
                 this.updateCurrentLineColor();
                 if (typeof(gVimController) != 'undefined' &&
@@ -685,10 +694,7 @@
             case 'editUseLinting':
                 this.lintBuffer = null;
                 this.lintingEnabled = this.prefs.getBooleanPref("editUseLinting");
-                if (this.lintBuffer) {
-                    this.lintBuffer.request("linting preference enabled");
-                    this._everLinted = true;
-                }
+                this._requestLinting("linting preference enabled");
                 break;
             case 'ySlop':
                 //multi-window: this applies to all windows, as it's a pref
@@ -1479,7 +1485,7 @@
             }
             this.restoreLocation(locationInfo);
             window.updateCommands('previewability_changed');
-            this.lintBuffer.request("save as");
+            this._requestLinting("save as");
             return true;
         } catch (ex) {
             Components.utils.reportError(ex);
