@@ -49,8 +49,10 @@ var handlers = {
     'cmd_focusProjectPane': function() ko.uilayout.focusPane("workspace_left_area"),
     'cmd_focusToolboxPane': function() ko.uilayout.focusPane("workspace_right_area"),
     'cmd_focusBottomPane': function() ko.uilayout.focusPane("workspace_bottom_area"),
-    'cmd_focusEditor': 'ko.views.manager.currentView.setFocus()',
-    'cmd_focusSource': 'ko.views.manager.currentView.viewSource()',
+    'cmd_focusEditor': function() { var view = ko.views.manager.currentView;
+                                    if (view) view.setFocus(); },
+    'cmd_focusSource': function() { var view = ko.views.manager.currentView;
+                                    if (view) view.viewSource(); },
     'cmd_toggleMenubar': 'ko.uilayout.toggleMenubar()',
     'cmd_toggleToolbars': 'ko.uilayout.toggleToolbars()',
     'cmd_toggleButtonText': 'ko.uilayout.toggleButtons()',
