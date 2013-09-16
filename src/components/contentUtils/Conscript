@@ -105,8 +105,9 @@ else {
         " -I$mozDevelDist/include/layout";
     $consLocal{'LDFLAGS'} = $consLocal{ENV}{'LDFLAGS'};
 
-    if ($platform eq "linux") {
-	$consLocal{'LDFLAGS'} .= "-Wl,-z,defs";
+    if ($platform eq "linux" && $buildType ne 'debug') {
+	# Debug builds will fail with missing "gTLSThreadID" if this is enabled.
+	$consLocal{'LDFLAGS'} .= " -Wl,-z,defs";
     }
 
 
