@@ -34,6 +34,9 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/editor.properties");
 /**
  * A CSS color picker, custom hyperlink handler.
  *
@@ -391,6 +394,49 @@ ko.hyperlinks.ColorPickerHandler.prototype.showColorPicker = function(view, hype
         }).bind(this);
         sysUtils.pickColorAsync(callback, color, alpha, x, y);
     }).bind(this), 1);
+}
+
+ko.hyperlinks.ColorPickerHandler.prototype.launchFromText = function(view) {
+    // see if we can grab a color-based hyperlink at the current location.
+    var scimoz = view.scimoz;
+    var startPos, endPos;
+    if (scimoz.selectionStart < scimoz.selectionEnd) {
+        startPos = scimoz.selectionStart;
+        endPos = scimoz.selectionEnd;
+    } else {
+        [startPos, endPos] = ko.interpolate.getBoundsForWordUnderCursor(scimoz, scimoz.currentPos);
+    }
+    var text = scimoz.getTextRange(startPos, endPos);
+    var m = /^(#?)([a-fA-F0-9]*)$/.exec(text);
+    var inError = false;
+    if (!m) {
+        inError = true;
+    } else if (!m[1]) {
+        if (!m[2]) {
+            // Didn't match either
+            inError = true;
+        } else if (startPos > 0 && scimoz.getWCharAt(startPos - 1) == '#') {
+            startPos -= 1;
+        } else {
+            inError = true;
+        }
+    } else if (!m[2]) {
+        // Have a '#', try for colors
+        let newStartPos, newEndPos;
+        [newStartPos, newEndPos] = ko.interpolate.getBoundsForWordUnderCursor(scimoz, scimoz.currentPos + 1);
+        text = scimoz.getTextRange(newStartPos, newEndPos);
+        if (newStartPos == endPos && /^[a-fA-F0-9]+$/.test(text)) {
+            endPos = newEndPos;
+        } else {
+            inError = true;
+        }
+    } // else it's ok
+    if (inError) {
+        ko.statusBar.AddMessage(_bundle.GetStringFromName("Editor cursor not on color"),
+                                "editor", 3000, true);
+    } else {
+        this.jump(view, { startPos:startPos, endPos:endPos });
+    }
 }
 
 /**

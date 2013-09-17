@@ -1340,6 +1340,11 @@
             oncommand="ko.commands.doCommandAsync('cmd_invokeHyperlink', event)"
             disabled="true"
             desc="&editorInvokeHyperlink.desc;"/>
+        <command
+            id="cmd_launchColorPicker" key="key_cmd_launchColorPicker"
+            oncommand="ko.commands.doCommandAsync('cmd_launchColorPicker', event)"
+            disabled="true"
+            desc="&editorLaunchColorPicker.desc;"/>
     </commandset>
 
     <commandset

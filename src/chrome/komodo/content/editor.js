@@ -626,6 +626,17 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
     });
 }
 
+editor_editorController.prototype.is_cmd_launchColorPicker_enabled = function() {
+    return !!_getCurrentScimozView();
+};
+
+editor_editorController.prototype.do_cmd_launchColorPicker = function() {
+    var view = _getCurrentScimozView();
+    if (view) {
+        ko.hyperlinks.handlers.colorPreviewHandler.launchFromText(view);
+    }
+};
+
 
 /**
  * Select and move xml style tags easily 
