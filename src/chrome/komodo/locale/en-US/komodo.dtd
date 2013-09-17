@@ -148,6 +148,7 @@
 <!ENTITY editorInsertNextKeyAsLiteralCharacter.desc "Editor: Insert Next Key as Literal Character">
 <!ENTITY editorInsertSnippetByName.desc "Editor: Insert Abbreviation Snippet by Name">
 <!ENTITY editorJoinCurrentAndNextLines.desc "Editor: Join current and next lines">
+<!ENTITY editorLaunchColorPicker.desc "Editor: Launch the Color Picker">
 <!ENTITY editorMoveBackPartOfWord.desc "Editor: Move Back Part of Word">
 <!ENTITY editorMoveForwardPartOfWord.desc "Editor: Move Forward Part of Word">
 <!ENTITY editorMoveLeftOneCharacter.desc "Editor: Move Left One Character">
