@@ -235,6 +235,7 @@
      * A PHP include file handler - to help in opening files. Examples:
      *    include('functions/myfile.php');
      *    require_once "foo/bar/myfile.php";
+     *    include (dirname(__FILE__) . "myfile.php");
      */
     function php_jump_handler(match) {
         var filepath = match[3];
@@ -243,7 +244,7 @@
     ko.hyperlinks.handlers.phpIncludeHandler =
         new ko.hyperlinks.RegexHandler(
             "PHP include handler",
-            new RegExp("(include|require|include_once|require_once)\\s*(\\(\\s*)?[\"'](.*?)[\"']\\s*\\)?", "i"),
+            new RegExp("(include|require|include_once|require_once)(\\s+|\\().*?[\"'](.*?)[\"']\\s*\\)?", "i"),
             php_jump_handler,
             null,  /* Use the found string instead of a replacement. */
             null,  /* All language types */
