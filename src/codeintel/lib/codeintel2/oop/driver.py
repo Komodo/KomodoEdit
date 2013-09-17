@@ -313,35 +313,31 @@ class Driver(threading.Thread):
         if not buf:
             # Need to construct a new buffer
             lang = request.get("language")
+            env = Environment(request=request, name=os.path.basename(path))
             if request.get("text") is not None:
                 # pass no content; we'll reset it later
-                buf = self.mgr.buf_from_content("", lang, path=path)
+                buf = self.mgr.buf_from_content("", lang, path=path, env=env)
             else:
                 # read from file
                 try:
-                    buf = self.mgr.buf_from_path(path, lang,
+                    buf = self.mgr.buf_from_path(path, lang, env=env,
                                                  encoding=request.get("encoding"))
                 except OSError:
                     # Can't read the file
-                    buf = self.mgr.buf_from_content("", lang, path=path)
+                    buf = self.mgr.buf_from_content("", lang, path=path, env=env)
                 assert not request.path.startswith("<"), \
                     "Can't create an unsaved buffer with no text"
+        else:
+            try:
+                env = request["env"]
+            except KeyError:
+                pass # no environment, use current
+            else:
+                buf._env.update(env)
 
         if request.get("text") is not None:
             # overwrite the buffer contents if we have new ones
             buf.accessor.reset_content(request.text)
-
-        try:
-            env = request["env"]
-        except KeyError:
-            pass # no environment set, use current environment
-        else:
-            if env.get("env", {}) is None and env.get("prefs", []) is None:
-                buf._env = None # explicitly clearing environment
-            elif buf._env:
-                buf._env.update(env)
-            else:
-                buf._env = Environment(env, name=os.path.basename(path))
 
         #log.debug("Got buffer %r: [%s]", buf, buf.accessor.content)
         log.debug("Got buffer %r", buf)
@@ -988,12 +984,6 @@ class Environment(codeintel2.environment.Environment):
             except:
                 log.exception("error in pref observer for pref '%s' change",
                               name)
-
-    def __nonzero__(self):
-        """This is considered not-empty if it has anything in either the
-        environment or preferences.
-        """
-        return bool(self._env or self._prefs)
 
 def _get_memory_reporter():
     from .memory_reporter import MemoryCommandHandler

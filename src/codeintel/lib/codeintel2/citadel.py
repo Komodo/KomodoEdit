@@ -120,7 +120,7 @@ class CitadelBuffer(Buffer):
     _blob_from_lang_cache = None
 
     def __init__(self, *args, **kwargs):
-        Buffer.__init__(self, *args, **kwargs)
+        super(CitadelBuffer, self).__init__(*args, **kwargs)
         self._scan_lock = threading.RLock()
 
     # Scanning can happen on different threads so access to scan data

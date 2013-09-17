@@ -484,6 +484,11 @@ class XMLParsingBufferMixin(object):
 
     TODO: locking?
     """
+    def __init__(self, *args, **kwargs):
+        super(XMLParsingBufferMixin, self).__init__(*args, **kwargs)
+        self.env.add_pref_observer("default%sDecl" % self.m_lang,
+                                   self.__on_pref_change)
+
     _xml_tree_cache = None
     _xml_default_dataset_info = None
     @property
@@ -540,6 +545,10 @@ class XMLParsingBufferMixin(object):
             if newnode is not None:
                 return newnode
         return node
+
+    def __on_pref_change(self, env, pref_name):
+        log.debug("on pref change: %s", pref_name)
+        self._xml_default_dataset_info = None
 
 class _NotYetSet(object):
     # Used below to distinguish from None.

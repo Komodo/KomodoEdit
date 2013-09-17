@@ -168,18 +168,15 @@ class SimplePrefsEnvironment(Environment):
     def has_pref(self, name):
         return name in self._prefs
     def get_pref(self, name, default=None):
-        if name not in self._prefs:
-            return default
-        return self._prefs[name]
+        return self._prefs.get(name, default)
     def get_all_prefs(self, name, default=None):
         return [self.get_pref(name, default)]
 
     #TODO: Add ability to be able to call add_pref_observer() without
     #      having to worry if have already done so for this name.
     def add_pref_observer(self, name, callback):
-        if name not in self._pref_observer_callbacks_from_name:
-            self._pref_observer_callbacks_from_name[name] = []
-        self._pref_observer_callbacks_from_name[name].append(callback)
+        callbacks = self._pref_observer_callbacks_from_name.setdefault(name, [])
+        callbacks.append(callback)
     def remove_pref_observer(self, name, callback):
         self._pref_observer_callbacks_from_name[name].remove(callback)
     def remove_all_pref_observers(self):

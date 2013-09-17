@@ -159,36 +159,36 @@ class DatasetHandlerService:
     def setDefaultNamespace(self, lang, namespace):
         self._default_namespace_ids[lang] = namespace
 
-    def createDatasetHandler(self, publicId, systemId, namespace):
-        dataset = self.resolver.getDataset(publicId, systemId, namespace)
-        if not dataset:
-            handler = EmptyDatasetHandler()
-        else:
-            handler = DataSetHandler(namespace, dataset)
-        if namespace:
-            self.handlers[namespace] = handler
-        if publicId or systemId:
-            self.handlers[(publicId, systemId)] = handler
-                
-        return handler
-
     def getDocumentHandler(self, publicId=None, systemId=None, namespace=None):
-        if namespace:
-            if namespace not in self.handlers:
-                handler = self.createDatasetHandler(publicId, systemId, namespace)
+        try:
+            if namespace:
+                if publicId or systemId:
+                    log.debug("getDocumentHandler: using all three, %s %s %s",
+                              publicId, systemId, namespace)
+                    return self.handlers[(publicId, systemId, namespace)]
+                else:
+                    log.debug("getDocumentHandler: namespace only, %s",
+                              namespace)
+                    return self.handlers[namespace]
             else:
-                handler = self.handlers.get(namespace)
-            if handler:
-                return handler
-        if publicId or systemId:
-            key = (publicId, systemId)
-            if key not in self.handlers:
-                handler = self.createDatasetHandler(publicId, systemId, namespace)
+                log.debug("getDocumentHandler: ids only, %s, %s",
+                          publicId, systemId)
+                return self.handlers[(publicId, systemId)]
+        except KeyError:
+            log.debug("getDocumentHandler: Failed, retrying with %s, %s, %s...",
+                      publicId, systemId, namespace)
+            dataset = self.resolver.getDataset(publicId, systemId, namespace)
+            if not dataset:
+                handler = EmptyDatasetHandler()
             else:
-                handler = self.handlers.get(key)
-            if handler:
-                return handler
-        return EmptyDatasetHandler()
+                handler = DataSetHandler(namespace, dataset)
+                if namespace:
+                    self.handlers[namespace] = handler
+                    if publicId or systemId:
+                        self.handlers[(publicId, systemId, namespace)] = handler
+                if publicId or systemId:
+                    self.handlers[(publicId, systemId)] = handler
+            return handler
 
 __datasetSvc = None
 def getService():
