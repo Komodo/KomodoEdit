@@ -53,15 +53,19 @@ if (typeof(ko.projects)=='undefined') {
 
 (function () {
 
-var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-    .getService(Components.interfaces.nsIStringBundleService)
-    .createBundle("chrome://komodo/locale/projectManager.properties");
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+
+var _bundle = Cc["@mozilla.org/intl/stringbundle;1"]
+                .getService(Ci.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/projectManager.properties");
 
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 this.manager = null;
 
-var _obSvc = Components.classes["@mozilla.org/observer-service;1"].
-        getService(Components.interfaces.nsIObserverService);
+var _obSvc = Cc["@mozilla.org/observer-service;1"].
+        getService(Ci.nsIObserverService);
+
+const {XPCOMUtils} = Cu.import("resource://gre/modules/XPCOMUtils.jsm", {});
 
 //gone: ko.projects.manager.lastCurrentProject
 //gone: ko.projects.manager.activeView
@@ -1766,5 +1770,8 @@ this.safeGetFocusedPlacesView = function() {
     }
     return false;
 };
+
+XPCOMUtils.defineLazyGetter(this, "log",
+                            function() ko.logging.getLogger('ko.projects'));
 
 }).apply(ko.projects);
