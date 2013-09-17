@@ -117,9 +117,6 @@ if (typeof ko.breadcrumbs == 'undefined')
                 timers.load = setTimeout(this.load.bind(this, true), 100);
                 return;
             }
-            
-            var view = ko.views.manager.currentView;
-            log.debug("Loading crumbs for view ("+view.uid+" : "+view.title+")");
 
             // Remove old breadcrumbs
             var buttons = breadcrumbBar.querySelectorAll('toolbarbutton') || [];
@@ -131,6 +128,12 @@ if (typeof ko.breadcrumbs == 'undefined')
                 }
                 button.parentNode.removeChild(button);
             }
+
+            var view = ko.views.manager.currentView;
+            if ( ! view) {
+                return;
+            }
+            log.debug("Loading crumbs for view ("+view.uid+" : "+view.title+")");
 
             // Draw crumbs for current view only if the view has a koDoc
             // and file object
