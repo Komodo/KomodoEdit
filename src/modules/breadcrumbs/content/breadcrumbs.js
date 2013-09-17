@@ -1418,7 +1418,7 @@ if (typeof ko.breadcrumbs == 'undefined')
 
             if ( ! ("file" in cache) || refresh)
             {
-                log.debug("Initiating remote file: " + path);
+                log.debug("Initiating remote file: " + path + ", refresh: " + refresh);
                 cache.file = conn.list(path, refresh);
 
                 if ( ! refresh && forListing && cache.file.isDirectory())
