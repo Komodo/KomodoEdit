@@ -1169,14 +1169,11 @@ class KoCodeIntelManager(threading.Thread):
     def _update_notification(self):
         """The notification must be updated from the main thread"""
         try:
-            if self._notification.msg is not None:
-                # Don't need to addNotification, as the notification of
-                # status_message will do this anyway - bug 100077.
-                #self.notificationMgr.addNotification(self._notification)
-                self.observerSvc.notifyObservers(self._notification,
-                                                 "status_message", None)
-            else:
-                self.notificationMgr.removeNotification(self._notification)
+            # Don't need to manually call addNotification/removeNotification, as
+            # the status_message handler (statusbar.js) will do that for us -
+            # bug 100077.
+            self.observerSvc.notifyObservers(self._notification,
+                                             "status_message", None)
         except COMException, ex:
             pass
 
