@@ -372,6 +372,9 @@ class GenericJSLinter(CommonJSLinter):
         try:
             p = process.ProcessOpen(cmd, cwd=cwd, env=self._setLDLibraryPath(), stdin=fd)
             stdout, stderr = p.communicate()
+            if stderr:
+                log.warn("Error in jslint/jshint: stderr: %s, command was: %s",
+                         stderr, cmd)
             #log.debug("jslint(%s): stdout: %s, stderr: %s", prefSwitchName, stdout, stderr)
             warnLines = stdout.splitlines() # Don't need the newlines.
             i = 0
