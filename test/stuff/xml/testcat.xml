@@ -44,11 +44,13 @@
     <!-- These SGML catalogs depend on DOCTYPE declarations -->
     <nextCatalog catalog="sgml-lib/sgml.soc"/>
     <nextCatalog catalog="sgml-lib/xml.soc"/>
+    <nextCatalog catalog="html5/catalog.xml"/>
     </group>
     <group xml:base="../../../src/editor/catalogs/">
     <!-- additional catalogs distributed with Komodo -->
     <nextCatalog catalog="mozilla/catalog.xml"/>
     </group>
+
     <!-- XXX these catalogs wont work at all for tests
     <nextCatalog catalog="wapforum/catalog.xml"/>
     <nextCatalog catalog="oasis/catalog.xml"/>

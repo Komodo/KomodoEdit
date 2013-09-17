@@ -47,6 +47,7 @@ import unittest
 import logging
 
 from codeintel2.common import *
+from codeintel2.environment import SimplePrefsEnvironment
 from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
 
 from testlib import TestError, TestSkipped, TestFailed, tag
@@ -230,3 +231,26 @@ class HTMLTestCase(CodeIntelTestCase):
             """),
             [("element", 'p'), ("element", 'div')])
 
+    @tag("bug100250")
+    def test_completions_dtd(self):
+        sample = dedent("""
+            <html>
+                <body>
+                    <<|>
+                </body>
+            </html>""")
+        env = SimplePrefsEnvironment()
+        buf, data = self._get_buf_and_data(sample, self.lang, env=env)
+
+        # Test HTML4...
+        env.set_pref("defaultHTMLDecl", "-//W3C//DTD HTML 4.01//EN")
+        self.assertCompletionsInclude2(buf, data["pos"], [("element", "script")], unload=False)
+        self.assertCompletionsDoNotInclude2(buf, data["pos"], [("element", "section")], unload=False)
+        # Flip to HTML5...
+        env.set_pref("defaultHTMLDecl", "-//W3C//DTD HTML 5//EN")
+        self.assertCompletionsInclude2(buf, data["pos"], [("element", "script")], unload=False)
+        self.assertCompletionsInclude2(buf, data["pos"], [("element", "section")], unload=False)
+        # And back to HTML4 again
+        env.set_pref("defaultHTMLDecl", "-//W3C//DTD HTML 4.01//EN")
+        self.assertCompletionsInclude2(buf, data["pos"], [("element", "script")], unload=False)
+        self.assertCompletionsDoNotInclude2(buf, data["pos"], [("element", "section")], unload=False)

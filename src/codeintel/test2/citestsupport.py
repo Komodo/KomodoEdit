@@ -519,9 +519,9 @@ class CodeIntelTestCase(unittest.TestCase):
                indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
                indent(markedup_content)))
 
-    def _assertCompletionsInclude(self, buf, trg, completions):
+    def _assertCompletionsInclude(self, buf, trg, completions, unload=True):
         markedup_content = markup_text(buf.accessor.text, pos=trg.pos)
-        if isinstance(buf, CitadelBuffer):
+        if unload and isinstance(buf, CitadelBuffer):
             buf.unload() # remove any entry from CIDB to ensure clean test
         ctlr = _CaptureEvalController()
         actual_completions = buf.cplns_from_trg(trg, ctlr=ctlr)
@@ -552,7 +552,8 @@ class CodeIntelTestCase(unittest.TestCase):
                       % (lang, completions, indent(markedup_content)))
         self._assertCompletionsInclude(buf, trg, completions)
 
-    def assertCompletionsInclude2(self, buf, pos, completions, implicit=True):
+    def assertCompletionsInclude2(self, buf, pos, completions, implicit=True,
+                                  unload=True):
         """A version of assertCompletionsInclude() where you pass in
         a Buffer instance instead of marked up content. Sometimes
         this is more convenient.
@@ -563,11 +564,11 @@ class CodeIntelTestCase(unittest.TestCase):
             self.fail("given position is not a %s trigger point, "
                       "expected completions to include %r:\n%s"
                       % (buf.lang, completions, indent(markedup_content)))
-        self._assertCompletionsInclude(buf, trg, completions)
+        self._assertCompletionsInclude(buf, trg, completions, unload=unload)
 
-    def _assertCompletionsDoNotInclude(self, buf, trg, completions):
+    def _assertCompletionsDoNotInclude(self, buf, trg, completions, unload=True):
         markedup_content = markup_text(buf.accessor.text, pos=trg.pos)
-        if isinstance(buf, CitadelBuffer):
+        if unload and isinstance(buf, CitadelBuffer):
             buf.unload() # remove any entry from CIDB to ensure clean test
         ctlr = _CaptureEvalController()
         actual_completions = buf.cplns_from_trg(trg, ctlr=ctlr)
@@ -599,7 +600,8 @@ class CodeIntelTestCase(unittest.TestCase):
                       % (lang, completions, indent(markedup_content)))
         self._assertCompletionsDoNotInclude(buf, trg, completions)
 
-    def assertCompletionsDoNotInclude2(self, buf, pos, completions, implicit=True):
+    def assertCompletionsDoNotInclude2(self, buf, pos, completions,
+                                       implicit=True, unload=True):
         """A version of assertCompletionsDoNotInclude() where you pass in
         a Buffer instance instead of marked up content. Sometimes
         this is more convenient.
@@ -610,7 +612,7 @@ class CodeIntelTestCase(unittest.TestCase):
             self.fail("given position is not a %s trigger point, "
                       "expected completions to exclude %r:\n%s"
                       % (buf.lang, completions, indent(markedup_content)))
-        self._assertCompletionsDoNotInclude(buf, trg, completions)
+        self._assertCompletionsDoNotInclude(buf, trg, completions, unload=unload)
 
     def assertCalltipIs2(self, buf, pos, calltip, implicit=True):
         """A variant of assertCalltipIs() where you pass in
