@@ -13,12 +13,13 @@ var i, arg, idx, argName, argValue, isJSHint = false;
 var badArgs = false;
 //print("arg len: " + arguments.length + "\n");
 i = 0;
-while (i < arguments.length) {
-    arg = arguments[i];
-    //print("arguments[" + i + "]: " + arg);
+var args = typeof(arguments) != "undefined" ? arguments : scriptArgs;
+while (i < args.length) {
+    arg = args[i];
+    //print("args[" + i + "]: " + arg);
     if (arg[0] == '-') {
         if (arg == "-I") {
-            includePath = arguments[i + 1];
+            includePath = args[i + 1];
             i += 1;
             //print("includePath(1: " + includePath + "\n");
         } else if (arg == "--jshint") {
