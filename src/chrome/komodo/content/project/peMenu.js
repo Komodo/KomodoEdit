@@ -406,6 +406,8 @@ this.onToolboxLoaded = function(toolboxDir) {
     tools.map(function(part) {
             this_.addToolbarFromPart(part);
         });
+    // Bug 100445: update any views on custom toolbars
+    ko.uilayout.updateToolbarArrangement();
 }
 
 this.onToolboxUnloaded = function(toolboxDir) {
