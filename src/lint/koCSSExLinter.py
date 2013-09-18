@@ -116,7 +116,7 @@ class KoSCSSCommonLinter(KoCommonCSSLintCode):
             fout.close()
             textlines = text.splitlines()
             cmd = [rubyPath, scssPath, "-c", tmpfilename]
-            koLintResult.insertNiceness(cmd)
+            #koLintResult.insertNiceness(cmd)
             cwd = request.cwd or None
             # We only need the stderr result.
             try:
@@ -224,7 +224,7 @@ class KoLessLinter(KoCSSLinter):
             fout.close()
             textlines = text.splitlines()
             cmd = [nodePath, lessPath, "--no-color", tmpfilename]
-            koLintResult.insertNiceness(cmd)
+            #koLintResult.insertNiceness(cmd)
             cwd = request.cwd or None
             # We only need the stderr result.
             try:
