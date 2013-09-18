@@ -964,7 +964,9 @@ class KoCodeIntelManager(threading.Thread):
         """Public API for sending a request.
         Requests are expected to be well-formed (has a command, etc.)
         The callback recieves two arguments, the request and the response,
-        both as dicts."""
+        both as dicts.
+        @note The callback is invoked on a background thread; proxy it to
+        the main thread if desired."""
         if self.state is KoCodeIntelManager.STATE.DESTROYED:
             raise RuntimeError("Manager already shut down")
         self.unsent_requests.put((callback, kwargs))
@@ -1373,14 +1375,19 @@ class KoCodeIntelBuffer(object):
         return cls(doc=self.doc, project=self.project,
                    environment=environ).env
 
+    @ProxyToMainThreadAsync
     def _do_error_callback(self, errorCallback, msg):
+        # In a release build, touching the error callback on the wrong thread
+        # is a runtime abort.
         if hasattr(errorCallback, "onError"):
             errorCallback.onError(msg)
         else:
             errorCallback(msg)
 
+    @ProxyToMainThreadAsync
     def _post_trg_from_pos_handler(self, callback, errorCallback,
                                   context, request, response):
+        # This needs to be proxied to the main thread for the callback invocation
         if not response.get("success"):
             if errorCallback:
                 msg = (response.get("message")
