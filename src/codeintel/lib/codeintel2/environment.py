@@ -50,11 +50,8 @@ and, optionally, a buffer can have a custom environment (also the 'env'
 attribute). The latter is useful for sharing a project environment
 across all buffers part of the same project.
 
-For example, Buffers created for files in Komodo currently have a
-KoCodeIntelEnvironment instance. All buffers belonging to the same project
-share a single such instance that incorporates project settings. Buffers
-not part of a project share a default instance that just uses global
-Komodo settings.
+For example, out-of-process Buffers used for Komodo have a
+codeintel2.oop.driver.Environment instance.
 
 Read the base Environment class for details on the API.
 """

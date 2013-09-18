@@ -884,10 +884,12 @@ class Environment(codeintel2.environment.Environment):
         codeintel2.environment.Environment.__init__(self)
         log_name = filter(None, [self.__class__.__name__, name])
         self.log = log.getChild(".".join(log_name))
-        self._env = dict(request.get("env", {}))
-        self._prefs = [dict(level) for level in request.get("prefs", [])]
+        env = request.get("env", {})
+        self._env = dict(env.get("env", {}))
+        self._prefs = [dict(level) for level in env.get("prefs", [])]
         self._observers = {} # name -> observer
         self._send = send_fn
+        self.proj_base_dir = env.get("project_base_dir", None)
 
     def has_envvar(self, name):
         return name in self._env
@@ -946,6 +948,10 @@ class Environment(codeintel2.environment.Environment):
             pass
         else:
             self.override_prefs(prefs)
+        try:
+            self.proj_base_dir = request["project_base_dir"]
+        except KeyError:
+            pass
 
     def add_pref_observer(self, name, callback):
         self.log.debug("Adding pref observer for %s", name)
@@ -984,6 +990,12 @@ class Environment(codeintel2.environment.Environment):
             except:
                 log.exception("error in pref observer for pref '%s' change",
                               name)
+
+    def get_proj_base_dir(self):
+        """Return the full path to the project base dir, or None if this
+        environment does not represent a project.
+        """
+        return self.proj_base_dir
 
 def _get_memory_reporter():
     from .memory_reporter import MemoryCommandHandler

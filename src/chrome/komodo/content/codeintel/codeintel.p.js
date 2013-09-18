@@ -270,6 +270,7 @@ ko.codeintel = {};
         }
 
         var ciBuf = _codeintelSvc.buf_from_koIDocument(view.koDoc);
+        this.linkCurrentProjectWithBuffer(ciBuf);
         log.debug("Got buffer " + ciBuf);
         ciBuf.trg_from_pos(pos, true, function(trg) {
             if (!trg) {

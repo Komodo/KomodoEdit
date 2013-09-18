@@ -203,6 +203,8 @@ class KoCodeIntelService:
         else:
             text = None
 
+        buf = self.buf_from_koIDocument(doc)
+
         self.send(command="scan-document",
                   discardable=True,
                   path=path,
@@ -211,6 +213,7 @@ class KoCodeIntelService:
                   language=doc.language,
                   encoding=doc.encoding.python_encoding_name,
                   text=text,
+                  env=buf.env,
                   mtime=mtime,
                   callback=lambda request, response: None)
 
@@ -1571,6 +1574,12 @@ class KoCodeIntelEnvironment(object):
                     log.exception("Error getting preference %s", komodo_name)
 
             result["prefs"].append(level)
+
+        if self.project:
+            result["project_base_dir"] = self.project.importDirectoryLocalPath
+        else:
+            result["project_base_dir"] = None
+
         return result
 
     def add_pref_observer(self, name):
