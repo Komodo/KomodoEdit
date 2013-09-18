@@ -52,9 +52,11 @@ var moreKomodo = {
             ko.moreKomodo.moreKomodo = moreKomodo;
         }
 
-        document.getElementById("tabContextMenu")
-                .addEventListener("popupshowing",
-                                  this.goUpdateFileMenuItems.bind(this));
+        let tabContextMenu = document.getElementById("tabContextMenu");
+        tabContextMenu.addEventListener("popupshowing",
+                                        event => this.goUpdateFileMenuItems(event));
+        tabContextMenu.addEventListener("popuphiding",
+                                        event => this.onPopupHiding(event));
     },
 
     onUnLoad : function() {
@@ -126,7 +128,7 @@ var moreKomodo = {
     },
     
     onRenameFile : function() {
-        var currView = ko.views.manager.currentView;
+        var currView = this._getView();
         var viewDoc = currView.koDoc;
         if (!MoreKomodoCommon.dirtyDocCheck(viewDoc)) {
             return;
@@ -174,7 +176,7 @@ var moreKomodo = {
 
     onDeleteFile : function() {
         try {
-            var view = ko.views.manager.currentView;
+            var view = this._getView();
             var file = view.koDoc.file;
             var msg = MoreKomodoCommon.getLocalizedMessage("confirm.delete.file");
 
@@ -196,7 +198,7 @@ var moreKomodo = {
 
     onMakeBackup : function() {
         try {
-            var view = ko.views.manager.currentView;
+            var view = this._getView();
             var file = view.koDoc.file;
             var currentPath = MoreKomodoCommon.makeLocalFile(file.path);
             var msg = MoreKomodoCommon.getLocalizedMessage("select.backup.file.title");
@@ -218,7 +220,7 @@ var moreKomodo = {
     },
 
     onCopyFullPath : function() {
-        var view = ko.views.manager.currentView;
+        var view = this._getView();
         var file = view.koDoc.displayPath;
 
         MoreKomodoCommon.copyToClipboard(file);
@@ -226,7 +228,7 @@ var moreKomodo = {
     },
 
     onCopyDirectoryPath : function() {
-        var view = ko.views.manager.currentView;
+        var view = this._getView();
         var file = view.koDoc.file;
         var dirName = file.dirName;
 
@@ -239,7 +241,7 @@ var moreKomodo = {
     },
 
     onCopyFileName : function() {
-        var view = ko.views.manager.currentView;
+        var view = this._getView();
         var file = view.koDoc.baseName;
 
         MoreKomodoCommon.copyToClipboard(file);
@@ -255,7 +257,7 @@ var moreKomodo = {
     onOpenSortDialog : function() {
         var param = {isOk : false};
 
-        var view = ko.views.manager.currentView;
+        var view = this._getView();
         var scimoz = view.scintilla.scimoz;
         param.sortOptions = new SortOptions();
         param.sortOptions.sortOnlySelection
@@ -313,7 +315,21 @@ var moreKomodo = {
         }
     },
 
-    goUpdateFileMenuItems : function() {
+    goUpdateFileMenuItems : function(event) {
+        if (!event.originalTarget ||
+             event.originalTarget.id != "tabContextMenu")
+        {
+            // Some other menu is popping open; ignore
+            return;
+        }
+        this._view = null;
+        let tab = document.popupNode;
+        if (tab && tab.linkedPanel) {
+            let panel = document.getElementById(tab.linkedPanel);
+            if (panel && panel.firstChild) {
+                this._view = panel.firstChild;
+            }
+        }
         goUpdateCommand("cmd_morekomodo_makeBackup");
         goUpdateCommand("cmd_morekomodo_rename");
         goUpdateCommand("cmd_morekomodo_delete");
@@ -321,6 +337,16 @@ var moreKomodo = {
         goUpdateCommand("cmd_morekomodo_copyFileName");
         goUpdateCommand("cmd_morekomodo_copyDirectoryPath");
         goUpdateCommand("cmd_morekomodo_move");
+    },
+
+    onPopupHiding: function(event) {
+        if (!event.originalTarget ||
+             event.originalTarget.id != "tabContextMenu")
+        {
+            // Some other menu is hiding; ignore
+            return;
+        }
+        this._view = null;
     },
 
     supportsCommand : function(cmd) {
@@ -337,9 +363,19 @@ var moreKomodo = {
         return false;
     },
 
+    _getView: function() {
+        if (this._view) {
+            return this._view;
+        }
+        if (ko.views.manager) {
+            return ko.views.manager.currentView;
+        }
+        return null;
+    },
+
     isCommandEnabled : function(cmd) {
         // at startup with no file open manager is null
-        var view = ko.views.manager && ko.views.manager.currentView;
+        var view = this._getView();
 
         switch (cmd) {
             case "cmd_morekomodo_rename":
@@ -396,8 +432,8 @@ var moreKomodo = {
 
     onMoveFile : function() {
         try {
-            var currView = ko.views.manager.currentView;
-            var file = currView.koDoc.file;
+            var viewDoc = this._getView().koDoc;
+            var file = viewDoc.file;
             var currentPath = MoreKomodoCommon.makeLocalFile(file.path);
             var msg = MoreKomodoCommon.getLocalizedMessage("select.move.file.title");
             var fp = MoreKomodoCommon.makeFilePicker(window,
@@ -415,7 +451,6 @@ var moreKomodo = {
                 currentPath.copyTo(fp.file.parent, fp.file.leafName);
                 MoreKomodoCommon.deleteFile(file.path);
 
-                var viewDoc = currView.koDoc;
                 // Reopen file at same tab position
                 var newDoc = MoreKomodoCommon.createDocumentFromURI(fp.file.path);
                 // the observer will set the new document also for this view
