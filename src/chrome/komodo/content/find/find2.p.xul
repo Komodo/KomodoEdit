@@ -65,7 +65,7 @@
         windowtype="komodo_find2"
         class="kodialog"
         width="640"
-        persist="width screenX screenY"
+        persist="screenX screenY"
         onload="on_load()"
         onunload="on_unload()"
         onfocus="on_focus(event);"
