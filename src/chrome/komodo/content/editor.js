@@ -631,9 +631,33 @@ editor_editorController.prototype.is_cmd_launchColorPicker_enabled = function() 
 };
 
 editor_editorController.prototype.do_cmd_launchColorPicker = function() {
-    var view = _getCurrentScimozView();
-    if (view) {
-        ko.hyperlinks.handlers.colorPreviewHandler.launchFromText(view);
+    const view = _getCurrentScimozView();
+    if (!view) {
+        return;
+    }
+    const scimoz = view.scimoz;
+    const currentPos = scimoz.currentPos;
+    const lineNo = scimoz.lineFromPosition(currentPos);
+    const line = {};
+    scimoz.getLine(lineNo, line);
+    const lineStartPos = scimoz.positionFromLine(lineNo);
+    const lineEndPos = scimoz.getLineEndPosition(lineNo);
+    const reason = "command";
+    const hyperlink =
+        ko.hyperlinks.handlers.colorPreviewHandler.show(view,
+                                                        scimoz,
+                                                        currentPos,
+                                                        line.value,
+                                                        lineStartPos,
+                                                        lineEndPos,
+                                                        reason);
+    if (hyperlink) {
+        ko.hyperlinks.handlers.colorPreviewHandler.jump(view, hyperlink);
+        view.removeHyperlinks(reason);
+    } else {
+        ko.hyperlinks.handlers.colorPreviewHandler.
+            showColorPicker(view, { startPos: scimoz.selectionStart,
+                                      endPos: scimoz.selectionEnd });
     }
 };
 
