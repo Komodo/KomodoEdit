@@ -1463,13 +1463,16 @@
                 ko.views.manager.showLargeFileProblem(this.koDoc.file.displayPath, oldLanguage);
                 newdocument.language = 'Text';
             }
-            let oldExt = isUntitled ? null : this.koDoc.file.ext;
             this.koDoc = newdocument;
             this.koDoc.codePage = codePage;
             if (!oldLargeDocument) {
-                // Only guess the language if the file extension has changed,
-                // or it was previously an untitled document - bug 99822.
-                if (!isUntitled && this.koDoc.file.ext !== oldExt) {
+                let oldBaseName = this.koDoc.baseName;
+                let lastDot = oldBaseName.lastIndexOf(".");
+                // Extensions include the leading dot.
+                let oldExt = lastDot === -1 ? "" : oldBaseName.substr(lastDot);
+                // Only guess the language if the file extension has changed (bug 100142),
+                // or the explicit language changed (bug 99822)
+                if (this.koDoc.file.ext !== oldExt) {
                     this.koDoc.language = ''; // trigger a re-guessing of lang
                 } else if (this.koDoc.language != oldDocLanguage) {
                     // Ensure the old language name is kept.
