@@ -39,7 +39,7 @@ def getTreeFromVersion(version=None):
     # Figure out what version the user actually asked for
     try:
         if not "." in version:
-            matches = re.match(r"FIREFOX_(?P<version>(?:\d+_)*(?:\d+(?:a|b|rc)\d+)?_)?RELEASE", version)
+            matches = re.match(r"FIREFOX_(?P<version>(?:\d+_)*(?:\d+(?:a|b)\d+_)?)RELEASE", version)
             if matches:
                 # version is a tag, FIREFOX_0_0_0_RELEASE
                 version = ".".join(matches.group("version").strip("_").split("_"))
@@ -156,11 +156,43 @@ def fixRemoteRepo(tree, repo):
     finally:
         f.close()
 
+def test():
+    import unittest
+    class GetMozillaTreeTests(unittest.TestCase):
+        def test_version(self):
+            tree, tag = getTreeFromVersion("24.0")
+            self.assertEqual(tree, "mozilla-release")
+            self.assertEqual(tag, "FIREFOX_24_0_RELEASE")
+        def test_version_and_tag_release(self):
+            tree, tag = getTreeFromVersion("2400:FIREFOX_24_0_RELEASE")
+            self.assertEqual(tree, "mozilla-release")
+            self.assertEqual(tag, "FIREFOX_24_0_RELEASE")
+        def test_version_and_tag_beta(self):
+            tree, tag = getTreeFromVersion("2400:FIREFOX_24_0b1_RELEASE")
+            self.assertEqual(tree, "mozilla-release")
+            self.assertEqual(tag, "FIREFOX_24_0b1_RELEASE")
+
+    suite = unittest.TestLoader().loadTestsFromTestCase(GetMozillaTreeTests)
+    unittest.TextTestRunner().run(suite)
+
 if __name__ == '__main__':
     logging.basicConfig()
     log.setLevel(logging.DEBUG)
+    import argparse
     import sys
-    tree, tag = getTreeFromVersion((sys.argv + [None])[1])
+    parser = argparse.ArgumentParser(description='Download the Mozilla source tree')
+    parser.add_argument("version", metavar="version[:tag]", default=None,
+                        help="Which version / tag to download")
+    parser.add_argument("--dry-run", action="store_true", default=False,
+                        help="Do not download the source tree, just determine "
+                             "which repoistory / head will be used.")
+    parser.add_argument("--test", action="store_true", default=False,
+                        help="Run unit tests instead of doing anything normal.")
+    args = parser.parse_args()
+    if args.test:
+        test()
+        sys.exit(0)
+    tree, tag = getTreeFromVersion(args.version)
     log.debug("tree: %s, tag: %s", tree, tag)
-    if "--dry-run" not in sys.argv:
+    if not args.dry_run:
         cloneFromTree(tree, tag=tag)
