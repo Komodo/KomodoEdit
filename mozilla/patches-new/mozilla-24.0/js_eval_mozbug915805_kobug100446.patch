@@ -45,7 +45,7 @@ diff --git a/js/src/frontend/BytecodeEmitter.cpp b/js/src/frontend/BytecodeEmitt
 -          case JSOP_SETCONST:
 -            /* Not supported. */
 -            return false;
--          default: MOZ_ASSUME_UNREACHABLE("gname");
+-          default: JS_NOT_REACHED("gname");
 -        }
 -        pn->setOp(op);
 -        return true;
@@ -96,7 +96,7 @@ diff --git a/js/src/frontend/BytecodeEmitter.cpp b/js/src/frontend/BytecodeEmitt
 +      case JSOP_SETCONST:
 +        /* Not supported. */
 +        return false;
-+      default: MOZ_ASSUME_UNREACHABLE("gname");
++      default: JS_NOT_REACHED("gname");
 +    }
 +    pn->setOp(op);
 +    return true;
