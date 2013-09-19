@@ -246,13 +246,12 @@ class KoCodeIntelService:
         """
         if not self.enabled or not path:
             return None
-        path = os.path.normpath(path) # Fix case on Windows
-        if path.startswith("<Unsaved>"):
-            baseName = path.split(os.sep, 1)[-1]
+        path = os.path.normcase(path) # Fix case on Windows
+        if path.startswith(os.path.normcase("<Unsaved>")):
             for doc, buf in self.buffers.items():
                 if doc.file:
                     continue
-                if os.path.normcase(buf.baseName) == baseName:
+                if os.path.normcase(buf.path) == path:
                     return buf
         else:
             for doc, buf in self.buffers.items():
