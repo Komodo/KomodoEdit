@@ -348,7 +348,9 @@
     </menupopup>
 
 <!-- Popup for clicking on the *tab* in the Editor -->
-    <menupopup id="tabContextMenu">
+    <menupopup id="tabContextMenu"
+               onpopupshowing="window.updateCommands('buffertab_context_menu_showing');"
+               >
         <menuitem id="buffertab-context-close"
                   observes="cmd_bufferClose"
                   accesskey="&menuBufferClose.accesskey;"

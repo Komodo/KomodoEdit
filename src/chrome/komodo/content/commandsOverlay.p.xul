@@ -926,7 +926,7 @@
         id="cmdset_view_dependent"
         oncommandupdate="ko.commands.updateCommandset(this)"
         commandupdater="true"
-        events="current_view_changed,buffer_context_menu_showing"
+        events="current_view_changed,buffer_context_menu_showing,buffertab_context_menu_showing"
         >
         <command
             id="cmd_rotateSplitter" key="key_cmd_rotateSplitter"
