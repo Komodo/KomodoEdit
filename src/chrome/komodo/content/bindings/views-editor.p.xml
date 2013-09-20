@@ -1463,10 +1463,12 @@
                 ko.views.manager.showLargeFileProblem(this.koDoc.file.displayPath, oldLanguage);
                 newdocument.language = 'Text';
             }
+            var oldKoDoc = this.koDoc;
+            var oldKoDocIsDirty = oldKoDoc.isDirty;
             this.koDoc = newdocument;
             this.koDoc.codePage = codePage;
             if (!oldLargeDocument) {
-                let oldBaseName = this.koDoc.baseName;
+                let oldBaseName = oldKoDoc.baseName;
                 let lastDot = oldBaseName.lastIndexOf(".");
                 // Extensions include the leading dot.
                 let oldExt = lastDot === -1 ? "" : oldBaseName.substr(lastDot);
@@ -1479,7 +1481,14 @@
                     this.koDoc.language = oldDocLanguage;
                 }
             }
-            this._doSave();
+            if (!this._doSave()) {
+                // Bug 100455: if _doSave fails, this method needs to fail
+                // restore the old document.
+                this.koDoc = oldKoDoc;
+                // And oldKoDoc.isDirty is reset, so explicitly reset it.
+                this.koDoc.isDirty = oldKoDocIsDirty;
+                return false;
+            }
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
             if (oldDocLanguage == newdocument.language) {
                 this.restoreFoldedLines(locationInfo);
