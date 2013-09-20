@@ -6,7 +6,9 @@
 //---- globals
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+Cu.import("resource://gre/modules/Services.jsm");
 var log = ko.logging.getLogger("gotofile");
+var locale = Services.strings.createBundle("chrome://fastopen/locale/fastopen.properties");
 
 var gWidgets = null;
 var gSession = null;   // koIFastOpenSession
@@ -236,9 +238,18 @@ function refreshShortcutEditor() {
     if (!_lastShortcut) {
         return;
     }
-    gWidgets.shortcutText.value = _lastShortcut.shortcut || "";
-    gWidgets.shortcutRemoveButton.collapsed = !_lastShortcut.shortcut;
-    return;
+    var {shortcutText, shortcutRemoveButton} = gWidgets;
+    var shortName = _lastShortcut.base || _lastShortcut.path;
+    if (shortName) {
+        shortcutText.emptyText =
+            locale.formatStringFromName("goToFile.shortcut.textbox.emptyText",
+                                        [shortName], 1);
+    } else {
+        // no useful name, grab the default
+        shortcutText.emptyText = shortcutText.getAttribute("emptytext");
+    }
+    shortcutText.value = _lastShortcut.shortcut || "";
+    shortcutRemoveButton.collapsed = !_lastShortcut.shortcut;
 }
 
 /**
