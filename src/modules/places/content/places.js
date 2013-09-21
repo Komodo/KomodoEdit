@@ -1082,9 +1082,17 @@ viewMgrClass.prototype = {
             ko.dialogs.alert(prompt, text, title);
         }
         lim = finalSrcURIs.length;
+        let errorCallback = {
+          callback: function(result, data) {
+                if (result != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
+                    ko.dialogs.alert(data);
+                }
+            }
+        };
+                
         for (i = 0; i < lim; i++) {
             var srcURI = finalSrcURIs[i];
-            var callback = null;
+            let callback;
             var from_uri = from_uris[i];
             if (!copying) {
                 var from_view = ko.views.manager.getViewForURI(srcURI);
@@ -1146,6 +1154,8 @@ viewMgrClass.prototype = {
                         }
                     }
                 };
+            } else {
+                callback = errorCallback;
             }
             if (typeof(newPaths[i]) != "undefined") {
                 this.view.doTreeCopyWithDestNameAndURI(srcURI, to_uri,
@@ -1158,10 +1168,10 @@ viewMgrClass.prototype = {
                                           copying ? simple_callback : callback);
             }
         }
-        if (to_uri == ko.places.manager.currentPlace) {
-            this.view.refreshFullTreeView();
-            this.tree.treeBoxObject.invalidate();
-        }
+        // Bug 100160: refresh the full tree each time.  Changing the places tree
+        // doesn't happen that often via direct manipulation, so this isn't costly.
+        this.view.refreshFullTreeView();
+        this.tree.treeBoxObject.invalidate();
         let items = finalSrcURIs.map(function(uri) ko.uriparse.URIToPath(uri)).join(", ");
         if (items.length > 1000) {
             items = finalSrcURIs.map(function(uri) ko.uriparse.baseName(uri)).join(", ");

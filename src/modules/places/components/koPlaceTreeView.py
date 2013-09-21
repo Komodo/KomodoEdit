@@ -1333,9 +1333,9 @@ class KoPlaceTreeView(TreeView):
         
     def post_doTreeCopyWithDestNameAndURI(self, rv, requestID):
         srcURI, targetURI, targetIndex, \
-            newPath, updateTargetTree, callback = self.getItemsByRequestID(
+            newPath, callback = self.getItemsByRequestID(
                 requestID, 'srcURI', 'targetURI', 'targetIndex',
-                'newPath', 'updateTargetTree', 'callback')
+                'newPath', 'callback')
 
         targetNode = None
         try:
@@ -1353,10 +1353,6 @@ class KoPlaceTreeView(TreeView):
         if rv and callback:
             callback.callback(components.interfaces.koIAsyncCallback.RESULT_ERROR,
                               rv)
-            return
-        if not updateTargetTree:
-            return
-        self._wrap_refreshTreeOnOpen_buildTree()
 
     def canUndoTreeOperation(self):
         self.lock.acquire()
@@ -2805,31 +2801,40 @@ class _WorkerThread(threading.Thread, Queue):
                        createInstance(components.interfaces.koIFileEx)
         srcFileEx.URI = srcURI
         srcPath = srcFileEx.path
-        updateTargetTree = False
         # This is always done in the same window, so both nodes are
         # always on the same server.
         if srcFileEx.isLocal:
             try:
-                updateTargetTree = not os.path.exists(newPath)
-                shutil.copy(srcPath, newPath)
+                if srcFileEx.isDirectory:
+                    if os.path.exists(newPath):
+                        # newPath exists, so add the baseName
+                        newPath2 = os.path.join(newPath, srcFileEx.baseName)
+                        if os.path.exists(newPath2):
+                            raise Exception("path %s already exists" %
+                                            newPath2)
+                    else:
+                        # newPath doesn't exist, no further change needed
+                        newPath2 = newPath
+                    shutil.copytree(srcPath, newPath2)
+                else:
+                    newPath2 = newPath
+                    shutil.copy(srcPath, newPath2)
             except (Exception, IOError), ex:
                 finalMsg = ("doTreeCopyWithDestNameAndURI_WorkerThread: can't copy %s to %s: %s" %
-                            (srcPath, newPath, ex.message))
+                            (srcPath, newPath2, ex.message))
                 log.exception("%s", finalMsg)
                 return finalMsg
         else:
+            #Bug 100160: Handle copying remote folders.
             conn = requester._RCService.getConnectionUsingUri(requester._currentPlace_uri)
-            target_rfi = conn.list(newPath, True)
-            updateTargetTree = not target_rfi
+            src_rfi = conn.list(srcPath, True)
             try:
-                data = conn.readFile(srcPath)
-                conn.writeFile(newPath, data)
-            except:
+                self._copyRemoteItem(conn, src_rfi, newPath, requester_data)
+            except Exception, ex:
                 finalMsg = ("doTreeCopyWithDestNameAndURI_WorkerThread: can't copy file %s to %s: %s" %
                             (srcPath, newPath, ex.message))
                 log.exception("%s", finalMsg)
                 return finalMsg
-        requester_data['updateTargetTree'] = updateTargetTree
         requester._sortModel(targetURI)
         return ''
 
