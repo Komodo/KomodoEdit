@@ -320,12 +320,12 @@ class ProcessOpen(Popen):
             # a different and workable code path.
             if self._needToHackAroundStdHandles() \
               and not (flags & CREATE_NEW_CONSOLE):
-                if self._checkFileObjInheritable(sys.stdin, "STD_INPUT_HANDLE"):
+                if not self._isFileObjInheritable(stdin, "stdin"):
                     stdin = PIPE
                     auto_piped_stdin = True
-                if self._checkFileObjInheritable(sys.stdout, "STD_OUTPUT_HANDLE"):
+                if not self._isFileObjInheritable(stdout, "stdout"):
                     stdout = PIPE
-                if self._checkFileObjInheritable(sys.stderr, "STD_ERROR_HANDLE"):
+                if not self._isFileObjInheritable(stderr, "stderr"):
                     stderr = PIPE
         else:
             # Set flags to 0, subprocess raises an exception otherwise.
@@ -374,24 +374,47 @@ class ProcessOpen(Popen):
         return cls.__needToHackAroundStdHandles
 
     @classmethod
-    def _checkFileObjInheritable(cls, fileobj, handle_name):
+    def _isFileObjInheritable(cls, fileobj, stream_name):
         """Check if a given file-like object (or whatever else subprocess.Popen
         takes as a handle/stream) can be correctly inherited by a child process.
         This just duplicates the code in subprocess.Popen._get_handles to make
         sure we go down the correct code path; this to catch some non-standard
-        corner cases."""
+        corner cases.
+
+        @param fileobj The object being used as a fd/handle/whatever
+        @param stream_name The name of the stream, "stdin", "stdout", or "stderr"
+        """
         import _subprocess
         import ctypes
         import msvcrt
         new_handle = None
+
+        # Things that we know how to reset (i.e. not custom fds)
+        valid_list = {
+            "stdin": (sys.stdin, sys.__stdin__, 0),
+            "stdout": (sys.stdout, sys.__stdout__, 1),
+            "stderr": (sys.stderr, sys.__stderr__, 2),
+        }[stream_name]
+
         try:
             if fileobj is None:
-                handle = _subprocess.GetStdHandle(getattr(_subprocess,
-                                                          handle_name))
+                std_handle = {
+                    "stdin": _subprocess.STD_INPUT_HANDLE,
+                    "stdout": _subprocess.STD_OUTPUT_HANDLE,
+                    "stderr": _subprocess.STD_ERROR_HANDLE,
+                }[stream_name]
+                handle = _subprocess.GetStdHandle(std_handle)
                 if handle is None:
-                    return True # No need to check things we create
+                    # subprocess.Popen._get_handles creates a new pipe here
+                    # we don't have to worry about things we create
+                    return True
             elif fileobj == subprocess.PIPE:
-                return True # No need to check things we create
+                # We're creating a new pipe; newly created things are inheritable
+                return True
+            elif fileobj not in valid_list:
+                # We are trying to use a custom fd; don't do anything fancy here,
+                # we don't want to actually use subprocess.PIPE
+                return True
             elif isinstance(fileobj, int):
                 handle = msvcrt.get_osfhandle(fileobj)
             else:
