@@ -22,26 +22,10 @@ scintilla > panel[anonid="autocompletepopup"] > hbox > grid {
 
 scintilla > panel[anonid="autocompletepopup"] .ko-autocomplete-item {
   -moz-box-align: center;
-  background-color: -moz-field;
-  color: -moz-fieldtext;
   /* The default font; if possible, the item construction code will use the
    * scintilla default style font instead.
    */
   font-family: monospace;
-}
-
-scintilla > panel[anonid="autocompletepopup"] .ko-autocomplete-item[selected] {
-  background-color: -moz-cellhighlight;
-  color: -moz-cellhighlighttext;
-}
-
-scintilla > panel[anonid="autocompletepopup"] > hbox > grid:focus .ko-autocomplete-item[selected] {
-  background-color: Highlight;
-  color: HighlightText;
-}
-
-scintilla > panel[anonid="autocompletepopup"] > hbox > grid:focus .ko-autocomplete-item[focused]:not([selected]) {
-  outline: 1px dotted Highlight;
 }
 
 scintilla > panel[anonid="autocompletepopup"] .ko-autocomplete-item > [column-type="image"] {
