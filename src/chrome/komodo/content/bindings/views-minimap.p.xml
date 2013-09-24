@@ -265,16 +265,11 @@
                 return;
             }
 
-            // Update using a setTimeout, to avoid re-entrance problems, which
-            // can result in the editor drawing being out-of-sync - bug 100091.
-            setTimeout((function() {
-                            this.view.syncBufferFromMinimap(this);
-                            this.updateSelectionFromEditor();
-                            this.updateEditorViewBoundaries();
-                            this.view.updateEditorViewBoundaries();
-                            this.scimoz.dragPosition = -1;
-                        }).bind(this),
-                       1);
+            this.view.syncBufferFromMinimap(this);
+            this.updateSelectionFromEditor();
+            this.updateEditorViewBoundaries();
+            this.view.updateEditorViewBoundaries();
+            this.scimoz.dragPosition = -1;
         ]]>
         </body>
         </method>

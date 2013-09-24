@@ -1,0 +1,20 @@
+Move the notification to be after the editor is scrolled.
+http://bugs.activestate.com/show_bug.cgi?id=100536
+Index: /as/komodo-devel/src/scintilla/gtk/ScintillaGTK.cxx
+--- gtk/ScintillaGTK.cxx
++++ gtk/ScintillaGTK.cxx (unsaved)
+@@ -1228,12 +1228,13 @@
+ 	//Platform::DebugPrintf("ScintillaGTK::ScrollText %d %d %0d,%0d %0d,%0d\n", linesToMove, diff,
+ 	//	rc.left, rc.top, rc.right, rc.bottom);
+ 	GtkWidget *wi = PWidget(wText);
+-	NotifyUpdateUI();
+ 
+ 	if (IS_WIDGET_REALIZED(wi)) {
+ 		gdk_window_scroll(WindowFromWidget(wi), 0, -diff);
+ 		gdk_window_process_updates(WindowFromWidget(wi), FALSE);
+ 	}
++
++	NotifyUpdateUI();
+ }
+ 
+ void ScintillaGTK::SetVerticalScrollPos() {
