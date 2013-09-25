@@ -251,6 +251,7 @@ class KoTclCompletion:
             thread = components.classes["@mozilla.org/thread-manager;1"]\
                                .getService()\
                                .currentThread
+            event.QueryInterface(components.interfaces.nsIDOMKeyEvent)
             if event.keyCode in completionCodes:
                 if event.type == "keydown":
                     selectedText = controller.selectedText
@@ -339,6 +340,7 @@ class KoTclCompletion:
         while index < last and buffer[index] in ": ":
             index += 1
         # Remember where the text started
-        self._lastTriggerPos = s.selectionStart
+        text = buffer[index:s.selectionStart]
+        self._lastTriggerPos = s.selectionStart - len(text.decode("utf8"))
         # Return the slice of the buffer that represents that last "word"
         return buffer[index:last]
