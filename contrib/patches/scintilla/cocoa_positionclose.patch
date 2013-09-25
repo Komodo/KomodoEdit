@@ -1,8 +1,8 @@
 On Cocoa, the SCI_POSITIONFROMPOINTCLOSE returns -1 when the editor has been
 scrolled - bug 100487.
 diff -r baaa425295db src/Editor.cxx
---- a/src/Editor.cxx	Sun Sep 22 12:59:01 2013 +1030
-+++ b/src/Editor.cxx	Tue Sep 24 17:42:24 2013 -0700
+--- src/Editor.cxx	Sun Sep 22 12:59:01 2013 +1030
++++ src/Editor.cxx	Tue Sep 24 17:42:24 2013 -0700
 @@ -542,6 +543,13 @@
  	RefreshStyleData();
  	if (canReturnInvalid) {
