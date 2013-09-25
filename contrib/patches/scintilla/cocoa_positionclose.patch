@@ -3,7 +3,7 @@ scrolled - bug 100487.
 diff -r baaa425295db src/Editor.cxx
 --- src/Editor.cxx	Sun Sep 22 12:59:01 2013 +1030
 +++ src/Editor.cxx	Tue Sep 24 17:42:24 2013 -0700
-@@ -542,6 +543,13 @@
+@@ -542,6 +543,15 @@
  	RefreshStyleData();
  	if (canReturnInvalid) {
  		PRectangle rcClient = GetTextRectangle();
@@ -12,6 +12,8 @@ diff -r baaa425295db src/Editor.cxx
 +		// KOMODO: Fix rcClient co-ords to be relative (not absolute).
 +		rcClient.bottom -= rcClient.top;
 +		rcClient.top = 0;
++		rcClient.right -= rcClient.left;
++		rcClient.left = 0;
 +#endif
 +
  		if (!rcClient.Contains(pt))
