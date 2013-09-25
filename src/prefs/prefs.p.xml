@@ -348,6 +348,7 @@
  '*.hxx': 'C++',
  '*.idl': 'IDL',
  '*.inc': 'PHP',
+ '*.inl': 'C++',
  '*.java': 'Java',
  '*.js': 'JavaScript',
  '*.json': 'JSON',
