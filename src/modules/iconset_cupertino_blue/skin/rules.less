@@ -46,3 +46,10 @@ button > hbox.button-box > image.button-icon
 {
     max-width: none;
 }
+
+/* Explicitely override statusbar message close icon max-width, we need
+   to fix this properly for a larger release, ie. fix the max-width none rule above */
+#statusbar-message-clear .button-icon;
+{
+    max-width: 16px;
+}
