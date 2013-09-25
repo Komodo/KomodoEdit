@@ -718,6 +718,19 @@ class KoInitService(object):
         except Exception:
             log.exception("initProcessUtils")
 
+        try:
+            # Komodo 8 hack to fixup siloed Python - bug 98931.
+            if sys.platform == "darwin":
+                koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+                pythonExe = koDirSvc.pythonExe
+                if not os.path.islink(pythonExe) and os.path.exists(pythonExe):
+                    os.remove(pythonExe)
+                    relPath = "../Frameworks/Python.framework/Versions/%d.%d/bin/python" % (
+                                sys.version_info.major, sys.version_info.minor)
+                    os.symlink(relPath, pythonExe)
+        except Exception:
+            log.exception("initProcessUtils:: failed mozpython symlink check - please reinstall Komodo")
+
     def finishInitialization(self):
         pass
 
