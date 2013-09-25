@@ -322,8 +322,9 @@ class KoTclCompletion:
 
     def _GetCmd(self):
         s = self._scintilla
-        last = s.charPosAtPosition(s.selectionStart)
-        index = s.charPosAtPosition(s.positionBefore(s.selectionStart))
+        currentPos = s.selectionStart
+        last = s.charPosAtPosition(currentPos)
+        index = s.charPosAtPosition(s.positionBefore(currentPos))
         # Copy over the text, as otherwise it is an expensive
         # XPCOM reference per char fetch
         buffer = s.text
@@ -340,7 +341,7 @@ class KoTclCompletion:
         while index < last and buffer[index] in ": ":
             index += 1
         # Remember where the text started
-        text = buffer[index:s.selectionStart]
-        self._lastTriggerPos = s.selectionStart - len(text.decode("utf8"))
+        text = buffer[index:currentPos]
+        self._lastTriggerPos = currentPos - len(text.decode("utf8"))
         # Return the slice of the buffer that represents that last "word"
         return buffer[index:last]
