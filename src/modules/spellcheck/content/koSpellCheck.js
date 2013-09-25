@@ -155,7 +155,7 @@ var ko = {
         _doReplacementExtent : function _doReplacement(oldWord_length, // bytes
                                                        repl_length,   // bytes
                                                        repl) {
-            this.scimoz.replaceTarget(-1, repl);
+            this.scimoz.replaceTarget(repl);
             var delta = repl_length - oldWord_length;
             this.scimozNextStart = this.scimoz.targetEnd + delta;
             this.endPosition += delta;
