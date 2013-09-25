@@ -1175,7 +1175,7 @@ def generate_npapi_invoke_text_and_length_fragment(feature, file):
     """
     Generate an NPAPI invoke fragment for a method that takes a length and a
     string.
-    @param name: the name of the method
+    @param feature: the name of the method
     @param file: the file to write to
     """
     name = feature["Name"]
@@ -1648,7 +1648,10 @@ def generate_wrapper(face, interfaceCount):
                   function meth_%(name)s(aTextOrLength, aTextDeprecated) {
                       var arg = aTextOrLength;
                       if (typeof(aTextOrLength) == "number") {
-                          arg = String(aTextDeprecated).substring(0, aTextOrLength);
+                          arg = String(aTextDeprecated);
+                          if (aTextOrLength >= 0) {
+                            arg = arg.substring(0, aTextOrLength);
+                          }
                       } else if (typeof(aTextOrLength) != "string") {
                           throw Components.Exception("The first argument of " + method +
                                                      "should be a string",
