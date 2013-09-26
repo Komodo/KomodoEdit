@@ -4066,3 +4066,12 @@ div {
 }
 """)
         self._check_one_result_check_error_on_line(code, "got an unsupported or unrecognized numeric unit:", 'dppxdpi')
+
+    @tag("bug98753") # New numeric extensions
+    def test_numeric_types(self):
+        extensions = ['turn', 'vmin', 'vmax', 'rem', 'ch', 'vh', 'vw']
+        code_template = "div { width: 10%s; }"
+        codes = [code_template % ext for ext in extensions]
+        for lang in self.langs:
+            for code in codes:
+                self._check_zero_results_show_error(code, language=lang)

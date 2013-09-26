@@ -488,7 +488,10 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 			if (!IsADigit(ch) && ch != '.') {
 				if ((sc.MatchIgnoreCase("grad")
 					 || sc.MatchIgnoreCase("dpcm")
-					 || sc.MatchIgnoreCase("dppx"))
+					 || sc.MatchIgnoreCase("dppx")
+					 || sc.MatchIgnoreCase("turn")
+					 || sc.MatchIgnoreCase("vmin")
+					 || sc.MatchIgnoreCase("vmax"))
 					&& !IsAWordChar(styler.SafeGetCharAt(sc.currentPos + 4))) {
 					sc.Forward();
 					sc.Forward();
@@ -496,6 +499,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 					sc.ForwardSetState(SCE_CSS_DEFAULT);
 				} else if ((sc.MatchIgnoreCase("deg")
 					    || sc.MatchIgnoreCase("rad")
+					    || sc.MatchIgnoreCase("rem")
 					    || sc.MatchIgnoreCase("khz")
 					    || sc.MatchIgnoreCase("dpi"))
 					   && !IsAWordChar(styler.SafeGetCharAt(sc.currentPos + 3))) {
@@ -505,6 +509,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				} else if ((sc.MatchIgnoreCase("em")
 					    || sc.MatchIgnoreCase("ex")
 					    || sc.MatchIgnoreCase("px")
+					    || sc.MatchIgnoreCase("ch")
 					    || sc.MatchIgnoreCase("cm")
 					    || sc.MatchIgnoreCase("mm")
 					    || sc.MatchIgnoreCase("in")
@@ -512,7 +517,9 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 					    || sc.MatchIgnoreCase("pc")
 					    || sc.MatchIgnoreCase("ms")
 					    || sc.MatchIgnoreCase("ss")
-					    || sc.MatchIgnoreCase("hz"))
+					    || sc.MatchIgnoreCase("hz")
+					    || sc.MatchIgnoreCase("vh")
+					    || sc.MatchIgnoreCase("vw"))
 					   && !IsAWordChar(styler.SafeGetCharAt(sc.currentPos + 2))) {
 					sc.Forward();
 					sc.ForwardSetState(SCE_CSS_DEFAULT);
