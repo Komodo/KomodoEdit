@@ -1,15 +1,24 @@
-For some reason we have to invalidate the margin before we an get it to redraw.
+For some reason we have to invalidate the margin and editor before we an get it
+to redraw.
 http://bugs.activestate.com/show_bug.cgi?id=99808
+http://bugs.activestate.com/show_bug.cgi?id=100361
+
 Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaCocoa.mm
 ===================================================================
 --- cocoa/ScintillaCocoa.mm	(revision 81135)
 +++ cocoa/ScintillaCocoa.mm	(working copy)
-@@ -1669,6 +1682,10 @@
+@@ -1669,6 +1681,16 @@
   * Update fields to match scroll position after receiving a notification that the user has scrolled.
   */
  void ScintillaCocoa::UpdateForScroll() {
++  // KOMODO: Invalidate the editor, otherwise it will not update when there was
++  // a styling change offscreen - bug 100361.
++  NSView* editorView = static_cast<NSView*>(wMain.GetID());
++  [editorView setNeedsDisplay:YES];
++
 +  // KOMODO: Invalidate the margin, otherwise it will not update - bug 99808.
-+  wMargin.InvalidateAll();
++  NSView* marginView = static_cast<NSView*>(wMain.GetID());
++  [marginView setNeedsDisplay:YES];
 +  // KOMODO: end
 +
    Point ptOrigin = GetVisibleOriginInMain();
