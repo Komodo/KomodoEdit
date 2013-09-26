@@ -37,6 +37,7 @@
 
 """support for codeintel test modules"""
 
+import functools
 import json
 import os
 import sys
@@ -1139,3 +1140,34 @@ def relpath(path, relto=None):
     return relPath
 
 
+def override_encoding(encoding=None):
+    """
+    Decorator to override the system default encoding for a test; this is usually
+    used to trigger errors that occur when the system default encoding is ASCII.
+    """
+    def decorator(test_function):
+        @functools.wraps(test_function)
+        def wrapper(*args, **kwargs):
+            previous_encoding = sys.getdefaultencoding()
+            # We need to reload(sys) to have access to sys.setdefaultencoding;
+            # save stdin/stdout/stderr redirection to avoid those getting clobbered.
+            if not hasattr(sys, "setdefaultencoding"):
+                stdin = sys.stdin
+                stdout = sys.stdout
+                stderr = sys.stderr
+                reload(sys)
+                sys.stdin = stdin
+                sys.stdout = stdout
+                sys.stderr = stderr
+            sys.setdefaultencoding(encoding)
+            try:
+                return test_function(*args, **kwargs)
+            finally:
+                sys.setdefaultencoding(previous_encoding)
+        return wrapper
+    if callable(encoding):
+        # @override_encoding instead of @override_encoding("ascii")...
+        function = encoding
+        encoding = "ascii"
+        return decorator(function)
+    return decorator

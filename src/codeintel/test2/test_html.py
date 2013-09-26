@@ -51,7 +51,7 @@ from codeintel2.environment import SimplePrefsEnvironment
 from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
 
 from testlib import TestError, TestSkipped, TestFailed, tag
-from citestsupport import CodeIntelTestCase
+from citestsupport import CodeIntelTestCase, override_encoding
 
 
 
@@ -254,3 +254,20 @@ class HTMLTestCase(CodeIntelTestCase):
         env.set_pref("defaultHTMLDecl", "-//W3C//DTD HTML 4.01//EN")
         self.assertCompletionsInclude2(buf, data["pos"], [("element", "script")], unload=False)
         self.assertCompletionsDoNotInclude2(buf, data["pos"], [("element", "section")], unload=False)
+
+    @tag("bug100557")
+    @override_encoding("ascii")
+    def test_unicode(self):
+        self.assertCompletionsInclude(
+            dedent(u"""
+                <!DOCTYPE html>
+                <html>
+                    <body>
+                        <a title="\u2603">
+                            \u2603\u2603\u2603
+                        </a>
+                        <<|>
+                    </body>
+                </html>
+            """),
+            [("element", "p")])
