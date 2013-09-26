@@ -360,6 +360,7 @@ class DefnTestCase(CodeIntelTestCase):
             ilk="variable", name="ex", line=7,
             path=path)
 
+    @tag("knownfailure")
     def test_defn_at_defn(self):
         """Test that finding the definition at the declaration will return a
         valid definition"""
