@@ -122,6 +122,7 @@ def mkenvconf():
         join(komodo_src_dir, "src", "find"),
         # 'util' needed for testlib.py
         join(komodo_src_dir, "util"),
+        join(komodo_src_dir, "contrib" ,"zope" ,"cachedescriptors" ,"src"),
     ]
     udl_skel_dir = join(komodo_src_dir, "src", "udl", "skel")
     for d in os.listdir(udl_skel_dir):
@@ -156,6 +157,8 @@ fi
             msvc_setenv = r"C:\Program Files\Microsoft Visual Studio 8\VC\bin\vcvars32.bat"
         elif msvc_ver.startswith("9"):
             msvc_setenv = r"C:\Program Files\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat"
+        elif msvc_ver.startswith("11"):
+            msvc_setenv = r"C:\Program Files\Microsoft Visual Studio 11.0\VC\bin\vcvars32.bat"
         else:
             raise Error("unrecognized MSVC version used to build your "
                         "configured python: '%s' (python='%s')"
