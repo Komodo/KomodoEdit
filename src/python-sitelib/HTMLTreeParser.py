@@ -368,6 +368,12 @@ try:
 
         def feed(self, data, markuponly=0):
             self.data = data
+            if isinstance(data, unicode):
+                # XXX marky: convert the data to UTF8; this won't be needed
+                # once we transition the codeintel process to always be UTF-8.
+                # This should go away once bug 100136 is fixed.
+                # sgmlop.FastParser only takes str.
+                data = data.encode("utf-8")
             return self.__parser.feed(data)
 
         def close(self):
