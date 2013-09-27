@@ -39,9 +39,8 @@ class RequestFailure(Exception):
     request processing and calling Driver.fail().  All arguments are the same as
     when using Driver.fail().
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         Exception.__init__(self)
-        self.args = args
         self.kwargs = kwargs
 
 class CommandHandler(object):
@@ -363,7 +362,7 @@ class Driver(threading.Thread):
                         self.fail(request=request,
                                   message="Request %s not found" % (req_id,))
         except RequestFailure as e:
-            self.fail(request=request, *e.args, **e.kwargs)
+            self.fail(request=request, **e.kwargs)
         except Exception as e:
             log.exception(e.message)
             self.exception(request=request, message=e.message)
@@ -521,7 +520,7 @@ class Driver(threading.Thread):
                               msg="Don't know how to handle command %s" % (command,))
 
             except RequestFailure as e:
-                self.fail(request=request, *e.args, **e.kwargs)
+                self.fail(request=request, **e.kwargs)
             except Exception as e:
                 log.exception(e.message)
                 self.exception(request=request, message=e.message)
