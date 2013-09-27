@@ -2,7 +2,7 @@
 # User: ckreutzer
 # Link: https://bitbucket.org/ckreutzer/komodo-color-schemes/src
 
-Version = 10
+Version = 11
 
 Booleans = {'caretLineVisible': True, 'preferFixed': 1, 'useSelFore': False}
 

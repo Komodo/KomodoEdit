@@ -63,7 +63,8 @@ class _CSSLexerClassifier(object):
                              ScintillaConstants.SCE_CSS_IDENTIFIER3,
                              ScintillaConstants.SCE_CSS_EXTENDED_IDENTIFIER,
                              ScintillaConstants.SCE_CSS_EXTENDED_PSEUDOELEMENT,
-                             ScintillaConstants.SCE_CSS_UNKNOWN_IDENTIFIER)
+                             ScintillaConstants.SCE_CSS_UNKNOWN_IDENTIFIER,
+                             ScintillaConstants.SCE_CSS_VARIABLE)
 
     def is_unknown_identifier(self, tok):
         return tok['style'] == ScintillaConstants.SCE_CSS_UNKNOWN_IDENTIFIER

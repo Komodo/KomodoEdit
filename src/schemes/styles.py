@@ -330,6 +330,7 @@ StateMap = {
         'numbers': ('SCE_CSS_NUMBER',),
         'stringeol': ('SCE_CSS_STRINGEOL',),
         'attribute name': ('SCE_CSS_ATTRIBUTE',),
+        'variables': ('SCE_CSS_VARIABLE',),
     },
     'Makefile': {
         'default': ('SCE_MAKE_DEFAULT',),

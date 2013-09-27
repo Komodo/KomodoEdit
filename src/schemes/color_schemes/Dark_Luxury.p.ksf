@@ -2,7 +2,7 @@
 # User: jeffguy
 # Link: http://community.activestate.com/forum-topic/where-to-find-komodo-edit
 
-Version = 10
+Version = 11
 
 Booleans = {'caretLineVisible': True, 'preferFixed': 1, 'useSelFore': False}
 
@@ -128,6 +128,7 @@ LanguageStyles = {'ActionScript': {'attribute name': {'fore': 8940945},
          'default': {'fore': 12566463},
          'directives': {'fore': 12566463},
          'identifiers': {'fore': 12566463},
+         'variables': {'fore': 12566463},
          'ids': {'fore': 12566463},
          'important': {'fore': 12566463},
          'operators': {'fore': 10052914},

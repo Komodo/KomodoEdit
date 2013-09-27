@@ -2,7 +2,7 @@
 # User: Lori Berkowitz
 # Link: http://lorib.me/2009/03/03/chalkboard-color-scheme-for-komodo-edit/
 
-Version = 10
+Version = 11
 
 Booleans = {'caretLineVisible': True, 'preferFixed': 1, 'useSelFore': False}
 
@@ -82,6 +82,7 @@ LanguageStyles = {'C#': {'UUIDs': {'fore': 16777215},
          'default': {'fore': 11761388},
          'directives': {'fore': 8881663},
          'identifiers': {'back': 1250067, 'fore': 8881663},
+         'variables': {'back': 1250067, 'fore': 8881663},
          'ids': {'fore': 16777215},
          'important': {'fore': 6750207},
          'indent guides': {},

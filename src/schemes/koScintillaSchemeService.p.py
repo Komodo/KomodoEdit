@@ -111,7 +111,7 @@ class Scheme:
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 10
+    _current_scheme_version = 11
 
     def _execfile(self, fname, namespace):
         try:
@@ -271,6 +271,15 @@ class Scheme:
                                 break
                         else:
                             log.warn("No style for [%s/data sections]", language)
+                version += 1
+                
+            if version == 10:
+                if "CSS" in self._languageStyles:
+                    styles = self._languageStyles["CSS"]
+                    if "identifiers" in styles:
+                        self._languageStyles["CSS"]["variables"] = self._languageStyles["CSS"]["identifiers"]
+                if "identifiers" in self._commonStyles:
+                    self._commonStyles["variables"] = self._commonStyles["identifiers"]
                 version += 1
 
             try:

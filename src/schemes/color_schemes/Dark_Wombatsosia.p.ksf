@@ -2,7 +2,7 @@
 # User: ennio.tr
 # Link: http://www.kolormodo.com/scheme/preview/76001/wombatsosia
 
-Version = 10
+Version = 11
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 
@@ -82,6 +82,7 @@ LanguageStyles = {'C#': {'UUIDs': {},
          'verbatim': {}},
  'CSS': {'classes': {'fore': 4576130},
          'identifiers': {'fore': 12359497},
+         'variables': {'fore': 12359497},
          'ids': {'fore': 4557295},
          'operators': {'fore': 11040840},
          'tags': {'fore': 15639234},

@@ -1,4 +1,4 @@
-Version = 10
+Version = 11
 
 Booleans = {'caretLineVisible': False, 'preferFixed': True, 'useSelFore': False}
 
@@ -65,9 +65,11 @@ CommonStyles = {'attribute name': {'fore': 7872391},
  'variables': {'fore': 0},
 }
 
-LanguageStyles = {'CSS': {'classes': {'bold': True, 'fore': 7696503, 'italic': True},
+LanguageStyles = {
+'CSS': {'classes': {'bold': True, 'fore': 7696503, 'italic': True},
          'compound_document_defaults': {'back': 13559807},
          'identifiers': {'bold': False, 'fore': 854947},
+         'variables': {'bold': False, 'fore': 854947},
          'ids': {'bold': True, 'fore': 0},
          'important': {'fore': 9069079},
          'tags': {'bold': True, 'fore': 5459541},
