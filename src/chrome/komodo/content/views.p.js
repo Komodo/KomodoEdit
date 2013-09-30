@@ -390,6 +390,19 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
     
     var docText = doc.buffer;
     var hasTabStops = ko.tabstops.textHasTabstops(docText);
+    if (basename == "HTML.html"
+        && ko.prefs.getStringPref('defaultHTMLDecl') == "-//W3C//DTD HTML 5//EN")
+    {
+        // Bug 99873: Replace the bogus HTML5 Doctype declaration
+        // with a valid one, and set the language to HTML5
+        var m = /<!DOCTYPE\s+HTML\s+PUBLIC\s+[\"']\[\[%\(pref:defaultHTMLDecl\)\]\][\"']\s*\[\[%\(pref:defaultHTMLDeclSystemIdentifier\)\]\]\s*>/i.exec(docText);
+        if (m) {
+            var m1 = /(\n|\r\n?)/.exec(docText) || ['', '\n'];
+            docText = "<!doctype html>" + m1[1] + docText.substring(m[0].length);
+            hasTabStops = ko.tabstops.textHasTabstops(docText);
+            doc.language = "HTML5";
+        }
+    }
     try {
         // Interpolate any codes.
         var origViewData = { fileName :
