@@ -17,7 +17,7 @@ Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaCocoa.mm
 +  [editorView setNeedsDisplay:YES];
 +
 +  // KOMODO: Invalidate the margin, otherwise it will not update - bug 99808.
-+  NSView* marginView = static_cast<NSView*>(wMain.GetID());
++  NSView* marginView = static_cast<NSView*>(wMargin.GetID());
 +  [marginView setNeedsDisplay:YES];
 +  // KOMODO: end
 +
