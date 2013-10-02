@@ -88,9 +88,10 @@ SciMozMock.prototype.getLine =
 
 SciMozMock.prototype.getLineEndPosition =
     function SciMozMock_getLineEndPosition(aLine) {
-        let lines = this.text.match(new RegExp("(?:[^\n]*\n){" + (aLine + 1) + "}", "m")) || [""];
-        let lastLine = lines.pop().replace(/\r?\n$/, "");
-        return lines.reduce(function(n, s) n + s.length, 0) + lastLine.length;
+        let lines = this.text.split(/\n/);
+        return (lines.slice(0, aLine).reduce(function(n, s) n + s.length, 0)
+                + aLine // Include the dropped \n's for the sliced lines
+                + lines[aLine].match(/^[^\r\n]*/)[0].length);
     };
 
 SciMozMock.prototype.startStyling =
