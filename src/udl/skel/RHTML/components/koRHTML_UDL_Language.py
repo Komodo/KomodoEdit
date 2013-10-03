@@ -287,13 +287,13 @@ class KoRHTMLLinter(object):
                     log.debug("part %d: part:%s, emitText:%r", i, part, emitText)
                     rubyTextParts.append(self._spaceOutNonNewlines(m.group(1)))
                     if emitText:
-                        rubyTextParts.append(self._spaceOutNonNewlines(' puts '))
+                        rubyTextParts.append(self._spaceOutNonNewlines(' Proc.new { '))
                     else:
                         rubyTextParts.append(' ')
                     rubyTextParts.append(m.group(3))
                     rubyTextParts.append(self._spaceOutNonNewlines(m.group(4)))
                     if emitText:
-                        rubyTextParts.append(self._spaceOutNonNewlines('; '))
+                        rubyTextParts.append(self._spaceOutNonNewlines('}.call; '))
             else:
                 rubyTextParts.append(self._spaceOutNonNewlines(part))
             i += 1
@@ -303,7 +303,7 @@ class KoRHTMLLinter(object):
     def _spaceOutNonNewlines(self, markup):
         return self._nonNewlineMatcher.sub(' ', markup)
 
-    _tplPatterns = ("RHTML", re.compile('<%='), re.compile(r'%>\s*\Z', re.DOTALL), 'puts(', ');')
+    _tplPatterns = ("RHTML", re.compile('<%='), re.compile(r'%>\s*\Z', re.DOTALL), 'Proc.new {', '}.call;')
     def lint(self, request):
         # With the "squelching" the multi-language linter does to pull
         # <% and %>-like tokens out of the lint input stream, there's no
