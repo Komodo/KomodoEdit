@@ -41,7 +41,7 @@ Usage:
     kointegrate CHANGENUM TARGET-BRANCH-NAMES...
 
 Easily integrate a change from its branch or tree to other active
-Komodo branches. This will perform the necessary "p4|svn integrate"s,
+Komodo branches. This will perform the necessary "svn integrate"s,
 resolve the differences, and help create an appropriate checkin.
 
 Notes:
@@ -112,299 +112,6 @@ class NonExistantBranch(Branch):
     def __repr__(self):
         return "<Branch: %s, base dir `%s' does not exist>" \
                % (self.name, self.base_dir)
-
-class P4Branch(Branch):
-    scc_type = "p4"
-    def __repr__(self):
-        return "<P4Branch: %r at '%s'>" \
-               % (self.name, self.base_dir)
-    def __str__(self):
-        return "%r branch at '%s' (p4)" % (self.name, self.base_dir)
-
-    @property
-    def desc(self):
-        return basename(self.base_dir)
-
-    def edit(self, path):
-        log.info("p4 edit %s", path)
-        import p4lib
-        p4 = p4lib.P4()
-        if not isabs(path):
-            path = join(self.base_dir, path)
-        v = p4.edit(path)
-        assert v, "`p4 edit %s` failed" % path
-    def add(self, path):
-        log.info("p4 add %s", path)
-        import p4lib
-        p4 = p4lib.P4()
-        if not isabs(path):
-            path = join(self.base_dir, path)
-        v = p4.add(path)
-        assert v, "`p4 add %s` failed" % path
-    def delete(self, path):
-        log.info("p4 delete %s", path)
-        import p4lib
-        p4 = p4lib.P4()
-        if not isabs(path):
-            path = join(self.base_dir, path)
-        v = p4.delete(path)
-        assert v, "`p4 delete %s` failed" % path
-    
-    def integrate(self, changenum, dst_branches, interactive,
-                  exclude_outside_paths, excludes=[], force=False):
-        if len(dst_branches) > 1:
-            raise Error("Don't yet support integrating from Perforce "
-                        "to *multiple* branches.")
-        dst_branch = dst_branches[0]
-        
-        import p4lib
-        p4 = p4lib.P4()
-
-        # Gather some info about the change to integrate.
-        change = p4.describe(change=changenum, diffFormat='u')
-        outside_paths = []
-        inside_paths = []
-        indeces_to_del = []
-        for i, f in enumerate(change["files"]):
-            path = p4.fstat(f["depotFile"])[0]["path"]
-            rel_path = path[len(self.base_dir)+1:]
-            matching_excludes = [e for e in excludes
-                                 if fnmatch.fnmatch(rel_path, e)]
-            if matching_excludes:
-                log.info("skipping `%s' (matches excludes: '%s')",
-                         rel_path, "', '".join(matching_excludes))
-                indeces_to_del.append(i)
-                continue
-            if not normcase(path).startswith(normcase(self.base_dir)):
-                outside_paths.append(path)
-            else:
-                inside_paths.append(path)
-            # Side-effect: tweak the data structure for convenience later.
-            change["files"][i]["path"] = path
-            change["files"][i]["rel_path"] = rel_path
-        for i in reversed(indeces_to_del): # drop excluded files
-            del change["files"][i]
-        rel_paths = [p[len(self.base_dir)+1:] for p in inside_paths]
-        dst_paths = [join(dst_branch.base_dir, p) for p in rel_paths]
-
-        print "  change: %s" % changenum
-        print "    desc: %s" % _one_line_summary_from_text(change["description"], 60)
-        print "      by: %s" % change["user"]
-        print "      to: %s" % dst_branch.base_dir
-        if len(rel_paths) > 7:
-            ellipsis = '...and %d other files' % (len(rel_paths)-7)
-            print "   files: %s" \
-                  % _indent(' '.join(rel_paths[:7] + [ellipsis]), 10, True)
-        else:
-            print "   files: %s" % _indent(' '.join(rel_paths), 10, True)
-        if interactive:
-            print
-            answer = _query_yes_no("Continue integrating this change?")
-            if answer != "yes":
-                return False
-        print
-
-        # Check if there are files in the change outside of the source
-        # branch area.
-        if outside_paths:
-            if interactive:
-                answer = _query_yes_no(textwrap.dedent("""
-                    The following files from change %s are outside the %r base dir:
-                        %s
-                    Would you like to ignore them and continue?""")
-                    % (changenum, self.name,
-                       "\n    ".join(outside_paths)))
-                if answer != "yes":
-                    return False
-            else:
-                log.warn("ignoring files outside the %r dir: '%s'",
-                         self.name, "', '".join(outside_paths))
-        if not inside_paths:
-            log.error("There are no files in change %s that are in %r "
-                      "tree. Aborting.", changenum, self.name)
-            return False
-
-        # Ensure that none of the target files are modified/opened.
-        modified_paths = [p for p in dst_paths if
-                          dst_branch.is_modified_or_open(p)]
-        if modified_paths:
-            print textwrap.dedent("""
-                ***
-                The following target files that would be part of this
-                integration are open and/or modified:
-                    %s
-    
-                This script cannot integrate files that are already open:
-                it would pollute the integration. You need to either first
-                check these in or revert your changes.
-                ***""") \
-                % "\n    ".join(modified_paths)
-            return False
-
-        # Do the integration, as best as possible.
-        if dst_branch.scc_type == "p4":
-            raise Error("reinstate the old kointegrate 'p4 integrate' "
-                        "logic for this p4->p4 integration")
-
-        # - write out patches for all the edited files
-        def _diff_for_file(change, file):
-            depotFile = file["depotFile"]
-            for diff in change["diff"]:
-                if diff["depotFile"] == depotFile:
-                    return diff["text"]
-            raise RuntimeError("no diff for `%s' in change %s"
-                               % (file["rel_path"], change["change"]))
-        
-        tmp_dir = tempfile.mkdtemp()
-        try:
-            for i, f in enumerate(change["files"]):
-                patch_path = join(tmp_dir, "%d.patch" % i)
-                fout = open(patch_path, 'w')
-                norm_rel_path = f["rel_path"].replace(os.sep, '/')
-                fout.write("Index: %s\n" % norm_rel_path)
-                fout.write("--- %s\n" % norm_rel_path)
-                fout.write("+++ %s\n" % norm_rel_path)
-                diff = _diff_for_file(change, f)
-                fout.write(diff)
-                if not diff.endswith("\n"):
-                    fout.write("\n")  #TODO: not sure about this part
-                fout.write("End of Patch.\n\n")
-                fout.close()
-                f["patch_path"] = patch_path
-    
-            # - do a dry-run attempt to patch (abort if any fail)
-            patch_exe = _getPatchExe()
-            for f in change["files"]:
-                if "patch_path" not in f:
-                    continue
-                
-                # Awful HACK around the "$Id$" (et al) keyword expansion
-                # problem: If "$Id$" is in the patch content but it is
-                # exanded in target file, then `patch` won't be able to
-                # apply.
-                #TODO: Better soln is to modify the *patch*, but that's harder.
-                f = open(f["patch_path"], 'rb')
-                try:
-                    patchContent = f.read()
-                finally:
-                    f.close()
-                if "$Id$" in patchContent:
-                    XXX
-                    dst_path = join(dst_branch.base_dir, f["rel_path"])
-                    origDstContent = open(dst_path, 'rb').read()
-                    newDstContent = re.sub(r"\$Id: [^$]+\$", "$Id$", origDstContent)
-                    if newDstContent != origDstContent:
-                        open(dst_path, 'wb').write(newDstContent)
-                
-                try:
-                    _assertCanApplyPatch(patch_exe, f["patch_path"],
-                                         dst_branch.base_dir)
-                except Error, ex:
-                    if force:
-                        log.warn(str(ex))
-                    else:
-                        raise
-    
-            # - apply the edits
-            changes_made = []
-            for f in change["files"]:
-                if "patch_path" not in f:
-                    continue
-                patch_path = f["patch_path"]
-                dst_path = join(dst_branch.base_dir, f["rel_path"])
-                dst_branch.edit(dst_path)
-                eol_before = eollib.eol_info_from_path(dst_path)[0]
-                try:
-                    applied = _applyPatch(patch_exe, dirname(patch_path),
-                                          basename(patch_path),
-                                          dst_branch.base_dir)
-                except Error, ex:
-                    if force:
-                        log.warn(str(ex))
-                        applied = True
-                    else:
-                        raise
-                eol_after = eollib.eol_info_from_path(dst_path)[0]
-                if eol_after != eol_before:
-                    assert eol_before != None
-                    log.info("restore EOLs for `%s' (damaged by patch)",
-                             dst_path)
-                    eollib.convert_path_eol(dst_path, eol_before)
-                if applied:
-                    changes_made.append("patched `%s'" % f["rel_path"])
-            
-            # - do deletes and adds
-            for f in change["files"]:
-                action = f["action"]
-                rel_path = f["rel_path"]
-                if action == "delete":
-                    dst_branch.delete(rel_path)
-                    changes_made.append("delete `%s'" % rel_path)
-                elif action == ("add", "branch"):
-                    raise "TODO: really add the file"
-                    dst_branch.add(rel_path)
-                    changes_made.append("add `%s'" % rel_path)
-                elif action in ("edit", "integrate"):
-                    pass # already handled above
-                else:
-                    raise Error("don't know how to handle integrating "
-                                "'%s' action" % action)
-
-            # Abort if no actual changes made.
-            if not changes_made:
-                print textwrap.dedent("""
-                    No changes were necessary to integrate this change.
-                    Perhaps it has already been integrated?""")
-                return False
-
-            # Setup to commit the integration: i.e. create a pending
-            # changelist (p4), provide a good checkin message.
-            dst_branch.setup_to_commit(changenum, change["user"],
-                                       change["description"], self,
-                                       dst_paths, interactive)
-        finally:
-            if exists(tmp_dir) and not log.isEnabledFor(logging.DEBUG):
-                shutil.rmtree(tmp_dir)
-
-    def is_modified_or_open(self, path):
-        import p4lib
-        p4 = p4lib.P4()
-        return p4.opened(path) and True or False
-
-    def commit_summary(self, changenum=None):
-        """Return a short single-line summary of a commit with the
-        given changenum suitable for posting to a bug log.
-        
-        Currently ActiveState's bugzilla has auto-linking for the
-        following patterns:
-            change \d+          -> ActiveState perforce change link
-            r\d+                -> svn.activestate.com revision link
-            openkomodo r\d+     -> svn.openkomodo.com revision link
-        so we try to accomodate that.
-        
-        Template: PROJECT-NAME change CHANGENUM
-        """
-        project_name = basename(self.base_dir)
-        changenum_str = changenum is not None and " %s" % changenum or ""
-        return "%s change%s" % (project_name, changenum_str)
-
-    def setup_to_commit(self, changenum, user, desc, src_branch, paths,
-                        interactive):
-        # Create a changelist with the changes.
-        import p4lib
-        p4 = p4lib.P4()
-        change = p4.change(paths,
-                           "%s\n\n(integrated from %s change %d by %s)"
-                           % (desc.rstrip(), src_branch.desc, changenum, user))
-        print textwrap.dedent("""
-            Created change %d integrating change %d from %r branch.
-            Use 'p4 submit -c %d' to submit this integration.
-            PLEASE LOOK AT IT BEFORE YOU DO:
-                p4 describe %d | less
-                px diff -du -c %d | less""") \
-        % (change["change"], changenum, src_branch.name,
-           change["change"], change["change"], change["change"])
-        return self.commit_summary(change["change"])
 
 class SVNBranch(Branch):
     scc_type = "svn"
@@ -1010,8 +717,7 @@ class SVNBranch(Branch):
                     Perhaps it has already been integrated?""")
                 return False
 
-            # Setup to commit the integration: i.e. create a pending
-            # changelist (p4), provide a good checkin message.
+            # Setup to commit the integration.
             commit_summaries = [self.commit_summary(changenum)]
             for dst_branch in dst_branches:
                 dst_paths = dst_paths_from_branch_name[dst_branch.name]
@@ -1025,7 +731,7 @@ class SVNBranch(Branch):
             if log.isEnabledFor(logging.INFO):
                 log.info("\n\n-- Check-in summary (for bugzilla comment):")
                 for s in commit_summaries:
-                    log.info(s)
+                    log.info("  " + s)
                 log.info("--\n")
         finally:
             if False and exists(tmp_dir) and not log.isEnabledFor(logging.DEBUG):
@@ -1153,8 +859,7 @@ class Configuration(SafeConfigParser):
                 elif isdir(join(base_dir, ".svn")):
                     self.branches[name] = SVNBranch(name, base_dir)
                 else:
-                    # Presumably a P4 branch.
-                    self.branches[name] = P4Branch(name, base_dir)
+                    log.info("Ignoring unknown repository at %r", base_dir)
 
 
 cfg = Configuration()
