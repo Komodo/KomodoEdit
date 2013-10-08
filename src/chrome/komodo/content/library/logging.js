@@ -268,7 +268,7 @@ this.Logger.prototype.exception = function(e, message) {
     try {
         if (this._logger.getEffectiveLevel() <= LOG_ERROR) {
             var objDump = getObjectTree(e,1);
-            if (typeof(e) == 'object' && 'stack' in e) {
+            if (typeof(e) == 'object' && 'stack' in e && e.stack) {
                 objDump += '+ stack\n    ' +
                            e.stack.toString().replace('\n', '\n    ', 'g').slice(0, -4);
             }
@@ -283,7 +283,7 @@ this.Logger.prototype.exception = function(e, message) {
         }
     } catch(ex) {
         dump("*** Error in logger.exception: "+ex+"\n");
-        if (typeof(e) == 'object' && 'stack' in e)
+        if (typeof(e) == 'object' && 'stack' in e && e.stack)
             dump(e.stack + "\n");
         //dump("*** Original exception was: " + e + "\n");
         //dump("*** Original message was: " + message + "\n");
