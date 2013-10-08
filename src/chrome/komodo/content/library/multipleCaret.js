@@ -767,8 +767,10 @@ this.addNextWordToCaretSet = function addNextWordToCaretSet(view) {
     // Find the next occurrence of the last selection in the multi-caret set
     // and include it too
     var findResultCallback = function(window, koFindResult) {
-        var startPos = koFindResult.start;
-        var endPos = koFindResult.end;
+        // koFindResult.start and .end are in character coordinates. Convert to bytes
+        var startPos = scimoz.positionAtChar(0, koFindResult.start);
+        var endPos = scimoz.positionAtChar(startPos,
+                                           koFindResult.end - koFindResult.start);
 
         // ko.find uses the selection to figure out where to search from,
         // so update it.
