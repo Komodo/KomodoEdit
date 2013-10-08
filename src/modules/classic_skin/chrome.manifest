@@ -1,0 +1,4 @@
+content skin-classic content/
+skin skin-classic classic/1.0 skin/
+overlay chrome://komodo/content/pref/pref-ui.xul chrome://skin-classic/content/overlay_pref-ui.xul
+category ko-gtk-compat ambiance chrome://skin-classic/content/manifest/chrome.manifest

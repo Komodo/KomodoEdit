@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2013 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<overlay id="skinClassicPrefUiOverlay"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <menupopup id="koSkin_custom_skin_menupopup">
+        <menuitem id="pref_appearance_skin_classic_compatibility"
+                  label="Classic"
+                  value="chrome://skin-classic/content/manifest/chrome.manifest"
+                  iconset="classic"
+                  />
+    </menupopup>
+
+</overlay>

@@ -1,0 +1,18 @@
+@import url("chrome://komodo/skin/plat/current/panes.less");
+
+.widget_splitter
+{
+    -moz-appearance: splitter;
+}
+
+page.widget :-moz-any(tree, richlistbox, page)
+{
+    border-width: 1px 0 0 !important;
+    border-style: solid !important;
+    border-color: @panel-border-color !important;
+}
+
+page.widget[containerOrient="horizontal"] :-moz-any(tree, richlistbox, page)
+{
+    -moz-appearance: none;
+}

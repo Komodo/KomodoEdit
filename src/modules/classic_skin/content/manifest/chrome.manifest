@@ -1,0 +1,6 @@
+override chrome://komodo/skin/_config/window.less chrome://skin-classic/skin/_config/window.less
+override chrome://komodo/skin/_config/panes.less chrome://skin-classic/skin/_config/panes.less
+override chrome://komodo/skin/_config/toolbars.less chrome://skin-classic/skin/_config/toolbars.less
+override chrome://komodo/skin/panes.less chrome://skin-classic/skin/panes.less
+override chrome://komodo/skin/toolbars.less chrome://skin-classic/skin/toolbars.less
+override chrome://komodo/skin/scrollbars.less chrome://skin-classic/skin/scrollbars.less
