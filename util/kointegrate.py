@@ -457,7 +457,7 @@ class SVNBranch(Branch):
                     # Not a change that could result in a patch.
                     continue
                 
-                if f["kind"] == "directory":
+                if f["kind"] in ("dir", "directory"):
                     if f["action"] in ("A", "D"):
                         continue
                     msg = ("cannot integrate directory modifications (rev %s): `%s' (you "
@@ -637,7 +637,7 @@ class SVNBranch(Branch):
                                 f["copyfrom-relpath"], rel_path, dst_branch.name))
                     else:
                         # Just a regular 'svn add'.
-                        if f["kind"] == "directory":
+                        if f["kind"] in ("dir", "directory"):
                             dst_branch.add(rel_path, isdir=True)
                             changes_made.append("mkdir `%s' (%s)" % (
                                 rel_path, dst_branch.name))
