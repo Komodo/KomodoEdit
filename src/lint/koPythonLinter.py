@@ -142,6 +142,29 @@ class _GenericPythonLinter(object):
         return env
 
 class KoPythonCommonPyLintChecker(_GenericPythonLinter):
+    def _set_pylint_version(self, pythonExe):
+        """
+        Pylint pseudo-versions:
+        1: Accepts -i/--include-ids
+        2: No longer accepts -i Y/N, accepts --msg-template STRING
+        """
+        cmd = [pythonExe, '-c', 'import sys; from pylint.lint import Run; Run(["--version"])']
+        try:
+            p = process.ProcessOpen(cmd, stdin=None)
+            stdout, stderr = p.communicate()
+            versionInfo = re.compile(r'^.*?\s+(\d+)\.(\d+)\.(\d+)').match(stdout)
+            if versionInfo:
+                ver = [int(x) for x in versionInfo.groups()]
+                if ver < [1, 0, 0]:
+                    self._pylint_version = 1 # -f text -r n -i y --rcfile....
+                else:
+                    self._pylint_version = 2 # -f text -r n --include-ids y
+        except:
+            log.exception("_set_pylint_version: failed to get pylint version")
+        if not hasattr(self, "_pylint_version"):
+            # Fallback:
+            self._pylint_version = 1
+        
     invalidModuleName_RE = re.compile(r'(C0103.*?Invalid name ")(.+?)(" \(should match )(.*)(\))')
     def lint_with_text(self, request, text):
         if not text:
@@ -153,6 +176,8 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
         pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
         if not pythonExe:
             return
+        if not hasattr(self, "_pylint_version"):
+            self._set_pylint_version(pythonExe)
         cwd = request.cwd
         fout, tmpfilename = _localTmpFileName()
         try:
@@ -171,7 +196,13 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
                 extraArgs.append("--max-line-length=%d" % preferredLineWidth)
     
             baseArgs = [pythonExe, '-c', 'import sys; from pylint.lint import Run; Run(sys.argv[1:])']
-            cmd = baseArgs + ["-f", "text", "-r", "n", "-i", "y"] + extraArgs
+            cmd = baseArgs + ["-f", "text", "-r", "n"]
+            if self._pylint_version == 1:
+                cmd.append("-i")
+                cmd.append("y")
+            else: # _pylint_version == 2
+                cmd.append("--msg-template")
+                cmd.append("{msg_id}: {line},{column}: {msg}")
             cmd.append(tmpfilename)
             cwd = request.cwd or None
             # We only need the stdout result.
