@@ -1390,8 +1390,8 @@ class KoCodeIntelBuffer(object):
         if not response.get("success"):
             if errorCallback:
                 msg = (response.get("message")
-                       or ("%s: Can't get a trigger for position %d" %
-                           (context, pos)))
+                       or ("%s: Can't get a trigger for position %s" %
+                           (context, request.get("pos", "<unknown position>"))))
                 self._do_error_callback(errorCallback, msg)
                 return
             else:
