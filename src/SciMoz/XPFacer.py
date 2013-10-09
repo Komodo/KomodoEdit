@@ -771,11 +771,17 @@ def generate_cxx_xpcom_method_fragment(feature, file):
                 result = SendEditor(%(sciApiName)s, text.Length(),
                                     reinterpret_cast<long>(text.get()));
             } else {
-                int32_t length;
-                rv = v->GetAsInt32(&length);
+                int32_t signed_length;
+                uint32_t length;
+                rv = v->GetAsInt32(&signed_length);
                 NS_ENSURE_SUCCESS(rv, rv);
-                if (length > t.Length()) {
-                    length = t.Length();
+                if (signed_length >= 0) {
+                    length = static_cast<uint32_t>(signed_length);
+                    if (length > t.Length()) {
+                        length = t.Length();
+                    }
+                } else {
+                    length = static_cast<uint32_t>(-1);
                 }
                 result = SendEditor(%(sciApiName)s, length,
                                     reinterpret_cast<long>(t.BeginReading()));
@@ -1188,21 +1194,45 @@ def generate_npapi_invoke_text_and_length_fragment(feature, file):
           #endif
           SCIMOZ_CHECK_THREAD("%(cxxName)s", false)
           SCIMOZ_CHECK_ALIVE("%(cxxName)s", false)
-          if (argCount != 1) {
-              SCIMOZ_DEBUG_PRINTF("%%s: expected 1 argument, got %%i\n",
-                                  __FUNCTION__,
-                                  argCount);
+          const NPUTF8 *text;
+          uint32_t length;
+          if (argCount > 2) {
+              SCIMOZ_DEBUG_PRINTF("%%s: expecting 1 or two parameters, got %%u\n",
+                                  __FUNCTION__, argCount);
               return false;
           }
-          if (!NPVARIANT_IS_STRING(args[0])) {
-              SCIMOZ_DEBUG_PRINTF("%%s: parameter is not int\n",
-                                  __FUNCTION__);
-              return false;
+          if (argCount == 1 || NPVARIANT_IS_NULL(args[1])) {
+              /* text only; we can get a null second argument when called from
+                 the JS XPCOM wrapper. */
+               if (!NPVARIANT_IS_STRING(args[0])) {
+                   SCIMOZ_DEBUG_PRINTF("%%s: parameter is not string\n",
+                                       __FUNCTION__);
+                   return false;
+               }
+               text = NPVARIANT_TO_STRING(args[0]).UTF8Characters;
+               length = NPVARIANT_TO_STRING(args[0]).UTF8Length;
           }
-
-          const NPUTF8* text = NPVARIANT_TO_STRING(args[0]).UTF8Characters;
+          else {
+              /* length + text */
+              if (!NPVARIANT_IS_INT32(args[0])) {
+                  SCIMOZ_DEBUG_PRINTF("%%s: first parameter is not int\n",
+                                      __FUNCTION__);
+                  return false;
+              }
+              if (!NPVARIANT_IS_STRING(args[1])) {
+                  SCIMOZ_DEBUG_PRINTF("%%s: second parameter is not string\n",
+                                      __FUNCTION__);
+                  return false;
+              }
+              text = NPVARIANT_TO_STRING(args[1]).UTF8Characters;
+              length = NPVARIANT_TO_STRING(args[1]).UTF8Length;
+              int32_t signed_length = NPVARIANT_TO_INT32(args[0]);
+              if (signed_length >= 0 && length > (uint32_t)signed_length) {
+                  length = static_cast<uint32_t>(signed_length);
+              }
+          }
           int retval = SendEditor(%(messageName)s,
-                                  NPVARIANT_TO_STRING(args[0]).UTF8Length,
+                                  length,
                                   reinterpret_cast<sptr_t>(text));
           if (%(hasReturn)s) {
               NPN_ReleaseVariantValue(result);
@@ -1640,43 +1670,17 @@ def generate_wrapper(face, interfaceCount):
           file=outputfile)
 
     for name in methods:
-        if name in textAndLengthFunctions:
-            _("""
-              // length-then-text compatibility wrapper; see bug 95927.
-              // New code should not explicitly specify length.
-              koSciMozWrapper.prototype.%(name)s =
-                  function meth_%(name)s(aTextOrLength, aTextDeprecated) {
-                      var arg = aTextOrLength;
-                      if (typeof(aTextOrLength) == "number") {
-                          arg = String(aTextDeprecated);
-                          if (aTextOrLength >= 0) {
-                            arg = arg.substring(0, aTextOrLength);
-                          }
-                      } else if (typeof(aTextOrLength) != "string") {
-                          throw Components.Exception("The first argument of " + method +
-                                                     "should be a string",
-                                                     Cr.NS_ERROR_INVALID_ARG);
-                      }
-                      return this.__scimoz.%(name)s(arg);
-                  };
-              """,
-              replacements={
-                "name": idlName(name),
-                "logme": 'dump("scimoz: %s()\\n");' % (name) if add_logging else "",
-              },
-              file=outputfile)
-        else:
-            _("""
-              koSciMozWrapper.prototype.%(name)s =
-                  function meth_%(name)s() {
-                    %(logme)s return this.__scimoz.%(name)s.apply(this.__scimoz, arguments);
-                  }
-              """,
-              replacements={
-                "name": idlName(name),
-                "logme": 'dump("scimoz: %s()\\n");' % (name) if add_logging else "",
-              },
-              file=outputfile)
+        _("""
+          koSciMozWrapper.prototype.%(name)s =
+              function meth_%(name)s() {
+                %(logme)s return this.__scimoz.%(name)s.apply(this.__scimoz, arguments);
+              }
+          """,
+          replacements={
+            "name": idlName(name),
+            "logme": 'dump("scimoz: %s()\\n");' % (name) if add_logging else "",
+          },
+          file=outputfile)
 
 
 #
