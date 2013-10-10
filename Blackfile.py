@@ -2065,6 +2065,8 @@ def GetScintillaSource(cfg, argv):
 
 
 def BuildKomodo(cfg, argv):
+  starttime = time.time()
+  try:
     if "jarxtk" in argv:
         return JarChrome("xtk", cfg, argv)
     if "jarkomodo" in argv:
@@ -2112,6 +2114,11 @@ def BuildKomodo(cfg, argv):
     if not retval and not noquick:
         BuildQuickBuildDB(cfg, argv)
     return retval
+  except:
+    raise
+  else:
+    endtime = time.time()
+    print "Build time - %0.2f seconds" % (endtime - starttime)
 
 def CleanKomodoBuild(cfg, argv):
     """Try to clean out most of the Komodo build bits."""
