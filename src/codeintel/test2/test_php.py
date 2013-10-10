@@ -4359,7 +4359,7 @@ class DefnTestCase(CodeIntelTestCase):
                                 ilk="function", name="getBar", line=lines[3])
 
     @tag("bug100701")
-    def test_defn_at_defn(self):
+    def test_foreach(self):
         """ Test foreach(x as $y) in goto definition."""
         content, positions = unmark_text(php_markup(dedent("""\
             class ECafe {
