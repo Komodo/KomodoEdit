@@ -544,19 +544,43 @@ def adjustClosingXMLTag(scimoz, isHTML=False):
     It will only do so if the end tag is the only thing to the left of
     the current position on the current line.
     """
-    beforeText = scimoz.getStyledText(0, scimoz.currentPos)[0::2]
-    # (for now, assuming no intervening space)
+    # Don't do anything if we aren't on a '>' styled as scimoz.SCE_UDL_M_ETAGC
+    bufSize = 2000
+    endPos = scimoz.currentPos
+    if (endPos == 0
+        or scimoz.getWCharAt(endPos - 1) != '>'
+        or scimoz.getStyleAt(endPos - 1) != scimoz.SCE_UDL_M_ETAGC):
+        # No end-tag adjusting to do here
+        return
+    startPos = max(0, scimoz.currentPos - bufSize)
+    beforeText = scimoz.getTextRange(startPos, endPos).encode("utf-8")
     leftCloseIndex = beforeText.rfind('</')
     if leftCloseIndex == -1:
-        # no idea what to do in this case, just bail
-        return
+        if startPos == 0:
+            return
+        # Try the full buffer then
+        endPos = startPos
+        startPos = 0
+        beforeText = scimoz.getTextRange(startPos, endPos).encode("utf-8")
+        leftCloseIndex = beforeText.rfind('</')
+        if leftCloseIndex == -1:
+            #print("There is no </ anywhere in the buffer")
+            return
+    leftCloseIndex += startPos
     startTagInfo = startTagInfo_from_endTagPos(scimoz, leftCloseIndex, isHTML)
     if startTagInfo is None:
+        #print("Didn't find the start-tag in the whole doc")
         return
     tagStartPos = startTagInfo[0]
     tagStartLine = scimoz.lineFromPosition(tagStartPos)
     tagStartLinePos = scimoz.positionFromLine(tagStartLine)
-    if beforeText[tagStartLinePos:tagStartPos].strip():
+    # If there's non-whitespace before the matching tag-start, don't indent.
+    if tagStartLinePos >= startPos and tagStartPos < endPos:
+        if beforeText[tagStartLinePos - startPos:
+                      tagStartPos - startPos].strip():
+            return
+    elif scimoz.getTextRange(tagStartLinePos, tagStartPos).strip():
+        # We're out of the window, so ask scimoz for the text
         return
     tagStartCol = scimoz.getColumn(tagStartPos)
     indent = scimoz.indent
@@ -572,8 +596,14 @@ def adjustClosingXMLTag(scimoz, isHTML=False):
     lineNo = scimoz.lineFromPosition(charPos)
     startOfLine = max(0, scimoz.positionFromLine(lineNo))
     if startOfLine > leftCloseIndex:
+        # Don't adjust the end-tag's start ("</") when it starts on an earlier line than the tag's end (">")
         return
-    stuffToLeft = scimoz.getTextRange(startOfLine, leftCloseIndex)
+    if startOfLine >= startPos and leftCloseIndex < endPos:
+        # We can see what's before the </ in the beforeText buffer
+        stuffToLeft = beforeText[startOfLine - startPos:leftCloseIndex - startPos]
+    else:
+        # There must have been a lot of whitespace between the </tag and the ">", so go to the doc
+        stuffToLeft = scimoz.getTextRange(startOfLine, leftCloseIndex)
     if not stuffToLeft.strip(): # XXX Do we want to pref this?
         # we can align the comment closing before we do the newline
         indent = makeIndentFromWidth(scimoz, tagStartCol)
