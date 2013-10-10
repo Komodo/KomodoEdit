@@ -26,6 +26,8 @@ function SciMozMock(aText) {
     this.endStyled = 0;
     this._styleMask = 0xFF;
     this.styles = [];
+    this.levels = [];
+    this._searchAnchor = 0;
 
     /**
      * Indexed by indicator id, then is an array of RLE things where the index
@@ -63,7 +65,7 @@ SciMozMock.prototype.getColumn =
     function SciMozMock_getColumn(aPos) {
         let lineStart = this.positionFromLine(this.lineFromPosition(aPos));
         let column = 0;
-        let piece = this.text.substring(lineStart, aPos + 1);
+        let piece = this.text.substring(lineStart, aPos);
         for(let i = 0; i < piece.length; ++i) {
             switch (piece[i]) {
                 case "\t":
@@ -145,6 +147,18 @@ SciMozMock.prototype.getStyleRange =
         return styles;
     };
 
+SciMozMock.prototype.getStyleAt =
+    function SciMozMock_getStyleAt(aPos)
+        this.styles[aPos];
+
+SciMozMock.prototype.getWCharAt =
+    function SciMozMock_getWCharAt(aPos)
+        this.text[aPos];
+
+SciMozMock.prototype.getCharAt =
+    function SciMozMock_getCharAt(aPos)
+        this.text[aPos];
+
 SciMozMock.prototype.setFoldLevels =
     function SciMozMock_setFoldLevels(aLevels)
         this.levels = [].concat(aLevels);
@@ -158,6 +172,30 @@ SciMozMock.prototype.setFoldLevel = function SciMozMock_setFoldLevel(i, level) {
 SciMozMock.prototype.getFoldLevel =
     function SciMozMock_getFoldLevel(i)
         this.levels[i];
+
+SciMozMock.prototype.colourise = function SciMozMock_colourise(start, end) {
+};
+
+SciMozMock.prototype.getFoldParent = function SciMozMock_getFoldParent(i) {
+    const SC_FOLDLEVELBASE = 0xf00;
+    const SC_FOLDLEVELHEADERFLAG = 0x2000;
+    const SC_FOLDLEVELNUMBERMASK = 0x0FFF;
+    var level = this.getFoldLevel(i) & SC_FOLDLEVELNUMBERMASK;
+    var lookLevel, lineLook = i - 1;
+    while (lineLook > 0
+           && !((lookLevel = this.getFoldLevel(lineLook)) & SC_FOLDLEVELHEADERFLAG)
+           && (lookLevel & SC_FOLDLEVELNUMBERMASK) >= level) {
+	lineLook--;
+    }
+    if (lineLook = 0) {
+        lookLevel = this.getFoldLevel(lineLook);
+    }
+    if ((lookLevel & SC_FOLDLEVELHEADERFLAG)
+        && (lookLevel & SC_FOLDLEVELNUMBERMASK) < level) {
+        return lineLook;
+    }
+    return -1;
+};
 
 SciMozMock.prototype.getTextRange =
     function SciMozMock_getTextRange(aStart, aEnd)
@@ -441,6 +479,34 @@ SciMozMock.prototype.docLineFromVisible =
 
 SciMozMock.prototype.visibleFromDocLine =
     function SciMozMock_visibleFromDocLine(lineNo) lineNo;
+
+
+SciMozMock.prototype.searchAnchor = function SciMozMock_searchAnchor() {
+    this._searchAnchor = this.currentPos;
+};
+
+/* Flags: 
+val SCFIND_WHOLEWORD=2
+val SCFIND_MATCHCASE=4
+val SCFIND_WORDSTART=0x00100000
+val SCFIND_REGEXP=0x00200000
+val SCFIND_POSIX=0x00400000
+*/
+
+// Assume flags is always 0 */
+SciMozMock.prototype.searchNext = function SciMozMock_searchNext(flags, text) {
+    if (flags) {
+        throw new Error("searchNext: can't handle flag != 0, got" + flags);
+    }
+    return this.text.indexOf(text, this._searchAnchor);
+};
+
+SciMozMock.prototype.searchPrev = function SciMozMock_searchPrev(flags, text) {
+    if (flags) {
+        throw new Error("searchPrev: can't handle flag != 0, got" + flags);
+    }
+    return this.text.lastIndexOf(text, this._searchAnchor);
+};
 
 /* Unimplemented stubs */
 SciMozMock.prototype.addRefDocument = function SciMozMock_addRefDocument() void(0);SciMozMock.prototype.setSavePoint = function SciMozMock_setSavePoint() void(0);
