@@ -647,15 +647,14 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         if include_forwards:
             try:
                 # Move ahead to include forward chars as well
-                lastch_was_whitespace = False
                 while 1:
                     i, ch, style = ac.getNextPosCharStyle()
                     if DEBUG:
                         print "include_forwards:: i now: %d, ch: %r" % (i, ch)
                     if ch in WHITESPACE:
-                        lastch_was_whitespace = True
-                        continue
-                    lastch_was_whitespace = False
+                        if DEBUG:
+                            print "include_forwards:: ch in WHITESPACE"
+                        break
                     if ch in STOPOPS:
                         if DEBUG:
                             print "include_forwards:: ch in STOPOPS, i:%d ch:%r" % (i, ch)
@@ -663,11 +662,6 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     elif ch in BLOCKCLOSES:
                         if DEBUG:
                             print "include_forwards:: ch in BLOCKCLOSES, i:%d ch:%r" % (i, ch)
-                        break
-                    elif lastch_was_whitespace:
-                        # Two whitespace separated words
-                        if DEBUG:
-                            print "include_forwards:: ch separated by whitespace, i:%d ch:%r" % (i, ch)
                         break
                 # Move back to last valid char
                 i -= 1

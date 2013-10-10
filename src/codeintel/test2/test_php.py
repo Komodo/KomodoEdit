@@ -3995,23 +3995,12 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertCITDLExprUnderPosIs("if(!<|>is_array", "is_array", trigger_name="functions")
         self.assertCITDLExprUnderPosIs("require('myfile.php');\nfo<|>o->bar", "foo")
         
-    @tag("bug100843", "knownfailure")
-    def test_citdl_expr_from_trg_as_bug_01(self):
+    @tag("bug100843")
+    def test_citdl_expr_under_pos_foreach(self):
         self.assertCITDLExprUnderPosIs(php_markup("foreach ($<|>previous as $p"), "previous")
-        
-    @tag("bug100843", "knownfailure")
-    def test_citdl_expr_from_trg_as_bug_02(self):
         self.assertCITDLExprUnderPosIs(php_markup("foreach ($prev<|>ious as $p"), "previous")
-        
-    @tag("bug100843", "knownfailure")
-    def test_citdl_expr_from_trg_as_bug_03(self):
         self.assertCITDLExprUnderPosIs(php_markup("foreach ($previous<|> as $p"), "previous")
         
-    @tag("bug100843", "knownfailure")
-    def test_citdl_expr_from_trg_as_bug_04(self):
-        self.assertCITDLExprUnderPosIs(php_markup("print('$previous<|>\n');"),
-                                       "previous")
-
     def test_simple(self):
         test_dir = join(self.test_dir, "test_defn_simple")
         foo_content, foo_positions = unmark_text(php_markup(dedent("""\
