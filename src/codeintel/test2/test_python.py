@@ -360,7 +360,6 @@ class DefnTestCase(CodeIntelTestCase):
             ilk="variable", name="ex", line=7,
             path=path)
 
-    @tag("knownfailure")
     def test_defn_at_defn(self):
         """Test that finding the definition at the declaration will return a
         valid definition"""
@@ -1900,7 +1899,30 @@ class CplnTestCase(CodeintelPythonTestCase):
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "bar2_method"),])
 
-    
+    @tag("bug100684")
+    def test_import_with_same_leaf_name(self):
+        """Test that we can import a module from a different package with the
+        same name as the basename of the file we're in"""
+        test_dir = join(self.test_dir, "test_import_with_same_leaf_name")
+        content, positions = unmark_text(dedent(r"""
+            from django import models
+            models.<|>yyy
+        """))
+        manifest = [
+            ('models.py', content),
+            ('django/__init__.py', ""),
+            ('django/models.py', dedent("""\
+                class manager(object):
+                    pass
+             """))
+        ]
+        for f, c in manifest:
+            path = join(test_dir, f)
+            writefile(path, c)
+        buf = self.mgr.buf_from_path(join(test_dir, "models.py"))
+        self.assertCompletionsInclude2(buf, positions["pos"],
+            [("class", "manager"),])
+
     @tag("bug55687")
     def test_hit_from_function_call(self):
         content, positions = unmark_text(dedent("""\

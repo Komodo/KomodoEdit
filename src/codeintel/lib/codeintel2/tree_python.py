@@ -477,6 +477,12 @@ class PythonTreeEvaluator(TreeEvaluator):
                          '.'.join(tokens[:nconsumed]), scoperef, hit[0])
                 return hit, nconsumed
 
+            if first_token == elem.get("name"):
+                # The element itself is the thing we wanted...
+                self.log("is '%s' accessible on %s? yes: %s",
+                         first_token, scoperef, elem)
+                return (elem, scoperef), 1
+
             self.log("is '%s' accessible on %s? no", first_token, scoperef)
             scoperef = self.parent_scoperef_from_scoperef(scoperef)
             if not scoperef:
