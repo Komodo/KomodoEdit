@@ -155,6 +155,9 @@ class PHPTreeEvaluator(TreeEvaluator):
     # A variable used to track the recursion depth of _hit_from_citdl().
     eval_depth = 0
 
+    # Whether this is a goto definition request.
+    defn_request=False
+
     #TODO: candidate for base TreeEvaluator class
     _langintel = None
     @property
@@ -340,12 +343,13 @@ class PHPTreeEvaluator(TreeEvaluator):
         return self._calltips_from_hit(hit)
 
     def eval_defns(self):
+        self.defn_request = True
         self.log_start()
         self._imported_blobs = {}
         start_scoperef = self.get_start_scoperef()
         self.info("start scope is %r", start_scoperef)
 
-        hit = self._hit_from_citdl(self.expr, start_scoperef, defn_only=True)
+        hit = self._hit_from_citdl(self.expr, start_scoperef)
         return [self._defn_from_hit(hit)]
 
     # Determine if the hit is valid
@@ -790,7 +794,7 @@ class PHPTreeEvaluator(TreeEvaluator):
             members.update(self._members_from_hit(hit))
         return members
 
-    def _hit_from_citdl(self, expr, scoperef, defn_only=False):
+    def _hit_from_citdl(self, expr, scoperef):
         """Resolve the given CITDL expression (starting at the given
         scope) down to a non-import/non-variable hit.
         """
@@ -870,7 +874,7 @@ class PHPTreeEvaluator(TreeEvaluator):
         # Resolve any variable type inferences.
         #TODO: Need to *recursively* resolve hits.
         elem, scoperef = hit
-        if elem.tag == "variable" and not defn_only:
+        if elem.tag == "variable" and not self.defn_request:
             elem, scoperef = self._hit_from_variable_type_inference(elem, scoperef)
 
         self.info("_hit_from_citdl:: found '%s' => %s on %s", expr, elem, scoperef)
