@@ -2891,6 +2891,40 @@ class PHPParser:
                     # Must be a namespace reference.
                     self.addNamespaceImport(namelist[0], alias)
 
+    def _foreachKeywordHandler(self, styles, text, p):
+        log.debug("_foreachKeywordHandler:: text: %r", text[p:])
+        typeNames, p = self._getVariableType(styles, text, p, assignmentChar=None)
+        if typeNames:
+            if "(" in typeNames[0]:
+                p = self._skipPastParenArguments(styles, text, p+1)
+            # Note: It's an item of the array, not an array itself.
+            typeNames[-1] += "[]"
+            log.debug("typeNames:%r", typeNames)
+        if p < len(text) and text[p] == "as":
+            # Two formats:
+            #   as $value
+            #   as $key => $value
+            p += 1
+            namelist1, p = self._getIdentifiersFromPos(styles, text, p,
+                                                      self.PHP_VARIABLE)
+            namelist2 = None
+            if p+3 < len(text) and text[p:p+2] == ["=", ">"]:
+                p += 2
+                namelist2, p = self._getIdentifiersFromPos(styles, text, p,
+                                                          self.PHP_VARIABLE)
+            log.debug("namelist1:%r, namelist2:%r", namelist1, namelist2)
+            if namelist2 and namelist1:
+                self.addVariable(namelist1[0],
+                                 #vartype="string|integer",
+                                 doc=self.comment)
+                self.addVariable(namelist2[0],
+                                 vartype=".".join(typeNames),
+                                 doc=self.comment)
+            elif namelist1:
+                self.addVariable(namelist1[0],
+                                 vartype=".".join(typeNames),
+                                 doc=self.comment)
+
     def _handleTraitResolution(self, styles, text, p, doc=None):
         log.debug("_handleTraitResolution:: text: %r", text[p:])
         # Examples:
@@ -3089,6 +3123,8 @@ class PHPParser:
                     if text and text[-1] == "{":
                         self.return_to_state = newstate
                         newstate = S_TRAIT_RESOLUTION
+                elif keyword == "foreach":
+                    self._foreachKeywordHandler(styles, text, pos+1)
                 else:
                     log.debug("Ignoring keyword: %s", keyword)
                     self._addAllVariables(styles, text, pos)

@@ -4358,6 +4358,36 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertDefnMatches2(buf, positions[12], path=path,
                                 ilk="function", name="getBar", line=lines[3])
 
+    @tag("bug100701")
+    def test_defn_at_defn(self):
+        """ Test foreach(x as $y) in goto definition."""
+        content, positions = unmark_text(php_markup(dedent("""\
+            class ECafe {
+                public function savePhases(&$projectPhaseDates) {
+                    # Array passed by reference
+                    foreach ($projectPhaseDates as &$phase_date<1>) {
+                        if($phase_date['end_date'] == "") $phase_date<2>['end_date'] = 6;
+                    }
+                    foreach ($projectPhaseDates as $non_updatable_item<3>) {
+                        $non_updatable_item<4>['start_date'] += 100;
+                    }
+                }
+            }
+        """)))
+        test_dir = join(self.test_dir, "test_defn")
+        path = join(test_dir, "bug100701.php")
+        writefile(path, content)
+        buf = self.mgr.buf_from_path(path)
+
+        for pos in range(1, 3):
+            self.assertDefnMatches2(buf, positions[pos], path=path,
+                                    ilk="variable", name="phase_date",
+                                    line=4)
+        for pos in range(3, 5):
+            self.assertDefnMatches2(buf, positions[pos], path=path,
+                                    ilk="variable", name="non_updatable_item",
+                                    line=7)
+
 
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"

@@ -1,0 +1,13 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/foreach.php">
+    <scope ilk="blob" lang="PHP" name="foreach.php" src="scan_inputs/php/foreach.php">
+      <variable citdl="array()" line="3" name="someclass" />
+      <variable citdl="someclass[]" line="4" name="variable" />
+      <variable citdl="sum()[]" line="8" name="value" />
+      <variable line="8" name="key" />
+      <variable citdl="array()[]" line="12" name="value2" />
+      <variable citdl="DirectoryIterator" line="20" name="dir" />
+      <variable citdl="dir[]" line="21" name="item" />
+    </scope>
+  </file>
+</codeintel>
