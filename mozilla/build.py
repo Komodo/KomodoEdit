@@ -2464,8 +2464,6 @@ def target_all(argv):
     target_patch_komodo()
     target_configure_mozilla()
     target_mozilla()
-    target_mbsdiff()
-    target_libmar()
     target_pyxpcom()
     target_silo_python()
     target_regmozbuild()
