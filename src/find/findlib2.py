@@ -1014,19 +1014,30 @@ class Journal(list):
     @classmethod
     def remove_old_journals(cls, journal_dir):
         """By default creating a replacement journal will remove all but
-        the last 10 journals. Otherwise space consumption could get
-        huge after long usage.
+        the last {NUM_JOURNALS_TO_KEEP} journals.
+        Otherwise space consumption could get huge after long usage.
         """
         try:
+            prefix_len = len(join(journal_dir, "journal-"))
+            suffix_len = len(".pickle")
             mtimes_and_journal_ids = [
-                (os.stat(p).st_mtime, p[8:-7])
+                (os.stat(p).st_mtime, p[prefix_len:-suffix_len])
                 for p in glob(join(journal_dir, "journal-*.pickle"))
             ]
             mtimes_and_journal_ids.sort()
             for mtime, id in mtimes_and_journal_ids[:-cls.NUM_JOURNALS_TO_KEEP]:
-                log.debug("rm old journal `%s'", id)
-                for path in glob(join(journal_dir, "*-%s.*" % id)):
-                    os.remove(path)
+                jpath = join(journal_dir, "journal-%s.pickle" % (id,))
+                log.debug("rm old journal %s", jpath)
+                try:
+                    os.remove(jpath)
+                except:
+                    log.error("Can't remove journal %s", jpath)
+                spath = join(journal_dir, "summary-%s.txt" % (id,))
+                log.debug("rm old summary %s", spath)
+                try:
+                    os.remove(spath)
+                except:
+                    log.error("Can't remove remove %s", spath)
         except EnvironmentError, ex:
             log.warn("error removing old journals: %s (ignored)", ex)
 
