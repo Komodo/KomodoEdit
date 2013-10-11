@@ -224,6 +224,22 @@ if (ko.skin == undefined)
             this._setupCustomScrollbars();
 
             koLess.reload();
+
+            var nb = document.getElementById("komodo-notificationbox");
+            var nf = nb.appendNotification("Some of the changes made may require a Komodo restart to apply properly",
+                                  "skin-restart", null, nb.PRIORITY_INFO_HIGH,
+            [
+                {
+                    accessKey: "r",
+                    callback: ko.utils.restart,
+                    label: "Restart Komodo"
+                },
+                {
+                    accessKey: "l",
+                    callback: nb.removeNotification.bind(nb, nf),
+                    label: "Restart Later"
+                },
+            ]);
         },
 
         /**
