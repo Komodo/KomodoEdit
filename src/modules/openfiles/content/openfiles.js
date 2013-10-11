@@ -355,23 +355,28 @@ if (typeof ko.openfiles == 'undefined')
         bindListeners: function openfiles_bindListeners()
         {
             /**** Komodo Events ******/
-            koWindow.addEventListener('view_opened', function(e)
-            {
-                this.addItem(e.originalTarget);
-            }.bind(this));
-            
             koWindow.addEventListener('view_closed', function(e)
             {
+                log.debug("event: view_closed");
                 this.removeItem(e.originalTarget);
             }.bind(this));
             
             koWindow.addEventListener('current_view_changed', function(e)
             {
-                this.selectItem(e.originalTarget);
+                log.debug("event: current_view_changed");
+
+                var editorView = e.originalTarget;
+                if ( ! (editorView.uid.number in openViews))
+                {
+                    this.addItem(editorView);
+                }
+
+                this.selectItem(editorView);
             }.bind(this));
             
             koWindow.addEventListener('current_view_language_changed', function(e)
             {
+                log.debug("event: current_view_language_changed");
                 this.removeItem(e.originalTarget);
                 this.addItem(e.originalTarget);
             }.bind(this));
@@ -1336,7 +1341,7 @@ if (typeof ko.openfiles == 'undefined')
 
                 _getPath: function(editorView)
                 {
-                    if ("koDoc" in editorView && "file" in editorView.koDoc)
+                    if ("koDoc" in editorView && "file" in editorView.koDoc && editorView.koDoc.file)
                     {
                         var path = editorView.koDoc.file.dirName;
 
