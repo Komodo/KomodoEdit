@@ -77,7 +77,11 @@
                         anonid="findInFolder"
                         label="&findInFolder.label;"
                         oncommand="ko.breadcrumbs.onCommandMenuItem('Find', this)"
+<!-- #if PLATFORM == "darwin" -->
+                        acceltext="Cmd+Click"
+<!-- #else -->
                         acceltext="Ctrl+Click"
+<!-- #endif -->
                         preserve="true"/>
                     <menuitem
                         anonid="showInPlaces"

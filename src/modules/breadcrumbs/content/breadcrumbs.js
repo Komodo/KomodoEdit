@@ -243,7 +243,8 @@ if (typeof ko.breadcrumbs == 'undefined')
                     }
 
                     // Find in folder shortcut
-                    else if (e.ctrlKey)
+                    else if (e.ctrlKey && window.navigator.platform.toLowerCase().indexOf("mac") == -1 ||
+                             e.metaKey && window.navigator.platform.toLowerCase().indexOf("mac") != -1)
                     {
                         this.doCommandFind(crumb);
                     }
