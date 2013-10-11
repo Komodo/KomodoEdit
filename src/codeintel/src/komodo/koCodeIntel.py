@@ -994,12 +994,15 @@ class KoCodeIntelManager(threading.Thread):
 
         if self.state is KoCodeIntelManager.STATE.QUITTING:
             return # Nope, eating all commands during quit
-        data = kwargs.copy()
         req_id = hex(self._next_id)
-        self.requests[req_id] = (callback, kwargs.copy(), time.time())
-        data["req_id"] = req_id
+        kwargs["req_id"] = req_id
+        text = json.dumps(kwargs, separators=(",", ":"))
+        # Keep the request parameters so the handler can examine it; however,
+        # drop the text and env, because those are huge and usually useless
+        kwargs.pop("text", None)
+        kwargs.pop("env", None)
+        self.requests[req_id] = (callback, kwargs, time.time())
         self._next_id += 1
-        text = json.dumps(data, separators=(",", ":"))
         self.debug("sending frame: %s", text)
         self.pipe.write("%i%s" % (len(text), text))
 
