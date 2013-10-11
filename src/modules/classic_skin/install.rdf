@@ -5,7 +5,7 @@
         <em:unpack>true</em:unpack>
         <em:id>skin_classic@activestate.com</em:id>
         <em:name>Classic Skin</em:name>
-        <em:version>1.0</em:version>
+        <em:version>1.0.1</em:version>
         <em:description>This skin will remove any custom styling that was added in Komodo 8 and rely only on your system to do the styling.</em:description>
         <em:creator>Nathan Rijksen</em:creator>
         <em:homepageURL>http://komodo.activestate.com/addons/skin_classic/</em:homepageURL>
