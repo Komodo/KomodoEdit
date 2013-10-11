@@ -182,6 +182,12 @@ if (typeof ko.breadcrumbs == 'undefined')
             window.addEventListener('file_saved',
                                     this.load.bind(this, false));
 
+            // current_view_changed is not fired if the last view was closed
+            // in case the 2 events are fired simultaniously this.load will
+            // "merge" them, so to speak - Bug #100485 
+            window.addEventListener('view_closed',
+                                    this.load.bind(this, false));
+
             /* DOM Events */
             window.addEventListener('resize',
                                     this.checkOverflow.bind(this, false));
