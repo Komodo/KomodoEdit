@@ -12,3 +12,5 @@
 /test/pyxpcom/koITest.xpt
 *.landmark
 qbtable.pik
+.DS_Store
+
