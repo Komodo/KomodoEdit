@@ -41,10 +41,14 @@ class OOPEvalController(EvalController):
         self.log.propagate = False
         self.log.addHandler(self.log_hndlr)
         self.best_msg = (0, "")
+        self.has_sent_response = False
 
     def close(self):
         log.debug("close")
         EvalController.close(self)
+        if not self.has_sent_response:
+            self.driver.fail(request=self.request, msg="aborted")
+            self.has_sent_response = True
 
     def set_desc(self, desc):
         log.debug("set_desc: %s", desc)
@@ -75,6 +79,8 @@ class OOPEvalController(EvalController):
     def done(self, reason):
         log.debug("done: %s %s", reason,
                   "(aborted)" if self.is_aborted() else "")
+
+        self.has_sent_response = True
 
         retrigger = self.trg.retriggerOnCompletion if self.trg else False
 

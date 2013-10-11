@@ -161,6 +161,11 @@ class _UniqueRequestPriorityQueue(_PriorityQueue):
             self.queue.remove(i)
             p, t, r = i
             item = (min(priority, p), t, request)
+            if isinstance(r, ScanRequest):
+                try:
+                    r.complete("skipped")
+                except:
+                    pass
         # Add the (possibly updated) item to the queue.
         self._item_from_id[id] = item
         _PriorityQueue._put(self, item)
@@ -236,17 +241,27 @@ class _StagingRequestQueue(_UniqueRequestPriorityQueue):
     def stage(self, item, delay=None):
         if delay is None:
             delay = self._stagingDelay
-        self.mutex.acquire()
-        try:
+        with self.mutex:
             priority, timestamp, request = item
             wasEmpty = not self._onDeck
-            if request.id not in self._onDeck \
-               or self._onDeck[request.id][1] != PRIORITY_IMMEDIATE:
+            old = self._onDeck.get(request.id)
+            if old is None or old[1] != PRIORITY_IMMEDIATE:
                 self._onDeck[request.id] = (timestamp + delay, priority, item)
                 if wasEmpty:
                     self._nothingOnDeck.release()
-        finally:
-            self.mutex.release()
+        if old:
+            # Ensure that old scan requests are properly cleaned up; we want to
+            # avoid having Komodo hang on to them for no reason.
+            def complete_requests(obj):
+                if isinstance(obj, (list, tuple)):
+                    for child in obj:
+                        complete_requests(child)
+                elif isinstance(obj, ScanRequest):
+                    try:
+                        obj.complete("skipped")
+                    except:
+                        pass
+            complete_requests(old)
 
     def _stagingThread(self):
         """Thread that handles moving requests on-deck to the queue."""

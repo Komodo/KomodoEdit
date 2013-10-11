@@ -1066,7 +1066,7 @@ class KoCodeIntelManager(threading.Thread):
             "KoCodeIntelService.handle() should run on main thread!"
         self.debug("handling: %s", json.dumps(response))
         req_id = response.get("req_id")
-        if not req_id:
+        if req_id is None:
             # unsolicited response, look for a handler
             try:
                 command = str(response.get("command", ""))

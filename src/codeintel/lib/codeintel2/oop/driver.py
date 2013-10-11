@@ -776,7 +776,8 @@ class CoreHandler(CommandHandler):
         if mtime is not None:
             mtime = long(mtime)
         def on_complete():
-            driver.send(request=request)
+            driver.send(request=request,
+                        status=getattr(scan_request, "status", None))
 
         assert buf.accessor.text is not None, \
             "No text!"

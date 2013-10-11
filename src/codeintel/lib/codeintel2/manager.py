@@ -564,7 +564,13 @@ class Manager(threading.Thread, Queue):
             # We only allow *one* eval session at a time.
             # - Drop a possible accumulated eval session.
             if len(self.queue):
+                pending = list(self.queue)
                 self.queue.clear()
+                for evalr, _ in pending:
+                    try:
+                        evalr.close()
+                    except:
+                        log.exception("Failed to close evalr")
             ## - Abort the current eval session.
             if not is_reeval and self._curr_eval_sess is not None:
                 self._curr_eval_sess.ctlr.abort()
