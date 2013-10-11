@@ -964,7 +964,11 @@ class Environment(codeintel2.environment.Environment):
                 self._send(command="global-prefs-observe",
                            add=[name])
             else:
-                self.log.warn("Warning: no way to trigger new prefs")
+                # We can't actually trigger prefs observer changes on document
+                # level prefs; that's mostly okay, though, since we just pass
+                # the whole prefs environment every time we do something with a
+                # document instead.
+                pass
 
     def remove_pref_observer(self, name, callback):
         self._observers[name].discard(callback)
