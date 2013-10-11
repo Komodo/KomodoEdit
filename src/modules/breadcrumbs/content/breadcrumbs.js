@@ -1137,7 +1137,7 @@ if (typeof ko.breadcrumbs == 'undefined')
                     popup.parentMenu = menupopup;
                     elem.appendChild(popup);
 
-                    //this.bindCrumbPopupListeners(popup);
+                    this.bindCrumbPopupListeners(popup);
                 }
 
                 elem.setAttribute('label', child.getFilename());
