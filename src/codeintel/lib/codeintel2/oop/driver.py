@@ -379,6 +379,7 @@ class Driver(threading.Thread):
             self.mgr._register_modules(module_dirs)
         if catalog_dirs is not None:
             self.mgr.db.get_catalogs_zone().catalog_dirs = catalog_dirs
+        self.send(request=request)
 
     def do_load_extension(self, request):
         """Load an extension that, for example, might provide additional

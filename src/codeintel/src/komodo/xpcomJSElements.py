@@ -175,6 +175,7 @@ class XPCOMSupport(CommandHandler, threading.Thread):
                                                 source_address=("localhost", 0))
         log.debug("connected from %s:%i to %s:%i",
                   *(list(self._socket.getsockname()) + list(self._socket.getpeername())))
+        driver.send(request=request)
 
     def add_components_elem(self, blob):
         if self.xpcom_components_elem is None:
