@@ -188,7 +188,12 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
         try {
             enteredUndoableTabstop = ko.projects.snippetInsertImpl(snippet, view);
         } catch (ex if ex instanceof ko.snippets.RejectedSnippet) {
-            var msg = _bundle.formatStringFromName("snippet X insertion deliberately suppressed", [snippet.name], 1);
+            let msg;
+            if (ex.message) {
+                msg = _bundle.formatStringFromName("snippet X insertion deliberately suppressed with reason", [snippet.name, ex.message], 2);
+            } else {
+                msg = _bundle.formatStringFromName("snippet X insertion deliberately suppressed", [snippet.name], 1);
+            }
             ko.statusBar.AddMessage(msg, "Editor", 1000, true);
         } catch (ex) {
             var errno = lastErrorSvc.getLastErrorCode();

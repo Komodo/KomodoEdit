@@ -248,10 +248,17 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
         origAnchor = scimoz.anchor;
         scimoz.currentPos = wordStartPos;
         scimoz.anchor = pos;
-        if (ko.abbrev.insertAbbrevSnippet(snippet, currView)) {
+        var exObj = {};
+        if (ko.abbrev.insertAbbrevSnippet(snippet, currView, exObj)) {
             return true;
         } else {
-            msg = _bundle.formatStringFromName("snippet X insertion deliberately suppressed", [snippet.name], 1);
+            if (exObj.value && exObj.value.message) {
+                msg = _bundle.formatStringFromName("snippet X insertion deliberately suppressed with reason",
+                                   [snippet.name, exObj.value.message], 2);
+            } else {
+                msg = _bundle.formatStringFromName("snippet X insertion deliberately suppressed",
+                                   [snippet.name], 1);
+            }
         }
     } else {
         msg = _bundle.formatStringFromName("noAbbreviationWasFound", [abbrev], 1);
@@ -425,9 +432,12 @@ this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
  * @param view {Components.interfaces.koIView} The buffer view in which to
  *      insert the snippet. Optional. If not specified then the current
  *      view is used.
+ * @param exObj {object} -- if it exists and trying to insert a snippet
+ *      throws an exception, set exObj.value to the exception.
  * @returns {boolean} true if a snippet was inserted, false if not.
  */
-this.insertAbbrevSnippet = function(snippet, view /* =<curr view> */) {
+this.insertAbbrevSnippet = function(snippet, view /* =<curr view> */,
+                                     exObj /* ={} */) {
     if (!snippet) {
         return false;
     }
@@ -444,6 +454,9 @@ this.insertAbbrevSnippet = function(snippet, view /* =<curr view> */) {
         enteredUndoableTabstop = ko.projects.snippetInsertImpl(snippet, view);
     } catch(ex) {
         //dump("snippetInsertImpl failed: " + ex + "\n");
+        if (typeof(exObj) == "object") {
+            exObj.value = ex;
+        }
         return false;
     } finally {
         ko.snippets.invokedExplicitly = true;
