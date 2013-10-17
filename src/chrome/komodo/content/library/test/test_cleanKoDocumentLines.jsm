@@ -14,6 +14,7 @@ let logging = Components.utils.import("chrome://komodo/content/library/logging.j
 function TestCleanKoDocumentLines() {
     this.log = null;
     this.log = logging.getLogger("clean.koDocument");
+    //this.log.setLevel(ko.logging.LOG_DEBUG);
 }
 TestCleanKoDocumentLines.prototype = new TestCase();
 
@@ -320,5 +321,186 @@ TestCleanKoDocumentLines.prototype._saveCheckLines = function _saveCheckLines(ko
     }
 };
 
+TestCleanKoDocumentLines.prototype._finish_clean_changed_lines_2 = function(file, origBuf, expectedLines, eolMode) {
+    try {
+        // Write '6' to the current position,  save, and compare
+        var koDoc = this.docSvc.createNewDocumentFromURI(file.URI);
+        koDoc.new_line_endings = eolMode;
+        // Set the buffer before assigning the view, otherwise it will fail.
+        var origBugUTF = this.encodingSvc.encode(origBuf, "utf-8", "")
+        koDoc.setBufferAndEncoding(origBugUTF, "utf-8");
+        var view = new ko.views.ViewMock();
+        view.koDoc = koDoc;
+        koDoc.addView(view.scintilla);
+        var scimoz = view.scimoz;
+
+        koDoc.save(1); // Ensure original buffer content is sane - for Windows.
+        //this.assertEqual(view.scintilla, koDoc.getView());
+
+        // Now allow for the modifications we'll do.
+        // Line 0: no change
+        // Line 1: add 2 spaces to end
+        // Line 2: no change
+        // Line 3: add 4 spaces to end
+        // Line 4: delete 1 space from end
+
+        // Modify the lines
+        var scimoz = view.scimoz;
+
+        scimoz.currentPos = scimoz.getLineEndPosition(1);
+        scimoz.addText(2, this.sp(2));
+        scimoz.currentPos = scimoz.getLineEndPosition(3);
+        scimoz.addText(4, this.sp(4));
+        scimoz.targetEnd = scimoz.getLineEndPosition(4);
+        scimoz.targetStart = scimoz.targetEnd - 1;
+        scimoz.replaceTarget(0, "");
+
+        this.setPrefsShortcut({
+              cleanLineEnds: 1,
+              cleanLineEnds_CleanCurrentLine: 1,
+              cleanLineEnds_ChangedLinesOnly: 1});
+        this._saveCheckLines(koDoc, scimoz, expectedLines);
+    } finally {
+        file = this.fileSvc.deleteTempFile(file.path, true);
+    }
+};
+
+
+TestCleanKoDocumentLines.prototype.test_bug100967_a = function test_bug100967_a() {
+// Bug 100967: removes too much when a file doesn't end with a EOL
+    var file = this.fileSvc.makeTempFile(".txt", 'wb');
+    var origBuf   = "line 0\n"
+                  + "line 1\n"
+                  + "\n"
+                  + "line 3\n"
+                  + "\n"
+                  + "line 5\n"
+                  + "line 6";
+    var expectedBuf = ["line 0"
+                       , "line 1"
+                       , ""
+                       , "line 3"
+                       , ""
+                       , "line 5"
+                       , "line 66"].join("\n");
+    file.puts(origBuf);
+    file.close();
+    let eolMode = this.koIDocument.EOL_LF;
+    var koDoc = this.docSvc.createNewDocumentFromURI(file.URI);
+    koDoc.new_line_endings = eolMode;
+    // Set the buffer before assigning the view, otherwise it will fail.
+    var origBugUTF = this.encodingSvc.encode(origBuf, "utf-8", "")
+    koDoc.setBufferAndEncoding(origBugUTF, "utf-8");
+    var view = new ko.views.ViewMock();
+    view.koDoc = koDoc;
+    koDoc.addView(view.scintilla);
+    var scimoz = view.scimoz;
+    scimoz.currentPos = scimoz.length;
+    scimoz.addText(1, "6");
+    scimoz.currentPos = scimoz.positionFromLine(3);
+    this.setPrefsShortcut({
+              cleanLineEnds: 1,
+              cleanLineEnds_CleanCurrentLine: 0,
+              cleanLineEnds_ChangedLinesOnly: 0,
+              ensureFinalEOL: false
+              });
+    koDoc.save(true);
+    this.assertEquals(expectedBuf, scimoz.text,
+                      (" Expected <<" + expectedBuf + ">>, got\n<<"
+                       + scimoz.text + ">>"));
+};
+
+TestCleanKoDocumentLines.prototype.test_bug100967_b = function test_bug100967_b() {
+// Bug 100967: removes too much when a file doesn't end with a EOL
+// Similar to previous case, but modify an earlier line.
+    var file = this.fileSvc.makeTempFile(".txt", 'wb');
+    var origBuf   = "line 0\n"
+                  + "line 1\n"
+                  + "\n"
+                  + "line 3\n"
+                  + "\n"
+                  + "line 5\n"
+                  + "line 6";
+    var expectedBuf = ["line 0"
+                       , "line 1"
+                       , ""
+                       , "xline 3"
+                       , ""
+                       , "line 5"
+                       , "line 6"].join("\n");
+    file.puts(origBuf);
+    file.close();
+    let eolMode = this.koIDocument.EOL_LF;
+    var koDoc = this.docSvc.createNewDocumentFromURI(file.URI);
+    koDoc.new_line_endings = eolMode;
+    // Set the buffer before assigning the view, otherwise it will fail.
+    var origBugUTF = this.encodingSvc.encode(origBuf, "utf-8", "")
+    koDoc.setBufferAndEncoding(origBugUTF, "utf-8");
+    var view = new ko.views.ViewMock();
+    view.koDoc = koDoc;
+    koDoc.addView(view.scintilla);
+    var scimoz = view.scimoz;
+    scimoz.currentPos = scimoz.positionFromLine(3);
+    var newStr = "x";
+    scimoz.addText(newStr.length, newStr);
+    scimoz.currentPos = scimoz.positionFromLine(3);
+    this.setPrefsShortcut({
+              cleanLineEnds: 1,
+              cleanLineEnds_CleanCurrentLine: 0,
+              cleanLineEnds_ChangedLinesOnly: 0,
+              ensureFinalEOL: false
+              });
+    koDoc.save(true);
+    this.assertEquals(expectedBuf, scimoz.text,
+                      (" Expected <<" + expectedBuf + ">>, got\n<<"
+                       + scimoz.text + ">>"));
+};
+
+TestCleanKoDocumentLines.prototype.test_ok_clean_obv_ws = function test_ok_clean_obv_ws() {
+// A case where we don't see Bug 100967:
+// All the whitespace added after the line starting with "line 6" is handled
+// correctly.
+    var file = this.fileSvc.makeTempFile(".txt", 'wb');
+    var origBuf   = "line 0\n"
+                  + "line 1\n"
+                  + "\n"
+                  + "line 3\n"
+                  + "\n"
+                  + "line 5\n"
+                  + "line 6";
+    var expectedBuf = ["line 0"
+                       , "line 1"
+                       , ""
+                       , "line 3"
+                       , ""
+                       , "line 5"
+                       , "line 66\n"].join("\n");
+    file.puts(origBuf);
+    file.close();
+    let eolMode = this.koIDocument.EOL_LF;
+    var koDoc = this.docSvc.createNewDocumentFromURI(file.URI);
+    koDoc.new_line_endings = eolMode;
+    // Set the buffer before assigning the view, otherwise it will fail.
+    var origBugUTF = this.encodingSvc.encode(origBuf, "utf-8", "")
+    koDoc.setBufferAndEncoding(origBugUTF, "utf-8");
+    var view = new ko.views.ViewMock();
+    view.koDoc = koDoc;
+    koDoc.addView(view.scintilla);
+    var scimoz = view.scimoz;
+    scimoz.currentPos = scimoz.length;
+    var newStr = "6\n \n  \n   \n    \n";
+    scimoz.addText(newStr.length, newStr);
+    scimoz.currentPos = scimoz.positionFromLine(3);
+    this.setPrefsShortcut({
+              cleanLineEnds: 1,
+              cleanLineEnds_CleanCurrentLine: 1,
+              cleanLineEnds_ChangedLinesOnly: 0,
+              ensureFinalEOL: false
+              });
+    koDoc.save(true);
+    this.assertEquals(expectedBuf, scimoz.text,
+                      (" Expected <<" + expectedBuf + ">>, got\n<<"
+                       + scimoz.text + ">>"));
+};
 
 var JS_TESTS = ["TestCleanKoDocumentLines"];

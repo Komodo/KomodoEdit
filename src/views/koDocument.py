@@ -1446,12 +1446,15 @@ class koDocumentBase:
             # Clean the document content.
             text = scimoz.text
             lines = text.splitlines(True)
+            eolStr = eollib.eol2eolStr[eollib.scimozEOL2eol[scimoz.eOLMode]] # '\r\n' or '\n'...
+            if text.endswith(eolStr):
+                # Model Scintilla: when a document ends with an EOL, Scintilla
+                # actually acts as if it has one more line.
+                lines.append("")
             numLines = len(lines)
             sciLength = scimoz.length # scimoz.length in _bytes_
             scimoz.beginUndoAction()
             try:
-                eolStr = eollib.eol2eolStr[eollib.scimozEOL2eol[scimoz.eOLMode]] # '\r\n' or '\n'...
-                
                 if ensureFinalEOL and not text.endswith(eolStr):
                     if DEBUG:
                         print "INSERT FINAL EOL: %r" % eolStr
@@ -1517,13 +1520,9 @@ class koDocumentBase:
                     else:
                         firstDeletableLine = scimoz.lineFromPosition(max(currPos, scimoz.selectionEnd)) + 1
                     try:
-                        lastDeletableLine = scimoz.lineCount - 1
-                        lineStartPos = scimoz.positionFromLine(lastDeletableLine)
-                        lineEndPos = scimoz.getLineEndPosition(lastDeletableLine)
-                        if lineStartPos < lineEndPos:
-                            if '\n' not in scimoz.getTextRange(lineStartPos, lineEndPos):
-                                lastDeletableLine -= 1
-                            
+                        # Don't go by scimoz.linecount, which doesn't distinguish
+                        # buffers that end with an EOL from those that don't
+                        lastDeletableLine = len(lines) - 1
                         if cleanChangedLinesOnly:
                             # Now we'll only delete lines that are changed
                             for i in range(lastDeletableLine, firstDeletableLine - 1, -1):
@@ -1532,7 +1531,7 @@ class koDocumentBase:
                                         raise DontDeleteEndLines()
                                     firstDeletableLine = i + 1
                                     break
-                        for i in range(lastDeletableLine - 1, firstDeletableLine - 1, -1):
+                        for i in range(lastDeletableLine, firstDeletableLine - 1, -1):
                             if scimoz.markerGet(i):
                                 firstLineToDelete = i + 1
                                 break
@@ -1542,8 +1541,8 @@ class koDocumentBase:
                                     break
                             except IndexError:
                                 log.exception("Error indexing lines[i=%d], lastDeletableLine:%d, firstDeletableLine:%d, numLines:%d",
-                                              i, lastDeletableLine - 1,
-                                              firstDeletableLine - 1,
+                                              i, lastDeletableLine,
+                                              firstDeletableLine,
                                               numLines)
                         else:
                             firstLineToDelete = firstDeletableLine
@@ -1553,7 +1552,7 @@ class koDocumentBase:
                             # pos(line[count - 1][0]) - 1 unless the
                             # selection/cursor is in that range
                             startPos = scimoz.positionFromLine(firstLineToDelete)
-                            endPos = scimoz.positionFromLine(lastDeletableLine + 1)
+                            endPos = scimoz.positionFromLine(lastDeletableLine)
                             if endPos > startPos:
                                 scimoz.targetStart, scimoz.targetEnd = startPos, endPos
                                 scimoz.replaceTarget(0, '')
@@ -1578,6 +1577,11 @@ class koDocumentBase:
             if newPos > lineEndPos:
                 #log.debug("Pull new currentPos from %d to %d", newPos, lineEndPos)
                 newPos = lineEndPos
+            # And on cr/lf documents, verify that the position isn't stuck
+            # between the two
+            if (scimoz.getCharAt(newPos - 1) == 13
+                    and scimoz.getCharAt(newPos) == 10):
+                newPos -= 1
             scimoz.currentPos = newPos
             if haveNoSelection:
                 scimoz.anchor = scimoz.currentPos
@@ -1588,6 +1592,9 @@ class koDocumentBase:
                 if newPos > lineEndPos:
                     #log.debug("Pull new anchor from %d to %d", newPos, lineEndPos)
                     newPos = lineEndPos
+                    if (scimoz.getCharAt(newPos - 1) == 13
+                            and scimoz.getCharAt(newPos) == 10):
+                        newPos -= 1
                 scimoz.anchor = newPos
 
             if firstDocLine >= scimoz.lineCount - scimoz.linesOnScreen:
