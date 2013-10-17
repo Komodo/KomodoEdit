@@ -397,7 +397,11 @@ TestCleanKoDocumentLines.prototype.test_bug100967_a = function test_bug100967_a(
     var scimoz = view.scimoz;
     scimoz.currentPos = scimoz.length;
     scimoz.addText(1, "6");
+    let oldPos = scimoz.currentPos;
     scimoz.currentPos = scimoz.positionFromLine(3);
+    this.assertEquals(scimoz.anchor, oldPos);
+    this.assertEquals(scimoz.selectionEnd, oldPos);
+    scimoz.anchor = scimoz.currentPos;
     this.setPrefsShortcut({
               cleanLineEnds: 1,
               cleanLineEnds_CleanCurrentLine: 0,
