@@ -249,6 +249,10 @@ class _StagingRequestQueue(_UniqueRequestPriorityQueue):
                 self._onDeck[request.id] = (timestamp + delay, priority, item)
                 if wasEmpty:
                     self._nothingOnDeck.release()
+            else:
+                # Clear the new request, as we already have an old request that
+                # is IMMEDIATE.
+                old = item
         if old:
             # Ensure that old scan requests are properly cleaned up; we want to
             # avoid having Komodo hang on to them for no reason.
