@@ -219,7 +219,8 @@ if ($platform eq "win") {
 }
 
 elsif ($platform eq "darwin") {
-    $pluginName = "SciMoz.plugin";
+    $pluginName = "SciMoz";
+    $pluginDir = "SciMoz.plugin";
 
     %consLocal = $cons->copy();
     $consLocal{'LDFLAGS'} = "-dynamic";
@@ -281,7 +282,7 @@ elsif ($platform eq "darwin") {
 		   (qq($unsiloedPythonExe util/objective_c_wrap.py %1 %0)));
 
     $consLocal->Program(
-	"SciMoz",
+	$pluginName,
 	"plugin.mm",
         "npn_gate.cpp",
 	"nsSciMoz.mm",
@@ -292,7 +293,7 @@ elsif ($platform eq "darwin") {
 
     # here we build the bundle package
     # we also manually install since installRecursive likes to mess on up this.
-    $cons->Command("$pluginName/Contents/MacOS/SciMoz",
+    $cons->Command("$pluginDir/Contents/MacOS/SciMoz",
 		"SciMoz.r",
 		"Info.plist",
 		"English.lproj/InfoPlist.strings",
@@ -309,10 +310,10 @@ $unsiloedPythonExe bin/run-in-dir.py %1:d chmod u+w SciMoz.plugin/Contents/Info.
 $unsiloedPythonExe bin/run-in-dir.py %1:d cp -R English.lproj SciMoz.plugin/Contents/Resources
 $unsiloedPythonExe bin/run-in-dir.py %1:d cp SciMoz SciMoz.plugin/Contents/MacOS/SciMoz
 $unsiloedPythonExe bin/run-in-dir.py %1:d chmod -R a+r SciMoz.plugin
-$unsiloedPythonExe bin/run-in-dir.py %1:d rm -rf $mozPluginsDir/$pluginName
+$unsiloedPythonExe bin/run-in-dir.py %1:d rm -rf $mozPluginsDir/$pluginDir
 $unsiloedPythonExe bin/run-in-dir.py %1:d mkdir -p $mozPluginsDir
-$unsiloedPythonExe bin/run-in-dir.py %1:d cp -R SciMoz.plugin $mozPluginsDir/$pluginName
-chmod a+rX $mozPluginsDir/$pluginName
+$unsiloedPythonExe bin/run-in-dir.py %1:d cp -R SciMoz.plugin $mozPluginsDir/$pluginDir
+chmod a+rX $mozPluginsDir/$pluginDir
                    )
 		));
 
