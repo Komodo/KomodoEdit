@@ -233,7 +233,7 @@ elsif ($platform eq "darwin") {
 	$consLocal{'LIBS'} .= " $mozDevelDist/bin/XUL $mozDevelDist/lib/libxpcomglue_s.a -lnspr4 -lmozalloc ";
     }
     # add required frameworks
-    $consLocal{'LIBS'} .= "-framework Carbon -framework CoreFoundation ";
+    $consLocal{'LIBS'} .= " -framework CoreFoundation ";
     # scintilla
     
 
