@@ -255,12 +255,9 @@ elsif ($platform eq "darwin") {
     $consLocal{'CXXFLAGS'} .= "-DXP_MACOSX_USE_CORE_ANIMATION ";
     $consLocal{'CXXFLAGS'} .= "-DXP_MACOSX_USE_INVALIDATING_CORE_ANIMATION ";
 
-    $consLocal{'CXXFLAGS'} .= " -include Carbon/Carbon.h ";
-
     # Ensure that these are defined for use by mozilla headers
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
-        " -I$mozSrc/mozilla/xpcom/ds" .
-	" -I/Developer/Headers/FlatCarbon";
+        " -I$mozSrc/mozilla/xpcom/ds";
 
     if ($buildType eq 'debug') {
         $consLocal{'CXXFLAGS'} .= " -g";
