@@ -216,6 +216,8 @@ if ($platform eq "win") {
         # directory before this build
         "$scintillaBuildDir/bin/SciLexer.dll"
     );
+
+    $cons->Install("$mozPluginsDir", $pluginName);
 }
 
 elsif ($platform eq "darwin") {
@@ -393,6 +395,8 @@ else {
         "sendscintilla.cxx",
     );
 
+    $cons->Install("$mozPluginsDir", $pluginName);
+
     if ($withTests) {
 	#
 	# Headless SciMoz.
@@ -439,9 +443,4 @@ else {
 
 	$consHeadless->InstallXpcomComponent($headlessSciMoz);
     }
-}
-
-if ($platform eq "darwin") {
-} else {
-    $cons->Install("$mozPluginsDir", $pluginName);
 }
