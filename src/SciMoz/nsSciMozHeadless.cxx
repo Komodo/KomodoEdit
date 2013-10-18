@@ -52,13 +52,30 @@ void SciMoz::PlatformNew(void) {
 #ifdef SCIMOZ_DEBUG
     fprintf(stderr,"SciMoz::PlatformNew\n");
 #endif
+
+#ifdef GTK
     wEditor = scintilla_new();
+#endif
+
+#ifdef XP_MACOSX
+      NSRect winRect = NSMakeRect(0, 0, 200, 200); /* temporary size */
+      ScintillaView *scView = [[ScintillaView alloc] initWithFrame:winRect];
+      wEditor = [scView retain];
+#endif
 }
 
 nsresult SciMoz::PlatformDestroy(void) {
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::PlatformDestroy\n");
 #endif
+
+#ifdef XP_MACOSX
+	if (wEditor) {
+	    ScintillaView *scView = (ScintillaView *) wEditor;
+	    [scView release];
+	}
+#endif
+
 	wEditor = 0;
 	isClosed = 1;
 	return NS_OK;
@@ -132,6 +149,12 @@ NS_IMETHODIMP SciMoz::GetIsTracking(bool *_ret) {
 	*_ret = 0;
 	return NS_OK;
 }
+
+#ifdef XP_MACOSX_USE_CORE_ANIMATION
+void * SciMoz::GetCoreAnimationLayer() {
+  return nullptr;
+}
+#endif
 
 SciMoz::SciMoz()
 {
