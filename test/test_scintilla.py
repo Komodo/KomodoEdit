@@ -79,7 +79,7 @@ class IfaceTestCase(unittest.TestCase):
                         len(msgs) > 1 and "s" or "", filename))
             raise TestFailed("\n".join(msgs))
 
-if sys.platform.startswith("linux"):
+if sys.platform.startswith("linux") or sys.platform == "darwin":
     # Headless SciMoz is only enabled on Linux thus far.
     class SciMozHeadlessContext(object):
         def __init__(self):

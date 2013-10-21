@@ -454,6 +454,12 @@ if ($withTests) {
 	"$testBuild/pyxpcom/Conscript",
 	"$testBuild/jstest/Conscript",
     );
+    # Headless scintilla for testing.
+    if ($platform eq "linux" || $platform eq "darwin") {
+	Build(
+	    "$build/scintilla/headless/Conscript",
+	);
+    }
 }
 
 if ($withCasper) {
@@ -655,13 +661,6 @@ sub cons::KoExtSourceDevInstall {
     );
     $cons->DependsRecursive("koextsourcedevinstall.consjunk", ".", @toSkip);
     $cons->DependsRecursive2("koextsourcedevinstall.consjunk", "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn', '\.consign'));
-}
-
-# Headless scintilla for testing.
-if ($platform eq "linux") {
-    Build(
-        "$build/scintilla/headless/Conscript",
-    );
 }
 
 sub cons::Preprocess {
