@@ -430,14 +430,21 @@ if ($withTests && $platform ne "win") {
     $consHeadless{'CXXFLAGS'} .= " -DHEADLESS_SCIMOZ";
     $consHeadless{'CXXFLAGS'} .= " -I$scintillaRealDir/../SciMoz";
 
-    # Linux tweaks.
-    $consHeadless{'LIBS'} =~ s/scintilla\.a/headlessscintilla.a/;
-    # Mac tweaks
-    $consHeadless{'LIBS'} =~ s/ -lscintilla//;   # Mac
-    $consHeadless{'LIBS'} .= " $xScintillaBuildDir/bin/headlessscintilla.a";
-    $consHeadless{'LIBS'} .= " $xScintillaBuildDir/cocoa/libpcre.a";
-    # Ensure to hide symbol names by default.
-    $consHeadless{'CXXFLAGS'} .= " -fvisibility=hidden";
+    if ($platform eq "linux") {
+	# Linux tweaks.
+	$consHeadless{'LIBS'} =~ s/scintilla\.a/headlessscintilla.a/;
+	# Ensure to hide symbol names by default.
+	$consHeadless{'CXXFLAGS'} .= " -fvisibility=hidden";
+    }
+
+    if ($platform eq "darwin") {
+	# Mac tweaks
+	$consHeadless{'LIBS'} =~ s/ -lscintilla//;   # Mac
+	$consHeadless{'LIBS'} .= " $xScintillaBuildDir/bin/headlessscintilla.a";
+	$consHeadless{'LIBS'} .= " $xScintillaBuildDir/cocoa/libpcre.a";
+	# Ensure to hide symbol names by default.
+	$consHeadless{'CXXFLAGS'} .= " -fvisibility=hidden";
+    }
 
     $consHeadless = new cons(%consHeadless);
     $consHeadless->Depends($headlessSciMoz, "$scintillaBuildDir/bin/$headlessLibName");
