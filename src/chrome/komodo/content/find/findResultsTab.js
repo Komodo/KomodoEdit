@@ -291,7 +291,7 @@ this.FindResultsTabManager.prototype.clear = function()
     var descWidget = this.doc.getElementById("findresults-desc");
     descWidget.setAttribute("value", "No current find/replace results.");
     descWidget.removeAttribute("baseDesc");
-    descWidget.removeAttribute("class");
+    descWidget.classList.remove("find-description-highlight");
     document.getElementById("findresults-jumptonext-button")
             .setAttribute("disabled", "true");
     document.getElementById("findresults-jumptoprev-button")
@@ -476,9 +476,9 @@ this.FindResultsTabManager.prototype.setDescription = function(subDesc /* =null 
     }
     descWidget.setAttribute("value", desc);
     if (important) {
-        descWidget.setAttribute("class", "find-description-highlight");
+        descWidget.classList.add("find-description-highlight");
     } else {
-        descWidget.removeAttribute("class");
+        descWidget.classList.remove("find-description-highlight");
     }
 
     if (important) {
