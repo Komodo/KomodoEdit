@@ -45,6 +45,7 @@
 
 Import(
     'cons',
+    'platform',
     'buildType',
     'buildFlavour',
     'mozPluginsDir',
@@ -163,7 +164,7 @@ my @args = (
     # system care about.
     [$libName],
     # the files needed to generate these
-    "makefile",
+    "makefile_converter.py",
     "../include/Face.py",
     "../include/HFacer.py",
     "../include/ILexer.h",
@@ -290,11 +291,17 @@ $consLocal{ENV}{'CXXFLAGS'} .= $cxxFlags;
 $consLocal{ENV}{'CXXFLAGS'} =~ s/-fno-exceptions //g;
 $consLocal = new cons(%consLocal);
 
+my $makeFlags = "";
+if ($platform eq "darwin") {
+    $makeFlags = "shared NATIVE=1";
+}
+
 push(@args, (qq(
              $unsiloedPythonExe bin/run-in-dir.py %1:d/../include/ chmod a+w Scintilla.h
              $unsiloedPythonExe bin/run-in-dir.py %1:d/../include/ chmod a+w SciLexer.h
              $unsiloedPythonExe bin/run-in-dir.py %1:d/../include/ python HFacer.py
-             $unsiloedPythonExe bin/run-in-dir.py %1:d make -f %1:f $libName
+             $unsiloedPythonExe bin/run-in-dir.py %1:d python makefile_converter.py
+             $unsiloedPythonExe bin/run-in-dir.py %1:d make $makeFlags -f makefile $libName
              )));
 
 $consLocal->Command(@args);

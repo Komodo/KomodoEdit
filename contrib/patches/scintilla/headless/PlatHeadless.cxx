@@ -455,7 +455,7 @@ void Menu::Show(Point pt, Window &) {
 
 //----------------- ElapsedTime --------------------------------------------------------------------
 
-#if defined(HEADLESS_GTK)
+#if defined(GTK)
 #include <glib.h>
 #include <gmodule.h>
 #include <gdk/gdk.h>
@@ -481,13 +481,13 @@ double ElapsedTime::Duration(bool reset) {
 	}
 	return result;
 }
-#endif // end HEADLESS_GTK
+#endif // end GTK
 
-#if defined(HEADLESS_MACOSX)
+#if defined(MACOSX)
 ElapsedTime::ElapsedTime() {
   struct timeval curTime;
   gettimeofday( &curTime, NULL );
-  
+
   bigBit = curTime.tv_sec;
   littleBit = curTime.tv_usec;
 }
@@ -505,12 +505,12 @@ double ElapsedTime::Duration(bool reset) {
   }
   return result;
 }
-#endif // end HEADLESS_MACOSX
+#endif // end MACOSX
 
 
 //----------------- DynamicLibrary -----------------------------------------------------------------
 
-#if defined(HEADLESS_GTK)
+#if defined(GTK)
 class DynamicLibraryImpl : public DynamicLibrary {
 protected:
 	GModule* m;
@@ -541,15 +541,15 @@ public:
 DynamicLibrary *DynamicLibrary::Load(const char *modulePath) {
 	return static_cast<DynamicLibrary *>( new DynamicLibraryImpl(modulePath) );
 }
-#endif // end HEADLESS_GTK
+#endif // end GTK
 
-#if defined(HEADLESS_MACOSX)
+#if defined(MACOSX)
 DynamicLibrary* DynamicLibrary::Load(const char* /* modulePath */)
 {
   // Not implemented.
   return NULL;
 }
-#endif // end HEADLESS_MACOSX
+#endif // end MACOSX
 
 
 
@@ -565,7 +565,7 @@ const char *Platform::DefaultFont() {
 #ifdef G_OS_WIN32
 	return "Lucida Console";
 #else
-#ifdef HEADLESS_MACOSX
+#ifdef MACOSX
 	return "Monaco";
 #endif
 	return "!Sans";
