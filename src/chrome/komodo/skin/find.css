@@ -85,3 +85,7 @@ treechildren.findresults::-moz-tree-row(warning, selected, focus) {
     border: inherit;
     margin: inherit;
 }
+
+.find-description-highlight {
+    color:  #bb0000;
+}
