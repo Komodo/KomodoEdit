@@ -396,51 +396,53 @@ else {
     );
 
     $cons->Install("$mozPluginsDir", $pluginName);
+}
 
-    if ($withTests) {
-	#
-	# Headless SciMoz.
-	#
-	# Build the same as regular SciMoz, but with these slight variations:
-	#   1) copy necessary scimoz files into a separate "headless" build
-	#      directory - this is so Cons doesn't think were building the same
-	#      file twice. Preprocess is used for this copying, there is likely
-	#      a better way.
-	#   2) define HEADLESS_SCIMOZ for code variation
-	#   3) link with the headlessscintilla library
-	#   4) create headless SciMoz xpcom component, instead of plugin object
-	#
 
-	my $headlessSciMoz = "headless/libkoScimozHeadless.so";
-	my %consHeadless = $consLocal->copy();
-	my $scintillaRealDir = substr $scintillaBuildDir, 1;  # starts with special cons "#" marker otherwise
-	$consHeadless{'LIBS'} =~ s/scintilla\.a/headlessscintilla.a/;
-	$consHeadless{'CXXFLAGS'} = "-I$scintillaRealDir/headless -I$scintillaRealDir/src " . $consHeadless{'CXXFLAGS'};
-	$consHeadless{'CXXFLAGS'} .= " -DHEADLESS_SCIMOZ";
-	$consHeadless{'CXXFLAGS'} .= " -I$scintillaRealDir/../SciMoz";
-	$consHeadless = new cons(%consHeadless);
-	$consHeadless->Depends($headlessSciMoz, "$scintillaBuildDir/bin/headlessscintilla.a");
-	$consHeadless->Preprocess("plugin.cxx", "headless/plugin.cxx");
-	$consHeadless->Preprocess("npn_gate.cpp", "headless/npn_gate.cpp");
-	$consHeadless->Preprocess("nsSciMoz.cxx", "headless/nsSciMoz.cxx");
-	$consHeadless->Preprocess("nsSciMozHeadless.cxx", "headless/nsSciMozHeadless.cxx");
-	$consHeadless->Preprocess("SciMozEvents.cxx", "headless/SciMozEvents.cxx");
-	$consHeadless->Preprocess("sendscintilla.cxx", "headless/sendscintilla.cxx");
-	$consHeadless->Program($headlessSciMoz,
-	    "headless/plugin.cxx",
-	    "headless/npn_gate.cpp",
-	    # nsSciMoz.cxx needs to be after nsSciMozHeadless.cxx because GNU
-	    # ld doesn't search for symbols in previous archives;
-	    # see bug 95927 comment 12
-	    "headless/nsSciMozHeadless.cxx",
-	    "headless/nsSciMoz.cxx",
-	    "headless/SciMozEvents.cxx",
-	    "headless/sendscintilla.cxx",
-	);
-	$consHeadless->Depends($headlessSciMoz, "sendscintilla.h");
-	$consHeadless->Depends($headlessSciMoz, "nsSciMoz.h");
-	$consHeadless->Depends($headlessSciMoz, $pluginName); # build real SciMoz first
 
-	$consHeadless->InstallXpcomComponent($headlessSciMoz);
-    }
+if ($withTests && $platform eq "linux") {
+    #
+    # Headless SciMoz.
+    #
+    # Build the same as regular SciMoz, but with these slight variations:
+    #   1) copy necessary scimoz files into a separate "headless" build
+    #      directory - this is so Cons doesn't think were building the same
+    #      file twice. Preprocess is used for this copying, there is likely
+    #      a better way.
+    #   2) define HEADLESS_SCIMOZ for code variation
+    #   3) link with the headlessscintilla library
+    #   4) create headless SciMoz xpcom component, instead of plugin object
+    #
+
+    my $headlessSciMoz = "headless/libkoScimozHeadless.so";
+    my %consHeadless = $consLocal->copy();
+    my $scintillaRealDir = substr $scintillaBuildDir, 1;  # starts with special cons "#" marker otherwise
+    $consHeadless{'LIBS'} =~ s/scintilla\.a/headlessscintilla.a/;
+    $consHeadless{'CXXFLAGS'} = "-I$scintillaRealDir/headless -I$scintillaRealDir/src " . $consHeadless{'CXXFLAGS'};
+    $consHeadless{'CXXFLAGS'} .= " -DHEADLESS_SCIMOZ";
+    $consHeadless{'CXXFLAGS'} .= " -I$scintillaRealDir/../SciMoz";
+    $consHeadless = new cons(%consHeadless);
+    $consHeadless->Depends($headlessSciMoz, "$scintillaBuildDir/bin/headlessscintilla.a");
+    $consHeadless->Preprocess("plugin.cxx", "headless/plugin.cxx");
+    $consHeadless->Preprocess("npn_gate.cpp", "headless/npn_gate.cpp");
+    $consHeadless->Preprocess("nsSciMoz.cxx", "headless/nsSciMoz.cxx");
+    $consHeadless->Preprocess("nsSciMozHeadless.cxx", "headless/nsSciMozHeadless.cxx");
+    $consHeadless->Preprocess("SciMozEvents.cxx", "headless/SciMozEvents.cxx");
+    $consHeadless->Preprocess("sendscintilla.cxx", "headless/sendscintilla.cxx");
+    $consHeadless->Program($headlessSciMoz,
+	"headless/plugin.cxx",
+	"headless/npn_gate.cpp",
+	# nsSciMoz.cxx needs to be after nsSciMozHeadless.cxx because GNU
+	# ld doesn't search for symbols in previous archives;
+	# see bug 95927 comment 12
+	"headless/nsSciMozHeadless.cxx",
+	"headless/nsSciMoz.cxx",
+	"headless/SciMozEvents.cxx",
+	"headless/sendscintilla.cxx",
+    );
+    $consHeadless->Depends($headlessSciMoz, "sendscintilla.h");
+    $consHeadless->Depends($headlessSciMoz, "nsSciMoz.h");
+    $consHeadless->Depends($headlessSciMoz, $pluginName); # build real SciMoz first
+
+    $consHeadless->InstallXpcomComponent($headlessSciMoz);
 }
