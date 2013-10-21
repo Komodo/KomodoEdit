@@ -166,6 +166,8 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
             self._pylint_version = 1
         
     invalidModuleName_RE = re.compile(r'(C0103.*?Invalid name ")(.+?)(" \(should match )(.*)(\))')
+    _disables_C0301_re = re.compile(r'\s*disable\s*=.*?\bC0301\b')
+    _max_line_length_re = re.compile(r'\s*max-line-length')
     def lint_with_text(self, request, text):
         if not text:
             return None
@@ -187,13 +189,29 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
             textlines = text.splitlines()
             env = self._get_fixed_env(prefset, cwd)
             rcfilePath = prefset.getStringPref(self.rcfile_prefname)
+            checkRCFile = False
             if rcfilePath and os.path.exists(rcfilePath):
                 extraArgs = [ '--rcfile=%s' % (rcfilePath,) ]
+                checkRCFile = True
             else:
                 extraArgs = []
             preferredLineWidth = prefset.getLongPref("editAutoWrapColumn")
             if preferredLineWidth > 0:
-                extraArgs.append("--max-line-length=%d" % preferredLineWidth)
+                usePreferredLineWidth = True
+                if checkRCFile:
+                    f = open(rcfilePath, "r")
+                    try:
+                        for txt in f.readlines():
+                            if self._disables_C0301_re.match(txt) \
+                                    or self._max_line_length_re.match(txt):
+                                usePreferredLineWidth = False
+                                break
+                    except:
+                        pass
+                    finally:
+                        f.close()
+                if usePreferredLineWidth:
+                    extraArgs.append("--max-line-length=%d" % preferredLineWidth)
     
             baseArgs = [pythonExe, '-c', 'import sys; from pylint.lint import Run; Run(sys.argv[1:])']
             cmd = baseArgs + ["-f", "text", "-r", "n"]
