@@ -307,6 +307,12 @@ push(@args, (qq(
 $consLocal->Command(@args);
 $consLocal->Depends($libName, "../include/pcre.h"); # depends upon contrib/pcre
 
+# Headless depends upon the regular scintilla build being completed.
+if ($platform eq "linux") {
+    $consLocal->Depends($libName, "../bin/scintilla.a");
+} elsif ($platform eq "darwin") {
+    $consLocal->Depends($libName, "../bin/libscintilla.dylib");
+}
 
 
 
