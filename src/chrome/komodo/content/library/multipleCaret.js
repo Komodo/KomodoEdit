@@ -433,6 +433,77 @@ this.MultiCaretSession.prototype = {
         }
         return false;
     },
+
+    // Most of the commands are here because they're implementations
+    // aren't aware of multiple sessions.
+    _sessionEndingEventCommands: ["cmd_addNewFile",
+                                  "cmd_addNewFileFromTemplate",
+                                  "cmd_comment",
+                                  "cmd_completeWord",
+                                  "cmd_completeWordBack",
+                                  "cmd_convertFromHex",
+                                  "cmd_convertLowerCase",
+                                  "cmd_convertToHex",
+                                  "cmd_convertUpperCase",
+                                  "cmd_dedent",
+                                  "cmd_editCenterVertically",
+                                  "cmd_editMoveCurrentLineToTop",
+                                  "cmd_editReflow",
+                                  "cmd_expandAbbrev",
+                                  "cmd_join",
+                                  "cmd_killLine",
+                                  "cmd_launchColorPicker",
+                                  "cmd_lineCut",
+                                  "cmd_lineDelete",
+                                  "cmd_lineDuplicate",
+                                  "cmd_lineOrSelectionDuplicate",
+                                  "cmd_lineTranspose",
+                                  "cmd_makeSnippetFromSelection",
+                                  "cmd_new",
+                                  "cmd_newTemplate",
+                                  "cmd_open",
+                                  "cmd_openTemplate",
+                                  "cmd_open_remote",
+                                  "cmd_quit",
+                                  "cmd_rawKey",
+                                  "cmd_rename_tag",
+                                  "cmd_reopenLastClosedTab",
+                                  "cmd_repeatNextCommandBy",
+                                  "cmd_SCCrevert",
+                                  "cmd_tabify",
+                                  "cmd_transpose",
+                                  "cmd_transposeWords",
+                                  "cmd_uncomment",
+                                  "cmd_undo",
+                                  "cmd_vim_changeChar",
+                                  "cmd_vim_changeLine",
+                                  "cmd_vim_changeLineEnd",
+                                  "cmd_vim_changeOperation",
+                                  "cmd_vim_cutCharLeft",
+                                  "cmd_vim_dedentOperation",
+                                  "cmd_vim_deleteLineToEnd",
+                                  "cmd_vim_deleteOperation",
+                                  "cmd_vim_indentOperation",
+                                  "cmd_vim_lineCut",
+                                  "cmd_vim_lineCutEnd",
+                                  "cmd_vim_overtype",
+                                  "cmd_vim_replaceChar",
+                                  "cmd_vim_yankLine",
+                                  "cmd_vim_yankOperation"
+                                  ],
+    isSessionEndingEditEvent: function isSessionEndingEditEvent(event) {
+        // Bug 100837: on an undo, end the session first.
+        var keylabel = ko.keybindings.manager.event2keylabel(event,
+                                                             undefined,
+                                                             true);
+        if (keylabel) {
+            var command = ko.keybindings.manager.key2command[keylabel];
+            if (this._sessionEndingEventCommands.indexOf(command) !== -1) {
+                return true;
+            }
+        }
+        return false;
+    },
     
     _watchMultipleSelectionKeypress: function _watchMultipleSelectionKeypress(event) {
         var view = event.currentTarget;
@@ -445,6 +516,9 @@ this.MultiCaretSession.prototype = {
             setTimeout(this_.watchMultipleSelectionKeypress_bubble.bind(this_),
                        0);
             return;
+        }
+        if (this_.isSessionEndingEditEvent(event)) {
+            this_.endSession(event);
         }
         if (view.scintilla.autocomplete.active) {
             return;
