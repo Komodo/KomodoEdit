@@ -53,7 +53,7 @@ Import(
 );
 
 # this is what we want from the scintilla build process
-$libName = '../bin/headlessscintilla.a';
+my $libName = '../bin/headlessscintilla.a';
 
 # build scintilla
 
@@ -273,7 +273,7 @@ map { _addLexer($cons, $_); } @lexers;
 
 my $cxxFlags = " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES";
 
-# Still have top define a platform setting...
+# Still have to define a platform setting...
 $cxxFlags = " -DFOX";
 
 if ($buildType eq 'debug'
