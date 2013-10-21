@@ -400,7 +400,7 @@ else {
 
 
 
-if ($withTests && $platform eq "linux") {
+if ($withTests && $platform ne "win") {
     #
     # Headless SciMoz.
     #
@@ -414,31 +414,48 @@ if ($withTests && $platform eq "linux") {
     #   4) create headless SciMoz xpcom component, instead of plugin object
     #
 
-    my $headlessSciMoz = "headless/libkoScimozHeadless.so";
+    my $headlessLibName = "headlessscintilla.a";
+    my $dll_ext = "so";
+    my $c_ext = "cxx";
+    if ($platform eq "darwin") {
+	$dll_ext = "dylib";
+        $c_ext = "mm";
+    }
+
+    my $headlessSciMoz = "headless/libkoScimozHeadless.$dll_ext";
     my %consHeadless = $consLocal->copy();
     my $scintillaRealDir = substr $scintillaBuildDir, 1;  # starts with special cons "#" marker otherwise
-    $consHeadless{'LIBS'} =~ s/scintilla\.a/headlessscintilla.a/;
+
     $consHeadless{'CXXFLAGS'} = "-I$scintillaRealDir/headless -I$scintillaRealDir/src " . $consHeadless{'CXXFLAGS'};
     $consHeadless{'CXXFLAGS'} .= " -DHEADLESS_SCIMOZ";
     $consHeadless{'CXXFLAGS'} .= " -I$scintillaRealDir/../SciMoz";
+
+    # Linux tweaks.
+    $consHeadless{'LIBS'} =~ s/scintilla\.a/headlessscintilla.a/;
+    # Mac tweaks
+    $consHeadless{'LIBS'} =~ s/ -lscintilla//;   # Mac
+    $consHeadless{'LIBS'} .= " $xScintillaBuildDir/bin/headlessscintilla.a";
+    $consHeadless{'LIBS'} .= " $xScintillaBuildDir/cocoa/libpcre.a";
+    # Ensure to hide symbol names by default.
+    $consHeadless{'CXXFLAGS'} .= " -fvisibility=hidden";
+
     $consHeadless = new cons(%consHeadless);
-    $consHeadless->Depends($headlessSciMoz, "$scintillaBuildDir/bin/headlessscintilla.a");
+    $consHeadless->Depends($headlessSciMoz, "$scintillaBuildDir/bin/$headlessLibName");
     $consHeadless->Preprocess("plugin.cxx", "headless/plugin.cxx");
     $consHeadless->Preprocess("npn_gate.cpp", "headless/npn_gate.cpp");
     $consHeadless->Preprocess("nsSciMoz.cxx", "headless/nsSciMoz.cxx");
-    $consHeadless->Preprocess("nsSciMozHeadless.cxx", "headless/nsSciMozHeadless.cxx");
+    $consHeadless->Preprocess("nsSciMozHeadless.cxx", "headless/nsSciMozHeadless.$c_ext");
     $consHeadless->Preprocess("SciMozEvents.cxx", "headless/SciMozEvents.cxx");
-    $consHeadless->Preprocess("sendscintilla.cxx", "headless/sendscintilla.cxx");
+    $consHeadless->Preprocess("sendscintilla.cxx", "headless/sendscintilla.$c_ext");
+
     $consHeadless->Program($headlessSciMoz,
-	"headless/plugin.cxx",
-	"headless/npn_gate.cpp",
 	# nsSciMoz.cxx needs to be after nsSciMozHeadless.cxx because GNU
 	# ld doesn't search for symbols in previous archives;
 	# see bug 95927 comment 12
-	"headless/nsSciMozHeadless.cxx",
+	"headless/nsSciMozHeadless.$c_ext",
 	"headless/nsSciMoz.cxx",
 	"headless/SciMozEvents.cxx",
-	"headless/sendscintilla.cxx",
+	"headless/sendscintilla.$c_ext",
     );
     $consHeadless->Depends($headlessSciMoz, "sendscintilla.h");
     $consHeadless->Depends($headlessSciMoz, "nsSciMoz.h");
@@ -446,3 +463,5 @@ if ($withTests && $platform eq "linux") {
 
     $consHeadless->InstallXpcomComponent($headlessSciMoz);
 }
+
+

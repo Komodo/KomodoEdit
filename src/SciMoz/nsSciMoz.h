@@ -106,7 +106,9 @@
 #endif
 
 #ifdef XP_MACOSX
+#ifndef HEADLESS_SCIMOZ
 #import <Cocoa/Cocoa.h>
+#endif
 #endif
 
 #include <Scintilla.h>
@@ -114,8 +116,10 @@
 #include <SciLexer.h>
 
 #ifdef XP_MACOSX
+#ifndef HEADLESS_SCIMOZ
 #include <Platform.h>
 #include <ScintillaCocoa.h>
+#endif
 #endif
 
 #define SCIMAX(a, b) (a > b ? a : b)
@@ -266,9 +270,11 @@ protected:
     NS_IMETHOD _DoButtonUpDown(bool up, PRInt32 x, PRInt32 y, PRUint16 button, bool bShift, bool bCtrl, bool bAlt);
 
 #ifdef XP_MACOSX
+#ifndef HEADLESS_SCIMOZ
 	void HideScintillaView(bool disabled);
 	static void NotifySignal(intptr_t windowid, unsigned int iMessage, uintptr_t wParam, uintptr_t lParam);
 	Scintilla::ScintillaCocoa *scintilla;
+#endif
 #endif
 #ifdef XP_PC
     void LoadScintillaLibrary();
