@@ -38,6 +38,7 @@ from xpcom import components, nsError, ServerException
 from koLintResult import *
 from koLintResults import koLintResults
 
+from eollib import eol2eolStr, scimozEOL2eol
 import logging
 import os, sys, re
 import tempfile
@@ -695,6 +696,90 @@ end section
         else:
             # Let the caller try the token we ended up on next iter
             return start_idx + 1
+
+    def _handleEndDoHeader(self, ch, scimoz, style_info):
+        """
+        reinstate insertion of "end" on a matching line on the
+        closing "|" after a do header (Bug 101194)
+        A.method do | vars ... |
+
+        If we're following `do |name {, name}*|`
+        insert an end at the next line.
+
+        Returns True if this routine makes an insertion.
+        Returns False if it doesn't, expecting that the method will continue
+        climbing up the inheritance tree requesting a more general method
+        to process the keystroke.
+        """
+        currentPos = scimoz.currentPos
+        currentLine = scimoz.lineFromPosition(currentPos)
+        if currentPos < scimoz.length:
+            # Make sure we're at the end of the line
+            if currentLine == scimoz.lineCount - 1:
+                lineEndPos = scimoz.length
+            else:
+                lineEndPos = scimoz.getLineEndPosition(currentLine)
+            if currentPos < lineEndPos:
+                trailingText = scimoz.getTextRange(currentPos, lineEndPos)
+                if trailingText.strip():
+                    return False
+        lineStartPos = scimoz.positionFromLine(currentLine)
+        tokens = self._get_line_tokens(scimoz, lineStartPos, currentPos,
+                                       style_info,
+                       additional_ignorable_styles=style_info._default_styles)
+        if len(tokens) < 5:
+            # We need at least the following tokens:
+            # <methodName> "do" "|" <argumentName> "|"
+            return False
+        tokens.reverse()
+        # Skip | name {, name}* |
+        if tokens[0].text != "|":
+            # Not a trailing |
+            return False
+        del tokens[0]
+        while len(tokens) > 1:
+            if tokens[0].style not in (scimoz.SCE_RB_IDENTIFIER,
+                                       scimoz.SCE_UDL_SSL_IDENTIFIER):
+                # No ident before , or |
+                return False
+            del tokens[0]
+            if tokens[0].text != ",":
+                break
+            del tokens[0]
+        if not tokens or tokens[0].text != "|":
+            # No leading |
+            return False
+        del tokens[0]
+        if (not tokens or tokens[0].text != "do"
+                or tokens[0].style not in (scimoz.SCE_RB_WORD,
+                                           scimoz.SCE_UDL_SSL_WORD)):
+            # No 'do', we're in something else
+            return False
+        
+        currIndent = self._getActualIndent(scimoz, currentLine, lineStartPos)
+        currIndentWidth = len(currIndent.expandtabs())
+        if currentLine < scimoz.lineCount - 1:
+            nextLine = currentLine + 1
+            nextLineText = scimoz.getLine(nextLine)[1]
+            m = re.compile(r'(\s*)(\S*)').match(nextLineText)
+            if m:
+                nextIndentWidth = len(m.group(1).expandtabs())
+                if nextIndentWidth > currIndentWidth:
+                    # Subsequent line is already indented
+                    return False
+                if nextIndentWidth == currIndentWidth and m.group(2) == "end":
+                    # Line with closing 'end' already in place
+                    return False
+            
+        eol = eol2eolStr[scimozEOL2eol[scimoz.eOLMode]]
+        lineToInsert = eol + currIndent + "end"
+        scimoz.insertText(currentPos, lineToInsert)
+        return True
+    
+    def _keyPressed(self, ch, scimoz, style_info):
+        if self._handle_keypress and ch == '|' and self._handleEndDoHeader(ch, scimoz, style_info):
+            return
+        return KoLanguageKeywordBase._keyPressed(self, ch, scimoz, style_info)
 
 class KoRubyCompileLinter:
     _com_interfaces_ = [components.interfaces.koILinter]
