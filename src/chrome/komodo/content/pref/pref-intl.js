@@ -108,9 +108,6 @@ function OnPreferencePageOK(prefset)  {
         if (!setEncoding())  {  // check if encoding is appropriate
             return false;
         }
-        else  {
-            prefset.setPref("languages", langPrefs);
-        }
 
         // "Date & Time" validation.
         var defaultDateFormat = null;
@@ -153,6 +150,10 @@ function OnPreferencePageLoading(prefset) {
     } catch (ex) {
         log.error(ex);
     }
+}
+
+function OnPreferencePageClosing(prefset)  {
+    prefset.setPref("languages", langPrefs);
 }
 
 function updateNewFilesEncodingSection() {
