@@ -392,7 +392,7 @@ else {
 
 
 
-if ($withTests && $platform ne "win") {
+if ($withTests) {
     #
     # Headless SciMoz.
     #
@@ -408,10 +408,21 @@ if ($withTests && $platform ne "win") {
 
     my $headlessLibName = "headlessscintilla.a";
     my $dll_ext = "so";
+    my $dll_prefix = "lib";
     my $c_ext = "cxx";
+    my $o_ext = "o";
+    my $include_prefix = "-I";
+    my $define_prefix = "-D";
     if ($platform eq "darwin") {
-	$dll_ext = "dylib";
+        $dll_ext = "dylib";
         $c_ext = "mm";
+    } elsif ($platform eq "win") {
+        $dll_ext = "dll";
+        $dll_prefix = "";
+        $o_ext = "obj";
+        $include_prefix = "/I";
+        $define_prefix = "/D";
+        $headlessLibName = "ScintillaHeadless.dll";
     }
 
     my $headlessSciMoz = "headless/libkoScimozHeadless.$dll_ext";
@@ -421,6 +432,15 @@ if ($withTests && $platform ne "win") {
     $consHeadless{'CXXFLAGS'} = "-I$scintillaRealDir/headless -I$scintillaRealDir/src " . $consHeadless{'CXXFLAGS'};
     $consHeadless{'CXXFLAGS'} .= " -DHEADLESS_SCIMOZ";
     $consHeadless{'CXXFLAGS'} .= " -I$scintillaRealDir/../SciMoz";
+
+    if ($platform eq "win") {
+        # Windows tweaks.
+        $LDFLAGS .= " /libpath:$xScintillaBuildDir/bin";
+        $LDFLAGS .= " /dll scintillaheadless.lib";
+        $consHeadless{'LDFLAGS'} = $LDFLAGS;
+        #$consHeadless{'CXXFLAGS'} .= " /DUSE_SCIN_DIRECT";
+        $consLocal->Install("$mozBin", "$scintillaBuildDir/bin/$headlessLibName");
+    }
 
     if ($platform eq "linux") {
 	# Linux tweaks.

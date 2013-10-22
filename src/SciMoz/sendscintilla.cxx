@@ -45,9 +45,19 @@
 #import <Foundation/Foundation.h>     // Required for NSObject
 #endif
 
-#include "sendscintilla.h"
 #include <Platform.h> 
 #include <Scintilla.h> 
+#include "sendscintilla.h"
+
+#if defined(_WINDOWS) && defined(HEADLESS_SCIMOZ)
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern sptr_t scintilla_send_message(void* sci, unsigned int iMessage, uptr_t wParam, sptr_t lParam);
+#ifdef __cplusplus
+}
+#endif
+#endif
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -79,6 +89,10 @@ long GetStyledRange(SciFnDirect fnEditor, long ptrEditor, int min, int max, char
 long SendScintilla(WinID w, unsigned int msg, unsigned long wParam, long lParam) {
 #if defined(GTK) || defined(__APPLE__)
 	return Platform::SendScintilla(w, msg, wParam, lParam);
+#elif defined(HEADLESS_SCIMOZ)
+	//return scintilla_send_message(w, msg, wParam, lParam);
+	long result = scintilla_send_message(w, msg, wParam, lParam);
+	return result;
 #else
 	return ::SendMessage(w, msg, wParam, lParam);
 #endif
