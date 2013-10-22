@@ -2,13 +2,9 @@ Multiple parts to this patch:
 
 1. General gtk patches
 
-2. (from gtk_copy_crash_bug81293.patch):
-Komodo was crashing at shutdown if the user performed a copy operation on a
-Scintilla buffer before shutting down, bug 81293.
+2. gtk-dragscroll.patch
 
-3. gtk-dragscroll.patch
-
-4. Prevent the resize handler from recursing.  Switching off custom
+3. Prevent the resize handler from recursing.  Switching off custom
 scrollbars was causing an infinite loop.
 
 --- gtk/ScintillaGTK.cxx	2007-10-12 15:09:56.000000000 -0700
@@ -460,26 +456,6 @@ scrollbars was causing an infinite loop.
  
  
  void ScintillaGTK::GetSelection(GtkSelectionData *selection_data, guint info, SelectionText *text) {
-@@ -1707,10 +1938,15 @@
- 	if (clipBoard == NULL) // Occurs if widget isn't in a toplevel
- 		return;
- 
--	if (gtk_clipboard_set_with_data(clipBoard, clipboardCopyTargets, nClipboardCopyTargets,
--				    ClipboardGetSelection, ClipboardClearSelection, clipText)) {
--		gtk_clipboard_set_can_store(clipBoard, clipboardCopyTargets, nClipboardCopyTargets);
--	}
-+	// "gtk_clipboard_set_with_data" is not used by Komodo as it is causing
-+	// a crash upon shutdown, see bug 81293. The "gtk_clipboard_set_text"
-+	// can result in more memory getting used (in the case where a copy is
-+	// never pasted).
-+	gtk_clipboard_set_text(clipBoard, clipText->Data(), clipText->Length());
-+	//if (gtk_clipboard_set_with_data(clipBoard, clipboardCopyTargets, nClipboardCopyTargets,
-+	//			    ClipboardGetSelection, ClipboardClearSelection, clipText)) {
-+	//	gtk_clipboard_set_can_store(clipBoard, clipboardCopyTargets, nClipboardCopyTargets);
-+	//}
- }
- 
- void ScintillaGTK::ClipboardGetSelection(GtkClipboard *, GtkSelectionData *selection_data, guint info, void *data) {
 @@ -1707,6 +1950,10 @@
  }
  
