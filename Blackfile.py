@@ -2141,6 +2141,11 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("komodo-config.py"),
         mozbinpath("komodo-config"),
 
+        # Scintilla libraries.
+        mozbinpath("SciLexer.dll"),
+        mozbinpath("ScintillaHeadless.dll"),
+        mozbinpath("libscintilla.dylib"),
+
         mozbinpath("chrome", "icons"),
         mozbinpath("chrome", "xtk"),
         mozbinpath("chrome", "xtk.jar"),
@@ -2157,6 +2162,7 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("chrome", "skins"),
         mozbinpath("components", "komodo.manifest"),
         mozbinpath("components", "ko*.py"),
+        mozbinpath("components", "ko*.pyc"),
         mozbinpath("components", "ko*.pyo"),
         mozbinpath("components", "ko*.js"),
         mozbinpath("components", "ko*.xpt"),
@@ -2165,8 +2171,11 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("components", "as*.xpt*"),
         mozbinpath("components", "as*.js"),
         mozbinpath("components", "libko*"),
-        mozbinpath("modules", "js_beautify.js"),
+        mozbinpath("components", "scimoz_wrapper.js"),
+        mozbinpath("components", "xpcomJSElements.*"),
         mozbinpath("plugins", "npscimoz.dll"),
+        mozbinpath("plugins", "libnpscimoz.so"),
+
         mozbinpath("extensions"),
         mozbinpath("updater.ini"),
 
