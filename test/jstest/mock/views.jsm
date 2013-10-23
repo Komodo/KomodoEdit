@@ -157,7 +157,7 @@ SciMozMock.prototype.getWCharAt =
 
 SciMozMock.prototype.getCharAt =
     function SciMozMock_getCharAt(aPos)
-        this.text[aPos];
+        this.text[aPos].charCodeAt(0);
 
 SciMozMock.prototype.setFoldLevels =
     function SciMozMock_setFoldLevels(aLevels)
