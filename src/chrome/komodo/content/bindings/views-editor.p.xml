@@ -664,6 +664,10 @@
                     window.setTimeout("window.updateCommands('language_changed');", 1);
                     window.setTimeout("window.updateCommands('foldability_changed');", 1);
                 }
+                if (this.isCICitadelStuffEnabled) {
+                    // Request a scan on language change
+                    ko.codeintel.scan_document(this.koDoc, 0, false);
+                }
                 this._setupHighlightColors(this.scintilla);
                 break;
             case 'title_changed':
