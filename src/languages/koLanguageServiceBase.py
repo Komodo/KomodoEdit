@@ -44,6 +44,7 @@ import logging
 import pprint
 
 import scimozindent
+import HTMLTreeParser
 from xpcom import components
 from xpcom.server import WrapObject
 
@@ -2405,7 +2406,8 @@ class KoLanguageBase:
         if style == scimoz.SCE_UDL_M_TAGNAME:
             return "START_TAG_NAME"
         if (style == scimoz.SCE_UDL_M_STRING and char in ('"', "'") 
-            and (scimoz.getStyleAt(pos + 1) & self.stylingBitsMask) == scimoz.SCE_UDL_M_TAGSPACE):
+            and (scimoz.getStyleAt(pos + 1) & self.stylingBitsMask) in (scimoz.SCE_UDL_M_TAGSPACE,
+                                                                        scimoz.SCE_UDL_M_DEFAULT)):
             # Verify there's a start-tag on this line
             curLineNo = scimoz.lineFromPosition(pos)
             lineStart = scimoz.positionFromLine(curLineNo)
@@ -2441,7 +2443,8 @@ class KoLanguageBase:
         if lastSlashIndex == lastLeftBraceIndex + 1:
             return 'END_TAG_CLOSE'
         text = text.rstrip()
-        if not text: return ''
+        if not text:
+            return ''
         # Handle xml-based multi-sublanguage languages that don't
         # have a UDL definition, and end in strings like '%>'
         # Ref bug 57417
@@ -2561,30 +2564,49 @@ class KoLanguageBase:
             state = self._findXMLState(scimoz, index_Doc, char, style)
             if state == 'START_TAG_CLOSE':
                 tagStartPos_Buf = beforeText.rfind('<', 0, index_Buf)
-                if tagStartPos_Buf < startOfLine_Buf:
-                    if tagStartPos_Buf == -1:
-                        # We failed to find the start-tag in the subset,
-                        # so just give up, and return the current line's
-                        # indent (we're ending one of those tags that
-                        # contain some very large attributes).
-                        return self._getIndentForLine(scimoz, currentLine)
+                standard_type = False
+                # If we have an empty tag, set standard_type to True, and continue
+                # to the end of block processing.
+                if tagStartPos_Buf >= 0:
+                    m = re.compile(r'([\w\-]+)').search(beforeText, tagStartPos_Buf)
+                    if m:
+                        if ((self.name.startswith("HTML")
+                             and m.group(1) in HTMLTreeParser.html_no_close_tags)
+                            or (self.name == "HTML5"
+                                and m.group(1) in HTMLTreeParser.html5_no_close_tags)):
+                            # Retry, treating it like a "<.../>" tag.
+                            state = "START_TAG_EMPTY_CLOSE"
+                            standard_type = True
+                if not standard_type:
+                    if tagStartPos_Buf < startOfLine_Buf:
+                        if tagStartPos_Buf == -1:
+                            # We failed to find it in the subset, so replace the buffers with the full thing,
+                            # and retry
+                            index_Doc = index_Buf + startPos_Doc + 1
+                            startPos_Doc = 0
+                            styledText = scimoz.getStyledText(startPos_Doc, index_Doc)
+                            beforeText = styledText[0::2]
+                            beforeStyles = [ord(c) for c in styledText[1::2]]
+                            startOfLine_Buf = startOfLine_Doc
+                            index_Buf = index_Doc - 1
+                            continue
                             
-                    # Update the "currentLine" arguments
-                    currentLine = scimoz.lineFromPosition(tagStartPos_Buf + startPos_Doc)
-                    startOfLine_Doc = scimoz.positionFromLine(currentLine)
-                    startOfLine_Buf = startOfLine_Doc - startPos_Doc
-                if self._precededByText(scimoz, startOfLine_Buf,
-                                        tagStartPos_Buf,
-                                        beforeText, beforeStyles):
-                    return self._getIndentForLine(scimoz, currentLine)
-                # convert from character offset to byte position --
-                # that's what getColumn wants.
-                tagStartPos_Doc = tagStartPos_Buf + startPos_Doc
-                currentIndentWidth = scimoz.getColumn(tagStartPos_Doc)
-                nextIndentWidth = (divmod(currentIndentWidth, scimoz.indent)[0] + 1) * scimoz.indent
-                indentlog.debug("currentIndentWidth = %r", currentIndentWidth)
-                indentlog.debug("nextIndentWidth= %r", nextIndentWidth)
-                return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
+                        # Update the "currentLine" arguments
+                        currentLine = scimoz.lineFromPosition(tagStartPos_Buf + startPos_Doc)
+                        startOfLine_Doc = scimoz.positionFromLine(currentLine)
+                        startOfLine_Buf = startOfLine_Doc - startPos_Doc
+                    if self._precededByText(scimoz, startOfLine_Buf,
+                                            tagStartPos_Buf,
+                                            beforeText, beforeStyles):
+                        return self._getIndentForLine(scimoz, currentLine)
+                    # convert from character offset to byte position --
+                    # that's what getColumn wants.
+                    tagStartPos_Doc = tagStartPos_Buf + startPos_Doc
+                    currentIndentWidth = scimoz.getColumn(tagStartPos_Doc)
+                    nextIndentWidth = (divmod(currentIndentWidth, scimoz.indent)[0] + 1) * scimoz.indent
+                    indentlog.debug("currentIndentWidth = %r", currentIndentWidth)
+                    indentlog.debug("nextIndentWidth= %r", nextIndentWidth)
+                    return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
             elif state == "END_TAG_CLOSE":
                 # find out what tag we just closed
                 leftCloseIndex_Buf = beforeText.rfind('</', 0, index_Buf)
@@ -2599,7 +2621,7 @@ class KoLanguageBase:
                     if tagStartPos_Buf < 0:
                         # We went past the start of the partial buffer, so just
                         # get the line the tag starts on, and return its indentation.
-                        log.warn("Looking for matching start-tag moved to pos %d, before startPos_Doc %d",
+                        log.info("Looking for matching start-tag moved to pos %d, before startPos_Doc %d",
                                  tagStartPos_Doc, startPos_Doc)
                         currentLine = scimoz.lineFromPosition(tagStartPos_Doc)
                         tagStartPos_Buf = -1

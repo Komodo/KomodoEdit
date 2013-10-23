@@ -39,7 +39,7 @@ TestHTMLAutoIndent.prototype._get_scimoz_and_koDoc_from_string = function(buf, s
         lexerSvc.setCurrent(scimoz);
     } else {
         //this.log.debug(":((((( No headless scimoz");
-        scimoz.startStyling(0, ~0);
+        scimoz.startStyling(0, -1);
         scimoz.setStylingEx(styles_01.length,
                             styles_01.map(c => String.fromCharCode(c)).join(""));
     }
