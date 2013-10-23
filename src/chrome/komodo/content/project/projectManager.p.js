@@ -541,14 +541,29 @@ projectManager.prototype._saveNewProject = function(project) {
     return true;
 }
 
-projectManager.prototype._getNewProjectPath = function() {
+/**
+ * Browse for and return a path for a new Komodo project file.
+ *
+ * @param {String} directory  (Optional) The directory to create the project in.
+ * @param {String} name  (Optional) The project name.
+ */
+projectManager.prototype._getNewProjectPath = function(directory, name) {
     const projectSuffix = ".komodoproject";
-    var defaultDir = (this.currentProject
+    var defaultDir;
+    if (directory) {
+        defaultDir = ko.uriparse.URIToLocalPath(directory);
+    } else {
+        defaultDir = (this.currentProject
                       ? this.currentProject.getFile().dirName
                       : ko.window.getHomeDirectory());
+    }
+    if (!name) {
+        name = _bundle.GetStringFromName("newProject.defaultFileName");
+    }
+
     var path = ko.filepicker.saveFile(
         defaultDir,
-        _bundle.GetStringFromName("newProject.defaultFileName") + projectSuffix, // defaultFilename
+        name + projectSuffix, // defaultFilename
         _bundle.GetStringFromName("newProject.title"), // title
         _bundle.GetStringFromName("komodoProject.message"), // defaultFilterName
         [_bundle.GetStringFromName("komodoProject.message"),
@@ -1083,8 +1098,14 @@ projectManager.prototype._parentURI = function(uri) {
     return uri.substr(0, uri.lastIndexOf("/"));
 };
 
-projectManager.prototype.createNewProject = function() {
-    var filename = this._getNewProjectPath();
+/**
+ * Create new project.
+ *
+ * @param {String} directory  (Optional) The directory to create the project in.
+ * @param {String} name  (Optional) The project name.
+ */
+projectManager.prototype.createNewProject = function(directory, name) {
+    var filename = this._getNewProjectPath(directory, name);
     if (filename == null) return null;
     var uri = ko.uriparse.localPathToURI(filename);
     return this.newProject(uri);
