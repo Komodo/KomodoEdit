@@ -8,7 +8,7 @@
                  "PP_KO_BUILD_NUMBER",  // buildID
                  "{b1042fb5-9e9c-11db-b107-000d935d3368}", // app guid
                  "Copyright (c) 1999 - PP_CURR_YEAR ActiveState", // copyright
-                 0,                     // flags
+                 14,                    // flags (PROFILE_MIGRATOR | EXTENSION_MANAGER | CRASH_REPORTER)
                  NULL,                  // xreDirectory
                  "PP_MOZ_GRE_MILESTONE", // XRE minVersion
                  "PP_MOZ_GRE_MILESTONE", // XRE maxVersion
