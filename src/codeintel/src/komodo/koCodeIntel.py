@@ -28,6 +28,7 @@ import weakref
 import koprocessutils
 
 log = logging.getLogger("codeintel.komodo")
+log_timing = log.getChild("timing")
 
 class KoCodeIntelService:
     _com_interfaces_ = [Ci.koICodeIntelService,
@@ -1045,8 +1046,13 @@ class KoCodeIntelManager(threading.Thread):
                 now = time.time()
                 if now - discard_time > 60: # discard some stale results
                     for req_id, (callback, request, sent_time) in self.requests.items():
-                        if sent_time < now - 30 * 60:
-                            # sent 30 minutes ago - it's irrelevant now
+                        if sent_time < now - 5 * 60:
+                            # sent 5 minutes ago - it's irrelevant now
+                            log_timing.info("Request %x (command %s) timed out "
+                                            "after %0.2f seconds",
+                                            req_id,
+                                            request.get("command", "<unknown>"),
+                                            now - sent_time)
                             try:
                                 if callback:
                                     callback(request, {})
@@ -1094,6 +1100,9 @@ class KoCodeIntelManager(threading.Thread):
                           sorted(self.requests.keys()))
             return
         command = request.get("command", "")
+        log_timing.info("Request %s (command %s) took %0.2f seconds",
+                        req_id, request.get("command", "<unknown>"),
+                        time.time() - sent_time)
         assert response.get("command", command) == command, \
             "Got unexpected response command %s from request %s" % (
                 response.get("command"), command)
