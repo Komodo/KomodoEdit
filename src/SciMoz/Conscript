@@ -447,7 +447,6 @@ if ($withTests && $platform ne "win") {
     }
 
     $consHeadless = new cons(%consHeadless);
-    $consHeadless->Depends($headlessSciMoz, "$scintillaBuildDir/bin/$headlessLibName");
     $consHeadless->Preprocess("plugin.cxx", "headless/plugin.cxx");
     $consHeadless->Preprocess("npn_gate.cpp", "headless/npn_gate.cpp");
     $consHeadless->Preprocess("nsSciMoz.cxx", "headless/nsSciMoz.cxx");
@@ -467,6 +466,7 @@ if ($withTests && $platform ne "win") {
     $consHeadless->Depends($headlessSciMoz, "sendscintilla.h");
     $consHeadless->Depends($headlessSciMoz, "nsSciMoz.h");
     $consHeadless->Depends($headlessSciMoz, $pluginName); # build real SciMoz first
+    $consHeadless->Depends($headlessSciMoz, "$scintillaBuildDir/bin/$headlessLibName");
 
     $consHeadless->InstallXpcomComponent($headlessSciMoz);
 }
