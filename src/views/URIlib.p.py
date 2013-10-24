@@ -1141,6 +1141,7 @@ class projectURI2_Handler(projectURIHandler):
                 if val != origVal:
                     tool = self.getMacroTool()
                     tool.value = val
+                    self.part.value = val
                     try:
                         tool.save() # updates filesystem tool & DB
                     except:
@@ -1165,9 +1166,8 @@ class projectURI2_Handler(projectURIHandler):
             # and insert it into a stringio object
             if mode and mode[0] == 'r':
                 try:
-                    if not self.part:
-                        self.part = self.getMacroTool()
-                        self._stats = None
+                    self.part = self.getMacroTool()
+                    self._stats = None
                     text = self.part.value
                     if self._uri.scheme == "snippet2":
                         try:
