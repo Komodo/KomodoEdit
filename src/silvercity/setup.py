@@ -144,7 +144,13 @@ else:
     
     # libraries.append('gcc')
     # libraries.append('stdc++')
-    
+
+# KOMODO - define special UDL debug environment variables when necessary.
+if "UDL_DEBUG" in os.environ:
+    defines.append(('UDL_DEBUG','1'))
+if "UDL_DEBUG_TIME" in os.environ:
+    defines.append(('UDL_DEBUG_TIME','1'))
+
 setup(  name = "SilverCity", 
         version = "0.9.5", 
         description = "Python interface to Scintilla lexers", 
