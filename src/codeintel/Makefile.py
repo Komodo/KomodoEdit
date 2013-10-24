@@ -136,7 +136,8 @@ def make_src_scintilla(maker, log):
         # Hardcoded expectations in SilverCity/LanguageInfo.py
         "CPP", "SQL", "YAML", "PS",
     ]
-    scintilla_lexer_dir = join("src", "scintilla", "src")
+    scintilla_src_dir = join("src", "scintilla", "src")
+    scintilla_lexer_dir = join("src", "scintilla", "lexers")
     available_langs = [
         basename(f)[3:-4]
         for f in glob(join(scintilla_lexer_dir, "Lex*.cxx"))
@@ -148,7 +149,7 @@ def make_src_scintilla(maker, log):
         _rm(cxx_path, log.info)
 
     # Run the source generators post- changes to the sources.
-    _run_in_dir(cfg.python+" LexGen.py", scintilla_lexer_dir,
+    _run_in_dir(cfg.python+" LexGen.py", scintilla_src_dir,
                 logstream=log.info)
 
     if METHOD == "komodo":
