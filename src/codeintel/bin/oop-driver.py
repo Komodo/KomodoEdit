@@ -111,36 +111,18 @@ def main(argv=[]):
 def set_idle_priority():
     """Attempt to set the process priority to idle"""
     try:
-        os.nice(20)
+        os.nice(5)
     except AttributeError:
         pass # No os.nice on Windows
-    if sys.platform.startswith("linux"):
-        import ctypes.util
-        import platform
-        # Try using a syscall to set io priority...
-        __NR_ioprio_set = { # see Linux sources, Documentation/block/ioprio.txt
-            "i386": 289,
-            "x86_64": 251,
-        }.get(platform.machine())
-        if __NR_ioprio_set is not None:
-            libc = ctypes.cdll.LoadLibrary(ctypes.util.find_library("c"))
-            IOPRIO_WHO_PROCESS = 1
-            IOPRIO_CLASS_IDLE = 3
-            IOPRIO_CLASS_SHIFT = 13
-            libc.syscall(__NR_ioprio_set, IOPRIO_WHO_PROCESS, 0,
-                         IOPRIO_CLASS_IDLE << IOPRIO_CLASS_SHIFT)
-    elif sys.platform.startswith("win"):
+    if sys.platform.startswith("win"):
         import ctypes
         from ctypes import wintypes
         SetPriorityClass = ctypes.windll.kernel32.SetPriorityClass
         SetPriorityClass.argtypes = [wintypes.HANDLE, wintypes.DWORD]
         SetPriorityClass.restype = wintypes.BOOL
         HANDLE_CURRENT_PROCESS = -1
-        IDLE_PRIORITY_CLASS = 0x00000040
-        SetPriorityClass(HANDLE_CURRENT_PROCESS, IDLE_PRIORITY_CLASS)
-        # On Vista+, this sets the I/O priority to very low
-        PROCESS_MODE_BACKGROUND_BEGIN = 0x00100000
-        SetPriorityClass(HANDLE_CURRENT_PROCESS, PROCESS_MODE_BACKGROUND_BEGIN)
+        BELOW_NORMAL_PRIORITY_CLASS = 0x00004000
+        SetPriorityClass(HANDLE_CURRENT_PROCESS, BELOW_NORMAL_PRIORITY_CLASS)
 
 def set_process_limits():
     if sys.platform.startswith("win"):
