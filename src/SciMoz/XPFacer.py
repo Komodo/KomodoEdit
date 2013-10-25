@@ -418,11 +418,14 @@ def fixup_iface_data(face):
                 if name in face.order:
                     face.order.remove(name)
                 continue
+            getter = getterVersion(feature, face)
+            feature["MatchingFeature"] = None
             if feature["ParamCount"] != 1:
                 # this is a setter with zero or two args; treat as function
                 feature["FeatureType"] = "fun"
+                if getter is not None:
+                    getter["MatchingFeature"] = None
             else:
-                getter = getterVersion(feature, face)
                 if getter is not None:
                     feature["MatchingFeature"] = getter
                 else:
