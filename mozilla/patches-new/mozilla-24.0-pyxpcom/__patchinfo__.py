@@ -7,5 +7,5 @@ def applicable(config):
 
 def patch_args(config):
     # patch $topsrcdir/extensions/python
-    return ['-d', 'extensions/python', '-p1']
+    return ['-p1']
 

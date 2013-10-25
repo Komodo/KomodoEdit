@@ -2047,7 +2047,7 @@ def GetScintillaSource(cfg, argv):
 
     This is only done if src/scintilla doesn't already exist.
     """
-    landmark = join("src", "scintilla", "version.txt")
+    landmark = join("src", "scintilla", ".patchtree-state")
     if exists(landmark):
         return
 

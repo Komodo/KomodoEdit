@@ -1900,7 +1900,8 @@ def target_src_pyxpcom(argv=["src_pyxpcom"]):
 def target_patch_pyxpcom(argv=["patch_pyxpcom"]):
     """Patch PyXPCOM with Komodo-specific patches"""
     log.info("target: patch_pyxpcom")
-    target_patch(patch_target='pyxpcom', logFilename="__patchlog_pyxpcom__.py")
+    target_patch(patch_target='pyxpcom', logFilename="__patchlog_pyxpcom__.py",
+                 srcSubDir="extensions/python")
     return argv[1:]
 
 def target_pyxpcom(argv=["pyxpcom"]):
@@ -2470,14 +2471,18 @@ def target_all(argv):
     return argv[1:]
 
 
-def target_patch(argv=["patch"], patch_target="mozilla", logFilename=None):
+def target_patch(argv=["patch"], patch_target="mozilla", logFilename=None,
+                 srcSubDir=None):
     """patch the mozilla source"""
     config = _importConfig()
-    log.info("target: patch from %r" %config.patchesDirs)
+    log.info("target: patch %s from %r",
+             patch_target, config.patchesDirs)
 
     srcDir = join(config.buildDir, config.srcTreeName, "mozilla")
+    if srcSubDir is not None:
+        srcDir = join(srcDir, srcSubDir)
     logDir = join(config.buildDir, config.srcTreeName,
-                  "mozilla-patches-%s" % config.srcTreeName)
+                  "mozilla-patches-%s" % config.srcTreeName, patch_target)
 
     # Use our local patch, if we have one.
     # - on Windows the cygwin patch can do screwy things
