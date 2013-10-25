@@ -2400,11 +2400,12 @@ class LexString {
     char *p_buf;
     unsigned int buf_size;
     int			curr_line;
+    int         line_length;
 
     public:
     LexString() {
         p_buf = NULL;
-        buf_size = 0;
+        buf_size = line_length = 0;
         curr_line = -1;
     };
     ~LexString() {
@@ -2418,10 +2419,13 @@ class LexString {
     char *Val() {
         return p_buf;
     };
+    int LineLength() {
+        return line_length;
+    };
 
     bool SetLine(int pos, Accessor &styler) {
         curr_line = styler.GetLine(pos);
-        int line_length = CurrLineLength(pos, styler);
+        line_length = CurrLineLength(pos, styler);
         if (!MakeSpace(line_length + 1)) {
             curr_line = -1;
             return false;
@@ -3022,7 +3026,7 @@ static bool lookingAtMatch(
     rc = pcre_exec(p_compiledPattern,
                        NULL, // no extra data - we didn't study the pattern
                        p_subject,
-                       (int) strlen(p_subject),
+                       p_CurrTextLine->LineLength(),
                        oldPos - currLineStart,
                        PCRE_ANCHORED, /* default options */
                        p_MainInfo->ovector,   /* output vector for substring information */
