@@ -43,7 +43,7 @@ provides detailed meta information of text files.
 
     >>> import textinfo
     >>> path = __file__
-    >>> if path.endswith(".pyc"): path = path[:-1]
+    >>> if path.endswith((".pyc", ".pyo")): path = path[:-1]
     >>> ti = textinfo.textinfo_from_path(path)
     >>> ti.__class__
     <class 'textinfo.TextInfo'>
