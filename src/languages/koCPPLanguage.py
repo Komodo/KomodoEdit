@@ -149,6 +149,11 @@ int main(int argc, char *argv[])
                  "static_cast", "struct", "switch", "template", "this", "throw", "true",
                  "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile",
                  "wchar_t", "while", "xor", "xor_eq"]
+    _keywords_11 = ["alignas", "alignof", "decltype", "char16_t",
+                    "char32_t", "constexpr", "noexcept", "nullptr",
+                    "static_assert", "thread_local"]
+    _keywords += _keywords_11
+    _keywords.sort()
 
     # XXX uncomment these to integrate the info and linter classes
     # XXX these are disabled because more work is necessary to properly
