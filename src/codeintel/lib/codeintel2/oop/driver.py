@@ -926,13 +926,32 @@ class Environment(codeintel2.environment.Environment):
         """Replace the current prefs with the new set
         @param prefs {list of dict} The new preferences
         """
+
+        # Determine the existing values of the prefs
+        old_prefs = {} # flattened
+        for level in reversed(self._prefs):
+            # reverse order, since shallowest pref wins
+            old_prefs.update(level)
+
+        # Determine the new values of the prefs
+        new_prefs = {} # flattened
+        for level in reversed(prefs):
+            # reverse order, since shallowest pref wins
+            new_prefs.update(level)
+
+        # Determine the prefs that were added/removed
         changed_prefs = set()
-        # All existing prefs will be removed
-        changed_prefs.update(*(level.keys() for level in self._prefs))
-        # Do the replacement (making a copy)
-        self._prefs = [level.copy() for level in prefs]
-        # All the new prefs are added
-        changed_prefs.update(*(level.keys() for level in self._prefs))
+        old_keys = set(old_prefs.keys())
+        changed_prefs.update(old_keys.symmetric_difference(new_prefs.keys()))
+
+        # Determine the prefs that were modified
+        for key in old_keys.intersection(new_prefs.keys()):
+            if old_prefs[key] != new_prefs[key]:
+                changed_prefs.add(key)
+
+        # Do the replacement (shouldn't need a copy, this is temporary anyway)
+        self._prefs = prefs
+
         for pref in changed_prefs:
             self._notify_pref_observers(pref)
 
