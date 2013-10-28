@@ -751,8 +751,16 @@ class TestKoDocumentRemote(_KoDocTestCase):
             self.assertTrue(koDoc.differentOnDisk(), "Remote file change was not detected")
             # Next time we call it - it should still detect the file as being changed - bug 95690.
             self.assertTrue(koDoc.differentOnDisk(), "Remote file change was not detected a second time")
-            koDoc.save(True)
-            self.assertFalse(koDoc.differentOnDisk(), "Remote file change detected after saving the file")
+            # Because we are using a fake koIFileEx (or really a local file),
+            # this test can fail if the timestamp between the save and the
+            # differentOnDisk calls has changed. To work around that, we run
+            # multiple checks and only accept one failure.
+            success_count = 0
+            for tries in range(3):
+                koDoc.save(True)
+                if not koDoc.differentOnDisk():
+                    success_count += 1
+            self.assertTrue(success_count >= 2, "Remote file change detected after saving the file")
         finally:
             if os.path.exists(path):
                 os.unlink(path) # clean up
