@@ -92,25 +92,8 @@ ko.codeintel = {};
             } else {
                 try {
                     log.debug("Attempting to activate codeintel service");
-                    _codeintelSvc.activate(function(result, data) {
-                        log.debug("codeintel service activation complete: " +
-                                  result.toString(16));
-                        if (result === Ci.koIAsyncCallback.RESULT_SUCCESSFUL) {
-                            log.debug("codeintel activated");
-                            _isActive = true;
-                            window.updateCommands("codeintel_enabled");
-                        } else if (result === Ci.koIAsyncCallback.RESULT_STOPPED) {
-                            // recoverable error
-                        } else {
-                            // unrecoverable error
-                            let message = String(data);
-                            if (data instanceof Ci.koIErrorInfo) {
-                                message = String(data.koIErrorInfo.message);
-                            }
-                            ko.dialogs.internalError("Failed to start codeintel",
-                                                     message);
-                        }
-                    });
+                    // bug 100448: automatically wipe db if necessary.
+                    _codeintelSvc.activate(true);
                 } catch(ex2) {
                     log.exception(ex2);
                     var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
@@ -126,8 +109,30 @@ ko.codeintel = {};
         }
     }
     
-    
-    function _CodeIntel_DeactivateWindow(isShuttingDown)
+    function _CodeIntel_activate_callback(result, data) {
+        log.debug("codeintel activate callback: " + result.toString(16));
+        if (result === Ci.koIAsyncCallback.RESULT_SUCCESSFUL) {
+            log.debug("codeintel activated");
+            _isActive = true;
+        } else if (result === Ci.koIAsyncCallback.RESULT_STOPPED) {
+            // recoverable error
+            _CodeIntel_DeactivateWindow();
+        } else {
+            // unrecoverable error
+            _CodeIntel_DeactivateWindow();
+            let message = String(data);
+            if (data instanceof Ci.koIErrorInfo) {
+                message = String(data.koIErrorInfo.message);
+            }
+            ko.dialogs.internalError("Failed to start codeintel",
+                                     message);
+        }
+        if (!ko.main.windowIsClosing) {
+            window.updateCommands("codeintel_enabled");
+        }
+    }
+
+    function _CodeIntel_DeactivateWindow()
     {
         log.debug("_CodeIntel_DeactivateWindow()");
         try {
@@ -135,7 +140,7 @@ ko.codeintel = {};
                 return;
             }
             _isActive = false;
-            if (!isShuttingDown) {
+            if (!ko.main.windowIsClosing) {
                 window.updateCommands("codeintel_enabled");
             }
         } catch(ex) {
@@ -159,6 +164,7 @@ ko.codeintel = {};
     {
         log.debug("initialize()");
         try {
+            _codeintelSvc.addActivateCallback(_CodeIntel_activate_callback);
             if (ko.prefs.getBooleanPref("codeintel_enabled")) {
                 _CodeIntel_ActivateWindow();
             } else {
@@ -185,7 +191,8 @@ ko.codeintel = {};
     {
         log.debug("finalize()");
         try {
-            _CodeIntel_DeactivateWindow(true /* shutting down */);
+            _codeintelSvc.removeActivateCallback(_CodeIntel_activate_callback);
+            _CodeIntel_DeactivateWindow();
             let topView = ko.views.manager.topView;
             topView.removeEventListener("click",
                                         this._triggerHighlightVariableFromMouse,

@@ -66,8 +66,8 @@ class KoCodeIntelService:
 
         self._mgr_lock = threading.Lock()
 
-        self._init_callbacks = Queue.Queue()
-        """Callbacks that should be invoked on init"""
+        self._activate_callbacks = set()
+        """Observers that should be invoked on activate/deactivate"""
 
         try:
             Cc["@mozilla.org/memory-reporter-manager;1"]\
@@ -90,20 +90,30 @@ class KoCodeIntelService:
         return self.__db_preloader
 
 
-    def activate(self, xpcom_callback, resetBrokenDB=False):
-        self.debug("activating codeintel service: %r, %r",
-                   xpcom_callback, resetBrokenDB)
+    @ProxyToMainThread
+    def _invoke_activate_callbacks(self, success, data):
+        for callback in list(self._activate_callbacks):
+            try:
+                callback.callback(success, data)
+            except Exception as ex:
+                log.warn("Failed to invoke codeintel activation callback: %s",
+                         ex.message if hasattr(ex, "message") else ex,
+                         exc_info=True)
+
+    def addActivateCallback(self, callback):
+        self._activate_callbacks.add(callback)
+
+    def removeActivateCallback(self, callback):
+        self._activate_callbacks.discard(callback)
+
+    def activate(self, resetBrokenDB=False):
+        self.debug("activating codeintel service: %s reset database",
+                   "will" if resetBrokenDB else "will not")
 
         if self._quit_application:
             return # don't ever restart after quit-application
 
         self._enabled = True
-
-        try:
-            self._init_callbacks.put(xpcom_callback.koIAsyncCallback.callback)
-        except AttributeError:
-            if callable(xpcom_callback):
-                self._init_callbacks.put(xpcom_callback)
 
         def callback(result=Cr.NS_OK, message=None, success=None):
             if success is None:
@@ -114,15 +124,7 @@ class KoCodeIntelService:
             data = Namespace(result=result,
                              message=message,
                              _com_interfaces_=[Ci.koIErrorInfo])
-            while True:
-                try:
-                    cb = self._init_callbacks.get_nowait()
-                    try:
-                        cb(success, data)
-                    except:
-                        self.log.exception("Failed to invoke init callback %r", cb)
-                except Queue.Empty:
-                    break # no more callbacks
+            self._invoke_activate_callbacks(success, data)
 
         self._db_preloader.callback = callback
 
