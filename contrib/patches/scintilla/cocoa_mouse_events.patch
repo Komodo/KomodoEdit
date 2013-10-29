@@ -5,6 +5,16 @@ Index: /Users/toddw/as/komodo-devel_12/src/scintilla/cocoa/ScintillaView.mm
 ===================================================================
 --- cocoa/ScintillaView.mm	(revision 74680)
 +++ cocoa/ScintillaView.mm	(working copy)
+@@ -108,6 +108,9 @@
+ - (void) mouseDown: (NSEvent *) theEvent
+ {
+   owner.backend->MouseDown(theEvent);
++  // Send the event through owner, to avoid the NSScrollView handling it.
++  // We want it to go to the DOM instead. (Komodo bug 101290)
++  [owner mouseDown:theEvent];  // Send through the DOM as well.
+ }
+ 
+ - (void) mouseDragged: (NSEvent *) theEvent
 @@ -387,6 +397,7 @@
  - (void) mouseDown: (NSEvent *) theEvent  
  {
