@@ -2023,7 +2023,12 @@ class GenericCommandHandler:
         regionUtf8Len = self.sysUtils.byteLength(region)
         sm.targetStart = startPos
         sm.targetEnd = endPos
+        # bug101318: try to keep the FVL in place, allow for wrapped lines
+        # (folded blocks will be unfolded by the tab operation).
+        firstVisibleLine = sm.firstVisibleLine
+        firstDocLine = sm.docLineFromVisible(firstVisibleLine)
         sm.replaceTarget(len(region), region)
+        sm.firstVisibleLine = sm.visibleFromDocLine(firstDocLine)
         endPos = startPos + regionUtf8Len
         if sm.selectionMode == sm.SC_SEL_LINES:
             # Maintain the same cursor position.
