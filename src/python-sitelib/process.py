@@ -364,11 +364,6 @@ class ProcessOpen(Popen):
                 stdin_handle = GetStdHandle(STD_INPUT_HANDLE)
                 if stdin_handle is not None:
                     cls.__needToHackAroundStdHandles = True
-                    if stdin_handle != 3:
-                        log.warn("`GetStdHandle(STD_INPUT_HANDLE)` != 3: "
-                                 "something has changed w.r.t. std handle "
-                                 "inheritance in Komodo that may affect "
-                                 "subprocess launching")
                 else:
                     cls.__needToHackAroundStdHandles = False
         return cls.__needToHackAroundStdHandles
