@@ -427,10 +427,14 @@ class KoCodeIntelDBPreloader(object):
 
     def restart(self, *args, **kwargs):
         # This is a tad ugly...
+        log.debug("restarting codeintel preload...")
         self.notification.summary = "Pre-loading code intelligence database"
         self.notification.severity = Ci.koINotification.SEVERITY_INFO
+        self.notification.progress = 0
         self.notification.maxProgress = \
             Ci.koINotificationProgress.PROGRESS_INDETERMINATE
+        self.notification.details = self.notification.summary
+        self._update_status_message()
         self.showAction("stop")
         # clean up dead managers
         if self.svc.mgr and not self.svc.mgr.is_alive():
@@ -453,10 +457,10 @@ class KoCodeIntelDBPreloader(object):
             action.enabled = True
             self.notification.updateAction(action)
 
-    def progress(self, message, progress=None):
+    def progress(self, message, progress=None, state=None):
         assert threading.current_thread().name == "MainThread", \
             "KoCodeIntelService.activate::post_startup() should run on main thread!"
-        self.debug("Progress: [%s] %s @%s", message, progress,
+        self.debug("Progress: [%s] %s%% @%s=%s", message, progress, state,
                    self.mgr.state if self.mgr else "<None>")
         if progress == "(ABORTED)":
             # abort
@@ -472,7 +476,7 @@ class KoCodeIntelDBPreloader(object):
             self.callback(result=Cr.NS_ERROR_FAILURE,
                           message=message,
                           success=Ci.koIAsyncCallback.RESULT_SUCCESSFUL)
-        elif not self.mgr or self.mgr.state is KoCodeIntelManager.STATE.DESTROYED:
+        elif state in (None, KoCodeIntelManager.STATE.DESTROYED):
             # Startup died
             self.debug("startup failed: %s", message)
             self.notification.summary = message
@@ -484,8 +488,8 @@ class KoCodeIntelDBPreloader(object):
             self._update_status_message()
             self.callback(result=Cr.NS_ERROR_FAILURE,
                           message=message)
-        elif self.mgr.state is KoCodeIntelManager.STATE.BROKEN:
-            # db is broken, needs manual intervention
+        elif state is KoCodeIntelManager.STATE.BROKEN:
+            self.debug("db is broken, needs manual intervention")
             self.notification.summary = "There is an error with your code " \
                                          "intelligence database; it must be " \
                                          "reset before it can be used."
@@ -498,9 +502,9 @@ class KoCodeIntelDBPreloader(object):
             self._update_status_message()
             self.callback(result=Cr.NS_ERROR_FAILURE,
                           message="Code intelligence database error",
-                          success=Ci.koIAsyncCallback.RESULT_SUCCESSFUL)
-        elif self.mgr.state is KoCodeIntelManager.STATE.READY:
-            # db is good
+                          success=Ci.koIAsyncCallback.RESULT_STOPPED)
+        elif state is KoCodeIntelManager.STATE.READY:
+            self.debug("db is ready")
             if self._notification:
                 self.notification.maxProgress = \
                     Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE
@@ -513,9 +517,9 @@ class KoCodeIntelDBPreloader(object):
             self.callback(result=Cr.NS_OK, message=None,
                           success=Ci.koIAsyncCallback.RESULT_SUCCESSFUL)
         elif message is None and progress is None:
-            pass # nothing to report
+            self.debug("nothing to report")
         else:
-            # progress update, not finished yet
+            self.debug("progress update, not finished yet")
             if progress is Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE:
                 self.notification.maxProgress = progress
             elif isinstance(progress, (int, float)):
@@ -529,6 +533,7 @@ class KoCodeIntelDBPreloader(object):
                 if details:
                     details += "\n"
                 self.notification.details = details + message
+            self._update_status_message()
             # don't invoke callback
 
     @property
@@ -721,7 +726,9 @@ class KoCodeIntelManager(threading.Thread):
             if response is not None:
                 message += "\n" + response.get("message",
                                                "(No further information available)")
-            self._init_callback(message, progress)
+            if any(x is not None for x in (message, progress, state)):
+                # don't do anything if everything we have is just none
+                self._init_callback(message, progress, state)
 
         def get_cpln_langs(request, response):
             if not response.get("success", False):
@@ -776,7 +783,7 @@ class KoCodeIntelManager(threading.Thread):
                 return
 
             update(response.get("message"),
-                   state=None,
+                   state=self.state,
                    progress=response.get("progress"))
 
             if "success" not in response:
@@ -1254,7 +1261,8 @@ class KoCodeIntelManager(threading.Thread):
             pass # umm... no idea?
         self.state = KoCodeIntelManager.STATE.DESTROYED
         self.pipe = None
-        self._shutdown_callback(self)
+        if self._shutdown_callback:
+            self._shutdown_callback(self)
 
     @property
     def ready(self):

@@ -576,14 +576,18 @@ class CoreHandler(CommandHandler):
 
     def do_database_info(self, request, driver):
         """Figure out what kind of state the codeintel database is in"""
+        if request.get("previous_command") == "database-preload":
+            preload_needed = "broken" # don't loop in preload
+        else:
+            preload_needed = "preload-needed"
         try:
             if not os.path.exists(os.path.join(driver.mgr.db.base_dir, "VERSION")):
                 log.debug("Database does not exist")
-                driver.send(state="preload-needed")
+                driver.send(state=preload_needed)
                 return
             if not os.path.isdir(os.path.join(driver.mgr.db.base_dir, "db", "stdlibs")):
                 log.debug("Database does not have stdlibs")
-                driver.send(state="preload-needed")
+                driver.send(state=preload_needed)
                 return
             driver.mgr.db.check()
             state, details = driver.mgr.db.upgrade_info()
@@ -599,7 +603,7 @@ class CoreHandler(CommandHandler):
                             break
                     else:
                         log.debug("no stdlib found for %s", lang)
-                        driver.send(state="preload-needed")
+                        driver.send(state=preload_needed)
                         break
                 else:
                     driver.send(state="ready")

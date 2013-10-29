@@ -95,17 +95,20 @@ ko.codeintel = {};
                     _codeintelSvc.activate(function(result, data) {
                         log.debug("codeintel service activation complete: " +
                                   result.toString(16));
-                        if (result != Ci.koIAsyncCallback.RESULT_SUCCESSFUL) {
-                            var message = String(data);
+                        if (result === Ci.koIAsyncCallback.RESULT_SUCCESSFUL) {
+                            log.debug("codeintel activated");
+                            _isActive = true;
+                            window.updateCommands("codeintel_enabled");
+                        } else if (result === Ci.koIAsyncCallback.RESULT_STOPPED) {
+                            // recoverable error
+                        } else {
+                            // unrecoverable error
+                            let message = String(data);
                             if (data instanceof Ci.koIErrorInfo) {
                                 message = String(data.koIErrorInfo.message);
                             }
                             ko.dialogs.internalError("Failed to start codeintel",
                                                      message);
-                        } else {
-                            log.debug("codeintel activated");
-                            _isActive = true;
-                            window.updateCommands("codeintel_enabled");
                         }
                     });
                 } catch(ex2) {
