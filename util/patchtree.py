@@ -949,6 +949,9 @@ def patch(patchesDir, sourceDir, config=None, logDir=None, dryRun=0,
                                 defines = _getPreprocessorDefines(config)
                             log.info("add '%s' to '%s' (with preprocessing",
                                      relpath, dst)
+                            dstparent = os.path.dirname(dstpath)
+                            if not exists(dstparent):
+                                os.makedirs(dstparent)
                             preprocess.preprocess(srcpath, dstpath,
                                                   defines=defines, substitute=1)
                         else:
