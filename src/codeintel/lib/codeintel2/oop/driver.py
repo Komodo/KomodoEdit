@@ -861,6 +861,13 @@ class CoreHandler(CommandHandler):
                     system=sorted(system),
                     namespaces=sorted(namespaces))
 
+    def do_buf_to_html(self, request, driver):
+        buf = driver.get_buffer(request)
+        flags = request.get("flags", {})
+        html = buf.to_html(title=request.get("title"), **flags)
+        driver.send(request=request,
+                    html=html)
+
 Driver._default_handler = CoreHandler()
 
 

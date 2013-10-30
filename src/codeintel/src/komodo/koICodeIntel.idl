@@ -216,7 +216,7 @@ interface koICodeIntelGetCallTipRangeCallback : nsISupports {
     void onGetCalltipRange(in long start, in long end);
 };
 
-[scriptable, uuid(AA6B3D1B-BB61-4FFF-A0B0-98320C3C3EE6)]
+[scriptable, uuid(5e3fb74c-f420-4919-a3cf-0954b1606297)]
 interface koICodeIntelBuffer: nsISupports {
     readonly attribute AString path;
     readonly attribute ACString lang;
@@ -307,6 +307,51 @@ interface koICodeIntelBuffer: nsISupports {
                                in long cur_pos,
                                in koICodeIntelGetCallTipRangeCallback callback,
                                [optional] in koICodeIntelErrorCallback errorCallback);
+
+    /**
+     * Return a styled HTML snippet for the current buffer, for debugging
+     * purposes.
+     * @param includeStyling Whether the CSS/JS/informational-HTML should be
+     *      included
+     * @param includeHTML Whether the HTML output should be wrapped into a
+     *      complete HTML document
+     * @param title The HTML document title to use if includeHTML is true
+     * @param doTrg Whether trigger hanlding should be done; this implies
+     *      doEval
+     * @param doEval Whether completion evaluation should be done
+     *
+     * @deprecated Since Komodo 8.5.3 - Prefer to_html_async instead.  This will
+     *      now pump events, which can be unsafe.
+     */
+    [deprecated]
+    AString to_html([optional] in boolean includeStyling,
+                    [optional] in boolean includeHTML,
+                    [optional] in AString title,
+                    [optional] in boolean doTrg,
+                    [optional] in boolean doEval);
+    /**
+     * Flags for to_html_async
+     */
+    /**
+     * Whether the CSS/JS/informational-HTML should be included
+     */
+    const unsigned long TO_HTML_INCLUDE_STYLING = 1 << 0;
+    /**
+     * Whether the HTML output should be wrapped into a complete HTML document
+     */
+    const unsigned long TO_HTML_INCLUDE_HTML    = 1 << 1;
+    /**
+     * Whether trigger hanlding should be done; this implies doEval
+     */
+    const unsigned long TO_HTML_DO_TRG  = 1 << 2;
+    /**
+     * Whether completion evaluation should be done
+     */
+    const unsigned long TO_HTML_DO_EVAL = 1 << 3;
+
+    void to_html_async(in koIAsyncCallback callback,
+                       [optional] in unsigned long flags,
+                       [optional] in AString title);
 };
 
 [scriptable, function, uuid(4788a643-7f1b-4a49-9919-60076dd70869)]

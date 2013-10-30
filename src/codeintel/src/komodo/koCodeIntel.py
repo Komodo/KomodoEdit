@@ -1544,6 +1544,73 @@ class KoCodeIntelBuffer(object):
                   env=self.env,
                   callback=callback_wrapper)
 
+    def to_html(self, include_styling=False, include_html=False, title=None,
+                do_trg=False, do_eval=False):
+        import warnings
+        warnings.warn("koICodeIntelBuffer.to_html is deprecated, use "
+                      "koICodeIntelBuffer.to_html_async instead.",
+                      DeprecationWarning)
+        flags = 0
+        ciBuf = Ci.koICodeIntelBuffer
+        if include_styling:
+            flags |= ciBuf.TO_HTML_INCLUDE_STYLING
+        if include_html:
+            flags |= ciBuf.TO_HTML_INCLUDE_HTML
+        if do_trg:
+            flags |= ciBuf.TO_HTML_DO_TRG
+        if do_eval:
+            flags |= ciBuf.TO_HTML_DO_EVAL
+        class Callback(object):
+            _com_interfaces_ = [Ci.koIAsyncCallback]
+            result = None
+            data = None
+            def callback(self, result, data):
+                # make sure to set data before result
+                self.data = data
+                self.result = result
+        callback = Callback()
+        thread = (Cc["@mozilla.org/thread-manager;1"]
+                    .getService(Ci.nsIThreadManager)
+                    .currentThread)
+        self.to_html_async(callback, flags=flags, title=title,
+                           proxyToMainThread=False)
+        while callback.result is None:
+            thread.processNextEvent(True)
+        return callback.data
+
+    def to_html_async(self, callback, flags=0, title=None,
+                      proxyToMainThread=True):
+        def invoke_callback(request, response):
+            try:
+                if response.get("success"):
+                    callback.callback(Ci.koIAsyncCallback.RESULT_SUCCESSFUL,
+                                      response.get("html"))
+                else:
+                    callback.callback(Ci.koIAsyncCallback.RESULT_ERROR,
+                                      None)
+            except:
+                self.log.exception("Error calling to_html callback")
+        if proxyToMainThread:
+            invoke_callback = ProxyToMainThreadAsync(invoke_callback)
+        if not hasattr(callback, "callback"):
+            # check that the callback is of the right type
+            raise TypeError("callback should be a koIAsyncCallback")
+        flag_dict = {}
+        for constant, name in {"INCLUDE_STYLING": "include_styling",
+                               "INCLUDE_HTML": "include_html",
+                               "DO_TRG": "do_trg",
+                               "DO_EVAL": "do_eval"}.items():
+            if flags & getattr(Ci.koICodeIntelBuffer, "TO_HTML_" + constant):
+                flag_dict[name] = True
+
+        self.send(command="buf-to-html",
+                  path=self.path,
+                  language=self.lang,
+                  text=self.doc.buffer if self.doc else None,
+                  env=self.env,
+                  title=title,
+                  flags=flag_dict,
+                  callback=invoke_callback)
 
 class KoCodeIntelEnvironment(object):
     """Helper object to get the environment to use for codeintel"""
