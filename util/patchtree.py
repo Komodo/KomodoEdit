@@ -345,17 +345,26 @@ def _determinePatchesFromDirectory(base, actions, config):
                                       lambda config, patchfile: True)
 
         # Find patch files.
+        # By deafult, use sorted order, to at least be consistent across runs
+        patch_names = sorted(n for n in names if splitext(n)[-1] in
+                             (".patch", ".diff", ".ppatch"))
+
         if hasattr(patchinfo, "patch_order"):
             patch_names = patch_names.patch_order(config)
         elif exists(join(dirpath, "series")):
+            expected_patch_names = set(patch_names)
             with open(join(dirpath, "series")) as series_file:
                 patch_names = filter(None, map(lambda n: n.strip(), series_file))
-        else:
-            # No order defined; use sorted order, to at least be consistent
-            # across runs
-            gen_ext_in = lambda *ext: lambda n: splitext(n)[-1] in ext
-            patch_names = sorted(filter(gen_ext_in(".patch", ".diff"), names))
-            patch_names.extend(sorted(filter(gen_ext_in(".ppatch"), names)))
+            actual_patch_names = set(patch_names)
+            if expected_patch_names ^ actual_patch_names:
+                missing = sorted(actual_patch_names - expected_patch_names)
+                extra = sorted(expected_patch_names - actual_patch_names)
+                msg = ["Series file does list patches actually available:"]
+                if missing:
+                    msg.append("\tPatch files not found: " + ", ".join(missing))
+                if extra:
+                    msg.append("\tExtra entries in series: " + ", ".join(extra))
+                raise Error("\n".join(msg))
 
         for patchfile in patch_names:
             if not patch_applicable_fn(config, patchfile):
