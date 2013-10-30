@@ -409,7 +409,12 @@ def fixup_iface_data(face):
                 # this is a getter with an arg; treat as function
                 feature["FeatureType"] = "fun"
             else:
-                feature["MatchingFeature"] = setterVersion(feature, face)
+                setter = setterVersion(feature, face)
+                if setter and setter["FeatureType"] == "set":
+                    feature["MatchingFeature"] = setterVersion(feature, face)
+                else:
+                    # This getter has no matching setter / has an invalid setter
+                    feature["MatchingFeature"] = None
 
         if feature["FeatureType"] == "set":
             if attributeName(name) in manualSetterProperties.keys():
