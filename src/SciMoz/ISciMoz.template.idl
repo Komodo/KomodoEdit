@@ -120,6 +120,14 @@ interface ISciMozLite : nsISupports {
         // grab_remove.. here is our chance.
         void endDrop();
 
+	// Added due to manual overrides for device/css pixel scaling (bug 100492)
+	long positionFromPoint(in long x, in long y);
+	long positionFromPointClose(in long x, in long y);
+	long pointXFromPosition(in long pos);
+	long pointYFromPosition(in long pos);
+	long charPositionFromPoint(in long x, in long y);
+	long charPositionFromPointClose(in long x, in long y);
+
 	// used to prevent context menu's on the scrollbars while scrollbar
 	// tracking is occuring
 	readonly attribute boolean isTracking;

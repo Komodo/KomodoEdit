@@ -1587,6 +1587,105 @@ bool SciMoz::EndDrop(const NPVariant * /*args*/, uint32_t argCount, NPVariant *r
 	return NS_SUCCEEDED(rv);
 }
 
+#ifdef XP_MACOSX
+// On OSX, the default screen DPI is 72
+#define SCALE_PIXEL(arg, direction) \
+	(arg * SendEditor(SCI_GETLOGPIXELS ## direction, 0, 0) / 72)
+#else
+// On Windows and GTK, the default screen DPI is 96
+#define SCALE_PIXEL(arg, direction) \
+	(arg * SendEditor(SCI_GETLOGPIXELS ## direction, 0, 0) / 96)
+#endif
+
+bool SciMoz::PositionFromPoint(const NPVariant * args, uint32_t argCount, NPVariant *result) {
+        if (argCount != 2) return false;
+        if (!NPVARIANT_IS_INT32(args[0])) return false;
+        if (!NPVARIANT_IS_INT32(args[1])) return false;
+        PRWord rv = SendEditor(SCI_POSITIONFROMPOINT,
+			       SCALE_PIXEL(NPVARIANT_TO_INT32(args[0]), X),
+			       SCALE_PIXEL(NPVARIANT_TO_INT32(args[1]), Y));
+        /* return value of type position */
+        INT32_TO_NPVARIANT(rv, *result);
+
+        return true;
+}
+bool SciMoz::PositionFromPointClose(const NPVariant * args, uint32_t argCount, NPVariant *result) {
+        if (argCount != 2) return false;
+        /* arg 0 of type int */
+        if (!NPVARIANT_IS_INT32(args[0])) return false;
+        /* arg 1 of type int */
+        if (!NPVARIANT_IS_INT32(args[1])) return false;
+        PRWord rv = SendEditor(SCI_POSITIONFROMPOINTCLOSE,
+                               SCALE_PIXEL(NPVARIANT_TO_INT32(args[0]), X),
+			       SCALE_PIXEL(NPVARIANT_TO_INT32(args[1]), Y));
+        /* return value of type position */
+        INT32_TO_NPVARIANT(rv, *result);
+
+        return true;
+}
+bool SciMoz::PointXFromPosition(const NPVariant * args, uint32_t argCount, NPVariant *result) {
+        if (argCount != 1) return false;
+        /* arg 0 of type void */
+        /* arg 1 of type position */
+        if (!NPVARIANT_IS_INT32(args[0])) return false;
+        PRWord rv = SendEditor(SCI_POINTXFROMPOSITION,
+                               0,
+                               NPVARIANT_TO_INT32(args[0]));
+        /* return value of type int */
+        INT32_TO_NPVARIANT(SCALE_PIXEL(rv, X), *result);
+        #ifdef SCIMOZ_DEBUG
+            printf("SciMoz::%s result = %i\n", __FUNCTION__, static_cast<PRInt32>(rv));
+        #endif
+
+        return true;
+}
+bool SciMoz::PointYFromPosition(const NPVariant * args, uint32_t argCount, NPVariant *result) {
+        if (argCount != 1) return false;
+        /* arg 0 of type void */
+        /* arg 1 of type position */
+        if (!NPVARIANT_IS_INT32(args[0])) return false;
+        PRWord rv = SendEditor(SCI_POINTYFROMPOSITION,
+                               0,
+                               NPVARIANT_TO_INT32(args[0]));
+        /* return value of type int */
+        INT32_TO_NPVARIANT(SCALE_PIXEL(rv, Y), *result);
+        #ifdef SCIMOZ_DEBUG
+            printf("SciMoz::%s result = %i\n", __FUNCTION__, static_cast<PRInt32>(rv));
+        #endif
+
+        return true;
+}
+bool SciMoz::CharPositionFromPoint(const NPVariant * args, uint32_t argCount, NPVariant *result) {
+        if (argCount != 2) return false;
+        /* arg 0 of type int */
+        if (!NPVARIANT_IS_INT32(args[0])) return false;
+        /* arg 1 of type int */
+        if (!NPVARIANT_IS_INT32(args[1])) return false;
+        PRWord rv = SendEditor(SCI_CHARPOSITIONFROMPOINT,
+                               SCALE_PIXEL(NPVARIANT_TO_INT32(args[0]), X),
+			       SCALE_PIXEL(NPVARIANT_TO_INT32(args[1]), Y));
+        /* return value of type position */
+        INT32_TO_NPVARIANT(rv, *result);
+
+        return true;
+}
+bool SciMoz::CharPositionFromPointClose(const NPVariant * args, uint32_t argCount, NPVariant *result) {
+        if (argCount != 2) return false;
+        /* arg 0 of type int */
+        if (!NPVARIANT_IS_INT32(args[0])) return false;
+        /* arg 1 of type int */
+        if (!NPVARIANT_IS_INT32(args[1])) return false;
+        PRWord rv = SendEditor(SCI_CHARPOSITIONFROMPOINTCLOSE,
+                               SCALE_PIXEL(NPVARIANT_TO_INT32(args[0]), X),
+			       SCALE_PIXEL(NPVARIANT_TO_INT32(args[1]), Y));
+        /* return value of type position */
+        INT32_TO_NPVARIANT(rv, *result);
+
+        return true;
+}
+
+#undef SCALE_PIXEL
+
 /*****
  * Not used - XPCOM-style stubs for methods implemented at the NPAPI layer
  *****/
@@ -1597,6 +1696,24 @@ NS_IMETHODIMP SciMoz::SetWordChars(const nsACString&) {
 	return NS_ERROR_NOT_IMPLEMENTED;
 }
 NS_IMETHODIMP SciMoz::SetWordChars_backCompat(const nsACString &) {
+	return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP SciMoz::PositionFromPoint(int, int, int*) {
+	return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP SciMoz::PositionFromPointClose(int, int, int*) {
+	return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP SciMoz::PointXFromPosition(int, int*) {
+	return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP SciMoz::PointYFromPosition(int, int*) {
+	return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP SciMoz::CharPositionFromPoint(int, int, int*) {
+	return NS_ERROR_NOT_IMPLEMENTED;
+}
+NS_IMETHODIMP SciMoz::CharPositionFromPointClose(int, int, int*) {
 	return NS_ERROR_NOT_IMPLEMENTED;
 }
 

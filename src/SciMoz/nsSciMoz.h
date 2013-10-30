@@ -342,27 +342,40 @@ public:
     bool Invoke(NPP instance, NPIdentifier name, const NPVariant *args, uint32_t argCount, NPVariant *result);
 
     // NPRuntime custom methods
-    bool DoBraceMatch(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool MarkClosed(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool HookEvents(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool UnhookEvents(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool GetStyledText(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool GetStyleRange(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool GetCurLine(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool GetLine(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool AssignCmdKey(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool ClearCmdKey(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool GetTextRange(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool CharPosAtPosition(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool SendUpdateCommands(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool GetWCharAt(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    #define NPRUNTIME_CUSTOM_METHOD(x) \
+	bool x(const NPVariant *args, uint32_t argCount, NPVariant *result)
 
-    bool AddChar(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool ButtonDown(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool ButtonUp(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool ButtonMove(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool EndDrop(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    NPRUNTIME_CUSTOM_METHOD(DoBraceMatch);
+    NPRUNTIME_CUSTOM_METHOD(MarkClosed);
+    NPRUNTIME_CUSTOM_METHOD(HookEvents);
+    NPRUNTIME_CUSTOM_METHOD(UnhookEvents);
+    NPRUNTIME_CUSTOM_METHOD(GetStyledText);
+    NPRUNTIME_CUSTOM_METHOD(GetStyleRange);
+    NPRUNTIME_CUSTOM_METHOD(GetCurLine);
+    NPRUNTIME_CUSTOM_METHOD(GetLine);
+    NPRUNTIME_CUSTOM_METHOD(AssignCmdKey);
+    NPRUNTIME_CUSTOM_METHOD(ClearCmdKey);
+    NPRUNTIME_CUSTOM_METHOD(GetTextRange);
+    NPRUNTIME_CUSTOM_METHOD(CharPosAtPosition);
+    NPRUNTIME_CUSTOM_METHOD(SendUpdateCommands);
+    NPRUNTIME_CUSTOM_METHOD(GetWCharAt);
 
+    NPRUNTIME_CUSTOM_METHOD(AddChar);
+    NPRUNTIME_CUSTOM_METHOD(ButtonDown);
+    NPRUNTIME_CUSTOM_METHOD(ButtonUp);
+    NPRUNTIME_CUSTOM_METHOD(ButtonMove);
+    NPRUNTIME_CUSTOM_METHOD(EndDrop);
+
+    // These involve pixel coordinates; JS always uses CSS pixels, we convert
+    // them via LogPixelsY here.
+    NPRUNTIME_CUSTOM_METHOD(PositionFromPoint);
+    NPRUNTIME_CUSTOM_METHOD(PositionFromPointClose);
+    NPRUNTIME_CUSTOM_METHOD(PointXFromPosition);
+    NPRUNTIME_CUSTOM_METHOD(PointYFromPosition);
+    NPRUNTIME_CUSTOM_METHOD(CharPositionFromPoint);
+    NPRUNTIME_CUSTOM_METHOD(CharPositionFromPointClose);
+
+    #undef NPRUNTIME_CUSTOM_METHOD
 protected:
   SciMozPluginInstance* mPlugin;
 };

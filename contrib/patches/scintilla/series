@@ -42,3 +42,4 @@ win32.patch
 win32_drag_end.patch
 win32_export.patch
 wordList_cxx.patch
+expose_dpi.patch
