@@ -650,7 +650,7 @@ function _macro_error(ex, badLine, part) {
           .getService(Components.interfaces.nsIStringBundleService)
           .createBundle("chrome://komodo/locale/project/macro.properties");
     const errorTypeText = bundle.GetStringFromName(errorType);
-    const title = bundle.formatStringFromName("X Error",
+    const title = bundle.formatStringFromName("Macro X Error",
                                               [errorTypeText],
                                               1);
     const prompt = (part
