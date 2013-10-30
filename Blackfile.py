@@ -2113,11 +2113,19 @@ def _BuildKomodo(cfg, argv):
         BuildQuickBuildDB(cfg, argv)
     return retval
 
+def humantime(sec):
+    if sec <= 60:
+        return '%0.2f' % (sec)
+    if sec <= 3600:
+        return '%dm%ds' % (sec // 60, sec % 60)
+    return '%dh%dm%ds' % (sec // 3600, (sec // 60) % 60, sec % 60)
+
 def BuildKomodo(cfg, argv):
     starttime = time.time()
     retval = _BuildKomodo(cfg, argv)
     endtime = time.time()
-    print "Build time - %0.2f seconds" % (endtime - starttime)
+    duration = endtime - starttime
+    print "Build time - %s" % (humantime(duration))
     return retval
 
 def CleanKomodoBuild(cfg, argv):
@@ -2523,7 +2531,8 @@ def BuildQuickBuildDB(cfg, argv):
   
     pickle.dump(_table, open('qbtable.pik', 'w'))
     endtime = time.time()
-    print "Cache created successfully - %0.2f seconds" % (endtime - starttime)
+    duration = endtime - starttime
+    print "Cache created - %s" % (humantime(duration))
 
 def DumpQuickBuildDB(cfg, argv):
     sys.stderr.write("Dumping quick build cache...\n");
