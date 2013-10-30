@@ -644,34 +644,27 @@ ko.main.addCanCloseHandler(function () { return ko.macros.eventHandler.hookOnQui
 
 
 
-function _macro_error(ex, action, part) {
-    //log.exception(ex);
-    var msg;
-    var title;
+function _macro_error(ex, badLine, part) {
+    const errorType = ex.name == "SyntaxError" ? "Syntax" : "Runtime";
+    const bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+          .getService(Components.interfaces.nsIStringBundleService)
+          .createBundle("chrome://komodo/locale/project/macro.properties");
+    const errorTypeText = bundle.GetStringFromName(errorType);
+    const title = bundle.formatStringFromName("X Error",
+                                              [errorTypeText],
+                                              1);
+    const prompt = (part
+                    ? bundle.formatStringFromName("X error in macro Y",
+                                                  [errorTypeText, part.name], 2)
+                    : bundle.formatStringFromName("X error in macro",
+                                                  [errorTypeText], 1));
+    var msg = badLine ? badLine.replace(/[\r\n]+$/, "") + "\n\n" : "";
     if (ex.name == "SyntaxError") {
-        title = "Syntax Error";
-        if (part) {
-            msg = "Syntax error in macro "+part.name+":\n\n";
-        } else {
-            msg = "Syntax error in macro:\n\n";
-        }
-        msg += ko.logging.strObject(ex, "exception");
+        msg += ko.logging.strObject(ex, "exception") + "\n\n";
     } else {
-        title = "Runtime Error";
-        if (part) {
-            msg = "Error while " + action + " in macro "+part.name+":\n\n";
-        } else {
-            msg = "Error while " + action + " macro:\n\n";
-        }
-        msg = (msg + ex.name + ": " +
-               ex.message + "\n\n" +
-               ko.logging.strObject(ex, "exception"));
-    }
-    var prompt;
-    if (part) {
-        prompt = "Error "+action+" in macro "+part.name+".";
-    } else {
-        prompt = "Error "+action+" macro."
+        msg += (ex.name + ": " +
+                ex.message + "\n\n" +
+                ko.logging.strObject(ex, "exception"));
     }
     ko.dialogs.alert(prompt, msg, title, null, "chrome,modal,titlebar,resizable");
 }
@@ -712,30 +705,69 @@ this.evalAsJavaScript = function macro_evalAsJavascript(__code,
 
         ko.macros.current = part;
         var komodo = new _KomodoJSMacroAPI(part, view);
-        var __retcode = -1;
-        var __header = (__observer_arguments ? "subject, topic, data" : "");
+        var __macro_internals = {
+            // Hide these locals from the macro's namespace.
+            retcode: -1,
+            header: (__observer_arguments ? "subject, topic, data" : ""),
+            error_type: null, // 'runtime' or 'compiler'
+            __eod__: null
+        };
+        if (!('__base_line_no' in this)) {
+            this.__base_line_no = (new Error("get line # hack")).lineNumber + 1;
+        }
         try {
-            var __compiled_func = (__observer_arguments
-                                   ? new Function('komodo', 'subject', 'topic', 'data', __code)
-                                   : new Function('komodo', __code));
-            // eval("(function(" + __header + ") { \n" + __code + "\n })");
+            // Keep these calls on the same line so the offsets are consistent
+            // when reporting error messages.
+            __macro_internals.compiled_func =
+                (__observer_arguments
+                 ? new Function('komodo', 'subject', 'topic', 'data', __code) : new Function('komodo', __code));
+            // eval("(function(" + __macro_internals.header + ") { \n" + __code + "\n })");
             try {
-                __retcode = (__header
-                             ? __compiled_func(komodo,
-                                               __observer_arguments.subject,
-                                               __observer_arguments.topic,
-                                               __observer_arguments.data)
-                             : __compiled_func(komodo));
+                __macro_internals.retcode =
+                    (__macro_internals.header
+                     ? __macro_internals.compiled_func(komodo, __observer_arguments.subject, __observer_arguments.topic, __observer_arguments.data) : __macro_internals.compiled_func(komodo));
             } catch(rex) {
-                _macro_error(rex, "running", part);
+                __macro_internals.error_type = 'running';
+                __macro_internals.ex = rex;
+                __macro_internals.offset = 5;
             }
         } catch (cex) {
-            _macro_error(cex, "compiling", part);
+            __macro_internals.error_type = 'compiling';
+            __macro_internals.ex = cex;
+            __macro_internals.offset = 5;
+        }
+        if (__macro_internals.error_type) {
+            let actualLineNumber;
+            let ex = __macro_internals.ex;
+            let bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/project/macro.properties");
+            if (!part) {
+                ex.fileName = bundle.GetStringFromName("The current macro");
+            } else {
+                try {
+                    if (part.url) {
+                        var m = /^macro\d*:\/\/.*\/(.*)$/.exec(part.url);
+                        if (m) {
+                            ex.fileName = m[1];
+                        }
+                    }
+                } catch(ex2) { // Ignore this exception
+                }
+            }
+            actualLineNumber = ex.lineNumber - this.__base_line_no - __macro_internals.offset;
+            var codeLines = __code.split(/\r?\n/);
+            var msg = null;
+            if (actualLineNumber >= 1 &&
+                actualLineNumber <= codeLines.length) {
+                ex.lineNumber = actualLineNumber;
+            }
+            _macro_error(ex, codeLines[actualLineNumber - 1], part);
         }
         komodo.destructor();
         komodo = null;
         ko.macros.current = null;
-        return __retcode;
+        return __macro_internals.retcode;
     } catch (e) {
         log.exception(e);
     }
