@@ -1458,7 +1458,11 @@ def _convert3to2(src):
 
     # def foo(foo:Bar, baz=lambda x: qoox): => def foo(bar, baz=_lambda(qoox)):
     src = _rx(r'(\bdef\s+\w+\s*\()(.+?)(\)\s*:)').sub(_clean_func_args, src)
-    
+
+    # yield from => yield
+    # bug 101404
+    src = _rx(r'(\byield\s+from\b)').sub('yield', src)
+
     return src
 
 def _clean_func_args(defn):
