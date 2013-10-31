@@ -225,6 +225,8 @@
   <boolean id="lint_python_with_pyflakes">false</boolean>
   <boolean id="lint_python_with_pylint">false</boolean>
   <string id="pylint_checking_rcfile"></string>
+  <boolean id="lint_python_with_pep8">false</boolean>
+  <string id="pep8_checking_rcfile"></string>
   
   <boolean id="lint_python_with_pychecker">false</boolean>
   <string id="pychecker_wrapper_location"></string>
@@ -235,6 +237,8 @@
   <boolean id="lint_python3_with_pyflakes3">false</boolean>
   <boolean id="lint_python3_with_pylint3">false</boolean>
   <string id="pylint3_checking_rcfile"></string>
+  <boolean id="lint_python3_with_pep83">false</boolean>
+  <string id="pep83_checking_rcfile"></string>
   <boolean id="lint_python3_with_pychecker3">false</boolean>
   <string id="pychecker3_wrapper_location"></string>
   <string id="pychecker3_checking_rcfile"></string>

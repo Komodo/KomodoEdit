@@ -172,9 +172,9 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
         if not text:
             return None
         prefset = request.prefset
-        if not prefset.getBooleanPref(self.lint_prefname):
+        # self.lint_prefname: "lint_python_with_pylint" or "lint_python3_with_pylint3"
+        if not prefset.getBoolean(self.lint_prefname):
             return
-        # if not prefset.getBooleanPref("lintWithPylint"): return
         pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
         if not pythonExe:
             return
@@ -188,8 +188,8 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
             fout.close()
             textlines = text.splitlines()
             env = self._get_fixed_env(prefset, cwd)
-            rcfilePath = prefset.getStringPref(self.rcfile_prefname)
             checkRCFile = False
+            rcfilePath = prefset.getStringPref(self.rcfile_prefname)
             if rcfilePath and os.path.exists(rcfilePath):
                 extraArgs = [ '--rcfile=%s' % (rcfilePath,) ]
                 checkRCFile = True
@@ -201,7 +201,7 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
                 if checkRCFile:
                     f = open(rcfilePath, "r")
                     try:
-                        for txt in f.readlines():
+                        for txt in iter(f):
                             if self._disables_C0301_re.match(txt) \
                                     or self._max_line_length_re.match(txt):
                                 usePreferredLineWidth = False
@@ -312,6 +312,114 @@ class KoPython3PyLintChecker(KoPythonCommonPyLintChecker):
          ]
     lint_prefname = "lint_python3_with_pylint3"
     rcfile_prefname = "pylint3_checking_rcfile"
+    
+class KoPythonCommonPep8Checker(_GenericPythonLinter):
+    _disables_E0501_re = re.compile(r'\s*disable\s*=.*?\bE0?501\b')
+    _max_line_length_re = re.compile(r'\s*max-line-length')
+    def lint_with_text(self, request, text):
+        if not text:
+            return None
+        prefset = request.prefset
+        # if not prefset.getBooleanPref("lintPythonWithPep8"): return
+        if not prefset.getBooleanPref(self.lint_prefname):
+            return
+        pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
+        if not pythonExe:
+            return
+        cwd = request.cwd
+        fout, tmpfilename = _localTmpFileName()
+        try:
+            tmpBaseName = os.path.splitext(os.path.basename(tmpfilename))[0]
+            fout.write(text)
+            fout.close()
+            textlines = text.splitlines()
+            env = self._get_fixed_env(prefset, cwd)
+            cmd = [pythonExe, '-m', 'pep8']
+            checkRCFile = False
+            rcfilePath = prefset.getStringPref(self.rcfile_prefname)
+            if rcfilePath and os.path.exists(rcfilePath):
+                extraArgs = [ '--config=%s' % (rcfilePath,) ]
+                checkRCFile = True
+            else:
+                extraArgs = []
+                # default location: ~/.pep8
+                homeDir = os.path.expanduser("~")
+                rcfilePath = os.path.join(homeDir, ".pep8")
+                if not os.path.exists(rcfilePath):
+                    rcfilePath = os.path.join(homeDir, ".config", "pep8")
+                checkRCFile = os.path.exists(rcfilePath)
+            preferredLineWidth = prefset.getLongPref("editAutoWrapColumn")
+            if preferredLineWidth > 0:
+                usePreferredLineWidth = True
+                if checkRCFile:
+                    f = open(rcfilePath, "r")
+                    try:
+                        for txt in iter(f):
+                            if self._disables_E0501_re.match(txt) \
+                                    or self._max_line_length_re.match(txt):
+                                usePreferredLineWidth = False
+                                break
+                    except:
+                        log.exception("Problem checking max-line-length")
+                    finally:
+                        f.close()
+                if usePreferredLineWidth:
+                    extraArgs.append("--max-line-length=%d" % preferredLineWidth)
+    
+            cmd += extraArgs
+            cmd.append(tmpfilename)
+            cwd = request.cwd or None
+            # We only need the stdout result.
+            try:
+                p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
+                stdout, stderr = p.communicate()
+                if stderr.strip():
+                    pathMessageKey = "%s-%s" % (request.koDoc.displayPath, stderr)
+                    _complainIfNeeded(pathMessageKey,
+                                      "Error in pep8: %s", stderr)
+                    return
+                warnLines = stdout.splitlines(False) # Don't need the newlines.
+            except:
+                log.exception("Failed to run %s", cmd)
+                stdout = ""
+                warnLines = []
+        finally:
+            os.unlink(tmpfilename)
+        ptn = re.compile(r'(?P<filename>.*?):(?P<lineNum>\d+):(?P<columnNum>\d+):\s*(?P<status>[EW])(?P<statusCode>\d+)\s+(?P<message>.*)')
+        results = koLintResults()
+        for m in map(ptn.match, warnLines):
+            if m:
+                lineNo = int(m.group("lineNum"))
+                columnNum = int(m.group("columnNum"))
+                desc = "pep8: %s%s %s" % (m.group("status"),
+                                          m.group("statusCode"),
+                                          m.group("message"))
+                # Everything pep8 complains about is a warning, by definition
+                severity = koLintResult.SEV_WARNING
+                koLintResult.createAddResult(results, textlines, severity, lineNo, desc, columnStart=columnNum)
+        return results
+
+class KoPythonPep8Checker(KoPythonCommonPep8Checker):
+    language_name = "Python"
+    _reg_desc_ = "Komodo Python Pep8 Linter"
+    _reg_clsid_ = "{1c51ad7e-2788-448d-80f4-db6465164cc9}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pep8;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Python&type=pep8'),
+         ]
+    lint_prefname = "lint_python_with_pep8"
+    rcfile_prefname = "pep8_checking_rcfile"
+
+class KoPython3Pep8Checker(KoPythonCommonPep8Checker):
+    language_name = "Python3"
+    _reg_desc_ = "Komodo Python3 Pep8 Linter"
+    _reg_clsid_ = "{4eb876a9-818d-4d94-b490-837bc306492c}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python3&type=pep8;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Python3&type=pep8'),
+         ]
+    lint_prefname = "lint_python3_with_pep83"
+    rcfile_prefname = "pep83_checking_rcfile"
 
 
 class KoPythonCommonPyflakesChecker(_GenericPythonLinter):

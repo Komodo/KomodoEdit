@@ -49,7 +49,7 @@ SEV_ERROR = 2   # No xpcom here :(
 SEV_WARNING = 1
 SEV_INFO = 0
 
-def createAddResult(results, textlines, severity, lineNo, desc, leadingWS=None):
+def createAddResult(results, textlines, severity, lineNo, desc, leadingWS=None, columnStart=1):
     """
     lineNo is 1-based
     """
@@ -71,7 +71,7 @@ def createAddResult(results, textlines, severity, lineNo, desc, leadingWS=None):
                           severity=severity,
                           lineStart=lineNo,
                           lineEnd=lineNo,
-                          columnStart=1,
+                          columnStart=columnStart,
                           columnEnd=columnEnd)
     results.addResult(result)
 
