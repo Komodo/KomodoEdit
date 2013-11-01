@@ -108,11 +108,6 @@ $cons->InstallXpcomComponent('koInitService.py');
 $cons->Install($idlExportDir, 'koIInitService.idl');
 $cons->BuildAndInstallXpt('koIInitService.idl');
 
-# koIFinalizeServive
-$cons->InstallXpcomComponent('koFinalizeService.py');
-$cons->Install($idlExportDir, 'koIFinalizeService.idl');
-$cons->BuildAndInstallXpt('koIFinalizeService.idl');
-
 # koIDirs
 $cons->Preprocess('koDirs.p.py',
                   'koDirs.py',
