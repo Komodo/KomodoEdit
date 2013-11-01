@@ -1375,7 +1375,7 @@
                                               id="menu_saveProjectAsTemplate"
                                               accesskey="&createTemplateFromProject.accesskey;"
                                               observes="cmd_saveProjectAsTemplate"
-                                              disableIfSelectedProjectIsClosed="true"
+                                              disableIfCurrentProjectIsClosed="true"
                                               />
                                 </menupopup>
                             </menu>
@@ -1386,7 +1386,7 @@
                                       id="menu_closeProject"
                                       observes="cmd_closeProject"
                                       addProjectName="true"
-                                      disableIfSelectedProjectIsClosed="true"
+                                      disableIfCurrentProjectIsClosed="true"
                                       />
                             <menuitem label="&closeAllProjects.label;"
                                       id="menu_closeAllProjects"
@@ -1396,28 +1396,28 @@
                                       id="menu_showProjectInPlaces"
                                       observes="cmd_showProjectInPlaces"
                                       addProjectName="true"
-                                      disableIfSelectedProjectIsClosed="true"
+                                      disableIfCurrentProjectIsClosed="true"
                                       />
                             <menuitem label="&saveProject.label;"
                                       id="menu_saveProject"
                                       observes="cmd_saveProject"
                                       addProjectName="true"
-                                      disableIfSelectedProjectIsClosed="true"
+                                      disableIfCurrentProjectIsClosed="true"
                                       />
                             <menuitem label="&saveProjectAs.label;"
                                       id="menu_saveProjectAs"
                                       observes="cmd_saveProjectAs"
-                                      disableIfSelectedProjectIsClosed="true"
+                                      disableIfCurrentProjectIsClosed="true"
                                       />
                             <menuitem label="&renameProject.label;"
                                       id="menu_renameProject"
                                       observes="cmd_renameProject"
-                                      disableIfSelectedProjectIsClosed="true"
+                                      disableIfCurrentProjectIsClosed="true"
                                       />
                             <menuitem label="&revertProject.label;"
                                       id="menu_revertProject"
                                       observes="cmd_revertProject"
-                                      disableIfSelectedProjectIsClosed="true"
+                                      disableIfCurrentProjectIsClosed="true"
                                       />
 
                             <menuseparator id="menu_project_separator_3"/>
@@ -1425,7 +1425,7 @@
                             <menuitem label="&properties.label;"
                                       id="menu_projectProperties"
                                       observes="cmd_projectProperties"
-                                      disableIfSelectedProjectIsClosed="true"
+                                      disableIfCurrentProjectIsClosed="true"
                                       accesskey="&projectProperties.accesskey;"/>
                         </menupopup>
                     </menu>

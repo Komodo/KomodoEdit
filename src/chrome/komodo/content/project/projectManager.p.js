@@ -755,14 +755,14 @@ projectManager.prototype._projectMenuMatcher = /^(.*?)( \(.*\))$/;
 projectManager.prototype._projectTestLabelMatcher = /^t:project\|(.+)\|(.+)$/;
 projectManager.prototype._finishUpdateProjectMenu = function(menuNode) {
     var childNodes = menuNode.childNodes, addLabel, label;
-    var selectedProjectIsClosed = ko.projects.manager.getSelectedProject() === null;
+    var currentProjectIsClosed = !ko.projects.manager.currentProject;
     for (var i = 0; i < childNodes.length; i++) {
         var node = childNodes[i];
         switch(node.nodeName) {
             case "menuitem":
                 label = node.getAttribute("label");
-                if (node.getAttribute("disableIfSelectedProjectIsClosed") == "true"
-                    && selectedProjectIsClosed) {
+                if (node.getAttribute("disableIfCurrentProjectIsClosed") == "true"
+                    && currentProjectIsClosed) {
                     node.setAttribute("disabled", 'true');
                     addLabel = false;
                 } else {
