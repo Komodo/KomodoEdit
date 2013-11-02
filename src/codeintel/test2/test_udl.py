@@ -158,7 +158,45 @@ class RHTMLTestCase(CodeIntelTestCase):
         self.assertNoTrigger("<script>var foo = /</<|>;")
         self.assertNoTrigger("<script>var foo = /blah</<|>;")
 
-
+    @tag("bug101280")
+    def test_udl_xml_no_scripting(self):
+        """Test that UDL XML/HTML parsing skips over non-markup sections"""
+        buf, _ = self._get_buf_and_data(u"""
+            <html>
+                <title>
+                    The Unicode here is used to bloat out the offsets in case
+                    We're using character positions instead of byte positions
+                    \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                    \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                    \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                    \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                    \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                    \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                    \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                </title>
+                <body>
+                    <%
+                        # <ruby><expression/></ruby>
+                    %>
+                    <p>
+                        \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                        \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                        \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                        \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                        \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                        \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                        \u016E\u0273\u0269\u00e7\u24de\u02a0\u212f
+                        <%
+                            # <ruby><expression/></ruby>
+                        %>
+                    </p>
+                </body>
+            </html>
+            """, self.lang)
+        for node in buf.xml_tree.nodes:
+            self.assertNotIn(node.tag, ("ruby", "expression"),
+                             "Got unexpected element %s at line %s column %s" %
+                             (node.tag, node.start[0], node.start[1]))
 
 #---- mainline
 

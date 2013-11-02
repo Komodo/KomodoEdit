@@ -44,6 +44,7 @@ import re
 import logging
 import threading
 import operator
+import string
 import traceback
 from pprint import pprint, pformat
 
@@ -302,20 +303,22 @@ class UDLBuffer(CitadelBuffer):
 
             in_chunk = False
             pos_offset = None
-            text = self.accessor.text
             for token in self.accessor.gen_tokens():
                 if in_chunk:
                     if not (min_style <= token["style"] <= max_style):
                         # SilverCity indeces are inclusive at the end.
-                        end_index = token["end_index"] + 1 
-                        yield pos_offset, text[pos_offset:end_index]
+                        end_index = token["end_index"] + 1
+                        yield (pos_offset,
+                               self.accessor.text_range(pos_offset, end_index))
                         in_chunk = False
                 else:
                     if min_style <= token["style"] <= max_style:
                         in_chunk = True
                         pos_offset = token["start_index"]
             if in_chunk:
-                yield pos_offset, text[pos_offset:]
+                yield (pos_offset,
+                       self.accessor.text_range(pos_offset,
+                                                self.accessor.length()))
 
     def scoperef_from_pos(self, pos):
         """Return the scoperef for the given position in this buffer.
@@ -497,6 +500,15 @@ class XMLParsingBufferMixin(object):
             self.xml_parse()
         return self._xml_tree_cache
 
+    @LazyClassAttribute
+    def __blank_out_non_new_line_table(self):
+        """Table for string.translate to replace everything with spaces, except
+        for new lines."""
+        table = [" " for i in range(256)]
+        table[ord('\n')] = '\n'
+        table[ord('\r')] = '\r'
+        return "".join(table)
+
     def xml_parse(self):
         from koXMLTreeService import getService
         path = self.path
@@ -505,8 +517,24 @@ class XMLParsingBufferMixin(object):
             # open it. Besides, the "<Unsaved>" business is an internal
             # codeintel detail.
             path = None
-        self._xml_tree_cache = getService().getTreeForURI(
-            path, self.accessor.text)
+        content = self.accessor.text
+        if hasattr(self, "text_chunks_from_lang"):
+            # Grab only the text that's in markup regions; this skils scripts
+            # that might have things that look like tags, see bug 101280
+            stripped = ""
+            was_unicode = isinstance(content, unicode)
+            if was_unicode:
+                content = content.encode("utf-8")
+            trans_tbl = self.__blank_out_non_new_line_table
+            for offset, text in self.text_chunks_from_lang(self.m_lang):
+                if isinstance(text, unicode):
+                    text = text.encode("utf-8")
+                skipped_text = content[len(stripped):offset]
+                stripped += string.translate(skipped_text, trans_tbl) + text
+            content = stripped
+            if was_unicode:
+                content = content.encode("utf-8")
+        self._xml_tree_cache = getService().getTreeForURI(path, content)
 
     def xml_default_dataset_info(self, node=None):
         if self._xml_default_dataset_info is None:
