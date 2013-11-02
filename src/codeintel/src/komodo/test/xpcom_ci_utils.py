@@ -23,11 +23,13 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         start = time.time()
         ready = set()
         callback = lambda status, data: ready.add(True)
+        svc.addActivateCallback(callback)
         sys.stdout.write(".")
         log.debug("[starting codeintel...]")
-        svc.activate(callback, True)
+        svc.activate(True)
         while not ready:
             tm.currentThread.processNextEvent(True)
+        svc.removeActivateCallback(callback)
         sys.stdout.write(".")
         log.debug("[codeintel started, stopping...]")
         svc.deactivate()
@@ -43,10 +45,12 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         # tests; deactivate currently doesn't have a callback)
         self._waiting_for_activation = True
         self._active = False
-        self.svc.activate(self._activate_callback, True)
+        self.svc.addActivateCallback(self._activate_callback)
+        self.svc.activate(True)
         # Let codeintel start up...
         self._wait_for_callback(lambda: not self._waiting_for_activation,
                                 timeout=60, action="startup")
+        self.svc.removeActivateCallback(self._activate_callback)
         self.assertTrue(self._active)
 
     def _wait_for_callback(self, callback, timeout=None, action=""):
