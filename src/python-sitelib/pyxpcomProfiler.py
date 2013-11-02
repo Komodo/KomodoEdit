@@ -236,5 +236,4 @@ class xpcomShutdownObserver(object):
 xpcomObs = xpcomShutdownObserver()
 obsSvc = xpcom.components.classes["@mozilla.org/observer-service;1"].\
                getService(xpcom.components.interfaces.nsIObserverService)
-wrappedxpcomObs = xpcom.server.WrapObject(xpcomObs, xpcom.components.interfaces.nsIObserver)
-obsSvc.addObserver(wrappedxpcomObs, 'xpcom-shutdown', 1)
+obsSvc.addObserver(xpcomObs, 'xpcom-shutdown', False)

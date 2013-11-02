@@ -12,9 +12,7 @@ import os
 from os.path import join
 import logging
 
-from xpcom import components, nsError, ServerException, COMException, _xpcom
-from xpcom.client import WeakReference
-from xpcom.server import WrapObject, UnwrapObject
+from xpcom import components, COMException
 
 from editorhistory import History, Location
 
@@ -45,9 +43,7 @@ class KoHistoryService(History):
         History.__init__(self, db_path)
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
-        self._wrapped = WrapObject(self,components.interfaces.nsIObserver)
-        
-        self._observerSvc.addObserver(self._wrapped, 'xpcom-shutdown', 1)
+        self._observerSvc.addObserver(self, 'xpcom-shutdown', False)
 
     def finalize(self):
         self.close()

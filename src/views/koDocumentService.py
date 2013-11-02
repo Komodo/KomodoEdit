@@ -105,7 +105,7 @@ class KoDocumentService:
         self._docCounters = {}
         self._documents = {}
 
-        self.obsSvc.addObserver(self, 'xpcom-shutdown', 1)
+        self.obsSvc.addObserver(self, 'xpcom-shutdown', False)
         self.obsSvc.addObserver(self, 'current_project_changed', False)
         
         # set up the background thread

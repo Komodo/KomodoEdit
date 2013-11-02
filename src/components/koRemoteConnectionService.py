@@ -274,8 +274,8 @@ class koRemoteConnectionService:
         # Listen for network status changes.
         obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                       getService(components.interfaces.nsIObserverService)
-        obsSvc.addObserver(self, "network:offline-status-changed", True)
-        obsSvc.addObserver(self, "xpcom-shutdown", True)
+        obsSvc.addObserver(self, "network:offline-status-changed", False)
+        obsSvc.addObserver(self, "xpcom-shutdown", False)
 
     ## Private, internal functions
 

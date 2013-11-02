@@ -180,7 +180,7 @@ class KoFileCheckerBase(object):
                 # Listen for pref changes
                 prefObserverSvc.addObserver(self, prefName, 0)
         # Register for a shutdown notification.
-        self._observerSvc.addObserver(self, 'xpcom-shutdown', 1)
+        self._observerSvc.addObserver(self, 'xpcom-shutdown', False)
 
     def _xpcom_shutdown(self):
         prefObserverSvc = self._globalPrefs.prefObserverService

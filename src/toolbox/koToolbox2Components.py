@@ -52,7 +52,7 @@ import logging
 from pprint import pprint
 
 from xpcom import components, COMException, ServerException, nsError
-from xpcom.server import WrapObject, UnwrapObject
+from xpcom.server import UnwrapObject
 from projectUtils import *
 
 import koToolbox2
@@ -144,8 +144,6 @@ class KoToolbox2Service(object):
     _reg_desc_ = "Similar to the projectService, but for toolbox2"
     
     def __init__(self):
-        self.wrapped = WrapObject(self, components.interfaces.nsIObserver)
-
         self._macros = RunningMacros()
         self._standardToolbox = None  # Stores the top-level folder's ID
         self._loadedToolboxes = {}    # Map project uri to top-level folder's id
@@ -153,14 +151,9 @@ class KoToolbox2Service(object):
         self.db = None
         self._inited = False
         
-        self._wrapped = WrapObject(self, components.interfaces.nsIObserver)
         _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
                 .getService(components.interfaces.nsIObserverService)
-        _observerSvc.addObserver(self._wrapped,
-                                 "project_renamed", 0)
-        # 
-        # self._prefs.prefObserverService.addObserver(self._wrapped,
-        #                                 "xpcom-shutdown", 0)
+        _observerSvc.addObserver(self, "project_renamed", False)
         
     def initialize(self):
         if self._inited:
@@ -692,12 +685,7 @@ class KoToolbox2Service(object):
         elif True:
             return
         elif topic == "xpcom-shutdown":
-            self._prefs.prefObserverService.removeObserverForTopics(self._wrapped,
-                                                self._pref_observer_names)
             _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
                 .getService(components.interfaces.nsIObserverService)
-            _observerSvc.removeObserver(self._wrapped,
-                                        "project_renamed")
-            _observerSvc.removeObserver(self._wrapped,
-                                        "xpcom-shutdown")
-            return
+            _observerSvc.removeObserver(self, "project_renamed")
+            _observerSvc.removeObserver(self, "xpcom-shutdown")

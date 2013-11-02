@@ -46,7 +46,6 @@ import pprint
 import scimozindent
 import HTMLTreeParser
 from xpcom import components
-from xpcom.server import WrapObject
 
 #---- globals
 
@@ -1126,8 +1125,7 @@ class KoLanguageBase:
                                   }
         obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                        getService(components.interfaces.nsIObserverService)
-        self._wrappedSelf = WrapObject(self,components.interfaces.nsIObserver)
-        obsSvc.addObserver(self._wrappedSelf, 'xpcom-shutdown', 1)
+        obsSvc.addObserver(self, 'xpcom-shutdown', False)
         prefObserver = self.prefset.prefObserverService
         prefObserver.addObserver(self, 'indentStringsAfterParens', True)
         prefObserver.addObserver(self, 'editSmartSoftCharacters', True)

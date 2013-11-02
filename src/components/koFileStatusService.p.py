@@ -173,7 +173,7 @@ class KoFileStatusService:
         # Setup notification observers
         for notification in self.monitoredFileNotifications:
             self._observerSvc.addObserver(self, notification, 0)
-        self._observerSvc.addObserver(self, 'xpcom-shutdown', 1)
+        self._observerSvc.addObserver(self, 'xpcom-shutdown', False)
 
         # Add file status checker services
         self.addFileStatusChecker(KoDiskFileChecker())

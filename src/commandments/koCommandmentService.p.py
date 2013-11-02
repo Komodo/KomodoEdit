@@ -445,7 +445,7 @@ class KoCommandmentService(object):
     def __init__(self):
         observerSvc = components.classes["@mozilla.org/observer-service;1"]\
             .getService(components.interfaces.nsIObserverService)
-        observerSvc.addObserver(self, 'xpcom-shutdown', 1)
+        observerSvc.addObserver(self, 'xpcom-shutdown', False)
 
         # Platform-specific handle on object indicating Komodo is running.
         self._running = None

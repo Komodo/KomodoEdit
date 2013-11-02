@@ -1189,8 +1189,8 @@ class koGlobalPrefService(object):
 
         obsvc = components.classes["@mozilla.org/observer-service;1"].\
                     getService(components.interfaces.nsIObserverService)
-        obsvc.addObserver(self, 'xpcom-shutdown', True)
-        obsvc.addObserver(self, 'profile-before-change', True)
+        obsvc.addObserver(self, 'xpcom-shutdown', False)
+        obsvc.addObserver(self, 'profile-before-change', False)
 
     def _setupGlobalPreference(self, prefName):
         if not self.pref_map.has_key(prefName):
