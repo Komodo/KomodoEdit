@@ -855,7 +855,7 @@ class CplnTestCase(CodeIntelTestCase):
         calltip = "something(string $s)\n@param string $s"
         self.assertCalltipIs(markedup_content, calltip)
 
-    @tag("bug101460", "knownfailure")
+    @tag("bug101460")
     def test_calltip_interface(self):
         markedup_content = php_markup(dedent("""\
             interface AbstractInterface {

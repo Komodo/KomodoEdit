@@ -1285,7 +1285,7 @@ class PHPTreeEvaluator(TreeEvaluator):
             # *not* resolve. And we don't support function
             # attributes.
             pass
-        elif ilk == "class" or ilk == "trait":
+        elif ilk in ("class" , "trait", "interface"):
             static_member = False
             if first_token.startswith("$"):
                 # Cix doesn't use "$" in member names, remove it - bug 90968.
