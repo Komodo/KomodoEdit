@@ -246,6 +246,11 @@ this.MultiCaretSession.prototype = {
         if (startPos > endPos) {
             [startPos, endPos] = [endPos, startPos];
         }
+        // Bug 100955: We might already have the current range loaded,
+        // if we've looped through all occurrences of the selected string.
+        // If so, we don't need to process the range.
+        // And if we do this multiple times, Scintilla is likely to crash,
+        // at least on Windows.
         for (var i = 0; i < this._ranges.length; ++i) {
             var r = this._ranges[i];
             if (startPos == r[0] && endPos == r[1]) {
@@ -361,6 +366,9 @@ this.MultiCaretSession.prototype = {
                 let pos = this.firstSelectionStartPos;
                 let caret = scimoz.getSelectionNCaret(0);
                 if (pos > caret) {
+                    // Bug 100955: Sometimes these come in reversed.  If
+                    // they are entered as Scintilla ranges that way, it
+                    // could cause a crash.
                     [pos, caret] = [caret, pos];
                 }
                 newText = scimoz.getTextRange(pos, caret);
