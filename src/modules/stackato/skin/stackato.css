@@ -17,7 +17,6 @@ hbox textbox.stackatoUserTextBox {
 }
 
 hbox.stackato_header {
-  background-color: #E7E3DE;
   min-height: 21px;
   margin: 0px;
   -moz-box-orient: horizontal;
@@ -63,10 +62,6 @@ vbox.stackato_vbox_part {
     /*color: white;*/
     padding: 2px 2px 2px 8px;
     margin-left: 8px;
-}
-
-.stackato_toolbar_icon[disabled="true"] {
-  opacity: 0.25;
 }
 
 toolbarbutton#stb_update {
@@ -117,7 +112,6 @@ splitter.section_splitter {
   margin: 2px 6px 0px 6px;
   background: transparent !important;
   border: none;
-  border-top: solid 1px ThreeDShadow;
 }
 
 splitter.section_splitter > grippy {
