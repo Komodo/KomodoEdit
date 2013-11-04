@@ -158,9 +158,6 @@
 {
   list-style-image : url("chrome://fugue/skin/icons/application-run.png");
 }
-.clear-text-icon[disabled="true"] > image {
-  opacity: 0.25;
-}
 
 .bulletlist-icon
 {
@@ -244,10 +241,6 @@
   list-style-image : url("chrome://komodo/skin/images/undo.png");
   /* #endif */
 }
-.find-undo-icon[disabled="true"] > image, /* deprecated since Komodo 7 */
-.native-undo-icon[disabled="true"] > image {
-  opacity: 0.25;
-}
 
 .native-redo-icon
 {
@@ -257,10 +250,6 @@
   list-style-image : url("chrome://komodo/skin/images/redo.png");
   /* #endif */
 }
-.native-redo-icon[disabled="true"] > image {
-  opacity: 0.25;
-}
-
 
 /* TODO: disabled versions of these */
 .find-lock-icon
@@ -334,10 +323,6 @@
   list-style-image: url("chrome://global/skin/dirListing/folder.png");
   /* #endif */
 }
-.open-file-icon[disabled="true"] > image, /* open-file-icon deprecated since Komodo 7 */
-.native_open_icon[disabled="true"] > image {
-  opacity: 0.25;
-}
 
 .native_folder_icon {
   /* #if PLATFORM == "linux" */
@@ -345,9 +330,6 @@
   /* #else */
   list-style-image: url("chrome://global/skin/dirListing/folder.png");
   /* #endif */
-}
-.native_folder_icon[disabled="true"] > image {
-  opacity: 0.25;
 }
 
 /* TODO: A disabled version of this icon. */
@@ -366,10 +348,6 @@
   /* #else */
   list-style-image : url("chrome://komodo/skin/images/save.png");
   /* #endif */
-}
-.save-buffer-icon[disabled="true"] > image,
-.native-save-icon[disabled="true"] > image {
-  opacity: 0.25;
 }
 
 .run-command-icon {
