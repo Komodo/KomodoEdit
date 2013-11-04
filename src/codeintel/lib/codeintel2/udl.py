@@ -533,7 +533,7 @@ class XMLParsingBufferMixin(object):
                 stripped += string.translate(skipped_text, trans_tbl) + text
             content = stripped
             if was_unicode:
-                content = content.encode("utf-8")
+                content = content.decode("utf-8")
         self._xml_tree_cache = getService().getTreeForURI(path, content)
 
     def xml_default_dataset_info(self, node=None):
