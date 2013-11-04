@@ -1884,6 +1884,34 @@ class koProject(koLiveFolderPart):
             return Folder(url, basename, project, live)
         return File(url, basename, project)
 
+    def reassignUUIDs(self):
+        self._reassignChildUUIDs(self, {})
+        
+    def _reassignChildUUIDs(self, part, replaceUUIDMap):
+        attributes = part._attributes
+        id = part.id
+        if id not in replaceUUIDMap:
+            replaceUUIDMap[id] = getNextId(part)
+        part.id = replaceUUIDMap[id]
+        attributes['id'] = part.id
+        idref = part._idref
+        if idref:
+            if idref not in replaceUUIDMap:
+                replaceUUIDMap[idref] = getNextId(part)
+            part._idref = replaceUUIDMap[idref]
+            attributes['idref'] = part._idref
+        try:
+            prefset = UnwrapObject(part.get_prefset())
+            if prefset:
+                idref = prefset.idref
+                if idref and idref in replaceUUIDMap:
+                    prefset.idref = replaceUUIDMap[idref]
+        except:
+            log.exception("Failed to get prefset/update prefset.idref")
+        for child in getattr(part, 'children', []):
+            self._reassignChildUUIDs(child, replaceUUIDMap)
+            
+
 class koUnopenedProject(koProject):
     _com_interfaces_ = [components.interfaces.koIUnopenedProject]
     _reg_desc_ = "Komodo Unopened Project"

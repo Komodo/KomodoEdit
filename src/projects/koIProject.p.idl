@@ -251,6 +251,9 @@ interface koIProject: koIPart_livefolder {
     // look in all live parts and see if this path would be dynamically
     // included in the project.
     boolean containsLiveURL(in wstring url);
+
+    // When doing a save-as, all UUIDs in the project need to be updated.
+    void reassignUUIDs();
 };
 
 [scriptable, uuid(717c94cf-e454-446e-8836-7df65f86e44c)]

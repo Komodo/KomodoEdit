@@ -1643,6 +1643,7 @@ this.saveProjectAs = function ProjectSaveAs(project) {
     var oldURL = project.url;
     project.url = url;
     project.name = ko.uriparse.baseName(url);
+    project.reassignUUIDs();
     try {
         project.save();
     } catch(ex) {
@@ -1658,9 +1659,6 @@ this.saveProjectAs = function ProjectSaveAs(project) {
     try {
         _obSvc.notifyObservers(this,'file_changed', project.url);
     } catch(e) { /* exception if no listeners */ }
-    if (ko.projects.manager.viewMgr) {
-        ko.projects.manager.viewMgr.replaceProject(oldURL, project);
-    }
     xtk.domutils.fireEvent(window, 'project_opened');
     window.updateCommands('project_dirty');
     return true;
