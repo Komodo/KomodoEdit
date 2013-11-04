@@ -839,6 +839,38 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
             [("function", "foo")])
 
+    @tag("bug101460")
+    def test_calltip_abstract_class(self):
+        markedup_content = php_markup(dedent("""\
+            abstract class AbstractBase {
+                /**
+                 * @param string $s
+                 */
+                abstract public function something ($s);
+            }
+            function foo(AbstractBase $b) {
+                $b->something(<|>);
+            }
+       """))
+        calltip = "something(string $s)\n@param string $s"
+        self.assertCalltipIs(markedup_content, calltip)
+
+    @tag("bug101460", "knownfailure")
+    def test_calltip_interface(self):
+        markedup_content = php_markup(dedent("""\
+            interface AbstractInterface {
+                /**
+                 * @param string $s
+                 */
+                abstract public function something ($s);
+            }
+            function foo(AbstractInterface $b) {
+                $b->something(<|>);
+            }
+       """))
+        calltip = "something(string $s)\n@param string $s"
+        self.assertCalltipIs(markedup_content, calltip)
+
     def test_calltip_call_signature_for_builtins(self):
         markedup_content = php_markup(dedent("""\
             require(<|>"myfile.php");
