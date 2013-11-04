@@ -246,6 +246,12 @@ this.MultiCaretSession.prototype = {
         if (startPos > endPos) {
             [startPos, endPos] = [endPos, startPos];
         }
+        for (var i = 0; i < this._ranges.length; ++i) {
+            var r = this._ranges[i];
+            if (startPos == r[0] && endPos == r[1]) {
+                return;
+            }
+        }
         this._ranges.push([startPos, endPos]);
         scimoz.indicatorCurrent = CHANGE_INDICATOR;
         var prevLim = this._ranges.length - 1;
@@ -354,6 +360,9 @@ this.MultiCaretSession.prototype = {
             if (doSessionEndCallback) {
                 let pos = this.firstSelectionStartPos;
                 let caret = scimoz.getSelectionNCaret(0);
+                if (pos > caret) {
+                    [pos, caret] = [caret, pos];
+                }
                 newText = scimoz.getTextRange(pos, caret);
             }
         }
