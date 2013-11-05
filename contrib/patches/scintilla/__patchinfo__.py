@@ -3,6 +3,9 @@
 import sys
 
 def patchfile_applicable(config, filepath):
+    if filepath.endswith("perf_no_abandon_paint.patch"):
+        # Only apply on Darwin - bug 98677.
+        return sys.platform == "darwin"
     return True
 
 def remove(config):
