@@ -44,3 +44,4 @@ win32_export.patch
 wordList_cxx.patch
 expose_dpi.patch
 cocoa_font_quality_margin.patch
+perf_no_abandon_paint.patch
