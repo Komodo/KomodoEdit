@@ -180,27 +180,6 @@
 
 
     /**
-     * A generic file handler - to help in opening files. Examples:
-     *    file:///foo/bar.txt
-     *    /foo/bar.txt
-     *    C:\foo\bar.txt
-     *    \\foo\bar.txt
-     */
-    ko.hyperlinks.handlers.fileHandler =
-        new ko.hyperlinks.RegexHandler(
-            "File handler",
-            new RegExp(_is_windows ? "(file:|[\\.]{1,2}/|/|[A-Z]:\\\\|\\\\\\\\)[^'\"<>(){}[\\]\\$\\s]+"
-                                   : "(file:|[\\.]{1,2}/|/)[^'\"<>(){}[\\]\\$\\s]+",
-                       "i"),
-            function(match, arg) { filename_jump_handler(arg); },
-            null,  /* Use the found string instead of a replacement. */
-            null,  /* All language types */
-            Components.interfaces.ISciMoz.INDIC_PLAIN,
-            xtk.color.RGB(0x60,0x90,0xff));
-    ko.hyperlinks.addHandler(ko.hyperlinks.handlers.fileHandler);
-
-
-    /**
      * A JavaScript document.getElementById() helper:
      *    document.getElementById('myid')  =>  jumps to element with id 'myid'
      *    $('#foo')                        =>  jumps to element with id 'foo'
@@ -309,5 +288,30 @@
             Components.interfaces.ISciMoz.INDIC_PLAIN,
             xtk.color.RGB(0x60,0x90,0xff));
     ko.hyperlinks.addHandler(ko.hyperlinks.handlers.djangoExtendsHandler);
+
+
+    /**
+     * A generic file handler - to help in opening files. Examples:
+     *    file:///foo/bar.txt
+     *    /foo/bar.txt
+     *    C:\foo\bar.txt
+     *    \\foo\bar.txt
+     *
+     * Note: This must be the last added file hyperlink handler, so it has a
+     * lower priority than the other more specific file handlers - bug 101505.
+     */
+    ko.hyperlinks.handlers.fileHandler =
+        new ko.hyperlinks.RegexHandler(
+            "File handler",
+            new RegExp(_is_windows ? "(file:|[\\.]{1,2}/|/|[A-Z]:\\\\|\\\\\\\\)[^'\"<>(){}[\\]\\$\\s]+"
+                                   : "(file:|[\\.]{1,2}/|/)[^'\"<>(){}[\\]\\$\\s]+",
+                       "i"),
+            function(match, arg) { filename_jump_handler(arg); },
+            null,  /* Use the found string instead of a replacement. */
+            null,  /* All language types */
+            Components.interfaces.ISciMoz.INDIC_PLAIN,
+            xtk.color.RGB(0x60,0x90,0xff));
+    ko.hyperlinks.addHandler(ko.hyperlinks.handlers.fileHandler);
+
 
 })();
