@@ -123,6 +123,9 @@ if sys.platform.startswith("win32"):
     defines.append(('WIN32',None))
     libraries.append('kernel32')
     extra_objects = ['libpcre.lib']
+    # Build debug symbols, even for release (they're not shipped)
+    extra_compile_args.append("-Zi")
+    extra_link_args.append("-DEBUG")
 elif sys.platform.startswith("sunos"):
     os.environ['CC'] = 'CC'
     libraries.append('Crun')            # C++ runtime
