@@ -2,7 +2,7 @@
 # User: ckreutzer
 # Link: https://bitbucket.org/ckreutzer/komodo-color-schemes/src
 
-Version = 11
+Version = 12
 
 Booleans = {'caretLineVisible': True, 'preferFixed': 1, 'useSelFore': False}
 
@@ -83,6 +83,7 @@ LanguageStyles = {'Apache': {'directives': {'fore': 9145088},
          'verbatim': {'fore': 16777215}},
  'CSS': {'compound_document_defaults': {'back': 13559807},
          'ids': {'fore': 39423},
+         'variables': {'fore': 39423},
          'important': {'fore': 9109504},
          'tags': {'fore': 9145088},
          'values': {'fore': 7872391}},
@@ -190,11 +191,11 @@ Indicators = {'find_highlighting': {'alpha': 100,
  'linter_error': {'alpha': 100,
                   'color': 255,
                   'draw_underneath': True,
-                  'style': 1},
+                  'style': 13},
  'linter_warning': {'alpha': 100,
                     'color': 32768,
                     'draw_underneath': True,
-                    'style': 1},
+                    'style': 13},
  'soft_characters': {'alpha': 100,
                      'color': 13209,
                      'draw_underneath': False,

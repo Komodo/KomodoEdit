@@ -1,4 +1,4 @@
-Version = 11
+Version = 12
 
 Booleans = {'preferFixed': 1, 'useSelFore': False, 'caretLineVisible': False}
 
@@ -83,6 +83,7 @@ LanguageStyles = {'Apache': {'directives': {'fore': 9145088},
          'verbatim': {'fore': 0}},
  'CSS': {'compound_document_defaults': {'back': 13559807},
          'ids': {'fore': 139},
+         'variables': {'fore': 139},
          'important': {'fore': 9109504},
          'tags': {'fore': 9145088},
          'values': {'fore': 7872391}},
@@ -210,13 +211,13 @@ Colors = {
 
 Indicators = {
     'linter_error': {
-        'style' : 1,       # scimoz.INDIC_SQUIGGLE
+        'style' : 13,      # scimoz.INDIC_SQUIGGLEPIXMAP
         'color': 0x0000ff, # color format is BGR
         'alpha': 100,
         'draw_underneath' : True,
     },
     'linter_warning': {
-        'style' : 1,       # scimoz.INDIC_SQUIGGLE
+        'style' : 13,      # scimoz.INDIC_SQUIGGLEPIXMAP
         'color': 0x008000, # color format is BGR
         'alpha': 100,
         'draw_underneath' : True,

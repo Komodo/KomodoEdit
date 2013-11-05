@@ -2,7 +2,7 @@
 # User: we3geeks (Ron)
 # Link: http://www.we3geeks.org/2011/06/23/solarized-color-schemes-for-komodo/
 
-Version = 11
+Version = 12
 
 Booleans = {'caretLineVisible': True, 'preferFixed': 1, 'useSelFore': True}
 
@@ -210,11 +210,11 @@ Indicators = {'find_highlighting': {'alpha': 100,
  'linter_error': {'alpha': 100,
                   'color': 255,
                   'draw_underneath': True,
-                  'style': 1},
+                  'style': 13},
  'linter_warning': {'alpha': 100,
                     'color': 32768,
                     'draw_underneath': True,
-                    'style': 1},
+                    'style': 13},
  'soft_characters': {'alpha': 100,
                      'color': 13209,
                      'draw_underneath': False,

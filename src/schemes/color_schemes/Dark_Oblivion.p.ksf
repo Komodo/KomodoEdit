@@ -2,7 +2,7 @@
 # User: lajevardi
 # Link: http://www.kolormodo.com/scheme/preview/122001/obliv
 
-Version = 11
+Version = 12
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 
@@ -314,11 +314,11 @@ Indicators = {'find_highlighting': {'alpha': 120,
  'linter_error': {'alpha': 100,
                   'color': 658139,
                   'draw_underneath': True,
-                  'style': 0},
+                  'style': 13},
  'linter_warning': {'alpha': 100,
                     'color': 52479,
                     'draw_underneath': True,
-                    'style': 1},
+                    'style': 13},
  'soft_characters': {'alpha': 100,
                      'color': 13209,
                      'draw_underneath': False,

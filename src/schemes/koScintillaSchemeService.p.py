@@ -111,7 +111,7 @@ class Scheme:
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 11
+    _current_scheme_version = 12
 
     def _execfile(self, fname, namespace):
         try:
@@ -280,6 +280,18 @@ class Scheme:
                         self._languageStyles["CSS"]["variables"] = self._languageStyles["CSS"]["identifiers"]
                 if "identifiers" in self._commonStyles:
                     self._commonStyles["variables"] = self._commonStyles["identifiers"]
+                version += 1
+                
+            if version == 11:
+                # Update Indicators['linter_{error,warning}']['style']
+                for indic in ['linter_error', 'linter_warning']:
+                    if indic in self._indicators:
+                        linter_block = self._indicators[indic]
+                        # 1:  scimoz.INDIC_SQUIGGLE
+                        # 13: scimoz.INDIC_SQUIGGLEPIXMAP
+                        if 'style' not in linter_block or \
+                                linter_block['style'] == 1:
+                            linter_block['style'] = 13
                 version += 1
 
             try:
