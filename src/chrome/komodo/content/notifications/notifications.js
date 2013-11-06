@@ -153,11 +153,20 @@ function KoNotificationManagerWrapper_update(aNotification, aArgs) {
         Services.console.logStringMessage("Notification does not have property " + key);
       }
     } else if (key == "progress") {
-      if (value > (notification.maxProgress || Number.NEGATIVE_INFINITY)) {
-        throw CE("Progress " + value + " is larger than maximum " + notification.maxProgress,
+      if (value > (aNotification.maxProgress || Number.NEGATIVE_INFINITY)) {
+        throw CE("Progress " + value + " is larger than maximum " + aNotification.maxProgress,
                  Cr.NS_ERROR_INVALID_ARG);
       }
       aNotification.progress = value;
+    } else if (key == "maxProgress") {
+      if (value !== Ci.koINotification.PROGRESS_INDETERMINATE &&
+          value !== Ci.koINotification.PROGRESS_NOT_APPLICABLE)
+      {
+        if (aNotification.progress > value) {
+          aNotification.progress = value;
+        }
+      }
+      aNotification.maxProgress = value;
     } else if (key == "actions") {
       for each (let action_data in (value || [])) {
         if (!("identifier" in action_data)) {
