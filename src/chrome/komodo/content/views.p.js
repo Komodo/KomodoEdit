@@ -1109,13 +1109,11 @@ viewManager.prototype.handle_open_file = function(topic, data)
                     scimoz.gotoLine(Math.max(lineNo - 1, 0)); // scimoz is 0-indexed
                     scimoz.anchor = anchor;
                     scimoz.currentPos = currentPos;
-                    setTimeout(function() {
-                            // Bug 98866: We have to do this in a setTimeout, or
-                            //we're likely to hit scrollCaret before scintilla has
-                            // fully initialized the buffer view, and won't get a
-                            // valid TextRectangle.
-                            scimoz.scrollCaret();
-                        }, 10);
+                    view.registerUpdateUICallback(function() {
+                        // Bug 98866: Don't try scrolling to the caret
+                        // until Scintilla has fired an onUpdateUI event
+                        scimoz.scrollCaret();
+                    });
                 }
             );
             // Force the main window to the forefront
