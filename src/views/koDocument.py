@@ -2072,6 +2072,9 @@ class koDocumentBase:
             self._doAutoSave()
 
     # We cannot get the text from scintilla in a thread, and must proxy.
+    # This also means we won't attempt to actually do writes on the autosave
+    # thread, which means _that_ thread can be marked as daemon (since we won't
+    # kill that thread in the middle of a write).
     @components.ProxyToMainThread
     def _doAutoSave(self):
         autoSaveFile = self._getAutoSaveFile()

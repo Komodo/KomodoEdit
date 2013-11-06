@@ -117,6 +117,11 @@ class KoDocumentService:
         self._thread = threading.Thread(target = KoDocumentService._autoSave,
                                         name = "Document Service - autosave",
                                         args = (self,))
+        # Set the autosave thread as a daemon thread so it won't prevent
+        # shutdown; see bug 101357.  This is only safe because the actual
+        # writing happens on the main thread via ProxyToMainThread; see
+        # koDocumentBase._doAutoSave in koDocument.py.
+        self._thread.daemon = True
         self._thread.start()
 
     def observe(self, subject, topic, data):
