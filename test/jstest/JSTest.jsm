@@ -156,3 +156,10 @@ TestCase.prototype.failIfAlmostEqual = function TestCase_failIfAlmostEqual(first
     }
     log.debug("PASS: " + msg);
 };
+TestCase.prototype.assertIn = function TestCase_assertIn(prop, obj, msg) {
+    if (!(prop in obj)) {
+        throw new TestError((msg || "assertIn") + ": " + prop + " in " + obj,
+                            "AssertIn");
+    }
+    log.debug("PASS: " + msg);
+};

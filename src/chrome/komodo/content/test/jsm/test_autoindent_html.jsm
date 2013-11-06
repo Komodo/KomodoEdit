@@ -26,33 +26,22 @@ TestHTMLAutoIndent.prototype.setUp = function TestHTMLAutoIndent_setUp() {
 TestHTMLAutoIndent.prototype.tearDown = function TestHTMLAutoIndent_tearDown() {
 };
 
-TestHTMLAutoIndent.prototype._get_scimoz_and_koDoc_from_string = function(buf, styles_01) {
+TestHTMLAutoIndent.prototype._get_scimoz_and_koDoc_from_string = function(buf) {
     var view = new ko.views.ViewMock({text:buf});
     var scimoz = view.scimoz;
-    if ('@activestate.com/ISciMozHeadless;1' in Cc) {
-        //this.log.debug("We have a headless scimoz");
-        // Set up the real HTML lexer (for styling information)
-        var lexerSvc = Cc["@activestate.com/koLanguageRegistryService;1"]
-                         .getService(Ci.koILanguageRegistryService)
-                         .getLanguage("HTML5")
-                         .getLanguageService(Ci.koILexerLanguageService);
-        lexerSvc.setCurrent(scimoz);
-    } else {
-        //this.log.debug(":((((( No headless scimoz");
-        scimoz.startStyling(0, -1);
-        scimoz.setStylingEx(styles_01.length,
-                            styles_01.map(c => String.fromCharCode(c)).join(""));
-    }
+    this.assertIn('@activestate.com/ISciMozHeadless;1', Cc,
+                  "Headless SciMoz is required");
+    //this.log.debug("We have a headless scimoz");
+    // Set up the real HTML lexer (for styling information)
+    var lexerSvc = Cc["@activestate.com/koLanguageRegistryService;1"]
+                     .getService(Ci.koILanguageRegistryService)
+                     .getLanguage("HTML5")
+                     .getLanguageService(Ci.koILexerLanguageService);
+    lexerSvc.setCurrent(scimoz);
+    scimoz.useTabs = false;
+    scimoz.colourise(0, scimoz.length);
     return [scimoz, view.koDoc, view];
 };
-
-function rep(str, count) {
-    var a = [];
-    while (--count >= 0) {
-        a.push(str);
-    }
-    return a.join("");
-}
 
 TestHTMLAutoIndent.prototype.test_startTagCloseIndent01 =
 function test_startTagCloseIndent01() {
@@ -65,65 +54,50 @@ function test_startTagCloseIndent01() {
                  ,''
                  ,'<body>'
                 ];
-    // Styles include 13-10
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0, 0,
- 1, 2, 2, 2, 2, 6, 0, 0,
- 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 9, 9, 2, 2, 2, 2, 2, 10, 0, 0,
- 9, 9, 2, 2, 2, 2, 10, 0, 0,
- 0, 0,
- 1, 2, 2, 2, 2, 6, 0, 0];
     var text_01 = buf_01.join("\r\n");
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01, styles_01);
-    scimoz.currentPos = 173;
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01);
+    scimoz.currentPos = text_01.length;
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     var indent = htmlLangSvc.computeIndent(scimoz, "XML", true);
-    this.assertEquals(rep(" ", scimoz.indent).length, indent.length);
+    this.assertEquals(" ".repeat(scimoz.indent), indent,
+                      "Indent " + escape(indent) +
+                      " does not match expected indent " +
+                      escape(" ".repeat(scimoz.indent)));
 
     // Test inner tag, assume all spaces
-    var buf_02 = buf_01.concat("    <div id='1'>")
+    var buf_02 = buf_01.concat("    <div id='1'>");
     var text_02 = buf_02.join("\r\n");
-    var styles_02 = styles_01.concat([0, 0, 0, 0,
-                                      1, 2, 2, 2, 3, 4, 4, 5, 8, 8, 8, 6]);
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_02, styles_02);
-    scimoz.currentPos = 191;
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_02);
+    scimoz.currentPos = text_02.length;
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     indent = htmlLangSvc.computeIndent(scimoz, "XML", true);
-    this.assertEquals(rep(" ", 8), indent);
+    this.assertEquals(" ".repeat(8), indent,
+                      "Indent " + escape(indent) +
+                      " does not match expected indent " + escape(" ".repeat(8)));
 
     // Test inner tag, now move to tabs
-    var buf_02 = buf_01.concat("    <div id='1'>")
-    var text_02 = buf_02.join("\r\n");
-    var styles_02 = styles_01.concat([0, 0, 0, 0,
-                                      1, 2, 2, 2, 3, 4, 4, 5, 8, 8, 8, 6, 0, 0]);
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_02, styles_02);
-    scimoz.currentPos = 191;
+    buf_02 = buf_01.concat("    <div id='1'>")
+    text_02 = buf_02.join("\r\n");
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_02);
+    scimoz.currentPos = text_02.length;
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     scimoz.useTabs = false;
     indent = htmlLangSvc.computeIndent(scimoz, "XML", true);
-    this.assertEquals(rep(" ", 8), indent);
+    this.assertEquals(" ".repeat(8), indent);
     scimoz.useTabs = true;
     indent = htmlLangSvc.computeIndent(scimoz, "XML", true);
-    this.assertEquals(1, indent.length);
-    this.assertEquals("\t", indent);
+    this.assertEquals("\t", indent,
+                      "Indent " + escape(indent) +
+                      " does not match expected indent " + escape("\t"));
 
     // <body>\n....<div1>\n        <div2>|
     var buf_03 = buf_02.concat("        <div id='2'>") // 8 spaces
     var text_03 = buf_03.join("\r\n");
-    var styles_03 = styles_02.concat([0, 0, 0, 0, 0, 0, 0, 0,
-                                      1, 2, 2, 2, 3, 4, 4, 5, 8, 8, 8, 6, 0, 0]);
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_03, styles_03);
-    scimoz.currentPos = 213;
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_03);
+    scimoz.currentPos = text_03.length;
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     scimoz.useTabs = true;
@@ -132,12 +106,10 @@ function test_startTagCloseIndent01() {
     this.assertEquals("\t    ", indent);
 
     // <body>\n....<div1>\n\t<div2>
-    var buf_03 = buf_02.concat("\t<div id='2'>") // 1 tab
-    var text_03 = buf_03.join("\r\n");
-    var styles_03 = styles_02.concat([0,
-                                      1, 2, 2, 2, 3, 4, 4, 5, 8, 8, 8, 6, 0, 0]);
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_03, styles_03);
-    scimoz.currentPos = 206;
+    buf_03 = buf_02.concat("\t<div id='2'>") // 1 tab
+    text_03 = buf_03.join("\r\n");
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_03);
+    scimoz.currentPos = text_03.length;
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     scimoz.useTabs = true;
@@ -156,23 +128,12 @@ function test_startTagCloseIndent03_LargeAttr() {
     var attrPart = "abcdefghi ";
     var limNumChars = 6000;
     var numParts = Math.ceil(limNumChars / attrPart.length);
-    var attrParts = rep(attrPart, numParts + 1);
+    var attrParts = attrPart.repeat(numParts + 1);
     var lastLine = '        <div class="y' + attrParts + '">';
     buf_01.push(lastLine);
     buf_01.push('');
-    // Styles include 13-10
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8, 8, 6, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8];
-    for (var i = attrParts.length; i > 0; i--) {
-        styles_01.push(8);
-    }
-    styles_01.push(8);
-    styles_01.push(6);
-    styles_01.push(0);
     var text_01 = buf_01.join("\n");
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01, styles_01);
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01);
     scimoz.currentPos = 66 + attrParts.length;
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
@@ -190,28 +151,12 @@ function test_startTagCloseIndent04_LargeAttr() {
                    ,'<body>'
                    ,'    <div class="x"'
                 ];
-    // Styles include 10
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8, 8, 0];
 
     const attrPart = "abcdefghi ";
     const attrLineSize = 80;//1000;
     const numAttrParts = Math.ceil((attrLineSize - 12 - 1)/attrPart.length);
-    const attrLinePrev = rep(' ', 12) + "attr";
-    const attrLineAfter = '="' + rep(attrPart, numAttrParts) + '"'
-    var attrStyleNums = [];
-    for (i = 0; i < 12; ++i) {
-        attrStyleNums.push(3);
-    }
-    for (i = 0; i < 6; ++i) {
-        attrStyleNums.push(4);
-    }
-    attrStyleNums.push(5);
-    for (i = 0; i < attrLineAfter.length - 1; ++i) {
-        attrStyleNums.push(4);
-    }
-    attrStyleNums.push(3);
+    const attrLinePrev = ' '.repeat(12) + "attr";
+    const attrLineAfter = '="' + attrPart.repeat(numAttrParts) + '"'
 
     const limNumChars = 100;//6000;
     const numAttrLines = Math.ceil(limNumChars / (attrLinePrev.length + 2 + attrLineAfter.length + 1));
@@ -224,7 +169,6 @@ function test_startTagCloseIndent04_LargeAttr() {
         fullLineParts.push(i.toString(10));
         fullLineParts.push(attrLineAfter);
         buf_01.push(fullLineParts.join(''));
-        styles_01 = styles_01.concat(attrStyleNums);
     }
     // Last line is slightly different
     let fullLineParts = [attrLinePrev];
@@ -235,14 +179,11 @@ function test_startTagCloseIndent04_LargeAttr() {
     fullLineParts.push(attrLineAfter);
     fullLineParts.push(">")
     buf_01.push(fullLineParts.join(''));
-    attrStyleNums[attrStyleNums.length - 1] = 6;
-    styles_01 = styles_01.concat(attrStyleNums);
 
     var text_01 = buf_01.join("\n");
     //this.log.debug("text_01: " + text_01.length + " chars");
-    //this.log.debug("styles_01: " + styles_01.length + " styles");
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01, styles_01);
-    scimoz.currentPos = styles_01.length;
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01);
+    scimoz.currentPos = text_01.length;
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     scimoz.useTabs = false;
@@ -259,28 +200,12 @@ function test_startTagCloseIndent05_LargeAttr() {
                    ,'<body>'
                    ,'    <div class="x"'
                 ];
-    // Styles include 10
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8, 8, 0];
 
     const attrPart = "abcdefghi ";
     const attrLineSize = 1000;
     const numAttrParts = Math.ceil((attrLineSize - 12 - 1)/attrPart.length);
-    const attrLinePrev = rep(' ', 12) + "attr";
-    const attrLineAfter = '="' + rep(attrPart, numAttrParts) + '"'
-    var attrStyleNums = [];
-    for (i = 0; i < 12; ++i) {
-        attrStyleNums.push(3);
-    }
-    for (i = 0; i < 6; ++i) {
-        attrStyleNums.push(4);
-    }
-    attrStyleNums.push(5);
-    for (i = 0; i < attrLineAfter.length - 1; ++i) {
-        attrStyleNums.push(4);
-    }
-    attrStyleNums.push(3);
+    const attrLinePrev = ' '.repeat(12) + "attr";
+    const attrLineAfter = '="' + attrPart.repeat(numAttrParts) + '"'
 
     const limNumChars = 6000;
     const numAttrLines = Math.ceil(limNumChars / (attrLinePrev.length + 2 + attrLineAfter.length + 1));
@@ -293,7 +218,6 @@ function test_startTagCloseIndent05_LargeAttr() {
         fullLineParts.push(i.toString(10));
         fullLineParts.push(attrLineAfter);
         buf_01.push(fullLineParts.join(''));
-        styles_01 = styles_01.concat(attrStyleNums);
     }
     // Last line is slightly different
     let fullLineParts = [attrLinePrev];
@@ -304,14 +228,11 @@ function test_startTagCloseIndent05_LargeAttr() {
     fullLineParts.push(attrLineAfter);
     fullLineParts.push(">")
     buf_01.push(fullLineParts.join(''));
-    attrStyleNums[attrStyleNums.length - 1] = 6;
-    styles_01 = styles_01.concat(attrStyleNums);
 
     var text_01 = buf_01.join("\n");
     //this.log.debug("text_01: " + text_01.length + " chars");
-    //this.log.debug("styles_01: " + styles_01.length + " styles");
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01, styles_01);
-    scimoz.currentPos = styles_01.length;
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01);
+    scimoz.currentPos = text_01.length;
     scimoz.indent = 12;
     scimoz.tabWidth = 8;
     scimoz.useTabs = false;
@@ -326,21 +247,15 @@ function test_startTagCloseIndent03_FollowedBySpaces() {
                    ,'    <div class="x">'
                    ,'        <div class="y">  	  '
                 ];
-    // Styles include 13-10
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8, 8, 6, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8,
- 8, 6, 0, 0, 0, 0, 0, 0];
     var text_01 = buf_01.join("\n");
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01, styles_01);
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01);
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     scimoz.useTabs = false;
     scimoz.currentPos = 71;
     var indent = htmlLangSvc.computeIndent(scimoz, "XML", true);
     this.assertEquals(12, indent.length);
-    this.assertEquals(rep(" ", 12), indent);
+    this.assertEquals(" ".repeat(12), indent);
 };
 
 TestHTMLAutoIndent.prototype.test_startTagCloseIndent03_FollowedByNonSpace =
@@ -350,14 +265,8 @@ function test_startTagCloseIndent03_FollowedByNonSpace() {
                    ,'    <div class="x">'
                    ,'        <div class="y">  x	  '
                 ];
-    // Styles include 13-10
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8, 8, 6, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8,
- 8, 6, 0, 0, 0, 0, 0, 0, 0];
     var text_01 = buf_01.join("\n");
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01, styles_01);
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01);
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     scimoz.useTabs = false;
@@ -365,7 +274,7 @@ function test_startTagCloseIndent03_FollowedByNonSpace() {
     var indent = htmlLangSvc.computeIndent(scimoz, "XML", true);
     var expNumSpaces = 8;
     this.assertEquals(expNumSpaces, indent.length);
-    this.assertEquals(rep(" ", expNumSpaces), indent);
+    this.assertEquals(" ".repeat(expNumSpaces), indent);
 };
 
 TestHTMLAutoIndent.prototype.test_startTagCloseIndent04_PrecededByText =
@@ -375,14 +284,8 @@ function test_startTagCloseIndent04_PrecededByText() {
                    ,'    <div class="x">'
                    ,'  f     <div class="y">'
                 ];
-    // Styles include 13-10
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8, 8, 6, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8,
- 8, 6, 0];
     var text_01 = buf_01.join("\n");
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01, styles_01);
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01);
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     scimoz.useTabs = false;
@@ -390,7 +293,7 @@ function test_startTagCloseIndent04_PrecededByText() {
     var indent = htmlLangSvc.computeIndent(scimoz, "XML", true);
     var expNumSpaces = 2;
     this.assertEquals(expNumSpaces, indent.length);
-    this.assertEquals(rep(" ", expNumSpaces), indent);
+    this.assertEquals(" ".repeat(expNumSpaces), indent);
 };
 
 TestHTMLAutoIndent.prototype.test_endTagCloseIndent01 =
@@ -403,26 +306,16 @@ function test_endTagCloseIndent01() {
                    ,'            </div>'
                    ,''
                 ];
-    // Styles include 13-10
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8, 8, 6, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8,
- 8, 6, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 9, 2, 2, 2, 10, 0];
     var text_01 = buf_01.join("\n");
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01, styles_01);
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01);
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     scimoz.useTabs = false;
     scimoz.currentPos = 110;
-    scimoz.setFoldLevels([0x400, 0x2400, 0x2401, 0x2402, 0x403, 0x403, 0x402]);
     var indent = htmlLangSvc.computeIndent(scimoz, "XML", true);
     var expNumSpaces = 8;
     this.assertEquals(expNumSpaces, indent.length);
-    this.assertEquals(rep(" ", expNumSpaces), indent);
+    this.assertEquals(" ".repeat(expNumSpaces), indent);
 };
 
 TestHTMLAutoIndent.prototype.test_endTagCloseIndent02_NoMatchingTag =
@@ -435,38 +328,27 @@ function test_endTagCloseIndent02_NoMatchingTag() {
                    ,'            </oops>'
                    ,''
                 ];
-    // Styles include 13-10
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8, 8, 6, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8,
- 8, 6, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 9, 2, 2, 2, 2, 10, 0];
     var text_01 = buf_01.join("\n");
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01, styles_01);
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01);
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     scimoz.useTabs = false;
     scimoz.currentPos = 111;
-    scimoz.setFoldLevels([0x400, 0x2400, 0x2401, 0x2402, 0x403, 0x403, 0x402]);
     var indent = htmlLangSvc.computeIndent(scimoz, "XML", true);
     var expNumSpaces = 12;
     this.assertEquals(expNumSpaces, indent.length);
-    this.assertEquals(rep(" ", expNumSpaces), indent);
+    this.assertEquals(" ".repeat(expNumSpaces), indent);
 };
 
 TestHTMLAutoIndent.prototype.addContent =
-    function addContent(buf_a, styles_a, leadingWS, limNumChars, defaultStyle) {
+    function addContent(buf_a, leadingWS, limNumChars) {
     var buf_new = [].concat(buf_a);
-    var styles_new = [].concat(styles_a);
     var desiredFullLength = 72;
     var lineLength = desiredFullLength - leadingWS.length;
     var attrPart = "abcdefghi ";
     var numLines = Math.ceil(limNumChars / desiredFullLength);
     var numParts = Math.ceil(lineLength / attrPart.length);
-    var attrParts = rep(attrPart, numParts + 1);
+    var attrParts = attrPart.repeat(numParts + 1);
     var i;
     var fullLineLength = leadingWS.length + attrParts.length + 1; // 1 for \n
     //this.log.debug("numLines; "
@@ -474,16 +356,11 @@ TestHTMLAutoIndent.prototype.addContent =
     //               + ", fullLineLength:"
     //               + fullLineLength
     //               );
-    var styleArray = [];
     var newCharsAdded = 0;
-    for (i = 0; i < fullLineLength; i++) {
-        styleArray.push(defaultStyle);
-    }
     for (var i = 0; i < numLines; i++) {
         buf_new.push(leadingWS + attrParts);
-        styles_new = styles_new.concat(styleArray);
     }
-    return [buf_new, styles_new, numLines * fullLineLength, numLines];
+    return [buf_new, numLines * fullLineLength, numLines];
 }
 
 TestHTMLAutoIndent.prototype.test_endTagCloseIndent03_largeContent =
@@ -492,54 +369,35 @@ function test_endTagCloseIndent03_largeContent() {
                    ,'<body>'
                    ,'    <div class="x">'
                    ,'        <div class="y">'];
-    const leadingWS = rep(' ', 12);
+    const leadingWS = ' '.repeat(12);
     const lastLine = leadingWS + '</div>';
-    const styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8, 8, 6, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8,
- 8, 6, 0];
-    // Add a bunch of content
-    const lastStyles = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                      9, 9, 2, 2, 2, 10, 0];
-    const firstFoldLevels = [0x400, 0x2400, 0x2401, 0x2402];
-    const textFoldLevel = 0x403;
-    const lastFoldLevels = [0x403, 0x402];
-    var buf_02, styles_02, numExtraChars_02, numTextLines;
+    var buf_02, numExtraChars_02, numTextLines;
     var extraCharCount, text_02, indent, expNumSpaces = 8;
     const extraCounts = [0, 1000, 4000, 8000, 12000, 20000, 40000, 100000];
     var i, extraCharCount;
     var numTestsRan = 0;
     for (i = 0; i < extraCounts.length; ++i, numTestsRan++) {
         extraCharCount = extraCounts[i];
-        [buf_02, styles_02, numExtraChars_02, numTextLines] = this.addContent(buf_01, styles_01, leadingWS, extraCharCount, 0);
+        [buf_02, numExtraChars_02, numTextLines] = this.addContent(buf_01, leadingWS, extraCharCount, 0);
         //this.log.debug("numExtraChars_02: " + numExtraChars_02);
         buf_02.push(lastLine);
         buf_02.push('');
-        styles_02 = styles_02.concat(lastStyles);
 
         var text_02 = buf_02.join("\n");
         //this.log.debug("text_02: " + text_02.length + "\n\n\n");
-        //this.log.debug("styles_02: " + styles_02.length + "\n\n\n");
-        [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_02, styles_02);
+        [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_02);
         scimoz.indent = 4;
         scimoz.tabWidth = 8;
         scimoz.useTabs = false;
         scimoz.currentPos = 85 + numExtraChars_02;
         //this.log.debug("scimoz.currentPos: " + scimoz.currentPos);
-        var levels = [].concat(firstFoldLevels);
-        for (var j = 0; j < numTextLines; j++) {
-            levels.push(textFoldLevel);
-        }
-        levels = levels.concat(lastFoldLevels);
-        scimoz.setFoldLevels(levels);
         var t1 = (new Date()).valueOf();
         var indent = htmlLangSvc.computeIndent(scimoz, "XML", true);
         var t2 = (new Date()).valueOf();
         //this.log.debug("Time to process " + extraCharCount
         //               + " chars: " + (t2 - t1) + " msec");
         this.assertEquals(expNumSpaces, indent.length);
-        this.assertEquals(rep(" ", expNumSpaces), indent);
+        this.assertEquals(" ".repeat(expNumSpaces), indent);
     }
     this.assertEquals(extraCounts.length, numTestsRan,
                       "Didn't run all the tests we expected to see");
@@ -555,16 +413,8 @@ function test_emptyStartTagCloseIndent01() {
              ,'            <img src="abc" />'
              ,''
             ];
-    // Styles include 13-10
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8, 8, 6, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8,
- 8, 6, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 5,
- 8, 8, 8, 8, 8, 3, 7, 7, 0];
     var text_01 = buf_01.join("\n");
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01, styles_01);
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01);
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     scimoz.useTabs = false;
@@ -595,7 +445,7 @@ function test_emptyStartTagCloseIndent01() {
         var expNumSpaces = expNumSpaces;
         this.assertEquals(expNumSpaces, indent.length,
                           "For currentPos: " + currentPos + ", expNumSpaces: " + expNumSpaces);
-        this.assertEquals(rep(" ", expNumSpaces), indent);
+        this.assertEquals(" ".repeat(expNumSpaces), indent);
     }
 };
 
@@ -608,25 +458,14 @@ function test_emptyStartTagCloseIndent02_LargeContent() {
              ,'        <div class="y">'
              ,'            <img src="'
             ];
-    // Styles are for newline of 10 only
-    const styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8, 8, 6, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 8, 8,
- 8, 6, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 5,
- 8, 8];
     //this.log.debug("buf len: "
     //               + buf_01.reduce(function(sum, item) sum + item.length,  0)
     //               + ", buf parts: ["
     //               + buf_01.map(function(s) s.length)
-    //               + "]"
-    //               + ", styles len:"
-    //               + styles_01.length);
-    const styles_end = [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 3, 7, 7, 0];
-    const leadingWS = rep(' ', 12);
+    //               + "]");
+    const leadingWS = ' '.repeat(12);
     const lastLine = leadingWS + '" />';
-    var buf_02, styles_02, numExtraChars_02, numTextLines;
+    var buf_02, numExtraChars_02, numTextLines;
     var extraCharCount, text_02, indent, expNumSpaces = 8;
     const extraCounts = [0, 1000, 4000, 8000, 12000, 20000, 40000, 100000];
     var i, extraCharCount;
@@ -646,9 +485,8 @@ function test_emptyStartTagCloseIndent02_LargeContent() {
     for (i = 0; i < extraCounts.length; ++i) {
     //for (i = 3; i < 4; ++i) {
         extraCharCount = extraCounts[i];
-        [buf_02, styles_02, numExtraChars_02, numTextLines] =
-            this.addContent(buf_01, styles_01, leadingWS, extraCharCount,
-                            8);
+        [buf_02, numExtraChars_02, numTextLines] =
+            this.addContent(buf_01, leadingWS, extraCharCount, 8);
         if (numExtraChars_02 > 6000) {
             expectedPairs[AFTER_QUOTE][1] = 12;
         } else {
@@ -658,12 +496,10 @@ function test_emptyStartTagCloseIndent02_LargeContent() {
         //this.log.debug("numExtraChars_02: " + numExtraChars_02);
         buf_02.push(lastLine);
         buf_02.push('');
-        styles_02 = styles_02.concat(styles_end);
 
         var text_02 = buf_02.join("\n");
         //this.log.debug("text_02: " + text_02.length + "");
-        //this.log.debug("styles_02: " + styles_02.length + "");
-        [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_02, styles_02);
+        [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_02);
         scimoz.indent = 4;
         scimoz.tabWidth = 8;
         scimoz.useTabs = false;
@@ -679,9 +515,6 @@ function test_emptyStartTagCloseIndent02_LargeContent() {
             //this.log.debug("text_02: " + text_02.substring(0, adjustedCurrentPos)
             //               + "<|>"
             //               + text_02.substring(adjustedCurrentPos) + "\n");
-            //this.log.debug("styles_02: " + styles_02.slice(0, adjustedCurrentPos)
-            //               + "<|>"
-            //               + styles_02.slice(adjustedCurrentPos) + "\n");
             //this.log.debug("scimoz.currentPos: " + adjustedCurrentPos);
             //var t1 = (new Date()).valueOf();
             //let t1 = new Date().valueOf();
@@ -702,13 +535,13 @@ function test_emptyStartTagCloseIndent02_LargeContent() {
             //this.log.debug("Time to process " + extraCharCount
             //               + " chars: " + (t2 - t1) + " msec");
             this.assertEquals(expNumSpaces, indent.length,
-                              ("failure on extraCharIndex: "
-                               + i
+                              ("failure on extraCharIndex: " + i
                                + ", extraCharCount: " + extraCharCount
-                               + ", adjustedPos index: "
-                               + j
-                               + ", adjustedCurrentPos: " + adjustedCurrentPos));
-            this.assertEquals(rep(" ", expNumSpaces), indent);
+                               + ", adjustedPos index: " + j
+                               + ", adjustedCurrentPos: " + adjustedCurrentPos
+                               + ", expected " + expNumSpaces + " spaces"
+                               + ", got indent length " + indent.length));
+            this.assertEquals(" ".repeat(expNumSpaces), indent);
             numTestsRan += 1;
         }
     }
@@ -726,16 +559,8 @@ function test_endCommentIndent01() {
              ,'        -->'
              ,''
             ];
-    // Styles include 13-10
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
-
- 14,
- 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
- 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 0];
     var text_01 = buf_01.join("\n");
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01, styles_01);
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01);
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     scimoz.useTabs = false;
@@ -743,13 +568,13 @@ function test_endCommentIndent01() {
     var indent = htmlLangSvc.computeIndent(scimoz, "XML", false);
     var expNumSpaces = 4;
     this.assertEquals(expNumSpaces, indent.length);
-    this.assertEquals(rep(" ", expNumSpaces), indent);
+    this.assertEquals(" ".repeat(expNumSpaces), indent);
     // At end of 'blah', indent should continue on same line
     scimoz.currentPos = 57;
     indent = htmlLangSvc.computeIndent(scimoz, "XML", false);
     expNumSpaces = 8;
     this.assertEquals(expNumSpaces, indent.length);
-    this.assertEquals(rep(" ", expNumSpaces), indent);
+    this.assertEquals(" ".repeat(expNumSpaces), indent);
 };
 
 TestHTMLAutoIndent.prototype.test_endCommentIndent02_LargeContent =
@@ -760,15 +585,9 @@ function test_endCommentIndent02_LargeContent() {
              ,'    <!-- some comment'
              ,'        blah'
             ];
-    // Styles are for newline of 10 only, includes LF on line 3
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
-0, 0, 0, 0, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
-14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14];
-    const styles_end = [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 0];
-    const leadingWS = rep(' ', 8);
+    const leadingWS = ' '.repeat(8);
     const lastLine = leadingWS + '-->';
-    var buf_02, styles_02, numExtraChars_02, numTextLines;
+    var buf_02, numExtraChars_02, numTextLines;
     var extraCharCount, text_02, indent, expNumSpaces = 8;
     const extraCounts = [0, 1000, 4000, 8000, 12000, 20000, 40000, 100000];
     var i, extraCharCount;
@@ -791,18 +610,17 @@ function test_endCommentIndent02_LargeContent() {
     for (i = 0; i < extraCounts.length; ++i) {
     //for (i = 3; i < 4; ++i) {
         extraCharCount = extraCounts[i];
-        [buf_02, styles_02, numExtraChars_02, numTextLines] =
-            this.addContent(buf_01, styles_01, leadingWS, extraCharCount,
+        [buf_02, numExtraChars_02, numTextLines] =
+            this.addContent(buf_01, leadingWS, extraCharCount,
                             8);
         if (numExtraChars_02 > 7000) {
             expectedPairs[AFTER_QUOTE][1] = 8;
         }
         buf_02.push(lastLine);
         buf_02.push('');
-        styles_02 = styles_02.concat(styles_end);
 
         var text_02 = buf_02.join("\n");
-        [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_02, styles_02);
+        [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_02);
         scimoz.indent = 4;
         scimoz.tabWidth = 8;
         scimoz.useTabs = false;
@@ -822,7 +640,7 @@ function test_endCommentIndent02_LargeContent() {
                                + ", adjustedPos index: "
                                + j
                                + ", adjustedCurrentPos: " + adjustedCurrentPos));
-            this.assertEquals(rep(" ", expNumSpaces), indent);
+            this.assertEquals(" ".repeat(expNumSpaces), indent);
             numTestsRan += 1;
         }
     }
@@ -840,15 +658,8 @@ function test_endPI01() {
                   ,'          c="klmno" ?>'
                   ,''
                  ];
-    // Styles include 13-10
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 12, 12, 12, 12, 12, 12, 4, 5, 8, 8, 8, 8, 8, 8, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 4, 5, 8, 8, 8, 8, 8, 8, 8, 8, 12,
- 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 4, 5, 8, 8, 8, 8, 8, 8, 8, 12, 12, 12, 0,
- 0];
     var text_01 = buf_01.join("\n");
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01, styles_01);
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01);
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     scimoz.useTabs = false;
@@ -856,19 +667,19 @@ function test_endPI01() {
     var indent = htmlLangSvc.computeIndent(scimoz, "XML", false);
     var expNumSpaces = 4;
     this.assertEquals(expNumSpaces, indent.length);
-    this.assertEquals(rep(" ", expNumSpaces), indent);
+    this.assertEquals(" ".repeat(expNumSpaces), indent);
     // At end of 'efghij', indent should continue on same line
     scimoz.currentPos = 62;
     indent = htmlLangSvc.computeIndent(scimoz, "XML", false);
     expNumSpaces = 10;
     this.assertEquals(expNumSpaces, indent.length);
-    this.assertEquals(rep(" ", expNumSpaces), indent);
+    this.assertEquals(" ".repeat(expNumSpaces), indent);
     // Anywhere on first line, just snap back to column where <? starts.
     scimoz.currentPos = 41;
     indent = htmlLangSvc.computeIndent(scimoz, "XML", false);
     expNumSpaces = 4;
     this.assertEquals(expNumSpaces, indent.length);
-    this.assertEquals(rep(" ", expNumSpaces), indent);
+    this.assertEquals(" ".repeat(expNumSpaces), indent);
 };
 
 TestHTMLAutoIndent.prototype.test_endCDATA_01 =
@@ -884,19 +695,8 @@ function test_endCDATA_01() {
                   ,'    Should go here.'
                   ,''
                  ];
-    // Styles include 13-10
-    var styles_01 = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 1, 2, 2, 2, 2, 6, 0,
- 0, 0, 0, 0, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
- 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
- 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
- 13,
- 13, 13, 13, 13,
- 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
- 13, 13, 13, 13, 13, 0,
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     var text_01 = buf_01.join("\n");
-    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01, styles_01);
+    [scimoz, koDoc] = this._get_scimoz_and_koDoc_from_string(text_01);
     scimoz.indent = 4;
     scimoz.tabWidth = 8;
     scimoz.useTabs = false;
@@ -917,7 +717,7 @@ function test_endCDATA_01() {
                           + expNumSpaces
                           + " spaces, got "
                           + indent.length);
-        this.assertEquals(rep(" ", expNumSpaces), indent);
+        this.assertEquals(" ".repeat(expNumSpaces), indent);
     }
 };
 const JS_TESTS = ["TestHTMLAutoIndent"];
