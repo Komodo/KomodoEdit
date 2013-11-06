@@ -1,0 +1,11 @@
+# #if MODE == "dev"
+content getstarted content/
+skin getstarted classic/1.0 skin/
+locale getstarted en-US locale/en-US/
+# #else
+content getstarted jar:getstarted.jar!/content/
+skin getstarted classic/1.0 jar:getstarted.jar!/skin/
+locale getstarted en-US jar:getstarted.jar!/locale/en-US/
+# #endif
+
+overlay chrome://komodo/content/komodo.xul chrome://getstarted/content/overlay/komodo.xul

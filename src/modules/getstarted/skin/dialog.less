@@ -1,0 +1,116 @@
+@import url("chrome://komodo/skin/_config/window.less");
+
+dialog
+{
+    -moz-binding: none;
+}
+
+label.sub-header
+{
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 20px 0 10px;
+}
+
+button.button-link
+{
+    -moz-binding: url("chrome://getstarted/content/binding/button.xml#button-link");
+    -moz-appearance: none;
+    background: none;
+    border: 0;
+    margin: 0;
+    padding: 0;
+
+    label.button-text
+    {
+        color:  -moz-nativehyperlinktext;
+    }
+
+    &:hover
+    {
+        text-decoration: none;
+
+        label.button-text
+        {
+            text-decoration: underline;
+        }
+    }
+}
+
+button.button-link:not(.list-item) .button-prefix
+{
+    visibility: collapse;
+}
+
+button.button-link.list-item .button-prefix
+{
+    padding-left: 10px;
+}
+
+#content
+{
+    padding: 30px;
+    background: @list-tree-background;
+
+    label.title
+    {
+        margin: 0 0 10px;
+        font-size: 3em;
+        font-weight: bold;
+        text-align: center;
+    }
+
+}
+
+#pane
+{
+    width: 200px;
+    padding: 10px;
+    background: @sidebar-background;
+    border-left: @panel-border;
+
+    description
+    {
+        text-align: justify;
+        margin-bottom: 10px;
+    }
+
+    label#whatsNew
+    {
+        margin-top: 0;
+        padding-top: 132px;
+        background-image: url("chrome://komodo/skin/images/komodo_128x128.png");
+        background-position: top center;
+        background-repeat: no-repeat;
+        background-size: 128px;
+
+        @media (min-resolution: 144dpi)
+        {
+            background-image: url("chrome://komodo/skin/images/komodo_256x256.png");
+        }
+    }
+}
+
+#docBox
+{
+    margin: 20px 0;
+}
+
+statusbar
+{
+    //-moz-appearance: @statusbarpanel-appearance;
+    //background: @statusbar-background;
+    //border-width: 1px 0 0;
+    //border-style: @statusbar-border-style;
+    //border-color: @statusbar-border-color;
+    statusbarpanel
+    {
+        padding: 10px;
+    }
+
+    .checkbox-label-box
+    {
+        margin-left: 10px;
+    }
+}
+

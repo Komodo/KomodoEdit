@@ -1,0 +1,50 @@
+<!ENTITY viewGetStarted.desc "View Getting Started Dialog">
+<!ENTITY viewGetStarted.label "Getting Started">
+
+<!ENTITY getstarted.title "Getting Started">
+<!ENTITY showOnStart.label "Show this window when Komodo opens">
+<!ENTITY close.label "Close">
+<!ENTITY welcomeToKomodo.label "Welcome to Komodo">
+<!ENTITY more.label "More..">
+
+<!ENTITY getStartedHeader.label "Get Started">
+<!ENTITY createFile.label "Create a New File">
+<!ENTITY createFile.description "- just get right to it">
+<!ENTITY startFromTemplate.label "Start from a Template">
+<!ENTITY startFromTemplate.description "- skip past the repetitive code">
+<!ENTITY createProject.label "Create a New Project">
+<!ENTITY createProject.description "- with new or existing source">
+
+<!ENTITY watchScreencasts.label "Watch Screen Casts">
+<!ENTITY castOne.label "Komodo 8.5 Overview">
+<!ENTITY castOne.description "- see what's new in 8.5">
+<!ENTITY castOne.href "http://www.youtube.com/watch?v=h2Czga55gFw">
+<!ENTITY castTwo.label "Multiple Selections">
+<!ENTITY castTwo.description "- edit with multiple selections at once">
+<!ENTITY castTwo.href "http://www.youtube.com/watch?v=qEFAJ-vZTPQ">
+<!ENTITY castThree.label "Abyss Dark Skin">
+<!ENTITY castThree.description "- Komodo now comes with a dark skin">
+<!ENTITY castThree.href "http://www.youtube.com/watch?v=oaXfOE0LtUU">
+
+<!ENTITY installExt.label "Install Extensions">
+<!ENTITY extOne.label "New Source Tree">
+<!ENTITY extOne.description "- code browser / source tree pane">
+<!ENTITY extOne.href "http://community.activestate.com/xpi/nst-new-source-tree">
+<!ENTITY extTwo.label "Emmet">
+<!ENTITY extTwo.description "- rapidly create HTML content">
+<!ENTITY extTwo.href "http://community.activestate.com/xpi/zen-coding">
+<!ENTITY extThree.label "TODO">
+<!ENTITY extThree.description "- show todo markers in code">
+<!ENTITY extThree.href "http://community.activestate.com/xpi/todo-helper">
+
+<!ENTITY readDoc.label "You can also read the Komodo Documentation online.">
+
+<!ENTITY whatsNew.label "What's New">
+<!ENTITY whatsNew.description "Komodo 8.5 delivers major productivity-enhancing features along with an intuitive UI.">
+<!ENTITY readMore.label "Read More..">
+
+<!ENTITY needHelp.label "Need Help?">
+<!ENTITY needHelp.description "Got stuck and need some assistance? You can get in contact with us via the following channels.">
+<!ENTITY joinIrc.label "Join us on IRC">
+<!ENTITY readForums.label "Read our Forums">
+<!ENTITY reportBug.label "Report a Bug">

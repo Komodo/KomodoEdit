@@ -1,3 +1,4 @@
+override chrome://komodo/skin/modules.less chrome://gtk-elementary/skin/modules.less
 override chrome://komodo/skin/_config/window.less chrome://gtk-elementary/skin/_config/window.less
 override chrome://komodo/skin/_config/menus.less chrome://gtk-elementary/skin/_config/menus.less
 override chrome://komodo/skin/_config/toolbars.less chrome://gtk-elementary/skin/_config/toolbars.less

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2013 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <binding id="button-link" display="xul:button"
+    extends="chrome://komodo/content/bindings/buttons.xml#button-base">
+    <content>
+        <xul:label class="button-prefix" value="›"/>
+        <xul:label class="button-text" xbl:inherits="value=label,accesskey,crop,dragover-top"/>
+    </content>
+  </binding>
+
+</bindings>

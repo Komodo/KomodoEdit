@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % getstartedDTD SYSTEM "chrome://getstarted/locale/getstarted.dtd">
+  %getstartedDTD;
+]>
+
+<!-- Copyright (c) 2000-2013 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="less://getstarted/skin/dialog.less" type="text/css"?>
+
+<dialog id="get-started"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&getstarted.title;"
+        windowtype="komodo_run"
+        orient="vertical"
+        width="640"
+        height="480">
+
+    <script src="chrome://getstarted/content/js/dialog.js" type="application/x-javascript;version=1.7"/>
+
+    <vbox flex="1">
+        <hbox>
+            <vbox flex="1" id="content">
+                <label class="title" value="&welcomeToKomodo.label;"/>
+
+                <!-- GET STARTED -->
+                <label class="sub-header" id="getStarted" value="&getStartedHeader.label;"/>
+                <hbox>
+                    <button class="button-link list-item"
+                            label="&createFile.label;"
+                            oncommand="window.opener.ko.commands.doCommandAsync('cmd_new')"/>
+                    <description value="&createFile.description;" flex="1"/>
+                </hbox>
+                <hbox>
+                    <button class="button-link list-item"
+                            label="&startFromTemplate.label;"
+                            oncommand="window.opener.ko.commands.doCommandAsync('cmd_newTemplate')"/>
+                    <description value="&startFromTemplate.description;" flex="1"/>
+                </hbox>
+                <hbox>
+                    <button class="button-link list-item"
+                            label="&createProject.label;"
+                            oncommand="window.opener.ko.commands.doCommandAsync('cmd_newProject')"/>
+                    <description value="&createProject.description;" flex="1"/>
+                </hbox>
+
+                <!-- SCREEN CASTS -->
+                <label class="sub-header" id="watchScreenCasts" value="&watchScreencasts.label;"/>
+                <hbox>
+                    <button class="button-link list-item"
+                            label="&castOne.label;"
+                            href="&castOne.href;"/>
+                    <description value="&castOne.description;" flex="1"/>
+                </hbox>
+                <hbox>
+                    <button class="button-link list-item"
+                            label="&castTwo.label;"
+                            href="&castTwo.href;"/>
+                    <description value="&castTwo.description;" flex="1"/>
+                </hbox>
+                <hbox>
+                    <button class="button-link list-item"
+                            label="&castThree.label;"
+                            href="&castThree.href;"/>
+                    <description value="&castThree.description;" flex="1"/>
+                </hbox>
+                <hbox>
+                    <button class="button-link list-item"
+                            label="&more.label;"
+                            href="http://www.youtube.com/user/ActiveStateSoftware/videos" />
+                </hbox>
+
+                <!-- INSTALL EXTENSIONS -->
+                <label class="sub-header" id="installExt" value="&installExt.label;"/>
+                <hbox>
+                    <button class="button-link list-item"
+                            label="&extOne.label;"
+                            href="&extOne.href;"/>
+                    <description value="&extOne.description;" flex="1"/>
+                </hbox>
+                <hbox>
+                    <button class="button-link list-item"
+                            label="&extTwo.label;"
+                            href="&extTwo.href;"/>
+                    <description value="&extTwo.description;" flex="1"/>
+                </hbox>
+                <hbox>
+                    <button class="button-link list-item"
+                            label="&extThree.label;"
+                            href="&extThree.href;"/>
+                    <description value="&extThree.description;" flex="1"/>
+                </hbox>
+                <hbox>
+                    <button class="button-link list-item"
+                            label="&more.label;"
+                            href="http://community.activestate.com/addons"/>
+                </hbox>
+
+                <hbox id="docBox">
+                    <button class="button-link"
+                            label="&readDoc.label;"
+                            href="http://docs.activestate.com/komodo/"/>
+                </hbox>
+            </vbox>
+            <vbox id="pane">
+                <label class="sub-header" id="whatsNew" value="&whatsNew.label;"/>
+                <description>&whatsNew.description;</description>
+                <button class="button-link"
+                        label="&readMore.label;"
+                        href="http://www.activestate.com/komodo-ide/whats-new"/>
+
+                <label class="sub-header" id="needHelp" value="&needHelp.label;"/>
+                <description>&needHelp.description;</description>
+
+                <button class="button-link list-item"
+                        label="&joinIrc.label;"
+                        href="http://kiwiirc.com/client/irc.mozilla.org/komodo?nick=komodo_user"/>
+                <button class="button-link list-item"
+                        label="&readForums.label;"
+                        href="http://community.activestate.com/forums/komodo"/>
+                <button class="button-link list-item"
+                        label="&reportBug.label;"
+                        href="http://bugs.activestate.com/enter_bug.cgi?product=Komodo"/>
+            </vbox>
+        </hbox>
+        <statusbar class="bottombar">
+            <statusbarpanel flex="1">
+                <checkbox id="showGetStartedCheck" label="&showOnStart.label;" flex="1"/>
+                <button label="&close.label;" oncommand="window.close()"/>
+            </statusbarpanel>
+        </statusbar>
+    </vbox>
+
+</dialog>
