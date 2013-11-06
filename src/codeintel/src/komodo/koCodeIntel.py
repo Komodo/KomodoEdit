@@ -621,12 +621,20 @@ class KoCodeIntelManager(threading.Thread):
           .prefs\
           .prefObserverService\
           .addObserverForTopics(self, ["xmlCatalogPaths"], True)
-        self.observerSvc.addObserver(self, "quit-application", False)
+
+        # Ensure observer service is used on the main thread - bug 101543.
+        ProxyToMainThreadAsync(lambda:
+            self.observerSvc.addObserver(self, "quit-application", False))
 
     @LazyClassAttribute
     def observerSvc(self):
         return Cc["@mozilla.org/observer-service;1"]\
                 .getService(Ci.nsIObserverService)
+
+    @ProxyToMainThreadAsync
+    def notifyObservers(self, subject, topic, data):
+        """Observer calls must be called on the main thread"""
+        self.observerSvc.notifyObservers(subject, topic, data)
 
     @LazyClassAttribute
     def notificationMgr(self):
@@ -1137,8 +1145,7 @@ class KoCodeIntelManager(threading.Thread):
         path = response.get("path")
         buf = self.svc.buf_from_path(path)
         if path:
-            self.observerSvc.notifyObservers(buf, "codeintel_buffer_scanned",
-                                             path)
+            self.notifyObservers(buf, "codeintel_buffer_scanned", path)
 
     def do_report_message(self, response):
         """Report a message from codeintel (typically, scan status) unsolicited
@@ -1176,7 +1183,12 @@ class KoCodeIntelManager(threading.Thread):
                     self._notification.maxProgress = total
                 self._notification.iconURL = None # remove any markings
                 self._notification.timeout = 0
-        self._update_notification()
+
+        # Don't need to manually call addNotification/removeNotification, as
+        # the status_message handler (statusbar.js) will do that for us -
+        # bug 100077.
+        self.notifyObservers(self._notification, "status_message", None)
+
         self.debug("Report: %r", response)
 
     @LazyProperty
@@ -1189,18 +1201,6 @@ class KoCodeIntelManager(threading.Thread):
                                     Ci.koINotificationManager.TYPE_STATUS)
         n.log = True
         return n
-
-    @ProxyToMainThreadAsync
-    def _update_notification(self):
-        """The notification must be updated from the main thread"""
-        try:
-            # Don't need to manually call addNotification/removeNotification, as
-            # the status_message handler (statusbar.js) will do that for us -
-            # bug 100077.
-            self.observerSvc.notifyObservers(self._notification,
-                                             "status_message", None)
-        except COMException, ex:
-            pass
 
     def do_global_prefs_observe(self, response):
         """Add or remove global preference observers"""
