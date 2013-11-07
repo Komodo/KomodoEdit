@@ -193,12 +193,16 @@ class KoCommenterLanguageService:
                 if suffix:
                     scimoz.targetStart = endPos
                     scimoz.targetEnd = endPos
-                    scimoz.replaceTarget(len(suffix), suffix)
+                    # Bug 101506 - 'len' only a problem if suffix contains
+                    # high-bit characters, unlikely for a comment delimiter.
+                    scimoz.replaceTarget(suffix)
                     finalSelEnd += len(suffix)
                 if prefix:
                     scimoz.targetStart = startPos
                     scimoz.targetEnd = startPos
-                    scimoz.replaceTarget(len(prefix), prefix)
+                    # Bug 101506 - 'len' only a problem if prefix contains
+                    # high-bit characters, unlikely for a comment delimiter.
+                    scimoz.replaceTarget(prefix)
                     finalSelEnd += len(prefix)
         finally:
             scimoz.endUndoAction()
@@ -332,7 +336,7 @@ class KoCommenterLanguageService:
                 print "replacement length: naive=%r encoding-aware=%r"\
                       % (len(replacement),
                          self._sysUtilsSvc.byteLength(replacement))
-            scimoz.replaceTarget(len(replacement), replacement)
+            scimoz.replaceTarget(replacement)
 
             # restore the selection and cursor position
             if scimoz.selectionMode == scimoz.SC_SEL_LINES:
@@ -386,7 +390,7 @@ class KoCommenterLanguageService:
             # apply the commenting change
             scimoz.targetStart = startIndex
             scimoz.targetEnd = endIndex
-            scimoz.replaceTarget(len(replacement), replacement)
+            scimoz.replaceTarget(replacement)
 
             # restore the selection and cursor position
             scimoz.selectionStart = selStart + len(prefix)
@@ -517,7 +521,7 @@ class KoCommenterLanguageService:
             # apply the commenting change
             scimoz.targetStart = startIndex
             scimoz.targetEnd = workingEndIndex
-            scimoz.replaceTarget(len(replacement), replacement)
+            scimoz.replaceTarget(replacement)
             delta = len(replacement) - (workingEndIndex - startIndex)
 
             # restore the selection and cursor position
@@ -2794,7 +2798,7 @@ class KoLanguageBase:
                     # all white-space on our left, so replace it
                     scimoz.targetStart = start
                     scimoz.targetEnd = start + len(leadingWS.group(1))
-                    scimoz.replaceTarget(len(new_indent), new_indent)
+                    scimoz.replaceTarget(new_indent)
                     return None
         if default_indentation:
             return default_indentation
@@ -2914,7 +2918,7 @@ class KoLanguageBase:
                 # all white-space on our left, so replace it
                 scimoz.targetStart = start
                 scimoz.targetEnd = end
-                scimoz.replaceTarget(len(indent), indent)
+                scimoz.replaceTarget(indent)
 
     def _softchar_accept_match_outside_strings(self, scimoz, pos, style_info, candidate):
         """
