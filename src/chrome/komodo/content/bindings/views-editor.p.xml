@@ -106,12 +106,14 @@
 
         <method name="_requestLinting">
         <parameter name="reason"/>
+        <body>
         <![CDATA[
             if (this.lintBuffer) {
                 this.lintBuffer.request(reason);
                 this._everLinted = true;
             }
         ]]>
+        </body>
         </method>
 
         <field name="_view_pref_observer_topics">
