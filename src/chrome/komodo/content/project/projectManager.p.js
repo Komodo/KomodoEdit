@@ -298,13 +298,16 @@ projectManager.prototype.closeProjectEvenIfDirty = function(project) {
     project.close();
     
     ko.mru.addURL("mruProjectList", project.url);
-    if (this._projects.length == 0) {
+    if (!ko.main.windowIsClosing) {
+        // bug 101553: don't do this when shutting down
+        if (this._projects.length == 0) {
+            window.updateCommands('some_projects_open');
+        }
+        if (this.viewMgr) {
+            this.viewMgr.refresh(project);
+        }
         window.updateCommands('some_projects_open');
     }
-    if (this.viewMgr) {
-        this.viewMgr.refresh(project);
-    }
-    window.updateCommands('some_projects_open');
     return true;
 }
 
