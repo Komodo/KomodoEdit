@@ -8,6 +8,13 @@ const {TestCase, TestError, SkipTest} =
 
 var log = null;
 
+try {
+    let logging = Cu.import("chrome://komodo/content/library/logging.js", {}).logging;
+    log = logging.getLogger("jstest.driver");
+} catch(e) {
+    log = null;
+}
+
 /**
  * Komodo JS Test Service - this is a thunk between the Python unittest
  * framework and simple JS-based tests; see /test/jstest/Readme.txt
@@ -33,6 +40,11 @@ KoJSTestService.prototype.getTestsForPath = function KoJSTestService_getTestsFor
             for each (let className in scope.JS_TESTS) {
                 found_suspects = true;
                 let clazz = scope[className];
+                if (!clazz) {
+                    dump('WARNING: in "' + aPath + '", class ' + className +
+                         ' could not be found.\n');
+                    continue;
+                }
                 let proto = clazz.prototype;
                 while (proto && proto !== TestCase.prototype) {
                     proto = Object.getPrototypeOf(proto);
@@ -52,7 +64,12 @@ KoJSTestService.prototype.getTestsForPath = function KoJSTestService_getTestsFor
             dump('WARNING: in "' + aPath + '": no JS_TESTS array found; ignored.\n');
         }
     } catch (ex) {
-        // nothing - we just assume no tests here
+        if (log) {
+            log.exception(ex);
+        } else {
+            dump('WARNING: Failed to load tests from "' +
+                 aPath + '": ' + ex);
+        }
     }
     aCount.value = testcases.length;
     return testcases;
@@ -159,10 +176,6 @@ KoJSTestCase.prototype.tearDown = function KoJSTestCase_tearDown(aResult) {
         Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService).getMessageArray(messages, {});
         if (!messages.value) {
             return;
-        }
-        if (!log) {
-            let logging = Cu.import("chrome://komodo/content/library/logging.js", {}).logging;
-            log = logging.getLogger("jstest.driver");
         }
         for each (let message in messages.value) {
             if (message instanceof Ci.nsIScriptError) {
