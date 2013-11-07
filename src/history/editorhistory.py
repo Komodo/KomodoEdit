@@ -196,8 +196,17 @@ class Database(object):
                 self.upgrade()
             except Exception, ex:
                 log.exception("error upgrading `%s': %s", self.path, ex)
-                self.reset()
-        self._read_db_from_disk()
+                self.reset(backup=False)
+        try:
+            self._read_db_from_disk()
+        except sqlite3.DatabaseError:
+            # Bug 101551: recover from a corrupted database
+            try:
+                self.reset(backup=False)
+                self._read_db_from_disk()
+            except:
+                log.error("History is broken: please delete <profile>/history.sqlite and restart")
+                return
         if update_version:
             self.set_meta("version", self.VERSION)
 
