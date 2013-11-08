@@ -342,6 +342,8 @@ def outline_ci_elem(elem, _lvl=0, brief=False, doSort=False, includeLineNos=Fals
         if alias:
             value +" as %r" % (alias, )
         _dump(value)
+    elif elem.tag == "caller":
+        pass
     else:
         raise ValueError("unknown tag: %r (%r)" % (elem.tag, elem))
 
