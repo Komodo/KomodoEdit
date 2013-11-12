@@ -915,6 +915,20 @@ treechildren::-moz-tree-image(remotefile)
     list-style-image: @icon-close;
 }
 
+/* Bug #100021 */
+#statusbar-message-wrap button.close-button
+{
+    image
+    {
+        margin: 0;
+    }
+
+    label
+    {
+        visibility: collapse;
+    }
+}
+
 .tab-arrowscrollbox
 {
     .scrollbutton-up
