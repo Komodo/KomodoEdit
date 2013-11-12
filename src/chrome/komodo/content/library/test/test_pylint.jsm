@@ -544,7 +544,7 @@ severity:2}
     this.assertTrue(this.finalResult);
 };
 
-
+// this.reportResults is called by lintSvc
 TestPylint.prototype.reportResults = function reportResults(request) {
     var results = request.results;
     var numTestsRun = 0;

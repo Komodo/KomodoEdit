@@ -423,7 +423,7 @@ TestPerlLint.prototype.test_no_begin_in_linting = function test_no_begin_in_lint
     this.fileSvc.deleteTempFile(textFile, true);
 };
 
-
+// this.reportResults is called by lintSvc
 TestPerlLint.prototype.reportResults = function reportResults(request) {
     if (!this.expectedMessages || !this.expectedMessages.length) {
         return;
