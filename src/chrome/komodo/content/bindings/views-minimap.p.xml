@@ -129,6 +129,12 @@
         // fold points, and sync the minimap's with the editor's.
         var vs = this.view.scimoz;
         var msz = this.scimoz;
+
+        // If both don't have any code folded, just return.
+        if (vs.allLinesVisible && msz.allLinesVisible) {
+            return;
+        }
+
         var vsNextFoldLine = 0, msNextFoldLine = 0;
         // Special case the first line
         if (vs.getFoldExpanded(0) !== msz.getFoldExpanded(0)) {
