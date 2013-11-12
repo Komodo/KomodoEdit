@@ -199,10 +199,12 @@ class koDocumentSettingsManager:
         if prefs.hasLongPref('firstVisibleLine'):
             scimoz.lineScroll(0, prefs.getLongPref('firstVisibleLine'))
 
-        if prefs.hasLongPref('scrollWidth'):
-            scimoz.scrollWidth = prefs.getLongPref("scrollWidth")
-        else:
-            log.warn('should set default scroll width?')
+        # scrollWidth is disabled on OS X - see bug 88586.
+        if sys.platform != "darwin":
+            if prefs.hasLongPref('scrollWidth'):
+                scimoz.scrollWidth = prefs.getLongPref("scrollWidth")
+            else:
+                log.warn('should set default scroll width?')
 
         if prefs.getBooleanPref('scrollWidthTracking'):
             scimoz.scrollWidthTracking = prefs.getBooleanPref("scrollWidthTracking")
@@ -253,7 +255,11 @@ class koDocumentSettingsManager:
         scimoz = scintilla.scimoz
         prefs.setLongPref('anchor', scimoz.anchor)
         prefs.setLongPref('currentPos', scimoz.currentPos)
-        prefs.setLongPref("scrollWidth", scimoz.scrollWidth)
+
+        # scrollWidth is disabled on OS X - see bug 88586.
+        if sys.platform != "darwin":
+            prefs.setLongPref("scrollWidth", scimoz.scrollWidth)
+
         prefs.setBooleanPref("scrollWidthTracking", scimoz.scrollWidthTracking)
         prefs.setLongPref('xOffset', scimoz.xOffset)
         prefs.setLongPref('firstVisibleLine', scimoz.firstVisibleLine)

@@ -79,6 +79,11 @@
     function OnPreferencePageLoading() {
         updateDoNotAskWidgets();
         g_originalNetworkFileCheckValue = document.getElementById("checkNetworkDiskFile").checked;
+
+        if (navigator.platform.startsWith("Mac")) {
+            // scrollWidth is disabled on OS X - see bug 88586.
+            document.getElementById("scrollWidthBox").collapsed = true;
+        }
     }
 
     function OnPreferencePageOK() {
@@ -275,7 +280,8 @@
                             prefstring="ySlop"
                             prefattribute="value"/>
             </hbox>
-            <hbox align="center"
+            <hbox id="scrollWidthBox"
+                  align="center"
                   class="load-context-check" showIfLoadContext="global">
                 <label value="&horizScrollWidth.label;"/>
                 <textbox id="scrollWidth"
