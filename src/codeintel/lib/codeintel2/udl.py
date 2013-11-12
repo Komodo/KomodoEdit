@@ -477,7 +477,7 @@ class UDLBuffer(CitadelBuffer):
         return self.__number_styles
 
 
-class XMLParsingBufferMixin(object):
+class XMLParsingBufferMixin(CitadelBuffer):
     """A mixin for UDLBuffer-based buffers of XML-y/HTML-y languages to
     support the following:
 
@@ -491,6 +491,14 @@ class XMLParsingBufferMixin(object):
         super(XMLParsingBufferMixin, self).__init__(*args, **kwargs)
         self.env.add_pref_observer("default%sDecl" % self.m_lang,
                                    self.__on_pref_change)
+
+    def scan(self, mtime=None, skip_scan_time_check=False):
+        """Rescan the buffer.
+        In the XML parsing buffer's case, we should do whatever the normal
+        thing is, plus force a reparse of the XML.
+        """
+        super(XMLParsingBufferMixin, self).scan(mtime, skip_scan_time_check)
+        self.xml_parse() # force reparse of XML
 
     _xml_tree_cache = None
     _xml_default_dataset_info = None
