@@ -124,7 +124,7 @@
                         href="http://community.activestate.com/forums/komodo"/>
                 <button class="button-link list-item"
                         label="&reportBug.label;"
-                        href="http://bugs.activestate.com/enter_bug.cgi?product=Komodo"/>
+                        oncommand="ko.browse.browseTag('bugs')"/>
             </vbox>
         </hbox>
         <statusbar class="bottombar">

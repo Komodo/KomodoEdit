@@ -34,6 +34,15 @@ document.addEventListener('DOMContentLoaded', function()
         ko.prefs.setBooleanPref('show-getstarted', showGetStarted);
     });
 
+    // Close dialog when escape key is pressed
+    document.addEventListener("keyup", function(e)
+    {
+        if (e.keyCode==27) // Escape key
+        {
+            window.close();
+        }
+    });
+
 });
 
 (function()
