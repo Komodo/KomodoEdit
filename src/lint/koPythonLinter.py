@@ -150,7 +150,8 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
         """
         cmd = [pythonExe, '-c', 'import sys; from pylint.lint import Run; Run(["--version"])']
         try:
-            p = process.ProcessOpen(cmd, stdin=None)
+            env = koprocessutils.getUserEnv()
+            p = process.ProcessOpen(cmd, env=env, stdin=None)
             stdout, stderr = p.communicate()
             versionInfo = re.compile(r'^.*?\s+(\d+)\.(\d+)\.(\d+)').match(stdout)
             if versionInfo:
@@ -165,7 +166,7 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
             # Fallback:
             self._pylint_version = 1
         
-    invalidModuleName_RE = re.compile(r'(C0103.*?Invalid name ")(.+?)(" \(should match )(.*)(\))')
+    invalidModuleName_RE = re.compile(r'(Invalid\s+module\s+name\s+")(\#.+?)(")')
     _disables_C0301_re = re.compile(r'\s*disable\s*=.*?\bC0301\b')
     _max_line_length_re = re.compile(r'\s*max-line-length')
     def lint_with_text(self, request, text):
@@ -247,7 +248,6 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
             os.unlink(tmpfilename)
         ptn = re.compile(r'^([A-Z])(\d+):\s*(\d+)(?:,\d+)?:\s*(.*)')
         # dependency: _localTmpFileName() prepends a '#' on the basename
-        #invalid_name_ptn = pe.compile(r'C0103:\s*[\d:,]+\s*Invalid name "#.+?"')
         results = koLintResults()
         for line in warnLines:
             m = ptn.match(line)
@@ -255,28 +255,25 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
                 status = m.group(1)
                 statusCode = m.group(2)
                 lineNo = int(m.group(3))
-                desc = "pylint: %s%s %s" % (status, statusCode,
-                                                          m.group(4))
+                message = m.group(4)
+                desc = "pylint: %s%s %s" % (status, statusCode, message)
                 if status in ("E", "F"):
                     severity = koLintResult.SEV_ERROR
                 elif status in ("C", "R", "W"):
                     if statusCode == "0103":
                         # Don't let pylint complain about the tempname, but fake
                         # a check on the actual module name.
-                        m = self.invalidModuleName_RE.match(line)
-                        if m:
-                            complainedName = m.group(2)
-                            if complainedName != tmpBaseName:
+                        m2 = self.invalidModuleName_RE.match(message)
+                        if m2:
+                            complainedName = m2.group(2)
+                            if complainedName == tmpBaseName:
                                 # Not a real complaint
                                 continue
-                            shouldMatch_RE = self._createShouldMatchPtn(m.group(4))
-                            koFile = request.koDoc.file
-                            actualBaseName = koFile.baseName[:-len(koFile.ext)]
-                            if shouldMatch_RE.match(actualBaseName):
-                                # The current file is actually valid
-                                continue
-                            # Fix the description
-                            desc = "pylint: " + m.group(1) + actualBaseName + m.group(3) + m.group(4) + m.group(5)
+                            # Don't bother further analysis, in case pylint
+                            # behaves differently between python2 and python3
+                            #
+                            # If the message is about a bad module that isn't
+                            # the temporary module, let it ride as is
                     severity = koLintResult.SEV_WARNING
                 else:
                     #log.debug("Skip %s", line)
