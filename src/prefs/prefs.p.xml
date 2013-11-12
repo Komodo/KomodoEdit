@@ -5,7 +5,7 @@
   <!-- This version field is used by Komodo to upgrade preferences.
        The value should be kept in sync with "../components/koInitService.p.py"
   -->
-  <long id="version">7</long>
+  <long id="version">9</long>
 
   <boolean id="startupMaximized">0</boolean>
   <boolean id="startupFullScreen">0</boolean>
@@ -145,16 +145,17 @@
   functions, including code-colorizing, are dropped.
 
   The reason for the high first value is that long lines are
-  costlier than long documents.  The 20000 line-limit is
-  probably to low.
+  costlier than long documents.  2013-11: Increase limits to
+  2MB / 40K lines / 100K max line-length due to fixing bug 101267
+  probably too low.
 
   Also, Komodo estimates that colorizing UDL-based documents
   takes about twice as long as languages with C++-based lexers,
   and adjusts the limits by 50% downward.
   -->
-  <long id="documentByteCountThreshold">1000000</long> <!-- 1 MB -->
-  <long id="documentLineCountThreshold">20000</long> <!-- 800 KB -->
-  <long id="documentLineLengthThreshold">32000</long>
+  <long id="documentByteCountThreshold">2000000</long> <!-- 2 MB -->
+  <long id="documentLineCountThreshold">40000</long> <!-- 40K * 40c/line => 1.6 MB -->
+  <long id="documentLineLengthThreshold">100000</long><!-- 100K -->
   <boolean id="donotask_treat_large_documents_as_text">0</boolean>
 
 
