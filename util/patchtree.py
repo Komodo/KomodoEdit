@@ -359,7 +359,7 @@ def _determinePatchesFromDirectory(base, actions, config):
             if expected_patch_names ^ actual_patch_names:
                 missing = sorted(actual_patch_names - expected_patch_names)
                 extra = sorted(expected_patch_names - actual_patch_names)
-                msg = ["Series file does list patches actually available:"]
+                msg = ["Series file doesn't match patches actually available:"]
                 if missing:
                     msg.append("\tPatch files not found: " + ", ".join(missing))
                 if extra:
