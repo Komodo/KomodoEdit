@@ -127,6 +127,10 @@ html_no_close_tags = set([
     "basefont", "br", "area", "link", "img", "param", "hr", "input",
     "col", "frame", "isindex", "base", "meta"
 ])
+html5_no_close_tags = html_no_close_tags.union([
+    "command", "output", "figcaption", "audio", "source", "video",
+    "embed", "canvas", "keygen", "meter",
+])
 # defined in dtd as ELEMENT NAME - O *
 html_optional_close_tags = set([
     "p", "dt", "dd", "li", "option", "thead", "tfoot", "colgroup",
