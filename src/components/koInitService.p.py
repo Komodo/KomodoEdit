@@ -888,6 +888,16 @@ class KoInitService(object):
             prefs.deletePref("koSkin_custom_icons")
             prefs.deletePref("runtime_manifests")
 
+        if version < 9: # Komodo 8.5.3: new large-doc settings
+            # Update the threshold prefs only if they're the same as the
+            # old stock prefs
+            if (prefs.getLong("documentByteCountThreshold") == 1000000
+                    and prefs.getLong("documentLineCountThreshold") == 20000
+                    and prefs.getLong("documentLineLengthThreshold") == 32000):
+                prefs.setLongPref("documentByteCountThreshold", 2000000)
+                prefs.setLongPref("documentLineCountThreshold", 40000)
+                prefs.setLongPref("documentLineLengthThreshold", 100000)
+
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)
 
