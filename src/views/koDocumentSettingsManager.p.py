@@ -34,6 +34,8 @@
 # 
 # ***** END LICENSE BLOCK *****
 
+import sys
+
 from xpcom import components, COMException, ServerException
 from xpcom.server import UnwrapObject
 import logging
