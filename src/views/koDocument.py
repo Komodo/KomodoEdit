@@ -1194,7 +1194,8 @@ class koDocumentBase:
         make_dirty = 0
         try:
             if (self.encoding.python_encoding_name == encoding.python_encoding_name and
-                self.encoding.use_byte_order_marker == encoding.use_byte_order_marker):
+                    self.encoding.use_byte_order_marker == encoding.use_byte_order_marker and
+                    self.prefs.getString("encoding") == self.encoding.python_encoding_name):
                 # no change necessary
                 return
     
@@ -1240,20 +1241,11 @@ class koDocumentBase:
                         both8bit = not oldIsUTF and not newIsUTF
                         make_dirty = not both8bit
                         try:
-                            from koUnicodeEncoding import recode_unicode
-                            unicodeBuffer = recode_unicode(buffer,
-                                                self.encoding.python_encoding_name,
-                                                encoding.python_encoding_name,
-                                                errors)
+                            unicodeBuffer = self._encodeBuffer(encoding, errors)
                         except (UnicodeError, COMException), ex:
-                            errmsg = ("Unable to convert '%s' from '%s' to '%s'.  "
-                                      "This encoding cannot represent all "
-                                      "characters in the current buffer."
-                                      % (self.get_baseName(),
-                                         self.encoding.python_encoding_name,
-                                         encoding.python_encoding_name))
-                            self.lastErrorSvc.setLastError(1, errmsg)
+                            # _encodeBuffer created lastErrorMessage
                             lastErrorSet = 1
+                            errmsg = self.lastErrorSvc.getLastErrorMessage()
                             raise ServerException(nsError.NS_ERROR_FAILURE, errmsg)
                         updateBuffer = unicodeBuffer != buffer
 
@@ -1290,7 +1282,61 @@ class koDocumentBase:
                 log.exception(errmsg)
                 self.lastErrorSvc.setLastError(errno, errmsg)
             raise
-    
+
+    def canBeEncodedWithEncoding(self, encoding):
+        """See if the current buffer can be converted with the given encoding.
+        
+           @param {koIEncoding} encoding
+
+           @returns True if it can be encoded, False if not.  And if it returns
+            False, it also sets the last error code:
+               nsError.NS_ERROR_FAILURE if the value can't be encoded
+               nsError.NS_ERROR_UNEXPECTED on an unexpected exception
+        """
+        try:
+            self._encodeBuffer(encoding)
+            return True
+        except (UnicodeError, COMException):
+            # Error message has been created, return False
+            pass
+        except Exception, e:
+            self.lastErrorSvc.setLastError(nsError.NS_ERROR_UNEXPECTED, e.message)
+        return False
+
+    def _encodeBuffer(self, encoding, errors="strict"):
+        """ Apply the proposed encoding to the current buffer's text,
+            and return the result.
+
+            On failure, catch UnicodeError and COMException exceptions,
+            and create an error message clients can access to explain
+            what went wrong.
+        
+           @param {koIEncoding} encoding
+           @param {string} errors
+
+           @returns {string}
+               sets the last error message to nsError.NS_ERROR_FAILURE if the value can't be encoded
+               and rethrows the exception.
+
+               Other exceptions are uncaught, and need to be caught by callers.
+        """
+        from koUnicodeEncoding import recode_unicode
+        try:
+            return recode_unicode(self.get_buffer(),
+                                  self.encoding.python_encoding_name,
+                                  encoding.python_encoding_name,
+                                  errors)
+        except (UnicodeError, COMException), e:
+            # The caller might need an explanation of why this method failed
+            errmsg = ("Unable to convert '%s' from '%s' to '%s'.  "
+                      "This encoding cannot represent all "
+                      "characters in the current buffer."
+                      % (self.get_baseName(),
+                         self.encoding.python_encoding_name,
+                         encoding.python_encoding_name))
+            self.lastErrorSvc.setLastError(nsError.NS_ERROR_FAILURE, errmsg)
+            raise
+        
     def _getEncodedBufferText(self, encoding_name=None, mode='strict'):
         """Get the buffer text encoded in a particular encoding, by
         default the current configured encoding.

@@ -985,7 +985,7 @@ this.changeEncoding = function(menuitem)
                                getService(Components.interfaces.koILastErrorService);
             var errno = lastErrorSvc.getLastErrorCode();
             var errmsg = lastErrorSvc.getLastErrorMessage();
-            if (errno == 0) {
+            if (errno == Components.results.NS_ERROR_UNEXPECTED) {
                 // koDocument.set_encoding() says this is an internal error
                 err = _file_pref_bundle.formatStringFromName("internalErrorSettingTheEncoding.message",
                         [view.koDoc.displayPath, encodingName], 2);

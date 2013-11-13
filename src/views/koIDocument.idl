@@ -154,6 +154,18 @@ interface koIDocument : nsISupports
     readonly attribute boolean isEncodable; // true if the file can be encoded using it's current encoding settings
     void setEncodingFromEncodingName(in string encoding_name);
     void forceEncodingFromEncodingName(in string encoding_name);
+
+  /**
+   * @param encoding - the proposed encoding to use, wrapped in a koIEncoding
+   *
+   * @returns boolean
+   *
+   *    If it returns false, it sets the singleton LastErrorMsg:
+   *      nsError.NS_ERROR_FAILURE if the value can't be encoded
+   *      nsError.NS_ERROR_UNEXPECTED on an unexpected exception
+   */
+    boolean canBeEncodedWithEncoding(in koIEncoding encoding);
+  
     // encodedText must be an 8bit string as it is the byte representation of a file
     // that is only used for saving a buffer (see autoSave)
     readonly attribute ACString encodedText;
