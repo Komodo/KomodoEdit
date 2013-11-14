@@ -2299,21 +2299,29 @@
           });
         }
 
-        this.contentWindow.addEventListener("load", function() {
+        let setOrientCallback = event => {
           try {
-            let pageElem = this.contentWindow.document.getElementsByTagName("page")[0];
-            pageElem.classList.add("widget");
-
-            if (this.containerPane.hasAttribute("orient")) {
+            event.target.removeEventListener(event.type, setOrientCallback);
+            // In some cases, the content window would have already been moved
+            // from this widget (into another one); so, we need to avoid
+            // referring to |this|, but use window.frameElement instead.
+            let widget = event.target.defaultView.frameElement;
+            let docElem = event.target.documentElement;
+            docElem.classList.add("widget");
+            if (widget.containerPane.hasAttribute("orient")) {
               /* We can't set the "orient" attribute as it screws up styling */
-              pageElem.setAttribute("containerOrient", this.containerPane.getAttribute("orient"));
+              docElem.setAttribute("containerOrient",
+                                   widget.containerPane.getAttribute("orient"));
             }
           } catch (e) {
             let log = win.ko.logging.getLogger("ko.widgets");
-            log.warn("Widget might not have a page element: " + this.contentWindow.location.href);
+            log.exception(e,
+                          "Failed to set widget CSS class: " +
+                            event.target.location.href);
           }
-
-        }.bind(this));
+        };
+        this.contentWindow.addEventListener("DOMContentLoaded",
+                                            setOrientCallback);
       ]]></handler>
     </handlers>
   </binding>
