@@ -1667,37 +1667,35 @@
         <parameter name="updated"/>
         <body>
         <![CDATA[
-      this.in_updateui = true;
-      try {
-        //TODO: Minimap pref
-        //dump(">> views-editor.p.xml: onUpdateUI\n");
-        // If any of the callbacks make scintilla calls that trigger
-	// other update-events, they will be run at a later time.
-	var callbacks = this._updateUICallbacks;
-        this._updateUICallbacks = [];
-        callbacks.forEach(function(cb) {
-	    try {
-		cb();
-	    } catch(ex) {
-		log.exception(ex, "Error invoking a _updateUICallback");
-	    }
-	});
-        if (this.minimap && this.showMinimap && !this.minimap.in_updateui) {
-            var firstDocLine, lastDocLineOnScreen;
-            [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
-            var updateMinimap = this._needsUpdate(firstDocLine, lastDocLineOnScreen);
-            if (updateMinimap) {
-                this.minimap.syncMinimapFromBuffer();
-                this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
-                this.minimap.updateEditorViewBoundaries();
+            this.in_updateui = true;
+            try {
+                //TODO: Minimap pref
+                //dump(">> views-editor.p.xml: onUpdateUI\n");
+                // If any of the callbacks make scintilla calls that trigger
+                // other update-events, they will be run at a later time.
+                var callbacks = this._updateUICallbacks;
+                this._updateUICallbacks = [];
+                callbacks.forEach(function(cb) {
+                    try {
+                        cb();
+                    } catch(ex) {
+                        log.exception(ex, "Error invoking a _updateUICallback");
+                    }
+                });
+                if (this.minimap && this.showMinimap && !this.minimap.in_updateui) {
+                    var firstDocLine, lastDocLineOnScreen;
+                    [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
+                    var updateMinimap = this._needsUpdate(firstDocLine, lastDocLineOnScreen);
+                    if (updateMinimap) {
+                        this.minimap.syncMinimapFromBuffer();
+                        this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
+                        this.minimap.updateEditorViewBoundaries();
+                    }
+                }
+                return this.__proto__.__proto__.onUpdateUI.call(this, updated);
+            } finally {
+                this.in_updateui = false;
             }
-        }
-        return this.__proto__.__proto__.onUpdateUI.call(this, updated);
-      } finally {
-        this.in_updateui = false;
-      }
-
-        //return this.onUpdateUI_2();
         ]]>
         </body>
         </method>

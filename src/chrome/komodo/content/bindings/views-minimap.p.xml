@@ -255,41 +255,41 @@
         <parameter name="reason"/>
         <body>
         <![CDATA[
-        this.in_updateui = true;
-        try {
-            if (this.view.in_updateui) {
-                // Ignore calls whilst the editor is updating, as it already
-                // makes calls to the minimap, to keep the minimap accurate.
-                // Bug 100956.
-                return;
-            }
-            if ((reason & this.scimoz.SC_UPDATE_V_SCROLL) == 0) {
-                return;
-            }
-            var now = new Date().valueOf();
-            if (now - this.ignoreUpdateUIStartTime < this.ignoreUpdateUIPeriod) {
+            this.in_updateui = true;
+            try {
+                if (this.view.in_updateui) {
+                    // Ignore calls whilst the editor is updating, as it already
+                    // makes calls to the minimap, to keep the minimap accurate.
+                    // Bug 100956.
+                    return;
+                }
+                if ((reason & this.scimoz.SC_UPDATE_V_SCROLL) == 0) {
+                    return;
+                }
+                var now = new Date().valueOf();
+                if (now - this.ignoreUpdateUIStartTime < this.ignoreUpdateUIPeriod) {
+                    this.updateEditorViewBoundaries();
+                    //dump("In ignore period\n");
+                    return;
+                }
+                
+                var firstDocLine, lastDocLineOnScreen;
+                [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
+                var updateMinimap = (this.firstDocLine !== firstDocLine
+                                     || this.lastDocLine !== lastDocLineOnScreen);
+                if (!updateMinimap) {
+                    //dump("<< mm:onUpdateUI: lines haven't changed\n")
+                    return;
+                }
+    
+                this.view.syncBufferFromMinimap(this);
+                this.updateSelectionFromEditor();
                 this.updateEditorViewBoundaries();
-                //dump("In ignore period\n");
-                return;
+                this.view.updateEditorViewBoundaries();
+                this.scimoz.dragPosition = -1;
+            } finally {
+                this.in_updateui = false;
             }
-            
-            var firstDocLine, lastDocLineOnScreen;
-            [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
-            var updateMinimap = (this.firstDocLine !== firstDocLine
-                                 || this.lastDocLine !== lastDocLineOnScreen);
-            if (!updateMinimap) {
-                //dump("<< mm:onUpdateUI: lines haven't changed\n")
-                return;
-            }
-
-            this.view.syncBufferFromMinimap(this);
-            this.updateSelectionFromEditor();
-            this.updateEditorViewBoundaries();
-            this.view.updateEditorViewBoundaries();
-            this.scimoz.dragPosition = -1;
-      } finally {
-        this.in_updateui = false;
-      }
         ]]>
         </body>
         </method>
