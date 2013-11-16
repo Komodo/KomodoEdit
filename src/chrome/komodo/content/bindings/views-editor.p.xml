@@ -1660,10 +1660,15 @@
         </body>
         </method>
         
+        <!-- Set to true when the editor is handling the onUpdateUI() call. -->
+        <field name="in_updateui">false</field>
+
         <method name="onUpdateUI">
         <parameter name="updated"/>
         <body>
         <![CDATA[
+      this.in_updateui = true;
+      try {
         //TODO: Minimap pref
         //dump(">> views-editor.p.xml: onUpdateUI\n");
         // If any of the callbacks make scintilla calls that trigger
@@ -1677,7 +1682,7 @@
 		log.exception(ex, "Error invoking a _updateUICallback");
 	    }
 	});
-        if (this.minimap && this.showMinimap) {
+        if (this.minimap && this.showMinimap && !this.minimap.in_updateui) {
             var firstDocLine, lastDocLineOnScreen;
             [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
             var updateMinimap = this._needsUpdate(firstDocLine, lastDocLineOnScreen);
@@ -1688,6 +1693,9 @@
             }
         }
         return this.__proto__.__proto__.onUpdateUI.call(this, updated);
+      } finally {
+        this.in_updateui = false;
+      }
 
         //return this.onUpdateUI_2();
         ]]>

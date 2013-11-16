@@ -248,10 +248,21 @@
         <!-- wait 500 msec after handling a click before responding to UI updates -->
         <field name="ignoreUpdateUIPeriod">500</field> 
 
+        <!-- Set to true when the minimap is handling the onUpdateUI() call. -->
+        <field name="in_updateui">false</field>
+
         <method name="onUpdateUI">
         <parameter name="reason"/>
         <body>
         <![CDATA[
+        this.in_updateui = true;
+        try {
+            if (this.view.in_updateui) {
+                // Ignore calls whilst the editor is updating, as it already
+                // makes calls to the minimap, to keep the minimap accurate.
+                // Bug 100956.
+                return;
+            }
             if ((reason & this.scimoz.SC_UPDATE_V_SCROLL) == 0) {
                 return;
             }
@@ -276,6 +287,9 @@
             this.updateEditorViewBoundaries();
             this.view.updateEditorViewBoundaries();
             this.scimoz.dragPosition = -1;
+      } finally {
+        this.in_updateui = false;
+      }
         ]]>
         </body>
         </method>
