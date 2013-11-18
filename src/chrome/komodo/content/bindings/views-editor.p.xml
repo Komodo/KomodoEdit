@@ -482,7 +482,6 @@
             scimoz.startStyling(0, 0x3f);
             scimoz.setStyling(scimoz.length, 0);
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
-            this.updateMinimapFromViewFoldpoints();
             scimoz.tabWidth = scimoz.tabWidth;
         ]]>
         </body>
@@ -667,7 +666,6 @@
                     }
                     xtk.domutils.fireEvent(this, 'current_view_language_changed');
                     this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
-                    this.updateMinimapFromViewFoldpoints();
 
                     // The change in language may affect controllers
                     window.setTimeout("window.updateCommands('language_changed');", 1);
@@ -769,7 +767,6 @@
                     this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
                     var stylingPos = this.scimoz.endStyled;
                     scimoz.colourise(0, -1);
-                    this.updateMinimapFromViewFoldpoints();
                 }
                 // This forces a repaint.
                 scimoz.tabWidth = scimoz.tabWidth;
@@ -808,8 +805,6 @@
             minimap.classList.remove("hideMinimap");
             var obj = {};
             this.updateEditorViewBoundaries();
-            
-            this.updateMinimapFromViewFoldpoints();
             minimap.syncMinimapFromBuffer();
         } else {
             minimap.classList.add("hideMinimap");
@@ -1505,8 +1500,6 @@
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
             if (oldDocLanguage == newdocument.language) {
                 this.restoreFoldedLines(locationInfo);
-            } else {
-                this.updateMinimapFromViewFoldpoints();
             }
             this.restoreLocation(locationInfo);
             window.updateCommands('previewability_changed');
@@ -1519,34 +1512,6 @@
             this.log.exception(ex, "Error in editor view .saveAs()");
         }
         return false;
-        ]]>
-        </body>
-        </method>
-
-        <method name="updateMinimapFromViewFoldpoints">
-        <parameter name="" />
-        <body>
-        <![CDATA[
-        var minimap = this.minimap;
-        if (!minimap || !this.showMinimap) {
-            return;
-        }
-        // Make sure the fold points of both buffers are in sync.
-        var vs = this.scimoz;
-        var mms = minimap.scimoz;
-        var numLines = vs.lineCount;
-        var madeChange = false;
-        for (var i = numLines - 1; i >= 0; i--) {
-            if ((vs.getFoldLevel(i) & vs.SC_FOLDLEVELHEADERFLAG)
-                && (vs.getFoldExpanded(i) !== mms.getFoldExpanded(i))) {
-                //dump("Toggle minimap line :" + i + "\n");
-                mms.toggleFold(i);
-                madeChange = true;
-            }
-        }
-        if (madeChange) {
-            minimap.syncMinimapFromBuffer();
-        }
         ]]>
         </body>
         </method>
@@ -1586,7 +1551,6 @@
                             scimoz.toggleFold(i);
                         }
                     });
-                    this.updateMinimapFromViewFoldpoints();
             }.bind(this), 1, this.scimoz);
         ]]>
         </body>
