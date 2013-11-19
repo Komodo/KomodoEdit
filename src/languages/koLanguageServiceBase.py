@@ -129,7 +129,14 @@ class KoLexerLanguageService:
             scimoz.setProperty(prop, self._properties[prop])
 
 #---- base commenting language service classes
+
+##
+# @deprecated since Komodo 9.0
+#
 def getActualStyle(scimoz, pos):
+    import warnings
+    warnings.warn("getActualStyle is deprecated, use scimoz.getStyleAt(pos) instead",
+                  category=DeprecationWarning)
     styleMask = (1 << scimoz.styleBits) - 1
     return scimoz.getStyleAt(pos) & styleMask
 
@@ -2001,8 +2008,8 @@ class KoLanguageBase:
     def _findCommentStart(self, scimoz, curLine, lineStartPos, lineEndPos, commentStartMarkerList, style_info):
         commentStyles = style_info._comment_styles
         for pos in range(lineStartPos, lineEndPos):
-            if getActualStyle(scimoz, pos) in commentStyles and \
-               (pos == 0 or getActualStyle(scimoz, pos - 1) not in commentStyles):
+            if scimoz.getStyleAt(pos) in commentStyles and \
+               (pos == 0 or scimoz.getStyleAt(pos-1) not in commentStyles):
                 # Bug 98467 note
                 # Don't continue if scimoz.getCharAt(pos - 1) == 10
                 # because block comments look like this.
@@ -2143,7 +2150,7 @@ class KoLanguageBase:
                         # We're at the end of the file, and probably the newline
                         # character hasn't been processed yet.
                         pass
-                        # style = getActualStyle(scimoz, pos)
+                        # style = scimoz.getStyleAt(pos)
                         # indentlog.debug("staying, no line style: pos=%d, len=%d, curr style=%d, char %d", pos, doclen, style, ord(str(scimoz.getWCharAt(pos))))
             else:
                 indent = self._blockCommentOnSingleLineIndent(commentStartMarker, curLine, commentStart)

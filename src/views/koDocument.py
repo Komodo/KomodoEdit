@@ -51,7 +51,6 @@ import difflibex
 import langinfo
 from zope.cachedescriptors.property import Lazy as LazyProperty
 from zope.cachedescriptors.property import LazyClassAttribute
-from koLanguageServiceBase import getActualStyle
 from koUDLLanguageBase import udl_family_from_style
 import koUnicodeEncoding, codecs, types
 
@@ -813,7 +812,7 @@ class koDocumentBase:
         pos = scimoz.currentPos
         if pos >= scimoz.length and pos > 0:
             pos = scimoz.positionBefore(scimoz.length)
-        style = getActualStyle(scimoz, pos)
+        style = scimoz.getStyleAt(pos)
         family = udl_family_from_style(style)
         return self.get_languageObj().getLanguageForFamily(family)
         
@@ -828,7 +827,7 @@ class koDocumentBase:
         scimoz = self._views[0].scimoz
         if pos >= scimoz.length and pos > 0:
             pos = scimoz.positionBefore(scimoz.length)
-        style = getActualStyle(scimoz, pos)
+        style = scimoz.getStyleAt(pos)
         return udl_family_from_style(style)
 
     def languageForPosition(self, pos):

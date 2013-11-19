@@ -51,7 +51,7 @@ from xpcom import components
 from xpcom.server import UnwrapObject
 from koLanguageServiceBase import KoLanguageBase, KoLexerLanguageService, \
                                   KoCommenterLanguageService, sendStatusMessage, \
-                                  koLangSvcStyleInfo, getActualStyle
+                                  koLangSvcStyleInfo
 import directoryServiceUtils
 
 log = logging.getLogger("KoUDLLanguageBase")
@@ -351,10 +351,10 @@ class KoUDLLanguage(KoLanguageBase):
     # pos refers to the character just typed.
 
     def _get_meaningful_style(self, scimoz, pos):
-        styleRight = getActualStyle(scimoz, pos)
+        styleRight = scimoz.getStyleAt(pos)
         if pos == 0 or styleRight not in _default_styles:
             return styleRight
-        styleLeft = getActualStyle(scimoz, pos - 1)
+        styleLeft = scimoz.getStyleAt(pos-1)
         if styleRight == styleLeft:
             return styleRight
         lhs_family = udl_family_from_style(styleLeft)
@@ -367,7 +367,7 @@ class KoUDLLanguage(KoLanguageBase):
             return styleRight
         else:
             new_pos = pos + adj
-            winningStyle = getActualStyle(scimoz, new_pos)
+            winningStyle = scimoz.getStyleAt(new_pos)
             #log.debug("_get_meaningful_style - ignore style %d, pos %d -- use %d@%d", styleRight, pos, winningStyle, new_pos)
             return winningStyle
             
@@ -549,12 +549,12 @@ class KoUDLCommenterLanguageService(KoCommenterLanguageService):
         # Now if we're selecting from <script...>|[EOL]
         # to .... and try to comment it, act as if the commenting
         # starts at the start of the next line.
-        selStart_Family = udl_family_from_style(getActualStyle(scimoz, selStart))
+        selStart_Family = udl_family_from_style(scimoz.getStyleAt(selStart))
         selStartNextPos = scimoz.positionAfter(selStart)
-        selStartNext_Family = udl_family_from_style(getActualStyle(scimoz, selStartNextPos))
-        selEnd_Family = udl_family_from_style(getActualStyle(scimoz, selEnd))
+        selStartNext_Family = udl_family_from_style(scimoz.getStyleAt(selStartNextPos))
+        selEnd_Family = udl_family_from_style(scimoz.getStyleAt(selEnd))
         selEndPrevPos = scimoz.positionAfter(scimoz.positionBefore(selEnd))
-        selEndPrev_Family = udl_family_from_style(getActualStyle(scimoz, selEndPrevPos))
+        selEndPrev_Family = udl_family_from_style(scimoz.getStyleAt(selEndPrevPos))
         if (selEndPrev_Family != "M"
             and selStart_Family == "M"
             and selStartNext_Family == selEndPrev_Family):
@@ -568,7 +568,7 @@ class KoUDLCommenterLanguageService(KoCommenterLanguageService):
             endLinePos = scimoz.getLineEndPosition(startLineNo)
             if endLinePos == selStart:
                 startLinePos = scimoz.positionFromLine(startLineNo)
-                startLineFamily = udl_family_from_style(getActualStyle(scimoz, startLinePos))
+                startLineFamily = udl_family_from_style(scimoz.getStyleAt(startLinePos))
                 if (startLineFamily == "M"
                     and selStart_Family != "M"
                     and selStartNext_Family == selEndPrev_Family):
@@ -576,8 +576,8 @@ class KoUDLCommenterLanguageService(KoCommenterLanguageService):
                     selStart = selStartNextPos
             
         sections = [
-            udl_family_from_style(getActualStyle(scimoz, selStart)),
-            udl_family_from_style(getActualStyle(scimoz, selEnd-1))
+            udl_family_from_style(scimoz.getStyleAt(selStart)),
+            udl_family_from_style(scimoz.getStyleAt(selEnd-1))
                    ]
         if selStart == selEnd:
             startLine = scimoz.lineFromPosition(selStart)
@@ -585,8 +585,8 @@ class KoUDLCommenterLanguageService(KoCommenterLanguageService):
             lineEnd = scimoz.getLineEndPosition(startLine)
 
             sections.extend([
-                udl_family_from_style(getActualStyle(scimoz, lineStart)),
-                udl_family_from_style(getActualStyle(scimoz, lineEnd-1))
+                udl_family_from_style(scimoz.getStyleAt(lineStart)),
+                udl_family_from_style(scimoz.getStyleAt(lineEnd-1))
                             ])
 
         family = sections[0]

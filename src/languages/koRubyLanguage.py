@@ -605,13 +605,13 @@ end section
             log.debug("_lineEndsWithStyle: endPos = %d, bufferSize = %d, end-style=%d, charNum=%d, setting..." % (endPos, bufferSize, style, scimoz.getCharAt(endPos)))
             endPos = bufferSize - 1
             
-        endStyle = getActualStyle(scimoz, endPos)
+        endStyle = scimoz.getStyleAt(endPos)
         endCharNum = scimoz.getCharAt(endPos)
         log.debug("_lineEndsWithStyle: line %d, pos %d, charNum %d, style %d" % (curr_line, endPos, endCharNum, endStyle))
         return endStyle == style
     
     def _findStartOfToken(self, scimoz, style, pos):
-        while pos > 0 and getActualStyle(scimoz, pos) == style:
+        while pos > 0 and scimoz.getStyleAt(pos) == style:
             pos -= 1
         return scimoz.lineFromPosition(pos), pos
                     
@@ -622,7 +622,7 @@ end section
 
         if eol_pos < sol_pos: # A true empty line?
             return False
-        style = getActualStyle(scimoz, eol_pos)
+        style = scimoz.getStyleAt(eol_pos)
         if style not in style_info._default_styles:
             return
         # What if it's a newline?
@@ -633,7 +633,7 @@ end section
             if eol_pos < sol_pos:
                 return False
             
-        style = getActualStyle(scimoz, eol_pos)
+        style = scimoz.getStyleAt(eol_pos)
         chNum = scimoz.getCharAt(eol_pos)
         log.debug("__is_continuation_line(%d) => ch(%d), style(%d)" % (line_no, chNum, style))
         if style in style_info._default_styles and chNum == ORD_BS:
