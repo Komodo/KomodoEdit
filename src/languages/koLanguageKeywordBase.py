@@ -112,7 +112,7 @@ class KoLanguageKeywordBase(KoLanguageBase):
         if end_pos >= scimoz.length:
             end_pos = scimoz.length - 1
         for pos in range(start_pos, end_pos + 1):
-            curr_style = self.actual_style(scimoz.getStyleAt(pos))
+            curr_style = scimoz.getStyleAt(pos)
             curr_char_val = scimoz.getCharAt(pos)
             if curr_char_val < 0:
                 curr_char_val += 256

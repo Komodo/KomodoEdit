@@ -1207,8 +1207,13 @@ class KoLanguageBase:
     def isUDL(self):
         return False
  
+    ##
+    # @deprecated since Komodo 9.0
+    #
     def actual_style(self, orig_style):
-        # TODO: remove use of this function and self.stylingBitsMask
+        import warnings
+        warnings.warn("actual_style is deprecated, use scimoz.getStyleAt(pos) instead",
+                      category=DeprecationWarning)
         return orig_style
 
     def getLanguageService(self, iid):
