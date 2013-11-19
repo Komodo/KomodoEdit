@@ -800,11 +800,52 @@ viewManager.prototype._doFileOpenAtLine = function(uri,
         index = -1;
     var v = this._doFileOpen(uri, viewType, viewList, index);
     if (v) {
-        v.currentLine = lineno;
+        var actualLineNo = Math.max(lineno - 1, 0);  // scimoz is 0-indexed
+        this.ensureAtLine(v, actualLineNo);
     }
     return v;
 }
 
+viewManager.prototype.ensureAtLine = function(view, lineno, anchor, currentPos) {
+    var scimoz = view.scimoz;
+    view.registerUpdateUICallback(function() {
+        this._ensureAtLine(view, scimoz, lineno, 20, 10);
+        // Bug 98866: Don't try scrolling to the caret
+        // until Scintilla has fired an onUpdateUI event
+        // On OSX, we'll probably need to wait until
+        // scimoz.linesOnScreen is no longer 0.
+    }.bind(this));
+    // do gotoline first because it messes w/ current position and anchor.
+    scimoz.gotoLine(lineno);
+    if (typeof(anchor) != "undefined") {
+       scimoz.anchor = anchor;
+    }
+    if (typeof(currentPos) != "undefined") {
+       scimoz.currentPos = currentPos;
+    }
+    scimoz.ensureVisibleEnforcePolicy(lineno);
+}
+
+viewManager.prototype._ensureAtLine = function _ensureAtLine(view, scimoz, lineno, delay, chancesLeft) {
+    if (view != this.currentView) {
+        //dump("We moved to another view, so abort\n");
+        return;
+    }
+    scimoz.scrollCaret();
+    // Allow for folded and wrapped lines.
+    var firstDocLine = scimoz.docLineFromVisible(scimoz.firstVisibleLine);
+    var lastDocLine = scimoz.docLineFromVisible(scimoz.firstVisibleLine + scimoz.linesOnScreen);
+    if (firstDocLine <= lineno && lineno <= lastDocLine) {
+        // We're ok
+        return;
+    }
+    if (chancesLeft < 0) {
+        // We're not ok, but give up
+        return;
+    }
+    // "Wait " + delay + "msec.  Try to change the view again...\n")
+    setTimeout(this._ensureAtLine.bind(this), delay, view, scimoz, lineno, delay, chancesLeft - 1);
+}
 /**
  * Asyncronously open a file at the given line number. If it is already open,
  * then select that buffer, else create a new buffer for the file.
@@ -1104,17 +1145,10 @@ viewManager.prototype.handle_open_file = function(topic, data)
                             currentPos = view.positionAtColumn(currentPosLine, currentPosCol);
                         }
                     }
-                    // do gotoline first because it messes w/ current position and anchor.
                     var lineNo = scimoz.lineFromPosition(currentPos);
-                    scimoz.gotoLine(Math.max(lineNo - 1, 0)); // scimoz is 0-indexed
-                    scimoz.anchor = anchor;
-                    scimoz.currentPos = currentPos;
-                    view.registerUpdateUICallback(function() {
-                        // Bug 98866: Don't try scrolling to the caret
-                        // until Scintilla has fired an onUpdateUI event
-                        scimoz.scrollCaret();
-                    });
-                }
+                    var actualLineNo = Math.max(lineNo - 1, 0);
+                    this.ensureAtLine(view, actualLineNo, anchor, currentPos);
+                }.bind(this)
             );
             // Force the main window to the forefront
             //precondition: window == ko.windowManager.getMainWindow()
