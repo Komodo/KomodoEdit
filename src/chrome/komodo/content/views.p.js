@@ -1774,6 +1774,15 @@ viewManager.prototype.do_cmd_goToDefinition = function() {
         if (!trg) {
             return;
         }
+        if (!view.isCICplnEnabled) {
+            // completion is not available for this view; we can't do go to
+            // definition. (As a side effect of checking this, we might create
+            // the completion ui handler.)
+            ko.statusBar
+              .AddMessage("Go to definition not available for this file",
+                          "codeintel", 4000, true, true, true);
+            return;
+        }
         // We mostly want to use the normal UI handler, except that we override
         // setDefinitionsInfo to do nothing if the user has moved on (i.e. when
         // go to definition was too slow).
