@@ -317,6 +317,10 @@ this.addFromACTextbox = function MRU_addFromACTextbox(widget)
     switch (searchType) {
     case "mru":
         prefName = searchParam;
+        if (prefName.contains("mru:")) {
+            // Allow the "mru: ..." format too, bug 99395.
+            prefName = ko.stringutils.getSubAttr(searchParam, "mru");
+        }
         break;
     default:
         prefName = ko.stringutils.getSubAttr(searchParam, "mru");
