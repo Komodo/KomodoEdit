@@ -2128,7 +2128,6 @@ class KoLanguageBase:
                         # assume the comment has ended.
                         # This is because only CSS and Pascal define
                         # block comments but not any others.
-                        style = getActualStyle(scimoz, pos)
                         return None, None
                     elif pos == doclen:
                         # We're at the end of the doc, so look to see
@@ -2143,7 +2142,8 @@ class KoLanguageBase:
                     else:
                         # We're at the end of the file, and probably the newline
                         # character hasn't been processed yet.
-                        style = getActualStyle(scimoz, pos)
+                        pass
+                        # style = getActualStyle(scimoz, pos)
                         # indentlog.debug("staying, no line style: pos=%d, len=%d, curr style=%d, char %d", pos, doclen, style, ord(str(scimoz.getWCharAt(pos))))
             else:
                 indent = self._blockCommentOnSingleLineIndent(commentStartMarker, curLine, commentStart)
