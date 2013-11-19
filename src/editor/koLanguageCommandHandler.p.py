@@ -1382,7 +1382,6 @@ class GenericCommandHandler:
                     braceOpposite = stagi
                 return braceAtCaret, braceOpposite, isInside
         # Otherwise try doing standard bracket-matching
-        mask = view.languageObj.stylingBitsMask
         isInside = 0
         braceAtCaret = -1
         braceOpposite = -1
@@ -1393,7 +1392,7 @@ class GenericCommandHandler:
             caretPos = textLength
         if (caretPos > 0) :
             charBefore = sm.getWCharAt(sm.positionBefore(caretPos))
-            styleBefore = sm.getStyleAt(sm.positionBefore(caretPos)) & mask
+            styleBefore = sm.getStyleAt(sm.positionBefore(caretPos))
         # Priority goes to character before caret
         if (charBefore
             and (view.languageObj.getBraceIndentStyle(charBefore, styleBefore)

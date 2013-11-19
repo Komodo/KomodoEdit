@@ -158,7 +158,6 @@ class KoUDLLanguage(KoLanguageBase):
     # considered primary.
     primary = 1
     
-    styleBits = 8      # Override KoLanguageBase.styleBits setting of 5
     lang_from_udl_family = {'CSL': '', 'TPL': '', 'M': '', 'CSS': '', 'SSL': ''}
     # Common sublanguages used in UDL languages go here.
     # First the define the base style objects, then specify

@@ -601,7 +601,6 @@ class Scheme:
         if languageObj:
             lexer = languageObj.getLanguageService(components.interfaces.koILexerLanguageService)
             lexer.setCurrent(scimoz)
-            scimoz.styleBits = languageObj.styleBits
         self.currentLanguage = language
         self.currentEncoding = encoding
         

@@ -205,9 +205,6 @@ class KoRubyLanguage(KoLanguageKeywordBase):
     
     leading_ws_re = re.compile(r'^(\s*)')
     
-    styleBits = 6      # Override KoLanguageBase.styleBits setting of 5
-    indicatorBits = 2  # Currently (2004-05-25) Same as base class
-    
     _sliders = ['else', 'elsif', 'ensure', 'rescue', 'when']
     _dedenters = ['break', 'redo', 'next', 'raise', 'retry', 'return']
     _limited_openers = ['begin', 'class', 'def', 'for', 'module', 'case',
@@ -220,11 +217,6 @@ class KoRubyLanguage(KoLanguageKeywordBase):
 
     _dedent_sliders = _sliders + _enders
     
-    stylingBitsMask = 0    
-    for bit in range(styleBits):
-        stylingBitsMask <<= 1
-        stylingBitsMask |= 1
-        
     supportsSmartIndent = "keyword"  # should be overridden otherwise
 
     _max_lines_in_calc = 100

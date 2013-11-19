@@ -137,8 +137,7 @@ def getActualStyle(scimoz, pos):
     import warnings
     warnings.warn("getActualStyle is deprecated, use scimoz.getStyleAt(pos) instead",
                   category=DeprecationWarning)
-    styleMask = (1 << scimoz.styleBits) - 1
-    return scimoz.getStyleAt(pos) & styleMask
+    return scimoz.getStyleAt(pos)
 
 class KoCommenterLanguageService:
     _com_interfaces_ = [components.interfaces.koICommenterLanguageService]
@@ -993,9 +992,7 @@ class KoLanguageBase:
     _commenter = None
     _codeintelcompleter = None
     _interpreter = None
-    styleBits = 5
-    stylingBitsMask = None # set by setter below
-    indicatorBits = 2
+
     sample = '' # used in the fonts & colors dialog
     downloadURL = '' # location to download the language
     searchURL = '' # used by the language help system
@@ -1075,14 +1072,33 @@ class KoLanguageBase:
     
     isHTMLLanguage = False
 
+    ##
+    # Deprecated scimoz mask helpers.
+    # @deprecated since Komodo 9.0
+    @property
+    def styleBits(self):
+        import warnings
+        warnings.warn("koILanguage.styleBits are deprecated - no longer needed",
+                      category=DeprecationWarning)
+        return 32
+    @property
+    def stylingBitsMask(self):
+        import warnings
+        warnings.warn("koILanguage.stylingBitsMask are deprecated - no longer needed",
+                      category=DeprecationWarning)
+        return (1 << self.styleBits) - 1
+    @property
+    def indicatorBits(self):
+        import warnings
+        warnings.warn("koILanguage.indicatorBits are deprecated - no longer needed",
+                      category=DeprecationWarning)
+        return 2
+
+
     def __init__(self):
         if not KoLanguageBase.prefset:
             KoLanguageBase.prefset = components.classes["@activestate.com/koPrefService;1"]\
                         .getService(components.interfaces.koIPrefService).prefs
-        self.stylingBitsMask = 0    
-        for bit in range(self.styleBits):
-            self.stylingBitsMask <<= 1
-            self.stylingBitsMask |= 1
     
         # we define stateMaps for some languages in the styles module,
         # others we define in the language module itself
@@ -1248,7 +1264,6 @@ class KoLanguageBase:
         return self._getBraceIndentStyle(ch, style, self._style_info)
     
     def _getBraceIndentStyle(self, ch, style, style_info):
-        style = style & self.stylingBitsMask
         if ch in self._indent_chars and style in style_info._indent_styles:
             return components.interfaces.koILanguage.INDENT_BRACE
         
@@ -1267,7 +1282,6 @@ class KoLanguageBase:
 
     def _guessIndentation(self, scimoz, tabWidth, defaultUsesTabs, style_info):
         indent, usesTabs = _findIndent(scimoz,
-                                       self.stylingBitsMask,
                                        self._indent_open_chars,
                                        style_info._indent_open_styles,
                                        style_info._comment_styles,
@@ -1390,7 +1404,7 @@ class KoLanguageBase:
         data = scimoz.getStyledText(lineStart, pos+1)
         for p in range(pos-1, lineStart-1, -1):
             char = data[(p-lineStart)*2]
-            style = ord(data[(p-lineStart)*2+1]) & self.stylingBitsMask
+            style = ord(data[(p-lineStart)*2+1])
             #indentlog.debug("char = %s, style = %d", char, style)
             #indentlog.debug("indent_open_chars = %r, indent_open_styles = %r", self._indent_open_chars, style_info._indent_open_styles)
             if style in style_info._comment_styles:
@@ -1425,7 +1439,7 @@ class KoLanguageBase:
             p = p - 1
             char = data[(p-startPos)*2]
             indentlog.info("looking at char %r at position %d", char, p)
-            style = ord(data[(p-startPos)*2+1]) & self.stylingBitsMask
+            style = ord(data[(p-startPos)*2+1])
             if char in self._lineup_close_chars and style in style_info._lineup_close_styles:
                 # skip to the match
                 braceMatch = scimoz.braceMatch(p)
@@ -1433,7 +1447,7 @@ class KoLanguageBase:
                     break
                 p = braceMatch
                 char = data[(p-startPos)*2]
-                style = ord(data[(p-startPos)*2+1]) & self.stylingBitsMask
+                style = ord(data[(p-startPos)*2+1])
                 lineNo = scimoz.lineFromPosition(p)
                 minIndent = self._getIndentWidthForLine(scimoz, lineNo)
                 continue # keep looking
@@ -1452,7 +1466,7 @@ class KoLanguageBase:
                         ch2 = data[(p2-startPos)*2]
                         if ch2 in '  \t':
                             continue
-                        style = ord(data[(p2-startPos)*2+1]) & self.stylingBitsMask
+                        style = ord(data[(p2-startPos)*2+1])
                         if style in style_info._comment_styles:
                             continue
                         indentlog.info("we're here -- this is the column that we should use for indenting")
@@ -1489,7 +1503,7 @@ class KoLanguageBase:
         while p > startOfLine:
             p = p - 1
             char = data[(p-startOfLine)*2]
-            style = ord(data[(p-startOfLine)*2+1]) & self.stylingBitsMask
+            style = ord(data[(p-startOfLine)*2+1])
             # if we encounter an _opening_ brace, then we should stop.
             if char in self._lineup_open_chars and \
                style in style_info._lineup_close_styles:
@@ -1533,7 +1547,7 @@ class KoLanguageBase:
         while p > startPos:
             p = p - 1
             char = data[(p-startPos)*2]
-            style = ord(data[(p-startPos)*2+1]) & self.stylingBitsMask
+            style = ord(data[(p-startPos)*2+1])
             #indentlog.debug("in _statementStartingLineFromPos: char = %s, style = %d", char, style)
             lineNo = scimoz.lineFromPosition(p)
             indentlog.debug("\np = %d (%r) - going until %d" % (p, char, startPos))
@@ -1885,7 +1899,7 @@ class KoLanguageBase:
 
         # if we're in a string or comment, don't bother
         firstCharIndex = lineStart + len(curLine)-len(curLine.lstrip())
-        firstCharStyle = scimoz.getStyleAt(firstCharIndex) & self.stylingBitsMask
+        firstCharStyle = scimoz.getStyleAt(firstCharIndex)
         if firstCharStyle in style_info._comment_styles or firstCharStyle in style_info._string_styles:
             return None
 
@@ -1939,7 +1953,7 @@ class KoLanguageBase:
             # move back until we hit a non-whitespace character.
             char = data[(p-startOfLine)*2]
             if char in ' \t': continue
-            style = ord(data[(p-startOfLine)*2+1]) & self.stylingBitsMask
+            style = ord(data[(p-startOfLine)*2+1])
             if style not in style_info._block_comment_styles:
                 # we hit a non-comment character -- it can't be the
                 # end of a block comment
@@ -2073,7 +2087,7 @@ class KoLanguageBase:
         if pos == 0:
             return None, None
 
-        style = scimoz.getStyleAt(pos-1) & self.stylingBitsMask
+        style = scimoz.getStyleAt(pos-1)
         if style not in style_info._comment_styles:
             return None, None
         
@@ -2129,7 +2143,7 @@ class KoLanguageBase:
                         commentStart = curLine.find(commentStartMarker)
                 else:
                     doclen = scimoz.length
-                    if pos < doclen and (scimoz.getStyleAt(pos) & self.stylingBitsMask) not in style_info._comment_styles:
+                    if pos < doclen and scimoz.getStyleAt(pos) not in style_info._comment_styles:
                         # Observed with CSS but not C/C++
                         # If the newline after the comment is not a comment,
                         # assume the comment has ended.
@@ -2415,15 +2429,15 @@ class KoLanguageBase:
         if style == scimoz.SCE_UDL_M_TAGNAME:
             return "START_TAG_NAME"
         if (style == scimoz.SCE_UDL_M_STRING and char in ('"', "'") 
-            and (scimoz.getStyleAt(pos + 1) & self.stylingBitsMask) in (scimoz.SCE_UDL_M_TAGSPACE,
-                                                                        scimoz.SCE_UDL_M_DEFAULT)):
+            and scimoz.getStyleAt(pos + 1) in (scimoz.SCE_UDL_M_TAGSPACE,
+                                               scimoz.SCE_UDL_M_DEFAULT)):
             # Verify there's a start-tag on this line
             curLineNo = scimoz.lineFromPosition(pos)
             lineStart = scimoz.positionFromLine(curLineNo)
             data = scimoz.getStyledText(lineStart, pos)
             idx = len(data) - 1
             while idx > 0:
-                if (ord(data[idx]) & self.stylingBitsMask) == scimoz.SCE_UDL_M_TAGNAME:
+                if ord(data[idx]) == scimoz.SCE_UDL_M_TAGNAME:
                     return "START_TAG_NAME"
                 idx -= 2;
             indentlog.debug("found no start-tag, returning empty-string")
@@ -2822,7 +2836,7 @@ class KoLanguageBase:
             return
         currentPos = scimoz.currentPos
         charPos = scimoz.positionBefore(currentPos)
-        style = scimoz.getStyleAt(charPos) & self.stylingBitsMask
+        style = scimoz.getStyleAt(charPos)
         #indentlog.debug("ch=%s, style=%d, indent_close_chars=%r, indent_close_styles=%r",
         #               ch, style, self._indent_close_chars, style_info._indent_close_styles)
         indent = None
@@ -2858,7 +2872,7 @@ class KoLanguageBase:
                             log.warning("KoLanguageBase::_keyPressed: Failed to "
                                         "find start of tag in START_TAG_CLOSE")
                             return
-                        tagStartStyle = scimoz.getStyleAt(tagStart) & self.stylingBitsMask
+                        tagStartStyle = scimoz.getStyleAt(tagStart)
                         if tagStartStyle == scimoz.SCE_UDL_M_STAGO:
                             break
                         scimoz.targetStart = scimoz.positionBefore(tagStart)
@@ -3206,7 +3220,7 @@ class KoLanguageBaseDedentMixin(object):
         if currNonWhiteColumn > prevNonWhiteColumn:
             return prevWhiteSequence
 
-def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth, defaultUsesTabs):
+def _findIndent(scimoz, chars, styles, comment_styles, tabWidth, defaultUsesTabs):
     """
     This code is fairly sophisticated, and a tad tricky.  Here's how it works.
     We're looking for an "indenting line" followed by an "indented line".
@@ -3300,7 +3314,7 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth, defaul
                 char = data[pos*2]
                 if char in WHITESPACE: # skip whitespace
                     continue
-                style = ord(data[pos*2+1]) & bitmask
+                style = ord(data[pos*2+1])
                 if style in comment_styles: # skip comments
                     continue
                 if (char in chars) and (style in styles):
@@ -3311,7 +3325,6 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth, defaul
                     log.info("Found indenting line: %r" % indenting)
                     # look for an indented line after this line
                     guess, foundTabs = _findIndentedLine(scimoz,
-                                                         bitmask,
                                                          N, lineNo, indenting,
                                                          comment_styles, tabWidth, data)
                     if guess is not None:
@@ -3344,7 +3357,7 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth, defaul
     log.info("Couldn't find indentation information from the file")
     return 0, 0
 
-def _findIndentedLine(scimoz, bitmask, N, lineNo, indenting, comment_styles, tabWidth, data):
+def _findIndentedLine(scimoz, N, lineNo, indenting, comment_styles, tabWidth, data):
     """
     This function looks through the 'scimoz' buffer until at most the line number
     'N' for a line which is 'indented' relative to the 'indenting' line, ignoring
@@ -3370,7 +3383,7 @@ def _findIndentedLine(scimoz, bitmask, N, lineNo, indenting, comment_styles, tab
             char = data[pos*2]
             if char in WHITESPACE: # skip whitespace
                 continue
-            style = ord(data[pos*2+1]) & bitmask
+            style = ord(data[pos*2+1])
             if style in comment_styles: # skip comments
                 continue
             # We have an indenting and an indented.
