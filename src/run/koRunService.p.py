@@ -272,62 +272,37 @@ class KoInterpolationService:
             allCharCodes.remove("python3")
             allCharCodes.insert(0, "python3")
 
+        # Break complex regexes into their named parts, and then reassemble below
+        # Makes it more readable than dealing with large regexes, and reduces duplication.
+        mainPart = r"""
+            (?P<code>%s)            # the code
+            (?P<backref>\d+)?       # an optional back ref num
+            (:(?P<field1>[^:]*?)    # an optional field 1
+                (:(?P<field2>.*?))? # an optional field 2
+            )?
+            (:(?P<modifier>%s))?    # special modifiers
+        """ % ('|'.join(allCharCodes), '|'.join(self.special_modifiers))
+        start_group = '%('   # percent character followed by an outer capture-group
+        end_group = ')'
+        start_paren = r'\('  # match an explicit paren
+        end_paren = r'\)'
+        codeReStrs = [
+            # Parse codes _with_ parentheses:
+            #   %(w), %(ask:Search for:default value)
+            start_group + start_paren + mainPart + end_paren + end_group,
+            # Parse codes _without_ parentheses:
+            #   %w, %ask:Search:default
+            start_group + mainPart + end_group,
+        ]
         if bracketed:
-            codeReStrs = [
-                # Parse bracketed codes _with_ parentheses:
-                #   [[%(w)]]  [[%(ask:Search for:default value)]]
-                """\[\[\s*                          # opening bracketing
-                    %%(                             # a leading percent char
-                        \(
-                            (?P<code>%s)            # the code
-                            (?P<backref>\d+)?       # an optional back ref num
-                            (:(?P<field1>[^:]*?)    # an optional field 1
-                                (:(?P<field2>.*?))? # an optional field 2
-                            )?
-                            (:(?P<modifier>%s))?    # special modifiers
-                        \)
-                    )
-                \s*\]\]""" % ('|'.join(allCharCodes), '|'.join(self.special_modifiers)),
-                # Parse bracketed codes _without_ parentheses:
-                #   [[%w]]  [[%ask:Search for:default value]]
-                """\[\[\s*                          # opening bracketing
-                    %%(                             # a leading percent char
-                        (?P<code>%s)                # the code
-                        (?P<backref>\d+)?           # an optional back ref num
-                        (:(?P<field1>[^:]*?)        # an optional field 1
-                            (:(?P<field2>.*?))?     # an optional field 2
-                        )?
-                        (:(?P<modifier>%s))?        # special modifiers
-                    )
-                \]\]""" % ('|'.join(allCharCodes), '|'.join(self.special_modifiers)),
-            ]
-        else:
-            codeReStrs = [
-                # Parse codes _with_ parentheses:
-                #   %(w), %(ask:Search for:default value)
-                """%%(                          # a leading percent char
-                    \(
-                        (?P<code>%s)            # the code
-                        (?P<backref>\d+)?       # an optional back ref num
-                        (:(?P<field1>[^:]*?)    # an optional field 1
-                            (:(?P<field2>.*?))? # an optional field 2
-                        )?
-                        (:(?P<modifier>%s))?    # special modifiers
-                    \)
-                )""" % ('|'.join(allCharCodes), '|'.join(self.special_modifiers)),
-                # Parse codes _without_ parentheses:
-                #   %w, %ask:Search:default
-                """%%(                          # a leading percent char
-                    (?P<code>%s)                # the code
-                    (?P<backref>\d+)?           # an optional back ref num
-                    (:(?P<field1>[^\s:]*)       # an opt field 1 (no spaces)
-                        (:(?P<field2>[^\s]*))?  # an opt field 2 (no spaces)
-                    )?
-                    (:(?P<modifier>%s))?        # special modifiers
-                )""" % ('|'.join(allCharCodes), '|'.join(self.special_modifiers)),
-            ]
-        codeRes = [re.compile(s, re.VERBOSE) for s in codeReStrs]
-        return codeRes
+            # Parse bracketed codes _with_ parentheses:
+            #   [[%(w)]]  [[%(ask:Search for:default value)]]
+            # Parse bracketed codes _without_ parentheses:
+            #   [[%w]]  [[%ask:Search for:default value]]
+            start_bracket = r'\[\[\s*'
+            end_bracket = r'\s*\]\]'
+            codeReStrs = [start_bracket + ptn + end_bracket for ptn in codeReStrs]
+        return [re.compile(s, re.VERBOSE) for s in codeReStrs]
 
     def _doInterpolate1(self, s, codeMap, codeRes, prefSet, queries,
                         backrefs, indentReplacement=False):
