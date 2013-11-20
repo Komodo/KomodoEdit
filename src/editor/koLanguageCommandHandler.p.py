@@ -171,8 +171,8 @@ class GenericCommandHandler:
             # but it needs to point it to the docLine
             docFirstLine = sm.docLineFromVisible(sm.firstVisibleLine)
             sm.wrapMode = sm.SC_WRAP_NONE
-            sm.firstVisibleLine = docFirstLine
-
+            # Reset firstVisibleLine on the JS side where we can do a timeout
+            self._view.onWrapModeOff(docFirstLine)
 
     def _resolveDiffPath(self, diff, diff_file, paths):
         """Return a resolved absolute and existing path for the given

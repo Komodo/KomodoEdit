@@ -176,6 +176,19 @@ interface koIScintillaView : koIView
      * there's a notification to update the minimap.
      */
     void onFoldChanged(in long lineNo);
+  
+    
+    /**
+     * onWrapModeOff
+     *
+     * Call this after word-wrap has been turned off, so the containing
+     * view can reset its scimoz firstVisibleLine property to the correct line.
+     * @param: docFirstLine is the top line of the buffer before word-wrap
+     *         is turned off, in document-coordinates (view coordinates
+     *         skip folded lines and count wrapped lines based on the
+     *         view).
+     */
+    void onWrapModeOff(in long docFirstLine);
 };
 
 [scriptable, uuid(D10DFEB9-D312-49B9-A180-20A89EF47DE6)]

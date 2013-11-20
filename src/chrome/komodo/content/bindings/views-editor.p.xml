@@ -1609,21 +1609,6 @@
         </body>
         </method>
         
-        <field name="_updateUICallbacks">[]</field>
-        
-        <!-- Note that if a callback causes further scintilla
-             updateUI events, they'll be processed in the next
-	     onUpdateUI event, to avoid re-entrancy and loops.
-	     -->
-	<method name="registerUpdateUICallback">
-        <parameter name="callback"/>
-        <body>
-        <![CDATA[
-            this._updateUICallbacks.push(callback);
-        ]]>
-        </body>
-        </method>
-        
         <!-- Set to true when the editor is handling the onUpdateUI() call. -->
         <field name="in_updateui">false</field>
 
@@ -1635,17 +1620,6 @@
             try {
                 //TODO: Minimap pref
                 //dump(">> views-editor.p.xml: onUpdateUI\n");
-                // If any of the callbacks make scintilla calls that trigger
-                // other update-events, they will be run at a later time.
-                var callbacks = this._updateUICallbacks;
-                this._updateUICallbacks = [];
-                callbacks.forEach(function(cb) {
-                    try {
-                        cb();
-                    } catch(ex) {
-                        log.exception(ex, "Error invoking a _updateUICallback");
-                    }
-                });
                 if (this.minimap && this.showMinimap && !this.minimap.in_updateui) {
                     var firstDocLine, lastDocLineOnScreen;
                     [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();

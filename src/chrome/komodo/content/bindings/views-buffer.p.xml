@@ -718,6 +718,23 @@
             </body>
         </method>
 
+        <!-- Bug 97600: turning off SC_WRAP_WORD has a side-effect of
+             updating the vertical scroll incorrectly
+          - @param docFirstLine: the first visible line before turning
+                   word-wrap off, in document coordinates (the value in
+                   the margin, minus 1)
+             -->
+        <method name="onWrapModeOff">
+        <parameter name="docFirstLine"/>
+        <body>
+        <![CDATA[
+            this.registerUpdateUICallback(function() {
+                this.scimoz.firstVisibleLine = this.scimoz.visibleFromDocLine(docFirstLine);
+            }.bind(this));
+        ]]>
+        </body>
+        </method>
+
         <!--this is not a focus handler, but rather a set of stuff we
         need to do in relation to forcing focus at certain points-->
         <method name="setFocus">
@@ -933,7 +950,22 @@
         </method>
 
         <field name="_lastPosLineAndCol">[-1, -1, -1, -1]</field>
+        <field name="_updateUICallbacks">[]</field>
+        
+        <!-- Note that if a callback causes further scintilla
+             updateUI events, they'll be processed in the next
+             onUpdateUI event, to avoid re-entrancy and loops.
+             -->
+        <method name="registerUpdateUICallback">
+        <parameter name="callback"/>
+        <body>
+        <![CDATA[
+            this._updateUICallbacks.push(callback);
+        ]]>
+        </body>
+        </method>
 
+        
         <!-- Called in a timer from onUpdateUI. -->
         <method name="doUpdateUI">
         <body>
@@ -941,6 +973,20 @@
             if (!this.log) return; // closed
             this.log.debug('doUpdateUI called');
             this._uiTimer = null;
+            // None of the registered callbacks should need to do
+            // a timeout, because they're already run after a delay.
+            // other update-events, they will be run at a later time.
+            var callbacks = this._updateUICallbacks;
+            if (callbacks.length) {
+                this._updateUICallbacks = [];
+                callbacks.forEach(function(cb) {
+                    try {
+                        cb();
+                    } catch(ex) {
+                        log.exception(ex, "Error invoking a _updateUICallback");
+                    }
+                });
+            }
 
             // Since onUpdateUI is called for a lot of different cases, we
             // check to see if the position has really changed.
