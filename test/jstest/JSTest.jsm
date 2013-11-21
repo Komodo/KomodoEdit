@@ -163,3 +163,31 @@ TestCase.prototype.assertIn = function TestCase_assertIn(prop, obj, msg) {
     }
     log.debug("PASS: " + msg);
 };
+TestCase.prototype.assertGreater = function TestCase_assertGreater(first, second, msg) {
+    if (!(first > second)) {
+        throw new TestError((msg || "assertGreater") + ": " + first + " > " + second,
+                            "AssertGreater");
+    }
+    log.debug("PASS: " + msg);
+};
+TestCase.prototype.assertGreaterEqual = function TestCase_assertGreaterEqual(first, second, msg) {
+    if (!(first >= second)) {
+        throw new TestError((msg || "assertGreaterEqual") + ": " + first + " >= " + second,
+                            "AssertGreaterEqual");
+    }
+    log.debug("PASS: " + msg);
+};
+TestCase.prototype.assertLess = function TestCase_assertLess(first, second, msg) {
+    if (!(first < second)) {
+        throw new TestError((msg || "assertLess") + ": " + first + " < " + second,
+                            "AssertLess");
+    }
+    log.debug("PASS: " + msg);
+};
+TestCase.prototype.assertLessEqual = function TestCase_assertLessEqual(first, second, msg) {
+    if (!(first <= second)) {
+        throw new TestError((msg || "assertLessEqual") + ": " + first + " <= " + second,
+                            "AssertLessEqual");
+    }
+    log.debug("PASS: " + msg);
+};

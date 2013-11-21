@@ -969,7 +969,7 @@ class koOrderedPreference(object):
 # The preference set cache object.
 #
 ###################################################
-class koPreferenceCache:
+class koPreferenceCache(object):
     _com_interfaces_ = [components.interfaces.koIPreferenceCache, components.interfaces.koISerializableFast]
     _reg_desc_ = "Komodo Preference Cache"
     _reg_contractid_ = "@activestate.com/koPrefCache;1"
