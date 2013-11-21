@@ -2659,6 +2659,36 @@ class BuildNum(black.configure.Datum):
         rev_str = changeset_re.search(stdout).group(1)
         return int(rev_str)
 
+    def _get_git_build_num(self):
+        """Get the build number for a git repo
+        This... may or may not actually make any sense"""
+        # Find the last known commit that was imported from svn
+        cmd = ["git", "log", "--all", "-1", "--grep", "git-svn-id:",
+               "--date-order", "--pretty=%ci%n%B"]
+        try:
+            last_svn_commit = _capture_stdout(cmd).splitlines(False)
+        except RuntimeError:
+            raise black.configure.ConfigureError(
+                "error finding last imported svn commit running '%s'" %
+                    (" ".join(cmd),))
+        last_svn_date = last_svn_commit.pop(0)
+        for line in reversed(last_svn_commit):
+            if line.startswith("git-svn-id:"):
+                svn_rev = int(line.split("@", 1)[-1].split()[0])
+                break
+        else:
+            raise black.configure.ConfigureError(
+                "Failed to find last svn revision id")
+        # count the number of commits since the last known svn commit
+        cmd = ["git", "rev-list", "--all", "--count",
+               "--since", last_svn_date]
+        try:
+            count = _capture_stdout(cmd)
+        except RuntimeError:
+            raise black.configure.ConfigureError(
+                "error running '%s'" % (" ".join(cmd),))
+        return int(count) + svn_rev - 1 # don't double-count last known svn commit
+
     def _get_simplified_svn_version(self):
         # Note that this can be a fairly complex string (perhaps not
         # suitable for inclusion in a filename if ':' is in it). See
@@ -2667,8 +2697,6 @@ class BuildNum(black.configure.Datum):
         changestr = _capture_stdout(["svnversion", this_dir]).strip()
 
         # Simplify the possibly-complex svnversion.
-        if changestr == "exported":
-            changestr = 0  # fallback
         try:
             changenum = int(changestr)
         except ValueError, ex:
@@ -2690,7 +2718,18 @@ class BuildNum(black.configure.Datum):
                 self.value = int(optarg)
                 break
         else:
-            self.value = self._get_simplified_svn_version()
+            scc_type = black.configure.items["sccType"].Get()
+            if scc_type == "svn":
+                self.value = self._get_simplified_svn_version()
+            elif scc_type == "git":
+                self.value = self._get_git_build_num()
+            elif scc_type == "hg":
+                self.value = self._get_hg_changeset()
+            else:
+                sys.stderr.write("configure: cannot determine build number "
+                                 "due to unknown source code control, "
+                                 "using 0 as fallback\n")
+                self.value = 0
         self.determined = 1
 
 
@@ -2716,6 +2755,31 @@ class SourceId(black.configure.Datum):
         self.value = stdout.strip()
         self.determined = 1
 
+class SCCType(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "sccType",
+            desc="the SCC system the source tree is using")
+
+    def _Determine_Sufficient(self):
+        if self.value is None:
+            raise black.configure.ConfigureError(
+                "Could not determine %s." % self.desc)
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        dir = dirname(__file__)
+        for name, path in [
+                ("svn", ".svn"),
+                ("svn", "_svn"), # "asp.net hack" on windows, r16244 (svn, not komodo)
+                ("git", ".git"),
+                ("hg", ".hg"), # ???
+                ]:
+            if exists(join(dir, path)):
+                self.value = name
+                break
+        else:
+            self.value = "none" # using a tarball or something
+        self.determined = 1
 
 class SCCBranch(black.configure.Datum):
     def __init__(self):
@@ -2730,14 +2794,16 @@ class SCCBranch(black.configure.Datum):
     def _get_scc_branch(self, dir):
         from posixpath import basename as ubasename
         
-        if exists(join(dir, ".svn")):
+        scc_type = black.configure.items["sccType"].Get()
+
+        if scc_type == "svn":
             stdout = _capture_stdout(['svn', 'info', dir])
             for line in stdout.splitlines(0):
                 if re.compile(r"^URL\s*:").match(line):
                     repo_url = line.split(':', 1)[1].strip()
                     break
             scc_branch = ubasename(repo_url)
-        elif exists(join(dir, ".git")):
+        elif scc_type == "git":
             stdout = _capture_stdout(['git', 'branch', '-l'])
             for line in stdout.splitlines(0):
                 if line.startswith("*"):
@@ -2745,10 +2811,12 @@ class SCCBranch(black.configure.Datum):
                     break
             if scc_branch == "master":
                 scc_branch = "trunk"
-        elif exists(join(dir, ".hg")):
+        elif scc_type == "hg": # ???
             scc_branch = _capture_stdout(['hg', 'branch']).strip()
             if scc_branch == "default":
                 scc_branch = "trunk"
+        else:
+            return ""
         return scc_branch
 
     def _Determine_Do(self):
