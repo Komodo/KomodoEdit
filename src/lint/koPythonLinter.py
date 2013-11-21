@@ -215,7 +215,7 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
                     extraArgs.append("--max-line-length=%d" % preferredLineWidth)
     
             baseArgs = [pythonExe, '-c', 'import sys; from pylint.lint import Run; Run(sys.argv[1:])']
-            cmd = baseArgs + ["-f", "text", "-r", "n"]
+            cmd = baseArgs + ["-f", "text", "-r", "n"] + extraArgs
             if self._pylint_version == 1:
                 cmd.append("-i")
                 cmd.append("y")
