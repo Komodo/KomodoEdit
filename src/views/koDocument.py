@@ -307,6 +307,9 @@ class koDocumentBase:
             else:
                 self.prefs.id = self.file.URI
             docStateMRU.setPref(self.prefs)
+            # _hasNoCurrentPref: Private field to be used by
+            # self.load => self._loadfile later on.
+            self._hasNoCurrentPref = True
 
         # Hook up the preference chain.
         self._setupPreferenceChain()
@@ -577,16 +580,21 @@ class koDocumentBase:
         self.set_new_line_endings(current_eol)
 
     def _classifyDocumentBySize(self, data):
-        """ Return 0 if it's short, 1 if it's long for a UDL-based
-            file, 2 if it's long by any means.
+        """ Return two values: the first classifies the document,
+            the second states whether there are any lines > 2000chars
+            The first value is one of the following:
+            _DOCUMENT_SIZE_NOT_LARGE: (open with specified lang)
+            _DOCUMENT_SIZE_UDL_LARGE: (open with specified lang if not UDL-based)
+            _DOCUMENT_SIZE_ANY_LARGE: (open as Text, avoid colorizing)
         """
         returnFactor = self._DOCUMENT_SIZE_NOT_LARGE
+        hasLongLine = None
         documentByteCountThreshold = self.prefs.getLongPref("documentByteCountThreshold")
         if documentByteCountThreshold <= 0:
             # Ignore this metric
             pass
         elif len(data) > documentByteCountThreshold:
-            return self._DOCUMENT_SIZE_ANY_LARGE
+            return self._DOCUMENT_SIZE_ANY_LARGE, hasLongLine
         elif len(data) > documentByteCountThreshold/2:
             returnFactor = self._DOCUMENT_SIZE_UDL_LARGE
             
@@ -597,27 +605,34 @@ class koDocumentBase:
             # Ignore this metric
             pass
         elif num_lines > documentLineCountThreshold:
-            return self._DOCUMENT_SIZE_ANY_LARGE
+            return self._DOCUMENT_SIZE_ANY_LARGE, hasLongLine
         elif num_lines > documentLineCountThreshold / 2:
             returnFactor = self._DOCUMENT_SIZE_UDL_LARGE
 
-        
+        # Bug 93790: This value is used for opening existing files without
+        # Komodo prefs with word-wrap on.  But only do it for files that
+        # are new to Komodo
+        if hasattr(self, "_hasNoCurrentPref"):
+            if self._hasNoCurrentPref:
+                hasLongLine = any(line_length > 2000 for line_length in line_lengths)
+            del self._hasNoCurrentPref # No longer needed
+            
         documentLineLengthThreshold = self.prefs.getLongPref("documentLineLengthThreshold")
         if documentLineLengthThreshold <= 0:
             # Ignore this metric
-            return returnFactor
+            return returnFactor, hasLongLine
         documentLineLengthThreshold_Halved = documentLineLengthThreshold / 2
-        if any([line_length >= documentLineLengthThreshold for line_length in line_lengths]):
+        if any(line_length >= documentLineLengthThreshold for line_length in line_lengths):
             return self._DOCUMENT_SIZE_ANY_LARGE
-        elif any([line_length >= documentLineLengthThreshold/2 for line_length in line_lengths]):
+        elif any(line_length >= documentLineLengthThreshold/2 for line_length in line_lengths):
             return self._DOCUMENT_SIZE_UDL_LARGE
 
-        return returnFactor
+        return returnFactor, hasLongLine
 
     def _loadfile(self, file):
         if file:
             data = self._get_buffer_from_file(file)
-            self._documentSizeFactor = self._classifyDocumentBySize(data)
+            self._documentSizeFactor, hasLongLine = self._classifyDocumentBySize(data)
             # We don't know if the document is large until we know
             # whether it's a UDL-based document or has a C++ lexer.
             if file.isRemoteFile:
@@ -629,6 +644,14 @@ class koDocumentBase:
         self._lastmd5 = md5(data).digest()
         self.set_buffer(data,0)
         self.setSavePoint()
+
+        # Bug 93790: If the file is new to Komodo, and has any long lines,
+        # where long > 2000 chars, turn word-wrap on
+        if hasLongLine:
+            self.prefs.setLongPref('editWrapType', True)
+            for view in self._views:
+                view.scimoz.wrapMode = view.scimoz.SC_WRAP_WORD
+                
         # if a file is in a project, then we have to check
         # and see if we need to update it's information
         if file.isLocal and file.updateStats():
