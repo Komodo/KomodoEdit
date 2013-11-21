@@ -316,6 +316,14 @@ viewMgrClass.prototype = {
         ko.fileutils.showDiffs(fname, otherfile);
     },
 
+    _openFolder: function(index) {
+        if (index >= 0) {
+            if (!this.view.isContainerOpen(index)) {
+                this.view.toggleOpenState(index);
+            }
+        }
+    },
+
     addNewFileFromTemplate: function() {
         var isLocal = ko.places.manager.currentPlaceIsLocal;
         if (!isLocal) {
@@ -333,12 +341,13 @@ viewMgrClass.prototype = {
         var dir = ko.uriparse.URIToLocalPath(uri);
         var callback = function(view) {
             if (index == -1) {
-                gPlacesViewMgr.view.refreshFullTreeView();
+                this.view.refreshFullTreeView();
             } else {
-                gPlacesViewMgr.refreshViewByIndex(index);
+                this.refreshViewByIndex(index);
+                this._openFolder(index);
             }
-            gPlacesViewMgr.tree.treeBoxObject.invalidate();
-        };
+            this.tree.treeBoxObject.invalidate();
+        }.bind(this);
         ko.views.manager.newTemplateAsync(dir, callback);
     },
 
@@ -349,6 +358,11 @@ viewMgrClass.prototype = {
         try {
             this.view.addNewFileAtParent(name, index);
             this.tree.treeBoxObject.invalidate();
+            let parentURI = (index >= 0
+                             ? this.view.getURIForRow(index)
+                             : ko.places.manager.currentPlace);
+            ko.views.manager.doFileOpenAsync(parentURI + "/" + name);
+            this._openFolder(index);
         } catch(ex) {
             ko.dialogs.alert(ex);
         }
@@ -360,6 +374,7 @@ viewMgrClass.prototype = {
         if (!name) return;
         try {
             this.view.addNewFolderAtParent(name, index);
+            this._openFolder(index);
         } catch(ex) {
             ko.dialogs.alert(ex);
         }
@@ -2845,7 +2860,10 @@ ManagerClass.prototype = {
                 // Delay, because at startup the tree might not be
                 // fully initialized.
                 setTimeout(function() {
-                        ko.places.manager.openDirURI(targetDirURI, null, successFunction);
+                        if (ko.places && ko.places.manager) {
+                            ko.places.manager.openDirURI(targetDirURI, null,
+                                                         successFunction);
+                        }
                     }, 100);
             }
         }
