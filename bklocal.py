@@ -107,10 +107,10 @@ def _getPrettyVersion(version):
               % version
 
 
-def _capture_stdout(argv, ignore_retval=False, cwd=None):
+def _capture_stdout(argv, ignore_retval=False, cwd=None, env=None):
     # Only available on python 2.4 and above
     import subprocess
-    p = subprocess.Popen(argv, cwd=cwd, stdout=subprocess.PIPE)
+    p = subprocess.Popen(argv, cwd=cwd, stdout=subprocess.PIPE, env=env)
     stdout = p.stdout.read()
     retval = p.wait()
     if retval and not ignore_retval:
@@ -2824,7 +2824,6 @@ class SCCBranch(black.configure.Datum):
         self.value = self._get_scc_branch(dirname(__file__))
         self.determined = 1
 
-
 class NormSCCBranch(black.configure.Datum):
     def __init__(self):
         black.configure.Datum.__init__(self, "normSCCBranch",
@@ -2838,6 +2837,50 @@ class NormSCCBranch(black.configure.Datum):
             sccBranch = black.configure.items["komodoVersion"].Get()
         self.value = re.sub(r'[^\w\.]', '_', sccBranch).lower()
         self.determined = 1
+
+class SCCRepo(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "sccRepo",
+            desc="upstream SCC repository")
+
+    def _get_svn_repo(self):
+        cmd = ["svn", "info", "--xml"]
+        try:
+            xml = _capture_stdout(cmd)
+        except RuntimeError:
+            raise black.configure.ConfigureError(
+                "error running '%s'" % (" ".join(cmd),))
+        from xml.etree import ElementTree as ET
+        root = ET.fromstring(xml)
+        return root.find("entry").find("url").text
+
+    def _get_git_repo(self):
+        # Find the current branch
+        env = os.environ.copy()
+        env["LANG"] = "C"
+        cmd = ["git", "describe", "--all", "--candidates=0", "HEAD"]
+        branch = _capture_stdout(cmd).strip()
+        if branch.startswith("heads/"):
+            branch = branch.split("/", 1)[-1] # strip leading "heads/"
+        cmd = ["git", "config", "--get", "branch.%s.remote" % (branch,)]
+        remote = _capture_stdout(cmd).strip()
+        cmd = ["git", "remote", "show", "-n", remote]
+        for line in _capture_stdout(cmd, env=env).splitlines(False):
+            if line.strip().startswith("Push  URL:"):
+                return line.split(":", 1)[-1].strip()
+        return ""
+
+    def _Determine_Do(self):
+        scc_type = black.configure.items["sccType"].Get()
+        self.applicable = True
+        if scc_type == "svn":
+            self.value = self._get_svn_repo()
+        elif scc_type == "git":
+            self.value = self._get_git_repo()
+        else:
+            self.value = ""
+            self.applicable = False
+        self.determined = True
 
 
 class VersionInfoFile(black.configure.Datum):

@@ -717,6 +717,7 @@ configuration = {
     "sccRepoName": "oksvn",                 # openkomodo.com SVN repo
     "sccType": SCCType(),
     "sccBranch": SCCBranch(),               # e.g.: "trunk"
+    "sccRepo": SCCRepo(),                   # upstream repo location
     "normSCCBranch": NormSCCBranch(),       # Normalized version.
     # - base variables:                                             # Example:
     "komodoVersion": KomodoVersion(),                               #   3.10.0-alpha1
