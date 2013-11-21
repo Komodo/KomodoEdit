@@ -44,6 +44,7 @@
 #
 
 import sys, os, getopt, stat, re, string, shutil, urllib, tempfile, cmd
+import functools
 
 # put the Black Python lib directory on sys.path
 installDir = os.path.abspath(os.path.normpath(os.path.dirname(sys.argv[0])))
@@ -184,21 +185,27 @@ class Shell(tmCmd.AugmentedListCmd):
         --version           print Black's version and exit
         
     """
-    def __init__(self):
+    def __init__(self, cmd_overrides):
         tmCmd.AugmentedListCmd.__init__(self)
         self.name = "bk"
+        for cmd, handler in cmd_overrides.items():
+            func_name = "do_" + cmd
+            if not hasattr(self, func_name):
+                self._make_do_wrapper(cmd, handler)
+
 
     def helpdefault(self):
         # tailor default help to the Blackfile, if one is found
         global blackFile, blackFileName
         if blackFile:
-            template = """
+            template_head = """
     %(title)s
-    
+
         bk help             this help
         bk help commands    list the available commands
         bk help <command>   help on a specific command
-
+"""
+            template = """
         bk configure        configure to build %(name)s
         bk build            build %(name)s
         bk clean            clean %(name)s
@@ -208,9 +215,8 @@ class Shell(tmCmd.AugmentedListCmd):
 
         bk package          package up %(name)s bits
         bk upload           upload %(name)s bits to staging area
-        bk cleanprefs <komodo|mozilla>
-                            clean Komodo or Mozilla prefs
-
+"""
+            template_tail = """
     Options:
         -f <blackfile>      specify a Black configuration file [default
                             is "Blackfile.py" in the current or ancestral
@@ -233,6 +239,8 @@ class Shell(tmCmd.AugmentedListCmd):
                 name = ""
                 title = "Development shell for project in '%s'" % \
                         os.path.dirname(blackFileName)
+            template = getattr(blackFile, "helpTemplate", template)
+            template = template_head + template + template_tail
             out.wordWrapping = 0
             out.write(template % {"title":title, "name":name})
             out.wordWrapping = 1
@@ -663,6 +671,36 @@ class Shell(tmCmd.AugmentedListCmd):
         from black.configure import Configure
         return Configure(argv[1:], blackFileName, blackFile)
 
+    def _make_do_wrapper(self, cmd, handler):
+        """Generate a wrapper for an unknown command, and adds a handler for it.
+        @param cmd {str} The command to execute, e.g. "build"
+        @throws ValueError if cmd already has a handler
+        """
+        func_name = "do_" + cmd
+        if hasattr(self, func_name):
+            raise ValueError("Can't make new wrapper for command '%s', handler "
+                             "for it already exists" % (cmd,))
+        @functools.wraps(handler)
+        def handle(argv):
+            # die if there is no project configuration
+            if not blackFile:
+                raise black.BlackError("attempted 'cleanprefs' with no project "\
+                    "configuration: no Blackfile.py was found")
+            try:
+                projectConfig = black.configure.ImportProjectConfig(
+                    blackFileName, blackFile)
+            except ImportError:
+                out.startErrorItem()
+                out.write("error: Attempted '%s' command without having "
+                          "configured. You must first configure your project.\n"
+                          % (cmd,))
+                out.endErrorItem()
+                return 1
+            if HasOverride(blackFile, cmd):
+                return RunOverride(blackFile, projectConfig, cmd, argv)
+            raise black.BlackError("attempted to run command '%s', but the "
+                                   "handler disappeared.\n" % (cmd,))
+        setattr(self, func_name, handle)
 
     def help_configure(self):
         # print the available configuration options
@@ -903,7 +941,7 @@ if __name__ == '__main__':
 
     # run the given command
     try:
-        shell = Shell()
+        shell = Shell(getattr(blackFile, "commandOverrides", {}))
         retval = tmCmd.OneCmd(shell, args)
         sys.exit(retval)
     except black.BlackError, msg:

@@ -901,6 +901,76 @@ def _banner(text, ch='=', length=78):
             suffix = ch * (suffix_len/len(ch)) + ch[:suffix_len%len(ch)]
         return prefix + ' ' + text + ' ' + suffix
 
+def FetchDependentSources(cfg, argv, update=True):
+    """get dependent sources we need (svn externals / git submodules)
+
+    bk fetch
+
+        This command takes no arguments.  It will attempt to download the
+        required external sources (such as the documentation).
+    """
+
+    try:
+        if argv[0] in ("--update", "-u"):
+            update = True
+            argv.pop(0)
+        elif argv[0] in ("--no-update", "-n"):
+            update = False
+            argv.pop(0)
+    except IndexError:
+        pass # no argv
+
+    if not cfg.sccRepo:
+        # Don't know where the SCC repo is, no point in trying anything
+        # (This might be the case for, e.g., source tarballs)
+        return
+
+    children = []
+    """< This is a sequence of dicts; each has a name (for display only),
+         a dir (where the result will go), and some data about how to get
+         the result.  For git repos, the subkey "git" contains the
+         mapping from the toplevel git repo to the url for the sub-repo;
+         both are relative to the root of the server.
+    """
+
+    if cfg.withDocs:
+        children.append(
+            {   "name": "docs",
+                "dir": join(cfg.komodoDevDir, "contrib", "komododoc"),
+                "git": {
+                    "/KomodoEdit.git": "/komododoc.git"
+                }
+            }
+        )
+    for child in children:
+        if cfg.sccType == "git":
+            best = ""
+            for src_repo in child["git"].keys():
+                if len(src_repo) <= len(best):
+                    continue
+                if not cfg.sccRepo.endswith(src_repo):
+                    continue
+                best = src_repo
+            if not best:
+                if not update and exists(child["dir"]):
+                    continue
+                raise RuntimeError("Don't know how to get %s from %s"
+                                   % (child["name"], cfg.sccRepo))
+            url = cfg.sccRepo[:-len(src_repo)] + child["git"][src_repo]
+
+            if exists(child["dir"]):
+                if update:
+                    _run(["git", "pull", "--rebase"], cwd=child["dir"])
+            else:
+                if not isdir(dirname(child["dir"])):
+                    os.makedirs(dirname(child["dir"]))
+                _run(["git", "clone", url, child["dir"]])
+        else:
+            # svn doesn't reach here, svn:externals can do the job
+            raise RuntimeError("Don't know how to get %s via %s"
+                               % (child["name"], cfg.sccType))
+
+
 def StripBinaries(topdir):
     """Remove any unnecssary information from the Komodo binaries"""
     import subprocess
@@ -2090,6 +2160,9 @@ def _BuildKomodo(cfg, argv):
     if noquick:
         argv.remove("noquick")     
 
+    # Fetch sub-repos if necessary
+    retval = FetchDependentSources(cfg, argv, update=False)
+
     # Unzip the prebuilt Python if necessary.
     retval = ExtractPrebuiltPython(cfg, argv)
 
@@ -2631,6 +2704,7 @@ def BuildCrashReportSymbols(cfg):
 
 
 commandOverrides = {
+    "fetch": FetchDependentSources,
     "build": BuildKomodo,
     "run": RunKomodo,
     "cleanprefs": CleanPreferences,
@@ -2643,3 +2717,19 @@ commandOverrides = {
     "image": ImageKomodo,
     "grok": GrokKomodo,
 }
+
+helpTemplate = """
+        bk distclean        completely clean everything
+        bk configure        configure to build %(name)s
+        bk fetch            fetch dependent sources
+        bk build            build %(name)s
+        bk clean            clean %(name)s
+        bk run              run the %(name)s app
+        bk start <command>  execute a command in the configured environment
+        bk test             run %(name)ss self-test suite
+
+        bk package          package up %(name)s bits
+        bk upload           upload %(name)s bits to staging area
+        bk cleanprefs <komodo|mozilla>
+                            clean Komodo or Mozilla prefs
+"""
