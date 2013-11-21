@@ -268,7 +268,6 @@ this._openProject = function(inNewWindow) {
     if (inNewWindow) {
         ko.launch.newWindow(part.url);
     } else {
-        this.projectsTreeView.removeProject(part);
         ko.projects.open(part.url);
     }
 };
