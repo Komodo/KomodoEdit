@@ -93,7 +93,10 @@ from functools import partial
 # to be returned from scan_et() by the clients of this module
 import ciElementTree as et
 
-import compiler
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", category=DeprecationWarning)
+    import compiler
 from compiler import ast
 from compiler.visitor import dumpNode, ExampleASTVisitor
 import parser
