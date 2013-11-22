@@ -1225,6 +1225,8 @@ class GenericCommandHandler:
             (actualSelStart, actualSelEnd) = (actualSelEnd, actualSelStart)
         rectangularSelectionCaret = scimoz.rectangularSelectionCaret
         rectangularSelectionAnchor = scimoz.rectangularSelectionAnchor
+        rectangularSelectionCaretVirtualSpace = scimoz.rectangularSelectionCaretVirtualSpace
+        rectangularSelectionAnchorVirtualSpace = scimoz.rectangularSelectionAnchorVirtualSpace
         startLine = scimoz.lineFromPosition(actualSelStart)
         endLine = scimoz.lineFromPosition(actualSelEnd)
         targetStart = scimoz.targetStart
@@ -1259,9 +1261,14 @@ class GenericCommandHandler:
             scimoz.endUndoAction()
             scimoz.anchor = anchor
             scimoz.currentPos = currentPos
-            scimoz.selectionMode = scimoz.SC_SEL_RECTANGLE
-            scimoz.rectangularSelectionCaret = rectangularSelectionCaret
-            scimoz.rectangularSelectionAnchor = rectangularSelectionAnchor
+            if rectangularSelectionCaret < rectangularSelectionAnchor:
+                scimoz.rectangularSelectionCaret = rectangularSelectionCaret
+                scimoz.rectangularSelectionAnchor = rectangularSelectionAnchor
+            else:
+                scimoz.rectangularSelectionAnchor = rectangularSelectionAnchor
+                scimoz.rectangularSelectionCaret = rectangularSelectionCaret
+            scimoz.rectangularSelectionCaretVirtualSpace = rectangularSelectionCaretVirtualSpace
+            scimoz.rectangularSelectionAnchorVirtualSpace = rectangularSelectionAnchorVirtualSpace
             scimoz.targetStart = targetStart
             scimoz.targetEnd = targetEnd
             # Don't know what else needs to be restored.
