@@ -1,0 +1,37 @@
+# make behaviour is:
+#
+#   $ rm answer.txt
+#   $ make
+#   creating answer.txt
+#   touch answer.txt
+#   $ make
+#   make: `answer.txt' is up to date.
+#
+# rake behaviour is:
+#
+#   $ rm answer.txt
+#   $ rake -s
+#   creating answer.txt
+#   $ rake -s
+
+>>> from mklib import runner
+>>> import os, sys
+>>> if os.path.exists('answer.txt'):
+...     os.remove('answer.txt')             # rm answer.txt
+>>> runner.setup_logging(sys.stdout)
+
+>>> runner.mk([''])                         # mk
+creating answer.txt
+>>> assert os.path.exists('answer.txt')
+
+>>> runner.mk([''])                         # mk
+mk: Task `answer' is up to date.
+
+>>> runner.mk(['', 'answer.txt'])           # mk answer.txt
+mk: File `answer.txt' is up to date.
+
+>>> runner.mk(['', 'foo.txt'])              # mk foo.txt
+Traceback (most recent call last):
+  ...
+MkError: no task to make file `foo.txt'
+

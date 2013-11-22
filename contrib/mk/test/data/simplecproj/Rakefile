@@ -1,0 +1,14 @@
+task :default => "prog"
+
+file "prog" => "prog.o" do
+    puts "link it"
+    cp "prog.o", "prog"
+end
+
+file "prog.o" => "prog.c" do
+    puts "compile it"
+    cp "prog.c", "prog.o"
+end
+
+file "prog.c" => "prog.h"
+

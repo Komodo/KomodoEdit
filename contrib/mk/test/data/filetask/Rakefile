@@ -1,0 +1,6 @@
+task :default => "answer.txt"
+file "answer.txt" do
+    puts "creating answer.txt"
+    touch "answer.txt"
+end
+

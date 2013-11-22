@@ -1,0 +1,22 @@
+#TODO: this test fails when run as part of the full suite. I don't know why.
+
+>>> import os, sys, time
+>>> from configurelib import runner
+>>> runner.setup_logging(sys.stdout)    # doctest doesn't watch stderr
+>>> sys.path.insert(0, '.')             # to get configure.py on path
+>>> if os.path.exists('config.py'):
+...     os.remove('config.py')
+
+>>> import configure
+>>> argv = ['']
+>>> runner.configure(configure.config_vars, argv=argv)
+foo: bar
+<BLANKLINE>
+Wrote configuration to `config.py'.
+>>> os.path.exists('config.py')
+True
+
+#TODO: how to test this:
+#    >>> retval = os.system('python config.py foo')
+#    foo = 'bar'
+

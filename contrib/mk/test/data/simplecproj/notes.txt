@@ -1,0 +1,52 @@
+"""
+# If the following were achievable for the simple C app Doitfile, would
+# this be compelling?
+class prog(File):
+    default = True
+    path = "prog${EXEEXT}"
+    dep = "obj"
+    def doit(self):
+        self.sh("ld ...")
+class obj(File):
+    dep = "source"
+    def doit(self):
+        self.sh("gcc -c ...")
+class source(CFile):
+    path = "prog.c"
+
+# Doesn't really scale to multiple files, does it? Maybe:
+class prog(File):
+    default = True
+    path = "prog${EXEEXT}"
+    dep = "obj"
+    def doit(self):
+        self.sh("ld ...")
+class obj(File):
+    dep = "source"
+    def doit(self):
+        self.sh("gcc -c ...")
+class source(CFiles):
+    paths = ["prog.c", "mylib.c"]
+
+
+# Without too many magic special classes:
+#   $ do -T
+#   do prog
+#   do obj  # also 'do prog.o'
+# So... a "File" defn becomes a task iff it has a "doit"?
+# Too magical/subtle. (Aside: 'mk' becomes a better name here.)
+class prog(File):
+    default = True
+    path = "prog${EXEEXT}"
+    dep = "obj"
+    def doit(self):
+        self.run("ld ...")
+class obj(File):
+    dep = "source"
+    def doit(self):
+        self.run("gcc -c ...")
+class source(File):
+    path = "prog.c"
+    dep = "prog.h"
+"""
+

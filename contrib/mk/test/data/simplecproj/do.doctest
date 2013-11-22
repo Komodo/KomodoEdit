@@ -1,0 +1,35 @@
+# Setup for the test.
+>>> import os, sys
+>>> from mklib import runner
+>>> runner.setup_logging(sys.stdout)
+>>> runner.mk(['', 'distclean'])
+
+
+>>> runner.mk([''])
+Traceback (most recent call last):
+ ...
+MkError: no task to make file `prog.h', needed by file `prog.c'
+
+
+# 'mk' actually behaves better than 'make' here. Make thinks that the
+# 'prog.c: prog.h' production implies a way to make 'prog.c'. A Makefile.py
+# can differentiate. Rake seems to behave in the same way as make here.
+>>> open('prog.h', 'w').close()  # touch prog.h
+>>> runner.mk([''])
+Traceback (most recent call last):
+ ...
+MkError: no task to make file `prog.c', needed by file `prog.o'
+
+
+>>> open('prog.c', 'w').close()  # touch prog.h
+>>> runner.mk([''])
+compile it
+link it
+>>> os.path.exists("prog.o")
+True
+>>> os.path.exists("prog")
+True
+
+
+>>> runner.mk(['', 'prog'])
+mk: Task `prog' is up to date.

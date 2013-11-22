@@ -1,0 +1,13 @@
+#!/usr/bin/env python2.6
+# 'mk' launch stub for Un*x platforms.
+try:
+    from mklib import runner
+except ImportError:
+    # Try in source tree layout.
+    import sys
+    from os.path import dirname, realpath
+    sys.path.insert(0, dirname(dirname(realpath(__file__))))
+    from mklib import runner
+    
+runner.main()
+

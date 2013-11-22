@@ -1,0 +1,23 @@
+
+task :finishup => :sources do
+    puts "finishing up"
+    touch "build/done.txt"
+end
+
+file "build" do
+    mkdir "build"
+end
+
+file "build/foo.txt" => ["build", "src/foo.txt"] do
+    puts "copying foo.txt"
+	cp "src/foo.txt", "build/foo.txt"
+end
+file "build/bar.txt" => ["build", "src/bar.txt"] do
+    puts "copying bar.txt"
+	cp "src/bar.txt", "build/bar.txt"
+end
+
+task :sources => ["build/foo.txt", "build/bar.txt"]
+
+
+

@@ -1,0 +1,27 @@
+>>> import os, sys
+>>> from configurelib import runner
+>>> runner.setup_logging(sys.stdout)    # doctest doesn't watch stderr
+>>> sys.path.insert(0, '.')             # to get configure.py on path
+>>> if os.path.exists('config.py'):
+...     os.remove('config.py')
+
+
+# The task that doesn't use a cfg should work.
+>>> runner.mk(['', 'doesnotusecfg'])
+mk: [doesnotusecfg] hi
+
+>>> runner.mk(['', 'usescfg'])
+BOOM
+
+>>> import configure
+>>> argv = ['']
+>>> runner.configure(configure.config_vars, argv=argv)
+foo: bar
+<BLANKLINE>
+Wrote configuration to `config.py'.
+>>> os.path.exists('config.py')
+True
+
+>>> runner.mk(['', 'usescfg'])
+mk: [usescfg] self.cfg.foo: 'bar'
+

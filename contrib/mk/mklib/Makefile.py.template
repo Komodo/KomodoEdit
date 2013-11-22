@@ -1,0 +1,34 @@
+
+"""Makefile for the 'PROJECT_NAME' project.
+
+${common_task_list}
+
+See `mk -h' for options.
+"""
+
+import os
+import re
+
+from mklib import Task, Configuration
+from mklib import utils
+from mklib import sh
+
+
+
+class hello(Task):
+    """Say hi."""
+    def make(self):
+        self.log.info("Hello, World!")
+
+
+class todo(Task):
+    """Print out TO\DOs and X\XX's found in the source."""
+    def make(self):
+        for path in utils.paths_from_path_patterns(['.'],
+                        excludes=[".svn", "*.pyc", ".hg", "CVS"]):
+            self._dump_todos_from_path(path)
+
+    def _dump_todos_from_path(self, path):
+        os.system('grep -nH "TO''DO\\|X''XX" "%s"' % path)
+
+

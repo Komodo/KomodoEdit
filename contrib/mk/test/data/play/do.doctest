@@ -1,0 +1,43 @@
+# Setup the test.
+>>> import sys
+>>> from mklib import runner
+>>> runner.setup_logging(sys.stdout)
+>>> runner.mk(['', 'testclean'])
+
+
+# The following invocations should all fail because the 'blah' dependency
+# of file 'foo' does not exist.
+>>> runner.mk(['', 'foo'])
+Traceback (most recent call last):
+  ...
+MkError: no task to make file `blah', needed by file `foo'
+>>> runner.mk(['', 'a'])
+Traceback (most recent call last):
+  ...
+MkError: no task to make file `blah', needed by task `a'
+>>> runner.mk([''])
+Traceback (most recent call last):
+  ...
+MkError: no task to make file `blah', needed by task `a'
+
+
+# Asking to create just 'bar' *should* work, because the dependency for
+# 'foo' is then irrelevant (even though they are built by the same task).
+>>> runner.mk(['', 'bar'])
+touch foo
+touch bar
+
+
+# Create 'blah' so that the default task can proceed.
+>>> open('blah', 'w').close()
+
+>>> runner.mk([''])
+touch foo
+touch bar
+>>> runner.mk(['', 'foo'])
+touch foo
+touch bar
+>>> runner.mk(['', 'a'])
+touch foo
+touch bar
+

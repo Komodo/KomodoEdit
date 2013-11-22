@@ -1,0 +1,52 @@
+# Setup for the test.
+>>> import os, sys
+>>> from mklib import runner
+>>> runner.setup_logging(sys.stdout)
+
+# Common tasks
+>>> runner.mk(['', '-T'])
+mk all         # (default)
+mk always      # (default)
+mk a:ack
+mk docs:build
+
+# get('*:foo')    -> tasks named 'foo' in all namespaces
+>>> runner.mk(['', '-T', '*:clean'])
+mk clean
+mk clean
+mk a:clean     # clean up
+mk a:b:clean
+mk docs:clean
+
+# get('a:*:foo')  -> tasks named 'foo' in all namespaces under
+#                    and including 'a'
+>>> runner.mk(['', '-T', 'a:*:clean'])
+mk a:clean    # clean up
+mk a:b:clean
+
+# get('a:foo')    -> tasks named 'foo' in 'a' namespace
+>>> runner.mk(['', '-T', 'a:clean'])
+mk a:clean  # clean up
+
+# get('foo')      -> tasks named 'foo' in default namespace
+#                    plus default task(s) in 'foo' namespace (if any)
+>>> runner.mk(['', '-T', 'foo'])
+mk foo
+>>> runner.mk(['', '-T', 'a'])
+mk a:ack
+
+# get(':foo')     -> tasks named 'foo' in default namespace
+>>> runner.mk(['', '-T', ':foo'])
+mk foo
+>>> runner.mk(['', '-T', ':a'])
+
+# get('a:')       -> default task(s) in 'a' namespace (if any)
+>>> runner.mk(['', '-T', 'foo:'])
+>>> runner.mk(['', '-T', 'a:'])
+mk a:ack
+
+# get('')         -> default task(s) in the default namespace
+>>> runner.mk(['', '-T', ''])
+mk all     # (default)
+mk always  # (default)
+

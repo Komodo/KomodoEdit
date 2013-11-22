@@ -1,0 +1,153 @@
+- [major bug] Add mk/bin to PATH on Windows (i.e. using 'mk.exe') causes
+  Python path issues that breaks, e.g. "mk quicksetup" on TaraG's box
+  in "code.as.com" project.
+- svn prop issues causing test failures. Get all props from old repo.
+- failure to have a config.py should be lazy. Only try to load it, and
+  error out, when first access to self.cfg\.  This allows tasks that
+  don't need the config to run or to adapt if there is no config (e.g. "mk
+  distclean"). The error could also pinpoint the location of the cfg
+  usage
+- a plan for this (see kodoc/Makefile.py for practical example of prob):
+    #TODO: This sucks because of lack of cfg access.
+    
+    print dir(cfg)
+    print "TASK", build.deps
+    print "CFG", cfg.build_dir
+    
+    mn = SafeConfigParser()
+    mn.read(join("en-US", "manifest.ini"))
+    for dst, src in mn.items("all"):
+        if not src:
+            src = dst
+        #TODO: For this to work, would have to allow multiple defs of the
+        #      same class in the same module. Can we make that work with
+        #      Python? Not sure.
+        class build(Task):
+            def make(self):
+                sh.cp(src, dst, self.log)
+    
+    if False:
+        class build3(TaskGroup):
+            def deps_and_results(self):
+                yield src, dst
+            def make(self, src, dst):
+                sh.cp(src, dst, self.log)
+    if False:
+        class doc_file(Rule):
+            """A doc file under $lang/... is built to $build_dir/$lang/...
+            by this rule.
+            """
+            def match(self, src):
+                """Returns the result path that this rule generates for the
+                given path, or None if this rule does not apply to the given
+                input path.
+                """
+                if not src.startswith(self.cfg.lang + os.sep):
+                    return None
+                #TODO: the foo.$app_name.ext -> foo.ext translation
+                return join(self.cfg.build_dir, src)
+    
+            def make(self, src, dst):
+                XXX
+    
+        class build3(Task):
+            #...
+            def deps(self):
+                for src, dst in self.manifest():
+                    yield join(self.build_dir, dst)
+- alternative TaskGroup idea:
+    class foo(TaskGroup):
+        def tasks(self):
+            yield PreprocessTask(dep, result)
+            yield CopyTask(src, dst)
+            ...
+  Can this work?
+- File:
+    - document its intended uses: Should it be able to have a "def make"?
+      E.g. what about foo.p.py -> foo.py preprocessing for Komodo? How would
+      that be handled?
+    - should File move to file.py or something? Move to makefile.py for starters
+- rationalize 'log' args to mklib.sh.* functions
+- see "TODO: mk" in kodoc/Makefile.py
+- look at "DoIt":https://launchpad.net/doit 
+- Rules. An idea:
+    class doc_file(Rule):
+        """A doc file under $lang/... is built to $build_dir/$lang/...
+        by this rule.
+        """
+        def match(self, src):
+            """Returns the result path that this rule generates for the
+            given path, or None if this rule does not apply to the given
+            input path.
+            """
+            if not src.startswith(self.cfg.lang + os.sep):
+                return None
+            #TODO: the foo.$app_name.ext -> foo.ext translation
+            return join(self.cfg.build_dir, src)
+
+        def make(self, src, dst):
+            XXX
+- test suite work:
+    - does 'Configuration' "take" if defined after a Task?
+      From Makefile.define_task, it looks like no.
+    - see TODOs for test cases in the code
+    - case for recursive dependencies
+    - more comparison output with make (e.g., make foo foo)
+    - one for each rake test?
+- improve "-T|--tasks" description in "-h" output
+- need a way to depend on a Configuration change (or on a manually handled
+  version of config stuff) -> perhaps on the hashed value of the given
+  data. Could try to make that automatic/easy with usage of 'self.cfg'?
+  Maybe that would be too subtle/implicit.
+- Experiment with Komodo build scenarios (e.g. PreprocessTask, better yet
+  a PreprocessRule) to get a feel for limitations.
+- directory switching when executing tasks
+    - logging the directory switches
+- path normalization necessary?
+- equivalent to rakelib support? How does that work? (Was looking at packr
+  example -- see Reader star on Ajaxian)
+- all targets implicitly depend on the Doitfile
+  (there should also probably be a mechanism to include other support files
+  in that)
+- Special error handling for no arg and no default task. Should we
+  follow rake and have an actual separate "default" task? Might fit better
+  with "default" tasks in imported makefile.
+- something more compelling than test/data/simplecproj/Makefile.py. That is
+  quite long and will need to be defended.
+- equiv for rake's "directory" task (would it be helpful)?
+- singular '<task>.result' and '<task>.dep' support
+- md5-based out-of-date handling
+- a library of useful common functions (c.f. rake/lib/rake/contrib/sys.rb)
+- guard against recursive task deps
+- improve "no default task" error msg to refer to "mk -T[v]" for list of
+  tasks
+- play with a nice way to easily get C/C++ header deps
+- give example of specializing a Configuration class
+- error/warning highlighting in bash:
+    c.f. http://shawnwilsher.com/archives/184
+    make()
+    {
+      pathpat="(/[^/]*)+:[0-9]+”
+      ccred=$(echo -e “\033[0;31m")
+      ccyellow=$(echo -e "\033[0;33m")
+      ccend=$(echo -e "\033[0m")
+      /usr/bin/make "$@" 2>&1 | sed -E -e "/[Ee]rror[: ]/ s%$pathpat%$ccred&$ccend%g" -e "/[Ww]arning[: ]/ s%$pathpat%$ccyellow&$ccend%g"
+      return ${PIPESTATUS[0]}
+    }
+
+
+
+
+Design notes
+============
+
+- tasks should be collected by TaskMaster (because there can be
+  multiple Doitfile's)
+- each task given a link back to its Doitfile
+
+
+Side thoughts
+=============
+
+- use FSEvents on Leopard to speed up determination of what's changed
+

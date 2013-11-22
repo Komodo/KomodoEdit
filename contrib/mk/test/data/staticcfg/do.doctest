@@ -1,0 +1,9 @@
+# Setup for the test.
+>>> import os, sys
+>>> from mklib import runner
+>>> runner.setup_logging(sys.stdout)
+
+>>> runner.mk(['', 'hello'])
+mk: [hello] cfg is <Configuration 'config.py'>
+mk: [hello] cfg foo='bar'
+

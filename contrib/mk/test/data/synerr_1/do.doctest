@@ -1,0 +1,8 @@
+>>> from mklib.runner import mk
+>>> mk(['', '-T'])
+mk foo  # (default) do some foo
+>>> mk(['', '-Tv'])
+Traceback (most recent call last):
+  ...
+IllegalMakefileError: task `foo's `deps' attribute is a string, it must be a list (or a method that returns a list)
+

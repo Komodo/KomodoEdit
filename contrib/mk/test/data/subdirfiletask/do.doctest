@@ -1,0 +1,41 @@
+>>> from os.path import join, exists
+>>> import sys
+>>> from mklib import runner
+>>> if sys.platform == "win32":
+...     class path_normalizer(object):
+...         def write(self, s):
+...             sys.stdout.write(s.replace('\\', '/'))
+...         def __getattr__(self, n):
+...             return getattr(sys.stdout, n)
+...     runner.setup_logging(path_normalizer())
+... else:
+...     runner.setup_logging(sys.stdout)
+
+>>> runner.mk(['', 'clean'])
+>>> runner.mk(['', 'answer'])
+>>> assert exists(join('subdir', 'answer.txt'))
+>>> runner.mk(['', 'answer'])
+mk: Task `answer' is up to date.
+
+>>> runner.mk(['', 'clean'])
+>>> runner.mk(['', 'answer.txt'])
+Traceback (most recent call last):
+  ...
+MkError: no task to make file `answer.txt'
+
+>>> runner.mk(['', 'subdir/answer.txt'])
+>>> runner.mk(['', 'subdir/answer.txt'])
+mk: File `subdir/answer.txt' is up to date.
+
+
+# If class File didn't use absolute paths, then the explicit
+# File definition in subdir/Makefile.py would result in
+# an incorrect path being considered and an incorrect
+# assumption that 'answer' is up-to-date in the following case.
+>>> from mklib.sh import touch
+>>> runner.mk(['', 'clean'])
+>>> touch('subdir/question.txt')
+>>> touch('answer.txt')
+>>> runner.mk(['', 'answer'])
+
+

@@ -1,0 +1,39 @@
+# Setup the test.
+>>> import sys, time, os
+>>> from mklib import runner
+>>> runner.setup_logging(sys.stdout)
+>>> runner.mk(['', 'clean'])
+
+>>> runner.mk([''])
+Traceback (most recent call last):
+  ...
+MkError: no task to make file `bar.txt', needed by task `foo'
+>>> runner.mk(['', 'foo'])
+Traceback (most recent call last):
+  ...
+MkError: no task to make file `bar.txt', needed by task `foo'
+>>> runner.mk(['', 'foo.txt'])
+Traceback (most recent call last):
+  ...
+MkError: no task to make file `bar.txt', needed by file `foo.txt'
+
+
+>>> runner.mk(['', 'bar'])
+
+
+>>> runner.mk(['', 'foo.txt'])
+mk: [foo] cp bar.txt foo.txt
+>>> runner.mk(['', 'foo.txt'])
+mk: File `foo.txt' is up to date.
+>>> runner.mk([''])
+mk: Task `foo' is up to date.
+
+#HACK: Sleep to ensure mtime change (resolution is 1 second).
+#      Using a checksum out-of-date scheme would not suffer from this.
+>>> time.sleep(1) 
+>>> runner.mk(['', 'bar'])
+>>> runner.mk([''])
+mk: [foo] cp bar.txt foo.txt
+>>> runner.mk([''])
+mk: Task `foo' is up to date.
+

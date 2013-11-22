@@ -1,0 +1,5 @@
+>>> from mklib import runner
+>>> runner.mk([''])    # equivalent to running 'mk' in this dir
+make answer
+>>> runner.mk([''])    # equivalent to running 'mk' in this dir
+make answer

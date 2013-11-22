@@ -1,0 +1,207 @@
+
+== Simple Tasks
+
+    task :name
+    
+    class name(Task):
+        pass
+
+
+=== Tasks with Prerequisites
+
+    task :name => [:prereq1, :prereq2]
+
+    class name(Task):
+        deps = ["prereq1", "prereq2"]
+
+
+=== Tasks with Actions
+
+    task :name => [:prereq1, :prereq2] do |t|
+      # actions (may reference t)
+    end
+
+    class name(Task):
+        deps = ["prereq1", "prereq2"]
+        def mk(self):
+            # actions
+
+=== Multiple Definitions
+
+    task :name
+    task :name => [:prereq1]
+    task :name => [:prereq2]
+    task :name do |t|
+      # actions
+    end
+
+Nothing currently like this in mk. I see that it might be useful tho
+(e.g. wanting to add to the "clean" task in a separate Makefile). I didn't
+seem to need it for the APy build. I suspect the main use for this in rake
+is to optionally include certain prereqs, e.g.:
+
+    task :name => [:prereq]
+    if is_windows?
+        task :name => [:win_prereq]
+    end
+
+which is accomplished in mk like this:
+
+    class name(Task):
+        def deps(self):
+            yield "prereq"
+            if is_windows():
+                yield "win_prereq"
+
+If it becomes important to allow multiple instances of the same task class
+that join the deps and outputs, then that can be done.
+
+== File Tasks
+
+    file "prog" => ["a.o", "b.o"] do |t|
+      sh "cc -o #{t.name} #{t.prerequisites.join(' ')}"
+    end
+
+doit doesn't currently nicely support this, but it must. Syntax ideas aren't as
+nice as rake.
+
+    class dummy(FileTask):
+        outputs = ["prog"]
+        deps = ["a.o", "b.o"]
+        def mk(self):
+            sh("cc -o %s %s", self.target, ' '.join(self.deps))
+
+The needed "dummy" is killer: basically leans towards a redesign using class
+*instances* as targets. But then Python doesn't have a convenient
+block/closure syntax to make this elegant. Bletch:
+
+    def build_prog(t):
+        #...
+    file_target("prog", ["a.o", "b.o"], build_prog)
+
+Need a better way to do this or 'mk' is dead. Quixote-style separate syntax
+is overkill... and kills all tools. It has to be Python code.
+
+The old function syntax isn't good because it loses the clean way to define
+conditional deps and to have a bunch of `self.` vars. It also doesn't help
+the filename-as-a-string problem.
+
+
+== Tasks with Parallel Prerequisites
+
+    multitask :copy_files => [:copy_src, :copy_doc, :copy_bin] do
+      puts "All Copies Complete"
+    end
+
+No current equivalent in mk, however the idea was to support deeper
+make/scons-like "-j" support that would be the multi-process/thread version
+of this automatically based on dependencies. Not sure if that is practical
+or if explicitly-given `multitask`'s are more handy.
+
+== Rules
+
+    rule '.o' => ['.c'] do |t|
+      sh "cc #{t.source} -c -o #{t.name}"
+    end
+
+mk has no such current support, tho this should be easy with something like:
+
+    class build_object_files(Rule):
+        output_pattern = ".o"
+        input_pattern = ".c"
+        def mk(self):
+            sh("cc %s -c -o %s", self.dep, self.output)
+
+== Namespaces
+
+    namespace "main"
+      task :build do
+        # Build the main program
+      end
+    end
+
+    namespace "samples" do
+      task :build do
+        # Build the sample programs
+      end
+    end
+    
+    task :build => ["main:build", "samples:build"]
+
+No equivalent in mk. Best practice would require separating to different
+modules with option of controlling the namespace. Good. Just need to clarify
+how the importing is done in practice.
+
+    ---- Makefile.py ----
+    from doitlib import Task, include_makefile
+    
+    include_makefile("core/Makefile.py", ns="core")
+    include_makefile("src/codeintel/Makefile.py", ns="codeintel")
+
+    class build(Task):
+        deps = ["core.build", "codeintel.build"]
+    ----
+
+    ---- core/Makefile.py ----
+    class build(Task):
+        pass
+    ----
+    
+    ---- src/codeintel/Makefile.py ----
+    class build(Task):
+        pass
+    ----
+
+=== rake/doc/example/Rakefile2
+
+Unless can come up with reasonably compelling similar answer to Rakefile2
+(the for-loop definition of separate tasks for a.c and b.c) for mk, then
+mk is dead. Here is as compelling a system (mk needs to be updated to support
+the __metaclass__ technique).
+
+
+---- in doitlib ----
+class TaskType(type):
+    def __init__(cls, name, bases, dct):
+        super(TaskType, cls).__init__(name, bases, dct)
+        if bases != (object,):
+            print "create target", name, bases, dct
+        
+class Task(object):
+    __metaclass__ = TaskType
+----
+
+SRCFILES = glob("*.c")
+OBJFILES = [splitext(f)[0]+".o" for f in SRCFILES]
+
+for srcfile, objfile in zip(SRCFILES, OBJFILES):
+    class compile(FileTask):
+        output = objfile
+        dep = srcfile
+        def mk(self):
+            sh("gcc %s -c -o %s", self.dep, self.output)
+
+class main(FileTask):
+    default = True
+    deps = OBJFILES
+    output = "main"
+    def mk(self):
+        sh("gcc -o %s %s", self.output, ' '.join(deps))
+
+class clean(Task):
+    def mk(self):
+        rm_f(OBJFILES)
+        rm_f(glob("*~"))
+
+class clobber(Task):
+    deps = ["clean"]
+    def mk(self):
+        rm_f("main")
+
+class run(Task):
+    def mk(self):
+        sh("./main")
+
+
+
+

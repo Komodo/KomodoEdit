@@ -1,0 +1,6 @@
+>>> from mklib.runner import mk
+>>> mk(['', 'foo.txt'])
+Traceback (most recent call last):
+  ...
+IllegalMakefileError: multiple targets build the same file: both task `builds_foo_too' and task `builds_foo' build `foo.txt'
+

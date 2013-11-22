@@ -1,0 +1,14 @@
+>>> from mklib import runner
+>>> runner.mk(['', '-T'])
+mk baz  # (default)
+mk foo  # do some foo
+>>> runner.mk(['', '-Tv'])
+mk bar
+    dep file `a.txt'
+    dep file `b.txt'
+mk baz   # (default)
+mk foo   # do some foo
+    dep task `foo'
+mk quux
+    dep file `p.txt'
+    dep file `q.txt'

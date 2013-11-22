@@ -1,0 +1,13 @@
+# Setup for the test.
+>>> import os, sys
+>>> from mklib import runner
+>>> runner.setup_logging(sys.stdout)
+>>> runner.mk(['', 'clean'])
+
+
+>>> runner.mk(['', 'src_files'])
+mk: [src_files] cp `src/foo.txt' `build/foo.txt'
+mk: [src_files] cp `src/bar.txt' `build/bar.txt'
+
+#TODO: test re-building of just individual bits
+

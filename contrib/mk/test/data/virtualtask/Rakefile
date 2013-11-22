@@ -1,0 +1,5 @@
+task :default => :answer
+task :answer do
+    puts "do answer"
+end
+
