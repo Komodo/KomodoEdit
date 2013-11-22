@@ -189,18 +189,22 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
             fout.close()
             textlines = text.splitlines()
             env = self._get_fixed_env(prefset, cwd)
-            checkRCFile = False
             rcfilePath = prefset.getStringPref(self.rcfile_prefname)
+            rcfileToCheck = None
             if rcfilePath and os.path.exists(rcfilePath):
                 extraArgs = [ '--rcfile=%s' % (rcfilePath,) ]
-                checkRCFile = True
+                rcfileToCheck = rcfilePath
             else:
+                # Check for the default ~/.pylintrc
+                defaultRC = os.path.expanduser(os.path.join("~", ".pylintrc"))
+                if os.path.exists(defaultRC):
+                    rcfileToCheck = defaultRC
                 extraArgs = []
             preferredLineWidth = prefset.getLongPref("editAutoWrapColumn")
             if preferredLineWidth > 0:
                 usePreferredLineWidth = True
-                if checkRCFile:
-                    f = open(rcfilePath, "r")
+                if rcfileToCheck is not None:
+                    f = open(rcfileToCheck, "r")
                     try:
                         for txt in iter(f):
                             if self._disables_C0301_re.match(txt) \
