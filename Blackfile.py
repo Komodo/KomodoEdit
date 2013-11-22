@@ -966,6 +966,8 @@ def FetchDependentSources(cfg, argv, update=True):
                     os.makedirs(dirname(child["dir"]))
                 _run(["git", "clone", url, child["dir"]])
         else:
+            if exists(child["dir"]) and not update:
+                continue
             # svn doesn't reach here, svn:externals can do the job
             raise RuntimeError("Don't know how to get %s via %s"
                                % (child["name"], cfg.sccType))
