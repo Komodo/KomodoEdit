@@ -156,26 +156,6 @@ class _CommonHTMLLinter(object):
             return code
         return self._spaceOutNonNewlines(code)
 
-    # Allow script and style tags to be wrapped with one of
-    # <![CDATA[ ... ]]> or <!-- .. -->
-    # Allow for bits of template code inside a style or script tag as well.
-
-    _leading_ignorables_re = re.compile(r'\A((?:<!\[CDATA\[|<!--|\s)*)(.*?)((?:\]\]>|-->|\s)*)\Z', re.DOTALL)
-    _non_ws_re = re.compile('\\S')
-
-    def _get_unwrappedText(self, currText, koDoc, i, startPt, endPt, lim):
-        parts = list(self._leading_ignorables_re.match(currText).groups())
-        if (self._non_ws_re.search(parts[0])
-            and i > 0
-            and koDoc.familyForPosition(startPt - 1) == "M"):
-            parts[0] = self._spaceOutNonNewlines(parts[0])
-        if (self._non_ws_re.search(parts[2])
-            and (i == lim - 1
-                 or (i < lim - 1
-                     and koDoc.familyForPosition(endPt) == "M"))):
-            parts[2] = self._spaceOutNonNewlines(parts[2])
-        return parts
-    
     def addLineNumbers(self, s, currLineNum):
         lines = s.splitlines(True)
         nums = range(0, len(lines))
