@@ -2692,11 +2692,17 @@ class BuildNum(black.configure.Datum):
     def _get_simplified_svn_version(self):
         # Note that this can be a fairly complex string (perhaps not
         # suitable for inclusion in a filename if ':' is in it). See
-        # "svnversion --help" for details.
-        this_dir = dirname(__file__)
-        changestr = _capture_stdout(["svnversion", this_dir]).strip()
-
-        # Simplify the possibly-complex svnversion.
+        # "svn info --help" for details.
+        cmd = ["svn", "info", "--xml", dirname(__file__)]
+        try:
+            xml = _capture_stdout(cmd)
+        except RuntimeError:
+            raise black.configure.ConfigureError(
+                "error running '%s'" % (" ".join(cmd),))
+        from xml.etree import ElementTree as ET
+        root = ET.fromstring(xml)
+        changestr = root.find("entry").find("commit").get("revision")
+        # Simplify the possibly-complex svn version.
         try:
             changenum = int(changestr)
         except ValueError, ex:
@@ -2704,8 +2710,7 @@ class BuildNum(black.configure.Datum):
             try:
                 changenum = int(re.match("(\d+)", changestr).group(1))
                 sys.stderr.write("configure: simplifying complex changenum "
-                                 "from 'svnversion': %s -> %s "
-                                 "(see `svnversion --help` for details)\n"
+                                 "from 'svn commit revision': %s -> %s\n"
                                  % (changestr, changenum))
             except AttributeError:
                 changenum = 0
