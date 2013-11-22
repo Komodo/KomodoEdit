@@ -313,7 +313,7 @@ class koHTMLLanguageBase(koXMLLanguageBase):
         
         thisLinesIndent = scimoz.getLineIndentation(curLineNo)
         prevLinesIndent = scimoz.getLineIndentation(curLineNo - 1)
-        if prevLinesIndent == thisLinesIndent:
+        if prevLinesIndent <= thisLinesIndent:
             # We need to dedent this line
             lineStartPos = scimoz.positionFromLine(curLineNo)
             text = scimoz.getTextRange(lineStartPos, startPos)
@@ -406,7 +406,6 @@ class KoDjangoTemplateFamilyBase(koHTMLLanguageBase):
             return koHTMLLanguageBase._keyPressed(self, ch, scimoz, style_info)
         return res
 
-    _startWords = "else if ifchanged ifequal ifnotequal block filter for with spaceless"
     def _doIndentHere(self, scimoz, indentStyle, continueComments, style_info):
         # Returns either None or an indent string
         pos = scimoz.positionBefore(scimoz.currentPos)
@@ -438,6 +437,7 @@ class KoDjangoTemplateFamilyBase(koHTMLLanguageBase):
             newIndentWidth = 0
         return scimozindent.makeIndentFromWidth(scimoz, newIndentWidth)
 
+    _word_matcher_re = re.compile(r'\s*\{%\s*(?P<word>\w+)\s*$')
     def _doKeyPressHere(self, ch, scimoz, style_info):
         # Returns either None or an indent string
         pos = scimoz.positionBefore(scimoz.currentPos)
@@ -445,6 +445,21 @@ class KoDjangoTemplateFamilyBase(koHTMLLanguageBase):
         if startPos < 5:
             return None
         style = scimoz.getStyleAt(pos)
+        if ((style == scimoz.SCE_UDL_TPL_DEFAULT and scimoz.getWCharAt(pos) in (' ', '\t'))
+            or (style == scimoz.SCE_UDL_TPL_OPERATOR
+                and scimoz.getWCharAt(pos) != "}")):
+            # Dedent on {% [<slider>|end*]
+            curLineNo = scimoz.lineFromPosition(pos)
+            lineStartPos = scimoz.positionFromLine(curLineNo)
+            textThisLine = scimoz.getTextRange(lineStartPos, pos)
+            m = self._word_matcher_re.match(textThisLine)
+            if m:
+                kwd = m.group("word")
+                if kwd in self._sliders or kwd.startswith("end"):
+                    didDedent, dedentAmt = self.dedentThisLine(scimoz, curLineNo, startPos)
+                    if didDedent:
+                        return dedentAmt
+            
         if style != scimoz.SCE_UDL_TPL_OPERATOR:
             return None
         if scimoz.getWCharAt(pos) != "}":

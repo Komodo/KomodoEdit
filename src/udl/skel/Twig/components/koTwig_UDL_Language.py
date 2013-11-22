@@ -31,6 +31,9 @@ class KoTwigLanguage(KoDjangoTemplateFamilyBase):
     searchURL = "http://twig.sensiolabs.org/documentation"
 
     lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'Twig', 'M': 'HTML', 'CSS': 'CSS'}
+    
+    _sliders = "else elseif".split()
+    _startWords = "else elseif if autoescape block comment embed filter for macro raw sandbox spaceless with".split()
 
     sample = """{% if latest_poll_list %}
     <ul>

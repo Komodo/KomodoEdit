@@ -43,6 +43,8 @@ endsandbox
 endspaceless
 endwith
 
+else
+elseif
 
 capitalize
 convert_encoding

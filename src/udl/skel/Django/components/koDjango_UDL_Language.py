@@ -74,6 +74,9 @@ class KoDjangoLanguage(KoDjangoTemplateFamilyBase):
 
     lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'Django', 'M': 'HTML', 'CSS': 'CSS'}
 
+    _sliders = "else elif".split()
+    _startWords = "else elif if ifchanged ifequal ifnotequal block comment filter for with spaceless".split()
+
     sample = """{% if latest_poll_list %}
     <ul>
     {% for poll in latest_poll_list %}
@@ -114,7 +117,7 @@ class KoDjangoLinter(object):
     def _blankMatchedText(self, m):
         return self._nonNewline.sub(" ", m.group(1))
 
-    def _isSettingsIn(directory):
+    def _isSettingsIn(self, directory):
         return exists(join(directory, 'settings.py'))
 
     def _walkUpDir(self, directory):
