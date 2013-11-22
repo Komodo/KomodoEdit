@@ -402,10 +402,14 @@ $consTidy->Command($exeName,
 $consTidy->Install("$supportDir/html", $exeName);
 }
 
-my $landmark = "$komodoPythonUtilsDir/html5lib";
+# six (required for html5lib)
+$consLocal->Install("$komodoPythonUtilsDir", "six/six.py");
+
+# html5lib
+$landmark = "$komodoPythonUtilsDir/html5lib";
 $consLocal->InstallRecursive($landmark,
                         #XXX must be absolute path (bug in InstallRecursive)
-                        cwd()."/contrib/html5lib/src/html5lib",
+                        cwd()."/contrib/html5lib/html5lib",
                         ('\.svn'));
 
 # jslint

@@ -1,0 +1,6 @@
+syntax: glob
+*.pyc
+dist
+MANIFEST
+documentation/_build
+.tox
