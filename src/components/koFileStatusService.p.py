@@ -121,7 +121,7 @@ class KoFileStatusService:
     _reg_contractid_ = "@activestate.com/koFileStatusService;1"
     _reg_desc_ = "Komodo File Status Service"
     _reg_categories_ = [
-         ("komodo-startup-service", "koFileStatusService"),
+         ("komodo-delayed-startup-service", "koFileStatusService"),
          ("python-memory-reporter", "file_status"),
     ]
 
@@ -285,7 +285,7 @@ class KoFileStatusService:
         #print "file status service observed %r %s %s" % (subject, topic, data)
         try:
             log.debug("status observer received %s:%s", topic, data)
-            if topic == 'komodo-startup-service':
+            if topic == 'komodo-delayed-startup-service':
                 self.init()
                 return
             if topic == 'xpcom-shutdown':
