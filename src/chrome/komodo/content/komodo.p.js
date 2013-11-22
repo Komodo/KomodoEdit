@@ -412,15 +412,15 @@ function onloadDelay() {
     } catch(ex) {
         _log.exception(ex);
     }
-    try {
+
+    // Let everyone know Komodo is fully started.
+    setTimeout(function() {
         // This is a global event, no need to use the WindowObserverSvc
         var obSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
         obSvc.notifyObservers(null, "komodo-ui-started", "");
-    } catch(ex) {
-        /* ignore this exception, there were no listeners for the event */
-    }
-    xtk.domutils.fireEvent(window, "komodo-ui-started");
+        xtk.domutils.fireEvent(window, "komodo-ui-started");
+    }, 0);
 }
 
 /**
@@ -485,25 +485,17 @@ window.onload = function(event) {
             _log.exception(ex);
         }
 
-        window.setTimeout(function() {
-            // These routines use the handlers defined in this module.
-            try {
-                ko.mru.initialize();
+        // These routines use the handlers defined in this module.
+        ko.mru.initialize();
 
-                ko.views.onload();
-                ko.widgets.getWidgetAsync("toolbox2viewbox",
-                                          function() ko.toolbox2.onload());
-                ko.projects.onload();
+        ko.views.onload();
+        ko.widgets.getWidgetAsync("toolbox2viewbox",
+                                  function() ko.toolbox2.onload());
+        ko.projects.onload();
 
-                ko.uilayout.onload();
-            } catch(ex) {
-                _log.exception(ex);
-            }
-        // anything that we want to do user interaction with at
-        // startup should go into this timeout to let the window
-        // onload handler finish.
-        window.setTimeout(onloadDelay, 500);
-        }, 0);
+        ko.uilayout.onload();
+
+        onloadDelay();
     } catch (e) {
         _log.exception(e,"Error doing KomodoOnLoad:");
         throw e;
