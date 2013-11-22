@@ -11,6 +11,10 @@ Cu.import("resource://komodo-jstest/mock/mock.jsm", {})
 let logging = Components.utils.import("chrome://komodo/content/library/logging.js", {}).logging;
 //let log = logging.getLogger("jstest.TestCase");
 
+// Each TestPylintRC object is created once per test, not like Python, so we have
+// to use a module var make sure a class-like method is called only once.
+var didInitRCFile = false;
+
 var TestPylintRC = function TestPylintRC() {
     this.log = null;
     this.log = logging.getLogger("lint.pylint");
@@ -19,10 +23,6 @@ var TestPylintRC = function TestPylintRC() {
 TestPylintRC.prototype = new TestCase();
 
 TestPylintRC.prototype.setUp = function TestPylintCommon_setUp() {
-    //let loader = Cc['@mozilla.org/moz/jssubscript-loader;1']
-    //               .getService(Ci.mozIJSSubScriptLoader);
-    //this.scope = { ko: ko, __noSuchMethod__: function() {}};
-    
     var prefs;
     prefs = this.globalPrefs = Cc["@activestate.com/koPrefService;1"].getService(Ci.koIPrefService).prefs;
     this.fileSvc = Cc["@activestate.com/koFileService;1"].getService(Ci.koIFileService);
@@ -59,12 +59,11 @@ TestPylintRC.prototype.setUp = function TestPylintCommon_setUp() {
     
     this.osSvc = Cc["@activestate.com/koOs;1"].getService(Ci.koIOs);
     this.osPathSvc = Cc["@activestate.com/koOsPath;1"].getService(Ci.koIOsPath);
-    this.environSvc = Cc["@activestate.com/koEnviron;1"].getService(Ci.koIEnviron);
     // And save the .pylintrc file that other tests might modify
     // Set defaults for tearDown
-    this.homeDir = this.pylintRcPath = this.pylintRcContents = null;
+    this.homeDir = this.osPathSvc.expanduser("~");
+    this.pylintRcPath = this.pylintRcContents = null;
     try {
-        this.homeDir = this.environSvc.get("HOME");
         this.pylintRcPath = this.osPathSvc.join(this.homeDir, ".pylintrc");
         if (this.osPathSvc.exists(this.pylintRcPath)) {
             this.pylintRcContents = this.osSvc.readfile(this.pylintRcPath);
@@ -81,6 +80,36 @@ TestPylintRC.prototype.setUp = function TestPylintCommon_setUp() {
                      ,'print(c.only_func(5, 7))'
                      ,''
                     ];
+    if (!didInitRCFile) {
+        didInitRCFile = true;
+        this._initRCFile();
+    }
+};
+
+TestPylintRC.prototype._initRCFile = function _initRCFile() {
+    if (this.pylintRcContents) {
+        // Save .pylintrc into .pylintrc.bak in case something goes wrong
+        
+        let pylintRcBak = this.osPathSvc.join(this.homeDir, ".pylintrc.bak");
+        let writeToBakFile = true;
+        if (this.osPathSvc.exists(pylintRcBak)) {
+            let pylintBakContents = this.osSvc.readfile(pylintRcBak);
+            if (pylintBakContents == this.pylintRcContents) {
+                writeToBakFile = false;
+            } else {
+                this.log.warn("Overwriting "
+                              + pylintRcBak
+                              + ": had "
+                              + pylintBakContents.length
+                              + " chars, replacing with a copy of .pylintrc containing "
+                              + this.pylintRcContents.length
+                              + " chars");
+            }
+        }
+        if (writeToBakFile) {
+            this.osSvc.writefile(pylintRcBak, this.pylintRcContents);
+        }
+    }
 };
 
 TestPylintRC.prototype.tearDown = function TestPylintCommon_tearDown() {
