@@ -162,7 +162,7 @@ viewMgrClass.prototype = {
             widgets.placesSubpanelProjectsTools_MPV.collapsed = single_project_view;
             widgets.placesSubpanelProjectsTools_SPV.collapsed = !single_project_view;
         } catch(ex) {
-            log.exception("Error in _setupProjectView: " + ex);
+            log.exception(ex, "Error in _setupProjectView");
         }
     },
 
@@ -189,7 +189,7 @@ viewMgrClass.prototype = {
             gPlacesViewMgr.view.setMainFilters(prefset.getStringPref('import_exclude_matches'),
                                            prefset.getStringPref('import_include_matches'));
         } catch(ex) {
-            log.exception("getting prefs failed: " + ex + "\n");
+            log.exception(ex, "getting prefs failed");
             this.placeView_defaultView();
         }
     },
@@ -613,9 +613,7 @@ viewMgrClass.prototype = {
                     return;
                 }
             } catch(ex) {
-                log.exception("Failed to eval '"
-                              + testEval_HideIf
-                              + ": " + ex);
+                log.exception(ex, "Failed to eval '" + testEval_HideIf);
             }
         }
     
@@ -1155,7 +1153,7 @@ viewMgrClass.prototype = {
                                             try {
                                                 newScimoz[name] = config[name];
                                             } catch(ex) {
-                                                log.exception("Can't set " + name);
+                                                log.exception(ex, "Can't set " + name);
                                             }
                                         });
                                 };
@@ -1360,9 +1358,7 @@ viewMgrClass.prototype = {
             this._updateCurrentUriViewPref(prefName);
             return true;
         } catch(ex) {
-            log.exception("Can't find prefName '"
-                          + prefName
-                          + "' in menu:: " + ex + "\n");
+            log.exception(ex, "Can't find prefName '" + prefName + "' in menu");
             return false;
         }
     },
@@ -1577,7 +1573,7 @@ ManagerClass.prototype = {
             return;
         }
 
-        this.showTreeItemByFile(file.URI, forceNewPlaceDir, view.setFocus.bind(this));
+        this.showTreeItemByFile(file.URI, forceNewPlaceDir, view.setFocus.bind(view));
     },
 
     showTreeItemByFile: function(URI, forceNewPlaceDir, callback) {
@@ -1676,7 +1672,7 @@ ManagerClass.prototype = {
                         }
                     }
                 } catch(ex) {
-                    log.exception("Error trying to get the project's URI: " + ex);
+                    log.exception(ex, "Error trying to get the project's URI");
                 }
                 if (!parentURI) {
                     if (!forceNewPlaceDir
@@ -1691,8 +1687,7 @@ ManagerClass.prototype = {
                 successFunc();
             }
         } catch(ex) {
-            log.exception("showTreeItemByFile: failed to open "
-                               + URI + ": " + ex)
+            log.exception(ex, "showTreeItemByFile: failed to open " + URI);
         }
     },
  
@@ -1815,7 +1810,7 @@ ManagerClass.prototype = {
                         try {
                             onFailure.apply(this_);
                         } catch(ex) {
-                            log.exception("_setDirURI::onFailure: " + ex);
+                            log.exception(ex, "_setDirURI::onFailure");
                         }
                     }
                 } else {
@@ -1867,7 +1862,7 @@ ManagerClass.prototype = {
                         try {
                             onSuccess.apply(this_);
                         } catch(ex) {
-                            log.exception("_setDirURI::onSuccess: " + ex);
+                            log.exception(ex, "_setDirURI::onSuccess");
                         }
                     }
                 }
@@ -2231,12 +2226,12 @@ ManagerClass.prototype = {
                         uri = null;
                     }
                 } catch(ex2) {
-                    log.exception("places.js:init: inner failure: " + ex2);
+                    log.exception(ex2, "places.js:init: inner failure");
                     uri = null;
                 }
             }
         } catch(ex) {
-           log.exception("places.js:init: failure: " + ex);
+            log.exception(ex, "places.js:init: failure");
         }
         if (!uri) {
             const nsIDirectoryServiceProvider = Components.interfaces.nsIDirectoryServiceProvider;
@@ -2974,7 +2969,7 @@ this.onLoad = function places_onLoad() {
     try {
         ko.places.onLoad_aux();
     } catch(ex) {
-        log.exception("Failed onLoad: " + ex);
+        log.exception(ex, "Failed onLoad");
     }
 };
 
@@ -3357,9 +3352,7 @@ this.testDisableNode = function(menuNode, selectionInfo) {
                 disableNode = true;
             }
         } catch(ex) {
-            log.exception("Failed to eval '"
-                          + directive
-                          + ": " + ex);
+            log.exception(ex, "Failed to eval '" + directive);
             disableNode = true;
         }
     }
