@@ -2471,14 +2471,16 @@ ManagerClass.prototype = {
                       currentURI ? [currentURI] : [],
                       this.history_prevPlaces];
         var codes = ['F', 'C', 'B'];
-        var file = Components.classes["@activestate.com/koFileEx;1"].
-                createInstance(Components.interfaces.koIFileEx);
         var reportedURIs = {};
         var numWritten = 0;
         var innerPopupMenu = null;
         var outerPopupMenu = popupMenu;
         var innerMenu = null;
         var popupThreshold = 5;
+        // uris_to_remove_by_block tracks dirs in
+        // places history that have been deleted, and removes them (bug 98684)
+        // Note dependency on structure of the 'blocks' array-of-arrays
+        var uris_to_remove_by_block = [[], [], []];
         for (var i = 0; i < blocks.length; ++i) {
             var block = blocks[i];
             var code = codes[i];
@@ -2488,9 +2490,15 @@ ManagerClass.prototype = {
                     continue;
                 }
                 reportedURIs[uri] = true;
+                let file = Components.classes["@activestate.com/koFileEx;1"].
+                  createInstance(Components.interfaces.koIFileEx);
+                file.URI = uri;
+                if (file.isLocal && !file.exists) {
+                    uris_to_remove_by_block[i].push(j);
+                    continue;
+                }
                 menuitem = document.createElement("menuitem");
                 menuitem.setAttribute("crop", "center");
-                file.URI = uri;
                 var label = (file.scheme == "file" ? file.displayPath : uri);
                 menuitem.setAttribute('label', label);
                 if (code == 'C') {
@@ -2517,6 +2525,18 @@ ManagerClass.prototype = {
                 }
             }
         }
+        // No need to reverse the arrays as that was done in the "j" loop
+        uris_to_remove_by_block[0].forEach(function(idx) {
+            this.history_forwardPlaces.splice(idx, 1);
+        }.bind(this));
+        if (uris_to_remove_by_block[1].length) {
+            log.warn("addRecentLocations: uris_to_remove_by_block[1] should be empty, but contains "
+                     + uris_to_remove_by_block[1].length
+                     + " entries");
+        }
+        uris_to_remove_by_block[2].forEach(function(idx) {
+            this.history_prevPlaces.splice(idx, 1);
+        }.bind(this));
         if (numWritten == popupThreshold + 1) {
             // Pull out the "More..." inner menu, to avoid an inner menu with one item.
             outerPopupMenu.replaceChild(innerPopupMenu.childNodes[0], innerMenu);
