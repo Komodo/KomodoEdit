@@ -71,8 +71,11 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
     }
 
     if (!ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
-        this._restoreWindowWorkspace(ko.prefs.getPref('workspace'), currentWindow, _mozPersistPositionDoesNotWork);
-        ko.widgets.restoreLayout(ko.prefs);
+        this._restoreWindowWorkspace(ko.prefs.getPref('workspace'),
+                                     currentWindow,
+                                     _mozPersistPositionDoesNotWork,
+                                     ["workspace"]);
+        ko.widgets.restoreLayout(ko.prefs, []);
         return;
     }
 
@@ -105,7 +108,10 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
     var nextIdx = this._getNextWorkspaceIndexToRestore(Number.NEGATIVE_INFINITY);
     if (nextIdx !== undefined) {
         let workspace = windowWorkspacePref.getPref(nextIdx);
-        this._restoreWindowWorkspace(workspace, currentWindow, checkWindowBounds);
+        this._restoreWindowWorkspace(workspace,
+                                     currentWindow,
+                                     checkWindowBounds,
+                                     [multiWindowWorkspacePrefName, nextIdx]);
         nextIdx = this._getNextWorkspaceIndexToRestore(nextIdx);
         if (nextIdx !== undefined) {
             ko.launch.newWindowFromWorkspace(nextIdx);
@@ -150,7 +156,10 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx, thisIndexOnly)
     currentWindow._koNum = idx;
     var windowWorkspacePref = ko.prefs.getPref('windowWorkspace');
     try {
-        this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx), currentWindow, idx > 0 || _mozPersistPositionDoesNotWork);
+        this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx),
+                                     currentWindow,
+                                     idx > 0 || _mozPersistPositionDoesNotWork,
+                                     ["windowWorkspace", idx]);
     } catch(ex) {
         log.exception("Can't restore workspace for window " + idx + ", exception: " + ex);
     }
@@ -252,7 +261,8 @@ function _checkWindowCoordinateBounds(candidateValue,
     return candidateValue;
 }
 const _nsIDOMChromeWindow = Components.interfaces.nsIDOMChromeWindow;
-this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBounds)
+this._restoreWindowWorkspace =
+    function(workspace, currentWindow, checkWindowBounds, prefPath)
 {
     try {
         var wko = currentWindow.ko;
@@ -327,7 +337,7 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
                 elt.setState(pref);
             }
         }
-        ko.widgets.restoreLayout(workspace);
+        ko.widgets.restoreLayout(workspace, prefPath);
         if (wko.history) {
             wko.history.restore_prefs(workspace);
         }

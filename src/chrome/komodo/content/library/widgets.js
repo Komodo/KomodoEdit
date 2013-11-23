@@ -557,13 +557,11 @@ if (typeof(ko.widgets)=='undefined') {
     /**
      * Called by ko.main's window.onload
      */
-    this.restoreLayout = function koWidgetManager_restoreLayout(prefs) {
+    this.restoreLayout = function koWidgetManager_restoreLayout(prefs, prefpath) {
 
-        let prefpath = [];
-        for (let p = prefs; p && p != ko.prefs; p = p.parent) {
-            prefpath.push(p.id);
-        }
-        ko.main.addWillCloseHandler(this.unload.bind(this, prefpath.reverse()));
+        prefpath = prefpath || [];
+        log.debug("saving pref path: " + prefpath.join(", "));
+        ko.main.addWillCloseHandler(this.unload.bind(this, prefpath));
 
         try {
             log.debug("onload: " + JSON.stringify(this._widgets));
@@ -915,6 +913,7 @@ if (typeof(ko.widgets)=='undefined') {
             panes: panes,
         }
         let prefs = ko.prefs;
+        log.debug("Getting prefs from " + prefpath.join(", "));
         for (let key of prefpath) {
             prefs = prefs.getPref(key);
         }

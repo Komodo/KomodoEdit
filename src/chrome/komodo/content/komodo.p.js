@@ -363,16 +363,18 @@ function onloadDelay() {
             // restore the widget/side pane layouts.  This relies on ko.widgets
             // being smart enough to restore things twice.
             let prefs = ko.prefs;
+            let path = []
             if (prefs.hasPref("windowWorkspace")) {
                 let workspacePrefs = prefs.getPref("windowWorkspace");
                 if (workspacePrefs.hasPref("1")) {
                     prefs = workspacePrefs.getPref("1");
+                    path = ["windowWorkspace", "1"];
                 }
             }
-            ko.widgets.restoreLayout(prefs);
+            ko.widgets.restoreLayout(prefs, path);
         } else {
             // Restore the default layout (i.e. last closed window)
-            ko.widgets.restoreLayout(ko.prefs);
+            ko.widgets.restoreLayout(ko.prefs, []);
         }
         // handle window.arguments spec list
         if ('arguments' in window && window.arguments && window.arguments[0]) {
