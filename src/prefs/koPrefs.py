@@ -567,34 +567,38 @@ class koPreferenceSet(object):
                 something_changed = True
         return something_changed
 
-    def dump(self, indent):
-        def decomify(val):
-            try:
-                return UnwrapObject(val)
-            except:
-                return val
+    def dump(self, indent, suppressPrint=False):
+        buf = []
         if hasattr(self, 'idref'):
-            print "%sPreference Set: id = '%s' idref = '%s'" % ("  " * indent, self.id, self.idref)
+            buf.append("%sPreference Set: id = '%s' idref = '%s'" %
+                       ("  " * indent, self.id, self.idref))
         else:
-            print "%sPreference Set: id = '%s'" % ("  " * indent, self.id)
-        print '%s  chained = %d' % ("  " * indent, self.chainNotifications)
+            buf.append("%sPreference Set: id = '%s'" % ("  " * indent, self.id))
+        buf.append('%s  chained = %d' % ("  " * indent, self.chainNotifications))
         parent = UnwrapObject(self.parent)
         if parent is not None:
-            print '%s  parent = %r' % ("  " * indent, parent)
-            p_vals = [decomify(val[0]) for val in parent.prefs.values()]
+            buf.append('%s  parent = %r' % ("  " * indent, parent))
+            p_vals = [UnwrapObject(val[0]) for val in parent.prefs.values()]
             if self not in p_vals:
-                print "%s  !!!! parent doesn't own me !!!!" % ("  " * indent)
+                buf.append("%s  !!!! parent doesn't own me !!!!" %
+                           ("  " * indent))
+                buf.append(parent.dump(indent + 2, True))
         else:
-            print '%s  parent is None' % ("  " * indent,)
+            buf.append('%s  parent is None' % ("  " * indent,))
         for (foo, bar) in self.prefs.items():
-            print '%s  %s = %s' % ("  " * indent, foo, bar)
+            buf.append('%s  %s = %s' % ("  " * indent, foo, bar))
             if hasattr(bar[0], "parent") and UnwrapObject(bar[0].parent) != self:
-                print "%s  !!!! child has wrong parent !!!!" % ("  " * indent)
+                buf.append("%s  !!!! child has wrong parent !!!!" %
+                           ("  " * indent))
             if hasattr(bar[0], "QueryInterface"):
                 subPref = bar[0].QueryInterface(components.interfaces.koIPreference)
-                subPref.dump(indent + 1)
+                buf.append(subPref.dump(indent + 1, True))
             elif hasattr(bar[0], "dump"):
-                bar[0].dump(indent + 1)
+                buf.append(bar[0].dump(indent + 1, True))
+        buf = "\n".join(buf)
+        if not suppressPrint:
+            print(buf)
+        return buf
 
     # koIPreferenceObserver interface
     # this stuff now uses koObserverService
@@ -703,8 +707,12 @@ class koPrefWrapper(object):
         return self._get_data() != 0
     def __str__(self):
         return 'koPrefWrapper[%s=%s (%s)]' % (self.id, self._get_data(), self.type)
-    def dump(self, indent):
-        print "Preference %s, of type %s, has value %s" % (self.id, self.type, self._get_data())
+    def dump(self, indent, suppressPrint=False):
+        buf = ("Preference %s, of type %s, has value %s" %
+               (self.id, self.type, self._get_data()))
+        if not suppressPrint:
+            print(buf)
+        return buf
 
     def serializeToFileFast(self, filename):
         pickleCache(self, filename)
@@ -936,15 +944,20 @@ class koOrderedPreference(object):
             serializePref(stream, pref, typ, basedir)
         stream.write('</ordered-preference>%s' % newl)
 
-    def dump(self, indent):
-        print "%sDumping koOrderedPreference %s:" % ("  " * indent, self)
-        print "%s  id == %s" % ("  " * indent, self.id)
+    def dump(self, indent, suppressPrint=False):
+        buf = []
+        buf.append("%sDumping koOrderedPreference %s:" % ("  " * indent, self))
+        buf.append("%s  id == %s" % ("  " * indent, self.id))
         for pref in self._collection:
             if hasattr(pref, "QueryInterface"):
                 subPref = pref.QueryInterface(components.interfaces.koIPreference)
-                subPref.dump(indent + 1)
+                buf.append(subPref.dump(indent + 1, True))
             else:
-                print '%s  %s' % ("  " * indent, pref)
+                buf.append('%s  %s' % ("  " * indent, pref))
+        buf = "\n".join(buf)
+        if not suppressPrint:
+            print(buf)
+        return buf
 
     # Deprecated pref accessors - we don't care to log them as deprecated though.
     appendStringPref = appendString
@@ -1054,16 +1067,22 @@ class koPreferenceCache(object):
     def update(self): # from another preference set object - presumably a modified clone!
         raise COMException(nsError.NS_ERROR_NOT_IMPLEMENTED)
 
-    def dump(self, indent): # For debugging.
-        print "%sPreference Set Cache: id = '%s'" % ("  " * indent, self.id)
+    def dump(self, indent, suppressPrint=False): # For debugging.
+        buf = []
+        buf.append("%sPreference Set Cache: id = '%s'" %
+                   ("  " * indent, self.id))
         indexes = self.index_map.keys()
         indexes.sort()
         indent += 1
         for index in indexes:
             id = self.index_map[index]
             pref = self.index_map[id]
-            print "%sPreference ID '%s':" % ("  " * indent, id)
-            pref.dump(indent+1)
+            buf.append("%sPreference ID '%s':" % ("  " * indent, id))
+            buf.append(pref.dump(indent + 1, True))
+        buf = "\n".join(buf)
+        if not suppressPrint:
+            print(buf)
+        return buf
 
     def _is_sane(self):
         return len(self.pref_map.keys()) == len(self.index_map.keys())

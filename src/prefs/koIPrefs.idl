@@ -79,8 +79,15 @@ interface koIPreference : koISerializable {
   // update from another preference set object - presumably a modified clone!
   void update(in koIPreference source);
 
-  // For debugging.
-  void dump(in long indent);
+  /**
+   * Dump this preference to either stdout or a string
+   * @note This is meant for debugging/unit tests; the string format is
+   *    unspecified and may change at any time.
+   * @param indent The number of spaces to indent
+   * @param suppressPrint If false, also print to standard out
+   */
+  AString dump([optional] in long indent,
+               [optional] in boolean suppressPrint);
 };
 
 [scriptable, uuid(5789255d-5d6f-471e-ac03-a4c5f2c7880a)]
