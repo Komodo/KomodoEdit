@@ -89,3 +89,19 @@ class TestKoPrefsClone(unittest.TestCase):
         getter = lambda pref: pref.getPref(0).getLongPref(0)
         deleter = lambda pref: pref.deletePref(0)
         self._run_test(old, getter, deleter, 42, "ordered/ordered")
+
+class PrefSetTestCase(unittest.TestCase):
+    """Testing preference set behaviour"""
+
+    def test_child_lookup_in_container(self):
+        """Looking up preferences in child prefsets should not attempt to look
+        at its container
+        """
+        prefset = Cc["@activestate.com/koPreferenceSet;1"].createInstance()
+
+        prefset.setPref("child",
+                        Cc["@activestate.com/koPreferenceSet;1"].createInstance())
+        prefset.setLong("long", 1)
+        with self.assertRaises(COMException) as cm:
+            prefset.getPref("child").getLongPref("long")
+        self.assertEquals(cm.exception.errno, Cr.NS_ERROR_FAILURE)

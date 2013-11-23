@@ -238,11 +238,6 @@ class koPreferenceSet(object):
             self.idref = ""
             self.preftype = ""
 
-        for [child, childType] in self.prefs.values():
-            log.debug("deserializing: child %r", child)
-            if isinstance(child, koPreferenceSet):
-                child.parent = self
-
     ###########################################################
     # The koIPreferenceSet interface:
     def set_parent(self, parent):
@@ -331,8 +326,6 @@ class koPreferenceSet(object):
         pref.id = prefName
         pref.chainNotifications = self.chainNotifications
         self.prefs[prefName] = pref, "object"
-        if hasattr(pref, "parent"):
-            pref.parent = self
         # log.warn("setting preference " + prefName + " to " + str(pref));
         self._notifyPreferenceChange(prefName)
 
