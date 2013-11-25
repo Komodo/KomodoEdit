@@ -1160,21 +1160,54 @@ class koScintillaController:
 
     def _do_cmd_transpose(self):
         # transpose two characters to the left
-        sm = self.scimoz()
-        if sm.getColumn(sm.currentPos) < 2:
+        # Emacs behavior:
+        # A: x<|>yz => yx<|>z
+        # but
+        # B: xy<|><EOL> => yx<|><EOL>
+        # and also
+        # C: x<EOL><|>yz => xy<EOL><|>z
+        # Note that #A and #C both move the object to the right of the cursor
+        # over to the left of the object to the left. #B is more of an exception.
+        scimoz = self.scimoz()
+        if scimoz.selectionStart < scimoz.selectionEnd:
+            log.error("cmd_transpose is undefined when there's a selection")
             return
-        
-        # this particular sequence (others are possible) has good Undo behavior
-        sm.beginUndoAction()
+        currentPos = scimoz.currentPos
+        if currentPos == 0:
+            return
+        currentLine = scimoz.lineFromPosition(currentPos)
+        docLength = scimoz.length
+        if scimoz.getColumn(currentPos) == 0:
+            # Case C: at start of line: transpose prev & current chars,
+            #         don't move forward
+            # But verify that we aren't at the end of the buffer
+            if currentPos >= docLength:
+                return
+            prevPos = scimoz.getLineEndPosition(currentLine - 1)
+            prevChar = scimoz.getTextRange(prevPos, currentPos)
+            nextPos = nextCursorPos = scimoz.positionAfter(currentPos)
+        else:
+            if scimoz.getLineEndPosition(currentLine) == currentPos:
+                # Case B: transpose prev two chars, don't move forward
+                nextPos = currentPos
+                nextCursorPos = currentPos
+                currentPos = scimoz.positionBefore(currentPos)
+            else:
+                # Case A: transpose prev char & current char, and move forward
+                nextPos = nextCursorPos = scimoz.positionAfter(currentPos)
+            prevPos = scimoz.positionBefore(currentPos)
+            prevChar = scimoz.getWCharAt(prevPos)
+        currChar = scimoz.getWCharAt(currentPos)
+        scimoz.targetStart = prevPos
+        scimoz.targetEnd = nextPos
+        scimoz.beginUndoAction()
         try:
-            sm.charLeftExtend()
-            sm.cut()
-            sm.charLeft()
-            sm.paste()
-            sm.charRight()
-            #sm.charRight() # this one is required for Emacs compatibility, but I don't see the use case.
+            scimoz.replaceTarget(currChar + prevChar)
+            if nextCursorPos >= docLength:
+                nextCursorPos = docLength - 1
+            scimoz.setSel(nextCursorPos, nextCursorPos)
         finally:
-            sm.endUndoAction()
+            scimoz.endUndoAction()
 
     def _do_cmd_transposeWords(self):
         # transpose two words to the left (or current word and previous word if in a word)
