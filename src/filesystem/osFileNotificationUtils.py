@@ -196,6 +196,7 @@ class ObserverMonitor:
         self.__initalized = 0
         self.__statCache = {}
         self.__dirCache = {}
+        self.__shutdown = False ##< Whether we have shut down and should suppress
 
     def __str__(self):
         return "ObserverMonitor: f:%02x, r:%-5r, path:%s" % (self.flags, self.__recursive, self.path)
@@ -315,7 +316,8 @@ class ObserverMonitor:
     def sendObserverNotifications(self, observer, uri, change):
         # We must proxy the observer calls to the UI thread since most instances
         # will be modifying UI.
-        observer.fileNotification(uri, change)
+        if not self.__shutdown:
+            observer.fileNotification(uri, change)
 
     # Return True if this monitor is finished and should be deleted
     def notifyChanges(self, changes):
@@ -357,6 +359,11 @@ class ObserverMonitor:
                 self.log.info("  change: %x, uri: %s", change, uri)
                 self.sendObserverNotifications(observer, uri, change)
         return isDeleted
+
+    def shutdown(self):
+        """Set the observer to be shut down; this is permanent and cannot be
+        reset."""
+        self.__shutdown = True
 
 
 ##
