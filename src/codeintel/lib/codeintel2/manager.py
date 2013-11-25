@@ -402,31 +402,6 @@ class Manager(threading.Thread, Queue):
         return self._hook_handlers_from_lang.get(lang, []) \
                + self._hook_handlers_from_lang.get("*", [])
 
-    #XXX
-    #XXX Cache bufs based on (path, lang) so can share bufs. (weakref)
-    #XXX 
-    def buf_from_koIDocument(self, doc, env=None):
-        lang = doc.language
-        path = doc.displayPath
-        if doc.isUntitled:
-            path = join("<Unsaved>", path)
-        accessor = KoDocumentAccessor(doc,
-            self.silvercity_lexer_from_lang.get(lang))
-        encoding = doc.encoding.python_encoding_name
-        try:
-            buf_class = self.buf_class_from_lang[lang]
-        except KeyError:
-            # No langintel is defined for this class, check if the koILanguage
-            # defined is a UDL koILanguage.
-            from koUDLLanguageBase import KoUDLLanguage
-            if isinstance(UnwrapObject(doc.languageObj), KoUDLLanguage):
-                return UDLBuffer(self, accessor, env, path, encoding, lang=lang)
-            # Not a UDL language - use the implicit buffer then.
-            return ImplicitBuffer(lang, self, accessor, env, path, encoding)
-        else:
-            buf = buf_class(self, accessor, env, path, encoding)
-        return buf
-
     def buf_from_content(self, content, lang, env=None, path=None,
                          encoding=None):
         lexer = self.silvercity_lexer_from_lang.get(lang)
