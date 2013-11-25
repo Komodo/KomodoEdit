@@ -340,74 +340,8 @@ function onloadDelay() {
                                       function() { ko.toolbox2.applyKeybindings(); });
         }
 
-        // the offer to restore the workspace needs to be after the
-        // commandments system is initialized because the commandments mechanism
-        // is how the determination of 'running in non-interactive mode' happens,
-        // which the restoration step needs to know about.
-        
-        // Eventually restoreWorkspace will be rewritten to restore
-        // a set of windows, and restore will be done at app-startup
-        // time, not when each window starts up.
-        var restoreWorkspace = true;
-        try {
-            if (!ko.windowManager.lastWindow()) {
-                restoreWorkspace = false;
-            }
-        } catch(ex) {
-            // Restore the workspace on error
-            _log.exception(ex);
-        }
-        if (restoreWorkspace) {
-            ko.workspace.restoreWorkspace();
-            // if the prefs are set to not restore workspaces, we still should
-            // restore the widget/side pane layouts.  This relies on ko.widgets
-            // being smart enough to restore things twice.
-            let prefs = ko.prefs;
-            let path = []
-            if (prefs.hasPref("windowWorkspace")) {
-                let workspacePrefs = prefs.getPref("windowWorkspace");
-                if (workspacePrefs.hasPref("1")) {
-                    prefs = workspacePrefs.getPref("1");
-                    path = ["windowWorkspace", "1"];
-                }
-            }
-            ko.widgets.restoreLayout(prefs, path);
-        } else {
-            // Restore the default layout (i.e. last closed window)
-            ko.widgets.restoreLayout(ko.prefs, []);
-        }
-        // handle window.arguments spec list
-        if ('arguments' in window && window.arguments && window.arguments[0]) {
-            var arg = window.arguments[0];
-            if ('workspaceIndex' in arg) {
-                var thisIndexOnly = ('thisIndexOnly' in arg && arg.thisIndexOnly);
-                ko.workspace.restoreWorkspaceByIndex(window, arg.workspaceIndex,
-                                                     thisIndexOnly);
-            } else {
-                // There is no workspace to restore, but init window essentials
-                ko.workspace.initializeEssentials(window);
-                var urllist;
-                if ('uris' in arg) {
-                    urllist = arg.uris; // Called from ko.launch.newWindow(uri)
-                } else if (arg instanceof Components.interfaces.nsIDialogParamBlock) {
-                    var paramBlock = arg.QueryInterface(Components.interfaces.nsIDialogParamBlock);
-                    urllist = paramBlock ? paramBlock.GetString(0).split('|') : [];
-                } else if (typeof(arg) == 'string') {
-                    urllist = arg.split('|'); //see asCommandLineHandler.js
-                } else {
-                    // arg is most likely an empty object
-                    urllist = [];
-                }
-                for (var i in urllist) {
-                    ko.open.URI(urllist[i]);
-                }
-            }
-        }
-        // Some paths through the above block might not have called this,
-        // so call it now to be sure.  See bug 87856
-        
-        ko.workspace.initializeEssentials(window);
-        
+        ko.workspace.restore();
+
         ko.history.init();
 
         ko.macros.eventHandler.hookOnStartup();
