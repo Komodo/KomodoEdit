@@ -1662,7 +1662,7 @@ def generate_wrapper(face, interfaceCount):
           """,
           replacements={
             "name": name,
-            "logme": 'dump("scimoz: %s (getter)\\n");' % (name) if add_logging else "",
+            "logme": 'dump("          scimoz: %s (getter)\\n");' % (name) if add_logging else "",
           },
           file=outputfile)
 
@@ -1675,7 +1675,7 @@ def generate_wrapper(face, interfaceCount):
           """,
           replacements={
             "name": name,
-            "logme": 'dump("scimoz: %s (setter)\\n");' % (name) if add_logging else "",
+            "logme": 'dump("          scimoz: %s (SETTER)\\n");' % (name) if add_logging else "",
           },
           file=outputfile)
 
@@ -1688,7 +1688,7 @@ def generate_wrapper(face, interfaceCount):
           """,
           replacements={
             "name": idlName(name),
-            "logme": 'dump("scimoz: %s()\\n");' % (name) if add_logging else "",
+            "logme": 'dump("          scimoz: %s()\\n");' % (name) if add_logging else "",
           },
           file=outputfile)
 
