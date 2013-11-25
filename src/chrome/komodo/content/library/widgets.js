@@ -559,6 +559,12 @@ if (typeof(ko.widgets)=='undefined') {
      */
     this.restoreLayout = function koWidgetManager_restoreLayout(prefs, prefpath) {
 
+        if (layoutRestored) {
+            log.debug("layout already restored");
+            return;
+        }
+        layoutRestored = true;
+
         prefpath = prefpath || [];
         log.debug("saving pref path: " + prefpath.join(", "));
         ko.main.addWillCloseHandler(this.unload.bind(this, prefpath));
@@ -568,11 +574,6 @@ if (typeof(ko.widgets)=='undefined') {
         } catch (TypeError) {
             log.debug("onload: " + this._widgets.listkeys());
         }
-        if (layoutRestored) {
-            log.debug("layout already restored");
-            return;
-        }
-        layoutRestored = true;
         let panes = {}; // the state we want to end up in
 
         for (let paneId of this.panes) {
