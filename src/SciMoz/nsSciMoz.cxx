@@ -785,16 +785,43 @@ bool _NPN_ConvertCArrayToJSNumberArray(NPP instance, PRUint32 count, PRUint8 ele
 		return false;
 	}
 	NPN_RetainObject(NPVARIANT_TO_OBJECT(*result));
-	PRUint8 *pthis = (PRUint8 *)array_ptr;
-	PRUint32 mask = (1 << (element_size * 8)) - 1;
-	for (PRUint32 i = 0; i < count; ++i, pthis += element_size) {
-		NPVariant v;
-		INT32_TO_NPVARIANT(*pthis & mask, v);
-		NPN_SetProperty(instance,
-				NPVARIANT_TO_OBJECT(*result),
-				NPN_GetIntIdentifier(i),
-				&v);
+
+	/* The accessor/copier is different depending on the element size. */
+	if (element_size == sizeof(PRUint8)) {
+		PRUint8 *pthis = (PRUint8 *)array_ptr;
+		PRUint8 mask = 0xFF;
+		for (PRUint32 i = 0; i < count; ++i, pthis++) {
+			NPVariant v;
+			INT32_TO_NPVARIANT((*pthis) & mask, v);
+			NPN_SetProperty(instance,
+					NPVARIANT_TO_OBJECT(*result),
+					NPN_GetIntIdentifier(i),
+					&v);
+		}
+	} else if (element_size == sizeof(PRUint16)) {
+		PRUint16 *pthis = (PRUint16 *)array_ptr;
+		PRUint16 mask = 0xFFFF;
+		for (PRUint32 i = 0; i < count; ++i, pthis++) {
+			NPVariant v;
+			INT32_TO_NPVARIANT((*pthis) & mask, v);
+			NPN_SetProperty(instance,
+					NPVARIANT_TO_OBJECT(*result),
+					NPN_GetIntIdentifier(i),
+					&v);
+		}
+	} else if (element_size == sizeof(PRUint32)) {
+		PRUint32 *pthis = (PRUint32 *)array_ptr;
+		PRUint32 mask = 0xFFFFFFFF;
+		for (PRUint32 i = 0; i < count; ++i, pthis++) {
+			NPVariant v;
+			INT32_TO_NPVARIANT((*pthis) & mask, v);
+			NPN_SetProperty(instance,
+					NPVARIANT_TO_OBJECT(*result),
+					NPN_GetIntIdentifier(i),
+					&v);
+		}
 	}
+
 	return true;
 }
 
