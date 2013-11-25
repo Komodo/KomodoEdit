@@ -38,11 +38,13 @@ import copy
 import pprint
 import os
 import logging
+
+from zope.cachedescriptors.property import LazyClassAttribute
+
+from xpcom import components
+
 log = logging.getLogger('koKeybindingSchemeService')
 #log.setLevel(logging.DEBUG)
-
-from xpcom import components, ServerException
-from xpcom.server import WrapObject, UnwrapObject
 
 class Scheme:
     _com_interfaces_ = [components.interfaces.koIKeybindingScheme]
@@ -50,10 +52,15 @@ class Scheme:
     _reg_contractid_ = "@activestate.com/koKeybindingScheme;1"
     _reg_desc_ = "Keybinding Scheme object"
 
-    def __init__(self, fname, userDefined, unsaved=0):
-        self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
+    @LazyProperty
+    def _koDirSvc(self):
+        return components.classes["@activestate.com/koDirs;1"].\
                         getService(components.interfaces.koIDirs)
-        self._userSchemeDir = os.path.join(self._koDirSvc.userDataDir, 'schemes')
+    @LazyProperty
+    def _userSchemeDir(self):
+        return os.path.join(self._koDirSvc.userDataDir, 'schemes')
+
+    def __init__(self, fname, userDefined, unsaved=0):
         namespace = {}
         self.unsaved = unsaved
         self.writeable = userDefined
