@@ -824,7 +824,13 @@ class koDocumentBase:
     #       own implementation. To be kept in mind for re-factoring work.
 
     @components.ProxyToMainThread
-    def get_subLanguage(self):
+    def familyForPosition(self, pos=None):
+        """Return the UDL family name for the given position.
+
+            pos - scintilla position, or currentPos if pos is None
+
+        Example UDL family names returned are "M", "CSS", "TPL".
+        """
         if not self._language or not self._docPointer:
             return None
         languages = self.get_languageObj().getSubLanguages()
@@ -832,23 +838,9 @@ class koDocumentBase:
             return self._language
         # get the current position, and query the languageObj for what lang this is
         scimoz = self._views[0].scimoz
-        pos = scimoz.currentPos
-        if pos >= scimoz.length and pos > 0:
-            pos = scimoz.positionBefore(scimoz.length)
-        style = scimoz.getStyleAt(pos)
-        family = udl_family_from_style(style)
-        return self.get_languageObj().getLanguageForFamily(family)
-        
-    @components.ProxyToMainThread
-    def familyForPosition(self, pos):
-        if not self._language or not self._docPointer:
-            return None
-        languages = self.get_languageObj().getSubLanguages()
-        if len(languages) < 2:
-            return self._language
-        # get the current position, and query the languageObj for what lang this is
-        scimoz = self._views[0].scimoz
-        if pos >= scimoz.length and pos > 0:
+        if pos is None:
+            pos = scimoz.currentPos
+        elif pos >= scimoz.length and pos > 0:
             pos = scimoz.positionBefore(scimoz.length)
         style = scimoz.getStyleAt(pos)
         return udl_family_from_style(style)
@@ -856,6 +848,9 @@ class koDocumentBase:
     def languageForPosition(self, pos):
         family = self.familyForPosition(pos)
         return self.get_languageObj().getLanguageForFamily(family)
+
+    def get_subLanguage(self):
+        return self.languageForPosition(pos=None)
 
     DECORATOR_UDL_FAMILY_TRANSITION = components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION
 
