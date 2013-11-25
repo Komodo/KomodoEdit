@@ -337,6 +337,7 @@ class Driver(threading.Thread):
         if request.get("text") is not None:
             # overwrite the buffer contents if we have new ones
             buf.accessor.reset_content(request.text)
+            buf.encoding = "utf-8"
 
         #log.debug("Got buffer %r: [%s]", buf, buf.accessor.content)
         log.debug("Got buffer %r", buf)
@@ -439,10 +440,6 @@ class Driver(threading.Thread):
                     log.debug("Failed to read frame data, assuming connection died")
                     self.quit = True
                     break
-                try:
-                    buf = buf.decode("utf-8")
-                except UnicodeDecodeError:
-                    pass # what :(
                 try:
                     data = json.loads(buf)
                     request = Request(data)

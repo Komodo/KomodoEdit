@@ -1198,8 +1198,8 @@ class PythonCILEDriver(CILEDriver):
     def scan_purelang(self, buf):
         #log.warn("TODO: python cile that uses elementtree")
         content = buf.accessor.text
+        encoding = buf.encoding or "utf-8"
         if isinstance(content, unicode):
-            encoding = buf.encoding or "utf-8"
             try:
                 content = content.encode(encoding)
             except UnicodeError, ex:

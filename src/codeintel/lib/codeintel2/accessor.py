@@ -42,6 +42,7 @@ lexer-based styled buffers.
 
 import bisect
 import math
+import re
 import threading
 
 from SilverCity import ScintillaConstants
@@ -144,15 +145,16 @@ class Accessor(object):
 
 class SilverCityAccessor(Accessor):
     def __init__(self, lexer, content):
-        # Assume buffer encoding is always UTF-8
         self.lexer = lexer
-        self.content = unicode(content)
+        self.reset_content(content)
 
     def reset_content(self, content):
         """A backdoor specific to this accessor to allow the equivalent of
         updating the buffer/file/content.
         """
-        self.content = unicode(content)
+        if isinstance(content, unicode):
+            content = content.encode("utf-8")
+        self.content = content
         self.__tokens_cache = None
         self.__position_data_cache = None
 
@@ -163,22 +165,8 @@ class SilverCityAccessor(Accessor):
             self.__tokens_cache = self.lexer.tokenize_by_style(self.content)
         return self.__tokens_cache
 
-    def _char_pos_from_byte_pos(self, pos):
-        line = self.line_from_pos(pos)
-        byte_offset, char_offset = self.__position_data[line][:2]
-        next_byte_offset = (byte_offset +
-                            len(self.content[char_offset].encode("utf-8")))
-        try:
-            while next_byte_offset <= pos:
-                byte_offset = next_byte_offset
-                char_offset += 1
-                next_byte_offset += len(self.content[char_offset].encode("utf-8"))
-        except IndexError:
-            pass # running past EOF
-        return char_offset
-
     def char_at_pos(self, pos):
-        return self.content[self._char_pos_from_byte_pos(pos)]
+        return self.content[pos]
 
     def _token_at_pos(self, pos):
         #XXX Locality of reference should offer an optimization here.
@@ -187,7 +175,7 @@ class SilverCityAccessor(Accessor):
         # This being a binary search, we should have a maximum of log2(upper)
         # iterations.  Enforce that in case we have an issue and hit an infinite
         # loop.
-        for iter_count in range(int(math.log(upper, 2)) + 1):
+        for iter_count in range(int(math.ceil(math.log(upper, 2)) + 1)):
             idx = ((upper - lower) / 2) + lower
             token = self.tokens[idx]
             #print "_token_at_pos %d: token idx=%d text[%d:%d]=%r"\
@@ -212,9 +200,11 @@ class SilverCityAccessor(Accessor):
         byte_offset, char_offset = self.__position_data[line][:2]
 
         line_char_offset = char_offset
+        assert isinstance(self.content, str), \
+            "codeintel should be internally UTF-8"
         try:
             while byte_offset < pos:
-                byte_offset += len(self.content[char_offset].encode("utf-8"))
+                byte_offset += len(self.content[char_offset])
                 char_offset += 1
         except IndexError:
             char_offset += 1 # EOF
@@ -232,8 +222,10 @@ class SilverCityAccessor(Accessor):
             yield (self.char_at_pos(pos), self.style_at_pos(pos))
 
     def match_at_pos(self, pos, s):
-        char_pos = self._char_pos_from_byte_pos(pos)
-        return self.content[char_pos:char_pos+len(s)] == s
+        assert not isinstance(s, unicode), "codeintel should be internally utf8"
+        if isinstance(s, unicode):
+            s = s.encode("utf-8")
+        return self.content[pos:pos+len(s)] == s
 
     __position_data_cache = None
     @property
@@ -244,25 +236,16 @@ class SilverCityAccessor(Accessor):
         """
         if self.__position_data_cache is None:
             data = []
-            byte_offset = 0
-            char_offset = 0
-            for line_str in self.content.splitlines(True):
-                byte_length = len(line_str.encode("utf-8"))
-                char_length = len(line_str)
-                data.append((byte_offset, char_offset, byte_length, char_length))
-                byte_offset += byte_length
-                char_offset += char_length
+            offset = 0
+            for match in re.finditer("\r\n|\r|\n", self.content):
+                end = match.end()
+                data.append((offset, end - offset))
+                offset = end
+            data.append((offset, len(self.content) - offset))
             self.__position_data_cache = data
         return self.__position_data_cache
 
-    def lines_from_char_positions(self, starts):
-        """Yield the 0-based lines given the *character* positions."""
-        line_starts = [p[1] for p in self.__position_data] # in chars
-        for char_pos in starts:
-            # see line_from_pos for the adjustments
-            yield bisect.bisect_left(line_starts, char_pos + 1) - 1
-
-    def line_from_pos(self, byte_pos):
+    def line_from_pos(self, pos):
         r"""
             >>> sa = SilverCityAccessor(lexer,
             ...         #0         1           2         3
@@ -288,24 +271,20 @@ class SilverCityAccessor(Accessor):
         # the +1 is to make sure we get the line after (so we can subtract it)
         # this is because for a position not at line start, we get the next line
         # instead.
-        return bisect.bisect_left(self.__position_data, (byte_pos + 1,)) - 1
+        return bisect.bisect_left(self.__position_data, (pos + 1,)) - 1
 
     def line_start_pos_from_pos(self, pos):
         return self.__position_data[self.line_from_pos(pos)][0]
     def pos_from_line_and_col(self, line, col):
-        byte_offset, char_offset = self.__position_data[line][:2]
-        substring = self.content[char_offset:char_offset+col].encode("utf-8")
-        return byte_offset + len(substring)
+        return self.__position_data[line][0] + col
 
     @property
     def text(self):
         return self.content
     def text_range(self, start, end):
-        return self.content[self._char_pos_from_byte_pos(start):
-                            self._char_pos_from_byte_pos(end)]
+        return self.content[start:end]
     def length(self):
-        byte_offset, byte_length = self.__position_data[-1][::2]
-        return byte_offset + byte_length
+        return len(self.content)
     def gen_tokens(self):
         for token in self.tokens:
             yield token

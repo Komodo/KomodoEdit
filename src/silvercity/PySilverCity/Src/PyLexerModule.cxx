@@ -121,7 +121,7 @@ PyLexState_tokenize_by_style(PyLexState* self, PyObject * args)
 
     //fprintf(stderr, ">> PyLexerModule.cxx:tokenize_by_style (PyLexState_tokenize_by_style)...\n");
 
-    if (!PyArg_ParseTuple(args, "es#OO|O", bufEncoding, &buf, &bufSize, &pyWordLists, &pyPropSet, &pyCallback)) {
+    if (!PyArg_ParseTuple(args, "et#OO|O", bufEncoding, &buf, &bufSize, &pyWordLists, &pyPropSet, &pyCallback)) {
         fprintf(stderr, "Can't get args\n");
         return NULL;
     }
@@ -236,6 +236,8 @@ PyLexState_tokenize_by_style(PyLexState* self, PyObject * args)
 
             // Turn the bytes back into Unicode, it's currently utf-8 encoded.
             text = PyUnicode_DecodeUTF8(&(buf[startIndex]), i - startIndex, NULL);
+	    if (text == NULL)
+		goto onError;
     //fprintf(stderr, "%s %d\n", __FILE__, __LINE__);
             pyToken = Py_BuildValue("{s:i,s:O,s:i,s:i,s:i,s:i,s:i,s:i}", 
                 "style", style[i - 1], 
