@@ -337,7 +337,44 @@ function _checkWindowCoordinateBounds(candidateValue,
     }
     return candidateValue;
 }
-const _nsIDOMChromeWindow = Components.interfaces.nsIDOMChromeWindow;
+
+function _restoreWindowPosition(currentWindow, coordinates) {
+    const _nsIDOMChromeWindow = Components.interfaces.nsIDOMChromeWindow;
+    var windowState = (coordinates.hasPrefHere('windowState')
+                       ? coordinates.getLongPref('windowState')
+                       : _nsIDOMChromeWindow.STATE_NORMAL);
+    // If it's minimized or maximized we still need to set the
+    // window's coords for when it's restored.
+    var screenHeight = window.screen.availHeight;
+    var screenWidth = window.screen.availWidth;
+    var screenX = coordinates.getLongPref('screenX');
+    var screenY = coordinates.getLongPref('screenY');
+    var outerHeight = coordinates.getLongPref('outerHeight');
+    var outerWidth = coordinates.getLongPref('outerWidth');
+    if (Math.abs(screenX) > 3 * screenWidth || Math.abs(screenY) > 3 * screenHeight) {
+        screenX = screenY = 0;
+    }
+    if (currentWindow.screenX != screenX || currentWindow.screenY != screenY) {
+        currentWindow.moveTo(screenX, screenY);
+    }
+    if (currentWindow.outerHeight != outerHeight || currentWindow.outerWidth != outerWidth) {
+        var newHeight = _checkWindowCoordinateBounds(outerHeight, 0,
+                                                     .2 * screenHeight,
+                                                     screenHeight,
+                                                     .9 * screenHeight);
+        var newWidth = _checkWindowCoordinateBounds(outerWidth, 0,
+                                                    .2 * screenWidth,
+                                                    screenWidth,
+                                                    .9 * screenWidth);
+        currentWindow.resizeTo(newWidth, newHeight);
+    }
+    if (windowState == _nsIDOMChromeWindow.STATE_MINIMIZED) {
+        currentWindow.minimize();
+    } else if (windowState == _nsIDOMChromeWindow.STATE_MAXIMIZED) {
+        currentWindow.maximize();
+    }
+}
+
 this._restoreWindowWorkspace =
     function(workspace, currentWindow, checkWindowBounds, prefPath)
 {
@@ -348,42 +385,9 @@ this._restoreWindowWorkspace =
         var id, elt, pref;
         if (checkWindowBounds && workspace.hasPref('coordinates')) {
             var coordinates = workspace.getPref('coordinates');
-            var windowState = (coordinates.hasPrefHere('windowState')
-                               ? coordinates.getLongPref('windowState')
-                               : _nsIDOMChromeWindow.STATE_NORMAL);
-            // If it's minimized or maximized we still need to set the
-            // window's coords for when it's restored.
-            var screenHeight = window.screen.availHeight;
-            var screenWidth = window.screen.availWidth;
-            var screenX = coordinates.getLongPref('screenX');
-            var screenY = coordinates.getLongPref('screenY');
-            var outerHeight = coordinates.getLongPref('outerHeight');
-            var outerWidth = coordinates.getLongPref('outerWidth');
-            if (Math.abs(screenX) > 3 * screenWidth
-                || Math.abs(screenY) > 3 * screenHeight) {
-                screenX = screenY = 0;
-            }
-            if (currentWindow.screenX != screenX
-                || currentWindow.screenY != screenY) {
-                currentWindow.moveTo(screenX, screenY);
-            }
-            if (currentWindow.outerHeight != outerHeight
-                || currentWindow.outerWidth != outerWidth) {
-                var newHeight = _checkWindowCoordinateBounds(
-                    outerHeight,
-                    0, .2 * screenHeight,
-                    screenHeight, .9 * screenHeight);
-                var newWidth = _checkWindowCoordinateBounds(
-                    outerWidth,
-                    0, .2 * screenWidth,
-                    screenWidth, .9 * screenWidth);
-                currentWindow.resizeTo(newWidth, newHeight);
-            }
-            if (windowState == _nsIDOMChromeWindow.STATE_MINIMIZED) {
-                currentWindow.minimize();
-            } else if (windowState == _nsIDOMChromeWindow.STATE_MAXIMIZED) {
-                currentWindow.maximize();
-            }
+            // Must be in a setTimeout, after the window has been loaded,
+            // otherwise the window manager may resize or reposition it.
+            setTimeout(_restoreWindowPosition, 1, currentWindow, coordinates);
         }
         // Opening the Start Page should be before commandment system init and
         // workspace restoration because it should be the first view opened.
