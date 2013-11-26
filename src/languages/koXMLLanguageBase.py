@@ -47,7 +47,6 @@ log = logging.getLogger('koXMLLanguageBase')
 class koXMLLanguageBase(KoUDLLanguage):
 
     primary = 1
-    styleBits = 8
     commentDelimiterInfo = { "block": [ ("<!--", "-->") ]  }
     _indent_chars = u'<>'
     _indent_open_chars = u'>'

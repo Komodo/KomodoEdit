@@ -59,7 +59,6 @@ class koApacheLanguage(KoLanguageBase):
     _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".conf"
-    styleBits = 6
     commentDelimiterInfo = { "line": [ "#" ]  }
     searchURL = "http://httpd.apache.org/docs"
 

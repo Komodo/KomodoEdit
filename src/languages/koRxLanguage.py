@@ -47,7 +47,6 @@ class koRxLanguage(KoLanguageBase):
     _reg_categories_ = [("komodo-language", name)]
     
     internal = 1
-    styleBits = 5
     internalLanguage = 1
     def get_lexer(self):
         if self._lexer is None:

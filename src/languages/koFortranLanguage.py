@@ -47,7 +47,6 @@ class koFortran77Language(KoLanguageBase):
     _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".f"
-    styleBits = 6
     commentDelimiterInfo = { "line": [ "!", "C " ]  }
     supportsSmartIndent = "brace"
 
@@ -137,7 +136,6 @@ class koFortranLanguage(koFortran77Language):
     _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".f95"
-    styleBits = 6
     commentDelimiterInfo = { "line": [ "!", "C " ]  }
     
     def get_lexer(self):
