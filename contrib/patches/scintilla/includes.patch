@@ -222,7 +222,7 @@
  val SCE_AVS_DEFAULT=0
  val SCE_AVS_COMMENTBLOCK=1
  val SCE_AVS_COMMENTBLOCKN=2
-@@ -3713,6 +3746,136 @@
+@@ -3713,6 +3746,141 @@
  val SCE_MODULA_OPERATOR=16
  val SCE_MODULA_BADSTR=17
  
@@ -313,6 +313,7 @@
 +val SCE_UDL_M_PI=12
 +val SCE_UDL_M_CDATA=13
 +val SCE_UDL_M_COMMENT=14
++val SCE_UDL_M_UPPER_BOUND=14
 +# UDL: style (reduced CSS) language
 +# Don't bother reserving slots, just renumber on (hopefully infrequent) changes
 +val SCE_UDL_CSS_DEFAULT=15
@@ -322,6 +323,7 @@
 +val SCE_UDL_CSS_WORD=19
 +val SCE_UDL_CSS_IDENTIFIER=20
 +val SCE_UDL_CSS_OPERATOR=21
++val SCE_UDL_CSS_UPPER_BOUND=21
 +# UDL: client-side language
 +val SCE_UDL_CSL_DEFAULT=22
 +val SCE_UDL_CSL_COMMENT=23
@@ -332,6 +334,7 @@
 +val SCE_UDL_CSL_IDENTIFIER=28
 +val SCE_UDL_CSL_OPERATOR=29
 +val SCE_UDL_CSL_REGEX=30
++val SCE_UDL_CSL_UPPER_BOUND=30
 +# UDL: server-side
 +val SCE_UDL_SSL_DEFAULT=31
 +val SCE_UDL_SSL_COMMENT=40
@@ -343,6 +346,7 @@
 +val SCE_UDL_SSL_OPERATOR=46
 +val SCE_UDL_SSL_REGEX=47
 +val SCE_UDL_SSL_VARIABLE=48
++val SCE_UDL_SSL_UPPER_BOUND=48
 +# Room for 7 more terms.
 +# Specialize template mini-languages (e.g., Perl Template Toolkit, PHP Smarty)
 +val SCE_UDL_TPL_DEFAULT=49
@@ -354,6 +358,7 @@
 +val SCE_UDL_TPL_IDENTIFIER=55
 +val SCE_UDL_TPL_OPERATOR=56
 +val SCE_UDL_TPL_VARIABLE=57
++val SCE_UDL_TPL_UPPER_BOUND=57
 +val SCE_UDL_UPPER_BOUND=57
 +
  # Events
