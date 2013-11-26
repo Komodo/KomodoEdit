@@ -61,11 +61,11 @@ this.restore = function ko_workspace_restore()
         // being smart enough to restore things twice.
         let prefs = ko.prefs;
         let path = []
-        if (prefs.hasPref("windowWorkspace")) {
-            let workspacePrefs = prefs.getPref("windowWorkspace");
+        if (prefs.hasPref(multiWindowWorkspacePrefName)) {
+            let workspacePrefs = prefs.getPref(multiWindowWorkspacePrefName);
             if (workspacePrefs.hasPref("1")) {
                 prefs = workspacePrefs.getPref("1");
-                path = ["windowWorkspace", "1"];
+                path = [multiWindowWorkspacePrefName, "1"];
             }
         }
         ko.widgets.restoreLayout(prefs, path);
@@ -216,18 +216,18 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx, thisIndexOnly)
                          + "ko.workspace.restoreWorkspaceByIndex invoked (index="
                          + idx
                          + "),\n"
-                         + "but there's no windowWorkspace pref\n");
+                         + "but there's no " + multiWindowWorkspacePrefName + " pref\n");
         return;
     }
     idx = parseInt(idx);
     //dump("restoreWorkspaceByIndex: set this workspace _koNum to " + idx + "\n");
     currentWindow._koNum = idx;
-    var windowWorkspacePref = ko.prefs.getPref('windowWorkspace');
+    var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
     try {
         this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx),
                                      currentWindow,
                                      idx > 0 || _mozPersistPositionDoesNotWork,
-                                     ["windowWorkspace", idx]);
+                                     [multiWindowWorkspacePrefName, idx]);
     } catch(ex) {
         log.exception("Can't restore workspace for window " + idx + ", exception: " + ex);
     }
