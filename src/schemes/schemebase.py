@@ -9,7 +9,7 @@ from xpcom import components
 log = logging.getLogger('SchemeBase')
 #log.setLevel(logging.DEBUG)
 
-class SchemeBase:
+class SchemeBase(object):
 
     ext = ''
 
@@ -37,7 +37,7 @@ class SchemeBase:
     def revert(self):
         self.isDirty = 0
 
-class SchemeServiceBase:
+class SchemeServiceBase(object):
 
     ext = ''
 
@@ -56,7 +56,6 @@ class SchemeServiceBase:
         for candidate in os.listdir(dirName):
             name, ext = splitext(candidate)
             if ext == self.ext:
-                print 'candidate: %r' % (candidate, )
                 filepath = join(dirName, candidate)
                 self._scheme_details[name] = {'filepath': filepath,
                                               'userDefined': userDefined}
@@ -118,4 +117,4 @@ class SchemeServiceBase:
 
     @classmethod
     def _makeScheme(cls, filepath, userDefined):
-        pass # Implement in the parent class.
+        pass # Implement in the derived class.
