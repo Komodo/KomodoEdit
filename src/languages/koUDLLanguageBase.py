@@ -61,19 +61,19 @@ ScintillaConstants = components.interfaces.ISciMoz
 
 def udl_family_from_style(style):
     if (ScintillaConstants.SCE_UDL_M_DEFAULT <= style
-          <= ScintillaConstants.SCE_UDL_M_COMMENT):
+          <= ScintillaConstants.SCE_UDL_M_UPPER_BOUND):
         return "M"
     elif (ScintillaConstants.SCE_UDL_CSS_DEFAULT <= style
-          <= ScintillaConstants.SCE_UDL_CSS_OPERATOR):
+          <= ScintillaConstants.SCE_UDL_CSS_UPPER_BOUND):
         return "CSS"
     elif (ScintillaConstants.SCE_UDL_CSL_DEFAULT <= style
-          <= ScintillaConstants.SCE_UDL_CSL_REGEX):
+          <= ScintillaConstants.SCE_UDL_CSL_UPPER_BOUND):
         return "CSL"
     elif (ScintillaConstants.SCE_UDL_SSL_DEFAULT <= style
-          <= ScintillaConstants.SCE_UDL_SSL_VARIABLE):
+          <= ScintillaConstants.SCE_UDL_SSL_UPPER_BOUND):
         return "SSL"
     elif (ScintillaConstants.SCE_UDL_TPL_DEFAULT <= style
-          <= ScintillaConstants.SCE_UDL_TPL_VARIABLE):
+          <= ScintillaConstants.SCE_UDL_TPL_UPPER_BOUND):
         return "TPL"
     else:
         raise ValueError("unknown UDL style: %r" % style)

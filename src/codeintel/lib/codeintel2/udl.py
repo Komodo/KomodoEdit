@@ -85,19 +85,19 @@ finally:
 # Test 'udl/general/is_udl_x_style' tests these.
 def is_udl_m_style(style):
     return (ScintillaConstants.SCE_UDL_M_DEFAULT <= style
-            <= ScintillaConstants.SCE_UDL_M_COMMENT)
+            <= ScintillaConstants.SCE_UDL_M_UPPER_BOUND)
 def is_udl_css_style(style):
     return (ScintillaConstants.SCE_UDL_CSS_DEFAULT <= style
-            <= ScintillaConstants.SCE_UDL_CSS_OPERATOR)
+            <= ScintillaConstants.SCE_UDL_CSS_UPPER_BOUND)
 def is_udl_csl_style(style):
     return (ScintillaConstants.SCE_UDL_CSL_DEFAULT <= style
-            <= ScintillaConstants.SCE_UDL_CSL_REGEX)
+            <= ScintillaConstants.SCE_UDL_CSL_UPPER_BOUND)
 def is_udl_ssl_style(style):
     return (ScintillaConstants.SCE_UDL_SSL_DEFAULT <= style
-            <= ScintillaConstants.SCE_UDL_SSL_VARIABLE)
+            <= ScintillaConstants.SCE_UDL_SSL_UPPER_BOUND)
 def is_udl_tpl_style(style):
     return (ScintillaConstants.SCE_UDL_TPL_DEFAULT <= style
-            <= ScintillaConstants.SCE_UDL_TPL_VARIABLE)
+            <= ScintillaConstants.SCE_UDL_TPL_UPPER_BOUND)
 
 #XXX Redundant code from koUDLLanguageBase.py::KoUDLLanguage
 # Necessary because SilverCity.WordList splits input on white-space
@@ -230,19 +230,19 @@ class UDLBuffer(CitadelBuffer):
 
     def lang_from_style(self, style):
         if (ScintillaConstants.SCE_UDL_M_DEFAULT <= style
-              <= ScintillaConstants.SCE_UDL_M_COMMENT):
+              <= ScintillaConstants.SCE_UDL_M_UPPER_BOUND):
             return self.m_lang
         elif (ScintillaConstants.SCE_UDL_CSS_DEFAULT <= style
-              <= ScintillaConstants.SCE_UDL_CSS_OPERATOR):
+              <= ScintillaConstants.SCE_UDL_CSS_UPPER_BOUND):
             return self.css_lang
         elif (ScintillaConstants.SCE_UDL_CSL_DEFAULT <= style
-              <= ScintillaConstants.SCE_UDL_CSL_REGEX):
+              <= ScintillaConstants.SCE_UDL_CSL_UPPER_BOUND):
             return self.csl_lang
         elif (ScintillaConstants.SCE_UDL_SSL_DEFAULT <= style
-              <= ScintillaConstants.SCE_UDL_SSL_VARIABLE):
+              <= ScintillaConstants.SCE_UDL_SSL_UPPER_BOUND):
             return self.ssl_lang
         elif (ScintillaConstants.SCE_UDL_TPL_DEFAULT <= style
-              <= ScintillaConstants.SCE_UDL_TPL_VARIABLE):
+              <= ScintillaConstants.SCE_UDL_TPL_UPPER_BOUND):
             return self.tpl_lang
         else:
             raise ValueError("unknown UDL style: %r" % style)
@@ -290,15 +290,15 @@ class UDLBuffer(CitadelBuffer):
         else:
             min_style, max_style = {
                 self.m_lang:   (ScintillaConstants.SCE_UDL_M_DEFAULT,
-                                ScintillaConstants.SCE_UDL_M_COMMENT),
+                                ScintillaConstants.SCE_UDL_M_UPPER_BOUND),
                 self.css_lang: (ScintillaConstants.SCE_UDL_CSS_DEFAULT,
-                                ScintillaConstants.SCE_UDL_CSS_OPERATOR),
+                                ScintillaConstants.SCE_UDL_CSS_UPPER_BOUND),
                 self.csl_lang: (ScintillaConstants.SCE_UDL_CSL_DEFAULT,
-                                ScintillaConstants.SCE_UDL_CSL_REGEX),
+                                ScintillaConstants.SCE_UDL_CSL_UPPER_BOUND),
                 self.ssl_lang: (ScintillaConstants.SCE_UDL_SSL_DEFAULT,
-                                ScintillaConstants.SCE_UDL_SSL_VARIABLE),
+                                ScintillaConstants.SCE_UDL_SSL_UPPER_BOUND),
                 self.tpl_lang: (ScintillaConstants.SCE_UDL_TPL_DEFAULT,
-                                ScintillaConstants.SCE_UDL_TPL_VARIABLE),
+                                ScintillaConstants.SCE_UDL_TPL_UPPER_BOUND),
             }[lang]
 
             in_chunk = False
