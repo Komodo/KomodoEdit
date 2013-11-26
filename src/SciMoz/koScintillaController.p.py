@@ -1166,8 +1166,14 @@ class koScintillaController:
         # B: xy<|><EOL> => yx<|><EOL>
         # and also
         # C: x<EOL><|>yz => xy<EOL><|>z
-        # Note that #A and #C both move the object to the right of the cursor
-        # over to the left of the object to the left. #B is more of an exception.
+        # Similarly, D looks a lot like C
+        # D: x<EOL>y<|><EOL> => xy<EOL><|><EOL>
+        # On an empty line:
+        # E: x<EOL-1><|><EOL-2> => <EOL-1>x<|><EOL-2>
+        # 
+        # Note that #A, #C, and #D both move the object to the right of the cursor
+        # over to the left of the object to the left. #B and #E are exceptions.
+        #
         scimoz = self.scimoz()
         if scimoz.selectionStart < scimoz.selectionEnd:
             log.error("cmd_transpose is undefined when there's a selection")
@@ -1177,34 +1183,60 @@ class koScintillaController:
             return
         currentLine = scimoz.lineFromPosition(currentPos)
         docLength = scimoz.length
-        if scimoz.getColumn(currentPos) == 0:
+        currentColumn = scimoz.getColumn(currentPos)
+        atEndOfLine = scimoz.getLineEndPosition(currentLine) == currentPos
+        if currentLine > 0:
+            prevEOLPos = scimoz.getLineEndPosition(currentLine - 1)
+        else:
+            prevEOLPos = -1
+        if atEndOfLine:
+            nextPos = nextCursorPos = currentPos
+            if currentColumn > 1:
+                # Case B: transpose prev two chars, don't move forward
+                currentPos = scimoz.positionBefore(currentPos)
+                prevPos = scimoz.positionBefore(currentPos)
+                prevChar = scimoz.getWCharAt(prevPos)
+                currChar = scimoz.getWCharAt(currentPos)
+            else:
+                if prevEOLPos == -1:
+                    return
+                if currentColumn == 0:
+                    if scimoz.getColumn(prevEOLPos) == 0:
+                        # This line and prev line are both empty, so do nothing
+                        return
+                    # Case D: move single char before previous line's EOL to start of this line
+                    currChar = scimoz.getTextRange(prevEOLPos, currentPos)
+                    prevPos = scimoz.positionBefore(prevEOLPos)
+                    prevChar = scimoz.getWCharAt(prevPos)
+                else:
+                    # Case E: move single char before previous line's EOL
+                    prevPos = scimoz.positionBefore(currentPos)
+                    currChar = scimoz.getWCharAt(prevPos)
+                    prevChar = scimoz.getTextRange(prevEOLPos, prevPos)
+                    prevPos = prevEOLPos
+        elif currentColumn == 0:
             # Case C: at start of line: transpose prev & current chars,
             #         don't move forward
             # But verify that we aren't at the end of the buffer
             if currentPos >= docLength:
                 return
-            prevPos = scimoz.getLineEndPosition(currentLine - 1)
-            prevChar = scimoz.getTextRange(prevPos, currentPos)
             nextPos = nextCursorPos = scimoz.positionAfter(currentPos)
+            prevPos = prevEOLPos
+            prevChar = scimoz.getTextRange(prevPos, currentPos)
+            currChar = scimoz.getWCharAt(currentPos)
         else:
-            if scimoz.getLineEndPosition(currentLine) == currentPos:
-                # Case B: transpose prev two chars, don't move forward
-                nextPos = currentPos
-                nextCursorPos = currentPos
-                currentPos = scimoz.positionBefore(currentPos)
-            else:
-                # Case A: transpose prev char & current char, and move forward
-                nextPos = nextCursorPos = scimoz.positionAfter(currentPos)
+            # Case A: transpose prev char & current char, and move forward
+            nextPos = nextCursorPos = scimoz.positionAfter(currentPos)
             prevPos = scimoz.positionBefore(currentPos)
             prevChar = scimoz.getWCharAt(prevPos)
-        currChar = scimoz.getWCharAt(currentPos)
+            currChar = scimoz.getWCharAt(currentPos)
         scimoz.targetStart = prevPos
         scimoz.targetEnd = nextPos
         scimoz.beginUndoAction()
         try:
             scimoz.replaceTarget(currChar + prevChar)
-            if nextCursorPos >= docLength:
-                nextCursorPos = docLength - 1
+            if nextCursorPos > docLength:
+                nextCursorPos = docLength
             scimoz.setSel(nextCursorPos, nextCursorPos)
         finally:
             scimoz.endUndoAction()
