@@ -396,7 +396,7 @@
                      intoplevel="true"/>
       <menuitem id="placesContextMenu_editProperties"
                 observes="cmd_editProperties"
-                label="&properties.label;"
+                label="&projectPreferences.label;"
                 intoplevel="true"
                 disableIf="folder"
                 hideIf="project"
@@ -405,7 +405,7 @@
                 />
       <menuitem id="placesContextMenu_editProjectProperties"
                 observes="cmd_projectProperties"
-                label="&properties.label;"
+                label="&projectPreferences.label;"
                 intoplevel="true"
                 hideUnless="project"
                 class="menuitem-iconic"
@@ -625,11 +625,11 @@
                 disableIf="project"
                 oncommand="ko.places.projects.manager.removeItems(event, this);" />
 
-      <menuitem label="&properties.label;"
+      <menuitem label="&projectPreferences.label;"
                 id="menu_projCtxt_projectProperties"
                 class="menuitem-iconic"
                 oncommand="ko.places.projects.editProjectProperties();"
-                accesskey="&projectProperties.accesskey;"
+                accesskey="&projectPreferences.accesskey;"
                 testDisableIf="t:multipleSelection"
                 hideIf="file folder livefolder"
                 disableUnless="project" />
@@ -734,13 +734,13 @@
           oncommand="ko.places.projects_SPV.removeProjectListing();" />
 
       <menuseparator id="menu_project_properties_separator_projectsContext" hideIf="file folder livefolder"/>
-      <menuitem label="&properties.label;"
+      <menuitem label="&projectPreferences.label;"
           id="menu_projectProperties_projectsContext"
           hideIf="file folder livefolder"
           disableUnless="currentProject"
           testDisableIf="t:multipleSelection"
           oncommand="ko.places.projects_SPV.editProjectProperties();"
-          accesskey="&projectProperties.accesskey;" />
+          accesskey="&projectPreferences.accesskey;" />
     </menupopup>
     
     <menupopup id="placesSubpanelProjectsToolsPopup_SPV"

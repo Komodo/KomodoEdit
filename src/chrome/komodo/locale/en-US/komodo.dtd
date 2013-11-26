@@ -90,7 +90,7 @@
 <!ENTITY copyButton.accesskey "C">
 <!ENTITY createTemplateFromProject.label "Create Template From Project...">
 <!ENTITY createTemplateFromProject.accesskey "C">
-<!ENTITY currentFileSettings.label "Current File Settings...">
+<!ENTITY currentFilePreferences.label "Current File Preferences...">
 <!ENTITY customizeToolbars.menu.label "Customize...">
 <!ENTITY customizeToolbars.menu.accesskey "C">
 <!ENTITY cut.label "Cut">
@@ -232,6 +232,7 @@
 <!ENTITY fileOpen.label "File...">
 <!ENTITY fileEncoding.tooltiptext "File Encoding">
 <!ENTITY filePosition.tooltiptext "File Position">
+<!ENTITY filePreferences.label "File Preferences">
 <!ENTITY fileType.tooltiptext "File Type">
 <!ENTITY find.label "Find...">
 <!ENTITY findAllFunctions.label "Find All Functions">
@@ -543,7 +544,8 @@
 <!ENTITY printSettings.label "Print Settings">
 <!ENTITY printToHTMLFile.label "Print to HTML File...">
 <!ENTITY project.label "Project">
-<!ENTITY projectPreferences.label "Project Preferences...">
+<!ENTITY projectPreferences.accesskey "P">
+<!ENTITY projectPreferences.label "Project Preferences">
 <!ENTITY projects.label "Projects">
 <!ENTITY projectsToolboxAddNewFile.desc "Projects/Toolbox: Add New File...">
 <!ENTITY projectsToolboxAddNewFileFromTemplate.desc "Projects/Toolbox: Add New File From Template...">
@@ -552,7 +554,6 @@
 <!ENTITY properties.label "Properties">
 <!ENTITY projectProperties.accesskey "P">
 <!ENTITY projectProperties.desc "Projects/Toolbox: Properties">
-<!ENTITY propertiesAndSettings.label "Properties and Settings">
 <!ENTITY quitApplicationCmd.label "Quit">
 <!ENTITY quitApplicationCmd.accesskey "Q">
 <!ENTITY quitApplicationCmdMac.label "Quit &brandShortName;">

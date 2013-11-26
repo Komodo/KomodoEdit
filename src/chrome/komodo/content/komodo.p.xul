@@ -319,7 +319,7 @@
              to have at least one user of this space (the spell checker). -->
         <menuseparator id="editor-context-sep-properties"/>
         <menuitem id="editor-context-properties"
-                label="&propertiesAndSettings.label;"
+                label="&filePreferences.label;"
                 observes="cmd_editPrefsCurrent"/>
     </menupopup>
     
@@ -416,7 +416,7 @@
                   label="&createMappedURI.label;"
                   observes="cmd_createMappedURI"/>
         <menuitem id="buffertab-context-properties"
-                  label="&propertiesAndSettings.label;"
+                  label="&filePreferences.label;"
                   observes="cmd_editPrefsCurrent"/>
     </menupopup>
 
@@ -849,7 +849,7 @@
                                       observes="cmd_editPrefs"
                                       accesskey="&menuPreferences.accesskey;"
                                       />
-                            <menuitem label="&currentFileSettings.label;"
+                            <menuitem label="&currentFilePreferences.label;"
                                       id="menu_editPrefsCurrent"
                                       accesskey="&menuEditPrefsCurrent.accesskey;"
                                       observes="cmd_editPrefsCurrent"
@@ -1422,11 +1422,11 @@
 
                             <menuseparator id="menu_project_separator_3"/>
 
-                            <menuitem label="&properties.label;"
+                            <menuitem label="&projectPreferences.label;"
                                       id="menu_projectProperties"
                                       observes="cmd_projectProperties"
                                       disableIfCurrentProjectIsClosed="true"
-                                      accesskey="&projectProperties.accesskey;"/>
+                                      accesskey="&projectPreferences.accesskey;"/>
                         </menupopup>
                     </menu>
 

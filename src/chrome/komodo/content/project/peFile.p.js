@@ -360,13 +360,13 @@ this.fileProperties = function peFile_Properties(item, view, folder)
         var resp = new Object ();
         resp.res = "";
         resp.part = item;
-        resp.title = _bundle.GetStringFromName("filePropertiesAndSettings");
+        resp.title = _bundle.GetStringFromName("filePreferences");
         resp.folder = folder;
         resp.view = view;
         if (item && item.type == "project") {
-            resp.title = _bundle.GetStringFromName("projectPropertiesAndSettings");
+            resp.title = _bundle.GetStringFromName("projectPreferences");
         } else if (folder) {
-            resp.title = _bundle.GetStringFromName("folderPropertiesAndSettings");
+            resp.title = _bundle.GetStringFromName("folderPreferences");
         }
         try {
             window.openDialog(

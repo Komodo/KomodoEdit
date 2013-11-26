@@ -50,7 +50,7 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        title="&folderPropertiesAndSettings.title;"
+        title="&projectPreferences.label;"
         windowtype="komodo_projectprefs"
         orient="vertical"
         class="dialog"
