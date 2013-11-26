@@ -2301,11 +2301,15 @@
 
         let setOrientCallback = event => {
           try {
-            event.target.removeEventListener(event.type, setOrientCallback);
             // In some cases, the content window would have already been moved
             // from this widget (into another one); so, we need to avoid
             // referring to |this|, but use window.frameElement instead.
             let widget = event.target.defaultView.frameElement;
+            if (!widget || !widget._is_ko_widget) {
+              // This is not the Komodo browser you are looking for, bug 101711.
+              return;
+            }
+            event.target.removeEventListener(event.type, setOrientCallback);
             let docElem = event.target.documentElement;
             docElem.classList.add("widget");
             if (widget.containerPane.hasAttribute("orient")) {
