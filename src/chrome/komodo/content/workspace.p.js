@@ -129,7 +129,7 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
 
     // If there is a workspace to restore - prompt the user to see if they wish
     // to restore it.
-    if (!ko.prefs.hasPref(multiWindowWorkspacePrefName) && !ko.prefs.hasPref('workspace')) {
+    if (!ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
         return;
     } else if (!was_normal_shutdown) {   // Komodo crashed
         if (ko.prefs.getBooleanPref("donotask_restore_workspace") &&
@@ -144,15 +144,6 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
         }
     } else if (ko.dialogs.yesNo(_bundle.GetStringFromName("doYouWantToOpenRecentFilesAndProjects.prompt"),
                                 null, null, null, "restore_workspace") == "No") {
-        return;
-    }
-
-    if (!ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
-        this._restoreWindowWorkspace(ko.prefs.getPref('workspace'),
-                                     currentWindow,
-                                     _mozPersistPositionDoesNotWork,
-                                     ["workspace"]);
-        ko.widgets.restoreLayout(ko.prefs, []);
         return;
     }
 
