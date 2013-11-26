@@ -37,6 +37,7 @@ makefile_flags.patch
 mouse_release.patch
 stdio.patch
 stop_timers.patch
+stylebits.patch
 vi_block_selection.patch
 win32.patch
 win32_drag_end.patch
