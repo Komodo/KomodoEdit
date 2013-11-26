@@ -47,8 +47,9 @@ import sys
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import WrapObject, UnwrapObject
-from styles import StateMap, CommonStates, IndicatorNameMap
 
+from styles import StateMap, CommonStates, IndicatorNameMap
+from schemebase import SchemeBase, SchemeServiceBase
 
 
 #---- constants
@@ -77,16 +78,16 @@ _no_background_colors = {
 
 #---- scheme handling classes
 
-class Scheme:
+class Scheme(SchemeBase):
     _com_interfaces_ = [components.interfaces.koIScintillaScheme]
     _reg_clsid_ = "{569B18D0-DCD8-490D-AB44-1B66EEAFBCFA}"
     _reg_contractid_ = "@activestate.com/koScintillaScheme;1"
     _reg_desc_ = "Scintilla Scheme object"
 
+    ext = '.ksf'
+
     def __init__(self):
-        self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
-                        getService(components.interfaces.koIDirs)
-        self._userSchemeDir = os.path.join(self._koDirSvc.userDataDir, 'schemes')
+        pass
 
     def init(self, fname, userDefined, unsaved=0):
         """
@@ -95,19 +96,11 @@ class Scheme:
         @param unsaved {bool} True: fname is the name of a scheme, False: fname is a full path
         @returns {bool} True iff the object initialized successfully
         """
+        SchemeBase.__init__(self, fname, userDefined, unsaved)
         namespace = {}
-        self.unsaved = unsaved
-        self.writeable = userDefined
-        if unsaved:
-            self.fname = os.path.join(self._userSchemeDir, fname+'.ksf')
-            self.name = fname
-            self.isDirty = 1
-        else:
-            self.fname = fname
-            self.name = os.path.splitext(os.path.basename(fname))[0]
+        if not unsaved:
             if not self._execfile(fname, namespace):
                 return False
-            self.isDirty = 0
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
@@ -325,8 +318,11 @@ class Scheme:
         return self._booleans['caretLineVisible']
 
     def clone(self, newname):
-        clone = _makeScheme(newname, 1, 1)
+        clone = KoScintillaSchemeService._makeScheme(newname, 1, 1)
         if clone is None:
+            _viewsBundle = components.classes["@mozilla.org/intl/stringbundle;1"].\
+                           getService(components.interfaces.nsIStringBundleService).\
+                           createBundle("chrome://komodo/locale/views.properties")
             raise SchemeCreationException(_viewsBundle.formatStringFromName(
                                           "schemeFileNotCloned.template",
                                           [newname]))
@@ -355,7 +351,7 @@ class Scheme:
     def saveAs(self, name):
         if name == "":
             name = "__unnamed__"
-        fname = os.path.join(self._userSchemeDir, name+'.ksf')
+        fname = os.path.join(self._userSchemeDir, name + self.ext)
         if os.path.exists(fname):
             log.error("File %r already exists" % fname)
             return
@@ -1002,95 +998,44 @@ class Scheme:
         return "!"+font
 # #endif
 
-def _makeScheme(fname, userDefined, unsaved=0):
-    """Factory method for creating an initialized scheme object
-
-    @param fname {str} Either the full path to a scheme file, or a scheme name (see unsaved)
-    @param userDefined {bool} False if it's a Komodo-defined scheme
-    @param unsaved {bool} True: fname is the name of a scheme, False: fname is a full path
-    @returns an initialized Scheme object
-    """
-    aScheme = Scheme()
-    if aScheme.init(fname, userDefined, unsaved):
-        return aScheme
-    return None
-    
 class SchemeCreationException(Exception):
     pass
 
-class KoScintillaSchemeService:
+class KoScintillaSchemeService(SchemeServiceBase):
     _com_interfaces_ = [components.interfaces.koIScintillaSchemeService]
     _reg_clsid_ = "{469B18D0-DCD8-490D-AB44-1B66EEAFBCFE}"
     _reg_contractid_ = "@activestate.com/koScintillaSchemeService;1"
     _reg_desc_ = "Service used to access, manage and create scintilla 'schemes'"
     screenToCSS = 1.3 # scaling between screen fonts and 'appropriate' CSS fonts
 
+    ext = '.ksf'
+
     def __init__(self):
-        self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
-                        getService(components.interfaces.koIDirs)
-        self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
-                            getService(components.interfaces.koIPrefService).prefs
+        SchemeServiceBase.__init__(self)
         self.lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"].\
                                 getService(components.interfaces.koILastErrorService)
-        self._systemSchemeDir = os.path.join(self._koDirSvc.supportDir, 'schemes')
-        _initializeStyleInfo()
 
-        self.reloadAvailableSchemes()
+        _initializeStyleInfo()
 
         currentScheme = self._globalPrefs.getStringPref('editor-scheme')
         if currentScheme not in self._scheme_details:
             log.error("The scheme specified in prefs (%s) is unknown -- reverting to default", currentScheme)
             self._globalPrefs.setStringPref('editor-scheme', 'Default')
 
-    def reloadAvailableSchemes(self):
-        # _scheme_details contains the list of all available schemes, whilst
-        # _schemes contains the lazily loaded schemes.
-        self._scheme_details = {}
-        self._schemes = {}
+    @classmethod
+    def _makeScheme(cls, fname, userDefined, unsaved=0):
+        """Factory method for creating an initialized scheme object
 
-        #print self._systemSchemeDir, os.path.exists(self._systemSchemeDir)
-        if os.path.isdir(self._systemSchemeDir):
-            self._addSchemeDetailsFromDirectory(self._systemSchemeDir, 0)
-        self._userSchemeDir = os.path.join(self._koDirSvc.userDataDir, 'schemes')
-        #print self._userSchemeDir
-        if not os.path.isdir(self._userSchemeDir):
-            os.mkdir(self._userSchemeDir)
-        else:
-            self._addSchemeDetailsFromDirectory(self._userSchemeDir, 1)
+        @param fname {str} Either the full path to a scheme file, or a scheme name (see unsaved)
+        @param userDefined {bool} False if it's a Komodo-defined scheme
+        @param unsaved {bool} True: fname is the name of a scheme, False: fname is a full path
+        @returns an initialized Scheme object
+        """
+        aScheme = Scheme()
+        if aScheme.init(fname, userDefined, unsaved):
+            return aScheme
+        return None
 
-        assert len(self._scheme_details) != 0 # We should always have Komodo schemes.
-
-    def addScheme(self, scheme):
-        #print "ADDING ", scheme.name
-        self._scheme_details[scheme.name] = {'filepath': scheme.fname,
-                                             'userDefined': scheme.writeable}
-        self._schemes[scheme.name] = scheme
-
-    def removeScheme(self, scheme):
-        if scheme.name not in self._schemes:
-            log.error("Couldn't remove scheme named %r, as we don't know about it", scheme.name)
-            return
-        self._schemes.pop(scheme.name)
-        self._scheme_details.pop(scheme.name)
-
-    def getSchemeNames(self):
-        return sorted(self._scheme_details.keys())
-    
-    def getScheme(self, name):
-        if name not in self._scheme_details:
-            log.error("asked for scheme by the name of %r, but there isn't one", name)
-            name = 'Default'
-        scheme = self._schemes.get(name)
-        if scheme is None:
-            details = self._scheme_details[name]
-            scheme = _makeScheme(details['filepath'], details['userDefined'])
-            if scheme is None:
-                # This is primarily for tech support, to help answer the question
-                # "why is my Komodo color scheme file not loading?"
-                log.error("Unable to load Komodo color scheme: %r", details)
-            else:
-                self._schemes[name] = scheme
-        return scheme
 
     def getCommonStyles(self):
         names = CommonStates[:]
@@ -1294,8 +1239,6 @@ class KoScintillaSchemeService:
         @param uri {str} the URI to open
         @returns {wstring} name of new scheme.  Throws an exception on failure.
         """
-        koDirs = components.classes["@activestate.com/koDirs;1"].\
-                 getService(components.interfaces.koIDirs)
         fileSvc = components.classes["@activestate.com/koFileService;1"].\
                   getService(components.interfaces.koIFileService)
         _viewsBundle = components.classes["@mozilla.org/intl/stringbundle;1"].\
@@ -1334,26 +1277,18 @@ class KoScintillaSchemeService:
                      "'" + "', '".join(dangerous_keywords) + "'"])
                 raise ServerException(nsError.NS_ERROR_INVALID_ARG, msg)
         
-        targetPath = os.path.join(koDirs.userDataDir, 'schemes', schemeBaseName)
+        targetPath = os.path.join(self._userSchemeDir, schemeBaseName)
         fd = open(targetPath, "w")
         fd.write(data)
         fd.close()
         
-        newScheme = _makeScheme(targetPath, True, unsaved=0)
+        newScheme = self._makeScheme(targetPath, True, unsaved=0)
         if newScheme is None:
             raise SchemeCreationException(_viewsBundle.formatStringFromName(
                                           "schemeFileNotCreatedFromFile.template",
                                           [targetPath]))
         self.addScheme(newScheme)
         return newScheme.name
-
-    def _addSchemeDetailsFromDirectory(self, dirName, userDefined):
-        for candidate in os.listdir(dirName):
-            name, ext = os.path.splitext(candidate)
-            if ext == '.ksf':
-                filepath = os.path.join(dirName, candidate)
-                self._scheme_details[name] = {'filepath': filepath,
-                                              'userDefined': userDefined}
 
     def activateScheme(self, newSchemeName):
         globalPrefs = components.classes["@activestate.com/koPrefService;1"].\

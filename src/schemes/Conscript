@@ -59,6 +59,7 @@ $cons->InstallPythonUtility('styles.py');
 $cons->Preprocess('factoryStyleSettings.p.py',
                   'factoryStyleSettings.py');
 $cons->InstallPythonUtility('factoryStyleSettings.py');
+$cons->InstallPythonUtility('schemebase.py');
 $cons->InstallPythonUtility('userStyleSettings.py');
 $cons->Install($idlExportDir, 'koIScintillaSchemeService.idl');
 $cons->BuildAndInstallXpt('koIScintillaSchemeService.idl');
