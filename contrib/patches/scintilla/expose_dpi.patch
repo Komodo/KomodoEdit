@@ -133,18 +133,6 @@ index e144a96..2a08e9c 100644
  # For private communication between an application and a known lexer.
  fun int PrivateLexerCall=4013(int operation, int pointer)
  
---- include/Scintilla.h
-+++ include/Scintilla.h (unsaved)
-@@ -907,6 +907,8 @@
- #define SCI_GETSUPPRESSDRAGDROP 5011
- #define SCI_SETSUPPRESSZOOMONSCROLLWHEEL 5012
- #define SCI_GETSUPPRESSZOOMONSCROLLWHEEL 5013
-+#define SCI_GETLOGPIXELSX 5014
-+#define SCI_GETLOGPIXELSY 5015
- #define SCI_PRIVATELEXERCALL 4013
- #define SCI_PROPERTYNAMES 4014
- #define SC_TYPE_BOOLEAN 0
-diff --git src/Editor.cxx src/Editor.cxx
 index 1c25ed0..fe1ac2e 100644
 --- src/Editor.cxx
 +++ src/Editor.cxx

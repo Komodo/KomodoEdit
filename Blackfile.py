@@ -2136,6 +2136,10 @@ def GetScintillaSource(cfg, argv):
                     config=cfg,
                     #dryRun=1,  # uncomment this line to dry-run patching
                     logDir=join(cfg.buildAbsDir, "scintilla-patch-log"))
+    # Run the HFacer to generate the scintilla include files.
+    _run_in_dir(sys.executable + " HFacer.py",
+                join("src", "scintilla", "include"),
+                log.debug)
 
 
 def _BuildKomodo(cfg, argv):
