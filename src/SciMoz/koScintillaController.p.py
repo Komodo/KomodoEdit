@@ -1176,7 +1176,8 @@ class koScintillaController:
         #
         scimoz = self.scimoz()
         if scimoz.selectionStart < scimoz.selectionEnd:
-            log.error("cmd_transpose is undefined when there's a selection")
+            #TODO: transpose all letters in the selections.
+            _sendStatusMessage("transpose-characters isn't supported when there's a selection")
             return
         currentPos = scimoz.currentPos
         if currentPos == 0:
@@ -1241,20 +1242,94 @@ class koScintillaController:
         finally:
             scimoz.endUndoAction()
 
+    def _get_prev_word_posn(self, scimoz, pos):
+        while pos > 0:
+            startPos = scimoz.wordStartPosition(pos, True)
+            if startPos < pos:
+                endPos = scimoz.wordEndPosition(pos, True)
+                if startPos < endPos:
+                    return [startPos, endPos]
+            pos = scimoz.positionBefore(pos)
+        return [-1, -1]
+
+    def _get_next_word_posn(self, scimoz, pos):
+        lim = scimoz.length
+        while pos < lim:
+            endPos = scimoz.wordEndPosition(pos, True)
+            if endPos > pos:
+                startPos = scimoz.wordStartPosition(pos, True)
+                if startPos < endPos:
+                    return [startPos, endPos]
+            pos = scimoz.positionAfter(pos)
+        return [-1, -1]
+
     def _do_cmd_transposeWords(self):
-        # transpose two words to the left (or current word and previous word if in a word)
-        # this particular sequence (others are possible) has good Undo behavior
-        sm = self.scimoz()
-        sm.beginUndoAction()
+        # emacs behavior:
+        # If there's at most one word in the buffer, nothing to do.
+        # If we're at the start of the word, swap the current word and the
+        # previous word ("swap back").  If it's the first word, swap forward.
+        # If we're between two words, swap back.
+        # Otherwise, swap the current word and the next word (swap forward).
+        scimoz = self.scimoz()
+        if scimoz.selectionStart < scimoz.selectionEnd:
+            _sendStatusMessage("cmd_transpose is undefined when there's a selection")
+            return
+        currentPos = scimoz.currentPos
+
+        currentWordStartPos = scimoz.wordStartPosition(currentPos, True)
+        currentWordEndPos = scimoz.wordEndPosition(currentPos, True)
+        currentWordStartPrevPos = scimoz.positionBefore(currentWordStartPos)
+        switchBack = None
+        if currentWordStartPos == currentWordEndPos:
+            # We're not on a word, so see if we're between two words.
+            # Swap back
+            currentWordStartPos, currentWordEndPos = \
+                    self._get_prev_word_posn(scimoz, currentWordStartPrevPos)
+            if currentWordStartPos == -1:
+                _sendStatusMessage("No previous word to transpose")
+                return
+            otherWordStartPos, otherWordEndPos = \
+                    self._get_next_word_posn(scimoz, scimoz.positionAfter(currentWordEndPos))
+            if otherWordStartPos == -1:
+                _sendStatusMessage("No following word to transpose")
+                return
+            switchBack = False
+        elif currentWordStartPos == currentPos:
+            # At the start of a word. Is there a prev word to switch back?
+            otherWordStartPos, otherWordEndPos = \
+                    self._get_prev_word_posn(scimoz, currentWordStartPrevPos)
+            if otherWordStartPos > -1:
+                switchBack = True
+        if switchBack is None:
+            otherWordStartPos, otherWordEndPos = \
+                    self._get_next_word_posn(scimoz, scimoz.positionAfter(currentWordEndPos))
+            if otherWordStartPos == -1:
+                _sendStatusMessage("No following word to transpose")
+                return
+            switchBack = False
+
+        if switchBack:
+            word1Extent = [otherWordStartPos, otherWordEndPos]
+            word2Extent = [currentWordStartPos, currentWordEndPos]
+        else:
+            word1Extent = [currentWordStartPos, currentWordEndPos]
+            word2Extent = [otherWordStartPos, otherWordEndPos]
+
+        word1 = scimoz.getTextRange(*word1Extent)
+        word2 = scimoz.getTextRange(*word2Extent)
+
+        scimoz.beginUndoAction()
         try:
-            sm.wordLeft()
-            sm.wordLeftExtend()
-            sm.cut()
-            sm.wordLeft()
-            sm.paste()
-            sm.wordRight()
+            scimoz.targetStart = word2Extent[0]
+            scimoz.targetEnd = word2Extent[1]
+            scimoz.replaceTarget(word1)
+            scimoz.targetStart = word1Extent[0]
+            scimoz.targetEnd = word1Extent[1]
+            scimoz.replaceTarget(word2)
+            # Move to the end of the right-hand word, just like emacs does.
+            scimoz.setSel(word2Extent[1], word2Extent[1])
         finally:
-            sm.endUndoAction()
+            scimoz.endUndoAction()
             
     def _do_cmd_killLine(self):
         # emacs-style 'kill': if there is nothing but whitespace on the line,
@@ -1350,6 +1425,22 @@ for x in WHITESPACE:
     charClass[x] = 'whitespace'
 
 
+
+#---- internal support stuff
+
+def _sendStatusMessage(msg, highlight=False, timeout=3000):
+    observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                  .getService(components.interfaces.nsIObserverService)
+    sm = components.classes["@activestate.com/koStatusMessage;1"]\
+         .createInstance(components.interfaces.koIStatusMessage)
+    sm.category = "editor"
+    sm.msg = msg
+    sm.timeout = timeout
+    sm.highlight = highlight
+    try:
+        observerSvc.notifyObservers(sm, "status_message", None)
+    except COMException, ex:
+        pass
 
 import sciutils
 class ScintillaControllerTestCase(sciutils.SciMozTestCase):
