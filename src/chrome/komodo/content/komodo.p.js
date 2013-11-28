@@ -55,15 +55,19 @@ var _log = ko.logging.getLogger("ko.main");
 
 var _savedWorkspace = false;
 
-function saveWorkspaceIfNeeded() {
+function saveWorkspaceIfNeeded(reason) {
     if (!_savedWorkspace) {
         ko.workspace.saveWorkspace(true);
         ko.prefs.setBooleanPref("komodo_normal_shutdown", true);
-        // Save prefs
-        Components.classes["@activestate.com/koPrefService;1"]
-                  .getService(Components.interfaces.koIPrefService)
-                  .saveState();
         _savedWorkspace = true;
+        // In the case of a regular quit-application, Komodo's prefs will
+        // perform the necessary saveState() work.
+        if (reason != "quit-application") {
+            // Save prefs
+            Components.classes["@activestate.com/koPrefService;1"]
+                      .getService(Components.interfaces.koIPrefService)
+                      .saveState();
+        }
     }
 }
 
@@ -76,7 +80,7 @@ this.quitApplication = function() {
     try {
         ko.main.windowIsClosing = true;
         ko.workspace.markClosedWindows();
-        saveWorkspaceIfNeeded();
+        saveWorkspaceIfNeeded("quit-application");
     } catch(ex) {
         _log.exception(ex);
     }
@@ -149,7 +153,7 @@ window.addEventListener("close", ko.main._onClose, true);
 this._onDOMWindowClose = function(event) {
     _log.debug(">> ko.main._onDOMWindowClose");
     if (ko.windowManager.lastWindow()) {
-        saveWorkspaceIfNeeded();
+        saveWorkspaceIfNeeded("window-close");
     }
     ko.main.runWillCloseHandlers();
     window.removeEventListener("DOMWindowClose", ko.main._onDOMWindowClose, true);
@@ -249,7 +253,7 @@ window.tryToClose = function() {
     if (res) {
         // Fix bug 70859: Operations like Restart from Add-ons manager
         // send this message before starting the quit process.
-        saveWorkspaceIfNeeded();
+        saveWorkspaceIfNeeded("try-to-close");
     }
     _log.debug("<< window.tryToClose: ret " + res.toString() + "\n");
     return res;
