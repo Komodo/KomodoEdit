@@ -46,8 +46,6 @@ import sys
 import logging
 
 from xpcom import components, COMException, ServerException, nsError
-from xpcom.client import WeakReference
-from xpcom.server import WrapObject, UnwrapObject
 
 import osFilePollingNotifier
 
