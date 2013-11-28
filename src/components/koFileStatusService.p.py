@@ -131,22 +131,12 @@ class KoFileStatusService:
         #print "file status created"
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
-        self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
-            getService(components.interfaces.koIPrefService).prefs
         self._fileSvc = \
             components.classes["@activestate.com/koFileService;1"] \
             .getService(components.interfaces.koIFileService)
-        self._fileNotificationSvc = \
-            components.classes["@activestate.com/koFileNotificationService;1"].\
-            getService(components.interfaces.koIFileNotificationService)
-        self.FNS_WATCH_FILE = components.interfaces.koIFileNotificationService.WATCH_FILE
-        self.FNS_WATCH_DIR = components.interfaces.koIFileNotificationService.WATCH_DIR
-        self.FNS_NOTIFY_ALL = components.interfaces.koIFileNotificationService.FS_NOTIFY_ALL
-        self.FNS_FILE_DELETED = components.interfaces.koIFileNotificationService.FS_FILE_DELETED
 
         # The reasons why the status service is checking a file(s).
         self.REASON_BACKGROUND_CHECK = components.interfaces.koIFileStatusChecker.REASON_BACKGROUND_CHECK
-        self.REASON_ONFOCUS_CHECK = components.interfaces.koIFileStatusChecker.REASON_ONFOCUS_CHECK
         self.REASON_FILE_CHANGED = components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED
         self.REASON_FORCED_CHECK = components.interfaces.koIFileStatusChecker.REASON_FORCED_CHECK
 
@@ -396,6 +386,10 @@ class KoFileStatusService:
         #print "starting file status background thread"
         last_bg_check_time = time.time()
         active_checker_names = []
+        fileNotificationSvc = components.classes["@activestate.com/koFileNotificationService;1"].\
+                                    getService(components.interfaces.koIFileNotificationService)
+        WATCH_DIR = components.interfaces.koIFileNotificationService.WATCH_DIR
+        FS_NOTIFY_ALL = components.interfaces.koIFileNotificationService.FS_NOTIFY_ALL
         while not self.shutdown:
             # Give at least a brief respite between loops.
             time.sleep(0.25)
@@ -498,9 +492,9 @@ class KoFileStatusService:
                     # Newly added directories.
                     log.info("Adding directory observer for uri: %r", diruri)
                     try:
-                        self._fileNotificationSvc.addObserver(self, diruri,
-                                                              self.FNS_WATCH_DIR,
-                                                              self.FNS_NOTIFY_ALL)
+                        fileNotificationSvc.addObserver(self, diruri,
+                                                        self.WATCH_DIR,
+                                                        self.FS_NOTIFY_ALL)
                     except COMException, ex:
                         # Likely the path does not exist anymore or this diruri
                         # is somehow invalid.
@@ -518,7 +512,7 @@ class KoFileStatusService:
                     # Removed unused directories.
                     log.info("Removing directory observer for uri: %r", diruri)
                     try:
-                        self._fileNotificationSvc.removeObserver(self, diruri)
+                        fileNotificationSvc.removeObserver(self, diruri)
                     except COMException, ex:
                         # Likely this diruri is somehow invalid.
                         pass
