@@ -452,9 +452,10 @@ if (typeof ko.breadcrumbs == 'undefined')
 
             if ( ! ('doCommand' + command in this))
             {
-                return log.error(
+                log.error(
                     "Attempting to call non-existant command: " + command
                 );
+                return;
             }
 
             this['doCommand' + command](popupmenu, menuitem);
