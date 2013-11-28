@@ -638,9 +638,7 @@ viewManager.prototype._newViewFromURI = function(uri,
     }
 
     // Ensure file is scanned (bug 77866).
-    var codeIntelSvc = Components.classes["@activestate.com/koCodeIntelService;1"]
-        .getService(Components.interfaces.koICodeIntelService);
-    codeIntelSvc.scan_document(doc, 0, true);
+    ko.codeintel.scan_document(doc, 0, true);
 
     this.log.info("_newViewFromURI");
     return view;
