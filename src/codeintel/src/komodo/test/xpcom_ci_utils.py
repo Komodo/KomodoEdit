@@ -1,4 +1,6 @@
+import inspect
 import logging
+import uuid
 import unittest
 import sys
 import time
@@ -82,7 +84,7 @@ class _BufferTestCaseBase(_CodeIntelTestCaseBase):
         _CodeIntelTestCaseBase.setUp(self)
         # get a document to work with
         self.doc = Cc["@activestate.com/koDocumentBase;1"].createInstance()
-        self.doc.initUntitled("<Untitled>", "UTF-8")
+        self.doc.initUntitled("<Untitled-%s>" % (uuid.uuid1(),), "UTF-8")
         if self.language:
             self.doc.language = self.language
         self.buf = self.svc.buf_from_koIDocument(self.doc)
@@ -107,8 +109,12 @@ class AsyncSpinner(object):
         start = time.time()
         while not self._done:
             if self.timeout is not None:
-                self.testcase.assertLess(time.time(), start + self.timeout,
-                                         "Timed out waiting")
+                now = time.time()
+                self.testcase.assertLess(now, start + self.timeout,
+                                         ("Timed out waiting in %s::%s "
+                                          "(%s seconds elapsed)") %
+                                         (self.testcase, self.callback,
+                                          now - start))
             time.sleep(0.1) # Rest a bit, let other things happen
             while t.hasPendingEvents():
                 t.processNextEvent(True)
@@ -122,6 +128,12 @@ class UIHandler(object):
     _com_interfaces_ = [ Ci.koICodeIntelCompletionUIHandler ]
     _done = False
     AutoCompleteInfo = namedtuple("AutoCompleteInfo", "completion type")
+
+    completions = []
+    calltip = ""
+    defns = []
+    msg = ""
+
     def __init__(self, callback=None):
         self.callback = callback
 

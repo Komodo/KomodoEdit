@@ -2220,3 +2220,7 @@ class koDocumentBase:
         if effectivePrefs.hasPref(name):
             return effectivePrefs.getBooleanPref(name)
         return default
+
+    def md5Hash(self):
+        return md5(self.buffer.encode("utf-8")).hexdigest()
+

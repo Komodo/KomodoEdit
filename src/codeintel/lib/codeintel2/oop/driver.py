@@ -24,6 +24,7 @@ import logging
 import os.path
 import Queue
 import shutil
+import string
 import sys
 import threading
 import traceback
@@ -291,6 +292,40 @@ class Driver(threading.Thread):
     def exception(self, request=REQUEST_DEFAULT, **kwargs):
         return self.fail(request=request, stack=traceback.format_exc(), **kwargs)
 
+    @staticmethod
+    def normpath(path):
+        """Routine to normalize the path used for codeintel buffers
+        This is annoying because it needs to handle unsaved files, as well as
+        urls.
+        @note See also koCodeIntel.py::KoCodeIntelBuffer.normpath
+        """
+        if path.startswith("<Unsaved>"):
+            return path # Don't munge unsaved file paths
+
+        scheme = path.split(":", 1)[0]
+
+        if len(scheme) == len(path):
+            # didn't find a scheme at all; assume this is a local path
+            return os.path.normcase(path)
+        if len(scheme) == 1:
+            # single-character scheme; assume this is actually a drive letter
+            # (for a Windows-style path)
+            return os.path.normcase(path)
+        scheme_chars = string.ascii_letters + string.digits + "-"
+        try:
+            scheme = scheme.encode("ascii")
+        except UnicodeEncodeError:
+            # scheme has a non-ascii character; assume local path
+            return os.path.normcase(path)
+        if scheme.translate(None, scheme_chars):
+            # has a non-scheme character: this is not a valid scheme
+            # assume this is a local file path
+            return os.path.normcase(path)
+        if scheme != "file":
+            return path # non-file scheme
+        path = path[len(scheme) + 1:]
+        return os.path.normcase(path)
+
     def get_buffer(self, request=REQUEST_DEFAULT, path=None):
         if request is Driver.REQUEST_DEFAULT:
             request = self.active_request
@@ -298,9 +333,7 @@ class Driver(threading.Thread):
             if not "path" in request:
                 raise RequestFailure(message="No path given to locate buffer")
             path = request.path
-        if abspath(path) == path:
-            # this is an actual file path, not a URL or whatever
-            path = normcase(normpath(path))
+        path = self.normpath(path)
         try:
             buf = self.buffers[path]
         except KeyError:
@@ -313,37 +346,65 @@ class Driver(threading.Thread):
             # Need to construct a new buffer
             lang = request.get("language")
             env = Environment(request=request, name=os.path.basename(path))
-            if request.get("text") is not None:
-                # pass no content; we'll reset it later
-                buf = self.mgr.buf_from_content("", lang, path=path, env=env)
-            else:
-                # read from file
-                try:
-                    buf = self.mgr.buf_from_path(path, lang, env=env,
-                                                 encoding=request.get("encoding"))
-                except OSError:
-                    # Can't read the file
-                    buf = self.mgr.buf_from_content("", lang, path=path, env=env)
-                assert not request.path.startswith("<"), \
-                    "Can't create an unsaved buffer with no text"
-        else:
-            try:
-                env = request["env"]
-            except KeyError:
-                pass # no environment, use current
-            else:
-                buf._env.update(env)
+            lexer = self.mgr.silvercity_lexer_from_lang.get(lang)
+            accessor = codeintel2.accessor.OOPAccessor(lexer, self)
+            buf = self.mgr.buf_from_accessor(accessor, lang, path=path, env=env)
+            accessor.buf = buf
+
+        if "checksum" in request:
+            buf.accessor.checksum = request.get("checksum")
 
         if request.get("text") is not None:
-            # overwrite the buffer contents if we have new ones
-            buf.accessor.reset_content(request.text)
+            # text came with the buffer; most likely it's a unit test...
+            buf.accessor.reset_content(request.get("text"))
             buf.encoding = "utf-8"
+
+        try:
+            env = request["env"]
+        except KeyError:
+            pass # no environment, use current
+        else:
+            buf._env.update(env)
 
         #log.debug("Got buffer %r: [%s]", buf, buf.accessor.content)
         log.debug("Got buffer %r", buf)
 
         self.buffers[path] = buf
         return buf
+
+    def sync_get_buffer_contents(self, path, checksum):
+        """Synchronously attempt to get the buffer contents from the parent
+        process.  This will block the code intel process until the response has
+        been obtained.
+        @param path {str or unicode} The path of the buffer
+        @param checksum {str} The checksum of the current contents (md5)
+        @return {dict} The response from the parent process
+        """
+        self.send(request=None,
+                  command="get-buffer-contents",
+                  checksum=checksum,
+                  path=path)
+
+        # Wait synchronously for the response to come back
+        buf_req = None
+        with self.queue_cv:
+            while buf_req is None:
+                for i, buf_req in enumerate(self.queue):
+                    if (buf_req.get("command") == "get-buffer-contents"
+                            and buf_req.get("path") == path):
+                        del self.queue[i]
+                        break
+                else:
+                    buf_req = None
+                    log.debug("Skipping wake, waiting for more...")
+                    self.queue_cv.wait()
+
+        if not buf_req.get("success", False):
+            log.debug("Failed to get text for %s", path)
+            raise RequestFailure(msg="Failed to get buffer %s" % (path,))
+
+        log.debug("Got text for %s", path)
+        return buf_req
 
     def do_abort(self, request):
         try:
@@ -811,17 +872,24 @@ class CoreHandler(CommandHandler):
         else:
             data = trg.to_dict()
             data["path"] = buf.path
+            data["checksum"] = buf.accessor.checksum
             driver.send(trg=data)
 
     def do_eval(self, request, driver):
         if not "trg" in request:
             raise RequestFailure(msg="No trigger given in request")
         buf = driver.get_buffer(request, path=request.trg["path"])
+        if request["trg"].get("checksum") not in (None, "0" * 32, buf.accessor.checksum):
+            log.debug("Stale trigger: got %s, buffer has %s",
+                      request["trg"].get("checksum"),
+                      buf.accessor.checksum)
+            raise RequestFailure(msg="Stale trigger")
         try:
             log.debug("trigger data: %s", request.trg)
             data = dict(request.trg)
             del data["retriggerOnCompletion"]
             del data["path"] # we tacked this on in do_trg_from_pos
+            del data["checksum"] # also tacked on in do_trg_from_pos
             trg = codeintel2.common.Trigger(**data)
         except AttributeError:
             driver.fail(message="No trigger to evaluate")

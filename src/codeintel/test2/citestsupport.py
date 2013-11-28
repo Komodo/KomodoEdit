@@ -156,22 +156,24 @@ class CodeIntelTestCase(unittest.TestCase):
         return pos
 
     def _get_buf_and_data(self, markedup_content, lang, path=None, env=None):
+        encoding = None
         if path is None:
             # Try to ensure no accidental re-use of the same buffer name
             # across the whole test suite. Also try to keep the buffer
             # names relatively short (keeps tracebacks cleaner).
             if isinstance(markedup_content, unicode):
                 markedup_bytes = markedup_content.encode("utf-8")
+                encoding = "utf-8"
             else:
                 markedup_bytes = markedup_content
             name = "buf-" + md5(markedup_bytes).hexdigest()[:16]
             path = os.path.join("<Unsaved>", name)
-        content, data = unmark_text(self.adjust_content(markedup_content))
+        content, data = unmark_text(self.adjust_content(markedup_bytes))
         #print banner(path)
         #sys.stdout.write(content)
         #print banner(None)
         buf = self.mgr.buf_from_content(content, lang=lang, path=path,
-                                        env=env)
+                                        env=env, encoding=encoding)
         return buf, data
 
     def _get_buf_and_trg(self, markedup_content, lang, path=None,

@@ -11,6 +11,7 @@ import bisect
 import collections
 import directoryServiceUtils
 import functools
+import hashlib
 import json
 import logging
 import os.path
@@ -23,6 +24,7 @@ import sys
 import threading
 import time
 import urllib
+import uriparse
 import weakref
 
 import koprocessutils
@@ -37,6 +39,10 @@ class KoCodeIntelService:
     _reg_clsid_ = "{fc4ca276-64a7-4d87-ab89-791ba463188d}"
     _reg_contractid_ = "@activestate.com/koCodeIntelService;1"
     _reg_desc_ = "Komodo Code Intelligence Service"
+
+    _unsolicited_response_handlers = {}
+    """ Registered handlers for unsolicited responses; takes two arguments,
+    (manager, response).  Note that both are transient."""
 
     _enabled = False
     _queue = None # queue of requests submitted before the manager initialized
@@ -157,6 +163,14 @@ class KoCodeIntelService:
             if self.mgr.state == self.mgr.STATE.CONNECTED:
                 callback()
 
+    def addUnsolicitedResponseHandler(self, command, handler):
+        """Register a handler for an unsolicited response.  If a command is
+        registered multiple times, only the last-registered handler will be
+        used.  Each handler must be a callable taking two arguments: the manager
+        involved, and the unsolicited response received.  Python-only.
+        """
+        self._unsolicited_response_handlers[command] = handler
+
     def _genDBCatalogDirs(self):
         """Yield all possible dirs in which to look for API Catalogs.
 
@@ -210,7 +224,7 @@ class KoCodeIntelService:
 
         self.send(command="scan-document",
                   discardable=True,
-                  path=path,
+                  path=buf.path,
                   priority=PRIORITY_IMMEDIATE if linesAdded
                            else PRIORITY_CURRENT,
                   language=doc.language,
@@ -233,6 +247,7 @@ class KoCodeIntelService:
                 path = doc.file.displayPath
             else:
                 path = os.path.join("<Unsaved>", doc.baseName)
+            path = KoCodeIntelBuffer.normpath(path)
             self.debug("creating new %s document %s", doc.get_language(), path)
             buf = KoCodeIntelBuffer(lang=doc.get_language(),
                                     path=path,
@@ -249,19 +264,10 @@ class KoCodeIntelService:
         """
         if not self.enabled or not path:
             return None
-        path = os.path.normcase(path) # Fix case on Windows
-        if path.startswith(os.path.normcase("<Unsaved>")):
-            for doc, buf in self.buffers.items():
-                if doc.file:
-                    continue
-                if os.path.normcase(buf.path) == path:
-                    return buf
-        else:
-            for doc, buf in self.buffers.items():
-                if not doc.file:
-                    continue
-                if os.path.normcase(doc.file.displayPath) == path:
-                    return buf
+        path = KoCodeIntelBuffer.normpath(path)
+        for buf in self.buffers.values():
+            if buf.path == path:
+                return buf
         return None
 
     def is_cpln_lang(self, language):
@@ -612,6 +618,15 @@ class KoCodeIntelManager(threading.Thread):
         self.daemon = True
         atexit.register(self.kill)
 
+        for attr in dir(self):
+            if not attr.startswith("do_"):
+                continue
+            handler = getattr(self, attr)
+            if not callable(handler):
+                continue
+            command = attr[len("do_"):].replace("_", "-")
+            service.addUnsolicitedResponseHandler(command, handler)
+
         env = Cc["@activestate.com/koUserEnviron;1"].getService()
         self._global_env = KoCodeIntelEnvironment(environment=env,
                                                   pref_change_callback=self.set_global_environment)
@@ -715,7 +730,7 @@ class KoCodeIntelManager(threading.Thread):
         else:
             self._send_init_requests()
         finally:
-            if log_file:
+            if log_file and log_file not in (sys.stdout, sys.stderr):
                 log_file.close()
 
     def _send_init_requests(self):
@@ -982,8 +997,7 @@ class KoCodeIntelManager(threading.Thread):
         Requests are expected to be well-formed (has a command, etc.)
         The callback recieves two arguments, the request and the response,
         both as dicts.
-        @note The callback is invoked on a background thread; proxy it to
-        the main thread if desired."""
+        @note The callback is invoked on the main thread."""
         if self.state is KoCodeIntelManager.STATE.DESTROYED:
             raise RuntimeError("Manager already shut down")
         self.unsent_requests.put((callback, kwargs))
@@ -1098,7 +1112,7 @@ class KoCodeIntelManager(threading.Thread):
                 command = str(response.get("command", ""))
                 if not command:
                     raise ValueError("Invalid response frame %s" % (json.dumps(response),))
-                meth = getattr(self, "do_" + command.replace("-", "_"), None)
+                meth = self.svc._unsolicited_response_handlers.get(command)
                 if not meth:
                     raise ValueError("Unknown unsolicited response \"%s\"" % (command,))
                 meth(response)
@@ -1314,6 +1328,39 @@ class KoCodeIntelManager(threading.Thread):
             self.kill()
             self.observerSvc.removeObserver(self, "quit-application")
 
+    def do_get_buffer_contents(self, response):
+        """Unsolicited response handler: getting the contents of a buffer"""
+        path = response.get("path")
+        log.debug("Getting contents for %s", path)
+        try:
+            buf = self.svc.buf_from_path(path)
+            try:
+                doc_hash = buf.doc.md5Hash()
+            except IndexError: # buf has no views / this is a unit test
+                doc_hash = hashlib.md5(buf.doc.buffer).hexdigest()
+            if response.get("checksum") == doc_hash:
+                # No change
+                self.send(command="get-buffer-contents",
+                          path=path,
+                          env=buf.env,
+                          success=True,
+                          callback=False,
+                          )
+            else:
+                self.send(command="get-buffer-contents",
+                          path=path,
+                          text=buf.doc.buffer if buf.doc else None,
+                          env=buf.env,
+                          success=True,
+                          callback=False)
+        except:
+            log.exception("Failed to get contents of %s", path)
+            self.send(command="get-buffer-contents",
+                      path=path,
+                      success=False,
+                      callback=False)
+        log.debug("Done")
+
 class TriggerWrapper(object):
     """Wrapper class to XPCOM-ify a trigger"""
     _com_interfaces_ = [Ci.koICodeIntelTrigger]
@@ -1350,13 +1397,29 @@ class KoCodeIntelBuffer(object):
         @param mgr {KoCodeIntelManager} The owning manager
         @param path {unicode} The path for this buffer, or something like
             "<Unsaved>/Text-1.txt" for an unsaved file
+        @param doc {KoDocument} The document associated with the buffer
+        @param svc {KoCodeIntelService} The codeintel service singleton
         """
         self.log = log.getChild("KoCodeIntelBuffer")
-        self.path = path
+        self.path = KoCodeIntelBuffer.normpath(path)
         self.lang = lang
         self.doc = doc
         self.send = svc.send
         self.svc = svc
+
+    @staticmethod
+    def normpath(path):
+        """Routine to normalize the path used for codeintel buffers
+        This is annoying because it needs to handle unsaved files, as well as
+        urls.
+        @note See also codeintel/lib/oop/driver.py::Driver.normpath
+        """
+        try:
+            if not path.startswith("<Unsaved>"):
+                return os.path.normcase(uriparse.URIToLocalPath(path))
+        except ValueError:
+            pass
+        return path # not a local path, don't normalize case
 
     @property
     def cpln_fillup_chars(self):
@@ -1434,7 +1497,6 @@ class KoCodeIntelBuffer(object):
                   pos=pos,
                   env=self.env,
                   implicit=implicit,
-                  text=self.doc.buffer if self.doc else None,
                   callback=functools.partial(self._post_trg_from_pos_handler,
                                              callback, errorCallback,
                                              "trg_from_pos"))
@@ -1445,7 +1507,6 @@ class KoCodeIntelBuffer(object):
                   language=self.lang,
                   pos=pos,
                   env=self.env,
-                  text=self.doc.buffer if self.doc else None,
                   callback=functools.partial(self._post_trg_from_pos_handler,
                                              callback, errorCallback,
                                              "preceding_trg_from_pos"),
@@ -1458,7 +1519,6 @@ class KoCodeIntelBuffer(object):
                   language=self.lang,
                   pos=trg_pos,
                   env=self.env,
-                  text=self.doc.buffer if self.doc else None,
                   callback=functools.partial(self._post_trg_from_pos_handler,
                                              callback, errorCallback,
                                              "defn_trg_from_pos"))
@@ -1478,15 +1538,15 @@ class KoCodeIntelBuffer(object):
 
         @ProxyToMainThreadAsync
         def callback(request, response):
-            if not response.get("success"):
-                try:
-                    handler.setStatusMessage(response.get("message", ""),
-                                             response.get("highlight", False))
-                except:
-                    self.log.exception("Error reporting async_eval_at_trg error: %s",
-                                       response.get("message", "<error not available>"))
-                return
             try:
+                if not response.get("success"):
+                    try:
+                        handler.setStatusMessage(response.get("message", ""),
+                                                 response.get("highlight", False))
+                    except:
+                        self.log.exception("Error reporting async_eval_at_trg error: %s",
+                                           response.get("message", "<error not available>"))
+                    return
                 if "retrigger" in response:
                     trg.retriggerOnCompletion = response["retrigger"]
 
@@ -1515,6 +1575,7 @@ class KoCodeIntelBuffer(object):
                   trg=trg._trg_,
                   silent=bool(flags & KoCodeIntelBuffer.EVAL_SILENT),
                   keep_existing=bool(flags & KoCodeIntelBuffer.EVAL_QUEUE),
+                  checksum=self.doc.md5Hash(),
                   callback=callback)
 
     def get_calltip_arg_range(self, trg_pos, calltip, curr_pos,
@@ -1537,7 +1598,6 @@ class KoCodeIntelBuffer(object):
         self.send(command="calltip-arg-range",
                   path=self.path,
                   language=self.lang,
-                  text=self.doc.buffer if self.doc else None,
                   trg_pos=trg_pos,
                   calltip=calltip,
                   curr_pos=curr_pos,
@@ -1606,7 +1666,6 @@ class KoCodeIntelBuffer(object):
         self.send(command="buf-to-html",
                   path=self.path,
                   language=self.lang,
-                  text=self.doc.buffer if self.doc else None,
                   env=self.env,
                   title=title,
                   flags=flag_dict,

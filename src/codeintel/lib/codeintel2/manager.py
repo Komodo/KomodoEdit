@@ -406,6 +406,11 @@ class Manager(threading.Thread, Queue):
                          encoding=None):
         lexer = self.silvercity_lexer_from_lang.get(lang)
         accessor = SilverCityAccessor(lexer, content)
+        return self.buf_from_accessor(accessor, lang, env=env, path=path,
+                                      encoding=encoding)
+
+    def buf_from_accessor(self, accessor, lang, env=None, path=None,
+                          encoding=None):
         try:
             buf_class = self.buf_class_from_lang[lang]
         except KeyError:

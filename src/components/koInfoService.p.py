@@ -115,7 +115,7 @@ class KoInfoService(object):
                      self.prettyProductType, self.version,
                      self.buildNumber, self.buildPlatform,
                      self.osSystem, self.osRelease, self.osVersion)
-            startupLog.info("Built on %s", self.buildASCTime)
+            startupLog.info("%s built on %s", sys.executable, self.buildASCTime)
         finally:
             startupLog.setLevel(oldLevel)
        

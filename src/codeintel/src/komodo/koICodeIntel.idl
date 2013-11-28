@@ -176,7 +176,8 @@ interface koICodeIntelCompletionUIHandler : nsISupports {
     void triggerPrecedingCompletion(in AString path);
 
     /**
-     * Called when the evaluation has completed.
+     * Called when the evaluation has completed.  This will be called even if
+     * nothing was found.
      */
     void done();
 };
