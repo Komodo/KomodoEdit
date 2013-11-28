@@ -109,9 +109,9 @@ class koFileNotificationService:
         else:
             log.info("File notification service is disabled.")
 
-        obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                       getService(components.interfaces.nsIObserverService)
-        obsSvc.addObserver(self, 'xpcom-shutdown', False)
+        # Ensure observer service is used on the main thread - bug 101543.
+        components.ProxyToMainThreadAsync(lambda:
+            self.observerSvc.addObserver(self, "xpcom-shutdown", False))
 
     # Return both the URI (string) and nsIFile (xpcom object) for a given URI or
     # a given file path.
