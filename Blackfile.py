@@ -2203,7 +2203,15 @@ def humantime(sec):
 
 def BuildKomodo(cfg, argv):
     starttime = time.time()
-    retval = _BuildKomodo(cfg, argv)
+    try:
+        retval = _BuildKomodo(cfg, argv)
+    except AttributeError, ex:
+        if "'module' object has no attribute" in str(ex):
+            import traceback
+            traceback.print_exc()
+            print "\nBuild error - perhaps you need to bk reconfigure?\n"
+            return -1
+        raise
     endtime = time.time()
     duration = endtime - starttime
     print "Build time - %s" % (humantime(duration))
