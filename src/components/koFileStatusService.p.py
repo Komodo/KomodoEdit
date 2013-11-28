@@ -493,8 +493,8 @@ class KoFileStatusService:
                     log.info("Adding directory observer for uri: %r", diruri)
                     try:
                         fileNotificationSvc.addObserver(self, diruri,
-                                                        self.WATCH_DIR,
-                                                        self.FS_NOTIFY_ALL)
+                                                        WATCH_DIR,
+                                                        FS_NOTIFY_ALL)
                     except COMException, ex:
                         # Likely the path does not exist anymore or this diruri
                         # is somehow invalid.
