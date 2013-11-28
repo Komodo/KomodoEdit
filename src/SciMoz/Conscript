@@ -151,14 +151,11 @@ if ($platform eq "win") {
     %consLocal = $cons->copy();
     my $LDFLAGS = $consLocal{'LDFLAGS'};
 
-    if ($mozVersionNumber le 1899) {
-	$LDFLAGS .= " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xpcom.lib nspr4.lib mozalloc.lib";
-    } else {
-	$LDFLAGS .= " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xul.lib nspr4.lib mozalloc.lib";
-    }
+    $LDFLAGS .= " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xul.lib nspr4.lib mozalloc.lib";
     foreach my $libDir (split(';', $mozLibPath)) {
         $LDFLAGS .= " /libpath:$libDir";
     }
+    $LDFLAGS .= " /DEBUG";
     $consLocal{'CPPPATH'} = [
         "$scintillaBuildDir/include",
         "helper"];
@@ -169,10 +166,8 @@ if ($platform eq "win") {
 
     if ($buildType eq 'debug') {
         $CXXFLAGS .= " /ZI /Od /DDEBUG /D_DEBUG /MDd";
-        $LDFLAGS .= " /DEBUG";
     } else {
         $CXXFLAGS .= " /Ox /DNDEBUG /D_NDEBUG /MD";
-        # LDFLAGS is fine!
     }
 
     # Others parts of the build for other platforms are defining these.
