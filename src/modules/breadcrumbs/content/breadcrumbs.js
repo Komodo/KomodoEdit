@@ -954,7 +954,7 @@ if (typeof ko.breadcrumbs == 'undefined')
                 // Iterate through files in reverse and queue them to be drawn
                 // as breadcrumbs, stop at the project path
                 var files = [file];
-                while (file = file.parent)
+                while (file)
                 {
                     files.push(file);
     
@@ -962,6 +962,7 @@ if (typeof ko.breadcrumbs == 'undefined')
                     {
                         break;
                     }
+                    file = file.parent;
                 }
                 
                 // Direct each file in the path to drawCrumb()
