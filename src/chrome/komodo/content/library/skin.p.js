@@ -358,7 +358,7 @@ if (ko.skin == undefined)
                 // Don't load if detection is disabled in user preferences
                 if ( ! prefs.getBoolean(PREF_USE_GTK_DETECT, true))
                 {
-                    return false;
+                    return;
                 }
                 
                 this.getThemeInfo(this._loadTheme.bind(this), function() 
