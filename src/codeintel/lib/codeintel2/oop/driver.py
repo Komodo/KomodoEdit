@@ -1,12 +1,18 @@
 #!/usr/bin/env python2
 
+import logging
+
+log = logging.getLogger("codeintel.oop.driver")
+#log.setLevel(logging.DEBUG)
+
 try:
     # codeintel will attempt to import xpcom; make sure that's working by
     # explicitly importing xpcom._xpcom, otherwise xpcom.xpt will fail to import
     import xpcom
     import xpcom._xpcom
+    log.error("driver successfully imported 'xpcom' - this import should have failed")
 except ImportError:
-    pass
+    pass # all good - we don't want xpcom
 
 import codeintel2.accessor
 import codeintel2.buffer
@@ -20,7 +26,6 @@ import functools
 import imp
 import itertools
 import json
-import logging
 import os.path
 import Queue
 import shutil
@@ -31,8 +36,6 @@ import traceback
 import uuid
 from . import controller
 from os.path import abspath, normcase, normpath
-
-log = logging.getLogger("codeintel.oop.driver")
 
 class RequestFailure(Exception):
     """ An exception to indicate a request failure
