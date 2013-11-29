@@ -1681,6 +1681,18 @@ bool SciMoz::CharPositionFromPointClose(const NPVariant * args, uint32_t argCoun
 	return true;
 }
 
+bool SciMoz::AnnotationRemoveAtLine(const NPVariant * args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 1) return false;
+	if (!NPVARIANT_IS_INT32(args[0])) return false;
+	AnnotationRemoveAtLine(NPVARIANT_TO_INT32(args[0]));
+	return true;
+}
+
+NS_IMETHODIMP SciMoz::AnnotationRemoveAtLine(const int32_t lineNo) {
+	SendEditor(SCI_ANNOTATIONSETTEXT, lineNo, NULL);
+	return NS_OK;
+}
+
 NS_IMETHODIMP SciMoz::GetWordChars(nsACString& _retval) {
 	size_t length = SendEditor(SCI_GETWORDCHARS, 0, 0);
 	char *buf = _retval.BeginWriting(length);
