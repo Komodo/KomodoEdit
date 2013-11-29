@@ -128,6 +128,9 @@ interface ISciMozLite : nsISupports {
 	long charPositionFromPoint(in long x, in long y);
 	long charPositionFromPointClose(in long x, in long y);
 
+	// Remove the annotation text at the given line
+	void annotationRemoveAtLine(in long line);
+
 	// used to prevent context menu's on the scrollbars while scrollbar
 	// tracking is occuring
 	readonly attribute boolean isTracking;

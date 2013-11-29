@@ -365,6 +365,7 @@ public:
     NPRUNTIME_CUSTOM_METHOD(ButtonUp);
     NPRUNTIME_CUSTOM_METHOD(ButtonMove);
     NPRUNTIME_CUSTOM_METHOD(EndDrop);
+    NPRUNTIME_CUSTOM_METHOD(AnnotationRemoveAtLine);
 
     // These involve pixel coordinates; JS always uses CSS pixels, we convert
     // them via LogPixelsY here.
