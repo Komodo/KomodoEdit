@@ -449,13 +449,22 @@ class Driver(threading.Thread):
     def do_load_extension(self, request):
         """Load an extension that, for example, might provide additional
         command handlers"""
-        path = request.get("module-path", None)
-        if not path:
-            raise RequestFailure(msg="load-extension requires a module-path")
         name = request.get("module-name", None)
         if not name:
             raise RequestFailure(msg="load-extension requires a module-name")
-        iinfo = imp.find_module(name, [path])
+        path = request.get("module-path", None)
+        names = name.split(".")
+        if len(names) > 1:
+            # It's inside a package - go look for the package(s).
+            for package_name in names[:-1]:
+                iinfo = imp.find_module(package_name, [path] if path else None)
+                if not iinfo:
+                    raise RequestFailure(msg="load-extension could not find "
+                                             "package %r for given name %r"
+                                             % (package_name, name))
+                path = iinfo[1]
+            name = names[-1]
+        iinfo = imp.find_module(name, [path] if path else None)
         try:
             module = imp.load_module(name, *iinfo)
         finally:
