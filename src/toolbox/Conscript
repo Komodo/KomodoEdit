@@ -31,6 +31,6 @@ $cons->InstallXpcomComponent('koToolbox2HTreeView.py');
 $cons->BuildAndInstallXpt('koIToolbox2Components.idl');
 $cons->InstallXpcomComponent('koToolbox2Components.py');
 $cons->InstallXpcomComponent('koTools.py');
-$cons->Install("$komodoPythonUtilsDir/toolbox", 'koToolbox.sql');
 
+$cons->Install("$supportDir/toolbox", 'koToolbox.sql');
 $cons->Install("$supportDir/toolbox", 'Restore Samples.komodotool');

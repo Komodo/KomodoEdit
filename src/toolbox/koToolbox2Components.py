@@ -167,9 +167,7 @@ class KoToolbox2Service(object):
         self._toolsMgrSvc.initialize(self.toolbox_db)
 
         self.db_path = os.path.join(koDirSvc.userDataDir, 'toolbox.sqlite')
-        schemaFile = os.path.join(koDirSvc.mozBinDir,
-                                  'python', 'komodo', 'toolbox',
-                                  'koToolbox.sql')
+        schemaFile = os.path.join(koDirSvc.supportDir, 'toolbox', 'koToolbox.sql')
         try:
             self.db = self.toolbox_db.initialize(self.db_path, schemaFile)
             self.loadMainToolboxes()
