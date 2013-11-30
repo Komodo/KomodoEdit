@@ -638,7 +638,14 @@ viewManager.prototype._newViewFromURI = function(uri,
     }
 
     // Ensure file is scanned (bug 77866).
-    ko.codeintel.scan_document(doc, 0, true);
+    if (ko.workspace.restoreInProgress()) {
+        window.addEventListener("komodo-ui-started", function() {
+            ko.codeintel.scan_document(doc, 0, true);
+            doc = null;
+        }, false);
+    } else {
+        ko.codeintel.scan_document(doc, 0, true);
+    }
 
     this.log.info("_newViewFromURI");
     return view;
