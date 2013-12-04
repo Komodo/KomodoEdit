@@ -2,7 +2,7 @@
 # User: we3geeks (Ron)
 # Link: http://www.we3geeks.org/2011/06/23/solarized-color-schemes-for-komodo/
 
-Version = 12
+Version = 13
 
 Booleans = {'caretLineVisible': True, 'preferFixed': 1, 'useSelFore': True}
 
@@ -198,6 +198,9 @@ Colors = {'bookmarkColor': 14342664,
  'currentLineColor': 16764108,
  'edgeColor': 4339207,
  'foldMarginColor': 4339207,
+ 'changeMarginInserted': 0xa6dca3,
+ 'changeMarginDeleted': 0xe75754,
+ 'changeMarginReplaced': 0x62d3e8,
  'selBack': 7695960,
  'selFore': 14018798,
  'whitespaceColor': 9868419}

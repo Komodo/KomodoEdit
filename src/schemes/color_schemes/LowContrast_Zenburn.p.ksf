@@ -2,7 +2,7 @@
 # User: Pietra Arumaga
 # Link: http://www.phacks.net/zenburn-colorscheme-for-komodo-edit_ide/
 
-Version = 12
+Version = 13
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 
@@ -175,6 +175,9 @@ Colors = {'activeBreakpointColor': 9474246,
  'currentLineColor': 4144959,
  'edgeColor': 6184542,
  'foldMarginColor': 4144959,
+ 'changeMarginInserted': 0xa6dca3,
+ 'changeMarginDeleted': 0xe75754,
+ 'changeMarginReplaced': 0x62d3e8,
  'pendingBreakpointColor': 8232061,
  'selBack': 6184542,
  'selFore': 16772846,

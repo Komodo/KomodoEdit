@@ -2,7 +2,7 @@
 # User: jeffguy
 # Link: http://community.activestate.com/forum-topic/where-to-find-komodo-edit
 
-Version = 12
+Version = 13
 
 Booleans = {'caretLineVisible': True, 'preferFixed': 1, 'useSelFore': False}
 
@@ -422,6 +422,9 @@ Colors = {'activeBreakpointColor': 526573,
  'currentLineColor': 16776960,
  'edgeColor': 1973792,
  'foldMarginColor': None,
+ 'changeMarginInserted': 0xa6dca3,
+ 'changeMarginDeleted': 0xe75754,
+ 'changeMarginReplaced': 0x62d3e8,
  'pendingBreakpointColor': 569096,
  'selBack': 5516315,
  'selFore': 0,

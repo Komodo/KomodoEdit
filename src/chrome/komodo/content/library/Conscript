@@ -96,3 +96,4 @@ $cons->Preprocess('skin.p.js', 'skin.js');
 $cons->InstallInChrome('skin.js');
 $cons->InstallInChrome('less.js');
 $cons->InstallInChrome('multipleCaret.js');
+$cons->InstallInChrome('changeTracker.js');

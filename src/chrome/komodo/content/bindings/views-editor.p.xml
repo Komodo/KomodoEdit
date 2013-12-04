@@ -116,10 +116,25 @@
         </body>
         </method>
 
+        <field name="_changeTracker">null</field>
+        <property name="changeTracker">
+            <setter><![CDATA[
+            if (this._changeTracker) {
+                this._changeTracker.destructor();
+            }
+            this._changeTracker = val;
+            ]]></setter>
+            <getter><![CDATA[
+            return this._changeTracker;
+            ]]></getter>
+        </property>
+
+
         <field name="_view_pref_observer_topics">
             [
                 'codeintel_enabled',
-                'colorizing_enabled'
+                'colorizing_enabled',
+                'showChangesInMargin'
             ]
         </field>
 
@@ -128,7 +143,7 @@
                 'buffer_dirty',
                 'language_changed',
                 'encoding_changed',
-                'editUseLinting',
+                'editUseLinting'
             ]
         </field>
 
@@ -172,6 +187,8 @@
             this.item = null;
             this.lintBuffer = null;
             this.lintingEnabled = false;
+            this.changeTracker = new ko.changeTracker.ChangeTracker(this);
+            this.changeTrackerEnabled = false;
             this.isCICitadelStuffEnabled = undefined;
             this.isCIXMLStuffEnabled = undefined;
 
@@ -221,6 +238,7 @@
                 }
 
                 this.lintingEnabled = this.prefs.getBooleanPref("editUseLinting");
+                this.changeTrackerEnabled = this.prefs.getLongPref("showChangesInMargin") > 0;
                 if (!ko.views.manager.batchMode) {
                     this._requestLinting("reset the view's document");
                 }
@@ -361,6 +379,7 @@
             if (editShowMinimap) {
                 this.createMinimap();
             }
+            this.changeTracker.init();
             // bug 98866: Let scintilla finish initializing this buffer
             // before making sure it can scroll to the caret.
             // Then call the post-file-open macros after, in case they
@@ -706,6 +725,11 @@
                 this.lintBuffer = null;
                 this.lintingEnabled = this.prefs.getBooleanPref("editUseLinting");
                 this._requestLinting("linting preference enabled");
+                break;
+            case 'showChangesInMargin':
+                this.changeTrackerEnabled = this.prefs.getLongPref("showChangesInMargin") > 0;
+                // Relay this pref change to the change-tracker
+                this.changeTracker.observe(doc, topic, data);
                 break;
             case 'ySlop':
                 //multi-window: this applies to all windows, as it's a pref
@@ -1497,6 +1521,9 @@
                 this.koDoc.isDirty = oldKoDocIsDirty;
                 return false;
             }
+            // Need to reset the change-tracker
+            this.changeTracker = new ko.changeTracker.ChangeTracker(this);
+            this.changeTracker.init();
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
             if (oldDocLanguage == newdocument.language) {
                 this.restoreFoldedLines(locationInfo);
@@ -1667,6 +1694,55 @@
                 this.minimap.scimoz.toggleFold(lineNo);
                 this.minimap.syncMinimapFromBuffer();
             }
+        ]]>
+        </body>
+        </method>
+
+        <method name="_onDwellPointForChangeTracker">
+        <parameter name="position"/>
+        <parameter name="x"/>
+        <parameter name="y"/>
+        <parameter name="method"/>
+        <body><![CDATA[
+            if (position >= 0 || !this.changeTrackerEnabled) {
+                // We aren't on a margin
+                return;
+            }
+/* #if PLATFORM == "darwin" */
+            // The position given to use from Scintilla on the Mac are bogus, as
+            // it doesn't receive regular mousemove events - bug 97756.
+            [x,y] = this._last_mousemove_xy;
+/* #endif */
+            var scimoz = this.scimoz;
+            var lineNo = scimoz.lineFromPosition(scimoz.positionFromPoint(x, y));
+            var marginWidthBefore = [0, 1, 2].map(function(i) scimoz.getMarginWidthN(i)).
+                                              reduce(function(prevVal, currVal) prevVal + currVal);
+            var trackerMarginWidth = scimoz.getMarginWidthN(3);
+            if (x >= marginWidthBefore && x < (marginWidthBefore + trackerMarginWidth)) {
+                this.changeTracker[method](x - marginWidthBefore, lineNo);
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="onDwellStart">
+            <parameter name="position"/>
+            <parameter name="x"/>
+            <parameter name="y"/>
+        <body><![CDATA[
+            this._onDwellPointForChangeTracker(position, x, y, "onDwellStart");
+            return this.__proto__.__proto__.onDwellStart.call(this, position, x, y);
+        ]]>
+        </body>
+        </method>
+
+        <method name="onDwellEnd">
+            <parameter name="position"/>
+            <parameter name="x"/>
+            <parameter name="y"/>
+        <body><![CDATA[
+            this._onDwellPointForChangeTracker(position, x, y, "onDwellEnd");
+            return this.__proto__.__proto__.onDwellEnd.call(this, position, x, y);
         ]]>
         </body>
         </method>
@@ -2185,6 +2261,17 @@
 
             // Notify the command handler that autocompleted fired.
             this._genericController.codeintel_autocomplete_selected(startPos, insertedText);
+        ]]>
+            </handler>
+        
+
+        <handler event="blur" phase="bubbling">
+        <![CDATA[
+            // Get the change-tracker to remove an errant annotation.
+            if (this.changeTrackerEnabled) {
+                this.changeTracker.onDwellEnd();
+            }
+            
         ]]>
             </handler>
     </handlers>

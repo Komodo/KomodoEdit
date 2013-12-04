@@ -2,7 +2,7 @@
 # User: ckreutzer
 # Link: https://bitbucket.org/ckreutzer/komodo-color-schemes/src
 
-Version = 12
+Version = 13
 
 Booleans = {'caretLineVisible': True, 'preferFixed': 1, 'useSelFore': False}
 
@@ -180,6 +180,9 @@ Colors = {'bookmarkColor': 14342664,
  'currentLineColor': 16764108,
  'edgeColor': 15658734,
  'foldMarginColor': 4137728,
+ 'changeMarginInserted': 0xa6dca3,
+ 'changeMarginDeleted': 0xe75754,
+ 'changeMarginReplaced': 0x62d3e8,
  'selBack': 10706176,
  'selFore': 16772846,
  'whitespaceColor': 0}

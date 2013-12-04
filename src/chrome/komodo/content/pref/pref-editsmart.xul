@@ -336,6 +336,20 @@
                       prefstring="editRestoreFoldPoints" prefattribute="checked"/>
         </groupbox>
 
+        <groupbox orient="vertical">
+            <caption label="&showChanges.label;"/>
+            <hbox align="center">
+              <label value="&showChangesInMargin.label;"/>
+              <menulist id="showChangesInMargin" pref="true" prefattribute="data">
+                  <menupopup>
+                      <menuitem data="0" label="&showChanges_Choice_Never.label;"/>
+                      <menuitem data="1" label="&showChanges_Choice_Unsaved.label;"/>
+                      <!--<menuitem data="2" label="&showChanges_Choice_SCC.label;"/>-->
+                  </menupopup>
+              </menulist>
+            </hbox>
+        </groupbox>
+
         <groupbox class="load-context-check" showIfLoadContext="global">
             <caption label="&highlightVariable.label;"/>
             <checkbox label="&highlightVariableMouse.label;" pref="true"

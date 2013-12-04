@@ -1,4 +1,4 @@
-Version = 12
+Version = 13
 
 Booleans = {'preferFixed': 1, 'useSelFore': False, 'caretLineVisible': True}
 
@@ -186,6 +186,9 @@ Colors = {
  'currentLineColor': 16764108,
  'edgeColor': 15658734,
  'foldMarginColor': 0xECECEC,
+ 'changeMarginInserted': 0xa6dca3,
+ 'changeMarginDeleted': 0xe75754,
+ 'changeMarginReplaced': 0x62d3e8,
  'selBack': 13421772,
  'selFore': 16772846,
  'whitespaceColor': 8421504}

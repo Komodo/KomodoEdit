@@ -167,6 +167,7 @@
     <script src="chrome://komodo/content/library/multipleCaret.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/snippets.js"                 type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/ejs.js"                 type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/changeTracker.js"    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/hyperlinks/hyperlinks.js"        type="application/x-javascript;version=1.7"/>
     <!-- The order of these hyperlink scripts is important, as it sets the
          priority of the hyperlink handlers. -->

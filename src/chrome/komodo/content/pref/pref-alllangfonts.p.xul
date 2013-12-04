@@ -383,6 +383,14 @@
                                               label="&whitespaceForegroundColor.label;"
                                               value="10"
                                               oncommand="updateSchemeColor('whitespaceColor')"/>
+                                    <menuitem id="changeInsertion"
+                                              label="&showChanges_ChangeInsertionColor.label;"
+                                              value="11"
+                                              oncommand="updateSchemeColor('changeMarginInserted')"/>
+                                    <menuitem id="changeDeletion"
+                                              label="&showChanges_ChangeInsertionDeletion.label;"
+                                              value="12"
+                                              oncommand="updateSchemeColor('changeMarginDeleted')"/>
                                 </menupopup>
                             </menulist>
                             <colorpicker 

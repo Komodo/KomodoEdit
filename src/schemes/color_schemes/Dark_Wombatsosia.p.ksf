@@ -2,7 +2,7 @@
 # User: ennio.tr
 # Link: http://www.kolormodo.com/scheme/preview/76001/wombatsosia
 
-Version = 12
+Version = 13
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 
@@ -196,6 +196,9 @@ Colors = {'bookmarkColor': 15327885,
  'currentLineColor': 3814187,
  'edgeColor': 5323048,
  'foldMarginColor': 3158064,
+ 'changeMarginInserted': 0xa6dca3,
+ 'changeMarginDeleted': 0xe75754,
+ 'changeMarginReplaced': 0x62d3e8,
  'selBack': 5521215,
  'selFore': 16777215,
  'whitespaceColor': 3815994}

@@ -104,7 +104,7 @@ class Scheme(SchemeBase):
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 12
+    _current_scheme_version = 13
 
     def _execfile(self, fname, namespace):
         try:
@@ -285,6 +285,19 @@ class Scheme(SchemeBase):
                         if 'style' not in linter_block or \
                                 linter_block['style'] == 1:
                             linter_block['style'] = 13
+                version += 1
+                
+            if version == 12:
+                # Add Colors changeMarginInserted and changeMarginDeleted
+                # Colors have to be in RGB (?)
+                # As opposed to being in BGR in the ksf files.
+                newColors = { 'changeMarginInserted':0xa6dca3, # muted green
+                              'changeMarginDeleted': 0xe75754, # muted red
+                              'changeMarginReplaced': 0x62d3e8, # muted yellow
+                              }
+                for name in newColors:
+                    if name not in self._colors:
+                        self._colors[name] = newColors[name]
                 version += 1
 
             try:
