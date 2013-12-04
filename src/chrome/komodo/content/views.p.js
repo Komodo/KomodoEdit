@@ -2200,7 +2200,7 @@ viewManager.prototype.is_cmd_print_enabled = function() {
 }
 
 viewManager.prototype.do_cmd_print = function() {
-    ko.printing.print(this.currentView, 0, 0);
+    require("ko/printing").print(this.currentView, 0, 0);
 }
 
 viewManager.prototype.is_cmd_printSelection_supported = function() {
@@ -2214,7 +2214,7 @@ viewManager.prototype.is_cmd_printSelection_enabled = function() {
 }
 
 viewManager.prototype.do_cmd_printSelection = function() {
-    ko.printing.print(this.currentView, false, false, true);
+    require("ko/printing").print(this.currentView, false, false, true);
 }
 
 viewManager.prototype.is_cmd_printPreview_supported = function() {
@@ -2227,7 +2227,7 @@ viewManager.prototype.is_cmd_printPreview_enabled = function() {
 }
 
 viewManager.prototype.do_cmd_printPreview = function() {
-    ko.printing.printPreview(this.currentView, 1, 0);
+    require("ko/printing").printPreview(this.currentView, 1, 0);
 }
 
 viewManager.prototype.is_cmd_printPreviewSelection_supported = function() {
@@ -2241,7 +2241,7 @@ viewManager.prototype.is_cmd_printPreviewSelection_enabled = function() {
 }
 
 viewManager.prototype.do_cmd_printPreviewSelection = function() {
-    ko.printing.printPreview(this.currentView, 1, 0, 1);
+    require("ko/printing").printPreview(this.currentView, 1, 0, 1);
 }
 
 viewManager.prototype.is_cmd_exportHTML_supported = function() {
@@ -2254,7 +2254,7 @@ viewManager.prototype.is_cmd_exportHTML_enabled = function() {
 }
 
 viewManager.prototype.do_cmd_exportHTML = function() {
-    ko.printing.print(this.currentView, 0, 1);
+    require("ko/printing").print(this.currentView, 0, 1);
 }
 
 
@@ -2269,7 +2269,7 @@ viewManager.prototype.is_cmd_exportHTMLSelection_enabled = function() {
 }
 
 viewManager.prototype.do_cmd_exportHTMLSelection = function() {
-    ko.printing.print(this.currentView, false, true, true);
+    require("ko/printing").print(this.currentView, false, true, true);
 }
 
 viewManager.prototype.do_ViewAs = function(language) {

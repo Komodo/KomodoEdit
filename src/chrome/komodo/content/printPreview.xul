@@ -65,7 +65,6 @@
 
     <script src="chrome://komodo/content/library/logging.js"              type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/timers.js"               type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/printing.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/windowManager.js"        type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/uriparse.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/filepickers.js"          type="application/x-javascript;version=1.7"/>
@@ -73,7 +72,11 @@
     <script src="chrome://komodo/content/library/open.js"                 type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dialogs.js"              type="application/x-javascript;version=1.7"/>
 
+    <!-- we still need PrintUtils imported globally because it creates XBL
+       - bindings that depend on it existing.
+       -->
     <script src="chrome://global/content/printUtils.js"  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/jetpack.js"                      type="application/x-javascript;version=1.8"/>
 
     <script type="application/x-javascript;version=1.7">
     <![CDATA[
@@ -83,7 +86,7 @@
       var preview = window.arguments[1];
       var tofile = window.arguments[2];
       var selectionOnly = window.arguments[3];
-      ko.printing.print(view, preview, tofile, selectionOnly);
+      require("ko/printing").print(view, preview, tofile, selectionOnly);
       } catch(e) { log.exception(e); }
     }
     

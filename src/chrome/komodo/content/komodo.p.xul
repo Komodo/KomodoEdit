@@ -106,7 +106,6 @@
     <script src="chrome://komodo/content/library/otherdialogs.js"         type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/controller.js"           type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/windowManager.js"        type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/printing.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/uilayout.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/uriparse.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/filepickers.js"          type="application/x-javascript;version=1.7"/>
@@ -175,7 +174,9 @@
     <script src="chrome://komodo/content/hyperlinks/filehandler.js"       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/hyperlinks/csscolorpicker.js"    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/hyperlinks/gotodefinition.js"    type="application/x-javascript;version=1.7"/>
-	
+
+    <script src="chrome://komodo/content/jetpack.js"                      type="application/x-javascript;version=1.8"/>
+
     <!-- This is used by the view editor for displaying
          scintilla tooltips -->
     <popupset id="editorTooltipSet">
@@ -659,7 +660,7 @@
                                 <menupopup id="popup_Printmenu">
                                     <menuitem label="&pageSetup.label;"
                                               id="menu_printSetup"
-                                              oncommand="PrintUtils.showPageSetup();"
+                                              oncommand="require('ko/printing').showPageSetup();"
                                               />
                                     <menuitem id="menu_PrintSettings"
                                         oncommand="prefs_doGlobalPrefs('printItem');"
