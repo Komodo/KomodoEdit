@@ -108,7 +108,7 @@ this.initialize = function RunOutput_Init() {
         if (boxObject.view == null) {
             // We are in a collapsed state-- we need to force the tree to be visible
             // before we can assign the view to it.
-            RunOutput_Show(window);
+            ko.run.output.show(window);
         }
         _gTerminalView = document.getElementById("runoutput-scintilla");
         _gTerminalView.scintilla.symbolMargin = false; // No need for margins.

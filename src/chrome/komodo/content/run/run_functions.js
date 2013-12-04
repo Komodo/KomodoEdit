@@ -212,7 +212,7 @@ this.buildRecentCommandsMenu = function Run_BuildRecentCommandsMenu(popupWidget)
             encodedCommand = encodedCommand.replace('\\', '\\\\', "g");
             encodedCommand = encodedCommand.replace("'", "\\'", "g");
             encodedCommand = encodedCommand.replace('"', '\\"', "g");
-            var handler = "Run_RunEncodedCommand(window, '"
+            var handler = "ko.run.runEncodedCommand(window, '"
                           + encodedCommand + "');";
             itemWidget.setAttribute("oncommand", handler);
 

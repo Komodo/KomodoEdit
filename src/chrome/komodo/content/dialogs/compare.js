@@ -79,9 +79,9 @@ function OnLoad()
             second.focus();
         } else {
             // Prefill the two entries with the last used ones.
-            var prefName = stringutils_getSubAttr(first.searchParam, "mru");
+            var prefName = ko.stringutils.getSubAttr(first.searchParam, "mru");
             first.value = ko.mru.get(prefName);
-            prefName = stringutils_getSubAttr(second.searchParam, "mru");
+            prefName = ko.stringutils.getSubAttr(second.searchParam, "mru");
             second.value = ko.mru.get(prefName);
             first.focus();
         }

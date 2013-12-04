@@ -510,7 +510,7 @@ function _browseForFile(pickerFn,
  * @param {String} "defaultFilename" (optional) is a suggested filename for the user to
  *      choose. If "defaultDirectory" is not specified then a fullpath can be
  *      used here to specify a default directory and filename. E.g.,
- *          filepicker_openFile(null, "D:\\trentm\\foo.txt");
+ *          ko.filepicker.openFile(null, "D:\\trentm\\foo.txt");
  *      will set the default dir and filename to "D:\\trentm" and "foo.txt",
  *      respectively.
  * @param {String} "title" (optional) is the title for the file picker dialog.
@@ -548,7 +548,7 @@ this.browseForFile = function filepicker_openFile(defaultDirectory /* =null */,
  * @param {String} "defaultFilename" (optional) is a suggested filename for the user to
  *      choose. If "defaultDirectory" is not specified then a fullpath can be
  *      used here to specify a default directory and filename. E.g.,
- *          filepicker_openFile(null, "D:\\trentm\\foo.txt");
+ *          ko.filepicker.openFile(null, "D:\\trentm\\foo.txt");
  *      will set the default dir and filename to "D:\\trentm" and "foo.txt",
  *      respectively.
  * @param {String} "title" (optional) is the title for the file picker dialog.
@@ -575,7 +575,7 @@ this.browseForExeFile = function filepicker_openExeFile(defaultDirectory /* =nul
  * @param {String} "defaultFilename" (optional) is a suggested filename for the user to
  *      choose. If "defaultDirectory" is not specified then a fullpath can be
  *      used here to specify a default directory and filename. E.g.,
- *          filepicker_saveFile(null, "D:\\trentm\\foo.txt");
+ *          ko.filepicker.saveFile(null, "D:\\trentm\\foo.txt");
  *      will set the default dir and filename to "D:\\trentm" and "foo.txt",
  *      respectively.
  * @param {String} "title" (optional) is the title for the file picker dialog.
@@ -712,7 +712,7 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
  * @param {String} "defaultFilename" (optional) is a suggested filename for the user to
  *      choose. If "defaultDirectory" is not specified then a fullpath can be
  *      used here to specify a default directory and filename. E.g.,
- *          filepicker_openFile(null, "D:\\trentm\\foo.txt");
+ *          ko.filepicker.openFile(null, "D:\\trentm\\foo.txt");
  *      will set the default dir and filename to "D:\\trentm" and "foo.txt",
  *      respectively.
  * @param {String} "title" (optional) is the title for the file picker dialog.
@@ -976,7 +976,7 @@ this.remoteFileBrowser = function filepicker_remoteFileBrowser(defaultUrl /*=""*
 
 /**
  * Open remote file(s)
- *   Same parameters meanings as "filepicker_remoteFileBrowser" (above)
+ *   Same parameters meanings as "ko.filepicker.remoteFileBrowser" (above)
  * Returns nothing. Note: The files will be opened through this function call
  */
 this.openRemoteFiles = function filepicker_openRemoteFiles(defaultUrl, defaultFilename, defaultFilterName, filterNames) {
@@ -1015,7 +1015,7 @@ this.openRemoteFiles = function filepicker_openRemoteFiles(defaultUrl, defaultFi
 
 /**
  * Choose remote filename to save as
- *   Same parameters meanings as "filepicker_remoteFileBrowser" (above)
+ *   Same parameters meanings as "ko.filepicker.remoteFileBrowser" (above)
  * Returns the remote url of the selected file, or null if the dialog is
  * cancelled.
  */

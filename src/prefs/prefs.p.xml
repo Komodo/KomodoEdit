@@ -913,7 +913,7 @@
 <!-- #endif -->
 
   <!-- Whether to ask and, if not, whether to append an appropriate extension
-       to filenames chosen with filepicker_saveFile. -->
+       to filenames chosen with ko.filepicker.saveFile. -->
   <boolean id="donotask_ensure_filename_has_ext">0</boolean>
   <string id="donotask_action_ensure_filename_has_ext"></string>
 

@@ -73,14 +73,14 @@ function test_editCurrentViewPrefs()
 function test_dialog_prompt()
 {
     dump("\n-------------------\nQuery String Dialog with 'prompt': using multiline\n");
-    var result = dialog_prompt("this is my prompt",
-                               null, null, null, null, null,
-                               true, // multiline
-                               30, 500);  // screenX,screenY
+    var result = ko.dialogs.prompt("this is my prompt",
+                                   null, null, null, null, null,
+                                   true, // multiline
+                                   30, 500);  // screenX,screenY
     dump("\tresult: "+result+"\n");
 
     dump("\n-------------------\nQuery String Dialog using all options (except validator):\n");
-    result = dialog_prompt(
+    result = ko.dialogs.prompt(
         "this is my prompt, the first line of which is a very very very "
             +"very very very long line of text\nthis is line2 of the "
             +"prompt\n",
@@ -91,7 +91,7 @@ function test_dialog_prompt()
     dump("\tresult: "+result+"\n");
 
     dump("\n-------------------\nQuery String Dialog using validator:\n");
-    result = dialog_prompt(
+    result = ko.dialogs.prompt(
         null, // prompt
         "Enter a number:", // label
         "0",  // default value
@@ -101,7 +101,7 @@ function test_dialog_prompt()
     dump("\tresult: "+result+"\n");
 
     dump("\n-------------------\nQuery String Dialog using crashing validator:\n");
-    result = dialog_prompt(
+    result = ko.dialogs.prompt(
         null, // prompt
         "Enter a number:", // label
         "0",  // default value
@@ -145,25 +145,25 @@ function test_dialog_progress()
     };
 
     var result;
-    result = dialog_progress(processor,
-                             "Drink some beer. Drink some beer. Drink some beer. Drink some beer. Drink some beer. Drink some beer. Drink some beer.",
-                             "Octoberfest",
-                             true,
-                             "Actung!");
+    result = ko.dialogs.progress(processor,
+                                 "Drink some beer. Drink some beer. Drink some beer. Drink some beer. Drink some beer. Drink some beer. Drink some beer.",
+                                 "Octoberfest",
+                                 true,
+                                 "Actung!");
     dump("\tresult: "+result+"\n");
 
-    result = dialog_progress(processor,
-                             "Drink some beer. (can't cancel this one)",
-                             "Mandatory Octoberfest",
-                             false,
-                             "Actung!");
+    result = ko.dialogs.progress(processor,
+                                 "Drink some beer. (can't cancel this one)",
+                                 "Mandatory Octoberfest",
+                                 false,
+                                 "Actung!");
     dump("\tresult: "+result+"\n");
 }
 
 function test_dialog_editEnvVar()
 {
     dump("\n-------------------\nEdit Env Var dialog: no args\n");
-    var result = dialog_editEnvVar();
+    var result = ko.dialogs.editEnvVar();
     dump("\tresult: "+result+"\n");
     if (result) {
         dump("\t  result.name:  "+result.name+"\n");
@@ -171,7 +171,7 @@ function test_dialog_editEnvVar()
     }
 
     dump("\n-------------------\nEdit Env Var dialog: all args\n");
-    result = dialog_editEnvVar("FOO", "BAR", "my title",
+    result = ko.dialogs.editEnvVar("FOO", "BAR", "my title",
                                    "test_dialog_editEnvVar");
     dump("\tresult: "+result+"\n");
     if (result) {
@@ -183,7 +183,7 @@ function test_dialog_editEnvVar()
 function test_dialog_internalError()
 {
     dump("\n-------------------\nInternal Error Dialog:\n");
-    dialog_internalError("this is my error", "quote this");
+    ko.dialogs.internalError("this is my error", "quote this");
 }
 
 function _test_validate_isNumber(window, s) {
@@ -204,20 +204,20 @@ function test_dialog_yesNoCancel()
 {
     var result;
     dump("\n-------------------\nSimple Yes/No/Cancel Dialog:\n");
-    result = dialog_yesNoCancel("this is my prompt", null, null,
-                                "this is my title");
+    result = ko.dialogs.yesNoCancel("this is my prompt", null, null,
+                                    "this is my title");
     dump("\tresult: "+result+"\n");
 
     dump("\n-------------------\nYes/No/Cancel Dialog with some 'text':\n");
-    result = dialog_yesNoCancel("this is my prompt", null,
-                                "this\nis\nsome text",
-                                "this is my title");
+    result = ko.dialogs.yesNoCancel("this is my prompt", null,
+                                    "this\nis\nsome text",
+                                    "this is my title");
     dump("\tresult: "+result+"\n");
 
     dump("\n-------------------\nYes/No/Cancel Dialog with 'Don't ask again':\n");
-    result = dialog_yesNoCancel("this is my prompt", null, null,
-                                "this is my title",
-                                "test"); // doNotAskPref
+    result = ko.dialogs.yesNoCancel("this is my prompt", null, null,
+                                    "this is my title",
+                                    "test"); // doNotAskPref
     dump("\tresult: "+result+"\n");
 }
 
@@ -226,20 +226,20 @@ function test_dialog_yesNo()
 {
     var result;
     dump("\n-------------------\nSimple Yes/No Dialog:\n");
-    result = dialog_yesNo("this is my prompt", null, null,
-                          "this is my title");
+    result = ko.dialogs.yesNo("this is my prompt", null, null,
+                              "this is my title");
     dump("\tresult: "+result+"\n");
 
     dump("\n-------------------\nYes/No Dialog with some 'text':\n");
-    result = dialog_yesNo("this is my prompt", null,
-                          "this\nis\nsome text",
-                          "this is my title");
+    result = ko.dialogs.yesNo("this is my prompt", null,
+                              "this\nis\nsome text",
+                              "this is my title");
     dump("\tresult: "+result+"\n");
 
     dump("\n-------------------\nYes/No Dialog with 'Don't ask again':\n");
-    result = dialog_yesNo("this is my prompt", null, null,
-                          "this is my title",
-                          "test"); // doNotAskPref
+    result = ko.dialogs.yesNo("this is my prompt", null, null,
+                              "this is my title",
+                              "test"); // doNotAskPref
     dump("\tresult: "+result+"\n");
 }
 
@@ -248,19 +248,19 @@ function test_dialog_okCancel()
 {
     var result;
     dump("\n-------------------\nSimple OK/Cancel Dialog:\n");
-    result = dialog_okCancel("this is my prompt", null);
+    result = ko.dialogs.okCancel("this is my prompt", null);
     dump("\tresult: "+result+"\n");
 
     dump("\n-------------------\nOK/Cancel Dialog with some 'text':\n");
-    result = dialog_okCancel("this is my prompt", null,
-                             "this\nis\nsome text",
-                             "this is my title");
+    result = ko.dialogs.okCancel("this is my prompt", null,
+                                 "this\nis\nsome text",
+                                 "this is my title");
     dump("\tresult: "+result+"\n");
 
     dump("\n-------------------\nOK/Cancel Dialog with 'Don't ask again':\n");
-    result = dialog_okCancel("this is my prompt", null, null,
-                             "this is my title",
-                             "test"); // doNotAskPref
+    result = ko.dialogs.okCancel("this is my prompt", null, null,
+                                 "this is my title",
+                                 "test"); // doNotAskPref
     dump("\tresult: "+result+"\n");
 }
 
@@ -269,26 +269,26 @@ function test_dialog_customButtons()
 {
     var result;
 
-    result = dialog_customButtons("one button", ["Foo"]);
+    result = ko.dialogs.customButtons("one button", ["Foo"]);
     dump("\tresult: "+result+"\n");
-    result = dialog_customButtons("two buttons", ["Foo", "Bar"]);
+    result = ko.dialogs.customButtons("two buttons", ["Foo", "Bar"]);
     dump("\tresult: "+result+"\n");
-    result = dialog_customButtons("three buttons", ["Foo", "Bar", "Baz"]);
+    result = ko.dialogs.customButtons("three buttons", ["Foo", "Bar", "Baz"]);
     dump("\tresult: "+result+"\n");
-    result = dialog_customButtons("three buttons and cancel, default is Bar",
-                                  ["Foo", "Bar", "Baz", "Cancel"], "Bar");
+    result = ko.dialogs.customButtons("three buttons and cancel, default is Bar",
+                                      ["Foo", "Bar", "Baz", "Cancel"], "Bar");
     dump("\tresult: "+result+"\n");
-    result = dialog_customButtons("three buttons and cancel, default is Cancel",
-                                  ["Foo", "Bar", "Baz", "Cancel"], "Cancel");
+    result = ko.dialogs.customButtons("three buttons and cancel, default is Cancel",
+                                      ["Foo", "Bar", "Baz", "Cancel"], "Cancel");
     dump("\tresult: "+result+"\n");
-    result = dialog_customButtons("with some text and a title",
-                                  ["Foo", "Bar", "Baz", "Cancel"], "Bar",
-                                  "this\nis some\ntext", "a new title");
+    result = ko.dialogs.customButtons("with some text and a title",
+                                      ["Foo", "Bar", "Baz", "Cancel"], "Bar",
+                                      "this\nis some\ntext", "a new title");
     dump("\tresult: "+result+"\n");
-    result = dialog_customButtons("with don't ask me again",
-                                  ["Foo", "Bar", "Baz", "Cancel"], "Bar",
-                                  "this\nis some\ntext", "a new title",
-                                  "test"); // doNotAskPref
+    result = ko.dialogs.customButtons("with don't ask me again",
+                                      ["Foo", "Bar", "Baz", "Cancel"], "Bar",
+                                      "this\nis some\ntext", "a new title",
+                                      "test"); // doNotAskPref
     dump("\tresult (with doNotAskPref usage): "+result+"\n");
 }
 
@@ -301,15 +301,15 @@ function test_dialog_alert()
     dump("\tresult: "+result+"\n");
 
     dump("\n-------------------\ndialog_alert()\n");
-    result = dialog_alert("this is Komodo's dialog_alert()");
+    result = ko.dialogs.alert("this is Komodo's ko.dialogs.alert()");
     dump("\tresult: "+result+"\n");
 
-    dump("\n-------------------\nfancy dialog_alert()\n");
+    dump("\n-------------------\nfancy ko.dialogs.alert()\n");
     var text = "blah blah\nblah blah\nblah blah\nblah blah\nblah blah\n"
                +"blah blah\nblah blah\nblah blah\nblah blah\nblah blah\n";
-    result = dialog_alert("There was a problem executing the macro: foobar",
-                          text, "this is my title",
-                          "test"); // doNotAskPref
+    result = ko.dialogs.alert("There was a problem executing the macro: foobar",
+                              text, "this is my title",
+                              "test"); // doNotAskPref
     dump("\tresult: "+result+"\n");
 }
 
@@ -317,10 +317,10 @@ function test_dialog_alert()
 function test_dialog_authenticate()
 {
     dump("\n-------------------\ndialog_authenticate()\n");
-    var result = dialog_authenticate2("this is my prompt",
-                                      "ftp://ftp.myserver.com/",
-                                      "trentm", // username
-                                      false); // allowAnonymous
+    var result = ko.dialogs.authenticate2("this is my prompt",
+                                          "ftp://ftp.myserver.com/",
+                                          "trentm", // username
+                                          false); // allowAnonymous
     dump("    result: "+result+"\n");
     if (result != null) {
         for (var attr in result) {
@@ -337,11 +337,11 @@ function test_dialog_authenticate()
 function test_dialog_pickPreview()
 {
     dump("\n-------------------\ndialog_pickPreview(): HTML file\n");
-    var result = dialog_pickPreview("file:///C:/trentm/tmp/foo.html");
+    var result = ko.dialogs.pickPreview("file:///C:/trentm/tmp/foo.html");
     dump("    result: "+result+"\n");
 
     dump("\n-------------------\ndialog_pickPreview(): CSS file\n");
-    result = dialog_pickPreview("file:///C:/trentm/tmp/foo2.css");
+    result = ko.dialogs.pickPreview("file:///C:/trentm/tmp/foo2.css");
     dump("    result: "+result+"\n");
 }
 
@@ -349,7 +349,7 @@ function test_dialog_pickicon()
 {
     dump("\n-------------------\ndialog_pickIcon(): \n");
     try {
-        var result = dialog_pickIcon();
+        var result = ko.dialogs.pickIcon();
     } catch (e) {
         log.exception(e);
     }
@@ -377,7 +377,7 @@ function test_dialog_selectFromList()
     filenames = ["file:///D:/trentm/as/Apps/Komodo-devel/src/version.txt",
                  "file:///D:/trentm/as/Apps/Komodo-devel/Construct",
                  ];
-    result = dialog_selectFromList(
+    result = ko.dialogs.selectFromList(
         "this is my title",
         "Select from list: using ko.uriparse.displayPath as stringifier",
         filenames,
@@ -393,7 +393,7 @@ function test_dialog_selectFromList()
     filenames = ["file:///D:/trentm/as/Apps/Komodo-devel/src/version.txt",
                  "file:///D:/trentm/as/Apps/Komodo-devel/Construct",
                  ];
-    result = dialog_selectFromList(
+    result = ko.dialogs.selectFromList(
         "this is my title",
         "Select from list: as a Yes/No/Cancel dialog",
         filenames,
@@ -411,7 +411,7 @@ function test_dialog_selectFromList()
     filenames = ["file:///D:/trentm/as/Apps/Komodo-devel/src/version.txt",
                  "file:///D:/trentm/as/Apps/Komodo-devel/Construct",
                  ];
-    result = dialog_selectFromList(
+    result = ko.dialogs.selectFromList(
         "this is my title",
         "Select from list: using doNotAskPref and 'zero-or-more' selection",
         filenames,
@@ -428,7 +428,7 @@ function test_dialog_selectFromList()
     filenames = ["file:///D:/trentm/as/Apps/Komodo-devel/src/version.txt",
                  "file:///D:/trentm/as/Apps/Komodo-devel/Construct",
                  ];
-    result = dialog_selectFromList(
+    result = ko.dialogs.selectFromList(
         "this is my title",
         "Select from list: using 'one' selection",
         filenames,
@@ -449,7 +449,7 @@ function test_dialog_selectFromList()
                    "id": ko.uriparse.baseName(filenames[i])};
         fileObjs.push(fileObj);
     }
-    result = dialog_selectFromList(
+    result = ko.dialogs.selectFromList(
         "this is my title",
         "Select from list: using 'one' selection",
         fileObjs,
@@ -508,9 +508,9 @@ function test_dialog_selectFromList()
                  "file:///D:/trentm/as/Apps/Komodo-devel/c2",
                  "file:///D:/trentm/as/Apps/Komodo-devel/c3",
                  ];
-    result = dialog_selectFromList("this is my title",
-                                   "Select files to import:",
-                                   filenames);
+    result = ko.dialogs.selectFromList("this is my title",
+                                       "Select files to import:",
+                                       filenames);
     dump("\tresult: "+result+"\n");
     attr = null;
     for (attr in result) {
@@ -530,7 +530,7 @@ function _get_platform()
 
 function test_uriparse()
 {
-    var file = dialog_prompt(
+    var file = ko.dialogs.prompt(
         "Enter a URI or local path with which to test uriparse.js's "+
             "conversion routines.",
         "File:",
@@ -556,7 +556,7 @@ function test_uriparse()
             results += "  "+name+"(file): error"+ex+"\n";
         }
     }
-    dialog_alert("Here are the results:", results, "'uriparse' Results");
+    ko.dialogs.alert("Here are the results:", results, "'uriparse' Results");
 }
 
 
@@ -607,8 +607,8 @@ function test_filepicker_openExeFile()
     } else {
         exe = "/usr/bin/grep";
     }
-    var result = filepicker_openExeFile(null, exe);
-    dump("filepicker_openExeFile() returned: "+result+"\n");
+    var result = ko.filepicker.openExeFile(null, exe);
+    dump("ko.filepicker.openExeFile() returned: "+result+"\n");
 }
 
 function test_filepicker_openFile()
@@ -621,36 +621,36 @@ function test_filepicker_openFile()
         folder = "/tmp";
     }
     var result;
-    dump("\n---------- filepicker_openFile: all the defaults\n");
-    result = filepicker_openFile();
+    dump("\n---------- ko.filepicker.openFile: all the defaults\n");
+    result = ko.filepicker.openFile();
     dump("\tresult: "+result+"\n");
 
-    dump("\n---------- filepicker_openFile: specify all but limited filter set\n");
-    result = filepicker_openFile(folder, // default directory
+    dump("\n---------- ko.filepicker.openFile: specify all but limited filter set\n");
+    result = ko.filepicker.openFile(folder, // default directory
                         "foo.txt", // default file
                         "this is my title", // title
                         "SQL", // default filter name
                         null); // filter names
     dump("\tresult: "+result+"\n");
 
-    dump("\n---------- filepicker_openFile: specify all options\n");
-    result = filepicker_openFile(folder, // default directory
+    dump("\n---------- ko.filepicker.openFile: specify all options\n");
+    result = ko.filepicker.openFile(folder, // default directory
                         "foo.txt", // default file
                         "this is my title", // title
                         "SQL", // default filter name
                         ["JavaScript", "Python", "SQL"]); // filter names
     dump("\tresult: "+result+"\n");
 
-    dump("\n---------- filepicker_openFile: specify all but default filter name\n");
-    result = filepicker_openFile(folder, // default directory
+    dump("\n---------- ko.filepicker.openFile: specify all but default filter name\n");
+    result = ko.filepicker.openFile(folder, // default directory
                         "foo.txt", // default file
                         "this is my title", // title
                         null, // default filter name
                         ["JavaScript", "Python", "All"]); // filter names
     dump("\tresult: "+result+"\n");
 
-    dump("\n---------- filepicker_openFile: specify bogus default filter name\n");
-    result = filepicker_openFile(folder, // default directory
+    dump("\n---------- ko.filepicker.openFile: specify bogus default filter name\n");
+    result = ko.filepicker.openFile(folder, // default directory
                         "foo.txt", // default file
                         "this is my title", // title
                         "SQL", // default filter name
@@ -668,7 +668,7 @@ function test_filepicker_getFolder()
         folder = "/tmp";
     }
     var result;
-    result = filepicker_getFolder(folder, // default directory
+    result = ko.filepicker.getFolder(folder, // default directory
                         "Please select a folder."); // prompt
     dump("\tresult: "+result+"\n");
 }
@@ -683,14 +683,14 @@ function test_filepicker_saveFile()
         folder = "/tmp";
     }
     var result;
-    result = filepicker_saveFile(folder, // default directory
+    result = ko.filepicker.saveFile(folder, // default directory
                         "foo", // default file
                         "this is my title", // title
                         "Python", // default filter name
                         ["JavaScript", "Python", "Perl", "All"]);
     dump("\tresult: "+result+"\n");
 
-    result = filepicker_saveFile(folder, // default directory
+    result = ko.filepicker.saveFile(folder, // default directory
                         "foo", // default file
                         "Save Project As", // title
                         "Komodo Project"); // default filter name
@@ -701,8 +701,8 @@ function test_filepicker_saveFile()
 function test_filepicker_openFiles()
 {
     var i, files;
-    dump("\n---------- filepicker_openFiles: all the defaults\n");
-    files = filepicker_openFiles();
+    dump("\n---------- ko.filepicker.openFiles: all the defaults\n");
+    files = ko.filepicker.openFiles();
     if (files == null) {
         dump("\tresult: "+files+"\n");
     } else {

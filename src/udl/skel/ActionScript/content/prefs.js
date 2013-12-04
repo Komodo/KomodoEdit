@@ -52,8 +52,8 @@ function OnPreferencePageOK(prefset)
             var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"].
                             getService(Components.interfaces.nsIStringBundleService).
                             createBundle("chrome://actionscriptprefs/locale/pref-actionscript.properties");
-            dialog_alert(_bundle.formatStringFromName("noActionscriptInterpreterCouldBeFoundAt",
-                                                      [defaultInterp], 1));
+            ko.dialogs.alert(_bundle.formatStringFromName("noActionscriptInterpreterCouldBeFoundAt",
+                                                          [defaultInterp], 1));
             ok = false;
             document.getElementById("actionScriptDefaultInterpreter").focus();
         }

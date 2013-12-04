@@ -335,7 +335,7 @@
                 var textlines = [];
                 var cmd = "";
                 if (def.path && def.line >= 0) {
-                    cmd = "open_openURI('" + def.path + "#" + def.line + "');";
+                    cmd = "ko.open.openURI('" + def.path + "#" + def.line + "');";
                     //dump("cmd: " + cmd + "\n");
                 }
                 textlines.push('<span class="codehelper_name" onclick="'

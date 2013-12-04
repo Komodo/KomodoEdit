@@ -2184,7 +2184,7 @@
                 <!-- This is used for capturing user input while slow dialogs
                 (e.g. the find dialog) load. -->
                 <textbox id="hidden-input-buffer" collapsed="true"
-                     onfocus="InputBuffer_OnFocus(event);"/>
+                     onfocus="ko.inputBuffer.focus(event);"/>
                 <vbox id="customizingPlaceHolder" align="center" valign="middle">
                     <!-- This box is used in the widget/pane customization mode
                        - (hiding the main text editing area).
