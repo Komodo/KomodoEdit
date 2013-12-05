@@ -403,7 +403,6 @@ function _set_docelement_css_classes() {
 window.onload = function(event) {
     _log.debug(">> window.onload");
 
-    JetPack.defineDeprecatedProperty(ko, "printing", "ko/printing");
     //dump(">>> window.onload\n");
     // XXX PLUGINS cannot be touched here, do it in the delayed onload handler below!!!
     try {

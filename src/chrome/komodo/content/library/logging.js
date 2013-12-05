@@ -42,38 +42,53 @@
 
 Usage:
 
-    log = ko.logging.getLogger(<logger_name>);
+    log = require("ko/logging").getLogger(<logger_name>);
     log.debug(<message>);
     log.info(<message>);
     etc.
+
+For backwards compatibility, it is also possible to use:
+
+    log = ko.logging.getLogger(<logger_name>);
 
 To turn on or off a logger, use:
 
     log.setLevel(ko.logging.LOG_DEBUG);
 
-Loggers that we are using:
+Alternatively, on the command line used to launch komodo,
 
-    "ko.performance": Where major bits of performance information go.
-    "ko.performance.startup": Perf logging w.r.t. startup perf.
-
-    "ko.process": information re: the process module
+    komodo --raw -log logger_name:DEBUG
 */
 
-if (typeof(ko) == 'undefined') {
-    var ko = {};
-}
-ko.logging = {};
-
-if (typeof(window) == "undefined") {
-    // this is being used in Components.utils.import
-    __defineGetter__("logging", function() {
-        delete this.logging;
-        return this.logging = ko.logging;
-    });
-    Components.utils.getGlobalForObject({}).EXPORTED_SYMBOLS = ["logging"];
-}
-
 (function() {
+
+if (typeof(require) === "function") {
+    // This is being loaded as a jetpack module
+    // (This is now the preferred way to load this)
+    this.Components = require("chrome").components; // for Components.stack
+    var { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+} else if (typeof(window) !== "undefined") {
+    // This is being loaded in a window; make sure we have the jetpack loader,
+    // and define ko.logging as a lazy property
+    var { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+    if (typeof(JetPack) === "undefined") {
+        Cc["@mozilla.org/moz/jssubscript-loader;1"]
+          .getService(Ci.mozIJSSubScriptLoader)
+          .loadSubScript("chrome://komodo/content/jetpack.js", this);
+    }
+    if (typeof(ko) == 'undefined') {
+        this.ko = {};
+    }
+    JetPack.defineLazyProperty(ko, "logging", "ko/logging", true);
+    return;
+} else {
+    // This is being loaded in a JS component or a JS module; export a "logging"
+    // object with the desired API.
+    var { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+    // Note that Cu.getGlobalForObject({}) gives us the wrong global...
+    this.EXPORTED_SYMBOLS = ["logging"];
+    this.logging = this.exports = {};
+}
 
 var _gLoggingMgr = null;
 var _gSeenDeprectatedMsg = {};
@@ -85,37 +100,50 @@ const LOG_WARN = 30;
 const LOG_ERROR = 40;
 const LOG_CRITICAL = 50;
 
-this.__defineGetter__("LOG_NOTSET", function() { return LOG_NOTSET; });
-this.__defineGetter__("LOG_DEBUG", function() { return LOG_DEBUG; });
-this.__defineGetter__("LOG_INFO", function() { return LOG_INFO; });
-this.__defineGetter__("LOG_WARN", function() { return LOG_WARN; });
-this.__defineGetter__("LOG_ERROR", function() { return LOG_ERROR; });
-this.__defineGetter__("LOG_CRITICAL", function() { return LOG_CRITICAL; });
+Object.defineProperty(exports, "LOG_NOTSET", {value: LOG_NOTSET, enumerable: true});
+Object.defineProperty(exports, "LOG_DEBUG", {value: LOG_DEBUG, enumerable: true});
+Object.defineProperty(exports, "LOG_INFO", {value: LOG_INFO, enumerable: true});
+Object.defineProperty(exports, "LOG_WARN", {value: LOG_WARN, enumerable: true});
+Object.defineProperty(exports, "LOG_ERROR", {value: LOG_ERROR, enumerable: true});
+Object.defineProperty(exports, "LOG_CRITICAL", {value: LOG_CRITICAL, enumerable: true});
 
 // Logger wrapper objects get notified of the log levels associated with
 // particular loggers.  They only make the calls to the logging system if
-// those logging calls will actually be processed.
+// those logging calls will actually be processed.  This is mainly to avoid
+// having to pass possibly large strings to Python.
 
 // See the 'set_logger_level' notification information
 
-this.Logger = function Logger(logger, logger_name) {
+const Logger = exports.Logger = function(logger, logger_name) {
     this._logger = logger;
     this._logger_name = logger_name;
-}
+};
 
-this.Logger.prototype.constructor = this.Logger;
-
-this.Logger.prototype.setLevel = function(level) {
+Logger.prototype.setLevel = function(level) {
     this._logger.setLevel(level);
-}
+};
 
-this.Logger.prototype.getEffectiveLevel = function() {
+Object.defineProperty(Logger.prototype, "level", {
+    get: function() {
+        if (!this._logger) {
+            return LOG_NOTSET;
+        }
+        return this._logger.level;
+    },
+    enumerable: true,
+});
+
+Logger.prototype.getEffectiveLevel = function() {
     return this._logger.getEffectiveLevel();
-}
+};
 
-this.Logger.prototype.debug= function(message) {
+Logger.prototype.isEnabledFor = function(level) {
+    return this._logger.isEnabledFor(level);
+};
+
+Logger.prototype.debug = function(message) {
     try {
-        if (this._logger.getEffectiveLevel() <= LOG_DEBUG) {
+        if (this.isEnabledFor(LOG_DEBUG)) {
             this._logger.debug(message);
         }
     } catch(ex) {
@@ -123,9 +151,9 @@ this.Logger.prototype.debug= function(message) {
     }
 }
 
-this.Logger.prototype.info = function(message) {
+Logger.prototype.info = function(message) {
     try {
-        if (this._logger.getEffectiveLevel() <= LOG_INFO) {
+        if (this.isEnabledFor(LOG_INFO)) {
             this._logger.info(message);
         }
     } catch(ex) {
@@ -133,9 +161,9 @@ this.Logger.prototype.info = function(message) {
     }
 }
 
-this.Logger.prototype.warn = function(message) {
+Logger.prototype.warn = function(message) {
     try {
-        if (this._logger.getEffectiveLevel() <= LOG_WARN) {
+        if (this.isEnabledFor(LOG_WARN)) {
             this._logger.warn(message);
         }
     } catch(ex) {
@@ -153,14 +181,19 @@ this.Logger.prototype.warn = function(message) {
  * @param {string} message  The deprecation warning message.
  * @param {boolean} reportDuplicates  Optional, when set to false it only logs
  *        the first occurance of the deprecation message.
+ * @param {Number} stacklevel The number of frames to skip reporting
  */
-this.Logger.prototype.deprecated = function(message, reportDuplicates /* false */) {
+Logger.prototype.deprecated = function(message, reportDuplicates=false,
+                                       stacklevel=0)
+{
     try {
-        if (this._logger.getEffectiveLevel() <= LOG_WARN) {
+        if (this.isEnabledFor(LOG_WARN)) {
             if (reportDuplicates || !(message in _gSeenDeprectatedMsg)) {
                 _gSeenDeprectatedMsg[message] = true;
+                // Skip the deprecated() line
+                stacklevel = (parseInt(stacklevel) || 0) + 1;
                 this.warn(message + "\n" +
-                          getStack().replace('\n', '\n    ', 'g').slice(0, -4) +
+                          getStack(stacklevel).replace('\n', '\n    ', 'g').slice(0, -4) +
                           "\n");
             }
         }
@@ -176,10 +209,23 @@ this.Logger.prototype.deprecated = function(message, reportDuplicates /* false *
  * @param deprecatedName {string}  The global variable name that is deprecated
  * @param replacementName {string}  The new replacement code (an expression to eval)
  * @param logger {Logger}  The logger to use (from ko.logging.getLogger), or null to use the default
+ * @param global {Object} The global to attach to.
  * @note This doesn't work when used with Components.utils.import
  */
-this.globalDeprecatedByAlternative = function ko_logging_globalDeprecatedByAlternative(deprecatedName, replacementName, logger) {
-    Components.utils.getGlobalForObject({}).__defineGetter__(deprecatedName,
+exports.globalDeprecatedByAlternative = function(deprecatedName, replacementName, logger, global) {
+    if (global === undefined) {
+        // No global given (the signature of globalDeprecatedByAlternative
+        // changed in Komodo 9.0.0a1): warn now, since we can't actually attach
+        // the global variable getter.
+        if (!logger) {
+            logger = getLogger("");
+        }
+        logger.deprecated("globalDeprecatedByAlternative: can't added deprecated " +
+                          "getter for " + deprecatedName + ": global not provided.\n\t" +
+                          "Use " + replacementName + " instead.", false, 1);
+        return;
+    }
+    Object.defineProperty(global, deprecatedName, {get:
          function() {
             // Get the caller of the deprecated item - 2 levels up.
             var shortStack = "    " + getStack().split("\n")[2];
@@ -187,7 +233,7 @@ this.globalDeprecatedByAlternative = function ko_logging_globalDeprecatedByAlter
             if (!(marker in _gSeenDeprectatedMsg)) {
                 _gSeenDeprectatedMsg[marker] = true;
                 if (!logger) {
-                    logger = ko.logging.getLogger("");
+                    logger = getLogger("");
                 }
                 logger.warn("DEPRECATED: "
                                            + deprecatedName
@@ -199,7 +245,7 @@ this.globalDeprecatedByAlternative = function ko_logging_globalDeprecatedByAlter
                                            );
             }
             return eval(replacementName);
-        });
+        }, enumerable: true, configurable: true});
 };
 
 /**
@@ -211,16 +257,17 @@ this.globalDeprecatedByAlternative = function ko_logging_globalDeprecatedByAlter
  * @param replacementName {string}  An expression to get the replacement; |this| is the object
  * @param logger {Logger}  The logger to use (from ko.logging.getLogger), or null to use the default
  */
-this.propertyDeprecatedByAlternative = function ko_logging_propertyDeprecatedByAlternative(object, deprecatedName, replacementName, logger) {
-    object.__defineGetter__(deprecatedName,
-         function() {
+exports.propertyDeprecatedByAlternative =
+function(object, deprecatedName, replacementName, logger) {
+    Object.defineProperty(object, deprecatedName, {
+        get: function() {
             // Get the caller of the deprecated item - 2 levels up.
             var shortStack = "    " + getStack().split("\n")[2];
             var marker = deprecatedName + shortStack;
             if (!(marker in _gSeenDeprectatedMsg)) {
                 _gSeenDeprectatedMsg[marker] = true;
                 if (!logger) {
-                    logger = ko.logging.getLogger("");
+                    logger = getLogger("");
                 }
                 logger.warn("DEPRECATED: "
                                            + object
@@ -234,45 +281,47 @@ this.propertyDeprecatedByAlternative = function ko_logging_propertyDeprecatedByA
                                            );
             }
             return (function() eval(replacementName)).call(object);
-        });
+        }
+    });
 };
 
 
-this.Logger.prototype.error = function(message, noTraceback /* false */) {
+Logger.prototype.error = function(message, noTraceback=false) {
     try {
-        if (this._logger.getEffectiveLevel() <= LOG_ERROR) {
+        if (this.isEnabledFor(LOG_ERROR)) {
             if (!noTraceback) {
-                message += "Traceback from ERROR in '" +
-                           this._logger_name + "' logger:\n    " +
-                           getStack().replace('\n', '\n    ', 'g').slice(0, -4);
+                message = String(message).replace(/\n$/, "") +
+                          "\nTraceback from ERROR in '" +
+                          this._logger_name + "' logger:\n    " +
+                          getStack().replace('\n', '\n    ', 'g').slice(0, -4);
             }
             this._logger.error(message);
         }
     } catch(ex) {
         dump("*** Error in logger.error: "+ex+"\n");
     }
-}
+};
 
-this.Logger.prototype.critical = function(message) {
+Logger.prototype.critical = function(message) {
     try {
-        if (this._logger.getEffectiveLevel() <= LOG_CRITICAL) {
+        if (this.isEnabledFor(LOG_CRITICAL)) {
             this._logger.critical(message);
         }
     } catch(ex) {
         dump("*** Error in logger.critical: "+ex+"\n");
     }
-}
+};
 
 
-this.Logger.prototype.exception = function(e, message) {
+Logger.prototype.exception = function(e, message="") {
     try {
-        if (this._logger.getEffectiveLevel() <= LOG_ERROR) {
+        if (this.isEnabledFor(LOG_ERROR)) {
             var objDump = getObjectTree(e,1);
             if (typeof(e) == 'object' && 'stack' in e && e.stack) {
                 objDump += '+ stack\n    ' +
                            e.stack.toString().replace('\n', '\n    ', 'g').slice(0, -4);
             }
-            if (typeof(message)=='undefined' || !message)
+            if (!message)
                 message='';
             this.error(message+'\n' +
                        '-- EXCEPTION START --\n' +
@@ -290,15 +339,8 @@ this.Logger.prototype.exception = function(e, message) {
     }
 }
 
-function getStack(skipCount)
+const getStack = exports.getStack = function(skipCount=0)
 {
-    if (!((typeof Components == "object") &&
-          (typeof Components.classes == "object")))
-        return "No stack trace available.";
-    if (typeof(skipCount) == 'undefined') {
-        skipCount = 0;
-    }
-
     var frame = Components.stack.caller;
     var str = "<top>";
 
@@ -317,9 +359,8 @@ function getStack(skipCount)
 
     return str+"\n";
 }
-this.getStack = getStack;
 
-this.dumpStack = function() {
+exports.dumpStack = function() {
     dump("Stack:\n" + getStack().replace('\n', '\n    ', 'g').slice(0, -4));
 }
 
@@ -341,13 +382,12 @@ this.dumpStack = function() {
  * + getUsersLength (function) 9 lines
  * *
  */
-this.dumpObjectTree = function dumpObjectTree(o, recurse, compress, level)
+exports.dumpObjectTree = function(o, recurse, compress, level)
 {
-    dump(this.getObjectTree(o, recurse, compress, level));
+    dump(getObjectTree(o, recurse, compress, level));
 }
 
-function getObjectTree(o, recurse, compress, level)
-{
+const getObjectTree = exports.getObjectTree = function(o, recurse, compress, level) {
     var s = "";
     var pfx = "";
 
@@ -420,49 +460,40 @@ function getObjectTree(o, recurse, compress, level)
 
     return s;
 }
-this.getObjectTree = getObjectTree;
 
-function dumpDOM(node, level, recursive) {
-  if (!this._repeatStr) {
-    this._repeatStr= function _repeatStr(str, aCount) {
-        var res = "";
-        while (--aCount >= 0)
-          res += str;
-        return res;
-     };
-  };
-
-  if (level == undefined) {
-    level = 0
-  }
-  if (recursive == undefined) {
-    recursive = true;
-  }
-
-  dump(this._repeatStr(" ", 2*level) + "<" + node.nodeName + "\n");
+const dumpDOM = exports.dumpDOM = function(node, level=0, recursive=true) {
+  dump(" ".repeat(2*level) + "<" + node.nodeName + "\n");
   var i;
   if (node.nodeType == 3) {
-      dump(this._repeatStr(" ", (2*level) + 4) + node.nodeValue + "'\n");
+      dump(" ".repeat((2*level) + 4) + node.nodeValue + "'\n");
   } else {
     if (node.attributes) {
       for (i = 0; i < node.attributes.length; i++) {
-        dump(this._repeatStr(" ", (2*level) + 4) + node.attributes[i].nodeName + "='" + node.attributes[i].nodeValue + "'\n");
+        dump(" ".repeat((2*level) + 4) +
+             node.attributes[i].nodeName +
+             "='" +
+             node.attributes[i].nodeValue +
+             "'\n");
       }
     }
     if (node.childNodes.length == 0) {
-      dump(this._repeatStr(" ", (2*level)) + "/>\n");
-    } else if (recursive) {
-      dump(this._repeatStr(" ", (2*level)) + ">\n");
-      for (i = 0; i < node.childNodes.length; i++) {
-        dumpDOM(node.childNodes[i], level + 1);
+      dump(" ".repeat(2*level) + "/>\n");
+    } else {
+      dump(" ".repeat(2*level) + ">\n");
+      if (recursive) {
+        for (i = 0; i < node.childNodes.length; i++) {
+          dumpDOM(node.childNodes[i], level + 1);
+        }
+      } else {
+        dump(" ".repeat(2*level + 2) + "...\n");
       }
-      dump(this._repeatStr(" ", 2*level) + "</" + node.nodeName + ">\n");
+      dump(" ".repeat(2*level) +
+           "</" + node.nodeName + ">\n");
     }
   }
 }
-this.dumpDOM = dumpDOM;
 
-this.dumpEvent = function dumpEvent(event)
+exports.dumpEvent = function(event)
 {
     dump('-EVENT DUMP--------------------------\n');
     dump('type:           '+event.type+'\n');
@@ -522,8 +553,9 @@ this.dumpEvent = function dumpEvent(event)
         }
     }
     dump('-------------------------------------\n');
-}
-this.strObject = function strObject(o, name)
+};
+
+const strObject = exports.strObject = function(o, name)
 {
     var s = "";
     if (typeof(name) == 'undefined') name = 'Object';
@@ -536,18 +568,17 @@ this.strObject = function strObject(o, name)
     }
     return s;
 }
-this.dumpObject = function dumpObject(o, name)
+exports.dumpObject = function(o, name)
 {
-    dump(this.strObject(o, name));
+    dump(strObject(o, name));
 }
 
 
 /** Based on snippet by "Amos Batto", http://stackoverflow.com/a/11315561/490321 **/
-this.dumpMixed = function(v, maxRecursion /* 2 */, parentProperties /* true */, recursionLevel)
+const dumpMixed = exports.dumpMixed =
+function(v, maxRecursion=2, parentProperties=true, recursionLevel=0)
 {
     recursionLevel = (typeof recursionLevel !== 'number') ? 0 : recursionLevel;
-    maxRecursion = maxRecursion === undefined ? 2 : maxRecursion;
-    parentProperties = parentProperties === undefined ? true : parentProperties;
 
     var vType = typeof v;
     var out = vType;
@@ -576,10 +607,10 @@ this.dumpMixed = function(v, maxRecursion /* 2 */, parentProperties /* true */, 
             else if (Object.prototype.toString.call(v) === '[object Array]') {
                 out = 'array(' + v.length + '): {\n';
                 for (var i = 0; i < v.length; i++) {
-                    out += repeatString('   ', recursionLevel) + "   [" + i + "]:  " + 
-                        ko.logging.dumpMixed(v[i], maxRecursion, parentProperties, recursionLevel + 1) + "\n";
+                    out += '   '.repeat(recursionLevel) + "   [" + i + "]:  " +
+                        dumpMixed(v[i], maxRecursion, parentProperties, recursionLevel + 1) + "\n";
                 }
-                out += repeatString('   ', recursionLevel) + "}";
+                out += '   '.repeat(recursionLevel) + "}";
             }
             else { //if object
                 var sContents = "{\n";
@@ -590,15 +621,15 @@ this.dumpMixed = function(v, maxRecursion /* 2 */, parentProperties /* true */, 
                         //No way to know the original data type of member, since JS
                         //always converts it to a string and no other way to parse objects.
                         try {
-                            sContents += repeatString('   ', recursionLevel) + "   " + member +
-                                ":  " + ko.logging.dumpMixed(v[member], maxRecursion, parentProperties, recursionLevel + 1) + "\n";
+                            sContents += '   '.repeat(recursionLevel) + "   " + member +
+                                ":  " + dumpMixed(v[member], maxRecursion, parentProperties, recursionLevel + 1) + "\n";
                         } catch(e) {
                             sContents += "<error parsing value: "+e.message+">";
                         }
                         cnt++;
                     }
                 }
-                sContents += repeatString('   ', recursionLevel) + "}";
+                sContents += '   '.repeat(recursionLevel) + "}";
                 out += "(" + cnt + "): " + sContents;
             }
             break;
@@ -609,39 +640,25 @@ this.dumpMixed = function(v, maxRecursion /* 2 */, parentProperties /* true */, 
 	
     if (recursionLevel == 0)
     {
-            ko.logging.dumpImportant(out, "Mixed Dump");
+            dumpImportant(out, "Mixed Dump");
     }
     
     return out;
 }
 
-/* repeatString() returns a string which has been repeated a set number of times */ 
-function repeatString(str, num) {
-    var out = '';
-    for (var i = 0; i < num; i++) {
-        out += str; 
-    }
-    return out;
-}
-
-this.dumpString = function(string)
+const dumpString = exports.dumpString = function(string)
 {
 	dump("\n" + string + "\n");
 }
 
-this.dumpImportant = function(string, name)
+const dumpImportant = exports.dumpImportant = function(string, name="IMPORTANT")
 {
-	if (name === undefined)
-	{
-		name = "IMPORTANT";
-	}
-	
-	ko.logging.dumpString("--[START "+name+"]------------------------------------");
+	dumpString("--[START "+name+"]------------------------------------");
 	dump(string);
-	ko.logging.dumpString("--[END  "+name+"]------------------------------------");
+	dumpString("--[END  "+name+"]------------------------------------");
 }
 
-this.dumpView = function dumpView(view) {
+exports.dumpView = function(view) {
     // Dump some interesting information about the current view.
     dump("\n--------------------------------------\n");
     try {
@@ -658,8 +675,8 @@ this.dumpView = function dumpView(view) {
             var type = view.getAttribute("type");
             dump("view type: '"+type+"'\n");
             if (type == "editor") {
-                var sciUtilsSvc = Components.classes["@activestate.com/koSciUtils;1"].
-                                  getService(Components.interfaces.koISciUtils);
+                var sciUtilsSvc = Cc["@activestate.com/koSciUtils;1"]
+                                    .getService(Ci.koISciUtils);
                 var language = view.scintilla.language;
                 dump("language: "+language+"\n");
                 var scimoz = view.scimoz;
@@ -685,37 +702,36 @@ this.dumpView = function dumpView(view) {
             dump("view is null\n");
         }
     } catch(ex) {
-        log.exception(ex, "error dumping view");
+        getLogger("").exception(ex, "error dumping view");
     }
     dump("--------------------------------------\n");
 }
 
-this.LoggingMgr = function LoggingMgr() {
+const LoggingMgr = exports.LoggingMgr = function() {
     this.LoggerMap = {}
-    this.loggingSvc = Components.classes["@activestate.com/koLoggingService;1"].
-                    getService(Components.interfaces.koILoggingService);
+    this.loggingSvc = Cc["@activestate.com/koLoggingService;1"]
+                        .getService(Ci.koILoggingService);
 
     this.getLogger = function(logger_name) {
-        if (logger_name in this.LoggerMap) {
-            return this.LoggerMap[logger_name];
+        if (!(logger_name in this.LoggerMap)) {
+            var logger = this.loggingSvc.getLogger(logger_name);
+            this.LoggerMap[logger_name] = new Logger(logger, logger_name);
         }
-        var logger = this.loggingSvc.getLogger(logger_name);
-        this.LoggerMap[logger_name] = new ko.logging.Logger(logger, logger_name);
         return this.LoggerMap[logger_name];
     }
 }
 
 // Use this function to always get the logging manager
 // (which may not be a global in your namespace)
-this.getLoggingMgr = function getLoggingMgr() {
+const getLoggingMgr = exports.getLoggingMgr = function() {
     if (!_gLoggingMgr) {
-        _gLoggingMgr = new ko.logging.LoggingMgr();
+        _gLoggingMgr = new LoggingMgr();
     }
     return _gLoggingMgr;
 }
 
-this.getLogger = function getLogger(logger_name) {
-    return this.getLoggingMgr().getLogger(logger_name);
+const getLogger = exports.getLogger = function(logger_name) {
+    return getLoggingMgr().getLogger(logger_name);
 }
-}).apply(ko.logging);
 
+})();

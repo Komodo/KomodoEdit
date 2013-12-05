@@ -7,9 +7,10 @@
  * This is used to load the commonjs-style modules.
  */
 
-(function() {
+const [JetPack, require] = (function() {
+    var ko = this.ko || {};
     const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-    const {Services} = Cu.import("resource://gre/modules/Services.jsm");
+    const { Services } = Cu.import("resource://gre/modules/Services.jsm", {});
     const { main, Loader, resolve, resolveURI } =
         Cu.import('resource://gre/modules/commonjs/toolkit/loader.js', {}).Loader;
 
@@ -38,12 +39,15 @@
         return resolve(id, requirer);
     };
 
-
-    const globals = {
-        ko: ko,
-        window: window,
-        document: document,
-    };
+    var globals = { ko: ko };
+    if (String(this).contains("Window")) {
+        // Have a window scope available
+        globals.window = window;
+        globals.document = document;
+    } else if (String(this).contains("BackstagePass")) {
+        // Being loaded via Components.utils.import
+        this.EXPORTED_SYMBOLS = ["require", "JetPack"];
+    }
     // Note that "paths" is required; _something_ needs to name the modules
     const paths = {
         // Resolving things to ko.* via the custom resolver...
@@ -57,12 +61,11 @@
                      paths: paths,
                      globals: globals});
 
-    const global = Cu.getGlobalForObject({});
-    Object.defineProperty(global, "JetPack", {value: {
+    const JetPack = {
         defineLazyProperty: (object, property, id) => {
-            function JetPack_LazyProperty() {
+            const JetPack_LazyProperty = () => {
                 delete object[property];
-                return object[property] = require(id);
+                return object[property] = require.call(this, id);
             }
             Object.defineProperty(object, property, {
                 get: JetPack_LazyProperty,
@@ -70,21 +73,29 @@
                 enumerable: true
             });
         },
-        defineDeprecatedProperty: (object, property, id) => {
-            function JetPack_DeprecatedProperty() {
-                if ("logging" in ko) {
-                    let objName = String(object);
-                    if (object === ko) {
-                        // Common case is ko.foo -> require("ko/foo")
-                        objName = "ko";
+        defineDeprecatedProperty: (object, property, id, options={}) => {
+            let objName = (object === ko) ? "ko" : String(object);
+            let deprecatedMessage = objName + "." + property +
+                ' has been converted to a CommonJS module;' +
+                ' use require("' + id + '") instead.';
+            if ("since" in options) {
+                deprecatedMessage = deprecatedMessage.replace(/\.$/, "") +
+                                    " (since Komodo " + options.since + ").";
+            }
+            const JetPack_DeprecatedProperty = () => {
+                if (id !== "ko/logging") {
+                    let logging = require("ko/logging");
+                    if (logging) {
+                        logging.getLogger("")
+                               .deprecated(deprecatedMessage, false, 2);
                     }
-                    ko.logging.getLogger("")
-                      .deprecated(objName + "." + property +
-                                  ' has been converted to a CommonJS module;' +
-                                  ' use require("' + id + '") instead.');
                 }
                 delete object[property];
-                return object[property] = require(id);
+                let result = object[property] = require.call(this, id);
+                if (id === "ko/logging" && result) {
+                    result.getLogger("").deprecated(deprecatedMessage, false, 2);
+                }
+                return result;
             }
             Object.defineProperty(object, property, {
                 get: JetPack_DeprecatedProperty,
@@ -92,24 +103,24 @@
                 enumerable: true
             });
         }
-    }, enumerable: true});
+    };
 
-    Object.defineProperty(global, "require", {value:
-        function(id) {
-            try {
-                let uri = resolveURI(id, loader.mapping)
-                if (uri in loader.modules) {
-                    // Module already loaded; don't load it again
-                    return loader.modules[uri].exports;
-                }
-                // Load the module for the first time
-                return main(loader, id);
-            } catch (ex) {
-                Cu.reportError(ex);
-                throw ex;
+    const require = function(id) {
+        try {
+            let uri = resolveURI(id, loader.mapping)
+            if (uri in loader.modules) {
+                // Module already loaded; don't load it again
+                return loader.modules[uri].exports;
             }
-            return null;
-        },
-        enumerable: true});
+            // Load the module for the first time
+            return main(loader, id);
+        } catch (ex) {
+            Cu.reportError('While trying to require("' + id + '"):');
+            Cu.reportError(ex);
+            throw ex;
+        }
+        return null;
+    };
 
+    return [JetPack, require];
 })();

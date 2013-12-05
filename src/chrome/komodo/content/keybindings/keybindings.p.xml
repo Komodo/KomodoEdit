@@ -424,7 +424,7 @@
                     <![CDATA[
                     dump("this.currentkey = " + this.currentkey.value + '\n');
                     dump("this.keyname = " + this.keyname+ '\n');
-                    logging_dumpDOM(this.currentkey);
+                    ko.logging.dumpDOM(this.currentkey);
                     ]]>
                 </body>
             </method>

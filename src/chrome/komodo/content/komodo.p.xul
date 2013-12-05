@@ -81,6 +81,18 @@
         fullscreenbutton="true"
         >
 	
+    <script type="application/x-javascript;version=1.8">
+        if (typeof(ko) === "undefined") {
+            this.ko = {};
+        }
+        // Jetpack must be loaded after window.ko has been created (so that it
+        // knows how to get things into the right scope, for backwards compat)
+        Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+                  .getService(Components.interfaces.mozIJSSubScriptLoader)
+                  .loadSubScript("chrome://komodo/content/jetpack.js");
+        JetPack.defineDeprecatedProperty(ko, "logging", "ko/logging", {since: "9.0.0a1"});
+        JetPack.defineDeprecatedProperty(ko, "printing", "ko/printing", {since: "9.0.0a1"});
+    </script>
 	
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <!--Mozilla sources-->
@@ -98,7 +110,6 @@
     <!-- "komodo.js" must be the first Komodo .js file included so that its
          top-level code can be sure that it is run first. -->
     <script src="chrome://komodo/content/library/prefs.js"                type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/logging.js"              type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/komodo.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/timers.js"               type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dragdrop.js"             type="application/x-javascript;version=1.7"/>
@@ -174,8 +185,6 @@
     <script src="chrome://komodo/content/hyperlinks/filehandler.js"       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/hyperlinks/csscolorpicker.js"    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/hyperlinks/gotodefinition.js"    type="application/x-javascript;version=1.7"/>
-
-    <script src="chrome://komodo/content/jetpack.js"                      type="application/x-javascript;version=1.8"/>
 
     <!-- This is used by the view editor for displaying
          scintilla tooltips -->
