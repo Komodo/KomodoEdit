@@ -84,7 +84,7 @@ KoJSTestService.prototype.QueryInterface = XPCOMUtils.generateQI([Ci.koIJSTestSe
  * thing to expose to python.
  */
 function KoJSTestCase(aClassName, aClass) {
-    this.name = aClassName.replace(/^Test/, "");
+    this.name = (aClass.__name__ || aClassName).replace(/^Test/, "");
     this.clazz = aClass;
 }
 KoJSTestCase.prototype.getTestNames = function KoJSTestCase_getTestNames(aCount) {

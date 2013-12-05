@@ -67,6 +67,7 @@ if (typeof(require) === "function") {
     // (This is now the preferred way to load this)
     this.Components = require("chrome").components; // for Components.stack
     var { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+    exports.__method__ = "require"; // For unit testing
 } else if (typeof(window) !== "undefined") {
     // This is being loaded in a window; make sure we have the jetpack loader,
     // and define ko.logging as a lazy property
@@ -80,6 +81,9 @@ if (typeof(require) === "function") {
         this.ko = {};
     }
     JetPack.defineLazyProperty(ko, "logging", "ko/logging", true);
+    if (window && window.__is_unit_test__) {
+        window.__method__ = "window"; // For unit testing
+    }
     return;
 } else {
     // This is being loaded in a JS component or a JS module; export a "logging"
@@ -88,6 +92,7 @@ if (typeof(require) === "function") {
     // Note that Cu.getGlobalForObject({}) gives us the wrong global...
     this.EXPORTED_SYMBOLS = ["logging"];
     this.logging = this.exports = {};
+    this.exports.__method__ = "import"; // For unit testing
 }
 
 var _gLoggingMgr = null;

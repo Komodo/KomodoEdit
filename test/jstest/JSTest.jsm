@@ -163,6 +163,13 @@ TestCase.prototype.assertIn = function TestCase_assertIn(prop, obj, msg) {
     }
     log.debug("PASS: " + msg);
 };
+TestCase.prototype.assertNotIn = function TestCase_assertNotIn(prop, obj, msg) {
+    if (prop in obj) {
+        throw new TestError((msg || "assertNotIn") + ": " + prop + " not in " + obj,
+                            "AssertNotIn");
+    }
+    log.debug("PASS: " + msg);
+};
 TestCase.prototype.assertGreater = function TestCase_assertGreater(first, second, msg) {
     if (!(first > second)) {
         throw new TestError((msg || "assertGreater") + ": " + first + " > " + second,
