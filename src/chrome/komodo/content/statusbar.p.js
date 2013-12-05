@@ -1032,9 +1032,7 @@ window.QueryInterface(Ci.nsIInterfaceRequestor)
 
 }).apply(ko.statusBar);
 
-
 /**
- * @deprecated since 7.0
+ * @deprecated since 7.0, but kept around because it's common in macros
  */
-ko.logging.globalDeprecatedByAlternative("StatusBar", "ko.statusBar");
-ko.logging.globalDeprecatedByAlternative("StatusBar_AddMessage", "ko.statusBar.AddMessage");
+ko.logging.globalDeprecatedByAlternative("StatusBar_AddMessage", "ko.statusBar.AddMessage", null, this);

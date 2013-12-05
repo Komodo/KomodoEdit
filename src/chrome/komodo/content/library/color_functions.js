@@ -36,11 +36,3 @@
 
 // backwards compatibility APIs
 xtk.include("color");
-
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative("rgb", "xtk.color");
-ko.logging.globalDeprecatedByAlternative("RGB", "xtk.color.RGB");
-ko.logging.globalDeprecatedByAlternative("hexColorToLong", "xtk.color.hexColorToLong");
-

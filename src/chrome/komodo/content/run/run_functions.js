@@ -780,11 +780,3 @@ this.canClose = function Run_CanClose()
 }
 
 }).apply(ko.run);
-
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative("Run_BuildRecentCommandsMenu", "ko.run.buildRecentCommandsMenu");
-ko.logging.globalDeprecatedByAlternative("Run_RunEncodedCommand", "ko.run.runEncodedCommand");
-ko.logging.globalDeprecatedByAlternative("Run_RunCommand", "ko.run.runCommand");
-ko.logging.globalDeprecatedByAlternative("Run_CanClose", "ko.run.canClose");

@@ -553,16 +553,3 @@ this.manageMRUList = function(prefName) {
 
 }).apply(ko.mru);
 
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative("MRU_initialize", "ko.mru.initialize");
-ko.logging.globalDeprecatedByAlternative("MRU_maxEntries", "ko.mru.maxEntries");
-ko.logging.globalDeprecatedByAlternative("MRU_add", "ko.mru.add");
-ko.logging.globalDeprecatedByAlternative("MRU_addURL", "ko.mru.addURL");
-ko.logging.globalDeprecatedByAlternative("MRU_addFromACTextbox", "ko.mru.addFromACTextbox");
-ko.logging.globalDeprecatedByAlternative("MRU_get", "ko.mru.get");
-ko.logging.globalDeprecatedByAlternative("MRU_del", "ko.mru.del");
-ko.logging.globalDeprecatedByAlternative("MRU_reset", "ko.mru.reset");
-ko.logging.globalDeprecatedByAlternative("MRU_getAll", "ko.mru.getAll");
-

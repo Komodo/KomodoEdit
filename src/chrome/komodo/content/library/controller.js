@@ -159,8 +159,3 @@ window.controllers.appendController(new broadcasterController());
 
 
 }).apply();
-
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative("Controller", "xtk.Controller");

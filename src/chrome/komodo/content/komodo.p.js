@@ -528,10 +528,7 @@ window.openDialog = function openDialogNotSheet() {
 
 }).apply(ko.mozhacks);
 
-
 /**
- * @deprecated since 7.0
+ * @deprecated since 7.0, but kept around because it's common in macros
  */
-ko.logging.globalDeprecatedByAlternative('gPrefSvc', 'Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService)');
-ko.logging.globalDeprecatedByAlternative("gPrefs", "ko.prefs");
-ko.logging.globalDeprecatedByAlternative("log", "ko.logging.getLogger('')");
+ko.logging.globalDeprecatedByAlternative("gPrefs", "ko.prefs", null, this);

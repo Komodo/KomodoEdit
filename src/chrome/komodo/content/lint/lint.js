@@ -736,13 +736,3 @@ this.initializeGenericPrefs = function(prefset) {
 }).apply(ko.lint);
 
 window.addEventListener('komodo-ui-started', ko.lint.initializeGenericPrefs, false);
-
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative("LintBuffer", "ko.lint.lintBuffer");
-ko.logging.globalDeprecatedByAlternative("lint_jumpToNextLintResult", "ko.lint.jumpToNextLintResult");
-ko.logging.globalDeprecatedByAlternative("lint_doRequest", "ko.lint.doRequest");
-ko.logging.globalDeprecatedByAlternative("lint_clearResults", "ko.lint.clearResults");
-ko.logging.globalDeprecatedByAlternative("lint_doClick", "ko.lint.doClick");
-

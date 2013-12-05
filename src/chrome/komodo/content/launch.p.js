@@ -690,20 +690,3 @@ this.finish = function()
 
 }).apply(ko.inputBuffer);
 }
-
-
-
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative("launch_LanguageHelp", "ko.help.language");
-ko.logging.globalDeprecatedByAlternative("launch_AlternateLanguageHelp", "ko.help.alternate");
-ko.logging.globalDeprecatedByAlternative("launch_MainHelp", "ko.help.open");
-
-ko.logging.globalDeprecatedByAlternative("launch_openAddonsMgr", "ko.launch.openAddonsMgr");
-ko.logging.globalDeprecatedByAlternative("launch_watchLocalFile", "ko.launch.watchLocalFile");
-ko.logging.globalDeprecatedByAlternative("launch_DiffWindow", "ko.launch.diff");
-ko.logging.globalDeprecatedByAlternative("launch_Find", "ko.launch.find");
-ko.logging.globalDeprecatedByAlternative("launch_Replace", "ko.launch.replace");
-ko.logging.globalDeprecatedByAlternative("launch_RunCommand", "ko.launch.runCommand");
-ko.logging.globalDeprecatedByAlternative("launch_FindInFiles", "ko.launch.findInFiles");

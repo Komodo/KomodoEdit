@@ -275,14 +275,3 @@ this.doCommand = function command_doCommand(command, options) {
     return rc;
 }
 }).apply(ko.commands);
-
-
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative("command_doCommand", "ko.commands.doCommand");
-ko.logging.globalDeprecatedByAlternative("command_doCommandAsync", "ko.commands.doCommandAsync");
-ko.logging.globalDeprecatedByAlternative("command_updateCommandset", "ko.commands.updateCommandset");
-ko.logging.globalDeprecatedByAlternative("command_doCode", "ko.commands.doCode");
-ko.logging.globalDeprecatedByAlternative("command_doCodeAsync", "ko.commands.doCodeAsync");
-

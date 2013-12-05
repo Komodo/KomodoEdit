@@ -170,9 +170,3 @@ this.progress = function dialog_progress(processor,
 }
 
 }).apply(ko.dialogs);
-
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative("dialog_progress", "ko.dialogs.progress");
-ko.logging.globalDeprecatedByAlternative("dialog_pickPreview", "ko.dialogs.pickPreview");

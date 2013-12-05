@@ -1500,12 +1500,3 @@ ko.codeintel = {};
 }).apply(ko.codeintel);
 
 window.addEventListener("load", ko.codeintel.initialize, false);
-
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative('gCodeIntelSvc', 'Components.classes["@activestate.com/koCodeIntelService;1"].getService(Components.interfaces.koICodeIntelService)');
-ko.logging.globalDeprecatedByAlternative("gCodeIntelActive", "ko.codeintel.isActive");
-ko.logging.globalDeprecatedByAlternative("CodeIntel_InitializeWindow", "ko.codeintel.initialize");
-ko.logging.globalDeprecatedByAlternative("CodeIntel_FinalizeWindow", "ko.codeintel.finalize");
-ko.logging.globalDeprecatedByAlternative("CodeIntelCompletionUIHandler", "ko.codeintel.CompletionUIHandler");

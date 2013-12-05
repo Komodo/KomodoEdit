@@ -1168,17 +1168,3 @@ this.getExistingDirFromPathOrPref = function getExistingDirFromPath(path, label)
 };
 
 }).apply(ko.filepicker);
-
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative("filepicker_openFile", "ko.filepicker.openFile");
-ko.logging.globalDeprecatedByAlternative("filepicker_openExeFile", "ko.filepicker.openExeFile");
-ko.logging.globalDeprecatedByAlternative("filepicker_saveFile", "ko.filepicker.saveFile");
-ko.logging.globalDeprecatedByAlternative("filepicker_openFiles", "ko.filepicker.openFiles");
-ko.logging.globalDeprecatedByAlternative("filepicker_getFolder", "ko.filepicker.getFolder");
-ko.logging.globalDeprecatedByAlternative("filepicker_remoteFileBrowser", "ko.filepicker.remoteFileBrowser");
-ko.logging.globalDeprecatedByAlternative("filepicker_openRemoteFiles", "ko.filepicker.openRemoteFiles");
-ko.logging.globalDeprecatedByAlternative("filepicker_saveAsRemoteFiles", "ko.filepicker.saveAsRemoteFiles");
-ko.logging.globalDeprecatedByAlternative("filepicker_browseForDir", "ko.filepicker.browseForDir");
-ko.logging.globalDeprecatedByAlternative("filepicker_browseForRemoteDir", "ko.filepicker.browseForRemoteDir");

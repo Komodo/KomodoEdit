@@ -490,18 +490,3 @@ this.getMappedPath = function(path, prefs)
     return mappeduri + uri.slice(mappedpath.length);
 }
 }).apply(ko.uriparse);
-
-
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative("uriparse_addMappedURI", "ko.uriparse.addMappedURI");
-ko.logging.globalDeprecatedByAlternative("uriparse_getMappedURI", "ko.uriparse.getMappedURI");
-ko.logging.globalDeprecatedByAlternative("uriparse_localPathToURI", "ko.uriparse.localPathToURI");
-ko.logging.globalDeprecatedByAlternative("uriparse_pathToURI", "ko.uriparse.pathToURI");
-ko.logging.globalDeprecatedByAlternative("uriparse_URIToLocalPath", "ko.uriparse.URIToLocalPath");
-ko.logging.globalDeprecatedByAlternative("uriparse_displayPath", "ko.uriparse.displayPath");
-ko.logging.globalDeprecatedByAlternative("uriparse_baseName", "ko.uriparse.baseName");
-ko.logging.globalDeprecatedByAlternative("uriparse_dirName", "ko.uriparse.dirName");
-ko.logging.globalDeprecatedByAlternative("uriparse_ext", "ko.uriparse.ext");
-ko.logging.globalDeprecatedByAlternative("uriparse_fixupURI", "ko.uriparse.fixupURI");

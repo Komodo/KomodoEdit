@@ -1030,13 +1030,3 @@ this.nextResult = function FindResultsTab_NextResult()
 
 
 }).apply(ko.findresults);
-
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative("FindResultsTab_GetTab", "ko.findresults.getTab");
-ko.logging.globalDeprecatedByAlternative("FindResultsTab_GetManager", "ko.findresults.getManager");
-ko.logging.globalDeprecatedByAlternative("_FindResultsTab_Create", "ko.findresults.create");
-ko.logging.globalDeprecatedByAlternative("FindResultsTabManager", "ko.findresults.FindResultsTabManager");
-ko.logging.globalDeprecatedByAlternative("FindResultsTab_NextResult", "ko.findresults.nextResult");
-ko.logging.globalDeprecatedByAlternative("_gFindResultsTab_managers", "ko.findresults.managers");

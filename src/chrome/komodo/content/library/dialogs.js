@@ -1034,22 +1034,3 @@ this.renameFileWrapper = function(currentName) {
 }
 
 }).apply(ko.dialogs);
-
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative("dialog_yesNoCancel", "ko.dialogs.yesNoCancel");
-ko.logging.globalDeprecatedByAlternative("dialog_yesNo", "ko.dialogs.yesNo");
-ko.logging.globalDeprecatedByAlternative("dialog_okCancel", "ko.dialogs.okCancel");
-ko.logging.globalDeprecatedByAlternative("dialog_customButtons", "ko.dialogs.customButtons");
-ko.logging.globalDeprecatedByAlternative("dialog_alert", "ko.dialogs.alert");
-ko.logging.globalDeprecatedByAlternative("dialog_prompt", "ko.dialogs.prompt");
-ko.logging.globalDeprecatedByAlternative("dialog_prompt2", "ko.dialogs.prompt2");
-ko.logging.globalDeprecatedByAlternative("dialog_authenticate", "ko.dialogs.authenticate");
-ko.logging.globalDeprecatedByAlternative("dialog_authenticate2", "ko.dialogs.authenticate2");
-ko.logging.globalDeprecatedByAlternative("dialog_selectFromList", "ko.dialogs.selectFromList");
-ko.logging.globalDeprecatedByAlternative("dialog_editEnvVar", "ko.dialogs.editEnvVar");
-ko.logging.globalDeprecatedByAlternative("dialog_internalError", "ko.dialogs.internalError");
-ko.logging.globalDeprecatedByAlternative("dialogs_handleEnterKey", "ko.dialogs.handleEnterKey");
-ko.logging.globalDeprecatedByAlternative("dialog_pickIcon", "ko.dialogs.pickIcon");
-ko.logging.globalDeprecatedByAlternative("dialog_centerWindowOnScreen", "ko.dialogs.centerWindowOnScreen");

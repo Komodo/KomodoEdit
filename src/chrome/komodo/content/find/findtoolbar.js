@@ -354,14 +354,3 @@ this.initialize = function findtoolbar_onload()
 }).apply(ko.findtoolbar);
 
 window.addEventListener("load", ko.findtoolbar.initialize, false);
-
-/**
- * @deprecated since 7.0
- */
-ko.logging.globalDeprecatedByAlternative("Findtoolbar_OpenTextboxKeyPress", "ko.findtoolbar.openTextboxKeyPress");
-ko.logging.globalDeprecatedByAlternative("Findtoolbar_FindTextboxKeyPress", "ko.findtoolbar.findTextboxKeyPress");
-ko.logging.globalDeprecatedByAlternative("Findtoolbar_FindFilesOnFocus", "ko.findtoolbar.findFilesOnFocus");
-ko.logging.globalDeprecatedByAlternative("Findtoolbar_FindFilesKeyPress", "ko.findtoolbar.findFilesKeyPress");
-ko.logging.globalDeprecatedByAlternative("Findtoolbar_GotoOpenTextbox", "ko.findtoolbar.gotoOpenTextbox");
-ko.logging.globalDeprecatedByAlternative("Findtoolbar_GotoFindTextbox", "ko.findtoolbar.gotoFindTextbox");
-ko.logging.globalDeprecatedByAlternative("Findtoolbar_AddBrowsedDirectory", "ko.findtoolbar.addBrowsedDirectory");
