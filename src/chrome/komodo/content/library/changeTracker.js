@@ -64,7 +64,11 @@ this.ChangeTracker.prototype._deactivateObservers = function _deactivateObserver
     Services.obs.removeObserver(this, 'scheme-changed', false);
 }
 
-this.ChangeTracker.prototype.destructor = function destructor() {
+this.ChangeTracker.prototype.finalize = function finalize() {
+    if (!('onDiskTextLines' in this)) {
+        // This changeTracker was never init'ed\n");
+        return;
+    }
     if (this.prefObserverSvc) {
         this.prefObserverSvc.removeObserverForTopics(this, prefTopics.length, prefTopics);
     }

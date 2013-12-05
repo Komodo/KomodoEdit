@@ -120,7 +120,7 @@
         <property name="changeTracker">
             <setter><![CDATA[
             if (this._changeTracker) {
-                this._changeTracker.destructor();
+                this._changeTracker.finalize();
             }
             this._changeTracker = val;
             ]]></setter>
@@ -1519,6 +1519,9 @@
                 this.koDoc = oldKoDoc;
                 // And oldKoDoc.isDirty is reset, so explicitly reset it.
                 this.koDoc.isDirty = oldKoDocIsDirty;
+                // Need to reset the change-tracker
+                this.changeTracker = new ko.changeTracker.ChangeTracker(this);
+                this.changeTracker.init();
                 return false;
             }
             // Need to reset the change-tracker
