@@ -419,7 +419,7 @@ class koDocumentBase:
         # Differs from getEffectivePrefs because it queries each prefSet to see
         # if it directly contains the supplied pref. Otherwise a project that
         # doesn't set a pref can hide a file's setting, because the file happens
-        # to be a member of the file. Use with discretion
+        # to be a member of the project. Use with discretion
         docPrefset = self.prefs
         if docPrefset.hasPrefHere(prefName):
             return docPrefset
