@@ -57,8 +57,9 @@ ko.codeintel = {};
     var log = ko.logging.getLogger("codeintel.komodo.js");
     //log.setLevel(ko.logging.LOG_DEBUG);
 
-    var _codeintelSvc = Components.classes["@activestate.com/koCodeIntelService;1"]
-                              .getService(Components.interfaces.koICodeIntelService);
+    XPCOMUtils.defineLazyGetter(this, "_codeintelSvc", function()
+        Cc["@activestate.com/koCodeIntelService;1"]
+            .getService(Components.interfaces.koICodeIntelService));
 
     // ko.codeintel.isActive is true iff the Code Intel system is enabled,
     // initialized, and active.
@@ -87,13 +88,13 @@ ko.codeintel = {};
             if (_isActive) {
                 return;
             }
-            if (_codeintelSvc.isBackEndActive) {
+            if (ko.codeintel._codeintelSvc.isBackEndActive) {
                 _isActive = true;
             } else {
                 try {
                     log.debug("Attempting to activate codeintel service");
                     // bug 100448: automatically wipe db if necessary.
-                    _codeintelSvc.activate(true);
+                    ko.codeintel._codeintelSvc.activate(true);
                 } catch(ex2) {
                     log.exception(ex2);
                     var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
@@ -164,7 +165,7 @@ ko.codeintel = {};
     {
         log.debug("initialize()");
         try {
-            _codeintelSvc.addActivateCallback(_CodeIntel_activate_callback);
+            this._codeintelSvc.addActivateCallback(_CodeIntel_activate_callback);
             if (ko.prefs.getBooleanPref("codeintel_enabled")) {
                 _CodeIntel_ActivateWindow();
             } else {
@@ -191,7 +192,7 @@ ko.codeintel = {};
     {
         log.debug("finalize()");
         try {
-            _codeintelSvc.removeActivateCallback(_CodeIntel_activate_callback);
+            this._codeintelSvc.removeActivateCallback(_CodeIntel_activate_callback);
             _CodeIntel_DeactivateWindow();
             let topView = ko.views.manager.topView;
             topView.removeEventListener("click",
@@ -225,24 +226,24 @@ ko.codeintel = {};
 
     this.is_cpln_lang = function CodeIntel_is_cpln_lang(lang)
     {
-        return _codeintelSvc.is_cpln_lang(lang);
+        return this._codeintelSvc.is_cpln_lang(lang);
     }
 
     this.is_citadel_lang = function CodeIntel_is_citadel_lang(lang)
     {
-        return _codeintelSvc.is_citadel_lang(lang);
+        return this._codeintelSvc.is_citadel_lang(lang);
     }
 
     this.is_xml_lang = function CodeIntel_is_xml_lang(lang)
     {
-        return _codeintelSvc.is_xml_lang(lang);
+        return this._codeintelSvc.is_xml_lang(lang);
     }
 
     this.scan_document = function CodeIntel_scan_document(koDoc, linesAdded, forcedScan)
     {
         log.debug("scan_document()");
         try {
-            _codeintelSvc.scan_document(koDoc, linesAdded, !forcedScan);
+            this._codeintelSvc.scan_document(koDoc, linesAdded, !forcedScan);
         } catch(ex) {
             log.exception(ex);
         }
@@ -279,7 +280,7 @@ ko.codeintel = {};
             return;
         }
 
-        var ciBuf = _codeintelSvc.buf_from_koIDocument(view.koDoc);
+        var ciBuf = this._codeintelSvc.buf_from_koIDocument(view.koDoc);
         this.linkCurrentProjectWithBuffer(ciBuf);
         log.debug("Got buffer " + ciBuf);
         ciBuf.trg_from_pos(pos, true, function(trg) {
@@ -465,7 +466,7 @@ ko.codeintel = {};
                     startPos = scimoz.currentPos;
                 }
             }
-            var ciBuf = _codeintelSvc.buf_from_koIDocument(this.view.koDoc);
+            var ciBuf = this._codeintelSvc.buf_from_koIDocument(this.view.koDoc);
             ko.codeintel.linkCurrentProjectWithBuffer(ciBuf);
             // Hand off to language service to find and display.
             ciBuf.preceding_trg_from_pos(startPos, scimoz.currentPos, function(trg) {
@@ -1499,4 +1500,4 @@ ko.codeintel = {};
 
 }).apply(ko.codeintel);
 
-window.addEventListener("load", ko.codeintel.initialize, false);
+window.addEventListener("komodo-ui-started", ko.codeintel.initialize, false);
