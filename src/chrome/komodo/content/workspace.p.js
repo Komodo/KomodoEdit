@@ -51,7 +51,7 @@ this.restore = function ko_workspace_restore()
         }
     } catch(ex) {
         // Restore the workspace on error
-        _log.exception(ex);
+        log.exception(ex);
     }
 
     if (restoreWorkspace) {
