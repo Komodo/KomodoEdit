@@ -466,7 +466,7 @@ ko.codeintel = {};
                     startPos = scimoz.currentPos;
                 }
             }
-            var ciBuf = this._codeintelSvc.buf_from_koIDocument(this.view.koDoc);
+            var ciBuf = ko.codeintel._codeintelSvc.buf_from_koIDocument(this.view.koDoc);
             ko.codeintel.linkCurrentProjectWithBuffer(ciBuf);
             // Hand off to language service to find and display.
             ciBuf.preceding_trg_from_pos(startPos, scimoz.currentPos, function(trg) {
