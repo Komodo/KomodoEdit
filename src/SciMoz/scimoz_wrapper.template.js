@@ -6,6 +6,7 @@
  */
 
 const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
+Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /***********************************************************
@@ -70,6 +71,36 @@ koSciMozWrapper.prototype.__defineGetter__("text", function get_text() {
     }
     return this.__cachedText;
 });
+
+// Override things dealing with pixels to return CSS pixels instead of device
+// pixels; see bug 100492.  OSX is 72 DPI by default, Linux/Windows is 96.
+const kDefaultDPI = Services.appinfo.OS == "Darwin" ? 72 : 96;
+
+koSciMozWrapper.prototype.positionFromPoint = function(x, y) {
+    return this.__scimoz.positionFromPoint(x * this.logPixelsX / kDefaultDPI,
+                                           y * this.logPixelsY / kDefaultDPI);
+};
+koSciMozWrapper.prototype.positionFromPointClose = function(x, y) {
+    return this.__scimoz.positionFromPointClose(x * this.logPixelsX / kDefaultDPI,
+                                                y * this.logPixelsY / kDefaultDPI);
+};
+koSciMozWrapper.prototype.pointXFromPosition = function(pos) {
+    return this.__scimoz.pointXFromPosition(pos) * kDefaultDPI / this.logPixelsX;
+};
+koSciMozWrapper.prototype.pointYFromPosition = function(pos) {
+    return this.__scimoz.pointYFromPosition(pos) * kDefaultDPI / this.logPixelsY;
+};
+koSciMozWrapper.prototype.charPositionFromPoint = function(x, y) {
+    return this.__scimoz.charPositionFromPoint(x * this.logPixelsX / kDefaultDPI,
+                                               y * this.logPixelsY / kDefaultDPI);
+};
+koSciMozWrapper.prototype.charPositionFromPointClose = function(x, y) {
+    return this.__scimoz.charPositionFromPointClose(x * this.logPixelsX / kDefaultDPI,
+                                                    y * this.logPixelsY / kDefaultDPI);
+};
+koSciMozWrapper.prototype.textHeight = function(line) {
+    return this.__scimoz.textHeight(line) * kDefaultDPI / this.logPixelsY;
+};
 
 
 XPCOMUtils.defineLazyGetter(koSciMozWrapper.prototype, "_log", function() {

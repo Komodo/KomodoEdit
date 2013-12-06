@@ -367,15 +367,6 @@ public:
     NPRUNTIME_CUSTOM_METHOD(EndDrop);
     NPRUNTIME_CUSTOM_METHOD(AnnotationRemoveAtLine);
 
-    // These involve pixel coordinates; JS always uses CSS pixels, we convert
-    // them via LogPixelsY here.
-    NPRUNTIME_CUSTOM_METHOD(PositionFromPoint);
-    NPRUNTIME_CUSTOM_METHOD(PositionFromPointClose);
-    NPRUNTIME_CUSTOM_METHOD(PointXFromPosition);
-    NPRUNTIME_CUSTOM_METHOD(PointYFromPosition);
-    NPRUNTIME_CUSTOM_METHOD(CharPositionFromPoint);
-    NPRUNTIME_CUSTOM_METHOD(CharPositionFromPointClose);
-
     #undef NPRUNTIME_CUSTOM_METHOD
 protected:
   SciMozPluginInstance* mPlugin;

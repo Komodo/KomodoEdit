@@ -1614,73 +1614,6 @@ bool SciMoz::EndDrop(const NPVariant * /*args*/, uint32_t argCount, NPVariant *r
 	return NS_SUCCEEDED(rv);
 }
 
-bool SciMoz::PositionFromPoint(const NPVariant * args, uint32_t argCount, NPVariant *result) {
-	if (argCount != 2) return false;
-	if (!NPVARIANT_IS_INT32(args[0])) return false;
-	if (!NPVARIANT_IS_INT32(args[1])) return false;
-	int pos;
-	nsresult rv = PositionFromPoint(NPVARIANT_TO_INT32(args[0]),
-	                                NPVARIANT_TO_INT32(args[1]),
-	                                &pos);
-	if (NS_FAILED(rv)) return false;
-	INT32_TO_NPVARIANT(pos, *result);
-	return true;
-}
-bool SciMoz::PositionFromPointClose(const NPVariant * args, uint32_t argCount, NPVariant *result) {
-	if (argCount != 2) return false;
-	if (!NPVARIANT_IS_INT32(args[0])) return false;
-	if (!NPVARIANT_IS_INT32(args[1])) return false;
-	int pos;
-	nsresult rv = PositionFromPointClose(NPVARIANT_TO_INT32(args[0]),
-	                                     NPVARIANT_TO_INT32(args[1]),
-	                                     &pos);
-	if (NS_FAILED(rv)) return false;
-	INT32_TO_NPVARIANT(pos, *result);
-	return true;
-}
-bool SciMoz::PointXFromPosition(const NPVariant * args, uint32_t argCount, NPVariant *result) {
-	if (argCount != 1) return false;
-	if (!NPVARIANT_IS_INT32(args[0])) return false;
-	int x;
-	nsresult rv = PointXFromPosition(NPVARIANT_TO_INT32(args[0]), &x);
-	if (NS_FAILED(rv)) return false;
-	INT32_TO_NPVARIANT(x, *result);
-	return true;
-}
-bool SciMoz::PointYFromPosition(const NPVariant * args, uint32_t argCount, NPVariant *result) {
-	if (argCount != 1) return false;
-	if (!NPVARIANT_IS_INT32(args[0])) return false;
-	int y;
-	nsresult rv = PointYFromPosition(NPVARIANT_TO_INT32(args[0]), &y);
-	if (NS_FAILED(rv)) return false;
-	INT32_TO_NPVARIANT(y, *result);
-	return true;
-}
-bool SciMoz::CharPositionFromPoint(const NPVariant * args, uint32_t argCount, NPVariant *result) {
-	if (argCount != 2) return false;
-	if (!NPVARIANT_IS_INT32(args[0])) return false;
-	if (!NPVARIANT_IS_INT32(args[1])) return false;
-	int pos;
-	nsresult rv = CharPositionFromPoint(NPVARIANT_TO_INT32(args[0]),
-	                                    NPVARIANT_TO_INT32(args[1]),
-	                                    &pos);
-	if (NS_FAILED(rv)) return false;
-	INT32_TO_NPVARIANT(pos, *result);
-	return true;
-}
-bool SciMoz::CharPositionFromPointClose(const NPVariant * args, uint32_t argCount, NPVariant *result) {
-	if (argCount != 2) return false;
-	if (!NPVARIANT_IS_INT32(args[0])) return false;
-	if (!NPVARIANT_IS_INT32(args[1])) return false;
-	int pos;
-	nsresult rv = CharPositionFromPointClose(NPVARIANT_TO_INT32(args[0]),
-	                                         NPVARIANT_TO_INT32(args[1]),
-	                                         &pos);
-	if (NS_FAILED(rv)) return false;
-	INT32_TO_NPVARIANT(pos, *result);
-	return true;
-}
-
 bool SciMoz::AnnotationRemoveAtLine(const NPVariant * args, uint32_t argCount, NPVariant *result) {
 	if (argCount != 1) return false;
 	if (!NPVARIANT_IS_INT32(args[0])) return false;
@@ -1711,58 +1644,6 @@ NS_IMETHODIMP SciMoz::SetWordChars(const nsACString& wordChars) {
 NS_IMETHODIMP SciMoz::SetWordChars_backCompat(const nsACString &wordChars) {
 	return SetWordChars(wordChars);
 }
-#ifdef XP_MACOSX
-// On OSX, the default screen DPI is 72
-#define SCALE_PIXEL(arg, direction) \
-	(arg * SendEditor(SCI_GETLOGPIXELS ## direction, 0, 0) / 72)
-#else
-// On Windows and GTK, the default screen DPI is 96
-#define SCALE_PIXEL(arg, direction) \
-	(arg * SendEditor(SCI_GETLOGPIXELS ## direction, 0, 0) / 96)
-#endif
-
-NS_IMETHODIMP SciMoz::PositionFromPoint(int x, int y, int *pos) {
-	NS_ENSURE_ARG(pos);
-	*pos = SendEditor(SCI_POSITIONFROMPOINT,
-	                  SCALE_PIXEL(x, X),
-	                  SCALE_PIXEL(y, Y));
-	return NS_OK;
-}
-NS_IMETHODIMP SciMoz::PositionFromPointClose(int x, int y, int *pos) {
-	NS_ENSURE_ARG(pos);
-	*pos = SendEditor(SCI_POSITIONFROMPOINTCLOSE,
-	                  SCALE_PIXEL(x, X),
-	                  SCALE_PIXEL(y, Y));
-	return NS_OK;
-}
-NS_IMETHODIMP SciMoz::PointXFromPosition(int pos, int *x) {
-	NS_ENSURE_ARG(x);
-	int result = SendEditor(SCI_POINTXFROMPOSITION, 0, pos);
-	*x = SCALE_PIXEL(result, X);
-	return NS_OK;
-}
-NS_IMETHODIMP SciMoz::PointYFromPosition(int pos, int *y) {
-	NS_ENSURE_ARG(y);
-	int result = SendEditor(SCI_POINTYFROMPOSITION, 0, pos);
-	*y = SCALE_PIXEL(result, Y);
-	return NS_OK;
-}
-NS_IMETHODIMP SciMoz::CharPositionFromPoint(int x, int y, int *pos) {
-	NS_ENSURE_ARG(pos);
-	*pos = SendEditor(SCI_CHARPOSITIONFROMPOINT,
-	                  SCALE_PIXEL(x, X),
-	                  SCALE_PIXEL(y, Y));
-	return NS_OK;
-}
-NS_IMETHODIMP SciMoz::CharPositionFromPointClose(int x, int y, int *pos) {
-	NS_ENSURE_ARG(pos);
-	*pos = SendEditor(SCI_CHARPOSITIONFROMPOINTCLOSE,
-	                  SCALE_PIXEL(x, X),
-	                  SCALE_PIXEL(y, Y));
-	return NS_OK;
-}
-
-#undef SCALE_PIXEL
 
 // ***********************************************************************
 // *

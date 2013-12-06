@@ -30,8 +30,7 @@ manualFunctions = """
     doBraceMatch markClosed hookEvents unhookEvents getStyledText getCurLine getLine
     getStyleRange assignCmdKey clearCmdKey getTextRange charPosAtPosition
     sendUpdateCommands getWCharAt addChar buttonDown buttonUp buttonMove endDrop
-    positionFromPoint positionFromPointClose pointXFromPosition pointYFromPosition
-    charPositionFromPoint charPositionFromPointClose annotationRemoveAtLine
+    annotationRemoveAtLine
     """.split()
 """ Implemented by hand
     note: items returning strings or complex types are easier to
