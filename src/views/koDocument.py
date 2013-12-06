@@ -623,9 +623,9 @@ class koDocumentBase:
             return returnFactor, hasLongLine
         documentLineLengthThreshold_Halved = documentLineLengthThreshold / 2
         if any(line_length >= documentLineLengthThreshold for line_length in line_lengths):
-            return self._DOCUMENT_SIZE_ANY_LARGE
+            return self._DOCUMENT_SIZE_ANY_LARGE, True
         elif any(line_length >= documentLineLengthThreshold/2 for line_length in line_lengths):
-            return self._DOCUMENT_SIZE_UDL_LARGE
+            return self._DOCUMENT_SIZE_UDL_LARGE, True
 
         return returnFactor, hasLongLine
 
