@@ -50,12 +50,14 @@ import os
 from os.path import join, isfile
 import sys
 import re
-from pprint import pprint
+from pprint import pprint, pformat
 import glob
 import traceback
+import time
 import logging
 import optparse
 import difflib
+from difflib import SequenceMatcher # For getUnsavedChangeInstructions
 from hashlib import md5
 
 import textinfo
@@ -294,7 +296,6 @@ def diff_multiple_local_filepaths(left_filepaths, right_filepaths,
                                right_filedata.splitlines(1),
                                left_display, right_display)
     return "".join(result)
-
 
 class Hunk:
     def __init__(self, start_line, lines):
@@ -899,6 +900,185 @@ class Diff:
         """
         file_diff, hunk = self.file_diff_and_hunk_from_pos(diff_line, diff_col)
         return file_diff.all_paths()
+
+def _max_acceptable_edit_dist(s):
+    # Found this value largely by pulling it out of a hat.  Replacements occupy
+    # a grey area between equal and replace/delete, so we say that any string
+    # with a levenstein value < 1/4 its length qualifies as a replacement.
+    return len(s) / 4.0
+
+_split_opcodes_diffs = {} # Map md5(a) + md5(b) => {time:time, opcodes:list of opcodes}
+
+def _get_hash_for_arrays(a, b):
+    key = md5("".join(a)).hexdigest() + md5("".join(b)).hexdigest()
+    currTime = time.time()
+    if key in _split_opcodes_diffs:
+        h = _split_opcodes_diffs[key]
+        h['time'] = currTime
+        return key
+    if len(_split_opcodes_diffs) >= 1000:
+        # If we have more than 1000 keys, remove the least recently used.
+        oldest_item = min([(x[1]['time'], x[0]) for x in _split_opcodes_diffs.items()])
+        del _split_opcodes_diffs[oldest_item[1]]
+    _split_opcodes_diffs[key] = {'time':currTime, 'opcodes':None}
+    return key
+
+
+def split_opcodes(opcode, a, b, forceCalc=False):
+    """
+    @param opcode: tuple of (tag:string="replace", 
+                   i1: start index of change to a,
+                   i2: end index of change to a,
+                   j1: start index of change to b,
+                   j1: end index of change to b)
+        This function is called when i2 - i1 != j2 - j1, or in other words
+        unified-diff has decided we're replacing m lines with n != m lines.
+        We want to find out which lines are true replacements (similar), and
+        which are insertions or deletions.
+        
+    @param a: list of strings (original values) 
+    @param b: list of strings (current values)
+    @return: an array of new opcodes
+    
+    Implement a modified Wagner-Fischer algorithm
+    to try to determine how these lines actually match up
+    
+    References:
+    https://en.wikipedia.org/wiki/Wagner%E2%80%93Fischer_algorithm
+    
+    If Wikipedia dies:
+    R.A. Wagner and M.J. Fischer. 1974. The String-to-String Correction Problem. Journal of the ACM, 21(1):168-173.
+    
+    Overview:
+    Build a matrix of edit_distance levenshtein values from all possible paths
+    from line[i] in a to line[j] to b.  a is the starting text, b is the
+    final text, and we want to determine a sequence of transformations from a
+    to b.
+    
+    Given m = len(a) and n = len(b),
+    this is an m x n matrix, D.  We want to find a path through the matrix
+    moving through the first dimension (corresponding to lines in a),
+    starting at D[0][0].  We also never backtrack on j.
+    
+    If we find an entry d[i][j] = 0, this means lines a[i] and b[j] match.
+    Advance both i and j.
+    
+    If d[i][j] <= some max value X (which normally depends on a[i]), it means
+    b[j] is a replacement for a[j].
+    
+    If d[i][j] > X, then is there a value d[i][j'] <= X for j' > j?
+    If yes, treat b[j:j'] as inserted lines relative to a[i], and process d[i][j'] as above.
+    Otherwise, treat a[i] as a deleted line relative to b[j].
+    
+    Remember to look for a run of inserted or deleted text at the end as well.
+    
+    Now we could use a dynamic programming algorithm to determine the minimum
+    cost for going from a to b, but let's assume this result will be good enough,
+    since its main purpose is to show diffs visually in the editor.
+    
+    """
+    m = len(a)
+    n = len(b)
+    if (not forceCalc) and m * n > 500:
+        # Don't waste time trying to split up big hunks
+        return [opcode]
+    
+    _split_opcodes_diffs_key = _get_hash_for_arrays(a, b)
+    if _split_opcodes_diffs[_split_opcodes_diffs_key]['opcodes']:
+        return _split_opcodes_diffs[_split_opcodes_diffs_key]['opcodes']
+    # We don't need all possible edit-distances from a[i] to b[j],
+    # because once we advance j at row i, we never look at any entries
+    # in d[ix][jx] for ix > i, jx < j.  So just initialize the matrix with None's.
+    d = [[None for j in range(n)] for i in range(m)]
+    tag, i1, i2, j1, j2 = opcode # assert tag == 'replace'
+    opcodes = []
+    j = 0
+    for i in range(m):
+        # Update levenshtein distances for d[i][j:]
+        max_lev = _max_acceptable_edit_dist(a[i])
+        for j_idx in range(j, n):
+            dval = edit_distance(a[i], b[j_idx])
+            d[i][j_idx] = dval
+            if dval <= max_lev:
+                # Once we find something suitable there's no need to look further.
+                break
+        curr_slice = d[i][j:]
+        if 0 in curr_slice:
+            next_zero = curr_slice.index(0)
+        else:
+            next_zero = -1
+            
+        if next_zero == 0:
+            next_posn = next_zero
+            match_type = "equal"
+        else:
+            for next_low_idx, next_low_val in enumerate(curr_slice):
+                if next_low_val <= max_lev:
+                    break
+            else:
+                next_low_idx = -1
+            
+            if next_low_idx < 0:
+                if next_zero < 0:
+                    # It's a deletion
+                    match_type = "delete"
+                    next_posn = None
+                else:
+                    next_posn = next_zero
+                    match_type = "equal"
+            elif next_zero < 0:
+                next_posn = next_low_idx
+                match_type = "replace"
+            else:
+                if next_zero <= next_low_idx:
+                    next_posn = next_zero
+                    match_type = "equal"
+                else:
+                    next_posn = next_low_idx
+                    match_type = "replace"
+        # Now advance through the distance matrix
+        if next_posn is not None:
+            if next_posn > 0:
+                opcodes.append(('insert', i + i1, i + i1, j + j1, j + j1 + next_posn))
+                j += next_posn
+            opcodes.append((match_type, i + i1, i + i1 + 1, j + j1, j + j1 + 1))
+            j += 1
+        else:
+            # We have a deletion - don't advance j
+            opcodes.append((match_type, i + i1, i + i1 + 1, j + j1, j + j1))
+        if j == n:
+            # Delete the rest of the lines and leave this loop.
+            if i < m - 1:
+                opcodes.append(('delete', i + i1 + 1, m + i1, n + j1, n + j1))
+            break
+    if j < n:
+        opcodes.append(('insert', m + i1, m + i1, j + j1, n + j1))
+    
+    _split_opcodes_diffs[_split_opcodes_diffs_key]['opcodes'] = opcodes
+    return opcodes
+        
+def edit_distance(s, t):
+    """ Levenshtein distance: http://en.wikipedia.org/wiki/Levenshtein_distance
+           or:
+        Navarro, Gonzalo (March 2001). "A guided tour to approximate string matching".
+        ACM Computing Surveys 33 (1): 31-88. doi:10.1145/375360.375365.
+    """
+    edDict = {} # For memoizing costs between s[i:] and t[j:]
+    def _edit_distance_aux(spos, tpos):
+        k = (spos, tpos)
+        if k in edDict:
+            return edDict[k]
+        if spos == 0:
+            return tpos
+        if tpos == 0:
+            return spos
+        cost = s[spos - 1] != t[tpos - 1] and 1 or 0
+        v = min(_edit_distance_aux(spos - 1, tpos    ) + 1,
+                _edit_distance_aux(spos    , tpos - 1) + 1,
+                _edit_distance_aux(spos - 1, tpos - 1) + cost)
+        edDict[k] = v
+        return v
+    return _edit_distance_aux(len(s), len(t))
 
 #---- internal support stuff
 

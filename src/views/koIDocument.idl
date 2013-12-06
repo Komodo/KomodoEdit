@@ -51,6 +51,19 @@ interface koITabstopInsertionNode;
 
 interface koILexerLanguageService;
 
+[scriptable, uuid(88ca8f38-c138-4b38-b85b-dcf3bdadfde8)]
+interface koIDiffOpcode : nsISupports
+{
+    // Use same names as in docstring for difflib.py:SequenceManager.get_opcodes
+    readonly attribute wstring tag;
+    readonly attribute long i1;
+    readonly attribute long i2;
+    readonly attribute long j1;
+    readonly attribute long j2;
+
+    void init(in wstring name, in long i1, in long i2, in long j1, in long j2);
+};
+
 /* A koIDocument instance represents the contents of a file in Komodo,
  * whether saved or unsaved.
  */
@@ -240,6 +253,42 @@ interface koIDocument : nsISupports
     attribute boolean useTabs;  // true if tabs are used for indentation
     attribute long indentWidth; // number of spaces for an indent (typically 4 or 8)
     AString getUnsavedChanges();
+    
+    /**
+     * Return an array of koIDiffOpcode's that describe how to change text
+     * from the list on-disk to the text in memory.
+     *
+     * @returns:
+     *     array of change instructions (koIDiffOpcode's)
+     */
+    void getUnsavedChangeInstructions([optional] out unsigned long count,
+                                      [array, size_is(count), retval] out
+                                           koIDiffOpcode diffs
+                                      );
+    /**
+     * Returns the text for the current document's file as
+     * an array of lines.  Embedded zero bytes probably truncate the
+     * rest of the line.
+     */
+    void getOnDiskTextLines([optional] out unsigned long count,
+                            [array, size_is(count), retval] out wstring onDiskLines);
+                             
+    /**
+     * Returns a unified diff between the left and right strings
+     * as koIDiff opcodes with 'equal', 'insert', 'delete', and 'replace'
+     * instructions.
+     *
+     * @param leftString {string}  The 'old' string
+     * @param rightString {string} The 'new' string
+     * @returns 
+     *     array of change instructions (koIDiffOpcode's)
+     */
+    void diffStringsAsChangeInstructions(in AString leftString,
+                                         in AString rightString,
+                                         [optional] out unsigned long count,
+                                         [array, size_is(count), retval] out
+                                           koIDiffOpcode diffs);
+
 
     // Auto-save API.    
     boolean haveAutoSave();

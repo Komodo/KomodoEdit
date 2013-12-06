@@ -187,7 +187,7 @@
             this.item = null;
             this.lintBuffer = null;
             this.lintingEnabled = false;
-            this.changeTracker = new ko.changeTracker.ChangeTracker(this);
+            this.changeTracker = null; // set this later if val != null and val.file
             this.changeTrackerEnabled = false;
             this.isCICitadelStuffEnabled = undefined;
             this.isCIXMLStuffEnabled = undefined;
@@ -244,7 +244,7 @@
                 }
                 let language = val.language;
                 this._setLanguage(language);
-                
+                this._setupChangeTracker(val);
                 xtk.domutils.fireEvent(this, 'view_document_attached');
             }
         ]]>
@@ -379,7 +379,7 @@
             if (editShowMinimap) {
                 this.createMinimap();
             }
-            this.changeTracker.init();
+            this._setupChangeTracker(this.koDoc);
             // bug 98866: Let scintilla finish initializing this buffer
             // before making sure it can scroll to the caret.
             // Then call the post-file-open macros after, in case they
@@ -729,7 +729,9 @@
             case 'showChangesInMargin':
                 this.changeTrackerEnabled = this.prefs.getLongPref("showChangesInMargin") > 0;
                 // Relay this pref change to the change-tracker
-                this.changeTracker.observe(doc, topic, data);
+                if (this.changeTracker) {
+                    this.changeTracker.observe(doc, topic, data);
+                }
                 break;
             case 'ySlop':
                 //multi-window: this applies to all windows, as it's a pref
@@ -1497,6 +1499,7 @@
             }
             var oldKoDoc = this.koDoc;
             var oldKoDocIsDirty = oldKoDoc.isDirty;
+            this.changeTracker = null;
             this.koDoc = newdocument;
             this.koDoc.codePage = codePage;
             if (!oldLargeDocument) {
@@ -1519,14 +1522,11 @@
                 this.koDoc = oldKoDoc;
                 // And oldKoDoc.isDirty is reset, so explicitly reset it.
                 this.koDoc.isDirty = oldKoDocIsDirty;
-                // Need to reset the change-tracker
-                this.changeTracker = new ko.changeTracker.ChangeTracker(this);
-                this.changeTracker.init();
+                this._setupChangeTracker(this.koDoc);
                 return false;
             }
             // Need to reset the change-tracker
-            this.changeTracker = new ko.changeTracker.ChangeTracker(this);
-            this.changeTracker.init();
+            this._setupChangeTracker(this.koDoc);
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
             if (oldDocLanguage == newdocument.language) {
                 this.restoreFoldedLines(locationInfo);
@@ -1639,6 +1639,22 @@
         </body>
         </method>
         
+        <method name="_setupChangeTracker">
+        <parameter name="koDoc" />
+        <body>
+        <![CDATA[
+            // Note that zapping an existing this.changeTracker will
+	    // call its finalizer.
+	    if (koDoc.file) {
+                this.changeTracker = new ko.changeTracker.ChangeTracker(this);
+                this.changeTracker.init();
+            } else {
+                this.changeTracker = null;
+            }
+        ]]>
+        </body>
+        </method>
+        
         <!-- Set to true when the editor is handling the onUpdateUI() call. -->
         <field name="in_updateui">false</field>
 
@@ -1707,8 +1723,8 @@
         <parameter name="y"/>
         <parameter name="method"/>
         <body><![CDATA[
-            if (position >= 0 || !this.changeTrackerEnabled) {
-                // We aren't on a margin
+            if (position >= 0 || !this.changeTrackerEnabled || !this.changeTracker) {
+                // We aren't on a margin, or aren't using the change-tracker
                 return;
             }
 /* #if PLATFORM == "darwin" */
@@ -2271,12 +2287,11 @@
         <handler event="blur" phase="bubbling">
         <![CDATA[
             // Get the change-tracker to remove an errant annotation.
-            if (this.changeTrackerEnabled) {
+            if (this.changeTrackerEnabled && this.changeTracker) {
                 this.changeTracker.onDwellEnd();
             }
-            
         ]]>
-            </handler>
+        </handler>
     </handlers>
 
 </binding>
