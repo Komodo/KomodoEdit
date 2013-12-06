@@ -58,6 +58,14 @@ log = logging.getLogger('koDocument')
 #log.setLevel(logging.DEBUG)
 
 
+#-- Internal functions
+
+def _diffToKoIDiffOpcode(diffCode):
+    opcode = components.classes["@activestate.com/koDiffOpcode;1"] \
+             .createInstance(components.interfaces.koIDiffOpcode)
+    opcode.init(*diffCode)
+    return opcode
+
 ################################################################################
 # Note that koDocument's scintilla/scimoz attribute is thread-protected, all
 # calls that koDocument makes using scintilla/scimoz will be proxied to the main
@@ -2055,11 +2063,10 @@ class koDocumentBase:
             # do nothing: Notify sometimes raises an exception if (???)
             # receivers are not registered?
             pass
-        
-    _re_ending_eol = re.compile('\r?\n$')
-    def getUnsavedChanges(self, joinLines=True):
-        eolStr = eollib.eol2eolStr[self._eol]
-        inmemory = self.get_buffer().splitlines(1)
+
+    def _get_ondisk_text(self, eolStr=None):
+        if eolStr is None:
+            eolStr = eollib.eol2eolStr[self._eol]
 
         # We want a new temporary file to read, so the current file stats
         # information does not get updated (required for remote file saving,
@@ -2072,7 +2079,7 @@ class koDocumentBase:
         try:
             ondisk = tmpfile.read(-1)
             (ondisk, encoding, bom) = self._detectEncoding(ondisk)
-            ondisk = ondisk.splitlines(1)
+            ondisk = ondisk.splitlines(True)
         except:
             # If we cannot read the file - then either it doesn't exist yet, or
             # we don't have the correct permissions - either way we will treat
@@ -2080,7 +2087,13 @@ class koDocumentBase:
             ondisk = ''
         finally:
             tmpfile.close()        #self.file.open('rb')
-
+        return ondisk
+        
+    _re_ending_eol = re.compile('\r?\n$')
+    def getUnsavedChanges(self, joinLines=True):
+        eolStr = eollib.eol2eolStr[self._eol]
+        ondisk = self._get_ondisk_text(eolStr=eolStr)
+        inmemory = self.get_buffer().splitlines(True)
         difflines = list(difflibex.unified_diff(
             ondisk, inmemory,
             self.file.displayPath, self.file.displayPath+" (unsaved)",
@@ -2093,6 +2106,45 @@ class koDocumentBase:
             return ''.join(difflines)
         else:
             return [self._re_ending_eol.sub('', x) for x in difflines]
+
+    def getUnsavedChangeInstructions(self):
+        """
+        Unlike getUnsavedChanges, this method's output is intended to be
+        consumed by other software.  The output consists of a list of tuples:
+        [instruction, oldStart, oldEnd, newStart, newEnd].  See
+        difflib.py::SequenceManager.get_opcodes for more documentation.
+        
+        SequenceMatcher(a=a, b=b).get_opcodes() returns a generator that can
+        contain op-codes like ('replace', i1, i2, j1, j2) where i2-i1 != j2-j1
+        That means there's at least delta inserts or -delta deletes -- see if
+        we can find them, and fix the returned tags.
+        """
+        ondisk = self._get_ondisk_text()
+        inmemory = self.get_buffer().splitlines(True)
+        retA = []
+        for diff in difflibex.SequenceMatcher(a=ondisk, b=inmemory).get_opcodes():
+            tag, i1, i2, j1, j2 = diff
+            iDel = i2 - i1
+            jDel = j2 - j1
+            assert iDel >= 0 and jDel >= 0
+            if tag != 'replace' or iDel == jDel:
+                retA.append(_diffToKoIDiffOpcode(diff))
+                continue
+            # Sometimes difflib.SequenceMatcher marks two different-sized runs
+            # as a 'replace', which is lazy -- there must be at least one
+            # insert or delete operation in that run, so go find them.
+            split_opcodes = difflibex.split_opcodes(diff, ondisk[i1:i2], inmemory[j1:j2])
+            for diff2 in split_opcodes:
+                retA.append(_diffToKoIDiffOpcode(diff2))
+            
+        return retA
+
+    def diffStringsAsChangeInstructions(self, s, t):
+        return [_diffToKoIDiffOpcode(diff) for diff
+                in difflibex.SequenceMatcher(a=s, b=t).get_opcodes()]
+
+    def getOnDiskTextLines(self):
+        return self._get_ondisk_text()
 
     def _getAutoSaveFileName(self):
         # retain part of the readable name
@@ -2224,3 +2276,15 @@ class koDocumentBase:
     def md5Hash(self):
         return md5(self.buffer.encode("utf-8")).hexdigest()
 
+class koDiffOpcode(object):
+    _com_interfaces_ = [components.interfaces.koIDiffOpcode]
+    _reg_desc_ = "Diff Opcode"
+    _reg_contractid_ = "@activestate.com/koDiffOpcode;1"
+    _reg_clsid_ = "{82efecdc-de44-4a5a-8a41-72b6e620dd17}"
+
+    def init(self, tag, i1, i2, j1, j2):
+        self.tag = tag
+        self.i1 = i1
+        self.i2 = i2
+        self.j1 = j1
+        self.j2 = j2
