@@ -864,15 +864,9 @@ class koDocumentBase:
 
     @components.ProxyToMainThread
     def getLanguageTransitionPoints(self, start_pos, end_pos):
-        try:
-            scimoz = self._views[0].scimoz
-        except IndexError:
-            path = getattr(self, 'displayPath', None)
-            if path:
-                log.info("Document %s no longer has any views, not getting Transition Points")
-            return [0, 0]
         if not self._language or not self._docPointer:
-            return [0, scimoz.length]
+            return [0, 0]
+        scimoz = self._views[0].scimoz
         languages = self.get_languageObj().getSubLanguages()
         if len(languages) < 2:
             return [0, scimoz.length]
