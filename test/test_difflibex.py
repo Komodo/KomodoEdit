@@ -11,8 +11,7 @@ import os
 from os.path import dirname, join, abspath, basename, splitext, exists
 import unittest
 import codecs
-from pprint import pprint, pformat
-from glob import glob
+from pprint import pformat
 import itertools
 import time
 
@@ -187,6 +186,7 @@ class SplitOpcodesTestCase(unittest.TestCase):
             if first_time is None:
                 first_time = difflibex._split_opcodes_diffs[h]['time']
         self.assertEqual(len(difflibex._split_opcodes_diffs), 1000)
+        
         # Verify that if there N opcodes in the hash set at time first_time,
         # that if we add another hash to it now, one of those first N will be removed.
         # Make sure that if, on very fast computers, all 1000 nodes were processed at
