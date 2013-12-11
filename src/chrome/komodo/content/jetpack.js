@@ -55,7 +55,7 @@ const [JetPack, require] = (function() {
         // Komodo API fallback...
         "ko/": "chrome://komodo/content/library/",
         // Default path
-        '': 'resource://gre/modules/',
+        '': 'resource://gre/modules/commonjs/',
     }
     loader = Loader({resolve: my_resolve,
                      paths: paths,
