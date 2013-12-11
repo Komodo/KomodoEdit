@@ -38,7 +38,7 @@ ko.analytics = new function()
      */
     this.init = () =>
     {
-        this.debug();
+        //this.debug();
 
         // Retrieve unique user id
         var firstRun = false;
