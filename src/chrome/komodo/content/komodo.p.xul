@@ -131,6 +131,7 @@
     <script src="chrome://komodo/content/library/treeutils.js"            type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/widgets.js"              type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/skin.js"                 type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/utils.js"                type="application/x-javascript;version=1.7"/>
 <!-- #if BUILD_FLAVOUR == "dev" -->
     <script src="chrome://komodo/content/library/test.js"                 type="application/x-javascript;version=1.7"/>
 <!-- #endif -->
