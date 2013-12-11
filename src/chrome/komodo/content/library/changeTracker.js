@@ -59,6 +59,8 @@ this.ChangeTracker.prototype.init = function init() {
     this.showChangesInMargin = this.view.prefs.getLong('showChangesInMargin', SHOW_CHANGES_NONE);
     if (this.showChangesInMargin) {
         this._activateObservers();
+    } else {
+        this.marginController.hideMargin();
     }
     //TODO: Make a lazy getter for onDiskTextLines
     this.onDiskTextLines = null;
@@ -108,10 +110,12 @@ this.ChangeTracker.prototype.observe = function(subject, topic, data) {
                 this.marginController.clearOldMarkers(this.view.scimoz);
             }
             if (this.showChangesInMargin !== SHOW_CHANGES_NONE) {
+                this.marginController.showMargin();
                 this.onModified();
                 this._activateObservers();
             } else {
                 this._deactivateObservers();
+                this.marginController.hideMargin();
             }
         } catch(ex) {
             log.exception(ex, "Problem observing showChangesInMargin");
@@ -485,10 +489,18 @@ this.MarginController.prototype = {
     _initMargins: function() {
         var scimoz = this.view.scimoz;
         scimoz.setMarginTypeN(3, scimoz.SC_MARGIN_RTEXT); // right-justified text
-        var marginWidth = scimoz.textWidth(this.clearStyleNum, "   "); // 3 spaces for del/ins/replace
-        marginWidth += 4; // Provide some padding between the markers and the editor text.
-        scimoz.setMarginWidthN(3, marginWidth);
+        this.marginWidth = scimoz.textWidth(this.clearStyleNum, "   "); // 3 spaces for del/ins/replace
+        this.marginWidth += 4; // Provide some padding between the markers and the editor text.
+        scimoz.setMarginWidthN(3, this.marginWidth);
         scimoz.setMarginSensitiveN(3, true);
+    },
+
+    showMargin: function() {
+        this.view.scimoz.setMarginWidthN(3, this.marginWidth);
+    },
+
+    hideMargin: function() {
+        this.view.scimoz.setMarginWidthN(3, 0);
     },
     
     activeMarkerMask: function(x, lineNo) {
