@@ -6,16 +6,22 @@
  * See KD 295: Track Changes
  */
 
-if (typeof(ko) == 'undefined') {
+if (typeof(ko) === 'undefined') {
     var ko = {};
 }
 
-if (typeof(ko.changeTracker)=='undefined') {
+if (typeof(ko.changeTracker) === 'undefined') {
     ko.changeTracker = {};
 }
 (function() {
 var log = ko.logging.getLogger("changeTracker");
 //log.setLevel(ko.logging.LOG_INFO);
+
+var escapeLines = function(textLines) {
+    return textLines.map(function(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    })
+}
 
 Components.utils.import("resource://gre/modules/Services.jsm"); // for Services
 
@@ -44,16 +50,18 @@ this.ChangeTracker.prototype.init = function init() {
     this.marginController = new ko.changeTracker.MarginController(this, this.view); 
     this.prefObserverSvc = ko.prefs.prefObserverService;
     this.prefObserverSvc.addObserverForTopics(this, prefTopics.length, prefTopics, false);
-    this.lastInsertions = {};
-    this.deletedTextLines = [];
-    this.lastChangedLines = {}; // Map lineNo => [oldLine, newLine]
+    this.firstInterestingLine = {}; // Map lineNo => first line (for insert & change)
+    this.lastInsertions = {}; // Map firstLine => [lastLine]
+    this.lastNewChanges = {}; // Map firstLine => [lastLine]
+    this.deletedTextLineRange = {}; // Map firstLine(new) => [firstLine(old), lastLine(old)]
+    this.changedTextLineRange = {}; // Like deletedTextLines:  new(first) => old range
+    this.insertedOldLineRange = {}; // Map firstLine => oldLineRange (insert only)
     this.showChangesInMargin = this.view.prefs.getLong('showChangesInMargin', SHOW_CHANGES_NONE);
     if (this.showChangesInMargin) {
         this._activateObservers();
     }
     //TODO: Make a lazy getter for onDiskTextLines
     this.onDiskTextLines = null;
-    this.deletedAnnotationLineNo = null;
 };
 
 this.ChangeTracker.prototype._activateObservers = function _activateObservers() {
@@ -132,42 +140,52 @@ this.ChangeTracker.prototype._getChangeInfo = function _getChangeInfo() {
     var koDoc = this.view.koDoc;
     var scimoz = this.view.scimoz;
     var changes = koDoc.getUnsavedChangeInstructions({});
-    var lastInsertions = {}; // map firstLine => [lastLine]
-    var deletedTextLines = {}; // firstLine => array of textLines (no EOLs)
-    var lastChangedLines = {}; // Map current lineNo => [oldLine, newLine]
+    // These vars are documented in init() for their this.X counterparts
+    var lastInsertions = {};
+    var lastNewChanges = {};
+    var deletedTextLineRange = {};
+    this.firstInterestingLine = {};
+    this.changedTextLineRange = {};
+    this.insertedOldLineRange = {};
     var change, lim = changes.length;
+    var delta;
     for (var i = 0; i < lim; ++i) {
         let { tag, i1, i2, j1, j2 } = changes[i];
         switch(tag) {
         case 'equal':
             break;
         case 'replace':
-            {
-                this._refreshOnDiskLines();
-                let delta = i2 - i1;
-                for (let idx = 0; idx < delta; ++idx) {
-                    lastChangedLines[j1 + idx] = [this.onDiskTextLines[i1 + idx],
-                                                  this._getLine(scimoz, j1 + idx)];
-                }
+            lastNewChanges[j1] = j2;
+            this.changedTextLineRange[j1] = [i1, i2];
+            delta = j2 - j1;
+            for (let idx = 0; idx < delta; ++idx) {
+                this.firstInterestingLine[j1 + idx] = j1;
             }
             break;
             
         case 'delete':
-            this._refreshOnDiskLines();
-            deletedTextLines[j1] = this.onDiskTextLines.slice(i1, i2);
+            deletedTextLineRange[j1] = [i1, i2];
             break;
+            
         case 'insert':
             lastInsertions[j1] = j2;
+            delta = j2 - j1;
+            for (let idx = 0; idx < delta; ++idx) {
+                this.firstInterestingLine[j1 + idx] = j1;
+            }
+            this.insertedOldLineRange[j1] = [i1, i2];
             break;
+            
         default:
             log.error("Unexpected getUnsavedChangeInstructions tag: " + tag);
         }
     }
     
-    this.marginController.updateMargins(lastInsertions, deletedTextLines, lastChangedLines);
+    this.marginController.updateMargins(lastInsertions,
+                                        deletedTextLineRange, lastNewChanges);
     this.lastInsertions = lastInsertions;
-    this.deletedTextLines = deletedTextLines;
-    this.lastChangedLines = lastChangedLines;
+    this.deletedTextLineRange = deletedTextLineRange;
+    this.lastNewChanges = lastNewChanges;
 };
 
 this.ChangeTracker.prototype._refreshOnDiskLines = function _refreshOnDiskLines() {
@@ -175,12 +193,6 @@ this.ChangeTracker.prototype._refreshOnDiskLines = function _refreshOnDiskLines(
         return;
     }
     this.onDiskTextLines = this.view.koDoc.getOnDiskTextLines();
-};
-
-this.ChangeTracker.prototype._getLine = function(scimoz, lineNo) {
-    var val = {};
-    scimoz.getLine(lineNo, val);
-    return val.value;
 };
 
 this.ChangeTracker.prototype._handleOnModified = function _handleOnModified() {
@@ -195,136 +207,206 @@ this.ChangeTracker.prototype._handleOnModified = function _handleOnModified() {
     this._getChangeInfo();
 };
 
-this.ChangeTracker.prototype._getDeletedTextLines = function _getDeletedTextLines(lineNo) {
-    if (!(lineNo in this.deletedTextLines)) {
-        log.error("**** Can't find " + lineNo + " in this.deletedTextLines:\n"
-                  + Object.keys(this.deletedTextLines));
+this.ChangeTracker.prototype._getDeletedTextLines =
+                    function(firstLineNo, lastLineNo) {
+    this._refreshOnDiskLines();
+    if (lastLineNo >= this.onDiskTextLines.length) {
+        log.error("**** _getDeletedTextLines: can't get lines "
+                  + [firstLineNo, lastLineNo]
+                  + " from a file with only "
+                  + this.onDiskTextLines.length
+                  + " lines");
         return null;
     }
-    return this.deletedTextLines[lineNo];
+    return this.onDiskTextLines.slice(firstLineNo, lastLineNo).
+           map(function(line) line.replace(/\n|\r\n?/, ""));
 };
 
-const ADDED_TEXT_DECORATOR = Components.interfaces.koILintResult.DECORATOR_TABSTOP_TS1;
-this.ChangeTracker.prototype.onDwellStart = function onDwellStart(x, lineNo) {
+this.ChangeTracker.prototype.lineBarIsActive = function(x, lineNo) {
+    if (this.showChangesInMargin === SHOW_CHANGES_NONE) {
+        return false;
+    }
+    var changeMask = this.marginController.activeMarkerMask(x, lineNo);
+    return changeMask !== 0;
+};
+
+this.ChangeTracker.prototype.showChanges = function(x, lineNo) {
     // x: x field of the point(x,y) in scintilla view coordinates
     if (this.showChangesInMargin === SHOW_CHANGES_NONE) {
         return;
     }
     var changeMask = this.marginController.activeMarkerMask(x, lineNo);
-    if (changeMask & (1 << CHANGES_DELETE)) {
-        this._showDeletions(lineNo);
-    }
-    else if (changeMask & (1 << CHANGES_REPLACE)) {
-        this._showReplacements(lineNo);
-    }
-};
-
-this.ChangeTracker.prototype._showDeletions = function _showDeletions(lineNo) {
-    this.deletedAnnotationLineNo = null;
-    
-    // Put up an annotation of the missing lines.
-    var lines = this._getDeletedTextLines(lineNo);
-    if (lines === null) {
+    if (changeMask === 0) {
         return;
     }
-    if (lineNo > 0) {
-        // Deleted-line annotations look better above the current line.
-        lineNo -= 1;
-    }
-    var scimoz = this.view.scimoz;
-    var eol = "";  // not: ["\r\n", "\r", "\n"][scimoz.eOLMode];
-    var text = lines.map(function(s) "-" + s).join(eol).replace(/(?:\n|\r\n?)$/, '');
-    
-    scimoz.annotationSetText(lineNo, text);
-    scimoz.annotationVisible = scimoz.ANNOTATION_STANDARD;
-    let styleNo;
-    try {
-        styleNo = this.view.koDoc.languageObj.getCommentStyles()[0];
-    } catch(e) {
-        log.exception(e, "Failed to get a comment style");
-        styleNo = 0;
-    }
-    scimoz.annotationSetStyle(lineNo, styleNo);
-    this.deletedAnnotationLineNo = lineNo;
-};
-
-this.ChangeTracker.prototype._showReplacements = function _showReplacements(lineNo) {
-    this.deletedAnnotationLineNo = null;
-    if (!(lineNo in this.lastChangedLines)) {
-        log.error("Can't find line " + lineNo + " in lastChangedLines");
-        return;
-    }
-    let [lineBefore, lineAfter] = this.lastChangedLines[lineNo];
-    var eolBefore, eolAfter;
-    const ptn = /(.*)(\n|\r?\n)$/;
-    var m = ptn.exec(lineBefore);
-    if (m) {
-        lineBefore = m[1];
-        eolBefore = m[2];
-    } else {
-        eolBefore = "";
-    }
-    m = ptn.exec(lineAfter);
-    if (m) {
-        lineAfter = m[1];
-        eolAfter = m[2];
-    } else {
-        eolAfter = "";
-    }
-    var diffCodes = this.view.koDoc.diffStringsAsChangeInstructions(lineBefore, lineAfter);
-    
-    var fixedLineBeforeParts = ['-'], fixedLineAfterParts = ['+'];
-    //TODO: Replace this part with styling the annotation box.
-    diffCodes.forEach(function(diffCode) {
-        const { tag:tag, i1:i1, i2:i2, j1:j1, j2:j2 } = diffCode;
-        switch(tag) {
-            case 'equal':
-                fixedLineBeforeParts.push(lineBefore.substring(i1, i2));
-                fixedLineAfterParts.push(lineAfter.substring(j1, j2));
-                break;
-            case 'insert':
-                fixedLineAfterParts.push(">+>" + lineAfter.substring(j1, j2) + "<+<");
-                break;
-            case 'delete':
-                fixedLineBeforeParts.push(">->" + lineBefore.substring(i1, i2) + "<-<");
-                break;
-            case 'replace':
-                fixedLineBeforeParts.push(">->" + lineBefore.substring(i1, i2) + "<-<");
-                fixedLineAfterParts.push(">+>" + lineAfter.substring(j1, j2) + "<+<");
-                break;
-            default:
-                log.error("Unrecognized diff tag of " + tag);
+    var oldLines = [], newLines = [];
+    const DEL_MASK = 1 << CHANGES_DELETE;
+    const INS_MASK = 1 << CHANGES_INSERT;
+    const REP_MASK = 1 << CHANGES_REPLACE;
+    const firstLineNo  = ((changeMask & DEL_MASK) ? lineNo :
+                          this.firstInterestingLine[lineNo]);
+    var oldLineRange = null, newLineRange;
+    if (changeMask & (DEL_MASK|REP_MASK)) {
+        let linesToUse = ((changeMask & REP_MASK) ? this.changedTextLineRange
+                          : this.deletedTextLineRange);
+        if (!(firstLineNo in linesToUse)) {
+            log.warn("Can't find an entry for line "
+                      + firstLineNo
+                      + " in this."
+                      + ((changeMask & REP_MASK) ? "changedTextLineRange"
+                         : "deletedTextLineRange")
+                      + "\n");
+            return;
         }
-    })
-    
-    var text = fixedLineBeforeParts.join("") + eolBefore + fixedLineAfterParts.join("");
-    
-    var scimoz = this.view.scimoz;
-    scimoz.annotationSetText(lineNo, text);
-    scimoz.annotationVisible = scimoz.ANNOTATION_STANDARD;
-    let styleNo;
-    try {
-        styleNo = this.view.koDoc.languageObj.getCommentStyles()[0];
-    } catch(e) {
-        log.exception(e, "Failed to get a comment style");
-        styleNo = 0;
+        oldLineRange = linesToUse[firstLineNo];
+        newLineRange = [firstLineNo, firstLineNo]; // If a deletion
+        oldLines = this._getDeletedTextLines(oldLineRange[0], oldLineRange[1]);
+        if (oldLines === null) {
+ // Failed to get those lines
+            return;
+        }
     }
-    scimoz.annotationSetStyle(lineNo, styleNo);
-    this.deletedAnnotationLineNo = lineNo;
+    if (changeMask & (INS_MASK|REP_MASK)) {
+        if (!(lineNo in this.firstInterestingLine)) {
+            log.warn("Can't find an entry for line "
+                      + lineNo
+                      + " in this.firstInterestingLine ("
+                     + Object.keys(this.firstInterestingLine)
+                     + ")");
+            return;
+        }
+        let linesToUse = ((changeMask & REP_MASK) ? this.lastNewChanges
+                          : this.lastInsertions);
+        if (!(firstLineNo in linesToUse)) {
+            log.warn("Can't find an entry for line "
+                     + firstLineNo
+                     + " in this."
+                     + ((changeMask & REP_MASK) ? "changedTextLineRange"
+                          : "lastInsertions")
+                     + Object.keys(linesToUse));
+            return;
+        }
+        if (!oldLineRange) {
+            oldLineRange = this.insertedOldLineRange[firstLineNo];
+        }
+        newLineRange = [firstLineNo, linesToUse[firstLineNo]];
+        let scimoz = this.view.scimoz;
+        let firstPos = scimoz.positionFromLine(newLineRange[0]);
+        let lastPos = scimoz.getLineEndPosition(newLineRange[1] - 1);
+        let text = firstPos < lastPos ? scimoz.getTextRange(firstPos, lastPos) : "";
+        newLines = text.split(/\n|\r\n?/);
+    }
+    // Write htmlLines to a temp file, get the URL, and then create a panel
+    // with that iframe/src
+    var fileSvc = Cc["@activestate.com/koFileService;1"].getService(Ci.koIFileService);
+    var htmlFile = fileSvc.makeTempFile(".html", 'wb')
+    var htmlURI = htmlFile.URI;
+    var lastDot = htmlURI.lastIndexOf('.');
+    //var jsURI = htmlURI.replace(/\.[^\.]+$/, ".js");
+    
+    //TODO:
+    // Build up diffCodes = this.view.koDoc.diffStringsAsChangeInstructions(lineBefore, lineAfter);
+    // and use that info to show how lines differ internally.
+    var htmlLines = [
+        '<html>',
+        '<head>',
+        '<style>',
+        'body {',
+        '    color: black;',
+        '    background-color: white;',
+        '    font-family: sans-serif;',
+        '    font-size: medium;',
+        '}',
+        'pre.header {',
+        '    margin-bottom: 0px;',
+        '}',
+        'pre.old {',
+        '    background-color: #ffbbbb; /* light red */',
+        '    margin-top: 4px;',
+        '    margin-bottom: 0px;',
+        '    padding-top: 0px;',
+        '    padding-bottom: 0px;',
+        '}',
+        'pre.new {',
+        '    background-color: #c1fdbb; /* light green */',
+        '    margin-top: 4px;',
+        '    margin-bottom: 0px;',
+        '    padding-top: 0px;',
+        '    padding-bottom: 0px;',
+        '}',
+        '</style>',
+        //TODO: The JS code will be needed later, when the panel/iframe needs JavaScript to apply changes.
+        //('<script src="' + jsURI + '">'),
+        //'</script>',
+        '<body>',
+        '<pre class="header">',
+        ('@@ -'
+         + (oldLineRange[0] + 1)
+         + ','
+         + (oldLineRange[1] + 1)
+         + ' +'
+         + (newLineRange[0] + 1)
+         + ','
+         + (newLineRange[1] + 1)
+         + ' @@'),
+        '</pre>',
+        '<pre class="old">'].
+    concat(escapeLines(oldLines)).
+    concat([
+        '</pre>',
+        '<pre class="new">',]).
+    concat(escapeLines(newLines)).
+    concat([
+            '</pre>',
+            '</html>',
+            '']);
+    htmlFile.puts(htmlLines.join("\n"));
+    htmlFile.close();
+    
+    //var jsFile = Cc["@activestate.com/koFileEx;1"].getService(Ci.koIFileEx);
+    //jsFile.URI = jsURI;
+    //jsFile.open("wb");
+    //var jsLines = ['alert("Loading file ' + jsFile.path.replace(/\\/g, '/') + '")', ''];
+    //var text = jsLines.join("\n");
+    //jsFile.puts(text);
+    //jsFile.close();
+
+    // Now make a panel with an iframe, point the iframe to htmlURI, and go
+    this._createPanel(htmlFile);//, jsFile);
+};
+
+this.ChangeTracker.prototype._createPanel = function(htmlFile) {//, jsFile) {
+    var panel = document.getElementById('changeTracker_panel');
+    panel.hidePopup();
+    var iframe = panel.childNodes[0];
+    iframe.setAttribute("src", htmlFile.URI);
+    var [x, y] = this.view._last_mousemove_xy;
+    iframe.addEventListener("load", function(event) {
+        panel.openPopup(this.view, "after_pointer", x, y, false, false);
+        panel.width = 600;
+        panel.height = 400;
+        var fileSvc = Cc["@activestate.com/koFileService;1"].getService(Ci.koIFileService);
+        fileSvc.deleteTempFile(htmlFile.path, true);
+        //fileSvc.deleteTempFile(jsFile.path, true);
+    }.bind(this), true);
+};
+
+this.ChangeTracker.prototype.onDwellStart = function(x, y, lineNo) {
+    if (this.showChangesInMargin === SHOW_CHANGES_NONE) {
+        return;
+    }
+    var changeMask = this.marginController.activeMarkerMask(x, lineNo);
+    if (changeMask === 0) {
+        return;
+    }
+    gEditorTooltipHandler.show(this.view, x, y, -1);
 };
 
 this.ChangeTracker.prototype.onDwellEnd = function onDwellEnd() {
     if (this.showChangesInMargin === SHOW_CHANGES_NONE) {
         return;
     }
-    var scimoz = this.view.scimoz;
-    if (this.deletedAnnotationLineNo !== null) {
-        //TODO: Come up with a better way of managing annotations.  This way
-        // we can't scroll large annotations into view, and we can't click on
-        // them to select deleted text.
-        scimoz.annotationRemoveAtLine(this.deletedAnnotationLineNo);
-        this.deletedAnnotationLineNo = null;
-    }
+    gEditorTooltipHandler.hide();
 };
 
 this.MarginController = function MarginController(changeTracker, view) {
@@ -333,7 +415,7 @@ this.MarginController = function MarginController(changeTracker, view) {
     this.refreshMarginProperies();
     this.lastInsertions = {};
     this.deletedTextLines = {};
-    this.lastChangedLines = {};
+    this.lastNewChanges = {};
 };
 
 this.MarginController.prototype = {
@@ -539,15 +621,17 @@ this.MarginController.prototype = {
         this._initMargins();
     },
     
-    _doUpdateMargins: function _doUpdateMargins(lastInsertions, deletedTextLines, lastChangedLines) {
+    _doUpdateMargins: function _doUpdateMargins(lastInsertions, deletedTextLines, lastNewChanges) {
         var scimoz = this.view.scimoz;
         this.clearOldMarkers(scimoz);
         // Now go through the insertions and deletions
         for (let lineNo in deletedTextLines) {
             this.delMarkerSet(lineNo);
         }
-        for (let lineNo in lastChangedLines) {
-            this.replaceMarkerSet(lineNo);
+        for (let [lineStartNo, lineEndNo] in Iterator(lastNewChanges)) {
+            for (let lineNo = lineStartNo; lineNo < lineEndNo; lineNo++) {
+                this.replaceMarkerSet(lineNo);
+            }
         }
         for (let [lineStartNo, lineEndNo] in Iterator(lastInsertions)) {
             for (let lineNo = lineStartNo; lineNo < lineEndNo; lineNo++) {
@@ -556,15 +640,15 @@ this.MarginController.prototype = {
         }
     },
     
-    updateMargins: function updateMargins(lastInsertions, deletedTextLines, lastChangedLines) {
-        this._doUpdateMargins(lastInsertions, deletedTextLines, lastChangedLines);
+    updateMargins: function updateMargins(lastInsertions, deletedTextLines, lastNewChanges) {
+        this._doUpdateMargins(lastInsertions, deletedTextLines, lastNewChanges);
         this.lastInsertions = lastInsertions;
         this.deletedTextLines = deletedTextLines;
-        this.lastChangedLines = lastChangedLines;
+        this.lastNewChanges = lastNewChanges;
     },
 
     refreshMargins: function updateMargins() {
-        this._doUpdateMargins(this.lastInsertions, this.deletedTextLines, this.lastChangedLines);
+        this._doUpdateMargins(this.lastInsertions, this.deletedTextLines, this.lastNewChanges);
     },
     
     clearOldMarkers: function clearOldMarkers(scimoz) {

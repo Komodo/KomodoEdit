@@ -219,6 +219,12 @@
         <panel id="customizeToolbarSheetPopup" noautohide="true">
             <iframe flex="1" style="width: 90ch; height: 40em;"/>
         </panel>
+        <panel id="changeTracker_panel" noautohide="true" close="true"
+               titlebar="normal" noautofocus="true"  >
+            <iframe id="changeTracker_iframe"
+                    flex="1"
+                    style="width: 90ch; height: 40em;"/>
+        </panel>
     </popupset>
 
     <popupset id="extensionPopupSet"/>

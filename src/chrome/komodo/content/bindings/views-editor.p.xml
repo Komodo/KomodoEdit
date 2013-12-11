@@ -514,6 +514,18 @@
             try {
                 var sm = this.scintilla.scimoz;
                 var pos = sm.positionFromPoint(x, y);
+                if (this.changeTrackerEnabled && this.changeTracker) {
+                    // Hovering over a change-margin?
+                    var lineNo = sm.lineFromPosition(pos);
+                    var marginWidthBefore = [0, 1, 2].map(function(i) sm.getMarginWidthN(i)).
+                        reduce(function(prevVal, currVal) prevVal + currVal);
+                    var trackerMarginWidth = sm.getMarginWidthN(3);
+                    if (x >= marginWidthBefore
+                        && x < (marginWidthBefore + trackerMarginWidth)
+                        && this.changeTracker.lineBarIsActive(x - marginWidthBefore, lineNo)) {
+                        return this.viewsPropertiesBundle.GetStringFromName("Click on the changebar for details");
+                    }
+                }
                 if (pos > 0 && pos < sm.length) {
                     var lineNo = sm.lineFromPosition(pos);
                     if (this.lintBuffer && this.lintBuffer.lintResults) {
@@ -615,6 +627,12 @@
             </setter>
         </property>
         <field name="_isCICitadelStuffEnabled">undefined</field>
+
+        <field name="viewsPropertiesBundle">
+            Cc["@mozilla.org/intl/stringbundle;1"].
+                    getService(Ci.nsIStringBundleService).
+                    createBundle("chrome://komodo/locale/views.properties")
+        </field>
 
         <property name="isCIXMLStuffEnabled">
             <getter>
@@ -1008,13 +1026,10 @@
                 if (isLastDocumentInstance
                     && this.getAttribute('type') == 'editor'
                     && ko.macros.eventHandler.hookPreFileClose(this)) {
-                    var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-                        .getService(Components.interfaces.nsIStringBundleService)
-                        .createBundle("chrome://komodo/locale/views.properties");
-                    ko.statusBar.AddMessage(_bundle.GetStringFromName("macroInterruptedFileClosingProcedure.message"),
-                                         "macro",
-                                         5000,
-                                         true);
+                    ko.statusBar.AddMessage(
+                        this.viewsPropertiesBundle.GetStringFromName(
+			    "macroInterruptedFileClosingProcedure.message"),
+                        "macro", 5000, true);
                     return false;
                 }
                     
@@ -1690,17 +1705,27 @@
         <parameter name="margin"/>
         <body>
         <![CDATA[
-        var res = this.__proto__.__proto__.onMarginClick.call(this, modifiers, position, margin);
             var scimoz = this.scimoz;
-        var lineClicked = scimoz.lineFromPosition(position);
-        // do minimap stuff here
-        if (this.minimap
-            && margin === 1
-            && this.showMinimap
-            && (scimoz.getFoldLevel(lineClicked) & scimoz.SC_FOLDLEVELHEADERFLAG)) {
-            this.minimap.scimoz.toggleFold(lineClicked);
-            this.minimap.syncMinimapFromBuffer();
-        }
+            var x = this._last_mousemove_xy[0];
+            var xPosition = scimoz.pointXFromPosition(position);
+            var res = this.__proto__.__proto__.onMarginClick.call(this, modifiers, position, margin);
+            var lineClicked = scimoz.lineFromPosition(position);
+            if (margin == 3
+		    && this.changeTrackerEnabled && this.changeTracker) {
+                let marginWidthBefore = [0, 1, 2].map(function(i) scimoz.getMarginWidthN(i)).
+                                                      reduce(function(prevVal, currVal) prevVal + currVal);
+                this.changeTracker.showChanges(x - marginWidthBefore,
+					       lineClicked);
+            } else if (margin == 1) {
+                // do minimap stuff here
+                if (this.minimap
+                    && this.showMinimap
+                    && (scimoz.getFoldLevel(lineClicked) & scimoz.SC_FOLDLEVELHEADERFLAG)) {
+                    this.minimap.scimoz.toggleFold(lineClicked);
+                    this.minimap.syncMinimapFromBuffer();
+                }
+            }
+	    return res;
         ]]>
         </body>
         </method>
@@ -1738,7 +1763,7 @@
                                               reduce(function(prevVal, currVal) prevVal + currVal);
             var trackerMarginWidth = scimoz.getMarginWidthN(3);
             if (x >= marginWidthBefore && x < (marginWidthBefore + trackerMarginWidth)) {
-                this.changeTracker[method](x - marginWidthBefore, lineNo);
+                this.changeTracker[method](x - marginWidthBefore, y, lineNo);
             }
         ]]>
         </body>
@@ -2056,12 +2081,9 @@
                 return;
             }
             try {
-                var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-                    .getService(Components.interfaces.nsIStringBundleService)
-                    .createBundle("chrome://komodo/locale/views.properties");
                 if (false === ko.views.manager.offerToSave([this.koDoc.file.URI],
                               null, // title
-                              _bundle.GetStringFromName("Save file before previewing"), // prompt
+                              this.viewsPropertiesBundle.GetStringFromName("Save file before previewing"), // prompt
                               "save_buffer_before_preview", // doNotAskPref,
                               true, // skipProjects
                               false // aboutToClose
