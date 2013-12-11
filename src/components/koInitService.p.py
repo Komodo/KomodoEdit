@@ -824,7 +824,7 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 9
+    _current_pref_version = 10
 
     def _upgradeUserPrefs(self):
         """Upgrade any specific info in the user's prefs.xml.
@@ -897,6 +897,9 @@ class KoInitService(object):
                 prefs.setLongPref("documentByteCountThreshold", 2000000)
                 prefs.setLongPref("documentLineCountThreshold", 40000)
                 prefs.setLongPref("documentLineLengthThreshold", 100000)
+
+        if version < 10: # Komodo 9.0.0a1
+            prefs.setStringPref("analyticsLastVersion", "pre-9.0a1")
 
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)

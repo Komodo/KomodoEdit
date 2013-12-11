@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>analytics@activestate.com</em:id>
+    <em:name>Analytics</em:name>
+    <em:version>1.0.0</em:version>
+    <em:description>Provide anonymous analytics to the Komodo devs to improve Komodo</em:description>
+    <em:creator>Nathan Rijksen</em:creator>
+    <em:homepageURL></em:homepageURL>
+    <em:type>2</em:type> <!-- type=extension --> 
+    <em:unpack>false</em:unpack>
+
+    <em:targetApplication> <!-- Komodo IDE -->
+      <Description>
+        <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
+        <em:minVersion>7.0</em:minVersion>
+        <em:maxVersion>8.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+    <em:targetApplication> <!-- Komodo Edit -->
+      <Description>
+        <em:id>{b1042fb5-9e9c-11db-b107-000d935d3368}</em:id>
+        <em:minVersion>7.0</em:minVersion>
+        <em:maxVersion>8.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+  </Description>
+</RDF>

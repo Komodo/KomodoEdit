@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2012 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<overlay id="analyticsOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script src="chrome://analytics/content/analytics.js"
+            type="application/x-javascript;version=1.7"/>
+    
+
+    <deck id="komodo-box">
+        <browser    id="analyticsProxy"
+                    type="content"
+                    src="chrome://analytics/content/proxy.html"
+                    insertafter="printBrowser"/>
+        
+    </deck>
+
+</overlay>

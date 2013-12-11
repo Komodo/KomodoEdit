@@ -5,7 +5,7 @@
   <!-- This version field is used by Komodo to upgrade preferences.
        The value should be kept in sync with "../components/koInitService.p.py"
   -->
-  <long id="version">9</long>
+  <long id="version">10</long>
 
   <boolean id="startupMaximized">0</boolean>
   <boolean id="startupFullScreen">0</boolean>
@@ -1121,4 +1121,25 @@
   <!-- See bug Bug #98484 - comments #4 and #5 -->
   <boolean id="donotask_placesAllowDragDropItemsToFolders">0</boolean>
   <string id="donotask_action_placesAllowDragDropItemsToFolders"></string>
+
+  <!-- Analytics -->
+  <string id="analytics_ga_id">UA-45985051-1</string>
+
+  <ordered-preference id="analytics_track_prefs">
+    <string>koSkin_custom_skin</string>
+    <string>koSkin_custom_icons</string>
+    <string>activestate_notification_messages_enabled</string>
+    <string>hyperlinksEnabled</string>
+    <string>hyperlinksEnableGotoDefinition</string>
+    <string>ui.tabs.sidepanes.left.layout</string>
+    <string>ui.tabs.sidepanes.right.layout</string>
+    <string>ui.tabs.sidepanes.bottom.layout</string>
+    <string>keybinding-scheme</string>
+    <string>editor-scheme</string>
+    <string>editor_font_quality</string>
+  </ordered-preference>
+
+  <ordered-preference id="analytics_track_decks">
+    <string>komodo-box</string>
+  </ordered-preference>
 </preference-set>

@@ -496,8 +496,19 @@ ko.mozhacks = {};
 (function() { /* ko.mozhacks */
 var _log = ko.logging.getLogger("ko.main");
 
-// #if PLATFORM == "darwin"
 var _openDialog = window.openDialog;
+/**
+ * Wrap window.openDialog so we can notify the main window that a new dialog
+ * was opened.
+ */
+var _openDialogWrap = function openDialogWrap() {
+    var _window = _openDialog.apply(this, arguments);
+    _window.addEventListener("load", function(e) {
+        xtk.domutils.fireDataEvent(window, "loadDialog", {dialog: _window});
+    });
+    return _window;
+}
+// #if PLATFORM == "darwin"
 /**
  * openDialog
  *
@@ -520,9 +531,10 @@ window.openDialog = function openDialogNotSheet() {
     var args = [];
     for ( var i=0; i < arguments.length; i++ )
         args[i]=arguments[i];
-    return _openDialog.apply(this, args);
+    return _openDialogWrap.apply(this, args);
 }
-
+// #else
+window.openDialog = _openDialogWrap;
 // #endif
 
 }).apply(ko.mozhacks);

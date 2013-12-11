@@ -1,0 +1,9 @@
+# #if MODE == "dev"
+content analytics content/
+locale analytics en-US locale/en-US/
+# #else
+content analytics jar:analytics.jar!/content/
+locale analytics en-US jar:analytics.jar!/locale/en-US/
+# #endif
+
+overlay chrome://komodo/content/komodo.xul chrome://analytics/content/overlay.xul
