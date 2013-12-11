@@ -1722,10 +1722,9 @@ typeInfo = {
                                 """,
         "fromNPVariant": "%(cast)s(_buffer_%(i)s)",
         "fromNPVariantPost": """NPVariant _variant_%(i)s;
-                                size_t _len_%(i)s = strlen(_buffer_%(i)s);
-                                NPUTF8* _npbuf_%(i)s = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(_len_%(i)s + 1));
-                                memcpy(_npbuf_%(i)s, _buffer_%(i)s, _len_%(i)s + 1);
-                                STRINGZ_TO_NPVARIANT(_npbuf_%(i)s, _variant_%(i)s);
+                                NPUTF8* _npbuf_%(i)s = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(rv));
+                                memcpy(_npbuf_%(i)s, _buffer_%(i)s, rv);
+                                STRINGN_TO_NPVARIANT(_npbuf_%(i)s, rv, _variant_%(i)s);
                                 NPN_SetProperty(instance,
                                                 NPVARIANT_TO_OBJECT(%(arg)s),
                                                 NPN_GetStringIdentifier("value"),
