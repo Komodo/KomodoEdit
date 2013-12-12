@@ -51,24 +51,40 @@ class KoConsoleLogger:
         self.log.error("%s", exc.message, make_frame(exc.location))
         return True
 
+    ignored_error_strings = [
+        # Can't do much about external libraries.
+        "analytics.com/ga.js",
+        "/analytics_debug.js",
+        "/socketio.js",
+        "/jquery.js",
+        # Returns an empty XML node - nothing to be concerned about.
+        "addons.updates: Update manifest had an unrecognised namespace",
+    ]
     def _handleScriptError(self, error):
         try:
             error.QueryInterface(Ci.nsIScriptError)
         except COMException:
             return False
+
+        errorMessage = error.errorMessage
+        sourceName = error.sourceName
+        if any(x in errorMessage or x in sourceName for x in self.ignored_error_strings):
+            return True
+
         exc_info = None
         if error.flags & Ci.nsIScriptError.warningFlag:
             log = self.log.warn
         else:
             log = self.log.error
-            frame = Namespace(f_code=Namespace(co_filename=error.sourceName,
+            frame = Namespace(f_code=Namespace(co_filename=sourceName,
                                                co_name=""),
                               f_globals=None)
             tb = Namespace(tb_frame=frame,
                            tb_lineno=error.lineNumber,
                            tb_next=None)
             exc_info = ("", None, tb)
-        log("%s (%x)", error.errorMessage, error.flags, exc_info=exc_info)
+        log("%s (%x) in %s:%r", errorMessage, error.flags, sourceName,
+            error.lineNumber, exc_info=exc_info)
         return True
 
     def observe(self, message):
@@ -76,4 +92,9 @@ class KoConsoleLogger:
             return
         if self._handleScriptError(message):
             return
-        self.log.info("%s", message.message)
+
+        messagetext = message.message
+        if any(x in messagetext for x in self.ignored_error_strings):
+            return
+
+        self.log.info("%s", messagetext)
