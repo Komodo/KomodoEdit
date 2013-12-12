@@ -514,20 +514,14 @@
             try {
                 var sm = this.scintilla.scimoz;
                 var pos = sm.positionFromPoint(x, y);
-                if (this.changeTrackerEnabled && this.changeTracker) {
-                    // Hovering over a change-margin?
-                    var lineNo = sm.lineFromPosition(pos);
-                    var marginWidthBefore = [0, 1, 2].map(function(i) sm.getMarginWidthN(i)).
-                        reduce(function(prevVal, currVal) prevVal + currVal);
-                    var trackerMarginWidth = sm.getMarginWidthN(3);
-                    if (x >= marginWidthBefore
-                        && x < (marginWidthBefore + trackerMarginWidth)
-                        && this.changeTracker.lineBarIsActive(x - marginWidthBefore, lineNo)) {
-                        return this.viewsPropertiesBundle.GetStringFromName("Click on the changebar for details");
-                    }
+                var lineNo = sm.lineFromPosition(pos);
+                // Hovering over a change-margin?
+                if (this.changeTrackerEnabled && this.changeTracker
+                    && this.changeTracker.lineBarIsActive(lineNo)) {
+                    return this.viewsPropertiesBundle.GetStringFromName(
+                        "Click on the changebar for details");
                 }
                 if (pos > 0 && pos < sm.length) {
-                    var lineNo = sm.lineFromPosition(pos);
                     if (this.lintBuffer && this.lintBuffer.lintResults) {
                         var charOffset = pos - sm.positionFromLine(lineNo) + 1;
                         var results = {};
@@ -1706,16 +1700,12 @@
         <body>
         <![CDATA[
             var scimoz = this.scimoz;
-            var x = this._last_mousemove_xy[0];
             var xPosition = scimoz.pointXFromPosition(position);
             var res = this.__proto__.__proto__.onMarginClick.call(this, modifiers, position, margin);
             var lineClicked = scimoz.lineFromPosition(position);
             if (margin == 3
-		    && this.changeTrackerEnabled && this.changeTracker) {
-                let marginWidthBefore = [0, 1, 2].map(function(i) scimoz.getMarginWidthN(i)).
-                                                      reduce(function(prevVal, currVal) prevVal + currVal);
-                this.changeTracker.showChanges(x - marginWidthBefore,
-					       lineClicked);
+                    && this.changeTrackerEnabled && this.changeTracker) {
+                this.changeTracker.showChanges(lineClicked);
             } else if (margin == 1) {
                 // do minimap stuff here
                 if (this.minimap
@@ -1725,7 +1715,7 @@
                     this.minimap.syncMinimapFromBuffer();
                 }
             }
-	    return res;
+            return res;
         ]]>
         </body>
         </method>

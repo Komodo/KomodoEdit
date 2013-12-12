@@ -30,10 +30,6 @@ const CHANGES_INSERT = 1;
 const CHANGES_DELETE = 2;
 const CHANGES_REPLACE = 3;
 
-const MARGIN_POSN_DELETE = 0;
-const MARGIN_POSN_INSERT = 1;
-const MARGIN_POSN_REPLACE = 2;
-
 const SHOW_CHANGES_NONE = 0;
 const SHOW_UNSAVED_CHANGES = 1;
 const SHOW_SCC_CHANGES = 2;
@@ -226,20 +222,19 @@ this.ChangeTracker.prototype._getDeletedTextLines =
            map(function(line) line.replace(/\n|\r\n?/, ""));
 };
 
-this.ChangeTracker.prototype.lineBarIsActive = function(x, lineNo) {
+this.ChangeTracker.prototype.lineBarIsActive = function(lineNo) {
     if (this.showChangesInMargin === SHOW_CHANGES_NONE) {
         return false;
     }
-    var changeMask = this.marginController.activeMarkerMask(x, lineNo);
+    var changeMask = this.marginController.activeMarkerMask(lineNo);
     return changeMask !== 0;
 };
 
-this.ChangeTracker.prototype.showChanges = function(x, lineNo) {
-    // x: x field of the point(x,y) in scintilla view coordinates
+this.ChangeTracker.prototype.showChanges = function(lineNo) {
     if (this.showChangesInMargin === SHOW_CHANGES_NONE) {
         return;
     }
-    var changeMask = this.marginController.activeMarkerMask(x, lineNo);
+    var changeMask = this.marginController.activeMarkerMask(lineNo);
     if (changeMask === 0) {
         return;
     }
@@ -399,7 +394,7 @@ this.ChangeTracker.prototype.onDwellStart = function(x, y, lineNo) {
     if (this.showChangesInMargin === SHOW_CHANGES_NONE) {
         return;
     }
-    var changeMask = this.marginController.activeMarkerMask(x, lineNo);
+    var changeMask = this.marginController.activeMarkerMask(lineNo);
     if (changeMask === 0) {
         return;
     }
@@ -412,6 +407,13 @@ this.ChangeTracker.prototype.onDwellEnd = function onDwellEnd() {
     }
     gEditorTooltipHandler.hide();
 };
+
+const MARGIN_POSN_DELETE = 0;
+const MARGIN_POSN_INSERT = 1;
+const MARGIN_POSN_REPLACE = 2;
+
+const MARGIN_TEXT_LENGTH = 1;
+const MARGIN_CHANGEMARGIN = 3;
 
 this.MarginController = function MarginController(changeTracker, view) {
     this.changeTracker = changeTracker; // Don't think we'll need this
@@ -488,112 +490,67 @@ this.MarginController.prototype = {
     
     _initMargins: function() {
         var scimoz = this.view.scimoz;
-        scimoz.setMarginTypeN(3, scimoz.SC_MARGIN_RTEXT); // right-justified text
-        this.marginWidth = scimoz.textWidth(this.clearStyleNum, "   "); // 3 spaces for del/ins/replace
-        this.marginWidth += 4; // Provide some padding between the markers and the editor text.
-        scimoz.setMarginWidthN(3, this.marginWidth);
-        scimoz.setMarginSensitiveN(3, true);
+        scimoz.setMarginTypeN(MARGIN_CHANGEMARGIN,
+                              scimoz.SC_MARGIN_RTEXT); // right-justified text
+        this.marginWidth = scimoz.textWidth(this.clearStyleNum, " "); // 1 space
+        // Note: If we try to set the margin Width to a smaller value,
+        // Scintilla will display the rest of the space in the previous margin,
+        // and clicking on that will trigger the previous margin's handler
+        scimoz.setMarginWidthN(MARGIN_CHANGEMARGIN, this.marginWidth);
+        scimoz.setMarginSensitiveN(MARGIN_CHANGEMARGIN, true);
     },
 
     showMargin: function() {
-        this.view.scimoz.setMarginWidthN(3, this.marginWidth);
+        this.view.scimoz.setMarginWidthN(MARGIN_CHANGEMARGIN, this.marginWidth);
     },
 
     hideMargin: function() {
-        this.view.scimoz.setMarginWidthN(3, 0);
+        this.view.scimoz.setMarginWidthN(MARGIN_CHANGEMARGIN, 0);
     },
     
-    activeMarkerMask: function(x, lineNo) {
-        // x: x field of the point(x,y) in scintilla view coordinates
-        const scimoz = this.view.scimoz;
-        const chars = this._getMarginText(lineNo);
-        if (chars.length != 3) {
+    activeMarkerMask: function(lineNo) {
+        if (this._getMarginText(lineNo).length != MARGIN_TEXT_LENGTH) {
             return 0;
         }
-        const styles = this._getMarginStyles(lineNo);
-        // The margin of interest has 3 sub-margins, corresponding to delete, insert,
-        // and replace, in that order.
-        // currSubMargin is the sub-margin the cursor is associated with
-        var currSubMargin;
-        var widthSoFar = 0;
-
-        // Also, this margin's text is right-aligned, so the value of x
-        // is including the unused text to the left of the marker's text.
-        // We need to find the unused part of the margin, and subtract
-        // that from x.
-
-        // There's a left offset in the margin due to right-aligning
-        // the margin text, so we need to figure out what it is.
-        for (var i = 0; i < styles.length; i++) {
-            widthSoFar += scimoz.textWidth(styles[i].charCodeAt(0), " ");
-        }
-        let delta = scimoz.getMarginWidthN(3) - widthSoFar;
-        if (delta > 0 && x > delta) {
-            x -= delta;
-        }
-
-        widthSoFar = 0;
-        for (var i = 0; i < styles.length; i++) {
-            // Invariant: widthSoFar <= x
-            let thisWidth = scimoz.textWidth(styles[i].charCodeAt(0), " ");
-            let nextWidth = widthSoFar + thisWidth;
-            if (nextWidth >= x) {
-                currSubMargin = i;
-                // If the current sub-margin is clear, and the cursor is close to a
-                // non-clear sub-margin, go with that instead.
-                if (styles[i].charCodeAt(0) === this.clearStyleNum) {
-                    const slopWidth = thisWidth / 2;
-                    if (widthSoFar + slopWidth >= x && i > 0) {
-                        currSubMargin = i - 1;
-                    } else if (nextWidth - slopWidth <= x && i < styles.length - 1) {
-                        currSubMargin = i + 1;
-                    }
-                }
-                break;
-            }
-            widthSoFar = nextWidth;
-        }
-        let styleCheck = function(pos, styleNum) {
-            return (styles[pos].charCodeAt(0) === styleNum && currSubMargin === pos);
-        }
-        if (styleCheck(MARGIN_POSN_DELETE, this.deleteStyleNum)) {
+        const currStyle = this._getMarginStyles(lineNo)[0].charCodeAt(0);
+        if (currStyle == this.deleteStyleNum) {
             return 1 << CHANGES_DELETE;
         }
-        if (styleCheck(MARGIN_POSN_REPLACE, this.replaceStyleNum)) {
+        if (currStyle == this.replaceStyleNum) {
             return 1 << CHANGES_REPLACE;
         }
-        if (styleCheck(MARGIN_POSN_INSERT, this.insertStyleNum)) {
+        if (currStyle == this.insertStyleNum) {
             return 1 << CHANGES_INSERT;
         }
         return 0;
     },
     
-    _specificMarkerSet: function _specificMarkerSet(line, styleNum, stylePosn) {
+    _specificMarkerSet: function _specificMarkerSet(line, styleNum) {
         var chars = this._getMarginText(line);
-        if (chars.length != 3) {
+        if (chars.length != MARGIN_TEXT_LENGTH) {
             this.setupMarker(line);
         }
         var styles = this._getMarginStyles(line);
-        styles[stylePosn] = String.fromCharCode(styleNum);
+        styles[0] = String.fromCharCode(styleNum);
         this._setMarginStyles(line, styles);
     },
     
     delMarkerSet: function(line) {
-        this._specificMarkerSet(line, this.deleteStyleNum, MARGIN_POSN_DELETE);
+        this._specificMarkerSet(line, this.deleteStyleNum);
     },
     
     insMarkerSet: function(line) {
-        this._specificMarkerSet(line, this.insertStyleNum, MARGIN_POSN_INSERT);
+        this._specificMarkerSet(line, this.insertStyleNum);
     },
     
     replaceMarkerSet: function(line) {
-        this._specificMarkerSet(line, this.replaceStyleNum, MARGIN_POSN_REPLACE);
+        this._specificMarkerSet(line, this.replaceStyleNum);
     },
     
     setupMarker: function(line) {
-        this._setMarginText(line, [" ", " ", " "]);
+        this._setMarginText(line, " ");
         var defaultStyle = String.fromCharCode(this.clearStyleNum);
-        this._setMarginStyles(line, [defaultStyle, defaultStyle, defaultStyle]);
+        this._setMarginStyles(line, [defaultStyle]);
     },
     
     _getMarginText: function(line) {
@@ -602,13 +559,13 @@ this.MarginController.prototype = {
             this.view.scimoz.marginGetText(line, text);
             text = text.value;
         } catch(e) {
+            log.exception(e, "Problem in _getMarginText");
             text = "";
         }
-        return text.split("");
+        return text;
     },
     
     _setMarginText: function(line, chars) {
-        chars = chars.join("");
         this.view.scimoz.marginSetText(line, chars);
     },
     
@@ -667,14 +624,11 @@ this.MarginController.prototype = {
         // We can't use the held deletion/insertion lists because the line numbers
         // could have changed.
         for (let lineNo = 0; lineNo < scimoz.lineCount; lineNo++) {
-            var chars = this._getMarginText(lineNo);
-            if (chars.length != 3) {
+            if (this._getMarginText(lineNo).length != MARGIN_TEXT_LENGTH) {
                 continue;
             }
             var styles = this._getMarginStyles(lineNo);
             styles[0] = String.fromCharCode(this.clearStyleNum);
-            styles[1] = String.fromCharCode(this.clearStyleNum);
-            styles[2] = String.fromCharCode(this.clearStyleNum);
             this._setMarginStyles(lineNo, styles);
         }
     },
