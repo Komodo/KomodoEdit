@@ -217,6 +217,10 @@ var gVim_onCurrentViewChanged = function(event) {
     // When the view changes - always go back to the normal mode.
     gVimController.mode = VimController.MODE_NORMAL;
     var view = event.originalTarget;
+    if (view.getAttribute("type") != "editor") {
+        /* Only need to look at editor views. */
+        return;
+    }
     gVimController.updateCaretStyle(view.scimoz);
 }
 
