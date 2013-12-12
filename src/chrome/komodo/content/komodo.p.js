@@ -279,18 +279,6 @@ function moz_user_pref(name, value) {
     pref[methName[typeof(value)]](name, value);
 }
 
-// nsIConsoleListener
-var consoleListener = {
-    observe: function(/* nsIConsoleMessage */ aMessage) {
-        
-        // Filter out unwanted strict warnings
-        var regex = new RegExp('JavaScript Warning.*?(?:does not always return a value|redeclares argument|functions may be declared|test for equality|Update manifest had an unrecognised|reference to undefined property.*jquery.js\"|Trying to re-register CID .* already registered|Ignoring obsolete chrome registration modifier \'xpcnativewrappers\=no\'|Unknown property.*iframe\.css)');
-        if (aMessage.message.match(regex) != null) return;
-        
-        dump(aMessage.message+"\n");
-    }
-}
-
 function enableDevOptions() {
     // Enable dumps
     try  {
@@ -304,16 +292,6 @@ function enableDevOptions() {
         var nsXulAppInfo = Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULAppInfo);
         var nsXulRuntime = nsXulAppInfo.QueryInterface(Components.interfaces.nsIXULRuntime);
         nsXulRuntime.invalidateCachesOnRestart();
-
-        // get all console messages and dump them, then hook up the
-        // console listener so we can dump console messages
-        var cs = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService);
-        var messages = new Object();
-        cs.getMessageArray(messages, new Object());
-        for (var i = 0; i < messages.value.length; i++) {
-            consoleListener.observe(messages.value[i]);
-        }
-        cs.registerListener(consoleListener);
     }
     catch(e) { _log.exception(e,"Error setting Mozilla prefs"); }
 }
