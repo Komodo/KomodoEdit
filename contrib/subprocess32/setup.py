@@ -14,14 +14,14 @@ def main():
 
     setup(
       name='subprocess32',
-      version='3.2.5rc1',
-      description='Backport of the subprocess module from Python 3.2.5 for use on 2.x.',
+      version='3.2.5',
+      description='Backport of the subprocess module from Python 3.2/3.3 for use on 2.x.',
       long_description="""
 This is a backport of the subprocess standard library module from
-Python 3.2.5 for use on Python 2.4, 2.5, 2.6 and 2.7.
+Python 3.2 & 3.3 for use on Python 2.4, 2.5, 2.6 and 2.7.
 It includes bugfixes and new features.  On POSIX systems it is
-MUCH more reliable when used in threaded applications.
-Bonus: It also includes timeout support from Python 3.3.""",
+guaranteed to be reliable when used in threaded applications.
+Bonus: It includes timeout support from Python 3.3.""",
       license='PSF license',
 
       maintainer='Gregory P. Smith',

@@ -1374,6 +1374,27 @@ class POSIXProcessTestCase(BaseTestCase):
         self.check_swap_fds(2, 0, 1)
         self.check_swap_fds(2, 1, 0)
 
+    def test_small_errpipe_write_fd(self):
+        """Issue #15798: Popen should work when stdio fds are available."""
+        new_stdin = os.dup(0)
+        new_stdout = os.dup(1)
+        try:
+            os.close(0)
+            os.close(1)
+
+            # Side test: if errpipe_write fails to have its CLOEXEC
+            # flag set this should cause the parent to think the exec
+            # failed.  Extremely unlikely: everyone supports CLOEXEC.
+            subprocess.Popen([
+                    sys.executable, "-c",
+                    "print('AssertionError:0:CLOEXEC failure.')"]).wait()
+        finally:
+            # Restore original stdin and stdout
+            os.dup2(new_stdin, 0)
+            os.dup2(new_stdout, 1)
+            os.close(new_stdin)
+            os.close(new_stdout)
+
     def test_remapping_std_fds(self):
         # open up some temporary files
         temps = [mkstemp() for i in range(3)]
@@ -1694,6 +1715,23 @@ class POSIXProcessTestCase(BaseTestCase):
         # p should have been wait()ed on, and removed from the _active list
         self.assertRaises(OSError, os.waitpid, pid, 0)
         self.assertNotIn(ident, [id(o) for o in subprocess._active])
+
+    def test_close_fds_after_preexec(self):
+        fd_status = test_support.findfile("testdata/fd_status.py")
+
+        # this FD is used as dup2() target by preexec_fn, and should be closed
+        # in the child process
+        fd = os.dup(1)
+        self.addCleanup(os.close, fd)
+
+        p = subprocess.Popen([sys.executable, fd_status],
+                             stdout=subprocess.PIPE, close_fds=True,
+                             preexec_fn=lambda: os.dup2(1, fd))
+        output, ignored = p.communicate()
+
+        remaining_fds = set(map(int, output.split(',')))
+
+        self.assertNotIn(fd, remaining_fds)
 
 
 if mswindows:
