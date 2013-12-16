@@ -302,6 +302,11 @@ function enableDevOptions() {
    windows is up and running.  There may be a thing or two otherwise
    that also needs to start late. */
 function onloadDelay() {
+
+// #if BUILD_FLAVOUR == "dev"
+    require("ko/benchmark").addEvent("window.onloadDelay");
+// #endif
+
     try {
         var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                         getService(Components.interfaces.nsIObserverService);
@@ -320,7 +325,13 @@ function onloadDelay() {
                                       function() { ko.toolbox2.applyKeybindings(); });
         }
 
+// #if BUILD_FLAVOUR == "dev"
+    require("ko/benchmark").startTiming("workspace.restore");
+// #endif
         ko.workspace.restore();
+// #if BUILD_FLAVOUR == "dev"
+    require("ko/benchmark").endTiming("workspace.restore");
+// #endif
 
         ko.history.init();
 
@@ -331,11 +342,23 @@ function onloadDelay() {
 
     // Let everyone know Komodo is fully started.
     setTimeout(function() {
+
+// #if BUILD_FLAVOUR == "dev"
+        require("ko/benchmark").addEvent("komodo-ui-started");
+// #endif
+
         // This is a global event, no need to use the WindowObserverSvc
         var obSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
         obSvc.notifyObservers(null, "komodo-ui-started", "");
         xtk.domutils.fireEvent(window, "komodo-ui-started");
+
+// #if BUILD_FLAVOUR == "dev"
+        require("ko/benchmark").addEvent("komodo-ui-started-event-finished");
+        var startup_info = Components.classes["@mozilla.org/toolkit/app-startup;1"].getService(Components.interfaces.nsIAppStartup).getStartupInfo();
+        require("ko/benchmark").addEvent("firstPaint " + (startup_info.firstPaint - startup_info.process));
+// #endif
+
     }, 0);
 }
 
@@ -381,6 +404,10 @@ function _set_docelement_css_classes() {
 window.onload = function(event) {
     _log.debug(">> window.onload");
 
+// #if BUILD_FLAVOUR == "dev"
+    require("ko/benchmark").startTiming("window.onload");
+// #endif
+
     //dump(">>> window.onload\n");
     // XXX PLUGINS cannot be touched here, do it in the delayed onload handler below!!!
     try {
@@ -417,6 +444,11 @@ window.onload = function(event) {
         _log.exception(e,"Error doing KomodoOnLoad:");
         throw e;
     }
+
+// #if BUILD_FLAVOUR == "dev"
+    require("ko/benchmark").endTiming("window.onload");
+// #endif
+
     _log.debug("<< window.onload");
 }
 

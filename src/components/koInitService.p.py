@@ -37,6 +37,14 @@
 
 # Initialization Services for Komodo
 
+# #if BUILD_FLAVOUR == "dev"
+# Record when the module was first loaded.
+import time
+_module_load_time = time.time()
+import benchmark
+benchmark.initialise(_module_load_time)   # Base time (i.e. time 0)
+# #endif
+
 # mozilla sets LC_NUMERIC which messes up the python parser if the locale
 # uses something other than a period for decimal seperator.  We reset it
 # here to make all consecutive files get parsed correctly.
@@ -1241,3 +1249,8 @@ class KoInitService(object):
         except Exception:
             log.exception("installTemplates")
 
+# #if BUILD_FLAVOUR == "dev"
+    # Benchmark the known/slow methods.
+    __init__ = benchmark.bench("koInitService.__init__")(__init__)
+    upgradeUserSettings = benchmark.bench("koInitService.upgradeUserSettings")(upgradeUserSettings)
+# #endif
