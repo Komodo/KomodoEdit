@@ -347,6 +347,10 @@ $cons->InstallXpcomComponent('addonManager/koamAddonManager.js',
 # dev build helper
 if ($buildFlavour == "dev") {
     $cons->InstallXpcomComponent('koConsoleLogger.py');
+
+    # Komodo benchmarking.
+    $cons->BuildAndInstallXpt('koIBenchmark.idl');
+    $cons->InstallXpcomComponent('koBenchmark.py');
 }
 
 

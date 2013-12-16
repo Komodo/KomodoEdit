@@ -107,4 +107,6 @@ if ($platform eq "win") {
     $cons->InstallPythonUtility('ctypesutils.py');
 }
 
-
+if ($buildFlavour eq "dev") {
+    $cons->InstallPythonUtility('benchmark.py');
+}

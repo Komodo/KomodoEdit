@@ -99,3 +99,7 @@ $cons->InstallInChrome('multipleCaret.js');
 $cons->Preprocess('changeTracker.p.js', 'changeTracker.js');
 $cons->InstallInChrome('changeTracker.js');
 $cons->InstallInChrome('utils.js');
+
+if ($buildFlavour eq "dev") {
+    $cons->InstallInChrome('benchmark.js');
+}
