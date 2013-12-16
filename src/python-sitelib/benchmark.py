@@ -44,7 +44,7 @@ class BenchReporter(object):
             print ""
             print "Events:"
             for name, t in self._events:
-                print "  %-73s at %0.5f" % (name, t - self.time0)
+                print "  %-66s at %0.5f" % (name, t - self.time0)
 
     def display(self, order="by-time", limit=None):
         """Display the reports.
@@ -66,7 +66,7 @@ class BenchReporter(object):
             for start in sorted(entries_by_time):
                 entries = entries_by_time[start]
                 for name, spent, depth in entries:
-                    print "  %-65s %0.5f at %0.5f" % (depth * " " + name, spent, start - self.time0)
+                    print "  %-58s %0.5f at %0.5f" % (depth * " " + name, spent, start - self.time0)
         else:
             print "Unknown sort order %r" % (order, )
 
