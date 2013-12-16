@@ -72,7 +72,6 @@
               ondblclick="ciDefinitionChoice_onTreeDblClick();"
               enableColumnDrag="true"
               hidecolumnpicker="false">
-              <!--onkeypress="gHttpInspector.onRequestHeadersKeyPress(event);"-->
             <treecols>
               <treecol id="ciDefinitionChoice_treecol_name"
                        flex="1"
