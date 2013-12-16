@@ -2160,6 +2160,8 @@ def _BuildKomodo(cfg, argv):
         return GetScintillaSource(cfg, argv)
     if "crashreportsymbols" in argv:
         return BuildCrashReportSymbols(cfg)
+    if "caches" in argv:
+        return GenerateCaches(cfg)
     if "package_md5sums" in argv:
         return _PackageUpdateMd5sums(cfg)
     noquick = "noquick" in argv
