@@ -1445,13 +1445,13 @@ projectManager.prototype.setState = function(pref)
         try {
             this._spv_urls = JSON.parse(pref.getStringPref("spv_projects"));
         } catch(ex) {
-            log.error("Can't get pref spv_projects");
+            this.log.error("Can't get pref spv_projects");
             this._spv_urls = [];
         }
         try {
             this._mpv_urls = JSON.parse(pref.getStringPref("mpv_projects"));
         } catch(ex) {
-            log.error("Can't get pref mpv_projects");
+            this.log.error("Can't get pref mpv_projects");
             this._mpv_urls = [];
         }
         var urlList = this.single_project_view ? this._spv_urls : this._mpv_urls;
@@ -1789,7 +1789,7 @@ this.safeGetFocusedPlacesView = function() {
         try {
             return ko.places.getFocusedPlacesView();
         } catch(ex) {
-            log.warn("Can't call ko.places.getFocusedPlacesView:\n" + ex + "\n");
+            this.log.warn("Can't call ko.places.getFocusedPlacesView:\n" + ex + "\n");
         }
     }
     return false;
