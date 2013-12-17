@@ -1,4 +1,5 @@
 import time
+import operator
 from collections import defaultdict
 
 _g_reporter = None
@@ -39,11 +40,13 @@ class BenchReporter(object):
     def addEvent(self, name):
         self._events.append((name, time.time()))
 
+    def addEventAtTime(self, name, t):
+        self._events.append((name, t))
+
     def displayEvents(self, limit=None):
         if self._events:
-            print ""
             print "Events:"
-            for name, t in self._events:
+            for name, t in sorted(self._events, key=operator.itemgetter(1)):
                 print "  %-66s at %0.5f" % (name, t - self.time0)
 
     def display(self, order="by-time", limit=None):
@@ -117,6 +120,11 @@ def addEvent(name):
     if _g_reporter is None:
         initialise()
     _g_reporter.addEvent(name)
+
+def addEventAtTime(name, t):
+    if _g_reporter is None:
+        initialise()
+    _g_reporter.addEventAtTime(name, t)
 
 def display():
     assert _g_reporter is not None

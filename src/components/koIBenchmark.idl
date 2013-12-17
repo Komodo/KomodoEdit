@@ -28,6 +28,11 @@ interface koIBenchmark : nsISupports {
     void addEvent(in AString eventname);
 
     /**
+     * Reports an event occurred at the given time.
+     */
+    void addEventAtTime(in AString eventname, in double time);
+
+    /**
      * Dump current benchmark results to stdout.
      */
     void display();

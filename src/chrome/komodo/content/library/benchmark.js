@@ -38,6 +38,13 @@ exports.addEvent = function(name) {
 }
 
     /**
+     * Reports an event occurred at the given time.
+     */
+exports.addEventAtTime = function(name, t) {
+    return koBenchmark.addEventAtTime(name, t);
+}
+
+    /**
      * Dump current benchmark results to stdout.
      */
 exports.display = function() {

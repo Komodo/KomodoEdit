@@ -41,6 +41,9 @@ class koBenchmark(object):
     def addEvent(self, name):
         return benchmark.addEvent(name)
 
+    def addEventAtTime(self, name, t):
+        return benchmark.addEventAtTime(name, t)
+
     def display(self):
         return benchmark.display()
 
