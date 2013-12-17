@@ -2575,6 +2575,10 @@ def BuildQuickBuildDB(cfg, argv):
               targetSubdir=cfg.komodoPythonUtilsDir,
               extensions=['py', 'cix'],
               preserveSubtrees=1)
+    _addFiles(cfg, sourceSubdir='src/codeintel/bin',
+              targetSubdir=os.path.join(cfg.supportDir, "codeintel"),
+              extensions=['py'],
+              preserveSubtrees=1)
     _addFiles(cfg, sourceSubdir='src/prefs',
               targetSubdir=os.path.join(cfg.supportDir),
               extensions=['xml'],
