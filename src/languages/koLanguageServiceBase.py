@@ -37,14 +37,11 @@
 
 """Base classes for languages and language services"""
 
-import cgi, copy, re, types, os, uriparse, eollib
+import copy, re, types, eollib
 import Queue
-import threading
 import logging
-import pprint
 
 import scimozindent
-import HTMLTreeParser
 from xpcom import components
 
 #---- globals
@@ -286,6 +283,7 @@ class KoCommenterLanguageService:
             except IndexError:
                 originalLines.append( (lines[i], '') )
         if self.DEBUG:
+            import pprint
             print "original text (as lines for easier processing):"
             pprint.pprint(originalLines)
 
@@ -2546,6 +2544,7 @@ class KoLanguageBase:
           
         * in all other cases, align w/ current line
         """
+        import HTMLTreeParser
         currentPos = scimoz.currentPos
         currentLine = scimoz.lineFromPosition(currentPos)
         """ Note use of Doc/Buf coordinates.  *_Doc variables refer to coordinates

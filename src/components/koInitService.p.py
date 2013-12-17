@@ -74,8 +74,6 @@ if sys.platform == "win32":
 
 from xpcom import components, nsError, ServerException, COMException
 
-import upgradeutils
-
 
 # Set lazily after "koLoggingService" has mucked with logging's internals.
 log = None
@@ -823,6 +821,7 @@ class KoInitService(object):
             prefs.deletePref("fileAssociations")
 
         if prefs.hasPrefHere("mappedPaths"):
+            import upgradeutils
             upgradeutils.upgrade_mapped_uris_for_prefset(prefs)
 
         # Upgrade auto-save pref, turn minutes into seconds - bug 82854.
