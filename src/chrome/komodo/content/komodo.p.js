@@ -358,7 +358,11 @@ function onloadDelay() {
         var startup_info = Components.classes["@mozilla.org/toolkit/app-startup;1"].getService(Components.interfaces.nsIAppStartup).getStartupInfo();
         require("ko/benchmark").addEventAtTime("createTopLevelWindow", startup_info.createTopLevelWindow / 1000);
         require("ko/benchmark").addEventAtTime("firstLoadURI", startup_info.firstLoadURI / 1000);
-        require("ko/benchmark").addEventAtTime("firstPaint", startup_info.firstPaint / 1000);
+        // If firstPaint hasn't occurred, check again later.
+        setTimeout(function() {
+            var startup_info = Components.classes["@mozilla.org/toolkit/app-startup;1"].getService(Components.interfaces.nsIAppStartup).getStartupInfo();
+            require("ko/benchmark").addEventAtTime("firstPaint", startup_info.firstPaint / 1000);
+        }, typeof(startup_info.firstPaint) == "undefined" ? 5000 : 0);
 // #endif
 
     }, 0);
