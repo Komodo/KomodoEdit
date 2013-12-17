@@ -573,7 +573,7 @@ class Driver(threading.Thread):
                         if real_handler is None:
                             # Handler failed to instantiate, drop it
                             try:
-                                self._command_handler_map["command"].remove(handler)
+                                self._command_handler_map[command].remove(handler)
                             except ValueError:
                                 pass # ... shouldn't happen, but tolerate it
                             continue
