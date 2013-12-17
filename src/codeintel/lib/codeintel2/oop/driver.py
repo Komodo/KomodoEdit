@@ -139,7 +139,8 @@ class Driver(threading.Thread):
         self.active_request = None
 
         self.send_queue = Queue.Queue()
-        self.send_thread = threading.Thread(target=self._send_proc)
+        self.send_thread = threading.Thread(name="Codeintel OOP Driver Send Thread",
+                                            target=self._send_proc)
         self.send_thread.daemon = True
         self.send_thread.start()
 
