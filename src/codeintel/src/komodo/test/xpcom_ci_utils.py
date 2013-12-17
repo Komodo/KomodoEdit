@@ -16,6 +16,8 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         unittest.TestCase.__init__(self, *args, **kwargs)
         #self.log = log.getChild(self.__class__.__name__)
 
+    __has_codeintel_db_been_setup = False
+
     @classmethod
     def setUpClass(cls):
         """Start the codeintel service once to make sure the database is ready
@@ -26,8 +28,8 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         ready = set()
         callback = lambda status, data: ready.add(True)
         svc.addActivateCallback(callback)
-        sys.stdout.write(".")
-        log.debug("[starting codeintel...]")
+        if not _CodeIntelTestCaseBase.__has_codeintel_db_been_setup:
+            sys.stdout.write("Setting up codeintel database...\n")
         svc.activate(True)
         while not ready:
             tm.currentThread.processNextEvent(True)
@@ -37,8 +39,9 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         svc.deactivate()
         while svc.isBackEndActive:
             tm.currentThread.processNextEvent(True)
-        sys.stdout.write(".")
-        log.debug("[codeintel stopped]")
+        if not _CodeIntelTestCaseBase.__has_codeintel_db_been_setup:
+            sys.stdout.write("Codeintel database initialization completed\n")
+            _CodeIntelTestCaseBase.__has_codeintel_db_been_setup = True
 
     def setUp(self):
         # Start up the service
@@ -76,6 +79,14 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
     def tearDown(self):
         self.svc.deactivate()
         self.svc = None
+
+    def run(self, result=None):
+        try:
+            log.debug("Running test %s...", self._testMethodName)
+        except AttributeError:
+            pass
+        return super(_CodeIntelTestCaseBase, self).run(result=result)
+
 
 class _BufferTestCaseBase(_CodeIntelTestCaseBase):
     language = None
