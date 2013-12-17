@@ -37,7 +37,7 @@
 <!ENTITY % autoAbbreviationName.name                "Auto-Abbreviation">
 <!ENTITY connection.label                "Connection">
 
-<!ENTITY connectionDesc.label            "Configure how Komodo connects to the Internet for updates, HTML Preview, etc.">
+<!ENTITY connectionDesc.label            "Configure HTTP Proxy settings for how Komodo connects to the Internet for updates, HTML Preview, etc.">
 <!ENTITY connectionSettings.label        "Settings...">
 <!ENTITY connectionSettings.accesskey    "e">
 
