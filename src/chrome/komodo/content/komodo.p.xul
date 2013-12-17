@@ -97,7 +97,10 @@
 	require("ko/benchmark").startTiming("komodo.xul - js load");
 // #endif
     </script>
-	
+
+    <!-- Various startup performance tweaks. -->
+    <script src="chrome://komodo/content/library/performance_tweaks.js" type="application/x-javascript;version=1.7"/>
+
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <!--Mozilla sources-->
     <!--globalOverlay.js contains application shutdown and controller code-->
