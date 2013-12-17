@@ -101,7 +101,7 @@
 #   of that has changed :)
 #   
 
-import sys, os, types, cgi, re, shutil, operator, copy
+import sys, os, types, re, shutil, operator, copy
 import time
 from xml.dom import minidom
 from xml.sax import SAXParseException
@@ -475,11 +475,11 @@ class koPreferenceSet(object):
             return
         attrs = []
         if self.idref:
-            attrs.append('idref="%s"' % cgi.escape(self.idref))
+            attrs.append('idref="%s"' % cgi_escape(self.idref))
         if self.id:
-            attrs.append('id="%s"' % cgi.escape(self.id))
+            attrs.append('id="%s"' % cgi_escape(self.id))
         if self.preftype:
-            attrs.append('preftype="%s"' % cgi.escape(self.preftype))
+            attrs.append('preftype="%s"' % cgi_escape(self.preftype))
         stream.write('<preference-set %s>%s' % (' '.join(attrs), newl))
         for prefName in sorted(self.prefs):
             try:
@@ -928,7 +928,7 @@ class koOrderedPreference(object):
     def serialize(self, stream, basedir):
         if self.id:
             stream.write('<ordered-preference id="%s">%s' \
-                         % (cgi.escape(self.id), newl))
+                         % (cgi_escape(self.id), newl))
         else:
             stream.write('<ordered-preference>%s' % newl)
         for pref, typ in self._collection:
@@ -1041,7 +1041,7 @@ class koPreferenceCache(object):
     def serialize(self, stream, basedir):
         """Serializes the preference set to a stream."""
         id = self.id or ''
-        stream.write('<preference-cache id="%s" max_length="%s">%s' % (cgi.escape(id),self._maxsize, newl))
+        stream.write('<preference-cache id="%s" max_length="%s">%s' % (cgi_escape(id),self._maxsize, newl))
         indexes = self.index_map.keys()
         indexes.sort()
         for index in indexes:

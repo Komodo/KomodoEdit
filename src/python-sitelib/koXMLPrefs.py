@@ -44,15 +44,26 @@ from xpcom import components, ServerException, COMException, nsError
 from xpcom.server.enumerator import SimpleEnumerator
 from xpcom.server import WrapObject, UnwrapObject
 from xpcom.client import WeakReference
-import re, sys, os, cgi
+import re, sys, os
 from eollib import newl
 import logging
-import shutil
 import uriparse
-import urllib2
+import urllib
 
 log = logging.getLogger('koXMLPrefs')
 #log.setLevel(logging.DEBUG)
+
+# Copied verbatim from cgi.escape (in order to avoid having to import cgi).
+def cgi_escape(s, quote=None):
+    '''Replace special characters "&", "<" and ">" to HTML-safe sequences.
+    If the optional flag quote is true, the quotation mark character (")
+    is also translated.'''
+    s = s.replace("&", "&amp;") # Must be done first!
+    s = s.replace("<", "&lt;")
+    s = s.replace(">", "&gt;")
+    if quote:
+        s = s.replace('"', "&quot;")
+    return s
 
 # convert a string containing 0, 1, True, False
 def _convert_boolean(value):
@@ -358,7 +369,7 @@ def _xmlencode(s):
         Read this from the bottom-left towards top-right """
     return _encre.sub(_makeCharRef,
                       pct_chars.sub(_pctEscape,
-                                    cgi.escape(s)))
+                                    cgi_escape(s)))
  
 def serializePref(stream, pref, prefType, prefName=None, basedir=None):
     """Serialize one preference to a stream as appropriate for its type.
@@ -368,7 +379,7 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
     if prefType == "string":
         attrs = {}
         if prefName:
-            attrs['id'] = cgi.escape(prefName,1)
+            attrs['id'] = cgi_escape(prefName,1)
         # serialize string prefs as UTF-8
         if basedir:
             try:
@@ -382,7 +393,7 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
                         # The problem with relativizing is that it also %-encodes
                         # the usual characters, but that will happen later in
                         # the serialization process, so don't do it here.
-                        relative2 = urllib2.unquote(relative)
+                        relative2 = urllib.unquote(relative)
                         if pref.endswith(relative2):
                             pref = relative2
                         else:
@@ -398,8 +409,8 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
                 log.exception(e)
                 pass # pass and use original value
         # This line causes multiple-entification, as _xmlencode
-        # will also call cgi.escape
-        #pref = cgi.escape(pref)
+        # will also call cgi_escape
+        #pref = cgi_escape(pref)
         data = u'  <string'
         for a,v in attrs.items():
             data += ' %s="%s"' % (a,v)
@@ -412,16 +423,16 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
                                               prefType, newl))
         else:
             stream.write('  <%s id="%s">%d</%s>%s'\
-                         % (prefType, cgi.escape(prefName,1),
+                         % (prefType, cgi_escape(prefName,1),
                             pref, prefType, newl))
     elif prefType in ("long", "double"):
         if prefName is None:
-            stream.write('  <%s>%s</%s>%s' % (prefType, cgi.escape(str(pref)),
+            stream.write('  <%s>%s</%s>%s' % (prefType, cgi_escape(str(pref)),
                                               prefType, newl))
         else:
             stream.write('  <%s id="%s">%s</%s>%s'\
-                         % (prefType, cgi.escape(prefName,1),
-                            cgi.escape(str(pref)), prefType, newl))
+                         % (prefType, cgi_escape(prefName,1),
+                            cgi_escape(str(pref)), prefType, newl))
     else:
         try:
             pref.serialize(stream, basedir)
