@@ -49,10 +49,6 @@ ko.help = {};
 (function () {
 var _log = ko.logging.getLogger("ko.help");
 
-var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-        .getService(Components.interfaces.nsIStringBundleService)
-        .createBundle("chrome://komodo/locale/komodo.properties");
-
 /* XXX duplicated from help/content/contextHelp.js.  We do NOT want
    alwaysRaised attribute on the window, that's obnoxious! */
 
@@ -213,6 +209,11 @@ this.viewErrorLog = function() {
     var dirsSvc = Components.classes['@activestate.com/koDirs;1'].getService(Components.interfaces.koIDirs);
     var sysUtilsSvc = Components.classes['@activestate.com/koSysUtils;1'].getService(Components.interfaces.koISysUtils);
     var logPath = osSvc.path.join(dirsSvc.userDataDir, 'pystderr.log');
+
+    var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+            .getService(Components.interfaces.nsIStringBundleService)
+            .createBundle("chrome://komodo/locale/komodo.properties");
+
     if (osSvc.path.exists(logPath)) {
         sysUtilsSvc.FlushStderr();
         var windowOpts = "centerscreen,chrome,resizable,scrollbars,dialog=no,close";
@@ -242,8 +243,6 @@ this.memoryUsage = function() {
 if (!("launch" in ko)) {
 ko.launch = {};
 (function () {
-var _log = ko.logging.getLogger("ko.launch");
-
 
 
 /**
