@@ -269,6 +269,23 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
                              "myopen(page)\nopen window")
 
+    @tag("bug102314")
+    def test_jsdoc_constructor(self):
+        content, positions = unmark_text(dedent("""\
+            /**
+             * A module representing an Animal.
+             * @constructor
+             */
+            function Animal()
+            {
+              this.owner = "Homeless";
+            }
+            var myAnimal = new Animal();
+            myAnimal.<1>
+        """))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            [("variable", "owner")]);
+
     @tag("bug53217", "bug53237")
     def test_local(self):
         # JS completion for stuff in just the local file.

@@ -1287,7 +1287,7 @@ class JSObject:
                 attributeDocs.append("CONSTANT")
                 if "constant" not in self.attributes:
                     self.attributes.append("constant")
-            if jsdoc.isConstructor():
+            if jsdoc.isConstructor() and self.cixname == "function":
                 attributeDocs.append("CONSTRUCTOR")
                 if "__ctor__" not in self.attributes:
                     self.attributes.append("__ctor__")
