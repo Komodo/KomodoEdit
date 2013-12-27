@@ -275,4 +275,8 @@ this.exportPackageItems = function Toolbox_ExportPackageItems(items) {
     packager.packageParts(localPath, items.length, items, true);
 }
 
+window.addEventListener("komodo-ui-started", function() {
+    window.controllers.appendController(new toolboxController());
+});
+
 }).apply(ko.projects);
