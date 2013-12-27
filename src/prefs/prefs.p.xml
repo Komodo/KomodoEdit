@@ -1000,6 +1000,9 @@
             This indicates if completion triggers should fire automatically
             while editing. <Ctrl+J> to manually open these UIs is still
             available.
+        "codeintel_completions_enabled" - whether completions popup get shown.
+        "codeintel_calltips_enabled" - whether calltips are shown.
+        "codeintel_goto_definition_enabled" - whether goto def is enabled.
         "codeintel_rescan_while_typing_enabled" indicates if scan requests
             should be issued for the current file while it is being edited.
         "codeintel_scanning_imports_enabled" indicates whether the CodeIntel

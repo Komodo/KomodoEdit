@@ -229,7 +229,7 @@ class NoCIDBModuleEntry(CIDBError): #XXX change name to NoModuleEntryForPath
 
 #---- globals
 
-# Trigger forms.
+# Trigger forms - must be kept in sync with values in koICodeIntel.idl.
 TRG_FORM_CPLN, TRG_FORM_CALLTIP, TRG_FORM_DEFN = range(3)
 
 # Priorities at which scanning requests can be scheduled.

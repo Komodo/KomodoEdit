@@ -96,7 +96,10 @@ interface koICodeIntelDefinition: nsISupports {
 
 [scriptable, uuid(EC0B8148-8E12-43C2-8422-724E2478D884)]
 interface koICodeIntelTrigger: nsISupports {
-    //XXX Should add the TRG_FORM_* constants.
+    // Must be kept in sync with the values in 'codeintel2/common.py'
+    const long TRG_FORM_CPLN = 0;
+    const long TRG_FORM_CALLTIP = 1;
+    const long TRG_FORM_DEFN = 2;
 
     readonly attribute wstring lang;    // e.g. "Python", "CSS"
     readonly attribute long form;       // TRG_FORM_CPLN or TRG_FORM_CALLTIP

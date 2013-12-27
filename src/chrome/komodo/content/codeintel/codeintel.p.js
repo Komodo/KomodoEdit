@@ -300,6 +300,27 @@ ko.codeintel = {};
                 return;
             }
             view._ciLastTrg = trg;
+
+            // Check if the trigger form is enabled:
+            switch (trg.form) {
+                case Ci.koICodeIntelTrigger.TRG_FORM_CPLN:
+                    if (!ko.prefs.getBoolean("codeintel_completions_enabled", true)) {
+                        return;
+                    }
+                    break;
+                case Ci.koICodeIntelTrigger.TRG_FORM_CALLTIP:
+                    if (!ko.prefs.getBoolean("codeintel_calltips_enabled", true)) {
+                        return;
+                    }
+                    break;
+                case Ci.koICodeIntelTrigger.TRG_FORM_DEFN:
+                    if (!ko.prefs.getBoolean("codeintel_goto_definition_enabled", true)) {
+                        return;
+                    }
+                    break;
+            }
+
+            // Evaluate the trigger.
             ciBuf.async_eval_at_trg(trg, view.ciCompletionUIHandler);
         }, handleError);
 
