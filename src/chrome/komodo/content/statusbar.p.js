@@ -104,20 +104,26 @@ const Ci = Components.interfaces;
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var _log = ko.logging.getLogger('statusbar');
+//_log.setLevel(ko.logging.LOG_DEBUG);
+
+var lazy = {
+};
+
+XPCOMUtils.defineLazyGetter(lazy, "log", function() ko.logging.getLogger("find.functions"));
+//locals.log.setLevel(ko.logging.LOG_DEBUG);
+
+// The find XPCOM service that does all the grunt work.
+XPCOMUtils.defineLazyGetter(lazy, "bundle", function()
+    Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/statusbar.properties"));
+
 var _messageStack = Components.classes["@activestate.com/koStatusMessageStack;1"].
                           createInstance(Components.interfaces.koIStatusMessageStack);
 var _observer = null;
 var _prefObserver = null;
 var _updateLintMessageTimer = null;
-var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-    .getService(Components.interfaces.nsIStringBundleService)
-    .createBundle("chrome://komodo/locale/statusbar.properties");
-var _file_pref_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-        .getService(Components.interfaces.nsIStringBundleService)
-        .createBundle("chrome://komodo/locale/pref/file-properties.properties");
 var updateMessageRequestID = 0;
-
-//_log.setLevel(ko.logging.LOG_DEBUG);
 
 var _lastNotification = null; // last non-statusbar notification
 var _lastNotificationTime = 0; // last time user interacted with statusbar notifications
@@ -125,6 +131,7 @@ var _lastNotificationTime = 0; // last time user interacted with statusbar notif
 var _deckIndex = {
     messages: 0
 };
+
 
 //---- helper functions
 
@@ -339,15 +346,15 @@ function _updateSelectionInformation(view) {
 
         if (selectionStart != selectionEnd) {
             // character count
-            selectionLabel = _bundle.formatStringFromName(
+            selectionLabel = lazy.bundle.formatStringFromName(
                 "selection.label", [selection.length], 1);
             if (selection.length != count) {
                 // byte count
-                selectionLabel += _bundle.formatStringFromName(
+                selectionLabel += lazy.bundle.formatStringFromName(
                     "selectionByteCount.label", [count], 1);
             }
             // line count
-            selectionLabel += _bundle.formatStringFromName(
+            selectionLabel += lazy.bundle.formatStringFromName(
                 "selectionLineCount.label", [(Math.abs(lineEnd - lineStart) + 1)], 1);
         }
 // #if BUILD_FLAVOUR == "dev"
@@ -368,7 +375,7 @@ function _updateLineCol(view, currentLine, currentColumn) {
         currentColumn = view.currentColumn;
 
     try {
-        var lineColText = _bundle.formatStringFromName("lineColCount.label",
+        var lineColText = lazy.bundle.formatStringFromName("lineColCount.label",
             [currentLine, currentColumn], 2);
         var lineColWidget = document.getElementById('statusbar-line-col');
         lineColWidget.setAttribute('label', lineColText);
@@ -420,7 +427,7 @@ try {
         || !view.lintBuffer.canLintLanguage()) {
         checkWidget.setAttribute('collapsed', 'true');
         checkWidget.setAttribute("tooltiptext",
-                _bundle.GetStringFromName("syntaxCheckingStatus.tooltip"));
+                lazy.bundle.GetStringFromName("syntaxCheckingStatus.tooltip"));
         return;
     }
     checkWidget.removeAttribute('collapsed');
@@ -448,11 +455,11 @@ try {
     if (!lintResults) {
         if (checkingEnabled) {
             checkWidget.setAttribute("tooltiptext",
-                _bundle.GetStringFromName("syntaxCheckingStatusInProgress.tooltip"));
+                lazy.bundle.GetStringFromName("syntaxCheckingStatusInProgress.tooltip"));
             checkWidget.setAttribute('class', 'syntax-in-progress');
         } else {
             checkWidget.setAttribute("tooltiptext",
-                _bundle.GetStringFromName("automaticSyntaxCheckingDisabled.tooltip"));
+                lazy.bundle.GetStringFromName("automaticSyntaxCheckingDisabled.tooltip"));
             checkWidget.setAttribute('class', 'syntax-okay');
         }
     } else {
@@ -461,7 +468,7 @@ try {
         if (numErrors <= 0 && numWarnings <= 0) {
             checkWidget.setAttribute('class', 'syntax-okay');
             checkWidget.setAttribute("tooltiptext",
-                _bundle.GetStringFromName("syntaxCheckingStatusOk.tooltip"));
+                lazy.bundle.GetStringFromName("syntaxCheckingStatusOk.tooltip"));
         } else {
             if (numErrors > 0) {
                 checkWidget.setAttribute('class', 'syntax-error');
@@ -469,7 +476,7 @@ try {
                 checkWidget.setAttribute('class', 'syntax-warning');
             }
             checkWidget.setAttribute("tooltiptext",
-                _bundle.formatStringFromName("syntaxCheckingStatusErrors.tooltip",
+                lazy.bundle.formatStringFromName("syntaxCheckingStatusErrors.tooltip",
                     [numErrors, numWarnings], 2));
         }
     }
@@ -590,7 +597,7 @@ function _updateMessage()
             _lastNotification = notification;
         } else {
             internalDeck.selectedIndex = 0;
-            messageWidget.setAttribute("label", _bundle.GetStringFromName("ready.label"));
+            messageWidget.setAttribute("label", lazy.bundle.GetStringFromName("ready.label"));
             messageWidget.removeAttribute("tooltiptext");
             messageWidget.removeAttribute("category");
             messageWidget.removeAttribute("image");
@@ -642,16 +649,12 @@ function StatusBarObserver() {
                             this.handle_current_lint_results_done, false);
     window.addEventListener('view_closed',
                             this.handle_current_view_open_or_closed, false);
-    window.addEventListener('load', function() {
-        document.getElementById('statusbar-message')
-                .addEventListener("dblclick", _statusBarDblClick, false);
-    }, false);
-    window.addEventListener('komodo-ui-started', function() {
-        if (document.getElementById('breadcrumbbarWrap'))
-        {
-            _deckIndex.messages++;
-        }
-    }, false);
+    document.getElementById('statusbar-message')
+            .addEventListener("dblclick", _statusBarDblClick, false);
+    if (document.getElementById('breadcrumbbarWrap'))
+    {
+        _deckIndex.messages++;
+    }
     ko.main.addWillCloseHandler(this.destroy, this);
 };
 
@@ -840,9 +843,6 @@ StatusBarPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
     }
 };
 
-_observer = new StatusBarObserver();
-_prefObserver = new StatusBarPrefObserver();
-
 //---- public functions
 
 /**
@@ -966,6 +966,9 @@ this.changeEncoding = function(menuitem)
         return;
     }
 
+    var _file_pref_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+            .getService(Components.interfaces.nsIStringBundleService)
+            .createBundle("chrome://komodo/locale/pref/file-properties.properties");
     var enc = Components.classes["@activestate.com/koEncoding;1"].
                      createInstance(Components.interfaces.koIEncoding);
     enc.python_encoding_name = encodingName;
@@ -1030,7 +1033,13 @@ window.QueryInterface(Ci.nsIInterfaceRequestor)
       .getInterface(Ci.nsIXULWindow)
       .XULBrowserWindow = this.browserStatusHandler;
 
+window.addEventListener("komodo-ui-started", function() {
+    _observer = new StatusBarObserver();
+    _prefObserver = new StatusBarPrefObserver();
+});
+
 }).apply(ko.statusBar);
+
 
 /**
  * @deprecated since 7.0, but kept around because it's common in macros

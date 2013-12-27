@@ -64,11 +64,17 @@ if (typeof(ko)=='undefined') {
 ko.lint = {};
 (function() {
     
-var _lintSvc = Components.classes["@activestate.com/koLintService;1"].
-                getService(Components.interfaces.koILintService);
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+const {XPCOMUtils} = Cu.import("resource://gre/modules/XPCOMUtils.jsm", {});
 
 var _log = ko.logging.getLogger("lint");
 //_log.setLevel(ko.logging.LOG_INFO);
+
+var lazy = {};
+
+XPCOMUtils.defineLazyGetter(lazy, "lintSvc", function()
+    Cc["@activestate.com/koLintService;1"]
+        .getService(Components.interfaces.koILintService));
 
 var _linterLanguageNames = {};
 //---- The new LintBuffer class (replacement for jsLintBuffer)
@@ -274,7 +280,7 @@ this.lintBuffer.prototype.destructor = function()
 {
     _log.info("LintBuffer["+this.view.title+"].destructor()");
     try {
-        _lintSvc.cancelPendingRequests(this.view.uid);
+        lazy.lintSvc.cancelPendingRequests(this.view.uid);
         this._clearResults();
 
         var viewPrefObserverService = this.view.prefs.prefObserverService;
@@ -349,7 +355,7 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
                     if (lintingEnabled) {
                         setupRequest = true;
                     } else {
-                        _lintSvc.cancelPendingRequests(this.view.uid);
+                        lazy.lintSvc.cancelPendingRequests(this.view.uid);
                         this._clearResults();
                         this._notify();
                     }
@@ -408,7 +414,7 @@ this.lintBuffer.prototype._continueRequest = function(reason /* = "" */) {
     _log.info("LintBuffer["+this.view.title+"].request(reason='"+
                   reason+"')");
     try {
-        _lintSvc.cancelPendingRequests(this.view.uid);
+        lazy.lintSvc.cancelPendingRequests(this.view.uid);
         ko.lint.displayer.cancelPendingItems(this);
 
         this._notify();
@@ -468,7 +474,7 @@ this.lintBuffer.prototype._issueRequest = function(alwaysLint)
         var lr = this._createLintRequest(linterLanguageName);
         if (lr) {
             lr.alwaysLint = alwaysLint;
-            _lintSvc.addRequest(lr);
+            lazy.lintSvc.addRequest(lr);
         }
     } catch(ex) {
         if (ex.message.indexOf("Internal Error creating a linter with CID") >= 0) {
@@ -615,7 +621,7 @@ this.lintBuffer.prototype._getLinterLanguageName = function()
     if (!(languageName in _linterLanguageNames)) {
         var res = null;
         try {
-            var cid = _lintSvc.getLinter_CID_ForLanguage(languageName);
+            var cid = lazy.lintSvc.getLinter_CID_ForLanguage(languageName);
             if (cid) {
                 res = languageName;
             }
