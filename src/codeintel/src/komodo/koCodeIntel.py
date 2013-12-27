@@ -688,7 +688,7 @@ class KoCodeIntelManager(threading.Thread):
                    "--database-dir", join(koDirSvc.userDataDir, "codeintel")]
 
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.bind(("localhost", 0))
+            sock.bind(("127.0.0.1", 0))
             sock.listen(0)
 
             cmd += ["--connect", "%s:%s" % sock.getsockname()]

@@ -48,7 +48,7 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
             if socket is None:
                 break # in the middle of shut down
             self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self._sock.bind(("localhost", 0))
+            self._sock.bind(("127.0.0.1", 0))
             self._sock.listen(0)
             self._read_buffer = ""
 

@@ -172,7 +172,7 @@ class XPCOMSupport(CommandHandler, threading.Thread):
 
     def do_xpcom_connect(self, request, driver):
         self._socket = socket.create_connection((request.host, request.port),
-                                                source_address=("localhost", 0))
+                                                source_address=("127.0.0.1", 0))
         log.debug("connected from %s:%i to %s:%i",
                   *(list(self._socket.getsockname()) + list(self._socket.getpeername())))
         driver.send(request=request)
