@@ -22,6 +22,8 @@ ko.analytics = new function()
     const DIM_LICENSETYPE = 'dimension5';
     const DIM_EXPIRATION  = 'dimension6';
 
+    const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+
     const { logging }       = Cu.import("chrome://komodo/content/library/logging.js", {});
     const { DownloadUtils } = Cu.import("resource://gre/modules/DownloadUtils.jsm", {});
     
