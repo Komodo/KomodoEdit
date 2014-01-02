@@ -28,8 +28,6 @@ ko.analytics = new function()
     const { DownloadUtils } = Cu.import("resource://gre/modules/DownloadUtils.jsm", {});
     
     var prefs   = Cc['@activestate.com/koPrefService;1'].getService(Ci.koIPrefService).prefs;
-    var infoSvc = Cc["@activestate.com/koInfoService;1"].getService(Ci.koIInfoService);
-    var sysInfo = Cc["@mozilla.org/system-info;1"].getService(Ci.nsIPropertyBag2);
 
     var log = logging.getLogger('analytics');
 
@@ -104,6 +102,7 @@ ko.analytics = new function()
         this._proxyGa('set', 'checkStorageTask', function(){});
         
         // Set custom dimensions
+        var infoSvc = Cc["@activestate.com/koInfoService;1"].getService(Ci.koIInfoService);
         this.setProperty(DIM_PRODUCT,       infoSvc.productType);
         this.setProperty(DIM_VERSION,       infoSvc.version);
         this.setProperty(DIM_BUILD,         infoSvc.buildNumber);
@@ -131,6 +130,7 @@ ko.analytics = new function()
         // Track system info, don't want to waste dimensions on this
         if (firstRun)
         {
+            var sysInfo = Cc["@mozilla.org/system-info;1"].getService(Ci.nsIPropertyBag2);
             var memSize = Math.round(sysInfo.getPropertyAsInt64("memsize") / 1073741824, 2);
             var cpucount = sysInfo.getPropertyAsInt32("cpucount");
             this.trackEvent(CAT_SYSTEM_METRIC, "memory", memSize, memSize);
