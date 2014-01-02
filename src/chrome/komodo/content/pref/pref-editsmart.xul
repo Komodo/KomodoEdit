@@ -344,7 +344,6 @@
                   <menupopup>
                       <menuitem data="0" label="&showChanges_Choice_Never.label;"/>
                       <menuitem data="1" label="&showChanges_Choice_Unsaved.label;"/>
-                      <!--<menuitem data="2" label="&showChanges_Choice_SCC.label;"/>-->
                   </menupopup>
               </menulist>
             </hbox>

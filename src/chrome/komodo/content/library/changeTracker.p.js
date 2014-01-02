@@ -65,7 +65,6 @@ const CHANGES_REPLACE = 3;
 
 const SHOW_CHANGES_NONE = 0;
 const SHOW_UNSAVED_CHANGES = 1;
-const SHOW_SCC_CHANGES = 2;
 
 this.ChangeTracker = function ChangeTracker(view) {
     this.view = view;
@@ -231,10 +230,6 @@ this.ChangeTracker.prototype._refreshOnDiskLines = function _refreshOnDiskLines(
 this.ChangeTracker.prototype._handleOnModified = function _handleOnModified() {
     this.timeoutId = null;
     if (this.showChangesInMargin === SHOW_CHANGES_NONE) {
-        return;
-    }
-    if (this.showChangesInMargin === SHOW_SCC_CHANGES) {
-        log.error("SCC changes aren't yet supported");
         return;
     }
     this._getChangeInfo();
