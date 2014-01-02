@@ -43,7 +43,6 @@
   <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %komodoDTD;
 ]>
-<?xml-stylesheet href="chrome://komodo-places/skin/places.css" type="text/css"?>
 
 <overlay id="placesOverlay"
          xmlns:html="http://www.w3.org/1999/xhtml"

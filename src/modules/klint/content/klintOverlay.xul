@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 
 <!DOCTYPE overlay SYSTEM "chrome://klint/locale/klint.dtd" >
-<?xml-stylesheet href="chrome://klint/skin/klint.css" type="text/css"?>
 
 <overlay id="klintOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
