@@ -91,6 +91,9 @@ ko.analytics = new function()
         }
 
         // Init Ganalytics
+        var proxy_window = document.getElementById('analyticsProxy').contentWindow;
+        proxy_window.ga_initialize();
+
         this._proxyGa('create', prefs.getStringPref('analytics_ga_id'), {
           'cookieDomain': 'activestate.com', // gotta use something
           'clientId': uid
