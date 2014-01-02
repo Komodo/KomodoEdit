@@ -238,7 +238,7 @@ this.ChangeTracker.prototype._handleOnModified = function _handleOnModified() {
 this.ChangeTracker.prototype._getDeletedTextLines =
                     function(firstLineNo, lastLineNo) {
     this._refreshOnDiskLines();
-    if (lastLineNo >= this.onDiskTextLines.length) {
+    if (lastLineNo > this.onDiskTextLines.length) {
         log.error("**** _getDeletedTextLines: can't get lines "
                   + [firstLineNo, lastLineNo]
                   + " from a file with only "
