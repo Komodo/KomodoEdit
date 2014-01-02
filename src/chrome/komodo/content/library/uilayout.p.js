@@ -1869,18 +1869,19 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
     }
 };
 
+_PrefObserver.topics = [
+    "keybindingDisableAccesskeys",
+    "ui.tabs.sidepanes.left.layout",
+    "ui.tabs.sidepanes.right.layout",
+    "ui.tabs.sidepanes.bottom.layout",
+];
+
 _PrefObserver.prototype.init = function() {
-    _gPrefs.prefObserverService.addObserver(this, "keybindingDisableAccesskeys", false);
-    _gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.left.layout", false);
-    _gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.right.layout", false);
-    _gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.bottom.layout", false);
+    _gPrefs.prefObserverService.addObserverForTopics(this, _PrefObserver.topics.length, _PrefObserver.topics, false);
 }
 
 _PrefObserver.prototype.destroy = function() {
-    _gPrefs.prefObserverService.removeObserver(this, "keybindingDisableAccesskeys");
-    _gPrefs.prefObserverService.removeObserver(this, "ui.tabs.sidepanes.left.layout");
-    _gPrefs.prefObserverService.removeObserver(this, "ui.tabs.sidepanes.right.layout");
-    _gPrefs.prefObserverService.removeObserver(this, "ui.tabs.sidepanes.bottom.layout");
+    _gPrefs.prefObserverService.removeObserverForTopics(this, _PrefObserver.topics.length, _PrefObserver.topics, false);
 }
 
 }).apply(ko.uilayout);
