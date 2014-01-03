@@ -159,6 +159,7 @@
             oncommand="ko.commands.doCommandAsync('cmd_viewopentoolbar', event)"/>
         <broadcaster
             id="cmd_openextmgr"
+            desc="&openAddonsDialog.desc;"
             oncommand="ko.launch.openAddonsMgr();"/>
         <broadcaster
             id="cmd_expandAbbrev"

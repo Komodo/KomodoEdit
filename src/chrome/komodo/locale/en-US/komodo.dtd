@@ -821,6 +821,8 @@
 <!--
 <!ENTITY editorCopyCurrentLine.desc "Editor: Copy current line">
 -->
+<!ENTITY openAddonsDialog.desc "Add-ons: Open the addon dialog (extension manager)">
+
 
 <!-- Mac system menu definitions -->
 <!ENTITY menuSysMacServices.label "Services">
