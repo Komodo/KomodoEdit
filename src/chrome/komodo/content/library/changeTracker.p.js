@@ -56,7 +56,10 @@ var escapeLines = function(textLines) {
     })
 }
 
-Components.utils.import("resource://gre/modules/Services.jsm"); // for Services
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+Cu.import("resource://gre/modules/Services.jsm"); // for Services
+
+var fileSvc = Cc["@activestate.com/koFileService;1"].getService(Ci.koIFileService);
 
 const CHANGES_NONE = 0;
 const CHANGES_INSERT = 1;
@@ -92,11 +95,12 @@ this.ChangeTracker.prototype.init = function init() {
     }
     //TODO: Make a lazy getter for onDiskTextLines
     this.onDiskTextLines = null;
+    this._referenceTextLines = this.onDiskTextLines;
 };
 
 this.ChangeTracker.prototype._activateObservers = function _activateObservers() {
-    const flags = (Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT
-                   |Components.interfaces.ISciMoz.SC_MOD_DELETETEXT);
+    const flags = (Ci.ISciMoz.SC_MOD_INSERTTEXT
+                   |Ci.ISciMoz.SC_MOD_DELETETEXT);
     Services.obs.addObserver(this, 'scheme-changed', false);
     window.addEventListener('file_saved', this.handleFileSaved, false);
     this.view.addModifiedHandler(this.onModified, this, 2000, flags);
@@ -134,9 +138,7 @@ this.ChangeTracker.prototype.observe = function(subject, topic, data) {
             return; // No change
         }
         try {
-            if (oldMarginType !== SHOW_CHANGES_NONE) {
-                this.marginController.clearOldMarkers(this.view.scimoz);
-            }
+            this.marginController.clearOldMarkers(this.view.scimoz);
             if (this.showChangesInMargin !== SHOW_CHANGES_NONE) {
                 this.marginController.showMargin();
                 this.onModified();
@@ -153,9 +155,9 @@ this.ChangeTracker.prototype.observe = function(subject, topic, data) {
 
 this.ChangeTracker.prototype.handleFileSaved = function handleFileSaved(event) {
     var view = event.getData("view");
-    if (view == this.view) {
+    if (view == this.view && this.showChangesInMargin == SHOW_UNSAVED_CHANGES) {
         this.onModified();
-        this.onDiskTextLines = null;
+        this._referenceTextLines = this.onDiskTextLines = null;
     }
 };
 
@@ -168,10 +170,13 @@ this.ChangeTracker.prototype.onModified = function onModified() {
     this.timeoutId = setTimeout(this._handleOnModified.bind(this), this.timeoutDelay);
 };
 
-this.ChangeTracker.prototype._getChangeInfo = function _getChangeInfo() {
+this.ChangeTracker.prototype._getUnsavedChangesInfo = function() {
     var koDoc = this.view.koDoc;
-    var scimoz = this.view.scimoz;
     var changes = koDoc.getUnsavedChangeInstructions({});
+    this._getChangeInfo(changes);
+};
+
+this.ChangeTracker.prototype._getChangeInfo = function(changes) {
     // These vars are documented in init() for their this.X counterparts
     var lastInsertions = {};
     var lastNewChanges = {};
@@ -220,33 +225,41 @@ this.ChangeTracker.prototype._getChangeInfo = function _getChangeInfo() {
     this.lastNewChanges = lastNewChanges;
 };
 
-this.ChangeTracker.prototype._refreshOnDiskLines = function _refreshOnDiskLines() {
-    if (this.onDiskTextLines !== null) {
+this.ChangeTracker.prototype._refreshOnDiskLines = function() {
+    if (this._referenceTextLines !== null) {
         return;
     }
-    this.onDiskTextLines = this.view.koDoc.getOnDiskTextLines();
+    this._referenceTextLines = this.onDiskTextLines =
+            this.view.koDoc.getOnDiskTextLines();
 };
 
 this.ChangeTracker.prototype._handleOnModified = function _handleOnModified() {
     this.timeoutId = null;
-    if (this.showChangesInMargin === SHOW_CHANGES_NONE) {
-        return;
+    switch (this.showChangesInMargin) {
+    case SHOW_CHANGES_NONE:
+        break;
+        
+    case SHOW_UNSAVED_CHANGES:
+        this._getUnsavedChangesInfo();
+        break;
+    default:
+     log.warn("Unexpected value of this.showChangesInMargin: "
+              + this.showChangesInMargin);
     }
-    this._getChangeInfo();
 };
 
 this.ChangeTracker.prototype._getDeletedTextLines =
                     function(firstLineNo, lastLineNo) {
-    this._refreshOnDiskLines();
-    if (lastLineNo > this.onDiskTextLines.length) {
+    this._refreshOnDiskLines(); 
+    if (lastLineNo > this._referenceTextLines.length) {
         log.error("**** _getDeletedTextLines: can't get lines "
                   + [firstLineNo, lastLineNo]
                   + " from a file with only "
-                  + this.onDiskTextLines.length
+                  + this._referenceTextLines.length
                   + " lines");
         return null;
     }
-    return this.onDiskTextLines.slice(firstLineNo, lastLineNo).
+    return this._referenceTextLines.slice(firstLineNo, lastLineNo).
            map(function(line) line.replace(/\n|\r\n?/, ""));
 };
 
@@ -325,7 +338,6 @@ this.ChangeTracker.prototype.showChanges = function(lineNo) {
     }
     // Write htmlLines to a temp file, get the URL, and then create a panel
     // with that iframe/src
-    var fileSvc = Cc["@activestate.com/koFileService;1"].getService(Ci.koIFileService);
     var htmlFile = fileSvc.makeTempFile(".html", 'wb')
     var htmlURI = htmlFile.URI;
     var lastDot = htmlURI.lastIndexOf('.');
@@ -337,6 +349,7 @@ this.ChangeTracker.prototype.showChanges = function(lineNo) {
     var htmlLines = [
         '<html>',
         '<head>',
+        '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />',
         '<style>',
         'body {',
         '    color: black;',
@@ -412,7 +425,6 @@ this.ChangeTracker.prototype._createPanel = function(htmlFile) {//, jsFile) {
         panel.openPopup(this.view, "after_pointer", x, y, false, false);
         panel.width = 600;
         panel.height = 400;
-        var fileSvc = Cc["@activestate.com/koFileService;1"].getService(Ci.koIFileService);
         fileSvc.deleteTempFile(htmlFile.path, true);
         //fileSvc.deleteTempFile(jsFile.path, true);
     }.bind(this), true);

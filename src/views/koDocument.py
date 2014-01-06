@@ -2064,10 +2064,7 @@ class koDocumentBase:
             # receivers are not registered?
             pass
 
-    def _get_ondisk_text(self, eolStr=None):
-        if eolStr is None:
-            eolStr = eollib.eol2eolStr[self._eol]
-
+    def _get_ondisk_lines(self, encodeAsUTF8=False):
         # We want a new temporary file to read, so the current file stats
         # information does not get updated (required for remote file saving,
         # which uses stats.mtime for checking if a file has changed or not).
@@ -2079,20 +2076,22 @@ class koDocumentBase:
         try:
             ondisk = tmpfile.read(-1)
             (ondisk, encoding, bom) = self._detectEncoding(ondisk)
-            ondisk = ondisk.splitlines(True)
+            if encodeAsUTF8 and encoding not in ("ascii", "utf-8"):
+                ondisk = ondisk.encode("utf-8")
+            return ondisk.splitlines()
         except:
             # If we cannot read the file - then either it doesn't exist yet, or
             # we don't have the correct permissions - either way we will treat
             # it as having all lines changed - bug 97642.
-            ondisk = ''
+            log.exception("Problem reading the tempfile")
         finally:
             tmpfile.close()        #self.file.open('rb')
-        return ondisk
+        return []
         
     _re_ending_eol = re.compile('\r?\n$')
     def getUnsavedChanges(self, joinLines=True):
         eolStr = eollib.eol2eolStr[self._eol]
-        ondisk = self._get_ondisk_text(eolStr=eolStr)
+        ondisk = self._get_ondisk_lines()
         inmemory = self.get_buffer().splitlines(True)
         difflines = list(difflibex.unified_diff(
             ondisk, inmemory,
@@ -2107,44 +2106,31 @@ class koDocumentBase:
         else:
             return [self._re_ending_eol.sub('', x) for x in difflines]
 
+    def _get_buffer_text_as_utf8_lines(self):
+        inmemory_text = self.get_buffer()
+        encoding_name = self.encoding.python_encoding_name
+        if encoding_name not in ("ascii", "UTF-8"):
+            inmemory_text = inmemory_text.encode("utf-8")
+        return inmemory_text.splitlines()
+
     def getUnsavedChangeInstructions(self):
         """
         Unlike getUnsavedChanges, this method's output is intended to be
         consumed by other software.  The output consists of a list of tuples:
         [instruction, oldStart, oldEnd, newStart, newEnd].  See
         difflib.py::SequenceManager.get_opcodes for more documentation.
-        
-        SequenceMatcher(a=a, b=b).get_opcodes() returns a generator that can
-        contain op-codes like ('replace', i1, i2, j1, j2) where i2-i1 != j2-j1
-        That means there's at least delta inserts or -delta deletes -- see if
-        we can find them, and fix the returned tags.
         """
-        ondisk = self._get_ondisk_text()
-        inmemory = self.get_buffer().splitlines(True)
-        retA = []
-        for diff in difflibex.SequenceMatcher(a=ondisk, b=inmemory).get_opcodes():
-            tag, i1, i2, j1, j2 = diff
-            iDel = i2 - i1
-            jDel = j2 - j1
-            assert iDel >= 0 and jDel >= 0
-            if tag != 'replace' or iDel == jDel:
-                retA.append(_diffToKoIDiffOpcode(diff))
-                continue
-            # Sometimes difflib.SequenceMatcher marks two different-sized runs
-            # as a 'replace', which is lazy -- there must be at least one
-            # insert or delete operation in that run, so go find them.
-            split_opcodes = difflibex.split_opcodes(diff, ondisk[i1:i2], inmemory[j1:j2])
-            for diff2 in split_opcodes:
-                retA.append(_diffToKoIDiffOpcode(diff2))
-            
-        return retA
+        ondisk = self._get_ondisk_lines(encodeAsUTF8=True)
+        inmemory = self._get_buffer_text_as_utf8_lines()
+        return [_diffToKoIDiffOpcode(diff) for diff in
+                difflibex.SequenceMatcher(a=ondisk, b=inmemory).get_opcodes()]
 
     def diffStringsAsChangeInstructions(self, s, t):
         return [_diffToKoIDiffOpcode(diff) for diff
                 in difflibex.SequenceMatcher(a=s, b=t).get_opcodes()]
 
     def getOnDiskTextLines(self):
-        return self._get_ondisk_text()
+        return self._get_ondisk_lines()
 
     def _getAutoSaveFileName(self):
         # retain part of the readable name

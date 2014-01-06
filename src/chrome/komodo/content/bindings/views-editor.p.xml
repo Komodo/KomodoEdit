@@ -623,8 +623,8 @@
         <field name="_isCICitadelStuffEnabled">undefined</field>
 
         <field name="viewsPropertiesBundle">
-            Cc["@mozilla.org/intl/stringbundle;1"].
-                    getService(Ci.nsIStringBundleService).
+            Components.classes["@mozilla.org/intl/stringbundle;1"].
+                    getService(Components.interfaces.nsIStringBundleService).
                     createBundle("chrome://komodo/locale/views.properties")
         </field>
 

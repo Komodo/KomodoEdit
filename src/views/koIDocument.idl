@@ -262,13 +262,13 @@ interface koIDocument : nsISupports
      *     array of change instructions (koIDiffOpcode's)
      */
     void getUnsavedChangeInstructions([optional] out unsigned long count,
-                                      [array, size_is(count), retval] out
-                                           koIDiffOpcode diffs
+                                      [array, size_is(count), retval]
+                                          out koIDiffOpcode diffs
                                       );
     /**
      * Returns the text for the current document's file as
      * an array of lines.  Embedded zero bytes probably truncate the
-     * rest of the line.
+     * rest of the line.  Strings should be utf-8, and not decoded.
      */
     void getOnDiskTextLines([optional] out unsigned long count,
                             [array, size_is(count), retval] out wstring onDiskLines);
