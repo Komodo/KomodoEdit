@@ -2663,7 +2663,7 @@ def QuickBuild(cfg, argv, _table):
                                                "MOZILLA_VERSION": cfg.mozVersion,
                                                "BUILD_FLAVOUR": cfg.buildFlavour,
                                                "UPDATE_CHANNEL": cfg.updateChannel,
-                                               "WITH_PLACES": cfg.withPlaces,
+                                               "WITH_PLACES": 1,
                                                "WITH_CASPER": cfg.withCasper},
                                       force=1,
                                       keepLines=1,
