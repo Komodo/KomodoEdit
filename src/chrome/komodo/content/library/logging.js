@@ -176,6 +176,11 @@ Logger.prototype.warn = function(message) {
     }
 }
 
+Logger.prototype.warning = function(message) {
+    this.deprecated("for js log warnings use 'log.warn', not 'log.warning'");
+    this.warn(message);
+};
+
 /**
  * Log a deprecation warning message. This will also log the stack trace
  * to show where the deprecated code was being called from.
