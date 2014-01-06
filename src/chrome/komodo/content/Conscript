@@ -66,6 +66,8 @@ $cons->Command("komodo.manifest.landmark",
                  touch %>
                ));
 
+$cons->Preprocess('globals.p.js', 'globals.js');
+$cons->InstallInChrome('globals.js');
 $cons->Preprocess('commandsOverlay.p.xul', 'commandsOverlay.xul');
 $cons->InstallInChrome('commandsOverlay.xul');
 $cons->InstallInChrome("keysOverlay.xul");

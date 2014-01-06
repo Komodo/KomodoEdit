@@ -81,22 +81,13 @@
         fullscreenbutton="true"
         >
 	
-    <script type="application/x-javascript;version=1.8">
-        if (typeof(ko) === "undefined") {
-            this.ko = {};
-        }
-        // Jetpack must be loaded after window.ko has been created (so that it
-        // knows how to get things into the right scope, for backwards compat)
-        Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-                  .getService(Components.interfaces.mozIJSSubScriptLoader)
-                  .loadSubScript("chrome://komodo/content/jetpack.js");
-        JetPack.defineDeprecatedProperty(ko, "logging", "ko/logging", {since: "9.0.0a1"});
-        JetPack.defineDeprecatedProperty(ko, "printing", "ko/printing", {since: "9.0.0a1"});
+    <script src="chrome://komodo/content/globals.js" type="application/x-javascript"/>
 
-// #if BUILD_FLAVOUR == "dev"
+<!-- #if BUILD_FLAVOUR == "dev" -->
+    <script type="application/x-javascript;version=1.8">
 	require("ko/benchmark").startTiming("komodo.xul - js load");
-// #endif
     </script>
+<!-- #endif -->
 
     <!-- Various startup performance tweaks. -->
     <script src="chrome://komodo/content/library/performance_tweaks.js" type="application/x-javascript;version=1.7"/>
@@ -194,11 +185,11 @@
     <script src="chrome://komodo/content/hyperlinks/csscolorpicker.js"    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/hyperlinks/gotodefinition.js"    type="application/x-javascript;version=1.7"/>
 
+<!-- #if BUILD_FLAVOUR == "dev" -->
     <script type="application/x-javascript;version=1.8">
-// #if BUILD_FLAVOUR == "dev"
 	require("ko/benchmark").endTiming("komodo.xul - js load");
-// #endif
     </script>
+<!-- #endif -->
 
     <!-- This is used by the view editor for displaying
          scintilla tooltips -->
