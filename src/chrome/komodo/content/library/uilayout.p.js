@@ -791,7 +791,7 @@ function UpdateUnifiedMenuMru() {
         }
     }
 
-    mruList = _gPrefs.getPref('mruMenuItemList');
+    var mruList = _gPrefs.getPref('mruMenuItemList');
     if ( ! mruList || ! mruList.length) return;
 
     menuSeparator.collapsed = false;
