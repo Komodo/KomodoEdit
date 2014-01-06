@@ -548,6 +548,32 @@ class KoCodeIntelDBPreloader(object):
     def mgr(self):
         return self.svc.mgr
 
+
+class _Connection(object):
+    def get_commandline_args(self):
+        """Return list of command line args to pass to child"""
+        raise NotImplementedError()
+    def get_stream(self):
+        """Return file-like object for read/write"""
+        raise NotImplementedError()
+    def cleanup(self):
+        """Do any cleanup required"""
+
+class _TCPConnection(_Connection):
+    """A connection using TCP sockets"""
+    def __init__(self):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.bind(("127.0.0.1", 0))
+        self.sock.listen(0)
+    def get_commandline_args(self):
+        return ["--connect", "%s:%s" % self.sock.getsockname()]
+    def get_stream(self):
+        conn = self.sock.accept()
+        return conn[0].makefile("r+b", 0)
+    def cleanup(self):
+        if self.sock:
+            self.sock.close()
+
 class KoCodeIntelManager(threading.Thread):
     """This class manages a connection to an out-of-process codeintel process.
     """
@@ -678,6 +704,7 @@ class KoCodeIntelManager(threading.Thread):
             "KoCodeIntelService.init_child should run on background thread!"
         self.debug("initializing child process")
         log_file = None
+        conn = None
         try:
             koDirSvc = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
             # We need to use -O for python to disable asserts, because we rely
@@ -687,11 +714,8 @@ class KoCodeIntelManager(threading.Thread):
                    "--import-path", koDirSvc.komodoPythonLibDir,
                    "--database-dir", join(koDirSvc.userDataDir, "codeintel")]
 
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.bind(("127.0.0.1", 0))
-            sock.listen(0)
-
-            cmd += ["--connect", "%s:%s" % sock.getsockname()]
+            conn = _TCPConnection()
+            cmd += conn.get_commandline_args()
 
             # Logging
             try:
@@ -718,12 +742,12 @@ class KoCodeIntelManager(threading.Thread):
             self._watchdog_thread.start()
             assert self.proc.returncode is None, "Early process death"
 
-            self.conn = sock.accept()
-            sock.close() # no need to keep listening
-            self.pipe = self.conn[0].makefile("r+b", 0)
+            self.pipe = conn.get_stream()
             self.state = KoCodeIntelManager.STATE.CONNECTED
         except Exception as ex:
-            self.debug("Error initing child: %s", ex)
+            self.debug("Error initing child: %s", ex, exc_info=True)
+            if self.pipe:
+                self.pipe.close()
             self.pipe = None
             self.kill()
             self._init_callback(str(ex))
@@ -732,6 +756,10 @@ class KoCodeIntelManager(threading.Thread):
         finally:
             if log_file and log_file not in (sys.stdout, sys.stderr):
                 log_file.close()
+            try:
+                conn.cleanup()
+            except:
+                pass
 
     def _send_init_requests(self):
         assert threading.current_thread().name != "MainThread", \
@@ -1036,7 +1064,11 @@ class KoCodeIntelManager(threading.Thread):
         self.requests[req_id] = (callback, kwargs, time.time())
         self._next_id += 1
         self.debug("sending frame: %s", text)
-        self.pipe.write("%i%s" % (len(text), text))
+        try:
+            self.pipe.write("%i%s" % (len(text), text))
+        except Exception as ex:
+            log.error("Failed to write to pipe (%s): (%i) %s", ex, len(text), text)
+            raise
 
     def run(self):
         """Event loop for the codeintel manager background thread"""

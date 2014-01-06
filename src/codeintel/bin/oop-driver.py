@@ -95,15 +95,19 @@ def main(argv=[]):
     from codeintel2.oop import Driver
     logging.root.handlers[0] = handler
 
-    if args.connect:
-        log.debug("connecting to: %s", args.connect)
-        conn = socket.create_connection(args.connect.rsplit(":", 1))
-        fd_in = conn.makefile("r+b", 0)
-        fd_out = fd_in
-    else:
-        # force unbuffered stdout
-        fd_in = sys.stdin
-        fd_out = os.fdopen(sys.stdout.fileno(), "wb", 0)
+    try:
+        if args.connect:
+            log.debug("connecting to port: %s", args.connect)
+            conn = socket.create_connection(args.connect.rsplit(":", 1))
+            fd_in = conn.makefile("r+b", 0)
+            fd_out = fd_in
+        else:
+            # force unbuffered stdout
+            fd_in = sys.stdin
+            fd_out = os.fdopen(sys.stdout.fileno(), "wb", 0)
+    except Exception as ex:
+        log.exception("Failed to connect to Komodo: %s", ex)
+        raise
     driver = Driver(db_base_dir=args.database_dir,
                     fd_in=fd_in, fd_out=fd_out)
     driver.start()
@@ -151,4 +155,15 @@ def set_process_limits():
 
 
 if __name__ == '__main__':
-    main(argv=sys.argv)
+    try:
+        main(argv=sys.argv)
+    except Exception as ex:
+        if log:
+            log.debug(ex, exc_info=True)
+        else:
+            print(ex)
+    finally:
+        if log:
+            log.debug("Shutting down")
+        else:
+            print("Shutting down, no log")
