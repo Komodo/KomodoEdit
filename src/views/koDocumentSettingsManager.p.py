@@ -163,7 +163,6 @@ class koDocumentSettingsManager:
         if lexer is None:
             lexer = languageOb.getLanguageService(components.interfaces.koILexerLanguageService)
         lexer.setCurrent(scimoz)
-        self._setIndicators(languageOb, scimoz)
         self._applyPrefs(prefs, scimoz)
         
         if prefs.hasLongPref('anchor'):
@@ -319,24 +318,6 @@ class koDocumentSettingsManager:
         #    out of the view prefs here breaks the transfer of breakpoints
         #    via a "Save As..." operation. See:
         #       views-editor.xml::saveAsURI(), line 609
-
-    def _setIndicators(self, languageOb, scimoz):
-        styleBits = languageOb.styleBits
-        scimoz.styleBits = styleBits
-        # Determine how many indicators we can have.
-        indicBits = languageOb.indicatorBits
-
-        #XXX Scintilla renames the indicators depending on the number of style bits :-(.
-        #XXX Compensate.
-        indicOffset = 8 - styleBits - indicBits
-        if indicBits == 2:
-            scimoz.indicSetStyle(indicOffset + 1, scimoz.INDIC_SQUIGGLE);
-            scimoz.indicSetFore(indicOffset + 1, RGB(0xff,0,0));
-            scimoz.indicSetStyle(indicOffset, scimoz.INDIC_SQUIGGLE);
-            scimoz.indicSetFore(indicOffset, RGB(0,0x80,0));
-        else:
-            scimoz.indicSetStyle(indicOffset, scimoz.INDIC_SQUIGGLE);
-            scimoz.indicSetFore(indicOffset, RGB(0xff,0,0));
 
     def _updateLineNumberMargin(self):
         for scintilla in self._scintillas:
