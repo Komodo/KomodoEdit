@@ -317,8 +317,9 @@ var gVim_onEditorModified = function(event) {
                 return;
             }
     
-            var insertStartPos = gVimController._lastInsertedStartPosition;
-            var insertEndPos = gVimController._lastInsertedEndPosition;
+            var insertStartPos = gVimController._lastInsertedStartPosition - data.bytelength;
+            var insertEndPos = gVimController._lastInsertedEndPosition - data.bytelength;
+
             //dump("  removed  text, position " + data.position + ", bytelength " + data.bytelength + "\n");
             //dump('    gVimController._lastInsertedText: "' + gVimController._lastInsertedText + '"\n');
             //dump('    gVimController._lastInsertedStartPosition: ' + gVimController._lastInsertedStartPosition + '\n');
@@ -326,14 +327,12 @@ var gVim_onEditorModified = function(event) {
             //dump('    insertEndPos: ' + insertEndPos + '\n');
             gVimController._lastInsertedText = "";
     
-            var preDeletePos = data.position + data.bytelength;
-    
-            if (preDeletePos == insertEndPos) {
+            if (data.position == insertEndPos) {
                 /* Normal case - just remove the text from the end. */
                 //dump("    case 1\n");
                 gVimController._lastInsertedText = insertedText.slice(0, -data.text.length);
                 gVimController._lastInsertedEndPosition -= data.bytelength;
-            } else if (preDeletePos >= insertStartPos && preDeletePos <= insertEndPos) {
+            } else if (data.position >= insertStartPos && data.position <= insertEndPos) {
                 /* Soft char case, or user moved back in the text. */
                 // Gah - has to access scimoz in order to get the char length,
                 // as we only know the byte length.
