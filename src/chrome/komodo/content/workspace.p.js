@@ -1,5 +1,38 @@
-/* Copyright (c) 2000-2012 ActiveState Software Inc.
-   See the file LICENSE.txt for licensing information. */
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ * 
+ * The contents of this file are subject to the Mozilla Public License
+ * Version 1.1 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ * 
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific language governing rights and limitations
+ * under the License.
+ * 
+ * The Original Code is Komodo code.
+ * 
+ * The Initial Developer of the Original Code is ActiveState Software Inc.
+ * Portions created by ActiveState Software Inc are Copyright (C) 2000-2012
+ * ActiveState Software Inc. All Rights Reserved.
+ * 
+ * Contributor(s):
+ *   ActiveState Software Inc
+ * 
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ * 
+ * ***** END LICENSE BLOCK ***** */
 
 xtk.include('domutils');
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -15,12 +48,17 @@ if (typeof(ko.workspace) == "undefined") {
 var log = ko.logging.getLogger('workspace');
 //log.setLevel(ko.logging.LOG_DEBUG);
 var _saveInProgress = false;
+var _restoreInProgress = false;
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/views.properties");
 
 this.saveInProgress = function() {
     return _saveInProgress;
+}
+
+this.restoreInProgress = function() {
+    return _restoreInProgress;
 }
 
 const multiWindowWorkspacePrefName = "windowWorkspace";
@@ -36,6 +74,8 @@ true;
  */
 this.restore = function ko_workspace_restore()
 {
+  _restoreInProgress = true;
+  try {
     // the offer to restore the workspace needs to be after the
     // commandments system is initialized because the commandments mechanism
     // is how the determination of 'running in non-interactive mode' happens,
@@ -105,6 +145,10 @@ this.restore = function ko_workspace_restore()
     // Some paths through the above block might not have called this,
     // so call it now to be sure.  See bug 87856.
     ko.workspace.initializeEssentials(window);
+
+  } finally {
+    _restoreInProgress = false;
+  }
 }
 
 /**
@@ -640,7 +684,7 @@ this.markClosedWindows = function() {
         });
     for (var i = 0; i < lim; i++) {
         if (windowWorkspacePref.getPrefType(prefIds[i]) != "object") {
-            log.warning("markClosedWindows: ignoring invalid pref " + prefIds[i]);
+            log.warn("markClosedWindows: ignoring invalid pref " + prefIds[i]);
             continue;
         }
         pref = windowWorkspacePref.getPref(prefIds[i]);
