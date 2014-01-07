@@ -42,11 +42,23 @@ if (!Services.koInfo) {
     XPCOMUtils.defineLazyGetter(Services, "koFileSvc", () =>
         Cc["@activestate.com/koFileService;1"].getService(Ci.koIFileService));
 
+    XPCOMUtils.defineLazyGetter(Services, "koFileStatus", () =>
+        Cc["@activestate.com/koFileStatusService;1"].getService(Ci.koIFileStatusService));
+
+    XPCOMUtils.defineLazyGetter(Services, "koDocSvc", () =>
+        Cc["@activestate.com/koDocumentService;1"].getService(Ci.koIDocumentService));
+
+    XPCOMUtils.defineLazyGetter(Services, "koViewSvc", () =>
+        Cc["@activestate.com/koViewService;1"].getService(Ci.koIViewService));
+
     XPCOMUtils.defineLazyGetter(Services, "koTextUtils", () =>
         Cc["@activestate.com/koTextUtils;1"].getService(Ci.koITextUtils));
 
     XPCOMUtils.defineLazyGetter(Services, "koSysUtils", () =>
         Cc["@activestate.com/koSysUtils;1"].getService(Ci.koISysUtils));
+
+    XPCOMUtils.defineLazyGetter(Services, "koLangRegistry", () =>
+        Cc["@activestate.com/koLanguageRegistryService;1"].getService(Ci.koILanguageRegistryService));
 
     XPCOMUtils.defineLazyGetter(Services, "koAsync", () =>
         Cc["@activestate.com/koAsyncService;1"].getService(Ci.koIAsyncService));
@@ -65,6 +77,9 @@ if (!Services.koInfo) {
 
     XPCOMUtils.defineLazyGetter(Services, "koLastError", () =>
         Cc["@activestate.com/koLastErrorService;1"].getService(Ci.koILastErrorService));
+
+    XPCOMUtils.defineLazyGetter(Services, "koUserEnv", () =>
+        Cc["@activestate.com/koUserEnviron;1"].getService(Ci.koIUserEnviron));
 
     XPCOMUtils.defineLazyGetter(Services, "koRemoteConnection", () =>
         Cc["@activestate.com/koRemoteConnectionService;1"].getService(Ci.koIRemoteConnectionService));
