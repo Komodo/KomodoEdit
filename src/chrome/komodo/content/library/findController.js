@@ -39,19 +39,19 @@
  * commands related to opening the find dialog
  */
 
-Components.utils.import("resource://gre/modules/PluralForm.jsm");
-
 xtk.include('controller');
 
 ko.findcontroller = {};
 (function() {
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
+var locals = {};
 
-var _bundle = Cc["@mozilla.org/intl/stringbundle;1"]
-                .getService(Ci.nsIStringBundleService)
-                .createBundle("chrome://komodo/locale/library.properties");
+XPCOMUtils.defineLazyGetter(locals, "PluralForm", function()
+    Cu.import("resource://gre/modules/PluralForm.jsm"));
+
+XPCOMUtils.defineLazyGetter(locals, "bundle", function()
+    Services.strings.createBundle("chrome://komodo/locale/library.properties"));
+
 var _log = ko.logging.getLogger('find.controller');
 //_log.setLevel(ko.logging.LOG_DEBUG);
 
@@ -425,7 +425,7 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
 FindController.prototype._stopIncrementalSearch = function(why, highlight) {
     _log.debug("stopping incremental search (" + why + ")");
     if (why !== null) {
-        ko.statusBar.AddMessage(_bundle.formatStringFromName("incrementalSearchStopped",
+        ko.statusBar.AddMessage(locals.bundle.formatStringFromName("incrementalSearchStopped",
                                                              [why], 1),
                                 "isearch", 3000, highlight, true);
     }
@@ -523,7 +523,7 @@ FindController.prototype.search = function(pattern, highlight) {
         highlight,
         this.highlightTimeout);
     if (! findres) {
-        var prompt = _bundle.formatStringFromName("noOccurencesFound",
+        var prompt = locals.bundle.formatStringFromName("noOccurencesFound",
                                                   [this._incrementalSearchPattern], 1);
         scimoz.setSel(oldStart, oldEnd);
         this._view.findbar.notFound = true;
@@ -559,8 +559,8 @@ FindController.prototype.searchAgain = function(isBackwards) {
                                    null, true,
                                    true); // add pattern to find MRU
     if (findres == false) {
-        var text = _bundle.GetStringFromName("findNotFound");
-        text = PluralForm.get(lastCount, text).replace("#1", lastCount);
+        var text = locals.bundle.GetStringFromName("findNotFound");
+        text = locals.PluralForm.get(lastCount, text).replace("#1", lastCount);
         this._view.findbar.setStatus("not-found", text);
         this._view.findbar.notFound = true;
     } else {
