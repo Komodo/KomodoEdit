@@ -25,9 +25,7 @@ if (typeof(ko) == 'undefined') {
 
 // Jetpack must be loaded after window.ko has been created (so that it
 // knows how to get things into the right scope, for backwards compat)
-Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-          .getService(Components.interfaces.mozIJSSubScriptLoader)
-          .loadSubScript("chrome://komodo/content/jetpack.js");
+Services.scriptloader.loadSubScript("chrome://komodo/content/jetpack.js");
 JetPack.defineDeprecatedProperty(ko, "logging", "ko/logging", {since: "9.0.0a1"});
 JetPack.defineDeprecatedProperty(ko, "printing", "ko/printing", {since: "9.0.0a1"});
 
