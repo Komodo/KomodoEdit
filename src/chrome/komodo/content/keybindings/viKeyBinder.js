@@ -134,8 +134,7 @@ function VimController() {
         this._currentRegister = null;
         this._registers = {};
         // Searching
-        this._findSvc = Components.classes["@activestate.com/koFindService;1"].
-                               getService(Components.interfaces.koIFindService);
+        this._findSvc = Services.koFind;
 
         this._inputBuffer_active = false;
         this._inputBuffer_history = [];        // History of previous values
@@ -154,8 +153,8 @@ function VimController() {
         // Command history for command mode
         this._commandModeHistory = [];      // Array of past command mode strings
         // Initialize the command details service
-        this._commandDetails = Components.classes['@activestate.com/koViCommandDetail;1'].
-                                getService(Components.interfaces.koIViCommandDetail);
+        XPCOMUtils.defineLazyGetter(this, "_commandDetails", () =>
+            Cc["@activestate.com/koViCommandDetail;1"].getService(Ci.koIViCommandDetail));
         // Vi customized settings, get loaded from preferences
         this.settings = {};
         this._initSettings();
