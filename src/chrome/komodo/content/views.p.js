@@ -67,27 +67,17 @@ don't correspond to real selection changes.  At this point that is not done.
 
 xtk.include('domutils');
 xtk.include('controller');
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-if (typeof(ko)=='undefined') {
-    var ko = {};
-}
 if (typeof(ko.views)=='undefined') {
     ko.views = {};
 }
 
 (function() {
-var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-    .getService(Components.interfaces.nsIStringBundleService)
-    .createBundle("chrome://komodo/locale/views.properties");
-var _docSvc = Components.classes['@activestate.com/koDocumentService;1']
-                .getService(Components.interfaces.koIDocumentService);
-var _observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-                getService(Components.interfaces.nsIObserverService);
-var _lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
-                        getService(Components.interfaces.koILastErrorService);
-var _langRegistrySvc = Components.classes["@activestate.com/koLanguageRegistryService;1"].
-                        getService(Components.interfaces.koILanguageRegistryService);
+
+var locals = {};
+
+XPCOMUtils.defineLazyGetter(locals, "bundle", function()
+    Services.strings.createBundle("chrome://komodo/locale/views.properties"));
 
 function viewManager() {
     this.log = ko.logging.getLogger('views');
@@ -103,11 +93,11 @@ function viewManager() {
     this.topView.init();
     ko.main.addCanCloseHandler(this.canClose, this);
     ko.main.addWillCloseHandler(this.postCanClose, this);
-    _observerSvc.addObserver(this, "open_file", false); // commandment
-    _observerSvc.addObserver(this, "open-url",false);
-    _observerSvc.addObserver(this, "file_status", false);
-    _observerSvc.addObserver(this, "select", false);
-    _observerSvc.addObserver(this, "new_window",false);
+    Services.obs.addObserver(this, "open_file", false); // commandment
+    Services.obs.addObserver(this, "open-url",false);
+    Services.obs.addObserver(this, "file_status", false);
+    Services.obs.addObserver(this, "select", false);
+    Services.obs.addObserver(this, "new_window",false);
     var self = this;
     this.handle_current_view_changed_setup = function(event) {
         self.handle_current_view_changed(event);
@@ -144,11 +134,11 @@ viewManager.prototype.shutdown = function()
     this._shuttingDown = true;
     try {
         window.controllers.removeController(this);
-        _observerSvc.removeObserver(this, "open_file");  // commandment
-        _observerSvc.removeObserver(this, "open-url");
-        _observerSvc.removeObserver(this, "file_status");
-        _observerSvc.removeObserver(this, "select");
-        _observerSvc.removeObserver(this, "new_window");
+        Services.obs.removeObserver(this, "open_file");  // commandment
+        Services.obs.removeObserver(this, "open-url");
+        Services.obs.removeObserver(this, "file_status");
+        Services.obs.removeObserver(this, "select");
+        Services.obs.removeObserver(this, "new_window");
         window.removeEventListener('current_view_changed',
                                 this.handle_current_view_changed_setup, false);
         window.removeEventListener('view_list_closed',
@@ -289,7 +279,7 @@ viewManager.prototype._newTemplate = function(defaultDir) {
                 // If the detected language is HTML, we may find a better
                 // language name by checking the template filename, bug 88735.
                 if (currentLanguage == "HTML" || currentLanguage == "Text") {
-                    var requestedLanguage = _langRegistrySvc.suggestLanguageForFile(obj.template);
+                    var requestedLanguage = Services.koLangRegistry.suggestLanguageForFile(obj.template);
                     if (currentLanguage != requestedLanguage) {
                         view.koDoc.language = requestedLanguage;
                         window.updateCommands('language_changed');
@@ -366,25 +356,23 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
     var doc = null;
     try {
         if (saveto) {
-            doc = _docSvc.createFileFromTemplateURI(uri, saveto, false);
+            doc = Services.koDocSvc.createFileFromTemplateURI(uri, saveto, false);
         } else {
-            doc = _docSvc.createDocumentFromTemplateURI(uri, name, ext);
+            doc = Services.koDocSvc.createDocumentFromTemplateURI(uri, name, ext);
         }
     } catch (ex) {
-        errmsg = _lastErrorSvc.getLastErrorMessage();
+        errmsg = Services.koLastError.getLastErrorMessage();
         this.log.exception(ex, errmsg);
-        ko.dialogs.internalError(_bundle.GetStringFromName("errorOpeningTemplate.message"),
-                                 _bundle.formatStringFromName("errorLoadingTemplate.message", [uri], 1),
+        ko.dialogs.internalError(locals.bundle.GetStringFromName("errorOpeningTemplate.message"),
+                                 locals.bundle.formatStringFromName("errorLoadingTemplate.message", [uri], 1),
                                  ex);
         // even though there is an error, continue opening the
         // file so the user gets *something*
         if (saveto) {
-            doc = _docSvc.createDocumentFromURI(saveto);
+            doc = Services.koDocSvc.createDocumentFromURI(saveto);
         } else {
-            var langSvc = Components.classes["@activestate.com/koLanguageRegistryService;1"].
-                getService(Components.interfaces.koILanguageRegistryService);
-            var language = langSvc.suggestLanguageForFile(basename) || "Text";
-            doc = _docSvc.createUntitledDocument(language);
+            var language = Services.koLangRegistry.suggestLanguageForFile(basename) || "Text";
+            doc = Services.koDocSvc.createUntitledDocument(language);
         }
     }
     
@@ -412,7 +400,7 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
                             window,
                             [], // codes are not bracketed
                             [docText], // codes are bracketed
-                            _bundle.formatStringFromName("templateQuery.message", [name], 1),
+                            locals.bundle.formatStringFromName("templateQuery.message", [name], 1),
                             viewData);
         var liveTextInfo = null;
         if (!hasTabStops) {
@@ -427,16 +415,16 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
             }
         }
     } catch (ex) {
-        var errno = _lastErrorSvc.getLastErrorCode();
+        var errno = Services.koLastError.getLastErrorCode();
         if (errno == Components.results.NS_ERROR_ABORT) {
             // Command was cancelled.
         } else if (errno == Components.results.NS_ERROR_INVALID_ARG) {
-            errmsg = _lastErrorSvc.getLastErrorMessage();
-            ko.dialogs.alert(_bundle.formatStringFromName("couldNotInterpolate.message", [errmsg], 1));
+            errmsg = Services.koLastError.getLastErrorMessage();
+            ko.dialogs.alert(locals.bundle.formatStringFromName("couldNotInterpolate.message", [errmsg], 1));
         } else {
-            this.log.exception(ex, _bundle.GetStringFromName("errorInterpolatingTemplate.message"));
-            ko.dialogs.internalError(_bundle.formatStringFromName("couldNotProcessInterpolatingCodes.message", [basename], 1),
-                                     _bundle.formatStringFromName("errorInterpolatingTemplateUri.message", [uri], 1),
+            this.log.exception(ex, locals.bundle.GetStringFromName("errorInterpolatingTemplate.message"));
+            ko.dialogs.internalError(locals.bundle.formatStringFromName("couldNotProcessInterpolatingCodes.message", [basename], 1),
+                                     locals.bundle.formatStringFromName("errorInterpolatingTemplateUri.message", [uri], 1),
                                      ex);
         }
     }
@@ -522,7 +510,7 @@ viewManager.prototype._doNewView = function(language /*= prefs.fileDefaultNew*/,
     }
 
     // the following line is delayed to avoid notifications during load()
-    var doc = _docSvc.createUntitledDocument(language);
+    var doc = Services.koDocSvc.createUntitledDocument(language);
     var view = this.topView.createViewFromDocument(doc, viewType, -1);
 
     this.log.info("leaving _doNewView");
@@ -579,10 +567,10 @@ viewManager.prototype._newViewFromURI = function(uri,
     if (typeof(index) == 'undefined' || index == null)
         index = -1;
 
-    var doc = _docSvc.createDocumentFromURI(uri);
+    var doc = Services.koDocSvc.createDocumentFromURI(uri);
     var view = null;
     if (! doc.file.exists) {
-        if (ko.dialogs.yesNo(_bundle.formatStringFromName("theFileDoesNotExist.message", [doc.file.displayPath], 1)) == "No") {
+        if (ko.dialogs.yesNo(locals.bundle.formatStringFromName("theFileDoesNotExist.message", [doc.file.displayPath], 1)) == "No") {
             return null;
         } else {
             var sysUtils = Components.classes["@activestate.com/koSysUtils;1"]
@@ -590,15 +578,13 @@ viewManager.prototype._newViewFromURI = function(uri,
             try {
                 sysUtils.Touch(doc.file.displayPath);
             } catch(touch_ex) {
-                ko.dialogs.alert(_bundle.formatStringFromName("komodoWasUnableToCreateTheFile.alert", [doc.file.displayPath], 1));
+                ko.dialogs.alert(locals.bundle.formatStringFromName("komodoWasUnableToCreateTheFile.alert", [doc.file.displayPath], 1));
                 return null;
             }
             try {
                 // Ensure the file status is updated now that the file exists.
                 // http://bugs.activestate.com/show_bug.cgi?id=67949
-                var obSvc = Components.classes["@mozilla.org/observer-service;1"].
-                        getService(Components.interfaces.nsIObserverService);
-                obSvc.notifyObservers(this, 'file_changed', doc.file.URI);
+                Services.obs.notifyObservers(this, 'file_changed', doc.file.URI);
             } catch (ex) {
                 /* no listeners for this event */
             }
@@ -610,7 +596,7 @@ viewManager.prototype._newViewFromURI = function(uri,
     }
     try {
         if (doc.haveAutoSave() &&
-            ko.dialogs.yesNo(_bundle.formatStringFromName("itAppearsTheFileWasNotSaved.alert", [doc.file.displayPath], 1)) == "Yes") {
+            ko.dialogs.yesNo(locals.bundle.formatStringFromName("itAppearsTheFileWasNotSaved.alert", [doc.file.displayPath], 1)) == "Yes") {
             doc.restoreAutoSave();
         } else if (viewType != "browser") {
             doc.load();
@@ -629,10 +615,10 @@ viewManager.prototype._newViewFromURI = function(uri,
             this.showLargeFileProblem(doc.file.displayPath, originalLanguage);
         }
     } catch (e)  {
-        var err = _lastErrorSvc.getLastErrorMessage();
-        ko.dialogs.alert(_bundle.formatStringFromName("komodoWasUnableToOpenTheFile.alert", [doc.file.baseName], 1),
+        var err = Services.koLastError.getLastErrorMessage();
+        ko.dialogs.alert(locals.bundle.formatStringFromName("komodoWasUnableToOpenTheFile.alert", [doc.file.baseName], 1),
                          err,
-                         _bundle.GetStringFromName("fileOpenError.alert"));
+                         locals.bundle.GetStringFromName("fileOpenError.alert"));
         this.log.exception(e);
         view = null;
     }
@@ -995,7 +981,7 @@ viewManager.prototype.getAllViewsForURI = function(uri) {
  */
 viewManager.prototype.getUntitledView = function(name) {
     try {
-        var doc = _docSvc.findDocumentByURI(name);
+        var doc = Services.koDocSvc.findDocumentByURI(name);
         return this.topView.findViewForDocument(doc);
     } catch (e) {
         this.log.exception(e);
@@ -1019,8 +1005,8 @@ viewManager.prototype.getViewForDocument = function(doc) {
  */
 
 viewManager.prototype.showLargeFileProblem = function(path, languageName) {
-    ko.dialogs.alert(_bundle.GetStringFromName("newFileHasLongLines.prompt"),
-                     _bundle.formatStringFromName("newFileAddedAsText.template",
+    ko.dialogs.alert(locals.bundle.GetStringFromName("newFileHasLongLines.prompt"),
+                     locals.bundle.formatStringFromName("newFileAddedAsText.template",
                                                   [path, languageName], 2),
                      null, // title
                      "treat_large_documents_as_text");
@@ -1529,10 +1515,10 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
         urls = null;
     }
     if (typeof(title) == 'undefined' || title == null) {
-        title = _bundle.GetStringFromName("saveModifiedFiles.prompt");
+        title = locals.bundle.GetStringFromName("saveModifiedFiles.prompt");
     }
     if (typeof(prompt) == 'undefined' || prompt == null) {
-        title = _bundle.GetStringFromName("pleaseSelectTheFilesYouWishToSave.prompt");
+        title = locals.bundle.GetStringFromName("pleaseSelectTheFilesYouWishToSave.prompt");
     }
     if (typeof(doNotAskPref) == 'undefined') {
         doNotAskPref = null;
@@ -1561,7 +1547,7 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
                 view.saveState();
                 if (ko.macros.eventHandler.hookPreFileClose(view)) {
                     ko.statusBar.AddMessage(
-                        _bundle.GetStringFromName("macroInterruptedFileClosingProcedure.message"),
+                        locals.bundle.GetStringFromName("macroInterruptedFileClosingProcedure.message"),
                         "macro",
                         5000,
                         true);
@@ -1637,9 +1623,9 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
                           stringifier,
                           doNotAskPref,
                           true /* yesNoCancel */,
-                          [_bundle.GetStringFromName("save.prompt"),
-                           _bundle.GetStringFromName("doNotSave.prompt"),
-                           _bundle.GetStringFromName("cancel.prompt")]);
+                          [locals.bundle.GetStringFromName("save.prompt"),
+                           locals.bundle.GetStringFromName("doNotSave.prompt"),
+                           locals.bundle.GetStringFromName("cancel.prompt")]);
     if (itemsToSave == null) {
         return false; // canceled
     }
@@ -2317,16 +2303,13 @@ viewManager.prototype.is_cmd_saveAsTemplate_enabled = function () {
 }
 viewManager.prototype.do_cmd_saveAsTemplate = function () {
     try {
-        var os = Components.classes["@activestate.com/koOs;1"].getService();
         var templateSvc = Components.classes["@activestate.com/koTemplateService?type=file;1"].getService();
         //TODO: The directory name "My Templates" should be localized
-        var dname = os.path.join(templateSvc.getUserTemplatesDir(), "My Templates");
+        var dname = Services.koOs.path.join(templateSvc.getUserTemplatesDir(), "My Templates");
         var templatename = ko.filepicker.saveFile(dname,
                                 this.currentView.koDoc.baseName);
         if (!templatename) return;
-        var docsvc = Components.classes['@activestate.com/koDocumentService;1']
-                    .getService(Components.interfaces.koIDocumentService);
-        var doc = docsvc.createDocumentFromURI(ko.uriparse.localPathToURI(templatename));
+        var doc = Services.koDocSvc.createDocumentFromURI(ko.uriparse.localPathToURI(templatename));
         doc.buffer = this.currentView.koDoc.buffer;
         doc.encoding = this.currentView.koDoc.encoding;
         doc.save(0);
@@ -2470,18 +2453,14 @@ XPCOMUtils.defineLazyGetter(this, "manager",
 function()
 {
     _manager = new viewManager();
-    var viewSvc = Components.classes['@activestate.com/koViewService;1'].getService(
-                    Components.interfaces.koIViewService);
-    viewSvc.setViewMgr(_manager);
+    Services.koViewSvc.setViewMgr(_manager);
 
 // #if PLATFORM == "linux"
     if (window == ko.windowManager.getMainWindow())
         window.addEventListener("focus", ko.window.checkDiskFiles, false);
 // #else
     function _checkFilesObserver() {
-        var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-                        getService(Components.interfaces.nsIObserverService);
-        observerSvc.addObserver(this, "application-activated",false);
+        Services.obs.addObserver(this, "application-activated",false);
 
         var me = this;
         this.removeListener = function() { me.finalize(); }
@@ -2492,9 +2471,7 @@ function()
             if (!this.removeListener) return;
             window.removeEventListener("unload", this.removeListener, false);
             this.removeListener = null;
-            var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-                            getService(Components.interfaces.nsIObserverService);
-            observerSvc.removeObserver(this, "application-activated");
+            Services.obs.removeObserver(this, "application-activated");
         },
         observe: function(subject, topic, data)
         {
@@ -2693,7 +2670,7 @@ this.labelFromPathInfo = function(baseName, dirName, lineNo, tabId,
 };
 
 this._gotoLine_report_error = function _gotoLine_report_error(errorBox, line) {
-    document.getElementById('gotoLine_error_label').value = _bundle.formatStringFromName("isInvalidYoumustEnterANumber.alert", [line], 1);
+    document.getElementById('gotoLine_error_label').value = locals.bundle.formatStringFromName("isInvalidYoumustEnterANumber.alert", [line], 1);
     errorBox.removeAttribute("collapsed");
 };
 
@@ -2859,22 +2836,11 @@ ko.window = {};
 
 var log = ko.logging.getLogger('window');
 //log.setLevel(ko.logging.LOG_DEBUG);
-var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-    .getService(Components.interfaces.nsIStringBundleService)
-    .createBundle("chrome://komodo/locale/views.properties");
 
-/**
- * File Status Service used by the function(s) below.
- * @private
- */
-var _fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].
-                    getService(Components.interfaces.koIFileStatusService);
-/**
- * Asyncronous operations service used by the function(s) below.
- * @private
- */
-var _asyncSvc = Components.classes['@activestate.com/koAsyncService;1'].
-                getService(Components.interfaces.koIAsyncService);
+var locals = {};
+
+XPCOMUtils.defineLazyGetter(locals, "bundle", function()
+    Services.strings.createBundle("chrome://komodo/locale/views.properties"));
 
 var REASON_ONFOCUS_CHECK = Components.interfaces.koIFileStatusChecker.REASON_ONFOCUS_CHECK;
 
@@ -2944,8 +2910,6 @@ this.checkDiskFiles = function view_checkDiskFiles(event)
 
 function _view_checkDiskFiles(event) {
     // checks open files and projects for dirtiness
-    var obSvc = Components.classes["@mozilla.org/observer-service;1"].
-            getService(Components.interfaces.nsIObserverService);
     try {
         window.updateCommands('clipboard');
         var changedItems = [];
@@ -2987,7 +2951,7 @@ function _view_checkDiskFiles(event) {
                     // updated automatically when the command finishes, we
                     // don't want to warn about it until it's finished. See bug:
                     // http://bugs.activestate.com/show_bug.cgi?id=74471
-                    !_asyncSvc.uriHasPendingOperation(file.URI)) {
+                    !Services.koAsync.uriHasPendingOperation(file.URI)) {
 
                     if (view.koDoc.isDirty) {
                         conflictedItems.push(item);
@@ -3044,8 +3008,8 @@ function _view_checkDiskFiles(event) {
 
         // handle files and projects that have changed on disk
         if (changedItems.length > 0) {
-            title = _bundle.GetStringFromName("reloadChangedFilesAndProjects.prompt");
-            prompt = _bundle.GetStringFromName("someOpenFilesAndOrProjectsHaveChanged.prompt");
+            title = locals.bundle.GetStringFromName("reloadChangedFilesAndProjects.prompt");
+            prompt = locals.bundle.GetStringFromName("someOpenFilesAndOrProjectsHaveChanged.prompt");
             items = ko.dialogs.selectFromList(title,
                                           prompt,
                                           changedItems,
@@ -3078,8 +3042,8 @@ function _view_checkDiskFiles(event) {
                     removedItems[i].view.koDoc.isDirty = true;
                 }
             }
-            title = _bundle.GetStringFromName("closeDeletedFilesAndProjects.prompt");
-            prompt = _bundle.GetStringFromName("theFollowingFilesAndProjectsDeleted.prompt");
+            title = locals.bundle.GetStringFromName("closeDeletedFilesAndProjects.prompt");
+            prompt = locals.bundle.GetStringFromName("theFollowingFilesAndProjectsDeleted.prompt");
             items = ko.dialogs.selectFromList(title,
                                           prompt,
                                           removedItems,
@@ -3102,8 +3066,8 @@ function _view_checkDiskFiles(event) {
         //    closed so there is nothing that can really be done.
         // handle files and projects that have changed and are dirty
         if (conflictedItems.length > 0) {
-            prompt = _bundle.GetStringFromName("theFollowingFilesHaveChangedOnDisk.prompt");
-            title = _bundle.GetStringFromName("modifiedFilesHaveChangedOnDisk.prompt");
+            prompt = locals.bundle.GetStringFromName("theFollowingFilesHaveChangedOnDisk.prompt");
+            title = locals.bundle.GetStringFromName("modifiedFilesHaveChangedOnDisk.prompt");
             var text = '';
             for (i = 0; i < conflictedItems.length; i++) {
                 text += _itemStringifier(conflictedItems[i]) + '\n'
@@ -3113,7 +3077,7 @@ function _view_checkDiskFiles(event) {
     } catch(e) {
         log.exception(e);
     }
-    _fileStatusSvc.updateStatusForAllFiles(REASON_ONFOCUS_CHECK);
+    Services.koFileStatus.updateStatusForAllFiles(REASON_ONFOCUS_CHECK);
     // when we leave this function, if any dialogs were shown, the
     // main window gets a focus event again.  So we want to wait long
     // enough so that the new focus event does not enter this function
@@ -3123,10 +3087,8 @@ function _view_checkDiskFiles(event) {
 }
 
 this.getHomeDirectory = function() {
-    var userEnvSvc = Components.classes['@activestate.com/koUserEnviron;1'].
-    getService(Components.interfaces.koIUserEnviron);
-    if (userEnvSvc.has("HOME")) {
-        return userEnvSvc.get("HOME");
+    if (Services.koUserEnv.has("HOME")) {
+        return Services.koUserEnv.get("HOME");
     } else {
 // #if PLATFORM == "win"
         return "C:\\";
