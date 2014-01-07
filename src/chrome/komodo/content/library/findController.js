@@ -706,28 +706,6 @@ FindController.prototype._keyHandler = function FindController__keyHandler(event
 // expose the controller constructor
 this.FindController = FindController;
 
-/*****
- * Deprecated shims (since Komodo 7.0.0a4)
- *****/
-ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
-                                           "findSvc",
-                                           'Components.classes["@activestate.com/koFindService;1"].getService(Components.interfaces.koIFindService)');
-ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
-                                           "inRepeatCounterAccumulation",
-                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.inRepeatCounterAccumulation');
-ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
-                                           "defaultRepeatCounter",
-                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.defaultRepeatCounter');
-ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
-                                           "do_cmd_repeatNextCommandBy",
-                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.do_cmd_repeatNextCommandBy');
-ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
-                                           "getCount",
-                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.getCount');
-ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
-                                           "cancelMultiHandler",
-                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.cancelMultiHandler');
-
 // if we're the main window, wait for ko.views to be available and hook up a
 // default incremental search controller
 addEventListener("load", (function() {
@@ -740,14 +718,3 @@ addEventListener("load", (function() {
 }).bind(this), false);
 
 }).apply(ko.find.controller);
-
-// shims
-if (!ko.isearch) ko.isearch = {};
-(function() {
-/*****
- * Deprecated shims (since Komodo 7.0.0a4)
- *****/
-ko.logging.propertyDeprecatedByAlternative(this,
-                                           "controller",
-                                           "ko.find.controller");
-}).apply(ko.isearch);
