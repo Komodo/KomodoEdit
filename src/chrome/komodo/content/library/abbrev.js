@@ -49,12 +49,9 @@ if (typeof(ko.abbrev)=='undefined') {
 
 (function() {
 
-var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-                .getService(Components.interfaces.nsIStringBundleService)
-                .createBundle("chrome://komodo/locale/library.properties");
-
-var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-                getService(Components.interfaces.nsIObserverService);
+var lazy = {};
+XPCOMUtils.defineLazyGetter(lazy, "bundle", function()
+    Services.strings.createBundle("chrome://komodo/locale/library.properties"));
 
 var handle_toolbox_updates = false;
 var toolbox_notification_names = [
@@ -69,17 +66,15 @@ var toolbox_notification_names = [
 ];
 
 this.initialize = function initialize() {
-    observerSvc.addObserver(this, "komodo-ui-started", false);
-};
-
-this._finish_initialize = function _finish_initialize() {
     this.log = ko.logging.getLogger('abbrev.js');
     ko.main.addWillCloseHandler(this.postCanClose, this);
     
     // Bug 96693: Watch for changes in the toolbox in order to track
     // all auto-abbreviation snippets, but after startup
+    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                    getService(Components.interfaces.nsIObserverService);
     for each (var name in toolbox_notification_names) {
-        observerSvc.addObserver(this, name, false);
+        Services.obs.addObserver(this, name, false);
     }
     handle_toolbox_updates = true;
     this.updateAutoAbbreviations();
@@ -87,18 +82,15 @@ this._finish_initialize = function _finish_initialize() {
 
 this.postCanClose = function postCanClose() {
     handle_toolbox_updates = false;
-    observerSvc.removeObserver(this, "komodo-ui-started");
+    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                    getService(Components.interfaces.nsIObserverService);
     for each (var name in toolbox_notification_names) {
-        observerSvc.removeObserver(this, name);
+        Services.obs.removeObserver(this, name);
     }
 };
 
 this.observe = function(subject, topic, data) {
-    if (topic == "komodo-ui-started") {
-        this._finish_initialize();
-    } else if (toolbox_notification_names.indexOf(topic) >= 0) {
-        this.updateAutoAbbreviations();
-    }
+    this.updateAutoAbbreviations();
 };
 
 this.updateAutoAbbreviations = function updateAutoAbbreviations(event) {
@@ -224,7 +216,7 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
             // i.e. valid abbrev chars.
             if (pos == 0 || !is_abbrev(scimoz.getTextRange(prevPos, pos))) {
                 ko.statusBar.AddMessage(
-                    _bundle.GetStringFromName("noAbbreviationAtTheCurrentPosition"),
+                    lazy.bundle.GetStringFromName("noAbbreviationAtTheCurrentPosition"),
                     "abbrev", 5000, false);
                 return false;
             }
@@ -253,15 +245,15 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
             return true;
         } else {
             if (exObj.value && exObj.value.message) {
-                msg = _bundle.formatStringFromName("snippet X insertion deliberately suppressed with reason",
+                msg = lazy.bundle.formatStringFromName("snippet X insertion deliberately suppressed with reason",
                                    [snippet.name, exObj.value.message], 2);
             } else {
-                msg = _bundle.formatStringFromName("snippet X insertion deliberately suppressed",
+                msg = lazy.bundle.formatStringFromName("snippet X insertion deliberately suppressed",
                                    [snippet.name], 1);
             }
         }
     } else {
-        msg = _bundle.formatStringFromName("noAbbreviationWasFound", [abbrev], 1);
+        msg = lazy.bundle.formatStringFromName("noAbbreviationWasFound", [abbrev], 1);
     }
     if (origPos !== null) { // Restore state.
         scimoz.currentPos = origPos;
@@ -349,14 +341,14 @@ this.expandAutoAbbreviation = function(currView) {
             var options = {
                 severity: Components.interfaces.koINotification.SEVERITY_INFO };
             var identifier = "edit-snippet-" + pathPart;
-            var act = { label: _bundle.GetStringFromName("Edit Snippet"),
+            var act = { label: lazy.bundle.GetStringFromName("Edit Snippet"),
                         identifier: snippet.url,
                         handler: function(notification, url) {
                               ko.open.URI(url);
                         }
             };
             options.actions = [act];
-            var msg = _bundle.formatStringFromName("inserted autoabbreviation X",
+            var msg = lazy.bundle.formatStringFromName("inserted autoabbreviation X",
                                                    [pathPart], 1);
             ko.notifications.add(msg, ["Snippets"], identifier, options);
             return true;
@@ -477,7 +469,7 @@ this._checkPossibleAbbreviation = function _checkPossibleAbbreviation(abbrev) {
     } catch(ex) {
         if (ex instanceof TypeError) {
             this.log.warn("Never got a komodo-ui-started notification, do it now");
-            this._finish_initialize();
+            this.initialize();
             // And retry.
             if (!(abbrev in this.activeAutoAbbreviations)) {
                 return false;
@@ -565,4 +557,5 @@ function is_abbrev(s) {
 }
 
 }).apply(ko.abbrev);
-ko.abbrev.initialize();
+
+window.addEventListener("komodo-ui-started", ko.abbrev.initialize.bind(ko.abbrev));
