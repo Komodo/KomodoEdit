@@ -43,14 +43,7 @@ Components.utils.import("resource://gre/modules/PluralForm.jsm");
 
 xtk.include('controller');
 
-if (typeof(ko)=='undefined') {
-    var ko = {};
-}
-if (typeof(ko.find)=='undefined') {
-    ko.find = {};
-}
-
-ko.find.controller = {};
+ko.findcontroller = {};
 (function() {
 
 const Cc = Components.classes;
@@ -717,4 +710,4 @@ addEventListener("load", (function() {
     }
 }).bind(this), false);
 
-}).apply(ko.find.controller);
+}).apply(ko.findcontroller);
