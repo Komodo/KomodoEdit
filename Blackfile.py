@@ -2432,9 +2432,14 @@ def TestKomodo(cfg, argv):
     import tmShUtil
     # "mozpython" is the Python binary in the $mozBin dir for which PyXPCOM
     # will work (paths, libs, etc. setup properly). See bug 66332.
+    # Default to optimize, because asserts break the html/xml parser. Bug 99976.
+    cmd = 'mozpython -O test.py'
+    if "--assert" in argv:
+        argv.remove("--assert")
+        cmd = 'mozpython test.py'
     return tmShUtil.RunInContext(cfg.envScriptName, [
         'cd test',
-        'mozpython -O test.py %s' % ' '.join(argv[1:])
+        '%s %s' % (cmd, ' '.join(argv[1:]))
     ])
 
 def TestKomodoPerf(cfg, argv):
