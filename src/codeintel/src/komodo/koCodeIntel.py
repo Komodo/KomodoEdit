@@ -574,6 +574,56 @@ class _TCPConnection(_Connection):
         if self.sock:
             self.sock.close()
 
+if sys.platform.startswith("win"):
+    from win32_named_pipe import Win32Pipe
+    class _PipeConnection(Win32Pipe):
+        """This is a wrapper around our Win32Pipe class to expose the expected
+        API"""
+        pipe_prefix = "komodo-codeintel-"
+        def get_commandline_args(self):
+            return ["--connect", "pipe:%s" % (self.name,)]
+        def get_stream(self):
+            self._ensure_stream()
+            return self
+        def cleanup(self):
+            return
+    del Win32Pipe
+else:
+    # posix pipe class
+    class _PipeConnection(_Connection):
+        _dir = None
+        _read = None
+        _write = None
+        def get_commandline_args(self):
+            import tempfile
+            self._dir = tempfile.mkdtemp(prefix="komodo-codeintel-",
+                                         suffix="-oop-pipes")
+            os.mkfifo(join(self._dir, "in"), 0600)
+            os.mkfifo(join(self._dir, "out"), 0600)
+            return ["--connect", "pipe:%s" % (self._dir,)]
+        def get_stream(self):
+            # Open the write end first, so that the child doesn't hang
+            self._read = open(join(self._dir, "out"), "rb", 0)
+            self._write = open(join(self._dir, "in"), "wb", 0)
+            return self
+        def read(self, count):
+            return self._read.read(count)
+        def write(self, data):
+            return self._write.write(data)
+        def cleanup(self):
+            # don't close the streams here, but remove the files.  The fds are
+            # left open so we can communicate through them, but we no longer
+            # need the file names around.
+            os.remove(self._read.name)
+            os.remove(self._write.name)
+            try:
+                os.rmdir(self._dir)
+            except OSError:
+                pass
+        def close(self):
+            self._read.close()
+            self._write.close()
+
 class KoCodeIntelManager(threading.Thread):
     """This class manages a connection to an out-of-process codeintel process.
     """
@@ -714,7 +764,17 @@ class KoCodeIntelManager(threading.Thread):
                    "--import-path", koDirSvc.komodoPythonLibDir,
                    "--database-dir", join(koDirSvc.userDataDir, "codeintel")]
 
-            conn = _TCPConnection()
+            mode = (Cc["@activestate.com/koPrefService;1"]
+                      .getService().prefs
+                      .getString("codeintel_oop_mode", "pipe").lower())
+            if mode == "pipe":
+                conn = _PipeConnection()
+            elif mode == "tcp":
+                conn = _TCPConnection()
+            else:
+                log.warn("Unknown codeintel oop mode %s, falling back to pipes",
+                         mode)
+                conn = _PipeConnection()
             cmd += conn.get_commandline_args()
 
             # Logging
@@ -754,7 +814,7 @@ class KoCodeIntelManager(threading.Thread):
         else:
             self._send_init_requests()
         finally:
-            if log_file and log_file not in (sys.stdout, sys.stderr):
+            if log_file not in (None, sys.stdout, sys.stderr):
                 log_file.close()
             try:
                 conn.cleanup()
@@ -1127,6 +1187,7 @@ class KoCodeIntelManager(threading.Thread):
         except Exception as ex:
             if isinstance(ex, IOError) and \
               self.state in (self.STATE.QUITTING, self.STATE.DESTROYED):
+                log.debug("IOError in codeintel during shutdown; ignoring")
                 return # this is intentional
             self.log.exception("Error reading data from codeintel")
             self.kill()

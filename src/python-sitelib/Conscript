@@ -105,6 +105,7 @@ $cons->InstallPythonUtility('pythonVersionUtils.py');
 if ($platform eq "win") {
     $cons->InstallPythonUtility('wininteg.py');
     $cons->InstallPythonUtility('ctypesutils.py');
+    $cons->InstallPythonUtility('win32_named_pipe.py');
 }
 
 if ($buildFlavour eq "dev") {

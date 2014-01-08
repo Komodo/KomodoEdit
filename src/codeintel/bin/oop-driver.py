@@ -97,10 +97,23 @@ def main(argv=[]):
 
     try:
         if args.connect:
-            log.debug("connecting to port: %s", args.connect)
-            conn = socket.create_connection(args.connect.rsplit(":", 1))
-            fd_in = conn.makefile("r+b", 0)
-            fd_out = fd_in
+            if args.connect.startswith("pipe:"):
+                pipe_name = args.connect.split(":", 1)[1]
+                log.debug("connecting to pipe: %s", pipe_name)
+                if sys.platform.startswith("win"):
+                    # using Win32 pipes
+                    from win32_named_pipe import Win32Pipe
+                    fd_out = fd_in = Win32Pipe(name=pipe_name, client=True)
+                else:
+                    # Open the write end first, so the parent doesn't hang
+                    fd_out = open(join(pipe_name, "out"), "wb", 0)
+                    fd_in = open(join(pipe_name, "in"), "rb", 0)
+                log.debug("opened: %r", fd_in)
+            else:
+                log.debug("connecting to port: %s", args.connect)
+                conn = socket.create_connection(args.connect.rsplit(":", 1))
+                fd_in = conn.makefile("r+b", 0)
+                fd_out = fd_in
         else:
             # force unbuffered stdout
             fd_in = sys.stdin
