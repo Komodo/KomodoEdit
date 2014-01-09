@@ -2064,7 +2064,7 @@ class koDocumentBase:
             # receivers are not registered?
             pass
 
-    def _get_ondisk_lines(self, encodeAsUTF8=False):
+    def _get_ondisk_lines(self, encodeAsUTF8=False, keepEOLs=False):
         # We want a new temporary file to read, so the current file stats
         # information does not get updated (required for remote file saving,
         # which uses stats.mtime for checking if a file has changed or not).
@@ -2078,7 +2078,7 @@ class koDocumentBase:
             (ondisk, encoding, bom) = self._detectEncoding(ondisk)
             if encodeAsUTF8 and encoding not in ("ascii", "utf-8"):
                 ondisk = ondisk.encode("utf-8")
-            return ondisk.splitlines()
+            return ondisk.splitlines(keepEOLs)
         except:
             # If we cannot read the file - then either it doesn't exist yet, or
             # we don't have the correct permissions - either way we will treat
@@ -2091,7 +2091,7 @@ class koDocumentBase:
     _re_ending_eol = re.compile('\r?\n$')
     def getUnsavedChanges(self, joinLines=True):
         eolStr = eollib.eol2eolStr[self._eol]
-        ondisk = self._get_ondisk_lines()
+        ondisk = self._get_ondisk_lines(keepEOLs=True)
         inmemory = self.get_buffer().splitlines(True)
         difflines = list(difflibex.unified_diff(
             ondisk, inmemory,
