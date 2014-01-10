@@ -2600,6 +2600,9 @@ this.labelsFromView = function(view,
                                        sectionTitle,
                                        showDirty && doc.isDirty);
     }
+    if (view.getAttribute("type") != "editor") {
+        label = view.title;
+    }
     return [label, tooltip];
 };
 
