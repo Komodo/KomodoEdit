@@ -517,6 +517,7 @@
                 var lineNo = sm.lineFromPosition(pos);
                 // Hovering over a change-margin?
                 if (this.changeTrackerEnabled && this.changeTracker
+                    && this._getTrackerMarginOffset(sm, x) !== null
                     && this.changeTracker.lineBarIsActive(lineNo)) {
                     return this.viewsPropertiesBundle.GetStringFromName(
                         "Click on the changebar for details");
@@ -1732,6 +1733,25 @@
         </body>
         </method>
 
+        <method name="_getTrackerMarginOffset">
+        <parameter name="scimoz"/>
+        <parameter name="x"/>
+        <body><![CDATA[
+            // Bug 102448: make sure the "Click changebar" tooltip appears
+            // only when the cursor is in the changebar margin.
+            // Returns null if it isn't on the margin, or the offset of the
+            // left-hand side of that margin relative to the left edge of the
+            // editor view.
+            var marginWidthBefore = [0, 1, 2].map(function(i) scimoz.getMarginWidthN(i)).
+                                              reduce(function(prevVal, currVal) prevVal + currVal);
+            var trackerMarginWidth = scimoz.getMarginWidthN(3);
+            var res = (x >= marginWidthBefore
+                       && x < (marginWidthBefore + trackerMarginWidth));
+            return res ? marginWidthBefore : null;
+        ]]>
+        </body>
+        </method>
+
         <method name="_onDwellPointForChangeTracker">
         <parameter name="position"/>
         <parameter name="x"/>
@@ -1749,10 +1769,8 @@
 /* #endif */
             var scimoz = this.scimoz;
             var lineNo = scimoz.lineFromPosition(scimoz.positionFromPoint(x, y));
-            var marginWidthBefore = [0, 1, 2].map(function(i) scimoz.getMarginWidthN(i)).
-                                              reduce(function(prevVal, currVal) prevVal + currVal);
-            var trackerMarginWidth = scimoz.getMarginWidthN(3);
-            if (x >= marginWidthBefore && x < (marginWidthBefore + trackerMarginWidth)) {
+            var marginWidthBefore = this._getTrackerMarginOffset(this.scimoz, x);
+            if (marginWidthBefore !== null) {
                 this.changeTracker[method](x - marginWidthBefore, y, lineNo);
             }
         ]]>
