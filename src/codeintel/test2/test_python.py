@@ -181,7 +181,7 @@ class DefnTestCase(CodeIntelTestCase):
             path = join(test_dir, file)
             writefile(path, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "foo.py"))
+        buf = self.mgr.buf_from_path(join(test_dir, "foo.py"), lang=self.lang)
         #self.assertDefnMatches2(buf, foo_py_positions[1],
         #    path=join(test_dir, "bar.py"), line=1)
         self.assertDefnMatches2(buf, foo_py_positions[1],
@@ -207,7 +207,7 @@ class DefnTestCase(CodeIntelTestCase):
         """))
         path = join(test_dir, "scope_bounds.py")
         writefile(path, foo_content)
-        buf = self.mgr.buf_from_path(path)
+        buf = self.mgr.buf_from_path(path, lang=self.lang)
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="function", name="test1", line=3,
             scopestart=1, scopeend=0, path=path, )
@@ -235,7 +235,7 @@ class DefnTestCase(CodeIntelTestCase):
         """))
         path = join(test_dir, "lpath.py")
         writefile(path, foo_content)
-        buf = self.mgr.buf_from_path(path)
+        buf = self.mgr.buf_from_path(path, lang=self.lang)
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="function", name="inner", line=8,
             lpath=["C", "foo"],
@@ -269,7 +269,7 @@ class DefnTestCase(CodeIntelTestCase):
         """))
         path = join(test_dir, "scope_bounds.py")
         writefile(path, foo_content)
-        buf = self.mgr.buf_from_path(path)
+        buf = self.mgr.buf_from_path(path, lang=self.lang)
         # Although llama is defined at line 4,
         # we only get enough information to tie it to the function
         # defined at line 3
@@ -302,7 +302,7 @@ class DefnTestCase(CodeIntelTestCase):
         """))
         path = join(test_dir, "defn_for_loop.py")
         writefile(path, foo_content)
-        buf = self.mgr.buf_from_path(path)
+        buf = self.mgr.buf_from_path(path, lang=self.lang)
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="variable", name="hit", line=5,
             path=path)
@@ -326,7 +326,7 @@ class DefnTestCase(CodeIntelTestCase):
         """))
         path = join(test_dir, "in_with.py")
         writefile(path, foo_content)
-        buf = self.mgr.buf_from_path(path)
+        buf = self.mgr.buf_from_path(path, lang=self.lang)
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="variable", name="cu", line=5,
             path=path)
@@ -355,7 +355,7 @@ class DefnTestCase(CodeIntelTestCase):
         """))
         path = join(test_dir, "in_except.py")
         writefile(path, foo_content)
-        buf = self.mgr.buf_from_path(path)
+        buf = self.mgr.buf_from_path(path, lang=self.lang)
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="variable", name="ex", line=7,
             path=path)
@@ -372,7 +372,7 @@ class DefnTestCase(CodeIntelTestCase):
         """))
         path = join(test_dir, "defn_at_defn.py")
         writefile(path, content)
-        buf = self.mgr.buf_from_path(path)
+        buf = self.mgr.buf_from_path(path, lang=self.lang)
         lines = lines_from_pos(content, pos)
         self.assertDefnMatches2(buf, pos[1], line=lines[1],
                                 ilk="class", name="FooClass", path=path)

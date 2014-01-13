@@ -526,6 +526,9 @@ def py_expr_grammar():
                 arg = self.advance_name()
                 arg.value = "**" + arg.value
                 check_annotation = True
+            elif self.token.id == "(end)":
+                # Argument lists may have a trailing comma; see bug 101868
+                break
             else:
                 arg = self.advance_name()
                 check_annotation = True
