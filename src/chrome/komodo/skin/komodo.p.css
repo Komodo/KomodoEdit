@@ -553,3 +553,9 @@ treechildren#toolbox2-hierarchy-treebody::-moz-tree-image {
   /* Collapse status images that are not showing anything. */
   display: none;
 }
+
+/* #if PLATFORM == "linux" */
+#changeTracker_undo {
+    min-height: 24px;
+}
+/* #endif */

@@ -563,6 +563,7 @@
 <!ENTITY rename.label "Rename...">
 <!ENTITY renameTag.label "Rename Tag">
 <!ENTITY renameTag.desc "Editor: Rename Start- and End-Tag Name Simultaneously">
+<!ENTITY retractThisChange.label "Retract This Change">
 <!ENTITY reImportFromFileSystemWithTheSameSettings.tooltiptext "Re-Import from File System with the same settings">
 <!ENTITY ready.label "Ready">
 <!ENTITY recentCommands.label "Recent Commands">
@@ -691,6 +692,7 @@
 <!ENTITY templates.label "Templates">
 <!ENTITY templates.accesskey "t">
 <!ENTITY terminateProcess.tooltiptext "Terminate Process">
+<!ENTITY thisMarkersChanges.label "This marker's changes">
 <!ENTITY thisToolboxIsReadOnly.locktip "This toolbox is read-only.">
 <!ENTITY toggleBookmark.label "Toggle Bookmark">
 <!ENTITY toggleBottom.label "Toggle Bottom">
