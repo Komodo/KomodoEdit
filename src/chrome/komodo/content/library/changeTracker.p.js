@@ -66,8 +66,25 @@ const CHANGES_INSERT = 1;
 const CHANGES_DELETE = 2;
 const CHANGES_REPLACE = 3;
 
+const DEL_MASK = 1 << CHANGES_DELETE;
+const INS_MASK = 1 << CHANGES_INSERT;
+const REP_MASK = 1 << CHANGES_REPLACE;
+
 const SHOW_CHANGES_NONE = 0;
 const SHOW_UNSAVED_CHANGES = 1;
+
+const ENDS_WITH_EOL_RE = /(?:\n|\r\n?)$/;
+
+var couldBeUTF8 = function(s) {
+    return /^(?:[\x00-\x7f]|(?:[\xc0-\xdf][\x80-\xbf])|(?:[\xe0-\xef][\x80-\xbf]{2})|(?:[\xf0-\xf7][\x80-\xbf]{3})|(?:[\xf8-\xfb][\x80-\xbf]{4})|(?:[\xfc-\xfd][\x80-\xbf]{5}))*$/.test(s);
+}
+
+var utf8DecodeIfNeeded = function(s) {
+    if (couldBeUTF8(s)) {
+        return decodeURIComponent(escape(s));
+    }
+    return s;
+};
 
 this.ChangeTracker = function ChangeTracker(view) {
     this.view = view;
@@ -96,6 +113,10 @@ this.ChangeTracker.prototype.init = function init() {
     //TODO: Make a lazy getter for onDiskTextLines
     this.onDiskTextLines = null;
     this._referenceTextLines = this.onDiskTextLines;
+    var numLines = this.onDiskTextLines ? this.onDiskTextLines.length : 0;
+    this._referenceEndsWithEOL = (numLines
+                                  ? ENDS_WITH_EOL_RE.test(this.onDiskTextLines[numLines - 1])
+                                  : false);
 };
 
 this.ChangeTracker.prototype._activateObservers = function _activateObservers() {
@@ -158,10 +179,12 @@ this.ChangeTracker.prototype.handleFileSaved = function handleFileSaved(event) {
     if (view == this.view && this.showChangesInMargin == SHOW_UNSAVED_CHANGES) {
         this.onModified();
         this._referenceTextLines = this.onDiskTextLines = null;
+        this._referenceEndsWithEOL = null;
     }
 };
 
 this.ChangeTracker.prototype.onModified = function onModified() {
+    document.getElementById('changeTracker_panel').hidePopup();
     if (this.timeoutId !== null) {
         clearTimeout(this.timeoutId);
     }
@@ -231,6 +254,12 @@ this.ChangeTracker.prototype._refreshOnDiskLines = function() {
     }
     this._referenceTextLines = this.onDiskTextLines =
             this.view.koDoc.getOnDiskTextLines();
+    var numLines = this._referenceTextLines.length;
+    if (numLines) {
+        this._referenceEndsWithEOL = ENDS_WITH_EOL_RE.test(this._referenceTextLines[numLines - 1]);
+    } else {
+        this._referenceEndsWithEOL = false;
+    }
 };
 
 this.ChangeTracker.prototype._handleOnModified = function _handleOnModified() {
@@ -250,7 +279,6 @@ this.ChangeTracker.prototype._handleOnModified = function _handleOnModified() {
 
 this.ChangeTracker.prototype._getDeletedTextLines =
                     function(firstLineNo, lastLineNo) {
-    this._refreshOnDiskLines(); 
     if (lastLineNo > this._referenceTextLines.length) {
         log.error("**** _getDeletedTextLines: can't get lines "
                   + [firstLineNo, lastLineNo]
@@ -279,6 +307,7 @@ this.ChangeTracker.prototype.showChanges = function(lineNo) {
     if (changeMask === 0) {
         return;
     }
+    this._refreshOnDiskLines();
     var oldLines = [], newLines = [];
     const DEL_MASK = 1 << CHANGES_DELETE;
     const INS_MASK = 1 << CHANGES_INSERT;
@@ -286,6 +315,11 @@ this.ChangeTracker.prototype.showChanges = function(lineNo) {
     const firstLineNo  = ((changeMask & DEL_MASK) ? lineNo :
                           this.firstInterestingLine[lineNo]);
     var oldLineRange = null, newLineRange;
+    const scimoz = this.view.scimoz;
+    var newlineOnlyAtThisEnd = null;
+    var oldEndsWithEOL = true;
+    var newEndsWithEOL = true;
+    var bufferEndsWithEOL = [10, 13].indexOf(scimoz.getCharAt(scimoz.length - 1)) >= 0;
     if (changeMask & (DEL_MASK|REP_MASK)) {
         let linesToUse = ((changeMask & REP_MASK) ? this.changedTextLineRange
                           : this.deletedTextLineRange);
@@ -294,15 +328,20 @@ this.ChangeTracker.prototype.showChanges = function(lineNo) {
                       + firstLineNo
                       + " in this."
                       + ((changeMask & REP_MASK) ? "changedTextLineRange"
-                         : "deletedTextLineRange")
-                      + "\n");
+                         : "deletedTextLineRange"));
             return;
         }
         oldLineRange = linesToUse[firstLineNo];
+        // Case 1: Reference doesn't end with EOL, buffer does:
+        var numReferenceLines = this._referenceTextLines.length;
+        if (oldLineRange[1] >= numReferenceLines - 1
+            && !this._referenceEndsWithEOL) {
+            oldEndsWithEOL = false;
+        }
         newLineRange = [firstLineNo, firstLineNo]; // If a deletion
         oldLines = this._getDeletedTextLines(oldLineRange[0], oldLineRange[1]);
         if (oldLines === null) {
- // Failed to get those lines
+            // Failed to get those lines
             return;
         }
     }
@@ -330,18 +369,26 @@ this.ChangeTracker.prototype.showChanges = function(lineNo) {
             oldLineRange = this.insertedOldLineRange[firstLineNo];
         }
         newLineRange = [firstLineNo, linesToUse[firstLineNo]];
-        let scimoz = this.view.scimoz;
         let firstPos = scimoz.positionFromLine(newLineRange[0]);
         let lastPos = scimoz.getLineEndPosition(newLineRange[1] - 1);
         let text = firstPos < lastPos ? scimoz.getTextRange(firstPos, lastPos) : "";
         newLines = text.split(/\n|\r\n?/);
+        if (newLineRange[1] >= scimoz.lineCount - 1
+            && !bufferEndsWithEOL) {
+            newEndsWithEOL = false;
+        }
     }
     // Write htmlLines to a temp file, get the URL, and then create a panel
     // with that iframe/src
     var htmlFile = fileSvc.makeTempFile(".html", 'wb')
     var htmlURI = htmlFile.URI;
     var lastDot = htmlURI.lastIndexOf('.');
-    //var jsURI = htmlURI.replace(/\.[^\.]+$/, ".js");
+
+    const missingNewline = "<span class='comment'>\\ No newline at end of file</span>";
+    var noNewlineAtEndOfOldLines  = !oldEndsWithEOL ? [missingNewline] : [];
+    var noNewlineAtEndOfNewLines  = !newEndsWithEOL ? [missingNewline] : [];
+    var oldColor = this.marginController.getColorAsHexRGB('delete');
+    var newColor = this.marginController.getColorAsHexRGB('insert');
     
     //TODO:
     // Build up diffCodes = this.view.koDoc.diffStringsAsChangeInstructions(lineBefore, lineAfter);
@@ -361,23 +408,24 @@ this.ChangeTracker.prototype.showChanges = function(lineNo) {
         '    margin-bottom: 0px;',
         '}',
         'pre.old {',
-        '    background-color: #ffbbbb; /* light red */',
+        '    background-color: ' + oldColor + ' ; /* default: #ffbbbb: light red */',
         '    margin-top: 4px;',
         '    margin-bottom: 0px;',
         '    padding-top: 0px;',
         '    padding-bottom: 0px;',
         '}',
+        'pre span.comment {',
+        '    font-style: italic;',
+        '    color: #808080;',
+        '}',
         'pre.new {',
-        '    background-color: #c1fdbb; /* light green */',
+        '    background-color: ' + newColor + '; /* default: #c1fdbb: light rgb[1] */',
         '    margin-top: 4px;',
         '    margin-bottom: 0px;',
         '    padding-top: 0px;',
         '    padding-bottom: 0px;',
         '}',
         '</style>',
-        //TODO: The JS code will be needed later, when the panel/iframe needs JavaScript to apply changes.
-        //('<script src="' + jsURI + '">'),
-        //'</script>',
         '<body>',
         '<pre class="header">',
         ('@@ -'
@@ -392,42 +440,73 @@ this.ChangeTracker.prototype.showChanges = function(lineNo) {
         '</pre>',
         '<pre class="old">'].
     concat(escapeLines(oldLines)).
+    concat(noNewlineAtEndOfOldLines).
     concat([
         '</pre>',
         '<pre class="new">',]).
     concat(escapeLines(newLines)).
+    concat(noNewlineAtEndOfNewLines).
     concat([
             '</pre>',
             '</html>',
             '']);
     htmlFile.puts(htmlLines.join("\n"));
     htmlFile.close();
-    
-    //var jsFile = Cc["@activestate.com/koFileEx;1"].getService(Ci.koIFileEx);
-    //jsFile.URI = jsURI;
-    //jsFile.open("wb");
-    //var jsLines = ['alert("Loading file ' + jsFile.path.replace(/\\/g, '/') + '")', ''];
-    //var text = jsLines.join("\n");
-    //jsFile.puts(text);
-    //jsFile.close();
 
+    var undoTextFunc = function(event) {
+        // Find the (j2 - j1) new lines at j2, remove them, and
+        // replace with the (i2 - i1) old lines.
+        scimoz.beginUndoAction();
+        try {
+            let j1Pos = scimoz.positionFromLine(newLineRange[0]);
+            if (newLineRange[0] < newLineRange[1]) {
+                let j2Pos = scimoz.positionFromLine(newLineRange[1]);
+                // Verify that the lines in the editor correspond to the
+                // lines we have here before zapping them.
+                scimoz.targetStart = j1Pos;
+                scimoz.targetEnd = j2Pos;
+                scimoz.replaceTarget(0, "");
+            }
+            if (oldLineRange[0] < oldLineRange[1]) {
+                let eol = ["\r\n", "\r", "\n"][scimoz.eOLMode];
+                let oldText = oldLines.join(eol);
+                if (oldEndsWithEOL) {
+                    oldText += eol;
+                }
+                scimoz.targetStart = j1Pos;
+                scimoz.targetEnd = j1Pos;
+                scimoz.replaceTarget(oldText);
+            }
+        } catch(ex) {
+            log.exception(ex, "Can't undo a change");
+        } finally {
+            scimoz.endUndoAction();
+        }
+    };
     // Now make a panel with an iframe, point the iframe to htmlURI, and go
-    this._createPanel(htmlFile);//, jsFile);
+    this._createPanel(htmlFile, undoTextFunc);//, jsFile);
 };
 
-this.ChangeTracker.prototype._createPanel = function(htmlFile) {//, jsFile) {
+this.ChangeTracker.prototype._createPanel = function(htmlFile, undoTextFunc) {
     var panel = document.getElementById('changeTracker_panel');
     panel.hidePopup();
-    var iframe = panel.childNodes[0];
+    var iframe = panel.getElementsByTagName("iframe")[0];
+    var undoButton = document.getElementById('changeTracker_undo');
     iframe.setAttribute("src", htmlFile.URI);
     var [x, y] = this.view._last_mousemove_xy;
-    iframe.addEventListener("load", function(event) {
+    var iframeLoadedFunc = function(event) {
         panel.openPopup(this.view, "after_pointer", x, y, false, false);
-        panel.width = 600;
-        panel.height = 400;
+        panel.sizeTo(600, 400);
         fileSvc.deleteTempFile(htmlFile.path, true);
-        //fileSvc.deleteTempFile(jsFile.path, true);
-    }.bind(this), true);
+        undoButton.addEventListener("command", undoTextFunc, false);
+    }.bind(this));
+    var panelHiddenFunc = function(event) {
+        undoButton.removeEventListener("command", undoTextFunc, false);
+        iframe.removeEventListener("load", iframeLoadedFunc, true);
+        panel.removeEventListener("popuphidden", panelHiddenFunc, false);
+    }.bind(this);
+    iframe.addEventListener("load", iframeLoadedFunc, true);
+    panel.addEventListener("popuphidden", panelHiddenFunc, true);
 };
 
 this.ChangeTracker.prototype.onDwellStart = function(x, y, lineNo) {
@@ -481,6 +560,10 @@ this.MarginController.prototype = {
         return cssColor;
     },
 
+    getColorAsHexRGB: function(colorAction) {
+        return this[colorAction + "RGBColor"];
+    },
+
     _initMarkerStyles: function(markerStyleSteps) {
         const styleOffset = 255;
         const marginCharacterSize = 6;
@@ -488,20 +571,71 @@ this.MarginController.prototype = {
         scimoz.marginStyleOffset = styleOffset;
 
         var insertColor, deleteColor, replaceColor;
+        var bgr_string_to_rgb_array = function(cssColor) {
+            var red, green, blue, x;
+            if (typeof(cssColor) == "string") {
+                if (cssColor[0] == "#") {
+                    cssColor = cssColor.substring(1);
+                }
+                if (cssColor.length == 3) {
+                    x = parseInt(cssColor[0], 16);
+                    blue = x << 8 + x;
+                    x = parseInt(cssColor[1], 16);
+                    green = x << 8 + x;
+                    x = parseInt(cssColor[2], 16);
+                    red = x << 8 + x;
+                } else {
+                    blue = parseInt(cssColor.substring(0, 2), 16);
+                    green = parseInt(cssColor.substring(2, 4), 16);
+                    red = parseInt(cssColor.substring(4, 6), 16);
+                }
+            } else {
+                blue = (cssColor & 0xff0000) >> 16;
+                green = (cssColor & 0x00ff00) >> 8;
+                red = (cssColor & 0x0000ff);
+            }
+            return [red, green, blue];
+        };
+        var num_to_hex2 = function(v) {
+            var s = v.toString(16);
+            if (s.length == 2) {
+                return s;
+            }
+            return "0" + s;
+        };
+        var bgr_to_desaturated_rgb_for_css = function(bgrColor) {
+            var [red, green, blue] = bgr_string_to_rgb_array(bgrColor);
+            // And now reduce the saturation.
+            const [H, S, V] = xtk.color.rgb2hsv(red, green, blue);
+            // Reduce the intensity of the color by 30%
+            const S1 = S * 0.7;
+            const [R2, G2, B2] = xtk.color.hsv2rgb(H, S1, V);
+            return "#" + num_to_hex2(R2) + num_to_hex2(G2) + num_to_hex2(B2);
+        };
         try {
             insertColor = this._fix_rgb_color(this.view.scheme.getColor("changeMarginInserted"));
         } catch(ex) {
+            log.exception(ex, "couldn't get the insert-color");
             insertColor = 0xa3dca6; // BGR for a muted green
         }
         try {
             deleteColor = this._fix_rgb_color(this.view.scheme.getColor("changeMarginDeleted"));
         } catch(ex) {
+            log.exception(ex, "couldn't get the delete-color");
             deleteColor = 0x5457e7; // BGR for a muted red
         }
         try {
             replaceColor = this._fix_rgb_color(this.view.scheme.getColor("changeMarginReplaced"));
         } catch(e) {
-            replaceColor = 0xe8d362; // BGR for a muted yellow (maybe...., looks like RGB to me)
+            log.exception(ex, "couldn't get the change-color");
+            replaceColor = 0xe8d362; // BGR for a muted blue
+        }
+        try {
+            this.insertRGBColor = bgr_to_desaturated_rgb_for_css(insertColor);
+            this.deleteRGBColor = bgr_to_desaturated_rgb_for_css(deleteColor);
+            this.replaceRGBColor = bgr_to_desaturated_rgb_for_css(replaceColor);
+        } catch(e) {
+            log.exception(e, "Failed to convert a color from bgr to rgb");
         }
         
         /* Don't use 0 as a style number. marginGetStyles and marginSetStyles
