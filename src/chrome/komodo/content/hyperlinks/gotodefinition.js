@@ -341,7 +341,9 @@
                 textlines.push('<span class="codehelper_name" onclick="'
                                + cmd + '">' + def.name + "</span>");
                 if (def.ilk == "function") {
-                    textlines.push('<span class="codehelper_signature">(' + def.signature.split("(", 2)[1] + '</span>');
+                    textlines.push('<span class="codehelper_signature">('
+                                   + _simpleEscapeHtml(def.signature.split("(", 2)[1])
+                                   + '</span>');
                 }
     
                 textlines.push("<hr />");
