@@ -674,8 +674,9 @@ if (typeof(ko.widgets)=='undefined') {
         log.debug("onload: panes = " + JSON.stringify(panes));
 
         let outstandingPanesToCreate = 0;
-        for (let [id, data] in Iterator(this._persist_state.panes)) {
-            let doOnePane = (function(id) {
+        for (let id of Object.keys(this._persist_state.panes)) {
+            let data = this._persist_state.panes[id];
+            let doOnePane = id => {
                 if (("children" in data) && (data.children instanceof Array)) {
                     log.debug(id + ": " + JSON.stringify(panes[id].children) +
                               " -> " + JSON.stringify(data.children));
@@ -686,20 +687,20 @@ if (typeof(ko.widgets)=='undefined') {
                         panes[id][key] = data[key];
                     }
                 }
-            }).bind(this);
+            };
             if (data.floating) {
                 // FLoating pane... make it
                 if (!("children" in data) || data.children.length < 1) {
                     continue; // don't restore empty floating panes
                 }
                 ++outstandingPanesToCreate;
-                this.createPane((function(pane) {
+                this.createPane(pane => {
                     panes[pane.id] = {children: []};
                     doOnePane(pane.id);
                     if (--outstandingPanesToCreate < 1) {
                         doRestorePanes();
                     }
-                }).bind(this), data);
+                }, data);
             } else if (id in panes) {
                 doOnePane(id);
             } else {
