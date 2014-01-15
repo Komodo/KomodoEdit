@@ -79,20 +79,30 @@ class Environment(object):
     """
     def __init__(self):
         self.cache = {}
+
+        # We need to ignore the default PYTHON* because they can interfere with
+        # launching different versions of Python (normally, Python 3).
+        self._env = os.environ.copy()
+        self._env.pop("PYTHONPATH", None)
+        self._env.pop("PYTHONHOME", None)
+        # We don't currently set PYTHONUSERBASE, so no need to wipe that out
+
     def __repr__(self):
         return "<Environment>"
 
     def has_envvar(self, name):
         """Return True if the named envvar exists."""
-        return name in os.environ
+        return name in self._env
     def get_envvar(self, name, default=None):
         """Return the value of the named envvar, if it exists. Otherwise
         return the given default, if any, or None.
         """
-        return os.environ.get(name, default)
+        return self._env.get(name, default)
+    def set_envvar(self, name, value):
+        self._env[name] = value
     def get_all_envvars(self):
         """Return a dictionary of all environment variables."""
-        return dict(os.environ)
+        return self._env.copy()
 
     def has_pref(self, name):
         """Return True if the named pref exists."""

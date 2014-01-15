@@ -77,14 +77,14 @@ class LibsTestCase(CodeIntelTestCase):
             os.makedirs(test_lib_dir)
 
         env = SimplePrefsEnvironment()
-        os.environ["PERL5LIB"] = abspath(test_lib_dir)
+        env.set_envvar("PERL5LIB", abspath(test_lib_dir))
         buf = self.mgr.buf_from_content("1;", "Perl", path="foo.pl",
                                         env=env)
         for perl in which.whichall("perl"):
             env.set_pref("perl", perl)
             for lib in buf.libs: # test envlib
                 if lib.name == "envlib":
-                    self.failUnless(os.environ["PERL5LIB"] in lib.dirs,
+                    self.failUnless(env.get_envvar("PERL5LIB") in lib.dirs,
                         "envlib for '%s' does not have the expected dirs: "
                         "lib.dirs=%r" % (perl, lib.dirs))
                     break

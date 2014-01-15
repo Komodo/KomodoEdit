@@ -28,3 +28,12 @@ class DefnTestCase(test_python.DefnTestCase):
         lines = lines_from_pos(content, pos)
         self.assertDefnMatches2(buf, pos[2], line=lines[1],
                                 ilk="argument", name="arg", path=path)
+
+class PythonDocTestCase(test_python.PythonDocTestCase):
+    lang = "Python3"
+
+class TrgTestCase(test_python.TrgTestCase):
+    lang = "Python3"
+
+class CplnTestCase(test_python.CplnTestCase):
+    lang = "Python3"

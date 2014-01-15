@@ -504,13 +504,34 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         
         if not python or not exists(python):
             import which
-            syspath = env.get_envvar("PATH", "") 
-            path = [d.strip() for d in syspath.split(os.pathsep)
-                              if d.strip()]
-            try:
-                python = which.which("python", path=path) 
-            except which.WhichError:
-                pass # intentionally supressed
+            # Prefer the version-specific name, but we might need to use the
+            # unversioned binary instead; for example, on Win32, Python3 only
+            # ships with "python.exe"
+            if self.lang == "Python":
+                # For Python 2, prefer "python" over "python2"
+                # (to match old behaviour better)
+                exe_names = ["python", "python2"]
+                major_version = 2
+            elif self.lang == "Python3":
+                # For Python 3, prefer "python3" over "python"
+                exe_names = ["python3", "python"]
+                major_version = 3
+            candidates = []
+            for exe_name in exe_names:
+                try:
+                    candidates += which.whichall(exe_name)
+                except which.WhichError:
+                    pass
+            for python in candidates:
+                try:
+                    version = self._python_info_from_python(python, env)[0]
+                    if int(version.split(".")[0]) == major_version:
+                        break
+                except:
+                    pass
+                    #log.debug("Failed to run %s", exe_name, exc_info=True)
+            else:
+                python = None
 
         if python:
             python = os.path.abspath(python)
