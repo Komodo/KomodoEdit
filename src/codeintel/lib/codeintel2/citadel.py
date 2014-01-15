@@ -472,44 +472,6 @@ class ImportHandler:
             path = value.split(os.pathsep)
         self.envPath = path
 
-    #DEPRECATED
-    def setCorePath(self, compiler=None, extra=None):
-        """Specify the data needed to determine the core search path.
-        
-            "compiler" is the path to the language compiler/interpreter.
-                If not specified then the first appropriate
-                compiler/interpreter on the path is used.
-            "extra" (optional) can be used to specify required extra
-                data for determining the core import path.  For example,
-                the PHP-specific implementation uses this to specify the
-                "php.ini"-config-file path.
-
-        This will lazily be called if necessary.
-        """
-        # Sub-classes must implement this and set self.corePath as a
-        # result (to [] if it could not be determined).
-        raise NotImplementedError("setCorePath: pure virtual method call")
-
-    #DEPRECATED: still used by `genScannableFiles` implementations.
-    def _getPath(self, cwd=None):
-        """Put all the path pieces together and return that list.
-        
-        If "cwd" is specified, it is prepended to the list. (In many languages
-        the directory of the file with the import statement is first on the
-        module search path.)
-        """
-        if self.corePath is None: self.setCorePath()
-        if self.envPath is None: self.setEnvPath()
-        if cwd is not None:
-            path = [cwd]
-        else:
-            path = []
-        if self.customPath:
-            path += self.customPath
-        path += self.envPath
-        path += self.corePath
-        return path
-
     #---- new citree-based eval stuff
 
     # The string that separates dir levels in import names. For example,

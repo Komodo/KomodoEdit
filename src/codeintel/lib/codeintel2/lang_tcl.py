@@ -148,23 +148,6 @@ class TclImportHandler(ImportHandler):
     # for Tcl.
     PATH_ENV_VAR = None
 
-    def _shellOutForPath(self, compiler):
-        import process
-        argv = [compiler]
-        p = process.ProcessOpen(argv)
-        output, stderr = p.communicate("puts [join $auto_path \\n]")
-        retval = p.returncode
-        path = [os.path.normpath(line) for line in output.splitlines(0)]
-        if path and (path[0] == "" or path[0] == os.getcwd()):
-            del path[0] # cwd handled separately
-        return path
-
-    def setCorePath(self, compiler=None, extra=None):
-        if compiler is None:
-            import which
-            compiler = which.which("tclsh")
-        self.corePath = self._shellOutForPath(compiler)
-
     def _findScannableFiles(self, (files, searchedDirs, skipRareImports),
                             dirname, names):
         if sys.platform.startswith("win"):

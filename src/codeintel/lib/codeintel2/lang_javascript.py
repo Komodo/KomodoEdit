@@ -895,9 +895,6 @@ class JavaScriptImportHandler(ImportHandler):
     # The file extensions that this import handler will use when importing.
     import_file_extensions = (".js", )
 
-    def setCorePath(self, compiler=None, extra=None):
-        self.corePath = []
-
     def _findScannableFiles(self, (files, searchedDirs), dirname, names):
         if sys.platform.startswith("win"):
             cpath = dirname.lower()

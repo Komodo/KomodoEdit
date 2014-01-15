@@ -1182,18 +1182,6 @@ class PHPBuffer(UDLBuffer, XMLParsingBufferMixin):
 class PHPImportHandler(ImportHandler):
     sep = '/'
 
-    def setCorePath(self, compiler=None, extra=None):
-        #XXX To do this independent of Komodo this would need to do all
-        #    the garbage that koIPHPInfoEx is doing to determine this. It
-        #    might also require adding a "rcfile" argument to this method
-        #    so the proper php.ini file is used in the "_shellOutForPath".
-        #    This is not crucial now because koCodeIntel._Manager() handles
-        #    this for us.
-        if not self.corePath:
-            raise CodeIntelError("Do not know how to determine the core "
-                                 "PHP include path. 'corePath' must be set "
-                                 "manually.")
-
     def _findScannableFiles(self, (files, searchedDirs), dirname, names):
         if sys.platform.startswith("win"):
             cpath = dirname.lower()

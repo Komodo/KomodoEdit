@@ -1050,31 +1050,6 @@ class PythonImportHandler(ImportHandler):
         ImportHandler.__init__(self, mgr)
         self.__stdCIXScanId = None
 
-    #TODO: may not be used. If so, drop it.
-    def _shellOutForPath(self, compiler):
-        import process
-        argv = [compiler, "-c", "import sys; print('\\n'.join(sys.path))"]
-        # Can't use -E to ignore PYTHONPATH because older versions of
-        # Python don't have it (e.g. v1.5.2).
-        env = dict(os.environ)
-        if "PYTHONPATH" in env: del env["PYTHONPATH"]
-        if "PYTHONHOME" in env: del env["PYTHONHOME"]
-        if "PYTHONSTARTUP" in env: del env["PYTHONSTARTUP"]
-
-        p = process.ProcessOpen(argv, env=env, stdin=None)
-        stdout, stderr = p.communicate()
-        retval = p.returncode
-        path = [line for line in stdout.splitlines(0)]
-        if path and (path[0] == "" or path[0] == os.getcwd()):
-            del path[0] # cwd handled separately
-        return path
-
-    def setCorePath(self, compiler=None, extra=None):
-        if compiler is None:
-            import which
-            compiler = which.which("python")
-        self.corePath = self._shellOutForPath(compiler)
-
     def _findScannableFiles(self,
                             (files, searchedDirs, skipRareImports,
                              importableOnly),

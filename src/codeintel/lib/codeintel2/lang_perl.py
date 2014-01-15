@@ -1269,31 +1269,6 @@ class PerlImportHandler(ImportHandler):
     PATH_ENV_VAR = "PERL5LIB"
     sep = "::"
 
-    def _shellOutForPath(self, compiler):
-        import process
-        sep = "--WomBa-woMbA--"
-        argv = [compiler, "-e", "print join('%s', @INC);" % sep]
-        env = dict(os.environ)
-        if "PERL5LIB" in env: del env["PERL5LIB"]
-        if "PERLLIB" in env: del env["PERLLIB"]
-
-        p = process.ProcessOpen(argv, env=env, stdin=None)
-        output, error = p.communicate()
-        retval = p.returncode
-        if retval:
-            raise CodeIntelError("could not determine Perl import path: %s"
-                                 % error)
-        path = [normpath(d) for d in output.split(sep)]
-        # cwd handled separately
-        path = [p for p in path if p not in (os.curdir, os.getcwd())]
-        return path
-
-    def setCorePath(self, compiler=None, extra=None):
-        if compiler is None:
-            import which
-            compiler = which.which("perl")
-        self.corePath = self._shellOutForPath(compiler)
-
     def _findScannableFiles(self,
                             (files, searchedDirs, skipTheseDirs, skipRareImports),
                             dirname, names):
