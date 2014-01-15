@@ -197,8 +197,9 @@
                 }
               }
               tabpanel.insertBefore(widget, insertRef);
-              for (let widget of tabpanel.querySelectorAll("browser")) {
-                if (!widget.previousElementSibling) {
+              for (let w_ of tabpanel.querySelectorAll("browser")) {
+                let w = w_; // bind to a new variable per iteration
+                if (!w.previousElementSibling) {
                   continue; // skip first widget
                 }
                 let splitter = this.ownerDocument.createElementNS(this.namespaceURI, "splitter");
@@ -210,10 +211,10 @@
                 box.setAttribute("flex", 1);
                 splitter.appendChild(box);
                 
-                tabpanel.insertBefore(splitter, widget);
+                tabpanel.insertBefore(splitter, w);
                 splitter.addEventListener("contextmenu",
                                           (function(event) {
-                                            this._updateContextPopup(widget);
+                                            this._updateContextPopup(w);
                                             document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup")
                                                     .openPopup(event.target, "after_pointer", 0, 0, true, false, event);
                                           }).bind(this),
