@@ -2276,16 +2276,22 @@ class CplnTestCase(CodeintelPythonTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[7]),
                 [('keyword', 'None')])
 
-    @tag("knownfailure", "bug101419")
+    @tag("bug101419")
     def test_with_statement(self):
         content, positions = unmark_text(dedent("""
                 with "string" as s:
                     s.<1>s
+                with ["two", "strings"] as (t, u):
+                    t.<2>s
+                    u.<3>s
             """))
         self.assertCompletionsInclude(markup_text(content, positions[1]),
                                       [("function", "strip")])
+        self.assertCompletionsInclude(markup_text(content, positions[2]),
+                                      [("function", "strip")])
+        self.assertCompletionsInclude(markup_text(content, positions[3]),
+                                      [("function", "strip")])
 
-    @tag("knownfailure")
     def test_multiple_with(self):
         # This needs test_with_statement / bug 101419 to be fixed first
         content, positions = unmark_text(dedent("""

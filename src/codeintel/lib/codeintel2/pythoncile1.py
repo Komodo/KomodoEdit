@@ -927,6 +927,38 @@ class AST2CIXVisitor:
         log.info("visitWith:%d: %r", node.lineno,
                  self.lines and self.lines[node.lineno-1])
         self._handleUnknownAssignment(node.vars, node.lineno)
+        lhsNode = node.vars
+        rhsNode = node.expr
+        if isinstance(lhsNode, ast.AssName):
+            # E.g.:
+            #   with x() as foo:
+            self._visitSimpleAssign(node.vars, node.expr, node.lineno)
+        elif isinstance(lhsNode, (ast.AssTuple, ast.AssList)):
+            # E.g.:
+            #   with x() as (foo, bar):
+            #   with x() as [foo, bar]:
+            # If the expression is a sequence with the same number of elements,
+            # then we update each assigned-to variable. Otherwise, bail.
+            if isinstance(rhsNode, (ast.Tuple, ast.List)):
+                if len(lhsNode.nodes) == len(rhsNode.nodes):
+                    for i in range(len(lhsNode.nodes)):
+                        self._visitSimpleAssign(lhsNode.nodes[i],
+                                                rhsNode.nodes[i],
+                                                node.lineno)
+            elif isinstance(rhsNode, ast.Dict):
+                if len(lhsNode.nodes) == len(rhsNode.items):
+                    for i in range(len(lhsNode.nodes)):
+                        self._visitSimpleAssign(lhsNode.nodes[i],
+                                                rhsNode.items[i][0],
+                                                node.lineno)
+            elif isinstance(rhsNode, ast.CallFunc):
+                for i in range(len(lhsNode.nodes)):
+                    self._visitSimpleAssign(lhsNode.nodes[i],
+                                            None, # we don't have a good type.
+                                            node.lineno)
+            else:
+                log.info("visitWith:: skipping unknown rhsNode type: %r - %r",
+                         type(rhsNode), rhsNode)
         self.visit(node.body)
 
     def visitTryExcept(self, node):
