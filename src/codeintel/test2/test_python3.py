@@ -2,7 +2,7 @@
 from os.path import join
 import logging
 
-from codeintel2.util import dedent, unmark_text, lines_from_pos
+from codeintel2.util import dedent, markup_text, unmark_text, lines_from_pos
 
 from testlib import tag
 from citestsupport import writefile
@@ -37,3 +37,20 @@ class TrgTestCase(test_python.TrgTestCase):
 
 class CplnTestCase(test_python.CplnTestCase):
     lang = "Python3"
+
+    @tag("bug101782")
+    def test_decl_default_arg_call(self):
+        content, positions = unmark_text(dedent("""
+            def foo(arg=int()):
+                return "answer"
+            foo().<1>strip
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "strip")])
+        content, positions = unmark_text(dedent("""
+            def foo(arg=thing[3]):
+                return "answer"
+            foo().<1>strip
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "strip")])
