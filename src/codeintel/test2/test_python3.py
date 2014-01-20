@@ -13,7 +13,7 @@ log = logging.getLogger("test.codeintel.python3")
 class DefnTestCase(test_python.DefnTestCase):
     lang="Python3"
 
-    @tag("bug101868")
+    @tag("bug101868", "pep3107")
     def test_def_decl_trailing_comma(self):
         """Test having a trailing comma in a function definition; this needs to
         be invalid in Python 2 but valid in Python 3."""
@@ -38,19 +38,72 @@ class TrgTestCase(test_python.TrgTestCase):
 class CplnTestCase(test_python.CplnTestCase):
     lang = "Python3"
 
-    @tag("bug101782")
-    def test_decl_default_arg_call(self):
+    @tag("pep3102")
+    def test_kw_only_args(self):
         content, positions = unmark_text(dedent("""
-            def foo(arg=int()):
-                return "answer"
-            foo().<1>strip
+                def func(*, kw):
+                    return "string"
+                func().<1>s
             """))
         self.assertCompletionsInclude(markup_text(content, positions[1]),
                                       [("function", "strip")])
+
+    @tag("knownfailure", "pep3104")
+    def test_nonlocal(self):
         content, positions = unmark_text(dedent("""
-            def foo(arg=thing[3]):
-                return "answer"
-            foo().<1>strip
+                global_var = "string"
+                def func():
+                    nonlocal global_var
+                    global_var = global_var
+                    return global_var
+                func().<1>s
             """))
         self.assertCompletionsInclude(markup_text(content, positions[1]),
                                       [("function", "strip")])
+
+    @tag("knownfailure", "pep3132")
+    def test_iterable_unpacking(self):
+        content, positions = unmark_text(dedent("""
+                (a, *rest, b) = [1, 2, 3, 4]
+                rest.<1>i
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "insert")])
+
+    @tag("knownfailure")
+    def test_byte_literals(self):
+        content, positions = unmark_text(dedent("""
+                literal = b"hello"
+                literal.<1>d
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "decode")])
+        self.assertCompletionsDoNotInclude(markup_text(content, positions[1]),
+                                           [("function", "encode")])
+
+    def test_string_literals(self):
+        content, positions = unmark_text(dedent("""
+                literal = "hello"
+                literal.<1>e
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "encode")])
+        self.assertCompletionsDoNotInclude(markup_text(content, positions[1]),
+                                           [("function", "decode")])
+
+    def test_ellipsis_literal(self):
+        content, positions = unmark_text(dedent("""
+                var = ...
+                "string".<1>e
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "encode")])
+
+    @tag("bug89096", "knownfailure")
+    def test_open(self):
+        content, positions = unmark_text(dedent("""
+                f = open("/dev/null", "w")
+                f.<1>w
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "write")])

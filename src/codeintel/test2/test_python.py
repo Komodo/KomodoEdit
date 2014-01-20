@@ -646,6 +646,7 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertNoTrigger("def fo<|>")
         self.assertNoTrigger("except fo<|>")
 
+
 class CodeintelPythonTestCase(CodeIntelTestCase):
     lang = "Python"
     _pyversion = None
@@ -2275,6 +2276,82 @@ class CplnTestCase(CodeintelPythonTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[7]),
                 [('keyword', 'None')])
 
+    @tag("knownfailure", "bug101419")
+    def test_with_statement(self):
+        content, positions = unmark_text(dedent("""
+                with "string" as s:
+                    s.<1>s
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "strip")])
+
+    @tag("knownfailure")
+    def test_multiple_with(self):
+        # This needs test_with_statement / bug 101419 to be fixed first
+        content, positions = unmark_text(dedent("""
+                with "string" as a, "string" as b:
+                    a.<1>s
+                    b.<2>s
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "strip")])
+        self.assertCompletionsInclude(markup_text(content, positions[2]),
+                                      [("function", "strip")])
+
+    @tag("bug101782")
+    def test_decl_default_arg_call(self):
+        content, positions = unmark_text(dedent("""
+            def foo(arg=int()):
+                return "answer"
+            foo().<1>strip
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "strip")])
+        content, positions = unmark_text(dedent("""
+            def foo(arg=thing[3]):
+                return "answer"
+            foo().<1>strip
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "strip")])
+
+    @tag("knownfailure", "pep0274")
+    def test_dict_comprehension(self):
+        content, positions = unmark_text(dedent("""
+                d = {k: v for k, v in ((1, 2), (3, 4))}
+                d.<1>g
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "get")])
+
+
+    def test_octal_literals(self):
+        content, positions = unmark_text(dedent("""
+                octal = 0o755
+                binary = 0b101010101
+                octal.<1>b
+                binary.<2>b
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "bit_length")])
+        self.assertCompletionsInclude(markup_text(content, positions[2]),
+                                      [("function", "bit_length")])
+
+    def test_byte_literals(self):
+        content, positions = unmark_text(dedent("""
+                literal = b"hello"
+                literal.<1>d
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "decode")])
+
+    def test_string_literals(self):
+        content, positions = unmark_text(dedent("""
+                literal = "hello"
+                literal.<1>e
+            """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+                                      [("function", "encode")])
 
 class CplnEnvironTestCase(CodeintelPythonTestCase):
     """Must be a separate class test case - as it modifies the environ, which
