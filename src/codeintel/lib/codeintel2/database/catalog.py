@@ -144,9 +144,11 @@ class CatalogsZone(object):
                 res_id = res_data[0]
                 cache[normpath(normcase(cix_path))] = [res_id]
                 name = splitext(basename(cix_path))[0].lower()
-                if name not in cache:
-                    cache[name] = []
-                cache[name].append(res_id)
+                cache.setdefault(name, []).append(res_id)
+                # Add a key for the actual catalog name too...
+                catalog_name = res_data[2].lower()
+                if catalog_name != name:
+                    cache.setdefault(catalog_name, []).append(res_id)
             log.debug("_res_ids_from_selector_cache: %r", cache)
 
         res_ids = []
