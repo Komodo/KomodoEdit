@@ -216,23 +216,17 @@ function _clearEncoding() {
 
 
 function _updateLanguage(view) {
-    if (typeof(view)=='undefined' || !view || !view.koDoc)
+    if (!view || view.getAttribute("type") != "editor") {
+        _clearLanguage();
         return;
+    }
     try {
-        //XXX It would probably be cleaner to handle the "startpage language
-        //    is N/A" logic in the view system, but I don't know how to
-        //    easily do that right now.
-        var languageWidget = document.getElementById('statusbar-language-menu');
-        if (view.getAttribute("type") == "startpage") {
-            _clearLanguage();
-            //languageWidget.setAttribute('collapsed', 'true');
-            languageWidget.removeAttribute('language');
-        } else {
-            var language = view.koDoc.language;
-            languageWidget.setAttribute("label", language);
-            languageWidget.setAttribute('language', language);
-            languageWidget.removeAttribute('collapsed');
-        }
+        var languageWidget = document.getElementById('statusbar-language');
+        var languageMenu = document.getElementById('statusbar-language-menu');
+        var language = view.koDoc.language;
+        languageMenu.setAttribute("label", language);
+        languageMenu.setAttribute('language', language);
+        languageWidget.removeAttribute('collapsed');
     } catch(e) {
         _clearLanguage();
     }
@@ -240,9 +234,11 @@ function _updateLanguage(view) {
 
 
 function _clearLanguage() {
-    var languageWidget = document.getElementById('statusbar-language-menu');
-    languageWidget.setAttribute("label", "");
-    languageWidget.setAttribute("language", "");
+    var languageWidget = document.getElementById('statusbar-language');
+    var languageMenu = document.getElementById('statusbar-language-menu');
+    languageWidget.setAttribute("collapsed", "true");
+    languageMenu.setAttribute("label", "");
+    languageMenu.setAttribute("language", "");
 }
 
 function _updateLintMessage(view) {
