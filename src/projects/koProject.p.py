@@ -1244,7 +1244,7 @@ class koProject(koLiveFolderPart):
     def set_prefset(self, prefset):
         # @prefset - an unwrapped instance of koIPreferenceSet
         if self.prefset is not None:
-            self.prefset.get_prefObserverService().removeObserver(self, "")
+            self.prefset.prefObserverService.removeObserver(self, "")
         if prefset is not None:
             if prefset.preftype != 'project':
                 log.warn("prefset is not a koIProjectPreferenceSet %r", prefset)
@@ -1256,7 +1256,7 @@ class koProject(koLiveFolderPart):
             prefset.set_parent(UnwrapObject(globalPrefs))
         self.prefset = prefset
         if prefset is not None:
-            prefset.get_prefObserverService().addObserver(self, "", 1)
+            prefset.prefObserverService.addObserver(self, "", 1)
 
     def _update_lastmd5_from_contents(self, contents):
         self._lastmd5 = md5(contents).hexdigest()

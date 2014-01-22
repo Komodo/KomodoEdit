@@ -196,7 +196,8 @@ class koPreferenceSet(object):
         self.prefs = {}
         self.parent = None
 
-    def get_prefObserverService(self):
+    @property
+    def prefObserverService(self):
         if not self._prefObserverService:
             self._prefObserverService = components.classes['@activestate.com/koObserverService;1'].\
                            createInstance(components.interfaces.nsIObserverService)
@@ -266,17 +267,24 @@ class koPreferenceSet(object):
         return mine
 
     def _checkPrefType(self, prefid, pref_type, must_exist, pref):
+        """Check that the given prefid can be set as a child pref
+        (i.e. that any existing prefs of the same name has the same type)
+        @param prefid {str} The name of the child pref
+        @param pref_type {str} The type of the pref
+        @param must_exist {bool} Whether to fail if the pref does not already exist
+        @param pref {any} The new value of the preference
+        """
         try:
             old_val, old_type = self.prefs[prefid]
             if old_type != pref_type:
                 msg = "The preference '%s' has type '%s', but is being reset as type '%s'" % (prefid, old_type, pref_type)
                 lastErrorSvc.setLastError(0, msg)
-                raise COMException(nsError.NS_ERROR_UNEXPECTED, msg)
+                raise ServerException(nsError.NS_ERROR_UNEXPECTED, msg)
         except KeyError:
             if must_exist:
                 msg = "The preference '%s' does not exist" % (prefid,)
                 lastErrorSvc.setLastError(0, msg)
-                raise COMException(nsError.NS_ERROR_UNEXPECTED, msg)
+                raise ServerException(nsError.NS_ERROR_UNEXPECTED, msg)
 
         # If this pref has a validation expression (i.e. a 'validation'
         # attribute in it XML representation), then ensure that returns
@@ -511,7 +519,9 @@ class koPreferenceSet(object):
             except COMException:
                 pass
             if existing_type is not None and existing_type != typ:
-                raise COMException(nsError.NS_ERROR_UNEXPECTED, "You can not change a preference type during an update: prefname='%s'" % id)
+                raise ServerException(nsError.NS_ERROR_UNEXPECTED,
+                                      "Can't change from %s to %s during an update: prefname='%s'" %
+                                      (existing_type, typ, id))
             if typ == "string":
                 if existing_type is not None:
                     existing_val = self.getStringPref(id)
@@ -949,7 +959,7 @@ class koPreferenceCache(object):
         return WrapObject(copy.deepcopy(unwrapped), koIPreference)
 
     def update(self): # from another preference set object - presumably a modified clone!
-        raise COMException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
 
     def dump(self, indent, suppressPrint=False): # For debugging.
         buf = []
@@ -971,7 +981,7 @@ class koPreferenceCache(object):
     def _is_sane(self):
         return len(self.pref_map.keys()) == len(self.index_map.keys())
 
-    def setPref( self, pref):
+    def setPref(self, pref):
         assert self._is_sane()
         if not pref.id:
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, "The preference must have a valid ID")
