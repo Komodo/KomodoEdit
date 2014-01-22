@@ -196,17 +196,6 @@ class koPreferenceSet(object):
         self.prefs = {}
         self.parent = None
 
-    ##
-    # @deprecated since 6.0.0
-    #
-    def get_observerService(self):
-        # This is deprecated, everyone should be using the prefObserverService
-        # below for monitoring pref changes.
-        if not self._observerService:
-            self._observerService = components.classes['@activestate.com/koObserverService;1'].\
-                           createInstance(components.interfaces.nsIObserverService)
-        return self._observerService
-
     def get_prefObserverService(self):
         if not self._prefObserverService:
             self._prefObserverService = components.classes['@activestate.com/koObserverService;1'].\
@@ -614,28 +603,6 @@ class koPreferenceSet(object):
             if parent != self:
                 parent._notifyPreferenceChange(pref_id, prefset)
 
-    ##
-    # @deprecated since 6.0.0
-    #
-    def addObserver( self, anObserver):
-        import warnings
-        warnings.warn("'koPreference.addObserver' is now deprecated. Please "
-                      "use 'koPreference.prefObserverService.addObserver'",
-                      DeprecationWarning)
-        self.get_observerService().addObserver(anObserver, '', 0)
-
-    ##
-    # @deprecated since 6.0.0
-    #
-    def removeObserver( self, anObserver ):
-        import warnings
-        warnings.warn("'koPreference.removeObserver' is now deprecated. Please "
-                      "use 'koPreference.prefObserverService.removeObserver'",
-                      DeprecationWarning)
-        try:
-            self.get_observerService().removeObserver(anObserver, '')
-        except COMException, e:
-            pass # wasn't in the list
 
 
     ###########################################################
@@ -659,82 +626,6 @@ class koPrefSupportsString(object):
         return self.pref._get_data()
     def toString(self):
         return unicode(self.pref)
-
-class koPrefWrapper(object):
-    # Only need to list the interfaces we dont have explicit support for.
-    # Our QI function below handles the nsISupports ones.
-    _com_interfaces_ = [components.interfaces.koIPreferenceSimpleValue]
-    _reg_desc_ = "Komodo Preference Wrapper"
-    _reg_contractid_ = "@activestate.com/koPrefWrapper;1"
-    _reg_clsid_ = "{56FD749D-98FE-4da5-B673-BA1967718921}"
-    def __init__(self, owner, name, type):
-        self._owner = owner
-        self.id = name
-        self.type = type
-
-    @property
-    def data(self):
-        return self._get_data()
-
-    def _get_data(self):
-        if self.type == "string":
-            return self._owner.getStringPref(self.id)
-        elif self.type == "long":
-            return self._owner.getLongPref(self.id)
-        elif self.type == "double":
-            return self._owner.getDoublePref(self.id)
-        elif self.type == "boolean":
-            return self._owner.getBooleanPref(self.id)
-        else:
-            return self._owner.getPref(self.id)
-
-    @property
-    def primitiveIID(self):
-        return primitivesMap[self.type];
-
-    def __int__(self):
-        return int(self._get_data())
-    def __long__(self):
-        return long(self._get_data())
-    def __nonzero__(self):
-        return self._get_data() != 0
-    def __str__(self):
-        return 'koPrefWrapper[%s=%s (%s)]' % (self.id, self._get_data(), self.type)
-    def dump(self, indent, suppressPrint=False):
-        buf = ("Preference %s, of type %s, has value %s" %
-               (self.id, self.type, self._get_data()))
-        if not suppressPrint:
-            print(buf)
-        return buf
-
-    def serializeToFileFast(self, filename):
-        pickleCache(self, filename)
-        
-    def serializeToFile(self, filename):
-        with file(filename, "wb") as stream:
-            self.serialize(stream, "")
-        self.serializeToFileFast(filename+"c")
-
-    def serialize(self, stream, basedir):
-        """Serialize this wrapped preference to a stream."""
-        serializePref(stream, self._get_data(), self.type, self.id, basedir)
-
-    def _query_interface_(self, iid):
-        if iid in (components.interfaces.nsISupportsString):
-            return koPrefSupportsString(self)
-        elif iid in (components.interfaces.nsISupportsPRUint64,
-                     components.interfaces.nsISupportsPRInt64):
-            return SupportsPrimitive(iid, self, "__long__", long)
-        elif iid in (components.interfaces.nsISupportsPRUint32,
-                     components.interfaces.nsISupportsPRInt32,
-                     components.interfaces.nsISupportsPRUint16,
-                     components.interfaces.nsISupportsPRInt16,
-                     components.interfaces.nsISupportsPRUint8,
-                     components.interfaces.nsISupportsPRBool):
-            return SupportsPrimitive(iid, self, "__int__", int)
-        elif iid in (components.interfaces.nsISupportsDouble,
-                     components.interfaces.nsISupportsFloat):
-            return SupportsPrimitive(iid, self, "__float__", float)
 
 
 ###################################################
@@ -1313,5 +1204,4 @@ if __name__=='__main__':
     prefSet = factory.deserializeFile(sys.argv[1])
 
     prefSet = prefSet.QueryInterface(components.interfaces.koIPreferenceSet)
-    print "koPreferenceSet::testComponent: Dumping test prefSet after deserialization..."
     prefSet.dump(0)

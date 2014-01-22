@@ -42,12 +42,6 @@
 interface koIFile;
 interface koIObserverService;
 
-// A component which provides a unit test.
-[scriptable, uuid(899516f6-06a4-4ffa-b75e-7616f43030a3)]
-interface koITestable : nsISupports {
-  void testComponent();
-};
-
 // A serializable object. Writes itself to the specified file 
 // -- usually as a stream of XML elements.
 // Note: This interface should be split out into a separate IDL file
@@ -95,39 +89,16 @@ interface koIPreferenceSetObjectFactory : nsISupports {
   koIPreference deserializeFile(in wstring filename);
 };
 
-[scriptable, uuid(f89ad940-3168-4240-bb5f-b944fba8ca51)]
-interface koIPreferenceSimpleValue : koIPreference {
-  // Get the best "nsISupportsPrimitives" interface for this value.
-  // A QI on this object for this IID is (almost ;-) guaranteed to succeed.
-  readonly attribute nsIIDRef primitiveIID;
-};
-
 // Allows preference change notifications to be notified.  Re-use the
 // nsIObserver interface for the notification.
 [scriptable, uuid(0720887f-ebd3-45d8-a236-7a6c3585dfa0)]
 interface koIPreferenceObserver: nsISupports {
-    /**
-     * prefset id is the topic, pref name is the data
-     *
-     * @deprecated since Komodo 6.0.0, use prefObserverService instead.
-     */
-    readonly attribute nsIObserverService observerService;
-    
     /**
      * Used to monitor preference changes. Can monitor individual preferences,
      * or all preferences when the preference name '' (empty string) is used.
      * The prefset id is sent as the data, and prefname as the topic.
      */
     readonly attribute koIObserverService prefObserverService;
-    
-    /**
-     * @deprecated since Komodo 6.0.0, use prefObserverService instead.
-     */
-    void addObserver( in nsIObserver anObserver);
-    /**
-     * @deprecated since Komodo 6.0.0, use prefObserverService instead.
-     */
-    void removeObserver( in nsIObserver anObserver);
 };
 
 // A set of preferences -- a dictionary-like object with
@@ -218,15 +189,6 @@ interface koIPreferenceSet : koIPreference {
   // specified preference.  No preference change occurs.
   boolean validateLong(in AString prefName, in long value);
   boolean validateString(in AString prefName, in AString value);
-};
-
-[scriptable, uuid(ee911269-fb16-48c4-84ff-9eeb415831e7)]
-interface koIUIPreferenceSet : koIPreference {
-    koIPreference getPref( in AString prefType );
-    void setPref(in AString prefType, in koIPreference pref);
-    // XXX enumPrefs unused, commented to prevent usage
-    // if needed, reimplement to not use enumerator!
-    //nsISimpleEnumerator enumPrefs(in AString prefType);
 };
 
 // Project preferences - to allow checking if a prefset is project based.
