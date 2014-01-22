@@ -718,13 +718,22 @@ StatusBarObserver.prototype.observe = function(subject, topic, data)
     }
 }
 
+function update_view_information(view) {
+    if (!view) {
+        view = ko.views.manager.currentView;
+    }
+    _updateEncoding(view);
+    _updateLanguage(view);
+    _updateLineCol(view);
+    _updateCheck(view);
+}
+
 StatusBarObserver.prototype.handle_current_view_changed = function(event) {
-    if (!ko.views.manager.batchMode) {
-        var view = event.originalTarget;
-        _updateEncoding(view);
-        _updateLanguage(view);
-        _updateLineCol(view);
-        _updateCheck(view);
+    if (ko.views.manager.batchMode) {
+        // Update it later on.
+        setTimeout(update_view_information, 10);
+    } else {
+        update_view_information(event.originalTarget);
     }
 };
 
@@ -1036,6 +1045,8 @@ window.QueryInterface(Ci.nsIInterfaceRequestor)
 window.addEventListener("komodo-ui-started", function() {
     _observer = new StatusBarObserver();
     _prefObserver = new StatusBarPrefObserver();
+    // Update for the current view.
+    update_view_information();
 });
 
 }).apply(ko.statusBar);
