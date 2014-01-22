@@ -192,19 +192,16 @@ function _handle_notification(data) {
 
 
 function _updateEncoding(view) {
-    if (typeof(view)=='undefined' || !view || !view.koDoc)
+    if (!view || view.getAttribute("type") != "editor") {
+        _clearEncoding();
         return;
+    }
     try {
-        //XXX It would probably be cleaner to add an "encoding_name"
-        //    attribute to koIView and then let each view type override that.
-        //    Then the view-startpage could return null to indicate N/A.
-        if (view.getAttribute("type") == "startpage") {
-            _clearEncoding();
-        } else {
-            var encoding = view.koDoc.encoding.short_encoding_name;
-            var encodingWidget = document.getElementById('statusbar-encoding-label');
-            encodingWidget.setAttribute("label", encoding);
-        }
+        var encoding = view.koDoc.encoding.short_encoding_name;
+        var encodingWidget = document.getElementById('statusbar-encoding');
+        var encodingLabel = document.getElementById('statusbar-encoding-label');
+        encodingWidget.removeAttribute("collapsed");
+        encodingLabel.setAttribute("label", encoding);
     } catch(e) {
         _clearEncoding();
     }
@@ -212,7 +209,9 @@ function _updateEncoding(view) {
 
 function _clearEncoding() {
     var encodingWidget = document.getElementById('statusbar-encoding');
-    encodingWidget.removeAttribute("label");
+    var encodingLabel = document.getElementById('statusbar-encoding-label');
+    encodingWidget.setAttribute("collapsed", "true");
+    encodingLabel.removeAttribute("label");
 }
 
 
