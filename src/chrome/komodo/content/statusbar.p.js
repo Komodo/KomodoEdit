@@ -358,12 +358,16 @@ function _updateSelectionInformation(view) {
         }
 // #endif
     }
-    document.getElementById("statusbar-selection").label = selectionLabel;
+    var selectionWidget = document.getElementById("statusbar-selection");
+    selectionWidget.label = selectionLabel;
+    selectionWidget.removeAttribute("collapsed");
 }
 
 function _updateLineCol(view, currentLine, currentColumn) {
-    if (typeof(view)=='undefined' || !view)
+    if (!view || view.getAttribute("type") != "editor") {
+        _clearLineColAndSelection();
         return;
+    }
     if (typeof(currentLine)=='undefined')
         currentLine = view.currentLine;
     if (typeof(currentColumn)=='undefined')
@@ -374,9 +378,10 @@ function _updateLineCol(view, currentLine, currentColumn) {
             [currentLine, currentColumn], 2);
         var lineColWidget = document.getElementById('statusbar-line-col');
         lineColWidget.setAttribute('label', lineColText);
+        lineColWidget.removeAttribute("collapsed");
     } catch(ex) {
         // not a view that supports these
-        _clearLineCol();
+        _clearLineColAndSelection();
         return;
     }
 
@@ -396,10 +401,12 @@ function _updateLineCol(view, currentLine, currentColumn) {
 }
 
 
-function _clearLineCol() {
+function _clearLineColAndSelection() {
     var lineColWidget = document.getElementById('statusbar-line-col');
+    lineColWidget.setAttribute("collapsed", "true");
     lineColWidget.removeAttribute("label");
     _addMessage(null, "check", 0, false);
+    document.getElementById("statusbar-selection").setAttribute("collapsed", "true");
 }
 
 
