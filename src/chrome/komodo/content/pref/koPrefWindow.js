@@ -764,9 +764,9 @@ koPrefWindow.prototype =
                     } catch (ex) {
                         /* ignore - shouldn't throw, nothing we can do */
                     }
-                    log.warn("Can't deal with preference object of types " +
-                             String(oldPref) + " / " + String(newPref) +
-                             " with id " + (path.reverse().join("::") || id));
+                    prefLog.warn("Can't deal with preference object of types " +
+                                 String(oldPref) + " / " + String(newPref) +
+                                 " with id " + (path.reverse().join("::") || id));
                     return false; // Can't deal with this pref type?
                 }
                 let func = "get" + type.replace(/^./, function(c) c.toUpperCase()) + "Pref";
@@ -784,7 +784,7 @@ koPrefWindow.prototype =
                     trimEqualPrefs(this.orig_prefset, this.prefset, id);
                 }
             } catch(e) {
-                log.exception(e, "Failed to trim unchanged prefs, may have unncessary values");
+                prefLog.exception(e, "Failed to trim unchanged prefs, may have unncessary values");
             }
             this.orig_prefset.update(this.prefset);
         }
