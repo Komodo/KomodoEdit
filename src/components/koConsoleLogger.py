@@ -59,6 +59,8 @@ class KoConsoleLogger:
         "/jquery.js",
         # Returns an empty XML node - nothing to be concerned about.
         "addons.updates: Update manifest had an unrecognised namespace",
+        # Preferences xpath queries result in this message - nothing we can do about that.
+        'Use of getAttributeNodeNS() is deprecated.',
     ]
     def _handleScriptError(self, error):
         try:
