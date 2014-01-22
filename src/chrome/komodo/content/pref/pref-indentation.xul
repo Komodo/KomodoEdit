@@ -134,20 +134,14 @@ function getPrefsForLanguage(name) {
     o.name = name;
     o.prefs = _getCurrentLangPrefs(name);
     // get the defaults
+    var rootPrefs = langPrefs.parent;
     o.defaults = {};
-    o.useTabs = o.defaults.useTabs = o.prefs.parent.getBooleanPref('useTabs');
-    o.tabWidth = o.defaults.tabWidth = o.prefs.parent.getLongPref('tabWidth');
-    o.indentWidth = o.defaults.indentWidth = o.prefs.parent.getLongPref('indentWidth');
-    
-    if (o.prefs.hasPref('useTabs'))  {
-        o.useTabs = o.defaults.useTabs = o.prefs.getBooleanPref('useTabs');
-    }
-    if (o.prefs.hasPref('tabWidth'))  {
-        o.tabWidth = o.defaults.tabWidth = o.prefs.getLongPref('tabWidth');
-    }
-    if (o.prefs.hasPref('indentWidth'))  {
-        o.indentWidth = o.defaults.indentWidth = o.prefs.getLongPref('indentWidth');
-    }
+    o.useTabs = o.defaults.useTabs =
+        o.prefs.getBoolean('useTabs', rootPrefs.getBoolean('useTabs', false));
+    o.tabWidth = o.defaults.tabWidth =
+        o.prefs.getLong('tabWidth', rootPrefs.getLong('tabWidth', false));
+    o.indentWidth = o.defaults.indentWidth =
+        o.prefs.getLong('indentWidth', rootPrefs.getLong('indentWidth', false));
     langData[name] = o;
     return o;
 }
