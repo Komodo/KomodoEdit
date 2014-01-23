@@ -1,0 +1,3 @@
+<!ENTITY editorViScrollLineToCenter.desc "Vi: Scroll current line to the center (middle) of the screen">
+<!ENTITY editorViScrollLineToCenterHome.desc "Vi: Scroll current line to the center (middle) of the screen, and move caret to first non whitespace char">
+<!ENTITY editorViScrollLineToBottomHome.desc "Vi: Scroll current line to the bottom (end) of the screen, and move caret to first non whitespace char">

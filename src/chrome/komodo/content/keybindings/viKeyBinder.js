@@ -2397,6 +2397,9 @@ VimController.command_mappings = {
     "cmd_vim_moveFunctionNext" :    [ "cmd_moveFunctionNext",       VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_jumpToLineBeforeLastJump" :    [ VimController.SPECIAL_COMMAND, VimController.MOVEMENT_ACTION | VimController.NO_REPEAT_ACTION],
     "cmd_vim_jumpToLocBeforeLastJump" :    [ VimController.SPECIAL_COMMAND, VimController.MOVEMENT_ACTION | VimController.NO_REPEAT_ACTION],
+    "cmd_vim_scrollLineToCenter" :  [ "cmd_editCenterVertically",   VimController.NO_REPEAT_ACTION ],
+    "cmd_vim_scrollLineToCenterHome" : [ VimController.SPECIAL_COMMAND, VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_scrollLineToBottomHome" : [ VimController.SPECIAL_COMMAND, VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
 
 // Select actions
     "cmd_vim_selectCharNext" :      [ "cmd_selectCharNext",         VimController.REPEATABLE_ACTION ],
@@ -3115,6 +3118,19 @@ function cmd_vim_jumpToLineBeforeLastJump() {
 
 function cmd_vim_jumpToLocBeforeLastJump() {
     ko.history.move_to_loc_before_last_jump(ko.views.manager.currentView, false);
+}
+
+function cmd_vim_scrollLineToCenterHome() {
+    ko.commands.doCommand('cmd_editCenterVertically');
+    ko.commands.doCommand('cmd_homeAbsolute');
+    ko.commands.doCommand('cmd_home');
+}
+
+function cmd_vim_scrollLineToBottomHome(scimoz) {
+    ko.commands.doCommand('cmd_homeAbsolute');
+    ko.commands.doCommand('cmd_home');
+    var newFVL = scimoz.lineFromPosition(scimoz.currentPos) - scimoz.linesOnScreen + 1;
+    scimoz.firstVisibleLine = Math.max(0, newFVL);
 }
 
 function cmd_vim_insert(scimoz) {

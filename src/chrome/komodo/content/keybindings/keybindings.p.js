@@ -325,6 +325,7 @@ function cloneObject(what) {
  *       existing keybindings to move to the state you're implementing for N+1
  *
  * Version history:
+ * 40: Komodo 9.0.0 - add Vi commands: zz z. z-
  * 39: Komodo 8.5.0b3 - add Ctrl+D for cmd_addNextWordToCaretSet
  * 38: Komodo 8.5.0b2 - ?
  * 37: Komodo 8.5.0b2 - add Crtl+Shift+Z for cmd_htmlTagRelocator
@@ -367,7 +368,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 39;
+const currentKeybindingVersionNumber = 40;
 
 /**
  * Remove this dictionary of keybinds.
@@ -939,6 +940,15 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
             this._add_keybinding_sequences({
                     'cmd_addNextWordToCaretSet': ["Ctrl+D"],
                 });
+            break;
+        case 39:
+            if (vi_enabled) {
+                this._add_keybinding_sequences({
+                        'cmd_vim_scrollLineToCenter':     ["z, z"],
+                        'cmd_vim_scrollLineToCenterHome': ["z, ."],
+                        'cmd_vim_scrollLineToBottomHome': ["z, -"],
+                });
+            }
             break;
         }
         from_version += 1;

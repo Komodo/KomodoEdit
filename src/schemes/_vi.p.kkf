@@ -41,6 +41,9 @@ binding cmd_vim_gotoLine  G
 binding cmd_vim_documentHome  g g
 binding cmd_vim_lineScrollUp  Ctrl+Y
 binding cmd_vim_lineScrollDown  Ctrl+E
+binding cmd_vim_scrollLineToCenter z z
+binding cmd_vim_scrollLineToCenterHome z .
+binding cmd_vim_scrollLineToBottomHome z -
 
 # Select commands
 
