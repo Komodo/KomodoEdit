@@ -165,6 +165,14 @@ def set_process_limits():
         else:
             log.debug("Failed to reduce address space: %s",
                       ctypes.WinError(ctypes.get_last_error()).strerror)
+    elif sys.platform.startswith("linux"):
+        import resource
+        GB = 1<<30
+        # Limit the oop process to 1GB of memory.
+        resource.setrlimit(resource.RLIMIT_AS, (1 * GB, -1L))
+    else:
+        # TODO: What to do on the Mac?
+        pass
 
 
 if __name__ == '__main__':
