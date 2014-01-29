@@ -498,7 +498,8 @@ class XMLParsingBufferMixin(CitadelBuffer):
         thing is, plus force a reparse of the XML.
         """
         super(XMLParsingBufferMixin, self).scan(mtime, skip_scan_time_check)
-        self.xml_parse() # force reparse of XML
+        # Reset xml tree cache, so sections list works correctly - bug 101442.
+        self._xml_tree_cache = None
 
     _xml_tree_cache = None
     _xml_default_dataset_info = None
