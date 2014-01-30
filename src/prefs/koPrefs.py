@@ -618,8 +618,6 @@ class koPreferenceSet(object):
     ###########################################################
     # Utility methods
 
-from xpcom.server.policy import SupportsPrimitive
-
 primitivesMap = {
     'long' : components.interfaces.nsISupportsPRInt32,
     'string' : components.interfaces.nsISupportsString,
