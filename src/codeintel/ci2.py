@@ -599,6 +599,8 @@ class Shell(cmdln.Cmdln):
             if opts.time_it or opts.time_details:
                 opts.force = True
 
+            scan_count = 0
+            lang_warnings = set()
             tree = None
             for path in _paths_from_path_patterns(path_patterns,
                                                   recursive=opts.recursive,
@@ -613,21 +615,46 @@ class Shell(cmdln.Cmdln):
                 except CodeIntelError:
                     log.info("skip `%s': couldn't determine language", path)
                     continue
-                buf = mgr.buf_from_path(path, lang=lang)
+                try:
+                    buf = mgr.buf_from_path(path, lang=lang)
+                except OSError as ex:
+                    # Couldn't access the file.
+                    if not opts.recursive:
+                        raise
+                    # Ignore files we don't really care about.
+                    log.warn("%r - %r", ex, path)
+                    continue
                 if not isinstance(buf, CitadelBuffer):
+                    if opts.recursive:
+                        # Ignore files that scanning isn't provided for.
+                        continue
                     raise CodeIntelError("`%s' (%s) is not a language that "
                                          "uses CIX" % (path, buf.lang))
-                if opts.force:
-                    buf.scan()
-                if tree is None:
-                    tree = ET.Element("codeintel", version="2.0")
-                file_elem = ET.SubElement(tree, "file",
-                                          lang=buf.lang,
-                                          mtime=str(int(time.time())),
-                                          path=os.path.basename(path))
-                for lang, blob in sorted(buf.blob_from_lang.items()):
-                    blob = buf.blob_from_lang[lang]
-                    file_elem.append(blob)
+
+                scan_count += 1
+                if scan_count % 10 == 0:
+                    log.info("%d scanning %r", scan_count, path)
+
+                try:
+                    if opts.force:
+                        buf.scan()
+                    if tree is None:
+                        tree = ET.Element("codeintel", version="2.0")
+                    file_elem = ET.SubElement(tree, "file",
+                                              lang=buf.lang,
+                                              mtime=str(int(time.time())),
+                                              path=os.path.basename(path))
+                    for lang, blob in sorted(buf.blob_from_lang.items()):
+                        blob = buf.blob_from_lang[lang]
+                        file_elem.append(blob)
+                except KeyError as ex:
+                    # Unknown cile language.
+                    if not opts.recursive:
+                        raise
+                    message = str(ex)
+                    if message not in lang_warnings:
+                        lang_warnings.add(message)
+                        log.warn("Skipping unhandled language %s", message)
 
                 if opts.time_details: 
                    delta = time.time() - start1
