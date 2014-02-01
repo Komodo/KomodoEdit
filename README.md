@@ -89,7 +89,7 @@ steps is *meant to be sufficient* to get Komodo building.
    to several hours to complete (depending on your specs). For most modern
    machines it should be about an hour.
 
- * After mozilla is built successfully go abck to the main repo directory and
+ * After mozilla is built successfully go back to the main repo directory and
    build komodo:
 
    ```
