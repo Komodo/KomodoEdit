@@ -167,9 +167,13 @@ def set_process_limits():
                       ctypes.WinError(ctypes.get_last_error()).strerror)
     elif sys.platform.startswith("linux"):
         import resource
+        # Limit the oop process to 2GB of memory.
+        #
+        # Note that setting to 1GB of memory cause "bk test" failures, showing
+        # this error:
+        #   Fatal Python error: Couldn't create autoTLSkey mapping
         GB = 1<<30
-        # Limit the oop process to 1GB of memory.
-        resource.setrlimit(resource.RLIMIT_AS, (1 * GB, -1L))
+        resource.setrlimit(resource.RLIMIT_AS, (2 * GB, -1L))
     else:
         # TODO: What to do on the Mac?
         pass
