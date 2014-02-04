@@ -1663,35 +1663,49 @@ this.unload = function uilayout_unload()
     _gPrefs.setBooleanPref("startupMaximized", window.windowState==1)
 }
 
-this.onload = function uilayout_onload()
-{
+/**
+ * Various UI layout tweaks needed between Komodo versions.
+ */
+function uilayout_upgrade() {
+    // Remove localstore.rdf attributes that were moved into prefs.
+    var rdfs = Components.classes["@mozilla.org/rdf/rdf-service;1"]
+                         .getService(Components.interfaces.nsIRDFService);
+    var ds = rdfs.GetDataSource("rdf:local-store");
+    var removePersistAttributes = function(id, persist_attributes) {
+        let source = rdfs.GetResource(document.location.href + "#" + id);
+        if (!source) {
+            return;
+        }
+        for (let [,attr] in Iterator(persist_attributes)) {
+            var prop = rdfs.GetResource(attr);
+            var arcs = ds.GetTargets(source, prop, true);
+            while (arcs.hasMoreElements()) {
+                ds.Unassert(source, prop, arcs.getNext());
+            }
+        }
+    }
+
     // As of Komodo 8.0 RC1 the toolbox is hidden using the parent wrapper
     // We should therefore remove the collapsed state (if any) on the main toolbox
     // This can probably be removed by Komodo 8.*
-    var maintoolboxrow = document.getElementById("main-toolboxrow");
-    if (maintoolboxrow &&
-	(maintoolboxrow.hasAttribute('collapsed') ||
-	 maintoolboxrow.hasAttribute('hidden') ||
-	 maintoolboxrow.hasAttribute('kohidden'))) {
+    removePersistAttributes("main-toolboxrow",
+                            ['collapsed','kohidden', 'hidden']);
 
-        maintoolboxrow.removeAttribute('collapsed');
-	maintoolboxrow.removeAttribute('kohidden');
-	maintoolboxrow.removeAttribute('hidden');
+    // As of Komodo 8.0, the side pane collapsed states are managed by prefs.
+    let workspace_ids = ["workspace_left_area",
+                         "workspace_right_area",
+                         "workspace_bottom_area"];
+    for (let workspace_id of workspace_ids) {
+        removePersistAttributes(workspace_id, ['collapsed']);
+    }
+}
 
-        // unassert things so we don't keep setting hidde, collapsed, kohidden
-        var rdfs = Components.classes["@mozilla.org/rdf/rdf-service;1"]
-                             .getService(Components.interfaces.nsIRDFService);
-        var ds = rdfs.GetDataSource("rdf:local-store");
-        var source = rdfs.GetResource(document.location.href + "#" + maintoolboxrow.id);
-
-	for (let [,attr] in Iterator(['collapsed','kohidden', 'hidden'])) {
-	    var prop = rdfs.GetResource(attr);
-	    var arcs = ds.GetTargets(source, prop, true);
-	    while (arcs.hasMoreElements()) {
-		ds.Unassert(source, prop, arcs.getNext());
-	    }
-	}
-
+this.onload = function uilayout_onload()
+{
+    var uilayout_version = 1;
+    if (_gPrefs.getLong("uilayout_version", 0) < uilayout_version) {
+        uilayout_upgrade();
+        _gPrefs.setLong("uilayout_version", uilayout_version);
     }
 
     ko.uilayout.updateToolbarArrangement();
