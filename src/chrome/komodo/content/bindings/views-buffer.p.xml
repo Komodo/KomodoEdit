@@ -1495,6 +1495,7 @@
             //                        "\n  modifiers: " + modifiers + "\n");
             const ISciMozEvents = Components.interfaces.ISciMozEvents;
             switch(eventType) {
+                case ISciMozEvents.SME_AUTOCSELECTION:
                 case ISciMozEvents.SME_USERLISTSELECTION:
                     var data = {
                         'position': position,
