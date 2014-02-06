@@ -814,7 +814,11 @@
         commandupdater="true"
         events="macro"
         >
-        <!-- Available whenever not already recording -->
+        <command
+            id="cmd_macroNew" key="key_cmd_macroNew"
+            oncommand="ko.commands.doCommandAsync('cmd_macroNew', event)"
+            desc="&macroNew.command.desc;" />
+        <!-- Available whenever we are recording -->
         <command
             id="cmd_startMacroMode" key="key_cmd_startMacroMode"
             interactive="true"

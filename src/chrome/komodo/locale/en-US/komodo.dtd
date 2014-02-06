@@ -393,6 +393,11 @@
 <!ENTITY macro.label "Macro">
 <!ENTITY macroEndRecording.desc "Macro: End Recording">
 <!ENTITY macroExecuteLastMacro.desc "Macro: Execute Last Macro">
+<!ENTITY macroNew.menu.accesskey "C">
+<!ENTITY macroNew.menu.label "Create New Macro">
+<!ENTITY macroNew.toolbar.label "New Macro">
+<!ENTITY macroNew.tooltiptext "Create a new macro that can be saved into the toolbox">
+<!ENTITY macroNew.command.desc "Macro: Create a new Toolbox Macro">
 <!ENTITY macroPauseRecording.desc "Macro: Pause Recording">
 <!ENTITY macroSaveToToolbox.desc "Macro: Save to Toolbox">
 <!ENTITY macroStartResumeRecording.desc "Macro: Start/Resume Recording">

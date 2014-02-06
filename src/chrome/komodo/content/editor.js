@@ -253,6 +253,13 @@ editor_editorController.prototype.do_cmd_bookmarkGotoPrevious = function() {
     }
 }
 
+editor_editorController.prototype.do_cmd_macroNew= function() {
+    // Ensure the toolbox is visible.
+    ko.uilayout.ensureTabShown('toolbox2viewbox');
+    // Show the new macro dialog.
+    ko.toolbox2.addToolboxItem('macro');
+}
+
 editor_editorController.prototype.is_cmd_startMacroMode_enabled = function() {
     return ko.macros.recorder.mode != 'recording';
 }

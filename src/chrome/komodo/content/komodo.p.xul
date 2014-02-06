@@ -1468,6 +1468,12 @@
                             <menu id="menu_macros" label="&macros.label;"
                                   accesskey="&menuMacros.accesskey;">
                                 <menupopup id="popup_macros">
+                                    <menuitem id="macroNew_menuitem"
+                                              label="&macroNew.menu.label;"
+                                              accesskey="&macroNew.menu.accesskey;"
+                                              tooltiptext="&macroNew.tooltiptext;"
+                                              class="menuitem-iconic macro-new-icon"
+                                              observes="cmd_macroNew"/>
                                     <menuitem label="&startRecording.label;"
                                               id="menu_startMacroMode"
                                               observes="cmd_startMacroMode"
@@ -1962,6 +1968,13 @@
 
                     <toolbaritem>
 
+                        <toolbarbutton id="macroNew"
+                                label="&macroNew.toolbar.label;"
+                                tooltiptext="&macroNew.tooltiptext;"
+                                class="macro-new-icon"
+                                buttonstyle="pictures"
+                                persist="buttonstyle"
+                                observes="cmd_macroNew"/>
                         <toolbarbutton id="macroRecord"
                                 label="&record.label;"
                                 tooltiptext="&recordMacro.tooltiptext;"
