@@ -262,6 +262,10 @@
 }
 
 
+.macro-new-icon {
+  list-style-image : url("chrome://famfamfamsilk/skin/icons/control_add_blue.png");
+}
+
 .macro-play-icon {
   list-style-image : url("chrome://komodo/skin/images/macro_play.png");
 }
