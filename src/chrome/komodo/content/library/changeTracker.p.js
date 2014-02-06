@@ -499,7 +499,7 @@ this.ChangeTracker.prototype._createPanel = function(htmlFile, undoTextFunc) {
         panel.sizeTo(600, 400);
         fileSvc.deleteTempFile(htmlFile.path, true);
         undoButton.addEventListener("command", undoTextFunc, false);
-    }.bind(this));
+    }.bind(this);
     var panelHiddenFunc = function(event) {
         undoButton.removeEventListener("command", undoTextFunc, false);
         iframe.removeEventListener("load", iframeLoadedFunc, true);
