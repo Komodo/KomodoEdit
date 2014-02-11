@@ -459,6 +459,10 @@ $consLocal->Command($landmark,
 $consLocal->DependsRecursive($landmark, "zope/cachedescriptors", ("build", '\.svn', '\.consign'));
 
 
+#----  Markdown2.
+$consLocal->InstallPythonUtility('smallstuff/markdown2.py');
+
+
 #---- komododoc
 # The Komodo documentation project.
 #
