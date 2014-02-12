@@ -177,7 +177,7 @@ static bool RE_CanFollowKeyword(unsigned int start, unsigned int end,
     s[i + 1] = '|';
     s[i + 2] = '\0';
     const char *no_RE_KwdList = 
-        "|while|if|unless|until|and|or|not|xor|split|grep|map|print|defined";
+        "|while|if|unless|until|and|or|not|xor|split|grep|map|print|defined|";
     return strstr(no_RE_KwdList, s) != NULL;
 }
 
@@ -1770,7 +1770,7 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                     }
                     braceStartsBlock = false;
                 } else if (ch == ')') {
-                    binaryOperatorExpected = false;
+                    binaryOperatorExpected = true;
                     braceStartsBlock = true;
                     if (levelCurrent > 0) {
                         levelCurrent--;
