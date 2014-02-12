@@ -68,7 +68,7 @@ g_short_ver_pat = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:([abc])(\d+))?$")
 g_ide_repo_url = "https://svn.activestate.com/repos/activestate/komodo/"
 g_edit_repo_url = "https://svn.openkomodo.com/repos/openkomodo/"
 
-g_remote_builds_dir = "komodo-build@nas:/data/komodo/builds"
+g_remote_builds_dir = "komodo@mule:/data/komodo/builds"
 
 
 
@@ -87,8 +87,8 @@ class KomodoReleasesGuru(object):
         "komodoide": g_remote_builds_dir,
     }
     nightly_base_dir_from_project = {
-        "komodoedit": "komodo-build@nas:/data/komodo/builds/nightly-stage/komodoedit/",
-        "komodoide": "komodo-build@nas:/data/komodo/builds/nightly-stage/komodoide/",
+        "komodoedit": g_remote_builds_dir + "/nightly-stage/komodoedit/",
+        "komodoide": g_remote_builds_dir + "/nightly-stage/komodoide/",
     }
     
     def __init__(self, project, platname, full_ver):

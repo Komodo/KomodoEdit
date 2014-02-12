@@ -2113,7 +2113,7 @@ def target_src(argv=["src"]):
         hgRepo = os.path.join(buildDir, "mozilla")
         bundleFile = os.path.abspath("%s.hg" % (treeName,))
         try:
-            bundleURL = "http://komodo.nas.activestate.com/build-support/mozilla-build/%s.hg" % (treeName,)
+            bundleURL = "http://komodo.nas1.activestate.com/build-support/mozilla-build/%s.hg" % (treeName,)
             # check that the URL can be opened (not 404, etc.) We don't need to read it.
             urllib2.urlopen(bundleURL, None, 10).close()
         except IOError:
@@ -2566,7 +2566,7 @@ def target_upload(argv=["upload"]):
             log.warn("could not upload %s package: `%s' does not exist",
                      name, src)
             continue
-        dst = "komodo-build@nas:/data/komodo/extras/mozilla-build-patches/" + filename
+        dst = "komodo@mule:/data/komodo/extras/mozilla-build-patches/" + filename
         remote_cp(src, dst, log.info)
 
     return argv[1:]
