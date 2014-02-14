@@ -286,5 +286,4 @@ endforeach(f)
             self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_CMAKE)
             self._lexer.setKeywords(0, self.cmake_commands)
             self._lexer.setKeywords(1, self.cmake_variables)
-            print "\nCMake Lexer finished.\n"
         return self._lexer
