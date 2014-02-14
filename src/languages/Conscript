@@ -80,6 +80,7 @@ $cons->InstallXpcomComponent('koBATLanguage.py');
 $cons->InstallXpcomComponent('koBullantLanguage.py');
 $cons->InstallXpcomComponent('koCamlLanguage.py');
 $cons->InstallXpcomComponent('koCLWLanguage.py');
+$cons->InstallXpcomComponent('koCMakeLanguage.py');
 $cons->InstallXpcomComponent('koCobolLanguage.py');
 $cons->InstallXpcomComponent('koCPPLanguage.py');
 $cons->InstallXpcomComponent('koCSharpLanguage.py');

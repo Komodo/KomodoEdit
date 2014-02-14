@@ -49,6 +49,11 @@ class MakefileLangInfo(LangInfo):
     exts = [".mak"]
     filename_patterns = [re.compile(r'^[Mm]akefile.*$')]
 
+class CMakeLangInfo(LangInfo):
+    name = "CMake"
+    conforms_to_bases = ["Text"]
+    exts = [".cmake", ".cmake.in"]
+
 class _CSSLangInfoCommon(LangInfo):
     conforms_to_bases = ["Text"]
     exts = [".css"]
