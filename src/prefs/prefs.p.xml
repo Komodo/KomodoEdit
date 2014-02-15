@@ -448,6 +448,7 @@
  '*.yml': 'YAML',
  '*.zcml': 'XML',
  '.htaccess': 'Apache',
+ 'CMakeLists.txt': 'CMake',
  'Conscript': 'Perl',
  'Construct': 'Perl',
  'Gemfile': 'Ruby',
