@@ -13,6 +13,8 @@
      */
     var pending_command_hash = {};
     var fallback_timeout = -1;
+    var _log = ko.logging.getLogger("perf");
+    //_log.setLevel(ko.logging.LOG_DEBUG);
 
     var run_delayed_update_commands = function() {
         // #if BUILD_FLAVOUR == "dev"
@@ -22,6 +24,7 @@
         try {
             window.updateCommands = old_window_updateCommands;
             for (var commandsetname in pending_command_hash) {
+                _log.debug("running delayed commandset update for '" + commandsetname + "'");
                 window.updateCommands(commandsetname);
             }
         } catch (e) {
@@ -41,7 +44,7 @@
 
     // Wait till the Komodo UI is started.
     window.addEventListener("komodo-ui-started", function() {
-        setTimeout(run_delayed_update_commands, 500);
+        setTimeout(run_delayed_update_commands, 1000);
         clearTimeout(fallback_timeout);
     });
 
