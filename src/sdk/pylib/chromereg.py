@@ -195,13 +195,13 @@ class ChromeReg(object):
                         continue
                     self.set(clazz.name, target.id, self.get(stmt.value))
     
-            if filter(lambda n: n.id == "_reg_contractid_", stmt.targets):
+            if filter(lambda n: hasattr(n, "id") and n.id == "_reg_contractid_", stmt.targets):
                 # this is an assignment to _reg_contractid_
                 value = self.get(stmt.value, clazz.name)
                 if value is not None:
                     componentData["contractid"] = value.replace(" ", "%20")
     
-            if filter(lambda n: n.id == "_reg_clsid_", stmt.targets):
+            if filter(lambda n: hasattr(n, "id") and n.id == "_reg_clsid_", stmt.targets):
                 # this is an assignment to _reg_clsid_
                 value = self.get(stmt.value, clazz.name)
                 if value is not None:
@@ -210,13 +210,13 @@ class ChromeReg(object):
                         value = "{%s}" % value
                     componentData["clsid"] = value
     
-            if filter(lambda n: n.id == "_reg_desc_", stmt.targets):
+            if filter(lambda n: hasattr(n, "id") and n.id == "_reg_desc_", stmt.targets):
                 # this is an assignment to _reg_desc_
                 value = self.get(stmt.value, clazz.name)
                 if value is not None:
                     componentData["desc"] = urllib.quote(value)
     
-            if filter(lambda n: n.id == "_reg_categories_", stmt.targets):
+            if filter(lambda n: hasattr(n, "id") and n.id == "_reg_categories_", stmt.targets):
                 # this is a category registration
                 assert isinstance(stmt.value, ast.Tuple) or isinstance(stmt.value, ast.List), \
                     "%s line %i: category assignement must be a list, got %s" % (
