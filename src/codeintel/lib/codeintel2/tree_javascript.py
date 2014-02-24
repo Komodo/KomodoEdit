@@ -486,6 +486,8 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                         new_hits.append(new_hit)
                 hits = new_hits
 
+            # Deal with __file_local__ hits, which are special unresolved
+            # file-level holders that get created whilst scanning.
             if self.buf:
                 curr_blob = self.buf.blob_from_lang.get(self.trg.lang, {})
             else:
@@ -496,6 +498,10 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                     if scoperef[0] != curr_blob:
                         # Ignore all __file_local__ hits in other files.
                         continue
+                    # Include all alternative top-level window matches for this
+                    # expression - bug 102993.
+                    new_hits += self._hits_from_citdl(self._global_var + "." + expr,
+                                                      scoperef, defn_only=defn_only)
                 new_hits.append((elem, scoperef))
             hits = new_hits
 

@@ -1210,6 +1210,34 @@ class HTMLJavaScriptTestCase(CodeIntelTestCase):
                 [("variable", "nodeName"),
                  ("function", "appendChild"),])
 
+    @tag("bug102993")
+    def test_html5_canvas(self):
+        content, positions = unmark_text(dedent("""\
+            <!DOCTYPE html>
+            <html>
+            <head>
+            <title>HTML 5 Canvas</title>
+            <script type="text/javascript">
+                function draw() {
+                    var canvas = document.getElementById("canvas");
+                    var ctx = canvas.getContext("2d");
+                    ctx.fillStyle = "rgb(200,0,0)";
+                    document.<1>foo;
+                }
+            </script>
+            </head>
+            <body onload="draw()">
+            <canvas id='canvas' width="300" height="300">
+                Fallback text when canvas is not available.
+            </canvas>
+            </body>
+            </html>
+        """))
+
+        self.assertCompletionsInclude(
+                markup_text(content, pos=positions[1]),
+                [("function", "getElementById")])
+
 class JSDocTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     def test_jsdoc_extends(self):
