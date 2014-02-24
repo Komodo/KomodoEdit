@@ -300,7 +300,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
 
     def _members_from_hits(self, hits):
         members = set()
-        curr_blob = self.buf.blob_from_lang.get(self.lang, None)
+        curr_blob = self.buf.blob_from_lang.get(self.trg.lang, None)
         for elem, scope in hits:
             # In JavaScript we include the constructor function for a
             # (faked) class as a method. Completion on an instance of
@@ -487,7 +487,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                 hits = new_hits
 
             if self.buf:
-                curr_blob = self.buf.blob_from_lang.get(self.lang, {})
+                curr_blob = self.buf.blob_from_lang.get(self.trg.lang, {})
             else:
                 curr_blob = None
             new_hits = []
