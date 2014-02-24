@@ -486,6 +486,19 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                         new_hits.append(new_hit)
                 hits = new_hits
 
+            if self.buf:
+                curr_blob = self.buf.blob_from_lang.get(self.lang, {})
+            else:
+                curr_blob = None
+            new_hits = []
+            for elem, scoperef in hits:
+                if "__file_local__" in elem.get("attributes", "").split():
+                    if scoperef[0] != curr_blob:
+                        # Ignore all __file_local__ hits in other files.
+                        continue
+                new_hits.append((elem, scoperef))
+            hits = new_hits
+
             # Resolve any variable type inferences.
             #XXX Don't we have to *recursively* resolve hits?
             #    If that is done, then need to watch out for infinite loop
@@ -493,16 +506,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             #    with children just returns itself. I.e. you *can't* resolve
             #    the <variable> away.
             resolved_hits = []
-            if self.buf:
-                curr_blob = self.buf.blob_from_lang.get(self.lang, {})
-            else:
-                curr_blob = None
-
             for elem, scoperef in hits:
-                if scoperef[0] != curr_blob:
-                    if "__file_local__" in elem.get("attributes", "").split():
-                        self.log("skipping __file_local__ %r in %r", elem, scoperef)
-                        continue
                 if elem.tag == "variable" and not defn_only:
                     try:
                         if (not elem.get("citdl")) and elem.get("ilk") == "argument":
