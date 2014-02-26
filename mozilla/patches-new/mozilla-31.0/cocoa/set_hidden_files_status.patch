@@ -1,0 +1,88 @@
+diff -r 6db116c397b1 widget/cocoa/nsFilePicker.mm
+--- a/widget/cocoa/nsFilePicker.mm	Mon Sep 17 20:00:29 2012 -0500
++++ b/widget/cocoa/nsFilePicker.mm	Wed Oct 17 12:52:58 2012 -0700
+@@ -25,7 +25,6 @@
+ const float kAccessoryViewPadding = 5;
+ const int   kSaveTypeControlTag = 1;
+ 
+-static bool gCallSecretHiddenFileAPI = false;
+ const char kShowHiddenFilesPref[] = "filepicker.showHiddenFiles";
+ 
+ /**
+@@ -54,37 +53,12 @@
+ {
+   NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
+ 
+-  bool show = false;
+-  if (NS_SUCCEEDED(Preferences::GetBool(kShowHiddenFilesPref, &show))) {
+-    gCallSecretHiddenFileAPI = true;
+-  }
+-
+-  if (gCallSecretHiddenFileAPI) {
+-    // invoke a method to get a Cocoa-internal nav view
+-    SEL navViewSelector = @selector(_navView);
+-    NSMethodSignature* navViewSignature = [panel methodSignatureForSelector:navViewSelector];
+-    if (!navViewSignature)
+-      return;
+-    NSInvocation* navViewInvocation = [NSInvocation invocationWithMethodSignature:navViewSignature];
+-    [navViewInvocation setSelector:navViewSelector];
+-    [navViewInvocation setTarget:panel];
+-    [navViewInvocation invoke];
+-
+-    // get the returned nav view
+-    id navView = nil;
+-    [navViewInvocation getReturnValue:&navView];
+-
+-    // invoke the secret show hidden file state method on the nav view
+-    SEL showHiddenFilesSelector = @selector(setShowsHiddenFiles:);
+-    NSMethodSignature* showHiddenFilesSignature = [navView methodSignatureForSelector:showHiddenFilesSelector];
+-    if (!showHiddenFilesSignature)
+-      return;
+-    NSInvocation* showHiddenFilesInvocation = [NSInvocation invocationWithMethodSignature:showHiddenFilesSignature];
+-    [showHiddenFilesInvocation setSelector:showHiddenFilesSelector];
+-    [showHiddenFilesInvocation setTarget:navView];
+-    [showHiddenFilesInvocation setArgument:&show atIndex:2];
+-    [showHiddenFilesInvocation invoke];
+-  }
++  // ACTIVESTATE: The setShowsHiddenFiles selector is only supported in
++  // OSX 10.6+, but that's Komodo 8's minimum version, so we don't need
++  // to use NSInvocations and NSMethodSignatures to manipulate it.
++  bool showHiddenFiles = false;
++  (void) Preferences::GetBool(kShowHiddenFilesPref, &showHiddenFiles);
++  [panel setShowsHiddenFiles: showHiddenFiles];
+ 
+   NS_OBJC_END_TRY_ABORT_BLOCK;
+ }
+@@ -338,16 +338,32 @@
+     [observer setOpenPanel:thePanel];
+     [observer setFilePicker:this];
+ 
+     [[NSNotificationCenter defaultCenter]
+       addObserver:observer
+       selector:@selector(menuChangedItem:)
+       name:NSMenuWillSendActionNotification object:nil];
+ 
++    bool treatAsPath;
++    if ([theDir length] == 0) {
++      treatAsPath = false;
++    } else if ([theDir characterAtIndex:0] == '/') {
++      treatAsPath = true;
++    } else if ([theDir characterAtIndex:0] == '~') {
++      treatAsPath = true;
++      theDir = [theDir stringByExpandingTildeInPath:theDir];
++    } else {
++      treatAsPath = false;
++    }
++    NSURL *theURL = (treatAsPath
++                     ? [NSURL fileURLWithPath:theDir]
++                     : [[[NSURL alloc] initWithString:theDir] autorelease]);
++    [thePanel setDirectoryURL:theURL];
++
+     UpdatePanelFileTypes(thePanel, filters);
+     result = [thePanel runModal];
+ 
+     [[NSNotificationCenter defaultCenter] removeObserver:observer];
+     [observer release];
+   } else {
+     // If we show all file types, also "expose" bundles' contents.
+     if (!filters) {

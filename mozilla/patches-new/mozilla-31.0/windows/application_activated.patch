@@ -1,0 +1,49 @@
+Add application-activated notification (Windows) to deal with checkDiskFiles
+properly - komodo bug 46101.
+
+Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/widget/windows/nsWindow.cpp
+--- a/widget/windows/nsWindow.cpp
++++ b/widget/windows/nsWindow.cpp
+@@ -111,6 +111,8 @@
+ #include "nsView.h"
+ #include "nsIWindowMediator.h"
+ #include "nsIServiceManager.h"
++#include "nsXPCOM.h"
++#include "nsServiceManagerUtils.h"
+ #include "nsWindowGfx.h"
+ #include "gfxWindowsPlatform.h"
+ #include "Layers.h"
+@@ -4509,16 +4511,33 @@
+         obsServ->NotifyObservers(nullptr, "profile-before-change", context.get());
+         // Then a controlled but very quick exit.
+         _exit(0);
+       }
+       sCanQuit = TRI_UNKNOWN;
+       result = true;
+       break;
+ 
++    case WM_ACTIVATEAPP:
++      if (mWindowType == eWindowType_toplevel) {
++        result = true;
++        *aRetValue = TRUE;
++        nsCOMPtr<nsISupportsPRBool> focusing =
++          do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID);
++        focusing->SetData(wParam);
++ 
++        nsCOMPtr<nsIObserverService> obsServ =
++          mozilla::services::GetObserverService();
++        obsServ->NotifyObservers(focusing, "application-activated", nullptr);
++      } else {
++        result = false;
++        *aRetValue = FALSE;
++      }
++      break;
++
+     case WM_SYSCOLORCHANGE:
+       OnSysColorChanged();
+       break;
+ 
+     case WM_THEMECHANGED:
+     {
+       // Update non-client margin offsets 
+       UpdateNonClientMargins();

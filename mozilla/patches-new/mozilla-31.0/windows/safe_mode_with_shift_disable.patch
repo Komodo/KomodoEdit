@@ -1,0 +1,31 @@
+# HG changeset patch
+# Parent 2a675007134b3b5ad28be3a511431810b9f541a9
+# User Mook <marky@activestate.com>
+# Date 1389637492 28800
+Always disable the shift-to-safe-mode shortcut for Komodo; that's used to open
+files in Komodo, instead of pinning it on the task bar icon.
+http://bugs.activestate.com/show_bug.cgi?id=102281
+
+diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
+--- a/toolkit/xre/nsAppRunner.cpp
++++ b/toolkit/xre/nsAppRunner.cpp
+@@ -3099,17 +3099,18 @@ XREMain::XRE_mainInit(bool* aExitFlag)
+   ar = CheckArg("safe-mode", true);
+   if (ar == ARG_BAD) {
+     PR_fprintf(PR_STDERR, "Error: argument -safe-mode is invalid when argument -osint is specified\n");
+     return 1;
+   } else if (ar == ARG_FOUND) {
+     gSafeMode = true;
+   }
+ 
+-#ifdef XP_WIN
++  // XXX ActiveState: Always disable this for Komodo (bug 102281)
++#if 0
+   // If the shift key is pressed and the ctrl and / or alt keys are not pressed
+   // during startup start in safe mode. GetKeyState returns a short and the high
+   // order bit will be 1 if the key is pressed. By masking the returned short
+   // with 0x8000 the result will be 0 if the key is not pressed and non-zero
+   // otherwise.
+   if (GetKeyState(VK_SHIFT) & 0x8000 &&
+       !(GetKeyState(VK_CONTROL) & 0x8000) && !(GetKeyState(VK_MENU) & 0x8000)) {
+     gSafeMode = true;

@@ -1,0 +1,33 @@
+Backout Mozilla change that causes a major slowdown to Komodo menus and plugin
+drawing, see Komodo bug 97679.
+
+Mozilla bug details:
+https://bugzilla.mozilla.org/show_bug.cgi?id=796183
+Always invalidate the widget when doing empty transactions with a LayerManager.
+
+Index: /Users/toddw/as/komodo-devel/mozilla/build/moz1800-ko8.9/mozilla/layout/base/nsPresShell.cpp
+--- a/layout/base/nsPresShell.cpp	Fri Jan 04 17:10:32 2013 -0500
++++ b/layout/base/nsPresShell.cpp	Fri Mar 01 11:06:46 2013 -0800
+@@ -5278,8 +5278,8 @@
+         } else {
+           LayerProperties::ClearInvalidations(layerManager->GetRoot());
+         }
+-        if (props) {
+-          if (!invalid.IsEmpty()) {
++        if (!invalid.IsEmpty()) {
++          if (props) {
+             nsIntRect bounds = invalid.GetBounds();
+             nsRect rect(presContext->DevPixelsToAppUnits(bounds.x),
+                         presContext->DevPixelsToAppUnits(bounds.y),
+@@ -5287,9 +5287,9 @@
+                         presContext->DevPixelsToAppUnits(bounds.height));
+             aViewToPaint->GetViewManager()->InvalidateViewNoSuppression(aViewToPaint, rect);
+             presContext->NotifyInvalidation(bounds, 0);
++          } else if (shouldInvalidate) {
++            aViewToPaint->GetViewManager()->InvalidateView(aViewToPaint);
+           }
+-        } else if (shouldInvalidate) {
+-          aViewToPaint->GetViewManager()->InvalidateView(aViewToPaint);
+         }
+ 
+         frame->UpdatePaintCountForPaintedPresShells();

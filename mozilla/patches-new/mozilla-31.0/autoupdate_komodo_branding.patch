@@ -1,0 +1,34 @@
+Tweak auto-update messaging - Komodo bug 77816.
+
+diff --git a/toolkit/locales/en-US/chrome/mozapps/update/updates.dtd b/toolkit/locales/en-US/chrome/mozapps/update/updates.dtd
+--- a/toolkit/locales/en-US/chrome/mozapps/update/updates.dtd
++++ b/toolkit/locales/en-US/chrome/mozapps/update/updates.dtd
+@@ -1,7 +1,7 @@
+ <!-- This Source Code Form is subject to the terms of the Mozilla Public
+    - License, v. 2.0. If a copy of the MPL was not distributed with this
+    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+-<!ENTITY  updateWizard.title              "Software Update">
++<!ENTITY  updateWizard.title              "&brandShortName; Update">
+ 
+ <!ENTITY  checking.title                  "Checking for Updates">
+ <!ENTITY  updateCheck.label               "Looking for newer versions of &brandShortName;â¦">
+@@ -22,18 +22,17 @@
+                                            not have enough space to install it.">
+ <!ENTITY  manualUpdateGetMsg.label        "You can always get the latest version of &brandShortName; at:">
+ 
+ <!ENTITY  incompatibleCheck.title         "Checking Add-on Compatibility">
+ <!ENTITY  incompatibleCheck.label         "Looking for newer versions of your add-ons…">
+ 
+ <!ENTITY  clickHere.label                 "View more information about this update">
+ 
+-<!ENTITY  evangelism.desc                 "It is strongly recommended that you apply this 
+-                                           update for &brandShortName; as soon as possible.">
++<!ENTITY  evangelism.desc                 "We recommend you update to benefit from the latest enhancements and fixes.">
+ 
+ <!ENTITY  license.instructions            "If you agree to the terms of this agreement, click I Agree 
+                                            below to continue installing this update.">
+ 
+ <!ENTITY  license.titleText               "Software License Agreement">
+ <!ENTITY  license.introText               "Terms and conditions for using this software.">
+ <!ENTITY  license.instructionText         "Please read the following license agreement. Use the scroll bar to view the rest of this agreement.">
+ <!ENTITY  license.accept                  "I accept the terms of the License Agreement">
