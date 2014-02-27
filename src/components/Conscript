@@ -322,6 +322,7 @@ $cons->InstallXpcomComponent('koLoggingService.py');
 $cons->BuildAndInstallXpt('koIColorPicker.idl');
 
 # Komodo memory reporter.
+$cons->Preprocess('koIMemoryReporter.p.idl', 'koIMemoryReporter.idl');
 $cons->BuildAndInstallXpt('koIMemoryReporter.idl');
 $cons->InstallXpcomComponent('koMemoryReporter.py');
 

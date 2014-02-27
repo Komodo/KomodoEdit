@@ -13,6 +13,11 @@ interface koIPythonMemoryReporter: nsISupports {
      *
      * @returns The total number of bytes used.
      */
+/* #if MOZILLA_VERSION < 24.99 */
     long reportMemory(in nsIMemoryMultiReporterCallback callback,
                       in nsISupports closure);
+/* #else */
+    long reportMemory(in nsIMemoryReporterCallback callback,
+                      in nsISupports closure);
+/* #endif */
 };

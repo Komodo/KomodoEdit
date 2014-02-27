@@ -33,9 +33,14 @@ log = logging.getLogger("codeintel.komodo")
 log_timing = log.getChild("timing")
 
 class KoCodeIntelService:
+    # Support Mozilla 24 and 31 (name change)
+    nsIMemoryReporter = Ci.nsIMemoryReporter
+    if "nsIMemoryMultiReporter" in Ci.keys():
+        nsIMemoryReporter = Ci.nsIMemoryMultiReporter
+
     _com_interfaces_ = [Ci.koICodeIntelService,
                         Ci.nsIObserver,
-                        Ci.nsIMemoryMultiReporter]
+                        nsIMemoryReporter]
     _reg_clsid_ = "{fc4ca276-64a7-4d87-ab89-791ba463188d}"
     _reg_contractid_ = "@activestate.com/koCodeIntelService;1"
     _reg_desc_ = "Komodo Code Intelligence Service"
@@ -76,9 +81,16 @@ class KoCodeIntelService:
         """Observers that should be invoked on activate/deactivate"""
 
         try:
-            Cc["@mozilla.org/memory-reporter-manager;1"]\
-              .getService(Ci.nsIMemoryReporterManager)\
-              .registerMultiReporter(self)
+            if nsIMemoryReporter is Ci.nsIMemoryReporter:
+                # Mozilla 31
+                Cc["@mozilla.org/memory-reporter-manager;1"]\
+                  .getService(Ci.nsIMemoryReporterManager)\
+                  .registerStrongReporter(self)
+            else:
+                # Mozilla 24
+                Cc["@mozilla.org/memory-reporter-manager;1"]\
+                  .getService(Ci.nsIMemoryReporterManager)\
+                  .registerMultiReporter(self)
         except COMException as ex:
             if ex.errno != Cr.NS_ERROR_FAILURE:
                 raise
@@ -321,7 +333,7 @@ class KoCodeIntelService:
             if self.mgr is mgr:
                 self.mgr = None
 
-    # nsIMemoryMultiReporter
+    # nsIMemoryReporter
     name = "codeintel"
     def collectReports(self, cb, closure):
         have_response = set()

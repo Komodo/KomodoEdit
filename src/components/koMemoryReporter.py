@@ -11,9 +11,16 @@ from xpcom import components
 log = logging.getLogger("koMemoryReporter")
 #log.setLevel(logging.DEBUG)
 
+Ci = components.interfaces
+
 class KoMemoryReporter:
-    _com_interfaces_ = [components.interfaces.nsIMemoryMultiReporter,
-                        components.interfaces.nsIObserver]
+    # Support Mozilla 24 and 31 (name change)
+    nsIMemoryReporter = Ci.nsIMemoryReporter
+    if "nsIMemoryMultiReporter" in Ci.keys():
+        nsIMemoryReporter = Ci.nsIMemoryMultiReporter
+
+    _com_interfaces_ = [nsIMemoryReporter,
+                        Ci.nsIObserver]
     _reg_clsid_ = "{c75e5746-50ab-49af-9ecd-b66388a0522c}"
     _reg_contractid_ = "@activestate.com/koMemoryReporter;1"
     _reg_desc_ = "Komodo Memory Reporter"
@@ -23,15 +30,22 @@ class KoMemoryReporter:
 
     def __init__(self):
         # Register ourself with the memory manager.
-        memMgr = components.classes["@mozilla.org/memory-reporter-manager;1"]. \
-                    getService(components.interfaces.nsIMemoryReporterManager)
-        memMgr.registerMultiReporter(self)
+        if nsIMemoryReporter is Ci.nsIMemoryReporter:
+            # Mozilla 31
+            Cc["@mozilla.org/memory-reporter-manager;1"]\
+              .getService(Ci.nsIMemoryReporterManager)\
+              .registerStrongReporter(self)
+        else:
+            # Mozilla 24
+            Cc["@mozilla.org/memory-reporter-manager;1"]\
+              .getService(Ci.nsIMemoryReporterManager)\
+              .registerMultiReporter(self)
 
     def observe(self, subject, topic, data):
         pass
 
     ##
-    # nsIMemoryMultiReporter
+    # nsIMemoryReporter
     name = "Komodo"
     explicitNonHeap = 0
 
