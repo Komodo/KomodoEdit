@@ -2324,6 +2324,12 @@ def target_configure_mozilla(argv=["configure_mozilla"]):
         log.info("rm %s", configCache)
         os.remove(configCache)
 
+    # Add komodo build dir to .hgignore file.
+    hgignore_filepath = join(buildDir, ".hgignore")
+    contents = file(hgignore_filepath).read()
+    entry = "^" + config.mozObjDir + "/*"
+    file(hgignore_filepath, "w").write(contents + "\n" + entry + "\n")
+
     return argv[1:]
 
 def target_mozilla(argv=["mozilla"]):
