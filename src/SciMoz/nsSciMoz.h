@@ -131,6 +131,10 @@
 #define WM_UNICHAR                      0x0109
 #endif
 
+// Mozilla 31 uses C++11 character types.
+#if MOZ_VERSION > 2499
+#define PRUnichar char16_t
+#endif
 
 /* Thread checks are default in dev builds, off in release */
 
