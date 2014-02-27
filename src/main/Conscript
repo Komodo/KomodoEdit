@@ -207,29 +207,25 @@ if ($platform eq "win") {
     #$unsiloedPerlExe =~ s/\\/\//g;
     #$envVars .= " PERL=$unsiloedPerlExe";
     #$buildCmd = "cd $mozKomodoSrcDir\\app && touch *.c && touch *.cpp && cd $mozKomodoObjDir\\app && del *.obj && $mozMake $envVars";
-    if ($mozVersion le 18.99) {
-        $buildCmd = "cd $mozKomodoSrcDir\\app && touch *.c && touch *.cpp && cd $mozKomodoObjDir\\app && del *.obj && make $envVars";
-    } else {
-        my $mozSrcMsys = $mozSrc;
-        $mozSrcMsys =~ s/\\/\//g;
-        my $mozObjDirMsys = $mozObjDir;
-        $mozObjDirMsys =~ s/\\/\//g;
-        my $envScriptMsys = $envScriptName;
-        $envScriptMsys =~ s/\\/\//g;
-        $envScriptMsys =~ s/\.bat$/.sh/;
-        $mozPython = "$mozObjDirMsys/_virtualenv/Scripts/python.exe";
-        $buildCmd = qq(cd $mozKomodoSrcDir\\app &&
-                       touch *.c *.cpp &&
-                       call $envScriptName &&
-                       $ENV{MOZILLABUILD}\\msys\\bin\\bash --login -c "
-                            unset PYTHONPATH &&
-                            unset PYTHONHOME &&
-                            cd $mozSrcMsys/mozilla &&
-                            export NUMBER_OF_PROCESSORS=$ENV{NUMBER_OF_PROCESSORS} &&
-                            ./mach -v build -v komodo
-                        ");
-        $buildCmd =~ s/\r?\n//g;
-    }
+    my $mozSrcMsys = $mozSrc;
+    $mozSrcMsys =~ s/\\/\//g;
+    my $mozObjDirMsys = $mozObjDir;
+    $mozObjDirMsys =~ s/\\/\//g;
+    my $envScriptMsys = $envScriptName;
+    $envScriptMsys =~ s/\\/\//g;
+    $envScriptMsys =~ s/\.bat$/.sh/;
+    $mozPython = "$mozObjDirMsys/_virtualenv/Scripts/python.exe";
+    $buildCmd = qq(cd $mozKomodoSrcDir\\app &&
+                   touch *.c *.cpp &&
+                   call $envScriptName &&
+                   $ENV{MOZILLABUILD}\\msys\\bin\\bash --login -c "
+                        unset PYTHONPATH &&
+                        unset PYTHONHOME &&
+                        cd $mozSrcMsys/mozilla &&
+                        export NUMBER_OF_PROCESSORS=$ENV{NUMBER_OF_PROCESSORS} &&
+                        ./mach -v build -v komodo
+                    ");
+    $buildCmd =~ s/\r?\n//g;
 } else {
     $cp = "cp -f";
     $mozKomodoSrcDir = "$mozSrc/mozilla/komodo";
