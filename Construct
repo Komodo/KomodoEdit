@@ -1228,9 +1228,18 @@ sub cons::AddComponentManifestLines {
     defined($manifestLines) or
 	die "When building rule for $fileName: no manifest line was defined";
     my $quotedEntries = '"' . join('" "', @$manifestLines) . '"';
-    $env->Command("$fileName.manifestlines.landmark",
+    # Tweak env to point PYTHONPATH at the mozbuild dir.
+    my %envLocal = $env->copy();
+    my $platformPathSep = ($^O eq "MSWin32" ? ";" : ":");
+    $envLocal{'PYTHONPATH'} = $ENV{'PYTHONPATH'} . "$platformPathSep$mozSrc/mozilla/python/mozbuild";
+    $envLocal = new cons(ENV => \%envLocal);
+    my $buildlistScript = "$mozSrc/mozilla/python/mozbuild/mozbuild/action/buildlist.py";
+    if ($mozVersion le 24.99) {
+	$buildlistScript = "$mozSrc/mozilla/config/buildlist.py";
+    }
+    $envLocal->Command("$fileName.manifestlines.landmark",
 		  "$mozComponentsDir/komodo.manifest",
-		  "$mozSrc/mozilla/config/buildlist.py",
+		  $buildlistScript,
 		  qq(
 		    $unsiloedPythonExe %2 %1 $quotedEntries
 		    touch %>
@@ -1268,10 +1277,14 @@ sub cons::InstallXpcomComponent {
         }
 	$env->AddComponentManifestLines($fileName, @manifestLines);
 
+        my $buildlistScript = "$mozSrc/mozilla/python/mozbuild/mozbuild/action/buildlist.py";
+        if ($mozVersion le 24.99) {
+            $buildlistScript = "$mozSrc/mozilla/config/buildlist.py";
+        }
         my @deps = ("$fileName.manifest.landmark",
                     "$mozComponentsDir/$baseName",
                     "$mozComponentsDir/komodo.manifest",
-                    "$mozSrc/mozilla/config/buildlist.py");
+                    $buildlistScript);
         my @commands = ();
         while (my ($contractid, $cid) = each %$contracts) {
             push @commands, qq(
@@ -1281,7 +1294,12 @@ sub cons::InstallXpcomComponent {
         }
         push @commands, "touch %>";
         push @deps, join("\n", @commands);
-        $env->Command(@deps);
+        # Tweak env to point PYTHONPATH at the mozbuild dir.
+        my %envLocal = $env->copy();
+        my $platformPathSep = ($^O eq "MSWin32" ? ";" : ":");
+        $envLocal{'PYTHONPATH'} = $ENV{'PYTHONPATH'} . "$platformPathSep$mozSrc/mozilla/python/mozbuild";
+        $envLocal = new cons(ENV => \%envLocal);
+        $envLocal->Command(@deps);
     }
     elsif ($fileName =~ /\.py$/) {
         defined($unsiloedPythonExe) or \

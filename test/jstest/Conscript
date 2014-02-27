@@ -15,6 +15,7 @@ Import(
     'mozIdlIncludePath',
     'mozSrc',
     'mozVersion',
+    'mozVersionNumber',
     'platform',
     'productType',
     'ranRegxpcomStateFileName',
@@ -39,15 +40,24 @@ $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/mru.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/statusbar.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/TreeBoxObject.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/views.jsm");
-$cons->Command("$mozChromeDir/komodo-jstest.manifest",
-               "$mozSrc/mozilla/config/buildlist.py",
+my $buildlistScript = "$mozSrc/mozilla/python/mozbuild/mozbuild/action/buildlist.py";
+if ($mozVersionNumber le 2499) {
+    $buildlistScript = "$mozSrc/mozilla/config/buildlist.py";
+}
+# Tweak env to point PYTHONPATH at the mozbuild dir.
+my %envLocal = $cons->copy();
+my $platformPathSep = ($^O eq "MSWin32" ? ";" : ":");
+$envLocal{'PYTHONPATH'} = $ENV{'PYTHONPATH'} . "$platformPathSep$mozSrc/mozilla/python/mozbuild";
+$consLocal = new cons(ENV => \%envLocal);
+$consLocal->Command("$mozChromeDir/komodo-jstest.manifest",
+               $buildlistScript,
                qq(
                 $unsiloedPythonExe %1 "$mozBin/chrome.manifest" "manifest chrome/komodo-jstest.manifest"
                 touch %>
                ));
-$cons->Command("komodo-jstest.manifest.landmark",
+$consLocal->Command("komodo-jstest.manifest.landmark",
                "$mozChromeDir/komodo-jstest.manifest",
-               "$mozSrc/mozilla/config/buildlist.py",
+               $buildlistScript,
                qq(
                 $unsiloedPythonExe %2 %1 "resource komodo-jstest komodo-jstest/"
                 touch %>
