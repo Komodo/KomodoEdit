@@ -104,7 +104,7 @@ static const mozilla::Module::CategoryEntry kModuleCategories[] = {
     { NULL }
 };
 
-static const mozilla::Module kModule = {
+static const mozilla::Module kContentUtilsModule = {
     mozilla::Module::kVersion,
     kModuleCIDs,
     kModuleContracts,
@@ -113,4 +113,8 @@ static const mozilla::Module kModule = {
 
 // The following line implements the one-and-only "NSModule" symbol exported from this
 // shared library.
-NSMODULE_DEFN(koContentUtilsModule) = &kModule;
+//NSMODULE_DEFN(koContentUtilsModule) = &kContentUtilsModule;
+
+// Above NSMODULE_DEFN will not work - as we also define MOZILLA_INTERNAL_API,
+// below is the workaround version to export "NSModule" symbol:
+extern "C" NS_EXPORT mozilla::Module const *const NSModule = &kContentUtilsModule;
