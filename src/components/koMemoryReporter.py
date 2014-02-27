@@ -12,6 +12,7 @@ log = logging.getLogger("koMemoryReporter")
 #log.setLevel(logging.DEBUG)
 
 Ci = components.interfaces
+Cc = components.classes
 
 class KoMemoryReporter:
     # Support Mozilla 24 and 31 (name change)
@@ -30,7 +31,7 @@ class KoMemoryReporter:
 
     def __init__(self):
         # Register ourself with the memory manager.
-        if nsIMemoryReporter is Ci.nsIMemoryReporter:
+        if "nsIMemoryMultiReporter" not in Ci.keys():
             # Mozilla 31
             Cc["@mozilla.org/memory-reporter-manager;1"]\
               .getService(Ci.nsIMemoryReporterManager)\

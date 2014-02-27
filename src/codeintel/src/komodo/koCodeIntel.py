@@ -81,7 +81,7 @@ class KoCodeIntelService:
         """Observers that should be invoked on activate/deactivate"""
 
         try:
-            if nsIMemoryReporter is Ci.nsIMemoryReporter:
+            if "nsIMemoryMultiReporter" not in Ci.keys():
                 # Mozilla 31
                 Cc["@mozilla.org/memory-reporter-manager;1"]\
                   .getService(Ci.nsIMemoryReporterManager)\
