@@ -2813,24 +2813,6 @@ this.gotoLine_onkeypress_handler = function ko_views_gotoLine_onkeypress_handler
     scimoz.chooseCaretX();
 }
 
-var _deprecated_getters_noted = {};
-this.addDeprecatedGetter = function(deprecatedName, namespaceName, propertyName) {
-    __defineGetter__(deprecatedName,
-         function() {
-            if (!(deprecatedName in _deprecated_getters_noted)) {
-                _deprecated_getters_noted[deprecatedName] = true;
-                ko.views.manager.log.error("DEPRECATED: "
-                                           + deprecatedName
-                                           + ", use ko."
-                                           + namespaceName
-                                           + "."
-                                           + propertyName
-                                           + "\n");
-            }
-            return ko[namespaceName][propertyName];
-        });
-};
-
 }).apply(ko.views);
 
 
