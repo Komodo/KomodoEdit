@@ -414,11 +414,6 @@
                     }
                     this._ime.value = "";
                 }).bind(this), false);
-                let prefs = Components.classes['@activestate.com/koPrefService;1']
-                                      .getService(Components.interfaces.koIPrefService).prefs;
-                this.useCustomScrollBars = prefs.getBoolean('koSkin_use_custom_scrollbars', false);
-                this.scimoz.hScrollBar = this.hScrollBar;
-                this.scimoz.vScrollBar = this.vScrollBar;
             ]]>
             </constructor>
             <destructor>
@@ -641,6 +636,11 @@
                 // This allows Scintilla to perform indenting/dedenting when
                 // there is a rectangular selection.
                 scimoz.tabIndents = true;
+
+                // Setup custom scroll bars.
+                this.useCustomScrollBars = prefs.getBoolean('koSkin_use_custom_scrollbars', false);
+                scimoz.hScrollBar = this.hScrollBar;
+                scimoz.vScrollBar = this.vScrollBar;
 
                 this.applyColorScheme();
 
