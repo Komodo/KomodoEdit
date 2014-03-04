@@ -1,0 +1,48 @@
+Use threadsafe nsISupports everywhere we can. This is to avoid crashes in Komodo
+from pyxpcom using threads and modifying refcnt's in them.
+diff -r 4cfb6c61b137 toolkit/components/places/nsNavHistoryQuery.h
+--- a/toolkit/components/places/nsNavHistoryQuery.h	Thu Feb 27 15:34:11 2014 +0100
++++ b/toolkit/components/places/nsNavHistoryQuery.h	Tue Mar 04 10:46:57 2014 -0800
+@@ -29,7 +29,13 @@
+   // note: we use a copy constructor in Clone(), the default is good enough
+ 
+   NS_DECLARE_STATIC_IID_ACCESSOR(NS_NAVHISTORYQUERY_IID)
+-  NS_DECL_ISUPPORTS
++  // Have to specify non-threadsafe supports, otherwise there will be compiler
++  // errors about:
++  //   'use of deleted function ‘nsNavHistoryQuery::nsNavHistoryQuery...'
++  //   'is implicitly deleted because the default definition would be ill-formed'
++  // this is because the default copy constructor used in Clone() cannot copy
++  // the threadsafe Atomic refcnt variable.
++  NS_DECL_ISUPPORTS_OLD
+   NS_DECL_NSINAVHISTORYQUERY
+ 
+   int32_t MinVisits() { return mMinVisits; }
+diff -r 4cfb6c61b137 xpcom/glue/nsISupportsImpl.h
+--- a/xpcom/glue/nsISupportsImpl.h	Thu Feb 27 15:34:11 2014 +0100
++++ b/xpcom/glue/nsISupportsImpl.h	Tue Mar 04 10:46:57 2014 -0800
+@@ -287,7 +287,7 @@
+  * AddRef and QueryInterface methods.
+  */
+ 
+-#define NS_DECL_ISUPPORTS                                                     \
++#define NS_DECL_ISUPPORTS_OLD                                                 \
+ public:                                                                       \
+   NS_IMETHOD QueryInterface(REFNSIID aIID,                                    \
+                             void** aInstancePtr);                             \
+@@ -309,6 +309,15 @@
+   NS_DECL_OWNINGTHREAD                                                        \
+ public:
+ 
++// Komodo - switch to using threadsafe everywhere.
++// Note: Glue code cannot use Atomics, see:
++//       https://bugzilla.mozilla.org/show_bug.cgi?id=884061
++#ifndef XPCOM_GLUE
++#define NS_DECL_ISUPPORTS  NS_DECL_THREADSAFE_ISUPPORTS
++#else
++#define NS_DECL_ISUPPORTS  NS_DECL_ISUPPORTS_OLD
++#endif
++
+ #define NS_DECL_CYCLE_COLLECTING_ISUPPORTS                                    \
+ public:                                                                       \
+   NS_IMETHOD QueryInterface(REFNSIID aIID,                                    \
