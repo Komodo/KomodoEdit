@@ -1885,11 +1885,9 @@ def target_src_pyxpcom(argv=["src_pyxpcom"]):
         # Checkout pyxpcom - ensure we use the matching version to mozilla.
         repo_url = "http://hg.mozilla.org/pyxpcom/"
         repo_rev = None
-        if config.mozVer <= 8.99:
+        if int(config.mozVer) < 31:
             # Requires the matching branch.
-            repo_rev = "TAG_MOZILLA_%d_0_0" % (int(config.mozVer), )
-        elif 18.0 <= config.mozVer <= 18.99:
-            repo_rev = "MOZILLA_18"
+            repo_rev = "TAG_MOZILLA_%d" % (int(config.mozVer), )
         cmd = "hg clone"
         if repo_rev is not None:
             cmd += " -r %s" % (repo_rev, )
@@ -1912,6 +1910,20 @@ def target_pyxpcom(argv=["pyxpcom"]):
 
     pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
                           "extensions", "python")
+    if not exists(pyxpcom_src_dir):
+        # Get it and patch it!
+        try:
+            target_src_pyxpcom()
+            target_patch_pyxpcom()
+        except:
+            # If something failed - we nuke the pyxpcom src dir, as we don't
+            # know if it's in a working state!
+            if exists(pyxpcom_src_dir):
+                shutil.rmtree()
+            raise
+
+    assert exists(pyxpcom_src_dir), "Pyxpcom source directory does not exist:" \
+                                    "%r" % (pyxpcom_src_dir, )
 
     # Run the autoconf to generate the configure script.
     cmds = []
