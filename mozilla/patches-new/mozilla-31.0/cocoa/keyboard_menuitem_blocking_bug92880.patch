@@ -5,7 +5,7 @@ http://bugs.activestate.com/show_bug.cgi?id=92880
 Index: /Users/toddw/as/komodo-devel/mozilla/build/moz2400-ko8.9/mozilla/widget/cocoa/nsMenuBarX.mm
 --- a/widget/cocoa/nsMenuBarX.mm	Tue Jun 25 11:28:34 2013 -0400
 +++ b/widget/cocoa/nsMenuBarX.mm	Thu Aug 01 12:25:04 2013 -0700
-@@ -717,16 +717,18 @@
+@@ -762,16 +762,18 @@
  //
  // Objective-C class used to allow us to have keyboard commands
  // look like they are doing something but actually do nothing.
@@ -19,11 +19,11 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz2400-ko8.9/mozilla/widget/c
  
  @implementation GeckoNSMenu
  
- // Keyboard commands should not cause menu items to invoke their
- // commands when there is a key window because we'd rather send
- // the keyboard command to the window. We still have the menus
- // go through the mechanics so they'll give the proper visual
- // feedback.
+ - (id)initWithTitle:(NSString *)aTitle
+ {
+   if (self = [super initWithTitle:aTitle]) {
+     mMenuBarOwner = nullptr;
+     mDelayResignMainMenu = false;
 @@ -768,19 +770,21 @@
        if ([unmodchars length] == 1) {
          if ([unmodchars characterAtIndex:0] == nsMenuBarX::GetLocalizedAccelKey("key_selectAll")) {
