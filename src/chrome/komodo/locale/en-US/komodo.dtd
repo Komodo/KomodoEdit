@@ -88,6 +88,7 @@
 <!ENTITY copy.label "Copy">
 <!ENTITY copy.tooltiptext "Copy">
 <!ENTITY copyButton.accesskey "C">
+<!ENTITY copyFindResults.tooltiptext "Copy the find results to the clipboard">
 <!ENTITY createTemplateFromProject.label "Create Template From Project...">
 <!ENTITY createTemplateFromProject.accesskey "C">
 <!ENTITY currentFilePreferences.label "Current File Preferences...">

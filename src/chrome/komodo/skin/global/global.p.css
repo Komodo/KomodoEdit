@@ -251,6 +251,15 @@
   /* #endif */
 }
 
+.find-copy-icon
+{
+  list-style-image : url("chrome://fugue/skin/icons/clipboard--plus.png");
+}
+.find-copy-icon[locked="true"]
+{
+  list-style-image : url("chrome://fugue/skin/icons/clipboard--plus.png");
+}
+
 /* TODO: disabled versions of these */
 .find-lock-icon
 {
