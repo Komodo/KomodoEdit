@@ -469,11 +469,7 @@
                         this.scimoz.useCustomScrollBars = true;
                         this._customScrollbarObservers = ob;
                     } else {
-                        try {
-                            this.scimoz.unhookEvents(this._scrollEventHandler);
-                        } catch (ex) {
-                            // throws if we were never hooked
-                        }
+                        this.scimoz.unhookEvents(this._scrollEventHandler);
                         this.scimoz.useCustomScrollBars = false;
                         if (this._customScrollbarObservers) {
                             this._customScrollbarObservers.horizontal.disconnect();

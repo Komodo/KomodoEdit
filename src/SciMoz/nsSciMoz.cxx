@@ -733,8 +733,9 @@ bool SciMoz::UnhookEvents(const NPVariant *args, uint32_t argCount, NPVariant * 
 		SCIMOZ_DEBUG_PRINTF("%s: QI result is not an object", __FUNCTION__);
 		return false;
 	}
-	return listeners.Remove(mPlugin->GetNPP(),
-			        NPVARIANT_TO_OBJECT(eventListenerVar));
+	listeners.Remove(mPlugin->GetNPP(),
+			 NPVARIANT_TO_OBJECT(eventListenerVar));
+	return true;
 }
 
 /* void getStyledText (in long min, in long max, out unsigned long count, [array, size_is (count), retval] out octet str); */
