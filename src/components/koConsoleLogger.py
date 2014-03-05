@@ -68,8 +68,8 @@ class KoConsoleLogger:
         except COMException:
             return False
 
-        errorMessage = error.errorMessage
-        sourceName = error.sourceName
+        errorMessage = error.errorMessage or ""
+        sourceName = error.sourceName or ""
         if any(x in errorMessage or x in sourceName for x in self.ignored_error_strings):
             return True
 
