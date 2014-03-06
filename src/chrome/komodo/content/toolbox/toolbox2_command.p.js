@@ -1115,7 +1115,20 @@ this.doDragDefault = function(event) {
     return true;
 };
 
+
+var _lastDropEventTimeStamp = 0;
+
 this.doDrop = function(event, tree) {
+
+    // Detect and ignore duplicated drop events - bug 103113. A second drop
+    // event within one second of last event is considered a duplicate.
+    var lastTimeStamp = _lastDropEventTimeStamp;
+    _lastDropEventTimeStamp = event.timeStamp;
+    if ((event.timeStamp - lastTimeStamp) < 1000) {
+        log.warn("Duplicated drop event detected - ignoring drop event");
+        return false;
+    }
+
     var index = this._currentRow(event, this.manager.widgets.tree);
     // Here we have to verify what we're doing.
     index = this.getContainerForIndex(index);
