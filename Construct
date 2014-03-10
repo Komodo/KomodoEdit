@@ -1240,9 +1240,10 @@ sub cons::AddComponentManifestLines {
     $envLocal->Command("$fileName.manifestlines.landmark",
 		  "$mozComponentsDir/komodo.manifest",
 		  $buildlistScript,
+		  # Last command is to fake a touch command using Python.
 		  qq(
 		    $unsiloedPythonExe %2 %1 $quotedEntries
-		    touch %>
+		    $unsiloedPythonExe -c "import sys; file(sys.argv[1], 'w')" %0
 		  ));
 }
 
@@ -1292,7 +1293,8 @@ sub cons::InstallXpcomComponent {
                 $unsiloedPythonExe %3 %2 "component $cid %1:f"
             );
         }
-        push @commands, "touch %>";
+        # Fake a touch command using Python.
+        push @commands, "$unsiloedPythonExe -c \"import sys; file(sys.argv[1], 'w')\" %0";
         push @deps, join("\n", @commands);
         # Tweak env to point PYTHONPATH at the mozbuild dir.
         my %envLocal = $env->copy();
