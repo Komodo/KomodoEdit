@@ -436,7 +436,7 @@
                 // Then, check if the first overflown child is part of a larger
                 // set of toolbaritems, and process the next sibling toolbaritems
                 var firstChild = this.querySelector("[first-child-overflow]");
-                if (firstChild.parentNode.localName == 'toolbaritem' &&
+                if (firstChild && firstChild.parentNode.localName == 'toolbaritem' &&
                     firstChild.parentNode.parentNode.localName == 'toolbar') {
                     var _build = false;
                     for (var [i, parent] in Iterator(firstChild.parentNode.parentNode.childNodes)) {
