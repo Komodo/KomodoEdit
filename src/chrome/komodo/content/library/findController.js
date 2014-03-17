@@ -47,7 +47,7 @@ ko.findcontroller = {};
 var locals = {};
 
 XPCOMUtils.defineLazyGetter(locals, "PluralForm", function()
-    Cu.import("resource://gre/modules/PluralForm.jsm"));
+    Cu.import("resource://gre/modules/PluralForm.jsm").PluralForm);
 
 XPCOMUtils.defineLazyGetter(locals, "bundle", function()
     Services.strings.createBundle("chrome://komodo/locale/library.properties"));
