@@ -2868,7 +2868,11 @@ class SCCRepo(black.configure.Datum):
         if branch.startswith("heads/"):
             branch = branch.split("/", 1)[-1] # strip leading "heads/"
         cmd = ["git", "config", "--get", "branch.%s.remote" % (branch,)]
-        remote = _capture_stdout(cmd).strip()
+        try:
+            remote = _capture_stdout(cmd).strip()
+        except RuntimeError:
+            # No remotes configured - that's okay, we tried.
+            return ""
         cmd = ["git", "remote", "show", "-n", remote]
         for line in _capture_stdout(cmd, env=env).splitlines(False):
             if line.strip().startswith("Push  URL:"):
