@@ -1240,7 +1240,6 @@ def target_configure(argv):
             # Force x86_64 for now
             mozRawOptions.append('export CC="%s -arch x86_64"' % (gcc,))
             mozRawOptions.append('export CXX="%s -arch x86_64"' % (gxx,))
-            mozBuildOptions.append('target=x86_64-apple-darwin10')
             mozRawOptions.append("mk_add_options AUTOCONF=autoconf213")
         config["gcc"] = gcc
         config["gxx"] = gxx
