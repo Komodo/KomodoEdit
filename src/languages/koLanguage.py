@@ -255,12 +255,16 @@ class KoLanguageRegistryService:
             pattern_split = pattern.split('.', 1)
             base = pattern_split[0]
             ext = pattern_split[1] if len(pattern_split) > 1 else ''
-            if base == '*':  # i.e. pattern == "*.FOO"
+            if base == '*' and ext and "*" not in ext:  # i.e. pattern == "*.FOO"
                 if languageName == self.__languageNameFromExtOrBasename.get(ext.lower()):
                     del self.__languageNameFromExtOrBasename[ext.lower()]
             elif '*' not in pattern:  # e.g. "Conscript", "Makefile"
                 if languageName == self.__languageNameFromExtOrBasename.get(pattern.lower()):
                     del self.__languageNameFromExtOrBasename[pattern.lower()]
+            else:
+                # Everything else that doesn't fit into the above two cases.
+                if languageName == self.__languageNameFromOther.get(pattern.lower()):
+                    del self.__languageNameFromOther[pattern]
 
     def _addOneFileAssociation(self, pattern, languageName, override=True):
         """Add one file association to the internal data structures.
@@ -295,7 +299,7 @@ class KoLanguageRegistryService:
         pattern_split = pattern.split('.', 1)
         base = pattern_split[0]
         ext = pattern_split[1] if len(pattern_split) > 1 else ''
-        if base == '*' and '*' not in ext:  # i.e. pattern == "*.FOO"
+        if base == '*' and ext and "*" not in ext:  # i.e. pattern == "*.FOO"
             self.__languageNameFromExtOrBasename[ext.lower()] = languageName
         elif '*' not in pattern:  # e.g. "Conscript", "Makefile"
             self.__languageNameFromExtOrBasename[pattern.lower()] = languageName
