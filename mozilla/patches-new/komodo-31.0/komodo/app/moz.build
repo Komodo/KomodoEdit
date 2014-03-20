@@ -6,3 +6,4 @@
 
 PROGRAM = CONFIG['MOZ_APP_NAME']
 
+JAR_MANIFESTS += ['jar.mn']
