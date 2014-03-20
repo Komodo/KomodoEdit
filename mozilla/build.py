@@ -2432,10 +2432,9 @@ def target_komodoapp(argv=["komodoapp"]):
     config = _importConfig()
     target_patch(patch_target='komodoapp', logFilename="__patchlog_komodoapp__.py")
     topsrcdir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
-    native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
-    komodo_objdir = join(native_objdir, "komodo")
-    log.info("entering directory '%s' (to build komodo app)", komodo_objdir)
-    _run_in_dir(_get_make_command(config, topsrcdir), komodo_objdir, log.info)
+    log.info("building komodo app")
+    _run_in_dir("python mach --log-file %s build komodo" % (join(buildDir, "mach.log")),
+                topsrcdir, log.info)
     return argv[1:]
 
 def target_mbsdiff(argv=["mozilla"]):
