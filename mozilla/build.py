@@ -860,9 +860,8 @@ def target_configure(argv):
 
             Scheme      Tag                     KoVer   FFVer   MozVer
             ----------  ----------------------  ------  ------  ----------
-            700         FIREFOX_7_0_0_RELEASE   7.0.X   7.0.X   7.00
-            1800        FIREFOX_18_0_0_RELEASE  8.0.X  18.0.X   18.00
             2400        FIREFOX_24_0_0_RELEASE  8.1.X  24.0.X   24.00
+            3100        FIREFOX_31_0_0_RELEASE  9.0.X  31.0.X   31.00
 
     Other Options:
         -r, --reconfigure
