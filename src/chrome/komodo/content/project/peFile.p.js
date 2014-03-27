@@ -126,15 +126,7 @@ peFile.prototype.supportsCommand = function(command, item) {
     case 'cmd_renameFile':
         return (items && items.length == 1 && items[0].type != 'project' && items[0].isLocal);
     case 'cmd_refreshStatus':
-        // if a toolbox has focus, get the currently selected item and refresh it
-        // otherwise, always refresh the currentView if there is one.
-        if (ko.projects.safeGetFocusedPlacesView()) {
-            item = ko.projects.active.getSelectedItem();
-            // item must be a file
-            if (item && item.url) return true;
-        }
         return ko.views.manager.currentView != null;
-        break;
     case 'cmd_editProperties':
         return items && items.length > 0;
     case 'cmd_showUnsavedChanges':
@@ -208,9 +200,6 @@ peFile.prototype.doCommand = function(command) {
         ko.projects.refreshStatus();
         break;
     case 'cmd_editProperties':
-        if (!ko.projects.safeGetFocusedPlacesView()) {
-            return;
-        }
         if (!items) return;
         for (i = 0; i < items.length; i++) {
             item = items[i];
