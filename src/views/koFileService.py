@@ -153,7 +153,10 @@ class koFileService(object):
         uri = self._uriParser.URI = uri
         file_weakref = self._files.get(uri)
         if file_weakref:
-            kofile = file_weakref()
+            try:
+                kofile = file_weakref()
+            except:
+                kofile = None  # The object is dead.
             if kofile:
                 return kofile
             else:
