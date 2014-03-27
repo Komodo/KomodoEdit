@@ -958,14 +958,9 @@ function _init() {
         default_pattern = selection;
         escape_default_pattern = true;
     } else {
-        if (scimoz) {
-            default_pattern = ko.interpolate.getWordUnderCursor(scimoz);
-            escape_default_pattern = true;
-        }
-        if (! default_pattern) {
-            default_pattern = ko.mru.get("find-patternMru", 0);
-            escape_default_pattern = false;
-        }
+        // Use the last searched for pattern.
+        default_pattern = ko.mru.get("find-patternMru", 0);
+        escape_default_pattern = false;
     }
 
     // Preload with input buffer contents if any and then give focus to
