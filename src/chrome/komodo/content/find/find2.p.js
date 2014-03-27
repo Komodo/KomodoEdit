@@ -1019,6 +1019,17 @@ function _init() {
 
     // Setup the UI for the mode, as appropriate.
     var mode = args.mode || "find";
+    var verb;
+    if (mode.slice(0, 7) === "replace") {
+        verb = "replace";
+    } else {
+        verb = "find";
+    }
+
+    if (verb == "replace") {
+        // When in replace mode - restore the last replaced text.
+        widgets.repl.value = ko.mru.get("find-replacementMru", 0);
+    }
 
     // - Setup for there being a current project.
     var curr_proj = opener.ko.projects.manager.currentProject;
@@ -1063,12 +1074,6 @@ function _init() {
         "replaceinlastfiles": true
     };
     if (mode in in_files_modes) {
-        var verb;
-        if (mode.slice(0, 7) === "replace") {
-            verb = "replace";
-        } else {
-            verb = "find";
-        }
         var lastInFilesContext = _g_prefs.getStringPref("find-lastInFilesContext");
         var mode_context_from_pref = {
             // The 'mode' and 'find-lastInFilesContext' (same as <menulist>
