@@ -178,20 +178,13 @@ this.MultiCaretSession = function MultiCaretSession(view) {
      */
     this.view = view;
     this._state = INACTIVE;
+    this.findOptions = null;
+    this.savedFindOptions = null;
     this._inUndoSession = false;
     this._ranges = [];
     this._onSessionEnd = null; // optional callback
     this._alwaysDoSessionEndCallback = false;
     this.caretSetInfo = {};
-    this.searchInfoOptions = {
-        searchBackward:null,
-        caseSensitivity:null,
-        preferredContextType:null,
-        displayInFindResults2:null,
-        multiline:null,
-        patternType:null,
-        matchWord:null
-    }
 };
 
 this.MultiCaretSession.prototype = {
@@ -682,19 +675,17 @@ this._reEscape = function(s) {
 };
 
 // Save the current global set of koIFindService options
-this._saveFindServiceOptions = function
-                    _saveFindServiceOptions(session, view, findOptions) {
-    for (var p in session.searchInfoOptions) {
-        session.searchInfoOptions = findOptions[p];
-    }
+this._saveFindServiceOptions = function _saveFindServiceOptions(session, view) {
+    var findSvc = Cc["@activestate.com/koFindService;1"]
+                             .getService(Ci.koIFindService);
+    session.savedFindOptions = findSvc.options;
+    findSvc.options = session.findOptions;
 };
 
-this._restoreFindServiceOptions = function
-                    _restoreFindServiceOptions(session, view, findOptions) {
-    var srcOptions = session.searchInfoOptions;
-    for (var p in srcOptions) {
-        findOptions[p] = srcOptions[p];
-    }
+this._restoreFindServiceOptions = function _restoreFindServiceOptions(session, view) {
+    var findSvc = Cc["@activestate.com/koFindService;1"]
+                             .getService(Ci.koIFindService);
+    findSvc.options = session.savedFindOptions;
 };
 
 this._buildSearchInfo = function(view, scimoz, startWithSelection, selStart, selEnd,
@@ -777,13 +768,10 @@ this.addNextWordToCaretSet = function addNextWordToCaretSet(view) {
     } else {
         atMCSessionStart = false;
     }
-    var findOptions = Cc["@activestate.com/koFindService;1"]
-                             .getService(Ci.koIFindService).options;
-    if (atMCSessionStart) {
-        this._saveFindServiceOptions(multiCaretSession, view, findOptions);
-        multiCaretSession.setEndSessionCallback(function() {
-                this._restoreFindServiceOptions(multiCaretSession, view, findOptions);
-            }.bind(this), true /* always call this callback */);
+
+    if (!multiCaretSession.findOptions) {
+        multiCaretSession.findOptions = Cc["@activestate.com/koFindOptions;1"]
+                                            .createInstance(Ci.koIFindOptions);
     }
     let variableIndicators = view.koDoc.languageObj.variableIndicators;
     // When we start a MCSession, build the search info
@@ -853,7 +841,8 @@ this.addNextWordToCaretSet = function addNextWordToCaretSet(view) {
     if (rebuildSearchInfo) {
         searchText = this._buildSearchInfo(view, scimoz, startWithSelection,
                                            selStart, selEnd,
-                                           variableIndicators, findOptions);
+                                           variableIndicators,
+                                           multiCaretSession.findOptions);
     }
     // Find the next occurrence of the last selection in the multi-caret set
     // and include it too
@@ -890,14 +879,19 @@ this.addNextWordToCaretSet = function addNextWordToCaretSet(view) {
     }
     var context = Cc["@activestate.com/koFindContext;1"].createInstance(Ci.koIFindContext);
     context.type = context.FCT_CURRENT_DOC;
-    ko.find.findNext(view, context, searchText,
-                     "find",    // mode
-                     false,     // quiet
-                     true,      // useMRU
-                     undefined, // msgHandler 
-                     true,      // highlightMatches
-                     undefined, // highlightTimeout
-                     atMCSessionStart ? function() {} : findResultCallback);
+    this._saveFindServiceOptions(multiCaretSession, view);
+    try {
+        ko.find.findNext(view, context, searchText,
+                         "find",    // mode
+                         false,     // quiet
+                         true,      // useMRU
+                         undefined, // msgHandler 
+                         true,      // highlightMatches
+                         undefined, // highlightTimeout
+                         atMCSessionStart ? function() {} : findResultCallback);
+    } finally {
+        this._restoreFindServiceOptions(multiCaretSession, view);
+    }
 };
 
 this.allowMultiCaretSession = function allowMultiCaretSession(scimoz) {
