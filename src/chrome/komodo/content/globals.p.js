@@ -54,6 +54,9 @@ if (!Services.koInfo) {
     XPCOMUtils.defineLazyGetter(Services, "koTextUtils", () =>
         Cc["@activestate.com/koTextUtils;1"].getService(Ci.koITextUtils));
 
+    XPCOMUtils.defineLazyGetter(Services, "koEncodingSvc", () =>
+        Cc["@activestate.com/koEncodingServices;1"].getService(Ci.koIEncodingServices));
+
     XPCOMUtils.defineLazyGetter(Services, "koSysUtils", () =>
         Cc["@activestate.com/koSysUtils;1"].getService(Ci.koISysUtils));
 
