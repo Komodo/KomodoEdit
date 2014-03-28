@@ -184,7 +184,8 @@ class koEncodingServices:
                     'Middle East',
                     [
                     ('cp1255', 'Hebrew (CP-1255)', 'CP1255', '', 1,'cp1255'),
-                    ('iso8859-8', 'Hebrew (ISO-8859-8)', '8859-8', '', 1,'iso8859-8')
+                    ('iso8859-8', 'Hebrew (ISO-8859-8)', '8859-8', '', 1,'iso8859-8'),
+                    ('cp1256', 'Arabic (CP-1256)', 'CP1256', '', 1,'cp1256'),
                     ]
             )])
         self._encodingInfoList = []
