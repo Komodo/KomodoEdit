@@ -231,6 +231,9 @@ interface koIPrefService : nsISupports {
   // Get the global preference set.  Equivalent to |getPrefs("global")|
   readonly attribute koIPreference prefs;
   
+  // Reset a well-known preference set and return it.
+  koIPreference resetPrefs(in AString name);
+
   // integrates project preferences in a way that is easy for most code points
   // in Komodo to reach.  This will return the current project prefs if there
   // is a current project, otherwise, returns the global prefs above.  The parent

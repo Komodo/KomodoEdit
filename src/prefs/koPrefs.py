@@ -1161,6 +1161,24 @@ class koGlobalPrefService(object):
         assert self.pref_map[name][0] is not None, "Did not setup the preference set '%s'" % (name,)
         return self.pref_map[name][0]
 
+    def resetPrefs(self, prefName):
+        if not self.pref_map.has_key(prefName):
+            raise ServerException(nsError.NS_ERROR_UNEXPECTED, "No well-known preference set with name '%s'" % (prefName,))
+
+        existing, defn = self.pref_map[prefName]
+        if existing is None:
+            # Not setup yet - that's fine.
+            return
+
+        # Remove any saved preferences.
+        if defn.user_filename and os.path.exists(defn.user_filename):
+            os.remove(defn.user_filename)
+
+        # Setup the prefs again.
+        self.pref_map[prefName] = None, defn
+        defn.user_filename = os.path.basename(defn.user_filename) # <-- ugly hack 
+        return self.getPrefs(prefName)
+
     def shutDown(self):
         log.debug("koGlobalPrefService shutting down...")
         self.saveState()
