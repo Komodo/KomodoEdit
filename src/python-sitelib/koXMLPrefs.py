@@ -190,15 +190,34 @@ class koGlobalPreferenceDefinition:
     SAVE_FAST_ONLY = 2 # Save only fast cache version.
     def __init__(self, **kw):
         self.name = None
-        self.user_filename = None
+        self.user_file_basename = None
+        self.user_filepath = None
         self.shared_filename = None
         self.defaults_filename = None
         self.save_format = self.SAVE_DEFAULT
         self.contract_id = None
         for name, val in kw.items():
+            # Handle deprecated "user_filename" field.
+            if name == "user_filename":
+                name = "user_filepath"
             if not self.__dict__.has_key(name):
                 raise ValueError, "Unknown keyword param '%s'" % (name,)
             self.__dict__[name] = val
+
+    @property
+    def user_filename(self):
+        """Deprecated property"""
+        import warnings
+        warnings.warn("koGlobalPreferenceDefinition:: user_filename is "
+                      "deprecated - use user_file_basename or user_filepath")
+        return self.user_filepath
+    @user_filename.setter
+    def user_filename_setter(self, val):
+        """Deprecated property"""
+        import warnings
+        warnings.warn("koGlobalPreferenceDefinition:: user_filename is "
+                      "deprecated - use user_file_basename or user_filepath")
+        self.user_filepath = val
 
 def _dispatch_deserializer(ds, node, parentPref, prefFactory, basedir=None, chainNotifications=0):
     """Find out which deserializer function should

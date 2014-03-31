@@ -120,16 +120,16 @@ from koXMLPrefs import *
 koGlobalPreferenceSets = [
     koGlobalPreferenceDefinition(name="global",
                                  contract_id = "@activestate.com/koPreferenceSet;1",
-                                 user_filename="prefs",
+                                 user_file_basename="prefs",
                                  defaults_filename="prefs"),
     koGlobalPreferenceDefinition(name="viewStateMRU",
                                  contract_id = "@activestate.com/koPrefCache;1",
-                                 user_filename="view-state",
+                                 user_file_basename="view-state",
                                  save_format=koGlobalPreferenceDefinition.SAVE_FAST_ONLY
                                  ),
     koGlobalPreferenceDefinition(name="docStateMRU",
                                  contract_id = "@activestate.com/koPrefCache;1",
-                                 user_filename="doc-state",
+                                 user_file_basename="doc-state",
                                  save_format=koGlobalPreferenceDefinition.SAVE_FAST_ONLY
                                  ),
 ]
@@ -1117,16 +1117,17 @@ class koGlobalPrefService(object):
 
         # Get the user preferences (currently ignoring "common" prefs, i.e.
         # for all users on the current machine), upgrading if necessary.
-        if defn.user_filename:
-            defn.user_filename = os.path.join( self._koDirSvc.userDataDir, defn.user_filename)
+        if defn.user_file_basename:
+            if not defn.user_filepath:
+                defn.user_filepath = os.path.join( self._koDirSvc.userDataDir, defn.user_file_basename)
             try:
-                prefs = self.factory.deserializeFile(defn.user_filename + ".xml")
+                prefs = self.factory.deserializeFile(defn.user_filepath + ".xml")
             except:
                 # Error loading the user file - presumably they edited it poorly.
                 # Just ignore the error, and continue as if no user preferences existed at all.
-                log.exception("There was an error loading the user preference file %r", defn.user_filename + ".xml")
+                log.exception("There was an error loading the user preference file %r", defn.user_filepath + ".xml")
                 # Save the prefs.xml file, in case the user can fix it themselves.
-                old_name = defn.user_filename + ".xml"
+                old_name = defn.user_filepath + ".xml"
                 new_name = "%s.corrupt_%s" % (old_name, time.strftime("%Y%m%d_%H%M%S"))
                 try:
                     os.rename(old_name, new_name)
@@ -1171,12 +1172,11 @@ class koGlobalPrefService(object):
             return
 
         # Remove any saved preferences.
-        if defn.user_filename and os.path.exists(defn.user_filename):
-            os.remove(defn.user_filename)
+        if defn.user_filepath and os.path.exists(defn.user_filepath):
+            os.remove(defn.user_filepath)
 
         # Setup the prefs again.
         self.pref_map[prefName] = None, defn
-        defn.user_filename = os.path.basename(defn.user_filename) # <-- ugly hack 
         return self.getPrefs(prefName)
 
     def shutDown(self):
@@ -1204,7 +1204,7 @@ class koGlobalPrefService(object):
         prefs, defn = self.pref_map[prefName]
         if prefs is None: return # may not have been init'd yet
         assert defn
-        fname = defn.user_filename + ".xml"        
+        fname = defn.user_filepath + ".xml"        
         if not os.path.isdir(os.path.dirname(fname)):
             # create the directory if it does not exist
             try:
