@@ -400,7 +400,6 @@ class KoLanguageRegistryService:
         
         Registers the languages listed in the "komodo-language" category
         """
-        self._languageSpecificPrefs = self._globalPrefSvc.prefs.getPref("languages")
         catman = components.classes["@mozilla.org/categorymanager;1"]\
                            .getService(components.interfaces.nsICategoryManager)
         enumerator = catman.enumerateCategory("komodo-language")
@@ -433,11 +432,9 @@ class KoLanguageRegistryService:
         self.__accessKeyFromLanguageName[name] = language.accessKey
 
         # Update fields based on user preferences:
-        languageKey = "languages/" + language.name
-        if self._languageSpecificPrefs.hasPref(languageKey):
-            languagePrefs = self._languageSpecificPrefs.getPref(languageKey)
-            if languagePrefs.hasPref("primary"):
-                language.primary = languagePrefs.getBooleanPref("primary")
+        primaryLanguagePref = "languages/%s/primary" % (language.name,)
+        if self._globalPrefs.hasPref(primaryLanguagePref):
+            language.primary = self._globalPrefs.getBoolean(primaryLanguagePref)
 
         # So that we can tell that, for example:
         #     -*- mode: javascript -*-

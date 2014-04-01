@@ -1418,7 +1418,11 @@ class koProject(koLiveFolderPart):
                     # Turn dom node into a prefset. We set the 'preftype' field
                     # to ensure we get back a koIProjectPreferenceSet.
                     node.attributes['preftype'] = 'project'
-                    prefset = UnwrapObject(NodeToPrefset(node, self._relativeBasedir, 1))
+                    prefset = NodeToPrefset(node, self._relativeBasedir, 1)
+                    if __debug__:
+                        # this should always pass
+                        prefset.QueryInterface(components.interfaces.koIPreferenceRoot)
+                    prefset = UnwrapObject(prefset)
 
                     if kpfVer < 3 or \
                         not prefset.idref:
@@ -1431,15 +1435,6 @@ class koProject(koLiveFolderPart):
                     if prefset.hasPrefHere("mappedPaths"):
                         upgradeutils.upgrade_mapped_uris_for_prefset(prefset)
 
-                    if kpfVer < 5 and prefset.hasPrefHere("import_exclude_matches"):
-                        # Add filtering for the new project file types.
-                        value = prefset.getStringPref("import_exclude_matches")
-                        values = value.split(";")
-                        if "*.kpf" in values and not "*.komodoproject" in values:
-                            values.append("*.komodoproject")
-                            values.append(".komodotools")
-                            value = ";".join(values)
-                            prefset.setStringPref("import_exclude_matches", value)
                     idref = prefset.idref
                     try:
                         _owning_part = idmap[idref]
@@ -1601,7 +1596,7 @@ class koProject(koLiveFolderPart):
         # end for (event, node) in events:
         
         # create an empty prefset if we don't have one
-        self.get_prefset()
+        self._upgradePrefs(kpfVer)
 
         # hook-up children
         added = []
@@ -1637,7 +1632,33 @@ class koProject(koLiveFolderPart):
 
         dt = time.clock() - t1
         log.info("project.load\t%4.4f" % (dt))
-        
+
+    def _upgradePrefs(self, kpf_version):
+        if kpf_version < 5 and prefs.hasPrefHere("import_exclude_matches"):
+            # Add filtering for the new project file types.
+            value = prefs.getStringPref("import_exclude_matches")
+            values = value.split(";")
+            if "*.kpf" in values and not "*.komodoproject" in values:
+                values.append("*.komodoproject")
+                values.append(".komodotools")
+                value = ";".join(values)
+                prefs.setStringPref("import_exclude_matches", value)
+
+        prefs = self.get_prefset()
+        if prefs.hasPrefHere("prefs_version"):
+            version = prefs.getLongPref("prefs_version")
+        else:
+            version = 0
+
+        if version < 1:
+            initSvc = UnwrapObject(components.classes["@activestate.com/koInitService;1"]
+                                             .getService())
+            initSvc._flattenLanguagePrefs(prefs)
+
+        if not version > 1:
+            version = 1
+            prefs.setLongPref("prefs_version", version)
+
     def _cullTools(self):
         """ Remove any tools, and also folders that are emptied after all
         tools are removed, as part of moving to Komodo 6, project version 5.

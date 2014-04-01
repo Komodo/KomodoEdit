@@ -275,26 +275,15 @@ class koDocumentBase:
             language = self.langRegistrySvc.suggestLanguageForFile(self.get_displayPath())
             if not language:
                 language = 'Text'
-        languagePrefName = 'languages/' + language
-        langEncodingName = language + '/newEncoding'
-        effectivePrefs = self.getEffectivePrefs()
-        if effectivePrefs.hasPrefHere('languages'):
-            languagesPrefs = effectivePrefs.getPref('languages')
-            if languagesPrefs.hasPrefHere(languagePrefName):
-                prefs = languagesPrefs.getPref(languagePrefName)
-                if prefs.hasPrefHere(langEncodingName):
-                    encoding = prefs.getStringPref(langEncodingName)
-                    if encoding != 'Default Encoding':
-                        return encoding
-        prefs = self._globalPrefs
-        languagesPrefs = prefs.getPref('languages')
-        if languagesPrefs.hasPref(languagePrefName):
-            langPref = languagesPrefs.getPref(languagePrefName)
-            if langPref.hasStringPref(langEncodingName):
-                encoding = langPref.getStringPref(langEncodingName)
-                if encoding != 'Default Encoding':
-                    return encoding
-        return prefs.getStringPref('encodingDefault')
+        prefName = "languages/%s/newEncoding" % (language,)
+        encoding = self.prefs.getString(prefName, "Default Encoding")
+        if encoding != "Default Encoding":
+            return encoding
+        # Try again on the global prefs
+        encoding = self._globalPrefs.getString(prefName, "Default Encoding")
+        if encoding != "Default Encoding":
+            return encoding
+        return self.prefs.getString('encodingDefault')
     
     def _setupPrefs(self, encoding_name=None):
         """ We can only setup the prefs on the document once we have a URI for it
@@ -302,11 +291,10 @@ class koDocumentBase:
         Note that some things like encoding derive from prefs.
         """
         # Create a preference set to hold doc preferences
-        docStateMRU = self._globalPrefSvc.getPrefs("docStateMRU");
+        docStateMRU = UnwrapObject(self._globalPrefSvc.getPrefs("docStateMRU"))
         if not self.isUntitled and docStateMRU.hasPref(self.file.URI):
             url = self.file.URI
-            docState = docStateMRU.getPref(url)
-            self.prefs = docState
+            self.prefs = docStateMRU.getPref(url)
         else:
             self.prefs = components.classes['@activestate.com/koFilePreferenceSet;1'].\
                                      createInstance(components.interfaces.koIFilePreferenceSet)
@@ -318,6 +306,8 @@ class koDocumentBase:
             # _hasNoCurrentPref: Private field to be used by
             # self.load => self._loadfile later on.
             self._hasNoCurrentPref = True
+
+        self._upgradePrefs()
 
         # Hook up the preference chain.
         self._setupPreferenceChain()
@@ -346,6 +336,21 @@ class koDocumentBase:
         log.debug("adding prefs observer")
         prefObserver = self.prefs.prefObserverService
         prefObserver.addObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'], True)
+
+    def _upgradePrefs(self):
+        if self.prefs.hasPrefHere("prefs_version"):
+            version = self.prefs.getLong("prefs_version", 0)
+        else:
+            version = 0
+
+        if version < 1:
+            initSvc = UnwrapObject(components.classes["@activestate.com/koInitService;1"]
+                                             .getService())
+            initSvc._flattenLanguagePrefs(self.prefs)
+
+        if not version > 1:
+            version = 1
+            self.prefs.setLong("prefs_version", version)
 
     def _walkPrefChain(self, prefs, doPrint=True):
         """Debug method to help validate and show the preference chain."""
@@ -438,25 +443,6 @@ class koDocumentBase:
         return docPrefset
     
     def _setLangPrefs(self):
-        all_lang_prefs = self._globalPrefs.getPref("languages")
-        # Why the hell do we use the name "languages/" - it's already underneath
-        # a "languages" preferenceset!?!?
-        lang_pref_name = "languages/" + self._language
-        if all_lang_prefs.hasPref(lang_pref_name):
-            lang_prefs = all_lang_prefs.getPref(lang_pref_name)
-        else:
-            lang_prefs = components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
-            lang_prefs.id = lang_pref_name;
-            all_lang_prefs.setPref(lang_pref_name, lang_prefs);
-
-        #original_parent = self.prefs.parent
-        #if original_parent == self._lang_prefs or \
-        #   original_parent.id == lang_pref_name:
-        #    # When lang prefs are already set - use the parent of it.
-        #    original_parent = original_parent.parent
-        #lang_prefs.parent = original_parent
-        #self.prefs.parent = lang_prefs
-        self._lang_prefs = lang_prefs
         # Reset indentation settings - bug 95329.
         self._indentWidth = None
         self._tabWidth = None
@@ -1887,63 +1873,90 @@ class koDocumentBase:
             for view in self._views:
                 view.scimoz.tabWidth = val
 
-    #attribute string URI; 
-    def get_useTabs(self):
+    def _getLangPref(self, *prefInfos):
+        """Get a pref that might fallback to language-specific values.
+        This will, at each level, check for each given pref name, and return the
+        first pref value gotten.
+        @param prefInfos {iterable} list of prefs to look up; each item should
+            be itself an iterable of (pref name, pref getter)
+        @returns a tuple of (found pref name, value); if no given prefs can be
+            found, return (None, None)
+        @note If any pref name starts with "%lang/" that prefix will be replaced
+            with the name of the current language pref.
+        """
+        prefset = self.prefs
+
+        while prefset is not None:
+            for key, getter in prefInfos:
+                if key.startswith("%lang/"):
+                    key = "languages/%s/%s" % (self._language,
+                                               key[len("%lang/"):])
+                if prefset.hasPrefHere(key):
+                    return key, getattr(prefset, getter)(key)
+            prefset = prefset.inheritFrom
+
+        # Prefs not found at any level?
+        return None, None
+
+    @property
+    def useTabs(self):
         if self._useTabs is None:
-            # first try doc prefs if available
-            if self.prefs.hasPrefHere('useTabs'):
-                self._useTabs = self.prefs.getBooleanPref('useTabs')
-            elif self.prefs.hasPref('useSmartTabs') and \
-                self.prefs.getBooleanPref('useSmartTabs'):
+            pref, value = self._getLangPref(('useSmartTabs', 'getBoolean'),
+                                            ('%lang/useTabs', 'getBoolean'),
+                                            ('useTabs', 'getBoolean'))
+            assert pref is not None, "Should have default useTabs pref"
+            if pref == 'useSmartTabs':
                 self._guessFileIndentation()
             else:
-                # global, not document prefs
-                self._useTabs = self.prefs.getBooleanPref('useTabs')
+                self._useTabs = value
         return self._useTabs
-  
-    def set_useTabs(self, value):
-        self.prefs.setBooleanPref('useTabs', value) # will affect _useTabs through prefs observers
 
-    def get_indentWidth(self):
+    @useTabs.setter
+    def useTabs(self, value):
+        # will affect _useTabs through prefs observers
+        self.prefs.setBoolean('useTabs', value)
+
+    @property
+    def indentWidth(self):
         if self._indentWidth is None:
-            log.info("_indentWidth is None")
-            if self.prefs.hasPrefHere('indentWidth'):
-                # get from document prefs
-                self._indentWidth = self.prefs.getLongPref('indentWidth')
-                log.info('got _indentWidth from prefs: %r' % self._indentWidth)
-            elif self.prefs.hasPref('useSmartTabs') and \
-                self.prefs.getBooleanPref('useSmartTabs'):
+            pref, value = self._getLangPref(('useSmartTabs', 'getBoolean'),
+                                            ('%lang/indentWidth', 'getLong'),
+                                            ('indentWidth', 'getLong'))
+            if pref == 'useSmartTabs':
                 self._guessIndentWidth()
             else:
-                # get from global prefs
-                self._indentWidth = self.prefs.getLongPref('indentWidth')
+                self._indentWidth = value
         else:
             log.info("_indentWidth is not none, it's %s" % self._indentWidth)
         return self._indentWidth
 
-    def set_indentWidth(self, value):
+    @indentWidth.setter
+    def indentWidth(self, value):
         self._indentWidth = value
-        self.prefs.setLongPref('indentWidth', value) # will affect _useTabs through prefs observers
+        # will affect _indentWidth through prefs observers
+        self.prefs.setLong('indentWidth', value)
 
-    def get_tabWidth(self):
+    @property
+    def tabWidth(self):
         if self._tabWidth is None:
-            self._tabWidth = self.prefs.getLongPref('tabWidth')
+            self._tabWidth = self.prefs.getLong('tabWidth')
         return self._tabWidth
 
-    def set_tabWidth(self, value):
+    @tabWidth.setter
+    def tabWidth(self, value):
         self._tabWidth = value
-        self.prefs.setLongPref('tabWidth', value) # will affect _useTabs through prefs observers
+        # will affect _tabWidth through prefs observers
+        self.prefs.setLong('tabWidth', value)
 
     @components.ProxyToMainThread
     def _guessFileIndentation(self):
         # Heuristic to determine what file indentation settings the user
         # likely wants for this file.
         log.info("in _guessFileIndentation")
-        useTabs = usesSpaces = linesChecked = 0
+        useTabs = False
+        usesSpaces = False
+        linesChecked = 0
         buffer = self.get_buffer()
-        if self._indentWidth is None:
-            self.get_indentWidth() # will be guessed if not in prefs
-            log.info("guessed indentWidth to be: %s" % self._indentWidth)
 
         # In the first 150 lines of the file, search for the non-blank
         # lines with leading white-space.  Searching farther takes too long.
@@ -1951,12 +1964,12 @@ class koDocumentBase:
             if line[:1] == "\t":
                 # If first char is a tab, recognize that and move on
                 linesChecked += 1
-                useTabs = 1
+                useTabs = True
             elif line[:2] == "  ":
                 # If first 2 chars are spaces, recognize that and move on
                 # Require at least two spaces on the line to count it
                 linesChecked += 1
-                usesSpaces = 1
+                usesSpaces = True
             if linesChecked == 25:
                 # Only check up to 25 lines with indentation
                 break
@@ -1969,43 +1982,47 @@ class koDocumentBase:
                 # If we found both space and tab indentation, leave the
                 # indentWidth setting as default, fall back to prefs
                 # to decide which to use
-                self._useTabs = self.prefs.getBooleanPref("useTabs")
+                self._useTabs = self.prefs.getBoolean("useTabs")
                 for v in self._views:
-                    v.scimoz.indent = self._indentWidth
+                    v.scimoz.indent = self.indentWidth
                     v.scimoz.useTabs = self._useTabs
             elif useTabs:
                 # If only tab indentation was found, set the indentWidth
                 # to the tabWidth, so we essentially always use tabs.
-                self._useTabs = 1
-                self.set_useTabs(self._useTabs)
-                self.set_indentWidth(self.get_tabWidth())
+                self._useTabs = True
+                self._indentWidth = self.tabWidth
                 for v in self._views:
-                    v.scimoz.indent = self._indentWidth
+                    v.scimoz.indent = self.indentWidth
                     v.scimoz.useTabs = 1
             else:
                 if usesSpaces:
-                    self._useTabs = 0
-                    self.set_useTabs(self._useTabs)
+                    self._useTabs = False
                 else:
                     # indeterminate, so use global prefs to decide
-                    self._useTabs = self.prefs.getBooleanPref("useTabs")
+                    self._useTabs = self.prefs.getBoolean("useTabs")
                 for v in self._views:
-                    v.scimoz.useTabs = self._useTabs
+                    v.scimoz.useTabs = self.useTabs
+
+            if self._indentWidth is None:
+                # Make sure we have a default value here (from prefs)
+                _, value = self._getLangPref(('%lang/indentWidth', 'getLong'),
+                                             ('indentWidth', 'getLong'))
+                self._indentWidth = value
         else:
             # Lacking better information, fallback to the pref values.
             if self._useTabs is None:
-                self._useTabs = self.prefs.getBooleanPref("useTabs")
+                _, self._useTabs = self._getLangPref(('%lang/useTabs', 'getBoolean'),
+                                                     ('useTabs', 'getBoolean'))
             if self._indentWidth is None:
-                self._indentWidth = self.prefs.getLongPref("indentWidth")
+                _, self._indentWidth = self._getLangPref(('%lang/indentWidth', 'getLong'),
+                                                         ('indentWidth', 'getLong'))
             if self._tabWidth is None:
-                self._tabWidth = self.prefs.getLongPref("tabWidth")
+                _, self._tabWidth = self._getLangPref(('%lang/tabWidth', 'getLong'),
+                                                      ('tabWidth', 'getLong'))
             for v in self._views:
-                #XXX This is being a bit paranoid here. I am not sure if
-                #    this method need worry about writing self._tabWith
-                #    through to scimoz. David? --TM
-                v.scimoz.useTabs = self._useTabs
-                v.scimoz.indent = self._indentWidth
-                v.scimoz.tabWidth = self._tabWidth
+                v.scimoz.useTabs = self.useTabs
+                v.scimoz.indent = self.indentWidth
+                v.scimoz.tabWidth = self.tabWidth
 
     # Guess indent-width from text content. (Taken from IDLE.)
     #
@@ -2015,13 +2032,16 @@ class koDocumentBase:
     def _guessIndentWidth(self):
         text = self.get_buffer()
         if text == '':
-            indentWidth = self.prefs.getLongPref('indentWidth')
-            self._indentWidth= indentWidth
+            _, value = self._getLangPref(('%lang/indentWidth', 'getLong'),
+                                         ('indentWidth', 'getLong'))
+            self._indentWidth = value
             return
         # if we don't have a view yet, we can't do anything.
         if not self._views:
             log.error("Was asked to guess indent width before there's a view")
-            self._indentWidth = self.prefs.getLongPref('indentWidth')
+            _, value = self._getLangPref(('%lang/indentWidth', 'getLong'),
+                                         ('indentWidth', 'getLong'))
+            self._indentWidth = value
             return
         if not self._languageObj:
             self.get_languageObj()
@@ -2030,24 +2050,26 @@ class koDocumentBase:
         # different rules.
         indentWidth = 0
         useTabs = 0
-        defaultUseTabs = self.prefs.getBooleanPref("useTabs")
+        _, defaultUseTabs = self._getLangPref(('%lang/useTabs', 'getBoolean'),
+                                              ('useTabs', 'getBoolean'))
         try:
             indentWidth, useTabs = \
                 self._languageObj.guessIndentation(self._views[0].scimoz,
-                                                   self.get_tabWidth(),
+                                                   self.tabWidth,
                                                    defaultUseTabs)
         except Exception, e:
             log.error("Unable to guess indentation")
             
         if indentWidth == 0:  # still haven't found anything, so go with the prefs.
-            indentWidth = self.prefs.getLongPref('indentWidth')
+            _, indentWidth = self._getLangPref(('%lang/indentWidth', 'getLong'),
+                                               ('indentWidth', 'getLong'))
             useTabs = defaultUseTabs
 
         log.info("_guessIndentWidth: indentWidth=%d, useTabs=%d",
                  indentWidth, useTabs)
-        self.set_indentWidth(indentWidth)
+        # Note that we avoid saving the guessed value in prefs
+        self._indentWidth = indentWidth
         self._useTabs = useTabs
-        self.set_useTabs(useTabs)
 
     @components.ProxyToMainThreadAsync
     def _statusBarMessage(self, message):

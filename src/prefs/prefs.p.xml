@@ -5,7 +5,7 @@
   <!-- This version field is used by Komodo to upgrade preferences.
        The value should be kept in sync with "../components/koInitService.p.py"
   -->
-  <long id="version">10</long>
+  <long id="version">11</long>
 
   <!-- "uilayout_version" is used by Komodo to upgrade ui layouts.
        Must keep in sync with "../chrome/komodo/content/library/uilayout.p.js"
@@ -537,167 +537,17 @@
   <boolean id="checkDiskFile">1</boolean>
   <boolean id="checkNetworkDiskFile">1</boolean>
 
-  <!-- Language Preferences -->
-  <preference-set id="languages">
-    <!-- NOTE: the parent pref set for each language is the main global set
-           When getting/setting, ensure the names correspond -->
-    <preference-set id="languages/Ada">
-      <string id="Ada/newEncoding">Default Encoding</string>
-      <boolean id="Ada/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Apache">
-      <string id="Apache/newEncoding">Default Encoding</string>
-      <boolean id="Apache/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Baan">
-      <string id="Baan/newEncoding">Default Encoding</string>
-      <boolean id="Baan/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Batch">
-      <string id="Batch/newEncoding">Default Encoding</string>
-      <boolean id="Batch/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Bullant">
-      <string id="Bullant/newEncoding">Default Encoding</string>
-      <boolean id="Bullant/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/C#">
-      <string id="C#/newEncoding">Default Encoding</string>
-      <boolean id="C#/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/C++">
-      <string id="C++/newEncoding">Default Encoding</string>
-      <boolean id="C++/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/CSS">
-      <string id="CSS/newEncoding">Default Encoding</string>
-      <boolean id="CSS/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Diff">
-      <string id="Diff/newEncoding">Default Encoding</string>
-      <boolean id="Diff/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Eiffel">
-      <string id="Eiffel/newEncoding">Default Encoding</string>
-      <boolean id="Eiffel/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Errors">
-      <string id="C++/newEncoding">Default Encoding</string>
-      <boolean id="C++/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Fortran">
-      <string id="Fortran/newEncoding">Default Encoding</string>
-      <boolean id="Fortran/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Fortran 77">
-      <string id="Fortran 77/newEncoding">Default Encoding</string>
-      <boolean id="Fortran 77/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/HTML">
-      <string id="HTML/newEncoding">Default Encoding</string>
-      <boolean id="HTML/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/IDL">
-      <string id="IDL/newEncoding">Default Encoding</string>
-      <boolean id="IDL/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Java">
-      <string id="Java/newEncoding">Default Encoding</string>
-      <boolean id="Java/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/JavaScript">
-      <string id="JavaScript/newEncoding">Default Encoding</string>
-      <boolean id="JavaScript/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Node.js">
-      <string id="Node.js/newEncoding">utf-8</string>
-      <boolean id="Node.js/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/LaTeX">
-      <string id="LaTeX/newEncoding">Default Encoding</string>
-      <boolean id="LaTeX/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Lisp">
-      <string id="Lisp/newEncoding">Default Encoding</string>
-      <boolean id="Lisp/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Lua">
-      <string id="Lua/newEncoding">Default Encoding</string>
-      <boolean id="Lua/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Makefile">
-      <string id="Makefile/newEncoding">Default Encoding</string>
-      <boolean id="Makefile/newBOM">0</boolean>
-      <boolean id="useTabs">1</boolean>
-    </preference-set>
-    <preference-set id="languages/Matlab">
-      <string id="Matlab/newEncoding">Default Encoding</string>
-      <boolean id="Matlab/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/PHP">
-      <string id="PHP/newEncoding">Default Encoding</string>
-      <boolean id="PHP/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Pascal">
-      <string id="Pascal/newEncoding">Default Encoding</string>
-      <boolean id="Pascal/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Perl">
-      <string id="Perl/newEncoding">Default Encoding</string>
-      <boolean id="Perl/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Python">
-      <string id="Python/newEncoding">ascii</string>
-      <boolean id="Python/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Python3">
-      <string id="Python3/newEncoding">utf-8</string>
-      <boolean id="Python3/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Ruby">
-      <string id="Ruby/newEncoding">Default Encoding</string>
-      <boolean id="Ruby/newBOM">0</boolean>
-      <long id="indentWidth">2</long>
-    </preference-set>
-    <preference-set id="languages/RHTML">
-      <string id="RHTML/newEncoding">Default Encoding</string>
-      <boolean id="RHTML/newBOM">0</boolean>
-      <long id="indentWidth">2</long>
-    </preference-set>
-    <preference-set id="languages/SQL">
-      <string id="SQL/newEncoding">Default Encoding</string>
-      <boolean id="SQL/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Tcl">
-      <string id="Tcl/newEncoding">Default Encoding</string>
-      <boolean id="Tcl/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/Text">
-      <string id="Text/newEncoding">Default Encoding</string>
-      <boolean id="Text/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/VisualBasic">
-      <string id="VisualBasic/newEncoding">utf-8</string>
-      <boolean id="VisualBasic/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/XML">
-      <string id="XML/newEncoding">utf-8</string>
-      <boolean id="XML/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/XSLT">
-      <string id="XSLT/newEncoding">utf-8</string>
-      <boolean id="XSLT/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/nnCrontab">
-      <string id="nnCrontab/newEncoding">Default Encoding</string>
-      <boolean id="nnCrontab/newBOM">0</boolean>
-    </preference-set>
-    <preference-set id="languages/CSS">
-      <string id="CSS/newEncoding">Default Encoding</string>
-      <boolean id="CSS/newBOM">0</boolean>
-    </preference-set>
-  </preference-set>
-  
+  <!-- Language Preferences; these are treated specially in koDocumentBase -->
+  <string id="languages/Node.js/newEncoding">utf-8</string>
+  <boolean id="languages/Makefile/useTabs">1</boolean>
+  <string id="languages/Python/newEncoding">ascii</string>
+  <string id="languages/Python3/newEncoding">utf-8</string>
+  <long id="languages/Ruby/indentWidth">2</long>
+  <long id="languages/RHTML/indentWidth">2</long>
+  <string id="languages/VisualBasic/newEncoding">utf-8</string>
+  <string id="languages/XML/newEncoding">utf-8</string>
+  <string id="languages/XSLT/newEncoding">utf-8</string>
+
   <preference-set id="filepickers.defaultDirs"/>
 
   <!-- Allow XML declaration tags to override file settings, except

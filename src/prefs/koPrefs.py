@@ -266,7 +266,7 @@ class koPreferenceSetBase(object):
 
     def set_parent(self, base):
         warnings.warn("koIPreferenceSet.set_parent is deprecated; please use "
-                      "koIPreferenceRoot.inheritFrominstead.",
+                      "koIPreferenceRoot.inheritFrom instead.",
                       DeprecationWarning,
                       stacklevel=2)
         self.inheritFrom = UnwrapObject(base)
@@ -1358,7 +1358,18 @@ class koPreferenceCache(object):
 
     def getPref(self, id):
         assert self._is_sane()
-        return self.pref_map.get(id, (None, None))[0]
+        pref = self.pref_map.get(id, (None, None))[0]
+        if not isinstance(pref, koPreferenceRoot):
+            # Deserializing prefsets from before Komodo 9.0.0a1; there was no
+            # separate class for root prefs.
+            root = koPreferenceRoot()
+            root.__setstate__(pref.__getstate__())
+            pref = root
+        # Put it back in a XPCOM wrapper
+        sip = (components.classes["@mozilla.org/supports-interface-pointer;1"]
+                         .createInstance(components.interfaces.nsISupportsInterfacePointer))
+        sip.data = pref
+        return sip.data
     
     def hasPref( self, id):
         assert self._is_sane()

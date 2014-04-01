@@ -242,20 +242,17 @@ class KoDocumentService:
 
     def _getEncodingFromFilename(self, fname):
         try:
-            languagesPrefs = self._globalPrefs.getPref('languages')
             language = self.langRegistrySvc.suggestLanguageForFile(fname)
             if not language:
                 language = 'Text'
-            encoding = 'Default Encoding'
-            if languagesPrefs.hasPref('languages/'+language):
-                langPref = languagesPrefs.getPref('languages/'+language)
-                if langPref.hasStringPref(language+'/newEncoding'):
-                    encoding = langPref.getStringPref(language+'/newEncoding')
+            encodingPref = 'languages/' + language + '/newEncoding'
+            encoding = self._globalPrefs.getString(encodingPref,
+                                                   'Default Encoding')
             if encoding == 'Default Encoding':
-                encoding = self._globalPrefs.getStringPref('encodingDefault')
+                encoding = self._globalPrefs.getString('encodingDefault')
         except Exception, e:
             log.error("Error getting newEncoding for %s", language, exc_info=1)
-            encoding = self._globalPrefs.getStringPref('encodingDefault')
+            encoding = self._globalPrefs.getString('encodingDefault')
         return encoding
 
     def _fixupEOL(self, doc):

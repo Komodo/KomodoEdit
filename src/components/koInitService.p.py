@@ -831,30 +831,27 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 10
+    _current_pref_version = 11
 
-    def _upgradeUserPrefs(self):
+    def _upgradeUserPrefs(self, prefs):
         """Upgrade any specific info in the user's prefs.xml.
         
         This is called after the new user data dir has been created.
 
         Dev note: This is also called every time Komodo is started.
         """
-        prefs = components.classes["@activestate.com/koPrefService;1"]\
-                .getService(components.interfaces.koIPrefService).prefs
-
-        if not prefs.hasPrefHere("version"):
+        if prefs.hasPrefHere("version"):
+            version = prefs.getLongPref("version")
+        else:
             # Prefs are from before Komodo 6.1
             self._upgradeOldUserPrefs(prefs)
             version = 0
-        else:
-            version = prefs.getLongPref("version")
 
         if version >= self._current_pref_version:
             # Nothing to upgrade.
             return
 
-        if version < 3:
+        if version < 3 and prefs.hasPref("import_exclude_matches"):
             # Add the two new Komodo project names to import_exclude_matches
             try:
                 import_exclude_matches = prefs.getStringPref("import_exclude_matches")
@@ -872,7 +869,7 @@ class KoInitService(object):
             except:
                 log.exception("Error updating import_exclude_matches")
 
-        if version < 5:
+        if version < 5 and prefs.hasPref("import_exclude_matches"):
             # Add __pycache__ to excludes
             try:
                 import_exclude_matches = prefs.getStringPref("import_exclude_matches")
@@ -908,8 +905,44 @@ class KoInitService(object):
         if version < 10: # Komodo 9.0.0a1
             prefs.setStringPref("analyticsLastVersion", "pre-9.0a1")
 
+        if version < 11: # Komodo 9.0.0a1
+            self._flattenLanguagePrefs(prefs)
+
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)
+
+    def _flattenLanguagePrefs(self, prefs):
+        """In Komodo 9.0.0a1, we flattened the language prefs.  This needs to
+        be done both in global prefs and project prefs.
+        """
+        if not prefs.hasPref("languages"):
+            return
+        allLangPrefs = prefs.getPref("languages")
+        for langPrefId in allLangPrefs.getPrefIds():
+            if not langPrefId.startswith("languages/"):
+                continue # bad pref
+            langPref = allLangPrefs.getPref(langPrefId)
+            lang = langPrefId[len("languages/"):]
+            for prefId in langPref.getPrefIds():
+                prefType = langPref.getPrefType(prefId)
+                newPrefId = prefId
+                if newPrefId.startswith(lang + "/"):
+                    newPrefId = newPrefId[len("/" + lang):]
+                newPrefId = "languages/%s/%s" % (lang, newPrefId)
+                if prefType == "string":
+                    prefs.setString(newPrefId, langPref.getString(prefId))
+                elif prefType == "long":
+                    prefs.setLong(newPrefId, langPref.getLong(prefId))
+                elif prefType == "double":
+                    prefs.setDouble(newPrefId, langPref.getDouble(prefId))
+                elif prefType == "boolean":
+                    prefs.setBoolean(newPrefId, langPref.getBoolean(prefId))
+                else:
+                    prefs.setPref(newPrefId, langPref.getPref(prefId))
+                langPref.deletePref(prefId)
+            allLangPrefs.deletePref(langPrefId)
+        prefs.deletePref("languages")
+
 
     def _hostUserDataDir(self, userDataDir):
         """Support for Komodo profiles that contain a host-$HOST directory."""
@@ -1083,7 +1116,9 @@ class KoInitService(object):
         """Called every time Komodo starts up to initialize the user profile."""
         try:
             self._upgradeUserDataDirFiles()
-            self._upgradeUserPrefs()
+            prefs = components.classes["@activestate.com/koPrefService;1"]\
+                    .getService(components.interfaces.koIPrefService).prefs
+            self._upgradeUserPrefs(prefs)
         except Exception:
             log.exception("upgradeUserSettings")
 
