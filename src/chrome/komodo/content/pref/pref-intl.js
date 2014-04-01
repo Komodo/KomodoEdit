@@ -37,18 +37,17 @@
 var log = ko.logging.getLogger("pref-intl");
 
 // Constants and global variables
+const {classes: Cc, interfaces: Ci} = Components;
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-var timeSvc = Components.classes["@activestate.com/koTime;1"].
-              getService(Components.interfaces.koITime);
+var timeSvc = Cc["@activestate.com/koTime;1"]
+                .getService(Ci.koITime);
 
-var koEncodingServices = Components.classes["@activestate.com/koEncodingServices;1"]
-            .getService(Components.interfaces.koIEncodingServices);
-var langPrefs;
-var currentLangPrefs;
+var koEncodingServices = Cc["@activestate.com/koEncodingServices;1"]
+                           .getService(Ci.koIEncodingServices);
+var gPrefSet;
 var langToUse;
 var latestLanguage;
 var dialog = null;
-var view = null;
 var defaultDateFormat;
 
 function PrefIntl_OnLoad() {
@@ -79,7 +78,7 @@ function PrefIntl_OnLoad() {
         updateForStartupEncoding();
         updateDefaultEncodingSection();
     } catch(ex) {
-        log.error(ex);
+        log.exception(ex);
     }
 }
 
@@ -87,9 +86,13 @@ function OnPreferencePageInitalize(prefset) {
     log.info("OnPreferencePageInitalize");
     try {
         // set up the prefs
-        langPrefs = prefset.getPref('languages');
-        langPrefs.parent = prefset;
-        view = getKoObject('views').manager.currentView;
+        // the new prefset here is the set of changed prefs; it inherits from
+        // the given prefset to pick up the unchanged prefs.
+        gPrefSet = Cc["@activestate.com/koPreferenceRoot;1"]
+                     .createInstance(Ci.koIPreferenceRoot);
+        gPrefSet.inheritFrom = prefset;
+
+        let view = getKoObject('views').manager.currentView;
         if (view)
             langToUse = view.koDoc.language;
         else   // default
@@ -98,7 +101,7 @@ function OnPreferencePageInitalize(prefset) {
         // "Date & Time" stuff.
         defaultDateFormat = prefset.getStringPref("defaultDateFormat");
     } catch(ex) {
-        log.error(ex);
+        log.exception(ex);
     }
 }
 
@@ -135,7 +138,7 @@ function OnPreferencePageOK(prefset)  {
 
         return true;
     } catch (ex) {
-        log.error(ex);
+        log.exception(ex);
     }
     return false;
 }
@@ -152,8 +155,10 @@ function OnPreferencePageLoading(prefset) {
     }
 }
 
-function OnPreferencePageClosing(prefset)  {
-    prefset.setPref("languages", langPrefs);
+function OnPreferencePageClosing(prefset, ok)  {
+    if (ok) {
+        prefset.update(gPrefSet);
+    }
 }
 
 function updateNewFilesEncodingSection() {
@@ -204,39 +209,28 @@ function _setSelectedEncoding(elt,encoding) {
     }
 }
 
-function _getCurrentLangPrefs(language) {
-    var prefs;
-    if (!langPrefs.hasPref('languages/'+language)) {
-        // create a prefset for this
-        prefs = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
-        prefs.id = 'languages/'+language;
-        langPrefs.setPref(prefs.id, prefs);
-    } else {
-        prefs = langPrefs.getPref('languages/'+language);
-    }
-    
-    prefs.parent = langPrefs;
-    return prefs;
+function _getPrefName(prefName) {
+    return 'languages/' + latestLanguage + '/' + prefName;
 }
 
 function changeNewLanguage(item, name)  {
     var encoding;
     if (item == null)  {  // startup - first time in
         latestLanguage = name;
-        currentLangPrefs = _getCurrentLangPrefs(latestLanguage);  // make sure to qualify the pref set
         dialog.newlangList.selection = name;
     }
     else  {
         var value = dialog.newlangList.selection;
         latestLanguage = value;
-        currentLangPrefs = _getCurrentLangPrefs(latestLanguage);  // make sure to qualify the pref set
     }
 
-    if (currentLangPrefs.hasPref(latestLanguage+'/newEncoding'))  {
-        encoding = currentLangPrefs.getStringPref(latestLanguage+'/newEncoding');
+    if (gPrefSet.hasPref(_getPrefName('newEncoding')))  {
+        encoding = gPrefSet.getString(_getPrefName('newEncoding'));
     } else  {
-        log.warn("Could not retrieve the language encoding from preferences, using default.");
-        encoding = langPrefs.getStringPref('encodingDefault')
+        log.warn("Could not retrieve " + latestLanguage +
+                 " encoding from preferences, using default.");
+        encoding = gPrefSet.getString(_getPrefName('encodingDefault'),
+                                      'Default Encoding');
     }
 
     _setSelectedEncoding(dialog.newencodingList, encoding);
@@ -247,9 +241,7 @@ function changeNewLanguage(item, name)  {
     } else {
         var encodingInfo = koEncodingServices.get_encoding_info(encoding);
         if (doBOM(encodingInfo))  {
-            var bomPref = false;
-            if (currentLangPrefs.hasPref(latestLanguage+'/newBOM'))
-                bomPref = currentLangPrefs.getBooleanPref(latestLanguage+'/newBOM');
+            var bomPref = gPrefSet.getBoolean(_getPrefName('newBOM'), false);
             dialog.bomBox.setAttribute('checked', bomPref);
         }
     }
@@ -258,26 +250,19 @@ function changeNewLanguage(item, name)  {
 function changeNewEncoding(item)  {
     updateMenuListValue(dialog.newencodingList, item);
     var newEncoding = item.getAttribute('data');
-    currentLangPrefs.setStringPref(latestLanguage+'/newEncoding', newEncoding);
+    gPrefSet.setString(_getPrefName('newEncoding'), newEncoding);
     if (newEncoding == 'Default Encoding') {
         dialog.bomBox.setAttribute('checked', false);
         dialog.bomBox.setAttribute('disabled', 'true');
-    } else
-    if (doBOM(koEncodingServices.get_encoding_info(newEncoding)))  {
-        var bomPref = false;
-        if (currentLangPrefs.hasPref(latestLanguage+'/newBOM'))
-            bomPref = currentLangPrefs.getBooleanPref(latestLanguage+'/newBOM');
+    } else if (doBOM(koEncodingServices.get_encoding_info(newEncoding)))  {
+        var bomPref = gPrefSet.getBoolean(_getPrefName('newBOM'), false);
         dialog.bomBox.setAttribute('checked', bomPref);
     }
 }
 
 function changeNewBOM(box)  {
     try {
-        if (box.checked) {
-            currentLangPrefs.setBooleanPref(latestLanguage+'/newBOM', true);
-        } else {
-            currentLangPrefs.setBooleanPref(latestLanguage+'/newBOM', false);
-        }
+        gPrefSet.setBoolean(_getPrefName('newBOM'), !!box.checked);
     } catch (e) {
         log.exception(e);
     }
