@@ -50,6 +50,14 @@ import logging
 import uriparse
 import urllib
 
+__all__ = ["cgi_escape", "dePercent", "dePickleCache", "deserializeFile",
+           "getChildText", "koGlobalPreferenceDefinition",
+           "koOrderedPreferenceDeserializer", "koPreferenceCacheDeserializer",
+           "koPreferenceSetDeserializer", "koXMLPreferenceSetObjectFactory",
+           "NodeToPrefset", "pickleCache", "pickleCacheOKToLoad",
+           "serializePref", "SmallestVersionFirst", "writeXMLFooter",
+           "writeXMLHeader"]
+
 log = logging.getLogger('koXMLPrefs')
 #log.setLevel(logging.DEBUG)
 
@@ -253,11 +261,15 @@ class koPreferenceSetDeserializer:
         elif preftype == 'file':
             xpPrefSet = components.classes["@activestate.com/koFilePreferenceSet;1"] \
                       .createInstance(components.interfaces.koIFilePreferenceSet)
+        elif parentPref is None:
+            xpPrefSet = components.classes["@activestate.com/koPreferenceRoot;1"] \
+                      .createInstance(components.interfaces.koIPreferenceSet)
         else:
             xpPrefSet = components.classes["@activestate.com/koPreferenceSet;1"] \
                       .createInstance(components.interfaces.koIPreferenceSet)
         newPrefSet = UnwrapObject(xpPrefSet)
-        newPrefSet.chainNotifications = chainNotifications
+        if hasattr(newPrefSet, "chainNotifications"):
+            newPrefSet.chainNotifications = chainNotifications
         try:
             newPrefSet.id = rootElement.getAttribute('id') or ""
         except KeyError:
@@ -394,7 +406,7 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
     """Serialize one preference to a stream as appropriate for its type.
     Some preferences, e.g. those in ordered preferences, may not have names.
     """
-    #print "Serialzing: '%s', with type '%s', value '%s'" % (prefName, prefType, pref )
+    log.debug("Serialzing: '%s', with type '%s', value '%s'", prefName, prefType, pref )
     if prefType == "string":
         attrs = {}
         if prefName:

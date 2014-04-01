@@ -40,7 +40,7 @@
 interface koIDocument;
 interface koIShowsProgress;
 interface koIProject;
-interface koIPreference;
+interface koIPreferenceSet;
 interface koICodeIntelService;
 interface koINotificationProgress;
 interface koIAsyncCallback;
@@ -48,7 +48,7 @@ interface koIAsyncCallback;
 [scriptable, uuid(8BFCA31B-3781-4F96-A7D2-60D6D6294889)]
 interface koICodeIntelCatalogsTreeView : nsITreeView {
     void init(in koICodeIntelService ciSvc,
-              in koIPreference prefSet,
+              in koIPreferenceSet prefSet,
               in wstring prefName);
     void save();
 

@@ -449,13 +449,13 @@ class koDocumentBase:
             lang_prefs.id = lang_pref_name;
             all_lang_prefs.setPref(lang_pref_name, lang_prefs);
 
-        original_parent = self.prefs.parent
-        if original_parent == self._lang_prefs or \
-           original_parent.id == lang_pref_name:
-            # When lang prefs are already set - use the parent of it.
-            original_parent = original_parent.parent
-        lang_prefs.parent = original_parent
-        self.prefs.parent = lang_prefs
+        #original_parent = self.prefs.parent
+        #if original_parent == self._lang_prefs or \
+        #   original_parent.id == lang_pref_name:
+        #    # When lang prefs are already set - use the parent of it.
+        #    original_parent = original_parent.parent
+        #lang_prefs.parent = original_parent
+        #self.prefs.parent = lang_prefs
         self._lang_prefs = lang_prefs
         # Reset indentation settings - bug 95329.
         self._indentWidth = None
@@ -1220,7 +1220,7 @@ class koDocumentBase:
         try:
             if (self.encoding.python_encoding_name == encoding.python_encoding_name and
                     self.encoding.use_byte_order_marker == encoding.use_byte_order_marker and
-                    self.prefs.getString("encoding") == self.encoding.python_encoding_name):
+                    self.prefs.getString("encoding", "") == self.encoding.python_encoding_name):
                 # no change necessary
                 return
     

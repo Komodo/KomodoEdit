@@ -71,7 +71,7 @@ PrefsTestCase.prototype.test_bubbling = function() {
   // Create a "root" preference set.
   // In Komodo, the root preference set contains preferences which are global
   // across the entire application.
-  var rootPrefSet = Cc["@activestate.com/koPreferenceSet;1"]
+  var rootPrefSet = Cc["@activestate.com/koPreferenceRoot;1"]
                       .createInstance(Ci.koIPreferenceSet);
 
   // Add a few global preferences.
@@ -99,9 +99,9 @@ PrefsTestCase.prototype.test_bubbling = function() {
   // Ensure some type-safety - don't want to be capable of getting simple prefs
   // We now instantiate a preference set whose parent preference set in the
   // preference tree is the root preference set.
-  var editorPrefSet = Cc["@activestate.com/koPreferenceSet;1"]
-			.createInstance(Ci.koIPreferenceSet);
-  editorPrefSet.parent = rootPrefSet;
+  var editorPrefSet = Cc["@activestate.com/koPreferenceRoot;1"]
+			.createInstance(Ci.koIPreferenceRoot);
+  editorPrefSet.inheritFrom = rootPrefSet;
 
   // Add in a preference which is also contained in the root preference set.
   // This preference will 'override' the preference in the root preference set.
@@ -181,6 +181,8 @@ PrefsTestCase.prototype._test_pref_deserialization = function (filename, prefset
 
   var prefset = factory.deserializeFile(filename);
 
+  this.assertTrue(prefset instanceof Ci.koIPreferenceRoot,
+		  "deserialized file is not root");
   this.assertEquals(prefset.getStringPref('foo'),
 		    prefset_cmp.getStringPref("foo"),
 		    "serialized 'foo' was wrong");
@@ -212,8 +214,8 @@ PrefsTestCase.prototype._test_pref_deserialization = function (filename, prefset
 
 // Test preference serialization.
 PrefsTestCase.prototype._make_serialization_prefset = function (filename, prefset_cmp) {
-  var prefset = Cc["@activestate.com/koPreferenceSet;1"]
-		  .createInstance(Ci.koIPreferenceSet);
+  var prefset = Cc["@activestate.com/koPreferenceRoot;1"]
+		  .createInstance(Ci.koIPreferenceRoot);
   prefset.id = 'root';
 
   // Add a couple of basic preferences.

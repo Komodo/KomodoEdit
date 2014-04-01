@@ -219,8 +219,8 @@ class JavaScriptXPCOMTestCase(_BufferTestCaseBase):
             [("variable", "type"),
              ("function", "serialize")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("variable", "type"),
-             ("function", "serialize")])
+            [("variable", "inheritFrom"),
+             ("function", "hasPref")])
         self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
             [("variable", "prefs"),
              ("function", "saveState")])
