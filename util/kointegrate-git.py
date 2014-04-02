@@ -27,13 +27,36 @@ import os.path
 import subprocess
 import sys
 import textwrap
+import urlparse
+import xml.etree.cElementTree
 
 from ConfigParser import SafeConfigParser
-from os.path import exists, expanduser, isdir, join, normpath
+from os.path import dirname, exists, expanduser, isdir, join, normpath
 
 #---- globals
 
 log = logging.getLogger("kointegrate")
+
+#---- utils
+class LazyProperty(object):
+    def __init__(self, func):
+        self.data = (func, func.__name__)
+    def __get__(self, inst, clazz):
+        if inst is None:
+            return self
+        func, name = self.data
+        value = func(inst)
+        inst.__dict__[name] = value
+        return value
+
+class LazyClassAttribute(LazyProperty):
+    def __get__(self, inst, clazz):
+        if inst is None:
+            return self
+        func, name = self.data
+        value = func()
+        setattr(clazz, name, value)
+        return value
 
 #---- handling of active branches
 
@@ -60,6 +83,11 @@ class Branch(object):
         return cmp(self.name, other.name) or cmp(self.base_dir, other.base_dir)
 
     def get_revision(self, revision):
+        """Get a Revision from a revision identifier
+        @param revision {str} The revision desired
+        @returns {Revision}
+        @note The revision should be valid
+        """
         raise NotImplementedError("%s needs to implement get_revision" % self)
 
     def get_missing_paths(self, paths):
@@ -68,18 +96,18 @@ class Branch(object):
         """
         raise NotImplementedError("%s needs to implement get_missing_paths" % self)
 
-    def check_patch(self, patch, options):
+    def check_patch(self, revision, paths, options):
         """Check that the given patch can apply
-        @param patch {str} The patch to apply
+        @param revision {Revision} The revison to apply
+        @param paths {iterable of ChangedPath} paths modified in the revision
         @param options {Namespace} command line options
-        @return {set} Paths that failed to apply
+        @return {set of str} Paths that failed to apply
         """
         raise NotImplementedError("%s needs to implement check_patch" % self)
 
-    def apply_patch(self, revision, patch, paths, options):
+    def apply_patch(self, revision, paths, options):
         """Apply the given patch.
-        @param revision {Revision} The revision the change was from
-        @param patch {str} The patch to apply; this should have passed check_patch
+        @param revision {Revision} The revision to apply
         @param paths {iterable of ChangedPath} paths modified in the revision
         @param options {Namespace} command line options
         @returns {str} The commit message
@@ -108,14 +136,10 @@ class GitBranch(Branch):
     scc_type = "git"
     scc_is_distributed = True
 
-    _git_exe_cache = None
-
-    @property
+    @LazyProperty
     def _git_exe(self):
-        if GitBranch._git_exe_cache is None:
-            import which
-            setattr(GitBranch, "_git_exe_cache", which.which("git"))
-        return GitBranch._git_exe_cache
+        import which
+        return which.which("git")
 
     def _open(self, *args, **kwargs):
         kwargs.setdefault("cwd", self.base_dir)
@@ -146,7 +170,8 @@ class GitBranch(Branch):
     def get_revision(self, revision):
         # Check that the revision exists
         try:
-            with open("/dev/null", "w+") as null:
+            null_path = "NUL" if sys.platform.startswith("win") else "/dev/null"
+            with open(null_path, "w+") as null:
                 subprocess.check_call([self._git_exe, "log", "-1", revision],
                     stdout=null, stderr=null)
         except:
@@ -179,15 +204,13 @@ class GitBranch(Branch):
     def desc(self, value):
         self.__dict__["name"] = value
 
-    __git_dir_cache = None
-    @property
+    @LazyProperty
     def _git_dir(self):
-        if self.__git_dir_cache is None:
-            git_dir = self._capture_output("rev-parse", "--git-dir").strip()
-            self.__git_dir_cache = join(self.base_dir, git_dir)
-        return self.__git_dir_cache
+        git_dir = self._capture_output("rev-parse", "--git-dir").strip()
+        return join(self.base_dir, git_dir)
 
-    def check_patch(self, patch, options):
+    def check_patch(self, revision, paths, options):
+        patch = revision.get_patch(options, paths)
         cmd = ["apply", "--check", "--binary", "-"]
         proc = self._open(*cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
         stderr = proc.communicate(patch)[1]
@@ -205,23 +228,12 @@ class GitBranch(Branch):
                 failed_paths.add(line.rsplit(":", 1)[0].strip())
         return failed_paths
 
-    def apply_patch(self, revision, patch, paths, options):
+    def apply_patch(self, revision, paths, options):
+        patch = revision.get_patch(options, paths)
         # Save the commit message
-        message = "\n\n(integrated from {branch} change {rev} by {author})"
-        message = message.format(branch=self.desc,
-                                 rev=revision.pretty_rev,
-                                 author=revision.author)
-        message = revision.description + message
+        message = revision.integration_message
         with open(join(self._git_dir, "GITGUI_MSG"), "w") as msg_file:
             msg_file.write(message)
-
-        # Apply all deletes first
-        for path in paths:
-             if path.action == ChangedPath.DELETED:
-                abs_path = join(self.base_dir, path.src)
-                log.debug("Remove file %s", abs_path)
-                if exists(abs_path):
-                    os.unlink(abs_path)
 
         # Apply the patch
         all_changed_paths = set(path.src for path in paths)
@@ -230,7 +242,7 @@ class GitBranch(Branch):
         cmd = ["apply", "--binary", "--reject", "-"]
         proc = self._open(*cmd, stdin=subprocess.PIPE)
         proc.communicate(patch)
-        self._execute("add", "--", *all_changed_paths)
+        self._execute("add", "--all", "--", *all_changed_paths)
         if proc.returncode:
             raise IntegrationError("Failed to apply patch")
         return message
@@ -242,11 +254,7 @@ class GitBranch(Branch):
         except:
             message = ""
         if not message.strip():
-            message = "\n\n(integrated from {branch} change {rev} by {author})"
-            message = message.format(branch=self.desc,
-                                     rev=revision.pretty_rev,
-                                     author=revision.author)
-            message = revision.description + message
+            message = revision.integration_message
         all_changed_paths = set(path.src for path in paths)
         all_changed_paths |= set(path.dest for path in paths)
         all_changed_paths = filter(bool, all_changed_paths)
@@ -257,6 +265,264 @@ class GitBranch(Branch):
                "--"] + all_changed_paths
         self._execute(*cmd)
 
+class SVNBranch(Branch):
+    scc_type = "svn"
+
+    @LazyProperty
+    def _exe(self):
+        import which
+        return which.which("svn")
+
+    @LazyProperty
+    def _patch_exe(self):
+        import which
+        return which.which("patch")
+
+    def _open(self, *args, **kwargs):
+        kwargs.setdefault("cwd", self.base_dir)
+        kwargs["env"] = dict(kwargs.get("env", os.environ))
+        kwargs["env"]["LANG"] = "C"
+        log.debug("svn: %s", " ".join(args))
+        return subprocess.Popen([self._exe] + list(args), **kwargs)
+
+    def _capture_output(self, *args, **kwargs):
+        parse_xml = kwargs.pop("xml", True)
+        kwargs.setdefault("cwd", self.base_dir)
+        kwargs["env"] = dict(kwargs.get("env", os.environ))
+        kwargs["env"]["LANG"] = "C"
+        log.debug("svn: %s", " ".join(args))
+        if parse_xml and "--xml" not in args:
+            args = ["--xml"] + list(args)
+        result = subprocess.check_output([self._exe] + list(args), **kwargs)
+        if parse_xml:
+            return xml.etree.cElementTree.fromstring(result)
+        return result
+
+    def _run_patch(self, *args, **kwargs):
+        kwargs.setdefault("cwd", self.base_dir)
+        stdin = kwargs.get("stdin", None)
+        capture = "stdout" in kwargs or "stderr" in kwargs
+        if isinstance(stdin, str):
+            kwargs["stdin"] = subprocess.PIPE
+        args = [self._patch_exe] + list(args)
+        log.debug("patch: %s", " ".join(args))
+
+        if isinstance(stdin, str):
+            proc = subprocess.Popen(args, **kwargs)
+            stdout, stderr = proc.communicate(stdin)
+            if capture:
+                return (proc.returncode, stdout, stderr)
+            return proc.returncode
+        else:
+            subprocess.check_call(args, **kwargs)
+
+    @property
+    def is_clean(self):
+        acceptable_statuses = {"external", "unversioned"}
+
+        root = self._capture_output("status", "--quiet")
+        for elem in root.findall("./target/entry"):
+            status = elem.find("./wc-status")
+            if status.get("item", None) in acceptable_statuses:
+                continue
+            log.debug("Path %s is %s", elem.get("path"), status.get("item"))
+            return False
+        return True
+
+    @LazyProperty
+    def desc(self):
+        url = self._info.find("./entry/url").text.strip()
+        path = urlparse.urlparse(url).path
+        bits = path.split('/')
+        if bits[-1] == "trunk":
+            branch_name = "trunk"
+            project_name = bits[-2]
+        elif bits[-2] == "branches":
+            branch_name = "%s branch" % bits[-1]
+            project_name = bits[-3]
+        elif bits[-2] == "tags":
+            branch_name = "%s tag" % bits[-1]
+            project_name = bits[-3]
+        else:
+            # no branch name, just return project name
+            return bits[-1]
+        return "%s (%s)" % (project_name, branch_name)
+
+    def get_revision(self, revision):
+        # Check that the revision exists
+        if revision == "HEAD":
+            elem = self._capture_output("info")
+            revision = elem.find("./entry/commit").get("revision")
+
+        null_path = "NUL" if sys.platform.startswith("win") else "/dev/null"
+        with open(null_path, "w+") as null:
+            proc = self._open("log", "-l", "1", "-r", revision, stdout=null, stderr=null)
+            proc.communicate()
+            if proc.returncode != 0:
+                raise IntegrationError("Error getting revision %s" % (revision,))
+        return SVNRevision(revision, self)
+
+    @LazyProperty
+    def _info(self):
+        return self._capture_output("info")
+
+    @LazyProperty
+    def repo_url(self):
+        return self._info.find("./entry/repository/root").text.strip()
+
+    @LazyProperty
+    def _repo_relpath(self):
+        """The path from the root of the repo to this branch"""
+        abs_url = self._info.find("./entry/url").text.strip()
+        if abs_url.startswith(self.repo_url):
+            return abs_url[len(self.repo_url):]
+        return ""
+
+    def get_missing_paths(self, paths):
+        paths = set(paths)
+        for path in list(paths):
+            if exists(join(self.base_dir, path.src)):
+                paths.discard(path)
+        return paths
+
+    def check_patch(self, revision, paths, options):
+        patch_paths = set()
+        failed_paths = set()
+        for path in paths:
+            if path.action == ChangedPath.ADDED:
+                if exists(join(self.base_dir, path.src)):
+                    failed_paths.add("%s (can't add, file already exists)" % (path.src,))
+            elif path.action == ChangedPath.COPIED:
+                if exists(join(self.base_dir, path.dest)):
+                    failed_paths.add("%s (can't copy from %s, file already exists)" % (path.dest, path.src))
+            elif path.action == ChangedPath.DELETED:
+                pass # We don't care if we delete a changed file
+            elif path.action == ChangedPath.MODIFIED:
+                patch_paths.add(path)
+            elif path.action == ChangedPath.RENAMED:
+                if exists(join(self.base_dir, path.dest)):
+                    failed_paths.add("%s (can't rename from %s, already exists)" % (path.dest, path.src))
+                    continue
+                if path.src.startswith("/"):
+                    # Renamed from a different branch; ignore this for checking
+                    continue
+                if not exists(join(self.base_dir, path.src)):
+                    failed_paths.add("%s (can't renamed to %s, file doesn't exist)" % (path.src, path.dest))
+                    continue
+                patch_paths.add(path) # this may include modifies
+            else:
+                log.error("Unexpected action %s for path %s",
+                          path.action, path)
+                failed_paths.add("%s (unknown action)" % (path.src,))
+
+        for path in patch_paths:
+            patch = revision.get_patch(options, paths=(path,))
+            setattr(path, "patch", patch)
+            patch_target = path.dest or path.src
+            ret = self._run_patch("--dry-run", "-p0", "--force", "--silent",
+                                  stdin=patch)
+            if ret != 0:
+                failed_paths.add("%s (patch does not apply" % (patch_target,))
+
+        return failed_paths
+
+    def apply_patch(self, revision, paths, options):
+        failures = 0
+        def get_patch(path):
+            patch = getattr(path, "patch", None)
+            if patch is None:
+                patch = revision.get_patch(options, paths=(path,))
+            return patch
+
+        def ensure_dir_exists(rel_path):
+            log.debug("Adding dir: %s", rel_path)
+            abs_path = join(self.base_dir, rel_path)
+            if not os.path.isdir(abs_path):
+                os.makedirs(abs_path)
+                self._capture_output("add", "--depth=empty", rel_path,
+                                     xml=False)
+
+        for path in paths:
+            patch_target = path.dest or path.src
+            if path.action == ChangedPath.ADDED:
+                if path.kind == "dir":
+                    ensure_dir_exists(path.src)
+                else:
+                    log.debug("Adding file: %s", path.src)
+                    with open(join(self.base_dir, path.src), "w") as new_file:
+                        proc = self._open("cat", "%s@%s" % (path.src_url, path.src_rev),
+                                          stdout=new_file)
+                        proc.communicate()
+                        if proc.returncode == 0:
+                            self._open("add", path.src).communicate()
+                        else:
+                            failures += 1
+                            log.error("Failed to add %s", path.src)
+            elif path.action == ChangedPath.COPIED:
+                try:
+                    ensure_dir_exists(dirname(path.dest))
+                    # Copy from _this_ branch, not the source branch
+                    self._capture_output("copy",
+                                         path.src,
+                                         path.dest,
+                                         xml=False)
+                except subprocess.CalledProcessError:
+                    failures += 1
+                    log.error("Failed to copy %s to %s",
+                              "%s@%s" % (path.src_url, path.src_rev),
+                              path.dest)
+                else:
+                    patch = get_patch(path)
+                    if patch:
+                        ret = self._run_patch("-p0", "--force", "--reject-format=unified",
+                                              stdin=patch)
+                        if ret != 0:
+                            failures += 1
+                            log.error("Failed to apply patch for renamed file %s",
+                                      patch_target)
+            elif path.action == ChangedPath.DELETED:
+                self._capture_output("delete", path.src, xml=False)
+            elif path.action == ChangedPath.MODIFIED:
+                log.debug("Patching %s", patch_target)
+                patch = get_patch(path)
+                ret = self._run_patch("-p0", "--force", "--reject-format=unified",
+                                      stdin=patch)
+                if ret != 0:
+                    failures += 1
+                    log.error("Failed to apply patch for renamed file %s",
+                              patch_target)
+            elif path.action == ChangedPath.RENAMED:
+                patch = get_patch(path)
+                # can't deal with rename from a different branch for now
+                assert not path.src.startswith("/")
+                # rename from _this_ branch, not the source branch
+                self._capture_output("rename", path.src, path.dest)
+                if patch:
+                    log.debug("Patching %s after rename", patch_target)
+                    ret = self._run_patch("-p0", "--force", stdin=patch)
+                    if ret != 0:
+                        failures += 1
+                        log.error("Failed to apply patch for renamed file %s",
+                                  patch_target)
+            else:
+                log.error("Failed to apply %s: unknown action", patch_target)
+                failures += 1
+
+        if failures > 0:
+            raise IntegrationError("Failed to patch %s files" % (failures,))
+
+        return revision.integration_message
+
+    def commit(self, revision, paths, options):
+        message = revision.integration_message
+
+        all_changed_paths = set(path.src for path in paths)
+        all_changed_paths.update(path.dest for path in paths)
+        all_changed_paths = filter(bool, all_changed_paths)
+        args = [self._exe, "commit", "--message", message] + all_changed_paths
+        subprocess.check_call(args, cwd=self.base_dir)
+
+
 #---- configuration/prefs handling
 
 class Configuration(SafeConfigParser):
@@ -266,7 +532,7 @@ class Configuration(SafeConfigParser):
         SafeConfigParser.__init__(self)
         self._load()
 
-    @property
+    @LazyProperty
     def cfg_path(self):
         user_data_dir = applib.user_data_dir("komodo-dev", "ActiveState")
         return join(user_data_dir, "kointegrate.ini")
@@ -279,8 +545,8 @@ class Configuration(SafeConfigParser):
                 base_dir = expanduser(base_dir)
                 if not exists(base_dir):
                     self.branches[name] = NonExistantBranch(name, base_dir)
-                #elif isdir(join(base_dir, ".svn")):
-                #    self.branches[name] = SVNBranch(name, base_dir)
+                elif isdir(join(base_dir, ".svn")):
+                    self.branches[name] = SVNBranch(name, base_dir)
                 elif isdir(join(base_dir, ".git")):
                     self.branches[name] = GitBranch(name, base_dir)
                 else:
@@ -305,9 +571,12 @@ class Configuration(SafeConfigParser):
                 continue
             try:
                 return branch.get_revision(revision)
+            except IntegrationError:
+                raise
             except:
+                raise
                 msg = "%s is not a revision in %s" % (revision, branch)
-                raise argparse.ArgumentTypeError(msg)
+                raise IntegrationError(msg)
         msg = "Failed to find branch of current working directory %s" % (os.getcwd())
         raise IntegrationError(msg)
 
@@ -344,17 +613,20 @@ class HelpIniAction(argparse.Action):
 class ChangedPath(object):
     """A changed path within a revision"""
 
-    # Action types; renames are split into a (copy, delete) pair.
+    # Action types
     ADDED = 1
     MODIFIED = 2
     DELETED = 4
     COPIED = 8
-    ALL = (ADDED | MODIFIED | DELETED | COPIED)
+    RENAMED = 16
+    ALL = (ADDED | MODIFIED | DELETED | COPIED | RENAMED)
 
     def __init__(self, action, src=None, dest=None):
         if isinstance(action, str):
             action = getattr(self, action.upper())
-        assert action in (self.ADDED, self.MODIFIED, self.DELETED, self.COPIED)
+        assert action in (self.ADDED, self.MODIFIED, self.DELETED,
+                          self.COPIED, self.RENAMED)
+        assert (dest is not None) == (action in (self.COPIED, self.RENAMED))
         self.action = action
         assert bool(src), "No source provided"
         self.src = src
@@ -362,7 +634,12 @@ class ChangedPath(object):
         self.binary = False
 
     def __str__(self):
-        return self.src
+        if self.action == ChangedPath.COPIED:
+            return "%s => %s" % (self.src, self.dest)
+        elif self.action == ChangedPath.RENAMED:
+            return "%s -> %s" % (self.src, self.dest)
+        else:
+            return self.src
 
     def __repr__(self):
         action = {
@@ -370,6 +647,7 @@ class ChangedPath(object):
             ChangedPath.MODIFIED: "M",
             ChangedPath.DELETED: "D",
             ChangedPath.COPIED: "C",
+            ChangedPath.RENAMED: "R",
         }[self.action]
         s = "<change: {action} {src}".format(action=action, src=self.src)
         if self.dest is not None:
@@ -391,20 +669,17 @@ class Revision(object):
         """
         raise NotImplementedError("%s needs to implement paths" % self)
 
-    def get_paths(self, types=ChangedPath.ALL):
-        """The list of paths, relative to the root of the repository, that are
-        affected in this revision.
-        @param types {iterable} types to include; empty includes everything.
-            valid values are "add", "modify", "delete", "copy"
-            (renames are copy + delete)
-        @returns iterable of ChangedPath objects.
-        """
-        raise NotImplementedError("%s needs to implement paths" % self)
-
     @property
     def description(self):
         """The commit message of this revision"""
         raise NotImplementedError("%s needs to implement description" % self)
+
+    @property
+    def integration_message(self):
+        """A commit message appropriate for integration.
+        This is probably the description with some extra information.
+        """
+        raise NotImplementedError("%s needs to implement commit_message" % self)
 
     @property
     def summary(self):
@@ -430,6 +705,7 @@ class Revision(object):
         @param branch {Branch} The branch to integrate into
         @param paths {iterable of ChangedPath} The paths to integrate
         """
+        paths = set(paths)
         if options.exclude_outside_paths:
             paths -= branch.get_missing_paths(paths)
         if not paths:
@@ -438,36 +714,35 @@ class Revision(object):
             return
 
         log.debug("Integrating files %s", ", ".join(map(str, paths)))
-        patch = self.get_patch(options, paths)
-        #log.debug("Got patch: \n    %s", "    ".join(patch.splitlines(True)))
 
         # Check that this patch can be applied
-        failed_paths = branch.check_patch(patch, options)
-        if failed_paths:
-            prefix = textwrap.fill("During a dry-run patching attempt there "
-                                   "were failures in the following files:",
-                                   initial_indent=" " * 7,
-                                   subsequent_indent=" " * 7)
-            suffix = textwrap.fill("You could use the `-x SUBPATH` option to "
-                                   "skip a particular file.",
-                                   initial_indent=" " * 7,
-                                   subsequent_indent=" " * 7)
-            message = "%s\n%s\n%s\n" % (prefix[7:],
-                                        "\n".join(" " * 11 + p for p in failed_paths),
-                                        suffix)
-            log.info("")
-            log.error(message)
-            if options.force:
-                if options.interactive:
-                    answer = _query_yes_no("Continue integrating failed patch?",
-                                           default="no")
-                    if answer != "yes":
-                        raise IntegrationError("Conflicts in patch")
-                    log.info("")
+        if not options.skip_check:
+            failed_paths = branch.check_patch(self, paths, options)
+            if failed_paths:
+                prefix = textwrap.fill("During a dry-run patching attempt there "
+                                       "were failures in the following files:",
+                                       initial_indent=" " * 7,
+                                       subsequent_indent=" " * 7)
+                suffix = textwrap.fill("You could use the `-x SUBPATH` option to "
+                                       "skip a particular file.",
+                                       initial_indent=" " * 7,
+                                       subsequent_indent=" " * 7)
+                message = "%s\n%s\n%s\n" % (prefix[7:],
+                                            "\n".join(" " * 11 + p for p in failed_paths),
+                                            suffix)
+                log.info("")
+                log.error(message)
+                if options.force:
+                    if options.interactive:
+                        answer = _query_yes_no("Continue integrating failed patch?",
+                                               default="no")
+                        if answer != "yes":
+                            raise IntegrationError("Conflicts in patch")
+                        log.info("")
+                    else:
+                        log.warn("Failure applying patch, forcing integration anyway")
                 else:
-                    log.warn("Failure applying patch, forcing integration anyway")
-            else:
-                raise IntegrationError("Conflicts in patch")
+                    raise IntegrationError("Conflicts in patch")
 
         if options.dry_run:
             log.info("Skipping application and commit due to dry-run")
@@ -475,7 +750,7 @@ class Revision(object):
 
         # Apply the patch
         try:
-            commit_msg = branch.apply_patch(options.revision, patch, paths, options)
+            commit_msg = branch.apply_patch(self, paths, options)
         except IntegrationError:
             log.info("")
             if options.force:
@@ -488,6 +763,7 @@ class Revision(object):
                                            default="no")
                     if answer != "yes":
                         raise
+                    commit_msg = self.integration_message
                 else:
                     log.warn("Failure applying patch, forcing integration anyway")
             else:
@@ -515,8 +791,8 @@ class GitRevision(Revision):
     def __str__(self):
         return "Git revision %s of %s" % (self.revision[:8], self.branch)
 
-    _paths_cache = None
-    def _get_paths(self):
+    @LazyProperty
+    def _paths(self):
         """The paths affected by this revision.
         @returns hash.
             key is source path, or for deletes, destination path.
@@ -524,127 +800,225 @@ class GitRevision(Revision):
             src is the source path (again)
             dest is the destination path (only for copies and renames)
         """
-        if self._paths_cache is None:
-            cmd = ["diff-tree", "--raw", "--numstat", "-C", "-z", "-r", self.revision]
-            lines = self.branch._capture_output(*cmd).split("\0")
-            if not lines[-1]:
-                lines.pop() # empty line at the end
-            self.revision = lines.pop(0) # commit hash of the tree
-            paths = {}
-            changes = [] # in order
+        cmd = ["diff-tree", "--raw", "--numstat", "-C", "-z", "-r", self.revision]
+        lines = self.branch._capture_output(*cmd).split("\0")
+        if not lines[-1]:
+            lines.pop() # empty line at the end
+        self.revision = lines.pop(0) # commit hash of the tree
+        paths = {}
+        changes = [] # in order
 
-            # Look at the --raw output
-            while len(lines) > 0 and lines[0].startswith(":"):
-                line = lines.pop(0)
-                src_mode, dest_mode, src_hash, dest_hash, action = line[1:].split()
+        # Look at the --raw output
+        while len(lines) > 0 and lines[0].startswith(":"):
+            line = lines.pop(0)
+            src_mode, dest_mode, src_hash, dest_hash, action = line[1:].split()
 
-                change = []
-                src = lines.pop(0)
-                if action[0] == "A":
-                    path = ChangedPath(ChangedPath.ADDED, src=src)
-                    change.append(path)
-                    paths[src] = path
-                elif action[0] == "C":
-                    path = ChangedPath(ChangedPath.COPIED,
-                                       src=src,
-                                       dest=lines.pop(0))
-                    change.append(path)
-                    paths[src] = path
-                elif action[0] == "D":
-                    path = ChangedPath(ChangedPath.DELETED, src=src)
-                    change.append(path)
-                    paths[src] = path
-                elif action[0] in "M":
-                    path = ChangedPath(ChangedPath.MODIFIED, src=src)
-                    change.append(path)
-                    paths[src] = path
-                elif action[0] == "R":
-                    # split rename into copy and delete
-                    dest = lines.pop(0)
-                    path = ChangedPath(ChangedPath.COPIED, src=src, dest=dest)
-                    change.append(path)
-                    paths[src] = path
-                    if dest not in paths:
-                        path = ChangedPath(ChangedPath.DELETED, src=dest)
-                        change.append(path)
-                        paths[dest] = path
-                elif acton[0] in "TUX":
-                    raise NotImplementedError("Unsuppported change state " + action)
-                else:
-                    raise NotImplementedError("Unknown change state " + action)
+            change = []
+            src = lines.pop(0)
+            if action[0] == "A":
+                path = ChangedPath(ChangedPath.ADDED, src=src)
+                change.append(path)
+                paths[src] = path
+            elif action[0] == "C":
+                path = ChangedPath(ChangedPath.COPIED,
+                                   src=src,
+                                   dest=lines.pop(0))
+                change.append(path)
+                paths[dest] = path
+            elif action[0] == "D":
+                path = ChangedPath(ChangedPath.DELETED, src=src)
+                change.append(path)
+                paths[src] = path
+            elif action[0] in "M":
+                path = ChangedPath(ChangedPath.MODIFIED, src=src)
+                change.append(path)
+                paths[src] = path
+            elif action[0] == "R":
+                dest = lines.pop(0)
+                path = ChangedPath(ChangedPath.COPIED, src=src, dest=dest)
+                change.append(path)
+                paths[dest] = path
+            elif acton[0] in "TUX":
+                raise NotImplementedError("Unsuppported change state " + action)
+            else:
+                raise NotImplementedError("Unknown change state " + action)
 
-                changes.append(change)
+            changes.append(change)
 
-            # Look at the --numstat output
-            while len(lines) > 0:
-                line = lines.pop(0)
-                if line[0] not in "0123456789-":
-                    continue
-                change = changes.pop(0)
-                stats = line.split()[:2]
-                change[0].binary = stats[0] == "-"
-                change[-1].binary = stats[-1] == "-"
+        # Look at the --numstat output
+        while len(lines) > 0:
+            line = lines.pop(0)
+            if line[0] not in "0123456789-":
+                continue
+            change = changes.pop(0)
+            stats = line.split()[:2]
+            change[0].binary = stats[0] == "-"
+            change[-1].binary = stats[-1] == "-"
 
-            self._paths_cache = paths
-            log.debug("Files in %s: %r", self.revision, self._paths_cache)
-        return self._paths_cache
+        log.debug("Files in %s: %r", self.revision, paths)
+        return paths
 
     @property
     def paths(self):
-        return set(self._get_paths().values())
+        return set(self._paths.values())
 
-    def get_paths(self, types=ChangedPath.ALL):
-        paths = set()
-        for path in self._get_paths().values():
-            if path.action & types:
-                paths.add(path.src)
+    def _get_property_from_log(self, format_string, strip=True):
+        cmd = ["log", "-1", "--pretty=" + format_string, self.revision]
+        result = self.branch._capture_output(*cmd)
+        if strip:
+            result = result.strip()
+        return result
+
+    @LazyProperty
+    def description(self):
+        return self._get_property_from_log("%B")
+
+    @LazyProperty
+    def integration_message(self):
+        message = "\n\n(integrated from {branch} change {rev} by {author})"
+        message = message.format(branch=self.branch.desc,
+                                 rev=self.pretty_rev,
+                                 author=self.author)
+        return self.description + message
+
+    @LazyProperty
+    def summary(self):
+        cmd = ["log", "-1", "--pretty=%s", self.revision]
+        summary = self.branch._capture_output(*cmd).strip()
+        return _one_line_summary_from_text(summary, 60)
+
+    @LazyProperty
+    def author(self):
+        return self._get_property_from_log("%aN <%aE>")
+
+    @LazyProperty
+    def date(self):
+        return self._get_property_from_log("%ai")
+
+    @LazyProperty
+    def pretty_rev(self):
+        cmd = ["describe", "--long", "--always", self.revision]
+        return self.branch._capture_output(*cmd).strip()
+
+    _patch_cache = None
+    def get_patch(self, options, paths=None):
+        if paths is None:
+            path_names = []
+        else:
+            path_names = set(path.src for path in paths)
+            path_names.update(path.dest for path in paths
+                              if path.action in
+                              (ChangedPath.RENAMED, ChangedPath.COPIED))
+
+        cache_key = "".join(sorted(path_names))
+        if self._patch_cache is None:
+            self._patch_cache = {}
+        if cache_key in self._patch_cache:
+            return self._patch_cache[cache_key]
+
+        cmd = ["diff", "--no-color", "--binary", self.revision + "^",
+               self.revision, "--"] + sorted(path_names)
+        result = self.branch._capture_output(*cmd)
+        self._patch_cache[cache_key] = result
+        return result
+
+class SVNRevision(Revision):
+
+    def __str__(self):
+        return "SVN revision %s of %s" % (self.revision, self.branch)
+
+    @LazyProperty
+    def _xml(self):
+        return self.branch._capture_output("log", "--verbose", "--change",
+                                           self.revision)
+
+    @LazyProperty
+    def _paths(self):
+        paths = {}
+        for elem in self._xml.findall(".//paths/path"):
+            path = elem.text.strip()
+            path_url = self.branch.repo_url + path
+            if path.startswith(self.branch._repo_relpath):
+                path = os.path.relpath(path, self.branch._repo_relpath)
+            action = elem.get("action")
+            src = elem.get("copyfrom-path", None)
+            if src is not None:
+                src_url = self.branch.repo_url + src
+                if src.startswith(self.branch._repo_relpath):
+                    src = os.path.relpath(src, self.branch._repo_relpath)
+                src_rev = int(elem.get("copyfrom-rev", None) or self.revision)
+            else:
+                src_rev = self.revision
+            if action == "A":
+                if src is None:
+                    change = ChangedPath(ChangedPath.ADDED,
+                                         src=path)
+                    setattr(change, "src_url", path_url)
+                else:
+                    change = ChangedPath(ChangedPath.COPIED,
+                                         src=src,
+                                         dest=path)
+                    setattr(change, "src_url", src_url)
+                    setattr(change, "dest_url", path_url)
+            elif action == "M":
+                change = ChangedPath(ChangedPath.MODIFIED,
+                                     src=path)
+                setattr(change, "src_url", path_url)
+            elif action == "D":
+                change = ChangedPath(ChangedPath.DELETED,
+                                     src=path)
+                setattr(change, "src_url", path_url)
+            elif action == "R":
+                change = ChangedPath(ChangedPath.RENAMED,
+                                     src=src, dest=path)
+                setattr(change, "src_url", src_url)
+                setattr(change, "dest_url", path_url)
+            setattr(change, "src_rev", src_rev)
+            setattr(change, "kind", elem.get("kind"))
+            log.debug("change: %r", change)
+            paths[path] = change
+
         return paths
 
-    def _get_property_from_log(self, cache_attr, format_string, strip=True):
-        if getattr(self, cache_attr, None) is None:
-            cmd = ["log", "-1", "--pretty=" + format_string, self.revision]
-            cache = self.branch._capture_output(*cmd)
-            if strip:
-                cache = cache.strip()
-            setattr(self, cache_attr, cache)
-        return getattr(self, cache_attr)
-
-    _description_cache = None
     @property
+    def paths(self):
+        return self._paths.values()
+
+    @LazyProperty
     def description(self):
-        return self._get_property_from_log("_description_cache", "%B")
+        return self._xml.find("./logentry/msg").text.strip()
 
-    _summary_cache = None
-    @property
-    def summary(self):
-        if self._summary_cache is None:
-            cmd = ["log", "-1", "--pretty=%s", self.revision]
-            summary = self.branch._capture_output(*cmd).strip()
-            self._summary_cache = _one_line_summary_from_text(summary, 60)
-        return self._summary_cache
+    @LazyProperty
+    def integration_message(self):
+        message = "\n\n(integrated from {branch} change {rev} by {author})"
+        message = message.format(branch=self.branch.desc,
+                                 rev=self.revision,
+                                 author=self.author)
+        return self.description + message
 
-    _author_cache = None
-    @property
+    @LazyProperty
     def author(self):
-        return self._get_property_from_log("_author_cache", "%aN <%aE>")
-
-    _date_cache = None
-    @property
-    def date(self):
-        return self._get_property_from_log("_date_cache", "%ai")
-
-    _pretty_rev_cache = None
-    @property
-    def pretty_rev(self):
-        if self._pretty_rev_cache is None:
-            cmd = ["describe", "--long", "--always", self.revision]
-            self._pretty_rev_cache = self.branch._capture_output(*cmd).strip()
-        return self._pretty_rev_cache
+        return self._xml.find("./logentry/author").text.strip()
 
     def get_patch(self, options, paths=None):
-        cmd = ["diff", "--no-color", "--binary", self.revision + "^",
-               self.revision, "--"] + [path.src for path in paths]
-        return self.branch._capture_output(*cmd)
+        result = []
+        for path in paths:
+            if path.kind == "dir":
+                continue
+            if path.dest:
+                cmd = ["diff",
+                       "%s@%s" % (path.src_url, path.src_rev),
+                       "%s@%s" % (path.dest_url, self.revision)]
+            else:
+                cmd = ["diff", "-c", self.revision, path.src]
+            output = self.branch._capture_output(*cmd, xml=False)
+            target_file = path.dest or path.src
+            output = output.replace("\n--- %s" % os.path.basename(path.src),
+                                    "\n--- %s" % target_file, 1)
+            output = output.replace("\n+++ %s" % os.path.basename(path.src),
+                                    "\n+++ %s" % target_file, 1)
+            result.append(output)
+        return "\n".join(result)
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__,
@@ -676,12 +1050,16 @@ def main(argv=None):
     parser.add_argument("--dry-run", action="store_true",
                         help="Don't actually do anything; this may cause the "
                              "integration to fail where it would otherwise succeed")
+    parser.add_argument("--skip-check", "-S", action="store_true",
+                        help="Don't check whether the patch applies first, just "
+                        "make changes directly.")
     parser.add_argument("-V", "--version", action="version", version=__version__)
     parser.add_argument("revision", help="revision (commit hash) to integrate")
     parser.add_argument("branches", help="branches to merge into",
                         nargs="+")
     parser.set_defaults(log_level=logging.INFO, exclude_outside_paths=False,
-                        interactive=True, excludes=[], force=False, dry_run=False)
+                        interactive=True, excludes=[], force=False,
+                        dry_run=False, skip_check=False)
     args = parser.parse_args(argv)
     log.setLevel(args.log_level)
 
@@ -696,7 +1074,7 @@ def main(argv=None):
         branches.append(branch)
     args.branches[:] = branches
 
-    paths = args.revision.paths
+    paths = set(args.revision.paths)
     for path in list(paths):
         matching_excludes = filter(lambda e: fnmatch.fnmatch(path.src, e),
                                    args.excludes)
