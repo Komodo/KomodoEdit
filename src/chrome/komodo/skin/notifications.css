@@ -77,11 +77,11 @@ notification:not([details]) .twistyImageWrapper {
 
 notification .twistyImage {
   margin-top: -moz-calc(16px - 9px);
-  list-style-image: url("jar:resource://gre/chrome/toolkit.jar!/skin/classic/global/tree/twisty-clsd.png");
+  list-style-image: url("chrome://global/skin/tree/twisty-clsd.png");
 }
 
 notification[open] .twistyImage {
-  list-style-image: url("jar:resource://gre/chrome/toolkit.jar!/skin/classic/global/tree/twisty-open.png");
+  list-style-image: url("chrome://global/skin/tree/twisty-open.png");
 }
 
 notification [anonid="text"] {
