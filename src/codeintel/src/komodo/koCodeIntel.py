@@ -744,6 +744,28 @@ class KoCodeIntelManager(threading.Thread):
         return Cc["@activestate.com/koNotification/manager;1"]\
                 .getService(Ci.koINotificationManager)
 
+    def _create_notification(self, message, detail=None, highlight=True,
+                             timeout=None,
+                             severity=Ci.koINotification.SEVERITY_ERROR):
+        """Create new status bar notification with the given message"""
+        n = self.notificationMgr.createNotification("codeintel-message",
+                                  ["codeintel"],
+                                  None,
+                                  Ci.koINotificationManager.TYPE_TEXT |
+                                    Ci.koINotificationManager.TYPE_STATUS)
+        n.queryInterface(Ci.koINotification)
+        n.queryInterface(Ci.koINotificationText)
+        n.category = "codeintel-message"
+        n.summary = message
+        n.highlight = highlight
+        n.severity = severity
+        n.log = True
+        if detail:
+            n.details = detail
+        if timeout:
+            n.timeout = timeout
+        return n
+
     @property
     def state(self):
         return self._state
@@ -1272,41 +1294,57 @@ class KoCodeIntelManager(threading.Thread):
         if response.get("type") == "logging":
             try:
                 logger = logging.getLogger(response["name"])
-                logger.log(response["level"], response["message"])
+                log_level = response["level"]
+                logger.log(log_level, response["message"])
+                # Anything with a logging level ERROR or higher also goes to the
+                # Komodo statusbar notifications (falls through).
+                if log_level < logging.ERROR:
+                    return
             except Exception as ex:
                 log.warn("Failed to decode logging message: %r", ex)
-            return
 
-        if response.get("message") is not None:
-            self._notification.msg = response["message"]
+        if response.get("type") == "scan-progress":
+            # Update the existing notification.
+            n = self._notification
+        else:
+            # Use a new notification object.
+            n = self._create_notification("codeintel error")
+
+        message = response.get("message")
+        n.summary = message
+
         if response.get("type") == "scan-progress":
             total = response["total"]
             completed = response["completed"]
             if total <= 0:
                 # remove the message
-                self._notification.msg = None
+                n.summary = None
             elif total <= completed:
                 # all done!
-                self._notification.maxProgress = \
+                n.maxProgress = \
                     Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE
-                self._notification.iconURL = "chrome://fugue/skin/icons/tick.png"
-                self._notification.timeout = 5000
+                n.iconURL = "chrome://fugue/skin/icons/tick.png"
+                n.timeout = 5000
             else:
                 if total < 2:
                     # use indeterminate for one item, since jumping from empty to
                     # full (and invisibile) is useless
-                    self._notification.maxProgress = \
+                    n.maxProgress = \
                         Ci.koINotificationProgress.PROGRESS_INDETERMINATE
                 else:
-                    self._notification.progress = completed
-                    self._notification.maxProgress = total
-                self._notification.iconURL = None # remove any markings
-                self._notification.timeout = 0
+                    n.progress = completed
+                    n.maxProgress = total
+                n.iconURL = None # remove any markings
+                n.timeout = 0
+        elif message:
+            message = message.strip()
+            n.details = message
+            n.summary = message.splitlines()[-1]
 
         # Don't need to manually call addNotification/removeNotification, as
         # the status_message handler (statusbar.js) will do that for us -
         # bug 100077.
-        self.notifyObservers(self._notification, "status_message", None)
+        self.notifyObservers(n, "status_message", None)
 
         self.debug("Report: %r", response)
 
