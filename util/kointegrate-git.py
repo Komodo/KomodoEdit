@@ -24,6 +24,7 @@ import itertools
 import logging
 import os
 import os.path
+import re
 import subprocess
 import sys
 import textwrap
@@ -123,6 +124,7 @@ class Branch(object):
         @param revision {Revision} The revision the change was from
         @param paths {iterable of ChangedPath} paths modified in the revision
         @param options {Namespace} command line options
+        @return {Revision} the newly committed revision
         """
         raise NotImplementedError("%s needs to implement commit" % self)
 
@@ -264,6 +266,8 @@ class GitBranch(Branch):
                "--message", message,
                "--"] + all_changed_paths
         self._execute(*cmd)
+        rev = self._capture_output("rev-parse", "HEAD").strip()
+        return GitRevision(rev, self)
 
 class SVNBranch(Branch):
     scc_type = "svn"
@@ -519,9 +523,16 @@ class SVNBranch(Branch):
         all_changed_paths = set(path.src for path in paths)
         all_changed_paths.update(path.dest for path in paths)
         all_changed_paths = filter(bool, all_changed_paths)
-        args = [self._exe, "commit", "--message", message] + all_changed_paths
-        subprocess.check_call(args, cwd=self.base_dir)
 
+        out = self._capture_output("commit", "--message", message,
+                                   *all_changed_paths,
+                                   xml=False)
+        sys.stdout.write(out)
+
+        revision_re = re.compile(r'Committed revision (\d+)\.')
+        revision = revision_re.search(out)
+        if revision:
+            return SVNRevision(revision.group(1), self)
 
 #---- configuration/prefs handling
 
@@ -691,6 +702,11 @@ class Revision(object):
         """The author of this commit"""
         raise NotImplementedError("%s needs to implement author" % self)
 
+    @property
+    def commit_summary(self):
+        """A short one-line support about this commit, for bugzilla tracking"""
+        raise NotImplementedError("%s needs to implement commit_summary" % self)
+
     def get_patch(self, options, paths=None):
         """Get a patch file for this revision
         @param options {Namespace} command-line options
@@ -785,7 +801,7 @@ class Revision(object):
                 auto_commit = False
 
         if auto_commit:
-            branch.commit(self, paths, options)
+            return branch.commit(self, paths, options)
 
 class GitRevision(Revision):
     def __str__(self):
@@ -900,6 +916,42 @@ class GitRevision(Revision):
         cmd = ["describe", "--long", "--always", self.revision]
         return self.branch._capture_output(*cmd).strip()
 
+    @LazyProperty
+    def commit_summary(self):
+        # PROJECT-NAME:HASH (BRANCH-NAME)
+        summary = ""
+        try:
+            remote = self.branch._capture_output("config", "--get",
+                                                 "remote.origin.url").strip()
+            if remote.startswith("/"):
+                pass # local file path
+            elif remote.startswith("file:///"):
+                pass # file url
+            elif len(remote) > 1 and remote[1] == ":":
+                pass # Windows absolute path
+            else:
+                remote = remote.rsplit("/", 1)[-1]
+                summary = remote + ":"
+        except subprocess.CalledProcessError:
+            pass
+        summary += self.revision[:12]
+        branch = (self.branch
+                      ._capture_output("describe", "--all", "--abbrev=0")
+                      .strip())
+        if not branch:
+            branch = ""
+        if branch.startswith("remotes/"):
+            branch = branch[len("remotes/"):]
+        if branch.startswith("tags/"):
+            branch = branch[len("tags/"):] + " tag"
+        if branch.startswith("heads/"):
+            branch = branch[len("heads/"):]
+            if branch not in ("trunk", "master"):
+                branch += " branch"
+        if branch:
+            summary += " (%s)" % (branch,)
+        return summary
+
     _patch_cache = None
     def get_patch(self, options, paths=None):
         if paths is None:
@@ -999,6 +1051,20 @@ class SVNRevision(Revision):
     @LazyProperty
     def author(self):
         return self._xml.find("./logentry/author").text.strip()
+
+    @LazyProperty
+    def commit_summary(self):
+        desc = self.branch.desc
+        log.debug("%s", self.branch.desc)
+        # rename 'komodo' to 'komodo ide'
+        if desc.startswith("komodo"):
+            desc = desc.replace("komodo", "komodo ide", 1)
+        # PROJECT-NAME rCHANGENUM (BRANCH-NAME)
+        if "(" in desc:
+            parts = desc.split("(", 1)
+            return "%s r%s (%s" % (parts[0].strip(), self.revision, parts[1])
+        # No branch name, just do PROJECT-NAME rCHANGENUM
+        return "%s r%s" % (desc, self.revision)
 
     def get_patch(self, options, paths=None):
         result = []
@@ -1108,7 +1174,7 @@ def main(argv=None):
     # okay to integrate them (because can't detect conflicts).
     binary_paths = [path for path in args.revision.paths
                     if path.binary and path.action != ChangedPath.DELETED]
-    if False and binary_paths:
+    if binary_paths:
         log.info(textwrap.dedent("""
             ***
             The following source files are binary:
@@ -1123,8 +1189,19 @@ def main(argv=None):
             if answer != "yes":
                 return False
 
+    commits = []
     for branch in args.branches:
-        args.revision.integrate(args, branch, paths)
+        result = args.revision.integrate(args, branch, paths)
+        if result is not None:
+            commits.append(result)
+
+    if commits:
+        log.info("\n")
+        log.info("-- Check-in summary (for bugzilla comment):")
+        log.info("  %s", args.revision.commit_summary)
+        for commit in commits:
+            log.info("  %s", commit.commit_summary)
+        log.info("--\n")
 
 # Recipe: banner (1.0.1)
 def _banner(text, ch='=', length=78):
