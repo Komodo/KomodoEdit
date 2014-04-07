@@ -1288,17 +1288,30 @@ class KoCodeIntelManager(threading.Thread):
         if path:
             self.notifyObservers(buf, "codeintel_buffer_scanned", path)
 
+    _memory_error_restart_count = 0
+
     def do_report_message(self, response):
         """Report a message from codeintel (typically, scan status) unsolicited
         response"""
+        message = response.get("message")
         if response.get("type") == "logging":
             try:
                 logger = logging.getLogger(response["name"])
                 log_level = response["level"]
-                logger.log(log_level, response["message"])
+                logger.log(log_level, message)
                 # Anything with a logging level ERROR or higher also goes to the
                 # Komodo statusbar notifications (falls through).
                 if log_level < logging.ERROR:
+                    return
+
+                if (message.strip().endswith("MemoryError") and
+                   ("Traceback (most recent call last):" in message)):
+                    # Python memory error - kill the process (it will restart
+                    # itself) - bug 103067.
+                    if self._memory_error_restart_count < 20:
+                        log.fatal("Out-of-process ran out of memory - killing process")
+                        self.kill()
+                        self._memory_error_restart_count += 1
                     return
             except Exception as ex:
                 log.warn("Failed to decode logging message: %r", ex)
@@ -1310,7 +1323,6 @@ class KoCodeIntelManager(threading.Thread):
             # Use a new notification object.
             n = self._create_notification("codeintel error")
 
-        message = response.get("message")
         n.summary = message
 
         if response.get("type") == "scan-progress":
