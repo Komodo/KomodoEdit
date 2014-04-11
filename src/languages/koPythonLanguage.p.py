@@ -67,6 +67,7 @@ class KoPythonCommonLexerLanguageService(KoLexerLanguageService):
         self.setLexer(components.interfaces.ISciMoz.SCLEX_PYTHON)
         self.setProperty('tab.timmy.whinge.level', '1') # XXX make a user-accesible pref
         self.setProperty('lexer.python.keywords2.no.sub.identifiers', '1')
+        self.setProperty('fold.quotes.python', '1')
         # read lexPython.cxx to understand the meaning of the levels.
         self.supportsFolding = 1
 
