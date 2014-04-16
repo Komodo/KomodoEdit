@@ -5,20 +5,20 @@ mozilla bug 385962 - allow mar to take file list from stdin
 Index: /Users/toddw/as/komodo-devel_clang1/mozilla/build/moz1700-ko8.13/mozilla/modules/libmar/tool/mar.c
 --- a/modules/libmar/tool/mar.c	Wed Oct 24 15:00:36 2012 -0400
 +++ b/modules/libmar/tool/mar.c	Thu Oct 25 16:05:52 2012 -0700
-@@ -30,12 +30,13 @@
+@@ -35,12 +35,13 @@
  
  static void print_usage() {
    printf("usage:\n");
    printf("Create a MAR file:\n");
    printf("  mar [-H MARChannelID] [-V ProductVersion] [-C workingDir] "
-          "{-c|-x|-t|-T} archive.mar [files...]\n");
+          "-c archive.mar [files...]\n");
 +  printf("  Use '-' for 'files...' to provide files on stdin (one per line).\n");
+ 
+   printf("Extract a MAR file:\n");
+   printf("  mar [-C workingDir] -x archive.mar\n");
  #ifndef NO_SIGN_VERIFY
    printf("Sign a MAR file:\n");
    printf("  mar [-C workingDir] -d NSSConfigDir -n certname -s "
-          "archive.mar out_signed_archive.mar\n");
-   printf("Strip a MAR signature:\n");
-   printf("  mar [-C workingDir] -r "
 @@ -87,12 +88,42 @@
    mar_enum_items(mar, mar_test_callback, NULL);
  
