@@ -65,8 +65,7 @@ Alternatively, on the command line used to launch komodo,
 if (typeof(require) === "function") {
     // This is being loaded as a jetpack module
     // (This is now the preferred way to load this)
-    this.Components = require("chrome").components; // for Components.stack
-    var { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+    var { Cc, Ci, Cu } = require("chrome");
     exports.__method__ = "require"; // For unit testing
 } else if (typeof(window) !== "undefined") {
     // This is being loaded in a window; make sure we have the jetpack loader,
@@ -202,9 +201,7 @@ Logger.prototype.deprecated = function(message, reportDuplicates=false,
                 _gSeenDeprectatedMsg[message] = true;
                 // Skip the deprecated() line
                 stacklevel = (parseInt(stacklevel) || 0) + 1;
-                this.warn(message + "\n" +
-                          getStack(stacklevel).replace('\n', '\n    ', 'g').slice(0, -4) +
-                          "\n");
+                this.warn(message + "\n" + getStack(null, stacklevel, 4));
             }
         }
     } catch(ex) {
@@ -302,8 +299,8 @@ Logger.prototype.error = function(message, noTraceback=false) {
             if (!noTraceback) {
                 message = String(message).replace(/\n$/, "") +
                           "\nTraceback from ERROR in '" +
-                          this._logger_name + "' logger:\n    " +
-                          getStack().replace('\n', '\n    ', 'g').slice(0, -4);
+                          this._logger_name + "' logger:\n" +
+                          getStack(null, 0, 4);
             }
             this._logger.error(message);
         }
@@ -349,29 +346,27 @@ Logger.prototype.exception = function(e, message="") {
     }
 }
 
-const getStack = exports.getStack = function(skipCount=0)
+const getStack = exports.getStack = function(ex=null, skipCount=0, indentWidth=0)
 {
-    var frame = Components.stack.caller;
-    var str = "<top>";
-
-    while (frame)
-    {
-        if (skipCount > 0) {
-            // Skip this frame.
-            skipCount -= 1;
-        } else {
-            // Include the data from this frame.
-            var name = frame.name ? frame.name : "[anonymous]";
-            str += "\n" + name + "@" + frame.filename +':' + frame.lineNumber;
-        }
-        frame = frame.caller;
+    if (!ex) {
+        ex = Error();
+        skipCount += 1;
     }
-
-    return str+"\n";
+    var frames = ex.stack.split("\n");
+    var padding = "";
+    for (var i=0; i < indentWidth; i++) {
+        padding += " ";
+    }
+    var stack = padding + frames.slice(skipCount).join("\n" + padding);
+    // Remove the last padding item.
+    if (padding) {
+        stack = stack.slice(0, -(padding.length));
+    }
+    return stack;
 }
 
 exports.dumpStack = function() {
-    dump("Stack:\n" + getStack().replace('\n', '\n    ', 'g').slice(0, -4));
+    dump("Stack:\n" + getStack(null, 0, 4));
 }
 
 /* XXX copied from venkman-utils.js
