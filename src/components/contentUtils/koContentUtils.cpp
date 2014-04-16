@@ -81,7 +81,11 @@ NS_IMETHODIMP koContentUtils::GetWindowFromCaller(nsIDOMWindow **callingDoc)
 {
     NS_ENSURE_ARG_POINTER(callingDoc);
   
+#if MOZ_VERSION < 3100
     *callingDoc = GetWindowFromCaller().get();
+#else
+    *callingDoc = GetWindowFromCaller().take();
+#endif
     return NS_OK;
 }
 
