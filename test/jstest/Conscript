@@ -51,14 +51,16 @@ $envLocal{'PYTHONPATH'} = $ENV{'PYTHONPATH'} . "$platformPathSep$mozSrc/mozilla/
 $consLocal = new cons(ENV => \%envLocal);
 $consLocal->Command("$mozChromeDir/komodo-jstest.manifest",
                $buildlistScript,
+               # Last command is to fake a touch command using Python.
                qq(
                 $unsiloedPythonExe %1 "$mozBin/chrome.manifest" "manifest chrome/komodo-jstest.manifest"
-                touch %>
+                $unsiloedPythonExe -c "import sys; file(sys.argv[1], 'w')" %0
                ));
 $consLocal->Command("komodo-jstest.manifest.landmark",
                "$mozChromeDir/komodo-jstest.manifest",
                $buildlistScript,
+               # Last command is to fake a touch command using Python.
                qq(
                 $unsiloedPythonExe %2 %1 "resource komodo-jstest komodo-jstest/"
-                touch %>
+                $unsiloedPythonExe -c "import sys; file(sys.argv[1], 'w')" %0
                ));
