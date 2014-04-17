@@ -2680,14 +2680,13 @@ class BuildNum(black.configure.Datum):
             raise black.configure.ConfigureError(
                 "Failed to find last svn revision id")
         # count the number of commits since the last known svn commit
-        cmd = ["git", "rev-list", "--all", "--count",
-               "--since", last_svn_date]
+        cmd = ["git", "rev-list", "--all", "--since=" + last_svn_date]
         try:
             count = _capture_stdout(cmd)
         except RuntimeError:
             raise black.configure.ConfigureError(
                 "error running '%s'" % (" ".join(cmd),))
-        return int(count) + svn_rev - 1 # don't double-count last known svn commit
+        return count.count('\n') + svn_rev - 1 # don't double-count last known svn commit
 
     def _get_simplified_svn_version(self):
         # Note that this can be a fairly complex string (perhaps not
