@@ -2392,11 +2392,6 @@ def target_mozilla(argv=["mozilla"]):
             _run_in_dir("%s -f client.mk build" % _get_make_command(config, buildDir),
                         buildDir, log.info)
 
-        if config.mozApp == "komodo":
-            # argh, komodo dir does not get entered, call make there seperately
-            log.info("entering directory '%s' (to build komodo separately)",
-                     koDir)
-            _run_in_dir(_get_make_command(config, buildDir), koDir, log.info)
         argv = argv[1:]
     return argv
 
