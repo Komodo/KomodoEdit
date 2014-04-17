@@ -920,8 +920,8 @@ def FetchDependentSources(cfg, argv, update=True):
     except IndexError:
         pass # no argv
 
-    if not cfg.sccRepo:
-        # Don't know where the SCC repo is, no point in trying anything
+    if not cfg.sccType:
+        # Not under scc... not sure what we are dealing with then.
         # (This might be the case for, e.g., source tarballs)
         return
 
@@ -936,38 +936,26 @@ def FetchDependentSources(cfg, argv, update=True):
     if cfg.withDocs:
         children.append(
             {   "name": "docs",
+                "sccType": "git",
                 "dir": join(cfg.komodoDevDir, "contrib", "komododoc"),
-                "git": {
-                    "/KomodoEdit.git": "/komododoc.git"
-                }
+                "url": "https://github.com/Komodo/komodo-documentation.git",
             }
         )
     for child in children:
+        if child["sccType"] != cfg.sccType:
+            continue
         if cfg.sccType == "git":
-            best = ""
-            for src_repo in child["git"].keys():
-                if len(src_repo) <= len(best):
-                    continue
-                if not cfg.sccRepo.endswith(src_repo):
-                    continue
-                best = src_repo
-            if not best:
-                if not update and exists(child["dir"]):
-                    continue
-                raise RuntimeError("Don't know how to get %s from %s"
-                                   % (child["name"], cfg.sccRepo))
-            url = cfg.sccRepo[:-len(src_repo)] + child["git"][src_repo]
-
+            repo_url = child["url"]
             if exists(child["dir"]):
                 if update:
+                    print("Updating git %s in %r" % (child["name"], child["dir"]))
                     _run(["git", "pull", "--rebase"], cwd=child["dir"])
             else:
                 if not isdir(dirname(child["dir"])):
                     os.makedirs(dirname(child["dir"]))
-                _run(["git", "clone", url, child["dir"]])
+                print("Cloning git %s into %r" % (child["name"], child["dir"]))
+                _run(["git", "clone", repo_url, child["dir"]])
         else:
-            if exists(child["dir"]) and not update:
-                continue
             # svn doesn't reach here, svn:externals can do the job
             raise RuntimeError("Don't know how to get %s via %s"
                                % (child["name"], cfg.sccType))
