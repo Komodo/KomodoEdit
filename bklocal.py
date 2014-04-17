@@ -2663,8 +2663,8 @@ class BuildNum(black.configure.Datum):
         """Get the build number for a git repo
         This... may or may not actually make any sense"""
         # Find the last known commit that was imported from svn
-        cmd = ["git", "log", "--all", "-1", "--grep", "git-svn-id:",
-               "--date-order", "--pretty=%ci%n%B"]
+        cmd = ["git", "log", "--all", "-1", "--grep=git-svn-id:",
+               "--date-order", "--pretty=%ci%n%b"]
         try:
             last_svn_commit = _capture_stdout(cmd).splitlines(False)
         except RuntimeError:
