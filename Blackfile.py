@@ -2304,6 +2304,8 @@ def DistCleanKomodoBuild(cfg, argv):
         join(cfg.komodoDevDir, "src", "scintilla"),
         join(cfg.komodoDevDir, "generated.pdb"),
     ]
+    if cfg.sccType == "git":
+        bits.append(join(cfg.komodoDevDir, "contrib", "komododoc"))
     for path in bits:
         out.write("remove '%s'\n" % path)
         if sys.platform == "win32":
