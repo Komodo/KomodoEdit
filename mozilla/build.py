@@ -2373,8 +2373,6 @@ def target_mozilla(argv=["mozilla"]):
         argv = argv[2:]
 
     else:
-        koDir = os.path.join(native_objdir, 'komodo')
-
         if config.mozVer >= 24.0:
             # New enough to use mach
             # Make sure mach has the state directory working
