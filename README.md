@@ -9,9 +9,6 @@ https://github.com/Komodo in case you only want to contribute to a specific
 component. This'll save you some time and hassle as you would not have to build
 the entire project.
 
-Komodo Edit is the open-source version of Komodo IDE, any contributions made to
-Komodo Edit will also be added to Komodo IDE. [You can check the differences between the two versions here](http://www.activestate.com/komodo-edit/compare-with-komodo-ide).
-
 ## Table of Contents
 
 - [Screenshot](#screenshot)
@@ -81,7 +78,7 @@ steps is *meant to be sufficient* to get Komodo building.
    ```
     cd mozilla
     setenv-moz-msvc11.bat
-    python build.py configure -k 8.10
+    python build.py configure -k 9.10
     python build.py distclean all
    ```
 
@@ -170,7 +167,7 @@ above steps is *meant to be sufficient* to get Komodo building.
 
    ```
     cd komodo/mozilla
-    python build.py configure -k 8.10
+    python build.py configure -k 9.10
     python build.py distclean all
    ```
 
@@ -184,7 +181,7 @@ above steps is *meant to be sufficient* to get Komodo building.
    ```
     cd ..
     export PATH=`pwd`/util/black:$PATH   # Komodo's "bk" build tool
-    bk configure -V 8.10.0-devel
+    bk configure -V 9.10.0-devel
     bk build
    ```
 
