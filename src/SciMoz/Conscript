@@ -162,6 +162,7 @@ if ($platform eq "win") {
     my $CXXFLAGS = $consLocal{'CXXFLAGS'} .
         " /W3 /D_WINDOWS /DWIN32 /DXP_WIN" .
         " /FI$mozObjDir\\mozilla-config.h" .
+        " /I$mozSrc/mozilla/xpcom/ds" . # for nsObserverList.h
         " /DCONTAINER_HANDLES_EVENTS=1 /DINCLUDE_DEPRECATED_FEATURES";
 
     if ($buildType eq 'debug') {
