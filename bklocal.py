@@ -1425,7 +1425,7 @@ class WithStackato(black.configure.BooleanDatum):
         self.applicable = 1
         configTokens = black.configure.items["configTokens"].Get()
         productType = black.configure.items["productType"].Get()
-        self.value = 1
+        self.value = 0
         for opt, optarg in self.chosenOptions:
             if opt == "--with-stackato":
                 if not self.value: configTokens.append("stackato")
