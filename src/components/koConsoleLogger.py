@@ -17,7 +17,8 @@ except ImportError:
 class KoConsoleLogger:
     """ This logs things from the error console and dumps them into the Python
     logging facilities."""
-    _com_interfaces_ = [Ci.nsIConsoleListener]
+    _com_interfaces_ = [Ci.nsIConsoleListener,
+                        Ci.nsIObserver]
     _reg_clsid_ = "{6c3f4619-ae3c-4e8e-9139-7a9679552fd5}"
     _reg_contractid_ = "@activestate.com/KoConsoleLogger;1"
     _reg_desc_ = "JS Error Console Logger"
@@ -89,7 +90,9 @@ class KoConsoleLogger:
             error.lineNumber, exc_info=exc_info)
         return True
 
-    def observe(self, message):
+    def observe(self, message, *args):
+        if len(args) > 0:
+            return # Just tells us that the component has been initialized
         if self._handleException(message):
             return
         if self._handleScriptError(message):
