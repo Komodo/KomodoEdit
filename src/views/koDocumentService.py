@@ -146,7 +146,10 @@ class KoDocumentService:
             docs = []
             # clear out all of the objects w/ no references to them
             for displayPath, wrappedDocRef in self._documents.items():
-                wrappedDoc = wrappedDocRef()
+                try:
+                    wrappedDoc = wrappedDocRef()
+                except:
+                    wrappedDoc = None  # dead object
                 if not wrappedDoc:
                     del self._documents[displayPath]
                     continue
