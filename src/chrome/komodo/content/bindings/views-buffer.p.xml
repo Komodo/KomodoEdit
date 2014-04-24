@@ -1502,7 +1502,7 @@
                         'text': text,
                         'listType': modifiers,
                     }
-                    xtk.domutils.fireDataEvent(this, "codeintel_userlist_selected", data);
+                    this.dispatchEvent(new CustomEvent("codeintel_userlist_selected", { detail: data }));
                     break;
                 case ISciMozEvents.SME_URIDROPPED:
                     if (typeof ko !== "undefined" && "dragdrop" in ko) {
