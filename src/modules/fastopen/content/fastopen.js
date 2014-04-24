@@ -208,8 +208,7 @@ ko.fastopen.invoketool = {};
         var index;
         var keyCode = event.keyCode;
         var resultsTree = document.getElementById("invoketool_results");
-        if (keyCode == KeyEvent.DOM_VK_ENTER
-            || keyCode == KeyEvent.DOM_VK_RETURN)
+        if (keyCode == KeyEvent.DOM_VK_RETURN)
         {
             if (this._isMac ? event.metaKey : event.ctrlKey) {
                 this.editPropertiesCurrSelection();

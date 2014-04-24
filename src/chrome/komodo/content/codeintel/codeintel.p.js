@@ -626,7 +626,7 @@ ko.codeintel = {};
             return;
         }
 
-        var completionKeyCodes = [KeyEvent.DOM_VK_RETURN, KeyEvent.DOM_VK_ENTER, KeyEvent.DOM_VK_TAB];
+        var completionKeyCodes = [KeyEvent.DOM_VK_RETURN, KeyEvent.DOM_VK_TAB];
         if (completionKeyCodes.indexOf(event.keyCode) !== -1) {
             // keys that should trigger autocompletion (but only on keydown,
             // not again in keypress)

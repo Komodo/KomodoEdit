@@ -61,7 +61,7 @@
                     <xul:toolbarbutton id="browser-stop-button" anonid="browser-stop-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="window.document.getBindingParent(this).stop()" tooltiptext="&stop.tooltiptext;" disabled="true"/>
                     <xul:textbox id="urlbar" anonid="urlbar" autocomplete="true" timeout="300" flex="1"
                                  searchSessionType="urlbar" 
-                                 onkeypress="if( event.keyCode == event.DOM_VK_ENTER || event.keyCode == event.DOM_VK_RETURN ) { window.document.getBindingParent(this).open(this.value); }"/>
+                                 onkeypress="if (event.keyCode == event.DOM_VK_RETURN) { window.document.getBindingParent(this).open(this.value); }"/>
                 </xul:toolbar>
             </xul:toolbox>
 

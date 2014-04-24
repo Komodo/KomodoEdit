@@ -105,8 +105,7 @@ this.ProjectCommandHelper.prototype.onTreeKeyPress = function(event, sender) {
                 retVal = false;
                 throw new Error("");
             }
-            if (event.keyCode == event.DOM_VK_ENTER
-                || event.keyCode == event.DOM_VK_RETURN) {
+            if (event.keyCode == event.DOM_VK_RETURN) {
                 o1 = {};
                 this.owner.projectsTreeView.getSelectedItems(true, o1, {});
                 items = o1.value;

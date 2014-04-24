@@ -443,8 +443,7 @@ viewMgrClass.prototype = {
                 event.stopPropagation();
                 event.preventDefault();
                 return false;
-            } else if (event.keyCode == event.DOM_VK_ENTER
-                       || event.keyCode == event.DOM_VK_RETURN) {
+            } else if (event.keyCode == event.DOM_VK_RETURN) {
                 // ENTER/RETURN should be handled by xbl bindings.
                 event.stopPropagation();
                 event.preventDefault();

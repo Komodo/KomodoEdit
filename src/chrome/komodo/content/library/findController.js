@@ -673,7 +673,7 @@ FindController.prototype._keyHandler = function FindController__keyHandler(event
       case KeyEvent.DOM_VK_TAB:
 
       // editing
-      case KeyEvent.DOM_VK_ENTER:      case KeyEvent.DOM_VK_RETURN:
+      case KeyEvent.DOM_VK_RETURN:
       case KeyEvent.DOM_VK_BACK_SPACE: case KeyEvent.DOM_VK_DELETE:
       case KeyEvent.DOM_VK_INSERT:
 

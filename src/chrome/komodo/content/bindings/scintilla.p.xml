@@ -1178,7 +1178,6 @@
 
                 // See if scintilla component uses this event
                 switch (event.keyCode) {
-                    case event.DOM_VK_ENTER:
                     case event.DOM_VK_RETURN:
                         break;
                     case event.DOM_VK_TAB:

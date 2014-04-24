@@ -3825,8 +3825,7 @@ function vim_InputBuffer_KeyPress(event)
     var stopEvent = false;
     try {
         var keyCode = event.keyCode;
-        if ((keyCode == event.DOM_VK_ENTER) ||
-            (keyCode == event.DOM_VK_RETURN)) {
+        if (keyCode == event.DOM_VK_RETURN) {
 
             stopEvent = true;
             var value = gVimController.inputBufferFinish();

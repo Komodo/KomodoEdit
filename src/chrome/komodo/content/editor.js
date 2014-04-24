@@ -425,7 +425,6 @@ editor_editorController.prototype.rawHandler= function(event) {
             } else {
                 switch (event.keyCode) {
                     case event.DOM_VK_ESCAPE:
-                    case event.DOM_VK_ENTER:
                     case event.DOM_VK_RETURN:
                     case event.DOM_VK_TAB:
                     case event.DOM_VK_BACK_SPACE:

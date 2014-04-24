@@ -2192,7 +2192,6 @@
                 }
             }
 
-            const DOM_VK_ENTER = event.DOM_VK_ENTER;
             const DOM_VK_RETURN = event.DOM_VK_RETURN;
             const DOM_VK_TAB = event.DOM_VK_TAB;
             var charCode = event.charCode;
@@ -2200,7 +2199,7 @@
             var keyCode = event.keyCode;
             if (charCode) {
                 charCodeChar = String.fromCharCode(charCode);
-            } else if (keyCode && [DOM_VK_TAB, DOM_VK_ENTER, DOM_VK_RETURN].indexOf(keyCode) >= 0) {
+            } else if (keyCode && [DOM_VK_TAB, DOM_VK_RETURN].indexOf(keyCode) >= 0) {
 <!-- #if PLATFORM != "darwin" -->
                 var cmdkey = event.ctrlKey || event.altKey || event.metaKey || event.shiftKey;
 <!-- #else -->
@@ -2212,14 +2211,10 @@
 <!-- #endif -->
                 if (cmdkey) {
                     // Do nothing
-                } else if (keyCode == DOM_VK_ENTER || keyCode == DOM_VK_RETURN) {
+                } else if (keyCode == DOM_VK_RETURN) {
                     var haveChNEWLINE = this.autoAbbreviationTriggerCharacters_Processed.indexOf('\n');
                     var haveChRETURN = this.autoAbbreviationTriggerCharacters_Processed.indexOf('\r');
-                    if (keyCode == DOM_VK_ENTER) {
-                        charCodeChar = (!haveChNEWLINE && haveChRETURN) ? '\r' : '\n';
-                    } else {
-                        charCodeChar = (!haveChRETURN && haveChNEWLINE) ? '\n' : '\r';
-                    }
+                    charCodeChar = (!haveChRETURN && haveChNEWLINE) ? '\n' : '\r';
                 } else {
                     charCodeChar = '\t';
                 }

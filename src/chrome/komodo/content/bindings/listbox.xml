@@ -148,8 +148,7 @@
             <handler event="keypress">
             <![CDATA[
                 event.cancelBubble = true;
-                if (event.keyCode == event.DOM_VK_ENTER ||
-                    event.keyCode == event.DOM_VK_RETURN ||
+                if (event.keyCode == event.DOM_VK_RETURN ||
                     event.keyCode == event.DOM_VK_TAB) {
                     this._editdeck.firstChild.value = this._editdeck.lastChild.value;
                     this.setAttribute('label',this._editdeck.firstChild.value);

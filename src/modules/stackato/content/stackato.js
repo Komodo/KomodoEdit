@@ -388,8 +388,7 @@ this.checkUpdateTarget = function(event, menulist) {
         && !event.shiftKey
         && !event.ctrlKey
         && !event.metaKey
-        && (event.keyCode == event.DOM_VK_ENTER
-            || event.keyCode == event.DOM_VK_RETURN)) {
+        && (event.keyCode == event.DOM_VK_RETURN)) {
         this.updateTarget();
     }
 };
@@ -1242,8 +1241,7 @@ this.mainTree_onKeyPress = function(event) {
         if (this.arrowKeys.indexOf(event.keyCode) >= 0) {
             // Nothing to do but squelch the keycode
             this.updateStackatoToolbar();
-        } else if (event.keyCode == event.DOM_VK_ENTER
-                   || event.keyCode == event.DOM_VK_RETURN) {
+        } else if (event.keyCode == event.DOM_VK_RETURN) {
             // What to do?
         } else if (event.keyCode == event.DOM_VK_DELETE) {
             this._application_command(event, "delete", true);

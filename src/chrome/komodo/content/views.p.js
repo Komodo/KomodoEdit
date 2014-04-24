@@ -2678,8 +2678,7 @@ this._gotoLine_report_error = function _gotoLine_report_error(errorBox, line) {
 
 this.gotoLine_onkeypress_handler = function ko_views_gotoLine_onkeypress_handler(event)
 {
-    if (event.keyCode != event.DOM_VK_ENTER &&
-        event.keyCode != event.DOM_VK_RETURN) {
+    if (event.keyCode != event.DOM_VK_RETURN) {
         return;
     }
     // Stop the event from being consumed by Komodo's keybinding manager.

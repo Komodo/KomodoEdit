@@ -407,7 +407,6 @@ notificationsController.handleEvent = function(event) {
     case KeyEvent.DOM_VK_RIGHT:
       NotificationsWidgetController.container.selectedItems.forEach(function(n) n.open = true);
       break;
-    case KeyEvent.DOM_VK_ENTER:
     case KeyEvent.DOM_VK_RETURN:
       NotificationsWidgetController.container.selectedItems.forEach(function(n) n.open = !n.open);
       break;

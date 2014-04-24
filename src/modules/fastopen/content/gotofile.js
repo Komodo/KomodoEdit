@@ -118,8 +118,7 @@ function handleDblClick() {
 
 
 function handleWindowKeyPress(event) {
-    if (event.keyCode == KeyEvent.DOM_VK_ENTER
-        || event.keyCode == KeyEvent.DOM_VK_RETURN)
+    if (event.keyCode == KeyEvent.DOM_VK_RETURN)
     {
         _handleEnter();
     } else if (event.keyCode == KeyEvent.DOM_VK_ESCAPE) {
@@ -133,8 +132,7 @@ var _gIgnoreNextFindFiles = false;
 function handleQueryKeyPress(event) {
     var index;
     var keyCode = event.keyCode;
-    if (keyCode == KeyEvent.DOM_VK_ENTER
-        || keyCode == KeyEvent.DOM_VK_RETURN)
+    if (keyCode == KeyEvent.DOM_VK_RETURN)
     {
         if (_gIsMac && event.metaKey || event.ctrlKey) {
             _handleAlternativeEnter();
@@ -264,13 +262,10 @@ function focusShortcutEditor() {
  * Key handler for the shortcut editor text box
  */
 function handleShortcutEditorKey(event) {
-    switch (event.keyCode) {
-        case KeyEvent.DOM_VK_ENTER:
-        case KeyEvent.DOM_VK_RETURN:
-            event.stopPropagation();
-            commitShortcut();
-            gWidgets.shortcutShowButton.open = false;
-            break;
+    if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
+        event.stopPropagation();
+        commitShortcut();
+        gWidgets.shortcutShowButton.open = false;
     }
 }
 
