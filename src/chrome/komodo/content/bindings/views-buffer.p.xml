@@ -1006,7 +1006,7 @@
                     "line": currentLineNo,
                     "column": columnNo
                 }
-                xtk.domutils.fireDataEvent(this, 'current_view_linecol_changed', data);
+                this.dispatchEvent(new CustomEvent('current_view_linecol_changed', { detail: data }));
 
             } else {
                 if (this._lastPosLineAndCol[3] != newPosLineAndCol[3]) {

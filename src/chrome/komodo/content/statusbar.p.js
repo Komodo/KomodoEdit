@@ -757,8 +757,8 @@ StatusBarObserver.prototype.handle_current_view_language_changed = function(even
 
 StatusBarObserver.prototype.handle_current_view_linecol_changed = function(event) {
     _updateLineCol(event.originalTarget,
-                   event.getData("line")+1,    // Human line num start at 1.
-                   event.getData("column")+1); // Human column num start at 1.
+                   event.detail["line"]+1,    // Human line num start at 1.
+                   event.detail["column"]+1); // Human column num start at 1.
 };
 
 StatusBarObserver.prototype.handle_current_view_open_or_closed = function(event) {
