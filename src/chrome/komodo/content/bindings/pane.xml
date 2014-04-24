@@ -1041,11 +1041,9 @@
           }
           let doc = target.nodeType == Node.DOCUMENT_NODE ?
             target : target.ownerDocument;
-          let event = doc.createEvent("DataContainerEvent");
-          event.initEvent(name, true /*bubble*/, true /*cancel*/);
-          for (let key of Object.getOwnPropertyNames(params||{})) {
-            event.setData(key, params[key]);
-          }
+          let event = doc.createEvent("CustomEvent");
+          event.initCustomEvent(name, true /*bubble*/, true /*cancel*/,
+                                params);
           target.dispatchEvent(event);
           return !event.defaultPrevented;
         ]]>
