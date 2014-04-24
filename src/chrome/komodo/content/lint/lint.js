@@ -725,7 +725,7 @@ this.doClick = function lint_doClick(event) {
 }
 
 this.initializeGenericPrefs = function(prefset) {
-    if (typeof(prefset) == "undefined") {
+    if (typeof(prefset) == "undefined" || prefset instanceof Event) {
         prefset = ko.prefs;
     }
     var ids = {};
