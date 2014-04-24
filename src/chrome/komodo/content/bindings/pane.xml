@@ -1024,7 +1024,7 @@
 
       <method name="_dispatchEvent">
         <!--
-         - Helper to dispatch a DataContainerEvent at a given target
+         - Helper to dispatch a CustomEvent at a given target
          - @param name {String} The name of the event to disptach
          - @param target {EventTarget} The target to dispatch the event at
          - @param params {Object} Extra data to set on the event
