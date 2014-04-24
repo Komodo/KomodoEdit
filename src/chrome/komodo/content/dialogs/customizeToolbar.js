@@ -416,8 +416,7 @@ window.addEventListener("load", function() {
 
     // Tell the caller we're all done
     if (window.frameElement) {
-        var event = document.createEvent("DataContainerEvent");
-        event.initEvent("ready", true, false);
+        var event = new CustomEvent("ready", { bubbles: true, cancelable: false});
         window.frameElement.dispatchEvent(event);
     }
 
