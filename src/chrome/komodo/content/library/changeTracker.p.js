@@ -175,7 +175,7 @@ this.ChangeTracker.prototype.observe = function(subject, topic, data) {
 };
 
 this.ChangeTracker.prototype.handleFileSaved = function handleFileSaved(event) {
-    var view = event.getData("view");
+    var view = event.detail["view"];
     if (view == this.view && this.showChangesInMargin == SHOW_UNSAVED_CHANGES) {
         this.onModified();
         this._referenceTextLines = this.onDiskTextLines = null;
