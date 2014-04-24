@@ -754,7 +754,7 @@ ko.codeintel = {};
                 // TODO: Would like to add the array of completion items here.
                 'trg': trg
             };
-            xtk.domutils.fireDataEvent(this.view, "codeintel_autocomplete_showing", data);
+            this.view.dispatchEvent(new CustomEvent("codeintel_autocomplete_showing", { detail: data }));
 
             // Show the completions UI.
             this._lastTriggerPos = triggerPos;
