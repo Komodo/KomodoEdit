@@ -1,764 +1,342 @@
 #!/usr/bin/env python
-# ***** BEGIN LICENSE BLOCK *****
-# Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
-# The contents of this file are subject to the Mozilla Public License
-# Version 1.1 (the "License"); you may not use this file except in
-# compliance with the License. You may obtain a copy of the License at
-# http://www.mozilla.org/MPL/
-# 
-# Software distributed under the License is distributed on an "AS IS"
-# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-# License for the specific language governing rights and limitations
-# under the License.
-# 
-# The Original Code is Komodo code.
-# 
-# The Initial Developer of the Original Code is ActiveState Software Inc.
-# Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
-# ActiveState Software Inc. All Rights Reserved.
-# 
-# Contributor(s):
-#   ActiveState Software Inc
-# 
-# Alternatively, the contents of this file may be used under the terms of
-# either the GNU General Public License Version 2 or later (the "GPL"), or
-# the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
-# in which case the provisions of the GPL or the LGPL are applicable instead
-# of those above. If you wish to allow use of your version of this file only
-# under the terms of either the GPL or the LGPL, and not to allow others to
-# use your version of this file under the terms of the MPL, indicate your
-# decision by deleting the provisions above and replace them with the notice
-# and other provisions required by the GPL or the LGPL. If you do not delete
-# the provisions above, a recipient may use your version of this file under
-# the terms of any one of the MPL, the GPL or the LGPL.
-# 
-# ***** END LICENSE BLOCK *****
+# Copyright (c) 2014 ActiveState Software Inc.
 
 """
-Usage:
-    cd SOURCE-BRANCH-DIR
-    kointegrate CHANGENUM TARGET-BRANCH-NAMES...
-
 Easily integrate a change from its branch or tree to other active
-Komodo branches. This will perform the necessary "svn integrate"s,
-resolve the differences, and help create an appropriate checkin.
+Komodo branches. This will help create appropriate commit messages.
 
 Notes:
-- Limitation: This does NOT handle svn properties!
-- Changes to files outside of the source tree dir are *ignored*.
+    - This only handles git at the moment
 """
 
-__version_info__ = (1, 2, 4)
+__version_info__ = (0, 0, 1)
 __version__ = '.'.join(map(str, __version_info__))
-
-import os
-import sys
-import getopt
-from os.path import basename, dirname, join, exists, isdir, normpath, \
-                    normcase, isabs, abspath, expanduser
-from pprint import pprint, pformat
-import logging
-import textwrap
-import optparse
-import tempfile
-import re
-import fnmatch
-from operator import itemgetter
-import subprocess
-import shutil
-from urlparse import urlparse
-from ConfigParser import SafeConfigParser
-from xml.etree import cElementTree as ET
-
+__usage__ = """
+    cd SOURCE-BRANCH-DIR
+    %(prog)s COMMIT-ID TARGET-BRANCH-NAMES...
+"""
 
 import applib
-sys.path.insert(0, join(dirname(dirname(abspath(__file__))), "src",
-                        "codeintel", "support"))
-import eol as eollib # cherry-pick this from codeintel support area
+import argparse
+import cStringIO
+import fnmatch
+import itertools
+import logging
+import os
+import os.path
+import re
+import subprocess
+import sys
+import textwrap
+import urlparse
+import xml.etree.cElementTree
 
-
-
-class Error(Exception):
-    pass
-class OutsidePathError(Error):
-    """Error indicating that the given svn path is not under the
-    working tree base directory.
-    """
-    def __init__(self, path):
-        self.path = path
-
-
+from ConfigParser import SafeConfigParser
+from os.path import dirname, exists, expanduser, isdir, join, normpath
 
 #---- globals
 
 log = logging.getLogger("kointegrate")
-#log.setLevel(logging.DEBUG)
 
+#---- utils
+class LazyProperty(object):
+    def __init__(self, func):
+        self.data = (func, func.__name__)
+    def __get__(self, inst, clazz):
+        if inst is None:
+            return self
+        func, name = self.data
+        value = func(inst)
+        inst.__dict__[name] = value
+        return value
 
+class LazyClassAttribute(LazyProperty):
+    def __get__(self, inst, clazz):
+        if inst is None:
+            return self
+        func, name = self.data
+        value = func()
+        setattr(clazz, name, value)
+        return value
 
 #---- handling of active branches
 
+class IntegrationError(RuntimeError): pass
+
 class Branch(object):
+    scc_is_distributed = False ### If true, this is a DVCS and just commit locally
+
     def __init__(self, name, base_dir):
         self.name = name
         self.base_dir = normpath(base_dir)
-    
+
     @property
     def desc(self):
         return self.name
 
+    def __repr__(self):
+        return "<%s: %r at %s>" % (type(self).__name__, self.name, self.base_dir)
+
+    def __str__(self):
+        return "%r branch at '%s' (%s)" % (self.name, self.base_dir, self.scc_type)
+
+    def __cmp__(self, other):
+        return cmp(self.name, other.name) or cmp(self.base_dir, other.base_dir)
+
+    def get_revision(self, revision):
+        """Get a Revision from a revision identifier
+        @param revision {str} The revision desired
+        @returns {Revision}
+        @note The revision should be valid
+        """
+        raise NotImplementedError("%s needs to implement get_revision" % self)
+
+    def get_missing_paths(self, paths):
+        """Return the set of paths that don't exist on this branch
+        @param paths {iterable of ChangedPath} paths to check
+        """
+        raise NotImplementedError("%s needs to implement get_missing_paths" % self)
+
+    def check_patch(self, revision, paths, options):
+        """Check that the given patch can apply
+        @param revision {Revision} The revison to apply
+        @param paths {iterable of ChangedPath} paths modified in the revision
+        @param options {Namespace} command line options
+        @return {set of str} Paths that failed to apply
+        """
+        raise NotImplementedError("%s needs to implement check_patch" % self)
+
+    def apply_patch(self, revision, paths, options):
+        """Apply the given patch.
+        @param revision {Revision} The revision to apply
+        @param paths {iterable of ChangedPath} paths modified in the revision
+        @param options {Namespace} command line options
+        @returns {str} The commit message
+        @raises {IntegrationError} The patch failed to apply
+        If the patch application fails, the state of the tree should be left
+        such that the user may manually resolve the bad patch and continue
+        committing.
+        """
+        raise NotImplementedError("%s needs to implement apply_patch" % self)
+
+    def commit(self, revision, paths, options):
+        """Commit the changes, using a message based on the given source revision
+        @param revision {Revision} The revision the change was from
+        @param paths {iterable of ChangedPath} paths modified in the revision
+        @param options {Namespace} command line options
+        @return {Revision} the newly committed revision
+        """
+        raise NotImplementedError("%s needs to implement commit" % self)
+
 class NonExistantBranch(Branch):
+    scc_type = "non-existant"
     def __repr__(self):
         return "<Branch: %s, base dir `%s' does not exist>" \
                % (self.name, self.base_dir)
 
-class SVNBranch(Branch):
-    scc_type = "svn"
-    def __repr__(self):
-        return "<SVNBranch: %r at '%s'>" \
-               % (self.name, self.base_dir)
-    def __str__(self):
-        return "%r branch at '%s' (svn)" % (self.name, self.base_dir)
-    
-    _base_dir_info_cache = None
-    @property
-    def base_dir_info(self):
-        if self._base_dir_info_cache is None:
-            self._base_dir_info_cache = self._svn_info(self.base_dir)
-        return self._base_dir_info_cache
+class GitBranch(Branch):
+    scc_type = "git"
+    scc_is_distributed = True
 
-    _desc_cache = None
+    @LazyProperty
+    def _git_exe(self):
+        import which
+        return which.which("git")
+
+    def _open(self, *args, **kwargs):
+        kwargs.setdefault("cwd", self.base_dir)
+        kwargs["env"] = dict(kwargs.get("env", os.environ))
+        kwargs["env"]["LANG"] = "C"
+        log.debug("git: %s", " ".join(args))
+        return subprocess.Popen([self._git_exe] + list(args), **kwargs)
+
+    def _execute(self, *args, **kwargs):
+        kwargs.setdefault("cwd", self.base_dir)
+        kwargs["env"] = dict(kwargs.get("env", os.environ))
+        kwargs["env"]["LANG"] = "C"
+        log.debug("git: %s", " ".join(args))
+        return subprocess.check_call([self._git_exe] + list(args), **kwargs)
+
+    def _capture_output(self, *args, **kwargs):
+        kwargs.setdefault("cwd", self.base_dir)
+        kwargs["env"] = dict(kwargs.get("env", os.environ))
+        kwargs["env"]["LANG"] = "C"
+        log.debug("git: %s", " ".join(args))
+        return subprocess.check_output([self._git_exe] + list(args), **kwargs)
+
+    @property
+    def is_clean(self):
+        # Clean trees have no output
+        return not self._capture_output("status", "--porcelain")
+
+    def get_revision(self, revision):
+        # Check that the revision exists
+        try:
+            null_path = "NUL" if sys.platform.startswith("win") else "/dev/null"
+            with open(null_path, "w+") as null:
+                subprocess.check_call([self._git_exe, "log", "-1", revision],
+                    stdout=null, stderr=null)
+        except:
+            raise
+        return GitRevision(revision, self)
+
+    def get_missing_paths(self, paths):
+        paths = set(paths)
+        found_paths = self._capture_output("ls-files", "-z", "--",
+                                           *map(str, paths))
+        for path in list(paths):
+            if path.src in found_paths:
+                paths.discard(path)
+        log.debug("missing paths: %r", paths)
+        return paths
+
     @property
     def desc(self):
-        if self._desc_cache is None:
-            url = self._svn_info(self.base_dir)["URL"]
-            path = urlparse(url)[2]
-            bits = path.split('/')
-            if bits[-1] == "trunk":
-                branch_name = "trunk"
-                project_name = bits[-2]
-            elif bits[-2] == "branches":
-                branch_name = "%s branch" % bits[-1]
-                project_name = bits[-3]
-            elif bits[-2] == "tags":
-                branch_name = "%s tag" % bits[-1]
-                project_name = bits[-3]
-            else:
-                branch_name = None
-                project_name = bits[-1]
-            if branch_name is None:
-                self._desc_cache = project_name
-            else:
-                self._desc_cache = "%s (%s)" % (project_name, branch_name)
-        return self._desc_cache
+        branch = self._capture_output("describe", "--all", "--abbrev=0").strip()
+        if not branch:
+            return self.__dict__.get("name", "unknown branch")
+        if branch.startswith("remotes/"):
+            branch = branch[len("remotes/"):]
+        if branch.startswith("tags/"):
+            return branch[len("tags/"):] + " tag"
+        if branch.startswith("heads/"):
+            return branch[len("heads/"):] + " branch"
+        return branch
+    @desc.setter
+    def desc(self, value):
+        self.__dict__["name"] = value
 
-    _svn_exe_cache = None
-    @property
-    def _svn_exe(self):
-        if self._svn_exe_cache is None:
-            import which
-            self._svn_exe_cache = which.which('svn')
-        return self._svn_exe_cache
+    @LazyProperty
+    def _git_dir(self):
+        git_dir = self._capture_output("rev-parse", "--git-dir").strip()
+        return join(self.base_dir, git_dir)
 
-    def _svn_info(self, target):
-        stdout = _capture_stdout([self._svn_exe, 'info', target])
-        info = {}
-        for line in stdout.splitlines(0):
-            if not line.strip(): continue
-            key, value = line.split(":", 1)
-            info[key.strip()] = value.strip()
-        return info
+    def check_patch(self, revision, paths, options):
+        patch = revision.get_patch(options, paths)
+        cmd = ["apply", "--check", "--binary", "-"]
+        proc = self._open(*cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        stderr = proc.communicate(patch)[1]
+        if not proc.returncode:
+            return {}
 
-    def _svn_is_binary(self, file_dict, changenum=None):
-        repo_path = self.base_dir_info["Repository Root"] + file_dict["svnpath"]
-        if changenum is not None:
-            repo_path += "@%s" % changenum
-        argv = [self._svn_exe, 'propget', 'svn:mime-type', repo_path]
-        stdout = _capture_stdout(argv)
-        return "application/octet-stream" in stdout
-
-    def _svn_log_rev(self, rev, gather_kind=False):
-        """ ...
-        @param gather_kind {bool} Whether to issue extra 'svn info' calls
-            to get fill in the 'kind' field.
-        """
-        xml = _capture_stdout([self._svn_exe, 'log', '-r', str(rev),
-            '-v', self.base_dir, '--xml'])
-        logentry = ET.fromstring(xml)[0]
-        files = []
-        data = {
-            "author": logentry.findtext("author"),
-            "desc": logentry.findtext("msg"),
-            "revision": int(logentry.get("revision")),
-            "files": files,
-        }
-        for path_elem in logentry.find("paths"):
-            d = dict(path_elem.items())
-            d["svnpath"] = svnpath = path_elem.text
-            try:
-                rel_path = self._svn_relpath(svnpath)
-            except OutsidePathError, ex:
-                log.warn("ignoring `%s' (outside `%s' base dir)", svnpath,
-                    self.name)
+        failed_paths = set()
+        for line in stderr.splitlines():
+            if not line.startswith("error:"):
                 continue
-            if "copyfrom-path" in d:
-                p = d["copyfrom-path"]
-                rel_cfpath = self._svn_relpath(p)
-                d["copyfrom-svnpath"] = p
-                d["copyfrom-path"] = join(self.base_dir, rel_cfpath)
-                d["copyfrom-relpath"] = rel_cfpath
-            d["rel_path"] = rel_path
-            d["path"] = join(self.base_dir, rel_path)
-            if gather_kind and not d.get("kind") and not d["action"] == "D":
-                # Don't do this for a "D" action because I get errors:
-                #   info:  (Not a versioned resource)
-                #   file:///Users/trentm/tm/tmp/svn/check/trunk/checklib/content.types@1288:  (Not a valid URL)
-                #   svn: A problem occurred; see other errors for details
-                url = "%s%s@%s" % (self.base_dir_info["Repository Root"],
-                    d["svnpath"], rev)
-                d["kind"] = self._svn_info(url)["Node Kind"]
-            files.append(d)
-        return data
-    
-    def _svn_up(self, path):
-        argv = [self._svn_exe, 'up', path]
-        log.debug("running: %s", argv)
-        p = subprocess.Popen(argv,
-                             stderr=subprocess.PIPE,
-                             stdout=subprocess.PIPE)
-        stdout = p.stdout.read()
-        retval = p.wait()
-        if retval:
-            stderr = p.stderr.read()
-            raise Error("error running `svn up`:\n"
-                        "argv: %r\n"
-                        "stderr:\n%s"
-                        % (argv, _indent(stderr)))
-
-    def _svn_cat(self, url):
-        argv = [self._svn_exe, 'cat', url]
-        log.debug("running: %s", argv)
-        p = subprocess.Popen(argv,
-                             stderr=subprocess.PIPE,
-                             stdout=subprocess.PIPE)
-        stdout = p.stdout.read()
-        retval = p.wait()
-        if retval:
-            stderr = p.stderr.read()
-            extra = ""
-            if "has no URL" in stderr:
-                extra = "\n***\n%s\n***\n" % textwrap.fill(
-                    "The 'svn: ... has no URL' "
-                    "error from subversion typically indicates "
-                    "that you are trying to integrate a file "
-                    "that has since be deleted from the "
-                    "current repo. I know of no easy way to "
-                    "get the original file contents with 'svn' "
-                    "-- hence this file cannot be integrated "
-                    "with this script. You could consider "
-                    "using the '-x' option to exclude this "
-                    "file from the change to integrate.")
-            raise Error("error running `svn cat`:\n"
-                        "argv: %r\n"
-                        "stderr:\n%s%s"
-                        % (argv, _indent(stderr), extra))
-        return stdout
-
-    def _svn_relpath(self, path):
-        bdi = self.base_dir_info
-        assert bdi["URL"].startswith(bdi["Repository Root"])
-        base_url = bdi["URL"][len(bdi["Repository Root"]):]
-        if not path.startswith(base_url):
-            raise OutsidePathError(path)
-        return path[len(base_url)+1:]
-
-    def last_rev(self, curr_user=False):
-        """Return the head revision number.
-        
-        @param curr_user {bool} Limit to the current user.
-        """
-        import getpass
-        rev = "HEAD"
-        if curr_user:
-            username = getpass.getuser()
-        SENTINEL = 10
-        for i in range(SENTINEL):
-            rev_info = self._svn_log_rev(rev)
-            if not curr_user:
-                return rev_info["revision"]
-            elif rev_info["author"] == username:
-                return rev_info["revision"]
+            line = line.split(":", 1)[-1].strip()
+            if line.startswith("patch failed:"):
+                failed_paths.add(line.split(":", 1)[-1].rsplit(":", 1)[0].strip())
             else:
-                rev = rev_info["revision"] - 1
-        else:
-            raise RuntimeError("couldn't find last rev by `%s' in last %d"
-                % (username, SENTINEL))
-    
-    def changenums(self):
-        """Generate all changenums in this branch."""
-        xml = _capture_stdout([self._svn_exe, 'log',
-            self.base_dir, '--xml'])
-        log_elem = ET.fromstring(xml)
-        for logentry in log_elem:
-            yield int(logentry.get("revision"))
+                failed_paths.add(line.rsplit(":", 1)[0].strip())
+        return failed_paths
 
-    def edit(self, path):
-        pass
+    def apply_patch(self, revision, paths, options):
+        patch = revision.get_patch(options, paths)
+        # Save the commit message
+        message = revision.integration_message
+        with open(join(self._git_dir, "GITGUI_MSG"), "w") as msg_file:
+            msg_file.write(message)
 
-    def add(self, path, isdir=False):
-        if not isabs(path):
-            abs_path = join(self.base_dir, path)
-        if isdir:
-            log.info("svn mkdir %s", path)
-            _patchRun([self._svn_exe, "mkdir", abs_path])
-        else:
-            log.info("svn add %s", path)
-            _patchRun([self._svn_exe, "add", abs_path])
+        # Apply the patch
+        all_changed_paths = set(path.src for path in paths)
+        all_changed_paths |= set(path.dest for path in paths)
+        all_changed_paths = filter(bool, all_changed_paths)
+        cmd = ["apply", "--binary", "--reject", "-"]
+        proc = self._open(*cmd, stdin=subprocess.PIPE)
+        proc.communicate(patch)
+        self._execute("add", "--all", "--", *all_changed_paths)
+        if proc.returncode:
+            raise IntegrationError("Failed to apply patch")
+        return message
 
-    def delete(self, path):
-        log.info("svn delete %s", path)
-        if not isabs(path):
-            path = join(self.base_dir, path)
-        _patchRun([self._svn_exe, "delete", path])
-
-    def move(self, src_path, dst_path):
-        if not isabs(src_path):
-            abs_src_path = join(self.base_dir, src_path)
-        if not isabs(dst_path):
-            abs_dst_path = join(self.base_dir, dst_path)
-        log.info("svn mv %s %s", src_path, dst_path)
-        _patchRun([self._svn_exe, "mv", abs_src_path, abs_dst_path])
-
-    def copy(self, src_path, dst_path):
-        if not isabs(src_path):
-            abs_src_path = join(self.base_dir, src_path)
-        if not isabs(dst_path):
-            abs_dst_path = join(self.base_dir, dst_path)
-        log.info("svn cp %s %s", src_path, dst_path)
-        _patchRun([self._svn_exe, "cp", abs_src_path, abs_dst_path])
-
-    def integrate(self, changenum, dst_branches, interactive,
-                  exclude_outside_paths, excludes=[], force=False):
-        # Gather some info about the change to integrate.
-        change = self._svn_log_rev(changenum, gather_kind=True)
-        
-        indeces_to_del = []
-        for i, f in enumerate(change["files"][:]):
-            matching_excludes = [e for e in excludes
-                                 if fnmatch.fnmatch(f["rel_path"], e)]
-            if matching_excludes:
-                log.info("skipping `%s' (matches excludes: '%s')",
-                         f["rel_path"], "', '".join(matching_excludes))
-                indeces_to_del.append(i)
-        for i in reversed(indeces_to_del):
-            del change["files"][i]
-        rel_paths = [f["rel_path"] for f in change["files"]]
-        dst_paths_from_branch_name = {}
-        for dst_branch in dst_branches:
-            dst_paths_from_branch_name[dst_branch.name] \
-                = [join(dst_branch.base_dir, p) for p in rel_paths]
-
-        # Check if there is anything to integrate.
-        if not change["files"]:
-            log.error("There are no files in change %s to integrate. "
-                      "Aborting.", changenum)
-            return False
-
-        # Give the user the chance to abort.
-        print "  change: %s" % changenum
-        print "    desc: %s" % _one_line_summary_from_text(change["desc"], 60)
-        print "      by: %s" % change["author"]
-        if len(dst_branches) == 1:
-            print "      to: %s" % dst_branch.base_dir
-        else:
-            for i, dst_branch in enumerate(dst_branches):
-                if i == 0:
-                    print "      to: %d. %s (%s)" % (i+1, dst_branch.base_dir, dst_branch.name)
-                else:
-                    print "          %d. %s (%s)" % (i+1, dst_branch.base_dir, dst_branch.name)
-        if len(rel_paths) > 7:
-            ellipsis = '...and %d other files' % (len(rel_paths)-7)
-            print "   files: %s" \
-                  % _indent(' '.join(rel_paths[:7] + [ellipsis]), 10, True)
-        else:
-            print "   files: %s" % _indent(' '.join(rel_paths), 10, True)
-        if interactive:
-            print
-            answer = _query_yes_no("Continue integrating this change?")
-            if answer != "yes":
-                return False
-        print
-
-        # Ensure that none of the target files are modified/opened.
-        modified_paths = [
-            p
-            for dst_branch in dst_branches
-            for p in dst_paths_from_branch_name[dst_branch.name]
-            if dst_branch.is_modified_or_open(p)
-               # Dirs give false positives, and we abort handling dirs
-               # below anyway.
-               and not isdir(p)
-        ]
-        if modified_paths:
-            print textwrap.dedent("""
-                ***
-                The following target files that would be part of this
-                integration are open and/or modified:
-                    %s
-    
-                This script cannot integrate files that are already open:
-                it would pollute the integration. You need to either first
-                check these in or revert your changes.
-                ***""") \
-                % "\n    ".join(modified_paths)
-            return False
-
-        # If any of the files to integrate are binary, then ensure it is
-        # okay to integrate them (because can't detect conflicts).
-        for file_dict in change["files"]:
-            if file_dict["action"] == "D":
-                # The source file will have been deleted, so can't easily
-                # check it if was binary. However, it won't matter for the
-                # integration.
-                file_dict["is_binary"] = False
-            else:
-                file_dict["is_binary"] = self._svn_is_binary(
-                    file_dict, changenum)
-        binary_paths = [f["rel_path"] for f in change["files"]
-                        if f["is_binary"]]
-        if binary_paths:
-            log.info(textwrap.dedent("""
-                ***
-                The following source files are binary:
-                    %s
-    
-                Integrating these files just copies the whole file over to
-                the target. This could result in lost changes in the target.
-                ***""") \
-                % "\n    ".join(binary_paths))
-            if interactive:
-                answer = _query_yes_no("Continue integrating this change?")
-                if answer != "yes":
-                    return False
-
-        # Do the integration, as best as possible.
-        tmp_dir = tempfile.mkdtemp()
+    def commit(self, revision, paths, options):
         try:
-            # - write out patches for all the edited files
-            diff_idx = 0
-            for f in change["files"]:
-                action = f["action"]
-                if not f["is_binary"] and (
-                    action == "M"
-                    or (action == "A" and "copyfrom-svnpath" in f)):
-                    pass
-                else:
-                    # Not a change that could result in a patch.
-                    continue
-                
-                if f["kind"] in ("dir", "directory"):
-                    if f["action"] in ("A", "D"):
-                        continue
-                    msg = ("cannot integrate directory modifications (rev %s): `%s' (you "
-                        "are probably just editing properties on this dir, "
-                        "use the '-x %s' option to skip this path)"
-                        % (changenum, f["rel_path"], f["rel_path"]))
-                    if interactive:
-                        raise Error(msg)
-                    else:
-                        log.warn(msg)
-                        continue
+            with open(join(self._git_dir, "GITGUI_MSG"), "r") as msg_file:
+                message = msg_file.read()
+        except:
+            message = ""
+        if not message.strip():
+            message = revision.integration_message
+        all_changed_paths = set(path.src for path in paths)
+        all_changed_paths |= set(path.dest for path in paths)
+        all_changed_paths = filter(bool, all_changed_paths)
+        cmd = ["commit", "--only",
+               "--author", revision.author,
+               "--date", revision.date,
+               "--message", message,
+               "--"] + all_changed_paths
+        self._execute(*cmd)
+        rev = self._capture_output("rev-parse", "HEAD").strip()
+        return GitRevision(rev, self)
 
-                elif f["action"] == "M":
-                    diff = _capture_stdout([
-                        self._svn_exe, "diff",
-                        "-r%d:%d" % (changenum-1, changenum),
-                        "%s%s@%s" % (self.base_dir_info["Repository Root"],
-                            f["svnpath"], changenum)
-                    ], cwd=self.base_dir)
-                    if "Index:" not in diff:
-                        # Guessing this is just a property change on the file.
-                        # We don't handle properies yet, so skip it. Trying
-                        # to use this patch content will break the
-                        # integration when applying the patch.
-                        log.warn("skipping property-only diff on `%s'",
-                            f["svnpath"])
-                        continue
-                    # Fix up index marker.
-                    diff = diff.replace("\r\n", "\n")
-                    diff = diff.replace("Index: %s" % basename(f["rel_path"]),
-                        "Index: %s" % f["rel_path"])
-                    diff = diff.replace("\n--- %s" % basename(f["rel_path"]),
-                        "\n--- %s" % f["rel_path"])
-                    diff = diff.replace("\n+++ %s" % basename(f["rel_path"]),
-                        "\n+++ %s" % f["rel_path"])
-                    diff = diff.replace("\r\n", "\n")
+class SVNBranch(Branch):
+    scc_type = "svn"
 
-                elif f["action"] == "A" and "copyfrom-svnpath" in f:
-                    # Sometimes an add (action == "A") has a patch too, e.g.
-                    # modifications after an "svn mv" or "svn cp".
-                    # If it is an 'svn mv' it is quite a PITA (AFAICT) to get
-                    # the patch from svn.
-                    repo_root = self.base_dir_info["Repository Root"]
-                    diff = _capture_stdout([
-                        self._svn_exe, "diff",
-                        "%s%s@%s" % (repo_root, f["copyfrom-svnpath"], f["copyfrom-rev"]),
-                        "%s%s@%s" % (repo_root, f["svnpath"], change["revision"]) ])
-                    # The index in the diff header is for the *old* file (and
-                    # just the basename). To be able to apply the patch later
-                    # we need to update that header. We also need one in
-                    # terms of the old file for the dry-run patching.
-                    #XXX eol = "\r\n" in diff and "\r\n" or "\n"
-                    eol = "\n" #XXX
-                    diff_lines = diff.splitlines(0)
-                    if diff_lines[4:]:
-                        copyfrom_diff_lines = [
-                            "Index: %s" % f["copyfrom-relpath"],
-                            "===================================================================",
-                            "--- %s" % f["copyfrom-relpath"],
-                            "+++ %s" % f["copyfrom-relpath"],
-                            ] + diff_lines[4:]
-                        copyfrom_patch_path = join(tmp_dir, "%d.patch" % diff_idx)
-                        diff_idx += 1
-                        fout = open(copyfrom_patch_path, 'w')
-                        fout.write(eol.join(copyfrom_diff_lines) + eol)
-                        fout.close()
-                        f["copyfrom_patch_path"] = copyfrom_patch_path
-                    if diff_lines[4:]:
-                        new_diff_lines = [
-                            "Index: %s" % f["rel_path"],
-                            "===================================================================",
-                            "--- %s" % f["rel_path"],
-                            "+++ %s" % f["rel_path"],
-                            ] + diff_lines[4:]
-                        diff = eol.join(new_diff_lines) + eol
+    @LazyProperty
+    def _exe(self):
+        import which
+        return which.which("svn")
 
-                patch_path = join(tmp_dir, "%d.patch" % diff_idx)
-                diff_idx += 1
-                fout = open(patch_path, 'w')
-                fout.write(diff)
-                fout.close()
-                f["patch_path"] = patch_path
-    
-            # - do a dry-run attempt to patch (abort if any fail)
-            patch_exe = _getPatchExe()
-            patching_failures = []
-            for dst_branch in dst_branches:
-                for f in change["files"]:
-                    if "patch_path" not in f:
-                        continue
-                    dryrun_patch_path = f.get("copyfrom_patch_path") or f["patch_path"]
+    @LazyProperty
+    def _patch_exe(self):
+        import which
+        return which.which("patch")
 
-                    # If `force==True`, then skip files that don't exist
-                    # in the dest branch.
-                    if force and f["action"] == "M":
-                        dst_path = join(dst_branch.base_dir, f["rel_path"])
-                        if not exists(dst_path):
-                            # This will be logged below.
-                            #log.info("skip `%s' (action '%s'): force, doesn't exist in %s",
-                            #    f["rel_path"], f["action"], dst_branch)
-                            continue
+    def _open(self, *args, **kwargs):
+        kwargs.setdefault("cwd", self.base_dir)
+        kwargs["env"] = dict(kwargs.get("env", os.environ))
+        kwargs["env"]["LANG"] = "C"
+        log.debug("svn: %s", " ".join(args))
+        return subprocess.Popen([self._exe] + list(args), **kwargs)
 
-                    # Awful HACK around the "$Id$" (et al) keyword expansion
-                    # problem: If "$Id$" is in the patch content but it is
-                    # exanded in target file, then `patch` won't be able to
-                    # apply.
-                    #TODO: Better soln is to modify the *patch*, but that's harder.
-                    fin = open(dryrun_patch_path, 'rb')
-                    try:
-                        patchContent = fin.read()
-                    finally:
-                        fin.close()
-                    if "$Id$" in patchContent:
-                        dst_path = join(dst_branch.base_dir, f["rel_path"])
-                        origDstContent = open(dst_path, 'rb').read()
-                        newDstContent = re.sub(r"\$Id: [^$]+\$", "$Id$", origDstContent)
-                        if newDstContent != origDstContent:
-                            open(dst_path, 'wb').write(newDstContent)
+    def _capture_output(self, *args, **kwargs):
+        parse_xml = kwargs.pop("xml", True)
+        kwargs.setdefault("cwd", self.base_dir)
+        kwargs["env"] = dict(kwargs.get("env", os.environ))
+        kwargs["env"]["LANG"] = "C"
+        log.debug("svn: %s", " ".join(args))
+        if parse_xml and "--xml" not in args:
+            args = ["--xml"] + list(args)
+        result = subprocess.check_output([self._exe] + list(args), **kwargs)
+        if parse_xml:
+            return xml.etree.cElementTree.fromstring(result)
+        return result
 
-                    try:
-                        _assertCanApplyPatch(patch_exe, dryrun_patch_path,
-                                             dst_branch.base_dir)
-                    except Error, ex:
-                        if force:
-                            log.warn(str(ex))
-                        else:
-                            patching_failures.append((str(ex), f))
-            if patching_failures:
-                raise Error("During a dry-run patching attempt there were "
-                            "the following failures:\n--\n%s\n\n"
-                            "You could use the `-x SUBPATH` option to skip "
-                            "a particular file."
-                            % ("\n--\n".join("file: %s\n%s" % (f["rel_path"], ex)
-                                             for ex,f in patching_failures)))
-    
-            changes_made = []
-            for dst_branch in dst_branches:
-                log.info("--- making changes to '%s' branch ---", dst_branch.name)
-                
-                adds = [f for f in change["files"] if f["action"] in "A"]
-                deletes = [f for f in change["files"] if f["action"] in "D"]
-                others = [f for f in change["files"] if f["action"] not in "MAD"]
-                if others:
-                    raise Error("don't know how to handle integrating "
-                                "'%s' action" % action)
-                
-                # - HACK:'svn up' the *whole* tree in attempt to
-                #   avoid the inscrutable 'svn ci' error about the dir
-                #   being out of date (and tree conflicts).
-                #   TODO: see if can get away with (a) only doing this for
-                #   certain types of changes (added dirs?) and (b) only
-                #   running 'svn up' are part of the working tree.
-                self._svn_up(dst_branch.base_dir)
-                
-                # - do deletes and adds (and copies and moves)
-                for f in sorted(adds, key=itemgetter("rel_path")):
-                    rel_path = f["rel_path"]
-                    src_path = join(self.base_dir, rel_path)
-                    if "copyfrom-svnpath" in f:
-                        # Figure out if this is an 'svn cp' or an 'svn mv'.
-                        for i, df in enumerate(deletes):
-                            if df["svnpath"] == f["copyfrom-svnpath"]:
-                                # It is a 'svn mv'.
-                                df = deletes.pop(i)
-                                break
-                        else:
-                            # It is a 'svn cp'
-                            df = None
-                        
-                        if df is None: # 'svn cp'
-                            dst_branch.copy(f["copyfrom-relpath"], rel_path)
-                            changes_made.append("cp `%s' `%s' (%s)" % (
-                                f["copyfrom-relpath"], rel_path, dst_branch.name))
-                        else: # 'svn mv'
-                            dst_branch.move(f["copyfrom-relpath"], rel_path)
-                            changes_made.append("mv `%s' `%s' (%s)" % (
-                                f["copyfrom-relpath"], rel_path, dst_branch.name))
-                    else:
-                        # Just a regular 'svn add'.
-                        if f["kind"] in ("dir", "directory"):
-                            dst_branch.add(rel_path, isdir=True)
-                            changes_made.append("mkdir `%s' (%s)" % (
-                                rel_path, dst_branch.name))
-                        else:
-                            contents = self._svn_cat("%s%s@%s" % (
-                                self.base_dir_info["Repository Root"],
-                                f["svnpath"], changenum))
-                            dst_path = join(dst_branch.base_dir, rel_path)
-                            fout = open(dst_path, 'wb')
-                            fout.write(contents)
-                            fout.close()
-                            assert exists(dst_path), \
-                                "`%s' couldn't be retrieved from svn" % dst_path
-                            dst_branch.add(rel_path)
-                            changes_made.append("add `%s' (%s)" % (
-                                rel_path, dst_branch.name))
-                for f in deletes:
-                    rel_path = f["rel_path"]
-                    dst_branch.delete(rel_path)
-                    changes_made.append("delete `%s' (%s)" % (
-                        rel_path, dst_branch.name))
+    def _run_patch(self, *args, **kwargs):
+        kwargs.setdefault("cwd", self.base_dir)
+        stdin = kwargs.get("stdin", None)
+        capture = "stdout" in kwargs or "stderr" in kwargs
+        if isinstance(stdin, str):
+            kwargs["stdin"] = subprocess.PIPE
+        args = [self._patch_exe] + list(args)
+        log.debug("patch: %s", " ".join(args))
 
-                # - apply the edits
-                for f in change["files"]:
-                    # If `force==True`, then skip files that don't exist
-                    # in the dest branch.
-                    if force and f["action"] == "M":
-                        dst_path = join(dst_branch.base_dir, f["rel_path"])
-                        if not exists(dst_path):
-                            log.info("skip `%s' (action '%s'): force, doesn't exist in %s",
-                                f["rel_path"], f["action"], dst_branch)
-                            continue
-
-                    if "patch_path" in f:
-                        patch_path = f["patch_path"]
-                        dst_path = join(dst_branch.base_dir, f["rel_path"])
-                        dst_branch.edit(dst_path)
-                        eol_before = eollib.eol_info_from_path(dst_path)[0]
-                        try:
-                            applied = _applyPatch(patch_exe, dirname(patch_path),
-                                                  basename(patch_path),
-                                                  dst_branch.base_dir)
-                        except Error, ex:
-                            if force:
-                                log.warn(str(ex))
-                                applied = True
-                            else:
-                                raise
-                        eol_after = eollib.eol_info_from_path(dst_path)[0]
-                        if eol_after != eol_before:
-                            assert eol_before != None
-                            log.info("restore EOLs for `%s' (damaged by patch)",
-                                     dst_path)
-                            eollib.convert_path_eol(dst_path, eol_before)
-                        if applied:
-                            changes_made.append("patched `%s' (%s)" % (
-                                f["rel_path"], dst_branch.name))
-                    elif f["action"] == "M" and f["is_binary"]:
-                        # This is a binary file to copy over.
-                        contents = self._svn_cat("%s%s@%s" % (
-                            self.base_dir_info["Repository Root"],
-                            f["svnpath"], changenum))
-                        dst_path = join(dst_branch.base_dir, f["rel_path"])
-                        dst_branch.edit(dst_path)
-                        fout = open(dst_path, 'wb')
-                        fout.write(contents)
-                        fout.close()
-                        assert exists(dst_path), \
-                            "`%s' couldn't be retrieved from svn" % dst_path
-                        changes_made.append("copied `%s' (%s)" % (
-                            f["rel_path"], dst_branch.name))
-
-            # Abort if no actual changes made.
-            if not changes_made:
-                print textwrap.dedent("""
-                    No changes were necessary to integrate this change.
-                    Perhaps it has already been integrated?""")
-                return False
-
-            # Setup to commit the integration.
-            commit_summaries = [self.commit_summary(changenum)]
-            for dst_branch in dst_branches:
-                dst_paths = dst_paths_from_branch_name[dst_branch.name]
-                commit_summary = dst_branch.setup_to_commit(
-                    changenum, change["author"], change["desc"], self,
-                    dst_paths, interactive)
-                if commit_summary:
-                    commit_summaries.append(commit_summary)
-
-            # Print a summary of commits for use in a bugzilla comment.
-            if log.isEnabledFor(logging.INFO):
-                log.info("\n\n-- Check-in summary (for bugzilla comment):")
-                for s in commit_summaries:
-                    log.info("  " + s)
-                log.info("--\n")
-        finally:
-            if False and exists(tmp_dir) and not log.isEnabledFor(logging.DEBUG):
-                shutil.rmtree(tmp_dir)
-
-    def is_modified_or_open(self, path):
-        stdout, stderr, retval = _patchRun(["svn", "status", path])
-        if stdout:
-            return True
+        if isinstance(stdin, str):
+            proc = subprocess.Popen(args, **kwargs)
+            stdout, stderr = proc.communicate(stdin)
+            if capture:
+                return (proc.returncode, stdout, stderr)
+            return proc.returncode
         else:
+            subprocess.check_call(args, **kwargs)
+
+    @property
+    def is_clean(self):
+        acceptable_statuses = {"external", "unversioned"}
+
+        root = self._capture_output("status", "--quiet")
+        for elem in root.findall("./target/entry"):
+            status = elem.find("./wc-status")
+            if status.get("item", None) in acceptable_statuses:
+                continue
+            log.debug("Path %s is %s", elem.get("path"), status.get("item"))
             return False
+        return True
 
-    def commit_summary(self, changenum):
-        """Return a short single-line summary of a commit with the
-        given changenum suitable for posting to a bug log.
-
-        Currently ActiveState's bugzilla has auto-linking for the
-        following patterns:
-            change \d+          -> ActiveState perforce change link
-            r\d+                -> svn.activestate.com revision link
-            openkomodo r\d+     -> svn.openkomodo.com revision link
-        so we try to accomodate that.
-        
-        Template: PROJECT-NAME rCHANGENUM (BRANCH-NAME)
-        """
-        url = self._svn_info(self.base_dir)["URL"]
-        path = urlparse(url)[2]
+    @LazyProperty
+    def desc(self):
+        url = self._info.find("./entry/url").text.strip()
+        path = urlparse.urlparse(url).path
         bits = path.split('/')
         if bits[-1] == "trunk":
             branch_name = "trunk"
@@ -770,80 +348,202 @@ class SVNBranch(Branch):
             branch_name = "%s tag" % bits[-1]
             project_name = bits[-3]
         else:
-            branch_name = None
-            project_name = bits[-1]
-        if branch_name is None:
-            return "%s r%s" % (project_name, changenum)
-        else:
-            return "%s r%s (%s)" % (project_name, changenum, branch_name)
+            # no branch name, just return project name
+            return bits[-1]
+        return "%s (%s)" % (project_name, branch_name)
 
-    def setup_to_commit(self, changenum, user, desc, src_branch, paths,
-                        interactive):
-        """Returns a (string) commit summary if a commit was done,
-        else returns None.
-        """
-        rel_paths = [p[len(self.base_dir)+1:] for p in paths]
-        msg = "%s\n\n(integrated from %s change %d by %s)" % (
-              desc.rstrip(), src_branch.desc, changenum, user)
-        log.info("\n\nReady to commit to '%s' branch:", self.name)
-        log.info(_banner("commit message", '-'))
-        log.info(msg)
-        log.info(_banner(None, '-'))
+    def get_revision(self, revision):
+        # Check that the revision exists
+        if revision == "HEAD":
+            elem = self._capture_output("info")
+            revision = elem.find("./entry/commit").get("revision")
 
-        auto_commit = True
-        if interactive:
-            answer = _query_yes_no(
-                "\nWould you like this script to automatically commit\n"
-                "this integration to the '%s' branch?" % self.name,
-                default=None)
-            if answer != "yes":
-                auto_commit = False
-        
-        if auto_commit:
-            argv = [self._svn_exe, "commit"]
-            if not log.isEnabledFor(logging.INFO):
-                argv += ["-q"]
-            argv += ["-m", msg] + rel_paths
-            stdout, stderr, retval = _patchRun(argv, self.base_dir)
-            sys.stdout.write(stdout)
-            if stderr or retval:
-                raise Error("error commiting: %s\n%s"
-                            % (retval, _indent(stderr)))
-            if log.isEnabledFor(logging.INFO):
-                revision_re = re.compile(r'Committed revision (\d+)\.')
-                try:
-                    revision = revision_re.search(stdout).group(1)
-                except AttributeError:
-                    log.warn("Couldn't determine commited revision from "
-                             "'svn commit' output: %r", stdout)
-                    revision = "???"
+        null_path = "NUL" if sys.platform.startswith("win") else "/dev/null"
+        with open(null_path, "w+") as null:
+            proc = self._open("log", "-l", "1", "-r", revision, stdout=null, stderr=null)
+            proc.communicate()
+            if proc.returncode != 0:
+                raise IntegrationError("Error getting revision %s" % (revision,))
+        return SVNRevision(revision, self)
+
+    @LazyProperty
+    def _info(self):
+        return self._capture_output("info")
+
+    @LazyProperty
+    def repo_url(self):
+        return self._info.find("./entry/repository/root").text.strip()
+
+    @LazyProperty
+    def _repo_relpath(self):
+        """The path from the root of the repo to this branch"""
+        abs_url = self._info.find("./entry/url").text.strip()
+        if abs_url.startswith(self.repo_url):
+            return abs_url[len(self.repo_url):]
+        return ""
+
+    def get_missing_paths(self, paths):
+        paths = set(paths)
+        for path in list(paths):
+            if exists(join(self.base_dir, path.src)):
+                paths.discard(path)
+        return paths
+
+    def check_patch(self, revision, paths, options):
+        patch_paths = set()
+        failed_paths = set()
+        for path in paths:
+            if path.action == ChangedPath.ADDED:
+                if exists(join(self.base_dir, path.src)):
+                    failed_paths.add("%s (can't add, file already exists)" % (path.src,))
+            elif path.action == ChangedPath.COPIED:
+                if exists(join(self.base_dir, path.dest)):
+                    failed_paths.add("%s (can't copy from %s, file already exists)" % (path.dest, path.src))
+            elif path.action == ChangedPath.DELETED:
+                pass # We don't care if we delete a changed file
+            elif path.action == ChangedPath.MODIFIED:
+                patch_paths.add(path)
+            elif path.action == ChangedPath.RENAMED:
+                if exists(join(self.base_dir, path.dest)):
+                    failed_paths.add("%s (can't rename from %s, already exists)" % (path.dest, path.src))
+                    continue
+                if path.src.startswith("/"):
+                    # Renamed from a different branch; ignore this for checking
+                    continue
+                if not exists(join(self.base_dir, path.src)):
+                    failed_paths.add("%s (can't renamed to %s, file doesn't exist)" % (path.src, path.dest))
+                    continue
+                patch_paths.add(path) # this may include modifies
             else:
-                revision = None
-            return self.commit_summary(revision)
-        else:
-            print textwrap.dedent("""
-                ***
-                You can manually commit the integration with the following
-                commands:
-                    cd %s
-                    svn ci %s
-                
-                Please use the above commit message.
-                ***""") \
-                % (self.base_dir, ' '.join(rel_paths))
-        
+                log.error("Unexpected action %s for path %s",
+                          path.action, path)
+                failed_paths.add("%s (unknown action)" % (path.src,))
 
+        for path in patch_paths:
+            patch = revision.get_patch(options, paths=(path,))
+            setattr(path, "patch", patch)
+            patch_target = path.dest or path.src
+            ret = self._run_patch("--dry-run", "-p0", "--force", "--silent",
+                                  stdin=patch)
+            if ret != 0:
+                failed_paths.add("%s (patch does not apply" % (patch_target,))
+
+        return failed_paths
+
+    def apply_patch(self, revision, paths, options):
+        failures = 0
+        def get_patch(path):
+            patch = getattr(path, "patch", None)
+            if patch is None:
+                patch = revision.get_patch(options, paths=(path,))
+            return patch
+
+        def ensure_dir_exists(rel_path):
+            log.debug("Adding dir: %s", rel_path)
+            abs_path = join(self.base_dir, rel_path)
+            if not os.path.isdir(abs_path):
+                os.makedirs(abs_path)
+                self._capture_output("add", "--depth=empty", rel_path,
+                                     xml=False)
+
+        for path in paths:
+            patch_target = path.dest or path.src
+            if path.action == ChangedPath.ADDED:
+                if path.kind == "dir":
+                    ensure_dir_exists(path.src)
+                else:
+                    log.debug("Adding file: %s", path.src)
+                    with open(join(self.base_dir, path.src), "w") as new_file:
+                        proc = self._open("cat", "%s@%s" % (path.src_url, path.src_rev),
+                                          stdout=new_file)
+                        proc.communicate()
+                        if proc.returncode == 0:
+                            self._open("add", path.src).communicate()
+                        else:
+                            failures += 1
+                            log.error("Failed to add %s", path.src)
+            elif path.action == ChangedPath.COPIED:
+                try:
+                    ensure_dir_exists(dirname(path.dest))
+                    # Copy from _this_ branch, not the source branch
+                    self._capture_output("copy",
+                                         path.src,
+                                         path.dest,
+                                         xml=False)
+                except subprocess.CalledProcessError:
+                    failures += 1
+                    log.error("Failed to copy %s to %s",
+                              "%s@%s" % (path.src_url, path.src_rev),
+                              path.dest)
+                else:
+                    patch = get_patch(path)
+                    if patch:
+                        ret = self._run_patch("-p0", "--force", "--reject-format=unified",
+                                              stdin=patch)
+                        if ret != 0:
+                            failures += 1
+                            log.error("Failed to apply patch for renamed file %s",
+                                      patch_target)
+            elif path.action == ChangedPath.DELETED:
+                self._capture_output("delete", path.src, xml=False)
+            elif path.action == ChangedPath.MODIFIED:
+                log.debug("Patching %s", patch_target)
+                patch = get_patch(path)
+                ret = self._run_patch("-p0", "--force", "--reject-format=unified",
+                                      stdin=patch)
+                if ret != 0:
+                    failures += 1
+                    log.error("Failed to apply patch for renamed file %s",
+                              patch_target)
+            elif path.action == ChangedPath.RENAMED:
+                patch = get_patch(path)
+                # can't deal with rename from a different branch for now
+                assert not path.src.startswith("/")
+                # rename from _this_ branch, not the source branch
+                self._capture_output("rename", path.src, path.dest)
+                if patch:
+                    log.debug("Patching %s after rename", patch_target)
+                    ret = self._run_patch("-p0", "--force", stdin=patch)
+                    if ret != 0:
+                        failures += 1
+                        log.error("Failed to apply patch for renamed file %s",
+                                  patch_target)
+            else:
+                log.error("Failed to apply %s: unknown action", patch_target)
+                failures += 1
+
+        if failures > 0:
+            raise IntegrationError("Failed to patch %s files" % (failures,))
+
+        return revision.integration_message
+
+    def commit(self, revision, paths, options):
+        message = revision.integration_message
+
+        all_changed_paths = set(path.src for path in paths)
+        all_changed_paths.update(path.dest for path in paths)
+        all_changed_paths = filter(bool, all_changed_paths)
+
+        out = self._capture_output("commit", "--message", message,
+                                   *all_changed_paths,
+                                   xml=False)
+        sys.stdout.write(out)
+
+        revision_re = re.compile(r'Committed revision (\d+)\.')
+        revision = revision_re.search(out)
+        if revision:
+            return SVNRevision(revision.group(1), self)
 
 #---- configuration/prefs handling
 
 class Configuration(SafeConfigParser):
     branches = None
-    
+
     def __init__(self):
         SafeConfigParser.__init__(self)
         self._load()
-    
-    @property
+
+    @LazyProperty
     def cfg_path(self):
         user_data_dir = applib.user_data_dir("komodo-dev", "ActiveState")
         return join(user_data_dir, "kointegrate.ini")
@@ -858,265 +558,650 @@ class Configuration(SafeConfigParser):
                     self.branches[name] = NonExistantBranch(name, base_dir)
                 elif isdir(join(base_dir, ".svn")):
                     self.branches[name] = SVNBranch(name, base_dir)
+                elif isdir(join(base_dir, ".git")):
+                    self.branches[name] = GitBranch(name, base_dir)
                 else:
                     log.info("Ignoring unknown repository at %r", base_dir)
 
+    def get_branch(self, branch_name):
+        try:
+            branch = self.branches[branch_name]
+        except KeyError:
+            branches = ('    "%s" (%s) at %s' %
+                            (branch.name, branch.scc_type, branch.base_dir)
+                        for branch in self.branches.values())
+            msg = ('\n    "%s" is an unknown active Komodo branch name\n'
+                   'known branches are:\n%s'
+                   % (branch_name, '\n'.join(branches)))
+            raise IntegrationError(msg)
+        return branch
+
+    def get_revision(self, revision):
+        for branch in self.branches.values():
+            if not os.getcwd().startswith(branch.base_dir):
+                continue
+            try:
+                return branch.get_revision(revision)
+            except IntegrationError:
+                raise
+            except:
+                raise
+                msg = "%s is not a revision in %s" % (revision, branch)
+                raise IntegrationError(msg)
+        msg = "Failed to find branch of current working directory %s" % (os.getcwd())
+        raise IntegrationError(msg)
 
 cfg = Configuration()
 
+#--- functions
 
+class HelpIniAction(argparse.Action):
+    def __init__(self, *args, **kwargs):
+        super(HelpIniAction, self).__init__(*args, nargs=0, **kwargs)
+    def __call__(self, parser, namespace, values, option_string=None):
+        print textwrap.dedent("""
+            Configuring %s
+            --------------------------
 
-#---- main functionality
+            This script uses a "kointegrate.ini" file here:
+                %s
 
-def kointegrate_all_changes(dst_branch_names, interactive=True,
-        exclude_outside_paths=False, excludes=None,
-        force=False):
-    """Call `kointegrate' for every change in the source branch."""
-    src_branch = _get_curr_branch()
-    for changenum in sorted(src_branch.changenums()):
-        kointegrate(changenum, dst_branch_names, interactive,
-            exclude_outside_paths, excludes, force)
+            The "[active-branches]" section of that file (a normal
+            INI-syntax file) is used. Each entry in that section should
+            be of the form:
 
-def kointegrate(changenum, dst_branch_names, interactive=True,
-                exclude_outside_paths=False, excludes=None,
-                force=False):
-    """Returns True if successfully setup the integration."""
-    if not cfg.branches:
-        raise Error("You haven't configured any Komodo branches. "
-                    "See `kointegrate.py --help-ini' for help on "
-                    "configuring this script.")
+                <branch-nickname> = <full-path-to-branch-working-copy>
 
-    dst_branches = []
-    for dst_branch_name in dst_branch_names:
-        try:
-            dst_branches.append(cfg.branches[dst_branch_name])
-        except KeyError:
-            raise Error("`%s' is an unknown active Komodo branch name "
-                        "(known branches are: '%s')"
-                        % (dst_branch_name,
-                           "', '".join(cfg.branches.keys())))
+            For example,
 
-    src_branch = _get_curr_branch()
+                [active-branches]
+                openkomodo = /home/me/play/openkomodo
+                devel      = /home/me/wrk/Komodo-devel
+                4.3.x      = /home/me/wrk/Komodo-4.3.x
+        """ % (parser.prog, cfg.cfg_path))
+        sys.exit(0)
 
-    log.debug("integrate change %s from %r -> '%s'",
-              changenum, src_branch.name,
-              "', '".join(b.name for b in dst_branches))
-    return src_branch.integrate(
-        changenum, dst_branches, interactive=interactive,
-        exclude_outside_paths=exclude_outside_paths,
-        excludes=excludes, force=force)
-        
+class ChangedPath(object):
+    """A changed path within a revision"""
 
+    # Action types
+    ADDED = 1
+    MODIFIED = 2
+    DELETED = 4
+    COPIED = 8
+    RENAMED = 16
+    ALL = (ADDED | MODIFIED | DELETED | COPIED | RENAMED)
 
+    def __init__(self, action, src=None, dest=None):
+        if isinstance(action, str):
+            action = getattr(self, action.upper())
+        assert action in (self.ADDED, self.MODIFIED, self.DELETED,
+                          self.COPIED, self.RENAMED)
+        assert (dest is not None) == (action in (self.COPIED, self.RENAMED))
+        self.action = action
+        assert bool(src), "No source provided"
+        self.src = src
+        self.dest = dest
+        self.binary = False
 
-#---- internal support stuff
-
-def _capture_stdout(argv, cwd=None, ignore_status=False):
-    p = subprocess.Popen(argv, cwd=cwd,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
-    stdout = p.stdout.read()
-    stderr = p.stderr.read()
-    status = p.wait()  # raise if non-zero status?
-    if status and not ignore_status:
-        raise OSError("running '%s' failed: %d: %s"
-                      % (' '.join(argv), status, stderr))
-    return stdout
-
-# Adapted from patchtree.py
-def _patchRun(argv, cwd=None, stdin=None):
-    p = subprocess.Popen(argv, cwd=cwd, stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-    if stdin is not None:
-        p.stdin.write(stdin)
-    p.stdin.close()
-    stdout = p.stdout.read()
-    stderr = p.stderr.read()
-    retval = p.wait()
-    return stdout, stderr, retval
-
-# Adapted from patchtree.py.
-def _assertCanApplyPatch(patchExe, patchFile, sourceDir, reverse=0,
-                         patchSrcFile=None, patchArgs=[]):
-    """Raise an error if the given patch will not apply cleanly (does not
-    raise if the patch is already applied).
-    
-        "patchExe" is a path to a patch executable to use.
-        "patchFile" is the path the the patch file.
-        "sourceDir" is the base directory of the source tree to patch. All
-            patches are presumed to be applicable from this directory.
-        "reverse" (optional, default false) is a boolean indicating if the
-            patch should be considered in reverse.
-        "patchSrcFile" (optional) is the path to the patch _source_ location
-            for helpful error messages -- the patch may have been processed.
-        "patchArgs" (optional) is a list of patch executable arguments to
-            include in invocations.
-    """
-    inReverse = (reverse and " in reverse" or "")
-    log.debug("assert can apply patch%s: %s", inReverse, patchFile)
-    baseArgv = [patchExe, "-f", "-p0", "-g0"] + patchArgs
-    patchContent = open(patchFile, 'r').read()
-
-    # HACK normalize EOLs in targets.
-    # Assumptions: have "Index:" markers in the patch.
-    eolFromNormedPath = {}
-    patchContent = eollib.convert_text_eol(patchContent, eollib.NATIVE)
-    for line in patchContent.splitlines(False):
-        if not line.startswith("Index:"):
-            continue
-        index, relpath = line.split(None, 1)
-        path = join(sourceDir, relpath)
-        
-        eol, _ = eollib.eol_info_from_path(path)
-        if eol != eollib.NATIVE:
-            eollib.convert_path_eol(path, eollib.NATIVE)
-            eolFromNormedPath[path] = eol
-
-    try:
-        # Avoid this check for now because it can result in false positives
-        # (thinking the patch has already been applied when it has not).
-        ## Skip out if the patch has already been applied.
-        #argv = baseArgv + ["--dry-run"]
-        #if not reverse:
-        #    argv.append("-R")
-        #log.debug("    see if already applied%s: run %s in '%s'", inReverse,
-        #          argv, sourceDir)
-        #stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
-        #if not retval: # i.e. reverse patch would apply
-        #    log.debug("    patch already applied%s: skipping", inReverse)
-        #    return
-    
-        # Fail if the patch would not apply cleanly.
-        argv = baseArgv + ["--dry-run"]
-        if reverse:
-            argv.append("-R")
-        log.debug("    see if will apply cleanly%s: run %s in '%s'", inReverse,
-                  argv, sourceDir)
-        stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
-        if retval:
-            headOfPatch = '\n    '.join(patchContent.splitlines(False)[:4])
-            errmsg = textwrap.dedent("""\
-                patch '%s' will not apply cleanly%s:
-                  patch source:  %s
-                  argv:          %s
-                  stdin:         %s
-                  cwd:           %s
-                  head of patch:
-                    %s
-                """) % (patchFile, inReverse, patchSrcFile or patchFile,
-                        argv, patchFile, sourceDir, headOfPatch)
-            if stdout.strip():
-                errmsg += "  stdout:\n%s" % _indent(stdout)
-            if stderr.strip():
-                errmsg += "  stderr:\n%s" % _indent(stderr)
-            raise Error(errmsg)
-    finally:
-        # HACK continued... unnormalize EOLs.
-        for path, eol in eolFromNormedPath.items():
-            eollib.convert_path_eol(path, eol)
-
-# Adapted from patchtree.py.
-def _getPatchExe(patchExe=None):
-    import which
-    import os
-    path = os.environ.get("PATH", "").split(os.pathsep)
-    if sys.platform == "win32":
-        path.insert(0, join(dirname(__file__), "bin-win32-x86"))
-    if patchExe is None:
-        try:
-            patchExe = which.which("patch", path=path)
-        except which.WhichError:
-            raise Error("could not find a 'patch' executable on your PATH")
-    # Assert that it exists.
-    if not os.path.exists(patchExe):
-        raise Error("'%s' does not exist" % patchExe)
-    # Assert that this isn't cygwin patch on Windows.
-    if re.search("(?i)cygwin", os.path.abspath(patchExe)):
-        raise Error("'%s' looks like it is from Cygwin. This patch.exe "
-                    "tends to convert EOLs to Unix-style willy-nilly. "
-                    "Find a native patch.exe. (Note: Trent and Gsar "
-                    "have one.)" % patchExe)
-    #XXX Assert that it isn't the sucky default Solaris patch.
-    return patchExe
-
-# Adapted from patchtree.py.
-def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
-                dryRun=0, patchArgs=[]):
-    """Apply a patch file to the given source directory.
-    
-        "patchExe" is a path to a patch executable to use.
-        "baseDir" is the base directory of the working patch set image.
-        "patchRelPath" is the relative path of the patch under the working
-            directory.
-        "sourceDir" is the base directory of the source tree to patch. All
-            patches are presumed to be applicable from this directory.
-        "reverse" (optional, default false) is a boolean indicating if the
-            patch should be considered in reverse.
-        "dryRun" (optional, default false), if true, indicates that
-            everything but the actual patching should be done.
-        "patchArgs" (optional) is a list of patch executable arguments to
-            include in invocations.
-    
-    Returns True if applied, False if skipped (already applied) and
-    raised an error if could not apply.
-    """
-    inReverse = (reverse and " in reverse" or "")
-    baseArgv = [patchExe, "-f", "-p0", "-g0"] + patchArgs
-    if not log.isEnabledFor(logging.INFO):
-        baseArgv += ["--quiet"]
-    patchFile = os.path.join(baseDir, patchRelPath)
-    patchContent = open(patchFile, 'r').read()
-
-    # HACK normalize EOLs in targets.
-    # Assumptions: have "Index:" markers in the patch.
-    eolFromNormedPath = {}
-    patchContent = eollib.convert_text_eol(patchContent, eollib.NATIVE)
-    for line in patchContent.splitlines(False):
-        if not line.startswith("Index:"):
-            continue
-        index, relpath = line.split(None, 1)
-        path = join(sourceDir, relpath)
-        
-        eol, _ = eollib.eol_info_from_path(path)
-        if eol != eollib.NATIVE:
-            eollib.convert_path_eol(path, eollib.NATIVE)
-            eolFromNormedPath[path] = eol
-    
-    try:
-        # Avoid this check for now because it can result in false positives
-        # (thinking the patch has already been applied when it has not).
-        ## Skip out if the patch has already been applied.
-        #argv = baseArgv + ["--dry-run"]
-        #if not reverse:
-        #    argv.append("-R")
-        #stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
-        #if not retval: # i.e. reverse patch would apply
-        #    log.debug("skip application of '%s'%s: already applied", patchRelPath,
-        #             inReverse)
-        #    return False
-    
-        # Apply the patch.
-        if dryRun:
-            log.debug("apply '%s'%s (dry run)", patchRelPath, inReverse)
-            argv = baseArgv + ["--dry-run"]
+    def __str__(self):
+        if self.action == ChangedPath.COPIED:
+            return "%s => %s" % (self.src, self.dest)
+        elif self.action == ChangedPath.RENAMED:
+            return "%s -> %s" % (self.src, self.dest)
         else:
-            log.debug("apply '%s'%s", patchRelPath, inReverse)
-            argv = baseArgv
-        if reverse:
-            argv.append("-R")
-        log.debug("run %s in '%s' (stdin '%s')", argv, sourceDir, patchFile)
-        stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
-        sys.stdout.write(stdout)
-        sys.stdout.flush()
-        if retval:
-            raise Error("error applying patch '%s'%s: argv=%r, cwd=%r, retval=%r"
-                        % (patchFile, inReverse, argv, sourceDir, retval))
-        return True
-    finally:
-        # HACK continued... unnormalize EOLs.
-        for path, eol in eolFromNormedPath.items():
-            eollib.convert_path_eol(path, eol)
+            return self.src
 
+    def __repr__(self):
+        action = {
+            ChangedPath.ADDED: "A",
+            ChangedPath.MODIFIED: "M",
+            ChangedPath.DELETED: "D",
+            ChangedPath.COPIED: "C",
+            ChangedPath.RENAMED: "R",
+        }[self.action]
+        s = "<change: {action} {src}".format(action=action, src=self.src)
+        if self.dest is not None:
+            s += " => {dest}".format(dest=self.dest)
+        if self.binary:
+            s += " #"
+        s += ">"
+        return s
+
+class Revision(object):
+    def __init__(self, revision, branch):
+        self.revision = str(revision)
+        self.branch = branch
+
+    @property
+    def paths(self):
+        """The paths that are affected in this revision.
+        @returns an iterable of ChangedPath objects.
+        """
+        raise NotImplementedError("%s needs to implement paths" % self)
+
+    @property
+    def description(self):
+        """The commit message of this revision"""
+        raise NotImplementedError("%s needs to implement description" % self)
+
+    @property
+    def integration_message(self):
+        """A commit message appropriate for integration.
+        This is probably the description with some extra information.
+        """
+        raise NotImplementedError("%s needs to implement commit_message" % self)
+
+    @property
+    def summary(self):
+        """A one-line summary of the commit message of this revision"""
+        return _one_line_summary_from_text(self.description, 60)
+
+    @property
+    def author(self):
+        """The author of this commit"""
+        raise NotImplementedError("%s needs to implement author" % self)
+
+    @property
+    def commit_summary(self):
+        """A short one-line support about this commit, for bugzilla tracking"""
+        raise NotImplementedError("%s needs to implement commit_summary" % self)
+
+    def get_patch(self, options, paths=None):
+        """Get a patch file for this revision
+        @param options {Namespace} command-line options
+        @param paths {iterable of ChangedPath} paths to include in the patch;
+            if not given, all files provided are included
+        """
+        raise NotImplementedError("%s needs to implement get_patch" % self)
+
+    def integrate(self, options, branch, paths):
+        """Integrate this revision into the target branch
+        @param options {Namespace} The command line options
+        @param branch {Branch} The branch to integrate into
+        @param paths {iterable of ChangedPath} The paths to integrate
+        """
+        paths = set(paths)
+        if options.exclude_outside_paths:
+            paths -= branch.get_missing_paths(paths)
+        if not paths:
+            log.warn("No files in %s to integrate, skipping %s",
+                     options.revision, branch)
+            return
+
+        log.debug("Integrating files %s", ", ".join(map(str, paths)))
+
+        # Check that this patch can be applied
+        if not options.skip_check:
+            failed_paths = branch.check_patch(self, paths, options)
+            if failed_paths:
+                prefix = textwrap.fill("During a dry-run patching attempt there "
+                                       "were failures in the following files:",
+                                       initial_indent=" " * 7,
+                                       subsequent_indent=" " * 7)
+                suffix = textwrap.fill("You could use the `-x SUBPATH` option to "
+                                       "skip a particular file.",
+                                       initial_indent=" " * 7,
+                                       subsequent_indent=" " * 7)
+                message = "%s\n%s\n%s\n" % (prefix[7:],
+                                            "\n".join(" " * 11 + p for p in failed_paths),
+                                            suffix)
+                log.info("")
+                log.error(message)
+                if options.force:
+                    if options.interactive:
+                        answer = _query_yes_no("Continue integrating failed patch?",
+                                               default="no")
+                        if answer != "yes":
+                            raise IntegrationError("Conflicts in patch")
+                        log.info("")
+                    else:
+                        log.warn("Failure applying patch, forcing integration anyway")
+                else:
+                    raise IntegrationError("Conflicts in patch")
+
+        if options.dry_run:
+            log.info("Skipping application and commit due to dry-run")
+            return True
+
+        # Apply the patch
+        try:
+            commit_msg = branch.apply_patch(self, paths, options)
+        except IntegrationError:
+            log.info("")
+            if options.force:
+                if options.interactive:
+                    message = ("There were issues integrating the patch; do "
+                               "you want to force a commit anyway?  (You can "
+                               "manually fix the branch now if desired)")
+                    log.warn(textwrap.fill(message, subsequent_indent=" " * 9) + "\n")
+                    answer = _query_yes_no("Continue integrating this change?",
+                                           default="no")
+                    if answer != "yes":
+                        raise
+                    commit_msg = self.integration_message
+                else:
+                    log.warn("Failure applying patch, forcing integration anyway")
+            else:
+                raise
+
+        # Commit the patch
+        log.info("\n\nReady to commit to %s:", branch)
+        log.info(_banner("commit message", '-'))
+        log.info(commit_msg)
+        log.info(_banner(None, '-'))
+        log.info("")
+
+        auto_commit = True
+        if not branch.scc_is_distributed and options.interactive:
+            message = ("Would you like this script to automatically commit "
+                       "this integration to '%s'?") % branch
+            answer = _query_yes_no(textwrap.fill(message), default=None)
+            if answer != "yes":
+                auto_commit = False
+
+        if auto_commit:
+            return branch.commit(self, paths, options)
+
+class GitRevision(Revision):
+    def __str__(self):
+        return "Git revision %s of %s" % (self.revision[:8], self.branch)
+
+    @LazyProperty
+    def _paths(self):
+        """The paths affected by this revision.
+        @returns hash.
+            key is source path, or for deletes, destination path.
+            action is a PathTypes constant
+            src is the source path (again)
+            dest is the destination path (only for copies and renames)
+        """
+        cmd = ["diff-tree", "--raw", "--numstat", "-C", "-z", "-r", self.revision]
+        lines = self.branch._capture_output(*cmd).split("\0")
+        if not lines[-1]:
+            lines.pop() # empty line at the end
+        self.revision = lines.pop(0) # commit hash of the tree
+        paths = {}
+        changes = [] # in order
+
+        # Look at the --raw output
+        while len(lines) > 0 and lines[0].startswith(":"):
+            line = lines.pop(0)
+            src_mode, dest_mode, src_hash, dest_hash, action = line[1:].split()
+
+            change = []
+            src = lines.pop(0)
+            if action[0] == "A":
+                path = ChangedPath(ChangedPath.ADDED, src=src)
+                change.append(path)
+                paths[src] = path
+            elif action[0] == "C":
+                path = ChangedPath(ChangedPath.COPIED,
+                                   src=src,
+                                   dest=lines.pop(0))
+                change.append(path)
+                paths[dest] = path
+            elif action[0] == "D":
+                path = ChangedPath(ChangedPath.DELETED, src=src)
+                change.append(path)
+                paths[src] = path
+            elif action[0] in "M":
+                path = ChangedPath(ChangedPath.MODIFIED, src=src)
+                change.append(path)
+                paths[src] = path
+            elif action[0] == "R":
+                dest = lines.pop(0)
+                path = ChangedPath(ChangedPath.COPIED, src=src, dest=dest)
+                change.append(path)
+                paths[dest] = path
+            elif acton[0] in "TUX":
+                raise NotImplementedError("Unsuppported change state " + action)
+            else:
+                raise NotImplementedError("Unknown change state " + action)
+
+            changes.append(change)
+
+        # Look at the --numstat output
+        while len(lines) > 0:
+            line = lines.pop(0)
+            if line[0] not in "0123456789-":
+                continue
+            change = changes.pop(0)
+            stats = line.split()[:2]
+            change[0].binary = stats[0] == "-"
+            change[-1].binary = stats[-1] == "-"
+
+        log.debug("Files in %s: %r", self.revision, paths)
+        return paths
+
+    @property
+    def paths(self):
+        return set(self._paths.values())
+
+    def _get_property_from_log(self, format_string, strip=True):
+        cmd = ["log", "-1", "--pretty=" + format_string, self.revision]
+        result = self.branch._capture_output(*cmd)
+        if strip:
+            result = result.strip()
+        return result
+
+    @LazyProperty
+    def description(self):
+        return self._get_property_from_log("%B")
+
+    @LazyProperty
+    def integration_message(self):
+        message = "\n\n(integrated from {branch} change {rev} by {author})"
+        message = message.format(branch=self.branch.desc,
+                                 rev=self.pretty_rev,
+                                 author=self.author)
+        return self.description + message
+
+    @LazyProperty
+    def summary(self):
+        cmd = ["log", "-1", "--pretty=%s", self.revision]
+        summary = self.branch._capture_output(*cmd).strip()
+        return _one_line_summary_from_text(summary, 60)
+
+    @LazyProperty
+    def author(self):
+        return self._get_property_from_log("%aN <%aE>")
+
+    @LazyProperty
+    def date(self):
+        return self._get_property_from_log("%ai")
+
+    @LazyProperty
+    def pretty_rev(self):
+        cmd = ["describe", "--long", "--always", self.revision]
+        return self.branch._capture_output(*cmd).strip()
+
+    @LazyProperty
+    def commit_summary(self):
+        # PROJECT-NAME:HASH (BRANCH-NAME)
+        summary = ""
+        try:
+            remote = self.branch._capture_output("config", "--get",
+                                                 "remote.origin.url").strip()
+            if remote.startswith("/"):
+                pass # local file path
+            elif remote.startswith("file:///"):
+                pass # file url
+            elif len(remote) > 1 and remote[1] == ":":
+                pass # Windows absolute path
+            else:
+                remote = remote.rsplit("/", 1)[-1]
+                summary = remote + ":"
+        except subprocess.CalledProcessError:
+            pass
+        summary += self.revision[:12]
+        branch = (self.branch
+                      ._capture_output("describe", "--all", "--abbrev=0")
+                      .strip())
+        if not branch:
+            branch = ""
+        if branch.startswith("remotes/"):
+            branch = branch[len("remotes/"):]
+        if branch.startswith("tags/"):
+            branch = branch[len("tags/"):] + " tag"
+        if branch.startswith("heads/"):
+            branch = branch[len("heads/"):]
+            if branch not in ("trunk", "master"):
+                branch += " branch"
+        if branch:
+            summary += " (%s)" % (branch,)
+        return summary
+
+    _patch_cache = None
+    def get_patch(self, options, paths=None):
+        if paths is None:
+            path_names = []
+        else:
+            path_names = set(path.src for path in paths)
+            path_names.update(path.dest for path in paths
+                              if path.action in
+                              (ChangedPath.RENAMED, ChangedPath.COPIED))
+
+        cache_key = "".join(sorted(path_names))
+        if self._patch_cache is None:
+            self._patch_cache = {}
+        if cache_key in self._patch_cache:
+            return self._patch_cache[cache_key]
+
+        cmd = ["diff", "--no-color", "--binary", self.revision + "^",
+               self.revision, "--"] + sorted(path_names)
+        result = self.branch._capture_output(*cmd)
+        self._patch_cache[cache_key] = result
+        return result
+
+class SVNRevision(Revision):
+
+    def __str__(self):
+        return "SVN revision %s of %s" % (self.revision, self.branch)
+
+    @LazyProperty
+    def _xml(self):
+        return self.branch._capture_output("log", "--verbose", "--change",
+                                           self.revision)
+
+    @LazyProperty
+    def _paths(self):
+        paths = {}
+        for elem in self._xml.findall(".//paths/path"):
+            path = elem.text.strip()
+            path_url = self.branch.repo_url + path
+            if path.startswith(self.branch._repo_relpath):
+                path = os.path.relpath(path, self.branch._repo_relpath)
+            action = elem.get("action")
+            src = elem.get("copyfrom-path", None)
+            if src is not None:
+                src_url = self.branch.repo_url + src
+                if src.startswith(self.branch._repo_relpath):
+                    src = os.path.relpath(src, self.branch._repo_relpath)
+                src_rev = int(elem.get("copyfrom-rev", None) or self.revision)
+            else:
+                src_rev = self.revision
+            if action == "A":
+                if src is None:
+                    change = ChangedPath(ChangedPath.ADDED,
+                                         src=path)
+                    setattr(change, "src_url", path_url)
+                else:
+                    change = ChangedPath(ChangedPath.COPIED,
+                                         src=src,
+                                         dest=path)
+                    setattr(change, "src_url", src_url)
+                    setattr(change, "dest_url", path_url)
+            elif action == "M":
+                change = ChangedPath(ChangedPath.MODIFIED,
+                                     src=path)
+                setattr(change, "src_url", path_url)
+            elif action == "D":
+                change = ChangedPath(ChangedPath.DELETED,
+                                     src=path)
+                setattr(change, "src_url", path_url)
+            elif action == "R":
+                change = ChangedPath(ChangedPath.RENAMED,
+                                     src=src, dest=path)
+                setattr(change, "src_url", src_url)
+                setattr(change, "dest_url", path_url)
+            setattr(change, "src_rev", src_rev)
+            setattr(change, "kind", elem.get("kind"))
+            log.debug("change: %r", change)
+            paths[path] = change
+
+        return paths
+
+    @property
+    def paths(self):
+        return self._paths.values()
+
+    @LazyProperty
+    def description(self):
+        return self._xml.find("./logentry/msg").text.strip()
+
+    @LazyProperty
+    def integration_message(self):
+        message = "\n\n(integrated from {branch} change {rev} by {author})"
+        message = message.format(branch=self.branch.desc,
+                                 rev=self.revision,
+                                 author=self.author)
+        return self.description + message
+
+    @LazyProperty
+    def author(self):
+        return self._xml.find("./logentry/author").text.strip()
+
+    @LazyProperty
+    def commit_summary(self):
+        desc = self.branch.desc
+        log.debug("%s", self.branch.desc)
+        # rename 'komodo' to 'komodo ide'
+        if desc.startswith("komodo"):
+            desc = desc.replace("komodo", "komodo ide", 1)
+        # PROJECT-NAME rCHANGENUM (BRANCH-NAME)
+        if "(" in desc:
+            parts = desc.split("(", 1)
+            return "%s r%s (%s" % (parts[0].strip(), self.revision, parts[1])
+        # No branch name, just do PROJECT-NAME rCHANGENUM
+        return "%s r%s" % (desc, self.revision)
+
+    def get_patch(self, options, paths=None):
+        result = []
+        for path in paths:
+            if path.kind == "dir":
+                continue
+            if path.dest:
+                cmd = ["diff",
+                       "%s@%s" % (path.src_url, path.src_rev),
+                       "%s@%s" % (path.dest_url, self.revision)]
+            else:
+                cmd = ["diff", "-c", self.revision, path.src]
+            output = self.branch._capture_output(*cmd, xml=False)
+            target_file = path.dest or path.src
+            output = output.replace("\n--- %s" % os.path.basename(path.src),
+                                    "\n--- %s" % target_file, 1)
+            output = output.replace("\n+++ %s" % os.path.basename(path.src),
+                                    "\n+++ %s" % target_file, 1)
+            result.append(output)
+        return "\n".join(result)
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--help-ini", action=HelpIniAction,
+                        help="show help on configuring %s and exit" % parser.prog)
+    parser.add_argument("-q", "--quiet", dest="log_level",
+                        action="store_const", const=logging.WARN,
+                        help="suppress informational messages")
+    parser.add_argument("-v", "--verbose", dest="log_level",
+                        action="store_const", const=logging.DEBUG,
+                        help="more verbose output")
+    parser.add_argument("-i", "--interactive", action="store_true",
+                        help="interactively verify steps of integration "
+                             "(default)")
+    parser.add_argument("-n", "--non-interactive", action="store_false",
+                        dest="interactive", help="no interaction")
+    parser.add_argument("-f", "--force", action="store_true",
+                        help="force application of patches that won't apply "
+                             "cleanly; ignore files missing in the target")
+    parser.add_argument("-X", "--exclude-outside-paths", action="store_true",
+                        help="exclude (ignore) paths in the changeset "
+                             "outside of the branch")
+    parser.add_argument("-x", "--exclude", dest="excludes", action="append",
+                        metavar="PATTERN",
+                        help="Exclude files in the change matching the "
+                             "given glob pattern. This is matched against "
+                             "the file relative path.")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Don't actually do anything; this may cause the "
+                             "integration to fail where it would otherwise succeed")
+    parser.add_argument("--skip-check", "-S", action="store_true",
+                        help="Don't check whether the patch applies first, just "
+                        "make changes directly.")
+    parser.add_argument("-V", "--version", action="version", version=__version__)
+    parser.add_argument("revision", help="revision (commit hash) to integrate")
+    parser.add_argument("branches", help="branches to merge into",
+                        nargs="+")
+    parser.set_defaults(log_level=logging.INFO, exclude_outside_paths=False,
+                        interactive=True, excludes=[], force=False,
+                        dry_run=False, skip_check=False)
+    args = parser.parse_args(argv)
+    log.setLevel(args.log_level)
+
+    args.revision = cfg.get_revision(args.revision)
+
+    branches = []
+    for branch in args.branches:
+        branch = cfg.get_branch(branch)
+        if not branch.is_clean:
+            msg = "Can't integrate to unclean branch:\n    " + str(branch)
+            raise IntegrationError(msg)
+        branches.append(branch)
+    args.branches[:] = branches
+
+    paths = set(args.revision.paths)
+    for path in list(paths):
+        matching_excludes = filter(lambda e: fnmatch.fnmatch(path.src, e),
+                                   args.excludes)
+        if matching_excludes:
+            log.info("skipping `%s' (matches excludes: '%s')",
+                     path.src, "', '".join(matching_excludes))
+            paths.discard(path)
+
+    # Give the user the chance to abort.
+    log.info("  change: %s", args.revision)
+    log.info("    desc: %s", args.revision.summary)
+    log.info("      by: %s", args.revision.author)
+    if len(args.branches) == 1:
+        log.info("      to: %s", args.branches[0])
+    else:
+        prefixes = itertools.chain(["to:"], itertools.repeat("   "))
+        for i, (prefix, branch) in enumerate(itertools.izip(prefixes, sorted(args.branches)), 1):
+            log.info("      %s %d. %s", prefix, i, branch)
+    path_names = sorted(map(str, paths))
+    if len(paths) > 7:
+        path_names = path_names[:7] + ['...and %d other files' % (len(paths) - 7)]
+    log.info("   files: %s", ("\n" + " " * 10).join(path_names))
+
+    if args.interactive:
+        log.info("")
+        answer = _query_yes_no("Continue integrating this change?")
+        if answer != "yes":
+            return False
+
+    # If any of the files to integrate are binary, then ensure it is
+    # okay to integrate them (because can't detect conflicts).
+    binary_paths = [path for path in args.revision.paths
+                    if path.binary and path.action != ChangedPath.DELETED]
+    if binary_paths:
+        log.info(textwrap.dedent("""
+            ***
+            The following source files are binary:
+                %s
+
+            Integrating these files just copies the whole file over to
+            the target. This could result in lost changes in the target.
+            ***""") \
+            % "\n    ".join(map(str, binary_paths)))
+        if args.interactive:
+            answer = _query_yes_no("Continue integrating this change?")
+            if answer != "yes":
+                return False
+
+    commits = []
+    for branch in args.branches:
+        result = args.revision.integrate(args, branch, paths)
+        if result is not None:
+            commits.append(result)
+
+    if commits:
+        log.info("\n")
+        log.info("-- Check-in summary (for bugzilla comment):")
+        log.info("  %s", args.revision.commit_summary)
+        for commit in commits:
+            log.info("  %s", commit.commit_summary)
+        log.info("--\n")
 
 # Recipe: banner (1.0.1)
 def _banner(text, ch='=', length=78):
@@ -1153,20 +1238,6 @@ def _banner(text, ch='=', length=78):
             suffix = ch * (suffix_len/len(ch)) + ch[:suffix_len%len(ch)]
         return prefix + ' ' + text + ' ' + suffix
 
-# Recipe: indent (0.2.1)
-def _indent(s, width=4, skip_first_line=False):
-    """_indent(s, [width=4]) -> 's' indented by 'width' spaces
-
-    The optional "skip_first_line" argument is a boolean (default False)
-    indicating if the first line should NOT be indented.
-    """
-    lines = s.splitlines(1)
-    indentstr = ' '*width
-    if skip_first_line:
-        return indentstr.join(lines)
-    else:
-        return indentstr + indentstr.join(lines)
-
 # Recipe: text_escape (0.1)
 def _escaped_text_from_text(text, escapes="eol"):
     r"""Return escaped version of text.
@@ -1190,7 +1261,7 @@ def _escaped_text_from_text(text, escapes="eol"):
     # - Add 'c-string' style.
     # - Add _escaped_html_from_text() with a similar call sig.
     import re
-    
+
     if isinstance(escapes, basestring):
         if escapes == "eol":
             escapes = {'\r\n': "\\r\\n\r\n", '\n': "\\n\n", '\r': "\\r\r"}
@@ -1220,7 +1291,7 @@ def _escaped_text_from_text(text, escapes="eol"):
 def _one_line_summary_from_text(text, length=78,
         escapes={'\n':"\\n", '\r':"\\r", '\t':"\\t"}):
     r"""Summarize the given text with one line of the given length.
-    
+
         "text" is the text to summarize
         "length" (default 78) is the max length for the summary
         "escapes" is a mapping of chars in the source text to
@@ -1238,11 +1309,10 @@ def _one_line_summary_from_text(text, length=78,
         summary = escaped
     return summary
 
-
 # Recipe: query_yes_no (1.0)
 def _query_yes_no(question, default="yes"):
     """Ask a yes/no question via raw_input() and return their answer.
-    
+
     "question" is a string that is presented to the user.
     "default" is the presumed answer if the user just hits <Enter>.
         It must be "yes" (the default), "no" or None (meaning
@@ -1271,30 +1341,6 @@ def _query_yes_no(question, default="yes"):
         else:
             sys.stdout.write("Please repond with 'yes' or 'no' "\
                              "(or 'y' or 'n').\n")
-
-def _get_last_changenum():
-    curr_branch = _get_curr_branch()
-    return curr_branch.last_rev(curr_user=True)
-
-def _get_curr_branch():
-    curr_branch = None
-    norm_cwd_plus_sep = normcase(os.getcwd()) + os.sep
-    for branch in cfg.branches.values():
-        norm_branch_dir_plus_sep = normcase(branch.base_dir) + os.sep
-        if norm_cwd_plus_sep.startswith(norm_branch_dir_plus_sep):
-            curr_branch = branch
-            break
-    else:
-        raise Error(textwrap.dedent("""\
-            The current directory is not in any of your configured Komodo
-            branches. You must either update your configuration for this
-            script (see `kointegrate --help') or change to an active
-            branch working copy directory.
-            """))
-    return curr_branch
-
-
-#---- mainline
 
 # Recipe: pretty_logging (0.1) in C:\trentm\tm\recipes\cookbook
 class _PerLevelFormatter(logging.Formatter):
@@ -1330,148 +1376,37 @@ def _setup_logging(stream=None):
 
     We want a prettier default format:
         $name: level: ...
-    Spacing. Lower case. Drop the prefix for INFO-level. 
+    Spacing. Lower case. Drop the prefix for INFO-level.
     """
     hdlr = logging.StreamHandler(stream)
-    defaultFmt = "%(name)s: %(levelname)s: %(message)s"
-    infoFmt = "%(message)s"
-    fmtr = _PerLevelFormatter(fmt=defaultFmt,
-                              fmtFromLevel={logging.INFO: infoFmt})
+    fmtr = _PerLevelFormatter(fmt="%(levelname)s: %(message)s",
+                              fmtFromLevel={logging.INFO: "%(message)s"})
     hdlr.setFormatter(fmtr)
     logging.root.addHandler(hdlr)
-    log.setLevel(logging.INFO)
 
-
-
-
-class _NoReflowFormatter(optparse.IndentedHelpFormatter):
-    """An optparse formatter that does NOT reflow the description."""
-    def format_description(self, description):
-        return description or ""
-
-def main(argv=sys.argv):
-    version = "%prog "+__version__
-    desc = __doc__ + "\nConfigured active Komodo branches:\n    "
-    if not cfg.branches:
-        desc += "(none configured)"
-    else:
-        desc += "\n    ".join(map(str,
-            [b for (n,b) in sorted(cfg.branches.items())]))
-    desc += "\n\nUse `kointegrate --help-ini' for help on configuring.\n"
-
-    parser = optparse.OptionParser(usage="",
-        version=version, description=desc,
-        formatter=_NoReflowFormatter())
-    parser.add_option("--help-ini", action="store_true",
-                      help="print help on configuring kointegrate")
-    parser.add_option("-q", "--quiet", dest="log_level",
-                      action="store_const", const=logging.WARN,
-                      help="more verbose output")
-    parser.add_option("-v", "--verbose", dest="log_level",
-                      action="store_const", const=logging.DEBUG,
-                      help="more verbose output")
-    parser.add_option("-i", "--interactive", action="store_true",
-                      help="interactively verify steps of integration "
-                           "(default)")
-    parser.add_option("-n", "--non-interactive", action="store_false",
-                      dest="interactive", help="no interaction")
-    parser.add_option("-f", "--force", action="store_true",
-        help="force application of patches that won't apply cleanly; ignore files missing in the target")
-    parser.add_option("-X", "--exclude-outside-paths", action="store_true",
-                      help="exclude (ignore) paths in the changeset "
-                           "outside of the branch")
-    parser.add_option("-x", "--exclude", dest="excludes", action="append",
-                      metavar="PATTERN",
-                      help="Exclude files in the change matching the "
-                           "given glob pattern. This is matched against "
-                           "the file relative path.")
-    parser.set_defaults(log_level=logging.INFO, exclude_outside_paths=False,
-                        interactive=True, excludes=[], force=False)
-    opts, args = parser.parse_args()
-    log.setLevel(opts.log_level)
-    
-    if opts.help_ini:
-        print textwrap.dedent("""
-            Configuring kointegrate.py
-            --------------------------
-            
-            This script uses a "kointegrate.ini" file here:
-                %s
-            
-            The "[active-branches]" section of that file (a normal
-            INI-syntax file) is used. Each entry in that section should
-            be of the form:
-            
-                <branch-nickname> = <full-path-to-branch-working-copy>
-            
-            For example,
-
-                [active-branches]
-                openkomodo = /home/me/play/openkomodo
-                devel      = /home/me/wrk/Komodo-devel
-                4.2        = /home/me/wrk/Komodo-4.2
-        """ % cfg.cfg_path)
-        return
-
-    if len(args) < 2:
-        log.error("incorrect number of arguments: %s", args)
-        log.error("(See 'kointegrate --help'.)")
-        return 1
-    try:
-        rev_str = args[0]
-        if rev_str.startswith('r'):
-            rev_str = rev_str[1:]
-        if rev_str in ("LAST", "HEAD"):
-            changenum = _get_last_changenum()
-        elif rev_str == "ALL":
-            changenum = "ALL"
-        else:
-            changenum = int(rev_str)
-    except ValueError, ex:
-        log.error("<changenum> must be an integer: %r", args[0])
-        log.error("(See 'kointegrate --help'.)")
-        return 1
-    dst_branch_names = args[1:]
-
-    if changenum == "ALL":
-        kointegrate_all_changes(
-            dst_branch_names, interactive=opts.interactive,
-            exclude_outside_paths=opts.exclude_outside_paths,
-            excludes=opts.excludes, force=opts.force)
-        return 0
-    else:
-        integrated = kointegrate(
-            changenum, dst_branch_names, interactive=opts.interactive,
-            exclude_outside_paths=opts.exclude_outside_paths,
-            excludes=opts.excludes, force=opts.force)
-        if integrated:
-            return 0
-        else:
-            return 1
+#--- entry point
 
 if __name__ == "__main__":
-    _setup_logging()
+    _setup_logging(stream=sys.stdout)
     try:
-        retval = main(sys.argv)
+        retval = main()
     except SystemExit:
         pass
     except KeyboardInterrupt:
         sys.exit(1)
+    except IntegrationError as ex:
+        log.error(ex)
+        sys.exit(1)
     except:
-        exc_info = sys.exc_info()
-        if log.level <= logging.DEBUG:
+        if log.isEnabledFor(logging.DEBUG):
             import traceback
-            print
-            traceback.print_exception(*exc_info)
+            traceback.print_exc()
         else:
-            if hasattr(exc_info[0], "__name__"):
-                #log.error("%s: %s", exc_info[0].__name__, exc_info[1])
-                log.error(exc_info[1])
+            exc_type, exc_value = sys.exc_info()[:2]
+            if hasattr(exc_type, "__name__"):
+                log.error(exc_value)
             else:  # string exception
-                log.error(exc_info[0])
+                log.error(exc_type)
         sys.exit(1)
     else:
         sys.exit(retval)
-
-
-
