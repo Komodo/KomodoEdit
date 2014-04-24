@@ -210,7 +210,17 @@ this.addCommand = function AddCommandToToolbox(command, cwd, env, insertOutput,
     ko.uilayout.ensureTabShown('toolbox2viewbox');
 }
 
+
+window.addEventListener("komodo-ui-started", function() {
+    window.controllers.appendController(new toolboxController());
+});
+
 }).apply(ko.toolboxes);
+
+
+
+
+
 
 (function() { // ko.projects
 
@@ -274,9 +284,5 @@ this.exportPackageItems = function Toolbox_ExportPackageItems(items) {
                       .getService(Components.interfaces.koIProjectPackageService);
     packager.packageParts(localPath, items.length, items, true);
 }
-
-window.addEventListener("komodo-ui-started", function() {
-    window.controllers.appendController(new toolboxController());
-});
 
 }).apply(ko.projects);
