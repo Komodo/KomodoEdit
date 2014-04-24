@@ -559,10 +559,12 @@ KoScintillaAutoCompleteController.prototype = {
     // needs to bubble, and needs to contain extra data, so _fireEvent() can't
     // be used here.
     var scintilla = this._scintilla;
-    var event = scintilla.ownerDocument.createEvent("DataContainerEvent");
-    event.initEvent("codeintel_autocomplete_selected", true, true);
-    event.setData("position", aStartPos);
-    event.setData("text", aCompletion);
+    var detail = {
+      "position": aStartPos,
+      "text": aCompletion,
+    };
+    var event = new CustomEvent("codeintel_autocomplete_selected",
+                                { bubbles: true, cancelable: true, detail: detail });
     scintilla.dispatchEvent(event);
   },
 

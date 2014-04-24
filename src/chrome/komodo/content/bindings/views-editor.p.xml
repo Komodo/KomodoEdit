@@ -2285,9 +2285,9 @@
 
         <handler event="codeintel_autocomplete_selected" phase="bubbling">
         <![CDATA[
-            var startPos = event.getData("position");
-            var insertedText = event.getData("text");
-            var triggerChar = event.getData("triggerChar");      
+            var startPos = event.detail["position"];
+            var insertedText = event.detail["text"];
+            var triggerChar = event.detail["triggerChar"];
             //TODO: Store and observe these prefs
             try {
                 if (triggerChar === null) {
