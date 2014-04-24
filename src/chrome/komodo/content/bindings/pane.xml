@@ -1041,9 +1041,9 @@
           }
           let doc = target.nodeType == Node.DOCUMENT_NODE ?
             target : target.ownerDocument;
-          let event = doc.createEvent("CustomEvent");
-          event.initCustomEvent(name, true /*bubble*/, true /*cancel*/,
-                                params);
+          let event = new CustomEvent(name, { bubbles: true,
+                                              cancelable: true,
+                                              detail: params });
           target.dispatchEvent(event);
           return !event.defaultPrevented;
         ]]>
