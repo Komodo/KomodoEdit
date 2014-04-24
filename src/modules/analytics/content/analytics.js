@@ -164,7 +164,7 @@ ko.analytics = new function()
     {
         window.addEventListener('view_opened', this._eventProxy.bind(this, this.onViewOpened));
         window.addEventListener('focus', this._eventProxy.bind(this, this.onWindowFocus));
-        //window.addEventListener('loadDialog', e => e.getData("dialog")
+        //window.addEventListener('loadDialog', e => e.detail["dialog"]
         //                                            .addEventListener('focus',_proxy.bind(this, this.onWindowFocus)) );
 
         var ww = Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher);
