@@ -1012,7 +1012,7 @@
                 if (this._lastPosLineAndCol[3] != newPosLineAndCol[3]) {
                     this._lastPosLineAndCol = newPosLineAndCol;
                     if (this.lintBuffer) {
-                        this.dispatchEvent(new CustomEvent('current_view_scroll_changed', { detail: data }));
+                        this.dispatchEvent(new CustomEvent('current_view_scroll_changed'));
                     }
                 }
                 if (!this.textChangeUndoPending && !this.lastCharAdded) {
