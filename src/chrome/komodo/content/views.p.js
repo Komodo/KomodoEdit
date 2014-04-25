@@ -2383,7 +2383,7 @@ viewManager.prototype.do_cmd_showHideMinimap = function () {
 viewManager.prototype.is_cmd_minimap_fontZoom_enabled = function () {
     // As long as we have an editor/view, mark all minimap menu items enabled.
     var view = this.currentView;
-    return view && view.minimap;
+    return view && "minimap" in view && view.minimap;
 };
 viewManager.prototype.is_cmd_minimap_fontZoomIn_enabled = function () {
     return this.is_cmd_minimap_fontZoom_enabled();
