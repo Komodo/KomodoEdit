@@ -2572,7 +2572,7 @@ ManagerClass.prototype = {
             parts = ['/'];
         } else {
             parts = pathPart.split("/");
-            if (parts[0][1] == ':') {
+            if (parts[0].length > 1 && parts[0][1] == ':') {
                 parts[0] += "\\";
             } else {
                 parts.unshift("/");
