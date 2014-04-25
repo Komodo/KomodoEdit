@@ -388,7 +388,7 @@ if (typeof ko.openfiles == 'undefined')
             listbox.addEventListener('select', function(e) {
                 if (e.target == listbox && e.target.selectedItem)
                 {
-                    this.selectItem(e.target.selectedItem);
+                    this.selectItem(e.target.selectedItem, true /*sendEditorTabClick*/ );
                     ko.commands.doCommandAsync('cmd_focusEditor')
                 }
             }.bind(this), true);
@@ -921,11 +921,12 @@ if (typeof ko.openfiles == 'undefined')
         /**
          * Select an item in the list using a view object as reference
          * 
-         * @param   {Object} editorView  The relevant view
+         * @param   {Object}   editorView           The relevant view
+         * @param   {Boolean}  sendEditorTabClick   (Optional) Fire a tab "click" event to select the editor tab.
          * 
          * @returns {Boolean}   Returns false if the item does not exist
          */
-        selectItem: function openfiles_selectItem(editorView)
+        selectItem: function openfiles_selectItem(editorView, sendEditorTabClick)
         {
             // If a richlistitem is passed, simply forward the call
             // to the relevant tab and let it come back around
@@ -938,10 +939,12 @@ if (typeof ko.openfiles == 'undefined')
                     return false;
                 }
                 
-                xtk.domutils.fireEvent(
-                    openViews[id].parentNode._tab,
-                    'click'
-                );
+                if (this._allowEditorTabClick && sendEditorTabClick) {
+                    xtk.domutils.fireEvent(
+                        openViews[id].parentNode._tab,
+                        'click'
+                    );
+                }
                 return true;
             }
             
@@ -952,8 +955,17 @@ if (typeof ko.openfiles == 'undefined')
                 return false;
             }
             
-            listbox.clearSelection();
-            listbox.addItemToSelection(listItem);
+            // Setting the selection here will fire the "select" event, which in
+            // turn calls selectItem again - so we need to guard against that,
+            // as the only time we want to send tab "click" event is when the
+            // user actually selected the open files item.
+            this._allowEditorTabClick = false;
+            try {
+                listbox.clearSelection();
+                listbox.addItemToSelection(listItem);
+            } finally {
+                this._allowEditorTabClick = true;
+            }
             
             return true;
         },
