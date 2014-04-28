@@ -623,7 +623,7 @@ function _statusBarDblClick(event) {
 function _clear() {
     _clearEncoding();
     _clearLanguage();
-    _clearLineCol();
+    _clearLineColAndSelection();
     _clearCheck();
 }
 
