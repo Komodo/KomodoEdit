@@ -838,6 +838,14 @@
             // it doesn't receive regular mousemove events - bug 97756.
             [x,y] = this._last_mousemove_xy;
 /* #endif */
+
+            // Send event.
+            var data = { view: this, position: position, x: x, y: y };
+            if (!this.dispatchEvent(new CustomEvent("editor_dwell_start", { detail: data, cancelable: true }))) {
+                // Handled already.
+                return true;
+            }
+
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined') {
                 gEditorTooltipHandler.show(this, x, y, -1 /* no timeout */);
             }
@@ -854,6 +862,13 @@
             <parameter name="x"/>
             <parameter name="y"/>
         <body><![CDATA[
+            // Send event.
+            var data = { view: this, position: position, x: x, y: y };
+            if (!this.dispatchEvent(new CustomEvent("editor_dwell_end", { detail: data, cancelable: true }))) {
+                // Handled already.
+                return true;
+            }
+
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined')
                 gEditorTooltipHandler.hide();
             return true;
@@ -1419,6 +1434,7 @@
 
         <field name="_matchedTagUnhighlighter">0</field>
         <field name="_mouseButton">-1</field>
+
         <method name="onMarginClick">
         <parameter name="modifiers"/>
         <parameter name="position"/>
@@ -1427,6 +1443,13 @@
         <![CDATA[
             var s = this.scimoz;
             var lineClicked = s.lineFromPosition(position);
+
+            // Send event.
+            var data = { view: this, margin: margin, position: position, modifiers: modifiers, line: lineClicked };
+            if (!this.dispatchEvent(new CustomEvent("editor_margin_clicked", { detail: data, cancelable: true }))) {
+                // Handled already.
+                return;
+            }
 
             if (margin == 1) {
                 // this block formerly from editorWrapper.onMarginClick
