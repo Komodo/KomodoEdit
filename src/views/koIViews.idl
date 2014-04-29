@@ -50,6 +50,7 @@
 
 // forward declarations
 interface koIView;
+interface koIChangeTracker;
 
 /*
   koIViewList is a list of koIViewList's.  It manages the notion
@@ -139,6 +140,8 @@ interface koIView : koIViewList
     attribute long windowNum;
     attribute string historySessionName;
     attribute string uid;
+
+    attribute koIChangeTracker changeTracker;
 };
 
 interface koIScintillaScheme;
@@ -235,3 +238,21 @@ interface koIFoldableView : nsISupports
     void getFoldState(in long lineNo);
 };
 
+// This works with editor views, but needs an XPCOM interface so that
+// koDoc can use it.
+[scriptable, uuid(6018f475-6ad0-4158-ba32-500607ba60dc)]
+interface koIChangeTracker : nsISupports
+{
+    void clearOldMarkers();
+    void onPrefChanged(in wstring prefName,
+                       in long oldPrefValue,
+                       in long newPrefValue);
+    void onSchemeChanged();
+    void setScimoz(in ISciMoz scimoz);
+    void updateMarkers_deleteAtLine(in long lineNo);
+    void updateMarkers_insertByRange(in long lineStartNo,
+                                     in long lineEndNo);
+    void updateMarkers_replaceByRange(in long lineStartNo,
+                                      in long lineEndNo);
+                       
+};

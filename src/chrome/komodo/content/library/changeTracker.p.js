@@ -61,234 +61,151 @@ Cu.import("resource://gre/modules/Services.jsm"); // for Services
 
 var fileSvc = Cc["@activestate.com/koFileService;1"].getService(Ci.koIFileService);
 
-const CHANGES_NONE = 0;
-const CHANGES_INSERT = 1;
-const CHANGES_DELETE = 2;
-const CHANGES_REPLACE = 3;
+const ciKoDoc = Ci.koIDocument;
 
-const DEL_MASK = 1 << CHANGES_DELETE;
-const INS_MASK = 1 << CHANGES_INSERT;
-const REP_MASK = 1 << CHANGES_REPLACE;
+const CHANGES_NONE = ciKoDoc.CHANGES_NONE;
+const CHANGES_INSERT = ciKoDoc.CHANGES_INSERT;
+const CHANGES_DELETE = ciKoDoc.CHANGES_DELETE;
+const CHANGES_REPLACE = ciKoDoc.CHANGES_REPLACE;
 
 const SHOW_CHANGES_NONE = 0;
 const SHOW_UNSAVED_CHANGES = 1;
 
 const ENDS_WITH_EOL_RE = /(?:\n|\r\n?)$/;
 
-var couldBeUTF8 = function(s) {
-    return /^(?:[\x00-\x7f]|(?:[\xc0-\xdf][\x80-\xbf])|(?:[\xe0-\xef][\x80-\xbf]{2})|(?:[\xf0-\xf7][\x80-\xbf]{3})|(?:[\xf8-\xfb][\x80-\xbf]{4})|(?:[\xfc-\xfd][\x80-\xbf]{5}))*$/.test(s);
-}
-
-var utf8DecodeIfNeeded = function(s) {
-    if (couldBeUTF8(s)) {
-        return decodeURIComponent(escape(s));
-    }
-    return s;
-};
+const CHANGE_TRACKER_TIMEOUT_DELAY = 500; // msec
 
 this.ChangeTracker = function ChangeTracker(view) {
     this.view = view;
-    this.handleFileSaved = this.handleFileSaved.bind(this);
-};
-
-const prefTopics = ['editor-scheme', 'showChangesInMargin'];
-this.ChangeTracker.prototype.init = function init() {
-    this.timeoutId = null;
-    this.timeoutDelay = 500; // msec
-    this.marginController = new ko.changeTracker.MarginController(this, this.view); 
-    this.prefObserverSvc = ko.prefs.prefObserverService;
-    this.prefObserverSvc.addObserverForTopics(this, prefTopics.length, prefTopics, false);
-    this.firstInterestingLine = {}; // Map lineNo => first line (for insert & change)
-    this.lastInsertions = {}; // Map firstLine => [lastLine]
-    this.lastNewChanges = {}; // Map firstLine => [lastLine]
-    this.deletedTextLineRange = {}; // Map firstLine(new) => [firstLine(old), lastLine(old)]
-    this.changedTextLineRange = {}; // Like deletedTextLines:  new(first) => old range
-    this.insertedOldLineRange = {}; // Map firstLine => oldLineRange (insert only)
+    this.scimoz = view.scimoz;
+    this.marginController = new ko.changeTracker.MarginController(view); 
     this.showChangesInMargin = this.view.prefs.getLong('showChangesInMargin', SHOW_CHANGES_NONE);
-    if (this.showChangesInMargin) {
-        this._activateObservers();
-    } else {
+    if (!this.showChangesInMargin) {
         this.marginController.hideMargin();
     }
-    //TODO: Make a lazy getter for onDiskTextLines
-    this.onDiskTextLines = null;
-    this._referenceTextLines = this.onDiskTextLines;
     var numLines = this.onDiskTextLines ? this.onDiskTextLines.length : 0;
     this._referenceEndsWithEOL = (numLines
                                   ? ENDS_WITH_EOL_RE.test(this.onDiskTextLines[numLines - 1])
                                   : false);
+    this.viewPrefObserverService = view.prefs.prefObserverService;
+    this.viewPrefObserverService.addObserver(this, 'showChangesInMargin', false);
+    this.onBlurHandlerBound = this.onBlurHandler.bind(this);
+    this.escapeHandlerBound = this.escapeHandler.bind(this);
 };
 
-this.ChangeTracker.prototype._activateObservers = function _activateObservers() {
-    const flags = (Ci.ISciMoz.SC_MOD_INSERTTEXT
-                   |Ci.ISciMoz.SC_MOD_DELETETEXT);
-    Services.obs.addObserver(this, 'scheme-changed', false);
-    window.addEventListener('file_saved', this.handleFileSaved, false);
-    this.view.addModifiedHandler(this.onModified, this, 2000, flags);
-}
+this.ChangeTracker.prototype.QueryInterface = XPCOMUtils.generateQI([Ci.koIChangeTracker]);
 
-this.ChangeTracker.prototype._deactivateObservers = function _deactivateObservers() {
-    this.view.removeModifiedHandler(this.onModified);
-    window.removeEventListener('file_saved', this.handleFileSaved, false);
-    Services.obs.removeObserver(this, 'scheme-changed', false);
-}
+this.ChangeTracker.prototype.close = function() {
+    this.changeTrackingOff();
+    this.marginController.close();
+    this.marginController = null;
+    this.viewPrefObserverService.removeObserver(this, 'showChangesInMargin', false);
+    this.viewPrefObserverService = null;
+    this.view = null;
+    this.scimoz = null;
+};
 
-this.ChangeTracker.prototype.finalize = function finalize() {
-    if (!('onDiskTextLines' in this)) {
-        // This changeTracker was never init'ed\n");
-        return;
-    }
-    if (this.prefObserverSvc) {
-        this.prefObserverSvc.removeObserverForTopics(this, prefTopics.length, prefTopics);
-    }
-    if (this.showChangesInMargin !== SHOW_CHANGES_NONE) {
-        this._deactivateObservers();
-        if (this.timeoutId !== null) {
-            clearTimeout(this.timeoutId);
-        }
+this.ChangeTracker.prototype.onSchemeChanged = function() {
+    this.marginController.refreshMarginProperies();
+};
+
+this.ChangeTracker.prototype.setupTracker = function(changeTrackerEnabled) {
+    this.changeTrackerEnabled = changeTrackerEnabled;
+    if (changeTrackerEnabled) {
+        this.changeTrackingOn();
     }
 };
 
-this.ChangeTracker.prototype.observe = function(subject, topic, data) {
-    if (topic == 'scheme-changed' || topic == 'editor-scheme') {
-        this.marginController.refreshMarginProperies();
-    } else if (topic == 'showChangesInMargin') {
-        let oldMarginType = this.showChangesInMargin;
-        this.showChangesInMargin = this.view.prefs.getLong('showChangesInMargin', SHOW_CHANGES_NONE);
-        if (oldMarginType === this.showChangesInMargin) {
-            return; // No change
-        }
-        try {
-            this.marginController.clearOldMarkers(this.view.scimoz);
-            if (this.showChangesInMargin !== SHOW_CHANGES_NONE) {
-                this.marginController.showMargin();
-                this.onModified();
-                this._activateObservers();
-            } else {
-                this._deactivateObservers();
-                this.marginController.hideMargin();
-            }
-        } catch(ex) {
-            log.exception(ex, "Problem observing showChangesInMargin");
-        }
-    }
-};
-
-this.ChangeTracker.prototype.handleFileSaved = function handleFileSaved(event) {
-    var view = event.detail["view"];
-    if (view == this.view && this.showChangesInMargin == SHOW_UNSAVED_CHANGES) {
-        this.onModified();
-        this._referenceTextLines = this.onDiskTextLines = null;
-        this._referenceEndsWithEOL = null;
-    }
-};
-
-this.ChangeTracker.prototype.onModified = function onModified() {
-    document.getElementById('changeTracker_panel').hidePopup();
-    if (this.timeoutId !== null) {
-        clearTimeout(this.timeoutId);
-    }
-    // For now, don't bother handling any of the arguments
-    // and recalc the whole margin.
-    this.timeoutId = setTimeout(this._handleOnModified.bind(this), this.timeoutDelay);
-};
-
-this.ChangeTracker.prototype._getUnsavedChangesInfo = function() {
-    var koDoc = this.view.koDoc;
-    var changes = koDoc.getUnsavedChangeInstructions({});
-    this._getChangeInfo(changes);
-};
-
-this.ChangeTracker.prototype._getChangeInfo = function(changes) {
-    // These vars are documented in init() for their this.X counterparts
-    var lastInsertions = {};
-    var lastNewChanges = {};
-    var deletedTextLineRange = {};
-    this.firstInterestingLine = {};
-    this.changedTextLineRange = {};
-    this.insertedOldLineRange = {};
-    var change, lim = changes.length;
-    var delta;
-    for (var i = 0; i < lim; ++i) {
-        let { tag, i1, i2, j1, j2 } = changes[i];
-        switch(tag) {
-        case 'equal':
-            break;
-        case 'replace':
-            lastNewChanges[j1] = j2;
-            this.changedTextLineRange[j1] = [i1, i2];
-            delta = j2 - j1;
-            for (let idx = 0; idx < delta; ++idx) {
-                this.firstInterestingLine[j1 + idx] = j1;
-            }
-            break;
-            
-        case 'delete':
-            deletedTextLineRange[j1] = [i1, i2];
-            break;
-            
-        case 'insert':
-            lastInsertions[j1] = j2;
-            delta = j2 - j1;
-            for (let idx = 0; idx < delta; ++idx) {
-                this.firstInterestingLine[j1 + idx] = j1;
-            }
-            this.insertedOldLineRange[j1] = [i1, i2];
-            break;
-            
-        default:
-            log.error("Unexpected getUnsavedChangeInstructions tag: " + tag);
-        }
-    }
-    
-    this.marginController.updateMargins(lastInsertions,
-                                        deletedTextLineRange, lastNewChanges);
-    this.lastInsertions = lastInsertions;
-    this.deletedTextLineRange = deletedTextLineRange;
-    this.lastNewChanges = lastNewChanges;
-};
-
-this.ChangeTracker.prototype._refreshOnDiskLines = function() {
-    if (this._referenceTextLines !== null) {
-        return;
-    }
-    this._referenceTextLines = this.onDiskTextLines =
-            this.view.koDoc.getOnDiskTextLines();
-    var numLines = this._referenceTextLines.length;
-    if (numLines) {
-        this._referenceEndsWithEOL = ENDS_WITH_EOL_RE.test(this._referenceTextLines[numLines - 1]);
-    } else {
-        this._referenceEndsWithEOL = false;
-    }
-};
-
-this.ChangeTracker.prototype._handleOnModified = function _handleOnModified() {
-    this.timeoutId = null;
-    switch (this.showChangesInMargin) {
-    case SHOW_CHANGES_NONE:
-        break;
-        
-    case SHOW_UNSAVED_CHANGES:
-        this._getUnsavedChangesInfo();
-        break;
-    default:
-     log.warn("Unexpected value of this.showChangesInMargin: "
-              + this.showChangesInMargin);
-    }
-};
-
-this.ChangeTracker.prototype._getDeletedTextLines =
-                    function(firstLineNo, lastLineNo) {
-    if (lastLineNo > this._referenceTextLines.length) {
-        log.error("**** _getDeletedTextLines: can't get lines "
-                  + [firstLineNo, lastLineNo]
-                  + " from a file with only "
-                  + this._referenceTextLines.length
-                  + " lines");
+this.ChangeTracker.prototype.getTooltipText = function(lineNo) {
+    if (!this.changeTrackerEnabled ||
+        !this.lineBarIsActive(lineNo)) {
         return null;
     }
-    return this._referenceTextLines.slice(firstLineNo, lastLineNo).
-           map(function(line) line.replace(/\n|\r\n?/, ""));
+    var panel = document.getElementById('changeTracker_panel');
+    if (panel && panel.state == "closed") {
+        if (!('viewsPropertiesBundle' in this)) {
+            this.viewsPropertiesBundle = Cc["@mozilla.org/intl/stringbundle;1"].
+                    getService(Ci.nsIStringBundleService).
+                createBundle("chrome://komodo/locale/views.properties");
+        }
+        return this.viewsPropertiesBundle.GetStringFromName(
+            "Click on the changebar for details");
+    }
+    return null;
+};
+
+
+this.ChangeTracker.prototype.onBlurHandler = function(event) {
+    // Have we shown the panel and moved to a different document?
+    let panel = document.getElementById('changeTracker_panel');
+    if (panel.state != "closed" && panel.view != ko.views.manager.currentView) {
+        panel.hidePopup();
+        this.onPanelHide();
+    }
+};
+
+this.ChangeTracker.prototype.changeTrackingOn = function() {
+    this.clearOldMarkers();
+    this.marginController.showMargin();
+    this.view.addEventListener("blur", this.onBlurHandlerBound, false);
+};
+
+this.ChangeTracker.prototype.changeTrackingOff = function() {
+    this.marginController.hideMargin();
+    this.view.removeEventListener("blur", this.onBlurHandlerBound, false);
+};
+
+this.ChangeTracker.prototype.onPanelShow = function() {
+    this.view.addEventListener("keypress", this.escapeHandlerBound, false);
+};
+
+this.ChangeTracker.prototype.onPanelHide = function() {
+    this.view.removeEventListener("keypress", this.escapeHandlerBound, false);
+};
+
+this.ChangeTracker.prototype.escapeHandler = function(event) {
+    var panel = document.getElementById('changeTracker_panel');
+    // If the panel's visible should we close it on any keystroke,
+    // when the target is the view?
+    if (event.keyCode == event.DOM_VK_ESCAPE || panel.state == "closed") {
+        panel.hidePopup();
+        this.onPanelHide();
+        event.stopPropagation();
+        event.preventDefault();
+    }
+};
+
+this.ChangeTracker.prototype.observe = function(doc, topic, data) {
+    if (topic == 'showChangesInMargin') {
+        let view = this.view;
+        let oldVal = view.showChangesInMargin;
+        view.showChangesInMargin = view.prefs.getLongPref(topic);
+        this.onPrefChanged(topic, oldVal, view.showChangesInMargin);
+        view.changeTrackerEnabled = view.showChangesInMargin > 0;
+    }
+};
+        
+this.ChangeTracker.prototype.setScimoz = function(scimoz) {
+    this.marginController.scimoz = this.scimoz = scimoz;
+};
+
+this.ChangeTracker.prototype.onPrefChanged = function(prefName, oldVal, newVal) {
+    if (prefName == 'showChangesInMargin') {
+        let oldMarginType = this.showChangesInMargin;
+        this.showChangesInMargin = newVal;
+        this.marginController.clearOldMarkers();
+        if (this.showChangesInMargin !== SHOW_CHANGES_NONE) {
+            this.changeTrackingOn();
+            //@@!!! show updates immediately.
+            this._handleOnModifiedForChangeTracker();
+        } else {
+            this.changeTrackingOff();
+        }
+    }
+};
+
+this.ChangeTracker.prototype.showChangesOnFileLoad = function() {
+    return false;
 };
 
 this.ChangeTracker.prototype.lineBarIsActive = function(lineNo) {
@@ -307,76 +224,22 @@ this.ChangeTracker.prototype.showChanges = function(lineNo) {
     if (changeMask === 0) {
         return;
     }
-    this._refreshOnDiskLines();
-    var oldLines = [], newLines = [];
-    const DEL_MASK = 1 << CHANGES_DELETE;
-    const INS_MASK = 1 << CHANGES_INSERT;
-    const REP_MASK = 1 << CHANGES_REPLACE;
-    const firstLineNo  = ((changeMask & DEL_MASK) ? lineNo :
-                          this.firstInterestingLine[lineNo]);
-    var oldLineRange = null, newLineRange;
-    const scimoz = this.view.scimoz;
-    var newlineOnlyAtThisEnd = null;
-    var oldEndsWithEOL = true;
-    var newEndsWithEOL = true;
-    var bufferEndsWithEOL = [10, 13].indexOf(scimoz.getCharAt(scimoz.length - 1)) >= 0;
-    if (changeMask & (DEL_MASK|REP_MASK)) {
-        let linesToUse = ((changeMask & REP_MASK) ? this.changedTextLineRange
-                          : this.deletedTextLineRange);
-        if (!(firstLineNo in linesToUse)) {
-            log.warn("Can't find an entry for line "
-                      + firstLineNo
-                      + " in this."
-                      + ((changeMask & REP_MASK) ? "changedTextLineRange"
-                         : "deletedTextLineRange"));
-            return;
-        }
-        oldLineRange = linesToUse[firstLineNo];
-        // Case 1: Reference doesn't end with EOL, buffer does:
-        var numReferenceLines = this._referenceTextLines.length;
-        if (oldLineRange[1] >= numReferenceLines - 1
-            && !this._referenceEndsWithEOL) {
-            oldEndsWithEOL = false;
-        }
-        newLineRange = [firstLineNo, firstLineNo]; // If a deletion
-        oldLines = this._getDeletedTextLines(oldLineRange[0], oldLineRange[1]);
-        if (oldLines === null) {
-            // Failed to get those lines
-            return;
-        }
-    }
-    if (changeMask & (INS_MASK|REP_MASK)) {
-        if (!(lineNo in this.firstInterestingLine)) {
-            log.warn("Can't find an entry for line "
-                      + lineNo
-                      + " in this.firstInterestingLine ("
-                     + Object.keys(this.firstInterestingLine)
-                     + ")");
-            return;
-        }
-        let linesToUse = ((changeMask & REP_MASK) ? this.lastNewChanges
-                          : this.lastInsertions);
-        if (!(firstLineNo in linesToUse)) {
-            log.warn("Can't find an entry for line "
-                     + firstLineNo
-                     + " in this."
-                     + ((changeMask & REP_MASK) ? "changedTextLineRange"
-                          : "lastInsertions")
-                     + Object.keys(linesToUse));
-            return;
-        }
-        if (!oldLineRange) {
-            oldLineRange = this.insertedOldLineRange[firstLineNo];
-        }
-        newLineRange = [firstLineNo, linesToUse[firstLineNo]];
-        let firstPos = scimoz.positionFromLine(newLineRange[0]);
-        let lastPos = scimoz.getLineEndPosition(newLineRange[1] - 1);
-        let text = firstPos < lastPos ? scimoz.getTextRange(firstPos, lastPos) : "";
-        newLines = text.split(/\n|\r\n?/);
-        if (newLineRange[1] >= scimoz.lineCount - 1
-            && !bufferEndsWithEOL) {
-            newEndsWithEOL = false;
-        }
+    var oldLines = {}, newLines = {}, oldLineRange = {}, newLineRange = {};
+    var oldEndsWithEOL = {}, newEndsWithEOL = {};
+    this.view.koDoc.trackChanges_getOldAndNewLines(lineNo, changeMask,
+                                                   oldEndsWithEOL,
+                                                   newEndsWithEOL,
+                                                   {}, oldLineRange,
+                                                   {}, newLineRange,
+                                                   {}, oldLines,
+                                                   {}, newLines);
+    oldLineRange = oldLineRange.value;
+    newLineRange = newLineRange.value;
+    oldLines = oldLines.value;
+    newLines = newLines.value;
+    if (!oldLines.length && !newLines.length) {
+        return;
+
     }
     // Write htmlLines to a temp file, get the URL, and then create a panel
     // with that iframe/src
@@ -453,6 +316,7 @@ this.ChangeTracker.prototype.showChanges = function(lineNo) {
     htmlFile.puts(htmlLines.join("\n"));
     htmlFile.close();
 
+    var scimoz = this.scimoz;
     var undoTextFunc = function(event) {
         // Find the (j2 - j1) new lines at j2, remove them, and
         // replace with the (i2 - i1) old lines.
@@ -477,6 +341,7 @@ this.ChangeTracker.prototype.showChanges = function(lineNo) {
                 scimoz.targetEnd = j1Pos;
                 scimoz.replaceTarget(oldText);
             }
+            document.getElementById('changeTracker_panel').hidePopup();
         } catch(ex) {
             log.exception(ex, "Can't undo a change");
         } finally {
@@ -484,7 +349,7 @@ this.ChangeTracker.prototype.showChanges = function(lineNo) {
         }
     };
     // Now make a panel with an iframe, point the iframe to htmlURI, and go
-    this._createPanel(htmlFile, undoTextFunc);//, jsFile);
+    this._createPanel(htmlFile, undoTextFunc);
 };
 
 this.ChangeTracker.prototype._createPanel = function(htmlFile, undoTextFunc) {
@@ -494,37 +359,56 @@ this.ChangeTracker.prototype._createPanel = function(htmlFile, undoTextFunc) {
     var undoButton = document.getElementById('changeTracker_undo');
     iframe.setAttribute("src", htmlFile.URI);
     var [x, y] = this.view._last_mousemove_xy;
+    var escapeHandler = function(event) {
+        if (event.keyCode == event.DOM_VK_ESCAPE) {
+            panel.hidePopup();
+            event.stopPropagation();
+            event.preventDefault();
+        }
+    };
     var iframeLoadedFunc = function(event) {
+        try {
         panel.openPopup(this.view, "after_pointer", x, y, false, false);
         panel.sizeTo(600, 400);
         fileSvc.deleteTempFile(htmlFile.path, true);
         undoButton.addEventListener("command", undoTextFunc, false);
+        this.onPanelShow();
+        } catch(ex) {
+            log.exception(ex, "problem in iframeLoadedFunc\n");
+        }
     }.bind(this);
     var panelHiddenFunc = function(event) {
         undoButton.removeEventListener("command", undoTextFunc, false);
         iframe.removeEventListener("load", iframeLoadedFunc, true);
         panel.removeEventListener("popuphidden", panelHiddenFunc, false);
+        panel.removeEventListener("keypress", escapeHandler, false);
+        panel.removeEventListener("blur", panelBlurHandler, false);
+        this.onPanelHide();
     }.bind(this);
+    var panelBlurHandler = function(event) {
+        panel.hidePopup();
+    };
     iframe.addEventListener("load", iframeLoadedFunc, true);
     panel.addEventListener("popuphidden", panelHiddenFunc, true);
+    panel.addEventListener("keypress", escapeHandler, false);
+    panel.addEventListener("blur", panelBlurHandler, false);
+    panel.view = this.view;
 };
 
-this.ChangeTracker.prototype.onDwellStart = function(x, y, lineNo) {
-    if (this.showChangesInMargin === SHOW_CHANGES_NONE) {
-        return;
-    }
-    var changeMask = this.marginController.activeMarkerMask(lineNo);
-    if (changeMask === 0) {
-        return;
-    }
-    gEditorTooltipHandler.show(this.view, x, y, -1);
+this.ChangeTracker.prototype.clearOldMarkers = function () {
+    this.marginController.clearOldMarkers();
 };
 
-this.ChangeTracker.prototype.onDwellEnd = function onDwellEnd() {
-    if (this.showChangesInMargin === SHOW_CHANGES_NONE) {
-        return;
-    }
-    gEditorTooltipHandler.hide();
+this.ChangeTracker.prototype.updateMarkers_deleteAtLine = function (lineNo) {
+    this.marginController.updateMarkers_deleteAtLine(lineNo);
+};
+
+this.ChangeTracker.prototype.updateMarkers_insertByRange = function (lineStartNo, lineEndNo) {
+    this.marginController.updateMarkers_insertByRange(lineStartNo, lineEndNo);
+};
+
+this.ChangeTracker.prototype.updateMarkers_replaceByRange = function (lineStartNo, lineEndNo) {
+    this.marginController.updateMarkers_replaceByRange(lineStartNo, lineEndNo);
 };
 
 const MARGIN_POSN_DELETE = 0;
@@ -532,11 +416,12 @@ const MARGIN_POSN_INSERT = 1;
 const MARGIN_POSN_REPLACE = 2;
 
 const MARGIN_TEXT_LENGTH = 1;
+// TODO: Move const for margin number to core editor file.
 const MARGIN_CHANGEMARGIN = 3;
 
-this.MarginController = function MarginController(changeTracker, view) {
-    this.changeTracker = changeTracker; // Don't think we'll need this
+this.MarginController = function MarginController(view) {
     this.view = view;
+    this.scimoz = view.scimoz;
     this.refreshMarginProperies();
     this.lastInsertions = {};
     this.deletedTextLines = {};
@@ -545,6 +430,14 @@ this.MarginController = function MarginController(changeTracker, view) {
 
 this.MarginController.prototype = {
     constructor: this.MarginController,
+
+    close: function() {
+        this.view = null;
+        this.scimoz = null;
+        this.lastInsertions = {};
+        this.deletedTextLines = {};
+        this.lastNewChanges = {};
+    },
 
     _fix_rgb_color: function _fix_rgb_color(cssColor) {
         if (cssColor[0] == "#") {
@@ -567,7 +460,7 @@ this.MarginController.prototype = {
     _initMarkerStyles: function(markerStyleSteps) {
         const styleOffset = 255;
         const marginCharacterSize = 6;
-        const scimoz = this.view.scimoz;
+        const scimoz = this.scimoz;
         scimoz.marginStyleOffset = styleOffset;
 
         var insertColor, deleteColor, replaceColor;
@@ -663,7 +556,7 @@ this.MarginController.prototype = {
     },
     
     _initMargins: function() {
-        var scimoz = this.view.scimoz;
+        var scimoz = this.scimoz;
         scimoz.setMarginTypeN(MARGIN_CHANGEMARGIN,
                               scimoz.SC_MARGIN_RTEXT); // right-justified text
         this.marginWidth = scimoz.textWidth(this.clearStyleNum, " "); // 1 space
@@ -675,11 +568,11 @@ this.MarginController.prototype = {
     },
 
     showMargin: function() {
-        this.view.scimoz.setMarginWidthN(MARGIN_CHANGEMARGIN, this.marginWidth);
+        this.scimoz.setMarginWidthN(MARGIN_CHANGEMARGIN, this.marginWidth);
     },
 
     hideMargin: function() {
-        this.view.scimoz.setMarginWidthN(MARGIN_CHANGEMARGIN, 0);
+        this.scimoz.setMarginWidthN(MARGIN_CHANGEMARGIN, 0);
     },
     
     activeMarkerMask: function(lineNo) {
@@ -699,7 +592,7 @@ this.MarginController.prototype = {
         return 0;
     },
     
-    _specificMarkerSet: function _specificMarkerSet(line, styleNum) {
+    _specificMarkerSet: function(line, styleNum) {
         var chars = this._getMarginText(line);
         if (chars.length != MARGIN_TEXT_LENGTH) {
             this.setupMarker(line);
@@ -730,7 +623,7 @@ this.MarginController.prototype = {
     _getMarginText: function(line) {
         try {
             var text = {};
-            this.view.scimoz.marginGetText(line, text);
+            this.scimoz.marginGetText(line, text);
             text = text.value;
         } catch(e) {
             log.exception(e, "Problem in _getMarginText");
@@ -740,13 +633,13 @@ this.MarginController.prototype = {
     },
     
     _setMarginText: function(line, chars) {
-        this.view.scimoz.marginSetText(line, chars);
+        this.scimoz.marginSetText(line, chars);
     },
     
     _getMarginStyles: function(line) {
         try {
             var styles = {};
-            this.view.scimoz.marginGetStyles(line, styles);
+            this.scimoz.marginGetStyles(line, styles);
             styles = styles.value;
         } catch(e) {
             styles = "";
@@ -756,17 +649,32 @@ this.MarginController.prototype = {
     
     _setMarginStyles: function(line, styles) {
         styles = styles.join("");
-        this.view.scimoz.marginSetStyles(line, styles);
+        this.scimoz.marginSetStyles(line, styles);
     },
 
     refreshMarginProperies: function refreshMarginProperies() {
         this._initMarkerStyles(10); // maximum is 128
         this._initMargins();
     },
+
+    updateMarkers_deleteAtLine: function(lineNo) {
+        this.delMarkerSet(lineNo);
+    },
+
+    updateMarkers_insertByRange: function(lineStartNo, lineEndNo) {
+        for (var lineNo = lineStartNo; lineNo < lineEndNo; lineNo++) {
+            this.insMarkerSet(lineNo);
+        }
+    },
+
+    updateMarkers_replaceByRange: function(lineStartNo, lineEndNo) {
+        for (var lineNo = lineStartNo; lineNo < lineEndNo; lineNo++) {
+            this.replaceMarkerSet(lineNo);
+        }
+    },
     
     _doUpdateMargins: function _doUpdateMargins(lastInsertions, deletedTextLines, lastNewChanges) {
-        var scimoz = this.view.scimoz;
-        this.clearOldMarkers(scimoz);
+        this.clearOldMarkers();
         // Now go through the insertions and deletions
         for (let lineNo in deletedTextLines) {
             this.delMarkerSet(lineNo);
@@ -783,31 +691,230 @@ this.MarginController.prototype = {
         }
     },
     
-    updateMargins: function updateMargins(lastInsertions, deletedTextLines, lastNewChanges) {
+    updateMargins: function(lastInsertions, deletedTextLines, lastNewChanges) {
         this._doUpdateMargins(lastInsertions, deletedTextLines, lastNewChanges);
-        this.lastInsertions = lastInsertions;
-        this.deletedTextLines = deletedTextLines;
-        this.lastNewChanges = lastNewChanges;
     },
 
-    refreshMargins: function updateMargins() {
+    refreshMargins: function() {
         this._doUpdateMargins(this.lastInsertions, this.deletedTextLines, this.lastNewChanges);
     },
     
-    clearOldMarkers: function clearOldMarkers(scimoz) {
+    clearOldMarkers: function() {
         // We can't use the held deletion/insertion lists because the line numbers
         // could have changed.
-        for (let lineNo = 0; lineNo < scimoz.lineCount; lineNo++) {
+        const lim = this.scimoz.lineCount;
+        const clearStyle = String.fromCharCode(this.clearStyleNum);
+        for (let lineNo = 0; lineNo < lim; lineNo++) {
             if (this._getMarginText(lineNo).length != MARGIN_TEXT_LENGTH) {
                 continue;
             }
             var styles = this._getMarginStyles(lineNo);
-            styles[0] = String.fromCharCode(this.clearStyleNum);
+            styles[0] = clearStyle;
             this._setMarginStyles(lineNo, styles);
         }
     },
     
     __EOF__: null
 };
-        
+  
+/**
+ * ChangeTrackerManager: singleton class responsible for creating
+ * and deleting ChangeTracker objects, and associating each one
+ * with a view.
+ */
+
+this.ChangeTrackerManager = function ChangeTrackerManager() {
+};
+
+this.ChangeTrackerManager.prototype.init = function() {
+    this.onViewOpenedHandlerBound = this.onViewOpenedHandler.bind(this);
+    this.onViewClosedHandlerBound = this.onViewClosedHandler.bind(this);
+    this.onWindowClosingHandlerBound = this.onWindowClosingHandler.bind(this);
+    this.onEditorTextModifiedBound = this.onEditorTextModified.bind(this);
+    this.onEditorMarginClickedBound = this.onEditorMarginClicked.bind(this);
+    this.onMarginGetTooltipTextBound = this.onMarginGetTooltipText.bind(this);
+    window.addEventListener('editor_margin_get_tooltiptext', this.onMarginGetTooltipTextBound, true);
+    window.addEventListener('editor_margin_clicked', this.onEditorMarginClickedBound, true);
+    window.addEventListener("editor_text_modified", this.onEditorTextModifiedBound, false);
+    window.addEventListener('view_document_attached', this.onViewOpenedHandlerBound, false);
+    window.addEventListener('view_document_detaching', this.onViewClosedHandlerBound, false);
+    window.addEventListener('unload', this.onWindowClosingHandlerBound, false);
+
+    Services.obs.addObserver(this, "file_status", false);
+
+    this._changeTrackerTimeoutId = null;
+    // And because this method might have been called after documents
+    // were loaded, we need to set up the changeTracker for each of them
+    ko.views.manager.getAllViews('editor').forEach(function(view) {
+            if (view.koDoc && view.koDoc.file
+                && !('showChangesInMargin' in view)) {
+                //log.debug(">> force an open view for " + view.koDoc.displayPath);
+                this.onViewOpenedHandler({originalTarget: view});
+            }
+        }.bind(this));
+};
+
+this.ChangeTrackerManager.prototype.onWindowClosingHandler = function() {
+    window.removeEventListener('editor_margin_get_tooltiptext', this.onMarginGetTooltipTextBound, false);
+    window.removeEventListener('editor_margin_clicked', this.onEditorMarginClickedBound, false);
+    window.removeEventListener('editor_text_modified', this.onEditorTextModifiedBound, false);
+    window.removeEventListener('view_document_attached', this.onViewOpenedHandlerBound, false);
+    window.removeEventListener('view_document_detaching', this.onViewClosedHandlerBound, false);
+    window.removeEventListener('unload', this.onWindowClosingHandlerBound, false);
+
+    Services.obs.removeObserver(this, "file_status");
+};
+
+this.ChangeTrackerManager.prototype.observe = function(subject, topic, data) {
+    var urllist = data.split('\n');
+    var view, views;
+    for (var u=0; u < urllist.length; ++u) {
+        views = ko.views.manager.topView.findViewsForURI(urllist[u]);
+        for (var i=0; i < views.length; ++i) {
+            view = views[i];
+            if (view.koDoc && 'showChangesInMargin' in view) {
+                view.koDoc.refreshChangedLines(view.showChangesInMargin);
+            }
+        }
+    }
+}
+
+this.ChangeTrackerManager.prototype.onViewOpenedHandler = function(event) {
+    var view = event.originalTarget;
+    if (view.koDoc.file) {
+        view.showChangesInMargin = view.prefs.getLongPref("showChangesInMargin");
+        view.changeTrackerEnabled = view.showChangesInMargin > 0;
+        view.changeTracker = new ko.changeTracker.ChangeTracker(view);
+        view.showChangesInMargin = view.koDoc.prefs.getLongPref('showChangesInMargin');
+        view.changeTrackerEnabled = view.showChangesInMargin > 0;
+        view.changeTracker.setupTracker(view.changeTrackerEnabled);
+        if (view.changeTrackerEnabled && view.changeTracker.showChangesOnFileLoad()) {
+            if (ko.views.manager.batchMode) {
+                // Let the SCC stuff get initialized at startup
+                // Why do I have to wait 5 seconds?  I don't see
+                // an event I can listen on for when a given file's
+                // status is updated.
+                setTimeout(function() {
+                        this.startOnModifiedHandler(view);
+                    }.bind(this), 5000);
+            } else {
+                this.startOnModifiedHandler(view);
+            }
+        }
+        if (ko.views.manager.batchMode) {
+            // Let the SCC stuff get initialized at startup
+            // Why do I have to wait 5 seconds?  I don't see
+            // an event I can listen on for when a given file's
+            // status is updated.
+            setTimeout(function() {
+                this.startOnModifiedHandler(view);
+            }.bind(this), 5000);
+        } else {
+            this.startOnModifiedHandler(view);
+        }
+    } else {
+        view.showChangesInMargin = false;
+        view.changeTrackerEnabled = false;
+        view.changeTracker = null;
+    }
+};
+
+this.ChangeTrackerManager.prototype.onViewClosedHandler = function(event) {
+    var view = event.originalTarget;
+    if (view.changeTracker) {
+        view.changeTrackerEnabled = false;
+        view.changeTracker.close();
+        view.changeTracker = null;
+    }
+};
+
+const AllowedModifications = (Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT
+                             |Components.interfaces.ISciMoz.SC_MOD_DELETETEXT);
+this.ChangeTrackerManager.prototype.onEditorTextModified = function(event) {
+    try {
+        var data = event.data;
+        var view = data.view;
+        if ((data.modificationType & AllowedModifications) == 0) {
+            return;
+        }
+        var changeTracker = view.changeTracker;
+        if (!changeTracker || !changeTracker.showChangesInMargin) {
+            //log.debug("Not interested in changes on " + view.koDoc.displayPath);
+            return;
+        }
+        this.startOnModifiedHandler(view);
+    } catch(ex) {
+        log.exception(ex, "changeTracker error: onEditorTextModified");
+    }
+};
+
+this.ChangeTrackerManager.prototype.onEditorMarginClicked = function(event) {
+    try {
+        if (event.detail.margin != MARGIN_CHANGEMARGIN) {
+            return;
+        }
+        var view = event.detail.view;
+        if (view.changeTracker && view.changeTrackerEnabled) {
+            view.changeTracker.showChanges(event.detail.line);
+            // Mark the event as handled.
+            event.preventDefault();
+        }
+    } catch(ex) {
+        log.exception(ex, "changeTracker error: onEditorMarginClicked");
+    }
+};
+
+this.ChangeTrackerManager.prototype.onMarginGetTooltipText = function(event) {
+    try {
+        // Hovering over a change-margin?
+        if (event.detail.margin == MARGIN_CHANGEMARGIN) {
+            var view = event.detail.view;
+            if (view.changeTracker) {
+                let text = view.changeTracker.getTooltipText(event.detail.line);
+                if (text) {
+                    event.detail.text = text;
+                    // Mark the event as handled.
+                    event.preventDefault();
+                }
+            }
+        }
+    } catch(ex) {
+        log.exception(ex, "changeTracker error: onMarginGetTooltipText");
+    }
+};
+
+this.ChangeTrackerManager.prototype.startOnModifiedHandler = function(view) {
+    if (this._changeTrackerTimeoutId !== null) {
+        clearTimeout(this._changeTrackerTimeoutId);
+    }
+    this._changeTrackerTimeoutId = 
+            setTimeout(function() {
+                           this._handleOnModifiedForChangeTracker(view);
+                       }.bind(this),
+                       CHANGE_TRACKER_TIMEOUT_DELAY);
+};
+
+this.ChangeTrackerManager.prototype._handleOnModifiedForChangeTracker = function(view) { 
+    try {
+        this._changeTrackerTimeoutId = null;
+        if (ko.views.manager.batchMode) {
+            return;
+        }
+        view.koDoc.updateChangeTracker(view.changeTracker.showChangesInMargin);
+    } catch(ex) {
+        log.exception(ex, "_handleOnModifiedForChangeTracker failure");
+    }
+};
+
+
+function changeTracker_onLoad(event) {
+    try {
+        ko.changeTrackerManager = new ko.changeTracker.ChangeTrackerManager();
+        ko.changeTrackerManager.init();
+    } catch(ex) {
+        log.exception(ex, "problem in changeTracker_onLoad")
+    }
+}
+window.addEventListener("komodo-ui-started", changeTracker_onLoad, false);
+
 }).apply(ko.changeTracker);

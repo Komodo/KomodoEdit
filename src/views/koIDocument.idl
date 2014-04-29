@@ -252,8 +252,18 @@ interface koIDocument : nsISupports
     attribute long tabWidth;    // number of spaces that a tab character uses in display
     attribute boolean useTabs;  // true if tabs are used for indentation
     attribute long indentWidth; // number of spaces for an indent (typically 4 or 8)
+
+    const long CHANGES_NONE = 0;
+    const long CHANGES_INSERT = 1;
+    const long CHANGES_DELETE = 2;
+    const long CHANGES_REPLACE = 3;
+
+    const long DONT_SHOW_CHANGES = 0;
+    const long SHOW_UNSAVED_CHANGES = 1;
+    const long SHOW_SCC_CHANGES = 2;
+
     AString getUnsavedChanges();
-    
+                             
     /**
      * Return an array of koIDiffOpcode's that describe how to change text
      * from the list on-disk to the text in memory.
@@ -289,6 +299,26 @@ interface koIDocument : nsISupports
                                          [array, size_is(count), retval] out
                                            koIDiffOpcode diffs);
 
+
+    void trackChanges_getOldAndNewLines(in long lineNo,
+                                        in long changeMask,
+                                        out boolean oldEndsWithEOL,
+                                        out boolean newEndsWithEOL,
+                                        out unsigned long oldLineRangeCount,
+                                        [array, size_is(oldLineRangeCount)]
+                                            out long oldLineRange,
+                                        out unsigned long newLineRangeCount,
+                                        [array, size_is(newLineRangeCount)]
+                                            out long newLineRange,
+                                        out unsigned long oldCount,
+                                        [array, size_is(oldCount)]
+                                            out wstring oldLines,
+                                        out unsigned long newCount,
+                                        [array, size_is(newCount)]
+                                            out wstring newLines);
+
+    void refreshChangedLines(in long showChangesInMargin);
+    void updateChangeTracker(in long showChangesInMargin);
 
     // Auto-save API.    
     boolean haveAutoSave();
