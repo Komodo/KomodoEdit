@@ -3,6 +3,9 @@ http://bugs.activestate.com/show_bug.cgi?id=89710
 diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
 --- a/layout/build/nsLayoutModule.cpp
 +++ b/layout/build/nsLayoutModule.cpp
+diff -r ba2dde89f614 layout/build/nsLayoutModule.cpp
+--- a/layout/build/nsLayoutModule.cpp	Mon Apr 28 00:59:00 2014 -0700
++++ b/layout/build/nsLayoutModule.cpp	Tue Apr 29 16:10:46 2014 -0700
 @@ -54,6 +54,9 @@
  #include "nsIEventListenerService.h"
  #include "nsIMessageManager.h"
@@ -11,11 +14,11 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
 +#include "koCSSParser.h"
 +
  // Transformiix stuff
- #include "nsXPathEvaluator.h"
+ #include "mozilla/dom/XPathEvaluator.h"
  #include "txMozillaXSLTProcessor.h"
-@@ -253,6 +256,10 @@
- using mozilla::dom::TCPSocketChild;
+@@ -256,6 +259,10 @@
  using mozilla::dom::time::TimeService;
+ using mozilla::net::StreamingProtocolControllerService;
  
 +// Komodo CSS parser
 +NS_GENERIC_FACTORY_CONSTRUCTOR(koCSSParser)
@@ -24,7 +27,7 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  // Transformiix
  /* 5d5d92cd-6bf8-11d9-bf4a-000a95dc234c */
  #define TRANSFORMIIX_NODESET_CID \
-@@ -989,6 +996,10 @@
+@@ -913,6 +920,10 @@
  
  static const mozilla::Module::CIDEntry kLayoutCIDs[] = {
    XPCONNECT_CIDENTRIES
@@ -33,9 +36,9 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
 +  { &kKO_CSSPARSER_CID, false, NULL, koCSSParserConstructor },
 +
  #ifdef DEBUG
-   { &kNS_FRAME_UTIL_CID, false, NULL, CreateNewFrameUtil },
-   { &kNS_LAYOUT_DEBUGGER_CID, false, NULL, CreateNewLayoutDebugger },
-@@ -1147,6 +1158,10 @@
+   { &kNS_FRAME_UTIL_CID, false, nullptr, CreateNewFrameUtil },
+   { &kNS_LAYOUT_DEBUGGER_CID, false, nullptr, CreateNewLayoutDebugger },
+@@ -1069,6 +1080,10 @@
  
  static const mozilla::Module::ContractIDEntry kLayoutContracts[] = {
    XPCONNECT_CONTRACTS
@@ -68,7 +71,7 @@ new file mode 100644
 +using namespace mozilla;
 +
 +
-+NS_IMPL_ISUPPORTS1(koCSSParser, koICSSParser)
++NS_IMPL_ISUPPORTS(koCSSParser, koICSSParser)
 +
 +koCSSParser::koCSSParser()
 +{
@@ -116,7 +119,7 @@ diff --git a/layout/style/koCSSParser.h b/layout/style/koCSSParser.h
 new file mode 100644
 --- /dev/null
 +++ b/layout/style/koCSSParser.h
-@@ -0,0 +1,27 @@
+@@ -0,0 +1,25 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* This Source Code Form is subject to the terms of the Mozilla Public
 + * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -134,9 +137,7 @@ new file mode 100644
 +  NS_DECL_KOICSSPARSER
 +
 +  koCSSParser();
-+
-+private:
-+  ~koCSSParser();
++  virtual ~koCSSParser();
 +};
 +
 +// {c85cf33c-1907-44a7-bd65-f11fdd251354}
