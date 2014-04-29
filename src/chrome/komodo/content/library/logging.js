@@ -123,6 +123,17 @@ const Logger = exports.Logger = function(logger, logger_name) {
     this._logger_name = logger_name;
 };
 
+Logger.prototype = {
+    constructor: Logger,
+    // Add level defines to the logger prototype, for ease of access.
+    NOTSET: LOG_NOTSET,
+    DEBUG: LOG_DEBUG,
+    INFO: LOG_INFO,
+    WARN: LOG_WARN,
+    ERROR: LOG_ERROR,
+    CRITICAL: LOG_CRITICAL,
+};
+
 Logger.prototype.setLevel = function(level) {
     this._logger.setLevel(level);
 };
