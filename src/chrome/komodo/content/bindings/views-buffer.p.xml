@@ -1548,6 +1548,34 @@
         </body>
         </method>
 
+        <method name="getMarginForCoord">
+        <parameter name="x"/>
+        <parameter name="y"/>
+        <body><![CDATA[
+            // Return the margin number for these x,y coordinates, or -1 when
+            // outside the margin.
+            if (x <= 0) {
+                return -1;
+            }
+            var totalWidth = 0,
+                marginWidth = 0;
+            // TODO - make a const.
+            var LAST_MARGIN = 4;
+            var scimoz = this.scimoz;
+            for (var i=0; i <= LAST_MARGIN; i++) {
+                marginWidth = scimoz.getMarginWidthN(i);
+                if (marginWidth) {
+                    totalWidth += marginWidth;
+                    if (x < totalWidth) {
+                        return i;
+                    }
+                }
+            }
+            return -1;
+        ]]>
+        </body>
+        </method>
+
         <method name="_flashMatchingTag">
         <body>
         <![CDATA[
