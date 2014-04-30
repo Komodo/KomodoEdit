@@ -43,6 +43,8 @@
 #include <string.h> 
 
 //#define SCIMOZ_DEBUG
+//#define SCIMOZ_DEBUG_VERBOSE
+//#define SCIMOZ_DEBUG_VERBOSE_VERBOSE
 //#define SCIMOZ_COCOA_DEBUG
 //#define SCIDEBUG_REFS
 

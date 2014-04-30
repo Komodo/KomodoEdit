@@ -469,13 +469,13 @@ bool SciMozScriptableNPObject::_HasMethod(NPObject *obj, NPIdentifier name) {
     return ((SciMozScriptableNPObject*)obj)->HasMethod(name);
 }
 bool SciMozScriptableNPObject::HasMethod(NPIdentifier name) {
-    #ifdef SCIMOZ_DEBUG
+    #ifdef SCIMOZ_DEBUG_VERBOSE_VERBOSE
         printf("SciMozScriptableNPObject::HasMethod:: '%s'\n", NPN_UTF8FromIdentifier(name));
-    #endif /* SCIMOZ_DEBUG */
+    #endif /* SCIMOZ_DEBUG_VERBOSE_VERBOSE */
     bool result = mSciMoz->HasMethod(name);
-    #ifdef SCIMOZ_DEBUG
+    #ifdef SCIMOZ_DEBUG_VERBOSE_VERBOSE
         printf("%s: %s = %s\n", __FUNCTION__, NPN_UTF8FromIdentifier(name), result ? "yes" : "no");
-    #endif /* SCIMOZ_DEBUG */
+    #endif /* SCIMOZ_DEBUG_VERBOSE_VERBOSE */
     return result;
 }
 
@@ -500,13 +500,13 @@ bool SciMozScriptableNPObject::_HasProperty(NPObject *obj, NPIdentifier name) {
     return ((SciMozScriptableNPObject*)obj)->HasProperty(name);
 }
 bool SciMozScriptableNPObject::HasProperty(NPIdentifier name) {
-    #ifdef SCIMOZ_DEBUG
+    #ifdef SCIMOZ_DEBUG_VERBOSE_VERBOSE
         printf("SciMozScriptableNPObject::HasProperty:: '%s'\n", NPN_UTF8FromIdentifier(name));
-    #endif /* SCIMOZ_DEBUG */
+    #endif /* SCIMOZ_DEBUG_VERBOSE_VERBOSE */
     bool result = mSciMoz->HasProperty(name);
-    #ifdef SCIMOZ_DEBUG
+    #ifdef SCIMOZ_DEBUG_VERBOSE_VERBOSE
         printf("%s: %s = %s\n", __FUNCTION__, NPN_UTF8FromIdentifier(name), result ? "yes" : "no");
-    #endif /* SCIMOZ_DEBUG */
+    #endif /* SCIMOZ_DEBUG_VERBOSE_VERBOSE */
     return result;
 }
 

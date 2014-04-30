@@ -35,7 +35,7 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
-//#define SCIMOZ_DEBUG
+//#define SCIMOZ_DEBUG_VERBOSE
 
 /////////////////////////////////////////////////////
 //
@@ -57,7 +57,7 @@ using namespace Scintilla;
 #endif
 #endif
 
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	#define SCIMOZ_DEBUG_PRINTF(...) fprintf(stderr, __VA_ARGS__)
 #else
 	#define SCIMOZ_DEBUG_PRINTF(...) do { } while (0)
@@ -140,7 +140,7 @@ long SciMoz::SendEditor(unsigned int Msg, unsigned long wParam, long lParam) {
     if (isClosed) {
 	fprintf(stderr,"SciMoz::SendEditor %x %lx %lx used when closed!\n", Msg, wParam, lParam);
     }
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE_VERBOSE
     fprintf(stderr,"SciMoz::SendEditor %x %lx %lx\n", Msg, wParam, lParam);
 #endif
 #if defined(_WINDOWS)
@@ -317,7 +317,7 @@ void SciMoz::Notify(long lParam) {
 		return;
 	}
 
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr, "SciMoz::Notify %d\n", notification->nmhdr.code);
 #endif
 
@@ -741,7 +741,7 @@ bool SciMoz::UnhookEvents(const NPVariant *args, uint32_t argCount, NPVariant * 
 /* void getStyledText (in long min, in long max, out unsigned long count, [array, size_is (count), retval] out octet str); */
 NS_IMETHODIMP SciMoz::GetStyledText(PRInt32 min, PRInt32 max, PRUint32 *count, PRUint8 **str) {
 	SCIMOZ_CHECK_VALID("GetStyledText");
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::GetStyledText\n");
 #endif
 	size_t length = (max - min + 1) * 2;
@@ -894,7 +894,7 @@ NS_IMETHODIMP SciMoz::GetStyleRange(PRInt32 min, PRInt32 max, PRUint32 *count, P
 {
 	SCIMOZ_CHECK_VALID("GetStyleRange");
 	// converting the string UTF8->UTF16->UTF8)
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::GetStyleRange\n");
 #endif
 	PRInt32 textlength = SendEditor(SCI_GETTEXTLENGTH, 0, 0);
@@ -922,7 +922,7 @@ NS_IMETHODIMP SciMoz::GetStyleRange(PRInt32 min, PRInt32 max, PRUint32 *count, P
 }
 
 bool SciMoz::GetStyleRange(const NPVariant *args, uint32_t argCount, NPVariant *result) {
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::GetStyleRange\n");
 #endif
 	if (argCount != 3) return false;
@@ -976,7 +976,7 @@ bool SciMoz::GetStyleRange(const NPVariant *args, uint32_t argCount, NPVariant *
 /* long getCurLine (out string text); */
 NS_IMETHODIMP SciMoz::GetCurLine(nsAString & text, PRInt32 *_retval) {
 	SCIMOZ_CHECK_VALID("GetCurLine");
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::GetCurLine\n");
 #endif
 	int currentPos = SendEditor(SCI_GETCURRENTPOS, 0, 0);
@@ -1027,7 +1027,7 @@ bool SciMoz::GetCurLine(const NPVariant *args, uint32_t argCount, NPVariant *res
 NS_IMETHODIMP SciMoz::GetLine(PRInt32 line, nsACString & text, PRInt32  *_retval)
 {
 	SCIMOZ_CHECK_VALID("GetLine");
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::GetLine\n");
 #endif
 	int lineLength = SendEditor(SCI_LINELENGTH, line, 0);
@@ -1075,7 +1075,7 @@ bool SciMoz::GetLine(const NPVariant *args, uint32_t argCount, NPVariant *result
 /* void assignCmdKey (in long key, in long modifiers, in long msg); */
 NS_IMETHODIMP SciMoz::AssignCmdKey(PRInt32 key, PRInt32 modifiers, PRInt32 msg) {
 	SCIMOZ_CHECK_VALID("AssignCmdKey");
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::AssignCmdKey key=%x modifiers=%x msg=%x\n", key, modifiers, msg);
 #endif
 	int km = LONGFROMTWOSHORTS(key, modifiers);
@@ -1098,7 +1098,7 @@ bool SciMoz::AssignCmdKey(const NPVariant *args, uint32_t argCount, NPVariant * 
 /* void clearCmdKey (in long key, in long modifiers); */
 NS_IMETHODIMP SciMoz::ClearCmdKey(PRInt32 key, PRInt32 modifiers) {
 	SCIMOZ_CHECK_VALID("ClearCmdKey");
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::ClearCmdKey key=%x modifiers=%x\n", key, modifiers);
 #endif
 	int km = LONGFROMTWOSHORTS(key, modifiers);
@@ -1121,7 +1121,7 @@ NS_IMETHODIMP SciMoz::GetTextRange(PRInt32 min, PRInt32 max, nsAString & _retval
 {
 	SCIMOZ_CHECK_VALID("GetTextRange");
 	// converting the string UTF8->UTF16->UTF8)
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::GetTextRange\n");
 #endif
 	if (max == -1)
@@ -1148,7 +1148,7 @@ NS_IMETHODIMP SciMoz::GetTextRange(PRInt32 min, PRInt32 max, nsAString & _retval
 }
 
 bool SciMoz::GetTextRange(const NPVariant *args, uint32_t argCount, NPVariant *result) {
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::GetTextRange\n");
 #endif
 	if (argCount != 2) return false;
@@ -1182,7 +1182,7 @@ bool SciMoz::GetTextRange(const NPVariant *args, uint32_t argCount, NPVariant *r
 /* attribute string name; */
 NS_IMETHODIMP SciMoz::GetName(nsAString &val) {
 	SCIMOZ_CHECK_VALID("GetName");
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::GetName\n");
 #endif
 	val = name;
@@ -1191,7 +1191,7 @@ NS_IMETHODIMP SciMoz::GetName(nsAString &val) {
 
 NS_IMETHODIMP SciMoz::SetName(const nsAString &val) {
 	SCIMOZ_CHECK_VALID("SetName");
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::SetName\n");
 #endif
 	name = val;
@@ -1210,7 +1210,7 @@ NS_IMETHODIMP SciMoz::SetName(const nsAString &val) {
 NS_IMETHODIMP SciMoz::SetModEventMask(PRInt32 mask)
 {
 	SCIMOZ_CHECK_VALID("SetModEventMask");
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::SetModEventMask\n");
 #endif
 	SendEditor(SCI_SETMODEVENTMASK, mask, 0);
@@ -1224,7 +1224,7 @@ NS_IMETHODIMP SciMoz::SetModEventMask(PRInt32 mask)
 NS_IMETHODIMP SciMoz::GetTextHasChanged(bool *hasChanged)
 {
 	SCIMOZ_CHECK_VALID("GetTextHasChanged");
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::GetTextHasChanged\n");
 #endif
 	*hasChanged = _textHasChanged;
@@ -1240,7 +1240,7 @@ NS_IMETHODIMP SciMoz::GetTextHasChanged(bool *hasChanged)
 NS_IMETHODIMP SciMoz::GetText(nsAString &text) 
 {
 	SCIMOZ_CHECK_VALID("GetText");
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::GetText\n");
 #endif
 	GetTextRange(0, -1, text);
@@ -1251,7 +1251,7 @@ NS_IMETHODIMP SciMoz::GetText(nsAString &text)
 NS_IMETHODIMP SciMoz::SetText(const nsAString &aText)
 {
 	SCIMOZ_CHECK_VALID("SetText");
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::SetText\n");
 #endif
 
@@ -1288,7 +1288,7 @@ unsigned int SciMozUCS2Length(const char *s, unsigned int len) {
 NS_IMETHODIMP SciMoz::CharPosAtPosition(PRInt32 pos, PRInt32  *_retval)
 {
 	SCIMOZ_CHECK_VALID("CharPosAtPosition");
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::CharPosAtPosition\n");
 #endif
 	if (pos < 0)
@@ -1329,7 +1329,7 @@ bool SciMoz::CharPosAtPosition(const NPVariant *args, uint32_t argCount, NPVaria
 NS_IMETHODIMP SciMoz::GetSelText(nsAString & aSelText)
 {
 	SCIMOZ_CHECK_VALID("GetSelText");
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::GetSelText\n");
 #endif
 	int min = SendEditor(SCI_GETSELECTIONSTART, 0, 0);
@@ -1340,7 +1340,7 @@ NS_IMETHODIMP SciMoz::GetSelText(nsAString & aSelText)
 
 /* void ButtonDown( in long x, in long y, in PRUint16 button, in boolean bShift, boolean bCtrl, boolean bAlt); */
 NS_IMETHODIMP SciMoz::ButtonDown(PRInt32 x, PRInt32 y, PRUint16 button, bool bShift, bool bCtrl, bool bAlt) {
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::ButtonDown\n");
 #endif
 	return _DoButtonUpDown(PR_FALSE, x, y, button, bShift, bCtrl, bAlt);
@@ -1348,7 +1348,7 @@ NS_IMETHODIMP SciMoz::ButtonDown(PRInt32 x, PRInt32 y, PRUint16 button, bool bSh
 
 /* void ButtonUp( in long x, in long y, in PRUint16 button, in boolean bShift, boolean bCtrl, boolean bAlt); */
 NS_IMETHODIMP SciMoz::ButtonUp(PRInt32 x, PRInt32 y, PRUint16 button, bool bShift, bool bCtrl, bool bAlt) {
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr,"SciMoz::ButtonUp\n");
 #endif
 	return _DoButtonUpDown(PR_TRUE, x, y, button, bShift, bCtrl, bAlt);
@@ -1360,7 +1360,7 @@ NS_IMETHODIMP SciMoz::SendUpdateCommands(const char *commandset) {
         fprintf(stderr,"SciMoz::SendUpdateCommands '%s' used when closed!\n", commandset);
 	return NS_ERROR_FAILURE;
     }
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
 	fprintf(stderr, "SciMoz::SendUpdateCommands '%s'\n", commandset);
 #endif
 	void *handle = nullptr;
@@ -1384,7 +1384,7 @@ bool SciMoz::SendUpdateCommands(const NPVariant *args, uint32_t argCount, NPVari
 
 /* wchar getWCharAt(in long pos); */
 NS_IMETHODIMP SciMoz::GetWCharAt(PRInt32 pos, PRUnichar *_retval) {
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_DEBUG_VERBOSE
     fprintf(stderr,"SciMoz::GetWCharAt\n");
 #endif
     /*
