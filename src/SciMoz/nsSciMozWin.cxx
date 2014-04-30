@@ -97,7 +97,14 @@ void SciMoz::PlatformCreate(WinID hWnd) {
 void SciMoz::Resize() {
 	RECT rc;
 	NS_PRECONDITION(wMain, "Must have a valid wMain to resize");
-	::GetClientRect(wMain, &rc);
+	// Don't use the rectangle from wMain, as that may be sized (0,0) -
+	// instead use the parent window of wMain (the Gecko holding window).
+	//::GetClientRect(wMain, &rc);
+	HWND parentWin = ::GetParent(wMain);
+	::GetClientRect(parentWin, &rc);
+#ifdef SCIMOZ_DEBUG
+	printf("SciMoz::Resize width: %d height: %d\n", rc.right - rc.left, rc.bottom - rc.top);
+#endif
 	::SetWindowPos(wEditor, 0, rc.left, rc.top,
 	               rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOACTIVATE);
 #if 0
@@ -241,7 +248,7 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* window) {
 			/* The new window is the same as the old one. Just resize and exit. */
 			// XXX - this doesnt work under windows in chrome. It _does_ work when
 			// XXX - used as a normal HTML plugin.  What is going on????
-			// Resize();
+			Resize();
 			return NS_OK;
 		}
 		// Otherwise, just reset the window ready for the new one.
