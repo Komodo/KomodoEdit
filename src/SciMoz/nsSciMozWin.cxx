@@ -246,8 +246,6 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* window) {
 	{
 		if ( window && window->window && portMain == window->window ) {
 			/* The new window is the same as the old one. Just resize and exit. */
-			// XXX - this doesnt work under windows in chrome. It _does_ work when
-			// XXX - used as a normal HTML plugin.  What is going on????
 			Resize();
 			return NS_OK;
 		}
