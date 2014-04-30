@@ -119,7 +119,7 @@ void SciMoz::SciMozInit() {
     bCouldUndoLastTime = PR_FALSE;
     fWindow = 0;
 
-#ifdef _WINDOWS
+#if defined(_WINDOWS) && !defined(HEADLESS_SCIMOZ)
     LoadScintillaLibrary();
 #endif
 #if defined(XP_UNIX) && !defined(XP_MACOSX)
@@ -138,12 +138,12 @@ void SciMoz::SciMozInit() {
 
 long SciMoz::SendEditor(unsigned int Msg, unsigned long wParam, long lParam) {
     if (isClosed) {
-	fprintf(stderr,"SciMoz::SendEditor %x %lx %lx used when closed!\n", Msg, wParam, lParam);
+        fprintf(stderr,"SciMoz::SendEditor %x (%d) %lx %lx used when closed!\n", Msg, Msg, wParam, lParam);
     }
 #ifdef SCIMOZ_DEBUG_VERBOSE_VERBOSE
-    fprintf(stderr,"SciMoz::SendEditor %x %lx %lx\n", Msg, wParam, lParam);
+    fprintf(stderr,"SciMoz::SendEditor %x (%d) %lx %lx\n", Msg, Msg, wParam, lParam);
 #endif
-#if defined(_WINDOWS)
+#if defined(_WINDOWS) && !defined(HEADLESS_SCIMOZ)
     // The "real" WndProc passes certain messages to Mozilla, so
     // we _must_ sneak in the back-door for those messages.
     // All other uses of SendEditor are also destined for Scintilla,
@@ -183,6 +183,7 @@ bool SciMoz::FindMatchingBracePosition(int &braceAtCaret, int &braceOpposite, bo
 	bool isInside = false;
 	int mask = (1 << SendEditor(SCI_GETSTYLEBITS, 0, 0)) - 1;
 	// XXX bracesStyle needs to come from language services
+	// int bracesStyleCheck = bracesStyle;
 	int caretPos = SendEditor(SCI_GETCURRENTPOS, 0, 0);
 	braceAtCaret = -1;
 	braceOpposite = -1;
