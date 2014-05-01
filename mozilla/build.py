@@ -597,7 +597,7 @@ def _getMozSrcInfo(scheme, mozApp):
     The return value is a dict with the suggested configuration
     variables identifying the mozilla source.
         {
-         'mozVer':          The Mozilla version number as a float, i.e. 9.0
+         'mozVer':          The Mozilla version number as a float, i.e. 31.0
          'mozSrcType':      <'hg', 'git' or 'tarball'>,
          'mozSrcName':      <a short string to *loosely* describing the mozilla src>,
          # The following only if mozSrcType==hg:
@@ -983,7 +983,7 @@ def target_configure(argv):
         "mozconfig": None,
         "mozApp": "komodo",
         "jsStandalone": False,
-        "mozSrcScheme": "2400",
+        "mozSrcScheme": "3100",
         "official": False,      # i.e. a plain Mozilla/Firefox build w/o Komodo stuff
         "withCrashReportSymbols": False,
         "stripBuild": False,
@@ -2289,7 +2289,7 @@ def _get_make_command(config, srcDir):
     (because pymake is broken for Gecko17, fixed later)
     """
 
-    if config.mozVer >= 24.0 and sys.platform.startswith("win") :
+    if sys.platform.startswith("win") :
         return "python %s/build/pymake/make.py" % (srcDir, )
 
     return "make"
@@ -2373,22 +2373,17 @@ def target_mozilla(argv=["mozilla"]):
         argv = argv[2:]
 
     else:
-        if config.mozVer >= 24.0:
-            # New enough to use mach
-            # Make sure mach has the state directory working
-            try:
-                _run_in_dir("python mach mach-commands", buildDir, log.info)
-            except OSError:
-                pass # mach errors out on first run, that's okay
+        # New enough to use mach
+        # Make sure mach has the state directory working
+        try:
+            _run_in_dir("python mach mach-commands", buildDir, log.info)
+        except OSError:
+            pass # mach errors out on first run, that's okay
 
-            # do the build
-            _run_in_dir("python mach --log-file %s build" %
-                            (join(buildDir, "mach.log")),
-                        buildDir, log.info)
-        else:
-            # Too old to use mach; use GNU make directly
-            _run_in_dir("%s -f client.mk build" % _get_make_command(config, buildDir),
-                        buildDir, log.info)
+        # do the build
+        _run_in_dir("python mach --log-file %s build" %
+                        (join(buildDir, "mach.log")),
+                    buildDir, log.info)
 
         argv = argv[1:]
     return argv
