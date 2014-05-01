@@ -31,15 +31,21 @@ public:
   NS_DECL_KOICONTENTUTILS
 
   koContentUtils();
-  virtual ~koContentUtils();
   
 private:
+  virtual ~koContentUtils();
   nsCOMPtr<nsIXPConnect> mXPConnect;
   nsIScriptGlobalObject *GetDynamicScriptGlobal(JSContext* aContext);
   already_AddRefed<nsIDOMWindow> GetWindowFromCaller();
 };
 
+// Mozilla 31 code base changed - dropping NS_IMPL_ISUPPORTSN, so we support
+// both till everyone updates their mozilla builds.
+#ifdef NS_IMPL_ISUPPORTS1
 NS_IMPL_ISUPPORTS1(koContentUtils, koIContentUtils)
+#else
+NS_IMPL_ISUPPORTS(koContentUtils, koIContentUtils)
+#endif
 
 koContentUtils::koContentUtils()
 {

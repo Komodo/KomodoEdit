@@ -103,4 +103,10 @@ NS_IMETHODIMP SciMozEventsWrapper::OnCommandUpdate(const char *commandset) {
 	return Invoke("onCommandUpdate", &arg, 1);
 }
 
+// Mozilla 31 code base changed - dropping NS_IMPL_ISUPPORTSN, so we support
+// both till everyone updates their mozilla builds.
+#ifdef NS_IMPL_ISUPPORTS2
 NS_IMPL_ISUPPORTS2(SciMozEventsWrapper, SciMozEventsWrapper, ISciMozEvents)
+#else
+NS_IMPL_ISUPPORTS(SciMozEventsWrapper, SciMozEventsWrapper, ISciMozEvents)
+#endif

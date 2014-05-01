@@ -67,6 +67,10 @@ using namespace Scintilla;
 
 
 NS_IMPL_CLASSINFO(SciMoz, nullptr, 0, {0})
+
+// Mozilla 31 code base changed - dropping NS_IMPL_ISUPPORTSN, so we support
+// both till everyone updates their mozilla builds.
+#ifdef NS_IMPL_ISUPPORTS7_CI
 NS_IMPL_ISUPPORTS7_CI(SciMoz,
                       ISciMoz,
                       ISciMoz_Part0,
@@ -75,6 +79,16 @@ NS_IMPL_ISUPPORTS7_CI(SciMoz,
                       ISciMoz_Part3,
                       ISciMoz_Part4,
                       nsISupportsWeakReference)
+#else
+NS_IMPL_ISUPPORTS_CI(SciMoz,
+                     ISciMoz,
+                     ISciMoz_Part0,
+                     ISciMoz_Part1,
+                     ISciMoz_Part2,
+                     ISciMoz_Part3,
+                     ISciMoz_Part4,
+                     nsISupportsWeakReference)
+#endif
 
 SciMoz::SciMoz(SciMozPluginInstance* aPlugin)
 {

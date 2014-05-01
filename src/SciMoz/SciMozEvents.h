@@ -58,6 +58,7 @@ public:
 	SciMozEventsWrapper(NPObject* aWrappee, NPP aInstance)
 		: mWrappee(aWrappee), mInstance(aInstance)
 		{}
+	virtual ~SciMozEventsWrapper() {}
 	NPObject* GetWrappee() { return mWrappee; }
 protected:
 	nsresult Invoke(const char* aMethodName,  const NPVariant *args, uint32_t argCount);
