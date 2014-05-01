@@ -239,7 +239,7 @@ public:
   SciMoz();
 #endif
   SciMoz(SciMozPluginInstance* plugin);
-  ~SciMoz();
+  virtual ~SciMoz();
 
 protected: 
     NPWindow* fWindow;
