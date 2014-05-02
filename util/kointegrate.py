@@ -65,6 +65,7 @@ class IntegrationError(RuntimeError): pass
 
 class Branch(object):
     scc_is_distributed = False ### If true, this is a DVCS and just commit locally
+    patch_options = ["-p0"]
 
     def __init__(self, name, base_dir):
         self.name = name
@@ -308,7 +309,7 @@ class SVNBranch(Branch):
         capture = "stdout" in kwargs or "stderr" in kwargs
         if isinstance(stdin, str):
             kwargs["stdin"] = subprocess.PIPE
-        args = [self._patch_exe] + list(args)
+        args = [self._patch_exe] + self.patch_options + list(args)
         log.debug("patch: %s", " ".join(args))
 
         if isinstance(stdin, str):
@@ -423,7 +424,7 @@ class SVNBranch(Branch):
             patch = revision.get_patch(options, paths=(path,))
             setattr(path, "patch", patch)
             patch_target = path.dest or path.src
-            ret = self._run_patch("--dry-run", "-p0", "--force", "--silent",
+            ret = self._run_patch("--dry-run", "--force", "--silent",
                                   stdin=patch)
             if ret != 0:
                 failed_paths.add("%s (patch does not apply" % (patch_target,))
@@ -478,7 +479,7 @@ class SVNBranch(Branch):
                 else:
                     patch = get_patch(path)
                     if patch:
-                        ret = self._run_patch("-p0", "--force", "--reject-format=unified",
+                        ret = self._run_patch("--force", "--reject-format=unified",
                                               stdin=patch)
                         if ret != 0:
                             failures += 1
@@ -489,7 +490,7 @@ class SVNBranch(Branch):
             elif path.action == ChangedPath.MODIFIED:
                 log.debug("Patching %s", patch_target)
                 patch = get_patch(path)
-                ret = self._run_patch("-p0", "--force", "--reject-format=unified",
+                ret = self._run_patch("--force", "--reject-format=unified",
                                       stdin=patch)
                 if ret != 0:
                     failures += 1
@@ -503,7 +504,7 @@ class SVNBranch(Branch):
                 self._capture_output("rename", path.src, path.dest)
                 if patch:
                     log.debug("Patching %s after rename", patch_target)
-                    ret = self._run_patch("-p0", "--force", stdin=patch)
+                    ret = self._run_patch("--force", stdin=patch)
                     if ret != 0:
                         failures += 1
                         log.error("Failed to apply patch for renamed file %s",
@@ -731,6 +732,9 @@ class Revision(object):
             return
 
         log.debug("Integrating files %s", ", ".join(map(str, paths)))
+
+        if self.branch.scc_type == "git" and branch.scc_type == "svn":
+            branch.patch_options.append("-p1")
 
         # Check that this patch can be applied
         if not options.skip_check:
