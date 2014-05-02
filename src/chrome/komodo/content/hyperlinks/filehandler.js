@@ -111,7 +111,7 @@
                 }
             }
         }
-        if (absFilepath) {
+        if (view.koDoc.file.scheme != "file" && absFilepath) {
             // Turn absFilepath into a URI.
             var filler = "";
             absFilepath = absFilepath.replace("\\", "/", "g");
