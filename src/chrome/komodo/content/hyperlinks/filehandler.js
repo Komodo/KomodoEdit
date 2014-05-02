@@ -114,7 +114,7 @@
         if (absFilepath) {
             // Turn absFilepath into a URI.
             var filler = "";
-            absFilepath = absFilepath.replace("\\", "/");
+            absFilepath = absFilepath.replace("\\", "/", "g");
             if (_is_windows && absFilepath[1] == ":" && absFilepath[0] != "/") {
                 filler = "/";
             }
