@@ -44,9 +44,6 @@
      */
 
     var _is_windows = (navigator.platform == 'Win32');
-    var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-        .getService(Components.interfaces.nsIStringBundleService)
-        .createBundle("chrome://komodo/locale/hyperlinks/hyperlinks.properties");
 
     /**
      * Jump to the given id in the supplied view.
@@ -155,6 +152,9 @@
                     sm.gotoPos(scimoz_pos);
                     return;
                 } else {
+                    var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                        .getService(Components.interfaces.nsIStringBundleService)
+                        .createBundle("chrome://komodo/locale/hyperlinks/hyperlinks.properties");
                     ko.statusBar.AddMessage(_bundle.formatStringFromName("noAnchorFound.message", [filepath], 1),
                                             "hyperlinks", 3000, true);
                 }

@@ -34,9 +34,6 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
-var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-    .getService(Components.interfaces.nsIStringBundleService)
-    .createBundle("chrome://komodo/locale/editor.properties");
 /**
  * A CSS color picker, custom hyperlink handler.
  *
