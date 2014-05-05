@@ -20,11 +20,9 @@ const [JetPack, require, requirePaths] = (function() {
 
     /* Populate requirePaths with category entries */
     let requirePaths = {};
-    let setRequirePaths = function()
-    {
+    let setRequirePaths = function() {
         let entries = catMan.enumerateCategory('require-path');
-        while (entries.hasMoreElements())
-        {
+        while (entries.hasMoreElements()) {
             let entry = entries.getNext().QueryInterface(Ci.nsISupportsCString);
             let uri = catMan.getCategoryEntry('require-path', entry);
             requirePaths[entry] = uri;
@@ -62,10 +60,10 @@ const [JetPack, require, requirePaths] = (function() {
         return resolve(id, requirer);
     };
 
-    /* Resolve id from a global context */
+    /* Resolve id from a global context, todo: cleanup for readability */
     let globalResolve = function(id, mapping) {
         let ids = id.split("/");
-        for (let i=ids.length-1;i>0;i--) {
+        for (let i=ids.length-1; i>0; i--) {
             let _id = ids.slice(0,i).join('/');
             if (_id in requirePaths)
                 return requirePaths[_id] + ids.slice(i).join('/') + ".js";
@@ -157,8 +155,8 @@ const [JetPack, require, requirePaths] = (function() {
                 return freeze(module.exports);
             }
         } catch (ex) {
-            Cu.reportError('Exception while trying to resolve ' + id + ', \
-                            falling back on Mozilla\'s commonjs');
+            Cu.reportError("Exception while trying to resolve " + id + ", \
+                            falling back on Mozilla's commonjs");
             Cu.reportError(ex);
         }
 
