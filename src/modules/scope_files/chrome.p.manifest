@@ -1,0 +1,9 @@
+# #if MODE == "dev"
+content scope-files content/
+skin scope-files classic/1.0 skin/
+locale scope-files en-US locale/en-US/
+# #else
+content scope-files jar:scope-files.jar!/content/
+skin scope-files classic/1.0 jar:scope-files.jar!/skin/
+locale scope-files en-US jar:scope-files.jar!/locale/en-US/
+# #endif

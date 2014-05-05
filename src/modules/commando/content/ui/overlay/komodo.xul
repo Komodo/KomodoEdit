@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2013 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % commandoDTD SYSTEM "chrome://commando/locale/commando.dtd">
+  %commandoDTD;
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+]>
+
+<?xml-stylesheet href="less://commando/skin/commando.less" type="text/css"?>
+
+<overlay id="commandoOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script src="chrome://commando/content/js/controller.js"
+            type="application/x-javascript;version=1.7"/>
+
+    <popupset id="komodoMainPopupSet">
+        <panel id="commando-panel" titlebar="normal">
+            <vbox flex="1">
+                <hbox>
+                    <!-- Menuitem template -->
+                    <script id="tpl-co-scope-menuitem" type="x-tmpl-mustache">
+                        <menuitem id="scope-{{id}}" label="{{name}}" value="{{id}}" image="{{icon}}"/>
+                    </script>
+
+                    <menulist id="commando-scope" sizetopopup="none">
+                        <menupopup id="commando-scope-menupopup">
+                            <menuitem label="History" value="history" image="chrome://icomoon/skin/icons/file5.png"/>
+                            <menuitem label="Open Files" value="openfiles" image="chrome://icomoon/skin/icons/file5.png"/>
+                            <menuitem label="Snippets" value="openfiles" image="chrome://icomoon/skin/icons/file5.png"/>
+                            <menuitem label="Macros" value="openfiles" image="chrome://icomoon/skin/icons/file5.png"/>
+                            <menuseparator id="scope-separator"/>
+                            <menuitem label="Files" value="openfiles" image="chrome://icomoon/skin/icons/folder.png"/>
+                            <menuitem label="Tools" value="openfiles" image="chrome://icomoon/skin/icons/play4.png"/>
+                            <menuseparator id="custom-scope-separator"/>
+                            <menuitem label="Manage Scopes ..."
+                                      oncommand="ko.commands.doCommand('cmd_commandoPrefs', event)"/>
+                        </menupopup>
+                    </menulist>
+                    <textbox flex="1" id="commando-search"/>
+                </hbox>
+                <vbox flex="1">
+                    <!-- Result template -->
+                    <script id="tpl-co-result" type="x-tmpl-mustache">
+                        <richlistitem>
+                            <hbox>
+                                <hbox class="icon-wrapper">
+                                    {{#icon}}
+                                        <image src='{{icon}}'/>
+                                    {{/icon}}
+                                </hbox>
+                                <vbox flex="1">
+                                    <label value="{{name}}"/>
+                                    {{#description}}
+                                        <description value="{{description}}"/>
+                                    {{/description}}
+                                </vbox>
+                            </hbox>
+                        </richlistitem>
+                    </script>
+
+                    <richlistbox id="commando-results" flex="1"></richlistbox>
+                </vbox>
+            </vbox>
+        </panel>
+    </popupset>
+
+    <broadcasterset id="broadcasterset_global">
+
+        <broadcaster
+            id="cmd_showCommando"
+            observes="cmd_showCommando"
+            key="key_cmd_showCommando"
+            desc="&showCommando.desc;"
+            autoCheck="false"/>
+
+    </broadcasterset>
+
+    <commandset
+        id="cmdset_commando"
+        oncommandupdate="ko.commands.updateCommandset(this, event)"
+        commandupdater="true">
+
+        <command
+            id="cmd_showCommando"
+            key="key_cmd_showCommando"
+            oncommand="ko.commands.doCommand('showCommando', event)"
+            desc="&showCommando.desc;"/>
+
+        <command
+            id="cmd_commandoPrefs"
+            key="key_cmd_commandoPrefs"
+            oncommand="ko.commands.doCommand('cmd_commandoPrefs', event)"
+            desc="&commandoPrefs.desc;"/>
+
+    </commandset>
+
+</overlay>

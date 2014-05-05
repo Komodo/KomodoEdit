@@ -1,0 +1,38 @@
+@import url("chrome://komodo/skin/_config/window.less");
+
+#commando-panel
+{
+    min-width: 350px;
+    padding: 8px;
+
+    -moz-appearance: @window-appearance;
+    background: @window-background;
+    color: @window-color;
+}
+
+#commando-scope
+{
+    width: 40px;
+    
+    & > .menulist-label-box
+    {
+        .menulist-label
+        {
+            visibility: collapse;
+        }
+    }
+
+    menuitem .menu-iconic-left
+    {
+        visibility: visible;
+        display: inherit;
+    }
+}
+
+#commando-results
+{
+    &:not(.has-results)
+    {
+        visibility: collapse;
+    }
+}

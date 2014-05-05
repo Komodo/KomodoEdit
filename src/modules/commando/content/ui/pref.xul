@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % commandoDTD SYSTEM "chrome://commando/locale/commando.dtd">
+  %commandoDTD;
+]>
+
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="less://commando/skin/pref.less" type="text/css"?>
+
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        orient="vertical"
+        onload="onLoad()">
+
+    <script type="application/x-javascript">
+        function onLoad()
+        {
+            parent.hPrefWindow.onpageload();
+        }
+    </script>
+
+    <groupbox orient="vertical" id="search-behaviour">
+        <caption label="Search Behaviour" />
+        <vbox>
+            <hbox align="center">
+                <label value="Search Delay:" />
+                <textbox size="6" pref="true"
+                         id="commando_search_delay"
+                         preftype="long" prefattribute="value"
+                         prefdefault="100" />
+                <description value="Prevents unnecessary searches while you are still typing your query, value in milliseconds."/>
+            </hbox>
+        </vbox>
+        <vbox>
+            <hbox>
+                <label/>
+                <checkbox label="Preserve Previous Search Query"
+                          prefattribute="checked"
+                          preftype="boolean"
+                          prefdefault="false" />
+            </hbox>
+        </vbox>
+    </groupbox>
+
+    <groupbox orient="vertical">
+        <caption label="Custom Search Scopes" />
+        <vbox>
+            <description value="Custom Search Scopes allow you to define your own set of scopes with available search providers"/>
+            <hbox>
+                <richlistbox id="scopes" flex="1" height="200"></richlistbox>
+                <vbox>
+                    <button label="Add Scope"/>
+                    <button label="Edit Scope" disabled="true"/>
+                    <button label="Remove Scope" disabled="true"/>
+                    <separator orient="horizontal"/>
+                    <button label="Move Up" disabled="true"/>
+                    <button label="Move Down" disabled="true"/>
+                </vbox>
+            </hbox>
+        </vbox>
+    </groupbox>
+</window>
