@@ -59,16 +59,16 @@ r"""
     Suggested convention for Komodo version numbers:
     * For development builds you should add 10 to the minor version
       number:
-        Komodo Edit 8.0.x development:    -k 8.10
-        Komodo IDE 8.0.x development:     -k 8.10
+        Komodo Edit 9.0.x development:    -k 9.10
+        Komodo IDE 9.0.x development:     -k 9.10
       This allows you to run a production and development build at the
       same time without them trying to hand off to each other.
     
     Suggested configurations are:
-    * Komodo 8.0.x release builds:
-        python build.py configure -k 8.0 --with-crashreport-symbols
-    * Komodo 8.0 development builds:
-        python build.py configure -k 8.10
+    * Komodo 9.0.x release builds:
+        python build.py configure -k 9.0 --with-crashreport-symbols
+    * Komodo 9.0 development builds:
+        python build.py configure -k 9.10
 """
 #
 # Development Notes:
