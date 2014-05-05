@@ -13,4 +13,5 @@
 *.landmark
 qbtable.pik
 .DS_Store
-
+/*.komodoproject
+/.komodotools/
