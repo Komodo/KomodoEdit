@@ -3,7 +3,7 @@ https://bugs.activestate.com/show_bug.cgi?id=103800
 diff -r efd77a0745c6 chrome/src/nsChromeRegistryChrome.cpp
 --- a/chrome/src/nsChromeRegistryChrome.cpp	Tue Apr 22 12:50:29 2014 -0700
 +++ b/chrome/src/nsChromeRegistryChrome.cpp	Wed Apr 23 10:29:35 2014 -0700
-@@ -513,12 +513,24 @@
+@@ -513,12 +513,23 @@
  CanLoadResource(nsIURI* aResourceURI)
  {
    bool isLocalResource = false;
@@ -18,7 +18,6 @@ diff -r efd77a0745c6 chrome/src/nsChromeRegistryChrome.cpp
 +    bool isLessScheme = false;
 +    aResourceURI->SchemeIs("less", &isLessScheme);
 +    if (isLessScheme) {
-+      printf("Overriding less local resource\n");
 +      return true;
 +    }
 +  }
