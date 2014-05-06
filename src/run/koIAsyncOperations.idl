@@ -81,6 +81,9 @@ interface koIAsyncOperation: nsISupports {
         // status can be one of the states above
     attribute long status;
 
+        // Data is an arbitrary object that can be used for additional context.
+    attribute nsIVariant data;
+
         // stop the asynchronous command. Does not have to be implemented,
         // which by default will raise an exception "Cannot be stopped"
     void stop();
