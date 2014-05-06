@@ -30,7 +30,9 @@ const [JetPack, require] = (function() {
         while (entries.hasMoreElements()) {
             let entry = entries.getNext().QueryInterface(Ci.nsISupportsCString);
             let uri = catMan.getCategoryEntry('require-path', entry);
-            if (entry && entry[entry.length-1] != "/") {
+            // Stringafy entry - in order to get the nice JS string functions.
+            entry = entry.toString();
+            if (entry && !entry.endsWith("/")) {
                 // Needs a trailing slash in order to map correctly.
                 entry += "/";
             }
