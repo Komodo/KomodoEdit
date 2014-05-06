@@ -7,37 +7,15 @@
  * This is used to load the commonjs-style modules.
  */
 
-const [JetPack, require, requirePaths] = (function() {
-    let ko = this.ko || {};
-    let loader;
+const [JetPack, require] = (function() {
+    var ko = this.ko || {};
     const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
     const { Services } = Cu.import("resource://gre/modules/Services.jsm", {});
-    const { main, Loader, resolve, resolveURI, Module } =
+    const { main, Loader, resolve, resolveURI } =
         Cu.import('resource://gre/modules/commonjs/toolkit/loader.js', {}).Loader;
 
-    const catMan = Cc["@mozilla.org/categorymanager;1"]
-                        .getService(Ci.nsICategoryManager);
-
-    /* Populate requirePaths with category entries */
-    let requirePaths = {};
-    let setRequirePaths = function()
-    {
-        let entries = catMan.enumerateCategory('require-path');
-        while (entries.hasMoreElements())
-        {
-            let entry = entries.getNext().QueryInterface(Ci.nsISupportsCString);
-            let uri = catMan.getCategoryEntry('require-path', entry);
-            requirePaths[entry] = uri;
-        }
-    }
-    setRequirePaths();
-
-    /* Reload require paths on addon install */
-    Components.utils.import("resource://gre/modules/AddonManager.jsm");
-    AddonManager.addInstallListener({onInstallEnded: setRequirePaths});
-
-    /* Resolve id from within a module context */
-    let localResolve = function (id, requirer) {
+    var loader;
+    let my_resolve = function (id, requirer) {
         if (id.startsWith("ko/") && !(id in loader.modules)) {
             // Try to grab it off the global |ko| object...
             let parts = id.split("/").slice(1);
@@ -57,24 +35,11 @@ const [JetPack, require, requirePaths] = (function() {
                 return url;
             }
         }
-
         // Can't resolve it to a global, try the normal path
         return resolve(id, requirer);
     };
 
-    /* Resolve id from a global context */
-    let globalResolve = function(id, mapping) {
-        let ids = id.split("/");
-        for (let i=ids.length-1;i>0;i--) {
-            let _id = ids.slice(0,i).join('/');
-            if (_id in requirePaths)
-                return requirePaths[_id] + ids.slice(i).join('/') + ".js";
-        }
-
-        return false;
-    }
-
-    let globals = { ko: ko };
+    var globals = { ko: ko };
     if (String(this).contains("Window")) {
         // Have a window scope available
         globals.window = window;
@@ -92,7 +57,7 @@ const [JetPack, require, requirePaths] = (function() {
         // Default path
         '': 'resource://gre/modules/commonjs/',
     }
-    loader = Loader({resolve: localResolve,
+    loader = Loader({resolve: my_resolve,
                      paths: paths,
                      globals: globals});
 
@@ -142,52 +107,20 @@ const [JetPack, require, requirePaths] = (function() {
 
     const require = function(id) {
         try {
-            let resolved = globalResolve(id);
-            let uri = resolved || resolveURI(id, loader.mapping)
+            let uri = resolveURI(id, loader.mapping)
             if (uri in loader.modules) {
                 // Module already loaded; don't load it again
                 return loader.modules[uri].exports;
             }
-
-            /* Attempt to resolve using requirePaths */
-            if (resolved) {
-                let module;
-                module = loader.modules[uri] = Module(id, uri);
-                loader.load(loader, module);
-                return freeze(module.exports);
-            }
-        } catch (ex) {
-            Cu.reportError('Exception while trying to resolve ' + id + ', \
-                            falling back on Mozilla\'s commonjs');
-            Cu.reportError(ex);
-        }
-
-        try {
             // Load the module for the first time
             return main(loader, id);
         } catch (ex) {
-            Cu.reportError('Exception while trying to require("' + id + '"):');
+            Cu.reportError('While trying to require("' + id + '"):');
             Cu.reportError(ex);
             throw ex;
         }
         return null;
     };
 
-    /* Helpers */
-
-    // Copied from commonjs/lib/toolkit/loader.js as we can't access it directly
-    function freeze(object) {
-        let prototypeOf = Object.getPrototypeOf;
-        if (prototypeOf(object) === null) {
-            Object.freeze(object);
-        }
-        else {
-            prototypeOf(prototypeOf(object.isPrototypeOf)).
-                constructor. // `Object` from the owner compartment.
-                freeze(object);
-        }
-        return object;
-    }
-
-    return [JetPack, require, requirePaths];
+    return [JetPack, require];
 })();
