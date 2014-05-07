@@ -13,8 +13,8 @@
      */
     var pending_command_hash = {};
     var fallback_timeout = -1;
-    var _log = ko.logging.getLogger("perf");
-    //_log.setLevel(ko.logging.LOG_DEBUG);
+    var _log = require("ko/logging").getLogger("perf");
+    //_log.setLevel(_log.LOG_DEBUG);
 
     var run_delayed_update_commands = function() {
         // #if BUILD_FLAVOUR == "dev"
