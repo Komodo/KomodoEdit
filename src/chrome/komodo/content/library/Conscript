@@ -96,9 +96,8 @@ $cons->Preprocess('skin.p.js', 'skin.js');
 $cons->InstallInChrome('skin.js');
 $cons->InstallInChrome('less.js');
 $cons->InstallInChrome('multipleCaret.js');
-$cons->Preprocess('changeTracker.p.js', 'changeTracker.js');
-$cons->InstallInChrome('changeTracker.js');
 $cons->InstallInChrome('utils.js');
+$cons->Preprocess('performance_tweaks.p.js', 'performance_tweaks.js');
 $cons->InstallInChrome('performance_tweaks.js');
 
 if ($buildFlavour eq "dev") {
