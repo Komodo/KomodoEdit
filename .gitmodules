@@ -1,0 +1,4 @@
+[submodule "src/modules/trackchanges"]
+	path = src/modules/trackchanges
+	url = https://github.com/Komodo/trackchanges.git
+	branch = master
