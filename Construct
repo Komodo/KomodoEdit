@@ -482,7 +482,6 @@ if ($buildFlavour ne "full") {
     # for now these will only be in dev builds
     Build(
         "$build/chrome/komodo/content/test/Conscript",
-        "$build/chrome/komodo/content/test/jsdb/Conscript",
     );
     # Add the gtkstock icons for Komodo Linux dev builds.
     if ($platform eq "linux") {
