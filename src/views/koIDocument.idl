@@ -264,25 +264,6 @@ interface koIDocument : nsISupports
 
     AString getUnsavedChanges();
                              
-    /**
-     * Return an array of koIDiffOpcode's that describe how to change text
-     * from the list on-disk to the text in memory.
-     *
-     * @returns:
-     *     array of change instructions (koIDiffOpcode's)
-     */
-    void getUnsavedChangeInstructions([optional] out unsigned long count,
-                                      [array, size_is(count), retval]
-                                          out koIDiffOpcode diffs
-                                      );
-    /**
-     * Returns the text for the current document's file as
-     * an array of lines.  Embedded zero bytes probably truncate the
-     * rest of the line.  Strings should be utf-8, and not decoded.
-     */
-    void getOnDiskTextLines([optional] out unsigned long count,
-                            [array, size_is(count), retval] out wstring onDiskLines);
-                             
     // Auto-save API.    
     boolean haveAutoSave();
     void doAutoSave();
