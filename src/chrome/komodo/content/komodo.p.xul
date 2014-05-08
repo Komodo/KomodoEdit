@@ -217,18 +217,6 @@
         <panel id="customizeToolbarSheetPopup" noautohide="true">
             <iframe flex="1" style="width: 90ch; height: 40em;"/>
         </panel>
-        <panel id="changeTracker_panel" noautohide="true" close="true"
-               titlebar="normal" noautofocus="true"
-               label="&thisMarkersChanges.label;">
-            <hbox flex="1" id="changeTracker_hbox">
-                <button id="changeTracker_undo"
-                        label="&retractThisChange.label;"
-                        />
-            </hbox>
-            <iframe id="changeTracker_iframe"
-                    flex="1"
-                    style="width: 90ch; height: 40em;"/>
-        </panel>
     </popupset>
 
     <popupset id="extensionPopupSet"/>
