@@ -75,6 +75,11 @@ const [JetPack, require] = (function() {
         // Have a window scope available
         globals.window = window;
         globals.document = document;
+        if ("console" in window) {
+            // Add the console when available too - some of the SDK depends on
+            // this being defined.
+            globals.console = console;
+        }
     } else if (String(this).contains("BackstagePass")) {
         // Being loaded via Components.utils.import
         this.EXPORTED_SYMBOLS = ["require", "JetPack"];
