@@ -58,14 +58,6 @@ log = logging.getLogger('koDocument')
 #log.setLevel(logging.DEBUG)
 
 
-#-- Internal functions
-
-def _diffToKoIDiffOpcode(diffCode):
-    opcode = components.classes["@activestate.com/koDiffOpcode;1"] \
-             .createInstance(components.interfaces.koIDiffOpcode)
-    opcode.init(*diffCode)
-    return opcode
-
 ################################################################################
 # Note that koDocument's scintilla/scimoz attribute is thread-protected, all
 # calls that koDocument makes using scintilla/scimoz will be proxied to the main
@@ -92,14 +84,13 @@ class koDocumentBase:
     _tabWidth = None
     _useTabs = None
 
+    # The original on-disk file contents.
+    ondisk_lines = None
+
     _DOCUMENT_SIZE_NOT_LARGE = 0
     _DOCUMENT_SIZE_UDL_LARGE = 1
     _DOCUMENT_SIZE_ANY_LARGE = 2
 
-    ciKoDoc = components.interfaces.koIDocument
-    DONT_SHOW_CHANGES = ciKoDoc.DONT_SHOW_CHANGES
-    SHOW_UNSAVED_CHANGES = ciKoDoc.SHOW_UNSAVED_CHANGES
-    
     # Cached services - saved on the class.
     _globalPrefSvc = None
     _globalPrefs = None
@@ -207,9 +198,7 @@ class koDocumentBase:
         # document's language service.  Useful for using a different colorizer,
         # usually text for a large document.
         self.lexer = None
-        self._ondisk_lines = None
-        self._changeTrackingInfo = _ChangeTrackingInfo(self)
-    
+
     def _dereference(self):
         prefObserver = self.prefs.prefObserverService
         prefObserver.removeObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'])
@@ -236,7 +225,6 @@ class koDocumentBase:
         # follow the koDocument spaghetti to be assured that
         # self._ciBuf is reset for all cases.
         self._ciBuf = None
-        self._showChangesInMargin = self.prefs.getLongPref('showChangesInMargin')
 
     def initUntitled(self, name, encoding):
         log.info("initUntitled(name=%r, ...)", name)
@@ -247,7 +235,6 @@ class koDocumentBase:
         if self._language is None:
             self._guessLanguage()
         self._ciBuf = None
-        self._showChangesInMargin = self.prefs.getLongPref('showChangesInMargin')
 
     def addReference(self):
         self._refcount += 1
@@ -343,10 +330,7 @@ class koDocumentBase:
         # yet not stored in prefs except if set explicitely.
         log.debug("adding prefs observer")
         prefObserver = self.prefs.prefObserverService
-        prefObserver.addObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth',
-                                                 'showChangesInMargin',
-                                                 'editor-scheme',
-                                                 'scheme-changed'], True)
+        prefObserver.addObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'], True)
 
     def _upgradePrefs(self):
         if self.prefs.hasPrefHere("prefs_version"):
@@ -676,16 +660,11 @@ class koDocumentBase:
                         log.exception("unexpected 'endOfLine' pref value: %r", eolPref)
                         eol = eollib.EOL_PLATFORM
                     self.set_new_line_endings(eol)
-                self._showChangesInMargin = self.prefs.getLongPref('showChangesInMargin')
-                if self._safeToGetReferenceContents:
-                    self._changeTrackingInfo._updateReferenceChangedLines(self._showChangesInMargin)
             except:
                 path = getattr(file, 'path', 'path:?')
                 log.exception("_loadfile: failed to set eol on file %s", path)
         self.set_isDirty(0)
-        self._ondisk_lines = data.splitlines(True)
-        if self._showChangesInMargin == self.SHOW_UNSAVED_CHANGES:
-            self._changeTrackingInfo.referenceLines = self._ondisk_lines
+        self.ondisk_lines = data.splitlines(True)
         
     def _get_buffer_from_file(self, file):
         try:
@@ -1779,9 +1758,7 @@ class koDocumentBase:
             except:
                 pass # ignore, no one listening
             
-            # Change-tracking
-            self._ondisk_lines = data.splitlines(True)
-            self._changeTrackingInfo.onSave()
+            self.ondisk_lines = data.splitlines(True)
         finally:
             # fix file mode
             if forceSave and mode:
@@ -1814,29 +1791,13 @@ class koDocumentBase:
             # log it and move on
             log.exception(e)
 
-    @property
-    def _safeToGetReferenceContents(self):
-        return self.file
-
     # The document manages a reference count of the views onto that
     # document. When the last view is released we can clear the _docPointer
     @components.ProxyToMainThread
     def addView(self, scintilla):
-        if len(self._views) == 0:
-            # Now finish setting up the changeTracker
-            self._showChangesInMargin = self.prefs.getLongPref('showChangesInMargin')
-            try:
-                # Don't try to get scc info for files that are starting up.
-                # Later on they'll be in scc and we can get the change info.
-                if self._safeToGetReferenceContents:
-                    self._changeTrackingInfo._updateReferenceChangedLines(self._showChangesInMargin)
-            except:
-                log.exception("Problem in _updateReferenceChangedLines")
         self._views.append(scintilla)
         scimoz = scintilla.scimoz
         xpself = WrapObject(self, components.interfaces.koIDocument)
-        if scintilla.changeTracker:
-            scintilla.changeTracker.setScimoz(scimoz)
         if not self._docPointer:
             # Use the existing document/docPointer created by Scintilla.
             self.docSettingsMgr.register(xpself, scintilla)
@@ -1884,11 +1845,6 @@ class koDocumentBase:
                     self._historySvc.update_marker_handles_on_close(self.file.URI, scimoz)
     
             self._views.remove(scintilla)
-            try:
-                if scintilla.changeTracker:
-                    scintilla.changeTracker.setScimoz(None)
-            except:
-                log.exception("Problem trying to null changeTracker.scimoz")
             #if not self._views:
             #    self.docSettingsMgr = None
         except Exception, e:
@@ -1918,22 +1874,6 @@ class koDocumentBase:
             val = self._tabWidth = self.prefs.getLongPref('tabWidth')
             for view in self._views:
                 view.scimoz.tabWidth = val
-        elif topic == "showChangesInMargin":
-            oldMarginType = self._showChangesInMargin
-            self._showChangesInMargin = self.prefs.getLongPref('showChangesInMargin')
-            if oldMarginType == self._showChangesInMargin:
-                return # no change
-
-            self._changeTrackingInfo._updateReferenceChangedLines(self._showChangesInMargin)
-            for view in self._views:
-                view.changeTracker.clearOldMarkers();
-                view.changeTracker.onPrefChanged('showChangesInMargin',
-                                                 oldMarginType,
-                                                 self._showChangesInMargin)
-            
-        elif topic in ('scheme-changed', 'editor-scheme'):
-            for view in self._views:
-                view.changeTracker.onSchemeChanged()
 
     def _getLangPref(self, *prefInfos):
         """Get a pref that might fallback to language-specific values.
@@ -2148,37 +2088,10 @@ class koDocumentBase:
             # receivers are not registered?
             pass
 
-    def _get_ondisk_lines(self, encodeAsUTF8=False, keepEOLs=False):
-        # We want a new temporary file to read, so the current file stats
-        # information does not get updated (required for remote file saving,
-        # which uses stats.mtime for checking if a file has changed or not).
-        tmpfile = \
-            components.classes["@activestate.com/koFileEx;1"] \
-            .createInstance(components.interfaces.koIFileEx)
-        tmpfile.URI = self.file.URI
-        tmpfile.open('rb')
-        try:
-            ondisk = tmpfile.read(-1)
-            (ondisk, encoding, bom) = self._detectEncoding(ondisk)
-            if encodeAsUTF8 and encoding not in ("ascii", "utf-8"):
-                ondisk = ondisk.encode("utf-8")
-            return ondisk.splitlines(keepEOLs)
-        except:
-            # If we cannot read the file - then either it doesn't exist yet, or
-            # we don't have the correct permissions - either way we will treat
-            # it as having all lines changed - bug 97642.
-            log.exception("Problem reading the tempfile")
-        finally:
-            tmpfile.close()        #self.file.open('rb')
-        return []
-
-    def refreshOnDiskLinesFromFile(self):
-        self._ondisk_lines = self._get_ondisk_lines(keepEOLs=True)        
-        
     _re_ending_eol = re.compile('\r?\n$')
     def getUnsavedChanges(self, joinLines=True):
         eolStr = eollib.eol2eolStr[self._eol]
-        ondisk = self._ondisk_lines
+        ondisk = self.ondisk_lines
         inmemory = self.get_buffer().splitlines(True)
         difflines = list(difflibex.unified_diff(
             ondisk, inmemory,
@@ -2193,52 +2106,6 @@ class koDocumentBase:
         else:
             return [self._re_ending_eol.sub('', x) for x in difflines]
 
-    def _get_buffer_text_as_utf8_lines(self, keepEOLs=False):
-        inmemory_text = self.get_buffer()
-        encoding_name = self.encoding.python_encoding_name
-        if encoding_name not in ("ascii", "UTF-8"):
-            inmemory_text = inmemory_text.encode("utf-8")
-        return inmemory_text.splitlines(keepEOLs)
-
-    def refreshChangedLines(self, showChangesInMargin):
-        try:
-            self._changeTrackingInfo.refreshChangedLines(showChangesInMargin)
-        except:
-            log.exception("refreshChangedLines(showChangesInMargin:%r)",
-                          showChangesInMargin)
-            raise
-
-    def updateChangeTracker(self, showChangesInMargin):
-        try:
-            self._changeTrackingInfo.updateChangeTracker(showChangesInMargin)
-        except:
-            log.exception("updateChangeTracker(showChangesInMargin:%r) failed",
-                          showChangesInMargin)
-    
-    def _getUnsavedChangeInstructions(self):
-        """
-        Unlike getUnsavedChanges, this method's output is intended to be
-        consumed by other software.  The output consists of a list of tuples:
-        [instruction, oldStart, oldEnd, newStart, newEnd].  See
-        difflib.py::SequenceManager.get_opcodes for more documentation.
-        """
-        ondisk = self._ondisk_lines
-        inmemory = self._get_buffer_text_as_utf8_lines(keepEOLs=True)
-        return [_diffToKoIDiffOpcode(diff) for diff in
-                difflibex.SequenceMatcher(a=ondisk, b=inmemory).get_opcodes()]
-
-    def diffStringsAsChangeInstructions(self, s, t):
-        return [_diffToKoIDiffOpcode(diff) for diff
-                in difflibex.SequenceMatcher(a=s, b=t).get_opcodes()]
-
-    def trackChanges_getOldAndNewLines(self, lineNo, changeMask):
-        try:
-            res = self._changeTrackingInfo.trackChanges_getOldAndNewLines(lineNo, changeMask)
-        except:
-            log.exception("_changeTrackingInfo.trackChanges_getOldAndNewLines failed")
-            res = [False, False, [], [], [], []]
-        return res
-        
     def _getAutoSaveFileName(self):
         # retain part of the readable name
         autoSaveFilename = "%s-%s" % (self.file.md5name,self.file.baseName)
@@ -2369,249 +2236,3 @@ class koDocumentBase:
     def md5Hash(self):
         return md5(self.buffer.encode("utf-8")).hexdigest()
 
-class _ChangeTrackingInfo(object):
-    def __init__(self, koDoc):
-        self._koDoc = koDoc
-        self.clearTrackingData()
-        self._sccInReproTextLines = None
-        self._sccGettingData = False
-        self._sccDataRequestTimestamp = None
-        self._sccCancelDataRequest = False
-        self._in_scc_lines = None
-        self.referenceLines = None
-        
-        ciKoDoc = components.interfaces.koIDocument
-        self.CHANGES_NONE = ciKoDoc.CHANGES_NONE
-        self.CHANGES_INSERT = ciKoDoc.CHANGES_INSERT
-        self.CHANGES_DELETE = ciKoDoc.CHANGES_DELETE
-        self.CHANGES_REPLACE = ciKoDoc.CHANGES_REPLACE
-
-        self.DONT_SHOW_CHANGES = ciKoDoc.DONT_SHOW_CHANGES
-        self.SHOW_UNSAVED_CHANGES = ciKoDoc.SHOW_UNSAVED_CHANGES
-        self.SHOW_SCC_CHANGES = ciKoDoc.SHOW_SCC_CHANGES
-
-        # Prefs haven't been setup yet, so set a temp default
-        self.showChangesInMargin = self.DONT_SHOW_CHANGES
-
-        
-        self._complaints = {} # Map displayPath => { template => timestamp} }
-        self._complaint_interval = 60 * 60 # complain at most once per hour
-
-    def onSave(self):
-        if self.showChangesInMargin == self.SHOW_UNSAVED_CHANGES:
-            self.clearTrackingData()
-            self.referenceLines = self._koDoc._ondisk_lines
-            self._updateChangeInfo([])
-            
-    def _updateReferenceChangedLines(self, showChangesInMargin):
-        self.showChangesInMargin = showChangesInMargin
-        if showChangesInMargin == self.SHOW_UNSAVED_CHANGES:
-            self.referenceLines = self._koDoc._ondisk_lines
-        elif showChangesInMargin == self.SHOW_SCC_CHANGES:
-            self._getSCC_DataAndChangeInfo()
-
-    def refreshChangedLines(self, showChangesInMargin):
-        if showChangesInMargin == self.SHOW_SCC_CHANGES:
-            self.referenceLines = self._in_scc_lines = None
-            self._getSCC_DataAndChangeInfo()
-
-    def updateChangeTracker(self, showChangesInMargin):
-        if showChangesInMargin == self.SHOW_UNSAVED_CHANGES:
-            changes = self._koDoc._getUnsavedChangeInstructions()
-            self._updateChangeInfo(changes)
-            self.referenceLines = self._koDoc._ondisk_lines
-        elif showChangesInMargin == self.SHOW_SCC_CHANGES:
-            # This routine asynchronously updates the markers.
-            if self._in_scc_lines is not None:
-                self.referenceLines = self._in_scc_lines
-            self._getSCC_DataAndChangeInfo()
-
-    def complain(self, template, displayPath):
-        self._complaints.setdefault(displayPath, {})
-        dict1 = self._complaints[displayPath]
-        dict1.setdefault(template, 0)
-        then = dict1[template]
-        now = time.time()
-        if now - then > self._complaint_interval:
-            log.warn(template, displayPath)
-            dict1[template] = now        
-
-
-    def clearTrackingData(self):
-        self.firstInterestingLine = {}  # Map lineNo => first line (for insert & change)
-        self.lastInsertions = {}        # Map firstLine => [lastLine]
-        self.lastNewChanges = {}        # Map firstLine => [lastLine]
-        self.deletedTextLineRange = {}  # Map firstLine(new) => [firstLine(old), lastLine(old)]
-        self.changedTextLineRange = {}  # Like deletedTextLines:  new(first) => old range
-        self.insertedOldLineRange = {}  # Map firstLine => oldLineRange (insert only)
-
-    def _update_SCC_ChangeInfo(self):
-        inmemory = self._koDoc._get_buffer_text_as_utf8_lines(keepEOLs=False)
-        ondisk = self._in_scc_lines
-        changes = [_diffToKoIDiffOpcode(diff) for diff in
-                   difflibex.SequenceMatcher(a=ondisk, b=inmemory).get_opcodes()]
-        self.updateTrackingData(changes, self._koDoc._views)
-
-    def _updateChangeInfo(self, changes):
-        self.updateTrackingData(changes, self._koDoc._views)
-
-    def _get_SCC_ChangeInfo(self, resultCode, message):
-        if resultCode:
-            raise ServerException(nsError.NS_ERROR_FAILURE, str(message))
-        if self._sccCancelDataRequest:
-            return
-        self._in_scc_lines = message.splitlines()
-        self.referenceLines = self._in_scc_lines
-        self._sccGettingData = False
-        self._sccGetDataTimestamp = None
-        self._update_SCC_ChangeInfo()
-
-    _SCC_GETTING_DATA_TIME_LIMIT = 60.0 # seconds
-    def _getSCC_DataAndChangeInfo(self):
-        if self._in_scc_lines is not None:
-            self._update_SCC_ChangeInfo()
-            return
-        if self._sccGettingData:
-            elapsedTime = time.time() - self._sccDataRequestTimestamp
-            if elapsedTime >= self._SCC_GETTING_DATA_TIME_LIMIT:
-                self._sccCancelDataRequest = True;
-                raise ServerException(nsError.NS_ERROR_FAILURE,
-                                     "Time expired for getting repository file")
-            return
-        file = self._koDoc.file
-        if not file:
-            raise ServerException(nsError.NS_ERROR_FAILURE,
-                                  "No file for current koDoc" % (self._koDoc.get_displayPath(),))
-        if not file.sccType:
-            raise ServerException(nsError.NS_ERROR_FAILURE,
-                            "File %s not in SCC" %  (self._koDoc.get_displayPath(),))
-        cid = "@activestate.com/koSCC?type=%s;1" % (file.sccType,)
-        sccSvc = components.classes[cid].getService(components.interfaces.koISCC)
-        urls = [file.URI]
-        self._sccGettingData = True
-        self._sccDataRequestTimestamp = time.time()
-        self._sccCancelDataRequest= False
-        sccSvc.cat(file.baseName, file.dirName, '', self._get_SCC_ChangeInfo)
-
-    def updateTrackingData(self, changes, views):
-        lastInsertions = {}
-        lastNewChanges = {}
-        deletedTextLineRange = {}
-        self.firstInterestingLine = {}
-        self.changedTextLineRange = {}
-        self.insertedOldLineRange = {}
-        lim = len(changes)
-        lineCount = self._koDoc._views[0].scimoz.lineCount
-        for change in changes:
-            tag = change.tag
-            i1 = change.i1
-            i2 = change.i2
-            j1 = change.j1
-            j2 = change.j2
-            if tag == 'equal':
-                pass
-            elif tag == 'replace':
-                lastNewChanges[j1] = j2
-                self.changedTextLineRange[j1] = [i1, i2]
-                for idx in range(j2 - j1):
-                    self.firstInterestingLine[j1 + idx] = j1
-            elif tag == 'delete':
-                if j1 == lineCount:
-                    j1 -= 1
-                deletedTextLineRange[j1] = [i1, i2]
-            elif tag == 'insert':
-                lastInsertions[j1] = j2
-                for idx in range(j2 - j1):
-                    self.firstInterestingLine[j1 + idx] = j1
-                self.insertedOldLineRange[j1] = [i1, i2]
-            else:
-                log.error("Unexpected getUnsavedChangeInstructions tag: %s", tag);
-        for view in views:
-            # Break down changeTracker.updateMargins to make it easier to go
-            # through xpcom
-            view.changeTracker.clearOldMarkers()
-            for lineNo in deletedTextLineRange.keys():
-                view.changeTracker.updateMarkers_deleteAtLine(lineNo)
-            for lineStartNo, lineEndNo in lastNewChanges.items():
-                view.changeTracker.updateMarkers_replaceByRange(lineStartNo, lineEndNo)
-            for lineStartNo, lineEndNo in lastInsertions.items():
-                view.changeTracker.updateMarkers_insertByRange(lineStartNo, lineEndNo)
-        self.lastInsertions = lastInsertions
-        self.lastNewChanges = lastNewChanges
-        self.deletedTextLineRange = deletedTextLineRange
-    
-    def trackChanges_getOldAndNewLines(self, lineNo, changeMask):
-        oldEndsWithEOL = newEndsWithEOL = True
-        #XXX: Check oldEndsWithEOL and newEndsWithEOL
-        oldLines = []
-        newLines = []
-        oldLineRange = []
-        newLineRange = []
-        defaultRetVal = [oldEndsWithEOL, newEndsWithEOL,
-                         oldLineRange, newLineRange, oldLines, newLines]
-        DEL_MASK = 1 << self.CHANGES_DELETE
-        INS_MASK = 1 << self.CHANGES_INSERT
-        REP_MASK = 1 << self.CHANGES_REPLACE
-        if changeMask & DEL_MASK:
-            firstLineNo = lineNo
-        else:
-            firstLineNo = self.firstInterestingLine[lineNo]
-        oldLineRange = None
-        if changeMask & (DEL_MASK|REP_MASK):
-            if changeMask & REP_MASK:
-                linesToUse = self.changedTextLineRange
-            else:
-                linesToUse = self.deletedTextLineRange
-            if firstLineNo not in linesToUse:
-                log.warn("Can't find an entry for line %d in self.%s",
-                         firstLineNo, 
-                         ((changeMask & REP_MASK) and "changedTextLineRange"
-                          or "deletedTextLineRange"))
-                return defaultRetVal
-            oldLineRange = linesToUse[firstLineNo]
-            newLineRange = [firstLineNo, firstLineNo]  # If a deletion
-            oldLines = [s.rstrip("\r\n") for s in
-                        self.referenceLines[oldLineRange[0]:oldLineRange[1]]]
-            if oldLines is None:
-                # Failed to get those lines
-                return defaultRetVal
-        # end if
-        if changeMask & (INS_MASK|REP_MASK):
-            if  lineNo not in self.firstInterestingLine:
-                log.warn("Can't find an entry for line %d in self.firstInterestingLine (%s)",
-                         lineNo, Object.keys(self.firstInterestingLine))
-                return defaultRetVal
-            if changeMask & REP_MASK:
-                linesToUse = self.lastNewChanges
-            else:
-                linesToUse = self.lastInsertions
-            if firstLineNo not in linesToUse:
-                log.warn("Can't find an entry for line %d in self.%s (%s)",
-                         firstLineNo, 
-                         ((changeMask & REP_MASK) and "changedTextLineRange"
-                          or "lastInsertions"),
-                         linesToUse.keys())
-                return defaultRetVal
-            if not oldLineRange:
-                oldLineRange = self.insertedOldLineRange[firstLineNo]
-            newLineRange = [firstLineNo, linesToUse[firstLineNo]]
-            scimoz = self._koDoc.getView().scimoz
-            firstPos = scimoz.positionFromLine(newLineRange[0])
-            lastPos = scimoz.getLineEndPosition(newLineRange[1] - 1)
-            text = firstPos < lastPos and scimoz.getTextRange(firstPos, lastPos) or ""
-            newLines = text.splitlines()
-        return [oldEndsWithEOL, newEndsWithEOL, oldLineRange, newLineRange,
-                oldLines, newLines]
-
-class koDiffOpcode(object):
-    _com_interfaces_ = [components.interfaces.koIDiffOpcode]
-    _reg_desc_ = "Diff Opcode"
-    _reg_contractid_ = "@activestate.com/koDiffOpcode;1"
-    _reg_clsid_ = "{82efecdc-de44-4a5a-8a41-72b6e620dd17}"
-
-    def init(self, tag, i1, i2, j1, j2):
-        self.tag = tag
-        self.i1 = i1
-        self.i2 = i2
-        self.j1 = j1
-        self.j2 = j2

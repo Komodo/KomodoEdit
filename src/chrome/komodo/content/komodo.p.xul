@@ -176,7 +176,6 @@
     <script src="chrome://komodo/content/library/multipleCaret.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/snippets.js"                 type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/ejs.js"                 type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/changeTracker.js"    type="application/x-javascript;version=1.7"/>
 
     <script src="chrome://komodo/content/hyperlinks/loader.js"            type="application/x-javascript"/>
 

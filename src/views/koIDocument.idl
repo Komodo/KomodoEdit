@@ -283,43 +283,6 @@ interface koIDocument : nsISupports
     void getOnDiskTextLines([optional] out unsigned long count,
                             [array, size_is(count), retval] out wstring onDiskLines);
                              
-    /**
-     * Returns a unified diff between the left and right strings
-     * as koIDiff opcodes with 'equal', 'insert', 'delete', and 'replace'
-     * instructions.
-     *
-     * @param leftString {string}  The 'old' string
-     * @param rightString {string} The 'new' string
-     * @returns 
-     *     array of change instructions (koIDiffOpcode's)
-     */
-    void diffStringsAsChangeInstructions(in AString leftString,
-                                         in AString rightString,
-                                         [optional] out unsigned long count,
-                                         [array, size_is(count), retval] out
-                                           koIDiffOpcode diffs);
-
-
-    void trackChanges_getOldAndNewLines(in long lineNo,
-                                        in long changeMask,
-                                        out boolean oldEndsWithEOL,
-                                        out boolean newEndsWithEOL,
-                                        out unsigned long oldLineRangeCount,
-                                        [array, size_is(oldLineRangeCount)]
-                                            out long oldLineRange,
-                                        out unsigned long newLineRangeCount,
-                                        [array, size_is(newLineRangeCount)]
-                                            out long newLineRange,
-                                        out unsigned long oldCount,
-                                        [array, size_is(oldCount)]
-                                            out wstring oldLines,
-                                        out unsigned long newCount,
-                                        [array, size_is(newCount)]
-                                            out wstring newLines);
-
-    void refreshChangedLines(in long showChangesInMargin);
-    void updateChangeTracker(in long showChangesInMargin);
-
     // Auto-save API.    
     boolean haveAutoSave();
     void doAutoSave();
