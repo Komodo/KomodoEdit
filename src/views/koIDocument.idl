@@ -51,19 +51,6 @@ interface koITabstopInsertionNode;
 
 interface koILexerLanguageService;
 
-[scriptable, uuid(88ca8f38-c138-4b38-b85b-dcf3bdadfde8)]
-interface koIDiffOpcode : nsISupports
-{
-    // Use same names as in docstring for difflib.py:SequenceManager.get_opcodes
-    readonly attribute wstring tag;
-    readonly attribute long i1;
-    readonly attribute long i2;
-    readonly attribute long j1;
-    readonly attribute long j2;
-
-    void init(in wstring name, in long i1, in long i2, in long j1, in long j2);
-};
-
 /* A koIDocument instance represents the contents of a file in Komodo,
  * whether saved or unsaved.
  */
@@ -252,15 +239,6 @@ interface koIDocument : nsISupports
     attribute long tabWidth;    // number of spaces that a tab character uses in display
     attribute boolean useTabs;  // true if tabs are used for indentation
     attribute long indentWidth; // number of spaces for an indent (typically 4 or 8)
-
-    const long CHANGES_NONE = 0;
-    const long CHANGES_INSERT = 1;
-    const long CHANGES_DELETE = 2;
-    const long CHANGES_REPLACE = 3;
-
-    const long DONT_SHOW_CHANGES = 0;
-    const long SHOW_UNSAVED_CHANGES = 1;
-    const long SHOW_SCC_CHANGES = 2;
 
     AString getUnsavedChanges();
                              
