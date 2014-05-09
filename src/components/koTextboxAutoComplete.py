@@ -195,6 +195,8 @@ class KoTACResult(object):
 
     # New in mozilla-central nsIAutoCompleteResult interface.
     getLabelAt = getValueAt
+    # New in mozilla 31 nsIAutoCompleteResult interface.
+    getFinalCompleteValueAt = getValueAt
 
 
 #---- specific TAC type searches
