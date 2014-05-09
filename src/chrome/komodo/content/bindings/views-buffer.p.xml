@@ -101,7 +101,11 @@
 
         <property name="scintilla" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'scintilla');"/>
 
+        <!-- Whether the buffer/editor sends DOM events. -->
+        <field name="_dispatch_events">false</field>
+
         <field name="__docSvc">null</field>
+
         <property name="docSvc">
         <getter><![CDATA[
             if (!this.__docSvc)
@@ -840,10 +844,12 @@
 /* #endif */
 
             // Send event.
-            var data = { view: this, position: position, x: x, y: y };
-            if (!this.dispatchEvent(new CustomEvent("editor_dwell_start", { detail: data, bubbles: true, cancelable: true }))) {
-                // Handled already.
-                return true;
+            if (this._dispatch_events) {
+                var data = { view: this, position: position, x: x, y: y };
+                if (!this.dispatchEvent(new CustomEvent("editor_dwell_start", { detail: data, bubbles: true, cancelable: true }))) {
+                    // Handled already.
+                    return true;
+                }
             }
 
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined') {
@@ -863,10 +869,12 @@
             <parameter name="y"/>
         <body><![CDATA[
             // Send event.
-            var data = { view: this, position: position, x: x, y: y };
-            if (!this.dispatchEvent(new CustomEvent("editor_dwell_end", { detail: data, bubbles: true, cancelable: true }))) {
-                // Handled already.
-                return true;
+            if (this._dispatch_events) {
+                var data = { view: this, position: position, x: x, y: y };
+                if (!this.dispatchEvent(new CustomEvent("editor_dwell_end", { detail: data, bubbles: true, cancelable: true }))) {
+                    // Handled already.
+                    return true;
+                }
             }
 
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined')
@@ -1021,13 +1029,17 @@
                     "line": currentLineNo,
                     "column": columnNo
                 }
-                this.dispatchEvent(new CustomEvent('current_view_linecol_changed', { bubbles: true, detail: data }));
+                if (this._dispatch_events && this == ko.views.manager.currentView) {
+                    this.dispatchEvent(new CustomEvent('current_view_linecol_changed', { bubbles: true, detail: data }));
+                }
 
             } else {
                 if (this._lastPosLineAndCol[3] != newPosLineAndCol[3]) {
                     this._lastPosLineAndCol = newPosLineAndCol;
                     if (this.lintBuffer) {
-                        this.dispatchEvent(new CustomEvent('current_view_scroll_changed', { bubbles: true }));
+                        if (this._dispatch_events && this == ko.views.manager.currentView) {
+                            this.dispatchEvent(new CustomEvent('current_view_scroll_changed', { bubbles: true }));
+                        }
                     }
                 }
                 if (!this.textChangeUndoPending && !this.lastCharAdded) {
@@ -1219,7 +1231,7 @@
         }
 
         // Dispatch a custom text_modified event to the window.
-        if (modificationType & this.MOD_TEXT_MODIFIED) {
+        if (this._dispatch_events && modificationType & this.MOD_TEXT_MODIFIED) {
             var event = document.createEvent("Events");
             event.initEvent("editor_text_modified", true, true);
             event.data = {
@@ -1446,7 +1458,8 @@
 
             // Send event.
             var data = { view: this, margin: margin, position: position, modifiers: modifiers, line: lineClicked };
-            if (!this.dispatchEvent(new CustomEvent("editor_margin_clicked", { detail: data, bubbles: true, cancelable: true }))) {
+            if (this._dispatch_events &&
+                !this.dispatchEvent(new CustomEvent("editor_margin_clicked", { detail: data, bubbles: true, cancelable: true }))) {
                 // Handled already.
                 return;
             }
@@ -1520,12 +1533,14 @@
             switch(eventType) {
                 case ISciMozEvents.SME_AUTOCSELECTION:
                 case ISciMozEvents.SME_USERLISTSELECTION:
-                    var data = {
-                        'position': position,
-                        'text': text,
-                        'listType': modifiers,
+                    if (this._dispatch_events) {
+                        var data = {
+                            'position': position,
+                            'text': text,
+                            'listType': modifiers,
+                        }
+                        this.dispatchEvent(new CustomEvent("codeintel_userlist_selected", { bubbles: true, detail: data }));
                     }
-                    this.dispatchEvent(new CustomEvent("codeintel_userlist_selected", { bubbles: true, detail: data }));
                     break;
                 case ISciMozEvents.SME_URIDROPPED:
                     if (typeof ko !== "undefined" && "dragdrop" in ko) {

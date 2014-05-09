@@ -64,7 +64,12 @@
         </xul:vbox>
         -->
     </content>
+
     <implementation name="vieweditor" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
+
+        <!-- We want Komodo editor views to send DOM events. -->
+        <field name="_dispatch_events">true</field>
+
         <property name="cwd">
              <getter><![CDATA[
                 if (this.koDoc && ! this.koDoc.isUntitled) {
