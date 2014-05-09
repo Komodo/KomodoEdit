@@ -1305,7 +1305,8 @@
                         // fire an event about the character being added
                         if (xtk && xtk.domutils) {
                             this.dispatchEvent(new CustomEvent("scintilla-add-char",
-                                               { detail: {
+                                               {  bubbles: true,
+                                                  detail: {
                                                     "pos": scimoz.currentPos,
                                                     "charCode": event.charCode,
                                                  }

@@ -841,7 +841,7 @@
 
             // Send event.
             var data = { view: this, position: position, x: x, y: y };
-            if (!this.dispatchEvent(new CustomEvent("editor_dwell_start", { detail: data, cancelable: true }))) {
+            if (!this.dispatchEvent(new CustomEvent("editor_dwell_start", { detail: data, bubbles: true, cancelable: true }))) {
                 // Handled already.
                 return true;
             }
@@ -864,7 +864,7 @@
         <body><![CDATA[
             // Send event.
             var data = { view: this, position: position, x: x, y: y };
-            if (!this.dispatchEvent(new CustomEvent("editor_dwell_end", { detail: data, cancelable: true }))) {
+            if (!this.dispatchEvent(new CustomEvent("editor_dwell_end", { detail: data, bubbles: true, cancelable: true }))) {
                 // Handled already.
                 return true;
             }
@@ -1021,13 +1021,13 @@
                     "line": currentLineNo,
                     "column": columnNo
                 }
-                this.dispatchEvent(new CustomEvent('current_view_linecol_changed', { detail: data }));
+                this.dispatchEvent(new CustomEvent('current_view_linecol_changed', { bubbles: true, detail: data }));
 
             } else {
                 if (this._lastPosLineAndCol[3] != newPosLineAndCol[3]) {
                     this._lastPosLineAndCol = newPosLineAndCol;
                     if (this.lintBuffer) {
-                        this.dispatchEvent(new CustomEvent('current_view_scroll_changed'));
+                        this.dispatchEvent(new CustomEvent('current_view_scroll_changed', { bubbles: true }));
                     }
                 }
                 if (!this.textChangeUndoPending && !this.lastCharAdded) {
@@ -1446,7 +1446,7 @@
 
             // Send event.
             var data = { view: this, margin: margin, position: position, modifiers: modifiers, line: lineClicked };
-            if (!this.dispatchEvent(new CustomEvent("editor_margin_clicked", { detail: data, cancelable: true }))) {
+            if (!this.dispatchEvent(new CustomEvent("editor_margin_clicked", { detail: data, bubbles: true, cancelable: true }))) {
                 // Handled already.
                 return;
             }
@@ -1525,7 +1525,7 @@
                         'text': text,
                         'listType': modifiers,
                     }
-                    this.dispatchEvent(new CustomEvent("codeintel_userlist_selected", { detail: data }));
+                    this.dispatchEvent(new CustomEvent("codeintel_userlist_selected", { bubbles: true, detail: data }));
                     break;
                 case ISciMozEvents.SME_URIDROPPED:
                     if (typeof ko !== "undefined" && "dragdrop" in ko) {

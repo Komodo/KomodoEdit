@@ -2434,7 +2434,7 @@ viewManager.prototype.do_cmd_minimap_hide = function () {
 
 viewManager.prototype.notify_visited_directory = function(path) {
     var event = new CustomEvent("visit_directory_proposed",
-                                {"detail": { "visitedPath": path }});
+                                {bubbles: true, "detail": { "visitedPath": path }});
     window.dispatchEvent(event);
 }
 

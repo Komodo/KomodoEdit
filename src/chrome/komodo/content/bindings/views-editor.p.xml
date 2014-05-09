@@ -500,7 +500,7 @@
                 if (margin >= 0) {
                     // Margin tooltip.
                     var data = { x: x, y: y, view: this, margin: margin, pos: pos, line: lineNo, text: '' };
-                    var event = new CustomEvent('editor_margin_get_tooltiptext', { detail: data, cancelable: true });
+                    var event = new CustomEvent('editor_margin_get_tooltiptext', { detail: data, bubbles: true, cancelable: true });
                     if (!this.dispatchEvent(event)) {
                         // Set by an event handler.
                         return data.text;
@@ -510,7 +510,7 @@
 
                 // Editor tooltip.
                 var data = { x: x, y: y, view: this, pos: pos, line: lineNo, text: '' };
-                var event = new CustomEvent('editor_get_tooltiptext', { detail: data, cancelable: true });
+                var event = new CustomEvent('editor_get_tooltiptext', { detail: data, bubbles: true, cancelable: true });
                 if (!this.dispatchEvent(event)) {
                     // Set by an event handler.
                     return data.text;
@@ -1181,7 +1181,7 @@
                 }
             }
 
-            window.dispatchEvent(new CustomEvent('file_saved', { detail: {view: this} }));
+            window.dispatchEvent(new CustomEvent('file_saved', { bubbles: true, detail: {view: this} }));
             ko.macros.eventHandler.hookPostFileSave(this);
             return true;
         ]]>

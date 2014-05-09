@@ -520,7 +520,7 @@ var _openDialog = window.openDialog;
 var _openDialogWrap = function openDialogWrap() {
     var _window = _openDialog.apply(this, arguments);
     _window.addEventListener("load", function(e) {
-        window.dispatchEvent(new CustomEvent("loadDialog", { detail: {dialog: _window} }));
+        window.dispatchEvent(new CustomEvent("loadDialog", { bubbles: true, detail: {dialog: _window} }));
     });
     return _window;
 }
