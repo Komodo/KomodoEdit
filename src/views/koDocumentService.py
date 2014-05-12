@@ -148,7 +148,7 @@ class KoDocumentService:
             for displayPath, wrappedDocRef in self._documents.items():
                 try:
                     wrappedDoc = wrappedDocRef()
-                except:
+                except COMException:
                     wrappedDoc = None  # dead object
                 if not wrappedDoc:
                     del self._documents[displayPath]
@@ -348,7 +348,10 @@ class KoDocumentService:
             strong = []
             # clear out all of the objects w/ no references to them
             for displayPath, wrappedDocRef in self._documents.items():
-                wrappedDoc = wrappedDocRef()
+                try:
+                    wrappedDoc = wrappedDocRef()
+                except COMException:
+                    wrappedDoc = None  # dead object
                 if not wrappedDoc:
                     del self._documents[displayPath]
                     continue
@@ -369,7 +372,10 @@ class KoDocumentService:
         self._cDoc.acquire()
         try:
             for displayPath, wrappedDocRef in self._documents.items():
-                wrappedDoc = wrappedDocRef()
+                try:
+                    wrappedDoc = wrappedDocRef()
+                except COMException:
+                    wrappedDoc = None  # dead object
                 if not wrappedDoc:
                     del self._documents[displayPath]
                 elif ((wrappedDoc.isUntitled and fequal(wrappedDoc.baseName, uri)) or
