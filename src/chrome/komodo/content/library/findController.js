@@ -218,7 +218,7 @@ FindController.prototype._findFunction = function(searchType) {
         this._findSvc.options.searchBackward = searchBackward;
         this._findSvc.options.matchWord = matchWord;
     }  catch (e) {
-        this.log.error(e);
+        _log.error(e);
     }
 }
 
