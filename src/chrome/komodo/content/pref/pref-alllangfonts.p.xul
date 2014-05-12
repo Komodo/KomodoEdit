@@ -342,7 +342,7 @@
                         <label value="&filePrefAllLangColorChoice.label;" accesskey="&filePrefAllLangColorChoice.accesskey;" control="extracolors"/>
                         <hbox align="center">
                             <menulist id="extracolors">
-                                <menupopup>
+                                <menupopup id="extracolors.menupopup">
                                     <menuitem id="caretLineBack"
                                               label="&currentLineBackgroundColor.label;"
                                               value="0"
@@ -383,14 +383,7 @@
                                               label="&whitespaceForegroundColor.label;"
                                               value="10"
                                               oncommand="updateSchemeColor('whitespaceColor')"/>
-                                    <menuitem id="changeInsertion"
-                                              label="&showChanges_ChangeInsertionColor.label;"
-                                              value="11"
-                                              oncommand="updateSchemeColor('changeMarginInserted')"/>
-                                    <menuitem id="changeDeletion"
-                                              label="&showChanges_ChangeInsertionDeletion.label;"
-                                              value="12"
-                                              oncommand="updateSchemeColor('changeMarginDeleted')"/>
+                                    <!-- Values 11 and 12 are used by track changes add-on -->
                                 </menupopup>
                             </menulist>
                             <colorpicker 

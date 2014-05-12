@@ -143,13 +143,6 @@
   <boolean id="showMatchingTags_constrainSearchInViewPort">1</boolean>
   <long id="showMatchingTags_clearInterval">1000</long>
   
-  <!-- showing changes in the margin:
-       0: don't
-       1: show unsaved changes
-       2: show SCC changes (not yet supported)
-       -->
-  <long id="showChangesInMargin">1</long>
-
   <!--
   These prefs are to keep Komodo from hanging when a document
   that hits at least one of these limits is loaded.  Komodo will

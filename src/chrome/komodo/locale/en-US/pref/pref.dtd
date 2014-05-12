@@ -426,13 +426,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY settingOnlyAppliesWhenTheCursorStyleIsLine.tooltiptext "Setting only applies when the cursor style is line">
 <!ENTITY setupCommonKomodoFileAssociations.title "Setup Common Komodo File Associations">
 <!ENTITY shortNameYouWishToCallThisServerConnection.tooltiptext "Short name you wish to call this server connection.">
-<!ENTITY showChanges.label "Show Changes">
-<!ENTITY showChangesInMargin.label "Show Changes In Margin:">
-<!ENTITY showChanges_Choice_Never.label "Don't Show Changes">
-<!ENTITY showChanges_Choice_Unsaved.label "Show Unsaved Changes">
-<!ENTITY showChanges_Choice_SCC.label "Show SCC Changes">
-<!ENTITY showChanges_ChangeInsertionColor.label "Change: Insertions">
-<!ENTITY showChanges_ChangeInsertionDeletion.label "Change: Deletions">
 <!ENTITY showEdgeLine.label "Draw the edge line column">
 <!ENTITY showEndOfLineCharacters.label "Show end-of-line (EOL) characters">
 <!ENTITY showIndentationGuides.label "Show indentation guides">

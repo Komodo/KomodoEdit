@@ -313,7 +313,7 @@
                       pref="true"/>
         </groupbox>
     
-        <groupbox orient="vertical">
+        <groupbox id="folding_groupbox">
             <caption label="&folding.label;"/>
             <hbox align="center">
               <label value="&fileEditSmartFoldMarkStyle.label;"/>
@@ -334,19 +334,6 @@
                       tooltiptext="&foldSeparateBlockParts.tooltiptext;" />
             <checkbox id="editRestoreFoldPoints" label="&restoreFoldStateOnDocumentLoadSlowsDownFileOpening.label;" pref="true"
                       prefstring="editRestoreFoldPoints" prefattribute="checked"/>
-        </groupbox>
-
-        <groupbox orient="vertical">
-            <caption label="&showChanges.label;"/>
-            <hbox align="center">
-              <label value="&showChangesInMargin.label;"/>
-              <menulist id="showChangesInMargin" pref="true" prefattribute="data">
-                  <menupopup>
-                      <menuitem data="0" label="&showChanges_Choice_Never.label;"/>
-                      <menuitem data="1" label="&showChanges_Choice_Unsaved.label;"/>
-                  </menupopup>
-              </menulist>
-            </hbox>
         </groupbox>
 
         <groupbox class="load-context-check" showIfLoadContext="global">
