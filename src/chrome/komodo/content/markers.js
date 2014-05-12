@@ -37,7 +37,6 @@
 if (typeof(ko)=='undefined') {
     var ko = {};
 }
-xtk.include("color");
 
 /**
  * This module defines how Scintilla markers are used in Komodo.
@@ -100,12 +99,20 @@ ko.markers =  function markers_module() {
      * @param {Boolean} isDarkBackground - whether scimoz is using a dark bg.
      */
     setup: function(scimoz, isDarkBackground) {
+        var color;
+        if (typeof(require) == "function") {
+            color = require("ko/color");
+        } else {
+            ko.logging.getLogger("markers.js").warn("Include globals.js for require functionality");
+            xtk.include("color");
+            color = xtk.color;
+        }
         scimoz.markerDefine(ko.markers.MARKNUM_BOOKMARK, scimoz.SC_MARK_ARROWDOWN);
-        scimoz.markerSetFore(ko.markers.MARKNUM_BOOKMARK, xtk.color.RGB(0x00, 0x00, 0x00)); // black
-        scimoz.markerSetBack(ko.markers.MARKNUM_BOOKMARK, xtk.color.RGB(0x00, 0xFF, 0xFF)); // cyan
+        scimoz.markerSetFore(ko.markers.MARKNUM_BOOKMARK, color.RGB(0x00, 0x00, 0x00)); // black
+        scimoz.markerSetBack(ko.markers.MARKNUM_BOOKMARK, color.RGB(0x00, 0xFF, 0xFF)); // cyan
     
         scimoz.markerDefine(ko.markers.MARKNUM_STDIN_PROMPT, scimoz.SC_MARK_CHARACTER+'%'.charCodeAt(0));
-        scimoz.markerSetFore(ko.markers.MARKNUM_STDIN_PROMPT, xtk.color.red);
+        scimoz.markerSetFore(ko.markers.MARKNUM_STDIN_PROMPT, color.red);
         scimoz.markerDefine(ko.markers.MARKNUM_STDOUT, scimoz.SC_MARK_EMPTY);
         scimoz.markerDefine(ko.markers.MARKNUM_STDERR, scimoz.SC_MARK_EMPTY);
         scimoz.markerDefine(ko.markers.MARKNUM_HISTORYLOC, scimoz.SC_MARK_EMPTY);

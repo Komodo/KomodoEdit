@@ -72,6 +72,8 @@ ko.hyperlinks = {};
     /*              module internals                  */
     /**************************************************/
 
+    const color = require("ko/color");
+
     var log = ko.logging.getLogger("hyperlinks");
     //log.setLevel(ko.logging.LOG_DEBUG);
 
@@ -156,7 +158,7 @@ ko.hyperlinks = {};
             indic_style = Components.interfaces.ISciMoz.INDIC_PLAIN;
         }
         if (typeof(indic_color) == 'undefined') {
-            indic_color = xtk.color.RGB(0x60,0x90,0xff);
+            indic_color = color.RGB(0x60,0x90,0xff);
         }
 
         this.name = name;
