@@ -132,31 +132,33 @@ class GenericCommandHandler:
         return self._view.scimoz.getMarginWidthN(0) > 0
 
     def _updateLineNumberMargin(self):
-        view = self._view
-        numLinesToAccountFor = max(1000,view.scimoz.lineCount*2)
+        sm = self._view.scimoz
+        numLinesToAccountFor = max(1000,sm.lineCount*2)
         padding = 5
-        textWidth = view.scimoz.textWidth(0, str(numLinesToAccountFor))
-        view.scimoz.setMarginWidthN(0, textWidth + padding)
+        textWidth = sm.textWidth(0, str(numLinesToAccountFor))
+        sm.setMarginWidthN(sm.MARGIN_LINENUMBERS, textWidth + padding)
 
     def _do_cmd_viewLineNumbers(self):
-        shown = self._view.scimoz.getMarginWidthN(0) > 0
-        shown = not shown
-        if shown:
-            self._updateLineNumberMargin()
+        sm = self._view.scimoz
+        alreadyShowing = sm.getMarginWidthN(sm.MARGIN_LINENUMBERS) > 0
+        if alreadyShowing:
+            sm.setMarginWidthN(sm.MARGIN_LINENUMBERS, 0)
         else:
-            self._view.scimoz.setMarginWidthN(0, 0)
+            self._updateLineNumberMargin()
 
     def _is_cmd_viewIndentationGuides_enabled(self):
         return self._view.scimoz.indentationGuides
 
     def _do_cmd_viewIndentationGuides(self):
-        self._view.scimoz.indentationGuides = not self._view.scimoz.indentationGuides
+        sm = self._view.scimoz
+        sm.indentationGuides = not sm.indentationGuides
 
     def _is_cmd_viewEOL_enabled(self):
         return self._view.scimoz.viewEOL
 
     def _do_cmd_viewEOL(self):
-        self._view.scimoz.viewEOL = not self._view.scimoz.viewEOL
+        sm = self._view.scimoz
+        sm.viewEOL = not sm.viewEOL
 
     def _is_cmd_wordWrap_enabled(self):
         return self._view.scimoz.wrapMode

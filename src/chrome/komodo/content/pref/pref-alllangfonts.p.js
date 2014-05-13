@@ -191,9 +191,12 @@ function OnPreferencePageLoading(prefset) {
         generateFontList();
         gDialog.prefset = prefset;
         SetDefaultLanguage();
-        gDialog.bufferView.scimoz.setMarginWidthN(2,0);
-        gDialog.bufferView.scimoz.setMarginWidthN(1,0);
-        gDialog.bufferView.scimoz.setMarginWidthN(0,0);
+        var scimoz = gDialog.bufferView.scimoz;
+        // Hide all margins.
+        for (var i=0; i <= scimoz.SC_MAX_MARGIN; i++) {
+            scimoz.setMarginWidthN(i, 0);
+        }
+
         gDialog.currentEncoding = 'default';
         updateEncodingPopup();
         setupSchemes();

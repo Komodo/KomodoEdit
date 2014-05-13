@@ -1676,8 +1676,7 @@
             var xPosition = scimoz.pointXFromPosition(position);
             var res = this.__proto__.__proto__.onMarginClick.call(this, modifiers, position, margin);
             var lineClicked = scimoz.lineFromPosition(position);
-            // TODO: Use a const margin variable.
-            if (margin == 1) {
+            if (margin == scimoz.MARGIN_FOLDING) {
                 // do minimap stuff here
                 if (this.minimap
                     && this.showMinimap

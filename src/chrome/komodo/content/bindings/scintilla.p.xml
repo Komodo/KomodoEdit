@@ -607,21 +607,33 @@
                 scimoz.setXCaretPolicy(scimoz.CARET_SLOP, 75);
 
                 // Setup margins and markers.
-                // - margin 0: line numbers
-                // - margin 1: folding (controlled by Python code,
-                //             koDocumentSettingsManager)
-                // - margin 2: symbols (iff this.symbolMargin)
-                var symbolMarginMask = ko.markers.setup(scimoz, this.scheme.isDarkBackground);
-                scimoz.setMarginTypeN(0, scimoz.SC_MARGIN_NUMBER);
-                scimoz.setMarginWidthN(1, 0);
+
+                // Symbol margin.
                 if (this.symbolMargin) {
-                    scimoz.setMarginTypeN(2, scimoz.SC_MARGIN_SYMBOL);
-                    scimoz.setMarginMaskN(2, symbolMarginMask);
-                    scimoz.setMarginSensitiveN(2, 1);
-                    scimoz.setMarginWidthN(2, 16);
+                    ko.markers.setup(scimoz, this.scheme.isDarkBackground);
+                    scimoz.setMarginWidthN(scimoz.MARGIN_SYMBOLS, 16);
                 } else {
-                    scimoz.setMarginWidthN(2, 0);
+                    scimoz.setMarginWidthN(scimoz.MARGIN_SYMBOLS, 0);
                 }
+                scimoz.setMarginTypeN(scimoz.MARGIN_SYMBOLS, scimoz.SC_MARGIN_SYMBOL);
+                scimoz.setMarginMaskN(scimoz.MARGIN_SYMBOLS, ko.markers.MARKERS_MASK_SYMBOLS);
+                scimoz.setMarginSensitiveN(scimoz.MARGIN_SYMBOLS, 1);
+
+                // Line numbers margin.
+                scimoz.setMarginTypeN(scimoz.MARGIN_LINENUMBERS, scimoz.SC_MARGIN_NUMBER);
+                scimoz.setMarginMaskN(scimoz.MARGIN_LINENUMBERS, 0);
+                scimoz.setMarginSensitiveN(scimoz.MARGIN_LINENUMBERS, 0);
+
+                // Tracking margin.
+                scimoz.setMarginTypeN(scimoz.MARGIN_TRACKING, scimoz.SC_MARGIN_TEXT);
+                scimoz.setMarginMaskN(scimoz.MARGIN_TRACKING, 0);
+                scimoz.setMarginSensitiveN(scimoz.MARGIN_TRACKING, 1);
+
+                // Folding is initially hidden - don't know the language yet.
+                scimoz.setMarginWidthN(scimoz.MARGIN_FOLDING, 0);
+                scimoz.setMarginTypeN(scimoz.MARGIN_FOLDING, scimoz.SC_MARGIN_SYMBOL);
+                scimoz.setMarginMaskN(scimoz.MARGIN_FOLDING, scimoz.SC_MASK_FOLDERS);
+                scimoz.setMarginSensitiveN(scimoz.MARGIN_FOLDING, 1);
 
                 // Allow column editing through Scintilla.
                 scimoz.multipleSelection = false;
@@ -733,12 +745,9 @@
             </method>
 
             <method name="setFoldStyle">
-                <parameter name="whichMargin"/>
                 <parameter name="foldstyle"/>
                 <body><![CDATA[
                     var scimoz = this.scimoz;
-                    scimoz.setMarginTypeN(whichMargin, scimoz.SC_MARGIN_SYMBOL);
-                    scimoz.setMarginSensitiveN(whichMargin, whichMargin);
                     switch (foldstyle) {
                         case 'none':
                             // Handled by koDocumentSettingsManager, should not
@@ -816,12 +825,11 @@
                                                 scimoz.SC_MARK_TCORNER);
                             break;
                     }
-                    scimoz.setMarginMaskN(whichMargin, scimoz.SC_MASK_FOLDERS);
                     scimoz.setProperty("fold", "1");
                     // fold.comment allows block comment folding in some lexers.
                     scimoz.setProperty("fold.comment", "1");
-                    scimoz.setFoldFlags(16);
-                    scimoz.setMarginWidthN(whichMargin, 15);
+                    scimoz.setFoldFlags(scimoz.SC_FOLDFLAG_LINEAFTER_CONTRACTED);
+                    scimoz.setMarginWidthN(scimoz.MARGIN_FOLDING, 15);
                 ]]></body>
             </method>
 
