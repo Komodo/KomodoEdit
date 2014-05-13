@@ -57,10 +57,11 @@ interface nsIVariant; // Needed for generated code
 [scriptable, uuid(5f8641d6-def9-4236-a77d-63b46fb34386)]
 interface ISciMozLite : nsISupports {
 	// Margin constants.
-	const long MARGIN_LINENUMBERS = 0;
-	const long MARGIN_FOLDING = 1;
-	const long MARGIN_SYMBOLS = 2; // Bookmarks, breakpoints...
-	const long MARGIN_TRACKING = 3;
+	const long MARGIN_SYMBOLS = 0; // Bookmarks, breakpoints...
+	const long MARGIN_LINENUMBERS = 1;
+	const long MARGIN_TRACKING = 2;
+	const long MARGIN_FOLDING = 3;
+	//const long MARGIN_UNUSED = 4;
 
 	// Manually created features
 	attribute DOMString name; // a "name" for debugging/diagnostic purposes.
