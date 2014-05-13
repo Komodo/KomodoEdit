@@ -484,8 +484,8 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
         ".DS_Store", "*~", "*.pyo", "*.pyc", "__pycache__"]
 
     # files that do not need to cause <em:unpack>
-    unpack_excludes = ["install.rdf", "chrome.manifest", "chrome", "content",
-                       "skin", "locale"]
+    unpack_excludes = ["install.rdf", "chrome.manifest", "bootstrap.js",
+                       "chrome", "content", "skin", "locale"]
 
     # Dev Note: Parts of the following don't work unless the source
     # dir is the current one. The easiest solution for now is to just
@@ -599,7 +599,9 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
         if isdir("xmlcatalogs"):
             for path in glob(join("xmlcatalogs", "*")):
                 xpi_manifest.append(path)
-    
+
+        if isfile("bootstrap.js"):
+            xpi_manifest.append("bootstrap.js")
 
         # Include any paths specified on the command line.
         if additional_includes:
