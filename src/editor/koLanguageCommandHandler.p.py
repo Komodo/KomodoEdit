@@ -90,11 +90,7 @@ class GenericCommandHandler:
         log.info("in __init__ for GenericCommandHandler")
         self._completeWordState = None
         self._view = None
-        self._complaints = {}
 
-    def __del__(self):
-        log.info("in __del__ for GenericCommandHandler")
-        
     @LazyProperty
     def sysUtils(self):
         return components.classes["@activestate.com/koSysUtils;1"].\
