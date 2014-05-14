@@ -1,0 +1,13 @@
+Increase the size of the SC_MARK_LEFTRECT, which is used by track changes.
+Index: /as/komodo-devel/src/scintilla/src/LineMarker.cxx
+--- src/LineMarker.cxx
++++ src/LineMarker.cxx (unsaved)
+@@ -380,7 +380,7 @@
+ 				fore, back);
+ 	} else if (markType == SC_MARK_LEFTRECT) {
+ 		PRectangle rcLeft = rcWhole;
+-		rcLeft.right = rcLeft.left + 4;
++		rcLeft.right = rcLeft.left + 6;
+ 		surface->FillRectangle(rcLeft, back);
+ 	} else { // SC_MARK_FULLRECT
+ 		surface->FillRectangle(rcWhole, back);
