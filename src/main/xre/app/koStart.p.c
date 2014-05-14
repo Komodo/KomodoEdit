@@ -2538,22 +2538,6 @@ void KoStart_PrepareForXRE(int argc, char** argv,
             }
         } else {
             tmpArgv[tmpArgc++] = argv[0];
-#if 0
-            /* We are not allowed to pass static char* arguments to Mozilla on
-             * Mac OS X or Linux (the init routine may want to touch the strings
-             * in place, eg gtk-2.6 will do this), but since they aren't required,
-             * don't bother passing anything.  If we chose to pass arguments,
-             * ensure they are in malloc'd memory.
-             *
-             * http://bugs.activestate.com/show_bug.cgi?id=41023
-             * http://bugs.activestate.com/show_bug.cgi?id=40893
-             *
-             * Specifying the chrome *shouldn't* be necessary; and because
-             * of the bugs above, let's not pass this in on Windows either.
-             */
-            tmpArgv[tmpArgc++] = "-chrome";
-            tmpArgv[tmpArgc++] = "chrome://komodo/content/";
-#endif
 #ifdef WIN32
             if (_KoStart_verbose) {
                 /* Use -console XRE option to open a dos shell for
