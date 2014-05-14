@@ -46,7 +46,6 @@
     <!--
     NOTES:
     scintilla requires functions from:
-    chrome://komodo/content/library/color_functions.js
     chrome://xtk/content/controller.js (ForwardingController)
     -->
     <binding id="scintilla">
