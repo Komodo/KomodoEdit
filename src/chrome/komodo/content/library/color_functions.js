@@ -36,3 +36,10 @@
 
 // backwards compatibility APIs
 xtk.include("color");
+
+/**
+ * @deprecated since Komodo 9.
+ */
+if (ko && ko.logging) {
+    ko.logging.getLogger("").deprecated("color_functions.js is deprecated, use: require('color')", true /*reportDuplicates*/);
+}
