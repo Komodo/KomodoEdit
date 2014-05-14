@@ -67,10 +67,12 @@ ko.codeintel = {};
     Object.defineProperty(this, "isActive", {
         get: function() _isActive,
         set: function(val) {
-            if (val) {
-                _CodeIntel_ActivateWindow();
-            } else {
-                _CodeIntel_DeactivateWindow();
+            if (val != _isActive) {
+                if (val) {
+                    _CodeIntel_ActivateWindow();
+                } else {
+                    _CodeIntel_DeactivateWindow();
+                }
             }
         },
         enumerable: true,
@@ -90,6 +92,7 @@ ko.codeintel = {};
             }
             if (ko.codeintel._codeintelSvc.isBackEndActive) {
                 _isActive = true;
+                window.dispatchEvent(new CustomEvent("codeintel_status_changed", { detail: { isActive: true } }));
             } else {
                 try {
                     log.debug("Attempting to activate codeintel service");
@@ -113,8 +116,7 @@ ko.codeintel = {};
     function _CodeIntel_activate_callback(result, data) {
         log.debug("codeintel activate callback: " + result.toString(16));
         if (result === Ci.koIAsyncCallback.RESULT_SUCCESSFUL) {
-            log.debug("codeintel activated");
-            _isActive = true;
+            _CodeIntel_ActivateWindow();
         } else if (result === Ci.koIAsyncCallback.RESULT_STOPPED) {
             // recoverable error
             _CodeIntel_DeactivateWindow();
@@ -143,6 +145,7 @@ ko.codeintel = {};
             _isActive = false;
             if (!ko.main.windowIsClosing) {
                 window.updateCommands("codeintel_enabled");
+                window.dispatchEvent(new CustomEvent("codeintel_status_changed", { detail: { isActive: false } }));
             }
         } catch(ex) {
             log.exception(ex);
