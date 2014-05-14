@@ -58,6 +58,9 @@ ko.markers =  function markers_module() {
     // Here are the marker numbers that Komodo uses.
     // Note: These numbers *must* match the corresponding values used in
     //       src/koRunTerminal.py.
+
+    // 25-31 are dedicated to folding
+    // 22-24 are dedicated to tracking (insert, delete, modify)
     MAX_MARKNUM: 13,
     MARKNUM_HISTORYLOC: 13,
     MARKNUM_STDERR: 12, // used in terminal view
