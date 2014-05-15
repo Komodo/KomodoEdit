@@ -2122,16 +2122,31 @@ def target_src(argv=["src"]):
         repoURL = getRepoFromTree(treeName)
         hgRepo = os.path.join(buildDir, "mozilla")
         bundleFile = os.path.abspath("%s.hg" % (treeName,))
-        try:
-            bundleURL = "http://komodo.nas1.activestate.com/build-support/mozilla-build/%s.hg" % (treeName,)
-            # check that the URL can be opened (not 404, etc.) We don't need to read it.
-            urllib2.urlopen(bundleURL, None, 10).close()
-        except IOError:
-            # assume we're not in ActiveState's internal network and can't get
-            # access to the local mirror; use the canonical mozilla.org server
-            log.info("Failed to reach ActiveState internal mercurial mirror, "
-                     "using Mozilla canonical server")
-            bundleURL = "http://ftp.mozilla.org/pub/mozilla.org/firefox/bundles/%s.hg" % (treeName,)
+        bundleURL = "http://ftp.mozilla.org/pub/mozilla.org/firefox/bundles/%s.hg" % (treeName,)
+
+        def inside_activestate_network():
+            import socket
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            try:
+                s.connect(("gmail.com",80))
+            except:
+                return 
+            ip_address = s.getsockname()[0]
+            s.close()
+            return ip_address.startswith("192.168.68.") or ip_address.startswith("192.168.69.")
+
+        if inside_activestate_network():
+            try:
+                internal_url = "http://komodo.nas1.activestate.com/build-support/mozilla-build/%s.hg" % (treeName,)
+                # check that the URL can be opened (not 404, etc.) We don't need to read it.
+                urllib2.urlopen(internal_url, None, 10).close()
+                bundleURL = internal_url
+            except IOError:
+                # assume we're not in ActiveState's internal network and can't get
+                # access to the local mirror; use the canonical mozilla.org server
+                log.info("Failed to reach ActiveState internal mercurial mirror, "
+                         "using Mozilla canonical server")
+
         _run("wget -t 5 -T 30 --progress=dot:mega -O %s %s" % (bundleFile, bundleURL), log.info)
         _run("hg init %s" % (hgRepo,), log.info)
         _run("hg --cwd %s unbundle %s" % (hgRepo, bundleFile), log.info)
