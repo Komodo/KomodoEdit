@@ -104,6 +104,19 @@
         <!-- Whether the buffer/editor sends DOM events. -->
         <field name="_dispatch_events">false</field>
 
+        <field name="__prefs">null</field>
+
+        <property name="prefs">
+             <getter><![CDATA[
+                // Buffers don't have their own file prefs - so they use global
+                // prefs.
+                if (!this.__prefs)
+                    this.__prefs = Components.classes["@activestate.com/koPrefService;1"].
+                                    getService(Components.interfaces.koIPrefService).prefs;
+                return this.__prefs;
+            ]]></getter>
+        </property>
+
         <field name="__docSvc">null</field>
 
         <property name="docSvc">
