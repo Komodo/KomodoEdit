@@ -77,7 +77,7 @@ exports.BGRToLong = function(b, g, r) {
 }
 
 /**
- * Convert rgb color value (a long, hex string, or separate r,g,b arguments) into a long int.
+ * Convert rgb color value (a long, hex string, or separate r,g,b arguments) into a bgr long int.
  *
  * @param {Long|String} color value, hex string, or red component if using r,g,b arguments
  * @param {Long} green
@@ -97,6 +97,17 @@ exports.RGBToBGR = function(value)
 	    (value & 0x00FF00) +
 	   ((value & 0xFF) << 16);
 }
+
+/**
+ * Convert bgr color value (a long, hex string, or separate r,g,b arguments) into a rgb long int.
+ *
+ * @param {Long|String} color value, hex string, or red component if using r,g,b arguments
+ * @param {Long} green
+ * @param {Long} blue
+ *
+ * @return {Long} color value
+ */
+exports.BGRToRGB = exports.RGBToBGR
 
 /**
  * Converts a hexadecimal string color of the form #ffaabb to a long
