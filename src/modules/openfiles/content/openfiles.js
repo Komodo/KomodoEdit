@@ -1450,6 +1450,7 @@ if (typeof ko.openfiles == 'undefined')
                     previous = self.groupers.byPattern._getPattern(previous).name;
 
                     return previous.localeCompare(current) || (current == 'None' ? 1 : -1);
+                    return previous.localeCompare(current);
                 },
 
                 /**
