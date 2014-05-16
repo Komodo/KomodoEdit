@@ -1624,15 +1624,6 @@ if (typeof ko.openfiles == 'undefined')
             }
             
             ko.prefs.setStringPref(PREF_SORTING_TYPE, id);
-
-            var hiddenState = (id == 'byAccessNo' ? 'false' : 'true');
-            document.getElementById('openfilesPrefPopup_ReSort').setAttribute(
-                'kohidden', hiddenState
-            );
-            document.getElementById('openfilesPrefPopupSeparatorSortDir').setAttribute(
-                'kohidden', hiddenState
-            );
-
             this.sort();
 
             return true;

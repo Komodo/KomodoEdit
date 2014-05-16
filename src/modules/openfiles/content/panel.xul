@@ -132,13 +132,11 @@
                             name="sortDir"
                             type="radio"/>
 
-                        <menuseparator id="openfilesPrefPopupSeparatorSortDir"
-                                       kohidden="true" />
+                        <menuseparator id="openfilesPrefPopupSeparatorSortDir"/>
 
                         <menuitem
                             id="openfilesPrefPopup_ReSort"
                             observes="cmd_openfilesReSort"
-                            kohidden="true"
                             label="&reSort.label;"/>
 
                     </menupopup>
