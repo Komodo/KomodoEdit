@@ -282,9 +282,6 @@ var _dispatchTable = {
         // Some clients prefer project or place to the current view,
         // but saveAs should prefer the current view
     'project': function() {
-        if (!ko.uilayout.isTabShown('placesViewbox')) {
-            return null;
-        }
         var dir, uri;
         if (ko.projects) {
             var project = ko.projects.manager.currentProject;
@@ -295,9 +292,6 @@ var _dispatchTable = {
         return null;
     },
     'place': function() {
-        if (!ko.uilayout.isTabShown('placesViewbox')) {
-            return null;
-        }
         var dir, uri;
         if (ko.places) {
             return _get_localDirFromPossibleURIDir(ko.places.manager.currentPlace);
@@ -326,7 +320,7 @@ function _get_defaultDirectory(dirTypes) {
     // leave null, do default.
     var dir, project, place, uri, view, i, lookupType;
     if (typeof(dirTypes) === "undefined") {
-        dirTypes = ["project", "place", "view"];
+        dirTypes = ["view", "project", "place"];
     }
     for (var i = 0; i < dirTypes.length; i++) {
         lookupType = dirTypes[i];
