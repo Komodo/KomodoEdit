@@ -2913,6 +2913,7 @@ function _view_checkDiskFiles(event) {
                 !view.koDoc ||
                 view.koDoc.isUntitled) continue;
             file = view.koDoc.file;
+            file.updateStats();
             // onFocus: Don't check file changed for remote files
             if (!file.isLocal || file.isNetworkFile) continue;
             item = new Object;
