@@ -109,9 +109,6 @@ var _log = ko.logging.getLogger('statusbar');
 var lazy = {
 };
 
-XPCOMUtils.defineLazyGetter(lazy, "log", function() ko.logging.getLogger("find.functions"));
-//locals.log.setLevel(ko.logging.LOG_DEBUG);
-
 // The find XPCOM service that does all the grunt work.
 XPCOMUtils.defineLazyGetter(lazy, "bundle", function()
     Components.classes["@mozilla.org/intl/stringbundle;1"]
