@@ -892,14 +892,21 @@ projectManager.prototype.loadProject = function(url) {
         if (!projectname) {  // XXX Is this case cruft? I think so. --TM
             projectname = url;
         }
-        ko.dialogs.alert(_bundle.formatStringFromName("unableToLoadProject.alert",
-            [projectname, lastErrorSvc.getLastErrorMessage()], 2));
+        var message = _bundle.formatStringFromName("unableToLoadProject.alert",
+            [projectname, lastErrorSvc.getLastErrorMessage()], 2);
+        if (!url) {
+            ko.dialogs.alert(message);
+        } else {
+            message += " " + _bundle.GetStringFromName("unableToLoadProjectRemoveConfirm.alert");
+            var remove = ko.dialogs.okCancel(message);
+        }
         // Assume the error is that the file doesn't exist.
         // Currently all we can do is test against the English value of
         // lastErrorSvc.getLastErrorMessage(), but that won't work
         // if it's ever localized.
-        if (url) {
+        if (url && remove == "OK") {
             ko.mru.deleteValue("mruProjectList", url, true);
+            ko.places.projects_SPV.rebuildView(); // force refresh (tree.invalidate() doesnt suffice)
         }
         return;
     }
