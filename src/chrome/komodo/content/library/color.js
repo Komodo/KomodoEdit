@@ -14,6 +14,18 @@
  * Common functions for color processing
  */
 
+function StandardizeHexString(hexstring) {
+    if (!hexstring.startsWith("#") || (hexstring.length != 4 && hexstring.length != 7)) {
+        throw Error("Invalid hex color string '" + hexstring + "', expected a string in the form: '#abc' or '#aabbcc'");
+    }
+    if (hexstring.length == 4) {
+        return "#" + hexstring[1] + hexstring[1] +
+                     hexstring[2] + hexstring[2] +
+                     hexstring[3] + hexstring[3];
+    }
+    return hexstring;
+}
+
 /**
  * RGB
  *
@@ -28,18 +40,19 @@
  * @return {Long} color value
  */
 exports.RGB = function(r,g,b) {
-  return r + g * 256 + b * 256 * 256;
+    return r + g * 256 + b * 256 * 256;
 }
 
 /**
  * hexToLong
  *
- * Converts a color of the form #ffaabb to a long
+ * Converts a hexadecimal string color of the form #ffaabb to a long
  *
  * @param {String} hexstring
  * @return {Long} color value
  */
 exports.hexToLong =function(hexstring) {
+    hexstring = StandardizeHexString(hexstring);
     try {
         var r, g, b;
         r = parseInt(hexstring.substring(1, 3), 16);
