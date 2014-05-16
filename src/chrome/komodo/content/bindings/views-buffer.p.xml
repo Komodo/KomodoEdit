@@ -1522,10 +1522,7 @@
         <parameter name="position"/>
         <body>
         <![CDATA[
-            var scimoz = this.scimoz;
-            if (scimoz.getMarginWidthN(scimoz.MARGIN_LINENUMBERS)) {
-                scimoz.setMarginWidthN(scimoz.MARGIN_LINENUMBERS, scimoz.textWidth(0, String(scimoz.lineCount))+12);
-            }
+            this.scimoz.updateMarginWidths();
             return true;
         ]]>
         </body>

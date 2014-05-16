@@ -63,6 +63,8 @@ interface ISciMozLite : nsISupports {
 	const long MARGIN_FOLDING = 3;
 	//const long MARGIN_UNUSED = 4;
 
+	void updateMarginWidths();
+
 	// Manually created features
 	attribute DOMString name; // a "name" for debugging/diagnostic purposes.
 	void hookEvents(in ISciMozEvents eventListener, [optional] in long mask);

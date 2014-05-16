@@ -319,12 +319,6 @@ class koDocumentSettingsManager:
         #    via a "Save As..." operation. See:
         #       views-editor.xml::saveAsURI(), line 609
 
-    def _updateLineNumberMargin(self):
-        for scintilla in self._scintillas:
-            scimoz = scintilla.scimoz
-            scimoz.setMarginWidthN(scimoz.MARGIN_LINENUMBERS,
-                scimoz.textWidth(0, str(max(1000, scimoz.lineCount*2)))+5)
-
     # nsIObserver interface
     def observe(self, prefSet, topic, data):
         # Dispatch a preference change...
@@ -413,11 +407,14 @@ class koDocumentSettingsManager:
             scintilla.scimoz.viewEOL = prefSet.getBooleanPref('showEOL')
 
     def _apply_showLineNumbers(self, prefSet):
-        if prefSet.getBooleanPref('showLineNumbers'):
-            self._updateLineNumberMargin()
-        else:
-            for scintilla in self._scintillas:
-                scimoz = scintilla.scimoz
+        visible = prefSet.getBoolean('showLineNumbers', True)
+        for scintilla in self._scintillas:
+            scimoz = scintilla.scimoz
+            if visible:
+                # Make margin visible and adjust width appropriately.
+                scimoz.setMarginWidthN(scimoz.MARGIN_LINENUMBERS, 1)
+                scimoz.updateMarginWidths()
+            else:
                 scimoz.setMarginWidthN(scimoz.MARGIN_LINENUMBERS, 0)
 
     def _apply_caretStyle(self, prefSet):

@@ -146,6 +146,7 @@ void SciMoz::SciMozInit() {
 
     // There is no cached text to start with.
     _textHasChanged = true;
+    mLastLineCount = 1;
 
     PlatformNew();
 }
@@ -307,6 +308,39 @@ bool SciMoz::DoBraceMatch(const NPVariant * /*args*/, uint32_t argCount, NPVaria
 	return true;
 }
 
+NS_IMETHODIMP SciMoz::UpdateMarginWidths() {
+	// Only update when the line-number margin is visible.
+	long oldMarginWidth = SendEditor(SCI_GETMARGINWIDTHN, MARGIN_LINENUMBERS, 0);
+	if (oldMarginWidth > 0) {
+		static char buf[32];
+		// We are lazy and use mLastLineCount - which gets updated
+		// whenever the text is modified - so it should be accurate
+		// enough.
+		if (mLastLineCount < 100) {
+			// Minimum width is two digits.
+			snprintf(buf, 32, "00");
+		} else {
+			// Set the width based on the line number count.
+			snprintf(buf, 32, "%ld", mLastLineCount);
+			buf[31] = '\0'; // ensure null terminated
+		}
+		long newMarginWidth = SendEditor(SCI_TEXTWIDTH, STYLE_LINENUMBER, reinterpret_cast<long>(buf));
+		newMarginWidth += 4; // 4px padding, otherwise it overlaps the left symbol margin
+		if (oldMarginWidth != newMarginWidth) {
+			// Set the margin width if it hasn't changed size.
+			//printf("\nUpdating margin width from %ld to %ld\n", oldMarginWidth, newMarginWidth);
+			SendEditor(SCI_SETMARGINWIDTHN, MARGIN_LINENUMBERS, newMarginWidth);
+		}
+	}
+	return NS_OK;
+}
+bool SciMoz::UpdateMarginWidths(const NPVariant * /*args*/, uint32_t argCount, NPVariant *result) {
+        if (argCount != 0) return false;
+        /* return value of type void - needed? */
+        NPN_ReleaseVariantValue(result);
+	return NS_SUCCEEDED(UpdateMarginWidths());
+}
+
 //#define SCIMOZ_DEBUG_NOTIFY
 void SciMoz::Notify(long lParam) {
 	SCNotification *notification = reinterpret_cast<SCNotification *>(lParam);
@@ -426,6 +460,15 @@ void SciMoz::Notify(long lParam) {
 			if (isInsertOrDeleteText) {
 				// Buffer has changed, reset the text cache.
 				_textHasChanged = true;
+			}
+
+			// Check if the line count has changed - if so, we'll
+			// need to check if the line number margin width needs
+			// updating.
+			long lineCount = SendEditor(SCI_GETLINECOUNT, 0, 0);
+			if (lineCount != mLastLineCount) {
+				mLastLineCount = lineCount;
+				UpdateMarginWidths();
 			}
 
 			nsAutoString uString;

@@ -127,20 +127,15 @@ class GenericCommandHandler:
     def _is_cmd_viewLineNumbers_enabled(self):
         return self._view.scimoz.getMarginWidthN(0) > 0
 
-    def _updateLineNumberMargin(self):
-        sm = self._view.scimoz
-        numLinesToAccountFor = max(1000,sm.lineCount*2)
-        padding = 5
-        textWidth = sm.textWidth(0, str(numLinesToAccountFor))
-        sm.setMarginWidthN(sm.MARGIN_LINENUMBERS, textWidth + padding)
-
     def _do_cmd_viewLineNumbers(self):
         sm = self._view.scimoz
         alreadyShowing = sm.getMarginWidthN(sm.MARGIN_LINENUMBERS) > 0
         if alreadyShowing:
             sm.setMarginWidthN(sm.MARGIN_LINENUMBERS, 0)
         else:
-            self._updateLineNumberMargin()
+            # Make margin visible and adjust width appropriately.
+            sm.setMarginWidthN(sm.MARGIN_LINENUMBERS, 1)
+            sm.updateMarginWidths()
 
     def _is_cmd_viewIndentationGuides_enabled(self):
         return self._view.scimoz.indentationGuides

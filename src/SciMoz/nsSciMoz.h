@@ -225,6 +225,8 @@ class SciMoz : public ISciMoz,
 private:
     // Used to cache the "text" property - resets when the buffer changes.
     bool _textHasChanged;
+    // Last line count gets updated whenever the text is changed.
+    long mLastLineCount;
     
     // brace match support
     long bracesStyle;
@@ -351,6 +353,7 @@ public:
     #define NPRUNTIME_CUSTOM_METHOD(x) \
 	bool x(const NPVariant *args, uint32_t argCount, NPVariant *result)
 
+    NPRUNTIME_CUSTOM_METHOD(UpdateMarginWidths);
     NPRUNTIME_CUSTOM_METHOD(DoBraceMatch);
     NPRUNTIME_CUSTOM_METHOD(MarkClosed);
     NPRUNTIME_CUSTOM_METHOD(HookEvents);
