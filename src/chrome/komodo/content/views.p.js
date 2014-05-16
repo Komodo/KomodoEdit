@@ -3036,7 +3036,7 @@ function _view_checkDiskFiles(event) {
             if (items != null && items.length > 0) {
                 for (i = 0; i < items.length; i++) {
                     if (item.type == 'view') {
-                        items[i].view.close()
+                        items[i].view.close(true);
                     } else {
                         ko.projects.manager.closeProject(items[i].project);
                     }
