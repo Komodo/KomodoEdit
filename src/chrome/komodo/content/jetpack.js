@@ -23,6 +23,8 @@ const [JetPack, require] = (function() {
         requirePaths["x-komodo-internal://"] = "x-komodo-internal://";
         // Komodo API fallback...
         requirePaths["ko/"] = "chrome://komodo/content/library/";
+        // Komodo API fallback...
+        requirePaths["contrib/"] = "chrome://komodo/content/contrib/commonjs/";
         // Default path
         requirePaths[''] = 'resource://gre/modules/commonjs/';
 
