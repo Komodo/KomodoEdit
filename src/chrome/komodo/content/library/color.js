@@ -27,25 +27,78 @@ function StandardizeHexString(hexstring) {
 }
 
 /**
- * RGB
- *
- * convert rgb value into a long int
- *
  * WARNING: This actually returns a BGR value which works fine for
  * Scintilla, but won't work for most other targets.
+ *
+ * Convert separate r,g,b values into a long int.
+ *
+ * @deprecated since Komodo 9
+ * 
+ * @param {Long} red
+ * @param {Long} green
+ * @param {Long} blue
+ *
+ * @return {Long} color value
+ */
+exports.RGB = function(r,g,b) {
+    require("ko/logging").getLogger("color")
+	.deprecated("RGB is deprecated - use RGBToBGR() instead")
+    return exports.BGRToLong(b,g,r);
+}
+
+/**
+ * Convert separate r,g,b values, or a hex string, into a long int.
  *
  * @param {Long} red
  * @param {Long} green
  * @param {Long} blue
+ *
  * @return {Long} color value
  */
-exports.RGB = function(r,g,b) {
-    return r + g * 256 + b * 256 * 256;
+exports.RGBToLong = function(r, g, b)
+{
+    if (typeof(value) == "string") {
+        return exports.hexToLong(value);
+    }
+    return (r << 16) + (g << 8) + b;
 }
 
 /**
- * hexToLong
+ * Convert separate b,g,r values into a long int.
  *
+ * @param {Long} blue
+ * @param {Long} green
+ * @param {Long} red
+ *
+ * @return {Long} color value
+ */
+exports.BGRToLong = function(b, g, r) {
+    return exports.RGBToLong(b, g, r);
+}
+
+/**
+ * Convert rgb color value (a long, hex string, or separate r,g,b arguments) into a long int.
+ *
+ * @param {Long|String} color value, hex string, or red component if using r,g,b arguments
+ * @param {Long} green
+ * @param {Long} blue
+ *
+ * @return {Long} color value
+ */
+exports.RGBToBGR = function(value)
+{
+    if (arguments.length == 3) {
+	return exports.RGBToBGR(exports.RGBToLong.apply(this, arguments));
+    }
+    if (typeof(value) == "string") {
+        value = exports.hexToLong(value);
+    }
+    return ((value & 0xFF0000) >> 16) +
+	    (value & 0x00FF00) +
+	   ((value & 0xFF) << 16);
+}
+
+/**
  * Converts a hexadecimal string color of the form #ffaabb to a long
  *
  * @param {String} hexstring
@@ -53,44 +106,80 @@ exports.RGB = function(r,g,b) {
  */
 exports.hexToLong =function(hexstring) {
     hexstring = StandardizeHexString(hexstring);
-    try {
-        var r, g, b;
-        r = parseInt(hexstring.substring(1, 3), 16);
-        g = parseInt(hexstring.substring(3, 5), 16);
-        b = parseInt(hexstring.substring(5, 7), 16);
-        return exports.RGB(r, g, b);
-    } catch (e) {
-        require("ko/logging").getLogger("color").exception(e);
-    }
-    return null;
+    var r, g, b;
+    r = parseInt(hexstring.substring(1, 3), 16);
+    g = parseInt(hexstring.substring(3, 5), 16);
+    b = parseInt(hexstring.substring(5, 7), 16);
+    return exports.RGBToLong(r, g, b);
 }
 
 /**
- * BGR
+ * Converts an integer into hexadecimal string color of the form #ffaabb.
  *
- * Converts a hexadecimal string color of the form #ffaabb to #bbaaff.
- *
- * @param {String} hexstring
+ * @param {Long} color value
  * @return {String} hexstring
  */
-exports.BGR =function(hexstring) {
-    hexstring = StandardizeHexString(hexstring);
-    try {
-        return "#" + hexstring.substring(5, 7) +
-                     hexstring.substring(3, 5) +
-                     hexstring.substring(1, 3);
-    } catch (e) {
-        require("ko/logging").getLogger("color").exception(e);
-    }
-    return null;
+exports.longToHex =function(value) {
+    return "#" + ("0" + ((value & 0xFF0000) >> 16).toString(16)).slice(-2) +
+		 ("0" + ((value &   0xFF00) >>  8).toString(16)).slice(-2) +
+		 ("0" + ((value &   0xFF)   >>  0).toString(16)).slice(-2);
 }
 
-exports.yellow = exports.RGB(0xff, 0xff, 0x00);
-exports.red = exports.RGB(0xff, 0x00, 0x00);
-exports.green = exports.RGB(0x00, 0xff, 0x00);
-exports.blue = exports.RGB(0x00, 0x00, 0xff);
-exports.black = exports.RGB(0x00, 0x00, 0x00);
-exports.white = exports.RGB(0xff, 0xff, 0xff);
+/**
+ * Note: Scintilla colors are BGR longs.
+ */
+exports.scintilla_yellow = exports.RGBToBGR(0xff, 0xff, 0x00);
+exports.scintilla_red = exports.RGBToBGR(0xff, 0x00, 0x00);
+exports.scintilla_green = exports.RGBToBGR(0x00, 0xff, 0x00);
+exports.scintilla_blue = exports.RGBToBGR(0x00, 0x00, 0xff);
+exports.scintilla_black = exports.RGBToBGR(0x00, 0x00, 0x00);
+exports.scintilla_white = exports.RGBToBGR(0xff, 0xff, 0xff);
+
+/**
+ * @deprecated since Komodo 9.0
+ */
+Object.defineProperty(exports, "yellow", {
+    get: function() {
+	require("ko/logging").getLogger("color")
+	    .deprecated("yellow is deprecated - use scintilla_yellow instead");
+	return exports.scintilla_yellow;
+    }
+});
+Object.defineProperty(exports, "red", {
+    get: function() {
+	require("ko/logging").getLogger("color")
+	    .deprecated("red is deprecated - use scintilla_red instead");
+	return exports.scintilla_red;
+    }
+});
+Object.defineProperty(exports, "green", {
+    get: function() {
+	require("ko/logging").getLogger("color")
+	    .deprecated("green is deprecated - use scintilla_green instead");
+	return exports.scintilla_green;
+    }
+});
+Object.defineProperty(exports, "blue", {
+    get: function() {
+	require("ko/logging").getLogger("color")
+	    .deprecated("blue is deprecated - use scintilla_blue instead");
+	return exports.scintilla_blue;
+    }
+});
+Object.defineProperty(exports, "black", {
+    get: function() {
+	require("ko/logging").getLogger("color")
+	    .deprecated("black is deprecated - use scintilla_black instead");
+	return exports.scintilla_black;
+    }
+});
+Object.defineProperty(exports, "white", {
+    get: function() {
+	require("ko/logging").getLogger("color")
+	    .deprecated("white is deprecated - use scintilla_white instead");
+	return exports.scintilla_white;
+    }
+});
 
 // Functions for converting a scale between 0 and 1
 // into a web RGB value.

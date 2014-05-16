@@ -54,8 +54,8 @@
         };
         var lang_names = null;  /* All language types */
         var indic_style = Components.interfaces.ISciMoz.INDIC_PLAIN;
-        //var indic_color = color.RGB(0xff,0x80,0x20);
-        var indic_color = color.RGB(0xA0,0x00,0xF0);
+        //var indic_color = color.RGBToBGR(0xff,0x80,0x20);
+        var indic_color = color.RGBToBGR(0xA0,0x00,0xF0);
         var base_args = [name, fn, lang_names, indic_style, indic_color];
         ko.hyperlinks.BaseHandler.apply(this, base_args);
     

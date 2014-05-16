@@ -158,7 +158,7 @@ ko.hyperlinks = {};
             indic_style = Components.interfaces.ISciMoz.INDIC_PLAIN;
         }
         if (typeof(indic_color) == 'undefined') {
-            indic_color = color.RGB(0x60,0x90,0xff);
+            indic_color = color.RGBToBGR(0x60,0x90,0xff);
         }
 
         this.name = name;
