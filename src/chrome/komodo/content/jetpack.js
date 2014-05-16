@@ -157,5 +157,19 @@ const [JetPack, require] = (function() {
         return null;
     };
 
+    require.setRequirePath = function(namespace, path) {
+        requirePaths[namespace] = path;
+        loader = Loader({resolve: my_resolve,
+                         paths: requirePaths,
+                         globals: globals});
+    }
+
+    require.removeRequirePath = function(namespace, path) {
+        delete requirePaths[namespace];
+        loader = Loader({resolve: my_resolve,
+                         paths: requirePaths,
+                         globals: globals});
+    }
+
     return [JetPack, require];
 })();
