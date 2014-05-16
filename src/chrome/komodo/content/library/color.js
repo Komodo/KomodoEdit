@@ -65,6 +65,26 @@ exports.hexToLong =function(hexstring) {
     return null;
 }
 
+/**
+ * BGR
+ *
+ * Converts a hexadecimal string color of the form #ffaabb to #bbaaff.
+ *
+ * @param {String} hexstring
+ * @return {String} hexstring
+ */
+exports.BGR =function(hexstring) {
+    hexstring = StandardizeHexString(hexstring);
+    try {
+        return "#" + hexstring.substring(5, 7) +
+                     hexstring.substring(3, 5) +
+                     hexstring.substring(1, 3);
+    } catch (e) {
+        require("ko/logging").getLogger("color").exception(e);
+    }
+    return null;
+}
+
 exports.yellow = exports.RGB(0xff, 0xff, 0x00);
 exports.red = exports.RGB(0xff, 0x00, 0x00);
 exports.green = exports.RGB(0x00, 0xff, 0x00);
