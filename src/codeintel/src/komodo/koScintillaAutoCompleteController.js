@@ -563,8 +563,8 @@ KoScintillaAutoCompleteController.prototype = {
       "position": aStartPos,
       "text": aCompletion,
     };
-    var event = new CustomEvent("codeintel_autocomplete_selected",
-                                { bubbles: true, cancelable: true, detail: detail });
+    var event = scintilla.ownerDocument.createEvent("CustomEvent");
+    event.initCustomEvent("codeintel_autocomplete_selected", true, true, detail);
     scintilla.dispatchEvent(event);
   },
 
