@@ -48,6 +48,11 @@
 #include "nsIClassInfoImpl.h"
 #include "nsIVariant.h" /* for generated code */
 
+// Define the snprintf function.
+#if defined(_WINDOWS) && !defined(snprintf)
+#define snprintf _snprintf
+#endif
+
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
