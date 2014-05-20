@@ -216,7 +216,7 @@ ko.hyperlinks.handlers.imagePreviewHandler =
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
-        require("ko/color").RGB(0x60,0x90,0xff));
+        require("ko/color").RGBToBGR(0x60,0x90,0xff));
 ko.hyperlinks.addHandler(ko.hyperlinks.handlers.imagePreviewHandler);
 
 
@@ -229,7 +229,7 @@ ko.hyperlinks.handlers.chromePreviewHandler =
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
-        require("ko/color").RGB(0x60,0x90,0xff));
+        require("ko/color").RGBToBGR(0x60,0x90,0xff));
 ko.hyperlinks.addHandler(ko.hyperlinks.handlers.chromePreviewHandler);
 
 
@@ -242,7 +242,7 @@ ko.hyperlinks.handlers.networkURIHandler =
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
-        require("ko/color").RGB(0x60,0x90,0xff));
+        require("ko/color").RGBToBGR(0x60,0x90,0xff));
 ko.hyperlinks.addHandler(ko.hyperlinks.handlers.networkURIHandler);
 
 // IP address handler - contributed by Trent Mick (Mar 2011).
@@ -254,7 +254,7 @@ ko.hyperlinks.handlers.ipAddressHandler =
       null,
       null,
       Components.interfaces.ISciMoz.INDIC_PLAIN,
-      require("ko/color").RGB(0x60,0x90,0xff));
+      require("ko/color").RGBToBGR(0x60,0x90,0xff));
 ko.hyperlinks.addHandler(ko.hyperlinks.handlers.ipAddressHandler);
 
 
@@ -267,5 +267,5 @@ ko.hyperlinks.handlers.activestateBugHandler =
         null,
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
-        require("ko/color").RGB(0x60,0x90,0xff));
+        require("ko/color").RGBToBGR(0x60,0x90,0xff));
 ko.hyperlinks.addHandler(ko.hyperlinks.handlers.activestateBugHandler);
