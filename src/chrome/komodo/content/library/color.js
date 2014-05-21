@@ -387,3 +387,32 @@ exports.hsv2rgb = function(h, s, v) {
     }
     return [r, g, b].map(function(c) Math.round(c * 255));
 }
+
+/**
+ * Returns an array of n distinct (and optionally random) colors in integer
+ * format: 0x0AF088
+ * 
+ * The colors generated will be random, if you want the colors to be a
+ * consistent order, pass in a 'rand' float between [0..1].
+ *
+ * @argument {int}   n     - The number of colors to create.
+ * @argument {float} rand  - The optional starting random number.
+ *
+ * @returns {array} of hexadecimal color strings.
+ */
+exports.create_n_distinct_colors = function(n, rand) {
+    // Generate N distinct (optionally random) colors.
+    // http://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
+    const golden_ratio_conjugate = 0.618033988749895;
+    if (typeof(rand) == "undefined" || rand === null) {
+        rand = Math.random() // use random start value
+    }
+    var h = rand;
+    var colors = [];
+    for (var i=0; i < n; i++) {
+        h += golden_ratio_conjugate;
+        h %= 1;
+	colors.push(exports.RGBToLong.apply(this, exports.hsv2rgb(h, 0.5, 0.95)));
+    }
+    return colors;
+}
