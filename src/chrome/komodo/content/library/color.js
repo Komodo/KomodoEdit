@@ -398,7 +398,7 @@ exports.hsv2rgb = function(h, s, v) {
  * @argument {int}   n     - The number of colors to create.
  * @argument {float} rand  - The optional starting random number.
  *
- * @returns {array} of hexadecimal color strings.
+ * @returns {array} of integers.
  */
 exports.create_n_distinct_colors = function(n, rand) {
     // Generate N distinct (optionally random) colors.
