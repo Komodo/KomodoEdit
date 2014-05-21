@@ -411,6 +411,12 @@ class Scheme(SchemeBase):
         self._colors[colorName] = color
         self.isDirty = 1
 
+    def getScintillaColor(self, colorName):
+        assert colorName in self._colors
+        scincolor = self._colors[colorName]
+        log.debug("asked for scin color %r, returning %r", colorName, scincolor)
+        return scincolor
+
     def setFore(self, language, style, mozcolor):
         self._set(language, style, mozcolor2scincolor(mozcolor), 'fore')
         

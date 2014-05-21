@@ -75,8 +75,16 @@ interface koIScintillaScheme : nsISupports {
     void revert();
     void remove();
     
+    /**
+     * Gets or sets the hex color, in RGB color format - e.g. "#FF9600".
+     */
     string getColor(in string colorname);
     void setColor(in string colorname, in string colorvalue);
+
+    /**
+     * Get the color as a long integer, in BGR color format.
+     */
+    long getScintillaColor(in string colorname);
 
     void setFore(in string language, /* null means common styles */
                  in string styleId,
