@@ -422,6 +422,7 @@ Build(
     "$build/modules/getstarted/Conscript",
     "$build/modules/rails/Conscript",
     "$build/modules/spellcheck/Conscript",
+    "$build/modules/trackchanges/Conscript",
     "$build/modules/zendframework/Conscript",
     "$build/modules/abyss_skin/Conscript",
     "$build/modules/classic_skin/Conscript",
