@@ -460,6 +460,15 @@ $consLocal->Command($landmark,
                ));
 $consLocal->DependsRecursive($landmark, "zope/cachedescriptors", ("build", '\.svn', '\.consign'));
 
+#----  Scandir property descriptors.
+my $landmark = "$komodoPythonUtilsDir/scandir/scandir.py";
+$consLocal->Command($landmark,
+               "scandir/setup.py",
+               qq(
+                cd %1:d && $siloedPython %1:f build $debugFlags
+                cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
+               ));
+$consLocal->DependsRecursive($landmark, "scandir", ("build"));
 
 #----  Markdown2.
 $consLocal->InstallPythonUtility('smallstuff/markdown2.py');

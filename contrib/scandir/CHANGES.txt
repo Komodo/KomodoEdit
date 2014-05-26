@@ -1,0 +1,11 @@
+
+2013-11-21 version 0.2
+
+* Define DirEntry differently on different platforms for performance.
+* Added tests for scandir and fix a few regressions.
+* Mark _scandir.c as "work in progress" for now.
+
+
+2013-05-13 version 0.1
+
+* Initial upload to GitHub (copied from my BetterWalk repo)
