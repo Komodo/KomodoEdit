@@ -105,3 +105,31 @@ def getPylibDirectories():
                 dirs.add(d)
         _gPylibDirectoriesCache = list(dirs)
     return _gPylibDirectoriesCache
+
+def getExtensionCategoryDirs(xpcom_category, relpath=None):
+    """Return extension dirpaths, registered via the given xpcom-category.
+
+    Note: It will return paths that have an category entry that matches the
+    extension id, e.g.:
+        catagory  xpcom_category  myext@ActiveState.com  ignored_field
+    will return:
+        [ "/path/to/myext@ActiveState.com" ]
+    """
+    from directoryServiceUtils import getExtensionDirectories
+    extension_dirs = getExtensionDirectories()
+    catman = Cc["@mozilla.org/categorymanager;1"].getService(Ci.nsICategoryManager)
+    names = catman.enumerateCategory(xpcom_category)
+    dirs = []
+    while names.hasMoreElements():
+        nameObj = names.getNext()
+        extension_name = nameObj.QueryInterface(Ci.nsISupportsCString).data
+        extension_name = os.path.normcase(extension_name)
+        for ext_dir in extension_dirs:
+            if os.path.normcase(os.path.basename(ext_dir)) == extension_name:
+                candidate = ext_dir
+                if relpath:
+                    candidate = os.path.join(ext_dir, relpath)
+                    if os.path.exists(candidate):
+                        dirs.append(candidate)
+                        break
+    return dirs

@@ -32,27 +32,6 @@ log = logging.getLogger("codeintel.komodo")
 log_timing = log.getChild("timing")
 #log.setLevel(logging.DEBUG)
 
-def generate_extension_category_dirs(xpcom_category, relpath=None):
-    """Return extension dirpaths, registered via the given xpcom-category."""
-    from directoryServiceUtils import getExtensionDirectories
-    extension_dirs = getExtensionDirectories()
-    catman = Cc["@mozilla.org/categorymanager;1"].getService(Ci.nsICategoryManager)
-    names = catman.enumerateCategory(xpcom_category)
-    dirs = []
-    while names.hasMoreElements():
-        nameObj = names.getNext()
-        extension_name = nameObj.QueryInterface(Ci.nsISupportsCString).data
-        extension_name = os.path.normcase(extension_name)
-        for ext_dir in extension_dirs:
-            if os.path.normcase(os.path.basename(ext_dir)) == extension_name:
-                candidate = ext_dir
-                if relpath:
-                    candidate = os.path.join(ext_dir, relpath)
-                    if os.path.exists(candidate):
-                        dirs.append(candidate)
-                        break
-    return dirs
-
 class KoCodeIntelService:
     # Support Mozilla 24 and 31 (name change)
     nsIMemoryReporter = Ci.nsIMemoryReporter
@@ -209,11 +188,11 @@ class KoCodeIntelService:
 
         Note: This doesn't filter out non-existant directories.
         """
-        import directoryServiceUtils
         yield join(self._koDirSvc.userDataDir, "apicatalogs")    # user
         # get apicatalogs from extensions
+        from directoryServiceUtils import getExtensionCategoryDirs
         ext_relpath = "apicatalogs"
-        for path in generate_extension_category_dirs("apicatalogs", ext_relpath):
+        for path in getExtensionCategoryDirs("apicatalogs", ext_relpath):
             yield path
         yield join(self._koDirSvc.commonDataDir, "apicatalogs")  # site/common
         # factory: handled by codeintel system (codeintel2/catalogs/...)
@@ -1483,8 +1462,9 @@ class KoCodeIntelManager(threading.Thread):
             catalogs = filter(None, catalogs.split(os.pathsep))
 
             # get xml catalogs from extensions
+            from directoryServiceUtils import getExtensionCategoryDirs
             ext_relpath = os.path.join("xmlcatalogs", "catalog.xml")
-            catalogs += generate_extension_category_dirs('xmlcatalogs', ext_relpath)
+            catalogs += getExtensionCategoryDirs('xmlcatalogs', ext_relpath)
 
             # add our default catalog file
             koDirs = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
