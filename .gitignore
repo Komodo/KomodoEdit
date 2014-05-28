@@ -4,7 +4,7 @@
 /mozilla/build/
 /mozilla/config.py
 /mozilla/patches-new/komodo_app/build/Makefile.in
-/mozilla/prebuilt/python2.6/*/
+/mozilla/prebuilt/python2.7/*/
 /build/
 /export/
 /src/scintilla/
