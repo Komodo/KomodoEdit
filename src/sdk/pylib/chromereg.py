@@ -286,7 +286,23 @@ class ChromeReg(object):
             elif isinstance(node, ast.ClassDef):
                 # we have a class; try to register it
                 self._parse_class(node)
+
+    def add_line(self, line):
+        """Add a raw line into the manifest file."""
+        self.read_manifest()
+        self.new_lines.add(line)
+        self.write_manifest()
+
+def register_category(manifest, entry):
+    """Add the category entry
     
+    @param manifest the manifest file to write to; it will be modified in-place
+    @param entry the category entry (line) to add
+    """
+    registry = ChromeReg(None, manifest)
+    registry.add_line("category " + entry)
+    return registry
+
 def register_file(source_file, manifest, relpath=""):
     """Register all components in a given source file in the manifest
     
@@ -297,7 +313,8 @@ def register_file(source_file, manifest, relpath=""):
         installed
     """
     registry = ChromeReg(source_file, manifest, relpath=relpath)
-    return registry.register()
+    registry.register()
+    return registry
 
 if __name__ == "__main__":
     # using this as a command line script (possibly in the build system)

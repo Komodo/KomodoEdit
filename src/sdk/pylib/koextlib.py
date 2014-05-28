@@ -591,11 +591,6 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
             if isdir(dname):
                 xpi_manifest.append(dname)
     
-        # Handle XML catalogs (**for compatibility with Komodo <=4.2.1**)
-        # Komodo version <=4.2.1 only looked for 'catalog.xml' files for
-        # XML autocomplete in the *top-level* of extension dirs. In Komodo
-        # versions >=4.2.2 this has moved to 'xmlcatalogs/catalog.xml'
-        # (although for a transition period Komodo looks in both areas).
         if isdir("xmlcatalogs"):
             for path in glob(join("xmlcatalogs", "*")):
                 xpi_manifest.append(path)
@@ -653,6 +648,11 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
             chromereg.register_file(join(xpi_build_dir, "components", "component.manifest"),
                                     join(xpi_build_dir, "chrome.manifest"),
                                     "components")
+
+        if isfile(join("xmlcatalogs", "catalog.xml")):
+            import chromereg
+            chromereg.register_category(join(xpi_build_dir, "chrome.manifest"),
+                                        "xml-catalog %s" % (ext_info.id))
 
         _trim_files_in_dir(xpi_build_dir, exclude_pats, log.info)
         _run_in_dir('"%s" -X -r %s *' % (zip_exe, ext_info.pkg_name),
