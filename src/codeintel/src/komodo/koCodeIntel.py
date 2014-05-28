@@ -1459,15 +1459,22 @@ class KoCodeIntelManager(threading.Thread):
 
             # get xml catalogs from extensions
             from directoryServiceUtils import getExtensionDirectories
-            for dir in getExtensionDirectories():
-                candidates = [
-                    # The new, cleaner, location.
-                    os.path.join(dir, "xmlcatalogs", "catalog.xml"),
-                ]
-                for candidate in candidates:
-                    if os.path.exists(candidate):
-                        catalogs.append(candidate)
-                        break
+            extension_dirs = getExtensionDirectories()
+            catman = Cc["@mozilla.org/categorymanager;1"].getService(Ci.nsICategoryManager)
+            category = 'xml-catalog'
+            names = catman.enumerateCategory(category)
+            while names.hasMoreElements():
+                nameObj = names.getNext()
+                extension_name = nameObj.QueryInterface(Ci.nsISupportsCString).data
+                extension_name = os.path.normcase(extension_name)
+                log.warn("Found xml-catalog category for %r", extension_name)
+                for ext_dir in extension_dirs:
+                    if os.path.normcase(os.path.basename(ext_dir)) == extension_name:
+                        candidate = os.path.join(ext_dir, "xmlcatalogs", "catalog.xml")
+                        if os.path.exists(candidate):
+                            log.warn("  adding xml-catalog %r", candidate)
+                            catalogs.append(candidate)
+                            break
 
             # add our default catalog file
             koDirs = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
