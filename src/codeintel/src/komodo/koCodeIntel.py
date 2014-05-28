@@ -9,7 +9,6 @@ from os.path import join
 import atexit
 import bisect
 import collections
-import directoryServiceUtils
 import functools
 import hashlib
 import json
@@ -188,6 +187,7 @@ class KoCodeIntelService:
 
         Note: This doesn't filter out non-existant directories.
         """
+        import directoryServiceUtils
         yield join(self._koDirSvc.userDataDir, "apicatalogs")    # user
         for extensionDir in directoryServiceUtils.getExtensionDirectories():
             yield join(extensionDir, "apicatalogs")             # user-install exts
@@ -1063,6 +1063,7 @@ class KoCodeIntelManager(threading.Thread):
         # Find extensions that may have codeintel lang-support modules.
         ext_module_dirs = set()
         ext_lexer_dirs = set()
+        import directoryServiceUtils
         for ext_dir in directoryServiceUtils.getExtensionDirectories():
             ext_module_dir = join(ext_dir, "pylib")
             if os.path.exists(ext_module_dir):
