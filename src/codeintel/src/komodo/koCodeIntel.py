@@ -1463,9 +1463,6 @@ class KoCodeIntelManager(threading.Thread):
                 candidates = [
                     # The new, cleaner, location.
                     os.path.join(dir, "xmlcatalogs", "catalog.xml"),
-                    # The old location (for compat). This is DEPRECATED
-                    # and should be removed in a future Komodo version.
-                    os.path.join(dir, "catalog.xml"),
                 ]
                 for candidate in candidates:
                     if os.path.exists(candidate):
