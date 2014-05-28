@@ -652,7 +652,8 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
         if isfile(join("xmlcatalogs", "catalog.xml")):
             import chromereg
             chromereg.register_category(join(xpi_build_dir, "chrome.manifest"),
-                                        "xml-catalog %s" % (ext_info.id))
+                                        # "1" is a dummy entry, to avoid warnings
+                                        "xml-catalog %s 1" % (ext_info.id))
 
         _trim_files_in_dir(xpi_build_dir, exclude_pats, log.info)
         _run_in_dir('"%s" -X -r %s *' % (zip_exe, ext_info.pkg_name),
