@@ -38,6 +38,7 @@
 """
 
 import os
+import sys
 from xpcom import components, COMException
 import ConfigParser
 
@@ -104,8 +105,14 @@ def getPylibDirectories():
         dirs = set()
         for dir in getExtensionDirectories():
             d = os.path.join(dir, "pylib")
-            if os.path.exists(d):
+            # Note: pyxpcom will place these pylib paths on the sys.path (when
+            #       they exist)
+            if d in sys.path:
                 dirs.add(d)
+            elif os.path.exists(d):
+                dirs.add(d)
+                # Add to sys.path, saves pyxpcom having to do it later.
+                sys.path.append(d)
         _gPylibDirectoriesCache = list(dirs)
     return _gPylibDirectoriesCache
 
