@@ -585,6 +585,9 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
                         _mkdir("lexers", log.info)
                     for lexres_path in glob(join(lexers_build_dir, "*.lexres")):
                         _cp(lexres_path, "lexers", log.info)
+        elif exists("lexers"):
+            # Pre-compiled UDL lexer files.
+            xpi_manifest.append("lexers")
 
         # Remaining hook dirs that are just included verbatim in the XPI.
         for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib",
