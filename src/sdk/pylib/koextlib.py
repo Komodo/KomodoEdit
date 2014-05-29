@@ -591,10 +591,6 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
             if isdir(dname):
                 xpi_manifest.append(dname)
     
-        if isdir("xmlcatalogs"):
-            for path in glob(join("xmlcatalogs", "*")):
-                xpi_manifest.append(path)
-
         if isfile("bootstrap.js"):
             xpi_manifest.append("bootstrap.js")
 
