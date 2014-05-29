@@ -445,7 +445,8 @@ class ${safe_lang}Lexer(UDLLexer):
 
 
 def build_ext(base_dir, support_devinstall=True, unjarred=False,
-              ppdefines=None, additional_includes=None, log=None):
+              ppdefines=None, additional_includes=None, log=None,
+              xpi_path=None):
     """Build a Komodo extension from the sources in the given dir.
     
     This reads the "install.rdf" in this directory and the appropriate
@@ -471,6 +472,7 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
     @param additional_includes {list} Optional - a list of paths to include in
         final xpi.
     @param log {logging.Logger} Optional.
+    @param xpi_path {str} Optional. File path for the resulting .xpi file.
     @returns {str} The path to the created .xpi file.
     """
     if log is None: log = _log
@@ -583,7 +585,7 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
                         _mkdir("lexers", log.info)
                     for lexres_path in glob(join(lexers_build_dir, "*.lexres")):
                         _cp(lexres_path, "lexers", log.info)
-    
+
         # Remaining hook dirs that are just included verbatim in the XPI.
         for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib",
                       "project-templates", "platform", "defaults", "plugins",
@@ -660,14 +662,15 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
         _trim_files_in_dir(xpi_build_dir, exclude_pats, log.info)
         _run_in_dir('"%s" -X -r %s *' % (zip_exe, ext_info.pkg_name),
                     xpi_build_dir, log.info)
-        _cp(join(xpi_build_dir, ext_info.pkg_name), ext_info.pkg_name, log.info)
+        if not xpi_path:
+            xpi_path = abspath(join(base_dir, ext_info.pkg_name))
+        _cp(join(xpi_build_dir, ext_info.pkg_name), xpi_path, log.info)
     finally:
         if orig_dir:
             log.info("cd %s", orig_dir)
             os.chdir(orig_dir)
             base_dir = orig_base_dir
 
-    xpi_path = join(base_dir, ext_info.pkg_name)
     print "'%s' created." % xpi_path
     return xpi_path
 
