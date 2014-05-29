@@ -553,9 +553,10 @@ sub cons::Py2To3 {
 
 sub cons::KoExt {
     # Run the given 'koext' command (koext is in the Komodo SDK).
-    my ($env, $args, @toSkip) = @_;
+    my ($env, $args, $xpi_path, $buildDir, @toSkip) = @_;
+    $buildDir = "." unless defined($buildDir);
     if (! scalar(@toSkip)) {
-        @toSkip = (".svn", "*.xpi", "build");  # default skips
+        @toSkip = (".svn", ".git", "*.xpi", "build", '\.consign');  # default skips
     }
     
     # Die if required elements are not defined.
@@ -573,21 +574,32 @@ sub cons::KoExt {
 
     my $mozDevelDist = $build::install::mozDevelDist;
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
+
+    my $landmark = "$buildDir/koext.consjunk"; # fake target to make Cons happy
+    my $extra_options = "";
+    if (defined($xpi_path)) {
+	$landmark = $xpi_path;
+	my $abs_xpi_path = cwd()."/".FilePath($xpi_path);
+        $extra_options .= "-o $abs_xpi_path";
+    }
+    my $abs_builddir = cwd()."/".DirPath($buildDir);
+
     $cons->Command(
-        "koext.consjunk", # fake target to make Cons happy
+        $landmark,
         "$sdkDir/bin/koext$scriptExt",
         "$sdkDir/pylib/koextlib.py",
+        "$sdkDir/pylib/chromereg.py",
         "$sdkDir/pylib/cmdln.py",
         "$sdkDir/pylib/preprocess.py",
         "$build/ranregxpcom.consjunk",
         "$mozBin/is_dev_tree.txt",
         qq(
-            $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v $args -d %0:d $pp_defines
+            $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v $args -d $abs_builddir $pp_defines $extra_options
             touch %0
         )
     );
-    $cons->DependsRecursive("koext.consjunk", ".", @toSkip);
-    $cons->DependsRecursive2("koext.consjunk", "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn', '\.consign'));
+    $cons->DependsRecursive($landmark, ".", @toSkip);
+    $cons->DependsRecursive2($landmark, "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn', '\.git', '\.consign'));
 }
 
 sub cons::KoExtUnpack {
@@ -611,6 +623,7 @@ sub cons::KoExtUnpack {
         "$xpiBasename.landmark",
         "$sdkDir/bin/koext$scriptExt",
         "$sdkDir/pylib/koextlib.py",
+        "$sdkDir/pylib/chromereg.py",
         "$sdkDir/pylib/cmdln.py",
         "$sdkDir/pylib/preprocess.py",
         "$build/ranregxpcom.consjunk",
@@ -646,8 +659,6 @@ sub cons::KoExtSourceDevInstall {
         "koextsourcedevinstall.consjunk", # fake target to make Cons happy
         "$sdkDir/bin/koext$scriptExt",
         "$sdkDir/pylib/koextlib.py",
-        "$sdkDir/pylib/chromereg.py",
-        "$sdkDir/pylib/chromereg.py",
         "$sdkDir/pylib/chromereg.py",
         "$sdkDir/pylib/cmdln.py",
         "$sdkDir/pylib/preprocess.py",
