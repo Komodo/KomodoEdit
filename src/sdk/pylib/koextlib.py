@@ -662,6 +662,12 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
                                         # "1" is a dummy entry, to avoid warnings
                                         "apicatalogs %s 1" % (ext_info.id))
 
+        if exists(join(xpi_build_dir, "lexers")):
+            import chromereg
+            chromereg.register_category(join(xpi_build_dir, "chrome.manifest"),
+                                        # "1" is a dummy entry, to avoid warnings
+                                        "udl-lexers %s 1" % (ext_info.id))
+
         _trim_files_in_dir(xpi_build_dir, exclude_pats, log.info)
         _run_in_dir('"%s" -X -r %s *' % (zip_exe, ext_info.pkg_name),
                     xpi_build_dir, log.info)
