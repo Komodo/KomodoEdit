@@ -54,7 +54,6 @@ import operator
 from xpcom import components
 from xpcom.server import WrapObject, UnwrapObject
 from koTreeView import TreeView
-import directoryServiceUtils
 
 
 log = logging.getLogger("templates")
@@ -210,9 +209,10 @@ to use Komodo's numerous standard %s templates.""" % (self.type, str(ex), self.t
         
         This doesn't bother checking if they exist.
         """
+        from directoryServiceUtils import getExtensionDirectories
         yield self.getUserTemplatesDir()
         yield self.getSharedTemplatesDir()
-        for extensionDir in directoryServiceUtils.getExtensionDirectories():
+        for extensionDir in getExtensionDirectories():
             yield os.path.join(extensionDir, self.basename)
         yield self.getDefaultTemplatesDir()
 
@@ -321,7 +321,8 @@ to use Komodo's numerous standard %s templates.""" % (self.type, str(ex), self.t
             headers, leaves = self._getLeaves(items)
             userItems += leaves
             
-        for extensionDir in [d for d in directoryServiceUtils.getExtensionDirectories()
+        from directoryServiceUtils import getExtensionDirectories
+        for extensionDir in [d for d in getExtensionDirectories()
                              if os.path.isdir(d)]:
             items = self.walkFuncForKPZ(extensionDir)
             if items:
