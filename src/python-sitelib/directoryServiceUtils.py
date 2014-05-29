@@ -41,19 +41,22 @@ import os
 from xpcom import components, COMException
 import ConfigParser
 
+Cc = components.classes
+Ci = components.interfaces
+
 nsIDirectoryServiceContractID = "@mozilla.org/file/directory_service;1";
-nsIProperties = components.interfaces.nsIProperties;
-directoryService =  components.classes[nsIDirectoryServiceContractID].getService(nsIProperties);
+nsIProperties = Ci.nsIProperties;
+directoryService =  Cc[nsIDirectoryServiceContractID].getService(nsIProperties);
 
 def getFiles(key):
     """getFiles
     
     gets a list of nsIFile objects from the directory service.
     """
-    enum = directoryService.get(key, components.interfaces.nsISimpleEnumerator);
+    enum = directoryService.get(key, Ci.nsISimpleEnumerator);
     files = []
     while enum.hasMoreElements():
-        files.append(enum.getNext().QueryInterface(components.interfaces.nsIFile))
+        files.append(enum.getNext().QueryInterface(Ci.nsIFile))
     return files
 
 def getFile(key):
@@ -61,7 +64,7 @@ def getFile(key):
     
     gets a nsIFile object from the directory service.
     """
-    return directoryService.get(key, components.interfaces.nsIFile);
+    return directoryService.get(key, Ci.nsIFile);
 
 _gExtensionDirectoriesCache = None
 def getExtensionDirectories():
