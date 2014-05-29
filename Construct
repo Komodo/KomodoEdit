@@ -573,7 +573,6 @@ sub cons::KoExt {
 
     my $mozDevelDist = $build::install::mozDevelDist;
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
-    my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
     $cons->Command(
         "koext.consjunk", # fake target to make Cons happy
         "$sdkDir/bin/koext$scriptExt",
@@ -607,7 +606,6 @@ sub cons::KoExtUnpack {
 
     my $mozDevelDist = $build::install::mozDevelDist;
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
-    my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
     my $xpiBasename = basename($xpiFile);
     $cons->Command(
         "$xpiBasename.landmark",
@@ -643,7 +641,6 @@ sub cons::KoExtSourceDevInstall {
 
     my $mozDevelDist = $build::install::mozDevelDist;
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
-    my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
     my $extSrcDir = dirname(SourcePath('install.rdf'));
     $cons->Command(
         "koextsourcedevinstall.consjunk", # fake target to make Cons happy
