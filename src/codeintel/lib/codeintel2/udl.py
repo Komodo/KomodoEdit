@@ -60,7 +60,6 @@ from codeintel2.citadel import CitadelBuffer
 if _xpcom_:
     from xpcom import components
     from xpcom.server import UnwrapObject
-    import directoryServiceUtils
 
 log = logging.getLogger("codeintel.udl")
 #log.setLevel(logging.DEBUG)
@@ -150,6 +149,7 @@ class UDLLexer(Lexer):
             It yields directories that should "win" first.
             """
             from glob import glob
+            from directoryServiceUtils import getExtensionLexerDirs
             lexresfile_from_lang = {}
             koDirs = components.classes["@activestate.com/koDirs;1"] \
                 .getService(components.interfaces.koIDirs)
@@ -157,8 +157,7 @@ class UDLLexer(Lexer):
             # Find all possible lexer dirs.
             lexer_dirs = []
             lexer_dirs.append(join(koDirs.userDataDir, "lexers"))    # user
-            for extensionDir in directoryServiceUtils.getExtensionDirectories():
-                lexer_dirs.append(join(extensionDir, "lexers"))      # user-install extensions
+            lexer_dirs += getExtensionLexerDirs()                    # extensions
             lexer_dirs.append(join(koDirs.commonDataDir, "lexers"))  # site/common
             lexer_dirs.append(join(koDirs.supportDir, "lexers"))     # factory
             for extra_dir in UDLLexer._extra_lexer_dirs:

@@ -52,7 +52,6 @@ from xpcom.server import UnwrapObject
 from koLanguageServiceBase import KoLanguageBase, KoLexerLanguageService, \
                                   KoCommenterLanguageService, sendStatusMessage, \
                                   koLangSvcStyleInfo
-import directoryServiceUtils
 
 log = logging.getLogger("KoUDLLanguageBase")
 #log.setLevel(logging.DEBUG)
@@ -286,20 +285,23 @@ class KoUDLLanguage(KoLanguageBase):
 
         This doesn't filter out non-existant directories.
         """
+        from directoryServiceUtils import getExtensionLexerDirs
         koDirs = components.classes["@activestate.com/koDirs;1"] \
             .getService(components.interfaces.koIDirs)
 
-        yield join(koDirs.userDataDir, "lexers")    # user
-        for extensionDir in directoryServiceUtils.getExtensionDirectories():
-            yield join(extensionDir, "lexers")      # user-install extensions
-        yield join(koDirs.commonDataDir, "lexers")  # site/common
-        yield join(koDirs.supportDir, "lexers")     # factory
+        if exists(join(koDirs.userDataDir, "lexers")):
+            yield join(koDirs.userDataDir, "lexers")    # user
+        for extensionLexerDir in getExtensionLexerDirs():
+            yield extensionLexerDir                     # extensions
+        if exists(join(koDirs.commonDataDir, "lexers")):
+            yield join(koDirs.commonDataDir, "lexers")  # site/common
+        if exists(join(koDirs.supportDir, "lexers")):
+            yield join(koDirs.supportDir, "lexers")     # factory
 
+    # One time call - to find the lexer resources.
     def _findLexerResources(self):
         self._lexresPathFromLexresLangName = {}
         for lexerDir in self._genLexerDirs():
-            if not exists(lexerDir):
-                continue
             for lexresPath in glob(join(lexerDir, "*.lexres")):
                 lexresLangName = splitext(basename(lexresPath))[0]
                 self._lexresPathFromLexresLangName[lexresLangName] = lexresPath

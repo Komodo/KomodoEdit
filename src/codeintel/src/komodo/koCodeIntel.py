@@ -5,7 +5,7 @@ from zope.cachedescriptors.property import Lazy as LazyProperty, LazyClassAttrib
 
 from argparse import Namespace
 from codeintel2.common import PRIORITY_CURRENT, PRIORITY_IMMEDIATE
-from os.path import join
+from os.path import exists, join
 import atexit
 import bisect
 import collections
@@ -186,15 +186,19 @@ class KoCodeIntelService:
     def _genDBCatalogDirs(self):
         """Yield all possible dirs in which to look for API Catalogs.
 
-        Note: This doesn't filter out non-existant directories.
+        Note: This filters out non-existant directories.
         """
-        yield join(self._koDirSvc.userDataDir, "apicatalogs")    # user
+        if exists(join(self._koDirSvc.userDataDir, "apicatalogs")):
+            yield join(self._koDirSvc.userDataDir, "apicatalogs")    # user profile
+
         # get apicatalogs from extensions
         from directoryServiceUtils import getExtensionCategoryDirs
         ext_relpath = "apicatalogs"
         for path in getExtensionCategoryDirs("apicatalogs", ext_relpath):
-            yield path
-        yield join(self._koDirSvc.commonDataDir, "apicatalogs")  # site/common
+            yield path                                               # extension
+
+        if exists(join(self._koDirSvc.commonDataDir, "apicatalogs")):
+            yield join(self._koDirSvc.commonDataDir, "apicatalogs")  # site/common
         # factory: handled by codeintel system (codeintel2/catalogs/...)
 
     @property
@@ -1059,23 +1063,11 @@ class KoCodeIntelManager(threading.Thread):
         registerCodeIntelExtensions()
 
         # Extra catlogs
-        extra_dirs = {}
-        extra_dirs["catalog-dirs"] = \
-            filter(os.path.exists, self.svc._genDBCatalogDirs())
-
-        # Find extensions that may have codeintel lang-support modules.
-        ext_module_dirs = set()
-        ext_lexer_dirs = set()
         import directoryServiceUtils
-        for ext_dir in directoryServiceUtils.getExtensionDirectories():
-            ext_module_dir = join(ext_dir, "pylib")
-            if os.path.exists(ext_module_dir):
-                ext_module_dirs.add(ext_module_dir)
-            ext_lexer_dir = join(ext_dir, "lexers")
-            if os.path.exists(ext_lexer_dir):
-                ext_lexer_dirs.add(ext_lexer_dir)
-        extra_dirs["module-dirs"] = list(ext_module_dirs)
-        extra_dirs["lexer-dirs"] = list(ext_lexer_dirs)
+        extra_dirs = {}
+        extra_dirs["catalog-dirs"] = list(self.svc._genDBCatalogDirs())
+        extra_dirs["lexer-dirs"] = directoryServiceUtils.getExtensionLexerDirs()
+        extra_dirs["module-dirs"] = directoryServiceUtils.getPylibDirectories()
 
         self._send(callback=lambda request, response: None,
                    command="add-dirs",
