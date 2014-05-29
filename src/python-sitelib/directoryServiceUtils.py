@@ -151,3 +151,7 @@ def getExtensionCategoryDirs(xpcom_category, relpath=None):
                         break
     _gExtensionCategoryDirsCache[cache_key] = dirs
     return dirs
+
+def getExtensionLexerDirs():
+    """Return the available (and enabled) extension lexer directories."""
+    return getExtensionCategoryDirs("udl-lexers", relpath="lexers")
