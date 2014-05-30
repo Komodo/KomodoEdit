@@ -219,6 +219,11 @@ MacroEventHandler.prototype.initialize = function() {
     _triggersEnabled = ko.prefs.getBoolean("triggering_macros_enabled", true);
     ko.prefs.prefObserverService.addObserver(this, "triggering_macros_enabled", false);
 
+    this.log = ko.logging.getLogger('macros.eventHandler');
+    //this.log.setLevel(ko.logging.LOG_DEBUG);
+
+    this._trigger_observers = {};
+
     this._hookedMacrosByTrigger = {
         'trigger_startup' : [],
         'trigger_postopen' : [],
@@ -244,9 +249,7 @@ MacroEventHandler.prototype.initialize = function() {
 
     ko.main.addWillCloseHandler(this.finalize, this);
 
-    this.log = ko.logging.getLogger('macros.eventHandler');
-    //this.log.setLevel(ko.logging.LOG_DEBUG);
-    this._trigger_observers = {};
+    this.loadTriggerMacros("" /* all macros */);
 }
 
 MacroEventHandler.prototype.finalize = function() {
