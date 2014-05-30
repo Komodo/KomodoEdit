@@ -335,7 +335,6 @@ function onloadDelay() {
 
         ko.history.init();
 
-        ko.macros.eventHandler.hookOnStartup();
     } catch(ex) {
         _log.exception(ex);
     }

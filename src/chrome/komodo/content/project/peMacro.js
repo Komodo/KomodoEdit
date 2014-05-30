@@ -210,6 +210,9 @@ this.macroProperties = function macro_editProperties(item)
 
 
 function MacroEventHandler() {
+}
+
+MacroEventHandler.prototype.initialize = function() {
     this._hookedMacrosByTrigger = {
         'trigger_startup' : [],
         'trigger_postopen' : [],
@@ -402,13 +405,6 @@ MacroEventHandler.prototype._addObserverMacro = function(macropart) {
         var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                getService(Components.interfaces.nsIObserverService);
         obsSvc.addObserver(this._triggerWrapper, topic, false);
-        // XXX: Removed: The koObserverService are instances, this looks like it
-        //      was trying to tie into the koIDocument observer notifications,
-        //      but these are per document instances and not a global.
-        // Put it on the ActiveState observer service as well
-        //obsSvc = Components.classes['@activestate.com/koObserverService;1'].
-        //       getService(Components.interfaces.nsIObserverService);
-        //obsSvc.addObserver(this._triggerWrapper, topic, false);
     } else {
         this._trigger_observers[topic] += 1;
     }
@@ -514,36 +510,11 @@ MacroEventHandler.prototype.removeMacro = function(macropart, trigger, topic) {
     this.log.error("Couldn't remove macro from list of hooked macros.");
 }
 
-//XXX!!! Wait for two separate notifications/calls:
-// 1. toolbox-loaded notification
-// 2. call to hookOnStartup
-// Also, there's probably no longer a need for _runDelayedHooks,
-// as the triggers are loaded after the toolboxes have been loaded.
-
-var _didStartup = false;
-var _delayedHooks = [];
-
-function _runDelayedHooks(this_) {
-    var hook;
-    for (var i = 0; i < _delayedHooks.length; ++i) {
-        hook = _delayedHooks[i];
-        hook[0].call(this_, hook[1]);
-    }
-    _delayedHooks = [];
-}
-
 MacroEventHandler.prototype.hookOnStartup = function() {
-    _didStartup = true;
-    var res = this.callHookedMacros('trigger_startup');
-    _runDelayedHooks(this);
-    return res;
+    return this.callHookedMacros('trigger_startup');
 }
 
 MacroEventHandler.prototype.hookPostFileOpen = function(view) {
-    if (!_didStartup) {
-        _delayedHooks.push([this.hookPostFileOpen, view]);
-        return false;
-    }
     return this.callHookedMacros('trigger_postopen', view);
 }
 
@@ -577,7 +548,7 @@ MacroEventHandler.prototype.hookOnQuit = function peMacro_hookOnQuit() {
 MacroEventHandler.prototype.observe = function(part, topic, code)
 {
     try {
-        //dump(topic + ": " + part.name + "\n");
+        //dump(topic + ": " + part + "\n");
         switch (topic) {
             case 'macro-load':
                 if (ko.windowManager.getMainWindow() != window) {
@@ -642,6 +613,15 @@ this.eventHandler = new MacroEventHandler();
 // want to quit, but hookOnQuit() returns false if we're to quit).
 ko.main.addCanCloseHandler(function () { return ko.macros.eventHandler.hookOnQuit() });
 
+
+/**
+ * The main toolboxes are loaded, go and initialize the macro triggers.
+ */
+this.onToolboxInitialized = function() {
+    // Macro parts are now available.
+    this.eventHandler.initialize();
+    this.eventHandler.hookOnStartup();
+}
 
 
 function _macro_error(ex, badLine, part) {

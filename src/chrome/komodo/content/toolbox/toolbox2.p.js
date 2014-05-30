@@ -88,6 +88,10 @@ initialize: function() {
     try {
         this.toolbox2Svc.migrateVersion5Toolboxes();
         this.toolbox2Svc.initialize();
+        // Inform the macro system the toolbox has been loaded.
+        if (ko.macros) {
+            ko.macros.onToolboxInitialized();
+        }
     } catch(ex) {
         log.exception("Failed to create toolboxes: " + ex);
     }
