@@ -276,8 +276,8 @@ foreach my $info (@lexers) {
 
 
 # Put UDL and luddite bits into the Komodo SDK dir for extension development.
-$cons->InstallRecursive("$sdkDir/udl", "udl", ('\.svn'));
-$cons->InstallRecursive("$sdkDir/pylib/ludditelib", "ludditelib",
+$cons->InstallRecursive("$sdkDir/udl", cwd()."/src/udl/udl", ('\.svn'));
+$cons->InstallRecursive("$sdkDir/pylib/ludditelib", cwd()."/src/udl/ludditelib",
                         (".*\.pyc", ".*\.pyo", '\.svn'));
 if ($platform eq "win") {
     $cons->InstallAs("$sdkDir/bin/luddite.py", "luddite.py");
