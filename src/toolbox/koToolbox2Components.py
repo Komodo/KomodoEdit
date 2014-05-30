@@ -194,15 +194,9 @@ class KoToolbox2Service(object):
         #log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
         self.registerStandardToolbox(toolbox_id)
         
-        import directoryServiceUtils
-        extensionDirs = directoryServiceUtils.getExtensionDirectories()
-        for extensionDir in extensionDirs:
-            # Does this happen for disabled extensions?
-            toolDir = join(extensionDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
-            if os.path.exists(toolDir):
-                self.activateExtensionToolbox(extensionDir)
-            #else:
-            #    log.debug("No tools in %s", extensionDir)
+        from directoryServiceUtils import getExtensionToolboxDirs
+        for toolsDir in getExtensionToolboxDirs():
+            self.activateExtensionToolbox(toolsDir)
         self.toolboxLoader.deleteUnloadedTopLevelItems()
     
     def registerStandardToolbox(self, id):
@@ -243,19 +237,12 @@ class KoToolbox2Service(object):
             return None
 
     def getExtensionToolbox(self, extensionName):
-        # @param: extensionName {str} - the em:name from install.rdf
-        koDirSvc = components.classes["@activestate.com/koDirs;1"].\
-            getService(components.interfaces.koIDirs)
-        binDirs = [join(koDirSvc.mozBinDir, "extensions"),
-                   join(koDirSvc.userDataDir, "XRE", "extensions")]
-        for dir in binDirs:
-            extDir = join(dir, extensionName)
-            if os.path.isdir(extDir):
-                toolsDir = join(extDir, "tools")
-                if os.path.isdir(toolsDir):
-                    tbox_id = self.db.get_id_from_path(join(extDir, "tools"))
-                    if tbox_id != -1:
-                        return self._toolsMgrSvc.getToolById(tbox_id)
+        from directoryServiceUtils import getExtensionToolboxDirs
+        results = getExtensionToolboxDirs(extension_id=extensionName)
+        if results:
+            tbox_id = self.db.get_id_from_path(results[0])
+            if tbox_id != -1:
+                return self._toolsMgrSvc.getToolById(tbox_id)
         return None
 
     def getProjectToolboxId(self, uri):
@@ -485,30 +472,29 @@ class KoToolbox2Service(object):
             self.notifyAddedToolbox(projectDir, notifyAllWindows=False)
             self.notifyToolboxTopLevelViewChanged()
 
-    def activateExtensionToolbox(self, extensionRootDir):
-        toolsDir = join(extensionRootDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
-        if exists(toolsDir) and os.path.isdir(toolsDir):
-            name = os.path.basename(extensionRootDir)
-            folderDataPath = join(toolsDir, ".folderdata")
-            if exists(folderDataPath):
-                try:
-                    f = open(folderDataPath)
-                    data = json.load(f, encoding="utf-8")
-                    f.close()
-                    explicitName = data["name"]
-                    if explicitName:
-                        name = explicitName
-                        idx = name.find(koToolbox2.PROJECT_FILE_EXTENSION)
-                        if idx > 0:
-                            name = name[:idx]
-                except:
-                    log.exception("Failed to find a name for toolbox %s", name)
-            toolbox_id = self.toolboxLoader.loadToolboxDirectory(name,
-                                                                 extensionRootDir,
-                                                                 koToolbox2.DEFAULT_TARGET_DIRECTORY)
-            self.registerUserToolbox(extensionRootDir, toolbox_id, True)
-            self.notifyAddedToolbox(extensionRootDir, notifyAllWindows=True)
-            self.notifyToolboxTopLevelViewChanged()
+    def activateExtensionToolbox(self, toolsDir):
+        extensionRootDir = os.path.dirname(toolsDir)
+        name = os.path.basename(extensionRootDir)
+        folderDataPath = join(toolsDir, ".folderdata")
+        if exists(folderDataPath):
+            try:
+                f = open(folderDataPath)
+                data = json.load(f, encoding="utf-8")
+                f.close()
+                explicitName = data["name"]
+                if explicitName:
+                    name = explicitName
+                    idx = name.find(koToolbox2.PROJECT_FILE_EXTENSION)
+                    if idx > 0:
+                        name = name[:idx]
+            except:
+                log.exception("Failed to find a name for toolbox %s", name)
+        toolbox_id = self.toolboxLoader.loadToolboxDirectory(name,
+                                                             extensionRootDir,
+                                                             koToolbox2.DEFAULT_TARGET_DIRECTORY)
+        self.registerUserToolbox(extensionRootDir, toolbox_id, True)
+        self.notifyAddedToolbox(extensionRootDir, notifyAllWindows=True)
+        self.notifyToolboxTopLevelViewChanged()
 
     # when an extension is disabled, we need to restart
 

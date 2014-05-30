@@ -163,3 +163,7 @@ def getExtensionCategoryDirs(xpcom_category, relpath=None, extension_id=None):
 def getExtensionLexerDirs(relpath="lexers"):
     """Return the available (and enabled) extension lexer directories."""
     return getExtensionCategoryDirs("udl-lexers", relpath=relpath)
+
+def getExtensionToolboxDirs(relpath="tools", extension_id=None):
+    """Return the available (and enabled) extension tools directories."""
+    return getExtensionCategoryDirs("toolbox", relpath=relpath, extension_id=extension_id)

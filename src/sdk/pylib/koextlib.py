@@ -98,6 +98,7 @@ import tempfile
 from glob import glob
 from pprint import pprint
 
+import chromereg
 
 class KoExtError(Exception):
     pass
@@ -540,7 +541,6 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
    
         # Handle any PyXPCOM components and idl.
         if isdir("components"):
-            import chromereg
             components_build_dir = join(build_dir, "components")
             _mkdir(components_build_dir, log.info)
             for path in glob(join("components", "*")):
@@ -643,30 +643,31 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
                 if (out_file): out_file.close()
 
         # insert reference to component manifest if required
-        if isdir("components"):
+        if isdir(join(xpi_build_dir, "components")):
             log.info("Ensuring component manifest is registered")
-            import chromereg
             chromereg.register_file(join(xpi_build_dir, "components", "component.manifest"),
                                     join(xpi_build_dir, "chrome.manifest"),
                                     "components")
 
-        if isfile(join("xmlcatalogs", "catalog.xml")):
-            import chromereg
+        if isfile(join(xpi_build_dir, "xmlcatalogs", "catalog.xml")):
             chromereg.register_category(join(xpi_build_dir, "chrome.manifest"),
                                         # "1" is a dummy entry, to avoid warnings
                                         "xmlcatalogs %s 1" % (ext_info.id))
 
-        if exists("apicatalogs"):
-            import chromereg
+        if exists(join(xpi_build_dir, "apicatalogs")):
             chromereg.register_category(join(xpi_build_dir, "chrome.manifest"),
                                         # "1" is a dummy entry, to avoid warnings
                                         "apicatalogs %s 1" % (ext_info.id))
 
         if exists(join(xpi_build_dir, "lexers")):
-            import chromereg
             chromereg.register_category(join(xpi_build_dir, "chrome.manifest"),
                                         # "1" is a dummy entry, to avoid warnings
                                         "udl-lexers %s 1" % (ext_info.id))
+
+        if exists(join(xpi_build_dir, "tools")):
+            chromereg.register_category(join(xpi_build_dir, "chrome.manifest"),
+                                        # "1" is a dummy entry, to avoid warnings
+                                        "toolbox %s 1" % (ext_info.id))
 
         _trim_files_in_dir(xpi_build_dir, exclude_pats, log.info)
         _run_in_dir('"%s" -X -r %s *' % (zip_exe, ext_info.pkg_name),
