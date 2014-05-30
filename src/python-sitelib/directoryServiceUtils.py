@@ -117,7 +117,7 @@ def getPylibDirectories():
     return _gPylibDirectoriesCache
 
 _gExtensionCategoryDirsCache = {}
-def getExtensionCategoryDirs(xpcom_category, relpath=None):
+def getExtensionCategoryDirs(xpcom_category, relpath=None, extension_id=None):
     """Return extension dirpaths, registered via the given xpcom-category.
 
     Note: It will return paths that have an category entry that matches the
@@ -127,10 +127,13 @@ def getExtensionCategoryDirs(xpcom_category, relpath=None):
         [ "/path/to/myext@ActiveState.com" ]
     """
     # Check the cache.
-    cache_key = (xpcom_category, relpath)
+    cache_key = (xpcom_category, relpath, extension_id)
     dirs = _gExtensionCategoryDirsCache.get(cache_key)
     if dirs is not None:
         return dirs
+
+    if extension_id:
+        extension_id = os.path.normcase(extension_id)
 
     # Generate the directories.
     extension_dirs = getExtensionDirectories()
@@ -141,6 +144,11 @@ def getExtensionCategoryDirs(xpcom_category, relpath=None):
         nameObj = names.getNext()
         extension_name = nameObj.QueryInterface(Ci.nsISupportsCString).data
         extension_name = os.path.normcase(extension_name)
+
+        # If looking for a specific extension.
+        if extension_id and extension_id != extension_name:
+            continue
+
         for ext_dir in extension_dirs:
             if os.path.normcase(os.path.basename(ext_dir)) == extension_name:
                 candidate = ext_dir
@@ -152,6 +160,6 @@ def getExtensionCategoryDirs(xpcom_category, relpath=None):
     _gExtensionCategoryDirsCache[cache_key] = dirs
     return dirs
 
-def getExtensionLexerDirs():
+def getExtensionLexerDirs(relpath="lexers"):
     """Return the available (and enabled) extension lexer directories."""
-    return getExtensionCategoryDirs("udl-lexers", relpath="lexers")
+    return getExtensionCategoryDirs("udl-lexers", relpath=relpath)
