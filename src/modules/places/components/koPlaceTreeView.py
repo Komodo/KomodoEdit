@@ -50,6 +50,7 @@ import shutil
 import fnmatch
 import pprint
 import time
+import stat
 import uriparse
 
 from xpcom import components, COMException, ServerException, nsError
@@ -2387,9 +2388,12 @@ class KoPlaceTreeView(TreeView):
                     continue
             if fileutils.isHiddenFile(full_name):
                 continue
-            if os.path.isdir(full_name):
+            # Uses stat (instead of isdir/isfile) to avoid multiple stat calls.
+            fstat = os.stat(full_name)
+            fmode = fstat.st_mode
+            if stat.S_ISDIR(fmode):
                 itemType = _PLACE_FOLDER
-            elif os.path.isfile(full_name):
+            elif stat.S_ISREG(fmode):
                 itemType = _PLACE_FILE
             else:
                 itemType = _PLACE_OTHER
