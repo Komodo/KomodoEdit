@@ -141,10 +141,11 @@ if sys.platform == "win32":
     GetFileAttributes = kernel32.GetFileAttributesW
     GetFileAttributes.rettype = ctypes.c_uint32
     GetFileAttributes.argtypes = [ctypes.c_wchar_p]
+    minus_one = ctypes.c_uint32(-1)
     def isHiddenFile(path):
         try:
             result = GetFileAttributes(path)
-            if result == ctypes.c_uint32(-1):
+            if result == minus_one:
                 # Error getting attributes
                 # Assume if we can't access <path>, nothing else should either.
                 return True
