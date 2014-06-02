@@ -935,7 +935,6 @@ class GitRevision(Revision):
     @LazyProperty
     def commit_summary(self):
         # PROJECT-NAME:HASH (BRANCH-NAME)
-        summary = ""
         try:
             remote = self.branch._capture_output("config", "--get",
                                                  "remote.origin.url").strip()
@@ -947,10 +946,9 @@ class GitRevision(Revision):
                 pass # Windows absolute path
             else:
                 remote = remote.rsplit("/", 1)[-1]
-                summary = remote + ":"
         except subprocess.CalledProcessError:
             pass
-        summary += self.revision[:12]
+        summary = "https://github.com/Komodo/%s/commit/%s" % (remote.replace(".git", ""), self.revision)
         branch = (self.branch
                       ._capture_output("describe", "--all", "--abbrev=0")
                       .strip())
