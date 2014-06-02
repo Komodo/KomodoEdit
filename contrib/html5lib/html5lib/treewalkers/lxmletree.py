@@ -4,8 +4,9 @@ from six import text_type
 from lxml import etree
 from ..treebuilders.etree import tag_regexp
 
-from gettext import gettext
-_ = gettext
+#import gettext
+#_ = gettext.gettext
+_ = lambda x: x
 
 from . import _base
 

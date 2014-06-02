@@ -1,7 +1,8 @@
 from __future__ import absolute_import, division, unicode_literals
 
-from gettext import gettext
-_ = gettext
+#import gettext
+#_ = gettext.gettext
+_ = lambda x: x
 
 from . import _base
 from ..constants import cdataElements, rcdataElements, voidElements

@@ -1,0 +1,113 @@
+# Remove gettext (internationalization support) - as it just does a bunch of
+# needless conversions at import, which slows down Komodo startup [perf].
+diff --git a/contrib/html5lib/html5lib/constants.py b/contrib/html5lib/html5lib/constants.py
+index e708984..b605b9c 100644
+--- a/contrib/html5lib/html5lib/constants.py
++++ b/contrib/html5lib/html5lib/constants.py
+@@ -1,8 +1,9 @@
+ from __future__ import absolute_import, division, unicode_literals
+ 
+ import string
+-import gettext
+-_ = gettext.gettext
++#import gettext
++#_ = gettext.gettext
++_ = lambda x: x
+ 
+ EOF = None
+ 
+diff --git a/contrib/html5lib/html5lib/filters/lint.py b/contrib/html5lib/html5lib/filters/lint.py
+index 7cc99a4..964e92f 100644
+--- a/contrib/html5lib/html5lib/filters/lint.py
++++ b/contrib/html5lib/html5lib/filters/lint.py
+@@ -1,7 +1,8 @@
+ from __future__ import absolute_import, division, unicode_literals
+ 
+-from gettext import gettext
+-_ = gettext
++#import gettext
++#_ = gettext.gettext
++_ = lambda x: x
+ 
+ from . import _base
+ from ..constants import cdataElements, rcdataElements, voidElements
+diff --git a/contrib/html5lib/html5lib/serializer/htmlserializer.py b/contrib/html5lib/html5lib/serializer/htmlserializer.py
+index 412a5a2..70efb48 100644
+--- a/contrib/html5lib/html5lib/serializer/htmlserializer.py
++++ b/contrib/html5lib/html5lib/serializer/htmlserializer.py
+@@ -1,8 +1,9 @@
+ from __future__ import absolute_import, division, unicode_literals
+ from six import text_type
+ 
+-import gettext
+-_ = gettext.gettext
++#import gettext
++#_ = gettext.gettext
++_ = lambda x: x
+ 
+ try:
+     from functools import reduce
+diff --git a/contrib/html5lib/html5lib/treewalkers/_base.py b/contrib/html5lib/html5lib/treewalkers/_base.py
+index 34252e5..39e25cd 100644
+--- a/contrib/html5lib/html5lib/treewalkers/_base.py
++++ b/contrib/html5lib/html5lib/treewalkers/_base.py
+@@ -1,8 +1,9 @@
+ from __future__ import absolute_import, division, unicode_literals
+ from six import text_type, string_types
+ 
+-import gettext
+-_ = gettext.gettext
++#import gettext
++#_ = gettext.gettext
++_ = lambda x: x
+ 
+ from xml.dom import Node
+ 
+diff --git a/contrib/html5lib/html5lib/treewalkers/dom.py b/contrib/html5lib/html5lib/treewalkers/dom.py
+index a01287a..5346ad3 100644
+--- a/contrib/html5lib/html5lib/treewalkers/dom.py
++++ b/contrib/html5lib/html5lib/treewalkers/dom.py
+@@ -2,8 +2,9 @@ from __future__ import absolute_import, division, unicode_literals
+ 
+ from xml.dom import Node
+ 
+-import gettext
+-_ = gettext.gettext
++#import gettext
++#_ = gettext.gettext
++_ = lambda x: x
+ 
+ from . import _base
+ 
+diff --git a/contrib/html5lib/html5lib/treewalkers/etree.py b/contrib/html5lib/html5lib/treewalkers/etree.py
+index fd8a9cc..84ca1d9 100644
+--- a/contrib/html5lib/html5lib/treewalkers/etree.py
++++ b/contrib/html5lib/html5lib/treewalkers/etree.py
+@@ -7,8 +7,9 @@ except ImportError:
+         from ordereddict import OrderedDict
+     except ImportError:
+         OrderedDict = dict
+-import gettext
+-_ = gettext.gettext
++#import gettext
++#_ = gettext.gettext
++_ = lambda x: x
+ 
+ import re
+ 
+diff --git a/contrib/html5lib/html5lib/treewalkers/lxmletree.py b/contrib/html5lib/html5lib/treewalkers/lxmletree.py
+index 375cc2e..a722380 100644
+--- a/contrib/html5lib/html5lib/treewalkers/lxmletree.py
++++ b/contrib/html5lib/html5lib/treewalkers/lxmletree.py
+@@ -4,8 +4,9 @@ from six import text_type
+ from lxml import etree
+ from ..treebuilders.etree import tag_regexp
+ 
+-from gettext import gettext
+-_ = gettext
++#import gettext
++#_ = gettext.gettext
++_ = lambda x: x
+ 
+ from . import _base
+ 

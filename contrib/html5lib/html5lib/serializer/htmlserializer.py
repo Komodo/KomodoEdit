@@ -1,8 +1,9 @@
 from __future__ import absolute_import, division, unicode_literals
 from six import text_type
 
-import gettext
-_ = gettext.gettext
+#import gettext
+#_ = gettext.gettext
+_ = lambda x: x
 
 try:
     from functools import reduce
