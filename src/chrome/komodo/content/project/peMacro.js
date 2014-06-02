@@ -432,12 +432,6 @@ MacroEventHandler.prototype._removeObserverMacro = function(macropart, topic) {
         var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                getService(Components.interfaces.nsIObserverService);
         obsSvc.removeObserver(this._triggerWrapper, topic);
-        // XXX: Removed: The koObserverService are instances, this looks like it
-        //      was trying to tie into the koIDocument observer notifications,
-        //      but these are per document instances and not a global.
-        //obsSvc = Components.classes['@activestate.com/koObserverService;1'].
-        //       getService(Components.interfaces.nsIObserverService);
-        //obsSvc.removeObserver(this._triggerWrapper, topic);
         delete this._trigger_observers[topic];
     }
 };
@@ -515,11 +509,33 @@ MacroEventHandler.prototype.removeMacro = function(macropart, trigger, topic) {
     this.log.error("Couldn't remove macro from list of hooked macros.");
 }
 
+// IMPORTANT: Macros need to wait for the toolbox to load, which may occur after
+//            the editor (views) have alreay been loaded. This means we must
+//            check if the macro system is ready, and if it's not, store delayed
+//            entries in _delayedHooks, which get called later - after the
+//            toolboxes have been loaded.
+
+var _didStartup = false;
+var _delayedHooks = [];
+
+function _runDelayedHooks(this_) {
+    var hook;
+    for (var i = 0; i < _delayedHooks.length; ++i) {
+        hook = _delayedHooks[i];
+        hook[0].call(this_, hook[1]);
+    }
+    _delayedHooks = [];
+}
+
 MacroEventHandler.prototype.hookOnStartup = function() {
     return this.callHookedMacros('trigger_startup');
 }
 
 MacroEventHandler.prototype.hookPostFileOpen = function(view) {
+    if (!_didStartup) {
+        _delayedHooks.push([this.hookPostFileOpen, view]);
+        return false;
+    }
     return this.callHookedMacros('trigger_postopen', view);
 }
 
@@ -630,6 +646,9 @@ this.onToolboxInitialized = function() {
     // Macro parts are now available.
     this.eventHandler.initialize();
     this.eventHandler.hookOnStartup();
+    // Run any delayed file-open hooks.
+    _didStartup = true;
+    _runDelayedHooks(this);
 }
 
 
