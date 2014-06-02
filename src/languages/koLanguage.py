@@ -934,14 +934,14 @@ class KoLanguageStatusTreeView(TreeView):
     def _loadAllLanguages(self):
         self._allRows = []
         langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"].getService(components.interfaces.koILanguageRegistryService)
+        langRegistry = UnwrapObject(langRegistry)
         langNames = langRegistry.getLanguageNames()
         for langName in langNames:
-            lang = UnwrapObject(langRegistry.getLanguage(langName))
-            if not lang.internal:
-                self._allRows.append({'name':langName,
-                                      'name_lc':langName.lower(),
-                                      'status':lang.primary,
-                                      'origStatus':lang.primary})
+            isPrimary = langName in langRegistry._primaryLanguageNames
+            self._allRows.append({'name':langName,
+                                  'name_lc':langName.lower(),
+                                  'status':isPrimary,
+                                  'origStatus':isPrimary})
 
     def _reload(self):
         oldRowCount = len(self._rows)
