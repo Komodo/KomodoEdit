@@ -129,6 +129,10 @@ class Branch(object):
         """
         raise NotImplementedError("%s needs to implement commit" % self)
 
+    def push(self):
+        """Push committed changes"""
+        raise NotImplementedError("%s needs to implement push" % self)
+
 class NonExistantBranch(Branch):
     scc_type = "non-existant"
     def __repr__(self):
@@ -269,6 +273,10 @@ class GitBranch(Branch):
         self._execute(*cmd)
         rev = self._capture_output("rev-parse", "HEAD").strip()
         return GitRevision(rev, self)
+
+    def push(self):
+        """Push committed changes"""
+        self._execute("push")
 
 class SVNBranch(Branch):
     scc_type = "svn"
@@ -534,6 +542,9 @@ class SVNBranch(Branch):
         revision = revision_re.search(out)
         if revision:
             return SVNRevision(revision.group(1), self)
+
+    def push(self):
+        """No push necessary"""
 
 #---- configuration/prefs handling
 
@@ -1124,6 +1135,8 @@ def main(argv=None):
     parser.add_argument("--skip-check", "-S", action="store_true",
                         help="Don't check whether the patch applies first, just "
                         "make changes directly.")
+    parser.add_argument("-p", "--push", action="store_true",
+                        help="Push the changes after integrating (for local and targets)")
     parser.add_argument("-V", "--version", action="version", version=__version__)
     parser.add_argument("revision", help="revision (commit hash) to integrate")
     parser.add_argument("branches", help="branches to merge into",
@@ -1199,6 +1212,11 @@ def main(argv=None):
         result = args.revision.integrate(args, branch, paths)
         if result is not None:
             commits.append(result)
+
+    if commits and args.push:
+        # Push changes too.
+        for branch in args.branches:
+            branch.push()
 
     if commits:
         log.info("\n")
