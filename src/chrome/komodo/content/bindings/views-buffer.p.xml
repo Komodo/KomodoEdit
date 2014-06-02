@@ -1018,7 +1018,7 @@
                     try {
                         cb();
                     } catch(ex) {
-                        log.exception(ex, "Error invoking a _updateUICallback");
+                        this.log.exception(ex, "Error invoking a _updateUICallback");
                     }
                 });
             }
