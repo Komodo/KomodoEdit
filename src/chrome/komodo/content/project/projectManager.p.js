@@ -1372,36 +1372,13 @@ projectManager.prototype.findPartByAttributeValue = function(attribute, value) {
     return null;
 }
 
-/* Old style:
- * "opened_projects":
- *   [ array of projects ]
- *
- * Introduced in v7.1, to maintain 6.0 compatibility:
+/**
+ * Project state:
  * "opened_projects_v7":
  *   { "spv_projects": [ json array, but only with current project ],
  *     "mpv_projects": [ json array of projects ]
  *   }
  */
-
-projectManager.prototype.getState_old = function ()
-{
-    if (this._projects.length == 0) {
-        return null; // persist nothing
-    }
-    // Return a pref to add to the persisted 'workspace'
-    var opened_projects = Components.classes['@activestate.com/koOrderedPreference;1'].createInstance();
-    opened_projects.id = 'opened_projects';
-    var i, project, url;
-    for (i = 0; i < this._projects.length; i++) {
-        project = this._projects[i];
-        url = project.url;
-        if (this.viewMgr) {
-            this.viewMgr.savePrefs(project);
-        }
-        opened_projects.appendStringPref(url);
-    }
-    return opened_projects;
-}
 
 projectManager.prototype.getState = function()
 {
@@ -1427,23 +1404,6 @@ projectManager.prototype.getState = function()
         }
     }
     return pref;
-}
-
-// In version 6 there's only one kind of saved projects.
-projectManager.prototype.setState_v6 = function(pref)
-{
-    try {
-        var i, file_url;
-        // Load projects indicated in the pref
-        for (i=0; i < pref.length; i++) {
-            file_url = pref.getStringPref(i);
-            // skip opening of recently opened files -- that's taken care of
-            // by the view persistence
-            ko.projects.open(file_url, true);
-        }
-    } catch (e) {
-        this.log.exception(e);
-    }
 }
 
 projectManager.prototype.setState = function(pref)

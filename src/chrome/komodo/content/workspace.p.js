@@ -460,19 +460,9 @@ this._restoreWindowWorkspace =
         // Don't open startPage here (bug 87854)
         this.initializeEssentials(currentWindow, false);
 
-        // Now projects depends on places, so open it after
-        // In Version 7 Komodo saves opened projects in a different prefset,
-        // so allow both here.
-        if (workspace.hasPref('opened_projects')
-            || workspace.hasPref('opened_projects_v7')) {
-            var use_v7_mode;
-            if (workspace.hasPref('opened_projects_v7')) {
-                use_v7_mode = true;
-                pref = workspace.getPref('opened_projects_v7');
-            } else {
-                use_v7_mode = false;
-                pref = workspace.getPref('opened_projects');
-            }
+        // Projects depends on places, so open it after Places is initialized.
+        if (workspace.hasPref('opened_projects_v7')) {
+            pref = workspace.getPref('opened_projects_v7');
             var currentProjectURI;
             if (workspace.hasPref('current_project')) {
                 currentProjectURI = workspace.getStringPref('current_project');
@@ -481,11 +471,7 @@ this._restoreWindowWorkspace =
             }
             // Don't load projects until places has initialized the projects view
             this.waitForProjectManager(function() {
-                if (use_v7_mode) {
-                    wko.projects.manager.setState(pref);
-                } else {
-                    wko.projects.manager.setState_v6(pref);
-                }
+                wko.projects.manager.setState(pref);
                 if (currentProjectURI) {
                     // If a project with that url is loaded, make it current
                     var proj = wko.projects.manager.getProjectByURL(currentProjectURI);
