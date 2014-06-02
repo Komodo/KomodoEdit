@@ -1013,12 +1013,13 @@
             // other update-events, they will be run at a later time.
             var callbacks = this._updateUICallbacks;
             if (callbacks.length) {
+                var log = this.log;
                 this._updateUICallbacks = [];
                 callbacks.forEach(function(cb) {
                     try {
                         cb();
                     } catch(ex) {
-                        this.log.exception(ex, "Error invoking a _updateUICallback");
+                        log.exception(ex, "Error invoking a _updateUICallback");
                     }
                 });
             }
