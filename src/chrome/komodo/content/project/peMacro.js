@@ -518,11 +518,11 @@ MacroEventHandler.prototype.removeMacro = function(macropart, trigger, topic) {
 var _didStartup = false;
 var _delayedHooks = [];
 
-function _runDelayedHooks(this_) {
+function _runDelayedHooks() {
     var hook;
     for (var i = 0; i < _delayedHooks.length; ++i) {
         hook = _delayedHooks[i];
-        hook[0].call(this_, hook[1]);
+        hook[0].call(ko.macros.eventHandler, hook[1]);
     }
     _delayedHooks = [];
 }
@@ -648,7 +648,7 @@ this.onToolboxInitialized = function() {
     this.eventHandler.hookOnStartup();
     // Run any delayed file-open hooks.
     _didStartup = true;
-    _runDelayedHooks(this);
+    _runDelayedHooks();
 }
 
 
