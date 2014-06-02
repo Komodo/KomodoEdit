@@ -285,7 +285,7 @@
 
 <!ENTITY % block
     "p | %heading; | div | %lists; | %blocktext; | fieldset | table |
-    header | footer | section | hgroup | nav | dialog | figure |
+    header | footer | section | hgroup | main | nav | dialog | figure |
     datagrid | canvas | audio | video | source | embed | keygen |
     progress | ruby">
 
@@ -1118,6 +1118,9 @@ several semantically related columns together.
 
 <!ELEMENT hgroup (#PCDATA)>
 <!ATTLIST hgroup %attrs;>
+
+<!ELEMENT main (#PCDATA)>
+<!ATTLIST main %attrs;>
 
 <!ELEMENT nav (#PCDATA)>
 <!ATTLIST nav %attrs;>

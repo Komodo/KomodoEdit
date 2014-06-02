@@ -955,7 +955,7 @@ class KoHTML5TidyLinter(CommonTidyLinter):
 
     
     html5_tidy_argv_additions = [
-        "--new-blocklevel-tags", "section,header,footer,hgroup,nav,dialog,datalist,details,figcaption,figure,meter,output,progress",
+        "--new-blocklevel-tags", "section,header,footer,hgroup,main,nav,dialog,datalist,details,figcaption,figure,meter,output,progress",
         "--new-pre-tags", "article,aside,summary,mark",
         "--new-inline-tags", "video,audio,canvas,source,embed,ruby,rt,rp,keygen,menu,command,time",
     ]
