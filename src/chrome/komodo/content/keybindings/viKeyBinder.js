@@ -2382,7 +2382,7 @@ VimController.command_mappings = {
     "cmd_vim_gotoLine" :            [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_lineScrollUp" :        [ "cmd_lineScrollUp",           VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_lineScrollDown" :      [ "cmd_lineScrollDown",         VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_jumpToMatchingBrace" : [ "cmd_jumpToMatchingBrace",    VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_jumpToMatchingBrace" : [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_wordLeftPastPunctuation" : [ "cmd_wordLeftPastPunctuation", VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_wordRightPastPunctuation" : [ "cmd_wordRightPastPunctuation", VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_wordRightEndPastPunctuation" : [ VimController.SPECIAL_COMMAND, VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
@@ -3093,6 +3093,39 @@ function cmd_vim_gotoLine(scimoz, lineNumber) {
             gVimController.repeatCount = 0;
         } else {
             ko.commands.doCommand('cmd_documentEnd');
+        }
+    } catch (e) {
+        vimlog.exception(e);
+    }
+}
+
+function cmd_vim_jumpToMatchingBrace(scimoz) {
+    try {
+        var braces = "[]{}()";
+        if (["Python", "YAML"].indexOf(ko.views.manager.currentView.language)) {
+            braces += ":";
+        }
+        var currentPos = scimoz.currentPos;
+        var lineNo = scimoz.lineFromPosition(currentPos);
+        var lineStartPos = scimoz.lineFromPosition(lineNo);
+        var lineEndPos = scimoz.getLineEndPosition(lineNo);
+        var line = scimoz.getTextRange(currentPos, lineEndPos);
+        var re_expr = new RegExp("[\\" + braces.split("").join("\\") + "]");
+        var match = re_expr.exec(line);
+        if (match) {
+            var newPos = currentPos + ko.stringutils.bytelength(line.substr(0, match.index));
+            scimoz.currentPos = newPos;
+            scimoz.anchor = newPos;
+            ko.commands.doCommand('cmd_jumpToMatchingBrace');
+            // Move one char back to the left - to keep vim compatibility.
+            currentPos = scimoz.currentPos;
+            lineNo = scimoz.lineFromPosition(currentPos);
+            var lineStartPos = scimoz.lineFromPosition(lineNo);
+            if (currentPos > lineStartPos) {
+                currentPos = scimoz.positionBefore(currentPos);
+                scimoz.currentPos = currentPos;
+                scimoz.anchor = currentPos;
+            }
         }
     } catch (e) {
         vimlog.exception(e);
