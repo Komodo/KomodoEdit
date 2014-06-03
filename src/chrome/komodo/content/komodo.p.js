@@ -352,8 +352,8 @@ function onloadDelay() {
 
         // Send a delayed startup event a few seconds later.
         setTimeout(function() {
-            Services.obs.notifyObservers(null, "komodo-delayed-startup", "");
-            xtk.domutils.fireEvent(window, "komodo-delayed-startup");
+            Services.obs.notifyObservers(null, "komodo-post-startup", "");
+            xtk.domutils.fireEvent(window, "komodo-post-startup");
         }, 2500);
 
 // #if BUILD_FLAVOUR == "dev"
