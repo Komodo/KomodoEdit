@@ -347,10 +347,14 @@ function onloadDelay() {
 // #endif
 
         // This is a global event, no need to use the WindowObserverSvc
-        var obSvc = Components.classes["@mozilla.org/observer-service;1"].
-                getService(Components.interfaces.nsIObserverService);
-        obSvc.notifyObservers(null, "komodo-ui-started", "");
+        Services.obs.notifyObservers(null, "komodo-ui-started", "");
         xtk.domutils.fireEvent(window, "komodo-ui-started");
+
+        // Send a delayed startup event a few seconds later.
+        setTimeout(function() {
+            Services.obs.notifyObservers(null, "komodo-delayed-startup", "");
+            xtk.domutils.fireEvent(window, "komodo-delayed-startup");
+        }, 2500);
 
 // #if BUILD_FLAVOUR == "dev"
         require("ko/benchmark").addEvent("komodo-ui-started-event-finished");
