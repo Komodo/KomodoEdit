@@ -336,55 +336,49 @@ class KoInitService(object):
 
     def observe(self, subject, topic, data):
         # this exists soley for app-startup support
+
+        def loadStartupCategories(category):
+            """Load XPCOM startup services that are registered for category."""
+            catman = components.classes["@mozilla.org/categorymanager;1"].\
+                            getService(components.interfaces.nsICategoryManager)
+            names = catman.enumerateCategory(category)
+            while names.hasMoreElements():
+                nameObj = names.getNext()
+                nameObj.QueryInterface(components.interfaces.nsISupportsCString)
+                name = nameObj.data
+                cid = catman.getCategoryEntry(category, name)
+                if cid.startswith("service,"):
+                    cid = cid[8:]
+                log.info("Adding pre startup service for %r: %r", name, cid)
+                try:
+                    svc = components.classes[cid].\
+                        getService(components.interfaces.nsIObserver)
+                    svc.observe(None, category, None)
+                except Exception:
+                    log.exception("Unable to start %r service: %r", name, cid)
+        
         observerSvc = components.classes["@mozilla.org/observer-service;1"].\
                       getService(components.interfaces.nsIObserverService)
+
         if topic == "app-startup":
             observerSvc.addObserver(self, "profile-after-change", 1)
+
         elif topic == "profile-after-change":
+            observerSvc.removeObserver(self, "profile-after-change")
             # get all komodo-startup components and instantiate them
             self.initExtensions()
-            catman = components.classes["@mozilla.org/categorymanager;1"].\
-                            getService(components.interfaces.nsICategoryManager)
-            category = 'komodo-startup-service'
-            names = catman.enumerateCategory(category)
-            while names.hasMoreElements():
-                nameObj = names.getNext()
-                nameObj.QueryInterface(components.interfaces.nsISupportsCString)
-                name = nameObj.data
-                cid = catman.getCategoryEntry(category, name)
-                if cid.startswith("service,"):
-                    cid = cid[8:]
-                log.info("Adding startup service for %r: %r", name, cid)
-                try:
-                    svc = components.classes[cid].\
-                        getService(components.interfaces.nsIObserver)
-                    svc.observe(None, "komodo-startup-service", None)
-                except Exception:
-                    log.exception("Unable to start %r service: %r", name, cid)
+            loadStartupCategories('komodo-pre-startup-service')
             observerSvc.addObserver(self, "komodo-ui-started", 1)
             observerSvc.addObserver(self, "quit-application", 1)
-            observerSvc.removeObserver(self, "profile-after-change")
+
         elif topic == "komodo-ui-started":
             observerSvc.removeObserver(self, "komodo-ui-started")
-            # get all delayed komodo-startup components and instantiate them
-            catman = components.classes["@mozilla.org/categorymanager;1"].\
-                            getService(components.interfaces.nsICategoryManager)
-            category = 'komodo-delayed-startup-service'
-            names = catman.enumerateCategory(category)
-            while names.hasMoreElements():
-                nameObj = names.getNext()
-                nameObj.QueryInterface(components.interfaces.nsISupportsCString)
-                name = nameObj.data
-                cid = catman.getCategoryEntry(category, name)
-                if cid.startswith("service,"):
-                    cid = cid[8:]
-                log.info("Adding delayed startup service for %r: %r", name, cid)
-                try:
-                    svc = components.classes[cid].\
-                        getService(components.interfaces.nsIObserver)
-                    svc.observe(None, "komodo-delayed-startup-service", None)
-                except Exception:
-                    log.exception("Unable to start %r service: %r", name, cid)
+            loadStartupCategories('komodo-startup-service')
+            observerSvc.addObserver(self, "komodo-post-startup", 1)
+
+        elif topic == "komodo-post-startup":
+            observerSvc.removeObserver(self, "komodo-post-startup")
+            loadStartupCategories('komodo-delayed-startup-service')
             
         elif topic == "quit-application":
             observerSvc.removeObserver(self, "quit-application")

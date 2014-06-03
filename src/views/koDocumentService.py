@@ -105,6 +105,7 @@ class KoDocumentService:
         self._docCounters = {}
         self._documents = {}
 
+        self.obsSvc.addObserver(self, 'komodo-post-startup', False)
         self.obsSvc.addObserver(self, 'xpcom-shutdown', False)
         self.obsSvc.addObserver(self, 'current_project_changed', False)
         
@@ -114,18 +115,19 @@ class KoDocumentService:
         self._cv = threading.Condition()
         self._cDoc = threading.Lock()
         
-        self._thread = threading.Thread(target = KoDocumentService._autoSave,
-                                        name = "Document Service - autosave",
-                                        args = (self,))
-        # Set the autosave thread as a daemon thread so it won't prevent
-        # shutdown; see bug 101357.  This is only safe because the actual
-        # writing happens on the main thread via ProxyToMainThread; see
-        # koDocumentBase._doAutoSave in koDocument.py.
-        self._thread.daemon = True
-        self._thread.start()
-
     def observe(self, subject, topic, data):
-        if topic == "xpcom-shutdown":
+        if topic == 'komodo-post-startup':
+            self.obsSvc.removeObserver(self, 'komodo-post-startup')
+            self._thread = threading.Thread(target = KoDocumentService._autoSave,
+                                            name = "Document Service - autosave",
+                                            args = (self,))
+            # Set the autosave thread as a daemon thread so it won't prevent
+            # shutdown; see bug 101357.  This is only safe because the actual
+            # writing happens on the main thread via ProxyToMainThread; see
+            # koDocumentBase._doAutoSave in koDocument.py.
+            self._thread.daemon = True
+            self._thread.start()
+        elif topic == "xpcom-shutdown":
             self.shutdownAutoSave()
             self.obsSvc.removeObserver(self, 'current_project_changed')
             self.obsSvc.removeObserver(self, 'xpcom-shutdown')
