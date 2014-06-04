@@ -423,7 +423,7 @@ $consLocal->InstallAs("$mozChromeDir/komodo/content/library/ejs.js", "ejs/ejs_ed
 $consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/less.js", "smallstuff/less.js");
 
 # commonjs
-$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/mustache.js", "commonjs/mustache.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/dot.js", "commonjs/dot.js");
 
 #----  Watchdog for file notifcations
 if ($withWatchdogFSNotifications) {
