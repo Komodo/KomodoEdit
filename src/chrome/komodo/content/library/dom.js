@@ -23,7 +23,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         }
         else if (/^</.test(query))
         {
-            return new queryObject(createFlexElement(query));
+            return new queryObject($.createElement(query));
         }
         else
             return new queryObject(query)
@@ -38,7 +38,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
      *
      * @returns {Node}
      */
-    var createFlexElement = function(html)
+    $.createElement = function(html)
     {
         var tmp = document.createElement("div");
         tmp.innerHTML = html;
@@ -60,7 +60,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         var __insert = false
         if (typeof insert == 'string')
-            __insert = createFlexElement(insert);
+            __insert = $.createElement(insert);
 
         return elems.each(function()
         {
@@ -91,7 +91,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
      * queryObject function (internal use)
      * query = selector, dom element or function
      */
-    function queryObject(query)
+    function queryObject(query, customParent)
     {
         this._elements = [];
         
@@ -99,7 +99,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         if (query && query.nodeType)
             this._elements.push.apply(this._elements, [query]);
         else if ('' + query === query)
-            this._elements.push.apply(this._elements,  parent.querySelectorAll(query));
+            this._elements.push.apply(this._elements,  (customParent || parent).querySelectorAll(query));
     }
 
     // set query object prototype
@@ -290,6 +290,14 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
+        /**
+         * Check if element is visible
+         */
+        visible: function()
+        {
+            return ["","visible","initial", "inherit"].indexOf(this.element().style.visibility) != -1;
+        },
+
         addClass: function(className)
         {
             return this.each(function()
@@ -306,6 +314,23 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
+        css: function(key, value)
+        {
+            var rules = {};
+            if (value)
+                rules[key] = value;
+            else
+                rules = key;
+
+            return this.each(function()
+            {
+                for (let k in rules)
+                {
+                    this.style[k] = rules[k];
+                }
+            });
+        },
+
         /**
          * Focus on element
          */
@@ -313,6 +338,14 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         {
             this.first().focus();
             return this;
+        },
+
+        /**
+         * Find within current element
+         */
+        find: function(query)
+        {
+            return new queryObject(query, this.element());
         },
 
         // for some reason is needed to get an array-like
