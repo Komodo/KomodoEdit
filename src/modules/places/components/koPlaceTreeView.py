@@ -2389,8 +2389,13 @@ class KoPlaceTreeView(TreeView):
             if fileutils.isHiddenFile(full_name):
                 continue
             # Uses stat (instead of isdir/isfile) to avoid multiple stat calls.
-            fstat = os.stat(full_name)
-            fmode = fstat.st_mode
+            try:
+                fstat = os.stat(full_name)
+            except os.error:
+                # Can not access it, or could be a symlink that doesn't exist.
+                fmode = 0
+            else:
+                fmode = fstat.st_mode
             if stat.S_ISDIR(fmode):
                 itemType = _PLACE_FOLDER
             elif stat.S_ISREG(fmode):
