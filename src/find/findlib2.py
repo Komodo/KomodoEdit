@@ -45,6 +45,7 @@ import sys
 import re
 import logging
 import codecs
+import scandir
 from glob import glob
 import cPickle as pickle
 from hashlib import md5
@@ -1407,7 +1408,7 @@ def _walk(top, topdown=True, onerror=None, follow_symlinks=False):
         yield top, dirs, nondirs
     for name in dirs:
         path = join(top, name)
-        for x in _walk(path, topdown, onerror, follow_symlinks=follow_symlinks):
+        for x in scandir.walk(path, topdown, onerror, followlinks=follow_symlinks):
             yield x
     if not topdown:
         yield top, dirs, nondirs
@@ -1417,6 +1418,7 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                               recursive=True, includes=[], excludes=[],
                               skip_dupe_dirs=False,
                               follow_symlinks=False,
+                              yield_filetype=False,
                               on_error=_NOT_SPECIFIED):
     """paths_from_path_patterns([<path-patterns>, ...]) -> file paths
 
@@ -1447,6 +1449,8 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
         "follow_symlinks" is a boolean indicating whether to follow
             symlinks (default False). Use "skip_dupe_dirs" to guard
             against infinite loops with circular dir symlinks.
+        "yield_filetype" determines whether this function yields path as well as
+            fileType
         "on_error" is an error callback called when a given path pattern
             matches nothing:
                 on_error(PATH_PATTERN)
@@ -1540,15 +1544,18 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                 if (dirs == "always"
                     or (dirs == "if-not-recursive" and not recursive)
                    ) and _should_include_path(path, includes, excludes):
-                    yield path
+                    if yield_filetype:
+                        yield path, "dir"
+                    else:
+                        yield path
 
                 # However, if recursive, 'includes' should NOT affect
                 # whether a dir is recursed into. Otherwise you could
                 # not:
                 #   script -r --include="*.py" DIR
                 if recursive and _should_include_path(path, [], excludes):
-                    for dirpath, dirnames, filenames in _walk(path, 
-                            follow_symlinks=follow_symlinks):
+                    for dirpath, dirnames, filenames in scandir.walk(path,
+                            followlinks=follow_symlinks):
                         dir_indeces_to_remove = []
                         for i, dirname in enumerate(dirnames):
                             d = join(dirpath, dirname)
@@ -1563,7 +1570,10 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                                     searched_dirs.add(canon_d)
                             if dirs == "always" \
                                and _should_include_path(d, includes, excludes):
-                                yield d
+                                if yield_filetype:
+                                    yield d, "dir"
+                                else:
+                                    yield d
                             if not _should_include_path(d, [], excludes):
                                 dir_indeces_to_remove.append(i)
                         for i in reversed(dir_indeces_to_remove):
@@ -1572,10 +1582,18 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                             for filename in sorted(filenames):
                                 f = join(dirpath, filename)
                                 if _should_include_path(f, includes, excludes):
-                                    yield f
+                                    if yield_filetype:
+                                        yield f, "file"
+                                    else:
+                                        yield f
+
+
 
             elif files and _should_include_path(path, includes, excludes):
-                yield path
+                if yield_filetype:
+                    yield path, "file"
+                else:
+                    yield path
 
 
 
