@@ -1,4 +1,0 @@
-(function() {
-
-
-}).apply(module.exports);

@@ -1,17 +1,31 @@
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/Services.jsm');
 
+var startupData;
+
 function loadIntoWindow(window) {
     try {
         window.require.setRequirePath("scope-files/", "chrome://scope-files/content/");
         var commando = window.require("commando/commando");
-        commando.registerScope("project-files", {
-            name: "Project Files",
-            icon: "chrome://scope-files/skin/icons/project.png",
+        commando.registerScope("scope-files", {
+            name: "Files",
+            icon: "chrome://icomoon/skin/icons/file5.png",
             handler: "scope-files/files"
         });
     } catch (e) {
-        Cu.reportError("Exception while registering scope 'Project Files'");
+        Cu.reportError("Commando: Exception while registering scope 'Files'");
+        Cu.reportError(e);
+    }
+
+    try {
+        var component = startupData.installPath.clone();
+        component.append("components");
+        component.append("component.manifest");
+
+        var registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+        registrar.autoRegister(component);
+    } catch (e) {
+        Cu.reportError("Commando: Exception while registering component for 'Files' scope");
         Cu.reportError(e);
     }
 }
@@ -38,6 +52,8 @@ var windowListener = {
 };
 
 function startup(data, reason) {
+    startupData = data;
+
     // Load into any existing windows
     let windows = Services.wm.getEnumerator("Komodo");
     while (windows.hasMoreElements()) {
