@@ -39,7 +39,7 @@
 
 import os
 import sys
-from xpcom import components, COMException
+from xpcom import components, COMException, _xpcom
 import ConfigParser
 
 Cc = components.classes
@@ -137,13 +137,9 @@ def getExtensionCategoryDirs(xpcom_category, relpath=None, extension_id=None):
 
     # Generate the directories.
     extension_dirs = getExtensionDirectories()
-    catman = Cc["@mozilla.org/categorymanager;1"].getService(Ci.nsICategoryManager)
-    names = catman.enumerateCategory(xpcom_category)
     dirs = []
-    while names.hasMoreElements():
-        nameObj = names.getNext()
-        extension_name = nameObj.QueryInterface(Ci.nsISupportsCString).data
-        extension_name = os.path.normcase(extension_name)
+    for entry in _xpcom.GetCategoryEntries(xpcom_category):
+        extension_name = os.path.normcase(entry.split(" ")[0])
 
         # If looking for a specific extension.
         if extension_id and extension_id != extension_name:

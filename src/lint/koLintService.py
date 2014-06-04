@@ -41,7 +41,7 @@ import time
 import urllib2
 
 from zope.cachedescriptors.property import Lazy as LazyProperty
-from xpcom import components, nsError, ServerException, COMException
+from xpcom import components, nsError, ServerException, COMException, _xpcom
 from xpcom.server import UnwrapObject
 from koLintResult import KoLintResult
 from koLintResults import koLintResults
@@ -289,15 +289,12 @@ class KoLintService:
 
         # dict of { 'terminals' => array of linters, 'aggregators' => array of linters }
         self._linterCIDsByLanguageName = {}
-        # Init it now, pay the price of walking through the categories now...
-        catman = components.classes["@mozilla.org/categorymanager;1"].\
-            getService(components.interfaces.nsICategoryManager)
+
+        # Find language linters - walk through the registered linter categories.
         categoryName = 'category-komodo-linter-aggregator'
-        names = catman.enumerateCategory(categoryName)
-        while names.hasMoreElements():
-            nameObj = names.getNext()
-            rawName, fixedName = self._getCategoryNameFromNameObj(nameObj)
-            cid = catman.getCategoryEntry(categoryName, rawName)
+        for entry in _xpcom.GetCategoryEntries(categoryName):
+            rawName, cid = entry.split(" ", 1)
+            fixedName = urllib2.unquote(rawName)
             if not self._linterCIDsByLanguageName.has_key(fixedName):
                 self._linterCIDsByLanguageName[fixedName] = {'terminals':[],
                                                      'aggregator':cid}
@@ -307,18 +304,16 @@ class KoLintService:
                          self._linterCIDsByLanguageName[fixedName]['aggregator'],
                          cid)
                 self._linterCIDsByLanguageName[fixedName]['aggregator'] = cid
-            
+
         categoryName = 'category-komodo-linter'
-        names = catman.enumerateCategory(categoryName)
-        while names.hasMoreElements():
-            nameObj = names.getNext()
-            rawName, fixedName = self._getCategoryNameFromNameObj(nameObj)
+        for entry in _xpcom.GetCategoryEntries(categoryName):
+            rawName, cid = entry.split(" ", 1)
+            fixedName = urllib2.unquote(rawName)
             idx = fixedName.find("&type=")
             if idx == -1:
                 languageName = fixedName
             else:
                 languageName = fixedName[:idx]
-            cid = catman.getCategoryEntry(categoryName, rawName)
             if not self._linterCIDsByLanguageName.has_key(languageName):
                 self._linterCIDsByLanguageName[languageName] = {'terminals':[],
                                                              'aggregator':None}

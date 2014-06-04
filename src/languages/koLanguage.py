@@ -397,28 +397,14 @@ class KoLanguageRegistryService:
     def registerLanguages(self):
         """registerLanguages
         
-        Registers the languages listed in the "komodo-language" category
+        Registers the languages listed in the "komodo-language" category..
         """
-        catman = components.classes["@mozilla.org/categorymanager;1"]\
-                           .getService(components.interfaces.nsICategoryManager)
-        enumerator = catman.enumerateCategory("komodo-language")
-        lang_contracts = set()
-        while enumerator.hasMoreElements():
+        for entry in _xpcom.GetCategoryEntries("komodo-language"):
+            lang, contractid = entry.split(" ", 1)
             try:
-                entry = enumerator.getNext().queryInterface(components.interfaces.nsISupportsCString).data
-                contract = catman.getCategoryEntry("komodo-language", entry)
-                lang_contracts.add(contract)
-                self.registerLanguage(components.classes[contract].createInstance())
+                self.registerLanguage(components.classes[contractid].createInstance())
             except Exception, e:
                 log.exception(e)
-        # Check if there are any koLanguage xpcom classes that did not get
-        # registered through the komodo-language category... which probably
-        # means someone forgot to add their language category.
-        for contract_name in components.classes.keys():
-            if contract_name.startswith("@activestate.com/koLanguage?language="):
-                if contract_name not in lang_contracts:
-                    lang = contract_name[37:].split(";", 1)[0]
-                    log.warn("Komodo Language %r was not registered - missing a 'komodo-language' category", lang)
 
     def registerLanguage(self, language):
         name = language.name
