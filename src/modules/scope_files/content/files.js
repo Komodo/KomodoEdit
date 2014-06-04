@@ -37,7 +37,7 @@
         commando.setSubscope(subscope);
 
         // Set includes/excludes, if relevant
-        if (subscope.path.indexOf(curProject.liveDirectory) === 0)
+        if (curProject && subscope.path.indexOf(curProject.liveDirectory) === 0)
         {
             opts["excludes"] = curProject.prefset.getString("import_exclude_matches");
             opts["includes"] = curProject.prefset.getString("import_include_matches");
