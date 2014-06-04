@@ -2,17 +2,40 @@
 
 #commando-panel
 {
-    min-width: 350px;
-    padding: 8px;
+    min-width: 500px;
+    padding: 0;
 
-    -moz-appearance: @window-appearance;
+    -moz-appearance: none;
     background: @window-background;
     color: @window-color;
+    border: 1px solid rgba(0,0,0,0.3);
+    border: @main-border;
+}
+
+#commando-search-wrapper
+{
+    margin-bottom: 1px;
+    background: #FFF; /* In case @textbox-background is disabled */
+    background: @textbox-background;
+}
+
+#commando-search
+{
+    font-size: 150%;
+    padding: 10px;
+    border: 0;
+    margin: 0;
+    background: transparent !important;
+
+    -moz-appearance: none;
 }
 
 #commando-scope
 {
+    -moz-appearance: none;
     width: 40px;
+    border: 0;
+    margin: 0;
     
     & > .menulist-label-box
     {
@@ -29,10 +52,62 @@
     }
 }
 
-#commando-results
+richlistbox#commando-results
 {
+    -moz-appearance: none;
+    background: #FFF !important; /* In case @textbox-background is disabled */
+    background: @textbox-background !important;
+    border: 0;
+    margin: 0;
+
     &:not(.has-results)
     {
         visibility: collapse;
     }
+
+    richlistitem
+    {
+        background-color: transparent;
+        color: @window-color;
+        padding: 5px;
+        background-color: rgba(0,0,0,0.05);
+
+        &:nth-child(even)
+        {
+            background-color: rgba(0,0,0,0.1);
+        }
+
+        &[selected="true"]
+        {
+            background-color: @list-listbox-row-background-selected;
+            color: @list-listbox-item-color-selected;
+        }
+
+        label
+        {
+            font-size: 120%;
+        }
+
+        image
+        {
+            width: 32px;
+            height: 32px;
+        }
+
+        description
+        {
+            opacity: 0.7;
+        }
+
+        description strong
+        {
+            font-weight: bold;
+        }
+
+        description em
+        {
+            font-style: italic;
+        }
+    }
+
 }
