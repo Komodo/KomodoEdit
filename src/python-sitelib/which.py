@@ -74,6 +74,7 @@ import os
 import sys
 import getopt
 import stat
+import time
 
 
 #---- exceptions
