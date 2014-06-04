@@ -21,21 +21,15 @@
     <popupset id="komodoMainPopupSet">
         <panel id="commando-panel" titlebar="normal">
             <vbox flex="1">
-                <hbox>
+                <hbox id="commando-search-wrapper">
                     <!-- Menuitem template -->
-                    <script id="tpl-co-scope-menuitem" type="x-tmpl-mustache">
-                        <menuitem id="scope-{{id}}" label="{{name}}" value="{{id}}" image="{{icon}}"/>
+                    <script id="tpl-co-scope-menuitem" type="x-dot-template">
+                        <menuitem id="scope-{{=it.id}}" label="{{=it.name}}" value="{{=it.id}}" image="{{=it.icon}}"/>
                     </script>
 
                     <menulist id="commando-scope" sizetopopup="none">
                         <menupopup id="commando-scope-menupopup">
-                            <menuitem label="History" value="history" image="chrome://icomoon/skin/icons/file5.png"/>
-                            <menuitem label="Open Files" value="openfiles" image="chrome://icomoon/skin/icons/file5.png"/>
-                            <menuitem label="Snippets" value="openfiles" image="chrome://icomoon/skin/icons/file5.png"/>
-                            <menuitem label="Macros" value="openfiles" image="chrome://icomoon/skin/icons/file5.png"/>
                             <menuseparator id="scope-separator"/>
-                            <menuitem label="Files" value="openfiles" image="chrome://icomoon/skin/icons/folder.png"/>
-                            <menuitem label="Tools" value="openfiles" image="chrome://icomoon/skin/icons/play4.png"/>
                             <menuseparator id="custom-scope-separator"/>
                             <menuitem label="Manage Scopes ..."
                                       oncommand="ko.commands.doCommand('cmd_commandoPrefs', event)"/>
@@ -43,27 +37,32 @@
                     </menulist>
                     <textbox flex="1" id="commando-search"/>
                 </hbox>
-                <vbox flex="1">
+                <vbox flex="1" id="commando-results-wrapper">
                     <!-- Result template -->
-                    <script id="tpl-co-result" type="x-tmpl-mustache">
-                        <richlistitem>
+                    <script id="tpl-co-result" type="x-dot-template">
+                        <richlistitem class="{{?it.classList}}{{=it.classList}}{{?}}">
                             <hbox>
                                 <hbox class="icon-wrapper">
-                                    {{#icon}}
-                                        <image src='{{icon}}'/>
-                                    {{/icon}}
+                                    {{?it.icon}}
+                                        <image src='{{=it.icon}}'/>
+                                    {{?}}
                                 </hbox>
                                 <vbox flex="1">
-                                    <label value="{{name}}"/>
-                                    {{#description}}
-                                        <description value="{{description}}"/>
-                                    {{/description}}
+                                    <label value="{{=it.name}}"/>
+                                    {{?it.description}}
+                                        <description>
+                                            {{?it.subscope}}
+                                                <em>{{=it.subscope.label}}</em>
+                                            {{?}}
+                                            {{=it.description}}
+                                        </description>
+                                    {{?}}
                                 </vbox>
                             </hbox>
                         </richlistitem>
                     </script>
 
-                    <richlistbox id="commando-results" flex="1"></richlistbox>
+                    <richlistbox id="commando-results" flex="1" seltype="multiple"></richlistbox>
                 </vbox>
             </vbox>
         </panel>
