@@ -142,6 +142,8 @@ def _cull(potential, matches, verbose=0):
         
 #---- module API
 
+g_listdir_cache = {}
+
 def whichgen(command, path=None, verbose=0, exts=None):
     """Return a generator of full paths to the given command.
     
@@ -184,9 +186,10 @@ def whichgen(command, path=None, verbose=0, exts=None):
                 if ext.lower() == ".exe":
                     break
             else:
-                exts = ['.COM', '.EXE', '.BAT']
+                exts = ['.com', '.exe', '.bat', '.cmd']
         elif not isinstance(exts, list):
             raise TypeError("'exts' argument must be a list or None")
+        exts = map(os.path.normcase, exts)
     elif sys.platform == "darwin":
         if exts is None:
             exts = [".app"]
@@ -206,13 +209,31 @@ def whichgen(command, path=None, verbose=0, exts=None):
             else:
                 yield match[0]
     else:
+        time_now = time.time()
         for i in range(len(path)):
             dirName = path[i]
             # On windows the dirName *could* be quoted, drop the quotes
             if sys.platform.startswith("win") and len(dirName) >= 2\
                and dirName[0] == '"' and dirName[-1] == '"':
                 dirName = dirName[1:-1]
+
+            entry = g_listdir_cache.get(dirName)
+            # Cache lasts for 5 seconds.
+            if entry is None or ((time_now - entry.get("timestamp", 0)) > 5):
+                try:
+                    names = os.listdir(dirName)
+                except OSError:
+                    names = []
+                names = map(os.path.normcase, names)  # lowercase for Windows.
+                g_listdir_cache[dirName] = { "timestamp": time_now, "names": names }
+            else:
+                names = g_listdir_cache.get(dirName).get("names")
+
             for ext in ['']+exts:
+                name = command + ext
+                if name not in names:
+                    continue
+
                 absName = os.path.abspath(
                     os.path.normpath(os.path.join(dirName, command+ext)))
                 if os.path.isfile(absName) \
