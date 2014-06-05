@@ -684,8 +684,9 @@ class Scheme(SchemeBase):
             scimoz.styleSetFont(scimoz.STYLE_DEFAULT, font)
         scimoz.styleClearAll() # now all styles are the same
         defaultUseFixed = useFixed
-        if language in ValidStyles:
-            for (scimoz_no, scimoz_name, common_name) in ValidStyles[language]:
+        langStyles = GetLanguageStyles(language)
+        if langStyles:
+            for (scimoz_no, scimoz_name, common_name) in langStyles:
                 # first deal with which default style should be used.
                 commonStyle = self._commonStyles.get(common_name, {})
                 specificStyle = currentLanguageStyles.get(common_name, {})
@@ -1127,8 +1128,9 @@ class KoScintillaSchemeService(SchemeServiceBase):
 }\n\n""" % locals()
         css.append(defaultStyle)
         stylesDealtWith = {}
-        if language in ValidStyles:
-            for (scimoz_no, scimoz_name, common_name) in ValidStyles[language]:
+        langStyles = GetLanguageStyles(language)
+        if langStyles:
+            for (scimoz_no, scimoz_name, common_name) in langStyles:
                 if common_name in stylesDealtWith: continue
                 stylesDealtWith[common_name] = 1
                 style = ['span.%s {\n' % common_name.replace(' ', '_') ]
@@ -1556,24 +1558,30 @@ class KoScintillaSchemeService(SchemeServiceBase):
 
 #---- internal support routines
 
+def _initializeLanguageStyles(languageName):
+    log.info("initializing style info for %s", languageName)
+    languageStyles = []
+    ISciMoz = components.interfaces.ISciMoz
+    for common_name, scimoz_names in StateMap[languageName].items():
+        for scimoz_name in scimoz_names:
+            if isinstance(scimoz_name, str):
+                scimoz_no = getattr(ISciMoz, scimoz_name)
+            else:
+                scimoz_no = int(scimoz_name) # should be noop
+            key = (scimoz_no, languageName)
+            if common_name in CommonStates:
+                ScimozStyleNo2CommonName[key] = common_name
+            ScimozStyleNo2SpecificName[key] = common_name
+            languageStyles.append((scimoz_no, scimoz_name, common_name)) 
+    ValidStyles[languageName] = languageStyles
+    return languageStyles
+
+def GetLanguageStyles(languageName):
+    return ValidStyles.get(languageName) or _initializeLanguageStyles(languageName)
+
 def _initializeStyleInfo():
     """Initialize the global style info variables."""
     log.debug("initializing style info...")
-    ISciMoz = components.interfaces.ISciMoz
-    for languageName in StateMap:
-        languageStyles = []
-        for common_name, scimoz_names in StateMap[languageName].items():
-            for scimoz_name in scimoz_names:
-                if isinstance(scimoz_name, str):
-                    scimoz_no = getattr(ISciMoz, scimoz_name)
-                else:
-                    scimoz_no = int(scimoz_name) # should be noop
-                key = (scimoz_no, languageName)
-                if common_name in CommonStates:
-                    ScimozStyleNo2CommonName[key] = common_name
-                ScimozStyleNo2SpecificName[key] = common_name
-                languageStyles.append((scimoz_no, scimoz_name, common_name)) 
-        ValidStyles[languageName] = languageStyles
     koILintResult = components.interfaces.koILintResult
     for indic_name, component_name in IndicatorNameMap.items():
         indic_no = getattr(koILintResult, component_name, None)
