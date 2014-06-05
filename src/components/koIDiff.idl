@@ -1,0 +1,44 @@
+#include "nsISupports.idl"
+#include "koIDocument.idl"
+
+// koIDiff usage:
+// 1. Initialize with one of the init*() methods
+// 2. Use the data or extra methods for info.
+[scriptable, uuid(0c70afc1-a195-4578-8c5e-f82cd0aba531)]
+interface koIDiff : nsISupports
+{
+    void initByDiffingFiles(in wstring fname1, in wstring fname2);
+    void initByDiffingDocuments(in koIDocument doc1, in koIDocument doc2);
+    void initWithDiffContent(in AString diff);
+
+
+    readonly attribute AString diff;    // the diff content
+    readonly attribute AString warning; // a possible warning about the diff
+    // These two are not available if initialized via initWithDiffContent().
+    readonly attribute koIDocument doc1;
+    readonly attribute koIDocument doc2;
+    
+    // Find the file and file position corresponding to the given position
+    // in the diff.
+    //
+    // All line and column numbers are 0-based.
+    //
+    // Raises an exception if it could not be determined. The reason is set
+    // on koILastErrorService. Note also that 'filePath' could be relative.
+    void filePosFromDiffPos(in unsigned long line,
+                            in unsigned long column,
+                            out wstring filePath,
+                            out unsigned long fileLine,
+                            out unsigned long fileColumn);
+
+    // Infer, if possible, an appropriate 'cwd' and 'strip' (i.e.
+    // `patch -p <val>`) given different paths in the diff and actual on disk.
+    //
+    // Raises an exception if it could not infer these.
+    void inferCwdAndStripFromPath(in wstring pathInDiff,
+                                  in wstring actualPath,
+                                  out wstring cwd,
+                                  out unsigned long strip);
+};
+
+
