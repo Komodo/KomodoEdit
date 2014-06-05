@@ -96,10 +96,14 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         this._elements = [];
         
         // Use push.apply to force array type
-        if (query && query.nodeType)
+        if(Object.prototype.toString.call(query) === '[object Array]')
+            this._elements = query.slice(0);
+        else if (query && query.nodeType)
             this._elements.push.apply(this._elements, [query]);
         else if ('' + query === query)
             this._elements.push.apply(this._elements,  (customParent || parent).querySelectorAll(query));
+
+        this.length = this._elements.length;
     }
 
     // set query object prototype
@@ -150,6 +154,14 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 if ( ! this._elements.hasOwnProperty(k)) continue;
                 if (action.call(this._elements[k], k) === false) break;
             }
+            return this;
+        },
+
+        /*
+         * Reverse the element array
+         */
+        reverse: function(action) {
+            this._elements.reverse();
             return this;
         },
 
@@ -346,6 +358,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         find: function(query)
         {
             return new queryObject(query, this.element());
+        },
+
+        children: function()
+        {
+            return new queryObject(this.first().childNodes);
         },
 
         // for some reason is needed to get an array-like
