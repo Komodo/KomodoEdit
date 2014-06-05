@@ -238,6 +238,49 @@
 
         resultElem.addClass("has-results");
         resultElem.css("maxHeight", (window.screen.availHeight / 2) + "px");
+
+        this.sortResults();
+    }
+
+    this.sortResults = function()
+    {
+        log.debug("Sorting Results");
+        var resultElem = elem('results');
+
+        // Sort by handler.sort
+        var handler = getScopeHandler();
+        if ("sort" in handler)
+        {
+            resultElem.find("richlistitem").reverse().each(function()
+            {
+                var cont = true;
+                while (this.previousSibling && cont)
+                {
+                    if (handler.sort(this.resultData, this.previousSibling.resultData) === 1)
+                        this.parentNode.insertBefore(this, this.previousSibling);
+                    else
+                        cont = false;
+                }
+            });
+        }
+
+        // Sort by weight, if available
+        resultElem.find("richlistitem").reverse().each(function()
+        {
+            var cont = true;
+            while (this.previousSibling && cont)
+            {
+                let current = this.resultData;
+                let previous = this.previousSibling.resultData;
+
+                if ((current.weight && ! previous.weight) ||
+                    (current.weight && previous.weight && current.weight > previous.weight)
+                )
+                    this.parentNode.insertBefore(this, this.previousSibling);
+                else
+                    cont = false;
+            }
+        });
     }
 
     this.onSearchComplete = function(scope, searchUuid)

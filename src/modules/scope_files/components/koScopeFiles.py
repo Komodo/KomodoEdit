@@ -26,6 +26,7 @@ class koScopeFiles():
 
     project = None
     cache = {}
+    _history = None
 
     def search(self, query, path, opts, callback):
         log.debug("Starting Search: " + query)
@@ -34,6 +35,7 @@ class koScopeFiles():
         # Prepare Regex Object
         query = ' '.join(query.split())             # Reduce/trim whitespace
         query = re.escape(query).split("\\ ")       # Escape query and split by whitespace
+        words = query
         query = "(" + (")(.*?)(".join(query)) + ")" # Add regex groups
         query = re.compile(query, re.IGNORECASE)
 
@@ -53,12 +55,30 @@ class koScopeFiles():
             for pathEntry in walker:
                 description = query.sub(replacement, pathEntry["path"])
                 if pathEntry["path"] is not description:
+
+                    # Todo: figure out a good way to normalize weight numbers
+                    weight = 0
+                    hits = self.history.get_num_visits("file://"+path+pathEntry["path"], -1)
+                    depth = pathEntry["path"].count(os.sep)
+
+                    weight += hits * opts.get("weightHits", 1)
+                    weight += (10 / depth) * opts.get("weightDepth", 1)
+
+                    matchWeight = 0
+                    filename = os.path.basename(pathEntry["path"])
+                    for word in words:
+                        if word in filename:
+                            matchWeight += 10
+
+                    weight += matchWeight * opts.get("weightMatch", 1)
+
                     callback.callback(0, [
-                        os.path.basename(pathEntry["path"]),
+                        filename,
                         pathEntry["path"],
                         pathEntry["type"],
-                        pathEntry["path"].count(os.sep),
-                        description])
+                        description,
+                        weight
+                    ])
 
                     numResults+=1
                     walker.send(numResults is opts.get("maxresults", 50))
@@ -92,3 +112,12 @@ class koScopeFiles():
                 }
                 self.cache[path].append(pathEntry)
                 yield pathEntry
+
+    @property
+    def history(self):
+        if self._history:
+            return self._history
+
+        historySvc = Cc["@activestate.com/koHistoryService;1"].getService(Ci.koIHistoryService)
+        self._history = UnwrapObject(historySvc)
+        return self._history

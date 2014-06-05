@@ -6,6 +6,7 @@
     const scope     = Cc["@activestate.com/commando/koScopeFiles;1"].getService(Ci.koIScopeFiles);
     const partSvc   = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService);
     const ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+    const prefs     = ko.prefs;
 
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     var activeUuid = null;
@@ -45,6 +46,11 @@
             opts["excludes"] = opts["excludes"] == "" ? [] : opts["excludes"].split(";");
             opts["includes"] = opts["includes"] == "" ? [] : opts["includes"].split(";");
         }
+
+        opts["weightMatch"] = prefs.getBoolean('commando_files_weight_multiplier_match', 30);
+        opts["weightHits"] = prefs.getBoolean('commando_files_weight_multiplier_hits', 20);
+        opts["weightDepth"] = prefs.getBoolean('commando_files_weight_multiplier_depth', 10);
+
         opts = JSON.stringify(opts);
         log.debug(uuid + " - Opts: " + opts);
 
@@ -62,16 +68,26 @@
                 return;
             }
 
-            var [name, path, type, depth, description] = entry;
+            var [name, path, type, description, weight] = entry;
+
             commando.renderResult({
                 id: path,
                 name: name,
                 description: description,
                 icon: "moz-icon://" + path + "?size=32",
                 isScope: type == 'dir',
-                weight: depth
+                weight: weight
             }, uuid);
         });
+    }
+
+    this.sort = function(current, previous)
+    {
+        // Determine whether to move the current entry "up"
+        if (previous.name.localeCompare(current.name) === 1)
+            return 1
+
+        return 0;
     }
 
     this.onSelectResult = function(selectedItems)
