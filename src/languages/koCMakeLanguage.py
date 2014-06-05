@@ -1,6 +1,5 @@
 from xpcom import components
 
-import styles
 from koLanguageServiceBase import KoLanguageBase, KoLexerLanguageService
 
 class koCMakeLanguage(KoLanguageBase):
@@ -262,25 +261,26 @@ endforeach(f)
         "ON",
     ]
 
-    # TODO - make this lazily loaded.
-    cmake_style_map = {
-        'default': ('SCE_CMAKE_DEFAULT',),
-        'comments': ('SCE_CMAKE_COMMENT',),
-        'keywords': ('SCE_CMAKE_COMMANDS',),
-        'keywords2': ('SCE_CMAKE_PARAMETERS',),
-        'variables': ('SCE_CMAKE_VARIABLE', 'SCE_CMAKE_STRINGVAR'),
-        'strings': ('SCE_CMAKE_STRINGDQ', 'SCE_CMAKE_STRINGLQ', 'SCE_CMAKE_STRINGRQ'),
-        'numbers': ('SCE_CMAKE_NUMBER',),
-        'macro': ('SCE_CMAKE_MACRODEF',),
-        'section': ('SCE_CMAKE_WHILEDEF', 'SCE_CMAKE_FOREACHDEF', 'SCE_CMAKE_IFDEFINEDEF'),
-        'user': ('SCE_CMAKE_USERDEFINED',),
-    }
-    # Set style mapping.
-    styles.addSharedStyles(cmake_style_map)
-    styles.StateMap[name] = cmake_style_map
-
     def get_lexer(self):
         if self._lexer is None:
+            # Initialize styling information.
+            cmake_style_map = {
+                'default': ('SCE_CMAKE_DEFAULT',),
+                'comments': ('SCE_CMAKE_COMMENT',),
+                'keywords': ('SCE_CMAKE_COMMANDS',),
+                'keywords2': ('SCE_CMAKE_PARAMETERS',),
+                'variables': ('SCE_CMAKE_VARIABLE', 'SCE_CMAKE_STRINGVAR'),
+                'strings': ('SCE_CMAKE_STRINGDQ', 'SCE_CMAKE_STRINGLQ', 'SCE_CMAKE_STRINGRQ'),
+                'numbers': ('SCE_CMAKE_NUMBER',),
+                'macro': ('SCE_CMAKE_MACRODEF',),
+                'section': ('SCE_CMAKE_WHILEDEF', 'SCE_CMAKE_FOREACHDEF', 'SCE_CMAKE_IFDEFINEDEF'),
+                'user': ('SCE_CMAKE_USERDEFINED',),
+            }
+            # Set style mapping.
+            import styles
+            styles.addSharedStyles(cmake_style_map)
+            styles.StateMap[self.name] = cmake_style_map
+
             # Initalize the lexer.
             self._lexer = KoLexerLanguageService()
             self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_CMAKE)
