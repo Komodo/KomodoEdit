@@ -45,7 +45,7 @@ class koScopeFiles():
             if x % 2 == 0:
                 replacement += "\\" + str(x)
             else:
-                replacement += "<strong>\\" + str(x) + "</strong>"
+                replacement += "<label class='strong' value=\"\\" + str(x) + "\"/>"
 
         # Iterate over project paths and attempt to match them agains our query
         numResults = 0

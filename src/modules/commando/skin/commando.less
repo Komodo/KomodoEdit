@@ -2,7 +2,7 @@
 
 #commando-panel
 {
-    min-width: 500px;
+    width: 500px;
     padding: 0;
 
     -moz-appearance: none;
@@ -97,14 +97,21 @@ richlistbox#commando-results
         description
         {
             opacity: 0.7;
+
+            label
+            {
+                margin: 0;
+                padding: 0;
+                -moz-appearance: none;
+            }
         }
 
-        description strong
+        description .strong
         {
             font-weight: bold;
         }
 
-        description em
+        description .em
         {
             font-style: italic;
         }

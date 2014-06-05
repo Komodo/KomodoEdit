@@ -52,7 +52,7 @@
                                     {{?it.description}}
                                         <description>
                                             {{?it.subscope}}
-                                                <em>{{=it.subscope.label}}</em>
+                                                <label class="em" value="{{=it.subscope.label}}"/>
                                             {{?}}
                                             {{=it.description}}
                                         </description>
