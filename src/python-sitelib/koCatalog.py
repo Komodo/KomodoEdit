@@ -64,19 +64,24 @@ jclark.com above)
 
 """
 
-# regular expressions used for DTD parsing
-collector = recollector()
-a = collector.add
-
-# regular expressions used for SGML Catalog parsing
-a("whitespace" ,    r"\s+", re.S|re.M)
-a("QuotedString" ,  r'(?:")([^"]*?)(?:")|(?:\')([^\']*?)(?:\')', re.S|re.U)
-a("single_types", "(OVERRIDE|SGMLDECL|DOCUMENT|CATALOG|BASE)")
-a("single",        r'(?P<type>%(single_types)s)\s+(?P<data1>%(QuotedString)s|\S+)', re.S)
-a("double_types", "(PUBLIC|ENTITY|DOCTYPE|LINKTYPE|NOTATION|SYSTEM|DELEGATE)")
-a("double",        r'(?P<type>%(double_types)s)\s+(?P<data1>%(QuotedString)s|\S+)\s+(?P<data2>%(QuotedString)s|\S+)', re.S)
-a("COMMENT" ,       r"<!--(?P<comment>.*?)-->", re.S|re.M)
-a("newlines" ,                   "[ \t]*(\r\n|\r|\n)")
+# regular expressions used for parsing
+# Lazily load the collecter on demand, rather than at import time.
+g_collector = None
+def getcollector():
+    global g_collector
+    if g_collector is None:
+        g_collector = recollector()
+        a = g_collector.add
+        # regular expressions used for SGML Catalog parsing
+        a("whitespace" ,    r"\s+", re.S|re.M)
+        a("QuotedString" ,  r'(?:")([^"]*?)(?:")|(?:\')([^\']*?)(?:\')', re.S|re.U)
+        a("single_types", "(OVERRIDE|SGMLDECL|DOCUMENT|CATALOG|BASE)")
+        a("single",        r'(?P<type>%(single_types)s)\s+(?P<data1>%(QuotedString)s|\S+)', re.S)
+        a("double_types", "(PUBLIC|ENTITY|DOCTYPE|LINKTYPE|NOTATION|SYSTEM|DELEGATE)")
+        a("double",        r'(?P<type>%(double_types)s)\s+(?P<data1>%(QuotedString)s|\S+)\s+(?P<data2>%(QuotedString)s|\S+)', re.S)
+        a("COMMENT" ,       r"<!--(?P<comment>.*?)-->", re.S|re.M)
+        a("newlines" ,                   "[ \t]*(\r\n|\r|\n)")
+    return g_collector
 
 def _cmpLen(a, b):
     al = len(a)
@@ -332,7 +337,7 @@ class SGMLCatalog(Catalog):
             # log.debug("adding %r",p[0])
             attributes = p[2]
             if not attributes: attributes = MAPTOK|EXECFN
-            self.l.addmatch(collector.res[p[0]],p[1],p[0],attributes)
+            self.l.addmatch(getcollector().res[p[0]],p[1],p[0],attributes)
 
         self.lineno = 1
         self.ignore = 0
@@ -347,7 +352,7 @@ class SGMLCatalog(Catalog):
         # XXX
         # because of the many issues around comments in dtd files, and since
         # we're doing a sloppy parse, lets just get rid of all comments now.
-        data = collector.res["COMMENT"].sub("", data)
+        data = getcollector().res["COMMENT"].sub("", data)
         r = re.compile(r"--+.*?--+", re.S|re.U)
         data = r.sub("", data)
         
@@ -369,7 +374,7 @@ class SGMLCatalog(Catalog):
 
     def doMultiLineBlock(self, m):
         #log.debug("block start at lineno %d",self.lineno)
-        nl = collector.res["newlines"].findall(m.group(0))
+        nl = getcollector().res["newlines"].findall(m.group(0))
         blockLen = len(nl)
         self.lineno = self.lineno + blockLen
         #log.debug("block had %d lines, lineno is %d", blockLen, self.lineno)
