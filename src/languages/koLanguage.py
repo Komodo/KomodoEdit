@@ -119,6 +119,9 @@ class KoLanguageRegistryService:
     # name choice directly. E.g. "Rx", "Regex".
     _internalLanguageNames = {}   # use dict for lookup speed
 
+    _defaultLanguageExtensions = {}
+    _defaultFileAssociations = {}
+
     _namespaceMap = {}
     _publicIdMap = {}
     _systemIdMap = {}
@@ -201,21 +204,12 @@ class KoLanguageRegistryService:
             self._addOneFileAssociation(pattern, languageName)
 
         # Apply fallback default extensions from all registered languages.
-        for languageName, language in self.__languageFromLanguageName.items():
-            defaultExtension = language.defaultExtension
-            if defaultExtension:
-                if not defaultExtension.startswith('.'):
-                    log.warn("'%s': skipping unexpected defaultExtension for "
-                             "language '%s': it must begin with '.'",
-                             defaultExtension, languageName)
-                    continue
-
-                self._addOneFileAssociation('*'+defaultExtension, languageName,
-                                            override=False)
-
-            for pattern in language.getExtraFileAssociations():
-                self._addOneFileAssociation(pattern, languageName,
-                                            override=False)
+        for defaultExtension, languageName in self._defaultLanguageExtensions.items():
+            self._addOneFileAssociation('*'+defaultExtension, languageName,
+                                        override=False)
+        for pattern, languageName in self._defaultFileAssociations.items():
+            self._addOneFileAssociation(pattern, languageName,
+                                        override=False)
 
         # Make a copy of the current association set before applying
         # user/site-level changes so we can compare against it latter to know
@@ -355,7 +349,7 @@ class KoLanguageRegistryService:
         for languageName in self.__languageFromLanguageName:
             if languageName in self._internalLanguageNames:
                 continue
-            elif languageName in self._primaryLanguageNames:
+            elif self._primaryLanguageNames.get(languageName):
                 primaries.append(languageName)
             else:
                 others.append(languageName)
@@ -363,10 +357,10 @@ class KoLanguageRegistryService:
         others.sort()
 
         otherContainer = KoLanguageContainer('Other',
-            [KoLanguageItem(ln, self.__accessKeyFromLanguageName[ln])
+            [KoLanguageItem(ln, self.__accessKeyFromLanguageName.get(ln, ""))
              for ln in others])
         primaryContainer = KoLanguageContainer('',
-            [KoLanguageItem(ln, self.__accessKeyFromLanguageName[ln])
+            [KoLanguageItem(ln, self.__accessKeyFromLanguageName.get(ln, ""))
              for ln in primaries]
             + [otherContainer])
         return primaryContainer
@@ -397,16 +391,81 @@ class KoLanguageRegistryService:
     def registerLanguages(self):
         """registerLanguages
         
-        Registers the languages listed in the "komodo-language" category..
+        Registers the languages listed in the "komodo-language-info" category..
         """
-        for entry in _xpcom.GetCategoryEntries("komodo-language"):
-            lang, contractid = entry.split(" ", 1)
-            try:
-                self.registerLanguage(components.classes[contractid].createInstance())
-            except Exception, e:
-                log.exception(e)
+        from urllib import unquote
+        from json import loads
 
+        for entry in _xpcom.GetCategoryEntries("komodo-language-info"):
+            lang, json_data = [unquote(x) for x in entry.split(" ", 1)]
+            try:
+                lang_data = loads(json_data)
+            except:
+                log.error("Unable to load komodo-language-info for %s %r", lang, json_data)
+            else:
+                self._registerLanguageData(lang, lang_data)
+
+    def _registerLanguageData(self, lang, data):
+        assert (lang not in self.__languageFromLanguageName), \
+               "Language '%s' already registered" % (lang)
+        log.info("registering language [%s]", lang)
+
+        # Register the name, the instance will be instantiated on demand.
+        self.__languageFromLanguageName[lang] = None
+        
+        if "accessKey" in data:
+            self.__accessKeyFromLanguageName[lang] = data["accessKey"]
+        if "internal" in data:
+            self._internalLanguageNames[lang] = data["internal"]
+        if "defaultExtension" in data:
+            defaultExtension = data["defaultExtension"]
+            existingLang = self._defaultLanguageExtensions.get(defaultExtension)
+            if not defaultExtension.startswith('.'):
+                log.warn("'%s': skipping unexpected defaultExtension for "
+                         "language '%s': it must begin with '.'",
+                         defaultExtension, lang)
+            else:
+                self._defaultLanguageExtensions[defaultExtension] = lang
+        for ext in data.get("extraFileAssociations", []):
+            existingLang = self._defaultFileAssociations.get(ext)
+            if existingLang:
+                if existingLang != lang:
+                    log.warn("ext pattern %r, lang %s - already "
+                             "registered to lang %s", ext, lang,
+                             existingLang)
+            else:
+                self._defaultFileAssociations[ext] = lang
+        for pat in data.get("shebangPatterns", []):
+            self.shebangPatterns.append((lang, pat))
+        for ns in data.get("namespaces", []):
+            self._namespaceMap[ns] = lang
+        for id in data.get("publicIdList", []):
+            self._publicIdMap[id] = lang
+        for id in data.get("systemIdList", []):
+            self._systemIdMap[id] = lang
+
+        # Mode - so that we can tell that, for example:
+        #     -*- mode: javascript -*-
+        # means language name "JavaScript".
+        modeNames = set(data.get("modeNames", []))
+        modeNames.add(lang)
+        for modeName in modeNames:
+            self._modeName2LanguageName[modeName.lower()] = lang
+
+        # Update primary field based on user preference.
+        prefname = "languages/%s/primary" % (lang,)
+        prefdefault = bool(int(data.get("primary", 0)))
+        if self._globalPrefs.getBoolean(prefname, prefdefault):
+            self._primaryLanguageNames[lang] = True
+
+    ##
+    # @deprecated since Komodo 9.0.0
+    #
     def registerLanguage(self, language):
+        import warnings
+        warnings.warn("registerLanguage is deprecated - no longer needed",
+                      category=DeprecationWarning)
+
         name = language.name
         assert not self.__languageFromLanguageName.has_key(name), \
                "Language '%s' already registered" % (name)
@@ -923,7 +982,7 @@ class KoLanguageStatusTreeView(TreeView):
         langRegistry = UnwrapObject(langRegistry)
         langNames = langRegistry.getLanguageNames()
         for langName in langNames:
-            isPrimary = langName in langRegistry._primaryLanguageNames
+            isPrimary = langRegistry._primaryLanguageNames.get(langName, False)
             self._allRows.append({'name':langName,
                                   'name_lc':langName.lower(),
                                   'status':isPrimary,

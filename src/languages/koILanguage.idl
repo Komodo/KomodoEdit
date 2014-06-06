@@ -86,6 +86,9 @@ interface koILanguage : nsISupports {
     readonly attribute boolean foldable;
     readonly attribute wstring supportsSmartIndent; // 'text', 'brace', 'python', 'XML', 'keyword'
     
+    /**
+     * @deprecated since Komodo 9.0
+     */
     attribute boolean primary;
 
     // these are lexer dependent style numbers. these are used from the terminal
