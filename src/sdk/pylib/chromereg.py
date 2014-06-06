@@ -105,12 +105,14 @@ class ChromeReg(object):
             self.vars[scope] = {}
         self.vars[scope][name] = value
 
-    def get(self, expr, scope=None):
+    # Note: default=sys is used to determine if the "default" arg was set
+    def get(self, expr, scope=None, default=sys):
         """ Get the value of an expression
         
-        @param expr the (AST) expression to evaluate
-        @param name the scope in which to look for variables; the global scope
-            will also be used.
+        @param expr - string or (AST) expression to evaluate
+        @param scope - name the scope in which to look for variables; the
+            global scope will also be used.
+        @param default - the value when expr doesn't exist
         @return the evaluated expression (as a string)
         """
     
@@ -118,30 +120,43 @@ class ChromeReg(object):
             """Look up the given variable name
             @param key the variable name
             """
-            # special python keyword literals
-            value = {"None":  None,
-                     "True":  True,
-                     "False": False,
-                    }.get(key, "")
-            if value != "":
-                return value
-    
-            if scope in self.vars and key in self.vars[scope]:
-                return self.vars[scope][key]
-            if key in self.vars[""]:
-                return self.vars[""][key]
-            assert (scope in self.vars and key in self.vars[scope]) or (key in self.vars[""]), \
-                "Failed to find {key} for {scope} in {file} line {line}".format(
-                    {"key": key, "scope": scope, "file": self.source_file, "line": expr.lineno})
+            try:
+                # special python keyword literals
+                value = {"None":  None,
+                         "True":  True,
+                         "False": False,
+                        }.get(key, "")
+                if value != "":
+                    return value
+        
+                if scope in self.vars and key in self.vars[scope]:
+                    return self.vars[scope][key]
+                if key in self.vars[""]:
+                    return self.vars[""][key]
+                assert (scope in self.vars and key in self.vars[scope]) or (key in self.vars[""]), \
+                    "Failed to find {key} for {scope} in {file} line {line}".format(
+                        {"key": key, "scope": scope, "file": self.source_file, "line": expr.lineno})
+            except KeyError:
+                if default is sys:
+                    raise
+                return default
 
         # the scope name "" (empty string) is reserved for globals since it's
         # not a valid python identifier
         assert scope != "", "Invalid scope name"
     
+        if isinstance(expr, str):
+            # Direct string lookup.
+            return lookup(expr)
+
         if isinstance(expr, ast.Name):
             # variable or keyword
             return lookup(expr.id)
     
+        if isinstance(expr, ast.Num):
+            # number literal
+            return expr.n
+
         if isinstance(expr, ast.Str):
             # string literal
             return expr.s
@@ -166,7 +181,7 @@ class ChromeReg(object):
                         self.source_file, stmt.lineno)
             # value lookup done, do the formatting
             return expr.left.s % tuple(values)
-    
+
         if isinstance(expr, ast.BinOp) and isinstance(expr.op, ast.Add):
             # x + y: hopefully these things are strings...
             return self.get(expr.left, scope) + self.get(expr.right, scope)
@@ -188,6 +203,13 @@ class ChromeReg(object):
                 # we only care about assignments (to the magic props)
                 continue
     
+            if isinstance(stmt.value, ast.Num):
+                # assignment from a string; we might need this later.
+                for target in stmt.targets:
+                    if not isinstance(target, ast.Name):
+                        continue
+                    self.set(clazz.name, target.id, self.get(stmt.value))
+
             if isinstance(stmt.value, ast.Str):
                 # assignment from a string; we might need this later.
                 for target in stmt.targets:
@@ -215,11 +237,11 @@ class ChromeReg(object):
                 value = self.get(stmt.value, clazz.name)
                 if value is not None:
                     componentData["desc"] = urllib.quote(value)
-    
+
             if filter(lambda n: hasattr(n, "id") and n.id == "_reg_categories_", stmt.targets):
                 # this is a category registration
                 assert isinstance(stmt.value, ast.Tuple) or isinstance(stmt.value, ast.List), \
-                    "%s line %i: category assignement must be a list, got %s" % (
+                    "%s line %i: category assignment must be a list, got %s" % (
                     self.source_file, stmt.value.lineno, ast.dump(stmt.value))
                 for entry in stmt.value.elts:
                     assert isinstance(entry, ast.Tuple) or isinstance(entry, ast.List), \
@@ -238,6 +260,45 @@ class ChromeReg(object):
                             clazz.name, entryData)
                     componentData["category"].append(entryData)
 
+            # koILanguage shebangPatterns attribute - which is a list of regular expressions.
+            if filter(lambda n: hasattr(n, "id") and n.id == "shebangPatterns", stmt.targets):
+                # shebangPatterns = [ re.compile(ur'\A#!.*ruby.*$', re.IGNORECASE | re.MULTILINE | re.S),]
+                assert isinstance(stmt.value, ast.Tuple) or isinstance(stmt.value, ast.List), \
+                    "%s line %i: shebangPatterns assignment must be a list, got %s" % (
+                    self.source_file, stmt.value.lineno, ast.dump(stmt.value))
+                shebangPatterns = []
+                for entry in stmt.value.elts:
+                    # Should be a regular expression call.
+                    re_expr = self.get(entry.args[0], clazz.name)
+                    re_flags_expr = ast.dump(entry.args[1])
+                    attr_names = (
+                        ('I', 'IGNORECASE', re.IGNORECASE),
+                        ('L', 'LOCALE', re.LOCALE),
+                        ('M', 'MULTILINE', re.MULTILINE),
+                        ('S', 'DOTALL', re.DOTALL),
+                        ('U', 'UNICODE', re.UNICODE),
+                        ('X', 'VERBOSE', re.VERBOSE),
+                    )
+                    re_flags = 0
+                    for short_name, long_name, value in attr_names:
+                        for name in (short_name, long_name):
+                            if "attr='%s'" % (name, ) in re_flags_expr:
+                                re_flags |= value
+                                break
+                    shebangPatterns.append((re_expr, re_flags))
+                self.set(clazz.name, "shebangPatterns", shebangPatterns)
+
+            # koILanguage class attributes that are of type 'list'.
+            for lang_attr in ("extraFileAssociations", "modeNames", "namespaces", "publicIdList", "systemIdList"):
+                if filter(lambda n: hasattr(n, "id") and n.id == lang_attr, stmt.targets):
+                    assert isinstance(stmt.value, ast.Tuple) or isinstance(stmt.value, ast.List), \
+                        "%s line %i: %s assignment must be a list, got %s" % (
+                        self.source_file, stmt.value.lineno, lang_attr, ast.dump(stmt.value))
+                    assert all(isinstance(x, ast.Str) for x in stmt.value.elts), \
+                        "%s line %i: %s assignment must be a list of strings, got %s" % (
+                        self.source_file, stmt.value.lineno, lang_attr, ast.dump(stmt.value))
+                    self.set(clazz.name, lang_attr, [x.s for x in stmt.value.elts])
+
         if "contractid" in componentData and "clsid" in componentData:
             self.new_lines.add("component {clsid} {file}".format(**componentData))
             self.new_lines.add("contract {contractid} {clsid}".format(**componentData))
@@ -251,6 +312,26 @@ class ChromeReg(object):
                         # Default to using the contract id.
                         entryvalue = componentData["contractid"]
                     self.new_lines.add("category {category} {entryname} {entryvalue}".format(**locals()))
+
+            # Check if it's a Komodo language.
+            contractid = componentData.get("contractid")
+            if "koLanguage?language=" in contractid:
+                # Convert koILanguage attributes into one (json-encoded) XPCOM category.
+                language_name = self.get("name", scope=clazz.name)
+                entrydict = {}
+                for lang_attr in ("name", "primary", "internal", "accessKey", "defaultExtension",
+                                  "extraFileAssociations", "shebangPatterns", "modeNames",
+                                  "namespaces", "publicIdList", "systemIdList"):
+                    # category  language_attribute  (LANG)_(ATTR)  (VALUE)  1
+                    entryvalue = self.get(lang_attr, scope=clazz.name, default=None)
+                    if entryvalue is None:
+                        continue
+                    entrydict[lang_attr] = entryvalue
+                    continue
+                import json
+                entryname = urllib.quote(language_name)
+                entryvalue = urllib.quote(json.dumps(entrydict))
+                self.new_lines.add("category komodo-language-info {entryname} {entryvalue}".format(**locals()))
 
     def register(self):
         """Main entry point to register the component in the chrome registry"""
