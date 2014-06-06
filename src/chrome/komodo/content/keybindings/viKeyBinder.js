@@ -3107,7 +3107,6 @@ function cmd_vim_jumpToMatchingBrace(scimoz) {
         }
         var currentPos = scimoz.currentPos;
         var lineNo = scimoz.lineFromPosition(currentPos);
-        var lineStartPos = scimoz.lineFromPosition(lineNo);
         var lineEndPos = scimoz.getLineEndPosition(lineNo);
         var line = scimoz.getTextRange(currentPos, lineEndPos);
         var re_expr = new RegExp("[\\" + braces.split("").join("\\") + "]");
@@ -3120,7 +3119,7 @@ function cmd_vim_jumpToMatchingBrace(scimoz) {
             // Move one char back to the left - to keep vim compatibility.
             currentPos = scimoz.currentPos;
             lineNo = scimoz.lineFromPosition(currentPos);
-            var lineStartPos = scimoz.lineFromPosition(lineNo);
+            var lineStartPos = scimoz.positionFromLine(lineNo);
             if (currentPos > lineStartPos) {
                 currentPos = scimoz.positionBefore(currentPos);
                 scimoz.currentPos = currentPos;
