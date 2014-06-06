@@ -41,6 +41,9 @@ class koBenchmark(object):
     def addEvent(self, name):
         return benchmark.addEvent(name)
 
+    def accumulate(self, name, duration):
+        return benchmark.accumulate(name, duration)
+
     def addEventAtTime(self, name, t):
         return benchmark.addEventAtTime(name, t)
 

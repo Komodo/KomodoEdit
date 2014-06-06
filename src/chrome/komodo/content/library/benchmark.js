@@ -38,6 +38,13 @@ exports.addEvent = function(name) {
 }
 
     /**
+     * Accumulate the number of calls and duration for this name.
+     */
+exports.accumulate = function(name, duration) {
+    return koBenchmark.accumulate(name, duration);
+}
+
+    /**
      * Reports an event occurred at the given time.
      */
 exports.addEventAtTime = function(name, t) {

@@ -14,6 +14,7 @@ class BenchReporter(object):
         self._entries = defaultdict(list)
         self._missing_starts = defaultdict(list)
         self._events = []
+        self._cumulative = defaultdict(lambda: [0, 0])
         # Always report at shutdown time.
         import atexit
         atexit.register(self.display)
@@ -40,6 +41,12 @@ class BenchReporter(object):
     def addEvent(self, name):
         self._events.append((name, time.time()))
 
+    def accumulate(self, name, duration):
+        """Keep a record of the number of calls and how long it takes."""
+        hit = self._cumulative[name]
+        hit[0] += 1
+        hit[1] += duration
+
     def addEventAtTime(self, name, t):
         self._events.append((name, t))
 
@@ -48,6 +55,12 @@ class BenchReporter(object):
             print "Events:"
             for name, t in sorted(self._events, key=operator.itemgetter(1)):
                 print "  %-66s at %0.5f" % (name, t - self.time0)
+
+    def displayAccumulations(self, limit=None):
+        if self._cumulative:
+            print "Cumulative:"
+            for name, hit in sorted(self._cumulative.items(), key=lambda x: x[1][1]):
+                print "  %-46s %d calls - %0.5f" % (name, hit[0], hit[1])
 
     def display(self, order="by-time", limit=None):
         """Display the reports.
@@ -74,6 +87,7 @@ class BenchReporter(object):
             print "Unknown sort order %r" % (order, )
 
         self.displayEvents()
+        self.displayAccumulations()
 
 def initialise(t=None):
     global _g_reporter
@@ -91,13 +105,31 @@ class bench(object):
         this = self
         def fn_wrap(*args, **kwargs):
             if _g_reporter is None:
-                # Perform the regular call.
-                return fn(*args, **kwargs)
+                initialise()
             _g_reporter.startTiming(this.name)
             try:
                 result = fn(*args, **kwargs)
             finally:
                 _g_reporter.endTiming(this.name)
+            return result
+        return fn_wrap
+
+class bench_accumulate(object):
+    """Records the number of calls and total time it took to execute."""
+    def __init__(self, name=None):
+        self.name = name
+    def __call__(self, fn):
+        if self.name is None:
+            self.name = fn.__name__
+        this = self
+        def fn_wrap(*args, **kwargs):
+            if _g_reporter is None:
+                initialise()
+            t = time.time()
+            try:
+                result = fn(*args, **kwargs)
+            finally:
+                _g_reporter.accumulate(this.name, time.time() - t)
             return result
         return fn_wrap
 
@@ -120,6 +152,11 @@ def addEvent(name):
     if _g_reporter is None:
         initialise()
     _g_reporter.addEvent(name)
+
+def accumulate(name, duration):
+    if _g_reporter is None:
+        initialise()
+    _g_reporter.accumulate(name)
 
 def addEventAtTime(name, t):
     if _g_reporter is None:
