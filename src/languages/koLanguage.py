@@ -435,8 +435,8 @@ class KoLanguageRegistryService:
                              existingLang)
             else:
                 self._defaultFileAssociations[ext] = lang
-        for pat in data.get("shebangPatterns", []):
-            self.shebangPatterns.append((lang, pat))
+        for pattern, flags in data.get("shebangPatterns", []):
+            self.shebangPatterns.append((lang, re.compile(pattern, flags)))
         for ns in data.get("namespaces", []):
             self._namespaceMap[ns] = lang
         for id in data.get("publicIdList", []):
