@@ -415,71 +415,73 @@ class KoDocumentService:
     # List of regex'es that we use to look for filename/line# in the input line
     # These should match all of the styles done by Scintilla in LexOthers.cxx,
     # in the ColouriseErrorListLine function
-    _errorHotspotPatterns = [
-        # SCE_ERR_PERL, e.g.
-        #   ... at D:\trentm\as\Apps\Komodo-devel\foo.pl line 2.
-        #   ... at C:\Documents and Settings\clong.ORION\My Documents\My Projects\J1238 Cornerstone\MCT\Perl_App\dvcparms_mod.pl line 3368, at end of line
-        re.compile(r'\bat (?P<fname>.*?) line (?P<lineno>\d+)'),
+    @LazyClassAttribute
+    def _errorHotspotPatterns(self):
+        return [
+            # SCE_ERR_PERL, e.g.
+            #   ... at D:\trentm\as\Apps\Komodo-devel\foo.pl line 2.
+            #   ... at C:\Documents and Settings\clong.ORION\My Documents\My Projects\J1238 Cornerstone\MCT\Perl_App\dvcparms_mod.pl line 3368, at end of line
+            re.compile(r'\bat (?P<fname>.*?) line (?P<lineno>\d+)'),
 
-        # SCE_ERR_PHP, e.g.
-        #    php -d html_errors=off -l bad.php
-        #       Parse error: parse error, unexpected T_PRINT in C:\main\Apps\Komodo-dogfood\bad.php on line 8
-        re.compile(r'\bin (?P<fname>.*?) on line (?P<lineno>\d+)'),
-        #    PHP stacktraces look like this:
-        #PHP Stack trace:
-        #PHP   1. {main}() c:\home\ericp\lab\komodo\bugs\bz71236d.php:0
-        #PHP   2. f1($a = *uninitialized*, $b = *uninitialized*) c:\home\ericp\lab\komodo\bugs\bz71236d.php:6
-        #PHP   3. f2($a = *uninitialized*, $b = *uninitialized*) c:\home\ericp\lab\komodo\bugs\bz71236d.php:9
-        #PHP   4. f3($a = *uninitialized*, $b = *uninitialized*) c:\home\ericp\lab\komodo\bugs\bz71236d.php:12
-        re.compile(r'^PHP\s+\d+\..+\)\s*(?P<fname>.+?):(?P<lineno>\d+)'),
-        
-        # Some Ruby stack traces look like this (ignoring the "in ... `method-name`" part)
-        re.compile(r'^\s*from\s+(?P<fname>.+?):(?P<lineno>\d+)'),
-        
-        #  LexOthers.cxx doesn't pick on the HTML encoded ones:
-        #   php -l bad.php
-        #       <b>Parse error</b>:  parse error, unexpected T_PRINT in <b>C:\main\Apps\Komodo-dogfood\bad.php</b> on line <b>8</b><br />
-        #re.compile('in <b>(?P<fname>.*)</b> on line <b>(?P<lineno>\d+)</b>'),
+            # SCE_ERR_PHP, e.g.
+            #    php -d html_errors=off -l bad.php
+            #       Parse error: parse error, unexpected T_PRINT in C:\main\Apps\Komodo-dogfood\bad.php on line 8
+            re.compile(r'\bin (?P<fname>.*?) on line (?P<lineno>\d+)'),
+            #    PHP stacktraces look like this:
+            #PHP Stack trace:
+            #PHP   1. {main}() c:\home\ericp\lab\komodo\bugs\bz71236d.php:0
+            #PHP   2. f1($a = *uninitialized*, $b = *uninitialized*) c:\home\ericp\lab\komodo\bugs\bz71236d.php:6
+            #PHP   3. f2($a = *uninitialized*, $b = *uninitialized*) c:\home\ericp\lab\komodo\bugs\bz71236d.php:9
+            #PHP   4. f3($a = *uninitialized*, $b = *uninitialized*) c:\home\ericp\lab\komodo\bugs\bz71236d.php:12
+            re.compile(r'^PHP\s+\d+\..+\)\s*(?P<fname>.+?):(?P<lineno>\d+)'),
 
-        # SCE_ERR_PYTHON
-        re.compile('^  File "(?P<fname>.*?)", line (?P<lineno>\d+)'),
+            # Some Ruby stack traces look like this (ignoring the "in ... `method-name`" part)
+            re.compile(r'^\s*from\s+(?P<fname>.+?):(?P<lineno>\d+)'),
 
-        # SCE_ERR_GCC
-        # <filename>:<line>:message
-        # \s*<filename>:<line>:message
-        # \s*<filename>:<line>\s*$
-        # This is also used for Ruby output.  See bug 71238.
-        re.compile(r'^\s*(?P<fname>.+?):(?P<lineno>\d+)'),
+            #  LexOthers.cxx doesn't pick on the HTML encoded ones:
+            #   php -l bad.php
+            #       <b>Parse error</b>:  parse error, unexpected T_PRINT in <b>C:\main\Apps\Komodo-dogfood\bad.php</b> on line <b>8</b><br />
+            #re.compile('in <b>(?P<fname>.*)</b> on line <b>(?P<lineno>\d+)</b>'),
 
-        # SCE_ERR_MS
-        # <filename>(line) :message
-        re.compile('^(?P<fname>.*?):\((?P<lineno>\d+)\) :'),
-        # <filename>(line,pos)message
-        re.compile('^(?P<fname>.*?):\((?P<lineno>\d+),\d+\)'),
+            # SCE_ERR_PYTHON
+            re.compile('^  File "(?P<fname>.*?)", line (?P<lineno>\d+)'),
 
-        # SCE_ERR_ELF: Essential Lahey Fortran error message
-        re.compile('^Line (?P<lineno>\d+?), file (?P<fname>.*?)'),
+            # SCE_ERR_GCC
+            # <filename>:<line>:message
+            # \s*<filename>:<line>:message
+            # \s*<filename>:<line>\s*$
+            # This is also used for Ruby output.  See bug 71238.
+            re.compile(r'^\s*(?P<fname>.+?):(?P<lineno>\d+)'),
 
-        # SCE_ERR_NET: a .NET traceback
-        re.compile('   at (?P<fname>.*?):line (?P<lineno>\d+)'),
+            # SCE_ERR_MS
+            # <filename>(line) :message
+            re.compile('^(?P<fname>.*?):\((?P<lineno>\d+)\) :'),
+            # <filename>(line,pos)message
+            re.compile('^(?P<fname>.*?):\((?P<lineno>\d+),\d+\)'),
 
-        # SCE_ERR_LUA
-        re.compile('at line (?P<lineno>\d+) file (?P<fname>.*?)'),
+            # SCE_ERR_ELF: Essential Lahey Fortran error message
+            re.compile('^Line (?P<lineno>\d+?), file (?P<fname>.*?)'),
 
-        # Perl testing error message patterns
-        re.compile(r'^#\s+Test\s+\d+\s+got:.*?\((?P<fname>[^\"\'\[\]\(\)\#]+?)\s+at\s+line\s+(?P<lineno>\d+)\)'),
-        re.compile(r'^#\s*(?P<fname>[^\"\'\[\]\(\)\#]+?)\s+line\s+(?P<lineno>\d+)\s+is:'),  # extra for context
+            # SCE_ERR_NET: a .NET traceback
+            re.compile('   at (?P<fname>.*?):line (?P<lineno>\d+)'),
 
-        # SCE_ERR_CTAG
-        #TODO
-        # SCE_ERR_BORLAND
-        #TODO
-        # SCE_ERR_IFC: Intel Fortran Compiler error/warning message
-        # I need an example for this to get the regex right.
-        #re.compile('^(Error|Warning) ... at \(...\) : ...'),
-        # SCE_ERR_CMD
-        #TODO
-    ]
+            # SCE_ERR_LUA
+            re.compile('at line (?P<lineno>\d+) file (?P<fname>.*?)'),
+
+            # Perl testing error message patterns
+            re.compile(r'^#\s+Test\s+\d+\s+got:.*?\((?P<fname>[^\"\'\[\]\(\)\#]+?)\s+at\s+line\s+(?P<lineno>\d+)\)'),
+            re.compile(r'^#\s*(?P<fname>[^\"\'\[\]\(\)\#]+?)\s+line\s+(?P<lineno>\d+)\s+is:'),  # extra for context
+
+            # SCE_ERR_CTAG
+            #TODO
+            # SCE_ERR_BORLAND
+            #TODO
+            # SCE_ERR_IFC: Intel Fortran Compiler error/warning message
+            # I need an example for this to get the regex right.
+            #re.compile('^(Error|Warning) ... at \(...\) : ...'),
+            # SCE_ERR_CMD
+            #TODO
+        ]
 
     def parseHotspotLine(self, line, cwd):
         for pattern in self._errorHotspotPatterns:

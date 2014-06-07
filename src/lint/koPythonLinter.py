@@ -67,8 +67,6 @@ import projectUtils
 log = logging.getLogger('koPythonLinter')
 #log.setLevel(logging.DEBUG)
 
-_leading_ws_re = re.compile(r'(\s*)')
-
 # Give identical complaints only once every 60 minutes
 _COMPLAINT_PERIOD = 60 * 60 # seconds
 # Map (path,message) => time
@@ -166,9 +164,6 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
             # Fallback:
             self._pylint_version = 1
         
-    invalidModuleName_RE = re.compile(r'(Invalid\s+module\s+name\s+")(\#.+?)(")')
-    _disables_C0301_re = re.compile(r'\s*disable\s*=.*?\bC0301\b')
-    _max_line_length_re = re.compile(r'\s*max-line-length')
     def lint_with_text(self, request, text):
         if not text:
             return None
@@ -204,11 +199,13 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
             if preferredLineWidth > 0:
                 usePreferredLineWidth = True
                 if rcfileToCheck is not None:
+                    _max_line_length_re = re.compile(r'\s*max-line-length')
+                    _disables_C0301_re = re.compile(r'\s*disable\s*=.*?\bC0301\b')
                     f = open(rcfileToCheck, "r")
                     try:
                         for txt in iter(f):
-                            if self._disables_C0301_re.match(txt) \
-                                    or self._max_line_length_re.match(txt):
+                            if _disables_C0301_re.match(txt) \
+                                    or _max_line_length_re.match(txt):
                                 usePreferredLineWidth = False
                                 break
                     except:
@@ -251,6 +248,7 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
         finally:
             os.unlink(tmpfilename)
         ptn = re.compile(r'^([A-Z])(\d+):\s*(\d+)(?:,\d+)?:\s*(.*)')
+        invalidModuleName_RE = re.compile(r'(Invalid\s+module\s+name\s+")(\#.+?)(")')
         # dependency: _localTmpFileName() prepends a '#' on the basename
         results = koLintResults()
         for line in warnLines:
@@ -267,7 +265,7 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
                     if statusCode == "0103":
                         # Don't let pylint complain about the tempname, but fake
                         # a check on the actual module name.
-                        m2 = self.invalidModuleName_RE.match(message)
+                        m2 = invalidModuleName_RE.match(message)
                         if m2:
                             complainedName = m2.group(2)
                             if complainedName == tmpBaseName:
@@ -315,8 +313,6 @@ class KoPython3PyLintChecker(KoPythonCommonPyLintChecker):
     rcfile_prefname = "pylint3_checking_rcfile"
     
 class KoPythonCommonPep8Checker(_GenericPythonLinter):
-    _disables_E0501_re = re.compile(r'\s*disable\s*=.*?\bE0?501\b')
-    _max_line_length_re = re.compile(r'\s*max-line-length')
     def lint_with_text(self, request, text):
         if not text:
             return None
@@ -353,11 +349,13 @@ class KoPythonCommonPep8Checker(_GenericPythonLinter):
             if preferredLineWidth > 0:
                 usePreferredLineWidth = True
                 if checkRCFile:
+                    _disables_E0501_re = re.compile(r'\s*disable\s*=.*?\bE0?501\b')
+                    _max_line_length_re = re.compile(r'\s*max-line-length')
                     f = open(rcfilePath, "r")
                     try:
                         for txt in iter(f):
-                            if self._disables_E0501_re.match(txt) \
-                                    or self._max_line_length_re.match(txt):
+                            if _disables_E0501_re.match(txt) \
+                                    or _max_line_length_re.match(txt):
                                 usePreferredLineWidth = False
                                 break
                     except:
@@ -424,10 +422,10 @@ class KoPython3Pep8Checker(KoPythonCommonPep8Checker):
 
 
 class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
-    warnLinePtn = re.compile(r'^(.+?):(\d+):\s+(.*)')
     def _createAddResult(self, results, textlines, errorLines, severity):
+        warnLinePtn = re.compile(r'^(.+?):(\d+):\s+(.*)')
         for line in errorLines:
-            m = self.warnLinePtn.match(line)
+            m = warnLinePtn.match(line)
             if m:
                 lineNo = int(m.group(2))
                 desc = "pyflakes: %s" % (m.group(3),)
@@ -719,7 +717,8 @@ class KoPythonCommonLinter(_GenericPythonLinter):
                                          "pycompile.py")
             if request.koDoc.displayPath.startswith("macro2://"):
                 text = projectUtils.wrapPythonMacro(text)
-                leadingWS = _leading_ws_re.match(text.splitlines()[1]).group(1)
+                leading_ws_re = re.compile(r'(\s*)')
+                leadingWS = leading_ws_re.match(text.splitlines()[1]).group(1)
             else:
                 leadingWS = None
 

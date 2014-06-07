@@ -60,6 +60,7 @@ import difflib
 from difflib import SequenceMatcher # For getUnsavedChangeInstructions
 from hashlib import md5
 
+from zope.cachedescriptors.property import LazyClassAttribute
 import textinfo
 from fileutils import walk_avoiding_cycles
 
@@ -75,31 +76,6 @@ class DiffLibExError(Exception):
 
 log = logging.getLogger("difflibex")
 #log.setLevel(logging.DEBUG)
-
-_g_patterns = {
-    "index":
-        re.compile(r"^Index:\s+(?P<path>.*?)\s*$"),
-    "p4 diff header":
-        # ==== //depot/foo.css#42 - c:\clientview\foo.css ====
-        # ==== //depot/foo.js#22 (xtext) ====
-        re.compile(r"^==== (?P<depotpath>.*?)#\d+ "
-                    "(- (?P<path>.*?)|\(.*?\)) ====$"),
-    "---":
-        re.compile(r"(\+\+\+|---|\*\*\*)(\s+(?P<path>.*?)(\t.*?)?)?\s*$"),
-    "plain hunk header":
-        # E.g., '9c9', '185,187c185'
-        re.compile(r"^(?P<beforestartline>\d+)(,\d+)?"
-                    "(?P<type>[acd])"
-                    "(?P<afterstartline>\d+)(,\d+)?$"),
-    "context hunk header":
-        # E.g., '*** 32,37 ****', '--- 32,39 ----', '*** 1 ****'
-        re.compile(r"^([\*-]){3} (?P<startline>\d+)(,(?P<endline>\d+))? \1{4}$"),
-    "unified hunk header":
-        # E.g., '@@ -296,7 +296,8 @@'
-        re.compile(r"^@@ -(?P<beforestartline>\d+),(\d+) "
-                    "\+(?P<afterstartline>\d+),(\d+) @@"),
-}
-
 
 
 #---- main functions and classes
@@ -381,6 +357,33 @@ class Diff:
     """A Diff represents some diff/patch content. At its most generic it is made
     up of multiple FileDiff's.
     """
+
+    @LazyClassAttribute
+    def _patterns(self):
+        return {
+            "index":
+                re.compile(r"^Index:\s+(?P<path>.*?)\s*$"),
+            "p4 diff header":
+                # ==== //depot/foo.css#42 - c:\clientview\foo.css ====
+                # ==== //depot/foo.js#22 (xtext) ====
+                re.compile(r"^==== (?P<depotpath>.*?)#\d+ "
+                            "(- (?P<path>.*?)|\(.*?\)) ====$"),
+            "---":
+                re.compile(r"(\+\+\+|---|\*\*\*)(\s+(?P<path>.*?)(\t.*?)?)?\s*$"),
+            "plain hunk header":
+                # E.g., '9c9', '185,187c185'
+                re.compile(r"^(?P<beforestartline>\d+)(,\d+)?"
+                            "(?P<type>[acd])"
+                            "(?P<afterstartline>\d+)(,\d+)?$"),
+            "context hunk header":
+                # E.g., '*** 32,37 ****', '--- 32,39 ----', '*** 1 ****'
+                re.compile(r"^([\*-]){3} (?P<startline>\d+)(,(?P<endline>\d+))? \1{4}$"),
+            "unified hunk header":
+                # E.g., '@@ -296,7 +296,8 @@'
+                re.compile(r"^@@ -(?P<beforestartline>\d+),(\d+) "
+                            "\+(?P<afterstartline>\d+),(\d+) @@"),
+        }
+
     def __init__(self, content):
         self.file_diffs = []
         self.parse(content)
@@ -476,7 +479,7 @@ class Diff:
                     first_token = ''
 
                 if line.startswith("Index:"):
-                    match = _g_patterns["index"].match(line)
+                    match = self._patterns["index"].match(line)
                     if match:
                         paths["index"] = match.group("path")
                         log.debug("line %d: 'Index: ' line, path=%r",
@@ -493,12 +496,12 @@ class Diff:
                     if file_diff is None:
                         file_diff = FileDiff(paths, idx)
                     if idx+1 < len(lines) \
-                       and _g_patterns["plain hunk header"]\
+                       and self._patterns["plain hunk header"]\
                             .match(lines[idx+1].rstrip()):
                         state = "plain"
                 elif line.startswith("==== "):
                     # Likely a 'p4 diff ...' header line.
-                    match = _g_patterns["p4 diff header"].match(line)
+                    match = self._patterns["p4 diff header"].match(line)
                     if match:
                         log.debug("line %d: p4 diff header line", idx)
                         paths["p4 diff header"] = match.group("path")
@@ -522,7 +525,7 @@ class Diff:
                             else:
                                 state = "plain"
                 elif first_token in ("---", "+++", "***"):
-                    match = _g_patterns["---"].match(line)
+                    match = self._patterns["---"].match(line)
                     if match:
                         paths[first_token] = match.group("path")
                         log.debug("line %d: '%s ' line, path=%r",
@@ -536,7 +539,7 @@ class Diff:
                              and lines[idx-1].strip() \
                              and lines[idx-1].split(None, 1)[0] == "***":
                             state = "context"
-                elif _g_patterns["plain hunk header"].match(line.rstrip()):
+                elif self._patterns["plain hunk header"].match(line.rstrip()):
                     if file_diff is None:
                         file_diff = FileDiff(paths, None)
                     state = "plain"
@@ -548,7 +551,7 @@ class Diff:
                 file_diff.diff_type = "plain"
 
                 while idx < len(lines): # read in plain hunks
-                    match = _g_patterns["plain hunk header"].match(lines[idx])
+                    match = self._patterns["plain hunk header"].match(lines[idx])
                     if not match:
                         break
                     hunk_start_line = idx
@@ -736,7 +739,7 @@ class Diff:
             #   A is the file_before_line_start (1-based)
             #   B is the file_after_line_start (1-based)
             # Subtract 1 to convert to 0-based line nums.
-            m = _g_patterns["unified hunk header"].match(
+            m = self._patterns["unified hunk header"].match(
                     self.lines[hunk.start_line])
             # -1 to convert to 0-based
             file_before_line = int(m.group("beforestartline")) - 1
@@ -774,7 +777,7 @@ class Diff:
                 file_col = max(diff_col - 1, 0) # unified-diff prefix is 1 char
 
         elif file_diff.diff_type == "context":
-            hunk_header_pat = _g_patterns["context hunk header"]
+            hunk_header_pat = self._patterns["context hunk header"]
             file_col = max(diff_col - 2, 0) # context-diff prefix is 2 chars
 
             state = "all stars"
@@ -831,7 +834,7 @@ class Diff:
                 i += 1
 
         elif file_diff.diff_type == "plain":
-            hunk_header_pat = _g_patterns["plain hunk header"]
+            hunk_header_pat = self._patterns["plain hunk header"]
             file_col = max(diff_col - 2, 0) # plain-diff prefix is 2 chars
 
             state = "header"

@@ -140,6 +140,8 @@ import optparse
 import codecs
 import locale
 
+from zope.cachedescriptors.property import LazyClassAttribute
+
 import langinfo
 
 
@@ -771,17 +773,19 @@ class TextInfo(object):
         self.encoding_bozo_reasons.append(reason)
 
     # c.f. http://www.xml.com/axml/target.html#NT-prolog
-    _xml_prolog_pat = re.compile(
-        r'''<\?xml
-            (   # strict ordering is reqd but we'll be liberal here
-                \s+version=['"](?P<ver>.*?)['"]
-            |   \s+encoding=['"](?P<enc>.*?)['"]
-            )+
-            .*? # other possible junk
-            \s*\?>
-        ''',
-        re.VERBOSE | re.DOTALL
-    )
+    @LazyClassAttribute
+    def _xml_prolog_pat(self):
+        return re.compile(
+            r'''<\?xml
+                (   # strict ordering is reqd but we'll be liberal here
+                    \s+version=['"](?P<ver>.*?)['"]
+                |   \s+encoding=['"](?P<enc>.*?)['"]
+                )+
+                .*? # other possible junk
+                \s*\?>
+            ''',
+            re.VERBOSE | re.DOTALL
+        )
     def _get_xml_prolog_info(self, head_bytes):
         """Parse out info from the '<?xml version=...' prolog, if any.
         
@@ -808,18 +812,27 @@ class TextInfo(object):
         xml_encoding = match.group("enc")
         return (True, xml_version, xml_encoding)
 
-    _html_meta_tag_pat = re.compile("""
-        (<meta
-        (?:\s+[\w-]+\s*=\s*(?:".*?"|'.*?'))+  # attributes
-        \s*/?>)
-        """,
-        re.IGNORECASE | re.VERBOSE
-    )
-    _html_attr_pat = re.compile(
-        # Currently requiring XML attrs (i.e. quoted value).
-        '''(?:\s+([\w-]+)\s*=\s*(".*?"|'.*?'))'''
-    )
-    _http_content_type_splitter = re.compile(";\s*")
+    @LazyClassAttribute
+    def _html_meta_tag_pat(self):
+        return re.compile("""
+            (<meta
+            (?:\s+[\w-]+\s*=\s*(?:".*?"|'.*?'))+  # attributes
+            \s*/?>)
+            """,
+            re.IGNORECASE | re.VERBOSE
+        )
+
+    @LazyClassAttribute
+    def _html_attr_pat(self):
+        return re.compile(
+            # Currently requiring XML attrs (i.e. quoted value).
+            '''(?:\s+([\w-]+)\s*=\s*(".*?"|'.*?'))'''
+        )
+
+    @LazyClassAttribute
+    def _http_content_type_splitter(self):
+        return re.compile(";\s*")
+
     def _get_http_content_type_info(self, head_bytes):
         """Returns info extracted from an HTML content-type meta tag if any.
         Returns (<has-http-content-type-info>, <content-type>, <charset>).
@@ -865,20 +878,23 @@ class TextInfo(object):
 
     #TODO: Note that this isn't going to catch the current HTML 5
     #      doctype:  '<!DOCTYPE html>'
-    _doctype_decl_re = re.compile(r'''
-        <!DOCTYPE
-        \s+(?P<name>[a-zA-Z_:][\w:.-]*)
-        \s+(?:
-            SYSTEM\s+(["'])(?P<system_id_a>.*?)\2
-            |
-            PUBLIC
-            \s+(["'])(?P<public_id_b>.*?)\4
-            # HTML 3.2 and 2.0 doctypes don't include a system-id.
-            (?:\s+(["'])(?P<system_id_b>.*?)\6)?
-        )
-        (\s*\[.*?\])?        
-        \s*>
-        ''', re.IGNORECASE | re.DOTALL | re.UNICODE | re.VERBOSE)
+    @LazyClassAttribute
+    def _doctype_decl_re(self):
+        return re.compile(r'''
+            <!DOCTYPE
+            \s+(?P<name>[a-zA-Z_:][\w:.-]*)
+            \s+(?:
+                SYSTEM\s+(["'])(?P<system_id_a>.*?)\2
+                |
+                PUBLIC
+                \s+(["'])(?P<public_id_b>.*?)\4
+                # HTML 3.2 and 2.0 doctypes don't include a system-id.
+                (?:\s+(["'])(?P<system_id_b>.*?)\6)?
+            )
+            (\s*\[.*?\])?
+            \s*>
+            ''', re.IGNORECASE | re.DOTALL | re.UNICODE | re.VERBOSE)
+
     def _get_doctype_decl_info(self, head):
         """Parse out DOCTYPE info from the given XML or HTML content.
         
@@ -923,7 +939,9 @@ class TextInfo(object):
             public_id = re.sub("\s+", ' ', public_id.strip())  # normalize
         return (True, m.group(0), name, public_id, system_id)
 
-    _emacs_vars_head_pat = re.compile("-\*-\s*(.*?)\s*-\*-")
+    @LazyClassAttribute
+    def _emacs_vars_head_pat(self):
+        return re.compile("-\*-\s*(.*?)\s*-\*-")
 
     _emacs_head_vars_cache = None
     def _get_emacs_head_vars(self, head_bytes):
@@ -988,12 +1006,14 @@ class TextInfo(object):
     # - "[ \t]" is used instead of "\s" to specifically exclude newlines
     # - "(\r\n|\n|\r)" is used instead of "$" because the sre engine does
     #   not like anything other than Unix-style line terminators.
-    _emacs_vars_tail_pat = re.compile(r"""^
-        (?P<prefix>(?:[^\r\n|\n|\r])*?)
-        [\ \t]*Local\ Variables:[\ \t]*
-        (?P<suffix>.*?)(?:\r\n|\n|\r)
-        (?P<content>.*?\1End:)
-        """, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
+    @LazyClassAttribute
+    def _emacs_vars_tail_pat(self):
+        return re.compile(r"""^
+            (?P<prefix>(?:[^\r\n|\n|\r])*?)
+            [\ \t]*Local\ Variables:[\ \t]*
+            (?P<suffix>.*?)(?:\r\n|\n|\r)
+            (?P<content>.*?\1End:)
+            """, re.IGNORECASE | re.MULTILINE | re.DOTALL | re.VERBOSE)
 
     _emacs_tail_vars_cache = None
     def _get_emacs_tail_vars(self, tail_bytes):
@@ -1088,16 +1108,19 @@ class TextInfo(object):
         self._emacs_tail_vars_cache = emacs_vars    
         return emacs_vars
 
-    # Note: It might nice if parser also gave which of 'vi, vim, ex' and
-    # the range in the accessor.
-    _vi_vars_pats_and_splitters = [
-        (re.compile(r'[ \t]+(vi|vim([<>=]?\d{3})?|ex):\s*set? (?P<rhs>.*?)(?<!\\):', re.M),
-         re.compile(r'[ \t]+')),
-        (re.compile(r'[ \t]+(vi|vim([<>=]?\d{3})?|ex):\s*(?P<rhs>.*?)$', re.M),
-         re.compile(r'[ \t:]+')),
-        (re.compile(r'^(vi|vim([<>=]?\d{3})?):\s*set? (?P<rhs>.*?)(?<!\\):', re.M),
-         re.compile(r'[ \t]+')),
-    ]
+    @LazyClassAttribute
+    def _vi_vars_pats_and_splitters(self):
+        # Note: It might nice if parser also gave which of 'vi, vim, ex' and
+        # the range in the accessor.
+        return [
+            (re.compile(r'[ \t]+(vi|vim([<>=]?\d{3})?|ex):\s*set? (?P<rhs>.*?)(?<!\\):', re.M),
+             re.compile(r'[ \t]+')),
+            (re.compile(r'[ \t]+(vi|vim([<>=]?\d{3})?|ex):\s*(?P<rhs>.*?)$', re.M),
+             re.compile(r'[ \t:]+')),
+            (re.compile(r'^(vi|vim([<>=]?\d{3})?):\s*set? (?P<rhs>.*?)(?<!\\):', re.M),
+             re.compile(r'[ \t]+')),
+        ]
+
     _vi_vars_cache = None
     def _get_vi_vars(self, bytes):
         r"""Return a dict of Vi[m] modeline vars.

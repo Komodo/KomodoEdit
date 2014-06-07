@@ -43,6 +43,9 @@ from koLintResults import koLintResults
 from xpcom.server.enumerator import *
 import os, sys, re
 import StringIO  # Do not use cStringIO!  See html5 class for an explanation
+
+from zope.cachedescriptors.property import LazyClassAttribute
+
 import eollib
 import html5lib
 from html5lib.constants import E as html5libErrorDict
@@ -184,25 +187,77 @@ class _CommonHTMLLinter(object):
             i -= 1
         return "" # Give up.
 
-    
-    _ends_with_cdata_re = re.compile(r'(?:\s*\]\]>|\s*-->)+\s*\Z', re.DOTALL)
-    _ends_with_gt = re.compile(r'>\s*\Z');
-    _ends_with_quote_re = re.compile(r'[\"\']\Z');
-    _ends_with_zero = re.compile(r'0\s*\Z', re.DOTALL)
-    _event_re = re.compile(r'\bevent\b')
-    _function_re = re.compile(r'\bfunction\b')
-    _js_code_end_re = re.compile(r'[\};]\s*$', re.DOTALL)
-    _nl_re = re.compile('\\n')
-    _return_re = re.compile(r'\breturn\b')
-    _script_start_re = re.compile(r'<script[^>]*>\s*\Z', re.DOTALL)
-    _starts_with_cdata_re = re.compile(r'(?:\s*<!\[CDATA\[|\s*<!--)+\s*', re.DOTALL)
-    _xbl_field_tag_re = re.compile(r'<(?:\w+:)?field[^>]*>\s*\Z', re.DOTALL)
-    _xbl_handler_re = re.compile(r'<(?:\w+:)?handler[^>]*>\s*\Z', re.DOTALL)
-    _xbl_method_re = re.compile(r'<(?:\w+:)?method\b.*?<body[^>]*>\s*\Z', re.DOTALL)
-    _xbl_method_name_re = re.compile(r'<(?:\w+:)?method\b.*?name\s*=\s*[\'\"](\w+)', re.DOTALL)
-    _xbl_method_parameter_re = re.compile(r'<(?:\w+:)?parameter\b.*?name\s*=\s*[\'\"](\w+)[\'\"].*?>', re.DOTALL)
-    _xbl_setter_re = re.compile(r'<(?:\w+:)?setter[^>]*>\s*\Z', re.DOTALL)
-    _xml_decln_re = re.compile(r'(<)<\?\?>(\?.*)', re.DOTALL)
+    @LazyClassAttribute
+    def _ends_with_cdata_re(self):
+        return re.compile(r'(?:\s*\]\]>|\s*-->)+\s*\Z', re.DOTALL)
+
+    @LazyClassAttribute
+    def _ends_with_gt(self):
+        return re.compile(r'>\s*\Z');
+
+    @LazyClassAttribute
+    def _ends_with_quote_re(self):
+        return re.compile(r'[\"\']\Z');
+
+    @LazyClassAttribute
+    def _ends_with_zero(self):
+        return re.compile(r'0\s*\Z', re.DOTALL)
+
+    @LazyClassAttribute
+    def _event_re(self):
+        return re.compile(r'\bevent\b')
+
+    @LazyClassAttribute
+    def _function_re(self):
+        return re.compile(r'\bfunction\b')
+
+    @LazyClassAttribute
+    def _js_code_end_re(self):
+        return re.compile(r'[\};]\s*$', re.DOTALL)
+
+    @LazyClassAttribute
+    def _nl_re(self):
+        return re.compile('\\n')
+
+    @LazyClassAttribute
+    def _return_re(self):
+        return re.compile(r'\breturn\b')
+
+    @LazyClassAttribute
+    def _script_start_re(self):
+        return re.compile(r'<script[^>]*>\s*\Z', re.DOTALL)
+
+    @LazyClassAttribute
+    def _starts_with_cdata_re(self):
+        return re.compile(r'(?:\s*<!\[CDATA\[|\s*<!--)+\s*', re.DOTALL)
+
+    @LazyClassAttribute
+    def _xbl_field_tag_re(self):
+        return re.compile(r'<(?:\w+:)?field[^>]*>\s*\Z', re.DOTALL)
+
+    @LazyClassAttribute
+    def _xbl_handler_re(self):
+        return re.compile(r'<(?:\w+:)?handler[^>]*>\s*\Z', re.DOTALL)
+
+    @LazyClassAttribute
+    def _xbl_method_re(self):
+        return re.compile(r'<(?:\w+:)?method\b.*?<body[^>]*>\s*\Z', re.DOTALL)
+
+    @LazyClassAttribute
+    def _xbl_method_name_re(self):
+        return re.compile(r'<(?:\w+:)?method\b.*?name\s*=\s*[\'\"](\w+)', re.DOTALL)
+
+    @LazyClassAttribute
+    def _xbl_method_parameter_re(self):
+        return re.compile(r'<(?:\w+:)?parameter\b.*?name\s*=\s*[\'\"](\w+)[\'\"].*?>', re.DOTALL)
+
+    @LazyClassAttribute
+    def _xbl_setter_re(self):
+        return re.compile(r'<(?:\w+:)?setter[^>]*>\s*\Z', re.DOTALL)
+
+    @LazyClassAttribute
+    def _xml_decln_re(self):
+        return re.compile(r'(<)<\?\?>(\?.*)', re.DOTALL)
     
     # Matching state values.  Tracking when we're in CSS or JS, and when we're in SSL code.
     _IN_M = 0x0001
@@ -231,7 +286,9 @@ class _CommonHTMLLinter(object):
     # This pattern is for bug 95364, support Rails-hack form of ERB to
     # support forms like <%= form_tag ... do |f| %>...<% end %>
     # Note mismatched <%= ... %><% %> -- this is deliberate in Rails 3
-    RERB_Block_PTN = re.compile(r'.*?\s*(?:do|\{)(?:\s*\|[^|]*\|)?\s*\Z')
+    @LazyClassAttribute
+    def RERB_Block_PTN(self):
+        return re.compile(r'.*?\s*(?:do|\{)(?:\s*\|[^|]*\|)?\s*\Z')
     def _lint_common_html_request(self, request, udlMapping=None, linters=None,
                                   TPLInfo=None,
                                   startCheck=None):
@@ -754,7 +811,10 @@ class KoHTML5CompileLinter(_Common_HTMLAggregator):
 class CommonTidyLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
 
-    _xhtml_doctype_re = re.compile(r'(?:<\?xml[^>]*>)?<!doctype\b[^>]*?(?://W3C//DTD XHTML|/xhtml\d*\.dtd)[^>]*>', re.DOTALL|re.IGNORECASE)
+    @LazyClassAttribute
+    def _xhtml_doctype_re(self):
+        return re.compile(r'(?:<\?xml[^>]*>)?<!doctype\b[^>]*?(?://W3C//DTD XHTML|/xhtml\d*\.dtd)[^>]*>', re.DOTALL|re.IGNORECASE)
+
     def lint_with_text(self, request, text):
         prefset = request.prefset
         if not prefset.getBooleanPref("lintHTMLTidy"):
@@ -1100,8 +1160,14 @@ class KoHTML5_html5libLinter:
          ("category-komodo-linter", 'HTML5&type=html5lib'),
          ]
 
-    problem_word_ptn = re.compile(r'([ &<]?\w+\W*)$')
-    leading_ws_ptn = re.compile(r'(\s+)')
+    @LazyClassAttribute
+    def problem_word_ptn(self):
+        return re.compile(r'([ &<]?\w+\W*)$')
+
+    @LazyClassAttribute
+    def leading_ws_ptn(self):
+        return re.compile(r'(\s+)')
+
     dictType = type({})
 
     def lint(self, request):
