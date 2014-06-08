@@ -89,25 +89,27 @@ class koScopeFiles():
             callback.callback(0, "done");
 
     def walkPaths(self, path, opts):
-        if path in self.cache:
+        if path in self.cache and opts.get("recursive", True) is True:
             for pathEntry in self.cache[path]:
                 shouldStop = yield pathEntry
                 if shouldStop:
                     break
         else:
             self.cache[path] = []
+            stripPathRe = re.compile("^" + re.escape(path));
             for subPath, fileType in paths_from_path_patterns([path],
                     dirs="always",
                     follow_symlinks=True,
                     includes=opts.get("includes", []),
                     excludes=opts.get("excludes", []),
-                    yield_filetype=True):
+                    yield_filetype=True,
+                    recursive=opts.get("recursive", True)):
                 
                 if subPath is path:
                     continue
 
                 pathEntry = {
-                    "path": subPath[len(path):],
+                    "path": stripPathRe.sub("", os.path.realpath(subPath)),
                     "type": fileType
                 }
                 self.cache[path].append(pathEntry)

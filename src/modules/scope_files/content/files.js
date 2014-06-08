@@ -35,7 +35,25 @@
             if (subscope.label.length > 15)
                 subscope.label = ".." + subscope.label.substr(-15);
         }
-        commando.setSubscope(subscope);
+        //commando.setSubscope(subscope);
+
+        // Todo: platform specific separator
+        if (query.substr(0,2) == "./" || query.substr(0,3) == "../" || query[0] == "/")
+        {
+            var isAbsolute = query[0] == "/";
+            query = query.split("/");
+
+            if (isAbsolute)
+                subscope.path = query.slice(0,-1).join("/");
+            else
+                subscope.path += "/" + query.slice(0,-1).join("/");
+                
+            query = query.slice(-1);
+            opts["recursive"] = false;
+        }
+
+        if (query == "")
+            opts["recursive"] = false;
 
         // Set includes/excludes, if relevant
         if (curProject && subscope.path.indexOf(curProject.liveDirectory) === 0)
@@ -83,11 +101,7 @@
 
     this.sort = function(current, previous)
     {
-        // Determine whether to move the current entry "up"
-        if (previous.name.localeCompare(current.name) === 1)
-            return 1
-
-        return 0;
+        return previous.name.localeCompare(current.name) > 0 ? 1 : -1;
     }
 
     this.onSelectResult = function(selectedItems)

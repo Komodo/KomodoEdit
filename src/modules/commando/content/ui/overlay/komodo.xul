@@ -51,9 +51,6 @@
                                     <label value="{{=it.name}}"/>
                                     {{?it.description}}
                                         <description>
-                                            {{?it.subscope}}
-                                                <label class="em" value="{{=it.subscope.label}}"/>
-                                            {{?}}
                                             {{=it.description}}
                                         </description>
                                     {{?}}
