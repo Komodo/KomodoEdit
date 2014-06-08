@@ -235,13 +235,12 @@
 
         log.debug(searchUuid + " - Rendering Results");
 
-        var resultElem = elem('results');
+        var resultElem = $(elem('results').element().cloneNode(true));
         var maxResults = ko.prefs.getLong("commando_search_max_results", 25);
         maxResults -= local.resultsRendered;
         results = results.slice(0, maxResults);
         local.resultsRendered += results.length;
 
-        var resultElem = elem('results');
         for (let result of results)
         {
             result.subscope = local.subscope;
@@ -253,6 +252,9 @@
 
         resultElem.addClass("has-results");
         resultElem.css("maxHeight", (window.screen.availHeight / 2) + "px");
+
+        elem('results').replaceWith(resultElem);
+        delete local.elemCache["results"];
     }
 
     // Todo: prevent multiple paints
