@@ -251,7 +251,8 @@
         var handler = getScopeHandler();
         if ("sort" in handler)
         {
-            resultElem.find("richlistitem").reverse().each(function()
+            log.debug("Sorting with scope handler");
+            resultElem.find("richlistitem").each(function()
             {
                 var cont = true;
                 while (this.previousSibling && cont)
