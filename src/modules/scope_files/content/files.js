@@ -114,7 +114,7 @@
                 id: path,
                 name: name,
                 description: description,
-                icon: "moz-icon://" + path + "?size=32",
+                icon: type == 'dir' ? "chrome://komodo/skin/images/folder-32.png" : "moz-icon://" + path + "?size=32",
                 isScope: type == 'dir',
                 weight: weight,
                 data: {
