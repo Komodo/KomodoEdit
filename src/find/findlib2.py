@@ -1587,6 +1587,16 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                                     else:
                                         yield f
 
+                elif not recursive:
+                    for filename in os.listdir(path):
+                        filepath = os.path.join(path,filename)
+                        if _should_include_path(filepath, includes, excludes):
+                            if yield_filetype:
+                                filetype = "dir" if os.path.isdir(filepath) else "file"
+                                yield filepath, filetype
+                            else:
+                                yield filepath
+
 
 
             elif files and _should_include_path(path, includes, excludes):
