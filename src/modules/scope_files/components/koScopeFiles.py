@@ -95,7 +95,9 @@ class koScopeFiles():
                 if shouldStop:
                     break
         else:
-            self.cache[path] = []
+            if opts.get("recursive", True):
+                self.cache[path] = []
+
             stripPathRe = re.compile("^" + re.escape(path));
             for subPath, fileType in paths_from_path_patterns([path],
                     dirs="always",
@@ -112,7 +114,10 @@ class koScopeFiles():
                     "path": stripPathRe.sub("", os.path.realpath(subPath)),
                     "type": fileType
                 }
-                self.cache[path].append(pathEntry)
+
+                if opts.get("recursive", True):
+                    self.cache[path].append(pathEntry)
+
                 yield pathEntry
 
     @property
