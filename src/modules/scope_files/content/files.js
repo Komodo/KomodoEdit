@@ -32,8 +32,6 @@
         {
             var placesPath = ioService.newURI(ko.places.getDirectory(), null, null).path;
             subscope = {label: placesPath, path: placesPath};
-            if (subscope.label.length > 15)
-                subscope.label = ".." + subscope.label.substr(-15);
         }
         //commando.setSubscope(subscope);
 
@@ -87,6 +85,9 @@
             }
 
             var [name, path, fullPath, type, description, weight] = entry;
+
+            if (path != fullPath)
+                description = "<label class='em' crop='left' value='"+subscope.label+"'/>" + description;
 
             commando.renderResult({
                 id: path,

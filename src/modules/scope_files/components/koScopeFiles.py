@@ -111,8 +111,10 @@ class koScopeFiles():
                 if subPath is path:
                     continue
 
+                subPath = os.path.realpath(subPath)
+
                 pathEntry = {
-                    "path": stripPathRe.sub("", os.path.realpath(subPath)),
+                    "path": stripPathRe.sub("", subPath),
                     "fullPath": subPath,
                     "type": fileType
                 }
