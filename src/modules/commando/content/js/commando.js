@@ -248,55 +248,47 @@
             resultEntry = $.createElement(template('resultItem', result));
             resultEntry.resultData = result;
             resultElem.element().appendChild(resultEntry);
+            this.sortResult(resultEntry);
         }
 
         resultElem.addClass("has-results");
         resultElem.css("maxHeight", (window.screen.availHeight / 2) + "px");
-
-        this.sortResults();
     }
 
     // Todo: prevent multiple paints
-    this.sortResults = function()
+    this.sortResult = function(elem)
     {
-        log.debug("Sorting Results");
-        var resultElem = elem('results');
-
         // Sort by handler.sort
         var handler = getScopeHandler();
         if ("sort" in handler)
         {
-            log.debug("Sorting with scope handler");
-            resultElem.find("richlistitem").each(function()
+            var cont = true;
+            while (elem.previousSibling && cont)
             {
-                var cont = true;
-                while (this.previousSibling && cont)
-                {
-                    if (handler.sort(this.resultData, this.previousSibling.resultData) === 1)
-                        this.parentNode.insertBefore(this, this.previousSibling);
-                    else
-                        cont = false;
-                }
-            });
+                if (handler.sort(elem.resultData, elem.previousSibling.resultData) === 1)
+                    elem.parentNode.insertBefore(elem, elem.previousSibling);
+                else
+                    cont = false;
+            }
         }
 
         // Sort by weight, if available
-        resultElem.find("richlistitem").reverse().each(function()
+        if (elem.resultData.weight)
         {
             var cont = true;
-            while (this.previousSibling && cont)
+            while (elem.previousSibling && cont)
             {
-                let current = this.resultData;
-                let previous = this.previousSibling.resultData;
+                let current = elem.resultData;
+                let previous = elem.previousSibling.resultData;
 
                 if ((current.weight && ! previous.weight) ||
                     (current.weight && previous.weight && current.weight > previous.weight)
                 )
-                    this.parentNode.insertBefore(this, this.previousSibling);
+                    elem.parentNode.insertBefore(elem, elem.previousSibling);
                 else
                     cont = false;
             }
-        });
+        }
     }
 
     this.onSearchComplete = function(scope, searchUuid)
