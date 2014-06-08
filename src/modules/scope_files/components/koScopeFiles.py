@@ -59,7 +59,7 @@ class koScopeFiles():
                     # Todo: figure out a good way to normalize weight numbers
                     weight = 0
                     hits = self.history.get_num_visits("file://"+path+pathEntry["path"], -1)
-                    depth = pathEntry["path"].count(os.sep)
+                    depth = pathEntry["path"].count(os.sep) + 1
 
                     weight += hits * opts.get("weightHits", 1)
                     weight += (10 / depth) * opts.get("weightDepth", 1)
@@ -75,6 +75,7 @@ class koScopeFiles():
                     callback.callback(0, [
                         filename,
                         pathEntry["path"],
+                        pathEntry["fullPath"],
                         pathEntry["type"],
                         description,
                         weight
@@ -98,7 +99,7 @@ class koScopeFiles():
             if opts.get("recursive", True):
                 self.cache[path] = []
 
-            stripPathRe = re.compile("^" + re.escape(path));
+            stripPathRe = re.compile("^" + re.escape(path) + "/?");
             for subPath, fileType in paths_from_path_patterns([path],
                     dirs="always",
                     follow_symlinks=True,
@@ -112,6 +113,7 @@ class koScopeFiles():
 
                 pathEntry = {
                     "path": stripPathRe.sub("", os.path.realpath(subPath)),
+                    "fullPath": subPath,
                     "type": fileType
                 }
 

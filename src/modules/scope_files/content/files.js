@@ -86,7 +86,7 @@
                 return;
             }
 
-            var [name, path, type, description, weight] = entry;
+            var [name, path, fullPath, type, description, weight] = entry;
 
             commando.renderResult({
                 id: path,
@@ -94,7 +94,11 @@
                 description: description,
                 icon: "moz-icon://" + path + "?size=32",
                 isScope: type == 'dir',
-                weight: weight
+                weight: weight,
+                data: {
+                    path: path,
+                    fullPath: fullPath,
+                }
             }, uuid);
         });
     }
@@ -106,7 +110,19 @@
 
     this.onSelectResult = function(selectedItems)
     {
-        //ko.open.multipleURIs([]);
+        var uris = []
+        for (let item in selectedItems)
+        {
+            item = selectedItems[item];
+            // Todo be a bit more intelligent
+            uris.push("file://" + item.resultData.data.fullPath);
+        }
+
+        log.debug("Opening files: " + uris.join(", "));
+
+        ko.open.multipleURIs(uris);
+
+        commando.hideCommando();
     }
 
 }).apply(module.exports);

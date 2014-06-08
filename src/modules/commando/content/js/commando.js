@@ -36,10 +36,9 @@
     var init = function()
     {
         log.debug('Starting Commando');
-        elem('search').on("keydown", onKeyNav);
-        elem('results').on("keydown", onKeyNav);
-        elem('results').on("select", onSelectResult);
-        elem('search').on("keyup", onSearch);
+        elem('search').on("keydown", onKeyNav.bind(this));
+        elem('results').on("keydown", onKeyNav.bind(this));
+        elem('search').on("keyup", onSearch.bind(this));
         elem('scope').on("change", function(e) { elem('search').focus(); });
     }
 
@@ -69,8 +68,12 @@
         var resultCount = results.element().getRowCount();
         var selIndex = results.element().selectedIndex;
 
+        // Todo: support selecting multiple items
         switch (e.keyCode)
         {
+            case 13: // enter
+                onSelectResult(e);
+                break;
             case 40: // down arrow
             case 9:  // tab
                 log.debug("Navigate Down in Results");
@@ -81,6 +84,8 @@
                 else
                     results.element().selectedIndex++;
                     
+                results.element().ensureIndexIsVisible(results.element().selectedIndex);
+
                 break;
             case 38: // up arrow
                 log.debug("Navigate Up in Results");
@@ -90,6 +95,8 @@
                     results.element().selectedIndex = resultCount-1;
                 else
                     results.element().selectedIndex--;
+
+                results.element().ensureIndexIsVisible(results.element().selectedIndex);
 
                 break;
         }
@@ -124,7 +131,8 @@
 
     var onSelectResult = function(e)
     {
-        var selected = elem('results').element().selectedIem;
+        log.debug("Selected Result(s)");
+        var selected = elem('results').element().selectedItems;
         getScopeHandler().onSelectResult(selected);
     }
 
@@ -154,6 +162,12 @@
 
         search.value("");
         search.focus();
+    }
+
+    this.hideCommando = function()
+    {
+        log.debug("Hiding Commando");
+        elem('panel').element().hidePopup();
     }
 
     this.registerScope = function(id, opts)
