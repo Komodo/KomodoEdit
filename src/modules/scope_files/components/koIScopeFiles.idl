@@ -7,6 +7,8 @@ interface koIAsyncCallback;
 [scriptable, uuid(16265b4a-4323-4250-8ef1-b4f4ee859136)]
 interface koIScopeFiles: nsISupports {
 
+    void buildCache(in AString path, in AString opts);
+
     void search(in AString query, in AString path,
                 in AString opts,
                 in koIAsyncCallback callback);

@@ -11,6 +11,27 @@
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     var activeUuid = null;
 
+    this.prepare = function()
+    {
+        var opts = {};
+        var curProject = partSvc.currentProject;
+        if (curProject)
+        {
+            var path = curProject.liveDirectory;
+            opts["excludes"] = curProject.prefset.getString("import_exclude_matches");
+            opts["includes"] = curProject.prefset.getString("import_include_matches");
+
+            opts["excludes"] = opts["excludes"] == "" ? [] : opts["excludes"].split(";");
+            opts["includes"] = opts["includes"] == "" ? [] : opts["includes"].split(";");
+        }
+        else
+        {
+            var path = ioService.newURI(ko.places.getDirectory(), null, null).path;
+        }
+
+        scope.buildCache(path, JSON.stringify(opts));
+    }
+
     this.onSearch = function(query, uuid)
     {
         log.debug(uuid + " - Starting Scoped Search");

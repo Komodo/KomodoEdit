@@ -28,6 +28,10 @@ function loadIntoWindow(window) {
         Cu.reportError("Commando: Exception while registering component for 'Files' scope");
         Cu.reportError(e);
     }
+
+    window.addEventListener("komodo-post-startup", function() {
+        window.require("scope-files/files").prepare();
+    });
 }
 
 function unloadFromWindow(window) {

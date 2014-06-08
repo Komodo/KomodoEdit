@@ -124,6 +124,10 @@ class koScopeFiles():
 
                 yield pathEntry
 
+    def buildCache(self, path, opts):
+        opts = json.loads(opts)
+        self.walkPaths(path, opts)
+
     @property
     def history(self):
         if self._history:
