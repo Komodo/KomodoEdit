@@ -99,7 +99,8 @@ class koScopeFiles():
             if opts.get("recursive", True):
                 self.cache[path] = []
 
-            stripPathRe = re.compile("^" + re.escape(path) + "/?");
+            if len(path) > 1:
+                stripPathRe = re.compile("^" + re.escape(path) + "/?")
             for subPath, fileType in paths_from_path_patterns([path],
                     dirs="always",
                     follow_symlinks=True,
@@ -114,7 +115,7 @@ class koScopeFiles():
                 subPath = os.path.realpath(subPath)
 
                 pathEntry = {
-                    "path": stripPathRe.sub("", subPath),
+                    "path": stripPathRe.sub("", subPath) if len(path) > 1 else subPath,
                     "fullPath": subPath,
                     "type": fileType
                 }

@@ -63,7 +63,7 @@
             query = query.split("/");
 
             if (isAbsolute)
-                subscope.path = query.slice(0,-1).join("/");
+                subscope.path = "/" + query.slice(0,-1).join("/");
             else
                 subscope.path += "/" + query.slice(0,-1).join("/");
                 
