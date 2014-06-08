@@ -19,7 +19,7 @@
             type="application/x-javascript;version=1.7"/>
 
     <popupset id="komodoMainPopupSet">
-        <panel id="commando-panel" titlebar="normal">
+        <panel id="commando-panel" titlebar="normal" width="500">
             <vbox flex="1">
                 <hbox id="commando-search-wrapper">
                     <!-- Menuitem template -->

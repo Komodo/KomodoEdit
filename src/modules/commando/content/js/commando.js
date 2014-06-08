@@ -149,7 +149,7 @@
         var search = elem('search');
 
         let left = window.innerWidth / 2;
-        left -= panel.element().getBoundingClientRect().width / 2;
+        left -= panel.element().width / 2;
         panel.element().openPopup(undefined, undefined, left, 100);
 
         search.value("");
