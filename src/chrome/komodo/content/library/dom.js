@@ -251,6 +251,12 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             return this;
         },
 
+        replaceWith: function(elem)
+        {
+            if ("koDom" in elem) elem = elem.element();
+            return this.element().parentNode.replaceChild(elem, this.element());
+        },
+
         /**
          * Set / get value
          * @param   {String|Void} value
