@@ -113,7 +113,7 @@
             log.debug("Delaying Search");
             window.setTimeout(
                 onSearch.bind(this, e, true),
-                ko.prefs.getLong("commando_search_delay", 50)
+                ko.prefs.getLong("commando_search_delay", 0)
             );
             return;
         }
@@ -236,7 +236,7 @@
         log.debug(searchUuid + " - Rendering Results");
 
         var resultElem = elem('results');
-        var maxResults = ko.prefs.getLong("commando_search_max_results", 50);
+        var maxResults = ko.prefs.getLong("commando_search_max_results", 25);
         maxResults -= local.resultsRendered;
         results = results.slice(0, maxResults);
         local.resultsRendered += results.length;
@@ -256,6 +256,7 @@
         this.sortResults();
     }
 
+    // Todo: prevent multiple paints
     this.sortResults = function()
     {
         log.debug("Sorting Results");

@@ -18,7 +18,7 @@
         activeUuid = uuid;
 
         var opts = {
-            "maxresults": ko.prefs.getLong("commando_search_max_results", 50)
+            "maxresults": ko.prefs.getLong("commando_search_max_results", 25)
         }
 
         // Detect directory to search in
