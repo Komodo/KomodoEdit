@@ -730,20 +730,14 @@
         ]]>
         </handler>
 
-        <handler event="keypress" phase="capturing" keycode="VK_ENTER" action="this.doEnter(event);"/>
         <handler event="keypress" phase="capturing" keycode="VK_RETURN" action="this.doEnter(event);"/>
-        <handler event="keypress" phase="capturing" keycode="VK_ENTER" modifiers="shift" action="this.doEnter(event);"/>
         <handler event="keypress" phase="capturing" keycode="VK_RETURN" modifiers="shift" action="this.doEnter(event);"/>
-        <handler event="keypress" phase="capturing" keycode="VK_ENTER" modifiers="control" action="this.doEnter(event);"/>
         <handler event="keypress" phase="capturing" keycode="VK_RETURN" modifiers="control" action="this.doEnter(event);"/>
 
         <!--  these get called AFTER scintilla, which is a good thing, we dont
               send to the debugger until the scintilla gets to do it's thing.  -->
-        <handler event="keypress" keycode="VK_ENTER" action="this.doEnterCompletion(event);"/>
         <handler event="keypress" keycode="VK_RETURN" action="this.doEnterCompletion(event);"/>
-        <handler event="keypress" keycode="VK_ENTER" modifiers="shift" action="this.doEnterCompletion(event);"/>
         <handler event="keypress" keycode="VK_RETURN" modifiers="shift" action="this.doEnterCompletion(event);"/>
-        <handler event="keypress" keycode="VK_ENTER" modifiers="control" action="this.doEnterCompletion(event);"/>
         <handler event="keypress" keycode="VK_RETURN" modifiers="control" action="this.doEnterCompletion(event);"/>
 
         <handler event="keypress" phase="capturing" keycode="VK_TAB">

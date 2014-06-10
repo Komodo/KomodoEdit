@@ -65,7 +65,6 @@
     <script src="chrome://komodo/content/pref/setupFileAssociations.js" type="application/x-javascript;version=1.7"/>
 
     <keyset id="setupFileAssociationsKeys">
-        <key keycode="VK_ENTER" oncommand="OK()"/>
         <key keycode="VK_RETURN" oncommand="OK()"/>
         <key keycode="VK_ESCAPE" oncommand="Cancel();"/>
     </keyset>

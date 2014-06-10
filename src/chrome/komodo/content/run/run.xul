@@ -77,7 +77,6 @@
 
     <keyset id="runKeys">
         <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
-        <key keycode="VK_ENTER" oncommand="ko.dialogs.handleEnterKey();"/>
         <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
     </keyset>
     <popupset>

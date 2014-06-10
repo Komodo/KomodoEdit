@@ -922,7 +922,6 @@ this.internalError = function dialog_internalError(error, text, exception)
 // whatever reason) like so:
 //    <keyset id="<some id>">
 //        <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
-//        <key keycode="VK_ENTER" oncommand="ko.dialogs.handleEnterKey();"/>
 //        <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
 //    </keyset>
 // Preferably, each such dialgo should be converted to use the <dialog> XBL,

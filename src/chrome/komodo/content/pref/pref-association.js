@@ -41,7 +41,6 @@
 
 // Constants and global variables
 var cellparent, cellparent_value;
-const VK_ENTER = 13;  // the keycode for the "Enter" key
 var data = {
   associations: null
 };

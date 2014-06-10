@@ -2696,7 +2696,6 @@ var VKLabels = {
     "Tab": "VK_TAB",
     'Clear': 'VK_CLEAR',
     'Return': 'VK_RETURN',
-    'Enter': 'VK_ENTER',
     'Shift': 'VK_SHIFT',
     'Control': 'VK_CONTROL',
     'Alt': 'VK_ALT',
