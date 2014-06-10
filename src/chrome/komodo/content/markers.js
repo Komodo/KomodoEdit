@@ -95,6 +95,45 @@ ko.markers =  function markers_module() {
     },
 
     /**
+     * Asynchronously load an image (e.g. png), cache the result and run the
+     * given callback with the image details.
+     *
+     * @param {String} uri file uri
+     * @param {boolean} force force read from file
+     * 
+     * Note: The file contents are cached by URI.
+     */
+    getImageDataAsync: function(uri, callback, force) {
+        if (!force && uri in content_cache) {
+            callback.apply(ko.markers, content_cache[uri]);
+        }
+        var image = new Image();
+        // Make it hidden.
+        image.setAttribute("hidden", "true");
+        image.onload = function(event) {
+            try {
+                var width = image.naturalWidth;
+                var height = image.naturalHeight;
+                var ctx = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas").getContext("2d");
+                ctx.width = width;
+                ctx.height = height;
+                ctx.drawImage(image, 0, 0);
+                var data = ctx.getImageData(0, 0, width, height).data;
+                // Turn data into a string
+                data = [String.fromCharCode(x) for (x of data)].join("");
+                // Cache the result and run the callback.
+                content_cache[uri] = [width, height, data];
+                callback(width, height, data);
+            } finally {
+                document.documentElement.removeChild(image);
+            }
+        }
+        image.src = uri;
+        // Have to add the image to the document in order to have it load.
+        document.documentElement.appendChild(image);
+    },
+
+    /**
      * Setup the standard Komodo markers in the given SciMoz instance and
      * return an appropriate mask for ISciMoz.setMarginMaskN(<n>, <mask>).
      * 
