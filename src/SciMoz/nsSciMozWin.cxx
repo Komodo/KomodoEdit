@@ -97,21 +97,11 @@ void SciMoz::PlatformCreate(WinID hWnd) {
 void SciMoz::Resize() {
 	RECT rc;
 	NS_PRECONDITION(wMain, "Must have a valid wMain to resize");
-	// Don't use the rectangle from wMain, as that may be sized (0,0) -
-	// instead use the parent window of wMain (the Gecko holding window).
-	//::GetClientRect(wMain, &rc);
-	HWND parentWin = ::GetParent(wMain);
-	::GetClientRect(parentWin, &rc);
 #ifdef SCIMOZ_DEBUG
-	printf("SciMoz::Resize width: %d height: %d\n", rc.right - rc.left, rc.bottom - rc.top);
+	fprintf(stderr, "SciMoz::Resize width: %d height: %d\n", fPlatform.width, fPlatform.height);
 #endif
-	::SetWindowPos(wEditor, 0, rc.left, rc.top,
-	               rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOACTIVATE);
-#if 0
-	char buf[1024];
-	sprintf(buf, "Resizing scintilla to %d,%d-%d,%d\n", rc.left, rc.top,  rc.right - rc.left, rc.bottom - rc.top);
-	OutputDebugString(buf);
-#endif
+	// Use the stored window size from the last PlatformSetWindow call.
+	::SetWindowPos(wEditor, 0, 0, 0, fPlatform.width, fPlatform.height, SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 NS_IMETHODIMP SciMoz::_DoButtonUpDown(bool up, PRInt32 x, PRInt32 y, PRUint16 button, bool bShift, bool bCtrl, bool bAlt) {
@@ -170,6 +160,8 @@ void SciMoz::PlatformNew(void) {
         NS_TimelineMark("SciMoz: object created at 0x%p", this);
 #endif // SCIMOZ_TIMELINE
     fPlatform.fDefaultWindowProc = NULL;
+    fPlatform.width = 100;
+    fPlatform.height = 50;
     // Create a parent window for our parking lot.
     if (atomParkingLotClass == 0) {
         WNDCLASS wc;
@@ -244,6 +236,8 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* window) {
 	                        * it up before trying to subclass
 	                        * the new window. */
 	{
+		fPlatform.width = window->width;
+		fPlatform.height = window->height;
 		if ( window && window->window && portMain == window->window ) {
 			/* The new window is the same as the old one. Just resize and exit. */
 			Resize();
@@ -444,8 +438,6 @@ NS_IMETHODIMP SciMoz::GetVisible(bool *_ret) {
 /* attribute boolean visible */
 NS_IMETHODIMP SciMoz::SetVisible(bool vis) {
 	SCIMOZ_CHECK_VALID("SetVisible");
-	if (vis)
-		Resize();
 	ShowWindow(wEditor, vis ? SW_SHOW : SW_HIDE);
 	return NS_OK;
 }

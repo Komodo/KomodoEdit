@@ -186,6 +186,8 @@ static const char* gInstanceLookupString = "instance->pdata";
 typedef struct _PlatformInstance {
 	WNDPROC	fDefaultWindowProc;
 	WNDPROC fDefaultChildWindowProc;
+	int width;
+	int height;
 }
 PlatformInstance;
 #endif 
