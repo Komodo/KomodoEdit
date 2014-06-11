@@ -375,6 +375,7 @@ public:
     NPRUNTIME_CUSTOM_METHOD(ButtonMove);
     NPRUNTIME_CUSTOM_METHOD(EndDrop);
     NPRUNTIME_CUSTOM_METHOD(AnnotationRemoveAtLine);
+    NPRUNTIME_CUSTOM_METHOD(MarkerDefineRGBAImage);
 
     #undef NPRUNTIME_CUSTOM_METHOD
 protected:

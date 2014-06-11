@@ -30,7 +30,7 @@ manualFunctions = """
     doBraceMatch markClosed hookEvents unhookEvents getStyledText getCurLine getLine
     getStyleRange assignCmdKey clearCmdKey getTextRange charPosAtPosition
     sendUpdateCommands getWCharAt addChar buttonDown buttonUp buttonMove endDrop
-    annotationRemoveAtLine updateMarginWidths
+    annotationRemoveAtLine updateMarginWidths markerDefineRGBAImage
     """.split()
 """ Implemented by hand
     note: items returning strings or complex types are easier to
