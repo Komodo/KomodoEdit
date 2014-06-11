@@ -99,14 +99,24 @@ ko.markers =  function markers_module() {
      * given callback with the image details.
      *
      * @param {String} uri file uri
-     * @param {boolean} force force read from file
      * 
      * Note: The file contents are cached by URI.
      */
-    getImageDataAsync: function(uri, callback, force) {
-        if (!force && uri in content_cache) {
+    getImageDataAsync: function(uri, callback) {
+        if (uri in content_cache) {
+            var cache_entry = content_cache[uri];
+            if (cache_entry[0] == "pending") {
+                cache_entry[1].push(callback);
+                return;
+            }
+            // It's already loaded - fire the callback now.
             callback.apply(ko.markers, content_cache[uri]);
         }
+
+        // Make note that this image is pending.
+        content_cache[uri] = ["pending", [callback]];
+
+        // Load the image so we can get it's size and data.
         var image = new Image();
         // Make it hidden.
         image.setAttribute("hidden", "true");
@@ -121,9 +131,12 @@ ko.markers =  function markers_module() {
                 var data = ctx.getImageData(0, 0, width, height).data;
                 // Turn data into a string
                 data = [String.fromCharCode(x) for (x of data)].join("");
-                // Cache the result and run the callback.
+                // Cache the result and run all callbacks.
+                var callbacks = content_cache[uri][1];
                 content_cache[uri] = [width, height, data];
-                callback(width, height, data);
+                for (var i=0; i < callbacks.length; i++) {
+                    callbacks[i](width, height, data);
+                }
             } finally {
                 document.documentElement.removeChild(image);
             }
