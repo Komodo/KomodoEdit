@@ -6,6 +6,7 @@
 
 from xpcom.components import interfaces as Ci
 from xpcom.components import classes as Cc
+from xpcom import components
 from xpcom.server import UnwrapObject
 from findlib2 import paths_from_path_patterns
 import json
@@ -13,6 +14,7 @@ import scandir
 import re
 import os
 import logging
+import threading
 
 log = logging.getLogger("commando-scope-files-py")
 #log.setLevel(10)
@@ -27,9 +29,16 @@ class koScopeFiles():
     project = None
     cache = {}
     _history = None
+    activeUuid = None
 
-    def search(self, query, path, opts, callback):
+    def search(self, query, uuid, path, opts, callback):
+        self.activeUuid = uuid
+        t = threading.Thread(target=self._search, args=(query, uuid, path, opts, callback))
+        t.start()
+        
+    def _search(self, query, uuid, path, opts, callback):
         log.debug("Starting Search: " + query)
+
         opts = json.loads(opts)
 
         # Prepare Regex Object
@@ -53,15 +62,14 @@ class koScopeFiles():
 
         try:
             for pathEntry in walker:
+                if (self.activeUuid is not uuid):
+                    walker.send(True) # Stop iteration
+
                 description = query.sub(replacement, pathEntry["path"])
                 if pathEntry["path"] is not description:
-
                     # Todo: figure out a good way to normalize weight numbers
                     weight = 0
-                    hits = self.history.get_num_visits("file://"+path+pathEntry["path"], -1)
                     depth = pathEntry["path"].count(os.sep) + 1
-
-                    weight += hits * opts.get("weightHits", 1)
                     weight += (10 / depth) * opts.get("weightDepth", 1)
 
                     matchWeight = 0
@@ -69,26 +77,40 @@ class koScopeFiles():
                     for word in words:
                         if word in filename:
                             matchWeight += 10
-
                     weight += matchWeight * opts.get("weightMatch", 1)
 
-                    callback.callback(0, [
-                        filename,
-                        pathEntry["path"],
-                        pathEntry["fullPath"],
-                        pathEntry["type"],
-                        description,
-                        weight
-                    ])
+                    self.processResult(pathEntry, path, filename, description, weight, opts, callback)
 
                     numResults+=1
-                    walker.send(numResults is opts.get("maxresults", 50))
+                    walker.send(numResults is opts.get("maxresults", 200))
+
         except StopIteration:
-            log.debug("Result limit reached")
+            log.debug(uuid + " - iteration stopped")
 
         if numResults is 0:
-            callback.callback(0, "done");
+            self.doCallback(callback, "done")
 
+    @components.ProxyToMainThreadAsync
+    def processResult(self, pathEntry, path, filename, description, weight, opts, callback):
+        # history.get_num_visits must happen on the main thread
+        hits = self.history.get_num_visits("file://"+path+pathEntry["path"], -1)
+        weight += hits * opts.get("weightHits", 1)
+
+        result = [
+            filename,
+            pathEntry["path"],
+            pathEntry["fullPath"],
+            pathEntry["type"],
+            description,
+            weight
+        ];
+        callback.callback(0, result)
+                
+    @components.ProxyToMainThreadAsync
+    def doCallback(self, callback, arg):
+        callback.callback(0, arg)
+
+    # Todo: Refactor to have separate generator / consumer logic
     def walkPaths(self, path, opts):
         if path in self.cache and opts.get("recursive", True) is True:
             for pathEntry in self.cache[path]:
@@ -97,17 +119,19 @@ class koScopeFiles():
                     break
         else:
             if opts.get("recursive", True):
-                self.cache[path] = []
+                cache = []
 
             if len(path) > 1:
                 stripPathRe = re.compile("^" + re.escape(path) + "/?")
-            for subPath, fileType in paths_from_path_patterns([path],
+
+            walker = paths_from_path_patterns([path],
                     dirs="always",
                     follow_symlinks=True,
                     includes=opts.get("includes", []),
                     excludes=opts.get("excludes", []),
                     yield_filetype=True,
-                    recursive=opts.get("recursive", True)):
+                    recursive=opts.get("recursive", True))
+            for subPath, fileType in walker:
                 
                 if subPath is path:
                     continue
@@ -121,13 +145,25 @@ class koScopeFiles():
                 }
 
                 if opts.get("recursive", True):
-                    self.cache[path].append(pathEntry)
+                    cache.append(pathEntry)
 
-                yield pathEntry
+                shouldStop = yield pathEntry
+                if shouldStop:
+                    raise StopIteration
+
+            # Append to cache only when it is completely done
+            if opts.get("recursive", True):
+                log.debug("Cache size: " + str(len(cache)))
+                self.cache[path] = cache
 
     def buildCache(self, path, opts):
+        t = threading.Thread(target=self._buildCache, args=(path, opts))
+        t.start()
+
+    def _buildCache(self, path, opts):
         opts = json.loads(opts)
-        self.walkPaths(path, opts)
+        for x in self.walkPaths(path, opts):
+            None
 
     @property
     def history(self):

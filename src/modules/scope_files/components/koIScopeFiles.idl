@@ -9,7 +9,8 @@ interface koIScopeFiles: nsISupports {
 
     void buildCache(in AString path, in AString opts);
 
-    void search(in AString query, in AString path,
+    void search(in AString query, in AString searchUuid,
+                in AString path,
                 in AString opts,
                 in koIAsyncCallback callback);
 

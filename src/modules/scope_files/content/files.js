@@ -11,6 +11,8 @@
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     var activeUuid = null;
 
+    var local = {warned: {}};
+
     this.prepare = function()
     {
         var opts = {};
@@ -39,7 +41,7 @@
         activeUuid = uuid;
 
         var opts = {
-            "maxresults": ko.prefs.getLong("commando_search_max_results", 25)
+            "maxresults": ko.prefs.getLong("commando_search_max_results", 100)
         }
 
         // Detect directory to search in
@@ -91,11 +93,15 @@
         opts = JSON.stringify(opts);
         log.debug(uuid + " - Opts: " + opts);
 
-        scope.search(query, subscope.path, opts, function(status, entry)
+        scope.search(query, uuid, subscope.path, opts, function(status, entry)
         {
             if (activeUuid != uuid)
             {
-                log.debug(uuid + " - No longer the active search, don't pass result");
+                if ( ! (uuid in local.warned))
+                {
+                    log.debug(uuid + " - No longer the active search, don't pass result");
+                    local.warned[uuid] = true;
+                }
                 return; // Don't waste any more time on past search queries
             }
             
@@ -127,6 +133,7 @@
 
     this.sort = function(current, previous)
     {
+        if ( ! current || ! previous) return 0;
         return previous.name.localeCompare(current.name) > 0 ? 1 : -1;
     }
 

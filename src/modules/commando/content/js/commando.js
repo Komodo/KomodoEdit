@@ -10,6 +10,7 @@
 
     var local = {
         scopes: {},
+        subscope: null,
         elemCache: {},
         templateCache: {},
         resultCache: [],
@@ -107,17 +108,6 @@
         log.debug("Event: onSearch");
         if (local.prevSearchValue == e.target.value) return;
 
-        // Prevent multiple searches in a short amount of time
-        if ( ! noDelay)
-        {
-            log.debug("Delaying Search");
-            window.setTimeout(
-                onSearch.bind(this, e, true),
-                ko.prefs.getLong("commando_search_delay", 0)
-            );
-            return;
-        }
-
         local.searchingUuid = uuidGen.uuid();
         local.resultCache = [];
         local.resultsReceived = 0;
@@ -128,6 +118,7 @@
         log.debug(local.searchingUuid + " - Starting Search for: " + e.target.value);
         getScopeHandler().onSearch(e.target.value, local.searchingUuid);
     }
+    this.onSearch = onSearch;
 
     var onSelectResult = function(e)
     {
@@ -233,10 +224,10 @@
         if (local.resultsRendered === 0)
             this.empty(); // Force empty results
 
-        log.debug(searchUuid + " - Rendering Results");
+        log.debug(searchUuid + " - Rendering "+results.length+" Results");
 
         var resultElem = $(elem('results').element().cloneNode(true));
-        var maxResults = ko.prefs.getLong("commando_search_max_results", 25);
+        var maxResults = ko.prefs.getLong("commando_search_max_results", 100);
         maxResults -= local.resultsRendered;
         results = results.slice(0, maxResults);
         local.resultsRendered += results.length;
@@ -267,7 +258,13 @@
             var cont = true;
             while (elem.previousSibling && cont)
             {
-                if (handler.sort(elem.resultData, elem.previousSibling.resultData) === 1)
+                let current = elem.resultData;
+                let previous = elem.previousSibling.resultData;
+
+                if ( ! current)
+                    continue;
+
+                if (handler.sort(current, previous) === 1)
                     elem.parentNode.insertBefore(elem, elem.previousSibling);
                 else
                     cont = false;
@@ -283,7 +280,10 @@
                 let current = elem.resultData;
                 let previous = elem.previousSibling.resultData;
 
-                if ((current.weight && ! previous.weight) ||
+                if ( ! current)
+                    continue;
+
+                if ( ! previous || (current.weight && ! previous.weight) ||
                     (current.weight && previous.weight && current.weight > previous.weight)
                 )
                     elem.parentNode.insertBefore(elem, elem.previousSibling);
