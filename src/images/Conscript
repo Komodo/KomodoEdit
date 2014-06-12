@@ -204,11 +204,6 @@ $cons->Install($imagesDir, "icons/checkbox_bordered_checked.png");
 $cons->Install($imagesDir, "icons/checkbox_bordered_unchecked.png");
 
 # install famfamfam extension
-$cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/silkicons.jar", 'famfamfam/silkicons.jar');
-$cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/install.rdf", 'famfamfam/install.rdf');
-$cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/chrome.manifest", 'famfamfam/chrome.manifest');
-
-# install famfamfam extension
 $cons->KoExtUnpack("kodistunpack", SourcePath("famfamfam/famfamfam.xpi"));
 
 # Install the icomoon icon listing for the icon picker
