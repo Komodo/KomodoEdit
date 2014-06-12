@@ -735,7 +735,8 @@ def dev_install(base_dir, force=False, dry_run=False, log=None):
     if not dry_run:
         open(ext_file, 'w').write(dev_dir)
 
-def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None, unjarred=False):
+def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None,
+                         unjarred=False, xpi_path=None, distinstall=False):
     """Install the extension in `base_dir` into a Komodo build.
         
     This command is for building *core* Komodo extensions into a Komodo
@@ -754,6 +755,8 @@ def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None, unja
     @param unjarred {bool} Whether to leave the chrome directory unjarred.
         Default is False, meaning all chrome files (skin, content, locale)
         are zipped up into a '$ext-name.jar' file.
+    @param xpi_path {str} Optional. File path for the built .xpi file.
+    @param distinstall {bool} Optional. Install into the "distributions" dir.
     """
     if log is None: log = _log
     if not is_ext_dir(base_dir):
@@ -765,13 +768,17 @@ def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None, unja
     
     # `build_ext` knows how to build the extension. We just call it and
     # use the .xpi it produces.
-    xpi_path = build_ext(base_dir, ppdefines=ppdefines, log=log, unjarred=unjarred)
+    if not xpi_path:
+        xpi_path = build_ext(base_dir, ppdefines=ppdefines, log=log, unjarred=unjarred)
     
     # Unzip the .xpi into that dir.
-    komodo_unpack_xpi(xpi_path)
+    destdir = None
+    if distinstall:
+        ko_info = KomodoInfo()
+        destdir = ko_info.distext_base_dir
+    komodo_unpack_xpi(xpi_path, destdir=destdir)
 
-
-def komodo_unpack_xpi(xpi_path, log=None):
+def komodo_unpack_xpi(xpi_path, log=None, destdir=None):
     """Unpack an extension .xpi file into a Komodo build.
     
     This command is for installing *core* Komodo extensions into a Komodo
@@ -780,14 +787,17 @@ def komodo_unpack_xpi(xpi_path, log=None):
     
     @param xpi_path {str} Path to the .xpi file.
     @param log {logging.Logger} Optional.
+    @param destdir {str} Optional. The directory to extract into.
    """
     if log is None: log = _log
     if not isfile(xpi_path):
         raise KoExtError('%s is not a file' % xpi_path)
     ko_info = KomodoInfo()
+    if destdir is None:
+        destdir = ko_info.ext_base_dir
     # We don't know the extension directory name, until we have extracted the
     # xpi. Extract it to a temp dir and move that once we figured out the name.
-    tmp_dir = join(ko_info.ext_base_dir, '__%s' % basename(xpi_path))
+    tmp_dir = join(destdir, '__%s' % basename(xpi_path))
     if exists(tmp_dir):
         _rm(tmp_dir, logstream=log.info)
     _mkdir(tmp_dir, logstream=log.info)
@@ -799,7 +809,7 @@ def komodo_unpack_xpi(xpi_path, log=None):
         _rm(tmp_dir, logstream=log.info)
         log.error(e)
         raise KoExtError("%s xpi_path is not a valid .xpi file" % xpi_path)
-    install_dir = join(ko_info.ext_base_dir, ext_info.id)
+    install_dir = join(destdir, ext_info.id)
     if exists(install_dir):
         _rm(install_dir, logstream=log.info)
     _mv(tmp_dir, install_dir)
@@ -946,7 +956,12 @@ class KomodoInfo(object):
     def ext_base_dir(self):
         """The 'extensions' base dir in which extensions are installed."""
         return join(self.moz_bin_dir, "extensions")
-    
+
+    @property
+    def distext_base_dir(self):
+        """The 'distribution/bundle' base dir for hidden extensions."""
+        return join(self.moz_bin_dir, "distribution", "bundles")
+
     @property
     def ext_dirs(self):
         """Generate all extension dirs in this Komodo installation
