@@ -119,7 +119,7 @@ def _iconRelpathtoURL(relpath, project_dirname):
         return url
 
     if relpath.startswith('[ICONSDIR]'):
-        url = 'chrome://komodo/content/icons' + relpath[len('[ICONSDIR]'):]
+        url = 'chrome://komodo/skin/images' + relpath[len('[ICONSDIR]'):]
         return url
 
     return uriparse.localPathToURI(relpath)

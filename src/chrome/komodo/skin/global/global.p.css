@@ -421,7 +421,7 @@
 
 .green-undo-icon
 {
-  list-style-image : url("chrome://komodo/content/icons/undo.png");
+  list-style-image : url("chrome://komodo/skin/images/undo.png");
 }
 
 button[type="moreinfo"] > .button-box > .button-icon
@@ -462,12 +462,12 @@ treechildren::-moz-tree-image(remotefile)
 
 .small-stop-sign-icon
 {
-    list-style-image : url("chrome://komodo/content/icons/stop.png");
+    list-style-image : url("chrome://komodo/skin/images/find_stop.png");
 }
 
 .small-cut-icon
 {
-    list-style-image : url("chrome://komodo/content/icons/cut.png");
+    list-style-image : url("chrome://komodo/skin/images/cut.png");
 }
 
 /* Komodo icons */
