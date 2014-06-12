@@ -221,7 +221,6 @@ foreach my $info (@lexers) {
     my $udl_path = "udl/" . $info->{udl_path};
     my $version = $info->{version} || "1.0.0";
     my $build_dir = "build/$safe_language_name";
-    my $xpi_path = "$codename-$version-ko.xpi";
     my $install_rdf_path = "$build_dir/install.rdf";
     my $rmdir_cmd = "$RMDIR $build_dir";
     my $mkdir_cmd = "$MKDIR build";
@@ -262,16 +261,8 @@ foreach my $info (@lexers) {
                             ($info->{udl_path}, '\.consign', '\.svn'));
     $cons->DependsRecursive($install_rdf_path, "ludditelib",
                             ('\.consign', '.*\.pyc', '\.svn'));
-    $cons->KoExt("build", $xpi_path, $build_dir);
+    $cons->KoExt("kodistinstall", $xpi_path, $build_dir);
     $cons->Depends($xpi_path, $install_rdf_path);
-
-    my $landmark = "$mozExtensionDir/$codename\@ActiveState.com/install.rdf";
-    $cons->Command(
-        $landmark,
-        $xpi_path,
-        qq(
-            unzip -o -q -d %0:d %1
-        ));
 }
 
 
