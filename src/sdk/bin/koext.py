@@ -239,7 +239,18 @@ class KoExtShell(cmdln.Cmdln):
         Komodo installation (either install the .xpi for use `koext devinstall`
         for that)."""
         koextlib.komodo_unpack_xpi(xpi_path, log=log, destdir=opts.dest_dir)
-    
+
+    def _do_kodistunpack(self, subcmd, opts, xpi_path):
+        """${cmd_name}: unpack a .xpi file and install it into a Komodo build
+
+        ${cmd_usage}
+        ${cmd_option_list}
+        This command is for installing *core* Komodo extensions into a Komodo
+        build. This is *not* a command for installing an extension into a
+        Komodo installation (either install the .xpi for use `koext devinstall`
+        for that)."""
+        koextlib.komodo_distunpack_xpi(xpi_path, log=log)
+
     @option("-d", "--source-dir",
             help="The directory with the source for the extension "
                  "(defaults to the current dir)")

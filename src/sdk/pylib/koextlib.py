@@ -816,6 +816,19 @@ def komodo_unpack_xpi(xpi_path, log=None, destdir=None):
     
     print "installed to `%s'" % install_dir
 
+def komodo_distunpack_xpi(xpi_path, log=None):
+    """Unpack an extension .xpi file into a Komodo build.
+    
+    This command is for installing *core* Komodo extensions into a Komodo
+    build. This is *not* a command for installing an extension into a
+    Komodo installation.
+    
+    @param xpi_path {str} Path to the .xpi file.
+    @param log {logging.Logger} Optional.
+    """
+    ko_info = KomodoInfo()
+    destdir = ko_info.distext_base_dir
+    komodo_unpack_xpi(xpi_path, log=log, destdir=destdir)
 
 #---- internal support routines
 
