@@ -12,4 +12,4 @@ Import(
 );
 
 
-$cons->KoExtUnpack(SourcePath("crystal.xpi"));
+$cons->KoExtUnpack("kounpack", SourcePath("crystal.xpi"));

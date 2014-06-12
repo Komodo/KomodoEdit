@@ -50,6 +50,8 @@ Import(
     "ranRegxpcomStateFileName",
     "mozChromeDir",
     "productType",
+    "sdkDir",
+    'unsiloedPythonExe',
     "version",
 );
 
@@ -205,6 +207,9 @@ $cons->Install($imagesDir, "icons/checkbox_bordered_unchecked.png");
 $cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/silkicons.jar", 'famfamfam/silkicons.jar');
 $cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/install.rdf", 'famfamfam/install.rdf');
 $cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/chrome.manifest", 'famfamfam/chrome.manifest');
+
+# install famfamfam extension
+$cons->KoExtUnpack("kodistunpack", SourcePath("famfamfam/famfamfam.xpi"));
 
 # Install the icomoon icon listing for the icon picker
 $cons->InstallAs("$mozChromeDir/komodo/content/dialogs/iconlist_icomoon.html", "icomoon/icomoon.html");

@@ -12,5 +12,5 @@ Import(
 );
 
 
-$cons->KoExtUnpack(SourcePath("gtkstock.xpi"));
+$cons->KoExtUnpack("kounpack", SourcePath("gtkstock.xpi"));
 

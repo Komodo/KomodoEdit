@@ -580,8 +580,8 @@ sub cons::KoExt {
     my $landmark = "$buildDir/koext.consjunk"; # fake target to make Cons happy
     my $extra_options = "";
     if (defined($xpi_path)) {
-	$landmark = $xpi_path;
-	my $abs_xpi_path = cwd()."/".FilePath($xpi_path);
+        $landmark = $xpi_path;
+        my $abs_xpi_path = cwd()."/".FilePath($xpi_path);
         $extra_options .= "-o $abs_xpi_path";
     }
     my $abs_builddir = cwd()."/".DirPath($buildDir);
@@ -605,9 +605,9 @@ sub cons::KoExt {
 }
 
 sub cons::KoExtUnpack {
-    # Run "koext unpack <xpiPath>" to unpack and install an xpi file into the
+    # Run "koext <args> <xpiPath>" to unpack and install an xpi file into the
     # Komodo build.
-    my ($env, $xpiFile, @toSkip) = @_;
+    my ($env, $args, $xpiFile, @toSkip) = @_;
     if (! scalar(@toSkip)) {
         @toSkip = (".svn", "*.xpi", "build");  # default skips
     }
@@ -631,7 +631,7 @@ sub cons::KoExtUnpack {
         "$build/ranregxpcom.consjunk",
         "$mozBin/is_dev_tree.txt",
         qq(
-            $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v kounpack $xpiFile
+            $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v $args $xpiFile
             touch %0
         )
     );
