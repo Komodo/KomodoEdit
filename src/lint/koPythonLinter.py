@@ -171,7 +171,7 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
         # self.lint_prefname: "lint_python_with_pylint" or "lint_python3_with_pylint3"
         if not prefset.getBoolean(self.lint_prefname):
             return
-        pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
+        pythonExe = self._pythonInfo.getExecutableFromPrefs(prefset)
         if not pythonExe:
             return
         if not hasattr(self, "_pylint_version"):
@@ -320,7 +320,7 @@ class KoPythonCommonPep8Checker(_GenericPythonLinter):
         # if not prefset.getBooleanPref("lintPythonWithPep8"): return
         if not prefset.getBooleanPref(self.lint_prefname):
             return
-        pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
+        pythonExe = self._pythonInfo.getExecutableFromPrefs(prefset)
         if not pythonExe:
             return
         cwd = request.cwd
@@ -445,7 +445,7 @@ class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
         prefset = request.prefset
         if not prefset.getBooleanPref(self.lint_prefname):
             return
-        pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
+        pythonExe = self._pythonInfo.getExecutableFromPrefs(prefset)
         if not pythonExe:
             return
         try:
@@ -695,7 +695,7 @@ class KoPythonCommonLinter(_GenericPythonLinter):
             interpreter_pref_name = "%sDefaultInterpreter" % (self.language_name_lc, )
             python = prefset.getString(interpreter_pref_name)
             if not python:
-                python = self._pythonInfo.executablePath
+                python = self._pythonInfo.getExecutableFromPrefs(prefset)
                 if not python:
                     return
             if not self._pythonInfo.isSupportedBinary(python):
