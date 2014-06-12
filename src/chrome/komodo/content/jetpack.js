@@ -157,18 +157,41 @@ const [JetPack, require] = (function() {
         return null;
     };
 
+    /**
+     * Adds the namespace and path to the loader's list of require paths.
+     * 
+     * @param {String} namespace  The prefix for the required path.
+     * @param {String} path       The directory to which this prefix is mapped.
+     */
     require.setRequirePath = function(namespace, path) {
-        requirePaths[namespace] = path;
-        loader = Loader({resolve: my_resolve,
-                         paths: requirePaths,
-                         globals: globals});
+        // Modify the loader mapping (a mapping of the paths) in place.
+        //
+        // We know the last item in the mapping is '' - so we cannot
+        // leave this loop with finding a place to insert.
+        var mapping_length = loader.mapping.length
+        for (var i=0; i < mapping_length; i++) {
+            if (loader.mapping[i][0].length <= namespace.length) {
+                loader.mapping.splice(i, 0, [namespace, path]);
+                break
+            }
+        }
+        if (loader.mapping.length <= mapping_length) {
+            throw new Error("setRequirePath didn't succeed in adding a mapping");
+        }
     }
 
-    require.removeRequirePath = function(namespace, path) {
-        delete requirePaths[namespace];
-        loader = Loader({resolve: my_resolve,
-                         paths: requirePaths,
-                         globals: globals});
+    /**
+     * Removes the namespace from the loader's list of require paths.
+     * 
+     * @param {String} namespace  The prefix for the required path.
+     */
+    require.removeRequirePath = function(namespace) {
+        for (var i=0; i < loader.mapping.length; i++) {
+            if (loader.mapping[i][0] == namespace) {
+                loader.mapping.splice(i, 1);
+                break
+            }
+        }
     }
 
     return [JetPack, require];
