@@ -79,7 +79,6 @@
 <!ENTITY loginAnonymously.label "Login Anonymously">
 <!ENTITY mapsTo.label "Maps to:">
 <!ENTITY nextDiff.label "Next Diff">
-<!ENTITY openOfficeIcons.label "Open Office Icons (670 icons)">
 <!ENTITY pDirectoryPathOfTheActiveProject.label "[[&#37;p]]: directory path of the active project">
 <!ENTITY passwordLabel.accesskey "P">
 <!ENTITY perlConfiguredPerlInterpreter.label "[[&#37;perl]] : Configured Perl Interpreter">

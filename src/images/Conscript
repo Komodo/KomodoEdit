@@ -215,7 +215,4 @@ $cons->KoExtUnpack("kodistunpack", SourcePath("famfamfam/famfamfam.xpi"));
 $cons->InstallAs("$mozChromeDir/komodo/content/dialogs/iconlist_icomoon.html", "icomoon/icomoon.html");
 
 # install openoffice extension
-$cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/industrial.jar", 'openoffice/industrial.jar');
-$cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/install.rdf", 'openoffice/install.rdf');
-$cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/chrome.manifest", 'openoffice/chrome.manifest');
-
+$cons->KoExtUnpack("kounpack", SourcePath("openoffice/industrial.xpi"));
