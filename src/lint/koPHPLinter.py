@@ -122,7 +122,7 @@ class KoPHPCompileLinter:
         #print "PHP Lint"
         #print text
         #print "----------------------------"
-        php = self.phpInfoEx.getExecutableFromPrefset(request.prefset)
+        php = self.phpInfoEx.getExecutableFromPrefs(request.prefset)
         if php is None:
             errmsg = "Could not find a suitable PHP interpreter for linting."
             log.exception(errmsg)
