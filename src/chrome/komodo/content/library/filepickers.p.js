@@ -1108,15 +1108,15 @@ this.openFiles = function filepicker_openFiles(defaultDirectory /* =null */,
  */
 this.internDefaultDir = function internDefaultDir(label, dir) {
     if (!dir) {
-        dir = prefs.getString(label, "");
+        dir = local.prefs.getString(label, "");
         if (dir && local.osPathSvc.isdir(dir)) {
             return dir;
         }
         return null;
     }
-    prefs.setStringPref(label, dir);
+    local.prefs.setStringPref(label, dir);
     // This has to be done each time to make sure new pref settings stick
-    local.globalPrefs.setPref("filepickers.defaultDirs", prefs);
+    local.globalPrefs.setPref("filepickers.defaultDirs", local.prefs);
     return dir;
 };
 
