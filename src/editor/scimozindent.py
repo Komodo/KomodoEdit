@@ -57,7 +57,7 @@ def makeIndentFromWidth(scimoz, width):
         tabWidth = scimoz.tabWidth
         # guard against a misconfigured scimoz with a tabWidth
         # of 0, which would cause a divide by zero error
-        if tabWidth == 0: tabWidth = 8
+        if tabWidth == 0: tabWidth = 4
         numtabs, numspaces = divmod(width, scimoz.tabWidth)
         return '\t'*numtabs + ' '*numspaces
     else:

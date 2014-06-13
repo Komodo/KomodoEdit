@@ -574,7 +574,7 @@
 <!-- #endif -->
                 scimoz.mouseDwellTime = 500;
                 scimoz.indent = 4;
-                scimoz.tabWidth = 8;
+                scimoz.tabWidth = 4;
                 scimoz.setProperty('smartCloseTags', '1');
                 scimoz.wrapVisualFlags = prefs.getLongPref("editWordWrapMarker");
                 scimoz.wrapIndentMode = prefs.getLongPref("editWordWrapIndentation");
