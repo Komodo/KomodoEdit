@@ -6,6 +6,8 @@
     const log       = require("ko/logging").getLogger("commando");
     const uuidGen   = require("sdk/util/uuid");
 
+    const commando  = this;
+
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var local = {
@@ -16,7 +18,8 @@
         resultCache: [],
         resultsReceived: 0,
         resultsRendered: 0,
-        searchingUuid: null
+        searchingUuid: null,
+        prevSearchValue: null
     };
 
     var elems = {
@@ -39,7 +42,7 @@
         log.debug('Starting Commando');
         elem('results').on("keydown", onKeyNav.bind(this));
         elem('search').on("input", onSearch.bind(this));
-        elem('scope').on("change", function(e) { elem('search').focus(); });
+        elem('scope').on("command", onChangeScope.bind(this));
     }
 
     var elem = function(name, noCache)
@@ -126,6 +129,18 @@
         getScopeHandler().onSelectResult(selected);
     }
 
+    var onChangeScope = function(e)
+    {
+        commando.stop();
+        commando.empty();
+        
+        var scopeHandler = getScopeHandler();
+        if ("onShow" in scopeHandler)
+            scopeHandler.onShow();
+
+        window.setTimeout(function() { elem('search').focus(); }, 0);
+    }
+
     var getScope = function()
     {
         return elem('scope').element().selectedItem._scope;
@@ -150,12 +165,11 @@
         left -= panel.element().width / 2;
         panel.element().openPopup(undefined, undefined, left, 100);
 
+        search.focus();
+        
         var scopeHandler = getScopeHandler();
-
         if ("onShow" in scopeHandler)
             scopeHandler.onShow();
-        
-        search.focus();
     }
 
     this.search = function(value)
@@ -324,6 +338,12 @@
     this.setSubscope = function(subscope)
     {
         local.subscope = subscope;
+    }
+
+    this.stop = function()
+    {
+        local.prevSearchValue = null;
+        local.searchingUuid = null;
     }
 
     this.empty = function()
