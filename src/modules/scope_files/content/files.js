@@ -34,6 +34,11 @@
         scope.buildCache(path, JSON.stringify(opts));
     }
 
+    this.onShow = function()
+    {
+        commando.search("");
+    }
+
     this.onSearch = function(query, uuid)
     {
         log.debug(uuid + " - Starting Scoped Search");

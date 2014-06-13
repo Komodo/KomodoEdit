@@ -37,9 +37,8 @@
     var init = function()
     {
         log.debug('Starting Commando');
-        elem('search').on("keydown", onKeyNav.bind(this));
         elem('results').on("keydown", onKeyNav.bind(this));
-        elem('search').on("keyup", onSearch.bind(this));
+        elem('search').on("input", onSearch.bind(this));
         elem('scope').on("change", function(e) { elem('search').focus(); });
     }
 
@@ -106,19 +105,19 @@
     var onSearch = function(e, noDelay = false)
     {
         log.debug("Event: onSearch");
-        if (local.prevSearchValue == e.target.value) return;
+        var searchValue = elem('search').value();
+        if (local.prevSearchValue == searchValue) return;
 
         local.searchingUuid = uuidGen.uuid();
         local.resultCache = [];
         local.resultsReceived = 0;
         local.resultsRendered = 0;
-        local.prevSearchValue = e.target.value;
+        local.prevSearchValue = searchValue;
 
         // perform onSearch
-        log.debug(local.searchingUuid + " - Starting Search for: " + e.target.value);
-        getScopeHandler().onSearch(e.target.value, local.searchingUuid);
+        log.debug(local.searchingUuid + " - Starting Search for: " + searchValue);
+        getScopeHandler().onSearch(searchValue, local.searchingUuid);
     }
-    this.onSearch = onSearch;
 
     var onSelectResult = function(e)
     {
@@ -151,8 +150,18 @@
         left -= panel.element().width / 2;
         panel.element().openPopup(undefined, undefined, left, 100);
 
-        search.value("");
+        var scopeHandler = getScopeHandler();
+
+        if ("onShow" in scopeHandler)
+            scopeHandler.onShow();
+        
         search.focus();
+    }
+
+    this.search = function(value)
+    {
+        elem('search').value(value);
+        onSearch();
     }
 
     this.hideCommando = function()
