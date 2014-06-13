@@ -429,6 +429,7 @@ Build(
     "$build/modules/analytics/Conscript",
     "$build/modules/commando/Conscript",
     "$build/modules/scope_files/Conscript",
+    "$build/modules/scope_tools/Conscript",
 
     "$build/modules/iconset_ambiance/Conscript",
     "$build/modules/iconset_blue/Conscript",

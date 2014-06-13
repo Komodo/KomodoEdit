@@ -48,7 +48,7 @@
                                     {{?}}
                                 </hbox>
                                 <vbox flex="1">
-                                    <label value="{{=it.name}}" class="title"/>
+                                    <label value="{{!it.name}}" class="title"/>
                                     {{?it.description}}
                                         <description>
                                             {{=it.description}}
