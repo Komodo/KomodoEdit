@@ -64,7 +64,7 @@
         //commando.setSubscope(subscope);
 
         // Todo: platform specific separator
-        if (query.substr(0,2) == "./" || query.substr(0,3) == "../" || query[0] == "/")
+        if (query.length && (query.substr(0,2) == "./" || query.substr(0,3) == "../" || query[0] == "/"))
         {
             var isAbsolute = query[0] == "/";
             query = query.split("/");
