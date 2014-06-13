@@ -29,14 +29,11 @@ function loadIntoWindow(window) {
         Cu.reportError(e);
     }
 
-    window.addEventListener("komodo-post-startup", function() {
-        window.require("scope-files/files").prepare();
-    });
+    window.require("scope-files/files").prepare();
 }
 
 function unloadFromWindow(window) {
     if (!window) return;
-    window.require.removeRequirePath("scope-files");
     var commando = window.require("commando/commando");
     commando.unregisterScope("project-files");
 }
@@ -45,8 +42,8 @@ var windowListener = {
     onOpenWindow: function(aWindow) {
         // Wait for the window to finish loading
         let domWindow = aWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowInternal || Ci.nsIDOMWindow);
-        domWindow.addEventListener("komodo-ui-started", function onLoad() {
-            domWindow.removeEventListener("komodo-ui-started", onLoad, false);
+        domWindow.addEventListener("komodo-post-startup", function onLoad() {
+            domWindow.removeEventListener("komodo-post-startup", onLoad, false);
             loadIntoWindow(domWindow);
         }, false);
     },
