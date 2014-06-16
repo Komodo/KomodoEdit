@@ -768,8 +768,8 @@ def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None,
     
     # `build_ext` knows how to build the extension. We just call it and
     # use the .xpi it produces.
-    if not xpi_path:
-        xpi_path = build_ext(base_dir, ppdefines=ppdefines, log=log, unjarred=unjarred)
+    xpi_path = build_ext(base_dir, ppdefines=ppdefines, log=log,
+                         unjarred=unjarred, xpi_path=xpi_path)
     
     # Unzip the .xpi into that dir.
     destdir = None
