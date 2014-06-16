@@ -68,7 +68,6 @@
 <!ENTITY donTShowMeThisAgain.label "Don't show me this again.">
 <!ENTITY escapedPercentSign.label "[[&#37;&#37;]] : escaped percent sign">
 <!ENTITY fFileBaseName.label "[[&#37;f]] : file base name">
-<!ENTITY famFamFamSilkIcons.label "FamFamFam Silk Icons (1000 icons)">
 <!ENTITY icomoon.label "IcoMoon (1000+ icons)">
 <!ENTITY featureControlPanel.title "Feature Control Panel">
 <!ENTITY globalPreferences.label "Global Preferences">

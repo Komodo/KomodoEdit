@@ -74,7 +74,6 @@
               oncommand="selectIconFamily(event);">
       <menupopup id="icon-families-menupopup">
         <menuitem label="&icomoon.label;" src="chrome://komodo/content/dialogs/iconlist_icomoon.html"/>
-        <menuitem label="&famFamFamSilkIcons.label;" src="chrome://famfamfamsilk/content/silk.html"/>
       </menupopup>
     </menulist>
     <separator class="thin"/>
