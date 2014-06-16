@@ -71,7 +71,7 @@ class DontDeleteEndLines(Exception):
     """ Used as an intra-method return """
     pass
 
-class koDocumentBase:
+class koDocumentBase(object):
     _com_interfaces_ = [components.interfaces.koIDocument,
                         components.interfaces.nsIObserver]
     _reg_desc_ = "Komodo Document"
@@ -2033,17 +2033,16 @@ class koDocumentBase:
     @components.ProxyToMainThread
     def _guessIndentWidth(self):
         text = self.get_buffer()
+
+        _, defaultIndentWidth = self._getLangPref(('%lang/indentWidth', 'getLong'),
+                                                  ('indentWidth', 'getLong'))
         if text == '':
-            _, value = self._getLangPref(('%lang/indentWidth', 'getLong'),
-                                         ('indentWidth', 'getLong'))
-            self._indentWidth = value
+            self._indentWidth = defaultIndentWidth
             return
         # if we don't have a view yet, we can't do anything.
         if not self._views:
             log.error("Was asked to guess indent width before there's a view")
-            _, value = self._getLangPref(('%lang/indentWidth', 'getLong'),
-                                         ('indentWidth', 'getLong'))
-            self._indentWidth = value
+            self._indentWidth = defaultIndentWidth
             return
         if not self._languageObj:
             self.get_languageObj()
@@ -2063,15 +2062,19 @@ class koDocumentBase:
             log.error("Unable to guess indentation")
             
         if indentWidth == 0:  # still haven't found anything, so go with the prefs.
-            _, indentWidth = self._getLangPref(('%lang/indentWidth', 'getLong'),
-                                               ('indentWidth', 'getLong'))
+            _, indentWidth = defaultIndentWidth
             useTabs = defaultUseTabs
 
         log.info("_guessIndentWidth: indentWidth=%d, useTabs=%d",
                  indentWidth, useTabs)
-        # Note that we avoid saving the guessed value in prefs
         self._indentWidth = indentWidth
         self._useTabs = useTabs
+
+        # Store the guessed values if they are different to the default values.
+        if indentWidth != defaultIndentWidth:
+            self.indentWidth = indentWidth  # Save to prefs.
+        if useTabs != defaultUseTabs:
+            self.useTabs = useTabs  # Save to prefs.
 
     @components.ProxyToMainThreadAsync
     def _statusBarMessage(self, message):
