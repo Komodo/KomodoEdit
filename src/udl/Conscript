@@ -221,6 +221,7 @@ foreach my $info (@lexers) {
     my $udl_path = "udl/" . $info->{udl_path};
     my $version = $info->{version} || "1.0.0";
     my $build_dir = "build/$safe_language_name";
+    my $xpi_path = "$codename-$version-ko.xpi";
     my $install_rdf_path = "$build_dir/install.rdf";
     my $rmdir_cmd = "$RMDIR $build_dir";
     my $mkdir_cmd = "$MKDIR build";
