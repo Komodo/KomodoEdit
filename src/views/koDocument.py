@@ -2062,7 +2062,7 @@ class koDocumentBase(object):
             log.error("Unable to guess indentation")
             
         if indentWidth == 0:  # still haven't found anything, so go with the prefs.
-            _, indentWidth = defaultIndentWidth
+            indentWidth = defaultIndentWidth
             useTabs = defaultUseTabs
 
         log.info("_guessIndentWidth: indentWidth=%d, useTabs=%d",
