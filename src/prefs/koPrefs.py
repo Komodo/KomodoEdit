@@ -111,6 +111,7 @@ from xpcom.server.enumerator import SimpleEnumerator
 from xpcom.server import WrapObject, UnwrapObject
 from xpcom.client import WeakReference
 from zope.cachedescriptors.property import Lazy as LazyProperty
+from zope.cachedescriptors.property import LazyClassAttribute
 
 from koXMLPrefs import *
 
@@ -215,7 +216,7 @@ class koPreferenceSetBase(object):
     def prefObserverService(self):
         return (components.classes['@activestate.com/koObserverService;1']
                           .createInstance(components.interfaces.nsIObserverService))
-    
+
     def __getstate__(self):
         prefs = {}
         for id, (val, typ) in self.prefs.items():
@@ -1437,6 +1438,10 @@ class koGlobalPrefService(object):
     _reg_contractid_ = "@activestate.com/koPrefService;1"
     _reg_clsid_ = "{ad71a3ab-9f42-4fe2-9c4d-a0e4702d3e98}"
 
+    # Pref idle save time (in seconds)
+    IDLE_TIME = 5
+    _addedIdleObserver = False
+
     def __init__(self):
         log.debug("koPrefService starting up...")
         global lastErrorSvc
@@ -1465,6 +1470,11 @@ class koGlobalPrefService(object):
         obsvc.addObserver(self, 'xpcom-shutdown', False)
         obsvc.addObserver(self, 'profile-before-change', False)
         log.debug("koPrefService started")
+
+    @LazyClassAttribute
+    def idleService(self):
+        return (components.classes["@mozilla.org/widget/idleservice;1"]
+                          .getService(components.interfaces.nsIIdleService))
 
     def _setupGlobalPreference(self, prefName):
         if not self.pref_map.has_key(prefName):
@@ -1563,6 +1573,11 @@ class koGlobalPrefService(object):
         elif topic == 'xpcom-shutdown':
             log.debug("pref service status got xpcom-shutdown, unloading");
             self.shutDown()
+        elif topic == 'idle':
+            # nsIIdleService has called us - it's time to save prefs
+            self._addedIdleObserver = False
+            self.idleService.removeIdleObserver(self, self.IDLE_TIME)
+            self.saveState()
 
     def saveState(self):
         self.savePrefsState("global")
@@ -1587,6 +1602,12 @@ class koGlobalPrefService(object):
         if defn.save_format in [koGlobalPreferenceDefinition.SAVE_DEFAULT, koGlobalPreferenceDefinition.SAVE_FAST_ONLY]:
             UnwrapObject(prefs).serializeToFileFast(fname + "c")
         
+    def saveWhenIdle(self):
+        if not self._addedIdleObserver:
+            # Call saveState after 5 seconds of idling.
+            self._addedIdleObserver = True
+            self.idleService.addIdleObserver(self, self.IDLE_TIME)
+
     @property
     def effectivePrefs(self):
         if self._partSvc.currentProject:

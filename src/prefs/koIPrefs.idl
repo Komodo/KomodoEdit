@@ -320,6 +320,8 @@ interface koIPrefService : nsISupports {
 
   // Save the named preference set to disk.
   void savePrefsState(in AString prefName);
+
+  void saveWhenIdle();
 };
 
 /**
