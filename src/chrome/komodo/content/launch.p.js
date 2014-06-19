@@ -594,7 +594,7 @@ this.checkForUpdates = function checkForUpdates()
         // window will get called, and only the last window in the
         // workspace will be saved.  Better to save the workspace now,
         // even if it turns out there's no need to restart.
-        ko.workspace.saveWorkspace();
+        ko.workspace.saveWorkspace(true);
         prompter.checkForUpdates();
     }
 }

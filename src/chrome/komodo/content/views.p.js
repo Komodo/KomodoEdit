@@ -1891,11 +1891,7 @@ viewManager.prototype.do_cmd_saveAll = function() {
         }
 
         // save workspace
-        ko.workspace.saveWorkspace();
-
-        // Save prefs
-        var prefSvc = Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService);
-        prefSvc.saveState();
+        ko.workspace.saveWorkspace(true);
     } catch(ex) {
         this.log.exception(ex, "Error in do_cmd_saveAll");
     }

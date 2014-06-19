@@ -622,7 +622,7 @@ this.saveWorkspaceForIdx = function saveWorkspaceForIdx(idx) {
 /**
  * save all workspace preferences and state
  */
-this.saveWorkspace = function view_saveWorkspace()
+this.saveWorkspace = function view_saveWorkspace(saveNow)
 {
     _saveInProgress = true;
     // Ask each major component to serialize itself to a pref.
@@ -639,6 +639,12 @@ this.saveWorkspace = function view_saveWorkspace()
         }
         // Use the current window's layout as the default for new windows
         mainWindow.ko.widgets.unload([]);
+        var prefSvc = Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService);
+        if (saveNow) {
+            prefSvc.saveState();
+        } else {
+            prefSvc.saveWhenIdle();
+        }
     } catch (e) {
         log.exception(e,"Error saving workspace: ");
     } finally {
