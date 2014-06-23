@@ -13,5 +13,6 @@
 *.landmark
 qbtable.pik
 .DS_Store
+nohup.out
 /*.komodoproject
 /.komodotools/
