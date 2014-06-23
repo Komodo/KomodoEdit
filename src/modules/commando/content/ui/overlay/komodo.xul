@@ -47,14 +47,22 @@
                                         <image src='{{=it.icon}}'/>
                                     {{?}}
                                 </hbox>
-                                <vbox flex="1">
+                                <vbox flex="1" class="full">
                                     <label value="{{!it.name}}" class="title"/>
                                     {{?it.description}}
-                                        <description>
+                                        <description crop="left">
                                             {{=it.description}}
                                         </description>
                                     {{?}}
                                 </vbox>
+                                <hbox flex="1" class="compact">
+                                    <label value="{{!it.name}}" class="title"/>
+                                    {{?it.description}}
+                                        <description crop="left" flex="1">
+                                            {{=it.description}}
+                                        </description>
+                                    {{?}}
+                                </hbox>
                             </hbox>
                         </richlistitem>
                     </script>
