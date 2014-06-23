@@ -44,7 +44,6 @@ sci_constants = components.interfaces.ISciMoz
 class koCSSCommonLanguage(KoLanguageBase):
 
     supportsSmartIndent = "brace"
-    primary = 1
     commentDelimiterInfo = {
         "block": [ ("/*", "*/") ],
         "markup": "*",
@@ -109,6 +108,8 @@ class koCSSLanguage(koCSSCommonLanguage):
     _reg_clsid_ = "52594294-AF26-414A-9D66-C2B47EF9F015"
     _reg_categories_ = [("komodo-language", name)]
 
+    primary = 1
+
 class koLessLanguage(koCSSCommonLanguage):
     name = "Less"
     _reg_desc_ = "%s Language" % name
@@ -116,6 +117,8 @@ class koLessLanguage(koCSSCommonLanguage):
                        % (name)
     _reg_clsid_ = "5ae0487c-7ac8-4367-94fc-f3d0c7304551"
     _reg_categories_ = [("komodo-language", name)]
+
+    primary = 1
     commentDelimiterInfo = {
         "block": [ ("/*", "*/") ],
         "markup": "*",
@@ -138,6 +141,8 @@ class koSCSSLanguage(koCSSCommonLanguage):
                        % (name)
     _reg_clsid_ = "b35862ad-7349-453e-8bf6-73177f98c98e"
     _reg_categories_ = [("komodo-language", name)]
+
+    primary = 1
     
     def get_lexer(self):
         if self._lexers_by_name.get(self.name, None) is None:

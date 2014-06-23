@@ -415,8 +415,8 @@ class KoLanguageRegistryService:
         
         if "accessKey" in data:
             self.__accessKeyFromLanguageName[lang] = data["accessKey"]
-        if "internal" in data:
-            self._internalLanguageNames[lang] = data["internal"]
+        if data.get("internal"):
+            self._internalLanguageNames[lang] = True
         if "defaultExtension" in data:
             defaultExtension = data["defaultExtension"]
             existingLang = self._defaultLanguageExtensions.get(defaultExtension)

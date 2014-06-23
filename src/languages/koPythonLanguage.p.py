@@ -126,11 +126,8 @@ class KoPython3LexerLanguageService(KoPythonCommonLexerLanguageService):
 
 
 class KoPythonCommonLanguage(KoLanguageBase):
-    accessKey = 'y'
-    primary = 1
     namedBlockRE = "^[ \t]*?(def\s+[^\(]+\([^\)]*?\):|class\s+[^:]*?:)"
     namedBlockDescription = 'Python functions and classes'
-    defaultExtension = ".py"
     # XXX read url from some config file
     downloadURL = 'http://www.activestate.com/activepython'
     commentDelimiterInfo = { "line": [ "#" ]  }
@@ -283,6 +280,9 @@ class KoPythonLanguage(KoPythonCommonLanguage):
     _reg_clsid_ = "{D90FF5C7-1FD4-4535-A0D2-47B5BDC3E7FE}"
     _reg_categories_ = [("komodo-language", name)]
 
+    accessKey = 'y'
+    primary = 1
+    defaultExtension = ".py"
     shebangPatterns = [
         re.compile(ur'\A#!.*python(?!3).*$', re.IGNORECASE | re.MULTILINE),
     ]
@@ -294,13 +294,15 @@ class KoPythonLanguage(KoPythonCommonLanguage):
 
 class KoPython3Language(KoPythonCommonLanguage):
     name = "Python3"
-    accessKey = '3'
     _reg_desc_ = "%s Language" % (name)
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{db8d60b3-f104-4622-b4d5-3324787d5149}"
     _reg_categories_ = [("komodo-language", name)]
 
+    accessKey = '3'
+    primary = 1
+    defaultExtension = ".py"
     shebangPatterns = [
         re.compile(ur'\A#!.*python3.*$', re.IGNORECASE | re.MULTILINE),
     ]

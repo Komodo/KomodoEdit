@@ -150,13 +150,6 @@ def _urlescape(s):
 
 
 class KoUDLLanguage(KoLanguageBase):
-    # 'primary' indicates if this is a language that Komodo "cares about"
-    # more that others. Mainly this mean it shows up in the "View as
-    # Language" menulists at the top-level. Presumably if the user bothered
-    # to create a UDL-based custom language, then yes this should be
-    # considered primary.
-    primary = 1
-    
     lang_from_udl_family = {'CSL': '', 'TPL': '', 'M': '', 'CSS': '', 'SSL': ''}
     # Common sublanguages used in UDL languages go here.
     # First the define the base style objects, then specify
