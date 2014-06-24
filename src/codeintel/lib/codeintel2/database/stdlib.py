@@ -247,7 +247,7 @@ class StdLib(object):
         return cplns
         
 
-    def reportMemory(self, reporter, closure=None):
+    def reportMemory(self):
         """
         Report on memory usage from this StdLib.
         @returns {dict} memory usage; keys are the paths, values are a dict of
