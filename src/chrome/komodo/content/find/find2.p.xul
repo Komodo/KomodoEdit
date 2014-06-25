@@ -64,7 +64,6 @@
         title="&find.title;"
         windowtype="komodo_find2"
         class="kodialog"
-        width="640"
         persist="screenX screenY"
         onload="on_load()"
         onunload="on_unload()"
