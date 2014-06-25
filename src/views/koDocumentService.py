@@ -207,11 +207,13 @@ class KoDocumentService:
             self._cv.acquire()
             self._cv.notify()
             self._cv.release()
-            # here we wait for the thread to terminate
-            log.debug("waiting for thread to terminate")
-            # Wait for a maximum of 3 seconds before returning
-            self._thread.join(3)
-            log.debug("thread has terminated")
+            if self._thread:
+                # here we wait for the thread to terminate
+                log.debug("waiting for thread to terminate")
+                # Wait for a maximum of 3 seconds before returning
+                self._thread.join(3)
+                log.debug("thread has terminated")
+                self._thread = None
 
     #koIDocument createNewDocumentFromURI(in wstring uri);
     def createNewDocumentFromURI(self, uri):
