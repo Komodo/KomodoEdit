@@ -92,7 +92,7 @@ steps is *meant to be sufficient* to get Komodo building.
    ```
     cd ..
     set PATH=util\black;%PATH%
-    bk configure -V 8.10.0-devel
+    bk configure -V 9.10.0-devel
     bk build
    ```
 
