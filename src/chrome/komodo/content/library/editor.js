@@ -1,0 +1,594 @@
+/**
+ * The editor module is loosely based on the CodeMirror(.net) API to make it
+ * easier for developers who used that API and because their API has been proven
+ * to work well for developers. It is not intended to be fully backwards or
+ * forward compatible with CodeMirror.
+ */
+
+var scimoz = function()
+{
+    return window.ko.views.manager.currentView.scimoz;
+}
+
+module.exports = {
+
+    /** ****** Commands ****** **/
+
+    /**
+     * Empty the undo buffer.
+     *
+     * @returns {Void}
+     */
+    emptyUndoBuffer: function() {
+        return scimoz().emptyUndoBuffer();
+    },
+
+    /**
+     * Undo the last action
+     *
+     * @returns {Void}
+     */
+    undo: function() {
+        return scimoz().undo();
+    },
+
+    /**
+     * Cut current selection to clipboard
+     *
+     * @returns {Void}
+     */
+    cut: function() {
+        return scimoz().cut();
+    },
+
+    /**
+     * Copy current selection to clipboard
+     *
+     * @returns {Void}
+     */
+    copy: function() {
+        return scimoz().copy();
+    },
+
+    /**
+     * Replace current selection with the clipboard contents
+     *
+     * @returns {Void} 
+     */
+    paste: function() {
+        return scimoz().paste();
+    },
+    
+    /**
+     * Select all the text in the buffer
+     *
+     * @returns {Void}
+     */
+    selectAll: function()
+    {
+        this.setSelection(0, this.scimoz().textLength);
+    },
+
+    /**
+     * Deletes the whole line under the cursor, including newline at the end
+     */
+    deleteLine: function()
+    {
+        this.scimoz().lineDelete();
+    },
+
+    /**
+     * Delete the part of the line before the cursor
+     */
+    delLineLeft: function()
+    {
+        this.scimoz().delLineLeft();
+    },
+
+    /**
+     * Delete the part of the line after the cursor
+     */
+    delLineRight: function()
+    {
+        this.scimoz().delLineRight();
+    },
+
+    /**
+     * Move the cursor to the start of the document
+     */
+    goDocStart: function()
+    {
+        scimoz().documentStart();
+    },
+
+    /**
+     * Move the cursor to the end of the document.
+     */
+    goDocEnd: function()
+    {
+        scimoz().documentEnd();
+    },
+
+    /**
+     * Move the cursor to the start of the line.
+     */
+    goLineStart: function()
+    {
+        scimoz().home();
+    },
+
+    /**
+     * Move to the start of the text on the line, or if we are already there, to the actual start of the line (including whitespace).
+     */
+    goLineStartSmart: function()
+    {
+        var curPos = this.getCursorPosition();
+        var lineText = this.getLine();
+        
+        var firstChar = lineText.search(/\S/);
+        if (firstChar == -1 || firstChar == curPos.ch)
+            firstChar = 0;
+
+        this.setCursorPosition({line: this.getLineNumber(), ch: firstChar});
+    },
+
+    /**
+     * Move the cursor to the end of the line.
+     */
+    goLineEnd: function()
+    {
+        scimoz().lineEnd();
+    },
+
+    /**
+     * Move the cursor to the left side of the visual line it is on. If this line is wrapped, that may not be the start of the line.
+     */
+    goLineLeft: function()
+    {
+        scimoz().homeDisplay();
+    },
+
+    /**
+     * Move the cursor to the right side of the visual line it is on.
+     */
+    goLineRight: function()
+    {
+        scimoz().lineEndDisplay();
+    },
+
+    /**
+     * Move the cursor up one line.
+     */
+    goLineUp: function()
+    {
+        scimoz().lineUp();
+    },
+
+    /**
+     * Move down one line.
+     */
+    goLineDown: function()
+    {
+        scimoz().lineDown();
+    },
+
+    /**
+     * Move the cursor up one screen, and scroll up by the same distance.
+     */
+    goPageUp: function()
+    {
+        scimoz().pageUp();
+    },
+
+    /**
+     * Move the cursor down one screen, and scroll down by the same distance.
+     */
+    goPageDown: function()
+    {
+        scimoz().pageDown();
+    },
+
+    /**
+     * Move the cursor one character left, going to the previous line when hitting the start of line.
+     */
+    goCharLeft: function()
+    {
+        scimoz().charLeft();
+    },
+
+    /**
+     * Move the cursor one character right, going to the next line when hitting the end of line.
+     */
+    goCharRight: function()
+    {
+        scimoz().charRight();
+    },
+
+    /**
+     * Move the cursor one character left, but don't cross line boundaries.
+     */
+    goColumnLeft: function()
+    {
+        var pos = this.getCursorPosition();
+        if (pos.ch == 0) return;
+        this.goCharLeft();
+    },
+
+    /**
+     * Move the cursor one character right, don't cross line boundaries.
+     */
+    goColumnRight: function()
+    {
+        var pos = this.getCursorPosition();
+        if (pos.ch == this.getLineSize()) return;
+        this.goCharRight();
+    },
+
+    /**
+     * Move the cursor to the start of the previous word.
+     */
+    goWordLeft: function()
+    {
+        scimoz().wordLeft();
+    },
+
+    /**
+     * Move the cursor to the end of the next word.
+     */
+    goWordRight: function()
+    {
+        scimoz().wordRight();
+    },
+
+    /**
+     * Delete the character before the cursor.
+     */
+    delCharBefore: function()
+    {
+        var pos = this.getCursorPosition("absolute");
+        if ( ! pos) return;
+        
+        this.deleteRange(pos-1, 1);
+    },
+
+    /**
+     * Delete the character after the cursor.
+     */
+    delCharAfter: function()
+    {
+        var pos = this.getCursorPosition("absolute");
+        if (pos == this.getLength()) return;
+
+        this.deleteRange(pos, 1);
+    },
+
+    /**
+     * Delete up to the start of the word before the cursor.
+     */
+    delWordBefore: function()
+    {
+        scimoz().delWordLeft();
+    },
+
+    /**
+     * Delete up to the end of the word after the cursor.
+     */
+    delWordAfter: function()
+    {
+        scimoz().delWordRight();
+    },
+
+    /** ****** Buffer Information ****** **/
+
+    /**
+     * Get the current buffer's content
+     *
+     * @returns {String}
+     */
+    getValue: function()
+    {
+        return scimoz().text;
+    },
+
+    /**
+     * Get the character length of the current buffer
+     *
+     * @returns {Int} 
+     */
+    getLength: function()
+    {
+        return scimoz().textLength;
+    },
+
+    /**
+     * Retrieve the given range of text
+     *
+     * @param   {Object|Int} from   Absolute or relative position
+     * @param   {Object|Int} to     Absolute or relative position
+     *
+     * @returns {String}
+     */
+    getRange: function(from, to)
+    {
+        [from, to] = this._posFormat([from, to], "absolute");
+        return scimoz().getTextRange(from, to);
+    },
+
+    /**
+     * Get the contents of the given line
+     *
+     * @param   {Int|Undefined} line
+     *
+     * @returns {String}
+     */
+    getLine: function(line)
+    {
+        if ( ! line) line = this.getLineNumber();
+        return this.getRange({line: line, ch: 0}, {line: line, ch: this.getLineSize(line)});
+    },
+
+    /**
+     * Get the position of the cursor
+     *
+     * @param   {String} format  absolute | relative (default)
+     *
+     * @returns {Object|Int} Absolute: Int, Relative: {line, ch, absolute}
+     */
+    getCursorPosition: function(format = "relative")
+    {
+        return this._posFormat(scimoz().currentPos, format);
+    },
+
+    /**
+     * Get the current line number
+     *
+     * @returns {Int}
+     */
+    getLineNumber: function()
+    {
+        var pos = this.getCursorPosition("relative");
+        return pos.line;
+    },
+
+    /**
+     * Get the current column (character | ch) number
+     *
+     * @returns {Int}
+     */
+    getColumnNumber: function()
+    {
+        var pos = this.getCursorPosition("relative");
+        return pos.ch;
+    },
+
+    /**
+     * Get the size of the line
+     *
+     * @param   {Int} line
+     *
+     * @returns {Int}
+     */
+    getLineSize: function(line)
+    {
+        if ( ! line) line = this.getLineNumber();
+        return scimoz().getLineEndPosition(line);
+    },
+
+    /**
+     * Get the number of lines in the current buffer
+     *
+     * @returns {Int}
+     */
+    lineCount: function()
+    {
+        return scimoz().lineCount;
+    },
+
+    /** ****** Buffer Manipulation ****** **/
+
+    /**
+     * Set the current buffer's content
+     *
+     * @param   {String} value
+     *
+     * @returns {Void} 
+     */
+    setValue: function(value)
+    {
+        return scimoz().text = value;
+    },
+
+    /**
+     * Insert text at the current cursor position
+     *
+     * Any existing selections will be replaced with the given text
+     *
+     * @param   {String} text
+     *
+     * @returns {Void}
+     */
+    insert: function(text)
+    {
+        var selection = this.getSelectionRange();
+        if (selection.start != selection.end && selection.end)
+        {
+            scimoz().deleteBack();
+        }
+
+        scimoz().addText(text);
+    },
+
+    /**
+     * Set the position of the cursor
+     *
+     * @param   {Int|Object} pos  relative or absolute position
+     *
+     * @returns {Void}
+     */
+    setCursorPosition: function(pos)
+    {
+        var pos = this._posFormat(pos, "absolute");
+        scimoz().setSel(pos, pos);
+    },
+
+    /**
+     * Delete the given range of characters
+     *
+     * @param   {Object|Int} start Position
+     * @param   {Object|Int} end   Position
+     *
+     * @returns {Void} 
+     */
+    deleteRange: function(start, end)
+    {
+        [start, end] = this._posFormat([start, end], "absolute");
+        scimoz().deleteRange(start, end);
+    },
+
+    /** ****** Selections ****** **/
+
+    /**
+     * Get the currently selected text
+     *
+     * @returns {String}
+     */
+    getSelection: function()
+    {
+        return scimoz().selText;
+    },
+
+    /**
+     * Set the selection
+     *
+     * @param   {Object} start {line, ch}
+     * @param   {Object} end   {line, ch}
+     *
+     * @returns {Void}
+     */
+    setSelection: function(start, end)
+    {
+        scimoz().setSel(this._posToAbsolute(start), this._posToAbsolute(end));
+    },
+
+    /**
+     * Get the current selection range
+     *
+     * @param   {String} format  absolute | relative (default)
+     *
+     * @returns {Object} {start: formattedPost, end: formattedPos}
+     */
+    getSelectionRange: function(format = "relative")
+    {
+        return {
+            start: this._posFormat(scimoz().anchor, format),
+            end: this._postFormat(scimoz().currentPos, format)
+        }
+    },
+
+    /**
+     * Clear the current selection
+     *
+     * @returns {Void} 
+     */
+    clearSelection: function()
+    {
+        return scimoz().clearSelection();
+    },
+
+    /**
+     * Replace the current selection with the given text
+     *
+     * @param   {String} replacement
+     * @param   {Object} select      What to select after insertion
+     *                                - around: select inserted text
+     *                                - start: set cursor to start of insertion
+     *                                - {undefined}: set cursor at end of insertion
+     *
+     * @returns {Void}
+     */
+    replaceSelection: function(replacement, select)
+    {
+        this.insert(replacement);
+
+        switch (select)
+        {
+            case "around":
+                var currentPos = this.getCursorPosition("absolute");
+                this.setSelection(currentPos - replacement.length, currentPos);
+                break;
+            case "start":
+                this.setCursorPosition(this.getCursorPosition("absolute") - replacement.length);
+                break;
+        }
+    },
+
+    /** ****** Helpers ****** **/
+
+    /**
+     * Convert the given position(s) into the given format, regardless of what
+     * format the input is in
+     *
+     * @param   {Array|Object|Int} positions Either a single position or an array
+     *                             of positions
+     *
+     * @param   {String} format
+     *
+     * @returns {Array|Object|Int} Returns a single position or an array of positions
+     *                              if the input was an array
+     */
+    _posFormat: function(positions, format)
+    {
+        var result = [];
+
+        if ( ! (positions instanceof Array))
+            positions = [positions];
+
+        for (let x in positions)
+        {
+            let pos = positions[x];
+
+            if (format == "absolute")
+            {
+                if ((typeof pos) != "number")
+                    pos = this._posToAbsolute(pos)
+            }
+            else if ((typeof pos) == "number")
+            {
+                pos = this._posToRelative(pos)
+            }
+
+            result.push(pos);
+        }
+
+        return result.length == 1 ? result[0] : result;
+    },
+
+    /**
+     * Converts an absolute position to a relative position
+     *
+     * @param   {Int} abs
+     *
+     * @returns {Object} {line, ch}
+     */
+    _posToRelative: function(abs)
+    {
+        return {
+            line: scimoz().lineFromPosition(abs)+1,
+            ch: scimoz().getColumn(abs),
+            absolute: abs
+        }
+    },
+
+    /**
+     * Converts a relative position to an absolute position
+     *
+     * @param   {Object} pos {line, ch}
+     *
+     * @returns {Int}
+     */
+    _posToAbsolute: function(pos)
+    {
+        return scimoz().positionFromLine(pos.line-1) + pos.ch;
+    }
+
+}
