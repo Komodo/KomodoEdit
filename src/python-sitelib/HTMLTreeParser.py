@@ -59,7 +59,7 @@ def getcollector():
                     self.res[name] = re.compile(self.regs[name]) # check that it is valid
 
         g_collector = recollector()
-        a = g_getcollector().add
+        a = g_collector.add
 
         a("TextSE" , "[^<]+")
         a("UntilHyphen" , "[^-]*-")
