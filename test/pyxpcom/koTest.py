@@ -82,25 +82,27 @@ class KoTestDirectoryProvider:
         paths = []
         componentsDir = self._dirSvc.get(
             "XpcomLib", components.interfaces.nsIFile).path
-        extensionsDir = join(dirname(componentsDir), "extensions")
-        try:
-            for f in os.listdir(extensionsDir):
-                p = join(extensionsDir, f)
-                if isdir(p):
-                    paths.append(p)
-                else:
-                    try:
-                        with open(p, "r") as p_data:
-                            p = p_data.read().strip()
-                            if isdir(p):
-                                paths.append(p)
-                    except:
-                        pass
-        except EnvironmentError:
-            # The extensions dir may not exist yet.
-            pass
+        extensionsDirs = [join(dirname(componentsDir), "extensions"),
+                          join(dirname(componentsDir), "distribution", "bundles")]
+        for extensionsDir in extensionsDirs:
+            try:
+                for f in os.listdir(extensionsDir):
+                    p = join(extensionsDir, f)
+                    if isdir(p):
+                        paths.append(p)
+                    else:
+                        try:
+                            with open(p, "r") as p_data:
+                                p = p_data.read().strip()
+                                if isdir(p):
+                                    paths.append(p)
+                        except:
+                            pass
+            except EnvironmentError:
+                # The extensions dir may not exist yet.
+                pass
         return paths
-        
+
     def getFiles(self, prop):
         paths = []
         if prop == "PyxpcomExtDirList":  # Pyxpcom standalone extension dirs
