@@ -71,6 +71,8 @@ g_edit_repo_url = "https://svn.openkomodo.com/repos/openkomodo/"
 g_remote_builds_dir = "komodo@mule:/data/komodo/builds"
 
 
+class Error(Exception):
+    pass
 
 #---- module API
 
