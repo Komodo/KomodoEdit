@@ -63,6 +63,7 @@ sys.path.pop(0)
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "util"))
 import platinfo
+import gitutils
 del sys.path[0]
 
 
@@ -2660,33 +2661,8 @@ class BuildNum(black.configure.Datum):
         return int(rev_str)
 
     def _get_git_build_num(self):
-        """Get the build number for a git repo
-        This... may or may not actually make any sense"""
-        # Find the last known commit that was imported from svn
-        cmd = ["git", "log", "--all", "-1", "--grep=git-svn-id:",
-               "--date-order", "--pretty=%ci%n%b"]
-        try:
-            last_svn_commit = _capture_stdout(cmd).splitlines(False)
-        except RuntimeError:
-            raise black.configure.ConfigureError(
-                "error finding last imported svn commit running '%s'" %
-                    (" ".join(cmd),))
-        last_svn_date = last_svn_commit.pop(0)
-        for line in reversed(last_svn_commit):
-            if line.startswith("git-svn-id:"):
-                svn_rev = int(line.split("@", 1)[-1].split()[0])
-                break
-        else:
-            raise black.configure.ConfigureError(
-                "Failed to find last svn revision id")
-        # count the number of commits since the last known svn commit
-        cmd = ["git", "rev-list", "--all", "--since=" + last_svn_date]
-        try:
-            count = _capture_stdout(cmd)
-        except RuntimeError:
-            raise black.configure.ConfigureError(
-                "error running '%s'" % (" ".join(cmd),))
-        return count.count('\n') + svn_rev - 1 # don't double-count last known svn commit
+        """Get the build number for current git repo"""
+        return gitutils.buildnum_from_revision()
 
     def _get_simplified_svn_version(self):
         # Note that this can be a fairly complex string (perhaps not
