@@ -630,11 +630,6 @@ class StdLibTestCase(DBTestCase):
         self.failIf("license" in builtin.names)
         self.failUnless("dir" in builtin.names)
 
-        stdlib24 = self.mgr.db.get_stdlib("Python", "2.4")
-        self.failIf(stdlib24.has_blob("hashlib")) # not until 2.5
-        self.failUnless(stdlib24.has_blob("os"),
-                        "Python 2.4 stdlib has no 'os' blob.")
-
         stdlib25 = self.mgr.db.get_stdlib("Python", "2.5")
         self.failUnless(stdlib25.has_blob("xml.etree"))
         self.failUnless(stdlib25.has_blob("hashlib"))
@@ -644,12 +639,6 @@ class StdLibTestCase(DBTestCase):
         self.failUnless(stdlib25.has_blob("time"))
 
         self._check_db()
-
-    def test_python23(self):
-        # should fallback to python-2.4.cix
-        stdlib23 = self.mgr.db.get_stdlib("Python", "2.3")
-        self.failIf(stdlib23.has_blob("hashlib")) # not until 2.5
-        self.failUnless(stdlib23.has_blob("os"))
 
     def _do_test_perl_version(self, ver):
         stdlib = self.mgr.db.get_stdlib("Perl", ver)
