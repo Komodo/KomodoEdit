@@ -82,7 +82,6 @@ class AsyncCallbackTestclass(object):
         self.ev_callback = threading.Event()
 
     def callback(self, result, data):
-        print "Got a callback"
         self.result = result
         self.data = data
         self.ev_callback.set()
