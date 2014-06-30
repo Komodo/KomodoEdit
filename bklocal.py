@@ -4029,12 +4029,7 @@ class KomodoUpdateManualURL(black.configure.Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        productType = black.configure.items["productType"].Get()
-        if productType in ("ide", "edit"):
-            self.value = "http://www.activestate.com/products/komodo_%s/" \
-                         % productType
-        else:
-            self.value = "http://www.openkomodo.com/"
+        self.value = "http://www.komodoide.com/download/#edit"
         self.determined = 1
 
 
