@@ -1148,9 +1148,7 @@ class KoLanguageBase:
                                   '"': ('"', self.softchar_accept_matching_double_quote),
                                   "'": ("'", self.softchar_accept_matching_single_quote),
                                   }
-        obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                       getService(components.interfaces.nsIObserverService)
-        obsSvc.addObserver(self, 'xpcom-shutdown', False)
+
         prefObserver = self.prefset.prefObserverService
         prefObserver.addObserver(self, 'indentStringsAfterParens', True)
         prefObserver.addObserver(self, 'editSmartSoftCharacters', True)
@@ -1161,6 +1159,15 @@ class KoLanguageBase:
         self._dedentOnColon = self.prefset.getBooleanPref("dedentOnColon")
         self._codeintelAutoInsertEndTag = self.prefset.getBooleanPref("codeintelAutoInsertEndTag")
         self._fastCharData = None
+
+        # nsIObserverService must be called on the main thread - bug 96530.
+        @components.ProxyToMainThread
+        def ProxyAddObserver(obj):
+            obsSvc = components.classes["@mozilla.org/observer-service;1"].\
+                           getService(components.interfaces.nsIObserverService)
+            obsSvc.addObserver(obj, 'xpcom-shutdown', False)
+        ProxyAddObserver(self)
+
 
     def observe(self, subject, topic, data):
         if topic == 'xpcom-shutdown':
