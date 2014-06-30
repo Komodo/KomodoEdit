@@ -87,6 +87,7 @@ __version__ = (0, 1, 0)
 log = logging.getLogger("mozupdate")
 #log.setLevel(logging.DEBUG)
 
+g_update_manifest_filename = "updatev3.manifest"
 
 
 #---- command-line interface
@@ -377,7 +378,7 @@ class Shell(cmdln.Cmdln):
 
     @cmdln.option("--manifest-extra",
                   help="path to file containing extra lines to append "
-                       "to update.manifest")
+                       "to update manifest")
     @cmdln.option("--force", action="store_true", default=False,
                   help="force overwriting existing MAR_PATH and/or temp "
                        "working dir")
@@ -418,7 +419,7 @@ class Shell(cmdln.Cmdln):
         os.makedirs(img_dir)
         
         try:
-            manifest = []  # update.manifest instructions
+            manifest = []  # update manifest instructions
             paths_to_mar = []
             seen_files = set()
             for dname, dirnames, filenames in os.walk(dir):
@@ -431,7 +432,7 @@ class Shell(cmdln.Cmdln):
 
                     seen_files.add(pkg_path)
 
-                    if f in ("channel-prefs.js", "update.manifest"):
+                    if f in ("channel-prefs.js", g_update_manifest_filename):
                         log.info("skipping `%s'", pkg_path)
                         continue
                     if islink(src_path):
@@ -475,7 +476,7 @@ class Shell(cmdln.Cmdln):
                         if instruction not in manifest:
                             manifest.append(instruction)
 
-            # Write 'update.manifest'.
+            # Write 'update manifest'.
             #
             # 'updater.exe' parses this (see ::Parse() methods in
             # "toolkit\mozapps\update\src\updater\updater.cpp"). It can be
@@ -483,9 +484,9 @@ class Shell(cmdln.Cmdln):
             # - The file must end with a newline.
             # - It *might* require '\n' EOLs (i.e. not '\r\n' EOLs) but I
             #   don't know this for sure.
-            manifest_path = join(img_dir, "update.manifest")
-            log.info("write `update.manifest'")
-            paths_to_mar.append("update.manifest")
+            manifest_path = join(img_dir, g_update_manifest_filename)
+            log.info("write %r", g_update_manifest_filename)
+            paths_to_mar.append(g_update_manifest_filename)
             manifest_str = '\n'.join(manifest) + '\n'
             open(manifest_path, 'wb').write(bz2.compress(manifest_str))
 
@@ -505,7 +506,7 @@ class Shell(cmdln.Cmdln):
 
     @cmdln.option("--manifest-extra",
                   help="path to file containing extra lines to append "
-                       "to update.manifest")
+                       "to update manifest")
     @cmdln.option("-c", "--clobber", action="append", default=[],
                   metavar="PATH",
                   help="Force including the full file (instead of a binary "
@@ -519,8 +520,8 @@ class Shell(cmdln.Cmdln):
                        "partial update. Can be given more than once to "
                        "specify multiple patterns. The *regex* pattern "
                        "is matched against the relative path that "
-                       "appears in 'update.manifest'. Note: "
-                       "'update.manifest' and 'channel-prefs.js' are "
+                       "appears in 'update manifest'. Note: "
+                       "'update manifest' and 'channel-prefs.js' are "
                        "always skipped.")
     @cmdln.option("--force", action="store_true", default=False,
                   help="force overwriting existing MAR_PATH and/or temp "
@@ -574,7 +575,7 @@ class Shell(cmdln.Cmdln):
         removed_files = set() # using forward slashes, e.g. "lib/mozilla/ko.exe"
 
         try:
-            manifest = []  # update.manifest instructions
+            manifest = []  # update manifest instructions
             paths_to_mar = []
 
             try:
@@ -598,7 +599,7 @@ class Shell(cmdln.Cmdln):
                         pkg_path = pkg_path.replace('\\', '/')
                     from_pkg_paths.add(pkg_path)
                     
-                    if f in ("channel-prefs.js", "update.manifest"):
+                    if f in ("channel-prefs.js", g_update_manifest_filename):
                         log.info("skipping `%s' (hardcoded)", pkg_path)
                         continue
                     matching_regexs = [r for r in exclude_regexes
@@ -677,7 +678,7 @@ class Shell(cmdln.Cmdln):
                     if pkg_path in from_pkg_paths:
                         continue
 
-                    if f in ("channel-prefs.js", "update.manifest"):
+                    if f in ("channel-prefs.js", g_update_manifest_filename):
                         log.info("skipping `%s' (hardcoded)", pkg_path)
                         continue
                     matching_regexs = [r for r in exclude_regexes
@@ -738,7 +739,7 @@ class Shell(cmdln.Cmdln):
                     for path in sorted(removed_files):
                         new_list.write(path + "\n")
 
-            # Write 'update.manifest'.
+            # Write 'update manifest'.
             #
             # 'updater.exe' parses this (see ::Parse() methods in
             # "toolkit\mozapps\update\src\updater\updater.cpp"). It can be
@@ -746,9 +747,9 @@ class Shell(cmdln.Cmdln):
             # - The file must end with a newline.
             # - It *might* require '\n' EOLs (i.e. not '\r\n' EOLs) but I
             #   don't know this for sure.
-            manifest_path = join(img_dir, "update.manifest")
-            log.info("write `update.manifest'")
-            paths_to_mar.append("update.manifest")
+            manifest_path = join(img_dir, g_update_manifest_filename)
+            log.info("write %r", g_update_manifest_filename)
+            paths_to_mar.append(g_update_manifest_filename)
             manifest_str = '\n'.join(manifest) + '\n'
             open(manifest_path, 'wb').write(bz2.compress(manifest_str))
 
