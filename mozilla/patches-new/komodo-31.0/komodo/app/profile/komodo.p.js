@@ -105,8 +105,8 @@ pref("app.update.silent", false);
 // Update service URL:
 pref("app.update.url", "https://komodo.activestate.com/update/%PRODUCT%/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/update.xml");
 // URL user can browse to manually if for some reason all update installation
-// attempts fail.  TODO: Change this URL
-pref("app.update.url.manual", "http://www.activestate.com/Products/Komodo/");
+// attempts fail.
+pref("app.update.url.manual", "http://komodoide.com/download/");
 // A default value for the "More information about this update" link
 // supplied in the "An update is available" page of the update wizard. 
 pref("app.update.url.details", "https://komodo.activestate.com/update/%PRODUCT%/");

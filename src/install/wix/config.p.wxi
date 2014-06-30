@@ -59,9 +59,9 @@
   <?define KomodoRegistryId = "PP_MSI_REGISTRY_ID" ?>
   <?define KomodoHelpFile = "[INSTALLDIR]lib\mozilla\chrome\komododoc\locale\en-US\top.html" ?>
   <?if $(var.ProductType) = "edit" ?>
-    <?define ProductURL = "http://www.activestate.com/products/komodo_edit/" ?>
+    <?define ProductURL = "http://komodoide.com/komodo-edit/" ?>
   <?else ?>
-    <?define ProductURL = "http://www.activestate.com/products/komodo_ide/" ?>
+    <?define ProductURL = "http://www.komodoide.com/" ?>
   <?endif ?>
   <?define UninstallText = "Modify or Uninstall Komodo" ?>
   <?define VccrtMsmPath = "PP_MSI_VCCRT_MSM_PATH" ?>

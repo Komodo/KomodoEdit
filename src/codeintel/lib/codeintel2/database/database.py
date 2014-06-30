@@ -459,7 +459,7 @@ class Database(object):
                 subsystem of Komodo). Do NOT modify anything in here unless
                 you know what you are doing.
 
-                See http://www.activestate.com/Products/Komodo/ for details.
+                See http://www.komodoide.com/ for details.
             """))
             open(join(self.base_dir, "VERSION"), 'w').write(self.VERSION)
             os.mkdir(join(self.base_dir, "db"))
