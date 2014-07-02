@@ -40,9 +40,10 @@
     var init = function()
     {
         log.debug('Starting Commando');
-        elem('results').on("keydown", onKeyNav.bind(this));
         elem('search').on("input", onSearch.bind(this));
+        elem('search').on("keyup", onKeyNav.bind(this));
         elem('scope').on("command", onChangeScope.bind(this));
+        elem('results').on("keyup", onKeyNav.bind(this));
     }
 
     var elem = function(name, noCache)
