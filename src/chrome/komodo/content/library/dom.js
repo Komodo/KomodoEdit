@@ -257,6 +257,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             return this.element().parentNode.replaceChild(elem, this.element());
         },
 
+        clone: function()
+        {
+            return $(this.element().cloneNode(true));
+        },
+
         /**
          * Set / get value
          * @param   {String|Void} value
