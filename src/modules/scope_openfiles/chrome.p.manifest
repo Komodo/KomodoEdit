@@ -1,0 +1,5 @@
+# #if MODE == "dev"
+content scope-openfiles content/
+# #else
+content scope-openfiles jar:scope-openfiles.jar!/content/
+# #endif
