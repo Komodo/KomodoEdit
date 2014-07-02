@@ -125,6 +125,11 @@
     var onSelectResult = function(e)
     {
         log.debug("Selected Result(s)");
+        ko.logging.dumpMixed(e);
+
+        e.cancelBubble = true;
+        e.preventDefault();
+
         var selected = elem('results').element().selectedItems;
         getScopeHandler().onSelectResult(selected);
     }
@@ -249,7 +254,10 @@
 
         log.debug(searchUuid + " - Rendering "+results.length+" Results");
 
-        var resultElem = $(elem('results').element().cloneNode(true));
+        // Replace result elem with temporary cloned node so as not to paint the DOM repeatedly
+        var resultElem = $(elem('results').replaceWith(elem('results').element().cloneNode()));
+        delete local.elemCache["results"];
+        
         var maxResults = ko.prefs.getLong("commando_search_max_results", 100);
         maxResults -= local.resultsRendered;
         results = results.slice(0, maxResults);
