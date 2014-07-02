@@ -52,8 +52,9 @@
                 icon: "moz-icon://" + path + "?size=32",
                 weight: weight,
                 scope: "scope-openfiles",
+                singleSelect: true,
                 data: {
-                    fullPath: fullPath
+                    editorView: editorView
                 }
             }, uuid);
         }
@@ -67,7 +68,12 @@
 
     this.onSelectResult = function(selectedItems)
     {
-
+        let data = selectedItems.slice(0)[0].resultData.data;
+        window.xtk.domutils.fireEvent(
+            data.editorView.parentNode._tab,
+            'click'
+        );
+        commando.hideCommando();
     }
 
 }).apply(module.exports);
