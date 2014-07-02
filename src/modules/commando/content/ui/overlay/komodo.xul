@@ -24,13 +24,12 @@
                 <hbox id="commando-search-wrapper">
                     <!-- Menuitem template -->
                     <script id="tpl-co-scope-menuitem" type="x-dot-template">
-                        <menuitem id="scope-{{=it.id}}" label="{{=it.name}}" value="{{=it.id}}" image="{{=it.icon}}"/>
+                        <menuitem id="scope-{{=it.id}}" label="{{=it.name}}" value="{{=it.id}}" image="{{=it.icon}}" class="scope-item"/>
                     </script>
 
                     <menulist id="commando-scope" sizetopopup="none">
                         <menupopup id="commando-scope-menupopup">
                             <menuseparator id="scope-separator"/>
-                            <menuseparator id="custom-scope-separator"/>
                             <menuitem label="Manage Scopes ..."
                                       oncommand="ko.commands.doCommand('cmd_commandoPrefs', event)"/>
                         </menupopup>

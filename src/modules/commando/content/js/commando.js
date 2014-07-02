@@ -27,8 +27,8 @@
         scope: function() { return $("#commando-scope"); },
         results: function() { return $("#commando-results"); },
         search: function() { return $("#commando-search"); },
+        scopePopup: function() { return $("commando-scope-menupopup"); },
         scopesSeparator: function() { return $("#scope-separator"); },
-        customScopesSeparator: function() { return $("#custom-scope-separator"); },
         template: {
             scopeMenuItem: function() { return $("#tpl-co-scope-menuitem"); },
             resultItem: function() { return $("#tpl-co-result"); }
@@ -197,17 +197,27 @@
         opts.id = id;
         local.scopes[id] = opts;
 
-        var scopeElem = $(template('scopeMenuItem', opts));
-        scopeElem.element()._scope = local.scopes[id];
+        var scopeElem = $(template('scopeMenuItem', opts)).element();
+        scopeElem._scope = local.scopes[id];
 
-        elem('scopesSeparator').before(
-            scopeElem
-        );
+        var sepElem = elem('scopesSeparator').element();
+        sepElem.parentNode.insertBefore(scopeElem, sepElem);
 
-        if ( ! elem('scope').element().selectedItem.nodeName != 'menuitem')
+        while (scopeElem.previousSibling)
         {
-            elem('scope').element().selectedItem = scopeElem.element()
+            var prevElem = scopeElem.previousSibling;
+            var weighsMore = opts.weight &&
+                             ( ! prevElem._scope.weight || opts.weight > prevElem._scope.weight);
+            var comesFirst = prevElem._scope.name.localeCompare(opts.name) > 0;
+
+            if (weighsMore || (comesFirst && ! weighsMore))
+                scopeElem.parentNode.insertBefore(scopeElem, prevElem);
+            else
+                break;
         }
+
+        if ( ! scopeElem.previousSibling)
+            elem('scope').element().selectedIndex = 0;
     }
 
     this.unregisterScope = function(id)
