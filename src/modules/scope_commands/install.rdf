@@ -2,10 +2,10 @@
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
     <Description about="urn:mozilla:install-manifest">
-        <em:id>scope-tools@activestate.com</em:id>
-        <em:name>Search Scope - Tools</em:name>
+        <em:id>scope-commands@activestate.com</em:id>
+        <em:name>Search Scope - Commands</em:name>
         <em:version>1.0</em:version>
-        <em:description>Searches through your toolbox</em:description>
+        <em:description>Searches through available commands</em:description>
         <em:creator>Nathan Rijksen</em:creator>
         <em:homepageURL>http://www.activestate.com/komodo-ide</em:homepageURL>
         <em:iconURL>chrome://scope-tools/skin/icon.png</em:iconURL>

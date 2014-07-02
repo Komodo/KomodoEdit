@@ -1,0 +1,5 @@
+# #if MODE == "dev"
+content scope-commands content/
+# #else
+content scope-commands jar:scope-commands.jar!/content/
+# #endif
