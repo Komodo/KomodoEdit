@@ -128,6 +128,7 @@
                 icon: type == 'dir' ? "chrome://komodo/skin/images/folder-32.png" : "moz-icon://" + path + "?size=32",
                 isScope: type == 'dir',
                 weight: weight,
+                scope: "scope-files",
                 data: {
                     path: path,
                     fullPath: fullPath,
@@ -144,6 +145,8 @@
 
     this.onSelectResult = function(selectedItems)
     {
+        log.debug("Opening Files");
+
         var uris = []
         for (let item in selectedItems)
         {

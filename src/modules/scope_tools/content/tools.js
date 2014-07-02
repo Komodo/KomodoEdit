@@ -13,6 +13,7 @@
 
     var searchTools = function(query, uuid)
     {
+        log.debug(uuid + " - Searching Tools");
         // Get ordered list of best language scope (a *list* for
         // multi-language files).
         var currView = ko.views.manager.currentView;
@@ -45,7 +46,9 @@
                 description: result.type + " - " + result.subDir,
                 icon: result.iconUrl,
 
+                scope: "scope-tools",
                 data: {
+                    type: "tool",
                     tool: result
                 }
             });
@@ -56,6 +59,8 @@
 
     var searchCommands = function(query, uuid)
     {
+        log.debug(uuid + " - Searching Commands");
+
         if (!local.commands)
         {
             local.commands = [];
@@ -69,18 +74,21 @@
             }
 
             var commanditems = ko.keybindings.manager.commanditems;
-            for (var i=0; i < commanditems.length; i++) {
+            for (var i=0; i < commanditems.length; i++)
+            {
                 commandname = commanditems[i].name;
                 desc = commanditems[i].desc;
-                if (!commandname || !desc) {
-                    continue;
-                }
+                if (!commandname || !desc) continue;
                 local.commands.push({
                     classList: "compact",
                     id: commandname,
                     name: desc,
                     description: commandname,
-                    icon: "chrome://fugue/skin/icons/external.png"
+                    icon: "chrome://fugue/skin/icons/external.png",
+                    scope: "scope-tools",
+                    data: {
+                        type: "command"
+                    }
                 });
             }
         }
@@ -117,15 +125,25 @@
 
     this.onSelectResult = function(selectedItems)
     {
+        log.debug("Invoking Tools");
+
         var uris = []
         for (let item in selectedItems)
         {
-            let tool = selectedItems[item].resultData.data;
+            let resultData = selectedItems[item].resultData;
             try {
-                if (tool instanceof CommandHit) {
-                    ko.commands.doCommand(tool.commandId);
-                } else {
-                    ko.toolbox2.invokeTool(tool.koTool);
+                if (resultData.data.type == "command")
+                {
+                    log.debug("Invoking command: " + resultData.id);
+                    ko.commands.doCommandAsync(resultData.id);
+                }
+                else
+                {
+                    // Brute force async
+                    setTimeout(function() {
+                        log.debug("Invoking tool: " + resultData.id);
+                        ko.toolbox2.invokeTool(resultData.data.koTool);
+                    }, 0)
                 }
             } catch(e) {
                 log.exception(e, "Failed to invoke tool: ");
