@@ -189,7 +189,11 @@
         panel.element().openPopup(undefined, undefined, left, 100);
 
         search.focus();
-        search.element().select();
+
+        if (ko.prefs.getBoolean('commando_preserve_query', true))
+            search.element().select();
+        else
+            search.value("");
         
         elem('results').element().clearSelection();
 
