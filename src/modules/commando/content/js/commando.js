@@ -172,7 +172,10 @@
         panel.element().openPopup(undefined, undefined, left, 100);
 
         search.focus();
+        search.element().select();
         
+        elem('results').element().clearSelection();
+
         var scopeHandler = getScopeHandler();
         if ("onShow" in scopeHandler)
             scopeHandler.onShow();
