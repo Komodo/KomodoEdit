@@ -137,6 +137,23 @@
 
     var onChangeScope = function(e)
     {
+        log.debug("Changing Active Scope");
+        var scopeElem = elem('scope');
+
+        if ( ! ("_scope" in scopeElem.element().selectedItem))
+        {
+            log.debug("Scope selection is not an actual scope, reverting active scope menuitem");
+            log.debug(local.selectedScope);
+
+            if (local.selectedScope)
+                scopeElem.element().selectedItem = scopeElem.find("#"+local.selectedScope).element();
+            else
+                scopeElem.element().selectedIndex = 0;
+            return;
+        }
+
+        local.selectedScope = scopeElem.element().selectedItem.id;
+
         commando.stop();
         commando.empty();
         
