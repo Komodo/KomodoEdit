@@ -126,7 +126,6 @@
     var onSelectResult = function(e)
     {
         log.debug("Selected Result(s)");
-        ko.logging.dumpMixed(e);
 
         e.cancelBubble = true;
         e.preventDefault();
