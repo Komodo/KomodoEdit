@@ -190,6 +190,11 @@
         elem('panel').element().hidePopup();
     }
 
+    this.getRegisteredScopes = function()
+    {
+        return local.scopes;
+    }
+
     this.registerScope = function(id, opts)
     {
         log.debug("Registering Scope: " + id);
