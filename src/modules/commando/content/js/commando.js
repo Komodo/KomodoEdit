@@ -235,11 +235,11 @@
         while (scopeElem.previousSibling)
         {
             var prevElem = scopeElem.previousSibling;
-            var weighsMore = opts.weight &&
-                             ( ! prevElem._scope.weight || opts.weight > prevElem._scope.weight);
+            var weighsMore = ("weight" in opts) &&
+                             ( ! ("weight" in prevElem._scope) || opts.weight > prevElem._scope.weight);
             var comesFirst = prevElem._scope.name.localeCompare(opts.name) > 0;
 
-            if (weighsMore || (comesFirst && ! weighsMore))
+            if (weighsMore || (comesFirst && ! prevElem._scope.weight))
                 scopeElem.parentNode.insertBefore(scopeElem, prevElem);
             else
                 break;
