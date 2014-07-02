@@ -43,21 +43,4 @@
         </vbox>
     </groupbox>
 
-    <groupbox orient="vertical">
-        <caption label="Custom Search Scopes" />
-        <vbox>
-            <description value="Custom Search Scopes allow you to define your own set of scopes with available search providers"/>
-            <hbox>
-                <richlistbox id="scopes" flex="1" height="200"></richlistbox>
-                <vbox>
-                    <button label="Add Scope"/>
-                    <button label="Edit Scope" disabled="true"/>
-                    <button label="Remove Scope" disabled="true"/>
-                    <separator orient="horizontal"/>
-                    <button label="Move Up" disabled="true"/>
-                    <button label="Move Down" disabled="true"/>
-                </vbox>
-            </hbox>
-        </vbox>
-    </groupbox>
 </window>
