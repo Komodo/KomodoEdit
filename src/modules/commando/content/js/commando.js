@@ -405,6 +405,9 @@
 
     this.setSubscope = function(subscope)
     {
+        if (subscope && (! subscope.scope in local.scopes))
+            return log.error("Scope does not exist: " + subscope.scope);
+
         local.subscope = subscope;
 
         if (subscope)
@@ -414,11 +417,14 @@
 
         local.prevSearchValue = null;
 
-        var scopeHandler = getScopeHandler();
-        if ("onShow" in scopeHandler)
-            scopeHandler.onShow();
-        else
-            this.empty();
+        if (subscope)
+        {
+            var scopeHandler = require(local.scopes[subscope.scope].handler);
+            if ("onShow" in scopeHandler)
+                return scopeHandler.onShow();
+        }
+
+        this.empty();
     }
 
     this.stop = function()
