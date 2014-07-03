@@ -12,9 +12,11 @@
     this.onSearch = function(query, uuid)
     {
         var scopes = getScopes();
+        var subscope = commando.getSubscope();
         for (let id in scopes)
         {
             if (id == "scope-combined") continue;
+            if (subscope && subscope.scope != id) continue;
             
             let scope = scopes[id];
             require(scope.handler).onSearch(query, uuid);
