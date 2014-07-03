@@ -2,6 +2,8 @@
 # Copyright (c) 2014-2014 ActiveState Software Inc.
 # See the file LICENSE.txt for licensing information.
 
+# Todo: Cleanup this lib - it's becoming a mess
+
 """The main PyXPCOM module for Commando's Files scope"""
 
 from xpcom.components import interfaces as Ci
@@ -61,34 +63,42 @@ class koScopeFiles():
         walker = self.walkPaths(path, opts)
 
         try:
-            for pathEntry in walker:
-                if (self.activeUuid is not uuid):
-                    walker.send(True) # Stop iteration
-
-                description = query.sub(replacement, pathEntry["path"])
-                if pathEntry["path"] is not description:
-                    # Todo: figure out a good way to normalize weight numbers
-                    weight = 0
-                    depth = pathEntry["path"].count(os.sep) + 1
-                    weight += (10 / depth) * opts.get("weightDepth", 1)
-
-                    matchWeight = 0
-                    filename = os.path.basename(pathEntry["path"])
-                    for word in words:
-                        if word in filename:
-                            matchWeight += 10
-                    weight += matchWeight * opts.get("weightMatch", 1)
-
-                    self.processResult(pathEntry, path, filename, description, weight, opts, callback)
-
-                    numResults+=1
-                    walker.send(numResults is opts.get("maxresults", 200))
+            self.processEntry(walker, query, uuid, path, opts, words, replacement, callback)
 
         except StopIteration:
             log.debug(uuid + " - iteration stopped")
 
         if numResults is 0:
             self.doCallback(callback, "done")
+
+    def processEntry(self, walker, query, uuid, path, opts, words, replacement, callback, numResults=0):
+        if numResults is 0:
+            pathEntry = walker.send(None)
+        else:
+            pathEntry = walker.send(numResults is opts.get("maxresults", 200))
+
+        if (self.activeUuid is not uuid):
+            walker.send(True) # Stop iteration
+            return
+
+        description = query.sub(replacement, pathEntry["path"])
+        if pathEntry["path"] is not description:
+            # Todo: figure out a good way to normalize weight numbers
+            weight = 0
+            depth = pathEntry["path"].count(os.sep) + 1
+            weight += (10 / depth) * opts.get("weightDepth", 1)
+
+            matchWeight = 0
+            filename = os.path.basename(pathEntry["path"])
+            for word in words:
+                if word in filename:
+                    matchWeight += 10
+            weight += matchWeight * opts.get("weightMatch", 1)
+
+            self.processResult(pathEntry, path, filename, description, weight, opts, callback)
+            numResults+=1
+        
+        self.processEntry(walker, query, uuid, path, opts, words, replacement, callback, numResults)
 
     @components.ProxyToMainThreadAsync
     def processResult(self, pathEntry, path, filename, description, weight, opts, callback):
@@ -149,6 +159,7 @@ class koScopeFiles():
 
                 shouldStop = yield pathEntry
                 if shouldStop:
+                    log.debug("Stopping directory walk (max results reached?)")
                     raise StopIteration
 
             # Append to cache only when it is completely done
