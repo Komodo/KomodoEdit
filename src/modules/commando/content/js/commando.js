@@ -25,6 +25,7 @@
     var elems = {
         panel: function() { return $("#commando-panel"); },
         scope: function() { return $("#commando-scope"); },
+        subscope: function() { return $("#commando-subscope"); },
         results: function() { return $("#commando-results"); },
         search: function() { return $("#commando-search"); },
         scopePopup: function() { return $("commando-scope-menupopup"); },
@@ -75,6 +76,12 @@
         // Todo: support selecting multiple items
         switch (e.keyCode)
         {
+            case 8: // backspace
+                if (elem('search').value() == "" && commando.getSubscope())
+                {
+                    commando.setSubscope(null);
+                }
+                break;
             case 13: // enter
                 onSelectResult(e);
                 break;
@@ -104,6 +111,9 @@
 
                 break;
         }
+
+        // Always keep focus on search
+        elem('search').focus();
     }
 
     var onSearch = function(e, noDelay = false)
@@ -131,6 +141,13 @@
         e.preventDefault();
 
         var selected = elem('results').element().selectedItems;
+
+        if (selected.length == 1 && selected.slice(0)[0].resultData.isScope)
+        {
+            commando.setSubscope(selected.slice(0)[0].resultData);
+            return;
+        }
+
         getScopeHandler().onSelectResult(selected);
     }
 
@@ -155,6 +172,7 @@
 
         commando.stop();
         commando.empty();
+        commando.setSubscope(null);
         
         var scopeHandler = getScopeHandler();
         if ("onShow" in scopeHandler)
@@ -302,6 +320,9 @@
         results = results.slice(0, maxResults);
         local.resultsRendered += results.length;
 
+        if (local.resultsReceived == maxResults)
+            log.debug("Reached max results");
+
         for (let result of results)
         {
             result.subscope = local.subscope;
@@ -385,6 +406,19 @@
     this.setSubscope = function(subscope)
     {
         local.subscope = subscope;
+
+        if (subscope)
+            elem('subscope').value(subscope.name).show();
+        else
+            elem('subscope').value("").hide();
+
+        local.prevSearchValue = null;
+
+        var scopeHandler = getScopeHandler();
+        if ("onShow" in scopeHandler)
+            scopeHandler.onShow();
+        else
+            this.empty();
     }
 
     this.stop = function()

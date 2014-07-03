@@ -54,12 +54,16 @@
         var subscope = commando.getSubscope();
         if ( ! subscope && curProject)
         {
-            subscope = {label: curProject.name.split(".")[0], path: curProject.liveDirectory};
+            subscope = {name: curProject.name.split(".")[0], path: curProject.liveDirectory};
         }
         else if ( ! subscope)
         {
             var placesPath = ioService.newURI(ko.places.getDirectory(), null, null).path;
-            subscope = {label: placesPath, path: placesPath};
+            subscope = {name: placesPath, path: placesPath};
+        }
+        else
+        {
+            subscope.path = subscope.data.fullPath;
         }
         //commando.setSubscope(subscope);
 
@@ -96,7 +100,7 @@
         opts["weightDepth"] = prefs.getBoolean('commando_files_weight_multiplier_depth', 10);
 
         opts = JSON.stringify(opts);
-        log.debug(uuid + " - Opts: " + opts);
+        log.debug(uuid + " - Path: "+ subscope.path +" - Opts: " + opts);
 
         scope.search(query, uuid, subscope.path, opts, function(status, entry)
         {
@@ -119,7 +123,7 @@
             var [name, path, fullPath, type, description, weight] = entry;
 
             if (path != fullPath)
-                description = "<label class='em' crop='left' value='"+subscope.label+"'/>" + description;
+                description = "<label class='em' crop='left' value='"+subscope.name+"'/>" + description;
 
             commando.renderResult({
                 id: path,

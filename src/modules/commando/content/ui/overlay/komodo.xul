@@ -34,6 +34,9 @@
                                       oncommand="ko.commands.doCommand('cmd_commandoPrefs', event)"/>
                         </menupopup>
                     </menulist>
+                    <vbox id="commando-subscope-wrap" pack="center" align="center">
+                        <description id="commando-subscope" crop="left"/>
+                    </vbox>
                     <textbox flex="1" id="commando-search"/>
                 </hbox>
                 <vbox flex="1" id="commando-results-wrapper">
