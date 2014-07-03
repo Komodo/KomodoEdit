@@ -1,12 +1,12 @@
 (function() {
-    const log       = require("ko/logging").getLogger("commando-scope-commands")
+    const log       = require("ko/logging").getLogger("commando-scope-openfiles")
     const commando  = require("commando/commando");
     const {Cc, Ci}  = require("chrome");
 
     const partSvc   = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService);
     const ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
 
-    log.setLevel(require("ko/logging").LOG_DEBUG);
+    //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     this.onShow = function()
     {
