@@ -63,7 +63,11 @@ class koScopeFiles():
         walker = self.walkPaths(path, opts)
 
         try:
-            self.processEntry(walker, query, uuid, path, opts, words, replacement, callback)
+            cont = True
+            while cont is not False:
+                cont = self.processEntry(walker, query, uuid, path, opts, words,
+                                         replacement, callback, numResults)
+                numResults+=1
 
         except StopIteration:
             log.debug(uuid + " - iteration stopped")
@@ -79,7 +83,7 @@ class koScopeFiles():
 
         if (self.activeUuid is not uuid):
             walker.send(True) # Stop iteration
-            return
+            return False
 
         description = query.sub(replacement, pathEntry["path"])
         if pathEntry["path"] is not description:
@@ -98,8 +102,6 @@ class koScopeFiles():
             self.processResult(pathEntry, path, filename, description, weight, opts, callback)
             numResults+=1
         
-        self.processEntry(walker, query, uuid, path, opts, words, replacement, callback, numResults)
-
     @components.ProxyToMainThreadAsync
     def processResult(self, pathEntry, path, filename, description, weight, opts, callback):
         # history.get_num_visits must happen on the main thread
