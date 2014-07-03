@@ -35,7 +35,7 @@
                         </menupopup>
                     </menulist>
                     <vbox id="commando-subscope-wrap" pack="center" align="center">
-                        <description id="commando-subscope" crop="left"/>
+                        <description id="commando-subscope" crop="right"/>
                     </vbox>
                     <textbox flex="1" id="commando-search"/>
                 </hbox>
