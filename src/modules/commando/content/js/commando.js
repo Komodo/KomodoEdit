@@ -77,10 +77,8 @@
         switch (e.keyCode)
         {
             case 8: // backspace
-                if (elem('search').value() == "" && commando.getSubscope())
-                {
+                if (elem('search').value() == "" && commando.getSubscope() && local.prevKeyCode == 8)
                     commando.setSubscope(null);
-                }
                 break;
             case 13: // enter
                 onSelectResult(e);
@@ -111,6 +109,8 @@
 
                 break;
         }
+
+        local.prevKeyCode = e.keyCode;
 
         // Always keep focus on search
         elem('search').focus();
