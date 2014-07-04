@@ -44,11 +44,11 @@
                     <script id="tpl-co-result" type="x-dot-template">
                         <richlistitem class="{{?it.classList}}{{=it.classList}}{{?}}">
                             <hbox>
-                                <hbox class="icon-wrapper">
+                                <vbox class="icon-wrapper" pack="center" align="center">
                                     {{?it.icon}}
                                         <image src='{{=it.icon}}'/>
                                     {{?}}
-                                </hbox>
+                                </vbox>
                                 <vbox flex="1" class="full">
                                     <label value="{{!it.name}}" class="title"/>
                                     {{?it.description}}
@@ -60,9 +60,11 @@
                                 <hbox flex="1" class="compact">
                                     <label value="{{!it.name}}" class="title"/>
                                     {{?it.description}}
-                                        <description crop="left" flex="1">
-                                            {{=it.description}}
-                                        </description>
+                                        <vbox pack="center" align="center">
+                                            <description crop="left" flex="1">
+                                                {{=it.description}}
+                                            </description>
+                                        </vbox>
                                     {{?}}
                                 </hbox>
                             </hbox>
