@@ -852,9 +852,10 @@ class GitRevision(Revision):
                 change.append(path)
                 paths[src] = path
             elif action[0] == "C":
+                dest=lines.pop(0)
                 path = ChangedPath(ChangedPath.COPIED,
                                    src=src,
-                                   dest=lines.pop(0))
+                                   dest=dest)
                 change.append(path)
                 paths[dest] = path
             elif action[0] == "D":
