@@ -40,26 +40,28 @@
         }
 
         var tools = [];
-        var results = tbSvc.findTools(query, langs.length, langs, {});
-        for (let k in results)
+        var results = tbSvc.findToolsAsync(query, langs.length, langs, function(code, results)
         {
-            let result = results[k];
+            for (let k in results)
+            {
+                let result = results[k];
 
-            tools.push({
-                classList: "compact",
-                id: result.path_id,
-                name: result.name,
-                description: result.type + " - " + result.subDir,
-                icon: result.iconUrl,
+                tools.push({
+                    classList: "compact",
+                    id: result.path_id,
+                    name: result.name,
+                    description: result.type + " - " + result.subDir,
+                    icon: result.iconUrl,
 
-                scope: "scope-tools",
-                data: {
-                    tool: result
-                }
-            });
-        }
+                    scope: "scope-tools",
+                    data: {
+                        tool: result
+                    }
+                });
+            }
 
-        commando.renderResults(tools, uuid);
+            commando.renderResults(tools, uuid);
+        });
     }
 
     this.onSelectResult = function(selectedItems)
@@ -70,13 +72,17 @@
         for (let item in selectedItems)
         {
             let resultData = selectedItems[item].resultData;
-            try {
+            try
+            {
                 // Brute force async
-                setTimeout(function() {
+                setTimeout(function()
+                           {
                     log.debug("Invoking tool: " + resultData.id);
                     ko.toolbox2.invokeTool(resultData.data.koTool);
                 }, 0)
-            } catch(e) {
+            }
+            catch(e)
+            {
                 log.exception(e, "Failed to invoke tool: ");
             }
         }

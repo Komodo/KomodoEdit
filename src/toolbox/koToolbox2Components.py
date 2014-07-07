@@ -50,6 +50,7 @@ import sys
 import time
 import logging
 from pprint import pprint
+import threading
 
 from xpcom import components, COMException, ServerException, nsError
 from xpcom.server import UnwrapObject
@@ -646,6 +647,18 @@ class KoToolbox2Service(object):
 
         return [KoToolInfo(self._toolsMgrSvc, *hit[:-1]) for hit in hits]
     
+    def findToolsAsync(self, query, langs, callback):
+        t = threading.Thread(target=self._findToolsAsync, args=(query, langs, callback))
+        t.start()
+
+    def _findToolsAsync(self, query, langs, callback):
+        result = self.findTools(query, langs)
+        self._findToolsAsyncCallback(callback, result)
+
+    @components.ProxyToMainThreadAsync
+    def _findToolsAsyncCallback(self, callback, result):
+        callback.callback(0, result)
+
     def getAutoAbbreviationNames(self):
         query = ("select cd1.name"
                  + " from common_details as cd1, snippet as s1"

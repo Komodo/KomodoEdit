@@ -67,6 +67,7 @@ interface koIToolInfo: nsISupports {
 };
 
 interface koIPart;
+interface koIAsyncCallback;
 
 [scriptable, uuid(d4fd50c8-5b19-b041-97ad-2d8009f7de57)]
 interface koIToolbox2Service: nsISupports {
@@ -101,6 +102,10 @@ interface koIToolbox2Service: nsISupports {
         [array, size_is(langCount)] in wstring langs,
         out unsigned long hitCount,
         [retval, array, size_is(hitCount)] out koIToolInfo hits);
+    void findToolsAsync(in wstring query,
+        in unsigned long langCount,
+        [array, size_is(langCount)] in wstring langs,
+        in koIAsyncCallback callback);
     // Method that runs the query as is, and returns a list of koIToolInfo hits
     void getAutoAbbreviationNames(
         out unsigned long hitCount,
