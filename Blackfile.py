@@ -825,6 +825,11 @@ configuration = {
     "withDocs": WithDocs(),
     "withKomodoCix": WithKomodoCix(),
     "withWatchdogFSNotifications": WithWatchdogFSNotifications(),
+
+    # PGO builds
+    "withPGOGeneration": WithPGOGeneration(),
+    "withPGOCollection": WithPGOCollection(),
+    
     "xulrunner": XULRunnerApp(), # xulrunner based builds
     "universal": UniversalApp(), # ppc+i386 builds
 

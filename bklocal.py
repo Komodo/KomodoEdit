@@ -1543,6 +1543,38 @@ class WithWatchdogFSNotifications(black.configure.BooleanDatum):
                 self.value = 0
         self.determined = 1
 
+class WithPGOGeneration(black.configure.BooleanDatum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "withPGOGeneration",
+            desc="Generate profile guided optimization data",
+            acceptedOptions=("", ["with-pgo-generation", "without-pgo-generation"]))
+    def _Determine_Do(self):
+        self.applicable = 1
+        configTokens = black.configure.items["configTokens"].Get()
+        self.value = 0 # off by default
+        for opt, optarg in self.chosenOptions:
+            if opt == "--with-pgo-generation":
+                self.value = 1
+            elif opt == "--without-pgo-generation":
+                self.value = 0
+        self.determined = 1
+
+class WithPGOCollection(black.configure.BooleanDatum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "withPGOCollection",
+            desc="Collect profile guided optimization data",
+            acceptedOptions=("", ["with-pgo-collection", "without-pgo-collection"]))
+    def _Determine_Do(self):
+        self.applicable = 1
+        configTokens = black.configure.items["configTokens"].Get()
+        self.value = 0 # off by default
+        for opt, optarg in self.chosenOptions:
+            if opt == "--with-pgo-collection":
+                self.value = 1
+            elif opt == "--without-pgo-collection":
+                self.value = 0
+        self.determined = 1
+
 
 class LudditeVersion(black.configure.Datum):
     def __init__(self):

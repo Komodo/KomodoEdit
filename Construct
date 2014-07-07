@@ -61,6 +61,8 @@ my @toExport = (
     'withCasper',
     'withJSLib',
     'withWatchdogFSNotifications',
+    'withPGOGeneration',
+    'withPGOCollection',
     'withDocs',
     'withKomodoCix',
     'withStackato',
@@ -306,11 +308,17 @@ elsif ($platform eq "darwin") {
     $environ{LDFLAGS} .= ' -mmacosx-version-min=10.6';
 }
 
-
-# Needed for p4 calls in processes kicked off by Cons.
-foreach my $envvar (keys %ENV) {
-    if ($envvar =~ /^P4/) {
-        $environ{$envvar} = $ENV{$envvar};
+if ($withPGOGeneration) {
+    if ($platform eq "linux") {
+        $environ{CFLAGS}   .= " -fprofile-generate";
+        $environ{CXXFLAGS} .= " -fprofile-generate";
+        $environ{LDFLAGS}  .= " -fprofile-generate";
+    }
+} elsif ($withPGOCollection) {
+    if ($platform eq "linux") {
+        $environ{CFLAGS}   .= " -fprofile-use -fprofile-correction";
+        $environ{CXXFLAGS} .= " -fprofile-use -fprofile-correction";
+        $environ{LDFLAGS}  .= " -fprofile-use -fprofile-correction";
     }
 }
 
