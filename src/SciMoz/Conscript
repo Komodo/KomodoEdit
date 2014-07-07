@@ -333,6 +333,7 @@ else {
     # Add the global FLAGS.
     $consLocal{'CXXFLAGS'} .= $consLocal{ENV}{'CXXFLAGS'};
     $consLocal{'CFLAGS'} = $consLocal{ENV}{'CFLAGS'};
+    $consLocal{'LDFLAGS'} = $consLocal{'LDFLAGS'} . " " . $consLocal{ENV}{'LDFLAGS'};
 
     # Ensure that these are defined for use by mozilla headers
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
