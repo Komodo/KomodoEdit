@@ -55,8 +55,6 @@ class OOPEvalController(EvalController):
         EvalController.set_desc(self, desc)
 
         if not self.silent:
-            self.log.error("error evaluating %s:\n  trigger: %s\n  log:",
-                           desc, self.trg)
             # Reset the formatter to be minimal
             fmt = logging.Formatter(fmt="    %(levelname)s: %(message)s")
             self.log_hndlr.setFormatter(fmt)
