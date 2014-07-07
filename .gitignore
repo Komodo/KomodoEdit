@@ -3,6 +3,8 @@
 /bkconfig.*
 /mozilla/build/
 /mozilla/config.py
+/mozilla/config-*.py
+/mozilla/d/
 /mozilla/patches-new/komodo_app/build/Makefile.in
 /mozilla/prebuilt/python2.7/*/
 /build/
