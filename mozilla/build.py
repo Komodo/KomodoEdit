@@ -986,6 +986,8 @@ def target_configure(argv):
         "mozSrcScheme": "3100",
         "official": False,      # i.e. a plain Mozilla/Firefox build w/o Komodo stuff
         "withCrashReportSymbols": False,
+        "withPGOGeneration": False,
+        "withPGOCollection": False,
         "stripBuild": False,
         "compiler": None, # Windows-only; 'vc9' (the default)
         "gcc": None, # Unix-only; 'gcc44' (the default)
@@ -1020,6 +1022,8 @@ def target_configure(argv):
              "blessed", "universal",
              "komodo", "xulrunner", "suite", "browser", "moz-app=",
              "with-crashreport-symbols",
+             "with-pgo-generation",
+             "with-pgo-collection",
              "strip", "no-strip",
              "no-mar",
              "with-tests", "without-tests", 
@@ -1108,6 +1112,10 @@ def target_configure(argv):
                 mozBuildExtensions.append(ext)
         elif opt == "--with-crashreport-symbols":
             config["withCrashReportSymbols"] = True
+        elif opt == "--with-pgo-generation":
+            config["withPGOGeneration"] = True
+        elif opt == "--with-pgo-collection":
+            config["withPGOCollection"] = True
         elif opt == "--with-tests":
             config["withTests"] = True
         elif opt == "--without-tests":
@@ -1955,12 +1963,29 @@ def target_pyxpcom(argv=["pyxpcom"]):
     elif sys.platform == "darwin":
         configure_flags += " CC=%s" % (config.gcc or "gcc",)
         configure_flags += " CXX=%s" % (config.gxx or "g++",)
+
     # Add any custom build FLAGS using the command line args - bug 91389.
-    if os.environ.get('CFLAGS'):
-        configure_flags += ' CFLAGS="%s"' % (os.environ.get('CFLAGS'))
-    if os.environ.get('CXXFLAGS'):
-        configure_flags += ' CXXFLAGS="%s"' % (os.environ.get('CXXFLAGS'))
-    ldFlags = os.environ.get('LDFLAGS', '')
+    cflags = os.environ.get('CFLAGS', '')
+    cxxflags = os.environ.get('CXXFLAGS', '')
+    ldflags = os.environ.get('LDFLAGS', '')
+
+    # Support for PGO.
+    if config.withPGOGeneration:
+        if sys.platform.startswith("linux"):
+            cflags   += " -fprofile-generate"
+            cxxflags += " -fprofile-generate"
+            ldflags  += " -fprofile-generate"
+    elif config.withPGOCollection:
+        if sys.platform.startswith("linux"):
+            cflags   += " -fprofile-use -fprofile-correction"
+            cxxflags += " -fprofile-use -fprofile-correction"
+            ldflags  += " -fprofile-use -fprofile-correction"
+
+    if cflags:
+        configure_flags += ' CFLAGS="%s"' % (cflags)
+    if cxxflags:
+        configure_flags += ' CXXFLAGS="%s"' % (cxxflags)
+
     if sys.platform.startswith("linux"):
         # On Linux, manually set the runtime library path (rpath) to pick up the
         # correct Python libraries. Without this, Komodo (pyxpcom) may load the
@@ -1969,9 +1994,9 @@ def target_pyxpcom(argv=["pyxpcom"]):
         # The magic sauce - need to escape the $ so it's not shell-translated.
         # Note that we want to end up with:
         #   "$ORIGIN:$ORIGIN/../python/lib"
-        ldFlags += " -Wl,-rpath=\\\\$\\$ORIGIN:\\\\$\\$ORIGIN/../python/lib"
-    if ldFlags:
-        configure_flags += ' LDFLAGS="%s"' % (ldFlags, )
+        ldflags += " -Wl,-rpath=\\\\$\\$ORIGIN:\\\\$\\$ORIGIN/../python/lib"
+    if ldflags:
+        configure_flags += ' LDFLAGS="%s"' % (ldflags, )
     if config.buildType == "debug":
         configure_options.append("--enable-debug")
         configure_options.append("--disable-optimize")
@@ -2396,8 +2421,20 @@ def target_mozilla(argv=["mozilla"]):
             pass # mach errors out on first run, that's okay
 
         # do the build
-        _run_in_dir("python mach --log-file %s build" %
-                        (join(buildDir, "mach.log")),
+        build_args = ""
+
+        # XXX: Mozilla PGO builds require a huge amount of memory, so we've
+        #      disabled the mozilla PGO building for now.
+        #if config.withPGOGeneration:
+        #    build_args = "MOZ_PROFILE_GENERATE=1 MOZ_PGO_INSTRUMENTED=1"
+        #elif config.withPGOCollection:
+        #    build_args = "MOZ_PROFILE_USE=1"
+        #
+        #_run_in_dir("python mach --log-file %s configure %s" %
+        #                (join(buildDir, "mach.log"), build_args),
+        #            buildDir, log.info)
+        _run_in_dir("python mach --log-file %s build %s" %
+                        (join(buildDir, "mach.log"), build_args),
                     buildDir, log.info)
 
         argv = argv[1:]
