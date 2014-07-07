@@ -589,7 +589,7 @@ class Driver(threading.Thread):
                         break
                 else:
                     self.fail(request=request,
-                              msg="Don't know how to handle command %s" % (command,))
+                              message="Don't know how to handle command %s" % (command,))
 
             except RequestFailure as e:
                 self.fail(request=request, **e.kwargs)
