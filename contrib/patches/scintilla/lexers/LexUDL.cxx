@@ -3474,6 +3474,22 @@ static bool lookingAtXMLDocument(Accessor &styler) {
     return false;
 }
 
+static bool isLexresForXML(const char *lexresPath) {
+    // XML documents might be fragments, so don't require a header.
+    // ...\xml_language@ActiveState.com\lexers\XML.lexres
+    
+    if (!lexresPath) return false;
+    const int pathLen = strlen(lexresPath);
+    // 10: strlen("XML.lexres")
+    if (pathLen < 10) return false;
+    const char *p = lexresPath + pathLen - 10; // Look at the end of the string
+    if (strcmp(p, "XML.lexres")) {
+        return false;
+    }
+    if (p-- == lexresPath) return true;
+    return (*p == '/' || *p == '\\');
+}
+
 static void FoldUDLDoc(unsigned int startPos, int length, int
 #if UDL_DEBUG
                        initStyle
@@ -3493,7 +3509,8 @@ static void FoldUDLDoc(unsigned int startPos, int length, int
     }
     LogEvent(true, "FoldUDLDoc", &styler);
 #endif
-    MainInfo *p_MainInfo = LexerList.Intern(const_cast<char *>((*(keywordlists[0])).WordAt(0)));
+    const char *lexResPath = (*(keywordlists[0])).WordAt(0);
+    MainInfo *p_MainInfo = LexerList.Intern(const_cast<char *>(lexResPath));
     if (!p_MainInfo || !p_MainInfo->IsReady()) {
         return;
     }
@@ -3502,12 +3519,12 @@ static void FoldUDLDoc(unsigned int startPos, int length, int
     //XXX: Can't use a property on the lexer, since many languages
     // share the same lexer, so this should really  be controlled with
     // a UDL declaration.
-    if (!lookingAtXMLDocument(styler)) {
-        p_tagStack = new StringStack;
-        lastLine = styler.GetLine(styler.Length());
-    } else {
+    if (isLexresForXML(lexResPath) || lookingAtXMLDocument(styler)) {
         p_tagStack = NULL;
         lastLine = 0;
+    } else {
+        p_tagStack = new StringStack;
+        lastLine = styler.GetLine(styler.Length());
     }
     const bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
     const bool foldAtElse = styler.GetPropertyInt("fold.at.else", 1) != 0;
