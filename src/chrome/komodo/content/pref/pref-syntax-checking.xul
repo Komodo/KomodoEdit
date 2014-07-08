@@ -459,7 +459,7 @@
                      <hbox id="pep8_checking_hbox_rcfile">
                        <textbox id="pep8_checking_rcfile" pref="true"
                                 prefstring="pep8_checking_rcfile" flex="1"/>
-                       <button id="pep8_browse_rcfile" label="&browse.label;" oncommand="languageInfo.Python.loadPylintRcfile();"/>
+                       <button id="pep8_browse_rcfile" label="&browse.label;" oncommand="languageInfo.Python.loadPep8Rcfile();"/>
                     </hbox>
                   </vbox>
                   <separator class="thin"/>
