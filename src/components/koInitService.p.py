@@ -316,15 +316,6 @@ class KoInitService(object):
         else:
             sys._komodo_initsvc_init_count_sentinel = 1
 
-# #if BUILD_FLAVOUR == "dev"
-        if sys.platform.startswith("win") and os.environ.has_key("KOMODO_DEBUG_BREAK"):
-            print "KOMODO_DEBUG_BREAK in the environment - breaking into system debugger..."
-            try:
-                import win32api
-                win32api.DebugBreak()
-            except ImportError, e:
-                log.exception(e)
-# #endif
         self.upgradeUserSettings()
         self.installSamples(False)
         self.installSampleTools()
