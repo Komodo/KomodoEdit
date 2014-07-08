@@ -56,7 +56,9 @@
                     scope: "scope-tools",
                     data: {
                         tool: result
-                    }
+                    },
+
+                    allowMultiSelect: false
                 });
             }
 

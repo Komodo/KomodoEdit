@@ -41,7 +41,8 @@
                     name: desc,
                     description: commandname,
                     icon: "chrome://fugue/skin/icons/external.png",
-                    scope: "scope-commands"
+                    scope: "scope-commands",
+                    allowMultiSelect: false
                 });
             }
         }

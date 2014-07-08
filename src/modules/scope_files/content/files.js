@@ -136,7 +136,8 @@
                 data: {
                     path: path,
                     fullPath: fullPath,
-                }
+                },
+                allowMultiSelect: type != 'dir'
             }, uuid);
         });
     }

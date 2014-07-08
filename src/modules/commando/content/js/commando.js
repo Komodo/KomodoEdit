@@ -42,9 +42,9 @@
     {
         log.debug('Starting Commando');
         elem('search').on("input", onSearch.bind(this));
-        elem('search').on("keyup", onKeyNav.bind(this));
+        elem('search').on("keydown", onKeyNav.bind(this));
         elem('scope').on("command", onChangeScope.bind(this));
-        elem('results').on("keyup", onKeyNav.bind(this));
+        elem('results').on("keydown", onKeyNav.bind(this));
     }
 
     var elem = function(name, noCache)
@@ -70,8 +70,9 @@
 
         var results = elem('results');
         if ( ! results.visible()) return;
-        var resultCount = results.element().getRowCount();
-        var selIndex = results.element().selectedIndex;
+        var resultElem = results.element();
+        var resultCount = resultElem.getRowCount();
+        var prevDefault = false;
 
         // Todo: support selecting multiple items
         switch (e.keyCode)
@@ -85,27 +86,73 @@
                 break;
             case 40: // down arrow
             case 9:  // tab
-                log.debug("Navigate Down in Results");
-                e.preventDefault();
+                prevDefault = true;
 
-                if (selIndex+1 == resultCount)
-                    results.element().selectedIndex = 0;
+                var selIndex = resultElem.selectedIndex;
+                for (let item of resultElem.selectedItems)
+                {
+                    let itemIndex = resultElem.getIndexOfItem(item);
+                    if (itemIndex > selIndex) selIndex = itemIndex;
+                }
+
+                if (e.shiftKey && resultElem.selectedItems.length)
+                {
+                    log.debug("Add Next to Selection in Results");
+
+                    var selItem = resultElem.getItemAtIndex(selIndex);
+                    var sibling = selItem.nextSibling;
+                    if (sibling && selItem.resultData.allowMultiSelect && sibling.resultData.allowMultiSelect)
+                    {
+                        resultElem.addItemToSelection(sibling);
+                        resultElem.ensureElementIsVisible(sibling);
+                    }
+                }
                 else
-                    results.element().selectedIndex++;
-                    
-                results.element().ensureIndexIsVisible(results.element().selectedIndex);
+                {
+                    log.debug("Navigate Down in Results");
 
+                    if (selIndex+1 == resultCount)
+                        resultElem.selectedIndex = selIndex = 0;
+                    else
+                        resultElem.selectedIndex = selIndex = selIndex+1;
+
+                    resultElem.ensureIndexIsVisible(selIndex);
+                }
+                    
                 break;
             case 38: // up arrow
-                log.debug("Navigate Up in Results");
-                e.preventDefault();
+                prevDefault = true;
 
-                if (selIndex == 0)
-                    results.element().selectedIndex = resultCount-1;
+                var selIndex = resultElem.selectedIndex;
+                for (let item of resultElem.selectedItems)
+                {
+                    let itemIndex = resultElem.getIndexOfItem(item);
+                    if (itemIndex < selIndex) selIndex = itemIndex;
+                }
+
+                if (e.shiftKey && resultElem.selectedItems.length)
+                {
+                    log.debug("Add Previous to Selection in Results");
+
+                    var selItem = resultElem.getItemAtIndex(selIndex);
+                    var sibling = selItem.previousSibling;
+                    if (sibling && selItem.resultData.allowMultiSelect && sibling.resultData.allowMultiSelect)
+                    {
+                        resultElem.addItemToSelection(sibling);
+                        resultElem.ensureElementIsVisible(sibling);
+                    }
+                }
                 else
-                    results.element().selectedIndex--;
+                {
+                    log.debug("Navigate Up in Results");
+                    
+                    if (selIndex == 0)
+                        resultElem.selectedIndex = selIndex = resultCount-1;
+                    else
+                        resultElem.selectedIndex = selIndex = selIndex-1;
 
-                results.element().ensureIndexIsVisible(results.element().selectedIndex);
+                    resultElem.ensureIndexIsVisible(selIndex);
+                }
 
                 break;
         }
@@ -114,6 +161,13 @@
 
         // Always keep focus on search
         elem('search').focus();
+
+        if (prevDefault)
+        {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
     }
 
     var onSearch = function(e, noDelay = false)
@@ -140,7 +194,7 @@
         e.cancelBubble = true;
         e.preventDefault();
 
-        var selected = elem('results').element().selectedItems;
+        var selected = elem('results').element().selectedItems.slice();
 
         if (selected.length == 1 && selected.slice(0)[0].resultData.isScope)
         {
@@ -148,7 +202,17 @@
             return;
         }
 
-        getScopeHandler().onSelectResult(selected);
+        if (selected.length > 1)
+        {
+            for (let i in selected)
+            {
+                if ( ! selected[i].resultData.allowMultiSelect)
+                    delete selected[i];
+            }
+        }
+
+        if (selected.length)
+            getScopeHandler().onSelectResult(selected);
     }
 
     var onChangeScope = function(e)

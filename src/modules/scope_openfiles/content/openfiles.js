@@ -52,10 +52,10 @@
                 icon: "moz-icon://" + path + "?size=32",
                 weight: weight,
                 scope: "scope-openfiles",
-                singleSelect: true,
                 data: {
                     editorView: editorView
-                }
+                },
+                allowMultiSelect: false
             }, uuid);
         }
     }
