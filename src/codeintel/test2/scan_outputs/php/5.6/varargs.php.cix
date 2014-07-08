@@ -1,0 +1,12 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/5.6/varargs.php">
+    <scope ilk="blob" lang="PHP" name="varargs.php" src="scan_inputs/php/5.6/varargs.php">
+      <scope ilk="function" line="3" lineend="7" name="f" signature="f($req, $opt = null, ...$params)">
+        <variable ilk="argument" line="3" name="req" />
+        <variable default="null" ilk="argument" line="3" name="opt" />
+        <variable ilk="argument" line="3" name="params" />
+      </scope>
+      <variable line="15" name="operators" />
+    </scope>
+  </file>
+</codeintel>
