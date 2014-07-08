@@ -1,0 +1,12 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/5.6/use_changes.php">
+    <scope ilk="blob" lang="PHP" name="use_changes.php" src="scan_inputs/php/5.6/use_changes.php">
+      <import ilk="const" line="9" module="Name\Space" symbol="FOO" />
+      <import ilk="function" line="10" module="Name\Space" symbol="f" />
+      <scope ilk="namespace" line="3" lineend="6" name="Name\Space">
+        <variable citdl="int" ilk="constant" line="4" name="FOO" />
+        <scope ilk="function" line="5" lineend="5" name="f" signature="f()" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

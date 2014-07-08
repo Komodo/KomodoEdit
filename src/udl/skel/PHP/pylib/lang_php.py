@@ -1789,11 +1789,12 @@ class PHPTrait(PHPClass):
         self._toElementTree(cixblob, cixelement)
 
 class PHPImport:
-    def __init__(self, name, lineno, alias=None, symbol=None):
+    def __init__(self, name, lineno, alias=None, symbol=None, ilk=None):
         self.name = name
         self.lineno = lineno
         self.alias = alias
         self.symbol = symbol
+        self.ilk = ilk
 
     def __repr__(self):
         # dump our contents to human readable form
@@ -1808,6 +1809,8 @@ class PHPImport:
             elem.attrib["alias"] = self.alias
         if self.symbol:
             elem.attrib["symbol"] = self.symbol
+        if self.ilk:
+            elem.attrib["ilk"] = self.ilk
         return elem
 
 def qualifyNamespacePath(namespace_path):
@@ -2205,7 +2208,7 @@ class PHPParser:
             log.debug("NAMESPACE: %r on line %d in %s at depth %r",
                       namespace_path, self.lineno, self.filename, depth)
 
-    def addNamespaceImport(self, namespace, alias):
+    def addNamespaceImport(self, namespace, alias, ilk=None):
         """Import the namespace."""
         namelist = namespace.split("\\")
         namespace_path = "\\".join(namelist[:-1])
@@ -2214,7 +2217,7 @@ class PHPParser:
         symbol = namelist[-1]
         toScope = self.currentNamespace or self.fileinfo
         toScope.includes.append(PHPImport(namespace_path, self.lineno,
-                                          alias=alias, symbol=symbol))
+                                          alias=alias, symbol=symbol, ilk=ilk))
         log.debug("IMPORT NAMESPACE: %s\%s as %r on line %d",
                   namespace_path, symbol, alias, self.lineno)
 
@@ -2845,6 +2848,12 @@ class PHPParser:
             else:
                 looped = True
 
+            # Catch PHP 5.6 "use function" or "use const" definitions.
+            ilk = None
+            if styles[p] == self.PHP_WORD:
+                ilk = text[p]
+                p += 1
+
             namelist, p = self._getIdentifiersFromPos(styles, text, p)
             log.debug("use:%r, p:%d", namelist, p)
             if namelist:
@@ -2861,7 +2870,7 @@ class PHPParser:
                     self.currentClass.addTraitReference(namelist[0])
                 else:
                     # Must be a namespace reference.
-                    self.addNamespaceImport(namelist[0], alias)
+                    self.addNamespaceImport(namelist[0], alias, ilk=ilk)
 
     def _foreachKeywordHandler(self, styles, text, p):
         log.debug("_foreachKeywordHandler:: text: %r", text[p:])
