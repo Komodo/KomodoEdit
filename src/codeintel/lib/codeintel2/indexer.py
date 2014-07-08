@@ -220,7 +220,7 @@ class _StagingRequestQueue(_UniqueRequestPriorityQueue):
         self._nothingOnDeck.acquire()
         self._terminate = 0 # boolean telling "staging thread" to terminate
         self._stager = threading.Thread(target=self._stagingThread,
-                                        name="request staging thread")
+                                        name="CodeIntel Request Staging")
         self._stager.setDaemon(True)
         self._stager.start()
 
@@ -482,7 +482,7 @@ class Indexer(threading.Thread):
 
         TODO: add back the requestStartCB and completedCB (for batch updates)
         """
-        threading.Thread.__init__(self, name="codeintel indexer")
+        threading.Thread.__init__(self, name="CodeIntel Indexer")
         self.setDaemon(True)
         self.mgr = mgr 
         self.on_scan_complete = on_scan_complete

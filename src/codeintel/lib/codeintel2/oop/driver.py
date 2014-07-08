@@ -124,7 +124,7 @@ class Driver(threading.Thread):
     """Built-in commands that cannot be overridden"""
 
     def __init__(self, db_base_dir=None, fd_in=sys.stdin, fd_out=sys.stdout):
-        threading.Thread.__init__(self, name="Codeintel OOP Driver")
+        threading.Thread.__init__(self, name="CodeIntel OOP Driver")
         assert Driver._instance is None, "Driver should be a singleton"
         Driver._instance = self
         logging.root.addHandler(LoggingHandler(self))

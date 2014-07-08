@@ -709,7 +709,7 @@ class KoCodeIntelManager(threading.Thread):
                            # requests will time out at some point...
         self.unsent_requests = Queue.Queue()
         threading.Thread.__init__(self,
-                                  name="Komodo Codeintel Manager %s" % (id(self)))
+                                  name="CodeIntel Manager %s" % (id(self)))
         self.daemon = True
         atexit.register(self.kill)
 
@@ -1021,7 +1021,7 @@ class KoCodeIntelManager(threading.Thread):
             self.debug("internal initial requests completed")
             self._send_request_thread = threading.Thread(
                 target=self._send_queued_requests,
-                name="Komodo Codeintel Manager Request Sending Thread")
+                name="CodeIntel Manager Request Sending")
             self._send_request_thread.daemon = True
             self._send_request_thread.start()
             update("Codeintel ready.",

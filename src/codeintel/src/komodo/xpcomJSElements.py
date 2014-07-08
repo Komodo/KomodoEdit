@@ -151,7 +151,7 @@ class XPCOMSupport(CommandHandler, threading.Thread):
 
     def __init__(self):
         CommandHandler.__init__(self)
-        threading.Thread.__init__(self, name="XPCOM Support Sending Thread")
+        threading.Thread.__init__(self, name="CodeIntel XPCOM Support Sending")
         self._queue = Queue.Queue()
         self._read_buffer = ""
         self.daemon = True
