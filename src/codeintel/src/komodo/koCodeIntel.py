@@ -708,8 +708,7 @@ class KoCodeIntelManager(threading.Thread):
                            # (callback, request data, time sent)
                            # requests will time out at some point...
         self.unsent_requests = Queue.Queue()
-        threading.Thread.__init__(self,
-                                  name="CodeIntel Manager %s" % (id(self)))
+        threading.Thread.__init__(self, name="CodeIntel Manager")
         self.daemon = True
         atexit.register(self.kill)
 
