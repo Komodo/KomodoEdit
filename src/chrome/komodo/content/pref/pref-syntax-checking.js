@@ -815,7 +815,7 @@ function pythonInfo() {
        
         loadPep8Rcfile: function() {
             this.loadTextboxFromFilepicker("pep8_checking_rcfile",
-                                           "Find a .pep8rc file");
+                                           "Find a pep8 config file");
         },
 
         loadPycheckerRcFile: function() {
