@@ -540,6 +540,7 @@
   <string id="languages/VisualBasic/newEncoding">utf-8</string>
   <string id="languages/XML/newEncoding">utf-8</string>
   <string id="languages/XSLT/newEncoding">utf-8</string>
+  <long id="languages/YAML/indentWidth">2</long>
 
   <preference-set id="filepickers.defaultDirs"/>
 
