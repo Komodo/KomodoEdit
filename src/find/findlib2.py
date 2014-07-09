@@ -45,11 +45,16 @@ import sys
 import re
 import logging
 import codecs
-import scandir
 from glob import glob
 import cPickle as pickle
 from hashlib import md5
 from pprint import pprint, pformat
+
+try:
+    from scandir import os_walk
+except ImportError:
+    logging.getLogger("findlib2").warn("Unable to import scandir - defaulting to os.walk")
+    os_walk = os.walk
 
 try:
     import textinfo
@@ -1408,7 +1413,7 @@ def _walk(top, topdown=True, onerror=None, follow_symlinks=False):
         yield top, dirs, nondirs
     for name in dirs:
         path = join(top, name)
-        for x in scandir.walk(path, topdown, onerror, followlinks=follow_symlinks):
+        for x in os_walk(path, topdown, onerror, followlinks=follow_symlinks):
             yield x
     if not topdown:
         yield top, dirs, nondirs
@@ -1554,7 +1559,7 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                 # not:
                 #   script -r --include="*.py" DIR
                 if recursive and _should_include_path(path, [], excludes):
-                    for dirpath, dirnames, filenames in scandir.walk(path,
+                    for dirpath, dirnames, filenames in os_walk(path,
                             followlinks=follow_symlinks):
                         dir_indeces_to_remove = []
                         for i, dirname in enumerate(dirnames):
