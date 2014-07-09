@@ -38,3 +38,17 @@ def revision_from_buildnum(buildnum):
     git_revisions = _capture_stdout(cmd).splitlines()
     git_index = len(git_revisions) - (buildnum - last_svn_rev)
     return git_revisions[git_index]
+
+if __name__ == '__main__':
+    import sys
+    def usage():
+        print("Usage: gitutils REVISION (where REVISION is a svn or git revision)")
+        sys.exit(1)
+    if len(sys.argv) != 2:
+        usage()
+    revision = sys.argv[1]
+    if len(revision) > 10:
+        # Git sha1
+        print("buildnum: %s" % (buildnum_from_revision(revision)))
+    else:
+        print("git rev: %s" % (revision_from_buildnum(revision)))
