@@ -1,0 +1,10 @@
+lib/
+!lib/codeintel2/
+!lib/cb.p.py
+lib/codeintel2/lexers/
+src/*
+!src/komodo/
+!src/patches/
+test2/scan_actual/
+test2/tmp*
+tmp/
