@@ -3998,6 +3998,29 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
             [("namespace", "Baz")])
 
+    @tag("php53")
+    def test_namespace_use_no_function_or_const(self):
+        test_dir = join(self.test_dir, "test_namespace_use_no_function_or_const")
+        test_content, test_positions = unmark_text(php_markup(dedent(r"""
+            use nsnofuncorclass\narf\<1>myfunc
+        """)))
+        manifest = [
+            (join(test_dir, "nsnofuncorclass.php"), php_markup(dedent(r"""
+            namespace nsnofuncorclass\narf {
+                function myfunc() { }
+                class myclass { }
+                const myconst = 1;
+            }
+            """))),
+            (join(test_dir, "test_nsnofuncorclass.php"), test_content),
+        ]
+        for filepath, content in manifest:
+            writefile(filepath, content)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "test_nsnofuncorclass.php"),
+                                     lang=self.lang)
+        self.assertCompletionsAre2(buf, test_positions[1],
+            [("class", "myclass")])
 
 class DefnTestCase(CodeIntelTestCase):
     lang = "PHP"

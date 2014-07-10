@@ -273,6 +273,9 @@ class PHPTreeEvaluator(TreeEvaluator):
                 #self.log("hits: %r", hits)
                 cplns = list(self._members_from_hits(hits))
                 #self.log("cplns: %r", cplns)
+            if trg.type == "use-namespace":
+                # Filter out anything that isn't a namespace or a class.
+                cplns = [c for c in cplns if c[0] in ("namespace", "class")]
             # Return additional sub-namespaces that start with this prefix.
             if hits and hits[0][0] is not None:
                 # We hit a namespace, return additional namespaces that
