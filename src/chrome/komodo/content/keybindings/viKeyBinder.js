@@ -2362,8 +2362,8 @@ VimController.command_mappings = {
 // Movement actions
     "cmd_vim_left" :                [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION | VimController.CHOOSE_CARET_X ],
     "cmd_vim_right" :               [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION | VimController.CHOOSE_CARET_X ],
-    "cmd_vim_linePrevious" :        [ "cmd_linePrevious",           VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_lineNext" :            [ "cmd_lineNext",               VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_linePrevious" :        [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_lineNext" :            [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_linePreviousHome" :    [ "cmd_linePreviousHome",       VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_lineNextHome" :        [ "cmd_lineNextHome",           VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_home" :                [ "cmd_home",                   VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
@@ -2408,8 +2408,8 @@ VimController.command_mappings = {
     "cmd_vim_selectWordRight" :     [ "cmd_selectWordRight",        VimController.REPEATABLE_ACTION ],
     "cmd_vim_selectHome" :          [ "cmd_selectHome",             VimController.NO_REPEAT_ACTION ],
     "cmd_vim_selectEnd" :           [ "cmd_selectEnd",              VimController.REPEATABLE_ACTION ],
-    "cmd_vim_selectLineNext" :      [ "cmd_selectLineNext",         VimController.REPEATABLE_ACTION ],
-    "cmd_vim_selectLinePrevious" :  [ "cmd_selectLinePrevious",     VimController.REPEATABLE_ACTION ],
+    "cmd_vim_selectLineNext" :      [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION ],
+    "cmd_vim_selectLinePrevious" :  [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION ],
     "cmd_vim_selectPageDown" :      [ "cmd_selectPageDown",         VimController.REPEATABLE_ACTION ],
     "cmd_vim_selectPageUp" :        [ "cmd_selectPageUp",           VimController.REPEATABLE_ACTION ],
     "cmd_vim_selectDocumentHome" :  [ "cmd_selectDocumentHome",     VimController.NO_REPEAT_ACTION ],
@@ -3047,6 +3047,42 @@ function cmd_vim_right(scimoz, allowWhichWrap /* true */) {
          gVimController.settings["whichwrap"].indexOf(">") >= 0)) {
         gVimController._currentPos = scimoz.positionAfter(gVimController._currentPos);
     }
+}
+
+function cmd_vim_linePrevious(scimoz) {
+    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
+    var lineNo = scimoz.lineFromPosition(gVimController._currentPos) - 1;
+    if (lineNo < 0) {
+        return;
+    }
+    // Maintain the column position.
+    var column = scimoz.getColumn(gVimController._currentPos);
+    var lineEndPos = scimoz.getLineEndPosition(lineNo);
+    column = Math.min(column, scimoz.getColumn(lineEndPos));
+    gVimController._currentPos = scimoz.positionAtColumn(lineNo, column);
+}
+
+function cmd_vim_lineNext(scimoz) {
+    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
+    var lineNo = scimoz.lineFromPosition(gVimController._currentPos) + 1;
+    if (lineNo >= scimoz.lineCount) {
+        return;
+    }
+    // Maintain the column position.
+    var column = scimoz.getColumn(gVimController._currentPos);
+    var lineEndPos = scimoz.getLineEndPosition(lineNo);
+    column = Math.min(column, scimoz.getColumn(lineEndPos));
+    gVimController._currentPos = scimoz.positionAtColumn(lineNo, column);
+}
+
+function cmd_vim_selectLinePrevious(scimoz) {
+    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
+    cmd_vim_linePrevious(scimoz);
+}
+
+function cmd_vim_selectLineNext(scimoz) {
+    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
+    cmd_vim_lineNext(scimoz);
 }
 
 function cmd_vim_scrollHalfPageDown(scimoz) {
