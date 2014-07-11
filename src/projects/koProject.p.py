@@ -555,9 +555,6 @@ class koPart(object):
         if hasattr(self, '_path'):
             part._path = self._path
 
-        if self == self._project:
-            self.set_prefset(self.get_prefset().clone())
-
         a_names = self._attributes.keys()
         a_names.sort()
         for a_name in a_names:
@@ -1216,9 +1213,11 @@ class koProject(koLiveFolderPart):
         return createPartFromType(type, self)
 
     def clone(self):
-        project = koProject()
-        project.create()
-        return self._clone(project)
+        dummy_project = koProject()
+        dummy_project.create()
+        project = self._clone(dummy_project)
+        project.set_prefset(self.get_prefset().clone())
+        return project
 
     def set_isDirty(self, dirty):
         if self._isDirty != dirty:
