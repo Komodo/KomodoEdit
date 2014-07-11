@@ -88,6 +88,7 @@ with
 
 # end tags
 
+endautoescape
 endblock
 endcomment
 endfilter
