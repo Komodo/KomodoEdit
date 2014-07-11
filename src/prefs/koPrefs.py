@@ -1421,6 +1421,7 @@ class koProjectPreferenceSet(koPreferenceRoot):
     def clone(self):
         ret = koProjectPreferenceSet()
         koPreferenceRoot.clone(self, ret)
+        return ret
 
 class koFilePreferenceSet(koPreferenceRoot):
     _com_interfaces_ = [components.interfaces.koIFilePreferenceSet] + \
@@ -1433,6 +1434,7 @@ class koFilePreferenceSet(koPreferenceRoot):
     def clone(self):
         ret = koFilePreferenceSet()
         koPreferenceRoot.clone(self, ret)
+        return ret
 
 ###################################################
 #
