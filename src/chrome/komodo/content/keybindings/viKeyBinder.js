@@ -2366,9 +2366,9 @@ VimController.command_mappings = {
     "cmd_vim_lineNext" :            [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_linePreviousHome" :    [ "cmd_linePreviousHome",       VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_lineNextHome" :        [ "cmd_lineNextHome",           VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_home" :                [ "cmd_home",                   VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_homeAbsolute" :        [ "cmd_homeAbsolute",           VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_end"  :                [ "cmd_end",                    VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_home" :                [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_homeAbsolute" :        [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_end"  :                [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_scrollHalfPageDown" :  [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_scrollHalfPageUp" :    [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_pageDown" :            [ "cmd_pageDown",               VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
@@ -3073,6 +3073,21 @@ function cmd_vim_lineNext(scimoz) {
     var lineEndPos = scimoz.getLineEndPosition(lineNo);
     column = Math.min(column, scimoz.getColumn(lineEndPos));
     gVimController._currentPos = scimoz.positionAtColumn(lineNo, column);
+}
+
+function cmd_vim_home(scimoz) {
+    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
+    scimoz.vCHome();
+}
+
+function cmd_vim_homeAbsolute(scimoz) {
+    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
+    scimoz.home();
+}
+
+function cmd_vim_end(scimoz) {
+    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
+    scimoz.lineEnd();
 }
 
 function cmd_vim_selectLinePrevious(scimoz) {
