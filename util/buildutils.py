@@ -586,8 +586,6 @@ def remote_walk(rdir, log=None):
     dirs = [dir]
     while dirs:
         dpath = dirs.pop(0)
-        print('login: %r' % (login, ))
-        print('dpath: %r' % (dpath, ))
         dnames, fnames = remote_listdir(login + ":" + dpath)
         yield login+":"+dpath, dnames, fnames
         dirs += [join(dpath, n) for n in dnames]
