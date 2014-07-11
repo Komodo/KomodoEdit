@@ -688,8 +688,9 @@ class koPreferenceRoot(koPreferenceSetBase):
     _reg_contractid_ = "@activestate.com/koPreferenceRoot;1"
     _reg_clsid_ = "{2a536b8d-f8c1-4892-a8ab-c184d1bdd195}"
 
-    def clone(self):
-        ret = koPreferenceRoot()
+    def clone(self, ret=None):
+        if ret is None:
+            ret = koPreferenceRoot()
         ret.id = self.id
         ret.idref = getattr(self, "idref", "")
         ret.inheritFrom = self.inheritFrom
@@ -1417,6 +1418,10 @@ class koProjectPreferenceSet(koPreferenceRoot):
     _reg_clsid_ = "{961bad79-65e1-964e-bc84-e65941a8c5f1}"
     preftype = 'project'
 
+    def clone(self):
+        ret = koProjectPreferenceSet()
+        koPreferenceRoot.clone(self, ret)
+
 class koFilePreferenceSet(koPreferenceRoot):
     _com_interfaces_ = [components.interfaces.koIFilePreferenceSet] + \
                        koPreferenceRoot._com_interfaces_
@@ -1424,6 +1429,10 @@ class koFilePreferenceSet(koPreferenceRoot):
     _reg_contractid_ = "@activestate.com/koFilePreferenceSet;1"
     _reg_clsid_ = "{433a740b-bcb1-b747-8dcf-c570be6d905e}"
     preftype = 'file'
+
+    def clone(self):
+        ret = koFilePreferenceSet()
+        koPreferenceRoot.clone(self, ret)
 
 ###################################################
 #
