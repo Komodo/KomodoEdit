@@ -54,12 +54,14 @@ keyword_style TPL_IDENTIFIER => TPL_WORD
 
 keywords [and
 as
+autoescape
 block
 by
 comment
 cycle
 debug
 else
+empty
 extends
 filter
 firstof
@@ -80,8 +82,9 @@ spaceless
 ssi
 templatetag
 url
-with
+verbatim
 widthratio
+with
 
 # end tags
 
@@ -119,12 +122,15 @@ dictsort
 dictsortreversed
 divisibleby
 escape
+escapejs
 filesizeformat
 first
-fix_ampersands
 floatformat
+force_escape
 get_digit
+iriencode
 join
+last
 length
 length_is
 linebreaks
@@ -139,6 +145,8 @@ pprint
 random
 removetags
 rjust
+safe
+safeseq
 slice
 slugify
 stringformat
@@ -147,6 +155,8 @@ time
 timesince
 timeuntil
 title
+truncatechars
+truncatechars_html
 truncatewords
 truncatewords_html
 unordered_list
