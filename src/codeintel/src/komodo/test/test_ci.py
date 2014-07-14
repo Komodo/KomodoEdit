@@ -85,23 +85,6 @@ class PythonBufferTestCase(_BufferTestCaseBase):
         self.assertIn(UIHandler.AutoCompleteInfo("sys", "module"),
                       handler.completions)
 
-    def test_completion_stale(self):
-        """Test that we ignore stale triggers"""
-        spinner = AsyncSpinner(self, callback=partial(setattr, self, "trg"))
-        with spinner:
-            self.buf.trg_from_pos(self.positions[1], True, spinner)
-        self.assertIsNotNone(self.trg)
-        self.assertEqual(self.trg.form, TRG_FORM_CPLN)
-        self.doc.buffer += "\n#Modified buffer"
-        # don't really care about the rest of the internals of the trigger
-        # as long as it actually works...
-        spinner = AsyncSpinner(self, timeout=None)
-        with spinner:
-            handler = UIHandler(spinner)
-            self.buf.async_eval_at_trg(self.trg, handler,
-                                       Ci.koICodeIntelBuffer.EVAL_SILENT)
-        self.assertEquals(handler.completions, [])
-
     def test_calltip(self):
         spinner = AsyncSpinner(self, callback=partial(setattr, self, "trg"))
         with spinner:

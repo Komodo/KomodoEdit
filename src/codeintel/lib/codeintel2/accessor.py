@@ -41,7 +41,6 @@ lexer-based styled buffers.
 """
 
 import bisect
-import logging
 import math
 import re
 import threading
@@ -50,14 +49,13 @@ from SilverCity import ScintillaConstants
 
 from codeintel2.common import *
 from codeintel2 import util
-from hashlib import md5
 
 if _xpcom_:
     from xpcom import components
     from xpcom.client import WeakReference
     from xpcom import COMException
 
-log = logging.getLogger("codeintel.accessor")
+
 
 class Accessor(object):
     """Virtual base class for a lexed text accessor. This defines an API
@@ -154,10 +152,11 @@ class SilverCityAccessor(Accessor):
         """A backdoor specific to this accessor to allow the equivalent of
         updating the buffer/file/content.
         """
+        if isinstance(content, unicode):
+            content = content.encode("utf-8")
         self.content = content
         self.__tokens_cache = None
         self.__position_data_cache = None
-        self.__checksum_cache = None
 
     __tokens_cache = None
     @property
@@ -293,75 +292,6 @@ class SilverCityAccessor(Accessor):
         token = self._token_at_pos(pos)
         return (token["start_index"], token["end_index"] + 1)
 
-class OOPAccessor(SilverCityAccessor):
-    buf = None ##< Reference to the buffer, used for fetching text
-
-    def __init__(self, lexer, driver):
-        super(OOPAccessor, self).__init__(lexer, "")
-        self._content = None
-        self._driver = driver
-
-    def reset_content(self, content):
-        if content is None:
-            super(OOPAccessor, self).reset_content("")
-            self._content = None
-        else:
-            if isinstance(content, unicode):
-                # OOP accessor always uses utf-8
-                # (Note that this isn't true of all SilverCity accessors;
-                # things loaded from disk use unicode/utf16)
-                content = content.encode("utf-8")
-            super(OOPAccessor, self).reset_content(content)
-        self.has_content = True
-        self.checksum = None
-
-    _checksum_cache = None
-    @property
-    def checksum(self):
-        if self._checksum_cache is None:
-            content = self._content
-            if content is None:
-                return "0" * 32
-            else:
-                if isinstance(content, unicode):
-                    content = content.encode("utf-8")
-                self._checksum_cache = md5(content).hexdigest()
-        return self._checksum_cache
-    @checksum.setter
-    def checksum(self, value):
-        if value == self._checksum_cache:
-            return # no change
-        # Setting the checksum to a non-matching value should just wipe the
-        # content (so that we will re-fetch the text)
-        self._checksum_cache = None
-        self.reset_content(None)
-
-    _content = None
-    @property
-    def content(self):
-        if self._content is None:
-            # Fetch content from the other side...
-            log.debug("Getting text for %s...", self.buf.path)
-            response = self._driver\
-                           .sync_get_buffer_contents(path=self.buf.path,
-                                                     checksum=self.checksum)
-            text = response.get("text")
-            if text is not None:
-                if isinstance(text, unicode):
-                    text = text.encode("utf-8")
-                self.content = text
-            try:
-                env = response["env"]
-            except KeyError:
-                pass
-            else:
-                self.buf._env.update(env)
-        return self._content
-    @content.setter
-    def content(self, value):
-        assert isinstance(value, str)
-        self._content = value
-        self._checksum_cache = None
 
 class SciMozAccessor(Accessor):
     def __init__(self, scimoz, silvercity_lexer):
