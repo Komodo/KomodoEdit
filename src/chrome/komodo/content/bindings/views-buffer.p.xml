@@ -1330,7 +1330,9 @@
         ]]>
         </body>
         </method>
-        
+
+        <field name="codeintel_scan_timeout">-1</field>
+
         <method name="_onModifiedHandler">
         <parameter name="position"/>
         <parameter name="modificationType"/>
@@ -1380,7 +1382,16 @@
                     && this._isCICplnEnabledViewPref
                     && this._isCIRescanningEnabled)
                 {
-                    ko.codeintel.scan_document(koDoc, linesAdded, true /* forcedScan */);
+                    // Get codeintel to re-scan the document - but delay the
+                    // scan for repeated typing - bug 101502.
+                    if (linesAdded) {
+                        ko.codeintel.scan_document(koDoc, linesAdded, true /* forcedScan */);
+                    } else {
+                        clearTimeout(this.codeintel_scan_timeout);
+                        this.codeintel_scan_timeout = setTimeout(function() {
+                            ko.codeintel.scan_document(koDoc, linesAdded, true /* forcedScan */);
+                        }, 500);
+                    }
                 }
 
                 if ((modificationType & SC_MOD_DELETETEXT)
