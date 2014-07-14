@@ -1077,7 +1077,7 @@ class KoCodeIntelManager(threading.Thread):
 
     def shutdown(self):
         """Abort any outstanding requests and shut down gracefully"""
-        self.abort = True
+        self.abort()
         if self.state is KoCodeIntelManager.STATE.DESTROYED:
             return # already dead
         if not self.pipe:
@@ -1442,7 +1442,7 @@ class KoCodeIntelManager(threading.Thread):
             self.send(command="set-xml-catalogs", catalogs=catalogs)
         elif topic == "quit-application":
             # Possibly unclean shutdown; do a fast kill.
-            self.abort = True
+            self.abort()
             self.state = KoCodeIntelManager.STATE.QUITTING
             self.kill()
             self.observerSvc.removeObserver(self, "quit-application")
@@ -1535,7 +1535,7 @@ class KoCodeIntelBuffer(object):
         try:
             environ = koprocessutils.getUserEnv()
         except COMException as ex:
-            if ex.errno == nsError.NS_ERROR_NOT_INITIALIZED:
+            if ex.errno == Cr.NS_ERROR_NOT_INITIALIZED:
                 koprocessutils.initialize()
                 environ = koprocessutils.getUserEnv()
             else:
