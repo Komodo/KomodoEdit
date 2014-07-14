@@ -814,7 +814,7 @@ class KoCodeIntelManager(threading.Thread):
                                             stdin=None,
                                             stdout=log_file,
                                             stderr=log_file)
-            self._watchdog_thread = threading.Thread(target=self._watchdog_thread,
+            self._watchdog_thread = threading.Thread(target=self._run_watchdog_thread,
                                                      name="CodeIntel Subprocess Watchdog",
                                                      args=(self.proc,))
             self._watchdog_thread.start()
@@ -1372,7 +1372,7 @@ class KoCodeIntelManager(threading.Thread):
         if self.is_alive():
             self.join(1)
 
-    def _watchdog_thread(self, proc):
+    def _run_watchdog_thread(self, proc):
         """Thread handler to watch when the subprocess dies"""
         self.debug("Waiting for process to die...")
         proc.wait()
