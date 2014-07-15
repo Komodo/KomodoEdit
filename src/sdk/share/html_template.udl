@@ -43,10 +43,10 @@ include "html.udl"  # Performs styling for HTML
 
 
 ###############################################
-# ------------- %(lang) styling ------------- #
+# ------------- %(lang)s styling ------------- #
 
 family tpl # template language
-sublanguage %(lang)
+sublanguage %(lang)s
 
 # Specify the min and max styles we'll be referring to.
 start_style TPL_DEFAULT
@@ -64,7 +64,7 @@ keywords [
 pattern FIRSTNAMECHAR = '_a-zA-Z\x80-\xff' # names (identifier, keyword, variable...) only can start with these chars
 pattern NAMECHAR = '$FIRSTNAMECHAR\d'      # rest of the name, after the first char
 pattern WS = '\s\t\r\n'                    # whitespace
-pattern OP = '!%%\(\)\*\+-\.{}%:;,<=>'     # operator characters - escaping special regex values
+pattern OP = '!%%\(\)\*\+-\.{}:;,<=>'     # operator characters - escaping special regex values
 
 ################ Default Style ################
 
