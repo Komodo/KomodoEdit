@@ -226,6 +226,16 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                         return Trigger(lang, TRG_FORM_CPLN, "interfaces", pos, implicit)
                     elif text in ("use", ):
                         return Trigger(lang, TRG_FORM_CPLN, "use", pos, implicit)
+                    elif text in ("function", "const"):
+                        # Check for a "use function" or "use const" expression.
+                        p, ch, style = ac.getPrevPosCharStyle(ignore_styles=self.comment_styles)
+                        if p > 0 and style == self.whitespace_style:
+                            p, ch, style = ac.getPrecedingPosCharStyle(style, ignore_styles=self.comment_styles)
+                            if p > 0 and style == self.keyword_style:
+                                p, text = ac.getTextBackWithStyle(style, self.comment_styles, max_text_len=len("use "))
+                                if text == "use":
+                                    return Trigger(lang, TRG_FORM_CPLN, "use", pos, implicit,
+                                                   ilk=text)
                     elif prev_style == self.operator_style and \
                          prev_char == "," and implicit:
                         return self._functionCalltipTrigger(ac, prev_pos, DEBUG)
@@ -302,6 +312,11 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                             print "Triggering use-namespace completion"
                         return Trigger(lang, TRG_FORM_CPLN, "use-namespace",
                                        pos, implicit)
+                    elif prev_text[1] in ("const", "function"):
+                        if DEBUG:
+                            print "Triggering use-namespace completion with ilk %r" % (prev_text[1])
+                        return Trigger(lang, TRG_FORM_CPLN, "use-namespace",
+                                       pos, implicit, ilk=prev_text[1])
                     elif prev_text[1] != "namespace":
                         if DEBUG:
                             print "Triggering namespace completion"
