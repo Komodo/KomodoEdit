@@ -83,7 +83,7 @@ interface koIOs : nsISupports {
   
     // Uses the lastErrorSvc to report errors.
     void listdir(in wstring dir,
-                 out unsigned long count,
+                 [optional] out unsigned long count,
                  [retval, array, size_is(count)] out wstring contents);
     
     unsigned long system(in AString command);
