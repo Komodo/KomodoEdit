@@ -1,0 +1,170 @@
+#!/bin/bash
+
+if [ "$UID" -ne 0 ]
+    then echo "This script must be run as root"
+    exit
+fi
+
+# docker image to use
+DOCKER_IMAGE_NAME="komodo"
+
+# local name for the container
+DOCKER_CONTAINER_NAME="komodo-container"
+
+# our current dirname
+DIRNAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+KODIRNAME="$DIRNAME/../../"
+
+function retrieveContainerStatus {
+    # check if container already present
+    TMP=$(docker ps -a | grep ${DOCKER_CONTAINER_NAME})
+    CONTAINER_FOUND=$?
+
+    TMP=$(docker ps | grep ${DOCKER_CONTAINER_NAME})
+    CONTAINER_RUNNING=$?
+}
+
+retrieveContainerStatus
+
+function retrieveSshInfo {
+    # find ssh port
+    SSH_URL=$(docker port ${DOCKER_CONTAINER_NAME} 22)
+    SSH_URL_REGEX="(.*):(.*)"
+
+    SSH_INTERFACE=$(echo $SSH_URL | awk -F  ":" '/1/ {print $1}')
+    SSH_PORT=$(echo $SSH_URL | awk -F  ":" '/1/ {print $2}')
+}
+
+function start {
+
+    if [ $CONTAINER_FOUND -eq 0 ]; then
+
+        echo -n "container '${DOCKER_CONTAINER_NAME}' found, "
+
+        if [ $CONTAINER_RUNNING -eq 0 ]; then
+            echo "already running"
+        else
+            echo -n "not running, starting..."
+            TMP=$(docker start ${DOCKER_CONTAINER_NAME})
+            echo "done"
+        fi
+
+    else
+        echo -n "container '${DOCKER_CONTAINER_NAME}' not found, creating..."
+        TMP=$(docker run -d -P --name ${DOCKER_CONTAINER_NAME} -v ${KODIRNAME}:/root/komodo -v /home/${SUDO_USER}/.ActiveState:/root/.ActiveState -v /home/${SUDO_USER}/.komodoide:/root/.komodoide ${DOCKER_IMAGE_NAME})
+        echo "done"
+        retrieveContainerStatus
+    fi
+
+    #wait for container to come up
+    sleep 2
+
+    status
+    
+}
+
+function stop {
+    if [ $CONTAINER_RUNNING -eq 0 ]; then
+        echo -n "Stopping Container.. "
+        TMP=$(docker stop ${DOCKER_CONTAINER_NAME})
+        TMP=$(docker rm ${DOCKER_CONTAINER_NAME})
+        echo "done"
+    else
+        echo "Container already stopped"
+    fi
+}
+
+function status {
+    retrieveSshInfo
+
+    if [ $CONTAINER_FOUND -eq 0 ]; then
+
+        if [ $CONTAINER_RUNNING -eq 0 ]; then
+            echo "port: " $(docker port ${DOCKER_CONTAINER_NAME} 22)
+        else
+            echo "container '${DOCKER_CONTAINER_NAME}' found but not running"
+        fi
+
+    else
+        echo "container '${DOCKER_CONTAINER_NAME}' not found"
+    fi
+}
+
+function setSshCmd {
+    if [ $CONTAINER_RUNNING -ne 0 ]; then
+        echo "Container is not running"
+        exit 0
+    fi
+    retrieveSshInfo
+    SSH_CMD=$(echo ssh -i "${DIRNAME}/id_rsa" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -Y -X root@${SSH_INTERFACE} -p ${SSH_PORT})
+}
+
+function _ssh {
+    setSshCmd
+    ${SSH_CMD}
+}
+
+function run {
+    setSshCmd
+    ${SSH_CMD} "PATH=/root/komodo/util/black:\$PATH && cd /root/komodo && bk run"
+}
+
+function build {
+    cd ${DIRNAME}
+    docker build -t ${DOCKER_IMAGE_NAME} .
+}
+
+function deleteBuild {
+    stop
+    docker rmi ${DOCKER_IMAGE_NAME}
+}
+
+function help {
+    echo "Manage Komodo-Dev container"
+    echo " "
+    echo "options:"
+    echo "build                     build the image"
+    echo "rebuild                   rebuild the image (deletes image and containers)"
+    echo "start                     start container"    
+    echo "stop                      stop container"    
+    echo "status                    show container status"    
+    echo "ssh                       ssh into container"
+    echo "-h, --help                show brief help"
+    exit 0
+}
+
+while true; do
+    case "$1" in
+        start)
+            start
+            break
+            ;;
+        status)
+            status
+            break
+            ;;
+        ssh)
+            _ssh
+            break
+            ;;
+        stop)
+            stop
+            break
+            ;;
+        build)
+            build
+            break
+            ;;
+        rebuild)
+            deleteBuild
+            build
+            break
+            ;;
+        *|-h|--help)
+            help
+            break
+            ;;
+    esac
+done;
+
+
