@@ -1,49 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- ***** BEGIN LICENSE BLOCK *****
- Version: MPL 1.1/GPL 2.0/LGPL 2.1
- 
- The contents of this file are subject to the Mozilla Public License
- Version 1.1 (the "License"); you may not use this file except in
- compliance with the License. You may obtain a copy of the License at
- http://www.mozilla.org/MPL/
- 
- Software distributed under the License is distributed on an "AS IS"
- basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
- License for the specific language governing rights and limitations
- under the License.
- 
- The Original Code is Komodo code.
- 
- The Initial Developer of the Original Code is ActiveState Software Inc.
- Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
- ActiveState Software Inc. All Rights Reserved.
- 
- Contributor(s):
-   ActiveState Software Inc
- 
- Alternatively, the contents of this file may be used under the terms of
- either the GNU General Public License Version 2 or later (the "GPL"), or
- the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- in which case the provisions of the GPL or the LGPL are applicable instead
- of those above. If you wish to allow use of your version of this file only
- under the terms of either the GPL or the LGPL, and not to allow others to
- use your version of this file under the terms of the MPL, indicate your
- decision by deleting the provisions above and replace them with the notice
- and other provisions required by the GPL or the LGPL. If you do not delete
- the provisions above, a recipient may use your version of this file under
- the terms of any one of the MPL, the GPL or the LGPL.
- 
- ***** END LICENSE BLOCK ***** -->
-
 <Include>
 <!-- #if PRODUCT_TYPE == "edit" -->
 <!-- #if PP_UPDATE_CHANNEL == "nightly" -->
-    <?define ProductCode = "e3f82f91-7d89-4348-b92e-a26ccf99a1f3" ?>
-    <?define UpgradeCode = "aab8e976-a667-497f-b4a5-9459d8c961b2" ?>
+    <?define ProductCode = "13a8ed25-e2de-4b7d-a218-a608cb9a7483" ?>
+    <?define UpgradeCode = "a48b7bb9-de6f-4e52-8eef-7ee09adce5bb" ?>
 <!-- #else -->
-    <?define ProductCode = "e65b87d8-30c4-4fb0-8c24-afd64950a881" ?>
-    <?define UpgradeCode = "286c2be6-e445-4882-bbbd-e965db4a6a11" ?>
+    <?define ProductCode = "7925ef85-6af6-40dd-89f8-6e2d9c488ed9" ?>
+    <?define UpgradeCode = "1c8d698a-47e9-44af-9dfe-621ccb52cbc8" ?>
 <!-- #endif -->
 <!-- #else -->
 <!-- #error "Invalid product type." -->
