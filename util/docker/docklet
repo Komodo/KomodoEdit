@@ -1,10 +1,14 @@
 #!/bin/bash
 
-# docker image to use
-DOCKER_IMAGE_NAME="komodo"
+# Default docker image to use.
+if [ -z "$DOCKER_IMAGE_NAME" ]; then
+    DOCKER_IMAGE_NAME="komodo"
+fi
 
 # local name for the container
-DOCKER_CONTAINER_NAME="komodo-container"
+if [ -z "$DOCKER_CONTAINER_NAME" ]; then
+    DOCKER_CONTAINER_NAME="${DOCKER_IMAGE_NAME}-container"
+fi
 
 # our current dirname
 DIRNAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
