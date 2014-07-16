@@ -67,6 +67,19 @@ linux distros).
  * Start your container: `./docklet start`
  * SSH into your container to start working: `./docklet ssh`
 
+Your project files will be mounted at `/komodo/dev`
+
+NOTE - if you are updating from a previous version where your project files were
+at `/root/komodo` you will need to fix permissions on your Komodo project and
+profile folders. Ie:
+
+```
+chown -R <my-username>:<my-group> <my-project-location>
+chown -R <my-username>:<my-group> ~/.komodoide
+```
+
+You will also need to redo your build (distclean mozilla and komodo).
+
 #### Building Steps
 
 Once your image is prepared you can follow the building steps for linux as

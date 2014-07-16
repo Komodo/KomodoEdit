@@ -14,6 +14,16 @@ fi
 DIRNAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 KODIRNAME="$DIRNAME/../../"
 
+if [ "$(id -u)" != "0" ]; then
+    USERNAME=$(whoami)
+else
+    if [ -n "$SUDO_USER" ]; then
+        USERNAME=$SUDO_USER
+    else
+        USERNAME=$(whoami)
+    fi
+fi
+
 function retrieveContainerStatus {
     # check if container already present
     TMP=$(docker ps -a | grep ${DOCKER_CONTAINER_NAME})
@@ -45,18 +55,32 @@ function start {
         else
             echo -n "not running, starting..."
             TMP=$(docker start ${DOCKER_CONTAINER_NAME})
+            sleep 2
             echo "done"
         fi
 
     else
         echo -n "container '${DOCKER_CONTAINER_NAME}' not found, creating..."
-        TMP=$(docker run -d -P --name ${DOCKER_CONTAINER_NAME} -v ${KODIRNAME}:/root/komodo -v /home/${SUDO_USER}/.ActiveState:/root/.ActiveState -v /home/${SUDO_USER}/.komodoide:/root/.komodoide ${DOCKER_IMAGE_NAME})
+        TMP=$(docker run -d -P --name ${DOCKER_CONTAINER_NAME} -v ${KODIRNAME}:/komodo/dev -v /home/${USERNAME}/.ActiveState:/komodo/.ActiveState -v /home/${USERNAME}/.komodoide:/komodo/.komodoide ${DOCKER_IMAGE_NAME})
+
+        sleep 2
+
         echo "done"
         retrieveContainerStatus
-    fi
 
-    #wait for container to come up
-    sleep 2
+        # Create komodo user which maps to our local user, so as to preserve file permissions
+        setSshCmd
+        local PASSWORD=$(perl -e'print crypt("komodo", "aa")')
+        ${SSH_CMD_ROOT} "useradd -d /komodo -u $(id -u ${USERNAME}) -g 100 -p ${PASSWORD} -s /bin/bash komodo && \
+                        usermod -a -G sudo komodo && \
+                        cp -R /root/.ssh /komodo/.ssh && \
+                        chown 1000:100 /komodo && chown -R 1000:100 /komodo/.ssh && \
+                        echo \"PATH=/komodo/dev/util/black:\$PATH\" >> /komodo/.profile && \
+                        echo \"include \\\"/usr/share/themes/Radiance/gtk-2.0/gtkrc\\\"\" > /komodo/.gtkrc-2.0 && \
+                        chown 1000:100 /komodo/.profile && chown 1000:100 /komodo/.gtkrc-2.0
+                        su - komodo -c \"gconftool-2 --type=string --set /desktop/gnome/interface/gtk_theme Radiance\""
+
+    fi
 
     status
     
@@ -71,6 +95,8 @@ function stop {
     else
         echo "Container already stopped"
     fi
+
+    retrieveContainerStatus
 }
 
 function status {
@@ -95,12 +121,18 @@ function setSshCmd {
         exit 0
     fi
     retrieveSshInfo
-    SSH_CMD=$(echo ssh -i "${DIRNAME}/id_rsa" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -Y -X root@${SSH_INTERFACE} -p ${SSH_PORT})
+    SSH_CMD=$(echo ssh -i "${DIRNAME}/id_rsa" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -Y -X komodo@${SSH_INTERFACE} -p ${SSH_PORT})
+    SSH_CMD_ROOT=$(echo ssh -i "${DIRNAME}/id_rsa" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -Y -X root@${SSH_INTERFACE} -p ${SSH_PORT})
 }
 
 function _ssh {
     setSshCmd
     ${SSH_CMD}
+}
+
+function _sshroot {
+    setSshCmd
+    ${SSH_CMD_ROOT}
 }
 
 function run {
@@ -136,34 +168,39 @@ while true; do
     case "$1" in
         start)
             start
-            break
+            shift
             ;;
         status)
             status
-            break
+            shift
             ;;
         ssh)
             _ssh
             break
             ;;
+        sshroot)
+            _sshroot
+            break
+            ;;
         stop)
             stop
-            break
+            shift
             ;;
         build)
             build
-            break
+            shift
             ;;
         rebuild)
             deleteBuild
             build
-            break
+            shift
             ;;
-        *|-h|--help)
+        -h|--help)
             help
             break
             ;;
     esac
+    sleep 1
 done;
 
 
