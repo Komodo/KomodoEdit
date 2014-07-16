@@ -1772,7 +1772,12 @@
         <parameter name="type"/>
         <body>
         <![CDATA[
-            this.scimoz.markerAdd(line, type);
+        
+            let scimoz = this.scimoz;
+            // Check if the marker already exists - bug 104553.
+            if ((scimoz.markerGet(line) & (1 << type)) == 0) {
+               scimoz.markerAdd(line, type);
+            }
         ]]>
         </body>
         </method>
