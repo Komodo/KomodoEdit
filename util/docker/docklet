@@ -71,13 +71,14 @@ function start {
         # Create komodo user which maps to our local user, so as to preserve file permissions
         setSshCmd
         local PASSWORD=$(perl -e'print crypt("komodo", "aa")')
-        ${SSH_CMD_ROOT} "useradd -d /komodo -u $(id -u ${USERNAME}) -g 100 -p ${PASSWORD} -s /bin/bash komodo && \
+        local UID=$(id -u ${USERNAME})
+        ${SSH_CMD_ROOT} "useradd -d /komodo -u ${UID} -g 100 -p ${PASSWORD} -s /bin/bash komodo && \
                         usermod -a -G sudo komodo && \
                         cp -R /root/.ssh /komodo/.ssh && \
-                        chown 1000:100 /komodo && chown -R 1000:100 /komodo/.ssh && \
+                        chown ${UID}:100 /komodo && chown -R ${UID}:100 /komodo/.ssh && \
                         echo \"PATH=/komodo/dev/util/black:\$PATH\" >> /komodo/.profile && \
                         echo \"include \\\"/usr/share/themes/Radiance/gtk-2.0/gtkrc\\\"\" > /komodo/.gtkrc-2.0 && \
-                        chown 1000:100 /komodo/.profile && chown 1000:100 /komodo/.gtkrc-2.0
+                        chown ${UID}:100 /komodo/.profile && chown ${UID}:100 /komodo/.gtkrc-2.0
                         su - komodo -c \"gconftool-2 --type=string --set /desktop/gnome/interface/gtk_theme Radiance\""
 
     fi
