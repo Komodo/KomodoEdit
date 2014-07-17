@@ -142,8 +142,12 @@ function run {
 }
 
 function build {
+    flavour=$1
+    if [ -z "${flavour}" ]; then
+        flavour="."
+    fi
     cd ${DIRNAME}
-    docker build -t ${DOCKER_IMAGE_NAME} .
+    docker build -t ${DOCKER_IMAGE_NAME} $flavour
 }
 
 function deleteBuild {
@@ -155,7 +159,7 @@ function help {
     echo "Manage Komodo-Dev container"
     echo " "
     echo "options:"
-    echo "build                     build the image"
+    echo "build [--flavour DIR]     build the image; flavour defaults to the current dir"
     echo "rebuild                   rebuild the image (deletes image and containers)"
     echo "start                     start container"    
     echo "stop                      stop container"    
@@ -188,7 +192,12 @@ while true; do
             shift
             ;;
         build)
-            build
+            flavour=""
+            if [ "$2" == "--flavour" ]; then
+                flavour=$3
+                shift 2
+            fi
+            build $flavour
             shift
             ;;
         rebuild)
