@@ -1,0 +1,5 @@
+# #if MODE == "dev"
+content scope-bookmarks content/
+# #else
+content scope-bookmarks jar:scope-bookmarks.jar!/content/
+# #endif
