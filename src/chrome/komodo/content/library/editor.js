@@ -324,7 +324,7 @@ module.exports = {
     getLine: function(line)
     {
         if ( ! line) line = this.getLineNumber();
-        return this.getRange({line: line, ch: 0}, {line: line, ch: this.getLineSize(line)});
+        return this.getRange({line: line, ch: 0}, {line: line, ch: this.getLineSize(line)}).replace(/(\r\n|\n|\r)/gm,"");
     },
 
     /**
@@ -351,6 +351,29 @@ module.exports = {
     },
 
     /**
+     * Get the given line start position
+     *
+     * @returns {Int}
+     */
+    getLineStartPos: function(line, format ="absolute")
+    {
+        if ( ! line) line = this.getLineNumber();
+        return this._posFormat(this._posToAbsolute({line: line, ch: 0}),format);
+    },
+
+    /**
+     * Get the given line end position
+     *
+     * @returns {Int}
+     */
+    getLineEndPos: function(line, format = "absolute")
+    {
+        if ( ! line) line = this.getLineNumber();
+        
+        return this._posFormat(scimoz().getLineEndPosition(line-1),format);
+    },
+
+    /**
      * Get the current column (character | ch) number
      *
      * @returns {Int}
@@ -371,7 +394,7 @@ module.exports = {
     getLineSize: function(line)
     {
         if ( ! line) line = this.getLineNumber();
-        return scimoz().getLineEndPosition(line);
+        return this.getLineEndPos(line) - this.getLineStartPos(line);
     },
 
     /**
@@ -425,7 +448,7 @@ module.exports = {
      *
      * @returns {Void}
      */
-    setCursorPosition: function(pos)
+    setCursor: function(pos)
     {
         var pos = this._posFormat(pos, "absolute");
         scimoz().setSel(pos, pos);
@@ -520,6 +543,30 @@ module.exports = {
                 this.setCursorPosition(this.getCursorPosition("absolute") - replacement.length);
                 break;
         }
+    },
+
+    /** ****** Bookmarks ****** **/
+
+    getAllMarks: function(type = ko.markers.MARKNUM_BOOKMARK)
+    {
+        var lineNo = 0;
+        var bookmarkLines = {};
+
+        while (lineNo != -1)
+        {
+            var marker_mask = 1 << type;
+            var lineNo = scimoz().markerNext(lineNo, marker_mask);
+
+            if (lineNo != -1)
+            {
+                bookmarkLines[lineNo+1] = this.getLine(lineNo+1);
+                lineNo++;
+            }
+            else
+                break;
+        }
+
+        return bookmarkLines;
     },
 
     /** ****** Helpers ****** **/
