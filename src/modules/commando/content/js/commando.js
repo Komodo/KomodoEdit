@@ -291,6 +291,7 @@
 
     this.hideCommando = function()
     {
+        this.stop();
         log.debug("Hiding Commando");
         elem('panel').element().hidePopup();
     }
