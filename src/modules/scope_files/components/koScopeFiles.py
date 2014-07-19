@@ -63,11 +63,12 @@ class koScopeFiles():
         walker = self.walkPaths(path, opts)
 
         try:
-            cont = True
-            while cont is not False:
-                cont = self.processEntry(walker, query, uuid, path, opts, words,
+            numResults = 0
+            while numResults is not False:
+                numResults = self.processEntry(walker, query, uuid, path, opts, words,
                                          replacement, callback, numResults)
-                numResults+=1
+
+            log.debug(uuid + " - Directory walk complete")
 
         except StopIteration:
             log.debug(uuid + " - iteration stopped")
@@ -79,9 +80,14 @@ class koScopeFiles():
         if numResults is 0:
             pathEntry = walker.send(None)
         else:
-            pathEntry = walker.send(numResults is opts.get("maxresults", 200))
+            maxResultsReached = numResults is opts.get("maxresults", 200)
+            if maxResultsReached:
+                log.debug(uuid + " Max results reached")
+
+            pathEntry = walker.send(maxResultsReached)
 
         if (self.activeUuid is not uuid):
+            log.debug(uuid + " No longer active, stopping")
             walker.send(True) # Stop iteration
             return False
 
@@ -101,6 +107,8 @@ class koScopeFiles():
 
             self.processResult(pathEntry, path, filename, description, weight, opts, callback)
             numResults+=1
+            
+        return numResults
         
     @components.ProxyToMainThreadAsync
     def processResult(self, pathEntry, path, filename, description, weight, opts, callback):
