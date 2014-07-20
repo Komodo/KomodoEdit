@@ -807,13 +807,10 @@ if (typeof ko.openfiles == 'undefined')
             }
             
             // Override file icon with one that is relevant to the type of file
-            if (ko.prefs.getBoolean("native_mozicons_available", false))
-            {
-                listItem.querySelector('.file-icon').setAttribute(
-                    'src',
-                    "moz-icon://" + editorView.title + "?size=16"
-                );
-            }
+            listItem.querySelector('.file-icon').setAttribute(
+                'src',
+                "koicon://" + editorView.title + "?size=16"
+            );
             
             listItem.querySelector('.file-close-button').addEventListener(
                 "mousedown", function(e) {
