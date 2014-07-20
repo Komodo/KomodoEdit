@@ -101,6 +101,10 @@ $cons->BuildAndInstallXpt('koIResolve.idl');
 $cons->InstallXpcomComponent('koLessProtocolHandler.js',
                              {'@mozilla.org/network/protocol;1?name=less' => "{6877A557-982B-469F-9689-D66A917BE4E4}"});
 
+# koIconProtocolHandler
+$cons->InstallXpcomComponent('koIconProtocolHandler.js',
+                             {'@mozilla.org/network/protocol;1?name=koicon' => "{A840147B-5194-49B5-A0D5-CF5E3F87CDC5}"});
+
 # koIInitServive
 $cons->Preprocess('koInitService.p.py',
                   'koInitService.py');

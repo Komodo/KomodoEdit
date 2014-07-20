@@ -424,6 +424,7 @@ $consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/less.js", "smallstuf
 
 # commonjs
 $consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/dot.js", "commonjs/dot.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/randomColor.js", "commonjs/randomColor.js");
 
 #----  Watchdog for file notifcations
 if ($withWatchdogFSNotifications) {

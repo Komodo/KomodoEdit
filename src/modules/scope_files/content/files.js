@@ -1,5 +1,5 @@
 (function() {
-    const log       = require("ko/logging").getLogger("commando-scope-files")
+    const log       = require("ko/logging").getLogger("commando-scope-files");
     const commando  = require("commando/commando");
     const {Cc, Ci}  = require("chrome");
 
@@ -129,7 +129,7 @@
                 id: path,
                 name: name,
                 description: description,
-                icon: type == 'dir' ? "chrome://komodo/skin/images/folder-32.png" : "moz-icon://" + path + "?size=32",
+                icon: type == 'dir' ? "chrome://komodo/skin/images/folder-32.png" : "koicon://" + path + "?size=32",
                 isScope: type == 'dir',
                 weight: weight,
                 scope: "scope-files",

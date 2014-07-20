@@ -5,7 +5,7 @@
   <!-- This version field is used by Komodo to upgrade preferences.
        The value should be kept in sync with "../components/koInitService.p.py"
   -->
-  <long id="version">11</long>
+  <long id="version">12</long>
 
   <!-- "uilayout_version" is used by Komodo to upgrade ui layouts.
        Must keep in sync with "../chrome/komodo/content/library/uilayout.p.js"
@@ -995,4 +995,35 @@
   <ordered-preference id="analytics_track_decks">
     <string>komodo-box</string>
   </ordered-preference>
+
+  <!-- File Icons -->
+    <!--
+        Format: <language>:<ext>:<color>
+        Ext should be no longer than 4 characters
+        Color can be in any format that css "background-color" accepts
+    -->
+  <ordered-preference id="fileicons_presets">
+    <string>Text:TXT:#A1A1A1</string>
+    <string>Unknown:?:#A1A1A1</string>
+    <string>PHP:PHP:#A075B2</string>
+    <string>Ruby:RB:#EB594C</string>
+    <string>JavaScript:JS:#37A63A</string>
+    <string>Node.js:NODE:#4B8850</string>
+    <string>HTML:HTML:#F2A935</string>
+    <string>HTML5:HTML:#F25D5A</string>
+    <string>Python:PY:#424B9C</string>
+    <string>Python3:PY:#296A9C</string>
+    <string>CSS:CSS:#5C8AB9</string>
+    <string>LESS:CSS:#362397</string>
+  </ordered-preference>
+
+  <ordered-preference id="fileicons_ext_mapping">
+    <string>snd:adp,au,snd,mid,midi,kar,rmi,mp4a,mpga,mp2,mp2a,mp3,m2a,m3a,oga,ogg,spx,s3m,sil,uva,uvva,eol,dra,dts,dtshd,lvp,pya,ecelp4800,ecelp7470,ecelp9600,rip,weba,aac,aif,aiff,aifc,caf,flac,mka,m3u,wax,wma,ram,ra,rmp,wav,xm</string>
+    <string>img:bmp,cgm,g3,gif,ief,jpeg,jpg,jpe,ktx,png,btif,sgi,svg,svgz,tiff,tif,psd,uvi,uvvi,uvg,uvvg,sub,djvu,djv,dwg,dxf,fbs,fpx,fst,mmr,rlc,mdi,wdp,npx,wbmp,xif,webp,3ds,ras,cmx,fh,fhc,fh4,fh5,fh7,ico,sid,pcx,pic,pct,pnm,pbm,pgm,ppm,rgb,tga,xbm,xpm,xwd</string>
+    <string>txt:appcache,ics,ifb,css,csv,html,htm,n3,txt,text,conf,def,list,log,in,dsc,rtx,sgml,sgm,tsv,t,tr,roff,man,me,ms,ttl,uri,uris,urls,vcard,curl,dcurl,scurl,mcurl,sub,fly,flx,gv,3dml,spot,jad,wml,wmls,s,asm,c,cc,cxx,cpp,h,hh,dic,f,for,f77,f90,java,opml,p,pas,nfo,etx,sfv,uu,vcs,vcf</string>
+    <string>vid:3gp,3g2,h261,h263,h264,jpgv,jpm,jpgm,mj2,mjp2,mp4,mp4v,mpg4,mpeg,mpg,mpe,m1v,m2v,ogv,qt,mov,uvh,uvvh,uvm,uvvm,uvp,uvvp,uvs,uvvs,uvv,uvvv,dvb,fvt,mxu,m4u,pyv,uvu,uvvu,viv,webm,f4v,fli,flv,m4v,mkv,mk3d,mks,mng,asf,asx,vob,wm,wmv,wmx,wvx,avi,movie,smv</string>
+    <string>font:bdf,gsf,psf,otf,pcf,snf,ttf,ttc,pfa,pfb,pfm,afm,woff</string>
+  </ordered-preference>
+
+  <string id="fileicons_color_whitelist">class:rss:rtf:csv:com:bat:sh:dtd:xpi:conscript:construct:manifest</string>
 </preference-set>
