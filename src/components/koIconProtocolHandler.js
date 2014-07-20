@@ -4,9 +4,13 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/NetUtil.jsm");
 
-var loggingSvc = Cc["@activestate.com/koLoggingService;1"].
+const prefs     = Cc['@activestate.com/koPrefService;1']
+                    .getService(Ci.koIPrefService).prefs;
+const loggingSvc= Cc["@activestate.com/koLoggingService;1"].
                     getService(Ci.koILoggingService);
-var log = this.loggingSvc.getLogger('koiconprotocol');
+const log       = this.loggingSvc.getLogger('koiconprotocol');
+
+var mozIconsAvailable = prefs.getBooleanPref("native_mozicons_available");
 
 var getFileIconLib = function()
 {
@@ -47,7 +51,11 @@ IconProtocolHandler.prototype = {
 
     newChannel: function Proto_newChannel(aURI) {
         var iconLib = getFileIconLib();
-        var iconFile = aURI.spec.replace(/^koicon/, 'moz-icon');
+
+        if (mozIconsAvailable)
+            var iconFile = aURI.spec.replace(/^koicon/, 'moz-icon');
+        else
+            var iconFile = "chrome://komodo/skin/images/existing_file.png";
 
         if (iconLib)
         {
