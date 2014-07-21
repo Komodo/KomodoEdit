@@ -71,14 +71,14 @@ function start {
         # Create komodo user which maps to our local user, so as to preserve file permissions
         setSshCmd
         local PASSWORD=$(perl -e'print crypt("komodo", "aa")')
-        local UID=$(id -u ${USERNAME})
-        ${SSH_CMD_ROOT} "useradd -d /komodo -u ${UID} -g 100 -p ${PASSWORD} -s /bin/bash komodo && \
+        local _UID=$(id -u ${USERNAME})
+        ${SSH_CMD_ROOT} "useradd -d /komodo -u ${_UID} -g 100 -p ${PASSWORD} -s /bin/bash komodo && \
                         usermod -a -G sudo komodo && \
                         cp -R /root/.ssh /komodo/.ssh && \
-                        chown ${UID}:100 /komodo && chown -R ${UID}:100 /komodo/.ssh && \
+                        chown ${_UID}:100 /komodo && chown -R ${_UID}:100 /komodo/.ssh && \
                         echo \"PATH=/komodo/dev/util/black:\$PATH\" >> /komodo/.profile && \
                         echo \"include \\\"/usr/share/themes/Radiance/gtk-2.0/gtkrc\\\"\" > /komodo/.gtkrc-2.0 && \
-                        chown ${UID}:100 /komodo/.profile && chown ${UID}:100 /komodo/.gtkrc-2.0
+                        chown ${_UID}:100 /komodo/.profile && chown ${_UID}:100 /komodo/.gtkrc-2.0
                         su - komodo -c \"gconftool-2 --type=string --set /desktop/gnome/interface/gtk_theme Radiance\""
 
     fi
@@ -138,7 +138,9 @@ function _sshroot {
 
 function run {
     setSshCmd
-    ${SSH_CMD} "PATH=/root/komodo/util/black:\$PATH && cd /root/komodo && bk run"
+    ${SSH_CMD} "PATH=/komodo/dev/util/black:\$PATH && cd /komodo/dev && bk build"
+    cd $KODIRNAME
+    ./mozilla/build/moz3100-ko9.10/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
 }
 
 function build {
@@ -162,7 +164,8 @@ function help {
     echo "build [--flavour DIR]     build the image; flavour defaults to the current dir"
     echo "rebuild                   rebuild the image (deletes image and containers)"
     echo "start                     start container"    
-    echo "stop                      stop container"    
+    echo "stop                      stop container"
+    echo "run                       build & run Komodo on host"
     echo "status                    show container status"    
     echo "ssh                       ssh into container"
     echo "-h, --help                show brief help"
@@ -191,6 +194,10 @@ while true; do
             stop
             shift
             ;;
+        run)
+            run
+            shift
+            ;;
         build)
             flavour=""
             if [ "$2" == "--flavour" ]; then
@@ -211,6 +218,9 @@ while true; do
             ;;
     esac
     sleep 1
+    if [ -z "$VAR" ]; then
+        break
+    fi
 done;
 
 
