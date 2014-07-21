@@ -212,7 +212,8 @@
             var fontScaleFactor = 45;
             if (info.ext.length == 3) fontScaleFactor = 35;
             if (info.ext.length == 4) fontScaleFactor = 30;
-            data = data.replace(/{{font-size}}/g, Math.ceil((info.size / 100) * fontScaleFactor));
+            var fontSize = Math.ceil((info.size / 100) * fontScaleFactor);
+            data = data.replace(/{{font-size}}/g, fontSize == 6 ? 5 : fontSize); // 6px renders oddly
 
             var textStream = ioFile.open(file.path, "w");
             textStream.write(data);
