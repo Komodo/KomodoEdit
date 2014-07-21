@@ -1044,7 +1044,7 @@ if (typeof ko.breadcrumbs == 'undefined')
                 ko.prefs.getBoolean("native_mozicons_available", false))
             {
                 crumb.setAttribute(
-                    'image', "moz-icon://" + file.getFilename() + "?size=16"
+                    'image', "koicon://" + file.getFilename() + "?size=16"
                 );
             }
 
@@ -1126,7 +1126,7 @@ if (typeof ko.breadcrumbs == 'undefined')
                     if (ko.prefs.getBoolean("native_mozicons_available", false))
                     {
                         elem.setAttribute(
-                            'image', "moz-icon://" + child.getFilename() + "?size=16"
+                            'image', "koicon://" + child.getFilename() + "?size=16"
                         );
                     }
                 }

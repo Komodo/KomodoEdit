@@ -259,10 +259,7 @@ class _kplFile(_kplNonFolder):
     @property
     def cellImageURL(self):
         if self._cellImageURL is None:
-            if self.nativeMozIconEnabled:
-                self._cellImageURL = "moz-icon://" + self.koFile.baseName + "?size=16"
-            else:
-                self._cellImageURL = "chrome://komodo/skin/images/existing_file.png"
+            self._cellImageURL = "koicon://" + self.koFile.baseName + "?size=16"
         return self._cellImageURL
 
 class _kplOther(_kplNonFolder):

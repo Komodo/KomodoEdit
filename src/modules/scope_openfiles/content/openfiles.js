@@ -49,7 +49,7 @@
                 id: editorView.uid.number,
                 name: editorView.title,
                 description: path, // todo: highlight matched portions
-                icon: "moz-icon://" + path + "?size=32",
+                icon: "koicon://" + path + "?size=32",
                 weight: weight,
                 scope: "scope-openfiles",
                 data: {

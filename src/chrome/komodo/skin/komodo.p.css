@@ -525,23 +525,13 @@ treechildren#toolbox2-hierarchy-treebody::-moz-tree-image {
 #gotoLine_description {
 }
 
-/**
- * File status icons for the editor tabs.
- */
-.file-status-icons {
-  padding-right: 2px;
+.file-status-icons-end {
+  margin: 0 0 0 2px;
 }
 
 .file-readonly-icon[file_readonly="readonly"] {
   list-style-image : url("chrome://komodo/skin/images/status_icon_readonly_16x16.png");
-}
-.file-readonly-icon[file_readonly] {
-  /* Overlap the top-right of the native file image by 4px. */
-  margin-left: -6px;
-  /* Readonly icons are only 7px wide, so move the right margin 9px across,
-     though we also need to give a little more padding (:
-      (16 - 7) */
-  margin-right: -9px;
+  margin: 7px -3px 0 2px;
 }
 
 .native_file_image[alt_image="browser"] {
