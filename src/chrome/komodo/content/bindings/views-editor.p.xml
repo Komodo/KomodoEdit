@@ -1437,9 +1437,7 @@
             // remove the filename from the invocation prefs
             if (docNew.prefs.hasPrefHere("Invocations")) {
                 var root = docNew.prefs.getPref("Invocations");
-                var ids = {};
-                root.getPrefIds(ids, {});
-                ids = ids.value;
+                var ids = root.getPrefIds();
                 for (var i=0; i < ids.length; i++) {
                     var storedPrefs = root.getPref(ids[i]);
                     if (docOld.file &&

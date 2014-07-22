@@ -193,9 +193,8 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
 
     // Fix up the stored window numbers
     var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
-    let prefIds = {};
-    windowWorkspacePref.getPrefIds(prefIds, {});
-    prefIds = prefIds.value.map(function(n) parseInt(n, 10)).sort(function(a, b) a - b);
+    let prefIds = windowWorkspacePref.getPrefIds();
+    prefIds = prefIds.map(function(n) parseInt(n, 10)).sort(function(a, b) a - b);
     if (prefIds[0] < 1) {
         // Invalid ids; shift everything over :|
         let prefs = prefIds.map(function(n) windowWorkspacePref.getPref(n));
@@ -203,8 +202,7 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
         for (let i = 1; prefs.length; ++i) {
             windowWorkspacePref.setPref(i, prefs.shift());
         }
-        windowWorkspacePref.getPrefIds(prefIds, {});
-        prefIds = prefIds.value;
+        prefIds = windowWorkspacePref.getPrefIds();
     }
     for each (let prefId in prefIds) {
         let pref = windowWorkspacePref.getPref(prefId);
@@ -233,9 +231,8 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
 
 this._getNextWorkspaceIndexToRestore = function _getNextWorkspaceIndexToRestore(currIdx) {
     var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
-    var prefIds = {};
-    windowWorkspacePref.getPrefIds(prefIds, {});
-    prefIds = prefIds.value.filter(function(i) i > currIdx);
+    var prefIds = windowWorkspacePref.getPrefIds();
+    prefIds = prefIds.filter(function(i) i > currIdx);
     prefIds.sort(function(a, b) { return a - b });
     //dump("_getNextWorkspaceIndexToRestore(" + currIdx +"): prefIds:" + prefIds + "\n");
     var lim = prefIds.length;
@@ -293,9 +290,8 @@ this.getRecentClosedWindowList = function() {
         return [];
     }
     var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
-    var prefIds = {};
-    windowWorkspacePref.getPrefIds(prefIds, {});
-    prefIds = prefIds.value.map(function(x) parseInt(x));
+    var prefIds = windowWorkspacePref.getPrefIds();
+    prefIds = prefIds.map(function(x) parseInt(x));
     var loadedWindows = ko.windowManager.getWindows();
     var loadedIDs = loadedWindows.map(function(w) parseInt(w._koNum));
     var mruList = [];
@@ -415,8 +411,6 @@ this._restoreWindowWorkspace =
 {
     try {
         var wko = currentWindow.ko;
-        var cnt = new Object();
-        var ids = new Object();
         var id, elt, pref;
         if (checkWindowBounds && workspace.hasPref('coordinates')) {
             var coordinates = workspace.getPref('coordinates');
@@ -444,9 +438,9 @@ this._restoreWindowWorkspace =
             }
         }
 
-        workspace.getPrefIds(ids, cnt);
-        for (var i = 0; i < ids.value.length; i++) {
-            id = ids.value[i];
+        var ids = workspace.getPrefIds();
+        for (var i = 0; i < ids.length; i++) {
+            id = ids[i];
             elt = currentWindow.document.getElementById(id);
             if (elt) {
                 pref = workspace.getPref(id);
@@ -663,9 +657,7 @@ this.markClosedWindows = function() {
         return;
     }
     var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
-    var prefIds = {};
-    windowWorkspacePref.getPrefIds(prefIds, {});
-    prefIds = prefIds.value;
+    var prefIds = windowWorkspacePref.getPrefIds();
     var lim = prefIds.length;
     var workspacePrefs = [];
     var pref;

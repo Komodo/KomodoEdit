@@ -33,9 +33,7 @@ TestPylintRC.prototype.setUp = function TestPylintCommon_setUp() {
     this.lintSvc = Cc["@activestate.com/koLintService;1"].getService(Ci.koILintService);
     this.koIDocument = Ci.koIDocument;
     
-    var ids = {};
-    prefs.getAllPrefIds(ids, {});
-    var pyLintNames = ids.value.
+    var pyLintNames = prefs.getAllPrefIds().
         filter(function(x) (x.indexOf("lint_python") === 0
                             && prefs.getPrefType(x) == "boolean"));
                

@@ -144,15 +144,15 @@ interface koIPreferenceSet : koIPreferenceContainer {
    * Returns the ids of all prefs stored in this preference set.
    * (This does not include inherited prefs.)
    */
-  void getPrefIds([array, size_is(count)] out wstring ids,
-                  [optional] out unsigned long count);
+  void getPrefIds([optional] out unsigned long count,
+                  [retval, array, size_is(count)] out wstring ids);
 
   /**
    * Returns the ids of all prefs stored in this preference set,
    * *including* inherited preferences (recursively).
    */
-  void getAllPrefIds([array, size_is(count)] out wstring ids,
-                     [optional] out unsigned long count);
+  void getAllPrefIds([optional] out unsigned long count,
+                     [retval, array, size_is(count)] out wstring ids);
   
   // Set a preference in the preference set. If the preference does not
   // currently exist then a new one with the given name is created. If

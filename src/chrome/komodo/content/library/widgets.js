@@ -616,9 +616,7 @@ if (typeof(ko.widgets)=='undefined') {
                 this._persist_state.panes[id] = data;
             }
             log.debug("onload: old panes = " + JSON.stringify(this._persist_state));
-            let ids = {};
-            prefs.getPrefIds(ids, {});
-            for (let id of ids.value) {
+            for (let id of prefs.getPrefIds()) {
                 log.debug("load prefs: id=" + id);
                 if (!/^uilayout_widget_position_/.test(id)) {
                     continue;

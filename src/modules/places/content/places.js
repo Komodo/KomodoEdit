@@ -2786,10 +2786,8 @@ ManagerClass.prototype = {
             return t1.length - t2.length;
         }
         var removeOldestViewTrackers = function(prefName, maxArraySize) {
-            var ids = {};
             var uriPrefs = _placePrefs.getPref(prefName);
-            uriPrefs.getPrefIds(ids, {});
-            ids = ids.value;
+            var ids = uriPrefs.getPrefIds();
             if (ids.length > maxArraySize) {
                 var nameValueTimeArray = ids.map(function(id) {
                         var pref = uriPrefs.getPref(id);
@@ -3267,9 +3265,7 @@ this.updateFilterViewMenu = function() {
             menupopup.removeChild(node);
         }
     }
-    var ids = {};
-    filterPrefs.getPrefIds(ids, {});
-    ids = ids.value;
+    var ids = filterPrefs.getPrefIds();
     var sep = document.getElementById("places_manage_view_separator");
     var menuitem;
     var addedCustomFilter = false;

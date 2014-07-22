@@ -208,8 +208,7 @@ koPrefWindow.prototype =
         this.orig_prefset.prefObserverService.addObserver(this, '' /* all prefs */, true);
 
         // debug
-        //cnt=new Object(); ids=new Object();this.prefset.getPrefIds(ids, cnt);
-        //dump("Pref IDs using are " + ids.value + "\n");
+        //dump("Pref IDs using are " + this.prefset.getPrefIds() + "\n");
     },
 
     observe: function(subject, topic, data) {
@@ -725,10 +724,9 @@ koPrefWindow.prototype =
                     if (oldPref instanceof Ci.koIPreferenceSet &&
                         newPref instanceof Ci.koIPreferenceSet)
                     {
-                        let children = {};
-                        newPref.getPrefIds(children, {});
+                        let children = newPref.getPrefIds();
                         let hasDifference = false;
-                        for (let child of children.value) {
+                        for (let child of children) {
                             if (!trimEqualPrefs(oldPref, newPref, child)) {
                                 hasDifference = true;
                             }
@@ -778,9 +776,9 @@ koPrefWindow.prototype =
                 }
                 return equals;
             }
-            this.prefset.getPrefIds(ids, {});
+            ids = this.prefset.getPrefIds();
             try {
-                for (let id of ids.value) {
+                for (let id of ids) {
                     trimEqualPrefs(this.orig_prefset, this.prefset, id);
                 }
             } catch(e) {

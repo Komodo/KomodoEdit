@@ -267,9 +267,9 @@ function prefsControl_OnLoad() {
             p = p.parent;
         }
 
-        gPrefs.getAllPrefIds(prefs, new Object());
-        for (i = 0; i < prefs.value.length; ++i) {
-            var prefName = prefs.value[i];
+        prefs = gPrefs.getAllPrefIds();
+        for (i = 0; i < prefs.length; ++i) {
+            var prefName = prefs[i];
             fetchPref(prefName, gPrefArray.length);
         }
     } else {

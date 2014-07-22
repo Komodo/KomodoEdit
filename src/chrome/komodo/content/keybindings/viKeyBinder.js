@@ -557,10 +557,7 @@ VimController.prototype._initSettings = function() {
     if (prefs.hasPref("viCustomSettings")) {
         // viCustomSettings is a preference-set
         var viPrefs = prefs.getPref("viCustomSettings");
-        var result = new Object();
-        var count = new Object();
-        viPrefs.getPrefIds(result, count);
-        var viSettingNames = result.value;
+        var viSettingNames = viPrefs.getPrefIds();
         var prefType;
         var vim_set_command;
         for (var i = 0; i < viSettingNames.length; i++) {

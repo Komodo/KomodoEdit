@@ -728,9 +728,8 @@ this.initializeGenericPrefs = function(prefset) {
     if (typeof(prefset) == "undefined" || prefset instanceof Event) {
         prefset = ko.prefs;
     }
-    var ids = {};
-    prefset.getPrefIds(ids, {});
-    var idNames = ids.value.filter(function(x) x.indexOf("genericLinter:") == 0);
+    var ids = prefset.getPrefIds();
+    var idNames = ids.filter(function(x) x.indexOf("genericLinter:") == 0);
     idNames.forEach(function(prefName) {
         var langName = prefName.substr(prefName.indexOf(":") + 1);
         if (!(prefName in global_pref_observer_topics)) {
