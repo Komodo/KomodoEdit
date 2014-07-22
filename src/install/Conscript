@@ -64,7 +64,6 @@ Import(
     "msiVccrtMsmPath",
     "msiVccrtPolicyMsmPath",
     "mozVersion",
-    "withStackato",
     "withWatchdogFSNotifications",
     "komodoTitleBarName",
     "gnomeDesktopName",
@@ -107,7 +106,6 @@ if ($buildFlavour eq "full") {
                 # (see the Construct).  This is HACK workaround until
                 # preprocess.py does better explicit marking of
                 # substitutions.
-                "PP_MSI_AVEC_STACKATO" => ($withStackato ? "yes" : "no"),
                 "PP_MSI_AVEC_WATCHDOG_FS_NOTIFICATIONS" => ($withWatchdogFSNotifications ? "yes" : "no"),
             }
         );

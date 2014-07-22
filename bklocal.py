@@ -1417,25 +1417,6 @@ class WithCrashReportSymbols(black.configure.BooleanDatum):
                 self.value = 0
         self.determined = 1
 
-class WithStackato(black.configure.BooleanDatum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "withStackato",
-            desc="build Komodo with Stackato",
-            acceptedOptions=("", ["with-stackato", "without-stackato"]))
-    def _Determine_Do(self):
-        self.applicable = 1
-        configTokens = black.configure.items["configTokens"].Get()
-        productType = black.configure.items["productType"].Get()
-        self.value = 0
-        for opt, optarg in self.chosenOptions:
-            if opt == "--with-stackato":
-                if not self.value: configTokens.append("stackato")
-                self.value = 1
-            elif opt == "--without-stackato":
-                if self.value: configTokens.append("nostackato")
-                self.value = 0
-        self.determined = 1
-
 class WithTests(black.configure.BooleanDatum):
     def __init__(self):
         black.configure.Datum.__init__(self, "withTests",

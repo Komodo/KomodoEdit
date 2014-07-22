@@ -818,7 +818,6 @@ configuration = {
     "docsPackageName": DocsPackageName(),
     "mozPatchesPackageName": MozPatchesPackageName(),
 
-    "withStackato": WithStackato(),
     "withTests": WithTests(),
     "withCasper": WithCasper(),
     "withJSLib": WithJSLib(),
@@ -2553,7 +2552,6 @@ def BuildQuickBuildDB(cfg, argv):
               extNameMappings={
                     'rails': 'railstools',
                     'spellcheck': 'komodospellchecker',
-                    'stackato': 'stackatotools',
                     })
     _addFiles(cfg, sourceSubdir='src/',
               targetSubdir=os.path.join(cfg.mozBin, 'components'),

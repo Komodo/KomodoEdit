@@ -65,7 +65,6 @@ my @toExport = (
     'withPGOCollection',
     'withDocs',
     'withKomodoCix',
-    'withStackato',
     'xulrunner', # xulrunner based builds
     'xulrunnerBuildId',
     'universal', # universal binary builds for osx
@@ -505,12 +504,6 @@ if ($buildFlavour ne "full") {
         "$build/images/gtkstock/Conscript",
     );
     }
-}
-
-if ($withStackato) {
-    Build(
-	"$build/modules/stackato/Conscript",
-    );
 }
 
 if ($platform eq "win") {
