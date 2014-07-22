@@ -1,4 +1,4 @@
-version 40
+version 41
 
 # Movement and selection
 binding cmd_left  Left
@@ -197,10 +197,11 @@ binding cmd_selectRectEnd Alt+Shift+End
 binding cmd_selectRectPageUp Alt+Shift+Page_Up
 binding cmd_selectRectPageDown Alt+Shift+Page_Down
 
-binding cmd_goToFile Ctrl+Shift+O
+binding cmd_scope-combined-toolscmds Ctrl+Shift+K
+binding cmd_scope-files Ctrl+Shift+O
+binding cmd_scope-openfiles Ctrl+<
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
-binding cmd_invokeTool Ctrl+Shift+K
 
 binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y
 binding cmd_addNextWordToCaretSet Ctrl+D

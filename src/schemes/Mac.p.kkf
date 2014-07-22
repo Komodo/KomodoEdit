@@ -1,4 +1,4 @@
-version 40
+version 41
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -164,10 +164,11 @@ binding cmd_historyForward  Meta+]
 binding cmd_endOfWord  Alt+Right
 binding cmd_wordWrap Meta+Shift+(
 
-binding cmd_goToFile Meta+Shift+O
+binding cmd_scope-combined-toolscmds Cmd+Shift+K
+binding cmd_scope-files Cmd+Shift+O
+binding cmd_scope-openfiles Cmd+<
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
-binding cmd_invokeTool Meta+Shift+K
 
 binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y
 binding cmd_addNextWordToCaretSet Ctrl+D
