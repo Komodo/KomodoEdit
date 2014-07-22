@@ -225,10 +225,11 @@ binding cmd_expandAbbrev Ctrl+T
 
 binding cmd_goToDefinition Escape .
 
-binding cmd_goToFile Ctrl+Shift+O
+binding cmd_scope-combined-toolscmds Ctrl+Shift+K
+binding cmd_scope-files Ctrl+Shift+O
+binding cmd_scope-openfiles Ctrl+<
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
-binding cmd_invokeTool Ctrl+Shift+K
 
 binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y
 binding cmd_addNextWordToCaretSet Ctrl+K Ctrl+D
