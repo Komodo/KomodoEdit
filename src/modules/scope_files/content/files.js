@@ -2,6 +2,8 @@
     const log       = require("ko/logging").getLogger("commando-scope-files");
     const commando  = require("commando/commando");
     const {Cc, Ci}  = require("chrome");
+    const system    = require("sdk/system");
+    const sep       = system.platform == "winnt" ? "\\" : "/";
 
     const scope     = Cc["@activestate.com/commando/koScopeFiles;1"].getService(Ci.koIScopeFiles);
     const partSvc   = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService);
@@ -66,17 +68,21 @@
             subscope.path = subscope.data.fullPath;
         }
         //commando.setSubscope(subscope);
+        var isAbsolute;
+        var isRelative = query.substr(0,2) == ("." + sep) || query.substr(0,3) == (".." + sep);
+        if (system.platform == "winnt")
+            isAbsolute = (!! query.match(/^[A-Z]\:/)) || query.match(/\\\\/);
+        if ( ! isAbsolute)
+            isAbsolute = query[0] == sep;
 
-        // Todo: platform specific separator
-        if (query.length && (query.substr(0,2) == "./" || query.substr(0,3) == "../" || query[0] == "/"))
+        if (isRelative || isAbsolute)
         {
-            var isAbsolute = query[0] == "/";
-            query = query.split("/");
+            query = query.split(sep);
 
             if (isAbsolute)
-                subscope.path = "/" + query.slice(0,-1).join("/");
+                subscope.path = (platform != "winnt" ? sep : "") + query.slice(0,-1).join(sep);
             else
-                subscope.path += "/" + query.slice(0,-1).join("/");
+                subscope.path += sep + query.slice(0,-1).join(sep);
                 
             query = query.slice(-1);
             opts["recursive"] = false;
