@@ -13,7 +13,6 @@ function loadIntoWindow(window) {
             name: "Files",
             icon: "chrome://icomoon/skin/icons/file5.png",
             handler: "scope-files/files",
-            keybind: system.platform == "darwin" ? "Cmd+Shift+O" : "Ctrl+Shift+O",
             keybindTransit: "cmd_goToFile"
         });
     } catch (e) {

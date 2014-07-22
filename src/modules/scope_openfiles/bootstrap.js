@@ -12,8 +12,7 @@ function loadIntoWindow(window) {
         commando.registerScope("scope-openfiles", {
             name: "Open Files",
             icon: "chrome://icomoon/skin/icons/files.png",
-            handler: "scope-openfiles/openfiles",
-            keybind: system.platform == "darwin" ? "Cmd+<" : "Ctrl+<"
+            handler: "scope-openfiles/openfiles"
         });
     } catch (e) {
         Cu.reportError("Commando: Exception while registering scope 'openfiles'");

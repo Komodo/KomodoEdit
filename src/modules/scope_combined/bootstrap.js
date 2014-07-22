@@ -14,8 +14,7 @@ function loadIntoWindow(window) {
             name: "Everything",
             weight: 100,
             icon: "chrome://icomoon/skin/icons/search3.png",
-            handler: "scope-combined/everything",
-            keybind: system.platform == "darwin" ? "Cmd+Shift+J" : "Ctrl+Shift+J"
+            handler: "scope-combined/everything"
         });
     } catch (e) {
         Cu.reportError("Commando: Exception while registering scope 'Combined - Everything'");
@@ -27,7 +26,6 @@ function loadIntoWindow(window) {
             name: "Tools &amp; Commands",
             icon: "chrome://icomoon/skin/icons/cogs.png",
             handler: "scope-combined/toolscommands",
-            keybind: system.platform == "darwin" ? "Cmd+Shift+K" : "Ctrl+Shift+K",
             keybindTransit: "cmd_invokeTool"
         });
     } catch (e) {
