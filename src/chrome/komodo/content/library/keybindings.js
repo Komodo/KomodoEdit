@@ -45,6 +45,14 @@
         }
     };
 
+    var saveKeyBindings = () =>
+    {
+        keyManager.saveCurrentConfiguration();
+        keyManager._saveKnownConfigs();
+        keyManager.loadConfiguration(keyManager.currentConfiguration, true);
+        ko.toolbox2.applyKeybindings();
+    };
+
     /**
      * Add a new keybind
      *
@@ -71,7 +79,7 @@
         keyManager.assignKey(commandName, keybind);
         keyManager.makeKeyActive(commandName, keybind);
 
-        keyManager.saveCurrentConfiguration();
+        saveKeyBindings();
     }
 
     /**
@@ -90,7 +98,7 @@
 
         keyManager.clearSequence(commandName, label);
 
-        keyManager.saveCurrentConfiguration();
+        saveKeyBindings();
     }
 
     /**
