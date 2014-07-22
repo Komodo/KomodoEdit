@@ -19,8 +19,6 @@ const [JetPack, require] = (function() {
                         .getService(Ci.nsICategoryManager);
     let requirePaths = {};
     let setRequirePaths = function() {
-        // Resolving things to ko.* via the custom resolver...
-        requirePaths["x-komodo-internal://"] = "x-komodo-internal://";
         // Komodo API fallback...
         requirePaths["ko/"] = "chrome://komodo/content/library/";
         // Komodo API fallback...
@@ -63,9 +61,8 @@ const [JetPack, require] = (function() {
     }
 
     // Note that "paths" is required; _something_ needs to name the modules
-    var loader = Loader({resolve: resolve,
-                     paths: requirePaths,
-                     globals: globals});
+    var loader = Loader({paths: requirePaths,
+                         globals: globals});
 
     const JetPack = {
         defineLazyProperty: (object, property, id) => {
