@@ -103,6 +103,7 @@ $cons->InstallInChrome('color.js');
 $cons->InstallInChrome('dom.js');
 $cons->InstallInChrome('editor.js');
 $cons->InstallInChrome('fileicons.js');
+$cons->InstallInChrome('keybindings.js');
 
 if ($buildFlavour eq "dev") {
     $cons->InstallInChrome('benchmark.js');
