@@ -13,7 +13,7 @@ function loadIntoWindow(window) {
             name: "Open Files",
             icon: "chrome://icomoon/skin/icons/files.png",
             handler: "scope-openfiles/openfiles",
-            keybind: system.platform == "darwin" ? "Cmd+Shift+K" : "Ctrl+Shift+K"
+            keybind: system.platform == "darwin" ? "Cmd+<" : "Ctrl+<"
         });
     } catch (e) {
         Cu.reportError("Commando: Exception while registering scope 'openfiles'");

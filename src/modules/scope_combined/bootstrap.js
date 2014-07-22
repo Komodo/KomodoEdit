@@ -27,7 +27,7 @@ function loadIntoWindow(window) {
             name: "Tools &amp; Commands",
             icon: "chrome://icomoon/skin/icons/cogs.png",
             handler: "scope-combined/toolscommands",
-            keybind: system.platform == "darwin" ? "Cmd+Shift+I" : "Ctrl+Shift+I",
+            keybind: system.platform == "darwin" ? "Cmd+Shift+K" : "Ctrl+Shift+K",
             keybindTransit: "cmd_invokeTool"
         });
     } catch (e) {
