@@ -80,6 +80,13 @@
                       prefstring="javascriptExtraPaths"/>
         </groupbox>
 
+        <groupbox>
+            <caption label="&useFileContentToDetermineLanguage.label;"/>
+            <checkbox id="preferJavaScriptOverNode"
+              label="&preferJavaScriptOverNode.label;"
+              pref="true" prefdefault="false" preftype="boolean" prefattribute="checked"/>
+        </groupbox>
+
     </vbox>
 
 </window>

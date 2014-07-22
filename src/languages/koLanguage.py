@@ -857,6 +857,8 @@ class KoLanguageRegistryService:
     def _distinguishJavaScriptOrNode(self, buffer):
         currentProject = components.classes["@activestate.com/koPartService;1"]\
             .getService(components.interfaces.koIPartService).currentProject
+        if currentProject.prefset.getBoolean("preferJavaScriptOverNode", False):
+            return "JavaScript"
         if currentProject:
             prefset = currentProject.prefset
             if prefset.hasPref("currentInvocationLanguage") \
