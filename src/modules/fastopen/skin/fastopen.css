@@ -1,7 +1,0 @@
-#invoketool_results treechildren::-moz-tree-image {
-    margin-right: 2px;
-}
-
-#invoketool_toolbar_options {
-    list-style-image : url("chrome://fugue/skin/icons/gear.png");
-}

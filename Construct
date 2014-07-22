@@ -421,7 +421,6 @@ Build(
     "$build/views/Conscript",
     "prebuilt/Conscript",
       
-    "$build/modules/fastopen/Conscript",
     "$build/modules/koextgen/Conscript",
     "$build/modules/places/Conscript",
     "$build/modules/breadcrumbs/Conscript",
