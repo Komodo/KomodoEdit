@@ -5,6 +5,9 @@
 if (typeof module === 'undefined') module = {}; // debugging helper
 (function(parent) {
 
+    const log = require("ko/logging").getLogger("ko-dom");
+    //log.setLevel(require("ko/logging").LOG_DEBUG);
+
     /* === MAIN CONSTRUCTION LOGIC === */
 
     /*
@@ -69,7 +72,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             else
                 var _insert = __insert ? __insert.cloneNode(true) : insert;
                 
-            if (opts.where == "prepend" && this.firstChild)
+            if (("where" in opts) && opts.where == "prepend" && this.firstChild)
                 this.insertBefore(_insert, this.firstChild);
             else if (opts.where == "after")
             {
@@ -354,6 +357,23 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
+        attr: function(key, value)
+        {
+            var attrs = {};
+            if (value)
+                attrs[key] = value;
+            else
+                attrs = key;
+
+            return this.each(function()
+            {
+                for (let k in attrs)
+                {
+                    this.setAttribute(k, attrs[k]);
+                }
+            });
+        },
+
         /**
          * Focus on element
          */
@@ -374,6 +394,14 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         children: function()
         {
             return new queryObject(this.first().childNodes);
+        },
+
+        remove: function()
+        {
+            this.each(function()
+            {
+                this.parentNode.removeChild(this);
+            });
         },
 
         // for some reason is needed to get an array-like
