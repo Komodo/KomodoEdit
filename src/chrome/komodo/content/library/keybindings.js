@@ -54,6 +54,9 @@
      */
     this.addKeybind = (commandName, keybind, force) =>
     {
+        if (commandName.indexOf("cmd") !== 0)
+            commandName = "cmd_" + commandName;
+            
         if (Object.prototype.toString.call(keybind) !== '[object Array]')
         {
             keybind = keybind.split(", ");
@@ -61,12 +64,14 @@
         
         if (this.usedBy(keybind).length)
         {
-            log.warn("keybind already in use" + (JSON.stringify(keybind)));
+            log.debug("keybind already in use" + (JSON.stringify(keybind)));
             if ( ! force) return;
         }
 
         keyManager.assignKey(commandName, keybind);
         keyManager.makeKeyActive(commandName, keybind);
+
+        keyManager.saveCurrentConfiguration();
     }
 
     /**
@@ -76,11 +81,28 @@
      */
     this.removeKeybind = (commandName) =>
     {
+        if (commandName.indexOf("cmd") !== 0)
+            commandName = "cmd_" + commandName;
+            
         var label = keyManager.command2keylabel(commandName);
 
         if ( ! label || ! label.length) return;
 
         keyManager.clearSequence(commandName, label);
+
+        keyManager.saveCurrentConfiguration();
+    }
+
+    /**
+     * Retrieve string representation of keybind for command
+     *
+     * @param {string} commandName
+     *
+     * @returns {string}
+     */
+    this.getKeybindFromCommand = (commandName) =>
+    {
+        return keyManager.command2keylabel(commandName);
     }
 
     /**
@@ -107,7 +129,7 @@
      *
      * @param {string}      commandName
      * @param {function}    command
-     * @param {object}      opts         {defaultBind: "Ctrl+U", isEnabled: fn}
+     * @param {object}      opts         {defaultBind: "Ctrl+U", isEnabled: fn, forceBind: false}
      *
      * Can throw:
      *  - keybindings.exceptionInvalidCommandName
@@ -134,8 +156,8 @@
         $("#allcommands").append(commandNode);
 
         log.debug(("defaultBind" in opts));
-        if (("defaultBind" in opts))
-            this.addKeybind(commandName, opts.defaultBind);
+        if (("defaultBind" in opts) && opts.defaultBind)
+            this.addKeybind(commandName, opts.defaultBind, opts.forceBind);
 
         local.registered[commandName] = {
             command: command,

@@ -5,12 +5,15 @@ var startupData;
 
 function loadIntoWindow(window) {
     try {
-        window.require.setRequirePath("scope-openfiles/", "chrome://scope-openfiles/content/");
-        var commando = window.require("commando/commando");
+        var require = window.require;
+        require.setRequirePath("scope-openfiles/", "chrome://scope-openfiles/content/");
+        var commando = require("commando/commando");
+        var system   = require("sdk/system");
         commando.registerScope("scope-openfiles", {
             name: "Open Files",
             icon: "chrome://icomoon/skin/icons/files.png",
-            handler: "scope-openfiles/openfiles"
+            handler: "scope-openfiles/openfiles",
+            keybind: system.platform == "darwin" ? "Cmd+Shift+K" : "Ctrl+Shift+K"
         });
     } catch (e) {
         Cu.reportError("Commando: Exception while registering scope 'openfiles'");

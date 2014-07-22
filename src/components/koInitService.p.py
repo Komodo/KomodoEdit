@@ -816,7 +816,7 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 12
+    _current_pref_version = 13
 
     def _upgradeUserPrefs(self, prefs):
         """Upgrade any specific info in the user's prefs.xml.
@@ -892,6 +892,9 @@ class KoInitService(object):
 
         if version < 11: # Komodo 9.0.0a1
             self._flattenLanguagePrefs(prefs)
+
+        if version < 13:
+            prefs.setBoolean("transit_commando_keybinds", True)
 
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)

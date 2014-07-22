@@ -5,10 +5,11 @@
     const doT       = require("contrib/dot");
     const log       = require("ko/logging").getLogger("commando");
     const uuidGen   = require("sdk/util/uuid");
+    const keybinds  = require("ko/keybindings");
 
     const commando  = this;
 
-    //log.setLevel(require("ko/logging").LOG_DEBUG);
+    log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var local = {
         scopes: {},
@@ -19,7 +20,8 @@
         resultsReceived: 0,
         resultsRendered: 0,
         searchingUuid: null,
-        prevSearchValue: null
+        prevSearchValue: null,
+        transitKeyBinds: false
     };
 
     var elems = {
@@ -45,6 +47,13 @@
         elem('search').on("keydown", onKeyNav.bind(this));
         elem('scope').on("command", onChangeScope.bind(this));
         elem('results').on("keydown", onKeyNav.bind(this));
+
+        local.transitKeyBinds = ko.prefs.getBoolean("transit_commando_keybinds", false);
+        if (local.transitKeyBinds)
+        {
+            log.debug("Transitioning keybinds");
+            ko.prefs.deletePref("transit_commando_keybinds");
+        }
     }
 
     var elem = function(name, noCache)
@@ -232,17 +241,7 @@
             return;
         }
 
-        local.selectedScope = scopeElem.element().selectedItem.id;
-
-        commando.stop();
-        commando.empty();
-        commando.setSubscope(null);
-        
-        var scopeHandler = getScopeHandler();
-        if ("onShow" in scopeHandler)
-            scopeHandler.onShow();
-
-        window.setTimeout(function() { elem('search').focus(); }, 0);
+        commando.selectScope(scopeElem.element().selectedItem, true);
     }
 
     var getScope = function()
@@ -258,9 +257,12 @@
 
     /* Public Methods */
 
-    this.showCommando = function()
+    this.showCommando = function(scope)
     {
         log.debug("Showing Commando");
+
+        if (scope)
+            commando.selectScope(scope);
 
         var panel = elem('panel');
         var search = elem('search');
@@ -329,6 +331,22 @@
 
         if ( ! scopeElem.previousSibling)
             elem('scope').element().selectedIndex = 0;
+
+        keybinds.register(id, this.showCommando.bind(this, id), {
+            defaultBind: opts.keybind,
+            label: "Commando: Open Commando with the " + opts.name + " scope"
+        });
+
+        if (local.transitKeyBinds && opts.keybindTransit)
+        {
+            log.debug("Checking keybind for " + opts.keybindTransit);
+            var keybind = keybinds.getKeybindFromCommand(opts.keybindTransit);
+            if (keybind)
+            {
+                log.debug("Binding " + keybind + " to " + id);
+                keybinds.addKeybind(id, keybind, true);
+            }
+        }
     }
 
     this.unregisterScope = function(id)
@@ -339,6 +357,37 @@
 
         $("#scope-" + id).delete();
         delete local.scopes[id];
+
+        keybinds.unRegister(id);
+    }
+
+    this.selectScope = function(scopeId, doOnShow)
+    {
+        var scopeElem = elem('scope');
+        var selectedItem = scopeElem.element().selectedItem;
+
+        if (typeof scopeId != "string")
+            var selectItem = scopeId;
+        else
+            var selectItem = scopeElem.find("#scope-" + scopeId).element();
+
+        if (selectedItem != selectItem)
+            scopeElem.element().selectedItem = selectItem;
+
+        local.selectedScope = selectItem.id;
+
+        commando.stop();
+        commando.empty();
+        commando.setSubscope(null);
+
+        if (doOnShow)
+        {
+            var scopeHandler = getScopeHandler();
+            if ("onShow" in scopeHandler)
+                scopeHandler.onShow();
+
+            window.setTimeout(function() { elem('search').focus(); }, 0);
+        }
     }
 
     this.renderResult = function(result, searchUuid)

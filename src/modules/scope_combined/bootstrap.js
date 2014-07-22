@@ -4,17 +4,34 @@ Cu.import('resource://gre/modules/Services.jsm');
 var startupData;
 
 function loadIntoWindow(window) {
+    var require = window.require;
+    require.setRequirePath("scope-combined/", "chrome://scope-combined/content/");
+    var commando = require("commando/commando");
+    var system   = require("sdk/system");
+    
     try {
-        window.require.setRequirePath("scope-combined/", "chrome://scope-combined/content/");
-        var commando = window.require("commando/commando");
         commando.registerScope("scope-combined", {
             name: "Everything",
             weight: 100,
             icon: "chrome://icomoon/skin/icons/search3.png",
-            handler: "scope-combined/everything"
+            handler: "scope-combined/everything",
+            keybind: system.platform == "darwin" ? "Cmd+Shift+J" : "Ctrl+Shift+J"
         });
     } catch (e) {
-        Cu.reportError("Commando: Exception while registering scope 'Combined'");
+        Cu.reportError("Commando: Exception while registering scope 'Combined - Everything'");
+        Cu.reportError(e);
+    }
+
+    try {
+        commando.registerScope("scope-combined-toolscmds", {
+            name: "Tools &amp; Commands",
+            icon: "chrome://icomoon/skin/icons/cogs.png",
+            handler: "scope-combined/toolscommands",
+            keybind: system.platform == "darwin" ? "Cmd+Shift+I" : "Ctrl+Shift+I",
+            keybindTransit: "cmd_invokeTool"
+        });
+    } catch (e) {
+        Cu.reportError("Commando: Exception while registering scope 'Combined - Tools & Commands'");
         Cu.reportError(e);
     }
 }
