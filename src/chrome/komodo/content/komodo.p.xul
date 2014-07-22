@@ -1008,30 +1008,8 @@
                                       observes="cmd_historyForward"
                                       />
 
-                            <menuseparator id="naviation_menupopup_separator_1"/>
 
-                            <menuitem
-                                id="menu_bufferNext"
-                                label="&nextFile.label;"
-                                accesskey="&menuBufferNext.accesskey;"
-                                class="menuitem-iconic next-buffer-icon"
-                                observes="cmd_bufferNext"
-                            />
-                            <menuitem
-                                id="menu_bufferPrevious"
-                                label="&previousFile.label;"
-                                accesskey="&menuBufferPrevious.accesskey;"
-                                class="menuitem-iconic previous-buffer-icon"
-                                observes="cmd_bufferPrevious"
-                            />
-                            <menu id="goToTab_menu"
-                                  label="&goToTab.menu.label;"
-                                  accesskey="&goToTab.menu.accesskey;">
-                                <menupopup id="goToTab_menupopup"
-                                           onpopupshowing="ko.uilayout.updateWindowList(this);" />
-                            </menu>
-
-                            <menuseparator id="naviation_menupopup_separator_2"/>
+                            <menuseparator id="naviation_menupopup_separator_editor_nav"/>
 
                             <menuitem label="&gotoLine.label;"
                                       id="menu_gotoLine"

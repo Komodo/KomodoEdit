@@ -251,7 +251,7 @@
     <menu id="navigation_menu">
      <menupopup id="naviation_menupopup">
           <menuitem id="places_trackCurrentTab"
-                    insertbefore="naviation_menupopup_separator_2"
+                    insertbefore="naviation_menupopup_separator_editor_nav"
                     oncommand="ko.places.manager.trackCurrentTab(this);"
                     label="&trackCurrentTab.label;"
                     type="checkbox" />

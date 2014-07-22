@@ -18,13 +18,32 @@
     <script src="chrome://commando/content/js/controller.js"
             type="application/x-javascript;version=1.7"/>
 
+    <menupopup id="naviation_menupopup">
+        <menuseparator id="naviation_menupopup_separator_commando" insertbefore="naviation_menupopup_separator_editor_nav"/>
+        <menuitem id="menu_show_commando"
+                  insertbefore="naviation_menupopup_separator_editor_nav"
+                  oncommand="ko.commands.doCommand('cmd_showCommando', event)"
+                  label="&showCommando.desc;"/>
+        <script id="tpl-co-scope-nav-menuitem" type="x-dot-template">
+            <menuitem id="nav-{{=it.id}}"
+                      label="{{!it.menuLabel}}"
+                      oncommand="ko.commands.doCommand('cmd_{{=it.id}}', event)"
+                      key="key_cmd_{{=it.id}}"/>
+        </script>
+    </menupopup>
+
     <popupset id="komodoMainPopupSet">
         <panel id="commando-panel" titlebar="normal" width="500">
             <vbox flex="1">
                 <hbox id="commando-search-wrapper">
                     <!-- Menuitem template -->
                     <script id="tpl-co-scope-menuitem" type="x-dot-template">
-                        <menuitem id="scope-{{=it.id}}" label="{{=it.name}}" value="{{=it.id}}" image="{{=it.icon}}" class="scope-item"/>
+                        <menuitem id="scope-{{=it.id}}"
+                                  label="{{!it.name}}"
+                                  value="{{=it.id}}"
+                                  image="{{=it.icon}}"
+                                  class="scope-item"
+                                  key="key_cmd_{{=it.id}}"/>
                     </script>
 
                     <menulist id="commando-scope" sizetopopup="none">

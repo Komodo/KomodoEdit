@@ -32,8 +32,10 @@
         search: function() { return $("#commando-search"); },
         scopePopup: function() { return $("commando-scope-menupopup"); },
         scopesSeparator: function() { return $("#scope-separator"); },
+        menuItem: function() { return $("#menu_show_commando"); },
         template: {
             scopeMenuItem: function() { return $("#tpl-co-scope-menuitem"); },
+            scopeNavMenuItem: function() { return $("#tpl-co-scope-nav-menuitem"); },
             resultItem: function() { return $("#tpl-co-result"); }
         }
     };
@@ -313,25 +315,7 @@
         var scopeElem = $(template('scopeMenuItem', opts)).element();
         scopeElem._scope = local.scopes[id];
 
-        var sepElem = elem('scopesSeparator').element();
-        sepElem.parentNode.insertBefore(scopeElem, sepElem);
-
-        while (scopeElem.previousSibling)
-        {
-            var prevElem = scopeElem.previousSibling;
-            var weighsMore = ("weight" in opts) &&
-                             ( ! ("weight" in prevElem._scope) || opts.weight > prevElem._scope.weight);
-            var comesFirst = prevElem._scope.name.localeCompare(opts.name) > 0;
-
-            if (weighsMore || (comesFirst && ! prevElem._scope.weight))
-                scopeElem.parentNode.insertBefore(scopeElem, prevElem);
-            else
-                break;
-        }
-
-        if ( ! scopeElem.previousSibling)
-            elem('scope').element().selectedIndex = 0;
-
+        // Register command
         keybinds.register(id, this.showCommando.bind(this, id), {
             defaultBind: opts.keybind,
             label: "Commando: Open Commando with the " + opts.name + " scope"
@@ -345,6 +329,44 @@
             {
                 log.debug("Binding " + keybind + " to " + id);
                 keybinds.addKeybind(id, keybind, true);
+            }
+        }
+
+        opts.accelText = keybinds.getKeybindFromCommand("cmd_" + id) || "";
+
+        // Insert Scope Selection
+        var sepElem = elem('scopesSeparator').element();
+        sepElem.parentNode.insertBefore(scopeElem, sepElem);
+
+        // Sort Scope Selection
+        while (scopeElem.previousSibling)
+        {
+            var prevElem = scopeElem.previousSibling;
+            var weighsMore = ("weight" in opts) &&
+                             ( ! ("weight" in prevElem._scope) || opts.weight > prevElem._scope.weight);
+            var comesFirst = prevElem._scope.name.localeCompare(opts.name) > 0;
+
+            if (weighsMore || (comesFirst && ! prevElem._scope.weight))
+                scopeElem.parentNode.insertBefore(scopeElem, prevElem);
+            else
+                break;
+        }
+
+        // Set Default Scope Selection
+        if ( ! scopeElem.previousSibling)
+            elem('scope').element().selectedIndex = 0;
+
+        // Inset Menuitem
+        opts.menuLabel = "Go to " + opts.name;
+        var menuitem = $(template('scopeNavMenuItem', opts)).element();
+        var sibling = elem('menuItem').element();
+        while (sibling.nextSibling)
+        {
+            sibling = sibling.nextSibling;
+            if (sibling.nodeName == "menuseparator" || sibling.getAttribute("label").localeCompare(opts.menuLabel)>0)
+            {
+                $(sibling).before(menuitem);
+                break;
             }
         }
     }
@@ -440,7 +462,7 @@
         for (let result of results)
         {
             result.subscope = local.subscope;
-            resultEntry = $.createElement(template('resultItem', result));
+            var resultEntry = $.createElement(template('resultItem', result));
             resultEntry.resultData = result;
             resultElem.element().appendChild(resultEntry);
             this.sortResult(resultEntry);
