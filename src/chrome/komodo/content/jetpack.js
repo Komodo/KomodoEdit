@@ -47,31 +47,6 @@ const [JetPack, require] = (function() {
     AddonManager.addInstallListener({onInstallEnded: setRequirePaths});
     // TODO: May need to reset "loader.modules" when the add-on is loaded?
 
-    var loader;
-    let my_resolve = function (id, requirer) {
-        if (id.startsWith("ko/") && !(id in loader.modules)) {
-            // Try to grab it off the global |ko| object...
-            let parts = id.split("/").slice(1);
-            let obj = ko;
-            while (obj && parts.length > 0) {
-                obj = obj[parts.shift()];
-            }
-            if (obj) {
-                // Got it off a global; map it to a fake URI
-                let url = "x-komodo-internal://" + id;
-                let resolvedURI = resolveURI(url, loader.mapping);
-                if (!(resolvedURI in loader.modules)) {
-                    // Module hasn't been loaded yet, give a reference to it
-                    loader.modules[resolvedURI] =
-                        {exports: Cu.getGlobalForObject(obj).Object.freeze(obj)};
-                }
-                return url;
-            }
-        }
-        // Can't resolve it to a global, try the normal path
-        return resolve(id, requirer);
-    };
-
     var globals = { ko: ko };
     if (String(this).contains("Window")) {
         // Have a window scope available
@@ -88,7 +63,7 @@ const [JetPack, require] = (function() {
     }
 
     // Note that "paths" is required; _something_ needs to name the modules
-    loader = Loader({resolve: my_resolve,
+    var loader = Loader({resolve: resolve,
                      paths: requirePaths,
                      globals: globals});
 
