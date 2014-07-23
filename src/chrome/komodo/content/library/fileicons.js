@@ -16,7 +16,7 @@
     const ioFile        = require("sdk/io/file");
     const randomColor   = require("contrib/randomColor");
     const log           = require("ko/logging").getLogger("ko-fileicons");
-    log.setLevel(require("ko/logging").LOG_DEBUG);
+    //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var init = () =>
     {
@@ -210,10 +210,10 @@
             data = data.replace(/{{size}}/g, info.size);
 
             var fontScaleFactor = 45;
-            if (info.ext.length == 3) fontScaleFactor = 35;
+            if (info.ext.length == 3) fontScaleFactor = 40;
             if (info.ext.length == 4) fontScaleFactor = 30;
-            var fontSize = Math.ceil((info.size / 100) * fontScaleFactor);
-            data = data.replace(/{{font-size}}/g, fontSize == 6 ? 5 : fontSize); // 6px renders oddly
+            var fontSize = Number((info.size / 100) * fontScaleFactor).toFixed(1);
+            data = data.replace(/{{font-size}}/g, fontSize);
 
             var textStream = ioFile.open(file.path, "w");
             textStream.write(data);
