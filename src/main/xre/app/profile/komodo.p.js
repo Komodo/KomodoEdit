@@ -188,3 +188,8 @@ pref("mousewheel.enable_pixel_scrolling", false);
 
 // Disable unresponsive script checking - bug 91614.
 pref("dom.max_chrome_script_run_time", 0);
+
+#ifdef MOZ_WIDGET_GTK
+// On GTK, we now default to showing the menubar only when alt is pressed:
+pref("ui.key.menuAccessKeyFocuses", true);
+#endif

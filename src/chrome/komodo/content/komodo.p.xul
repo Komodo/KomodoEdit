@@ -490,6 +490,8 @@
              mode="icons"
              class="chromeclass-toolbar toolbox-top">
         <toolbar id="toolbar-menubar"
+                 type="menubar"
+                 autohide="true"
                  fullscreentoolbar="true"
                  customizable="false">
             <toolbaritem id="menubar-items"
