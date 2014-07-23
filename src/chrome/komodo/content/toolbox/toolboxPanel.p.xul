@@ -99,35 +99,35 @@
                               label="&newMacro.label;"
                               class="menuitem-iconic"
                               accesskey="&folderContextNewMacro.accesskey;"
-                              image="chrome://komodo/skin/images/macro.png"
+                              image="chrome://komodo/skin/images/toolbox/macro.svg"
                               oncommand="ko.toolbox2.addToolboxItem('macro')"
                               />
                     <menuitem id="tb2_addContext_newSnippet"
                               label="&newSnippet.label;"
                               class="menuitem-iconic"
                               accesskey="&folderContextNewSnippet.accesskey;"
-                              image="chrome://komodo/skin/images/cut.png"
+                              image="chrome://komodo/skin/images/toolbox/snippet.svg"
                               oncommand="ko.toolbox2.addToolboxItem('snippet')"
                               />
                     <menuitem id="tb2_addContext_newCommand"
                               label="&newCommand.label;"
                               class="menuitem-iconic"
                               accesskey="&folderContextNewCommand.accesskey;"
-                              image="chrome://fugue/skin/icons/application-terminal.png"
+                              image="chrome://komodo/skin/images/toolbox/command.svg"
                               oncommand="ko.toolbox2.addToolboxItem('command')"
                               />
                     <menuitem id="tb2_addContext_newURL"
                               label="&newURL.label;"
                               class="menuitem-iconic"
                               accesskey="&folderContextNewURL.accesskey;"
-                              image="chrome://fugue/skin/icons/globe.png"
+                              image="chrome://komodo/skin/images/toolbox/browser.svg"
                               oncommand="ko.toolbox2.addToolboxItem('URL')"
                               />
                     <menuitem id="tb2_addContext_newTemplate"
                               label="&newTemplate.label;"
                               class="menuitem-iconic"
                               accesskey="&folderContextNewTemplate.accesskey;"
-                              image="chrome://komodo/skin/images/newTemplate.png"
+                              image="chrome://komodo/skin/images/toolbox/template.svg"
                               oncommand="ko.toolbox2.addToolboxItem('template')"
                               />
                     <menuseparator anonid="addItemSeparator" />
@@ -135,7 +135,13 @@
                               label="&newFolder.label;"
                               accesskey="&folderContextNewFolder.accesskey;"
                               class="menuitem-iconic"
-                              image="chrome://komodo/skin/images/new_folder.png"
+<!-- #if PLATFORM == "darwin" -->
+                                image="chrome://global/skin/dirListing/folder.png"
+<!-- #elif PLATFORM == "win" -->
+                                image="chrome://komodo/skin/images/folder-closed.png"
+<!-- #else -->
+                                image="moz-icon://stock/gtk-directory?size=16"
+<!-- #endif -->
                               oncommand="ko.toolbox2.addToolboxItem('folder')"
                               disableIfInMenu="toolbar menu"
                               />
@@ -145,7 +151,7 @@
                               label="&newCustomMenu.label;"
                               class="menuitem-iconic"
                               accesskey="&folderContextNewMenu.accesskey;"
-                              image="chrome://komodo/skin/images/menu_icon.png"
+                              image="chrome://komodo/skin/images/toolbox/menu.svg"
                               oncommand="ko.toolbox2.addToolboxItem('menu')"
                               disableIfInMenu="toolbar menu"
                               />
@@ -154,7 +160,7 @@
                               label="&newCustomToolbar.label;"
                               class="menuitem-iconic"
                               accesskey="&folderContextNewToolbar.accesskey;"
-                              image="chrome://komodo/skin/images/toolbar_icon.png"
+                              image="chrome://komodo/skin/images/toolbox/toolbar.svg"
                               oncommand="ko.toolbox2.addToolboxItem('toolbar')"
                               disableIfInMenu="toolbar menu"
                               />

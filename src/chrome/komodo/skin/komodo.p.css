@@ -509,7 +509,7 @@ tab > .tab-text {
 
 /* toolbox2 styles */
 treechildren#toolbox2-hierarchy-treebody::-moz-tree-image {
-    padding-right: 2px;
+    padding-right: 4px;
 }
 
 /**

@@ -95,7 +95,7 @@
                     <hbox style="width: 22px;">
                         <vbox>
                             <spring flex="1"/>
-                            <image src="chrome://komodo/skin/images/snippet.png"
+                            <image src="chrome://komodo/skin/images/toolbox/snippet.svg"
                                    style="max-width: 22px; max-height:16px"
                                    id="snippettab_icon"/>
                             <spring flex="1"/>
@@ -218,7 +218,7 @@
                     <hbox style="width: 22px;">
                         <vbox>
                             <spring flex="1"/>
-                            <image src="chrome://komodo/skin/images/snippet.png"
+                            <image src="chrome://komodo/skin/images/toolbox/snippet.svg"
                                    style="max-width: 22px; max-height:16px"
                                    id="keybindingtab_icon"/>
                             <spring flex="1"/>

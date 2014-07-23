@@ -197,3 +197,8 @@ $cons->InstallRecursive("$mozChromeDir/komodo/skin/images/languages",
                         cwd()."/src/chrome/komodo/skin/images/languages",
                         ('\.svn'));
 
+$cons->InstallRecursive("$mozChromeDir/komodo/skin/images/toolbox",
+                        cwd()."/src/chrome/komodo/skin/images/toolbox",
+                        ('\.svn'));
+
+
