@@ -77,12 +77,12 @@ koSciMozWrapper.prototype.__defineGetter__("text", function get_text() {
 const kDefaultDPI = Services.appinfo.OS == "Darwin" ? 72 : 96;
 
 koSciMozWrapper.prototype.positionFromPoint = function(x, y) {
-    return this.__scimoz.positionFromPoint(x * this.logPixelsX / kDefaultDPI,
-                                           y * this.logPixelsY / kDefaultDPI);
+    return this.__scimoz.positionFromPoint(parseInt(x * this.logPixelsX / kDefaultDPI),
+                                           parseInt(y * this.logPixelsY / kDefaultDPI));
 };
 koSciMozWrapper.prototype.positionFromPointClose = function(x, y) {
-    return this.__scimoz.positionFromPointClose(x * this.logPixelsX / kDefaultDPI,
-                                                y * this.logPixelsY / kDefaultDPI);
+    return this.__scimoz.positionFromPointClose(parseInt(x * this.logPixelsX / kDefaultDPI),
+                                                parseInt(y * this.logPixelsY / kDefaultDPI));
 };
 koSciMozWrapper.prototype.pointXFromPosition = function(pos) {
     return this.__scimoz.pointXFromPosition(pos) * kDefaultDPI / this.logPixelsX;
@@ -91,12 +91,12 @@ koSciMozWrapper.prototype.pointYFromPosition = function(pos) {
     return this.__scimoz.pointYFromPosition(pos) * kDefaultDPI / this.logPixelsY;
 };
 koSciMozWrapper.prototype.charPositionFromPoint = function(x, y) {
-    return this.__scimoz.charPositionFromPoint(x * this.logPixelsX / kDefaultDPI,
-                                               y * this.logPixelsY / kDefaultDPI);
+    return this.__scimoz.charPositionFromPoint(parseInt(x * this.logPixelsX / kDefaultDPI),
+                                               parseInt(y * this.logPixelsY / kDefaultDPI));
 };
 koSciMozWrapper.prototype.charPositionFromPointClose = function(x, y) {
-    return this.__scimoz.charPositionFromPointClose(x * this.logPixelsX / kDefaultDPI,
-                                                    y * this.logPixelsY / kDefaultDPI);
+    return this.__scimoz.charPositionFromPointClose(parseInt(x * this.logPixelsX / kDefaultDPI),
+                                                    parseInt(y * this.logPixelsY / kDefaultDPI));
 };
 koSciMozWrapper.prototype.textHeight = function(line) {
     return this.__scimoz.textHeight(line) * kDefaultDPI / this.logPixelsY;

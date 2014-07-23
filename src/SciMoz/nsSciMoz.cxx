@@ -539,14 +539,28 @@ void SciMoz::Notify(long lParam) {
 			}
 			break;
 		case SCN_DWELLSTART:
-			mask = ISciMozEvents::SME_DWELLSTART;
-			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnDwellStart(notification->position, notification->x, notification->y);
-			break;
 		case SCN_DWELLEND:
-			mask = ISciMozEvents::SME_DWELLEND;
-			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnDwellEnd(notification->position, notification->x, notification->y);
+		    {
+				// Convert into Mozilla pixel co-ordinates - bug 100492.
+#ifdef XP_MACOSX
+				const int kDefaultDPI = 72;
+#else
+				const int kDefaultDPI = 96;
+#endif
+				int logPixelsX = SendEditor(SCI_GETLOGPIXELSX, 0, 0);
+				int logPixelsY = SendEditor(SCI_GETLOGPIXELSY, 0, 0);
+				int dwell_x = (notification->x * kDefaultDPI) / logPixelsX;
+				int dwell_y = (notification->y * kDefaultDPI) / logPixelsY;
+				if (notification->nmhdr.code == SCN_DWELLSTART) {
+					mask = ISciMozEvents::SME_DWELLSTART;
+					while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+						eventSink->OnDwellStart(notification->position, dwell_x, dwell_y);
+				} else {
+					mask = ISciMozEvents::SME_DWELLEND;
+					while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+						eventSink->OnDwellEnd(notification->position, dwell_x, dwell_y);
+				}
+		    }
 			break;
 		case SCN_ZOOM:
 			mask = ISciMozEvents::SME_ZOOM;
