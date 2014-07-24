@@ -53,6 +53,8 @@ import which
 
 import koXMLTreeService
 
+from zope.cachedescriptors.property import LazyClassAttribute
+
 log = logging.getLogger('koLanguage')
 #log.setLevel(logging.DEBUG)
 
@@ -139,6 +141,19 @@ class KoLanguageRegistryService:
     # - All we need to note here are exceptions in the naming scheme,
     #   like "mode: C" which corresponds to Komodo's C++ language.
     _modeName2LanguageName = {}
+
+    # Cached services - saved on the class.
+    _globalPrefSvc = None
+    _globalPrefs = None
+
+    # Lazily loaded class variables.
+    @LazyClassAttribute
+    def _globalPrefSvc(self):
+        return components.classes["@activestate.com/koPrefService;1"].\
+                    getService(components.interfaces.koIPrefService)
+    @LazyClassAttribute
+    def _globalPrefs(self):
+        return self._globalPrefSvc.prefs
     
     def __init__(self):
         self.__initPrefs()
@@ -857,13 +872,16 @@ class KoLanguageRegistryService:
     def _distinguishJavaScriptOrNode(self, buffer):
         currentProject = components.classes["@activestate.com/koPartService;1"]\
             .getService(components.interfaces.koIPartService).currentProject
-        if currentProject.prefset.getBoolean("preferJavaScriptOverNode", False):
-            return "JavaScript"
         if currentProject:
+            if currentProject.prefset.getBoolean("preferJavaScriptOverNode", False):
+                return "JavaScript"
+
             prefset = currentProject.prefset
             if prefset.hasPref("currentInvocationLanguage") \
                and prefset.getStringPref("currentInvocationLanguage") == "Node.js":
                 return "Node.js"
+        elif self._globalPrefs.getBoolean("preferJavaScriptOverNode", False):
+            return "JavaScript"
         if not buffer:
             return "JavaScript"
         nodeJSAppInfo = components.classes["@activestate.com/koAppInfoEx?app=NodeJS;1"].\
