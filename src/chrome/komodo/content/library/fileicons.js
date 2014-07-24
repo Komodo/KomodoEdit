@@ -18,6 +18,8 @@
     const log           = require("ko/logging").getLogger("ko-fileicons");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
+    var fileicons       = this;
+
     var init = () =>
     {
         prefs.prefObserverService.addObserver(onPrefChanged, "fileicons_presets", false);
@@ -26,8 +28,8 @@
     }
 
     var onPrefChanged = { observe: (subject, topic, data) => {
-        delete getIconForUri.cached;
-        
+        delete fileicons.cached;
+
         switch (topic) {
             case 'fileicons_presets':
                 delete getPreset.cached;
