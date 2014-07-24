@@ -157,9 +157,6 @@ this.setToolbarsVisibility = function uilayout_setToolbarsVisibility(toolbarsSho
     else
     {
 	toolboxrow.setAttribute('collapsed', 'true');
-// #if PLATFORM != "darwin"
-	this.setMenubarVisibility(true);
-// #endif
     }
 
     document.persist('cmd_toggleToolbars', 'checked');
@@ -192,82 +189,63 @@ this.toggleButtons = function uilayout_toggleButtons()
 }
 
 // #if PLATFORM != "darwin"
-this.toggleMenubar = function uilayout_toggleMenubar() {
-    var menubarShowing;
-    var broadcaster = document.getElementById('cmd_toggleMenubar');
-    if (broadcaster.hasAttribute('checked') && broadcaster.getAttribute('checked') == 'true') {
-        menubarShowing = false;
-    } else {
-        menubarShowing = true;
-    }
+var g_initialized_button_menu = false;
 
-    ko.uilayout.setMenubarVisibility(menubarShowing);
+this.toggleMenubar = function uilayout_toggleMenubar() {
+    var broadcaster = document.getElementById('cmd_toggleMenubar');
+    broadcaster.setAttribute('checked', !(broadcaster.getAttribute('checked') == 'true'));
+    ko.uilayout.setMenubarVisibility();
 }
 
+/**
+ * Update the top-level menu visibility.
+ *
+ * Note that even when the menubar is hidden, it can still be made visible using
+ * the Alt key.
+ * 
+ * @param menubarShowing {Boolean}  Whether the menu is always showing.
+ */
 this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowing) {
-    var broadcaster = document.getElementById('cmd_toggleMenubar');
+    dump('setMenubarVisibility:: menubarShowing: ' + menubarShowing + '\n');
+    var menuButton  = document.getElementById('unifiedMenuButton');
+    var menuToolbar = document.getElementById('toolbar-menubar');
 
     if (menubarShowing === undefined) {
-        menubarShowing = true;
-        if ( ! broadcaster.hasAttribute('checked') || broadcaster.getAttribute('checked') == 'false')
-        {
-            menubarShowing = false;
-        }
-    }
-    else
-    {
-        broadcaster.setAttribute("checked", menubarShowing);
-        document.persist('cmd_toggleToolbars', 'checked');
+        // Check the broadcaster to find out if it should be showing.
+        var broadcaster = document.getElementById('cmd_toggleMenubar');
+        menubarShowing = (broadcaster.getAttribute('checked') == 'true');
+        dump('setMenubarVisibility:: menubarShowing found as: ' + menubarShowing + '\n');
     }
 
-    var menuWrap      = document.getElementById('toolbar-menubar');
-    var menubar       = document.getElementById('menubar_main');
-    var popupFile     = document.getElementById('popup_file');
-    var menuButton    = document.getElementById('unifiedMenuButton');
-    var panePrimary   = document.getElementById('unifiedMenuPrimaryPane');
-    var paneSecondary = document.getElementById('unifiedMenuSecondaryPane');
-    var menuSeparator = document.getElementById('unifiedMenuMruSeparator');
-
-    if (menubarShowing && menuWrap.collapsed) {
-        var length = panePrimary.childNodes.length;
-        for (let x=0;x<length;x++) {
-            popupFile.appendChild(panePrimary.childNodes[0]);
-        }
-
-        var length = paneSecondary.childNodes.length;
-        for (let x=0;x<length;x++) {
-            if (paneSecondary.childNodes[0] == menuSeparator && ! menuSeparator.collapsed)
-            break;
-
-            menubar.appendChild(paneSecondary.childNodes[0]);
-        }
-
-        while (menuSeparator.nextSibling) {
-            let item = menuSeparator.nextSibling;
-            item.parentNode.removeChild(item);
-        }
-
+    menuToolbar.setAttribute("autohide", !(menubarShowing));
+    if (menubarShowing) {
+        // Hide the menu button - as the menu is always showing.
         menuButton.collapsed = true;
-        menuWrap.collapsed = false;
-    } else if ( ! menubarShowing && menuButton.collapsed) {
-        var length = popupFile.childNodes.length;
-        for (let x=0;x<length;x++) {
-            panePrimary.appendChild(popupFile.childNodes[0]);
+    } else {
+        if (!g_initialized_button_menu) {
+            // Copy the top-level menus into the button menus.
+            g_initialized_button_menu = true;
+
+            var menubar       = document.getElementById('menubar_main');
+            var popupFile     = document.getElementById('popup_file');
+            var panePrimary   = document.getElementById('unifiedMenuPrimaryPane');
+            var paneSecondary = document.getElementById('unifiedMenuSecondaryPane');
+    
+            var length = popupFile.childNodes.length;
+            for (let x=0;x<length;x++) {
+                panePrimary.appendChild(popupFile.childNodes[x].cloneNode(true));
+            }
+    
+            var length = menubar.childNodes.length;
+            for (let x=1;x<length;x++) {
+                paneSecondary.appendChild(menubar.childNodes[x].cloneNode(true));
+            }
+
+            // TODO: Re-initialize all cloned id's ??
         }
 
-        var length = menubar.childNodes.length;
-        for (let x=1;x<length;x++) {
-            paneSecondary.appendChild(menubar.childNodes[1]);
-        }
         menuButton.collapsed = false;
-        menuWrap.collapsed = true;
-
         UpdateUnifiedMenuMru();
-    }
-
-    if ( ! menubarShowing)
-    {
-        this.setToolbarsVisibility(true);
     }
 };
 // #endif

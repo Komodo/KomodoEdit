@@ -1103,9 +1103,7 @@
 <!-- #if PLATFORM != "darwin" -->
                                     <menuitem label="&showMenubar.label;"
                                               id="menu_toggleMenubar"
-                                              observes="cmd_toggleMenubar"
-                                              checked="true"
-                                              persist="checked"
+                                              command="cmd_toggleMenubar"
                                               type="checkbox"
                                               />
 <!-- #endif -->
