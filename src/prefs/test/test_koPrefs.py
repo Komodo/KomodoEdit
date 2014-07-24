@@ -4,17 +4,19 @@
 """
 Tests for the preferences service
 """
+import logging
+import os
+import tempfile
+import unittest
+from xml.etree import ElementTree as ET
+
 from xpcom import COMException
 from xpcom.components import classes as Cc, interfaces as Ci
 from xpcom import nsError as Cr
 from xpcom.client import Component
 from xpcom.server import UnwrapObject
 
-import logging
-import os
-import tempfile
-import unittest
-from xml.etree import ElementTree as ET
+from testlib import tag
 
 log = logging.getLogger("test.koprefs")
 
@@ -220,10 +222,11 @@ class PrefSetTestCase(unittest.TestCase):
         base = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
         root = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
         ordered = Cc["@activestate.com/koOrderedPreference;1"].createInstance()
+        ordered.id = "test_ordered_inheritance"
+        ordered.appendLong(1)
+        base.setPref("ordered", ordered)
         root.inheritFrom = base
 
-        base.setPref("ordered", ordered)
-        ordered.appendLong(1)
         root.getPref("ordered").QueryInterface(Ci.koIOrderedPreference)
         self.assertEquals(base.getPref("ordered").getLong(0), 1)
         self.assertEquals(root.getPref("ordered").getLong(0), 1)
@@ -254,6 +257,20 @@ class PrefSetTestCase(unittest.TestCase):
         root.getPref("ordered").reset()
         self.assertTrue(root.hasPrefHere("ordered"))
         self.assertEquals(root.getPref("ordered").length, 0)
+
+    @tag("bug104645")
+    def test_ordered_inheritance_shadowing(self):
+        base = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
+        root = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
+        ordered = Cc["@activestate.com/koOrderedPreference;1"].createInstance()
+        ordered.id = "test_ordered_inheritance_shadowing"
+        ordered.appendLong(1)
+        base.setPref("ordered", ordered)
+        root.inheritFrom = base
+
+        o = root.getPref("test_ordered_inheritance_shadowing")
+        self.failIf(root.hasPrefHere("test_ordered_inheritance_shadowing"),
+                    "Root gained an ordered preference after getting from global")
 
 class PrefSerializeTestCase(unittest.TestCase):
     def assertXMLEqual(self, first, second, msg=None, ignore_white_space=True):
