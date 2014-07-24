@@ -15,7 +15,7 @@
         width: {{size}}px;
         height: {{size}}px;
         line-height: {{size}}px;
-        font-size: {{font-size}}px;
+        font-size: {{font-size}}ch;
     }
   </style>
 </defs>

@@ -238,10 +238,7 @@
             data = data.replace(/{{color}}/g, info.color);
             data = data.replace(/{{size}}/g, info.size);
 
-            var fontScaleFactor = 45;
-            if (info.ext.length == 3) fontScaleFactor = 40;
-            if (info.ext.length == 4) fontScaleFactor = 30;
-            var fontSize = Number((info.size / 100) * fontScaleFactor).toFixed(1);
+            var fontSize = (info.size / 100) * (8 - (info.ext.length || 1));
             data = data.replace(/{{font-size}}/g, fontSize);
 
             var textStream = ioFile.open(svg.path, "w");
