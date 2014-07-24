@@ -68,11 +68,11 @@
             var _prefs = prefs.getPref('fileicons_ext_mapping');
             for (let x=0;x<_prefs.length;x++)
             {
-                let [name, exts] = _prefs.getString(x).split(":");
+                let [name, color, exts] = _prefs.getString(x).split(":");
                 exts = exts.split(",");
 
                 for (let _ext in exts)
-                    getExtMapping.cached[exts[_ext]] = name;
+                    getExtMapping.cached[exts[_ext]] = {ext: name, color: color};
             }
         }
 
@@ -99,30 +99,38 @@
             pattern: /ko-language\/([a-z0-9+#\-_\. ]*)\??(?:size=(\d*)|$)/i,
             parseMatch: function(uri, match, info)
             {
+                log.debug("Parsing ko-language uri");
+
                 info.language = match[1];
                 if (match.length == 3 && match[2]) info.size = match[2];
 
                 var preset = getPreset(info.language);
                 if (preset)
                 {
+                    log.debug("Matched Preset: " + info.language);
                     info.ext = preset.ext;
                     info.color = preset.color;
                 }
                 else // Get file extension from file associations
                 {
+                    log.debug("Matching using file association");
+
                     var langPatterns = {};
                     langSvc.patternsFromLanguageName(info.language, langPatterns, {});
                     if (langPatterns && langPatterns.value && langPatterns.value.length)
                     {
+                        log.debug("Using file association for ext");
                         info.ext = langPatterns.value[0].replace(/^\*\./, '')
                                                         .split('.').pop()
                                                         .substr(0,4).toUpperCase();
                     }
                     else
                     {
+                        log.debug("Using language name for ext");
                         info.ext = info.language.substr(0,4).toUpperCase();
                     }
 
+                    log.debug("Generating color based on language");
                     info.color = randomColor({luminosity: 'dark'},info.language);
                 }
 
@@ -134,33 +142,45 @@
             pattern: /(.*\.([a-z0-9]*)).*?(?:size=(\d*)|$)/i,
             parseMatch: function(uri, match, info)
             {
+                log.debug("Parsing default uri");
+
                 var ext = match[2];
                 info.ext = match[2].substr(0,4).toUpperCase();
                 var lang = langSvc.suggestLanguageForFile(match[1]);
                 if (lang)
                 {
+                    log.debug("Found related language: " + lang);
+
                     info.language = lang;
                     if (match.length == 4) info.size = match[3];
 
                     var preset = getPreset(info.language);
                     if (preset)
                     {
+                        log.debug("Using preset for color and ext");
                         info.color = preset.color;
                         info.ext = preset.ext;
                     }
                     else
+                    {
+                        log.debug("Generating color based on language");
                         info.color = randomColor({luminosity: 'dark'},info.language);
+                    }
                 }
                 else
                 {
+                    log.debug("Could not find related language");
+
                     var extMapping = getExtMapping(ext);
                     if (extMapping)
                     {
-                        info.ext = extMapping.toUpperCase();
-                        info.color = randomColor({luminosity: 'dark'},info.ext);
+                        log.debug("Setting ext and color using ext mapping");
+                        info.ext = extMapping.ext.toUpperCase();
+                        info.color = extMapping.color;
                     }
                     else if (isColorWhitelisted(ext))
                     {
+                        log.debug("Ext is color whitelisted, generating color based on ext");
                         info.color = randomColor({luminosity: 'dark'},info.ext);
                     }
                 }
@@ -194,14 +214,21 @@
         if ( ! ("cached" in this.getIconForUri))
             this.getIconForUri.cached = {};
 
+        log.debug("Retrieving icon for " + uri);
+
         if (uri in this.getIconForUri.cached)
             return this.getIconForUri.cached[uri];
 
         var info = parseFileInfo(uri);
+        var filename = (info.language + info.ext + info.size).replace(/\W/g, '');
+        info.size = Math.round(info.size * window.devicePixelRatio);
 
-        var file = FileUtils.getFile("ProfD", ["fileicons", info.language + info.ext + info.size + ".svg"], true);
+        var file = FileUtils.getFile("ProfD", ["fileicons", filename + ".png"], true);
         if ( ! file.exists())
         {
+            log.debug("Creating file: " + file.path);
+            var svg = FileUtils.getFile("ProfD", ["fileicons", filename + ".svg"], true);
+            
             // Read template file
             var template = FileUtils.getFile("AChrom", ["icons","default","fileicons", "template.svg"], true);
 
@@ -217,10 +244,38 @@
             var fontSize = Number((info.size / 100) * fontScaleFactor).toFixed(1);
             data = data.replace(/{{font-size}}/g, fontSize);
 
-            var textStream = ioFile.open(file.path, "w");
+            var textStream = ioFile.open(svg.path, "w");
             textStream.write(data);
             textStream.close();
+
+            //var canvas = document.createElement('canvas');
+            var canvas = document.getElementById('canvas-proxy').cloneNode();
+            canvas.setAttribute("width", info.size);
+            canvas.setAttribute("height", info.size);
+            var ctx = canvas.getContext('2d');
+
+            var img = new window.Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+                var dataURL = canvas.toDataURL("image/png");
+                var data = window.atob( dataURL.substring( "data:image/png;base64,".length ) );
+                var byteStream = ioFile.open(file.path, "wb");
+                byteStream.write(data);
+                byteStream.close();
+
+                fileicons.getIconForUri.cached[uri] = ioService.newFileURI(file).spec;
+
+                if (svg.exists())
+                    ioFile.remove(svg.path);
+            }
+            img.src = "file://" + svg.path;
+
+            log.debug("Returning SVG:" + svg.path);
+
+            return svg;
         }
+
+        log.debug("Returning PNG: " + file.path);
 
         this.getIconForUri.cached[uri] = ioService.newFileURI(file).spec;
 

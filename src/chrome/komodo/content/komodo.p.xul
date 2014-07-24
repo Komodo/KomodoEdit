@@ -2265,6 +2265,7 @@
                id="statusbarviewbox"
                class="chromeclass-status"
                style="min-height: 1.5em;">
+        <html:canvas id="canvas-proxy" style="display: none"/>
         <statusbarpanel id="statusbar-notifications-button"
                         class="statusbarpanel-iconic"
                         oncommand="ko.uilayout.ensureTabShown('notifications-widget');"/>
