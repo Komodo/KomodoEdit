@@ -258,20 +258,6 @@ class PrefSetTestCase(unittest.TestCase):
         self.assertTrue(root.hasPrefHere("ordered"))
         self.assertEquals(root.getPref("ordered").length, 0)
 
-    @tag("bug104645")
-    def test_ordered_inheritance_shadowing(self):
-        base = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
-        root = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
-        ordered = Cc["@activestate.com/koOrderedPreference;1"].createInstance()
-        ordered.id = "test_ordered_inheritance_shadowing"
-        ordered.appendLong(1)
-        base.setPref("ordered", ordered)
-        root.inheritFrom = base
-
-        o = root.getPref("test_ordered_inheritance_shadowing")
-        self.failIf(root.hasPrefHere("test_ordered_inheritance_shadowing"),
-                    "Root gained an ordered preference after getting from global")
-
 class PrefSerializeTestCase(unittest.TestCase):
     def assertXMLEqual(self, first, second, msg=None, ignore_white_space=True):
         if ignore_white_space:
@@ -339,3 +325,20 @@ class PrefSerializeTestCase(unittest.TestCase):
                 </preference-set>
                 <long id="long">123456789</long>
             </preference-set>""")
+
+    @tag("bug104645")
+    def test_serialize_ordered(self):
+        base = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
+        root = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
+        ordered = Cc["@activestate.com/koOrderedPreference;1"].createInstance()
+        ordered.id = "test_ordered_inheritance_shadowing"
+        ordered.appendLong(1)
+        base.setPref("test_ordered_inheritance_shadowing", ordered)
+        root.inheritFrom = base
+
+        o = root.getPref("test_ordered_inheritance_shadowing")
+        self.failIf(root.hasPrefHere("test_ordered_inheritance_shadowing"),
+                    "Root gained an ordered preference after getting from global")
+
+        self.assertSerializesTo(root, """
+            <preference-set/>""")
