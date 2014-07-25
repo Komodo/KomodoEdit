@@ -327,7 +327,8 @@ class PrefSerializeTestCase(unittest.TestCase):
             </preference-set>""")
 
     @tag("bug104645")
-    def test_serialize_ordered(self):
+    def test_serialize_shadow_ordered(self):
+        """Check that shadow ordered prefs don't get serialized"""
         base = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
         root = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
         ordered = Cc["@activestate.com/koOrderedPreference;1"].createInstance()
@@ -342,3 +343,15 @@ class PrefSerializeTestCase(unittest.TestCase):
 
         self.assertSerializesTo(root, """
             <preference-set/>""")
+
+        o.appendLong(2)
+        self.assertTrue(root.hasPrefHere("test_ordered_inheritance_shadowing"),
+                        "Modified ordered prefs should not be shadowed")
+
+        self.assertSerializesTo(root, """
+            <preference-set>
+                <ordered-preference id="test_ordered_inheritance_shadowing">
+                    <long id="">1</long>
+                    <long id="">2</long>
+                </ordered-preference>
+            </preference-set>""")

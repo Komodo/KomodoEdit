@@ -1169,6 +1169,8 @@ class koOrderedPreference(object):
             self.serialize(stream, "")
 
     def serialize(self, stream, basedir):
+        if self._is_shadow:
+            return
         if self.id:
             stream.write('<ordered-preference id="%s">%s' \
                          % (cgi_escape(self.id), newl))
