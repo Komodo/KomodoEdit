@@ -355,3 +355,23 @@ class PrefSerializeTestCase(unittest.TestCase):
                     <long id="">2</long>
                 </ordered-preference>
             </preference-set>""")
+
+    def test_serialize_empty_prefsets(self):
+        """Ensure empty preferences sets are serialized correctly"""
+        base = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
+        root = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
+        child = Cc["@activestate.com/koPreferenceSet;1"].createInstance()
+        child.id = "child"
+        base.setPref("child", child)
+        orderedchild = Cc["@activestate.com/koOrderedPreference;1"].createInstance()
+        orderedchild.id = "ordered"
+        base.setPref("ordered", orderedchild)
+        root.inheritFrom = base
+
+        self.assertSerializesTo(root, """
+            <preference-set/>""")
+        self.assertSerializesTo(base, """
+            <preference-set>
+                <preference-set id="child" />
+                <ordered-preference id="ordered" />
+            <preference-set/>""")
