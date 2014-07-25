@@ -3,6 +3,7 @@
     const commando  = require("commando/commando");
     const {Cc, Ci}  = require("chrome");
     const system    = require("sdk/system");
+    const ioFile    = require("sdk/io/file");
     const sep       = system.platform == "winnt" ? "\\" : "/";
 
     const scope     = Cc["@activestate.com/commando/koScopeFiles;1"].getService(Ci.koIScopeFiles);
@@ -14,6 +15,78 @@
     var activeUuid = null;
 
     var local = {warned: {}};
+
+    var getShortcuts = function()
+    {
+        if ( ! ("cached" in getShortcuts))
+        {
+            getShortcuts.cached = {}
+
+            try
+            {
+                var xmlData = ioFile.open("~/.go/shortcuts.xml").read();
+                var parser = new window.DOMParser()
+                var xmlDom = parser.parseFromString(xmlData, "text/xml");
+                var children = xmlDom.firstChild.children;
+                for (var i = 0; i < children.length; i++)
+                {
+                    var child = children[i];
+                    getShortcuts.cached[child.getAttribute("name")] = child.getAttribute("value");
+                }
+            }
+            catch (e)
+            {
+                log.warn("Could not read gotool shortcuts.xml: " + e.message);
+            }
+        }
+
+        return getShortcuts.cached;
+    }
+
+    var getShortcut = function(key)
+    {
+        var shortcuts = getShortcuts();
+        return shortcuts[key] || false;
+    }
+
+    var parsePaths = function(query, subscope, opts)
+    {
+        var _query = query.split(sep);
+        var shortcuts = getShortcuts();
+        if (query.match(/^\w+(?:\/|\\)/) && (_query[0] in shortcuts))
+        {
+            log.debug("Running query against gotool shortcut path");
+
+            opts["recursive"] = _query.length >= 1 ? !! _query[1].match(/^\W/) : false;
+            subscope.path = shortcuts[_query[0]];
+            subscope.name = _query[0];
+            query = _query.slice(1);
+            return [query, subscope, opts];
+        }
+
+        var isRelative = query.substr(0,2) == ("." + sep) || query.substr(0,3) == (".." + sep);
+
+        var isAbsolute;
+        if (system.platform == "winnt")
+            isAbsolute = (!! query.match(/^[A-Z]\:/)) || query.match(/\\\\/);
+        if ( ! isAbsolute)
+            isAbsolute = query.match(/^\//);
+
+        if (isRelative || isAbsolute)
+        {
+            opts["recursive"] = _query.length >= 1 ? !! _query.slice(-1)[0].match(/^\W/) : false;
+            
+            if (isAbsolute)
+                subscope.path = (system.platform != "winnt" ? sep : "") + _query.slice(0,-1).join(sep);
+            else
+                subscope.path += sep + _query.slice(0,-1).join(sep);
+
+            query = _query.slice(-1);
+            return [query, subscope, opts];
+        }
+
+        return [query, subscope, opts];
+    }
 
     this.prepare = function()
     {
@@ -67,26 +140,8 @@
         {
             subscope.path = subscope.data.fullPath;
         }
-        //commando.setSubscope(subscope);
-        var isAbsolute;
-        var isRelative = query.substr(0,2) == ("." + sep) || query.substr(0,3) == (".." + sep);
-        if (system.platform == "winnt")
-            isAbsolute = (!! query.match(/^[A-Z]\:/)) || query.match(/\\\\/);
-        if ( ! isAbsolute)
-            isAbsolute = query[0] == sep;
 
-        if (isRelative || isAbsolute)
-        {
-            query = query.split(sep);
-
-            if (isAbsolute)
-                subscope.path = (platform != "winnt" ? sep : "") + query.slice(0,-1).join(sep);
-            else
-                subscope.path += sep + query.slice(0,-1).join(sep);
-                
-            query = query.slice(-1);
-            opts["recursive"] = false;
-        }
+        [query, subscope, opts] = parsePaths(query, subscope, opts);
 
         if (query == "")
             opts["recursive"] = false;
