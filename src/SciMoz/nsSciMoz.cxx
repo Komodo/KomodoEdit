@@ -540,7 +540,7 @@ void SciMoz::Notify(long lParam) {
 			break;
 		case SCN_DWELLSTART:
 		case SCN_DWELLEND:
-		    {
+			{
 				// Convert into Mozilla pixel co-ordinates - bug 100492.
 #ifdef XP_MACOSX
 				const int kDefaultDPI = 72;
@@ -560,7 +560,7 @@ void SciMoz::Notify(long lParam) {
 					while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 						eventSink->OnDwellEnd(notification->position, dwell_x, dwell_y);
 				}
-		    }
+			}
 			break;
 		case SCN_ZOOM:
 			mask = ISciMozEvents::SME_ZOOM;
