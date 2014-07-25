@@ -21,7 +21,9 @@
         resultsRendered: 0,
         searchingUuid: null,
         prevSearchValue: null,
-        transitKeyBinds: false
+        transitKeyBinds: false,
+        renderResultsTimer: undefined,
+        searchTimer: false
     };
 
     var elems = {
@@ -181,21 +183,30 @@
         }
     }
 
-    var onSearch = function(e, noDelay = false)
+    var onSearch = function(e, noDelay)
     {
-        log.debug("Event: onSearch");
-        var searchValue = elem('search').value();
-        if (local.prevSearchValue == searchValue) return;
+        if (local.searchTimer && ! noDelay) return; // Search is already queued
 
-        local.searchingUuid = uuidGen.uuid();
-        local.resultCache = [];
-        local.resultsReceived = 0;
-        local.resultsRendered = 0;
-        local.prevSearchValue = searchValue;
+        if (noDelay) window.clearTimeout(local.searchTimer);
 
-        // perform onSearch
-        log.debug(local.searchingUuid + " - Starting Search for: " + searchValue);
-        getScopeHandler().onSearch(searchValue, local.searchingUuid);
+        local.searchTimer = window.setTimeout(function()
+        {
+            local.searchTimer = false;
+            
+            log.debug("Event: onSearch");
+            var searchValue = elem('search').value();
+            if (local.prevSearchValue == searchValue) return;
+
+            local.searchingUuid = uuidGen.uuid();
+            local.resultCache = [];
+            local.resultsReceived = 0;
+            local.resultsRendered = 0;
+            local.prevSearchValue = searchValue;
+
+            // perform onSearch
+            log.debug(local.searchingUuid + " - Starting Search for: " + searchValue);
+            getScopeHandler().onSearch(searchValue, local.searchingUuid);
+        }, noDelay ? 0 : ko.prefs.getLong('commando_search_delay', 100));
     }
 
     var onSelectResult = function(e)
