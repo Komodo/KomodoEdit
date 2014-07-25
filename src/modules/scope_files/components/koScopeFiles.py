@@ -21,7 +21,7 @@ import threading
 log = logging.getLogger("commando-scope-files-py")
 #log.setLevel(10)
 
-class koScopeFiles():
+class koScopeFiles:
 
     _com_interfaces_ = [Ci.koIScopeFiles]
     _reg_desc_ = "Commando - Files Scope"
@@ -29,26 +29,37 @@ class koScopeFiles():
     _reg_contractid_ = "@activestate.com/commando/koScopeFiles;1"
 
     project = None
-    cache = {}
     _history = None
     activeUuid = None
+    walker = None
+
+    @property
+    def history(self):
+        if not self._history:
+            historySvc = Cc["@activestate.com/koHistoryService;1"].getService(Ci.koIHistoryService)
+            self._history = UnwrapObject(historySvc)
+        return self._history
+
+    def __init__(self):
+        self.walker = Walker()
 
     def search(self, query, uuid, path, opts, callback):
-        self.activeUuid = uuid
-        t = threading.Thread(target=self._search, args=(query, uuid, path, opts, callback))
-        t.start()
-        
-    def _search(self, query, uuid, path, opts, callback):
         log.debug("Starting Search: " + query)
+
+        self.activeUuid = uuid
+        queryOpts = {}
+        queryOpts["numResults"] = 0
+        queryOpts["callback"] = callback
 
         opts = json.loads(opts)
 
         # Prepare Regex Object
         query = ' '.join(query.split())             # Reduce/trim whitespace
         query = re.escape(query).split("\\ ")       # Escape query and split by whitespace
-        words = query
+        queryOpts["words"] = query
         query = "(" + (")(.*?)(".join(query)) + ")" # Add regex groups
         query = re.compile(query, re.IGNORECASE)
+        queryOpts["query"] = query
 
         # Prepare Replacement
         replacement = ""
@@ -57,140 +68,170 @@ class koScopeFiles():
                 replacement += "\\" + str(x)
             else:
                 replacement += "<label class='strong' value=\"\\" + str(x) + "\"/>"
+        queryOpts["replacement"] = replacement
 
-        # Iterate over project paths and attempt to match them agains our query
-        numResults = 0
-        walker = self.walkPaths(path, opts)
+        # Prepate Path
+        path = os.path.realpath(path)
+        queryOpts["path"] = path
+        queryOpts["stripPathRe"] = re.compile("^" + re.escape(path) + "/?")
 
-        try:
-            numResults = 0
-            while numResults is not False:
-                numResults = self.processEntry(walker, query, uuid, path, opts, words,
-                                         replacement, callback, numResults)
+        t = threading.Thread(target=self.walker.start, args=(path, uuid, opts, queryOpts, self.walkCallback, self.walkCallbackComplete))
+        t.start()
 
-            log.debug(uuid + " - Directory walk complete")
-
-        except StopIteration:
-            log.debug(uuid + " - iteration stopped")
-
-        if numResults is 0:
-            self.doCallback(callback, "done")
-
-    def processEntry(self, walker, query, uuid, path, opts, words, replacement, callback, numResults=0):
-        if numResults is 0:
-            pathEntry = walker.send(None)
-        else:
-            maxResultsReached = numResults is opts.get("maxresults", 200)
-            if maxResultsReached:
-                log.debug(uuid + " Max results reached")
-
-            pathEntry = walker.send(maxResultsReached)
-
+    def walkCallback(self, path, dirnames, filenames, uuid, opts, queryOpts):
         if (self.activeUuid is not uuid):
-            log.debug(uuid + " No longer active, stopping")
-            walker.send(True) # Stop iteration
-            return False
-
-        description = query.sub(replacement, pathEntry["path"])
-        if pathEntry["path"] is not description:
-            # Todo: figure out a good way to normalize weight numbers
-            weight = 0
-            depth = pathEntry["path"].count(os.sep) + 1
-            weight += (10 / depth) * opts.get("weightDepth", 1)
-
-            matchWeight = 0
-            filename = os.path.basename(pathEntry["path"])
-            for word in words:
-                if word in filename:
-                    matchWeight += 10
-            weight += matchWeight * opts.get("weightMatch", 1)
-
-            self.processResult(pathEntry, path, filename, description, weight, opts, callback)
-            numResults+=1
-            
-        return numResults
+            return
         
+        self.evaluatePaths(path, dirnames, filenames, uuid, opts, queryOpts)
+
     @components.ProxyToMainThreadAsync
-    def processResult(self, pathEntry, path, filename, description, weight, opts, callback):
-        # history.get_num_visits must happen on the main thread
-        hits = self.history.get_num_visits("file://"+path+pathEntry["path"], -1)
-        weight += hits * opts.get("weightHits", 1)
+    def walkCallbackComplete(self, uuid, queryOpts):
+        if (uuid is self.activeUuid):
+            log.debug(uuid + " End Reached")
+            queryOpts["callback"].callback(0, "done")
+
+    def evaluatePaths(self, path, dirnames, filenames, uuid, opts, queryOpts):
+        for filename in dirnames + filenames:
+            subPath = os.path.join(path, filename)
+            if subPath is queryOpts["path"]:
+                continue;
+
+            replacement = queryOpts["query"].sub(queryOpts["replacement"], subPath)
+            if subPath is not replacement:
+                queryOpts["numResults"] = queryOpts["numResults"] + 1
+                if queryOpts["numResults"] > opts.get("maxresults", 200):
+                    log.debug(uuid + " Max results reached")
+                    return self.walker.stop()
+
+                pathEntry = {
+                    "filename": filename,
+                    "path": queryOpts["stripPathRe"].sub("", subPath) if len(subPath) > 1 else subPath,
+                    "fullPath": subPath,
+                    "type": "dir" if filename in dirnames else "file"
+                }
+
+                self.processResult(replacement, pathEntry, uuid, opts, queryOpts)
+
+    def calculateWeight(self, pathEntry, opts, queryOpts):
+        # Todo: figure out a good way to normalize weight numbers
+        weight = 0
+        depth = pathEntry["path"].count(os.sep) + 1
+        weight += (10 / depth) * opts.get("weightDepth", 1)
+
+        matchWeight = 0
+        filename = os.path.basename(pathEntry["path"])
+        for word in queryOpts["words"]:
+            if word in filename:
+                matchWeight += 10
+        weight += matchWeight * opts.get("weightMatch", 1)
+
+        # cant be accessed outside of main thread
+        # we should track our own usage numbers to make this more relevant
+        # to the files scope specifically
+        #hits = self.history.get_num_visits("file://"+pathEntry["fullPath"], -1)
+        #weight += hits * opts.get("weightHits", 1)
+
+        return weight;
+
+    def processResult(self, description, pathEntry, uuid, opts, queryOpts):
+        weight = self.calculateWeight(pathEntry, opts, queryOpts)
 
         result = [
-            filename,
+            pathEntry["filename"],
             pathEntry["path"],
             pathEntry["fullPath"],
             pathEntry["type"],
             description,
             weight
         ];
-        callback.callback(0, result)
-                
+
+        self.returnResult(result, uuid, queryOpts)
+
     @components.ProxyToMainThreadAsync
-    def doCallback(self, callback, arg):
-        callback.callback(0, arg)
-
-    # Todo: Refactor to have separate generator / consumer logic
-    def walkPaths(self, path, opts):
-        if path in self.cache and opts.get("recursive", True) is True:
-            for pathEntry in self.cache[path]:
-                shouldStop = yield pathEntry
-                if shouldStop:
-                    break
-        else:
-            if opts.get("recursive", True):
-                cache = []
-
-            if len(path) > 1:
-                stripPathRe = re.compile("^" + re.escape(path) + "/?")
-
-            walker = paths_from_path_patterns([path],
-                    dirs="always",
-                    follow_symlinks=True,
-                    includes=opts.get("includes", []),
-                    excludes=opts.get("excludes", []),
-                    yield_filetype=True,
-                    recursive=opts.get("recursive", True))
-            for subPath, fileType in walker:
-                
-                if subPath is path:
-                    continue
-
-                subPath = os.path.realpath(subPath)
-
-                pathEntry = {
-                    "path": stripPathRe.sub("", subPath) if len(path) > 1 else subPath,
-                    "fullPath": subPath,
-                    "type": fileType
-                }
-
-                if opts.get("recursive", True):
-                    cache.append(pathEntry)
-
-                shouldStop = yield pathEntry
-                if shouldStop:
-                    log.debug("Stopping directory walk (max results reached?)")
-                    raise StopIteration
-
-            # Append to cache only when it is completely done
-            if opts.get("recursive", True):
-                log.debug("Cache size: " + str(len(cache)))
-                self.cache[path] = cache
+    def returnResult(self, result, uuid, queryOpts):
+        if (uuid is self.activeUuid):
+            queryOpts["callback"].callback(0, result)
 
     def buildCache(self, path, opts):
-        t = threading.Thread(target=self._buildCache, args=(path, opts))
+        opts = json.loads(opts)
+        t = threading.Thread(target=self.walker.start, args=(path, "build"+path, opts))
         t.start()
 
-    def _buildCache(self, path, opts):
-        opts = json.loads(opts)
-        for x in self.walkPaths(path, opts):
-            None
+class Walker:
 
-    @property
-    def history(self):
-        if self._history:
-            return self._history
+    activeUuid = None
+    cache = {}
 
-        historySvc = Cc["@activestate.com/koHistoryService;1"].getService(Ci.koIHistoryService)
-        self._history = UnwrapObject(historySvc)
-        return self._history
+    callback = None
+    callbackComplete = None
+
+    activeWalkers = 0
+
+    # Stop the active search
+    def stop(self):
+        self.activeUuid = None
+
+    # Start a new search
+    def start(self, path, uuid, opts, queryOpts = None, callback = None, callbackComplete = None):
+        self.activeUuid = uuid
+        self.activeWalkers = 0
+        self.callback = callback
+        self.callbackComplete = callbackComplete
+
+        self.walk(path, uuid, opts, queryOpts)
+
+    def walk(self, path, uuid, opts, queryOpts):
+        dirnames = [path]
+        while (len(dirnames) > 0):
+            _dirnames = []
+            for dirname in dirnames:
+                self.activeWalkers = self.activeWalkers + 1
+                _dirnames = _dirnames + (self.walkCache(dirname, uuid, opts, queryOpts) or [])
+                self.activeWalkers = self.activeWalkers - 1
+
+            if opts.get("recursive", True):
+                dirnames = _dirnames
+            else:
+                dirnames = []
+
+        if self.activeWalkers is 0 and self.callbackComplete:
+            self.callbackComplete(uuid, queryOpts)
+
+    # Walk our cache for the given path
+    def walkCache(self, path, uuid, opts, queryOpts):
+        if self.activeUuid is not uuid:
+            return # Break out if this search is no longer active
+        
+        # If the cache for this path does not exist pass it along to the IO walker
+        if not self.cache.get(path, False):
+            self.activeWalkers = self.activeWalkers + 1
+            self.walkIO(path, uuid, opts, queryOpts)
+            return
+
+        # Get dirnames, filenames from cache
+        [dirnames, filenames] = self.cache[path];
+        
+        if (self.callback):
+            self.callback(path, dirnames, filenames, uuid, opts, queryOpts)
+
+        return [ os.path.join(path,dirname) for dirname in dirnames ]
+
+    def notify(self, path, dirnames, filenames, uuid, opts, queryOpts):
+        if not self.cache.get(path, False):
+            self.cache[path] = [dirnames, filenames]
+
+        self.activeWalkers = self.activeWalkers - 1
+        self.walk(path, uuid, opts, queryOpts)
+
+    def walkIO(self, path, uuid, opts, queryOpts):
+        # Invoke the main walker lib
+        walker = paths_from_path_patterns([path],
+                dirs="always",
+                follow_symlinks=True,
+                includes=opts.get("includes", []),
+                excludes=opts.get("excludes", []),
+                yield_structure=True,
+                recursive=False)
+        for subPath, dirnames, filenames in walker:
+            self.notify(subPath, dirnames, filenames, uuid, opts, queryOpts)
+
