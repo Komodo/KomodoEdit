@@ -160,6 +160,10 @@ this.setToolbarsVisibility = function uilayout_setToolbarsVisibility(toolbarsSho
     }
 
     document.persist('cmd_toggleToolbars', 'checked');
+
+// #if PLATFORM != "darwin"
+	ko.uilayout.ensureMenuButtonVisible();
+// #endif
 }
 
 var _buttonTextShowing = false;
@@ -247,7 +251,39 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
         menuButton.collapsed = false;
         UpdateUnifiedMenuMru();
     }
+
+	ko.uilayout.ensureMenuButtonVisible();
 };
+
+this.ensureMenuButtonVisible = function uilayout_ensureMenuButtonVisible()
+{
+	var broadcaster = document.getElementById('cmd_toggleMenubar');
+	var menubarShowing = (broadcaster.getAttribute('checked') == 'true');
+
+    broadcaster = document.getElementById('cmd_toggleToolbars');
+	var toolbarShowing = (broadcaster.getAttribute('checked') == 'true');
+
+	var menuButton = document.getElementById('unifiedMenuButton');
+
+	if ( ! toolbarShowing && ! menubarShowing)
+	{
+		var statusbar = document.getElementById("statusbarviewbox");
+		var panel = document.createElement("statusbarpanel");
+		panel.setAttribute("id", "menubuttonpanel");
+		panel.appendChild(menuButton);
+		statusbar.insertBefore(panel, statusbar.firstChild);
+	}
+	else if ( ! menubarShowing && menuButton.parentNode.nodeName == "statusbarpanel")
+	{
+		var toolboxWrap = document.getElementById("main-toolboxrow-wrapper");
+		toolboxWrap.appendChild(menuButton);
+
+		var statusbar = document.getElementById("statusbarviewbox");
+		var panel = document.getElementById("menubuttonpanel");
+		statusbar.removeChild(panel);
+	}
+}
+
 // #endif
 
 this.updateToolbarArrangement = function uilayout_updateToolbarArrangement(buttonTextShowing /* default: look it up */)
