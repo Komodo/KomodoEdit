@@ -187,7 +187,13 @@
     {
         if (local.searchTimer && ! noDelay) return; // Search is already queued
 
-        if (noDelay) window.clearTimeout(local.searchTimer);
+        if (noDelay)
+        {
+            window.clearTimeout(local.searchTimer);
+            local.searchTimer = false;
+        }
+        else if ( ! local.searchTimer)
+            noDelay = true; // why delay the inevitable
 
         local.searchTimer = window.setTimeout(function()
         {
