@@ -2132,7 +2132,8 @@
                     <hbox>
                         <vbox id="unifiedMenuPrimaryPane"/>
                         <vbox id="unifiedMenuSecondaryPane">
-                            <menuseparator id="unifiedMenuMruSeparator" ordinal="9999"/>
+                            <menuseparator id="unifiedMenuMruSeparator" ordinal="9999" preserve="true"/>
+                            <vbox id="unifiedMenuMru" preserve="true" ordinal="9999"></vbox>
                         </vbox>
                     </hbox>
                 </menupopup>

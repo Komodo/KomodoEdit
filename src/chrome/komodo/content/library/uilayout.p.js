@@ -202,6 +202,7 @@ this.toggleMenubar = function uilayout_toggleMenubar() {
 }
 
 this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems() {
+	alreadyInitialized = "g_initialized_button_menu" in window;
 	// Copy the top-level menus into the button menus.
 	g_initialized_button_menu = true;
 
@@ -209,14 +210,15 @@ this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems() {
 	var popupFile     = document.getElementById('popup_file');
 	var panePrimary   = document.getElementById('unifiedMenuPrimaryPane');
 	var paneSecondary = document.getElementById('unifiedMenuSecondaryPane');
-	panePrimary.innerHTML = "";
+	var menuSeparator = document.getElementById('unifiedMenuMruSeparator');
 
+	panePrimary.innerHTML = "";
 	for (x=0;x<paneSecondary.childNodes.length;x++)
 	{
 		let node = paneSecondary.childNodes[x];
-		if (node.getAttribute("id") == "unifiedMenuMruSeparator")
-			break;
-		paneSecondary.removeChild(paneSecondary.childNodes[x]);
+		if (node.getAttribute("preserve") == "true")
+			continue;
+		paneSecondary.removeChild(node);
 	}
 
 	var length = popupFile.childNodes.length;
@@ -225,9 +227,11 @@ this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems() {
 	}
 
 	var length = menubar.childNodes.length;
-	for (let x=1;x<length;x++) {
-		paneSecondary.appendChild(menubar.childNodes[x].cloneNode(true));
+	for (let x=length-1;x>0;x--) {
+		paneSecondary.insertBefore(menubar.childNodes[x].cloneNode(true), menuSeparator);
 	}
+
+	UpdateUnifiedMenuMru();
 
 	// TODO: Re-initialize all cloned id's ??
 }
@@ -809,20 +813,16 @@ function MruMenusAddItem(menuitem) {
 function UpdateUnifiedMenuMru() {
     var menupopup = document.getElementById('unifiedMenuSecondaryPane');
     var menuSeparator = document.getElementById('unifiedMenuMruSeparator');
+	var mruWrapper = document.getElementById('unifiedMenuMru');
     menuSeparator.collapsed = true;
 
     // Remove old entries
-    if (menuSeparator.previousSibling) {
-        while (menuSeparator.nextSibling) {
-            menuSeparator.parentNode.removeChild(menuSeparator.nextSibling);
-        }
-    }
+	mruWrapper.innerHTML = ""
 
     var mruList = _gPrefs.getPref('mruMenuItemList');
     if ( ! mruList || ! mruList.length) return;
 
     menuSeparator.collapsed = false;
-    menupopup.appendChild(menuSeparator);
 
     for (var i=0; i<mruList.length; i++) {
         let id = mruList.getStringPref(i);
@@ -849,7 +849,7 @@ function UpdateUnifiedMenuMru() {
         _item.setAttribute('refid', _MruMenuItemId(_item));
         _item.removeAttribute('id');
 
-        menupopup.appendChild(_item);
+        mruWrapper.appendChild(_item);
     }
 }
 // #endif
