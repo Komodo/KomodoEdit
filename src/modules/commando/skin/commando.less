@@ -107,7 +107,7 @@ richlistbox#commando-results
             color: @list-listbox-item-color-selected;
         }
 
-        label.title
+        .title
         {
             font-size: 120%;
             margin: 0 0 0 6px;
@@ -127,35 +127,100 @@ richlistbox#commando-results
             max-height: 16px;
         }
 
-        description
+        .description
         {
             opacity: 0.7;
             margin: 0 0 0 6px;
+            overflow-x: hidden !important;
+            width: 100%;
 
-            label
+            div
             {
                 margin: 0;
                 padding: 0;
                 -moz-appearance: none;
+                display: inline;
             }
         }
 
-        &.compact description
+        &.compact .description
         {
             font-size: 120%;
         }
 
-        description .strong
+        .description strong
         {
             font-weight: bold;
         }
 
-        description .em
+        .description em
         {
             font-style: italic;
             max-width: 100px;
             opacity: 0.7;
             margin-right: 5px;
+        }
+
+        &.subscope-crop
+        {
+            &.compact .description
+            {
+                max-width: 450px;
+            }
+
+            &:not(.compact) .description
+            {
+                max-width: 425px;
+            }
+
+            .description
+            {
+                display: flex;
+
+                .crop
+                {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    flex: 1;
+                    min-width: 0;
+                    direction: rtl;
+                    text-align: left;
+                }
+            }
+        }
+
+        &:not(.subscope-crop)
+        {
+            &.compact .entry-wrapper
+            {
+                max-width: 450px;
+            }
+
+            &:not(.compact) .entry-wrapper
+            {
+                max-width: 425px;
+            }
+
+            .entry-wrapper
+            {
+                display: flex;
+
+                .description
+                {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    flex: 1;
+                    min-width: 0;
+                }
+            }
+
+            &.crop-rtl .description
+            {
+                direction: rtl;
+                text-align: left;
+            }
         }
     }
 

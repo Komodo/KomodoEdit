@@ -50,25 +50,28 @@ class koScopeFiles:
         queryOpts = {}
         queryOpts["numResults"] = 0
         queryOpts["callback"] = callback
+        queryOpts["queryOriginal'"] = query
+        queryOpts["words"] = []
 
         opts = json.loads(opts)
 
-        # Prepare Regex Object
-        query = ' '.join(query.split())             # Reduce/trim whitespace
-        query = re.escape(query).split("\\ ")       # Escape query and split by whitespace
-        queryOpts["words"] = query
-        query = "(" + (")(.*?)(".join(query)) + ")" # Add regex groups
-        query = re.compile(query, re.IGNORECASE)
-        queryOpts["query"] = query
+        if queryOpts["queryOriginal'"] != "":
+            # Prepare Regex Object
+            query = ' '.join(query.split())             # Reduce/trim whitespace
+            query = re.escape(query).split("\\ ")       # Escape query and split by whitespace
+            queryOpts["words"] = query
+            query = "(" + (")(.*?)(".join(query)) + ")" # Add regex groups
+            query = re.compile(query, re.IGNORECASE)
+            queryOpts["query"] = query
 
-        # Prepare Replacement
-        replacement = ""
-        for x in range(1,query.groups+1):
-            if x % 2 == 0:
-                replacement += "\\" + str(x)
-            else:
-                replacement += "<label class='strong' value=\"\\" + str(x) + "\"/>"
-        queryOpts["replacement"] = replacement
+            # Prepare Replacement
+            replacement = ""
+            for x in range(1,query.groups+1):
+                if x % 2 == 0:
+                    replacement += "\\" + str(x)
+                else:
+                    replacement += "<html:strong>\\" + str(x) + "</html:strong>"
+            queryOpts["replacement"] = replacement
 
         # Prepate Path
         path = os.path.realpath(path)
@@ -96,8 +99,11 @@ class koScopeFiles:
             if subPath is queryOpts["path"]:
                 continue;
 
-            replacement = queryOpts["query"].sub(queryOpts["replacement"], subPath)
-            if subPath is not replacement:
+            replacement = subPath
+            if queryOpts["queryOriginal'"] != "":
+                replacement = queryOpts["query"].sub(queryOpts["replacement"], subPath)
+                
+            if queryOpts["queryOriginal'"] == "" or subPath is not replacement:
                 queryOpts["numResults"] = queryOpts["numResults"] + 1
                 if queryOpts["numResults"] > opts.get("maxresults", 200):
                     log.debug(uuid + " Max results reached")

@@ -69,22 +69,20 @@
                                     {{?}}
                                 </vbox>
                                 <vbox flex="1" class="full">
-                                    <label value="{{!it.name}}" class="title"/>
-                                    {{?it.description}}
-                                        <description crop="left">
-                                            {{=it.description}}
-                                        </description>
-                                    {{?}}
+                                    <html:div class="entry-wrapper">
+                                        <html:span class="title">{{!it.name}}</html:span>
+                                        {{?it.description}}
+                                            <html:div class="description">{{=it.description}}</html:div>
+                                        {{?}}
+                                    </html:div>
                                 </vbox>
                                 <hbox flex="1" class="compact">
-                                    <label value="{{!it.name}}" class="title"/>
-                                    {{?it.description}}
-                                        <vbox pack="center" align="center">
-                                            <description crop="left" flex="1">
-                                                {{=it.description}}
-                                            </description>
-                                        </vbox>
-                                    {{?}}
+                                    <html:div class="entry-wrapper">
+                                        <html:span class="title">{{!it.name}}</html:span>
+                                        {{?it.description}}
+                                            <html:span class="description">{{=it.description}}</html:span>
+                                        {{?}}
+                                    </html:div>
                                 </hbox>
                             </hbox>
                         </richlistitem>

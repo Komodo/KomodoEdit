@@ -184,7 +184,7 @@
             var [name, path, fullPath, type, description, weight] = entry;
 
             if (path != fullPath)
-                description = "<label class='em' crop='left' value='"+subscope.name+"'/>" + description;
+                description = "<html:em class=\"subscope\">"+subscope.name+"</html:em><html:div class=\"crop\">" + description + "</html:div>";
 
             commando.renderResult({
                 id: path,
@@ -194,6 +194,7 @@
                 isScope: type == 'dir',
                 weight: weight,
                 scope: "scope-files",
+                classList: "subscope-crop",
                 data: {
                     path: path,
                     fullPath: fullPath,
