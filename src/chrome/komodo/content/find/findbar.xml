@@ -483,6 +483,13 @@
         event.stopPropagation();
       ]]>
       </handler>
+      <handler event="keypress" keycode="VK_RETURN">
+      <![CDATA[
+        // Enter keypress to go to next search match
+        this.controller.searchAgain();
+        event.stopPropagation();
+      ]]>
+      </handler>
       <handler event="blur" phase="capturing">
       <![CDATA[
         // we want to capture when the tab key is pressed in the textbox while
