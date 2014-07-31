@@ -491,8 +491,12 @@
         elem('results').replaceWith(resultElem);
         delete local.elemCache["results"];
 
-        if (resultElem.element().selectedIndex == -1)
-            resultElem.element().selectedIndex = 0;
+        // Work around bug where selectedIndex cannot be modified - Todo: find proper fix
+        window.setTimeout(function() {
+            resultElem = elem('results');
+            if (resultElem.element().selectedIndex == -1)
+                resultElem.element().selectedIndex = 0;
+        }, 0);
     }
 
     // Todo: prevent multiple paints
