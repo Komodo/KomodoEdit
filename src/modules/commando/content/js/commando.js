@@ -386,6 +386,12 @@
                 break;
             }
         }
+
+        window.clearTimeout(local.uilaoutTimer);
+        local.uilaoutTimer = window.setTimeout(function()
+        {
+            ko.uilayout.cloneUnifiedMenuItems();
+        }, 50);
     }
 
     this.unregisterScope = function(id)
