@@ -134,7 +134,7 @@
         else if ( ! subscope)
         {
             var placesPath = ioService.newURI(ko.places.getDirectory(), null, null).path;
-            subscope = {name: placesPath, path: placesPath};
+            subscope = {name: ioFile.basename(placesPath), path: placesPath};
         }
         else
         {
