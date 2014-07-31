@@ -245,7 +245,7 @@ this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems() {
  * @param menubarShowing {Boolean}  Whether the menu is always showing.
  */
 this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowing) {
-    dump('setMenubarVisibility:: menubarShowing: ' + menubarShowing + '\n');
+    //dump('setMenubarVisibility:: menubarShowing: ' + menubarShowing + '\n');
     var menuButton  = document.getElementById('unifiedMenuButton');
     var menuToolbar = document.getElementById('toolbar-menubar');
 
@@ -253,7 +253,7 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
         // Check the broadcaster to find out if it should be showing.
         var broadcaster = document.getElementById('cmd_toggleMenubar');
         menubarShowing = (broadcaster.getAttribute('checked') == 'true');
-        dump('setMenubarVisibility:: menubarShowing found as: ' + menubarShowing + '\n');
+        //dump('setMenubarVisibility:: menubarShowing found as: ' + menubarShowing + '\n');
     }
 
     menuToolbar.setAttribute("autohide", !(menubarShowing));
