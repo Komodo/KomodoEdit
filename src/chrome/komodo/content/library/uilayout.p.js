@@ -201,6 +201,37 @@ this.toggleMenubar = function uilayout_toggleMenubar() {
     ko.uilayout.setMenubarVisibility();
 }
 
+this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems() {
+	// Copy the top-level menus into the button menus.
+	g_initialized_button_menu = true;
+
+	var menubar       = document.getElementById('menubar_main');
+	var popupFile     = document.getElementById('popup_file');
+	var panePrimary   = document.getElementById('unifiedMenuPrimaryPane');
+	var paneSecondary = document.getElementById('unifiedMenuSecondaryPane');
+	panePrimary.innerHTML = "";
+
+	for (x=0;x<paneSecondary.childNodes.length;x++)
+	{
+		let node = paneSecondary.childNodes[x];
+		if (node.getAttribute("id") == "unifiedMenuMruSeparator")
+			break;
+		paneSecondary.removeChild(paneSecondary.childNodes[x]);
+	}
+
+	var length = popupFile.childNodes.length;
+	for (let x=0;x<length;x++) {
+		panePrimary.appendChild(popupFile.childNodes[x].cloneNode(true));
+	}
+
+	var length = menubar.childNodes.length;
+	for (let x=1;x<length;x++) {
+		paneSecondary.appendChild(menubar.childNodes[x].cloneNode(true));
+	}
+
+	// TODO: Re-initialize all cloned id's ??
+}
+
 /**
  * Update the top-level menu visibility.
  *
@@ -227,25 +258,7 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
         menuButton.collapsed = true;
     } else {
         if (!g_initialized_button_menu) {
-            // Copy the top-level menus into the button menus.
-            g_initialized_button_menu = true;
-
-            var menubar       = document.getElementById('menubar_main');
-            var popupFile     = document.getElementById('popup_file');
-            var panePrimary   = document.getElementById('unifiedMenuPrimaryPane');
-            var paneSecondary = document.getElementById('unifiedMenuSecondaryPane');
-    
-            var length = popupFile.childNodes.length;
-            for (let x=0;x<length;x++) {
-                panePrimary.appendChild(popupFile.childNodes[x].cloneNode(true));
-            }
-    
-            var length = menubar.childNodes.length;
-            for (let x=1;x<length;x++) {
-                paneSecondary.appendChild(menubar.childNodes[x].cloneNode(true));
-            }
-
-            // TODO: Re-initialize all cloned id's ??
+            ko.uilayout.cloneUnifiedMenuItems;
         }
 
         menuButton.collapsed = false;
