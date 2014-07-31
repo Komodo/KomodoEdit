@@ -5,7 +5,7 @@
   <!-- This version field is used by Komodo to upgrade preferences.
        The value should be kept in sync with "../components/koInitService.p.py"
   -->
-  <long id="version">13</long>
+  <long id="version">14</long>
 
   <!-- "uilayout_version" is used by Komodo to upgrade ui layouts.
        Must keep in sync with "../chrome/komodo/content/library/uilayout.p.js"
@@ -776,7 +776,7 @@
        current project, if any. -->
   <boolean id="new_file_add_to_project">1</boolean>
 
-  <string id="editor-scheme">Default</string>
+  <string id="editor-scheme">Default_Light</string>
 
   <!-- #if PLATFORM == "darwin" -->
   <!-- Use a different fontQuality setting on the Mac - see bug 99891. -->

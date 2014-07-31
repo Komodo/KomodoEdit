@@ -1,0 +1,377 @@
+#    Name:       Base16 Ocean Dark
+#    Author:     Chris Kempson (http://chriskempson.com)
+
+#    Komodo template by Nathan Rijksen (https://github.com/Naatan)
+#    Original Base16 color scheme by Chris Kempson (https://github.com/chriskempson/base16)
+
+Version = 10
+
+Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
+
+def RgbToBgr(rgb):
+    return sum(int(v) * (256 ** i) for i, v in enumerate(rgb))
+
+B00 = RgbToBgr([32, 22, 2])
+B01 = RgbToBgr([48, 46, 0])
+B02 = RgbToBgr([95, 91, 23])
+B03 = RgbToBgr([108, 104, 35])
+B04 = RgbToBgr([134, 129, 59])
+B05 = RgbToBgr([148, 142, 72])
+B06 = RgbToBgr([204, 195, 122])
+B07 = RgbToBgr([250, 240, 165])
+B08 = RgbToBgr([195, 83, 89])
+B09 = RgbToBgr([179, 97, 68])
+B0A = RgbToBgr([168, 131, 57])
+B0B = RgbToBgr([24, 151, 78])
+B0C = RgbToBgr([117, 167, 56])
+B0D = RgbToBgr([71, 124, 161])
+B0E = RgbToBgr([136, 104, 179])
+B0F = RgbToBgr([179, 88, 142])
+
+# More descriptive color names
+baseFore = B00
+baseForeBlend1 = B01
+baseForeBlend2 = B02
+
+baseBack = B07
+baseBackBlend1 = B06
+baseBackBlend2 = B05
+baseBackBlend3 = B04
+
+comment = B04
+commentBlend = B03
+
+red = B08
+orange = B09
+yellow = B0A
+green = B0B
+teal = B0C
+blue = B0D
+purple = B0E
+themed = B0F
+
+# Common Styles
+CommonStyles = {
+    'attribute name': {
+        'fore': orange
+    },
+    'attribute value': {
+        'fore': green
+    },
+    'bracebad': {
+        'fore': baseForeBlend1
+    },
+    'bracehighlight': {
+        'fore': baseFore,
+        'back': baseBackBlend1
+    },
+    'classes': {
+        'fore': yellow
+    },
+    'comments': {
+        'fore': comment,
+        'italic': True
+    },
+    'control characters': {
+        'fore': orange
+    },
+    'default_fixed': {
+        'back': baseBack,
+        'eolfilled': 0,
+        'face': 'Monospace',
+        'fore': baseFore,
+        'hotspot': 0,
+        'italic': 0,
+        'size': 11,
+        'useFixed': 1,
+        'bold': 0
+    },
+    'default_proportional': {
+        'back': baseBack,
+        'eolfilled': 0,
+        'face': 'Monospace',
+        'fore': baseFore,
+        'hotspot': 0,
+        'italic': 0,
+        'size': 11,
+        'useFixed': 0,
+        'bold': 0
+    },
+    'fold markers': {
+        'fore': comment,
+        'back': baseBack
+    },
+    'functions': {
+        'fore': blue
+    },
+    'identifiers': {
+        'fore': baseForeBlend1
+    },
+    'indent guides': {
+        'fore': baseBackBlend1
+    },
+    'keywords': {
+        'fore': purple
+    },
+    'keywords2': {
+        'fore': red
+    },
+    'linenumbers': {
+        'back': baseBackBlend1,
+        'fore': baseBackBlend3,
+        'size': 10,
+        'useFixed': True,
+        'bold': False
+    },
+    'numbers': {
+        'fore': orange
+    },
+    'operators': {
+        'fore': blue
+    },
+    'preprocessor': {
+        'fore': baseForeBlend1
+    },
+    'regex': {
+        'fore': teal
+    },
+    'stderr': {
+        'fore': red,
+    },
+    'stdin': {
+        'fore': orange
+    },
+    'stdout': {
+        'fore': teal
+    },
+    'stringeol': {
+        'back': baseForeBlend2,
+        'eolfilled': True
+    },
+    'strings': {
+        'fore': green
+    },
+    'tags': {
+        'fore': red
+    },
+    'variables': {
+        'fore': red
+    }
+}
+
+LanguageStyles = {
+    'CSS': {
+        'ids': {
+            'fore': purple
+        },
+        'values': {
+            'fore': green
+        }
+    },
+    'Diff': {
+        'additionline': {
+            'fore': green
+        },
+        'chunkheader': {
+            'fore': baseForeBlend2
+        },
+        'deletionline': {
+            'fore': red
+        },
+        'diffline': {
+            'fore': yellow
+        },
+        'fileline': {
+            'fore': baseFore
+        }
+    },
+    'Errors': {
+        'Error lines': {
+            'fore': red,
+            'hotspot': 1,
+            'italic': 1
+        }
+    },
+    'HTML': {
+        'attributes': {
+            'fore': green
+        },
+        'cdata': {
+            'fore': orange
+        },
+        'cdata content': {
+            'fore': baseFore
+        },
+        'cdata tags': {
+            'fore': baseForeBlend1
+        },
+        'xpath attributes': {
+            'fore': teal
+        }
+    },
+    'HTML5': {
+        'attributes': {
+            'fore': green
+        },
+        'cdata': {
+            'fore': orange
+        },
+        'cdata content': {
+            'fore': baseFore
+        },
+        'cdata tags': {
+            'fore': baseForeBlend1
+        },
+        'xpath attributes': {
+            'fore': teal
+        }
+    },
+    'XML': {
+        'attributes': {
+            'fore': green
+        },
+        'cdata': {
+            'fore': orange
+        },
+        'cdata content': {
+            'fore': baseFore
+        },
+        'cdata tags': {
+            'fore': baseForeBlend1
+        },
+        'xpath attributes': {
+            'fore': teal
+        }
+    },
+    'JavaScript': {
+        'commentdockeyword': {
+            'fore': commentBlend
+        },
+        'commentdockeyworderror': {
+            'fore': red
+        },
+        'globalclass': {
+            'fore': yellow
+        }
+    },
+    'PHP': {
+        'commentdockeyword': {
+            'fore': commentBlend
+        },
+        'commentdockeyworderror': {
+            'fore': red
+        }
+    }
+}
+
+MiscLanguageSettings = {}
+
+Colors = {
+    'bookmarkColor': baseBackBlend2,
+    'callingLineColor': baseBackBlend1,
+    'caretFore': commentBlend,
+    'caretLineBack': baseBackBlend1,
+    'changeMarginDeleted': red,
+    'changeMarginInserted': green,
+    'changeMarginReplaced': blue,
+    'currentLineColor': baseBackBlend1,
+    'edgeColor': baseBackBlend1,
+    'foldMarginColor': baseBack,
+    'selBack': baseBackBlend2,
+    'selFore': baseFore,
+    'whitespaceColor': baseBackBlend1
+}
+
+Indicators = {
+    'collab_local_change': {
+        'alpha': 0,
+        'color': green,
+        'draw_underneath': False,
+        'style': 5
+    },
+    'collab_remote_change': {
+        'alpha': 120,
+        'color': yellow,
+        'draw_underneath': True,
+        'style': 7
+    },
+    'collab_remote_cursor_1': {
+        'alpha': 100,
+        'color': yellow,
+        'draw_underneath': True,
+        'style': 6
+    },
+    'collab_remote_cursor_2': {
+        'alpha': 100,
+        'color': orange,
+        'draw_underneath': True,
+        'style': 6
+    },
+    'collab_remote_cursor_3': {
+        'alpha': 100,
+        'color': red,
+        'draw_underneath': True,
+        'style': 6
+    },
+    'collab_remote_cursor_4': {
+        'alpha': 100,
+        'color': blue,
+        'draw_underneath': True,
+        'style': 6
+    },
+    'collab_remote_cursor_5': {
+        'alpha': 100,
+        'color': teal,
+        'draw_underneath': True,
+        'style': 6
+    },
+    'find_highlighting': {
+        'alpha': 100,
+        'color': teal,
+        'draw_underneath': True,
+        'style': 7
+    },
+    'linter_error': {
+        'alpha': 100,
+        'color': red,
+        'draw_underneath': True,
+        'style': 0
+    },
+    'linter_warning': {
+        'alpha': 100,
+        'color': yellow,
+        'draw_underneath': True,
+        'style': 13
+    },
+    'multiple_caret_area': {
+        'alpha': 100,
+        'color': baseBackBlend2,
+        'draw_underneath': True,
+        'style': 6
+    },
+    'soft_characters': {
+        'alpha': 100,
+        'color': baseForeBlend2,
+        'draw_underneath': False,
+        'style': 6
+    },
+    'tabstop_current': {
+        'alpha': 100,
+        'color': baseBackBlend1,
+        'draw_underneath': True,
+        'style': 7
+    },
+    'tabstop_pending': {
+        'alpha': 100,
+        'color': baseBackBlend2,
+        'draw_underneath': True,
+        'style': 6
+    },
+    'tag_matching': {
+        'alpha': 100,
+        'color': yellow,
+        'draw_underneath': True,
+        'style': 7
+    }
+}
+
