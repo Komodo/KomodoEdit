@@ -78,7 +78,6 @@ richlistbox#commando-results
     scrollbox
     {
         overflow-x: hidden !important;
-        padding-bottom: 25px; /* Hack to work around bug where scrollbox does not size itself properly - TODO: Find proper fix */
     }
 
     richlistitem
@@ -109,18 +108,28 @@ richlistbox#commando-results
             background-repeat: no-repeat;
         }
 
-        &:not(.compact) .icon
+        &:not(.compact)
         {
-            width: 32px;
-            height: 32px;
-            max-height: 32px;
+            height: 55px;
+
+            .icon
+            {
+                width: 32px;
+                height: 32px;
+                max-height: 32px;
+            }
         }
 
-        &.compact .icon
+        &.compact
         {
-            width: 16px;
-            height: 16px;
-            max-height: 16px;
+            height: 35px;
+            
+            .icon
+            {
+                width: 16px;
+                height: 16px;
+                max-height: 16px;
+            }
         }
 
         .description
