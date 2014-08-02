@@ -222,7 +222,7 @@
                     case 'scheme-changed':
                         // dump("applying scheme\n");
                         if (this.inited) {
-                            this.scheme.applyScheme(this.scimoz, this.language, this.encoding, this.alternateFaceType);
+                            this.applyColorScheme();
                         }
                         break;
                     case 'scrollEndAtLastLine': // pref notification
