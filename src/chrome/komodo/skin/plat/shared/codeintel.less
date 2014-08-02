@@ -1,0 +1,106 @@
+/* Copyright (c) 2010-2011 ActiveState Software Inc. .
+   See the file LICENSE.txt for licensing information. */
+
+@import url("chrome://komodo/skin/_config/codeintel.less");
+
+scintilla[anonid="scintilla"] > panel[anonid="autocompletepopup"]
+{
+    -moz-appearance: @codeintel-autocomplete-appearance;
+    border-radius: 2px;
+
+    & > hbox > grid
+    {
+        -moz-user-focus: normal;
+    }
+
+    .ko-autocomplete-item
+    {
+        -moz-box-align: center;
+        /* The default font; if possible, the item construction code will use the
+         * scintilla default style font instead.
+         */
+
+        font-family: @codeintel-autocomplete-item-font;
+        font-size: @codeintel-autocomplete-item-font-size;
+        border: 1px solid rgba(0,0,0,0);
+        border-radius: 2px;
+        padding: 2px;
+
+        &[focused]:not([selected])
+        {
+            border: 0;
+            border-top: 1px;
+            border-bottom: 1px;
+            border-style: dotted;
+        }
+
+        & > [column-type="image"]
+        {
+            min-width: 18px;
+            -moz-box-pack: center;
+            -moz-box-align: center;
+        }
+
+        & > [column-type="text"] text-wrapper
+        {
+            /* this is needed to make cropping work correctly */
+            display: block;
+
+            & > description
+            {
+                display: block;
+                overflow: hidden;
+                white-space: nowrap;
+                /* Normally the margins are thicker on the bottom than the top. Try to make
+                 * things look vaguely more centered here.
+                 */
+                margin-top: 3px;
+                margin-bottom: 2px;
+            }
+        }
+    }
+}
+
+scintilla[isDark="false"] > panel[anonid="autocompletepopup"]
+{
+    background: @codeintel-autocomplete-background;
+
+    .ko-autocomplete-item
+    {
+        background: @codeintel-autocomplete-item-background;
+        color: @codeintel-autocomplete-item-color;
+
+        &[selected]
+        {
+            background: @codeintel-autocomplete-item-background-selected;
+            color: @codeintel-autocomplete-item-color-selected;
+        }
+
+        &[focused]:not([selected])
+        {
+            border-color: @codeintel-autocomplete-item-border-color-focused;
+        }
+    }
+}
+
+scintilla[isDark="true"] > panel[anonid="autocompletepopup"]
+{
+    background: @codeintel-autocomplete-lightbg-background;
+
+    .ko-autocomplete-item
+    {
+        background: @codeintel-autocomplete-lightbg-item-background;
+        color: @codeintel-autocomplete-lightbg-item-color;
+
+        &[selected]
+        {
+            background: @codeintel-autocomplete-lightbg-item-background-selected;
+            color: @codeintel-autocomplete-lightbg-item-color-selected;
+        }
+
+        &[focused]:not([selected])
+        {
+            border-color: @codeintel-autocomplete-item-lightbg-border-color-focused;
+        }
+    }
+}

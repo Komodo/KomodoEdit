@@ -1836,9 +1836,6 @@
             </handler>
 
         </handlers>
-        <resources>
-            <stylesheet src="chrome://komodo/skin/codeintel/autocomplete-popup.css"/>
-        </resources>
     </binding>
 
 </bindings>
