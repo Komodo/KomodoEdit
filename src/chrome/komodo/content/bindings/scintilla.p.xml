@@ -705,6 +705,20 @@
                 // flashes of color when closing tabs - bug 97061.
                 this._embed.style.backgroundColor = this.scheme.backgroundColor;
 
+                // Set isDark attribute, for use in CSS
+                var self = this;
+                var setIsDark = function() {
+                    var isDark = require("ko/color").isDark(self.scheme.backgroundColor);
+                    self.setAttribute("isDark", isDark);
+                }
+                if ("require" in window)
+                    setIsDark();
+                else
+                {
+                    self.setAttribute("isDark", false);
+                    window.addEventListener("komodo-post-startup", setIsDark.bind(this));
+                }
+
                 // Provide background color on wrapper so scrollbars can use
                 // transparency
                 if (document.getBindingParent(this))

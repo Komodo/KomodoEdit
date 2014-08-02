@@ -293,10 +293,10 @@ exports.isDark = function color_isDark(hexstring) {
                     hexstring[1] + hexstring[1] +
                     hexstring[2] + hexstring[2];
     }
-    var color_parts = [parseInt(hexstring.slice(0, 2), 16),
+    var [r,g,b] = [parseInt(hexstring.slice(0, 2), 16),
                        parseInt(hexstring.slice(2, 4), 16),
                        parseInt(hexstring.slice(4, 6), 16)];
-    var hsv = exports.rgb2hsv(color_parts);
+    var hsv = exports.rgb2hsv(r,g,b);
     return hsv[2] <= 0.5;
 }
 
