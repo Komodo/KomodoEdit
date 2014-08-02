@@ -146,14 +146,13 @@
 
                 var ext = match[2];
                 info.ext = match[2].substr(0,4).toUpperCase();
+                if (match.length == 4) info.size = match[3];
                 var lang = langSvc.suggestLanguageForFile(match[1]);
                 if (lang)
                 {
                     log.debug("Found related language: " + lang);
 
                     info.language = lang;
-                    if (match.length == 4) info.size = match[3];
-
                     var preset = getPreset(info.language);
                     if (preset)
                     {
