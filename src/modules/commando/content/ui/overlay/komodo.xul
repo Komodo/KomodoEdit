@@ -61,7 +61,7 @@
                 <vbox flex="1" id="commando-results-wrapper">
                     <!-- Result template -->
                     <script id="tpl-co-result" type="x-dot-template">
-                        <richlistitem class="{{?it.classList}}{{=it.classList}}{{?}}">
+                        <richlistitem class="{{?it.classList}}{{=it.classList}}{{?}}" id="co-result-item-{{=it.id}}">
                             <hbox>
                                 <vbox class="icon-wrapper" pack="center" align="center">
                                     {{?it.icon}}
