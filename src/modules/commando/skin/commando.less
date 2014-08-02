@@ -87,16 +87,6 @@ richlistbox#commando-results
         color: @window-color;
         padding: 5px;
 
-        &:not(.compact) .compact
-        {
-            visibility: collapse;
-        }
-
-        &.compact .full
-        {
-            visibility: collapse;
-        }
-
         &:nth-child(even)
         {
             background-color: rgba(0,0,0,0.05);
@@ -114,14 +104,19 @@ richlistbox#commando-results
             margin: 0 0 0 6px;
         }
 
-        &:not(.compact) image
+        .icon
+        {
+            background-repeat: no-repeat;
+        }
+
+        &:not(.compact) .icon
         {
             width: 32px;
             height: 32px;
             max-height: 32px;
         }
 
-        &.compact image
+        &.compact .icon
         {
             width: 16px;
             height: 16px;

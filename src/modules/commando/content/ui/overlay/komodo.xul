@@ -65,25 +65,15 @@
                             <hbox>
                                 <vbox class="icon-wrapper" pack="center" align="center">
                                     {{?it.icon}}
-                                        <image src='{{=it.icon}}'/>
+                                        <box class="icon" style='background-image: url({{=it.icon}})'></box>
                                     {{?}}
                                 </vbox>
-                                <vbox flex="1" class="full">
-                                    <html:div class="entry-wrapper">
-                                        <html:span class="title">{{!it.name}}</html:span>
-                                        {{?it.description}}
-                                            <html:div class="description">{{=it.description}}</html:div>
-                                        {{?}}
-                                    </html:div>
-                                </vbox>
-                                <hbox flex="1" class="compact">
-                                    <html:div class="entry-wrapper">
-                                        <html:span class="title">{{!it.name}}</html:span>
-                                        {{?it.description}}
-                                            <html:span class="description">{{=it.description}}</html:span>
-                                        {{?}}
-                                    </html:div>
-                                </hbox>
+                                <html:div class="entry-wrapper">
+                                    <html:span class="title">{{!it.name}}</html:span>
+                                    {{?it.description}}
+                                        <html:div class="description">{{=it.description}}</html:div>
+                                    {{?}}
+                                </html:div>
                             </hbox>
                         </richlistitem>
                     </script>
