@@ -1,37 +1,35 @@
-#    Name:       Base16 Ocean Dark
-#    Author:     Chris Kempson (http://chriskempson.com)
+#    Name:       Base16 Grayscale Light
+#    Author:     Alexandre Gavioli (https://github.com/Alexx2/)
 
 #    Komodo template by Nathan Rijksen (https://github.com/Naatan)
 #    Original Base16 color scheme by Chris Kempson (https://github.com/chriskempson/base16)
 
-Version = 10
+Version = 13
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 
-def RgbToBgr(rgb):
-    return sum(int(v) * (256 ** i) for i, v in enumerate(rgb))
+B00 = 0x101010
+B01 = 0x252525
+B02 = 0x464646
+B03 = 0x525252
+B04 = 0xababab
+B05 = 0xb9b9b9
+B06 = 0xe3e3e3
+B07 = 0xf7f7f7
+B08 = 0x7c7c7c
+B09 = 0x999999
+B0A = 0xa0a0a0
+B0B = 0x8e8e8e
+B0C = 0x868686
+B0D = 0x686868
+B0E = 0x747474
+B0F = 0x5e5e5e
 
-B00 = RgbToBgr([16, 16, 16])
-B01 = RgbToBgr([37, 37, 37])
-B02 = RgbToBgr([70, 70, 70])
-B03 = RgbToBgr([82, 82, 82])
-B04 = RgbToBgr([171, 171, 171])
-B05 = RgbToBgr([185, 185, 185])
-B06 = RgbToBgr([227, 227, 227])
-B07 = RgbToBgr([247, 247, 247])
-B08 = RgbToBgr([124, 124, 124])
-B09 = RgbToBgr([153, 153, 153])
-B0A = RgbToBgr([160, 160, 160])
-B0B = RgbToBgr([142, 142, 142])
-B0C = RgbToBgr([134, 134, 134])
-B0D = RgbToBgr([104, 104, 104])
-B0E = RgbToBgr([116, 116, 116])
-B0F = RgbToBgr([94, 94, 94])
 
 # More descriptive color names
-baseFore = B00
+baseFore = B02
 baseForeBlend1 = B01
-baseForeBlend2 = B02
+baseForeBlend2 = B03
 
 baseBack = B07
 baseBackBlend1 = B06
@@ -59,7 +57,8 @@ CommonStyles = {
         'fore': green
     },
     'bracebad': {
-        'fore': baseForeBlend1
+        'fore': baseForeBlend1,
+        'size': 13
     },
     'bracehighlight': {
         'fore': baseFore,
@@ -105,7 +104,7 @@ CommonStyles = {
         'fore': blue
     },
     'identifiers': {
-        'fore': baseForeBlend1
+        'fore': red
     },
     'indent guides': {
         'fore': baseBackBlend1
@@ -114,7 +113,7 @@ CommonStyles = {
         'fore': purple
     },
     'keywords2': {
-        'fore': red
+        'fore': teal
     },
     'linenumbers': {
         'back': baseBackBlend1,
@@ -127,7 +126,7 @@ CommonStyles = {
         'fore': orange
     },
     'operators': {
-        'fore': blue
+        'fore': baseFore
     },
     'preprocessor': {
         'fore': baseForeBlend1
@@ -290,88 +289,87 @@ Indicators = {
         'style': 5
     },
     'collab_remote_change': {
-        'alpha': 120,
+        'alpha': 255,
         'color': yellow,
         'draw_underneath': True,
         'style': 7
     },
     'collab_remote_cursor_1': {
-        'alpha': 100,
+        'alpha': 255,
         'color': yellow,
         'draw_underneath': True,
         'style': 6
     },
     'collab_remote_cursor_2': {
-        'alpha': 100,
+        'alpha': 255,
         'color': orange,
         'draw_underneath': True,
         'style': 6
     },
     'collab_remote_cursor_3': {
-        'alpha': 100,
+        'alpha': 255,
         'color': red,
         'draw_underneath': True,
         'style': 6
     },
     'collab_remote_cursor_4': {
-        'alpha': 100,
+        'alpha': 255,
         'color': blue,
         'draw_underneath': True,
         'style': 6
     },
     'collab_remote_cursor_5': {
-        'alpha': 100,
+        'alpha': 255,
         'color': teal,
         'draw_underneath': True,
         'style': 6
     },
     'find_highlighting': {
         'alpha': 100,
-        'color': teal,
+        'color': baseBackBlend2,
         'draw_underneath': True,
         'style': 7
     },
     'linter_error': {
-        'alpha': 100,
+        'alpha': 255,
         'color': red,
         'draw_underneath': True,
-        'style': 0
+        'style': 13
     },
     'linter_warning': {
-        'alpha': 100,
+        'alpha': 255,
         'color': yellow,
         'draw_underneath': True,
         'style': 13
     },
     'multiple_caret_area': {
-        'alpha': 100,
-        'color': baseBackBlend2,
-        'draw_underneath': True,
-        'style': 6
-    },
-    'soft_characters': {
-        'alpha': 100,
-        'color': baseForeBlend2,
+        'alpha': 255,
+        'color': blue,
         'draw_underneath': False,
         'style': 6
     },
+    'soft_characters': {
+        'alpha': 255,
+        'color': baseForeBlend2,
+        'draw_underneath': False,
+        'style': 0
+    },
     'tabstop_current': {
-        'alpha': 100,
+        'alpha': 255,
         'color': baseBackBlend1,
         'draw_underneath': True,
         'style': 7
     },
     'tabstop_pending': {
-        'alpha': 100,
+        'alpha': 255,
         'color': baseBackBlend2,
         'draw_underneath': True,
         'style': 6
     },
     'tag_matching': {
-        'alpha': 100,
-        'color': yellow,
-        'draw_underneath': True,
-        'style': 7
+        'alpha': 255,
+        'color': blue,
+        'draw_underneath': False,
+        'style': 0
     }
 }
-
