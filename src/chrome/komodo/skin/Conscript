@@ -73,8 +73,6 @@ $cons->InstallInChrome('templates/new.css');
 $cons->InstallInChrome('prefs/prefs.css');
 $cons->InstallInChrome('prefs/pref-codeintel.css');
 
-$cons->InstallInChrome('codeintel/autocomplete-popup.css');
-
 $cons->InstallInChrome('dialogs/customizeToolbar.css');
 $cons->InstallInChrome('dialogs/find2.css');
 

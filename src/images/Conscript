@@ -73,6 +73,21 @@ $cons->Install($imagesDir, "icons/cb_trait.png");
 $cons->Install($imagesDir, "icons/cb_xml_element.png");
 $cons->Install($imagesDir, "icons/cb_xml_attribute.png");
 
+$cons->InstallAs("$imagesDir/codeintel/cb_class.svg", "icons/codeintel/cb_class.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_directory.svg", "icons/codeintel/cb_directory.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_function.svg", "icons/codeintel/cb_function.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_module.svg", "icons/codeintel/cb_module.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_variable.svg", "icons/codeintel/cb_variable.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_variable_scalar.svg", "icons/codeintel/cb_variable_scalar.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_variable_array.svg", "icons/codeintel/cb_variable_array.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_variable_hash.svg", "icons/codeintel/cb_variable_hash.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_constant.svg", "icons/codeintel/cb_constant.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_interface.svg", "icons/codeintel/cb_interface.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_namespace.svg", "icons/codeintel/cb_namespace.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_trait.svg", "icons/codeintel/cb_trait.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_xml_element.svg", "icons/codeintel/cb_xml_element.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_xml_attribute.svg", "icons/codeintel/cb_xml_attribute.svg");
+
 # Find system icons
 $cons->Install($imagesDir, "icons/find_stop.png");
 $cons->Install($imagesDir, "icons/find_stop_disable.png");
