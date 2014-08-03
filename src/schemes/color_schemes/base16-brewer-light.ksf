@@ -61,8 +61,8 @@ CommonStyles = {
         'size': 13
     },
     'bracehighlight': {
-        'fore': baseFore,
-        'back': baseBackBlend1
+        'fore': baseBack,
+        'back': baseFore
     },
     'classes': {
         'fore': yellow
@@ -104,7 +104,7 @@ CommonStyles = {
         'fore': blue
     },
     'identifiers': {
-        'fore': red
+        'fore': baseForeBlend1
     },
     'indent guides': {
         'fore': baseBackBlend1
@@ -113,7 +113,7 @@ CommonStyles = {
         'fore': purple
     },
     'keywords2': {
-        'fore': teal
+        'fore': red
     },
     'linenumbers': {
         'back': baseBackBlend1,
@@ -126,7 +126,7 @@ CommonStyles = {
         'fore': orange
     },
     'operators': {
-        'fore': baseFore
+        'fore': blue
     },
     'preprocessor': {
         'fore': baseForeBlend1
