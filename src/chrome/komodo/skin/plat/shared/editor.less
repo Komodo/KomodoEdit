@@ -1,11 +1,13 @@
 /* Copyright (c) 2010-2011 ActiveState Software Inc. .
    See the file LICENSE.txt for licensing information. */
 
-@import url("chrome://komodo/skin/_config/codeintel.less");
+@import url("chrome://komodo/skin/_config/editor.less");
+
+/* Autocompletions */
 
 scintilla[anonid="scintilla"] > panel[anonid="autocompletepopup"]
 {
-    -moz-appearance: @codeintel-autocomplete-appearance;
+    -moz-appearance: @editor-autocomplete-appearance;
     border-radius: 2px;
 
     & > hbox > grid
@@ -20,8 +22,8 @@ scintilla[anonid="scintilla"] > panel[anonid="autocompletepopup"]
          * scintilla default style font instead.
          */
 
-        font-family: @codeintel-autocomplete-item-font;
-        font-size: @codeintel-autocomplete-item-font-size;
+        font-family: @editor-autocomplete-item-font;
+        font-size: @editor-autocomplete-item-font-size;
         border: 1px solid rgba(0,0,0,0);
         border-radius: 2px;
         padding: 2px;
@@ -63,44 +65,45 @@ scintilla[anonid="scintilla"] > panel[anonid="autocompletepopup"]
 
 scintilla[isDark="false"] > panel[anonid="autocompletepopup"]
 {
-    background: @codeintel-autocomplete-background;
+    background: @editor-autocomplete-background;
 
     .ko-autocomplete-item
     {
-        background: @codeintel-autocomplete-item-background;
-        color: @codeintel-autocomplete-item-color;
+        background: @editor-autocomplete-item-background;
+        color: @editor-autocomplete-item-color;
 
         &[selected]
         {
-            background: @codeintel-autocomplete-item-background-selected;
-            color: @codeintel-autocomplete-item-color-selected;
+            background: @editor-autocomplete-item-background-selected;
+            color: @editor-autocomplete-item-color-selected;
         }
 
         &[focused]:not([selected])
         {
-            border-color: @codeintel-autocomplete-item-border-color-focused;
+            border-color: @editor-autocomplete-item-border-color-focused;
         }
     }
 }
 
 scintilla[isDark="true"] > panel[anonid="autocompletepopup"]
 {
-    background: @codeintel-autocomplete-lightbg-background;
+    background: @editor-autocomplete-lightbg-background;
 
     .ko-autocomplete-item
     {
-        background: @codeintel-autocomplete-lightbg-item-background;
-        color: @codeintel-autocomplete-lightbg-item-color;
+        background: @editor-autocomplete-lightbg-item-background;
+        color: @editor-autocomplete-lightbg-item-color;
 
         &[selected]
         {
-            background: @codeintel-autocomplete-lightbg-item-background-selected;
-            color: @codeintel-autocomplete-lightbg-item-color-selected;
+            background: @editor-autocomplete-lightbg-item-background-selected;
+            color: @editor-autocomplete-lightbg-item-color-selected;
         }
 
         &[focused]:not([selected])
         {
-            border-color: @codeintel-autocomplete-item-lightbg-border-color-focused;
+            border-color: @editor-autocomplete-item-lightbg-border-color-focused;
         }
     }
 }
+
