@@ -16,7 +16,7 @@
    viewBox="0 0 16 16"
    id="svg2"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="cb_function.svg">
+   sodipodi:docname="cb_class.svg">
   <metadata
      id="metadata13">
     <rdf:RDF>
@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -50,16 +50,20 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="959"
-     inkscape:window-height="1022"
+     inkscape:window-height="1021"
      id="namedview9"
-     showgrid="false"
-     inkscape:zoom="35.375"
+     showgrid="true"
+     inkscape:zoom="50.8125"
      inkscape:cx="8"
      inkscape:cy="8"
      inkscape:window-x="0"
      inkscape:window-y="29"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg2" />
+     inkscape:current-layer="svg2">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2988" />
+  </sodipodi:namedview>
   <g
      id="icomoon-ignore">
     <line
@@ -73,7 +77,7 @@
        id="line5" />
   </g>
   <path
-     d="m 12.2664,1.6 -8.5328,0 C 2.56,1.6 1.6,2.56 1.6,3.7336 l 0,8.5328 C 1.6,13.4408 2.56,14.4 3.7336,14.4 l 8.5328,0 C 13.44,14.4 14.4,13.4408 14.4,12.2664 l 0,-8.5328 C 14.4,2.56 13.44,1.6 12.2664,1.6 z"
+     d="M 11.99975,2 4.00025,2 C 2.9,2 2,2.9 2,4.00025 l 0,7.9995 C 2,13.10075 2.9,14 4.00025,14 l 7.9995,0 C 13.1,14 14,13.10075 14,11.99975 l 0,-7.9995 C 14,2.9 13.1,2 11.99975,2 z"
      id="path7"
      inkscape:connector-curvature="0"
      style="fill:#ad6952;fill-opacity:1"
@@ -81,7 +85,7 @@
   <g
      style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Monospace;-inkscape-font-specification:Monospace"
      id="text4279"
-     transform="translate(-2.5516547,1.6065731)">
+     transform="matrix(0.87074838,0,0,0.89982424,-1.1419178,2.2470395)">
     <path
        d="M 11.137592,9.7274113 C 10.211808,9.7274112 9.491106,9.4442083 8.9754829,8.8778019 8.459857,8.3074907 8.2020448,7.4910853 8.2020454,6.4285831 8.2020448,5.3504624 8.4618101,4.5203851 8.9813423,3.9383488 9.5047779,3.3524175 10.248918,3.0594491 11.213764,3.0594425 c 0.312496,6.6e-6 0.62109,0.03321 0.925781,0.099609 0.308589,0.062506 0.562495,0.1445376 0.761719,0.2460937 L 12.578999,4.2840519 C 12.036025,4.0809324 11.573135,3.97937 11.190327,3.9793644 10.541886,3.97937 10.063371,4.1844479 9.7547798,4.5945988 9.4461842,5.0008534 9.2918874,5.6082746 9.2918892,6.4168644 c -1.8e-6,0.7773462 0.154295,1.3730487 0.4628906,1.7871094 0.3085912,0.4101572 0.7656222,0.6152351 1.3710942,0.6152343 0.566402,8e-7 1.123042,-0.124999 1.669921,-0.375 l 0,0.9375 c -0.445317,0.2304688 -0.998051,0.3457031 -1.658203,0.3457032"
        style="fill:#ffffff;font-family:Ubuntu Sans Mono;-inkscape-font-specification:Ubuntu Sans Mono"

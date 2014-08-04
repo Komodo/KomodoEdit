@@ -16,30 +16,7 @@
    viewBox="0 0 16 16"
    id="svg2"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="cb_interface.svg">
-  <metadata
-     id="metadata13">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs
-     id="defs11">
-    <linearGradient
-       id="linearGradient5254"
-       osb:paint="solid">
-      <stop
-         style="stop-color:#000000;stop-opacity:1;"
-         offset="0"
-         id="stop5256" />
-    </linearGradient>
-  </defs>
+   sodipodi:docname="cb_namespace.svg">
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -50,40 +27,71 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="959"
-     inkscape:window-height="1022"
+     inkscape:window-height="1021"
      id="namedview9"
-     showgrid="false"
-     inkscape:zoom="28.9375"
+     showgrid="true"
+     inkscape:zoom="50.8125"
      inkscape:cx="8"
      inkscape:cy="8"
      inkscape:window-x="0"
      inkscape:window-y="29"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg2" />
+     inkscape:current-layer="svg2">
+    <inkscape:grid
+       id="grid2988"
+       type="xygrid" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata13">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs11">
+    <linearGradient
+       osb:paint="solid"
+       id="linearGradient5254">
+      <stop
+         id="stop5256"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:1;" />
+    </linearGradient>
+  </defs>
   <g
      id="icomoon-ignore">
     <line
-       stroke-width="1"
-       x1=""
-       y1=""
-       x2=""
-       y2=""
-       stroke="#449FDB"
+       id="line5"
        opacity=""
-       id="line5" />
+       stroke="#449FDB"
+       y2=""
+       x2=""
+       y1=""
+       x1=""
+       stroke-width="1" />
   </g>
   <path
-     d="m 12.2664,1.6 -8.5328,0 C 2.56,1.6 1.6,2.56 1.6,3.7336 l 0,8.5328 C 1.6,13.4408 2.56,14.4 3.7336,14.4 l 8.5328,0 C 13.44,14.4 14.4,13.4408 14.4,12.2664 l 0,-8.5328 C 14.4,2.56 13.44,1.6 12.2664,1.6 z"
-     id="path7"
-     inkscape:connector-curvature="0"
+     transform="matrix(1.000000,0.000000,0.000000,1.000000,0.000000,0.000000)"
+     sodipodi:nodetypes="sssssssss"
      style="fill:#9aa65c;fill-opacity:0.98823529"
-     sodipodi:nodetypes="sssssssss" />
+     inkscape:connector-curvature="0"
+     id="path7"
+     d="M12.0 2.0L4.00024999375 2.0C2.9 2.0 2.0 2.9 2.0 4.00025L2.0 11.99975C2.0 13.10075 2.9 14.0 4.00024999375 14.0L11.9997500062 14.0C13.1000003846 14.0 14.0 13.10075 14.0 11.99975L14.0 4.00025C14.0002499938 2.9 13.1002503784 2.0 12.0 2.0Z" />
   <g
-     style="font-size:10.20103836000000008px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono"
-     id="text4714">
+     id="text4714"
+     style="font-size:10.20103836px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono"
+     transform="matrix(1.2177545,0,0,1.2258347,-1.7420365,-1.8117816)">
     <path
-       d="m 8.4182426,5.5568517 0,4.8862973 1.2241246,0 0,0.714073 -3.2847344,0 0,-0.714073 1.2241246,0 0,-4.8862973 -1.2241246,0 0,-0.7140727 3.2847344,0 0,0.7140727 -1.2241246,0"
+       id="path4719"
        style="fill:#ffffff"
-       id="path4719" />
+       d="m 8.4182426,5.5568517 4e-7,4.8946243 1.2241246,0 0,0.81577 -3.2847344,0 0,-0.81577 1.2241246,0 -4e-7,-4.8946243 -1.2241246,0 4e-7,-0.8157707 3.2847344,0 -4e-7,0.8157707 -1.2241246,0"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccccccccc" />
   </g>
 </svg>

@@ -10,36 +10,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   version="1.1"
-   width="16"
-   height="16"
-   viewBox="0 0 16 16"
-   id="svg2"
+   sodipodi:docname="cb_function.svg"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="cb_function_private.svg">
-  <metadata
-     id="metadata13">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs
-     id="defs11">
-    <linearGradient
-       id="linearGradient5254"
-       osb:paint="solid">
-      <stop
-         style="stop-color:#000000;stop-opacity:1;"
-         offset="0"
-         id="stop5256" />
-    </linearGradient>
-  </defs>
+   id="svg2"
+   viewBox="0 0 16 16"
+   height="16"
+   width="16"
+   version="1.1">
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -49,41 +26,72 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1258"
-     inkscape:window-height="814"
+     inkscape:window-width="958"
+     inkscape:window-height="1013"
      id="namedview9"
-     showgrid="false"
-     inkscape:zoom="39.125"
-     inkscape:cx="8"
-     inkscape:cy="8"
+     showgrid="true"
+     inkscape:zoom="55.724138"
+     inkscape:cx="6.75"
+     inkscape:cy="9.25"
      inkscape:window-x="0"
      inkscape:window-y="29"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg2" />
+     inkscape:current-layer="svg2">
+    <inkscape:grid
+       id="grid2988"
+       type="xygrid" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata13">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs11">
+    <linearGradient
+       osb:paint="solid"
+       id="linearGradient5254">
+      <stop
+         id="stop5256"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:1;" />
+    </linearGradient>
+  </defs>
   <g
      id="icomoon-ignore">
     <line
-       stroke-width="1"
-       x1=""
-       y1=""
-       x2=""
-       y2=""
-       stroke="#449FDB"
+       id="line5"
        opacity=""
-       id="line5" />
+       stroke="#449FDB"
+       y2=""
+       x2=""
+       y1=""
+       x1=""
+       stroke-width="1" />
   </g>
   <path
-     d="m 12.2664,1.6 -8.5328,0 C 2.56,1.6 1.6,2.56 1.6,3.7336 l 0,8.5328 C 1.6,13.4408 2.56,14.4 3.7336,14.4 l 8.5328,0 C 13.44,14.4 14.4,13.4408 14.4,12.2664 l 0,-8.5328 C 14.4,2.56 13.44,1.6 12.2664,1.6 z"
-     id="path7"
-     inkscape:connector-curvature="0"
+     transform="matrix(1.000000,0.000000,0.000000,1.000000,0.000000,0.000000)"
+     sodipodi:nodetypes="sssssssss"
      style="fill:#4b9f62;fill-opacity:1"
-     sodipodi:nodetypes="sssssssss" />
+     inkscape:connector-curvature="0"
+     id="path7"
+     d="M12.0 2.0L4.00024999375 2.0C2.9 2.0 2.0 2.9 2.0 4.00025L2.0 11.99975C2.0 13.10075 2.9 14.0 4.00024999375 14.0L11.9997500062 14.0C13.1000003846 14.0 14.0 13.10075 14.0 11.99975L14.0 4.00025C14.0002499938 2.9 13.1002503784 2.0 12.0 2.0Z" />
   <g
-     style="font-size:9.75362587000000048px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Monospace;-inkscape-font-specification:Monospace"
-     id="text3752">
+     id="text3752"
+     style="font-size:9.75362587px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Monospace;-inkscape-font-specification:Monospace"
+     transform="matrix(1.1151544,0,0,0.90395227,-0.73499866,0.71335676)">
     <path
-       d="m 6.9953764,11.379631 0,-3.8526822 -0.9558553,0 0,-0.6730002 0.9558553,0 0,-0.4096522 C 6.9953748,6.0931711 7.0441429,5.8038138 7.1416808,5.5762236 7.2392152,5.3421427 7.3660122,5.1535728 7.5220722,5.0105133 7.6846304,4.8674667 7.8699491,4.7666793 8.0780289,4.7081509 c 0.2145769,-0.058515 0.43891,-0.087776 0.6730002,-0.087783 0.2340834,6.8e-6 0.4681702,0.026016 0.702261,0.078029 0.2405852,0.052026 0.4649184,0.1137989 0.6729999,0.1853189 L 9.9799859,5.5762236 C 9.8369283,5.5047029 9.658112,5.44293 9.4435365,5.3909048 9.2289529,5.3388915 9.0111222,5.3128818 8.7900436,5.3128758 c -0.136554,6e-6 -0.2666023,0.019513 -0.3901451,0.058522 C 8.2828522,5.4039156 8.1788136,5.4656885 8.0877825,5.5567164 7.9967461,5.6412536 7.9252196,5.758297 7.8732027,5.9078469 7.821181,6.0509054 7.7951713,6.2329729 7.7951737,6.45405 l 0,0.3998986 1.8239281,0 0,0.6730002 -1.8239281,0 0,3.8526822 -0.7997973,0"
-       style="font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono;fill:#ffffff"
-       id="path5303" />
+       id="path5303"
+       style="fill:#ffffff;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono"
+       d="m 6.936258,11.379631 0.00737,-3.3187593 -0.8967369,0 0,-0.7900245 0.8967369,0 -0.00737,-0.8265508 C 6.9331321,6.0931922 7.0441429,5.6622104 7.1416808,5.4346202 7.2392148,5.2005393 7.3660122,5.0119694 7.5220722,4.8689099 7.6846304,4.7258633 7.8699491,4.6250759 8.0780289,4.5665475 c 0.2145769,-0.058515 0.43891,-0.087776 0.6730002,-0.087783 0.2340834,6.8e-6 0.4681702,0.026016 0.702261,0.078029 0.2405852,0.052026 0.4649184,0.1137989 0.6729999,0.1853189 L 9.9799859,5.4346202 C 9.8369283,5.3630995 9.658112,5.3013266 9.4435365,5.2493014 9.2289529,5.1972881 9.0111222,5.1712784 8.7900436,5.1712724 c -0.136554,6e-6 -0.2666023,0.019513 -0.3901451,0.058522 C 8.2828522,5.2623122 8.1788136,5.3240851 8.0877825,5.415113 7.9967461,5.4996502 7.9252196,5.6166936 7.8732027,5.7662435 7.821181,5.909302 7.8329924,6.2329729 7.8329948,6.45405 l 0.00737,0.8167972 1.786107,0 0,0.7900245 -1.786107,0 -0.00737,3.3187593 -0.8967368,0"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccsccccccccccccccccccc" />
   </g>
 </svg>
