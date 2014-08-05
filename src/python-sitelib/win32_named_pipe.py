@@ -52,6 +52,7 @@ ReadFile = _decl("ReadFile", BOOL, (HANDLE, LPVOID, DWORD,
                                     PTR(DWORD), PTR(OVERLAPPED)))
 GetOverlappedResult = _decl("GetOverlappedResult", BOOL,
                             (HANDLE, PTR(OVERLAPPED), PTR(DWORD), BOOL))
+ERROR_ACCESS_DENIED = 5
 ERROR_IO_PENDING = 997
 FILE_FLAG_OVERLAPPED = 0x40000000
 FILE_FLAG_FIRST_PIPE_INSTANCE = 0x00080000
