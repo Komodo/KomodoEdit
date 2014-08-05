@@ -471,8 +471,10 @@
         log.debug(searchUuid + " - Rendering "+results.length+" Results");
 
         // Replace result elem with temporary cloned node so as not to paint the DOM repeatedly
-        var resultElem = $(elem('results').replaceWith(elem('results').element().cloneNode()));
-        delete local.elemCache["results"];
+        var resultElem = elem('results');
+        var tmpResultElem = resultElem.element().cloneNode();
+        resultElem.element().clearSelection();
+        resultElem = $(resultElem.replaceWith(tmpResultElem));
         
         var maxResults = ko.prefs.getLong("commando_search_max_results", 100);
         maxResults -= local.resultsRendered;
@@ -494,15 +496,9 @@
         resultElem.addClass("has-results");
         resultElem.css("maxHeight", (window.screen.availHeight / 2) + "px");
 
-        elem('results').replaceWith(resultElem);
-        delete local.elemCache["results"];
+        tmpResultElem.parentNode.replaceChild(resultElem.element(), tmpResultElem);
 
-        // Work around bug where selectedIndex cannot be modified - Todo: find proper fix
-        window.setTimeout(function() {
-            resultElem = elem('results');
-            if (resultElem.element().selectedIndex == -1)
-                resultElem.element().selectedIndex = 0;
-        }, 0);
+        resultElem.element().selectedIndex = 0;
     }
 
     // Todo: prevent multiple paints

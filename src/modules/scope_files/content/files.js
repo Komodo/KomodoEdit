@@ -177,7 +177,12 @@
             
             if (entry == "done") // search complete
             {
-                commando.onSearchComplete("scope-files", uuid);
+                // Since python is multi-threaded, results might still be processed
+                // Todo: find proper solution
+                setTimeout(function()
+                {
+                    commando.onSearchComplete("scope-files", uuid);
+                }, 100)
                 return;
             }
 
