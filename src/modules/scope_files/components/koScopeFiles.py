@@ -32,6 +32,8 @@ class koScopeFiles:
     _history = None
     activeUuid = None
     walker = None
+    resultsPending = []
+    resultTimer = None
 
     @property
     def history(self):
@@ -47,6 +49,11 @@ class koScopeFiles:
         log.debug("Starting Search: " + query)
 
         self.activeUuid = uuid
+        self.resultsPending = []
+        if self.resultTimer:
+            self.resultTimer.cancel()
+            self.resultTimer = None
+
         queryOpts = {}
         queryOpts["numResults"] = 0
         queryOpts["callback"] = callback
@@ -89,7 +96,7 @@ class koScopeFiles:
 
     @components.ProxyToMainThreadAsync
     def walkCallbackComplete(self, uuid, queryOpts):
-        if (uuid is self.activeUuid):
+        if (uuid is self.activeUuid and len(self.resultsPending) == 0):
             log.debug(uuid + " End Reached")
             queryOpts["callback"].callback(0, "done")
 
@@ -153,10 +160,22 @@ class koScopeFiles:
 
         self.returnResult(result, uuid, queryOpts)
 
-    @components.ProxyToMainThreadAsync
     def returnResult(self, result, uuid, queryOpts):
         if (uuid is self.activeUuid):
-            queryOpts["callback"].callback(0, result)
+            self.resultsPending.append(result)
+            
+            if not self.resultTimer:
+                self.resultTimer = threading.Timer(0.05, self._returnResults,args=[uuid, queryOpts])
+                self.resultTimer.start()
+
+    @components.ProxyToMainThreadAsync
+    def _returnResults(self, uuid, queryOpts):
+        self.resultTimer.cancel()
+        self.resultTimer = None
+
+        if (uuid is self.activeUuid and len(self.resultsPending) > 0):
+            queryOpts["callback"].callback(0, self.resultsPending)
+            self.resultsPending = []
 
     def buildCache(self, path, opts):
         opts = json.loads(opts)

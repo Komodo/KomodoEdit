@@ -163,7 +163,7 @@
         opts = JSON.stringify(opts);
         log.debug(uuid + " - Path: "+ subscope.path +" - Opts: " + opts);
 
-        scope.search(query, uuid, subscope.path, opts, function(status, entry)
+        scope.search(query, uuid, subscope.path, opts, function(status, results)
         {
             if (activeUuid != uuid)
             {
@@ -174,38 +174,46 @@
                 }
                 return; // Don't waste any more time on past search queries
             }
-            
-            if (entry == "done") // search complete
+
+            if (results == "done") // search complete
             {
                 // Since python is multi-threaded, results might still be processed
                 // Todo: find proper solution
-                setTimeout(function()
+                window.setTimeout(function()
                 {
                     commando.onSearchComplete("scope-files", uuid);
                 }, 100)
                 return;
             }
 
-            var [name, path, fullPath, type, description, weight] = entry;
+            var _results = [];
+            for (let x in results)
+            {
+                let entry = results[x];
 
-            if (path != fullPath)
-                description = "<html:em class=\"subscope\">"+subscope.name+"</html:em><html:div class=\"crop\">" + description + "</html:div>";
+                var [name, path, fullPath, type, description, weight] = entry;
 
-            commando.renderResult({
-                id: path,
-                name: name,
-                description: description,
-                icon: type == 'dir' ? "chrome://komodo/skin/images/folder-32.png" : "koicon://" + path + "?size=32",
-                isScope: type == 'dir',
-                weight: weight,
-                scope: "scope-files",
-                classList: "subscope-crop",
-                data: {
-                    path: path,
-                    fullPath: fullPath,
-                },
-                allowMultiSelect: type != 'dir'
-            }, uuid);
+                if (path != fullPath)
+                    description = "<html:em class=\"subscope\">"+subscope.name+"</html:em><html:div class=\"crop\">" + description + "</html:div>";
+
+                _results.push({
+                    id: path,
+                    name: name,
+                    description: description,
+                    icon: type == 'dir' ? "chrome://komodo/skin/images/folder-32.png" : "koicon://" + path + "?size=32",
+                    isScope: type == 'dir',
+                    weight: weight,
+                    scope: "scope-files",
+                    classList: "subscope-crop",
+                    data: {
+                        path: path,
+                        fullPath: fullPath,
+                    },
+                    allowMultiSelect: type != 'dir'
+                });
+            }
+
+            commando.renderResults(_results, uuid);
         });
     }
 
