@@ -325,6 +325,7 @@ function cloneObject(what) {
  *       existing keybindings to move to the state you're implementing for N+1
  *
  * Version history:
+ * 41,42: Komodo 9.0.0 - add commando commands: Ctrl+Shift+K, Ctrl+Shift+O, Ctrl+<
  * 40: Komodo 9.0.0 - add Vi commands: zz z. z-
  * 39: Komodo 8.5.0b3 - add Ctrl+D for cmd_addNextWordToCaretSet
  * 38: Komodo 8.5.0b2 - ?
@@ -950,7 +951,31 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
                 });
             }
             break;
+        case 42:
+// #if PLATFORM != 'darwin'
+            this._remove_keybinding_sequences({
+                "cmd_goToFile":       [ "Ctrl+Shift+O" ],
+                "cmd_invokeTool":     [ "Ctrl+Shift+K" ]
+            });
+            this._add_keybinding_sequences({
+                "cmd_scope-combined-toolscmds": [ "Ctrl+Shift+K" ],
+                "cmd_scope-files":              [ "Ctrl+Shift+O" ],
+                "cmd_scope-openfiles":          [ "Ctrl+<" ]
+            });
+// #else
+            this._remove_keybinding_sequences({
+                "cmd_goToFile":       [ "Meta+Shift+O" ],
+                "cmd_invokeTool":     [ "Meta+Shift+K" ]
+            });
+            this._add_keybinding_sequences({
+                "cmd_scope-combined-toolscmds": [ "Meta+Shift+K" ],
+                "cmd_scope-files":              [ "Meta+Shift+O" ],
+                "cmd_scope-openfiles":          [ "Meta+<" ]
+            });
+            break;
+// #endif
         }
+	break;
         from_version += 1;
     }
 }
