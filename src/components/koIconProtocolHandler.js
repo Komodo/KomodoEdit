@@ -12,23 +12,23 @@ const log       = this.loggingSvc.getLogger('koiconprotocol');
 
 var mozIconsAvailable = prefs.getBooleanPref("native_mozicons_available");
 
-var getFileIconLib = function()
+var getIconLib = function()
 {
-    if ( ! ("cached" in getFileIconLib))
+    if ( ! ("cached" in getIconLib))
     {
         var windows = Services.wm.getEnumerator("Komodo");
         while (windows.hasMoreElements())
         {
             let window = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
-            getFileIconLib.cached = window.require("ko/fileicons");
+            getIconLib.cached = window.require("ko/icons");
             break;
         }
     }
 
-    if ( ! ("cached" in getFileIconLib))
+    if ( ! ("cached" in getIconLib))
         log.error("Could not find main komodo window");
 
-    return getFileIconLib.cached;
+    return getIconLib.cached;
 }
 
 function IconProtocolHandler() {
@@ -50,7 +50,7 @@ IconProtocolHandler.prototype = {
     },
 
     newChannel: function Proto_newChannel(aURI) {
-        var iconLib = getFileIconLib();
+        var iconLib = getIconLib();
 
         if (mozIconsAvailable)
             var iconFile = aURI.spec.replace(/^koicon/, 'moz-icon');
@@ -62,7 +62,7 @@ IconProtocolHandler.prototype = {
             try
             {
                 var _iconFile = iconLib.getIconForUri(aURI.spec);
-                iconFile = _iconFile;
+                if (_iconFile) iconFile = _iconFile;
             }
             catch (e)
             {
