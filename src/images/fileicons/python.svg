@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="16"
+   height="16"
+   id="svg2">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient3859">
+      <stop
+         id="stop3861"
+         style="stop-color:#eec73e;stop-opacity:1"
+         offset="0" />
+      <stop
+         id="stop3863"
+         style="stop-color:#9a8022;stop-opacity:1"
+         offset="1" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3851">
+      <stop
+         id="stop3853"
+         style="stop-color:#6699cc;stop-opacity:1"
+         offset="0" />
+      <stop
+         id="stop3855"
+         style="stop-color:#0054a7;stop-opacity:1"
+         offset="1" />
+    </linearGradient>
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(0,-1036.3622)"
+     id="layer1"
+     style="fill:#003366;fill-opacity:1">
+    <path
+       d="m 2,0 c 1,0 11,0 12,0 1,0 2,1 2,2 0,1 0,11 0,12 0,1 -1,2 -2,2 C 13,16 3,16 2,16 1,16 0,15 0,14 0,13 0,3 0,2 0,1 1,0 2,0 z"
+       transform="translate(0,1036.3622)"
+       id="rect2995"
+       style="fill:#003366;fill-opacity:1;stroke:none" />
+    <text
+       x="5.1758919"
+       y="14.543665"
+       transform="translate(0,1036.3622)"
+       id="text3921"
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#003366;fill-opacity:1;stroke:none;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono"><tspan
+         x="5.1758919"
+         y="14.543665"
+         id="tspan3923"
+         style="fill:#003366;fill-opacity:1" /></text>
+    <g
+       id="text3925"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#003366;fill-opacity:1;stroke:none;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono" />
+  </g>
+  <g
+     transform="matrix(0.07707847,0,0,0.07707847,-8.9213657,-13.240553)"
+     id="Layer_4"
+     style="fill:#eeeeee">
+    <g
+       id="g5"
+       style="fill:#eeeeee">
+      <path
+         d="m 201.72614,260.619 c 0,-16.844 -4.803,-25.493 -14.408,-25.966 -3.823,-0.18 -10.62092,0.428 -14.25092,1.838 -2.897,1.038 -4.848,2.064 -5.874,3.101 l 0,40.208 c 6.145,3.855 14.66592,5.65 19.42492,5.367 10.068,-0.667 15.108,-8.841 15.108,-24.548 z m 11.851,0.699 c 0,8.559 -2.007,15.662 -6.043,21.311 -4.499,6.395 -10.734,9.686 -18.706,9.867 -6.01,0.191 -15.26292,-1.691 -21.63392,-5.641 l 0,36.545 -10.306,-3.676 0,-81.114 c 1.691,-2.074 3.868,-3.855 6.506,-5.366 6.134,-3.574 16.65092,-5.412 25.42192,-5.502 l 0.146,0.146 c 8.018,-0.101 14.196,3.19 18.537,9.866 4.049,6.122 6.078,13.969 6.078,23.564 z"
+         id="path46"
+         style="fill:#eeeeee" />
+      <path
+         d="m 281.922,285.303 c 0,11.477 -1.148,19.426 -3.449,23.848 -2.312,4.418 -6.709,7.947 -13.205,10.574 -5.266,2.074 -10.958,3.203 -17.069,3.393 l -1.702,-6.492 c 6.213,-0.846 10.585,-1.691 13.123,-2.539 4.996,-1.689 8.424,-4.283 10.305,-7.758 1.514,-2.828 2.258,-8.23 2.258,-16.223 v -2.686 c -7.049,3.203 -14.432,4.793 -22.157,4.793 -5.074,0 -9.55,-1.59 -13.407,-4.793 -4.328,-3.484 -6.492,-7.904 -6.492,-13.258 V 231.27 l 10.305,-3.529 v 43.172 c 0,4.611 1.488,8.162 4.464,10.654 2.978,2.492 6.834,3.689 11.558,3.598 4.724,-0.104 9.787,-1.928 15.166,-5.504 v -50.365 h 10.305 v 56.007 z"
+         id="path48"
+         style="fill:#eeeeee" />
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="16"
+   height="16"
+   id="svg2">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient3859">
+      <stop
+         id="stop3861"
+         style="stop-color:#eec73e;stop-opacity:1"
+         offset="0" />
+      <stop
+         id="stop3863"
+         style="stop-color:#9a8022;stop-opacity:1"
+         offset="1" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3851">
+      <stop
+         id="stop3853"
+         style="stop-color:#6699cc;stop-opacity:1"
+         offset="0" />
+      <stop
+         id="stop3855"
+         style="stop-color:#0054a7;stop-opacity:1"
+         offset="1" />
+    </linearGradient>
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(0,-1036.3622)"
+     id="layer1"
+     style="fill:#3b8118;fill-opacity:1">
+    <path
+       d="m 2,0 c 1,0 11,0 12,0 1,0 2,1 2,2 0,1 0,11 0,12 0,1 -1,2 -2,2 C 13,16 3,16 2,16 1,16 0,15 0,14 0,13 0,3 0,2 0,1 1,0 2,0 z"
+       transform="translate(0,1036.3622)"
+       id="rect2995"
+       style="fill:#3b8118;fill-opacity:1;stroke:none" />
+    <text
+       x="5.1758919"
+       y="14.543665"
+       transform="translate(0,1036.3622)"
+       id="text3921"
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#3b8118;fill-opacity:1;stroke:none;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono"><tspan
+         x="5.1758919"
+         y="14.543665"
+         id="tspan3923"
+         style="fill:#3b8118;fill-opacity:1" /></text>
+    <g
+       id="text3925"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#3b8118;fill-opacity:1;stroke:none;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono" />
+  </g>
+  <g
+     id="text3208"
+     style="font-size:10.04168415px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono">
+    <path
+       d="m 3.0244631,11.395443 0,-0.813926 c 0.5295407,0.202665 1.0345663,0.303997 1.5150783,0.303996 0.5262704,1e-6 0.9414048,-0.129116 1.2454042,-0.38735 C 6.0889381,10.236662 6.2409361,9.8656565 6.24094,9.3851445 l 0,-4.9669072 0.9119889,0 0,4.9571009 c -4.8e-6,0.7060578 -0.2304534,1.2682868 -0.6913464,1.6866888 -0.4576325,0.415135 -1.0737964,0.622702 -1.8484936,0.622702 -0.7093263,0 -1.2388677,-0.09643 -1.5886258,-0.289286"
+       id="path2996"
+       style="letter-spacing:-0.7280221px;fill:#ffffff;fill-opacity:1;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" />
+    <path
+       d="m 8.3371418,11.346411 0,-0.872764 c 0.6897106,0.281116 1.3663469,0.421673 2.0299112,0.421673 1.144068,0 1.716103,-0.392253 1.716108,-1.1767602 -5e-6,-0.3399506 -0.116046,-0.6014525 -0.348125,-0.7845065 C 11.506218,8.7510046 11.040417,8.5336311 10.337634,8.2819322 9.6577258,8.043315 9.1690441,7.7589316 8.8715869,7.4287813 8.577396,7.0953705 8.4303011,6.6638923 8.4303019,6.1343454 8.4303011,5.5655842 8.6395027,5.1210309 9.0579072,4.8006842 9.4795776,4.4770824 10.056516,4.3152781 10.788725,4.3152708 c 0.748546,7.3e-6 1.428451,0.1274895 2.039717,0.382447 L 12.514639,5.501837 C 11.883761,5.2468787 11.295382,5.1193965 10.749499,5.11939 c -0.9577534,6.5e-6 -1.4366289,0.3415934 -1.4366272,1.0247617 -1.7e-6,0.3334205 0.1062335,0.6014599 0.3187058,0.8041193 0.2157371,0.2026686 0.6586564,0.4200421 1.3287584,0.6521211 0.804115,0.2876561 1.340194,0.5851145 1.608238,0.8923762 0.271303,0.3039991 0.406958,0.696252 0.406963,1.1767599 -5e-6,0.6276068 -0.227185,1.1211918 -0.68154,1.4807558 -0.451096,0.356297 -1.09341,0.534445 -1.926944,0.534445 -0.8662283,0 -1.5428646,-0.112772 -2.0299112,-0.338318"
+       id="path2998"
+       style="letter-spacing:-0.7280221px;fill:#ffffff;fill-opacity:1;font-family:Droid Sans Mono;-inkscape-font-specification:Droid Sans Mono" />
+  </g>
+</svg>

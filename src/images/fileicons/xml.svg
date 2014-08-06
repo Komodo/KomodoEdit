@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="16"
+   height="16"
+   id="svg2">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient3859">
+      <stop
+         id="stop3861"
+         style="stop-color:#eec73e;stop-opacity:1"
+         offset="0" />
+      <stop
+         id="stop3863"
+         style="stop-color:#9a8022;stop-opacity:1"
+         offset="1" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3851">
+      <stop
+         id="stop3853"
+         style="stop-color:#6699cc;stop-opacity:1"
+         offset="0" />
+      <stop
+         id="stop3855"
+         style="stop-color:#0054a7;stop-opacity:1"
+         offset="1" />
+    </linearGradient>
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(0,-1036.3622)"
+     id="layer1"
+     style="fill:#a857a8;fill-opacity:1">
+    <path
+       d="m 2,0 c 1,0 11,0 12,0 1,0 2,1 2,2 0,1 0,11 0,12 0,1 -1,2 -2,2 C 13,16 3,16 2,16 1,16 0,15 0,14 0,13 0,3 0,2 0,1 1,0 2,0 z"
+       transform="translate(0,1036.3622)"
+       id="rect2995"
+       style="fill:#a857a8;fill-opacity:1;stroke:none" />
+    <text
+       x="5.1758919"
+       y="14.543665"
+       transform="translate(0,1036.3622)"
+       id="text3921"
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#a857a8;fill-opacity:1;stroke:none;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono"><tspan
+         x="5.1758919"
+         y="14.543665"
+         id="tspan3923"
+         style="fill:#a857a8;fill-opacity:1" /></text>
+    <g
+       id="text3925"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#a857a8;fill-opacity:1;stroke:none;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono" />
+  </g>
+  <text
+     x="1.0222311"
+     y="10.592922"
+     id="text3819"
+     xml:space="preserve"
+     style="font-size:11.93062401px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:100%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono"><tspan
+       x="1.0222311"
+       y="10.592922"
+       id="tspan3821"
+       style="font-size:7.95374918px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:100%;letter-spacing:-0.0263772px;fill:#ffffff;font-family:Source Code Pro;-inkscape-font-specification:Source Code Pro Bold">XML</tspan></text>
+</svg>

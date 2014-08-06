@@ -229,3 +229,18 @@ $cons->KoExtUnpack("kounpack", SourcePath("openoffice/industrial.xpi"));
 
 # install fileicons
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/template.svg", 'fileicons/template.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/css.svg", 'fileicons/css.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/html.svg", 'fileicons/html.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/html5.svg", 'fileicons/html5.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/javascript.svg", 'fileicons/javascript.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/less.svg", 'fileicons/less.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/node.js.svg", 'fileicons/node.js.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/perl.svg", 'fileicons/perl.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/php.svg", 'fileicons/php.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/python.svg", 'fileicons/python.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/python3.svg", 'fileicons/python3.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/ruby.svg", 'fileicons/ruby.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/sass.svg", 'fileicons/sass.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/scss.svg", 'fileicons/scss.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/tcl.svg", 'fileicons/tcl.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/xml.svg", 'fileicons/xml.svg');
