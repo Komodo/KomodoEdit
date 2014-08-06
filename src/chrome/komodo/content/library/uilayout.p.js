@@ -1685,7 +1685,8 @@ this.unload = function uilayout_unload()
     gUilayout_Observer.destroy();
     gUilayout_Observer = null;
     _prefobserver.destroy();
-    _gPrefs.setBooleanPref("startupFullScreen", window.fullScreen)
+    // XXX: These prefs should be saved as part of the workspace.
+	_gPrefs.setBooleanPref("startupFullScreen", window.fullScreen)
     // nsIDOMChromeWindow STATE_MAXIMIZED = 1
     _gPrefs.setBooleanPref("startupMaximized", window.windowState==1)
 }
@@ -1806,7 +1807,13 @@ this.setTabPaneLayout = function uilayout_setTabPaneLayout() {
     ko.uilayout._setTabPaneLayoutForTabbox(bottomTabStyle, bottomTabbox, "bottom");
 }
 
-this.onloadDelayed = function uilayout_onloadDelayed()
+/**
+ * Restore generic window state, fullscreen, maximized and sidepane tab layout.
+ *
+ * Note: Must be called after the window is fully initialized (i.e. after the
+ *       Mozilla window persist has done it's thing).
+ */
+this.restoreWindowState = function uilayout_restoreWindowState()
 {
     try {
         if (_gPrefs.getBooleanPref("startupFullScreen")) {

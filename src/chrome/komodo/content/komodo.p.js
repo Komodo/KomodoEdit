@@ -314,7 +314,6 @@ function onloadDelay() {
         // Used by perf_timeline.perf_startup. Mark before
         // commandmentSvc.initialize() because that will immediately start
         // executing queued up commandments.
-        ko.uilayout.onloadDelayed(); // if closed fullscreen, maximize
 
         // Fix for getting keybindings working in new windows - bug 87979.
         // TODO: Better fix needed?

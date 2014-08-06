@@ -171,6 +171,10 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
         prefSvc.saveState();
     }
 
+    // Always restore the generic window state (separate from workspace prefs).
+    // Must be called after the Mozilla persist state (onload) is done.
+    setTimeout(ko.uilayout.restoreWindowState, 1);
+
     // If there is a workspace to restore - prompt the user to see if they wish
     // to restore it.
     if (!ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
