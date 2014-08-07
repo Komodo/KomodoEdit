@@ -975,7 +975,6 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
             break;
 // #endif
         }
-	break;
         from_version += 1;
     }
 }
