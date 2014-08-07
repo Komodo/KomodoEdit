@@ -20,7 +20,10 @@
     {
         if ( ! ("cached" in getShortcuts))
         {
-            getShortcuts.cached = {}
+            getShortcuts.cached =
+            {
+                "~":    system.pathFor("Home")
+            };
 
             try
             {
@@ -51,11 +54,11 @@
 
     var parsePaths = function(query, subscope, opts)
     {
-        var _query = query.split(sep);
+        var _query = query.split(sep); // Convert query to array (split by path separators)
         var shortcuts = getShortcuts();
-        if (query.match(/^\w+(?:\/|\\)/) && (_query[0] in shortcuts))
+        if (query.match(/^[\w~%_\-]+(?:\/|\\)/) && (_query[0] in shortcuts))
         {
-            log.debug("Running query against gotool shortcut path");
+            log.debug("Running query against shortcuts");
 
             opts["recursive"] = _query.length >= 1 ? !! _query[1].match(/^\W/) : false;
             subscope.path = shortcuts[_query[0]];
