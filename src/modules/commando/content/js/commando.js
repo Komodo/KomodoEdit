@@ -416,6 +416,12 @@
         else
             var selectItem = scopeElem.find("#scope-" + scopeId).element();
 
+        if ( ! selectItem)
+        {
+            log.error("selectScope: Scope could not be found: " + scopeId);
+            return;
+        }
+
         if (selectedItem != selectItem)
             scopeElem.element().selectedItem = selectItem;
 
