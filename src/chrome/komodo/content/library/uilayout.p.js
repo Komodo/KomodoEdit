@@ -819,6 +819,8 @@ function UpdateUnifiedMenuMru() {
     // Remove old entries
 	mruWrapper.innerHTML = ""
 
+	if ( ! _gPrefs.hasPref('mruMenuItemList')) return;
+
     var mruList = _gPrefs.getPref('mruMenuItemList');
     if ( ! mruList || ! mruList.length) return;
 
