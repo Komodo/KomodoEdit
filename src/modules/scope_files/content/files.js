@@ -141,7 +141,7 @@
         }
         else
         {
-            subscope.path = subscope.data.fullPath;
+            subscope.path = subscope.data.path;
         }
 
         [query, subscope, opts] = parsePaths(query, subscope, opts);
