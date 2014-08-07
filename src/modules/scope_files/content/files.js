@@ -194,10 +194,9 @@
             {
                 let entry = results[x];
 
-                var [name, path, fullPath, type, description, weight] = entry;
+                var [name, path, type, description, weight] = entry;
 
-                if (path != fullPath)
-                    description = "<html:em class=\"subscope\">"+subscope.name+"</html:em><html:div class=\"crop\">" + description + "</html:div>";
+                description = "<html:em class=\"subscope\">"+subscope.name+"</html:em><html:div class=\"crop\"><html:span dir=\"ltr\">" + description + "</html:span></html:div>";
 
                 _results.push({
                     id: path,
@@ -209,8 +208,7 @@
                     scope: "scope-files",
                     classList: "subscope-crop",
                     data: {
-                        path: path,
-                        fullPath: fullPath,
+                        path: path
                     },
                     allowMultiSelect: type != 'dir'
                 });
@@ -235,7 +233,7 @@
         {
             item = selectedItems[item];
             // Todo be a bit more intelligent
-            uris.push("file://" + item.resultData.data.fullPath);
+            uris.push("file://" + item.resultData.data.path);
         }
 
         log.debug("Opening files: " + uris.join(", "));

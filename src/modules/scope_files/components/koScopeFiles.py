@@ -124,7 +124,7 @@ class Searcher:
         # Prepate Path
         path = os.path.realpath(path)
         self.opts["path"] = path
-        self.opts["stripPathRe"] = re.compile("^" + re.escape(path) + "/?")
+        self.opts["stripPathRe"] = re.compile("^" + re.escape(path) + "/??")
 
         self.walker = Walker(self.opts, self.onWalk, self.onWalkComplete)
         self.walker.start(path)
@@ -148,10 +148,11 @@ class Searcher:
                     log.debug(self.opts["uuid"] + " Max results reached")
                     return self.stop()
 
+                replacement = self.opts["stripPathRe"].sub("", replacement)
+
                 pathEntry = {
                     "filename": filename,
-                    "path": self.opts["stripPathRe"].sub("", subPath) if len(subPath) > 1 else subPath,
-                    "fullPath": subPath,
+                    "path": subPath,
                     "type": "dir" if filename in dirnames else "file"
                 }
 
@@ -180,7 +181,6 @@ class Searcher:
         result = [
             pathEntry["filename"],
             pathEntry["path"],
-            pathEntry["fullPath"],
             pathEntry["type"],
             description,
             weight
@@ -189,7 +189,6 @@ class Searcher:
         self.returnResult(result)
         
     def returnResult(self, result):
-        log.debug("Append: " + result[1])
         self.resultsPending.append(result)
 
         if not self.resultTimer:
