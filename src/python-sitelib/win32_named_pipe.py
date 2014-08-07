@@ -4,6 +4,7 @@
 
 __all__ = ["Win32Pipe"]
 
+import sys
 import ctypes
 import logging
 import random
