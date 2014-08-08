@@ -14,6 +14,8 @@
                         .getService(Ci.nsIIOService);
 
     const ioFile        = require("sdk/io/file");
+    const sdkQuery      = require("sdk/querystring");
+    const sdkUrl        = require("sdk/url");
     const randomColor   = require("contrib/randomColor");
     const log           = require("ko/logging").getLogger("ko-fileicons");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
@@ -145,11 +147,14 @@
         {
             log.debug("Parsing info");
 
+            var url = sdkUrl.URL(uri);
+            var params = sdkQuery.parse(url.search.substr(1));
+
             var preset = getPreset("Unknown");
             var info = {
                 ext: "?",
                 language: "Unknown",
-                size: 16,
+                size: params.size || 16,
                 color: preset ? preset.color : randomColor({luminosity: 'dark'},"Unknown")
             };
 
@@ -160,7 +165,7 @@
 
             var pattern = /(.*\.([a-z0-9]*)).*?(?:size=(\d*)|$)/i;
             var match = uri.match(pattern);
-            if ( ! match) return false;
+            if ( ! match) return info;
 
             var ext = match[2];
             info.ext = match[2].substr(0,4).toUpperCase();
@@ -205,10 +210,10 @@
             return info;
         }
 
-        this.getIconForUri = (uri, namespace) =>
+        this.getIconForUri = (uri, namespace, relativePath, callback) =>
         {
             var info = getInfo(uri, namespace);
-            if ( ! info) return false;
+            if ( ! info) return callback(false);
 
             var filename = (info.language + info.ext + info.size).replace(/\W/g, '');
             info.size = Math.round(info.size * window.devicePixelRatio);
@@ -217,93 +222,141 @@
             if (pngFile.exists())
             {
                 icons.getIconForUri.cached[uri] = ioService.newFileURI(pngFile).spec;
-                return pngFile;
+                window.setTimeout(function() {
+                    callback(pngFile);
+                },0);
+                return;
             }
 
             var svgPresetFile = FileUtils.getFile("AChrom", ["icons","default","fileicons", info.language.toLowerCase() + ".svg"], true);
             if (svgPresetFile.exists())
             {
                 log.debug("Creating icon from SVG Preset: " + svgPresetFile.path);
-                icons.createPngFromSvg(svgPresetFile.path, pngFile.path, {size: info.size, forceSize: true});
-                return svgPresetFile;
+                icons.createPngFromSvg(svgPresetFile.path, pngFile.path, {}, {size: info.size}, function()
+                {
+                    callback(pngFile);
+                });
+                return;
             }
 
             var templateFile = FileUtils.getFile("AChrom", ["icons","default","fileicons", "template.svg"], true);
             info["font-size"] = (info.size / 100) * (8 - (info.ext.length || 1));
 
             var tmpSvg = pngFile.path + ".template.svg";
-            icons.createIconFromTemplate(tmpSvg, templateFile.path, info);
-            icons.createPngFromSvg(tmpSvg, pngFile.path, {size: info.size, delete: true});
-
-            return "file://" + tmpSvg;
+            icons.createIconFromTemplate(tmpSvg, templateFile.path, info, function()
+            {
+                icons.createPngFromSvg(tmpSvg, pngFile.path, {delete: true}, {size: info.size}, function()
+                {
+                    callback(pngFile);
+                });
+            });
         }
 
         init();
     }
 
-    this.handlers["app-svg"] = new function()
+    this.handlers.svg = new function()
     {
-        this.getIconForUri = (uri, namespace, relativePath) =>
+        this.getIconForUri = (uri, namespace, relativePath, callback) =>
         {
-            if (relativePath.substr(-3) != "svg")
-                return false;
+            var url = sdkUrl.URL(uri);
+            relativePath = url.pathname.split("/").slice(3);
+            if (relativePath.slice(-1)[0].substr(-4) != ".svg")
+                return callback();
             
-            relativePath = relativePath.split("/");
-            var iconFile = FileUtils.getFile("AChrom", relativePath, true);
+            var params = sdkQuery.parse(url.search.substr(1));
+            var iconNamespace = ("ns" in params) ? params.ns : "AChrom";
+            var iconFile = FileUtils.getFile(iconNamespace, relativePath, true);
             if ( ! iconFile.exists)
-                return false;
+                return callback();
 
-            var savePath = ["icons", "app-svg"].concat(relativePath);
+            log.debug("Path: " + iconFile.path);
+
+            // Generate unique id for query based on the params
+            var id = hash(params);
+            relativePath[relativePath.length-1] = id + "-" + relativePath[relativePath.length-1] + ".png";
+
+            if (params.size)
+                params.size = Math.round(params.size * window.devicePixelRatio);
+
+            var savePath = ["icons", iconNamespace].concat(relativePath);
             var pngFile = FileUtils.getFile("ProfD", savePath, true);
 
             if (pngFile.exists())
             {
                 icons.getIconForUri.cached[uri] = ioService.newFileURI(pngFile).spec;
-                return pngFile;
+                window.setTimeout(function() {
+                    callback(pngFile);
+                },0);
             }
             else
             {
-                // Todo: Handle size and scaling
-                icons.createPngFromSvg(iconFIle.path, pngFile.path);
-                return iconFile.path;
+                return icons.createPngFromSvg(iconFile.path, pngFile.path, {}, params, function()
+                {
+                    callback(pngFile);
+                });
             }
         }
     }
 
-    this.forceSvgSize = (svgData, size = 16) =>
+    this.forceSvgAttribute = (svgData, attribute, value) =>
     {
-        var sizeFrom = svgData.match(/width="(\d+)/);
-        sizeFrom = sizeFrom ? parseInt(sizeFrom[1]) : 16;
-
-        if (size == sizeFrom) return false;
+        log.debug("Overriding svg attribute " + attribute + " to: " + value);
+        svgData = unescape(encodeURIComponent(svgData));
         
-        var scale = size / sizeFrom;
-        svgData = svgData.replace('width="'+sizeFrom+'"', 'width="'+size+'"');
-        svgData = svgData.replace('height="'+sizeFrom+'"', 'height="'+size+'"' + "\n" + 
-                                                            'transform="scale('+scale+')"');
+        if (attribute == "scaleAuto")
+        {
+            var sizeFrom = svgData.match(/width="(\d+)/);
+            sizeFrom = sizeFrom ? parseInt(sizeFrom[1]) : 16;
+            if (value == sizeFrom) return false;
+            var scale = value / sizeFrom;
+            return this.forceSvgAttribute(svgData, "transform", 'scale('+scale+')');
+        }
 
-        return svgData;
+        var reAttr = attribute + '="[^]*?"';
+        var re = new RegExp("<svg([^]*?)" + reAttr);
+
+        var match = svgData.match(re);
+        
+        var _svgData;
+        if (match && match[1].indexOf(">") == -1)
+            _svgData = svgData.replace(re, "<svg$1" + attribute + '="'+value+'"');
+        else
+            _svgData = svgData.replace("<svg", "<svg\n" + attribute + '="'+value+'"');
+
+        if (_svgData != svgData)
+        {
+            log.debug("Success");
+            return _svgData;
+        }
+
+        return false;
     }
 
-    this.createIconFromTemplate = (iconPath, templatePath, vars) =>
+    this.createIconFromTemplate = (iconPath, templatePath, vars, callback) =>
     {
         log.debug("Creating file from template: " + iconPath);
+        log.debug(templatePath);
 
         if (("size" in vars) && ! ("scale" in vars))
             vars.scale = vars.size / 16;
 
         // Read and parse template
-        var data = ioFile.read(templatePath);
-        for (let k in vars)
+        readFile(templatePath, function(data)
         {
-            let r = new RegExp("{{"+k+"}}", "ig")
-            data = data.replace(r, vars[k]);
-        }
+            for (let k in vars)
+            {
+                let r = new RegExp("{{"+k+"}}", "ig")
+                data = data.replace(r, vars[k]);
+            }
 
-        // Save to temporary SVG file
-        var textStream = ioFile.open(iconPath, "w");
-        textStream.write(data);
-        textStream.close();
+            // Save to temporary SVG file
+            var textStream = ioFile.open(iconPath, "w");
+            textStream.write(data);
+            textStream.close();
+
+            callback();
+        });
     }
 
     /**
@@ -313,22 +366,47 @@
      * - Both width and height use the same value (ie. svg canvas is square)
      * - the root <svg> element is not using a transform attribute
      */
-    this.createPngFromSvg = (svgPath, savePath, opts = {}, callback = false) =>
+    this.createPngFromSvg = (svgPath, savePath, opts = {}, attrs = false, callback = false) =>
     {
+        if ( ! attrs)
+            return _createPngFromSvg(false, svgPath, savePath, opts, {}, callback);
+
         log.debug("Creating png: " + savePath);
-
-        if (opts.size && opts.forceSize)
+        readFile(svgPath, function(svgData)
         {
-            log.debug("Attempting to force size to " + opts.size);
+            _createPngFromSvg(svgData, svgPath, savePath, opts, attrs, callback);
+        });
+    }
 
-            var svgData = ioFile.read(svgPath);
-            svgData = this.forceSvgSize(svgData, opts.size);
-            
+    var _createPngFromSvg = (svgData, svgPath, savePath, opts = {}, attrs = false, callback = false) =>
+    {
+        if (attrs)
+        {
+            if ("size" in attrs)
+            {
+                attrs.scaleAuto = parseInt(attrs.size);
+                attrs.width = parseInt(attrs.size);
+                attrs.height = parseInt(attrs.size);
+                delete attrs.size;
+            }
+
+            for (let k in attrs)
+            {
+                log.debug("Forcing " + k);
+
+                let _svgData = this.forceSvgAttribute(svgData, k, attrs[k]);
+                if (_svgData)
+                    svgData = _svgData;
+            }
+
             if (svgData)
             {
-                log.debug("Saving temp svg with forced size");
+                log.debug("Saving temp svg with forced attributes");
 
-                svgPath = savePath + ".forceSize.svg";
+                if (opts.delete)
+                    opts.deleteAlso = svgPath
+
+                svgPath = savePath + ".forcedAttrs.svg";
                 opts.delete = true;
 
                 // Save to temporary SVG file
@@ -339,8 +417,8 @@
         }
 
         var canvas = document.getElementById('canvas-proxy').cloneNode();
-        canvas.setAttribute("width", opts.size);
-        canvas.setAttribute("height", opts.size);
+        canvas.setAttribute("width", attrs.width || 16);
+        canvas.setAttribute("height", attrs.height || 16);
         var ctx = canvas.getContext('2d');
 
         var img = new window.Image();
@@ -355,19 +433,32 @@
             byteStream.write(data);
             byteStream.close();
 
-            if (opts.delete)
+            // Give plenty of time for any simultanious queries to finish using
+            // these files, we're in no hurry to delete them
+            window.setTimeout(function()
             {
-                log.debug("Deleting: " + svgPath);
-                ioFile.remove(svgPath);
-            }
+                if (opts.delete)
+                {
+                    log.debug("Deleting: " + svgPath);
+                    ioFile.remove(svgPath);
+                }
+
+                if (opts.deleteAlso)
+                {
+                    log.debug("Also deleting: " + opts.deleteAlso);
+                    ioFile.remove(opts.deleteAlso);
+                }
+            }, 1000);
 
             if (callback) callback();
         }
         
         img.src = "file://" + svgPath;
+
+        return svgPath;
     }
 
-    this.getIconForUri = (uri) =>
+    this.getIconForUri = (uri, callback) =>
     {
         if ( ! ("cached" in this.getIconForUri))
             this.getIconForUri.cached = {};
@@ -375,7 +466,7 @@
         log.debug("Retrieving icon for " + uri);
 
         if (uri in this.getIconForUri.cached)
-            return this.getIconForUri.cached[uri];
+            return window.setTimeout(function() { callback(self.getIconForUri.cached[uri]) },0);
 
         var namespace = "";
         var relativePath = "";
@@ -388,12 +479,60 @@
             case "fileicon":
             case "language":
             default:
-                return this.handlers.fileicon.getIconForUri(uri, namespace, relativePath);
+                return self.handlers.fileicon.getIconForUri(uri, namespace, relativePath, callback);
                 break;
-            case "app-svg":
-                return this.handlers["app-svg"].getIconForUri(uri, namespace, relativePath);
+            case "svg":
+                return self.handlers.svg.getIconForUri(uri, namespace, relativePath, callback);
                 break;
         }
+    }
+
+    var readFile = (filePointer, callback) =>
+    {
+        if ((typeof filePointer) == "string" && filePointer.substr(0,4) != "file")
+            filePointer = "file://" + filePointer;
+        var path = (typeof filePointer) == "string" ? filePointer : filePointer.path;
+
+        NetUtil.asyncFetch(filePointer, function(inputStream, status)
+        {
+            // Validate result
+            if ((status & 0x80000000) != 0) // https://developer.mozilla.org/en/docs/Components.isSuccessCode
+            {
+                log.error("asyncFetch failed for file: " + filePointer + " :: " + status);
+                return callback();
+            }
+
+            // Parse contents
+            var data = NetUtil.readInputStreamToString(inputStream, inputStream.available());
+            callback(data);
+        });
+    }
+
+    var hash = (str) =>
+    {
+        if (typeof str != "string")
+            str = JSON.stringify(str);
+
+        if ( ! ("converter" in hash))
+        {
+            hash.converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"]
+                                .createInstance(Ci.nsIScriptableUnicodeConverter);
+        }
+
+        hash.converter.charset = "UTF-8";
+        
+        var data = hash.converter.convertToByteArray(str, {});
+        var ch = Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
+        ch.init(ch.MD5);
+        ch.update(data, data.length);
+        var res = ch.finish(false);
+
+        function toHexString(charCode)
+        {
+            return ("0" + charCode.toString(16)).slice(-2);
+        }
+
+        return [toHexString(res.charCodeAt(i)) for (i in res)].join("");
     }
 
 }).apply(module.exports);
