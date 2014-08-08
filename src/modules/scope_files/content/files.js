@@ -28,7 +28,7 @@
             try
             {
                 var xmlData = ioFile.open("~/.go/shortcuts.xml").read();
-                var parser = new window.DOMParser()
+                var parser = new window.DOMParser();
                 var xmlDom = parser.parseFromString(xmlData, "text/xml");
                 var children = xmlDom.firstChild.children;
                 for (var i = 0; i < children.length; i++)
@@ -54,41 +54,88 @@
 
     var parsePaths = function(query, subscope, opts)
     {
+        if (query == "") return [query, subscope, opts];
+        
         var _query = query.split(sep); // Convert query to array (split by path separators)
+        var recursive = _query.length >= 1 ? !! _query.slice(-1)[0].match(/^\W/) : false;
+        
+        // Shortcuts
         var shortcuts = getShortcuts();
         if (query.match(/^[\w~%_\-]+(?:\/|\\)/) && (_query[0] in shortcuts))
         {
             log.debug("Running query against shortcuts");
 
-            opts["recursive"] = _query.length >= 1 ? !! _query[1].match(/^\W/) : false;
+            opts["recursive"] = recursive;
             subscope.path = shortcuts[_query[0]];
             subscope.name = _query[0];
             query = _query.slice(1);
             return [query, subscope, opts];
         }
 
-        var isRelative = query.substr(0,2) == ("." + sep) || query.substr(0,3) == (".." + sep);
-
-        var isAbsolute;
-        if (system.platform == "winnt")
-            isAbsolute = (!! query.match(/^[A-Z]\:/)) || query.match(/\\\\/);
-        if ( ! isAbsolute)
-            isAbsolute = query.match(/^\//);
-
-        if (isRelative || isAbsolute)
+        // Absolute paths
+        var dirname = _ioFile("dirname", query);
+        if (_ioFile("exists", query) || _ioFile("exists", dirname))
         {
-            opts["recursive"] = _query.length >= 1 ? !! _query.slice(-1)[0].match(/^\W/) : false;
-            
-            if (isAbsolute)
-                subscope.path = (system.platform != "winnt" ? sep : "") + _query.slice(0,-1).join(sep);
-            else
-                subscope.path += sep + _query.slice(0,-1).join(sep);
+            log.debug("Query is absolute");
 
-            query = _query.slice(-1);
+            opts["recursive"] = recursive;
+            opts["fullpath"] = true;
+            subscope.name = "";
+
+            if (query.substr(-1) == sep)
+            {
+                subscope.path = query;
+                query = "";
+            }
+            else
+            {
+                subscope.path = dirname;
+                query = ioFile.basename(query);
+            }
+
+            return [query, subscope, opts];
+        }
+
+        // Relative paths
+        var isRelative = query.substr(0,2) == ("." + sep) || query.substr(0,3) == (".." + sep);
+        var relativePath = subscope.path + sep + query;
+        dirname = _ioFile("dirname", relativePath);
+        if (isRelative && (_ioFile("exists", relativePath) || _ioFile("exists", dirname)))
+        {
+            log.debug("Query is relative");
+
+            opts["recursive"] = recursive;
+            opts["fullpath"] = true;
+            subscope.name = "";
+
+            if (query.substr(-1) == sep)
+            {
+                subscope.path = relativePath;
+                query = "";
+            }
+            else
+            {
+                subscope.path = dirname;
+                query = ioFile.basename(relativePath);
+            }
+
             return [query, subscope, opts];
         }
 
         return [query, subscope, opts];
+    }
+
+    // Call ioFile and return false instead of exceptions
+    var _ioFile = function(fn)
+    {
+        try
+        {
+            return ioFile[fn].apply(ioFile, Array.prototype.slice.call(arguments, 1));
+        }
+        catch (e)
+        {
+            return false;
+        }
     }
 
     this.prepare = function()
@@ -163,10 +210,10 @@
         opts["weightHits"] = prefs.getBoolean('commando_files_weight_multiplier_hits', 20);
         opts["weightDepth"] = prefs.getBoolean('commando_files_weight_multiplier_depth', 10);
 
-        opts = JSON.stringify(opts);
-        log.debug(uuid + " - Path: "+ subscope.path +" - Opts: " + opts);
+        var _opts = JSON.stringify(opts);
+        log.debug(uuid + " - Query: "+ query +", Path: "+ subscope.path +", Opts: " + _opts);
 
-        scope.search(query, uuid, subscope.path, opts, function(status, results)
+        scope.search(query, uuid, subscope.path, _opts, function(status, results)
         {
             if (activeUuid != uuid)
             {

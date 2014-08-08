@@ -148,7 +148,8 @@ class Searcher:
                     log.debug(self.opts["uuid"] + " Max results reached")
                     return self.stop()
 
-                replacement = self.opts["stripPathRe"].sub("", replacement)
+                if not self.opts.get("fullpath", False):
+                    replacement = self.opts["stripPathRe"].sub("", replacement)
 
                 pathEntry = {
                     "filename": filename,
