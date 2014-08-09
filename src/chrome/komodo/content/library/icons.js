@@ -263,16 +263,27 @@
             relativePath = url.pathname.split("/").slice(3);
             if (relativePath.slice(-1)[0].substr(-4) != ".svg")
                 return callback();
-            
-            var params = sdkQuery.parse(url.search.substr(1));
-            var iconNamespace = ("ns" in params) ? params.ns : "AChrom";
-            var iconFile = FileUtils.getFile(iconNamespace, relativePath, true);
-            if ( ! iconFile.exists)
-                return callback();
 
-            log.debug("Path: " + iconFile.path);
+            //koicon://ko-svg/chrome/komodo/skin/images/codeintel/cb_class.svg
+
+            var filePointer;
+            var iconNamespace = relativePath.slice(0,1);
+            relativePath = relativePath.slice(1);
+
+            try
+            {
+                var iconFile = FileUtils.getFile(iconNamespace, relativePath, true);
+                if (iconFile.exists())
+                    filePointer = iconFile.path;
+            } catch (e) {}
+
+            if ( ! filePointer)
+                filePointer = iconNamespace + "://" + relativePath.join("/");
+
+            log.debug("Filepointer: " + filePointer);
 
             // Generate unique id for query based on the params
+            var params = sdkQuery.parse(url.search.substr(1));
             var id = hash(params);
             relativePath[relativePath.length-1] = id + "-" + relativePath[relativePath.length-1] + ".png";
 
@@ -291,7 +302,7 @@
             }
             else
             {
-                return icons.createPngFromSvg(iconFile.path, pngFile.path, {}, params, function()
+                return icons.createPngFromSvg(filePointer, pngFile.path, {}, params, function()
                 {
                     callback(pngFile);
                 });
@@ -387,6 +398,7 @@
                 attrs.scaleAuto = parseInt(attrs.size);
                 attrs.width = parseInt(attrs.size);
                 attrs.height = parseInt(attrs.size);
+                attrs.viewBox = "0 0" + attrs.size + " " + attrs.size;
                 delete attrs.size;
             }
 
@@ -489,7 +501,7 @@
 
     var readFile = (filePointer, callback) =>
     {
-        if ((typeof filePointer) == "string" && filePointer.substr(0,4) != "file")
+        if ((typeof filePointer) == "string" && ! filePointer.match(/^[a-z_\-]+:\/\//))
             filePointer = "file://" + filePointer;
         var path = (typeof filePointer) == "string" ? filePointer : filePointer.path;
 
