@@ -2805,6 +2805,8 @@ this.gotoLine_onkeypress_handler = function ko_views_gotoLine_onkeypress_handler
     }
     scimoz.scrollCaret();
     scimoz.chooseCaretX();
+    // Ensure the view/editor is properly focused - bug 104827.
+    view.setFocus();
 }
 
 }).apply(ko.views);
