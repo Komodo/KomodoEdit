@@ -56,7 +56,9 @@ class koScopeFiles:
         opts["callback"] = callback
 
         self.searches[uuid] = Searcher(opts, self.onSearchResults, self.onSearchComplete)
-        t = threading.Thread(target=self.searches[uuid].start, args=(query, path))
+        t = threading.Thread(target=self.searches[uuid].start, args=(query, path),
+                             daemon=True, name="Scope files search")
+        t.setDaemon(True)
         t.start()
 
     @components.ProxyToMainThreadAsync
@@ -74,7 +76,9 @@ class koScopeFiles:
     def buildCache(self, path, opts):
         opts = json.loads(opts)
         walker = Walker(opts)
-        t = threading.Thread(target=walker.start, args=(path))
+        t = threading.Thread(target=walker.start, args=(path),
+                             name="Scope files build cache")
+        t.setDaemon(True)
         t.start()
 
 class Searcher:
