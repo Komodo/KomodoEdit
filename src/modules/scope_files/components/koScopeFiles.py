@@ -57,7 +57,7 @@ class koScopeFiles:
 
         self.searches[uuid] = Searcher(opts, self.onSearchResults, self.onSearchComplete)
         t = threading.Thread(target=self.searches[uuid].start, args=(query, path),
-                             daemon=True, name="Scope files search")
+                             name="Scope files search")
         t.setDaemon(True)
         t.start()
 
