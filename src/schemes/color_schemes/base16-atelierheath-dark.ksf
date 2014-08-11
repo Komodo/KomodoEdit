@@ -61,8 +61,8 @@ CommonStyles = {
         'size': 13
     },
     'bracehighlight': {
-        'fore': baseBack,
-        'back': baseFore
+        'fore': baseForeBlend1,
+        'back': baseBackBlend2
     },
     'classes': {
         'fore': yellow
@@ -278,7 +278,7 @@ Colors = {
     'foldMarginColor': baseBack,
     'selBack': baseBackBlend2,
     'selFore': baseFore,
-    'whitespaceColor': baseBackBlend1
+    'whitespaceColor': baseBackBlend2
 }
 
 Indicators = {

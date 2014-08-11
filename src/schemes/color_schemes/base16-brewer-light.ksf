@@ -1,5 +1,5 @@
 #    Name:       Base16 Brewer Light
-#    Author:     Timothée Poisot (http://github.com/tpoisot)
+#    Author:     Timoth?e Poisot (http://github.com/tpoisot)
 
 #    Komodo template by Nathan Rijksen (https://github.com/Naatan)
 #    Original Base16 color scheme by Chris Kempson (https://github.com/chriskempson/base16)
@@ -61,8 +61,8 @@ CommonStyles = {
         'size': 13
     },
     'bracehighlight': {
-        'fore': baseBack,
-        'back': baseFore
+        'fore': baseForeBlend1,
+        'back': baseBackBlend2
     },
     'classes': {
         'fore': yellow
@@ -278,7 +278,7 @@ Colors = {
     'foldMarginColor': baseBack,
     'selBack': baseBackBlend2,
     'selFore': baseFore,
-    'whitespaceColor': baseBackBlend1
+    'whitespaceColor': baseBackBlend2
 }
 
 Indicators = {
