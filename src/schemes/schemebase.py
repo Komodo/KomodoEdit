@@ -96,7 +96,7 @@ class SchemeServiceBase(object):
 
     def getScheme(self, name):
         if name not in self._scheme_details:
-            log.error("scheme %r does not exist, using Default instead", name)
+            log.error("scheme %r does not exist, using Default_Light instead", name)
             name = 'Default_Light'
         scheme = self._schemes.get(name)
         if scheme is None:
