@@ -2803,7 +2803,7 @@ this.gotoLine_onkeypress_handler = function ko_views_gotoLine_onkeypress_handler
         targetPos = scimoz.positionAtColumn(targetLine, targetColumn);
         scimoz.gotoPos(targetPos);
     }
-    scimoz.scrollCaret();
+    view.verticallyAlignCaret("onethird");
     scimoz.chooseCaretX();
     // Ensure the view/editor is properly focused - bug 104827.
     view.setFocus();
