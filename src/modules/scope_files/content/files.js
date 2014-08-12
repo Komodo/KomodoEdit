@@ -5,6 +5,7 @@
     const system    = require("sdk/system");
     const ioFile    = require("sdk/io/file");
     const sep       = system.platform == "winnt" ? "\\" : "/";
+    const isep      = sep == "/" ? /\\/g : /\//g;
 
     const scope     = Cc["@activestate.com/commando/koScopeFiles;1"].getService(Ci.koIScopeFiles);
     const partSvc   = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService);
@@ -54,6 +55,8 @@
 
     var parsePaths = function(query, subscope, opts)
     {
+        query = query.replace(isep, sep); // force os native path separators
+        
         if (query == "") return [query, subscope, opts];
         
         var _query = query.split(sep); // Convert query to array (split by path separators)
@@ -73,7 +76,8 @@
         }
 
         // Absolute paths
-        var dirname = _ioFile("dirname", query);
+        var dirname = _dirname(query);
+        log.debug(dirname);
         if (_ioFile("exists", query) || _ioFile("exists", dirname))
         {
             log.debug("Query is absolute");
@@ -92,14 +96,17 @@
                 subscope.path = dirname;
                 query = ioFile.basename(query);
             }
-
+            
+            if (subscope.path.substr(-1) != sep) 
+                subscope.path = subscope.path + sep
+                
             return [query, subscope, opts];
         }
 
         // Relative paths
         var isRelative = query.substr(0,2) == ("." + sep) || query.substr(0,3) == (".." + sep);
         var relativePath = subscope.path + sep + query;
-        dirname = _ioFile("dirname", relativePath);
+        dirname = _dirname(relativePath);
         if (isRelative && (_ioFile("exists", relativePath) || _ioFile("exists", dirname)))
         {
             log.debug("Query is relative");
@@ -118,6 +125,9 @@
                 subscope.path = dirname;
                 query = ioFile.basename(relativePath);
             }
+            
+            if (subscope.path.substr(-1) != sep) 
+                subscope.path = subscope.path + sep
 
             return [query, subscope, opts];
         }
@@ -137,6 +147,18 @@
             return false;
         }
     }
+    
+    var _basename = function(str)
+    {
+        return str.split(sep).pop();
+    }
+    
+    var _dirname = function(str)
+    {
+        str = str.split(sep);
+        str.pop();
+        return str.join(sep);
+    }
 
     this.prepare = function()
     {
@@ -153,8 +175,10 @@
         }
         else
         {
-            var path = ioService.newURI(ko.places.getDirectory(), null, null).path;
+            return;
         }
+        
+        log.debug("Prepare - Path: "+ path +", Opts: " + JSON.stringify(opts));
 
         scope.buildCache(path, JSON.stringify(opts));
     }
@@ -183,7 +207,7 @@
         }
         else if ( ! subscope)
         {
-            var placesPath = ioService.newURI(ko.places.getDirectory(), null, null).path;
+            var placesPath = ko.uriparse.URIToPath(ko.places.getDirectory());
             subscope = {name: ioFile.basename(placesPath), path: placesPath};
         }
         else

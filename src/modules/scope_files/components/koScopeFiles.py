@@ -106,6 +106,8 @@ class Searcher:
         self.opts["numResults"] = 0
         self.opts["queryOriginal'"] = query
         self.opts["words"] = []
+        
+        log.debug(self.opts["uuid"] + " Searching for " + query + " under " + path)
 
         if self.opts["queryOriginal'"] != "":
             # Prepare Regex Object
@@ -126,7 +128,6 @@ class Searcher:
             self.opts["replacement"] = replacement
 
         # Prepate Path
-        path = os.path.realpath(path)
         self.opts["path"] = path
         self.opts["stripPathRe"] = re.compile("^" + re.escape(path) + "/??")
 
@@ -237,6 +238,7 @@ class Walker:
 
     # Start a new search
     def start(self, path):
+        log.debug(self.opts["uuid"] + " Scanning path: " + path)
         self.walk(path)
 
     def walk(self, path):
@@ -255,7 +257,7 @@ class Walker:
                 dirnames = []
 
         if self.callbackComplete:
-            log.debug("Done walking directory structure")
+            log.debug(self.opts["uuid"] + " Done walking directory structure")
             self.callbackComplete()
 
     # Walk our cache for the given path
@@ -273,13 +275,22 @@ class Walker:
 
     def scandir(self, path):
         # Invoke the main walker lib
-        walker = paths_from_path_patterns([path],
-                dirs="always",
-                follow_symlinks=True,
-                includes=self.opts.get("includes", []),
-                excludes=self.opts.get("excludes", []),
-                yield_structure=True,
-                recursive=False)
-        for subPath, dirnames, filenames in walker: # recursive=false means we only get 1 result
-            return [dirnames, filenames]
+        try:
+            
+            walker = paths_from_path_patterns([path],
+                    dirs="always",
+                    follow_symlinks=True,
+                    includes=self.opts.get("includes", []),
+                    excludes=self.opts.get("excludes", []),
+                    yield_structure=True,
+                    recursive=False)
+            for subPath, dirnames, filenames in walker: # recursive=false means we only get 1 result
+                return [dirnames, filenames]
+            
+        except OSError, e:
+            log.error("OSError while walking path: " + path)
+        except Exception, e:
+            log.warn("Exception occurred while walking path: " + path + ", returning empty list")
+            
+        return [[],[]]
 
