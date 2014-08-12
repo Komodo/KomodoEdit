@@ -70,17 +70,13 @@
         {
             log.debug("Running query against shortcuts");
 
-            opts["recursive"] = recursive;
-            subscope.path = shortcuts[_query[0]];
-            subscope.name = _query[0];
-            query = _query.slice(1);
-            return [query, subscope, opts];
+            query = query.replace(_query[0], shortcuts[_query[0]]);
+            return parsePaths(query, subscope, opts);
         }
 
         // Absolute paths
         var dirname = _dirname(query);
-        log.debug(dirname);
-        if (_ioFile("exists", query) || _ioFile("exists", dirname))
+        if (query.indexOf(sep) !== -1 && (_ioFile("exists", query) || _ioFile("exists", dirname)))
         {
             log.debug("Query is absolute");
 
