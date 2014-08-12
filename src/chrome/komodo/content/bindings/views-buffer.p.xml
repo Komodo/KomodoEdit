@@ -438,7 +438,49 @@
             ]]>
             </body>
         </method>
-        
+
+        <!--
+        Center the editor caret.
+          "align" param can be one of "top", "onethird", "middle" (the default),
+                 "twothirds" or "bottom"
+        -->
+        <method name="verticallyAlignCaret">
+            <parameter name="align"/>
+            <body>
+            <![CDATA[
+            var scimoz = this.scimoz;
+            var currentline = scimoz.visibleFromDocLine(scimoz.lineFromPosition(scimoz.currentPos));
+            var newfvl;
+            switch (align) {
+                case "top":
+                    // Position the caret line at the top of the screen.
+                    newfvl = currentline - this.prefs.getLong("ySlop", 5);
+                    break;
+                case "bottom":
+                    // Position the caret line at the bottom of the screen.
+                    newfvl = currentline + this.prefs.getLong("ySlop", 5) - (scimoz.linesOnScreen - 1);
+                    break;
+                case "onethird":
+                case "onethirds":
+                    // Position the caret line at the top 1/3 of the screen.
+                    newfvl = currentline - parseInt(scimoz.linesOnScreen / 3);
+                    break;
+                case "twothird":
+                case "twothirds":
+                    // Position the caret line at the bottom 1/3 of the screen.
+                    newfvl = currentline - parseInt((2 * scimoz.linesOnScreen) / 3);
+                    break;
+                case "middle":
+                default:
+                    // Position the caret line in the middle of the screen.
+                    newfvl = currentline - parseInt(scimoz.linesOnScreen / 2);
+                    break;
+            }
+            scimoz.firstVisibleLine = newfvl;
+            ]]>
+            </body>
+        </method>
+
         <!-- Note: this guy is the *non-CodeIntel-based* completion service.
              I.e., languages using CodeIntel for AutoComplete/CallTips do
              no use these. -->
