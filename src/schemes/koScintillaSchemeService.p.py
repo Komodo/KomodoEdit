@@ -559,10 +559,41 @@ class Scheme(SchemeBase):
         #pprint.pprint(self._appliedData)
         return italic
 
-    def getFont(self, style):
+    def getFont(self, style, fontstack = False):
         #style = self._fixstyle(style)
         # this returns a real font label
-        return self._getAspectFromAppliedData(style, 'face')
+        font = self._getAspectFromAppliedData(style, 'face')
+
+        if fontstack:
+            return font
+        else:
+            return self._getFontEffective(font)
+
+    # Parses the font stack and returns the first font that is installed on the
+    # current system
+    # Example font stack: '"Source Code Pro", Consolas, Inconsolata, Monospace'
+    def _getFontEffective(self, fontStack):
+        if not fontStack:
+            return
+
+        # Parse the CSS font stack
+        fontStack = fontStack.split(",")
+        for i in range(len(fontStack)):
+            fontStack[i] = re.sub(r'^[\'"\s]*|[\'"\s]*$', '', fontStack[i])
+
+        # Get all available fonts
+        enumerator = components.classes["@mozilla.org/gfx/fontenumerator;1"].createInstance()
+        enumerator = enumerator.QueryInterface(components.interfaces.nsIFontEnumerator)
+        fonts = set(enumerator.EnumerateAllFonts())
+
+        # Check if any fonts in the font stack match the ones on the system
+        # and return the first one that does
+        for fontName in fontStack:
+            if fontName in fonts:
+                return fontName
+
+        # Fall back on last font in fontstack
+        return fontStack[-1]
 
     def _getFallbackStyle(self, style):
         if style.endswith('_fixed'):
@@ -661,6 +692,9 @@ class Scheme(SchemeBase):
         if prop_font_style_name in self._commonStyles:
             propStyle.update(self._commonStyles[prop_font_style_name])
 
+        fixedStyle['face'] = self._getFontEffective(fixedStyle['face'])
+        propStyle['face'] = self._getFontEffective(propStyle['face'])
+
         useFixed = self._booleans['preferFixed']
         if alternateType: useFixed = not useFixed
         if ('default' in currentLanguageStyles and
@@ -672,6 +706,7 @@ class Scheme(SchemeBase):
             defaultStyle = propStyle
         if 'default' in currentLanguageStyles:
             defaultStyle.update(currentLanguageStyles['default'])
+
         self._appliedData['default'] = defaultStyle
         self.defaultStyle = defaultStyle
         for aspect, setter in setters.items():
@@ -734,7 +769,9 @@ class Scheme(SchemeBase):
                                 style.update(defaultSubLanguageStyles.get(common_name, {}))
                     except:
                         log.exception("Failed to get sub-language for family %s from language %s ", family, language)
-                        
+
+                style['face'] = self._getFontEffective(style['face'])
+
                 self._appliedData[common_name] = style
                 if useFixed != defaultUseFixed:
                     if not sys.platform.startswith('win'):

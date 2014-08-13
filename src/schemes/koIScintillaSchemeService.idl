@@ -114,7 +114,8 @@ interface koIScintillaScheme : nsISupports {
                  in string styleId);
     boolean getItalic(in string language, /* null means common styles */
                       in string styleId);
-    string getFont(in string styleId); /* encoding_fixed|proportional */
+    string getFont(in string styleId,      /* encoding_fixed|proportional */
+                   [optional] in boolean fontstack);
     boolean getFaceType(in string language, /* null means common styles */
                         in string styleId); /* null means default */
     long getSize(in string language, /* null means common styles */
