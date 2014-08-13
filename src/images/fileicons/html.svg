@@ -7,10 +7,38 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
    width="16"
    height="16"
-   id="svg2">
+   id="svg2"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="html.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1022"
+     id="namedview20"
+     showgrid="false"
+     inkscape:zoom="53.125"
+     inkscape:cx="8"
+     inkscape:cy="8"
+     inkscape:window-x="0"
+     inkscape:window-y="29"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2997" />
+  </sodipodi:namedview>
   <defs
      id="defs4">
     <linearGradient
@@ -44,7 +72,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -73,22 +101,22 @@
        style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#a34e37;fill-opacity:1;stroke:none;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono" />
   </g>
   <polyline
-     transform="matrix(0.06586732,0,0,0.06586732,-8.7354699,-0.67515418)"
+     transform="matrix(0.06586732,0,0,0.09384605,-8.6413524,-4.3601353)"
      style="fill:#ffffff"
      points="161.318,110.395 174.658,110.395 174.658,125.194 189.814,125.194 189.814,110.395    203.152,110.395 203.152,153.018 189.814,153.018 189.814,135.851 174.658,135.851 174.658,153.018 161.318,153.018    161.318,110.395  "
      id="polyline9" />
   <polyline
-     transform="matrix(0.06586732,0,0,0.06586732,-8.7354699,-0.67515418)"
+     transform="matrix(0.06586732,0,0,0.09384605,-8.6601759,-4.3601353)"
      style="fill:#ffffff"
      points="208.608,110.395 249.834,110.395 249.834,120.458 235.89,120.458 235.89,153.018 222.552,153.018    222.552,120.458 208.608,120.458 208.608,110.395  "
      id="polyline11" />
   <polyline
-     transform="matrix(0.06586732,0,0,0.06586732,-8.7354699,-0.67515418)"
+     transform="matrix(0.06586732,0,0,0.09384605,-8.5472349,-4.3601353)"
      style="fill:#ffffff"
      points="255.292,110.395 272.873,110.395 279.57,136.425 286.2,110.395 303.794,110.395 303.794,153.018    292.88,153.018 292.88,120.701 284.647,153.018 274.521,153.018 266.205,120.701 266.205,153.018 255.292,153.018 255.292,110.395     "
      id="polyline13" />
   <polyline
-     transform="matrix(0.06586732,0,0,0.06586732,-8.7354699,-0.67515418)"
+     transform="matrix(0.06586732,0,0,0.09384605,-8.5848819,-4.3601353)"
      style="fill:#ffffff"
      points="312.281,110.395 325.617,110.395 325.617,142.363 346.839,142.363 346.839,153.018    312.281,153.018 312.281,110.395  "
      id="polyline15" />
