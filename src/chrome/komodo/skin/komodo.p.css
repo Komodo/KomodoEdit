@@ -230,6 +230,12 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
   list-style-image: url("chrome://komodo/skin/images/menupopup_arrows.png");
 }
 
+#statusbar-language-menu > image
+{
+  width: 16px;
+  height: 16px;
+}
+
 
 /**
  * Status bar messages
