@@ -77,7 +77,7 @@ CommonStyles = {
     'default_fixed': {
         'back': baseBack,
         'eolfilled': 0,
-        'face': 'Monospace',
+        'face': '"Source Code Pro", Consolas, Inconsolata, "DejaVu Sans Mono", "Bitstream Vera Sans Mono", Menlo, Monaco, "Courier New", Courier, Monospace',
         'fore': baseFore,
         'hotspot': 0,
         'italic': 0,
@@ -88,7 +88,7 @@ CommonStyles = {
     'default_proportional': {
         'back': baseBack,
         'eolfilled': 0,
-        'face': 'Monospace',
+        'face': '"DejaVu Sans", "Bitstream Vera Sans", Helvetica, Tahoma, Verdana, sans-serif',
         'fore': baseFore,
         'hotspot': 0,
         'italic': 0,
