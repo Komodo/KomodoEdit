@@ -304,7 +304,7 @@
         {
             item = selectedItems[item];
             // Todo be a bit more intelligent
-            uris.push("file://" + item.resultData.data.path);
+            uris.push(ko.uriparse.pathToURI(item.resultData.data.path));
         }
 
         log.debug("Opening files: " + uris.join(", "));
