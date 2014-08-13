@@ -59,7 +59,7 @@ class koXSLTLanguage(koXMLLanguageBase):
     lang_from_udl_family = {'M': 'XML'}
 
     accessKey = 's'
-    primary = 1
+    primary = 0
     defaultExtension = ".xsl"
 
     systemIdList = ["http://www.w3.org/1999/XSL/Transform"]
