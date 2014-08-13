@@ -229,6 +229,7 @@ $cons->KoExtUnpack("kounpack", SourcePath("openoffice/industrial.xpi"));
 
 # install fileicons
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/template.svg", 'fileicons/template.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/coffeescript.svg", 'fileicons/coffeescript.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/css.svg", 'fileicons/css.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/html.svg", 'fileicons/html.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/html5.svg", 'fileicons/html5.svg');
