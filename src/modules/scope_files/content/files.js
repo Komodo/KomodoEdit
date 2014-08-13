@@ -103,36 +103,41 @@
             return [query, subscope, opts];
         }
 
-        // Relative paths
-        var isRelative = query.substr(0,2) == ("." + sep) || query.substr(0,3) == (".." + sep);
-        var relativePath = subscope.path + sep + query;
-        dirname = _dirname(relativePath);
-        if (isRelative && (_ioFile("exists", relativePath) || _ioFile("exists", dirname)))
+        var view = ko.views.manager.currentView;
+        if (view && view.koDoc && view.koDoc.file)
         {
-            log.debug("Query is relative");
-
-            opts["recursive"] = recursive;
-            opts["fullpath"] = true;
-            subscope.name = "";
-
-            if (query.substr(-1) == sep)
+            // Relative paths
+            var isRelative = query.substr(0,2) == ("." + sep) || query.substr(0,3) == (".." + sep);
+            var currentFilePath = _dirname(view.koDoc.file.path);
+            var relativePath = currentFilePath + sep + query;
+            dirname = _dirname(relativePath);
+            if (isRelative && (_ioFile("exists", relativePath) || _ioFile("exists", dirname)))
             {
-                subscope.path = relativePath;
-                query = "";
+                log.debug("Query is relative");
+
+                opts["recursive"] = recursive;
+                opts["fullpath"] = true;
+                subscope.name = "";
+
+                if (query.substr(-1) == sep)
+                {
+                    subscope.path = relativePath;
+                    query = "";
+                }
+                else
+                {
+                    subscope.path = dirname;
+                    query = ioFile.basename(relativePath);
+                }
+
+                if (subscope.path.substr(-1) != sep)
+                    subscope.path = subscope.path + sep
+
+                return [query, subscope, opts];
             }
-            else
-            {
-                subscope.path = dirname;
-                query = ioFile.basename(relativePath);
-            }
-            
-            if (subscope.path.substr(-1) != sep) 
-                subscope.path = subscope.path + sep
 
             return [query, subscope, opts];
         }
-
-        return [query, subscope, opts];
     }
 
     // Call ioFile and return false instead of exceptions
