@@ -814,7 +814,7 @@ viewManager.prototype.ensureAtLine = function(view, lineno, anchor, currentPos) 
     if (typeof(currentPos) != "undefined") {
        scimoz.currentPos = currentPos;
     }
-    scimoz.ensureVisibleEnforcePolicy(lineno);
+    view.verticallyAlignCaret("onethird");
 }
 
 viewManager.prototype._ensureAtLine = function _ensureAtLine(view, scimoz, lineno, delay, chancesLeft) {
