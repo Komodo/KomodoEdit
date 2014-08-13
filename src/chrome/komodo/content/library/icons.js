@@ -28,6 +28,29 @@
     {
         var init = () =>
         {
+            // Clear the icon cache if Komodo has been up/down-graded
+            var cacheVersion = prefs.getString('iconCacheVersion', '');
+            var infoSvc = Cc["@activestate.com/koInfoService;1"].getService(Ci.koIInfoService);
+            var platVersion = infoSvc.buildPlatform + infoSvc.buildNumber;
+            if (cacheVersion != platVersion)
+            {
+                prefs.setStringPref('iconCacheVersion', platVersion);
+                let file = FileUtils.getFile("ProfD", ["icons"], true);
+
+                try
+                {
+                    if (file.exists())
+                    {
+                        log.warn("Clearing icon cache");
+                        file.remove(true);
+                    }
+                }
+                catch (e)
+                {
+                    log.warn("Failed cleaning up icons cache, icons might not be updated properly");
+                }
+            }
+
             var onPrefChanged = { observe: (subject, topic, data) => {
                 delete self.cached;
 
