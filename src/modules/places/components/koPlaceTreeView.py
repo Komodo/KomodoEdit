@@ -391,30 +391,6 @@ class KoPlaceTreeView(TreeView):
         self._refreshOnUpdateCurrentPlace = set()
         
     def initialize(self):
-        mozMajorVer = 10000
-        nsXulAppInfo = components.classes["@mozilla.org/xre/app-info;1"].getService(components.interfaces.nsIXULAppInfo)
-        try:
-            mozMajorVer = int(nsXulAppInfo.platformVersion.split(".")[0])
-        except:
-            log.warn("Unable to parse nsXulAppInfo.platformVersion")
-        if mozMajorVer < 22:
-            # Older mozilla versions used a different properties mechanism.
-            self.getCellProperties = self.getCellPropertiesMoz21
-
-            self.atomSvc = components.classes["@mozilla.org/atom-service;1"].\
-                      getService(components.interfaces.nsIAtomService)
-            self._atomsFromName = {}
-            for name in ["places_busy",
-                         "places_folder_open",
-                         "places_folder_closed",
-                         "places_file",
-                         "places_folder_symlink_open",
-                         "places_folder_symlink_closed",
-                         "places_file_symlink",
-                         "missing_file_symlink",
-                         ]:
-                self._atomsFromName[name] = self.atomSvc.getAtom(name)
-        
         prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
         if not prefs.hasPref("places"):
@@ -1778,34 +1754,6 @@ class KoPlaceTreeView(TreeView):
         except AttributeError:
             log.debug("getCellText: No id %s at row %d", col_id, row)
             return "?"
-
-    def getCellPropertiesMoz21(self, row_idx, column, properties):
-        """Return cell properties - Mozilla 21 and before"""
-        col_id = column.id
-        assert col_id == "name"
-        try:
-            rowNode = self._rows[row_idx]
-####        zips = rowNode.getCellPropertyNames(col_id)
-####            qlog.debug("props(row:%d) name:%s) : %s",
-####                       row_idx, rowNode.name,  zips)
-            for propName in rowNode.getCellPropertyNames(col_id):
-                try:
-                    properties.AppendElement(self._atomsFromName[propName])
-                except KeyError:
-                    log.debug("getCellProperties: no property for %s",
-                               propName)
-        except AttributeError:
-            log.exception("getCellProperties(row_idx:%d, col_id:%r",
-                          row_idx, col_id)
-            return ""
-        if rowNode.properties is None:
-            # These values are cached, until there is a file_status change.
-            atomProperties = []
-            for prop in self._buildCellProperties(rowNode):
-                atomProperties.append(self.atomSvc.getAtom(prop))
-            rowNode.properties = atomProperties
-        for atomProp in rowNode.properties:
-            properties.AppendElement(atomProp)
 
     def getCellProperties(self, row_idx, column):
         """Return cell properties - Mozilla 22+ version"""
