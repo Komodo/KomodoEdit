@@ -523,6 +523,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filPrefAllLangForeText "Fore:">
 <!ENTITY filPrefAllLangBackText "Back:">
 <!ENTITY filePrefAllLangProportional.label "Proportional:">
+<!ENTITY lineSpacing.label "Line Spacing:">
 <!ENTITY chooseColorEditorElement.description "Choose colors for Komodo's editor elements (i.e. anything in the editor that is not syntax coloring).">
 <!ENTITY filePrefAllLangColorChoice.label "Color choice:">
 <!ENTITY filePrefAllLangColorChoice.accesskey "h">

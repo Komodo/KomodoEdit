@@ -98,7 +98,8 @@ interface koIScintillaScheme : nsISupports {
     void setItalic(in string language, /* null means common styles */
                    in string styleId,
                    in boolean italic);
-    void setFont(in string styleId, in string face); 
+    void setFont(in string styleId, in string face);
+    void setLineSpacing(in string styleId, in long spacing);
     void setFaceType(in string language, in string styleId, in boolean useFixed); 
     void setSize(in string language, /* null means common styles */
                  in string styleId, /* null means default */
@@ -116,6 +117,7 @@ interface koIScintillaScheme : nsISupports {
                       in string styleId);
     string getFont(in string styleId,      /* encoding_fixed|proportional */
                    [optional] in boolean fontstack);
+    long getLineSpacing(in string styleId);
     boolean getFaceType(in string language, /* null means common styles */
                         in string styleId); /* null means default */
     long getSize(in string language, /* null means common styles */

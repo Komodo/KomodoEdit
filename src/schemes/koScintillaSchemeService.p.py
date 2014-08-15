@@ -44,6 +44,7 @@ import os
 import logging
 import re
 import sys
+import math
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import WrapObject, UnwrapObject
@@ -478,7 +479,10 @@ class Scheme(SchemeBase):
     
     def setFont(self, style, font):
         self._set('', style, font, 'face')
-    
+
+    def setLineSpacing(self, style, spacing):
+        self._set('', style, spacing, 'lineSpacing')
+
     def setFaceType(self, language, style, useFixed):
         self._set(language, style, useFixed, 'useFixed')
     
@@ -594,6 +598,14 @@ class Scheme(SchemeBase):
 
         # Fall back on last font in fontstack
         return fontStack[-1]
+
+    def getLineSpacing(self, style):
+        try:
+            return self._getAspectFromAppliedData(style, 'lineSpacing')
+        except:
+            log.debug("Style does not have lineSpacing, returning 0")
+
+        return 0
 
     def _getFallbackStyle(self, style):
         if style.endswith('_fixed'):
@@ -717,6 +729,15 @@ class Scheme(SchemeBase):
         else:
             font = self._buildFontSpec(defaultStyle['face'], encoding)
             scimoz.styleSetFont(scimoz.STYLE_DEFAULT, font)
+
+        spacing = float(defaultStyle.get("lineSpacing", 0))
+
+        extraDescent = int(math.ceil(spacing / 2))
+        extraAscent = int(math.floor(spacing / 2))
+
+        scimoz.extraDescent = extraDescent
+        scimoz.extraAscent = extraAscent
+
         scimoz.styleClearAll() # now all styles are the same
         defaultUseFixed = useFixed
         langStyles = GetLanguageStyles(language)
