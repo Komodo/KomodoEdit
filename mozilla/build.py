@@ -459,7 +459,16 @@ def _setupMozillaEnv():
             os.environ['CFLAGS'] = "-gdwarf-2"
             os.environ['CXXFLAGS'] = "-gdwarf-2"
 
-    if sys.platform != "win32":
+    if sys.platform == "win32":
+        # Mozilla requires using Msys perl rather than AS perl; use the one
+        # bundled with MozillaBuild
+        if not "PERL" in os.environ:
+            os.environ["PERL"] = os.path.join(os.environ["MOZILLABUILD"],
+                                              "msys", "bin", "perl.exe").replace("\\", "/")
+        # Tell pymake to use msys
+        os.environ["MSYSTEM"] = "MINGW32"
+
+    else:
         #TODO: drop what isn't necessary here
         
         #set MOZ_SRC=/export/home/jeffh/p4/Mozilla-devel/build/moz...
@@ -485,14 +494,6 @@ def _setupMozillaEnv():
         if sys.platform == "darwin" and "zsh" in os.environ.get("SHELL", ""):
             log.info("shell: zsh detected, replacing SHELL environment with bash")
             os.environ["SHELL"] = "/bin/bash"
-    else:
-        # Mozilla requires using Msys perl rather than AS perl; use the one
-        # bundled with MozillaBuild
-        if not "PERL" in os.environ:
-            os.environ["PERL"] = os.path.join(os.environ["MOZILLABUILD"],
-                                              "msys", "bin", "perl.exe").replace("\\", "/")
-        # Tell pymake to use msys
-        os.environ["MSYSTEM"] = "MINGW32"
 
 
 def _applyMozillaPatch(patchFile, mozSrcDir):
