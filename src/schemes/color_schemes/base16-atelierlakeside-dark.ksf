@@ -57,8 +57,7 @@ CommonStyles = {
         'fore': green
     },
     'bracebad': {
-        'fore': baseForeBlend1,
-        'size': 13
+        'fore': baseForeBlend1
     },
     'bracehighlight': {
         'fore': baseForeBlend1,
@@ -83,7 +82,8 @@ CommonStyles = {
         'italic': 0,
         'size': 11,
         'useFixed': 1,
-        'bold': 0
+        'bold': 0,
+        'lineSpacing': 2
     },
     'default_proportional': {
         'back': baseBack,
@@ -94,7 +94,8 @@ CommonStyles = {
         'italic': 0,
         'size': 11,
         'useFixed': 0,
-        'bold': 0
+        'bold': 0,
+        'lineSpacing': 2
     },
     'fold markers': {
         'fore': comment,
