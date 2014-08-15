@@ -481,9 +481,10 @@ def _setupMozillaEnv():
                              "to build mozilla."
                              % (autoconf, verStr))
 
-        # The Python Framework is used on OSX
-        if sys.platform == "darwin":
-            return
+        # On OSX, zsh fails when configuring mozilla - so force bash instead.
+        if sys.platform == "darwin" and "zsh" in os.environ.get("SHELL", ""):
+            log.info("shell: zsh detected, replacing SHELL environment with bash")
+            os.environ["SHELL"] = "/bin/bash"
     else:
         # Mozilla requires using Msys perl rather than AS perl; use the one
         # bundled with MozillaBuild
