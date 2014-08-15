@@ -49,6 +49,8 @@ var handlers = {
     'cmd_focusProjectPane': function() ko.uilayout.focusPane("workspace_left_area"),
     'cmd_focusToolboxPane': function() ko.uilayout.focusPane("workspace_right_area"),
     'cmd_focusBottomPane': function() ko.uilayout.focusPane("workspace_bottom_area"),
+    'cmd_saveWorkspace': function() ko.workspace.save(),
+    'cmd_openWorkspace': function() ko.workspace.open(),
     'cmd_focusEditor': function() { var view = ko.views.manager.currentView;
                                     if (view) view.setFocus(); },
     'cmd_focusSource': function() { var view = ko.views.manager.currentView;

@@ -76,6 +76,14 @@
             <observes attribute="checked" element="workspace_right_area"/>
         </broadcaster>
         <broadcaster
+            id="cmd_saveWorkspace" key="key_cmd_saveWorkspace"
+            desc="&saveUserWorkspace.desc;" 
+            oncommand="ko.commands.doCommandAsync('cmd_saveWorkspace', event)"/>
+        <broadcaster
+            id="cmd_openWorkspace" key="key_cmd_openWorkspace"
+            desc="&openUserWorkspace.desc;" 
+            oncommand="ko.commands.doCommandAsync('cmd_openWorkspace', event)"/>
+        <broadcaster
             id="cmd_viewToolbox" key="key_cmd_viewToolbox"
             desc="&userInterfaceShowHideToolboxTab.desc;"
             autoCheck="false"

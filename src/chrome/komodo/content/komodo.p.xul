@@ -628,6 +628,25 @@
                                       >
                             </menuitem>
 
+                            <menuseparator id="workspace_menuseparator"/>
+
+                            <menu id="workspace_menu"
+                                  accesskey="&menuWorkspace.accesskey;" 
+                                  label="&menuWorkspace.label;">
+                                <menupopup id="workspace_menupopup">
+                                    <menuitem label="&menuSaveWorkspace.label;" 
+                                              accesskey="&menuWorkspaceSave.accesskey;" 
+                                              id="menu_save_workspace"
+                                              observes="cmd_saveWorkspace"
+                                              />
+                                    <menuitem label="&menuOpenWorkspace.label;"
+                                              accesskey="&menuWorkspaceOpen.accesskey;" 
+                                              id="menu_open_workspace"
+                                              observes="cmd_openWorkspace"
+                                              />
+                                </menupopup>
+                            </menu>
+
                             <menuseparator id="file_print_menuseparator"/>
 
                             <menu id="menu_Printmenu"
