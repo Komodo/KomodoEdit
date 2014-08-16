@@ -56,6 +56,8 @@
     var parsePaths = function(query, subscope, opts)
     {
         query = query.replace(isep, sep); // force os native path separators
+
+        log.debug("Parsing paths for query: " + query + ", and path: " + subscope.path);
         
         if (query == "") return [query, subscope, opts];
         
@@ -138,6 +140,8 @@
 
             return [query, subscope, opts];
         }
+
+        return [query, subscope, opts]
     }
 
     // Call ioFile and return false instead of exceptions
@@ -265,24 +269,31 @@
                 return;
             }
 
+            var folderIcon = "chrome://komodo/skin/images/folder-closed.png";
+            if (system.platform == "linux")
+                folderIcon = "moz-icon://stock/gtk-directory?size=16";
+
             var _results = [];
             for (let x in results)
             {
                 let entry = results[x];
 
-                var [name, path, type, description, weight] = entry;
+                var [name, path, relativePath, type, description, weight] = entry;
 
-                description = "<html:em class=\"subscope\">"+subscope.name+"</html:em><html:div class=\"crop\"><html:span dir=\"ltr\">" + description + "</html:span></html:div>";
+                descriptionComplex = "<html:div class=\"crop rtl\" xmlns:html=\"http://www.w3.org/1999/xhtml\">";
+                descriptionComplex += "<html:span dir=\"ltr\">"+description+"</html:span></html:div>";
 
                 _results.push({
                     id: path,
                     name: name,
-                    description: description,
-                    icon: type == 'dir' ? "chrome://komodo/skin/images/folder-32.png" : "koicon://" + path + "?size=32",
+                    description: relativePath,
+                    descriptionComplex: descriptionComplex,
+                    crop: "start",
+                    icon: type == 'dir' ? folderIcon : "koicon://" + path + "?size=16",
                     isScope: type == 'dir',
                     weight: weight,
                     scope: "scope-files",
-                    classList: "subscope-crop",
+                    descriptionPrefix: subscope.name,
                     data: {
                         path: path
                     },

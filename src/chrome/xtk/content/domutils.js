@@ -124,6 +124,7 @@ getChildrenByAttribute: function(parent, attrKey, attrVal, returnFirst = false)
     if ( ! (attrVal instanceof Array)) attrVal = [attrVal]; // Allow multiple vals
 
     for (let [k,child] in Iterator(parent.childNodes)) {
+        if ( ! child.getAttribute) continue;
         if (child.getAttribute(attrKey) && attrVal.indexOf(child.getAttribute(attrKey)) !== -1) {
             if (returnFirst) return child;
             results.push(child);

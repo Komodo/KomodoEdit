@@ -20,8 +20,8 @@
 
 #commando-search
 {
-    font-size: 150%;
-    padding: 10px;
+    font-size: 1.4em;
+    padding: 4px;
     border: 0;
     margin: 0;
     background: transparent !important;
@@ -59,6 +59,7 @@
     {
         visibility: visible;
         display: inherit;
+        -moz-margin-end: 4px !important; /* Whats wrong with `margin` mozilla? */
     }
 }
 
@@ -85,6 +86,7 @@ richlistbox#commando-results
         background-color: transparent;
         color: @window-color;
         padding: 5px;
+        height: 35px;
 
         &:nth-child(even)
         {
@@ -97,137 +99,77 @@ richlistbox#commando-results
             color: @list-listbox-item-color-selected;
         }
 
-        .title
-        {
-            font-size: 120%;
-            margin: 0 0 0 6px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
         .icon
         {
             background-repeat: no-repeat;
+            width: 16px;
+            height: 16px;
+            max-height: 16px;
         }
 
-        &:not(.compact)
+        .entry-wrapper
         {
-            height: 55px;
-
-            .icon
+            .title
             {
-                width: 32px;
-                height: 32px;
-                max-height: 32px;
-            }
-        }
-
-        &.compact
-        {
-            height: 35px;
-            
-            .icon
-            {
-                width: 16px;
-                height: 16px;
-                max-height: 16px;
-            }
-        }
-
-        .description
-        {
-            opacity: 0.7;
-            margin: 0 0 0 6px;
-            overflow-x: hidden !important;
-            width: 100%;
-
-            div
-            {
-                margin: 0;
-                padding: 0;
-                -moz-appearance: none;
-                display: inline;
-            }
-        }
-
-        &.compact .description
-        {
-            font-size: 120%;
-        }
-
-        .description strong
-        {
-            font-weight: bold;
-        }
-
-        .description em
-        {
-            font-style: italic;
-            max-width: 100px;
-            opacity: 0.7;
-            margin-right: 5px;
-        }
-
-        &.subscope-crop
-        {
-            &.compact .description
-            {
-                max-width: 450px;
+                font-size: 1.1em;
+                margin: 0 0 0 6px;
             }
 
-            &:not(.compact) .description
+            .descriptionPrefix
             {
-                max-width: 425px;
+                font-style: italic;
+                max-width: 100px;
+                opacity: 0.7;
+                margin: 0 0 0 6px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
-            .description
+            .description,
+            .descriptionComplex
             {
-                display: flex;
+                opacity: 0.7;
+                margin: 0 0 0 6px;
+            }
+
+            .descriptionComplex,
+            .descriptionComplex *
+            {
+                line-height: 1.1em;
+                vertical-align: middle;
+            }
+
+            .descriptionComplex
+            {
+                visibility: collapse;
 
                 .crop
                 {
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    flex: 1;
                     min-width: 0;
-                    direction: rtl;
                     text-align: left;
+
+                    &.rtl
+                    {
+                        direction: rtl;
+                    }
                 }
             }
-        }
 
-        &:not(.subscope-crop)
-        {
-            &.compact .entry-wrapper
+            &.processed
             {
-                max-width: 450px;
-            }
-
-            &:not(.compact) .entry-wrapper
-            {
-                max-width: 425px;
-            }
-
-            .entry-wrapper
-            {
-                display: flex;
-
                 .description
                 {
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    flex: 1;
-                    min-width: 0;
+                    visibility: collapse;
                 }
-            }
 
-            &.crop-rtl .description
-            {
-                direction: rtl;
-                text-align: left;
+                .descriptionComplex
+                {
+                    visibility: visible;
+                }
             }
         }
     }

@@ -68,12 +68,20 @@
                                         <box class="icon" style='background-image: url({{=it.icon}})'></box>
                                     {{?}}
                                 </vbox>
-                                <html:div class="entry-wrapper">
-                                    <html:span class="title">{{!it.name}}</html:span>
+                                <hbox class="entry-wrapper" align="center" pack="center"> <!-- processResults relies on the order of these nodes -->
+                                    <hbox class="prefix" align="center" pack="center">
+                                        <label class="title" value="{{!it.name}}"/>
+                                        {{?it.descriptionPrefix}}
+                                            <label class="descriptionPrefix" value="{{!it.descriptionPrefix}}"/>
+                                        {{?}}
+                                    </hbox>
                                     {{?it.description}}
-                                        <html:div class="description">{{=it.description}}</html:div>
+                                        <description class="description" value="{{=it.description}}" crop="{{?it.crop}}{{!it.crop}}{{??}}end{{?}}" flex="1"/>
                                     {{?}}
-                                </html:div>
+                                    {{?it.descriptionComplex}}
+                                        <description class="descriptionComplex" align="center">{{=it.descriptionComplex}}</description>
+                                    {{?}}
+                                </hbox>
                             </hbox>
                         </richlistitem>
                     </script>

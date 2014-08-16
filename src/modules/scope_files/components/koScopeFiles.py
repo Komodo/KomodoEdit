@@ -153,12 +153,15 @@ class Searcher:
                     log.debug(self.opts["uuid"] + " Max results reached")
                     return self.stop()
 
+                relativePath = subPath
                 if not self.opts.get("fullpath", False):
                     replacement = self.opts["stripPathRe"].sub("", replacement)
+                    relativePath = self.opts["stripPathRe"].sub("", relativePath)
 
                 pathEntry = {
                     "filename": filename,
                     "path": subPath,
+                    "relativePath": relativePath,
                     "type": "dir" if filename in dirnames else "file"
                 }
 
@@ -187,6 +190,7 @@ class Searcher:
         result = [
             pathEntry["filename"],
             pathEntry["path"],
+            pathEntry["relativePath"],
             pathEntry["type"],
             description,
             weight

@@ -490,6 +490,8 @@
         if (local.resultsReceived == maxResults)
             log.debug("Reached max results");
 
+        var process = [];
+
         for (let result of results)
         {
             result.subscope = local.subscope;
@@ -497,6 +499,9 @@
             resultEntry.resultData = result;
             resultElem.element().appendChild(resultEntry);
             this.sortResult(resultEntry);
+
+            if (result.descriptionComplex)
+                process.push(resultEntry);
         }
 
         resultElem.addClass("has-results");
@@ -505,6 +510,35 @@
         tmpResultElem.parentNode.replaceChild(resultElem.element(), tmpResultElem);
 
         resultElem.element().selectedIndex = 0;
+
+        if (process)
+            window.setTimeout(processResults.bind(this, process), 0);
+    }
+
+    var processResults = function(resultEntries)
+    {
+        var getByAttr = window.xtk.domutils.getChildByAttribute;
+        for (let entry in resultEntries)
+        {
+            entry = resultEntries[entry];
+            var wrapper = entry.querySelector(".entry-wrapper");
+            var prefix = getByAttr(wrapper, "class", "prefix")
+            var descComplex = getByAttr(wrapper, "class", "descriptionComplex")
+
+            var prefixWidth = prefix.boxObject.width;
+
+            // Todo: account for other nodes, clean up
+            // Detect width automatically
+            // MAKE XUL RESPECT THE FREAKING PARENT NODE WIDTH! SERIOUSL XUL GRRRRRRR
+            // And if at all possible find a pure XUL/CSS way, this sucks
+            descComplex.style.maxWidth = (430 - prefixWidth) + "px";
+
+            // Yes this code sucks, XUL made me do it
+            if (descComplex.firstChild && descComplex.firstChild.classList.contains("crop"))
+                descComplex.firstChild.style.maxWidth = descComplex.style.maxWidth;
+
+            wrapper.classList.add("processed");
+        }
     }
 
     // Todo: prevent multiple paints
