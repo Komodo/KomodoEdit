@@ -90,6 +90,17 @@ log = logging.getLogger("mozupdate")
 g_update_manifest_filename = "updatev3.manifest"
 
 
+def isValidPathEncoding(path):
+    # Check that it's decode-able, otherwise we've got a
+    # strange file.
+    try:
+        path.decode("utf8")
+    except UnicodeDecodeError:
+        log.error("Invalid path: %r", path)
+        return False
+    return True
+
+
 #---- command-line interface
 
 class Shell(cmdln.Cmdln):
@@ -274,6 +285,8 @@ class Shell(cmdln.Cmdln):
             if opts.removed_files_candidates:
                 removed_files = set()
                 for line in open(opts.removed_files_candidates, "r"):
+                    if not isValidPathEncoding(line):
+                        continue
                     removed_files.add(line.strip())
 
                 actually_removed_files = sorted(removed_files - seen_files)
@@ -292,6 +305,8 @@ class Shell(cmdln.Cmdln):
                     open(removed_path, 'wb').write(bz2.compress(manifest_str))
                     for path in actually_removed_files:
                         # Add remove instructions, but only if they aren't there
+                        if not isValidPathEncoding(path):
+                            continue
                         instruction = 'remove "%s"' % (path,)
                         if instruction not in manifest:
                             manifest.append(instruction)
@@ -403,6 +418,8 @@ class Shell(cmdln.Cmdln):
                 # (to cover files that were previously removed)
                 with open(join(fromdir, "removed-files")) as old_list:
                     for line in old_list:
+                        if not isValidPathEncoding(line):
+                            continue
                         removed_files.add(line.strip())
             except IOError:
                 log.warn("removed-files list not found from previous update")
@@ -525,6 +542,8 @@ class Shell(cmdln.Cmdln):
                 try:
                     with open(opts.removed_files_candidates, "r") as old_list:
                         for path in old_list:
+                            if not isValidPathEncoding(path):
+                                continue
                             removed_files.add(path.strip())
                 except IOError:
                     log.warn("removed files candidates list %s is missing",
@@ -557,6 +576,8 @@ class Shell(cmdln.Cmdln):
                 # also update the candidates list
                 with open(opts.removed_files_candidates, "w") as new_list:
                     for path in sorted(removed_files):
+                        if not isValidPathEncoding(path):
+                            continue
                         new_list.write(path + "\n")
 
             # Write 'update manifest'.
@@ -623,6 +644,8 @@ class Shell(cmdln.Cmdln):
         for line in open(removed_files_path, 'r'):
             line = line.strip()
             if not line: continue # skip blank lines
+            if not isValidPathEncoding(line):
+                continue
             if '\\' in line:
                 raise Error("`%s' is using Windows-style path seps: "
                             "I'm not positive, but I suspect the "
