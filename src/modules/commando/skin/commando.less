@@ -1,21 +1,67 @@
 @import url("chrome://komodo/skin/_config/window.less");
+@import url("chrome://komodo/skin/_config/editor.less");
 
 #commando-panel
 {
     padding: 0;
 
     -moz-appearance: none;
-    background: @window-background;
-    color: @window-color;
-    border: 1px solid rgba(0,0,0,0.3);
-    border: @main-border;
+    background: @editor-popup-background;
+    color: @editor-popup-foreground;
+    border: @editor-popup-border;
+    border-radius: @editor-popup-border-radius;
+    box-shadow: @editor-popup-shadow;
+}
+
+#commando-panel scrollbar
+{
+    border: 0;
+    background: transparent;
+
+    slider
+    {
+        -moz-appearance: none;
+        border: 0;
+        background: fade(@editor-popup-background, 100%);
+    }
+
+    thumb
+    {
+        -moz-appearance: none;
+        background: darken(@editor-popup-background, 5%);
+        border: 0;
+    }
+
+    thumb:hover
+    {
+        -moz-appearance: none;
+        background: darken(@editor-popup-background, 10%);
+    }
+
+    &:hover
+    {
+        slider
+        {
+            -moz-appearance: none;
+            background: darken(fade(@editor-popup-background, 100%), 2%);
+        }
+    }
+}
+
+#commando-panel.overflow-top
+{
+    background: linear-gradient(to top, @editor-popup-background 95%, darken(@editor-popup-background, 5%) 100%);
+}
+
+#commando-panel.overflow-bottom
+{
+    background: linear-gradient(to bottom, @editor-popup-background 95%, darken(@editor-popup-background, 5%) 100%);
 }
 
 #commando-search-wrapper
 {
     margin-bottom: 1px;
-    background: #FFF; /* In case @textbox-background is disabled */
-    background: @textbox-background;
+    background: transparent;
 }
 
 #commando-search
@@ -25,7 +71,7 @@
     border: 0;
     margin: 0;
     background: transparent !important;
-
+    color: @editor-popup-selection-foreground;
     -moz-appearance: none;
 }
 
@@ -34,8 +80,8 @@
     visibility: collapse;
     font-weight: bold;
     padding: 3px;
-    background-color: @list-listbox-row-background-selected;
-    color: @list-listbox-item-color-selected;
+    background-color: @editor-popup-selection-background;
+    color: @editor-popup-selection-foreground;
     border-radius: 3px;
     max-width: 150px;
 }
@@ -66,8 +112,7 @@
 richlistbox#commando-results
 {
     -moz-appearance: none;
-    background: #FFF !important; /* In case @textbox-background is disabled */
-    background: @textbox-background !important;
+    background: transparent !important;
     border: 0;
     margin: 0;
 
@@ -84,19 +129,19 @@ richlistbox#commando-results
     richlistitem
     {
         background-color: transparent;
-        color: @window-color;
+        color: @editor-popup-foreground;
         padding: 5px;
         height: 35px;
 
         &:nth-child(even)
         {
-            background-color: rgba(0,0,0,0.05);
+            background-color: rgba(0,0,0,0.1);
         }
 
         &[selected="true"]
         {
-            background-color: @list-listbox-row-background-selected;
-            color: @list-listbox-item-color-selected;
+            background-color: @editor-popup-selection-background;
+            color: @editor-popup-selection-foreground;
         }
 
         .icon
@@ -130,7 +175,7 @@ richlistbox#commando-results
             .descriptionComplex
             {
                 opacity: 0.7;
-                margin: 0 0 0 6px;
+                margin: 0 0 0 2px;
             }
 
             .descriptionComplex,
@@ -143,6 +188,7 @@ richlistbox#commando-results
             .descriptionComplex
             {
                 visibility: collapse;
+                margin-top: -3px; /* Todo: align without fixed values */
 
                 .crop
                 {
