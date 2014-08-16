@@ -16,6 +16,7 @@ overlay chrome://mozapps/content/update/updates.xul chrome://komodo/content/upda
 
 category komodo-pre-startup-service koManifestLoader @activestate.com/koManifestLoader;1
 category agent-style-sheets scrollbar-skinning less://komodo/skin/scrollbars.less
+category agent-style-sheets platform-scrollbars less://komodo/skin/platform.less
 
 override chrome://global/skin/global.css less://komodo/skin/platform.less
 

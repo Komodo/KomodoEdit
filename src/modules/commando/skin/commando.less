@@ -4,58 +4,6 @@
 #commando-panel
 {
     padding: 0;
-
-    -moz-appearance: none;
-    background: @editor-popup-background;
-    color: @editor-popup-foreground;
-    border: @editor-popup-border;
-    border-radius: @editor-popup-border-radius;
-    box-shadow: @editor-popup-shadow;
-}
-
-#commando-panel scrollbar
-{
-    border: 0;
-    background: transparent;
-
-    slider
-    {
-        -moz-appearance: none;
-        border: 0;
-        background: fade(@editor-popup-background, 100%);
-    }
-
-    thumb
-    {
-        -moz-appearance: none;
-        background: darken(@editor-popup-background, 5%);
-        border: 0;
-    }
-
-    thumb:hover
-    {
-        -moz-appearance: none;
-        background: darken(@editor-popup-background, 10%);
-    }
-
-    &:hover
-    {
-        slider
-        {
-            -moz-appearance: none;
-            background: darken(fade(@editor-popup-background, 100%), 2%);
-        }
-    }
-}
-
-#commando-panel.overflow-top
-{
-    background: linear-gradient(to top, @editor-popup-background 95%, darken(@editor-popup-background, 5%) 100%);
-}
-
-#commando-panel.overflow-bottom
-{
-    background: linear-gradient(to bottom, @editor-popup-background 95%, darken(@editor-popup-background, 5%) 100%);
 }
 
 #commando-search-wrapper
@@ -71,7 +19,7 @@
     border: 0;
     margin: 0;
     background: transparent !important;
-    color: @editor-popup-selection-foreground;
+    color: @hud-selection-foreground;
     -moz-appearance: none;
 }
 
@@ -80,8 +28,8 @@
     visibility: collapse;
     font-weight: bold;
     padding: 3px;
-    background-color: @editor-popup-selection-background;
-    color: @editor-popup-selection-foreground;
+    background-color: @hud-selection-background;
+    color: @hud-selection-foreground;
     border-radius: 3px;
     max-width: 150px;
 }
@@ -128,21 +76,8 @@ richlistbox#commando-results
 
     richlistitem
     {
-        background-color: transparent;
-        color: @editor-popup-foreground;
         padding: 5px;
         height: 35px;
-
-        &:nth-child(even)
-        {
-            background-color: rgba(0,0,0,0.1);
-        }
-
-        &[selected="true"]
-        {
-            background-color: @editor-popup-selection-background;
-            color: @editor-popup-selection-foreground;
-        }
 
         .icon
         {

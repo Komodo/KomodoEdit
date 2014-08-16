@@ -76,7 +76,7 @@
                     </xul:row>
                 </xul:rows>
             </xul:grid>
-            <xul:panel anonid="autocompletepopup" noautofocus="true">
+            <xul:panel anonid="autocompletepopup" class="hud" noautofocus="true">
                 <xul:hbox>
                     <xul:grid/>
                     <xul:scrollbar orient="vertical"/>

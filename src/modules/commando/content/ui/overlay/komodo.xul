@@ -33,7 +33,7 @@
     </menupopup>
 
     <popupset id="komodoMainPopupSet">
-        <panel id="commando-panel" titlebar="normal" width="500">
+        <panel id="commando-panel" titlebar="normal" width="500" class="hud">
             <vbox flex="1">
                 <hbox id="commando-search-wrapper">
                     <!-- Menuitem template -->

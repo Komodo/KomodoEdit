@@ -1,41 +1,29 @@
 /* General */
 
-@editor-popup-background:           rgba(30,30,30,0.9);
-@editor-popup-foreground:           #BABABA;
-@editor-popup-selection-background: rgba(0,0,0,0.5);
-@editor-popup-selection-foreground: #FFF;
-@editor-popup-border:               1px solid rgba(255,255,255,0.2);
-@editor-popup-border-radius:        2px;
-@editor-popup-shadow:               inset 0px 0px 2px 0px rgba(0, 0, 0, 0.75);
+@hud-background:           rgba(30,30,30,0.9);
+@hud-foreground:           #BABABA;
+@hud-selection-background: rgba(0,0,0,0.5);
+@hud-selection-foreground: #FFF;
+@hud-border:               1px solid rgba(255,255,255,0.2);
+@hud-border-radius:        2px;
+@hud-shadow:               inset 0px 0px 2px 0px rgba(0, 0, 0, 0.75);
 
-@editor-popup-lightbg-background:           rgba(220,220,220,0.9);
-@editor-popup-lightbg-foreground:           #595959;
-@editor-popup-lightbg-selection-background: rgba(255,255,255,0.5);
-@editor-popup-lightbg-selection-foreground: #000;
+@hud-lightbg-background:           rgba(220,220,220,0.9);
+@hud-lightbg-foreground:           #595959;
+@hud-lightbg-selection-background: rgba(255,255,255,0.5);
+@hud-lightbg-selection-foreground: #000;
+
+@hud-item-even-background:          rgba(0,0,0,0.1);
+
+@hud-item-border:                   1px solid rgba(255,255,255,0);
+@hud-selected-border:               1px solid rgba(255,255,255,0);
+@hud-focused-border:                1px dotted rgba(255,255,255,0.3);
 
 /* Autocomplete */
-
-@editor-autocomplete-appearance:     none;
-@editor-autocomplete-background:     @editor-popup-background;
 
 @editor-autocomplete-item-font:      monospace;
 @editor-autocomplete-item-font-size: disabled;
 @editor-autocomplete-item-background:disabled;
-@editor-autocomplete-item-color:     @editor-popup-foreground;
-
-@editor-autocomplete-item-background-selected:   @editor-popup-selection-background;
-@editor-autocomplete-item-color-selected:        @editor-popup-selection-foreground;
+@editor-autocomplete-item-color:     @hud-foreground;
 
 @editor-autocomplete-item-border-color-focused:  rgba(255,255,255,0.3);
-
-/* Autocomplete - Light BG version */
-
-@editor-autocomplete-lightbg-background:     @editor-popup-lightbg-background;
-
-@editor-autocomplete-lightbg-item-background:disabled;
-@editor-autocomplete-lightbg-item-color:     @editor-popup-lightbg-foreground;
-
-@editor-autocomplete-lightbg-item-background-selected:   @editor-popup-lightbg-selection-background;
-@editor-autocomplete-lightbg-item-color-selected:        @editor-popup-lightbg-selection-foreground;
-
-@editor-autocomplete-item-lightbg-border-color-focused:  rgba(0,0,0,0.3);

@@ -192,7 +192,7 @@
         </tooltip>
         <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true" crop="start"/>
 
-        <panel id="gotoLine_panel"
+        <panel id="gotoLine_panel" class="hud"
                onpopupshown="document.getElementById('gotoLine_textbox').focus(); document.getElementById('gotoLine_error_hbox').setAttribute('collapsed', 'true'); ">
             <vbox id="gotoLine_vbox" maxwidth="420">
                 <description id="gotoLine_description">&gotoLine.prompt.description;</description>

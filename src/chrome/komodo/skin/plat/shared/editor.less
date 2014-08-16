@@ -3,11 +3,88 @@
 
 @import url("chrome://komodo/skin/_config/editor.less");
 
+.hud
+{
+    -moz-appearance: none;
+    background: @hud-background;
+    color: @hud-foreground;
+    border: @hud-border;
+    border-radius: @hud-border-radius;
+    box-shadow: @hud-shadow;
+
+    scrollbar
+    {
+        border: 0;
+        background: transparent;
+
+        slider
+        {
+            -moz-appearance: none;
+            border: 0;
+            background: fade(@hud-background, 100%);
+        }
+
+        thumb
+        {
+            -moz-appearance: none;
+            background: darken(@hud-background, 5%);
+            border: 0;
+        }
+
+        thumb:hover
+        {
+            -moz-appearance: none;
+            background: darken(@hud-background, 10%);
+        }
+
+        &:hover
+        {
+            slider
+            {
+                -moz-appearance: none;
+                background: darken(fade(@hud-background, 100%), 2%);
+            }
+        }
+    }
+
+    richlistbox,
+    listbox
+    {
+        -moz-appearance: none;
+        background: transparent !important;
+    }
+
+    richlistitem,
+    listitem,
+    row
+    {
+        background-color: transparent;
+        color: @hud-foreground;
+        border-color: @hud-item-border;
+
+        &:nth-child(even)
+        {
+            background-color: @hud-item-even-background;
+        }
+
+        &[selected="true"]
+        {
+            background-color: @hud-selection-background;
+            color: @hud-selection-foreground;
+            border-color: @hud-selected-border;
+        }
+
+        &[focused]:not([selected])
+        {
+            border-color: @hud-focused-border;
+        }
+    }
+}
+
 /* Autocompletions */
 
 scintilla[anonid="scintilla"] > panel[anonid="autocompletepopup"]
 {
-    -moz-appearance: @editor-autocomplete-appearance;
     border-radius: 2px;
 
     & > hbox > grid
@@ -59,50 +136,6 @@ scintilla[anonid="scintilla"] > panel[anonid="autocompletepopup"]
                 margin-top: 3px;
                 margin-bottom: 2px;
             }
-        }
-    }
-}
-
-scintilla[isDark="false"] > panel[anonid="autocompletepopup"]
-{
-    background: @editor-autocomplete-background;
-
-    .ko-autocomplete-item
-    {
-        background: @editor-autocomplete-item-background;
-        color: @editor-autocomplete-item-color;
-
-        &[selected]
-        {
-            background: @editor-autocomplete-item-background-selected;
-            color: @editor-autocomplete-item-color-selected;
-        }
-
-        &[focused]:not([selected])
-        {
-            border-color: @editor-autocomplete-item-border-color-focused;
-        }
-    }
-}
-
-scintilla[isDark="true"] > panel[anonid="autocompletepopup"]
-{
-    background: @editor-autocomplete-lightbg-background;
-
-    .ko-autocomplete-item
-    {
-        background: @editor-autocomplete-lightbg-item-background;
-        color: @editor-autocomplete-lightbg-item-color;
-
-        &[selected]
-        {
-            background: @editor-autocomplete-lightbg-item-background-selected;
-            color: @editor-autocomplete-lightbg-item-color-selected;
-        }
-
-        &[focused]:not([selected])
-        {
-            border-color: @editor-autocomplete-item-lightbg-border-color-focused;
         }
     }
 }
