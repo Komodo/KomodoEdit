@@ -332,7 +332,7 @@
 <!ENTITY gotoLine.accesskey "G">
 <!ENTITY gotoLine.label "Go to Line...">
 <!ENTITY gotoLine.prompt.description "Enter a line number to go to. Prefix + or - to move relative to the current line. For example: +4 will move forward 4 lines. Specify a column # or offset after a comma. eg: +4,-8 moves down 4, left 8.">
-<!ENTITY gotoLine.prompt.label "Enter line number:">
+<!ENTITY gotoLine.prompt.label "Line number:">
 <!ENTITY goToTab.menu.accesskey "A">
 <!ENTITY goToTab.menu.label "Go to Tab">
 <!ENTITY help.label "Help">

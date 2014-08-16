@@ -195,7 +195,7 @@
         <panel id="gotoLine_panel" class="hud"
                onpopupshown="document.getElementById('gotoLine_textbox').focus(); document.getElementById('gotoLine_error_hbox').setAttribute('collapsed', 'true'); ">
             <vbox id="gotoLine_vbox" maxwidth="420">
-                <description id="gotoLine_description">&gotoLine.prompt.description;</description>
+                <!--<description id="gotoLine_description">&gotoLine.prompt.description;</description>-->
                 <hbox id="gotoLine_hbox" align="center">
                     <label id="gotoLine_label" class="desc" value="&gotoLine.prompt.label;" />
                     <textbox id="gotoLine_textbox"
