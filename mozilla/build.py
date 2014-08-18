@@ -490,8 +490,8 @@ def _setupMozillaEnv():
                              "to build mozilla."
                              % (autoconf, verStr))
 
-        # On OSX, zsh fails when configuring mozilla - so force bash instead.
-        if sys.platform == "darwin" and "zsh" in os.environ.get("SHELL", ""):
+        # zsh shell fails when configuring mozilla - so force bash instead.
+        if "zsh" in os.environ.get("SHELL", ""):
             log.info("shell: zsh detected, replacing SHELL environment with bash")
             os.environ["SHELL"] = "/bin/bash"
 
