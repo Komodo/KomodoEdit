@@ -20,7 +20,7 @@ const [JetPack, require] = (function() {
     let requirePaths = {};
     let setRequirePaths = function() {
         // Komodo API fallback...
-        requirePaths["ko/"] = "chrome://komodo/content/library/";
+        requirePaths["ko/"] = "chrome://komodo/content/sdk/";
         // Komodo API fallback...
         requirePaths["contrib/"] = "chrome://komodo/content/contrib/commonjs/";
         // Default path

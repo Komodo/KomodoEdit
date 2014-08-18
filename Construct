@@ -359,6 +359,7 @@ Build(
     "$build/chrome/komodo/content/dialogs/filebrowser/Conscript",
     "$build/chrome/komodo/content/extmgr/Conscript",
     "$build/chrome/komodo/content/library/Conscript",
+    "$build/chrome/komodo/content/sdk/Conscript",
     "$build/chrome/komodo/content/lint/Conscript",
     "$build/chrome/komodo/content/keybindings/Conscript",
     "$build/chrome/komodo/content/find/Conscript",

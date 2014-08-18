@@ -99,12 +99,3 @@ $cons->InstallInChrome('multipleCaret.js');
 $cons->InstallInChrome('utils.js');
 $cons->Preprocess('performance_tweaks.p.js', 'performance_tweaks.js');
 $cons->InstallInChrome('performance_tweaks.js');
-$cons->InstallInChrome('color.js');
-$cons->InstallInChrome('dom.js');
-$cons->InstallInChrome('editor.js');
-$cons->InstallInChrome('icons.js');
-$cons->InstallInChrome('keybindings.js');
-
-if ($buildFlavour eq "dev") {
-    $cons->InstallInChrome('benchmark.js');
-}

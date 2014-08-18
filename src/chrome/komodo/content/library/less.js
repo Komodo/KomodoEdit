@@ -172,10 +172,13 @@ var koLess = function koLess()
          *                                          internally or from the compiler
          * @param   {Boolean}       async           Whether to execute this call
          *                                          asynchronously
+         * @param   {Boolean}       cache           Whether to allow caching,
+         *                                          if caching is disabled the callback
+         *                                          will return the parsed sheet
          *
          * @returns {Void}
          */
-        loadSheet: function koLess_loadSheet(sheet, callback = function() {}, isInternalCall = false, async = false)
+        loadSheet: function koLess_loadSheet(sheet, callback = function() {}, isInternalCall = false, async = false, cache = true)
         {
             var threadId = this._loadSheetNo++;
             
