@@ -53,4 +53,4 @@ if __name__ == '__main__':
     else:
         gitrev = revision_from_buildnum(revision)
         print("git rev: %s" % (gitrev, ))
-        print("https://github.com/Komodo/KomodoIDE/commit/%s" % (gitrev, ))
+        print("https://github.com/Komodo/KomodoEdit/commit/%s" % (gitrev, ))
