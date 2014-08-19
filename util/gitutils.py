@@ -36,7 +36,7 @@ def revision_from_buildnum(buildnum):
     last_svn_rev, last_svn_date = _last_svn_commit()
     cmd = ["git", "rev-list", "--all", "--since=" + last_svn_date]
     git_revisions = _capture_stdout(cmd).splitlines()
-    git_index = len(git_revisions) - (buildnum - last_svn_rev)
+    git_index = len(git_revisions) - (int(buildnum) - int(last_svn_rev))
     return git_revisions[git_index]
 
 if __name__ == '__main__':
