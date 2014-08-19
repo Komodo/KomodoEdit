@@ -51,4 +51,6 @@ if __name__ == '__main__':
         # Git sha1
         print("buildnum: %s" % (buildnum_from_revision(revision)))
     else:
-        print("git rev: %s" % (revision_from_buildnum(revision)))
+        gitrev = revision_from_buildnum(revision)
+        print("git rev: %s" % (gitrev, ))
+        print("https://github.com/Komodo/KomodoIDE/commit/%s" % (gitrev, ))
