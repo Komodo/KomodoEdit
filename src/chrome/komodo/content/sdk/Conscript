@@ -27,6 +27,7 @@ $cons->InstallInChrome('dom.js');
 $cons->InstallInChrome('editor.js');
 $cons->InstallInChrome('icons.js');
 $cons->InstallInChrome('keybindings.js');
+$cons->InstallInChrome('less.js');
 
 if ($buildFlavour eq "dev") {
     $cons->InstallInChrome('benchmark.js');

@@ -272,41 +272,91 @@ var koLess = function koLess()
                         // Perfect time to cache the sheet hierarchy
                         this.cache.writeFile('hierarchy.json', JSON.stringify(this.hierarchy));
                     }
-                };
+                }.bind(this);
                
                 // Run it through the LESS parser
-                try
-                {
-                    var contents = {};
-                    contents[sheet.href] = data;
-
-                    if (sheet instanceof less.tree.parseEnv)
-                    {
-                        var env = new less.tree.parseEnv(sheet);
-                    }
-                    else
-                    {
-                        var env = new less.tree.parseEnv(less);
-                        env.mime = sheet.type;
-                        env.sheet = sheet;
-                    }
-
-                    env.paths = [sheet.href.replace(/[^/]*$/, '')];
-                    env.contents = contents;
-                    env.dumpLineNumbers = false;
-                    env.strictImports = false;
-                    env.currentFileInfo = {
-                        filename: sheet.href
-                    };
-
-                    new(less.Parser)(env).parse(data, _parseCallback.bind(this));
-                }
-                catch (e)
-                {
-                    this.exception(e, threadId + ' Parsing error for ' + sheet.href + ': ' + e.message);
-                    callback();
-                }
+                this.parse(data, _parseCallback, sheet, false);
             }.bind(this), async);
+        },
+
+        /**
+         * Parse given CSS/LESS into pure CSS
+         *
+         * @param   {string} data
+         * @param   {function} callback
+         * @param   {object|undefined} sheet
+         *
+         * @returns {void}
+         */
+        parse: function(data, callback, sheet = undefined, isVirtual = true)
+        {
+            if ( ! sheet)
+            {
+                sheet = {
+                    href: "file://virtual.less",
+                    mime: "text/less"
+                }
+            }
+
+            try
+            {
+                var contents = {};
+                contents[sheet.href] = data;
+
+                if (sheet instanceof less.tree.parseEnv)
+                {
+                    var env = new less.tree.parseEnv(sheet);
+                }
+                else
+                {
+                    var env = new less.tree.parseEnv(less);
+                    env.mime = sheet.type;
+                    env.sheet = sheet;
+                }
+
+                env.paths = [sheet.href.replace(/[^/]*$/, '')];
+                env.contents = contents;
+                env.dumpLineNumbers = false;
+                env.strictImports = false;
+                env.currentFileInfo = {
+                    filename: sheet.href
+                };
+
+                new(less.Parser)(env).parse(data, function(e, root)
+                {
+                    if ( ! isVirtual) return callback(e, root);
+
+                    try
+                    {
+                        var parsedCss = root.toCSS();
+                    }
+                    catch (ex)
+                    {
+                        if ("extract" in ex)
+                        {
+                            e = ex;
+                        }
+                        else
+                        {
+                            this.exception(e, 'Error converting less to css in ' + sheet.href);
+                        }
+                    }
+
+                    // Validate parsed result
+                    if (e)
+                    {
+                        this.errorLess(e, sheet.href);
+                    }
+
+                    callback(parsedCss);
+                }.bind(this));
+            }
+            catch (e)
+            {
+                this.exception(e, ' Parsing error for ' + sheet.href + ': ' + e.message);
+
+                if ( ! isVirtual) callback(e);
+            }
         },
 
         /**
@@ -723,7 +773,7 @@ var koLess = function koLess()
                 }
             }
 
-            //this.debug('Youngest child for "' + href + '" is "' + youngest.href + '"');
+            this.debug('Youngest child for "' + href + '" is "' + youngest.href + '"');
 
             this.localCache.resolveYoungestChild[href] = youngest;
             return youngest;
@@ -800,7 +850,7 @@ var koLess = function koLess()
          *
          * @returns {Void}
          */
-        errorLess: function koLess_errorLess(e, href, threadId) {
+        errorLess: function koLess_errorLess(e, href, threadId = "") {
             var error = [];
 
             var errorString = (

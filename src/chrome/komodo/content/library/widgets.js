@@ -260,6 +260,27 @@ if (typeof(ko.widgets)=='undefined') {
                 data.browser = pane.addWidget(aID, {focus: false});
             }
         }
+
+        if (data.browser && ! data._loadListenerAdded) {
+            data._loadListenerAdded = true;
+
+            var loadEvent = function() {
+                var event = new CustomEvent("widget-load",
+                {
+                    bubbles: false,
+                    cancelable: false,
+                    detail: data
+                });
+                window.dispatchEvent(event);
+            }
+
+            if (data.browser.contentDocument.readyState == "complete") {
+                loadEvent();
+            } else {
+                data.browser.contentWindow.addEventListener("load", loadEvent);
+            }
+        }
+
         return data.browser;
     };
 

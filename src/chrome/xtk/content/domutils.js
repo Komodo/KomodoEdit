@@ -188,7 +188,7 @@ fireEvent : function(target, eventName) {
 },
 
 /**
- * @deprecated since Komodo 9.0
+ * @deprecated since Komodo 9.0: https://github.com/Komodo/KomodoEdit/wiki/Komodo-9-Changes-Data-DOM-Events
  *
  * Send out a window data event with the given event name and data settings.
  *
