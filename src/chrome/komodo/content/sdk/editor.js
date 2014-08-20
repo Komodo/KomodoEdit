@@ -7,7 +7,7 @@
 
 var scimoz = function()
 {
-    return window.ko.views.manager.currentView.scimoz;
+    return window.ko.views.manager.currentView.scimoz || {};
 }
 
 module.exports = {
@@ -549,6 +549,8 @@ module.exports = {
 
     getAllMarks: function(type = ko.markers.MARKNUM_BOOKMARK)
     {
+        if ( ! scimoz()) return [];
+
         var lineNo = 0;
         var bookmarkLines = {};
 
