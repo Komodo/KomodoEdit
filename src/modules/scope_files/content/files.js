@@ -197,7 +197,7 @@
         commando.search("");
     }
 
-    this.onSearch = function(query, uuid)
+    this.onSearch = function(query, uuid, onComplete = null)
     {
         log.debug(uuid + " - Starting Scoped Search");
 
@@ -264,7 +264,10 @@
                 // Todo: find proper solution
                 window.setTimeout(function()
                 {
-                    commando.onSearchComplete("scope-files", uuid);
+                    if (onComplete)
+                        onComplete(uuid);
+                    else
+                        commando.onSearchComplete(uuid);
                 }, 100)
                 return;
             }

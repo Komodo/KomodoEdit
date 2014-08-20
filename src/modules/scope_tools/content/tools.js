@@ -16,7 +16,7 @@
         commando.search("");
     }
 
-    this.onSearch = function(query, uuid)
+    this.onSearch = function(query, uuid, onComplete = null)
     {
         log.debug(uuid + " - Starting Scoped Search");
 
@@ -63,6 +63,11 @@
             }
 
             commando.renderResults(tools, uuid);
+
+            if (onComplete)
+                onComplete(uuid);
+            else
+                commando.onSearchComplete(uuid);
         });
     }
 

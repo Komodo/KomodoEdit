@@ -58,6 +58,7 @@
                     </vbox>
                     <textbox flex="1" id="commando-search"/>
                 </hbox>
+                <hbox id="commando-loader"></hbox>
                 <vbox flex="1" id="commando-results-wrapper">
                     <!-- Result template -->
                     <script id="tpl-co-result" type="x-dot-template">

@@ -13,14 +13,25 @@
     {
         var scopes = getScopes();
         var subscope = commando.getSubscope();
+        var _scopes = {};
+        var length = 0;
         for (let id in scopes)
         {
             if (id == "scope-combined") continue;
             if (subscope && subscope.scope != id) continue;
-            
-            let scope = scopes[id];
-            require(scope.handler).onSearch(query, uuid);
+            _scopes[id] = scopes[id];
+            length++;
         }
+
+        for (let id in _scopes)
+        {
+            let scope = _scopes[id];
+            require(scope.handler).onSearch(query, uuid, function()
+            {
+                if (--length === 0) commando.onSearchComplete(uuid);
+            });
+        }
+
     }
 
     this.onSelectResult = function(selectedItems)

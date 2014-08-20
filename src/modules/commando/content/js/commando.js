@@ -7,6 +7,9 @@
     const uuidGen   = require("sdk/util/uuid");
     const keybinds  = require("ko/keybindings");
 
+    const ioService = Cc["@mozilla.org/network/io-service;1"]
+                        .getService(Ci.nsIIOService);
+
     const commando  = this;
 
     //log.setLevel(require("ko/logging").LOG_DEBUG);
@@ -185,7 +188,11 @@
 
     var onSearch = function(e, noDelay)
     {
+        _onKitt();
+
         if (local.searchTimer && ! noDelay) return; // Search is already queued
+
+        elem("panel").addClass("loading");
 
         if (noDelay)
         {
@@ -213,6 +220,23 @@
             log.debug(local.searchingUuid + " - Starting Search for: " + searchValue);
             getScopeHandler().onSearch(searchValue, local.searchingUuid);
         }, noDelay ? 0 : ko.prefs.getLong('commando_search_delay', 100));
+    }
+
+    _onKitt = function()
+    {
+        // You didn't see this, you were never here
+        if (_onKitt.kitt)
+        {
+            elem("panel").removeClass("kitt");
+            delete _onKitt.kitt
+        }
+        if (["kitt", "michael"].indexOf(elem('search').value()) !== -1)
+        {
+            var sound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
+            sound.play(ioService.newURI('chrome://commando/content/loading.wav', null, null));
+            elem("panel").addClass("kitt");
+            _onKitt.kitt = true;
+        }
     }
 
     var onSelectResult = function(e)
@@ -534,7 +558,7 @@
             descComplex.style.maxWidth = (430 - prefixWidth) + "px";
 
             // Yes this code sucks, XUL made me do it
-            if (descComplex.firstChild && descComplex.firstChild.classList.contains("crop"))
+            if (descComplex.firstChild && descComplex.firstChild.classList && descComplex.firstChild.classList.contains("crop"))
                 descComplex.firstChild.style.maxWidth = descComplex.style.maxWidth;
 
             wrapper.classList.add("processed");
@@ -586,7 +610,7 @@
         }
     }
 
-    this.onSearchComplete = function(scope, searchUuid)
+    this.onSearchComplete = function(searchUuid)
     {
         if (local.searchingUuid != searchUuid) return;
 
@@ -598,6 +622,12 @@
                 classList: "no-result-msg non-interact"
             }, searchUuid);
         }
+
+        window.setTimeout(function()
+        {
+            elem("panel").removeClass("loading");
+        }, _onKitt.kitt ? 1000 : 0);
+
     }
 
     this.getSubscope = function()

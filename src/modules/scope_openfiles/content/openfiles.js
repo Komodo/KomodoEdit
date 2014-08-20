@@ -5,6 +5,7 @@
 
     const partSvc   = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService);
     const ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+    const ioFile    = require("sdk/io/file");
 
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
@@ -13,22 +14,35 @@
         commando.search("");
     }
 
-    this.onSearch = function(query, uuid)
+    this.onSearch = function(query, uuid, onComplete = null)
     {
         log.debug(uuid + " - Starting Scoped Search");
 
         var curProject = partSvc.currentProject;
+        var curPath, curPrefix;
 
         if (curProject)
-            var curPath = curProject.liveDirectory;
+        {
+            curPath = curProject.liveDirectory;
+            curPrefix = curProject.name.split(".")[0];
+        }
         else
-            var curPath = ioService.newURI(ko.places.getDirectory(), null, null).path;
+        {
+            curPath = ioService.newURI(ko.places.getDirectory(), null, null).path;
+            curPrefix = ioFile.basename(curPath);
+        }
 
         var editorViews = ko.views.manager.getAllViews();
         for (let editorView of editorViews)
         {
-            var fullPath = editorView.koDoc.file ? editorView.koDoc.file.path : '';
-            var path = fullPath.indexOf(curPath) === 0 ? fullPath.substr(curPath.length) : fullPath;
+            let descriptionPrefix = false;
+            let fullPath = editorView.koDoc.file ? editorView.koDoc.file.path : '';
+            let path = fullPath;
+            if (fullPath.indexOf(curPath) === 0)
+            {
+                path = fullPath.substr(curPath.length);
+                descriptionPrefix = curPrefix;
+            }
 
             if (path.toLowerCase().indexOf(query.toLowerCase()) == -1 &&
                 editorView.title.toLowerCase().indexOf(query.toLowerCase()) == -1)
@@ -49,15 +63,21 @@
                 id: editorView.uid.number,
                 name: editorView.title,
                 description: path, // todo: highlight matched portions
-                icon: "koicon://" + path + "?size=32",
+                icon: "koicon://" + path + "?size=16",
                 weight: weight,
                 scope: "scope-openfiles",
+                descriptionPrefix: descriptionPrefix,
                 data: {
                     editorView: editorView
                 },
                 allowMultiSelect: false
             }, uuid);
         }
+
+        if (onComplete)
+            onComplete(uuid);
+        else
+            commando.onSearchComplete(uuid);
     }
 
     this.sort = function(current, previous)

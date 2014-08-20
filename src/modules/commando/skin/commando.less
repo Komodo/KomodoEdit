@@ -4,155 +4,194 @@
 #commando-panel
 {
     padding: 0;
-}
 
-#commando-search-wrapper
-{
-    margin-bottom: 1px;
-    background: transparent;
-}
-
-#commando-search
-{
-    font-size: 1.4em;
-    padding: 4px;
-    border: 0;
-    margin: 0;
-    background: transparent !important;
-    color: @hud-selection-foreground;
-    -moz-appearance: none;
-}
-
-#commando-subscope
-{
-    visibility: collapse;
-    font-weight: bold;
-    padding: 3px;
-    background-color: @hud-selection-background;
-    color: @hud-selection-foreground;
-    border-radius: 3px;
-    max-width: 150px;
-}
-
-#commando-scope
-{
-    -moz-appearance: none;
-    width: 40px;
-    border: 0;
-    margin: 0;
-    
-    & > .menulist-label-box
+    #commando-search-wrapper
     {
-        .menulist-label
+        margin-bottom: 1px;
+        background: transparent;
+    }
+
+    #commando-search
+    {
+        font-size: 1.4em;
+        padding: 4px;
+        border: 0;
+        margin: 0;
+        background: transparent;
+        color: @hud-selection-foreground;
+        -moz-appearance: none;
+    }
+
+    #commando-subscope
+    {
+        visibility: collapse;
+        font-weight: bold;
+        padding: 3px;
+        background-color: @hud-selection-background;
+        color: @hud-selection-foreground;
+        border-radius: 3px;
+        max-width: 150px;
+    }
+    
+    #commando-loader
+    {
+        height: 1px;
+        width: 100%;
+        opacity: 0;
+        transition: opacity 0.2s linear;
+    }
+
+    &:not(.kitt) #commando-loader
+    {
+        background: linear-gradient(to right, rgba(0,0,0,0.0) 0, @hud-loader-color 200px, @hud-loader-color 300px, rgba(0,0,0,0.0) 500px);
+        background-repeat: no-repeat;
+        animation: loading 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
+    }
+
+    &.kitt #commando-loader
+    {
+        background: linear-gradient(to right, rgba(0,0,0,0.0) 0, rgba(255, 0, 0, 0.4) 200px, rgba(255, 0, 0, 0.4) 300px, rgba(0,0,0,0.0) 500px);
+        background-repeat: no-repeat;
+        animation: loading 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
+    }
+
+    &.loading #commando-loader
+    {
+        opacity: 1.0;
+    }
+
+    @keyframes loading {
+        0% {
+           background-position: -300px 0;
+        }
+        50% {
+           background-position: 300px 0;
+        }
+        100% {
+           background-position: -300px 0;
+        }
+    }
+
+    #commando-scope
+    {
+        -moz-appearance: none;
+        width: 40px;
+        border: 0;
+        margin: 0;
+
+        & > .menulist-label-box
+        {
+            .menulist-label
+            {
+                visibility: collapse;
+            }
+        }
+
+        menuitem .menu-iconic-left
+        {
+            visibility: visible;
+            display: inherit;
+            -moz-margin-end: 4px !important; /* Whats wrong with `margin` mozilla? */
+        }
+    }
+
+    richlistbox#commando-results
+    {
+        -moz-appearance: none;
+        background: transparent !important;
+        border: 0;
+        margin: 0;
+
+        &:not(.has-results)
         {
             visibility: collapse;
         }
-    }
 
-    menuitem .menu-iconic-left
-    {
-        visibility: visible;
-        display: inherit;
-        -moz-margin-end: 4px !important; /* Whats wrong with `margin` mozilla? */
-    }
-}
-
-richlistbox#commando-results
-{
-    -moz-appearance: none;
-    background: transparent !important;
-    border: 0;
-    margin: 0;
-
-    &:not(.has-results)
-    {
-        visibility: collapse;
-    }
-
-    scrollbox
-    {
-        overflow-x: hidden !important;
-    }
-
-    richlistitem
-    {
-        padding: 5px;
-        height: 35px;
-
-        .icon
+        scrollbox
         {
-            background-repeat: no-repeat;
-            width: 16px;
-            height: 16px;
-            max-height: 16px;
+            overflow-x: hidden !important;
         }
 
-        .entry-wrapper
+        richlistitem
         {
-            .title
+            padding: 5px;
+            height: 35px;
+
+            .icon
             {
-                font-size: 1.1em;
-                margin: 0 0 0 6px;
+                background-repeat: no-repeat;
+                width: 16px;
+                height: 16px;
+                max-height: 16px;
             }
 
-            .descriptionPrefix
+            .entry-wrapper
             {
-                font-style: italic;
-                max-width: 100px;
-                opacity: 0.7;
-                margin: 0 0 0 6px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .description,
-            .descriptionComplex
-            {
-                opacity: 0.7;
-                margin: 0 0 0 2px;
-            }
-
-            .descriptionComplex,
-            .descriptionComplex *
-            {
-                line-height: 1.1em;
-                vertical-align: middle;
-            }
-
-            .descriptionComplex
-            {
-                visibility: collapse;
-                margin-top: -3px; /* Todo: align without fixed values */
-
-                .crop
+                .title
                 {
+                    font-size: 1.1em;
+                    margin: 0 0 0 6px;
+                }
+
+                .descriptionPrefix
+                {
+                    font-style: italic;
+                    max-width: 100px;
+                    opacity: 0.7;
+                    margin: 0 0 0 6px;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    min-width: 0;
-                    text-align: left;
-
-                    &.rtl
-                    {
-                        direction: rtl;
-                    }
                 }
-            }
 
-            &.processed
-            {
-                .description
+                .description,
+                .descriptionComplex
                 {
-                    visibility: collapse;
+                    opacity: 0.7;
+                    margin: 0 0 0 2px;
+                }
+
+                .descriptionComplex,
+                .descriptionComplex *
+                {
+                    line-height: 1.1em;
+                    vertical-align: middle;
                 }
 
                 .descriptionComplex
                 {
-                    visibility: visible;
+                    visibility: collapse;
+                    margin-top: -3px; /* Todo: align without fixed values */
+
+                    .crop
+                    {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        min-width: 0;
+                        text-align: left;
+
+                        &.rtl
+                        {
+                            direction: rtl;
+                        }
+                    }
+                }
+
+                &.processed
+                {
+                    .description
+                    {
+                        visibility: collapse;
+                    }
+
+                    .descriptionComplex
+                    {
+                        visibility: visible;
+                    }
                 }
             }
         }
-    }
 
+    }
 }
