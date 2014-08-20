@@ -106,6 +106,8 @@ class Searcher:
         self.opts["numResults"] = 0
         self.opts["queryOriginal'"] = query
         self.opts["words"] = []
+
+        path = os.path.realpath(path)
         
         log.debug(self.opts["uuid"] + " Searching for " + query + " under " + path)
 
