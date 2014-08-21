@@ -104,30 +104,22 @@ class Searcher:
 
     def start(self, query, path):
         self.opts["numResults"] = 0
-        self.opts["queryOriginal'"] = query
-        self.opts["words"] = []
+        self.opts["queryOriginal"] = query
+        self.opts["query"] = []
 
         path = os.path.realpath(path)
         
         log.debug(self.opts["uuid"] + " Searching for " + query + " under " + path)
 
-        if self.opts["queryOriginal'"] != "":
+        if self.opts["queryOriginal"] != "":
             # Prepare Regex Object
-            query = ' '.join(query.split())             # Reduce/trim whitespace
-            query = re.escape(query).split("\\ ")       # Escape query and split by whitespace
-            self.opts["words"] = query
-            query = "(" + (")(.*?)(".join(query)) + ")" # Add regex groups
-            query = re.compile(query, re.IGNORECASE)
-            self.opts["query"] = query
+            self.opts["query"] = query.split()
 
-            # Prepare Replacement
-            replacement = ""
-            for x in range(1,query.groups+1):
-                if x % 2 == 0:
-                    replacement += "\\" + str(x)
-                else:
-                    replacement += "<html:strong>\\" + str(x) + "</html:strong>"
-            self.opts["replacement"] = replacement
+            words = []
+            for word in self.opts["query"]:
+                words.append(re.escape(word))
+
+            self.opts["queryRe"] = re.compile("("+ "|".join(words) +")", re.IGNORECASE)
 
         # Prepate Path
         self.opts["path"] = path
@@ -145,43 +137,78 @@ class Searcher:
             if subPath is self.opts["path"]:
                 continue;
 
-            replacement = subPath
-            if self.opts["queryOriginal'"] != "":
-                replacement = self.opts["query"].sub(self.opts["replacement"], subPath)
+            matchScore = 0
+            if self.opts["queryOriginal"] != "":
+                matchScore = self._matchScore(subPath, self.opts["query"], 75)
 
-            if self.opts["queryOriginal'"] == "" or subPath is not replacement:
-                self.opts["numResults"] = self.opts["numResults"] + 1
-                if self.opts["numResults"] > self.opts.get("maxresults", 200):
-                    log.debug(self.opts["uuid"] + " Max results reached")
-                    return self.stop()
-
-                relativePath = subPath
-                if not self.opts.get("fullpath", False):
-                    replacement = self.opts["stripPathRe"].sub("", replacement)
-                    relativePath = self.opts["stripPathRe"].sub("", relativePath)
+            if self.opts["queryOriginal"] == "" or matchScore > 0:
+                if matchScore > 0:
+                    matchScore += self._matchScore(os.path.basename(subPath), self.opts["query"], 25, lazyMatch = True)
 
                 pathEntry = {
                     "filename": filename,
                     "path": subPath,
-                    "relativePath": relativePath,
-                    "type": "dir" if filename in dirnames else "file"
+                    "type": "dir" if filename in dirnames else "file",
+                    "score": matchScore
                 }
 
-                self.processResult(replacement, pathEntry)
+                self.processResult(pathEntry)
 
-    def processResult(self, description, pathEntry):
-        #log.debug(self.opts["uuid"] + " - " + pathEntry["path"])
-        # Todo: figure out a good way to normalize weight numbers
-        weight = 0
-        depth = pathEntry["path"].count(os.sep) + 1
-        weight += (10 / depth) * self.opts.get("weightDepth", 1)
+                self.opts["numResults"] += 1
+                if self.opts["numResults"] >= self.opts.get("maxresults", 200):
+                    log.debug(self.opts["uuid"] + " Max results reached")
+                    return self.walker.stop()
 
-        matchWeight = 0
-        filename = os.path.basename(pathEntry["path"])
-        for word in self.opts["words"]:
-            if word in filename:
-                matchWeight += 10
-        weight += matchWeight * self.opts.get("weightMatch", 1)
+    def _matchScore(self, string, words, weight = 100, lazyMatch = False):
+        # Doing a loop for some reason is faster than all()
+        # This isn't part of the main loop as this will be triggered far
+        # more often than an actual match
+        if not lazyMatch:
+            for word in words:
+                if word not in string:
+                    return 0
+
+        matchScore = 0
+        sequence = False
+
+        # Calculate how heavily each matched word affects the score
+        if not lazyMatch:
+            matchWeight = (weight * 0.65) / len(words)
+        else:
+            matchWeight = weight / len(words)
+
+        for word in words:
+            if word not in string:
+                continue
+
+            # If sequence matter, record whether
+            if not lazyMatch:
+                index = string.index(word)
+                if not sequence or index > sequence:
+                    sequence = index
+                else:
+                    sequence = False
+
+            matchScore += string.count(word) * matchWeight
+
+        if not lazyMatch and sequence and matchScore > 0:
+            matchScore += weight * 0.25
+
+        if matchScore > weight:
+            matchScore = weight
+
+        return matchScore
+
+    def processResult(self, pathEntry):
+        relativePath = pathEntry["path"]
+        description = pathEntry["path"]
+
+        if self.opts["queryOriginal"] != "":
+            description = self.opts["queryRe"].sub("<html:strong>\\1</html:strong>", description)
+
+        if not self.opts.get("fullpath", False):
+            description = self.opts["stripPathRe"].sub("", description)
+            relativePath = self.opts["stripPathRe"].sub("", relativePath)
 
         # cant be accessed outside of main thread
         # we should track our own usage numbers to make this more relevant
@@ -192,10 +219,10 @@ class Searcher:
         result = [
             pathEntry["filename"],
             pathEntry["path"],
-            pathEntry["relativePath"],
+            relativePath,
             pathEntry["type"],
             description,
-            weight
+            pathEntry["score"]
         ];
 
         self.returnResult(result)
@@ -224,6 +251,7 @@ class Searcher:
         if self._stop or self.resultsPending:
             return
 
+        log.debug(self.opts["uuid"] + " - sending callbackComplete");
         self.callbackComplete(self.opts)
 
 
@@ -241,6 +269,10 @@ class Walker:
     # Stop the active search
     def stop(self):
         self._stop = True
+
+        if self.callbackComplete:
+            log.debug(self.opts["uuid"] + " Walker Stop called, forcing callbackComplete")
+            self.callbackComplete()
 
     # Start a new search
     def start(self, path):
