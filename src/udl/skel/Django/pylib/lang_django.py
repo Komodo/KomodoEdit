@@ -64,9 +64,11 @@ django_keywords = [
 django_tags = [
     "autoescape",
     "block",
+    "blocktrans",
     "comment",
     "cycle",
     "debug",
+    "elif",
     "else",
     "empty",   # used with for loop
     "extends",
@@ -79,6 +81,7 @@ django_tags = [
     "ifnotequal",
     "include",
     "load",
+    "lorem",
     "now",
     "regroup",
     "reversed",
@@ -93,6 +96,7 @@ django_tags = [
     # end tags
     "endautoescape",
     "endblock",
+    "endblocktrans",
     "endcomment",
     "endfilter",
     "endfor",
@@ -101,6 +105,7 @@ django_tags = [
     "endifequal",
     "endifnotequal",
     "endspaceless",
+    "endverbatim",
     "endwith",
 
     # Escape keywords

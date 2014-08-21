@@ -56,10 +56,12 @@ keywords [and
 as
 autoescape
 block
+blocktrans
 by
 comment
 cycle
 debug
+elif
 else
 empty
 extends
@@ -73,6 +75,7 @@ ifnotequal
 in
 'include'
 load
+lorem
 not
 now
 or
@@ -90,6 +93,7 @@ with
 
 endautoescape
 endblock
+endblocktrans
 endcomment
 endfilter
 endfor
@@ -98,6 +102,7 @@ endifchanged
 endifequal
 endifnotequal
 endspaceless
+endverbatim
 endwith
 
 # Escape keywords
