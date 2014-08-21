@@ -262,13 +262,10 @@
             {
                 // Since python is multi-threaded, results might still be processed
                 // Todo: find proper solution
-                window.setTimeout(function()
-                {
-                    if (onComplete)
-                        onComplete(uuid);
-                    else
-                        commando.onSearchComplete(uuid);
-                }, 100)
+                if (onComplete)
+                    onComplete(uuid);
+                else
+                    commando.onSearchComplete(uuid);
                 return;
             }
 
