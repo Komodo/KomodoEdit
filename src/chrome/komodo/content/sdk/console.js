@@ -1,12 +1,25 @@
 (function() {
 
-    const {Cu, Cc, Ci}  = require("chrome");
+    if (typeof(require) === "function")
+    {
+        // This is being loaded as a jetpack module
+        var { Cc, Ci, Cu } = require("chrome");
+        module.exports = this;
+    }
+    else
+    {
+        // This is being loaded in a JS component or a JS module
+        var { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+        this.EXPORTED_SYMBOLS = ["console"];
+        this.console = this;
+    }
 
     Cu.import("resource://gre/modules/Services.jsm");
     
-    const {ConsoleAPI} = Cu.import("resource://gre/modules/devtools/Console.jsm");
-    const console   = new ConsoleAPI({innerID: "koConsoleWrapper"});
-    const log       = require("ko/logging").getLogger("console");
+    const {ConsoleAPI}  = Cu.import("resource://gre/modules/devtools/Console.jsm");
+    const console       = new ConsoleAPI({innerID: "koConsoleWrapper"});
+    const {logging}     = Cu.import("chrome://komodo/content/library/logging.js", {});
+    const log           = logging.getLogger("console");
 
     this.debug = console.debug;
     this.error = console.error;
@@ -196,4 +209,4 @@
         return aStr;
     }
 
-}).apply(module.exports);
+})();

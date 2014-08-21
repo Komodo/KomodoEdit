@@ -23,14 +23,14 @@ if (typeof(ko) == 'undefined') {
     var ko = {};
 }
 
+// Prepare window.console so jetpack doesnt instantiate its own
+Services.scriptloader.loadSubScript("chrome://komodo/content/sdk/console.js");
+
 // Jetpack must be loaded after window.ko has been created (so that it
 // knows how to get things into the right scope, for backwards compat)
 Services.scriptloader.loadSubScript("chrome://komodo/content/jetpack.js");
 JetPack.defineDeprecatedProperty(ko, "logging", "ko/logging", {since: "9.0.0a1"});
 JetPack.defineDeprecatedProperty(ko, "printing", "ko/printing", {since: "9.0.0a1"});
-
-// Override window.console
-console = require("ko/console");
 
 /**
  * Global Komodo services, defined on the Services object (once per app).
