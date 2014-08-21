@@ -60,7 +60,7 @@
     {
         background-color: transparent;
         color: @hud-foreground;
-        border-color: @hud-item-border;
+        border: @hud-item-border;
 
         &:nth-child(even)
         {
@@ -71,12 +71,12 @@
         {
             background-color: @hud-selection-background;
             color: @hud-selection-foreground;
-            border-color: @hud-selected-border;
+            border: @hud-selected-border;
         }
 
         &[focused]:not([selected])
         {
-            border-color: @hud-focused-border;
+            border: @hud-focused-border;
         }
     }
 }
