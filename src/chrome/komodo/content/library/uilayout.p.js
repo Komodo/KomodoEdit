@@ -227,7 +227,7 @@ this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems() {
 	}
 
 	var length = menubar.childNodes.length;
-	for (let x=length-1;x>0;x--) {
+	for (let x=1;x<length;x++) {
 		paneSecondary.insertBefore(menubar.childNodes[x].cloneNode(true), menuSeparator);
 	}
 
