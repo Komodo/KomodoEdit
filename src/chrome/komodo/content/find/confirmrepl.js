@@ -150,7 +150,8 @@ function show_marked_changes()
 {
     try {
         var diff = _g_replacer.marked_diff();
-        ko.launch.diff(diff, "Marked Changes");
+        ko.launch.diff(diff, "Marked Changes", null,
+                       {modalChild: navigator.platform.match(/^Mac/)});
     } catch(ex) {
         log.exception(ex);
     }
