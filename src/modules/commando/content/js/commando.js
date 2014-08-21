@@ -193,14 +193,17 @@
         if (local.searchTimer && ! noDelay) return; // Search is already queued
 
         elem("panel").addClass("loading");
+        var searchDelay = ko.prefs.getLong('commando_search_delay', 200);
 
         if (noDelay)
         {
             window.clearTimeout(local.searchTimer);
             local.searchTimer = false;
         }
-        else if ( ! local.searchTimer)
+        else if ( ! local.lastSearch || (new Date().getTime()) - local.lastSearch > searchDelay)
             noDelay = true; // why delay the inevitable
+
+        local.lastSearch = new Date().getTime();
 
         local.searchTimer = window.setTimeout(function()
         {
@@ -219,7 +222,7 @@
             // perform onSearch
             log.debug(local.searchingUuid + " - Starting Search for: " + searchValue);
             getScopeHandler().onSearch(searchValue, local.searchingUuid);
-        }, noDelay ? 0 : ko.prefs.getLong('commando_search_delay', 100));
+        }, noDelay ? 0 : searchDelay);
     }
 
     _onKitt = function()
@@ -536,7 +539,7 @@
         resultElem.element().selectedIndex = 0;
 
         if (process)
-            window.setTimeout(processResults.bind(this, process), 0);
+            this.renderResults.processTimer = window.setTimeout(processResults.bind(this, process), 100);
     }
 
     var processResults = function(resultEntries)
