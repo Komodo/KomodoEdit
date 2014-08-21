@@ -5,7 +5,7 @@
 
     var local = {};
 
-    log.setLevel(require("ko/logging").LOG_DEBUG);
+    //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var editor = function()
     {
