@@ -29,6 +29,9 @@ Services.scriptloader.loadSubScript("chrome://komodo/content/jetpack.js");
 JetPack.defineDeprecatedProperty(ko, "logging", "ko/logging", {since: "9.0.0a1"});
 JetPack.defineDeprecatedProperty(ko, "printing", "ko/printing", {since: "9.0.0a1"});
 
+// Override window.console
+console = require("ko/console");
+
 /**
  * Global Komodo services, defined on the Services object (once per app).
  */

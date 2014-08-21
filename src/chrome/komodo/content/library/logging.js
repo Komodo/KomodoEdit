@@ -9,8 +9,8 @@
               .getService(Ci.mozIJSSubScriptLoader)
               .loadSubScript("chrome://komodo/content/jetpack.js", this);
         }
-        if (typeof(ko) == 'undefined') {
-            ko = {};
+        if ( ! window.ko) {
+            window.ko = {};
         }
         JetPack.defineLazyProperty(ko, "logging", "ko/logging", true);
         if (window && window.__is_unit_test__) {

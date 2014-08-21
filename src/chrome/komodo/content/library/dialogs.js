@@ -398,7 +398,7 @@ this.alert = function dialog_alert(prompt, text, title, doNotAskPref, options)
     var bpref = null;
     if (doNotAskPref) {
         bpref = "donotask_"+doNotAskPref;
-        if (_prefs.getBooleanPref(bpref)) {
+        if (_prefs.getBoolean(bpref, false)) {
             return;
         }
     }
