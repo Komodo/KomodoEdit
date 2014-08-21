@@ -273,6 +273,7 @@ class Walker:
         if self.callbackComplete:
             log.debug(self.opts["uuid"] + " Walker Stop called, forcing callbackComplete")
             self.callbackComplete()
+            self.callbackComplete = False
 
     # Start a new search
     def start(self, path):
@@ -297,6 +298,7 @@ class Walker:
         if self.callbackComplete:
             log.debug(self.opts["uuid"] + " Done walking directory structure")
             self.callbackComplete()
+            self.callbackComplete = False
 
     # Walk our cache for the given path
     def walkCache(self, path):
