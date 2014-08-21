@@ -48,7 +48,7 @@
 
         log.debug(uuid + " " + results.length + " results");
 
-        if (results)
+        if (results.length)
             commando.renderResults(results, uuid);
 
         if (onComplete)

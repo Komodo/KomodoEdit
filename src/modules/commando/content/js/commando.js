@@ -489,6 +489,8 @@
 
     this.renderResults = function(results, searchUuid, cacheOrigin)
     {
+        if ( ! results.length) return;
+
         if (local.searchingUuid != searchUuid)
         {
             log.debug(searchUuid + " - Skipping "+results.length+" results for old search uuid: " + searchUuid);

@@ -40,7 +40,7 @@
         }
 
         var tools = [];
-        var results = tbSvc.findToolsAsync(query, langs.length, langs, function(code, results)
+        tbSvc.findToolsAsync(query, langs.length, langs, function(code, results)
         {
             for (let k in results)
             {
@@ -62,7 +62,8 @@
                 });
             }
 
-            commando.renderResults(tools, uuid);
+            if (results.length)
+                commando.renderResults(tools, uuid);
 
             if (onComplete)
                 onComplete(uuid);

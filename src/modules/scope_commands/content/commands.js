@@ -66,7 +66,8 @@
             });
         }
 
-        commando.renderResults(commands, uuid);
+        if (commands.length)
+            commando.renderResults(commands, uuid);
 
         if (onComplete)
             onComplete(uuid);
