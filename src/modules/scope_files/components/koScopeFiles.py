@@ -114,7 +114,7 @@ class Searcher:
 
         if self.opts["queryOriginal"] != "":
             # Prepare Regex Object
-            self.opts["query"] = query.split()
+            self.opts["query"] = query.lower().split()
 
             words = []
             for word in self.opts["query"]:
@@ -140,11 +140,11 @@ class Searcher:
 
             matchScore = 0
             if self.opts["queryOriginal"] != "":
-                matchScore = self._matchScore(subPath, self.opts["query"], 75)
+                matchScore = self._matchScore(subPath.lower(), self.opts["query"], 75)
 
             if self.opts["queryOriginal"] == "" or matchScore > 0:
                 if matchScore > 0:
-                    matchScore += self._matchScore(os.path.basename(subPath), self.opts["query"], 25, lazyMatch = True)
+                    matchScore += self._matchScore(os.path.basename(subPath).lower(), self.opts["query"], 25, lazyMatch = True)
 
                 pathEntry = {
                     "filename": filename,
