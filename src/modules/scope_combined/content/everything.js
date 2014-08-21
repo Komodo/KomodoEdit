@@ -17,7 +17,7 @@
         var length = 0;
         for (let id in scopes)
         {
-            if (id == "scope-combined") continue;
+            if (id.indexOf("scope-combined") != -1) continue;
             if (subscope && subscope.scope != id) continue;
             _scopes[id] = scopes[id];
             length++;
@@ -26,10 +26,10 @@
         for (let id in _scopes)
         {
             let scope = _scopes[id];
-            require(scope.handler).onSearch(query, uuid, function()
+            require(scope.handler).onSearch(query, uuid, function(id)
             {
                 if (--length === 0) commando.onSearchComplete(uuid);
-            });
+            }.bind(this, id));
         }
 
     }
