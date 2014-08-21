@@ -7,7 +7,8 @@
 
 var scimoz = function()
 {
-    return window.ko.views.manager.currentView.scimoz || {};
+    if ( ! window.ko.views.manager.currentView) return undefined;
+    return window.ko.views.manager.currentView.scimoz;
 }
 
 module.exports = {
