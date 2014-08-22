@@ -313,6 +313,8 @@ this.contractUser = function(path) {
 }).apply(ko.stringutils);
 
 if (typeof(window) == "undefined") {
-    const EXPORTED_SYMBOLS = ["stringutils"];
-    var stringutils = ko.stringutils;
+    (function() {
+	this.EXPORTED_SYMBOLS = ["stringutils"];
+	this.stringutils = ko.stringutils;
+    })();
 }
