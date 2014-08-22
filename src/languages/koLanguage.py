@@ -49,11 +49,10 @@ from xpcom.components import classes as Cc, interfaces as Ci
 import xpcom.server
 from xpcom.server import WrapObject, UnwrapObject
 from koTreeView import TreeView
+import directoryServiceUtils
 import which
 
 import koXMLTreeService
-
-from zope.cachedescriptors.property import LazyClassAttribute
 
 log = logging.getLogger('koLanguage')
 #log.setLevel(logging.DEBUG)
@@ -121,9 +120,6 @@ class KoLanguageRegistryService:
     # name choice directly. E.g. "Rx", "Regex".
     _internalLanguageNames = {}   # use dict for lookup speed
 
-    _defaultLanguageExtensions = {}
-    _defaultFileAssociations = {}
-
     _namespaceMap = {}
     _publicIdMap = {}
     _systemIdMap = {}
@@ -141,19 +137,6 @@ class KoLanguageRegistryService:
     # - All we need to note here are exceptions in the naming scheme,
     #   like "mode: C" which corresponds to Komodo's C++ language.
     _modeName2LanguageName = {}
-
-    # Cached services - saved on the class.
-    _globalPrefSvc = None
-    _globalPrefs = None
-
-    # Lazily loaded class variables.
-    @LazyClassAttribute
-    def _globalPrefSvc(self):
-        return components.classes["@activestate.com/koPrefService;1"].\
-                    getService(components.interfaces.koIPrefService)
-    @LazyClassAttribute
-    def _globalPrefs(self):
-        return self._globalPrefSvc.prefs
     
     def __init__(self):
         self.__initPrefs()
@@ -219,12 +202,21 @@ class KoLanguageRegistryService:
             self._addOneFileAssociation(pattern, languageName)
 
         # Apply fallback default extensions from all registered languages.
-        for defaultExtension, languageName in self._defaultLanguageExtensions.items():
-            self._addOneFileAssociation('*'+defaultExtension, languageName,
-                                        override=False)
-        for pattern, languageName in self._defaultFileAssociations.items():
-            self._addOneFileAssociation(pattern, languageName,
-                                        override=False)
+        for languageName, language in self.__languageFromLanguageName.items():
+            defaultExtension = language.defaultExtension
+            if defaultExtension:
+                if not defaultExtension.startswith('.'):
+                    log.warn("'%s': skipping unexpected defaultExtension for "
+                             "language '%s': it must begin with '.'",
+                             defaultExtension, languageName)
+                    continue
+
+                self._addOneFileAssociation('*'+defaultExtension, languageName,
+                                            override=False)
+
+            for pattern in language.getExtraFileAssociations():
+                self._addOneFileAssociation(pattern, languageName,
+                                            override=False)
 
         # Make a copy of the current association set before applying
         # user/site-level changes so we can compare against it latter to know
@@ -263,16 +255,12 @@ class KoLanguageRegistryService:
             pattern_split = pattern.split('.', 1)
             base = pattern_split[0]
             ext = pattern_split[1] if len(pattern_split) > 1 else ''
-            if base == '*' and ext and "*" not in ext:  # i.e. pattern == "*.FOO"
+            if base == '*':  # i.e. pattern == "*.FOO"
                 if languageName == self.__languageNameFromExtOrBasename.get(ext.lower()):
                     del self.__languageNameFromExtOrBasename[ext.lower()]
             elif '*' not in pattern:  # e.g. "Conscript", "Makefile"
                 if languageName == self.__languageNameFromExtOrBasename.get(pattern.lower()):
                     del self.__languageNameFromExtOrBasename[pattern.lower()]
-            else:
-                # Everything else that doesn't fit into the above two cases.
-                if languageName == self.__languageNameFromOther.get(pattern.lower()):
-                    del self.__languageNameFromOther[pattern]
 
     def _addOneFileAssociation(self, pattern, languageName, override=True):
         """Add one file association to the internal data structures.
@@ -307,7 +295,7 @@ class KoLanguageRegistryService:
         pattern_split = pattern.split('.', 1)
         base = pattern_split[0]
         ext = pattern_split[1] if len(pattern_split) > 1 else ''
-        if base == '*' and ext and "*" not in ext:  # i.e. pattern == "*.FOO"
+        if base == '*' and '*' not in ext:  # i.e. pattern == "*.FOO"
             self.__languageNameFromExtOrBasename[ext.lower()] = languageName
         elif '*' not in pattern:  # e.g. "Conscript", "Makefile"
             self.__languageNameFromExtOrBasename[pattern.lower()] = languageName
@@ -364,7 +352,7 @@ class KoLanguageRegistryService:
         for languageName in self.__languageFromLanguageName:
             if languageName in self._internalLanguageNames:
                 continue
-            elif self._primaryLanguageNames.get(languageName):
+            elif languageName in self._primaryLanguageNames:
                 primaries.append(languageName)
             else:
                 others.append(languageName)
@@ -372,10 +360,10 @@ class KoLanguageRegistryService:
         others.sort()
 
         otherContainer = KoLanguageContainer('Other',
-            [KoLanguageItem(ln, self.__accessKeyFromLanguageName.get(ln, ""))
+            [KoLanguageItem(ln, self.__accessKeyFromLanguageName[ln])
              for ln in others])
         primaryContainer = KoLanguageContainer('',
-            [KoLanguageItem(ln, self.__accessKeyFromLanguageName.get(ln, ""))
+            [KoLanguageItem(ln, self.__accessKeyFromLanguageName[ln])
              for ln in primaries]
             + [otherContainer])
         return primaryContainer
@@ -406,81 +394,31 @@ class KoLanguageRegistryService:
     def registerLanguages(self):
         """registerLanguages
         
-        Registers the languages listed in the "komodo-language-info" category..
+        Registers the languages listed in the "komodo-language" category
         """
-        from urllib import unquote
-        from json import loads
-
-        for entry in _xpcom.GetCategoryEntries("komodo-language-info"):
-            lang, json_data = [unquote(x) for x in entry.split(" ", 1)]
+        self._languageSpecificPrefs = self._globalPrefSvc.prefs.getPref("languages")
+        catman = components.classes["@mozilla.org/categorymanager;1"]\
+                           .getService(components.interfaces.nsICategoryManager)
+        enumerator = catman.enumerateCategory("komodo-language")
+        lang_contracts = set()
+        while enumerator.hasMoreElements():
             try:
-                lang_data = loads(json_data)
-            except:
-                log.error("Unable to load komodo-language-info for %s %r", lang, json_data)
-            else:
-                self._registerLanguageData(lang, lang_data)
+                entry = enumerator.getNext().queryInterface(components.interfaces.nsISupportsCString).data
+                contract = catman.getCategoryEntry("komodo-language", entry)
+                lang_contracts.add(contract)
+                self.registerLanguage(components.classes[contract].createInstance())
+            except Exception, e:
+                log.exception(e)
+        # Check if there are any koLanguage xpcom classes that did not get
+        # registered through the komodo-language category... which probably
+        # means someone forgot to add their language category.
+        for contract_name in components.classes.keys():
+            if contract_name.startswith("@activestate.com/koLanguage?language="):
+                if contract_name not in lang_contracts:
+                    lang = contract_name[37:].split(";", 1)[0]
+                    log.warn("Komodo Language %r was not registered - missing a 'komodo-language' category", lang)
 
-    def _registerLanguageData(self, lang, data):
-        assert (lang not in self.__languageFromLanguageName), \
-               "Language '%s' already registered" % (lang)
-        log.info("registering language [%s]", lang)
-
-        # Register the name, the instance will be instantiated on demand.
-        self.__languageFromLanguageName[lang] = None
-        
-        if "accessKey" in data:
-            self.__accessKeyFromLanguageName[lang] = data["accessKey"]
-        if data.get("internal"):
-            self._internalLanguageNames[lang] = True
-        if "defaultExtension" in data:
-            defaultExtension = data["defaultExtension"]
-            existingLang = self._defaultLanguageExtensions.get(defaultExtension)
-            if not defaultExtension.startswith('.'):
-                log.warn("'%s': skipping unexpected defaultExtension for "
-                         "language '%s': it must begin with '.'",
-                         defaultExtension, lang)
-            else:
-                self._defaultLanguageExtensions[defaultExtension] = lang
-        for ext in data.get("extraFileAssociations", []):
-            existingLang = self._defaultFileAssociations.get(ext)
-            if existingLang:
-                if existingLang != lang:
-                    log.warn("ext pattern %r, lang %s - already "
-                             "registered to lang %s", ext, lang,
-                             existingLang)
-            else:
-                self._defaultFileAssociations[ext] = lang
-        for pattern, flags in data.get("shebangPatterns", []):
-            self.shebangPatterns.append((lang, re.compile(pattern, flags)))
-        for ns in data.get("namespaces", []):
-            self._namespaceMap[ns] = lang
-        for id in data.get("publicIdList", []):
-            self._publicIdMap[id] = lang
-        for id in data.get("systemIdList", []):
-            self._systemIdMap[id] = lang
-
-        # Mode - so that we can tell that, for example:
-        #     -*- mode: javascript -*-
-        # means language name "JavaScript".
-        modeNames = set(data.get("modeNames", []))
-        modeNames.add(lang)
-        for modeName in modeNames:
-            self._modeName2LanguageName[modeName.lower()] = lang
-
-        # Update primary field based on user preference.
-        prefname = "languages/%s/primary" % (lang,)
-        prefdefault = bool(int(data.get("primary", 0)))
-        if self._globalPrefs.getBoolean(prefname, prefdefault):
-            self._primaryLanguageNames[lang] = True
-
-    ##
-    # @deprecated since Komodo 9.0.0
-    #
     def registerLanguage(self, language):
-        import warnings
-        warnings.warn("registerLanguage is deprecated - no longer needed",
-                      category=DeprecationWarning)
-
         name = language.name
         assert not self.__languageFromLanguageName.has_key(name), \
                "Language '%s' already registered" % (name)
@@ -491,9 +429,11 @@ class KoLanguageRegistryService:
         self.__accessKeyFromLanguageName[name] = language.accessKey
 
         # Update fields based on user preferences:
-        primaryLanguagePref = "languages/%s/primary" % (language.name,)
-        if self._globalPrefs.hasPref(primaryLanguagePref):
-            language.primary = self._globalPrefs.getBoolean(primaryLanguagePref)
+        languageKey = "languages/" + language.name
+        if self._languageSpecificPrefs.hasPref(languageKey):
+            languagePrefs = self._languageSpecificPrefs.getPref(languageKey)
+            if languagePrefs.hasPref("primary"):
+                language.primary = languagePrefs.getBooleanPref("primary")
 
         # So that we can tell that, for example:
         #     -*- mode: javascript -*-
@@ -873,15 +813,10 @@ class KoLanguageRegistryService:
         currentProject = components.classes["@activestate.com/koPartService;1"]\
             .getService(components.interfaces.koIPartService).currentProject
         if currentProject:
-            if currentProject.prefset.getBoolean("preferJavaScriptOverNode", False):
-                return "JavaScript"
-
             prefset = currentProject.prefset
             if prefset.hasPref("currentInvocationLanguage") \
                and prefset.getStringPref("currentInvocationLanguage") == "Node.js":
                 return "Node.js"
-        elif self._globalPrefs.getBoolean("preferJavaScriptOverNode", False):
-            return "JavaScript"
         if not buffer:
             return "JavaScript"
         nodeJSAppInfo = components.classes["@activestate.com/koAppInfoEx?app=NodeJS;1"].\
@@ -999,14 +934,14 @@ class KoLanguageStatusTreeView(TreeView):
     def _loadAllLanguages(self):
         self._allRows = []
         langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"].getService(components.interfaces.koILanguageRegistryService)
-        langRegistry = UnwrapObject(langRegistry)
         langNames = langRegistry.getLanguageNames()
         for langName in langNames:
-            isPrimary = langRegistry._primaryLanguageNames.get(langName, False)
-            self._allRows.append({'name':langName,
-                                  'name_lc':langName.lower(),
-                                  'status':isPrimary,
-                                  'origStatus':isPrimary})
+            lang = UnwrapObject(langRegistry.getLanguage(langName))
+            if not lang.internal:
+                self._allRows.append({'name':langName,
+                                      'name_lc':langName.lower(),
+                                      'status':lang.primary,
+                                      'origStatus':lang.primary})
 
     def _reload(self):
         oldRowCount = len(self._rows)
@@ -1033,13 +968,23 @@ class KoLanguageStatusTreeView(TreeView):
             return
         langRegistry = UnwrapObject(Cc["@activestate.com/koLanguageRegistryService;1"]
                                       .getService(Ci.koILanguageRegistryService))
+        languageSpecificPrefs = prefs.getPref("languages")
+        if not prefs.hasPrefHere("languages"):
+            languageSpecificPrefs = languageSpecificPrefs.clone()
+            prefs.setPref("languages", languageSpecificPrefs)
         for row in self._rows:
             langName, status, origStatus = row['name'], row['status'], row['origStatus']
             if status != origStatus:
                 langRegistry.changeLanguageStatus(langName, status)
                 # Update the pref
-                primaryLanguagePref = "languages/%s/primary" % (langName,)
-                prefs.setBoolean(primaryLanguagePref, bool(status))
+                languageKey = "languages/" + langName
+                if languageSpecificPrefs.hasPref(languageKey):
+                    languageSpecificPrefs.getPref(languageKey).setBooleanPref("primary", bool(status))
+                else:
+                    prefSet = components.classes["@activestate.com/koPreferenceSet;1"].\
+                        createInstance(components.interfaces.koIPreferenceSet)
+                    prefSet.setBooleanPref("primary", bool(status))
+                    languageSpecificPrefs.setPref(languageKey, prefSet)
         self.notifyObservers(None, 'primary_languages_changed', '')
 
     @components.ProxyToMainThread

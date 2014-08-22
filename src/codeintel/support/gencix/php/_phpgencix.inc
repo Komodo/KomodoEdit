@@ -435,7 +435,7 @@ class phpSrcParser {
         $ucfirst = $this->func_data['functions']['ucfirst'];
         if (is_array($ucfirst) &&
             $ucfirst['doc'] == "Make a string's first character lowercase") {
-            print "Fixing 'ucfirst' and 'lcfirst'\n";
+            print "Fixing 'ucfirst' and 'lcfirst'";
             // Add lcfirst.
             $lcfirst = $ucfirst;
             $lcfirst['name'] = 'lcfirst';
@@ -443,13 +443,6 @@ class phpSrcParser {
             $this->func_data['functions']['lcfirst'] = $lcfirst;
             // Fixup ucfirst.
             $this->func_data['functions']['ucfirst'] = $ucfirst;
-        }
-
-        // Change PDO::prepare to return a PDOStatement - bug 103603.
-        $pdoPrepare = &$this->func_data['classes']['PDO']['functions']['prepare'];
-        if (is_array($pdoPrepare)) {
-            print "Fixing 'PDO::prepare'\n";
-            $pdoPrepare['returns'] = 'PDOStatement';
         }
     }
 

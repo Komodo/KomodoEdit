@@ -28,7 +28,6 @@ function OnPreferencePageLoading(prefset) {
 }
 
 function OnPreferencePageOK(prefset) {
-    updateLanguageNames("");
     gLanguageStatusView.save(prefset);
     return true;
 }

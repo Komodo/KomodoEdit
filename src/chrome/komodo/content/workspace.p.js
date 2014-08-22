@@ -1,38 +1,5 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- * 
- * The contents of this file are subject to the Mozilla Public License
- * Version 1.1 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- * 
- * Software distributed under the License is distributed on an "AS IS"
- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
- * License for the specific language governing rights and limitations
- * under the License.
- * 
- * The Original Code is Komodo code.
- * 
- * The Initial Developer of the Original Code is ActiveState Software Inc.
- * Portions created by ActiveState Software Inc are Copyright (C) 2000-2012
- * ActiveState Software Inc. All Rights Reserved.
- * 
- * Contributor(s):
- *   ActiveState Software Inc
- * 
- * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or
- * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- * in which case the provisions of the GPL or the LGPL are applicable instead
- * of those above. If you wish to allow use of your version of this file only
- * under the terms of either the GPL or the LGPL, and not to allow others to
- * use your version of this file under the terms of the MPL, indicate your
- * decision by deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL or the LGPL. If you do not delete
- * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL, the GPL or the LGPL.
- * 
- * ***** END LICENSE BLOCK ***** */
+/* Copyright (c) 2000-2012 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
 
 xtk.include('domutils');
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -48,17 +15,12 @@ if (typeof(ko.workspace) == "undefined") {
 var log = ko.logging.getLogger('workspace');
 //log.setLevel(ko.logging.LOG_DEBUG);
 var _saveInProgress = false;
-var _restoreInProgress = false;
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/views.properties");
 
 this.saveInProgress = function() {
     return _saveInProgress;
-}
-
-this.restoreInProgress = function() {
-    return _restoreInProgress;
 }
 
 const multiWindowWorkspacePrefName = "windowWorkspace";
@@ -68,89 +30,6 @@ false;
 // #else
 true;
 // #endif
-
-/**
- * Restore all workspaces, panes and widgets from the last session.
- */
-this.restore = function ko_workspace_restore()
-{
-  _restoreInProgress = true;
-  try {
-    // the offer to restore the workspace needs to be after the
-    // commandments system is initialized because the commandments mechanism
-    // is how the determination of 'running in non-interactive mode' happens,
-    // which the restoration step needs to know about.
-
-    // Eventually restoreWorkspace will be rewritten to restore
-    // a set of windows, and restore will be done at app-startup
-    // time, not when each window starts up.
-    var restoreWorkspace = true;
-    try {
-        if (!ko.windowManager.lastWindow()) {
-            restoreWorkspace = false;
-        }
-    } catch(ex) {
-        // Restore the workspace on error
-        log.exception(ex);
-    }
-
-    if (restoreWorkspace) {
-        ko.workspace.restoreWorkspace();
-        // if the prefs are set to not restore workspaces, we still should
-        // restore the widget/side pane layouts.  This relies on ko.widgets
-        // being smart enough to restore things twice.
-        let prefs = ko.prefs;
-        let path = []
-        if (prefs.hasPref(multiWindowWorkspacePrefName)) {
-            let workspacePrefs = prefs.getPref(multiWindowWorkspacePrefName);
-            if (workspacePrefs.hasPref("1")) {
-                prefs = workspacePrefs.getPref("1");
-                path = [multiWindowWorkspacePrefName, "1"];
-            }
-        }
-        ko.widgets.restoreLayout(prefs, path);
-    } else {
-        // Restore the default layout (i.e. last closed window)
-        ko.widgets.restoreLayout(ko.prefs, []);
-    }
-
-    // handle window.arguments spec list
-    if ('arguments' in window && window.arguments && window.arguments[0]) {
-        var arg = window.arguments[0];
-        if ('workspaceIndex' in arg) {
-            var thisIndexOnly = ('thisIndexOnly' in arg && arg.thisIndexOnly);
-            ko.workspace.restoreWorkspaceByIndex(window, arg.workspaceIndex,
-                                                 thisIndexOnly);
-        } else {
-            // There is no workspace to restore, but init window essentials
-            ko.workspace.initializeEssentials(window);
-            var urllist;
-            if ('uris' in arg) {
-                urllist = arg.uris; // Called from ko.launch.newWindow(uri)
-            } else if (arg instanceof Components.interfaces.nsIDialogParamBlock) {
-                var paramBlock = arg.QueryInterface(Components.interfaces.nsIDialogParamBlock);
-                urllist = paramBlock ? paramBlock.GetString(0).split('|') : [];
-            } else if (typeof(arg) == 'string') {
-                urllist = arg.split('|'); //see asCommandLineHandler.js
-            } else {
-                // arg is most likely an empty object
-                urllist = [];
-            }
-            for (var i in urllist) {
-                ko.open.URI(urllist[i]);
-            }
-        }
-    }
-
-    // Some paths through the above block might not have called this,
-    // so call it now to be sure.  See bug 87856.
-    ko.workspace.initializeEssentials(window);
-
-  } finally {
-    _restoreInProgress = false;
-  }
-}
-
 /**
  * restore all workspace preferences and state, open files and projects
  */
@@ -171,13 +50,9 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
         prefSvc.saveState();
     }
 
-    // Always restore the generic window state (separate from workspace prefs).
-    // Must be called after the Mozilla persist state (onload) is done.
-    setTimeout(ko.uilayout.restoreWindowState, 1);
-
     // If there is a workspace to restore - prompt the user to see if they wish
     // to restore it.
-    if (!ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
+    if (!ko.prefs.hasPref(multiWindowWorkspacePrefName) && !ko.prefs.hasPref('workspace')) {
         return;
     } else if (!was_normal_shutdown) {   // Komodo crashed
         if (ko.prefs.getBooleanPref("donotask_restore_workspace") &&
@@ -195,10 +70,17 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
         return;
     }
 
+    if (!ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
+        this._restoreWindowWorkspace(ko.prefs.getPref('workspace'), currentWindow, _mozPersistPositionDoesNotWork);
+        ko.widgets.restoreLayout(ko.prefs);
+        return;
+    }
+
     // Fix up the stored window numbers
     var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
-    let prefIds = windowWorkspacePref.getPrefIds();
-    prefIds = prefIds.map(function(n) parseInt(n, 10)).sort(function(a, b) a - b);
+    let prefIds = {};
+    windowWorkspacePref.getPrefIds(prefIds, {});
+    prefIds = prefIds.value.map(function(n) parseInt(n, 10)).sort(function(a, b) a - b);
     if (prefIds[0] < 1) {
         // Invalid ids; shift everything over :|
         let prefs = prefIds.map(function(n) windowWorkspacePref.getPref(n));
@@ -206,7 +88,8 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
         for (let i = 1; prefs.length; ++i) {
             windowWorkspacePref.setPref(i, prefs.shift());
         }
-        prefIds = windowWorkspacePref.getPrefIds();
+        windowWorkspacePref.getPrefIds(prefIds, {});
+        prefIds = prefIds.value;
     }
     for each (let prefId in prefIds) {
         let pref = windowWorkspacePref.getPref(prefId);
@@ -222,10 +105,7 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
     var nextIdx = this._getNextWorkspaceIndexToRestore(Number.NEGATIVE_INFINITY);
     if (nextIdx !== undefined) {
         let workspace = windowWorkspacePref.getPref(nextIdx);
-        this._restoreWindowWorkspace(workspace,
-                                     currentWindow,
-                                     checkWindowBounds,
-                                     [multiWindowWorkspacePrefName, nextIdx]);
+        this._restoreWindowWorkspace(workspace, currentWindow, checkWindowBounds);
         nextIdx = this._getNextWorkspaceIndexToRestore(nextIdx);
         if (nextIdx !== undefined) {
             ko.launch.newWindowFromWorkspace(nextIdx);
@@ -235,8 +115,9 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
 
 this._getNextWorkspaceIndexToRestore = function _getNextWorkspaceIndexToRestore(currIdx) {
     var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
-    var prefIds = windowWorkspacePref.getPrefIds();
-    prefIds = prefIds.filter(function(i) i > currIdx);
+    var prefIds = {};
+    windowWorkspacePref.getPrefIds(prefIds, {});
+    prefIds = prefIds.value.filter(function(i) i > currIdx);
     prefIds.sort(function(a, b) { return a - b });
     //dump("_getNextWorkspaceIndexToRestore(" + currIdx +"): prefIds:" + prefIds + "\n");
     var lim = prefIds.length;
@@ -261,18 +142,15 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx, thisIndexOnly)
                          + "ko.workspace.restoreWorkspaceByIndex invoked (index="
                          + idx
                          + "),\n"
-                         + "but there's no " + multiWindowWorkspacePrefName + " pref\n");
+                         + "but there's no windowWorkspace pref\n");
         return;
     }
     idx = parseInt(idx);
     //dump("restoreWorkspaceByIndex: set this workspace _koNum to " + idx + "\n");
     currentWindow._koNum = idx;
-    var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
+    var windowWorkspacePref = ko.prefs.getPref('windowWorkspace');
     try {
-        this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx),
-                                     currentWindow,
-                                     idx > 0 || _mozPersistPositionDoesNotWork,
-                                     [multiWindowWorkspacePrefName, idx]);
+        this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx), currentWindow, idx > 0 || _mozPersistPositionDoesNotWork);
     } catch(ex) {
         log.exception("Can't restore workspace for window " + idx + ", exception: " + ex);
     }
@@ -294,8 +172,9 @@ this.getRecentClosedWindowList = function() {
         return [];
     }
     var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
-    var prefIds = windowWorkspacePref.getPrefIds();
-    prefIds = prefIds.map(function(x) parseInt(x));
+    var prefIds = {};
+    windowWorkspacePref.getPrefIds(prefIds, {});
+    prefIds = prefIds.value.map(function(x) parseInt(x));
     var loadedWindows = ko.windowManager.getWindows();
     var loadedIDs = loadedWindows.map(function(w) parseInt(w._koNum));
     var mruList = [];
@@ -372,55 +251,52 @@ function _checkWindowCoordinateBounds(candidateValue,
     }
     return candidateValue;
 }
-
-function _restoreWindowPosition(currentWindow, coordinates) {
-    const _nsIDOMChromeWindow = Components.interfaces.nsIDOMChromeWindow;
-    var windowState = (coordinates.hasPrefHere('windowState')
-                       ? coordinates.getLongPref('windowState')
-                       : _nsIDOMChromeWindow.STATE_NORMAL);
-    // If it's minimized or maximized we still need to set the
-    // window's coords for when it's restored.
-    var screenHeight = window.screen.availHeight;
-    var screenWidth = window.screen.availWidth;
-    var screenX = coordinates.getLongPref('screenX');
-    var screenY = coordinates.getLongPref('screenY');
-    var outerHeight = coordinates.getLongPref('outerHeight');
-    var outerWidth = coordinates.getLongPref('outerWidth');
-    if (Math.abs(screenX) > 3 * screenWidth || Math.abs(screenY) > 3 * screenHeight) {
-        screenX = screenY = 0;
-    }
-    if (currentWindow.screenX != screenX || currentWindow.screenY != screenY) {
-        currentWindow.moveTo(screenX, screenY);
-    }
-    if (currentWindow.outerHeight != outerHeight || currentWindow.outerWidth != outerWidth) {
-        var newHeight = _checkWindowCoordinateBounds(outerHeight, 0,
-                                                     .2 * screenHeight,
-                                                     screenHeight,
-                                                     .9 * screenHeight);
-        var newWidth = _checkWindowCoordinateBounds(outerWidth, 0,
-                                                    .2 * screenWidth,
-                                                    screenWidth,
-                                                    .9 * screenWidth);
-        currentWindow.resizeTo(newWidth, newHeight);
-    }
-    if (windowState == _nsIDOMChromeWindow.STATE_MINIMIZED) {
-        currentWindow.minimize();
-    } else if (windowState == _nsIDOMChromeWindow.STATE_MAXIMIZED) {
-        currentWindow.maximize();
-    }
-}
-
-this._restoreWindowWorkspace =
-    function(workspace, currentWindow, checkWindowBounds, prefPath)
+const _nsIDOMChromeWindow = Components.interfaces.nsIDOMChromeWindow;
+this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBounds)
 {
     try {
         var wko = currentWindow.ko;
+        var cnt = new Object();
+        var ids = new Object();
         var id, elt, pref;
         if (checkWindowBounds && workspace.hasPref('coordinates')) {
             var coordinates = workspace.getPref('coordinates');
-            // Must be in a setTimeout, after the window has been loaded,
-            // otherwise the window manager may resize or reposition it.
-            setTimeout(_restoreWindowPosition, 1, currentWindow, coordinates);
+            var windowState = (coordinates.hasPrefHere('windowState')
+                               ? coordinates.getLongPref('windowState')
+                               : _nsIDOMChromeWindow.STATE_NORMAL);
+            // If it's minimized or maximized we still need to set the
+            // window's coords for when it's restored.
+            var screenHeight = window.screen.availHeight;
+            var screenWidth = window.screen.availWidth;
+            var screenX = coordinates.getLongPref('screenX');
+            var screenY = coordinates.getLongPref('screenY');
+            var outerHeight = coordinates.getLongPref('outerHeight');
+            var outerWidth = coordinates.getLongPref('outerWidth');
+            if (Math.abs(screenX) > 3 * screenWidth
+                || Math.abs(screenY) > 3 * screenHeight) {
+                screenX = screenY = 0;
+            }
+            if (currentWindow.screenX != screenX
+                || currentWindow.screenY != screenY) {
+                currentWindow.moveTo(screenX, screenY);
+            }
+            if (currentWindow.outerHeight != outerHeight
+                || currentWindow.outerWidth != outerWidth) {
+                var newHeight = _checkWindowCoordinateBounds(
+                    outerHeight,
+                    0, .2 * screenHeight,
+                    screenHeight, .9 * screenHeight);
+                var newWidth = _checkWindowCoordinateBounds(
+                    outerWidth,
+                    0, .2 * screenWidth,
+                    screenWidth, .9 * screenWidth);
+                currentWindow.resizeTo(newWidth, newHeight);
+            }
+            if (windowState == _nsIDOMChromeWindow.STATE_MINIMIZED) {
+                currentWindow.minimize();
+            } else if (windowState == _nsIDOMChromeWindow.STATE_MAXIMIZED) {
+                currentWindow.maximize();
+            }
         }
         // Opening the Start Page should be before commandment system init and
         // workspace restoration because it should be the first view opened.
@@ -442,25 +318,35 @@ this._restoreWindowWorkspace =
             }
         }
 
-        var ids = workspace.getPrefIds();
-        for (var i = 0; i < ids.length; i++) {
-            id = ids[i];
+        workspace.getPrefIds(ids, cnt);
+        for (var i = 0; i < ids.value.length; i++) {
+            id = ids.value[i];
             elt = currentWindow.document.getElementById(id);
             if (elt) {
                 pref = workspace.getPref(id);
                 elt.setState(pref);
             }
         }
-        ko.widgets.restoreLayout(workspace, prefPath);
+        ko.widgets.restoreLayout(workspace);
         if (wko.history) {
             wko.history.restore_prefs(workspace);
         }
         // Don't open startPage here (bug 87854)
         this.initializeEssentials(currentWindow, false);
 
-        // Projects depends on places, so open it after Places is initialized.
-        if (workspace.hasPref('opened_projects_v7')) {
-            pref = workspace.getPref('opened_projects_v7');
+        // Now projects depends on places, so open it after
+        // In Version 7 Komodo saves opened projects in a different prefset,
+        // so allow both here.
+        if (workspace.hasPref('opened_projects')
+            || workspace.hasPref('opened_projects_v7')) {
+            var use_v7_mode;
+            if (workspace.hasPref('opened_projects_v7')) {
+                use_v7_mode = true;
+                pref = workspace.getPref('opened_projects_v7');
+            } else {
+                use_v7_mode = false;
+                pref = workspace.getPref('opened_projects');
+            }
             var currentProjectURI;
             if (workspace.hasPref('current_project')) {
                 currentProjectURI = workspace.getStringPref('current_project');
@@ -469,7 +355,11 @@ this._restoreWindowWorkspace =
             }
             // Don't load projects until places has initialized the projects view
             this.waitForProjectManager(function() {
-                wko.projects.manager.setState(pref);
+                if (use_v7_mode) {
+                    wko.projects.manager.setState(pref);
+                } else {
+                    wko.projects.manager.setState_v6(pref);
+                }
                 if (currentProjectURI) {
                     // If a project with that url is loaded, make it current
                     var proj = wko.projects.manager.getProjectByURL(currentProjectURI);
@@ -620,7 +510,7 @@ this.saveWorkspaceForIdx = function saveWorkspaceForIdx(idx) {
 /**
  * save all workspace preferences and state
  */
-this.saveWorkspace = function view_saveWorkspace(saveNow)
+this.saveWorkspace = function view_saveWorkspace()
 {
     _saveInProgress = true;
     // Ask each major component to serialize itself to a pref.
@@ -637,12 +527,9 @@ this.saveWorkspace = function view_saveWorkspace(saveNow)
         }
         // Use the current window's layout as the default for new windows
         mainWindow.ko.widgets.unload([]);
+        // Save prefs
         var prefSvc = Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService);
-        if (saveNow) {
-            prefSvc.saveState();
-        } else {
-            prefSvc.saveWhenIdle();
-        }
+        prefSvc.saveState();
     } catch (e) {
         log.exception(e,"Error saving workspace: ");
     } finally {
@@ -661,7 +548,9 @@ this.markClosedWindows = function() {
         return;
     }
     var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
-    var prefIds = windowWorkspacePref.getPrefIds();
+    var prefIds = {};
+    windowWorkspacePref.getPrefIds(prefIds, {});
+    prefIds = prefIds.value;
     var lim = prefIds.length;
     var workspacePrefs = [];
     var pref;
@@ -672,7 +561,7 @@ this.markClosedWindows = function() {
         });
     for (var i = 0; i < lim; i++) {
         if (windowWorkspacePref.getPrefType(prefIds[i]) != "object") {
-            log.warn("markClosedWindows: ignoring invalid pref " + prefIds[i]);
+            log.warning("markClosedWindows: ignoring invalid pref " + prefIds[i]);
             continue;
         }
         pref = windowWorkspacePref.getPref(prefIds[i]);

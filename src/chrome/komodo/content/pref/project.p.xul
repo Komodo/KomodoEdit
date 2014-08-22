@@ -50,7 +50,7 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        title="&projectPreferences.label;"
+        title="&folderPropertiesAndSettings.title;"
         windowtype="komodo_projectprefs"
         orient="vertical"
         class="dialog"
@@ -279,6 +279,7 @@
 
     <keyset id="prefKeys">
         <key keycode="VK_ESCAPE" modifiers="" oncommand="doCancel();"/>
+        <key keycode="VK_ENTER" oncommand="ko.dialogs.handleEnterKey();"/>
         <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
     </keyset>
 

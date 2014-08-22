@@ -246,6 +246,7 @@ class KoTclCompletion:
             self._scintilla.isFocused = True
         elif event.type in ("keydown", "keypress"):
             completionCodes = [components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN,
+                               components.interfaces.nsIDOMKeyEvent.DOM_VK_ENTER,
                                components.interfaces.nsIDOMKeyEvent.DOM_VK_TAB]
             thread = components.classes["@mozilla.org/thread-manager;1"]\
                                .getService()\

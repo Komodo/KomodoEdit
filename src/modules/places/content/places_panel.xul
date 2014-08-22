@@ -396,7 +396,7 @@
                      intoplevel="true"/>
       <menuitem id="placesContextMenu_editProperties"
                 observes="cmd_editProperties"
-                label="&projectPreferences.label;"
+                label="&properties.label;"
                 intoplevel="true"
                 disableIf="folder"
                 hideIf="project"
@@ -405,7 +405,7 @@
                 />
       <menuitem id="placesContextMenu_editProjectProperties"
                 observes="cmd_projectProperties"
-                label="&projectPreferences.label;"
+                label="&properties.label;"
                 intoplevel="true"
                 hideUnless="project"
                 class="menuitem-iconic"
@@ -423,37 +423,43 @@
       <menuitem id="folder_context_newFileFromTemplate"
                 label="&newFilesPlace.label;"
                 accesskey="&folderContextNewFile.accesskey;"
-                class="menuitem-iconic new-template-icon"
+                class="menuitem-iconic"
+                image="chrome://komodo/skin/images/newTemplate.png"
                 oncommand="ko.places.projects.manager.addNewFile(event, this);"
                 />
       <menuitem id="folder_context_newFolder"
                 label="&newGroupPlace.label;"
                 accesskey="&newGroupPlace.accesskey;"
-                class="menuitem-iconic new-folder-icon"
+                class="menuitem-iconic"
+                image="chrome://komodo/skin/images/new_folder.png"
                 oncommand="ko.places.projects.manager.addGroup(event, this);"
                 />
       <menuitem id="folder_context_existingFile"
                 label="&existingFile.label;"
-                class="menuitem-iconic new-file-icon"
+                class="menuitem-iconic"
                 accesskey="&folderContextExistingFile.accesskey;"
+                image="chrome://komodo/skin/images/existing_file.png"
                 oncommand="ko.places.projects.manager.addExistingFile(event, this);"
                 />
       <menuitem id="folder_context_newLiveFolder"
                 label="&existingFolder.label;"
                 accesskey="&folderContextNewLiveFolder.accesskey;"
-                class="menuitem-iconic new-folder-icon"
+                class="menuitem-iconic"
+                image="chrome://komodo/skin/images/folder-closed.png"
                 oncommand="ko.places.projects.manager.addLiveFolder(event, this);"
                 />
       <menuitem id="folder_context_remoteFile"
                 label="&existingRemoteFile.label;"
-                class="menuitem-iconic remote-folder-icon"
+                class="menuitem-iconic"
                 accesskey="&folderContextRemoteFile.accesskey;"
+                image="chrome://komodo/skin/images/remote_file.png"
                 oncommand="ko.places.projects.manager.addRemoteFile(event, this);"
                 />
       <menuitem id="folder_context_remoteFolder"
                 label="&existingRemoteFolder.label;"
-                class="menuitem-iconic remote-file-icon"
+                class="menuitem-iconic"
                 accesskey="&existingRemoteFolder.accesskey;"
+                image="chrome://famfamfamsilk/skin/icons/folder_link.png"
                 oncommand="ko.places.projects.manager.addRemoteFolder(event, this);"
                 />
     </menupopup>
@@ -619,11 +625,11 @@
                 disableIf="project"
                 oncommand="ko.places.projects.manager.removeItems(event, this);" />
 
-      <menuitem label="&projectPreferences.label;"
+      <menuitem label="&properties.label;"
                 id="menu_projCtxt_projectProperties"
                 class="menuitem-iconic"
                 oncommand="ko.places.projects.editProjectProperties();"
-                accesskey="&projectPreferences.accesskey;"
+                accesskey="&projectProperties.accesskey;"
                 testDisableIf="t:multipleSelection"
                 hideIf="file folder livefolder"
                 disableUnless="project" />
@@ -728,13 +734,13 @@
           oncommand="ko.places.projects_SPV.removeProjectListing();" />
 
       <menuseparator id="menu_project_properties_separator_projectsContext" hideIf="file folder livefolder"/>
-      <menuitem label="&projectPreferences.label;"
+      <menuitem label="&properties.label;"
           id="menu_projectProperties_projectsContext"
           hideIf="file folder livefolder"
           disableUnless="currentProject"
           testDisableIf="t:multipleSelection"
           oncommand="ko.places.projects_SPV.editProjectProperties();"
-          accesskey="&projectPreferences.accesskey;" />
+          accesskey="&projectProperties.accesskey;" />
     </menupopup>
     
     <menupopup id="placesSubpanelProjectsToolsPopup_SPV"

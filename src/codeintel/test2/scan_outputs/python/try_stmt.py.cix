@@ -8,7 +8,7 @@
       <scope ilk="function" line="43" lineend="47" name="four" signature="four()" />
       <scope ilk="function" line="49" lineend="55" name="five" signature="five()" />
       <scope ilk="function" line="62" lineend="68" name="seven" signature="seven()">
-        <variable citdl="open()" line="65" name="f" />
+        <variable line="65" name="f" />
         <variable line="67" name="line" />
       </scope>
     </scope>

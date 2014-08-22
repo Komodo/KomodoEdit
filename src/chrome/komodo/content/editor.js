@@ -183,13 +183,11 @@ editor_editorController.prototype.do_cmd_bookmarkToggle = function() {
     }
     if (markerState & (1 << ko.markers.MARKNUM_BOOKMARK)) {
         v.scimoz.markerDelete(line_no, ko.markers.MARKNUM_BOOKMARK);
-        window.dispatchEvent(new CustomEvent("bookmark_deleted",
-                                             { bubbles: true, detail: data }));
+        xtk.domutils.fireDataEvent(window, "bookmark_deleted", data);
     } else {
         ko.history.note_curr_loc(v);
         v.scimoz.markerAdd(line_no, ko.markers.MARKNUM_BOOKMARK);
-        window.dispatchEvent(new CustomEvent("bookmark_added",
-                                             { bubbles: true, detail: data }));
+        xtk.domutils.fireDataEvent(window, "bookmark_added", data);
     }
 }
 
@@ -199,8 +197,7 @@ editor_editorController.prototype.is_cmd_bookmarkRemoveAll_enabled = function() 
 editor_editorController.prototype.do_cmd_bookmarkRemoveAll = function() {
     var v = _getCurrentScimozView();
     if (v) v.scimoz.markerDeleteAll(ko.markers.MARKNUM_BOOKMARK);
-    window.dispatchEvent(new CustomEvent("bookmark_deleted",
-                                         { bubbles: true, detail: { 'all': true } }));
+    xtk.domutils.fireEvent(window, "bookmark_deleted");
 }
 
 editor_editorController.prototype.is_cmd_bookmarkGotoNext_enabled = function() {
@@ -254,13 +251,6 @@ editor_editorController.prototype.do_cmd_bookmarkGotoPrevious = function() {
         v.scimoz.ensureVisibleEnforcePolicy(prevLine);
         v.scimoz.gotoLine(prevLine);
     }
-}
-
-editor_editorController.prototype.do_cmd_macroNew= function() {
-    // Ensure the toolbox is visible.
-    ko.uilayout.ensureTabShown('toolbox2viewbox');
-    // Show the new macro dialog.
-    ko.toolbox2.addToolboxItem('macro');
 }
 
 editor_editorController.prototype.is_cmd_startMacroMode_enabled = function() {
@@ -425,6 +415,7 @@ editor_editorController.prototype.rawHandler= function(event) {
             } else {
                 switch (event.keyCode) {
                     case event.DOM_VK_ESCAPE:
+                    case event.DOM_VK_ENTER:
                     case event.DOM_VK_RETURN:
                     case event.DOM_VK_TAB:
                     case event.DOM_VK_BACK_SPACE:

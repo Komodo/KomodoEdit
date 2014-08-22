@@ -220,9 +220,8 @@ foreach my $info (@lexers) {
     my $codename = $info->{codename};
     my $udl_path = "udl/" . $info->{udl_path};
     my $version = $info->{version} || "1.0.0";
-    my $build_dir = "build/$safe_language_name";
     my $xpi_path = "$codename-$version-ko.xpi";
-    my $install_rdf_path = "$build_dir/install.rdf";
+    my $build_dir = "build/$safe_language_name";
     my $rmdir_cmd = "$RMDIR $build_dir";
     my $mkdir_cmd = "$MKDIR build";
     if ($platform eq "win") {
@@ -237,7 +236,7 @@ foreach my $info (@lexers) {
             $skel_dir =~ s/\//\\/g;
         }
         $cons->Command(
-            $install_rdf_path,
+            $xpi_path,
             "luddite.py",
             "GUIDs.txt",
             $udl_path,
@@ -245,31 +244,40 @@ foreach my $info (@lexers) {
                 cd %1:d && $rmdir_cmd
                 cd %1:d && $mkdir_cmd
                 cd %1:d && $COPY $skel_dir $build_dir
-                cd %1:d && python %1:f compile --skel --add-missing --ext=$info->{ext} -c "$creator" -V $version -g GUIDs.txt $udl_path
+                cd %1:d && python %1:f compile --skel --add-missing --ext=$info->{ext} -g GUIDs.txt $udl_path
+                cd %1:d && python %1:f package -f -c "$creator" -V $version "$language_name"
             ));
-        $cons->DependsRecursive($install_rdf_path, $info->{skel}, ('\.svn'));
+        $cons->DependsRecursive($xpi_path, $info->{skel}, ('\.svn'));
     } else {
         $cons->Command(
-            $install_rdf_path,
+            $xpi_path,
             "luddite.py",
             "GUIDs.txt",
             $udl_path,
             qq(
-                cd %1:d && python %1:f compile --skel --ext=$info->{ext} -c "$creator" -V $version -g GUIDs.txt -f $udl_path
+                cd %1:d && python %1:f compile --skel --ext=$info->{ext} -g GUIDs.txt -f $udl_path
+                cd %1:d && python %1:f package -f -c "$creator" -V $version "$language_name"
             ));
     }
-    $cons->DependsRecursive($install_rdf_path, "udl",
+    $cons->DependsRecursive($xpi_path, "udl",
                             ($info->{udl_path}, '\.consign', '\.svn'));
-    $cons->DependsRecursive($install_rdf_path, "ludditelib",
+    $cons->DependsRecursive($xpi_path, "ludditelib",
                             ('\.consign', '.*\.pyc', '\.svn'));
-    $cons->KoExt("kodistinstall", $xpi_path, $build_dir);
-    $cons->Depends($xpi_path, $install_rdf_path);
+
+    my $landmark = "$mozExtensionDir/$codename\@ActiveState.com/install.rdf";
+    $cons->Command(
+        $landmark,
+        $xpi_path,
+        qq(
+            unzip -o -q -d %0:d %1
+        ));
 }
 
 
 # Put UDL and luddite bits into the Komodo SDK dir for extension development.
 $cons->InstallRecursive("$sdkDir/udl", cwd()."/src/udl/udl", ('\.svn'));
-$cons->InstallRecursive("$sdkDir/pylib/ludditelib", cwd()."/src/udl/ludditelib",
+$cons->InstallRecursive("$sdkDir/pylib/ludditelib",
+                        cwd()."/src/udl/ludditelib",
                         (".*\.pyc", ".*\.pyo", '\.svn'));
 if ($platform eq "win") {
     $cons->InstallAs("$sdkDir/bin/luddite.py", "luddite.py");

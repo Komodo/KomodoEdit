@@ -32,7 +32,7 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
 
     def __init__(self):
         threading.Thread.__init__(self,
-                                  name="CodeIntel XPCOM Helper")
+                                  name="Code Intel XPCOM Helper Thread")
         self._ready_to_connect = threading.Event()
         self.daemon = True
         self.start()

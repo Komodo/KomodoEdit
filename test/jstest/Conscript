@@ -15,7 +15,6 @@ Import(
     'mozIdlIncludePath',
     'mozSrc',
     'mozVersion',
-    'mozVersionNumber',
     'platform',
     'productType',
     'ranRegxpcomStateFileName',
@@ -40,27 +39,16 @@ $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/mru.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/statusbar.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/TreeBoxObject.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/views.jsm");
-my $buildlistScript = "$mozSrc/mozilla/python/mozbuild/mozbuild/action/buildlist.py";
-if ($mozVersionNumber le 2499) {
-    $buildlistScript = "$mozSrc/mozilla/config/buildlist.py";
-}
-# Tweak env to point PYTHONPATH at the mozbuild dir.
-my %envLocal = $cons->copy();
-my $platformPathSep = ($^O eq "MSWin32" ? ";" : ":");
-$envLocal{'PYTHONPATH'} = $ENV{'PYTHONPATH'} . "$platformPathSep$mozSrc/mozilla/python/mozbuild";
-$consLocal = new cons(ENV => \%envLocal);
-$consLocal->Command("$mozChromeDir/komodo-jstest.manifest",
-               $buildlistScript,
-               # Last command is to fake a touch command using Python.
+$cons->Command("$mozChromeDir/komodo-jstest.manifest",
+               "$mozSrc/mozilla/config/buildlist.py",
                qq(
                 $unsiloedPythonExe %1 "$mozBin/chrome.manifest" "manifest chrome/komodo-jstest.manifest"
-                $unsiloedPythonExe -c "import sys; file(sys.argv[1], 'w')" %0
+                touch %>
                ));
-$consLocal->Command("komodo-jstest.manifest.landmark",
+$cons->Command("komodo-jstest.manifest.landmark",
                "$mozChromeDir/komodo-jstest.manifest",
-               $buildlistScript,
-               # Last command is to fake a touch command using Python.
+               "$mozSrc/mozilla/config/buildlist.py",
                qq(
                 $unsiloedPythonExe %2 %1 "resource komodo-jstest komodo-jstest/"
-                $unsiloedPythonExe -c "import sys; file(sys.argv[1], 'w')" %0
+                touch %>
                ));

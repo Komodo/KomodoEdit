@@ -205,6 +205,9 @@ class KoRubyLanguage(KoLanguageKeywordBase):
     
     leading_ws_re = re.compile(r'^(\s*)')
     
+    styleBits = 6      # Override KoLanguageBase.styleBits setting of 5
+    indicatorBits = 2  # Currently (2004-05-25) Same as base class
+    
     _sliders = ['else', 'elsif', 'ensure', 'rescue', 'when']
     _dedenters = ['break', 'redo', 'next', 'raise', 'retry', 'return']
     _limited_openers = ['begin', 'class', 'def', 'for', 'module', 'case',
@@ -217,6 +220,11 @@ class KoRubyLanguage(KoLanguageKeywordBase):
 
     _dedent_sliders = _sliders + _enders
     
+    stylingBitsMask = 0    
+    for bit in range(styleBits):
+        stylingBitsMask <<= 1
+        stylingBitsMask |= 1
+        
     supportsSmartIndent = "keyword"  # should be overridden otherwise
 
     _max_lines_in_calc = 100
@@ -597,13 +605,13 @@ end section
             log.debug("_lineEndsWithStyle: endPos = %d, bufferSize = %d, end-style=%d, charNum=%d, setting..." % (endPos, bufferSize, style, scimoz.getCharAt(endPos)))
             endPos = bufferSize - 1
             
-        endStyle = scimoz.getStyleAt(endPos)
+        endStyle = getActualStyle(scimoz, endPos)
         endCharNum = scimoz.getCharAt(endPos)
         log.debug("_lineEndsWithStyle: line %d, pos %d, charNum %d, style %d" % (curr_line, endPos, endCharNum, endStyle))
         return endStyle == style
     
     def _findStartOfToken(self, scimoz, style, pos):
-        while pos > 0 and scimoz.getStyleAt(pos) == style:
+        while pos > 0 and getActualStyle(scimoz, pos) == style:
             pos -= 1
         return scimoz.lineFromPosition(pos), pos
                     
@@ -614,7 +622,7 @@ end section
 
         if eol_pos < sol_pos: # A true empty line?
             return False
-        style = scimoz.getStyleAt(eol_pos)
+        style = getActualStyle(scimoz, eol_pos)
         if style not in style_info._default_styles:
             return
         # What if it's a newline?
@@ -625,7 +633,7 @@ end section
             if eol_pos < sol_pos:
                 return False
             
-        style = scimoz.getStyleAt(eol_pos)
+        style = getActualStyle(scimoz, eol_pos)
         chNum = scimoz.getCharAt(eol_pos)
         log.debug("__is_continuation_line(%d) => ch(%d), style(%d)" % (line_no, chNum, style))
         if style in style_info._default_styles and chNum == ORD_BS:

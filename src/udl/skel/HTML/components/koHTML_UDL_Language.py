@@ -58,7 +58,6 @@ class KoHTMLLanguage(koHTMLLanguageBase):
 
     searchURL = "http://www.google.com/search?q=site%3Ahttp%3A%2F%2Fwww.w3schools.com%2Ftags+%W"
 
-    primary = 1
     accessKey = 'm'
     defaultExtension = ".html" # XXX how do we deal w/ .htm vs. html?
     #XXX Boy it would be nice to have this be 6 so we could get green
@@ -113,6 +112,7 @@ class KoHTMLLanguage(koHTMLLanguageBase):
 
 class KoHTML5Language(KoHTMLLanguage):
     name = "HTML5"
+    accessKey = '5'
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
@@ -120,10 +120,6 @@ class KoHTML5Language(KoHTMLLanguage):
     _reg_categories_ = [("komodo-language", name)]
     
     lang_from_udl_family = {'CSL': 'JavaScript', 'M': 'HTML5', 'CSS': 'CSS'}
-
-    primary = 1
-    accessKey = '5'
-    defaultExtension = ".html"
 
     # The set of elements which do not have a close tag. See
     # http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html#void-elements

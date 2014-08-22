@@ -8,8 +8,6 @@ Cu.import("resource://komodo-jstest/mock/mock.jsm", {})
           "findresults", "statusbar",
           "chrome://komodo/content/library/tabstops.js");
 
-const SciMoz = Components.Constructor("@activestate.com/ISciMozHeadless;1");
-
 /**
  * Premute the given arrays
  * Each parameter given should be an array (an axis); the generator will yield
@@ -134,7 +132,7 @@ TestKoFind.prototype.test_findNext = function test_findNext() {
     let highlightOptions = [false, true, false, true];
 
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
-    let scimoz = ko.views.currentView.scimoz = new SciMoz();
+    let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
     scimoz.text = "Hello Hello Hello";
     let highlightBits = [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1];
 
@@ -147,7 +145,7 @@ TestKoFind.prototype.test_findNext = function test_findNext() {
                       .Reset();
             scimoz.indicatorCurrent = Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT;
             scimoz.indicatorValue = 0;
-            scimoz.indicatorClearRange(0, scimoz.text.length);
+            scimoz.indicatorFillRange(0, scimoz.text.length);
             scimoz.setSel(0, 0);
 
             var findNext = (function findNext(pattern) {
@@ -212,7 +210,7 @@ TestKoFind.prototype.test_findNext = function test_findNext() {
 TestKoFind.prototype.test_findPrevious = function test_findPrevious() {
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
     this.options.searchBackward = true;
-    let scimoz = ko.views.currentView.scimoz = new SciMoz();
+    let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
     scimoz.text = "Hello Hello Hello";
 
     let highlightOptions = [false, true, false, true];
@@ -236,10 +234,10 @@ TestKoFind.prototype.test_findPrevious = function test_findPrevious() {
             this.options.caseSensitivity = foc;
             scimoz.indicatorCurrent = Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT;
             scimoz.indicatorValue = 0;
-            scimoz.indicatorClearRange(0, scimoz.text.length);
+            scimoz.indicatorFillRange(0, scimoz.text.length);
 
             let result;
-            scimoz.setSel(-1, -1);
+            scimoz.setSelection(-1, -1);
             this.assertEquals(scimoz.anchor, scimoz.text.length, "Anchor not at EOF");
             result = findNext(pattern);
 
@@ -272,7 +270,7 @@ TestKoFind.prototype.test_findPrevious = function test_findPrevious() {
             result = findNext(pattern);
             this.assertFalse(result, "Unexpectedly wrapped find result: [" +
                              scimoz.anchor + "," + scimoz.currentPos + "]");
-            scimoz.setSel(-1, -1);
+            scimoz.setSelection(-1, -1);
             result = findNext("world");
             this.assertFalse(result, "Unexpected found result");
             result = findNext(pattern);
@@ -293,7 +291,7 @@ TestKoFind.prototype.test_findPrevious = function test_findPrevious() {
 
 TestKoFind.prototype.test_findAll = function test_findAll() {
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
-    let scimoz = ko.views.currentView.scimoz = new SciMoz();
+    let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
     scimoz.text = "Hello Hello Hello";
 
     let highlightOptions = [false, true, false, true];
@@ -305,7 +303,7 @@ TestKoFind.prototype.test_findAll = function test_findAll() {
             this.options.caseSensitivity = foc;
             scimoz.indicatorCurrent = Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT;
             scimoz.indicatorValue = 0;
-            scimoz.indicatorClearRange(0, scimoz.text.length);
+            scimoz.indicatorFillRange(0, scimoz.text.length);
 
             let result;
             let msgHandler = matchExpected ? this.msgHandler.bind(this) : function(){};
@@ -368,7 +366,7 @@ TestKoFind.prototype.test_findAll = function test_findAll() {
 TestKoFind.prototype.test_markAll = function test_markAll() {
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
     let view = ko.views.currentView = new ko.views.ViewBookmarkableMock();
-    let scimoz = view.scimoz = new SciMoz();
+    let scimoz = view.scimoz = new ko.views.SciMozMock();
     scimoz.text = ["Hello", "world", "Hello", "world", "Hello", "world"].join("\n");
 
     for each (let [fot, foc, pattern, matchExpected] in setups) {
@@ -486,7 +484,7 @@ TestKoFind.prototype.test_findAllInFiles = function test_findAllInFiles() {
 
 
 TestKoFind.prototype.test_findAllInMacro = function test_findAllInMacro() {
-    let scimoz = ko.views.currentView.scimoz = new SciMoz();
+    let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
     scimoz.text = "Hello Hello Hello";
 
     for each (let [[fot, foc, pattern, shouldMatch], backwards] in permute(setups, [false, true])) {
@@ -544,7 +542,7 @@ TestKoFind.prototype.test_findAllInMacro = function test_findAllInMacro() {
 };
 
 TestKoFind.prototype.test_findNextInMacro = function test_findNextInMacro() {
-    let scimoz = ko.views.currentView.scimoz = new SciMoz();
+    let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
     scimoz.text = "Hello Hello Hello";
 
     for each (let [[fot, foc, pattern, shouldMatch], backwards] in permute(setups, [false, true])) {
@@ -602,7 +600,7 @@ TestKoFind.prototype.test_findNextInMacro = function test_findNextInMacro() {
 
 TestKoFind.prototype.test_highlightAllMatches = function test_highlightAllMatches() {
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
-    let scimoz = ko.views.currentView.scimoz = new SciMoz();
+    let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
     scimoz.text = "Hello Hello Hello";
 
     for each (let [fot, foc, pattern, matchExpected] in setups) {
@@ -625,7 +623,7 @@ TestKoFind.prototype.test_highlightAllMatches = function test_highlightAllMatche
 
 TestKoFind.prototype.test_highlightClearAll = function test_highlightClearAll() {
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
-    let scimoz = ko.views.currentView.scimoz = new SciMoz();
+    let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
     scimoz.text = "hello hello hello";
 
     ko.find.highlightAllMatches(scimoz, this.context, "hello", 1000);
@@ -640,7 +638,7 @@ TestKoFind.prototype.test_highlightClearAll = function test_highlightClearAll() 
 TestKoFind.prototype.test_highlightClearPosition = function test_highlightClearPosition() {
     const INDIC = Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT;
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
-    let scimoz = ko.views.currentView.scimoz = new SciMoz();
+    let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
     scimoz.text = "hello hello hello";
 
     ko.find.highlightAllMatches(scimoz, this.context, "hello", 1000);
@@ -668,7 +666,7 @@ TestKoFind.prototype.test_highlightClearPosition = function test_highlightClearP
 
 TestKoFind.prototype.test_markAllInMacro = function test_markAllInMacro() {
     let view = ko.views.currentView = new ko.views.ViewBookmarkableMock();
-    let scimoz = view.scimoz = new SciMoz();
+    let scimoz = view.scimoz = new ko.views.SciMozMock();
     scimoz.text = ["Hello", "world", "Hello", "world", "Hello", "world"].join("\n");
 
     for each (let [fot, foc, pattern, matchExpected] in setups) {
@@ -698,7 +696,7 @@ TestKoFind.prototype.test_markAllInMacro = function test_markAllInMacro() {
 
 TestKoFind.prototype.test_replace = function test_replace() {
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
-    let scimoz = ko.views.currentView.scimoz = new SciMoz();
+    let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
 
     for each (let [fot, foc, pattern, matchExpected] in setups) {
         scimoz.text = "Hello Hello Hello";
@@ -743,7 +741,7 @@ TestKoFind.prototype.test_replace = function test_replace() {
 
 TestKoFind.prototype.test_replaceAll = function test_replaceAll() {
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
-    let scimoz = ko.views.currentView.scimoz = new SciMoz();
+    let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
     for each (let [[fot, foc, pattern, matchExpected], highlight] in permute(setups, [false, true])) {
         this.options.patternType = fot;
         this.options.caseSensitivity = foc;
@@ -751,7 +749,7 @@ TestKoFind.prototype.test_replaceAll = function test_replaceAll() {
             scimoz.text = "Hello Hello Hello";
             scimoz.indicatorCurrent = Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT;
             scimoz.indicatorValue = 0;
-            scimoz.indicatorClearRange(0, scimoz.text.length);
+            scimoz.indicatorFillRange(0, scimoz.text.length);
             let result;
             result = ko.find.replaceAll(this.scope, /* editor */
                                         this.context, /* context */
@@ -1011,7 +1009,7 @@ TestKoFind.prototype.test_replaceAllInFilesWithBOM = function test_replaceAllInF
 };
 
 TestKoFind.prototype.test_replaceAllInMacro = function test_replaceAllInMacro() {
-    let scimoz = ko.views.currentView.scimoz = new SciMoz();
+    let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
     for each (let [fot, foc, pattern, matchExpected] in setups) {
         try {
             scimoz.text = "Hello Hello Hello";
@@ -1041,7 +1039,7 @@ TestKoFind.prototype.test_replaceAllInMacro = function test_replaceAllInMacro() 
 };
 
 TestKoFind.prototype.test_replaceInMacro = function test_replaceInMacro() {
-    let scimoz = ko.views.currentView.scimoz = new SciMoz();
+    let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
 
     for each (let [[fot, foc, pattern, matchExpected], backwards] in permute(setups, [false, true])) {
         try {

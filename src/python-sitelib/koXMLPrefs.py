@@ -44,34 +44,15 @@ from xpcom import components, ServerException, COMException, nsError
 from xpcom.server.enumerator import SimpleEnumerator
 from xpcom.server import WrapObject, UnwrapObject
 from xpcom.client import WeakReference
-import re, sys, os
+import re, sys, os, cgi
 from eollib import newl
 import logging
+import shutil
 import uriparse
-import urllib
-
-__all__ = ["cgi_escape", "dePercent", "dePickleCache", "deserializeFile",
-           "getChildText", "koGlobalPreferenceDefinition",
-           "koOrderedPreferenceDeserializer", "koPreferenceCacheDeserializer",
-           "koPreferenceSetDeserializer", "koXMLPreferenceSetObjectFactory",
-           "NodeToPrefset", "pickleCache", "pickleCacheOKToLoad",
-           "serializePref", "SmallestVersionFirst", "writeXMLFooter",
-           "writeXMLHeader"]
+import urllib2
 
 log = logging.getLogger('koXMLPrefs')
 #log.setLevel(logging.DEBUG)
-
-# Copied verbatim from cgi.escape (in order to avoid having to import cgi).
-def cgi_escape(s, quote=None):
-    '''Replace special characters "&", "<" and ">" to HTML-safe sequences.
-    If the optional flag quote is true, the quotation mark character (")
-    is also translated.'''
-    s = s.replace("&", "&amp;") # Must be done first!
-    s = s.replace("<", "&lt;")
-    s = s.replace(">", "&gt;")
-    if quote:
-        s = s.replace('"', "&quot;")
-    return s
 
 # convert a string containing 0, 1, True, False
 def _convert_boolean(value):
@@ -198,34 +179,15 @@ class koGlobalPreferenceDefinition:
     SAVE_FAST_ONLY = 2 # Save only fast cache version.
     def __init__(self, **kw):
         self.name = None
-        self.user_file_basename = None
-        self.user_filepath = None
+        self.user_filename = None
         self.shared_filename = None
         self.defaults_filename = None
         self.save_format = self.SAVE_DEFAULT
         self.contract_id = None
         for name, val in kw.items():
-            # Handle deprecated "user_filename" field.
-            if name == "user_filename":
-                name = "user_filepath"
             if not self.__dict__.has_key(name):
                 raise ValueError, "Unknown keyword param '%s'" % (name,)
             self.__dict__[name] = val
-
-    @property
-    def user_filename(self):
-        """Deprecated property"""
-        import warnings
-        warnings.warn("koGlobalPreferenceDefinition:: user_filename is "
-                      "deprecated - use user_file_basename or user_filepath")
-        return self.user_filepath
-    @user_filename.setter
-    def user_filename_setter(self, val):
-        """Deprecated property"""
-        import warnings
-        warnings.warn("koGlobalPreferenceDefinition:: user_filename is "
-                      "deprecated - use user_file_basename or user_filepath")
-        self.user_filepath = val
 
 def _dispatch_deserializer(ds, node, parentPref, prefFactory, basedir=None, chainNotifications=0):
     """Find out which deserializer function should
@@ -261,15 +223,11 @@ class koPreferenceSetDeserializer:
         elif preftype == 'file':
             xpPrefSet = components.classes["@activestate.com/koFilePreferenceSet;1"] \
                       .createInstance(components.interfaces.koIFilePreferenceSet)
-        elif parentPref is None:
-            xpPrefSet = components.classes["@activestate.com/koPreferenceRoot;1"] \
-                      .createInstance(components.interfaces.koIPreferenceSet)
         else:
             xpPrefSet = components.classes["@activestate.com/koPreferenceSet;1"] \
                       .createInstance(components.interfaces.koIPreferenceSet)
         newPrefSet = UnwrapObject(xpPrefSet)
-        if hasattr(newPrefSet, "chainNotifications"):
-            newPrefSet.chainNotifications = chainNotifications
+        newPrefSet.chainNotifications = chainNotifications
         try:
             newPrefSet.id = rootElement.getAttribute('id') or ""
         except KeyError:
@@ -400,17 +358,17 @@ def _xmlencode(s):
         Read this from the bottom-left towards top-right """
     return _encre.sub(_makeCharRef,
                       pct_chars.sub(_pctEscape,
-                                    cgi_escape(s)))
+                                    cgi.escape(s)))
  
 def serializePref(stream, pref, prefType, prefName=None, basedir=None):
     """Serialize one preference to a stream as appropriate for its type.
     Some preferences, e.g. those in ordered preferences, may not have names.
     """
-    log.debug("Serialzing: '%s', with type '%s', value '%s'", prefName, prefType, pref )
+    #print "Serialzing: '%s', with type '%s', value '%s'" % (prefName, prefType, pref )
     if prefType == "string":
         attrs = {}
         if prefName:
-            attrs['id'] = cgi_escape(prefName,1)
+            attrs['id'] = cgi.escape(prefName,1)
         # serialize string prefs as UTF-8
         if basedir:
             try:
@@ -424,7 +382,7 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
                         # The problem with relativizing is that it also %-encodes
                         # the usual characters, but that will happen later in
                         # the serialization process, so don't do it here.
-                        relative2 = urllib.unquote(relative)
+                        relative2 = urllib2.unquote(relative)
                         if pref.endswith(relative2):
                             pref = relative2
                         else:
@@ -440,8 +398,8 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
                 log.exception(e)
                 pass # pass and use original value
         # This line causes multiple-entification, as _xmlencode
-        # will also call cgi_escape
-        #pref = cgi_escape(pref)
+        # will also call cgi.escape
+        #pref = cgi.escape(pref)
         data = u'  <string'
         for a,v in attrs.items():
             data += ' %s="%s"' % (a,v)
@@ -454,16 +412,16 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
                                               prefType, newl))
         else:
             stream.write('  <%s id="%s">%d</%s>%s'\
-                         % (prefType, cgi_escape(prefName,1),
+                         % (prefType, cgi.escape(prefName,1),
                             pref, prefType, newl))
     elif prefType in ("long", "double"):
         if prefName is None:
-            stream.write('  <%s>%s</%s>%s' % (prefType, cgi_escape(str(pref)),
+            stream.write('  <%s>%s</%s>%s' % (prefType, cgi.escape(str(pref)),
                                               prefType, newl))
         else:
             stream.write('  <%s id="%s">%s</%s>%s'\
-                         % (prefType, cgi_escape(prefName,1),
-                            cgi_escape(str(pref)), prefType, newl))
+                         % (prefType, cgi.escape(prefName,1),
+                            cgi.escape(str(pref)), prefType, newl))
     else:
         try:
             pref.serialize(stream, basedir)

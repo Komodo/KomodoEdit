@@ -42,7 +42,7 @@
             this.koDoc = koDoc;
             var scintilla = this.scintilla;
             scintilla.language = koDoc.language;
-            scintilla.symbolMargin = false;
+            scintilla.symbolMargin = true;
             scintilla.encoding = koDoc.encoding.python_encoding_name;
             scintilla.init();
             scintilla.readOnly = true;
@@ -52,10 +52,7 @@
             var mm_scimoz = scintilla.scimoz;
             mm_scimoz.zoom = koDoc.prefs.getLong("minimap.zoom",
                                                  ko.views.manager.DEFAULT_MINIMAP_ZOOM);
-            // Hide all margins.
-            for (var i=0; i <= mm_scimoz.SC_MAX_MARGIN; i++) {
-                mm_scimoz.setMarginWidthN(i, 0);
-            }
+            mm_scimoz.setMarginWidthN(2, 0);
             mm_scimoz.selEOLFilled = true;
             mm_scimoz.caretStyle = mm_scimoz.CARETSTYLE_INVISIBLE;
             mm_scimoz.setXCaretPolicy(0, 0);

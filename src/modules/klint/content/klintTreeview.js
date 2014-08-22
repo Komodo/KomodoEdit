@@ -271,14 +271,18 @@ KlintTreeView.prototype = {
         this.treebox = treebox;
     },
 
-    getCellProperties: function(row, column) {
+    getCellProperties: function(row, column, props) {
         switch (column.id || column) {
             case "klint-message":
                 var severity = this._visibleItems[row].severity;
                 // Mozilla 22+ does not have a properties argument.
-                return KlintTreeView.props[severity];
+                if (typeof(props) == "undefined") {
+                    return KlintTreeView.props[severity];
+                } else {
+                    props.AppendElement(KlintTreeView.atomprops[severity]);
+                }
+                break;
         }
-        return "";
     },
 
     isContainerOpen: function(index) {},

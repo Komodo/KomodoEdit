@@ -14,7 +14,7 @@ Cu.getGlobalForObject({}).import = function _import(ko) {
     // special modules that we can import from the real thing
     const kSpecialCaseURLs = {
         "logging":
-            "jetpack:ko/logging",
+            "chrome://komodo/content/library/logging.js",
         "stringutils":
             "chrome://komodo/content/library/stringutils.js",
         "treeview":
@@ -47,44 +47,10 @@ Cu.getGlobalForObject({}).import = function _import(ko) {
             url = kSpecialCaseURLs[module];
         }
         try {
-            if (url.startsWith("jetpack:")) {
-                // Loading a JetPack-based module; this is for transition to
-                // having the unit tests use require() directly.
-                let id = url.replace(/^jetpack:/, "");
-                if (typeof(global.JetPack) === "undefined") {
-                    // Need to set up jetpack loader first...
-                    // Use a sandbox, otherwise the loader gets confused about
-                    // which global to use, and ends up with "ko is not an
-                    // Object" errors.
-                    let principal = Cc["@mozilla.org/systemprincipal;1"]
-                                      .createInstance(Ci.nsIPrincipal);
-                    let sandbox = Cu.Sandbox(principal,
-                                             { sandboxName: "unit test mock global",
-                                               sandboxPrototype: {
-                                                 window: {},
-                                                 document: {},
-                                                 ko: ko,
-                                               }});
-                    Cc["@mozilla.org/moz/jssubscript-loader;1"]
-                      .getService(Ci.mozIJSSubScriptLoader)
-                      .loadSubScript("chrome://komodo/content/jetpack.js", sandbox);
-                    // Copy things off the sandbox (xrays)
-                    global.JetPack = sandbox.JetPack;
-                    global.require = sandbox.require;
-                }
-                ko[module] = global.require(id);
-            } else {
-                loader.loadSubScript(url, scope, "UTF-8");
-            }
+            loader.loadSubScript(url, scope, "UTF-8");
         } catch (ex) {
             if (!log && module != "logging") {
-                try {
-                    log = _import({}, "logging").getLogger("jstest.mock");
-                } catch (ex2) {
-                    dump("Error importing logging module: " + ex2 + "\n" +
-                         ex2.stack + "\n");
-                    log = null;
-                }
+                log = _import({}, "logging").getLogger("jstest.mock");
             }
             if (log) {
                 log.error("While loading " + url + ": " + ex.toString());

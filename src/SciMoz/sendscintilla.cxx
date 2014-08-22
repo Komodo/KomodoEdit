@@ -40,11 +40,6 @@
 // Separated from npscimoz.cxx to avoid clashes between identifiers such as 
 // Font and Window used both by Mozilla and Scintilla.
 // Implemented by Neil Hodgson
-
-#if defined(__APPLE__)
-#import <Foundation/Foundation.h>     // Required for NSObject
-#endif
-
 #include "sendscintilla.h"
 #include <Platform.h> 
 #include <Scintilla.h> 

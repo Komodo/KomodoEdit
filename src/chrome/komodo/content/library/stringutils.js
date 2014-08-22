@@ -313,8 +313,17 @@ this.contractUser = function(path) {
 }).apply(ko.stringutils);
 
 if (typeof(window) == "undefined") {
-    (function() {
-	this.EXPORTED_SYMBOLS = ["stringutils"];
-	this.stringutils = ko.stringutils;
-    })();
+    const EXPORTED_SYMBOLS = ["stringutils"];
+    var stringutils = ko.stringutils;
+}
+/**
+ * @deprecated since 7.0
+ */
+if (ko.logging) {
+ko.logging.globalDeprecatedByAlternative("stringutils_escapeWhitespace", "ko.stringutils.escapeWhitespace");
+ko.logging.globalDeprecatedByAlternative("stringutils_unescapeWhitespace", "ko.stringutils.unescapeWhitespace");
+ko.logging.globalDeprecatedByAlternative("stringutils_bytelength", "ko.stringutils.bytelength");
+ko.logging.globalDeprecatedByAlternative("stringutils_charIndexFromPosition", "ko.stringutils.charIndexFromPosition");
+ko.logging.globalDeprecatedByAlternative("stringutils_updateSubAttr", "ko.stringutils.updateSubAttr");
+ko.logging.globalDeprecatedByAlternative("stringutils_getSubAttr", "ko.stringutils.getSubAttr");
 }

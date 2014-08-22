@@ -127,7 +127,7 @@ function onLoad() {
         gLanguage.selectedItem = document.getElementById(language);
         gMacroContents.scintilla.symbolMargin = false; // we don't have breakpoints
         gMacroContents.initWithBuffer(text, language);
-        gMacroContents.setFoldStyle(_gPrefSvc.prefs.getStringPref("editFoldStyle"));
+        gMacroContents.setFoldStyle(1, _gPrefSvc.prefs.getStringPref("editFoldStyle"));
         gMacroContents.setFocus();
         gScintilla = gMacroContents.scimoz;
         gScintilla.useTabs = 0;

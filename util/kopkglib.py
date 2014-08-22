@@ -68,11 +68,9 @@ g_short_ver_pat = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:([abc])(\d+))?$")
 g_ide_repo_url = "https://svn.activestate.com/repos/activestate/komodo/"
 g_edit_repo_url = "https://svn.openkomodo.com/repos/openkomodo/"
 
-g_remote_builds_dir = "komodo@mule:/data/komodo/builds"
+g_remote_builds_dir = "komodo-build@nas:/data/komodo/builds"
 
 
-class Error(Exception):
-    pass
 
 #---- module API
 
@@ -89,8 +87,8 @@ class KomodoReleasesGuru(object):
         "komodoide": g_remote_builds_dir,
     }
     nightly_base_dir_from_project = {
-        "komodoedit": g_remote_builds_dir + "/nightly-stage/komodoedit/",
-        "komodoide": g_remote_builds_dir + "/nightly-stage/komodoide/",
+        "komodoedit": "komodo-build@nas:/data/komodo/builds/nightly-stage/komodoedit/",
+        "komodoide": "komodo-build@nas:/data/komodo/builds/nightly-stage/komodoide/",
     }
     
     def __init__(self, project, platname, full_ver):

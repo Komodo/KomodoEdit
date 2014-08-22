@@ -219,10 +219,7 @@ def parseDocSummary(doclines, limit=LINE_LIMIT, width=LINE_WIDTH):
             # If terminated at non-sentence boundary then have extraneous
             # trailing space.
             desclines[-1] = desclines[-1][:-1]
-        # Don't break long words, that doesn't do the right thing with
-        # multi-byte character sets
-        desclines = textwrap.wrap(''.join(desclines), width,
-                                  break_long_words=False)
+        desclines = textwrap.wrap(''.join(desclines), width)
     return desclines
 
 
@@ -314,10 +311,8 @@ def parsePyFuncDoc(doc, fallbackCallSig=None, scope="?", funcname="?"):
 
     # Parse out the description block.
     if desclines:
-        # Use what we have already. Just need to wrap it.  But don't break long
-        # words, that doesn't do the right thing with multi-byte character sets.
-        desclines = textwrap.wrap(' '.join(desclines), LINE_WIDTH,
-                                  break_long_words=False)
+        # Use what we have already. Just need to wrap it.
+        desclines = textwrap.wrap(' '.join(desclines), LINE_WIDTH)
     else:
         doclines = doclines[index:]
         # strip leading empty lines
@@ -425,9 +420,7 @@ def markup_text(text, pos=None, trg_pos=None, start_pos=None):
     if start_pos is not None: positions_and_markers.append((start_pos, '<$>'))
     positions_and_markers.sort()
 
-    if isinstance(text, unicode):
-        # codeintel is now UTF-8 internally; use that for tests too
-        text = text.encode("utf-8")
+    text = unicode(text).encode("utf-8")
     m_text = ""
     m_pos = 0
     for position, marker in positions_and_markers:
@@ -459,12 +452,10 @@ def lines_from_pos(unmarked_text, positions):
         >>> lines_from_pos(text, {"hello": 10, "moo": 20, "not": "an int"})
         {'moo': 1, 'hello': 1}
     """
-    if isinstance(unmarked_text, unicode):
-        unmarked_text = unmarked_text.encode("utf-8")
-    lines = unmarked_text.splitlines(True)
+    lines = unicode(unmarked_text).splitlines(True)
     offsets = [0]
     for line in lines:
-        offsets.append(offsets[-1] + len(line))
+        offsets.append(offsets[-1] + len(line.encode("utf-8")))
     try:
         # assume a dict
         keys = positions.iterkeys()

@@ -584,25 +584,6 @@ class Database(object):
             cu.execute("INSERT INTO history_meta(key, value) VALUES (?, ?)", 
                 (key, value))
 
-    def get_num_visits(self, uri, default=None, inMemory=None, cu=None):
-        """Get a visit_count from the history_uri table.
-
-        @param uri {str} The uri.
-        @param default {str} Default value if the key is not found in the db.
-        @param inMemory {str} Whether to use the in-memory or the disk-based database.
-        @param cu {sqlite3.Cursor} An existing cursor to use.
-        @returns {int} The value in the database for visit_count `default`.
-        """
-        if cu is None and inMemory is None:
-            inMemory = hasattr(self, 'dbmem_cx')
-            # cu has priority over inMemory
-        with self.connect(inMemory=inMemory, cu=cu) as cu:
-            cu.execute("SELECT visit_count FROM history_uri WHERE uri=?", (uri,))
-            row = cu.fetchone()
-            if row is None:
-                return default
-            return row[0]
-
     def close(self):
         self.dbmem_cx.commit()
         self._write_db_to_disk()
@@ -1369,9 +1350,6 @@ class History(object):
         else:
             self.sessions[session_name].\
                 debug_dump_recent_history(curr_loc, merge_curr_loc)
-
-    def get_num_visits(self, uri, default=None):
-        return self.db.get_num_visits(uri, default)
 
 
 

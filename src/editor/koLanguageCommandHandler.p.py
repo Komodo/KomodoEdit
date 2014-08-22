@@ -90,7 +90,11 @@ class GenericCommandHandler:
         log.info("in __init__ for GenericCommandHandler")
         self._completeWordState = None
         self._view = None
+        self._complaints = {}
 
+    def __del__(self):
+        log.info("in __del__ for GenericCommandHandler")
+        
     @LazyProperty
     def sysUtils(self):
         return components.classes["@activestate.com/koSysUtils;1"].\
@@ -127,29 +131,32 @@ class GenericCommandHandler:
     def _is_cmd_viewLineNumbers_enabled(self):
         return self._view.scimoz.getMarginWidthN(0) > 0
 
+    def _updateLineNumberMargin(self):
+        view = self._view
+        numLinesToAccountFor = max(1000,view.scimoz.lineCount*2)
+        padding = 5
+        textWidth = view.scimoz.textWidth(0, str(numLinesToAccountFor))
+        view.scimoz.setMarginWidthN(0, textWidth + padding)
+
     def _do_cmd_viewLineNumbers(self):
-        sm = self._view.scimoz
-        alreadyShowing = sm.getMarginWidthN(sm.MARGIN_LINENUMBERS) > 0
-        if alreadyShowing:
-            sm.setMarginWidthN(sm.MARGIN_LINENUMBERS, 0)
+        shown = self._view.scimoz.getMarginWidthN(0) > 0
+        shown = not shown
+        if shown:
+            self._updateLineNumberMargin()
         else:
-            # Make margin visible and adjust width appropriately.
-            sm.setMarginWidthN(sm.MARGIN_LINENUMBERS, 1)
-            sm.updateMarginWidths()
+            self._view.scimoz.setMarginWidthN(0, 0)
 
     def _is_cmd_viewIndentationGuides_enabled(self):
         return self._view.scimoz.indentationGuides
 
     def _do_cmd_viewIndentationGuides(self):
-        sm = self._view.scimoz
-        sm.indentationGuides = not sm.indentationGuides
+        self._view.scimoz.indentationGuides = not self._view.scimoz.indentationGuides
 
     def _is_cmd_viewEOL_enabled(self):
         return self._view.scimoz.viewEOL
 
     def _do_cmd_viewEOL(self):
-        sm = self._view.scimoz
-        sm.viewEOL = not sm.viewEOL
+        self._view.scimoz.viewEOL = not self._view.scimoz.viewEOL
 
     def _is_cmd_wordWrap_enabled(self):
         return self._view.scimoz.wrapMode
@@ -1382,6 +1389,7 @@ class GenericCommandHandler:
                     braceOpposite = stagi
                 return braceAtCaret, braceOpposite, isInside
         # Otherwise try doing standard bracket-matching
+        mask = view.languageObj.stylingBitsMask
         isInside = 0
         braceAtCaret = -1
         braceOpposite = -1
@@ -1392,7 +1400,7 @@ class GenericCommandHandler:
             caretPos = textLength
         if (caretPos > 0) :
             charBefore = sm.getWCharAt(sm.positionBefore(caretPos))
-            styleBefore = sm.getStyleAt(sm.positionBefore(caretPos))
+            styleBefore = sm.getStyleAt(sm.positionBefore(caretPos)) & mask
         # Priority goes to character before caret
         if (charBefore
             and (view.languageObj.getBraceIndentStyle(charBefore, styleBefore)

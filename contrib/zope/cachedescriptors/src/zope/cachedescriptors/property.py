@@ -13,7 +13,7 @@
 
 See the CachedProperty class.
 
-$Id$
+$Id: property.py 13287 2013-08-06 21:25:03Z toddw $
 """
 
 ncaches = 0l

@@ -173,7 +173,7 @@ function OnPreferencePageOK(prefset) {
 
     /**
      * Do not change anything on the view.prefs in OnPreferencePageOK, as it
-     * may be erased when "prefset" is copied to view.prefs.
+     * may be erased when "preset" is copied to view.prefs.
      *
      * Anything modifying view.prefs must be done in OnPreferencePageClosing,
      * which is after the prefset has been copied - bug 99822.
@@ -222,9 +222,9 @@ function OnPreferencePageOK(prefset) {
 
             case "encoding_and_or_bom":
                 var encodingName = data.encoding.getAttribute("data");
-                var useBOM = ((!data.bom.getAttribute("disabled") || data.bom.getAttribute("disabled") == "false")
+                var bom = ((!data.bom.getAttribute("disabled") || data.bom.getAttribute("disabled") == "false")
                            && data.bom.checked);
-                if (!encodingIsOK(encodingName, useBOM)) return false;
+                if (!applyEncodingAndBOM(encodingName, bom)) return false;
                 break;
 
             case "language":
@@ -299,10 +299,6 @@ function OnPreferencePageClosing(prefset, ok) {
                 break;
 
             case "encoding_and_or_bom":
-                var encodingName = data.encoding.getAttribute("data");
-                var useBOM = ((!data.bom.getAttribute("disabled") || data.bom.getAttribute("disabled") == "false")
-                           && data.bom.checked);
-                applyEncodingAndBOM(encodingName, useBOM);
                 xtk.domutils.fireEvent(window, 'current_view_encoding_changed');
                 break;
 
@@ -610,85 +606,67 @@ function changeEncoding(item)
     setField("encoding_and_or_bom", encodingName);
 }
 
-// Called from OnPreferencePageOK, check to see if the proposed encoding
-// is acceptable.
-function encodingIsOK(encodingName, useBOM)
-{
-    if (encodingName == parent.view.koDoc.encoding.python_encoding_name) {
-        // Nothing changed here, so there should be no reason to complain.
-        return true;
-    }
-    var enc = Components.classes["@activestate.com/koEncoding;1"].
-                     createInstance(Components.interfaces.koIEncoding);
-    enc.python_encoding_name = encodingName;
-    enc.use_byte_order_marker = useBOM;
-    var question, errno, errmsg;
-    var warning = parent.view.koDoc.languageObj.getEncodingWarning(enc);
-    if (warning) {
-        question = bundle.formatStringFromName("areYouSureThatYouWantToChangeTheEncoding.message", [warning], 1);
-        if (ko.dialogs.yesNo(question, "No") != "Yes") {
-            return false;
-        }
-    }
-    try {
-        if (parent.view.koDoc.canBeEncodedWithEncoding(enc)) {
-            return true;
-        }
-        // koIDocument.canBeEncodedWithEncoding sets an error message
-        // if it returns failure.
-        let lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
-                           getService(Components.interfaces.koILastErrorService);
-        errno = lastErrorSvc.getLastErrorCode();
-        errmsg = lastErrorSvc.getLastErrorMessage();
-    } catch(ex) {
-        errno = Components.results.NS_ERROR_UNEXPECTED;
-        errmsg = ex.message;
-    }
-    if (errno == Components.results.NS_ERROR_UNEXPECTED) {
-        // koDocument.canBeEncodedWithEncoding() says this is an internal error
-        var err = bundle.formatStringFromName("internalErrorSettingTheEncoding.message",
-                    [parent.view.koDoc.displayPath, encodingName], 2);
-        ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
-        return false;
-    } else {
-        question = bundle.formatStringFromName("force.conversion.message", [errmsg], 1);
-        var choice = ko.dialogs.customButtons(question,
-                        [bundle.GetStringFromName("force.message.one"),
-                         bundle.GetStringFromName("cancel.message")],
-                        bundle.GetStringFromName("cancel.message")); // default
-        // If 'force conversion' is chosen, try it in applyEncodingAndBOM
-        return choice == bundle.GetStringFromName("force.message.two");
-    }
-}
 
 // Apply the given encoding and BOM changes to the current document.
 //
-function applyEncodingAndBOM(encodingName, useBOM)
+// Returns true iff any changes were successfully made.
+//
+function applyEncodingAndBOM(encodingName, bom)
 {
     // Short-circuit if the encoding name is the same.
     if (encodingName == parent.view.koDoc.encoding.python_encoding_name) {
-        return;
+        parent.view.koDoc.encoding.use_byte_order_marker = bom;
+        parent.view.koDoc.isDirty = true;
+        return true;
     }
+
     var enc = Components.classes["@activestate.com/koEncoding;1"].
                      createInstance(Components.interfaces.koIEncoding);
     enc.python_encoding_name = encodingName;
-    enc.use_byte_order_marker = useBOM;
-    parent.view.koDoc.encoding.use_byte_order_marker = useBOM;
-    try {
-        parent.view.koDoc.encoding = enc;
-    } catch(ex) {
-        // Try to force the encoding
+    enc.use_byte_order_marker = bom;
+
+    var warning = parent.view.koDoc.languageObj.getEncodingWarning(enc);
+    var question = bundle.formatStringFromName(
+        "areYouSureThatYouWantToChangeTheEncoding.message", [warning], 1);
+    if (warning == "" || ko.dialogs.yesNo(question, "No") == "Yes") {
         try {
-            parent.view.koDoc.forceEncodingFromEncodingName(encodingName);
-        } catch (ex2) {
-            let err = bundle.formatStringFromName(
-                              "internalErrorSettingTheEncoding.message",
-                              [parent.view.koDoc.baseName, encodingName], 2);
-            let errmsg = lastErrorSvc.getLastErrorMessage();
-            ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex2);
-            return;
+            parent.view.koDoc.encoding = enc;
+            // and reset the linting
+            parent.view.lintBuffer.request();
+        } catch(ex) {
+            var err;
+            var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                               getService(Components.interfaces.koILastErrorService);
+            var errno = lastErrorSvc.getLastErrorCode();
+            var errmsg = lastErrorSvc.getLastErrorMessage();
+            if (errno == 0) {
+                // koDocument.set_encoding() says this is an internal error
+                err = bundle.formatStringFromName("internalErrorSettingTheEncoding.message",
+                        [parent.view.koDoc.displayPath, encodingName], 2);
+                ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
+            } else {
+                question = bundle.formatStringFromName("force.conversion.message", [errmsg], 1);
+                var choice = ko.dialogs.customButtons(question,
+                        [bundle.GetStringFromName("force.message.one"),
+                         bundle.GetStringFromName("cancel.message")],
+                        bundle.GetStringFromName("cancel.message")); // default
+                if (choice == bundle.GetStringFromName("force.message.two")) {
+                    try {
+                        parent.view.koDoc.forceEncodingFromEncodingName(encodingName);
+                    } catch (ex2) {
+                        err = bundle.formatStringFromName(
+                                "internalErrorSettingTheEncoding.message",
+                                [parent.view.koDoc.baseName, encodingName], 2);
+                        ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
         }
+        return true;
     }
-    parent.view.lintBuffer.request();
-    parent.view.koDoc.isDirty = true;
+
+    return false;
 }

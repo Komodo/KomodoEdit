@@ -224,22 +224,6 @@ if (ko.skin == undefined)
             this._setupCustomScrollbars();
 
             koLess.reload();
-
-            var nb = document.getElementById("komodo-notificationbox");
-            var nf = nb.appendNotification("Some of the changes made may require a Komodo restart to apply properly",
-                                  "skin-restart", null, nb.PRIORITY_INFO_HIGH,
-            [
-                {
-                    accessKey: "r",
-                    callback: ko.utils.restart,
-                    label: "Restart Komodo"
-                },
-                {
-                    accessKey: "l",
-                    callback: nb.removeNotification.bind(nb, nf),
-                    label: "Restart Later"
-                },
-            ]);
         },
 
         /**
@@ -358,7 +342,7 @@ if (ko.skin == undefined)
                 // Don't load if detection is disabled in user preferences
                 if ( ! prefs.getBoolean(PREF_USE_GTK_DETECT, true))
                 {
-                    return;
+                    return false;
                 }
                 
                 this.getThemeInfo(this._loadTheme.bind(this), function() 
@@ -565,124 +549,6 @@ if (ko.skin == undefined)
                 koRunSvc.RunAsync(commands.shift(), callbackHandler);
             }
             
-        },
-
-        unloadVirtualStyle: function(id)
-        {
-            if ( ! id) throw "You must provide a unique id for your style";
-
-            var uri = this._virtualStyles[id];
-            var styleUtil = require("sdk/stylesheet/utils");
-
-            var unloadFromWindow = function(_window)
-            {
-                try
-                {
-                    styleUtil.removeSheet(_window, uri, "agent");
-                } catch (e) {} // no need for an exception if its already removed
-            }
-
-            var windows = Services.wm.getEnumerator(null);
-            while (windows.hasMoreElements())
-            {
-                let xulWindow = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
-                unloadFromWindow(xulWindow);
-            }
-
-            var widgets = ko.widgets._widgets.listitems()
-            for (let widget in widgets)
-            {
-                let [id, data] = widgets[widget];
-                unloadFromWindow(data.browser.contentWindow);
-            }
-
-            delete this._virtualStyles[id];
-        },
-
-        _virtualStyles: {},
-        loadVirtualStyle: function(lessCode, id)
-        {
-            this.unloadVirtualStyle(id);
-
-            log.debug("Loading virtual style: " + lessCode);
-
-            koLess.parse(lessCode, function(cssCode)
-            {
-                var path = require('sdk/system').pathFor('ProfD');
-                var ioFile = require('sdk/io/file');
-                path = ioFile.join(path, "userstyleCache", id + ".css");
-
-                if ( ! ioFile.exists(ioFile.dirname(path)))
-                    ioFile.mkpath(ioFile.dirname(path));
-
-                var file = ioFile.open(path, "w");
-                file.write(cssCode);
-                file.close();
-
-                this._virtualStyles[id] = ko.uriparse.pathToURI(path);
-
-                this._loadVirtualStyle(id);
-                this._virtualStyleListener();
-            }.bind(this));
-        },
-
-        _virtualStyleListener: function()
-        {
-            if (this._virtualStyleListener.initialized) return;
-
-            this._virtualStyleListener.initialized = true;
-
-            Services.wm.addListener({
-                onOpenWindow: function (aWindow)
-                {
-                    let domWindow = aWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindow);
-                    domWindow.addEventListener("load", function ()
-                    {
-                        domWindow.removeEventListener("load", arguments.callee, false);
-                        for (let id in this._virtualStyles)
-                            this._loadVirtualStyle(id, domWindow);
-                    }.bind(this), false);
-                }.bind(this),
-                onCloseWindow: function (aWindow) {},
-                onWindowTitleChange: function (aWindow, aTitle) {}
-            });
-
-            window.addEventListener("widget-load", function(e)
-            {
-                for (let id in this._virtualStyles)
-                    this._loadVirtualStyle(id, e.detail.browser.contentWindow);
-            }.bind(this));
-        },
-
-        _loadVirtualStyle: function(id, _window = null)
-        {
-            if (_window)
-                log.debug("Loading virtual style " + id + " into " + (_window.name || _window.id || "unknown window"));
-
-            var uri = this._virtualStyles[id];
-            var styleUtil = require("sdk/stylesheet/utils");
-
-            var loadIntoWindow = function(xulWindow)
-            {
-                styleUtil.loadSheet(xulWindow, uri, "agent");
-            }
-
-            if (_window)
-                return loadIntoWindow(_window);
-
-            var windows = Services.wm.getEnumerator(null);
-            while (windows.hasMoreElements())
-            {
-                let xulWindow = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
-                loadIntoWindow(xulWindow);
-            }
-
-            var widgets = ko.widgets._widgets.listitems()
-            for (let widget in widgets)
-            {
-                let [id, data] = widgets[widget];
-                loadIntoWindow(data.browser.contentWindow);
-            }
         }
         
     };

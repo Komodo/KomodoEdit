@@ -20,9 +20,7 @@ class Ko%(safe_lang)sLanguage(%(base_class)s):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%%s;1" %% name
     _reg_categories_ = [("komodo-language", name)]
     _reg_clsid_ = "%(guid)s"
-
     %(default_ext_assign)s
-    primary = 1  # Whether the language shows up in Komodo's first level language menus.
 
     # ------------ Commenting Controls ------------ #
 

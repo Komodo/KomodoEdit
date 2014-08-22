@@ -307,3 +307,13 @@ ko.windowManager = {
         return null;
     }
 };
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("openWindowUniqueInstance", "ko.windowManager.openOrFocusDialog");
+ko.logging.globalDeprecatedByAlternative("openWindowMultipleInstance", "window.openDialog");
+ko.logging.globalDeprecatedByAlternative("windowManager_getMainWindow", "ko.windowManager.getMainWindow");
+
+
+

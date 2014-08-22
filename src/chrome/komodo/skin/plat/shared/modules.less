@@ -359,3 +359,45 @@ toolbar#nav-bar
     border: 0;
 }
 
+/* CodeIntel */
+
+scintilla > panel[anonid="autocompletepopup"] > hbox
+{
+    -moz-appearance: none;
+}
+
+scintilla > panel[anonid="autocompletepopup"]
+{
+
+    & > hbox
+    {
+        background: @window-background;
+    }
+
+    grid
+    {
+        background: @list-tree-background;
+    }
+
+    .ko-autocomplete-item
+    {
+        background: @list-tree-row-background;
+        color: @list-tree-item-color;
+
+        &[selected]
+        {
+            background: @list-tree-row-background-selected;
+            color: @list-tree-item-color-selected;
+        }
+    }
+
+    & > hbox > grid:focus .ko-autocomplete-item
+    {
+        &[selected]
+        {
+            background: @list-tree-row-background-focus;
+            color: @list-tree-item-color-focus;
+        }
+    }
+
+}

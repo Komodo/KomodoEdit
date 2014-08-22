@@ -117,9 +117,6 @@ ScintillaHeadless::ScintillaHeadless() :
 		capturedMouse(false), dragWasDropped(false),
 		lastKey(0), rectangularSelectionModifier(SCMOD_CTRL) {
 	Initialise();
-	// Pretend to have a main window, so that we will end up allocating
-	// surfaces (so that we can actually lay things out).  Bug 102147.
-	wMain = reinterpret_cast<WindowID>(this);
 }
 
 ScintillaHeadless::~ScintillaHeadless() {

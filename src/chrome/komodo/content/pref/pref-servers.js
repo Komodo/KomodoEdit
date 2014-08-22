@@ -39,6 +39,7 @@
 var prefServersLog = ko.logging.getLogger('prefs.servers');
 
 var cellparent, cellparent_value;
+const VK_ENTER = 13;  // the keycode for the "Enter" key
 var servers;
 var dialog = {}; //XXX used both for easy access to named XUL elements and to keep
 // a handle on functions that we need in PrefAssociation_OkCallback(). Every

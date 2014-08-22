@@ -1,5 +1,0 @@
-# #if MODE == "dev"
-content scope-combined content/
-# #else
-content scope-combined jar:scope-combined.jar!/content/
-# #endif

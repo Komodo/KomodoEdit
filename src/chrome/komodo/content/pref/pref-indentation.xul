@@ -56,6 +56,7 @@
     <script type="application/x-javascript;version=1.7">
     <![CDATA[
 var log = ko.logging.getLogger("pref-indent");
+var original_prefset = null;
 var langData = {};
 var langPrefs = null;
 var curLang = null;
@@ -65,20 +66,27 @@ function MyOnload() {
     
 }
 function OnPreferencePageInitalize(prefset) {
+    original_prefset = prefset;
+
     log.info("OnPreferencePageInitalize");
     if (parent.prefInvokeType != "global") {
         return;
     }
     try {
-        var langToUse;
+
         // set up the prefs
         langPrefs = prefset.getPref('languages');
-        langPrefs.parent = prefset;
+        if (!prefset.hasPrefHere('languages')) {
+            // Must make a clone of the preferences, so that any changes will
+            // be saved onto the prefset (instead of the inherited prefset).
+            langPrefs = langPrefs.clone();
+            prefset.setPref('languages', langPrefs);
+        }
+
+        var langToUse = "Text";
         var view = getKoObject('views').manager.currentView;
         if (view)
             langToUse = view.koDoc.language;
-        else   // default
-            langToUse = "Text";
 
         changeNewLanguage(null, langToUse);
     } catch(ex) {
@@ -122,7 +130,6 @@ function _getCurrentLangPrefs(language) {
     } else {
         prefs = langPrefs.getPref('languages/'+language);
     }
-    prefs.parent = langPrefs;
     return prefs;
 }
 
@@ -134,14 +141,20 @@ function getPrefsForLanguage(name) {
     o.name = name;
     o.prefs = _getCurrentLangPrefs(name);
     // get the defaults
-    var rootPrefs = langPrefs.parent;
     o.defaults = {};
-    o.useTabs = o.defaults.useTabs =
-        o.prefs.getBoolean('useTabs', rootPrefs.getBoolean('useTabs', false));
-    o.tabWidth = o.defaults.tabWidth =
-        o.prefs.getLong('tabWidth', rootPrefs.getLong('tabWidth', false));
-    o.indentWidth = o.defaults.indentWidth =
-        o.prefs.getLong('indentWidth', rootPrefs.getLong('indentWidth', false));
+    o.useTabs = o.defaults.useTabs = original_prefset.getBooleanPref('useTabs');
+    o.tabWidth = o.defaults.tabWidth = original_prefset.getLongPref('tabWidth');
+    o.indentWidth = o.defaults.indentWidth = original_prefset.getLongPref('indentWidth');
+    
+    if (o.prefs.hasPref('useTabs'))  {
+        o.useTabs = o.defaults.useTabs = o.prefs.getBooleanPref('useTabs');
+    }
+    if (o.prefs.hasPref('tabWidth'))  {
+        o.tabWidth = o.defaults.tabWidth = o.prefs.getLongPref('tabWidth');
+    }
+    if (o.prefs.hasPref('indentWidth'))  {
+        o.indentWidth = o.defaults.indentWidth = o.prefs.getLongPref('indentWidth');
+    }
     langData[name] = o;
     return o;
 }

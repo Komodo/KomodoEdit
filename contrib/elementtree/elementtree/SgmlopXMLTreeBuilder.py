@@ -1,6 +1,6 @@
 #
 # ElementTree
-# $Id$
+# $Id: SgmlopXMLTreeBuilder.py 14 2007-09-24 17:33:23Z trentm $
 #
 # A simple XML tree builder, based on the sgmlop library.
 #

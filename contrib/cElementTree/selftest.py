@@ -1,4 +1,4 @@
-# $Id$
+# $Id: selftest.py 14 2007-09-24 17:33:23Z trentm $
 # elementtree selftest program
 
 # this test script uses Python's "doctest" module to check that the

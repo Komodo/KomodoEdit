@@ -52,6 +52,9 @@ if (!('spellchecker' in ko.extensions)) {
 (function() {
 // Set up a controller to make sure we do this only when there's a view
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"].
+                getService(Components.interfaces.nsIStringBundleService).
+                createBundle("chrome://komodospellchecker/locale/spellcheck.properties");
 var __SpellCheckController = null;
 
 function SpellCheckController() {
@@ -78,9 +81,6 @@ SpellCheckController.prototype.is_cmd_checkSpelling_enabled = function() {
 
 SpellCheckController.prototype.do_cmd_checkSpelling = function() {
     var obj = {};
-    var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"].
-                    getService(Components.interfaces.nsIStringBundleService).
-                    createBundle("chrome://komodospellchecker/locale/spellcheck.properties");
     try {
         obj.view = ko.views.manager.currentView;
         if (!obj.view || !obj.view.languageObj) {
@@ -102,9 +102,8 @@ SpellCheckController.prototype.do_cmd_checkSpelling = function() {
 
 this.SpellCheckController_onload = function() {
     __SpellCheckController = new SpellCheckController();
-    window.removeEventListener("komodo-ui-started", ko.extensions.spellchecker.SpellCheckController_onload, true);
+    window.removeEventListener("load", ko.extensions.spellchecker.SpellCheckController_onload, true);
 }
 
 }).apply(ko.extensions.spellchecker);
-
-window.addEventListener("komodo-ui-started", ko.extensions.spellchecker.SpellCheckController_onload, true);
+window.addEventListener("load", ko.extensions.spellchecker.SpellCheckController_onload, true);

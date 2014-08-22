@@ -40,69 +40,64 @@ import re, string, sys
 import mimetools, StringIO
 from elementtree import ElementTree
 
-# Lazily load the collecter on demand, rather than at import time.
-g_collector = None
-def getcollector():
-    global g_collector
-    if g_collector is None:
-        class recollector:
-            def __init__(self):
-                self.res = {}
-                self.regs = {}
+class recollector:
+    def __init__(self):
+        self.res = {}
+        self.regs = {}
+        
+    def add(self, name, reg, mods=None ):
+        self.regs[name] = reg % self.regs
+        #print "%s = %s" % (name, self.regs[name])
+        if mods:
+            self.res[name] = re.compile(self.regs[name], mods) # check that it is valid
+        else:
+            self.res[name] = re.compile(self.regs[name]) # check that it is valid
 
-            def add(self, name, reg, mods=None ):
-                self.regs[name] = reg % self.regs
-                #print "%s = %s" % (name, self.regs[name])
-                if mods:
-                    self.res[name] = re.compile(self.regs[name], mods) # check that it is valid
-                else:
-                    self.res[name] = re.compile(self.regs[name]) # check that it is valid
+collector = recollector()
+a = collector.add
 
-        g_collector = recollector()
-        a = g_collector.add
+a("TextSE" , "[^<]+")
+a("UntilHyphen" , "[^-]*-")
+a("Until2Hyphens" , "%(UntilHyphen)s(?:[^-]%(UntilHyphen)s)*-")
+a("CommentCE" , "%(Until2Hyphens)s>?") 
+a("UntilRSBs" , "[^\\]]*](?:[^\\]]+])*]+")
+a("CDATA_CE" , "%(UntilRSBs)s(?:[^\\]>]%(UntilRSBs)s)*>" )
+a("S" , "[ \\n\\t\\r]+")
+a("NameStrt" , "[A-Za-z_:]|[^\\x00-\\x7F]")
+a("NameChar" , "[A-Za-z0-9_:.-]|[^\\x00-\\x7F]")
+a("Name" , "(?:%(NameStrt)s)(?:%(NameChar)s)*")
+a("QuoteSE" , "\"[^\"]*\"|'[^']*'")
+a("DT_IdentSE" , "%(S)s%(Name)s(?:%(S)s(?:%(Name)s|%(QuoteSE)s))*" )
 
-        a("TextSE" , "[^<]+")
-        a("UntilHyphen" , "[^-]*-")
-        a("Until2Hyphens" , "%(UntilHyphen)s(?:[^-]%(UntilHyphen)s)*-")
-        a("CommentCE" , "%(Until2Hyphens)s>?")
-        a("UntilRSBs" , "[^\\]]*](?:[^\\]]+])*]+")
-        a("CDATA_CE" , "%(UntilRSBs)s(?:[^\\]>]%(UntilRSBs)s)*>" )
-        a("S" , "[ \\n\\t\\r]+")
-        a("NameStrt" , "[A-Za-z_:]|[^\\x00-\\x7F]")
-        a("NameChar" , "[A-Za-z0-9_:.-]|[^\\x00-\\x7F]")
-        a("Name" , "(?:%(NameStrt)s)(?:%(NameChar)s)*")
-        a("QuoteSE" , "\"[^\"]*\"|'[^']*'")
-        a("DT_IdentSE" , "%(S)s%(Name)s(?:%(S)s(?:%(Name)s|%(QuoteSE)s))*" )
+# http://bugs.activestate.com/show_bug.cgi?id=28765
+#a("MarkupDeclCE" , "(?:[^\\]\"'><]+|%(QuoteSE)s)*>" )
+a("MarkupDeclCE" , "(?:[^\\]\"'> \\n\\t\\r<]+|%(QuoteSE)s)*>" )
 
-        # http://bugs.activestate.com/show_bug.cgi?id=28765
-        #a("MarkupDeclCE" , "(?:[^\\]\"'><]+|%(QuoteSE)s)*>" )
-        a("MarkupDeclCE" , "(?:[^\\]\"'> \\n\\t\\r<]+|%(QuoteSE)s)*>" )
+a("S1" , "[\\n\\r\\t ]")
+a("UntilQMs" , "[^?]*\\?+")
+a("PI_Tail" , "\\?>|%(S1)s%(UntilQMs)s(?:[^>?]%(UntilQMs)s)*>" )
+a("DT_ItemSE" ,
+    "<(?:!(?:--%(Until2Hyphens)s>|[^-]%(MarkupDeclCE)s)|\\?%(Name)s(?:%(PI_Tail)s))|%%%(Name)s;|%(S)s"
+)
+a("DocTypeCE" ,
+"%(DT_IdentSE)s(?:%(S)s)?(?:\\[(?:%(DT_ItemSE)s)*](?:%(S)s)?)?>?" )
+a("DeclCE" ,
+    "--(?:%(CommentCE)s)?|\\[CDATA\\[(?:%(CDATA_CE)s)?|DOCTYPE(?:%(DocTypeCE)s)?")
+a("PI_CE" , "%(Name)s(?:%(PI_Tail)s)?")
+a("EndTagCE" , "(?P<endtag>%(Name)s)(?:%(S)s)?>?")
+a("AttValSE" , "\"[^<\"]*\"|'[^<']*'")
+a("ElemTagCE" ,
+    "(?P<tag>%(Name)s)(?P<attrs>(?:%(S)s%(Name)s(?:%(S)s)?=(?:%(S)s)?(?:%(AttValSE)s))*)(?:%(S)s)?/?>?")
 
-        a("S1" , "[\\n\\r\\t ]")
-        a("UntilQMs" , "[^?]*\\?+")
-        a("PI_Tail" , "\\?>|%(S1)s%(UntilQMs)s(?:[^>?]%(UntilQMs)s)*>" )
-        a("DT_ItemSE" ,
-            "<(?:!(?:--%(Until2Hyphens)s>|[^-]%(MarkupDeclCE)s)|\\?%(Name)s(?:%(PI_Tail)s))|%%%(Name)s;|%(S)s"
-        )
-        a("DocTypeCE" ,
-        "%(DT_IdentSE)s(?:%(S)s)?(?:\\[(?:%(DT_ItemSE)s)*](?:%(S)s)?)?>?" )
-        a("DeclCE" ,
-            "--(?:%(CommentCE)s)?|\\[CDATA\\[(?:%(CDATA_CE)s)?|DOCTYPE(?:%(DocTypeCE)s)?")
-        a("PI_CE" , "%(Name)s(?:%(PI_Tail)s)?")
-        a("EndTagCE" , "(?P<endtag>%(Name)s)(?:%(S)s)?>?")
-        a("AttValSE" , "\"[^<\"]*\"|'[^<']*'")
-        a("ElemTagCE" ,
-            "(?P<tag>%(Name)s)(?P<attrs>(?:%(S)s%(Name)s(?:%(S)s)?=(?:%(S)s)?(?:%(AttValSE)s))*)(?:%(S)s)?/?>?")
+a("MarkupSPE" ,
+    "<(?:!(?:%(DeclCE)s)?|\\?(?:%(PI_CE)s)?|/(?:%(EndTagCE)s)?|(?:%(ElemTagCE)s)?)")
+a("XML_SPE" , "%(TextSE)s|%(MarkupSPE)s")
+a("XML_MARKUP_ONLY_SPE" , "%(MarkupSPE)s")
 
-        a("MarkupSPE" ,
-            "<(?:!(?:%(DeclCE)s)?|\\?(?:%(PI_CE)s)?|/(?:%(EndTagCE)s)?|(?:%(ElemTagCE)s)?)")
-        a("XML_SPE" , "%(TextSE)s|%(MarkupSPE)s")
-        a("XML_MARKUP_ONLY_SPE" , "%(MarkupSPE)s")
+a("DOCTYPE",        r'<!DOCTYPE\s+(?P<type>\S+)\s+(?P<ident>PUBLIC|SYSTEM)\s+(?P<data1>%(QuoteSE)s)\s*(?P<data2>%(QuoteSE)s)?\s*(?:\[|>)', re.S)
 
-        a("DOCTYPE",        r'<!DOCTYPE\s+(?P<type>\S+)\s+(?P<ident>PUBLIC|SYSTEM)\s+(?P<data1>%(QuoteSE)s)\s*(?P<data2>%(QuoteSE)s)?\s*(?:\[|>)', re.S)
-
-        a("attrfinderRE" , "(?:[\n \t]*)(%(Name)s)(?:%(S)s)?=(?:%(S)s)?(%(AttValSE)s)", re.S|re.U)
-    return g_collector
+a("attrfinderRE" , "(?:[\n \t]*)(%(Name)s)(?:%(S)s)?=(?:%(S)s)?(%(AttValSE)s)", re.S|re.U)
+attrfinder = collector.res["attrfinderRE"]
 
 is_not_ascii = re.compile(eval(r'u"[\u0080-\uffff]"')).search
 
@@ -111,7 +106,7 @@ def parseiter(data, markuponly=0):
         reg = "XML_MARKUP_ONLY_SPE"
     else:
         reg = "XML_SPE"
-    regex = getcollector().res[reg]
+    regex = collector.res[reg]
     return regex.finditer(data)
 
 def strip_quotes(str):
@@ -131,10 +126,6 @@ def strip_quotes(str):
 html_no_close_tags = set([
     "basefont", "br", "area", "link", "img", "param", "hr", "input",
     "col", "frame", "isindex", "base", "meta"
-])
-html5_no_close_tags = html_no_close_tags.union([
-    "command", "output", "figcaption", "audio", "source", "video",
-    "embed", "canvas", "keygen", "meter",
 ])
 # defined in dtd as ELEMENT NAME - O *
 html_optional_close_tags = set([
@@ -287,7 +278,7 @@ class Parser:
         self.data = None
 
     def parse_doctype(self, data):
-        m = getcollector().res["DOCTYPE"].match(data)
+        m = collector.res["DOCTYPE"].match(data)
         if m is None:
             return
         result = m.groupdict()
@@ -318,7 +309,6 @@ class Parser:
     def feed(self, data, markuponly=0):
         no_close_tag = []
         opt_close_tag = []
-        attrfinder = getcollector().res["attrfinderRE"]
         self.data = data
         for matchObj in parseiter(data, markuponly):
             x = matchObj.group(0)

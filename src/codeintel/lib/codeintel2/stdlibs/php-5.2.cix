@@ -1025,7 +1025,7 @@
       </scope>
       <scope ilk="class" name="PDO">
         <scope doc="" ilk="function" name="__construct" returns="void" signature="__construct(string dsn, string username, string passwd [, array options])" src="pdo_dbh.c" />
-        <scope doc="Prepares a statement for execution and returns a&#xA;statement object" ilk="function" name="prepare" returns="PDOStatement" signature="prepare(string statment [, array options])" src="pdo_dbh.c" />
+        <scope doc="Prepares a statement for execution and returns a&#xA;statement object" ilk="function" name="prepare" returns="object" signature="prepare(string statment [, array options])" src="pdo_dbh.c" />
         <scope doc="Initiates a transaction" ilk="function" name="beginTransaction" returns="bool" signature="beginTransaction()" src="pdo_dbh.c" />
         <scope doc="Commit a transaction" ilk="function" name="commit" returns="bool" signature="commit()" src="pdo_dbh.c" />
         <scope doc="roll back a transaction" ilk="function" name="rollBack" returns="bool" signature="rollBack()" src="pdo_dbh.c" />

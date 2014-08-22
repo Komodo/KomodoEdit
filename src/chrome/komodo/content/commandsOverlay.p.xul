@@ -91,8 +91,8 @@
             desc="&userInterfaceShowHideMenubar.desc;"
             oncommand="ko.commands.doCommandAsync('cmd_toggleMenubar', event)"
             persist="checked"
-            checked="false"
-             />
+            checked="true"
+            autoCheck="false" />
 <!-- #endif -->
         <broadcaster
             id="cmd_toggleToolbars" key="key_cmd_toggleToolbars"
@@ -159,7 +159,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_viewopentoolbar', event)"/>
         <broadcaster
             id="cmd_openextmgr"
-            desc="&openAddonsDialog.desc;"
             oncommand="ko.launch.openAddonsMgr();"/>
         <broadcaster
             id="cmd_expandAbbrev"
@@ -814,11 +813,7 @@
         commandupdater="true"
         events="macro"
         >
-        <command
-            id="cmd_macroNew" key="key_cmd_macroNew"
-            oncommand="ko.commands.doCommandAsync('cmd_macroNew', event)"
-            desc="&macroNew.command.desc;" />
-        <!-- Available whenever we are recording -->
+        <!-- Available whenever not already recording -->
         <command
             id="cmd_startMacroMode" key="key_cmd_startMacroMode"
             interactive="true"

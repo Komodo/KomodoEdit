@@ -24,7 +24,7 @@
 
 """Self-test for public-key crypto"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: __init__.py 7847 2011-04-21 18:51:40Z toddw $"
 
 import os
 

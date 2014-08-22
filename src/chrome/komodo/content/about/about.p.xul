@@ -53,11 +53,12 @@
         orient="vertical"
         flex="1"
         width="550"
-        height="500"
+        height="440"
         persist="screenx, screeny">
 
     <keyset id="keys">
         <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
+        <key keycode="VK_ENTER" oncommand="window.close();"/>
         <key keycode="VK_RETURN" oncommand="window.close();"/>
 <!-- #if PLATFORM != "darwin" -->
         <key key="W" modifiers="control" oncommand="window.close();" />

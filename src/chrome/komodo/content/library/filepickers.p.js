@@ -61,26 +61,19 @@ if (typeof(ko)=='undefined') {
 ko.filepicker = {};
 (function() {
 
-const Cc = Components.classes;
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/library.properties");
+var _log = ko.logging.getLogger("filepickers");
+
 const Ci = Components.interfaces;
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-var local = {};
+var globalPrefs = Components.classes["@activestate.com/koPrefService;1"].
+    getService(Ci.koIPrefService).prefs;
+var prefs = globalPrefs.getPref("filepickers.defaultDirs");
 
-XPCOMUtils.defineLazyGetter(local, "log", function() ko.logging.getLogger("filepickers"));
-
-XPCOMUtils.defineLazyGetter(local, "bundle", function() Cc["@mozilla.org/intl/stringbundle;1"]
-                                                        .getService(Ci.nsIStringBundleService)
-                                                        .createBundle("chrome://komodo/locale/library.properties"));
-
-XPCOMUtils.defineLazyGetter(local, "globalPrefs", function() Cc["@activestate.com/koPrefService;1"]
-                                                             .getService(Ci.koIPrefService).prefs);
-
-XPCOMUtils.defineLazyGetter(local, "prefs", function() local.globalPrefs.getPref("filepickers.defaultDirs"));
-
-XPCOMUtils.defineLazyGetter(local, "osPathSvc", function() Cc["@activestate.com/koOsPath;1"]
-                                                            .getService(Ci.koIOsPath));
-
+var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].
+    getService(Ci.koIOsPath);
 //---- internal support stuff
 
 /* if scimoz has focus, it will fight the native windows dialogs
@@ -168,8 +161,8 @@ function _appendFilters(fp, limitTo /* =null */) {
     specialFilters.push(["*.png", "*.gif", "*.ico", "*.bmp", "*.xbm", ".xpm", ".jpg", ".jpeg"]);
 
     // Get a list of standard filters.
-    var langRegistry = Cc["@activestate.com/koLanguageRegistryService;1"].
-                       getService(Ci.koILanguageRegistryService);
+    var langRegistry = Components.classes["@activestate.com/koLanguageRegistryService;1"].
+                       getService(Components.interfaces.koILanguageRegistryService);
     var countObj = new Object();
     var langsObj = new Object();
     langRegistry.getLanguageNames(langsObj, countObj);
@@ -185,7 +178,7 @@ function _appendFilters(fp, limitTo /* =null */) {
         if (filetypes.length == 0) {
             // The nsIFilePicker stuff does NOT like one adding empty filter
             // lists.
-            local.log.debug("No filetype patterns registered for '"+
+            _log.debug("No filetype patterns registered for '"+
                                  languageNames[i]+"' language. It is possible "+
                                  "that your language associations registry "+
                                  "is corrupted.");
@@ -197,20 +190,20 @@ function _appendFilters(fp, limitTo /* =null */) {
     names.push("Web");
     filters.push(["*.html", "*.htm", "*.css", "*.dtd", "*.xml", "*.xul",
                   "*.js"]);
-    names.push(local.bundle.GetStringFromName("komodoProject"));
+    names.push(_bundle.GetStringFromName("komodoProject"));
     filters.push(["*.komodoproject", "*.kpf"]);
-    names.push(local.bundle.GetStringFromName("komodoPackage"));
+    names.push(_bundle.GetStringFromName("komodoPackage"));
     filters.push(["*.kpz"]);
-    names.push(local.bundle.GetStringFromName("komodoColorScheme"));
+    names.push(_bundle.GetStringFromName("komodoColorScheme"));
     filters.push(["*.ksf"]);
     names.push("Komodo Tool");
     filters.push(["*.komodotool"]);
     names.push("Zip");
     filters.push(["*.zip"]);
-    names.push(local.bundle.GetStringFromName("codeIntelligenceXml"));
+    names.push(_bundle.GetStringFromName("codeIntelligenceXml"));
     filters.push(["*.cix"]);
     names.push("All");
-    filters.push(Ci.nsIFilePicker.filterAll);
+    filters.push(Components.interfaces.nsIFilePicker.filterAll);
 
     // Filter out some filters if 'limitTo' was specified.
     if (limitTo != null) {
@@ -242,7 +235,7 @@ function _appendFilters(fp, limitTo /* =null */) {
                       "filters is empty: names="+names.join(',')+
                       " specialNames="+specialNames.join(',')+
                       " limitTo="+limitTo.join(',');
-            local.log.error(err);
+            _log.error(err);
             throw(err);
         }
         names = limitedNames;
@@ -257,7 +250,7 @@ function _appendFilters(fp, limitTo /* =null */) {
         if (typeof(filter) == "number") {
             fp.appendFilters(filter);
         } else if (filter.length == 0) {
-            local.log.warn("dropping empty filter list for '"+title+"'");
+            _log.warn("dropping empty filter list for '"+title+"'");
         } else {
             _appendFilter(fp, title, filter);
         }
@@ -270,18 +263,35 @@ function _get_localDirFromPossibleURIDir(uri) {
     if (uri && uri.substr(0, 7) === "file://") {
         // ko.uriparse not always available when this is called from
         // dialog boxes, so go with xpcom.
-        var koFileEx = Cc["@activestate.com/koFileEx;1"]
-                             .createInstance(Ci.koIFileEx);
+        var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+                             .createInstance(Components.interfaces.koIFileEx);
         koFileEx.URI = uri;
         return koFileEx.path;
     }
     return null;
 }
 
+function _placesProjectsPanelVisible() {
+    // This assumes we're called from a main-window context, along with much of
+    // the other code in this module.
+    var workspaceArea = document.getElementById('workspace_left_area');
+    if (!workspaceArea || workspaceArea.collapsed) {
+        return false;
+    }
+    var placesViewbox = document.getElementById('placesViewbox');
+    if (!placesViewbox) {
+        return false;
+    }
+    return placesViewbox.parentNode.selectedPanel === placesViewbox;
+}
+
 var _dispatchTable = {
         // Some clients prefer project or place to the current view,
         // but saveAs should prefer the current view
     'project': function() {
+        if (!_placesProjectsPanelVisible()) {
+            return null;
+        }
         var dir, uri;
         if (ko.projects) {
             var project = ko.projects.manager.currentProject;
@@ -292,6 +302,9 @@ var _dispatchTable = {
         return null;
     },
     'place': function() {
+        if (!_placesProjectsPanelVisible()) {
+            return null;
+        }
         var dir, uri;
         if (ko.places) {
             return _get_localDirFromPossibleURIDir(ko.places.manager.currentPlace);
@@ -320,7 +333,7 @@ function _get_defaultDirectory(dirTypes) {
     // leave null, do default.
     var dir, project, place, uri, view, i, lookupType;
     if (typeof(dirTypes) === "undefined") {
-        dirTypes = ["view", "project", "place"];
+        dirTypes = ["project", "place", "view"];
     }
     for (var i = 0; i < dirTypes.length; i++) {
         lookupType = dirTypes[i];
@@ -330,7 +343,7 @@ function _get_defaultDirectory(dirTypes) {
                 return dir;
             }
         } catch(ex) {
-            local.log.exception(ex, ("lookupType: "
+            _log.exception(ex, ("lookupType: "
                                 + lookupType
                                 + ": Problem finding current directory"));
 
@@ -349,13 +362,13 @@ function _get_defaultDirectory(dirTypes) {
 //
 function _getFilePicker(mode, title, defaultFilterName, limitTo)
 {
-    var fp = Cc["@mozilla.org/filepicker;1"].
-             createInstance(Ci.nsIFilePicker);
+    var fp = Components.classes["@mozilla.org/filepicker;1"].
+             createInstance(Components.interfaces.nsIFilePicker);
     fp.init(window, title, mode);
     if (mode != Ci.nsIFilePicker.modeGetFolder) {
         if (limitTo == null && defaultFilterName != null) {
-            var langRegistry = Cc["@activestate.com/koLanguageRegistryService;1"].
-                getService(Ci.koILanguageRegistryService);
+            var langRegistry = Components.classes["@activestate.com/koLanguageRegistryService;1"].
+                getService(Components.interfaces.koILanguageRegistryService);
             var filetypesObj = {};
             var countObj = {};
             var altLanguageName;
@@ -378,7 +391,7 @@ function _getFilePicker(mode, title, defaultFilterName, limitTo)
             if (filterIndex != -1) {
                 fp.filterIndex = filterIndex;
             } else {
-                local.log.info("Could not find '" + defaultFilterName +
+                _log.info("Could not find '" + defaultFilterName +
                                     "' filter -- using default.");
                 defaultFilterName = null; // trigger next if-block
             }
@@ -448,7 +461,7 @@ function _browseForFile(pickerFn,
 
     if (!defaultDirectory && defaultFilename) {
         try {
-            defaultDirectory = local.osPathSvc.dirname(defaultFilename);
+            defaultDirectory = osPathSvc.dirname(defaultFilename);
         } catch (ex) { /* do nothing */ }
     }
     if (!defaultDirectory) {
@@ -456,22 +469,22 @@ function _browseForFile(pickerFn,
     }
     if (defaultDirectory) {
         try {
-            var localFile = Cc["@mozilla.org/file/local;1"]
-                            .createInstance(Ci.nsILocalFile);
+            var localFile = Components.classes["@mozilla.org/file/local;1"]
+                            .createInstance(Components.interfaces.nsILocalFile);
             localFile.initWithPath(defaultDirectory);
             fp.displayDirectory = localFile;
         } catch (ex) {
-            local.log.warn("problem setting '"+defaultDirectory+
+            _log.warn("problem setting '"+defaultDirectory+
                                  "' as default directory, defaulting to home directory.");
-            var localFile = Cc["@mozilla.org/file/local;1"]
-                            .createInstance(Ci.nsILocalFile);
-            defaultDirectory = local.osPathSvc.expanduser("~");
+            var localFile = Components.classes["@mozilla.org/file/local;1"]
+                            .createInstance(Components.interfaces.nsILocalFile);
+            defaultDirectory = osPathSvc.expanduser("~");
             localFile.initWithPath(defaultDirectory);
             fp.displayDirectory = localFile;
         }
     }
     if (defaultFilename) {
-        fp.defaultString = local.osPathSvc.basename(defaultFilename);
+        fp.defaultString = osPathSvc.basename(defaultFilename);
     } else {
         fp.defaultString = null;
     }
@@ -479,7 +492,7 @@ function _browseForFile(pickerFn,
     var fv = _unfocus();
     var retval = fp.show();
     _restorefocus(fv);
-    if (retval == Ci.nsIFilePicker.returnOK) {
+    if (retval == Components.interfaces.nsIFilePicker.returnOK) {
         //XXX Should we do any special handling if this is a symlink?
         return fp.file.path;
     }
@@ -497,7 +510,7 @@ function _browseForFile(pickerFn,
  * @param {String} "defaultFilename" (optional) is a suggested filename for the user to
  *      choose. If "defaultDirectory" is not specified then a fullpath can be
  *      used here to specify a default directory and filename. E.g.,
- *          ko.filepicker.openFile(null, "D:\\trentm\\foo.txt");
+ *          filepicker_openFile(null, "D:\\trentm\\foo.txt");
  *      will set the default dir and filename to "D:\\trentm" and "foo.txt",
  *      respectively.
  * @param {String} "title" (optional) is the title for the file picker dialog.
@@ -535,7 +548,7 @@ this.browseForFile = function filepicker_openFile(defaultDirectory /* =null */,
  * @param {String} "defaultFilename" (optional) is a suggested filename for the user to
  *      choose. If "defaultDirectory" is not specified then a fullpath can be
  *      used here to specify a default directory and filename. E.g.,
- *          ko.filepicker.openFile(null, "D:\\trentm\\foo.txt");
+ *          filepicker_openFile(null, "D:\\trentm\\foo.txt");
  *      will set the default dir and filename to "D:\\trentm" and "foo.txt",
  *      respectively.
  * @param {String} "title" (optional) is the title for the file picker dialog.
@@ -562,7 +575,7 @@ this.browseForExeFile = function filepicker_openExeFile(defaultDirectory /* =nul
  * @param {String} "defaultFilename" (optional) is a suggested filename for the user to
  *      choose. If "defaultDirectory" is not specified then a fullpath can be
  *      used here to specify a default directory and filename. E.g.,
- *          ko.filepicker.saveFile(null, "D:\\trentm\\foo.txt");
+ *          filepicker_saveFile(null, "D:\\trentm\\foo.txt");
  *      will set the default dir and filename to "D:\\trentm" and "foo.txt",
  *      respectively.
  * @param {String} "title" (optional) is the title for the file picker dialog.
@@ -602,7 +615,7 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
 
     if (!defaultDirectory && defaultFilename) {
         try {
-            defaultDirectory = local.osPathSvc.dirname(defaultFilename);
+            defaultDirectory = osPathSvc.dirname(defaultFilename);
         } catch (ex) { /* do nothing */ }
     }
     if (!defaultDirectory) {
@@ -610,17 +623,17 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
     }
     if (defaultDirectory) {
         try {
-            var localFile = Cc["@mozilla.org/file/local;1"]
-                            .createInstance(Ci.nsILocalFile);
+            var localFile = Components.classes["@mozilla.org/file/local;1"]
+                            .createInstance(Components.interfaces.nsILocalFile);
             localFile.initWithPath(defaultDirectory);
             fp.displayDirectory = localFile;
         } catch (ex) {
-            local.log.error("problem setting '"+defaultDirectory+
+            _log.error("problem setting '"+defaultDirectory+
                                  "' as default directory for file picker");
         }
     }
     if (defaultFilename) {
-        fp.defaultString = local.osPathSvc.basename(defaultFilename);
+        fp.defaultString = osPathSvc.basename(defaultFilename);
     } else {
         fp.defaultString = null;
     }
@@ -628,17 +641,17 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
     var fv = _unfocus();
     var retval = fp.show();
     _restorefocus(fv);
-    if (retval == Ci.nsIFilePicker.returnReplace) {
+    if (retval == Components.interfaces.nsIFilePicker.returnReplace) {
         // Never attempt to force an extension on an existing file.
         return fp.file.path;
-    } else if (retval != Ci.nsIFilePicker.returnOK) {
+    } else if (retval != Components.interfaces.nsIFilePicker.returnOK) {
         // User cancelled the dialog.
         return null;
     } else {
         var path = fp.file.path;
         // Determine if should ask to force an extension.
         // - If path already has an extension, then no.
-        var ext = local.osPathSvc.getExtension(path);
+        var ext = osPathSvc.getExtension(path);
         if (ext) {
             return path;
         }
@@ -646,14 +659,14 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
         // Determine the file extension to append.
         ext = null;
         if (defaultFilename) {
-            ext = local.osPathSvc.getExtension(defaultFilename);
+            ext = osPathSvc.getExtension(defaultFilename);
             if (!ext) ext = null;
         }
         if (ext == null && defaultFilterName) {
             // Try the first of registered extension for the default filter
             // name (presuming it is a language).
-            var langRegistry = Cc["@activestate.com/koLanguageRegistryService;1"].
-                               getService(Ci.koILanguageRegistryService);
+            var langRegistry = Components.classes["@activestate.com/koLanguageRegistryService;1"].
+                               getService(Components.interfaces.koILanguageRegistryService);
             var langFiltersObj = new Object();
             var countObj = new Object();
             langRegistry.patternsFromLanguageName(defaultFilterName,
@@ -672,8 +685,8 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
 
         // Ask the user
         if (ext != null) {
-            var basename = local.osPathSvc.basename(path);
-            var prompt = local.bundle.formatStringFromName("filenameDoesNotHaveAnExtension",
+            var basename = osPathSvc.basename(path);
+            var prompt = _bundle.formatStringFromName("filenameDoesNotHaveAnExtension",
                                                       [basename, ext],
                                                       2);
             var answer = ko.dialogs.yesNoCancel(prompt, "Yes", null, null,
@@ -699,7 +712,7 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
  * @param {String} "defaultFilename" (optional) is a suggested filename for the user to
  *      choose. If "defaultDirectory" is not specified then a fullpath can be
  *      used here to specify a default directory and filename. E.g.,
- *          ko.filepicker.openFile(null, "D:\\trentm\\foo.txt");
+ *          filepicker_openFile(null, "D:\\trentm\\foo.txt");
  *      will set the default dir and filename to "D:\\trentm" and "foo.txt",
  *      respectively.
  * @param {String} "title" (optional) is the title for the file picker dialog.
@@ -733,7 +746,7 @@ this.browseForFiles = function filepicker_openFiles(defaultDirectory /* =null */
 
     if (!defaultDirectory && defaultFilename) {
         try {
-            defaultDirectory = local.osPathSvc.dirname(defaultFilename);
+            defaultDirectory = osPathSvc.dirname(defaultFilename);
         } catch (ex) { /* do nothing */ }
     }
     if (!defaultDirectory) {
@@ -741,22 +754,22 @@ this.browseForFiles = function filepicker_openFiles(defaultDirectory /* =null */
     }
     if (defaultDirectory) {
         try {
-            var localFile = Cc["@mozilla.org/file/local;1"]
-                            .createInstance(Ci.nsILocalFile);
+            var localFile = Components.classes["@mozilla.org/file/local;1"]
+                            .createInstance(Components.interfaces.nsILocalFile);
             localFile.initWithPath(defaultDirectory);
             fp.displayDirectory = localFile;
         } catch (ex) {
-            local.log.warn("problem setting '"+defaultDirectory+
+            _log.warn("problem setting '"+defaultDirectory+
                                  "' as default directory, defaulting to home directory.");
-            var localFile = Cc["@mozilla.org/file/local;1"]
-                            .createInstance(Ci.nsILocalFile);
-            defaultDirectory = local.osPathSvc.expanduser("~");
+            var localFile = Components.classes["@mozilla.org/file/local;1"]
+                            .createInstance(Components.interfaces.nsILocalFile);
+            defaultDirectory = osPathSvc.expanduser("~");
             localFile.initWithPath(defaultDirectory);
             fp.displayDirectory = localFile;
         }
     }
     if (defaultFilename) {
-        fp.defaultString = local.osPathSvc.basename(defaultFilename);
+        fp.defaultString = osPathSvc.basename(defaultFilename);
     } else {
         fp.defaultString = null;
     }
@@ -764,12 +777,12 @@ this.browseForFiles = function filepicker_openFiles(defaultDirectory /* =null */
     var fv = _unfocus();
     var retval = fp.show();
     _restorefocus(fv);
-    if (retval == Ci.nsIFilePicker.returnOK) {
+    if (retval == Components.interfaces.nsIFilePicker.returnOK) {
         var paths = [];
         var files = fp.files;
         while (files.hasMoreElements()) {
             var file = files.getNext();
-            file.QueryInterface(Ci.nsILocalFile);
+            file.QueryInterface(Components.interfaces.nsILocalFile);
             paths.push(file.path);
         }
         return paths;
@@ -801,12 +814,12 @@ this.getFolder = function filepicker_getFolder(defaultDirectory /* =null */,
     }
     if (defaultDirectory) {
         try {
-            var localFile = Cc["@mozilla.org/file/local;1"]
-                            .createInstance(Ci.nsILocalFile);
+            var localFile = Components.classes["@mozilla.org/file/local;1"]
+                            .createInstance(Components.interfaces.nsILocalFile);
             localFile.initWithPath(defaultDirectory);
             fp.displayDirectory = localFile;
         } catch (ex) {
-            local.log.error("problem setting '"+defaultDirectory+
+            _log.error("problem setting '"+defaultDirectory+
                                  "' as default directory for file picker");
         }
     }
@@ -814,7 +827,7 @@ this.getFolder = function filepicker_getFolder(defaultDirectory /* =null */,
     var fv = _unfocus();
     var retval = fp.show();
     _restorefocus(fv);
-    if (retval == Ci.nsIFilePicker.returnOK) {
+    if (retval == Components.interfaces.nsIFilePicker.returnOK) {
         var path = fp.file.path;
 // #if PLATFORM == "win"
         // Fix http://bugs.activestate.com/show_bug.cgi?id=23185
@@ -892,7 +905,7 @@ this.remoteFileBrowser = function filepicker_remoteFileBrowser(defaultUrl /*=""*
    fileBrowser.displayDirectory = new Object();
 
    if (typeof(title) == "undefined" || !title)
-       title = local.bundle.GetStringFromName("openFile");
+       title = _bundle.GetStringFromName("openFile");
    fileBrowser.title = title;
 
    if (typeof(defaultUrl) == "undefined" || !defaultUrl) {
@@ -917,7 +930,7 @@ this.remoteFileBrowser = function filepicker_remoteFileBrowser(defaultUrl /*=""*
 
    // get the mode
    if (typeof(mode) == "undefined" || !mode)
-       mode = Ci.nsIFilePicker.modeOpen;
+       mode = Components.interfaces.nsIFilePicker.modeOpen;
    fileBrowser.mode = mode;
 
    // set up the types
@@ -949,7 +962,7 @@ this.remoteFileBrowser = function filepicker_remoteFileBrowser(defaultUrl /*=""*
         "chrome,centerscreen,resizable=yes,close,dependent,modal=yes",
         fileBrowser);
    if (response) {
-       if ((fileBrowser.retvals.buttonStatus == Ci.nsIFilePicker.returnOK) &&
+       if ((fileBrowser.retvals.buttonStatus == Components.interfaces.nsIFilePicker.returnOK) &&
            fileBrowser.retvals.file) {
           // Save the lastRemoteLocation
           var pos = fileBrowser.retvals.file.lastIndexOf('/')
@@ -963,17 +976,17 @@ this.remoteFileBrowser = function filepicker_remoteFileBrowser(defaultUrl /*=""*
 
 /**
  * Open remote file(s)
- *   Same parameters meanings as "ko.filepicker.remoteFileBrowser" (above)
+ *   Same parameters meanings as "filepicker_remoteFileBrowser" (above)
  * Returns nothing. Note: The files will be opened through this function call
  */
 this.openRemoteFiles = function filepicker_openRemoteFiles(defaultUrl, defaultFilename, defaultFilterName, filterNames) {
     var list;
     var fileBrowser = ko.filepicker.remoteFileBrowser(
             defaultUrl, defaultFilename, 
-            Ci.nsIFilePicker.modeOpen,
-            local.bundle.GetStringFromName("openFiles"),
+            Components.interfaces.nsIFilePicker.modeOpen,
+            _bundle.GetStringFromName("openFiles"),
             defaultFilterName, filterNames,
-            local.bundle.GetStringFromName("openRemoteFile"));
+            _bundle.GetStringFromName("openRemoteFile"));
     if (fileBrowser) {
         if (fileBrowser.filepaths && fileBrowser.filepaths.length > 0) {
             // One or more files selected, list of remote urls
@@ -1002,17 +1015,17 @@ this.openRemoteFiles = function filepicker_openRemoteFiles(defaultUrl, defaultFi
 
 /**
  * Choose remote filename to save as
- *   Same parameters meanings as "ko.filepicker.remoteFileBrowser" (above)
+ *   Same parameters meanings as "filepicker_remoteFileBrowser" (above)
  * Returns the remote url of the selected file, or null if the dialog is
  * cancelled.
  */
 this.saveAsRemoteFiles = function filepicker_saveAsRemoteFiles(defaultUrl, defaultFilename, defaultFilterName, filterNames) {
     var fileBrowser = ko.filepicker.remoteFileBrowser(
             defaultUrl, defaultFilename,
-            Ci.nsIFilePicker.modeSave,
-            local.bundle.GetStringFromName("saveFileAs"),
+            Components.interfaces.nsIFilePicker.modeSave,
+            _bundle.GetStringFromName("saveFileAs"),
             defaultFilterName, filterNames,
-            local.bundle.GetStringFromName("saveRemotelyAs"));
+            _bundle.GetStringFromName("saveRemotelyAs"));
     if (fileBrowser) {
         return fileBrowser.file;
     }
@@ -1040,8 +1053,8 @@ this.browseForDir = function filepicker_browseForDir(textbox) {
 this.browseForRemoteDir = function filepicker_browseForRemoteDir(textbox) {
     var defaultUrl = "";
     if (textbox.value) {
-        var RCService = Cc["@activestate.com/koRemoteConnectionService;1"].
-                        getService(Ci.koIRemoteConnectionService);
+        var RCService = Components.classes["@activestate.com/koRemoteConnectionService;1"].
+                        getService(Components.interfaces.koIRemoteConnectionService);
         // Only set the default url if it's actually a remote url, otherwsie
         // we'll get an erro about an unknown protocol.
         if (RCService.isSupportedRemoteUrl(textbox.value)) {
@@ -1050,7 +1063,7 @@ this.browseForRemoteDir = function filepicker_browseForRemoteDir(textbox) {
     }
     var retval = ko.filepicker.remoteFileBrowser(defaultUrl,
                                               "" /* defaultFilename */,
-                                              Ci.nsIFilePicker.modeGetFolder);
+                                              Components.interfaces.nsIFilePicker.modeGetFolder);
     if (retval && retval.file) {
         textbox.value = retval.file;
     }
@@ -1066,7 +1079,7 @@ this.openFile = function filepicker_openFile(defaultDirectory /* =null */,
                              title /* ="Open File" */,
                              defaultFilterName /* ="All" */,
                              filterNames /* =null */) {
-    local.log.deprecated('`ko.filepicker.openFile` is deprecated, use `ko.filepicker.browseForFile`');
+    _log.deprecated('`ko.filepicker.openFile` is deprecated, use `ko.filepicker.browseForFile`');
     return ko.filepicker.browseForFile.apply(this, arguments);
 }
 
@@ -1078,7 +1091,7 @@ this.openFile = function filepicker_openFile(defaultDirectory /* =null */,
 this.openExeFile = function filepicker_openExeFile(defaultDirectory /* =null */,
                              defaultFilename /* =null */,
                              title /* ="Open Executable File" */) {
-    local.log.deprecated('`ko.filepicker.openExeFile` is deprecated, use `ko.filepicker.browseForExeFile`');
+    _log.deprecated('`ko.filepicker.openExeFile` is deprecated, use `ko.filepicker.browseForExeFile`');
     return ko.filepicker.browseForFile.apply(this, arguments);
 }
 
@@ -1093,7 +1106,7 @@ this.openFiles = function filepicker_openFiles(defaultDirectory /* =null */,
                               defaultFilterName /* ="All" */,
                               filterNames /* =null */)
 {
-    local.log.deprecated('`ko.filepicker.openFiles` is deprecated, use `ko.filepicker.browseForFiles`');
+    _log.deprecated('`ko.filepicker.openFiles` is deprecated, use `ko.filepicker.browseForFiles`');
     return ko.filepicker.browseForFiles.apply(this, arguments);
 }
 
@@ -1108,15 +1121,15 @@ this.openFiles = function filepicker_openFiles(defaultDirectory /* =null */,
  */
 this.internDefaultDir = function internDefaultDir(label, dir) {
     if (!dir) {
-        dir = local.prefs.getString(label, "");
-        if (dir && local.osPathSvc.isdir(dir)) {
+        dir = prefs.getString(label, "");
+        if (dir && osPathSvc.isdir(dir)) {
             return dir;
         }
         return null;
     }
-    local.prefs.setStringPref(label, dir);
+    prefs.setStringPref(label, dir);
     // This has to be done each time to make sure new pref settings stick
-    local.globalPrefs.setPref("filepickers.defaultDirs", local.prefs);
+    globalPrefs.setPref("filepickers.defaultDirs", prefs);
     return dir;
 };
 
@@ -1133,7 +1146,8 @@ this.updateDefaultDirFromPath = function updateDefaultDirFromPath(label, path) {
     if (!path) {
         return null;
     }
-    var newDir = local.osPathSvc.dirname(path);
+    var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
+    var newDir = osPathSvc.dirname(path);
     ko.filepicker.internDefaultDir(label, newDir);
     return newDir;
 };
@@ -1142,14 +1156,29 @@ this.getExistingDirFromPathOrPref = function getExistingDirFromPath(path, label)
     if (!path) {
         return ko.filepicker.internDefaultDir(label);
     }
-    if (local.osPathSvc.exists(path)) {
-        if (local.osPathSvc.isdir(path)) {
+    var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
+    if (osPathSvc.exists(path)) {
+        if (osPathSvc.isdir(path)) {
             return path;
         }
-        return local.osPathSvc.dirname(path);
+        return osPathSvc.dirname(path);
     }
-    path = local.osPathSvc.dirname(path);
-    return local.osPathSvc.exists(path) ? path : ko.filepicker.internDefaultDir(label);
+    path = osPathSvc.dirname(path);
+    return osPathSvc.exists(path) ? path : ko.filepicker.internDefaultDir(label);
 };
 
 }).apply(ko.filepicker);
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("filepicker_openFile", "ko.filepicker.openFile");
+ko.logging.globalDeprecatedByAlternative("filepicker_openExeFile", "ko.filepicker.openExeFile");
+ko.logging.globalDeprecatedByAlternative("filepicker_saveFile", "ko.filepicker.saveFile");
+ko.logging.globalDeprecatedByAlternative("filepicker_openFiles", "ko.filepicker.openFiles");
+ko.logging.globalDeprecatedByAlternative("filepicker_getFolder", "ko.filepicker.getFolder");
+ko.logging.globalDeprecatedByAlternative("filepicker_remoteFileBrowser", "ko.filepicker.remoteFileBrowser");
+ko.logging.globalDeprecatedByAlternative("filepicker_openRemoteFiles", "ko.filepicker.openRemoteFiles");
+ko.logging.globalDeprecatedByAlternative("filepicker_saveAsRemoteFiles", "ko.filepicker.saveAsRemoteFiles");
+ko.logging.globalDeprecatedByAlternative("filepicker_browseForDir", "ko.filepicker.browseForDir");
+ko.logging.globalDeprecatedByAlternative("filepicker_browseForRemoteDir", "ko.filepicker.browseForRemoteDir");

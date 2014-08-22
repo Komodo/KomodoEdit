@@ -107,8 +107,6 @@ function initDialog() {
     dialog.fixedColorPickerBack = document.getElementById('fixedColorPickerBack');
     dialog.propColorPickerFore = document.getElementById('propColorPickerFore');
     dialog.propColorPickerBack = document.getElementById('propColorPickerBack');
-    dialog.fixedLineSpacing = document.getElementById('fixedLineSpacing');
-    dialog.propLineSpacing = document.getElementById('propLineSpacing');
     dialog.tabbox = document.getElementById('tabbox');
     dialog.current_tab_id = null;
     // second tab: colors
@@ -193,12 +191,9 @@ function OnPreferencePageLoading(prefset) {
         generateFontList();
         gDialog.prefset = prefset;
         SetDefaultLanguage();
-        var scimoz = gDialog.bufferView.scimoz;
-        // Hide all margins.
-        for (var i=0; i <= scimoz.SC_MAX_MARGIN; i++) {
-            scimoz.setMarginWidthN(i, 0);
-        }
-
+        gDialog.bufferView.scimoz.setMarginWidthN(2,0);
+        gDialog.bufferView.scimoz.setMarginWidthN(1,0);
+        gDialog.bufferView.scimoz.setMarginWidthN(0,0);
         gDialog.currentEncoding = 'default';
         updateEncodingPopup();
         setupSchemes();
@@ -493,27 +488,6 @@ function setColour(colorpicker)
         updateScintilla();
         updateCommonStyle();
     }
-}
-
-function setLineSpacing(fontStyle)
-{
-    if (!ensureWriteableScheme()) return;
-
-    var value, style;
-    if (fontStyle == "fixed")
-    {
-        style = faceIdentifier(gDialog.currentEncoding, 1);
-        value = gDialog.fixedLineSpacing.value;
-    }
-    else
-    {
-        style = faceIdentifier(gDialog.currentEncoding, 0);
-        value = gDialog.propLineSpacing.value;
-    }
-
-    gDialog.currentScheme.setLineSpacing(style, value);
-    updateScintilla();
-    updateCommonStyle();
 }
 
 function onClickBoldOrItalic(button)
@@ -1265,8 +1239,6 @@ function updateFonts()  {
     var pLabel = gDialog.currentScheme.getFont(faceIdentifier(gDialog.currentEncoding, 0));
     var fSize = gDialog.currentScheme.getSize('', faceIdentifier(gDialog.currentEncoding, 1));
     var pSize = gDialog.currentScheme.getSize('', faceIdentifier(gDialog.currentEncoding, 0));
-    var fSpace = gDialog.currentScheme.getLineSpacing(faceIdentifier(gDialog.currentEncoding, 1));
-    var pSpace = gDialog.currentScheme.getLineSpacing(faceIdentifier(gDialog.currentEncoding, 0));
     var m;
 
     gDialog.fixedList.setAttribute('label', _findFontName(fLabel));
@@ -1297,9 +1269,6 @@ function updateFonts()  {
     setCheckboxButton(gDialog.propItalic, propItalic);
     var fixedItalic = gDialog.currentScheme.getItalic('', faceIdentifier(gDialog.currentEncoding, 1));
     setCheckboxButton(gDialog.fixedItalic, fixedItalic);
-    // line spacing
-    gDialog.fixedLineSpacing.value = fSpace;
-    gDialog.propLineSpacing.value = pSpace;
 }
 
 function faceIdentifier(encoding, fixed){

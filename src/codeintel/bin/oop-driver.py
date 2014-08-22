@@ -95,32 +95,15 @@ def main(argv=[]):
     from codeintel2.oop import Driver
     logging.root.handlers[0] = handler
 
-    try:
-        if args.connect:
-            if args.connect.startswith("pipe:"):
-                pipe_name = args.connect.split(":", 1)[1]
-                log.debug("connecting to pipe: %s", pipe_name)
-                if sys.platform.startswith("win"):
-                    # using Win32 pipes
-                    from win32_named_pipe import Win32Pipe
-                    fd_out = fd_in = Win32Pipe(name=pipe_name, client=True)
-                else:
-                    # Open the write end first, so the parent doesn't hang
-                    fd_out = open(join(pipe_name, "out"), "wb", 0)
-                    fd_in = open(join(pipe_name, "in"), "rb", 0)
-                log.debug("opened: %r", fd_in)
-            else:
-                log.debug("connecting to port: %s", args.connect)
-                conn = socket.create_connection(args.connect.rsplit(":", 1))
-                fd_in = conn.makefile("r+b", 0)
-                fd_out = fd_in
-        else:
-            # force unbuffered stdout
-            fd_in = sys.stdin
-            fd_out = os.fdopen(sys.stdout.fileno(), "wb", 0)
-    except Exception as ex:
-        log.exception("Failed to connect to Komodo: %s", ex)
-        raise
+    if args.connect:
+        log.debug("connecting to: %s", args.connect)
+        conn = socket.create_connection(args.connect.rsplit(":", 1))
+        fd_in = conn.makefile("r+b", 0)
+        fd_out = fd_in
+    else:
+        # force unbuffered stdout
+        fd_in = sys.stdin
+        fd_out = os.fdopen(sys.stdout.fileno(), "wb", 0)
     driver = Driver(db_base_dir=args.database_dir,
                     fd_in=fd_in, fd_out=fd_out)
     driver.start()
@@ -165,30 +148,7 @@ def set_process_limits():
         else:
             log.debug("Failed to reduce address space: %s",
                       ctypes.WinError(ctypes.get_last_error()).strerror)
-    elif sys.platform.startswith("linux"):
-        import resource
-        # Limit the oop process to 2GB of memory.
-        #
-        # Note that setting to 1GB of memory cause "bk test" failures, showing
-        # this error:
-        #   Fatal Python error: Couldn't create autoTLSkey mapping
-        GB = 1<<30
-        resource.setrlimit(resource.RLIMIT_AS, (2 * GB, -1L))
-    else:
-        # TODO: What to do on the Mac?
-        pass
 
 
 if __name__ == '__main__':
-    try:
-        main(argv=sys.argv)
-    except Exception as ex:
-        if log:
-            log.debug(ex, exc_info=True)
-        else:
-            print(ex)
-    finally:
-        if log:
-            log.debug("Shutting down")
-        else:
-            print("Shutting down, no log")
+    main(argv=sys.argv)

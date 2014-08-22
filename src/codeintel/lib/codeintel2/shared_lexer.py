@@ -176,19 +176,19 @@ class Lexer:
         return len(self.curr_comments) > 0
 
     def is_udl_markup_family(self, ttype):
-        return ScintillaConstants.SCE_UDL_M_DEFAULT <= ttype <= ScintillaConstants.SCE_UDL_M_UPPER_BOUND
+        return ScintillaConstants.SCE_UDL_M_DEFAULT <= ttype <= ScintillaConstants.SCE_UDL_M_COMMENT
 
     def is_udl_css_family(self, ttype):
-        return ScintillaConstants.SCE_UDL_CSS_DEFAULT <= ttype <= ScintillaConstants.SCE_UDL_CSS_UPPER_BOUND
+        return ScintillaConstants.SCE_UDL_CSS_DEFAULT <= ttype <= ScintillaConstants.SCE_UDL_CSS_OPERATOR
 
     def is_udl_csl_family(self, ttype):
-        return ScintillaConstants.SCE_UDL_CSL_DEFAULT <= ttype <= ScintillaConstants.SCE_UDL_CSL_UPPER_BOUND
+        return ScintillaConstants.SCE_UDL_CSL_DEFAULT <= ttype <= ScintillaConstants.SCE_UDL_CSL_REGEX
 
     def is_udl_ssl_family(self, ttype):
-        return ScintillaConstants.SCE_UDL_SSL_DEFAULT <= ttype <= ScintillaConstants.SCE_UDL_SSL_UPPER_BOUND
+        return ScintillaConstants.SCE_UDL_SSL_DEFAULT <= ttype <= ScintillaConstants.SCE_UDL_SSL_VARIABLE
 
     def is_udl_tpl_family(self, ttype):
-        return ScintillaConstants.SCE_UDL_TPL_DEFAULT <= ttype <= ScintillaConstants.SCE_UDL_TPL_UPPER_BOUND
+        return ScintillaConstants.SCE_UDL_TPL_DEFAULT <= ttype <= ScintillaConstants.SCE_UDL_TPL_VARIABLE
 
     # Methods for manipulating signatures
 

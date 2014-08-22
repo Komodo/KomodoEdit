@@ -74,7 +74,7 @@
 # - Perhaps docutils-<version>/tools/html.py is a better candidate that this.
 #   It provides a plethora of options (good and bad).
 
-__revision__ = "$Id$"
+__revision__ = "$Id: rst2html.py 281 2007-10-29 23:26:44Z toddw $"
 __version_info__ = (0, 3, 0)
 __version__ = '.'.join(map(str, __version_info__))
 

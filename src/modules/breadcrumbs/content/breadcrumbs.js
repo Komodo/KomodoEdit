@@ -452,10 +452,9 @@ if (typeof ko.breadcrumbs == 'undefined')
 
             if ( ! ('doCommand' + command in this))
             {
-                log.error(
+                return log.error(
                     "Attempting to call non-existant command: " + command
                 );
-                return;
             }
 
             this['doCommand' + command](popupmenu, menuitem);
@@ -954,8 +953,8 @@ if (typeof ko.breadcrumbs == 'undefined')
     
                 // Iterate through files in reverse and queue them to be drawn
                 // as breadcrumbs, stop at the project path
-                var files = [];
-                while (file)
+                var files = [file];
+                while (file = file.parent)
                 {
                     files.push(file);
     
@@ -963,7 +962,6 @@ if (typeof ko.breadcrumbs == 'undefined')
                     {
                         break;
                     }
-                    file = file.parent;
                 }
                 
                 // Direct each file in the path to drawCrumb()
@@ -1044,7 +1042,7 @@ if (typeof ko.breadcrumbs == 'undefined')
                 ko.prefs.getBoolean("native_mozicons_available", false))
             {
                 crumb.setAttribute(
-                    'image', "koicon://" + file.getFilename() + "?size=16"
+                    'image', "moz-icon://" + file.getFilename() + "?size=16"
                 );
             }
 
@@ -1126,7 +1124,7 @@ if (typeof ko.breadcrumbs == 'undefined')
                     if (ko.prefs.getBoolean("native_mozicons_available", false))
                     {
                         elem.setAttribute(
-                            'image', "koicon://" + child.getFilename() + "?size=16"
+                            'image', "moz-icon://" + child.getFilename() + "?size=16"
                         );
                     }
                 }

@@ -45,7 +45,6 @@
 
 Import(
     'cons',
-    'platform',
     'buildType',
     'buildFlavour',
     'mozPluginsDir',
@@ -54,7 +53,7 @@ Import(
 );
 
 # this is what we want from the scintilla build process
-my $libName = '../bin/headlessscintilla.a';
+$libName = '../bin/headlessscintilla.a';
 
 # build scintilla
 
@@ -164,7 +163,7 @@ my @args = (
     # system care about.
     [$libName],
     # the files needed to generate these
-    "makefile_converter.py",
+    "makefile",
     "../include/Face.py",
     "../include/HFacer.py",
     "../include/ILexer.h",
@@ -274,7 +273,7 @@ map { _addLexer($cons, $_); } @lexers;
 
 my $cxxFlags = " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES";
 
-# Still have to define a platform setting...
+# Still have top define a platform setting...
 $cxxFlags = " -DFOX";
 
 if ($buildType eq 'debug'
@@ -291,28 +290,16 @@ $consLocal{ENV}{'CXXFLAGS'} .= $cxxFlags;
 $consLocal{ENV}{'CXXFLAGS'} =~ s/-fno-exceptions //g;
 $consLocal = new cons(%consLocal);
 
-my $makeFlags = "";
-if ($platform eq "darwin") {
-    $makeFlags = "shared NATIVE=1";
-}
-
 push(@args, (qq(
              $unsiloedPythonExe bin/run-in-dir.py %1:d/../include/ chmod a+w Scintilla.h
              $unsiloedPythonExe bin/run-in-dir.py %1:d/../include/ chmod a+w SciLexer.h
              $unsiloedPythonExe bin/run-in-dir.py %1:d/../include/ python HFacer.py
-             $unsiloedPythonExe bin/run-in-dir.py %1:d python makefile_converter.py
-             $unsiloedPythonExe bin/run-in-dir.py %1:d make $makeFlags -f makefile $libName
+             $unsiloedPythonExe bin/run-in-dir.py %1:d make -f %1:f $libName
              )));
 
 $consLocal->Command(@args);
 $consLocal->Depends($libName, "../include/pcre.h"); # depends upon contrib/pcre
 
-# Headless depends upon the regular scintilla build being completed.
-if ($platform eq "linux") {
-    $consLocal->Depends($libName, "../bin/scintilla.a");
-} elsif ($platform eq "darwin") {
-    $consLocal->Depends($libName, "../bin/libscintilla.dylib");
-}
 
 
 

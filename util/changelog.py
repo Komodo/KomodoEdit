@@ -41,7 +41,7 @@ __version_info__ = (0, 2, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
-from os.path import dirname, join, abspath, exists
+from os.path import dirname, join, abspath
 import sys
 import re
 from pprint import pprint
@@ -68,26 +68,19 @@ def changelog_text(start_rev, end_rev):
     
     return changelog
 
-def changelog_markdown(start_buildnum, end_buildnum):
+def changelog_markdown(start_rev, end_rev):
     """Return a Markdown-formatted changelog for the given revision range."""
-    import gitutils
-    text = ("## Komodo Changelog (build %s, previous build %s)\n\n" %
-            (end_buildnum, start_buildnum))
+    text = "## Komodo Changelog (build %s)\n\n" % end_rev
     dir = dirname(dirname(abspath(__file__)))
-    start_rev = gitutils.revision_from_buildnum(start_buildnum)
-    end_rev = gitutils.revision_from_buildnum(end_buildnum)
-    num_revisions = end_buildnum - start_buildnum
     changelog = _capture_stdout(
-        ["git", "log", "%s..%s" % (start_rev, end_rev), dir])
-    # remove author emails
-    changelog = re.sub(r"(Author:\s+.*?)(<.*?>)", r"\1", changelog)
+        ["svn", "log", "-r", "%s:%s" % (end_rev, start_rev), dir])
     changelog = _markdown_br_fix(changelog)
     changelog = _markdown_hr_fix(changelog)
     changelog = _markdown_urlize(changelog)
     text += changelog
     return text
 
-def changelog_html(start_buildnum, end_buildnum):
+def changelog_html(start_rev, end_rev):
     """Return an HTML-formatted changelog for the given revision range."""
     sys.path.insert(0, join(dirname(dirname(abspath(__file__))),
                             "contrib", "smallstuff"))
@@ -95,13 +88,7 @@ def changelog_html(start_buildnum, end_buildnum):
         import markdown2
     finally:
         del sys.path[0]
-
-    if isinstance(start_buildnum, (str, unicode)):
-        start_buildnum = int(start_buildnum)
-    if isinstance(end_buildnum, (str, unicode)):
-        end_buildnum = int(end_buildnum)
-
-    text = changelog_markdown(start_buildnum, end_buildnum)
+    text = changelog_markdown(start_rev, end_rev)
     return markdown2.markdown(text,
         extras=["link-patterns"],
         link_patterns=[
@@ -109,25 +96,25 @@ def changelog_html(start_buildnum, end_buildnum):
              r'http://bugs.activestate.com/show_bug.cgi?id=\g<id>'),
             (re.compile("((moz(illa)?\s+)?bug\s*#?(?P<id>\d+))", re.I),
              r'http://bugzilla.mozilla.org/show_bug.cgi?id=\g<id>'),
-            (re.compile(r"\bcommit ([a-f0-9]{40})\b"),
-             r'%s/commit/\1' % _git_base_url()),
+            (re.compile(r"\br(\d+)\b"),
+             r'%s/revision?rev=\1' % _svnview_base_url()),
         ])
 
 
 #---- internal support stuff
 
-def _git_base_url():
-    stdout = _capture_stdout(['git', 'remote', "-v"])
+def _svnview_base_url():
+    stdout = _capture_stdout(['svn', 'info', dirname(__file__)])
     for line in stdout.splitlines(0):
-        if line.startswith("origin"):
-            root = line.split()[1].strip()
-            root = root.replace("ssh://git@", "https://", 1)
-            root = root.rsplit(".git", 1)[0]   # reomve ".git"
-            return root
-    # guess the root from filesystem
-    if exists(abspath(join(dirname(__file__), "..", "src", "dbgp"))):
-        return "https://github.com/Komodo/KomodoIDE"
-    return "https://github.com/Komodo/KomodoEdit"
+        if line.startswith("Repository Root"):
+            root = line.split(':', 1)[1].strip()
+            if '//svn.openkomodo.com' in root:
+                return "http://svn.openkomodo.com/openkomodo"
+            elif '//svn.activestate.com' in root:
+                return "http://svn.activestate.com/activestate"
+            else:
+                raise Error("don't know svnview base url for '%s' "
+                            "repository root" % root)
 
 def _capture_stdout(argv, ignore_retval=False):
     import subprocess
@@ -258,4 +245,24 @@ def main(argv):
 
 if __name__ == "__main__":
     _setup_logging()
-    main(sys.argv)
+    try:
+        retval = main(sys.argv)
+    except SystemExit:
+        pass
+    except KeyboardInterrupt:
+        sys.exit(1)
+    except:
+        exc_info = sys.exc_info()
+        if log.level <= logging.DEBUG:
+            import traceback
+            print
+            traceback.print_exception(*exc_info)
+        else:
+            if hasattr(exc_info[0], "__name__"):
+                #log.error("%s: %s", exc_info[0].__name__, exc_info[1])
+                log.error(exc_info[1])
+            else:  # string exception
+                log.error(exc_info[0])
+        sys.exit(1)
+    else:
+        sys.exit(retval)

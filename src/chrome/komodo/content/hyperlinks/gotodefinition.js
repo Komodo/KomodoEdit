@@ -37,7 +37,6 @@
 (function() {
 
     const Ci = Components.interfaces;
-    const color = require("ko/color");
     var {XPCOMUtils} = Components.utils.import("resource://gre/modules/XPCOMUtils.jsm", {});
     var log = ko.logging.getLogger('hyperlinks::GotoDefinition');
 
@@ -54,8 +53,8 @@
         };
         var lang_names = null;  /* All language types */
         var indic_style = Components.interfaces.ISciMoz.INDIC_PLAIN;
-        //var indic_color = color.RGBToBGR(0xff,0x80,0x20);
-        var indic_color = color.RGBToBGR(0xA0,0x00,0xF0);
+        //var indic_color = xtk.color.RGB(0xff,0x80,0x20);
+        var indic_color = xtk.color.RGB(0xA0,0x00,0xF0);
         var base_args = [name, fn, lang_names, indic_style, indic_color];
         ko.hyperlinks.BaseHandler.apply(this, base_args);
     
@@ -336,15 +335,13 @@
                 var textlines = [];
                 var cmd = "";
                 if (def.path && def.line >= 0) {
-                    cmd = "ko.open.openURI('" + def.path + "#" + def.line + "');";
+                    cmd = "open_openURI('" + def.path + "#" + def.line + "');";
                     //dump("cmd: " + cmd + "\n");
                 }
                 textlines.push('<span class="codehelper_name" onclick="'
                                + cmd + '">' + def.name + "</span>");
                 if (def.ilk == "function") {
-                    textlines.push('<span class="codehelper_signature">('
-                                   + _simpleEscapeHtml(def.signature.split("(", 2)[1])
-                                   + '</span>');
+                    textlines.push('<span class="codehelper_signature">(' + def.signature.split("(", 2)[1] + '</span>');
                 }
     
                 textlines.push("<hr />");

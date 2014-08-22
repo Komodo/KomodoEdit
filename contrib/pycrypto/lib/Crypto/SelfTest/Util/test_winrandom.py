@@ -24,7 +24,7 @@
 
 """Self-test suite for Crypto.Util.winrandom"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: test_winrandom.py 4769 2010-04-09 17:53:50Z toddw $"
 
 import unittest
 

@@ -259,20 +259,9 @@ button:not([disabled="true"]):not(.button-link):not([type="menu"]),
     color: @textbox-color;
 }
 
-/* Statusbar */
-
-statusbar
-{
-    .statusbar-resizerpanel
-    {
-        visibility: collapse;
-    }
-}
-
 /* Statusbar Buttons */
 
-statusbar:not(.bottombar) button:not([type="menu"]),
-statusbar:not(.bottombar) toolbarbutton
+statusbar:not(.bottombar) button:not([type="menu"]), statusbar:not(.bottombar) toolbarbutton
 {
     -moz-appearance: @statusbar-button-appearance;
     background: @statusbar-button-background;
@@ -389,7 +378,6 @@ radio
 statusbar
 {
     -moz-appearance: @statusbar-appearance !important;
-    background: @statusbar-background;
     padding: 0 !important;
     font-family: @statusbar-font;
     font-size: @statusbar-font-size;
@@ -399,8 +387,8 @@ statusbar
     & > statusbarpanel
     {
         -moz-appearance: none;
-        background: transparent;
         padding: 2px;
+        background: @statusbar-background;
         .border(@statusbar-border-width, @statusbar-border-style, @statusbar-border-color);
         -moz-border-image: @statusbar-panel-border-image;
 
@@ -618,10 +606,4 @@ ko-findbar
 sidebarheader
 {
     background: @window-background;
-}
-
-// Make default button stand out a bit
-.notification-button-default
-{
-    font-weight: bold;
 }

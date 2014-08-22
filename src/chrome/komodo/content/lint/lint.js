@@ -64,17 +64,11 @@ if (typeof(ko)=='undefined') {
 ko.lint = {};
 (function() {
     
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-const {XPCOMUtils} = Cu.import("resource://gre/modules/XPCOMUtils.jsm", {});
+var _lintSvc = Components.classes["@activestate.com/koLintService;1"].
+                getService(Components.interfaces.koILintService);
 
 var _log = ko.logging.getLogger("lint");
 //_log.setLevel(ko.logging.LOG_INFO);
-
-var lazy = {};
-
-XPCOMUtils.defineLazyGetter(lazy, "lintSvc", function()
-    Cc["@activestate.com/koLintService;1"]
-        .getService(Components.interfaces.koILintService));
 
 var _linterLanguageNames = {};
 //---- The new LintBuffer class (replacement for jsLintBuffer)
@@ -113,16 +107,10 @@ var global_pref_observer_topics = {
     "pythonDefaultInterpreter" : PYTHON_LIST,
     "python3DefaultInterpreter" : PYTHON3_LIST,
     "lint_python_with_pylint" : PYTHON_LIST,
-    "lint_python_with_pep8" : PYTHON_LIST,
     "lint_python_with_pyflakes" : PYTHON_LIST,
     "lint_python_with_standard_python" : PYTHON_LIST,
     "lint_python3_with_standard_python" : PYTHON3_LIST,
-    "lint_python3_with_pylint3" : PYTHON3_LIST,
-    "lint_python3_with_pep83" : PYTHON3_LIST,
-    "lint_python3_with_pyflakes3" : PYTHON3_LIST,
     "pylint_checking_rcfile" : PYTHON_LIST,
-    "pep8_checking_rcfile" : PYTHON_LIST,
-    "pep83_checking_rcfile" : PYTHON3_LIST,
     "lint_python_with_pychecker" : PYTHON_LIST,
     "pychecker_checking_rcfile" : PYTHON_LIST,
     "phpDefaultInterpreter" : PHP_LIST,
@@ -280,7 +268,7 @@ this.lintBuffer.prototype.destructor = function()
 {
     _log.info("LintBuffer["+this.view.title+"].destructor()");
     try {
-        lazy.lintSvc.cancelPendingRequests(this.view.uid);
+        _lintSvc.cancelPendingRequests(this.view.uid);
         this._clearResults();
 
         var viewPrefObserverService = this.view.prefs.prefObserverService;
@@ -355,7 +343,7 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
                     if (lintingEnabled) {
                         setupRequest = true;
                     } else {
-                        lazy.lintSvc.cancelPendingRequests(this.view.uid);
+                        _lintSvc.cancelPendingRequests(this.view.uid);
                         this._clearResults();
                         this._notify();
                     }
@@ -414,7 +402,7 @@ this.lintBuffer.prototype._continueRequest = function(reason /* = "" */) {
     _log.info("LintBuffer["+this.view.title+"].request(reason='"+
                   reason+"')");
     try {
-        lazy.lintSvc.cancelPendingRequests(this.view.uid);
+        _lintSvc.cancelPendingRequests(this.view.uid);
         ko.lint.displayer.cancelPendingItems(this);
 
         this._notify();
@@ -474,7 +462,7 @@ this.lintBuffer.prototype._issueRequest = function(alwaysLint)
         var lr = this._createLintRequest(linterLanguageName);
         if (lr) {
             lr.alwaysLint = alwaysLint;
-            lazy.lintSvc.addRequest(lr);
+            _lintSvc.addRequest(lr);
         }
     } catch(ex) {
         if (ex.message.indexOf("Internal Error creating a linter with CID") >= 0) {
@@ -621,7 +609,7 @@ this.lintBuffer.prototype._getLinterLanguageName = function()
     if (!(languageName in _linterLanguageNames)) {
         var res = null;
         try {
-            var cid = lazy.lintSvc.getLinter_CID_ForLanguage(languageName);
+            var cid = _lintSvc.getLinter_CID_ForLanguage(languageName);
             if (cid) {
                 res = languageName;
             }
@@ -725,11 +713,12 @@ this.doClick = function lint_doClick(event) {
 }
 
 this.initializeGenericPrefs = function(prefset) {
-    if (typeof(prefset) == "undefined" || prefset instanceof Event) {
+    if (typeof(prefset) == "undefined") {
         prefset = ko.prefs;
     }
-    var ids = prefset.getPrefIds();
-    var idNames = ids.filter(function(x) x.indexOf("genericLinter:") == 0);
+    var ids = {};
+    prefset.getPrefIds(ids, {});
+    var idNames = ids.value.filter(function(x) x.indexOf("genericLinter:") == 0);
     idNames.forEach(function(prefName) {
         var langName = prefName.substr(prefName.indexOf(":") + 1);
         if (!(prefName in global_pref_observer_topics)) {
@@ -741,3 +730,13 @@ this.initializeGenericPrefs = function(prefset) {
 }).apply(ko.lint);
 
 window.addEventListener('komodo-ui-started', ko.lint.initializeGenericPrefs, false);
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("LintBuffer", "ko.lint.lintBuffer");
+ko.logging.globalDeprecatedByAlternative("lint_jumpToNextLintResult", "ko.lint.jumpToNextLintResult");
+ko.logging.globalDeprecatedByAlternative("lint_doRequest", "ko.lint.doRequest");
+ko.logging.globalDeprecatedByAlternative("lint_clearResults", "ko.lint.clearResults");
+ko.logging.globalDeprecatedByAlternative("lint_doClick", "ko.lint.doClick");
+

@@ -12,4 +12,4 @@ Import(
 );
 
 
-$cons->KoExtUnpack("kodistunpack", SourcePath("fugue.xpi"));
+$cons->KoExtUnpack(SourcePath("fugue.xpi"));

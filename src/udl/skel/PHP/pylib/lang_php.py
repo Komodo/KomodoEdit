@@ -74,7 +74,7 @@ from codeintel2.gencix_utils import *
 from codeintel2.tree_php import PHPTreeEvaluator
 from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin)
-from codeintel2.accessor import AccessorCache
+from codeintel2.accessor import AccessorCache, KoDocumentAccessor
 
 if _xpcom_:
     from xpcom.server import UnwrapObject
@@ -226,16 +226,6 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                         return Trigger(lang, TRG_FORM_CPLN, "interfaces", pos, implicit)
                     elif text in ("use", ):
                         return Trigger(lang, TRG_FORM_CPLN, "use", pos, implicit)
-                    elif text in ("function", "const"):
-                        # Check for a "use function" or "use const" expression.
-                        p, ch, style = ac.getPrevPosCharStyle(ignore_styles=self.comment_styles)
-                        if p > 0 and style == self.whitespace_style:
-                            p, ch, style = ac.getPrecedingPosCharStyle(style, ignore_styles=self.comment_styles)
-                            if p > 0 and style == self.keyword_style:
-                                p, text = ac.getTextBackWithStyle(style, self.comment_styles, max_text_len=len("use "))
-                                if text == "use":
-                                    return Trigger(lang, TRG_FORM_CPLN, "use", pos, implicit,
-                                                   ilk=text)
                     elif prev_style == self.operator_style and \
                          prev_char == "," and implicit:
                         return self._functionCalltipTrigger(ac, prev_pos, DEBUG)
@@ -312,11 +302,6 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                             print "Triggering use-namespace completion"
                         return Trigger(lang, TRG_FORM_CPLN, "use-namespace",
                                        pos, implicit)
-                    elif prev_text[1] in ("const", "function"):
-                        if DEBUG:
-                            print "Triggering use-namespace completion with ilk %r" % (prev_text[1])
-                        return Trigger(lang, TRG_FORM_CPLN, "use-namespace",
-                                       pos, implicit, ilk=prev_text[1])
                     elif prev_text[1] != "namespace":
                         if DEBUG:
                             print "Triggering namespace completion"
@@ -1185,6 +1170,16 @@ class PHPBuffer(UDLBuffer, XMLParsingBufferMixin):
     # - dropping '!' because causes problem with CSS "!important" (bug 78312)
     cpln_stop_chars = "~`@%^&*()=+{}]|\\;:'\",.<>?/ "
 
+    def __init__(self, *args, **kwargs):
+        super(PHPBuffer, self).__init__(*args, **kwargs)
+
+        if isinstance(self.accessor, KoDocumentAccessor):
+            # Encourage the database to pre-scan dirs relevant to completion
+            # for this buffer -- because of recursive-dir-include-everything
+            # semantics for PHP this first-time scan can take a while.
+            request = PreloadBufLibsRequest(self)
+            self.mgr.idxr.stage_request(request, 1.0)
+
     @property
     def libs(self):
         return self.langintel.libs_from_buf(self)
@@ -1196,6 +1191,18 @@ class PHPBuffer(UDLBuffer, XMLParsingBufferMixin):
 
 class PHPImportHandler(ImportHandler):
     sep = '/'
+
+    def setCorePath(self, compiler=None, extra=None):
+        #XXX To do this independent of Komodo this would need to do all
+        #    the garbage that koIPHPInfoEx is doing to determine this. It
+        #    might also require adding a "rcfile" argument to this method
+        #    so the proper php.ini file is used in the "_shellOutForPath".
+        #    This is not crucial now because koCodeIntel._Manager() handles
+        #    this for us.
+        if not self.corePath:
+            raise CodeIntelError("Do not know how to determine the core "
+                                 "PHP include path. 'corePath' must be set "
+                                 "manually.")
 
     def _findScannableFiles(self, (files, searchedDirs), dirname, names):
         if sys.platform.startswith("win"):
@@ -1804,12 +1811,11 @@ class PHPTrait(PHPClass):
         self._toElementTree(cixblob, cixelement)
 
 class PHPImport:
-    def __init__(self, name, lineno, alias=None, symbol=None, ilk=None):
+    def __init__(self, name, lineno, alias=None, symbol=None):
         self.name = name
         self.lineno = lineno
         self.alias = alias
         self.symbol = symbol
-        self.ilk = ilk
 
     def __repr__(self):
         # dump our contents to human readable form
@@ -1824,8 +1830,6 @@ class PHPImport:
             elem.attrib["alias"] = self.alias
         if self.symbol:
             elem.attrib["symbol"] = self.symbol
-        if self.ilk:
-            elem.attrib["ilk"] = self.ilk
         return elem
 
 def qualifyNamespacePath(namespace_path):
@@ -2223,7 +2227,7 @@ class PHPParser:
             log.debug("NAMESPACE: %r on line %d in %s at depth %r",
                       namespace_path, self.lineno, self.filename, depth)
 
-    def addNamespaceImport(self, namespace, alias, ilk=None):
+    def addNamespaceImport(self, namespace, alias):
         """Import the namespace."""
         namelist = namespace.split("\\")
         namespace_path = "\\".join(namelist[:-1])
@@ -2232,7 +2236,7 @@ class PHPParser:
         symbol = namelist[-1]
         toScope = self.currentNamespace or self.fileinfo
         toScope.includes.append(PHPImport(namespace_path, self.lineno,
-                                          alias=alias, symbol=symbol, ilk=ilk))
+                                          alias=alias, symbol=symbol))
         log.debug("IMPORT NAMESPACE: %s\%s as %r on line %d",
                   namespace_path, symbol, alias, self.lineno)
 
@@ -2863,12 +2867,6 @@ class PHPParser:
             else:
                 looped = True
 
-            # Catch PHP 5.6 "use function" or "use const" definitions.
-            ilk = None
-            if styles[p] == self.PHP_WORD:
-                ilk = text[p]
-                p += 1
-
             namelist, p = self._getIdentifiersFromPos(styles, text, p)
             log.debug("use:%r, p:%d", namelist, p)
             if namelist:
@@ -2885,7 +2883,7 @@ class PHPParser:
                     self.currentClass.addTraitReference(namelist[0])
                 else:
                     # Must be a namespace reference.
-                    self.addNamespaceImport(namelist[0], alias, ilk=ilk)
+                    self.addNamespaceImport(namelist[0], alias)
 
     def _foreachKeywordHandler(self, styles, text, p):
         log.debug("_foreachKeywordHandler:: text: %r", text[p:])

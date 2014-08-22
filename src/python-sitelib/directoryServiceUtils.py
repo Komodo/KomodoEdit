@@ -38,26 +38,22 @@
 """
 
 import os
-import sys
-from xpcom import components, COMException, _xpcom
+from xpcom import components, COMException
 import ConfigParser
 
-Cc = components.classes
-Ci = components.interfaces
-
 nsIDirectoryServiceContractID = "@mozilla.org/file/directory_service;1";
-nsIProperties = Ci.nsIProperties;
-directoryService =  Cc[nsIDirectoryServiceContractID].getService(nsIProperties);
+nsIProperties = components.interfaces.nsIProperties;
+directoryService =  components.classes[nsIDirectoryServiceContractID].getService(nsIProperties);
 
 def getFiles(key):
     """getFiles
     
     gets a list of nsIFile objects from the directory service.
     """
-    enum = directoryService.get(key, Ci.nsISimpleEnumerator);
+    enum = directoryService.get(key, components.interfaces.nsISimpleEnumerator);
     files = []
     while enum.hasMoreElements():
-        files.append(enum.getNext().QueryInterface(Ci.nsIFile))
+        files.append(enum.getNext().QueryInterface(components.interfaces.nsIFile))
     return files
 
 def getFile(key):
@@ -65,7 +61,7 @@ def getFile(key):
     
     gets a nsIFile object from the directory service.
     """
-    return directoryService.get(key, Ci.nsIFile);
+    return directoryService.get(key, components.interfaces.nsIFile);
 
 _gExtensionDirectoriesCache = None
 def getExtensionDirectories():
@@ -105,61 +101,7 @@ def getPylibDirectories():
         dirs = set()
         for dir in getExtensionDirectories():
             d = os.path.join(dir, "pylib")
-            # Note: pyxpcom will place these pylib paths on the sys.path (when
-            #       they exist)
-            if d in sys.path:
+            if os.path.exists(d):
                 dirs.add(d)
-            elif os.path.exists(d):
-                dirs.add(d)
-                # Add to sys.path, saves pyxpcom having to do it later.
-                sys.path.append(d)
         _gPylibDirectoriesCache = list(dirs)
     return _gPylibDirectoriesCache
-
-_gExtensionCategoryDirsCache = {}
-def getExtensionCategoryDirs(xpcom_category, relpath=None, extension_id=None):
-    """Return extension dirpaths, registered via the given xpcom-category.
-
-    Note: It will return paths that have an category entry that matches the
-    extension id, e.g.:
-        catagory  xpcom_category  myext@ActiveState.com  ignored_field
-    will return:
-        [ "/path/to/myext@ActiveState.com" ]
-    """
-    # Check the cache.
-    cache_key = (xpcom_category, relpath, extension_id)
-    dirs = _gExtensionCategoryDirsCache.get(cache_key)
-    if dirs is not None:
-        return dirs
-
-    if extension_id:
-        extension_id = os.path.normcase(extension_id)
-
-    # Generate the directories.
-    extension_dirs = getExtensionDirectories()
-    dirs = []
-    for entry in _xpcom.GetCategoryEntries(xpcom_category):
-        extension_name = os.path.normcase(entry.split(" ")[0])
-
-        # If looking for a specific extension.
-        if extension_id and extension_id != extension_name:
-            continue
-
-        for ext_dir in extension_dirs:
-            if os.path.normcase(os.path.basename(ext_dir)) == extension_name:
-                candidate = ext_dir
-                if relpath:
-                    candidate = os.path.join(ext_dir, relpath)
-                    if os.path.exists(candidate):
-                        dirs.append(candidate)
-                        break
-    _gExtensionCategoryDirsCache[cache_key] = dirs
-    return dirs
-
-def getExtensionLexerDirs(relpath="lexers"):
-    """Return the available (and enabled) extension lexer directories."""
-    return getExtensionCategoryDirs("udl-lexers", relpath=relpath)
-
-def getExtensionToolboxDirs(relpath="tools", extension_id=None):
-    """Return the available (and enabled) extension tools directories."""
-    return getExtensionCategoryDirs("toolbox", relpath=relpath, extension_id=extension_id)

@@ -43,6 +43,7 @@
   <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %komodoDTD;
 ]>
+<?xml-stylesheet href="chrome://komodo-places/skin/places.css" type="text/css"?>
 
 <overlay id="placesOverlay"
          xmlns:html="http://www.w3.org/1999/xhtml"
@@ -251,7 +252,7 @@
     <menu id="navigation_menu">
      <menupopup id="naviation_menupopup">
           <menuitem id="places_trackCurrentTab"
-                    insertbefore="naviation_menupopup_separator_editor_nav"
+                    insertbefore="naviation_menupopup_separator_2"
                     oncommand="ko.places.manager.trackCurrentTab(this);"
                     label="&trackCurrentTab.label;"
                     type="checkbox" />

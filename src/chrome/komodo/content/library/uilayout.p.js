@@ -157,13 +157,12 @@ this.setToolbarsVisibility = function uilayout_setToolbarsVisibility(toolbarsSho
     else
     {
 	toolboxrow.setAttribute('collapsed', 'true');
+// #if PLATFORM != "darwin"
+	this.setMenubarVisibility(true);
+// #endif
     }
 
     document.persist('cmd_toggleToolbars', 'checked');
-
-// #if PLATFORM != "darwin"
-	ko.uilayout.ensureMenuButtonVisible();
-// #endif
 }
 
 var _buttonTextShowing = false;
@@ -193,114 +192,84 @@ this.toggleButtons = function uilayout_toggleButtons()
 }
 
 // #if PLATFORM != "darwin"
-var g_initialized_button_menu = false;
-
 this.toggleMenubar = function uilayout_toggleMenubar() {
+    var menubarShowing;
     var broadcaster = document.getElementById('cmd_toggleMenubar');
-    broadcaster.setAttribute('checked', !(broadcaster.getAttribute('checked') == 'true'));
-    ko.uilayout.setMenubarVisibility();
-}
-
-this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems() {
-	alreadyInitialized = "g_initialized_button_menu" in window;
-	// Copy the top-level menus into the button menus.
-	g_initialized_button_menu = true;
-
-	var menubar       = document.getElementById('menubar_main');
-	var popupFile     = document.getElementById('popup_file');
-	var panePrimary   = document.getElementById('unifiedMenuPrimaryPane');
-	var paneSecondary = document.getElementById('unifiedMenuSecondaryPane');
-	var menuSeparator = document.getElementById('unifiedMenuMruSeparator');
-
-	panePrimary.innerHTML = "";
-	for (x=0;x<paneSecondary.childNodes.length;x++)
-	{
-		let node = paneSecondary.childNodes[x];
-		if (node.getAttribute("preserve") == "true")
-			continue;
-		paneSecondary.removeChild(node);
-	}
-
-	var length = popupFile.childNodes.length;
-	for (let x=0;x<length;x++) {
-		panePrimary.appendChild(popupFile.childNodes[x].cloneNode(true));
-	}
-
-	var length = menubar.childNodes.length;
-	for (let x=1;x<length;x++) {
-		paneSecondary.insertBefore(menubar.childNodes[x].cloneNode(true), menuSeparator);
-	}
-
-	UpdateUnifiedMenuMru();
-
-	// TODO: Re-initialize all cloned id's ??
-}
-
-/**
- * Update the top-level menu visibility.
- *
- * Note that even when the menubar is hidden, it can still be made visible using
- * the Alt key.
- * 
- * @param menubarShowing {Boolean}  Whether the menu is always showing.
- */
-this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowing) {
-    //dump('setMenubarVisibility:: menubarShowing: ' + menubarShowing + '\n');
-    var menuButton  = document.getElementById('unifiedMenuButton');
-    var menuToolbar = document.getElementById('toolbar-menubar');
-
-    if (menubarShowing === undefined) {
-        // Check the broadcaster to find out if it should be showing.
-        var broadcaster = document.getElementById('cmd_toggleMenubar');
-        menubarShowing = (broadcaster.getAttribute('checked') == 'true');
-        //dump('setMenubarVisibility:: menubarShowing found as: ' + menubarShowing + '\n');
+    if (broadcaster.hasAttribute('checked') && broadcaster.getAttribute('checked') == 'true') {
+        menubarShowing = false;
+    } else {
+        menubarShowing = true;
     }
 
-    menuToolbar.setAttribute("autohide", !(menubarShowing));
-    if (menubarShowing) {
-        // Hide the menu button - as the menu is always showing.
-        menuButton.collapsed = true;
-    } else {
-        if (!g_initialized_button_menu) {
-            ko.uilayout.cloneUnifiedMenuItems;
+    ko.uilayout.setMenubarVisibility(menubarShowing);
+}
+
+this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowing) {
+    var broadcaster = document.getElementById('cmd_toggleMenubar');
+
+    if (menubarShowing === undefined) {
+        menubarShowing = true;
+        if ( ! broadcaster.hasAttribute('checked') || broadcaster.getAttribute('checked') == 'false')
+        {
+            menubarShowing = false;
+        }
+    }
+    else
+    {
+        broadcaster.setAttribute("checked", menubarShowing);
+        document.persist('cmd_toggleToolbars', 'checked');
+    }
+
+    var menuWrap      = document.getElementById('toolbar-menubar');
+    var menubar       = document.getElementById('menubar_main');
+    var popupFile     = document.getElementById('popup_file');
+    var menuButton    = document.getElementById('unifiedMenuButton');
+    var panePrimary   = document.getElementById('unifiedMenuPrimaryPane');
+    var paneSecondary = document.getElementById('unifiedMenuSecondaryPane');
+    var menuSeparator = document.getElementById('unifiedMenuMruSeparator');
+
+    if (menubarShowing && menuWrap.collapsed) {
+        var length = panePrimary.childNodes.length;
+        for (let x=0;x<length;x++) {
+            popupFile.appendChild(panePrimary.childNodes[0]);
         }
 
+        var length = paneSecondary.childNodes.length;
+        for (let x=0;x<length;x++) {
+            if (paneSecondary.childNodes[0] == menuSeparator && ! menuSeparator.collapsed)
+            break;
+
+            menubar.appendChild(paneSecondary.childNodes[0]);
+        }
+
+        while (menuSeparator.nextSibling) {
+            let item = menuSeparator.nextSibling;
+            item.parentNode.removeChild(item);
+        }
+
+        menuButton.collapsed = true;
+        menuWrap.collapsed = false;
+    } else if ( ! menubarShowing && menuButton.collapsed) {
+        var length = popupFile.childNodes.length;
+        for (let x=0;x<length;x++) {
+            panePrimary.appendChild(popupFile.childNodes[0]);
+        }
+
+        var length = menubar.childNodes.length;
+        for (let x=1;x<length;x++) {
+            paneSecondary.appendChild(menubar.childNodes[1]);
+        }
         menuButton.collapsed = false;
+        menuWrap.collapsed = true;
+
         UpdateUnifiedMenuMru();
     }
 
-	ko.uilayout.ensureMenuButtonVisible();
+    if ( ! menubarShowing)
+    {
+        this.setToolbarsVisibility(true);
+    }
 };
-
-this.ensureMenuButtonVisible = function uilayout_ensureMenuButtonVisible()
-{
-	var broadcaster = document.getElementById('cmd_toggleMenubar');
-	var menubarShowing = (broadcaster.getAttribute('checked') == 'true');
-
-    broadcaster = document.getElementById('cmd_toggleToolbars');
-	var toolbarShowing = (broadcaster.getAttribute('checked') == 'true');
-
-	var menuButton = document.getElementById('unifiedMenuButton');
-
-	if ( ! toolbarShowing && ! menubarShowing)
-	{
-		var statusbar = document.getElementById("statusbarviewbox");
-		var panel = document.createElement("statusbarpanel");
-		panel.setAttribute("id", "menubuttonpanel");
-		panel.appendChild(menuButton);
-		statusbar.insertBefore(panel, statusbar.firstChild);
-	}
-	else if ( ! menubarShowing && menuButton.parentNode.nodeName == "statusbarpanel")
-	{
-		var toolboxWrap = document.getElementById("main-toolboxrow-wrapper");
-		toolboxWrap.appendChild(menuButton);
-
-		var statusbar = document.getElementById("statusbarviewbox");
-		var panel = document.getElementById("menubuttonpanel");
-		statusbar.removeChild(panel);
-	}
-}
-
 // #endif
 
 this.updateToolbarArrangement = function uilayout_updateToolbarArrangement(buttonTextShowing /* default: look it up */)
@@ -813,18 +782,20 @@ function MruMenusAddItem(menuitem) {
 function UpdateUnifiedMenuMru() {
     var menupopup = document.getElementById('unifiedMenuSecondaryPane');
     var menuSeparator = document.getElementById('unifiedMenuMruSeparator');
-	var mruWrapper = document.getElementById('unifiedMenuMru');
     menuSeparator.collapsed = true;
 
     // Remove old entries
-	mruWrapper.innerHTML = ""
+    if (menuSeparator.previousSibling) {
+        while (menuSeparator.nextSibling) {
+            menuSeparator.parentNode.removeChild(menuSeparator.nextSibling);
+        }
+    }
 
-	if ( ! _gPrefs.hasPref('mruMenuItemList')) return;
-
-    var mruList = _gPrefs.getPref('mruMenuItemList');
+    mruList = _gPrefs.getPref('mruMenuItemList');
     if ( ! mruList || ! mruList.length) return;
 
     menuSeparator.collapsed = false;
+    menupopup.appendChild(menuSeparator);
 
     for (var i=0; i<mruList.length; i++) {
         let id = mruList.getStringPref(i);
@@ -851,7 +822,7 @@ function UpdateUnifiedMenuMru() {
         _item.setAttribute('refid', _MruMenuItemId(_item));
         _item.removeAttribute('id');
 
-        mruWrapper.appendChild(_item);
+        menupopup.appendChild(_item);
     }
 }
 // #endif
@@ -1687,55 +1658,40 @@ this.unload = function uilayout_unload()
     gUilayout_Observer.destroy();
     gUilayout_Observer = null;
     _prefobserver.destroy();
-    // XXX: These prefs should be saved as part of the workspace.
-	_gPrefs.setBooleanPref("startupFullScreen", window.fullScreen)
+    _gPrefs.setBooleanPref("startupFullScreen", window.fullScreen)
     // nsIDOMChromeWindow STATE_MAXIMIZED = 1
     _gPrefs.setBooleanPref("startupMaximized", window.windowState==1)
 }
 
-/**
- * Various UI layout tweaks needed between Komodo versions.
- */
-function uilayout_upgrade() {
-    // Remove localstore.rdf attributes that were moved into prefs.
-    var rdfs = Components.classes["@mozilla.org/rdf/rdf-service;1"]
-                         .getService(Components.interfaces.nsIRDFService);
-    var ds = rdfs.GetDataSource("rdf:local-store");
-    var removePersistAttributes = function(id, persist_attributes) {
-        let source = rdfs.GetResource(document.location.href + "#" + id);
-        if (!source) {
-            return;
-        }
-        for (let [,attr] in Iterator(persist_attributes)) {
-            var prop = rdfs.GetResource(attr);
-            var arcs = ds.GetTargets(source, prop, true);
-            while (arcs.hasMoreElements()) {
-                ds.Unassert(source, prop, arcs.getNext());
-            }
-        }
-    }
-
+this.onload = function uilayout_onload()
+{
     // As of Komodo 8.0 RC1 the toolbox is hidden using the parent wrapper
     // We should therefore remove the collapsed state (if any) on the main toolbox
     // This can probably be removed by Komodo 8.*
-    removePersistAttributes("main-toolboxrow",
-                            ['collapsed','kohidden', 'hidden']);
+    var maintoolboxrow = document.getElementById("main-toolboxrow");
+    if (maintoolboxrow &&
+	(maintoolboxrow.hasAttribute('collapsed') ||
+	 maintoolboxrow.hasAttribute('hidden') ||
+	 maintoolboxrow.hasAttribute('kohidden'))) {
 
-    // As of Komodo 8.0, the side pane collapsed states are managed by prefs.
-    let workspace_ids = ["workspace_left_area",
-                         "workspace_right_area",
-                         "workspace_bottom_area"];
-    for (let workspace_id of workspace_ids) {
-        removePersistAttributes(workspace_id, ['collapsed']);
-    }
-}
+        maintoolboxrow.removeAttribute('collapsed');
+	maintoolboxrow.removeAttribute('kohidden');
+	maintoolboxrow.removeAttribute('hidden');
 
-this.onload = function uilayout_onload()
-{
-    var uilayout_version = 1;
-    if (_gPrefs.getLong("uilayout_version", 0) < uilayout_version) {
-        uilayout_upgrade();
-        _gPrefs.setLong("uilayout_version", uilayout_version);
+        // unassert things so we don't keep setting hidde, collapsed, kohidden
+        var rdfs = Components.classes["@mozilla.org/rdf/rdf-service;1"]
+                             .getService(Components.interfaces.nsIRDFService);
+        var ds = rdfs.GetDataSource("rdf:local-store");
+        var source = rdfs.GetResource(document.location.href + "#" + maintoolboxrow.id);
+
+	for (let [,attr] in Iterator(['collapsed','kohidden', 'hidden'])) {
+	    var prop = rdfs.GetResource(attr);
+	    var arcs = ds.GetTargets(source, prop, true);
+	    while (arcs.hasMoreElements()) {
+		ds.Unassert(source, prop, arcs.getNext());
+	    }
+	}
+
     }
 
     ko.uilayout.updateToolbarArrangement();
@@ -1809,13 +1765,7 @@ this.setTabPaneLayout = function uilayout_setTabPaneLayout() {
     ko.uilayout._setTabPaneLayoutForTabbox(bottomTabStyle, bottomTabbox, "bottom");
 }
 
-/**
- * Restore generic window state, fullscreen, maximized and sidepane tab layout.
- *
- * Note: Must be called after the window is fully initialized (i.e. after the
- *       Mozilla window persist has done it's thing).
- */
-this.restoreWindowState = function uilayout_restoreWindowState()
+this.onloadDelayed = function uilayout_onloadDelayed()
 {
     try {
         if (_gPrefs.getBooleanPref("startupFullScreen")) {
@@ -1919,19 +1869,53 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
     }
 };
 
-_PrefObserver.topics = [
-    "keybindingDisableAccesskeys",
-    "ui.tabs.sidepanes.left.layout",
-    "ui.tabs.sidepanes.right.layout",
-    "ui.tabs.sidepanes.bottom.layout",
-];
-
 _PrefObserver.prototype.init = function() {
-    _gPrefs.prefObserverService.addObserverForTopics(this, _PrefObserver.topics.length, _PrefObserver.topics, false);
+    _gPrefs.prefObserverService.addObserver(this, "keybindingDisableAccesskeys", false);
+    _gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.left.layout", false);
+    _gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.right.layout", false);
+    _gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.bottom.layout", false);
 }
 
 _PrefObserver.prototype.destroy = function() {
-    _gPrefs.prefObserverService.removeObserverForTopics(this, _PrefObserver.topics.length, _PrefObserver.topics, false);
+    _gPrefs.prefObserverService.removeObserver(this, "keybindingDisableAccesskeys");
+    _gPrefs.prefObserverService.removeObserver(this, "ui.tabs.sidepanes.left.layout");
+    _gPrefs.prefObserverService.removeObserver(this, "ui.tabs.sidepanes.right.layout");
+    _gPrefs.prefObserverService.removeObserver(this, "ui.tabs.sidepanes.bottom.layout");
 }
 
 }).apply(ko.uilayout);
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("uilayout_toggleToolbarVisibility", "ko.uilayout.toggleToolbarVisibility");
+ko.logging.globalDeprecatedByAlternative("uilayout_toggleButtons", "ko.uilayout.toggleButtons");
+ko.logging.globalDeprecatedByAlternative("uilayout_updateToolbarArrangement", "ko.uilayout.updateToolbarArrangement");
+ko.logging.globalDeprecatedByAlternative("uilayout_populatePreviewToolbarButton", "ko.uilayout.populatePreviewToolbarButton");
+ko.logging.globalDeprecatedByAlternative("uilayout_focusPane", "ko.uilayout.focusPane");
+ko.logging.globalDeprecatedByAlternative("uilayout_toggleTab", "ko.uilayout.toggleTab");
+ko.logging.globalDeprecatedByAlternative("uilayout_updateTabpickerMenu", "ko.uilayout.updateTabpickerMenu");
+ko.logging.globalDeprecatedByAlternative("uilayout_togglePane", "ko.uilayout.togglePane");
+ko.logging.globalDeprecatedByAlternative("uilayout_toggleSplitter", "ko.uilayout.toggleSplitter");
+ko.logging.globalDeprecatedByAlternative("uilayout_updateSplitterBroadcasterState", "(function(){/* This function is no longer necessary */})");
+ko.logging.globalDeprecatedByAlternative("uilayout_updateFullScreen", "ko.uilayout.updateFullScreen");
+ko.logging.globalDeprecatedByAlternative("uilayout_FullScreen", "ko.uilayout.fullScreen");
+ko.logging.globalDeprecatedByAlternative("uilayout_onFullScreen", "(function(){/* This function is no longer necessary */})");
+ko.logging.globalDeprecatedByAlternative("uilayout_newFileFromTemplateOrTrimMRU", "ko.uilayout.newFileFromTemplateOrTrimMRU");
+ko.logging.globalDeprecatedByAlternative("uilayout_UpdateMRUMenuIfNecessary", "ko.uilayout.updateMRUMenuIfNecessary");
+ko.logging.globalDeprecatedByAlternative("uilayout_updateWindowList", "ko.uilayout.updateWindowList");
+ko.logging.globalDeprecatedByAlternative("uilayout_buildViewAsLanguageMenu", "ko.uilayout.buildViewAsLanguageMenu");
+ko.logging.globalDeprecatedByAlternative("uilayout_outputPaneShown", "ko.uilayout.outputPaneShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_leftPaneShown", "ko.uilayout.leftPaneShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_rightPaneShown", "ko.uilayout.rightPaneShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_isCodeBrowserTabShown", "ko.uilayout.isCodeBrowserTabShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_ensureOutputPaneShown", "ko.uilayout.ensureOutputPaneShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_ensurePaneForTabHidden", "ko.uilayout.ensurePaneForTabHidden");
+ko.logging.globalDeprecatedByAlternative("uilayout_isPaneShown", "ko.uilayout.isPaneShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_findMainWindow", "ko.windowManager.getMainWindow");
+ko.logging.globalDeprecatedByAlternative("uilayout_ensurePaneShown", "ko.uilayout.ensurePaneShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_ensureTabShown", "ko.uilayout.ensureTabShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_updateTitlebar", "ko.uilayout.updateTitlebar");
+ko.logging.globalDeprecatedByAlternative("uilayout_unload", "ko.uilayout.unload");
+ko.logging.globalDeprecatedByAlternative("uilayout_onload", "ko.uilayout.onload");
+ko.logging.globalDeprecatedByAlternative("uilayout_onloadDelayed", "ko.uilayout.onloadDelayed");

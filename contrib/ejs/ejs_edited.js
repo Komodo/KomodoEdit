@@ -61,14 +61,10 @@ EJS.prototype = {
     /**
      * Renders an object.
      * @param {Object} object data to be rendered
-     * @param {Object} extra_helpers an object with additonal view helpers
      * @return {String} returns the result of the string
      */
-    render : function(object, extra_helpers){
-        object = object || {};
-        this._extra_helpers = extra_helpers;
-        var v = new EJS.Helpers(object, extra_helpers || {});
-        return this.template.process.call(object, object,v);
+    render : function(){
+        return this.template.process();
     },
     out : function(){
         return this.template.out;
@@ -293,14 +289,14 @@ EJS.Compiler.prototype = {
     
   compile: function() {
     var buff = this.gather(this.source);
-    var code = this.out = buff.script + ";";
-    var to_be_evaled = '/*'+name+'*/this.process = function(_CONTEXT,_VIEW) { try { with(_VIEW) { with (_CONTEXT) {'+code+" return ___ViewO.join('');}}}catch(e){e.lineNumber=null;throw e;}};";
+    var code = buff.script + ";";
+    var to_be_evaled = "(function() { " + code + " return ___ViewO.join(''); });";
     // Note that in the following code, the offsets for the revised line #
     // are sensitive to changes in the code below this point and where
     // "here.lineNumber" is calculated.  Needed because js eval gives line-numbers
     // based on the current file; new context isn't started with an eval.
     try {
-        eval(to_be_evaled);
+        this.process = eval(to_be_evaled);
     } catch(e) {
         //dump("problem eval'ing snippet [\n" + to_be_evaled + "\n]: " + e + "\n");
         this.scanner = new EJS.Scanner(this.originalSource, this.left, this.right);
@@ -322,45 +318,6 @@ EJS.Compiler.prototype = {
         }
     }
   }
-};
-
-/**
- * @constructor
- * By adding functions to EJS.Helpers.prototype, those functions will be available in the
- * views.
- * @init Creates a view helper.  This function is called internally.  You should never call it.
- * @param {Object} data The data passed to the view.  Helpers have access to it through this._data
- */
-EJS.Helpers = function(data, extras){
-	this._data = data;
-    this._extras = extras;
-    extend(this, extras );
-};
-/* @prototype*/
-EJS.Helpers.prototype = {
-    /**
-     * Renders a new view.  If data is passed in, uses that to render the view.
-     * @param {Object} options standard options passed to a new view.
-     * @param {optional:Object} data
-     * @return {String}
-     */
-	view: function(options, data, helpers){
-        if(!helpers) helpers = this._extras
-		if(!data) data = this._data;
-		return new EJS(options).render(data, helpers);
-	},
-    /**
-     * For a given value, tries to create a human representation.
-     * @param {Object} input the value being converted.
-     * @param {Object} null_text what text should be present if input == null or undefined, defaults to ''
-     * @return {String}
-     */
-	to_text: function(input, null_text) {
-	    if(input == null || input === undefined) return null_text || '';
-	    if(input instanceof Date) return input.toDateString();
-		if(input.toString) return input.toString().replace(/\n/g, '<br />').replace(/''/g, "'");
-		return '';
-	}
 };
 
 })();

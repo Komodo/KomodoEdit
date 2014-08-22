@@ -36,7 +36,7 @@
 
 """Shared stuff for ludditelib modules."""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: common.py 10686 2012-08-20 23:44:57Z ericp $"
 __version_info__ = (1, 2, 0)
 __version__ = '.'.join(map(str, __version_info__))
 

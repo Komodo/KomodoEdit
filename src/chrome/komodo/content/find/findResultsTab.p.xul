@@ -36,10 +36,6 @@
                     oncommand="gFindResultsTabManager.undoReplace();"
                     disabled="true"/>
             <toolbarseparator style="width: 10px;"/>
-            <toolbarbutton id="findresults-copy-button"
-                    class="find-copy-icon"
-                    tooltiptext="&copyFindResults.tooltiptext;"
-                    oncommand="gFindResultsTabManager.copyResults();"/>
             <toolbarbutton id="findresults-lock-button"
                     class="find-lock-icon"
                     tooltiptext="&lockUnlockFindResults.tooltiptext;"

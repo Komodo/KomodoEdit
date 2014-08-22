@@ -5,16 +5,11 @@
   <!-- This version field is used by Komodo to upgrade preferences.
        The value should be kept in sync with "../components/koInitService.p.py"
   -->
-  <long id="version">14</long>
-
-  <!-- "uilayout_version" is used by Komodo to upgrade ui layouts.
-       Must keep in sync with "../chrome/komodo/content/library/uilayout.p.js"
-  -->
-  <long id="uilayout_version">1</long>
+  <long id="version">9</long>
 
   <boolean id="startupMaximized">0</boolean>
   <boolean id="startupFullScreen">0</boolean>
-  <long id="tabWidth">4</long>
+  <long id="tabWidth">8</long>
   <long id="indentWidth" validate="value > 0">4</long>
   <boolean id="useTabs">0</boolean>
   <boolean id="useSmartTabs">1</boolean>
@@ -117,10 +112,10 @@
   <boolean id="colorizing_enabled">1</boolean>
   <boolean id="editUseAlternateFaceType">0</boolean>
   <!-- editFoldStyle: none, box, plusminus, curvytree, squaretree -->
-  <string id="editFoldStyle">plusminus</string>
+  <string id="editFoldStyle">squaretree</string>
   
   <!-- editShowMinimap: whether to show a minimap scrollbar -->
-  <boolean id="editShowMinimap">false</boolean>
+  <boolean id="editShowMinimap">true</boolean>
 
   <!-- editFoldLines: whether to show horizontal lines on fold marks -->
   <boolean id="editFoldLines">1</boolean>
@@ -142,7 +137,7 @@
   <boolean id="showMatchingTagsOnClick">1</boolean>
   <boolean id="showMatchingTags_constrainSearchInViewPort">1</boolean>
   <long id="showMatchingTags_clearInterval">1000</long>
-  
+
   <!--
   These prefs are to keep Komodo from hanging when a document
   that hits at least one of these limits is loaded.  Komodo will
@@ -231,8 +226,6 @@
   <boolean id="lint_python_with_pyflakes">false</boolean>
   <boolean id="lint_python_with_pylint">false</boolean>
   <string id="pylint_checking_rcfile"></string>
-  <boolean id="lint_python_with_pep8">false</boolean>
-  <string id="pep8_checking_rcfile"></string>
   
   <boolean id="lint_python_with_pychecker">false</boolean>
   <string id="pychecker_wrapper_location"></string>
@@ -243,8 +236,6 @@
   <boolean id="lint_python3_with_pyflakes3">false</boolean>
   <boolean id="lint_python3_with_pylint3">false</boolean>
   <string id="pylint3_checking_rcfile"></string>
-  <boolean id="lint_python3_with_pep83">false</boolean>
-  <string id="pep83_checking_rcfile"></string>
   <boolean id="lint_python3_with_pychecker3">false</boolean>
   <string id="pychecker3_wrapper_location"></string>
   <string id="pychecker3_checking_rcfile"></string>
@@ -441,7 +432,6 @@
  '*.yml': 'YAML',
  '*.zcml': 'XML',
  '.htaccess': 'Apache',
- 'CMakeLists.txt': 'CMake',
  'Conscript': 'Perl',
  'Construct': 'Perl',
  'Gemfile': 'Ruby',
@@ -530,18 +520,167 @@
   <boolean id="checkDiskFile">1</boolean>
   <boolean id="checkNetworkDiskFile">1</boolean>
 
-  <!-- Language Preferences; these are treated specially in koDocumentBase -->
-  <string id="languages/Node.js/newEncoding">utf-8</string>
-  <boolean id="languages/Makefile/useTabs">1</boolean>
-  <string id="languages/Python/newEncoding">ascii</string>
-  <string id="languages/Python3/newEncoding">utf-8</string>
-  <long id="languages/Ruby/indentWidth">2</long>
-  <long id="languages/RHTML/indentWidth">2</long>
-  <string id="languages/VisualBasic/newEncoding">utf-8</string>
-  <string id="languages/XML/newEncoding">utf-8</string>
-  <string id="languages/XSLT/newEncoding">utf-8</string>
-  <long id="languages/YAML/indentWidth">2</long>
-
+  <!-- Language Preferences -->
+  <preference-set id="languages">
+    <!-- NOTE: the parent pref set for each language is the main global set
+           When getting/setting, ensure the names correspond -->
+    <preference-set id="languages/Ada">
+      <string id="Ada/newEncoding">Default Encoding</string>
+      <boolean id="Ada/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Apache">
+      <string id="Apache/newEncoding">Default Encoding</string>
+      <boolean id="Apache/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Baan">
+      <string id="Baan/newEncoding">Default Encoding</string>
+      <boolean id="Baan/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Batch">
+      <string id="Batch/newEncoding">Default Encoding</string>
+      <boolean id="Batch/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Bullant">
+      <string id="Bullant/newEncoding">Default Encoding</string>
+      <boolean id="Bullant/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/C#">
+      <string id="C#/newEncoding">Default Encoding</string>
+      <boolean id="C#/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/C++">
+      <string id="C++/newEncoding">Default Encoding</string>
+      <boolean id="C++/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/CSS">
+      <string id="CSS/newEncoding">Default Encoding</string>
+      <boolean id="CSS/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Diff">
+      <string id="Diff/newEncoding">Default Encoding</string>
+      <boolean id="Diff/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Eiffel">
+      <string id="Eiffel/newEncoding">Default Encoding</string>
+      <boolean id="Eiffel/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Errors">
+      <string id="C++/newEncoding">Default Encoding</string>
+      <boolean id="C++/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Fortran">
+      <string id="Fortran/newEncoding">Default Encoding</string>
+      <boolean id="Fortran/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Fortran 77">
+      <string id="Fortran 77/newEncoding">Default Encoding</string>
+      <boolean id="Fortran 77/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/HTML">
+      <string id="HTML/newEncoding">Default Encoding</string>
+      <boolean id="HTML/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/IDL">
+      <string id="IDL/newEncoding">Default Encoding</string>
+      <boolean id="IDL/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Java">
+      <string id="Java/newEncoding">Default Encoding</string>
+      <boolean id="Java/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/JavaScript">
+      <string id="JavaScript/newEncoding">Default Encoding</string>
+      <boolean id="JavaScript/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Node.js">
+      <string id="Node.js/newEncoding">utf-8</string>
+      <boolean id="Node.js/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/LaTeX">
+      <string id="LaTeX/newEncoding">Default Encoding</string>
+      <boolean id="LaTeX/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Lisp">
+      <string id="Lisp/newEncoding">Default Encoding</string>
+      <boolean id="Lisp/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Lua">
+      <string id="Lua/newEncoding">Default Encoding</string>
+      <boolean id="Lua/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Makefile">
+      <string id="Makefile/newEncoding">Default Encoding</string>
+      <boolean id="Makefile/newBOM">0</boolean>
+      <boolean id="useTabs">1</boolean>
+    </preference-set>
+    <preference-set id="languages/Matlab">
+      <string id="Matlab/newEncoding">Default Encoding</string>
+      <boolean id="Matlab/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/PHP">
+      <string id="PHP/newEncoding">Default Encoding</string>
+      <boolean id="PHP/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Pascal">
+      <string id="Pascal/newEncoding">Default Encoding</string>
+      <boolean id="Pascal/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Perl">
+      <string id="Perl/newEncoding">Default Encoding</string>
+      <boolean id="Perl/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Python">
+      <string id="Python/newEncoding">ascii</string>
+      <boolean id="Python/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Python3">
+      <string id="Python3/newEncoding">utf-8</string>
+      <boolean id="Python3/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Ruby">
+      <string id="Ruby/newEncoding">Default Encoding</string>
+      <boolean id="Ruby/newBOM">0</boolean>
+      <long id="indentWidth">2</long>
+    </preference-set>
+    <preference-set id="languages/RHTML">
+      <string id="RHTML/newEncoding">Default Encoding</string>
+      <boolean id="RHTML/newBOM">0</boolean>
+      <long id="indentWidth">2</long>
+    </preference-set>
+    <preference-set id="languages/SQL">
+      <string id="SQL/newEncoding">Default Encoding</string>
+      <boolean id="SQL/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Tcl">
+      <string id="Tcl/newEncoding">Default Encoding</string>
+      <boolean id="Tcl/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Text">
+      <string id="Text/newEncoding">Default Encoding</string>
+      <boolean id="Text/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/VisualBasic">
+      <string id="VisualBasic/newEncoding">utf-8</string>
+      <boolean id="VisualBasic/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/XML">
+      <string id="XML/newEncoding">utf-8</string>
+      <boolean id="XML/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/XSLT">
+      <string id="XSLT/newEncoding">utf-8</string>
+      <boolean id="XSLT/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/nnCrontab">
+      <string id="nnCrontab/newEncoding">Default Encoding</string>
+      <boolean id="nnCrontab/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/CSS">
+      <string id="CSS/newEncoding">Default Encoding</string>
+      <boolean id="CSS/newBOM">0</boolean>
+    </preference-set>
+  </preference-set>
+  
   <preference-set id="filepickers.defaultDirs"/>
 
   <!-- Allow XML declaration tags to override file settings, except
@@ -763,7 +902,7 @@
 <!-- #endif -->
 
   <!-- Whether to ask and, if not, whether to append an appropriate extension
-       to filenames chosen with ko.filepicker.saveFile. -->
+       to filenames chosen with filepicker_saveFile. -->
   <boolean id="donotask_ensure_filename_has_ext">0</boolean>
   <string id="donotask_action_ensure_filename_has_ext"></string>
 
@@ -776,7 +915,7 @@
        current project, if any. -->
   <boolean id="new_file_add_to_project">1</boolean>
 
-  <string id="editor-scheme">Default_Light</string>
+  <string id="editor-scheme">Default</string>
 
   <!-- #if PLATFORM == "darwin" -->
   <!-- Use a different fontQuality setting on the Mac - see bug 99891. -->
@@ -850,9 +989,6 @@
             This indicates if completion triggers should fire automatically
             while editing. <Ctrl+J> to manually open these UIs is still
             available.
-        "codeintel_completions_enabled" - whether completions popup get shown.
-        "codeintel_calltips_enabled" - whether calltips are shown.
-        "codeintel_goto_definition_enabled" - whether goto def is enabled.
         "codeintel_rescan_while_typing_enabled" indicates if scan requests
             should be issued for the current file while it is being edited.
         "codeintel_scanning_imports_enabled" indicates whether the CodeIntel
@@ -974,57 +1110,4 @@
   <!-- See bug Bug #98484 - comments #4 and #5 -->
   <boolean id="donotask_placesAllowDragDropItemsToFolders">0</boolean>
   <string id="donotask_action_placesAllowDragDropItemsToFolders"></string>
-
-  <!-- Analytics -->
-  <string id="analytics_ga_id">UA-45985051-1</string>
-
-  <ordered-preference id="analytics_track_prefs">
-    <string>koSkin_custom_skin</string>
-    <string>koSkin_custom_icons</string>
-    <string>activestate_notification_messages_enabled</string>
-    <string>hyperlinksEnabled</string>
-    <string>hyperlinksEnableGotoDefinition</string>
-    <string>ui.tabs.sidepanes.left.layout</string>
-    <string>ui.tabs.sidepanes.right.layout</string>
-    <string>ui.tabs.sidepanes.bottom.layout</string>
-    <string>keybinding-scheme</string>
-    <string>editor-scheme</string>
-    <string>editor_font_quality</string>
-  </ordered-preference>
-
-  <ordered-preference id="analytics_track_decks">
-    <string>komodo-box</string>
-  </ordered-preference>
-
-  <!-- File Icons -->
-    <!--
-        Format: <language>:<ext>:<color>
-        Ext should be no longer than 4 characters
-        Color can be in any format that css "background-color" accepts
-    -->
-  <ordered-preference id="fileicons_presets">
-    <string>Text:TXT:#A1A1A1</string>
-    <string>Unknown:?:#A1A1A1</string>
-    <string>PHP:PHP:#A075B2</string>
-    <string>Ruby:RB:#EB594C</string>
-    <string>JavaScript:JS:#37A63A</string>
-    <string>Node.js:NODE:#4B8850</string>
-    <string>HTML:HTML:#F2A935</string>
-    <string>HTML5:HTML:#F25D5A</string>
-    <string>Python:PY:#424B9C</string>
-    <string>Python3:PY:#296A9C</string>
-    <string>CSS:CSS:#5C8AB9</string>
-    <string>LESS:CSS:#362397</string>
-  </ordered-preference>
-
-  <ordered-preference id="fileicons_ext_mapping">
-    <string>snd:#6F24C2:adp,au,snd,mid,midi,kar,rmi,mp4a,mpga,mp2,mp2a,mp3,m2a,m3a,oga,ogg,spx,s3m,sil,uva,uvva,eol,dra,dts,dtshd,lvp,pya,ecelp4800,ecelp7470,ecelp9600,rip,weba,aac,aif,aiff,aifc,caf,flac,mka,m3u,wax,wma,ram,ra,rmp,wav,xm</string>
-    <string>img:#C22427:bmp,cgm,g3,gif,ief,jpeg,jpg,jpe,ktx,png,btif,sgi,svg,svgz,tiff,tif,psd,uvi,uvvi,uvg,uvvg,sub,djvu,djv,dwg,dxf,fbs,fpx,fst,mmr,rlc,mdi,wdp,npx,wbmp,xif,webp,3ds,ras,cmx,fh,fhc,fh4,fh5,fh7,ico,sid,pcx,pic,pct,pnm,pbm,pgm,ppm,rgb,tga,xbm,xpm,xwd</string>
-    <string>txt:#A1A1A1:appcache,ics,ifb,css,csv,html,htm,n3,txt,text,conf,def,list,log,in,dsc,rtx,sgml,sgm,tsv,t,tr,roff,man,me,ms,ttl,uri,uris,urls,vcard,curl,dcurl,scurl,mcurl,sub,fly,flx,gv,3dml,spot,jad,wml,wmls,s,asm,c,cc,cxx,cpp,h,hh,dic,f,for,f77,f90,java,opml,p,pas,nfo,etx,sfv,uu,vcs,vcf</string>
-    <string>vid:#2470C2:3gp,3g2,h261,h263,h264,jpgv,jpm,jpgm,mj2,mjp2,mp4,mp4v,mpg4,mpeg,mpg,mpe,m1v,m2v,ogv,qt,mov,uvh,uvvh,uvm,uvvm,uvp,uvvp,uvs,uvvs,uvv,uvvv,dvb,fvt,mxu,m4u,pyv,uvu,uvvu,viv,webm,f4v,fli,flv,m4v,mkv,mk3d,mks,mng,asf,asx,vob,wm,wmv,wmx,wvx,avi,movie,smv</string>
-    <string>font:bdf,gsf,psf,otf,pcf,snf,ttf,ttc,pfa,pfb,pfm,afm,woff</string>
-  </ordered-preference>
-
-  <string id="fileicons_color_whitelist">class:rss:rtf:csv:com:bat:sh:dtd:xpi:conscript:construct:manifest</string>
-
 </preference-set>

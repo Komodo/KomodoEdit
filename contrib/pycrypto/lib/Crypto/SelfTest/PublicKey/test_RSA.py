@@ -24,7 +24,7 @@
 
 """Self-test suite for Crypto.PublicKey.RSA"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: test_RSA.py 7847 2011-04-21 18:51:40Z toddw $"
 
 from Crypto.Util.python_compat import *
 

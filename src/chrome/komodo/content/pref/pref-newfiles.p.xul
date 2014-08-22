@@ -114,10 +114,10 @@
         <groupbox orient="vertical" id="template-prefs">
             <caption label="&templates.label;"/>
             <hbox align="center">
-                <label control="mruTemplateSize"
-                       value="&numberTemplatesRember.label;"/>
                 <textbox id="mruTemplateSize" size="2" maxlength="2"
                          pref="true" prefattribute="value"/>
+                <label control="mruTemplateSize"
+                       value="&numberTemplatesRember.label;"/>
                 <button label="&clearList.label;"
                         oncommand="PrefNewFiles_ClearTemplateMRU();"
                         tooltiptext="&clearListOfRecentTemplates.tooltiptext;"/>

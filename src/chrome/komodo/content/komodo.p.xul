@@ -7,26 +7,26 @@
 ]>
 <!-- ***** BEGIN LICENSE BLOCK *****
  Version: MPL 1.1/GPL 2.0/LGPL 2.1
-
+ 
  The contents of this file are subject to the Mozilla Public License
  Version 1.1 (the "License"); you may not use this file except in
  compliance with the License. You may obtain a copy of the License at
  http://www.mozilla.org/MPL/
-
+ 
  Software distributed under the License is distributed on an "AS IS"
  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
  License for the specific language governing rights and limitations
  under the License.
-
+ 
  The Original Code is Komodo code.
-
+ 
  The Initial Developer of the Original Code is ActiveState Software Inc.
  Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
  ActiveState Software Inc. All Rights Reserved.
-
+ 
  Contributor(s):
    ActiveState Software Inc
-
+ 
  Alternatively, the contents of this file may be used under the terms of
  either the GNU General Public License Version 2 or later (the "GPL"), or
  the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -38,7 +38,7 @@
  and other provisions required by the GPL or the LGPL. If you do not delete
  the provisions above, a recipient may use your version of this file under
  the terms of any one of the MPL, the GPL or the LGPL.
-
+ 
  ***** END LICENSE BLOCK ***** -->
 
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
@@ -63,7 +63,7 @@
 
 <!-- #ifndef PP_KO_TITLE_BAR_NAME -->
 <!-- #define PP_KO_TITLE_BAR_NAME ActiveState Komodo -->
-<!-- #endif -->
+<!-- #endif --> 
 <window id="komodo_main"
         windowtype="Komodo"
         title="&titleBar.title;"
@@ -80,18 +80,8 @@
         toggletoolbar="true"
         fullscreenbutton="true"
         >
-
-    <script src="chrome://komodo/content/globals.js" type="application/x-javascript"/>
-
-<!-- #if BUILD_FLAVOUR == "dev" -->
-    <script type="application/x-javascript;version=1.8">
-        require("ko/benchmark").startTiming("komodo.xul - js load");
-    </script>
-<!-- #endif -->
-
-    <!-- Various startup performance tweaks. -->
-    <script src="chrome://komodo/content/library/performance_tweaks.js" type="application/x-javascript;version=1.7"/>
-
+	
+	
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <!--Mozilla sources-->
     <!--globalOverlay.js contains application shutdown and controller code-->
@@ -108,6 +98,7 @@
     <!-- "komodo.js" must be the first Komodo .js file included so that its
          top-level code can be sure that it is run first. -->
     <script src="chrome://komodo/content/library/prefs.js"                type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"              type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/komodo.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/timers.js"               type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dragdrop.js"             type="application/x-javascript;version=1.7"/>
@@ -115,11 +106,13 @@
     <script src="chrome://komodo/content/library/otherdialogs.js"         type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/controller.js"           type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/windowManager.js"        type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/printing.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/uilayout.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/uriparse.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/filepickers.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/open.js"                 type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/mru.js"                  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/color_functions.js"      type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/commands.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/macros.js"               type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/findController.js"       type="application/x-javascript;version=1.7"/>
@@ -128,7 +121,6 @@
     <script src="chrome://komodo/content/library/treeutils.js"            type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/widgets.js"              type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/skin.js"                 type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/utils.js"                type="application/x-javascript;version=1.7"/>
 <!-- #if BUILD_FLAVOUR == "dev" -->
     <script src="chrome://komodo/content/library/test.js"                 type="application/x-javascript;version=1.7"/>
 <!-- #endif -->
@@ -175,15 +167,14 @@
     <script src="chrome://komodo/content/library/multipleCaret.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/snippets.js"                 type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/ejs.js"                 type="application/x-javascript;version=1.7"/>
-
-    <script src="chrome://komodo/content/hyperlinks/loader.js"            type="application/x-javascript"/>
-
-<!-- #if BUILD_FLAVOUR == "dev" -->
-    <script type="application/x-javascript;version=1.8">
-        require("ko/benchmark").endTiming("komodo.xul - js load");
-    </script>
-<!-- #endif -->
-
+    <script src="chrome://komodo/content/hyperlinks/hyperlinks.js"        type="application/x-javascript;version=1.7"/>
+    <!-- The order of these hyperlink scripts is important, as it sets the
+         priority of the hyperlink handlers. -->
+    <script src="chrome://komodo/content/hyperlinks/regexhandler.js"      type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/hyperlinks/filehandler.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/hyperlinks/csscolorpicker.js"    type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/hyperlinks/gotodefinition.js"    type="application/x-javascript;version=1.7"/>
+	
     <!-- This is used by the view editor for displaying
          scintilla tooltips -->
     <popupset id="editorTooltipSet">
@@ -192,10 +183,10 @@
         </tooltip>
         <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true" crop="start"/>
 
-        <panel id="gotoLine_panel" class="hud"
+        <panel id="gotoLine_panel"
                onpopupshown="document.getElementById('gotoLine_textbox').focus(); document.getElementById('gotoLine_error_hbox').setAttribute('collapsed', 'true'); ">
             <vbox id="gotoLine_vbox" maxwidth="420">
-                <!--<description id="gotoLine_description">&gotoLine.prompt.description;</description>-->
+                <description id="gotoLine_description">&gotoLine.prompt.description;</description>
                 <hbox id="gotoLine_hbox" align="center">
                     <label id="gotoLine_label" class="desc" value="&gotoLine.prompt.label;" />
                     <textbox id="gotoLine_textbox"
@@ -328,10 +319,10 @@
              to have at least one user of this space (the spell checker). -->
         <menuseparator id="editor-context-sep-properties"/>
         <menuitem id="editor-context-properties"
-                label="&filePreferences.label;"
+                label="&propertiesAndSettings.label;"
                 observes="cmd_editPrefsCurrent"/>
     </menupopup>
-
+    
     <menupopup id="minimapContextMenu"
                class="has-iconic-menuitems">
         <menuitem label="&increaseFont.label;"
@@ -425,7 +416,7 @@
                   label="&createMappedURI.label;"
                   observes="cmd_createMappedURI"/>
         <menuitem id="buffertab-context-properties"
-                  label="&filePreferences.label;"
+                  label="&propertiesAndSettings.label;"
                   observes="cmd_editPrefsCurrent"/>
     </menupopup>
 
@@ -490,8 +481,6 @@
              mode="icons"
              class="chromeclass-toolbar toolbox-top">
         <toolbar id="toolbar-menubar"
-                 type="menubar"
-                 autohide="true"
                  fullscreentoolbar="true"
                  customizable="false">
             <toolbaritem id="menubar-items"
@@ -669,7 +658,7 @@
                                 <menupopup id="popup_Printmenu">
                                     <menuitem label="&pageSetup.label;"
                                               id="menu_printSetup"
-                                              oncommand="require('ko/printing').showPageSetup();"
+                                              oncommand="PrintUtils.showPageSetup();"
                                               />
                                     <menuitem id="menu_PrintSettings"
                                         oncommand="prefs_doGlobalPrefs('printItem');"
@@ -732,7 +721,7 @@
                                 />
                         </menupopup>
                     </menu>
-
+        
                     <menu id="menu_edit" label="&edit.label;" accesskey="&menuEdit.accesskey;">
                         <menupopup id="popup_edit">
                             <menuitem label="&undo.label;"
@@ -860,19 +849,19 @@
                                       observes="cmd_editPrefs"
                                       accesskey="&menuPreferences.accesskey;"
                                       />
-                            <menuitem label="&currentFilePreferences.label;"
+                            <menuitem label="&currentFileSettings.label;"
                                       id="menu_editPrefsCurrent"
                                       accesskey="&menuEditPrefsCurrent.accesskey;"
                                       observes="cmd_editPrefsCurrent"
                                       />
 <!-- #if PLATFORM == "darwin" -->
-                            <!-- Taken from  http://mxr.mozilla.org/mozilla/source/browser/base/content/baseMenuOverlay.xul
+                            <!-- Taken from  http://mxr.mozilla.org/mozilla/source/browser/base/content/baseMenuOverlay.xul 
                                  Moz finds these id attributes and moves them to the App menu.
                                  No keybindings for these menuitems because we don't assign them
                                  command IDs.
                                  See http://mxr.mozilla.org/mozilla/source/widget/src/cocoa/nsMenuBarX.mm#148
                                  for an example. -->
-
+        
                             <menuitem id="menu_mac_services" label="&menuSysMacServices.label; "/>
                             <menuitem id="menu_mac_hide_app" label="&menuSysMacHideApp.label;" key="key_hideThisAppCmdMac" />
                             <menuitem id="menu_mac_hide_others" label="&menuSysMacHideOtherApps.label;" key="key_hideOtherAppsCmdMac" />
@@ -1010,8 +999,30 @@
                                       observes="cmd_historyForward"
                                       />
 
+                            <menuseparator id="naviation_menupopup_separator_1"/>
 
-                            <menuseparator id="naviation_menupopup_separator_editor_nav"/>
+                            <menuitem
+                                id="menu_bufferNext"
+                                label="&nextFile.label;"
+                                accesskey="&menuBufferNext.accesskey;"
+                                class="menuitem-iconic next-buffer-icon"
+                                observes="cmd_bufferNext"
+                            />
+                            <menuitem
+                                id="menu_bufferPrevious"
+                                label="&previousFile.label;"
+                                accesskey="&menuBufferPrevious.accesskey;"
+                                class="menuitem-iconic previous-buffer-icon"
+                                observes="cmd_bufferPrevious"
+                            />
+                            <menu id="goToTab_menu"
+                                  label="&goToTab.menu.label;"
+                                  accesskey="&goToTab.menu.accesskey;">
+                                <menupopup id="goToTab_menupopup"
+                                           onpopupshowing="ko.uilayout.updateWindowList(this);" />
+                            </menu>
+
+                            <menuseparator id="naviation_menupopup_separator_2"/>
 
                             <menuitem label="&gotoLine.label;"
                                       id="menu_gotoLine"
@@ -1046,7 +1057,7 @@
                                       />
 
                             <menuseparator id="naviation_menupopup_bookmarks_separator"/>
-
+    
                             <menuitem label="&toggleBookmark.label;"
                                       id="menu_bookmarkToggle"
                                       accesskey="&menuBookmarkToggle.accesskey;"
@@ -1069,7 +1080,7 @@
                                       />
 
                             <menuseparator id="naviation_menupopup_scroll_separator"/>
-
+    
                             <menuitem label="&scrollCurrentLineToCenterOfScreen.label;"
                                       id="menu_editCenterVertically"
                                       observes="cmd_editCenterVertically"
@@ -1103,7 +1114,9 @@
 <!-- #if PLATFORM != "darwin" -->
                                     <menuitem label="&showMenubar.label;"
                                               id="menu_toggleMenubar"
-                                              command="cmd_toggleMenubar"
+                                              observes="cmd_toggleMenubar"
+                                              checked="true"
+                                              persist="checked"
                                               type="checkbox"
                                               />
 <!-- #endif -->
@@ -1409,11 +1422,11 @@
 
                             <menuseparator id="menu_project_separator_3"/>
 
-                            <menuitem label="&projectPreferences.label;"
+                            <menuitem label="&properties.label;"
                                       id="menu_projectProperties"
                                       observes="cmd_projectProperties"
                                       disableIfCurrentProjectIsClosed="true"
-                                      accesskey="&projectPreferences.accesskey;"/>
+                                      accesskey="&projectProperties.accesskey;"/>
                         </menupopup>
                     </menu>
 
@@ -1432,12 +1445,6 @@
                             <menu id="menu_macros" label="&macros.label;"
                                   accesskey="&menuMacros.accesskey;">
                                 <menupopup id="popup_macros">
-                                    <menuitem id="macroNew_menuitem"
-                                              label="&macroNew.menu.label;"
-                                              accesskey="&macroNew.menu.accesskey;"
-                                              tooltiptext="&macroNew.tooltiptext;"
-                                              class="menuitem-iconic macro-new-icon"
-                                              observes="cmd_macroNew"/>
                                     <menuitem label="&startRecording.label;"
                                               id="menu_startMacroMode"
                                               observes="cmd_startMacroMode"
@@ -1465,13 +1472,13 @@
                                               />
                                 </menupopup>
                             </menu>
-
+        
                             <menuseparator id="menu_addons_separator"/>
                             <menuitem label="&extensionManager.label;"
                                       id="menu_extensionmanager"
                                       accesskey="&extensionManager.accesskey;"
                                       observes="cmd_openextmgr" />
-
+        
                             <menuseparator id="menu_tools_separator"/>
                             <menuitem label="&watchFile.label;"
                                       accesskey="&menuWatchThread.accesskey;"
@@ -1689,10 +1696,10 @@
                           ordinal="9999" align="center" pack="end">
                         <toolbarbutton id="minimize-button" class="rightarrow-button-a"
                                         oncommand="window.minimize();"/>
-
+            
                         <toolbarbutton id="restore-button" class="rightarrow-button-a"
                                         oncommand="ko.uilayout.fullScreen();"/>
-
+            
                         <toolbarbutton id="close-button" class="rightarrow-button-a"
                                         oncommand="window.close();"/>
                     </hbox>
@@ -1703,7 +1710,7 @@
 
         <hbox id="main-toolboxrow-wrapper" persist="collapsed">
             <toolboxrow id="main-toolboxrow" flex="1" align="start" persist="hidden mode collapsed" mode="icons">
-
+					
                 <toolbar
                     id="standardToolbar"
                     class="chromeclass-toolbar"
@@ -1932,13 +1939,6 @@
 
                     <toolbaritem>
 
-                        <toolbarbutton id="macroNew"
-                                label="&macroNew.toolbar.label;"
-                                tooltiptext="&macroNew.tooltiptext;"
-                                class="macro-new-icon"
-                                buttonstyle="pictures"
-                                persist="buttonstyle"
-                                observes="cmd_macroNew"/>
                         <toolbarbutton id="macroRecord"
                                 label="&record.label;"
                                 tooltiptext="&recordMacro.tooltiptext;"
@@ -1986,11 +1986,11 @@
                          align="center"
                          class="chromeclass-toolbar"
                          mode="icons"
-                         kohidden="true"
+						 kohidden="true"
                          persist="kohidden collapsed buttonstyle mode"
                          buttonstyle="pictures"
                          tooltiptext="&komodoResourcesToolbar.tooltiptext;">
-
+					
                     <toolbaritem>
 
                         <toolbarbutton id="komodoButtonCommunity"
@@ -2019,7 +2019,7 @@
 
                 </toolbar>
             </toolboxrow>
-
+            
             <toolbar id="openToolbar"
                      align="end"
                      valign="middle"
@@ -2030,7 +2030,7 @@
                      tooltiptext="&openFileToolbar.label;"
                     >
                 <hbox class="unified-textbox-wrapper">
-
+                    
                     <textbox id="textbox_open"
                          tooltiptext="&openFile.tooltiptext;"
                          placeholder="&openFile.placeholder;"
@@ -2054,7 +2054,7 @@
                                         this.setSelectionRange(this.textLength, this.textLength);"
                          onkeypress="ko.findtoolbar.openTextboxKeyPress(this, event);"
                         accesskey="&openLabel.accesskey;"/>
-
+                    
                 </hbox>
             </toolbar>
 
@@ -2132,8 +2132,7 @@
                     <hbox>
                         <vbox id="unifiedMenuPrimaryPane"/>
                         <vbox id="unifiedMenuSecondaryPane">
-                            <menuseparator id="unifiedMenuMruSeparator" ordinal="9999" preserve="true"/>
-                            <vbox id="unifiedMenuMru" preserve="true" ordinal="9999"></vbox>
+                            <menuseparator id="unifiedMenuMruSeparator" ordinal="9999"/>
                         </vbox>
                     </hbox>
                 </menupopup>
@@ -2183,7 +2182,7 @@
                 <!-- This is used for capturing user input while slow dialogs
                 (e.g. the find dialog) load. -->
                 <textbox id="hidden-input-buffer" collapsed="true"
-                     onfocus="ko.inputBuffer.focus(event);"/>
+                     onfocus="InputBuffer_OnFocus(event);"/>
                 <vbox id="customizingPlaceHolder" align="center" valign="middle">
                     <!-- This box is used in the widget/pane customization mode
                        - (hiding the main text editing area).
@@ -2213,7 +2212,7 @@
                          label="&toolbox2.label;"
                          locktip="&thisToolboxIsReadOnly.locktip;"
                          src="chrome://komodo/content/toolbox/toolboxPanel.xul"
-                         icon="chrome://icomoon/skin/icons/briefcase3.png"/>
+			 icon="chrome://icomoon/skin/icons/briefcase3.png"/>
             </ko-pane>
         </hbox>
 
@@ -2266,7 +2265,6 @@
                id="statusbarviewbox"
                class="chromeclass-status"
                style="min-height: 1.5em;">
-        <html:canvas id="canvas-proxy" style="display: none"/>
         <statusbarpanel id="statusbar-notifications-button"
                         class="statusbarpanel-iconic"
                         oncommand="ko.uilayout.ensureTabShown('notifications-widget');"/>
@@ -2293,7 +2291,7 @@
                   orient="horizontal"
                   type="menu"
                   persist="buttonstyle"
-                  label="--"
+				  label="--"
                   buttonstyle="text">
                 <menupopup id="statusbar-encoding-menupopup"
                            onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
@@ -2310,14 +2308,14 @@
                   orient="horizontal"
                   type="menu"
                   persist="buttonstyle"
-                  label="--"
+				  label="--"
                   buttonstyle="text">
                 <menupopup id="statusbar-filetype-menu"
                            position="before_end"
                            onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
             </toolbarbutton>
         </statusbarpanel>
-
+        
         <statusbarpanel id="statusbar-line-col"
                         tooltiptext="&filePosition.tooltiptext;"
                         style="min-width: 10.5em;"/>
@@ -2373,3 +2371,4 @@
     </keyset>
 <!-- #endif -->
 </window>
+

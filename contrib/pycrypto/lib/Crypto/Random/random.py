@@ -24,7 +24,7 @@
 
 """A cryptographically strong version of Python's standard "random" module."""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: random.py 4769 2010-04-09 17:53:50Z toddw $"
 __all__ = ['StrongRandom', 'getrandbits', 'randrange', 'randint', 'choice', 'shuffle', 'sample']
 
 from Crypto import Random

@@ -358,35 +358,6 @@ this.FindResultsTabManager.prototype.jumpToNextResult = function()
 }
 
 
-this.FindResultsTabManager.prototype.copyResults = function()
-{
-    findResultsLog.info("FindResultsTabManager.copyResults()");
-    try {
-        var treeWidget = this.doc.getElementById("findresults");
-        if (treeWidget.view.rowCount < 1) {
-            ko.statusBar.AddMessage("No find results to copy", "find_in_files", 3000, true);
-            return;
-        }
-
-        var text = "";
-        for (var row=0; row < treeWidget.view.rowCount; row++) {
-            for (var col=0; col < treeWidget.columns.length; col++) {
-                text += treeWidget.view.getCellText(row, treeWidget.columns[col]);
-                if (col+1 < treeWidget.columns.length) {
-                    text += ", ";
-                }
-            }
-            text += "\n";
-        }
-        // Copy to the clipboard and add message it's done.
-        xtk.clipboard.setText(text);
-        ko.statusBar.AddMessage("Copied " + row + " find result rows to the clipboard", "find_in_files", 5000, true);
-    } catch (ex) {
-        findResultsLog.exception(ex);
-    }
-}
-
-
 this.FindResultsTabManager.prototype.toggleLockResults = function()
 {
     findResultsLog.info("FindResultsTabManager.toggleLockResults()");
@@ -1059,3 +1030,13 @@ this.nextResult = function FindResultsTab_NextResult()
 
 
 }).apply(ko.findresults);
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("FindResultsTab_GetTab", "ko.findresults.getTab");
+ko.logging.globalDeprecatedByAlternative("FindResultsTab_GetManager", "ko.findresults.getManager");
+ko.logging.globalDeprecatedByAlternative("_FindResultsTab_Create", "ko.findresults.create");
+ko.logging.globalDeprecatedByAlternative("FindResultsTabManager", "ko.findresults.FindResultsTabManager");
+ko.logging.globalDeprecatedByAlternative("FindResultsTab_NextResult", "ko.findresults.nextResult");
+ko.logging.globalDeprecatedByAlternative("_gFindResultsTab_managers", "ko.findresults.managers");

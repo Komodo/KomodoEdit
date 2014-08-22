@@ -384,7 +384,7 @@ def py_expr_grammar():
     
     @self.method("(")
     def py(self):
-        if self.second is not None:
+        if self.second:
             return "%s(%s)" % (self.first.py(), call_list_py(self.second))
         else:
             return "(%s)" % ", ".join(i.py() for i in self.first)
@@ -432,19 +432,14 @@ def py_expr_grammar():
     def led(self, left):
         self.id = "(index)"
         self.first = left
-        expr = self.expression()
-        try:
-            # Make sure the expression is a list
-            self.second = list(iter(expr))
-        except TypeError:
-            self.second = [expr]
+        self.second = self.expression()
         self.advance("]")
         return self
     
     @self.method("[")
     def py(self):
-        if self.second is not None:
-            return "%s[%s]" % (self.first.py(),
+        if self.second:
+            return "%s[%s]" % (self.first,
                                ", ".join(i.py() for i in self.second))
         else:
             return "[%s]" % ", ".join(i.py() for i in self.first)

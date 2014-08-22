@@ -51,47 +51,43 @@ def relativize(base, fn):
     return os.path.join(base, fn)
 
 # regular expressions used for DTD parsing
-# regular expressions used for parsing
-# Lazily load the collecter on demand, rather than at import time.
-g_collector = None
-def getcollector():
-    global g_collector
-    if g_collector is None:
-        g_collector = recollector()
-        a = g_collector.add
+collector = recollector()
+a = collector.add
 
-        # secondary parsing regex
-        a("newlines" ,                   "[ \t]*(\r\n|\r|\n)")
-        a("groupedNamesSplitter", "[\s\|\*\+\(\)\?&,]+")
-        # not used in lex_matches
-        a("NDataDecl" ,     r"\s*'NDATA'\s*\S+", re.S|re.U)
-        a("QuotedString" ,  r'(?:")([^"]*?)(?:")|(?:\')([^\']*?)(?:\')', re.S|re.U)
-        a("ExternalID",     r"(?P<type>SYSTEM|PUBLIC)\s*(?P<literal1>%(QuotedString)s)\s*(?P<literal2>%(QuotedString)s)?", re.S|re.U)
-        # used in lex_matches
-        a("whitespace" ,    r"\s+", re.S|re.M)
-        a("section_ignore" , r'<!\[\s*IGNORE\s*\[.*?\]\]>', re.S|re.M)
-        a("section_start" , r'<!\[\s*(?P<name>\S+)\s*\[', re.S|re.M)
-        a("section_end" ,   r'\]\]>')
-        a("PEReference" ,   r"%%(?P<ref>[^;]+)[;\s]", re.U)
-        a("PEENTITY",         r'<!ENTITY\s+%%\s+(?P<name>\S+)\s+(?:--(?P<comment_entity>.*?)--\s+)?(?P<content>%(QuotedString)s|%(ExternalID)s(?:%(NDataDecl)s)?)\s*(?:--(?P<comment>.*?)--)?\s*>', re.S|re.U)
-        # PEENTITY2: another syntax tweak for xhtml-arch-1.mod
-        a("PEENTITY2",         r'<!ENTITY\s+(?P<name>\S+)\s+(?:--(?P<comment_entity>.*?)--\s+)?(?P<content>%(ExternalID)s(?:%(NDataDecl)s)?)\s*(?:--(?P<comment>.*?)--)?\s*>', re.S|re.U)
-        a("GEENTITY",         r'<!ENTITY\s+(?P<name>\S+)\s+(?P<type>\w+)\s+(?:--(?P<comment_entity>.*?)--\s+)?(?P<content>%(QuotedString)s)\s*(?:--(?P<comment>.*?)--)?\s*>', re.S|re.U)
-        a("ATTLIST",        r'<!ATTLIST\s+(?P<name>\(.*?\)|\S+)\s+(?P<content>.*?)\s*(?:>(?=\s))', re.S|re.U)
-        a("ELEMENT",        r'<!ELEMENT\s+(?P<name>\(.*?\)|\S+)\s+(?:(?P<start>\S)\s(?P<end>\S)\s+)?(?P<content>EMPTY|ANY|.*?)\s*(?:--(?P<comment>.*?)--)?\s*>', re.S|re.U)
-        a("COMMENT" ,       r"<!--(?P<comment>.*?)-->", re.S|re.M)
-        # we dont do anything with notations at this time
-        a("NOTATION" ,       r"<!NOTATION.*?>", re.S|re.M)
-        # stuff from HTML3.dtd that we dont use
-        a("USEMAP" ,       r"<!USEMAP.*?>", re.S|re.M)
-        a("SHORTREF" ,       r"<!SHORTREF.*?>", re.S|re.M)
-        a("ENTITY",         r'<!ENTITY\s+(?P<name>\S+)\s+(?P<content>%(QuotedString)s)\s*(?:--(?P<comment>.*?)--)?\s*>', re.S|re.U)
-        # xhtml-math-svg-flat-20020809.dtd has this, don't know why, I've never seen
-        # this in any DTD spec:
-        #   <?doc type="doctype" role="title" { XHTML 1.1 } ?>
-        a("PROCTAG" ,       r"<\?.*?\?>", re.S|re.M)
-    return g_collector
+# secondary parsing regex
+a("newlines" ,                   "[ \t]*(\r\n|\r|\n)")
+a("groupedNamesSplitter", "[\s\|\*\+\(\)\?&,]+")
+# not used in lex_matches
+a("NDataDecl" ,     r"\s*'NDATA'\s*\S+", re.S|re.U)
+a("QuotedString" ,  r'(?:")([^"]*?)(?:")|(?:\')([^\']*?)(?:\')', re.S|re.U)
+a("ExternalID",     r"(?P<type>SYSTEM|PUBLIC)\s*(?P<literal1>%(QuotedString)s)\s*(?P<literal2>%(QuotedString)s)?", re.S|re.U)
 
+# used in lex_matches
+a("whitespace" ,    r"\s+", re.S|re.M)
+a("section_ignore" , r'<!\[\s*IGNORE\s*\[.*?\]\]>', re.S|re.M)
+a("section_start" , r'<!\[\s*(?P<name>\S+)\s*\[', re.S|re.M)
+a("section_end" ,   r'\]\]>')
+a("PEReference" ,   r"%%(?P<ref>[^;]+)[;\s]", re.U)
+a("PEENTITY",         r'<!ENTITY\s+%%\s+(?P<name>\S+)\s+(?:--(?P<comment_entity>.*?)--\s+)?(?P<content>%(QuotedString)s|%(ExternalID)s(?:%(NDataDecl)s)?)\s*(?:--(?P<comment>.*?)--)?\s*>', re.S|re.U)
+# PEENTITY2: another syntax tweak for xhtml-arch-1.mod
+a("PEENTITY2",         r'<!ENTITY\s+(?P<name>\S+)\s+(?:--(?P<comment_entity>.*?)--\s+)?(?P<content>%(ExternalID)s(?:%(NDataDecl)s)?)\s*(?:--(?P<comment>.*?)--)?\s*>', re.S|re.U)
+a("GEENTITY",         r'<!ENTITY\s+(?P<name>\S+)\s+(?P<type>\w+)\s+(?:--(?P<comment_entity>.*?)--\s+)?(?P<content>%(QuotedString)s)\s*(?:--(?P<comment>.*?)--)?\s*>', re.S|re.U)
+a("ATTLIST",        r'<!ATTLIST\s+(?P<name>\(.*?\)|\S+)\s+(?P<content>.*?)\s*(?:>(?=\s))', re.S|re.U)
+a("ELEMENT",        r'<!ELEMENT\s+(?P<name>\(.*?\)|\S+)\s+(?:(?P<start>\S)\s(?P<end>\S)\s+)?(?P<content>EMPTY|ANY|.*?)\s*(?:--(?P<comment>.*?)--)?\s*>', re.S|re.U)
+a("COMMENT" ,       r"<!--(?P<comment>.*?)-->", re.S|re.M)
+
+# we dont do anything with notations at this time
+a("NOTATION" ,       r"<!NOTATION.*?>", re.S|re.M)
+
+# stuff from HTML3.dtd that we dont use
+a("USEMAP" ,       r"<!USEMAP.*?>", re.S|re.M)
+a("SHORTREF" ,       r"<!SHORTREF.*?>", re.S|re.M)
+a("ENTITY",         r'<!ENTITY\s+(?P<name>\S+)\s+(?P<content>%(QuotedString)s)\s*(?:--(?P<comment>.*?)--)?\s*>', re.S|re.U)
+
+# xhtml-math-svg-flat-20020809.dtd has this, don't know why, I've never seen
+# this in any DTD spec:
+#   <?doc type="doctype" role="title" { XHTML 1.1 } ?>
+a("PROCTAG" ,       r"<\?.*?\?>", re.S|re.M)
 
 class dtd_dataset:
     def __init__(self):
@@ -202,7 +198,7 @@ class dtd_element:
         if self.content not in ["empty", "any"]:
             matches = self._top_groups.findall(self.content)
             if matches:
-                groupedNamesRe = getcollector().res["groupedNamesSplitter"]
+                groupedNamesRe = collector.res["groupedNamesSplitter"]
                 children = set()
                 for match in matches:
                     if match[0] != "-" or match[-1] in ["?", "*","+",")"]:
@@ -246,7 +242,7 @@ class dtd_attr:
         self.values = []
         self.type = 'CDATA'
         if d['type'][0] == '(':
-            groupedNamesRe = getcollector().res["groupedNamesSplitter"]
+            groupedNamesRe = collector.res["groupedNamesSplitter"]
             self.values = [n for n in groupedNamesRe.split(d['type']) if n]
             if casename:
                 self.values = [v.lower() for v in self.values]
@@ -312,7 +308,7 @@ class DTD:
             # log.debug("adding %r",p[0])
             attributes = p[2]
             if not attributes: attributes = MAPTOK|EXECFN
-            self.l.addmatch(getcollector().res[p[0]],p[1],p[0],attributes)
+            self.l.addmatch(collector.res[p[0]],p[1],p[0],attributes)
 
         self.currentTag = None
         self.lineno = 1
@@ -328,7 +324,7 @@ class DTD:
         # XXX
         # because of the many issues around comments in dtd files, and since
         # we're doing a sloppy parse, lets just get rid of all comments now.
-        data = getcollector().res["COMMENT"].sub("", data)
+        data = collector.res["COMMENT"].sub("", data)
         r = re.compile(r"--.*?--", re.S|re.U)
         data = r.sub("", data)
         
@@ -360,7 +356,7 @@ class DTD:
     # keep lineno correct
     def doMultiLineBlock(self, m):
         #log.debug("block start at lineno %d",self.lineno)
-        nl = getcollector().res["newlines"].findall(m.group(0))
+        nl = collector.res["newlines"].findall(m.group(0))
         blockLen = len(nl)
         self.lineno = self.lineno + blockLen
         #log.debug("block had %d lines, lineno is %d", blockLen, self.lineno)
@@ -426,7 +422,7 @@ class DTD:
         self.doMultiLineBlock(m)
         if self.ignore: return ""
         d = m.groupdict()
-        groupedNamesRe = getcollector().res["groupedNamesSplitter"]
+        groupedNamesRe = collector.res["groupedNamesSplitter"]
         names = [n for n in groupedNamesRe.split(d['name']) if n]
         for name in names:
             if self.casename:
@@ -446,7 +442,7 @@ class DTD:
         self.doMultiLineBlock(m)
         if self.ignore: return ""
         d = m.groupdict()
-        groupedNamesRe = getcollector().res["groupedNamesSplitter"]
+        groupedNamesRe = collector.res["groupedNamesSplitter"]
         names = [n for n in groupedNamesRe.split(d['name']) if n]
         for name in names:
             if self.casename:

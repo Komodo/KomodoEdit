@@ -23,7 +23,7 @@
 # SOFTWARE.
 # ===================================================================
 
-__revision__ = "$Id$"
+__revision__ = "$Id: test_rfc1751.py 4769 2010-04-09 17:53:50Z toddw $"
 
 import binascii
 import unittest

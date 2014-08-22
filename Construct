@@ -61,10 +61,9 @@ my @toExport = (
     'withCasper',
     'withJSLib',
     'withWatchdogFSNotifications',
-    'withPGOGeneration',
-    'withPGOCollection',
     'withDocs',
     'withKomodoCix',
+    'withStackato',
     'xulrunner', # xulrunner based builds
     'xulrunnerBuildId',
     'universal', # universal binary builds for osx
@@ -307,17 +306,11 @@ elsif ($platform eq "darwin") {
     $environ{LDFLAGS} .= ' -mmacosx-version-min=10.6';
 }
 
-if ($withPGOGeneration) {
-    if ($platform eq "linux") {
-        $environ{CFLAGS}   .= " -fprofile-generate";
-        $environ{CXXFLAGS} .= " -fprofile-generate";
-        $environ{LDFLAGS}  .= " -fprofile-generate";
-    }
-} elsif ($withPGOCollection) {
-    if ($platform eq "linux") {
-        $environ{CFLAGS}   .= " -fprofile-use -fprofile-correction";
-        $environ{CXXFLAGS} .= " -fprofile-use -fprofile-correction";
-        $environ{LDFLAGS}  .= " -fprofile-use -fprofile-correction";
+
+# Needed for p4 calls in processes kicked off by Cons.
+foreach my $envvar (keys %ENV) {
+    if ($envvar =~ /^P4/) {
+        $environ{$envvar} = $ENV{$envvar};
     }
 }
 
@@ -359,7 +352,6 @@ Build(
     "$build/chrome/komodo/content/dialogs/filebrowser/Conscript",
     "$build/chrome/komodo/content/extmgr/Conscript",
     "$build/chrome/komodo/content/library/Conscript",
-    "$build/chrome/komodo/content/sdk/Conscript",
     "$build/chrome/komodo/content/lint/Conscript",
     "$build/chrome/komodo/content/keybindings/Conscript",
     "$build/chrome/komodo/content/find/Conscript",
@@ -422,6 +414,7 @@ Build(
     "$build/views/Conscript",
     "prebuilt/Conscript",
       
+    "$build/modules/fastopen/Conscript",
     "$build/modules/koextgen/Conscript",
     "$build/modules/places/Conscript",
     "$build/modules/breadcrumbs/Conscript",
@@ -429,18 +422,8 @@ Build(
     "$build/modules/getstarted/Conscript",
     "$build/modules/rails/Conscript",
     "$build/modules/spellcheck/Conscript",
-    "$build/modules/trackchanges/Conscript",
     "$build/modules/zendframework/Conscript",
     "$build/modules/abyss_skin/Conscript",
-    "$build/modules/classic_skin/Conscript",
-    "$build/modules/analytics/Conscript",
-    "$build/modules/commando/Conscript",
-    "$build/modules/scope_files/Conscript",
-    "$build/modules/scope_tools/Conscript",
-    "$build/modules/scope_commands/Conscript",
-    "$build/modules/scope_openfiles/Conscript",
-    "$build/modules/scope_bookmarks/Conscript",
-    "$build/modules/scope_combined/Conscript",
 
     "$build/modules/iconset_ambiance/Conscript",
     "$build/modules/iconset_blue/Conscript",
@@ -471,12 +454,6 @@ if ($withTests) {
 	"$testBuild/pyxpcom/Conscript",
 	"$testBuild/jstest/Conscript",
     );
-    # Headless scintilla for testing.
-    if ($platform eq "linux" || $platform eq "darwin") {
-	Build(
-	    "$build/scintilla/headless/Conscript",
-	);
-    }
 }
 
 if ($withCasper) {
@@ -497,6 +474,7 @@ if ($buildFlavour ne "full") {
     # for now these will only be in dev builds
     Build(
         "$build/chrome/komodo/content/test/Conscript",
+        "$build/chrome/komodo/content/test/jsdb/Conscript",
     );
     # Add the gtkstock icons for Komodo Linux dev builds.
     if ($platform eq "linux") {
@@ -504,6 +482,12 @@ if ($buildFlavour ne "full") {
         "$build/images/gtkstock/Conscript",
     );
     }
+}
+
+if ($withStackato) {
+    Build(
+	"$build/modules/stackato/Conscript",
+    );
 }
 
 if ($platform eq "win") {
@@ -561,10 +545,9 @@ sub cons::Py2To3 {
 
 sub cons::KoExt {
     # Run the given 'koext' command (koext is in the Komodo SDK).
-    my ($env, $args, $xpi_path, $buildDir, @toSkip) = @_;
-    $buildDir = "." unless defined($buildDir);
+    my ($env, $args, @toSkip) = @_;
     if (! scalar(@toSkip)) {
-        @toSkip = (".svn", ".git", "*.xpi", "build", '\.consign');  # default skips
+        @toSkip = (".svn", "*.xpi", "build");  # default skips
     }
     
     # Die if required elements are not defined.
@@ -582,38 +565,28 @@ sub cons::KoExt {
 
     my $mozDevelDist = $build::install::mozDevelDist;
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
-
-    my $landmark = "$buildDir/koext.consjunk"; # fake target to make Cons happy
-    my $extra_options = "";
-    if (defined($xpi_path)) {
-        $landmark = $xpi_path;
-        my $abs_xpi_path = cwd()."/".FilePath($xpi_path);
-        $extra_options .= "-o $abs_xpi_path";
-    }
-    my $abs_builddir = cwd()."/".DirPath($buildDir);
-
+    my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
     $cons->Command(
-        $landmark,
+        "koext.consjunk", # fake target to make Cons happy
         "$sdkDir/bin/koext$scriptExt",
         "$sdkDir/pylib/koextlib.py",
-        "$sdkDir/pylib/chromereg.py",
         "$sdkDir/pylib/cmdln.py",
         "$sdkDir/pylib/preprocess.py",
         "$build/ranregxpcom.consjunk",
         "$mozBin/is_dev_tree.txt",
         qq(
-            $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v $args -d $abs_builddir $pp_defines $extra_options
+            $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v $args -d %0:d $pp_defines
             touch %0
         )
     );
-    $cons->DependsRecursive($landmark, ".", @toSkip);
-    $cons->DependsRecursive2($landmark, "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn', '\.git', '\.consign'));
+    $cons->DependsRecursive("koext.consjunk", ".", @toSkip);
+    $cons->DependsRecursive2("koext.consjunk", "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn', '\.consign'));
 }
 
 sub cons::KoExtUnpack {
-    # Run "koext <args> <xpiPath>" to unpack and install an xpi file into the
+    # Run "koext unpack <xpiPath>" to unpack and install an xpi file into the
     # Komodo build.
-    my ($env, $args, $xpiFile, @toSkip) = @_;
+    my ($env, $xpiFile, @toSkip) = @_;
     if (! scalar(@toSkip)) {
         @toSkip = (".svn", "*.xpi", "build");  # default skips
     }
@@ -626,18 +599,18 @@ sub cons::KoExtUnpack {
 
     my $mozDevelDist = $build::install::mozDevelDist;
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
+    my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
     my $xpiBasename = basename($xpiFile);
     $cons->Command(
         "$xpiBasename.landmark",
         "$sdkDir/bin/koext$scriptExt",
         "$sdkDir/pylib/koextlib.py",
-        "$sdkDir/pylib/chromereg.py",
         "$sdkDir/pylib/cmdln.py",
         "$sdkDir/pylib/preprocess.py",
         "$build/ranregxpcom.consjunk",
         "$mozBin/is_dev_tree.txt",
         qq(
-            $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v $args $xpiFile
+            $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v kounpack $xpiFile
             touch %0
         )
     );
@@ -662,11 +635,14 @@ sub cons::KoExtSourceDevInstall {
 
     my $mozDevelDist = $build::install::mozDevelDist;
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
+    my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
     my $extSrcDir = dirname(SourcePath('install.rdf'));
     $cons->Command(
         "koextsourcedevinstall.consjunk", # fake target to make Cons happy
         "$sdkDir/bin/koext$scriptExt",
         "$sdkDir/pylib/koextlib.py",
+        "$sdkDir/pylib/chromereg.py",
+        "$sdkDir/pylib/chromereg.py",
         "$sdkDir/pylib/chromereg.py",
         "$sdkDir/pylib/cmdln.py",
         "$sdkDir/pylib/preprocess.py",
@@ -679,6 +655,13 @@ sub cons::KoExtSourceDevInstall {
     );
     $cons->DependsRecursive("koextsourcedevinstall.consjunk", ".", @toSkip);
     $cons->DependsRecursive2("koextsourcedevinstall.consjunk", "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn', '\.consign'));
+}
+
+# Headless scintilla for testing.
+if ($platform eq "linux") {
+    Build(
+        "$build/scintilla/headless/Conscript",
+    );
 }
 
 sub cons::Preprocess {
@@ -1244,22 +1227,12 @@ sub cons::AddComponentManifestLines {
     defined($manifestLines) or
 	die "When building rule for $fileName: no manifest line was defined";
     my $quotedEntries = '"' . join('" "', @$manifestLines) . '"';
-    # Tweak env to point PYTHONPATH at the mozbuild dir.
-    my %envLocal = $env->copy();
-    my $platformPathSep = ($^O eq "MSWin32" ? ";" : ":");
-    $envLocal{'PYTHONPATH'} = $ENV{'PYTHONPATH'} . "$platformPathSep$mozSrc/mozilla/python/mozbuild";
-    $envLocal = new cons(ENV => \%envLocal);
-    my $buildlistScript = "$mozSrc/mozilla/python/mozbuild/mozbuild/action/buildlist.py";
-    if ($mozVersion le 24.99) {
-	$buildlistScript = "$mozSrc/mozilla/config/buildlist.py";
-    }
-    $envLocal->Command("$fileName.manifestlines.landmark",
+    $env->Command("$fileName.manifestlines.landmark",
 		  "$mozComponentsDir/komodo.manifest",
-		  $buildlistScript,
-		  # Last command is to fake a touch command using Python.
+		  "$mozSrc/mozilla/config/buildlist.py",
 		  qq(
 		    $unsiloedPythonExe %2 %1 $quotedEntries
-		    $unsiloedPythonExe -c "import sys; file(sys.argv[1], 'w')" %0
+		    touch %>
 		  ));
 }
 
@@ -1294,14 +1267,10 @@ sub cons::InstallXpcomComponent {
         }
 	$env->AddComponentManifestLines($fileName, @manifestLines);
 
-        my $buildlistScript = "$mozSrc/mozilla/python/mozbuild/mozbuild/action/buildlist.py";
-        if ($mozVersion le 24.99) {
-            $buildlistScript = "$mozSrc/mozilla/config/buildlist.py";
-        }
         my @deps = ("$fileName.manifest.landmark",
                     "$mozComponentsDir/$baseName",
                     "$mozComponentsDir/komodo.manifest",
-                    $buildlistScript);
+                    "$mozSrc/mozilla/config/buildlist.py");
         my @commands = ();
         while (my ($contractid, $cid) = each %$contracts) {
             push @commands, qq(
@@ -1309,15 +1278,9 @@ sub cons::InstallXpcomComponent {
                 $unsiloedPythonExe %3 %2 "component $cid %1:f"
             );
         }
-        # Fake a touch command using Python.
-        push @commands, "$unsiloedPythonExe -c \"import sys; file(sys.argv[1], 'w')\" %0";
+        push @commands, "touch %>";
         push @deps, join("\n", @commands);
-        # Tweak env to point PYTHONPATH at the mozbuild dir.
-        my %envLocal = $env->copy();
-        my $platformPathSep = ($^O eq "MSWin32" ? ";" : ":");
-        $envLocal{'PYTHONPATH'} = $ENV{'PYTHONPATH'} . "$platformPathSep$mozSrc/mozilla/python/mozbuild";
-        $envLocal = new cons(ENV => \%envLocal);
-        $envLocal->Command(@deps);
+        $env->Command(@deps);
     }
     elsif ($fileName =~ /\.py$/) {
         defined($unsiloedPythonExe) or \

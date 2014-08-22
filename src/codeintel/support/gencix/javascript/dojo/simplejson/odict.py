@@ -21,7 +21,7 @@ __author__ = ('Nicola Larosa <nico-NoSp@m-tekNico.net>,'
 
 __docformat__ = "restructuredtext en"
 
-__revision__ = '$Id$'
+__revision__ = '$Id: odict.py 14 2007-09-24 17:33:23Z trentm $'
 
 __version__ = '0.2.1'
 

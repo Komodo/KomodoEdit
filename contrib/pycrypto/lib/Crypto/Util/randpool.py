@@ -24,7 +24,7 @@
 # ===================================================================
 #
 
-__revision__ = "$Id$"
+__revision__ = "$Id: randpool.py 4769 2010-04-09 17:53:50Z toddw $"
 
 from Crypto.pct_warnings import RandomPool_DeprecationWarning
 import Crypto.Random

@@ -402,14 +402,10 @@ $consTidy->Command($exeName,
 $consTidy->Install("$supportDir/html", $exeName);
 }
 
-# six (required for html5lib)
-$consLocal->Install("$komodoPythonUtilsDir", "six/six.py");
-
-# html5lib
-$landmark = "$komodoPythonUtilsDir/html5lib";
+my $landmark = "$komodoPythonUtilsDir/html5lib";
 $consLocal->InstallRecursive($landmark,
                         #XXX must be absolute path (bug in InstallRecursive)
-                        cwd()."/contrib/html5lib/html5lib",
+                        cwd()."/contrib/html5lib/src/html5lib",
                         ('\.svn'));
 
 # jslint
@@ -422,9 +418,6 @@ $consLocal->InstallAs("$mozChromeDir/komodo/content/library/ejs.js", "ejs/ejs_ed
 #less css
 $consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/less.js", "smallstuff/less.js");
 
-# commonjs
-$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/dot.js", "commonjs/dot.js");
-$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/randomColor.js", "commonjs/randomColor.js");
 
 #----  Watchdog for file notifcations
 if ($withWatchdogFSNotifications) {
@@ -460,19 +453,6 @@ $consLocal->Command($landmark,
                 cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                ));
 $consLocal->DependsRecursive($landmark, "zope/cachedescriptors", ("build", '\.svn', '\.consign'));
-
-#----  Scandir property descriptors.
-my $landmark = "$komodoPythonUtilsDir/scandir/scandir.py";
-$consLocal->Command($landmark,
-               "scandir/setup.py",
-               qq(
-                cd %1:d && $siloedPython %1:f build $debugFlags
-                cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
-               ));
-$consLocal->DependsRecursive($landmark, "scandir", ("build"));
-
-#----  Markdown2.
-$consLocal->InstallPythonUtility('smallstuff/markdown2.py');
 
 
 #---- komododoc

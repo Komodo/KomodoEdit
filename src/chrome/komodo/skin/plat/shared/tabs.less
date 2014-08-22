@@ -283,6 +283,11 @@ tabs:not(.tabs-bottom) tab
     text-align: center;
     -moz-transition: @tab-transition;
 
+    & > hbox > spacer
+    {
+        width: 5px;
+    }
+
     .tab-text
     {
         font-family: @tab-font;

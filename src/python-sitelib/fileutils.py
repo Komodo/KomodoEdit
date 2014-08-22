@@ -137,22 +137,19 @@ def copyLocalFolder(srcPath, targetDirPath):
 
 if sys.platform == "win32":
     import ctypes
-    kernel32 = ctypes.WinDLL("kernel32")
-    GetFileAttributes = kernel32.GetFileAttributesW
-    GetFileAttributes.rettype = ctypes.c_uint32
-    GetFileAttributes.argtypes = [ctypes.c_wchar_p]
-    minus_one = ctypes.c_uint32(-1)
     def isHiddenFile(path):
         try:
+            kernel32 = ctypes.WinDLL("kernel32")
+            GetFileAttributes = kernel32.GetFileAttributesW
+            GetFileAttributes.rettype = ctypes.c_uint32
+            GetFileAttributes.argtypes = [ctypes.c_wchar_p]
             result = GetFileAttributes(path)
-            if result == minus_one:
+            if result == ctypes.c_uint32(-1):
                 # Error getting attributes
                 # Assume if we can't access <path>, nothing else should either.
                 return True
             return result & 0x02
         except:
-            import logging
-            log = logging.getLogger("fileutils")
             log.exception("Internal error: Unexpected exception while trying to access file %s", path)
             return True
 else:

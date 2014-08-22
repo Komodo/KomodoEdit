@@ -33,5 +33,5 @@ Crypto.Util.asn1          Minimal support for ASN.1 DER encoding
 
 __all__ = ['randpool', 'RFC1751', 'number', 'strxor', 'asn1' ]
 
-__revision__ = "$Id$"
+__revision__ = "$Id: __init__.py 7847 2011-04-21 18:51:40Z toddw $"
 

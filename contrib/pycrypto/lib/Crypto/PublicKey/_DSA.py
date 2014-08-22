@@ -25,7 +25,7 @@
 # ===================================================================
 #
 
-__revision__ = "$Id$"
+__revision__ = "$Id: _DSA.py 7847 2011-04-21 18:51:40Z toddw $"
 
 from Crypto.PublicKey.pubkey import *
 from Crypto.Util import number

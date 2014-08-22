@@ -39,7 +39,7 @@
 
 """A Python interpretation of GNU make."""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: __init__.py 1102 2008-03-11 19:24:01Z trentm $"
 __version_info__ = (0, 3, 0)
 __version__ = '.'.join(map(str, __version_info__))
 

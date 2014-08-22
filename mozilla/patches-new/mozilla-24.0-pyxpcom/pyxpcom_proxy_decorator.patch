@@ -1,0 +1,71 @@
+# HG changeset patch
+# Parent 7ce5722526d0db0ff225e9c44a8a0f0ff9cdd2e9
+importing patch pyxpcom_proxy_decorator.patch
+
+diff --git a/xpcom/components.py b/xpcom/components.py
+--- a/xpcom/components.py
++++ b/xpcom/components.py
+@@ -220,6 +220,63 @@ del _ComponentCollection
+ # The ID function
+ ID = _xpcom.IID
+ 
++
++# Internal runnable class.
++class _Runnable(object):
++    """Used to run a method call on the main thread."""
++    _com_interfaces_ = [interfaces.nsIRunnable]
++
++    def __init__(self, fn, *args, **kwargs):
++        self.fn = fn
++        self.args = args
++        self.kwargs = kwargs
++        self.result = None
++
++    def run(self, *args):
++        self.result = self.fn(*self.args, **self.kwargs)
++        # Null out values.
++        self.fn = None
++        self.args = None
++        self.kwargs = None
++
++# This ProxyToMainThread method will proxy the given function through to
++# the main thread (synchronously). It does this by creating a
++# ProxiedMethod instance, which it uses to imitate an XPCOM call
++# (nsIObserver.observe), this observe method is then called on the main
++# thread, which in turn will call the original method that we wanted to
++# be proxied. Once the observe call is done, the result of proxied
++# method is returned.
++#
++# Note: Each call made to the 'fn' will create a new proxy object, which
++#       ensures that every call made to 'fn' is proxied no matter what
++#       thread is calling the function.
++#
++def ProxyToMainThread(fn, dispatch_flags=interfaces.nsIThread.DISPATCH_SYNC):
++    """Synchronously call fn on the main thread and return the result."""
++    import threading
++    def wrapperFn(*args, **kwargs):
++        threadMgr = classes["@mozilla.org/thread-manager;1"]\
++                           .getService(interfaces.nsIThreadManager)
++        if threading.currentThread().name != "MainThread":
++            method = _Runnable(fn, *args, **kwargs)
++            threadMgr.mainThread.dispatch(method, dispatch_flags)
++            result = method.result
++            method.result = None
++            return result
++        else:
++            return fn(*args, **kwargs)
++    return wrapperFn
++
++def ProxyToMainThreadAsync(fn, dispatch_flags=interfaces.nsIThread.DISPATCH_NORMAL):
++    return ProxyToMainThread(fn, dispatch_flags)
++
++_xpcom.PROXY_SYNC = 1
++_xpcom.PROXY_ASYNC = 2
++_xpcom.PROXY_ALWAYS = 4
++def _getProxyForObject(targetThread, iface, obj, flags):
++    raise AttributeError, "getProxyForObject was removed - use nsIRunnable instead"
++_xpcom.getProxyForObject = _getProxyForObject
++
+ def _on_shutdown():
+     global manager, registrar, classes, interfaces, interfaceInfoManager, serviceManager, _constants_by_iid_map
+     manager = registrar = classes = interfaces = interfaceInfoManager = serviceManager = _constants_by_iid_map = None

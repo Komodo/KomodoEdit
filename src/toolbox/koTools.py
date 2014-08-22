@@ -36,13 +36,13 @@ _toolsManager = None
 
 _icons = {
     'folder'    :   'chrome://komodo/skin/images/folder-closed.png',
-    'menu'      :   'chrome://komodo/skin/images/toolbox/menu.svg',
-    'toolbar'   :   'chrome://komodo/skin/images/toolbox/toolbar.svg',
-    'terminal'  :   'chrome://komodo/skin/images/toolbox/command.svg',
-    'macro'     :   'chrome://komodo/skin/images/toolbox/macro.svg',
-    'cut'       :   'chrome://komodo/skin/images/toolbox/snippet.svg',
-    'template'  :   'chrome://komodo/skin/images/toolbox/template.svg',
-    'url'       :   'chrome://komodo/skin/images/toolbox/browser.svg'
+    'menu'      :   'chrome://komodo/skin/images/menu_icon.png',
+    'toolbar'   :   'chrome://komodo/skin/images/toolbar_icon.png',
+    'terminal'  :   'chrome://fugue/skin/icons/application-terminal.png',
+    'macro'     :   'chrome://komodo/skin/images/macro.png',
+    'cut'       :   'chrome://komodo/skin/images/cut.png',
+    'template'  :   'chrome://komodo/skin/images/newTemplate.png',
+    'url'       :   'chrome://fugue/skin/icons/globe.png'
 }
 
 if sys.platform == 'darwin':

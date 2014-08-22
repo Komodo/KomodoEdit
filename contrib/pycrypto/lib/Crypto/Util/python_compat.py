@@ -30,7 +30,7 @@ Currently, this just defines:
     - isinstance
 """
 
-__revision__ = "$Id$"
+__revision__ = "$Id: python_compat.py 4769 2010-04-09 17:53:50Z toddw $"
 __all__ = []
 
 import sys

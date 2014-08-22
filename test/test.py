@@ -134,9 +134,6 @@ def _setup_for_xpcom():
     pyEnvironSvc._UpdateFromStartupEnv()
 
 if __name__ == "__main__":
-    import warnings
-    warnings.simplefilter("default", category=DeprecationWarning)
-    logging.captureWarnings(True)
     _setup_for_xpcom()
     retval = testlib.harness(testdir_from_ns=testdir_from_ns,
                              setup_func=setup,

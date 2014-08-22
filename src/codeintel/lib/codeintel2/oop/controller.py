@@ -47,7 +47,7 @@ class OOPEvalController(EvalController):
         log.debug("close")
         EvalController.close(self)
         if not self.has_sent_response:
-            self.driver.fail(request=self.request, message="aborted")
+            self.driver.fail(request=self.request, msg="aborted")
             self.has_sent_response = True
 
     def set_desc(self, desc):
@@ -55,6 +55,8 @@ class OOPEvalController(EvalController):
         EvalController.set_desc(self, desc)
 
         if not self.silent:
+            self.log.error("error evaluating %s:\n  trigger: %s\n  log:",
+                           desc, self.trg)
             # Reset the formatter to be minimal
             fmt = logging.Formatter(fmt="    %(levelname)s: %(message)s")
             self.log_hndlr.setFormatter(fmt)
@@ -72,7 +74,7 @@ class OOPEvalController(EvalController):
             log.debug("Suppressing repeat abort message: %r", self.request)
             return
         EvalController.abort(self)
-        self.driver.fail(request=self.request, message="aborted")
+        self.driver.fail(request=self.request, msg="aborted")
 
     def done(self, reason):
         log.debug("done: %s %s", reason,
@@ -113,7 +115,7 @@ class OOPEvalController(EvalController):
             self.driver.fail(request=self.request, message=msg)
         else:
             # ERROR
-            self.driver.fail(request=self.request, message=reason)
+            self.driver.fail(request=self.request, msg=reason)
 
         self.log = log # If we have any more problems, put it in the main log
         self.log_stream.close()

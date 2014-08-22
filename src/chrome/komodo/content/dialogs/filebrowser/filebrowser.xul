@@ -68,7 +68,6 @@
 <keyset id="filebrowserKeys">
     <!-- Fix bug #42250, close window when escape key is pressed -->
     <key keycode="VK_ESCAPE" modifiers="" oncommand="onCancel(); window.close();"/>
-    <key keycode="VK_F5" modifiers="" oncommand="doRefresh();"/>
 </keyset>
 
 <popupset>

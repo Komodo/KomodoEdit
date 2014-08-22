@@ -64,6 +64,7 @@
         title="&find.title;"
         windowtype="komodo_find2"
         class="kodialog"
+        width="640"
         persist="screenX screenY"
         onload="on_load()"
         onunload="on_unload()"
@@ -85,6 +86,7 @@
       
     <keyset id="findKeys">
         <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
+        <key keycode="VK_ENTER" oncommand="ko.dialogs.handleEnterKey();"/>
         <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
 <!-- #if PLATFORM != "darwin" -->
         <key key="d" modifiers="control" oncommand="search_in('document')" />

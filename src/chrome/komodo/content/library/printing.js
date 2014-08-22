@@ -34,17 +34,19 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
-/**
+if (typeof(ko)=='undefined') {
+    var ko = {};
+}
+
+/*
  * Printing APIs -- stolen and adapted from mailWindowOverlay.js
  *
  */
-const {Cc, Ci, Cu, Cr} = require("chrome");
-
+ko.printing = {};
+(function() {
 var _gBrowserLoadListener = null;
 
-const log = require("ko/logging").getLogger("printing");
-const PrintUtils = window.PrintUtils;
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+var log = ko.logging.getLogger("printing");
 
 function _initPrintSettings() {
     if (!PrintUtils._gOrigGetPrintSettings) {
@@ -56,9 +58,8 @@ function _initPrintSettings() {
             var settings = PrintUtils._gOrigGetPrintSettings();
             // Customize it.
             settings.headerStrRight = ""; // Never print the URL.
-            var prefs = Cc['@activestate.com/koPrefService;1']
-                          .getService(Ci.koIPrefService)
-                          .prefs;
+            var prefs = Components.classes['@activestate.com/koPrefService;1'].
+                            getService(Components.interfaces.koIPrefService).prefs;
             if (!prefs.getBooleanPref("printHeaderFilepath")) {
                 settings.headerStrLeft = "";
             }
@@ -73,7 +74,7 @@ function _initPrintSettings() {
     }
 }
 
-exports.printPreview = function(view, preview, tofile, selectionOnly)
+this.printPreview = function(view, preview, tofile, selectionOnly)
 {
     _initPrintSettings();
     window.openDialog("chrome://komodo/content/printPreview.xul",
@@ -83,7 +84,16 @@ exports.printPreview = function(view, preview, tofile, selectionOnly)
                       );
 }
 
-exports.browserPrintPreview = function(evt)
+this.browserPrintPreviewEnter = function() {
+    document.getElementById("printPreviewDeck").setAttribute("selectedIndex",1);
+    window.sizeToContent();
+}
+
+this.browserPrintPreviewExit = function() {
+    window.close();
+}
+
+this.browserPrintPreview = function(evt)
 {
     try {
         var browser = document.getElementById("printSource");
@@ -92,16 +102,13 @@ exports.browserPrintPreview = function(evt)
             getPrintPreviewBrowser: function() { return document.getElementById("printBrowser"); },
             getSourceBrowser: function() { return browser },
             getNavToolbox: function() { return document.getElementById("printPreviewDeck"); },
-            onEnter: function() {
-                document.getElementById("printPreviewDeck").setAttribute("selectedIndex",1);
-                window.sizeToContent();
-            },
-            onExit: function() { window.close(); },
+            onEnter: ko.printing.browserPrintPreviewEnter,
+            onExit: ko.printing.browserPrintPreviewExit,
         });
     } catch(e) { log.exception(e); }
 }
 
-exports.browserPrint = function()
+this.browserPrint = function()
 {
     try {
         var browser = document.getElementById("printBrowser");
@@ -110,13 +117,12 @@ exports.browserPrint = function()
     } catch(e) { log.exception(e); }
 }
 
-exports.print = function(view, preview, tofile, selectionOnly)
+this.print = function(view, preview, tofile, selectionOnly)
 {
     try {
         _initPrintSettings();
         var lang = view.koDoc.languageObj;
-        var schemeService = Cc['@activestate.com/koScintillaSchemeService;1']
-                              .getService();
+        var schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService()
         var outputFile;
         if (typeof(tofile) == 'undefined') {
             tofile = false;
@@ -130,7 +136,7 @@ exports.print = function(view, preview, tofile, selectionOnly)
         }
         if (tofile) {
             var newname = view.koDoc.displayPath;
-            var os = Cc['@activestate.com/koOs;1'].getService();
+            var os = Components.classes['@activestate.com/koOs;1'].getService();
             if (view.koDoc.isUntitled) {
                 newname = os.path.realpath(os.path.join('.', newname));
             }
@@ -141,8 +147,8 @@ exports.print = function(view, preview, tofile, selectionOnly)
                         "Save '"+os.path.basename(newname)+"' As...", "HTML");
             if (!fname) return false;
         } else {
-            var tmpFileSvc = Cc["@activestate.com/koFileService;1"]
-                               .getService(Ci.koIFileService)
+            var tmpFileSvc = Components.classes["@activestate.com/koFileService;1"]
+                             .getService(Components.interfaces.koIFileService)
             fname = tmpFileSvc.makeTempName(".html")
         }
 
@@ -156,8 +162,8 @@ exports.print = function(view, preview, tofile, selectionOnly)
                                             selectionOnly,
                                             forceColor);
         } catch (e) {
-            var lastErrorSvc = Cc["@activestate.com/koLastErrorService;1"]
-                                 .getService(Ci.koILastErrorService);
+            var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                               getService(Components.interfaces.koILastErrorService);
             var errno = lastErrorSvc.getLastErrorCode();
             var errmsg = lastErrorSvc.getLastErrorMessage();
             ko.dialogs.alert("There was an error creating the HTML file '" + fname + "'",
@@ -171,13 +177,10 @@ exports.print = function(view, preview, tofile, selectionOnly)
             var browser = null;
             if (preview) {
               browser = document.getElementById("printSource");
-              log.debug("Setting up load listener...");
-              _gBrowserLoadListener = (evt) =>
-                window.setTimeout(exports.browserPrintPreview, 0, evt);
+              _gBrowserLoadListener = function(evt) { setTimeout(ko.printing.browserPrintPreview, 0, evt); };
             } else {
               browser = document.getElementById("printBrowser");
-              _gBrowserLoadListener = (evt) =>
-                window.setTimeout(exports.browserPrint, 0, evt);
+              _gBrowserLoadListener = function(evt) { setTimeout(ko.printing.browserPrint, 0, evt); };
             }
             browser.addEventListener("load", _gBrowserLoadListener , true);
             browser.loadURI(URI, null);
@@ -189,22 +192,26 @@ exports.print = function(view, preview, tofile, selectionOnly)
     return false;
 }
 
-exports.showPageSetup = function() {
-    PrintUtils.showPageSetup();
-};
-
 var printBrowserListener = {
   print: null,
   get docSvc() {
-        return Cc['@activestate.com/koDocumentService;1']
-                 .getService(Ci.koIDocumentService);
+        return Components.classes['@activestate.com/koDocumentService;1']
+                .getService(Components.interfaces.koIDocumentService);
   },
-  QueryInterface : XPCOMUtils.generateQI([Ci.nsIWebProgressListener,
-                                          Ci.nsISupportsWeakReference]),
+  QueryInterface : function(aIID)
+  {
+    if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
+        aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
+        aIID.equals(Components.interfaces.nsISupports))
+    {
+      return this;
+    }
+    throw Components.results.NS_NOINTERFACE;
+  },
   init : function() {},
   destroy : function() {},
   onStateChange : function(aWebProgress, aRequest, aStateFlags, aStatus) {
-    if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+    if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP) {
         if (this.print) this.print();
     }
   },
@@ -214,3 +221,4 @@ var printBrowserListener = {
   onSecurityChange : function(aWebProgress, aRequest, aState) {}
 };
 
+}).apply(ko.printing);

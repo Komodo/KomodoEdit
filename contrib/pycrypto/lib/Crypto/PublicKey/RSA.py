@@ -24,7 +24,7 @@
 
 """RSA public-key cryptography algorithm."""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: RSA.py 7847 2011-04-21 18:51:40Z toddw $"
 
 __all__ = ['generate', 'construct', 'error', 'importKey' ]
 

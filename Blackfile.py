@@ -715,9 +715,7 @@ configuration = {
     # Komodo build/version configuration vars.
     "sourceId": SourceId(),                                         #   e.g., 1234M
     "sccRepoName": "oksvn",                 # openkomodo.com SVN repo
-    "sccType": SCCType(),
     "sccBranch": SCCBranch(),               # e.g.: "trunk"
-    "sccRepo": SCCRepo(),                   # upstream repo location
     "normSCCBranch": NormSCCBranch(),       # Normalized version.
     # - base variables:                                             # Example:
     "komodoVersion": KomodoVersion(),                               #   3.10.0-alpha1
@@ -818,17 +816,13 @@ configuration = {
     "docsPackageName": DocsPackageName(),
     "mozPatchesPackageName": MozPatchesPackageName(),
 
+    "withStackato": WithStackato(),
     "withTests": WithTests(),
     "withCasper": WithCasper(),
     "withJSLib": WithJSLib(),
     "withDocs": WithDocs(),
     "withKomodoCix": WithKomodoCix(),
     "withWatchdogFSNotifications": WithWatchdogFSNotifications(),
-
-    # PGO builds
-    "withPGOGeneration": WithPGOGeneration(),
-    "withPGOCollection": WithPGOCollection(),
-    
     "xulrunner": XULRunnerApp(), # xulrunner based builds
     "universal": UniversalApp(), # ppc+i386 builds
 
@@ -904,66 +898,6 @@ def _banner(text, ch='=', length=78):
             prefix = ch * (prefix_len/len(ch)) + ch[:prefix_len%len(ch)]
             suffix = ch * (suffix_len/len(ch)) + ch[:suffix_len%len(ch)]
         return prefix + ' ' + text + ' ' + suffix
-
-def FetchDependentSources(cfg, argv, update=True):
-    """get dependent sources we need (svn externals / git submodules)
-
-    bk fetch
-
-        This command takes no arguments.  It will attempt to download the
-        required external sources (such as the documentation).
-    """
-
-    try:
-        if argv[0] in ("--update", "-u"):
-            update = True
-            argv.pop(0)
-        elif argv[0] in ("--no-update", "-n"):
-            update = False
-            argv.pop(0)
-    except IndexError:
-        pass # no argv
-
-    if not cfg.sccType:
-        # Not under scc... not sure what we are dealing with then.
-        # (This might be the case for, e.g., source tarballs)
-        return
-
-    children = []
-    """< This is a sequence of dicts; each has a name (for display only),
-         a dir (where the result will go), and some data about how to get
-         the result.  For git repos, the subkey "git" contains the
-         mapping from the toplevel git repo to the url for the sub-repo;
-         both are relative to the root of the server.
-    """
-
-    if cfg.withDocs:
-        children.append(
-            {   "name": "docs",
-                "sccType": "git",
-                "dir": join(cfg.komodoDevDir, "contrib", "komododoc"),
-                "url": "https://github.com/Komodo/komodo-documentation.git",
-            }
-        )
-    for child in children:
-        if child["sccType"] != cfg.sccType:
-            continue
-        if cfg.sccType == "git":
-            repo_url = child["url"]
-            if exists(child["dir"]):
-                if update:
-                    print("Updating git %s in %r" % (child["name"], child["dir"]))
-                    _run(["git", "pull", "--rebase"], cwd=child["dir"])
-            else:
-                if not isdir(dirname(child["dir"])):
-                    os.makedirs(dirname(child["dir"]))
-                print("Cloning git %s into %r" % (child["name"], child["dir"]))
-                _run(["git", "clone", repo_url, child["dir"]])
-        else:
-            # svn doesn't reach here, svn:externals can do the job
-            raise RuntimeError("Don't know how to get %s via %s"
-                               % (child["name"], cfg.sccType))
-
 
 def StripBinaries(topdir):
     """Remove any unnecssary information from the Komodo binaries"""
@@ -2113,7 +2047,7 @@ def GetScintillaSource(cfg, argv):
 
     This is only done if src/scintilla doesn't already exist.
     """
-    landmark = join("src", "scintilla", ".patchtree-state")
+    landmark = join("src", "scintilla", "version.txt")
     if exists(landmark):
         return
 
@@ -2128,13 +2062,9 @@ def GetScintillaSource(cfg, argv):
                     config=cfg,
                     #dryRun=1,  # uncomment this line to dry-run patching
                     logDir=join(cfg.buildAbsDir, "scintilla-patch-log"))
-    # Run the HFacer to generate the scintilla include files.
-    _run_in_dir(sys.executable + " HFacer.py",
-                join("src", "scintilla", "include"),
-                log.debug)
 
 
-def _BuildKomodo(cfg, argv):
+def BuildKomodo(cfg, argv):
     if "jarxtk" in argv:
         return JarChrome("xtk", cfg, argv)
     if "jarkomodo" in argv:
@@ -2152,16 +2082,11 @@ def _BuildKomodo(cfg, argv):
         return GetScintillaSource(cfg, argv)
     if "crashreportsymbols" in argv:
         return BuildCrashReportSymbols(cfg)
-    if "caches" in argv:
-        return GenerateCaches(cfg)
     if "package_md5sums" in argv:
         return _PackageUpdateMd5sums(cfg)
     noquick = "noquick" in argv
     if noquick:
         argv.remove("noquick")     
-
-    # Fetch sub-repos if necessary
-    retval = FetchDependentSources(cfg, argv, update=False)
 
     # Unzip the prebuilt Python if necessary.
     retval = ExtractPrebuiltPython(cfg, argv)
@@ -2188,29 +2113,6 @@ def _BuildKomodo(cfg, argv):
         BuildQuickBuildDB(cfg, argv)
     return retval
 
-def humantime(sec):
-    if sec <= 60:
-        return '%0.2f' % (sec)
-    if sec <= 3600:
-        return '%dm%ds' % (sec // 60, sec % 60)
-    return '%dh%dm%ds' % (sec // 3600, (sec // 60) % 60, sec % 60)
-
-def BuildKomodo(cfg, argv):
-    starttime = time.time()
-    try:
-        retval = _BuildKomodo(cfg, argv)
-    except AttributeError, ex:
-        if "'module' object has no attribute" in str(ex):
-            import traceback
-            traceback.print_exc()
-            print "\nBuild error - perhaps you need to bk reconfigure?\n"
-            return -1
-        raise
-    endtime = time.time()
-    duration = endtime - starttime
-    print "Build time - %s" % (humantime(duration))
-    return retval
-
 def CleanKomodoBuild(cfg, argv):
     """Try to clean out most of the Komodo build bits."""
     from os.path import abspath, join, isdir, isfile
@@ -2232,11 +2134,6 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("komodo-config.py"),
         mozbinpath("komodo-config"),
 
-        # Scintilla libraries.
-        mozbinpath("SciLexer.dll"),
-        mozbinpath("ScintillaHeadless.dll"),
-        mozbinpath("libscintilla.dylib"),
-
         mozbinpath("chrome", "icons"),
         mozbinpath("chrome", "xtk"),
         mozbinpath("chrome", "xtk.jar"),
@@ -2253,7 +2150,6 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("chrome", "skins"),
         mozbinpath("components", "komodo.manifest"),
         mozbinpath("components", "ko*.py"),
-        mozbinpath("components", "ko*.pyc"),
         mozbinpath("components", "ko*.pyo"),
         mozbinpath("components", "ko*.js"),
         mozbinpath("components", "ko*.xpt"),
@@ -2262,11 +2158,8 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("components", "as*.xpt*"),
         mozbinpath("components", "as*.js"),
         mozbinpath("components", "libko*"),
-        mozbinpath("components", "scimoz_wrapper.js"),
-        mozbinpath("components", "xpcomJSElements.*"),
+        mozbinpath("modules", "js_beautify.js"),
         mozbinpath("plugins", "npscimoz.dll"),
-        mozbinpath("plugins", "libnpscimoz.so"),
-
         mozbinpath("extensions"),
         mozbinpath("updater.ini"),
 
@@ -2308,8 +2201,6 @@ def DistCleanKomodoBuild(cfg, argv):
         join(cfg.komodoDevDir, "src", "scintilla"),
         join(cfg.komodoDevDir, "generated.pdb"),
     ]
-    if cfg.sccType == "git":
-        bits.append(join(cfg.komodoDevDir, "contrib", "komododoc"))
     for path in bits:
         out.write("remove '%s'\n" % path)
         if sys.platform == "win32":
@@ -2426,14 +2317,9 @@ def TestKomodo(cfg, argv):
     import tmShUtil
     # "mozpython" is the Python binary in the $mozBin dir for which PyXPCOM
     # will work (paths, libs, etc. setup properly). See bug 66332.
-    # Default to optimize, because asserts break the html/xml parser. Bug 99976.
-    cmd = 'mozpython -O test.py'
-    if "--assert" in argv:
-        argv.remove("--assert")
-        cmd = 'mozpython test.py'
     return tmShUtil.RunInContext(cfg.envScriptName, [
         'cd test',
-        '%s %s' % (cmd, ' '.join(argv[1:]))
+        'mozpython -O test.py %s' % ' '.join(argv[1:])
     ])
 
 def TestKomodoPerf(cfg, argv):
@@ -2552,6 +2438,7 @@ def BuildQuickBuildDB(cfg, argv):
               extNameMappings={
                     'rails': 'railstools',
                     'spellcheck': 'komodospellchecker',
+                    'stackato': 'stackatotools',
                     })
     _addFiles(cfg, sourceSubdir='src/',
               targetSubdir=os.path.join(cfg.mozBin, 'components'),
@@ -2572,10 +2459,6 @@ def BuildQuickBuildDB(cfg, argv):
     _addFiles(cfg, sourceSubdir='src/codeintel/lib',
               targetSubdir=cfg.komodoPythonUtilsDir,
               extensions=['py', 'cix'],
-              preserveSubtrees=1)
-    _addFiles(cfg, sourceSubdir='src/codeintel/bin',
-              targetSubdir=os.path.join(cfg.supportDir, "codeintel"),
-              extensions=['py'],
               preserveSubtrees=1)
     _addFiles(cfg, sourceSubdir='src/prefs',
               targetSubdir=os.path.join(cfg.supportDir),
@@ -2624,8 +2507,7 @@ def BuildQuickBuildDB(cfg, argv):
   
     pickle.dump(_table, open('qbtable.pik', 'w'))
     endtime = time.time()
-    duration = endtime - starttime
-    print "Cache created - %s" % (humantime(duration))
+    print "Cache created successfully - %0.2f seconds" % (endtime - starttime)
 
 def DumpQuickBuildDB(cfg, argv):
     sys.stderr.write("Dumping quick build cache...\n");
@@ -2661,7 +2543,7 @@ def QuickBuild(cfg, argv, _table):
                                                "MOZILLA_VERSION": cfg.mozVersion,
                                                "BUILD_FLAVOUR": cfg.buildFlavour,
                                                "UPDATE_CHANNEL": cfg.updateChannel,
-                                               "WITH_PLACES": 1,
+                                               "WITH_PLACES": cfg.withPlaces,
                                                "WITH_CASPER": cfg.withCasper},
                                       force=1,
                                       keepLines=1,
@@ -2722,7 +2604,6 @@ def BuildCrashReportSymbols(cfg):
 
 
 commandOverrides = {
-    "fetch": FetchDependentSources,
     "build": BuildKomodo,
     "run": RunKomodo,
     "cleanprefs": CleanPreferences,
@@ -2735,19 +2616,3 @@ commandOverrides = {
     "image": ImageKomodo,
     "grok": GrokKomodo,
 }
-
-helpTemplate = """
-        bk distclean        completely clean everything
-        bk configure        configure to build %(name)s
-        bk fetch            fetch dependent sources
-        bk build            build %(name)s
-        bk clean            clean %(name)s
-        bk run              run the %(name)s app
-        bk start <command>  execute a command in the configured environment
-        bk test             run %(name)ss self-test suite
-
-        bk package          package up %(name)s bits
-        bk upload           upload %(name)s bits to staging area
-        bk cleanprefs <komodo|mozilla>
-                            clean Komodo or Mozilla prefs
-"""

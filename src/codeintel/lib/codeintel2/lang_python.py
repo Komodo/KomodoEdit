@@ -504,34 +504,13 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         
         if not python or not exists(python):
             import which
-            # Prefer the version-specific name, but we might need to use the
-            # unversioned binary instead; for example, on Win32, Python3 only
-            # ships with "python.exe"
-            if self.lang == "Python":
-                # For Python 2, prefer "python" over "python2"
-                # (to match old behaviour better)
-                exe_names = ["python", "python2"]
-                major_version = 2
-            elif self.lang == "Python3":
-                # For Python 3, prefer "python3" over "python"
-                exe_names = ["python3", "python"]
-                major_version = 3
-            candidates = []
-            for exe_name in exe_names:
-                try:
-                    candidates += which.whichall(exe_name)
-                except which.WhichError:
-                    pass
-            for python in candidates:
-                try:
-                    version = self._python_info_from_python(python, env)[0]
-                    if int(version.split(".")[0]) == major_version:
-                        break
-                except:
-                    pass
-                    #log.debug("Failed to run %s", exe_name, exc_info=True)
-            else:
-                python = None
+            syspath = env.get_envvar("PATH", "") 
+            path = [d.strip() for d in syspath.split(os.pathsep)
+                              if d.strip()]
+            try:
+                python = which.which("python", path=path) 
+            except which.WhichError:
+                pass # intentionally supressed
 
         if python:
             python = os.path.abspath(python)
@@ -1071,6 +1050,31 @@ class PythonImportHandler(ImportHandler):
         ImportHandler.__init__(self, mgr)
         self.__stdCIXScanId = None
 
+    #TODO: may not be used. If so, drop it.
+    def _shellOutForPath(self, compiler):
+        import process
+        argv = [compiler, "-c", "import sys; print('\\n'.join(sys.path))"]
+        # Can't use -E to ignore PYTHONPATH because older versions of
+        # Python don't have it (e.g. v1.5.2).
+        env = dict(os.environ)
+        if "PYTHONPATH" in env: del env["PYTHONPATH"]
+        if "PYTHONHOME" in env: del env["PYTHONHOME"]
+        if "PYTHONSTARTUP" in env: del env["PYTHONSTARTUP"]
+
+        p = process.ProcessOpen(argv, env=env, stdin=None)
+        stdout, stderr = p.communicate()
+        retval = p.returncode
+        path = [line for line in stdout.splitlines(0)]
+        if path and (path[0] == "" or path[0] == os.getcwd()):
+            del path[0] # cwd handled separately
+        return path
+
+    def setCorePath(self, compiler=None, extra=None):
+        if compiler is None:
+            import which
+            compiler = which.which("python")
+        self.corePath = self._shellOutForPath(compiler)
+
     def _findScannableFiles(self,
                             (files, searchedDirs, skipRareImports,
                              importableOnly),
@@ -1194,8 +1198,8 @@ class PythonCILEDriver(CILEDriver):
     def scan_purelang(self, buf):
         #log.warn("TODO: python cile that uses elementtree")
         content = buf.accessor.text
-        encoding = buf.encoding or "utf-8"
         if isinstance(content, unicode):
+            encoding = buf.encoding or "utf-8"
             try:
                 content = content.encode(encoding)
             except UnicodeError, ex:

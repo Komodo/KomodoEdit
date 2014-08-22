@@ -6,6 +6,9 @@
 #include "jsapi.h"
 #include "nsIScriptContext.h"
 #include "nsIScriptGlobalObject.h"
+#if MOZ_VERSION <= 1899
+#include "nsIJSContextStack.h"
+#endif
 #include "nsDOMJSUtils.h"
 
 #include "nsIServiceManager.h"
@@ -23,6 +26,10 @@
 
 static NS_DEFINE_CID(kContentUtilsCID, KO_CONTENT_UTILS_CID);
 
+#if MOZ_VERSION <= 1899
+static const char kJSStackContractID[] = "@mozilla.org/js/xpc/ContextStack;1";
+#endif
+
 
 class koContentUtils : public koIContentUtils
 {
@@ -31,25 +38,29 @@ public:
   NS_DECL_KOICONTENTUTILS
 
   koContentUtils();
+  virtual ~koContentUtils();
   
 private:
-  virtual ~koContentUtils();
+#if MOZ_VERSION <= 1899
+  nsIThreadJSContextStack *sThreadJSContextStack;
+#else
   nsCOMPtr<nsIXPConnect> mXPConnect;
+#endif
   nsIScriptGlobalObject *GetDynamicScriptGlobal(JSContext* aContext);
   already_AddRefed<nsIDOMWindow> GetWindowFromCaller();
 };
 
-// Mozilla 31 code base changed - dropping NS_IMPL_ISUPPORTSN, so we support
-// both till everyone updates their mozilla builds.
-#ifdef NS_IMPL_ISUPPORTS1
 NS_IMPL_ISUPPORTS1(koContentUtils, koIContentUtils)
-#else
-NS_IMPL_ISUPPORTS(koContentUtils, koIContentUtils)
-#endif
 
 koContentUtils::koContentUtils()
 {
+  NS_INIT_ISUPPORTS();
+
+#if MOZ_VERSION <= 1899
+  CallGetService(kJSStackContractID, &sThreadJSContextStack);
+#else
   mXPConnect = do_GetService("@mozilla.org/js/xpc/XPConnect;1");
+#endif
 }
 
 koContentUtils::~koContentUtils()
@@ -69,7 +80,11 @@ already_AddRefed<nsIDOMWindow>
 koContentUtils::GetWindowFromCaller()
 {
   JSContext *cx = nullptr;
+#if MOZ_VERSION <= 1899
+  sThreadJSContextStack->Peek(&cx);
+#else
   cx = mXPConnect->GetCurrentJSContext();
+#endif
 
   if (cx) {
     nsIScriptGlobalObject *sgo = GetDynamicScriptGlobal(cx);
@@ -87,11 +102,7 @@ NS_IMETHODIMP koContentUtils::GetWindowFromCaller(nsIDOMWindow **callingDoc)
 {
     NS_ENSURE_ARG_POINTER(callingDoc);
   
-#if MOZ_VERSION < 3100
     *callingDoc = GetWindowFromCaller().get();
-#else
-    *callingDoc = GetWindowFromCaller().take();
-#endif
     return NS_OK;
 }
 
@@ -114,7 +125,7 @@ static const mozilla::Module::CategoryEntry kModuleCategories[] = {
     { NULL }
 };
 
-static const mozilla::Module kContentUtilsModule = {
+static const mozilla::Module kModule = {
     mozilla::Module::kVersion,
     kModuleCIDs,
     kModuleContracts,
@@ -123,8 +134,4 @@ static const mozilla::Module kContentUtilsModule = {
 
 // The following line implements the one-and-only "NSModule" symbol exported from this
 // shared library.
-//NSMODULE_DEFN(koContentUtilsModule) = &kContentUtilsModule;
-
-// Above NSMODULE_DEFN will not work - as we also define MOZILLA_INTERNAL_API,
-// below is the workaround version to export "NSModule" symbol:
-extern "C" NS_EXPORT mozilla::Module const *const NSModule = &kContentUtilsModule;
+NSMODULE_DEFN(koContentUtilsModule) = &kModule;

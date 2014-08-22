@@ -36,8 +36,7 @@ class PreferenceSerializer(object):
                     pref.setBooleanPref(attr_name, val)
                 elif attr_type in ("str", "string"):
                     pref.setStringPref(attr_name, val)
-                elif attr_type in ("pref", "prefset", "koIPref", "koIPreferenceContainer"):
-                    # Warning: unused code path
+                elif attr_type in ("pref", "prefset", "koIPref", "koIPreference"):
                     pref.setPref(attr_name, val)
         return pref
 
@@ -52,8 +51,7 @@ class PreferenceSerializer(object):
                     setattr(self, attr_name, pref.getBooleanPref(attr_name))
                 elif attr_type in ("str", "string"):
                     setattr(self, attr_name, pref.getStringPref(attr_name))
-                elif attr_type in ("pref", "prefset", "koIPref", "koIPreferenceContainer"):
-                    # Warning: unused code path
+                elif attr_type in ("pref", "prefset", "koIPref", "koIPreference"):
                     setattr(self, attr_name, pref.getPref(attr_name))
             except COMException:
                 # Pref did not exist

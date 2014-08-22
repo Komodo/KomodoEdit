@@ -47,10 +47,15 @@ function loggingControl_OnLoad() {
     gLoggerView.loggernames= gLoggingService.getLoggerNames(new Object());
     gLoggerView.setRowCount(gLoggerView.loggernames.length);
 
+    document.getElementById('logs').treeBoxObject.view = gLogView;
+    gLogView.loggernames = [];
+    gLogView.setRowCount(0);
+
     _loggingObserver = new loggingObserver();
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                             getService(Components.interfaces.nsIObserverService);
     observerSvc.addObserver(_loggingObserver, 'add_logger',false);
+    observerSvc.addObserver(_loggingObserver, 'emit_log',false);
 }
 
 function loggingControl_OnUnload()
@@ -58,18 +63,23 @@ function loggingControl_OnUnload()
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                             getService(Components.interfaces.nsIObserverService);
     observerSvc.removeObserver(_loggingObserver, 'add_logger');
+    observerSvc.removeObserver(_loggingObserver, 'emit_log');
 
 }
 function loggingObserver() {
 }
 
-loggingObserver.prototype.constructor = ko.logging.Logger;
+loggingObserver.prototype.constructor = loggerWrapper;
 
 loggingObserver.prototype.observe = function(subject, topic, data) {
     switch (topic) {
         case 'add_logger':
             gLoggerView.loggernames.push(data);
             gLoggerView.setRowCount(gLoggerView.loggernames.length);
+            break;
+        case 'emit_log':
+            gLogView.logs.push(subject);
+            gLogView.setRowCount(gLogView.logs.length);
             break;
     }
 }
@@ -126,6 +136,55 @@ var gLoggerView = ({
 
     // Private stuff
     loggernames : [],
+    setRowCount : function(rowCount) {
+        this.rowCount = rowCount;
+        this.tree.beginUpdateBatch();
+        this.tree.rowCountChanged(0, this.rowCount);
+        this.tree.invalidate();
+        this.tree.endUpdateBatch();
+    }
+});
+var gLogView = ({
+    // nsITreeView
+    rowCount : 0,
+    getRowProperties : function(i, prop) {},
+    getColumnProperties : function(index, prop) {},
+    getCellProperties : function(index, prop) {},
+    isContainer : function(index) {return false;},
+    isSeparator : function(index) {return false;},
+    setTree : function(out) { this.tree = out; },
+    getCellText : function(i, column) {
+        switch(column.id){
+        case "logger":
+            return this.logs[i].logger;
+            break;
+        case "level":
+            return this.logs[i].levelname;
+            break;
+        case "message":
+            return this.logs[i].message;
+            break;
+        default:
+            return "XXX in " + col + " and " + i;
+        }
+        return "";
+    },
+    getImageSrc : function() {return null;},
+    isSorted : function() {return true;},
+    performAction : function(action) {},
+    cycleHeader : function(index) {},
+    selectionChanged : function() {},
+    getSelectedItem : function() {
+        var i = this.selection.currentIndex;
+        return this.logs[i];
+    },
+
+    // Private stuff
+    logs : [],
+    clear : function () {
+        this.logs = [];
+        this.setRowCount(0);
+    },
     setRowCount : function(rowCount) {
         this.rowCount = rowCount;
         this.tree.beginUpdateBatch();

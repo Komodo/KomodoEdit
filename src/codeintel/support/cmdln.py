@@ -35,7 +35,7 @@ See the README.txt or <http://trentm.com/projects/cmdln/> for more
 details.
 """
 
-__revision__ = "$Id$"
+__revision__ = "$Id: cmdln.py 4985 2010-05-10 23:07:43Z toddw $"
 __version_info__ = (1, 0, 0)
 __version__ = '.'.join(map(str, __version_info__))
 

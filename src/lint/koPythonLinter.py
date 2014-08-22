@@ -67,6 +67,8 @@ import projectUtils
 log = logging.getLogger('koPythonLinter')
 #log.setLevel(logging.DEBUG)
 
+_leading_ws_re = re.compile(r'(\s*)')
+
 # Give identical complaints only once every 60 minutes
 _COMPLAINT_PERIOD = 60 * 60 # seconds
 # Map (path,message) => time
@@ -164,14 +166,16 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
             # Fallback:
             self._pylint_version = 1
         
+    invalidModuleName_RE = re.compile(r'(Invalid\s+module\s+name\s+")(\#.+?)(")')
+    _disables_C0301_re = re.compile(r'\s*disable\s*=.*?\bC0301\b')
+    _max_line_length_re = re.compile(r'\s*max-line-length')
     def lint_with_text(self, request, text):
         if not text:
             return None
         prefset = request.prefset
-        # self.lint_prefname: "lint_python_with_pylint" or "lint_python3_with_pylint3"
         if not prefset.getBoolean(self.lint_prefname):
             return
-        pythonExe = self._pythonInfo.getExecutableFromPrefs(prefset)
+        pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
         if not pythonExe:
             return
         if not hasattr(self, "_pylint_version"):
@@ -199,13 +203,11 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
             if preferredLineWidth > 0:
                 usePreferredLineWidth = True
                 if rcfileToCheck is not None:
-                    _max_line_length_re = re.compile(r'\s*max-line-length')
-                    _disables_C0301_re = re.compile(r'\s*disable\s*=.*?\bC0301\b')
                     f = open(rcfileToCheck, "r")
                     try:
                         for txt in iter(f):
-                            if _disables_C0301_re.match(txt) \
-                                    or _max_line_length_re.match(txt):
+                            if self._disables_C0301_re.match(txt) \
+                                    or self._max_line_length_re.match(txt):
                                 usePreferredLineWidth = False
                                 break
                     except:
@@ -248,7 +250,6 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
         finally:
             os.unlink(tmpfilename)
         ptn = re.compile(r'^([A-Z])(\d+):\s*(\d+)(?:,\d+)?:\s*(.*)')
-        invalidModuleName_RE = re.compile(r'(Invalid\s+module\s+name\s+")(\#.+?)(")')
         # dependency: _localTmpFileName() prepends a '#' on the basename
         results = koLintResults()
         for line in warnLines:
@@ -265,7 +266,7 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
                     if statusCode == "0103":
                         # Don't let pylint complain about the tempname, but fake
                         # a check on the actual module name.
-                        m2 = invalidModuleName_RE.match(message)
+                        m2 = self.invalidModuleName_RE.match(message)
                         if m2:
                             complainedName = m2.group(2)
                             if complainedName == tmpBaseName:
@@ -311,121 +312,12 @@ class KoPython3PyLintChecker(KoPythonCommonPyLintChecker):
          ]
     lint_prefname = "lint_python3_with_pylint3"
     rcfile_prefname = "pylint3_checking_rcfile"
-    
-class KoPythonCommonPep8Checker(_GenericPythonLinter):
-    def lint_with_text(self, request, text):
-        if not text:
-            return None
-        prefset = request.prefset
-        # if not prefset.getBooleanPref("lintPythonWithPep8"): return
-        if not prefset.getBooleanPref(self.lint_prefname):
-            return
-        pythonExe = self._pythonInfo.getExecutableFromPrefs(prefset)
-        if not pythonExe:
-            return
-        cwd = request.cwd
-        fout, tmpfilename = _localTmpFileName()
-        try:
-            tmpBaseName = os.path.splitext(os.path.basename(tmpfilename))[0]
-            fout.write(text)
-            fout.close()
-            textlines = text.splitlines()
-            env = self._get_fixed_env(prefset, cwd)
-            cmd = [pythonExe, '-m', 'pep8']
-            checkRCFile = False
-            rcfilePath = prefset.getStringPref(self.rcfile_prefname)
-            if rcfilePath and os.path.exists(rcfilePath):
-                extraArgs = [ '--config=%s' % (rcfilePath,) ]
-                checkRCFile = True
-            else:
-                extraArgs = []
-                # default location: ~/.pep8
-                homeDir = os.path.expanduser("~")
-                rcfilePath = os.path.join(homeDir, ".pep8")
-                if not os.path.exists(rcfilePath):
-                    rcfilePath = os.path.join(homeDir, ".config", "pep8")
-                checkRCFile = os.path.exists(rcfilePath)
-            preferredLineWidth = prefset.getLongPref("editAutoWrapColumn")
-            if preferredLineWidth > 0:
-                usePreferredLineWidth = True
-                if checkRCFile:
-                    _disables_E0501_re = re.compile(r'\s*disable\s*=.*?\bE0?501\b')
-                    _max_line_length_re = re.compile(r'\s*max-line-length')
-                    f = open(rcfilePath, "r")
-                    try:
-                        for txt in iter(f):
-                            if _disables_E0501_re.match(txt) \
-                                    or _max_line_length_re.match(txt):
-                                usePreferredLineWidth = False
-                                break
-                    except:
-                        log.exception("Problem checking max-line-length")
-                    finally:
-                        f.close()
-                if usePreferredLineWidth:
-                    extraArgs.append("--max-line-length=%d" % preferredLineWidth)
-    
-            cmd += extraArgs
-            cmd.append(tmpfilename)
-            cwd = request.cwd or None
-            # We only need the stdout result.
-            try:
-                p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
-                stdout, stderr = p.communicate()
-                if stderr.strip():
-                    pathMessageKey = "%s-%s" % (request.koDoc.displayPath, stderr)
-                    _complainIfNeeded(pathMessageKey,
-                                      "Error in pep8: %s", stderr)
-                    return
-                warnLines = stdout.splitlines(False) # Don't need the newlines.
-            except:
-                log.exception("Failed to run %s", cmd)
-                stdout = ""
-                warnLines = []
-        finally:
-            os.unlink(tmpfilename)
-        ptn = re.compile(r'(?P<filename>.*?):(?P<lineNum>\d+):(?P<columnNum>\d+):\s*(?P<status>[EW])(?P<statusCode>\d+)\s+(?P<message>.*)')
-        results = koLintResults()
-        for m in map(ptn.match, warnLines):
-            if m:
-                lineNo = int(m.group("lineNum"))
-                columnNum = int(m.group("columnNum"))
-                desc = "pep8: %s%s %s" % (m.group("status"),
-                                          m.group("statusCode"),
-                                          m.group("message"))
-                # Everything pep8 complains about is a warning, by definition
-                severity = koLintResult.SEV_WARNING
-                koLintResult.createAddResult(results, textlines, severity, lineNo, desc, columnStart=columnNum)
-        return results
-
-class KoPythonPep8Checker(KoPythonCommonPep8Checker):
-    language_name = "Python"
-    _reg_desc_ = "Komodo Python Pep8 Linter"
-    _reg_clsid_ = "{1c51ad7e-2788-448d-80f4-db6465164cc9}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pep8;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", 'Python&type=pep8'),
-         ]
-    lint_prefname = "lint_python_with_pep8"
-    rcfile_prefname = "pep8_checking_rcfile"
-
-class KoPython3Pep8Checker(KoPythonCommonPep8Checker):
-    language_name = "Python3"
-    _reg_desc_ = "Komodo Python3 Pep8 Linter"
-    _reg_clsid_ = "{4eb876a9-818d-4d94-b490-837bc306492c}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=Python3&type=pep8;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", 'Python3&type=pep8'),
-         ]
-    lint_prefname = "lint_python3_with_pep83"
-    rcfile_prefname = "pep83_checking_rcfile"
-
 
 class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
+    warnLinePtn = re.compile(r'^(.+?):(\d+):\s+(.*)')
     def _createAddResult(self, results, textlines, errorLines, severity):
-        warnLinePtn = re.compile(r'^(.+?):(\d+):\s+(.*)')
         for line in errorLines:
-            m = warnLinePtn.match(line)
+            m = self.warnLinePtn.match(line)
             if m:
                 lineNo = int(m.group(2))
                 desc = "pyflakes: %s" % (m.group(3),)
@@ -445,7 +337,7 @@ class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
         prefset = request.prefset
         if not prefset.getBooleanPref(self.lint_prefname):
             return
-        pythonExe = self._pythonInfo.getExecutableFromPrefs(prefset)
+        pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
         if not pythonExe:
             return
         try:
@@ -695,7 +587,7 @@ class KoPythonCommonLinter(_GenericPythonLinter):
             interpreter_pref_name = "%sDefaultInterpreter" % (self.language_name_lc, )
             python = prefset.getString(interpreter_pref_name)
             if not python:
-                python = self._pythonInfo.getExecutableFromPrefs(prefset)
+                python = self._pythonInfo.executablePath
                 if not python:
                     return
             if not self._pythonInfo.isSupportedBinary(python):
@@ -717,8 +609,7 @@ class KoPythonCommonLinter(_GenericPythonLinter):
                                          "pycompile.py")
             if request.koDoc.displayPath.startswith("macro2://"):
                 text = projectUtils.wrapPythonMacro(text)
-                leading_ws_re = re.compile(r'(\s*)')
-                leadingWS = leading_ws_re.match(text.splitlines()[1]).group(1)
+                leadingWS = _leading_ws_re.match(text.splitlines()[1]).group(1)
             else:
                 leadingWS = None
 

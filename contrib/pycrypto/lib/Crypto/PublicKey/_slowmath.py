@@ -24,7 +24,7 @@
 
 """Pure Python implementation of the RSA-related portions of Crypto.PublicKey._fastmath."""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: _slowmath.py 7847 2011-04-21 18:51:40Z toddw $"
 
 __all__ = ['rsa_construct']
 

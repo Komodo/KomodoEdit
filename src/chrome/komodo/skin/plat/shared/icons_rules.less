@@ -150,7 +150,6 @@ menu .menu-right
     list-style-image: @icon-folder-up;
 }
 
-.new-folder-icon,
 .newfolder-icon
 {
     list-style-image: @icon-newfolder;
@@ -356,10 +355,6 @@ menu .help-icon, menuitem .help-icon
     list-style-image: @icon-native-redo;
 }
 
-.find-copy-icon
-{
-    list-style-image: @icon-find-copy;
-}
 
 /* TODO: disabled versions of these */
 .find-lock-icon
@@ -493,13 +488,11 @@ button[type="moreinfo"]
     list-style-image: @icon-button-moreinfo;
 }
 
-.remote-folder-icon,
 treechildren::-moz-tree-image(remotefolder)
 {
     list-style-image: @icon-remotefolder;
 }
 
-.remote-file-icon,
 treechildren::-moz-tree-image(remotefile)
 {
     list-style-image: @icon-remotefile;
@@ -808,11 +801,6 @@ treechildren::-moz-tree-image(remotefile)
         list-style-image: @icon-toolbar-debug-stop !important;
     }
 
-    .macro-new-icon
-    {
-        list-style-image: @icon-toolbar-macro-new !important;
-    }
-
     .macro-play-icon
     {
         list-style-image: @icon-toolbar-macro-play !important;
@@ -858,11 +846,6 @@ treechildren::-moz-tree-image(remotefile)
         list-style-image: @icon-toolbar-menu !important;
     }
 
-}
-
-statusbar .menu-icon
-{
-    list-style-image: @icon-toolbar-menu !important;
 }
 
 /* Icons that appear in menu's and misc places */
@@ -1199,11 +1182,6 @@ statusbar .menu-icon
 }
 
 /* Macro Icons */
-
-.macro-new-icon
-{
-    list-style-image: @icon-macro-new !important;
-}
 
 .macro-play-icon
 {
@@ -1602,11 +1580,6 @@ ko-pane[type="icons"]
     .find-undo-icon
     {
         list-style-image: @icon-findresult-undo;
-    }
-
-    .find-copy-icon
-    {
-        list-style-image: @icon-findresult-copy;
     }
 
     .find-lock-icon

@@ -463,6 +463,16 @@ class URIParser(object):
         import warnings
         warnings.warn("'hasChanged' is deprecated, use updateStats() instead.",
                       DeprecationWarning)
+        import traceback
+        traceback.print_stack()
+        print
+        import ctypes, os.path, sys
+        for d in ("mozilla", "bin"): # release or dev build layout
+            libxul = os.path.join(os.path.dirname(sys.exec_prefix), d, "libxul.so")
+            if os.path.exists(libxul):
+                ctypes.CDLL(libxul).DumpJSStack()
+                break
+        print "\n\n"
         return self.updateStats()
 
     @property

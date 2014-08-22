@@ -177,7 +177,7 @@ static bool RE_CanFollowKeyword(unsigned int start, unsigned int end,
     s[i + 1] = '|';
     s[i + 2] = '\0';
     const char *no_RE_KwdList = 
-        "|while|if|unless|until|and|or|not|xor|split|grep|map|print|defined|";
+        "|while|if|unless|until|and|or|not|xor|split|grep|map|print|";
     return strstr(no_RE_KwdList, s) != NULL;
 }
 
@@ -1770,14 +1770,13 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                     }
                     braceStartsBlock = false;
                 } else if (ch == ')') {
-                    binaryOperatorExpected = true;
+                    binaryOperatorExpected = false;
                     braceStartsBlock = true;
                     if (levelCurrent > 0) {
                         levelCurrent--;
                     }
                 } else {
                     // Analyze the other operators
-                    bool initiallyBinaryOperatorExpected = binaryOperatorExpected;
                     binaryOperatorExpected = false;
                     switch (ch) {
                         case '=':
@@ -1788,30 +1787,8 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                             break;
                             
                         case '&':
-                            // Bug 101817: [^&]&{...} => subref or bit-and hash
-                            //             [^&]&&{...} => anon hash
-                            //             [^&]&&&{...} => && subref
-                            //             [^&]&&&&{...} *** not allowed
-                            // Note that "&{" is ambiguous, so we need to see
-                            // whether we're expecting a binary operator.
-                            if (initiallyBinaryOperatorExpected) {
-                                // We just processed a name, so this can't be a name
-                                braceStartsBlock = true;
-                            } else if (chPrev != '&' || i < 2) {
-                                // ... &name or &{name}
-                                braceStartsBlock = false;
-                            } else if (styler.SafeGetCharAt(i - 2) != '&') {
-                                // We have exactly two '&'s in a row
-                                braceStartsBlock = true;
-                            } else {
-                                // We have (at least) three '&'s in a row
-                                braceStartsBlock = false;
-                            }
-                            break;
-
                         case '|':
-                            // Both '||' and '|' (bit-or) take an anon-hash on RHS
-                            braceStartsBlock = true;
+                            braceStartsBlock = (chPrev != ch);
                             break;
 
                         case ':':

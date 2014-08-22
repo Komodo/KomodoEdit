@@ -1,6 +1,4 @@
-import inspect
 import logging
-import uuid
 import unittest
 import sys
 import time
@@ -16,8 +14,6 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         unittest.TestCase.__init__(self, *args, **kwargs)
         #self.log = log.getChild(self.__class__.__name__)
 
-    __has_codeintel_db_been_setup = False
-
     @classmethod
     def setUpClass(cls):
         """Start the codeintel service once to make sure the database is ready
@@ -27,21 +23,18 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         start = time.time()
         ready = set()
         callback = lambda status, data: ready.add(True)
-        svc.addActivateCallback(callback)
-        if not _CodeIntelTestCaseBase.__has_codeintel_db_been_setup:
-            sys.stdout.write("Setting up codeintel database...\n")
-        svc.activate(True)
+        sys.stdout.write(".")
+        log.debug("[starting codeintel...]")
+        svc.activate(callback, True)
         while not ready:
             tm.currentThread.processNextEvent(True)
-        svc.removeActivateCallback(callback)
         sys.stdout.write(".")
         log.debug("[codeintel started, stopping...]")
         svc.deactivate()
         while svc.isBackEndActive:
             tm.currentThread.processNextEvent(True)
-        if not _CodeIntelTestCaseBase.__has_codeintel_db_been_setup:
-            sys.stdout.write("Codeintel database initialization completed\n")
-            _CodeIntelTestCaseBase.__has_codeintel_db_been_setup = True
+        sys.stdout.write(".")
+        log.debug("[codeintel stopped]")
 
     def setUp(self):
         # Start up the service
@@ -50,12 +43,10 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         # tests; deactivate currently doesn't have a callback)
         self._waiting_for_activation = True
         self._active = False
-        self.svc.addActivateCallback(self._activate_callback)
-        self.svc.activate(True)
+        self.svc.activate(self._activate_callback, True)
         # Let codeintel start up...
         self._wait_for_callback(lambda: not self._waiting_for_activation,
                                 timeout=60, action="startup")
-        self.svc.removeActivateCallback(self._activate_callback)
         self.assertTrue(self._active)
 
     def _wait_for_callback(self, callback, timeout=None, action=""):
@@ -80,14 +71,6 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         self.svc.deactivate()
         self.svc = None
 
-    def run(self, result=None):
-        try:
-            log.debug("Running test %s...", self._testMethodName)
-        except AttributeError:
-            pass
-        return super(_CodeIntelTestCaseBase, self).run(result=result)
-
-
 class _BufferTestCaseBase(_CodeIntelTestCaseBase):
     language = None
     trg = None
@@ -95,7 +78,7 @@ class _BufferTestCaseBase(_CodeIntelTestCaseBase):
         _CodeIntelTestCaseBase.setUp(self)
         # get a document to work with
         self.doc = Cc["@activestate.com/koDocumentBase;1"].createInstance()
-        self.doc.initUntitled("<Untitled-%s>" % (uuid.uuid1(),), "UTF-8")
+        self.doc.initUntitled("<Untitled>", "UTF-8")
         if self.language:
             self.doc.language = self.language
         self.buf = self.svc.buf_from_koIDocument(self.doc)
@@ -120,12 +103,8 @@ class AsyncSpinner(object):
         start = time.time()
         while not self._done:
             if self.timeout is not None:
-                now = time.time()
-                self.testcase.assertLess(now, start + self.timeout,
-                                         ("Timed out waiting in %s::%s "
-                                          "(%s seconds elapsed)") %
-                                         (self.testcase, self.callback,
-                                          now - start))
+                self.testcase.assertLess(time.time(), start + self.timeout,
+                                         "Timed out waiting")
             time.sleep(0.1) # Rest a bit, let other things happen
             while t.hasPendingEvents():
                 t.processNextEvent(True)
@@ -139,12 +118,6 @@ class UIHandler(object):
     _com_interfaces_ = [ Ci.koICodeIntelCompletionUIHandler ]
     _done = False
     AutoCompleteInfo = namedtuple("AutoCompleteInfo", "completion type")
-
-    completions = []
-    calltip = ""
-    defns = []
-    msg = ""
-
     def __init__(self, callback=None):
         self.callback = callback
 

@@ -68,7 +68,7 @@ log = logging.getLogger("luddite")
 
 class Shell(cmdln.Cmdln):
     """
-    luddite: compile and build Komodo language extensions
+    luddite: build and package Komodo language extensions
 
     usage:
         ${name} SUBCOMMAND [ARGS...]
@@ -162,10 +162,6 @@ class Shell(cmdln.Cmdln):
                   help="only add in missing files for skeleton")
     @cmdln.option("-f", "--force", action="store_true",
                   help="allow build outputs to overwrite existing files")
-    @cmdln.option("-c", "--creator", action="store",
-                  help="creator of this extension, used for creating install.rdf if it's missing")
-    @cmdln.option("-V", "--version", action="store",
-                  help="the extension version, used for creating install.rdf if it's missing")
     @cmdln.alias("compile")
     def do_deprecated_compile(self, subcmd, opts, udl_path):
         """${cmd_name}: compile a .udl file into lang resources
@@ -222,7 +218,6 @@ class Shell(cmdln.Cmdln):
         return commands.deprecated_compile(
             udl_path, skel=opts.skel, guid=guid, 
             guid_from_lang=guid_from_lang, ext=opts.ext,
-            version=opts.version, creator=opts.creator,
             force=opts.force, add_missing=opts.add_missing, log=log)
 
     def _do_parse(self, subcmd, opts, *udl_paths):
@@ -234,6 +229,45 @@ class Shell(cmdln.Cmdln):
         for udl_path in udl_paths:
             tree = commands.parse(udl_path, log=log)
             pprint(tree)
+
+    @cmdln.option("-f", "--force", action="store_true",
+                  help="allow build outputs to overwrite existing files")
+    @cmdln.option("--id", action="store",
+                  help="the internal identifier for this extension (a short string)")
+    @cmdln.option("--name", action="store",
+                  help="the extension name")
+    @cmdln.option("--description", action="store",
+                  help="a short description of the extension")
+    @cmdln.option("-c", "--creator", action="store",
+                  help="the name of the creator/maintainer of this extension")
+    @cmdln.option("-V", "--version", action="store",
+                  help="the extension version")
+    @cmdln.alias("package")
+    def do_deprecated_package(self, subcmd, opts, lang):
+        """${cmd_name}: package Komodo lang resources into an extension
+
+        Note: This has been deprecated in favour of `luddite just_compile'
+        and the more generic functionality of the 'koext' tool.
+
+        ${cmd_usage}
+        ${cmd_option_list}
+        You must first have run '${name} compile ...' to build the Komodo
+        resources for this language.
+
+        Typical usage should specify the "creator" and "version". The other
+        values have reasonable defaults. For example:
+        
+            ${name} package -c "Santa Claus" --version "2.0.1" Toy
+            ${name} package -c "Larry Wall" --version "0.8.0" Perl
+
+        (However, Komodo already has a Perl lexer so creating your own
+        UDL-based one for Perl is just for the masochists.)
+        """
+        return commands.deprecated_package(
+            lang, version=opts.version,
+            creator=opts.creator, name=opts.name,
+            description=opts.description, id=opts.id,
+            force=opts.force, log=log)
 
     def do_lex(self, subcmd, opts, lang, path):
         """${cmd_name}: lex the given file (for debugging)

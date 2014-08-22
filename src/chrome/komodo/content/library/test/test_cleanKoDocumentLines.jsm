@@ -397,11 +397,7 @@ TestCleanKoDocumentLines.prototype.test_bug100967_a = function test_bug100967_a(
     var scimoz = view.scimoz;
     scimoz.currentPos = scimoz.length;
     scimoz.addText(1, "6");
-    let oldPos = scimoz.currentPos;
     scimoz.currentPos = scimoz.positionFromLine(3);
-    this.assertEquals(scimoz.anchor, oldPos);
-    this.assertEquals(scimoz.selectionEnd, oldPos);
-    scimoz.anchor = scimoz.currentPos;
     this.setPrefsShortcut({
               cleanLineEnds: 1,
               cleanLineEnds_CleanCurrentLine: 0,
@@ -506,30 +502,5 @@ TestCleanKoDocumentLines.prototype.test_ok_clean_obv_ws = function test_ok_clean
                       (" Expected <<" + expectedBuf + ">>, got\n<<"
                        + scimoz.text + ">>"));
 };
-
-TestCleanKoDocumentLines.prototype.test_headless_anchor_cp = function test_headless_anchor_cp() {
-// Bug 100967: removes too much when a file doesn't end with a EOL
-// Similar to previous case, but modify an earlier line.
-    var file = this.fileSvc.makeTempFile(".txt", 'wb');
-    var origBuf   = "line 0\n"
-                  + "line 1";
-    file.puts(origBuf);
-    file.close();
-    let eolMode = this.koIDocument.EOL_LF;
-    var koDoc = this.docSvc.createNewDocumentFromURI(file.URI);
-    koDoc.new_line_endings = eolMode;
-    // Set the buffer before assigning the view, otherwise it will fail.
-    var origBugUTF = this.encodingSvc.encode(origBuf, "utf-8", "")
-    koDoc.setBufferAndEncoding(origBugUTF, "utf-8");
-    var view = new ko.views.ViewMock();
-    view.koDoc = koDoc;
-    koDoc.addView(view.scintilla);
-    var scimoz = view.scimoz;
-    scimoz.currentPos = scimoz.length;
-    scimoz.addText(1, "6");
-    this.assertEquals("line 0\nline 16", scimoz.text);
-    this.assertEquals(origBuf.length + 1, scimoz.currentPos);
-    this.assertEquals(origBuf.length + 1, scimoz.anchor);
-}
 
 var JS_TESTS = ["TestCleanKoDocumentLines"];

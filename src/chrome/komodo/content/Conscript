@@ -66,8 +66,6 @@ $cons->Command("komodo.manifest.landmark",
                  touch %>
                ));
 
-$cons->Preprocess('globals.p.js', 'globals.js');
-$cons->InstallInChrome('globals.js');
 $cons->Preprocess('commandsOverlay.p.xul', 'commandsOverlay.xul');
 $cons->InstallInChrome('commandsOverlay.xul');
 $cons->InstallInChrome("keysOverlay.xul");
@@ -87,7 +85,6 @@ $cons->Preprocess('statusbar.p.js', 'statusbar.js');
 $cons->InstallInChrome('statusbar.js');
 $cons->InstallInChrome('editor.js');
 $cons->InstallInChrome('markers.js');
-$cons->InstallInChrome('jetpack.js');
 # $cons->Depends('komodo.unprocessed.xul', 'testmenu.xul');
 
 $cons->Preprocess('testkeys.p.xul', 'testkeys.xul');

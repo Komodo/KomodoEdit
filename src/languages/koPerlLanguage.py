@@ -87,6 +87,10 @@ class KoPerlLanguage(KoLanguageBase):
     namedBlockRE = "^[ \t]*?(sub\s+\w+|package\s+\w)"
     namedBlockDescription = 'Perl subs and packages'
 
+    styleBits = 6      # Override KoLanguageBase.styleBits setting of 5
+    indicatorBits = 2  # Currently (2004-05-25) Same as base class
+
+    
     _lineup_chars = u"{}()[]"
     _lineup_open_chars = "([{" # Perl tells the difference between the indent and lineup {}'s
     _lineup_close_chars = ")]}"

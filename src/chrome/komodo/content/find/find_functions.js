@@ -71,29 +71,23 @@ if (typeof(ko.find)!='undefined') {
 //---- locals
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-const {XPCOMUtils} = Cu.import("resource://gre/modules/XPCOMUtils.jsm", {});
 
-var lazy = {
-};
-
-XPCOMUtils.defineLazyGetter(lazy, "log", function() ko.logging.getLogger("find.functions"));
-//lazy.log.setLevel(ko.logging.LOG_DEBUG);
+var findLog = ko.logging.getLogger("find.functions");
+//findLog.setLevel(ko.logging.LOG_DEBUG);
+// ---------- localizing with stringbundle -------
+var _ffBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/find/find_functions.properties");
+// ----------------------------------------------
 
 // The find XPCOM service that does all the grunt work.
-XPCOMUtils.defineLazyGetter(lazy, "findSvc", function()
-    Cc["@activestate.com/koFindService;1"]
-        .getService(Components.interfaces.koIFindService));
+var _findSvc = Components.classes["@activestate.com/koFindService;1"]
+                    .getService(Components.interfaces.koIFindService);
 
 // The find session is used to hold find results and to determine when to stop
 // searching (i.e. when we have come full circle).
-XPCOMUtils.defineLazyGetter(lazy, "findSession", function()
-    Cc["@activestate.com/koFindSession;1"]
-        .getService(Components.interfaces.koIFindSession));
-
-XPCOMUtils.defineLazyGetter(lazy, "ffBundle", function()
-    Components.classes["@mozilla.org/intl/stringbundle;1"]
-    .getService(Components.interfaces.nsIStringBundleService)
-    .createBundle("chrome://komodo/locale/find/find_functions.properties"));
+var _findSession = Components.classes["@activestate.com/koFindSession;1"]
+                    .getService(Components.interfaces.koIFindSession);
 
 
 
@@ -132,7 +126,7 @@ this._getNextView = function _GetNextView(editor, currView)
         if (views[i].getAttribute("type") == "editor") {
             searchableViews.push(views[i]);
         } else {
-            lazy.log.debug("ko.find._getNextView: '"+views[i].getAttribute("type")+
+            findLog.debug("ko.find._getNextView: '"+views[i].getAttribute("type")+
                           "' view is not searchable");
         }
     }
@@ -180,7 +174,7 @@ this._getPreviousView = function _GetPreviousView(editor, currView)
         if (viewType == "editor") {
             searchableViews.push(views[i]);
         } else {
-            lazy.log.debug("ko.find._getPreviousView: '" + viewType +
+            findLog.debug("ko.find._getPreviousView: '" + viewType +
                           "' view is not searchable");
         }
     }
@@ -265,15 +259,15 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
     // abort if there is no current view
     var view = null;
     if (editor instanceof Components.interfaces.koIScintillaView) {
-        lazy.log.debug("_setupAndFindNext: editor " + editor + " is a view");
+        findLog.debug("_setupAndFindNext: editor " + editor + " is a view");
         view = editor;
         if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
-            lazy.log.exception("Trying to find in all open docs but only a view was given");
+            findLog.exception("Trying to find in all open docs but only a view was given");
             throw new Components.Exception("Trying to find in all open docs but only a view was given",
                                            Components.results.NS_ERROR_INVALID_ARG);
         }
     } else {
-        lazy.log.debug("_setupAndFindNext: editor " + editor + " is not a view");
+        findLog.debug("_setupAndFindNext: editor " + editor + " is not a view");
         view = editor.ko.views.manager.currentView;
     }
     if (view == null) {
@@ -283,7 +277,7 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
     if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS
         && ! ko.find._isViewSearchable(view))
     {
-        if (lazy.findSvc.options.searchBackward) {
+        if (_findSvc.options.searchBackward) {
             view = ko.find._getPreviousView(editor, view);
         } else {
             view = ko.find._getNextView(editor, view);
@@ -350,7 +344,7 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
     // This does not work in reverse because you keep getting the same result.
     // If there is a current find result (i.e. a selection) then set the
     // startOffset to the *start* of the selection.
-    if (lazy.findSvc.options.searchBackward && scimoz.selText != "") {
+    if (_findSvc.options.searchBackward && scimoz.selText != "") {
         startOffset -= scimoz.selText.length;
     }
 
@@ -362,12 +356,12 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
     // matches end a find session).
     // XXX I *think* this is a valid fix, i.e. the result is what the user
     //     expects.
-    var lastFindResult = lazy.findSession.GetLastFindResult();
+    var lastFindResult = _findSession.GetLastFindResult();
     var unadjustedStartOffset = startOffset;
     if (lastFindResult && url == lastFindResult.url
         && lastFindResult.value.length == 0)
     {
-        if (lazy.findSvc.options.searchBackward) {
+        if (_findSvc.options.searchBackward) {
             startOffset -= 1;
             if (startOffset < 0) {
                 startOffset = ko.stringutils.bytelength(text.slice(0, text.length-1));
@@ -381,7 +375,7 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
     }
 
     // find it
-    lazy.findSession.StartFind(pattern, url, lazy.findSvc.options,
+    _findSession.StartFind(pattern, url, _findSvc.options,
                            // Lie to the find session manager about the
                            // possible startOffset adjustment, else the find
                            // session will reset itself.
@@ -392,7 +386,7 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
                            mode);
     var findResult = null;
     while (1) {  // while not done searching all file(s)
-        findResult = lazy.findSvc.find(url, text, pattern,
+        findResult = _findSvc.find(url, text, pattern,
                                   startOffset, endOffset);
         // fix up the find result for context
         if (findResult != null) {
@@ -401,9 +395,9 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
         }
 
         // if was not found then wrap (if have not already) and try again
-        if (findResult == null && !lazy.findSession.wrapped) {
-            lazy.findSession.wrapped = true;
-            if (!lazy.findSvc.options.searchBackward) {
+        if (findResult == null && !_findSession.wrapped) {
+            _findSession.wrapped = true;
+            if (!_findSvc.options.searchBackward) {
                 startOffset = 0;
             } else {
                 startOffset = ko.stringutils.bytelength(text);
@@ -414,13 +408,13 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
         // If finished searching the current document then:
         // - restore the cursor/selection state
         // - move to the next document (if we are searching more than one)
-        if (findResult == null || lazy.findSession.WasAlreadyFound(findResult)
-            || (mode == "replace" && lazy.findSession.IsRecursiveHit(findResult)))
+        if (findResult == null || _findSession.WasAlreadyFound(findResult)
+            || (mode == "replace" && _findSession.IsRecursiveHit(findResult)))
         {
             // Switch to the next document to search, if there are any.
             if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
                 var newView;
-                if (lazy.findSvc.options.searchBackward) {
+                if (_findSvc.options.searchBackward) {
                     newView = ko.find._getPreviousView(editor, view);
                 } else {
                     newView = ko.find._getNextView(editor, view);
@@ -430,11 +424,11 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
                 view = newView;
                 url = view.koDoc ? view.koDoc.displayPath : view.uid;
                 // restore the cursor/selection state in current document
-                scimoz.setSel(lazy.findSession.fileSelectionStartPos, lazy.findSession.fileSelectionEndPos);
+                scimoz.setSel(_findSession.fileSelectionStartPos, _findSession.fileSelectionEndPos);
                 //XXX Is this bad if the working view is not visible???
                 scimoz.ensureVisibleEnforcePolicy(scimoz.lineFromPosition(scimoz.currentPos));
                 // we are done if this document has already been searched
-                if (lazy.findSession.HaveSearchedThisUrlAlready(url)) {
+                if (_findSession.HaveSearchedThisUrlAlready(url)) {
                     break;
                 }
                 // make the switch
@@ -444,14 +438,14 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
             }
 
             // Save the start information in this doc.
-            lazy.findSession.fileStartPos = scimoz.currentPos;
-            lazy.findSession.fileSelectionStartPos = scimoz.selectionStart;
-            lazy.findSession.fileSelectionEndPos = scimoz.selectionEnd;
+            _findSession.fileStartPos = scimoz.currentPos;
+            _findSession.fileSelectionStartPos = scimoz.selectionStart;
+            _findSession.fileSelectionEndPos = scimoz.selectionEnd;
 
             // Setup for a search in this document. (Currently only "all open
             // documents" should reach this code.)
             text = scimoz.text;
-            if (lazy.findSvc.options.searchBackward) {
+            if (_findSvc.options.searchBackward) {
                 startOffset = scimoz.length;
                 endOffset = 0;
             } else {
@@ -465,7 +459,7 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
 
         // fix up the find result for context and return it
         if (findResult != null) {
-            lazy.findSession.NoteFind(findResult);
+            _findSession.NoteFind(findResult);
             return findResult;
         }
     }
@@ -474,18 +468,18 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
     scimoz.hideSelection(true);
     if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
         // switch to the original url if it is still open
-        var firstView = ko.find._getViewFromViewId(editor, lazy.findSession.firstUrl);
+        var firstView = ko.find._getViewFromViewId(editor, _findSession.firstUrl);
         if (editor.ko.views.manager.currentView.koDoc.displayPath
             != firstView.koDoc.displayPath) {
             firstView.makeCurrent(false);
         }
         scimoz.setSel(
-            scimoz.positionAtChar(0, lazy.findSession.firstFileSelectionStartPos),
-            scimoz.positionAtChar(0, lazy.findSession.firstFileSelectionEndPos));
+            scimoz.positionAtChar(0, _findSession.firstFileSelectionStartPos),
+            scimoz.positionAtChar(0, _findSession.firstFileSelectionEndPos));
     } else if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC) {
         scimoz.setSel(
-            scimoz.positionAtChar(0, lazy.findSession.firstFileSelectionStartPos),
-            scimoz.positionAtChar(0, lazy.findSession.firstFileSelectionEndPos));
+            scimoz.positionAtChar(0, _findSession.firstFileSelectionStartPos),
+            scimoz.positionAtChar(0, _findSession.firstFileSelectionEndPos));
     } else if (context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
         // We have to investigate this but find session termination is broken and so we can't
         // elicit this code path.
@@ -602,7 +596,7 @@ this._replaceLastFindResult = function _ReplaceLastFindResult(editor, context, p
     var scimoz = view.scintilla.scimoz;
     var url = view.koDoc.displayPath;
     var replaceResult = null;
-    var findResult = lazy.findSession.GetLastFindResult();
+    var findResult = _findSession.GetLastFindResult();
     
     // Special case: If there is *no* last find result (i.e. the session
     // just started), but the current selection is a legitimate hit, then
@@ -619,15 +613,15 @@ this._replaceLastFindResult = function _ReplaceLastFindResult(editor, context, p
                                             findResult.end-findResult.start);
         var findText = scimoz.getTextRange(startByte, endByte);
         var startOffset;
-        if (lazy.findSvc.options.searchBackward) {
+        if (_findSvc.options.searchBackward) {
             startOffset = findResult.end;
         } else {
             startOffset = findResult.start;
         }
-        replaceResult = lazy.findSvc.replace(url, scimoz.text, pattern,
+        replaceResult = _findSvc.replace(url, scimoz.text, pattern,
                                         replacement, startOffset, scimoz);
         if (replaceResult) {
-            lazy.log.info("replace result (from FindSvc): s/"+replaceResult.value+
+            findLog.info("replace result (from FindSvc): s/"+replaceResult.value+
                          "/"+replaceResult.replacement+"/ at "+
                          replaceResult.start+"-"+replaceResult.end);
         }
@@ -681,12 +675,12 @@ this._replaceLastFindResult = function _ReplaceLastFindResult(editor, context, p
             replaceResult.line = startLineNum + 1;
             replaceResult.column = replaceResult.start -
                                    scimoz.positionFromLine(startLineNum);
-            lazy.findSession.NoteReplace(replaceResult);
+            _findSession.NoteReplace(replaceResult);
         } else {
-            lazy.log.info("find result is not genuine: skipping replace");
+            findLog.info("find result is not genuine: skipping replace");
         }
     } else {
-        lazy.log.info("no last find result to replace");
+        findLog.info("no last find result to replace");
     }
 }
 
@@ -721,14 +715,14 @@ this._findAllInView = function _FindAllInView(editor, view, context, pattern, re
         contextOffset = 0;
     }
 
-    lazy.findSvc.findallex(viewId, text, pattern, resultsView, contextOffset,
+    _findSvc.findallex(viewId, text, pattern, resultsView, contextOffset,
                       scimoz);
 
     if (highlightMatches) {
-        lazy.findSvc.highlightlastresults(scimoz);
+        _findSvc.highlightlastresults(scimoz);
     }
 
-    lazy.findSession.NoteUrl(viewId);
+    _findSession.NoteUrl(viewId);
 }
 
 
@@ -759,12 +753,12 @@ this._markAllInView = function _MarkAllInView(editor, view, context, pattern)
 
     var countObj = new Object();
     var lines = new Array();
-    lines = lazy.findSvc.findalllines(viewId, text, pattern, contextOffset,
+    lines = _findSvc.findalllines(viewId, text, pattern, contextOffset,
                                  scimoz, countObj);
     var foundSome = lines.length > 0;
     ko.find._markLinesForViewId(editor, viewId, lines);
 
-    lazy.findSession.NoteUrl(viewId);
+    _findSession.NoteUrl(viewId);
     return foundSome;
 }
 
@@ -798,9 +792,9 @@ this._replaceAllInView = function _ReplaceAllInView(editor, view, context, patte
 
     // Find all possible replacements in this view.
     var numReplacementsObj = new Object();
-    var replacementText = lazy.findSvc.replaceallex(viewId, text, pattern,
+    var replacementText = _findSvc.replaceallex(viewId, text, pattern,
                                                replacement, firstOnLine,
-                                               lazy.findSession,
+                                               _findSession,
                                                resultsView, contextOffset,
                                                scimoz, numReplacementsObj);
     var numReplacements = numReplacementsObj.value;
@@ -834,10 +828,10 @@ this._replaceAllInView = function _ReplaceAllInView(editor, view, context, patte
     //XXX Is this bad if the working view is not visible???
     scimoz.ensureVisibleEnforcePolicy(scimoz.lineFromPosition(scimoz.currentPos));
 
-    lazy.findSession.NoteUrl(viewId);
+    _findSession.NoteUrl(viewId);
 
     if (highlightReplacements) {
-        lazy.findSvc.highlightlastresults(scimoz);
+        _findSvc.highlightlastresults(scimoz);
     }
 
     return numReplacements;
@@ -871,7 +865,7 @@ this._displayFindResult = function _DisplayFindResult(editor, findResult)
         if (view == null) {
             var err = "The view for a find result was closed before it could "+
                       "be displayed!";
-            lazy.log.error(err);
+            findLog.error(err);
             // Don't raise an error. Just attempt to limp along. This method
             // has no mechanism for signalling failure.
             return;
@@ -919,7 +913,7 @@ this._markLinesForViewId = function _MarkLinesForViewId(editor, viewId, lines)
         isBookmarkable = true;
     } catch (ex) {}
     if (!isBookmarkable) {
-        lazy.log.warn("Could not bookmark find results for '"+viewId+
+        findLog.warn("Could not bookmark find results for '"+viewId+
                      "', because that view does not support koIBookmarkableView.");
         return;
     }
@@ -939,22 +933,22 @@ this._markLinesForViewId = function _MarkLinesForViewId(editor, viewId, lines)
  */
 this._uiForCompletedFindSession = function _UiForCompletedFindSession(context, msgHandler)
 {
-    var numFinds = lazy.findSession.GetNumFinds();
-    var numReplacements = lazy.findSession.GetNumReplacements();
+    var numFinds = _findSession.GetNumFinds();
+    var numReplacements = _findSession.GetNumReplacements();
 
     // Put together an appropriate message.
     var msg = "";
     if (numFinds == 0) {
         let summary = Cc["@activestate.com/koTextUtils;1"]
                         .getService(Ci.koITextUtils)
-                        .one_line_summary_from_text(lazy.findSession.GetPattern(), 30);
-        msg = lazy.ffBundle.formatStringFromName("The pattern X was not found.",
+                        .one_line_summary_from_text(_findSession.GetPattern(), 30);
+        msg = _ffBundle.formatStringFromName("The pattern X was not found.",
                                              [summary], 1);
     } else if (numReplacements > 0) {
-        msg = lazy.ffBundle.formatStringFromName("X of Y occurrence(s) were replaced.",
+        msg = _ffBundle.formatStringFromName("X of Y occurrence(s) were replaced.",
                                            [numReplacements, numFinds], 2);
     } else {
-        msg = lazy.ffBundle.formatStringFromName("X occurrence(s) were found.",
+        msg = _ffBundle.formatStringFromName("X occurrence(s) were found.",
                                            [numFinds], 1);
     }
 
@@ -1034,23 +1028,23 @@ this.findNextInMacro = function Find_FindNextInMacro(editor, contexttype, patter
     context.type = contexttype;
 
     // Stash old options
-    old_patternType = lazy.findSvc.options.patternType;
-    old_caseSensitivity = lazy.findSvc.options.caseSensitivity;
-    old_searchBackward = lazy.findSvc.options.searchBackward;
-    old_matchWord = lazy.findSvc.options.matchWord;
+    old_patternType = _findSvc.options.patternType;
+    old_caseSensitivity = _findSvc.options.caseSensitivity;
+    old_searchBackward = _findSvc.options.searchBackward;
+    old_matchWord = _findSvc.options.matchWord;
 
-    lazy.findSvc.options.patternType = patternType;
-    lazy.findSvc.options.caseSensitivity = caseSensitivity;
-    lazy.findSvc.options.searchBackward = searchBackward;
-    lazy.findSvc.options.matchWord = matchWord;
+    _findSvc.options.patternType = patternType;
+    _findSvc.options.caseSensitivity = caseSensitivity;
+    _findSvc.options.searchBackward = searchBackward;
+    _findSvc.options.matchWord = matchWord;
 
     ko.find.findNext(editor, context, pattern, mode, quiet, useMRU);
 
     // restore options
-    lazy.findSvc.options.patternType = old_patternType;
-    lazy.findSvc.options.caseSensitivity = old_caseSensitivity;
-    lazy.findSvc.options.searchBackward = old_searchBackward;
-    lazy.findSvc.options.matchWord = old_matchWord;
+    _findSvc.options.patternType = old_patternType;
+    _findSvc.options.caseSensitivity = old_caseSensitivity;
+    _findSvc.options.searchBackward = old_searchBackward;
+    _findSvc.options.matchWord = old_matchWord;
 }
 
 /**
@@ -1070,23 +1064,23 @@ this.findAllInMacro = function Find_FindAllInMacro(editor, contexttype, pattern,
     context.type = contexttype;
 
     // Stash old options
-    old_patternType = lazy.findSvc.options.patternType;
-    old_caseSensitivity = lazy.findSvc.options.caseSensitivity;
-    old_searchBackward = lazy.findSvc.options.searchBackward;
-    old_matchWord = lazy.findSvc.options.matchWord;
+    old_patternType = _findSvc.options.patternType;
+    old_caseSensitivity = _findSvc.options.caseSensitivity;
+    old_searchBackward = _findSvc.options.searchBackward;
+    old_matchWord = _findSvc.options.matchWord;
 
-    lazy.findSvc.options.patternType = patternType;
-    lazy.findSvc.options.caseSensitivity = caseSensitivity;
-    lazy.findSvc.options.searchBackward = searchBackward;
-    lazy.findSvc.options.matchWord = matchWord;
+    _findSvc.options.patternType = patternType;
+    _findSvc.options.caseSensitivity = caseSensitivity;
+    _findSvc.options.searchBackward = searchBackward;
+    _findSvc.options.matchWord = matchWord;
 
     ko.find.findAll(editor, context, pattern);
 
     // restore options
-    lazy.findSvc.options.patternType = old_patternType;
-    lazy.findSvc.options.caseSensitivity = old_caseSensitivity;
-    lazy.findSvc.options.searchBackward = old_searchBackward;
-    lazy.findSvc.options.matchWord = old_matchWord;
+    _findSvc.options.patternType = old_patternType;
+    _findSvc.options.caseSensitivity = old_caseSensitivity;
+    _findSvc.options.searchBackward = old_searchBackward;
+    _findSvc.options.matchWord = old_matchWord;
 }
 
 /**
@@ -1105,23 +1099,23 @@ this.markAllInMacro = function Find_MarkAllInMacro(editor, contexttype, pattern,
     context.type = contexttype;
 
     // Stash old options
-    old_patternType = lazy.findSvc.options.patternType;
-    old_caseSensitivity = lazy.findSvc.options.caseSensitivity;
-    old_searchBackward = lazy.findSvc.options.searchBackward;
-    old_matchWord = lazy.findSvc.options.matchWord;
+    old_patternType = _findSvc.options.patternType;
+    old_caseSensitivity = _findSvc.options.caseSensitivity;
+    old_searchBackward = _findSvc.options.searchBackward;
+    old_matchWord = _findSvc.options.matchWord;
 
-    lazy.findSvc.options.patternType = patternType;
-    lazy.findSvc.options.caseSensitivity = caseSensitivity;
-    lazy.findSvc.options.searchBackward = searchBackward;
-    lazy.findSvc.options.matchWord = matchWord;
+    _findSvc.options.patternType = patternType;
+    _findSvc.options.caseSensitivity = caseSensitivity;
+    _findSvc.options.searchBackward = searchBackward;
+    _findSvc.options.matchWord = matchWord;
 
     ko.find.markAll(editor, context, pattern);
 
     // restore options
-    lazy.findSvc.options.patternType = old_patternType;
-    lazy.findSvc.options.caseSensitivity = old_caseSensitivity;
-    lazy.findSvc.options.searchBackward = old_searchBackward;
-    lazy.findSvc.options.matchWord = old_matchWord;
+    _findSvc.options.patternType = old_patternType;
+    _findSvc.options.caseSensitivity = old_caseSensitivity;
+    _findSvc.options.searchBackward = old_searchBackward;
+    _findSvc.options.matchWord = old_matchWord;
 }
 
 /**
@@ -1140,23 +1134,23 @@ this.replaceInMacro = function Find_ReplaceInMacro(editor, contexttype, pattern,
     context.type = contexttype;
 
     // Stash old options
-    old_patternType = lazy.findSvc.options.patternType;
-    old_caseSensitivity = lazy.findSvc.options.caseSensitivity;
-    old_searchBackward = lazy.findSvc.options.searchBackward;
-    old_matchWord = lazy.findSvc.options.matchWord;
+    old_patternType = _findSvc.options.patternType;
+    old_caseSensitivity = _findSvc.options.caseSensitivity;
+    old_searchBackward = _findSvc.options.searchBackward;
+    old_matchWord = _findSvc.options.matchWord;
 
-    lazy.findSvc.options.patternType = patternType;
-    lazy.findSvc.options.caseSensitivity = caseSensitivity;
-    lazy.findSvc.options.searchBackward = searchBackward;
-    lazy.findSvc.options.matchWord = matchWord;
+    _findSvc.options.patternType = patternType;
+    _findSvc.options.caseSensitivity = caseSensitivity;
+    _findSvc.options.searchBackward = searchBackward;
+    _findSvc.options.matchWord = matchWord;
 
     ko.find.replace(editor, context, pattern, replacement);
 
     // restore options
-    lazy.findSvc.options.patternType = old_patternType;
-    lazy.findSvc.options.caseSensitivity = old_caseSensitivity;
-    lazy.findSvc.options.searchBackward = old_searchBackward;
-    lazy.findSvc.options.matchWord = old_matchWord;
+    _findSvc.options.patternType = old_patternType;
+    _findSvc.options.caseSensitivity = old_caseSensitivity;
+    _findSvc.options.searchBackward = old_searchBackward;
+    _findSvc.options.matchWord = old_matchWord;
 }
 
 
@@ -1199,10 +1193,10 @@ this.replaceAllInMacro = function Find_ReplaceAllInMacro(editor, contexttype, pa
                 context.startIndex = scimoz.charPosAtPosition(scimoz.selectionStart);
                 context.endIndex = scimoz.charPosAtPosition(scimoz.selectionEnd);
             } else {
-                msg = lazy.ffBundle.GetStringFromName("No scintilla object on current view");
+                msg = _ffBundle.GetStringFromName("No scintilla object on current view");
             }
         } else {
-            msg = lazy.ffBundle.GetStringFromName("No current view");
+            msg = _ffBundle.GetStringFromName("No current view");
         }
         if (msg) {
             editor.ko.statusBar.AddMessage("macro-replace: " + msg, "find",
@@ -1212,23 +1206,23 @@ this.replaceAllInMacro = function Find_ReplaceAllInMacro(editor, contexttype, pa
     }
 
     // Stash old options
-    old_patternType = lazy.findSvc.options.patternType;
-    old_caseSensitivity = lazy.findSvc.options.caseSensitivity;
-    old_searchBackward = lazy.findSvc.options.searchBackward;
-    old_matchWord = lazy.findSvc.options.matchWord;
+    old_patternType = _findSvc.options.patternType;
+    old_caseSensitivity = _findSvc.options.caseSensitivity;
+    old_searchBackward = _findSvc.options.searchBackward;
+    old_matchWord = _findSvc.options.matchWord;
 
-    lazy.findSvc.options.patternType = patternType;
-    lazy.findSvc.options.caseSensitivity = caseSensitivity;
-    lazy.findSvc.options.searchBackward = searchBackward;
-    lazy.findSvc.options.matchWord = matchWord;
+    _findSvc.options.patternType = patternType;
+    _findSvc.options.caseSensitivity = caseSensitivity;
+    _findSvc.options.searchBackward = searchBackward;
+    _findSvc.options.matchWord = matchWord;
 
     ko.find.replaceAll(editor, context, pattern, replacement, quiet);
 
     // restore options
-    lazy.findSvc.options.patternType = old_patternType;
-    lazy.findSvc.options.caseSensitivity = old_caseSensitivity;
-    lazy.findSvc.options.searchBackward = old_searchBackward;
-    lazy.findSvc.options.matchWord = old_matchWord;
+    _findSvc.options.patternType = old_patternType;
+    _findSvc.options.caseSensitivity = old_caseSensitivity;
+    _findSvc.options.searchBackward = old_searchBackward;
+    _findSvc.options.matchWord = old_matchWord;
 }
 
 /**
@@ -1250,7 +1244,7 @@ this.highlightClearAll = function Find_HighlightClearAll(scimoz) {
  * @param {int} length - The number of affected bytes at this position.
  */
 this.highlightClearPosition = function Find_HighlightClearPosition(scimoz, position, length) {
-    lazy.log.deprecated("ko.find.highlightClearPosition is deprecated, " +
+    findLog.deprecated("ko.find.highlightClearPosition is deprecated, " +
                        "use <view>._clearIndicatorsNearRange instead");
     var indic = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
     var range_start = scimoz.indicatorValueAt(indic, position) ?
@@ -1283,7 +1277,7 @@ this.highlightAllMatches = function Find_HighlightAllMatches(scimoz, context, pa
         // We don't have a range context; search the whole document
         context = {startIndex: 0, endIndex: 0};
     }
-    return lazy.findSvc.highlightall(scimoz,
+    return _findSvc.highlightall(scimoz,
                                  pattern,
                                  context.startIndex,
                                  context.endIndex,
@@ -1359,17 +1353,17 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
         highlightMatches = false;
     }
 
-    lazy.log.info("ko.find.findNext(editor="+editor+", context, pattern='"+pattern+
+    findLog.info("ko.find.findNext(editor="+editor+", context, pattern='"+pattern+
                  "', mode="+mode+", quiet="+quiet+", useMRU="+useMRU+")");
 
     if (win.ko.macros.recorder.mode == 'recording') {
         win.ko.macros.recorder.appendCode("ko.find.findNextInMacro(window, " +
                                     context.type + ", '" +
                                     ko.find.regexEscapeString(pattern) + "', " +
-                                    lazy.findSvc.options.patternType + ", " +
-                                    lazy.findSvc.options.caseSensitivity + ", " +
-                                    lazy.findSvc.options.searchBackward + ", " +
-                                    lazy.findSvc.options.matchWord + ", " +
+                                    _findSvc.options.patternType + ", " +
+                                    _findSvc.options.caseSensitivity + ", " +
+                                    _findSvc.options.searchBackward + ", " +
+                                    _findSvc.options.matchWord + ", " +
                                     mode + ", " +
                                     quiet + ", " +
                                     useMRU +
@@ -1394,7 +1388,7 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
     try {
         findResult = ko.find._setupAndFindNext(editor, context, pattern, mode);
     } catch (ex) {
-        lazy.log.debug("_setupAndFindNext failed with " + ex);
+        findLog.debug("_setupAndFindNext failed with " + ex);
         if (highlightMatches) {
             ko.find.highlightClearAll(scimoz);
         }
@@ -1406,7 +1400,7 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
         ko.mru.add("find-patternMru", pattern, true);
 
     if (findResult) {
-        lazy.log.debug("found a result " + findResult);
+        findLog.debug("found a result " + findResult);
         displayResultCallback(editor, findResult);
         if (highlightMatches && (mode == "find")) {
             ko.find.highlightAllMatches(scimoz, context, pattern, highlightTimeout);
@@ -1417,9 +1411,9 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
         }
         if (!quiet)
             ko.find._uiForCompletedFindSession(context, msgHandler);
-        lazy.log.debug("Reset find session, because 'FindNext' did not find " +
+        findLog.debug("Reset find session, because 'FindNext' did not find " +
                       "anything.");
-        lazy.findSession.Reset();
+        _findSession.Reset();
     }
     return findResult != null;
 }
@@ -1457,25 +1451,25 @@ this.findAll = function Find_FindAll(editor, context, pattern, patternAlias,
         highlightMatches = false;
     }
 
-    lazy.log.info("ko.find.findAll(editor, context, pattern='"+pattern+
+    findLog.info("ko.find.findAll(editor, context, pattern='"+pattern+
                  "', patternAlias='"+patternAlias+"')");
     if (editor.ko.macros.recorder.mode == 'recording') {
         editor.ko.macros.recorder.appendCode("ko.find.findAllInMacro(window, " +
                                     context.type + ", '" +
                                     ko.find.regexEscapeString(pattern) + "', " +
-                                    lazy.findSvc.options.patternType + ", " +
-                                    lazy.findSvc.options.caseSensitivity + ", " +
-                                    lazy.findSvc.options.searchBackward + ", " +
-                                    lazy.findSvc.options.matchWord +
+                                    _findSvc.options.patternType + ", " +
+                                    _findSvc.options.caseSensitivity + ", " +
+                                    _findSvc.options.searchBackward + ", " +
+                                    _findSvc.options.matchWord +
                                     ");\n");
     }
 
-    var preferredResultsTab = lazy.findSvc.options.displayInFindResults2 ? 2 : 1;
+    var preferredResultsTab = _findSvc.options.displayInFindResults2 ? 2 : 1;
     var resultsMgr = editor.ko.findresults.getTab(preferredResultsTab);
     if (resultsMgr == null)
         return null;
     resultsMgr.configure(pattern, patternAlias, null, context,
-                         lazy.findSvc.options);
+                         _findSvc.options);
     resultsMgr.show();
 
     resultsMgr.searchStarted();
@@ -1483,7 +1477,7 @@ this.findAll = function Find_FindAll(editor, context, pattern, patternAlias,
     try {
         if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
             || context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
-            lazy.log.debug("ko.find.findAll: find all in '"+
+            findLog.debug("ko.find.findAll: find all in '"+
                           editor.ko.views.manager.currentView.koDoc.displayPath+"'\n");
             ko.find._findAllInView(editor, editor.ko.views.manager.currentView, context,
                            pattern, resultsMgr.view, highlightMatches);
@@ -1494,19 +1488,19 @@ this.findAll = function Find_FindAll(editor, context, pattern, patternAlias,
             while (view) {
                 if (ko.find._isViewSearchable(view)) {
                     viewId = view.koDoc.displayPath;
-                    if (lazy.findSession.HaveSearchedThisUrlAlready(viewId)) {
-                        lazy.log.debug("ko.find.findAll: have already searched '"+
+                    if (_findSession.HaveSearchedThisUrlAlready(viewId)) {
+                        findLog.debug("ko.find.findAll: have already searched '"+
                                       viewId+"'\n");
                         break;
                     }
     
-                    lazy.log.debug("ko.find.findAll: find all in '"+viewId+"'\n");
+                    findLog.debug("ko.find.findAll: find all in '"+viewId+"'\n");
                     ko.find._findAllInView(editor, view, context, pattern,
                                    resultsMgr.view, highlightMatches);
                     numFilesSearched += 1;
                 }
 
-                if (lazy.findSvc.options.searchBackward) {
+                if (_findSvc.options.searchBackward) {
                     view = ko.find._getPreviousView(editor, view);
                 } else {
                     view = ko.find._getNextView(editor, view);
@@ -1531,18 +1525,18 @@ this.findAll = function Find_FindAll(editor, context, pattern, patternAlias,
     if (! foundSome) {
         var msg;
         if (typeof(patternAlias) != 'undefined' && patternAlias) {
-            msg = lazy.ffBundle.formatStringFromName("No X were found in Y",
+            msg = _ffBundle.formatStringFromName("No X were found in Y",
                                                [patternAlias, context.name], 2);
         } else {
             var text_utils = Components.classes["@activestate.com/koTextUtils;1"]
                                .getService(Components.interfaces.koITextUtils);
             var summary = text_utils.one_line_summary_from_text(pattern, 30);
-            msg = lazy.ffBundle.formatStringFromName("X was not found in Y",
+            msg = _ffBundle.formatStringFromName("X was not found in Y",
                                                [summary, context.name], 2);
         }
         msgHandler("warn", "find", msg);
     }
-    lazy.findSession.Reset();
+    _findSession.Reset();
 
     return foundSome;
 }
@@ -1576,10 +1570,10 @@ this.markAll = function Find_MarkAll(editor, context, pattern, patternAlias,
         editor.ko.macros.recorder.appendCode("ko.find.markAllInMacro(window, " +
                                     context.type + ", '" +
                                     ko.find.regexEscapeString(pattern) + "', " +
-                                    lazy.findSvc.options.patternType + ", " +
-                                    lazy.findSvc.options.caseSensitivity + ", " +
-                                    lazy.findSvc.options.searchBackward + ", " +
-                                    lazy.findSvc.options.matchWord + ", " +
+                                    _findSvc.options.patternType + ", " +
+                                    _findSvc.options.caseSensitivity + ", " +
+                                    _findSvc.options.searchBackward + ", " +
+                                    _findSvc.options.matchWord + ", " +
                                     ");\n");
     }
 
@@ -1595,8 +1589,8 @@ this.markAll = function Find_MarkAll(editor, context, pattern, patternAlias,
         var viewId;
         while (view) {
             viewId = view.koDoc.displayPath;
-            if (lazy.findSession.HaveSearchedThisUrlAlready(viewId)) {
-                lazy.log.debug("ko.find.markAll: have alread searched '"+
+            if (_findSession.HaveSearchedThisUrlAlready(viewId)) {
+                findLog.debug("ko.find.markAll: have alread searched '"+
                               viewId+"'\n");
                 break;
             }
@@ -1604,7 +1598,7 @@ this.markAll = function Find_MarkAll(editor, context, pattern, patternAlias,
             rv = ko.find._markAllInView(editor, view, context, pattern);
             if (rv) foundSome = true;
 
-            if (lazy.findSvc.options.searchBackward) {
+            if (_findSvc.options.searchBackward) {
                 view = ko.find._getPreviousView(editor, view);
             } else {
                 view = ko.find._getNextView(editor, view);
@@ -1619,18 +1613,18 @@ this.markAll = function Find_MarkAll(editor, context, pattern, patternAlias,
     if (! foundSome) {
         var msg;
         if (typeof(patternAlias) != 'undefined' && patternAlias) {
-            msg = lazy.ffBundle.formatStringFromName("No X were found in Y",
+            msg = _ffBundle.formatStringFromName("No X were found in Y",
                                                [summary, context.name], 2);
         } else {
             var text_utils = Components.classes["@activestate.com/koTextUtils;1"]
                                .getService(Components.interfaces.koITextUtils);
             var summary = text_utils.one_line_summary_from_text(pattern, 30);
-            msg = lazy.ffBundle.formatStringFromName("X was not found in Y",
+            msg = _ffBundle.formatStringFromName("X was not found in Y",
                                                [summary, context.name], 2);
         }
         msgHandler("warn", "find", msg);
     }
-    lazy.findSession.Reset();
+    _findSession.Reset();
 
     return foundSome;
 }
@@ -1662,7 +1656,7 @@ this.replace = function Find_Replace(editor, context, pattern, replacement,
     // Replace the currently selected find result (if there is one) and find
     // the next occurrence of the current pattern. Returns true iff a next
     // occurence of the pattern was found and hilighted.
-    lazy.log.info("ko.find.replace(editor, context, pattern='"+pattern+
+    findLog.info("ko.find.replace(editor, context, pattern='"+pattern+
                  "', replacement='"+replacement+"')");
 
     if (editor.ko.macros.recorder.mode == 'recording') {
@@ -1670,10 +1664,10 @@ this.replace = function Find_Replace(editor, context, pattern, replacement,
                                     context.type + ", '" +
                                     ko.find.regexEscapeString(pattern) + "', '" +
                                     ko.find.regexEscapeString(replacement) + "', " +
-                                    lazy.findSvc.options.patternType + ", " +
-                                    lazy.findSvc.options.caseSensitivity + ", " +
-                                    lazy.findSvc.options.searchBackward + ", " +
-                                    lazy.findSvc.options.matchWord +
+                                    _findSvc.options.patternType + ", " +
+                                    _findSvc.options.caseSensitivity + ", " +
+                                    _findSvc.options.searchBackward + ", " +
+                                    _findSvc.options.matchWord +
                                     ");\n");
     }
 
@@ -1687,7 +1681,7 @@ this.replace = function Find_Replace(editor, context, pattern, replacement,
 
         // replace the current find result if there is one
         try {
-            lazy.log.info("ko.find.replace: replace last find result");
+            findLog.info("ko.find.replace: replace last find result");
             ko.find._replaceLastFindResult(editor, context, pattern, replacement);
         } catch (ex) {
             ko.find._uiForFindServiceError("replace", ex, msgHandler);
@@ -1696,11 +1690,11 @@ this.replace = function Find_Replace(editor, context, pattern, replacement,
 
         // find the next one
         try {
-            lazy.log.info("ko.find.replace: find next hit");
+            findLog.info("ko.find.replace: find next hit");
             findResult = ko.find._setupAndFindNext(editor, context, pattern,
                                            'replace');
             if (findResult) {
-                lazy.log.info("ko.find.replace: found next hit: "+
+                findLog.info("ko.find.replace: found next hit: "+
                              findResult.start+"-"+findResult.end+": '"+
                              findResult.value+"'");
             }
@@ -1713,9 +1707,9 @@ this.replace = function Find_Replace(editor, context, pattern, replacement,
         // Do the appropriate UI work for results.
         if (findResult == null) {
             ko.find._uiForCompletedFindSession(context, msgHandler);
-            //lazy.log.debug("Reset find session, because 'Replace' action "
+            //findLog.debug("Reset find session, because 'Replace' action "
             //              + "returned no result.");
-            lazy.findSession.Reset();
+            _findSession.Reset();
         } else {
             ko.find._displayFindResult(editor, findResult);
         }
@@ -1765,7 +1759,7 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
         highlightReplacements = false;
     }
 
-    lazy.log.info("ko.find.replaceAll(editor, context, pattern='"+pattern
+    findLog.info("ko.find.replaceAll(editor, context, pattern='"+pattern
                  +"', replacement='"+replacement
                  +"', showReplaceResults="+showReplaceResults
                  +"', firstOnLine="+firstOnLine+")\n");
@@ -1777,10 +1771,10 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
                                     ko.find.regexEscapeString(pattern) + "', '" +
                                     ko.find.regexEscapeString(replacement) + "', " +
                                     showReplaceResults + ", " +
-                                    lazy.findSvc.options.patternType + ", " +
-                                    lazy.findSvc.options.caseSensitivity + ", " +
-                                    lazy.findSvc.options.searchBackward + ", " +
-                                    lazy.findSvc.options.matchWord +
+                                    _findSvc.options.patternType + ", " +
+                                    _findSvc.options.caseSensitivity + ", " +
+                                    _findSvc.options.searchBackward + ", " +
+                                    _findSvc.options.matchWord +
                                     ");\n");
     }
 
@@ -1789,12 +1783,12 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
     var numFiles = null;
     var numFilesSearched = null;
     if (showReplaceResults) {
-        var preferredResultsTab = lazy.findSvc.options.displayInFindResults2 ? 2 : 1;
+        var preferredResultsTab = _findSvc.options.displayInFindResults2 ? 2 : 1;
         resultsMgr = editor.ko.findresults.getTab(preferredResultsTab);
         if (resultsMgr == null)
             return false;
         resultsMgr.configure(pattern, null, replacement, context,
-                             lazy.findSvc.options);
+                             _findSvc.options);
         resultsMgr.show();
         resultsView = resultsMgr.view;
         resultsMgr.searchStarted();
@@ -1802,7 +1796,7 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
         // Should add results already in session.
         var countObj = new Object();
         var replaceResults = new Object();
-        var rrs = lazy.findSession.GetReplacements(countObj);
+        var rrs = _findSession.GetReplacements(countObj);
         var i, rr;
         for (i = 0; i < rrs.length; ++ i) {
             rr = rrs[i];
@@ -1817,11 +1811,11 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
     // replaces something. Good enough just always do it for now.
     editor.ko.history.note_curr_loc();
 
-    var numReplacements = lazy.findSession.GetNumReplacements();
+    var numReplacements = _findSession.GetNumReplacements();
     var nr;
     if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
         || context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
-        lazy.log.debug("ko.find.replaceAll: replace all in '"+
+        findLog.debug("ko.find.replaceAll: replace all in '"+
                       editor.ko.views.manager.currentView.koDoc.displayPath+"'\n");
         nr = ko.find._replaceAllInView(editor, editor.ko.views.manager.currentView, context,
                                pattern, replacement, firstOnLine, resultsView,
@@ -1834,13 +1828,13 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
         while (view) {
             if (ko.find._isViewSearchable(view)) {
                 viewId = view.koDoc.displayPath;
-                if (lazy.findSession.HaveSearchedThisUrlAlready(viewId)) {
-                    lazy.log.debug("ko.find.replaceAll: have already searched '"+
+                if (_findSession.HaveSearchedThisUrlAlready(viewId)) {
+                    findLog.debug("ko.find.replaceAll: have already searched '"+
                                   viewId+"'\n");
                     break;
                 }
     
-                lazy.log.debug("ko.find.replaceAll: replace all in '"+viewId+"'\n");
+                findLog.debug("ko.find.replaceAll: replace all in '"+viewId+"'\n");
                 nr = ko.find._replaceAllInView(editor, view, context, pattern,
                                        replacement, firstOnLine, resultsView,
                                        highlightReplacements);
@@ -1851,7 +1845,7 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
                 numFilesSearched += 1;
             }
 
-            if (lazy.findSvc.options.searchBackward) {
+            if (_findSvc.options.searchBackward) {
                 view = ko.find._getPreviousView(editor, view);
             } else {
                 view = ko.find._getNextView(editor, view);
@@ -1872,17 +1866,17 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
         var text_utils = Components.classes["@activestate.com/koTextUtils;1"]
                            .getService(Components.interfaces.koITextUtils);
         var summary = text_utils.one_line_summary_from_text(pattern, 30);
-        msg = (lazy.ffBundle.formatStringFromName("X was not found in Y",
+        msg = (_ffBundle.formatStringFromName("X was not found in Y",
                                            [summary, context.name], 2)
                + " "
-               + lazy.ffBundle.GetStringFromName("No changes were made."));
+               + _ffBundle.GetStringFromName("No changes were made."));
         msgHandler("info", "find", msg);
     } else {
-        msg = lazy.ffBundle.formatStringFromName("Made X replacement(s) in Y",
+        msg = _ffBundle.formatStringFromName("Made X replacement(s) in Y",
                                            [numReplacements, context.name], 2);
         editor.ko.statusBar.AddMessage(msg, "find", 3000, true);
     }
-    lazy.findSession.Reset();
+    _findSession.Reset();
 
     return numReplacements != 0;
 }
@@ -1908,7 +1902,7 @@ this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, pat
         msgHandler = ko.find.getStatusbarMsgHandler(editor);
     }
 
-    lazy.log.info("ko.find.findAllInFiles(editor, context, pattern='"+pattern+
+    findLog.info("ko.find.findAllInFiles(editor, context, pattern='"+pattern+
                  "', patternAlias='"+patternAlias+"')");
 
     //TODO macro recording stuff for this
@@ -1917,11 +1911,11 @@ this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, pat
     if (resultsMgr == null)
         return false;
     resultsMgr.configure(pattern, patternAlias, null, context,
-                         lazy.findSvc.options);
+                         _findSvc.options);
     resultsMgr.show(true);
 
     try {
-        lazy.findSvc.findallinfiles(resultsMgr.id, pattern, resultsMgr);
+        _findSvc.findallinfiles(resultsMgr.id, pattern, resultsMgr);
     } catch (ex) {
         ko.find._uiForFindServiceError("find all in files", ex, msgHandler);
         resultsMgr.clear();
@@ -1957,7 +1951,7 @@ this.replaceAllInFiles = function Find_ReplaceAllInFiles(editor, context, patter
         msgHandler = ko.find.getStatusbarMsgHandler(editor);
     }
 
-    lazy.log.info("ko.find.replaceAllInFiles(editor, context, pattern='"+pattern+
+    findLog.info("ko.find.replaceAllInFiles(editor, context, pattern='"+pattern+
                  "', repl='"+repl+"', confirm="+confirm+")");
 
     //TODO macro recording stuff for this
@@ -1985,7 +1979,7 @@ this.replaceAllInFiles = function Find_ReplaceAllInFiles(editor, context, patter
             return false;
         } else if (replacer.num_hits == 0) {
             // No replacements were found.
-            msgHandler("info", "replace", lazy.ffBundle.GetStringFromName("No replacements were found."));
+            msgHandler("info", "replace", _ffBundle.GetStringFromName("No replacements were found."));
             return false;
         }
         
@@ -2002,7 +1996,7 @@ this.replaceAllInFiles = function Find_ReplaceAllInFiles(editor, context, patter
             return false;
         }
         resultsMgr.configure(pattern, null, repl, context,
-                             lazy.findSvc.options,
+                             _findSvc.options,
                              true);  // opSupportsUndo
         resultsMgr.show();
         replacer.commit(resultsMgr);
@@ -2014,15 +2008,15 @@ this.replaceAllInFiles = function Find_ReplaceAllInFiles(editor, context, patter
         if (resultsMgr == null)
             return false;
         resultsMgr.configure(pattern, null, repl, context,
-                             lazy.findSvc.options,
+                             _findSvc.options,
                              true); // opSupportsUndo
         resultsMgr.show();
     
         try {
-            lazy.findSvc.replaceallinfiles(resultsMgr.id, pattern, repl,
+            _findSvc.replaceallinfiles(resultsMgr.id, pattern, repl,
                                        resultsMgr);
         } catch (ex) {
-            var msg = lazy.ffBundle.GetStringFromName("replace all in files");
+            var msg = _ffBundle.GetStringFromName("replace all in files");
             ko.find._uiForFindServiceError(msg, ex, msgHandler);
             resultsMgr.clear();
             return false;
@@ -2033,3 +2027,42 @@ this.replaceAllInFiles = function Find_ReplaceAllInFiles(editor, context, patter
 }
 
 }).apply(ko.find);
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("findSvc", 'Components.classes["@activestate.com/koFindService;1"].getService(Components.interfaces.koIFindService);');
+ko.logging.globalDeprecatedByAlternative("gFindSession", 'Components.classes["@activestate.com/koFindSession;1"].getService(Components.interfaces.koIFindSession);');
+ko.logging.globalDeprecatedByAlternative("_IsViewSearchable", "ko.find._isViewSearchable");
+ko.logging.globalDeprecatedByAlternative("_GetNextView", "ko.find._getNextView");
+ko.logging.globalDeprecatedByAlternative("_GetPreviousView", "ko.find._getPreviousView");
+ko.logging.globalDeprecatedByAlternative("_GetViewFromViewId", "ko.find._getViewFromViewId");
+ko.logging.globalDeprecatedByAlternative("_SetupAndFindNext", "ko.find._setupAndFindNext");
+ko.logging.globalDeprecatedByAlternative("_doMarkerClearingReplacement", "ko.find._doMarkerClearingReplacement");
+ko.logging.globalDeprecatedByAlternative("_doMarkerPreservingReplacement", "ko.find._doMarkerPreservingReplacement");
+ko.logging.globalDeprecatedByAlternative("_ReplaceLastFindResult", "ko.find._replaceLastFindResult");
+ko.logging.globalDeprecatedByAlternative("_FindAllInView", "ko.find._findAllInView");
+ko.logging.globalDeprecatedByAlternative("_MarkAllInView", "ko.find._markAllInView");
+ko.logging.globalDeprecatedByAlternative("_ReplaceAllInView", "ko.find._replaceAllInView");
+ko.logging.globalDeprecatedByAlternative("_DisplayFindResult", "ko.find._displayFindResult");
+ko.logging.globalDeprecatedByAlternative("_MarkLinesForViewId", "ko.find._markLinesForViewId");
+ko.logging.globalDeprecatedByAlternative("_UiForCompletedFindSession", "ko.find._uiForCompletedFindSession");
+ko.logging.globalDeprecatedByAlternative("_UiForFindServiceError", "ko.find._uiForFindServiceError");
+ko.logging.globalDeprecatedByAlternative("_Find_RegexEscapeString", "ko.find.regexEscapeString");
+ko.logging.globalDeprecatedByAlternative("_Find_GetStatusbarMsgHandler", "ko.find.getStatusbarMsgHandler");
+ko.logging.globalDeprecatedByAlternative("Find_FindNextInMacro", "ko.find.findNextInMacro");
+ko.logging.globalDeprecatedByAlternative("Find_FindAllInMacro", "ko.find.findAllInMacro");
+ko.logging.globalDeprecatedByAlternative("Find_MarkAllInMacro", "ko.find.markAllInMacro");
+ko.logging.globalDeprecatedByAlternative("Find_ReplaceInMacro", "ko.find.replaceInMacro");
+ko.logging.globalDeprecatedByAlternative("Find_ReplaceAllInMacro", "ko.find.replaceAllInMacro");
+ko.logging.globalDeprecatedByAlternative("Find_HighlightClearAll", "ko.find.highlightClearAll");
+ko.logging.globalDeprecatedByAlternative("Find_HighlightClearPosition", "ko.find.highlightClearPosition");
+ko.logging.globalDeprecatedByAlternative("Find_HighlightAllMatches", "ko.find.highlightAllMatches");
+ko.logging.globalDeprecatedByAlternative("Find_HighlightingEnabled", "ko.find.highlightingEnabled");
+ko.logging.globalDeprecatedByAlternative("Find_FindNext", "ko.find.findNext");
+ko.logging.globalDeprecatedByAlternative("Find_FindAll", "ko.find.findAll");
+ko.logging.globalDeprecatedByAlternative("Find_MarkAll", "ko.find.markAll");
+ko.logging.globalDeprecatedByAlternative("Find_Replace", "ko.find.replace");
+ko.logging.globalDeprecatedByAlternative("Find_ReplaceAll", "ko.find.replaceAll");
+ko.logging.globalDeprecatedByAlternative("Find_FindAllInFiles", "ko.find.findAllInFiles");
+ko.logging.globalDeprecatedByAlternative("Find_ReplaceAllInFiles", "ko.find.replaceAllInFiles");

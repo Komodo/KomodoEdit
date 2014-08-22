@@ -39,19 +39,26 @@
  * commands related to opening the find dialog
  */
 
+Components.utils.import("resource://gre/modules/PluralForm.jsm");
+
 xtk.include('controller');
 
-ko.findcontroller = {};
+if (typeof(ko)=='undefined') {
+    var ko = {};
+}
+if (typeof(ko.find)=='undefined') {
+    ko.find = {};
+}
+
+ko.find.controller = {};
 (function() {
 
-var locals = {};
+const Cc = Components.classes;
+const Ci = Components.interfaces;
 
-XPCOMUtils.defineLazyGetter(locals, "PluralForm", function()
-    Cu.import("resource://gre/modules/PluralForm.jsm").PluralForm);
-
-XPCOMUtils.defineLazyGetter(locals, "bundle", function()
-    Services.strings.createBundle("chrome://komodo/locale/library.properties"));
-
+var _bundle = Cc["@mozilla.org/intl/stringbundle;1"]
+                .getService(Ci.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/library.properties");
 var _log = ko.logging.getLogger('find.controller');
 //_log.setLevel(ko.logging.LOG_DEBUG);
 
@@ -218,7 +225,7 @@ FindController.prototype._findFunction = function(searchType) {
         this._findSvc.options.searchBackward = searchBackward;
         this._findSvc.options.matchWord = matchWord;
     }  catch (e) {
-        _log.error(e);
+        this.log.error(e);
     }
 }
 
@@ -425,7 +432,7 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
 FindController.prototype._stopIncrementalSearch = function(why, highlight) {
     _log.debug("stopping incremental search (" + why + ")");
     if (why !== null) {
-        ko.statusBar.AddMessage(locals.bundle.formatStringFromName("incrementalSearchStopped",
+        ko.statusBar.AddMessage(_bundle.formatStringFromName("incrementalSearchStopped",
                                                              [why], 1),
                                 "isearch", 3000, highlight, true);
     }
@@ -523,7 +530,7 @@ FindController.prototype.search = function(pattern, highlight) {
         highlight,
         this.highlightTimeout);
     if (! findres) {
-        var prompt = locals.bundle.formatStringFromName("noOccurencesFound",
+        var prompt = _bundle.formatStringFromName("noOccurencesFound",
                                                   [this._incrementalSearchPattern], 1);
         scimoz.setSel(oldStart, oldEnd);
         this._view.findbar.notFound = true;
@@ -559,8 +566,8 @@ FindController.prototype.searchAgain = function(isBackwards) {
                                    null, true,
                                    true); // add pattern to find MRU
     if (findres == false) {
-        var text = locals.bundle.GetStringFromName("findNotFound");
-        text = locals.PluralForm.get(lastCount, text).replace("#1", lastCount);
+        var text = _bundle.GetStringFromName("findNotFound");
+        text = PluralForm.get(lastCount, text).replace("#1", lastCount);
         this._view.findbar.setStatus("not-found", text);
         this._view.findbar.notFound = true;
     } else {
@@ -673,7 +680,7 @@ FindController.prototype._keyHandler = function FindController__keyHandler(event
       case KeyEvent.DOM_VK_TAB:
 
       // editing
-      case KeyEvent.DOM_VK_RETURN:
+      case KeyEvent.DOM_VK_ENTER:      case KeyEvent.DOM_VK_RETURN:
       case KeyEvent.DOM_VK_BACK_SPACE: case KeyEvent.DOM_VK_DELETE:
       case KeyEvent.DOM_VK_INSERT:
 
@@ -699,6 +706,28 @@ FindController.prototype._keyHandler = function FindController__keyHandler(event
 // expose the controller constructor
 this.FindController = FindController;
 
+/*****
+ * Deprecated shims (since Komodo 7.0.0a4)
+ *****/
+ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
+                                           "findSvc",
+                                           'Components.classes["@activestate.com/koFindService;1"].getService(Components.interfaces.koIFindService)');
+ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
+                                           "inRepeatCounterAccumulation",
+                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.inRepeatCounterAccumulation');
+ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
+                                           "defaultRepeatCounter",
+                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.defaultRepeatCounter');
+ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
+                                           "do_cmd_repeatNextCommandBy",
+                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.do_cmd_repeatNextCommandBy');
+ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
+                                           "getCount",
+                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.getCount');
+ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
+                                           "cancelMultiHandler",
+                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.cancelMultiHandler');
+
 // if we're the main window, wait for ko.views to be available and hook up a
 // default incremental search controller
 addEventListener("load", (function() {
@@ -710,4 +739,15 @@ addEventListener("load", (function() {
     }
 }).bind(this), false);
 
-}).apply(ko.findcontroller);
+}).apply(ko.find.controller);
+
+// shims
+if (!ko.isearch) ko.isearch = {};
+(function() {
+/*****
+ * Deprecated shims (since Komodo 7.0.0a4)
+ *****/
+ko.logging.propertyDeprecatedByAlternative(this,
+                                           "controller",
+                                           "ko.find.controller");
+}).apply(ko.isearch);

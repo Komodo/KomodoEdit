@@ -43,7 +43,6 @@ Import(
     'mozComponentsDir',
     'mozIdlIncludePath',
     'idlExportDir',
-    'komodoDevDir',
     'supportDir',
     'unsiloedPythonExe',
     'productType',
@@ -70,9 +69,6 @@ $cons->Install($idlExportDir, 'koIEnvView.idl');
 $cons->BuildAndInstallXpt('koIEnvView.idl');
 
 $cons->InstallPythonUtility('pref_serialization.py');
-
-$cons->AddComponentManifestLines("test-registration",
-                                 ["category komodo-jstest-paths prefs $komodoDevDir/src/prefs/test"]);
 
 # Install default preferences in root 
 $cons->Preprocess('prefs.p.xml', 'prefs.xml');

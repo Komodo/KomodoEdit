@@ -134,7 +134,8 @@ function VimController() {
         this._currentRegister = null;
         this._registers = {};
         // Searching
-        this._findSvc = Services.koFind;
+        this._findSvc = Components.classes["@activestate.com/koFindService;1"].
+                               getService(Components.interfaces.koIFindService);
 
         this._inputBuffer_active = false;
         this._inputBuffer_history = [];        // History of previous values
@@ -153,8 +154,8 @@ function VimController() {
         // Command history for command mode
         this._commandModeHistory = [];      // Array of past command mode strings
         // Initialize the command details service
-        XPCOMUtils.defineLazyGetter(this, "_commandDetails", () =>
-            Cc["@activestate.com/koViCommandDetail;1"].getService(Ci.koIViCommandDetail));
+        this._commandDetails = Components.classes['@activestate.com/koViCommandDetail;1'].
+                                getService(Components.interfaces.koIViCommandDetail);
         // Vi customized settings, get loaded from preferences
         this.settings = {};
         this._initSettings();
@@ -216,10 +217,6 @@ var gVim_onCurrentViewChanged = function(event) {
     // When the view changes - always go back to the normal mode.
     gVimController.mode = VimController.MODE_NORMAL;
     var view = event.originalTarget;
-    if (view.getAttribute("type") != "editor") {
-        /* Only need to look at editor views. */
-        return;
-    }
     gVimController.updateCaretStyle(view.scimoz);
 }
 
@@ -316,9 +313,8 @@ var gVim_onEditorModified = function(event) {
                 return;
             }
     
-            var insertStartPos = gVimController._lastInsertedStartPosition - data.bytelength;
-            var insertEndPos = gVimController._lastInsertedEndPosition - data.bytelength;
-
+            var insertStartPos = gVimController._lastInsertedStartPosition;
+            var insertEndPos = gVimController._lastInsertedEndPosition;
             //dump("  removed  text, position " + data.position + ", bytelength " + data.bytelength + "\n");
             //dump('    gVimController._lastInsertedText: "' + gVimController._lastInsertedText + '"\n');
             //dump('    gVimController._lastInsertedStartPosition: ' + gVimController._lastInsertedStartPosition + '\n');
@@ -326,12 +322,14 @@ var gVim_onEditorModified = function(event) {
             //dump('    insertEndPos: ' + insertEndPos + '\n');
             gVimController._lastInsertedText = "";
     
-            if (data.position == insertEndPos) {
+            var preDeletePos = data.position + data.bytelength;
+    
+            if (preDeletePos == insertEndPos) {
                 /* Normal case - just remove the text from the end. */
                 //dump("    case 1\n");
                 gVimController._lastInsertedText = insertedText.slice(0, -data.text.length);
                 gVimController._lastInsertedEndPosition -= data.bytelength;
-            } else if (data.position >= insertStartPos && data.position <= insertEndPos) {
+            } else if (preDeletePos >= insertStartPos && preDeletePos <= insertEndPos) {
                 /* Soft char case, or user moved back in the text. */
                 // Gah - has to access scimoz in order to get the char length,
                 // as we only know the byte length.
@@ -557,7 +555,10 @@ VimController.prototype._initSettings = function() {
     if (prefs.hasPref("viCustomSettings")) {
         // viCustomSettings is a preference-set
         var viPrefs = prefs.getPref("viCustomSettings");
-        var viSettingNames = viPrefs.getPrefIds();
+        var result = new Object();
+        var count = new Object();
+        viPrefs.getPrefIds(result, count);
+        var viSettingNames = result.value;
         var prefType;
         var vim_set_command;
         for (var i = 0; i < viSettingNames.length; i++) {
@@ -2359,13 +2360,13 @@ VimController.command_mappings = {
 // Movement actions
     "cmd_vim_left" :                [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION | VimController.CHOOSE_CARET_X ],
     "cmd_vim_right" :               [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION | VimController.CHOOSE_CARET_X ],
-    "cmd_vim_linePrevious" :        [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_lineNext" :            [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_linePrevious" :        [ "cmd_linePrevious",           VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_lineNext" :            [ "cmd_lineNext",               VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_linePreviousHome" :    [ "cmd_linePreviousHome",       VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_lineNextHome" :        [ "cmd_lineNextHome",           VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_home" :                [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_homeAbsolute" :        [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_end"  :                [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_home" :                [ "cmd_home",                   VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_homeAbsolute" :        [ "cmd_homeAbsolute",           VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_end"  :                [ "cmd_end",                    VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_scrollHalfPageDown" :  [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_scrollHalfPageUp" :    [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_pageDown" :            [ "cmd_pageDown",               VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
@@ -2379,7 +2380,7 @@ VimController.command_mappings = {
     "cmd_vim_gotoLine" :            [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_lineScrollUp" :        [ "cmd_lineScrollUp",           VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_lineScrollDown" :      [ "cmd_lineScrollDown",         VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_jumpToMatchingBrace" : [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_jumpToMatchingBrace" : [ "cmd_jumpToMatchingBrace",    VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_wordLeftPastPunctuation" : [ "cmd_wordLeftPastPunctuation", VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_wordRightPastPunctuation" : [ "cmd_wordRightPastPunctuation", VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_wordRightEndPastPunctuation" : [ VimController.SPECIAL_COMMAND, VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
@@ -2394,9 +2395,6 @@ VimController.command_mappings = {
     "cmd_vim_moveFunctionNext" :    [ "cmd_moveFunctionNext",       VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_jumpToLineBeforeLastJump" :    [ VimController.SPECIAL_COMMAND, VimController.MOVEMENT_ACTION | VimController.NO_REPEAT_ACTION],
     "cmd_vim_jumpToLocBeforeLastJump" :    [ VimController.SPECIAL_COMMAND, VimController.MOVEMENT_ACTION | VimController.NO_REPEAT_ACTION],
-    "cmd_vim_scrollLineToCenter" :  [ "cmd_editCenterVertically",   VimController.NO_REPEAT_ACTION ],
-    "cmd_vim_scrollLineToCenterHome" : [ VimController.SPECIAL_COMMAND, VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_scrollLineToBottomHome" : [ VimController.SPECIAL_COMMAND, VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
 
 // Select actions
     "cmd_vim_selectCharNext" :      [ "cmd_selectCharNext",         VimController.REPEATABLE_ACTION ],
@@ -2405,8 +2403,8 @@ VimController.command_mappings = {
     "cmd_vim_selectWordRight" :     [ "cmd_selectWordRight",        VimController.REPEATABLE_ACTION ],
     "cmd_vim_selectHome" :          [ "cmd_selectHome",             VimController.NO_REPEAT_ACTION ],
     "cmd_vim_selectEnd" :           [ "cmd_selectEnd",              VimController.REPEATABLE_ACTION ],
-    "cmd_vim_selectLineNext" :      [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION ],
-    "cmd_vim_selectLinePrevious" :  [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION ],
+    "cmd_vim_selectLineNext" :      [ "cmd_selectLineNext",         VimController.REPEATABLE_ACTION ],
+    "cmd_vim_selectLinePrevious" :  [ "cmd_selectLinePrevious",     VimController.REPEATABLE_ACTION ],
     "cmd_vim_selectPageDown" :      [ "cmd_selectPageDown",         VimController.REPEATABLE_ACTION ],
     "cmd_vim_selectPageUp" :        [ "cmd_selectPageUp",           VimController.REPEATABLE_ACTION ],
     "cmd_vim_selectDocumentHome" :  [ "cmd_selectDocumentHome",     VimController.NO_REPEAT_ACTION ],
@@ -3046,57 +3044,6 @@ function cmd_vim_right(scimoz, allowWhichWrap /* true */) {
     }
 }
 
-function cmd_vim_linePrevious(scimoz) {
-    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
-    var lineNo = scimoz.lineFromPosition(gVimController._currentPos) - 1;
-    if (lineNo < 0) {
-        return;
-    }
-    // Maintain the column position.
-    var column = scimoz.getColumn(gVimController._currentPos);
-    var lineEndPos = scimoz.getLineEndPosition(lineNo);
-    column = Math.min(column, scimoz.getColumn(lineEndPos));
-    gVimController._currentPos = scimoz.positionAtColumn(lineNo, column);
-}
-
-function cmd_vim_lineNext(scimoz) {
-    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
-    var lineNo = scimoz.lineFromPosition(gVimController._currentPos) + 1;
-    if (lineNo >= scimoz.lineCount) {
-        return;
-    }
-    // Maintain the column position.
-    var column = scimoz.getColumn(gVimController._currentPos);
-    var lineEndPos = scimoz.getLineEndPosition(lineNo);
-    column = Math.min(column, scimoz.getColumn(lineEndPos));
-    gVimController._currentPos = scimoz.positionAtColumn(lineNo, column);
-}
-
-function cmd_vim_home(scimoz) {
-    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
-    scimoz.vCHome();
-}
-
-function cmd_vim_homeAbsolute(scimoz) {
-    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
-    scimoz.home();
-}
-
-function cmd_vim_end(scimoz) {
-    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
-    scimoz.lineEnd();
-}
-
-function cmd_vim_selectLinePrevious(scimoz) {
-    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
-    cmd_vim_linePrevious(scimoz);
-}
-
-function cmd_vim_selectLineNext(scimoz) {
-    // Vi moves full lines at a time, so ignore word wrap - bug 87356.
-    cmd_vim_lineNext(scimoz);
-}
-
 function cmd_vim_scrollHalfPageDown(scimoz) {
     var lineNo = scimoz.lineFromPosition(gVimController._currentPos);
     var visLineNo = scimoz.visibleFromDocLine(lineNo);
@@ -3147,38 +3094,6 @@ function cmd_vim_gotoLine(scimoz, lineNumber) {
     }
 }
 
-function cmd_vim_jumpToMatchingBrace(scimoz) {
-    try {
-        var braces = "[]{}()";
-        if (["Python", "YAML"].indexOf(ko.views.manager.currentView.language)) {
-            braces += ":";
-        }
-        var currentPos = scimoz.currentPos;
-        var lineNo = scimoz.lineFromPosition(currentPos);
-        var lineEndPos = scimoz.getLineEndPosition(lineNo);
-        var line = scimoz.getTextRange(currentPos, lineEndPos);
-        var re_expr = new RegExp("[\\" + braces.split("").join("\\") + "]");
-        var match = re_expr.exec(line);
-        if (match) {
-            var newPos = currentPos + ko.stringutils.bytelength(line.substr(0, match.index));
-            scimoz.currentPos = newPos;
-            scimoz.anchor = newPos;
-            ko.commands.doCommand('cmd_jumpToMatchingBrace');
-            // Move one char back to the left - to keep vim compatibility.
-            currentPos = scimoz.currentPos;
-            lineNo = scimoz.lineFromPosition(currentPos);
-            var lineStartPos = scimoz.positionFromLine(lineNo);
-            if (currentPos > lineStartPos) {
-                currentPos = scimoz.positionBefore(currentPos);
-                scimoz.currentPos = currentPos;
-                scimoz.anchor = currentPos;
-            }
-        }
-    } catch (e) {
-        vimlog.exception(e);
-    }
-}
-
 function cmd_vim_wordRightEndPastPunctuation(scimoz) {
     ko.commands.doCommand("cmd_wordRightEndPastPunctuation");
     if (gVimController.operationFlags) {
@@ -3198,19 +3113,6 @@ function cmd_vim_jumpToLineBeforeLastJump() {
 
 function cmd_vim_jumpToLocBeforeLastJump() {
     ko.history.move_to_loc_before_last_jump(ko.views.manager.currentView, false);
-}
-
-function cmd_vim_scrollLineToCenterHome() {
-    ko.commands.doCommand('cmd_editCenterVertically');
-    ko.commands.doCommand('cmd_homeAbsolute');
-    ko.commands.doCommand('cmd_home');
-}
-
-function cmd_vim_scrollLineToBottomHome(scimoz) {
-    ko.commands.doCommand('cmd_homeAbsolute');
-    ko.commands.doCommand('cmd_home');
-    var newFVL = scimoz.lineFromPosition(scimoz.currentPos) - scimoz.linesOnScreen + 1;
-    scimoz.firstVisibleLine = Math.max(0, newFVL);
 }
 
 function cmd_vim_insert(scimoz) {
@@ -3905,7 +3807,8 @@ function vim_InputBuffer_KeyPress(event)
     var stopEvent = false;
     try {
         var keyCode = event.keyCode;
-        if (keyCode == event.DOM_VK_RETURN) {
+        if ((keyCode == event.DOM_VK_ENTER) ||
+            (keyCode == event.DOM_VK_RETURN)) {
 
             stopEvent = true;
             var value = gVimController.inputBufferFinish();

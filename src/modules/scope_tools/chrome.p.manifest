@@ -1,5 +1,0 @@
-# #if MODE == "dev"
-content scope-tools content/
-# #else
-content scope-tools jar:scope-tools.jar!/content/
-# #endif

@@ -87,18 +87,6 @@ __version__ = (0, 1, 0)
 log = logging.getLogger("mozupdate")
 #log.setLevel(logging.DEBUG)
 
-g_update_manifest_filename = "updatev3.manifest"
-
-
-def isValidPathEncoding(path):
-    # Check that it's decode-able, otherwise we've got a
-    # strange file.
-    try:
-        path.decode("utf8")
-    except UnicodeDecodeError:
-        log.error("Invalid path: %r", path)
-        return False
-    return True
 
 
 #---- command-line interface
@@ -207,9 +195,189 @@ class Shell(cmdln.Cmdln):
         else:
             manifest.append('patch "%s" "%s"' % (patch_pkg_path, pkg_path))
 
+    @cmdln.option("-o", "--offline", action="store_true",
+                  help="offline from activestate.com (NAS and svn)")
+    @cmdln.option("-d", "--diff",
+                  help="show included .patch diffs, filtered on given "
+                       "pattern (use '-' to show all diffs)")
+    @cmdln.option("--force-text-diff", action="store_true",
+                  help="force text diffs of patched files")
+    def _do_partial_info(self, subcmd, opts, build):
+        """${cmd_name}: dump partial update info for the given Komodo build
+
+        ${cmd_usage}
+        ${cmd_option_list}
+        Example:
+            mozupdate ${cmd_name} Komodo-Edit-4.2.0-beta2-280242-win32-x86
+        """
+        import kopkglib
+        import buildutils
+        import p4lib
+
+        build_pat = re.compile(r"Komodo-(\w+)-([\w\.-]+)-(\d+)-([\w-]+)$")
+        try:
+            pretty_product_type, version, changenum, platname \
+                = build_pat.match(build).groups()
+        except AttributeError, ex:
+            raise Error("Komodo build name `%s' doesn't match `%s'"
+                        % (build, build_pat.pattern))
+
+        guru = kopkglib.KomodoReleasesGuru(platname, pretty_product_type,
+                                           version)
+        mar_cacher = kopkglib.KomodoMarCacher()
+        
+        if opts.offline:
+            partial_mar_paths \
+                = glob(join(mar_cacher.cache_dir, "%s-partial-*.mar" % build))
+            complete_mar_rpath = join(mar_cacher.cache_dir,
+                                      "%s-complete.mar" % build)
+            if not partial_mar_paths or not exists(complete_mar_rpath):
+                raise Error("cannot work offline: don't have partial and "
+                            "complete .mar files for `%s' in cache" % build)
+            partial_mar_rpath = partial_mar_paths[0]
+            partial_mar_name = basename(partial_mar_rpath)
+            size = os.stat(partial_mar_rpath).st_size
+        else:
+            complete_mar_rpath = guru.dev_complete_mar_from_changenum(changenum)
+            if not complete_mar_rpath:
+                raise Error("`%s': no such Komodo build" % build)
+            partial_mar_rpaths = guru.dev_partial_mars_from_changenum(changenum)
+            if not partial_mar_rpaths:
+                raise Error("`%s': no partial .mar package found" % build)
+            elif len(partial_mar_rpaths) > 1:
+                raise Error("there are multiple partial .mar files for "
+                            "build `%s': %s" % (build, partial_mar_rpaths))
+            partial_mar_rpath = partial_mar_rpaths[0]
+            partial_mar_name = basename(partial_mar_rpath)
+            size = mar_cacher.get_size_of_mar_path(partial_mar_rpath)
+        print "file: %s" % partial_mar_name
+        print "size: %s bytes" % size
+
+        old_ver = splitext(basename(partial_mar_rpath))[0].split('-partial-')[-1]
+        old_version, old_changenum = old_ver.rsplit('-', 1)
+        old_build = "Komodo-%s-%s-%s-%s" % (pretty_product_type, old_version,
+                                            old_changenum, platname)
+
+        # Dump p4 info.
+        p4 = p4lib.P4()
+        p4_tree = "//depot/main/Apps/Komodo-devel"
+        p4_changes = p4.changes([
+            "%s/...@%s,%s" % (p4_tree, old_changenum, changenum)
+        ])
+        print "p4 changes (%d):" % len(p4_changes)
+        for c in p4_changes:
+            print "    %(change)s by %(user)s -- %(description)s" % c
+
+        p4_action_from_file = {}
+        for c in p4_changes:
+            d = p4.describe(c["change"], shortForm=True)
+            for f in d["files"]:
+                p4_action_from_file[f["depotFile"]] = f["action"]
+        p4_files = [(f, a) for f, a in p4_action_from_file.items()]
+        print "p4 files (%d):" % len(p4_files)
+        for f, a in sorted(p4_files):
+            if f.startswith(p4_tree):
+                f = f[len(p4_tree)+1:]
+            print "  %6s %s" % (a, f)
+
+        # Dump partial mar file list.
+        partial_mar_dir = mar_cacher.get_image_for_mar_path(partial_mar_rpath,
+            skip_checksum_check=opts.offline)
+        files = []
+        for dir, dirnames, filenames in os.walk(partial_mar_dir):
+            for f in filenames:
+                path = join(dir, f)
+                files.append(path[len(partial_mar_dir)+1:])
+        print "files (%d):" % len(files)
+        for f in files:
+            print "    %s" % f
+
+        if opts.diff:
+            # Get a local crack of the reference mar.
+            old_guru = kopkglib.KomodoReleasesGuru(platname, 
+                pretty_product_type, old_version)
+            if opts.offline:
+                old_complete_mar_rpath = join(mar_cacher.cache_dir, 
+                                              "%s-complete.mar" % old_build)
+                if not exists(old_complete_mar_rpath):
+                    raise Error("cannot work offline: don't have complete .mar "
+                                "file for `%s' in cache" % old_build)
+            else:
+                old_complete_mar_rpath \
+                    = old_guru.dev_complete_mar_from_changenum(old_changenum)
+            old_complete_mar_dir = mar_cacher.get_image_for_mar_path(
+                old_complete_mar_rpath, skip_checksum_check=opts.offline)
+            
+            # Dump a pseudo-readable diff (as much as possible) of each
+            # file.
+            complete_mar_dir = mar_cacher.get_image_for_mar_path(
+                complete_mar_rpath, skip_checksum_check=opts.offline)
+            for f in files:
+                if not f.endswith(".patch"): continue # for now
+                if opts.diff == '-': pass # show all diffs
+                elif opts.diff not in f: continue
+                f = normpath(splitext(f)[0])
+                path = join(complete_mar_dir, f)
+                old_path = join(old_complete_mar_dir, f)
+
+                # Try a normal diff.
+                diff_argv = ["diff", "-u", old_path, path]
+                if opts.force_text_diff:
+                    diff_argv.insert(1, "--text")
+                diff = buildutils.capture_stdout(diff_argv, ignore_status=True)
+                is_binary = False
+                if diff.startswith("Binary files"):
+                    is_binary = True
+                    diff = ""
+                if diff.startswith('--- '):
+                    diff = diff.split('\n', 2)[-1]
+                if diff.strip():
+                    print "diff '%s':" % f
+                    print _indent(diff)
+                elif is_binary:
+                    print "diff '%s': (binary diff)" % f
+                else:
+                    print "diff '%s': (none)" % f
+                if not is_binary:
+                    continue
+                
+                # It was binary, diff 'strings' output.
+                if sys.platform == "win32":
+                    print "diff '%s' strings: (can't on windows)" % f
+                else:
+                    old_strings_path = _strings_path_from_path(old_path)
+                    strings_path = _strings_path_from_path(path)
+                    diff = buildutils.capture_stdout(
+                        ["diff", "-u", old_strings_path, strings_path],
+                        ignore_status=True)
+                    if diff.startswith('--- '):
+                        diff = diff.split('\n', 2)[-1]
+                    if diff.strip():
+                        print "diff '%s' strings:" % f
+                        print _indent(diff)
+                        continue
+                    else:
+                        print "diff '%s' strings: (none)" % f
+
+                # Try a diff of 'od' output.
+                old_od_path = _od_path_from_path(old_path)
+                od_path = _od_path_from_path(path)
+                diff = buildutils.capture_stdout(
+                    ["diff", "-u", old_od_path, od_path],
+                    ignore_status=True)
+                if diff.startswith('--- '):
+                    diff = diff.split('\n', 2)[-1]
+                if diff.strip():
+                    print "diff '%s' `od -c`:" % f
+                    print _indent(diff)
+                    continue
+                else:
+                    print "diff '%s' `od -c`: (none)" % f
+        
+
     @cmdln.option("--manifest-extra",
                   help="path to file containing extra lines to append "
-                       "to update manifest")
+                       "to update.manifest")
     @cmdln.option("--force", action="store_true", default=False,
                   help="force overwriting existing MAR_PATH and/or temp "
                        "working dir")
@@ -250,7 +418,7 @@ class Shell(cmdln.Cmdln):
         os.makedirs(img_dir)
         
         try:
-            manifest = []  # update manifest instructions
+            manifest = []  # update.manifest instructions
             paths_to_mar = []
             seen_files = set()
             for dname, dirnames, filenames in os.walk(dir):
@@ -263,7 +431,7 @@ class Shell(cmdln.Cmdln):
 
                     seen_files.add(pkg_path)
 
-                    if f in ("channel-prefs.js", g_update_manifest_filename):
+                    if f in ("channel-prefs.js", "update.manifest"):
                         log.info("skipping `%s'", pkg_path)
                         continue
                     if islink(src_path):
@@ -285,8 +453,6 @@ class Shell(cmdln.Cmdln):
             if opts.removed_files_candidates:
                 removed_files = set()
                 for line in open(opts.removed_files_candidates, "r"):
-                    if not isValidPathEncoding(line):
-                        continue
                     removed_files.add(line.strip())
 
                 actually_removed_files = sorted(removed_files - seen_files)
@@ -305,13 +471,11 @@ class Shell(cmdln.Cmdln):
                     open(removed_path, 'wb').write(bz2.compress(manifest_str))
                     for path in actually_removed_files:
                         # Add remove instructions, but only if they aren't there
-                        if not isValidPathEncoding(path):
-                            continue
                         instruction = 'remove "%s"' % (path,)
                         if instruction not in manifest:
                             manifest.append(instruction)
 
-            # Write 'update manifest'.
+            # Write 'update.manifest'.
             #
             # 'updater.exe' parses this (see ::Parse() methods in
             # "toolkit\mozapps\update\src\updater\updater.cpp"). It can be
@@ -319,9 +483,9 @@ class Shell(cmdln.Cmdln):
             # - The file must end with a newline.
             # - It *might* require '\n' EOLs (i.e. not '\r\n' EOLs) but I
             #   don't know this for sure.
-            manifest_path = join(img_dir, g_update_manifest_filename)
-            log.info("write %r", g_update_manifest_filename)
-            paths_to_mar.append(g_update_manifest_filename)
+            manifest_path = join(img_dir, "update.manifest")
+            log.info("write `update.manifest'")
+            paths_to_mar.append("update.manifest")
             manifest_str = '\n'.join(manifest) + '\n'
             open(manifest_path, 'wb').write(bz2.compress(manifest_str))
 
@@ -341,7 +505,7 @@ class Shell(cmdln.Cmdln):
 
     @cmdln.option("--manifest-extra",
                   help="path to file containing extra lines to append "
-                       "to update manifest")
+                       "to update.manifest")
     @cmdln.option("-c", "--clobber", action="append", default=[],
                   metavar="PATH",
                   help="Force including the full file (instead of a binary "
@@ -355,8 +519,8 @@ class Shell(cmdln.Cmdln):
                        "partial update. Can be given more than once to "
                        "specify multiple patterns. The *regex* pattern "
                        "is matched against the relative path that "
-                       "appears in 'update manifest'. Note: "
-                       "'update manifest' and 'channel-prefs.js' are "
+                       "appears in 'update.manifest'. Note: "
+                       "'update.manifest' and 'channel-prefs.js' are "
                        "always skipped.")
     @cmdln.option("--force", action="store_true", default=False,
                   help="force overwriting existing MAR_PATH and/or temp "
@@ -410,7 +574,7 @@ class Shell(cmdln.Cmdln):
         removed_files = set() # using forward slashes, e.g. "lib/mozilla/ko.exe"
 
         try:
-            manifest = []  # update manifest instructions
+            manifest = []  # update.manifest instructions
             paths_to_mar = []
 
             try:
@@ -418,8 +582,6 @@ class Shell(cmdln.Cmdln):
                 # (to cover files that were previously removed)
                 with open(join(fromdir, "removed-files")) as old_list:
                     for line in old_list:
-                        if not isValidPathEncoding(line):
-                            continue
                         removed_files.add(line.strip())
             except IOError:
                 log.warn("removed-files list not found from previous update")
@@ -436,7 +598,7 @@ class Shell(cmdln.Cmdln):
                         pkg_path = pkg_path.replace('\\', '/')
                     from_pkg_paths.add(pkg_path)
                     
-                    if f in ("channel-prefs.js", g_update_manifest_filename):
+                    if f in ("channel-prefs.js", "update.manifest"):
                         log.info("skipping `%s' (hardcoded)", pkg_path)
                         continue
                     matching_regexs = [r for r in exclude_regexes
@@ -515,7 +677,7 @@ class Shell(cmdln.Cmdln):
                     if pkg_path in from_pkg_paths:
                         continue
 
-                    if f in ("channel-prefs.js", g_update_manifest_filename):
+                    if f in ("channel-prefs.js", "update.manifest"):
                         log.info("skipping `%s' (hardcoded)", pkg_path)
                         continue
                     matching_regexs = [r for r in exclude_regexes
@@ -542,8 +704,6 @@ class Shell(cmdln.Cmdln):
                 try:
                     with open(opts.removed_files_candidates, "r") as old_list:
                         for path in old_list:
-                            if not isValidPathEncoding(path):
-                                continue
                             removed_files.add(path.strip())
                 except IOError:
                     log.warn("removed files candidates list %s is missing",
@@ -576,11 +736,9 @@ class Shell(cmdln.Cmdln):
                 # also update the candidates list
                 with open(opts.removed_files_candidates, "w") as new_list:
                     for path in sorted(removed_files):
-                        if not isValidPathEncoding(path):
-                            continue
                         new_list.write(path + "\n")
 
-            # Write 'update manifest'.
+            # Write 'update.manifest'.
             #
             # 'updater.exe' parses this (see ::Parse() methods in
             # "toolkit\mozapps\update\src\updater\updater.cpp"). It can be
@@ -588,9 +746,9 @@ class Shell(cmdln.Cmdln):
             # - The file must end with a newline.
             # - It *might* require '\n' EOLs (i.e. not '\r\n' EOLs) but I
             #   don't know this for sure.
-            manifest_path = join(img_dir, g_update_manifest_filename)
-            log.info("write %r", g_update_manifest_filename)
-            paths_to_mar.append(g_update_manifest_filename)
+            manifest_path = join(img_dir, "update.manifest")
+            log.info("write `update.manifest'")
+            paths_to_mar.append("update.manifest")
             manifest_str = '\n'.join(manifest) + '\n'
             open(manifest_path, 'wb').write(bz2.compress(manifest_str))
 
@@ -644,8 +802,6 @@ class Shell(cmdln.Cmdln):
         for line in open(removed_files_path, 'r'):
             line = line.strip()
             if not line: continue # skip blank lines
-            if not isValidPathEncoding(line):
-                continue
             if '\\' in line:
                 raise Error("`%s' is using Windows-style path seps: "
                             "I'm not positive, but I suspect the "

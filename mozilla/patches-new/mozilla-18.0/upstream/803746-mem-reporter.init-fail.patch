@@ -1,0 +1,50 @@
+
+# HG changeset patch
+# User Mook <mook.moz+hg@gmail.com>
+# Date 1350713936 25200
+# Node ID de544e204f13c0ed21ed7dd75ad49aabdfb7295d
+# Parent  ddca56ec6bfcec57c6739f49f5eee3796ab91e8e
+bug 803746: dom: nsWindowMemoryReporter::Init() needs to hold a ref to the reporter it's setting up (r=njn)
+
+diff --git a/dom/base/nsWindowMemoryReporter.cpp b/dom/base/nsWindowMemoryReporter.cpp
+--- a/dom/base/nsWindowMemoryReporter.cpp
++++ b/dom/base/nsWindowMemoryReporter.cpp
+@@ -23,34 +23,34 @@ nsWindowMemoryReporter::nsWindowMemoryRe
+ NS_IMPL_ISUPPORTS3(nsWindowMemoryReporter, nsIMemoryMultiReporter, nsIObserver,
+                    nsSupportsWeakReference)
+ 
+ /* static */
+ void
+ nsWindowMemoryReporter::Init()
+ {
+   // The memory reporter manager will own this object.
+-  nsWindowMemoryReporter *windowReporter = new nsWindowMemoryReporter();
++  nsRefPtr<nsWindowMemoryReporter> windowReporter = new nsWindowMemoryReporter();
+   NS_RegisterMemoryMultiReporter(windowReporter);
+ 
+   nsCOMPtr<nsIObserverService> os = services::GetObserverService();
+   if (os) {
+     // DOM_WINDOW_DESTROYED_TOPIC announces what we call window "detachment",
+     // when a window's docshell is set to NULL.
+     os->AddObserver(windowReporter, DOM_WINDOW_DESTROYED_TOPIC,
+                     /* weakRef = */ true);
+     os->AddObserver(windowReporter, "after-minimize-memory-usage",
+                     /* weakRef = */ true);
+   }
+ 
+-  GhostURLsReporter *ghostMultiReporter =
++  nsRefPtr<GhostURLsReporter> ghostMultiReporter =
+     new GhostURLsReporter(windowReporter);
+   NS_RegisterMemoryMultiReporter(ghostMultiReporter);
+ 
+-  NumGhostsReporter *ghostReporter =
++  nsRefPtr<NumGhostsReporter> ghostReporter =
+     new NumGhostsReporter(windowReporter);
+   NS_RegisterMemoryReporter(ghostReporter);
+ }
+ 
+ static already_AddRefed<nsIURI>
+ GetWindowURI(nsIDOMWindow *aWindow)
+ {
+   nsCOMPtr<nsPIDOMWindow> pWindow = do_QueryInterface(aWindow);
+

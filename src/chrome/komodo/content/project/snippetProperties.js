@@ -434,7 +434,7 @@ function InsertShortcut(shortcutWidget) {
 function update_icon(URI)
 {
     try {
-        if (URI == 'chrome://komodo/skin/images/toolbox/snippet.svg') {
+        if (URI == 'chrome://komodo/skin/images/snippet.png') {
             document.getElementById('reseticon').setAttribute('disabled', 'true');
         } else {
             if (document.getElementById('reseticon').hasAttribute('disabled')) {
@@ -461,7 +461,7 @@ function pick_icon(useDefault /* false */)
             URI = ko.dialogs.pickIcon();
             if (!URI) return;
         } else {
-            URI = 'chrome://komodo/skin/images/toolbox/snippet.svg';
+            URI = 'chrome://komodo/skin/images/cut.png';
         }
         update_icon(URI);
         updateOK();

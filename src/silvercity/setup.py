@@ -123,9 +123,6 @@ if sys.platform.startswith("win32"):
     defines.append(('WIN32',None))
     libraries.append('kernel32')
     extra_objects = ['libpcre.lib']
-    # Build debug symbols, even for release (they're not shipped)
-    extra_compile_args.append("-Zi")
-    extra_link_args.append("-DEBUG")
 elif sys.platform.startswith("sunos"):
     os.environ['CC'] = 'CC'
     libraries.append('Crun')            # C++ runtime
@@ -147,13 +144,7 @@ else:
     
     # libraries.append('gcc')
     # libraries.append('stdc++')
-
-# KOMODO - define special UDL debug environment variables when necessary.
-if "UDL_DEBUG" in os.environ:
-    defines.append(('UDL_DEBUG','1'))
-if "UDL_DEBUG_TIME" in os.environ:
-    defines.append(('UDL_DEBUG_TIME','1'))
-
+    
 setup(  name = "SilverCity", 
         version = "0.9.5", 
         description = "Python interface to Scintilla lexers", 

@@ -25,8 +25,6 @@ class KoLaravelBladeLanguage(koHTMLLanguageBase, KoLanguageKeywordBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_categories_ = [("komodo-language", name)]
     _reg_clsid_ = "63214a00-1e70-4100-a655-f496e156a618"
-
-    primary = 1
     defaultExtension = '.blade.php'
 
     supportsSmartIndent = "keyword"

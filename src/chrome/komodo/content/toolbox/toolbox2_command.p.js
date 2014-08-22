@@ -1409,7 +1409,8 @@ this.onTreeKeyPress = function(event) {
         if (event.shiftKey || event.ctrlKey || event.altKey) {
             return false;
         }
-        if (event.keyCode == event.DOM_VK_RETURN) {
+        if (event.keyCode == event.DOM_VK_ENTER
+            || event.keyCode == event.DOM_VK_RETURN) {
             // Unlike places, allow only one item to be acted on.
             var view = this.manager.view;
             var selectedIndices = ko.treeutils.getSelectedIndices(view, true);

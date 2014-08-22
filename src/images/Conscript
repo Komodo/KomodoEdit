@@ -50,8 +50,6 @@ Import(
     "ranRegxpcomStateFileName",
     "mozChromeDir",
     "productType",
-    "sdkDir",
-    'unsiloedPythonExe',
     "version",
 );
 
@@ -72,21 +70,6 @@ $cons->Install($imagesDir, "icons/cb_namespace.png");
 $cons->Install($imagesDir, "icons/cb_trait.png");
 $cons->Install($imagesDir, "icons/cb_xml_element.png");
 $cons->Install($imagesDir, "icons/cb_xml_attribute.png");
-
-$cons->InstallAs("$imagesDir/codeintel/cb_class.svg", "icons/codeintel/cb_class.svg");
-$cons->InstallAs("$imagesDir/codeintel/cb_directory.svg", "icons/codeintel/cb_directory.svg");
-$cons->InstallAs("$imagesDir/codeintel/cb_function.svg", "icons/codeintel/cb_function.svg");
-$cons->InstallAs("$imagesDir/codeintel/cb_module.svg", "icons/codeintel/cb_module.svg");
-$cons->InstallAs("$imagesDir/codeintel/cb_variable.svg", "icons/codeintel/cb_variable.svg");
-$cons->InstallAs("$imagesDir/codeintel/cb_variable_scalar.svg", "icons/codeintel/cb_variable_scalar.svg");
-$cons->InstallAs("$imagesDir/codeintel/cb_variable_array.svg", "icons/codeintel/cb_variable_array.svg");
-$cons->InstallAs("$imagesDir/codeintel/cb_variable_hash.svg", "icons/codeintel/cb_variable_hash.svg");
-$cons->InstallAs("$imagesDir/codeintel/cb_constant.svg", "icons/codeintel/cb_constant.svg");
-$cons->InstallAs("$imagesDir/codeintel/cb_interface.svg", "icons/codeintel/cb_interface.svg");
-$cons->InstallAs("$imagesDir/codeintel/cb_namespace.svg", "icons/codeintel/cb_namespace.svg");
-$cons->InstallAs("$imagesDir/codeintel/cb_trait.svg", "icons/codeintel/cb_trait.svg");
-$cons->InstallAs("$imagesDir/codeintel/cb_xml_element.svg", "icons/codeintel/cb_xml_element.svg");
-$cons->InstallAs("$imagesDir/codeintel/cb_xml_attribute.svg", "icons/codeintel/cb_xml_attribute.svg");
 
 # Find system icons
 $cons->Install($imagesDir, "icons/find_stop.png");
@@ -219,29 +202,15 @@ $cons->Install($imagesDir, "icons/checkbox_bordered_checked.png");
 $cons->Install($imagesDir, "icons/checkbox_bordered_unchecked.png");
 
 # install famfamfam extension
-$cons->KoExtUnpack("kodistunpack", SourcePath("famfamfam/famfamfam.xpi"));
+$cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/silkicons.jar", 'famfamfam/silkicons.jar');
+$cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/install.rdf", 'famfamfam/install.rdf');
+$cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/chrome.manifest", 'famfamfam/chrome.manifest');
 
 # Install the icomoon icon listing for the icon picker
 $cons->InstallAs("$mozChromeDir/komodo/content/dialogs/iconlist_icomoon.html", "icomoon/icomoon.html");
 
 # install openoffice extension
-$cons->KoExtUnpack("kounpack", SourcePath("openoffice/industrial.xpi"));
+$cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/industrial.jar", 'openoffice/industrial.jar');
+$cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/install.rdf", 'openoffice/install.rdf');
+$cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/chrome.manifest", 'openoffice/chrome.manifest');
 
-# install fileicons
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/template.svg", 'fileicons/template.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/coffeescript.svg", 'fileicons/coffeescript.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/css.svg", 'fileicons/css.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/html.svg", 'fileicons/html.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/html5.svg", 'fileicons/html5.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/javascript.svg", 'fileicons/javascript.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/less.svg", 'fileicons/less.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/node.js.svg", 'fileicons/node.js.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/perl.svg", 'fileicons/perl.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/php.svg", 'fileicons/php.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/python.svg", 'fileicons/python.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/python3.svg", 'fileicons/python3.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/ruby.svg", 'fileicons/ruby.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/sass.svg", 'fileicons/sass.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/scss.svg", 'fileicons/scss.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/tcl.svg", 'fileicons/tcl.svg');
-$cons->InstallAs("$mozChromeDir/icons/default/fileicons/xml.svg", 'fileicons/xml.svg');

@@ -67,8 +67,8 @@
     which themselves can run Python code to determine if a certain patch (or
     patches) should be applied. The details and cross-platform pains of
     applying patches is hidden. It is intelligent to know if the patch set is
-    already applied. Applying the patch set is mostly atomic. Etc.
-
+    already applied. Applying the patch set is atomic. Etc.
+    
 
     Here is how it works. You specify a source directory and a number of
     patch directories (or files). Any directory may have a __patchinfo__.py
@@ -98,8 +98,6 @@
             use of "force" currently means that unpatching does not
             properly revert to the starting state. Presumed to return
             the empty list if this function is not defined.
-            If any file being added is named like BASE.p.EXT, it will be
-            preprocessed.
         def patch_args(config):
             Return None or a list of command line args to add to patch.exe
             invocations. E.g. to set the fuzz level to 3 one would return
@@ -107,14 +105,6 @@
             separate list elements. In the previous example, ['-F 3'] is wrong
             but ['-F3'] or ['-F', '3'] or ['--fuzz', '3'] are okay.
             XXX Should use this patch arg info for unpatching.
-        def patch_order(config):
-            Return a list of patch file names in the order they should be
-            applied.  Each patch file will go through the normal
-            patchfile_applicable() checks; this is used only for ordering.  If
-            this function is not defined, but a file named "series" does, that
-            is used instead, with each file name on its own line.  If that does
-            not exist either, all patch files (*.patch, *.diff, *.ppatch) in the
-            directory are used in an undefined order.
     
     where "config" is a configuration object specified via patch()'s "config"
     argument or the --config command-line option. If no config is specified
@@ -139,18 +129,14 @@
                             PT_CONFIG_<varname> defines. Keys that start
                             with an underscore are excluded.
         otherwise           punt, no preprocessor defines
-
-    If a "series" file exists within a patch directory, it is used for patch
-    ordering.
 """
 # TODO:
 # - break this out into a separate project
 # - add a test suite
 
-__version_info__ = (0, 4, 3)
+__version_info__ = (0, 4, 2)
 __version__ = '.'.join(map(str, __version_info__))
 
-import collections
 import os
 from os.path import join, normpath, splitext, exists, dirname, isdir, \
                     isfile, basename
@@ -204,7 +190,6 @@ def _is_content_binary(content):
         return True
     else:
         return False
-_SCC_control_dirs = ("CVS", ".svn", ".hg", ".git")
 
 def _run(argv, cwd=None, stdin=None):
     if subprocess.__name__ == "subprocess":
@@ -261,126 +246,96 @@ def _getPatchInfo(dirname):
                     % (errinfo[0], errinfo[1], errinfo[3]))
         return None
 
-def _determinePatchesFromDirectory(base, actions, config):
-    """Process a given patch directory recursively for appropriate patch actions
+def _shouldBeApplied((base, actions, config), dirname, names):
+    """os.path.walk visitor to process patch directories for appropriate
+    patch actions.
     """
-    for dirpath, subdirs, names in os.walk(base):
-        log.debug("process patch dir '%s'", dirpath)
-        patchinfo = _getPatchInfo(dirpath)
-        if patchinfo: log.debug("    patchinfo: %r", patchinfo)
+    log.debug("process patch dir '%s'", dirname)
+    patchinfo = _getPatchInfo(dirname)
+    if patchinfo: log.debug("    patchinfo: %r", patchinfo)
+    
+    # Always skip SCC control dirs.
+    for exclude_dir in (".svn", ".hg", ".git", "CVS"):
+        if exclude_dir in names and isdir(join(dirname, exclude_dir)):
+            names.remove(exclude_dir)
+    
+    # Skip this dir if patchinfo says it should not be applied.
+    if patchinfo and hasattr(patchinfo, "applicable") and\
+       not patchinfo.applicable(config):
+        log.debug("    skip: applicable() returned false")
+        while names:
+            del names[0]
+        return
 
-        # Always skip SCC control dirs.
-        for exclude_dir in _SCC_control_dirs:
-            if exclude_dir in subdirs and isdir(join(dirpath, exclude_dir)):
-                subdirs.remove(exclude_dir)
+    # See if there are any special patch_args for patches in this dir.
+    if patchinfo and hasattr(patchinfo, "patch_args"):
+        patch_args = patchinfo.patch_args(config) or []
+        if not isinstance(patch_args, list):
+            raise Error("patch_args() in '%s' did not return a list (or None): %s"\
+                        % (patchinfo.__file__, patch_args))
+    else:
+        patch_args = []
 
-        # Skip this dir if patchinfo says it should not be applied.
-        if patchinfo and hasattr(patchinfo, "applicable"):
-            if not patchinfo.applicable(config):
-                log.debug("    skip: applicable() returned false")
-                del subdirs[:]
+    patch_applicable_fn = patchinfo and getattr(patchinfo, "patchfile_applicable", None) or None
+
+    # Add "apply" actions for patch files.
+    for pattern in ("*.patch", "*.diff"):
+        for patchfile in glob.glob(os.path.join(dirname, pattern)):
+            patchfile = os.path.relpath(patchfile, base)
+            if patch_applicable_fn and not patch_applicable_fn(config, patchfile):
+                log.debug("    skip: patchfile_applicable() returned false for %r", patchfile)
                 continue
-        subdirs[:] = sorted(subdirs)
-
-        # Add "add" and "remove" actions action to the patchinfo, if any.
-        # - Must do "remove" first, if necessary for the subsequent "add" action.
-        #   E.g., if replacing "File.Ext" with a "file.ext" on Windows (case
-        #   difference in the name), then "File.Ext" must first be removed to
-        #   get the desired case.
-        if hasattr(patchinfo, "remove"):
-            retval = patchinfo.remove(config)
-            try:
-                if isinstance(retval, basestring):
-                    raise TypeError
-                retval = iter(retval)
-            except TypeError:
-                raise Error("invalid return type from remove() in %s, "
-                            "must return a sequence: retval=%r"
-                            % (patchinfo.__file__, retval))
-            for dst in retval:
-                action = ("remove", dirpath, dst)
-                log.debug("    action: %r", action)
-                actions.append(action)
-
-        if hasattr(patchinfo, "add"):
-            retval = patchinfo.add(config)
-            try:
-                if isinstance(retval, basestring):
-                    raise TypeError
-                retval = iter(retval)
-            except TypeError:
-                raise Error("invalid return type from add() in %s, "
-                            "must return a sequence: retval=%r"
-                            % (patchinfo.__file__, retval))
-            for add_record in retval:
-                if len(add_record) == 2:
-                    filename, dst = add_record
-                    force = False
-                else:
-                    filename, dst = add_record[:2]
-                    assert add_record[2] == "force", \
-                        "unexpected add record (3rd arg not 'force'): %r" \
-                        % (add_record,)
-                    force = True
-                try:
-                    # If a subdirectory is being used for an "add" action,
-                    # then don't consider it as a patchtree.
-                    subdirs.remove(filename)
-                except ValueError:
-                    pass
-                action = ("add", dirpath, filename, dst, force)
-                log.debug("    action: %r", action)
-                actions.append(action)
-
-        # See if there are any special patch_args for patches in this dir.
-        if patchinfo and hasattr(patchinfo, "patch_args"):
-            patch_args = patchinfo.patch_args(config) or []
-            if not isinstance(patch_args, list):
-                raise Error("patch_args() in '%s' did not return a list "
-                            "(or None): %s" % (patchinfo.__file__, patch_args))
-        else:
-            patch_args = []
-
-        patch_applicable_fn = getattr(patchinfo, "patchfile_applicable",
-                                      lambda config, patchfile: True)
-
-        # Find patch files.
-        # By deafult, use sorted order, to at least be consistent across runs
-        patch_names = sorted(n for n in names if splitext(n)[-1] in
-                             (".patch", ".diff", ".ppatch"))
-
-        if hasattr(patchinfo, "patch_order"):
-            patch_names = patch_names.patch_order(config)
-        elif exists(join(dirpath, "series")):
-            expected_patch_names = set(patch_names)
-            with open(join(dirpath, "series")) as series_file:
-                patch_names = filter(None, map(lambda n: n.strip(), series_file))
-            actual_patch_names = set(patch_names)
-            if expected_patch_names ^ actual_patch_names:
-                missing = sorted(actual_patch_names - expected_patch_names)
-                extra = sorted(expected_patch_names - actual_patch_names)
-                msg = ["Series file doesn't match patches actually available:"]
-                if missing:
-                    msg.append("\tPatch files not found: " + ", ".join(missing))
-                if extra:
-                    msg.append("\tExtra entries in series: " + ", ".join(extra))
-                raise Error("\n".join(msg))
-
-        for patchfile in patch_names:
-            if not patch_applicable_fn(config, patchfile):
-                log.debug("    skip: patchfile_applicable() returned false "
-                          "for %r", patchfile)
+            action = ("apply", base, patchfile, patch_args)
+            log.debug("    action: %r", action)
+            actions.append(action)
+    for pattern in ("*.ppatch",):
+        for patchfile in glob.glob(os.path.join(dirname, pattern)):
+            patchfile = patchfile[len(base+os.sep):]
+            if patch_applicable_fn and not patch_applicable_fn(config, patchfile):
+                log.debug("    skip: patchfile_applicable() returned false for %r", patchfile)
                 continue
-            action_name = {
-                ".patch": "apply",
-                ".diff": "apply",
-                ".ppatch": "process & apply"
-            }.get(splitext(patchfile)[-1])
-            if not action_name:
-                raise Error("Don't know how to process patch file %s; its name "
-                            "should end with .patch, .diff, or .ppatch" %
-                            (join(dirpath, patchfile),))
-            action = (action_name, dirpath, patchfile, patch_args)
+            action = ("preprocess & apply", base, patchfile, patch_args)
+            log.debug("    action: %r", action)
+            actions.append(action)
+
+    # Add "add" and "remove" actions action to the patchinfo, if any.
+    # - Must do "remove" first, if necessary for the subsequent "add" action.
+    #   E.g., if replacing "File.Ext" with a "file.ext" on Windows (case
+    #   difference in the name), then "File.Ext" must first be removed to
+    #   get the desired case.
+    if patchinfo and hasattr(patchinfo, "remove"):
+        retval = patchinfo.remove(config)
+        if type(retval) not in (types.TupleType, types.ListType):
+            raise Error("invalid return type from remove() in %s, "
+                        "must return a sequence: retval=%r"
+                        % (patchinfo.__file__, retval))
+        for dst in retval:
+            action = ("remove", base, dst)
+            log.debug("    action: %r", action)
+            actions.append(action)
+    if patchinfo and hasattr(patchinfo, "add"):
+        retval = patchinfo.add(config)
+        if type(retval) not in (types.TupleType, types.ListType):
+            raise Error("invalid return type from add() in %s, "
+                        "must return a sequence: retval=%r"
+                        % (patchinfo.__file__, retval))
+        for add_record in retval:
+            if len(add_record) == 2:
+                filename, dst = add_record
+                force = False
+            else:
+                filename, dst = add_record[:2]
+                assert add_record[2] == "force", \
+                    "unexpected add record (3rd arg not 'force'): %r" \
+                    % (add_record,)
+                force = True
+            src = os.path.join(dirname, filename)
+            if os.path.isdir(src) and os.path.basename(src) in names:
+                # If a subdirectory is being used for an "add" action,
+                # then don't consider it as a patchtree.
+                names.remove(os.path.basename(src))
+            src = src[len(base+os.sep):]
+            action = ("add", base, src, dst, force)
             log.debug("    action: %r", action)
             actions.append(action)
 
@@ -417,6 +372,45 @@ def _getPatchExe(patchExe=None):
                     "have one.)" % patchExe)
     #XXX Assert that it isn't the sucky default Solaris patch.
     return patchExe
+
+
+def _assertCanAddFile(src, dst, patchSrcPath):
+    """Raise an Error if the target file exists and is
+    different than the source.
+    """
+    if os.path.isfile(dst):
+        dstPath = dst
+    else:
+        dstPath = os.path.join(dst, os.path.basename(src))
+    if not os.path.exists(dstPath):
+        return
+    fin = open(src, 'rb')
+    try:
+        src_content = fin.read()
+        src_md5 = md5(src_content).hexdigest()
+    finally:
+        fin.close()
+    fin = open(dstPath, 'rb')
+    try:
+        dst_content = fin.read()
+        dst_md5 = md5(dst_content).hexdigest()
+    finally:
+        fin.close()
+    if src_md5 != dst_md5:
+        if _is_content_binary(src_content) or _is_content_binary(dst_content):
+            raise Error("cannot add `%s': changes in `%s' would be lost "
+                        "(binary files differ)" % (patchSrcPath, dstPath))
+        else:
+            diff = list(difflib.unified_diff(
+                src_content.splitlines(1),
+                dst_content.splitlines(1),
+                fromfile=src,
+                tofile=dstPath,
+            ))
+            diff = '    '.join(diff)
+            raise Error("""\
+cannot add `%s': changes in `%s' would be lost:
+    %s""" % (patchSrcPath, dstPath, diff))
 
 
 def _assertCanApplyPatch(patchExe, patchFile, sourceDir, reverse=0,
@@ -481,73 +475,13 @@ def _diffPaths(a, b):
         tofile=b,
     ))
 
-def _getPathsInPatch(patch, argv):
-    """Given the contents of a patch file, return the file paths involved
-    @param patch {file or str}
-    @param argv {iterable} arguments to patch; used to calculate depth
-    @returns a tuple of length 2; the first item is the set of files that were
-        removed, the second is the set that were added.
-    """
-    if isinstance(patch, basestring):
-        patch = patch.splitlines()
-    removed = set()
-    added = set()
-    # These are in English because the typical Komodo developer works on English
-    # systems; we really could use a proper patch parser... :|
-    filter_expressions = (
-        re.compile(r"\s+\(revision \d+\)$"),
-        re.compile(r"\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+"
-                     "(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+"
-                     "\d+\s+(?:\d+:?)+\s+\d+$")
-    )
-    depth = 0
-    for argi, arg in enumerate(argv or []):
-        if arg.startswith("-p"):
-            if arg == "-p":
-                depth = int(argv[argi + 1])
-            else:
-                depth = int(arg[len("-p"):])
-        elif arg.startswith("--strip"):
-            if arg == "--strip":
-                depth = int(argv[argi + 1])
-            else:
-                depth = int(arg[len("--strip=")])
-
-    for line in patch:
-        line = line.rstrip("\r\n")
-        action = None
-        if line.startswith("--- "):
-            action = removed
-            path = line.split(" ", 1)[-1]
-        elif line.startswith("+++ "):
-            action = added
-            path = line.split(" ", 1)[-1]
-        elif line.startswith("rename from ") or line.startswith("copy from "):
-            action = removed
-            path = line.split(" ", 2)[-1]
-        elif line.startswith("rename to ") or line.startswith("copy to "):
-            action = added
-            path = line.split(" ", 2)[-1]
-        else:
-            continue
-        path = path.split("\t", 1)[0]
-        for expr  in filter_expressions:
-            match = expr.search(path)
-            if match:
-                path = path[:match.start()] + path[match.end():]
-        if path in ("/dev/null",):
-            continue
-        action.add("/".join(path.rstrip().split("/")[depth:]))
-    return (removed, added)
 
 def _shouldPreprocess(filename):
     """Determine if should preprocess the given file.
     We preprocess FILE.p.EXT and FILE.p files.
 
-    Returns a two-tuple:
-        First element is whether preprocessing should take place (True/False)
-        Second element is the file name (without .p if it should be
-            preprocessed, same as the input otherwise)
+    Returns:
+        (<True or False>, <filename-without-.p-if-True>)
     """
     parts_a = splitext(filename)
     if parts_a[1] == '.p':
@@ -555,7 +489,7 @@ def _shouldPreprocess(filename):
     parts_b = splitext(parts_a[0])
     if parts_b[1] == '.p':
         return (True, parts_b[0]+parts_a[1])
-    return (False, filename)
+    return (False, None)
 
 def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
                 dryRun=0, patchArgs=[]):
@@ -597,14 +531,18 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
     if not dryRun and sys.platform.startswith("win"):
         # on Windows, we need to convert everything to use DOS line endings, so
         # that patch.exe can deal with them - and then convert back after
-        for resultRelPath in _getPathsInPatch(patchContent, baseArgv)[1]:
-            resultPath = join(sourceDir, resultRelPath)
-            if exists(resultPath):
-                with open(resultPath, "rU") as destFile:
-                    filter(lambda n: False, destFile)
-                    lineEndingFixes[resultRelPath] = destFile.newlines
-            else:
-                log.debug("Failed to find file %s", resultPath)
+        patchDepth = int(filter(lambda arg: arg.startswith("-p"), baseArgv)[-1][2:])
+        for line in patchContent.splitlines():
+            if line.startswith("+++"):
+                resultRelPath = line.split("\t", 1)[0].split(" ", 1)[-1]
+                resultRelPath= "/".join(resultRelPath.split("/")[patchDepth:])
+                resultPath = join(sourceDir, resultRelPath)
+                if exists(resultPath):
+                    with open(resultPath, "rU") as destFile:
+                        filter(lambda n: False, destFile)
+                        lineEndingFixes[resultRelPath] = destFile.newlines
+                else:
+                    log.debug("Failed to find file %s", resultPath)
 
     log.debug("line endings: %s", lineEndingFixes)
 
@@ -635,23 +573,43 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
                     continue
                 log.debug("Fixing line endings for %s", path)
                 tempDir = tempfile.mkdtemp()
+                tempFile = join(tempDir, basename(resultRelPath))
+                os.rename(path, tempFile)
                 try:
-                    tempFile = join(tempDir, basename(resultRelPath))
-                    os.rename(path, tempFile)
-                    try:
-                        with open(tempFile, "rU") as infile:
-                            with open(path, "wb") as outfile:
-                                for line in infile.read().splitlines(False):
-                                    outfile.write(line + "\n")
-                        os.remove(tempFile)
-                    except:
-                        if exists(tempFile):
-                            os.rename(tempFile, path)
-                finally:
-                    sh.rm(tempDir)
+                    with open(tempFile, "rU") as infile:
+                        with open(path, "wb") as outfile:
+                            for line in infile.read().splitlines(False):
+                                outfile.write(line + "\n")
+                    os.remove(tempFile)
+                except:
+                    if exists(tempFile):
+                        os.rename(tempFile, path)
 
-def _loadPatchLog(logDir, logFilename=None):
-    """Return the given patch log as a module"""
+
+#---- public API
+
+def unpatch(sourceDir, logDir, dryRun=0, patchExe=None, logFilename=None):
+    """Backout the given patches from the given source tree.
+    
+        "sourceDir" is the base directory of the source tree to unpatch.
+        "logDir" is the directory in which the patch set to unpatch was
+            logged.
+        "dryRun" (optional, default false) is a boolean indicating that
+            everything except actually unpatching should be done.
+        "patchExe" (optional) can be used to specify a particular patch
+            executable to use. Otherwise one is automatically found from
+            the environment.
+    
+    The given patch tree (or patch trees) is processed as described in the
+    module docstring above. First, the set of patches that should be backed
+    out is determined. Then is it checked that all patches _can_ be backed
+    out. Then all unpatching is done. "Error" is raised if all patches cannot
+    be backed out. There is no return value. An error is NOT raised if it
+    looks like all patches have already been backed out.
+    """
+    log.debug("unpatch(logDir=%r, dryRun=%r)", logDir, dryRun)
+
+    # Find the patch log and import it, or error out.
     if logFilename is None:
         logFilename = "__patchlog__.py"
     patchLogFile = os.path.join(logDir, logFilename)
@@ -667,114 +625,6 @@ def _loadPatchLog(logDir, logFilename=None):
     except ImportError, ex:
         raise Error("could not find a patch log in the given log "
                     "directory, '%s': %s" % (logDir, ex))
-    return patchLog
-
-def _areFilesEqual(leftPath, rightPath):
-    """Check if the two given files (or, if they are directories, their
-    contents) are equal."""
-    if isdir(leftPath):
-        if not isdir(rightPath):
-            return False
-        found_paths = set()
-        for dirpath, dirnames, filenames in os.walk(leftPath):
-            for filename in filenames:
-                relpath = os.path.relpath(join(dirpath, filename), leftPath)
-                if not _areFilesEqual(join(leftPath, relpath),
-                                      join(rightPath, relpath)):
-                    return False
-                found_paths.add(join(rightPath, relpath))
-        for dirpath, dirnames, filenames in os.walk(rightPath):
-            for filename in filenames:
-                if join(dirpath, filename) not in found_paths:
-                    return False
-        return True
-    try:
-        with open(leftPath, "rb") as left_file:
-            left_md5 = md5(left_file.read())
-        with open(rightPath, "rb") as right_file:
-            right_md5 = md5(right_file.read())
-    except IOError as ex:
-        log.debug("left path %s, right path %s: IO Error %s",
-                  leftPath, rightPath, ex)
-        return False
-    if left_md5.hexdigest ()!= right_md5.hexdigest():
-        log.debug("left path %s != right path %s: %s/%s",
-                  leftPath, rightPath, left_md5.hexdigest(), right_md5.hexdigest())
-        return False
-    return True
-
-def _unapplyOneAction(action, sourceDir, logDir, dryRun, patchExe, info=log.info):
-    if action[0] in ("apply", "preprocess & apply"):
-        _applyPatch(patchExe, logDir, action[2], sourceDir, reverse=1,
-                    dryRun=dryRun, patchArgs=action[3])
-    elif action[0] == "add":
-        # ("add", <patches-basedir>, <src-relpath>, <dst-relpath>,
-        #  <force>)
-        # e.g. ("add", "patches", "hpux_cpp_ext\\thingy.s", "python",
-        #       False)
-        baseToDel = os.path.join(action[3], os.path.basename(action[2]))
-        toDel = os.path.join(sourceDir, baseToDel)
-        if not os.path.exists(toDel):
-            info("skipping undo add of '%s': not found", baseToDel)
-        elif dryRun:
-            info("undo add of '%s' (dry run)", baseToDel)
-        else:
-            info("undo add of '%s'", baseToDel)
-            sh.rm(toDel)
-    elif action[0] == "remove":
-        # ("remove", <patches-basedir>, <dst-relpath>)
-        atticLoc = os.path.join(logDir, "__attic__", action[2])
-        sourceLoc = os.path.join(sourceDir, action[2])
-        if os.path.exists(sourceLoc) and os.path.isfile(atticLoc):
-            # Try to intelligently skip the re-add if it is not
-            # necessary.
-            with open(atticLoc, 'rb') as fin:
-                atticmd5 = md5(fin.read()).hexdigest()
-            if os.path.isfile(sourceLoc):
-                sourceFile = sourceLoc
-            else:
-                sourceFile = os.path.join(dst, os.path.basename(sourceLoc))
-            if os.path.exists(sourceFile):
-                with open(sourceFile, 'rb') as fin:
-                    sourcemd5 = md5(fin.read()).hexdigest()
-                if atticmd5 == sourcemd5:
-                    info("skip restoration of '%s' from attic: "
-                         "already restored", action[2])
-                    return
-        if dryRun:
-            info("restore '%s' from attic (dry run)", action[2])
-        else:
-            info("restore '%s' from attic", action[2])
-            sh.copy(atticLoc, sourceLoc)
-    else:
-        raise Error("unknown action, '%s', in patch log: %s"
-                    % (action[0], action))
-
-#---- public API
-
-def unpatch(sourceDir, logDir, dryRun=0, patchExe=None, logFilename=None):
-    """Backout the given patches from the given source tree.
-
-        "sourceDir" is the base directory of the source tree to unpatch.
-        "logDir" is the directory in which the patch set to unpatch was
-            logged.
-        "dryRun" (optional, default false) is a boolean indicating that
-            everything except actually unpatching should be done.
-        "patchExe" (optional) can be used to specify a particular patch
-            executable to use. Otherwise one is automatically found from
-            the environment.
-
-    The given patch tree (or patch trees) is processed as described in the
-    module docstring above. First, the set of patches that should be backed
-    out is determined. Then is it checked that all patches _can_ be backed
-    out. Then all unpatching is done. "Error" is raised if all patches cannot
-    be backed out. There is no return value. An error is NOT raised if it
-    looks like all patches have already been backed out.
-    """
-    log.debug("unpatch(logDir=%r, dryRun=%r)", logDir, dryRun)
-
-    # Find the patch log and import it, or error out.
-    patchLog = _loadPatchLog(logDir, logFileName)
     #pprint.pprint(patchLog.actions)
 
     # Check that all actions can be undone.
@@ -799,10 +649,62 @@ def unpatch(sourceDir, logDir, dryRun=0, patchExe=None, logFilename=None):
         else:
             raise Error("unknown action, '%s', in patch log: %s"
                         % (action[0], action))
-
+    
     # Undo each action
     for action in patchLog.actions:
-        _unapplyOneAction(action, sourceDir, logDir, dryRun, patchExe)
+        if action[0] in ("apply", "preprocess & apply"):
+            _applyPatch(patchExe, logDir, action[2], sourceDir, reverse=1,
+                        dryRun=dryRun, patchArgs=action[3])
+        elif action[0] == "add":
+            # ("add", <patches-basedir>, <src-relpath>, <dst-relpath>,
+            #  <force>)
+            # e.g. ("add", "patches", "hpux_cpp_ext\\thingy.s", "python",
+            #       False)
+            baseToDel = os.path.join(action[3], os.path.basename(action[2]))
+            toDel = os.path.join(sourceDir, baseToDel)
+            if not os.path.exists(toDel):
+                log.info("skip removal of '%s': already removed",
+                         baseToDel)
+            elif dryRun:
+                log.info("remove '%s' (dry run)", baseToDel)
+            else:
+                log.info("remove '%s'", baseToDel)
+                sh.rm(toDel)
+        elif action[0] == "remove":
+            # ("remove", <patches-basedir>, <dst-relpath>)
+            atticLoc = os.path.join(logDir, "__attic__", action[2])
+            sourceLoc = os.path.join(sourceDir, action[2])
+            if os.path.exists(sourceLoc) and os.path.isfile(atticLoc):
+                # Try to intelligently skip the re-add if it is not
+                # necessary.
+                fin = open(atticLoc, 'rb')
+                try:
+                    atticmd5 = md5(fin.read()).hexdigest()
+                finally:
+                    fin.close()
+                if os.path.isfile(sourceLoc):
+                    sourceFile = sourceLoc
+                else:
+                    sourceFile = os.path.join(dst, os.path.basename(sourceLoc))
+                if os.path.exists(sourceFile):
+                    fin = open(sourceFile, 'rb')
+                    try:
+                        sourcemd5 = md5(fin.read()).hexdigest()
+                    finally:
+                        fin.close()
+                    if atticmd5 == sourcemd5:
+                        log.info("skip restoration of '%s' from attic: "
+                                 "already restored", action[2])
+                        continue
+            if dryRun:
+                log.info("restore '%s' from attic (dry run)", action[2])
+            else:
+                log.info("restore '%s' from attic", action[2])
+                sh.copy(atticLoc, sourceLoc)
+        else:
+            raise Error("unknown action, '%s', in patch log: %s"
+                        % (action[0], action))
+
 
 def patch(patchesDir, sourceDir, config=None, logDir=None, dryRun=0,
           patchExe=None, logFilename=None):
@@ -848,7 +750,6 @@ def patch(patchesDir, sourceDir, config=None, logDir=None, dryRun=0,
     # - The "add" and "remove" paths can be directories.
     # - When add'ing a file, if its basename is of the form
     #   "BASE.p.EXT", then it will be preprocessed to "BASE.EXT".
-    # - Actions will always be in the order (remove, add, apply)
     actions = []
     for patchSpec in patchesDir:
         if os.path.isfile(patchSpec):
@@ -856,254 +757,118 @@ def patch(patchesDir, sourceDir, config=None, logDir=None, dryRun=0,
                              os.path.basename(patchSpec)) )
         elif os.path.isdir(patchSpec):
             # Always skip SCC control dirs.
-            if basename(patchSpec) in _SCC_control_dirs:
+            if basename(patchSpec) in ("CVS", ".svn", ".hg"):
                 continue
-            _determinePatchesFromDirectory(patchSpec, actions, config)
+            os.path.walk(patchSpec, _shouldBeApplied,
+                         (patchSpec, actions, config))
         else:
             raise Error("patches directory or file does not exist: '%s'"
                         % patchSpec)
     log.debug("patch set: %s" % pprint.pformat(actions))
 
-    # We will use a working directory to apply all patches.  We will:
-    # 1. Preprocess any patches as necessary
-    # 2. Copy files to be removed into the attic (of the patchlog), as well as
-    #    a pristine copy of what we will be adding.
-    # 3. If a logDir is available, figure out how much of the patch is already
-    #    applied; undo conflicting actions and only do the rest of the actions
-    # 4. Determine all files that will be patched (i.e. the --- files)
-    # 5. Copy all of those files into the working directory
-    # 6. Apply all the actions in order
-    # 7. Store the patch log
-    # 8. Remove files to be deleted for real
-    # 9. Copy the working directory into the destination
-    # We're doing everything in the working directory to ensure that the patches
-    # can be applied *without* trying a dry run first; this is necessary because
-    # patches might depend on previous patches in the queue.
-    # Note that we'll also be dropping a ".patchtree-state" file in the source
-    # (i.e. patched) directory; this is used as a marker to make sure that if
-    # that directory is deleted re-fetched we will be able to re-apply the
-    # patches.
-
-    if logFilename is None:
-        logFilename = "__patchlog__.py"
-    patchExe = _getPatchExe(patchExe)
-
     # Create a clean working directory.
-    tempDir = _createTempDir()
+    workDir = _createTempDir()
     if sys.platform.startswith("win"):
         # Windows patching leaves around temp files, so we work around this
         # problem by setting a different temp directory, which is later removed
         # at the end of this patching.
         oldTmpDir = os.environ.get("TMP")
-        os.mkdir(join(tempDir, "tempdir"))
-        os.environ["TMP"] = join(tempDir, "tempdir")
-    log.debug("created patch working dir: '%s'" % tempDir)
-
+        tmpDir = _createTempDir()
+        os.environ["TMP"] = tmpDir
+    log.debug("created patch working dir: '%s'" % workDir)
     try:
-        tmpLogDir = join(tempDir, "patchlog")
-        os.makedirs(join(tmpLogDir, "__attic__")) # for unpatching removed files
-
-        # 1. Preprocess any patches as necessary
+        # Create a patch image in the working dir (i.e. copy over patches and
+        # files to add and preprocessed versions of those that need it.)
         defines = None # preprocessor defines are lazily calculated
         for action in actions:
-            if action[0] not in ("apply", "preprocess & apply"):
-                continue
-            # Copy the patch file over; it's easier to deal with
-            src = join(action[1], action[2])
-            dst = join(tmpLogDir, action[2])
-            if os.path.isfile(dst):
-                raise Error("conflicting patch file '%s': you have a "
-                            "patch of the same name in more than one "
-                            "patches tree", action[2])
-            if not isdir(dirname(dst)):
-                os.makedirs(dirname(dst))
-            if action[0] == "preprocess & apply":
+            if action[0] in ("apply", "add"):
+                src = os.path.join(action[1], action[2])
+                dst = os.path.join(workDir, action[2])
+                if action[0] == "apply" and os.path.isfile(dst):
+                    raise Error("conflicting patch file '%s': you have a "
+                                "patch of the same name in more than one "
+                                "patches tree", action[2])
+                if os.path.isfile(src):
+                    preprocess_me, new_filename \
+                        = _shouldPreprocess(basename(src))
+                    if preprocess_me:
+                        if defines is None:
+                            defines = _getPreprocessorDefines(config)
+                        d = join(dirname(dst), new_filename)
+                        log.debug("preprocess '%s' to '%s'", src, d)
+                        if not exists(dirname(d)):
+                            os.makedirs(dirname(d))
+                        preprocess.preprocess(src, d, defines=defines,
+                                              substitute=1)
+                    else:
+                        log.debug("cp '%s' to '%s'", src, dst)
+                        sh.copy(src, dst)
+                elif os.path.isdir(src):
+                    for dirpath, dirnames, filenames in os.walk(src):
+                        subpath = (dirpath == src
+                                   and os.curdir
+                                   or dirpath[len(src)+1:])
+                        for exclude_dir in (".svn", "CVS", ".hg"):
+                            if exclude_dir in dirnames:
+                                dirnames.remove(exclude_dir)
+                        for filename in filenames:
+                            s = join(dirpath, filename)
+                            preprocess_me, new_filename \
+                                = _shouldPreprocess(filename)
+                            if preprocess_me:
+                                d = normpath(join(dst, subpath, new_filename))
+                                if defines is None:
+                                    defines = _getPreprocessorDefines(config)
+                                log.debug("preprocess '%s' to '%s'", s, d)
+                                if not exists(dirname(d)):
+                                    os.makedirs(dirname(d))
+                                preprocess.preprocess(s, d, defines=defines,
+                                                      substitute=1)
+                            else:
+                                d = normpath(join(dst, subpath, filename))
+                                log.debug("cp '%s' to '%s'", s, d)
+                                sh.copy(s, d)
+                else:
+                    raise Error("unknown file type for `%s'" % src)
+            elif action[0] == "preprocess & apply":
+                src = os.path.join(action[1], action[2])
+                dst = os.path.join(workDir, action[2])
+                if os.path.isfile(dst):
+                    raise Error("conflicting patch file '%s': you have a "
+                                "patch of the same name in more than one "
+                                "patches tree", action[2])
                 if defines is None:
                     defines = _getPreprocessorDefines(config)
                     #log.debug("defines: %s", pprint.pformat(defines))
-                log.debug("preprocess '%s' to '%s'",
-                          src, os.path.relpath(dst, tempDir))
+                log.debug("preprocess '%s' to '%s'", src, dst)
+                if not os.path.exists(os.path.dirname(dst)):
+                    os.makedirs(os.path.dirname(dst))
                 preprocess.preprocess(src, dst, defines=defines,
                                       substitute=1)
-            else:
-                log.debug("cp '%s' to '%s'", src, os.path.relpath(dst, tempDir))
-                sh.copy(src, dst)
-
-        # 2. Copy files to be removed into the attic (of the patchlog), as well
-        #    as a pristine copy of what we will be adding.
-        atticDir = join(tmpLogDir, "__attic__")
-        oldAtticDir = join(logDir, "__attic__")
-        for action in actions:
-            if action[0] == "add":
-                src = join(action[1], action[2])
-                dst = join(tmpLogDir, action[2])
-                log.debug("cp '%s' to '%s'", src, join("patchlog", action[2]))
-                for dirpath, dirnames, filenames in os.walk(src):
-                    for filename in filenames:
-                        srcpath = join(dirpath, filename)
-                        relpath = os.path.relpath(srcpath, src)
-                        do_preprocess, dstpath = \
-                            _shouldPreprocess(join(dirpath, join(dst, relpath)))
-                        if do_preprocess:
-                            if defines is None:
-                                defines = _getPreprocessorDefines(config)
-                            log.info("add '%s' to '%s' (with preprocessing",
-                                     relpath, dst)
-                            dstparent = os.path.dirname(dstpath)
-                            if not exists(dstparent):
-                                os.makedirs(dstparent)
-                            preprocess.preprocess(srcpath, dstpath,
-                                                  defines=defines, substitute=1)
-                        else:
-                            log.info("add '%s' to '%s'", srcpath, relpath)
-                            sh.copy(srcpath, dstpath)
             elif action[0] == "remove":
-                if not exists(atticDir):
-                    os.makedirs(atticDir)
-                origLoc = join(sourceDir, action[2])
-                oldAtticLoc = join(oldAtticDir, action[2])
-                atticLoc = join(atticDir, action[2])
-                for location in [oldAtticLoc, origLoc]:
-                    if exists(location):
-                        log.debug("cp '%s' to attic", origLoc)
-                        sh.copy(location, atticLoc)
-                        break
-
-        # (At this point, the patchlog is complete; it has everything needed to
-        # bring an unpatched source into the patched state.)
-
-        # 3. If a logDir is available, figure out how much of the patch is
-        #    already applied; undo conflicting actions and only do the rest of
-        #    the actions
-        firstInvalidActionIndex = 0 # default to do everything...
-        if logDir and isdir(logDir):
-            log.debug("logDir exists, examining patch state...")
-            patchLog = _loadPatchLog(logDir, logFilename)
-            if patchLog.sourceDir != sourceDir:
-                raise Error("Patch log exists, but is for a different source "
-                            "directory (%s instead of %s); please unapply "
-                            "patches manually or use a different patch log "
-                            "directory." % (patchLog.sourceDir, sourceDir))
-            firstInvalidActionIndex = len(patchLog.actions)
-            for index, action in reversed(tuple(enumerate(patchLog.actions))):
-                try:
-                    if repr(actions[index]) != repr(action):
-                        # action isn't even the same one; make sure to unapply it
-                        firstInvalidActionIndex = index
-                        continue
-                except IndexError:
-                    firstInvalidActionIndex = index
-                    continue
-                if action[0] in ("apply", "preprocess & apply"):
-                    relpath = action[2]
-                    if not _areFilesEqual(join(logDir, relpath),
-                                          join(tmpLogDir, relpath)):
-                        firstInvalidActionIndex = index
-                elif action[0] == "add":
-                    relpath = action[2]
-                    if not _areFilesEqual(join(logDir, relpath),
-                                          join(tmpLogDir, relpath)):
-                        firstInvalidActionIndex = index
-                elif action[0] == "remove":
-                    relpath = action[2]
-                    if not _areFilesEqual(join(logDir, "__attic__", relpath),
-                                          join(tmpLogDir, "__attic__", relpath)):
-                        firstInvalidActionIndex = index
-                else:
-                    raise Error("Don't know how to deal with previously recorded "
-                                "action %s", action[0])
-
-            invalidActions = patchLog.actions[firstInvalidActionIndex:]
-
-            if firstInvalidActionIndex > 0:
-                expected_md5 = md5(repr(patchLog.actions)).hexdigest()
-                logFileFullName = join(logDir, logFilename)
-                log.debug("full name: %s", logFileFullName)
-                with open(join(sourceDir, ".patchtree-state"), "a+") as state_file:
-                    for line in state_file:
-                        parts = line.strip().rsplit(None, 1)
-                        if len(parts) != 2:
-                            continue # invalid state?
-                        log.debug("got: %s", parts[0])
-                        if parts[0] == logFileFullName:
-                            if parts[1] not in (expected_md5, "ignore"):
-                                log.warn("Patch state does not match patch log, "
-                                         "assuming no patches are applied")
-                                firstInvalidActionIndex = 0
-                                invalidActions = []
-                            break
-                    else:
-                        log.warn("Patch state missing for the given log, "
-                                 "assuming no patches are applied")
-                        firstInvalidActionIndex = 0
-                        invalidActions = []
-
-            log.debug("Will unapply %s actions from old patch out of %s",
-                      len(invalidActions), len(patchLog.actions))
-
-            # Un-apply all the actions that are now invalid
-            for action in reversed(invalidActions):
-                _unapplyOneAction(action, sourceDir, logDir, False,
-                                  patchExe, info=lambda *args: None)
-
-            if firstInvalidActionIndex > 0:
-                action = patchLog.actions[firstInvalidActionIndex - 1]
-                log.info("Skipping %s patches already applied; "
-                         "last skipped patch is %s %s",
-                         firstInvalidActionIndex, action[0], action[2])
-
-        # 4. Determine all files that will be patched (i.e. the --- files)
-        modified_relpaths = set()
-        for action in actions[firstInvalidActionIndex:]:
-            if action[0] not in ("apply", "preprocess & apply"):
-                continue
-            with open(join(tmpLogDir, action[2]), "r") as patch_contents:
-                modified_relpaths.update(_getPathsInPatch(patch_contents, action[3])[0])
-        log.debug("All modified files: %s", pprint.pformat(sorted(modified_relpaths)))
-
-        # 5. Copy all of those files into the working directory
-        workDir = join(tempDir, "workdir")
-        if not exists(workDir):
-            os.makedirs(workDir)
-        for modified_relpath in modified_relpaths:
-            modified_srcpath = join(sourceDir, modified_relpath)
-            modified_destpath = join(workDir, modified_relpath)
-            # source might not exist if we're adding it later
-            if exists(modified_destpath):
                 pass
-            elif exists(modified_srcpath):
-                log.debug("copy '%s' -> '%s'", modified_srcpath, modified_destpath)
-                sh.copy(modified_srcpath, modified_destpath)
-
-        # 6. Apply all the actions in order
-        def _add_it(s, d, force=False):
-            """A little helper for doing the 'add' action with appropriate
-            logging.
-            """
-            if not exists(dirname(d)):
-                os.makedirs(dirname(d))
-            if _areFilesEqual(s, d):
-                log.info("skip add of '%s' to '%s': "
-                         "no changes",
-                         os.path.relpath(s, tempDir),
-                         os.path.relpath(d, tempDir))
             else:
-                log.info("%s '%s' to '%s'",
-                         "replace" if exists(d) else "add",
-                         os.path.relpath(s, tempDir),
-                         os.path.relpath(d, tempDir))
-                sh.copy(s, d)
-
-        for action in actions[firstInvalidActionIndex:]:
+                raise Error("unknown patch action '%s': %r"
+                            % (action[0], action))
+    
+        # Ensure that each patch action can be carried out.
+        patchExe = _getPatchExe(patchExe)
+        for action in actions:
             if action[0] in ("apply", "preprocess & apply"):
-                log.debug("Applying patch %s", action[2])
-                _applyPatch(patchExe, tmpLogDir, action[2],
-                            workDir, patchArgs=action[3])
+                _assertCanApplyPatch(patchExe,
+                                     os.path.join(workDir, action[2]),
+                                     sourceDir,
+                                     patchSrcFile=os.path.join(action[1], action[2]),
+                                     patchArgs=action[3])
             elif action[0] == "add":
-                src = join(tmpLogDir, action[2])
-                dst = join(workDir, action[3])
-                log.debug("add %s -> %s", src, dst)
-                if isdir(src):
+                # ("add", <patches-basedir>, <src-relpath>, <dst-relpath>, <force>)
+                # e.g. ("add", "patches", "hpux_cpp_ext\\thingy.s", "python", False)
+                #
+                # Ensure that we won't clobber a target file that
+                # differs.
+                src = os.path.join(workDir, action[2])
+                dst = os.path.join(sourceDir, action[3])
+                if os.path.isdir(src):
                     for dirpath, dirnames, filenames in os.walk(src):
                         subpath = (dirpath == src
                                    and os.curdir
@@ -1111,29 +876,28 @@ def patch(patchesDir, sourceDir, config=None, logDir=None, dryRun=0,
                         for filename in filenames:
                             s = join(dirpath, filename)
                             d = normpath(join(dst, subpath, filename))
-                            _add_it(s, d, force=action[4])
+                            # 'actual_s' might actually have a '.p' in there.
+                            actual_s = join(action[1], action[2], subpath,
+                                            filename)
+                            if not action[4]:
+                                _assertCanAddFile(s, d, actual_s)
                 else:
-                    d = isfile(dst) and dst or join(dst, basename(src))
-                    _add_it(src, d, force=action[4])
+                    if not action[4]:
+                        _assertCanAddFile(src, dst,
+                                          os.path.join(action[1], action[2]))
             elif action[0] == "remove":
-                dst = join(workDir, action[2])
-                if exists(dst):
-                    sh.rm(dst)
+                pass
             else:
                 raise Error("unknown patch action '%s': %r"
-                                % (action[0], action))
+                            % (action[0], action))
 
-        # Up to this point, we still haven't actually changed the sourceDir.
-        # Bail out now if we're really just doing a dry run.
-        if dryRun:
-            return
-        log.info("Patch verification complete, copying results back...")
-
-        # 7. Store the patch log
         if logDir:
             # Log actions.
-            patchLogFile = join(tmpLogDir, logFilename)
-            with open(patchLogFile, "w") as patchLog:
+            if logFilename is None:
+                logFilename = "__patchlog__.py"
+            patchLogFile = os.path.join(workDir, logFilename)
+            patchLog = open(patchLogFile, "w")
+            try:
                 patchLog.write("""\
 # Patch log (%s)
 #
@@ -1143,55 +907,117 @@ def patch(patchesDir, sourceDir, config=None, logDir=None, dryRun=0,
 sourceDir = %r
 actions = %s
 """ % (time.asctime(), sourceDir, pprint.pformat(actions)))
-            if exists(logDir):
-                sh.rmtree(logDir)
-            sh.copy(tmpLogDir, logDir)
+            finally:
+                patchLog.close()
 
-            state = {}
-            logFileFullName = join(logDir, logFilename)
-            with open(join(sourceDir, ".patchtree-state"), "a+") as state_file:
-                for line in state_file:
-                    parts = line.strip().rsplit(None, 1)
-                    if len(parts) != 2:
-                        continue # invalid state?
-                    state[parts[0]] = parts[1]
-            state[logFileFullName] = md5(repr(actions)).hexdigest()
-            with open(join(sourceDir, ".patchtree-state"), "w") as state_file:
-                for k, v in state.items():
-                    state_file.write("%s %s\n" % (k, v))
+            # Write files scheduled for removal to the attic for possible
+            # retrieval during unpatch().
+            atticDir = os.path.join(workDir, "__attic__")
+            oldAtticDir = os.path.join(logDir, "__attic__")
+            for action in actions:
+                if action[0] == "remove":
+                    # ("remove", <patches-basedir>, <dst-relpath>)
+                    origLoc = os.path.join(sourceDir, action[2])
+                    oldAtticLoc = os.path.join(oldAtticDir, action[2])
+                    atticLoc = os.path.join(atticDir, action[2])
+                    possibleLocs = [origLoc, oldAtticLoc]
+                    for location in possibleLocs:
+                        if os.path.exists(location):
+                            log.debug("copy '%s' to attic", origLoc)
+                            sh.copy(location, atticLoc)
 
-        # 8. Remove files to be deleted for real
-        for action in actions[firstInvalidActionIndex:]:
-            if action[0] != "remove":
-                continue
-            dst = os.path.join(sourceDir, action[2])
-            if not os.path.exists(dst):
-                log.info("skip removal of '%s': already removed",
-                         action[2])
-            elif dryRun:
-                log.info("remove '%s' (dry run)", action[2])
+        # A little helper for doing the 'add' action with appropriate
+        # logging.
+        def _add_it(s, d, actual_s, force=False, dryRun=False):
+            if not exists(d):
+                if dryRun:
+                    log.info("add '%s' to '%s' (dry run)",
+                             actual_s, d)
+                else:
+                    log.info("add '%s' to '%s'", actual_s, d)
+                    sh.copy(s, d)
+            elif not _diffPaths(s, d):
+                log.info("skip add of '%s' to '%s': "
+                         "no changes", actual_s, d)
             else:
-                log.info("remove '%s'", dst)
-                sh.rm(dst)
+                if dryRun:
+                    log.info("replace '%s' to '%s' (dry run)",
+                             actual_s, d)
+                else:
+                    log.info("replace '%s' to '%s'",
+                             actual_s, d)
+                    sh.copy(s, d)
 
-        # 9. Copy the working directory into the destination
-        absSourceDir = os.path.abspath(sourceDir)
-        for dirpath, dirnames, filenames in os.walk(workDir):
-            for name in filenames:
-                src = join(workDir, dirpath, name)
-                dst = join(absSourceDir, os.path.relpath(dirpath, workDir), name)
-                log.debug("cp '%s' to '%s'", src, dst)
-                sh.copy(src, dst)
+        # Carry out each patch action.
+        for action in actions:
+            if action[0] in ("apply", "preprocess & apply"):
+                _applyPatch(patchExe, workDir, action[2], sourceDir,
+                            dryRun=dryRun, patchArgs=action[3])
+            elif action[0] == "add":
+                # ("add", <patches-basedir>, <src-relpath>, <dst-relpath>, <force>)
+                # e.g. ("add", "patches", "hpux_cpp_ext\\thingy.s", "python", False)
+                #
+                #XXX Could improve logging here to only log one message
+                #    in certain circumstances: no changes, all files
+                #    were added.
+                src = os.path.join(workDir, action[2])
+                dst = os.path.join(sourceDir, action[3])
+                if isdir(src):
+                    for dirpath, dirnames, filenames in os.walk(src):
+                        subpath = (dirpath == src
+                                   and os.curdir
+                                   or dirpath[len(src)+1:])
+                        for filename in filenames:
+                            s = join(dirpath, filename)
+                            d = normpath(join(dst, subpath, filename))
+                            # 'actual_s' might actually have a '.p' in there.
+                            actual_s = join(action[1], action[2], subpath,
+                                            filename)
+                            _add_it(s, d, actual_s, force=action[4],
+                                    dryRun=dryRun)
+                else:
+                    d = isfile(dst) and dst or join(dst, basename(src))
+                    actual_s = join(action[1], action[2])
+                    _add_it(src, d, actual_s, force=action[4], dryRun=dryRun)
+            elif action[0] == "remove":
+                # ("remove", <patches-basedir>, <dst-relpath>)
+                dst = os.path.join(sourceDir, action[2])
+                if not os.path.exists(dst):
+                    log.info("skip removal of '%s': already removed",
+                             action[2])
+                elif dryRun:
+                    log.info("remove '%s' (dry run)", action[2])
+                else:
+                    log.info("remove '%s'", action[2])
+                    sh.rm(dst)
+            else:
+                raise Error("unknown patch action '%s': %r"
+                            % (action[0], action))
 
-    finally:
-        log.debug("removing temporary working dir '%s'", tempDir)
+        # If a log dir was specified then copy working dir there.
+        if logDir:
+            if dryRun:
+                log.info("creating patch log in '%s' (dry run)", logDir)
+            else:
+                if os.path.exists(logDir):
+                    sh.rm(logDir)
+                log.info("creating patch log in '%s'", logDir)
+                sh.copy(workDir, logDir)
+    finally:    
+        log.debug("removing temporary working dir '%s'", workDir)
         try:
-            sh.rm(tempDir)
+            sh.rm(workDir)
         except EnvironmentError, ex:
             log.warn("could not remove temp working dir '%s': %s",
-                     tempDir, ex)
-        if sys.platform.startswith("win") and oldTmpDir is not None:
-            os.environ["TMP"] = oldTmpDir
+                     workDir, ex)
+        if sys.platform.startswith("win"):
+            if oldTmpDir is not None:
+                os.environ["TMP"] = oldTmpDir
+            try:
+                sh.rm(tmpDir)
+            except EnvironmentError, ex:
+                log.warn("could not remove temp patch dir '%s': %s",
+                         tmpDir, ex)
 
 
 

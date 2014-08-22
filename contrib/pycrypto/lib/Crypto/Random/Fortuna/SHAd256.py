@@ -28,7 +28,7 @@ SHA_d-256 hash function implementation.
 This module should comply with PEP 247.
 """
 
-__revision__ = "$Id$"
+__revision__ = "$Id: SHAd256.py 4769 2010-04-09 17:53:50Z toddw $"
 __all__ = ['new', 'digest_size']
 
 from Crypto.Util.python_compat import *

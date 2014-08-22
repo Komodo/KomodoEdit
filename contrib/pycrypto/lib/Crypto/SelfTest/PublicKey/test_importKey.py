@@ -20,7 +20,7 @@
 # SOFTWARE.
 # ===================================================================
 
-__revision__ = "$Id$"
+__revision__ = "$Id: test_importKey.py 7847 2011-04-21 18:51:40Z toddw $"
 
 import unittest
 

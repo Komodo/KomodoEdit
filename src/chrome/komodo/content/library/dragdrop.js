@@ -18,23 +18,16 @@ if (typeof(ko.dragdrop)=='undefined') {
 
 (function() {
 
-    const Cc = Components.classes;
-    const Ci = Components.interfaces;
-    Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
-    
-    var local = {};
-    
-    XPCOMUtils.defineLazyGetter(local, "log", function() ko.logging.getLogger("ko.dragDrop"));
-    //local.log.setLevel(ko.logging.LOG_DEBUG);
-    
-    XPCOMUtils.defineLazyGetter(local, "bundle", function() Cc["@mozilla.org/intl/stringbundle;1"]
-                                                            .getService(Ci.nsIStringBundleService)
-                                                            .createBundle("chrome://komodo/locale/library.properties"));
+    var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                    .getService(Components.interfaces.nsIStringBundleService)
+                    .createBundle("chrome://komodo/locale/library.properties");
+    var _log = ko.logging.getLogger('ko.dragDrop');
+    //_log.setLevel(ko.logging.LOG_DEBUG);
 
-    XPCOMUtils.defineLazyGetter(local, "fileProtocolHandler", function() Cc["@mozilla.org/network/io-service;1"]
-                                                            .getService(Ci.nsIIOService)
-                                                            .getProtocolHandler("file")
-                                                            .QueryInterface(Ci.nsIFileProtocolHandler));
+    var ioService = Components.classes["@mozilla.org/network/io-service;1"]
+                           .getService(Components.interfaces.nsIIOService);
+    var fileProtocolHandler = ioService.getProtocolHandler("file");
+    fileProtocolHandler.QueryInterface(Components.interfaces.nsIFileProtocolHandler);
 
     /* ko.dragdrop items */
 
@@ -52,15 +45,15 @@ if (typeof(ko.dragdrop)=='undefined') {
 
         var baseWin = null;
         try {
-            baseWin = window.QueryInterface(Ci.nsIInterfaceRequestor)
-                            .getInterface(Ci.nsIWebNavigation)
-                            .QueryInterface(Ci.nsIDocShellTreeItem)
+            baseWin = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                            .getInterface(Components.interfaces.nsIWebNavigation)
+                            .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
                             .treeOwner
-                            .QueryInterface(Ci.nsIInterfaceRequestor)
-                            .getInterface(Ci.nsIBaseWindow);
+                            .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                            .getInterface(Components.interfaces.nsIBaseWindow);
             baseWin.setFocus();
         } catch(ex) {
-            local.log.exception(ex,'Unable to get base window');
+            _log.exception(ex,'Unable to get base window');
         }
         */
     };
@@ -123,7 +116,7 @@ if (typeof(ko.dragdrop)=='undefined') {
 
     this.onDrop = function(event) {
         var dataTransfer = event.dataTransfer;
-        local.log.debug('onDrop:: mozItemCount: ' + dataTransfer.mozItemCount);
+        _log.debug('onDrop:: mozItemCount: ' + dataTransfer.mozItemCount);
 
         var koDropDataList = ko.dragdrop.unpackDropData(event.dataTransfer);
 
@@ -259,8 +252,8 @@ if (typeof(ko.dragdrop)=='undefined') {
     KomodoDropData.prototype.__defineGetter__("isDirectoryURL",
          function () {
             var uri = this.value;
-            var koFileEx = Cc["@activestate.com/koFileEx;1"]
-                .createInstance(Ci.koIFileEx);
+            var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+                .createInstance(Components.interfaces.koIFileEx);
             koFileEx.URI = this.value;
             return koFileEx.isDirectory;
         }
@@ -346,7 +339,7 @@ if (typeof(ko.dragdrop)=='undefined') {
     KomodoDropData.prototype.unpack = function KoDropData_unpack(dragType, dragData) {
         switch(dragType) {
             case "komodo/tab":
-                local.log.debug("unpack:: komodo/tab: " + dragData);
+                _log.debug("unpack:: komodo/tab: " + dragData);
                 // If it's dropped on a different Komodo window, then
                 // move that tab to the target window.
                 var sourceTab = dragData;
@@ -389,7 +382,7 @@ if (typeof(ko.dragdrop)=='undefined') {
                 }
                 break;
             case "application/x-moz-file":
-                local.log.debug("unpack:: x-moz-file: " + dragData);
+                _log.debug("unpack:: x-moz-file: " + dragData);
                 // Ensure we decode the URI, bug 72873.
                 this.value = decodeURI(fileProtocolHandler.getURLSpecFromFile(dragData));
                 this.isURL = true;
@@ -397,7 +390,7 @@ if (typeof(ko.dragdrop)=='undefined') {
             case "application/x-moz-url":
             case "text/x-moz-url":
             case "text/uri-list":
-                local.log.debug("unpack:: x-moz-url: " + dragData);
+                _log.debug("unpack:: x-moz-url: " + dragData);
                 // Ensure we decode the URI, bug 72873.
                 // Note: x-moz-url has the format: "Url\nTitle\n"
                 this.value = decodeURI(dragData.split("\n")[0]);
@@ -414,7 +407,7 @@ if (typeof(ko.dragdrop)=='undefined') {
                 if (dragType == "text/html") {
                     this.isHTML = true;
                 }
-                local.log.debug('dropped data is ['+dragData+']');
+                _log.debug('dropped data is ['+dragData+']');
                 // See if it looks like a file or a URL.
                 var is_windows = (navigator.platform == 'Win32');
                 if (dragData.search("://") >= 0) {
@@ -432,7 +425,7 @@ if (typeof(ko.dragdrop)=='undefined') {
                         this.value = ko.uriparse.localPathToURI(dragData);
                         this.isURL = true;
                     } catch (e) {
-                        local.log.debug('this is not a file path: ['+this.value+']');
+                        _log.debug('this is not a file path: ['+this.value+']');
                         return;
                     }
                 }
@@ -443,7 +436,7 @@ if (typeof(ko.dragdrop)=='undefined') {
                 }
                 break;
             default:
-                local.log.warn("KoDropData:: Unexpected drag flavour: " + dragType);
+                _log.warn("KoDropData:: Unexpected drag flavour: " + dragType);
                 break;
         }
     };
@@ -456,7 +449,7 @@ if (typeof(ko.dragdrop)=='undefined') {
     /**
      * Unpack the dropped data into a Komodo specific data structure.
      * 
-     * @param dataTransfer {Ci.nsIDOMDataTransfer} - The data.
+     * @param dataTransfer {Components.interfaces.nsIDOMDataTransfer} - The data.
      * @param {array} acceptedFlavours - Optional - list of supported data types.
      * @returns {array} - Returns an array of {ko.dragdrop.KoDropData}
      */
@@ -474,7 +467,7 @@ if (typeof(ko.dragdrop)=='undefined') {
             var supportedTypes = acceptedFlavours.filter(
                          function(value) mozTypes.contains(value));
             if (!supportedTypes.length) {
-                local.log.info("unpackDropData:: no supported flavours for item  " + i
+                _log.info("unpackDropData:: no supported flavours for item  " + i
                           + ":" + mozTypes);
                 continue;
             }
@@ -490,18 +483,18 @@ if (typeof(ko.dragdrop)=='undefined') {
                 try {
                     if (koDropData == null) {
                         koDropData = new KomodoDropData(mozType, mozDragData);
-                        local.log.debug("unpackDropData:: best flavour: " + mozType);
+                        _log.debug("unpackDropData:: best flavour: " + mozType);
                         ko_drop_data.push(koDropData);
                     } else {
                         if (alternatives == null) {
                             alternatives = {};
                         }
                         alternatives[mozType] = new KomodoDropData(mozType, mozDragData);
-                        local.log.debug("unpackDropData:: alternative flavour: " + mozType);
+                        _log.debug("unpackDropData:: alternative flavour: " + mozType);
                     }
                 } catch (ex) {
                     // Was not valid drop data.
-                    local.log.info("unpackDropData:: could not unpack: " + mozType + ": " + mozDragData);
+                    _log.info("unpackDropData:: could not unpack: " + mozType + ": " + mozDragData);
                 }
             }
             if (alternatives) {
@@ -532,11 +525,11 @@ if (typeof(ko.dragdrop)=='undefined') {
                 newDropDataList.push(koDropData);
                 continue;
             }
-            local.log.debug('dropped URL is ['+koDropData.value+']');
+            _log.debug('dropped URL is ['+koDropData.value+']');
             // See if this is a mapped uri.
             while (1) {
                 koDropData.value = ko.uriparse.getMappedURI(koDropData.value);
-                local.log.debug('mapped URL is ['+koDropData.value+']');
+                _log.debug('mapped URL is ['+koDropData.value+']');
                 if (koDropData.isHttpURL &&
                     !koDropData.isXpiURL &&
                     !koDropData.isKpzURL &&
@@ -547,18 +540,18 @@ if (typeof(ko.dragdrop)=='undefined') {
                     //   * view the URL source
                     //   * add a uri mapping
                     //   * drop the URL as text
-                    var title = local.bundle.GetStringFromName("youHaveDroppedAUrlOntoKomodo.title");
-                    var prompt = local.bundle.GetStringFromName("youHaveDroppedAUrlOntoKomodo.prompt");
-                    var cancel = local.bundle.GetStringFromName("cancelButton.label");
-                    var viewsource = local.bundle.GetStringFromName("viewSourceButton.label");
-                    var viewsourceAccesskey = local.bundle.GetStringFromName("viewSourceButton.accesskey");
-                    var viewsourceTooltiptext = local.bundle.GetStringFromName("viewSourceButton.tooltiptext");
-                    var mapthisuri = local.bundle.GetStringFromName("mapThisUriButton.label");
-                    var mapthisuriAccesskey = local.bundle.GetStringFromName("mapThisUriButton.accesskey");
-                    var mapthisuriTooltiptext = local.bundle.GetStringFromName("mapThisUriButton.tooltiptext");
-                    var dropastext = local.bundle.GetStringFromName("dropAsTextButton.label");
-                    var dropastextAccesskey = local.bundle.GetStringFromName("dropAsTextButton.accesskey");
-                    var dropastextTooltiptext = local.bundle.GetStringFromName("dropAsTextButton.tooltiptext");
+                    var title = _bundle.GetStringFromName("youHaveDroppedAUrlOntoKomodo.title");
+                    var prompt = _bundle.GetStringFromName("youHaveDroppedAUrlOntoKomodo.prompt");
+                    var cancel = _bundle.GetStringFromName("cancelButton.label");
+                    var viewsource = _bundle.GetStringFromName("viewSourceButton.label");
+                    var viewsourceAccesskey = _bundle.GetStringFromName("viewSourceButton.accesskey");
+                    var viewsourceTooltiptext = _bundle.GetStringFromName("viewSourceButton.tooltiptext");
+                    var mapthisuri = _bundle.GetStringFromName("mapThisUriButton.label");
+                    var mapthisuriAccesskey = _bundle.GetStringFromName("mapThisUriButton.accesskey");
+                    var mapthisuriTooltiptext = _bundle.GetStringFromName("mapThisUriButton.tooltiptext");
+                    var dropastext = _bundle.GetStringFromName("dropAsTextButton.label");
+                    var dropastextAccesskey = _bundle.GetStringFromName("dropAsTextButton.accesskey");
+                    var dropastextTooltiptext = _bundle.GetStringFromName("dropAsTextButton.tooltiptext");
                     var response = ko.dialogs.customButtons(prompt,
                                                             [[viewsource, viewsourceAccesskey, viewsourceTooltiptext],
                                                              [mapthisuri, mapthisuriAccesskey, mapthisuriTooltiptext],
@@ -581,7 +574,7 @@ if (typeof(ko.dragdrop)=='undefined') {
                     } else if (response == dropastext) {
                         koDropData.isURL = false;
                     } else {
-                        local.log.error("convertMappedURIs:: unexpected response of "
+                        _log.error("convertMappedURIs:: unexpected response of "
                                    + response);
                         return [];
                     }
@@ -627,7 +620,7 @@ if (typeof(ko.dragdrop)=='undefined') {
         }
 
         if (open_list.length) {
-            local.log.info('openDroppedUrls:: opening ' + open_list.length + ' items');
+            _log.info('openDroppedUrls:: opening ' + open_list.length + ' items');
             // Open the editor views.
             var editor_list = open_list.filter(function(element) { return !element.isImageURL });
             if (editor_list) {

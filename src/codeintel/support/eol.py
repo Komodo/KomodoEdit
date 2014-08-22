@@ -94,7 +94,7 @@
 #        trentm.com: directory
 
 
-__revision__ = "$Id$"
+__revision__ = "$Id: eol.py 3797 2009-06-23 00:26:21Z trentm $"
 __version_info__ = (0, 4, 2)
 __version__ = '.'.join(map(str, __version_info__))
 

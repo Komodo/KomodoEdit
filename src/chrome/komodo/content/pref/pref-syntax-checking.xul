@@ -446,23 +446,6 @@
                     </hbox>
                   </vbox>
                   <separator class="thin"/>
-
-                  <checkbox id="lint_python_with_pep8"
-                            label="&pep8CheckingStatus.label;"
-                            pref="true"
-                            oncommand="languageInfo.Python.onTogglePep8Checking(this);" />
-                  <description id="pep8_failure" class="pref_hide" />
-                  <vbox id="pep8_checking_vbox_rcfile" class="indentedPref01">
-                     <label id="pep8_checking_rcfile_label"
-                              control="pep8_checking_rcfile"
-                              value="&pep8RCFileLocation.label;" />
-                     <hbox id="pep8_checking_hbox_rcfile">
-                       <textbox id="pep8_checking_rcfile" pref="true"
-                                prefstring="pep8_checking_rcfile" flex="1"/>
-                       <button id="pep8_browse_rcfile" label="&browse.label;" oncommand="languageInfo.Python.loadPep8Rcfile();"/>
-                    </hbox>
-                  </vbox>
-                  <separator class="thin"/>
                   
                   <checkbox id="lint_python_with_pyflakes"
                             label="&pyflakesChecking.label;"
@@ -525,23 +508,6 @@
                        <textbox id="pylint3_checking_rcfile" pref="true"
                                 prefstring="pylint3_checking_rcfile" flex="1"/>
                        <button id="pylint3_browse_rcfile" label="&browse.label;" oncommand="languageInfo.Python3.loadPylint3Rcfile();"/>
-                    </hbox>
-                  </vbox>
-                  <separator class="thin"/>
-                  <checkbox id="lint_python3_with_pep83"
-                            label="&pep8CheckingStatus.label;"
-                            pref="true"
-                            oncommand="languageInfo.Python3.onTogglePep83Checking(this);" />
-                  <description id="pep83_failure" class="pref_hide" />
-
-                  <vbox id="pep83_checking_vbox_rcfile" class="indentedPref01">
-                     <label id="pep83_checking_rcfile_label"
-                              control="pep83_checking_rcfile"
-                              value="&pep8RCFileLocation.label;" />
-                     <hbox id="pep83_checking_hbox_rcfile">
-                       <textbox id="pep83_checking_rcfile" pref="true"
-                                prefstring="pep83_checking_rcfile" flex="1"/>
-                       <button id="pep83_browse_rcfile" label="&browse.label;" oncommand="languageInfo.Python3.loadPep83Rcfile();"/>
                     </hbox>
                   </vbox>
                   <separator class="thin"/>

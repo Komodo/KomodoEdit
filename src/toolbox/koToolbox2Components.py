@@ -50,7 +50,6 @@ import sys
 import time
 import logging
 from pprint import pprint
-import threading
 
 from xpcom import components, COMException, ServerException, nsError
 from xpcom.server import UnwrapObject
@@ -168,7 +167,9 @@ class KoToolbox2Service(object):
         self._toolsMgrSvc.initialize(self.toolbox_db)
 
         self.db_path = os.path.join(koDirSvc.userDataDir, 'toolbox.sqlite')
-        schemaFile = os.path.join(koDirSvc.supportDir, 'toolbox', 'koToolbox.sql')
+        schemaFile = os.path.join(koDirSvc.mozBinDir,
+                                  'python', 'komodo', 'toolbox',
+                                  'koToolbox.sql')
         try:
             self.db = self.toolbox_db.initialize(self.db_path, schemaFile)
             self.loadMainToolboxes()
@@ -195,9 +196,15 @@ class KoToolbox2Service(object):
         #log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
         self.registerStandardToolbox(toolbox_id)
         
-        from directoryServiceUtils import getExtensionToolboxDirs
-        for toolsDir in getExtensionToolboxDirs():
-            self.activateExtensionToolbox(toolsDir)
+        import directoryServiceUtils
+        extensionDirs = directoryServiceUtils.getExtensionDirectories()
+        for extensionDir in extensionDirs:
+            # Does this happen for disabled extensions?
+            toolDir = join(extensionDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
+            if os.path.exists(toolDir):
+                self.activateExtensionToolbox(extensionDir)
+            #else:
+            #    log.debug("No tools in %s", extensionDir)
         self.toolboxLoader.deleteUnloadedTopLevelItems()
     
     def registerStandardToolbox(self, id):
@@ -238,12 +245,19 @@ class KoToolbox2Service(object):
             return None
 
     def getExtensionToolbox(self, extensionName):
-        from directoryServiceUtils import getExtensionToolboxDirs
-        results = getExtensionToolboxDirs(extension_id=extensionName)
-        if results:
-            tbox_id = self.db.get_id_from_path(results[0])
-            if tbox_id != -1:
-                return self._toolsMgrSvc.getToolById(tbox_id)
+        # @param: extensionName {str} - the em:name from install.rdf
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].\
+            getService(components.interfaces.koIDirs)
+        binDirs = [join(koDirSvc.mozBinDir, "extensions"),
+                   join(koDirSvc.userDataDir, "XRE", "extensions")]
+        for dir in binDirs:
+            extDir = join(dir, extensionName)
+            if os.path.isdir(extDir):
+                toolsDir = join(extDir, "tools")
+                if os.path.isdir(toolsDir):
+                    tbox_id = self.db.get_id_from_path(join(extDir, "tools"))
+                    if tbox_id != -1:
+                        return self._toolsMgrSvc.getToolById(tbox_id)
         return None
 
     def getProjectToolboxId(self, uri):
@@ -473,29 +487,30 @@ class KoToolbox2Service(object):
             self.notifyAddedToolbox(projectDir, notifyAllWindows=False)
             self.notifyToolboxTopLevelViewChanged()
 
-    def activateExtensionToolbox(self, toolsDir):
-        extensionRootDir = os.path.dirname(toolsDir)
-        name = os.path.basename(extensionRootDir)
-        folderDataPath = join(toolsDir, ".folderdata")
-        if exists(folderDataPath):
-            try:
-                f = open(folderDataPath)
-                data = json.load(f, encoding="utf-8")
-                f.close()
-                explicitName = data["name"]
-                if explicitName:
-                    name = explicitName
-                    idx = name.find(koToolbox2.PROJECT_FILE_EXTENSION)
-                    if idx > 0:
-                        name = name[:idx]
-            except:
-                log.exception("Failed to find a name for toolbox %s", name)
-        toolbox_id = self.toolboxLoader.loadToolboxDirectory(name,
-                                                             extensionRootDir,
-                                                             koToolbox2.DEFAULT_TARGET_DIRECTORY)
-        self.registerUserToolbox(extensionRootDir, toolbox_id, True)
-        self.notifyAddedToolbox(extensionRootDir, notifyAllWindows=True)
-        self.notifyToolboxTopLevelViewChanged()
+    def activateExtensionToolbox(self, extensionRootDir):
+        toolsDir = join(extensionRootDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
+        if exists(toolsDir) and os.path.isdir(toolsDir):
+            name = os.path.basename(extensionRootDir)
+            folderDataPath = join(toolsDir, ".folderdata")
+            if exists(folderDataPath):
+                try:
+                    f = open(folderDataPath)
+                    data = json.load(f, encoding="utf-8")
+                    f.close()
+                    explicitName = data["name"]
+                    if explicitName:
+                        name = explicitName
+                        idx = name.find(koToolbox2.PROJECT_FILE_EXTENSION)
+                        if idx > 0:
+                            name = name[:idx]
+                except:
+                    log.exception("Failed to find a name for toolbox %s", name)
+            toolbox_id = self.toolboxLoader.loadToolboxDirectory(name,
+                                                                 extensionRootDir,
+                                                                 koToolbox2.DEFAULT_TARGET_DIRECTORY)
+            self.registerUserToolbox(extensionRootDir, toolbox_id, True)
+            self.notifyAddedToolbox(extensionRootDir, notifyAllWindows=True)
+            self.notifyToolboxTopLevelViewChanged()
 
     # when an extension is disabled, we need to restart
 
@@ -647,18 +662,6 @@ class KoToolbox2Service(object):
 
         return [KoToolInfo(self._toolsMgrSvc, *hit[:-1]) for hit in hits]
     
-    def findToolsAsync(self, query, langs, callback):
-        t = threading.Thread(target=self._findToolsAsync, args=(query, langs, callback))
-        t.start()
-
-    def _findToolsAsync(self, query, langs, callback):
-        result = self.findTools(query, langs)
-        self._findToolsAsyncCallback(callback, result)
-
-    @components.ProxyToMainThreadAsync
-    def _findToolsAsyncCallback(self, callback, result):
-        callback.callback(0, result)
-
     def getAutoAbbreviationNames(self):
         query = ("select cd1.name"
                  + " from common_details as cd1, snippet as s1"

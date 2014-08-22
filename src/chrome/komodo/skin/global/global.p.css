@@ -251,15 +251,6 @@
   /* #endif */
 }
 
-.find-copy-icon
-{
-  list-style-image : url("chrome://fugue/skin/icons/clipboard--plus.png");
-}
-.find-copy-icon[locked="true"]
-{
-  list-style-image : url("chrome://fugue/skin/icons/clipboard--plus.png");
-}
-
 /* TODO: disabled versions of these */
 .find-lock-icon
 {
@@ -270,10 +261,6 @@
   list-style-image : url("chrome://fugue/skin/icons/lock.png");
 }
 
-
-.macro-new-icon {
-  list-style-image : url("chrome://famfamfamsilk/skin/icons/control_add_blue.png");
-}
 
 .macro-play-icon {
   list-style-image : url("chrome://komodo/skin/images/macro_play.png");
@@ -421,7 +408,7 @@
 
 .green-undo-icon
 {
-  list-style-image : url("chrome://komodo/skin/images/undo.png");
+  list-style-image : url("chrome://komodo/content/icons/undo.png");
 }
 
 button[type="moreinfo"] > .button-box > .button-icon
@@ -462,12 +449,12 @@ treechildren::-moz-tree-image(remotefile)
 
 .small-stop-sign-icon
 {
-    list-style-image : url("chrome://komodo/skin/images/find_stop.png");
+    list-style-image : url("chrome://komodo/content/icons/stop.png");
 }
 
 .small-cut-icon
 {
-    list-style-image : url("chrome://komodo/skin/images/cut.png");
+    list-style-image : url("chrome://komodo/content/icons/cut.png");
 }
 
 /* Komodo icons */

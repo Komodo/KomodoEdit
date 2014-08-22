@@ -98,7 +98,6 @@ import tempfile
 from glob import glob
 from pprint import pprint
 
-import chromereg
 
 class KoExtError(Exception):
     pass
@@ -446,8 +445,7 @@ class ${safe_lang}Lexer(UDLLexer):
 
 
 def build_ext(base_dir, support_devinstall=True, unjarred=False,
-              ppdefines=None, additional_includes=None, log=None,
-              xpi_path=None):
+              ppdefines=None, additional_includes=None, log=None):
     """Build a Komodo extension from the sources in the given dir.
     
     This reads the "install.rdf" in this directory and the appropriate
@@ -473,7 +471,6 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
     @param additional_includes {list} Optional - a list of paths to include in
         final xpi.
     @param log {logging.Logger} Optional.
-    @param xpi_path {str} Optional. File path for the resulting .xpi file.
     @returns {str} The path to the created .xpi file.
     """
     if log is None: log = _log
@@ -487,8 +484,8 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
         ".DS_Store", "*~", "*.pyo", "*.pyc", "__pycache__"]
 
     # files that do not need to cause <em:unpack>
-    unpack_excludes = ["install.rdf", "chrome.manifest", "bootstrap.js",
-                       "chrome", "content", "skin", "locale"]
+    unpack_excludes = ["install.rdf", "chrome.manifest", "chrome", "content",
+                       "skin", "locale"]
 
     # Dev Note: Parts of the following don't work unless the source
     # dir is the current one. The easiest solution for now is to just
@@ -541,6 +538,7 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
    
         # Handle any PyXPCOM components and idl.
         if isdir("components"):
+            import chromereg
             components_build_dir = join(build_dir, "components")
             _mkdir(components_build_dir, log.info)
             for path in glob(join("components", "*")):
@@ -585,10 +583,7 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
                         _mkdir("lexers", log.info)
                     for lexres_path in glob(join(lexers_build_dir, "*.lexres")):
                         _cp(lexres_path, "lexers", log.info)
-        elif exists("lexers"):
-            # Pre-compiled UDL lexer files.
-            xpi_manifest.append("lexers")
-
+    
         # Remaining hook dirs that are just included verbatim in the XPI.
         for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib",
                       "project-templates", "platform", "defaults", "plugins",
@@ -596,8 +591,15 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
             if isdir(dname):
                 xpi_manifest.append(dname)
     
-        if isfile("bootstrap.js"):
-            xpi_manifest.append("bootstrap.js")
+        # Handle XML catalogs (**for compatibility with Komodo <=4.2.1**)
+        # Komodo version <=4.2.1 only looked for 'catalog.xml' files for
+        # XML autocomplete in the *top-level* of extension dirs. In Komodo
+        # versions >=4.2.2 this has moved to 'xmlcatalogs/catalog.xml'
+        # (although for a transition period Komodo looks in both areas).
+        if isdir("xmlcatalogs"):
+            for path in glob(join("xmlcatalogs", "*")):
+                xpi_manifest.append(path)
+    
 
         # Include any paths specified on the command line.
         if additional_includes:
@@ -643,44 +645,24 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
                 if (out_file): out_file.close()
 
         # insert reference to component manifest if required
-        if isdir(join(xpi_build_dir, "components")):
+        if isdir("components"):
             log.info("Ensuring component manifest is registered")
+            import chromereg
             chromereg.register_file(join(xpi_build_dir, "components", "component.manifest"),
                                     join(xpi_build_dir, "chrome.manifest"),
                                     "components")
 
-        if isfile(join(xpi_build_dir, "xmlcatalogs", "catalog.xml")):
-            chromereg.register_category(join(xpi_build_dir, "chrome.manifest"),
-                                        # "1" is a dummy entry, to avoid warnings
-                                        "xmlcatalogs %s 1" % (ext_info.id))
-
-        if exists(join(xpi_build_dir, "apicatalogs")):
-            chromereg.register_category(join(xpi_build_dir, "chrome.manifest"),
-                                        # "1" is a dummy entry, to avoid warnings
-                                        "apicatalogs %s 1" % (ext_info.id))
-
-        if exists(join(xpi_build_dir, "lexers")):
-            chromereg.register_category(join(xpi_build_dir, "chrome.manifest"),
-                                        # "1" is a dummy entry, to avoid warnings
-                                        "udl-lexers %s 1" % (ext_info.id))
-
-        if exists(join(xpi_build_dir, "tools")):
-            chromereg.register_category(join(xpi_build_dir, "chrome.manifest"),
-                                        # "1" is a dummy entry, to avoid warnings
-                                        "toolbox %s 1" % (ext_info.id))
-
         _trim_files_in_dir(xpi_build_dir, exclude_pats, log.info)
         _run_in_dir('"%s" -X -r %s *' % (zip_exe, ext_info.pkg_name),
                     xpi_build_dir, log.info)
-        if not xpi_path:
-            xpi_path = abspath(join(base_dir, ext_info.pkg_name))
-        _cp(join(xpi_build_dir, ext_info.pkg_name), xpi_path, log.info)
+        _cp(join(xpi_build_dir, ext_info.pkg_name), ext_info.pkg_name, log.info)
     finally:
         if orig_dir:
             log.info("cd %s", orig_dir)
             os.chdir(orig_dir)
             base_dir = orig_base_dir
 
+    xpi_path = join(base_dir, ext_info.pkg_name)
     print "'%s' created." % xpi_path
     return xpi_path
 
@@ -735,8 +717,7 @@ def dev_install(base_dir, force=False, dry_run=False, log=None):
     if not dry_run:
         open(ext_file, 'w').write(dev_dir)
 
-def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None,
-                         unjarred=False, xpi_path=None, distinstall=False):
+def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None, unjarred=False):
     """Install the extension in `base_dir` into a Komodo build.
         
     This command is for building *core* Komodo extensions into a Komodo
@@ -755,8 +736,6 @@ def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None,
     @param unjarred {bool} Whether to leave the chrome directory unjarred.
         Default is False, meaning all chrome files (skin, content, locale)
         are zipped up into a '$ext-name.jar' file.
-    @param xpi_path {str} Optional. File path for the built .xpi file.
-    @param distinstall {bool} Optional. Install into the "distributions" dir.
     """
     if log is None: log = _log
     if not is_ext_dir(base_dir):
@@ -768,17 +747,13 @@ def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None,
     
     # `build_ext` knows how to build the extension. We just call it and
     # use the .xpi it produces.
-    xpi_path = build_ext(base_dir, ppdefines=ppdefines, log=log,
-                         unjarred=unjarred, xpi_path=xpi_path)
+    xpi_path = build_ext(base_dir, ppdefines=ppdefines, log=log, unjarred=unjarred)
     
     # Unzip the .xpi into that dir.
-    destdir = None
-    if distinstall:
-        ko_info = KomodoInfo()
-        destdir = ko_info.distext_base_dir
-    komodo_unpack_xpi(xpi_path, destdir=destdir)
+    komodo_unpack_xpi(xpi_path)
 
-def komodo_unpack_xpi(xpi_path, log=None, destdir=None):
+
+def komodo_unpack_xpi(xpi_path, log=None):
     """Unpack an extension .xpi file into a Komodo build.
     
     This command is for installing *core* Komodo extensions into a Komodo
@@ -787,17 +762,14 @@ def komodo_unpack_xpi(xpi_path, log=None, destdir=None):
     
     @param xpi_path {str} Path to the .xpi file.
     @param log {logging.Logger} Optional.
-    @param destdir {str} Optional. The directory to extract into.
    """
     if log is None: log = _log
     if not isfile(xpi_path):
         raise KoExtError('%s is not a file' % xpi_path)
     ko_info = KomodoInfo()
-    if destdir is None:
-        destdir = ko_info.ext_base_dir
     # We don't know the extension directory name, until we have extracted the
     # xpi. Extract it to a temp dir and move that once we figured out the name.
-    tmp_dir = join(destdir, '__%s' % basename(xpi_path))
+    tmp_dir = join(ko_info.ext_base_dir, '__%s' % basename(xpi_path))
     if exists(tmp_dir):
         _rm(tmp_dir, logstream=log.info)
     _mkdir(tmp_dir, logstream=log.info)
@@ -809,26 +781,13 @@ def komodo_unpack_xpi(xpi_path, log=None, destdir=None):
         _rm(tmp_dir, logstream=log.info)
         log.error(e)
         raise KoExtError("%s xpi_path is not a valid .xpi file" % xpi_path)
-    install_dir = join(destdir, ext_info.id)
+    install_dir = join(ko_info.ext_base_dir, ext_info.id)
     if exists(install_dir):
         _rm(install_dir, logstream=log.info)
     _mv(tmp_dir, install_dir)
     
     print "installed to `%s'" % install_dir
 
-def komodo_distunpack_xpi(xpi_path, log=None):
-    """Unpack an extension .xpi file into a Komodo build.
-    
-    This command is for installing *core* Komodo extensions into a Komodo
-    build. This is *not* a command for installing an extension into a
-    Komodo installation.
-    
-    @param xpi_path {str} Path to the .xpi file.
-    @param log {logging.Logger} Optional.
-    """
-    ko_info = KomodoInfo()
-    destdir = ko_info.distext_base_dir
-    komodo_unpack_xpi(xpi_path, log=log, destdir=destdir)
 
 #---- internal support routines
 
@@ -969,12 +928,7 @@ class KomodoInfo(object):
     def ext_base_dir(self):
         """The 'extensions' base dir in which extensions are installed."""
         return join(self.moz_bin_dir, "extensions")
-
-    @property
-    def distext_base_dir(self):
-        """The 'distribution/bundle' base dir for hidden extensions."""
-        return join(self.moz_bin_dir, "distribution", "bundles")
-
+    
     @property
     def ext_dirs(self):
         """Generate all extension dirs in this Komodo installation

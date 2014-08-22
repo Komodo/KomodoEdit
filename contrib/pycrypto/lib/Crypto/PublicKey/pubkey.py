@@ -24,7 +24,7 @@
 # ===================================================================
 #
 
-__revision__ = "$Id$"
+__revision__ = "$Id: pubkey.py 4769 2010-04-09 17:53:50Z toddw $"
 
 import types, warnings
 from Crypto.Util.number import *

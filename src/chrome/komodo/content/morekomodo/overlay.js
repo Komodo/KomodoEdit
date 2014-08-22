@@ -469,7 +469,12 @@ var moreKomodo = {
 
     // update title and other stuff
     updateView : function(view) {
-        xtk.domutils.fireEvent(view, 'current_view_changed');
+        //ko.uilayout.updateTitlebar(view);
+        MoreKomodoCommon.getObserverService()
+            .notifyObservers(view, 'current_view_changed', '');
+        if (typeof(xtk.domutils.fireEvent) != "undefined") {
+            xtk.domutils.fireEvent(view, 'current_view_changed');
+        }
     }
 
 };

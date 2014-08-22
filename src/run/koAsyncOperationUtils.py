@@ -49,7 +49,6 @@ class koAsyncOperationBase(object):
     def __init__(self, run_function, *args, **kwargs):
         # status can only be one of: running, stopping
         self.status = self.STATUS_RUNNING
-        self.data = None
         self.func = run_function
         self.args = args
         self.kwargs = kwargs

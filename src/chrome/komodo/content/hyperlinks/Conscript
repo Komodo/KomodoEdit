@@ -41,7 +41,6 @@ Import(
     'mozChromeDir',
 );
 
-$cons->InstallInChrome('loader.js');
 $cons->InstallInChrome('hyperlinks.js');
 $cons->InstallInChrome('gotodefinition.js');
 $cons->InstallInChrome('regexhandler.js');

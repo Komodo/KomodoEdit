@@ -51,12 +51,6 @@ from hashlib import md5
 from pprint import pprint, pformat
 
 try:
-    from scandir import walk as os_walk
-except ImportError:
-    logging.getLogger("findlib2").warn("Unable to import scandir - defaulting to os.walk")
-    os_walk = os.walk
-
-try:
     import textinfo
 except ImportError:
     kopylib_dir = join(dirname(dirname(abspath(__file__))),
@@ -1020,30 +1014,19 @@ class Journal(list):
     @classmethod
     def remove_old_journals(cls, journal_dir):
         """By default creating a replacement journal will remove all but
-        the last {NUM_JOURNALS_TO_KEEP} journals.
-        Otherwise space consumption could get huge after long usage.
+        the last 10 journals. Otherwise space consumption could get
+        huge after long usage.
         """
         try:
-            prefix_len = len(join(journal_dir, "journal-"))
-            suffix_len = len(".pickle")
             mtimes_and_journal_ids = [
-                (os.stat(p).st_mtime, p[prefix_len:-suffix_len])
+                (os.stat(p).st_mtime, p[8:-7])
                 for p in glob(join(journal_dir, "journal-*.pickle"))
             ]
             mtimes_and_journal_ids.sort()
             for mtime, id in mtimes_and_journal_ids[:-cls.NUM_JOURNALS_TO_KEEP]:
-                jpath = join(journal_dir, "journal-%s.pickle" % (id,))
-                log.debug("rm old journal %s", jpath)
-                try:
-                    os.remove(jpath)
-                except:
-                    log.error("Can't remove journal %s", jpath)
-                spath = join(journal_dir, "summary-%s.txt" % (id,))
-                log.debug("rm old summary %s", spath)
-                try:
-                    os.remove(spath)
-                except:
-                    log.error("Can't remove remove %s", spath)
+                log.debug("rm old journal `%s'", id)
+                for path in glob(join(journal_dir, "*-%s.*" % id)):
+                    os.remove(path)
         except EnvironmentError, ex:
             log.warn("error removing old journals: %s (ignored)", ex)
 
@@ -1413,7 +1396,7 @@ def _walk(top, topdown=True, onerror=None, follow_symlinks=False):
         yield top, dirs, nondirs
     for name in dirs:
         path = join(top, name)
-        for x in os_walk(path, topdown, onerror, followlinks=follow_symlinks):
+        for x in _walk(path, topdown, onerror, follow_symlinks=follow_symlinks):
             yield x
     if not topdown:
         yield top, dirs, nondirs
@@ -1423,7 +1406,6 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                               recursive=True, includes=[], excludes=[],
                               skip_dupe_dirs=False,
                               follow_symlinks=False,
-                              yield_structure=False,
                               on_error=_NOT_SPECIFIED):
     """paths_from_path_patterns([<path-patterns>, ...]) -> file paths
 
@@ -1454,8 +1436,6 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
         "follow_symlinks" is a boolean indicating whether to follow
             symlinks (default False). Use "skip_dupe_dirs" to guard
             against infinite loops with circular dir symlinks.
-        "yield_structure" whether to yield entries the os.walk way (rather than
-            one path at a time).
         "on_error" is an error callback called when a given path pattern
             matches nothing:
                 on_error(PATH_PATTERN)
@@ -1549,18 +1529,15 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                 if (dirs == "always"
                     or (dirs == "if-not-recursive" and not recursive)
                    ) and _should_include_path(path, includes, excludes):
-                    if not yield_structure:
-                        yield path
+                    yield path
 
                 # However, if recursive, 'includes' should NOT affect
                 # whether a dir is recursed into. Otherwise you could
                 # not:
                 #   script -r --include="*.py" DIR
                 if recursive and _should_include_path(path, [], excludes):
-                    for dirpath, dirnames, filenames in os_walk(path,
-                            followlinks=follow_symlinks):
-                        _filenames = []
-                        _dirnames = []
+                    for dirpath, dirnames, filenames in _walk(path, 
+                            follow_symlinks=follow_symlinks):
                         dir_indeces_to_remove = []
                         for i, dirname in enumerate(dirnames):
                             d = join(dirpath, dirname)
@@ -1575,10 +1552,7 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                                     searched_dirs.add(canon_d)
                             if dirs == "always" \
                                and _should_include_path(d, includes, excludes):
-                                if yield_structure:
-                                    _dirnames.append(dirname)
-                                else:
-                                    yield d
+                                yield d
                             if not _should_include_path(d, [], excludes):
                                 dir_indeces_to_remove.append(i)
                         for i in reversed(dir_indeces_to_remove):
@@ -1587,36 +1561,10 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                             for filename in sorted(filenames):
                                 f = join(dirpath, filename)
                                 if _should_include_path(f, includes, excludes):
-                                    if yield_structure:
-                                        _filenames.append(filename)
-                                    else:
-                                        yield f
-
-                    if yield_structure:
-                        yield dirpath, _dirnames, _filenames
-
-                elif not recursive:
-                    _filenames = []
-                    _dirnames = []
-                    for filename in os.listdir(path):
-                        filepath = os.path.join(path,filename)
-                        if _should_include_path(filepath, includes, excludes):
-                            filetype = "dir" if os.path.isdir(filepath) else "file"
-
-                            if yield_structure:
-                                if filetype is "dir":
-                                    _dirnames.append(filename)
-                                else:
-                                    _filenames.append(filename)
-                            else:
-                                yield filepath
-
-                    if yield_structure:
-                        yield path, _dirnames, _filenames
+                                    yield f
 
             elif files and _should_include_path(path, includes, excludes):
-                if not yield_structure:
-                    yield path
+                yield path
 
 
 

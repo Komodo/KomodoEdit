@@ -101,24 +101,7 @@
 
         <property name="scintilla" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'scintilla');"/>
 
-        <!-- Whether the buffer/editor sends DOM events. -->
-        <field name="_dispatch_events">false</field>
-
-        <field name="__prefs">null</field>
-
-        <property name="prefs">
-             <getter><![CDATA[
-                // Buffers don't have their own file prefs - so they use global
-                // prefs.
-                if (!this.__prefs)
-                    this.__prefs = Components.classes["@activestate.com/koPrefService;1"].
-                                    getService(Components.interfaces.koIPrefService).prefs;
-                return this.__prefs;
-            ]]></getter>
-        </property>
-
         <field name="__docSvc">null</field>
-
         <property name="docSvc">
         <getter><![CDATA[
             if (!this.__docSvc)
@@ -438,49 +421,7 @@
             ]]>
             </body>
         </method>
-
-        <!--
-        Center the editor caret.
-          "align" param can be one of "top", "onethird", "middle" (the default),
-                 "twothirds" or "bottom"
-        -->
-        <method name="verticallyAlignCaret">
-            <parameter name="align"/>
-            <body>
-            <![CDATA[
-            var scimoz = this.scimoz;
-            var currentline = scimoz.visibleFromDocLine(scimoz.lineFromPosition(scimoz.currentPos));
-            var newfvl;
-            switch (align) {
-                case "top":
-                    // Position the caret line at the top of the screen.
-                    newfvl = currentline - this.prefs.getLong("ySlop", 5);
-                    break;
-                case "bottom":
-                    // Position the caret line at the bottom of the screen.
-                    newfvl = currentline + this.prefs.getLong("ySlop", 5) - (scimoz.linesOnScreen - 1);
-                    break;
-                case "onethird":
-                case "onethirds":
-                    // Position the caret line at the top 1/3 of the screen.
-                    newfvl = currentline - parseInt(scimoz.linesOnScreen / 3);
-                    break;
-                case "twothird":
-                case "twothirds":
-                    // Position the caret line at the bottom 1/3 of the screen.
-                    newfvl = currentline - parseInt((2 * scimoz.linesOnScreen) / 3);
-                    break;
-                case "middle":
-                default:
-                    // Position the caret line in the middle of the screen.
-                    newfvl = currentline - parseInt(scimoz.linesOnScreen / 2);
-                    break;
-            }
-            scimoz.firstVisibleLine = newfvl;
-            ]]>
-            </body>
-        </method>
-
+        
         <!-- Note: this guy is the *non-CodeIntel-based* completion service.
              I.e., languages using CodeIntel for AutoComplete/CallTips do
              no use these. -->
@@ -552,10 +493,11 @@
             onset="this.scintilla.alternateFaceType= val"
             onget="return this.scintilla.alternateFaceType;"/>
         <method name="setFoldStyle">
+            <parameter name="whichMargin"/>
             <parameter name="foldstyle"/>
             <body>
                 <![CDATA[
-                    this.scintilla.setFoldStyle(foldstyle);
+                    this.scintilla.setFoldStyle(whichMargin, foldstyle);
                 ]]>
             </body>
         </method>
@@ -896,16 +838,6 @@
             // it doesn't receive regular mousemove events - bug 97756.
             [x,y] = this._last_mousemove_xy;
 /* #endif */
-
-            // Send event.
-            if (this._dispatch_events) {
-                var data = { view: this, position: position, x: x, y: y };
-                if (!this.dispatchEvent(new CustomEvent("editor_dwell_start", { detail: data, bubbles: true, cancelable: true }))) {
-                    // Handled already.
-                    return true;
-                }
-            }
-
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined') {
                 gEditorTooltipHandler.show(this, x, y, -1 /* no timeout */);
             }
@@ -922,15 +854,6 @@
             <parameter name="x"/>
             <parameter name="y"/>
         <body><![CDATA[
-            // Send event.
-            if (this._dispatch_events) {
-                var data = { view: this, position: position, x: x, y: y };
-                if (!this.dispatchEvent(new CustomEvent("editor_dwell_end", { detail: data, bubbles: true, cancelable: true }))) {
-                    // Handled already.
-                    return true;
-                }
-            }
-
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined')
                 gEditorTooltipHandler.hide();
             return true;
@@ -1055,7 +978,6 @@
             // other update-events, they will be run at a later time.
             var callbacks = this._updateUICallbacks;
             if (callbacks.length) {
-                var log = this.log;
                 this._updateUICallbacks = [];
                 callbacks.forEach(function(cb) {
                     try {
@@ -1084,17 +1006,13 @@
                     "line": currentLineNo,
                     "column": columnNo
                 }
-                if (this._dispatch_events && this == ko.views.manager.currentView) {
-                    this.dispatchEvent(new CustomEvent('current_view_linecol_changed', { bubbles: true, detail: data }));
-                }
+                xtk.domutils.fireDataEvent(this, 'current_view_linecol_changed', data);
 
             } else {
                 if (this._lastPosLineAndCol[3] != newPosLineAndCol[3]) {
                     this._lastPosLineAndCol = newPosLineAndCol;
                     if (this.lintBuffer) {
-                        if (this._dispatch_events && this == ko.views.manager.currentView) {
-                            this.dispatchEvent(new CustomEvent('current_view_scroll_changed', { bubbles: true }));
-                        }
+                        xtk.domutils.fireDataEvent(this, 'current_view_scroll_changed', data);
                     }
                 }
                 if (!this.textChangeUndoPending && !this.lastCharAdded) {
@@ -1286,7 +1204,7 @@
         }
 
         // Dispatch a custom text_modified event to the window.
-        if (this._dispatch_events && modificationType & this.MOD_TEXT_MODIFIED) {
+        if (modificationType & this.MOD_TEXT_MODIFIED) {
             var event = document.createEvent("Events");
             event.initEvent("editor_text_modified", true, true);
             event.data = {
@@ -1372,9 +1290,7 @@
         ]]>
         </body>
         </method>
-
-        <field name="codeintel_scan_timeout">-1</field>
-
+        
         <method name="_onModifiedHandler">
         <parameter name="position"/>
         <parameter name="modificationType"/>
@@ -1424,16 +1340,7 @@
                     && this._isCICplnEnabledViewPref
                     && this._isCIRescanningEnabled)
                 {
-                    // Get codeintel to re-scan the document - but delay the
-                    // scan for repeated typing - bug 101502.
-                    if (linesAdded) {
-                        ko.codeintel.scan_document(koDoc, linesAdded, true /* forcedScan */);
-                    } else {
-                        clearTimeout(this.codeintel_scan_timeout);
-                        this.codeintel_scan_timeout = setTimeout(function() {
-                            ko.codeintel.scan_document(koDoc, linesAdded, true /* forcedScan */);
-                        }, 500);
-                    }
+                    ko.codeintel.scan_document(koDoc, linesAdded, true /* forcedScan */);
                 }
 
                 if ((modificationType & SC_MOD_DELETETEXT)
@@ -1512,7 +1419,6 @@
 
         <field name="_matchedTagUnhighlighter">0</field>
         <field name="_mouseButton">-1</field>
-
         <method name="onMarginClick">
         <parameter name="modifiers"/>
         <parameter name="position"/>
@@ -1522,15 +1428,7 @@
             var s = this.scimoz;
             var lineClicked = s.lineFromPosition(position);
 
-            // Send event.
-            var data = { view: this, margin: margin, position: position, modifiers: modifiers, line: lineClicked };
-            if (this._dispatch_events &&
-                !this.dispatchEvent(new CustomEvent("editor_margin_clicked", { detail: data, bubbles: true, cancelable: true }))) {
-                // Handled already.
-                return;
-            }
-
-            if (margin == s.MARGIN_FOLDING) {
+            if (margin == 1) {
                 // this block formerly from editorWrapper.onMarginClick
                 // If the language doesnt support folding, we can't get
                 // a click on the margin!
@@ -1550,7 +1448,7 @@
                     s.toggleFold(lineClicked);
                 }
             }
-            else if (margin == s.MARGIN_SYMBOLS && this._mouseButton == 1) {
+            else if (margin == 2 && this._mouseButton == 1) {
                 // toggle bookmark
                 var markerState = this.scintilla.scimoz.markerGet(lineClicked);
                 if (markerState & (1 << ko.markers.MARKNUM_BOOKMARK)) {
@@ -1576,7 +1474,9 @@
         <parameter name="position"/>
         <body>
         <![CDATA[
-            this.scimoz.updateMarginWidths();
+            if (this.scimoz.getMarginWidthN(0)) {
+                this.scimoz.setMarginWidthN(0, this.scimoz.textWidth(0, String(this.scimoz.lineCount))+12);
+            }
             return true;
         ]]>
         </body>
@@ -1595,16 +1495,13 @@
             //                        "\n  modifiers: " + modifiers + "\n");
             const ISciMozEvents = Components.interfaces.ISciMozEvents;
             switch(eventType) {
-                case ISciMozEvents.SME_AUTOCSELECTION:
                 case ISciMozEvents.SME_USERLISTSELECTION:
-                    if (this._dispatch_events) {
-                        var data = {
-                            'position': position,
-                            'text': text,
-                            'listType': modifiers,
-                        }
-                        this.dispatchEvent(new CustomEvent("codeintel_userlist_selected", { bubbles: true, detail: data }));
+                    var data = {
+                        'position': position,
+                        'text': text,
+                        'listType': modifiers,
                     }
+                    xtk.domutils.fireDataEvent(this, "codeintel_userlist_selected", data);
                     break;
                 case ISciMozEvents.SME_URIDROPPED:
                     if (typeof ko !== "undefined" && "dragdrop" in ko) {
@@ -1623,32 +1520,6 @@
         <![CDATA[
             //dump("onCommandUpdate\n  commandset: " + commandset + "\n");
             window.updateCommands(commandset);
-        ]]>
-        </body>
-        </method>
-
-        <method name="getMarginForCoord">
-        <parameter name="x"/>
-        <parameter name="y"/>
-        <body><![CDATA[
-            // Return the margin number for these x,y coordinates, or -1 when
-            // outside the margin.
-            if (x <= 0) {
-                return -1;
-            }
-            var totalWidth = 0,
-                marginWidth = 0;
-            var scimoz = this.scimoz;
-            for (var i=0; i <= scimoz.SC_MAX_MARGIN; i++) {
-                marginWidth = scimoz.getMarginWidthN(i);
-                if (marginWidth) {
-                    totalWidth += marginWidth;
-                    if (x < totalWidth) {
-                        return i;
-                    }
-                }
-            }
-            return -1;
         ]]>
         </body>
         </method>
@@ -2027,7 +1898,7 @@
         <property name="foldstyle">
             <setter><![CDATA[
                 this._foldstyle = val;
-                this.scintilla.setFoldStyle(val);
+                this.scintilla.setFoldStyle(1, val);
             ]]></setter>
             <getter><![CDATA[
                 return this._foldstyle;

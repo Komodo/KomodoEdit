@@ -37,9 +37,11 @@
 
 """Base classes for languages and language services"""
 
-import copy, re, types, eollib
+import cgi, copy, re, types, os, uriparse, eollib
 import Queue
+import threading
 import logging
+import pprint
 
 import scimozindent
 from xpcom import components
@@ -126,15 +128,9 @@ class KoLexerLanguageService:
             scimoz.setProperty(prop, self._properties[prop])
 
 #---- base commenting language service classes
-
-##
-# @deprecated since Komodo 9.0
-#
 def getActualStyle(scimoz, pos):
-    import warnings
-    warnings.warn("getActualStyle is deprecated, use scimoz.getStyleAt(pos) instead",
-                  category=DeprecationWarning)
-    return scimoz.getStyleAt(pos)
+    styleMask = (1 << scimoz.styleBits) - 1
+    return scimoz.getStyleAt(pos) & styleMask
 
 class KoCommenterLanguageService:
     _com_interfaces_ = [components.interfaces.koICommenterLanguageService]
@@ -196,16 +192,12 @@ class KoCommenterLanguageService:
                 if suffix:
                     scimoz.targetStart = endPos
                     scimoz.targetEnd = endPos
-                    # Bug 101506 - 'len' only a problem if suffix contains
-                    # high-bit characters, unlikely for a comment delimiter.
-                    scimoz.replaceTarget(suffix)
+                    scimoz.replaceTarget(len(suffix), suffix)
                     finalSelEnd += len(suffix)
                 if prefix:
                     scimoz.targetStart = startPos
                     scimoz.targetEnd = startPos
-                    # Bug 101506 - 'len' only a problem if prefix contains
-                    # high-bit characters, unlikely for a comment delimiter.
-                    scimoz.replaceTarget(prefix)
+                    scimoz.replaceTarget(len(prefix), prefix)
                     finalSelEnd += len(prefix)
         finally:
             scimoz.endUndoAction()
@@ -283,7 +275,6 @@ class KoCommenterLanguageService:
             except IndexError:
                 originalLines.append( (lines[i], '') )
         if self.DEBUG:
-            import pprint
             print "original text (as lines for easier processing):"
             pprint.pprint(originalLines)
 
@@ -340,7 +331,7 @@ class KoCommenterLanguageService:
                 print "replacement length: naive=%r encoding-aware=%r"\
                       % (len(replacement),
                          self._sysUtilsSvc.byteLength(replacement))
-            scimoz.replaceTarget(replacement)
+            scimoz.replaceTarget(len(replacement), replacement)
 
             # restore the selection and cursor position
             if scimoz.selectionMode == scimoz.SC_SEL_LINES:
@@ -394,7 +385,7 @@ class KoCommenterLanguageService:
             # apply the commenting change
             scimoz.targetStart = startIndex
             scimoz.targetEnd = endIndex
-            scimoz.replaceTarget(replacement)
+            scimoz.replaceTarget(len(replacement), replacement)
 
             # restore the selection and cursor position
             scimoz.selectionStart = selStart + len(prefix)
@@ -525,7 +516,7 @@ class KoCommenterLanguageService:
             # apply the commenting change
             scimoz.targetStart = startIndex
             scimoz.targetEnd = workingEndIndex
-            scimoz.replaceTarget(replacement)
+            scimoz.replaceTarget(len(replacement), replacement)
             delta = len(replacement) - (workingEndIndex - startIndex)
 
             # restore the selection and cursor position
@@ -990,7 +981,9 @@ class KoLanguageBase:
     _commenter = None
     _codeintelcompleter = None
     _interpreter = None
-
+    styleBits = 5
+    stylingBitsMask = None # set by setter below
+    indicatorBits = 2
     sample = '' # used in the fonts & colors dialog
     downloadURL = '' # location to download the language
     searchURL = '' # used by the language help system
@@ -1070,33 +1063,14 @@ class KoLanguageBase:
     
     isHTMLLanguage = False
 
-    ##
-    # Deprecated scimoz mask helpers.
-    # @deprecated since Komodo 9.0
-    @property
-    def styleBits(self):
-        import warnings
-        warnings.warn("koILanguage.styleBits are deprecated - no longer needed",
-                      category=DeprecationWarning)
-        return 32
-    @property
-    def stylingBitsMask(self):
-        import warnings
-        warnings.warn("koILanguage.stylingBitsMask are deprecated - no longer needed",
-                      category=DeprecationWarning)
-        return (1 << self.styleBits) - 1
-    @property
-    def indicatorBits(self):
-        import warnings
-        warnings.warn("koILanguage.indicatorBits are deprecated - no longer needed",
-                      category=DeprecationWarning)
-        return 2
-
-
     def __init__(self):
         if not KoLanguageBase.prefset:
             KoLanguageBase.prefset = components.classes["@activestate.com/koPrefService;1"]\
                         .getService(components.interfaces.koIPrefService).prefs
+        self.stylingBitsMask = 0    
+        for bit in range(self.styleBits):
+            self.stylingBitsMask <<= 1
+            self.stylingBitsMask |= 1
     
         # we define stateMaps for some languages in the styles module,
         # others we define in the language module itself
@@ -1148,7 +1122,9 @@ class KoLanguageBase:
                                   '"': ('"', self.softchar_accept_matching_double_quote),
                                   "'": ("'", self.softchar_accept_matching_single_quote),
                                   }
-
+        obsSvc = components.classes["@mozilla.org/observer-service;1"].\
+                       getService(components.interfaces.nsIObserverService)
+        obsSvc.addObserver(self, 'xpcom-shutdown', False)
         prefObserver = self.prefset.prefObserverService
         prefObserver.addObserver(self, 'indentStringsAfterParens', True)
         prefObserver.addObserver(self, 'editSmartSoftCharacters', True)
@@ -1159,15 +1135,6 @@ class KoLanguageBase:
         self._dedentOnColon = self.prefset.getBooleanPref("dedentOnColon")
         self._codeintelAutoInsertEndTag = self.prefset.getBooleanPref("codeintelAutoInsertEndTag")
         self._fastCharData = None
-
-        # nsIObserverService must be called on the main thread - bug 96530.
-        @components.ProxyToMainThread
-        def ProxyAddObserver(obj):
-            obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                           getService(components.interfaces.nsIObserverService)
-            obsSvc.addObserver(obj, 'xpcom-shutdown', False)
-        ProxyAddObserver(self)
-
 
     def observe(self, subject, topic, data):
         if topic == 'xpcom-shutdown':
@@ -1212,13 +1179,8 @@ class KoLanguageBase:
     def isUDL(self):
         return False
  
-    ##
-    # @deprecated since Komodo 9.0
-    #
     def actual_style(self, orig_style):
-        import warnings
-        warnings.warn("actual_style is deprecated, use scimoz.getStyleAt(pos) instead",
-                      category=DeprecationWarning)
+        # TODO: remove use of this function and self.stylingBitsMask
         return orig_style
 
     def getLanguageService(self, iid):
@@ -1274,6 +1236,7 @@ class KoLanguageBase:
         return self._getBraceIndentStyle(ch, style, self._style_info)
     
     def _getBraceIndentStyle(self, ch, style, style_info):
+        style = style & self.stylingBitsMask
         if ch in self._indent_chars and style in style_info._indent_styles:
             return components.interfaces.koILanguage.INDENT_BRACE
         
@@ -1292,6 +1255,7 @@ class KoLanguageBase:
 
     def _guessIndentation(self, scimoz, tabWidth, defaultUsesTabs, style_info):
         indent, usesTabs = _findIndent(scimoz,
+                                       self.stylingBitsMask,
                                        self._indent_open_chars,
                                        style_info._indent_open_styles,
                                        style_info._comment_styles,
@@ -1414,7 +1378,7 @@ class KoLanguageBase:
         data = scimoz.getStyledText(lineStart, pos+1)
         for p in range(pos-1, lineStart-1, -1):
             char = data[(p-lineStart)*2]
-            style = ord(data[(p-lineStart)*2+1])
+            style = ord(data[(p-lineStart)*2+1]) & self.stylingBitsMask
             #indentlog.debug("char = %s, style = %d", char, style)
             #indentlog.debug("indent_open_chars = %r, indent_open_styles = %r", self._indent_open_chars, style_info._indent_open_styles)
             if style in style_info._comment_styles:
@@ -1449,7 +1413,7 @@ class KoLanguageBase:
             p = p - 1
             char = data[(p-startPos)*2]
             indentlog.info("looking at char %r at position %d", char, p)
-            style = ord(data[(p-startPos)*2+1])
+            style = ord(data[(p-startPos)*2+1]) & self.stylingBitsMask
             if char in self._lineup_close_chars and style in style_info._lineup_close_styles:
                 # skip to the match
                 braceMatch = scimoz.braceMatch(p)
@@ -1457,7 +1421,7 @@ class KoLanguageBase:
                     break
                 p = braceMatch
                 char = data[(p-startPos)*2]
-                style = ord(data[(p-startPos)*2+1])
+                style = ord(data[(p-startPos)*2+1]) & self.stylingBitsMask
                 lineNo = scimoz.lineFromPosition(p)
                 minIndent = self._getIndentWidthForLine(scimoz, lineNo)
                 continue # keep looking
@@ -1476,7 +1440,7 @@ class KoLanguageBase:
                         ch2 = data[(p2-startPos)*2]
                         if ch2 in '  \t':
                             continue
-                        style = ord(data[(p2-startPos)*2+1])
+                        style = ord(data[(p2-startPos)*2+1]) & self.stylingBitsMask
                         if style in style_info._comment_styles:
                             continue
                         indentlog.info("we're here -- this is the column that we should use for indenting")
@@ -1513,7 +1477,7 @@ class KoLanguageBase:
         while p > startOfLine:
             p = p - 1
             char = data[(p-startOfLine)*2]
-            style = ord(data[(p-startOfLine)*2+1])
+            style = ord(data[(p-startOfLine)*2+1]) & self.stylingBitsMask
             # if we encounter an _opening_ brace, then we should stop.
             if char in self._lineup_open_chars and \
                style in style_info._lineup_close_styles:
@@ -1557,7 +1521,7 @@ class KoLanguageBase:
         while p > startPos:
             p = p - 1
             char = data[(p-startPos)*2]
-            style = ord(data[(p-startPos)*2+1])
+            style = ord(data[(p-startPos)*2+1]) & self.stylingBitsMask
             #indentlog.debug("in _statementStartingLineFromPos: char = %s, style = %d", char, style)
             lineNo = scimoz.lineFromPosition(p)
             indentlog.debug("\np = %d (%r) - going until %d" % (p, char, startPos))
@@ -1909,7 +1873,7 @@ class KoLanguageBase:
 
         # if we're in a string or comment, don't bother
         firstCharIndex = lineStart + len(curLine)-len(curLine.lstrip())
-        firstCharStyle = scimoz.getStyleAt(firstCharIndex)
+        firstCharStyle = scimoz.getStyleAt(firstCharIndex) & self.stylingBitsMask
         if firstCharStyle in style_info._comment_styles or firstCharStyle in style_info._string_styles:
             return None
 
@@ -1963,7 +1927,7 @@ class KoLanguageBase:
             # move back until we hit a non-whitespace character.
             char = data[(p-startOfLine)*2]
             if char in ' \t': continue
-            style = ord(data[(p-startOfLine)*2+1])
+            style = ord(data[(p-startOfLine)*2+1]) & self.stylingBitsMask
             if style not in style_info._block_comment_styles:
                 # we hit a non-comment character -- it can't be the
                 # end of a block comment
@@ -2032,8 +1996,8 @@ class KoLanguageBase:
     def _findCommentStart(self, scimoz, curLine, lineStartPos, lineEndPos, commentStartMarkerList, style_info):
         commentStyles = style_info._comment_styles
         for pos in range(lineStartPos, lineEndPos):
-            if scimoz.getStyleAt(pos) in commentStyles and \
-               (pos == 0 or scimoz.getStyleAt(pos-1) not in commentStyles):
+            if getActualStyle(scimoz, pos) in commentStyles and \
+               (pos == 0 or getActualStyle(scimoz, pos - 1) not in commentStyles):
                 # Bug 98467 note
                 # Don't continue if scimoz.getCharAt(pos - 1) == 10
                 # because block comments look like this.
@@ -2097,7 +2061,7 @@ class KoLanguageBase:
         if pos == 0:
             return None, None
 
-        style = scimoz.getStyleAt(pos-1)
+        style = scimoz.getStyleAt(pos-1) & self.stylingBitsMask
         if style not in style_info._comment_styles:
             return None, None
         
@@ -2153,12 +2117,13 @@ class KoLanguageBase:
                         commentStart = curLine.find(commentStartMarker)
                 else:
                     doclen = scimoz.length
-                    if pos < doclen and scimoz.getStyleAt(pos) not in style_info._comment_styles:
+                    if pos < doclen and (scimoz.getStyleAt(pos) & self.stylingBitsMask) not in style_info._comment_styles:
                         # Observed with CSS but not C/C++
                         # If the newline after the comment is not a comment,
                         # assume the comment has ended.
                         # This is because only CSS and Pascal define
                         # block comments but not any others.
+                        style = getActualStyle(scimoz, pos)
                         return None, None
                     elif pos == doclen:
                         # We're at the end of the doc, so look to see
@@ -2173,8 +2138,7 @@ class KoLanguageBase:
                     else:
                         # We're at the end of the file, and probably the newline
                         # character hasn't been processed yet.
-                        pass
-                        # style = scimoz.getStyleAt(pos)
+                        style = getActualStyle(scimoz, pos)
                         # indentlog.debug("staying, no line style: pos=%d, len=%d, curr style=%d, char %d", pos, doclen, style, ord(str(scimoz.getWCharAt(pos))))
             else:
                 indent = self._blockCommentOnSingleLineIndent(commentStartMarker, curLine, commentStart)
@@ -2296,7 +2260,7 @@ class KoLanguageBase:
                     return retVal
             if self.supportsSmartIndent == 'XML':
                 retVal = self._getSmartXMLIndent(scimoz, continueComments, style_info)
-                if retVal is not None:
+                if retVal:
                     return retVal
             # If we're at column 0, return the previous line's indentation.
             # But only do this if the current line is empty, and has a
@@ -2439,15 +2403,14 @@ class KoLanguageBase:
         if style == scimoz.SCE_UDL_M_TAGNAME:
             return "START_TAG_NAME"
         if (style == scimoz.SCE_UDL_M_STRING and char in ('"', "'") 
-            and scimoz.getStyleAt(pos + 1) in (scimoz.SCE_UDL_M_TAGSPACE,
-                                               scimoz.SCE_UDL_M_DEFAULT)):
+            and (scimoz.getStyleAt(pos + 1) & self.stylingBitsMask) == scimoz.SCE_UDL_M_TAGSPACE):
             # Verify there's a start-tag on this line
             curLineNo = scimoz.lineFromPosition(pos)
             lineStart = scimoz.positionFromLine(curLineNo)
             data = scimoz.getStyledText(lineStart, pos)
             idx = len(data) - 1
             while idx > 0:
-                if ord(data[idx]) == scimoz.SCE_UDL_M_TAGNAME:
+                if (ord(data[idx]) & self.stylingBitsMask) == scimoz.SCE_UDL_M_TAGNAME:
                     return "START_TAG_NAME"
                 idx -= 2;
             indentlog.debug("found no start-tag, returning empty-string")
@@ -2476,8 +2439,7 @@ class KoLanguageBase:
         if lastSlashIndex == lastLeftBraceIndex + 1:
             return 'END_TAG_CLOSE'
         text = text.rstrip()
-        if not text:
-            return ''
+        if not text: return ''
         # Handle xml-based multi-sublanguage languages that don't
         # have a UDL definition, and end in strings like '%>'
         # Ref bug 57417
@@ -2487,32 +2449,26 @@ class KoLanguageBase:
         # we're likely in the text part of a <p> node for example
         return ''
     
-    _precededByText_non_white_re = re.compile(r'[^ \t]')
-    def _precededByText(self, scimoz, startPos, endPos,
-                        beforeText, beforeStyles):
-        assert beforeText[endPos] == "<"
-        # If there's a non-whitespace character before the start of line
-        # (startPos) and the start of the tag (endPos), return True.
-        # XXX This really needs continual moving up until we determine
-        # that we're at the top-level, in pure data markup (no mixed
-        # tags), or in mixed content.
-        return (self._precededByText_non_white_re.search(beforeText[startPos:endPos])
-                or any([style != scimoz.SCE_UDL_M_DEFAULT
-                        for style in beforeStyles[startPos:endPos]]))
+    def _precededByText(self, scimoz, currentPos):
+        assert scimoz.getWCharAt(currentPos) == "<"
+        currentLine = scimoz.lineFromPosition(currentPos)
+        lineStartPos = scimoz.positionFromLine(currentLine)
+        for pos in range(currentPos - 1, lineStartPos - 1, -1):
+            style = scimoz.getStyleAt(pos) & self.stylingBitsMask
+            if style != scimoz.SCE_UDL_M_DEFAULT:
+                # This tag is immediately followed by markup, so do traditional
+                # indentation.
+                # XXX This really needs continual moving up until we determine
+                # that we're at the top-level, in pure data markup (no mixed
+                # tags), or in mixed content.
+                return False
+            char = scimoz.getWCharAt(pos)
+            if not char.isspace():
+                # Found at least one non-whitespace text
+                # character on this line preceding the start of the tag.
+                return True
+        return False
 
-    def _getTagStartLineStartPos_Buf(self, scimoz, tagStartPos_Buf,
-                                     startOfLine_Buf, startPos_Doc):
-        # Return the start of the line in Buffer coordinates
-        # If the start tag starts before the current line does,
-        # return the position of the start tag's line-start, in
-        # buffer coordinates.
-        if tagStartPos_Buf >= startOfLine_Buf:
-            return startOfLine_Buf
-        # the start of the tag moved to an earlier line, so find its
-        # buffer-coordinate point
-        prevLineNum = scimoz.lineFromPosition(tagStartPos_Buf + startPos_Doc)
-        return scimoz.positionFromLine(prevLineNum) - startPos_Doc
-    
     def _getSmartXMLIndent(self, scimoz, continueComments, style_info):
         """Smartest XML indentation we can figure.
         
@@ -2551,117 +2507,56 @@ class KoLanguageBase:
           
         * in all other cases, align w/ current line
         """
-        import HTMLTreeParser
-        currentPos = scimoz.currentPos
-        currentLine = scimoz.lineFromPosition(currentPos)
-        """ Note use of Doc/Buf coordinates.  *_Doc variables refer to coordinates
-            in the scimoz space.  *_Buf variables refer to coordinates in the
-            beforeText and beforeStyles buffers.
-            
-            (1) X_Doc  = X_Buf + startPos_Doc
-            
-            Both types of coordinates are in terms of bytes (utf-8)
-        """
-        startOfLine_Doc = scimoz.positionFromLine(currentLine)
-        stuffToLeft = scimoz.getTextRange(startOfLine_Doc, currentPos)
+        currentLine = scimoz.lineFromPosition(scimoz.currentPos)
+        startOfLine = scimoz.positionFromLine(currentLine)
+        stuffToLeft = scimoz.getTextRange(startOfLine, scimoz.currentPos)
         if not stuffToLeft.strip():
-            return scimozindent.makeIndentFromWidth(scimoz, scimoz.getColumn(currentPos))
-        index_Doc = currentPos - 1
-        # Bug 100371: Try to process a reasonable amount of text
-        # Try to look at the last 100 lines, assume avg of 60 chars/line: 6000
-        #TODO: Prefize these values.  A non-positive value means ignore 
-        limNumLines = 100
-        limNumChars = 6000
-        # Point startPos_Doc to the point in the doc that marks the start
-        # of the buffer we work with.
-        if index_Doc <= limNumChars:
-            startPos_Doc = 0
-        else:
-            if currentLine > limNumLines:
-                startPos_Doc = scimoz.positionFromLine(currentLine - limNumLines)
-            else:
-                startPos_Doc = 0
-            if startPos_Doc < index_Doc - limNumChars:
-                # Long lines: just process the last <limNumChars> characters
-                # But always start at the beginning of a line.
-                startPos_Doc = scimoz.positionFromLine(scimoz.lineFromPosition(index_Doc - limNumChars))
-            
-        beforeText = scimoz.getTextRange(startPos_Doc, currentPos).encode('utf-8')
-        beforeStyles = scimoz.getStyleRange(startPos_Doc, currentPos)
-        tagStartPos_Buf = -1
-        startOfLine_Buf = startOfLine_Doc - startPos_Doc
-        index_Buf = index_Doc - startPos_Doc
-        
-        while index_Buf > 0:
-            char = beforeText[index_Buf]
-            style = beforeStyles[index_Buf] # scimoz.getStyleAt(index_Doc)
-            state = self._findXMLState(scimoz, index_Doc, char, style)
+            return scimozindent.makeIndentFromWidth(scimoz, scimoz.getColumn(scimoz.currentPos))
+        index = scimoz.currentPos - 1
+        styledText = scimoz.getStyledText(0, scimoz.currentPos)
+        # Since we're doing Python searches in the text, we need to work with
+        # the raw utf-8 bytes.
+        beforeText = styledText[0::2]
+        beforeStyles = [ord(c) for c in styledText[1::2]]
+        tagStartPos = -1
+        while index > 0:
+            char = beforeText[index]
+            style = beforeStyles[index] # scimoz.getStyleAt(index)
+            state = self._findXMLState(scimoz, index, char, style)
+            indentlog.debug("char = %r", char)
+            indentlog.debug("style = %r", style)
+            indentlog.debug("state = %r", state)
             if state == 'START_TAG_CLOSE':
-                tagStartPos_Buf = beforeText.rfind('<', 0, index_Buf)
-                standard_type = False
-                # If we have an empty tag, set standard_type to True, and continue
-                # to the end of block processing.
-                if tagStartPos_Buf >= 0:
-                    m = re.compile(r'([\w\-]+)').search(beforeText, tagStartPos_Buf)
-                    if m:
-                        if ((self.name.startswith("HTML")
-                             and m.group(1) in HTMLTreeParser.html_no_close_tags)
-                            or (self.name == "HTML5"
-                                and m.group(1) in HTMLTreeParser.html5_no_close_tags)):
-                            # Retry, treating it like a "<.../>" tag.
-                            state = "START_TAG_EMPTY_CLOSE"
-                            standard_type = True
-                if not standard_type:
-                    if tagStartPos_Buf < startOfLine_Buf:
-                        if tagStartPos_Buf == -1:
-                            # We failed to find it in the subset, so replace the buffers with the full thing,
-                            # and retry
-                            index_Doc = index_Buf + startPos_Doc + 1
-                            startPos_Doc = 0
-                            styledText = scimoz.getStyledText(startPos_Doc, index_Doc)
-                            beforeText = styledText[0::2]
-                            beforeStyles = [ord(c) for c in styledText[1::2]]
-                            startOfLine_Buf = startOfLine_Doc
-                            index_Buf = index_Doc - 1
-                            continue
-                            
-                        # Update the "currentLine" arguments
-                        currentLine = scimoz.lineFromPosition(tagStartPos_Buf + startPos_Doc)
-                        startOfLine_Doc = scimoz.positionFromLine(currentLine)
-                        startOfLine_Buf = startOfLine_Doc - startPos_Doc
-                    if self._precededByText(scimoz, startOfLine_Buf,
-                                            tagStartPos_Buf,
-                                            beforeText, beforeStyles):
-                        return self._getIndentForLine(scimoz, currentLine)
-                    # convert from character offset to byte position --
-                    # that's what getColumn wants.
-                    tagStartPos_Doc = tagStartPos_Buf + startPos_Doc
-                    currentIndentWidth = scimoz.getColumn(tagStartPos_Doc)
-                    nextIndentWidth = (divmod(currentIndentWidth, scimoz.indent)[0] + 1) * scimoz.indent
-                    indentlog.debug("currentIndentWidth = %r", currentIndentWidth)
-                    indentlog.debug("nextIndentWidth= %r", nextIndentWidth)
-                    return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
+                tagStartPos = beforeText.rfind('<')
+                if self._precededByText(scimoz, tagStartPos):
+                    return self._getIndentForLine(scimoz, currentLine)
+                textBeforeTag = beforeText[startOfLine:tagStartPos]
+                if textBeforeTag.strip():
+                    # There's markup to the left of this tag -- analyze it
+                    #XXX Keep moving back if there are other tags, and calculate
+                    # a net indentation
+                    return self._getIndentForLine(scimoz, currentLine)
+                startLine = scimoz.lineFromPosition(tagStartPos)
+                # convert from character offset to byte position --
+                # that's what getColumn wants.
+                currentIndentWidth = scimoz.getColumn(tagStartPos)
+                nextIndentWidth = (divmod(currentIndentWidth, scimoz.indent)[0] + 1) * scimoz.indent
+                indentlog.debug("currentIndentWidth = %r", currentIndentWidth)
+                indentlog.debug("nextIndentWidth= %r", nextIndentWidth)
+                return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
             elif state == "END_TAG_CLOSE":
                 # find out what tag we just closed
-                leftCloseIndex_Buf = beforeText.rfind('</', 0, index_Buf)
-                if leftCloseIndex_Buf == -1:
+                leftCloseIndex = beforeText.rfind('</')
+                if leftCloseIndex == -1:
                     break
-                startTagInfo = scimozindent.startTagInfo_from_endTagPos(scimoz, leftCloseIndex_Buf + startPos_Doc)
+                startTagInfo = scimozindent.startTagInfo_from_endTagPos(scimoz, leftCloseIndex)
                 if startTagInfo is None:
-                    tagStartPos_Buf = -1
+                    tagStartPos = -1
                 else:
-                    tagStartPos_Doc = startTagInfo[0]
-                    tagStartPos_Buf = tagStartPos_Doc - startPos_Doc
-                    if tagStartPos_Buf < 0:
-                        # We went past the start of the partial buffer, so just
-                        # get the line the tag starts on, and return its indentation.
-                        log.info("Looking for matching start-tag moved to pos %d, before startPos_Doc %d",
-                                 tagStartPos_Doc, startPos_Doc)
-                        currentLine = scimoz.lineFromPosition(tagStartPos_Doc)
-                        tagStartPos_Buf = -1
+                    tagStartPos = startTagInfo[0]
                 standard_type = True
             elif state == "START_TAG_EMPTY_CLOSE":
-                tagStartPos_Buf = beforeText.rfind('<', 0, index_Buf)
+                tagStartPos = beforeText.rfind('<')
                 standard_type = True
             elif state == "ATTRIBUTE_CLOSE":
                 return self._getIndentForLine(scimoz, currentLine)
@@ -2671,54 +2566,46 @@ class KoLanguageBase:
                                   scimoz.SCE_UDL_M_OPERATOR]:
                 # We're somewhere in a tag.
                 # Find the beginning of the tag, then move to the end of that word
-                tagStartPos_Buf = beforeText.rfind('<', 0, index_Buf)
-                if tagStartPos_Buf == -1:
+                tagStartPos = beforeText.rfind('<')
+                if tagStartPos == -1:
                     break
-                prevLinePos_Buf = self._getTagStartLineStartPos_Buf(scimoz,
-                                                                    tagStartPos_Buf,
-                                                                    startOfLine_Buf,
-                                                                    startPos_Doc)
-                if self._precededByText(scimoz, prevLinePos_Buf,
-                                        tagStartPos_Buf,
-                                        beforeText, beforeStyles):
+                if self._precededByText(scimoz, tagStartPos):
                     return self._getIndentForLine(scimoz, currentLine)
                 whitespaceRe = re.compile('(\S+)(\s*)')
-                # Is there a space between the "<" and the current index position ?
-                firstSpaceMatch = whitespaceRe.search(beforeText, tagStartPos_Buf, index_Buf)
+                firstSpaceMatch = whitespaceRe.search(beforeText[tagStartPos:])
                 if not firstSpaceMatch:
                     standard_type = True
                 else:
-                    tagStartPos_Doc = tagStartPos_Buf + startPos_Doc
                     if firstSpaceMatch.group(2):
                         # i.e. there is some space after the tag
-                        firstSpace_Buf = firstSpaceMatch.end() - tagStartPos_Buf
-                        startAttributeColumn = scimoz.getColumn(tagStartPos_Doc + firstSpace_Buf)
+                        firstSpace = firstSpaceMatch.end()
+                        startAttributeColumn = scimoz.getColumn(tagStartPos + firstSpace)
                     else:
                         # e.g. we just hit return with: <foo|
-                        endOfTag_Buf = firstSpaceMatch.end() - tagStartPos_Buf
-                        startAttributeColumn = scimoz.getColumn(tagStartPos_Doc + endOfTag_Buf) + 1
+                        endOfTag = firstSpaceMatch.end()
+                        startAttributeColumn = scimoz.getColumn(tagStartPos + endOfTag) + 1
                     return scimozindent.makeIndentFromWidth(scimoz, startAttributeColumn)
-            elif state == "COMMENT_CLOSE":
-                tagStartPos_Buf = beforeText.rfind('<!--', 0, index_Buf)
+            elif style == scimoz.SCE_UDL_M_COMMENT:
+                tagStartPos = beforeText.rfind('<--')
                 standard_type = True
             elif state == "":
                 if style == scimoz.SCE_UDL_M_DEFAULT:
-                    if char.isspace():
-                        index_Doc -= 1
-                        index_Buf -= 1
-                        standard_type = False # effective continue
-                    else:
+                    if not char.isspace():
                         # If we don't end the line with a tag, continue the current indentation
                         return self._getIndentForLine(scimoz, currentLine)
+                    else:
+                        index -= 1
+                        beforeText = beforeText[:-1]
+                        standard_type = False
                 elif style == scimoz.SCE_UDL_M_PI:
-                    if beforeText.endswith("?>", 0, index_Buf + 1):
-                        tagStartPos_Buf = beforeText.rfind('<?', 0, index_Buf)
+                    if beforeText.endswith("?>"):
+                        tagStartPos = beforeText.rfind('<?')
                         standard_type = True
                     else:
                         return self._getIndentForLine(scimoz, currentLine)
                 elif style == scimoz.SCE_UDL_M_CDATA:
-                    if beforeText.endswith("]]>", 0, index_Buf + 1):
-                        tagStartPos_Buf = beforeText.upper().rfind('<![CDATA[', 0, index_Buf + 1)
+                    if beforeText.endswith("]]>"):
+                        tagStartPos = beforeText.upper().rfind('<![CDATA[')
                         standard_type = True
                     else:
                         return self._getIndentForLine(scimoz, currentLine)
@@ -2726,26 +2613,24 @@ class KoLanguageBase:
                     return self._getIndentForLine(scimoz, currentLine)
             
             # Common endings for "standard" types
-            if tagStartPos_Buf > index_Doc:
-                assert False and "tag-start pos %d > index_Doc pos %d!" % (tagStartPos_Buf, index_Doc)
+            if tagStartPos > index:
+                assert False and "tag-start pos %d > index pos %d!" % (tagStartPos, index)
                 break
             if standard_type:
-                if tagStartPos_Buf == -1:
+                if tagStartPos == -1:
                     return self._getIndentForLine(scimoz, currentLine)
-                if tagStartPos_Buf < startOfLine_Buf:
-                    # Update the "currentLine" arguments
-                    currentLine = scimoz.lineFromPosition(tagStartPos_Buf + startPos_Doc)
-                    startOfLine_Doc = scimoz.positionFromLine(currentLine)
-                    startOfLine_Buf = startOfLine_Doc - startPos_Doc
+                if self._precededByText(scimoz, tagStartPos):
+                    return self._getIndentForLine(scimoz, currentLine)
+                startLine = scimoz.lineFromPosition(tagStartPos)
+                if startLine != currentLine:
+                    # Use the new currentLine's indentation
+                    currentLine = startLine
+                    startOfLine = scimoz.positionFromLine(currentLine)
+                index = tagStartPos - 1
+                beforeText = beforeText[:tagStartPos]
                 # If there's nothing to the left of this tag, use that indentation
-                # If we've moved to the start of the line, we'll return 0 chars indentation here,
-                # so we never have to decrement the currentLine # when going through this path.
-                if not beforeText[startOfLine_Buf:tagStartPos_Buf].strip():
+                if not beforeText[startOfLine:].strip():
                     return self._getIndentForLine(scimoz, currentLine)
-                tagStartPos_Doc = tagStartPos_Buf + startPos_Doc
-                index_Doc = tagStartPos_Doc - 1
-                index_Buf -= 1
-        # end of main while loop
                 
         indentlog.debug("doing plain indent")
         return self._getPlainIndent(scimoz, style_info)
@@ -2830,7 +2715,7 @@ class KoLanguageBase:
                     # all white-space on our left, so replace it
                     scimoz.targetStart = start
                     scimoz.targetEnd = start + len(leadingWS.group(1))
-                    scimoz.replaceTarget(new_indent)
+                    scimoz.replaceTarget(len(new_indent), new_indent)
                     return None
         if default_indentation:
             return default_indentation
@@ -2847,7 +2732,7 @@ class KoLanguageBase:
             return
         currentPos = scimoz.currentPos
         charPos = scimoz.positionBefore(currentPos)
-        style = scimoz.getStyleAt(charPos)
+        style = scimoz.getStyleAt(charPos) & self.stylingBitsMask
         #indentlog.debug("ch=%s, style=%d, indent_close_chars=%r, indent_close_styles=%r",
         #               ch, style, self._indent_close_chars, style_info._indent_close_styles)
         indent = None
@@ -2883,7 +2768,7 @@ class KoLanguageBase:
                             log.warning("KoLanguageBase::_keyPressed: Failed to "
                                         "find start of tag in START_TAG_CLOSE")
                             return
-                        tagStartStyle = scimoz.getStyleAt(tagStart)
+                        tagStartStyle = scimoz.getStyleAt(tagStart) & self.stylingBitsMask
                         if tagStartStyle == scimoz.SCE_UDL_M_STAGO:
                             break
                         scimoz.targetStart = scimoz.positionBefore(tagStart)
@@ -2950,7 +2835,7 @@ class KoLanguageBase:
                 # all white-space on our left, so replace it
                 scimoz.targetStart = start
                 scimoz.targetEnd = end
-                scimoz.replaceTarget(indent)
+                scimoz.replaceTarget(len(indent), indent)
 
     def _softchar_accept_match_outside_strings(self, scimoz, pos, style_info, candidate):
         """
@@ -3231,7 +3116,7 @@ class KoLanguageBaseDedentMixin(object):
         if currNonWhiteColumn > prevNonWhiteColumn:
             return prevWhiteSequence
 
-def _findIndent(scimoz, chars, styles, comment_styles, tabWidth, defaultUsesTabs):
+def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth, defaultUsesTabs):
     """
     This code is fairly sophisticated, and a tad tricky.  Here's how it works.
     We're looking for an "indenting line" followed by an "indented line".
@@ -3325,7 +3210,7 @@ def _findIndent(scimoz, chars, styles, comment_styles, tabWidth, defaultUsesTabs
                 char = data[pos*2]
                 if char in WHITESPACE: # skip whitespace
                     continue
-                style = ord(data[pos*2+1])
+                style = ord(data[pos*2+1]) & bitmask
                 if style in comment_styles: # skip comments
                     continue
                 if (char in chars) and (style in styles):
@@ -3336,6 +3221,7 @@ def _findIndent(scimoz, chars, styles, comment_styles, tabWidth, defaultUsesTabs
                     log.info("Found indenting line: %r" % indenting)
                     # look for an indented line after this line
                     guess, foundTabs = _findIndentedLine(scimoz,
+                                                         bitmask,
                                                          N, lineNo, indenting,
                                                          comment_styles, tabWidth, data)
                     if guess is not None:
@@ -3368,7 +3254,7 @@ def _findIndent(scimoz, chars, styles, comment_styles, tabWidth, defaultUsesTabs
     log.info("Couldn't find indentation information from the file")
     return 0, 0
 
-def _findIndentedLine(scimoz, N, lineNo, indenting, comment_styles, tabWidth, data):
+def _findIndentedLine(scimoz, bitmask, N, lineNo, indenting, comment_styles, tabWidth, data):
     """
     This function looks through the 'scimoz' buffer until at most the line number
     'N' for a line which is 'indented' relative to the 'indenting' line, ignoring
@@ -3394,7 +3280,7 @@ def _findIndentedLine(scimoz, N, lineNo, indenting, comment_styles, tabWidth, da
             char = data[pos*2]
             if char in WHITESPACE: # skip whitespace
                 continue
-            style = ord(data[pos*2+1])
+            style = ord(data[pos*2+1]) & bitmask
             if style in comment_styles: # skip comments
                 continue
             # We have an indenting and an indented.

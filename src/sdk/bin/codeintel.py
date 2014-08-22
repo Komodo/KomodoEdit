@@ -37,7 +37,7 @@
 
 """codeintel -- a tool for developing with Komodo's Code Intelligence system"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: codeintel.py 2927 2009-02-05 07:49:17Z trentm $"
 __version_info__ = (2, 0, 0)
 __version__ = '.'.join(map(str, __version_info__))
 

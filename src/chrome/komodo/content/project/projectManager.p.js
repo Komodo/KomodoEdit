@@ -298,16 +298,13 @@ projectManager.prototype.closeProjectEvenIfDirty = function(project) {
     project.close();
     
     ko.mru.addURL("mruProjectList", project.url);
-    if (!ko.main.windowIsClosing) {
-        // bug 101553: don't do this when shutting down
-        if (this._projects.length == 0) {
-            window.updateCommands('some_projects_open');
-        }
-        if (this.viewMgr) {
-            this.viewMgr.refresh(project);
-        }
+    if (this._projects.length == 0) {
         window.updateCommands('some_projects_open');
     }
+    if (this.viewMgr) {
+        this.viewMgr.refresh(project);
+    }
+    window.updateCommands('some_projects_open');
     return true;
 }
 
@@ -892,21 +889,14 @@ projectManager.prototype.loadProject = function(url) {
         if (!projectname) {  // XXX Is this case cruft? I think so. --TM
             projectname = url;
         }
-        var message = _bundle.formatStringFromName("unableToLoadProject.alert",
-            [projectname, lastErrorSvc.getLastErrorMessage()], 2);
-        if (!url) {
-            ko.dialogs.alert(message);
-        } else {
-            message += " " + _bundle.GetStringFromName("unableToLoadProjectRemoveConfirm.alert");
-            var remove = ko.dialogs.okCancel(message);
-        }
+        ko.dialogs.alert(_bundle.formatStringFromName("unableToLoadProject.alert",
+            [projectname, lastErrorSvc.getLastErrorMessage()], 2));
         // Assume the error is that the file doesn't exist.
         // Currently all we can do is test against the English value of
         // lastErrorSvc.getLastErrorMessage(), but that won't work
         // if it's ever localized.
-        if (url && remove == "OK") {
+        if (url) {
             ko.mru.deleteValue("mruProjectList", url, true);
-            ko.places.projects_SPV.rebuildView(); // force refresh (tree.invalidate() doesnt suffice)
         }
         return;
     }
@@ -1372,13 +1362,36 @@ projectManager.prototype.findPartByAttributeValue = function(attribute, value) {
     return null;
 }
 
-/**
- * Project state:
+/* Old style:
+ * "opened_projects":
+ *   [ array of projects ]
+ *
+ * Introduced in v7.1, to maintain 6.0 compatibility:
  * "opened_projects_v7":
  *   { "spv_projects": [ json array, but only with current project ],
  *     "mpv_projects": [ json array of projects ]
  *   }
  */
+
+projectManager.prototype.getState_old = function ()
+{
+    if (this._projects.length == 0) {
+        return null; // persist nothing
+    }
+    // Return a pref to add to the persisted 'workspace'
+    var opened_projects = Components.classes['@activestate.com/koOrderedPreference;1'].createInstance();
+    opened_projects.id = 'opened_projects';
+    var i, project, url;
+    for (i = 0; i < this._projects.length; i++) {
+        project = this._projects[i];
+        url = project.url;
+        if (this.viewMgr) {
+            this.viewMgr.savePrefs(project);
+        }
+        opened_projects.appendStringPref(url);
+    }
+    return opened_projects;
+}
 
 projectManager.prototype.getState = function()
 {
@@ -1406,19 +1419,36 @@ projectManager.prototype.getState = function()
     return pref;
 }
 
+// In version 6 there's only one kind of saved projects.
+projectManager.prototype.setState_v6 = function(pref)
+{
+    try {
+        var i, file_url;
+        // Load projects indicated in the pref
+        for (i=0; i < pref.length; i++) {
+            file_url = pref.getStringPref(i);
+            // skip opening of recently opened files -- that's taken care of
+            // by the view persistence
+            ko.projects.open(file_url, true);
+        }
+    } catch (e) {
+        this.log.exception(e);
+    }
+}
+
 projectManager.prototype.setState = function(pref)
 {
     try {
         try {
             this._spv_urls = JSON.parse(pref.getStringPref("spv_projects"));
         } catch(ex) {
-            this.log.error("Can't get pref spv_projects");
+            log.error("Can't get pref spv_projects");
             this._spv_urls = [];
         }
         try {
             this._mpv_urls = JSON.parse(pref.getStringPref("mpv_projects"));
         } catch(ex) {
-            this.log.error("Can't get pref mpv_projects");
+            log.error("Can't get pref mpv_projects");
             this._mpv_urls = [];
         }
         var urlList = this.single_project_view ? this._spv_urls : this._mpv_urls;
@@ -1613,7 +1643,6 @@ this.saveProjectAs = function ProjectSaveAs(project) {
     var oldURL = project.url;
     project.url = url;
     project.name = ko.uriparse.baseName(url);
-    project.reassignUUIDs();
     try {
         project.save();
     } catch(ex) {
@@ -1629,6 +1658,9 @@ this.saveProjectAs = function ProjectSaveAs(project) {
     try {
         _obSvc.notifyObservers(this,'file_changed', project.url);
     } catch(e) { /* exception if no listeners */ }
+    if (ko.projects.manager.viewMgr) {
+        ko.projects.manager.viewMgr.replaceProject(oldURL, project);
+    }
     xtk.domutils.fireEvent(window, 'project_opened');
     window.updateCommands('project_dirty');
     return true;
@@ -1756,7 +1788,7 @@ this.safeGetFocusedPlacesView = function() {
         try {
             return ko.places.getFocusedPlacesView();
         } catch(ex) {
-            this.log.warn("Can't call ko.places.getFocusedPlacesView:\n" + ex + "\n");
+            log.warn("Can't call ko.places.getFocusedPlacesView:\n" + ex + "\n");
         }
     }
     return false;

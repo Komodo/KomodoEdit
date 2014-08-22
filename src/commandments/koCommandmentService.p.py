@@ -284,7 +284,6 @@ if sys.platform.startswith("win"):
                 = "komodo-%s-%s-new-commandments" % (self._product_type, ver)
             self._commandmentsFileName = os.path.join(dname, "commandments.txt")
             threading.Thread.__init__(self, name="CommandmentsReader")
-            self.setDaemon(True)
 
         def run(self):
             lock = koWndWrapper.create_mutex(self._commandmentsLockName)
@@ -381,7 +380,6 @@ else:
             self._commandmentsFileName = os.path.join(dname, "commandments.fifo")
             self._firstCommandmentsFileName = os.path.join(dname, "first-commandments.txt")
             threading.Thread.__init__(self, name="CommandmentsReader")
-            self.setDaemon(True)
 
             self._pipe = os.open(self._commandmentsFileName, os.O_RDWR)
             if os.path.exists(self._firstCommandmentsFileName):

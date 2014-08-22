@@ -1,0 +1,64 @@
+# HG changeset patch
+# Parent 166d0b9f5725c3fe766920b809e3e467e012afb0
+# Date 1351545461 25200
+# User Mook <marky@activestate.com>
+
+Log the last used PyXPCOM method call into the Crash Reporter extra file.
+
+There is a slight performance hit on this - as an extra XPCOM call is made
+per PyXPCOM call, so it's only currently enabled in the nightly builds.
+
+diff --git a/xpcom/src/PyGStub.cpp b/xpcom/src/PyGStub.cpp
+--- a/xpcom/src/PyGStub.cpp
++++ b/xpcom/src/PyGStub.cpp
+@@ -51,2 +51,9 @@
+ 
++#ifdef MOZ_CRASHREPORTER
++#include "nsIXULAppInfo.h"
++#include "nsXPCOMCIDInternal.h"
++#include "nsICrashReporter.h"
++static nsICrashReporter *g_appCrashReporter = nullptr;
++#endif
++
+ PyXPCOM_XPTStub::PyXPCOM_XPTStub(PyObject *instance, const nsIID &iid)
+@@ -58,2 +65,6 @@ PyXPCOM_XPTStub::PyXPCOM_XPTStub(PyObjec
+ 
++	#ifdef MOZ_CRASHREPORTER
++		iid.ToProvidedString(m_IIDBuf);
++	#endif /* MOZ_CRASHREPORTER */
++
+ 	{
+@@ -131,2 +142,23 @@ PyXPCOM_XPTStub::CallMethod(PRUint16 met
+ 	PyObject *obThisObject = NULL;
++
++#ifdef MOZ_CRASHREPORTER
++	// Add the last XPCOM method into the Crash Reporter information.
++	if (!g_appCrashReporter) {
++		nsCOMPtr<nsIXULAppInfo> xapp (do_GetService(XULAPPINFO_SERVICE_CONTRACTID));
++		if (xapp) {
++			nsCOMPtr<nsICrashReporter> localAppCrashReporter (do_QueryInterface(xapp));
++			if (localAppCrashReporter) {
++				g_appCrashReporter = localAppCrashReporter;
++			}
++		}
++	}
++	if (g_appCrashReporter) {
++		nsCString crashData(m_IIDBuf);
++		crashData.AppendLiteral("::");
++		crashData.Append(info->name);
++		g_appCrashReporter->AnnotateCrashReport(NS_LITERAL_CSTRING("PyxpcomMethod"),
++		                                        crashData);
++	}
++#endif
++
+ 	PyObject *obMI = PyObject_FromXPTMethodDescriptor(info);
+diff --git a/xpcom/src/PyXPCOM.h b/xpcom/src/PyXPCOM.h
+--- a/xpcom/src/PyXPCOM.h
++++ b/xpcom/src/PyXPCOM.h
+@@ -703,2 +703,6 @@ protected:
+ private:
++	#ifdef MOZ_CRASHREPORTER
++		// This is used for crash report annotations
++		char m_IIDBuf[NSID_LENGTH];
++	#endif /* MOZ_CRASHREPORTER */
+ };

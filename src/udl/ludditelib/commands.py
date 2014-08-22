@@ -109,9 +109,7 @@ def compile(udl_path, output_dir=None, include_path=None, log=None):
 
 
 def deprecated_compile(udl_path, skel=False, guid=None, guid_from_lang=None,
-                       ext=None, force=False, add_missing=False, log=None,
-                       version=None, creator=None, ext_id=None,
-                       description=None):
+                       ext=None, force=False, add_missing=False, log=None):
     """Compile the given .udl file to Komodo language resources.
     
     DEPRECATED: The 'skel' generation in luddite has been deprecated in
@@ -241,36 +239,6 @@ def deprecated_compile(udl_path, skel=False, guid=None, guid_from_lang=None,
                     log.info("create template `%s'", template_path)
                     mainObj.generateKomodoTemplateFile(template_path)
 
-    # Create the extension's install.rdf if necessary.
-    install_rdf_path = join(build_dir, "install.rdf")
-    if not exists(install_rdf_path):
-        name = lang_name + " Language"
-        codename = _codename_from_name(name)
-        if ext_id is None:
-            ext_id = "%s@ActiveState.com" % codename
-        if version is None:
-            version = "1.0.0"
-            log.warn("defaulting 'version' to '%s' (use version option)",
-                     version)
-        #else:
-        #    XXX validate version
-        if description is None:
-            description = "%s language support for Komodo (UDL-based)" % lang_name
-        if creator is None:
-            creator = "Anonymous Coward"
-            log.warn("defaulting 'creator' to '%s' (use creator option)", creator)
-    
-        install_rdf_in = join(dirname(constants.__file__), "install.rdf.in")
-        log.debug("reading 'install.rdf' template from '%s'", install_rdf_in)
-        install_rdf_template = string.Template(open(install_rdf_in, 'r').read())
-        install_rdf = install_rdf_template.substitute(
-            id=ext_id, name=name, codename=codename, version=version,
-            description=description, creator=creator)
-        log.info("create `%s'", install_rdf_path)
-        fout = open(install_rdf_path, 'w')
-        fout.write(install_rdf)
-        fout.close()
-
     # Clean up after PLY. It leaves some turds that can break subsequent
     # parsing if the parser source is changed.
     for turd in turds:
@@ -304,6 +272,108 @@ def parse(udl_path, include_path=None, log=None):
                            % (udl_path, parser.num_errs))
     return parse_tree
     
+
+def deprecated_package(language_name, version=None, creator=None,
+                       name=None, description=None,
+                       id=None, force=False, log=None):
+    """Package the (built) resources for the given languages into a Komodo
+    extension.
+    
+    Note: This is DEPRECATED in favour of the more general Komodo extension
+    packaging support in the "koext" tool (also in the Komodo SDK).
+    
+        "language_name" is the language name for which to build a package.
+            The resources for this language must already have been built via
+            "luddite.py compile ...".
+
+    These arguments are optional, but should be specified:
+        "version" (optional, default "1.0.0") is the version number for this
+            package.
+        "creator" (optional, default "Anonymous Coward") is the name of the
+            person creating/maintaining this package.
+
+    These arguments are optional and it is generally fine to not specify them
+    because they have reasonable defaults:
+        "name" (optional) is the name for the extension.
+        "description" (optional) is a short description of the extension.
+        "id" (optional) is the extension's id -- an internal short string used
+            as a key to identify the extension. It is used in the extension's
+            install path.
+    
+    Dev Notes:
+    - For now packaging requires a 'zip' executable somewhere on the
+      PATH. This *could* be removed (by using Python's zlib) if too
+      burdensome.
+    """
+    log = log or _log
+
+    safe_lang_name = gen.getSafeName(language_name)
+    build_dir = _get_build_dir(safe_lang_name)
+    if not exists(build_dir):
+        raise LudditeError("`%s': the build dir does not exist: you must first "
+                           "build the language resources with "
+                           "'luddite compile ...'" % build_dir)
+
+    # Determine package info and create the extension's install.rdf.
+    if name is None:
+        name = language_name + " Language"
+    codename = _codename_from_name(name)
+    if id is None:
+        id = "%s@ActiveState.com" % codename
+    if version is None:
+        version = "1.0.0"
+        log.warn("defaulting 'version' to '%s' (use version option)",
+                 version)
+    #else:
+    #    XXX validate version
+    if description is None:
+        description = "%s language support for Komodo (UDL-based)" % language_name
+    if creator is None:
+        creator = "Anonymous Coward"
+        log.warn("defaulting 'creator' to '%s' (use creator option)", creator)
+
+    install_rdf_in = join(dirname(constants.__file__), "install.rdf.in")
+    log.debug("reading 'install.rdf' template from '%s'", install_rdf_in)
+    install_rdf_template = string.Template(open(install_rdf_in, 'r').read())
+    install_rdf = install_rdf_template.substitute(
+        id=id, name=name, codename=codename, version=version,
+        description=description, creator=creator)
+    install_rdf_path = join(build_dir, "install.rdf")
+    log.info("create `%s'", install_rdf_path)
+    fout = open(install_rdf_path, 'w')
+    fout.write(install_rdf)
+    fout.close()
+
+    # Register components
+    chrome_manifest_path = join(build_dir, "chrome.manifest")
+    for dirpath, dirnames, filenames in os.walk(join(build_dir, "components")):
+        for name in filenames:
+            if name.endswith(".py"):
+                chromereg.register_file(join(dirpath, name),
+                                        chrome_manifest_path,
+                                        "components/")
+            elif name == ".consign":
+                pass # komodo build artifact; these can be safely ignored
+            else:
+                log.warn("Unexpected file '%s'; consider using koext.py" %
+                    join(dirpath, name))
+
+    # Create the xpi.
+    xpi_name = "%s-%s-ko.xpi" % (codename, version)
+    xpi_path = xpi_name # put in top-level dir for now
+    if exists(xpi_path):
+        if not force:
+            raise LudditeError("`%s' exists: use force option to overwrite"
+                               % xpi_path)
+        log.debug("rm `%s'", xpi_path)
+        os.remove(xpi_path)
+    zip_opts = ""
+    if not log.isEnabledFor(logging.DEBUG):
+        zip_opts += "-q"
+    cmd = 'zip -r %s "%s" *' % (zip_opts, abspath(xpi_path))
+    _run_in_dir(cmd, build_dir, log.debug)
+    log.info("`%s' successfully created", xpi_path)
+
 
 
 #---- internal support

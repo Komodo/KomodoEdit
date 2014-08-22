@@ -58,25 +58,17 @@ if (typeof(ko.run)=='undefined') {
  */
 (function() {
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-const {XPCOMUtils} = Cu.import("resource://gre/modules/XPCOMUtils.jsm", {});
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/run/run_functions.properties");
 
-var lazy = {};
+var _log = ko.logging.getLogger("run_functions");
+//_log.setLevel(ko.logging.LOG_DEBUG);
 
-XPCOMUtils.defineLazyGetter(lazy, "log", function() ko.logging.getLogger("run_functions"));
-//lazy.log.setLevel(ko.logging.LOG_DEBUG);
-
-XPCOMUtils.defineLazyGetter(lazy, "bundle", function()
-    Cc["@mozilla.org/intl/stringbundle;1"]
-    .getService(Ci.nsIStringBundleService)
-    .createBundle("chrome://komodo/locale/run/run_functions.properties"));
-
-XPCOMUtils.defineLazyGetter(lazy, "runSvc", function()
-    Cc["@activestate.com/koRunService;1"]
-        .getService(Components.interfaces.koIRunService));
-
+var _runSvc = Components.classes["@activestate.com/koRunService;1"]
+               .getService(Components.interfaces.koIRunService);
 var _processList = [];
-var ISciMoz = Ci.ISciMoz;
+var ISciMoz = Components.interfaces.ISciMoz;
 
 
 //---- internal utility routines
@@ -151,7 +143,7 @@ _terminationListener.prototype = {
     onTerminate: function (retval) {
         //dump("_terminationListener::onTerminate(retval="+retval+")\n");
         this._editor.ko.run.output.endSession(retval);
-        var msg = lazy.bundle.formatStringFromName("terminateMessage", [this._command ,retval], 2);
+        var msg = _bundle.formatStringFromName("terminateMessage", [this._command ,retval], 2);
         this._editor.ko.statusBar.AddMessage(msg, "run_command", 3000,
                                           retval ? 1 : 0);
         if (this._callback) {
@@ -194,7 +186,7 @@ this.buildRecentCommandsMenu = function Run_BuildRecentCommandsMenu(popupWidget)
     var itemWidget = null;
     if (!mruList || mruList.length == 0) {
         itemWidget = document.createElement("menuitem");
-        itemWidget.setAttribute("label", lazy.bundle.GetStringFromName("mruEmpty.label"));
+        itemWidget.setAttribute("label", _bundle.GetStringFromName("mruEmpty.label"));
         itemWidget.setAttribute("disabled", "true");
         popupWidget.appendChild(itemWidget);
     }
@@ -220,7 +212,7 @@ this.buildRecentCommandsMenu = function Run_BuildRecentCommandsMenu(popupWidget)
             encodedCommand = encodedCommand.replace('\\', '\\\\', "g");
             encodedCommand = encodedCommand.replace("'", "\\'", "g");
             encodedCommand = encodedCommand.replace('"', '\\"', "g");
-            var handler = "ko.run.runEncodedCommand(window, '"
+            var handler = "Run_RunEncodedCommand(window, '"
                           + encodedCommand + "');";
             itemWidget.setAttribute("oncommand", handler);
 
@@ -265,7 +257,7 @@ this.runEncodedCommand = function Run_RunEncodedCommand(editor, encodedCommand,
     var parseOutputObj = new Object();
     var parseRegexObj = new Object();
     var showParsedOutputListObj = new Object();
-    lazy.runSvc.Decode(encodedCommand, commandObj, cwdObj, envObj,
+    _runSvc.Decode(encodedCommand, commandObj, cwdObj, envObj,
                     insertOutputObj, operateOnSelectionObj,
                     doNotOpenOutputWindowObj, runInObj,
                     parseOutputObj, parseRegexObj, showParsedOutputListObj);
@@ -372,22 +364,22 @@ try {
     // of Komodo.
     if (operateOnSelection) {
         if (!view) {
-            alert(lazy.bundle.GetStringFromName("cannotOperateNoCurrentFile.alert"));
+            alert(_bundle.GetStringFromName("cannotOperateNoCurrentFile.alert"));
             return false;
         } else if (!scimoz) {
-            alert(lazy.bundle.GetStringFromName("doNotKnowHowtoOperate.alert"));
+            alert(_bundle.GetStringFromName("doNotKnowHowtoOperate.alert"));
             return false;
         } else if (scimoz.selText == "") {
-            alert(lazy.bundle.GetStringFromName("cannotOperateNoSelection.alert"));
+            alert(_bundle.GetStringFromName("cannotOperateNoSelection.alert"));
             return false;
         }
     }
     if (insertOutput) {
         if (!view) {
-            alert(lazy.bundle.GetStringFromName("cannotInsertOutput.alert"));
+            alert(_bundle.GetStringFromName("cannotInsertOutput.alert"));
             return false;
         } else if (!scimoz) {
-            alert(lazy.bundle.GetStringFromName("doNotKnowHowtoInsertOutpuNonEditorView.alert"));
+            alert(_bundle.GetStringFromName("doNotKnowHowtoInsertOutpuNonEditorView.alert"));
             return false;
         }
     }
@@ -432,15 +424,15 @@ try {
             // Command was cancelled.
         } else if (errno == Components.results.NS_ERROR_INVALID_ARG) {
             errmsg = lastErrorSvc.getLastErrorMessage();
-            var fullmsg = lazy.bundle.GetStringFromName("errorRunningCommand.alert");
+            var fullmsg = _bundle.GetStringFromName("errorRunningCommand.alert");
             if (name) {
                 fullmsg += " [" + name + "]";
             }
             fullmsg += ": " + errmsg;
             alert(fullmsg);
         } else {
-            lazy.log.error(ex);
-            alert(lazy.bundle.formatStringFromName("thereWasAnUnexpectedError.alert", [ex], 1));
+            _log.error(ex);
+            alert(_bundle.formatStringFromName("thereWasAnUnexpectedError.alert", [ex], 1));
         }
         return false;
     }
@@ -464,12 +456,12 @@ try {
         // process.
         //dump("XXX RunAndNotify: about to start '"+icommand+"'\n");
         try {
-            process = lazy.runSvc.RunAndNotify(icommand, icwd, ienv, input);
+            process = _runSvc.RunAndNotify(icommand, icwd, ienv, input);
         } catch (ex) {
             //dump("XXX RunAndNotify: '"+icommand+"' failed to start\n");
             errmsg = lastErrorSvc.getLastErrorMessage();
             if (! errmsg) {
-                errmsg = lazy.bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommand], 1);
+                errmsg = _bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommand], 1);
             }
             alert(errmsg);
             return false;
@@ -527,13 +519,13 @@ try {
 
             // Start the command.
             try {
-                process = lazy.runSvc.RunInTerminal(icommand, icwd, ienv,
+                process = _runSvc.RunInTerminal(icommand, icwd, ienv,
                                                  terminal, termListener,
                                                  input);
             } catch (ex) {
                 errmsg = lastErrorSvc.getLastErrorMessage();
                 if (! errmsg) {
-                    errmsg = lazy.bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommandForDisplay], 1);
+                    errmsg = _bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommandForDisplay], 1);
                 }
                 alert(errmsg);
                 editor.ko.run.output.endSession(-1);
@@ -551,35 +543,35 @@ try {
 
         } else if (runIn == "new-console") {
             try {
-                lazy.runSvc.Run(icommand, icwd, ienv, true, input);
+                _runSvc.Run(icommand, icwd, ienv, true, input);
             } catch (ex) {
                 errmsg = lastErrorSvc.getLastErrorMessage();
                 if (! errmsg) {
-                    errmsg = lazy.bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommandForDisplay], 1);
+                    errmsg = _bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommandForDisplay], 1);
                 }
-                lazy.log.error(errmsg);
+                _log.error(errmsg);
                 alert(errmsg);
                 return false;
             }
 
         } else if (runIn == "no-console") {
             try {
-                lazy.runSvc.Run(icommand, icwd, ienv, false, input);
+                _runSvc.Run(icommand, icwd, ienv, false, input);
             } catch (ex) {
                 errmsg = lastErrorSvc.getLastErrorMessage();
                 if (! errmsg) {
-                    errmsg = lazy.bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommandForDisplay], 1);
+                    errmsg = _bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommandForDisplay], 1);
                 }
-                lazy.log.error(errmsg);
+                _log.error(errmsg);
                 alert(errmsg);
                 return false;
             }
         } else {
-            lazy.log.error("Unexpected 'runIn' value: " + runIn);
+            _log.error("Unexpected 'runIn' value: " + runIn);
             throw new Error("Unexpected 'runIn' value: " + runIn);
         }
     }
-    var encodedCommand = lazy.runSvc.Encode(command, cwd, env, insertOutput,
+    var encodedCommand = _runSvc.Encode(command, cwd, env, insertOutput,
                                          operateOnSelection,
                                          doNotOpenOutputWindow, runIn,
                                          parseOutput, parseRegex,
@@ -627,7 +619,7 @@ try {
 
     // Raise an alert dialog if there was error output.
     if (error) {
-        ko.dialogs.alert(lazy.bundle.GetStringFromName("theCommandReturnedError.alert"), error);
+        ko.dialogs.alert(_bundle.GetStringFromName("theCommandReturnedError.alert"), error);
     }
 
     // If the command looks like it was operating on the current file, then
@@ -649,7 +641,7 @@ try {
 
     return true;
 } catch (e) {
-    lazy.log.exception(e);
+    _log.exception(e);
 }
     return false;
 }
@@ -741,7 +733,7 @@ this.runRemoteCommand = function Run_RemoteRunCommand(serverAliasOrURI,
 
         return true;
     } catch (e) {
-        lazy.log.exception(e);
+        _log.exception(e);
         ko.statusBar.AddMessage("runRemoteCommand: error: " + e, "remote", 5000, true);
     }
     return false;
@@ -763,7 +755,7 @@ this.canClose = function Run_CanClose()
         for (i=0; i < _processList.length; i++) {
             commands += _processList[i]['command'] + '\n';
         }
-        var question = lazy.bundle.GetStringFromName("theFollowingCommandsAreStillRunning.message");
+        var question = _bundle.GetStringFromName("theFollowingCommandsAreStillRunning.message");
         var answer = ko.dialogs.okCancel(question, "OK", commands);
         if (answer == "OK") {
             try {
@@ -773,7 +765,7 @@ this.canClose = function Run_CanClose()
                     _processList[i]['process'].kill(-1);
                 }
             } catch (ex) {
-                lazy.log.error("Error killing running process when closing Komodo:"+
+                _log.error("Error killing running process when closing Komodo:"+
                          ex);
                 //XXX Should this be reported to the user?
                 return false;
@@ -781,10 +773,18 @@ this.canClose = function Run_CanClose()
         } else if (answer == "Cancel") {
             return false;
         } else {
-            throw new Error(lazy.bundle.formatStringFromName("unexpectedReturnValue.message", [answer], 1));
+            throw new Error(_bundle.formatStringFromName("unexpectedReturnValue.message", [answer], 1));
         }
     }
     return true;
 }
 
 }).apply(ko.run);
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("Run_BuildRecentCommandsMenu", "ko.run.buildRecentCommandsMenu");
+ko.logging.globalDeprecatedByAlternative("Run_RunEncodedCommand", "ko.run.runEncodedCommand");
+ko.logging.globalDeprecatedByAlternative("Run_RunCommand", "ko.run.runCommand");
+ko.logging.globalDeprecatedByAlternative("Run_CanClose", "ko.run.canClose");

@@ -105,20 +105,7 @@ class KoInfoService(object):
 
         self._usedWindowNums = set()
         self._nextAvailWindowNum = 1
-
-        startupLog = logging.getLogger("Startup")
-        oldLevel = startupLog.level
-        startupLog.setLevel(logging.INFO)
-        try:
-            startupLog.info("Welcome to Komodo %s %s build %s "
-                     "(platform %s, running on %s %s version %s)",
-                     self.prettyProductType, self.version,
-                     self.buildNumber, self.buildPlatform,
-                     self.osSystem, self.osRelease, self.osVersion)
-            startupLog.info("%s built on %s", sys.executable, self.buildASCTime)
-        finally:
-            startupLog.setLevel(oldLevel)
-       
+        
     def nextWindowNum(self):
         loadedWindowNums = []
         prefs = components.classes["@activestate.com/koPrefService;1"].\

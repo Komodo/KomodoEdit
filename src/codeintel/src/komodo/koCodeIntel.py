@@ -5,10 +5,11 @@ from zope.cachedescriptors.property import Lazy as LazyProperty, LazyClassAttrib
 
 from argparse import Namespace
 from codeintel2.common import PRIORITY_CURRENT, PRIORITY_IMMEDIATE
-from os.path import exists, join
+from os.path import join
 import atexit
 import bisect
 import collections
+import directoryServiceUtils
 import functools
 import json
 import logging
@@ -22,24 +23,17 @@ import sys
 import threading
 import time
 import urllib
-import uriparse
 import weakref
 
 import koprocessutils
 
 log = logging.getLogger("codeintel.komodo")
 log_timing = log.getChild("timing")
-#log.setLevel(logging.DEBUG)
 
 class KoCodeIntelService:
-    # Support Mozilla 24 and 31 (name change)
-    nsIMemoryReporter = Ci.nsIMemoryReporter
-    if "nsIMemoryMultiReporter" in Ci.keys():
-        nsIMemoryReporter = Ci.nsIMemoryMultiReporter
-
     _com_interfaces_ = [Ci.koICodeIntelService,
                         Ci.nsIObserver,
-                        nsIMemoryReporter]
+                        Ci.nsIMemoryMultiReporter]
     _reg_clsid_ = "{fc4ca276-64a7-4d87-ab89-791ba463188d}"
     _reg_contractid_ = "@activestate.com/koCodeIntelService;1"
     _reg_desc_ = "Komodo Code Intelligence Service"
@@ -72,20 +66,13 @@ class KoCodeIntelService:
 
         self._mgr_lock = threading.Lock()
 
-        self._activate_callbacks = set()
-        """Observers that should be invoked on activate/deactivate"""
+        self._init_callbacks = Queue.Queue()
+        """Callbacks that should be invoked on init"""
 
         try:
-            if "nsIMemoryMultiReporter" not in Ci.keys():
-                # Mozilla 31
-                Cc["@mozilla.org/memory-reporter-manager;1"]\
-                  .getService(Ci.nsIMemoryReporterManager)\
-                  .registerStrongReporter(self)
-            else:
-                # Mozilla 24
-                Cc["@mozilla.org/memory-reporter-manager;1"]\
-                  .getService(Ci.nsIMemoryReporterManager)\
-                  .registerMultiReporter(self)
+            Cc["@mozilla.org/memory-reporter-manager;1"]\
+              .getService(Ci.nsIMemoryReporterManager)\
+              .registerMultiReporter(self)
         except COMException as ex:
             if ex.errno != Cr.NS_ERROR_FAILURE:
                 raise
@@ -103,30 +90,20 @@ class KoCodeIntelService:
         return self.__db_preloader
 
 
-    @ProxyToMainThread
-    def _invoke_activate_callbacks(self, success, data):
-        for callback in list(self._activate_callbacks):
-            try:
-                callback.callback(success, data)
-            except Exception as ex:
-                log.warn("Failed to invoke codeintel activation callback: %s",
-                         ex.message if hasattr(ex, "message") else ex,
-                         exc_info=True)
-
-    def addActivateCallback(self, callback):
-        self._activate_callbacks.add(callback)
-
-    def removeActivateCallback(self, callback):
-        self._activate_callbacks.discard(callback)
-
-    def activate(self, resetBrokenDB=False):
-        self.debug("activating codeintel service: %s reset database",
-                   "will" if resetBrokenDB else "will not")
+    def activate(self, xpcom_callback, resetBrokenDB=False):
+        self.debug("activating codeintel service: %r, %r",
+                   xpcom_callback, resetBrokenDB)
 
         if self._quit_application:
             return # don't ever restart after quit-application
 
         self._enabled = True
+
+        try:
+            self._init_callbacks.put(xpcom_callback.koIAsyncCallback.callback)
+        except AttributeError:
+            if callable(xpcom_callback):
+                self._init_callbacks.put(xpcom_callback)
 
         def callback(result=Cr.NS_OK, message=None, success=None):
             if success is None:
@@ -137,7 +114,15 @@ class KoCodeIntelService:
             data = Namespace(result=result,
                              message=message,
                              _com_interfaces_=[Ci.koIErrorInfo])
-            self._invoke_activate_callbacks(success, data)
+            while True:
+                try:
+                    cb = self._init_callbacks.get_nowait()
+                    try:
+                        cb(success, data)
+                    except:
+                        self.log.exception("Failed to invoke init callback %r", cb)
+                except Queue.Empty:
+                    break # no more callbacks
 
         self._db_preloader.callback = callback
 
@@ -173,19 +158,12 @@ class KoCodeIntelService:
     def _genDBCatalogDirs(self):
         """Yield all possible dirs in which to look for API Catalogs.
 
-        Note: This filters out non-existant directories.
+        Note: This doesn't filter out non-existant directories.
         """
-        if exists(join(self._koDirSvc.userDataDir, "apicatalogs")):
-            yield join(self._koDirSvc.userDataDir, "apicatalogs")    # user profile
-
-        # get apicatalogs from extensions
-        from directoryServiceUtils import getExtensionCategoryDirs
-        ext_relpath = "apicatalogs"
-        for path in getExtensionCategoryDirs("apicatalogs", ext_relpath):
-            yield path                                               # extension
-
-        if exists(join(self._koDirSvc.commonDataDir, "apicatalogs")):
-            yield join(self._koDirSvc.commonDataDir, "apicatalogs")  # site/common
+        yield join(self._koDirSvc.userDataDir, "apicatalogs")    # user
+        for extensionDir in directoryServiceUtils.getExtensionDirectories():
+            yield join(extensionDir, "apicatalogs")             # user-install exts
+        yield join(self._koDirSvc.commonDataDir, "apicatalogs")  # site/common
         # factory: handled by codeintel system (codeintel2/catalogs/...)
 
     @property
@@ -254,7 +232,6 @@ class KoCodeIntelService:
             else:
                 path = os.path.join("<Unsaved>", doc.baseName)
             self.debug("creating new %s document %s", doc.get_language(), path)
-            path = KoCodeIntelBuffer.normpath(path)
             buf = KoCodeIntelBuffer(lang=doc.get_language(),
                                     path=path,
                                     doc=doc,
@@ -270,10 +247,19 @@ class KoCodeIntelService:
         """
         if not self.enabled or not path:
             return None
-        path = KoCodeIntelBuffer.normpath(path)
-        for buf in self.buffers.values():
-            if buf.path == path:
-                return buf
+        path = os.path.normcase(path) # Fix case on Windows
+        if path.startswith(os.path.normcase("<Unsaved>")):
+            for doc, buf in self.buffers.items():
+                if doc.file:
+                    continue
+                if os.path.normcase(buf.path) == path:
+                    return buf
+        else:
+            for doc, buf in self.buffers.items():
+                if not doc.file:
+                    continue
+                if os.path.normcase(doc.file.displayPath) == path:
+                    return buf
         return None
 
     def is_cpln_lang(self, language):
@@ -327,7 +313,7 @@ class KoCodeIntelService:
             if self.mgr is mgr:
                 self.mgr = None
 
-    # nsIMemoryReporter
+    # nsIMemoryMultiReporter
     name = "codeintel"
     def collectReports(self, cb, closure):
         have_response = set()
@@ -441,14 +427,10 @@ class KoCodeIntelDBPreloader(object):
 
     def restart(self, *args, **kwargs):
         # This is a tad ugly...
-        log.debug("restarting codeintel preload...")
         self.notification.summary = "Pre-loading code intelligence database"
         self.notification.severity = Ci.koINotification.SEVERITY_INFO
-        self.notification.progress = 0
         self.notification.maxProgress = \
             Ci.koINotificationProgress.PROGRESS_INDETERMINATE
-        self.notification.details = self.notification.summary
-        self._update_status_message()
         self.showAction("stop")
         # clean up dead managers
         if self.svc.mgr and not self.svc.mgr.is_alive():
@@ -471,10 +453,10 @@ class KoCodeIntelDBPreloader(object):
             action.enabled = True
             self.notification.updateAction(action)
 
-    def progress(self, message, progress=None, state=None):
+    def progress(self, message, progress=None):
         assert threading.current_thread().name == "MainThread", \
             "KoCodeIntelService.activate::post_startup() should run on main thread!"
-        self.debug("Progress: [%s] %s%% @%s=%s", message, progress, state,
+        self.debug("Progress: [%s] %s @%s", message, progress,
                    self.mgr.state if self.mgr else "<None>")
         if progress == "(ABORTED)":
             # abort
@@ -490,7 +472,7 @@ class KoCodeIntelDBPreloader(object):
             self.callback(result=Cr.NS_ERROR_FAILURE,
                           message=message,
                           success=Ci.koIAsyncCallback.RESULT_SUCCESSFUL)
-        elif state in (None, KoCodeIntelManager.STATE.DESTROYED):
+        elif not self.mgr or self.mgr.state is KoCodeIntelManager.STATE.DESTROYED:
             # Startup died
             self.debug("startup failed: %s", message)
             self.notification.summary = message
@@ -502,8 +484,8 @@ class KoCodeIntelDBPreloader(object):
             self._update_status_message()
             self.callback(result=Cr.NS_ERROR_FAILURE,
                           message=message)
-        elif state is KoCodeIntelManager.STATE.BROKEN:
-            self.debug("db is broken, needs manual intervention")
+        elif self.mgr.state is KoCodeIntelManager.STATE.BROKEN:
+            # db is broken, needs manual intervention
             self.notification.summary = "There is an error with your code " \
                                          "intelligence database; it must be " \
                                          "reset before it can be used."
@@ -516,9 +498,9 @@ class KoCodeIntelDBPreloader(object):
             self._update_status_message()
             self.callback(result=Cr.NS_ERROR_FAILURE,
                           message="Code intelligence database error",
-                          success=Ci.koIAsyncCallback.RESULT_STOPPED)
-        elif state is KoCodeIntelManager.STATE.READY:
-            self.debug("db is ready")
+                          success=Ci.koIAsyncCallback.RESULT_SUCCESSFUL)
+        elif self.mgr.state is KoCodeIntelManager.STATE.READY:
+            # db is good
             if self._notification:
                 self.notification.maxProgress = \
                     Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE
@@ -531,9 +513,9 @@ class KoCodeIntelDBPreloader(object):
             self.callback(result=Cr.NS_OK, message=None,
                           success=Ci.koIAsyncCallback.RESULT_SUCCESSFUL)
         elif message is None and progress is None:
-            self.debug("nothing to report")
+            pass # nothing to report
         else:
-            self.debug("progress update, not finished yet")
+            # progress update, not finished yet
             if progress is Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE:
                 self.notification.maxProgress = progress
             elif isinstance(progress, (int, float)):
@@ -547,88 +529,11 @@ class KoCodeIntelDBPreloader(object):
                 if details:
                     details += "\n"
                 self.notification.details = details + message
-            self._update_status_message()
             # don't invoke callback
 
     @property
     def mgr(self):
         return self.svc.mgr
-
-
-class _Connection(object):
-    def get_commandline_args(self):
-        """Return list of command line args to pass to child"""
-        raise NotImplementedError()
-    def get_stream(self):
-        """Return file-like object for read/write"""
-        raise NotImplementedError()
-    def cleanup(self):
-        """Do any cleanup required"""
-
-class _TCPConnection(_Connection):
-    """A connection using TCP sockets"""
-    def __init__(self):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.bind(("127.0.0.1", 0))
-        self.sock.listen(0)
-    def get_commandline_args(self):
-        return ["--connect", "%s:%s" % self.sock.getsockname()]
-    def get_stream(self):
-        conn = self.sock.accept()
-        return conn[0].makefile("r+b", 0)
-    def cleanup(self):
-        if self.sock:
-            self.sock.close()
-
-if sys.platform.startswith("win"):
-    from win32_named_pipe import Win32Pipe
-    class _PipeConnection(Win32Pipe):
-        """This is a wrapper around our Win32Pipe class to expose the expected
-        API"""
-        pipe_prefix = "komodo-codeintel-"
-        def get_commandline_args(self):
-            return ["--connect", "pipe:%s" % (self.name,)]
-        def get_stream(self):
-            self._ensure_stream()
-            return self
-        def cleanup(self):
-            return
-    del Win32Pipe
-else:
-    # posix pipe class
-    class _PipeConnection(_Connection):
-        _dir = None
-        _read = None
-        _write = None
-        def get_commandline_args(self):
-            import tempfile
-            self._dir = tempfile.mkdtemp(prefix="komodo-codeintel-",
-                                         suffix="-oop-pipes")
-            os.mkfifo(join(self._dir, "in"), 0600)
-            os.mkfifo(join(self._dir, "out"), 0600)
-            return ["--connect", "pipe:%s" % (self._dir,)]
-        def get_stream(self):
-            # Open the write end first, so that the child doesn't hang
-            self._read = open(join(self._dir, "out"), "rb", 0)
-            self._write = open(join(self._dir, "in"), "wb", 0)
-            return self
-        def read(self, count):
-            return self._read.read(count)
-        def write(self, data):
-            return self._write.write(data)
-        def cleanup(self):
-            # don't close the streams here, but remove the files.  The fds are
-            # left open so we can communicate through them, but we no longer
-            # need the file names around.
-            os.remove(self._read.name)
-            os.remove(self._write.name)
-            try:
-                os.rmdir(self._dir)
-            except OSError:
-                pass
-        def close(self):
-            self._read.close()
-            self._write.close()
 
 class KoCodeIntelManager(threading.Thread):
     """This class manages a connection to an out-of-process codeintel process.
@@ -695,7 +600,8 @@ class KoCodeIntelManager(threading.Thread):
                            # (callback, request data, time sent)
                            # requests will time out at some point...
         self.unsent_requests = Queue.Queue()
-        threading.Thread.__init__(self, name="CodeIntel Manager")
+        threading.Thread.__init__(self,
+                                  name="Komodo Codeintel Manager %s" % (id(self)))
         self.daemon = True
         atexit.register(self.kill)
 
@@ -728,28 +634,6 @@ class KoCodeIntelManager(threading.Thread):
         return Cc["@activestate.com/koNotification/manager;1"]\
                 .getService(Ci.koINotificationManager)
 
-    def _create_notification(self, message, detail=None, highlight=True,
-                             timeout=None,
-                             severity=Ci.koINotification.SEVERITY_ERROR):
-        """Create new status bar notification with the given message"""
-        n = self.notificationMgr.createNotification("codeintel-message",
-                                  ["codeintel"],
-                                  None,
-                                  Ci.koINotificationManager.TYPE_TEXT |
-                                    Ci.koINotificationManager.TYPE_STATUS)
-        n.queryInterface(Ci.koINotification)
-        n.queryInterface(Ci.koINotificationText)
-        n.category = "codeintel-message"
-        n.summary = message
-        n.highlight = highlight
-        n.severity = severity
-        n.log = True
-        if detail:
-            n.details = detail
-        if timeout:
-            n.timeout = timeout
-        return n
-
     @property
     def state(self):
         return self._state
@@ -772,7 +656,6 @@ class KoCodeIntelManager(threading.Thread):
             "KoCodeIntelService.init_child should run on background thread!"
         self.debug("initializing child process")
         log_file = None
-        conn = None
         try:
             koDirSvc = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
             # We need to use -O for python to disable asserts, because we rely
@@ -782,18 +665,11 @@ class KoCodeIntelManager(threading.Thread):
                    "--import-path", koDirSvc.komodoPythonLibDir,
                    "--database-dir", join(koDirSvc.userDataDir, "codeintel")]
 
-            mode = (Cc["@activestate.com/koPrefService;1"]
-                      .getService().prefs
-                      .getString("codeintel_oop_mode", "pipe").lower())
-            if mode == "pipe":
-                conn = _PipeConnection()
-            elif mode == "tcp":
-                conn = _TCPConnection()
-            else:
-                log.warn("Unknown codeintel oop mode %s, falling back to pipes",
-                         mode)
-                conn = _PipeConnection()
-            cmd += conn.get_commandline_args()
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.bind(("127.0.0.1", 0))
+            sock.listen(0)
+
+            cmd += ["--connect", "%s:%s" % sock.getsockname()]
 
             # Logging
             try:
@@ -814,30 +690,26 @@ class KoCodeIntelManager(threading.Thread):
                                             stdin=None,
                                             stdout=log_file,
                                             stderr=log_file)
-            self._watchdog_thread = threading.Thread(target=self._run_watchdog_thread,
+            self._watchdog_thread = threading.Thread(target=self._watchdog_thread,
                                                      name="CodeIntel Subprocess Watchdog",
                                                      args=(self.proc,))
             self._watchdog_thread.start()
             assert self.proc.returncode is None, "Early process death"
 
-            self.pipe = conn.get_stream()
+            self.conn = sock.accept()
+            sock.close() # no need to keep listening
+            self.pipe = self.conn[0].makefile("r+b", 0)
             self.state = KoCodeIntelManager.STATE.CONNECTED
         except Exception as ex:
-            self.debug("Error initing child: %s", ex, exc_info=True)
-            if self.pipe:
-                self.pipe.close()
+            self.debug("Error initing child: %s", ex)
             self.pipe = None
             self.kill()
             self._init_callback(str(ex))
         else:
             self._send_init_requests()
         finally:
-            if log_file not in (None, sys.stdout, sys.stderr):
+            if log_file:
                 log_file.close()
-            try:
-                conn.cleanup()
-            except:
-                pass
 
     def _send_init_requests(self):
         assert threading.current_thread().name != "MainThread", \
@@ -857,9 +729,7 @@ class KoCodeIntelManager(threading.Thread):
             if response is not None:
                 message += "\n" + response.get("message",
                                                "(No further information available)")
-            if any(x is not None for x in (message, progress, state)):
-                # don't do anything if everything we have is just none
-                self._init_callback(message, progress, state)
+            self._init_callback(message, progress)
 
         def get_cpln_langs(request, response):
             if not response.get("success", False):
@@ -914,7 +784,7 @@ class KoCodeIntelManager(threading.Thread):
                 return
 
             update(response.get("message"),
-                   state=self.state,
+                   state=None,
                    progress=response.get("progress"))
 
             if "success" not in response:
@@ -998,7 +868,7 @@ class KoCodeIntelManager(threading.Thread):
             self.debug("internal initial requests completed")
             self._send_request_thread = threading.Thread(
                 target=self._send_queued_requests,
-                name="CodeIntel Manager Request Sending")
+                name="Komodo Codeintel Manager Request Sending Thread")
             self._send_request_thread.daemon = True
             self._send_request_thread.start()
             update("Codeintel ready.",
@@ -1040,11 +910,22 @@ class KoCodeIntelManager(threading.Thread):
         registerCodeIntelExtensions()
 
         # Extra catlogs
-        import directoryServiceUtils
         extra_dirs = {}
-        extra_dirs["catalog-dirs"] = list(self.svc._genDBCatalogDirs())
-        extra_dirs["lexer-dirs"] = directoryServiceUtils.getExtensionLexerDirs()
-        extra_dirs["module-dirs"] = directoryServiceUtils.getPylibDirectories()
+        extra_dirs["catalog-dirs"] = \
+            filter(os.path.exists, self.svc._genDBCatalogDirs())
+
+        # Find extensions that may have codeintel lang-support modules.
+        ext_module_dirs = set()
+        ext_lexer_dirs = set()
+        for ext_dir in directoryServiceUtils.getExtensionDirectories():
+            ext_module_dir = join(ext_dir, "pylib")
+            if os.path.exists(ext_module_dir):
+                ext_module_dirs.add(ext_module_dir)
+            ext_lexer_dir = join(ext_dir, "lexers")
+            if os.path.exists(ext_lexer_dir):
+                ext_lexer_dirs.add(ext_lexer_dir)
+        extra_dirs["module-dirs"] = list(ext_module_dirs)
+        extra_dirs["lexer-dirs"] = list(ext_lexer_dirs)
 
         self._send(callback=lambda request, response: None,
                    command="add-dirs",
@@ -1077,7 +958,7 @@ class KoCodeIntelManager(threading.Thread):
 
     def shutdown(self):
         """Abort any outstanding requests and shut down gracefully"""
-        self.abort()
+        self.abort = True
         if self.state is KoCodeIntelManager.STATE.DESTROYED:
             return # already dead
         if not self.pipe:
@@ -1132,11 +1013,7 @@ class KoCodeIntelManager(threading.Thread):
         self.requests[req_id] = (callback, kwargs, time.time())
         self._next_id += 1
         self.debug("sending frame: %s", text)
-        try:
-            self.pipe.write("%i%s" % (len(text), text))
-        except Exception as ex:
-            log.error("Failed to write to pipe (%s): (%i) %s", ex, len(text), text)
-            raise
+        self.pipe.write("%i%s" % (len(text), text))
 
     def run(self):
         """Event loop for the codeintel manager background thread"""
@@ -1195,7 +1072,6 @@ class KoCodeIntelManager(threading.Thread):
         except Exception as ex:
             if isinstance(ex, IOError) and \
               self.state in (self.STATE.QUITTING, self.STATE.DESTROYED):
-                log.debug("IOError in codeintel during shutdown; ignoring")
                 return # this is intentional
             self.log.exception("Error reading data from codeintel")
             self.kill()
@@ -1262,75 +1138,47 @@ class KoCodeIntelManager(threading.Thread):
         if path:
             self.notifyObservers(buf, "codeintel_buffer_scanned", path)
 
-    _memory_error_restart_count = 0
-
     def do_report_message(self, response):
         """Report a message from codeintel (typically, scan status) unsolicited
         response"""
-        message = response.get("message")
         if response.get("type") == "logging":
             try:
                 logger = logging.getLogger(response["name"])
-                log_level = response["level"]
-                logger.log(log_level, message)
-                # Anything with a logging level ERROR or higher also goes to the
-                # Komodo statusbar notifications (falls through).
-                if log_level < logging.ERROR:
-                    return
-
-                if (message.strip().endswith("MemoryError") and
-                   ("Traceback (most recent call last):" in message)):
-                    # Python memory error - kill the process (it will restart
-                    # itself) - bug 103067.
-                    if self._memory_error_restart_count < 20:
-                        log.fatal("Out-of-process ran out of memory - killing process")
-                        self.kill()
-                        self._memory_error_restart_count += 1
-                    return
+                logger.log(response["level"], response["message"])
             except Exception as ex:
                 log.warn("Failed to decode logging message: %r", ex)
+            return
 
-        if response.get("type") == "scan-progress":
-            # Update the existing notification.
-            n = self._notification
-        else:
-            # Use a new notification object.
-            n = self._create_notification("codeintel error")
-
-        n.summary = message
-
+        if response.get("message") is not None:
+            self._notification.msg = response["message"]
         if response.get("type") == "scan-progress":
             total = response["total"]
             completed = response["completed"]
             if total <= 0:
                 # remove the message
-                n.summary = None
+                self._notification.msg = None
             elif total <= completed:
                 # all done!
-                n.maxProgress = \
+                self._notification.maxProgress = \
                     Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE
-                n.iconURL = "chrome://fugue/skin/icons/tick.png"
-                n.timeout = 5000
+                self._notification.iconURL = "chrome://fugue/skin/icons/tick.png"
+                self._notification.timeout = 5000
             else:
                 if total < 2:
                     # use indeterminate for one item, since jumping from empty to
                     # full (and invisibile) is useless
-                    n.maxProgress = \
+                    self._notification.maxProgress = \
                         Ci.koINotificationProgress.PROGRESS_INDETERMINATE
                 else:
-                    n.progress = completed
-                    n.maxProgress = total
-                n.iconURL = None # remove any markings
-                n.timeout = 0
-        elif message:
-            message = message.strip()
-            n.details = message
-            n.summary = message.splitlines()[-1]
+                    self._notification.progress = completed
+                    self._notification.maxProgress = total
+                self._notification.iconURL = None # remove any markings
+                self._notification.timeout = 0
 
         # Don't need to manually call addNotification/removeNotification, as
         # the status_message handler (statusbar.js) will do that for us -
         # bug 100077.
-        self.notifyObservers(n, "status_message", None)
+        self.notifyObservers(self._notification, "status_message", None)
 
         self.debug("Report: %r", response)
 
@@ -1372,7 +1220,7 @@ class KoCodeIntelManager(threading.Thread):
         if self.is_alive():
             self.join(1)
 
-    def _run_watchdog_thread(self, proc):
+    def _watchdog_thread(self, proc):
         """Thread handler to watch when the subprocess dies"""
         self.debug("Waiting for process to die...")
         proc.wait()
@@ -1406,8 +1254,7 @@ class KoCodeIntelManager(threading.Thread):
             pass # umm... no idea?
         self.state = KoCodeIntelManager.STATE.DESTROYED
         self.pipe = None
-        if self._shutdown_callback:
-            self._shutdown_callback(self)
+        self._shutdown_callback(self)
 
     @property
     def ready(self):
@@ -1432,9 +1279,19 @@ class KoCodeIntelManager(threading.Thread):
             catalogs = filter(None, catalogs.split(os.pathsep))
 
             # get xml catalogs from extensions
-            from directoryServiceUtils import getExtensionCategoryDirs
-            ext_relpath = os.path.join("xmlcatalogs", "catalog.xml")
-            catalogs += getExtensionCategoryDirs('xmlcatalogs', ext_relpath)
+            from directoryServiceUtils import getExtensionDirectories
+            for dir in getExtensionDirectories():
+                candidates = [
+                    # The new, cleaner, location.
+                    os.path.join(dir, "xmlcatalogs", "catalog.xml"),
+                    # The old location (for compat). This is DEPRECATED
+                    # and should be removed in a future Komodo version.
+                    os.path.join(dir, "catalog.xml"),
+                ]
+                for candidate in candidates:
+                    if os.path.exists(candidate):
+                        catalogs.append(candidate)
+                        break
 
             # add our default catalog file
             koDirs = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
@@ -1442,7 +1299,7 @@ class KoCodeIntelManager(threading.Thread):
             self.send(command="set-xml-catalogs", catalogs=catalogs)
         elif topic == "quit-application":
             # Possibly unclean shutdown; do a fast kill.
-            self.abort()
+            self.abort = True
             self.state = KoCodeIntelManager.STATE.QUITTING
             self.kill()
             self.observerSvc.removeObserver(self, "quit-application")
@@ -1485,25 +1342,11 @@ class KoCodeIntelBuffer(object):
             "<Unsaved>/Text-1.txt" for an unsaved file
         """
         self.log = log.getChild("KoCodeIntelBuffer")
-        self.path = KoCodeIntelBuffer.normpath(path)
+        self.path = path
         self.lang = lang
         self.doc = doc
         self.send = svc.send
         self.svc = svc
-
-    @staticmethod
-    def normpath(path):
-        """Routine to normalize the path used for codeintel buffers
-        This is annoying because it needs to handle unsaved files, as well as
-        urls.
-        @note See also codeintel/lib/oop/driver.py::Driver.normpath
-        """
-        try:
-            if not path.startswith("<Unsaved>"):
-                return os.path.normcase(uriparse.URIToLocalPath(path))
-        except ValueError:
-            pass
-        return path # not a local path, don't normalize case
 
     @property
     def cpln_fillup_chars(self):
@@ -1535,7 +1378,7 @@ class KoCodeIntelBuffer(object):
         try:
             environ = koprocessutils.getUserEnv()
         except COMException as ex:
-            if ex.errno == Cr.NS_ERROR_NOT_INITIALIZED:
+            if ex.errno == nsError.NS_ERROR_NOT_INITIALIZED:
                 koprocessutils.initialize()
                 environ = koprocessutils.getUserEnv()
             else:
@@ -1625,15 +1468,15 @@ class KoCodeIntelBuffer(object):
 
         @ProxyToMainThreadAsync
         def callback(request, response):
+            if not response.get("success"):
+                try:
+                    handler.setStatusMessage(response.get("message", ""),
+                                             response.get("highlight", False))
+                except:
+                    self.log.exception("Error reporting async_eval_at_trg error: %s",
+                                       response.get("message", "<error not available>"))
+                return
             try:
-                if not response.get("success"):
-                    try:
-                        handler.setStatusMessage(response.get("message", ""),
-                                                 response.get("highlight", False))
-                    except:
-                        self.log.exception("Error reporting async_eval_at_trg error: %s",
-                                           response.get("message", "<error not available>"))
-                    return
                 if "retrigger" in response:
                     trg.retriggerOnCompletion = response["retrigger"]
 

@@ -51,10 +51,7 @@ xtk.color = {};
 /**
  * RGB
  *
- * convert rgb value into a long int
- *
- * WARNING: This actually returns a BGR value which works fine for
- * Scintilla, but won't work for most other targets.
+ * covert rgb value into a long int
  *
  * @param {Long} red
  * @param {Long} green
@@ -197,8 +194,11 @@ this.isDark = function xtk_isDark(hexstring) {
     var color_parts = [parseInt(hexstring.slice(0, 2), 16),
                        parseInt(hexstring.slice(2, 4), 16),
                        parseInt(hexstring.slice(4, 6), 16)];
-    var hsv = xtk.color.rgb2hsv(color_parts);
-    return hsv[2] <= 0.5;
+    var dark_items = color_parts.filter(
+                function(elem, index, elemlist) {
+                    return elem < 128;
+                });
+    return dark_items.length > 1;
 }
 
 /**
@@ -208,85 +208,6 @@ this.isDark = function xtk_isDark(hexstring) {
  */
 this.isLight = function xtk_isLight(hexstring) {
     return !(xtk.color.isDark(hexstring));
-}
-
-this.rgb2hsv = function(r, g, b) {
-    // Algorithm in taken from http://en.wikipedia.org/wiki/HSL_and_HSV
-    // Code adapted from C code found at http://search.cpan.org/~tonyc/Imager-0.98/
-    // Licensed under the Artistic License (1)
-    // http://dev.perl.org/licenses/artistic.html
-    // This method, and h2v2rgb below adapted for JS from C by EP
-    //
-    // Input: 3 integers, representing r,g,b, each in [0 .. 255]
-    // Output: Array of float in [0 .. 1)
-    if ([r, g, b].some(function(c) c < 0 || c > 255)) {
-        throw new Error("xtk.color.rgb2hsv: input '" + [r, g, b] + "' not three values in 0:255");
-    }
-    [r, g, b] = [r, g, b].map(function(c) c / 255.0);
-    const minRGB = Math.min(r, g, b);
-    const maxRGB = Math.max(r, g, b);
-    if (minRGB == maxRGB) {
-        return [0, 0, minRGB]; // neutral/grey, sat and hue both 0
-    }
-    const colorSpan = maxRGB - minRGB;
-    const cR = (maxRGB - r)/colorSpan;
-    const cG = (maxRGB - g)/colorSpan;
-    const cB = (maxRGB - b)/colorSpan;
-    var h;
-    if (maxRGB == r) {
-       h = cB - cG;
-    } else if (maxRGB == g) {
-       h = 2 + cR - cB;
-    } else {
-        h = 4 + cG - cR;
-    }
-    h *= 60;
-    if (h < 0) {
-        h += 360;
-    }
-    const H = h/360.0;
-    const S = colorSpan / maxRGB;
-    const V = maxRGB;
-    return [H, S, V];
-};
-
-this.hsv2rgb = function(h, s, v) {
-    // Input: 3 values in [0 .. 1]
-    // Output: 3 integers in [0 .. 255] representing an RGB value.
-    if ([h, s, v].some(function(c) c < 0 || c >= 1)) {
-        throw new Error("xtk.color.rgb2hsv: input '" + [h, s, v] + "' not three values in [0 .. 1)");
-    }
-    if (s == 0) {
-        return [v, v, v];
-    }
-    h *= 6;
-    const i = Math.floor(h);
-    const f = h - i;
-    const m = v * (1 - s);
-    const n = v * (1 - s * f);
-    const k = v * (1 - s * (1 - f));
-    var r, g, b;
-    switch(i) {
-        case 0:
-           [r, g, b] = [v, k, m];
-           break;
-        case 1:
-           [r, g, b] = [n, v, m];
-           break;
-        case 2:
-           [r, g, b] = [m, v, k];
-           break;
-        case 3:
-           [r, g, b] = [m, n, v];
-           break;
-        case 4:
-           [r, g, b] = [k, m, v];
-           break;
-        default:
-           [r, g, b] = [v, m, n];
-           break;
-    }
-    return [r, g, b].map(function(c) Math.round(c * 255));
 }
 
 }).apply(xtk.color);

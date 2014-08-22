@@ -40,7 +40,7 @@
 interface koIDocument;
 interface koIShowsProgress;
 interface koIProject;
-interface koIPreferenceSet;
+interface koIPreference;
 interface koICodeIntelService;
 interface koINotificationProgress;
 interface koIAsyncCallback;
@@ -48,7 +48,7 @@ interface koIAsyncCallback;
 [scriptable, uuid(8BFCA31B-3781-4F96-A7D2-60D6D6294889)]
 interface koICodeIntelCatalogsTreeView : nsITreeView {
     void init(in koICodeIntelService ciSvc,
-              in koIPreferenceSet prefSet,
+              in koIPreference prefSet,
               in wstring prefName);
     void save();
 
@@ -96,10 +96,7 @@ interface koICodeIntelDefinition: nsISupports {
 
 [scriptable, uuid(EC0B8148-8E12-43C2-8422-724E2478D884)]
 interface koICodeIntelTrigger: nsISupports {
-    // Must be kept in sync with the values in 'codeintel2/common.py'
-    const long TRG_FORM_CPLN = 0;
-    const long TRG_FORM_CALLTIP = 1;
-    const long TRG_FORM_DEFN = 2;
+    //XXX Should add the TRG_FORM_* constants.
 
     readonly attribute wstring lang;    // e.g. "Python", "CSS"
     readonly attribute long form;       // TRG_FORM_CPLN or TRG_FORM_CALLTIP
@@ -179,8 +176,7 @@ interface koICodeIntelCompletionUIHandler : nsISupports {
     void triggerPrecedingCompletion(in AString path);
 
     /**
-     * Called when the evaluation has completed.  This will be called even if
-     * nothing was found.
+     * Called when the evaluation has completed.
      */
     void done();
 };
@@ -378,31 +374,16 @@ interface koICodeIntelService: nsISupports {
     readonly attribute boolean isBackEndActive;
 
     /**
-     * Add a callback for activation state changes on the codeintel service.
-     * The callback will be invoked after the codeintel service database has
-     * been activated, as well as when it has been disabled.  The result of the
-     * callback will be:
-     *      RESULT_SUCCESSFUL:  Codeintel has successfully activated.
-     *      RESULT_STOPPED:     There was a recoverable error starting
-     *                          codeintel.  Try again with resetBrokenDB set.
-     *      RESULT_ERROR:       There was a fatal error string codeintel.
-     *                          Retrying is unlikely to be useful.
-     * The data in the callback may be an instance of koIErrorInfo to provide
-     * more information about issues with starting codeintel.
-     */
-    void addActivateCallback(in koIAsyncCallback callback);
-    /**
-     * Remove a previously added observer.
-     */
-    void removeActivateCallback(in koIAsyncCallback callback);
-
-    /**
      * Activate the codeintel service.
      *
+     * @param callback A callback that will be invoked after the database has
+     *      been activated.  The data provided to the callback will be an
+     *      instance of koIErrorInfo or null.
      * @param resetBrokenDB If true, will automatically reset the database if
      *      it appears to be broken.
      */
-    void activate([optional] in boolean resetBrokenDB);
+    void activate(in koIAsyncCallback callback,
+                  [optional] in boolean resetBrokenDB);
 
     /**
      * Deactivate the codeintel service.

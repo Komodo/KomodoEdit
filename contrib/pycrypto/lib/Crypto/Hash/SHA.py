@@ -20,7 +20,7 @@
 
 # Just use the SHA module from the Python standard library
 
-__revision__ = "$Id$"
+__revision__ = "$Id: SHA.py 4769 2010-04-09 17:53:50Z toddw $"
 
 __all__ = ['new', 'digest_size']
 

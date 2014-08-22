@@ -24,7 +24,7 @@
 
 """DSA public-key signature algorithm."""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: DSA.py 4769 2010-04-09 17:53:50Z toddw $"
 
 __all__ = ['generate', 'construct', 'error']
 

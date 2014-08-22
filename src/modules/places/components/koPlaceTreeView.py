@@ -50,7 +50,6 @@ import shutil
 import fnmatch
 import pprint
 import time
-import stat
 import uriparse
 
 from xpcom import components, COMException, ServerException, nsError
@@ -246,11 +245,23 @@ class _kplNonFolder(_kplBase):
 class _kplFile(_kplNonFolder):
     image_icon = 'places_file'
     _cellImageURL = None
+    _nativeMozIconEnabled = None
+
+    @property
+    def nativeMozIconEnabled(self):
+        if _kplFile._nativeMozIconEnabled is None:
+            prefs = components.classes["@activestate.com/koPrefService;1"].\
+                getService(components.interfaces.koIPrefService).prefs
+            _kplFile._nativeMozIconEnabled = prefs.getBooleanPref("native_mozicons_available")
+        return _kplFile._nativeMozIconEnabled
 
     @property
     def cellImageURL(self):
         if self._cellImageURL is None:
-            self._cellImageURL = "koicon://" + self.koFile.baseName + "?size=16"
+            if self.nativeMozIconEnabled:
+                self._cellImageURL = "moz-icon://" + self.koFile.baseName + "?size=16"
+            else:
+                self._cellImageURL = "chrome://komodo/skin/images/existing_file.png"
         return self._cellImageURL
 
 class _kplOther(_kplNonFolder):
@@ -391,8 +402,33 @@ class KoPlaceTreeView(TreeView):
         self._refreshOnUpdateCurrentPlace = set()
         
     def initialize(self):
+        mozMajorVer = 10000
+        nsXulAppInfo = components.classes["@mozilla.org/xre/app-info;1"].getService(components.interfaces.nsIXULAppInfo)
+        try:
+            mozMajorVer = int(nsXulAppInfo.platformVersion.split(".")[0])
+        except:
+            log.warn("Unable to parse nsXulAppInfo.platformVersion")
+        if mozMajorVer < 22:
+            # Older mozilla versions used a different properties mechanism.
+            self.getCellProperties = self.getCellPropertiesMoz21
+
+            self.atomSvc = components.classes["@mozilla.org/atom-service;1"].\
+                      getService(components.interfaces.nsIAtomService)
+            self._atomsFromName = {}
+            for name in ["places_busy",
+                         "places_folder_open",
+                         "places_folder_closed",
+                         "places_file",
+                         "places_folder_symlink_open",
+                         "places_folder_symlink_closed",
+                         "places_file_symlink",
+                         "missing_file_symlink",
+                         ]:
+                self._atomsFromName[name] = self.atomSvc.getAtom(name)
+        
         prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
+        prefs.prefObserverService.addObserver(self, 'native_mozicons_available', 0)
         if not prefs.hasPref("places"):
             placesPrefs = components.classes["@activestate.com/koPreferenceSet;1"].createInstance()
             prefs.setPref("places", placesPrefs)
@@ -425,6 +461,7 @@ class KoPlaceTreeView(TreeView):
     def terminate(self): # should be finalize
         prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
+        prefs.prefObserverService.removeObserver(self, 'native_mozicons_available')
         if prefs.hasPref("places-open-nodes-size"):
             lim = prefs.getLongPref("places-open-nodes-size")
         else:
@@ -470,6 +507,9 @@ class KoPlaceTreeView(TreeView):
                     self._invalidateRow(row)
             finally:
                 self._tree.endUpdateBatch()
+        elif topic == "native_mozicons_available":
+            # Unset the _nativeMozIconEnabled setting - and it will redetect.
+            _kplFile._nativeMozIconEnabled = None
         #qlog.debug("<< observe")
 
     # row generator interface
@@ -1755,6 +1795,34 @@ class KoPlaceTreeView(TreeView):
             log.debug("getCellText: No id %s at row %d", col_id, row)
             return "?"
 
+    def getCellPropertiesMoz21(self, row_idx, column, properties):
+        """Return cell properties - Mozilla 21 and before"""
+        col_id = column.id
+        assert col_id == "name"
+        try:
+            rowNode = self._rows[row_idx]
+####        zips = rowNode.getCellPropertyNames(col_id)
+####            qlog.debug("props(row:%d) name:%s) : %s",
+####                       row_idx, rowNode.name,  zips)
+            for propName in rowNode.getCellPropertyNames(col_id):
+                try:
+                    properties.AppendElement(self._atomsFromName[propName])
+                except KeyError:
+                    log.debug("getCellProperties: no property for %s",
+                               propName)
+        except AttributeError:
+            log.exception("getCellProperties(row_idx:%d, col_id:%r",
+                          row_idx, col_id)
+            return ""
+        if rowNode.properties is None:
+            # These values are cached, until there is a file_status change.
+            atomProperties = []
+            for prop in self._buildCellProperties(rowNode):
+                atomProperties.append(self.atomSvc.getAtom(prop))
+            rowNode.properties = atomProperties
+        for atomProp in rowNode.properties:
+            properties.AppendElement(atomProp)
+
     def getCellProperties(self, row_idx, column):
         """Return cell properties - Mozilla 22+ version"""
         col_id = column.id
@@ -2319,17 +2387,9 @@ class KoPlaceTreeView(TreeView):
                     continue
             if fileutils.isHiddenFile(full_name):
                 continue
-            # Uses stat (instead of isdir/isfile) to avoid multiple stat calls.
-            try:
-                fstat = os.stat(full_name)
-            except os.error:
-                # Can not access it, or could be a symlink that doesn't exist.
-                fmode = 0
-            else:
-                fmode = fstat.st_mode
-            if stat.S_ISDIR(fmode):
+            if os.path.isdir(full_name):
                 itemType = _PLACE_FOLDER
-            elif stat.S_ISREG(fmode):
+            elif os.path.isfile(full_name):
                 itemType = _PLACE_FILE
             else:
                 itemType = _PLACE_OTHER

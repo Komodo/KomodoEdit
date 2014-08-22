@@ -54,7 +54,7 @@ from testlib import TestFailed
 class IfaceTestCase(unittest.TestCase):
     def test_scintilla_iface(self):
         matches = {}
-        ignores = {'SCE_XML_PROLOG':1}
+        ignores = {'SCE_XML_PROLOG':1, 'SCE_UDL_UPPER_BOUND':1 }
         hit_ptn = re.compile(r'\s*val (SCE_([A-Z]+)_.*?)\s*=\s*(\d+)')
         line_num = 0
         msgs = []
@@ -69,8 +69,6 @@ class IfaceTestCase(unittest.TestCase):
             val = m.group(3)
             if not matches.has_key(lang): matches[lang] = {}
             if matches[lang].has_key(val):
-                if lang == "UDL" and fullname.endswith("_UPPER_BOUND"):
-                    continue # ignore upper bounds, they _should_ overlap
                 if not ignores.get(fullname, False):
                     msgs.append("Collision at line %d: language %s: %s and %s = %s" % \
                           (line_num, lang, matches[lang][val], fullname, val))
@@ -81,7 +79,7 @@ class IfaceTestCase(unittest.TestCase):
                         len(msgs) > 1 and "s" or "", filename))
             raise TestFailed("\n".join(msgs))
 
-if sys.platform.startswith("linux") or sys.platform == "darwin":
+if sys.platform.startswith("linux"):
     # Headless SciMoz is only enabled on Linux thus far.
     class SciMozHeadlessContext(object):
         def __init__(self):

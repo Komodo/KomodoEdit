@@ -39,7 +39,7 @@
 
 r"""cix2html -- Utilities to generate html content from cix files"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: cix2html.py 280 2007-10-29 23:25:56Z toddw $"
 __version_info__ = (1, 0, 0)
 __version__ = '.'.join(map(str, __version_info__))
 

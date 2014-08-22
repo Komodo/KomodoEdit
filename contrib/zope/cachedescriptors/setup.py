@@ -18,7 +18,7 @@
 ##############################################################################
 """Setup for zope.cachedescriptors package
 
-$Id$
+$Id: setup.py 10098 2012-05-04 00:55:43Z toddw $
 """
 import os
 #from setuptools import setup, find_packages

@@ -72,12 +72,36 @@ ko.hyperlinks = {};
     /*              module internals                  */
     /**************************************************/
 
-    const color = require("ko/color");
-
     var log = ko.logging.getLogger("hyperlinks");
     //log.setLevel(ko.logging.LOG_DEBUG);
 
     var _handlers = [];
+
+    // Add a controller for the invoke hyperlink command.
+    function hyperlinksController() {
+        ko.main.addWillCloseHandler(this.destructor, this);
+    }
+    // The following two lines ensure proper inheritance (see Flanagan, p. 144).
+    hyperlinksController.prototype = new xtk.Controller();
+    hyperlinksController.prototype.constructor = hyperlinksController;
+    hyperlinksController.prototype.destructor = function() {
+        window.controllers.removeController(this);
+    }
+    hyperlinksController.prototype.is_cmd_invokeHyperlink_supported = function() {
+        return ko.views.manager.currentView != null;
+    }
+    hyperlinksController.prototype.is_cmd_invokeHyperlink_enabled = function() {
+        return ko.views.manager.currentView &&
+               ko.views.manager.currentView.getAttribute('type') == 'editor';
+    }
+    hyperlinksController.prototype.do_cmd_invokeHyperlink = function() {
+        var view = ko.views.manager.currentView;
+        ko.hyperlinks.show(view, view.scimoz.currentPos, "manual");
+        if (view._hyperlink) {
+            view._hyperlink.jump(view);
+        }
+    }
+    window.controllers.appendController(new hyperlinksController());
 
     /**************************************************/
     /*              module classes                    */
@@ -158,7 +182,7 @@ ko.hyperlinks = {};
             indic_style = Components.interfaces.ISciMoz.INDIC_PLAIN;
         }
         if (typeof(indic_color) == 'undefined') {
-            indic_color = color.RGBToBGR(0x60,0x90,0xff);
+            indic_color = xtk.color.RGB(0x60,0x90,0xff);
         }
 
         this.name = name;

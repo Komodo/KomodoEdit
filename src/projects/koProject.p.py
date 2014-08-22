@@ -119,7 +119,7 @@ def _iconRelpathtoURL(relpath, project_dirname):
         return url
 
     if relpath.startswith('[ICONSDIR]'):
-        url = 'chrome://komodo/skin/images' + relpath[len('[ICONSDIR]'):]
+        url = 'chrome://komodo/content/icons' + relpath[len('[ICONSDIR]'):]
         return url
 
     return uriparse.localPathToURI(relpath)
@@ -554,6 +554,9 @@ class koPart(object):
             part._name = self._name
         if hasattr(self, '_path'):
             part._path = self._path
+
+        if self == self._project:
+            part.set_prefset(self.get_prefset().clone())
 
         a_names = self._attributes.keys()
         a_names.sort()
@@ -1213,11 +1216,9 @@ class koProject(koLiveFolderPart):
         return createPartFromType(type, self)
 
     def clone(self):
-        dummy_project = koProject()
-        dummy_project.create()
-        project = self._clone(dummy_project)
-        project.set_prefset(self.get_prefset().clone())
-        return project
+        project = koProject()
+        project.create()
+        return self._clone(project)
 
     def set_isDirty(self, dirty):
         if self._isDirty != dirty:
@@ -1243,7 +1244,7 @@ class koProject(koLiveFolderPart):
     def set_prefset(self, prefset):
         # @prefset - an unwrapped instance of koIPreferenceSet
         if self.prefset is not None:
-            self.prefset.prefObserverService.removeObserver(self, "")
+            self.prefset.get_prefObserverService().removeObserver(self, "")
         if prefset is not None:
             if prefset.preftype != 'project':
                 log.warn("prefset is not a koIProjectPreferenceSet %r", prefset)
@@ -1255,7 +1256,7 @@ class koProject(koLiveFolderPart):
             prefset.set_parent(UnwrapObject(globalPrefs))
         self.prefset = prefset
         if prefset is not None:
-            prefset.prefObserverService.addObserver(self, "", 1)
+            prefset.get_prefObserverService().addObserver(self, "", 1)
 
     def _update_lastmd5_from_contents(self, contents):
         self._lastmd5 = md5(contents).hexdigest()
@@ -1417,11 +1418,7 @@ class koProject(koLiveFolderPart):
                     # Turn dom node into a prefset. We set the 'preftype' field
                     # to ensure we get back a koIProjectPreferenceSet.
                     node.attributes['preftype'] = 'project'
-                    prefset = NodeToPrefset(node, self._relativeBasedir, 1)
-                    if __debug__:
-                        # this should always pass
-                        prefset.QueryInterface(components.interfaces.koIPreferenceRoot)
-                    prefset = UnwrapObject(prefset)
+                    prefset = UnwrapObject(NodeToPrefset(node, self._relativeBasedir, 1))
 
                     if kpfVer < 3 or \
                         not prefset.idref:
@@ -1434,6 +1431,15 @@ class koProject(koLiveFolderPart):
                     if prefset.hasPrefHere("mappedPaths"):
                         upgradeutils.upgrade_mapped_uris_for_prefset(prefset)
 
+                    if kpfVer < 5 and prefset.hasPrefHere("import_exclude_matches"):
+                        # Add filtering for the new project file types.
+                        value = prefset.getStringPref("import_exclude_matches")
+                        values = value.split(";")
+                        if "*.kpf" in values and not "*.komodoproject" in values:
+                            values.append("*.komodoproject")
+                            values.append(".komodotools")
+                            value = ";".join(values)
+                            prefset.setStringPref("import_exclude_matches", value)
                     idref = prefset.idref
                     try:
                         _owning_part = idmap[idref]
@@ -1595,7 +1601,7 @@ class koProject(koLiveFolderPart):
         # end for (event, node) in events:
         
         # create an empty prefset if we don't have one
-        self._upgradePrefs(kpfVer)
+        self.get_prefset()
 
         # hook-up children
         added = []
@@ -1631,33 +1637,7 @@ class koProject(koLiveFolderPart):
 
         dt = time.clock() - t1
         log.info("project.load\t%4.4f" % (dt))
-
-    def _upgradePrefs(self, kpf_version):
-        if kpf_version < 5 and prefs.hasPrefHere("import_exclude_matches"):
-            # Add filtering for the new project file types.
-            value = prefs.getStringPref("import_exclude_matches")
-            values = value.split(";")
-            if "*.kpf" in values and not "*.komodoproject" in values:
-                values.append("*.komodoproject")
-                values.append(".komodotools")
-                value = ";".join(values)
-                prefs.setStringPref("import_exclude_matches", value)
-
-        prefs = self.get_prefset()
-        if prefs.hasPrefHere("prefs_version"):
-            version = prefs.getLongPref("prefs_version")
-        else:
-            version = 0
-
-        if version < 1:
-            initSvc = UnwrapObject(components.classes["@activestate.com/koInitService;1"]
-                                             .getService())
-            initSvc._flattenLanguagePrefs(prefs)
-
-        if not version > 1:
-            version = 1
-            prefs.setLongPref("prefs_version", version)
-
+        
     def _cullTools(self):
         """ Remove any tools, and also folders that are emptied after all
         tools are removed, as part of moving to Komodo 6, project version 5.
@@ -1903,34 +1883,6 @@ class koProject(koLiveFolderPart):
         if os.path.isdir(filename):
             return Folder(url, basename, project, live)
         return File(url, basename, project)
-
-    def reassignUUIDs(self):
-        self._reassignChildUUIDs(self, {})
-        
-    def _reassignChildUUIDs(self, part, replaceUUIDMap):
-        attributes = part._attributes
-        id = part.id
-        if id not in replaceUUIDMap:
-            replaceUUIDMap[id] = getNextId(part)
-        part.id = replaceUUIDMap[id]
-        attributes['id'] = part.id
-        idref = part._idref
-        if idref:
-            if idref not in replaceUUIDMap:
-                replaceUUIDMap[idref] = getNextId(part)
-            part._idref = replaceUUIDMap[idref]
-            attributes['idref'] = part._idref
-        try:
-            prefset = UnwrapObject(part.get_prefset())
-            if prefset:
-                idref = prefset.idref
-                if idref and idref in replaceUUIDMap:
-                    prefset.idref = replaceUUIDMap[idref]
-        except:
-            log.exception("Failed to get prefset/update prefset.idref")
-        for child in getattr(part, 'children', []):
-            self._reassignChildUUIDs(child, replaceUUIDMap)
-            
 
 class koUnopenedProject(koProject):
     _com_interfaces_ = [components.interfaces.koIUnopenedProject]

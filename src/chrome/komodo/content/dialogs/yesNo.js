@@ -169,6 +169,7 @@ function handleKeys(event) {
     var yesButton = dialog.getButton("accept");
     var noButton = dialog.getButton("cancel");
     switch(event.keyCode) {
+        case event.DOM_VK_ENTER:
         case event.DOM_VK_RETURN:
             var retFunc;
             if (yesButton.hasAttribute("default")) {

@@ -24,7 +24,7 @@
 
 """Self-test suite for Crypto.Cipher.ARC4"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: test_ARC4.py 4769 2010-04-09 17:53:50Z toddw $"
 
 # This is a list of (plaintext, ciphertext, key[, description]) tuples.
 test_data = [

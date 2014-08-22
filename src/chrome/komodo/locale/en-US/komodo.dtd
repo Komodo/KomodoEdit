@@ -88,10 +88,9 @@
 <!ENTITY copy.label "Copy">
 <!ENTITY copy.tooltiptext "Copy">
 <!ENTITY copyButton.accesskey "C">
-<!ENTITY copyFindResults.tooltiptext "Copy the find results to the clipboard">
 <!ENTITY createTemplateFromProject.label "Create Template From Project...">
 <!ENTITY createTemplateFromProject.accesskey "C">
-<!ENTITY currentFilePreferences.label "Current File Preferences...">
+<!ENTITY currentFileSettings.label "Current File Settings...">
 <!ENTITY customizeToolbars.menu.label "Customize...">
 <!ENTITY customizeToolbars.menu.accesskey "C">
 <!ENTITY cut.label "Cut">
@@ -233,7 +232,6 @@
 <!ENTITY fileOpen.label "File...">
 <!ENTITY fileEncoding.tooltiptext "File Encoding">
 <!ENTITY filePosition.tooltiptext "File Position">
-<!ENTITY filePreferences.label "File Preferences">
 <!ENTITY fileType.tooltiptext "File Type">
 <!ENTITY find.label "Find...">
 <!ENTITY findAllFunctions.label "Find All Functions">
@@ -332,7 +330,7 @@
 <!ENTITY gotoLine.accesskey "G">
 <!ENTITY gotoLine.label "Go to Line...">
 <!ENTITY gotoLine.prompt.description "Enter a line number to go to. Prefix + or - to move relative to the current line. For example: +4 will move forward 4 lines. Specify a column # or offset after a comma. eg: +4,-8 moves down 4, left 8.">
-<!ENTITY gotoLine.prompt.label "Line number:">
+<!ENTITY gotoLine.prompt.label "Enter line number:">
 <!ENTITY goToTab.menu.accesskey "A">
 <!ENTITY goToTab.menu.label "Go to Tab">
 <!ENTITY help.label "Help">
@@ -394,11 +392,6 @@
 <!ENTITY macro.label "Macro">
 <!ENTITY macroEndRecording.desc "Macro: End Recording">
 <!ENTITY macroExecuteLastMacro.desc "Macro: Execute Last Macro">
-<!ENTITY macroNew.menu.accesskey "C">
-<!ENTITY macroNew.menu.label "Create New Macro">
-<!ENTITY macroNew.toolbar.label "New Macro">
-<!ENTITY macroNew.tooltiptext "Create a new macro that can be saved into the toolbox">
-<!ENTITY macroNew.command.desc "Macro: Create a new Toolbox Macro">
 <!ENTITY macroPauseRecording.desc "Macro: Pause Recording">
 <!ENTITY macroSaveToToolbox.desc "Macro: Save to Toolbox">
 <!ENTITY macroStartResumeRecording.desc "Macro: Start/Resume Recording">
@@ -550,8 +543,7 @@
 <!ENTITY printSettings.label "Print Settings">
 <!ENTITY printToHTMLFile.label "Print to HTML File...">
 <!ENTITY project.label "Project">
-<!ENTITY projectPreferences.accesskey "P">
-<!ENTITY projectPreferences.label "Project Preferences">
+<!ENTITY projectPreferences.label "Project Preferences...">
 <!ENTITY projects.label "Projects">
 <!ENTITY projectsToolboxAddNewFile.desc "Projects/Toolbox: Add New File...">
 <!ENTITY projectsToolboxAddNewFileFromTemplate.desc "Projects/Toolbox: Add New File From Template...">
@@ -560,6 +552,7 @@
 <!ENTITY properties.label "Properties">
 <!ENTITY projectProperties.accesskey "P">
 <!ENTITY projectProperties.desc "Projects/Toolbox: Properties">
+<!ENTITY propertiesAndSettings.label "Properties and Settings">
 <!ENTITY quitApplicationCmd.label "Quit">
 <!ENTITY quitApplicationCmd.accesskey "Q">
 <!ENTITY quitApplicationCmdMac.label "Quit &brandShortName;">
@@ -827,8 +820,6 @@
 <!--
 <!ENTITY editorCopyCurrentLine.desc "Editor: Copy current line">
 -->
-<!ENTITY openAddonsDialog.desc "Add-ons: Open the addon dialog (extension manager)">
-
 
 <!-- Mac system menu definitions -->
 <!ENTITY menuSysMacServices.label "Services">

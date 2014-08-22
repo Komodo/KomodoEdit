@@ -43,6 +43,7 @@ import logging
 import SilverCity
 from SilverCity import CSS, ScintillaConstants
 from codeintel2.shared_lexer import EOF_STYLE, Lexer
+from codeintel2.lang_css import CSSLangIntel, raw_word_lists
 
 log = logging.getLogger("css_linter")
 #log.setLevel(logging.DEBUG)
@@ -1137,7 +1138,6 @@ class _CSSParser(object):
             and self._classifier.is_operator_choose(tok, ("+", ">"))):
             self._parse_ruleset()
             return
-        from codeintel2.lang_css import raw_word_lists
         self._tokenizer.put_back(tok)
         if (self._classifier.is_identifier(tok)
             and (tok['text'] in raw_word_lists[0] or tok['text'] in raw_word_lists[2])):

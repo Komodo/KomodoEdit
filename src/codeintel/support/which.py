@@ -65,7 +65,7 @@ _cmdlnUsage = """
     files without executable access.
 """
 
-__revision__ = "$Id$"
+__revision__ = "$Id: which.py 4991 2010-05-12 20:02:00Z toddw $"
 __version_info__ = (1, 1, 3)
 __version__ = '.'.join(map(str, __version_info__))
 __all__ = ["which", "whichall", "whichgen", "WhichError"]

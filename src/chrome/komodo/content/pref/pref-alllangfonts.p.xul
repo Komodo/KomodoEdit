@@ -204,40 +204,27 @@
                                         class="italictext-icon button-toolbar-d"
                                         oncommand="onClickBoldOrItalic(this)" />
                                 <vbox>
-                                    <hbox>
-                                        <hbox align="center">
-                                            <label value="&filPrefAllLangForeText;"/>
-                                            <colorpicker id="fixedColorPickerFore"
-                                                         palettename="scin-customize"
-                                                         type="button"
-                                                         persist="palettename"
-                                                         onchange="setColour(this)"/>
-                                            <button style="margin-bottom: 6px"
-                                                    class="arrow-right-small-icon button-toolbar-a"
-                                                    oncommand="customColor('fixedColorPickerFore')"/>
-                                        </hbox>
-                                        <hbox align="center">
-                                            <label value="&filPrefAllLangBackText;"/>
-                                            <colorpicker id="fixedColorPickerBack"
-                                                         palettename="scin-customize"
-                                                         type="button"
-                                                         persist="palettename"
-                                                         onchange="setColour(this)"/>
-                                            <button style="margin-bottom: 6px"
-                                                    class="arrow-right-small-icon button-toolbar-a"
-                                                    oncommand="customColor('fixedColorPickerBack')"/>
-                                        </hbox>
+                                    <hbox align="center">
+                                        <label value="&filPrefAllLangForeText;"/>
+                                        <colorpicker id="fixedColorPickerFore"
+                                                     palettename="scin-customize"
+                                                     type="button" 
+                                                     persist="palettename"
+                                                     onchange="setColour(this)"/>
+                                        <button style="margin-bottom: 6px"
+                                                class="arrow-right-small-icon button-toolbar-a"
+                                                oncommand="customColor('fixedColorPickerFore')"/>
                                     </hbox>
                                     <hbox align="center">
-                                        <label value="&lineSpacing.label;"/>
-                                        <textbox id="fixedLineSpacing"
-                                                 type="number"
-                                                 hidespinbuttons="true"
-                                                 min="0"
-                                                 max="99"
-                                                 value="0"
-                                                 size="2"
-                                                 oninput="setLineSpacing('fixed')"/>
+                                        <label value="&filPrefAllLangBackText;"/>
+                                        <colorpicker id="fixedColorPickerBack"
+                                                     palettename="scin-customize"
+                                                     type="button" 
+                                                     persist="palettename"
+                                                     onchange="setColour(this)"/>
+                                        <button style="margin-bottom: 6px"
+                                                class="arrow-right-small-icon button-toolbar-a"
+                                                oncommand="customColor('fixedColorPickerBack')"/>
                                     </hbox>
                                 </vbox>
                             </hbox>
@@ -296,40 +283,27 @@
                                         class="italictext-icon button-toolbar-d"
                                         oncommand="onClickBoldOrItalic(this)"/>
                                 <vbox>
-                                    <hbox>
-                                        <hbox align="center">
-                                            <label value="&filPrefAllLangForeText;"/>
-                                            <colorpicker id="propColorPickerFore"
-                                                         palettename="scin-customize"
-                                                         type="button"
-                                                         persist="palettename"
-                                                         onchange="setColour(this)"/>
-                                            <button style="margin-bottom: 6px"
-                                                    class="arrow-right-small-icon button-toolbar-a"
-                                                    oncommand="customColor('propColorPickerFore')"/>
-                                        </hbox>
-                                        <hbox align="center">
-                                            <label value="&filPrefAllLangBackText;"/>
-                                            <colorpicker id="propColorPickerBack"
-                                                         palettename="scin-customize"
-                                                         type="button"
-                                                         persist="palettename"
-                                                         onchange="setColour(this)"/>
-                                            <button style="margin-bottom: 6px"
-                                                    class="arrow-right-small-icon button-toolbar-a"
-                                                    oncommand="customColor('propColorPickerBack')"/>
-                                        </hbox>
+                                    <hbox align="center">
+                                        <label value="&filPrefAllLangForeText;"/>
+                                        <colorpicker id="propColorPickerFore"
+                                                     palettename="scin-customize"
+                                                     type="button" 
+                                                     persist="palettename"
+                                                     onchange="setColour(this)"/>
+                                        <button style="margin-bottom: 6px"
+                                                class="arrow-right-small-icon button-toolbar-a"
+                                                oncommand="customColor('propColorPickerFore')"/>
                                     </hbox>
                                     <hbox align="center">
-                                        <label value="&lineSpacing.label;"/>
-                                        <textbox id="propLineSpacing"
-                                                 type="number"
-                                                 hidespinbuttons="true"
-                                                 min="0"
-                                                 max="99"
-                                                 value="0"
-                                                 size="2"
-                                                 oninput="setLineSpacing('proportional')"/>
+                                        <label value="&filPrefAllLangBackText;"/>
+                                        <colorpicker id="propColorPickerBack"
+                                                     palettename="scin-customize"
+                                                     type="button" 
+                                                     persist="palettename"
+                                                     onchange="setColour(this)"/>
+                                        <button style="margin-bottom: 6px"
+                                                class="arrow-right-small-icon button-toolbar-a"
+                                                oncommand="customColor('propColorPickerBack')"/>
                                     </hbox>
                                 </vbox>
                             </hbox>
@@ -368,7 +342,7 @@
                         <label value="&filePrefAllLangColorChoice.label;" accesskey="&filePrefAllLangColorChoice.accesskey;" control="extracolors"/>
                         <hbox align="center">
                             <menulist id="extracolors">
-                                <menupopup id="extracolors.menupopup">
+                                <menupopup>
                                     <menuitem id="caretLineBack"
                                               label="&currentLineBackgroundColor.label;"
                                               value="0"
@@ -409,7 +383,6 @@
                                               label="&whitespaceForegroundColor.label;"
                                               value="10"
                                               oncommand="updateSchemeColor('whitespaceColor')"/>
-                                    <!-- Values 11 and 12 are used by track changes add-on -->
                                 </menupopup>
                             </menulist>
                             <colorpicker 

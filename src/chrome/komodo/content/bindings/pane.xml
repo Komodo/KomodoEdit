@@ -197,9 +197,8 @@
                 }
               }
               tabpanel.insertBefore(widget, insertRef);
-              for (let w_ of tabpanel.querySelectorAll("browser")) {
-                let w = w_; // bind to a new variable per iteration
-                if (!w.previousElementSibling) {
+              for (let widget of tabpanel.querySelectorAll("browser")) {
+                if (!widget.previousElementSibling) {
                   continue; // skip first widget
                 }
                 let splitter = this.ownerDocument.createElementNS(this.namespaceURI, "splitter");
@@ -211,10 +210,10 @@
                 box.setAttribute("flex", 1);
                 splitter.appendChild(box);
                 
-                tabpanel.insertBefore(splitter, w);
+                tabpanel.insertBefore(splitter, widget);
                 splitter.addEventListener("contextmenu",
                                           (function(event) {
-                                            this._updateContextPopup(w);
+                                            this._updateContextPopup(widget);
                                             document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup")
                                                     .openPopup(event.target, "after_pointer", 0, 0, true, false, event);
                                           }).bind(this),
@@ -1024,7 +1023,7 @@
 
       <method name="_dispatchEvent">
         <!--
-         - Helper to dispatch a CustomEvent at a given target
+         - Helper to dispatch a DataContainerEvent at a given target
          - @param name {String} The name of the event to disptach
          - @param target {EventTarget} The target to dispatch the event at
          - @param params {Object} Extra data to set on the event
@@ -1041,9 +1040,11 @@
           }
           let doc = target.nodeType == Node.DOCUMENT_NODE ?
             target : target.ownerDocument;
-          let event = new CustomEvent(name, { bubbles: true,
-                                              cancelable: true,
-                                              detail: params });
+          let event = doc.createEvent("DataContainerEvent");
+          event.initEvent(name, true /*bubble*/, true /*cancel*/);
+          for (let key of Object.getOwnPropertyNames(params||{})) {
+            event.setData(key, params[key]);
+          }
           target.dispatchEvent(event);
           return !event.defaultPrevented;
         ]]>
@@ -2300,15 +2301,11 @@
 
         let setOrientCallback = event => {
           try {
+            event.target.removeEventListener(event.type, setOrientCallback);
             // In some cases, the content window would have already been moved
             // from this widget (into another one); so, we need to avoid
             // referring to |this|, but use window.frameElement instead.
             let widget = event.target.defaultView.frameElement;
-            if (!widget || !widget._is_ko_widget) {
-              // This is not the Komodo browser you are looking for, bug 101711.
-              return;
-            }
-            event.target.removeEventListener(event.type, setOrientCallback);
             let docElem = event.target.documentElement;
             docElem.classList.add("widget");
             if (widget.containerPane.hasAttribute("orient")) {

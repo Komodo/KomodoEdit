@@ -24,7 +24,7 @@
 # ===================================================================
 #
 
-__revision__ = "$Id$"
+__revision__ = "$Id: number.py 7847 2011-04-21 18:51:40Z toddw $"
 
 from Crypto.pct_warnings import GetRandomNumber_DeprecationWarning
 import math

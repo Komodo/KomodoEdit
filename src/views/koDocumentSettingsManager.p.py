@@ -163,6 +163,7 @@ class koDocumentSettingsManager:
         if lexer is None:
             lexer = languageOb.getLanguageService(components.interfaces.koILexerLanguageService)
         lexer.setCurrent(scimoz)
+        self._setIndicators(languageOb, scimoz)
         self._applyPrefs(prefs, scimoz)
         
         if prefs.hasLongPref('anchor'):
@@ -265,7 +266,7 @@ class koDocumentSettingsManager:
         prefs.setLongPref('xOffset', scimoz.xOffset)
         prefs.setLongPref('firstVisibleLine', scimoz.firstVisibleLine)
         prefs.setBooleanPref('showWhitespace', scimoz.viewWS)
-        prefs.setBooleanPref('showLineNumbers', scimoz.getMarginWidthN(scimoz.MARGIN_LINENUMBERS) != 0)
+        prefs.setBooleanPref('showLineNumbers', scimoz.getMarginWidthN(0) != 0)
         prefs.setBooleanPref('showIndentationGuides', scimoz.indentationGuides)
         prefs.setBooleanPref('showEOL', scimoz.viewEOL)
         prefs.setBooleanPref('editFoldLines', self._foldFlags)
@@ -318,6 +319,30 @@ class koDocumentSettingsManager:
         #    out of the view prefs here breaks the transfer of breakpoints
         #    via a "Save As..." operation. See:
         #       views-editor.xml::saveAsURI(), line 609
+
+    def _setIndicators(self, languageOb, scimoz):
+        styleBits = languageOb.styleBits
+        scimoz.styleBits = styleBits
+        # Determine how many indicators we can have.
+        indicBits = languageOb.indicatorBits
+
+        #XXX Scintilla renames the indicators depending on the number of style bits :-(.
+        #XXX Compensate.
+        indicOffset = 8 - styleBits - indicBits
+        if indicBits == 2:
+            scimoz.indicSetStyle(indicOffset + 1, scimoz.INDIC_SQUIGGLE);
+            scimoz.indicSetFore(indicOffset + 1, RGB(0xff,0,0));
+            scimoz.indicSetStyle(indicOffset, scimoz.INDIC_SQUIGGLE);
+            scimoz.indicSetFore(indicOffset, RGB(0,0x80,0));
+        else:
+            scimoz.indicSetStyle(indicOffset, scimoz.INDIC_SQUIGGLE);
+            scimoz.indicSetFore(indicOffset, RGB(0xff,0,0));
+
+    def _updateLineNumberMargin(self):
+        for scintilla in self._scintillas:
+            scintilla.scimoz.setMarginWidthN(0,
+                scintilla.scimoz.textWidth(0,
+                    str(max(1000,scintilla.scimoz.lineCount*2)))+5)
 
     # nsIObserver interface
     def observe(self, prefSet, topic, data):
@@ -407,15 +432,11 @@ class koDocumentSettingsManager:
             scintilla.scimoz.viewEOL = prefSet.getBooleanPref('showEOL')
 
     def _apply_showLineNumbers(self, prefSet):
-        visible = prefSet.getBoolean('showLineNumbers', True)
-        for scintilla in self._scintillas:
-            scimoz = scintilla.scimoz
-            if visible:
-                # Make margin visible and adjust width appropriately.
-                scimoz.setMarginWidthN(scimoz.MARGIN_LINENUMBERS, 1)
-                scimoz.updateMarginWidths()
-            else:
-                scimoz.setMarginWidthN(scimoz.MARGIN_LINENUMBERS, 0)
+        if prefSet.getBooleanPref('showLineNumbers'):
+            self._updateLineNumberMargin()
+        else:
+            for scintilla in self._scintillas:
+                scintilla.scimoz.setMarginWidthN(0, 0)
 
     def _apply_caretStyle(self, prefSet):
         caretStyle = prefSet.getLongPref('caretStyle')
@@ -451,13 +472,12 @@ class koDocumentSettingsManager:
         # use margin 1 for folding
         if not self.koDoc.languageObj.foldable:
             for scintilla in self._scintillas:
-                scimoz = scintilla.scimoz
-                scimoz.setProperty("fold", "0")
-                scimoz.setMarginWidthN(scimoz.MARGIN_FOLDING, 0)
+                scintilla.scimoz.setProperty("fold", "0")
+                scintilla.scimoz.setMarginWidthN(1, 0)
             return
         foldstyle = prefSet.getStringPref('editFoldStyle')
         if foldstyle != 'none':
-            self._enableFolding(foldstyle)
+            self._enableFolding(1, foldstyle)
             # we'll just work with one of the views
             scimoz = self._scintillas[0].scimoz
             # XXX review logic
@@ -467,7 +487,7 @@ class koDocumentSettingsManager:
             if scimoz.endStyled < needStyleTo:
                 scimoz.colourise(scimoz.endStyled, needStyleTo)
             for scintilla in self._scintillas:
-                scintilla.scimoz.setMarginWidthN(scimoz.MARGIN_FOLDING, 15)
+                scintilla.scimoz.setMarginWidthN(1, 15)
         else:
             for scintilla in self._scintillas:
                 scimoz = scintilla.scimoz
@@ -478,8 +498,8 @@ class koDocumentSettingsManager:
                     i = scimoz.contractedFoldNext(i+1)
                 # If we don't do this, folding trails off into other buffers.
                 scimoz.setProperty("fold", "0")
-                scimoz.setMarginWidthN(scimoz.MARGIN_FOLDING, 0)
-
+                scimoz.setMarginWidthN(1, 0)
+            
     def _apply_encoding(self, prefSet):
         if prefSet.hasStringPref('encoding'):
             for scintilla in self._scintillas:
@@ -497,7 +517,7 @@ class koDocumentSettingsManager:
         pass
         #self._applyStyles()
     
-    def _enableFolding(self, foldstyle):
+    def _enableFolding(self, whichMargin, foldstyle):
         for scin in self._scintillas:
-            scin.setFoldStyle(foldstyle)
+            scin.setFoldStyle(whichMargin, foldstyle)
 

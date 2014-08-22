@@ -41,14 +41,17 @@ import sys
 import re
 import logging
 import threading
+import re
+from pprint import pprint
+import difflib
 
-from zope.cachedescriptors.property import LazyClassAttribute
-
-from xpcom import components, COMException
-from xpcom.server import UnwrapObject
+from xpcom import components, nsError, ServerException, COMException
+from xpcom.server import WrapObject, UnwrapObject
 from xpcom.client import WeakReference
 
 import eollib
+import difflibex
+from zope.cachedescriptors.property import LazyClassAttribute
 
 
 #---- globals and support routines
@@ -102,7 +105,6 @@ class KoDocumentService:
         self._docCounters = {}
         self._documents = {}
 
-        self.obsSvc.addObserver(self, 'komodo-post-startup', False)
         self.obsSvc.addObserver(self, 'xpcom-shutdown', False)
         self.obsSvc.addObserver(self, 'current_project_changed', False)
         
@@ -112,19 +114,18 @@ class KoDocumentService:
         self._cv = threading.Condition()
         self._cDoc = threading.Lock()
         
+        self._thread = threading.Thread(target = KoDocumentService._autoSave,
+                                        name = "Document Service - autosave",
+                                        args = (self,))
+        # Set the autosave thread as a daemon thread so it won't prevent
+        # shutdown; see bug 101357.  This is only safe because the actual
+        # writing happens on the main thread via ProxyToMainThread; see
+        # koDocumentBase._doAutoSave in koDocument.py.
+        self._thread.daemon = True
+        self._thread.start()
+
     def observe(self, subject, topic, data):
-        if topic == 'komodo-post-startup':
-            self.obsSvc.removeObserver(self, 'komodo-post-startup')
-            self._thread = threading.Thread(target = KoDocumentService._autoSave,
-                                            name = "Document Service - autosave",
-                                            args = (self,))
-            # Set the autosave thread as a daemon thread so it won't prevent
-            # shutdown; see bug 101357.  This is only safe because the actual
-            # writing happens on the main thread via ProxyToMainThread; see
-            # koDocumentBase._doAutoSave in koDocument.py.
-            self._thread.daemon = True
-            self._thread.start()
-        elif topic == "xpcom-shutdown":
+        if topic == "xpcom-shutdown":
             self.shutdownAutoSave()
             self.obsSvc.removeObserver(self, 'current_project_changed')
             self.obsSvc.removeObserver(self, 'xpcom-shutdown')
@@ -145,10 +146,7 @@ class KoDocumentService:
             docs = []
             # clear out all of the objects w/ no references to them
             for displayPath, wrappedDocRef in self._documents.items():
-                try:
-                    wrappedDoc = wrappedDocRef()
-                except COMException:
-                    wrappedDoc = None  # dead object
+                wrappedDoc = wrappedDocRef()
                 if not wrappedDoc:
                     del self._documents[displayPath]
                     continue
@@ -207,13 +205,11 @@ class KoDocumentService:
             self._cv.acquire()
             self._cv.notify()
             self._cv.release()
-            if self._thread:
-                # here we wait for the thread to terminate
-                log.debug("waiting for thread to terminate")
-                # Wait for a maximum of 3 seconds before returning
-                self._thread.join(3)
-                log.debug("thread has terminated")
-                self._thread = None
+            # here we wait for the thread to terminate
+            log.debug("waiting for thread to terminate")
+            # Wait for a maximum of 3 seconds before returning
+            self._thread.join(3)
+            log.debug("thread has terminated")
 
     #koIDocument createNewDocumentFromURI(in wstring uri);
     def createNewDocumentFromURI(self, uri):
@@ -246,17 +242,20 @@ class KoDocumentService:
 
     def _getEncodingFromFilename(self, fname):
         try:
+            languagesPrefs = self._globalPrefs.getPref('languages')
             language = self.langRegistrySvc.suggestLanguageForFile(fname)
             if not language:
                 language = 'Text'
-            encodingPref = 'languages/' + language + '/newEncoding'
-            encoding = self._globalPrefs.getString(encodingPref,
-                                                   'Default Encoding')
+            encoding = 'Default Encoding'
+            if languagesPrefs.hasPref('languages/'+language):
+                langPref = languagesPrefs.getPref('languages/'+language)
+                if langPref.hasStringPref(language+'/newEncoding'):
+                    encoding = langPref.getStringPref(language+'/newEncoding')
             if encoding == 'Default Encoding':
-                encoding = self._globalPrefs.getString('encodingDefault')
+                encoding = self._globalPrefs.getStringPref('encodingDefault')
         except Exception, e:
             log.error("Error getting newEncoding for %s", language, exc_info=1)
-            encoding = self._globalPrefs.getString('encodingDefault')
+            encoding = self._globalPrefs.getStringPref('encodingDefault')
         return encoding
 
     def _fixupEOL(self, doc):
@@ -349,10 +348,7 @@ class KoDocumentService:
             strong = []
             # clear out all of the objects w/ no references to them
             for displayPath, wrappedDocRef in self._documents.items():
-                try:
-                    wrappedDoc = wrappedDocRef()
-                except COMException:
-                    wrappedDoc = None  # dead object
+                wrappedDoc = wrappedDocRef()
                 if not wrappedDoc:
                     del self._documents[displayPath]
                     continue
@@ -373,10 +369,7 @@ class KoDocumentService:
         self._cDoc.acquire()
         try:
             for displayPath, wrappedDocRef in self._documents.items():
-                try:
-                    wrappedDoc = wrappedDocRef()
-                except COMException:
-                    wrappedDoc = None  # dead object
+                wrappedDoc = wrappedDocRef()
                 if not wrappedDoc:
                     del self._documents[displayPath]
                 elif ((wrappedDoc.isUntitled and fequal(wrappedDoc.baseName, uri)) or
@@ -417,73 +410,71 @@ class KoDocumentService:
     # List of regex'es that we use to look for filename/line# in the input line
     # These should match all of the styles done by Scintilla in LexOthers.cxx,
     # in the ColouriseErrorListLine function
-    @LazyClassAttribute
-    def _errorHotspotPatterns(self):
-        return [
-            # SCE_ERR_PERL, e.g.
-            #   ... at D:\trentm\as\Apps\Komodo-devel\foo.pl line 2.
-            #   ... at C:\Documents and Settings\clong.ORION\My Documents\My Projects\J1238 Cornerstone\MCT\Perl_App\dvcparms_mod.pl line 3368, at end of line
-            re.compile(r'\bat (?P<fname>.*?) line (?P<lineno>\d+)'),
+    _errorHotspotPatterns = [
+        # SCE_ERR_PERL, e.g.
+        #   ... at D:\trentm\as\Apps\Komodo-devel\foo.pl line 2.
+        #   ... at C:\Documents and Settings\clong.ORION\My Documents\My Projects\J1238 Cornerstone\MCT\Perl_App\dvcparms_mod.pl line 3368, at end of line
+        re.compile(r'\bat (?P<fname>.*?) line (?P<lineno>\d+)'),
 
-            # SCE_ERR_PHP, e.g.
-            #    php -d html_errors=off -l bad.php
-            #       Parse error: parse error, unexpected T_PRINT in C:\main\Apps\Komodo-dogfood\bad.php on line 8
-            re.compile(r'\bin (?P<fname>.*?) on line (?P<lineno>\d+)'),
-            #    PHP stacktraces look like this:
-            #PHP Stack trace:
-            #PHP   1. {main}() c:\home\ericp\lab\komodo\bugs\bz71236d.php:0
-            #PHP   2. f1($a = *uninitialized*, $b = *uninitialized*) c:\home\ericp\lab\komodo\bugs\bz71236d.php:6
-            #PHP   3. f2($a = *uninitialized*, $b = *uninitialized*) c:\home\ericp\lab\komodo\bugs\bz71236d.php:9
-            #PHP   4. f3($a = *uninitialized*, $b = *uninitialized*) c:\home\ericp\lab\komodo\bugs\bz71236d.php:12
-            re.compile(r'^PHP\s+\d+\..+\)\s*(?P<fname>.+?):(?P<lineno>\d+)'),
+        # SCE_ERR_PHP, e.g.
+        #    php -d html_errors=off -l bad.php
+        #       Parse error: parse error, unexpected T_PRINT in C:\main\Apps\Komodo-dogfood\bad.php on line 8
+        re.compile(r'\bin (?P<fname>.*?) on line (?P<lineno>\d+)'),
+        #    PHP stacktraces look like this:
+        #PHP Stack trace:
+        #PHP   1. {main}() c:\home\ericp\lab\komodo\bugs\bz71236d.php:0
+        #PHP   2. f1($a = *uninitialized*, $b = *uninitialized*) c:\home\ericp\lab\komodo\bugs\bz71236d.php:6
+        #PHP   3. f2($a = *uninitialized*, $b = *uninitialized*) c:\home\ericp\lab\komodo\bugs\bz71236d.php:9
+        #PHP   4. f3($a = *uninitialized*, $b = *uninitialized*) c:\home\ericp\lab\komodo\bugs\bz71236d.php:12
+        re.compile(r'^PHP\s+\d+\..+\)\s*(?P<fname>.+?):(?P<lineno>\d+)'),
+        
+        # Some Ruby stack traces look like this (ignoring the "in ... `method-name`" part)
+        re.compile(r'^\s*from\s+(?P<fname>.+?):(?P<lineno>\d+)'),
+        
+        #  LexOthers.cxx doesn't pick on the HTML encoded ones:
+        #   php -l bad.php
+        #       <b>Parse error</b>:  parse error, unexpected T_PRINT in <b>C:\main\Apps\Komodo-dogfood\bad.php</b> on line <b>8</b><br />
+        #re.compile('in <b>(?P<fname>.*)</b> on line <b>(?P<lineno>\d+)</b>'),
 
-            # Some Ruby stack traces look like this (ignoring the "in ... `method-name`" part)
-            re.compile(r'^\s*from\s+(?P<fname>.+?):(?P<lineno>\d+)'),
+        # SCE_ERR_PYTHON
+        re.compile('^  File "(?P<fname>.*?)", line (?P<lineno>\d+)'),
 
-            #  LexOthers.cxx doesn't pick on the HTML encoded ones:
-            #   php -l bad.php
-            #       <b>Parse error</b>:  parse error, unexpected T_PRINT in <b>C:\main\Apps\Komodo-dogfood\bad.php</b> on line <b>8</b><br />
-            #re.compile('in <b>(?P<fname>.*)</b> on line <b>(?P<lineno>\d+)</b>'),
+        # SCE_ERR_GCC
+        # <filename>:<line>:message
+        # \s*<filename>:<line>:message
+        # \s*<filename>:<line>\s*$
+        # This is also used for Ruby output.  See bug 71238.
+        re.compile(r'^\s*(?P<fname>.+?):(?P<lineno>\d+)'),
 
-            # SCE_ERR_PYTHON
-            re.compile('^  File "(?P<fname>.*?)", line (?P<lineno>\d+)'),
+        # SCE_ERR_MS
+        # <filename>(line) :message
+        re.compile('^(?P<fname>.*?):\((?P<lineno>\d+)\) :'),
+        # <filename>(line,pos)message
+        re.compile('^(?P<fname>.*?):\((?P<lineno>\d+),\d+\)'),
 
-            # SCE_ERR_GCC
-            # <filename>:<line>:message
-            # \s*<filename>:<line>:message
-            # \s*<filename>:<line>\s*$
-            # This is also used for Ruby output.  See bug 71238.
-            re.compile(r'^\s*(?P<fname>.+?):(?P<lineno>\d+)'),
+        # SCE_ERR_ELF: Essential Lahey Fortran error message
+        re.compile('^Line (?P<lineno>\d+?), file (?P<fname>.*?)'),
 
-            # SCE_ERR_MS
-            # <filename>(line) :message
-            re.compile('^(?P<fname>.*?):\((?P<lineno>\d+)\) :'),
-            # <filename>(line,pos)message
-            re.compile('^(?P<fname>.*?):\((?P<lineno>\d+),\d+\)'),
+        # SCE_ERR_NET: a .NET traceback
+        re.compile('   at (?P<fname>.*?):line (?P<lineno>\d+)'),
 
-            # SCE_ERR_ELF: Essential Lahey Fortran error message
-            re.compile('^Line (?P<lineno>\d+?), file (?P<fname>.*?)'),
+        # SCE_ERR_LUA
+        re.compile('at line (?P<lineno>\d+) file (?P<fname>.*?)'),
 
-            # SCE_ERR_NET: a .NET traceback
-            re.compile('   at (?P<fname>.*?):line (?P<lineno>\d+)'),
+        # Perl testing error message patterns
+        re.compile(r'^#\s+Test\s+\d+\s+got:.*?\((?P<fname>[^\"\'\[\]\(\)\#]+?)\s+at\s+line\s+(?P<lineno>\d+)\)'),
+        re.compile(r'^#\s*(?P<fname>[^\"\'\[\]\(\)\#]+?)\s+line\s+(?P<lineno>\d+)\s+is:'),  # extra for context
 
-            # SCE_ERR_LUA
-            re.compile('at line (?P<lineno>\d+) file (?P<fname>.*?)'),
-
-            # Perl testing error message patterns
-            re.compile(r'^#\s+Test\s+\d+\s+got:.*?\((?P<fname>[^\"\'\[\]\(\)\#]+?)\s+at\s+line\s+(?P<lineno>\d+)\)'),
-            re.compile(r'^#\s*(?P<fname>[^\"\'\[\]\(\)\#]+?)\s+line\s+(?P<lineno>\d+)\s+is:'),  # extra for context
-
-            # SCE_ERR_CTAG
-            #TODO
-            # SCE_ERR_BORLAND
-            #TODO
-            # SCE_ERR_IFC: Intel Fortran Compiler error/warning message
-            # I need an example for this to get the regex right.
-            #re.compile('^(Error|Warning) ... at \(...\) : ...'),
-            # SCE_ERR_CMD
-            #TODO
-        ]
+        # SCE_ERR_CTAG
+        #TODO
+        # SCE_ERR_BORLAND
+        #TODO
+        # SCE_ERR_IFC: Intel Fortran Compiler error/warning message
+        # I need an example for this to get the regex right.
+        #re.compile('^(Error|Warning) ... at \(...\) : ...'),
+        # SCE_ERR_CMD
+        #TODO
+    ]
 
     def parseHotspotLine(self, line, cwd):
         for pattern in self._errorHotspotPatterns:
@@ -504,3 +495,88 @@ class KoDocumentService:
             log.warn("parseHotspotLine(line=%r, ...): filename %r "
                      "does not exist", line, fullfname)
         return [fullfname, lineNo]
+
+class KoDiff:
+    _com_interfaces_ = [components.interfaces.koIDiff]
+    _reg_desc_ = "Komodo Diff Service Component"
+    _reg_contractid_ = "@activestate.com/koDiff;1"
+    _reg_clsid_ = "{5faaa9b1-4c2f-41d1-936d-22d2e24768c5}"
+    
+    @LazyClassAttribute
+    def docSvc(self):
+        return components.classes["@activestate.com/koDocumentService;1"].\
+                    getService(components.interfaces.koIDocumentService)
+
+    def __init__(self):
+        self._reset()
+
+    def _reset(self):
+        self.doc1 = None
+        self.doc2 = None
+        self.diff = None
+        self._diffex = None
+        self.warning = None
+
+    @property
+    def diffex(self):
+        if self._diffex is None:
+            self._diffex = difflibex.Diff(self.diff)
+        return self._diffex
+
+    def initWithDiffContent(self, diff):
+        self._reset()
+        self.diff = diff
+
+    def initByDiffingFiles(self, fname1, fname2):
+        # XXX upgrade to deal with remote files someday?
+        doc1 = self.docSvc.createDocumentFromURI(fname1)
+        doc1.load()
+        doc2 = self.docSvc.createDocumentFromURI(fname2)
+        doc2.load()
+        self.initByDiffingDocuments(doc1, doc2)
+
+    def initByDiffingDocuments(self, doc1, doc2):
+        """Get a unified diff of the given koIDocument's."""
+        self._reset()
+
+        self.doc1 = doc1
+        self.doc2 = doc2
+        
+        native_eol = eollib.eol2eolStr[eollib.EOL_PLATFORM]
+        try:
+            # difflib takes forever to work if newlines do not match
+            content1_eol_clean = re.sub("\r\n|\r|\n", native_eol, doc1.buffer)
+            content2_eol_clean = re.sub("\r\n|\r|\n", native_eol, doc2.buffer)
+        except IOError, ex:
+            self.lastErrorSvc.setLastError(0, str(ex))
+            raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
+
+        if doc1.existing_line_endings != doc2.existing_line_endings:
+            self.warning = "ignoring end-of-line differences"
+        else:
+            self.warning = ""
+
+        if (content1_eol_clean == content2_eol_clean):
+            self.diff = ""
+        else:
+            difflines = difflibex.unified_diff(
+                content1_eol_clean.splitlines(1),
+                content2_eol_clean.splitlines(1),
+                doc1.displayPath,
+                doc2.displayPath,
+                lineterm=native_eol)
+            self.diff = ''.join(difflines)
+
+    def filePosFromDiffPos(self, line, column):
+        try:
+            return self.diffex.file_pos_from_diff_pos(line, column)
+        except difflibex.DiffLibExError, ex:
+            self.lastErrorSvc.setLastError(0, str(ex))
+            raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
+
+    def inferCwdAndStripFromPath(self, pathInDiff, actualPath):
+        try:
+            return difflibex.infer_cwd_and_strip_from_path(pathInDiff,
+                                                           actualPath)
+        except difflibex.DiffLibExError, ex:
+            raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))

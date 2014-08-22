@@ -567,3 +567,14 @@ function _fequal(a, b) {
 }
 
 }).apply(ko.open);
+
+
+
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("open_openURI", "ko.open.URI");
+ko.logging.globalDeprecatedByAlternative("open_openDisplayPath", "ko.open.displayPath");
+ko.logging.globalDeprecatedByAlternative("open_openStartPage", "ko.open.startPage");
+ko.logging.globalDeprecatedByAlternative("open_openMultipleURIs", "ko.open.multipleURIs");

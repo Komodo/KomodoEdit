@@ -120,10 +120,7 @@ class koFileService(object):
         L = []
         for uri,wr in self._files.items():
             if uri.startswith(baseURI):
-                try:
-                    o = wr()
-                except:
-                    o = None # The object is dead.
+                o = wr()
                 if o is not None:
                     L.append(o)
                 else:
@@ -135,10 +132,7 @@ class koFileService(object):
     def getAllFiles(self):
         L = []
         for uri,wr in self._files.items():
-            try:
-                o = wr()
-            except:
-                o = None # The object is dead.
+            o = wr()
             if o is not None:
                 L.append(o)
             else:
@@ -153,10 +147,7 @@ class koFileService(object):
         uri = self._uriParser.URI = uri
         file_weakref = self._files.get(uri)
         if file_weakref:
-            try:
-                kofile = file_weakref()
-            except:
-                kofile = None  # The object is dead.
+            kofile = file_weakref()
             if kofile:
                 return kofile
             else:

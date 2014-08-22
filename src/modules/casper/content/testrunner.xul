@@ -134,7 +134,8 @@
                 <hbox id="load-toolbar">
                     <textbox id="testDir" flex="1"
                              persist="value"
-                             onkeypress="if (event.keyCode == event.DOM_VK_RETURN) {
+                             onkeypress="if (event.keyCode == event.DOM_VK_ENTER ||
+                                             event.keyCode == event.DOM_VK_RETURN) {
                                              setTestList();
                                           }"/>
                     <button label="Choose..." onclick="setDirectory()"/>

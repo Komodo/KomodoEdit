@@ -42,74 +42,57 @@
 interface koIFile;
 interface koIObserverService;
 
+// A component which provides a unit test.
+[scriptable, uuid(899516f6-06a4-4ffa-b75e-7616f43030a3)]
+interface koITestable : nsISupports {
+  void testComponent();
+};
+
 // A serializable object. Writes itself to the specified file 
 // -- usually as a stream of XML elements.
 // Note: This interface should be split out into a separate IDL file
 // and stored in a more "global" location.
-[scriptable, uuid(41723bbe-8ffd-4d5b-8496-f1ce98e6f473)]
+[scriptable, uuid(1912A0AE-D9A4-4f55-A4E0-A80DAD21396D)]
 interface koISerializable : nsISupports {
-  /**
-   * The serialize method is now private
-   * @deprecated since Komodo 7.0.0
-   */
+    /**
+     * The serialize method is now private
+     * @deprecated since Komodo 7.0.0
+     */
   [deprecated] void serialize(in koIFile file, in wstring basedir);
-  /**
-   * Serialize this object to the given file
-   */
-  void serializeToFile(in AString filename);
+  void serializeToFile(in wstring filename);
 };
 
-[scriptable, uuid(09195f7c-704a-44a0-885f-84d989441e0a)]
+[scriptable, uuid(7d310389-0f33-45c0-8765-c6dab8fcbdd3)]
 interface koISerializableFast : koISerializable {
-  void serializeToFileFast(in AString filename);
+  void serializeToFileFast(in wstring filename);
 };
 
-/**
- * A generic preference container.  This will contain other preferences in some
- * unspecified way; see koIPreferenceSet and koIOrderedPreference.
- */
-[scriptable, uuid(8d5ef051-16e1-462b-b91b-89630f1fda8f)]
-interface koIPreferenceContainer : nsISupports {
-  /**
-   * The id of this preference; if this pref is contained by a preference set,
-   * this can be reached by using that preference set's .getPref() method.
-   */
+// A preference.
+// Every preference has an id.
+[scriptable, uuid(b0504b20-ab16-46bd-868a-9b3f9f9ed3c6)]
+interface koIPreference : koISerializable {
   attribute AString id;
+  attribute string type;
 
-  /**
-   * clone a copy of this preference and all child preferences.
-   */
-  koIPreferenceContainer clone();
+  // clone a copy of this preference set and all child preferences.
+  koIPreference clone();
+  // update from another preference set object - presumably a modified clone!
+  void update(in koIPreference source);
 
-  /**
-   * update from another preference container object
-   * presumably a modified clone!
-   */
-  void update(in koIPreferenceContainer source);
-
-  /**
-   * Dump this preference container to either stdout or a string
-   * @note This is meant for debugging/unit tests; the string format is
-   *    unspecified and may change at any time.
-   * @param indent The number of spaces to indent
-   * @param suppressPrint If false, also print to standard out
-   */
-  AString dump([optional] in long indent,
-               [optional] in boolean suppressPrint);
+  // For debugging.
+  void dump(in long indent);
 };
 
-/**
- * @deprecated since Komodo 9.0.0a1: This used to, in theory, represent any kind of preference.
- *    Except not the native types (long, string, etc.), so in practice it was only the containers.
- *    It has been renamed koIPreferenceContainer to make that explicit.
- */
-[deprecated, scriptable, uuid(d5dd8948-824b-4835-8b8b-f8a37dce4d26)]
-interface koIPreference : koIPreferenceContainer {
-};
-
-[scriptable, uuid(7f20bde7-8e58-4c6b-9a19-5570753e5b23)]
+[scriptable, uuid(5789255d-5d6f-471e-ac03-a4c5f2c7880a)]
 interface koIPreferenceSetObjectFactory : nsISupports {
-  koIPreferenceContainer deserializeFile(in AString filename);
+  koIPreference deserializeFile(in wstring filename);
+};
+
+[scriptable, uuid(f89ad940-3168-4240-bb5f-b944fba8ca51)]
+interface koIPreferenceSimpleValue : koIPreference {
+  // Get the best "nsISupportsPrimitives" interface for this value.
+  // A QI on this object for this IID is (almost ;-) guaranteed to succeed.
+  readonly attribute nsIIDRef primitiveIID;
 };
 
 // Allows preference change notifications to be notified.  Re-use the
@@ -117,42 +100,46 @@ interface koIPreferenceSetObjectFactory : nsISupports {
 [scriptable, uuid(0720887f-ebd3-45d8-a236-7a6c3585dfa0)]
 interface koIPreferenceObserver: nsISupports {
     /**
+     * prefset id is the topic, pref name is the data
+     *
+     * @deprecated since Komodo 6.0.0, use prefObserverService instead.
+     */
+    readonly attribute nsIObserverService observerService;
+    
+    /**
      * Used to monitor preference changes. Can monitor individual preferences,
      * or all preferences when the preference name '' (empty string) is used.
      * The prefset id is sent as the data, and prefname as the topic.
      */
     readonly attribute koIObserverService prefObserverService;
+    
+    /**
+     * @deprecated since Komodo 6.0.0, use prefObserverService instead.
+     */
+    void addObserver( in nsIObserver anObserver);
+    /**
+     * @deprecated since Komodo 6.0.0, use prefObserverService instead.
+     */
+    void removeObserver( in nsIObserver anObserver);
 };
 
 // A set of preferences -- a dictionary-like object with
 // strings as keys and preferences as values having a one-to-one
 // relationship between keys and values.
-[scriptable, uuid(c8990efd-e1cd-4b6e-be77-9767e9f4c14b)]
-interface koIPreferenceSet : koIPreferenceContainer {
-  /**
-   * The parent preference set.  This was too confusingly named; while it is
-   * supposed to mean the preference to inherit from, it was often mistaken to
-   * mean the container preference.  Callers should use .inheritFrom or
-   * .container, depending on whether this is a preference root or a preference
-   * child.
-   *
-   * @deprecated since Komodo 9.0.0a1
-   */
-  [deprecated] attribute koIPreferenceContainer parent;
+[scriptable, uuid(d52b54f3-9229-4690-81d3-14dcc5971b30)]
+interface koIPreferenceSet : koIPreference {
+  // A reference to the parent of this preference set,
+  // or null if this preference set has no parent set.
+  attribute koIPreferenceSet parent;
 
-  /**
-   * Returns the ids of all prefs stored in this preference set.
-   * (This does not include inherited prefs.)
-   */
-  void getPrefIds([optional] out unsigned long count,
-                  [retval, array, size_is(count)] out wstring ids);
+  // Returns the ids of all prefs stored in the preference set.
+  void getPrefIds([array, size_is(count)] out wstring ids,
+                out unsigned long count);
 
-  /**
-   * Returns the ids of all prefs stored in this preference set,
-   * *including* inherited preferences (recursively).
-   */
-  void getAllPrefIds([optional] out unsigned long count,
-                     [retval, array, size_is(count)] out wstring ids);
+  // Returns the ids of all prefs stored in the preference set,
+  // *including* those in the parent (recursive)
+  void getAllPrefIds([array, size_is(count)] out wstring ids,
+                out unsigned long count);
   
   // Set a preference in the preference set. If the preference does not
   // currently exist then a new one with the given name is created. If
@@ -162,7 +149,7 @@ interface koIPreferenceSet : koIPreferenceContainer {
   // They must use setPref().
   
   // If any of these fail, use the lastErrorSvc to find out why
-  void setPref(in AString prefName, in koIPreferenceContainer pref);
+  void setPref(in AString prefName, in koIPreference pref);
   void setString(in AString prefName, in AString pref);
   void setLong(in AString prefName, in long pref);
   void setDouble(in AString prefName, in double pref);
@@ -171,56 +158,49 @@ interface koIPreferenceSet : koIPreferenceContainer {
    * @deprecated since Komodo 8.5
    * Use the shorter versions (setString, setLong, etc...)
    */
-  [deprecated] void setStringPref(in AString prefName, in AString pref);
-  [deprecated] void setLongPref(in AString prefName, in long pref);
-  [deprecated] void setDoublePref(in AString prefName, in double pref);
-  [deprecated] void setBooleanPref(in AString prefName, in boolean pref);
+  void setStringPref(in AString prefName, in AString pref);
+  void setLongPref(in AString prefName, in long pref);
+  void setDoublePref(in AString prefName, in double pref);
+  void setBooleanPref(in AString prefName, in boolean pref);
   
   // Retrieve a particular preference from the preference set.
   // It is an error to "get" a preference which does not exist or is of the
   // wrong type. Use "has*Pref" to ensure the pref exists.
-  koIPreferenceContainer getPref(in AString prefName);
+  koIPreference getPref(in AString prefName);
   wstring getPrefType(in AString prefName);
   AString getStringPref(in AString prefName);
   long getLongPref(in AString prefName);
   double getDoublePref(in AString prefName);
   boolean getBooleanPref(in AString prefName);
     
-  /**
-   * Return true iff a preference with the specified name and type exists
-   * in this preference set, or inherits such a pref (recusively).
-   */
+  // Return true iff a preference with the specified name and type exists
+  // in the preference set.
   boolean hasPref(in AString prefName);
   boolean hasStringPref(in AString prefName);
   boolean hasLongPref(in AString prefName);
   boolean hasDoublePref(in AString prefName);
   boolean hasBooleanPref(in AString prefName);
 
-  /**
-   * Retrieve the given preference from this preferset set, or the inherited
-   * preference if it does not exist here.  If it is not inherited either,
-   * return the default default value provided. If no default value is provided,
-   * the XPIDL default will be used instead (i.e. "", 0, 0.0, or False).
-   */
+  // Retrieve a particular preference from the preference set, or in the case
+  // of the preference not existing, return the default value provided.
+  // If no default value is provided, then the default will be
+  // "", 0, 0.0 or False respectively.
   AString getString(in AString prefName, [optional] in AString defaultValue);
   long getLong(in AString prefName, [optional] in long defaultValue);
   double getDouble(in AString prefName, [optional] in double defaultValue);
   boolean getBoolean(in AString prefName, [optional] in boolean defaultValue);
 
-  /**
-   * Whether this preference set has a preference with the given name, ignoring
-   * preferences found via inheritance.
-   */
+  // Return true iff a preference with the specified name and type exists
+  // in the preference set.
   boolean hasPrefHere(in AString prefName);
 
-  /**
-   * Remove a preference from this preference set.  Will not modify inherited
-   * preferences.
-   */
+  // Remove a preference from the preference set.
   void deletePref(in AString prefName);
   // Reset to an empty preference set.
   void reset();
 
+  attribute boolean chainNotifications;
+  
   // validation related calls
   // 'validation' must be a python expression that refers to 'value'
   // and returns a true value if the value is corect.
@@ -233,47 +213,23 @@ interface koIPreferenceSet : koIPreferenceContainer {
   boolean validateString(in AString prefName, in AString value);
 };
 
-/**
- * A preference root.  This describes the root of a preference tree.
- * When looking up preferences, if a preference is not found in a preference
- * set, the matching preference set in the preference tree the preference root
- * inherits from is consulted.
- */
-[scriptable, uuid(20347097-c019-4270-b4dc-b91b119a347c)]
-interface koIPreferenceRoot : koIPreferenceSet {
-  /**
-   * A reference to the preference tree this preference tree inherits
-   * preferences from.  When looking up a preference, if this preference set
-   * does not contain the requested value, the lookup is done on the matching
-   * preference set in the preference tree this tree inherits from.
-   */
-  attribute koIPreferenceRoot inheritFrom;
-};
-
-[scriptable, uuid(ff21046e-7c2c-4900-b497-a7536504c615)]
-interface koIPreferenceChild : koIPreferenceContainer {
-  /**
-   * The container preference set.  The container is either a koIPreferenceSet
-   * (in whic case .container.getPrf(.id) is this prefset) or a
-   * koIOrderedPreference (in which case .container.getPref(?) is used).
-   */
-  readonly attribute koIPreferenceContainer container;
-
-  /**
-   * Whether the container preference should be notified of preference change
-   * notifications.
-   */
-  attribute boolean chainNotifications;
+[scriptable, uuid(ee911269-fb16-48c4-84ff-9eeb415831e7)]
+interface koIUIPreferenceSet : koIPreference {
+    koIPreference getPref( in AString prefType );
+    void setPref(in AString prefType, in koIPreference pref);
+    // XXX enumPrefs unused, commented to prevent usage
+    // if needed, reimplement to not use enumerator!
+    //nsISimpleEnumerator enumPrefs(in AString prefType);
 };
 
 // Project preferences - to allow checking if a prefset is project based.
-[scriptable, uuid(a716cfc4-5eb0-4e39-8a5c-48d6b7712477)]
-interface koIProjectPreferenceSet : koIPreferenceRoot {
+[scriptable, uuid(b3c0ca87-6187-ac43-a61f-3f6ff68147c3)]
+interface koIProjectPreferenceSet : nsISupports {
 };
 
 // File preferences - to allow checking if a prefset is file based.
-[scriptable, uuid(97552021-3a33-4ae1-b5c5-1e3695ffa901)]
-interface koIFilePreferenceSet : koIPreferenceRoot {
+[scriptable, uuid(dacb9866-5ea5-5547-a69f-36b202c3d30c)]
+interface koIFilePreferenceSet : nsISupports {
 };
 
 /* A preference set cache - a collection of preference sets that can
@@ -282,8 +238,8 @@ interface koIFilePreferenceSet : koIPreferenceRoot {
 
 */
 [scriptable, uuid(7d095530-d432-4e0c-9575-2405a5cc47b5)]
-interface koIPreferenceCache : koIPreferenceContainer {
-    void setPref(in koIPreferenceSet pref);
+interface koIPreferenceCache : koIPreference {
+    void setPref(in koIPreference pref);
     koIPreferenceSet getPref(in AString id);
     boolean hasPref(in AString id);
     attribute unsigned long length;
@@ -291,9 +247,9 @@ interface koIPreferenceCache : koIPreferenceContainer {
     nsISimpleEnumerator enumPreferences();
 };
 
-// A service to manage preference roots.
-// There is one implicit "global" pref root that can be accessed via
-// the "prefs" attribute, or as a named pref root called "global".
+// A service to manage top-level, well-known preference sets.
+// There is one implicit "global" prefset that can be accessed via
+// the "prefs" attribute, or as a named prefset called "global".
 // We should have some decent way of "registering" well known
 // preference sets, but have punted for now.  See
 // |koGlobalPreferenceDefinition| in koPrefs.py
@@ -301,27 +257,22 @@ interface koIPreferenceCache : koIPreferenceContainer {
 interface koIPrefService : nsISupports {
   
   // Get a well-known preference set.
-  koIPreferenceContainer getPrefs(in AString name);
+  koIPreference getPrefs(in AString name);
 
   // Get the global preference set.  Equivalent to |getPrefs("global")|
-  readonly attribute koIPreferenceRoot prefs;
+  readonly attribute koIPreference prefs;
   
-  // Reset a well-known preference set and return it.
-  koIPreference resetPrefs(in AString name);
-
   // integrates project preferences in a way that is easy for most code points
   // in Komodo to reach.  This will return the current project prefs if there
   // is a current project, otherwise, returns the global prefs above.  The parent
   // of project prefs is always global prefs.
-  readonly attribute koIPreferenceRoot effectivePrefs;
+  readonly attribute koIPreference effectivePrefs;
 
   // Save the global preference sets to disk - Equivilent to |savePrefs("global")|
   void saveState();
 
   // Save the named preference set to disk.
   void savePrefsState(in AString prefName);
-
-  void saveWhenIdle();
 };
 
 /**
@@ -332,6 +283,6 @@ interface koIPrefService : nsISupports {
  */
 [scriptable, uuid(c929dc80-3c37-4ba9-acaa-bc2d4e609a8e)]
 interface koIPreferenceSerializer : nsISupports {
-  koIPreferenceContainer serializeToPreference();
-  void unserializeFromPreference(in koIPreferenceContainer pref);
+  koIPreference serializeToPreference();
+  void unserializeFromPreference(in koIPreference pref);
 };

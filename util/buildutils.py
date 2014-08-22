@@ -411,28 +411,6 @@ def remote_cp(src, dst, log=None, hard_link_if_can=False):
         if status:
             raise OSError("error running '%s': status=%r" % (cmd, status))
 
-def remote_mv(src, dst, log=None):
-    if is_remote_path(src) and is_remote_path(dst):
-        if src_login != dst_login:
-            raise ValueError("src and dst must live on the same remote server")
-        # This is harder, because remote to remote copying is not
-        # supported by scp.
-        assert ' ' not in src and ' ' not in dst
-        src_login, src_path = src.split(':', 1)
-        dst_login, dst_path = dst.split(':', 1)
-        rcmd = 'mv -f %s %s' % (src_path, dst_path)
-        remote_run(src_login, rcmd, log=log)
-    else:
-        if sys.platform == "win32":
-            cmd = 'move /Y "%s" "%s"' % (src, dst)
-        else:
-            cmd = 'mv -f "%s" "%s"' % (src, dst)
-        if log:
-            log(cmd)
-        status = run(cmd)
-        if status:
-            raise OSError("error running '%s': status=%r" % (cmd, status))
-
 def remote_relpath(rpath, relto):
     """Relativize the given remote path to another.
     
@@ -472,13 +450,11 @@ def remote_relpath(rpath, relto):
 
 def remote_symlink(src, dst, log=None):
     assert ' ' not in src and ' ' not in dst
+    src_login, src_path = src.split(':', 1)
     dst_login, dst_path = dst.split(':', 1)
-    src_path = src
-    if ':' in src:
-        src_login, src_path = src.split(':', 1)
-        assert src_login == dst_login
+    assert src_login == dst_login
     cmd = "ln -s %s %s" % (src_path, dst_path)
-    remote_run(dst_login, cmd, log=log)
+    remote_run(src_login, cmd, log=log)
 
 def remote_rm(rpath, log=None):
     assert ' ' not in rpath
@@ -545,36 +521,6 @@ def remote_find(rdir, options={}, log=None):
     else:
         remote_run(src_login, " ".join(cmd), log=log)
 
-def remote_listdir(rdir, log=None):
-    """Return a tuple of (dirnames, filenames) for the remote dir.
-    
-    This presumes a GNU-like `ls` on the remote machine.
-    """
-    login, dir = rdir.split(':', 1)
-    norm_login = login
-    if sys.platform == "win32":
-        if '@' not in login:
-            norm_login = "%s@%s" % (getpass.getuser(), login)
-        argv = ["plink", "-batch", norm_login, "ls", "-aF", dir]
-    else:
-        argv = ["ssh", "-o", "BatchMode=yes", norm_login, "ls", "-aF", dir]
-    if log:
-        log(' '.join(argv))
-    p = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    dnames = []
-    fnames = []
-    for name in p.stdout.read().splitlines(0):
-        sigil = ""
-        if name[-1] in "*/=>@|":
-            name, sigil = name[:-1], name[-1]
-        if name in ('.', '..'):
-            continue
-        if sigil == '/':
-            dnames.append(name)
-        else:
-            fnames.append(name)
-    return dnames, fnames
-
 def remote_walk(rdir, log=None):
     """Like os.walk(dir), but for a remote dir.
     
@@ -583,10 +529,34 @@ def remote_walk(rdir, log=None):
     from posixpath import join
 
     login, dir = rdir.split(':', 1)
+    norm_login = login
+    if sys.platform == "win32":
+        if '@' not in login:
+            norm_login = "%s@%s" % (getpass.getuser(), login)
+        argv_base = ["plink", "-batch", norm_login, "ls", "-aF"]
+    else:
+        argv_base = ["ssh", "-o", "BatchMode=yes", norm_login,
+                     "ls", "-aF"]
+    if log:
+        log(' '.join(argv))
+
     dirs = [dir]
     while dirs:
         dpath = dirs.pop(0)
-        dnames, fnames = remote_listdir(login + ":" + dpath)
+        p = subprocess.Popen(argv_base + [dpath],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        dnames = []
+        fnames = []
+        for name in p.stdout.read().splitlines(0):
+            sigil = ""
+            if name[-1] in "*/=>@|":
+                name, sigil = name[:-1], name[-1]
+            if name in ('.', '..'):
+                continue
+            if sigil == '/':
+                dnames.append(name)
+            else:
+                fnames.append(name)
         yield login+":"+dpath, dnames, fnames
         dirs += [join(dpath, n) for n in dnames]
 

@@ -398,7 +398,7 @@ this.alert = function dialog_alert(prompt, text, title, doNotAskPref, options)
     var bpref = null;
     if (doNotAskPref) {
         bpref = "donotask_"+doNotAskPref;
-        if (_prefs.getBoolean(bpref, false)) {
+        if (_prefs.getBooleanPref(bpref)) {
             return;
         }
     }
@@ -922,7 +922,8 @@ this.internalError = function dialog_internalError(error, text, exception)
 // whatever reason) like so:
 //    <keyset id="<some id>">
 //        <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
-//        <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
+//        <key keycode="VK_ENTER" oncommand="dialogs_handleEnterKey();"/>
+//        <key keycode="VK_RETURN" oncommand="dialogs_handleEnterKey();"/>
 //    </keyset>
 // Preferably, each such dialgo should be converted to use the <dialog> XBL,
 // but that is not always practical.
@@ -1033,3 +1034,22 @@ this.renameFileWrapper = function(currentName) {
 }
 
 }).apply(ko.dialogs);
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("dialog_yesNoCancel", "ko.dialogs.yesNoCancel");
+ko.logging.globalDeprecatedByAlternative("dialog_yesNo", "ko.dialogs.yesNo");
+ko.logging.globalDeprecatedByAlternative("dialog_okCancel", "ko.dialogs.okCancel");
+ko.logging.globalDeprecatedByAlternative("dialog_customButtons", "ko.dialogs.customButtons");
+ko.logging.globalDeprecatedByAlternative("dialog_alert", "ko.dialogs.alert");
+ko.logging.globalDeprecatedByAlternative("dialog_prompt", "ko.dialogs.prompt");
+ko.logging.globalDeprecatedByAlternative("dialog_prompt2", "ko.dialogs.prompt2");
+ko.logging.globalDeprecatedByAlternative("dialog_authenticate", "ko.dialogs.authenticate");
+ko.logging.globalDeprecatedByAlternative("dialog_authenticate2", "ko.dialogs.authenticate2");
+ko.logging.globalDeprecatedByAlternative("dialog_selectFromList", "ko.dialogs.selectFromList");
+ko.logging.globalDeprecatedByAlternative("dialog_editEnvVar", "ko.dialogs.editEnvVar");
+ko.logging.globalDeprecatedByAlternative("dialog_internalError", "ko.dialogs.internalError");
+ko.logging.globalDeprecatedByAlternative("dialogs_handleEnterKey", "ko.dialogs.handleEnterKey");
+ko.logging.globalDeprecatedByAlternative("dialog_pickIcon", "ko.dialogs.pickIcon");
+ko.logging.globalDeprecatedByAlternative("dialog_centerWindowOnScreen", "ko.dialogs.centerWindowOnScreen");

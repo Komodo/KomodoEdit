@@ -64,8 +64,10 @@ function wrapOnLoad() {
                    getService(Components.interfaces.koIPrefService).prefs);
     placePrefs = globalPrefs.getPref("places");
     filterPrefs = placePrefs.getPref("filters");
-    var prefNames = filterPrefs.getPrefIds();
+    var obj = {};
+    filterPrefs.getPrefIds(obj, {});
     var defaultName = _bundle.GetStringFromName("default.filterName");
+    var prefNames = obj.value;
     prefNames.map(function(prefName) {
         var filter = filterPrefs.getPref(prefName);
         filterPrefValues[prefName] = {

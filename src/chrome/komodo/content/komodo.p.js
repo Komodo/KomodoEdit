@@ -55,19 +55,15 @@ var _log = ko.logging.getLogger("ko.main");
 
 var _savedWorkspace = false;
 
-function saveWorkspaceIfNeeded(reason) {
+function saveWorkspaceIfNeeded() {
     if (!_savedWorkspace) {
         ko.workspace.saveWorkspace(true);
         ko.prefs.setBooleanPref("komodo_normal_shutdown", true);
+        // Save prefs
+        Components.classes["@activestate.com/koPrefService;1"]
+                  .getService(Components.interfaces.koIPrefService)
+                  .saveState();
         _savedWorkspace = true;
-        // In the case of a regular quit-application, Komodo's prefs will
-        // perform the necessary saveState() work.
-        if (reason != "quit-application") {
-            // Save prefs
-            Components.classes["@activestate.com/koPrefService;1"]
-                      .getService(Components.interfaces.koIPrefService)
-                      .saveState();
-        }
     }
 }
 
@@ -80,7 +76,7 @@ this.quitApplication = function() {
     try {
         ko.main.windowIsClosing = true;
         ko.workspace.markClosedWindows();
-        saveWorkspaceIfNeeded("quit-application");
+        saveWorkspaceIfNeeded();
     } catch(ex) {
         _log.exception(ex);
     }
@@ -153,7 +149,7 @@ window.addEventListener("close", ko.main._onClose, true);
 this._onDOMWindowClose = function(event) {
     _log.debug(">> ko.main._onDOMWindowClose");
     if (ko.windowManager.lastWindow()) {
-        saveWorkspaceIfNeeded("window-close");
+        saveWorkspaceIfNeeded();
     }
     ko.main.runWillCloseHandlers();
     window.removeEventListener("DOMWindowClose", ko.main._onDOMWindowClose, true);
@@ -240,6 +236,8 @@ this.runWillCloseHandlers = function() {
                       "' shutdown handler (object='"+callback.object+"':");
         }
     }
+    Components.classes["@activestate.com/koPrefService;1"]
+              .getService(Components.interfaces.koIPrefService).saveState();
     _log.debug("<< ko.main.runWillCloseHandlers");
 }
 
@@ -253,7 +251,7 @@ window.tryToClose = function() {
     if (res) {
         // Fix bug 70859: Operations like Restart from Add-ons manager
         // send this message before starting the quit process.
-        saveWorkspaceIfNeeded("try-to-close");
+        saveWorkspaceIfNeeded();
     }
     _log.debug("<< window.tryToClose: ret " + res.toString() + "\n");
     return res;
@@ -279,6 +277,18 @@ function moz_user_pref(name, value) {
     pref[methName[typeof(value)]](name, value);
 }
 
+// nsIConsoleListener
+var consoleListener = {
+    observe: function(/* nsIConsoleMessage */ aMessage) {
+        
+        // Filter out unwanted strict warnings
+        var regex = new RegExp('JavaScript Warning.*?(?:does not always return a value|redeclares argument|functions may be declared|test for equality|Update manifest had an unrecognised|reference to undefined property.*jquery.js\"|Trying to re-register CID .* already registered|Ignoring obsolete chrome registration modifier \'xpcnativewrappers\=no\'|Unknown property.*iframe\.css)');
+        if (aMessage.message.match(regex) != null) return;
+        
+        dump(aMessage.message+"\n");
+    }
+}
+
 function enableDevOptions() {
     // Enable dumps
     try  {
@@ -292,6 +302,16 @@ function enableDevOptions() {
         var nsXulAppInfo = Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULAppInfo);
         var nsXulRuntime = nsXulAppInfo.QueryInterface(Components.interfaces.nsIXULRuntime);
         nsXulRuntime.invalidateCachesOnRestart();
+
+        // get all console messages and dump them, then hook up the
+        // console listener so we can dump console messages
+        var cs = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService);
+        var messages = new Object();
+        cs.getMessageArray(messages, new Object());
+        for (var i = 0; i < messages.value.length; i++) {
+            consoleListener.observe(messages.value[i]);
+        }
+        cs.registerListener(consoleListener);
     }
     catch(e) { _log.exception(e,"Error setting Mozilla prefs"); }
 }
@@ -302,11 +322,6 @@ function enableDevOptions() {
    windows is up and running.  There may be a thing or two otherwise
    that also needs to start late. */
 function onloadDelay() {
-
-// #if BUILD_FLAVOUR == "dev"
-    require("ko/benchmark").addEvent("window.onloadDelay");
-// #endif
-
     try {
         var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                         getService(Components.interfaces.nsIObserverService);
@@ -314,6 +329,7 @@ function onloadDelay() {
         // Used by perf_timeline.perf_startup. Mark before
         // commandmentSvc.initialize() because that will immediately start
         // executing queued up commandments.
+        ko.uilayout.onloadDelayed(); // if closed fullscreen, maximize
 
         // Fix for getting keybindings working in new windows - bug 87979.
         // TODO: Better fix needed?
@@ -324,50 +340,87 @@ function onloadDelay() {
                                       function() { ko.toolbox2.applyKeybindings(); });
         }
 
-// #if BUILD_FLAVOUR == "dev"
-    require("ko/benchmark").startTiming("workspace.restore");
-// #endif
-        ko.workspace.restore();
-// #if BUILD_FLAVOUR == "dev"
-    require("ko/benchmark").endTiming("workspace.restore");
-// #endif
-
+        // the offer to restore the workspace needs to be after the
+        // commandments system is initialized because the commandments mechanism
+        // is how the determination of 'running in non-interactive mode' happens,
+        // which the restoration step needs to know about.
+        
+        // Eventually restoreWorkspace will be rewritten to restore
+        // a set of windows, and restore will be done at app-startup
+        // time, not when each window starts up.
+        var restoreWorkspace = true;
+        try {
+            if (!ko.windowManager.lastWindow()) {
+                restoreWorkspace = false;
+            }
+        } catch(ex) {
+            // Restore the workspace on error
+            _log.exception(ex);
+        }
+        if (restoreWorkspace) {
+            ko.workspace.restoreWorkspace();
+            // if the prefs are set to not restore workspaces, we still should
+            // restore the widget/side pane layouts.  This relies on ko.widgets
+            // being smart enough to restore things twice.
+            let prefs = ko.prefs;
+            if (prefs.hasPref("windowWorkspace")) {
+                let workspacePrefs = prefs.getPref("windowWorkspace");
+                if (workspacePrefs.hasPref("1")) {
+                    prefs = workspacePrefs.getPref("1");
+                }
+            }
+            ko.widgets.restoreLayout(prefs);
+        } else {
+            // Restore the default layout (i.e. last closed window)
+            ko.widgets.restoreLayout(ko.prefs);
+        }
+        // handle window.arguments spec list
+        if ('arguments' in window && window.arguments && window.arguments[0]) {
+            var arg = window.arguments[0];
+            if ('workspaceIndex' in arg) {
+                var thisIndexOnly = ('thisIndexOnly' in arg && arg.thisIndexOnly);
+                ko.workspace.restoreWorkspaceByIndex(window, arg.workspaceIndex,
+                                                     thisIndexOnly);
+            } else {
+                // There is no workspace to restore, but init window essentials
+                ko.workspace.initializeEssentials(window);
+                var urllist;
+                if ('uris' in arg) {
+                    urllist = arg.uris; // Called from ko.launch.newWindow(uri)
+                } else if (arg instanceof Components.interfaces.nsIDialogParamBlock) {
+                    var paramBlock = arg.QueryInterface(Components.interfaces.nsIDialogParamBlock);
+                    urllist = paramBlock ? paramBlock.GetString(0).split('|') : [];
+                } else if (typeof(arg) == 'string') {
+                    urllist = arg.split('|'); //see asCommandLineHandler.js
+                } else {
+                    // arg is most likely an empty object
+                    urllist = [];
+                }
+                for (var i in urllist) {
+                    ko.open.URI(urllist[i]);
+                }
+            }
+        }
+        // Some paths through the above block might not have called this,
+        // so call it now to be sure.  See bug 87856
+        
+        ko.workspace.initializeEssentials(window);
+        
         ko.history.init();
 
+        ko.macros.eventHandler.hookOnStartup();
     } catch(ex) {
         _log.exception(ex);
     }
-
-    // Let everyone know Komodo is fully started.
-    setTimeout(function() {
-
-// #if BUILD_FLAVOUR == "dev"
-        require("ko/benchmark").addEvent("komodo-ui-started");
-// #endif
-
+    try {
         // This is a global event, no need to use the WindowObserverSvc
-        Services.obs.notifyObservers(null, "komodo-ui-started", "");
-        xtk.domutils.fireEvent(window, "komodo-ui-started");
-
-        // Send a delayed startup event a few seconds later.
-        setTimeout(function() {
-            Services.obs.notifyObservers(null, "komodo-post-startup", "");
-            xtk.domutils.fireEvent(window, "komodo-post-startup");
-        }, 2500);
-
-// #if BUILD_FLAVOUR == "dev"
-        require("ko/benchmark").addEvent("komodo-ui-started-event-finished");
-        var startup_info = Components.classes["@mozilla.org/toolkit/app-startup;1"].getService(Components.interfaces.nsIAppStartup).getStartupInfo();
-        require("ko/benchmark").addEventAtTime("createTopLevelWindow", startup_info.createTopLevelWindow / 1000);
-        require("ko/benchmark").addEventAtTime("firstLoadURI", startup_info.firstLoadURI / 1000);
-        // If firstPaint hasn't occurred, check again later.
-        setTimeout(function() {
-            var startup_info = Components.classes["@mozilla.org/toolkit/app-startup;1"].getService(Components.interfaces.nsIAppStartup).getStartupInfo();
-            require("ko/benchmark").addEventAtTime("firstPaint", startup_info.firstPaint / 1000);
-        }, typeof(startup_info.firstPaint) == "undefined" ? 5000 : 0);
-// #endif
-
-    }, 0);
+        var obSvc = Components.classes["@mozilla.org/observer-service;1"].
+                getService(Components.interfaces.nsIObserverService);
+        obSvc.notifyObservers(null, "komodo-ui-started", "");
+    } catch(ex) {
+        /* ignore this exception, there were no listeners for the event */
+    }
+    xtk.domutils.fireEvent(window, "komodo-ui-started");
 }
 
 /**
@@ -411,11 +464,6 @@ function _set_docelement_css_classes() {
 
 window.onload = function(event) {
     _log.debug(">> window.onload");
-
-// #if BUILD_FLAVOUR == "dev"
-    require("ko/benchmark").startTiming("window.onload");
-// #endif
-
     //dump(">>> window.onload\n");
     // XXX PLUGINS cannot be touched here, do it in the delayed onload handler below!!!
     try {
@@ -437,26 +485,29 @@ window.onload = function(event) {
             _log.exception(ex);
         }
 
-        // These routines use the handlers defined in this module.
-        ko.mru.initialize();
+        window.setTimeout(function() {
+            // These routines use the handlers defined in this module.
+            try {
+                ko.mru.initialize();
 
-        ko.views.onload();
-        ko.widgets.getWidgetAsync("toolbox2viewbox",
-                                  function() ko.toolbox2.onload());
-        ko.projects.onload();
+                ko.views.onload();
+                ko.widgets.getWidgetAsync("toolbox2viewbox",
+                                          function() ko.toolbox2.onload());
+                ko.projects.onload();
 
-        ko.uilayout.onload();
-
-        onloadDelay();
+                ko.uilayout.onload();
+            } catch(ex) {
+                _log.exception(ex);
+            }
+        // anything that we want to do user interaction with at
+        // startup should go into this timeout to let the window
+        // onload handler finish.
+        window.setTimeout(onloadDelay, 500);
+        }, 0);
     } catch (e) {
         _log.exception(e,"Error doing KomodoOnLoad:");
         throw e;
     }
-
-// #if BUILD_FLAVOUR == "dev"
-    require("ko/benchmark").endTiming("window.onload");
-// #endif
-
     _log.debug("<< window.onload");
 }
 
@@ -514,19 +565,8 @@ ko.mozhacks = {};
 (function() { /* ko.mozhacks */
 var _log = ko.logging.getLogger("ko.main");
 
-var _openDialog = window.openDialog;
-/**
- * Wrap window.openDialog so we can notify the main window that a new dialog
- * was opened.
- */
-var _openDialogWrap = function openDialogWrap() {
-    var _window = _openDialog.apply(this, arguments);
-    _window.addEventListener("load", function(e) {
-        window.dispatchEvent(new CustomEvent("loadDialog", { bubbles: true, detail: {dialog: _window} }));
-    });
-    return _window;
-}
 // #if PLATFORM == "darwin"
+var _openDialog = window.openDialog;
 /**
  * openDialog
  *
@@ -549,15 +589,17 @@ window.openDialog = function openDialogNotSheet() {
     var args = [];
     for ( var i=0; i < arguments.length; i++ )
         args[i]=arguments[i];
-    return _openDialogWrap.apply(this, args);
+    return _openDialog.apply(this, args);
 }
-// #else
-window.openDialog = _openDialogWrap;
+
 // #endif
 
 }).apply(ko.mozhacks);
 
+
 /**
- * @deprecated since 7.0, but kept around because it's common in macros
+ * @deprecated since 7.0
  */
-ko.logging.globalDeprecatedByAlternative("gPrefs", "ko.prefs", null, this);
+ko.logging.globalDeprecatedByAlternative('gPrefSvc', 'Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService)');
+ko.logging.globalDeprecatedByAlternative("gPrefs", "ko.prefs");
+ko.logging.globalDeprecatedByAlternative("log", "ko.logging.getLogger('')");

@@ -59,16 +59,16 @@ r"""
     Suggested convention for Komodo version numbers:
     * For development builds you should add 10 to the minor version
       number:
-        Komodo Edit 9.0.x development:    -k 9.10
-        Komodo IDE 9.0.x development:     -k 9.10
+        Komodo Edit 8.0.x development:    -k 8.10
+        Komodo IDE 8.0.x development:     -k 8.10
       This allows you to run a production and development build at the
       same time without them trying to hand off to each other.
     
     Suggested configurations are:
-    * Komodo 9.0.x release builds:
-        python build.py configure -k 9.0 --with-crashreport-symbols
-    * Komodo 9.0 development builds:
-        python build.py configure -k 9.10
+    * Komodo 8.0.x release builds:
+        python build.py configure -k 8.0 --with-crashreport-symbols
+    * Komodo 8.0 development builds:
+        python build.py configure -k 8.10
 """
 #
 # Development Notes:
@@ -459,16 +459,7 @@ def _setupMozillaEnv():
             os.environ['CFLAGS'] = "-gdwarf-2"
             os.environ['CXXFLAGS'] = "-gdwarf-2"
 
-    if sys.platform == "win32":
-        # Mozilla requires using Msys perl rather than AS perl; use the one
-        # bundled with MozillaBuild
-        if not "PERL" in os.environ:
-            os.environ["PERL"] = os.path.join(os.environ["MOZILLABUILD"],
-                                              "msys", "bin", "perl.exe").replace("\\", "/")
-        # Tell pymake to use msys
-        os.environ["MSYSTEM"] = "MINGW32"
-
-    else:
+    if sys.platform != "win32":
         #TODO: drop what isn't necessary here
         
         #set MOZ_SRC=/export/home/jeffh/p4/Mozilla-devel/build/moz...
@@ -490,10 +481,17 @@ def _setupMozillaEnv():
                              "to build mozilla."
                              % (autoconf, verStr))
 
-        # zsh shell fails when configuring mozilla - so force bash instead.
-        if "zsh" in os.environ.get("SHELL", ""):
-            log.info("shell: zsh detected, replacing SHELL environment with bash")
-            os.environ["SHELL"] = "/bin/bash"
+        # The Python Framework is used on OSX
+        if sys.platform == "darwin":
+            return
+    else:
+        # Mozilla requires using Msys perl rather than AS perl; use the one
+        # bundled with MozillaBuild
+        if not "PERL" in os.environ:
+            os.environ["PERL"] = os.path.join(os.environ["MOZILLABUILD"],
+                                              "msys", "bin", "perl.exe").replace("\\", "/")
+        # Tell pymake to use msys
+        os.environ["MSYSTEM"] = "MINGW32"
 
 
 def _applyMozillaPatch(patchFile, mozSrcDir):
@@ -599,7 +597,7 @@ def _getMozSrcInfo(scheme, mozApp):
     The return value is a dict with the suggested configuration
     variables identifying the mozilla source.
         {
-         'mozVer':          The Mozilla version number as a float, i.e. 31.0
+         'mozVer':          The Mozilla version number as a float, i.e. 9.0
          'mozSrcType':      <'hg', 'git' or 'tarball'>,
          'mozSrcName':      <a short string to *loosely* describing the mozilla src>,
          # The following only if mozSrcType==hg:
@@ -862,8 +860,9 @@ def target_configure(argv):
 
             Scheme      Tag                     KoVer   FFVer   MozVer
             ----------  ----------------------  ------  ------  ----------
+            700         FIREFOX_7_0_0_RELEASE   7.0.X   7.0.X   7.00
+            1800        FIREFOX_18_0_0_RELEASE  8.0.X  18.0.X   18.00
             2400        FIREFOX_24_0_0_RELEASE  8.1.X  24.0.X   24.00
-            3100        FIREFOX_31_0_0_RELEASE  9.0.X  31.0.X   31.00
 
     Other Options:
         -r, --reconfigure
@@ -985,11 +984,9 @@ def target_configure(argv):
         "mozconfig": None,
         "mozApp": "komodo",
         "jsStandalone": False,
-        "mozSrcScheme": "3100",
+        "mozSrcScheme": "2400",
         "official": False,      # i.e. a plain Mozilla/Firefox build w/o Komodo stuff
         "withCrashReportSymbols": False,
-        "withPGOGeneration": False,
-        "withPGOCollection": False,
         "stripBuild": False,
         "compiler": None, # Windows-only; 'vc9' (the default)
         "gcc": None, # Unix-only; 'gcc44' (the default)
@@ -1024,8 +1021,6 @@ def target_configure(argv):
              "blessed", "universal",
              "komodo", "xulrunner", "suite", "browser", "moz-app=",
              "with-crashreport-symbols",
-             "with-pgo-generation",
-             "with-pgo-collection",
              "strip", "no-strip",
              "no-mar",
              "with-tests", "without-tests", 
@@ -1114,10 +1109,6 @@ def target_configure(argv):
                 mozBuildExtensions.append(ext)
         elif opt == "--with-crashreport-symbols":
             config["withCrashReportSymbols"] = True
-        elif opt == "--with-pgo-generation":
-            config["withPGOGeneration"] = True
-        elif opt == "--with-pgo-collection":
-            config["withPGOCollection"] = True
         elif opt == "--with-tests":
             config["withTests"] = True
         elif opt == "--without-tests":
@@ -1249,6 +1240,7 @@ def target_configure(argv):
             # Force x86_64 for now
             mozRawOptions.append('export CC="%s -arch x86_64"' % (gcc,))
             mozRawOptions.append('export CXX="%s -arch x86_64"' % (gxx,))
+            mozBuildOptions.append('target=x86_64-apple-darwin10')
             mozRawOptions.append("mk_add_options AUTOCONF=autoconf213")
         config["gcc"] = gcc
         config["gxx"] = gxx
@@ -1893,7 +1885,7 @@ def target_src_pyxpcom(argv=["src_pyxpcom"]):
         # Checkout pyxpcom - ensure we use the matching version to mozilla.
         repo_url = "http://hg.mozilla.org/pyxpcom/"
         repo_rev = None
-        if int(config.mozVer) < 31:
+        if config.mozVer <= 30.99:
             # Requires the matching branch.
             repo_rev = "TAG_MOZILLA_%d" % (int(config.mozVer), )
         cmd = "hg clone"
@@ -1906,8 +1898,7 @@ def target_src_pyxpcom(argv=["src_pyxpcom"]):
 def target_patch_pyxpcom(argv=["patch_pyxpcom"]):
     """Patch PyXPCOM with Komodo-specific patches"""
     log.info("target: patch_pyxpcom")
-    target_patch(patch_target='pyxpcom', logFilename="__patchlog_pyxpcom__.py",
-                 srcSubDir="extensions/python")
+    target_patch(patch_target='pyxpcom', logFilename="__patchlog_pyxpcom__.py")
     return argv[1:]
 
 def target_pyxpcom(argv=["pyxpcom"]):
@@ -1918,20 +1909,6 @@ def target_pyxpcom(argv=["pyxpcom"]):
 
     pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
                           "extensions", "python")
-    if not exists(pyxpcom_src_dir):
-        # Get it and patch it!
-        try:
-            target_src_pyxpcom()
-            target_patch_pyxpcom()
-        except:
-            # If something failed - we nuke the pyxpcom src dir, as we don't
-            # know if it's in a working state!
-            if exists(pyxpcom_src_dir):
-                shutil.rmtree()
-            raise
-
-    assert exists(pyxpcom_src_dir), "Pyxpcom source directory does not exist:" \
-                                    "%r" % (pyxpcom_src_dir, )
 
     # Run the autoconf to generate the configure script.
     cmds = []
@@ -1965,29 +1942,12 @@ def target_pyxpcom(argv=["pyxpcom"]):
     elif sys.platform == "darwin":
         configure_flags += " CC=%s" % (config.gcc or "gcc",)
         configure_flags += " CXX=%s" % (config.gxx or "g++",)
-
     # Add any custom build FLAGS using the command line args - bug 91389.
-    cflags = os.environ.get('CFLAGS', '')
-    cxxflags = os.environ.get('CXXFLAGS', '')
-    ldflags = os.environ.get('LDFLAGS', '')
-
-    # Support for PGO.
-    if config.withPGOGeneration:
-        if sys.platform.startswith("linux"):
-            cflags   += " -fprofile-generate"
-            cxxflags += " -fprofile-generate"
-            ldflags  += " -fprofile-generate"
-    elif config.withPGOCollection:
-        if sys.platform.startswith("linux"):
-            cflags   += " -fprofile-use -fprofile-correction"
-            cxxflags += " -fprofile-use -fprofile-correction"
-            ldflags  += " -fprofile-use -fprofile-correction"
-
-    if cflags:
-        configure_flags += ' CFLAGS="%s"' % (cflags)
-    if cxxflags:
-        configure_flags += ' CXXFLAGS="%s"' % (cxxflags)
-
+    if os.environ.get('CFLAGS'):
+        configure_flags += ' CFLAGS="%s"' % (os.environ.get('CFLAGS'))
+    if os.environ.get('CXXFLAGS'):
+        configure_flags += ' CXXFLAGS="%s"' % (os.environ.get('CXXFLAGS'))
+    ldFlags = os.environ.get('LDFLAGS', '')
     if sys.platform.startswith("linux"):
         # On Linux, manually set the runtime library path (rpath) to pick up the
         # correct Python libraries. Without this, Komodo (pyxpcom) may load the
@@ -1996,9 +1956,9 @@ def target_pyxpcom(argv=["pyxpcom"]):
         # The magic sauce - need to escape the $ so it's not shell-translated.
         # Note that we want to end up with:
         #   "$ORIGIN:$ORIGIN/../python/lib"
-        ldflags += " -Wl,-rpath=\\\\$\\$ORIGIN:\\\\$\\$ORIGIN/../python/lib"
-    if ldflags:
-        configure_flags += ' LDFLAGS="%s"' % (ldflags, )
+        ldFlags += " -Wl,-rpath=\\\\$\\$ORIGIN:\\\\$\\$ORIGIN/../python/lib"
+    if ldFlags:
+        configure_flags += ' LDFLAGS="%s"' % (ldFlags, )
     if config.buildType == "debug":
         configure_options.append("--enable-debug")
         configure_options.append("--disable-optimize")
@@ -2149,31 +2109,16 @@ def target_src(argv=["src"]):
         repoURL = getRepoFromTree(treeName)
         hgRepo = os.path.join(buildDir, "mozilla")
         bundleFile = os.path.abspath("%s.hg" % (treeName,))
-        bundleURL = "http://ftp.mozilla.org/pub/mozilla.org/firefox/bundles/%s.hg" % (treeName,)
-
-        def inside_activestate_network():
-            import socket
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            try:
-                s.connect(("gmail.com",80))
-            except:
-                return 
-            ip_address = s.getsockname()[0]
-            s.close()
-            return ip_address.startswith("192.168.68.") or ip_address.startswith("192.168.69.")
-
-        if inside_activestate_network():
-            try:
-                internal_url = "http://komodo.nas1.activestate.com/build-support/mozilla-build/%s.hg" % (treeName,)
-                # check that the URL can be opened (not 404, etc.) We don't need to read it.
-                urllib2.urlopen(internal_url, None, 10).close()
-                bundleURL = internal_url
-            except IOError:
-                # assume we're not in ActiveState's internal network and can't get
-                # access to the local mirror; use the canonical mozilla.org server
-                log.info("Failed to reach ActiveState internal mercurial mirror, "
-                         "using Mozilla canonical server")
-
+        try:
+            bundleURL = "http://komodo.nas.activestate.com/build-support/mozilla-build/%s.hg" % (treeName,)
+            # check that the URL can be opened (not 404, etc.) We don't need to read it.
+            urllib2.urlopen(bundleURL, None, 10).close()
+        except IOError:
+            # assume we're not in ActiveState's internal network and can't get
+            # access to the local mirror; use the canonical mozilla.org server
+            log.info("Failed to reach ActiveState internal mercurial mirror, "
+                     "using Mozilla canonical server")
+            bundleURL = "http://ftp.mozilla.org/pub/mozilla.org/firefox/bundles/%s.hg" % (treeName,)
         _run("wget -t 5 -T 30 --progress=dot:mega -O %s %s" % (bundleFile, bundleURL), log.info)
         _run("hg init %s" % (hgRepo,), log.info)
         _run("hg --cwd %s unbundle %s" % (hgRepo, bundleFile), log.info)
@@ -2331,7 +2276,7 @@ def _get_make_command(config, srcDir):
     (because pymake is broken for Gecko17, fixed later)
     """
 
-    if sys.platform.startswith("win") :
+    if config.mozVer >= 24.0 and sys.platform.startswith("win") :
         return "python %s/build/pymake/make.py" % (srcDir, )
 
     return "make"
@@ -2376,12 +2321,6 @@ def target_configure_mozilla(argv=["configure_mozilla"]):
         log.info("rm %s", configCache)
         os.remove(configCache)
 
-    # Add komodo build dir to .hgignore file.
-    hgignore_filepath = join(buildDir, ".hgignore")
-    contents = file(hgignore_filepath).read()
-    entry = "^" + config.mozObjDir + "/*"
-    file(hgignore_filepath, "w").write(contents + "\n" + entry + "\n")
-
     return argv[1:]
 
 def target_mozilla(argv=["mozilla"]):
@@ -2415,30 +2354,30 @@ def target_mozilla(argv=["mozilla"]):
         argv = argv[2:]
 
     else:
-        # New enough to use mach
-        # Make sure mach has the state directory working
-        try:
-            _run_in_dir("python mach mach-commands", buildDir, log.info)
-        except OSError:
-            pass # mach errors out on first run, that's okay
+        koDir = os.path.join(native_objdir, 'komodo')
 
-        # do the build
-        build_args = ""
+        if config.mozVer >= 24.0:
+            # New enough to use mach
+            # Make sure mach has the state directory working
+            try:
+                _run_in_dir("python mach mach-commands", buildDir, log.info)
+            except OSError:
+                pass # mach errors out on first run, that's okay
 
-        # XXX: Mozilla PGO builds require a huge amount of memory, so we've
-        #      disabled the mozilla PGO building for now.
-        #if config.withPGOGeneration:
-        #    build_args = "MOZ_PROFILE_GENERATE=1 MOZ_PGO_INSTRUMENTED=1"
-        #elif config.withPGOCollection:
-        #    build_args = "MOZ_PROFILE_USE=1"
-        #
-        #_run_in_dir("python mach --log-file %s configure %s" %
-        #                (join(buildDir, "mach.log"), build_args),
-        #            buildDir, log.info)
-        _run_in_dir("python mach --log-file %s build %s" %
-                        (join(buildDir, "mach.log"), build_args),
-                    buildDir, log.info)
+            # do the build
+            _run_in_dir("python mach --log-file %s build" %
+                            (join(buildDir, "mach.log")),
+                        buildDir, log.info)
+        else:
+            # Too old to use mach; use GNU make directly
+            _run_in_dir("%s -f client.mk build" % _get_make_command(config, buildDir),
+                        buildDir, log.info)
 
+        if config.mozApp == "komodo":
+            # argh, komodo dir does not get entered, call make there seperately
+            log.info("entering directory '%s' (to build komodo separately)",
+                     koDir)
+            _run_in_dir(_get_make_command(config, buildDir), koDir, log.info)
         argv = argv[1:]
     return argv
 
@@ -2473,9 +2412,10 @@ def target_komodoapp(argv=["komodoapp"]):
     config = _importConfig()
     target_patch(patch_target='komodoapp', logFilename="__patchlog_komodoapp__.py")
     topsrcdir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
-    log.info("building komodo app")
-    _run_in_dir("python mach --log-file %s build komodo" % (join(buildDir, "mach.log")),
-                topsrcdir, log.info)
+    native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
+    komodo_objdir = join(native_objdir, "komodo")
+    log.info("entering directory '%s' (to build komodo app)", komodo_objdir)
+    _run_in_dir(_get_make_command(config, topsrcdir), komodo_objdir, log.info)
     return argv[1:]
 
 def target_mbsdiff(argv=["mozilla"]):
@@ -2522,24 +2462,22 @@ def target_all(argv):
     target_patch_komodo()
     target_configure_mozilla()
     target_mozilla()
+    target_mbsdiff()
+    target_libmar()
     target_pyxpcom()
     target_silo_python()
     target_regmozbuild()
     return argv[1:]
 
 
-def target_patch(argv=["patch"], patch_target="mozilla", logFilename=None,
-                 srcSubDir=None):
+def target_patch(argv=["patch"], patch_target="mozilla", logFilename=None):
     """patch the mozilla source"""
     config = _importConfig()
-    log.info("target: patch %s from %r",
-             patch_target, config.patchesDirs)
+    log.info("target: patch from %r" %config.patchesDirs)
 
     srcDir = join(config.buildDir, config.srcTreeName, "mozilla")
-    if srcSubDir is not None:
-        srcDir = join(srcDir, srcSubDir)
     logDir = join(config.buildDir, config.srcTreeName,
-                  "mozilla-patches-%s" % config.srcTreeName, patch_target)
+                  "mozilla-patches-%s" % config.srcTreeName)
 
     # Use our local patch, if we have one.
     # - on Windows the cygwin patch can do screwy things
@@ -2623,7 +2561,7 @@ def target_upload(argv=["upload"]):
             log.warn("could not upload %s package: `%s' does not exist",
                      name, src)
             continue
-        dst = "komodo@mule:/data/komodo/extras/mozilla-build-patches/" + filename
+        dst = "komodo-build@nas:/data/komodo/extras/mozilla-build-patches/" + filename
         remote_cp(src, dst, log.info)
 
     return argv[1:]

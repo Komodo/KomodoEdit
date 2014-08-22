@@ -22,17 +22,17 @@ I'm lazy, just show me how to build it
 If any of these steps break, please first look at the full instructions
 below (especially the "prerequisites" sections).
 
-Build steps on Windows (creating a Komodo 9.10 version):
+Build steps on Windows (creating a Komodo 8.10 version):
 
     REM ---- Build Mozilla
     cd openkomodo\mozilla
     setenv-moz-msvc11.bat
-    python build.py configure -k 9.10
+    python build.py configure -k 8.10
     python build.py distclean all
     cd ..
-    REM ---- Build Komodo, version (9.10) must match between Komodo and Mozilla
+    REM ---- Build Komodo, version (8.10) must match between Komodo and Mozilla
     set PATH=util\black;%PATH%
-    bk configure -V 9.10.0-devel
+    bk configure -V 8.10.0-devel
     bk build
     REM ---- Run Komodo
     bk run
@@ -41,12 +41,12 @@ Build steps on Linux and Mac OS X:
 
     #---- Build Mozilla
     cd openkomodo/mozilla
-    python build.py configure -k 9.10
+    python build.py configure -k 8.10
     python build.py distclean all
     cd ..
-    #---- Build Komodo, version (9.10) must match between Komodo and Mozilla
+    #---- Build Komodo, version (8.10) must match between Komodo and Mozilla
     export PATH=`pwd`/util/black:$PATH   # Komodo's "bk" build tool
-    bk configure -V 9.10.0-devel
+    bk configure -V 8.10.0-devel
     bk build
     #---- Run Komodo
     bk run
@@ -146,6 +146,32 @@ Build Prerequisites for Linux
 
 
 
+Prerequisite packages by Distro
+-------------------------------
+
+This section is intended to give Linux distro-specific package manager steps
+for installing all build prerequisites. If you have info for distros not
+listed here and/or corrections, please start a Documentation bug for this:
+
+    <http://bugs.activestate.com/enter_bug.cgi?product=Komodo&component=Documentation>
+
+
+- Ubuntu:
+    sudo apt-get build-dep firefox
+
+- Fedora 9:
+
+    sudo yum install gcc-c++ patch gtk2-devel libIDL-devel libcurl-devel
+
+- Others ...
+
+  Please add a bug (http://bugs.activestate.com/enter_bug.cgi?product=Komodo)
+  if you know the package-prerequisite install steps for another particular
+  distro. Thanks!
+
+
+
+
 Building
 ========
 
@@ -204,7 +230,7 @@ for Komodo, you should only need to do this once (in a while).
 
 3. Configure for the mozilla build. You'll want to use something like:
 
-        python build.py configure -k 9.10
+        python build.py configure -k 8.10
 
    What this configure-step does is create a "config.py" file that guides
    the build step (next). This is akin to the "./configure" in the common
@@ -243,9 +269,9 @@ Step 3: Building Komodo
    If you built Mozilla above for a Komodo version other than the version
    mentioned in "src/version.txt", then you may have to specify your
    version. E.g. if you configured above with
-   "python configure.py -k 9.10 ..." then you'd want something like:
+   "python configure.py -k 8.10 ..." then you'd want something like:
    
-        bk configure -V 9.10.0-devel
+        bk configure -V 8.10.0-devel
 
    Run `bk help configure` for a (somewhat sparse) listing of available
    options.

@@ -124,7 +124,6 @@ getChildrenByAttribute: function(parent, attrKey, attrVal, returnFirst = false)
     if ( ! (attrVal instanceof Array)) attrVal = [attrVal]; // Allow multiple vals
 
     for (let [k,child] in Iterator(parent.childNodes)) {
-        if ( ! child.getAttribute) continue;
         if (child.getAttribute(attrKey) && attrVal.indexOf(child.getAttribute(attrKey)) !== -1) {
             if (returnFirst) return child;
             results.push(child);
@@ -188,8 +187,6 @@ fireEvent : function(target, eventName) {
 },
 
 /**
- * @deprecated since Komodo 9.0: https://github.com/Komodo/KomodoEdit/wiki/Komodo-9-Changes-Data-DOM-Events
- *
  * Send out a window data event with the given event name and data settings.
  *
  * Listeners will need to use event.getData(key) to retrieve the data values.
@@ -202,8 +199,6 @@ fireEvent : function(target, eventName) {
  * @param {Object} data - (Optional) Additional data object.
  */
 fireDataEvent : function(target, eventName, data) {
-    log.deprecated("fireDataEvent is deprecated - use CustomEvents instead");
-
     /** @type {Components.interfaces.nsIDOMDataContainerEvent} */
     var event = document.createEvent("DataContainerEvent");
     event.initEvent(eventName, true, true);

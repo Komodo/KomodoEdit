@@ -51,6 +51,7 @@ import difflibex
 import langinfo
 from zope.cachedescriptors.property import Lazy as LazyProperty
 from zope.cachedescriptors.property import LazyClassAttribute
+from koLanguageServiceBase import getActualStyle
 from koUDLLanguageBase import udl_family_from_style
 import koUnicodeEncoding, codecs, types
 
@@ -71,7 +72,7 @@ class DontDeleteEndLines(Exception):
     """ Used as an intra-method return """
     pass
 
-class koDocumentBase(object):
+class koDocumentBase:
     _com_interfaces_ = [components.interfaces.koIDocument,
                         components.interfaces.nsIObserver]
     _reg_desc_ = "Komodo Document"
@@ -83,9 +84,6 @@ class koDocumentBase(object):
     _indentWidth = None
     _tabWidth = None
     _useTabs = None
-
-    # The original on-disk file contents.
-    ondisk_lines = None
 
     _DOCUMENT_SIZE_NOT_LARGE = 0
     _DOCUMENT_SIZE_UDL_LARGE = 1
@@ -198,7 +196,7 @@ class koDocumentBase(object):
         # document's language service.  Useful for using a different colorizer,
         # usually text for a large document.
         self.lexer = None
-
+    
     def _dereference(self):
         prefObserver = self.prefs.prefObserverService
         prefObserver.removeObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'])
@@ -270,15 +268,26 @@ class koDocumentBase(object):
             language = self.langRegistrySvc.suggestLanguageForFile(self.get_displayPath())
             if not language:
                 language = 'Text'
-        prefName = "languages/%s/newEncoding" % (language,)
-        encoding = self.prefs.getString(prefName, "Default Encoding")
-        if encoding != "Default Encoding":
-            return encoding
-        # Try again on the global prefs
-        encoding = self._globalPrefs.getString(prefName, "Default Encoding")
-        if encoding != "Default Encoding":
-            return encoding
-        return self.prefs.getString('encodingDefault')
+        languagePrefName = 'languages/' + language
+        langEncodingName = language + '/newEncoding'
+        effectivePrefs = self.getEffectivePrefs()
+        if effectivePrefs.hasPrefHere('languages'):
+            languagesPrefs = effectivePrefs.getPref('languages')
+            if languagesPrefs.hasPrefHere(languagePrefName):
+                prefs = languagesPrefs.getPref(languagePrefName)
+                if prefs.hasPrefHere(langEncodingName):
+                    encoding = prefs.getStringPref(langEncodingName)
+                    if encoding != 'Default Encoding':
+                        return encoding
+        prefs = self._globalPrefs
+        languagesPrefs = prefs.getPref('languages')
+        if languagesPrefs.hasPref(languagePrefName):
+            langPref = languagesPrefs.getPref(languagePrefName)
+            if langPref.hasStringPref(langEncodingName):
+                encoding = langPref.getStringPref(langEncodingName)
+                if encoding != 'Default Encoding':
+                    return encoding
+        return prefs.getStringPref('encodingDefault')
     
     def _setupPrefs(self, encoding_name=None):
         """ We can only setup the prefs on the document once we have a URI for it
@@ -286,10 +295,11 @@ class koDocumentBase(object):
         Note that some things like encoding derive from prefs.
         """
         # Create a preference set to hold doc preferences
-        docStateMRU = UnwrapObject(self._globalPrefSvc.getPrefs("docStateMRU"))
+        docStateMRU = self._globalPrefSvc.getPrefs("docStateMRU");
         if not self.isUntitled and docStateMRU.hasPref(self.file.URI):
             url = self.file.URI
-            self.prefs = docStateMRU.getPref(url)
+            docState = docStateMRU.getPref(url)
+            self.prefs = docState
         else:
             self.prefs = components.classes['@activestate.com/koFilePreferenceSet;1'].\
                                      createInstance(components.interfaces.koIFilePreferenceSet)
@@ -301,8 +311,6 @@ class koDocumentBase(object):
             # _hasNoCurrentPref: Private field to be used by
             # self.load => self._loadfile later on.
             self._hasNoCurrentPref = True
-
-        self._upgradePrefs()
 
         # Hook up the preference chain.
         self._setupPreferenceChain()
@@ -331,21 +339,6 @@ class koDocumentBase(object):
         log.debug("adding prefs observer")
         prefObserver = self.prefs.prefObserverService
         prefObserver.addObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'], True)
-
-    def _upgradePrefs(self):
-        if self.prefs.hasPrefHere("prefs_version"):
-            version = self.prefs.getLong("prefs_version", 0)
-        else:
-            version = 0
-
-        if version < 1:
-            initSvc = UnwrapObject(components.classes["@activestate.com/koInitService;1"]
-                                             .getService())
-            initSvc._flattenLanguagePrefs(self.prefs)
-
-        if not version > 1:
-            version = 1
-            self.prefs.setLong("prefs_version", version)
 
     def _walkPrefChain(self, prefs, doPrint=True):
         """Debug method to help validate and show the preference chain."""
@@ -427,7 +420,7 @@ class koDocumentBase(object):
         # Differs from getEffectivePrefs because it queries each prefSet to see
         # if it directly contains the supplied pref. Otherwise a project that
         # doesn't set a pref can hide a file's setting, because the file happens
-        # to be a member of the project. Use with discretion
+        # to be a member of the file. Use with discretion
         docPrefset = self.prefs
         if docPrefset.hasPrefHere(prefName):
             return docPrefset
@@ -438,6 +431,25 @@ class koDocumentBase(object):
         return docPrefset
     
     def _setLangPrefs(self):
+        all_lang_prefs = self._globalPrefs.getPref("languages")
+        # Why the hell do we use the name "languages/" - it's already underneath
+        # a "languages" preferenceset!?!?
+        lang_pref_name = "languages/" + self._language
+        if all_lang_prefs.hasPref(lang_pref_name):
+            lang_prefs = all_lang_prefs.getPref(lang_pref_name)
+        else:
+            lang_prefs = components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+            lang_prefs.id = lang_pref_name;
+            all_lang_prefs.setPref(lang_pref_name, lang_prefs);
+
+        original_parent = self.prefs.parent
+        if original_parent == self._lang_prefs or \
+           original_parent.id == lang_pref_name:
+            # When lang prefs are already set - use the parent of it.
+            original_parent = original_parent.parent
+        lang_prefs.parent = original_parent
+        self.prefs.parent = lang_prefs
+        self._lang_prefs = lang_prefs
         # Reset indentation settings - bug 95329.
         self._indentWidth = None
         self._tabWidth = None
@@ -664,7 +676,6 @@ class koDocumentBase(object):
                 path = getattr(file, 'path', 'path:?')
                 log.exception("_loadfile: failed to set eol on file %s", path)
         self.set_isDirty(0)
-        self.ondisk_lines = data.splitlines(True)
         
     def _get_buffer_from_file(self, file):
         try:
@@ -814,13 +825,7 @@ class koDocumentBase(object):
     #       own implementation. To be kept in mind for re-factoring work.
 
     @components.ProxyToMainThread
-    def familyForPosition(self, pos=None):
-        """Return the UDL family name for the given position.
-
-            pos - scintilla position, or currentPos if pos is None
-
-        Example UDL family names returned are "M", "CSS", "TPL".
-        """
+    def get_subLanguage(self):
         if not self._language or not self._docPointer:
             return None
         languages = self.get_languageObj().getSubLanguages()
@@ -828,27 +833,38 @@ class koDocumentBase(object):
             return self._language
         # get the current position, and query the languageObj for what lang this is
         scimoz = self._views[0].scimoz
-        if pos is None:
-            pos = scimoz.currentPos
-        elif pos >= scimoz.length and pos > 0:
+        pos = scimoz.currentPos
+        if pos >= scimoz.length and pos > 0:
             pos = scimoz.positionBefore(scimoz.length)
-        style = scimoz.getStyleAt(pos)
+        style = getActualStyle(scimoz, pos)
+        family = udl_family_from_style(style)
+        return self.get_languageObj().getLanguageForFamily(family)
+        
+    @components.ProxyToMainThread
+    def familyForPosition(self, pos):
+        if not self._language or not self._docPointer:
+            return None
+        languages = self.get_languageObj().getSubLanguages()
+        if len(languages) < 2:
+            return self._language
+        # get the current position, and query the languageObj for what lang this is
+        scimoz = self._views[0].scimoz
+        if pos >= scimoz.length and pos > 0:
+            pos = scimoz.positionBefore(scimoz.length)
+        style = getActualStyle(scimoz, pos)
         return udl_family_from_style(style)
 
     def languageForPosition(self, pos):
         family = self.familyForPosition(pos)
         return self.get_languageObj().getLanguageForFamily(family)
 
-    def get_subLanguage(self):
-        return self.languageForPosition(pos=None)
-
     DECORATOR_UDL_FAMILY_TRANSITION = components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION
 
     @components.ProxyToMainThread
     def getLanguageTransitionPoints(self, start_pos, end_pos):
-        if not self._language or not self._docPointer:
-            return [0, 0]
         scimoz = self._views[0].scimoz
+        if not self._language or not self._docPointer:
+            return [0, scimoz.length]
         languages = self.get_languageObj().getSubLanguages()
         if len(languages) < 2:
             return [0, scimoz.length]
@@ -1201,8 +1217,7 @@ class koDocumentBase(object):
         make_dirty = 0
         try:
             if (self.encoding.python_encoding_name == encoding.python_encoding_name and
-                    self.encoding.use_byte_order_marker == encoding.use_byte_order_marker and
-                    self.prefs.getString("encoding", "") == self.encoding.python_encoding_name):
+                self.encoding.use_byte_order_marker == encoding.use_byte_order_marker):
                 # no change necessary
                 return
     
@@ -1254,9 +1269,14 @@ class koDocumentBase(object):
                                                 encoding.python_encoding_name,
                                                 errors)
                         except (UnicodeError, COMException), ex:
-                            # _encodeBuffer created lastErrorMessage
+                            errmsg = ("Unable to convert '%s' from '%s' to '%s'.  "
+                                      "This encoding cannot represent all "
+                                      "characters in the current buffer."
+                                      % (self.get_baseName(),
+                                         self.encoding.python_encoding_name,
+                                         encoding.python_encoding_name))
+                            self.lastErrorSvc.setLastError(1, errmsg)
                             lastErrorSet = 1
-                            errmsg = self.lastErrorSvc.getLastErrorMessage()
                             raise ServerException(nsError.NS_ERROR_FAILURE, errmsg)
                         updateBuffer = unicodeBuffer != buffer
 
@@ -1293,61 +1313,7 @@ class koDocumentBase(object):
                 log.exception(errmsg)
                 self.lastErrorSvc.setLastError(errno, errmsg)
             raise
-
-    def canBeEncodedWithEncoding(self, encoding):
-        """See if the current buffer can be converted with the given encoding.
-        
-           @param {koIEncoding} encoding
-
-           @returns True if it can be encoded, False if not.  And if it returns
-            False, it also sets the last error code:
-               nsError.NS_ERROR_FAILURE if the value can't be encoded
-               nsError.NS_ERROR_UNEXPECTED on an unexpected exception
-        """
-        try:
-            self._encodeBuffer(encoding)
-            return True
-        except (UnicodeError, COMException):
-            # Error message has been created, return False
-            pass
-        except Exception, e:
-            self.lastErrorSvc.setLastError(nsError.NS_ERROR_UNEXPECTED, e.message)
-        return False
-
-    def _encodeBuffer(self, encoding, errors="strict"):
-        """ Apply the proposed encoding to the current buffer's text,
-            and return the result.
-
-            On failure, catch UnicodeError and COMException exceptions,
-            and create an error message clients can access to explain
-            what went wrong.
-        
-           @param {koIEncoding} encoding
-           @param {string} errors
-
-           @returns {string}
-               sets the last error message to nsError.NS_ERROR_FAILURE if the value can't be encoded
-               and rethrows the exception.
-
-               Other exceptions are uncaught, and need to be caught by callers.
-        """
-        from koUnicodeEncoding import recode_unicode
-        try:
-            return recode_unicode(self.get_buffer(),
-                                  self.encoding.python_encoding_name,
-                                  encoding.python_encoding_name,
-                                  errors)
-        except (UnicodeError, COMException), e:
-            # The caller might need an explanation of why this method failed
-            errmsg = ("Unable to convert '%s' from '%s' to '%s'.  "
-                      "This encoding cannot represent all "
-                      "characters in the current buffer."
-                      % (self.get_baseName(),
-                         self.encoding.python_encoding_name,
-                         encoding.python_encoding_name))
-            self.lastErrorSvc.setLastError(nsError.NS_ERROR_FAILURE, errmsg)
-            raise
-        
+    
     def _getEncodedBufferText(self, encoding_name=None, mode='strict'):
         """Get the buffer text encoded in a particular encoding, by
         default the current configured encoding.
@@ -1756,9 +1722,7 @@ class koDocumentBase(object):
                 self._obsSvc.notifyObservers(self, "file_changed",
                                              self.file.URI)
             except:
-                pass # ignore, no one listening
-            
-            self.ondisk_lines = data.splitlines(True)
+                pass # ignore, noone listening
         finally:
             # fix file mode
             if forceSave and mode:
@@ -1792,7 +1756,7 @@ class koDocumentBase(object):
             log.exception(e)
 
     # The document manages a reference count of the views onto that
-    # document. When the last view is released we can clear the _docPointer
+    # document. When the last view 
     @components.ProxyToMainThread
     def addView(self, scintilla):
         self._views.append(scintilla)
@@ -1875,90 +1839,63 @@ class koDocumentBase(object):
             for view in self._views:
                 view.scimoz.tabWidth = val
 
-    def _getLangPref(self, *prefInfos):
-        """Get a pref that might fallback to language-specific values.
-        This will, at each level, check for each given pref name, and return the
-        first pref value gotten.
-        @param prefInfos {iterable} list of prefs to look up; each item should
-            be itself an iterable of (pref name, pref getter)
-        @returns a tuple of (found pref name, value); if no given prefs can be
-            found, return (None, None)
-        @note If any pref name starts with "%lang/" that prefix will be replaced
-            with the name of the current language pref.
-        """
-        prefset = self.prefs
-
-        while prefset is not None:
-            for key, getter in prefInfos:
-                if key.startswith("%lang/"):
-                    key = "languages/%s/%s" % (self._language,
-                                               key[len("%lang/"):])
-                if prefset.hasPrefHere(key):
-                    return key, getattr(prefset, getter)(key)
-            prefset = prefset.inheritFrom
-
-        # Prefs not found at any level?
-        return None, None
-
-    @property
-    def useTabs(self):
+    #attribute string URI; 
+    def get_useTabs(self):
         if self._useTabs is None:
-            pref, value = self._getLangPref(('useSmartTabs', 'getBoolean'),
-                                            ('%lang/useTabs', 'getBoolean'),
-                                            ('useTabs', 'getBoolean'))
-            assert pref is not None, "Should have default useTabs pref"
-            if pref == 'useSmartTabs':
+            # first try doc prefs if available
+            if self.prefs.hasPrefHere('useTabs'):
+                self._useTabs = self.prefs.getBooleanPref('useTabs')
+            elif self.prefs.hasPref('useSmartTabs') and \
+                self.prefs.getBooleanPref('useSmartTabs'):
                 self._guessFileIndentation()
             else:
-                self._useTabs = value
+                # global, not document prefs
+                self._useTabs = self.prefs.getBooleanPref('useTabs')
         return self._useTabs
+  
+    def set_useTabs(self, value):
+        self.prefs.setBooleanPref('useTabs', value) # will affect _useTabs through prefs observers
 
-    @useTabs.setter
-    def useTabs(self, value):
-        # will affect _useTabs through prefs observers
-        self.prefs.setBoolean('useTabs', value)
-
-    @property
-    def indentWidth(self):
+    def get_indentWidth(self):
         if self._indentWidth is None:
-            pref, value = self._getLangPref(('useSmartTabs', 'getBoolean'),
-                                            ('%lang/indentWidth', 'getLong'),
-                                            ('indentWidth', 'getLong'))
-            if pref == 'useSmartTabs':
+            log.info("_indentWidth is None")
+            if self.prefs.hasPrefHere('indentWidth'):
+                # get from document prefs
+                self._indentWidth = self.prefs.getLongPref('indentWidth')
+                log.info('got _indentWidth from prefs: %r' % self._indentWidth)
+            elif self.prefs.hasPref('useSmartTabs') and \
+                self.prefs.getBooleanPref('useSmartTabs'):
                 self._guessIndentWidth()
             else:
-                self._indentWidth = value
+                # get from global prefs
+                self._indentWidth = self.prefs.getLongPref('indentWidth')
         else:
             log.info("_indentWidth is not none, it's %s" % self._indentWidth)
         return self._indentWidth
 
-    @indentWidth.setter
-    def indentWidth(self, value):
+    def set_indentWidth(self, value):
         self._indentWidth = value
-        # will affect _indentWidth through prefs observers
-        self.prefs.setLong('indentWidth', value)
+        self.prefs.setLongPref('indentWidth', value) # will affect _useTabs through prefs observers
 
-    @property
-    def tabWidth(self):
+    def get_tabWidth(self):
         if self._tabWidth is None:
-            self._tabWidth = self.prefs.getLong('tabWidth')
+            self._tabWidth = self.prefs.getLongPref('tabWidth')
         return self._tabWidth
 
-    @tabWidth.setter
-    def tabWidth(self, value):
+    def set_tabWidth(self, value):
         self._tabWidth = value
-        # will affect _tabWidth through prefs observers
-        self.prefs.setLong('tabWidth', value)
+        self.prefs.setLongPref('tabWidth', value) # will affect _useTabs through prefs observers
 
     @components.ProxyToMainThread
     def _guessFileIndentation(self):
         # Heuristic to determine what file indentation settings the user
         # likely wants for this file.
         log.info("in _guessFileIndentation")
-        useTabs = False
-        usesSpaces = False
-        linesChecked = 0
+        useTabs = usesSpaces = linesChecked = 0
         buffer = self.get_buffer()
+        if self._indentWidth is None:
+            self.get_indentWidth() # will be guessed if not in prefs
+            log.info("guessed indentWidth to be: %s" % self._indentWidth)
 
         # In the first 150 lines of the file, search for the non-blank
         # lines with leading white-space.  Searching farther takes too long.
@@ -1966,12 +1903,12 @@ class koDocumentBase(object):
             if line[:1] == "\t":
                 # If first char is a tab, recognize that and move on
                 linesChecked += 1
-                useTabs = True
+                useTabs = 1
             elif line[:2] == "  ":
                 # If first 2 chars are spaces, recognize that and move on
                 # Require at least two spaces on the line to count it
                 linesChecked += 1
-                usesSpaces = True
+                usesSpaces = 1
             if linesChecked == 25:
                 # Only check up to 25 lines with indentation
                 break
@@ -1984,47 +1921,43 @@ class koDocumentBase(object):
                 # If we found both space and tab indentation, leave the
                 # indentWidth setting as default, fall back to prefs
                 # to decide which to use
-                self._useTabs = self.prefs.getBoolean("useTabs")
+                self._useTabs = self.prefs.getBooleanPref("useTabs")
                 for v in self._views:
-                    v.scimoz.indent = self.indentWidth
+                    v.scimoz.indent = self._indentWidth
                     v.scimoz.useTabs = self._useTabs
             elif useTabs:
                 # If only tab indentation was found, set the indentWidth
                 # to the tabWidth, so we essentially always use tabs.
-                self._useTabs = True
-                self._indentWidth = self.tabWidth
+                self._useTabs = 1
+                self.set_useTabs(self._useTabs)
+                self.set_indentWidth(self.get_tabWidth())
                 for v in self._views:
-                    v.scimoz.indent = self.indentWidth
+                    v.scimoz.indent = self._indentWidth
                     v.scimoz.useTabs = 1
             else:
                 if usesSpaces:
-                    self._useTabs = False
+                    self._useTabs = 0
+                    self.set_useTabs(self._useTabs)
                 else:
                     # indeterminate, so use global prefs to decide
-                    self._useTabs = self.prefs.getBoolean("useTabs")
+                    self._useTabs = self.prefs.getBooleanPref("useTabs")
                 for v in self._views:
-                    v.scimoz.useTabs = self.useTabs
-
-            if self._indentWidth is None:
-                # Make sure we have a default value here (from prefs)
-                _, value = self._getLangPref(('%lang/indentWidth', 'getLong'),
-                                             ('indentWidth', 'getLong'))
-                self._indentWidth = value
+                    v.scimoz.useTabs = self._useTabs
         else:
             # Lacking better information, fallback to the pref values.
             if self._useTabs is None:
-                _, self._useTabs = self._getLangPref(('%lang/useTabs', 'getBoolean'),
-                                                     ('useTabs', 'getBoolean'))
+                self._useTabs = self.prefs.getBooleanPref("useTabs")
             if self._indentWidth is None:
-                _, self._indentWidth = self._getLangPref(('%lang/indentWidth', 'getLong'),
-                                                         ('indentWidth', 'getLong'))
+                self._indentWidth = self.prefs.getLongPref("indentWidth")
             if self._tabWidth is None:
-                _, self._tabWidth = self._getLangPref(('%lang/tabWidth', 'getLong'),
-                                                      ('tabWidth', 'getLong'))
+                self._tabWidth = self.prefs.getLongPref("tabWidth")
             for v in self._views:
-                v.scimoz.useTabs = self.useTabs
-                v.scimoz.indent = self.indentWidth
-                v.scimoz.tabWidth = self.tabWidth
+                #XXX This is being a bit paranoid here. I am not sure if
+                #    this method need worry about writing self._tabWith
+                #    through to scimoz. David? --TM
+                v.scimoz.useTabs = self._useTabs
+                v.scimoz.indent = self._indentWidth
+                v.scimoz.tabWidth = self._tabWidth
 
     # Guess indent-width from text content. (Taken from IDLE.)
     #
@@ -2033,16 +1966,14 @@ class koDocumentBase(object):
     @components.ProxyToMainThread
     def _guessIndentWidth(self):
         text = self.get_buffer()
-
-        _, defaultIndentWidth = self._getLangPref(('%lang/indentWidth', 'getLong'),
-                                                  ('indentWidth', 'getLong'))
         if text == '':
-            self._indentWidth = defaultIndentWidth
+            indentWidth = self.prefs.getLongPref('indentWidth')
+            self._indentWidth= indentWidth
             return
         # if we don't have a view yet, we can't do anything.
         if not self._views:
             log.error("Was asked to guess indent width before there's a view")
-            self._indentWidth = defaultIndentWidth
+            self._indentWidth = self.prefs.getLongPref('indentWidth')
             return
         if not self._languageObj:
             self.get_languageObj()
@@ -2051,30 +1982,24 @@ class koDocumentBase(object):
         # different rules.
         indentWidth = 0
         useTabs = 0
-        _, defaultUseTabs = self._getLangPref(('%lang/useTabs', 'getBoolean'),
-                                              ('useTabs', 'getBoolean'))
+        defaultUseTabs = self.prefs.getBooleanPref("useTabs")
         try:
             indentWidth, useTabs = \
                 self._languageObj.guessIndentation(self._views[0].scimoz,
-                                                   self.tabWidth,
+                                                   self.get_tabWidth(),
                                                    defaultUseTabs)
         except Exception, e:
             log.error("Unable to guess indentation")
             
         if indentWidth == 0:  # still haven't found anything, so go with the prefs.
-            indentWidth = defaultIndentWidth
+            indentWidth = self.prefs.getLongPref('indentWidth')
             useTabs = defaultUseTabs
 
         log.info("_guessIndentWidth: indentWidth=%d, useTabs=%d",
                  indentWidth, useTabs)
-        self._indentWidth = indentWidth
+        self.set_indentWidth(indentWidth)
         self._useTabs = useTabs
-
-        # Store the guessed values if they are different to the default values.
-        if indentWidth != defaultIndentWidth:
-            self.indentWidth = indentWidth  # Save to prefs.
-        if useTabs != defaultUseTabs:
-            self.useTabs = useTabs  # Save to prefs.
+        self.set_useTabs(useTabs)
 
     @components.ProxyToMainThreadAsync
     def _statusBarMessage(self, message):
@@ -2090,12 +2015,32 @@ class koDocumentBase(object):
             # do nothing: Notify sometimes raises an exception if (???)
             # receivers are not registered?
             pass
-
+        
     _re_ending_eol = re.compile('\r?\n$')
     def getUnsavedChanges(self, joinLines=True):
         eolStr = eollib.eol2eolStr[self._eol]
-        ondisk = self.ondisk_lines
-        inmemory = self.get_buffer().splitlines(True)
+        inmemory = self.get_buffer().splitlines(1)
+
+        # We want a new temporary file to read, so the current file stats
+        # information does not get updated (required for remote file saving,
+        # which uses stats.mtime for checking if a file has changed or not).
+        tmpfile = \
+            components.classes["@activestate.com/koFileEx;1"] \
+            .createInstance(components.interfaces.koIFileEx)
+        tmpfile.URI = self.file.URI
+        tmpfile.open('rb')
+        try:
+            ondisk = tmpfile.read(-1)
+            (ondisk, encoding, bom) = self._detectEncoding(ondisk)
+            ondisk = ondisk.splitlines(1)
+        except:
+            # If we cannot read the file - then either it doesn't exist yet, or
+            # we don't have the correct permissions - either way we will treat
+            # it as having all lines changed - bug 97642.
+            ondisk = ''
+        finally:
+            tmpfile.close()        #self.file.open('rb')
+
         difflines = list(difflibex.unified_diff(
             ondisk, inmemory,
             self.file.displayPath, self.file.displayPath+" (unsaved)",
@@ -2235,7 +2180,3 @@ class koDocumentBase(object):
         if effectivePrefs.hasPref(name):
             return effectivePrefs.getBooleanPref(name)
         return default
-
-    def md5Hash(self):
-        return md5(self.buffer.encode("utf-8")).hexdigest()
-

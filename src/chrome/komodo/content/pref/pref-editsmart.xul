@@ -313,7 +313,7 @@
                       pref="true"/>
         </groupbox>
     
-        <groupbox id="folding_groupbox">
+        <groupbox orient="vertical">
             <caption label="&folding.label;"/>
             <hbox align="center">
               <label value="&fileEditSmartFoldMarkStyle.label;"/>

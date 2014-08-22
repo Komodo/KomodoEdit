@@ -24,7 +24,7 @@
 
 """Self-test suite for Crypto.Cipher.DES3"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: test_DES3.py 4769 2010-04-09 17:53:50Z toddw $"
 
 from common import dict     # For compatibility with Python 2.1 and 2.2
 

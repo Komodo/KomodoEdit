@@ -108,7 +108,7 @@ this.initialize = function RunOutput_Init() {
         if (boxObject.view == null) {
             // We are in a collapsed state-- we need to force the tree to be visible
             // before we can assign the view to it.
-            ko.run.output.show(window);
+            RunOutput_Show(window);
         }
         _gTerminalView = document.getElementById("runoutput-scintilla");
         _gTerminalView.scintilla.symbolMargin = false; // No need for margins.
@@ -538,3 +538,21 @@ window.addEventListener("focus", this.onFocus, false);
 }).apply(ko.run.output);
 
 window.addEventListener("load", ko.run.output.initialize, false);
+
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("RunOutput_Init", "ko.run.output.initialize");
+ko.logging.globalDeprecatedByAlternative("RunOutput_Fini", "ko.run.output.finalize");
+ko.logging.globalDeprecatedByAlternative("RunOutput_GetTerminal", "ko.run.output.getTerminal");
+ko.logging.globalDeprecatedByAlternative("RunOutput_StartSession", "ko.run.output.startSession");
+ko.logging.globalDeprecatedByAlternative("RunOutput_EndSession", "ko.run.output.endSession");
+ko.logging.globalDeprecatedByAlternative("RunOutput_Show", "ko.run.output.show");
+ko.logging.globalDeprecatedByAlternative("RunOutput_SetProcessHandle", "ko.run.output.setProcessHandle");
+ko.logging.globalDeprecatedByAlternative("RunOutput_Kill", "ko.run.output.kill");
+ko.logging.globalDeprecatedByAlternative("RunOutput_ToggleView", "ko.run.output.toggleView");
+ko.logging.globalDeprecatedByAlternative("RunOutput_ScintillaOnClick", "ko.run.output.scintillaOnClick");
+ko.logging.globalDeprecatedByAlternative("RunOutput_TreeOnClick", "ko.run.output.treeOnClick");
+ko.logging.globalDeprecatedByAlternative("RunOutput_TreeOnKeyPress", "ko.run.output.treeOnKeyPress");
+

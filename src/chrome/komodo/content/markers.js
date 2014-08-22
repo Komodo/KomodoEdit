@@ -37,6 +37,7 @@
 if (typeof(ko)=='undefined') {
     var ko = {};
 }
+xtk.include("color");
 
 /**
  * This module defines how Scintilla markers are used in Komodo.
@@ -58,9 +59,6 @@ ko.markers =  function markers_module() {
     // Here are the marker numbers that Komodo uses.
     // Note: These numbers *must* match the corresponding values used in
     //       src/koRunTerminal.py.
-
-    // 25-31 are dedicated to folding
-    // 22-24 are dedicated to tracking (insert, delete, modify)
     MAX_MARKNUM: 13,
     MARKNUM_HISTORYLOC: 13,
     MARKNUM_STDERR: 12, // used in terminal view
@@ -95,58 +93,6 @@ ko.markers =  function markers_module() {
     },
 
     /**
-     * Asynchronously load an image (e.g. png), cache the result and run the
-     * given callback with the image details.
-     *
-     * @param {String} uri file uri
-     * 
-     * Note: The file contents are cached by URI.
-     */
-    getImageDataAsync: function(uri, callback) {
-        if (uri in content_cache) {
-            var cache_entry = content_cache[uri];
-            if (cache_entry[0] == "pending") {
-                cache_entry[1].push(callback);
-                return;
-            }
-            // It's already loaded - fire the callback now.
-            callback.apply(ko.markers, content_cache[uri]);
-        }
-
-        // Make note that this image is pending.
-        content_cache[uri] = ["pending", [callback]];
-
-        // Load the image so we can get it's size and data.
-        var image = new Image();
-        // Make it hidden.
-        image.setAttribute("hidden", "true");
-        image.onload = function(event) {
-            try {
-                var width = image.naturalWidth;
-                var height = image.naturalHeight;
-                var ctx = document.createElementNS("http://www.w3.org/1999/xhtml", "canvas").getContext("2d");
-                ctx.width = width;
-                ctx.height = height;
-                ctx.drawImage(image, 0, 0);
-                var data = ctx.getImageData(0, 0, width, height).data;
-                // Turn data into a string
-                data = [String.fromCharCode(x) for (x of data)].join("");
-                // Cache the result and run all callbacks.
-                var callbacks = content_cache[uri][1];
-                content_cache[uri] = [width, height, data];
-                for (var i=0; i < callbacks.length; i++) {
-                    callbacks[i](width, height, data);
-                }
-            } finally {
-                document.documentElement.removeChild(image);
-            }
-        }
-        image.src = uri;
-        // Have to add the image to the document in order to have it load.
-        document.documentElement.appendChild(image);
-    },
-
-    /**
      * Setup the standard Komodo markers in the given SciMoz instance and
      * return an appropriate mask for ISciMoz.setMarginMaskN(<n>, <mask>).
      * 
@@ -154,20 +100,12 @@ ko.markers =  function markers_module() {
      * @param {Boolean} isDarkBackground - whether scimoz is using a dark bg.
      */
     setup: function(scimoz, isDarkBackground) {
-        var color;
-        if (typeof(require) == "function") {
-            color = require("ko/color");
-        } else {
-            ko.logging.getLogger("markers.js").warn("Include globals.js for require functionality");
-            xtk.include("color");
-            color = xtk.color;
-        }
         scimoz.markerDefine(ko.markers.MARKNUM_BOOKMARK, scimoz.SC_MARK_ARROWDOWN);
-        scimoz.markerSetFore(ko.markers.MARKNUM_BOOKMARK, color.RGBToBGR(0x00, 0x00, 0x00)); // black
-        scimoz.markerSetBack(ko.markers.MARKNUM_BOOKMARK, color.RGBToBGR(0x00, 0xFF, 0xFF)); // cyan
+        scimoz.markerSetFore(ko.markers.MARKNUM_BOOKMARK, xtk.color.RGB(0x00, 0x00, 0x00)); // black
+        scimoz.markerSetBack(ko.markers.MARKNUM_BOOKMARK, xtk.color.RGB(0x00, 0xFF, 0xFF)); // cyan
     
         scimoz.markerDefine(ko.markers.MARKNUM_STDIN_PROMPT, scimoz.SC_MARK_CHARACTER+'%'.charCodeAt(0));
-        scimoz.markerSetFore(ko.markers.MARKNUM_STDIN_PROMPT, color.scintilla_red);
+        scimoz.markerSetFore(ko.markers.MARKNUM_STDIN_PROMPT, xtk.color.red);
         scimoz.markerDefine(ko.markers.MARKNUM_STDOUT, scimoz.SC_MARK_EMPTY);
         scimoz.markerDefine(ko.markers.MARKNUM_STDERR, scimoz.SC_MARK_EMPTY);
         scimoz.markerDefine(ko.markers.MARKNUM_HISTORYLOC, scimoz.SC_MARK_EMPTY);

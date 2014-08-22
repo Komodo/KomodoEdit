@@ -60,7 +60,7 @@
 # Dev Notes:
 #
 
-__revision__ = "$Id$"
+__revision__ = "$Id: rm_empty_dirs.py 281 2007-10-29 23:26:44Z toddw $"
 __version_info__ = (0, 1, 0)
 __version__ = '.'.join(map(str, __version_info__))
 __all__ = ["rm_empty_dirs"]

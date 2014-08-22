@@ -83,29 +83,6 @@ index a6ae84e..b6b2117 100644
  }
  
  void SurfaceImpl::MoveTo(int x_, int y_) {
-diff --git headless/PlatHeadless.cxx headless/PlatHeadless.cxx
-index 6a8fdad..de29676 100644
---- headless/PlatHeadless.cxx
-+++ headless/PlatHeadless.cxx
-@@ -67,6 +67,7 @@ public:
- 	void Release();
- 	bool Initialised();
- 	void PenColour(ColourDesired fore);
-+	int LogPixelsX();
- 	int LogPixelsY();
- 	int DeviceHeightFont(int points);
- 	void MoveTo(int x_, int y_);
-@@ -148,6 +149,10 @@ void SurfaceImpl::InitPixMap(int width, int height, Surface *surface_, WindowID
- void SurfaceImpl::PenColour(ColourDesired fore) {
- }
- 
-+int SurfaceImpl::LogPixelsX() {
-+	return 72;
-+}
-+
- int SurfaceImpl::LogPixelsY() {
- 	return 72;
- }
 diff --git include/Platform.h include/Platform.h
 index 36b0c41..80dfeec 100644
 --- include/Platform.h
@@ -122,23 +99,23 @@ diff --git include/Scintilla.iface include/Scintilla.iface
 index e144a96..2a08e9c 100644
 --- include/Scintilla.iface
 +++ include/Scintilla.iface
-@@ -2418,6 +2418,10 @@ get bool GetSuppressDragDrop=5011(,)
- set void SetSuppressZoomOnScrollWheel=5012(bool suppressZoomOnScrollWheel,)
- get bool GetSuppressZoomOnScrollWheel=5013(,)
+@@ -4531,6 +4531,10 @@
+ # Get the set of base styles that can be extended with sub styles
+ get int GetSubStyleBases=4026(, stringresult styles)
  
 +# Get the number of logical pixels per inch, in the X and Y directions
 +get int GetLogPixelsX=5014(,)
 +get int GetLogPixelsY=5015(,)
 +
- # For private communication between an application and a known lexer.
- fun int PrivateLexerCall=4013(int operation, int pointer)
+ cat Deprecated
  
+ # Deprecated in 2.21
 index 1c25ed0..fe1ac2e 100644
 --- src/Editor.cxx
 +++ src/Editor.cxx
-@@ -9350,6 +9350,22 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
- 	case SCI_GETSUPPRESSZOOMONSCROLLWHEEL: //  bug 98938
- 		return suppressZoomOnScrollWheel;
+@@ -9617,6 +9617,22 @@
+ 	case SCI_COUNTCHARACTERS:
+ 		return pdoc->CountCharacters(wParam, lParam);
  
 +	case SCI_GETLOGPIXELSX: { // bug 100492
 +			AutoSurface surface(this);
@@ -156,9 +133,9 @@ index 1c25ed0..fe1ac2e 100644
 +			return 72;
 +		}
 +
- 	// END ACTIVESTATE
- 
- 	case SCI_GETCHARACTERPOINTER:
+ 	default:
+ 		return DefWndProc(iMessage, wParam, lParam);
+ 	}
 diff --git win32/PlatWin.cxx win32/PlatWin.cxx
 index e92ef94..3cd5873 100644
 --- win32/PlatWin.cxx

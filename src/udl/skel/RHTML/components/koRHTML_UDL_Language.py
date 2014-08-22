@@ -44,6 +44,9 @@ import logging
 from xpcom import components
 from xpcom.server import UnwrapObject
 from koXMLLanguageBase import koHTMLLanguageBase
+from koLintResults import koLintResults
+
+from codeintel2.rubycile import rails_role_from_path
 
 import scimozindent
 
@@ -302,8 +305,6 @@ class KoRHTMLLinter(object):
 
     _tplPatterns = ("RHTML", re.compile('<%='), re.compile(r'%>\s*\Z', re.DOTALL), 'Proc.new {', '}.call;')
     def lint(self, request):
-        from codeintel2.rubycile import rails_role_from_path
-
         # With the "squelching" the multi-language linter does to pull
         # <% and %>-like tokens out of the lint input stream, there's no
         # need to map all Ruby code to RHTML
@@ -323,7 +324,6 @@ class KoRHTMLLinter(object):
         return rubyLintResults
 
     def _resetLines(self, lintResults, text):
-        from koLintResults import koLintResults
         lines = text.splitlines()
         fixedResults = koLintResults()
         for res in lintResults.getResults():

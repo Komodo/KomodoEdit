@@ -110,8 +110,6 @@ class KoExtShell(cmdln.Cmdln):
                  "(defaults to the current dir)")
     @option("-i", "--include", action="append", dest="additional_includes",
             help="Include this file/directory in the resulting xpi")
-    @option("-o", "--output-file", action="store", dest="xpi_path",
-            help="The resulting xpi output file.")
     @option("--unjarred", action="store_true", dest="unjarred",
             help="Do not jar the chrome directory.")
     @option("--dev", action="store_const", dest="mode", const="dev",
@@ -152,8 +150,7 @@ class KoExtShell(cmdln.Cmdln):
             unjarred=opts.unjarred,
             ppdefines=ppdefines,
             additional_includes=opts.additional_includes,
-            log=log,
-            xpi_path=opts.xpi_path)
+            log=log)
 
     @option("-d", "--source-dir",
             help="The directory with the source for the extension "
@@ -166,8 +163,6 @@ class KoExtShell(cmdln.Cmdln):
                  "See `koext help build`.")
     @option("--define", action="append", dest="defines",
             help="Define a preprocessor variable, format 'name=value'.")
-    @option("-o", "--output-file", action="store", dest="xpi_path",
-            help="The resulting xpi output file.")
     @option("--unjarred", action="store_true", dest="unjarred",
             help="Do not jar the chrome directory.")
     def _do_koinstall(self, subcmd, opts):
@@ -195,40 +190,8 @@ class KoExtShell(cmdln.Cmdln):
             ppdefines = None
         koextlib.komodo_build_install(opts.source_dir,
             ppdefines=ppdefines, log=log,
-            unjarred=opts.unjarred,
-            xpi_path=opts.xpi_path,
-            distinstall=(subcmd == "distinstall"))
+            unjarred=opts.unjarred)
 
-    @option("-d", "--source-dir",
-            help="The directory with the source for the extension "
-                 "(defaults to the current dir)")
-    @option("--dev", action="store_const", dest="mode", const="dev",
-            default="release",
-            help="Build in development mode. See `koext help build`.")
-    @option("--disable-preprocessing", action="store_true",
-            help="Disable preprocessing of '*.p.*' files in the source tree. "
-                 "See `koext help build`.")
-    @option("--define", action="append", dest="defines",
-            help="Define a preprocessor variable, format 'name=value'.")
-    @option("-o", "--output-file", action="store", dest="xpi_path",
-            help="The resulting xpi output file.")
-    @option("--unjarred", action="store_true", dest="unjarred",
-            help="Do not jar the chrome directory.")
-    def _do_kodistinstall(self, subcmd, opts):
-        """${cmd_name}: build and install this extension into a Komodo build
-
-        ${cmd_usage}
-        ${cmd_option_list}
-        This command is for building *core* Komodo extensions into a Komodo
-        build. This is *not* a command for installing an extension into a
-        Komodo installation (either install the .xpi for use `koext devinstall`
-        for that).
-        """
-        self._do_koinstall("distinstall", opts)
-
-    @option("-d", "--dest-dir",
-            help="The directory in which to extract into"
-                 "(defaults to extensions dir)")
     def _do_kounpack(self, subcmd, opts, xpi_path):
         """${cmd_name}: unpack a .xpi file and install it into a Komodo build
 
@@ -238,19 +201,9 @@ class KoExtShell(cmdln.Cmdln):
         build. This is *not* a command for installing an extension into a
         Komodo installation (either install the .xpi for use `koext devinstall`
         for that)."""
-        koextlib.komodo_unpack_xpi(xpi_path, log=log, destdir=opts.dest_dir)
-
-    def _do_kodistunpack(self, subcmd, opts, xpi_path):
-        """${cmd_name}: unpack a .xpi file and install it into a Komodo build
-
-        ${cmd_usage}
-        ${cmd_option_list}
-        This command is for installing *core* Komodo extensions into a Komodo
-        build. This is *not* a command for installing an extension into a
-        Komodo installation (either install the .xpi for use `koext devinstall`
-        for that)."""
-        koextlib.komodo_distunpack_xpi(xpi_path, log=log)
-
+        koextlib.komodo_unpack_xpi(xpi_path, log=log)
+        
+    
     @option("-d", "--source-dir",
             help="The directory with the source for the extension "
                  "(defaults to the current dir)")

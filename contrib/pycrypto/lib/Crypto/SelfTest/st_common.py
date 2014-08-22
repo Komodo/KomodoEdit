@@ -24,7 +24,7 @@
 
 """Common functions for SelfTest modules"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: st_common.py 4769 2010-04-09 17:53:50Z toddw $"
 
 import unittest
 import string

@@ -34,6 +34,9 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/editor.properties");
 /**
  * A CSS color picker, custom hyperlink handler.
  *
@@ -49,7 +52,7 @@ ko.hyperlinks.ColorPickerHandler = function()
     var lang_names = ["CSS", "Less", "SCSS", "HTML", "HTML5"];   /* Language types */
     //var indic_style = Components.interfaces.ISciMoz.INDIC_ROUNDBOX;
     var indic_style = Components.interfaces.ISciMoz.INDIC_PLAIN;
-    var indic_color = require("ko/color").RGBToBGR(0xd0,0x40,0xff);
+    var indic_color = xtk.color.RGB(0xd0,0x40,0xff);
         
     var regex_args = [name, find_regex, fn, replace_str, lang_names, indic_style, indic_color];
     ko.hyperlinks.RegexHandler.apply(this, regex_args);

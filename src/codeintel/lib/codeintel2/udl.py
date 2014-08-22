@@ -60,6 +60,7 @@ from codeintel2.citadel import CitadelBuffer
 if _xpcom_:
     from xpcom import components
     from xpcom.server import UnwrapObject
+    import directoryServiceUtils
 
 log = logging.getLogger("codeintel.udl")
 #log.setLevel(logging.DEBUG)
@@ -84,19 +85,19 @@ finally:
 # Test 'udl/general/is_udl_x_style' tests these.
 def is_udl_m_style(style):
     return (ScintillaConstants.SCE_UDL_M_DEFAULT <= style
-            <= ScintillaConstants.SCE_UDL_M_UPPER_BOUND)
+            <= ScintillaConstants.SCE_UDL_M_COMMENT)
 def is_udl_css_style(style):
     return (ScintillaConstants.SCE_UDL_CSS_DEFAULT <= style
-            <= ScintillaConstants.SCE_UDL_CSS_UPPER_BOUND)
+            <= ScintillaConstants.SCE_UDL_CSS_OPERATOR)
 def is_udl_csl_style(style):
     return (ScintillaConstants.SCE_UDL_CSL_DEFAULT <= style
-            <= ScintillaConstants.SCE_UDL_CSL_UPPER_BOUND)
+            <= ScintillaConstants.SCE_UDL_CSL_REGEX)
 def is_udl_ssl_style(style):
     return (ScintillaConstants.SCE_UDL_SSL_DEFAULT <= style
-            <= ScintillaConstants.SCE_UDL_SSL_UPPER_BOUND)
+            <= ScintillaConstants.SCE_UDL_SSL_VARIABLE)
 def is_udl_tpl_style(style):
     return (ScintillaConstants.SCE_UDL_TPL_DEFAULT <= style
-            <= ScintillaConstants.SCE_UDL_TPL_UPPER_BOUND)
+            <= ScintillaConstants.SCE_UDL_TPL_VARIABLE)
 
 #XXX Redundant code from koUDLLanguageBase.py::KoUDLLanguage
 # Necessary because SilverCity.WordList splits input on white-space
@@ -149,7 +150,6 @@ class UDLLexer(Lexer):
             It yields directories that should "win" first.
             """
             from glob import glob
-            from directoryServiceUtils import getExtensionLexerDirs
             lexresfile_from_lang = {}
             koDirs = components.classes["@activestate.com/koDirs;1"] \
                 .getService(components.interfaces.koIDirs)
@@ -157,7 +157,8 @@ class UDLLexer(Lexer):
             # Find all possible lexer dirs.
             lexer_dirs = []
             lexer_dirs.append(join(koDirs.userDataDir, "lexers"))    # user
-            lexer_dirs += getExtensionLexerDirs()                    # extensions
+            for extensionDir in directoryServiceUtils.getExtensionDirectories():
+                lexer_dirs.append(join(extensionDir, "lexers"))      # user-install extensions
             lexer_dirs.append(join(koDirs.commonDataDir, "lexers"))  # site/common
             lexer_dirs.append(join(koDirs.supportDir, "lexers"))     # factory
             for extra_dir in UDLLexer._extra_lexer_dirs:
@@ -229,19 +230,19 @@ class UDLBuffer(CitadelBuffer):
 
     def lang_from_style(self, style):
         if (ScintillaConstants.SCE_UDL_M_DEFAULT <= style
-              <= ScintillaConstants.SCE_UDL_M_UPPER_BOUND):
+              <= ScintillaConstants.SCE_UDL_M_COMMENT):
             return self.m_lang
         elif (ScintillaConstants.SCE_UDL_CSS_DEFAULT <= style
-              <= ScintillaConstants.SCE_UDL_CSS_UPPER_BOUND):
+              <= ScintillaConstants.SCE_UDL_CSS_OPERATOR):
             return self.css_lang
         elif (ScintillaConstants.SCE_UDL_CSL_DEFAULT <= style
-              <= ScintillaConstants.SCE_UDL_CSL_UPPER_BOUND):
+              <= ScintillaConstants.SCE_UDL_CSL_REGEX):
             return self.csl_lang
         elif (ScintillaConstants.SCE_UDL_SSL_DEFAULT <= style
-              <= ScintillaConstants.SCE_UDL_SSL_UPPER_BOUND):
+              <= ScintillaConstants.SCE_UDL_SSL_VARIABLE):
             return self.ssl_lang
         elif (ScintillaConstants.SCE_UDL_TPL_DEFAULT <= style
-              <= ScintillaConstants.SCE_UDL_TPL_UPPER_BOUND):
+              <= ScintillaConstants.SCE_UDL_TPL_VARIABLE):
             return self.tpl_lang
         else:
             raise ValueError("unknown UDL style: %r" % style)
@@ -289,15 +290,15 @@ class UDLBuffer(CitadelBuffer):
         else:
             min_style, max_style = {
                 self.m_lang:   (ScintillaConstants.SCE_UDL_M_DEFAULT,
-                                ScintillaConstants.SCE_UDL_M_UPPER_BOUND),
+                                ScintillaConstants.SCE_UDL_M_COMMENT),
                 self.css_lang: (ScintillaConstants.SCE_UDL_CSS_DEFAULT,
-                                ScintillaConstants.SCE_UDL_CSS_UPPER_BOUND),
+                                ScintillaConstants.SCE_UDL_CSS_OPERATOR),
                 self.csl_lang: (ScintillaConstants.SCE_UDL_CSL_DEFAULT,
-                                ScintillaConstants.SCE_UDL_CSL_UPPER_BOUND),
+                                ScintillaConstants.SCE_UDL_CSL_REGEX),
                 self.ssl_lang: (ScintillaConstants.SCE_UDL_SSL_DEFAULT,
-                                ScintillaConstants.SCE_UDL_SSL_UPPER_BOUND),
+                                ScintillaConstants.SCE_UDL_SSL_VARIABLE),
                 self.tpl_lang: (ScintillaConstants.SCE_UDL_TPL_DEFAULT,
-                                ScintillaConstants.SCE_UDL_TPL_UPPER_BOUND),
+                                ScintillaConstants.SCE_UDL_TPL_VARIABLE),
             }[lang]
 
             in_chunk = False

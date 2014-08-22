@@ -24,7 +24,7 @@
 
 """Self-test suite for Crypto.Hash.SHA"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: test_SHA.py 4769 2010-04-09 17:53:50Z toddw $"
 
 # Test vectors from various sources
 # This is a list of (expected_result, input[, description]) tuples.

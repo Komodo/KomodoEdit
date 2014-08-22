@@ -92,6 +92,8 @@ log = logging.getLogger("codeintel.ruby")
 #log.setLevel(logging.DEBUG)
 makePerformantLogger(log)
 
+CACHING = True #XXX obsolete, kill it
+
 _trg_type_to_trg_char = {'lib-paths': ['\'', True],
                          'lib-subpaths': ['/', True],
                          'object-methods': ['.', False],
@@ -1430,27 +1432,14 @@ class RubyImportHandler(ImportHandler):
         ImportHandler.__init__(self, mgr)
         self._pathCache = None
         self._findModuleOnDiskCache = {}
-
-    def _getPath(self, cwd=None):
-        if self._pathCache is None:
-            """Put all the path pieces together and return that list.
-
-            If "cwd" is specified, it is prepended to the list. (In many languages
-            the directory of the file with the import statement is first on the
-            module search path.)
-            """
-            if self.corePath is None: self.setCorePath()
-            if self.envPath is None: self.setEnvPath()
-            path = [] # intentionally exclude cwd
-            if self.customPath:
-                path += self.customPath
-            path += self.envPath
-            path += self.corePath
-            self._pathCache = path
-        if cwd:
-            return [cwd] + self._pathCache
-        else:
-            return self._pathCache
+    if CACHING:
+        def _getPath(self, cwd=None):
+            if self._pathCache is None:
+                self._pathCache = ImportHandler._getPath(self) # intentionally exclude cwd
+            if cwd:
+                return [cwd] + self._pathCache
+            else:
+                return self._pathCache
 
     def _shellOutForPath(self, compiler):
         import process

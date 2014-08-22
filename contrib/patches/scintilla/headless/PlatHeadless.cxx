@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <math.h>
-#include <sys/time.h>
 
 #include <vector>
 #include <map>
@@ -19,10 +18,6 @@
 #include "ScintillaHeadless.h"
 #include "UniConversion.h"
 #include "XPM.h"
-
-#ifdef SCI_NAMESPACE
-using namespace Scintilla;
-#endif
 
 Font::Font() : fid(0) {}
 
@@ -64,6 +59,7 @@ public:
 	void Release();
 	bool Initialised();
 	void PenColour(ColourDesired fore);
+	int LogPixelsX();
 	int LogPixelsY();
 	int DeviceHeightFont(int points);
 	void MoveTo(int x_, int y_);
@@ -143,6 +139,10 @@ void SurfaceImpl::InitPixMap(int width, int height, Surface *surface_, WindowID 
 }
 
 void SurfaceImpl::PenColour(ColourDesired fore) {
+}
+
+int SurfaceImpl::LogPixelsX() {
+	return 72;
 }
 
 int SurfaceImpl::LogPixelsY() {
@@ -453,20 +453,58 @@ void Menu::Show(Point pt, Window &) {
 }
 
 
-//----------------- ElapsedTime --------------------------------------------------------------------
+// TODO - copy individual platforms for this?
 
-#if defined(GTK)
+#if defined(HEADLESS_GTK)
+
 #include <glib.h>
 #include <gmodule.h>
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+
 ElapsedTime::ElapsedTime() {
 	GTimeVal curTime;
 	g_get_current_time(&curTime);
 	bigBit = curTime.tv_sec;
 	littleBit = curTime.tv_usec;
 }
+
+class DynamicLibraryImpl : public DynamicLibrary {
+protected:
+	GModule* m;
+public:
+	DynamicLibraryImpl(const char *modulePath) {
+		m = g_module_open(modulePath, G_MODULE_BIND_LAZY);
+	}
+
+	virtual ~DynamicLibraryImpl() {
+		if (m != NULL)
+			g_module_close(m);
+	}
+
+	// Use g_module_symbol to get a pointer to the relevant function.
+	virtual Function FindFunction(const char *name) {
+		if (m != NULL) {
+			gpointer fn_address = NULL;
+			gboolean status = g_module_symbol(m, name, &fn_address);
+			if (status)
+				return static_cast<Function>(fn_address);
+			else
+				return NULL;
+		} else
+			return NULL;
+	}
+
+	virtual bool IsValid() {
+		return m != NULL;
+	}
+};
+
+DynamicLibrary *DynamicLibrary::Load(const char *modulePath) {
+	return static_cast<DynamicLibrary *>( new DynamicLibraryImpl(modulePath) );
+}
+
 double ElapsedTime::Duration(bool reset) {
 	GTimeVal curTime;
 	g_get_current_time(&curTime);
@@ -481,76 +519,8 @@ double ElapsedTime::Duration(bool reset) {
 	}
 	return result;
 }
-#endif // end GTK
 
-#if defined(MACOSX)
-ElapsedTime::ElapsedTime() {
-  struct timeval curTime;
-  gettimeofday( &curTime, NULL );
-
-  bigBit = curTime.tv_sec;
-  littleBit = curTime.tv_usec;
-}
-double ElapsedTime::Duration(bool reset) {
-  struct timeval curTime;
-  gettimeofday( &curTime, NULL );
-  long endBigBit = curTime.tv_sec;
-  long endLittleBit = curTime.tv_usec;
-  double result = 1000000.0 * (endBigBit - bigBit);
-  result += endLittleBit - littleBit;
-  result /= 1000000.0;
-  if (reset) {
-    bigBit = endBigBit;
-    littleBit = endLittleBit;
-  }
-  return result;
-}
-#endif // end MACOSX
-
-
-//----------------- DynamicLibrary -----------------------------------------------------------------
-
-#if defined(GTK)
-class DynamicLibraryImpl : public DynamicLibrary {
-protected:
-	GModule* m;
-public:
-	DynamicLibraryImpl(const char *modulePath) {
-		m = g_module_open(modulePath, G_MODULE_BIND_LAZY);
-	}
-	virtual ~DynamicLibraryImpl() {
-		if (m != NULL)
-			g_module_close(m);
-	}
-	// Use g_module_symbol to get a pointer to the relevant function.
-	virtual Function FindFunction(const char *name) {
-		if (m != NULL) {
-			gpointer fn_address = NULL;
-			gboolean status = g_module_symbol(m, name, &fn_address);
-			if (status)
-				return static_cast<Function>(fn_address);
-			else
-				return NULL;
-		} else
-			return NULL;
-	}
-	virtual bool IsValid() {
-		return m != NULL;
-	}
-};
-DynamicLibrary *DynamicLibrary::Load(const char *modulePath) {
-	return static_cast<DynamicLibrary *>( new DynamicLibraryImpl(modulePath) );
-}
-#endif // end GTK
-
-#if defined(MACOSX)
-DynamicLibrary* DynamicLibrary::Load(const char* /* modulePath */)
-{
-  // Not implemented.
-  return NULL;
-}
-#endif // end MACOSX
-
+#endif // end HEADLESS_GTK
 
 
 ColourDesired Platform::Chrome() {
@@ -565,9 +535,6 @@ const char *Platform::DefaultFont() {
 #ifdef G_OS_WIN32
 	return "Lucida Console";
 #else
-#ifdef MACOSX
-	return "Monaco";
-#endif
 	return "!Sans";
 #endif
 }
@@ -595,12 +562,15 @@ bool Platform::IsKeyDown(int) {
 
 extern sptr_t scintilla_send_message(void* sci, unsigned int iMessage, uptr_t wParam, sptr_t lParam);
 
-long Platform::SendScintilla(WindowID w, unsigned int msg, unsigned long wParam, long lParam) {
+long Platform::SendScintilla(
+    WindowID w, unsigned int msg, unsigned long wParam, long lParam) {
 	return scintilla_send_message(w, msg, wParam, lParam);
 }
 
-long Platform::SendScintillaPointer(WindowID w, unsigned int msg, unsigned long wParam, void *lParam) {
-	return scintilla_send_message(w, msg, wParam, reinterpret_cast<sptr_t>(lParam));
+long Platform::SendScintillaPointer(
+    WindowID w, unsigned int msg, unsigned long wParam, void *lParam) {
+	return scintilla_send_message(w, msg, wParam,
+	                              reinterpret_cast<sptr_t>(lParam));
 }
 
 bool Platform::IsDBCSLeadByte(int codePage, char ch) {

@@ -17,35 +17,6 @@ using namespace Scintilla;
 
 //#define SCIMOZ_DEBUG
 
-
-
-/**
- * Define fake versions of the NPN_ libraries, just so we can compile headless
- * without linking with the plugin libraries. These should never actually get
- * called when running in headless mode.
- *
- * Note: NPN_xxx functions are provided by the browser and called by the plugin.
- */
-void*        NPN_MemAlloc(uint32_t size) { return nullptr; }
-void         NPN_MemFree(void* ptr) { }
-NPError      NPN_GetValue(NPP instance, NPNVariable variable, void *value) { return 0; }
-NPError      NPN_SetValue(NPP instance, NPPVariable variable, void *value) { return 0; }
-bool         NPN_GetProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName, NPVariant *result) { return false; }
-bool         NPN_SetProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName, const NPVariant *value) { return false; }
-bool         NPN_Evaluate(NPP npp, NPObject *npobj, NPString *script, NPVariant *result) { return false; }
-bool         NPN_Invoke(NPP npp, NPObject *npobj, NPIdentifier methodName, const NPVariant *args, uint32_t argCount, NPVariant *result) { return false; }
-bool         NPN_HasMethod(NPP npp, NPObject *npobj, NPIdentifier methodName) { return false; }
-bool         NPN_Enumerate(NPP npp, NPObject *npobj, NPIdentifier **identifier, uint32_t *count) { return false; }
-NPObject   * NPN_RetainObject(NPObject *npobj) { return nullptr; }
-void         NPN_ReleaseObject(NPObject *npobj) { }
-void         NPN_ReleaseVariantValue(NPVariant *variant) { }
-NPUTF8     * NPN_UTF8FromIdentifier(NPIdentifier identifier) { return nullptr; }
-NPIdentifier NPN_GetIntIdentifier(int32_t intid) { return nullptr; }
-NPIdentifier NPN_GetStringIdentifier(const NPUTF8 *name) { return nullptr; }
-
-
-
-
 void SciMoz::PlatformCreate(WinID) {
 }
 
@@ -79,17 +50,15 @@ NS_IMETHODIMP SciMoz::AddChar(PRUint32 ch) {
 
 void SciMoz::PlatformNew(void) {
 #ifdef SCIMOZ_DEBUG
-	fprintf(stderr,"SciMoz::PlatformNew\n");
+    fprintf(stderr,"SciMoz::PlatformNew\n");
 #endif
-
-	wEditor = scintilla_new();
+    wEditor = scintilla_new();
 }
 
 nsresult SciMoz::PlatformDestroy(void) {
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::PlatformDestroy\n");
 #endif
-
 	wEditor = 0;
 	isClosed = 1;
 	return NS_OK;
@@ -163,12 +132,6 @@ NS_IMETHODIMP SciMoz::GetIsTracking(bool *_ret) {
 	*_ret = 0;
 	return NS_OK;
 }
-
-#ifdef XP_MACOSX_USE_CORE_ANIMATION
-void * SciMoz::GetCoreAnimationLayer() {
-  return nullptr;
-}
-#endif
 
 SciMoz::SciMoz()
 {

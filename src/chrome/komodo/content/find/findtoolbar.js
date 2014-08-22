@@ -58,31 +58,12 @@ ko.findtoolbar = {};
 
 //---- locals
 
-var locals = {};
-
-XPCOMUtils.defineLazyGetter(locals, "log",
-                            function() ko.logging.getLogger('findtoolbar'));
-//locals.log.setLevel(ko.logging.LOG_DEBUG);
-
-XPCOMUtils.defineLazyGetter(locals, "documentContext",
-    function() {
-        let ctx = Cc["@activestate.com/koFindContext;1"].createInstance(Ci.koIFindContext);
-        ctx.type = Ci.koIFindContext.FCT_CURRENT_DOC;
-        return ctx;
-    }
-);
-
-XPCOMUtils.defineLazyGetter(locals, "fileContext",
-    function() {
-        let ctx = Cc["@activestate.com/koFindInFilesContext;1"].createInstance(Ci.koIFindInFilesContext);
-        ctx.type = Ci.koIFindContext.FCT_IN_FILES;
-        ctx.cwd = null;
-        return ctx;
-    }
-);
-
-XPCOMUtils.defineLazyGetter(locals, "textbox",
-                            function() document.getElementById('textbox_findInFiles'));
+var _findtoolbarlog;
+var _findInDocumentContext;
+var _findInFilesContext;
+var _findInFilesTextbox;
+var _osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService();
+var _osPathSep = Components.classes["@activestate.com/koOs;1"].getService().pathsep;
 
 
 //---- routines
@@ -97,14 +78,14 @@ this.openTextboxKeyPress = function Findtoolbar_OpenTextboxKeyPress(field, event
                 // Normalize and make the path absolute.
                 var abspath = null;
                 if (path.indexOf("~") == 0) {
-                    abspath = Services.koOsPath.expanduser(path);
-                } else if (!Services.koOsPath.isabs(path)) {
+                    abspath = _osPathSvc.expanduser(path);
+                } else if (!_osPathSvc.isabs(path)) {
                     var cwd = ko.window.getCwd();
-                    abspath = Services.koOsPath.join(cwd, path);
+                    abspath = _osPathSvc.join(cwd, path);
                 } else {
                     abspath = path;
                 }
-                abspath = Services.koOsPath.normpath(abspath);
+                abspath = _osPathSvc.normpath(abspath);
 
                 // Ctrl+Enter (however Mozilla calls that by platform) opens a
                 // filepicker.
@@ -112,7 +93,7 @@ this.openTextboxKeyPress = function Findtoolbar_OpenTextboxKeyPress(field, event
                 //    Control+Return on MacOSX results in a literal "Ctrl+M".
                 if (event.metaKey) {
                     var dirname, filename;
-                    if (Services.koOsPath.isdir(abspath)) {
+                    if (_osPathSvc.isdir(abspath)) {
                         dirname = abspath;
                         filename = null;
                     } else {
@@ -124,7 +105,7 @@ this.openTextboxKeyPress = function Findtoolbar_OpenTextboxKeyPress(field, event
                         ko.open.multipleURIs(paths, 'editor');
                     }
                 } else {
-                    if (Services.koOsPath.isdir(abspath)) {
+                    if (_osPathSvc.isdir(abspath)) {
                         if (ko.views.manager.notify_visited_directory(abspath)){
                             return;
                         }
@@ -161,7 +142,7 @@ this.openTextboxKeyPress = function Findtoolbar_OpenTextboxKeyPress(field, event
                 break;
         }
     } catch (e) {
-        locals.log.exception(e);
+        log.exception(e);
     }
 }
 
@@ -172,7 +153,7 @@ this.findTextboxKeyPress = function Findtoolbar_FindTextboxKeyPress(field, event
         }
         if (String.fromCharCode(event.charCode) == 'a') {
             if (event.altKey && ! event.shiftKey && ! event.ctrlKey) {
-                ko.find.findAll(window, locals.documentContext, field.value);
+                ko.find.findAll(window, _findInDocumentContext, field.value);
                 event.stopPropagation();
                 event.preventDefault();
                 return;
@@ -184,8 +165,8 @@ this.findTextboxKeyPress = function Findtoolbar_FindTextboxKeyPress(field, event
                     return;
                 }
                 
-                if (locals.textbox.value != '') {
-                    this.findFilesKeyPress(locals.textbox, event);
+                if (_findInFilesTextbox.value != '') {
+                    this.findFilesKeyPress(_findInFilesTextbox, event);
                     return;
                 }
                 
@@ -198,12 +179,14 @@ this.findTextboxKeyPress = function Findtoolbar_FindTextboxKeyPress(field, event
                     ko.launch.find(field.value);
                 } else {
                     ko.mru.addFromACTextbox(field);
+                    var findSvc = Components.classes["@activestate.com/koFindService;1"].
+                           getService(Components.interfaces.koIFindService);
                     if (event.shiftKey) {
-                        Services.koFind.options.searchBackward = true;
+                        findSvc.options.searchBackward = true;
                     } else {
-                        Services.koFind.options.searchBackward = false;
+                        findSvc.options.searchBackward = false;
                     }
-                    ko.find.findNext(window, locals.documentContext, field.value,
+                    ko.find.findNext(window, _findInDocumentContext, field.value,
                                   "find", false, false);
                 }
                 event.stopPropagation();
@@ -214,7 +197,7 @@ this.findTextboxKeyPress = function Findtoolbar_FindTextboxKeyPress(field, event
                 break;
         }
     } catch (e) {
-        locals.log.exception(e);
+        log.exception(e);
     }
 }
 
@@ -228,7 +211,7 @@ this.findFilesOnFocus = function Findtoolbar_FindFilesOnFocus(field, event) {
               textbox.searchParam, 'cwd', ko.window.getCwd());
         }
     } catch (e) {
-        locals.log.exception(e);
+        log.exception(e);
     }
 }
 
@@ -240,6 +223,8 @@ this.findFilesKeyPress = function Findtoolbar_FindFilesKeyPress(field, event) {
                 var findTerm = document.getElementById('textbox_find').value;
                 if (!findTerm) return;
                 if (!field.value) return;
+                var findSvc = Components.classes["@activestate.com/koFindService;1"].
+                       getService(Components.interfaces.koIFindService);
                 var value = field.value;
                 var view = ko.views.manager.currentView;
                 var quantifierFound = ((value.indexOf('*') != -1) ||
@@ -270,16 +255,16 @@ this.findFilesKeyPress = function Findtoolbar_FindFilesKeyPress(field, event) {
                     filetypes = '';
                     dirname = value;
                 }
-                Services.koFind.options.encodedIncludeFiletypes = filetypes;
-                Services.koFind.options.encodedFolders = dirname;
+                findSvc.options.encodedIncludeFiletypes = filetypes;
+                findSvc.options.encodedFolders = dirname;
                 if (event.ctrlKey) {
                     ko.launch.findInFiles(findTerm, dirname, filetypes);
                 } else {
                     ko.mru.addFromACTextbox(document.getElementById('textbox_find'));
                     ko.mru.addFromACTextbox(field);
-                    locals.fileContext.cwd = ko.window.getCwd();
+                    _findInFilesContext.cwd = ko.window.getCwd();
                     ko.find.findAllInFiles(window,
-                                        locals.fileContext,
+                                        _findInFilesContext,
                                         findTerm);
                 }
                 event.stopPropagation();
@@ -290,7 +275,7 @@ this.findFilesKeyPress = function Findtoolbar_FindFilesKeyPress(field, event) {
                 break;
         }
     } catch (e) {
-        locals.log.exception(e);
+        log.exception(e);
     }
 }
 
@@ -305,22 +290,23 @@ this.gotoFindTextbox = function Findtoolbar_GotoFindTextbox() {
 
 
 this.addBrowsedDirectory = function Findtoolbar_AddBrowsedDirectory() {
-    locals.log.debug("ko.findtoolbar.addBrowsedDirectory()");
+    _findtoolbarlog.debug("ko.findtoolbar.addBrowsedDirectory()");
     try {
         var doReplace = false; // are we replacing the entire field or inserting into it.
         var curDir;
-        var textbox = locals.textbox;
+        var os = Components.classes["@activestate.com/koOs;1"].getService();
+        var textbox = _findInFilesTextbox;
         var encodedFolders = textbox.value;
         if (textbox.selectionStart == 0 &&
             textbox.selectionEnd == encodedFolders.length) {
             doReplace = true;
-            curDir = Services.koOsPath.realpath(encodedFolders.split(Services.koOs.pathsep)[0]);
+            curDir = _osPathSvc.realpath(encodedFolders.split(_osPathSep)[0]);
         } else {
             if (textbox.selectionStart == textbox.selectionEnd) {
-                curDir = Services.koOsPath.realpath(encodedFolders.split(Services.koOs.pathsep)[0]);
+                curDir = _osPathSvc.realpath(encodedFolders.split(_osPathSep)[0]);
             } else {
-                curDir = Services.koOsPath.realpath(encodedFolders.slice(textbox.selectionStart,
-                                                                   textbox.selectionEnd).split(Services.koOs.pathsep)[0]);
+                curDir = _osPathSvc.realpath(encodedFolders.slice(textbox.selectionStart,
+                                                                   textbox.selectionEnd).split(_osPathSep)[0]);
             }
         }
         var newDir = ko.filepicker.getFolder(curDir,
@@ -332,7 +318,7 @@ this.addBrowsedDirectory = function Findtoolbar_AddBrowsedDirectory() {
                 var oldValue = textbox.value;
                 var selStart = textbox.selectionStart;
                 var selEnd = textbox.selectionEnd;
-                var newFolder = Services.koOs.pathsep + newDir;
+                var newFolder = _osPathSep + newDir;
                 var newValue = oldValue.slice(0, selStart) + newFolder
                                + oldValue.slice(selEnd, oldValue.length);
                 textbox.value = newValue
@@ -340,8 +326,42 @@ this.addBrowsedDirectory = function Findtoolbar_AddBrowsedDirectory() {
             }
         }
     } catch(ex) {
-        locals.log.exception(ex);
+        _findtoolbarlog.exception(ex);
+    }
+}
+
+this.initialize = function findtoolbar_onload()
+{
+    try {
+        _findtoolbarlog = ko.logging.getLogger('findtoolbar');
+        //_findtoolbarlog.setLevel(ko.logging.LOG_DEBUG);
+        _findInDocumentContext = Components.classes["@activestate.com/koFindContext;1"]
+                    .createInstance(Components.interfaces.koIFindContext);
+        _findInDocumentContext.type = Components.interfaces.koIFindContext.FCT_CURRENT_DOC;
+
+        _findInFilesContext = Components.classes[
+            "@activestate.com/koFindInFilesContext;1"]
+            .createInstance(Components.interfaces.koIFindInFilesContext);
+        _findInFilesContext.type = Components.interfaces.koIFindContext.FCT_IN_FILES;
+        _findInFilesContext.cwd = null;
+
+        _findInFilesTextbox = document.getElementById('textbox_findInFiles');
+    } catch (e) {
+        log.exception(e); // not findtoolbar in case that's what failed.
     }
 }
 
 }).apply(ko.findtoolbar);
+
+window.addEventListener("load", ko.findtoolbar.initialize, false);
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("Findtoolbar_OpenTextboxKeyPress", "ko.findtoolbar.openTextboxKeyPress");
+ko.logging.globalDeprecatedByAlternative("Findtoolbar_FindTextboxKeyPress", "ko.findtoolbar.findTextboxKeyPress");
+ko.logging.globalDeprecatedByAlternative("Findtoolbar_FindFilesOnFocus", "ko.findtoolbar.findFilesOnFocus");
+ko.logging.globalDeprecatedByAlternative("Findtoolbar_FindFilesKeyPress", "ko.findtoolbar.findFilesKeyPress");
+ko.logging.globalDeprecatedByAlternative("Findtoolbar_GotoOpenTextbox", "ko.findtoolbar.gotoOpenTextbox");
+ko.logging.globalDeprecatedByAlternative("Findtoolbar_GotoFindTextbox", "ko.findtoolbar.gotoFindTextbox");
+ko.logging.globalDeprecatedByAlternative("Findtoolbar_AddBrowsedDirectory", "ko.findtoolbar.addBrowsedDirectory");

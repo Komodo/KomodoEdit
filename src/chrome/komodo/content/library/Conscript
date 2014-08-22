@@ -96,6 +96,3 @@ $cons->Preprocess('skin.p.js', 'skin.js');
 $cons->InstallInChrome('skin.js');
 $cons->InstallInChrome('less.js');
 $cons->InstallInChrome('multipleCaret.js');
-$cons->InstallInChrome('utils.js');
-$cons->Preprocess('performance_tweaks.p.js', 'performance_tweaks.js');
-$cons->InstallInChrome('performance_tweaks.js');

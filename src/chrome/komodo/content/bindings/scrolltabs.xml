@@ -53,16 +53,14 @@
             <xul:hbox flex="1" class="tab-image-middle" xbl:inherits="selected" align="center">
                 <xul:hbox flex="0" class="tab-icons file-status-icons" align="center" pack="center">
                     <xul:image width="16px" class="tab-icon native_file_image" xbl:inherits="validate,disabled,src=file_image_url,alt_image"/>
+                    <xul:image class="tab-icon file-status-icon" xbl:inherits="validate,disabled,file_status,tooltiptext=filestatustip"/>
+                    <xul:image class="tab-icon file-readonly-icon" xbl:inherits="validate,disabled,file_readonly,tooltiptext=locktip"/>
+                    <xul:image class="tab-icon file-status2-icon" xbl:inherits="validate,disabled,file_status2,tooltiptext=filestatus2tip"/>
                 </xul:hbox>
                 <xul:label class="tab-text" xbl:inherits="value=label,accesskey,crop,disabled,selected"
                            flex="1" anonid="label" crop="right"/>
                 <xul:label class="tab-text" xbl:inherits="collapsed=clean,disabled,selected"
                            collapsed="true" value="*"/>
-                <xul:hbox flex="0" class="tab-icons file-status-icons file-status-icons-end" align="center" pack="center">
-                    <xul:image class="tab-icon file-status-icon" xbl:inherits="validate,disabled,file_status,tooltiptext=filestatustip"/>
-                    <xul:image class="tab-icon file-readonly-icon" xbl:inherits="validate,disabled,file_readonly,tooltiptext=locktip"/>
-                    <xul:image class="tab-icon file-status2-icon" xbl:inherits="validate,disabled,file_status2,tooltiptext=filestatus2tip"/>
-                </xul:hbox>
                 <xul:spacer flex="1"/>
                 <xul:toolbarbutton anonid="close-button" xbl:inherits="selected"
                                    class="tab-close-button"/>

@@ -104,23 +104,20 @@ const Ci = Components.interfaces;
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var _log = ko.logging.getLogger('statusbar');
-//_log.setLevel(ko.logging.LOG_DEBUG);
-
-var lazy = {
-};
-
-// The find XPCOM service that does all the grunt work.
-XPCOMUtils.defineLazyGetter(lazy, "bundle", function()
-    Components.classes["@mozilla.org/intl/stringbundle;1"]
-    .getService(Components.interfaces.nsIStringBundleService)
-    .createBundle("chrome://komodo/locale/statusbar.properties"));
-
 var _messageStack = Components.classes["@activestate.com/koStatusMessageStack;1"].
                           createInstance(Components.interfaces.koIStatusMessageStack);
 var _observer = null;
 var _prefObserver = null;
 var _updateLintMessageTimer = null;
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/statusbar.properties");
+var _file_pref_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+        .getService(Components.interfaces.nsIStringBundleService)
+        .createBundle("chrome://komodo/locale/pref/file-properties.properties");
 var updateMessageRequestID = 0;
+
+//_log.setLevel(ko.logging.LOG_DEBUG);
 
 var _lastNotification = null; // last non-statusbar notification
 var _lastNotificationTime = 0; // last time user interacted with statusbar notifications
@@ -128,7 +125,6 @@ var _lastNotificationTime = 0; // last time user interacted with statusbar notif
 var _deckIndex = {
     messages: 0
 };
-
 
 //---- helper functions
 
@@ -189,16 +185,19 @@ function _handle_notification(data) {
 
 
 function _updateEncoding(view) {
-    if (!view || view.getAttribute("type") != "editor") {
-        _clearEncoding();
+    if (typeof(view)=='undefined' || !view || !view.koDoc)
         return;
-    }
     try {
-        var encoding = view.koDoc.encoding.short_encoding_name;
-        var encodingWidget = document.getElementById('statusbar-encoding');
-        var encodingLabel = document.getElementById('statusbar-encoding-label');
-        encodingWidget.removeAttribute("collapsed");
-        encodingLabel.setAttribute("label", encoding);
+        //XXX It would probably be cleaner to add an "encoding_name"
+        //    attribute to koIView and then let each view type override that.
+        //    Then the view-startpage could return null to indicate N/A.
+        if (view.getAttribute("type") == "startpage") {
+            _clearEncoding();
+        } else {
+            var encoding = view.koDoc.encoding.short_encoding_name;
+            var encodingWidget = document.getElementById('statusbar-encoding-label');
+            encodingWidget.setAttribute("label", encoding);
+        }
     } catch(e) {
         _clearEncoding();
     }
@@ -206,24 +205,28 @@ function _updateEncoding(view) {
 
 function _clearEncoding() {
     var encodingWidget = document.getElementById('statusbar-encoding');
-    var encodingLabel = document.getElementById('statusbar-encoding-label');
-    encodingWidget.setAttribute("collapsed", "true");
-    encodingLabel.removeAttribute("label");
+    encodingWidget.removeAttribute("label");
 }
 
 
 function _updateLanguage(view) {
-    if (!view || view.getAttribute("type") != "editor") {
-        _clearLanguage();
+    if (typeof(view)=='undefined' || !view || !view.koDoc)
         return;
-    }
     try {
-        var languageWidget = document.getElementById('statusbar-language');
-        var languageMenu = document.getElementById('statusbar-language-menu');
-        var language = view.koDoc.language;
-        languageMenu.setAttribute("label", language);
-        languageMenu.setAttribute('language', language);
-        languageWidget.removeAttribute('collapsed');
+        //XXX It would probably be cleaner to handle the "startpage language
+        //    is N/A" logic in the view system, but I don't know how to
+        //    easily do that right now.
+        var languageWidget = document.getElementById('statusbar-language-menu');
+        if (view.getAttribute("type") == "startpage") {
+            _clearLanguage();
+            //languageWidget.setAttribute('collapsed', 'true');
+            languageWidget.removeAttribute('language');
+        } else {
+            var language = view.koDoc.language;
+            languageWidget.setAttribute("label", language);
+            languageWidget.setAttribute('language', language);
+            languageWidget.removeAttribute('collapsed');
+        }
     } catch(e) {
         _clearLanguage();
     }
@@ -231,11 +234,9 @@ function _updateLanguage(view) {
 
 
 function _clearLanguage() {
-    var languageWidget = document.getElementById('statusbar-language');
-    var languageMenu = document.getElementById('statusbar-language-menu');
-    languageWidget.setAttribute("collapsed", "true");
-    languageMenu.setAttribute("label", "");
-    languageMenu.setAttribute("language", "");
+    var languageWidget = document.getElementById('statusbar-language-menu');
+    languageWidget.setAttribute("label", "");
+    languageWidget.setAttribute("language", "");
 }
 
 function _updateLintMessage(view) {
@@ -338,15 +339,15 @@ function _updateSelectionInformation(view) {
 
         if (selectionStart != selectionEnd) {
             // character count
-            selectionLabel = lazy.bundle.formatStringFromName(
+            selectionLabel = _bundle.formatStringFromName(
                 "selection.label", [selection.length], 1);
             if (selection.length != count) {
                 // byte count
-                selectionLabel += lazy.bundle.formatStringFromName(
+                selectionLabel += _bundle.formatStringFromName(
                     "selectionByteCount.label", [count], 1);
             }
             // line count
-            selectionLabel += lazy.bundle.formatStringFromName(
+            selectionLabel += _bundle.formatStringFromName(
                 "selectionLineCount.label", [(Math.abs(lineEnd - lineStart) + 1)], 1);
         }
 // #if BUILD_FLAVOUR == "dev"
@@ -355,30 +356,25 @@ function _updateSelectionInformation(view) {
         }
 // #endif
     }
-    var selectionWidget = document.getElementById("statusbar-selection");
-    selectionWidget.label = selectionLabel;
-    selectionWidget.removeAttribute("collapsed");
+    document.getElementById("statusbar-selection").label = selectionLabel;
 }
 
 function _updateLineCol(view, currentLine, currentColumn) {
-    if (!view || view.getAttribute("type") != "editor") {
-        _clearLineColAndSelection();
+    if (typeof(view)=='undefined' || !view)
         return;
-    }
     if (typeof(currentLine)=='undefined')
         currentLine = view.currentLine;
     if (typeof(currentColumn)=='undefined')
         currentColumn = view.currentColumn;
 
     try {
-        var lineColText = lazy.bundle.formatStringFromName("lineColCount.label",
+        var lineColText = _bundle.formatStringFromName("lineColCount.label",
             [currentLine, currentColumn], 2);
         var lineColWidget = document.getElementById('statusbar-line-col');
         lineColWidget.setAttribute('label', lineColText);
-        lineColWidget.removeAttribute("collapsed");
     } catch(ex) {
         // not a view that supports these
-        _clearLineColAndSelection();
+        _clearLineCol();
         return;
     }
 
@@ -398,12 +394,10 @@ function _updateLineCol(view, currentLine, currentColumn) {
 }
 
 
-function _clearLineColAndSelection() {
+function _clearLineCol() {
     var lineColWidget = document.getElementById('statusbar-line-col');
-    lineColWidget.setAttribute("collapsed", "true");
     lineColWidget.removeAttribute("label");
     _addMessage(null, "check", 0, false);
-    document.getElementById("statusbar-selection").setAttribute("collapsed", "true");
 }
 
 
@@ -426,7 +420,7 @@ try {
         || !view.lintBuffer.canLintLanguage()) {
         checkWidget.setAttribute('collapsed', 'true');
         checkWidget.setAttribute("tooltiptext",
-                lazy.bundle.GetStringFromName("syntaxCheckingStatus.tooltip"));
+                _bundle.GetStringFromName("syntaxCheckingStatus.tooltip"));
         return;
     }
     checkWidget.removeAttribute('collapsed');
@@ -454,11 +448,11 @@ try {
     if (!lintResults) {
         if (checkingEnabled) {
             checkWidget.setAttribute("tooltiptext",
-                lazy.bundle.GetStringFromName("syntaxCheckingStatusInProgress.tooltip"));
+                _bundle.GetStringFromName("syntaxCheckingStatusInProgress.tooltip"));
             checkWidget.setAttribute('class', 'syntax-in-progress');
         } else {
             checkWidget.setAttribute("tooltiptext",
-                lazy.bundle.GetStringFromName("automaticSyntaxCheckingDisabled.tooltip"));
+                _bundle.GetStringFromName("automaticSyntaxCheckingDisabled.tooltip"));
             checkWidget.setAttribute('class', 'syntax-okay');
         }
     } else {
@@ -467,7 +461,7 @@ try {
         if (numErrors <= 0 && numWarnings <= 0) {
             checkWidget.setAttribute('class', 'syntax-okay');
             checkWidget.setAttribute("tooltiptext",
-                lazy.bundle.GetStringFromName("syntaxCheckingStatusOk.tooltip"));
+                _bundle.GetStringFromName("syntaxCheckingStatusOk.tooltip"));
         } else {
             if (numErrors > 0) {
                 checkWidget.setAttribute('class', 'syntax-error');
@@ -475,7 +469,7 @@ try {
                 checkWidget.setAttribute('class', 'syntax-warning');
             }
             checkWidget.setAttribute("tooltiptext",
-                lazy.bundle.formatStringFromName("syntaxCheckingStatusErrors.tooltip",
+                _bundle.formatStringFromName("syntaxCheckingStatusErrors.tooltip",
                     [numErrors, numWarnings], 2));
         }
     }
@@ -596,7 +590,7 @@ function _updateMessage()
             _lastNotification = notification;
         } else {
             internalDeck.selectedIndex = 0;
-            messageWidget.setAttribute("label", lazy.bundle.GetStringFromName("ready.label"));
+            messageWidget.setAttribute("label", _bundle.GetStringFromName("ready.label"));
             messageWidget.removeAttribute("tooltiptext");
             messageWidget.removeAttribute("category");
             messageWidget.removeAttribute("image");
@@ -620,7 +614,7 @@ function _statusBarDblClick(event) {
 function _clear() {
     _clearEncoding();
     _clearLanguage();
-    _clearLineColAndSelection();
+    _clearLineCol();
     _clearCheck();
 }
 
@@ -648,12 +642,16 @@ function StatusBarObserver() {
                             this.handle_current_lint_results_done, false);
     window.addEventListener('view_closed',
                             this.handle_current_view_open_or_closed, false);
-    document.getElementById('statusbar-message')
-            .addEventListener("dblclick", _statusBarDblClick, false);
-    if (document.getElementById('breadcrumbbarWrap'))
-    {
-        _deckIndex.messages++;
-    }
+    window.addEventListener('load', function() {
+        document.getElementById('statusbar-message')
+                .addEventListener("dblclick", _statusBarDblClick, false);
+    }, false);
+    window.addEventListener('komodo-ui-started', function() {
+        if (document.getElementById('breadcrumbbarWrap'))
+        {
+            _deckIndex.messages++;
+        }
+    }, false);
     ko.main.addWillCloseHandler(this.destroy, this);
 };
 
@@ -717,22 +715,13 @@ StatusBarObserver.prototype.observe = function(subject, topic, data)
     }
 }
 
-function update_view_information(view) {
-    if (!view) {
-        view = ko.views.manager.currentView;
-    }
-    _updateEncoding(view);
-    _updateLanguage(view);
-    _updateLineCol(view);
-    _updateCheck(view);
-}
-
 StatusBarObserver.prototype.handle_current_view_changed = function(event) {
-    if (ko.views.manager.batchMode) {
-        // Update it later on.
-        setTimeout(update_view_information, 10);
-    } else {
-        update_view_information(event.originalTarget);
+    if (!ko.views.manager.batchMode) {
+        var view = event.originalTarget;
+        _updateEncoding(view);
+        _updateLanguage(view);
+        _updateLineCol(view);
+        _updateCheck(view);
     }
 };
 
@@ -754,8 +743,8 @@ StatusBarObserver.prototype.handle_current_view_language_changed = function(even
 
 StatusBarObserver.prototype.handle_current_view_linecol_changed = function(event) {
     _updateLineCol(event.originalTarget,
-                   event.detail["line"]+1,    // Human line num start at 1.
-                   event.detail["column"]+1); // Human column num start at 1.
+                   event.getData("line")+1,    // Human line num start at 1.
+                   event.getData("column")+1); // Human column num start at 1.
 };
 
 StatusBarObserver.prototype.handle_current_view_open_or_closed = function(event) {
@@ -850,6 +839,9 @@ StatusBarPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
         break;
     }
 };
+
+_observer = new StatusBarObserver();
+_prefObserver = new StatusBarPrefObserver();
 
 //---- public functions
 
@@ -974,9 +966,6 @@ this.changeEncoding = function(menuitem)
         return;
     }
 
-    var _file_pref_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-            .getService(Components.interfaces.nsIStringBundleService)
-            .createBundle("chrome://komodo/locale/pref/file-properties.properties");
     var enc = Components.classes["@activestate.com/koEncoding;1"].
                      createInstance(Components.interfaces.koIEncoding);
     enc.python_encoding_name = encodingName;
@@ -996,7 +985,7 @@ this.changeEncoding = function(menuitem)
                                getService(Components.interfaces.koILastErrorService);
             var errno = lastErrorSvc.getLastErrorCode();
             var errmsg = lastErrorSvc.getLastErrorMessage();
-            if (errno == Components.results.NS_ERROR_UNEXPECTED) {
+            if (errno == 0) {
                 // koDocument.set_encoding() says this is an internal error
                 err = _file_pref_bundle.formatStringFromName("internalErrorSettingTheEncoding.message",
                         [view.koDoc.displayPath, encodingName], 2);
@@ -1041,17 +1030,11 @@ window.QueryInterface(Ci.nsIInterfaceRequestor)
       .getInterface(Ci.nsIXULWindow)
       .XULBrowserWindow = this.browserStatusHandler;
 
-window.addEventListener("komodo-ui-started", function() {
-    _observer = new StatusBarObserver();
-    _prefObserver = new StatusBarPrefObserver();
-    // Update for the current view.
-    update_view_information();
-});
-
 }).apply(ko.statusBar);
 
 
 /**
- * @deprecated since 7.0, but kept around because it's common in macros
+ * @deprecated since 7.0
  */
-ko.logging.globalDeprecatedByAlternative("StatusBar_AddMessage", "ko.statusBar.AddMessage", null, this);
+ko.logging.globalDeprecatedByAlternative("StatusBar", "ko.statusBar");
+ko.logging.globalDeprecatedByAlternative("StatusBar_AddMessage", "ko.statusBar.AddMessage");

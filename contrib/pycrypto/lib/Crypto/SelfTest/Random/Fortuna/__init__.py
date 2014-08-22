@@ -24,7 +24,7 @@
 
 """Self-test for the Crypto.Random.Fortuna package"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: __init__.py 4769 2010-04-09 17:53:50Z toddw $"
 
 import os
 

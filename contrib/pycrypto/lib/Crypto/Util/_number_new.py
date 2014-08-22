@@ -24,7 +24,7 @@
 
 ## NOTE: Do not import this module directly.  Import these functions from Crypto.Util.number.
 
-__revision__ = "$Id$"
+__revision__ = "$Id: _number_new.py 4769 2010-04-09 17:53:50Z toddw $"
 __all__ = ['ceil_shift', 'ceil_div', 'floor_div', 'exact_log2', 'exact_div']
 
 from Crypto.Util.python_compat import *

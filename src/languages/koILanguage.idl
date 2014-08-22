@@ -69,15 +69,9 @@ interface koILanguage : nsISupports {
     readonly attribute string namedBlockDescription;
     readonly attribute string defaultExtension;
     readonly attribute string sample;
-
-    /**
-     * Deprecated scimoz styling bits.
-     * @deprecated since Komodo 9.0
-     */
     readonly attribute long styleBits;
     readonly attribute long stylingBitsMask;
     readonly attribute long indicatorBits;
-
     readonly attribute wstring downloadURL;
     // The URL used by the language help system, use %W as a replacement for the
     // the currently selected word.
@@ -86,9 +80,6 @@ interface koILanguage : nsISupports {
     readonly attribute boolean foldable;
     readonly attribute wstring supportsSmartIndent; // 'text', 'brace', 'python', 'XML', 'keyword'
     
-    /**
-     * @deprecated since Komodo 9.0
-     */
     attribute boolean primary;
 
     // these are lexer dependent style numbers. these are used from the terminal

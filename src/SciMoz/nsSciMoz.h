@@ -43,8 +43,6 @@
 #include <string.h> 
 
 //#define SCIMOZ_DEBUG
-//#define SCIMOZ_DEBUG_VERBOSE
-//#define SCIMOZ_DEBUG_VERBOSE_VERBOSE
 //#define SCIMOZ_COCOA_DEBUG
 //#define SCIDEBUG_REFS
 
@@ -87,7 +85,7 @@
 #include "nsIServiceManager.h"
 #include "nsISupports.h"
 #include "nsStringGlue.h"
-#include "nsMemory.h"
+#include "nsIAllocator.h"
 #include "nsIDOMWindow.h"
 #include "nsWeakReference.h"
 #include "nsIObserverService.h"
@@ -108,9 +106,7 @@
 #endif
 
 #ifdef XP_MACOSX
-#ifndef HEADLESS_SCIMOZ
 #import <Cocoa/Cocoa.h>
-#endif
 #endif
 
 #include <Scintilla.h>
@@ -118,10 +114,8 @@
 #include <SciLexer.h>
 
 #ifdef XP_MACOSX
-#ifndef HEADLESS_SCIMOZ
 #include <Platform.h>
 #include <ScintillaCocoa.h>
-#endif
 #endif
 
 #define SCIMAX(a, b) (a > b ? a : b)
@@ -133,10 +127,6 @@
 #define WM_UNICHAR                      0x0109
 #endif
 
-// Mozilla 31 uses C++11 character types.
-#if MOZ_VERSION > 2499
-#define PRUnichar char16_t
-#endif
 
 /* Thread checks are default in dev builds, off in release */
 
@@ -186,8 +176,6 @@ static const char* gInstanceLookupString = "instance->pdata";
 typedef struct _PlatformInstance {
 	WNDPROC	fDefaultWindowProc;
 	WNDPROC fDefaultChildWindowProc;
-	int width;
-	int height;
 }
 PlatformInstance;
 #endif 
@@ -227,8 +215,6 @@ class SciMoz : public ISciMoz,
 private:
     // Used to cache the "text" property - resets when the buffer changes.
     bool _textHasChanged;
-    // Last line count gets updated whenever the text is changed.
-    long mLastLineCount;
     
     // brace match support
     long bracesStyle;
@@ -243,7 +229,7 @@ public:
   SciMoz();
 #endif
   SciMoz(SciMozPluginInstance* plugin);
-  virtual ~SciMoz();
+  ~SciMoz();
 
 protected: 
     NPWindow* fWindow;
@@ -280,11 +266,9 @@ protected:
     NS_IMETHOD _DoButtonUpDown(bool up, PRInt32 x, PRInt32 y, PRUint16 button, bool bShift, bool bCtrl, bool bAlt);
 
 #ifdef XP_MACOSX
-#ifndef HEADLESS_SCIMOZ
 	void HideScintillaView(bool disabled);
 	static void NotifySignal(intptr_t windowid, unsigned int iMessage, uintptr_t wParam, uintptr_t lParam);
 	Scintilla::ScintillaCocoa *scintilla;
-#endif
 #endif
 #ifdef XP_PC
     void LoadScintillaLibrary();
@@ -352,34 +336,38 @@ public:
     bool Invoke(NPP instance, NPIdentifier name, const NPVariant *args, uint32_t argCount, NPVariant *result);
 
     // NPRuntime custom methods
-    #define NPRUNTIME_CUSTOM_METHOD(x) \
-	bool x(const NPVariant *args, uint32_t argCount, NPVariant *result)
+    bool DoBraceMatch(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool MarkClosed(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool HookEvents(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool UnhookEvents(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool GetStyledText(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool GetStyleRange(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool GetCurLine(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool GetLine(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool AssignCmdKey(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool ClearCmdKey(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool GetTextRange(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool CharPosAtPosition(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool SendUpdateCommands(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool GetWCharAt(const NPVariant *args, uint32_t argCount, NPVariant *result);
 
-    NPRUNTIME_CUSTOM_METHOD(UpdateMarginWidths);
-    NPRUNTIME_CUSTOM_METHOD(DoBraceMatch);
-    NPRUNTIME_CUSTOM_METHOD(MarkClosed);
-    NPRUNTIME_CUSTOM_METHOD(HookEvents);
-    NPRUNTIME_CUSTOM_METHOD(UnhookEvents);
-    NPRUNTIME_CUSTOM_METHOD(GetStyledText);
-    NPRUNTIME_CUSTOM_METHOD(GetStyleRange);
-    NPRUNTIME_CUSTOM_METHOD(GetCurLine);
-    NPRUNTIME_CUSTOM_METHOD(GetLine);
-    NPRUNTIME_CUSTOM_METHOD(AssignCmdKey);
-    NPRUNTIME_CUSTOM_METHOD(ClearCmdKey);
-    NPRUNTIME_CUSTOM_METHOD(GetTextRange);
-    NPRUNTIME_CUSTOM_METHOD(CharPosAtPosition);
-    NPRUNTIME_CUSTOM_METHOD(SendUpdateCommands);
-    NPRUNTIME_CUSTOM_METHOD(GetWCharAt);
+    bool AddChar(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool ButtonDown(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool ButtonUp(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool ButtonMove(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool EndDrop(const NPVariant *args, uint32_t argCount, NPVariant *result);
 
-    NPRUNTIME_CUSTOM_METHOD(AddChar);
-    NPRUNTIME_CUSTOM_METHOD(ButtonDown);
-    NPRUNTIME_CUSTOM_METHOD(ButtonUp);
-    NPRUNTIME_CUSTOM_METHOD(ButtonMove);
-    NPRUNTIME_CUSTOM_METHOD(EndDrop);
-    NPRUNTIME_CUSTOM_METHOD(AnnotationRemoveAtLine);
-    NPRUNTIME_CUSTOM_METHOD(MarkerDefineRGBAImage);
-
-    #undef NPRUNTIME_CUSTOM_METHOD
+    #ifdef XP_WIN
+    // These involve pixel coordinates; JS always uses CSS pixels, we convert
+    // them via LogPixelsY here.  Bug 100492, 8.5.x branch variant.
+    bool PositionFromPoint(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool PositionFromPointClose(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool PointXFromPosition(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool PointYFromPosition(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool CharPositionFromPoint(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool CharPositionFromPointClose(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool TextHeight(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    #endif
 protected:
   SciMozPluginInstance* mPlugin;
 };

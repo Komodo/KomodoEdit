@@ -24,7 +24,7 @@
 
 """Self-test for cipher modules"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: __init__.py 4769 2010-04-09 17:53:50Z toddw $"
 
 def get_tests(config={}):
     tests = []

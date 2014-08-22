@@ -37,14 +37,6 @@
 
 # Initialization Services for Komodo
 
-# #if BUILD_FLAVOUR == "dev"
-# Record when the module was first loaded.
-import time
-_module_load_time = time.time()
-import benchmark
-benchmark.initialise(_module_load_time)   # Base time (i.e. time 0)
-# #endif
-
 # mozilla sets LC_NUMERIC which messes up the python parser if the locale
 # uses something other than a period for decimal seperator.  We reset it
 # here to make all consecutive files get parsed correctly.
@@ -73,6 +65,8 @@ if sys.platform == "win32":
         pass
 
 from xpcom import components, nsError, ServerException, COMException
+
+import upgradeutils
 
 
 # Set lazily after "koLoggingService" has mucked with logging's internals.
@@ -316,6 +310,15 @@ class KoInitService(object):
         else:
             sys._komodo_initsvc_init_count_sentinel = 1
 
+# #if BUILD_FLAVOUR == "dev"
+        if sys.platform.startswith("win") and os.environ.has_key("KOMODO_DEBUG_BREAK"):
+            print "KOMODO_DEBUG_BREAK in the environment - breaking into system debugger..."
+            try:
+                import win32api
+                win32api.DebugBreak()
+            except ImportError, e:
+                log.exception(e)
+# #endif
         self.upgradeUserSettings()
         self.installSamples(False)
         self.installSampleTools()
@@ -327,11 +330,16 @@ class KoInitService(object):
 
     def observe(self, subject, topic, data):
         # this exists soley for app-startup support
-
-        def loadStartupCategories(category):
-            """Load XPCOM startup services that are registered for category."""
+        observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+                      getService(components.interfaces.nsIObserverService)
+        if topic == "app-startup":
+            observerSvc.addObserver(self, "profile-after-change", 1)
+        elif topic == "profile-after-change":
+            # get all komodo-startup components and instantiate them
+            self.initExtensions()
             catman = components.classes["@mozilla.org/categorymanager;1"].\
                             getService(components.interfaces.nsICategoryManager)
+            category = 'komodo-startup-service'
             names = catman.enumerateCategory(category)
             while names.hasMoreElements():
                 nameObj = names.getNext()
@@ -340,36 +348,37 @@ class KoInitService(object):
                 cid = catman.getCategoryEntry(category, name)
                 if cid.startswith("service,"):
                     cid = cid[8:]
-                log.info("Adding pre startup service for %r: %r", name, cid)
+                log.info("Adding startup service for %r: %r", name, cid)
                 try:
                     svc = components.classes[cid].\
                         getService(components.interfaces.nsIObserver)
-                    svc.observe(None, category, None)
+                    svc.observe(None, "komodo-startup-service", None)
                 except Exception:
                     log.exception("Unable to start %r service: %r", name, cid)
-        
-        observerSvc = components.classes["@mozilla.org/observer-service;1"].\
-                      getService(components.interfaces.nsIObserverService)
-
-        if topic == "app-startup":
-            observerSvc.addObserver(self, "profile-after-change", 1)
-
-        elif topic == "profile-after-change":
-            observerSvc.removeObserver(self, "profile-after-change")
-            # get all komodo-startup components and instantiate them
-            self.initExtensions()
-            loadStartupCategories('komodo-pre-startup-service')
             observerSvc.addObserver(self, "komodo-ui-started", 1)
             observerSvc.addObserver(self, "quit-application", 1)
-
+            observerSvc.removeObserver(self, "profile-after-change")
         elif topic == "komodo-ui-started":
             observerSvc.removeObserver(self, "komodo-ui-started")
-            loadStartupCategories('komodo-startup-service')
-            observerSvc.addObserver(self, "komodo-post-startup", 1)
-
-        elif topic == "komodo-post-startup":
-            observerSvc.removeObserver(self, "komodo-post-startup")
-            loadStartupCategories('komodo-delayed-startup-service')
+            # get all delayed komodo-startup components and instantiate them
+            catman = components.classes["@mozilla.org/categorymanager;1"].\
+                            getService(components.interfaces.nsICategoryManager)
+            category = 'komodo-delayed-startup-service'
+            names = catman.enumerateCategory(category)
+            while names.hasMoreElements():
+                nameObj = names.getNext()
+                nameObj.QueryInterface(components.interfaces.nsISupportsCString)
+                name = nameObj.data
+                cid = catman.getCategoryEntry(category, name)
+                if cid.startswith("service,"):
+                    cid = cid[8:]
+                log.info("Adding delayed startup service for %r: %r", name, cid)
+                try:
+                    svc = components.classes[cid].\
+                        getService(components.interfaces.nsIObserver)
+                    svc.observe(None, "komodo-delayed-startup-service", None)
+                except Exception:
+                    log.exception("Unable to start %r service: %r", name, cid)
             
         elif topic == "quit-application":
             observerSvc.removeObserver(self, "quit-application")
@@ -806,7 +815,6 @@ class KoInitService(object):
             prefs.deletePref("fileAssociations")
 
         if prefs.hasPrefHere("mappedPaths"):
-            import upgradeutils
             upgradeutils.upgrade_mapped_uris_for_prefset(prefs)
 
         # Upgrade auto-save pref, turn minutes into seconds - bug 82854.
@@ -816,27 +824,30 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 14
+    _current_pref_version = 7
 
-    def _upgradeUserPrefs(self, prefs):
+    def _upgradeUserPrefs(self):
         """Upgrade any specific info in the user's prefs.xml.
         
         This is called after the new user data dir has been created.
 
         Dev note: This is also called every time Komodo is started.
         """
-        if prefs.hasPrefHere("version"):
-            version = prefs.getLongPref("version")
-        else:
+        prefs = components.classes["@activestate.com/koPrefService;1"]\
+                .getService(components.interfaces.koIPrefService).prefs
+
+        if not prefs.hasPrefHere("version"):
             # Prefs are from before Komodo 6.1
             self._upgradeOldUserPrefs(prefs)
             version = 0
+        else:
+            version = prefs.getLongPref("version")
 
         if version >= self._current_pref_version:
             # Nothing to upgrade.
             return
 
-        if version < 3 and prefs.hasPref("import_exclude_matches"):
+        if version < 3:
             # Add the two new Komodo project names to import_exclude_matches
             try:
                 import_exclude_matches = prefs.getStringPref("import_exclude_matches")
@@ -854,7 +865,7 @@ class KoInitService(object):
             except:
                 log.exception("Error updating import_exclude_matches")
 
-        if version < 5 and prefs.hasPref("import_exclude_matches"):
+        if version < 5:
             # Add __pycache__ to excludes
             try:
                 import_exclude_matches = prefs.getStringPref("import_exclude_matches")
@@ -887,62 +898,8 @@ class KoInitService(object):
                 prefs.setLongPref("documentLineCountThreshold", 40000)
                 prefs.setLongPref("documentLineLengthThreshold", 100000)
 
-        if version < 10: # Komodo 9.0.0a1
-            prefs.setStringPref("analyticsLastVersion", "pre-9.0a1")
-
-        if version < 11: # Komodo 9.0.0a1
-            self._flattenLanguagePrefs(prefs)
-
-        if version < 13:
-            prefs.setBoolean("transit_commando_keybinds", True)
-
-        if version < 14:
-            oldScheme = prefs.getString("editor-scheme", "Default_Light")
-            if oldScheme.startswith("Dark_"):
-                prefs.setString("editor-scheme", "Default_Dark")
-            elif oldScheme == "Solarized":
-                prefs.setString("editor-scheme", "Solarized_Light")
-            elif oldScheme in ("BlueWater", "Bright", "Default", "Komodo",
-                               "LowContrast_Zenburn", "Medium"):
-                # Transition to the new light scheme.
-                prefs.setString("editor-scheme", "Default_Light")
-            # Else it's a custom scheme - leave it alone.
-
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)
-
-    def _flattenLanguagePrefs(self, prefs):
-        """In Komodo 9.0.0a1, we flattened the language prefs.  This needs to
-        be done both in global prefs and project prefs.
-        """
-        if not prefs.hasPref("languages"):
-            return
-        allLangPrefs = prefs.getPref("languages")
-        for langPrefId in allLangPrefs.getPrefIds():
-            if not langPrefId.startswith("languages/"):
-                continue # bad pref
-            langPref = allLangPrefs.getPref(langPrefId)
-            lang = langPrefId[len("languages/"):]
-            for prefId in langPref.getPrefIds():
-                prefType = langPref.getPrefType(prefId)
-                newPrefId = prefId
-                if newPrefId.startswith(lang + "/"):
-                    newPrefId = newPrefId[len("/" + lang):]
-                newPrefId = "languages/%s/%s" % (lang, newPrefId)
-                if prefType == "string":
-                    prefs.setString(newPrefId, langPref.getString(prefId))
-                elif prefType == "long":
-                    prefs.setLong(newPrefId, langPref.getLong(prefId))
-                elif prefType == "double":
-                    prefs.setDouble(newPrefId, langPref.getDouble(prefId))
-                elif prefType == "boolean":
-                    prefs.setBoolean(newPrefId, langPref.getBoolean(prefId))
-                else:
-                    prefs.setPref(newPrefId, langPref.getPref(prefId))
-                langPref.deletePref(prefId)
-            allLangPrefs.deletePref(langPrefId)
-        prefs.deletePref("languages")
-
 
     def _hostUserDataDir(self, userDataDir):
         """Support for Komodo profiles that contain a host-$HOST directory."""
@@ -1116,9 +1073,7 @@ class KoInitService(object):
         """Called every time Komodo starts up to initialize the user profile."""
         try:
             self._upgradeUserDataDirFiles()
-            prefs = components.classes["@activestate.com/koPrefService;1"]\
-                    .getService(components.interfaces.koIPrefService).prefs
-            self._upgradeUserPrefs(prefs)
+            self._upgradeUserPrefs()
         except Exception:
             log.exception("upgradeUserSettings")
 
@@ -1283,8 +1238,3 @@ class KoInitService(object):
         except Exception:
             log.exception("installTemplates")
 
-# #if BUILD_FLAVOUR == "dev"
-    # Benchmark the known/slow methods.
-    __init__ = benchmark.bench("koInitService.__init__")(__init__)
-    upgradeUserSettings = benchmark.bench("koInitService.upgradeUserSettings")(upgradeUserSettings)
-# #endif

@@ -45,13 +45,3 @@ def totalusage():
     seen = set()
     seen.add(id(seen))
     return sum(_memusage(obj, seen) for obj in gc.get_objects())
-
-def object_memory_summary(obj):
-    """Print out child attributes and their memory consumption."""
-    for name in dir(obj):
-        if name.startswith("__"):
-            continue
-        child_obj = getattr(obj, name)
-        if child_obj is not None:
-            usage = memusage(child_obj)
-            print "%-40s %6dKb" % (name, usage / 1024)

@@ -64,12 +64,7 @@
         </xul:vbox>
         -->
     </content>
-
     <implementation name="vieweditor" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
-
-        <!-- We want Komodo editor views to send DOM events. -->
-        <field name="_dispatch_events">true</field>
-
         <property name="cwd">
              <getter><![CDATA[
                 if (this.koDoc && ! this.koDoc.isUntitled) {
@@ -124,7 +119,7 @@
         <field name="_view_pref_observer_topics">
             [
                 'codeintel_enabled',
-                'colorizing_enabled',
+                'colorizing_enabled'
             ]
         </field>
 
@@ -133,7 +128,7 @@
                 'buffer_dirty',
                 'language_changed',
                 'encoding_changed',
-                'editUseLinting'
+                'editUseLinting',
             ]
         </field>
 
@@ -231,6 +226,7 @@
                 }
                 let language = val.language;
                 this._setLanguage(language);
+                
                 xtk.domutils.fireEvent(this, 'view_document_attached');
             }
         ]]>
@@ -486,6 +482,7 @@
             scimoz.startStyling(0, 0x3f);
             scimoz.setStyling(scimoz.length, 0);
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
+            this.updateMinimapFromViewFoldpoints();
             scimoz.tabWidth = scimoz.tabWidth;
         ]]>
         </body>
@@ -499,29 +496,8 @@
             try {
                 var sm = this.scintilla.scimoz;
                 var pos = sm.positionFromPoint(x, y);
-                var lineNo = sm.lineFromPosition(pos);
-
-                var margin = this.getMarginForCoord(x, y);
-                if (margin >= 0) {
-                    // Margin tooltip.
-                    var data = { x: x, y: y, view: this, margin: margin, pos: pos, line: lineNo, text: '' };
-                    var event = new CustomEvent('editor_margin_get_tooltiptext', { detail: data, bubbles: true, cancelable: true });
-                    if (!this.dispatchEvent(event)) {
-                        // Set by an event handler.
-                        return data.text;
-                    }
-                    return null;
-                }
-
-                // Editor tooltip.
-                var data = { x: x, y: y, view: this, pos: pos, line: lineNo, text: '' };
-                var event = new CustomEvent('editor_get_tooltiptext', { detail: data, bubbles: true, cancelable: true });
-                if (!this.dispatchEvent(event)) {
-                    // Set by an event handler.
-                    return data.text;
-                }
-
                 if (pos > 0 && pos < sm.length) {
+                    var lineNo = sm.lineFromPosition(pos);
                     if (this.lintBuffer && this.lintBuffer.lintResults) {
                         var charOffset = pos - sm.positionFromLine(lineNo) + 1;
                         var results = {};
@@ -622,12 +598,6 @@
         </property>
         <field name="_isCICitadelStuffEnabled">undefined</field>
 
-        <field name="viewsPropertiesBundle">
-            Components.classes["@mozilla.org/intl/stringbundle;1"].
-                    getService(Components.interfaces.nsIStringBundleService).
-                    createBundle("chrome://komodo/locale/views.properties")
-        </field>
-
         <property name="isCIXMLStuffEnabled">
             <getter>
             <![CDATA[
@@ -697,6 +667,7 @@
                     }
                     xtk.domutils.fireEvent(this, 'current_view_language_changed');
                     this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
+                    this.updateMinimapFromViewFoldpoints();
 
                     // The change in language may affect controllers
                     window.setTimeout("window.updateCommands('language_changed');", 1);
@@ -798,6 +769,7 @@
                     this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
                     var stylingPos = this.scimoz.endStyled;
                     scimoz.colourise(0, -1);
+                    this.updateMinimapFromViewFoldpoints();
                 }
                 // This forces a repaint.
                 scimoz.tabWidth = scimoz.tabWidth;
@@ -836,6 +808,8 @@
             minimap.classList.remove("hideMinimap");
             var obj = {};
             this.updateEditorViewBoundaries();
+            
+            this.updateMinimapFromViewFoldpoints();
             minimap.syncMinimapFromBuffer();
         } else {
             minimap.classList.add("hideMinimap");
@@ -1013,10 +987,13 @@
                 if (isLastDocumentInstance
                     && this.getAttribute('type') == 'editor'
                     && ko.macros.eventHandler.hookPreFileClose(this)) {
-                    ko.statusBar.AddMessage(
-                        this.viewsPropertiesBundle.GetStringFromName(
-			    "macroInterruptedFileClosingProcedure.message"),
-                        "macro", 5000, true);
+                    var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                        .getService(Components.interfaces.nsIStringBundleService)
+                        .createBundle("chrome://komodo/locale/views.properties");
+                    ko.statusBar.AddMessage(_bundle.GetStringFromName("macroInterruptedFileClosingProcedure.message"),
+                                         "macro",
+                                         5000,
+                                         true);
                     return false;
                 }
                     
@@ -1186,7 +1163,7 @@
                 }
             }
 
-            window.dispatchEvent(new CustomEvent('file_saved', { bubbles: true, detail: {view: this} }));
+            xtk.domutils.fireDataEvent(window, 'file_saved', {view: this});
             ko.macros.eventHandler.hookPostFileSave(this);
             return true;
         ]]>
@@ -1437,7 +1414,9 @@
             // remove the filename from the invocation prefs
             if (docNew.prefs.hasPrefHere("Invocations")) {
                 var root = docNew.prefs.getPref("Invocations");
-                var ids = root.getPrefIds();
+                var ids = {};
+                root.getPrefIds(ids, {});
+                ids = ids.value;
                 for (var i=0; i < ids.length; i++) {
                     var storedPrefs = root.getPref(ids[i]);
                     if (docOld.file &&
@@ -1526,6 +1505,8 @@
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
             if (oldDocLanguage == newdocument.language) {
                 this.restoreFoldedLines(locationInfo);
+            } else {
+                this.updateMinimapFromViewFoldpoints();
             }
             this.restoreLocation(locationInfo);
             window.updateCommands('previewability_changed');
@@ -1538,6 +1519,40 @@
             this.log.exception(ex, "Error in editor view .saveAs()");
         }
         return false;
+        ]]>
+        </body>
+        </method>
+
+        <method name="updateMinimapFromViewFoldpoints">
+        <parameter name="" />
+        <body>
+        <![CDATA[
+        var minimap = this.minimap;
+        if (!minimap || !this.showMinimap) {
+            return;
+        }
+        // Make sure the fold points of both buffers are in sync.
+        var vs = this.scimoz;
+        var mms = minimap.scimoz;
+
+        // If both are showing all lines (the default case), just return.
+        if (vs.allLinesVisible && mms.allLinesVisible) {
+            return;
+        }
+
+        var numLines = vs.lineCount;
+        var madeChange = false;
+        for (var i = numLines - 1; i >= 0; i--) {
+            if ((vs.getFoldLevel(i) & vs.SC_FOLDLEVELHEADERFLAG)
+                && (vs.getFoldExpanded(i) !== mms.getFoldExpanded(i))) {
+                //dump("Toggle minimap line :" + i + "\n");
+                mms.toggleFold(i);
+                madeChange = true;
+            }
+        }
+        if (madeChange) {
+            minimap.syncMinimapFromBuffer();
+        }
         ]]>
         </body>
         </method>
@@ -1577,6 +1592,7 @@
                             scimoz.toggleFold(i);
                         }
                     });
+                    this.updateMinimapFromViewFoldpoints();
             }.bind(this), 1, this.scimoz);
         ]]>
         </body>
@@ -1670,20 +1686,17 @@
         <parameter name="margin"/>
         <body>
         <![CDATA[
+        var res = this.__proto__.__proto__.onMarginClick.call(this, modifiers, position, margin);
             var scimoz = this.scimoz;
-            var xPosition = scimoz.pointXFromPosition(position);
-            var res = this.__proto__.__proto__.onMarginClick.call(this, modifiers, position, margin);
-            var lineClicked = scimoz.lineFromPosition(position);
-            if (margin == scimoz.MARGIN_FOLDING) {
-                // do minimap stuff here
-                if (this.minimap
-                    && this.showMinimap
-                    && (scimoz.getFoldLevel(lineClicked) & scimoz.SC_FOLDLEVELHEADERFLAG)) {
-                    this.minimap.scimoz.toggleFold(lineClicked);
-                    this.minimap.syncMinimapFromBuffer();
-                }
-            }
-            return res;
+        var lineClicked = scimoz.lineFromPosition(position);
+        // do minimap stuff here
+        if (this.minimap
+            && margin === 1
+            && this.showMinimap
+            && (scimoz.getFoldLevel(lineClicked) & scimoz.SC_FOLDLEVELHEADERFLAG)) {
+            this.minimap.scimoz.toggleFold(lineClicked);
+            this.minimap.syncMinimapFromBuffer();
+        }
         ]]>
         </body>
         </method>
@@ -1699,7 +1712,7 @@
         ]]>
         </body>
         </method>
-
+        
         <method name="getNewFirstVisibleLineFromMinimap">
         <parameter name="minimap" />
         <body><![CDATA[
@@ -1995,9 +2008,12 @@
                 return;
             }
             try {
+                var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                    .getService(Components.interfaces.nsIStringBundleService)
+                    .createBundle("chrome://komodo/locale/views.properties");
                 if (false === ko.views.manager.offerToSave([this.koDoc.file.URI],
                               null, // title
-                              this.viewsPropertiesBundle.GetStringFromName("Save file before previewing"), // prompt
+                              _bundle.GetStringFromName("Save file before previewing"), // prompt
                               "save_buffer_before_preview", // doNotAskPref,
                               true, // skipProjects
                               false // aboutToClose
@@ -2098,6 +2114,7 @@
                 }
             }
 
+            const DOM_VK_ENTER = event.DOM_VK_ENTER;
             const DOM_VK_RETURN = event.DOM_VK_RETURN;
             const DOM_VK_TAB = event.DOM_VK_TAB;
             var charCode = event.charCode;
@@ -2105,7 +2122,7 @@
             var keyCode = event.keyCode;
             if (charCode) {
                 charCodeChar = String.fromCharCode(charCode);
-            } else if (keyCode && [DOM_VK_TAB, DOM_VK_RETURN].indexOf(keyCode) >= 0) {
+            } else if (keyCode && [DOM_VK_TAB, DOM_VK_ENTER, DOM_VK_RETURN].indexOf(keyCode) >= 0) {
 <!-- #if PLATFORM != "darwin" -->
                 var cmdkey = event.ctrlKey || event.altKey || event.metaKey || event.shiftKey;
 <!-- #else -->
@@ -2117,10 +2134,14 @@
 <!-- #endif -->
                 if (cmdkey) {
                     // Do nothing
-                } else if (keyCode == DOM_VK_RETURN) {
+                } else if (keyCode == DOM_VK_ENTER || keyCode == DOM_VK_RETURN) {
                     var haveChNEWLINE = this.autoAbbreviationTriggerCharacters_Processed.indexOf('\n');
                     var haveChRETURN = this.autoAbbreviationTriggerCharacters_Processed.indexOf('\r');
-                    charCodeChar = (!haveChRETURN && haveChNEWLINE) ? '\n' : '\r';
+                    if (keyCode == DOM_VK_ENTER) {
+                        charCodeChar = (!haveChNEWLINE && haveChRETURN) ? '\r' : '\n';
+                    } else {
+                        charCodeChar = (!haveChRETURN && haveChNEWLINE) ? '\n' : '\r';
+                    }
                 } else {
                     charCodeChar = '\t';
                 }
@@ -2186,9 +2207,9 @@
 
         <handler event="codeintel_autocomplete_selected" phase="bubbling">
         <![CDATA[
-            var startPos = event.detail["position"];
-            var insertedText = event.detail["text"];
-            var triggerChar = event.detail["triggerChar"];
+            var startPos = event.getData("position");
+            var insertedText = event.getData("text");
+            var triggerChar = event.getData("triggerChar");      
             //TODO: Store and observe these prefs
             try {
                 if (triggerChar === null) {

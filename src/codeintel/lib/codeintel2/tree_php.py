@@ -155,9 +155,6 @@ class PHPTreeEvaluator(TreeEvaluator):
     # A variable used to track the recursion depth of _hit_from_citdl().
     eval_depth = 0
 
-    # Whether this is a goto definition request.
-    defn_request=False
-
     #TODO: candidate for base TreeEvaluator class
     _langintel = None
     @property
@@ -214,7 +211,6 @@ class PHPTreeEvaluator(TreeEvaluator):
                      self._functions_from_scope(self.expr, start_scope) + \
                      self._constants_from_scope(self.expr, start_scope) + \
                      self._classes_from_scope(self.expr[:3], start_scope) + \
-                     self._imported_functions_from_scope(self.expr, start_scope) + \
                      self._imported_namespaces_from_scope(self.expr, start_scope)
             #if self.ctlr.is_aborted():
             #    return None
@@ -228,15 +224,12 @@ class PHPTreeEvaluator(TreeEvaluator):
             global_scoperef = self._get_global_scoperef(start_scope)
             elem = self._elem_from_scoperef(start_scope)
             if elem.get("ilk") in ("class", "trait"):
-                cplns = self._traits_from_scope(None, global_scoperef)
+                return self._traits_from_scope(None, global_scoperef)
             else:
                 # All available namespaces and all available/global classes.
-                cplns = self._namespaces_from_scope(None, start_scope) + \
-                        self._classes_from_scope(None, global_scoperef,
-                                                 allowGlobalClasses=True)
-            if not trg.extra.get('ilk'):
-                cplns += [("keyword", "const"), ("keyword", "function")]
-            return cplns
+                return self._namespaces_from_scope(None, start_scope) + \
+                       self._classes_from_scope(None, global_scoperef,
+                                                allowGlobalClasses=True)
         elif trg.type == "namespace-members" and (not self.expr or self.expr == "\\"):
             # All available namespaces and include all available global
             # functions/classes/constants as well.
@@ -277,14 +270,6 @@ class PHPTreeEvaluator(TreeEvaluator):
                 #self.log("hits: %r", hits)
                 cplns = list(self._members_from_hits(hits))
                 #self.log("cplns: %r", cplns)
-            if trg.type == "use-namespace":
-                if trg.extra.get('ilk') == "const":
-                    cplns = [c for c in cplns if c[0] in ("namespace", "const")]
-                elif trg.extra.get('ilk') == "function":
-                    cplns = [c for c in cplns if c[0] in ("namespace", "function")]
-                else:
-                    # Filter out anything that isn't a namespace or a class.
-                    cplns = [c for c in cplns if c[0] in ("namespace", "class")]
             # Return additional sub-namespaces that start with this prefix.
             if hits and hits[0][0] is not None:
                 # We hit a namespace, return additional namespaces that
@@ -355,13 +340,12 @@ class PHPTreeEvaluator(TreeEvaluator):
         return self._calltips_from_hit(hit)
 
     def eval_defns(self):
-        self.defn_request = True
         self.log_start()
         self._imported_blobs = {}
         start_scoperef = self.get_start_scoperef()
         self.info("start scope is %r", start_scoperef)
 
-        hit = self._hit_from_citdl(self.expr, start_scoperef)
+        hit = self._hit_from_citdl(self.expr, start_scoperef, defn_only=True)
         return [self._defn_from_hit(hit)]
 
     # Determine if the hit is valid
@@ -546,22 +530,6 @@ class PHPTreeEvaluator(TreeEvaluator):
                             ("namespace", "globals"),
                             self.imported_namespace_names_from_elem)
 
-    def _imported_functions_from_scope(self, expr, scoperef):
-        """Return all imported function names beginning with expr"""
-        return self._element_names_from_scope_starting_with_expr(expr,
-                            scoperef,
-                            "function",
-                            ("namespace", "globals"),
-                            self.imported_function_names_from_elem)
-
-    def _imported_constants_from_scope(self, expr, scoperef):
-        """Return all imported constant names beginning with expr"""
-        return self._element_names_from_scope_starting_with_expr(expr,
-                            scoperef,
-                            "const",
-                            ("namespace", "globals"),
-                            self.imported_constant_names_from_elem)
-
     def _namespaces_from_scope(self, expr, scoperef):
         """Return all available namespaces beginning with expr"""
         if expr:
@@ -733,7 +701,6 @@ class PHPTreeEvaluator(TreeEvaluator):
         # Namespaces completions only show for namespace elements.
         elem_type = elem.get("ilk") or elem.tag
         namespace_cplns = (self.trg.type == "namespace-members")
-        allow_const_completions = (namespace_cplns or (self.trg.type == "use-namespace" and self.trg.extra.get("ilk") == "const"))
         if namespace_cplns and elem_type != "namespace":
             raise CodeIntelError("%r resolves to type %r, which is not a "
                                  "namespace" % (self.expr, elem_type, ))
@@ -785,7 +752,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                 elif "static" in attributes:
                     continue
                 # Only namespaces allow access to constants.
-                elif not allow_const_completions and child.get("ilk") == "constant":
+                elif child.get("ilk") == "constant" and not namespace_cplns:
                     continue
             # add the element, we've already checked private|protected scopes
             members.update(self._members_from_elem(child, name_prefix))
@@ -823,7 +790,7 @@ class PHPTreeEvaluator(TreeEvaluator):
             members.update(self._members_from_hit(hit))
         return members
 
-    def _hit_from_citdl(self, expr, scoperef):
+    def _hit_from_citdl(self, expr, scoperef, defn_only=False):
         """Resolve the given CITDL expression (starting at the given
         scope) down to a non-import/non-variable hit.
         """
@@ -903,7 +870,7 @@ class PHPTreeEvaluator(TreeEvaluator):
         # Resolve any variable type inferences.
         #TODO: Need to *recursively* resolve hits.
         elem, scoperef = hit
-        if elem.tag == "variable" and not self.defn_request:
+        if elem.tag == "variable" and not defn_only:
             elem, scoperef = self._hit_from_variable_type_inference(elem, scoperef)
 
         self.info("_hit_from_citdl:: found '%s' => %s on %s", expr, elem, scoperef)
@@ -975,9 +942,6 @@ class PHPTreeEvaluator(TreeEvaluator):
             if elem is not None:
                 for child in elem:
                     if child.tag == "import":
-                        if child.get("ilk"):
-                            # Ignore function and const imports.
-                            continue
                         symbol = child.get("symbol")
                         alias = child.get("alias")
                         if symbol is not None:
@@ -1317,7 +1281,7 @@ class PHPTreeEvaluator(TreeEvaluator):
             # *not* resolve. And we don't support function
             # attributes.
             pass
-        elif ilk in ("class" , "trait", "interface"):
+        elif ilk == "class" or ilk == "trait":
             static_member = False
             if first_token.startswith("$"):
                 # Cix doesn't use "$" in member names, remove it - bug 90968.
@@ -1683,27 +1647,19 @@ class PHPTreeEvaluator(TreeEvaluator):
             cache[cache_item_name] = trait_names
         return trait_names
 
-    def imported_namespace_names_from_elem(self, elem, cache_item_name='imported_namespace_names', ilk=None):
+    def imported_namespace_names_from_elem(self, elem, cache_item_name='imported_namespace_names'):
         cache = self._php_cache_from_elem(elem)
         namespace_names = cache.get(cache_item_name)
         if namespace_names is None:
             namespace_names = []
             for child in elem:
                 if child.tag == "import":
-                    if child.get("ilk") != ilk:
-                        continue
                     symbol = child.get("symbol")
                     alias = child.get("alias")
                     if symbol is not None:
                         namespace_names.append(alias or symbol)
             cache[cache_item_name] = namespace_names
         return namespace_names
-
-    def imported_function_names_from_elem(self, elem, cache_item_name='imported_function_names'):
-        return self.imported_namespace_names_from_elem(elem, cache_item_name, ilk="function")
-
-    def imported_constant_names_from_elem(self, elem, cache_item_name='imported_constant_names'):
-        return self.imported_namespace_names_from_elem(elem, cache_item_name, ilk="const")
 
     def namespace_names_from_elem(self, elem, cache_item_name='namespace_names'):
         cache = self._php_cache_from_elem(elem)

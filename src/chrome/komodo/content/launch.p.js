@@ -49,6 +49,10 @@ ko.help = {};
 (function () {
 var _log = ko.logging.getLogger("ko.help");
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+        .getService(Components.interfaces.nsIStringBundleService)
+        .createBundle("chrome://komodo/locale/komodo.properties");
+
 /* XXX duplicated from help/content/contextHelp.js.  We do NOT want
    alwaysRaised attribute on the window, that's obnoxious! */
 
@@ -209,11 +213,6 @@ this.viewErrorLog = function() {
     var dirsSvc = Components.classes['@activestate.com/koDirs;1'].getService(Components.interfaces.koIDirs);
     var sysUtilsSvc = Components.classes['@activestate.com/koSysUtils;1'].getService(Components.interfaces.koISysUtils);
     var logPath = osSvc.path.join(dirsSvc.userDataDir, 'pystderr.log');
-
-    var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-            .getService(Components.interfaces.nsIStringBundleService)
-            .createBundle("chrome://komodo/locale/komodo.properties");
-
     if (osSvc.path.exists(logPath)) {
         sysUtilsSvc.FlushStderr();
         var windowOpts = "centerscreen,chrome,resizable,scrollbars,dialog=no,close";
@@ -243,6 +242,8 @@ this.memoryUsage = function() {
 if (!("launch" in ko)) {
 ko.launch = {};
 (function () {
+var _log = ko.logging.getLogger("ko.launch");
+
 
 
 /**
@@ -594,7 +595,7 @@ this.checkForUpdates = function checkForUpdates()
         // window will get called, and only the last window in the
         // workspace will be saved.  Better to save the workspace now,
         // even if it turns out there's no need to restart.
-        ko.workspace.saveWorkspace(true);
+        ko.workspace.saveWorkspace();
         prompter.checkForUpdates();
     }
 }
@@ -689,3 +690,20 @@ this.finish = function()
 
 }).apply(ko.inputBuffer);
 }
+
+
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("launch_LanguageHelp", "ko.help.language");
+ko.logging.globalDeprecatedByAlternative("launch_AlternateLanguageHelp", "ko.help.alternate");
+ko.logging.globalDeprecatedByAlternative("launch_MainHelp", "ko.help.open");
+
+ko.logging.globalDeprecatedByAlternative("launch_openAddonsMgr", "ko.launch.openAddonsMgr");
+ko.logging.globalDeprecatedByAlternative("launch_watchLocalFile", "ko.launch.watchLocalFile");
+ko.logging.globalDeprecatedByAlternative("launch_DiffWindow", "ko.launch.diff");
+ko.logging.globalDeprecatedByAlternative("launch_Find", "ko.launch.find");
+ko.logging.globalDeprecatedByAlternative("launch_Replace", "ko.launch.replace");
+ko.logging.globalDeprecatedByAlternative("launch_RunCommand", "ko.launch.runCommand");
+ko.logging.globalDeprecatedByAlternative("launch_FindInFiles", "ko.launch.findInFiles");

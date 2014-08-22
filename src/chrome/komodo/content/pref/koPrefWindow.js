@@ -208,7 +208,8 @@ koPrefWindow.prototype =
         this.orig_prefset.prefObserverService.addObserver(this, '' /* all prefs */, true);
 
         // debug
-        //dump("Pref IDs using are " + this.prefset.getPrefIds() + "\n");
+        //cnt=new Object(); ids=new Object();this.prefset.getPrefIds(ids, cnt);
+        //dump("Pref IDs using are " + ids.value + "\n");
     },
 
     observe: function(subject, topic, data) {
@@ -719,14 +720,26 @@ koPrefWindow.prototype =
                     return false; // Isn't there in the old prefs / different type
                 }
                 if (type == "object") {
+                    if (newset instanceof Ci.koIPreferenceSet && !newset.hasPrefHere(id)) {
+                        // It's an inherited preferenceSet, so trim it.
+                        return true;
+                    }
+                    if (oldset instanceof Ci.koIPreferenceSet && !oldset.hasPrefHere(id)) {
+                        // A new preferenceSet was added, replacing an inherited
+                        // preferenceSet, so keep the whole prefset - bug 99431.
+                        prefLog.debug('inherited prefset has been replaced: ' + id + '\n');
+                        return false;
+                    }
+
                     let oldPref = oldset.getPref(id);
                     let newPref = newset.getPref(id);
                     if (oldPref instanceof Ci.koIPreferenceSet &&
                         newPref instanceof Ci.koIPreferenceSet)
                     {
-                        let children = newPref.getPrefIds();
+                        let children = {};
+                        newPref.getPrefIds(children, {});
                         let hasDifference = false;
-                        for (let child of children) {
+                        for (let child of children.value) {
                             if (!trimEqualPrefs(oldPref, newPref, child)) {
                                 hasDifference = true;
                             }
@@ -762,9 +775,9 @@ koPrefWindow.prototype =
                     } catch (ex) {
                         /* ignore - shouldn't throw, nothing we can do */
                     }
-                    prefLog.warn("Can't deal with preference object of types " +
-                                 String(oldPref) + " / " + String(newPref) +
-                                 " with id " + (path.reverse().join("::") || id));
+                    log.warn("Can't deal with preference object of types " +
+                             String(oldPref) + " / " + String(newPref) +
+                             " with id " + (path.reverse().join("::") || id));
                     return false; // Can't deal with this pref type?
                 }
                 let func = "get" + type.replace(/^./, function(c) c.toUpperCase()) + "Pref";
@@ -776,13 +789,13 @@ koPrefWindow.prototype =
                 }
                 return equals;
             }
-            ids = this.prefset.getPrefIds();
+            this.prefset.getPrefIds(ids, {});
             try {
-                for (let id of ids) {
+                for (let id of ids.value) {
                     trimEqualPrefs(this.orig_prefset, this.prefset, id);
                 }
             } catch(e) {
-                prefLog.exception(e, "Failed to trim unchanged prefs, may have unncessary values");
+                log.exception(e, "Failed to trim unchanged prefs, may have unncessary values");
             }
             this.orig_prefset.update(this.prefset);
         }

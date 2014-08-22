@@ -1062,8 +1062,6 @@ if (typeof ko.openfiles == 'undefined')
             var direction   = this.getSortDirection();
             var grouping    = ko.prefs.getBoolean(PREF_GROUPING, true);
             
-            log.debug("Sorting: " + editorView.title);
-
             // Loop until this item is positioned at its highest possible
             // position
             while (true)
@@ -1077,8 +1075,6 @@ if (typeof ko.openfiles == 'undefined')
                 }
                 var editorViewPrev = openViews[prevItem.getAttribute('id')];
                 
-                log.debug("Sorting: Against: " + editorViewPrev.title);
-
                 // Receive positions from sorters
                 // >0 - this item goes above the previous
                 // <0 - this item goes below the previous
@@ -1092,8 +1088,6 @@ if (typeof ko.openfiles == 'undefined')
                     bySort *= -1;
                     byGroup *= -1;
                 }
-
-                log.debug("Sorting: Sort: " + bySort + ", Group: " + byGroup + ", split: " + bySplit);
                 
                 // Validate whether this item should be moved above the previous
                 if ((
@@ -1107,12 +1101,10 @@ if (typeof ko.openfiles == 'undefined')
                     bySplit > 0 // sort by split
                 )
                 {
-                    log.debug("Sorting: Move Up");
                     item = item.parentNode.insertBefore(item,prevItem);
                 }
                 else
                 {
-                    log.debug("Sorting: Done");
                     break;
                 }
             }
@@ -1457,7 +1449,7 @@ if (typeof ko.openfiles == 'undefined')
                     current = self.groupers.byPattern._getPattern(current).name;
                     previous = self.groupers.byPattern._getPattern(previous).name;
 
-                    return previous.localeCompare(current);
+                    return previous.localeCompare(current) || (current == 'None' ? 1 : -1);
                 },
 
                 /**
@@ -1632,6 +1624,15 @@ if (typeof ko.openfiles == 'undefined')
             }
             
             ko.prefs.setStringPref(PREF_SORTING_TYPE, id);
+
+            var hiddenState = (id == 'byAccessNo' ? 'false' : 'true');
+            document.getElementById('openfilesPrefPopup_ReSort').setAttribute(
+                'kohidden', hiddenState
+            );
+            document.getElementById('openfilesPrefPopupSeparatorSortDir').setAttribute(
+                'kohidden', hiddenState
+            );
+
             this.sort();
 
             return true;

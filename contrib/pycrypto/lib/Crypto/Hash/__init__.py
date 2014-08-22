@@ -40,5 +40,5 @@ Crypto.Hash.SHA
 """
 
 __all__ = ['HMAC', 'MD2', 'MD4', 'MD5', 'RIPEMD', 'RIPEMD160', 'SHA', 'SHA256']
-__revision__ = "$Id$"
+__revision__ = "$Id: __init__.py 4769 2010-04-09 17:53:50Z toddw $"
 

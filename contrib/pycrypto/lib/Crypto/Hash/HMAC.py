@@ -39,7 +39,7 @@ This is just a copy of the Python 2.2 HMAC module, modified to work when
 used on versions of Python before 2.2.
 """
 
-__revision__ = "$Id$"
+__revision__ = "$Id: HMAC.py 4769 2010-04-09 17:53:50Z toddw $"
 
 __all__ = ['new', 'digest_size']
 

@@ -4,7 +4,7 @@
 :Type: <meta | spec | informational>
 :Authors: <list of authors' names>
 :Created: [[%date:%d-%b-%Y]]
-:Revision: $Id$
+:Revision: $Id: KD (Komodo Doc).txt 2280 2008-10-08 21:10:47Z ericp $
 :Content-Type: text/x-rst
 :Komodo-Version:
 

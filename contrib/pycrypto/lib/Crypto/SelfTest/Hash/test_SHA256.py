@@ -24,7 +24,7 @@
 
 """Self-test suite for Crypto.Hash.SHA256"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: test_SHA256.py 4769 2010-04-09 17:53:50Z toddw $"
 
 import unittest
 

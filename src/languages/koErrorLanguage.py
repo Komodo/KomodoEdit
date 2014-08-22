@@ -47,6 +47,7 @@ class KoErrorLanguage(KoLanguageBase):
     _reg_categories_ = [("komodo-language", name)]
 
     internal = True
+    styleBits = 5
     
     styleStdout = components.interfaces.ISciMoz.SCE_ERR_DEFAULT
     styleStdin = components.interfaces.ISciMoz.SCE_ERR_DEFAULT

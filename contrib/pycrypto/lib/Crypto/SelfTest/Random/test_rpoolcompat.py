@@ -24,7 +24,7 @@
 
 """Self-test for the Crypto.Util.randpool.RandomPool wrapper class"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: test_rpoolcompat.py 4769 2010-04-09 17:53:50Z toddw $"
 
 import sys
 import unittest

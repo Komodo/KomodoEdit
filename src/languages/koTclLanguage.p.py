@@ -41,6 +41,8 @@ from xpcom.server import WrapObject, UnwrapObject
 from koLanguageServiceBase import *
 import os, re
 
+from codeintel2 import lang_tcl
+
 import logging
 
 
@@ -115,7 +117,6 @@ class koTclLanguage(KoLanguageBase):
     
     def get_lexer(self):
         if self._lexer is None:
-            from codeintel2 import lang_tcl
             self._lexer = KoLexerLanguageService()
             self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_TCL)
             keywords = lang_tcl.keywords

@@ -45,6 +45,8 @@ class koRegexLanguage(KoLanguageBase):
     _reg_clsid_ = "{806CA851-3B1A-4112-9601-DCBF72895B31}"
     _reg_categories_ = [("komodo-language", name)]
 
+    styleBits = 5
+    
     def __init__(self):
         KoLanguageBase.__init__(self)
 

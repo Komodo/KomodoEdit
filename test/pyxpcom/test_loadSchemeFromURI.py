@@ -3,7 +3,7 @@
 # See the file LICENSE.txt for licensing information.
 
 # To run: bk test loadSchemeFromURI
-# Requires availabililty of komodo.nas1.activestate.com web srver
+# Requires availabililty of komodo.nas1.activestate.com web server
 # The catchBadURI test will display a server exception, but should still pass.
 
 import os

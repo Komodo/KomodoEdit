@@ -2,7 +2,6 @@
 
 """Generic out-of-process codeintel test"""
 
-import hashlib
 import json
 import logging
 import os
@@ -197,20 +196,19 @@ class OOPTestCase(unittest.TestCase):
                     expected[u"success"] = True
                 self.assertEqual(expected, result)
 
-class BasicTestCase(OOPTestCase):
+class BaiscTest(OOPTestCase):
     def test_object_members(self):
-        text = u"import array\narray."
         self._test_with_commands([
             ({u"command": u"trg-from-pos",
               u"path": u"<Unsaved>/1",
               u"language": u"Python",
-              u"text": text,
+              u"text": u"import array\narray.",
               u"pos": 1},
              {u"trg": None}),
             ({u"command": u"trg-from-pos",
               u"path": u"<Unsaved>/1",
               u"language": u"Python",
-              u"text": text,
+              u"text": u"import array\narray.",
               u"pos": 19},
              {u"trg": {u"form": 0,
                        u"type": u"object-members",
@@ -221,10 +219,8 @@ class BasicTestCase(OOPTestCase):
                        u"extentLength": 0,
                        u"retriggerOnCompletion": False,
                        u"path": u"<Unsaved>/1",
-                       u"checksum": hashlib.md5(text).hexdigest(),
                       }}),
             ({u"command": u"eval",
-              u"text": text,
               u"trg": {u"form": 0,
                        u"type": u"object-members",
                        u"lang": u"Python",
@@ -234,7 +230,6 @@ class BasicTestCase(OOPTestCase):
                        u"extentLength": 0,
                        u"retriggerOnCompletion": False,
                        u"path": u"<Unsaved>/1",
-                       u"checksum": hashlib.md5(text).hexdigest(),
                       }},
              {u"cplns": [[u"class", u"array"],
                          [u"class", u"ArrayType"],

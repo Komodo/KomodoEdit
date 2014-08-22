@@ -101,16 +101,17 @@ $cons->BuildAndInstallXpt('koIResolve.idl');
 $cons->InstallXpcomComponent('koLessProtocolHandler.js',
                              {'@mozilla.org/network/protocol;1?name=less' => "{6877A557-982B-469F-9689-D66A917BE4E4}"});
 
-# koIconProtocolHandler
-$cons->InstallXpcomComponent('koIconProtocolHandler.js',
-                             {'@mozilla.org/network/protocol;1?name=koicon' => "{A840147B-5194-49B5-A0D5-CF5E3F87CDC5}"});
-
 # koIInitServive
 $cons->Preprocess('koInitService.p.py',
                   'koInitService.py');
 $cons->InstallXpcomComponent('koInitService.py');
 $cons->Install($idlExportDir, 'koIInitService.idl');
 $cons->BuildAndInstallXpt('koIInitService.idl');
+
+# koIFinalizeServive
+$cons->InstallXpcomComponent('koFinalizeService.py');
+$cons->Install($idlExportDir, 'koIFinalizeService.idl');
+$cons->BuildAndInstallXpt('koIFinalizeService.idl');
 
 # koIDirs
 $cons->Preprocess('koDirs.p.py',
@@ -120,11 +121,6 @@ $cons->Preprocess('koDirs.p.py',
 $cons->InstallXpcomComponent('koDirs.py');
 $cons->Install($idlExportDir, 'koIDirs.idl');
 $cons->BuildAndInstallXpt('koIDirs.idl');
-
-# koIDiff
-$cons->InstallXpcomComponent('koDiff.py');
-$cons->Install($idlExportDir, 'koIDiff.idl');
-$cons->BuildAndInstallXpt('koIDiff.idl');
 
 # koIDiffService
 $cons->InstallXpcomComponent('koDiffService.py');
@@ -331,7 +327,6 @@ $cons->InstallXpcomComponent('koLoggingService.py');
 $cons->BuildAndInstallXpt('koIColorPicker.idl');
 
 # Komodo memory reporter.
-$cons->Preprocess('koIMemoryReporter.p.idl', 'koIMemoryReporter.idl');
 $cons->BuildAndInstallXpt('koIMemoryReporter.idl');
 $cons->InstallXpcomComponent('koMemoryReporter.py');
 
@@ -353,16 +348,6 @@ $cons->BuildAndInstallXpt('addonManager/koamIInstallListener.idl');
 $cons->BuildAndInstallXpt('addonManager/koamIUpdateListener.idl');
 $cons->InstallXpcomComponent('addonManager/koamAddonManager.js',
                              {'@activestate.com/platform/addons/addon-manager;1' => '{15f8ee3a-1b7f-43c8-bdd9-6add07b52e1d}'});
-
-# dev build helper
-if ($buildFlavour == "dev") {
-    $cons->InstallXpcomComponent('koConsoleLogger.py');
-
-    # Komodo benchmarking.
-    $cons->BuildAndInstallXpt('koIBenchmark.idl');
-    $cons->InstallXpcomComponent('koBenchmark.py');
-}
-
 
 # XPCOM component registration (Gecko 2.0+)
 my $dllName = "libpyloader.so";

@@ -68,8 +68,6 @@ class KoDjangoLanguage(KoDjangoTemplateFamilyBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "{5c36e354-525e-11db-82d8-000d935d3368}"
     _reg_categories_ = [("komodo-language", name)]
-
-    primary = 1
     defaultExtension = '.django.html'
     extraFileAssociations = ['*.django']
     searchURL = "http://docs.djangoproject.com/en"

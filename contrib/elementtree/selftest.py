@@ -1,4 +1,4 @@
-# $Id$
+# $Id: selftest.py 14 2007-09-24 17:33:23Z trentm $
 # -*- coding: iso-8859-1 -*-
 # elementtree selftest program
 

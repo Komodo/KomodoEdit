@@ -210,20 +210,6 @@ this.macroProperties = function macro_editProperties(item)
 
 
 function MacroEventHandler() {
-}
-
-var _triggersEnabled = true;
-
-MacroEventHandler.prototype.initialize = function() {
-
-    _triggersEnabled = ko.prefs.getBoolean("triggering_macros_enabled", true);
-    ko.prefs.prefObserverService.addObserver(this, "triggering_macros_enabled", false);
-
-    this.log = ko.logging.getLogger('macros.eventHandler');
-    //this.log.setLevel(ko.logging.LOG_DEBUG);
-
-    this._trigger_observers = {};
-
     this._hookedMacrosByTrigger = {
         'trigger_startup' : [],
         'trigger_postopen' : [],
@@ -249,29 +235,35 @@ MacroEventHandler.prototype.initialize = function() {
 
     ko.main.addWillCloseHandler(this.finalize, this);
 
-    this.loadTriggerMacros("" /* all macros */);
+    this.log = ko.logging.getLogger('macros.eventHandler');
+    //this.log.setLevel(ko.logging.LOG_DEBUG);
+    this._trigger_observers = {};
 }
 
 MacroEventHandler.prototype.finalize = function() {
     try {
-        ko.prefs.prefObserverService.removeObserver(this, "triggering_macros_enabled");
-
-        var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
-                           getService(Components.interfaces.nsIObserverService);
-        obsSvc.removeObserver(this, 'macro-load');
-        obsSvc.removeObserver(this, 'macro-unload');
-        obsSvc.removeObserver(this, 'javascript_macro');
-        obsSvc.removeObserver(this, 'command-docommand');
-        obsSvc.removeObserver(this, 'toolbox-loaded-local');
-        obsSvc.removeObserver(this, 'toolbox-loaded-global');
-        obsSvc.removeObserver(this, 'toolbox-loaded'); // synonym for global
-        obsSvc.removeObserver(this, 'toolbox-unloaded');
-        obsSvc.removeObserver(this, 'toolbox-unloaded-local');
-        obsSvc.removeObserver(this, 'toolbox-unloaded-global');
+    var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+                       getService(Components.interfaces.nsIObserverService);
+    obsSvc.removeObserver(this, 'macro-load');
+    obsSvc.removeObserver(this, 'macro-unload');
+    obsSvc.removeObserver(this, 'javascript_macro');
+    obsSvc.removeObserver(this, 'command-docommand');
+    obsSvc.removeObserver(this, 'toolbox-loaded-local');
+    obsSvc.removeObserver(this, 'toolbox-loaded-global');
+    obsSvc.removeObserver(this, 'toolbox-loaded'); // synonym for global
+    obsSvc.removeObserver(this, 'toolbox-unloaded');
+    obsSvc.removeObserver(this, 'toolbox-unloaded-local');
+    obsSvc.removeObserver(this, 'toolbox-unloaded-global');
     } catch(ex) {
         this.log.exception(ex);
     }
 }
+
+MacroEventHandler.prototype._triggersAreEnabled = function() {
+    var prefs = Components.classes["@activestate.com/koPrefService;1"].
+    getService(Components.interfaces.koIPrefService).prefs;
+    return prefs.getBooleanPref("triggering_macros_enabled");
+};
 
 MacroEventHandler.prototype._triggerWrapper = {
     observe : function(subject, topic, data) {
@@ -279,7 +271,7 @@ MacroEventHandler.prototype._triggerWrapper = {
         if (typeof(ko) == "undefined" || !ko) {
             //this ko has shutdown (or isn't defined yet)
             return false;
-        } else if (!_triggersEnabled) {
+        } else if (!ko.macros.eventHandler._triggersAreEnabled()) {
             return false;
         }
         var observer_arguments = {
@@ -301,7 +293,7 @@ MacroEventHandler.prototype._triggerWrapper = {
 };
     
 MacroEventHandler.prototype.callHookedMacros = function(trigger, viewOrURI) {
-    if (!_triggersEnabled) {
+    if (!this._triggersAreEnabled()) {
         return false;
     }
     var observer_arguments;
@@ -410,6 +402,13 @@ MacroEventHandler.prototype._addObserverMacro = function(macropart) {
         var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                getService(Components.interfaces.nsIObserverService);
         obsSvc.addObserver(this._triggerWrapper, topic, false);
+        // XXX: Removed: The koObserverService are instances, this looks like it
+        //      was trying to tie into the koIDocument observer notifications,
+        //      but these are per document instances and not a global.
+        // Put it on the ActiveState observer service as well
+        //obsSvc = Components.classes['@activestate.com/koObserverService;1'].
+        //       getService(Components.interfaces.nsIObserverService);
+        //obsSvc.addObserver(this._triggerWrapper, topic, false);
     } else {
         this._trigger_observers[topic] += 1;
     }
@@ -432,6 +431,12 @@ MacroEventHandler.prototype._removeObserverMacro = function(macropart, topic) {
         var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                getService(Components.interfaces.nsIObserverService);
         obsSvc.removeObserver(this._triggerWrapper, topic);
+        // XXX: Removed: The koObserverService are instances, this looks like it
+        //      was trying to tie into the koIDocument observer notifications,
+        //      but these are per document instances and not a global.
+        //obsSvc = Components.classes['@activestate.com/koObserverService;1'].
+        //       getService(Components.interfaces.nsIObserverService);
+        //obsSvc.removeObserver(this._triggerWrapper, topic);
         delete this._trigger_observers[topic];
     }
 };
@@ -509,26 +514,29 @@ MacroEventHandler.prototype.removeMacro = function(macropart, trigger, topic) {
     this.log.error("Couldn't remove macro from list of hooked macros.");
 }
 
-// IMPORTANT: Macros need to wait for the toolbox to load, which may occur after
-//            the editor (views) have alreay been loaded. This means we must
-//            check if the macro system is ready, and if it's not, store delayed
-//            entries in _delayedHooks, which get called later - after the
-//            toolboxes have been loaded.
+//XXX!!! Wait for two separate notifications/calls:
+// 1. toolbox-loaded notification
+// 2. call to hookOnStartup
+// Also, there's probably no longer a need for _runDelayedHooks,
+// as the triggers are loaded after the toolboxes have been loaded.
 
 var _didStartup = false;
 var _delayedHooks = [];
 
-function _runDelayedHooks() {
+function _runDelayedHooks(this_) {
     var hook;
     for (var i = 0; i < _delayedHooks.length; ++i) {
         hook = _delayedHooks[i];
-        hook[0].call(ko.macros.eventHandler, hook[1]);
+        hook[0].call(this_, hook[1]);
     }
     _delayedHooks = [];
 }
 
 MacroEventHandler.prototype.hookOnStartup = function() {
-    return this.callHookedMacros('trigger_startup');
+    _didStartup = true;
+    var res = this.callHookedMacros('trigger_startup');
+    _runDelayedHooks(this);
+    return res;
 }
 
 MacroEventHandler.prototype.hookPostFileOpen = function(view) {
@@ -569,12 +577,8 @@ MacroEventHandler.prototype.hookOnQuit = function peMacro_hookOnQuit() {
 MacroEventHandler.prototype.observe = function(part, topic, code)
 {
     try {
-        //dump(topic + ": " + part + "\n");
+        //dump(topic + ": " + part.name + "\n");
         switch (topic) {
-            case 'triggering_macros_enabled':
-                // Update preference.
-                _triggersEnabled = ko.prefs.getBoolean("triggering_macros_enabled", true);
-                break;
             case 'macro-load':
                 if (ko.windowManager.getMainWindow() != window) {
                     return;
@@ -638,18 +642,6 @@ this.eventHandler = new MacroEventHandler();
 // want to quit, but hookOnQuit() returns false if we're to quit).
 ko.main.addCanCloseHandler(function () { return ko.macros.eventHandler.hookOnQuit() });
 
-
-/**
- * The main toolboxes are loaded, go and initialize the macro triggers.
- */
-this.onToolboxInitialized = function() {
-    // Macro parts are now available.
-    this.eventHandler.initialize();
-    this.eventHandler.hookOnStartup();
-    // Run any delayed file-open hooks.
-    _didStartup = true;
-    _runDelayedHooks();
-}
 
 
 function _macro_error(ex, badLine, part) {

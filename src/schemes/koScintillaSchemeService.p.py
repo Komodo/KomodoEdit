@@ -44,13 +44,11 @@ import os
 import logging
 import re
 import sys
-import math
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import WrapObject, UnwrapObject
-
 from styles import StateMap, CommonStates, IndicatorNameMap
-from schemebase import SchemeBase, SchemeServiceBase
+
 
 
 #---- constants
@@ -79,16 +77,16 @@ _no_background_colors = {
 
 #---- scheme handling classes
 
-class Scheme(SchemeBase):
+class Scheme:
     _com_interfaces_ = [components.interfaces.koIScintillaScheme]
     _reg_clsid_ = "{569B18D0-DCD8-490D-AB44-1B66EEAFBCFA}"
     _reg_contractid_ = "@activestate.com/koScintillaScheme;1"
     _reg_desc_ = "Scintilla Scheme object"
 
-    ext = '.ksf'
-
     def __init__(self):
-        pass
+        self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
+                        getService(components.interfaces.koIDirs)
+        self._userSchemeDir = os.path.join(self._koDirSvc.userDataDir, 'schemes')
 
     def init(self, fname, userDefined, unsaved=0):
         """
@@ -97,15 +95,23 @@ class Scheme(SchemeBase):
         @param unsaved {bool} True: fname is the name of a scheme, False: fname is a full path
         @returns {bool} True iff the object initialized successfully
         """
-        SchemeBase.__init__(self, fname, userDefined, unsaved)
         namespace = {}
-        if not unsaved:
+        self.unsaved = unsaved
+        self.writeable = userDefined
+        if unsaved:
+            self.fname = os.path.join(self._userSchemeDir, fname+'.ksf')
+            self.name = fname
+            self.isDirty = 1
+        else:
+            self.fname = fname
+            self.name = os.path.splitext(os.path.basename(fname))[0]
             if not self._execfile(fname, namespace):
                 return False
+            self.isDirty = 0
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 13
+    _current_scheme_version = 11
 
     def _execfile(self, fname, namespace):
         try:
@@ -275,31 +281,6 @@ class Scheme(SchemeBase):
                 if "identifiers" in self._commonStyles:
                     self._commonStyles["variables"] = self._commonStyles["identifiers"]
                 version += 1
-                
-            if version == 11:
-                # Update Indicators['linter_{error,warning}']['style']
-                for indic in ['linter_error', 'linter_warning']:
-                    if indic in self._indicators:
-                        linter_block = self._indicators[indic]
-                        # 1:  scimoz.INDIC_SQUIGGLE
-                        # 13: scimoz.INDIC_SQUIGGLEPIXMAP
-                        if 'style' not in linter_block or \
-                                linter_block['style'] == 1:
-                            linter_block['style'] = 13
-                version += 1
-                
-            if version == 12:
-                # Add Colors changeMarginInserted and changeMarginDeleted
-                # Colors have to be in RGB (?)
-                # As opposed to being in BGR in the ksf files.
-                newColors = { 'changeMarginInserted':0xa6dca3, # muted green
-                              'changeMarginDeleted': 0xe75754, # muted red
-                              'changeMarginReplaced': 0x62d3e8, # muted yellow
-                              }
-                for name in newColors:
-                    if name not in self._colors:
-                        self._colors[name] = newColors[name]
-                version += 1
 
             try:
                 self.save()
@@ -332,11 +313,8 @@ class Scheme(SchemeBase):
         return self._booleans['caretLineVisible']
 
     def clone(self, newname):
-        clone = KoScintillaSchemeService._makeScheme(newname, 1, 1)
+        clone = _makeScheme(newname, 1, 1)
         if clone is None:
-            _viewsBundle = components.classes["@mozilla.org/intl/stringbundle;1"].\
-                           getService(components.interfaces.nsIStringBundleService).\
-                           createBundle("chrome://komodo/locale/views.properties")
             raise SchemeCreationException(_viewsBundle.formatStringFromName(
                                           "schemeFileNotCloned.template",
                                           [newname]))
@@ -365,7 +343,7 @@ class Scheme(SchemeBase):
     def saveAs(self, name):
         if name == "":
             name = "__unnamed__"
-        fname = os.path.join(self._userSchemeDir, name + self.ext)
+        fname = os.path.join(self._userSchemeDir, name+'.ksf')
         if os.path.exists(fname):
             log.error("File %r already exists" % fname)
             return
@@ -411,12 +389,6 @@ class Scheme(SchemeBase):
         log.debug("setting %r=%r", colorName, color)
         self._colors[colorName] = color
         self.isDirty = 1
-
-    def getScintillaColor(self, colorName):
-        assert colorName in self._colors
-        scincolor = self._colors[colorName]
-        log.debug("asked for scin color %r, returning %r", colorName, scincolor)
-        return scincolor
 
     def setFore(self, language, style, mozcolor):
         self._set(language, style, mozcolor2scincolor(mozcolor), 'fore')
@@ -479,10 +451,7 @@ class Scheme(SchemeBase):
     
     def setFont(self, style, font):
         self._set('', style, font, 'face')
-
-    def setLineSpacing(self, style, spacing):
-        self._set('', style, spacing, 'lineSpacing')
-
+    
     def setFaceType(self, language, style, useFixed):
         self._set(language, style, useFixed, 'useFixed')
     
@@ -563,49 +532,10 @@ class Scheme(SchemeBase):
         #pprint.pprint(self._appliedData)
         return italic
 
-    def getFont(self, style, fontstack = False):
+    def getFont(self, style):
         #style = self._fixstyle(style)
         # this returns a real font label
-        font = self._getAspectFromAppliedData(style, 'face')
-
-        if fontstack:
-            return font
-        else:
-            return self._getFontEffective(font)
-
-    # Parses the font stack and returns the first font that is installed on the
-    # current system
-    # Example font stack: '"Source Code Pro", Consolas, Inconsolata, Monospace'
-    def _getFontEffective(self, fontStack):
-        if not fontStack:
-            return
-
-        # Parse the CSS font stack
-        fontStack = fontStack.split(",")
-        for i in range(len(fontStack)):
-            fontStack[i] = re.sub(r'^[\'"\s]*|[\'"\s]*$', '', fontStack[i])
-
-        # Get all available fonts
-        enumerator = components.classes["@mozilla.org/gfx/fontenumerator;1"].createInstance()
-        enumerator = enumerator.QueryInterface(components.interfaces.nsIFontEnumerator)
-        fonts = set(enumerator.EnumerateAllFonts())
-
-        # Check if any fonts in the font stack match the ones on the system
-        # and return the first one that does
-        for fontName in fontStack:
-            if fontName in fonts:
-                return fontName
-
-        # Fall back on last font in fontstack
-        return fontStack[-1]
-
-    def getLineSpacing(self, style):
-        try:
-            return self._getAspectFromAppliedData(style, 'lineSpacing')
-        except:
-            log.debug("Style does not have lineSpacing, returning 0")
-
-        return 0
+        return self._getAspectFromAppliedData(style, 'face')
 
     def _getFallbackStyle(self, style):
         if style.endswith('_fixed'):
@@ -659,6 +589,7 @@ class Scheme(SchemeBase):
         if languageObj:
             lexer = languageObj.getLanguageService(components.interfaces.koILexerLanguageService)
             lexer.setCurrent(scimoz)
+            scimoz.styleBits = languageObj.styleBits
         self.currentLanguage = language
         self.currentEncoding = encoding
         
@@ -704,9 +635,6 @@ class Scheme(SchemeBase):
         if prop_font_style_name in self._commonStyles:
             propStyle.update(self._commonStyles[prop_font_style_name])
 
-        fixedStyle['face'] = self._getFontEffective(fixedStyle['face'])
-        propStyle['face'] = self._getFontEffective(propStyle['face'])
-
         useFixed = self._booleans['preferFixed']
         if alternateType: useFixed = not useFixed
         if ('default' in currentLanguageStyles and
@@ -718,7 +646,6 @@ class Scheme(SchemeBase):
             defaultStyle = propStyle
         if 'default' in currentLanguageStyles:
             defaultStyle.update(currentLanguageStyles['default'])
-
         self._appliedData['default'] = defaultStyle
         self.defaultStyle = defaultStyle
         for aspect, setter in setters.items():
@@ -729,20 +656,10 @@ class Scheme(SchemeBase):
         else:
             font = self._buildFontSpec(defaultStyle['face'], encoding)
             scimoz.styleSetFont(scimoz.STYLE_DEFAULT, font)
-
-        spacing = float(defaultStyle.get("lineSpacing", 0))
-
-        extraDescent = int(math.ceil(spacing / 2))
-        extraAscent = int(math.floor(spacing / 2))
-
-        scimoz.extraDescent = extraDescent
-        scimoz.extraAscent = extraAscent
-
         scimoz.styleClearAll() # now all styles are the same
         defaultUseFixed = useFixed
-        langStyles = GetLanguageStyles(language)
-        if langStyles:
-            for (scimoz_no, scimoz_name, common_name) in langStyles:
+        if language in ValidStyles:
+            for (scimoz_no, scimoz_name, common_name) in ValidStyles[language]:
                 # first deal with which default style should be used.
                 commonStyle = self._commonStyles.get(common_name, {})
                 specificStyle = currentLanguageStyles.get(common_name, {})
@@ -790,9 +707,7 @@ class Scheme(SchemeBase):
                                 style.update(defaultSubLanguageStyles.get(common_name, {}))
                     except:
                         log.exception("Failed to get sub-language for family %s from language %s ", family, language)
-
-                style['face'] = self._getFontEffective(style['face'])
-
+                        
                 self._appliedData[common_name] = style
                 if useFixed != defaultUseFixed:
                     if not sys.platform.startswith('win'):
@@ -1076,44 +991,95 @@ class Scheme(SchemeBase):
         return "!"+font
 # #endif
 
+def _makeScheme(fname, userDefined, unsaved=0):
+    """Factory method for creating an initialized scheme object
+
+    @param fname {str} Either the full path to a scheme file, or a scheme name (see unsaved)
+    @param userDefined {bool} False if it's a Komodo-defined scheme
+    @param unsaved {bool} True: fname is the name of a scheme, False: fname is a full path
+    @returns an initialized Scheme object
+    """
+    aScheme = Scheme()
+    if aScheme.init(fname, userDefined, unsaved):
+        return aScheme
+    return None
+    
 class SchemeCreationException(Exception):
     pass
 
-class KoScintillaSchemeService(SchemeServiceBase):
+class KoScintillaSchemeService:
     _com_interfaces_ = [components.interfaces.koIScintillaSchemeService]
     _reg_clsid_ = "{469B18D0-DCD8-490D-AB44-1B66EEAFBCFE}"
     _reg_contractid_ = "@activestate.com/koScintillaSchemeService;1"
     _reg_desc_ = "Service used to access, manage and create scintilla 'schemes'"
     screenToCSS = 1.3 # scaling between screen fonts and 'appropriate' CSS fonts
 
-    ext = '.ksf'
-
     def __init__(self):
-        SchemeServiceBase.__init__(self)
+        self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
+                        getService(components.interfaces.koIDirs)
+        self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
+                            getService(components.interfaces.koIPrefService).prefs
         self.lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"].\
                                 getService(components.interfaces.koILastErrorService)
-
+        self._systemSchemeDir = os.path.join(self._koDirSvc.supportDir, 'schemes')
         _initializeStyleInfo()
+
+        self.reloadAvailableSchemes()
 
         currentScheme = self._globalPrefs.getStringPref('editor-scheme')
         if currentScheme not in self._scheme_details:
             log.error("The scheme specified in prefs (%s) is unknown -- reverting to default", currentScheme)
             self._globalPrefs.setStringPref('editor-scheme', 'Default')
 
-    @classmethod
-    def _makeScheme(cls, fname, userDefined, unsaved=0):
-        """Factory method for creating an initialized scheme object
+    def reloadAvailableSchemes(self):
+        # _scheme_details contains the list of all available schemes, whilst
+        # _schemes contains the lazily loaded schemes.
+        self._scheme_details = {}
+        self._schemes = {}
 
-        @param fname {str} Either the full path to a scheme file, or a scheme name (see unsaved)
-        @param userDefined {bool} False if it's a Komodo-defined scheme
-        @param unsaved {bool} True: fname is the name of a scheme, False: fname is a full path
-        @returns an initialized Scheme object
-        """
-        aScheme = Scheme()
-        if aScheme.init(fname, userDefined, unsaved):
-            return aScheme
-        return None
+        #print self._systemSchemeDir, os.path.exists(self._systemSchemeDir)
+        if os.path.isdir(self._systemSchemeDir):
+            self._addSchemeDetailsFromDirectory(self._systemSchemeDir, 0)
+        self._userSchemeDir = os.path.join(self._koDirSvc.userDataDir, 'schemes')
+        #print self._userSchemeDir
+        if not os.path.isdir(self._userSchemeDir):
+            os.mkdir(self._userSchemeDir)
+        else:
+            self._addSchemeDetailsFromDirectory(self._userSchemeDir, 1)
 
+        assert len(self._scheme_details) != 0 # We should always have Komodo schemes.
+
+    def addScheme(self, scheme):
+        #print "ADDING ", scheme.name
+        self._scheme_details[scheme.name] = {'filepath': scheme.fname,
+                                             'userDefined': scheme.writeable}
+        self._schemes[scheme.name] = scheme
+
+    def removeScheme(self, scheme):
+        if scheme.name not in self._schemes:
+            log.error("Couldn't remove scheme named %r, as we don't know about it", scheme.name)
+            return
+        self._schemes.pop(scheme.name)
+        self._scheme_details.pop(scheme.name)
+
+    def getSchemeNames(self):
+        return sorted(self._scheme_details.keys())
+    
+    def getScheme(self, name):
+        if name not in self._scheme_details:
+            log.error("asked for scheme by the name of %r, but there isn't one", name)
+            name = 'Default'
+        scheme = self._schemes.get(name)
+        if scheme is None:
+            details = self._scheme_details[name]
+            scheme = _makeScheme(details['filepath'], details['userDefined'])
+            if scheme is None:
+                # This is primarily for tech support, to help answer the question
+                # "why is my Komodo color scheme file not loading?"
+                log.error("Unable to load Komodo color scheme: %r", details)
+            else:
+                self._schemes[name] = scheme
+        return scheme
 
     def getCommonStyles(self):
         names = CommonStates[:]
@@ -1186,9 +1152,8 @@ class KoScintillaSchemeService(SchemeServiceBase):
 }\n\n""" % locals()
         css.append(defaultStyle)
         stylesDealtWith = {}
-        langStyles = GetLanguageStyles(language)
-        if langStyles:
-            for (scimoz_no, scimoz_name, common_name) in langStyles:
+        if language in ValidStyles:
+            for (scimoz_no, scimoz_name, common_name) in ValidStyles[language]:
                 if common_name in stylesDealtWith: continue
                 stylesDealtWith[common_name] = 1
                 style = ['span.%s {\n' % common_name.replace(' ', '_') ]
@@ -1318,6 +1283,8 @@ class KoScintillaSchemeService(SchemeServiceBase):
         @param uri {str} the URI to open
         @returns {wstring} name of new scheme.  Throws an exception on failure.
         """
+        koDirs = components.classes["@activestate.com/koDirs;1"].\
+                 getService(components.interfaces.koIDirs)
         fileSvc = components.classes["@activestate.com/koFileService;1"].\
                   getService(components.interfaces.koIFileService)
         _viewsBundle = components.classes["@mozilla.org/intl/stringbundle;1"].\
@@ -1356,18 +1323,26 @@ class KoScintillaSchemeService(SchemeServiceBase):
                      "'" + "', '".join(dangerous_keywords) + "'"])
                 raise ServerException(nsError.NS_ERROR_INVALID_ARG, msg)
         
-        targetPath = os.path.join(self._userSchemeDir, schemeBaseName)
+        targetPath = os.path.join(koDirs.userDataDir, 'schemes', schemeBaseName)
         fd = open(targetPath, "w")
         fd.write(data)
         fd.close()
         
-        newScheme = self._makeScheme(targetPath, True, unsaved=0)
+        newScheme = _makeScheme(targetPath, True, unsaved=0)
         if newScheme is None:
             raise SchemeCreationException(_viewsBundle.formatStringFromName(
                                           "schemeFileNotCreatedFromFile.template",
                                           [targetPath]))
         self.addScheme(newScheme)
         return newScheme.name
+
+    def _addSchemeDetailsFromDirectory(self, dirName, userDefined):
+        for candidate in os.listdir(dirName):
+            name, ext = os.path.splitext(candidate)
+            if ext == '.ksf':
+                filepath = os.path.join(dirName, candidate)
+                self._scheme_details[name] = {'filepath': filepath,
+                                              'userDefined': userDefined}
 
     def activateScheme(self, newSchemeName):
         globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
@@ -1616,30 +1591,24 @@ class KoScintillaSchemeService(SchemeServiceBase):
 
 #---- internal support routines
 
-def _initializeLanguageStyles(languageName):
-    log.info("initializing style info for %s", languageName)
-    languageStyles = []
-    ISciMoz = components.interfaces.ISciMoz
-    for common_name, scimoz_names in StateMap[languageName].items():
-        for scimoz_name in scimoz_names:
-            if isinstance(scimoz_name, str):
-                scimoz_no = getattr(ISciMoz, scimoz_name)
-            else:
-                scimoz_no = int(scimoz_name) # should be noop
-            key = (scimoz_no, languageName)
-            if common_name in CommonStates:
-                ScimozStyleNo2CommonName[key] = common_name
-            ScimozStyleNo2SpecificName[key] = common_name
-            languageStyles.append((scimoz_no, scimoz_name, common_name)) 
-    ValidStyles[languageName] = languageStyles
-    return languageStyles
-
-def GetLanguageStyles(languageName):
-    return ValidStyles.get(languageName) or _initializeLanguageStyles(languageName)
-
 def _initializeStyleInfo():
     """Initialize the global style info variables."""
     log.debug("initializing style info...")
+    ISciMoz = components.interfaces.ISciMoz
+    for languageName in StateMap:
+        languageStyles = []
+        for common_name, scimoz_names in StateMap[languageName].items():
+            for scimoz_name in scimoz_names:
+                if isinstance(scimoz_name, str):
+                    scimoz_no = getattr(ISciMoz, scimoz_name)
+                else:
+                    scimoz_no = int(scimoz_name) # should be noop
+                key = (scimoz_no, languageName)
+                if common_name in CommonStates:
+                    ScimozStyleNo2CommonName[key] = common_name
+                ScimozStyleNo2SpecificName[key] = common_name
+                languageStyles.append((scimoz_no, scimoz_name, common_name)) 
+        ValidStyles[languageName] = languageStyles
     koILintResult = components.interfaces.koILintResult
     for indic_name, component_name in IndicatorNameMap.items():
         indic_no = getattr(koILintResult, component_name, None)

@@ -67,7 +67,7 @@ http://theory.lcs.mit.edu/~rivest/chaffing.txt
 
 """
 
-__revision__ = "$Id$"
+__revision__ = "$Id: Chaffing.py 4769 2010-04-09 17:53:50Z toddw $"
 
 from Crypto.Util.number import bytes_to_long
 

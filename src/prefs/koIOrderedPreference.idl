@@ -41,10 +41,10 @@
    by an integer index.
    i.e. an array preference. */
 
-[scriptable, uuid(956aabe1-79cb-4672-9e38-d6d646aca74b)]
-interface koIOrderedPreference : koIPreferenceContainer {
+[scriptable, uuid(03ba6768-1907-405d-99a3-15b1e44c5be6)]
+interface koIOrderedPreference : koIPreference {
   // Append a preference to the end of the collection.
-  void appendPref(in koIPreferenceContainer pref);
+  void appendPref(in koIPreference pref);
   void appendString(in wstring pref);
   void appendLong(in long pref);
   void appendDouble(in double pref);
@@ -52,7 +52,7 @@ interface koIOrderedPreference : koIPreferenceContainer {
 
   // Insert a preference at a particular index in the collection,
   // pushing elements to "the right" as necessary.
-  void insertPref(in long index, in koIPreferenceContainer pref);
+  void insertPref(in long index, in koIPreference pref);
   void insertString(in long index, in wstring pref);
   void insertLong(in long index, in long pref);
   void insertDouble(in long index, in double pref);
@@ -62,7 +62,7 @@ interface koIOrderedPreference : koIPreferenceContainer {
   // It is an error to "get" a preference which does not exist or is of the
   // wrong type. Use "has*Pref" to ensure the pref exists.
   string getPrefType(in long index);
-  koIPreferenceContainer getPref(in long index);
+  koIPreference getPref(in long index);
   wstring getString(in long index);
   long getLong(in long index);
   double getDouble(in long index);

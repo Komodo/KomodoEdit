@@ -24,7 +24,7 @@
 
 """Self-testing for PyCrypto hash modules"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: common.py 4769 2010-04-09 17:53:50Z toddw $"
 
 import sys
 import unittest

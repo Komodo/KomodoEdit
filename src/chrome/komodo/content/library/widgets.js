@@ -260,27 +260,6 @@ if (typeof(ko.widgets)=='undefined') {
                 data.browser = pane.addWidget(aID, {focus: false});
             }
         }
-
-        if (data.browser && ! data._loadListenerAdded) {
-            data._loadListenerAdded = true;
-
-            var loadEvent = function() {
-                var event = new CustomEvent("widget-load",
-                {
-                    bubbles: false,
-                    cancelable: false,
-                    detail: data
-                });
-                window.dispatchEvent(event);
-            }
-
-            if (data.browser.contentDocument.readyState == "complete") {
-                loadEvent();
-            } else {
-                data.browser.contentWindow.addEventListener("load", loadEvent);
-            }
-        }
-
         return data.browser;
     };
 
@@ -578,23 +557,24 @@ if (typeof(ko.widgets)=='undefined') {
     /**
      * Called by ko.main's window.onload
      */
-    this.restoreLayout = function koWidgetManager_restoreLayout(prefs, prefpath) {
+    this.restoreLayout = function koWidgetManager_restoreLayout(prefs) {
 
-        if (layoutRestored) {
-            log.debug("layout already restored");
-            return;
+        let prefpath = [];
+        for (let p = prefs; p && p != ko.prefs; p = p.parent) {
+            prefpath.push(p.id);
         }
-        layoutRestored = true;
-
-        prefpath = prefpath || [];
-        log.debug("saving pref path: " + prefpath.join(", "));
-        ko.main.addWillCloseHandler(this.unload.bind(this, prefpath));
+        ko.main.addWillCloseHandler(this.unload.bind(this, prefpath.reverse()));
 
         try {
             log.debug("onload: " + JSON.stringify(this._widgets));
         } catch (TypeError) {
             log.debug("onload: " + this._widgets.listkeys());
         }
+        if (layoutRestored) {
+            log.debug("layout already restored");
+            return;
+        }
+        layoutRestored = true;
         let panes = {}; // the state we want to end up in
 
         for (let paneId of this.panes) {
@@ -637,7 +617,9 @@ if (typeof(ko.widgets)=='undefined') {
                 this._persist_state.panes[id] = data;
             }
             log.debug("onload: old panes = " + JSON.stringify(this._persist_state));
-            for (let id of prefs.getPrefIds()) {
+            let ids = {};
+            prefs.getPrefIds(ids, {});
+            for (let id of ids.value) {
                 log.debug("load prefs: id=" + id);
                 if (!/^uilayout_widget_position_/.test(id)) {
                     continue;
@@ -693,9 +675,8 @@ if (typeof(ko.widgets)=='undefined') {
         log.debug("onload: panes = " + JSON.stringify(panes));
 
         let outstandingPanesToCreate = 0;
-        for (let id of Object.keys(this._persist_state.panes)) {
-            let data = this._persist_state.panes[id];
-            let doOnePane = id => {
+        for (let [id, data] in Iterator(this._persist_state.panes)) {
+            let doOnePane = (function(id) {
                 if (("children" in data) && (data.children instanceof Array)) {
                     log.debug(id + ": " + JSON.stringify(panes[id].children) +
                               " -> " + JSON.stringify(data.children));
@@ -706,20 +687,20 @@ if (typeof(ko.widgets)=='undefined') {
                         panes[id][key] = data[key];
                     }
                 }
-            };
+            }).bind(this);
             if (data.floating) {
                 // FLoating pane... make it
                 if (!("children" in data) || data.children.length < 1) {
                     continue; // don't restore empty floating panes
                 }
                 ++outstandingPanesToCreate;
-                this.createPane(pane => {
+                this.createPane((function(pane) {
                     panes[pane.id] = {children: []};
                     doOnePane(pane.id);
                     if (--outstandingPanesToCreate < 1) {
                         doRestorePanes();
                     }
-                }, data);
+                }).bind(this), data);
             } else if (id in panes) {
                 doOnePane(id);
             } else {
@@ -934,7 +915,6 @@ if (typeof(ko.widgets)=='undefined') {
             panes: panes,
         }
         let prefs = ko.prefs;
-        log.debug("Getting prefs from " + prefpath.join(", "));
         for (let key of prefpath) {
             prefs = prefs.getPref(key);
         }

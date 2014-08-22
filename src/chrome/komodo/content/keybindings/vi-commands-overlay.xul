@@ -37,8 +37,6 @@
 <!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
   <!ENTITY % keybindingsDTD SYSTEM "chrome://komodo/locale/keybindings/keybindings.dtd">
   %keybindingsDTD;
-  <!ENTITY % vikeybindingsDTD SYSTEM "chrome://komodo/locale/keybindings/vi.dtd">
-  %vikeybindingsDTD;
 ]>
 
 <!-- this overlay provides the vi command set for when vi mode is enabled -->
@@ -128,20 +126,6 @@
             id="cmd_vim_lineScrollDown" key="key_cmd_vim_lineScrollDown"
             oncommand="vim_doCommand('cmd_vim_lineScrollDown', event)"
             desc="&editorViScrollOneLineDown.desc;"/>
-
-        <command
-            id="cmd_vim_scrollLineToCenter" key="key_cmd_vim_scrollLineToCenter"
-            oncommand="vim_doCommand('cmd_vim_scrollLineToCenter', event)"
-            desc="&editorViScrollLineToCenter.desc;"/>
-        <command
-            id="cmd_vim_scrollLineToCenterHome" key="key_cmd_vim_scrollLineToCenterHome"
-            oncommand="vim_doCommand('cmd_vim_scrollLineToCenterHome', event)"
-            desc="&editorViScrollLineToCenterHome.desc;"/>
-        <command
-            id="cmd_vim_scrollLineToBottomHome" key="key_cmd_vim_scrollLineToBottomHome"
-            oncommand="vim_doCommand('cmd_vim_scrollLineToBottomHome', event)"
-            desc="&editorViScrollLineToBottomHome.desc;"/>
-
         <command
             id="cmd_vim_documentEnd" key="key_cmd_vim_documentEnd"
             oncommand="vim_doCommand('cmd_vim_documentEnd', event)"

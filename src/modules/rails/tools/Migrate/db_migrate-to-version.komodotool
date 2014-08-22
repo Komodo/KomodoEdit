@@ -13,7 +13,7 @@
     "        env: obj.env,", 
     "        __END__ : null", 
     "    };", 
-    "    var version = ko.dialogs.prompt(ko.extensions.rails.bundle.GetStringFromName(\"migrate to which version\"));",
+    "    var version = dialog_prompt(ko.extensions.rails.bundle.GetStringFromName(\"migrate to which version\"));", 
     "    var cmd = obj.rake + ' db:migrate';", 
     "    if (version && /^\\d+$/.test(version)) {", 
     "        cmd += \" VERSION=\" + version;", 

@@ -24,7 +24,7 @@
 # ===================================================================
 #
 
-__revision__ = "$Id$"
+__revision__ = "$Id: _RSA.py 7847 2011-04-21 18:51:40Z toddw $"
 
 from Crypto.PublicKey import pubkey
 from Crypto.Util import number

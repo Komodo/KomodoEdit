@@ -34,7 +34,7 @@
 # SOFTWARE.
 # ===================================================================
 
-__revision__ = "$Id$"
+__revision__ = "$Id: setup.py 7849 2011-04-21 18:52:33Z toddw $"
 
 from distutils import core
 from distutils.core import Extension, Command

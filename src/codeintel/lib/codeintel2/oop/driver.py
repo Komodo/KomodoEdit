@@ -1,18 +1,12 @@
 #!/usr/bin/env python2
 
-import logging
-
-log = logging.getLogger("codeintel.oop.driver")
-#log.setLevel(logging.DEBUG)
-
 try:
     # codeintel will attempt to import xpcom; make sure that's working by
     # explicitly importing xpcom._xpcom, otherwise xpcom.xpt will fail to import
     import xpcom
     import xpcom._xpcom
-    log.error("driver successfully imported 'xpcom' - this import should have failed")
 except ImportError:
-    pass # all good - we don't want xpcom
+    pass
 
 import codeintel2.accessor
 import codeintel2.buffer
@@ -26,16 +20,18 @@ import functools
 import imp
 import itertools
 import json
+import logging
 import os.path
 import Queue
 import shutil
-import string
 import sys
 import threading
 import traceback
 import uuid
 from . import controller
 from os.path import abspath, normcase, normpath
+
+log = logging.getLogger("codeintel.oop.driver")
 
 class RequestFailure(Exception):
     """ An exception to indicate a request failure
@@ -124,7 +120,7 @@ class Driver(threading.Thread):
     """Built-in commands that cannot be overridden"""
 
     def __init__(self, db_base_dir=None, fd_in=sys.stdin, fd_out=sys.stdout):
-        threading.Thread.__init__(self, name="CodeIntel OOP Driver")
+        threading.Thread.__init__(self, name="Codeintel OOP Driver")
         assert Driver._instance is None, "Driver should be a singleton"
         Driver._instance = self
         logging.root.addHandler(LoggingHandler(self))
@@ -139,8 +135,7 @@ class Driver(threading.Thread):
         self.active_request = None
 
         self.send_queue = Queue.Queue()
-        self.send_thread = threading.Thread(name="Codeintel OOP Driver Send Thread",
-                                            target=self._send_proc)
+        self.send_thread = threading.Thread(target=self._send_proc)
         self.send_thread.daemon = True
         self.send_thread.start()
 
@@ -296,40 +291,6 @@ class Driver(threading.Thread):
     def exception(self, request=REQUEST_DEFAULT, **kwargs):
         return self.fail(request=request, stack=traceback.format_exc(), **kwargs)
 
-    @staticmethod
-    def normpath(path):
-        """Routine to normalize the path used for codeintel buffers
-        This is annoying because it needs to handle unsaved files, as well as
-        urls.
-        @note See also koCodeIntel.py::KoCodeIntelBuffer.normpath
-        """
-        if path.startswith("<Unsaved>"):
-            return path # Don't munge unsaved file paths
-
-        scheme = path.split(":", 1)[0]
-
-        if len(scheme) == len(path):
-            # didn't find a scheme at all; assume this is a local path
-            return os.path.normcase(path)
-        if len(scheme) == 1:
-            # single-character scheme; assume this is actually a drive letter
-            # (for a Windows-style path)
-            return os.path.normcase(path)
-        scheme_chars = string.ascii_letters + string.digits + "-"
-        try:
-            scheme = scheme.encode("ascii")
-        except UnicodeEncodeError:
-            # scheme has a non-ascii character; assume local path
-            return os.path.normcase(path)
-        if scheme.translate(None, scheme_chars):
-            # has a non-scheme character: this is not a valid scheme
-            # assume this is a local file path
-            return os.path.normcase(path)
-        if scheme != "file":
-            return path # non-file scheme
-        path = path[len(scheme) + 1:]
-        return os.path.normcase(path)
-
     def get_buffer(self, request=REQUEST_DEFAULT, path=None):
         if request is Driver.REQUEST_DEFAULT:
             request = self.active_request
@@ -337,7 +298,9 @@ class Driver(threading.Thread):
             if not "path" in request:
                 raise RequestFailure(message="No path given to locate buffer")
             path = request.path
-        path = self.normpath(path)
+        if abspath(path) == path:
+            # this is an actual file path, not a URL or whatever
+            path = normcase(normpath(path))
         try:
             buf = self.buffers[path]
         except KeyError:
@@ -363,18 +326,17 @@ class Driver(threading.Thread):
                     buf = self.mgr.buf_from_content("", lang, path=path, env=env)
                 assert not request.path.startswith("<"), \
                     "Can't create an unsaved buffer with no text"
+        else:
+            try:
+                env = request["env"]
+            except KeyError:
+                pass # no environment, use current
+            else:
+                buf._env.update(env)
 
         if request.get("text") is not None:
             # overwrite the buffer contents if we have new ones
             buf.accessor.reset_content(request.text)
-            buf.encoding = "utf-8"
-
-        try:
-            env = request["env"]
-        except KeyError:
-            pass # no environment, use current
-        else:
-            buf._env.update(env)
 
         #log.debug("Got buffer %r: [%s]", buf, buf.accessor.content)
         log.debug("Got buffer %r", buf)
@@ -422,22 +384,13 @@ class Driver(threading.Thread):
     def do_load_extension(self, request):
         """Load an extension that, for example, might provide additional
         command handlers"""
+        path = request.get("module-path", None)
+        if not path:
+            raise RequestFailure(msg="load-extension requires a module-path")
         name = request.get("module-name", None)
         if not name:
             raise RequestFailure(msg="load-extension requires a module-name")
-        path = request.get("module-path", None)
-        names = name.split(".")
-        if len(names) > 1:
-            # It's inside a package - go look for the package(s).
-            for package_name in names[:-1]:
-                iinfo = imp.find_module(package_name, [path] if path else None)
-                if not iinfo:
-                    raise RequestFailure(msg="load-extension could not find "
-                                             "package %r for given name %r"
-                                             % (package_name, name))
-                path = iinfo[1]
-            name = names[-1]
-        iinfo = imp.find_module(name, [path] if path else None)
+        iinfo = imp.find_module(name, [path])
         try:
             module = imp.load_module(name, *iinfo)
         finally:
@@ -486,6 +439,10 @@ class Driver(threading.Thread):
                     log.debug("Failed to read frame data, assuming connection died")
                     self.quit = True
                     break
+                try:
+                    buf = buf.decode("utf-8")
+                except UnicodeDecodeError:
+                    pass # what :(
                 try:
                     data = json.loads(buf)
                     request = Request(data)
@@ -546,7 +503,7 @@ class Driver(threading.Thread):
                         if real_handler is None:
                             # Handler failed to instantiate, drop it
                             try:
-                                self._command_handler_map[command].remove(handler)
+                                self._command_handler_map["command"].remove(handler)
                             except ValueError:
                                 pass # ... shouldn't happen, but tolerate it
                             continue
@@ -561,7 +518,7 @@ class Driver(threading.Thread):
                         break
                 else:
                     self.fail(request=request,
-                              message="Don't know how to handle command %s" % (command,))
+                              msg="Don't know how to handle command %s" % (command,))
 
             except RequestFailure as e:
                 self.fail(request=request, **e.kwargs)
@@ -619,18 +576,14 @@ class CoreHandler(CommandHandler):
 
     def do_database_info(self, request, driver):
         """Figure out what kind of state the codeintel database is in"""
-        if request.get("previous_command") == "database-preload":
-            preload_needed = "broken" # don't loop in preload
-        else:
-            preload_needed = "preload-needed"
         try:
             if not os.path.exists(os.path.join(driver.mgr.db.base_dir, "VERSION")):
                 log.debug("Database does not exist")
-                driver.send(state=preload_needed)
+                driver.send(state="preload-needed")
                 return
             if not os.path.isdir(os.path.join(driver.mgr.db.base_dir, "db", "stdlibs")):
                 log.debug("Database does not have stdlibs")
-                driver.send(state=preload_needed)
+                driver.send(state="preload-needed")
                 return
             driver.mgr.db.check()
             state, details = driver.mgr.db.upgrade_info()
@@ -646,7 +599,7 @@ class CoreHandler(CommandHandler):
                             break
                     else:
                         log.debug("no stdlib found for %s", lang)
-                        driver.send(state=preload_needed)
+                        driver.send(state="preload-needed")
                         break
                 else:
                     driver.send(state="ready")

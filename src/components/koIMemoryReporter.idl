@@ -1,0 +1,18 @@
+/* Copyright (c) 2013 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsIMemoryReporter.idl"
+
+[scriptable, uuid(2eb7795a-cf8d-4571-900b-b641fa344979)]
+interface koIPythonMemoryReporter: nsISupports {
+
+    /**
+     * Memory reporting, allows codeintel to report various codeintel related
+     * memory reports. Will be called by the main Komodo memory reporter.
+     *
+     * @returns The total number of bytes used.
+     */
+    long reportMemory(in nsIMemoryMultiReporterCallback callback,
+                      in nsISupports closure);
+};

@@ -23,7 +23,7 @@
 # SOFTWARE.
 # ===================================================================
 
-__revision__ = "$Id$"
+__revision__ = "$Id: ElGamal.py 4769 2010-04-09 17:53:50Z toddw $"
 
 from Crypto.PublicKey.pubkey import *
 from Crypto.Util import number

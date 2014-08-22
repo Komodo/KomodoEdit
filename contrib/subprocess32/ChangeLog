@@ -1,13 +1,4 @@
 -----------------
-2013-12-10 3.2.5
------------------
-
-* Fixes issue #15798: subprocess.Popen() no longer fails if file
-  descriptor 0, 1 or 2 is closed.
-* Fixes issue #18763: close_fd file descriptors are now closed after
-  any preexec_fn call.
-
------------------
 2013-06-15 3.2.5rc1
 -----------------
 

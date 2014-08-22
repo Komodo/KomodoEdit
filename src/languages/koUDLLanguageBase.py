@@ -51,7 +51,8 @@ from xpcom import components
 from xpcom.server import UnwrapObject
 from koLanguageServiceBase import KoLanguageBase, KoLexerLanguageService, \
                                   KoCommenterLanguageService, sendStatusMessage, \
-                                  koLangSvcStyleInfo
+                                  koLangSvcStyleInfo, getActualStyle
+import directoryServiceUtils
 
 log = logging.getLogger("KoUDLLanguageBase")
 #log.setLevel(logging.DEBUG)
@@ -60,19 +61,19 @@ ScintillaConstants = components.interfaces.ISciMoz
 
 def udl_family_from_style(style):
     if (ScintillaConstants.SCE_UDL_M_DEFAULT <= style
-          <= ScintillaConstants.SCE_UDL_M_UPPER_BOUND):
+          <= ScintillaConstants.SCE_UDL_M_COMMENT):
         return "M"
     elif (ScintillaConstants.SCE_UDL_CSS_DEFAULT <= style
-          <= ScintillaConstants.SCE_UDL_CSS_UPPER_BOUND):
+          <= ScintillaConstants.SCE_UDL_CSS_OPERATOR):
         return "CSS"
     elif (ScintillaConstants.SCE_UDL_CSL_DEFAULT <= style
-          <= ScintillaConstants.SCE_UDL_CSL_UPPER_BOUND):
+          <= ScintillaConstants.SCE_UDL_CSL_REGEX):
         return "CSL"
     elif (ScintillaConstants.SCE_UDL_SSL_DEFAULT <= style
-          <= ScintillaConstants.SCE_UDL_SSL_UPPER_BOUND):
+          <= ScintillaConstants.SCE_UDL_SSL_VARIABLE):
         return "SSL"
     elif (ScintillaConstants.SCE_UDL_TPL_DEFAULT <= style
-          <= ScintillaConstants.SCE_UDL_TPL_UPPER_BOUND):
+          <= ScintillaConstants.SCE_UDL_TPL_VARIABLE):
         return "TPL"
     else:
         raise ValueError("unknown UDL style: %r" % style)
@@ -150,6 +151,14 @@ def _urlescape(s):
 
 
 class KoUDLLanguage(KoLanguageBase):
+    # 'primary' indicates if this is a language that Komodo "cares about"
+    # more that others. Mainly this mean it shows up in the "View as
+    # Language" menulists at the top-level. Presumably if the user bothered
+    # to create a UDL-based custom language, then yes this should be
+    # considered primary.
+    primary = 1
+    
+    styleBits = 8      # Override KoLanguageBase.styleBits setting of 5
     lang_from_udl_family = {'CSL': '', 'TPL': '', 'M': '', 'CSS': '', 'SSL': ''}
     # Common sublanguages used in UDL languages go here.
     # First the define the base style objects, then specify
@@ -278,23 +287,20 @@ class KoUDLLanguage(KoLanguageBase):
 
         This doesn't filter out non-existant directories.
         """
-        from directoryServiceUtils import getExtensionLexerDirs
         koDirs = components.classes["@activestate.com/koDirs;1"] \
             .getService(components.interfaces.koIDirs)
 
-        if exists(join(koDirs.userDataDir, "lexers")):
-            yield join(koDirs.userDataDir, "lexers")    # user
-        for extensionLexerDir in getExtensionLexerDirs():
-            yield extensionLexerDir                     # extensions
-        if exists(join(koDirs.commonDataDir, "lexers")):
-            yield join(koDirs.commonDataDir, "lexers")  # site/common
-        if exists(join(koDirs.supportDir, "lexers")):
-            yield join(koDirs.supportDir, "lexers")     # factory
+        yield join(koDirs.userDataDir, "lexers")    # user
+        for extensionDir in directoryServiceUtils.getExtensionDirectories():
+            yield join(extensionDir, "lexers")      # user-install extensions
+        yield join(koDirs.commonDataDir, "lexers")  # site/common
+        yield join(koDirs.supportDir, "lexers")     # factory
 
-    # One time call - to find the lexer resources.
     def _findLexerResources(self):
         self._lexresPathFromLexresLangName = {}
         for lexerDir in self._genLexerDirs():
+            if not exists(lexerDir):
+                continue
             for lexresPath in glob(join(lexerDir, "*.lexres")):
                 lexresLangName = splitext(basename(lexresPath))[0]
                 self._lexresPathFromLexresLangName[lexresLangName] = lexresPath
@@ -345,10 +351,10 @@ class KoUDLLanguage(KoLanguageBase):
     # pos refers to the character just typed.
 
     def _get_meaningful_style(self, scimoz, pos):
-        styleRight = scimoz.getStyleAt(pos)
+        styleRight = getActualStyle(scimoz, pos)
         if pos == 0 or styleRight not in _default_styles:
             return styleRight
-        styleLeft = scimoz.getStyleAt(pos-1)
+        styleLeft = getActualStyle(scimoz, pos - 1)
         if styleRight == styleLeft:
             return styleRight
         lhs_family = udl_family_from_style(styleLeft)
@@ -361,7 +367,7 @@ class KoUDLLanguage(KoLanguageBase):
             return styleRight
         else:
             new_pos = pos + adj
-            winningStyle = scimoz.getStyleAt(new_pos)
+            winningStyle = getActualStyle(scimoz, new_pos)
             #log.debug("_get_meaningful_style - ignore style %d, pos %d -- use %d@%d", styleRight, pos, winningStyle, new_pos)
             return winningStyle
             
@@ -543,12 +549,12 @@ class KoUDLCommenterLanguageService(KoCommenterLanguageService):
         # Now if we're selecting from <script...>|[EOL]
         # to .... and try to comment it, act as if the commenting
         # starts at the start of the next line.
-        selStart_Family = udl_family_from_style(scimoz.getStyleAt(selStart))
+        selStart_Family = udl_family_from_style(getActualStyle(scimoz, selStart))
         selStartNextPos = scimoz.positionAfter(selStart)
-        selStartNext_Family = udl_family_from_style(scimoz.getStyleAt(selStartNextPos))
-        selEnd_Family = udl_family_from_style(scimoz.getStyleAt(selEnd))
+        selStartNext_Family = udl_family_from_style(getActualStyle(scimoz, selStartNextPos))
+        selEnd_Family = udl_family_from_style(getActualStyle(scimoz, selEnd))
         selEndPrevPos = scimoz.positionAfter(scimoz.positionBefore(selEnd))
-        selEndPrev_Family = udl_family_from_style(scimoz.getStyleAt(selEndPrevPos))
+        selEndPrev_Family = udl_family_from_style(getActualStyle(scimoz, selEndPrevPos))
         if (selEndPrev_Family != "M"
             and selStart_Family == "M"
             and selStartNext_Family == selEndPrev_Family):
@@ -562,7 +568,7 @@ class KoUDLCommenterLanguageService(KoCommenterLanguageService):
             endLinePos = scimoz.getLineEndPosition(startLineNo)
             if endLinePos == selStart:
                 startLinePos = scimoz.positionFromLine(startLineNo)
-                startLineFamily = udl_family_from_style(scimoz.getStyleAt(startLinePos))
+                startLineFamily = udl_family_from_style(getActualStyle(scimoz, startLinePos))
                 if (startLineFamily == "M"
                     and selStart_Family != "M"
                     and selStartNext_Family == selEndPrev_Family):
@@ -570,8 +576,8 @@ class KoUDLCommenterLanguageService(KoCommenterLanguageService):
                     selStart = selStartNextPos
             
         sections = [
-            udl_family_from_style(scimoz.getStyleAt(selStart)),
-            udl_family_from_style(scimoz.getStyleAt(selEnd-1))
+            udl_family_from_style(getActualStyle(scimoz, selStart)),
+            udl_family_from_style(getActualStyle(scimoz, selEnd-1))
                    ]
         if selStart == selEnd:
             startLine = scimoz.lineFromPosition(selStart)
@@ -579,8 +585,8 @@ class KoUDLCommenterLanguageService(KoCommenterLanguageService):
             lineEnd = scimoz.getLineEndPosition(startLine)
 
             sections.extend([
-                udl_family_from_style(scimoz.getStyleAt(lineStart)),
-                udl_family_from_style(scimoz.getStyleAt(lineEnd-1))
+                udl_family_from_style(getActualStyle(scimoz, lineStart)),
+                udl_family_from_style(getActualStyle(scimoz, lineEnd-1))
                             ])
 
         family = sections[0]

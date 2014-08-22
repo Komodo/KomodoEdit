@@ -212,7 +212,7 @@
         <handler event="keydown">
           <![CDATA[
             // open popup if key is space/up/left/right/down
-            if (event.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN ||
+            if (event.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_ENTER ||
                 event.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_SPACE ||
                 event.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_LEFT ||
                 event.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RIGHT ||

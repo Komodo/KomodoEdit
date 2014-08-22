@@ -61,7 +61,11 @@ if ($platform eq "win") {
 
     $CXXFLAGS .= ' -I./include';
     $CXXFLAGS .= ' -I./include/private';
-    $LDFLAGS .= " xul.lib xpcomglue_s.lib nspr4.lib mozjs.lib mozalloc.lib ";
+    if ($mozVersionNumber le 1899) {
+	$LDFLAGS .= " xul.lib xpcomglue_s.lib xpcom.lib nspr4.lib mozjs.lib mozalloc.lib ";
+    } else {
+	$LDFLAGS .= " xul.lib xpcomglue_s.lib nspr4.lib mozjs.lib mozalloc.lib ";
+    }
     $LDFLAGS .= " /dll";
     $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 -DMOZILLA_INTERNAL_API=1 ";
     $CXXFLAGS .= " -D_IMPL_NS_LAYOUT -DMOZ_VERSION=$mozVersionNumber";
@@ -117,7 +121,11 @@ else {
         $consLocal{'LIBS'} = "-lxul ";
         $consLocal{'LDFLAGS'} .= " -fPIC -shared";
     }
-    $consLocal{'LIBS'} .= "-lmozalloc -lxpcomglue_s -lnspr4 ";
+    if ($mozVersionNumber le 1899) {
+	$consLocal{'LIBS'} .= "-lmozalloc -lxpcomglue_s -lxpcom -lnspr4 ";
+    } else {
+	$consLocal{'LIBS'} .= "-lmozalloc -lxpcomglue_s -lnspr4 ";
+    }
     $consLocal{'CXXFLAGS'} .= " -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
 

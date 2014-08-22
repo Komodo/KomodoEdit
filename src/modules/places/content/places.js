@@ -162,7 +162,7 @@ viewMgrClass.prototype = {
             widgets.placesSubpanelProjectsTools_MPV.collapsed = single_project_view;
             widgets.placesSubpanelProjectsTools_SPV.collapsed = !single_project_view;
         } catch(ex) {
-            log.exception(ex, "Error in _setupProjectView");
+            log.exception("Error in _setupProjectView: " + ex);
         }
     },
 
@@ -189,7 +189,7 @@ viewMgrClass.prototype = {
             gPlacesViewMgr.view.setMainFilters(prefset.getStringPref('import_exclude_matches'),
                                            prefset.getStringPref('import_include_matches'));
         } catch(ex) {
-            log.exception(ex, "getting prefs failed");
+            log.exception("getting prefs failed: " + ex + "\n");
             this.placeView_defaultView();
         }
     },
@@ -443,7 +443,8 @@ viewMgrClass.prototype = {
                 event.stopPropagation();
                 event.preventDefault();
                 return false;
-            } else if (event.keyCode == event.DOM_VK_RETURN) {
+            } else if (event.keyCode == event.DOM_VK_ENTER
+                       || event.keyCode == event.DOM_VK_RETURN) {
                 // ENTER/RETURN should be handled by xbl bindings.
                 event.stopPropagation();
                 event.preventDefault();
@@ -612,7 +613,9 @@ viewMgrClass.prototype = {
                     return;
                 }
             } catch(ex) {
-                log.exception(ex, "Failed to eval '" + testEval_HideIf);
+                log.exception("Failed to eval '"
+                              + testEval_HideIf
+                              + ": " + ex);
             }
         }
     
@@ -1152,7 +1155,7 @@ viewMgrClass.prototype = {
                                             try {
                                                 newScimoz[name] = config[name];
                                             } catch(ex) {
-                                                log.exception(ex, "Can't set " + name);
+                                                log.exception("Can't set " + name);
                                             }
                                         });
                                 };
@@ -1357,7 +1360,9 @@ viewMgrClass.prototype = {
             this._updateCurrentUriViewPref(prefName);
             return true;
         } catch(ex) {
-            log.exception(ex, "Can't find prefName '" + prefName + "' in menu");
+            log.exception("Can't find prefName '"
+                          + prefName
+                          + "' in menu:: " + ex + "\n");
             return false;
         }
     },
@@ -1572,7 +1577,7 @@ ManagerClass.prototype = {
             return;
         }
 
-        this.showTreeItemByFile(file.URI, forceNewPlaceDir, view.setFocus.bind(view));
+        this.showTreeItemByFile(file.URI, forceNewPlaceDir, view.setFocus.bind(this));
     },
 
     showTreeItemByFile: function(URI, forceNewPlaceDir, callback) {
@@ -1671,7 +1676,7 @@ ManagerClass.prototype = {
                         }
                     }
                 } catch(ex) {
-                    log.exception(ex, "Error trying to get the project's URI");
+                    log.exception("Error trying to get the project's URI: " + ex);
                 }
                 if (!parentURI) {
                     if (!forceNewPlaceDir
@@ -1686,7 +1691,8 @@ ManagerClass.prototype = {
                 successFunc();
             }
         } catch(ex) {
-            log.exception(ex, "showTreeItemByFile: failed to open " + URI);
+            log.exception("showTreeItemByFile: failed to open "
+                               + URI + ": " + ex)
         }
     },
  
@@ -1809,7 +1815,7 @@ ManagerClass.prototype = {
                         try {
                             onFailure.apply(this_);
                         } catch(ex) {
-                            log.exception(ex, "_setDirURI::onFailure");
+                            log.exception("_setDirURI::onFailure: " + ex);
                         }
                     }
                 } else {
@@ -1861,7 +1867,7 @@ ManagerClass.prototype = {
                         try {
                             onSuccess.apply(this_);
                         } catch(ex) {
-                            log.exception(ex, "_setDirURI::onSuccess");
+                            log.exception("_setDirURI::onSuccess: " + ex);
                         }
                     }
                 }
@@ -2225,12 +2231,12 @@ ManagerClass.prototype = {
                         uri = null;
                     }
                 } catch(ex2) {
-                    log.exception(ex2, "places.js:init: inner failure");
+                    log.exception("places.js:init: inner failure: " + ex2);
                     uri = null;
                 }
             }
         } catch(ex) {
-            log.exception(ex, "places.js:init: failure");
+           log.exception("places.js:init: failure: " + ex);
         }
         if (!uri) {
             const nsIDirectoryServiceProvider = Components.interfaces.nsIDirectoryServiceProvider;
@@ -2572,7 +2578,7 @@ ManagerClass.prototype = {
             parts = ['/'];
         } else {
             parts = pathPart.split("/");
-            if (parts[0].length > 1 && parts[0][1] == ':') {
+            if (parts[0][1] == ':') {
                 parts[0] += "\\";
             } else {
                 parts.unshift("/");
@@ -2786,8 +2792,10 @@ ManagerClass.prototype = {
             return t1.length - t2.length;
         }
         var removeOldestViewTrackers = function(prefName, maxArraySize) {
+            var ids = {};
             var uriPrefs = _placePrefs.getPref(prefName);
-            var ids = uriPrefs.getPrefIds();
+            uriPrefs.getPrefIds(ids, {});
+            ids = ids.value;
             if (ids.length > maxArraySize) {
                 var nameValueTimeArray = ids.map(function(id) {
                         var pref = uriPrefs.getPref(id);
@@ -2853,7 +2861,7 @@ ManagerClass.prototype = {
     },
     
     handle_visit_directory_proposed: function(event) {
-        ko.places.manager.observe(null, 'visit_directory_proposed', event.detail.visitedPath);
+        ko.places.manager.observe(null, 'visit_directory_proposed', event.getData("visitedPath"));
     },
     
     handle_keypress_setup: function(event) {
@@ -2986,7 +2994,7 @@ this.onLoad = function places_onLoad() {
     try {
         ko.places.onLoad_aux();
     } catch(ex) {
-        log.exception(ex, "Failed onLoad");
+        log.exception("Failed onLoad: " + ex);
     }
 };
 
@@ -3265,7 +3273,9 @@ this.updateFilterViewMenu = function() {
             menupopup.removeChild(node);
         }
     }
-    var ids = filterPrefs.getPrefIds();
+    var ids = {};
+    filterPrefs.getPrefIds(ids, {});
+    ids = ids.value;
     var sep = document.getElementById("places_manage_view_separator");
     var menuitem;
     var addedCustomFilter = false;
@@ -3367,7 +3377,9 @@ this.testDisableNode = function(menuNode, selectionInfo) {
                 disableNode = true;
             }
         } catch(ex) {
-            log.exception(ex, "Failed to eval '" + directive);
+            log.exception("Failed to eval '"
+                          + directive
+                          + ": " + ex);
             disableNode = true;
         }
     }

@@ -24,7 +24,7 @@
 
 #"""Self-test suite for Crypto.Hash.RIPEMD"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: test_RIPEMD.py 4769 2010-04-09 17:53:50Z toddw $"
 
 # This is a list of (expected_result, input[, description]) tuples.
 test_data = [

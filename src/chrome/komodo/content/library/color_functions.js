@@ -38,8 +38,9 @@
 xtk.include("color");
 
 /**
- * @deprecated since Komodo 9.
+ * @deprecated since 7.0
  */
-if (ko && ko.logging) {
-    ko.logging.getLogger("").deprecated("color_functions.js is deprecated, use: require('color')", true /*reportDuplicates*/);
-}
+ko.logging.globalDeprecatedByAlternative("rgb", "xtk.color");
+ko.logging.globalDeprecatedByAlternative("RGB", "xtk.color.RGB");
+ko.logging.globalDeprecatedByAlternative("hexColorToLong", "xtk.color.hexColorToLong");
+

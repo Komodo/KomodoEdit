@@ -57,9 +57,8 @@ ko.codeintel = {};
     var log = ko.logging.getLogger("codeintel.komodo.js");
     //log.setLevel(ko.logging.LOG_DEBUG);
 
-    XPCOMUtils.defineLazyGetter(this, "_codeintelSvc", function()
-        Cc["@activestate.com/koCodeIntelService;1"]
-            .getService(Components.interfaces.koICodeIntelService));
+    var _codeintelSvc = Components.classes["@activestate.com/koCodeIntelService;1"]
+                              .getService(Components.interfaces.koICodeIntelService);
 
     // ko.codeintel.isActive is true iff the Code Intel system is enabled,
     // initialized, and active.
@@ -67,12 +66,10 @@ ko.codeintel = {};
     Object.defineProperty(this, "isActive", {
         get: function() _isActive,
         set: function(val) {
-            if (val != _isActive) {
-                if (val) {
-                    _CodeIntel_ActivateWindow();
-                } else {
-                    _CodeIntel_DeactivateWindow();
-                }
+            if (val) {
+                _CodeIntel_ActivateWindow();
+            } else {
+                _CodeIntel_DeactivateWindow();
             }
         },
         enumerable: true,
@@ -90,14 +87,27 @@ ko.codeintel = {};
             if (_isActive) {
                 return;
             }
-            if (ko.codeintel._codeintelSvc.isBackEndActive) {
+            if (_codeintelSvc.isBackEndActive) {
                 _isActive = true;
-                window.dispatchEvent(new CustomEvent("codeintel_status_changed", { detail: { isActive: true } }));
             } else {
                 try {
                     log.debug("Attempting to activate codeintel service");
-                    // bug 100448: automatically wipe db if necessary.
-                    ko.codeintel._codeintelSvc.activate(true);
+                    _codeintelSvc.activate(function(result, data) {
+                        log.debug("codeintel service activation complete: " +
+                                  result.toString(16));
+                        if (result != Ci.koIAsyncCallback.RESULT_SUCCESSFUL) {
+                            var message = String(data);
+                            if (data instanceof Ci.koIErrorInfo) {
+                                message = String(data.koIErrorInfo.message);
+                            }
+                            ko.dialogs.internalError("Failed to start codeintel",
+                                                     message);
+                        } else {
+                            log.debug("codeintel activated");
+                            _isActive = true;
+                            window.updateCommands("codeintel_enabled");
+                        }
+                    });
                 } catch(ex2) {
                     log.exception(ex2);
                     var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
@@ -113,29 +123,8 @@ ko.codeintel = {};
         }
     }
     
-    function _CodeIntel_activate_callback(result, data) {
-        log.debug("codeintel activate callback: " + result.toString(16));
-        if (result === Ci.koIAsyncCallback.RESULT_SUCCESSFUL) {
-            _CodeIntel_ActivateWindow();
-        } else if (result === Ci.koIAsyncCallback.RESULT_STOPPED) {
-            // recoverable error
-            _CodeIntel_DeactivateWindow();
-        } else {
-            // unrecoverable error
-            _CodeIntel_DeactivateWindow();
-            let message = String(data);
-            if (data instanceof Ci.koIErrorInfo) {
-                message = String(data.koIErrorInfo.message);
-            }
-            ko.dialogs.internalError("Failed to start codeintel",
-                                     message);
-        }
-        if (!ko.main.windowIsClosing) {
-            window.updateCommands("codeintel_enabled");
-        }
-    }
-
-    function _CodeIntel_DeactivateWindow()
+    
+    function _CodeIntel_DeactivateWindow(isShuttingDown)
     {
         log.debug("_CodeIntel_DeactivateWindow()");
         try {
@@ -143,9 +132,8 @@ ko.codeintel = {};
                 return;
             }
             _isActive = false;
-            if (!ko.main.windowIsClosing) {
+            if (!isShuttingDown) {
                 window.updateCommands("codeintel_enabled");
-                window.dispatchEvent(new CustomEvent("codeintel_status_changed", { detail: { isActive: false } }));
             }
         } catch(ex) {
             log.exception(ex);
@@ -168,7 +156,6 @@ ko.codeintel = {};
     {
         log.debug("initialize()");
         try {
-            this._codeintelSvc.addActivateCallback(_CodeIntel_activate_callback);
             if (ko.prefs.getBooleanPref("codeintel_enabled")) {
                 _CodeIntel_ActivateWindow();
             } else {
@@ -195,8 +182,7 @@ ko.codeintel = {};
     {
         log.debug("finalize()");
         try {
-            this._codeintelSvc.removeActivateCallback(_CodeIntel_activate_callback);
-            _CodeIntel_DeactivateWindow();
+            _CodeIntel_DeactivateWindow(true /* shutting down */);
             let topView = ko.views.manager.topView;
             topView.removeEventListener("click",
                                         this._triggerHighlightVariableFromMouse,
@@ -229,24 +215,24 @@ ko.codeintel = {};
 
     this.is_cpln_lang = function CodeIntel_is_cpln_lang(lang)
     {
-        return this._codeintelSvc.is_cpln_lang(lang);
+        return _codeintelSvc.is_cpln_lang(lang);
     }
 
     this.is_citadel_lang = function CodeIntel_is_citadel_lang(lang)
     {
-        return this._codeintelSvc.is_citadel_lang(lang);
+        return _codeintelSvc.is_citadel_lang(lang);
     }
 
     this.is_xml_lang = function CodeIntel_is_xml_lang(lang)
     {
-        return this._codeintelSvc.is_xml_lang(lang);
+        return _codeintelSvc.is_xml_lang(lang);
     }
 
     this.scan_document = function CodeIntel_scan_document(koDoc, linesAdded, forcedScan)
     {
         log.debug("scan_document()");
         try {
-            this._codeintelSvc.scan_document(koDoc, linesAdded, !forcedScan);
+            _codeintelSvc.scan_document(koDoc, linesAdded, !forcedScan);
         } catch(ex) {
             log.exception(ex);
         }
@@ -283,7 +269,7 @@ ko.codeintel = {};
             return;
         }
 
-        var ciBuf = this._codeintelSvc.buf_from_koIDocument(view.koDoc);
+        var ciBuf = _codeintelSvc.buf_from_koIDocument(view.koDoc);
         this.linkCurrentProjectWithBuffer(ciBuf);
         log.debug("Got buffer " + ciBuf);
         ciBuf.trg_from_pos(pos, true, function(trg) {
@@ -303,27 +289,6 @@ ko.codeintel = {};
                 return;
             }
             view._ciLastTrg = trg;
-
-            // Check if the trigger form is enabled:
-            switch (trg.form) {
-                case Ci.koICodeIntelTrigger.TRG_FORM_CPLN:
-                    if (!ko.prefs.getBoolean("codeintel_completions_enabled", true)) {
-                        return;
-                    }
-                    break;
-                case Ci.koICodeIntelTrigger.TRG_FORM_CALLTIP:
-                    if (!ko.prefs.getBoolean("codeintel_calltips_enabled", true)) {
-                        return;
-                    }
-                    break;
-                case Ci.koICodeIntelTrigger.TRG_FORM_DEFN:
-                    if (!ko.prefs.getBoolean("codeintel_goto_definition_enabled", true)) {
-                        return;
-                    }
-                    break;
-            }
-
-            // Evaluate the trigger.
             ciBuf.async_eval_at_trg(trg, view.ciCompletionUIHandler);
         }, handleError);
 
@@ -396,29 +361,29 @@ ko.codeintel = {};
      * Note that this is public and expected to be modified by extensions/scripts
      */
     this.CompletionUIHandler.prototype.types = {
-        "class":        "chrome://komodo/skin/images/codeintel/cb_class.svg",
-        "function":     "chrome://komodo/skin/images/codeintel/cb_function.svg",
-        "module":       "chrome://komodo/skin/images/codeintel/cb_module.svg",
-        "interface":    "chrome://komodo/skin/images/codeintel/cb_interface.svg",
-        "namespace":    "chrome://komodo/skin/images/codeintel/cb_namespace.svg",
-        "trait":        "chrome://komodo/skin/images/codeintel/cb_trait.svg",
-        "variable":     "chrome://komodo/skin/images/codeintel/cb_variable.svg",
-        "$variable":    "chrome://komodo/skin/images/codeintel/cb_variable_scalar.svg",
-        "@variable":    "chrome://komodo/skin/images/codeintel/cb_variable_array.svg",
-        "%variable":    "chrome://komodo/skin/images/codeintel/cb_variable_hash.svg",
-        "directory":    "chrome://komodo/skin/images/codeintel/cb_directory.svg",
-        "constant":     "chrome://komodo/skin/images/codeintel/cb_constant.svg",
+        "class":        "chrome://komodo/skin/images/cb_class.png",
+        "function":     "chrome://komodo/skin/images/cb_function.png",
+        "module":       "chrome://komodo/skin/images/cb_module.png",
+        "interface":    "chrome://komodo/skin/images/cb_interface.png",
+        "namespace":    "chrome://komodo/skin/images/cb_namespace.png",
+        "trait":        "chrome://komodo/skin/images/cb_trait.png",
+        "variable":     "chrome://komodo/skin/images/cb_variable.png",
+        "$variable":    "chrome://komodo/skin/images/cb_variable_scalar.png",
+        "@variable":    "chrome://komodo/skin/images/cb_variable_array.png",
+        "%variable":    "chrome://komodo/skin/images/cb_variable_hash.png",
+        "directory":    "chrome://komodo/skin/images/cb_directory.png",
+        "constant":     "chrome://komodo/skin/images/cb_constant.png",
         // XXX: Need a better image (a dedicated keyword image)
-        "keyword":      "chrome://komodo/skin/images/codeintel/cb_interface.svg",
+        "keyword":      "chrome://komodo/skin/images/cb_interface.png",
 
-        "element":      "chrome://komodo/skin/images/codeintel/cb_xml_element.svg",
-        "attribute":    "chrome://komodo/skin/images/codeintel/cb_xml_attribute.svg",
+        "element":      "chrome://komodo/skin/images/cb_xml_element.png",
+        "attribute":    "chrome://komodo/skin/images/cb_xml_attribute.png",
 
         // Added for CSS, may want to have a better name/images though...
-        "value":        "chrome://komodo/skin/images/codeintel/cb_variable.svg",
-        "property":     "chrome://komodo/skin/images/codeintel/cb_class.svg",
-        "pseudo-class": "chrome://komodo/skin/images/codeintel/cb_interface.svg",
-        "rule":         "chrome://komodo/skin/images/codeintel/cb_function.svg",
+        "value":        "chrome://komodo/skin/images/cb_variable.png",
+        "property":     "chrome://komodo/skin/images/cb_class.png",
+        "pseudo-class": "chrome://komodo/skin/images/cb_interface.png",
+        "rule":         "chrome://komodo/skin/images/cb_function.png",
     };
 
     this.CompletionUIHandler.prototype.observe = function(prefSet, prefName, prefSetID)
@@ -490,7 +455,7 @@ ko.codeintel = {};
                     startPos = scimoz.currentPos;
                 }
             }
-            var ciBuf = ko.codeintel._codeintelSvc.buf_from_koIDocument(this.view.koDoc);
+            var ciBuf = _codeintelSvc.buf_from_koIDocument(this.view.koDoc);
             ko.codeintel.linkCurrentProjectWithBuffer(ciBuf);
             // Hand off to language service to find and display.
             ciBuf.preceding_trg_from_pos(startPos, scimoz.currentPos, function(trg) {
@@ -629,7 +594,7 @@ ko.codeintel = {};
             return;
         }
 
-        var completionKeyCodes = [KeyEvent.DOM_VK_RETURN, KeyEvent.DOM_VK_TAB];
+        var completionKeyCodes = [KeyEvent.DOM_VK_RETURN, KeyEvent.DOM_VK_ENTER, KeyEvent.DOM_VK_TAB];
         if (completionKeyCodes.indexOf(event.keyCode) !== -1) {
             // keys that should trigger autocompletion (but only on keydown,
             // not again in keypress)
@@ -757,7 +722,7 @@ ko.codeintel = {};
                 // TODO: Would like to add the array of completion items here.
                 'trg': trg
             };
-            this.view.dispatchEvent(new CustomEvent("codeintel_autocomplete_showing", { bubbles: true, detail: data }));
+            xtk.domutils.fireDataEvent(this.view, "codeintel_autocomplete_showing", data);
 
             // Show the completions UI.
             this._lastTriggerPos = triggerPos;
@@ -1524,4 +1489,13 @@ ko.codeintel = {};
 
 }).apply(ko.codeintel);
 
-window.addEventListener("komodo-ui-started", ko.codeintel.initialize, false);
+window.addEventListener("load", ko.codeintel.initialize, false);
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative('gCodeIntelSvc', 'Components.classes["@activestate.com/koCodeIntelService;1"].getService(Components.interfaces.koICodeIntelService)');
+ko.logging.globalDeprecatedByAlternative("gCodeIntelActive", "ko.codeintel.isActive");
+ko.logging.globalDeprecatedByAlternative("CodeIntel_InitializeWindow", "ko.codeintel.initialize");
+ko.logging.globalDeprecatedByAlternative("CodeIntel_FinalizeWindow", "ko.codeintel.finalize");
+ko.logging.globalDeprecatedByAlternative("CodeIntelCompletionUIHandler", "ko.codeintel.CompletionUIHandler");

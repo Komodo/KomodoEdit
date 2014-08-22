@@ -46,6 +46,7 @@
     <!--
     NOTES:
     scintilla requires functions from:
+    chrome://komodo/content/library/color_functions.js
     chrome://xtk/content/controller.js (ForwardingController)
     -->
     <binding id="scintilla">
@@ -76,7 +77,7 @@
                     </xul:row>
                 </xul:rows>
             </xul:grid>
-            <xul:panel anonid="autocompletepopup" class="hud" noautofocus="true">
+            <xul:panel anonid="autocompletepopup" noautofocus="true">
                 <xul:hbox>
                     <xul:grid/>
                     <xul:scrollbar orient="vertical"/>
@@ -222,7 +223,7 @@
                     case 'scheme-changed':
                         // dump("applying scheme\n");
                         if (this.inited) {
-                            this.applyColorScheme();
+                            this.scheme.applyScheme(this.scimoz, this.language, this.encoding, this.alternateFaceType);
                         }
                         break;
                     case 'scrollEndAtLastLine': // pref notification
@@ -413,6 +414,11 @@
                     }
                     this._ime.value = "";
                 }).bind(this), false);
+                let prefs = Components.classes['@activestate.com/koPrefService;1']
+                                      .getService(Components.interfaces.koIPrefService).prefs;
+                this.useCustomScrollBars = prefs.getBoolean('koSkin_use_custom_scrollbars', false);
+                this.scimoz.hScrollBar = this.hScrollBar;
+                this.scimoz.vScrollBar = this.vScrollBar;
             ]]>
             </constructor>
             <destructor>
@@ -468,7 +474,11 @@
                         this.scimoz.useCustomScrollBars = true;
                         this._customScrollbarObservers = ob;
                     } else {
-                        this.scimoz.unhookEvents(this._scrollEventHandler);
+                        try {
+                            this.scimoz.unhookEvents(this._scrollEventHandler);
+                        } catch (ex) {
+                            // throws if we were never hooked
+                        }
                         this.scimoz.useCustomScrollBars = false;
                         if (this._customScrollbarObservers) {
                             this._customScrollbarObservers.horizontal.disconnect();
@@ -574,7 +584,7 @@
 <!-- #endif -->
                 scimoz.mouseDwellTime = 500;
                 scimoz.indent = 4;
-                scimoz.tabWidth = 4;
+                scimoz.tabWidth = 8;
                 scimoz.setProperty('smartCloseTags', '1');
                 scimoz.wrapVisualFlags = prefs.getLongPref("editWordWrapMarker");
                 scimoz.wrapIndentMode = prefs.getLongPref("editWordWrapIndentation");
@@ -606,33 +616,21 @@
                 scimoz.setXCaretPolicy(scimoz.CARET_SLOP, 75);
 
                 // Setup margins and markers.
-
-                // Symbol margin.
+                // - margin 0: line numbers
+                // - margin 1: folding (controlled by Python code,
+                //             koDocumentSettingsManager)
+                // - margin 2: symbols (iff this.symbolMargin)
+                var symbolMarginMask = ko.markers.setup(scimoz, this.scheme.isDarkBackground);
+                scimoz.setMarginTypeN(0, scimoz.SC_MARGIN_NUMBER);
+                scimoz.setMarginWidthN(1, 0);
                 if (this.symbolMargin) {
-                    ko.markers.setup(scimoz, this.scheme.isDarkBackground);
-                    scimoz.setMarginWidthN(scimoz.MARGIN_SYMBOLS, 16);
+                    scimoz.setMarginTypeN(2, scimoz.SC_MARGIN_SYMBOL);
+                    scimoz.setMarginMaskN(2, symbolMarginMask);
+                    scimoz.setMarginSensitiveN(2, 1);
+                    scimoz.setMarginWidthN(2, 16);
                 } else {
-                    scimoz.setMarginWidthN(scimoz.MARGIN_SYMBOLS, 0);
+                    scimoz.setMarginWidthN(2, 0);
                 }
-                scimoz.setMarginTypeN(scimoz.MARGIN_SYMBOLS, scimoz.SC_MARGIN_SYMBOL);
-                scimoz.setMarginMaskN(scimoz.MARGIN_SYMBOLS, ko.markers.MARKERS_MASK_SYMBOLS);
-                scimoz.setMarginSensitiveN(scimoz.MARGIN_SYMBOLS, 1);
-
-                // Line numbers margin.
-                scimoz.setMarginTypeN(scimoz.MARGIN_LINENUMBERS, scimoz.SC_MARGIN_NUMBER);
-                scimoz.setMarginMaskN(scimoz.MARGIN_LINENUMBERS, 0);
-                scimoz.setMarginSensitiveN(scimoz.MARGIN_LINENUMBERS, 0);
-
-                // Tracking margin.
-                scimoz.setMarginTypeN(scimoz.MARGIN_TRACKING, scimoz.SC_MARGIN_TEXT);
-                scimoz.setMarginMaskN(scimoz.MARGIN_TRACKING, 0);
-                scimoz.setMarginSensitiveN(scimoz.MARGIN_TRACKING, 1);
-
-                // Folding is initially hidden - don't know the language yet.
-                scimoz.setMarginWidthN(scimoz.MARGIN_FOLDING, 0);
-                scimoz.setMarginTypeN(scimoz.MARGIN_FOLDING, scimoz.SC_MARGIN_SYMBOL);
-                scimoz.setMarginMaskN(scimoz.MARGIN_FOLDING, scimoz.SC_MASK_FOLDERS);
-                scimoz.setMarginSensitiveN(scimoz.MARGIN_FOLDING, 1);
 
                 // Allow column editing through Scintilla.
                 scimoz.multipleSelection = false;
@@ -643,11 +641,6 @@
                 // This allows Scintilla to perform indenting/dedenting when
                 // there is a rectangular selection.
                 scimoz.tabIndents = true;
-
-                // Setup custom scroll bars.
-                this.useCustomScrollBars = prefs.getBoolean('koSkin_use_custom_scrollbars', false);
-                scimoz.hScrollBar = this.hScrollBar;
-                scimoz.vScrollBar = this.vScrollBar;
 
                 this.applyColorScheme();
 
@@ -705,20 +698,6 @@
                 // flashes of color when closing tabs - bug 97061.
                 this._embed.style.backgroundColor = this.scheme.backgroundColor;
 
-                // Set isDark attribute, for use in CSS
-                var self = this;
-                var setIsDark = function() {
-                    var isDark = require("ko/color").isDark(self.scheme.backgroundColor);
-                    self.setAttribute("isDark", isDark);
-                }
-                if ("require" in window)
-                    setIsDark();
-                else
-                {
-                    self.setAttribute("isDark", false);
-                    window.addEventListener("komodo-post-startup", setIsDark.bind(this));
-                }
-
                 // Provide background color on wrapper so scrollbars can use
                 // transparency
                 if (document.getBindingParent(this))
@@ -758,9 +737,12 @@
             </method>
 
             <method name="setFoldStyle">
+                <parameter name="whichMargin"/>
                 <parameter name="foldstyle"/>
                 <body><![CDATA[
                     var scimoz = this.scimoz;
+                    scimoz.setMarginTypeN(whichMargin, scimoz.SC_MARGIN_SYMBOL);
+                    scimoz.setMarginSensitiveN(whichMargin, whichMargin);
                     switch (foldstyle) {
                         case 'none':
                             // Handled by koDocumentSettingsManager, should not
@@ -838,11 +820,12 @@
                                                 scimoz.SC_MARK_TCORNER);
                             break;
                     }
+                    scimoz.setMarginMaskN(whichMargin, scimoz.SC_MASK_FOLDERS);
                     scimoz.setProperty("fold", "1");
                     // fold.comment allows block comment folding in some lexers.
                     scimoz.setProperty("fold.comment", "1");
-                    scimoz.setFoldFlags(scimoz.SC_FOLDFLAG_LINEAFTER_CONTRACTED);
-                    scimoz.setMarginWidthN(scimoz.MARGIN_FOLDING, 15);
+                    scimoz.setFoldFlags(16);
+                    scimoz.setMarginWidthN(whichMargin, 15);
                 ]]></body>
             </method>
 
@@ -1199,6 +1182,7 @@
 
                 // See if scintilla component uses this event
                 switch (event.keyCode) {
+                    case event.DOM_VK_ENTER:
                     case event.DOM_VK_RETURN:
                         break;
                     case event.DOM_VK_TAB:
@@ -1325,13 +1309,10 @@
                     if (addChar) {
                         // fire an event about the character being added
                         if (xtk && xtk.domutils) {
-                            this.dispatchEvent(new CustomEvent("scintilla-add-char",
-                                               {  bubbles: true,
-                                                  detail: {
-                                                    "pos": scimoz.currentPos,
-                                                    "charCode": event.charCode,
-                                                 }
-                                               }));
+                            xtk.domutils.fireDataEvent(this, "scintilla-add-char", {
+                                "pos": scimoz.currentPos,
+                                "charCode": event.charCode
+                            });
                         }
                         scimoz.addChar(event.charCode);
                     } else if (scimoz.autoCActive()) {
@@ -1836,6 +1817,9 @@
             </handler>
 
         </handlers>
+        <resources>
+            <stylesheet src="chrome://komodo/skin/codeintel/autocomplete-popup.css"/>
+        </resources>
     </binding>
 
 </bindings>

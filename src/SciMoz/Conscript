@@ -105,6 +105,8 @@ $cons->Command(
     )
 );
 
+$cons->Preprocess("ISciMoz.template.p.idl", "ISciMoz.template.idl");
+
 $cons->Command(
     "ISciMoz.idl",
     # files needed to do the generation and patching
@@ -151,24 +153,28 @@ if ($platform eq "win") {
     %consLocal = $cons->copy();
     my $LDFLAGS = $consLocal{'LDFLAGS'};
 
-    $LDFLAGS .= " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xul.lib nspr4.lib mozalloc.lib";
+    if ($mozVersionNumber le 1899) {
+	$LDFLAGS .= " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xpcom.lib nspr4.lib mozalloc.lib";
+    } else {
+	$LDFLAGS .= " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xul.lib nspr4.lib mozalloc.lib";
+    }
     foreach my $libDir (split(';', $mozLibPath)) {
         $LDFLAGS .= " /libpath:$libDir";
     }
-    $LDFLAGS .= " /DEBUG";
     $consLocal{'CPPPATH'} = [
         "$scintillaBuildDir/include",
         "helper"];
     my $CXXFLAGS = $consLocal{'CXXFLAGS'} .
         " /W3 /D_WINDOWS /DWIN32 /DXP_WIN" .
         " /FI$mozObjDir\\mozilla-config.h" .
-        " /I$mozSrc/mozilla/xpcom/ds" . # for nsObserverList.h
         " /DCONTAINER_HANDLES_EVENTS=1 /DINCLUDE_DEPRECATED_FEATURES";
 
     if ($buildType eq 'debug') {
         $CXXFLAGS .= " /ZI /Od /DDEBUG /D_DEBUG /MDd";
+        $LDFLAGS .= " /DEBUG";
     } else {
         $CXXFLAGS .= " /Ox /DNDEBUG /D_NDEBUG /MD";
+        # LDFLAGS is fine!
     }
 
     # Others parts of the build for other platforms are defining these.
@@ -212,13 +218,10 @@ if ($platform eq "win") {
         # directory before this build
         "$scintillaBuildDir/bin/SciLexer.dll"
     );
-
-    $cons->Install("$mozPluginsDir", $pluginName);
 }
 
 elsif ($platform eq "darwin") {
-    $pluginName = "SciMoz";
-    $pluginDir = "SciMoz.plugin";
+    $pluginName = "SciMoz.plugin";
 
     %consLocal = $cons->copy();
     $consLocal{'LDFLAGS'} = "-dynamic";
@@ -226,9 +229,13 @@ elsif ($platform eq "darwin") {
     $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
 #    $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
     $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozBin";
-    $consLocal{'LIBS'} .= " $mozDevelDist/bin/XUL $mozDevelDist/lib/libxpcomglue_s.a -lnspr4 -lmozalloc ";
+    if ($mozVersionNumber le 1899) {
+	$consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a -lxpcom -lnspr4 -lmozalloc ";
+    } else {
+	$consLocal{'LIBS'} .= " $mozDevelDist/bin/XUL $mozDevelDist/lib/libxpcomglue_s.a -lnspr4 -lmozalloc ";
+    }
     # add required frameworks
-    $consLocal{'LIBS'} .= " -framework CoreFoundation ";
+    $consLocal{'LIBS'} .= "-framework Carbon -framework CoreFoundation ";
     # scintilla
     
 
@@ -250,9 +257,12 @@ elsif ($platform eq "darwin") {
     $consLocal{'CXXFLAGS'} .= "-DXP_MACOSX_USE_CORE_ANIMATION ";
     $consLocal{'CXXFLAGS'} .= "-DXP_MACOSX_USE_INVALIDATING_CORE_ANIMATION ";
 
+    $consLocal{'CXXFLAGS'} .= " -include Carbon/Carbon.h ";
+
     # Ensure that these are defined for use by mozilla headers
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
-        " -I$mozSrc/mozilla/xpcom/ds";
+        " -I$mozSrc/mozilla/xpcom/ds" .
+	" -I/Developer/Headers/FlatCarbon";
 
     if ($buildType eq 'debug') {
         $consLocal{'CXXFLAGS'} .= " -g";
@@ -276,7 +286,7 @@ elsif ($platform eq "darwin") {
 		   (qq($unsiloedPythonExe util/objective_c_wrap.py %1 %0)));
 
     $consLocal->Program(
-	$pluginName,
+	"SciMoz",
 	"plugin.mm",
         "npn_gate.cpp",
 	"nsSciMoz.mm",
@@ -287,7 +297,7 @@ elsif ($platform eq "darwin") {
 
     # here we build the bundle package
     # we also manually install since installRecursive likes to mess on up this.
-    $cons->Command("$pluginDir/Contents/MacOS/SciMoz",
+    $cons->Command("$pluginName/Contents/MacOS/SciMoz",
 		"SciMoz.r",
 		"Info.plist",
 		"English.lproj/InfoPlist.strings",
@@ -304,10 +314,10 @@ $unsiloedPythonExe bin/run-in-dir.py %1:d chmod u+w SciMoz.plugin/Contents/Info.
 $unsiloedPythonExe bin/run-in-dir.py %1:d cp -R English.lproj SciMoz.plugin/Contents/Resources
 $unsiloedPythonExe bin/run-in-dir.py %1:d cp SciMoz SciMoz.plugin/Contents/MacOS/SciMoz
 $unsiloedPythonExe bin/run-in-dir.py %1:d chmod -R a+r SciMoz.plugin
-$unsiloedPythonExe bin/run-in-dir.py %1:d rm -rf $mozPluginsDir/$pluginDir
+$unsiloedPythonExe bin/run-in-dir.py %1:d rm -rf $mozPluginsDir/$pluginName
 $unsiloedPythonExe bin/run-in-dir.py %1:d mkdir -p $mozPluginsDir
-$unsiloedPythonExe bin/run-in-dir.py %1:d cp -R SciMoz.plugin $mozPluginsDir/$pluginDir
-chmod a+rX $mozPluginsDir/$pluginDir
+$unsiloedPythonExe bin/run-in-dir.py %1:d cp -R SciMoz.plugin $mozPluginsDir/$pluginName
+chmod a+rX $mozPluginsDir/$pluginName
                    )
 		));
 
@@ -320,7 +330,11 @@ else {
     # PCRE is built from contrib/pcre and is required by LexUDL.
     $consLocal{'LIBS'} .= " $xScintillaBuildDir/gtk/libpcre.a";
     $consLocal{'LIBS'} .= " `pkg-config --libs gthread-2.0 gtk+-2.0 gmodule-no-export-2.0`";
-    $consLocal{'LIBS'} .= " -lxpcomglue_s -lxul -lmozalloc -lplds4 -lplc4 -lnspr4 ";
+    if ($mozVersionNumber le 1899) {
+	$consLocal{'LIBS'} .= " -lxpcomglue_s -lxpcom -lmozalloc -lplds4 -lplc4 -lnspr4 ";
+    } else {
+	$consLocal{'LIBS'} .= " -lxpcomglue_s -lxul -lmozalloc -lplds4 -lplc4 -lnspr4 ";
+    }
     $consLocal{'LDFLAGS'} = " -fPIC -Wl,-z,defs -shared";
 
     $consLocal{'CPPPATH'} = "$mozIncludePath:$scintillaBuildDir/include";
@@ -333,7 +347,6 @@ else {
     # Add the global FLAGS.
     $consLocal{'CXXFLAGS'} .= $consLocal{ENV}{'CXXFLAGS'};
     $consLocal{'CFLAGS'} = $consLocal{ENV}{'CFLAGS'};
-    $consLocal{'LDFLAGS'} = $consLocal{'LDFLAGS'} . " " . $consLocal{ENV}{'LDFLAGS'};
 
     # Ensure that these are defined for use by mozilla headers
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
@@ -384,80 +397,55 @@ else {
         "sendscintilla.cxx",
     );
 
+    if ($withTests) {
+	#
+	# Headless SciMoz.
+	#
+	# Build the same as regular SciMoz, but with these slight variations:
+	#   1) copy necessary scimoz files into a separate "headless" build
+	#      directory - this is so Cons doesn't think were building the same
+	#      file twice. Preprocess is used for this copying, there is likely
+	#      a better way.
+	#   2) define HEADLESS_SCIMOZ for code variation
+	#   3) link with the headlessscintilla library
+	#   4) create headless SciMoz xpcom component, instead of plugin object
+	#
+
+	my $headlessSciMoz = "headless/libkoScimozHeadless.so";
+	my %consHeadless = $consLocal->copy();
+	my $scintillaRealDir = substr $scintillaBuildDir, 1;  # starts with special cons "#" marker otherwise
+	$consHeadless{'LIBS'} =~ s/scintilla\.a/headlessscintilla.a/;
+	$consHeadless{'CXXFLAGS'} = "-I$scintillaRealDir/headless -I$scintillaRealDir/src " . $consHeadless{'CXXFLAGS'};
+	$consHeadless{'CXXFLAGS'} .= " -DHEADLESS_SCIMOZ";
+	$consHeadless{'CXXFLAGS'} .= " -I$scintillaRealDir/../SciMoz";
+	$consHeadless = new cons(%consHeadless);
+	$consHeadless->Depends($headlessSciMoz, "$scintillaBuildDir/bin/headlessscintilla.a");
+	$consHeadless->Preprocess("plugin.cxx", "headless/plugin.cxx");
+	$consHeadless->Preprocess("npn_gate.cpp", "headless/npn_gate.cpp");
+	$consHeadless->Preprocess("nsSciMoz.cxx", "headless/nsSciMoz.cxx");
+	$consHeadless->Preprocess("nsSciMozHeadless.cxx", "headless/nsSciMozHeadless.cxx");
+	$consHeadless->Preprocess("SciMozEvents.cxx", "headless/SciMozEvents.cxx");
+	$consHeadless->Preprocess("sendscintilla.cxx", "headless/sendscintilla.cxx");
+	$consHeadless->Program($headlessSciMoz,
+	    "headless/plugin.cxx",
+	    "headless/npn_gate.cpp",
+	    # nsSciMoz.cxx needs to be after nsSciMozHeadless.cxx because GNU
+	    # ld doesn't search for symbols in previous archives;
+	    # see bug 95927 comment 12
+	    "headless/nsSciMozHeadless.cxx",
+	    "headless/nsSciMoz.cxx",
+	    "headless/SciMozEvents.cxx",
+	    "headless/sendscintilla.cxx",
+	);
+	$consHeadless->Depends($headlessSciMoz, "sendscintilla.h");
+	$consHeadless->Depends($headlessSciMoz, "nsSciMoz.h");
+	$consHeadless->Depends($headlessSciMoz, $pluginName); # build real SciMoz first
+
+	$consHeadless->InstallXpcomComponent($headlessSciMoz);
+    }
+}
+
+if ($platform eq "darwin") {
+} else {
     $cons->Install("$mozPluginsDir", $pluginName);
 }
-
-
-
-if ($withTests && $platform ne "win") {
-    #
-    # Headless SciMoz.
-    #
-    # Build the same as regular SciMoz, but with these slight variations:
-    #   1) copy necessary scimoz files into a separate "headless" build
-    #      directory - this is so Cons doesn't think were building the same
-    #      file twice. Preprocess is used for this copying, there is likely
-    #      a better way.
-    #   2) define HEADLESS_SCIMOZ for code variation
-    #   3) link with the headlessscintilla library
-    #   4) create headless SciMoz xpcom component, instead of plugin object
-    #
-
-    my $headlessLibName = "headlessscintilla.a";
-    my $dll_ext = "so";
-    my $c_ext = "cxx";
-    if ($platform eq "darwin") {
-	$dll_ext = "dylib";
-        $c_ext = "mm";
-    }
-
-    my $headlessSciMoz = "headless/libkoScimozHeadless.$dll_ext";
-    my %consHeadless = $consLocal->copy();
-    my $scintillaRealDir = substr $scintillaBuildDir, 1;  # starts with special cons "#" marker otherwise
-
-    $consHeadless{'CXXFLAGS'} = "-I$scintillaRealDir/headless -I$scintillaRealDir/src " . $consHeadless{'CXXFLAGS'};
-    $consHeadless{'CXXFLAGS'} .= " -DHEADLESS_SCIMOZ";
-    $consHeadless{'CXXFLAGS'} .= " -I$scintillaRealDir/../SciMoz";
-
-    if ($platform eq "linux") {
-	# Linux tweaks.
-	$consHeadless{'LIBS'} =~ s/scintilla\.a/headlessscintilla.a/;
-	# Ensure to hide symbol names by default.
-	$consHeadless{'CXXFLAGS'} .= " -fvisibility=hidden";
-    }
-
-    if ($platform eq "darwin") {
-	# Mac tweaks
-	$consHeadless{'LIBS'} =~ s/ -lscintilla//;   # Mac
-	$consHeadless{'LIBS'} .= " $xScintillaBuildDir/bin/headlessscintilla.a";
-	$consHeadless{'LIBS'} .= " $xScintillaBuildDir/cocoa/libpcre.a";
-	# Ensure to hide symbol names by default.
-	$consHeadless{'CXXFLAGS'} .= " -fvisibility=hidden";
-    }
-
-    $consHeadless = new cons(%consHeadless);
-    $consHeadless->Preprocess("plugin.cxx", "headless/plugin.cxx");
-    $consHeadless->Preprocess("npn_gate.cpp", "headless/npn_gate.cpp");
-    $consHeadless->Preprocess("nsSciMoz.cxx", "headless/nsSciMoz.cxx");
-    $consHeadless->Preprocess("nsSciMozHeadless.cxx", "headless/nsSciMozHeadless.$c_ext");
-    $consHeadless->Preprocess("SciMozEvents.cxx", "headless/SciMozEvents.cxx");
-    $consHeadless->Preprocess("sendscintilla.cxx", "headless/sendscintilla.$c_ext");
-
-    $consHeadless->Program($headlessSciMoz,
-	# nsSciMoz.cxx needs to be after nsSciMozHeadless.cxx because GNU
-	# ld doesn't search for symbols in previous archives;
-	# see bug 95927 comment 12
-	"headless/nsSciMozHeadless.$c_ext",
-	"headless/nsSciMoz.cxx",
-	"headless/SciMozEvents.cxx",
-	"headless/sendscintilla.$c_ext",
-    );
-    $consHeadless->Depends($headlessSciMoz, "sendscintilla.h");
-    $consHeadless->Depends($headlessSciMoz, "nsSciMoz.h");
-    $consHeadless->Depends($headlessSciMoz, $pluginName); # build real SciMoz first
-    $consHeadless->Depends($headlessSciMoz, "$scintillaBuildDir/bin/$headlessLibName");
-
-    $consHeadless->InstallXpcomComponent($headlessSciMoz);
-}
-
-

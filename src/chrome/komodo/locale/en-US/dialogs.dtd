@@ -68,6 +68,7 @@
 <!ENTITY donTShowMeThisAgain.label "Don't show me this again.">
 <!ENTITY escapedPercentSign.label "[[&#37;&#37;]] : escaped percent sign">
 <!ENTITY fFileBaseName.label "[[&#37;f]] : file base name">
+<!ENTITY famFamFamSilkIcons.label "FamFamFam Silk Icons (1000 icons)">
 <!ENTITY icomoon.label "IcoMoon (1000+ icons)">
 <!ENTITY featureControlPanel.title "Feature Control Panel">
 <!ENTITY globalPreferences.label "Global Preferences">
@@ -78,6 +79,7 @@
 <!ENTITY loginAnonymously.label "Login Anonymously">
 <!ENTITY mapsTo.label "Maps to:">
 <!ENTITY nextDiff.label "Next Diff">
+<!ENTITY openOfficeIcons.label "Open Office Icons (670 icons)">
 <!ENTITY pDirectoryPathOfTheActiveProject.label "[[&#37;p]]: directory path of the active project">
 <!ENTITY passwordLabel.accesskey "P">
 <!ENTITY perlConfiguredPerlInterpreter.label "[[&#37;perl]] : Configured Perl Interpreter">

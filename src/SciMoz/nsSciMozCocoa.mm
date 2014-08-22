@@ -185,6 +185,10 @@ NS_IMETHODIMP SciMoz::AddChar(PRUint32 ch) {
     return NS_OK;
 }
 
+extern "C" {
+extern NSObject* scintilla_new(void);
+}
+
 void SciMoz::NotifySignal(intptr_t windowid, unsigned int iMessage, uintptr_t wParam, uintptr_t lParam) {
     if (iMessage == WM_NOTIFY) {
         SciMoz *s = reinterpret_cast<SciMoz *>(windowid);

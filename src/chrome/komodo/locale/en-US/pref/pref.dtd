@@ -37,7 +37,7 @@
 <!ENTITY % autoAbbreviationName.name                "Auto-Abbreviation">
 <!ENTITY connection.label                "Connection">
 
-<!ENTITY connectionDesc.label            "Configure HTTP Proxy settings for how Komodo connects to the Internet for updates, HTML Preview, etc.">
+<!ENTITY connectionDesc.label            "Configure how Komodo connects to the Internet for updates, HTML Preview, etc.">
 <!ENTITY connectionSettings.label        "Settings...">
 <!ENTITY connectionSettings.accesskey    "e">
 
@@ -255,6 +255,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filteredTreeView.tooltiptext "Type space-separated words in preference pages">
 <!ENTITY fixedWidth.label "Fixed width">
 <!ENTITY foldSeparateBlockParts.label "Fold Separate Block Parts">
+<!ENTITY folderPropertiesAndSettings.title "Folder Properties and Settings">
 <!ENTITY folding.label "Folding">
 <!ENTITY foldMarginColor.label "Fold margin color">
 <!ENTITY fonts.accesskey "F">
@@ -383,8 +384,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY properties.label "Properties">
 <!ENTITY proportional.label "Proportional">
 <!ENTITY pyflakesChecking.label "Pyflakes Checking">
-<!ENTITY pep8CheckingStatus.label "Do pep8 Checking">
-<!ENTITY pep8RCFileLocation.label "Location of pep8 config file to use">
 <!ENTITY pylintCheckingStatus.label "Do Pylint Checking">
 <!ENTITY pylintRCFileLocation.label "Location of .pylintrc file to use">
 <!ENTITY pyPython.label ".py: Python">
@@ -450,7 +449,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY update.label "Update">
 <!ENTITY updateFileStatusAutomatically.label "Update file status automatically">
 <!ENTITY useEmacsStyleLocalModeVariableModeLocalVariables.label "Use Emacs-style local 'mode' variable (-*- mode: ... -*-, Local Variables: ...)">
-<!ENTITY preferJavaScriptOverNode.label "Prefer JavaScript over Node.js">
 <!ENTITY useFileContentToDetermineLanguage.label "Use File Content to Determine Language">
 <!ENTITY useHorizontalLineOnFolds.label "Use horizontal line on folds">
 <!ENTITY useShebangLine.label "Use shebang line (#!...)">
@@ -523,7 +521,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filPrefAllLangForeText "Fore:">
 <!ENTITY filPrefAllLangBackText "Back:">
 <!ENTITY filePrefAllLangProportional.label "Proportional:">
-<!ENTITY lineSpacing.label "Line Spacing:">
 <!ENTITY chooseColorEditorElement.description "Choose colors for Komodo's editor elements (i.e. anything in the editor that is not syntax coloring).">
 <!ENTITY filePrefAllLangColorChoice.label "Color choice:">
 <!ENTITY filePrefAllLangColorChoice.accesskey "h">

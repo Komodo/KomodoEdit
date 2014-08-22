@@ -9,15 +9,17 @@ https://github.com/Komodo in case you only want to contribute to a specific
 component. This'll save you some time and hassle as you would not have to build
 the entire project.
 
+Komodo Edit is the open-source version of Komodo IDE, any contributions made to
+Komodo Edit will also be added to Komodo IDE. [You can check the differences between the two versions here](http://www.activestate.com/komodo-edit/compare-with-komodo-ide).
+
 ## Table of Contents
 
 - [Screenshot](#screenshot)
 - [Download](#download)
 - [Feedback](#feedback)
 - [Building Komodo](#building-komodo)
-    - [Building with Docker](#building-on-docker)
     - [Building on Windows](#building-on-windows)
-    - [Building on Mac & Linux](#building-on-mac-&-linux)
+    - [Building on Mac & Windows](#building-on-mac-&-windows)
     - [Building Complications](#building-complications)
 
 ## Screenshot
@@ -49,42 +51,6 @@ Mailing Lists: [komodo-discuss](http://code.activestate.com/lists/komodo-discuss
 Note that these are simplified steps of the building process, for a more in-depth
 guide check <BUILD.txt>.
 
-### Building with Docker
-
-The easiest way to get started is to use our Docker image, this will basically
-provide you with a Ubuntu 12.04 based build of Komodo.
-
-After cloning the repository simply navigate into {repo}/util/docker and check
-out `./docklet --help`
-
-To use the docker image you need to of course have Docker installed as well as
-have X11 forwarding enabled in your SSH client (should work by default on most
-linux distros).
-
-#### Prepare Docker Image
-
- * Build the docker image: `./docklet build`
- * Start your container: `./docklet start`
- * SSH into your container to start working: `./docklet ssh`
-
-Your project files will be mounted at `/komodo/dev`
-
-NOTE - if you are updating from a previous version where your project files were
-at `/root/komodo` you will need to fix permissions on your Komodo project and
-profile folders. Ie:
-
-```
-chown -R <my-username>:<my-group> <my-project-location>
-chown -R <my-username>:<my-group> ~/.komodoide
-```
-
-You will also need to redo your build (distclean mozilla and komodo).
-
-#### Building Steps
-
-Once your image is prepared you can follow the building steps for linux as
-described below.
-
 ### Building on Windows
 
 - [Prerequisites](#prerequisites)
@@ -115,7 +81,7 @@ steps is *meant to be sufficient* to get Komodo building.
    ```
     cd mozilla
     setenv-moz-msvc11.bat
-    python build.py configure -k 9.10
+    python build.py configure -k 8.10
     python build.py distclean all
    ```
 
@@ -123,13 +89,13 @@ steps is *meant to be sufficient* to get Komodo building.
    to several hours to complete (depending on your specs). For most modern
    machines it should be about an hour.
 
- * After mozilla is built successfully go back to the main repo directory and
+ * After mozilla is built successfully go abck to the main repo directory and
    build komodo:
 
    ```
     cd ..
     set PATH=util\black;%PATH%
-    bk configure -V 9.10.0-devel
+    bk configure -V 8.10.0-devel
     bk build
    ```
 
@@ -204,7 +170,7 @@ above steps is *meant to be sufficient* to get Komodo building.
 
    ```
     cd komodo/mozilla
-    python build.py configure -k 9.10
+    python build.py configure -k 8.10
     python build.py distclean all
    ```
 
@@ -212,13 +178,13 @@ above steps is *meant to be sufficient* to get Komodo building.
    to several hours to complete (depending on your specs). For most modern
    machines it should be about an hour.
 
- * After mozilla is built successfully go back to the main repo directory and
+ * After mozilla is built successfully go abck to the main repo directory and
    build komodo:
 
    ```
     cd ..
     export PATH=`pwd`/util/black:$PATH   # Komodo's "bk" build tool
-    bk configure -V 9.10.0-devel
+    bk configure -V 8.10.0-devel
     bk build
    ```
 

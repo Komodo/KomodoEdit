@@ -75,16 +75,8 @@ interface koIScintillaScheme : nsISupports {
     void revert();
     void remove();
     
-    /**
-     * Gets or sets the hex color, in RGB color format - e.g. "#FF9600".
-     */
     string getColor(in string colorname);
     void setColor(in string colorname, in string colorvalue);
-
-    /**
-     * Get the color as a long integer, in BGR color format.
-     */
-    long getScintillaColor(in string colorname);
 
     void setFore(in string language, /* null means common styles */
                  in string styleId,
@@ -98,8 +90,7 @@ interface koIScintillaScheme : nsISupports {
     void setItalic(in string language, /* null means common styles */
                    in string styleId,
                    in boolean italic);
-    void setFont(in string styleId, in string face);
-    void setLineSpacing(in string styleId, in long spacing);
+    void setFont(in string styleId, in string face); 
     void setFaceType(in string language, in string styleId, in boolean useFixed); 
     void setSize(in string language, /* null means common styles */
                  in string styleId, /* null means default */
@@ -115,9 +106,7 @@ interface koIScintillaScheme : nsISupports {
                  in string styleId);
     boolean getItalic(in string language, /* null means common styles */
                       in string styleId);
-    string getFont(in string styleId,      /* encoding_fixed|proportional */
-                   [optional] in boolean fontstack);
-    long getLineSpacing(in string styleId);
+    string getFont(in string styleId); /* encoding_fixed|proportional */
     boolean getFaceType(in string language, /* null means common styles */
                         in string styleId); /* null means default */
     long getSize(in string language, /* null means common styles */

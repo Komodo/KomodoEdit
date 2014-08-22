@@ -24,7 +24,7 @@
 
 """Self-tests for Crypto.Random.Fortuna.FortunaAccumulator"""
 
-__revision__ = "$Id$"
+__revision__ = "$Id: test_FortunaAccumulator.py 4769 2010-04-09 17:53:50Z toddw $"
 
 from Crypto.Util.python_compat import *
 
