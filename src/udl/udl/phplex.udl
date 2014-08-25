@@ -52,41 +52,56 @@ keyword_style SSL_IDENTIFIER => SSL_WORD
 
 # From Komodo's koPHPLanguage.py
 # From http://www.php.net/manual/en/language.types.boolean.php
-# recognition of 'true' and 'false' is case-insensitive!
+#
+# Recognition of keywords and functions is case-insensitive! So we
+# hack around UDL's case sensitivity v's PHP's case-insensitivy.
 
 keywords [
                 # http://www.php.net/manual/en/reserved.keywords.php
                 # new to php 5.5
                 "finally", "yield",
-                "FINALLY", "YIELD",
+                    "Finally", "Yield",
+                        "FINALLY", "YIELD",
                 # new to php 5.4
                 "insteadof", "trait",
-                "INSTEADOF", "TRAIT",
+                    "Insteadof", "Trait",
+                        "INSTEADOF", "TRAIT",
                 # new to php 5.3
                 "__dir__", "__namespace__",
                 "e_deprecated", "e_user_deprecated", "php_maxpathlen",
                 "goto", "namespace",
-                "__DIR__", "__NAMESPACE__",
-                "E_DEPRECATED", "E_USER_DEPRECATED", "PHP_MAXPATHLEN",
-                "GOTO", "NAMESPACE",
+                    "__Dir__", "__Namespace__",
+                    "E_deprecated", "E_user_deprecated", "Php_maxpathlen",
+                    "Goto", "Namespace",
+                        "__DIR__", "__NAMESPACE__",
+                        "E_DEPRECATED", "E_USER_DEPRECATED", "PHP_MAXPATHLEN",
+                        "GOTO", "NAMESPACE",
                 # new to php5
                 "clone",
                 "public", "private", "protected", "final",
                 "abstract", "interface", "implements",
                 "try", "catch", "throw", "instanceof",
-                "CLONE",
-                "PUBLIC", "PRIVATE", "PROTECTED", "FINAL",
-                "ABSTRACT", "INTERFACE", "IMPLEMENTS",
-                "TRY", "CATCH", "THROW", "INSTANCEOF",
+                    "Clone",
+                    "Public", "Private", "Protected", "Final",
+                    "Abstract", "Interface", "Implements",
+                    "Try", "Catch", "Throw", "Instanceof",
+                        "CLONE",
+                        "PUBLIC", "PRIVATE", "PROTECTED", "FINAL",
+                        "ABSTRACT", "INTERFACE", "IMPLEMENTS",
+                        "TRY", "CATCH", "THROW", "INSTANCEOF",
                 # existed in php4
                 "define", "true", "false", 
                 "int", "integer", "real", "double",
                 "float", "string",  "object", "bool", "boolean",
                 "this", "virtual", "parent", "null",
-                "DEFINE", "TRUE", "FALSE", 
-                "INT", "INTEGER", "REAL", "DOUBLE",
-                "FLOAT", "STRING",  "OBJECT", "BOOL", "BOOLEAN",
-                "THIS", "VIRTUAL", "PARENT", "NULL",
+                    "Define", "True", "False", 
+                    "Int", "Integer", "Real", "Double",
+                    "Float", "String",  "Object", "Bool", "Boolean",
+                    "This", "Virtual", "Parent", "Null",
+                        "DEFINE", "TRUE", "FALSE", 
+                        "INT", "INTEGER", "REAL", "DOUBLE",
+                        "FLOAT", "STRING",  "OBJECT", "BOOL", "BOOLEAN",
+                        "THIS", "VIRTUAL", "PARENT", "NULL",
                 # general keywords
                 "and", "or", "xor",
                 "__file__", "__line__", "__function__", "__class__",
@@ -100,22 +115,30 @@ keywords [
                 "new", "old_function", "print", "require", "require_once",
                 "return", "static", "switch", "unset", "use",
                 "var", "while",
-                # Hack to work around UDL's case sensitivity v's PHP's
-                # case-insensitivy.
-                "TRUE", "FALSE", "NULL",
-                # Uppercased general keywords
-                "AND", "OR", "XOR",
-                "__FILE__", "__LINE__", "__FUNCTION__", "__CLASS__",
-                "ARRAY", "AS", "BREAK", "CASE", "CFUNCTION",
-                "CLASS", "CONST", "CONTINUE", "DECLARE"
-                "DEFAULT", "DIE", "DO", "ECHO", "ELSE",
-                "ELSEIF", "EMPTY", "ENDDECLARE", "ENDFOR", "ENDFOREACH",
-                "ENDIF", "ENDSWITCH", "ENDWHILE", "EVAL", "EXIT",
-                "EXTENDS", "FOR", "FOREACH", "FUNCTION", "GLOBAL",
-                "IF", "INCLUDE", "INCLUDE_ONCE", "ISSET", "LIST",
-                "NEW", "OLD_FUNCTION", "PRINT", "REQUIRE", "REQUIRE_ONCE",
-                "RETURN", "STATIC", "SWITCH", "UNSET", "USE",
-                "VAR", "WHILE",
+                    "And", "Or", "xor",
+                    "__file__", "__line__", "__function__", "__class__",
+                    "Array", "As", "Break", "Case", "Cfunction",
+                    "Class", "Const", "Continue", "Declare"
+                    "Default", "Die", "Do", "Echo", "Else",
+                    "Elseif", "Empty", "Enddeclare", "Endfor", "Endforeach",
+                    "Endif", "Endswitch", "Endwhile", "Eval", "Exit",
+                    "Extends", "For", "Foreach", "Function", "Global",
+                    "If", "Include", "Include_once", "Isset", "List",
+                    "New", "Old_function", "Print", "Require", "Require_once",
+                    "Return", "Static", "Switch", "Unset", "Use",
+                    "Var", "While",
+                        "AND", "OR", "XOR",
+                        "__FILE__", "__LINE__", "__FUNCTION__", "__CLASS__",
+                        "ARRAY", "AS", "BREAK", "CASE", "CFUNCTION",
+                        "CLASS", "CONST", "CONTINUE", "DECLARE"
+                        "DEFAULT", "DIE", "DO", "ECHO", "ELSE",
+                        "ELSEIF", "EMPTY", "ENDDECLARE", "ENDFOR", "ENDFOREACH",
+                        "ENDIF", "ENDSWITCH", "ENDWHILE", "EVAL", "EXIT",
+                        "EXTENDS", "FOR", "FOREACH", "FUNCTION", "GLOBAL",
+                        "IF", "INCLUDE", "INCLUDE_ONCE", "ISSET", "LIST",
+                        "NEW", "OLD_FUNCTION", "PRINT", "REQUIRE", "REQUIRE_ONCE",
+                        "RETURN", "STATIC", "SWITCH", "UNSET", "USE",
+                        "VAR", "WHILE",
                 # http://www.php.net/manual/en/reserved.constants.php
                 # Note: These constants should only be upper-case.
                 "PHP_VERSION",
