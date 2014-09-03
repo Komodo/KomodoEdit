@@ -9,6 +9,13 @@ interface koIScopeFiles: nsISupports {
 
     void buildCache(in AString path, in AString opts);
 
+    // Each time the shortcuts file is modified, the version will be
+    // incremented. This is used to determine if need to pass all shortcut info
+    // through XPCOM (Python > JS).
+    readonly attribute long shortcutsVersion;
+    // getShortcuts returns a json map { name: path }.
+    AString getShortcutsAsJson();
+
     void search(in AString query,
                 in AString searchUuid,
                 in AString path,

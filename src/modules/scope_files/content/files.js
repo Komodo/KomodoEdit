@@ -17,40 +17,19 @@
 
     var local = {warned: {}};
 
+    // Shortcut cache variables.
+    var shortcutsVersion = -1;
+    var shortcutsCache = {};
+
     var getShortcuts = function()
     {
-        if ( ! ("cached" in getShortcuts))
-        {
-            getShortcuts.cached =
-            {
-                "~":    system.pathFor("Home")
-            };
-
-            try
-            {
-                var xmlData = ioFile.open("~/.go/shortcuts.xml").read();
-                var parser = new window.DOMParser();
-                var xmlDom = parser.parseFromString(xmlData, "text/xml");
-                var children = xmlDom.firstChild.children;
-                for (var i = 0; i < children.length; i++)
-                {
-                    var child = children[i];
-                    getShortcuts.cached[child.getAttribute("name")] = child.getAttribute("value");
-                }
-            }
-            catch (e)
-            {
-                log.warn("Could not read gotool shortcuts.xml: " + e.message);
-            }
+        // Reload shortcuts when a change is detected.
+        var scopeVersion = scope.shortcutsVersion;
+        if (shortcutsVersion != scopeVersion) {
+            shortcutsCache = JSON.parse(scope.getShortcutsAsJson());
+            scopeVersion = scopeVersion;
         }
-
-        return getShortcuts.cached;
-    }
-
-    var getShortcut = function(key)
-    {
-        var shortcuts = getShortcuts();
-        return shortcuts[key] || false;
+        return shortcutsCache;
     }
 
     var parsePaths = function(query, subscope, opts)
@@ -65,13 +44,16 @@
         var recursive = _query.length >= 1 ? !! _query.slice(-1)[0].match(/^\W/) : false;
         
         // Shortcuts
-        var shortcuts = getShortcuts();
-        if (query.match(/^[\w~%_\-]+(?:\/|\\)/) && (_query[0] in shortcuts))
-        {
-            log.debug("Running query against shortcuts");
-
-            query = query.replace(_query[0], shortcuts[_query[0]]);
-            return parsePaths(query, subscope, opts);
+        if (opts["allowShortcuts"]) {
+            var shortcuts = getShortcuts();
+            if (query.match(/^[\w~%_\-]+(?:\/|\\)/) && (_query[0] in shortcuts))
+            {
+                log.debug("Running query against shortcuts");
+    
+                query = query.replace(_query[0], shortcuts[_query[0]]);
+                opts["allowShortcuts"] = false;
+                return parsePaths(query, subscope, opts);
+            }
         }
 
         // Absolute paths
@@ -200,7 +182,8 @@
         activeUuid = uuid;
 
         var opts = {
-            "maxresults": ko.prefs.getLong("commando_search_max_results", 100)
+            "maxresults": ko.prefs.getLong("commando_search_max_results", 100),
+            "allowShortcuts": ko.prefs.getBoolean("commando_allow_shortcuts", true),
         }
 
         // Detect directory to search in

@@ -6,6 +6,8 @@
 
 """The main PyXPCOM module for Commando's Files scope"""
 
+from os.path import exists, expanduser, join
+import sys
 from xpcom.components import interfaces as Ci
 from xpcom.components import classes as Cc
 from xpcom import components
@@ -54,6 +56,7 @@ class koScopeFiles:
         opts = json.loads(opts)
         opts["uuid"] = uuid
         opts["callback"] = callback
+        opts["getShortcuts"] = self.getShortcuts
 
         self.searches[uuid] = Searcher(opts, self.onSearchResults, self.onSearchComplete)
         t = threading.Thread(target=self.searches[uuid].start, args=(query, path),
@@ -81,6 +84,70 @@ class koScopeFiles:
                              name="Scope files build cache")
         t.setDaemon(True)
         t.start()
+
+    # Based on the equiv in go.py.
+    def getShortcutsFile(self):
+        """Return the path to the shortcuts file."""
+        fname = "shortcuts.xml"
+        # Find go's shortcuts data file.
+        # - Favour ~/.go if shortcuts.xml already exists there.
+        path = None
+        candidate = expanduser("~/.go/shortcuts.xml")
+        if exists(candidate):
+            path = candidate
+
+        try:
+            import applib
+        except ImportError:
+            # Probably running directly in source tree.
+            sys.path.insert(0, join(dirname(dirname(dirname(dirname(abspath(__file__))))),
+                "python-sitelib"))
+            import applib
+        if path is None:
+            godir = applib.roaming_user_data_dir("Go", "TrentMick")
+            path = join(godir, "shortcuts.xml")
+        return path
+
+    def onShortcutFileModified(self, *args):
+        self.shortcutsVersion += 1
+        self._shortcutsCache = None
+
+    shortcutsVersion = 1
+    _shortcutsCache = None
+    _shortcutsObserverAdded = False
+    def getShortcuts(self):
+        if self._shortcutsCache is None:
+            from xml.etree import ElementTree as ET
+            path = self.getShortcutsFile()
+            if not path or not exists(path):
+                return {}
+            try:
+                fin = open(path)
+            except IOError:
+                log.exception("Unable to open shortcuts file: %r", path)
+                return {}
+            try:
+                shortcuts = {}
+                shortcuts_elem = ET.parse(fin).getroot()
+                for child in shortcuts_elem:
+                    shortcuts[child.get("name")] = child.get("value")
+            finally:
+                fin.close()
+            self._shortcutsCache = shortcuts
+
+            # Watch for changes to the shortcut file and reload it when changed.
+            if not self._shortcutsObserverAdded:
+                self._shortcutsObserverAdded = True
+                fileNotificationSvc = Cc["@activestate.com/koFileNotificationService;1"].getService(Ci.koIFileNotificationService)
+                fileNotificationSvc.addObserver(self.onShortcutFileModified,
+                                                path,
+                                                fileNotificationSvc.WATCH_FILE,
+                                                fileNotificationSvc.FS_NOTIFY_ALL)
+
+        return self._shortcutsCache
+
+    def getShortcutsAsJson(self):
+        return json.dumps(self.getShortcuts())
 
 class Searcher:
 
@@ -121,6 +188,10 @@ class Searcher:
                 words.append(re.escape(word))
 
             self.opts["queryRe"] = re.compile("("+ "|".join(words) +")", re.IGNORECASE)
+        
+        # Check shortcuts - and we only care about the first word.
+        if self.opts.get("allowShortcuts") and len(self.opts["query"]) == 1:
+            self.searchShortcuts(self.opts["query"][0])
 
         # Prepate Path
         self.opts["path"] = path
@@ -128,6 +199,29 @@ class Searcher:
 
         self.walker = Walker(self.opts, self.onWalk, self.onWalkComplete)
         self.walker.start(path)
+
+    def searchShortcuts(self, word):
+        getShortcuts = self.opts.get("getShortcuts")
+        if getShortcuts:
+            shortcuts = getShortcuts()
+            log.debug("%d shortcuts loaded", len(shortcuts))
+            for name, path in shortcuts.items():
+                if not name.startswith(word):
+                    continue
+                log.debug("shortcut name matched: %r - %r", name, path)
+                resulttype = "dir"
+                if os.path.isfile(path):
+                    resulttype = "file"
+                description = "Komodo shortcut - " + path
+                result = [
+                    name,
+                    path,
+                    name,        # relative path
+                    resulttype,  # type
+                    description, # description
+                    200,         # score, shortcuts are always relevant
+                ]
+                self.returnResult(result)
 
     def onWalk(self, path, dirnames, filenames):
         for filename in dirnames + filenames:
