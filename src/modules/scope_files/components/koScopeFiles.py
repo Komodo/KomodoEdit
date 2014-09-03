@@ -119,15 +119,15 @@ class koScopeFiles:
         if self._shortcutsCache is None:
             from xml.etree import ElementTree as ET
             path = self.getShortcutsFile()
+            shortcuts = { "~": expanduser("~") }
             if not path or not exists(path):
-                return {}
+                return shortcuts
             try:
                 fin = open(path)
             except IOError:
                 log.exception("Unable to open shortcuts file: %r", path)
-                return {}
+                return shortcuts
             try:
-                shortcuts = {}
                 shortcuts_elem = ET.parse(fin).getroot()
                 for child in shortcuts_elem:
                     shortcuts[child.get("name")] = child.get("value")
