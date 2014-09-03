@@ -51,7 +51,7 @@
  *   service will call the observers fileNotification with the given path and
  *   changes.
  */
-[scriptable, uuid(02359788-0942-44CC-9A76-DAD84E83B44E)]
+[scriptable, function, uuid(02359788-0942-44CC-9A76-DAD84E83B44E)]
 interface koIFileNotificationObserver: nsISupports {
 
     //   uri      - the uri of the location that has changed
