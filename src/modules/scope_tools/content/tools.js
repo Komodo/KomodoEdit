@@ -1,6 +1,7 @@
 (function() {
     const log       = require("ko/logging").getLogger("commando-scope-tools")
     const commando  = require("commando/commando");
+    const timers    = require("sdk/timers");
     const {Cc, Ci}  = require("chrome");
     const prefs     = ko.prefs;
 
@@ -83,10 +84,10 @@
             try
             {
                 // Brute force async
-                setTimeout(function()
+                timers.setTimeout(function()
                            {
                     log.debug("Invoking tool: " + resultData.id);
-                    ko.toolbox2.invokeTool(resultData.data.koTool);
+                    ko.toolbox2.invokeTool(resultData.data.tool.koTool);
                 }, 0)
             }
             catch(e)
