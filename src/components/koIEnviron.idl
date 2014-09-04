@@ -39,10 +39,10 @@
 // Interface to the Komodo process' environment variables.
 [scriptable, uuid(30537776-473C-4ad6-9A2D-3320B3B5517D)]
 interface koIEnviron : nsISupports {
-  boolean has(in wstring key);
-  wstring get(in wstring key);
-  void set(in wstring key, in wstring value);
-  void remove(in wstring key);
+  boolean has(in AString key);
+  AString get(in AString key);
+  void set(in AString key, in AString value);
+  void remove(in AString key);
 };
 
 
@@ -58,10 +58,11 @@ interface koIEnviron : nsISupports {
 interface koIUserEnviron : nsISupports {
     // Must be set by Komodo initialization before anything else is done
     // with this service.
-    attribute wstring startupEnvironEncoding;
+    attribute AString startupEnvironEncoding;
   
-    boolean has(in wstring key);
-    wstring get(in wstring key);
+    boolean has(in AString key);
+    AString get(in AString key);
+
     /**
      * Get all the keys in the environment
      */
@@ -78,15 +79,15 @@ interface koIUserEnviron : nsISupports {
 
     // Return the user environment as a string encoded as specified by
     // ko.run.runCommand()'s env argument.
-    wstring GetEncodedEnvironment();
-    wstring GetEncodedStartupEnvironment();
+    AString GetEncodedEnvironment();
+    AString GetEncodedStartupEnvironment();
 
     // Update the user environment from the given system shell.
     //
     //  "shell" is the full path to a system shell
     //
     // Returns null if successful, otherwise returns an error string.
-    wstring UpdateFromShell(in wstring shell);
+    AString UpdateFromShell(in AString shell);
 };
 
 
