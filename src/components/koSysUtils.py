@@ -118,14 +118,14 @@ class koSysUtils:
                  <user-data-dir>/startup-env.tmp for any changes to the PATH
                  that komodo.exe might have made.
         """
-        path = self._userEnvSvc.get("PATH").split(os.pathsep)
+        path = self._userEnvSvc.get("PATH", "").split(os.pathsep)
         try:
             return which.which(exeName, path=path)
         except which.WhichError, ex:
             return ""
 
     def WhichAll(self, exeName):
-        path = self._userEnvSvc.get("PATH").split(os.pathsep)
+        path = self._userEnvSvc.get("PATH", "").split(os.pathsep)
         return which.whichall(exeName, path=path)
 
     def IsFile(self, filename):
