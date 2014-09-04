@@ -457,7 +457,7 @@ class PerlVariablesTreeEvaluator(PerlTreeEvaluatorBase):
             for child in elem:
                 if child.tag == "variable":
                     self.log("  found variable %r", child.get("name"))
-                    cplns.append(("variable", child.get("name")))
+                    cplns.append(("variable", child.get("name").lstrip("$")))
             scoperef = self.parent_scoperef_from_scoperef(scoperef)
 
         return cplns
