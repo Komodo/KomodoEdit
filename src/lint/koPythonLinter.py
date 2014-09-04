@@ -239,7 +239,6 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
                         pathMessageKey = "%s-%s" % (request.koDoc.displayPath, origStderr)
                         _complainIfNeeded(pathMessageKey,
                                           "Error in pylint: %s", origStderr)
-                        return
                 warnLines = stdout.splitlines(0) # Don't need the newlines.
             except:
                 log.exception("Failed to run %s", cmd)
