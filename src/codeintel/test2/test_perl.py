@@ -189,6 +189,12 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertTriggerMatches(" require Foo::<|>", name=name)
         self.assertTriggerMatches("\trequire Foo::<|>", name=name)
 
+    def test_complete_variables(self):
+        name = "perl-complete-variables"
+        self.assertTriggerMatches("$<|>f", name=name, pos=1)
+        self.assertNoTrigger("$f<|>")
+        self.assertNoTrigger("<|>$f")
+
     def test_calltip_call_signature(self):
         self.assertNoTrigger("my (<|>$a, $b, $c) = @_")
 
@@ -409,6 +415,29 @@ class CplnTestCase(CodeintelPerlTestCase):
         self.assertCompletionsInclude(
             "require <|>LWP",
             [("module", "LWP")])
+
+    def test_complete_variables(self):
+        self.assertCompletionsAre(
+            """
+            my $varThis = 1;
+            our $varThat = 2;
+            $<|>
+            """,
+            [("variable", "$varThat"),
+             ("variable", "$varThis")])
+
+    def test_complete_variables_scoping(self):
+        self.assertCompletionsAre(
+            """
+            my $varGlobal = undef;
+            our $varPackage = 2;
+            sub someFunc {
+                my $varFunc = 1;
+            }
+            $<|>
+            """,
+            [("variable", "$varGlobal"),
+             ("variable", "$varPackage")])
 
     def test_citdl_expr_and_prefix_filter_from_trg(self):
         self.assertCITDLExprIs("split <|>", "split")

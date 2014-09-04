@@ -63,6 +63,7 @@ from codeintel2.parseutil import urlencode_path
 from codeintel2 import perlcile
 from codeintel2.util import isident, isdigit, banner, indent, markup_text
 from codeintel2.tree_perl import (PerlTreeEvaluator,
+                                  PerlVariablesTreeEvaluator,
                                   PerlPackageSubsTreeEvaluator,
                                   PerlPackageMembersTreeEvaluator)
 from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
@@ -416,7 +417,8 @@ class PerlLangIntel(CitadelLangIntel,
     #   '(' (open paren)
     #   '>' (greater than)  "->" actually
     #   ':' (colon)         "::" actually
-    trg_chars = tuple(' (>:')
+    #   '$' (dollar sign)
+    trg_chars = tuple(' (>:$')
     calltip_trg_chars = tuple(' (')
 
     def trg_from_pos(self, buf, pos, implicit=True):
@@ -465,7 +467,7 @@ class PerlLangIntel(CitadelLangIntel,
                                   and accessor.char_at_pos(last_pos-1) or '')
                 print "no: %r is not '->'" % (penultimate_ch+last_ch)
             return None
-    
+
         # We should never trigger in some styles (strings, comments, etc.).
         last_style = accessor.style_at_pos(last_pos)
         if DEBUG:
@@ -702,6 +704,11 @@ class PerlLangIntel(CitadelLangIntel,
             return Trigger("Perl", TRG_FORM_CPLN, "package-members", pos,
                            implicit, length=2, prefix=prefix)
     
+        elif last_ch == '$':
+            # "complete-variables"
+            if DEBUG: print "complete-variables"
+            return Trigger("Perl", TRG_FORM_CPLN, "variables", pos, implicit)
+
         return None
 
 
@@ -929,6 +936,12 @@ class PerlLangIntel(CitadelLangIntel,
 
         if trg.id == ("Perl", TRG_FORM_CPLN, "available-imports"):
             evalr = PerlImportsEvaluator(ctlr, buf, trg)
+            buf.mgr.request_eval(evalr)
+            return
+
+        if trg.id == ("Perl", TRG_FORM_CPLN, "variables"):
+            line = buf.accessor.line_from_pos(trg.pos)
+            evalr = PerlVariablesTreeEvaluator(ctlr, buf, trg, "$", line)
             buf.mgr.request_eval(evalr)
             return
 

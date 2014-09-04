@@ -440,6 +440,29 @@ class PerlTreeEvaluatorBase(CandidatesForTreeEvaluator):
         return cplns
 
 
+class PerlVariablesTreeEvaluator(PerlTreeEvaluatorBase):
+    """TreeEvaluator to handle 'perl-complete-variables'.
+    
+        $<|>
+    """
+    def eval_cplns(self):
+        self.log_start()
+        cplns = []
+        last_scoperef = None
+        scoperef = self.get_start_scoperef()
+
+        while scoperef and scoperef != last_scoperef:
+            self.log("getting variables from scoperef %r", scoperef)
+            elem = self._elem_from_scoperef(scoperef)
+            for child in elem:
+                if child.tag == "variable":
+                    self.log("  found variable %r", child.get("name"))
+                    cplns.append(("variable", child.get("name")))
+            scoperef = self.parent_scoperef_from_scoperef(scoperef)
+
+        return cplns
+
+
 class PerlPackageMembersTreeEvaluator(PerlTreeEvaluatorBase):
     """TreeEvaluator to handle 'perl-complete-package-members'.
     
