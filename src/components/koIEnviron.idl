@@ -40,7 +40,7 @@
 [scriptable, uuid(30537776-473C-4ad6-9A2D-3320B3B5517D)]
 interface koIEnviron : nsISupports {
   boolean has(in AString key);
-  AString get(in AString key);
+  AString get(in AString key, [optional] in AString defaultvalue);
   void set(in AString key, in AString value);
   void remove(in AString key);
 };
@@ -61,7 +61,7 @@ interface koIUserEnviron : nsISupports {
     attribute AString startupEnvironEncoding;
   
     boolean has(in AString key);
-    AString get(in AString key);
+    AString get(in AString key, [optional] in AString defaultvalue);
 
     /**
      * Get all the keys in the environment

@@ -163,8 +163,8 @@ class KoEnviron:
 
     def has(self, key):
         return os.environ.has_key(key)
-    def get(self, key):
-        return os.environ[key]
+    def get(self, key, default=None):
+        return os.environ.get(key, default)
     def set(self, key, value):
         os.environ[key] = value
     def remove(self, key):
@@ -419,11 +419,11 @@ class KoUserEnviron:
             key = key.upper()  # put everything upper on Windows
         return self._userEnviron.has_key(key)
 
-    def get(self, key):
+    def get(self, key, default=None):
         self._initialize()
         if sys.platform.startswith("win"):
             key = key.upper()  # put everything upper on Windows
-        return self._userEnviron.get(key)
+        return self._userEnviron.get(key, default)
 
     def keys(self):
         return self._userEnviron.keys()
