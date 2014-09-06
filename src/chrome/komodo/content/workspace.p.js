@@ -683,15 +683,18 @@ this.collectOpenViewPaths = function(){
     var curPaths = [];
     var curViews = ko.views.manager.getAllViews();
     for (var i = 0; i < curViews.length; i++){
+        // Don't need the start page to reload which is not an editor type
+        // window.
+        if (curViews[i].getAttribute("type") != "editor") {
+            continue;
+        }
         try{
             var viewPath = curViews[i].koDoc.file.path;
         } catch (TypeError) {
-            //workLog.warn(e, "'No koDoc': Could not load file path.")
+            workLog.debug(e,
+                          "'No koDoc': Could not load file path: " + viewPath
+                          );
             // Might as well skip this loop with no file path
-            continue;
-        }
-        // Don't need the start page to reload
-        if (viewPath.contains("startpage")){
             continue;
         }
         curPaths.push(viewPath);
@@ -710,7 +713,6 @@ this.pickSpaceSavePath = function(){
     var defaultName = null;
     var defaultDir = null;
     if (typeof(prevSaveFile) != "undefined"){
-        alert(prevSaveFile);
         // convert the path string into a file object, get dirname and basename
         file = fileSvc.getFileFromURI(prevSaveFile);
         defaultName = file.baseName;
@@ -792,11 +794,25 @@ this.getDefaultDir = function() {
 this.loadWorkspaceFile =  function(filepath){
     if (!filepath) {
         filepath = this.pickSpaceFileToOpen();
+        // If the user cancels out of the dialog filepath will be null so bail
+        if (!filepath) {
+            return;
+        }
     }
     if (filepath.endsWith(".komodospace")) {
         var fileSvc = Components.classes["@activestate.com/koFileService;1"]
                         .getService(Components.interfaces.koIFileService)
-        spaceFile = fileSvc.getFileFromURI(filepath);
+        try{
+            spaceFile = fileSvc.getFileFromURI(filepath);
+        } catch(e) {
+            ko.statusBar.AddMessage("Could not load workspace file.",
+                                    "ko.workspace",
+                                    3000, // 3 seconds
+                                    true, // yes highlight
+                                    false // non interactive
+                                   )
+            return;
+        }
         try{
             spaceFile.open("r");
             fileContents = spaceFile.readfile();
@@ -807,7 +823,7 @@ this.loadWorkspaceFile =  function(filepath){
         }
     } else {
         alert("Choose a *.komodospace file.");
-        return null;
+        return;
     }
     return fileContents;
 }
@@ -818,15 +834,15 @@ this.loadWorkspaceFile =  function(filepath){
 */
 this.open = function(filepath){
     var jsonPaths = this.loadWorkspaceFile(filepath);
-    if (jsonPaths ==  null) {
+    if (!jsonPaths) {
         // didn't get a file for some reason, might as well bail.
         return;
     }
     try{
         ko.open.multipleURIs(jsonPaths);
+        ko.statusBar.AddMessage("Workspace loaded.  You're welcome!");
     } catch(e){
         workLog.warn("Could not load file from workspace file:  ERROR: ", e)
     }
-    ko.statusBar.AddMessage("Loaded Workspace.  You're welcome :|");
 }
 }).apply(ko.workspace);
