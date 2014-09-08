@@ -201,7 +201,6 @@ class ObserverMonitor:
     def __str__(self):
         return "ObserverMonitor: f:%02x, r:%-5r, path:%s" % (self.flags, self.__recursive, self.path)
 
-    @components.ProxyToMainThread
     def getAliveObserver(self):
         if callable(self.__observer_weakref):
             o = self.__observer_weakref()
