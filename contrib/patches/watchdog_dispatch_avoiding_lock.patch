@@ -1,0 +1,17 @@
+Avoid holding the lock when dispatching events.
+Index: /as/komodo-devel/contrib/watchdog/src/watchdog/observers/api.py
+index 735ae6f..503d8b5 100644
+--- a/contrib/watchdog/src/watchdog/observers/api.py
++++ b/contrib/watchdog/src/watchdog/observers/api.py
+@@ -425,6 +425,9 @@ class BaseObserver(EventDispatcher):
+         self.unschedule_all()
+ 
+     def dispatch_event(self, event, watch):
++        # Don't hold the lock while dispatching events, as Komodo.dispatch()
++        # calls into the main thread, which causes a deadlock.
+         with self._lock:
+-            for handler in self._get_handlers_for_watch(watch):
+-                handler.dispatch(event)
++            handlers = self._get_handlers_for_watch(watch).copy()
++        for handler in handlers:
++            handler.dispatch(event)

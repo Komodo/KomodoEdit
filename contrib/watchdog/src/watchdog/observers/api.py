@@ -425,6 +425,9 @@ class BaseObserver(EventDispatcher):
         self.unschedule_all()
 
     def dispatch_event(self, event, watch):
+        # Don't hold the lock while dispatching events, as Komodo.dispatch()
+        # calls into the main thread, which causes a deadlock.
         with self._lock:
-            for handler in self._get_handlers_for_watch(watch):
-                handler.dispatch(event)
+            handlers = self._get_handlers_for_watch(watch).copy()
+        for handler in handlers:
+            handler.dispatch(event)
