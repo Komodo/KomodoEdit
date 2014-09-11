@@ -2360,6 +2360,9 @@
                       break;
                   }
               }
+              if (result) {
+                  break;
+              }
           }
           return result;
         ]]>
