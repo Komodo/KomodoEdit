@@ -35,7 +35,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 /* Left to do in order of priority
-  - Dealing with encodings
   - Test on linux
 */
 
@@ -52,7 +51,7 @@ var gFontLanguages = ['x-western','x-central-euro','ja','zh-TW',
                       'zh-CN','zh-HK','ko','x-cyrillic','x-baltic','el',
                       'tr','x-unicode','x-user-def','th','he','ar',
                       'x-devanagari','x-tamil'];
-var gFontNames, gEncodings;
+var gFontNames;
 
 var gLanguageRegistry = Components.classes["@activestate.com/koLanguageRegistryService;1"]
             .getService(Components.interfaces.koILanguageRegistryService);
@@ -90,7 +89,6 @@ function initDialog() {
     dialog.modified = false;
     dialog.bufferView = document.getElementById('sample');
     dialog.deleteButton = document.getElementById('deleteScheme');
-    dialog.encodingReset = document.getElementById('encodingReset');
     dialog.schemeslist = document.getElementById('schemeslist');
     dialog.schemespopup = document.getElementById('schemespopup');
     dialog.fixedList = document.getElementById('fixed');
@@ -134,7 +132,6 @@ function initDialog() {
     dialog.specificBold = document.getElementById('specificBold')
     dialog.specificItalic = document.getElementById('specificItalic')
     dialog.languageList = document.getElementById('languageList');
-    dialog.encodingslist = document.getElementById('encodingslist');
     dialog.specificSize = document.getElementById('specificSize');
     dialog.specificFaceType = document.getElementById('fixedOrPropSpecific');
     // fifth tab: indicators
@@ -199,8 +196,6 @@ function OnPreferencePageLoading(prefset) {
             scimoz.setMarginWidthN(i, 0);
         }
 
-        gDialog.currentEncoding = 'default';
-        updateEncodingPopup();
         setupSchemes();
 
         var listElement;
@@ -220,7 +215,6 @@ function OnPreferencePageLoading(prefset) {
         changeLanguage();
         updateFromScheme();
         initFonts();
-        updateEncodingReset();
         loadColorpickerPreferences(prefset);
     } catch (e) {
         log.exception(e);
@@ -421,7 +415,7 @@ function updateScintilla()
 {
     var scheme = gDialog.currentScheme;
     var scintilla = gDialog.bufferView.scimoz;
-    var encoding = gDialog.currentEncoding;
+    var encoding = 'unused';
     var alternateType = false;
     scheme.applyScheme(scintilla, gDialog.currentLanguage, encoding, alternateType);
 }
@@ -452,16 +446,16 @@ function setColour(colorpicker)
         colorid = colorpickerid;
         switch (colorid) {
             case 'fixedColorPickerFore':
-                gDialog.currentScheme.setFore('', faceIdentifier(gDialog.currentEncoding, 1), color);
+                gDialog.currentScheme.setFore('', faceIdentifier(1), color);
                 break;
             case 'fixedColorPickerBack':
-                gDialog.currentScheme.setBack('', faceIdentifier(gDialog.currentEncoding, 1), color);
+                gDialog.currentScheme.setBack('', faceIdentifier(1), color);
                 break;
             case 'propColorPickerFore':
-                gDialog.currentScheme.setFore('', faceIdentifier(gDialog.currentEncoding, 0), color);
+                gDialog.currentScheme.setFore('', faceIdentifier(0), color);
                 break;
             case 'propColorPickerBack':
-                gDialog.currentScheme.setBack('', faceIdentifier(gDialog.currentEncoding, 0), color);
+                gDialog.currentScheme.setBack('', faceIdentifier(0), color);
                 break;
             case 'commonColorPickerFore':
                 gDialog.currentScheme.setFore('',
@@ -502,12 +496,12 @@ function setLineSpacing(fontStyle)
     var value, style;
     if (fontStyle == "fixed")
     {
-        style = faceIdentifier(gDialog.currentEncoding, 1);
+        style = faceIdentifier(1);
         value = gDialog.fixedLineSpacing.value;
     }
     else
     {
-        style = faceIdentifier(gDialog.currentEncoding, 0);
+        style = faceIdentifier(0);
         value = gDialog.propLineSpacing.value;
     }
 
@@ -535,25 +529,25 @@ function onClickBoldOrItalic(button)
         switch (id) {
             case 'fixedBold':
                 gDialog.currentScheme.setBold('',
-                                             faceIdentifier(gDialog.currentEncoding, 1),
+                                             faceIdentifier(1),
                                              checked);
                 updateCommon = true;
                 break;
             case 'fixedItalic':
                 gDialog.currentScheme.setItalic('',
-                                               faceIdentifier(gDialog.currentEncoding, 1),
+                                               faceIdentifier(1),
                                                checked);
                 updateCommon = true;
                 break;
             case 'propBold':
                 gDialog.currentScheme.setBold('',
-                                             faceIdentifier(gDialog.currentEncoding, 0),
+                                             faceIdentifier(0),
                                              checked);
                 updateCommon = true;
                 break;
             case 'propItalic':
                 gDialog.currentScheme.setItalic('',
-                                               faceIdentifier(gDialog.currentEncoding, 0),
+                                               faceIdentifier(0),
                                                checked);
                 updateCommon = true;
                 break;
@@ -596,7 +590,7 @@ function onClickFixedFont()
     try {
         if (!ensureWriteableScheme()) return;
         var face = gDialog.fixedList.value;
-        gDialog.currentScheme.setFont(faceIdentifier(gDialog.currentEncoding, 1), face);
+        gDialog.currentScheme.setFont(faceIdentifier(1), face);
         updateScintilla();
     } catch (e) {
         log.error(e);
@@ -608,7 +602,7 @@ function onClickFixedSize()
     try {
         if (!ensureWriteableScheme()) return;
         var size = gDialog.fixedSize.value;
-        gDialog.currentScheme.setSize('', faceIdentifier(gDialog.currentEncoding, 1), size);
+        gDialog.currentScheme.setSize('', faceIdentifier(1), size);
         updateScintilla();
     } catch (e) {
         log.error(e);
@@ -620,7 +614,7 @@ function onClickProportionalFont()
     try {
         if (!ensureWriteableScheme()) return;
         var face = gDialog.propList.value;
-        gDialog.currentScheme.setFont(faceIdentifier(gDialog.currentEncoding, 0), face);
+        gDialog.currentScheme.setFont(faceIdentifier(0), face);
         updateScintilla();
     } catch (e) {
         log.error(e);
@@ -632,7 +626,7 @@ function onClickProportionalSize()
     try {
         if (!ensureWriteableScheme()) return;
         var size = gDialog.propSize.value;
-        gDialog.currentScheme.setSize('', faceIdentifier(gDialog.currentEncoding, 0), size);
+        gDialog.currentScheme.setSize('', faceIdentifier(0), size);
         updateScintilla();
     } catch (e) {
         log.error(e);
@@ -806,20 +800,6 @@ function pickFaceType(menulist)
     }
 }
 
-function onResetEncoding(event)
-{
-    try {
-        if (!ensureWriteableScheme()) return;
-        gDialog.currentScheme.resetStyle('',
-                                        faceIdentifier(gDialog.currentEncoding,
-                                                       gDialog.currentScheme.preferFixed));
-        updateScintilla();
-        updateFromScheme();
-    } catch (e) {
-        log.error(e);
-    }
-}
-
 function onResetCommon(event)
 {
     try {
@@ -896,29 +876,6 @@ function clickCheckbox(id, menuid)
     } catch (e) {
         log.error(e);
     }
-}
-
-function updateEncodingPopup()
-{
-    var koEncodingServices = Components.classes["@activestate.com/koEncodingServices;1"]
-        .getService(Components.interfaces.koIEncodingServices);
-
-    var temp = new Object();
-    koEncodingServices.enumerateEncodings(temp,new Object());
-    gEncodings = temp.value;
-
-    var popup = document.getElementById('encodingspopup');
-    var item = document.createElement('menuitem');
-    item.setAttribute('value','default');
-    item.setAttribute('label','Default');
-    popup.appendChild(item);
-    for (var i=0; i< gEncodings.length; i++) {
-        item = document.createElement('menuitem');
-        item.setAttribute('value',gEncodings[i].python_encoding_name);
-        item.setAttribute('label',gEncodings[i].friendly_encoding_name);
-        popup.appendChild(item);
-    }
-    document.getElementById('encodingslist').value = 'default';
 }
 
 function updateCommonPopup()
@@ -1158,12 +1115,7 @@ try {
 }
 }
 
-function initFonts(encoding)  {
-    if (typeof(encoding)=='undefined') {
-       encoding = Components.classes["@activestate.com/koPrefService;1"].
-                  getService(Components.interfaces.koIPrefService).prefs.
-                  getStringPref('encodingDefault');
-    }
+function initFonts()  {
     // Do all fonts list first
     var fixedElement = new listElement( 'fixed' );
     var propElement = new listElement( 'proportional' );
@@ -1175,35 +1127,6 @@ function initFonts(encoding)  {
 
     propElement.appendStrings(gFontsProp,null);
     fixedElement.appendStrings(gFontsFixed,null);
-}
-
-function updateEncodingReset()
-{
-    try {
-        // If the currently selected encoding is not "Default", enable the "Reset" button
-        if (gDialog.currentEncoding == 'default') {
-            gDialog.encodingReset.setAttribute('disabled', 'true');
-        } else {
-            if (gDialog.encodingReset.hasAttribute('disabled')) {
-                gDialog.encodingReset.removeAttribute('disabled');
-            }
-        }
-    } catch (e) {
-        log.exception(e);
-    }
-}
-
-function selectEncoding() {
-    try {
-        gDialog.currentEncoding = gDialog.encodingslist.value;
-        initFonts(gDialog.currentEncoding);
-        gDialog.bufferView.scintilla.encoding = gDialog.currentEncoding;
-        updateFromScheme();
-        updateScintilla();
-        updateEncodingReset();
-    } catch (e) {
-        log.exception(e);
-    }
 }
 
 function _findFontName(name) {
@@ -1261,12 +1184,12 @@ function changeLanguage() {
 function updateFonts()  {
     // order is font, size, back, fore, italic, bold
 
-    var fLabel = gDialog.currentScheme.getFont(faceIdentifier(gDialog.currentEncoding, 1));
-    var pLabel = gDialog.currentScheme.getFont(faceIdentifier(gDialog.currentEncoding, 0));
-    var fSize = gDialog.currentScheme.getSize('', faceIdentifier(gDialog.currentEncoding, 1));
-    var pSize = gDialog.currentScheme.getSize('', faceIdentifier(gDialog.currentEncoding, 0));
-    var fSpace = gDialog.currentScheme.getLineSpacing(faceIdentifier(gDialog.currentEncoding, 1));
-    var pSpace = gDialog.currentScheme.getLineSpacing(faceIdentifier(gDialog.currentEncoding, 0));
+    var fLabel = gDialog.currentScheme.getFont(faceIdentifier(1));
+    var pLabel = gDialog.currentScheme.getFont(faceIdentifier(0));
+    var fSize = gDialog.currentScheme.getSize('', faceIdentifier(1));
+    var pSize = gDialog.currentScheme.getSize('', faceIdentifier(0));
+    var fSpace = gDialog.currentScheme.getLineSpacing(faceIdentifier(1));
+    var pSpace = gDialog.currentScheme.getLineSpacing(faceIdentifier(0));
     var m;
 
     gDialog.fixedList.setAttribute('label', _findFontName(fLabel));
@@ -1280,36 +1203,33 @@ function updateFonts()  {
 
     var fore, back, italic, bold, face;
     // do fixed width
-    fore = gDialog.currentScheme.getFore('', faceIdentifier(gDialog.currentEncoding, 1));
+    fore = gDialog.currentScheme.getFore('', faceIdentifier(1));
     gDialog.fixedColorPickerFore.color = fore;
-    back = gDialog.currentScheme.getBack('', faceIdentifier(gDialog.currentEncoding, 1));
+    back = gDialog.currentScheme.getBack('', faceIdentifier(1));
     gDialog.fixedColorPickerBack.color = back;
-    fore = gDialog.currentScheme.getFore('', faceIdentifier(gDialog.currentEncoding, 0));
+    fore = gDialog.currentScheme.getFore('', faceIdentifier(0));
     gDialog.propColorPickerFore.color = fore;
-    back = gDialog.currentScheme.getBack('', faceIdentifier(gDialog.currentEncoding, 0));
+    back = gDialog.currentScheme.getBack('', faceIdentifier(0));
     gDialog.propColorPickerBack.color = back;
     // bold/italic
-    var propBold = gDialog.currentScheme.getBold('', faceIdentifier(gDialog.currentEncoding, 0));
+    var propBold = gDialog.currentScheme.getBold('', faceIdentifier(0));
     setCheckboxButton(gDialog.propBold, propBold);
-    var fixedBold = gDialog.currentScheme.getBold('', faceIdentifier(gDialog.currentEncoding, 1));
+    var fixedBold = gDialog.currentScheme.getBold('', faceIdentifier(1));
     setCheckboxButton(gDialog.fixedBold, fixedBold);
-    var propItalic = gDialog.currentScheme.getItalic('', faceIdentifier(gDialog.currentEncoding, 0));
+    var propItalic = gDialog.currentScheme.getItalic('', faceIdentifier(0));
     setCheckboxButton(gDialog.propItalic, propItalic);
-    var fixedItalic = gDialog.currentScheme.getItalic('', faceIdentifier(gDialog.currentEncoding, 1));
+    var fixedItalic = gDialog.currentScheme.getItalic('', faceIdentifier(1));
     setCheckboxButton(gDialog.fixedItalic, fixedItalic);
     // line spacing
     gDialog.fixedLineSpacing.value = fSpace;
     gDialog.propLineSpacing.value = pSpace;
 }
 
-function faceIdentifier(encoding, fixed){
-    var suffix;
+function faceIdentifier(fixed){
     if (fixed) {
-        suffix = '_fixed';
-    } else {
-        suffix = '_proportional';
+        return 'default_fixed';
     }
-    return encoding + suffix;
+    return 'default_proportional';
 }
 
 function onSampleBlur() {
@@ -1378,7 +1298,7 @@ listElement.prototype =
 
           // Be sure to add the current font
           var isFixed = (faces == gFontsFixed) ? 1 : 0;
-          var currFont = gDialog.currentScheme.getFont(faceIdentifier(gDialog.currentEncoding, isFixed));
+          var currFont = gDialog.currentScheme.getFont(faceIdentifier(isFixed));
           if (faces.indexOf(currFont) == -1) {
               faces.push(currFont);
           }

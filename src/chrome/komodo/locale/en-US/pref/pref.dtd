@@ -515,9 +515,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY sampleText.label "Sample text:">
 <!ENTITY schemeType.label "Scheme: (system schemes are in bold)">
 <!ENTITY schemeType.accesskey "S">
-<!ENTITY chooseEncodFont.description "Choose an encoding and font for Komodo's editor windows.">
-<!ENTITY filePrefAllLangEncod.label "Encoding: ">
-<!ENTITY filePrefAllLangEncod.accesskey "E">
 <!ENTITY filePrefAllLangFixedWidth.label "Fixed width:">
 <!ENTITY filePrefAllLangFixedWidth.accesskey "W">
 <!ENTITY filPrefAllLangForeText "Fore:">

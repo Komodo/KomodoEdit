@@ -129,25 +129,7 @@
                 </tabs>
                 <tabpanels>
                     <tabpanel id="fonts_panel" orient="vertical">
-                        <description style="margin-bottom: 10px;">
-                            &chooseEncodFont.description;
-                        </description>
                         <radiogroup>
-                        <hbox align="center">
-                            <label value="&filePrefAllLangEncod.label;"
-                                   accesskey="&filePrefAllLangEncod.accesskey;"
-                                   control="encodingslist"/>
-                            <menulist id="encodingslist"
-                                      sizetopopup="false"
-                                      style="width: 180px"
-                                      oncommand="selectEncoding();">
-                                <menupopup id="encodingspopup"/>
-                            </menulist>
-                            <button id="encodingReset"
-                                    label="&reset.label;"
-                                    oncommand="onResetEncoding(event);"/>
-                        </hbox>
-                        <separator class="thin"/>
                         <hbox>
                         <vbox flex="1">
                             <hbox align="center">
