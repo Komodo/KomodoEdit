@@ -48,12 +48,12 @@ warn_arch ( ) {
     if [ "$?" -eq "0" ] ; then
         return # can run given binary - maybe it's i686 on x86_64
     fi
-    msg=$(cat <<-EOF
+    msg=`cat <<-EOF
 	This Komodo binary is not meant for your computer's architecture.
 	Please download the $wanted_arch version at:
 	http://www.activestate.com/komodo-edit/downloads
 	EOF
-	)
+	`
     # Figure out a command to display errors with; assume $DISPLAY is set
     # (since you need that to run Komodo).  We try to use the GUI dialogs here
     # because stdout/stderr is probably redirected to a file.
