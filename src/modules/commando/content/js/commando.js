@@ -577,8 +577,7 @@
         var handler = getScopeHandler();
         if ("sort" in handler)
         {
-            var cont = true;
-            while (elem.previousSibling && cont)
+            while (elem.previousSibling)
             {
                 let current = elem.resultData;
                 let previous = elem.previousSibling.resultData;
@@ -587,9 +586,14 @@
                     continue;
 
                 if (handler.sort(current, previous) === 1)
+                {
+                    if ((elem.previousSibling.resultData.weight || 0) > (elem.resultData.weight || 0))
+                        break;
+
                     elem.parentNode.insertBefore(elem, elem.previousSibling);
+                }
                 else
-                    cont = false;
+                    break;
             }
         }
 

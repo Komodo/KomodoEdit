@@ -268,7 +268,7 @@ class Searcher:
 
         # Calculate how heavily each matched word affects the score
         if not lazyMatch:
-            matchWeight = (weight * 0.65) / len(words)
+            matchWeight = (weight * 0.25) / len(words)
         else:
             matchWeight = weight / len(words)
 
@@ -286,8 +286,13 @@ class Searcher:
 
             matchScore += string.count(word) * matchWeight
 
-        if not lazyMatch and sequence and matchScore > 0:
-            matchScore += weight * 0.25
+        if not lazyMatch:
+            if sequence and matchScore > 0:
+                matchScore += weight * 0.25
+
+            basename = os.path.basename(string)
+            if word in basename and basename.index(words[-1]) == 0:
+                matchScore += weight * 0.50
 
         if matchScore > weight:
             matchScore = weight
