@@ -1195,7 +1195,7 @@ def target_configure(argv):
         sdk = "/Developer/SDKs/MacOSX%s.sdk" % (macosx_min_version, )
         if not os.path.exists(sdk):
             # Newer installs of Xcode use a different location - try that now.
-            for sdk_ver in ("10.7", "10.8"):
+            for sdk_ver in ("10.7", "10.8", "10.9", "10.10"):
                 sdk = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX%s.sdk" % (sdk_ver, )
                 if os.path.exists(sdk):
                     break
