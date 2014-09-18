@@ -52,6 +52,7 @@
     
                 query = query.replace(_query[0], shortcuts[_query[0]]);
                 opts["allowShortcuts"] = false;
+                opts["cacheable"] = false;
                 return parsePaths(query, subscope, opts);
             }
         }
@@ -64,6 +65,7 @@
 
             opts["recursive"] = recursive;
             opts["fullpath"] = true;
+            opts["cacheable"] = false;
             subscope.name = "";
 
             if (query.substr(-1) == sep)
@@ -97,6 +99,7 @@
 
                 opts["recursive"] = recursive;
                 opts["fullpath"] = true;
+                opts["cacheable"] = false;
                 subscope.name = "";
 
                 if (query.substr(-1) == sep)
@@ -159,6 +162,7 @@
 
             opts["excludes"] = opts["excludes"] == "" ? [] : opts["excludes"].split(";");
             opts["includes"] = opts["includes"] == "" ? [] : opts["includes"].split(";");
+            opts["cacheable"] = true;
         }
         else
         {
@@ -184,6 +188,9 @@
         var opts = {
             "maxresults": ko.prefs.getLong("commando_search_max_results", 100),
             "allowShortcuts": ko.prefs.getBoolean("commando_allow_shortcuts", true),
+            "recursive": true,
+            "usecache": true,
+            "cacheable": true
         }
 
         // Detect directory to search in
@@ -201,12 +208,16 @@
         else
         {
             subscope.path = subscope.data.path;
+            opts["cacheable"] = false;
         }
 
         [query, subscope, opts] = parsePaths(query, subscope, opts);
 
         if (query == "")
             opts["recursive"] = false;
+
+        if ( ! opts['recursive'])
+            opts["usecache"] = false;
 
         // Set includes/excludes, if relevant
         if (curProject && subscope.path.indexOf(curProject.liveDirectory) === 0)

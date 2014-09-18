@@ -402,11 +402,19 @@ class Walker:
 
     # Walk our cache for the given path
     def walkCache(self, path):
-        if not self.cache.get(path, False):
-            self.cache[path] = self.scandir(path)
+        result = None
+
+        if self.opts.get("usecache", True):
+            result = self.cache.get(path, False)
+
+        if not result:
+            result = self.scandir(path)
+
+            if self.opts.get("cacheable", False):
+                self.cache[path] = result
 
         # Get dirnames, filenames from cache
-        [dirnames, filenames] = self.cache[path];
+        [dirnames, filenames] = result;
         
         if self.callback:
             self.callback(path, dirnames, filenames)
