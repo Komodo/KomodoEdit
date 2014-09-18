@@ -54,7 +54,7 @@ def getTreeFromVersion(version=None):
 
     # Look for a matching tag
     max_ver = 0.0
-    for tree in ("mozilla-release", "mozilla-beta", "mozilla-aurora"):
+    for tree in ("mozilla-esr31", "mozilla-release", "mozilla-beta", "mozilla-aurora"):
         tags_url = "http://hg.mozilla.org/releases/%s/raw-tags" % (tree,)
         response = urllib2.urlopen(tags_url)
         for line in response.read().splitlines():
