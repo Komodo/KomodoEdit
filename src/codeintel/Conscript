@@ -177,6 +177,7 @@ my @stdlibs_files = (
     "lib/codeintel2/stdlibs/php-5.3.cix",
     "lib/codeintel2/stdlibs/php-5.4.cix",
     "lib/codeintel2/stdlibs/php-5.5.cix",
+    "lib/codeintel2/stdlibs/php-5.6.cix",
     "lib/codeintel2/stdlibs/node.js.cix",
 );
 foreach my $file (@stdlibs_files) {
