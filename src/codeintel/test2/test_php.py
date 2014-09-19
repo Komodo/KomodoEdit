@@ -4495,6 +4495,9 @@ class DefnTestCase(CodeIntelTestCase):
                     foreach ($projectPhaseDates as $non_updatable_item<3>) {
                         $non_updatable_item<4>['start_date'] += 100;
                     }
+                    foreach ($projectPhaseDates['subarray'] as $subkey<5> => $subvalue<6>) {
+                        $subkey<7> + $subvalue<8>;
+                    }
                 }
             }
         """)))
@@ -4511,6 +4514,14 @@ class DefnTestCase(CodeIntelTestCase):
             self.assertDefnMatches2(buf, positions[pos], path=path,
                                     ilk="variable", name="non_updatable_item",
                                     line=7)
+        for pos in (5, 7):
+            self.assertDefnMatches2(buf, positions[pos], path=path,
+                                    ilk="variable", name="subkey",
+                                    line=10)
+        for pos in (6, 8):
+            self.assertDefnMatches2(buf, positions[pos], path=path,
+                                    ilk="variable", name="subvalue",
+                                    line=10)
 
 
 class EscapingTestCase(CodeIntelTestCase):

@@ -218,8 +218,6 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     if DEBUG:
                         ac.dump()
                     p, text = ac.getTextBackWithStyle(style, self.comment_styles, max_text_len=len("implements"))
-                    if text:
-                        text = text.lower()  # keywords can be mixed case - bug 67310.
                     if DEBUG:
                         print "ac.getTextBackWithStyle:: pos: %d, text: %r" % (p, text)
                     if text in ("new", "extends"):
@@ -263,8 +261,6 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                         if DEBUG:
                             print "Keyword text: %d, %r" % (p, text)
                             ac.dump()
-                        if text:
-                            text = text.lower()  # keywords can be mixed case - bug 67310.
                         if text not in ("parent", "self", "static"):
                             return None
                     return Trigger(lang, TRG_FORM_CPLN, "static-members",
@@ -2893,6 +2889,8 @@ class PHPParser:
 
     def _foreachKeywordHandler(self, styles, text, p):
         log.debug("_foreachKeywordHandler:: text: %r", text[p:])
+        if "as" not in text:
+            return
         typeNames, p = self._getVariableType(styles, text, p, assignmentChar=None)
         if typeNames:
             if "(" in typeNames[0]:
@@ -2900,11 +2898,11 @@ class PHPParser:
             # Note: It's an item of the array, not an array itself.
             typeNames[-1] += "[]"
             log.debug("typeNames:%r", typeNames)
-        if p < len(text) and text[p] == "as":
+        p = text.index("as") + 1
+        if p < len(text):
             # Two formats:
             #   as $value
             #   as $key => $value
-            p += 1
             namelist1, p = self._getIdentifiersFromPos(styles, text, p,
                                                       self.PHP_VARIABLE)
             namelist2 = None
@@ -3197,9 +3195,6 @@ class PHPParser:
                 if style == self.PHP_IDENTIFIER:
                     text = text.strip()
                 if text:
-                    # Lowercase php keywords - bug 67310.
-                    if style == self.PHP_WORD:
-                        text = text.lower()
                     self.text.append(text)
                     self.styles.append(style)
                     self.linenos.append(self.lineno)
