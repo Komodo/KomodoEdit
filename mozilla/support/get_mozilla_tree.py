@@ -5,6 +5,7 @@ Module to get the mozilla tree corresponding to a version number
 import logging
 import urllib2, re, subprocess
 import os.path
+import time
 from subprocess import check_call
 from distutils.version import LooseVersion, StrictVersion
 
@@ -18,6 +19,34 @@ except ImportError:
     from which import which
     sys.path.pop()
 
+g_tag_cache = {}
+
+def genTagsFromTrees(trees):
+    for tree in trees:
+        if tree in g_tag_cache:
+            for tag in g_tag_cache:
+                yield (tree, tag)
+            continue
+        tags_url = "http://hg.mozilla.org/releases/%s/raw-tags" % (tree,)
+        # Hg isn't the most stable, so give it a few tries:
+        for tries in range(5):
+            try:
+                response = urllib2.urlopen(tags_url)
+            except urllib2.HTTPError:
+                continue
+            else:
+                break
+        else:
+            raise urllib2.HTTPError("Couldn't reach url %r", tags_url)
+            
+        tags = []
+        for line in response.read().splitlines():
+            tag, _ = line.strip().rsplit("\t", 1)
+            tags.append(tag)
+            yield (tree, tag)
+        g_tag_cache[tree] = tags
+            
+
 def getTreeFromVersion(version=None):
     """Get the tree name of the upstream Mozilla Mercurial repository from a
     given version number.
@@ -29,46 +58,53 @@ def getTreeFromVersion(version=None):
     """
     log.debug("Getting tree for version %s", version)
 
+    wanted_tag = None
     if version is None:
         # use default
-        version = "7.0.1"
+        version = "31.1.1"
     elif ":" in version:
         # Obsolete syntax, version:TAG; just use the tag
-        version = version.split(":", 1)[1]
+        version, wanted_tag = version.split(":", 1)
+    elif version.startswith("FIREFOX_") and version.endswith("_RELEASE"):
+        # A specific TAG
+        wanted_tag = version
 
-    # Figure out what version the user actually asked for
+    if wanted_tag:
+        # Look in trees for the wanted tag - it must be an exact match.
+        if "esr_" in wanted_tag:
+            trees = ("mozilla-esr31",)
+        else:
+            trees = ("mozilla-release", "mozilla-beta", "mozilla-aurora")
+        for tree, tag in genTagsFromTrees(trees):
+            if tag == wanted_tag:
+                return (tree, tag)
+        raise ValueError("Tag %r not found")
+
+    # Figure out the closest version to what the user asked for.
     try:
-        if not "." in version:
-            matches = re.match(r"FIREFOX_(?P<version>(?:\d+_)*(?:\d+(?:a|b)\d+_)?)RELEASE", version)
-            if matches:
-                # version is a tag, FIREFOX_0_0_0_RELEASE
-                version = ".".join(matches.group("version").strip("_").split("_"))
-            else:
-                # assume version string like "700" which should be mapped to "7.0.0"
-                version = ("%s00" % (version))[:max(3,len(version))]
-                version = ".".join((version[:-2], version[-2], version[-1]))
         wanted_version = StrictVersion(version)
     except ValueError:
         wanted_version = LooseVersion(version)
     log.debug("looking for version: %s", wanted_version)
 
-    # Look for a matching tag
+    # Look for a matching release version.
     max_ver = 0.0
-    for tree in ("mozilla-esr31", "mozilla-release", "mozilla-beta", "mozilla-aurora"):
-        tags_url = "http://hg.mozilla.org/releases/%s/raw-tags" % (tree,)
-        response = urllib2.urlopen(tags_url)
-        for line in response.read().splitlines():
-            tag, commitid = line.strip().rsplit("\t", 1)
-            if not tag.startswith("FIREFOX_") or not tag.endswith("_RELEASE"):
-                continue
-            ver = ".".join(tag.split("_", 1)[1].rsplit("_", 1)[0].split("_"))
+    for tree, tag in genTagsFromTrees(("mozilla-release", "mozilla-beta", "mozilla-aurora")):
+        if not tag.startswith("FIREFOX_") or not tag.endswith("_RELEASE"):
+            continue
+        ver = ".".join(tag.split("_", 1)[1].rsplit("_", 1)[0].split("_"))
+        #log.debug("  checking ver %s", ver)
+        try:
             if ver == wanted_version:
                 log.debug("Found exact match in %s: %s", tree, tag)
                 return (tree, tag)
-            if tree == "mozilla-release":
-                ver = float(ver.split(".")[0])
-                if ver > max_ver:
-                    max_ver = ver
+        except ValueError, ex:
+            # Not a correctly formatter version.
+            continue
+        if tree == "mozilla-release":
+            ver = float(ver.split(".")[0])
+            if ver > max_ver:
+                max_ver = ver
 
     # No specific tag; try the defaults of the branches, starting from the newest
     # Note that once we get here we only check the major version, so you can't,
@@ -171,6 +207,18 @@ def test():
             tree, tag = getTreeFromVersion("2400:FIREFOX_24_0b1_RELEASE")
             self.assertEqual(tree, "mozilla-release")
             self.assertEqual(tag, "FIREFOX_24_0b1_RELEASE")
+        def test_tag_beta(self):
+            tree, tag = getTreeFromVersion("FIREFOX_24_0b1_RELEASE")
+            self.assertEqual(tree, "mozilla-release")
+            self.assertEqual(tag, "FIREFOX_24_0b1_RELEASE")
+        def test_version_and_tag_esr(self):
+            tree, tag = getTreeFromVersion("3100:FIREFOX_31_1_1esr_RELEASE")
+            self.assertEqual(tree, "mozilla-esr31")
+            self.assertEqual(tag, "FIREFOX_31_1_1esr_RELEASE")
+        def test_tag_esr(self):
+            tree, tag = getTreeFromVersion("FIREFOX_31_1_1esr_RELEASE")
+            self.assertEqual(tree, "mozilla-esr31")
+            self.assertEqual(tag, "FIREFOX_31_1_1esr_RELEASE")
 
     suite = unittest.TestLoader().loadTestsFromTestCase(GetMozillaTreeTests)
     unittest.TextTestRunner().run(suite)
