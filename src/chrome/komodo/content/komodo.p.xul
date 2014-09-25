@@ -255,8 +255,7 @@
                   observes="cmd_pasteHtml"
                   />
 
-        <menuseparator id="editor_context_select_separator"/>
-
+        <menuseparator id="editor_context_find_separator"/>
         <menu id="editor_context_select_menu"
               label="&select.menu.label;"
               accesskey="&select.menu.accesskey;">
@@ -285,18 +284,6 @@
                           observes="cmd_addNextWordToCaretSet"/>
             </menupopup>
         </menu>
-
-        <menuseparator id="context-sep-paste"/>
-        <menuitem id="editor-context-makeSnippet"
-                label="&addAsSnippetInToolbox.label;"
-                observes="cmd_makeSnippetFromSelection"/>
-        <menuitem id="editor-go-to-definition"
-                label="&goToDefinition.label;"
-                observes="cmd_goToDefinition"/>
-        <menuitem id="editor-jump-corresponding"
-                label="&jumpToCorrespondingLine.label;"
-                class="menuitem-iconic reveal-in-editor-icon"
-                observes="cmd_jumpToCorrespondingLine"/>
         <menuitem id="editor-context-find"
                 label="&find.label;"
                 observes="cmd_find"
@@ -307,15 +294,6 @@
                 observes="cmd_replace"
                 class="menuitem-iconic"
                 />
-        <menuitem id="editor-context-rename-tag"
-                label="&renameTag.label;"
-                observes="cmd_rename_tag"
-                class="menuitem-iconic"
-                />
-        <menuitem label="&toggleBookmark.label;"
-                id="menu_bookmarkToggle"
-                observes="cmd_bookmarkToggle"/>
-        <menuseparator id="context-sep-debug"/>
         <menuitem id="menu_showUnsavedChanges"
                   label="&showUnsavedChanges.label;"
                   observes="cmd_showUnsavedChanges"/>
@@ -327,6 +305,10 @@
         <!-- Note: two separators in a row is okay because we always expect
              to have at least one user of this space (the spell checker). -->
         <menuseparator id="editor-context-sep-properties"/>
+        <menuitem id="editor-context-makeSnippet"
+                label="&addAsSnippetInToolbox.label;"
+                observes="cmd_makeSnippetFromSelection"/>
+
         <menuitem id="editor-context-properties"
                 label="&filePreferences.label;"
                 observes="cmd_editPrefsCurrent"/>
