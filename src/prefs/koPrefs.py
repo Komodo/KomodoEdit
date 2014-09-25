@@ -101,6 +101,7 @@
 import functools
 import sys, os, types, re, shutil, operator, copy
 import time
+import codecs
 from xml.dom import minidom
 from xml.sax import SAXParseException
 from eollib import newl
@@ -527,7 +528,7 @@ class koPreferenceSetBase(object):
         pickleCache(self, filename)
 
     def serializeToFile(self, filename):
-        with file(filename, "wb") as stream:
+        with codecs.open(filename, "wb", "utf-8") as stream:
             writeXMLHeader(stream)
             self.serialize(stream, "")
             writeXMLFooter(stream)
@@ -1165,7 +1166,7 @@ class koOrderedPreference(object):
         return True
 
     def serializeToFile(self, filename):
-        with file(filename, "wb") as stream:
+        with codecs.open(filename, "wb", "utf-8") as stream:
             self.serialize(stream, "")
 
     def serialize(self, stream, basedir):
@@ -1278,7 +1279,7 @@ class koPreferenceCache(object):
         assert self._is_sane()
     
     def serializeToFile(self, filename):
-        with file(filename, "wb") as stream:
+        with codecs.open(filename, "wb", "utf-8") as stream:
             writeXMLHeader(stream)
             self.serialize(stream, "")
             writeXMLFooter(stream)

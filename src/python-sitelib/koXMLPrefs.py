@@ -45,6 +45,7 @@ from xpcom.server.enumerator import SimpleEnumerator
 from xpcom.server import WrapObject, UnwrapObject
 from xpcom.client import WeakReference
 import re, sys, os
+import codecs
 from eollib import newl
 import logging
 import uriparse
@@ -411,7 +412,6 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
         attrs = {}
         if prefName:
             attrs['id'] = cgi_escape(prefName,1)
-        # serialize string prefs as UTF-8
         if basedir:
             try:
                 relative = uriparse.RelativizeURL(basedir, pref)
@@ -446,7 +446,6 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
         for a,v in attrs.items():
             data += ' %s="%s"' % (a,v)
         data += u'>%s</string>%s' % (_xmlencode(pref), newl)
-        data = data.encode("utf-8")
         stream.write(data)
     elif prefType in ("boolean"):
         if prefName is None:
@@ -528,16 +527,14 @@ class koXMLPreferenceSetObjectFactory:
         # Open the file (we're assuming that prefs are all local
         # files for now)
         if os.path.isfile(filename):
-            stream = open(filename, "r")
-            #XXX need to handle exceptions from minidom to be robust
-            try:
-                rootNode = minidom.parse(stream)
-            except (AttributeError, SAXParseException), e:
-                #XXX why would an AttributeError be raised?
-                log.exception("Couldn't deserialize file %r", filename)
-                return None
-            finally:
-                stream.close()
+            with codecs.open(filename, "rb", "utf-8") as stream:
+                #XXX need to handle exceptions from minidom to be robust
+                try:
+                    rootNode = minidom.parse(stream)
+                except (AttributeError, SAXParseException), e:
+                    #XXX why would an AttributeError be raised?
+                    log.exception("Couldn't deserialize file %r", filename)
+                    return None
         else:
             #log.debug("No prefs file %r - returning None...", filename)
             return None
