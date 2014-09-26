@@ -11,7 +11,17 @@ var scimoz = function()
     return window.ko.views.manager.currentView.scimoz;
 }
 
+var scintilla = function()
+{
+    if ( ! window.ko.views.manager.currentView) return undefined;
+    return window.ko.views.manager.currentView.scintilla;
+}
+
 module.exports = {
+
+    available: function() {
+        return ( !! scimoz() && !! scintilla() );
+    },
 
     /** ****** Commands ****** **/
 
@@ -341,6 +351,27 @@ module.exports = {
     },
 
     /**
+     * Get the position of the cursor relative to the Komodo window
+     *
+     * @returns {Object} {x: .., y: ..}
+     */
+    getCursorWindowPosition: function()
+    {
+        var _scintilla = scintilla();
+        var _scimoz = scimoz();
+        if ( ! _scintilla || ! _scimoz) return {x: 0, y: 0};
+
+        var scx = _scintilla.boxObject.screenX;
+        var scy = _scintilla.boxObject.screenY;
+
+        var currentPos = _scimoz.currentPos;
+        var curx = _scimoz.pointXFromPosition(currentPos);
+        var cury = _scimoz.pointYFromPosition(currentPos);
+
+        return {x: (scx + curx), y: (scy + cury)};
+    },
+
+    /**
      * Get the current line number
      *
      * @returns {Int}
@@ -451,7 +482,7 @@ module.exports = {
      */
     setCursor: function(pos)
     {
-        var pos = this._posFormat(pos, "absolute");
+        pos = this._posFormat(pos, "absolute");
         scimoz().setSel(pos, pos);
     },
 
@@ -505,7 +536,7 @@ module.exports = {
     {
         return {
             start: this._posFormat(scimoz().anchor, format),
-            end: this._postFormat(scimoz().currentPos, format)
+            end: this._posFormat(scimoz().currentPos, format)
         }
     },
 
@@ -544,6 +575,16 @@ module.exports = {
                 this.setCursorPosition(this.getCursorPosition("absolute") - replacement.length);
                 break;
         }
+    },
+
+    /**
+     * Get the current programming language used
+     *
+     * @returns {string}
+     */
+    getLanguage: function()
+    {
+        return scintilla().language;
     },
 
     /** ****** Bookmarks ****** **/
