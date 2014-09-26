@@ -23,6 +23,9 @@ if (typeof(ko) == 'undefined') {
     var ko = {};
 }
 
+/* Komodo version */
+ko.version = "PP_KOMODO_VERSION";
+
 // Prepare window.console so jetpack doesnt instantiate its own
 Services.scriptloader.loadSubScript("chrome://komodo/content/sdk/console.js");
 

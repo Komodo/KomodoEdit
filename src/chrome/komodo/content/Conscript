@@ -49,6 +49,7 @@ Import(
     'jarring',
     'buildFlavour',
     'komodoTitleBarName',
+    'komodoVersion',
     'mozVersion',
     'komodoDevDir',
     'sdkDir',
@@ -66,7 +67,8 @@ $cons->Command("komodo.manifest.landmark",
                  touch %>
                ));
 
-$cons->Preprocess('globals.p.js', 'globals.js');
+$cons->Preprocess('globals.p.js', 'globals.js',
+                  {'PP_KOMODO_VERSION' => "$komodoVersion"});
 $cons->InstallInChrome('globals.js');
 $cons->Preprocess('commandsOverlay.p.xul', 'commandsOverlay.xul');
 $cons->InstallInChrome('commandsOverlay.xul');
