@@ -955,10 +955,6 @@ def target_configure(argv):
             specified then tests are NOT built for release builds and
             ARE for debug builds.
 
-        --official
-            build a clean unpatched mozilla or firefox
-            (Note: I don't trust that this is what you get. --TM)
-
         --compiler=<vc9|vc10|vc11>  # Windows-only
             There is *some* support for building Mozilla/Firefox with
             the non-default compiler on Windows. Currently we build with
@@ -1001,7 +997,6 @@ def target_configure(argv):
         "mozApp": "komodo",
         "jsStandalone": False,
         "mozSrcScheme": "3100",
-        "official": False,      # i.e. a plain Mozilla/Firefox build w/o Komodo stuff
         "withCrashReportSymbols": False,
         "withPGOGeneration": False,
         "withPGOCollection": False,
@@ -1050,7 +1045,6 @@ def target_configure(argv):
              "src-tree-name=",
              "build-name=",  # this is deprecated, use --src-tree-name
              "build-tag=",
-             "official",
              "p4-changenum=",
              "compiler=", "gcc=", "gxx=",
              "moz-objdir="])
@@ -1090,9 +1084,6 @@ def target_configure(argv):
             config["mozApp"] = optarg
         elif opt == "--js":
             config["jsStandalone"] = True
-        elif opt == "--official":
-            config["official"] = True
-            config["komodoVersion"] = None
         elif opt == "--no-mar":
             config["enableMar"] = False
         elif opt in ("-k", "--komodo-version"):
@@ -1398,11 +1389,7 @@ def target_configure(argv):
                    "suite": "ste", "browser": "ff"}[config["mozApp"]]
     buildOpts = config["buildOpt"][:]
     buildOpts.sort()
-    if config["official"]:
-        srcTreeNameBits = [config["mozSrcName"]]
-        config["patchesDirs"] = ["patches-official"]
-    else:
-        srcTreeNameBits = [config["mozSrcName"], "ko"+config["komodoVersion"]]
+    srcTreeNameBits = [config["mozSrcName"], "ko"+config["komodoVersion"]]
     mozObjDirBits = [shortMozApp, shortBuildType] + buildOpts
     if config["buildTag"]:
         srcTreeNameBits.append(config["buildTag"])
@@ -1415,9 +1402,8 @@ def target_configure(argv):
     # of '.mozconfig') -- unless specifically given.
     mozVer = config["mozVer"]
     if config["mozconfig"] is None:
-        if not config["official"]:
-            # help viewer was removed from normal builds, enable it for Komodo
-            mozBuildOptions.append("enable-help-viewer")
+        # help viewer was removed from normal builds, enable it for Komodo
+        mozBuildOptions.append("enable-help-viewer")
 
         if not config.get("withTests", False):
             mozBuildOptions.append("disable-tests")
