@@ -62,18 +62,25 @@ var log = ko.logging.getLogger("dialogs.yesNo");
 var gDoNotAskUI = false; // true iff "Don't ask me again" UI is being used.
 var gHelpTopic = null;
 
+var yes, no;
+
 
 //---- interface routines for XUL
 
 function OnLoad()
 {
+    yes = window.arguments[0].yes ? window.arguments[0].yes : "Yes";
+    no = window.arguments[0].no ? window.arguments[0].no : "No";
+    var yesA = yes.substr(0,1).toLowerCase();
+    var noA = no.substr(0,1).toLowerCase();
+
     var dialog = document.getElementById("dialog-yesno");
     var yesButton = dialog.getButton("accept");
     var noButton = dialog.getButton("cancel");
-    yesButton.setAttribute("label", "Yes");
-    yesButton.setAttribute("accesskey", "y");
-    noButton.setAttribute("label", "No");
-    noButton.setAttribute("accesskey", "n");
+    yesButton.setAttribute("label", yes);
+    yesButton.setAttribute("accesskey", yesA);
+    noButton.setAttribute("label", no);
+    noButton.setAttribute("accesskey", noA);
 
     // .prompt
     var descWidget = document.getElementById("prompt");
@@ -91,15 +98,15 @@ function OnLoad()
     // .response
     var response = window.arguments[0].response;
     if (typeof response == "undefined" || response == null) {
-        response = "Yes";
+        response = yes;
     }
     log.info("default response: "+response);
     switch (response) {
-    case "Yes":
+    case yes:
         // "Yes" button is the hardcoded default already.
         yesButton.focus();
         break;
-    case "No":
+    case no:
         yesButton.removeAttribute("default");
         log.debug("set No button as default");
         noButton.setAttribute("default", "true");
@@ -191,7 +198,7 @@ function handleKeys(event) {
 
 function Yes()
 {
-    window.arguments[0].response = "Yes";
+    window.arguments[0].response = yes;
     if (gDoNotAskUI) {
         var checkbox = document.getElementById("doNotAsk-checkbox");
         window.arguments[0].doNotAsk = checkbox.checked;
@@ -201,7 +208,7 @@ function Yes()
 
 function No()
 {
-    window.arguments[0].response = "No";
+    window.arguments[0].response = no;
     if (gDoNotAskUI) {
         var checkbox = document.getElementById("doNotAsk-checkbox");
         window.arguments[0].doNotAsk = checkbox.checked;
