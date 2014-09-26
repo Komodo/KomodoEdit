@@ -79,7 +79,10 @@ except ImportError, e:
         class interfaces:
             koIFileNotificationObserver = None
         @staticmethod
-        def ProxyToMainThreadAsync(klass, fn):
+        def ProxyToMainThread(fn):
+            return fn
+        @staticmethod
+        def ProxyToMainThreadAsync(fn):
             return fn
     # Type of watch to perform (used in addObserver below)
     WATCH_FILE          = 0
