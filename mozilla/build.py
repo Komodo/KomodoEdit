@@ -672,6 +672,21 @@ def _getMozSrcInfo(scheme, mozApp):
         config["mozSrcName"] = "moz%s" % (config["mozSrcHgRepo"], )
         config["mozVer"] = round(int(config["mozSrcHgRepo"]) / 100.0, 2)
 
+    elif re.match(r"^FIREFOX_.*_RELEASE$", scheme): # TAG
+        # Determine the version from the tag.
+        match = re.match(r"^FIREFOX_(?P<ver>\d+\_\d+\_\d+)(?P<type>esr)?_RELEASE$", scheme)
+        if not match:
+            raise BuildError("Unexpected mozSrc tag %r" % scheme)
+        config["mozSrcType"] = "hg"
+        config["mozSrcHgTag"] = scheme
+        ver = match.group("ver").replace("_", "")
+        hgtype = match.group("type") or ""
+        config["mozVer"] = round(int(ver) / 100.0, 2)
+        config["mozSrcHgRepo"] = ver + hgtype
+        config["mozSrcName"] = "moz%s" % (config["mozSrcHgRepo"], )
+    else:
+        raise BuildError("Unexpected mozSrc %r" % scheme)
+
     return config
 
 
