@@ -20,6 +20,7 @@
     const console       = new ConsoleAPI({innerID: "koConsoleWrapper"});
     const {logging}     = Cu.import("chrome://komodo/content/library/logging.js", {});
     const log           = logging.getLogger("console");
+    log.setLevel(logging.LOG_DEBUG);
 
     this.debug = console.debug;
     this.error = console.error;
