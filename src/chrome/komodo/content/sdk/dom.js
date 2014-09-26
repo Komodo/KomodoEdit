@@ -82,7 +82,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 
             if (("where" in opts) && opts.where == "prepend" && this.firstChild)
                 this.insertBefore(_insert, this.firstChild);
-            else if (opts.where == "after")
+            else if (("where" in opts) && opts.where == "after")
             {
                 if (this.nextSibling)
                     this.parentNode.insertBefore(_insert, this.nextSibling);
