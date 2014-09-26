@@ -6,6 +6,7 @@
     const log       = require("ko/logging").getLogger("commando");
     const uuidGen   = require("sdk/util/uuid");
     const keybinds  = require("ko/keybindings");
+    const commands  = require("ko/commands");
 
     const ioService = Cc["@mozilla.org/network/io-service;1"]
                         .getService(Ci.nsIIOService);
@@ -360,7 +361,7 @@
         scopeElem._scope = local.scopes[id];
 
         // Register command
-        keybinds.register(id, this.showCommando.bind(this, id), {
+        commands.register(id, this.showCommando.bind(this, id), {
             defaultBind: opts.keybind,
             label: "Commando: Open Commando with the " + opts.name + " scope"
         });
@@ -372,7 +373,7 @@
             if (keybind)
             {
                 log.debug("Binding " + keybind + " to " + id);
-                keybinds.addKeybind(id, keybind, true);
+                keybinds.register(id, keybind, true);
             }
         }
 
@@ -430,7 +431,7 @@
         $("#scope-" + id).delete();
         delete local.scopes[id];
 
-        keybinds.unRegister(id);
+        commands.unregister(id);
     }
 
     this.selectScope = function(scopeId, doOnShow)
