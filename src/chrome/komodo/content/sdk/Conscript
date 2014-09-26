@@ -30,6 +30,7 @@ $cons->InstallInChrome('keybindings.js');
 $cons->InstallInChrome('commands.js');
 $cons->InstallInChrome('less.js');
 $cons->InstallInChrome('console.js');
+$cons->InstallInChrome('menu.js');
 $cons->InstallInChrome('dialogs.js');
 
 if ($buildFlavour eq "dev") {
