@@ -43,9 +43,17 @@ if (typeof module === 'undefined') module = {}; // debugging helper
      */
     $.createElement = function(html)
     {
-        var tmp = document.createElement("div");
-        tmp.innerHTML = html;
-        return tmp.firstChild;
+        try
+        {
+            var tmp = document.createElement("div");
+            tmp.innerHTML = html;
+            return tmp.firstChild;
+        }
+        catch (e)
+        {
+            log.exception(e, "Failed injecting HTML: " + html);
+            return false;
+        }
     }
 
     /**
