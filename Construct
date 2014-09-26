@@ -441,6 +441,7 @@ Build(
     "$build/modules/scope_openfiles/Conscript",
     "$build/modules/scope_bookmarks/Conscript",
     "$build/modules/scope_combined/Conscript",
+    "$build/modules/kopy/Conscript",
 
     "$build/modules/iconset_ambiance/Conscript",
     "$build/modules/iconset_blue/Conscript",

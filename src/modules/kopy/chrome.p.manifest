@@ -1,0 +1,5 @@
+# #if MODE == "dev"
+content kopy content/
+# #else
+content kopy jar:kopy.jar!/content/
+# #endif
