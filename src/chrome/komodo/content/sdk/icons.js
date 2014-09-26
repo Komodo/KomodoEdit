@@ -103,7 +103,7 @@
                 for (let x=0;x<_prefs.length;x++)
                 {
                     let [name, color, exts] = _prefs.getString(x).split(":");
-                    exts = exts.split(",");
+                    exts = (exts||"").split(",");
 
                     for (let _ext in exts)
                         getExtMapping.cached[exts[_ext]] = {ext: name, color: color};
