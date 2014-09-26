@@ -244,7 +244,7 @@
     <menupopup id="tabContextMenu">
      <menuitem id="tabContextMenu_show_in_places"
                observes="cmd_placeView_showCurrent_TabInPlaces"
-               insertbefore="tabContextMenu_separator_2"
+               insertafter="buffertab-context-sep-properties"
                label="&showInPlaces.label;" />
     </menupopup>
     

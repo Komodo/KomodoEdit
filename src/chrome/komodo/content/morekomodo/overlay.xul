@@ -86,33 +86,33 @@
 
     <menupopup id="tabContextMenu">
 
-        <menuseparator id="tabContextMenu_morekomodo_separator_1"
-                       insertbefore="tabContextMenu_separator_1"/>
-
+        <menuseparator id="morekomodo-path-sep"
+                        insertbefore="tabContextMenu_separator_2"/>
         <menuitem id="morekomodo-copyFullPath"
                     class="menuitem-iconic-wide"
                     label="&copy.full.path.label;"
                     accesskey="&copy.full.path.accesskey;"
                     command="cmd_morekomodo_copyFullPath"
                     key="key_cmd_morekomodo_copyFullPath"
-                    insertbefore="tabContextMenu_separator_1"/>
+                    insertbefore="tabContextMenu_separator_2"/>
         <menuitem id="morekomodo-copyFileName"
                     class="menuitem-iconic-wide"
                     label="&copy.file.name.label;"
                     accesskey="&copy.file.name.accesskey;"
                     command="cmd_morekomodo_copyFileName"
                     key="key_cmd_morekomodo_copyFileName"
-                    insertbefore="tabContextMenu_separator_1"/>
+                    insertbefore="tabContextMenu_separator_2"/>
         <menuitem id="morekomodo-copyDirectoryPath"
                     class="menuitem-iconic-wide"
                     label="&copy.directory.path.label;"
                     accesskey="&copy.directory.path.accesskey;"
                     command="cmd_morekomodo_copyDirectoryPath"
                     key="key_cmd_morekomodo_copyDirectoryPath"
-                    insertbefore="tabContextMenu_separator_1"/>
+                    insertbefore="tabContextMenu_separator_2"/>
 
-        <menuseparator id="tabContextMenu_morekomodo_separator2"
-                       insertbefore="tabContextMenu_separator_2"/>
+    </menupopup>
+
+    <menupopup id="menu_tab_actions_popup">
 
         <menuitem id="morekomodo-rename"
                     class="menuitem-iconic-wide"
@@ -120,30 +120,28 @@
                     accesskey="&rename.accesskey;"
                     command="cmd_morekomodo_rename"
                     key="key_cmd_morekomodo_rename"
-                    insertbefore="tabContextMenu_separator_2"/>
+                    insertbefore="tabContextMenu_separator_advanced"/>
         <menuitem id="morekomodo-delete"
                     class="menuitem-iconic-wide"
                     label="&delete.label;"
                     accesskey="&delete.accesskey;"
                     command="cmd_morekomodo_delete"
                     key="key_cmd_morekomodo_delete"
-                    insertbefore="tabContextMenu_separator_2"/>
+                    insertbefore="tabContextMenu_separator_advanced"/>
         <menuitem id="morekomodo-move"
                     class="menuitem-iconic-wide"
                     label="&move.label;"
                     accesskey="&move.accesskey;"
                     command="cmd_morekomodo_move"
                     key="key_cmd_morekomodo_move"
-                    insertbefore="tabContextMenu_separator_2"/>
+                    insertbefore="tabContextMenu_separator_advanced"/>
         <menuitem id="morekomodo-makebackup"
                     class="menuitem-iconic-wide"
                     label="&make.backup.label;"
                     accesskey="&make.backup.accesskey;"
                     command="cmd_morekomodo_makeBackup"
                     key="key_cmd_morekomodo_makeBackup"
-                    insertbefore="tabContextMenu_separator_2"/>
-
-
+                    insertbefore="tabContextMenu_separator_advanced"/>
     </menupopup>
 
 </overlay>

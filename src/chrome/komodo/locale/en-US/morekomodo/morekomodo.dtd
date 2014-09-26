@@ -1,28 +1,28 @@
 <!ENTITY copy.file.name.label "Copy File Name">
 <!ENTITY copy.file.name.accesskey "N">
-<!ENTITY morekomodo.copy.file.name.desc "MoreKomodo: Clipboard - Copy View File Name">
+<!ENTITY morekomodo.copy.file.name.desc "Clipboard - Copy View File Name">
 
 <!ENTITY copy.full.path.label "Copy Full Path">
 <!ENTITY copy.full.path.accesskey "P">
-<!ENTITY morekomodo.copy.full.path.desc "MoreKomodo: Clipboard - Copy View Full Path">
+<!ENTITY morekomodo.copy.full.path.desc "Clipboard - Copy View Full Path">
 
 <!ENTITY copy.directory.path.label "Copy Directory Name">
 <!ENTITY copy.directory.path.accesskey "D">
-<!ENTITY morekomodo.copy.directory.path.desc "MoreKomodo: Clipboard - Copy View Directory Path">
+<!ENTITY morekomodo.copy.directory.path.desc "Clipboard - Copy View Directory Path">
 
 <!ENTITY rename.label "Rename...">
 <!ENTITY rename.accesskey "R">
-<!ENTITY morekomodo.rename.desc "MoreKomodo: File - Rename">
+<!ENTITY morekomodo.rename.desc "File - Rename">
 
-<!ENTITY make.backup.label "Make Backup...">
+<!ENTITY make.backup.label "Make Copy...">
 <!ENTITY make.backup.accesskey "B">
-<!ENTITY morekomodo.make.backup.desc "MoreKomodo: File - Backup">
+<!ENTITY morekomodo.make.backup.desc "File - Copy">
 
 <!ENTITY delete.label "Delete...">
 <!ENTITY delete.accesskey "D">
-<!ENTITY morekomodo.delete.desc "MoreKomodo: File - Delete">
+<!ENTITY morekomodo.delete.desc "File - Delete">
 
 <!ENTITY move.label "Move...">
 <!ENTITY move.accesskey "M">
-<!ENTITY morekomodo.move.desc "MoreKomodo: File - Move">
+<!ENTITY morekomodo.move.desc "File - Move">
 

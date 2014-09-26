@@ -294,24 +294,12 @@
                 observes="cmd_replace"
                 class="menuitem-iconic"
                 />
-        <menuitem id="menu_showUnsavedChanges"
-                  label="&showUnsavedChanges.label;"
-                  observes="cmd_showUnsavedChanges"/>
-        <menuseparator/>
-        <menuitem id="menu_refreshStatus2"
-                label="&refreshStatus.label;"
-                observes="cmd_refreshStatus"/>
+        <!-- Todo: Fix double separator (here for compatibility with IDE) -->
+        <menuseparator id="editor_context_select_separator"/>
         <menuseparator id="editor-context-sep-extensions"/>
-        <!-- Note: two separators in a row is okay because we always expect
-             to have at least one user of this space (the spell checker). -->
-        <menuseparator id="editor-context-sep-properties"/>
         <menuitem id="editor-context-makeSnippet"
                 label="&addAsSnippetInToolbox.label;"
                 observes="cmd_makeSnippetFromSelection"/>
-
-        <menuitem id="editor-context-properties"
-                label="&filePreferences.label;"
-                observes="cmd_editPrefsCurrent"/>
     </menupopup>
 
     <menupopup id="minimapContextMenu"
@@ -350,62 +338,74 @@
                   observes="cmd_bufferCloseOthers"
                   accesskey="&menuCloseOtherBuffers.accesskey;"
                   label="&menuCloseOtherBuffers.label;"/>
-        <menuitem id="menu_movetab"
-                    observes="cmd_movetab"
-                    label="&moveToOtherTabGroup.label;"/>
-        <menuitem id="menu_openTabInNewWindow"
-                    observes="cmd_openTabInNewWindow"
-                    label="&openTabInNewWindow.label;"/>
-        <menuitem id="menu_moveTabToNewWindow"
-                    observes="cmd_moveTabToNewWindow"
-                    label="&moveTabToNewWindow.label;"/>
-        <menuitem id="menu_splittab"
-                    observes="cmd_splittab"
-                    label="&splitView.label;"/>
 
         <menuseparator id="tabContextMenu_separator_1" />
 
-        <menuitem id="menu_save2"
-                  observes="cmd_save"
-                  label="&save.label;"/>
-        <menuitem label="&saveAsDotDotDot.label;"
-                  id="menu_saveAs2"
-                  observes="cmd_saveAs"
-                  accesskey="&menuSaveAs.accesskey;"
-                  />
-        <menu id="menu_saveAsSubMenu"
-              accesskey="&menuSaveAsOther.accesskey;"
-              label="&saveAsOther.label;">
-            <menupopup id="menu_saveAsSubPopup">
-                <menuitem id="menu_saveAs_remote2"
-                    observes="cmd_saveAs_remote"
-                    label="&remoteFile.label;"/>
-                <menuitem id="menu_saveAsTemplate2"
-                    observes="cmd_saveAsTemplate"
-                    label="&template.label;"/>
+        <menu id="menu_tab_placement"
+                label="&tabPlacement.label;">
+            <menupopup>
+                <menuitem id="menu_movetab"
+                            observes="cmd_movetab"
+                            label="&moveToOtherTabGroup.label;"/>
+                <menuitem id="menu_openTabInNewWindow"
+                            observes="cmd_openTabInNewWindow"
+                            label="&openTabInNewWindow.label;"/>
+                <menuitem id="menu_moveTabToNewWindow"
+                            observes="cmd_moveTabToNewWindow"
+                            label="&moveTabToNewWindow.label;"/>
+                <menuitem id="menu_splittab"
+                            observes="cmd_splittab"
+                            label="&splitView.label;"/>
             </menupopup>
         </menu>
 
-        <menuitem id="menu_showUnsavedChanges2"
-                  label="&showUnsavedChanges.label;"
-                  observes="cmd_showUnsavedChanges"/>
-        <menuitem id="menu_tab_revert"
-                  label="&revert.label;"
-                  accesskey="&menuRevert.accesskey;"
-                  observes="cmd_revert"
-                  />
+        <menu id="menu_tab_changes"
+                label="&tabFileChanges.label;">
+            <menupopup>
+                <menuitem id="menu_save2"
+                          observes="cmd_save"
+                          label="&save.label;"/>
+                <menuitem label="&saveAsDotDotDot.label;"
+                          id="menu_saveAs2"
+                          observes="cmd_saveAs"
+                          accesskey="&menuSaveAs.accesskey;"
+                          />
+                <menu id="menu_saveAsSubMenu"
+                      accesskey="&menuSaveAsOther.accesskey;"
+                      label="&saveAsOther.label;">
+                    <menupopup id="menu_saveAsSubPopup">
+                        <menuitem id="menu_saveAs_remote2"
+                            observes="cmd_saveAs_remote"
+                            label="&remoteFile.label;"/>
+                        <menuitem id="menu_saveAsTemplate2"
+                            observes="cmd_saveAsTemplate"
+                            label="&template.label;"/>
+                    </menupopup>
+                </menu>
 
-        <menuseparator id="tabContextMenu_separator_2" />
+                <menuitem id="menu_showUnsavedChanges2"
+                          label="&showUnsavedChanges.label;"
+                          observes="cmd_showUnsavedChanges"/>
+                <menuitem id="menu_tab_revert"
+                          label="&revert.label;"
+                          accesskey="&menuRevert.accesskey;"
+                          observes="cmd_revert"
+                          />
+            </menupopup>
+        </menu>
+        <menu id="menu_tab_actions"
+                label="&tabFileActions.label;">
+            <menupopup id="menu_tab_actions_popup">
+                <!-- MoreKomodo Items -->
+            </menupopup>
+        </menu>
+
+        <menuseparator id="buffertab-context-sep-properties"/>
 
         <menuitem id="menu_refreshStatus3"
                   label="&refreshStatus.label;"
                   observes="cmd_refreshStatus"/>
 
-        <menuseparator id="buffertab-context-sep-properties"/>
-
-        <menuitem id="buffertab-context-mapuri"
-                  label="&createMappedURI.label;"
-                  observes="cmd_createMappedURI"/>
         <menuitem id="buffertab-context-properties"
                   label="&filePreferences.label;"
                   observes="cmd_editPrefsCurrent"/>
