@@ -52,8 +52,12 @@ import shutil
 import threading
 import unittest
 
-from osFileNotificationUtils import *
-import osFilePollingNotifier
+try:
+    from osFileNotificationUtils import *
+except ImportError:
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from osFileNotificationUtils import *
+
 
 log = None
 POLL_PERIOD = 0.3
@@ -61,7 +65,7 @@ POLL_PERIOD = 0.3
 TYPE_POLLING = 1
 TYPE_OS_NOTIFICATIONS = 2
 
-notifications_type = TYPE_POLLING
+notifications_type = TYPE_OS_NOTIFICATIONS
 
 #############################################################
 #                   Test  utilities                         #
@@ -173,29 +177,17 @@ def _get_testing_file_watcher_service(test_name, log_level):
         osFilePollingNotifier.POLL_PERIOD = POLL_PERIOD
         #POLL_PERIOD = osFilePollingNotifier.POLL_PERIOD
         FWS = osFilePollingNotifier.osFilePollingNotifier
-    elif sys.platform.startswith("win"):
-        # Windows
-        log.info("Setting up OS File Notifications for Windows")
-        import osFileNotifications_win32
-        osFileNotifications_win32.POLL_PERIOD = POLL_PERIOD
-        FWS = osFileNotifications_win32.WindowsFileWatcherService
-        osFileNotifications_win32.log = log
-    elif sys.platform.startswith("darwin") or sys.platform.startswith("mac"):
-        # Apple
-        log.info("Setting up OS File Notifications for Apple")
-        from osFileNotifications_darwin import DarwinFileWatcherService as FWS
-        self.__os_file_service = DarwinFileWatcherService(log)
-    elif sys.platform.startswith("linux") or \
-         sys.platform.startswith("sunos") or \
-         sys.platform.startswith("solaris"):
-        # Unix
-        # XXX - Any others here ??
-        log.info("Setting up OS File Notifications for Unix")
-        from osFileNotifications_unix import UnixFileWatcherService as FWS
     else:
-        log.warn("Unknown platform: %s", sys.platform)
-        # Raise exception then
-        raise "Unknown platform: %s" % sys.platform
+        try:
+            from watchdogFileNotifications import WatchdogFileNotificationService as FWS
+        except ImportError:
+            # Find the locations.
+            dn = os.path.dirname
+            parentdir = dn(dn(os.path.abspath(__file__)))
+            contribdir = os.path.join(dn(dn(parentdir)), "contrib")
+            sys.path.append(os.path.join(contribdir, "pathtools"))
+            sys.path.append(os.path.join(contribdir, "watchdog", "src"))
+            from watchdogFileNotifications import WatchdogFileNotificationService as FWS
 
     if notifications_type == TYPE_POLLING:
         osFilePollingNotifier.log = log
@@ -1755,12 +1747,11 @@ def _run_tests(notify_service):
     notifications_type = notify_service
 
     suite = _get_test_suite()
-    runner = unittest.TextTestRunner(verbosity=1)
+    runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
     #for i in range(10):
     #    runner.run(suite)
 
 if __name__ == '__main__':
-    _run_tests(TYPE_POLLING)
-    if sys.platform.startswith("win"):
-        _run_tests(TYPE_OS_NOTIFICATIONS)
+    #_run_tests(TYPE_POLLING)
+    _run_tests(TYPE_OS_NOTIFICATIONS)
