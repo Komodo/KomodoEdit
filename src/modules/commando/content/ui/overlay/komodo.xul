@@ -70,17 +70,19 @@
                                     {{?}}
                                 </vbox>
                                 <hbox class="entry-wrapper" align="center" pack="center"> <!-- processResults relies on the order of these nodes -->
-                                    <hbox class="prefix" align="center" pack="center">
+                                    <hbox class="prefix">
                                         <label class="title" value="{{!it.name}}"/>
                                         {{?it.descriptionPrefix}}
                                             <label class="descriptionPrefix" value="{{!it.descriptionPrefix}}"/>
                                         {{?}}
                                     </hbox>
-                                    {{?it.description}}
-                                        <description class="description" value="{{=it.description}}" crop="{{?it.crop}}{{!it.crop}}{{??}}end{{?}}" flex="1"/>
+                                    {{? !it.descriptionComplex}}
+                                        {{?it.description}}
+                                            <description class="description" value="{{=it.description}}" crop="{{?it.crop}}{{!it.crop}}{{??}}end{{?}}" flex="1"/>
+                                        {{?}}
                                     {{?}}
                                     {{?it.descriptionComplex}}
-                                        <description class="descriptionComplex" align="center">{{=it.descriptionComplex}}</description>
+                                        <description class="descriptionComplex">{{=it.descriptionComplex}}</description>
                                     {{?}}
                                 </hbox>
                             </hbox>

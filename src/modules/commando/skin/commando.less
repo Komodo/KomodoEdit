@@ -13,7 +13,11 @@
 
     #commando-search
     {
-        font-size: 1.4em;
+        &, *
+        {
+            font-size: 1.4rem;
+        }
+
         padding: 4px;
         border: 0;
         margin: 0;
@@ -75,6 +79,7 @@
     #commando-scope
     {
         -moz-appearance: none;
+        background: transparent;
         width: 40px;
         border: 0;
         margin: 0;
@@ -129,7 +134,7 @@
             {
                 .title
                 {
-                    font-size: 1.1em;
+                    font-size: 1.1rem;
                     margin: 0 0 0 6px;
                 }
 
@@ -151,17 +156,15 @@
                     margin: 0 0 0 2px;
                 }
 
-                .descriptionComplex,
-                .descriptionComplex *
-                {
-                    line-height: 1.1em;
-                    vertical-align: middle;
-                }
-
                 .descriptionComplex
                 {
-                    visibility: collapse;
-                    margin-top: -3px; /* Todo: align without fixed values */
+                    max-width: 300px;
+
+                    strong
+                    {
+                        background: @hud-selection-background;
+                        color: @hud-selection-foreground;
+                    }
 
                     .crop
                     {
@@ -175,19 +178,6 @@
                         {
                             direction: rtl;
                         }
-                    }
-                }
-
-                &.processed
-                {
-                    .description
-                    {
-                        visibility: collapse;
-                    }
-
-                    .descriptionComplex
-                    {
-                        visibility: visible;
                     }
                 }
             }

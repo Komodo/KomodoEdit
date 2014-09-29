@@ -512,7 +512,7 @@
         resultElem.element().clearSelection();
         resultElem = $(resultElem.replaceWith(tmpResultElem));
         
-        var maxResults = ko.prefs.getLong("commando_search_max_results", 100);
+        var maxResults = ko.prefs.getLong("commando_search_max_results", 50);
         maxResults -= local.resultsRendered;
         results = results.slice(0, maxResults);
         local.resultsRendered += results.length;
@@ -521,7 +521,6 @@
             log.debug("Reached max results");
 
         var process = [];
-
         for (let result of results)
         {
             result.subscope = local.subscope;
@@ -541,8 +540,7 @@
 
         resultElem.element().selectedIndex = 0;
 
-        if (process)
-            this.renderResults.processTimer = window.setTimeout(processResults.bind(this, process), 100);
+        if (process) processResults(process);
     }
 
     var processResults = function(resultEntries)
@@ -551,7 +549,7 @@
         for (let entry in resultEntries)
         {
             entry = resultEntries[entry];
-            var wrapper = entry.querySelector(".entry-wrapper");
+            var wrapper = getByAttr(entry.childNodes[0], "class", "entry-wrapper");
             var prefix = getByAttr(wrapper, "class", "prefix")
             var descComplex = getByAttr(wrapper, "class", "descriptionComplex")
 
@@ -566,8 +564,6 @@
             // Yes this code sucks, XUL made me do it
             if (descComplex.firstChild && descComplex.firstChild.classList && descComplex.firstChild.classList.contains("crop"))
                 descComplex.firstChild.style.maxWidth = descComplex.style.maxWidth;
-
-            wrapper.classList.add("processed");
         }
     }
 
