@@ -76,10 +76,7 @@ minimap {
   -moz-binding: url('chrome://komodo/content/bindings/views-minimap.xml#view-minimap');
   width: 150px;
   max-width: 150px;
-  padding-left: 1px;
-  background-color: ThreeDShadow;
-      /* -moz-default-color; looks bad on a dark theme
-         transparent; looks bad on a light theme. */
+  border-left: 1px solid ThreeDShadow;
 }
 minimap.hideMinimap  {
   visibility: collapse;
