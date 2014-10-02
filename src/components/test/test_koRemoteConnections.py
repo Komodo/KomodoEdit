@@ -54,15 +54,16 @@ from xpcom import components, COMException
 # Leave password as None and it will try to use an agent
 # Leave password as '' and it will prompt for the password
 test_hosts = [
-  # [ 'protocols',         'hostname',                port,   'username', 'password', 'path'],
-    [('ftp','ftps','sftp','scp'), 'toddw',                   0,      'test',     'testuser', '/home/test'],
-    [('sftp','scp'),       'commodore',               0,      'toddw',    None,       '/home/toddw'],
-    [('sftp','scp'),       'anole',                   0,      'toddw',    None,       '/Users/toddw'],
-    [('sftp','scp'),       'kukri',                   0,      'toddw',    None,       '/export/home/toddw'],
-    [('ftp', 'sftp','scp'),'asaixv5152',              0,      'toddw',    None,       '/home/toddw'],
-    [('sftp','scp'),       'vsbuild2004',             1022,   'toddw',    '',         '/cygdrive/c/home/toddw'],
+  # [ 'protocols',         'hostname',                port,   'username', 'password', 'path',                   'privatekey'],
+    [('ftp','ftps','sftp','scp'), 'toddw',            0,      'test',     'testuser', '/home/test',             ''],
+    [('sftp','scp'),       'commodore',               0,      'toddw',    None,       '/home/toddw',            ''],
+    [('sftp','scp'),       'anole',                   0,      'toddw',    None,       '/Users/toddw',           ''],
+    [('sftp','scp'),       'kukri',                   0,      'toddw',    None,       '/export/home/toddw',     ''],
+    [('ftp', 'sftp','scp'),'asaixv5152',              0,      'toddw',    None,       '/home/toddw',            ''],
+    [('sftp','scp'),       'vsbuild2004',             1022,   'toddw',    '',         '/cygdrive/c/home/toddw', ''],
 ]
-procotcols, hostname, port, username, password, home_dir = test_hosts[0]
+procotcols, hostname, port, username, password, home_dir, privatekey = test_hosts[0]
+passive = False
 
 filedata = """
         # Creating an actual Komodo file object to be used by buffer
@@ -91,10 +92,11 @@ class TestConnection(unittest.TestCase):
         self._username = username
         self._password = password
         self._home_dir = home_dir
+        self._privatekey = privatekey
 
     def setUp(self):
         """Called before every test"""
-        self._connection = RFService.getConnection(self._protocol, self._hostname, self._port, self._username, self._password, '')
+        self._connection = RFService.getConnection2(self._protocol, self._hostname, self._port, self._username, self._password, '', passive, self._privatekey)
         #self._connection.log.addHandler(logging.StreamHandler())
         #import koFTP
         #self._connection = koFTP.koFTPConnection()
@@ -406,7 +408,7 @@ class TestMiscellaneous(unittest.TestCase):
                 username = "test"
                 password = "test"
                 c = RFService.getConnection(protocol, host, port,
-                                            username, password, '')
+                                            username, password, '', '')
             except COMException, ex:
                 lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
                                .getService(components.interfaces.koILastErrorService)

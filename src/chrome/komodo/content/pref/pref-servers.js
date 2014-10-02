@@ -62,7 +62,8 @@ function PrefServers_OnLoad() {
     dialog.path = document.getElementById("path");
     dialog.username = document.getElementById("username");
     dialog.password = document.getElementById("password");
-    dialog.alias = document.getElementById("alias");
+    dialog.privatekeyBox = document.getElementById("ssh_privatekey_vbox");
+    dialog.privatekeyTextbox = document.getElementById("privatekey");
     dialog.ftp_passive_mode = document.getElementById("ftp_passive_mode");
     dialog.buttonDelete = document.getElementById("buttonDelete");
     dialog.buttonAdd = document.getElementById("buttonAdd");
@@ -71,6 +72,7 @@ function PrefServers_OnLoad() {
     dialog.buttonAdd.setAttribute('disabled', 'true');
 
     parent.hPrefWindow.onpageload();
+    checkAddButtonStatus();
 }
 
 function OnPreferencePageOK(prefset) {
@@ -142,10 +144,6 @@ function _strcmp(a,b) {
     if (a<b) return -1;
     return 1;
 }
-// Return an array of Association objects, built from the fileAssociations
-// preference.
-function getServerListFromPreference(prefset) {
-}
 
 // Return true if the arrays of Association objects, a and b, correspond to
 // the same underlying representation as a preference.
@@ -161,7 +159,8 @@ function areServerListsEquivalent(a, b) {
         a[i].path != b[i].path ||
         a[i].passive != b[i].passive ||
         a[i].username != b[i].username ||
-        a[i].password != b[i].password) {
+        a[i].password != b[i].password ||
+        a[i].privatekey != b[i].privatekey) {
       return false;
     }
   }
@@ -169,7 +168,7 @@ function areServerListsEquivalent(a, b) {
   return true;
 }
 
-function _setMenuList(selectedServer) {
+function _setMenuList(selectedServerAlias) {
     var menulist = document.getElementById("serversList");
     var menupopup = document.getElementById("serversPopup");
     var menuitem;
@@ -182,14 +181,16 @@ function _setMenuList(selectedServer) {
     for (i = 0; i < servers.length; i++) {
         menuitem = createServersMenuItem(servers[i]);
         menupopup.appendChild(menuitem);
-        if (servers[i].alias == selectedServer)
+        if (servers[i].alias == selectedServerAlias)
             indexSelect = i;
     }
     if (servers.length > 0)  {
-        if (indexSelect == -1)
+        if (indexSelect == -1) {
             indexSelect = 0;
+            selectedServerAlias = servers[0].alias;
+        }
         menulist.selectedIndex = indexSelect;
-        loadServerEntryWithAlias(servers[indexSelect].alias);
+        loadServerEntryWithAlias(selectedServerAlias);
     }
 }
 
@@ -199,6 +200,15 @@ function togglePassiveFTPSettings() {
         document.getElementById("ftp_passive_mode_vbox").setAttribute('collapsed', 'false');
     } else {
         document.getElementById("ftp_passive_mode_vbox").setAttribute('collapsed', 'true');
+    }
+}
+
+function toggleSshPrivatekeySettings() {
+    var server_type = dialog.server_types.selectedItem.getAttribute("label");
+    if (server_type == "SFTP" || server_type == "SCP") {
+        dialog.privatekeyBox.removeAttribute("collapsed");
+    } else {
+        dialog.privatekeyBox.setAttribute("collapsed", "true");
     }
 }
 
@@ -213,6 +223,7 @@ function checkAddButtonStatus() {
         document.getElementById("buttonAdd").setAttribute('disabled', 'true');
     }
     togglePassiveFTPSettings();
+    toggleSshPrivatekeySettings();
 }
 
 var current_server_idx = -1;
@@ -227,6 +238,7 @@ function onAddServerEntry() {
     var username = dialog.username.value;
     var password = dialog.password.value;
     var passive =  dialog.ftp_passive_mode.selectedIndex;
+    var privatekey = dialog.privatekeyTextbox.value;
     // prevent adding empty entries
     if (!alias || !hostname || !username) {
         prefServersLog.warn("Missing a required field. Name, Host Name and User Name are required fields.");
@@ -252,7 +264,7 @@ function onAddServerEntry() {
         var oldServerInfo = servers[current_server_idx];
         // Preserving the GUID allows us to perform an update more easily
         serverInfo.init(oldServerInfo.guid, protocol, alias, hostname, port,
-                        username, password, path, passive);
+                        username, password, path, passive, privatekey);
         servers[current_server_idx] = serverInfo;
         // Update the menuitem label, in case the alias was changed.
         dialog.serversList.selectedItem.setAttribute('label', serverInfo.alias);
@@ -264,7 +276,7 @@ function onAddServerEntry() {
         }
         // LoginManagerStorage will create a GUID when null
         serverInfo.init(null, protocol, alias, hostname, port, username, password, path,
-                    passive);
+                        passive, privatekey);
         servers.push(serverInfo);
         servers.sort(function (a,b) { return _strcmp(a.alias,b.alias); } );
         _setMenuList(serverInfo.alias);
@@ -291,7 +303,7 @@ function loadServerEntryWithAlias(server_alias) {
         return;
     }
     var server = servers[server_idx];
-    setMenuSelection("server_types",server.protocol);
+    setMenuSelection("server_types", server.protocol);
 
     dialog.alias.value = server.alias;
     dialog.hostname.value = server.hostname;
@@ -303,6 +315,9 @@ function loadServerEntryWithAlias(server_alias) {
     dialog.username.value = server.username;
     dialog.password.value = server.password;
     dialog.ftp_passive_mode.selectedIndex = server.passive ? 1: 0;
+    dialog.privatekeyTextbox.value = server.privatekey;
+
+    toggleSshPrivatekeySettings();
 
     current_server_idx = server_idx;
     dialog.buttonDelete.removeAttribute('disabled');
@@ -344,7 +359,10 @@ function onClearServerEntry() {
     dialog.buttonAdd.setAttribute('disabled', 'true');
     dialog.buttonAdd.setAttribute('label', 'Add');
     dialog.anonymousCheckbox.checked = false;
+    dialog.privatekeyTextbox.value = "";
+
     togglePassiveFTPSettings();
+    toggleSshPrivatekeySettings();
 }
 
 // DOM construction helpers
@@ -370,6 +388,32 @@ function getAliasIndex(alias) {
             return i;
     }
     return -1;
+}
+
+function browseForSSHKeyfile() {
+    var osSvc = Components.classes["@activestate.com/koOs;1"].
+                 getService(Components.interfaces.koIOs);
+    var path = "";
+    var starting_path = "";
+    // If a key is already specified, use the directory of the key path.
+    if (dialog.privatekeyTextbox.value) {
+        path = osSvc.path.dirname(dialog.privatekeyTextbox.value);
+        if (osSvc.path.exists(path)) {
+            starting_path = path;
+        }
+    }
+    // Else, try the user's home directory, in the ".ssh" folder.
+    if (!starting_path) {
+        path = osSvc.path.join(osSvc.path.expanduser("~"), ".ssh");
+        if (osSvc.path.exists(path)) {
+            starting_path = path;
+        }
+    }
+    var filepath = ko.filepicker.browseForFile(starting_path);
+    if (!filepath) {
+        return;
+    }
+    dialog.privatekeyTextbox.value = filepath;
 }
 
 // Not used anywhere, commenting out for now -- ToddW

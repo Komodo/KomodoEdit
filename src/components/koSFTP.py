@@ -167,6 +167,36 @@ class koSFTPConnection(remotefilelib.koRemoteSSH):
             return 1
         return 0
 
+    # Authenicate to the remote SSH server using the supplied private key file.
+    # Return 1 on successful authentication
+    # Return 0 when agent fails to authorize
+    # Raise exception on error
+    def do_authenticateWithPrivateKey(self):
+        if remotefilelib.koRemoteSSH.do_authenticateWithPrivateKey(self) == 1:
+            self._setupClientSFTP()
+            return 1
+        return 0
+
+    # Authenicate to the remote SSH server using the supplied private key file.
+    # Return 1 on successful authentication
+    # Return 0 when agent fails to authorize
+    # Raise exception on error
+    def do_authenticateWithPrivateKey(self):
+        if remotefilelib.koRemoteSSH.do_authenticateWithPrivateKey(self) == 1:
+            self._setupClientSFTP()
+            return 1
+        return 0
+
+    # Authenicate to the remote SSH server using the supplied private key file.
+    # Return 1 on successful authentication
+    # Return 0 when agent fails to authorize
+    # Raise exception on error
+    def do_authenticateWithPrivateKey(self):
+        if remotefilelib.koRemoteSSH.do_authenticateWithPrivateKey(self) == 1:
+            self._setupClientSFTP()
+            return 1
+        return 0
+
     # Return 1 on successful authentication
     # Return 0 when username/password is incorrect
     # Raise exception on error

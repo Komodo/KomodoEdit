@@ -456,6 +456,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY useShebangLine.label "Use shebang line (#!...)">
 <!ENTITY useSignatureBOM.label "Use Byte Order Mark (BOM) signature">
 <!ENTITY useSmartIndent.label "Use Smart Indent">
+<!ENTITY useSSHKeyCheckbox.label "Specify an OpenSSH key file for authentication">
+<!ENTITY useSSHKeyTextbox.tooltip "The file path of the private key you wish to use for Authentication (the file must be in the OpenSSH private key format). If a password is required - it will be prompted for on first use of this key.">
 <!ENTITY useTabCharacterToCompleteWordsLikeCtrlSpace.label "Use Tab character to complete words like Ctrl+Space">
 <!ENTITY usernameUsedToLoginToTheRemoteServer.tooltiptext "Username used to login to the remote server.">
 <!ENTITY value.label "Value">

@@ -73,9 +73,10 @@ class koServerInfo:
         self.password = ''
         self.path = ''
         self.passive = 1
+        self.privatekey = ''
 
     def init(self, guid, protocol, alias, hostname, port, username, password,
-             path, passive, raw_hostdata=None):
+             path, passive, privatekey='', raw_hostdata=None):
         self.guid = guid
         self.protocol = protocol
         self.alias = alias
@@ -91,10 +92,11 @@ class koServerInfo:
             self.passive = int(passive)
         except ValueError:
             self.passive = 1
+        self.privatekey = privatekey
         if raw_hostdata is None:
             # Generate the host data
             fields = map(urllib.quote, [protocol, alias, hostname, str(port),
-                                        path, str(passive)])
+                                        path, str(passive), privatekey])
             self.raw_hostdata = ":".join(fields)
         else:
             # Use the existing host data
@@ -113,13 +115,17 @@ class koServerInfo:
         if len(host_split) == 5:
             # Upgrade - add the passive setting.
             host_split.append("1")
+        if len(host_split) == 6:
+            # Upgrade - add the privatekey setting.
+            host_split.append("")
         # Unquote the elements.
         host_split = map(urllib.unquote, host_split)
         guid = logininfo.QueryInterface(components.interfaces.\
                                         nsILoginMetaInfo).guid
         self.init(guid, host_split[0], host_split[1], host_split[2],
                   host_split[3], logininfo.username, logininfo.password,
-                  host_split[4], host_split[5], raw_hostdata=logininfo.hostname)
+                  host_split[4], host_split[5], host_split[6],
+                  raw_hostdata=logininfo.hostname)
 
     def generateLoginInfo(self):
         loginInfo = components.classes["@mozilla.org/login-manager/loginInfo;1"]\
@@ -290,13 +296,15 @@ class koRemoteConnectionService:
         return conn_key
 
     def _getConnection(self, protocol, server, port, username, password, path,
-                       passive=True, useConnectionCache=True):
+                       passive=True, privatekey='', useConnectionCache=True):
         if password:
             log.debug("getConnection: %s %s:%s@%s:%r '%s'", 
                            protocol, username, '*' * len(password), server, port, path)
         else:
             log.debug("getConnection: %s %s@%s:%r '%s'",
                            protocol, username, server, port, path)
+        if privatekey:
+            log.debug("getConnection: auth using private key: %r", privatekey)
 
         if not protocol or protocol.lower() not in URIlib.RemoteURISchemeTypes:
             self._lasterror = "Unhandled protocol type: %s" % (protocol)
@@ -328,7 +336,7 @@ class koRemoteConnectionService:
             createInstance(components.interfaces.koIRemoteConnection)
         log.debug("getConnection: Opening %s %s@%s:%r", protocol, username, server, port)
         try:
-            c.open(server, port, username, password, path, passive)
+            c.open(server, port, username, password, path, passive, privatekey)
             if useConnectionCache:
                 self._connection_cache.addConnection(conn_key, c)
             # Update sessionkey to contain any changes to the username, which
@@ -355,7 +363,8 @@ class koRemoteConnectionService:
                     serverInfo.username,
                     serverInfo.password,
                     serverInfo.path,
-                    serverInfo.passive]
+                    serverInfo.passive,
+                    serverInfo.privatekey]
         return None
 
     def _getServerDetailsFromUri(self, uri):
@@ -367,6 +376,7 @@ class koRemoteConnectionService:
         password = ''
         path = ''
         passive = 1
+        privatekey = ''
 
         uriparse = URIlib.URIParser(uri)
         if uriparse.scheme not in URIlib.RemoteURISchemeTypes:
@@ -398,6 +408,7 @@ class koRemoteConnectionService:
             password = server_prefs[5]
             path     = server_prefs[6]
             passive  = server_prefs[7]
+            privatekey = server_prefs[8]
         else:
             log.debug("uri host info: %s", uriparse.server)
             serveruri = URIlib.URIServerParser(uriparse.server)
@@ -411,11 +422,11 @@ class koRemoteConnectionService:
             path = uriparse.path
 
         return [ protocol, server_alias, hostname, str(port), username,
-                 password, path, str(passive) ]
+                 password, path, str(passive), privatekey ]
 
     def _getConnectionUsingUri(self, uri, useConnectionCache=True):
         protocol, server_alias, hostname, port, username, password, \
-                    path, passive = self._getServerDetailsFromUri(uri)
+                    path, passive, privatekey = self._getServerDetailsFromUri(uri)
         # We want the port as an integer
         try:
             if not port: port = -1
@@ -435,6 +446,7 @@ class koRemoteConnectionService:
         # Now we have all the info, lets go make the connection
         connection = self._getConnection(protocol, hostname, port, username,
                                          password, path, passive,
+                                         privatekey=privatekey,
                                          useConnectionCache=useConnectionCache)
 
         if connection:
@@ -591,7 +603,7 @@ class koRemoteConnectionService:
 
     # Return a connection object for the given parameters
     def getConnection(self, protocol, server, port, username, password, path,
-                      passive=True):
+                      passive=True, privatekey=''):
         # XXX - Requires ActivePython to support ssl
         # http://bugs.activestate.com/show_bug.cgi?id=50207
         if protocol == "ftps" and not hasattr(socket, 'ssl'):
@@ -601,7 +613,8 @@ class koRemoteConnectionService:
             lastErrorSvc.setLastError(0, self._lasterror)
             raise ServerException(nsError.NS_ERROR_FAILURE, self._lasterror)
 
-        return self._getConnection(protocol, server, port, username, password, path, passive)
+        return self._getConnection(protocol, server, port, username, password,
+                                   path, passive, privatekey=privatekey)
 
     # getConnection2 is the same as getConnection, except it also offers to set
     # the passive ftp mode.
@@ -640,9 +653,10 @@ class koRemoteConnectionService:
             password = server_prefs[5]
             path     = server_prefs[6]
             passive  = server_prefs[7]
+            privatekey = server_prefs[8]
             connection =  self._getConnection(protocol, hostname, port,
                                               username, password, path,
-                                              passive)
+                                              passive, privatekey=privatekey)
             if connection:
                 # Remember the alias used to get the connection.
                 connection.alias = server_alias;
@@ -650,6 +664,25 @@ class koRemoteConnectionService:
         raise ServerException(nsError.NS_ERROR_FAILURE,
                               "No server found for alias: %r" % (
                                     server_alias))
+
+    # Return the connection object for the given serverInfo.
+    def getConnectionUsingServerInfo(self, serverInfo):
+        self._lock.acquire()
+        try:
+            connection =  self._getConnection(serverInfo.protocol,
+                                              serverInfo.hostname,
+                                              serverInfo.port,
+                                              serverInfo.username,
+                                              serverInfo.password,
+                                              serverInfo.path,
+                                              serverInfo.passive,
+                                              serverInfo.privatekey)
+            if connection:
+                # Remember the alias used to get the connection.
+                connection.alias = serverInfo.alias;
+            return connection
+        finally:
+            self._lock.release()
 
     # Set the session information for this key
     def saveSessionInfo(self, key, data):

@@ -43,7 +43,8 @@
 interface koIRemoteConnection : nsISupports {
     void promptForUsernameAndPassword(in wstring path);
     boolean open(in wstring server, in long port, in wstring username,
-                 in wstring password, in wstring path, in boolean passive);
+                 in wstring password, in wstring path, in boolean passive,
+                 [optional] in wstring privatekey);
     
     // list caches results.  set refresh to true to force a refresh from the server
     // A better name for this method would be 'stat', as it's a remote
@@ -79,6 +80,7 @@ interface koIRemoteConnection : nsISupports {
     readonly attribute long port;
     readonly attribute wstring username;
     readonly attribute wstring password;
+    readonly attribute wstring privatekey;
     readonly attribute wstring lastError;
 };
 

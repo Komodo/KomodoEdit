@@ -57,7 +57,7 @@
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/stringutils.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/pref-servers.js" type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/editor/fileops.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
 
     <menupopup id="dialogTooltip" />
@@ -134,6 +134,28 @@
                              tooltiptext="&ifNoPasswordIsGivenYouLlBePromptedForItUponFirstConnecting.tooltiptext;"/>
                 </vbox>
             </hbox>
+
+            <vbox flex="1" id="ssh_privatekey_vbox">
+                <label value="&useSSHKeyCheckbox.label;" style="margin: 0;"/>
+                <hbox id="ssh_privatekey_hbox">
+                    <textbox id="privatekey"
+                             flex="1"
+                             tooltiptext="&useSSHKeyTextbox.tooltip;"
+                             style="min-height: 16px;"
+                             maxrows="10"
+                             size="30"
+                             type="autocomplete"
+                             autocompletesearch="mru_and_filepath"
+                             autocompletesearchparam="mru: remotefiles_privatekey_textbox_mru"
+                             autocompletepopup="popupTextboxAutoComplete"
+                             enablehistory="true"
+                             tabscrolling="true"
+                             completeselectedindex="true"
+                            />
+                    <button id="ssh_browse_keyfile_button" label="&browse.label;" oncommand="browseForSSHKeyfile();"/>
+                </hbox>
+            </vbox>
+
             <vbox flex="1">
                 <text value="&defaultPath.label;" class="kopadded"/>
                 <textbox id="path" flex="1" value="" oninput="checkAddButtonStatus();"

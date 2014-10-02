@@ -92,6 +92,7 @@ class koRFConnection:
         self.username = ""
         self.password = ""
         self.passive = True
+        self.privatekey = ""
         self.homedirectory = None
         self._lasterror = ""
         self._last_verified_time = 0
@@ -118,6 +119,7 @@ class koRFConnection:
     # do_* functions should never get called unless the protocol does
     # not implement the function
     def do_authenticateWithPassword(self): raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+    def do_authenticateWithPrivateKey(self): raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
     def do_authenticateWithAgent(self): raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
     def do_openSocket(self): raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
     def do_verifyConnected(self): raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
@@ -393,7 +395,8 @@ class koRFConnection:
     # XPcom methods, available through koIRemoteConnection interface
     #
     # Note: path is only used for displaying on the username/password dialog
-    def open(self, server, port, username, password, path, passive=True):
+    def open(self, server, port, username, password, path, passive=True,
+             privatekey=""):
         if not self._lock.acquire(blocking=False):
             self._raiseServerException("Could not acquire remote connection lock. Multi-threaded access detected!")
         try:
@@ -403,6 +406,7 @@ class koRFConnection:
             if port > 0: self.port = port
             else: self.port = koRFProtocolDefaultPort[self.protocol]
             self.passive = passive
+            self.privatekey = privatekey
     
             self.authAttempt = 0
             while self.authAttempt < 3:
@@ -430,6 +434,20 @@ class koRFConnection:
                 if self.do_authenticateWithAgent():
                     self.log.debug("Agent authentication successful.")
                     break
+
+                # Sometimes the above agent authentication will close the SSH
+                # transport, so if that happended we re-open it now.
+                if self.protocol in ("sftp", "scp") and not self._connection.active:
+                    self.do_close()
+                    self.log.debug("open: connection closed by agent auth, reopening it")
+                    self.do_openSocket()
+
+                # We only try the privatekey once, as it will do it's own
+                # re-prompting if necessary.
+                if privatekey and self.authAttempt == 1:
+                    if self.do_authenticateWithPrivateKey():
+                        self.log.debug("Private key authentication successful.")
+                        break
                 if self.do_authenticateWithPassword():
                     self.log.debug("Password authentication successful.")
                     break
@@ -740,6 +758,44 @@ import paramiko
 
 MAX_BLOCK_SIZE = 8192
 
+# Dictionary of loaded keys, the file path is the dictionary key and the value
+# is a paramiko private key (PKey).
+loaded_private_keys = {}
+
+class InvalidPrivateKeyException(Exception):
+    """
+    Exception raised when Komodo is unable to load a private key file.
+    """
+    pass
+
+def load_private_key(privatekey, password=None):
+    for key_class in (paramiko.DSSKey, paramiko.RSAKey):
+        try:
+            return key_class.from_private_key_file(privatekey)
+            break
+        except paramiko.PasswordRequiredException:
+            password_attempts = 0
+            prompt = "Passphrase for '%s':" % (privatekey, )
+            promptSvc = components.classes["@mozilla.org/embedcomp/prompt-service;1"].\
+                            getService(components.interfaces.nsIPromptService)
+            while password_attempts < 3:
+                password_attempts += 1
+                checkstate = False
+                if password_attempts >= 2:
+                    prompt = "Passphrase incorrect, try again:"
+                success, password, checkstate = promptSvc.promptPassword(None, "Private Key Authentication", prompt, "", "", checkstate)
+                if not success:
+                    return None
+                try:
+                    return key_class.from_private_key_file(privatekey, password)
+                except paramiko.SSHException:
+                    # Either the password was invalid or the key is invalid.
+                    pass
+        except paramiko.SSHException:
+            # Invalid key file.
+            pass
+    raise InvalidPrivateKeyException("Unrecognized private key format")
+
 # Implement common functions for SSH protocols
 class koRemoteSSH(koRFConnection):
     def __init__(self):
@@ -772,6 +828,43 @@ class koRemoteSSH(koRFConnection):
                     if self._connection.is_authenticated():
                         self.log.debug('Agent authentication was successful!')
                         return 1
+        except paramiko.BadAuthenticationType, e:
+            # Likely if public-key authentication isn't allowed by the server
+            self._lasterror = e.args[-1]
+            self.log.error("SSH AGENT AUTH ERROR: %s", self._lasterror)
+            #self.log.exception(e)
+        return 0
+
+    def do_authenticateWithPrivateKey(self):
+        """Authenticate using a SSH private key"""
+        # Currently paramiko supports the openSSH key-agent and Komodo
+        # adds putty/pageant support for windows
+        try:
+            privatekey = self.privatekey
+            if privatekey in loaded_private_keys:
+                key = loaded_private_keys[privatekey]
+                self.log.debug('Private key already loaded %r', privatekey)
+            else:
+                self.log.debug('Loading the private key %r', privatekey)
+                key = load_private_key(privatekey)
+                if not key:
+                    # User cancelled or unable to load the private key file.
+                    return 0
+                loaded_private_keys[privatekey] = key
+
+            self.log.debug('Trying private key %r', privatekey)
+            try:
+                self._connection.auth_publickey(self.username, key)
+                #self._connection.auth_publickey(self.username, key, event)
+            except paramiko.SSHException, e:
+                # the authentication failed (raised when no event passed in)
+                pass
+            if self._connection.is_authenticated():
+                self.log.debug('Private key authentication was successful!')
+                return 1
+        except (IOError, InvalidPrivateKeyException), e:
+            self._lasterror = e.args[-1]
+            self._raiseServerException("Private key authentication error.\nKey file: '%s'\nReason: %s" % (privatekey, self._lasterror))
         except paramiko.BadAuthenticationType, e:
             # Likely if public-key authentication isn't allowed by the server
             self._lasterror = e.args[-1]
@@ -864,7 +957,7 @@ class koRemoteSSH(koRFConnection):
         try:
             if not self._connection or not self._connection.is_active():
                 self.open(self.server, self.port, self.username, self.password,
-                          "", self.passive)
+                          "", self.passive, self.privatekey)
             else:
                 # Periodically check that the connection is still alive, bug
                 # 85050.

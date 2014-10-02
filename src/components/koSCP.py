@@ -135,8 +135,14 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
             self._raiseWithException(e)
 
     # remotefilelib.koRemoteSSH handles the opening and authentication methods.
-    def do_authenticateWithAgent(self):
-        if remotefilelib.koRemoteSSH.do_authenticateWithAgent(self) == 1:
+    def do_authenticateWithPrivateKey(self):
+        if remotefilelib.koRemoteSSH.do_authenticateWithPrivateKey(self) == 1:
+            self._setHomeDirectory()
+            return 1
+        return 0
+
+    def do_authenticateWithPassword(self):
+        if remotefilelib.koRemoteSSH.do_authenticateWithPassword(self) == 1:
             self._setHomeDirectory()
             return 1
         return 0

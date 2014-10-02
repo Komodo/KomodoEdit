@@ -729,6 +729,7 @@ function RemoteServerInfo() {
     this.password       = null;
     this.hostname       = null;
     this.port           = null;
+    this.privatekey     = null;
     this.connection     = null;
     this.initial_path   = null;
     this.base_uri       = null;
@@ -1514,6 +1515,7 @@ function changeServerInfo(alias) {
         serverInfo.port         = server.port;
         serverInfo.initial_path = server.path;
         serverInfo.passive      = server.passive;
+        serverInfo.privatekey   = server.privatekey;
         // Set to FTP browser if our protocol is 'ftp', 'sftp' etc...
         for (var i = 0; i < remotefile_scheme_types.length; i++) {
             if (serverInfo.protocol == remotefile_scheme_types[i]) {
@@ -1584,7 +1586,8 @@ function connectToServer() {
                                               serverInfo.username,
                                               serverInfo.password,
                                               "",
-                                              serverInfo.passive);
+                                              serverInfo.passive,
+                                              serverInfo.privatekey)
     serverInfo.connection = connection;
     // Connection may have changed the username in the process of connecting,
     // ensure we keep it current
@@ -1613,7 +1616,7 @@ function onServerChanged(alias) {
         server = new Server(serverInfo.protocol, "", serverInfo.hostname,
                             serverInfo.port, serverInfo.initial_path,
                             serverInfo.username, serverInfo.password,
-                            serverInfo.passive);
+                            serverInfo.passive, serverInfo.privatekey);
     }
 
     try {
