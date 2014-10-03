@@ -423,8 +423,8 @@ class CplnTestCase(CodeintelPerlTestCase):
             our $varThat = 2;
             $<|>
             """,
-            [("variable", "$varThat"),
-             ("variable", "$varThis")])
+            [("variable", "varThat"),
+             ("variable", "varThis")])
 
     def test_complete_variables_scoping(self):
         self.assertCompletionsAre(
@@ -436,8 +436,8 @@ class CplnTestCase(CodeintelPerlTestCase):
             }
             $<|>
             """,
-            [("variable", "$varGlobal"),
-             ("variable", "$varPackage")])
+            [("variable", "varGlobal"),
+             ("variable", "varPackage")])
 
     def test_citdl_expr_and_prefix_filter_from_trg(self):
         self.assertCITDLExprIs("split <|>", "split")
