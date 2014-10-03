@@ -1490,6 +1490,24 @@ class CplnTestCase(CodeintelPerlTestCase):
         self.assertCompletionsAre2(you_buf, you_positions[3],
             [("function", "noyou")])
 
+    @tag("bug105308")
+    def test_variable_assignment_from_property(self):
+        content, positions = unmark_text(dedent(r"""
+            my $arrayRef = ['a', 'b', 'c'];
+            my $theNumberTwo = 2;
+            
+            # These parsing of these lines would accidently skip over one line,
+            # causing a variable declaration to be skipped.
+            my $thirdElement = $arrayRef->[$theNumberTwo];
+            my $someElement = $arrayRef->[$theNumberTwo];
+            my $<1>otherElement = $arrayRef->[$theNumberTwo];
+        """))
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("variable", "thirdElement"),
+             ("variable", "someElement"),
+             ("variable", "otherElement")])
+
 
 
 class DefnTestCase(CodeintelPerlTestCase):

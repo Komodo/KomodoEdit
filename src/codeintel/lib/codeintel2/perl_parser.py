@@ -1274,6 +1274,9 @@ class Parser:
             # Consume everything until we find the close-brace
             while True:
                 tok = self.tokenizer.get_next_token()
+                if tok['text'] == ';' and self.classifier.is_index_op(tok):
+                    self.tokenizer.put_back(tok)
+                    break
                 if tok['style'] == SCE_PL_UNUSED:
                     break
                 elif self.classifier.is_index_op(tok, re_compile(r'[\}\]]')):
