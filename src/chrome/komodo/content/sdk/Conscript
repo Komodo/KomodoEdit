@@ -15,10 +15,6 @@ Import(
     'komodoTitleBarName',
     'unsiloedPythonExe',
     'mozVersion',
-    'withSCC',
-    'withSharedSupport',
-    'withDebugging',
-    'withCodeBrowser',
 );
 
 $cons->InstallInChrome('logging.js');
