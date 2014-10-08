@@ -736,7 +736,8 @@ def dev_install(base_dir, force=False, dry_run=False, log=None):
         open(ext_file, 'w').write(dev_dir)
 
 def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None,
-                         unjarred=False, xpi_path=None, distinstall=False):
+                         unjarred=False, xpi_path=None, distinstall=False,
+                         additional_includes=None):
     """Install the extension in `base_dir` into a Komodo build.
         
     This command is for building *core* Komodo extensions into a Komodo
@@ -757,6 +758,8 @@ def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None,
         are zipped up into a '$ext-name.jar' file.
     @param xpi_path {str} Optional. File path for the built .xpi file.
     @param distinstall {bool} Optional. Install into the "distributions" dir.
+    @param additional_includes {list} Optional - a list of paths to include in
+        final xpi.
     """
     if log is None: log = _log
     if not is_ext_dir(base_dir):
@@ -769,7 +772,8 @@ def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None,
     # `build_ext` knows how to build the extension. We just call it and
     # use the .xpi it produces.
     xpi_path = build_ext(base_dir, ppdefines=ppdefines, log=log,
-                         unjarred=unjarred, xpi_path=xpi_path)
+                         unjarred=unjarred, xpi_path=xpi_path,
+                         additional_includes=additional_includes)
     
     # Unzip the .xpi into that dir.
     destdir = None
