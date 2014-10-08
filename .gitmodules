@@ -2,3 +2,7 @@
 	path = src/modules/trackchanges
 	url = https://github.com/Komodo/trackchanges.git
 	branch = master
+[submodule "src/modules/golang"]
+	path = src/modules/golang
+	url = https://github.com/Komodo/komodo-go
+	branch = master
