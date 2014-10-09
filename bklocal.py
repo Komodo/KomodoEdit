@@ -2169,27 +2169,16 @@ class MozObjDir(black.configure.Datum):
 
     def _mozobjdir_from_mozsrc(self, mozsrc):
         srcdir = os.path.join(mozsrc, 'mozilla')
-        oldcwd = os.getcwd()
-        os.chdir(srcdir)
         # XXX we cannot get the version number yet, so try both
-        trycmd = ['make -f client.mk echo_objdir', # 180+
-                  'make -f client.mk echo-variable-OBJDIR', # 190+
-                  'python build/pymake/make.py -s -f client.mk echo-variable-OBJDIR', # 24.0+
-                  ]
-        try:
-            for cmd in trycmd:
-                i, o = os.popen2(cmd)
-                i.close()
-                output = o.readlines()
-                retval = o.close()
-                if output:
-                    objdir = output[-1].strip()
-                    if objdir: break
-            if retval:
-                raise black.configure.ConfigureError(\
-                    "error running '%s'" % cmd)
-        finally:
-            os.chdir(oldcwd)
+        buildpath = os.sep.join(["build", "pymake", "make.py"])
+        cmd = 'python ' + buildpath + ' -s -f client.mk echo-variable-OBJDIR'
+        p = subprocess.Popen(cmd, cwd=srcdir, shell=True,
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+        objdir = stdout.splitlines()[-1].strip()
+        if p.returncode != 0:
+            raise black.configure.ConfigureError(\
+                "error running '%s', stderr:\n" % (cmd, stderr))
 
         if sys.platform == "win32":
             if re.match(r"/\w/", objdir):
