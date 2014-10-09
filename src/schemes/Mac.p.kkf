@@ -1,4 +1,4 @@
-version 42
+version 43
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -47,9 +47,7 @@ binding cmd_delete Delete
 binding cmd_deleteWordLeft  Meta+Backspace
 binding cmd_deleteWordRight  Meta+Delete
 binding cmd_documentEnd Meta+End
-binding cmd_documentEnd Meta+Down
 binding cmd_documentHome  Meta+Home
-binding cmd_documentHome  Meta+Up
 binding cmd_editPrefs Meta+,
 binding cmd_editProperties Alt+Return
 binding cmd_editReflow Meta+Shift+Q
@@ -117,8 +115,8 @@ binding cmd_saveAll Meta+Ctrl+S
 binding cmd_saveAs Meta+Shift+S
 binding cmd_selectCharNext  Shift+Right
 binding cmd_selectCharPrevious  Shift+Left
-binding cmd_selectDocumentEnd  Meta+Shift+Down
-binding cmd_selectDocumentHome  Meta+Shift+Up
+binding cmd_selectDocumentEnd  Meta+Shift+End
+binding cmd_selectDocumentHome  Meta+Shift+Home
 binding cmd_selectEnd  Meta+Shift+Right
 binding cmd_selectHome  Meta+Shift+Left
 binding cmd_selectEnd  Shift+End
@@ -173,3 +171,8 @@ binding cmd_invokeHyperlink Ctrl+Shift+G
 binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y
 binding cmd_addNextWordToCaretSet Ctrl+D
 binding cmd_htmlTagRelocator Ctrl+Shift+Z
+
+binding cmd_lineTransposeUp  Meta+Up
+binding cmd_lineTransposeDown  Meta+Down
+binding cmd_lineDuplicateUp  Meta+Shift+Up
+binding cmd_lineDuplicateDown  Meta+Shift+Down

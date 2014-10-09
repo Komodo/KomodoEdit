@@ -1,4 +1,4 @@
-version 42
+version 43
 
 # Movement and selection
 binding cmd_left  Left
@@ -22,8 +22,6 @@ binding cmd_newlineSame  Ctrl+Shift+Return
 binding cmd_linePrevious  Up
 binding cmd_lineNext  Down
 binding cmd_selectLineNext  Shift+Down
-binding cmd_lineScrollDown  Ctrl+Down
-binding cmd_lineScrollUp  Ctrl+Up
 binding cmd_selectLinePrevious  Shift+Up
 binding cmd_pageDown  Page_Down 
 binding cmd_selectPageDown  Shift+Page_Down
@@ -53,7 +51,10 @@ binding cmd_pasteAndSelect Ctrl+Shift+V
 binding cmd_tabAwarePaste Ctrl+Alt+V
 binding cmd_delete Delete
 binding cmd_deleteWordLeft  Ctrl+Backspace
-binding cmd_deleteWordRight  Ctrl+Delete
+binding cmd_lineTransposeUp  Ctrl+Up
+binding cmd_lineTransposeDown  Ctrl+Down
+binding cmd_lineDuplicateUp  Ctrl+Shift+Up
+binding cmd_lineDuplicateDown  Ctrl+Shift+Down
 
 # Special commands
 binding cmd_redo Ctrl+Y

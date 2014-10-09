@@ -1,4 +1,4 @@
-version 42
+version 43
 
 # Needs a few things to be finished
 #  - ?? insert forward tab / insert backward tab
@@ -121,7 +121,6 @@ binding cmd_delete Ctrl+D
 binding cmd_delete Ctrl+Delete
 binding cmd_lineNext  Down
 binding cmd_lineNext  Ctrl+N
-binding cmd_lineScrollDown  Ctrl+Down
 binding cmd_lineScrollDown  Escape Z
 binding cmd_selectLineNext  Shift+Down
 binding cmd_end  End 
@@ -175,7 +174,6 @@ binding cmd_selectWordRight  Ctrl+Shift+Right
 binding cmd_selectCharNext  Shift+Right
 binding cmd_linePrevious  Up 
 binding cmd_linePrevious  Ctrl+P 
-binding cmd_lineScrollUp  Ctrl+Up
 binding cmd_lineScrollUp  Ctrl+Z
 binding cmd_selectLinePrevious  Shift+Up
 binding cmd_fontZoomIn Ctrl++
@@ -222,6 +220,10 @@ binding cmd_openLine Ctrl+O
 binding cmd_deleteBlankLines Ctrl+X Ctrl+O
 binding cmd_rawKey Ctrl+Q
 binding cmd_expandAbbrev Ctrl+T
+binding cmd_lineTransposeUp  Ctrl+Up
+binding cmd_lineTransposeDown  Ctrl+Down
+binding cmd_lineDuplicateUp  Ctrl+Shift+Up
+binding cmd_lineDuplicateDown  Ctrl+Shift+Down
 
 binding cmd_goToDefinition Escape .
 

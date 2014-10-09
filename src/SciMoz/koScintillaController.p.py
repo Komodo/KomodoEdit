@@ -88,7 +88,7 @@ command_map = {
     'cmd_lineScrollDown' : 'lineScrollDown',
     'cmd_lineCut' : 'lineCut',
     'cmd_lineDelete' : 'lineDelete',
-    'cmd_lineDuplicate' : 'lineDuplicate',
+    'cmd_lineDuplicateDown' : 'selectionDuplicate', # Falls back on line if no selection
 #    'cmd_lineTranspose' : 'lineTranspose',  # commented out because its undo behavior is wrong.
     'cmd_fontZoomIn' : 'zoomIn',
     'cmd_fontZoomOut' : 'zoomOut',
@@ -805,56 +805,118 @@ class koScintillaController:
         finally:
             sm.endUndoAction()
             
-    def _is_cmd_lineOrSelectionDuplicate_enabled(self):
+    def _is_cmd_lineDuplicateUp_enabled(self):
         return True
-    
-    def _do_cmd_lineOrSelectionDuplicate(self):
+
+    def _do_cmd_lineDuplicateUp(self):
         sm = self.scimoz()
-        if sm.selectionStart == sm.selectionEnd:
-            # If there is no selection, we just do the usual lineDuplicate
-            self.doCommand('cmd_lineDuplicate')
-            return
-        # Otherwise [copy|move to selectionEnd|paste|select pasted text]
-        startPos = min(sm.anchor, sm.currentPos)
-        endPos = max(sm.anchor, sm.currentPos)
-        if sm.selectionMode == sm.SC_SEL_STREAM:
-            textToCopy = sm.getTextRange(startPos, endPos)
-            sm.targetStart = endPos
-            sm.targetEnd = endPos
-            textLen = self._koSysUtils.byteLength(textToCopy)
-            sm.beginUndoAction()
-            try:
-                # replaceTarget takes length in terms of characters
-                sm.replaceTarget(len(textToCopy), textToCopy)
-                sm.anchor = endPos
-                # Positions are updated in terms of bytes
-                sm.currentPos = endPos + textLen
-            finally:
-                sm.endUndoAction()
-        elif sm.selectionMode == sm.SC_SEL_RECTANGLE:
-            # Slide rectangular selections horizontally
-            startLine = sm.lineFromPosition(startPos)
+
+        startPos = sm.selectionStart
+        endPos = sm.selectionEnd
+        startLine = sm.lineFromPosition(startPos)
+        if startPos == endPos:
+            endLine = startLine + 1
+        else:
             endLine = sm.lineFromPosition(endPos)
-            finalStartPos = sm.getLineSelEndPosition(startLine)
-            finalEndCol = (sm.getLineSelEndPosition(endLine)
-                           - sm.positionFromLine(endLine))
-            finalLineWidth = (sm.getLineSelEndPosition(endLine)
-                              - sm.getLineSelStartPosition(endLine))
-            sm.beginUndoAction()
-            try:
-                for i in range(startLine, endLine + 1):
-                    selStart = sm.getLineSelStartPosition(i)
-                    selEnd = sm.getLineSelEndPosition(i)
-                    textToCopy = sm.getTextRange(selStart, selEnd)
-                    sm.targetStart = selEnd
-                    sm.targetEnd = selEnd
-                    sm.replaceTarget(self._koSysUtils.byteLength(textToCopy), textToCopy)
-                sm.anchor = finalStartPos
-                sm.currentPos = (sm.positionFromLine(endLine)
-                                 + finalEndCol
-                                 + finalLineWidth)
-            finally:
-                sm.endUndoAction()
+            if sm.getColumn(endPos) != 0:
+                endLine = endLine + 1
+
+        cutStart = sm.positionFromLine(startLine)
+        cutStop = sm.positionFromLine(endLine)
+
+        sm.beginUndoAction()
+
+        try:
+            sm.setSel(cutStart, cutStop)
+            orig = sm.selText
+
+            pasteStart = sm.positionFromLine(endLine)
+            sm.setSel(pasteStart, pasteStart)
+            sm.replaceSel(orig)
+
+            sm.setSel(startPos, endPos)
+        finally:
+            sm.endUndoAction()
+
+    def _is_cmd_lineDuplicateDown_enabled(self):
+        return True
+
+    def _do_cmd_lineDuplicateDown(self):
+        sm = self.scimoz()
+
+        startPos = sm.selectionStart
+        endPos = sm.selectionEnd
+        startLine = sm.lineFromPosition(startPos)
+        if startPos == endPos:
+            endLine = startLine + 1
+        else:
+            endLine = sm.lineFromPosition(endPos)
+            if sm.getColumn(endPos) != 0:
+                endLine = endLine + 1
+
+        cutStart = sm.positionFromLine(startLine)
+        cutStop = sm.positionFromLine(endLine)
+
+        sm.beginUndoAction()
+
+        try:
+            sm.setSel(cutStart, cutStop)
+            orig = sm.selText
+
+            pasteStart = sm.positionFromLine(endLine)
+            sm.setSel(pasteStart, pasteStart)
+            sm.replaceSel(orig)
+
+            offset = pasteStart - cutStart
+            sm.setSel(startPos + offset, endPos + offset)
+        finally:
+            sm.endUndoAction()
+
+    def _is_cmd_lineTransposeDown_enabled(self):
+        return True
+
+    def _do_cmd_lineTransposeDown(self):
+        sm = self.scimoz()
+        hasSelection = sm.selectionStart != sm.selectionEnd
+
+        if not hasSelection:
+            lineNo = sm.lineFromPosition(sm.currentPos)
+            lineStart = sm.positionFromLine(lineNo)
+            linePos = sm.currentPos - lineStart
+
+        sm.beginUndoAction()
+        try:
+            sm.moveSelectedLinesDown()
+
+            if not hasSelection:
+                newLinePos = sm.positionFromLine(lineNo + 1)
+                newPos = newLinePos + linePos
+                sm.setSel(newPos, newPos)
+        finally:
+            sm.endUndoAction()
+
+    def _is_cmd_lineTransposeUp_enabled(self):
+        return True
+
+    def _do_cmd_lineTransposeUp(self):
+        sm = self.scimoz()
+        hasSelection = sm.selectionStart != sm.selectionEnd
+
+        if not hasSelection:
+            lineNo = sm.lineFromPosition(sm.currentPos)
+            lineStart = sm.positionFromLine(lineNo)
+            linePos = sm.currentPos - lineStart
+
+        sm.beginUndoAction()
+        try:
+            sm.moveSelectedLinesUp()
+
+            if not hasSelection:
+                newLinePos = sm.positionFromLine(lineNo - 1)
+                newPos = newLinePos + linePos
+                sm.setSel(newPos, newPos)
+        finally:
+            sm.endUndoAction()
         
     # Used by vim binding B
     def _do_cmd_wordLeftPastPunctuation(self):

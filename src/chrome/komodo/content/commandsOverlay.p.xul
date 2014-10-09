@@ -1232,20 +1232,25 @@
             oncommand="ko.commands.doCommand('cmd_lineDelete')"
             desc="&editorDeleteLine.desc;"/>
         <command
-            id="cmd_lineDuplicate" key="key_cmd_lineDuplicate"
+            id="cmd_lineDuplicateUp" key="key_cmd_lineDuplicateUp"
             disabled="true"
-            oncommand="ko.commands.doCommand('cmd_lineDuplicate')"
-            desc="&editorDuplicateLine.desc;"/>
+            oncommand="ko.commands.doCommand('cmd_lineDuplicateUp')"
+            desc="&editorDuplicateLineUp.desc;"/>
         <command
-            id="cmd_lineOrSelectionDuplicate" key="key_cmd_lineOrSelectionDuplicate"
+            id="cmd_lineDuplicateDown" key="key_cmd_lineDuplicateDown"
             disabled="true"
-            oncommand="ko.commands.doCommand('cmd_lineOrSelectionDuplicate')"
-            desc="&editorDuplicateLineOrSelection.desc;"/>
+            oncommand="ko.commands.doCommand('cmd_lineDuplicateDown')"
+            desc="&editorDuplicateLineDown.desc;"/>
         <command
-            id="cmd_lineTranspose" key="key_cmd_lineTranspose"
+            id="cmd_lineTransposeUp" key="key_cmd_lineTransposeUp"
             disabled="true"
-            oncommand="ko.commands.doCommand('cmd_lineTranspose')"
-            desc="&editorTransposeCurrentAndPreviousLines.desc;"/>
+            oncommand="ko.commands.doCommand('cmd_lineTransposeUp')"
+            desc="&editorTransposeLineUp.desc;"/>
+        <command
+            id="cmd_lineTransposeDown" key="key_cmd_lineTransposeDown"
+            disabled="true"
+            oncommand="ko.commands.doCommand('cmd_lineTransposeDown')"
+            desc="&editorTransposeLineDown.desc;"/>
 
         <!-- The remaining ones are only available when a scintilla-style
              editor has focus: optimization possible -->
