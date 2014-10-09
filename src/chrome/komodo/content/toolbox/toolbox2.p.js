@@ -540,6 +540,38 @@ this.findToolById = function(id) {
     return this.manager.toolsMgr.getToolById(id);
 };
 
+/**
+ * Ensure the given tool is visible in the toolbox tree.
+ *
+ * Note: Does not ensure the toolbox pane is visible.
+ *
+ * @param {koITool} tool    The tool to make visible.
+ * @param {Object} options  Optional, "select" property means to select the item.
+ */
+this.ensureToolVisible = function(tool, options) {
+    var view = this.manager.view;
+    var ensureParentOpened = function(t) {
+        let i = view.getIndexByTool(t);
+        if (i == -1 && t.parent) {
+            ensureParentOpened(t.parent);
+            i = view.getIndexByTool(t);
+        }
+        if (view.isContainer(i) && !view.isContainerOpen(i)) {
+            view.toggleOpenState(i);
+        }
+    }
+    let index = view.getIndexByTool(tool);
+    if (index == -1 && tool.parent) {
+        ensureParentOpened(tool.parent);
+        index = view.getIndexByTool(tool);
+    }
+    this.manager.tree.treeBoxObject.ensureRowIsVisible(index);
+    if (options && options["select"]) {
+        view.selection.currentIndex = index;
+        view.selection.select(index);
+    }
+};
+
 this.getAbbreviationSnippet = function(abbrev, subnames, isAutoAbbrev/*=false*/) {
     if (typeof(isAutoAbbrev) == "undefined") {
         isAutoAbbrev = false;
