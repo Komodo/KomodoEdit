@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2013 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % notifyDTD SYSTEM "chrome://notify/locale/notify.dtd">
+  %notifyDTD;
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+]>
+
+<?xml-stylesheet href="less://notify/skin/notify.less" type="text/css"?>
+
+<overlay id="notifyOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <popupset id="komodoMainPopupSet">
+        <script id="tpl-notify-panel" type="x-dot-template">
+            <panel anonid="notify-panel"
+                   class="notify-panel {{=it.classlist}}"
+                   noautofocus="true">
+                <hbox class="wrapper">
+                    {{?it.icon}}
+                        <image class="icon" src="{{=it.icon}}"></image>
+                    {{?}}
+                    <description class="description">
+                        {{=it.message}}
+                    </description>
+                    {{?it.undo}}
+                        <button class="undo button-plain"/>
+                    {{?}}
+                    <button type="menu" class="menu button-plain">
+                        <menupopup>
+                            <menuitem   anonid="disableCategory"
+                                        label="&disableNotificationsOfType.label;"/>
+                            <!--<menuitem   anonid="preferences"
+                                        label="&notifyPrefs.label;"/>-->
+                        </menupopup>
+                    </button>
+                </hbox>
+            </panel>
+        </script>
+    </popupset>
+
+</overlay>

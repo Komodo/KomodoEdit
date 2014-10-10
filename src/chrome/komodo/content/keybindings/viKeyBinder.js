@@ -1156,7 +1156,7 @@ VimController.prototype.inputBufferFinish = function ()
         // Return the contents of the input buffer and stop buffering.
         var contents = this.inputBuffer.value;
         this.inputBuffer.value = "";
-        this.statusBarDeck.selectedPanel = document.getElementById("statusbar-message-internal-deck");
+        this.statusBarDeck.selectedIndex = 0;
         this.inputBuffer.removeEventListener('keypress', vim_InputBuffer_KeyPress, false);
         this._inputBuffer_active = false;
         return contents;

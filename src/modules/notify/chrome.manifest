@@ -1,0 +1,13 @@
+# #if MODE == "dev"
+content notify content/
+skin notify classic/1.0 skin/
+locale notify en-US locale/en-US/
+# #else
+content notify jar:notify.jar!/content/
+skin notify classic/1.0 jar:notify.jar!/skin/
+locale notify en-US jar:notify.jar!/locale/en-US/
+# #endif
+
+overlay chrome://komodo/content/komodo.xul chrome://notify/content/ui/overlay/komodo.xul
+overlay chrome://komodo/content/pref/pref.xul chrome://notify/content/ui/overlay/pref.xul
+category require-path notify chrome://notify/content/sdk/

@@ -1,0 +1,5 @@
+<!ENTITY notify.label "Notifications">
+<!ENTITY notifyPrefs.label "Preferences">
+<!ENTITY disableNotificationsOfType.label "Disable Notifications of this Type">
+<!ENTITY disableThisNotification.label "Disable This Notification">
+<!ENTITY enabledNotifyCategories.label "Enabled Notification Categories">

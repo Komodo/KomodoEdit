@@ -2182,28 +2182,10 @@
                            class="chromeclass-status"
                            style="min-height: 1.5em;">
                     <html:canvas id="canvas-proxy" style="display: none"/>
-                    <statusbarpanel id="statusbar-notifications-button"
-                                    class="statusbarpanel-iconic"
-                                    oncommand="ko.uilayout.ensureTabShown('notifications-widget');"/>
+
                     <statusbarpanel id="statusbar-message-panel" flex="1">
                         <!-- the deck is here to support vi mode -->
-                        <deck id="statusbar-message-deck" selectedIndex="0" flex="1">
-                            <!-- the internal deck is for the trial message -->
-                            <deck id="statusbar-message-internal-deck" selectedIndex="0" flex="1">
-                                <hbox id="statusbar-message-wrap">
-                                    <statusbarpanel id="statusbar-message" value="&ready.label;"
-                                                    flex="1" crop="right"/>
-                                    <button id="statusbar-message-clear" class="close-button button-plain"
-                                            onclick="ko.statusBar.clearMessage();"/>
-                                </hbox>
-                                <hbox id="statusbar-trial" flex="1" align="center">
-                                    <label id="statusbar-trial-days" class="trial-text" />
-                                    <label id="statusbar-trial-link" value="Buy now!"
-                                           class="trial-text trial-link" crop="end"
-                                           onclick="ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/komodo-ide');" />
-                                </hbox>
-                            </deck>
-                        </deck>
+                        <deck id="statusbar-message-deck" selectedIndex="0" flex="1"></deck>
                     </statusbarpanel>
 
                     <statusbarpanel id="statusbar-section"

@@ -337,20 +337,35 @@ this.expandAutoAbbreviation = function(currView) {
         scimoz.currentPos = wordStartPos;
         scimoz.anchor = currentPos;
         if (ko.abbrev.insertAbbrevSnippet(snippet, currView)) {
-            var pathPart = ko.snippets.snippetPathShortName(snippet);
-            var options = {
-                severity: Components.interfaces.koINotification.SEVERITY_INFO };
-            var identifier = "edit-snippet-" + pathPart;
-            var act = { label: lazy.bundle.GetStringFromName("Edit Snippet"),
-                        identifier: snippet.url,
-                        handler: function(notification, url) {
-                              ko.open.URI(url);
-                        }
-            };
-            options.actions = [act];
             var msg = lazy.bundle.formatStringFromName("inserted autoabbreviation X",
-                                                   [pathPart], 1);
-            ko.notifications.add(msg, ["Snippets"], identifier, options);
+                                                   [snippet.name], 1);
+            var notify = require("notify/notify");
+            notify.send(msg, notify.categories.autoComplete,
+                {
+                    icon: snippet.iconurl,
+                    undo: function() { ko.commands.doCommandAsync('cmd_undo'); },
+                    actions: [
+                        {
+                            name: lazy.bundle.GetStringFromName("Edit Snippet"),
+                            command: function() {
+                                // Todo: Highlight snippet in toolbox
+                                // Need to add functionality to Toolbox2HTreeView
+                                // To load in the folder structure for a given tool
+                                // ko.toolbox2.manager.view.toggleOpenState(index), then
+                                // var index = ko.toolbox2.manager.view.getIndexByTool(abbrev)
+                                // ko.toolbox2.manager.view.selection.select(index);
+                                ko.toolbox2.editProperties_snippet(snippet);
+                            }
+                        },
+                        {
+                            name: lazy.bundle.GetStringFromName("disableAbbreviation"),
+                            command: function() {
+                                snippet.setStringAttribute("auto_abbreviation", "false");
+                            }
+                        }
+                    ]
+                }
+            );
             return true;
         }
         scimoz.currentPos = origPos;

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE overlay SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % notifyDTD SYSTEM "chrome://notify/locale/notify.dtd">
+  %notifyDTD;
+]>
+
+<overlay id="notify-pref-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <treechildren id="panelChildren">
+        <treeitem id="notifyItem" insertafter="mappedURIsItem" advanced="true">
+            <treerow>
+                <treecell class="treecell-indent"
+                          url="chrome://notify/content/ui/pref-notify.xul"
+                          label="&notify.label;"
+                          helptag="notifications"/>
+            </treerow>
+        </treeitem>
+    </treechildren>
+
+</overlay>

@@ -355,20 +355,39 @@ module.exports = {
      *
      * @returns {Object} {x: .., y: ..}
      */
-    getCursorWindowPosition: function()
+    getCursorWindowPosition: function(relativeToScreen = false)
     {
         var _scintilla = scintilla();
         var _scimoz = scimoz();
         if ( ! _scintilla || ! _scimoz) return {x: 0, y: 0};
 
-        var scx = _scintilla.boxObject.screenX;
-        var scy = _scintilla.boxObject.screenY;
+        var scx, scy;
+        if ( ! relativeToScreen)
+        {
+            scx = _scintilla.boxObject.x;
+            scy = _scintilla.boxObject.y;
+        }
+        else
+        {
+            scx = _scintilla.boxObject.screenX;
+            scy = _scintilla.boxObject.screenY;
+        }
 
         var currentPos = _scimoz.currentPos;
         var curx = _scimoz.pointXFromPosition(currentPos);
         var cury = _scimoz.pointYFromPosition(currentPos);
 
         return {x: (scx + curx), y: (scy + cury)};
+    },
+
+    /**
+     * Get the default line height (all lines are currently the same height)
+     *
+     * @returns {Int} Height in pixels
+     */
+    defaultTextHeight: function()
+    {
+        return scimoz().textHeight(0);
     },
 
     /**
@@ -585,6 +604,14 @@ module.exports = {
     getLanguage: function()
     {
         return scintilla().language;
+    },
+
+    /**
+     * Set focus on the editor
+     */
+    focus: function()
+    {
+        scintilla().focus();
     },
 
     /** ****** Bookmarks ****** **/

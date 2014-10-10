@@ -5,7 +5,7 @@
 if (typeof module === 'undefined') module = {}; // debugging helper
 (function(parent) {
 
-    const log = require("ko/logging").getLogger("ko-dom");
+    const log   = require("ko/logging").getLogger("ko-dom");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     /* === MAIN CONSTRUCTION LOGIC === */
@@ -17,7 +17,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
      * returns instance or executes function on ready
      */
     var $ = function(query) {
-        if (/^f/.test(typeof query))
+        if ((typeof query) == "object" && ("koDom" in query))
+        {
+            return query;
+        }
+        else if (/^f/.test(typeof query))
         {
             if (/c/.test(parent.readyState))
                 return query();
@@ -45,6 +49,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
     {
         try
         {
+            var parsed = (/^<(\w+)\s*\/?>(?:<\/\1>|)$/).exec(html);
+            if (parsed) {
+                return document.createElement(parsed[1]);
+            }
+
             var tmp = document.createElement("div");
             tmp.innerHTML = html;
             return tmp.firstChild;
@@ -89,7 +98,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 else
                     this.parentNode.appendChild(_insert);
             }
-            else if (opts.where == "before")
+            else if (("where" in opts) && opts.where == "before")
                 this.parentNode.insertBefore(_insert, this);
             else
                 this.appendChild(_insert);
@@ -332,6 +341,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             return ["","visible","initial", "inherit"].indexOf(this.element().style.visibility) != -1;
         },
 
+        exists: function()
+        {
+            return !! this.first().parentNode;
+        },
+
         addClass: function(className)
         {
             return this.each(function()
@@ -351,7 +365,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         css: function(key, value)
         {
             var rules = {};
-            if (value)
+            if (value !== undefined)
                 rules[key] = value;
             else
                 rules = key;
@@ -367,6 +381,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         attr: function(key, value)
         {
+            if ((typeof key) == 'string' && value === undefined)
+            {
+                return this.first().getAttribute(key);
+            }
+
             var attrs = {};
             if (value)
                 attrs[key] = value;
@@ -380,6 +399,149 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                     this.setAttribute(k, attrs[k]);
                 }
             });
+        },
+
+        uniqueId: function()
+        {
+            var self = this;
+            this.uniqueId.uuid = this.uniqueId.uuid || 0;
+
+            this.each(function()
+            {
+                if (this.id) return;
+                this.id = "_uuid-" + self.uniqueId.uuid++;
+            });
+
+            return this.first().id;
+        },
+
+        animate: function(props, opts = {}, callback = null)
+        {
+            if ((typeof opts) == 'function')
+            {
+                callback = opts;
+                opts = {};
+            }
+            else if ((typeof opts) == 'number')
+            {
+                opts = {duration: opts};
+            }
+
+            var _ = require("contrib/underscore");
+            opts = _.extend(
+            {
+                fps: 30,
+                duration: 400,
+                complete: callback || function() {},
+                start: {}
+            }, opts);
+
+            var frameCounter    = 0,
+                frameCount      = Math.ceil((opts.fps / 1000) * opts.duration) || 1,
+                interval        = opts.duration / frameCount;
+
+            log.debug("Animation starting with " + frameCount + " frames at an interval of " + interval);
+
+            var styles = {};
+            this.uniqueId();
+            this.each(function()
+            {
+                let computed = window.getComputedStyle(this);
+                styles[this.id] = {};
+                for (var prop in props)
+                {
+                    let value = props[prop];
+                    if (prop in opts.start)
+                    {
+                        styles[this.id][prop] = opts.start[prop];
+                    }
+                    else if (prop in computed)
+                    {
+                        styles[this.id][prop] = parseInt(computed[prop].replace(/px$/));
+                    }
+                    else
+                    {
+                        switch (prop)
+                        {
+                            case 'panelX':
+                                styles[this.id][prop] = parseInt(this.popupBoxObject.screenX);
+                                break;
+                            case 'panelY':
+                                styles[this.id][prop] = parseInt(this.popupBoxObject.screenY);
+                                break;
+                            default:
+                                styles[this.id][prop] = NaN;
+                                break;
+                        }
+                    }
+
+                    if ( ! isNaN(styles[this.id][prop]))
+                        styles[this.id][prop + "::Increments"] = (value - styles[this.id][prop]) / frameCount;
+                };
+            });
+
+            this._animComplete = opts.complete;
+            this._animTimer = window.setInterval(function()
+            {
+                frameCounter++;
+                log.debug("Frame: " + frameCounter);
+
+                this.each(function()
+                {
+                    for (var prop in props)
+                    {
+                        let style = styles[this.id];
+                        let currentValue = style[prop];
+                        let increment = style[prop + "::Increments"];
+
+                        if (isNaN(currentValue))
+                            continue;
+
+                        let newValue = frameCounter == frameCount ?
+                                        props[prop] : currentValue + increment;
+
+                        log.debug("Setting " + prop + " to " + newValue);
+
+                        switch (prop)
+                        {
+                            case 'panelX':
+                                this.moveTo(newValue, this.popupBoxObject.screenY);
+                                break;
+                            case 'panelY':
+                                this.moveTo(this.popupBoxObject.screenX, newValue);
+                                break;
+                            default:
+                                this.style[prop] = newValue;
+                                break;
+                        }
+
+                        styles[this.id][prop] = newValue;
+                    };
+                });
+
+                if (frameCounter == frameCount)
+                {
+                    this.stop();
+                }
+
+            }.bind(this), interval);
+        },
+
+        stop: function()
+        {
+            if ("_animTimer" in this)
+            {
+                window.clearInterval(this._animTimer);
+                delete this._animTimer;
+
+                if ("_animComplete" in this)
+                {
+                    this._animComplete();
+                    delete this._animComplete;
+                }
+            }
+
+            return this;
         },
 
         /**

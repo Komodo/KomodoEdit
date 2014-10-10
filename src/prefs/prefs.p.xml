@@ -1023,4 +1023,6 @@
 
   <boolean id="prefs_show_advanced">0</boolean>
 
+  <ordered-preference id="notify_disabled_categories"/>
+
 </preference-set>

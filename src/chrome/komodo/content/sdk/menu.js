@@ -8,8 +8,18 @@
         editorContext: "#editorContextMenu"
     }
 
-    this.register = (opts) =>
+    this.register = (name, command, opts) =>
     {
+        if ((typeof name) == "object")
+        {
+            opts = name;
+        }
+        else
+        {
+            opts.name = name;
+            opts.command = command;
+        }
+
         opts = _extend({
             image: "",
             command: function() {},
@@ -17,15 +27,17 @@
             context: []
         }, opts);
 
-        if ( ! ("id" in opts))
-        {
-            throw new exceptionMissingProp("id");
-        }
-
         if ( ! ("label" in opts))
         {
             throw new exceptionMissingProp("label");
         }
+
+        if ( ! ("id" in opts))
+        {
+            opts.id = opts.label;
+        }
+
+        opts.id = opts.id.replace(/\W+/g, "");
 
         var context = _parseContext(opts.context);
         for (let i=0;i<context.length;i++)
@@ -36,6 +48,8 @@
 
     this.unregister = (id, context) =>
     {
+        id = id.replace(/\W+/g, "");
+
         var context = _parseContext(opts.context);
         for (let i=0;i<context.length;i++)
         {
@@ -55,13 +69,12 @@
             contextOpts = {select: contextOpts};
         }
 
-        var context = document.querySelector(contextOpts.select || null);
-        if ( ! context || context.nodeName != "menupopup")
-            throw new exceptionInvalidContext(contextOpts.select || "null");
+        var context = $(contextOpts.select);
+        if ( ! context.length || context.element().nodeName != "menupopup")
+            throw new exceptionInvalidContext();
 
-        var _context = $(context);
-        var id = "sdk_menuitem_" + contextOpts.select + opts.id;
-        _context.find(id).remove();
+        var id = "sdk_menuitem_" + context.uniqueId() + opts.id;
+        context.find(id).remove();
 
         var menuitem = document.createElementNS(XUL_NS, 'menuitem');
         menuitem.setAttribute("id", id);
@@ -74,17 +87,22 @@
 
         menuitem.sdkOpts = opts;
 
-        var sibling;
+        var sibling, appended;
         if (contextOpts.before || contextOpts.after)
         {
-            sibling = _context.find(contextOpts.before || contextOpts.after);
+            sibling = context.find(contextOpts.before || contextOpts.after);
             if (sibling.length)
             {
                 sibling[contextOpts.before ? 'before' : 'after'](menuitem);
+                appended = true;
             }
         }
 
-        context.appendChild(menuitem);
+        if ( ! appended)
+        {
+            context.append(menuitem);
+        }
+
         placeMenuEventListener(context);
     }
 
@@ -114,11 +132,10 @@
         }
 
         context.sdkMenuListener = true;
-        var _context = $(context);
 
-        context.addEventListener("popupshowing", (e) =>
+        context.on("popupshowing", (e) =>
         {
-            _context.find(".sdk-menuitem").each(function ()
+            context.find(".sdk-menuitem").each(function ()
             {
                 if ( ! ("sdkOpts" in this)) return;
                 var opts = this.sdkOpts;
@@ -152,7 +169,7 @@
 
     function exceptionInvalidContext(context)
     {
-        this.message = "The context '"+context+"' cannot be found or is not a menupopup";
+        this.message = "The context cannot be found or is not a menupopup";
     }
     this.exceptionInvalidContext = exceptionInvalidContext;
 

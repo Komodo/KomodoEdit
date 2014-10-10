@@ -62,8 +62,6 @@ this.addNotification = (function NWC_addNotification(notification) {
   while (this.container.children.length > maxItems) {
     this.removeNotification(this.container.firstChild.notification);
   }
-
-  this._updateThrobber();
 }).bind(this);
 
 this.updateNotification = (function NWC_updateNotification(notification, elem) {
@@ -111,8 +109,6 @@ this.updateNotification = (function NWC_updateNotification(notification, elem) {
   }
   this.container._scrollbox.scrollTop = scrollTop;
   this.container._scrollbox.scrollLeft = scrollLeft;
-
-  this._updateThrobber();
 }).bind(this);
 
 /**
@@ -131,40 +127,6 @@ this.removeNotification = (function NWC_removeNotification(notification) {
       break;
     }
   }
-
-  this._updateThrobber();
-}).bind(this);
-
-/**
- * Update the visibility of the throbber as necessary
- */
-this._updateThrobber = (function NWC__updateThrobber() {
-  for each (var elem in this.container.children) {
-    var notification = elem.notification;
-    if (!(notification instanceof Ci.koINotificationProgress)) {
-      // notification has no progress
-      continue;
-    }
-    switch (notification.maxProgress) {
-      case Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE:
-        // notification doesn't _really_ have progress
-        continue;
-      case Ci.koINotificationProgress.PROGRESS_INDETERMINATE:
-        // will need to show throbber
-        break;
-      default:
-        if (notification.maxProgress == notification.progress) {
-          // progress is max progress, done, don't show throbber
-          continue;
-        }
-    }
-    // reaching here means this notification requires a throbber
-    this._throbber.setAttribute("active", true);
-    this._throbber.tooltipText = notification.summary;
-    return;
-  }
-  // reaching here means none of the notifications requires a throbber
-  this._throbber.removeAttribute("active");
 }).bind(this);
 
 /**
@@ -307,13 +269,6 @@ this.focusNotification = (function NWC_focusNotification(notification) {
  */
 XPCOMUtils.defineLazyGetter(this, "container",
                             function() document.getElementById("message-container"));
-
-/**
- * The notification status bar throbber in the main window
- */
-
-XPCOMUtils.defineLazyGetter(this, "_throbber",
-                            function() top.document.getElementById("statusbar-notifications-button"));
 
 /**
  * The context value for this window

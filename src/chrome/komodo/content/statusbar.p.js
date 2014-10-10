@@ -36,20 +36,6 @@
 
 /* -*- Mode: JavaScript; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-// The status bar API for Komodo.
-//
-// Here is an excerpt from the status bar requirements document:
-//  --------------------------------------------------------------------------
-//  |  <message>                  | <ck> | <enc.> | <pos.> | <sel.> | <lang.> /,
-//  --------------------------------------------------------------------------
-//     ^--(a) Message                ^       ^        ^         ^       ^    ^
-//        (b) Linter/Checker status -'       |        |         |       |    |
-//        (c) Encoding ----------------------'        |         |       |    |
-//        (d) Position (line and column) -------------'         |       |    |
-//        (e) Selection (lines and chars) ----------------------'       |    |
-//        (f) Language -------------------------------------------------'    |
-//        (z) Grippy --------------------------------------------------------'
-//
 // Implementation:
 //
 // The Status Bar observes various status notification messages (e.g.
@@ -59,38 +45,6 @@
 // the preference is that notifications only be sent for changes to the current
 // view. This is not always easy, so in some cases the logic in this module
 // must ensure that notifications are for the current view.
-//
-// How to make a status message:
-// Method 1.
-//      If you are in JavaScript code you can just issue a
-//      ko.statusBar.AddMessage(...) call. See that function for a description
-//      of the arguments.
-// Method 2.
-//      You can send a 'status_message' notification via the nsIObserver
-//      mechanism where the 'subject' argument of the Notify() is a
-//      koIStatusMessage object. Here is an example in Python code:
-//
-//        obsSvc = components.classes["@mozilla.org/observer-service;1"]\
-//                 .getService(components.interfaces.nsIObserverService)
-//        sm = components.classes["@activestate.com/koStatusMessage;1"]\
-//             .createInstance(components.interfaces.koIStatusMessage)
-//        sm.category = "<some string>"
-//        sm.msg = "<some string>"
-//        sm.timeout = 0    # 0 for no timeout, else a number of milliseconds
-//        sm.highlight = 0  # boolean, whether or not to highlight
-//        try:
-//            obsSvc.notifyObservers(sm, "status_message", None)
-//        except COMException, ex:
-//            pass
-//
-//      Note that status messages sent this way will appear in all windows.
-//
-// TODO:
-//  - double-click and right-click functionality as per the requirements doc
-//  - read-only status icon
-//  - better icons for showing check status (more obvious, the inprogress one
-//    must at least be replaced)
-
 
 //---- globals
 if (typeof(ko) == 'undefined') {
@@ -115,78 +69,11 @@ XPCOMUtils.defineLazyGetter(lazy, "bundle", function()
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/statusbar.properties"));
 
-var _messageStack = Components.classes["@activestate.com/koStatusMessageStack;1"].
-                          createInstance(Components.interfaces.koIStatusMessageStack);
 var _observer = null;
 var _prefObserver = null;
 var _updateLintMessageTimer = null;
-var updateMessageRequestID = 0;
-
-var _lastNotification = null; // last non-statusbar notification
-var _lastNotificationTime = 0; // last time user interacted with statusbar notifications
-
-var _deckIndex = {
-    messages: 0
-};
-
 
 //---- helper functions
-
-/**
- * Handler for auto-update notification messages.
- */
-function _handle_notification(data) {
-    try {
-        if (!ko.prefs.getBoolean("message_notifications_enabled", true)) {
-            return;
-        }
-        var notificationDetails = JSON.parse(data);
-        if (notificationDetails.type != "notification") {
-            return;
-        }
-
-        // Ensure this message hasn't been seen before - saved in local storage.
-        var msgStorage;
-        try {
-            msgStorage = localStorage;
-        } catch(ex) {
-            // LocalStorage access from chrome not available until FF13.
-            msgStorage = globalStorage['komodo.message_notifications'];
-        }
-        if (msgStorage.getItem(notificationDetails.id)) {
-            return;
-        }
-        // Remember seeing this message.
-        // TODO: It would be better if this was only set when sticky is removed.
-        msgStorage.setItem(notificationDetails.id, "1");
-
-        var options  = {
-            severity: Ci.koINotification.SEVERITY_INFO,
-            details: notificationDetails.message,
-            sticky: true,
-        };
-        if (notificationDetails.action_label) {
-            options.actions = [
-                {
-                    label: notificationDetails.action_label,
-                    identifier: notificationDetails.action_url,
-                    handler: function(notification, url) {
-                              ko.browse.openUrlInDefaultBrowser(url);
-                              notification.sticky = false;
-                           },
-                }
-            ];
-        }
-        ko.notifications.add(notificationDetails.title,
-                             ["notification"],
-                             "notification-" + notificationDetails.id,
-                             options);
-    } catch(ex) {
-        _log.exception(ex, "_handle_notification:: error with notification '" +
-                           data + "'");
-    }
-}
-
 
 function _updateEncoding(view) {
     if (!view || view.getAttribute("type") != "editor") {
@@ -267,12 +154,6 @@ function _updateLintMessage(view) {
                 lintMessage = results[i].description;
             }
         }
-    }
-
-    if (lintMessage) {
-        _addMessage(lintMessage, "check", 0, false);
-    } else {
-        _addMessage(null, "check", 0, false);
     }
 }
 
@@ -402,7 +283,6 @@ function _clearLineColAndSelection() {
     var lineColWidget = document.getElementById('statusbar-line-col');
     lineColWidget.setAttribute("collapsed", "true");
     lineColWidget.removeAttribute("label");
-    _addMessage(null, "check", 0, false);
     document.getElementById("statusbar-selection").setAttribute("collapsed", "true");
 }
 
@@ -484,139 +364,6 @@ try {
 }
 }
 
-function _addMessageObject(sm)
-{
-    if (sm.log && sm.msg) {
-        ko.notifications.addNotification(sm);
-    }
-
-    _messageStack.Push(sm);
-    //dump("StatusBar: add message: current stack:\n");
-    //_messageStack.Dump();
-
-    // Get the latest message and show it in the UI.
-    _updateMessage();
-    // If this new message timesout then schedule an update for then as well.
-    if (sm.timeout > 0) {
-        // Allow for some inaccuracy in timeout scheduling to ensure that
-        // the message has actually timed-out before updating.
-        var epsilon = 300;
-        updateMessageRequestID = setTimeout(_updateMessage, sm.timeout+epsilon);
-    }
-
-    return sm;
-}
-
-function _updateMessage()
-{
-    //dump("StatusBar: update message: current stack:\n");
-    //_messageStack.Dump();
-
-    // Get the latest message and show it in the UI.
-    updateMessageRequestID = 0;
-    if (!_messageStack) {
-        // This shouldn't happen, since I'm doing a clearTimeout on
-        // updateMessageRequestID at shutdown, but allow for it anyway.
-        return;
-    }
-    var sm = _messageStack.Top();
-    var internalDeck = document.getElementById('statusbar-message-internal-deck');
-    var messageWidget = document.getElementById('statusbar-message');
-    if (sm) {
-        _log.debug("StatusBar: update message: top: msg='"+sm.msg+"', category='"+
-             sm.category+"', timeout='"+sm.timeout+"', highlight='"+
-             sm.highlight+"'");
-
-        internalDeck.selectedIndex = _deckIndex.messages;
-        messageWidget.setAttribute("category", sm.category);
-        messageWidget.setAttribute("label", sm.msg);
-        messageWidget.setAttribute("tooltiptext", sm.msg);
-        if (sm.iconURL) {
-            messageWidget.setAttribute("image", sm.iconURL);
-        } else {
-            messageWidget.removeAttribute("image");
-        }
-        if (sm.highlight) {
-            messageWidget.setAttribute("highlite","true");
-        } else {
-            messageWidget.removeAttribute("highlite");
-        }
-        _lastNotification = sm;
-    } else {
-        var all_notifications = ko.notifications.getNotifications([ko.notifications.context, null], 2);
-        all_notifications = all_notifications.filter(function (notification) !(notification instanceof(Ci.koIStatusMessage)));
-        var notifications = all_notifications.filter(function (notification) notification.time > _lastNotificationTime)
-                                             .sort(function(a, b) b.time - a.time)
-                                             .sort(function(a, b) b.severity - a.severity);
-
-        var notification = null;
-
-        if (notifications.length > 0) {
-            // notifications can last a maximum of 10 seconds
-            const MAX_NOTIFICATION_TIMEOUT = 10 * 1000;
-            notification = notifications[0];
-            var endTime = notification.time / 1000 + MAX_NOTIFICATION_TIMEOUT;
-            if (endTime < Date.now()) {
-                // notification expired; don't show it in the status bar
-                notification = null;
-            }
-        }
-
-        if (!notification) {
-            // Sticky notifications hang around until the user has interacted
-            // with it.
-            var sticky_notifications = all_notifications.filter(function (notification) notification.sticky)
-                                                        .sort(function(a, b) b.time - a.time)
-                                                        .sort(function(a, b) b.severity - a.severity);
-            if (sticky_notifications.length > 0) {
-                notification = sticky_notifications[0];
-            }
-        }
-
-        if (notification) {
-            var names = {};
-            for each (let name in Object.getOwnPropertyNames(Ci.koINotification)) {
-                if (/^SEVERITY_/.test(name)) {
-                    names[Ci.koINotification[name]] =
-                        name.replace(/^SEVERITY_/, "").toLowerCase();
-                }
-            }
-
-            messageWidget.setAttribute("category", "notification-" + names[notification.severity]);
-            var label = [notification.summary, notification.description]
-                        .filter(function(x)!!x)
-                        .join(": ");
-            messageWidget.setAttribute("label", label);
-            messageWidget.setAttribute("tooltiptext", label);
-            if (notification.iconURL) {
-                messageWidget.setAttribute("image", notification.iconURL);
-            } else {
-                messageWidget.removeAttribute("image");
-            }
-            _lastNotification = notification;
-        } else {
-            internalDeck.selectedIndex = 0;
-            messageWidget.setAttribute("label", lazy.bundle.GetStringFromName("ready.label"));
-            messageWidget.removeAttribute("tooltiptext");
-            messageWidget.removeAttribute("category");
-            messageWidget.removeAttribute("image");
-        }
-        messageWidget.removeAttribute("highlite");
-    }
-}
-
-
-function _statusBarDblClick(event) {
-    _log.debug(event.type + ": " + _lastNotification);
-    if (_lastNotification) {
-        _lastNotification.sticky = false;
-        _lastNotificationTime = Date.now() * 1000; // usec_per_msc
-        _lastNotification = null;
-        ko.uilayout.ensureTabShown("notifications-widget");
-        _updateMessage();
-    }
-}
-
 function _clear() {
     _clearEncoding();
     _clearLanguage();
@@ -627,13 +374,6 @@ function _clear() {
 //---- local classes
 
 function StatusBarObserver() {
-    var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
-                    getService(Components.interfaces.nsIObserverService);
-    obsSvc.addObserver(this, 'status_message',false);
-    obsSvc.addObserver(this, 'autoupdate-notification', false);
-    Cc["@activestate.com/koNotification/manager;1"]
-      .getService(Ci.koINotificationManager)
-      .addListener(this);
     window.addEventListener('current_view_changed',
                             this.handle_current_view_changed, false);
     window.addEventListener('current_view_check_status',
@@ -648,12 +388,6 @@ function StatusBarObserver() {
                             this.handle_current_lint_results_done, false);
     window.addEventListener('view_closed',
                             this.handle_current_view_open_or_closed, false);
-    document.getElementById('statusbar-message')
-            .addEventListener("dblclick", _statusBarDblClick, false);
-    if (document.getElementById('breadcrumbbarWrap'))
-    {
-        _deckIndex.messages++;
-    }
     ko.main.addWillCloseHandler(this.destroy, this);
 };
 
@@ -663,14 +397,6 @@ StatusBarObserver.prototype.destroy = function()
         clearTimeout(_updateLintMessageTimer);
         _updateLintMessageTimer = null;
     }
-    var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
-                    getService(Components.interfaces.nsIObserverService);
-    obsSvc.removeObserver(this, 'status_message');
-    obsSvc.removeObserver(this, 'autoupdate-notification');
-
-    Cc["@activestate.com/koNotification/manager;1"]
-      .getService(Ci.koINotificationManager)
-      .removeListener(this);
 
     window.removeEventListener('current_view_changed',
                                this.handle_current_view_changed, false);
@@ -687,34 +413,8 @@ StatusBarObserver.prototype.destroy = function()
     window.removeEventListener('view_closed',
                                this.handle_current_view_open_or_closed, false);
 
-    document.getElementById('statusbar-message')
-            .removeEventListener("dblclick", _statusBarDblClick, false);
-
-    if (updateMessageRequestID) {
-        clearTimeout(updateMessageRequestID);
-        updateMessageRequestID = 0;
-    }    
-    _messageStack = null;
     _observer = null;
     _prefObserver = null;
-}
-
-StatusBarObserver.prototype.observe = function(subject, topic, data)
-{
-    // Unless otherwise specified the 'subject' is the view, and 'data'
-    // arguments are expected to be empty for all notifications.
-    _log.debug("StatusBar observed '"+topic+"': ");
-    var view = subject;
-
-    switch (topic) {
-    case 'status_message':
-        // "subject" is expected to be a koIStatusMessage object.
-        _addMessageObject(subject);
-        break;
-    case 'autoupdate-notification':
-        setTimeout(_handle_notification, 5000, data);
-        break;
-    }
 }
 
 function update_view_information(view) {
@@ -762,63 +462,15 @@ StatusBarObserver.prototype.handle_current_view_open_or_closed = function(event)
     _clear()
 };
 
-StatusBarObserver.prototype.onNotification = function(notif, oldIndex, newIndex, reason) {
-    _updateMessage();
-};
-
 function _addMessage(msg, category, timeout, highlight,
                               interactive /* false */, log /* true */)
 {
-    // Post a message to the status bar message area.
-    // "msg" is the message string. An empty string or null indicates
-    //      that the message (of the given category) should be cleared.
-    // "category" is the message group to which the message belongs. It
-    //      is an arbitrary string (it must be at least one character).
-    // "timeout" is the amount of time, in milliseconds, that the message
-    //      should appear. A value of 0 indicates that the message does
-    //      not timeout.
-    // "highlight" is a boolean indicating whether the message should be
-    //      highlighted on the status bar.
-    // "interactive" is a boolean indicating whether the message corresponds
-    //      to an interactive prompt (such as interactive search).  These
-    //      have higher 'priority' over non-interactive messages in case of
-    //      conflict.
-    // "log" is a boolean indicating whether the message should be logged in the
-    //      notification manager.  By default, messages are logged if they are
-    //      not interactive.
-    //
-    // A structure similar to a stack of status messages is maintained.
-    // The latest message is always shown. When/if it timesout then the
-    // previous message is the stack is displayed. There can only be one
-    // message per category, so reusing a category allows for removal of
-    // status messages that are no longer appropriate.
-    //
-    // To add a message that does not timeout:
-    //  _addMessage("hello there", "my_category", 0, false)
-    // To remove that message:
-    //  _addMessage(null, "my_category", 0, false)
-    // To add a highlighted message for three seconds:
-    //  _addMessage("hello there", "my_category", 3000, true)
-    _log.debug("StatusBar: add message: msg='"+msg+"', category='"+category+
-        "', timeout='"+timeout+"', highlight='"+highlight+"', log='"+log+"'");
+    require("ko/logging").getLogger("").deprecated(
+        "ko.statusbar.AddMessage is deprecated, please use require(\"notify/notify\").send() instead");
 
-    // create a status message component and insert it into the stack
-    var sm = ko.notifications
-               .createNotification("status-message-" + category,
-                                   ["status"], 1,
-                                   ko.notifications.context,
-                                   Ci.koINotificationManager.TYPE_STATUS)
-               .QueryInterface(Ci.koIStatusMessage);
-    sm.msg = msg;
-    sm.category = category;
-    sm.timeout = timeout;
-    sm.highlight = highlight;
-    if (typeof(interactive) == 'undefined') {
-        interactive = false;
-    }
-    sm.interactive = interactive;
-    sm.log = (typeof(log) == 'undefined') ? !interactive : log;
-    return _addMessageObject(sm);
+    require("notify/notify").send(msg, category, {
+        priority: highlight ? 'warning' : 'info'
+    });
 }
 
 function StatusBarPrefObserver()
@@ -854,71 +506,14 @@ StatusBarPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
 //---- public functions
 
 /**
- * dump
- *
- * dump the current message stack to stdout
- */
-this.dump = function() { _messageStack.Dump(); }
-
-/**
  * ClearCheck
  *
  * clear the syntax checking status
  */
 this.ClearCheck = function() { _clearCheck(); }
 
-/**
- * AddMessage
- *
- * Post a message to the status bar message area.
- * "msg" is the message string. An empty string or null indicates
- *      that the message (of the given category) should be cleared.
- * "category" is the message group to which the message belongs. It
- *      is an arbitrary string (it must be at least one character).
- * "timeout" is the amount of time, in milliseconds, that the message
- *      should appear. A value of 0 indicates that the message does
- *      not timeout.
- * "highlight" is a boolean indicating whether the message should be
- *      highlighted on the status bar.
- * "interactive" is a boolean indicating whether the message corresponds
- *      to an interactive prompt (such as interactive search).  These
- *      have higher 'priority' over non-interactive messages in case of
- *      conflict.
- * "log" is a boolean indicating whether the message should be logged. This is
- *      set by default.
- *
- * A structure similar to a stack of status messages is maintained.
- * The latest message is always shown. When/if it timesout then the
- * previous message is the stack is displayed. There can only be one
- * message per category, so reusing a category allows for removal of
- * status messages that are no longer appropriate.
- *
- * To add a message that does not timeout:
- *  ko.statusBar.addMessage("hello there", "my_category", 0, false)
- * To remove that message:
- *  ko.statusBar.addMessage(null, "my_category", 0, false)
- * To add a highlighted message for three seconds:
- *  ko.statusBar.addMessage("hello there", "my_category", 3000, true)
- */
 this.AddMessage = function(msg, category, timeout, highlight, interactive, log /* true */) {
-    if (msg && (msg instanceof Ci.koIStatusMessage)) {
-        // this is already a message object
-        return _addMessageObject(msg);
-    }
-    if (typeof(log) == "undefined") log = !interactive;
-    return _addMessage(msg, category, timeout, highlight, interactive, log);
-};
-
-this.clearMessage = function() {
-    // Create a new message stack (effectively the same as clearing one).
-    _messageStack = Components.classes["@activestate.com/koStatusMessageStack;1"].
-                          createInstance(Components.interfaces.koIStatusMessageStack);
-    // Clear any existing message timeouts.
-    if (updateMessageRequestID) {
-        clearTimeout(updateMessageRequestID);
-        updateMessageRequestID = 0;
-    }
-    _updateMessage();
+    _addMessage(msg, category, timeout, highlight, interactive, log);
 };
 
 /**
@@ -1021,25 +616,6 @@ this.changeEncoding = function(menuitem)
         }
     }
 }
-
-this.browserStatusHandler = {
-    QueryInterface : XPCOMUtils.generateQI([Ci.nsISupportsWeakReference,
-                                            Ci.nsIXULBrowserWindow]),
-    setJSStatus : function(status) {
-        _addMessage(status, "browser-status", 0, false, true);
-    },
-    setJSDefaultStatus : function(status) {},
-    setOverLink : function(link, context) {
-        _addMessage(link, "browser-status", 0, false, true);
-    },
-    onBeforeLinkTraversal: function(originalTarget, linkURI, linkNode, isAppTab) {}
-};
-window.QueryInterface(Ci.nsIInterfaceRequestor)
-      .getInterface(Ci.nsIWebNavigation)
-      .QueryInterface(Ci.nsIDocShellTreeItem)
-      .treeOwner.QueryInterface(Ci.nsIInterfaceRequestor)
-      .getInterface(Ci.nsIXULWindow)
-      .XULBrowserWindow = this.browserStatusHandler;
 
 window.addEventListener("komodo-ui-started", function() {
     _observer = new StatusBarObserver();
