@@ -61,6 +61,12 @@ interface koIScintillaScheme : nsISupports {
      */
     readonly attribute AString backgroundColor;
 
+    /**
+     * foregroundColor is a RGB hex value and contains a starting "#", e.g.:
+     *   #33AA9F
+     */
+    readonly attribute AString foregroundColor;
+
     koIScintillaScheme clone(in wstring newname);
     
     /*

@@ -1237,6 +1237,9 @@ _Observer.prototype.current_view_changed_common = function(view) {
     if (!ko.views.manager.batchMode) {
         ko.uilayout.updateTitlebar(view);
     }
+
+    document.getElementById("komodo_main").setAttribute("view-type",
+                                                        view ? view.getAttribute("type") : '');
 }
 
 _Observer.prototype.handle_project_changed = function(event) {

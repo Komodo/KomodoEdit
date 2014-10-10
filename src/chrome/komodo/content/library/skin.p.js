@@ -38,13 +38,15 @@ if (ko.skin == undefined)
     const   PREF_CUSTOM_ICONS     = 'koSkin_custom_icons',
             PREF_CUSTOM_SKIN      = 'koSkin_custom_skin',
             PREF_USE_GTK_DETECT   = 'koSkin_use_gtk_detection',
-            PREF_USE_CUSTOM_SCROLLBARS = 'koSkin_use_custom_scrollbars';
+            PREF_USE_CUSTOM_SCROLLBARS = 'koSkin_use_custom_scrollbars',
+            PREF_EDITOR_SCHEME    = 'editor-scheme';
     
     // Old preference value reference
-    var prefOld = {};
-    prefOld[PREF_CUSTOM_ICONS]      = prefs.getString(PREF_CUSTOM_ICONS, '');
-    prefOld[PREF_CUSTOM_SKIN]       = prefs.getString(PREF_CUSTOM_SKIN, '');
-    prefOld[PREF_USE_GTK_DETECT]    = prefs.getBoolean(PREF_USE_GTK_DETECT, true);
+    var prefInfo = {};
+    prefInfo[PREF_CUSTOM_ICONS]      = {type: "String", old: prefs.getString(PREF_CUSTOM_ICONS, '')};
+    prefInfo[PREF_CUSTOM_SKIN]       = {type: "String", old: prefs.getString(PREF_CUSTOM_SKIN, '')};
+    prefInfo[PREF_USE_GTK_DETECT]    = {type: "Boolean", old: prefs.getBoolean(PREF_USE_GTK_DETECT, true)};
+    prefInfo[PREF_EDITOR_SCHEME]     = {type: "String", old: prefs.getString(PREF_EDITOR_SCHEME, '')};
     
     ko.skin.prototype  =
     {
@@ -64,7 +66,7 @@ if (ko.skin == undefined)
          */
         init: function()
         {
-            for (let pref in prefOld)
+            for (let pref in prefInfo)
             {
                 prefs.prefObserverService.addObserver(this, pref, false);
             }
@@ -76,6 +78,7 @@ if (ko.skin == undefined)
             }
 
             this._setupCustomScrollbars();
+            this._loadStatusbarColors();
         },
         
         /**
@@ -89,42 +92,49 @@ if (ko.skin == undefined)
          */
         observe: function(subject, topic, data)
         {
-            if ([PREF_CUSTOM_ICONS,PREF_CUSTOM_SKIN].indexOf(topic)!=-1)
+            // Skip if the value hasn't changed
+            let value = prefs["get"+prefInfo[topic].type](topic);
+            if (value == prefInfo[topic].old)
             {
-                // Skip if the value hasn't changed
-                let value = prefs.getString(topic, '');
-                if (value == prefOld[topic])
-                {
-                    return;
-                }
-
-                log.debug("Pref changed: " + topic + ", old value: " + prefOld[topic] + ", new value: " + value);
-
-                // Unload the previous skin
-                try {
-                    if (prefOld[topic] != '')
-                    {
-                        this.unloadCustomSkin(prefOld[topic]);
-                    }
-                } catch (e) {}
-
-                // Store new value for future updates
-                prefOld[topic] = value;
-
-                // Queue a cache flush; both skins and iconsets might change the
-                // CSS generated (e.g. for icon URLs)
-                this.shouldFlushCaches = true;
-
-                // Reload relevant skin
-                if (topic == PREF_CUSTOM_SKIN)
-                {
-                    this.loadPreferredSkin();
-                }
-                else if (topic == PREF_CUSTOM_ICONS)
-                {
-                    this.loadPreferredIcons();
-                }
+                return;
             }
+
+            log.debug("Pref changed: " + topic + ", old value: " + prefInfo[topic].old + ", new value: " + value);
+
+            switch (topic)
+            {
+                case PREF_CUSTOM_ICONS:
+                case PREF_CUSTOM_SKIN:
+                    // Unload the previous skin
+                    try {
+                        if (prefInfo[topic].old != '')
+                        {
+                            this.unloadCustomSkin(prefInfo[topic].old);
+                        }
+                    } catch (e) {}
+
+                    // Queue a cache flush; both skins and iconsets might change the
+                    // CSS generated (e.g. for icon URLs)
+                    this.shouldFlushCaches = true;
+
+                    // Reload relevant skin
+                    if (topic == PREF_CUSTOM_SKIN)
+                    {
+                        this.loadPreferredSkin();
+                    }
+                    else if (topic == PREF_CUSTOM_ICONS)
+                    {
+                        this.loadPreferredIcons();
+                    }
+                    break;
+
+                case PREF_EDITOR_SCHEME:
+                    this._loadStatusbarColors();
+                    break;
+            }
+
+            // Store new value for future updates
+            prefInfo[topic].old = value;
         },
         
         /**
@@ -283,6 +293,19 @@ if (ko.skin == undefined)
                 log.error("Failed unloading manifest: '" + uri);
                 return;
             }
+        },
+
+        _loadStatusbarColors: function()
+        {
+            var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
+            var scheme = schemeService.getScheme(prefs.getString(PREF_EDITOR_SCHEME));
+
+            // Skip if the value hasn't changed
+            var lessCode = "" +
+                "@background: " + scheme.getBack('', 'linenumbers') + ";\n" +
+                "@foreground: " + scheme.foregroundColor + ";\n" +
+                "@import url('chrome://komodo/skin/partials/editor-statusbar.less');";
+            this.loadVirtualStyle(lessCode, "statusbar-partial");
         },
 
         _getFile: function(uri)
@@ -687,6 +710,9 @@ if (ko.skin == undefined)
         
     };
     
-    ko.skin = new ko.skin();
+    window.addEventListener("komodo-ui-started", function()
+    {
+        ko.skin = new ko.skin();
+    });
     
 }).apply();

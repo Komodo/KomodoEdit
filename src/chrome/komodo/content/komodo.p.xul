@@ -2154,27 +2154,187 @@
                       splitterCmdId="cmd_viewLeftPane">
                 <observes element="workspace_left_area" attribute="collapsed"/>
             </splitter>
-            <deck id="editorviewbox" flex="1" class="blank-workspace">
-                <vbox id="editorvbox">
-                    <view id="topview"
-                          type="multiview"
-                          orient="vertical"
-                          persist="orient"
-                          flex="1"/>
-                </vbox>
-                <!-- This is used for capturing user input while slow dialogs
-                (e.g. the find dialog) load. -->
-                <textbox id="hidden-input-buffer" collapsed="true"
-                     onfocus="ko.inputBuffer.focus(event);"/>
-                <vbox id="customizingPlaceHolder" align="center" valign="middle">
-                    <!-- This box is used in the widget/pane customization mode
-                       - (hiding the main text editing area).
-                       -->
-                    <description>&pane.customize.placeholder.label;</description>
-                    <button label="&pane.customize.done.label;"
-                            oncommand="ko.uilayout._customizeComplete(true);"/>
-                </vbox>
-            </deck>
+            <vbox id="komodo-editor-vbox" flex="1">
+                <deck id="editorviewbox" flex="1" class="blank-workspace">
+                    <vbox id="editorvbox">
+                        <view id="topview"
+                              type="multiview"
+                              orient="vertical"
+                              persist="orient"
+                              flex="1"/>
+                    </vbox>
+                    <!-- This is used for capturing user input while slow dialogs
+                    (e.g. the find dialog) load. -->
+                    <textbox id="hidden-input-buffer" collapsed="true"
+                         onfocus="ko.inputBuffer.focus(event);"/>
+                    <vbox id="customizingPlaceHolder" align="center" valign="middle">
+                        <!-- This box is used in the widget/pane customization mode
+                           - (hiding the main text editing area).
+                           -->
+                        <description>&pane.customize.placeholder.label;</description>
+                        <button label="&pane.customize.done.label;"
+                                oncommand="ko.uilayout._customizeComplete(true);"/>
+                    </vbox>
+                </deck>
+
+                <statusbar fullscreentoolbar="true" orient="horizontal"
+                           id="statusbarviewbox"
+                           class="chromeclass-status"
+                           style="min-height: 1.5em;">
+                    <html:canvas id="canvas-proxy" style="display: none"/>
+                    <statusbarpanel id="statusbar-notifications-button"
+                                    class="statusbarpanel-iconic"
+                                    oncommand="ko.uilayout.ensureTabShown('notifications-widget');"/>
+                    <statusbarpanel id="statusbar-message-panel" flex="1">
+                        <!-- the deck is here to support vi mode -->
+                        <deck id="statusbar-message-deck" selectedIndex="0" flex="1">
+                            <!-- the internal deck is for the trial message -->
+                            <deck id="statusbar-message-internal-deck" selectedIndex="0" flex="1">
+                                <hbox id="statusbar-message-wrap">
+                                    <statusbarpanel id="statusbar-message" value="&ready.label;"
+                                                    flex="1" crop="right"/>
+                                    <button id="statusbar-message-clear" class="close-button button-plain"
+                                            onclick="ko.statusBar.clearMessage();"/>
+                                </hbox>
+                                <hbox id="statusbar-trial" flex="1" align="center">
+                                    <label id="statusbar-trial-days" class="trial-text" />
+                                    <label id="statusbar-trial-link" value="Buy now!"
+                                           class="trial-text trial-link" crop="end"
+                                           onclick="ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/komodo-ide');" />
+                                </hbox>
+                            </deck>
+                        </deck>
+                    </statusbarpanel>
+
+                    <statusbarpanel id="statusbar-section"
+                                    style="min-width: 12em; max-width: 20em;">
+                        <sectionlist id="statusbar-sectionlist" />
+                    </statusbarpanel>
+
+                    <statusbarpanel id="statusbar-encoding"
+                                    tooltiptext="&fileEncoding.tooltiptext;"
+                                    >
+                        <toolbarbutton class="statusbar-label"
+                              id="statusbar-encoding-label"
+                              flex="1"
+                              orient="horizontal"
+                              type="menu"
+                              persist="buttonstyle"
+                              label="--"
+                              buttonstyle="text">
+                            <menupopup id="statusbar-encoding-menupopup"
+                                       onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
+                        </toolbarbutton>
+                    </statusbarpanel>
+
+                    <statusbarpanel id="statusbar-language"
+                                    pack="end"
+                                    >
+                        <toolbarbutton class="statusbar-label languageicon"
+                              id="statusbar-language-menu"
+                              tooltiptext="&fileType.tooltiptext;"
+                              flex="1"
+                              orient="horizontal"
+                              type="menu"
+                              persist="buttonstyle"
+                              label="--"
+                              buttonstyle="text">
+                            <menupopup id="statusbar-filetype-menu"
+                                       position="before_end"
+                                       onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
+                        </toolbarbutton>
+                    </statusbarpanel>
+
+                    <statusbarpanel id="statusbar-line-col"
+                                    tooltiptext="&filePosition.tooltiptext;"
+                                    style="min-width: 10.5em;"/>
+                    <statusbarpanel id="statusbar-selection"
+                                    label="&noSelection.label;"
+                                    tooltiptext="&selectionInformation.tooltiptext;"
+                                    style="min-width: 8em;"/>
+
+                    <statusbarpanel id="statusbar-checker"
+                                    style="min-width: 36px;">
+                        <toolbarbutton id="statusbar-check"
+                                       tooltiptext="&syntaxCheckingStatus.tooltiptext;"
+                                       orient="horizontal"
+                                       type="menu"
+                                       persist="buttonstyle"
+                                       buttonstyle="pictures"
+                                       onclick="if (event.button == 2)
+                                        ko.lint.jumpToNextLintResult();">
+                            <menupopup id="context_lint" position="before_start">
+                                <menuitem id="context_doLint"
+                                          class="statusbar-label"
+                                          label="&checkSyntaxNow.label;"
+                                          observes="cmd_lintNow"
+                                          />
+                                <menuitem id="context_describeResults"
+                                          class="statusbar-label"
+                                          label="&jumpToNextResult.label;"
+                                          observes="cmd_nextLintResult"
+                                          />
+                                <menuitem id="context_clearResults"
+                                          class="statusbar-label"
+                                          label="&clearWarningErrorSquigglies.label;"
+                                          observes="cmd_lintClearResults"
+                                          />
+                            </menupopup>
+                        </toolbarbutton>
+                    </statusbarpanel>
+
+                </statusbar>
+
+                <splitter id="bottom_splitter"
+                          collapse="after"
+                          splitterCmdId="cmd_viewBottomPane"
+                          class="workspace_splitter"
+                          orient="vertical">
+                    <observes element="workspace_bottom_area" attribute="collapsed"/>
+                </splitter>
+
+                <!-- Output Area -->
+                <!--Persisting of collapsed disabled because of http://bugs.activestate.com/show_bug.cgi?id=25918-->
+                <ko-pane id="workspace_bottom_area" height="200" collapsed="true"
+                         persist="height type" label="&paneNameBottom;"
+                         class="native" orient="horizontal">
+                    <!-- Run output tab of the output pane. This pane is made
+                        of two levels: (1) a scintilla terminal to show
+                        unparsed output and (2) an tree to show parsed
+                        output.
+                    -->
+                    <browser type="ko-widget"
+                             id="runoutput-desc-tabpanel"
+                             label="&commandOutput.label;"
+                             src="chrome://komodo/content/run/runOutputPane.xul"
+                             tab_onmousedown="document.getElementById('runoutput-desc-tabpanel').focus();"
+                             tab_onfocus="document.getElementById('runoutput-desc-tabpanel').focus();"
+                             icon="chrome://icomoon/skin/icons/console.png"/>
+
+                    <!-- The two Find Results tabs of the output pane -->
+                    <browser type="ko-widget"
+                             id="findresults1_tabpanel"
+                             collapsed="true" label="&findResults1.label;"
+                             src="chrome://komodo/content/find/findResultsTab.xul"
+                             icon="chrome://icomoon/skin/icons/binoculars.png"/>
+                    <browser type="ko-widget"
+                             id="findresults2_tabpanel"
+                             collapsed="true" label="&findResults2.label;"
+                             src="chrome://komodo/content/find/findResultsTab.xul"
+                             icon="chrome://icomoon/skin/icons/binoculars.png"/>
+
+
+        <!-- #if WITH_SLEUTH -->
+                    <!-- Project Unit Tests output tab of the output pane -->
+                    <browser type="ko-widget"
+                             id="projectUnitTestsResults_tabpanel"
+                             tab_results="none"
+                             label="&testResults_tab.label;"
+                             src="chrome://komodo/content/sleuth/sleuthPane.xul"
+                             icon="chrome://icomoon/skin/icons/lab.png"/>
+        <!-- #endif -->
+                </ko-pane>
+            </vbox>
             <splitter id="workspace_right_splitter"
                       orient="horizontal"
                       class="workspace_splitter workspace_splitter_right"
@@ -2199,44 +2359,6 @@
             </ko-pane>
         </hbox>
 
-        <splitter id="bottom_splitter"
-                  collapse="after"
-                  splitterCmdId="cmd_viewBottomPane"
-                  class="workspace_splitter"
-                  orient="vertical">
-            <observes element="workspace_bottom_area" attribute="collapsed"/>
-        </splitter>
-
-        <!-- Output Area -->
-        <!--Persisting of collapsed disabled because of http://bugs.activestate.com/show_bug.cgi?id=25918-->
-        <ko-pane id="workspace_bottom_area" height="200" collapsed="true"
-                 persist="height type" label="&paneNameBottom;"
-                 class="native" orient="horizontal">
-            <!-- Run output tab of the output pane. This pane is made
-                of two levels: (1) a scintilla terminal to show
-                unparsed output and (2) an tree to show parsed
-                output.
-            -->
-            <browser type="ko-widget"
-                     id="runoutput-desc-tabpanel"
-                     label="&commandOutput.label;"
-                     src="chrome://komodo/content/run/runOutputPane.xul"
-                     tab_onmousedown="document.getElementById('runoutput-desc-tabpanel').focus();"
-                     tab_onfocus="document.getElementById('runoutput-desc-tabpanel').focus();"
-                     icon="chrome://icomoon/skin/icons/console.png"/>
-
-            <!-- The two Find Results tabs of the output pane -->
-            <browser type="ko-widget"
-                     id="findresults1_tabpanel"
-                     collapsed="true" label="&findResults1.label;"
-                     src="chrome://komodo/content/find/findResultsTab.xul"
-                     icon="chrome://icomoon/skin/icons/binoculars.png"/>
-            <browser type="ko-widget"
-                     id="findresults2_tabpanel"
-                     collapsed="true" label="&findResults2.label;"
-                     src="chrome://komodo/content/find/findResultsTab.xul"
-                     icon="chrome://icomoon/skin/icons/binoculars.png"/>
-        </ko-pane>
     </vbox> <!-- main window box -->
     <!-- we need a browser widget to do our printing for us, unfortunatly
         if we collapse or hide it, printing still fails.  So we have to
@@ -2244,101 +2366,6 @@
         the main window box.  -->
     <browser id="printBrowser" type="content-primary" flex="1" disablehistory="true"/>
     </deck>
-    <statusbar fullscreentoolbar="true" orient="horizontal"
-               id="statusbarviewbox"
-               class="chromeclass-status"
-               style="min-height: 1.5em;">
-        <html:canvas id="canvas-proxy" style="display: none"/>
-        <statusbarpanel id="statusbar-notifications-button"
-                        class="statusbarpanel-iconic"
-                        oncommand="ko.uilayout.ensureTabShown('notifications-widget');"/>
-        <statusbarpanel id="statusbar-message-panel" flex="1">
-            <!-- the deck is here to support vi mode -->
-            <deck id="statusbar-message-deck" selectedIndex="0" flex="1">
-                <deck id="statusbar-message-internal-deck" selectedIndex="0" flex="1">
-                    <hbox id="statusbar-message-wrap">
-                        <statusbarpanel id="statusbar-message" value="&ready.label;"
-                                        flex="1" crop="right"/>
-                        <button id="statusbar-message-clear" class="close-button button-plain"
-                                onclick="ko.statusBar.clearMessage();"/>
-                    </hbox>
-                </deck>
-            </deck>
-        </statusbarpanel>
-
-        <statusbarpanel id="statusbar-encoding"
-                        tooltiptext="&fileEncoding.tooltiptext;"
-                        >
-            <toolbarbutton class="statusbar-label"
-                  id="statusbar-encoding-label"
-                  flex="1"
-                  orient="horizontal"
-                  type="menu"
-                  persist="buttonstyle"
-                  label="--"
-                  buttonstyle="text">
-                <menupopup id="statusbar-encoding-menupopup"
-                           onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
-            </toolbarbutton>
-        </statusbarpanel>
-
-        <statusbarpanel id="statusbar-language"
-                        pack="end"
-                        >
-            <toolbarbutton class="statusbar-label languageicon"
-                  id="statusbar-language-menu"
-                  tooltiptext="&fileType.tooltiptext;"
-                  flex="1"
-                  orient="horizontal"
-                  type="menu"
-                  persist="buttonstyle"
-                  label="--"
-                  buttonstyle="text">
-                <menupopup id="statusbar-filetype-menu"
-                           position="before_end"
-                           onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
-            </toolbarbutton>
-        </statusbarpanel>
-
-        <statusbarpanel id="statusbar-line-col"
-                        tooltiptext="&filePosition.tooltiptext;"
-                        style="min-width: 10.5em;"/>
-        <statusbarpanel id="statusbar-selection"
-                        label="&noSelection.label;"
-                        tooltiptext="&selectionInformation.tooltiptext;"
-                        style="min-width: 8em;"/>
-
-        <statusbarpanel id="statusbar-checker"
-                        style="min-width: 36px;">
-            <toolbarbutton id="statusbar-check"
-                           tooltiptext="&syntaxCheckingStatus.tooltiptext;"
-                           orient="horizontal"
-                           type="menu"
-                           persist="buttonstyle"
-                           buttonstyle="pictures"
-                           onclick="if (event.button == 2)
-                            ko.lint.jumpToNextLintResult();">
-                <menupopup id="context_lint" position="before_start">
-                    <menuitem id="context_doLint"
-                              class="statusbar-label"
-                              label="&checkSyntaxNow.label;"
-                              observes="cmd_lintNow"
-                              />
-                    <menuitem id="context_describeResults"
-                              class="statusbar-label"
-                              label="&jumpToNextResult.label;"
-                              observes="cmd_nextLintResult"
-                              />
-                    <menuitem id="context_clearResults"
-                              class="statusbar-label"
-                              label="&clearWarningErrorSquigglies.label;"
-                              observes="cmd_lintClearResults"
-                              />
-                </menupopup>
-            </toolbarbutton>
-        </statusbarpanel>
-
-    </statusbar>
     <commandset id="allcommands">
         <command id="cmd_CustomizeToolbars"
                  oncommand="ko.uilayout.customizeToolbars('toolbox_main');"/>

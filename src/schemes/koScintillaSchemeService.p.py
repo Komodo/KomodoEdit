@@ -1013,6 +1013,10 @@ class Scheme(SchemeBase):
     def backgroundColor(self):
         return scincolor2mozcolor(self._defaultBackColor())
 
+    @property
+    def foregroundColor(self):
+        return scincolor2mozcolor(self._defaultForeColor())
+
     def getHighlightColorInfo(self, languageObj):
         """
         This function also serves as a gatekeeper.
