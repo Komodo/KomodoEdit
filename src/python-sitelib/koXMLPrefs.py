@@ -518,7 +518,6 @@ class koXMLPreferenceSetObjectFactory:
                 except:
                     # Couldn't remove the bad pickle cache - ignore it.
                     pass
-                cacheFilename
         else:
             log.info("cacheFilename for %r is None, so doing it the slow way",
                      filename)
@@ -531,9 +530,15 @@ class koXMLPreferenceSetObjectFactory:
                 #XXX need to handle exceptions from minidom to be robust
                 try:
                     rootNode = minidom.parse(stream)
-                except (AttributeError, SAXParseException), e:
-                    #XXX why would an AttributeError be raised?
+                except:
                     log.exception("Couldn't deserialize file %r", filename)
+                    # If we haven't tried to load the picked version, try that
+                    # now as a fallback - bug 105385.
+                    if cacheFilename is None and os.path.exists(filename + "c"):
+                            log.warn("falling back to the cached pref file")
+                            prefObject = dePickleCache(filename + "c")
+                            if prefObject is not None:
+                                return prefObject
                     return None
         else:
             #log.debug("No prefs file %r - returning None...", filename)
