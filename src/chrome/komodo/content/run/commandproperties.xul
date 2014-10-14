@@ -163,6 +163,9 @@
                                 <menuitem label="&bFileBaseNameWithoutExtension.label;"
                                           shortcut="%b"
                                           oncommand="InsertCommandShortcut(this);"/>
+                                <menuitem label="&projectBaseDirectory.label;"
+                                          shortcut="%i"
+                                          oncommand="InsertCommandShortcut(this);"/>
                                 <menuitem label="&PPathOfTheActiveProject.label;"
                                           shortcut="%P"
                                           oncommand="InsertCommandShortcut(this);"/>
@@ -255,7 +258,10 @@
                                     <menuitem label="&DDirectoryPathOfFile.label;"
                                               shortcut="%D"
                                               oncommand="InsertCwdShortcut(this);"/>
-                                    <menuitem label="&pDirectoryPathOfActiveProject.label;"
+                                    <menuitem label="&projectBaseDirectory.label;"
+                                              shortcut="%i"
+                                              oncommand="InsertCwdShortcut(this);"/>
+                                    <menuitem label="&pDirectoryPathOfTheActiveProject.label;"
                                               shortcut="%p"
                                               oncommand="InsertCwdShortcut(this);"/>
                                     <menuseparator/>

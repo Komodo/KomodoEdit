@@ -37,7 +37,7 @@
 <!ENTITY DDirectoryPathOfFile.label "&#37;D : directory path of file">
 <!ENTITY FFilePath.label "&#37;F : file path">
 <!ENTITY LCurrentLineNumber.label "&#37;L : current line number">
-<!ENTITY PPathOfTheActiveProject.label "&#37;P : path of the active project">
+<!ENTITY PPathOfTheActiveProject.label "&#37;P : path of the active project file">
 <!ENTITY SURLEscapedSelection.label "&#37;S : URL-escaped selection">
 <!ENTITY WURLEscapedSelectionOrWordUnderCursor.label "&#37;W : URL-escaped selection or word under cursor">
 <!ENTITY addToToolbox.label "Add to Toolbox">
@@ -81,13 +81,13 @@
 <!ENTITY noConsoleGUIApplication.label "No Console (GUI Application)">
 <!ENTITY nodejsConfiguredNodeInterpreter.label "&#37;(nodejs) : Configured Node.js Interpreter">
 <!ENTITY operateOnSelectionCheckbox.accesskey "l">
-<!ENTITY pDirectoryPathOfActiveProject.label "&#37;p : directory path of active project">
-<!ENTITY pDirectoryPathOfTheActiveProject.label "&#37;p : directory path of the active project">
+<!ENTITY pDirectoryPathOfTheActiveProject.label "&#37;p : directory path of the active project file">
 <!ENTITY parseOutputWith.label "Parse output with:">
 <!ENTITY parseRegexTextbox.accesskey "c">
 <!ENTITY passSelectionAsInput.label "Pass selection as input">
 <!ENTITY perlConfiguredPerlInterpreter.label "&#37;(perl) : Configured Perl Interpreter">
 <!ENTITY phpConfiguredPHPInterpreter.label "&#37;(php) : Configured PHP Interpreter">
+<!ENTITY projectBaseDirectory.label "&#37;i : project base directory">
 <!ENTITY pythonConfiguredPythonInterpreter.label "&#37;(python) : Configured Python Interpreter">
 <!ENTITY pythonConfiguredPython3Interpreter.label "&#37;(python3) : Configured Python3 Interpreter">
 <!ENTITY reset.label "Reset">

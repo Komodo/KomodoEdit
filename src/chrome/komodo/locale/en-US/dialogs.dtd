@@ -37,7 +37,7 @@
 <!ENTITY DDirectoryPathOfFile.label "[[&#37;D]] : directory path of file">
 <!ENTITY FFilePath.label "[[&#37;F]] : file path">
 <!ENTITY LCurrentLineNumber.label "[[&#37;L]] : current line number">
-<!ENTITY PPathOfTheActiveProject.label "[[&#37;P]]: path of the active project">
+<!ENTITY PPathOfTheActiveProject.label "[[&#37;P]]: path of the active project file">
 <!ENTITY SURLEscapedSelection.label "[[&#37;S]] : URL-escaped selection">
 <!ENTITY URIMapping.title "URI Mapping">
 <!ENTITY URI.label "URI:">
@@ -78,7 +78,7 @@
 <!ENTITY loginAnonymously.label "Login Anonymously">
 <!ENTITY mapsTo.label "Maps to:">
 <!ENTITY nextDiff.label "Next Diff">
-<!ENTITY pDirectoryPathOfTheActiveProject.label "[[&#37;p]]: directory path of the active project">
+<!ENTITY pDirectoryPathOfTheActiveProject.label "[[&#37;p]]: directory path of the active project file">
 <!ENTITY passwordLabel.accesskey "P">
 <!ENTITY perlConfiguredPerlInterpreter.label "[[&#37;perl]] : Configured Perl Interpreter">
 <!ENTITY phpConfiguredPHPInterpreter.label "[[&#37;php]] : Configured PHP Interpreter">
@@ -88,6 +88,7 @@
 <!ENTITY previewUsing.label "Preview using:">
 <!ENTITY previewUsingDefaultBrowser.value "Default Browser">
 <!ENTITY previousDiff.label "Previous Diff">
+<!ENTITY projectBaseDirectory.label "[[&#37;i]] : project base directory">
 <!ENTITY pythonConfiguredPythonInterpreter.label "[[&#37;python]] : Configured Python Interpreter">
 <!ENTITY remember.accesskey "R">
 <!ENTITY rememberThisSelectionForThisFile.label "Remember this selection for this file">

@@ -124,6 +124,9 @@
                 <menuitem label="&bFileBaseNameWithoutExtension.label;"
                           shortcut="[[%b]]"
                           oncommand="InsertShortcut(this);"/>
+                <menuitem label="&projectBaseDirectory.label;"
+                          shortcut="[[%i]]"
+                          oncommand="InsertShortcut(this);"/>
                 <menuitem label="&PPathOfTheActiveProject.label;"
                           shortcut="[[%P]]"
                           oncommand="InsertShortcut(this);"/>

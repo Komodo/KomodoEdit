@@ -37,7 +37,7 @@
 <!ENTITY DDirectoryPathOfFile.label "[[&#37;D]]: directory path of file">
 <!ENTITY FFilePath.label "[[&#37;F]]: file path">
 <!ENTITY LCurrentLineNumber.label "[[&#37;L]]: current line number">
-<!ENTITY PPathOfTheActiveProject.label "[[&#37;P]]: path of the active project">
+<!ENTITY PPathOfTheActiveProject.label "[[&#37;P]]: path of the active project file">
 <!ENTITY SURLEscapedSelection.label "[[&#37;S]]: URL-escaped selection">
 <!ENTITY WURLEscapedSelectionOrWordUnderCursor.label "[[&#37;W]]: URL-escaped selection or word under cursor">
 <!ENTITY accesskey.accesskey "m">
@@ -72,9 +72,10 @@
 <!ENTITY onASystemNotification.label "On a system notification:">
 <!ENTITY onShutdownTheMacroCanReturnTrueToPreventShutdown.label "On shutdown (the macro can return true to prevent shutdown)">
 <!ENTITY onStartup.label "On startup">
-<!ENTITY pDirectoryPathOfTheActiveProject.label "[[&#37;p]]: directory path of the active project">
+<!ENTITY pDirectoryPathOfTheActiveProject.label "[[&#37;p]]: directory path for the active project file">
 <!ENTITY partvalue.accesskey "n">
 <!ENTITY pickALetterInTheNameToUseAsTheAltShortcut.tooltiptext "Pick a letter in the name to use as the Alt+ shortcut.">
+<!ENTITY projectBaseDirectory.label "[[&#37;i]] : project base directory">
 <!ENTITY priority.accesskey "p">
 <!ENTITY priorityLabel.accesskey "p">
 <!ENTITY properties.label "Properties">
