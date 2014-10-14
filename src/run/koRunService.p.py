@@ -198,6 +198,7 @@ class KoInterpolationService:
             'S': ValueError("The command string includes %S, but there is no selection"),
             'P': ValueError("The command string includes %P, but there is no active project"),
             'p': ValueError("The command string includes %p, but there is no active project"),
+            'i': ValueError("The command string includes %i, but there is no active project"),
             'nodejs': lambda  interp='node',    lang='NodeJS':  self._GetInterpreter(interp, lang, prefSet),
             'perl':   lambda  interp='perl',    lang='Perl':    self._GetInterpreter(interp, lang, prefSet),
             'php':    lambda  interp='php',     lang='PHP':     self._GetInterpreter(interp, lang, prefSet),
@@ -238,6 +239,7 @@ class KoInterpolationService:
         if projectFile:
             codeMap['P'] = projectFile
             codeMap['p'] = dirname(projectFile)
+            codeMap['i'] = projectFile.liveDirectory
         if selection:
             codeMap['w'] = selection
             codeMap['s'] = selection
