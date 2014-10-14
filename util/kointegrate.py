@@ -271,7 +271,7 @@ class GitBranch(Branch):
                "--message", message,
                "--"] + all_changed_paths
         self._execute(*cmd)
-        rev = self._capture_output("rev-parse", "HEAD").strip()
+        rev = self._capture_output("rev-parse", "--short=16", "HEAD").strip()
         return GitRevision(rev, self)
 
     def push(self):
