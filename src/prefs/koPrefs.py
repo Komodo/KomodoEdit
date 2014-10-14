@@ -118,6 +118,7 @@ from koXMLPrefs import *
 
 import logging
 log = logging.getLogger('koPrefs')
+#log.setLevel(logging.DEBUG)
 
 koGlobalPreferenceSets = [
     koGlobalPreferenceDefinition(name="global",
@@ -1572,8 +1573,14 @@ class koGlobalPrefService(object):
         self.pref_map[prefName] = None, defn
         return self.getPrefs(prefName)
 
+    def removeIdleObserver(self):
+        if self._addedIdleObserver:
+            self._addedIdleObserver = False
+            self.idleService.removeIdleObserver(self, self.IDLE_TIME)
+
     def shutDown(self):
         log.debug("koGlobalPrefService shutting down...")
+        self.removeIdleObserver()
         self.saveState()
         obsvc = components.classes["@mozilla.org/observer-service;1"].\
                     getService(components.interfaces.nsIObserverService)
@@ -1589,8 +1596,7 @@ class koGlobalPrefService(object):
             self.shutDown()
         elif topic == 'idle':
             # nsIIdleService has called us - it's time to save prefs
-            self._addedIdleObserver = False
-            self.idleService.removeIdleObserver(self, self.IDLE_TIME)
+            self.removeIdleObserver()
             self.saveState()
 
     def saveState(self):
