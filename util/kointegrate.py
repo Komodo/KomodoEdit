@@ -271,7 +271,7 @@ class GitBranch(Branch):
                "--message", message,
                "--"] + all_changed_paths
         self._execute(*cmd)
-        rev = self._capture_output("rev-parse", "--short=16", "HEAD").strip()
+        rev = self._capture_output("rev-parse", "HEAD").strip()
         return GitRevision(rev, self)
 
     def push(self):
@@ -949,7 +949,7 @@ class GitRevision(Revision):
                 remote = remote.rsplit("/", 1)[-1]
         except subprocess.CalledProcessError:
             pass
-        summary = "https://github.com/Komodo/%s/commit/%s" % (remote.replace(".git", ""), self.revision)
+        summary = "https://github.com/Komodo/%s/commit/%s" % (remote.replace(".git", ""), self.pretty_rev)
         branch = (self.branch
                       ._capture_output("describe", "--all", "--abbrev=0")
                       .strip())
