@@ -163,21 +163,12 @@ this.language = function(searchTerm) {
         command = command.replace("%W", searchTerm);
     }
 
-    ko.run.runCommand(window,
-                   command,
-                   null, // cwd
-                   null, // env
-                   false, // insertOutput
-                   false, // operateOnSelection
-                   true, // doNotOpenOutputWindow
-                   'no-console', // runIn
-                   0, // parseOutput
-                   '', // parseRegex
-                   0, // showParsedOutputList
-                   name,   // name
-                   true,   // clearOutputWindow
-                   null,   // terminationCallback
-                   false); // saveInMRU
+    ko.run.command(command,
+                   {
+                    "runIn": 'no-console',
+                    "openOutputWindow": false,
+                    "name": name,
+                   });
 }
 
 
@@ -186,18 +177,12 @@ this.language = function(searchTerm) {
  */
 this.alternate = function() {
     var command = ko.prefs.getStringPref('OtherHelpCommand');
-    ko.run.runCommand(window,
-                   command,
-                   null, // cwd
-                   null, // env
-                   false, // insertOutput
-                   false, // operateOnSelection
-                   true, // doNotOpenOutputWindow
-                   'no-console', // runIn
-                   0, // parseOutput
-                   '', // parseRegex
-                   0, // showParsedOutputList
-                   "Alternate Help"); // name
+    ko.run.command(command,
+                   {
+                    "runIn": 'no-console',
+                    "openOutputWindow": false,
+                    "name": "Alternate Help",
+                   });
 }
 
 

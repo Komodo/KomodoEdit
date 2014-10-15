@@ -222,15 +222,17 @@ function RunCommandAndExit()
 
     // Get the information from the UI
     var cmd = dialog.commandTextbox.value;
-    var cwd = dialog.cwdTextbox.value;
-    var env = gRunEnvView.GetEnvironmentStrings();
-    var insertOutput = dialog.insertOutputWidget.checked;
-    var operateOnSelection = dialog.opOnSelWidget.checked;
-    var doNotOpenOutputWindow = dialog.doNotOpenOutWinWidget.checked;
-    var runIn = dialog.runInMenulist.value;
-    var parseOutput = dialog.parseOutputCheckbox.checked;
-    var parseRegex = dialog.parseRegexTextbox.value;
-    var showParsedOutputList = dialog.showParsedOutputListCheckbox.checked;
+    var opt = {
+        "window": opener,
+        "cwd": dialog.cwdTextbox.value,
+        "env": gRunEnvView.GetEnvironmentStrings(),
+        "insertOutput": dialog.insertOutputWidget.checked,
+        "operateOnSelection": dialog.opOnSelWidget.checked,
+        "openOutputWindow": !(dialog.doNotOpenOutWinWidget.checked),
+        "runIn": dialog.runInMenulist.value,
+        "parseRegex": dialog.parseRegexTextbox.value,
+        "showParsedOutputList": dialog.showParsedOutputListCheckbox.checked,
+    };
 
     if (cmd == "") {
         alert(_bundle.GetStringFromName("specifyACommand.alert"));
@@ -238,21 +240,24 @@ function RunCommandAndExit()
     }
 
     // Run the command.
-    var launched = ko.run.runCommand(opener, cmd, cwd, env, insertOutput,
-                                  operateOnSelection, doNotOpenOutputWindow,
-                                  runIn, parseOutput, parseRegex,
-                                  showParsedOutputList);
-    if (! launched) {
+    var launched = ko.run.command(cmd, opt);
+    if (!launched) {
         // Don't close the window if there was an error launching.
         return;
     }
 
     // Add the command to the toolbox (need a better UI for this).
     if (dialog.addToToolboxWidget.checked) {
-        opener.ko.toolboxes.addCommand(cmd, cwd, env, insertOutput,
-                            operateOnSelection, doNotOpenOutputWindow,
-                            runIn, parseOutput, parseRegex,
-                            showParsedOutputList);
+        opener.ko.toolboxes.addCommand(cmd,
+                                       opt.cwd,
+                                       opt.env,
+                                       opt.insertOutput,
+                                       opt.operateOnSelection,
+                                       opt.doNotOpenOutputWindow,
+                                       opt.runIn,
+                                       opt.parseRegex ? true : false,
+                                       opt.parseRegex,
+                                       opt.showParsedOutputList);
     }
 
     // Exit

@@ -2094,21 +2094,7 @@ VimController.prototype.findAndRunCommand = function (value)
     // See if it's !, which means it's a run command
     if (value[0] == '!') {
         value = value.substr(1);
-        var userEnvSvc = Components.classes["@activestate.com/koUserEnviron;1"].
-              getService(Components.interfaces.koIUserEnviron);
-        var env = userEnvSvc.GetEncodedEnvironment();
-        ko.run.runCommand(window,
-                       value,
-                       "%D",  // cwd (%D == directory path of file)
-                       env,   // env
-                       false, // insertOutput
-                       false, // operateOnSelection
-                       false, // doNotOpenOutputWindow
-                       'command-output-window', // runIn
-                       0,  // parseOutput
-                       '', // parseRegex
-                       0,  // showParsedOutputList
-                       false); // saveInMRU
+        ko.run.command(value, { "cwd": "%D" });
         return;
     }
 

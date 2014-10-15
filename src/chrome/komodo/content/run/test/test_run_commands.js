@@ -154,23 +154,14 @@ test_run_commands.prototype.test_run_termination_callback = function() {
         gotretval = true;
         self.assertEqual(retval, 0, "Expected retval of 0, got " + retval);
     }
-    ko.run.runCommand(ko.windowManager.getMainWindow() /* editor */,
-                      cmd,
-                      null /* cwd */,
-                      null /* env */,
-                      false /* insertOutput */,
-                      false /* operateOnSelection */,
-                      null /* doNotOpenOutputWindow */,
-                      "command-output-window" /* runIn */,
-                      false /* parseOutput */,
-                      null /* parseRegex */,
-                      false /* showParsedOutputList */,
-                      null /* name */,
-                      false /* clearOutputWindow */,
-                      terminationCallback,
-                      false /* saveInMRU */,
-                      false /* saveInMacro */,
-                      null /* viewData */);
+    ko.run.command(cmd,
+                   {
+                    "window": ko.windowManager.getMainWindow(),
+                    "openOutputWindow": false,
+                    "clearOutputWindow": false,
+                    "terminationCallback": terminationCallback,
+                    "saveInMacro": false,
+                   });
     // Set a timeout to check if we got the retval.
     function checkReceivedCallback() {
         self.assertEqual(gotretval, true, "terminationCallback was not called.");

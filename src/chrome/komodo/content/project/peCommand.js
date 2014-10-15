@@ -60,45 +60,19 @@ this.commandProperties = function command_editProperties(item)
 }
 
 this.runCommand = function Run_CommandPart(cmdPart) {
-    // Have to guard against new (since Komodo 2.0.0 release) command
-    // attributes not being defined.
-    var parseOutput = null;
-    if (cmdPart.hasAttribute("parseOutput")) {
-        parseOutput = cmdPart.getBooleanAttribute("parseOutput");
-    }
-    var parseRegex = null;
-    if (cmdPart.hasAttribute("parseRegex")) {
-        parseRegex = cmdPart.getStringAttribute("parseRegex");
-    }
-    var showParsedOutputList = null;
-    if (cmdPart.hasAttribute("showParsedOutputList")) {
-        showParsedOutputList = cmdPart.getBooleanAttribute("showParsedOutputList");
-    }
-    var clearOutputWindow = true;
-    var terminationCallback = null;
-    var saveInMRU = true;
-    var saveInMacro = false;
-    var viewData = {};
-    viewData.prefSet = cmdPart.prefset;
-    ko.run.runCommand(
-        window,
-        cmdPart.value,
-        cmdPart.getStringAttribute("cwd"),
-        ko.stringutils.unescapeWhitespace(cmdPart.getStringAttribute("env"), '\n'),
-        cmdPart.getBooleanAttribute("insertOutput"),
-        cmdPart.getBooleanAttribute("operateOnSelection"),
-        cmdPart.getBooleanAttribute("doNotOpenOutputWindow"),
-        cmdPart.getStringAttribute("runIn"),
-        parseOutput,
-        parseRegex,
-        showParsedOutputList,
-        cmdPart.getStringAttribute("name"),
-        clearOutputWindow,
-        terminationCallback,
-        saveInMRU,
-        saveInMacro,
-        viewData
-    );
+    ko.run.command(cmdPart.value,
+                   {
+                        "cwd": cmdPart.getStringAttribute("cwd"),
+                        "env": ko.stringutils.unescapeWhitespace(cmdPart.getStringAttribute("env"), '\n'),
+                        "insertOutput": cmdPart.getBooleanAttribute("insertOutput"),
+                        "operateOnSelection": cmdPart.getBooleanAttribute("operateOnSelection"),
+                        "openOutputWindow": !(cmdPart.getBooleanAttribute("doNotOpenOutputWindow")),
+                        "runIn": cmdPart.getStringAttribute("runIn"),
+                        "name": cmdPart.getStringAttribute("name"),
+                        "parseRegex": cmdPart.getStringAttribute("parseRegex"),
+                        "saveInMacro": false,
+                        "viewData": { "prefSet": cmdPart.prefset },
+                   });
     ko.macros.recordPartInvocation(cmdPart);
 }
 
