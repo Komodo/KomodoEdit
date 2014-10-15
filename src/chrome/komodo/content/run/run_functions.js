@@ -281,6 +281,8 @@ this.runEncodedCommand = function Run_RunEncodedCommand(editor, encodedCommand,
 }
 
 /**
+ * @deprecated since Komodo 9.0.0, use ko.run.command() instead.
+ * 
  * Run the given command.
  *  @param {Object} "editor" is the main editor window JS object.
  *  @param {String} "command" is the command string to spawn.
@@ -329,331 +331,386 @@ this.runCommand = function Run_RunCommand(editor, command, cwd, env, insertOutpu
                         saveInMacro /* =true */,
                         viewData /* =null */)
 {
-try {
-    if (typeof parseOutput == 'undefined' || parseOutput == null) parseOutput = false;
-    if (typeof parseRegex == 'undefined' || parseRegex == null) parseRegex = "";
-    if (typeof showParsedOutputList == 'undefined' || showParsedOutputList == null) showParsedOutputList = false;
-    if (typeof name == 'undefined') name = null;
-    if (typeof clearOutputWindow == 'undefined' || clearOutputWindow == null) clearOutputWindow = true;
-    if (typeof terminationCallback == 'undefined') terminationCallback = null;
-    if (typeof saveInMRU == 'undefined' || saveInMRU == null) saveInMRU = true;
-    if (typeof saveInMacro == 'undefined' || saveInMacro == null) saveInMacro = true;
-    if (typeof viewData == 'undefined') viewData = null;
-    //dump("Run_RunCommand(editor, command='"+command+"', cwd='"+cwd+
-    //     "', env, insertOutput='"+insertOutput+
-    //     "', operateOnSelection='"+operateOnSelection+
-    //     "', doNotOpenOutputWindow='"+doNotOpenOutputWindow+
-    //     "', runIn='"+runIn+"', parseOutput='"+parseOutput+
-    //     "', parseRegex='"+parseRegex+
-    //     "', showParsedOutputList='"+showParsedOutputList+
-    //     "', name='"+name+
-    //     "', clearOutputWindow='"+clearOutputWindow+
-    //     "', terminationCallback='"+terminationCallback+"')\n");
-    var obj, errmsg;
+    var options = {
+        "window": editor,
+        "cwd": cwd,
+        "env": env,
+        "insertOutput": insertOutput,
+        "operateOnSelection": operateOnSelection,
+        "openOutputWindow": !(doNotOpenOutputWindow),
+        "runIn": runIn,
+        "parseRegex": parseRegex,
+        "showParsedOutputList": showParsedOutputList,
+        "name": name,
+        "clearOutputWindow": clearOutputWindow,
+        "terminationCallback": terminationCallback,
+        "saveInMRU": saveInMRU,
+        "saveInMacro": saveInMacro,
+        "viewData": viewData,
+    };
+    return this.command(command, options);
+}
 
-    var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"]
-                       .getService(Components.interfaces.koILastErrorService);
-
-    var scimoz = null;
-    var view = editor.ko.views.manager.currentView;
-
-    var filename = null;
-    var url = null;
-    if (view) {
-        if (view.scintilla)
-            scimoz = view.scintilla.scimoz;
-        if (view.koDoc) {
-            filename = view.koDoc.displayPath;
-            if (view.koDoc.file) url = view.koDoc.file.URI;
-        }
-    }
-
-    // Ensure that it is reasonable to run this command given the current state
-    // of Komodo.
-    if (operateOnSelection) {
-        if (!view) {
-            alert(lazy.bundle.GetStringFromName("cannotOperateNoCurrentFile.alert"));
-            return false;
-        } else if (!scimoz) {
-            alert(lazy.bundle.GetStringFromName("doNotKnowHowtoOperate.alert"));
-            return false;
-        } else if (scimoz.selText == "") {
-            alert(lazy.bundle.GetStringFromName("cannotOperateNoSelection.alert"));
-            return false;
-        }
-    }
-    if (insertOutput) {
-        if (!view) {
-            alert(lazy.bundle.GetStringFromName("cannotInsertOutput.alert"));
-            return false;
-        } else if (!scimoz) {
-            alert(lazy.bundle.GetStringFromName("doNotKnowHowtoInsertOutpuNonEditorView.alert"));
-            return false;
-        }
-    }
-
-    var icommand = null;
-    var icommandForDisplay = null;
-    var icwd = null;
-    var icwdForDisplay = null;
-    var ienv = null;
-    var ienvForDisplay = null;
-    var env_in = [];
-    if (env) env_in = [env];
+/**
+ * Run the given command.
+ *
+ *  @param {String} command - The command string to execute.
+ *  @param {Object} options - Optional object can contain the following:
+ *   "cwd" {String} - the directory to start the process in.
+ *   "env" {String} - an encoded string of environment changes to use for the
+ *                    process. Encoding scheme: "VAR1=value1\nVAR2=value2\n..."
+ *   "runIn" {String} - identifies where the command should be run, one of:
+ *           "command-output-window" - the Komodo output pane (the default)
+ *           "new-console" - in a separate console window
+ *           "no-console" - in a hidden external window
+ *   "insertOutput" {Boolean} - specifies whether to insert the command's output
+ *                              into the current insertion point (default false).
+ *   "operateOnSelection" {Boolean} - use the current selection as input to the
+ *                                    command (default false).
+ *   "openOutputWindow" {Boolean} specifies whether the Command Output pane
+ *                                should be opened (default true).
+ *   "name" {String} - alias name for the command being run, shown to the user.
+ *   "editor" {Window} - a top-level Komodo window object to run inside.
+ *   "saveInMRU" {Boolean} - save the command in run command MRU list (false)
+ *   "saveInMacro {Boolean} - save the command in macro recordings (true)
+ *   "viewData" {Object} - custom view information (null)
+ *
+ * When runIn == "command-output-window", the following additional options are
+ * available:
+ *   "parseRegex" {String} - a regex pattern to use to parse the output lines
+ *                           into the command output window tree.
+ *   "showParsedOutputList" {Boolean} - show regex parsed output in a list view
+ *   "clearOutputWindow" {Boolean} - Whether to clear the command output window
+ *                                   when starting a new command (defaults to
+ *                                   true).
+ *   "terminationCallback" {Function} - called after the command terminates.
+ *
+ * @returns {Boolean} true if the command was launched successfully.
+ */
+this.command = function Run_RunCommand(command, options)
+{
     try {
-        var istrings;
-        if (cwd == null) {
-            istrings = ko.interpolate.interpolate(editor, [command],
-                                               env_in, name, viewData);
-            icommand = istrings[0];
-            icommandForDisplay = istrings[1];
-            if (env) {
-                ienv = istrings[2];
-                ienvForDisplay = istrings[3];
-            }
-        } else {
-            istrings = ko.interpolate.interpolate(editor, [command, cwd],
-                                               env_in, name, viewData);
-            icommand = istrings[0];
-            icommandForDisplay = istrings[1];
-            icwd = istrings[2];
-            icwdForDisplay = istrings[3];
-            if (!Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath).exists(icwd)) {
-                icwd = icwdForDisplay = ko.window.getCwd();
-            }
-            if (env) {
-                ienv = istrings[4];
-                ienvForDisplay = istrings[5];
+        // Initialize options.
+        options = options || {};
+        var cwd = ("cwd" in options && options.cwd) || null;
+        var env = ("env" in options && options.env) || null;
+        var editor = ("window" in options && options.window) || window;
+        var insertOutput = ("insertOutput" in options && options.insertOutput) || false;
+        var operateOnSelection = ("operateOnSelection" in options && options.operateOnSelection) || false;
+        var openOutputWindow = ("openOutputWindow" in options && options.openOutputWindow) || true;
+        var runIn = ("runIn" in options && options.runIn) || "command-output-window";
+        var parseRegex = ("parseRegex" in options && options.parseRegex) || "";
+        var parseOutput = (parseRegex ? true : false);
+        var showParsedOutputList = ("showParsedOutputList" in options && options.showParsedOutputList) || false;
+        var name = ("name" in options && options.name) || null;
+        var clearOutputWindow = ("clearOutputWindow" in options && options.clearOutputWindow) || true;
+        var terminationCallback = ("terminationCallback" in options && options.terminationCallback) || null;
+        var saveInMRU = ("saveInMRU" in options && options.saveInMRU) || false;
+        var saveInMacro = ("saveInMacro" in options && options.saveInMacro) || true;
+        var viewData = ("viewData" in options && options.viewData) || null;
+
+        var obj, errmsg;
+        var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"]
+                           .getService(Components.interfaces.koILastErrorService);
+        var scimoz = null;
+        var view = editor.ko.views.manager.currentView;
+        var filename = null;
+        var url = null;
+
+        if (view) {
+            if (view.scintilla)
+                scimoz = view.scintilla.scimoz;
+            if (view.koDoc) {
+                filename = view.koDoc.displayPath;
+                if (view.koDoc.file) url = view.koDoc.file.URI;
             }
         }
-    } catch (ex) {
-        var errno = lastErrorSvc.getLastErrorCode();
-        if (errno == Components.results.NS_ERROR_ABORT) {
-            // Command was cancelled.
-        } else if (errno == Components.results.NS_ERROR_INVALID_ARG) {
-            errmsg = lastErrorSvc.getLastErrorMessage();
-            var fullmsg = lazy.bundle.GetStringFromName("errorRunningCommand.alert");
-            if (name) {
-                fullmsg += " [" + name + "]";
+    
+        // Ensure that it is reasonable to run this command given the current state
+        // of Komodo.
+        if (operateOnSelection) {
+            if (!view) {
+                alert(lazy.bundle.GetStringFromName("cannotOperateNoCurrentFile.alert"));
+                return false;
+            } else if (!scimoz) {
+                alert(lazy.bundle.GetStringFromName("doNotKnowHowtoOperate.alert"));
+                return false;
+            } else if (scimoz.selText == "") {
+                alert(lazy.bundle.GetStringFromName("cannotOperateNoSelection.alert"));
+                return false;
             }
-            fullmsg += ": " + errmsg;
-            alert(fullmsg);
-        } else {
-            lazy.log.error(ex);
-            alert(lazy.bundle.formatStringFromName("thereWasAnUnexpectedError.alert", [ex], 1));
         }
-        return false;
-    }
-
-    // Run the command.
-    var retval = null;
-    var termListener = null;
-    var process = null;
-    var input = null;
-    var output = null;
-    var error = null;
-    errmsg = null;
-    if (operateOnSelection && scimoz && scimoz.selText != "") {
-        input = scimoz.selText;
-    }
-
-    if (insertOutput) {
-        // Start the command and monitor it. If the process is taking a long
-        // time to complete then pop up a dialog to wait for its termination
-        // giving the user the option to abort the command by killing the
-        // process.
-        //dump("XXX RunAndNotify: about to start '"+icommand+"'\n");
+        if (insertOutput) {
+            if (!view) {
+                alert(lazy.bundle.GetStringFromName("cannotInsertOutput.alert"));
+                return false;
+            } else if (!scimoz) {
+                alert(lazy.bundle.GetStringFromName("doNotKnowHowtoInsertOutpuNonEditorView.alert"));
+                return false;
+            }
+        }
+    
+        var icommand = null;
+        var icommandForDisplay = null;
+        var icwd = null;
+        var icwdForDisplay = null;
+        var ienv = null;
+        var ienvForDisplay = null;
+        var env_in = [];
+        if (env) env_in = [env];
         try {
-            process = lazy.runSvc.RunAndNotify(icommand, icwd, ienv, input);
-        } catch (ex) {
-            //dump("XXX RunAndNotify: '"+icommand+"' failed to start\n");
-            errmsg = lastErrorSvc.getLastErrorMessage();
-            if (! errmsg) {
-                errmsg = lazy.bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommand], 1);
+            var istrings;
+            if (cwd == null) {
+                istrings = ko.interpolate.interpolate(editor, [command],
+                                                   env_in, name, viewData);
+                icommand = istrings[0];
+                icommandForDisplay = istrings[1];
+                if (env) {
+                    ienv = istrings[2];
+                    ienvForDisplay = istrings[3];
+                }
+            } else {
+                istrings = ko.interpolate.interpolate(editor, [command, cwd],
+                                                   env_in, name, viewData);
+                icommand = istrings[0];
+                icommandForDisplay = istrings[1];
+                icwd = istrings[2];
+                icwdForDisplay = istrings[3];
+                if (!Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath).exists(icwd)) {
+                    icwd = icwdForDisplay = ko.window.getCwd();
+                }
+                if (env) {
+                    ienv = istrings[4];
+                    ienvForDisplay = istrings[5];
+                }
             }
-            alert(errmsg);
+        } catch (ex) {
+            var errno = lastErrorSvc.getLastErrorCode();
+            if (errno == Components.results.NS_ERROR_ABORT) {
+                // Command was cancelled.
+            } else if (errno == Components.results.NS_ERROR_INVALID_ARG) {
+                errmsg = lastErrorSvc.getLastErrorMessage();
+                var fullmsg = lazy.bundle.GetStringFromName("errorRunningCommand.alert");
+                if (name) {
+                    fullmsg += " [" + name + "]";
+                }
+                fullmsg += ": " + errmsg;
+                alert(fullmsg);
+            } else {
+                lazy.log.error(ex);
+                alert(lazy.bundle.formatStringFromName("thereWasAnUnexpectedError.alert", [ex], 1));
+            }
             return false;
         }
-        //dump("XXX RunAndNotify: '"+icommand+"' started normally\n");
-
-        var cancelled = false;
-        try {
-            process.wait(2);  // Give the command a little bit of time to run.
-            //dump("XXX RunAndNotify: child finished within 2s\n");
-        } catch (ex) {
-            // XXX Could getLastError here to determine if the wait failed
-            //     because of WAIT_TIMEOUT or WAIT_FAILED. Should probably not
-            //     ignore the latter, but punting on that for now.
-            //dump("XXX RunAndNotify: 2s passed, child has NOT finished\n");
-            obj = new Object();
-            obj.process = process;
-            obj.command = icommand;
-            ko.windowManager.openOrFocusDialog(
-                "chrome://komodo/content/run/waitfortermination.xul",
-                "komodo_waitfortermination",
-                "chrome,close=no,modal=yes,resizable=yes", obj);
-            if (obj.retval == "killed") { // Cancelled.
-                cancelled = true;
-            }
+    
+        // Run the command.
+        var retval = null;
+        var termListener = null;
+        var process = null;
+        var input = null;
+        var output = null;
+        var error = null;
+        errmsg = null;
+        if (operateOnSelection && scimoz && scimoz.selText != "") {
+            input = scimoz.selText;
         }
-
-        if (! cancelled) {
-            // The process has finished. Either the process has finished within
-            // 2 seconds or the waitfortermination dialog was displayed and the
-            // user then waited till the process finished. Note that the modal
-            // flags of the dialog stop the code from reaching this point until
-            // the dialog is closed.
-            //dump("XXX RunAndNotify: get output and error\n");
-            output = process.getStdout();
-            error = process.getStderr();
-            //dump("XXX RunAndNotify: finished getting output and error\n");
-        }
-
-    } else {
-        if (runIn == "command-output-window") {
+    
+        if (insertOutput) {
+            // Start the command and monitor it. If the process is taking a long
+            // time to complete then pop up a dialog to wait for its termination
+            // giving the user the option to abort the command by killing the
+            // process.
+            //dump("XXX RunAndNotify: about to start '"+icommand+"'\n");
             try {
-                editor.ko.run.output.startSession(icommandForDisplay, parseOutput,
-                                              parseRegex, icwdForDisplay, filename,
-                                              clearOutputWindow);
+                process = lazy.runSvc.RunAndNotify(icommand, icwd, ienv, input);
             } catch (ex) {
-                alert(ex);
-                return false;
-            }
-            var terminal = editor.ko.run.output.getTerminal();
-
-            // Setup the termination listener.
-            termListener = new _terminationListener();
-            termListener.init(editor, icommandForDisplay, terminationCallback);
-
-            // Start the command.
-            try {
-                process = lazy.runSvc.RunInTerminal(icommand, icwd, ienv,
-                                                 terminal, termListener,
-                                                 input);
-            } catch (ex) {
+                //dump("XXX RunAndNotify: '"+icommand+"' failed to start\n");
                 errmsg = lastErrorSvc.getLastErrorMessage();
                 if (! errmsg) {
-                    errmsg = lazy.bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommandForDisplay], 1);
+                    errmsg = lazy.bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommand], 1);
                 }
                 alert(errmsg);
-                editor.ko.run.output.endSession(-1);
                 return false;
             }
-
-            // Register the command and show the output window.
-            // XXX Should perhaps pass in cwd here and display that in
-            //     the command description for the user.
-            editor.ko.run.registerProcess(icommandForDisplay, process);
-            editor.ko.run.output.setProcessHandle(process);
-            if (! doNotOpenOutputWindow) {
-                editor.ko.run.output.show(editor, showParsedOutputList);
-            }
-
-        } else if (runIn == "new-console") {
+            //dump("XXX RunAndNotify: '"+icommand+"' started normally\n");
+    
+            var cancelled = false;
             try {
-                lazy.runSvc.Run(icommand, icwd, ienv, true, input);
+                process.wait(2);  // Give the command a little bit of time to run.
+                //dump("XXX RunAndNotify: child finished within 2s\n");
             } catch (ex) {
-                errmsg = lastErrorSvc.getLastErrorMessage();
-                if (! errmsg) {
-                    errmsg = lazy.bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommandForDisplay], 1);
+                // XXX Could getLastError here to determine if the wait failed
+                //     because of WAIT_TIMEOUT or WAIT_FAILED. Should probably not
+                //     ignore the latter, but punting on that for now.
+                //dump("XXX RunAndNotify: 2s passed, child has NOT finished\n");
+                obj = new Object();
+                obj.process = process;
+                obj.command = icommand;
+                ko.windowManager.openOrFocusDialog(
+                    "chrome://komodo/content/run/waitfortermination.xul",
+                    "komodo_waitfortermination",
+                    "chrome,close=no,modal=yes,resizable=yes", obj);
+                if (obj.retval == "killed") { // Cancelled.
+                    cancelled = true;
                 }
-                lazy.log.error(errmsg);
-                alert(errmsg);
-                return false;
             }
-
-        } else if (runIn == "no-console") {
-            try {
-                lazy.runSvc.Run(icommand, icwd, ienv, false, input);
-            } catch (ex) {
-                errmsg = lastErrorSvc.getLastErrorMessage();
-                if (! errmsg) {
-                    errmsg = lazy.bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommandForDisplay], 1);
-                }
-                lazy.log.error(errmsg);
-                alert(errmsg);
-                return false;
+    
+            if (! cancelled) {
+                // The process has finished. Either the process has finished within
+                // 2 seconds or the waitfortermination dialog was displayed and the
+                // user then waited till the process finished. Note that the modal
+                // flags of the dialog stop the code from reaching this point until
+                // the dialog is closed.
+                //dump("XXX RunAndNotify: get output and error\n");
+                output = process.getStdout();
+                error = process.getStderr();
+                //dump("XXX RunAndNotify: finished getting output and error\n");
             }
+    
         } else {
-            lazy.log.error("Unexpected 'runIn' value: " + runIn);
-            throw new Error("Unexpected 'runIn' value: " + runIn);
-        }
-    }
-    var encodedCommand = lazy.runSvc.Encode(command, cwd, env, insertOutput,
-                                         operateOnSelection,
-                                         doNotOpenOutputWindow, runIn,
-                                         parseOutput, parseRegex,
-                                         showParsedOutputList);
-    if (saveInMRU) {
-        _UpdateMRU(command, encodedCommand, cwd, parseRegex);
-    }
-    if (saveInMacro &&
-        typeof(editor.ko.macros.recorder) != 'undefined' &&
-        editor.ko.macros.recorder &&
-        editor.ko.macros.recorder.mode == 'recording') {
-        // escape char that will get interpreter twice (XXX not confident
-        // that this covers all cases)
-        encodedCommand = encodedCommand.replace('\\', '\\\\', "g");
-        encodedCommand = encodedCommand.replace("'", "\\'", "g");
-        encodedCommand = encodedCommand.replace('"', '\\"', "g");
-        var runtxt = "ko.run.runEncodedCommand(window, '"
-                      + encodedCommand + "');";
-        editor.ko.macros.recorder.appendCode(runtxt);
-    }
-
-    // Insert the returned output if requested and select it.
-    if (insertOutput && view && output) {
-        scimoz.targetStart = Math.min(scimoz.anchor, scimoz.currentPos);
-        scimoz.targetEnd = Math.max(scimoz.anchor, scimoz.currentPos);
-
-        // Convert text to the target EOL chars.
-        var eol = null;
-        switch (scimoz.eOLMode) {
-        case ISciMoz.SC_EOL_LF:
-            eol = '\n';
-            break;
-        case ISciMoz.SC_EOL_CRLF:
-            eol = '\r\n';
-            break;
-        case ISciMoz.SC_EOL_CR:
-            eol = '\r';
-            break;
-        }
-        output = output.replace(/\r\n|\n|\r/g, eol);
-
-        scimoz.replaceTarget(output.length, output);
-        scimoz.currentPos = scimoz.anchor + ko.stringutils.bytelength(output);
-    }
-
-    // Raise an alert dialog if there was error output.
-    if (error) {
-        ko.dialogs.alert(lazy.bundle.GetStringFromName("theCommandReturnedError.alert"), error);
-    }
-
-    // If the command looks like it was operating on the current file, then
-    // notify that the file might have changed.
-    if (url) {
-        var marker;
-        var markers = {"%f":1, "%F":1, "%(f":1, "%(F":1};
-        var _gObserverSvc = Components.classes["@mozilla.org/observer-service;1"]
-                            .getService(Components.interfaces.nsIObserverService);
-        for (marker in markers) {
-            if (command.indexOf(marker) != -1) {
+            if (runIn == "command-output-window") {
                 try {
-                    _gObserverSvc.notifyObservers(this, "file_status", url);
-                } catch (ex) { /* no one is listening */ }
+                    editor.ko.run.output.startSession(icommandForDisplay, parseOutput,
+                                                  parseRegex, icwdForDisplay, filename,
+                                                  clearOutputWindow);
+                } catch (ex) {
+                    alert(ex);
+                    return false;
+                }
+                var terminal = editor.ko.run.output.getTerminal();
+    
+                // Setup the termination listener.
+                termListener = new _terminationListener();
+                termListener.init(editor, icommandForDisplay, terminationCallback);
+    
+                // Start the command.
+                try {
+                    process = lazy.runSvc.RunInTerminal(icommand, icwd, ienv,
+                                                     terminal, termListener,
+                                                     input);
+                } catch (ex) {
+                    errmsg = lastErrorSvc.getLastErrorMessage();
+                    if (! errmsg) {
+                        errmsg = lazy.bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommandForDisplay], 1);
+                    }
+                    alert(errmsg);
+                    editor.ko.run.output.endSession(-1);
+                    return false;
+                }
+    
+                // Register the command and show the output window.
+                // XXX Should perhaps pass in cwd here and display that in
+                //     the command description for the user.
+                editor.ko.run.registerProcess(icommandForDisplay, process);
+                editor.ko.run.output.setProcessHandle(process);
+                if (openOutputWindow) {
+                    editor.ko.run.output.show(editor, showParsedOutputList);
+                }
+    
+            } else if (runIn == "new-console") {
+                try {
+                    lazy.runSvc.Run(icommand, icwd, ienv, true, input);
+                } catch (ex) {
+                    errmsg = lastErrorSvc.getLastErrorMessage();
+                    if (! errmsg) {
+                        errmsg = lazy.bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommandForDisplay], 1);
+                    }
+                    lazy.log.error(errmsg);
+                    alert(errmsg);
+                    return false;
+                }
+    
+            } else if (runIn == "no-console") {
+                try {
+                    lazy.runSvc.Run(icommand, icwd, ienv, false, input);
+                } catch (ex) {
+                    errmsg = lastErrorSvc.getLastErrorMessage();
+                    if (! errmsg) {
+                        errmsg = lazy.bundle.formatStringFromName("unknownErrorRunningCommand.alert", [icommandForDisplay], 1);
+                    }
+                    lazy.log.error(errmsg);
+                    alert(errmsg);
+                    return false;
+                }
+            } else {
+                lazy.log.error("Unexpected 'runIn' value: " + runIn);
+                throw new Error("Unexpected 'runIn' value: " + runIn);
+            }
+        }
+        var encodedCommand = lazy.runSvc.Encode(command, cwd, env, insertOutput,
+                                             operateOnSelection,
+                                             !openOutputWindow, runIn,
+                                             parseOutput, parseRegex,
+                                             showParsedOutputList);
+        if (saveInMRU) {
+            _UpdateMRU(command, encodedCommand, cwd, parseRegex);
+        }
+        if (saveInMacro &&
+            typeof(editor.ko.macros.recorder) != 'undefined' &&
+            editor.ko.macros.recorder &&
+            editor.ko.macros.recorder.mode == 'recording') {
+            // escape char that will get interpreter twice (XXX not confident
+            // that this covers all cases)
+            encodedCommand = encodedCommand.replace('\\', '\\\\', "g");
+            encodedCommand = encodedCommand.replace("'", "\\'", "g");
+            encodedCommand = encodedCommand.replace('"', '\\"', "g");
+            var runtxt = "ko.run.runEncodedCommand(window, '"
+                          + encodedCommand + "');";
+            editor.ko.macros.recorder.appendCode(runtxt);
+        }
+    
+        // Insert the returned output if requested and select it.
+        if (insertOutput && view && output) {
+            scimoz.targetStart = Math.min(scimoz.anchor, scimoz.currentPos);
+            scimoz.targetEnd = Math.max(scimoz.anchor, scimoz.currentPos);
+    
+            // Convert text to the target EOL chars.
+            var eol = null;
+            switch (scimoz.eOLMode) {
+            case ISciMoz.SC_EOL_LF:
+                eol = '\n';
+                break;
+            case ISciMoz.SC_EOL_CRLF:
+                eol = '\r\n';
+                break;
+            case ISciMoz.SC_EOL_CR:
+                eol = '\r';
                 break;
             }
+            output = output.replace(/\r\n|\n|\r/g, eol);
+    
+            scimoz.replaceTarget(output.length, output);
+            scimoz.currentPos = scimoz.anchor + ko.stringutils.bytelength(output);
         }
+    
+        // Raise an alert dialog if there was error output.
+        if (error) {
+            ko.dialogs.alert(lazy.bundle.GetStringFromName("theCommandReturnedError.alert"), error);
+        }
+    
+        // If the command looks like it was operating on the current file, then
+        // notify that the file might have changed.
+        if (url) {
+            var marker;
+            var markers = {"%f":1, "%F":1, "%(f":1, "%(F":1};
+            var _gObserverSvc = Components.classes["@mozilla.org/observer-service;1"]
+                                .getService(Components.interfaces.nsIObserverService);
+            for (marker in markers) {
+                if (command.indexOf(marker) != -1) {
+                    try {
+                        _gObserverSvc.notifyObservers(this, "file_status", url);
+                    } catch (ex) { /* no one is listening */ }
+                    break;
+                }
+            }
+        }
+    
+        return true;
+    } catch (e) {
+        lazy.log.exception(e);
     }
-
-    return true;
-} catch (e) {
-    lazy.log.exception(e);
-}
     return false;
 }
-
 
 /**
  * Run the given command.
