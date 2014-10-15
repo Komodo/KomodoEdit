@@ -239,7 +239,11 @@ class KoInterpolationService:
         if projectFile:
             codeMap['P'] = projectFile
             codeMap['p'] = dirname(projectFile)
-            codeMap['i'] = projectFile.liveDirectory
+            partSvc = components.classes["@activestate.com/koPartService;1"]\
+                      .getService(components.interfaces.koIPartService)
+            project = partSvc.currentProject
+            if project:
+                codeMap['i'] = project.liveDirectory
         if selection:
             codeMap['w'] = selection
             codeMap['s'] = selection
