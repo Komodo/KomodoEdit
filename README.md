@@ -15,9 +15,9 @@ the entire project.
 - [Download](#download)
 - [Feedback](#feedback)
 - [Building Komodo](#building-komodo)
-    - [Building with Docker](#building-on-docker)
     - [Building on Windows](#building-on-windows)
     - [Building on Mac & Linux](#building-on-mac-&-linux)
+    - [Building with Docker](#building-on-docker)
     - [Building Complications](#building-complications)
 
 ## Screenshot
@@ -48,42 +48,6 @@ Mailing Lists: [komodo-discuss](http://code.activestate.com/lists/komodo-discuss
 
 Note that these are simplified steps of the building process, for a more in-depth
 guide check <BUILD.txt>.
-
-### Building with Docker
-
-The easiest way to get started is to use our Docker image, this will basically
-provide you with a Ubuntu 12.04 based build of Komodo.
-
-After cloning the repository simply navigate into {repo}/util/docker and check
-out `./docklet --help`
-
-To use the docker image you need to of course have Docker installed as well as
-have X11 forwarding enabled in your SSH client (should work by default on most
-linux distros).
-
-#### Prepare Docker Image
-
- * Build the docker image: `./docklet build`
- * Start your container: `./docklet start`
- * SSH into your container to start working: `./docklet ssh`
-
-Your project files will be mounted at `/komodo/dev`
-
-NOTE - if you are updating from a previous version where your project files were
-at `/root/komodo` you will need to fix permissions on your Komodo project and
-profile folders. Ie:
-
-```
-chown -R <my-username>:<my-group> <my-project-location>
-chown -R <my-username>:<my-group> ~/.komodoide
-```
-
-You will also need to redo your build (distclean mozilla and komodo).
-
-#### Building Steps
-
-Once your image is prepared you can follow the building steps for linux as
-described below.
 
 ### Building on Windows
 
@@ -229,6 +193,42 @@ above steps is *meant to be sufficient* to get Komodo building.
 Upon making any modifications to the source you will again have to run `bk build`,
 or simply `bk build && bk run` to quickly get back into Komodo. Subsequent builds
 should be a lot faster as much of the compiled data is cached.
+
+### Building with Docker
+
+The easiest way to get started is to use our Docker image, this will basically
+provide you with a Ubuntu 12.04 based build of Komodo.
+
+After cloning the repository simply navigate into {repo}/util/docker and check
+out `./docklet --help`
+
+To use the docker image you need to of course have Docker installed as well as
+have X11 forwarding enabled in your SSH client (should work by default on most
+linux distros).
+
+#### Prepare Docker Image
+
+ * Build the docker image: `./docklet build`
+ * Start your container: `./docklet start`
+ * SSH into your container to start working: `./docklet ssh`
+
+Your project files will be mounted at `/komodo/dev`
+
+NOTE - if you are updating from a previous version where your project files were
+at `/root/komodo` you will need to fix permissions on your Komodo project and
+profile folders. Ie:
+
+```
+chown -R <my-username>:<my-group> <my-project-location>
+chown -R <my-username>:<my-group> ~/.komodoide
+```
+
+You will also need to redo your build (distclean mozilla and komodo).
+
+#### Building Steps
+
+Once your image is prepared you can follow the building steps for linux as
+described below.
 
 ### Building Complications
 
