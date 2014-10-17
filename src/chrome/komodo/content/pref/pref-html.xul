@@ -61,6 +61,7 @@
 
 function OnPreferencePageLoading(prefset) {
     try {
+        matchingTag_toggle(document.getElementById("showMatchingTagsOnClick"));
         const { classes: Cc, interfaces: Ci } = Components;
         var catSvc = Cc["@activestate.com/koXMLCatalogService;1"]
                        .getService(Ci.koIXMLCatalogService);
@@ -101,6 +102,14 @@ function OnPreferencePageOK(prefset) {
     return true;
 }
 
+function matchingTag_toggle(checkbox) {
+    if (checkbox.checked) {
+        document.getElementById("tag_highlight_settings_vbox").removeAttribute("collapsed");
+    } else {
+        document.getElementById("tag_highlight_settings_vbox").setAttribute("collapsed", "true");
+    }
+}
+
     // ]]>
     </script>
 
@@ -114,6 +123,26 @@ function OnPreferencePageOK(prefset) {
                       flex="1">
                 <menupopup id="doctypePopup"/>
             </menulist>
+        </groupbox>
+
+        <groupbox>
+            <caption label="Tag Highlighting"/>
+            <checkbox id="showMatchingTagsOnClick"
+                      label="&highlightMatchingTag.label;"
+                      pref="true"
+                      oncommand="matchingTag_toggle(this);"
+                      />
+            <vbox id="tag_highlight_settings_vbox" style="margin-left: 27px;">
+                <hbox align="center">
+                    <label value="&highlightMatchingTagRemoveAfter.label;"/>
+                    <textbox id="showMatchingTags_clearInterval" size="4" pref="true"/>
+                    <label value="&msecs.label;"/>
+                </hbox>
+                <checkbox id="showMatchingTags_constrainSearchInViewPort"
+                          label="&highlightMatchingTagConstrain.label;"
+                          pref="true"
+                          />
+            </vbox>
         </groupbox>
 
     </vbox>
