@@ -667,6 +667,9 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY CheckWithHTML5lib.label "Check With html5lib">
 <!ENTITY HTML5lib.label "html5lib">
 <!ENTITY HTMLTidy.label "HTML Tidy">
+<!ENTITY highlightMatchingTag.label "Highlight matching tag on mouse click">
+<!ENTITY highlightMatchingTagRemoveAfter.label "Remove tag highlighting after">
+<!ENTITY highlightMatchingTagConstrain.label "Constrain tag matching to the visible region">
 
 <!--pref-indentation.xul-->
 <!ENTITY autoIndentStyle.label "Auto-indent style:">
