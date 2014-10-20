@@ -91,32 +91,32 @@ def SmallestVersionFirst(a, b):
                [int(elem) for elem in b.split('.')])
 
 
-def pickleCache(object, filename):
+def pickleCache(prefs, filename):
     """
-    Pickle a pref object to a pref pickle file given the pref's
+    Pickle a prefs object to a pref pickle file given the pref's
     ordinary XML file name.
     """
     from tempfile import mkstemp
     (fdes, pickleFilename) = mkstemp(".tmp", "koPickle_")
     import cPickle
-    file = os.fdopen(fdes, "wb")
+    pickle_file = os.fdopen(fdes, "wb")
     try:
         try:
-            log.debug("Pickling object %s to %r", object, pickleFilename)
-            cPickle.dump(object, file, 1)
+            log.debug("Pickling object %s to %r", prefs, pickleFilename)
+            cPickle.dump(prefs, pickle_file, 1)
             log.info("saved the pickle to %r", pickleFilename)
         except:
             log.exception("pickleCache error for file %r", pickleFilename)
             try:
-                file.close()
-                file = None
+                pickle_file.close()
+                pickle_file = None
                 os.unlink(pickleFilename)
             except IOError, details:
                 log.error("Could not erase the incomplete pickle file %r: %s",
                           pickleFilename, details)
     finally:
-        if file is not None:
-            file.close()
+        if pickle_file is not None:
+            pickle_file.close()
             # Avoid copying bytes when writing to a profile file,
             # although this is hard to do on Windows
             import shutil
