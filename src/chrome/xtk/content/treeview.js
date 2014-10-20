@@ -325,7 +325,9 @@ xtk.dataTreeView.prototype = {
     isSorted : function() {return false;},
     getImageSrc : function() {return null;},
     cycleHeader : function(col) {
-        this.sortByColumn(col.element);
+        if (this.enableSorting) {
+            this.sortByColumn(col.element);
+        }
     },
     /* The three functions below are used for tree cell checkboxes */
     isEditable : function(row, column) {return false;},
@@ -347,7 +349,7 @@ xtk.dataTreeView.prototype = {
             this._rows = rows;
             // Using rowCountChanged to notify rows were added
             this.tree.rowCountChanged(0, this._rows.length);
-            if (doReSort) {
+            if (this.enableSorting && doReSort) {
                 this.reSort();
             }
         } else {
@@ -368,6 +370,7 @@ xtk.dataTreeView.prototype = {
     },
 
     /* Sorting */
+    enableSorting: true,
     _sortColumn : null,
     _sortDirection : -1,
     _sortCaseInsensitive : true,
