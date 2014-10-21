@@ -51,7 +51,7 @@
                        anonid="scintilla"
                        allowIME="true"
                        mozcontext="editorContextMenu"/>
-        <xul:ko-findbar anonid="findbar"/>
+        <xul:ko-findbar class="hud" anonid="findbar"/>
     <!--</xul:vbox>-->
         <!--
     <content orient="vertical" style="border: green solid 1px;" flex="6">
