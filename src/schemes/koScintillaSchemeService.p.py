@@ -125,6 +125,7 @@ class Scheme(SchemeBase):
         self._colors = namespace.get('Colors', {})
         self._booleans = namespace.get('Booleans', {})
         self._indicators = namespace.get('Indicators', {})
+        self.defaultStyle = {}
 
         version = namespace.get('Version', 1)
         # Scheme upgrade handling.
@@ -516,7 +517,7 @@ class Scheme(SchemeBase):
             except KeyError:
                 log.exception("No key: self._commonStyles[fallbackstyle=%r], style=%r, attribute=%r", fallbackstyle, style, attribute)
                 raise
-        return styleBlock.get(attribute, self.defaultStyle[attribute])
+        return styleBlock.get(attribute, self.defaultStyle.get(attribute))
 
     def _getAspectFromAppliedData(self, style, attribute):
         aspect = None
