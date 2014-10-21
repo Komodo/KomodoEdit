@@ -210,7 +210,7 @@
             </hbox>
         </groupbox>
 
-        <groupbox>
+        <groupbox class="advanced">
             <caption label="&mostRecentlyUsed.label;"/>
             <hbox align="center">
                 <textbox id="mruProjectSize" size="3" maxlength="2"
@@ -224,6 +224,16 @@
                            prefattribute="value"/>
                 <label control="mruFileSize" value="&numberOfFiles.label;"/>
             </hbox>
+        </groupbox>
+
+        <groupbox orient="vertical">
+            <caption label="&activeStateNotificationMessages.label;"/>
+
+            <checkbox id="activestate_notification_messages_enabled"
+                      label="&activeStateNotificationMessagesEnabled.label;"
+                      tooltiptext="&activeStateNotificationMessagesEnabled.tooltiptext;"
+                      pref="true"
+                      prefattribute="checked"/>
         </groupbox>
 
     </vbox>

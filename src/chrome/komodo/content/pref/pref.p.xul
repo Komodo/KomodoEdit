@@ -45,6 +45,7 @@
 
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/prefs/pref-window.less" type="text/css"?>
 
 
 <window id="prefWindow"
@@ -54,7 +55,7 @@
         title="&preferences.title;"
         windowtype="komodo_prefs"
         orient="vertical"
-        class="dialog"
+        class="dialog pref-window"
         style="width: 56em; height: 54em; min-width: 52em;"
         persist="screenX screenY width height"
         onload="Onload();">
@@ -71,126 +72,7 @@
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/koPrefWindow.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/koPrefUtils.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/koFilteredPrefTree.js"/>
-    
-    <script><![CDATA[
-    var hPrefWindow = null;
-    var prefPanelTree = null;
-    var view = null;
-    var part = null;
-    var prefInvokeType = "global";
-    
-    var koFilterBox;
-
-    /* General startup routine for preferences dialog.
-     * Place all necessary modifications to pref tree here.
-     *    "windows.arguments[0]" can be null or a string identifying the
-     *        pref panel to open. If null, then the last used pref panel
-     *        is opened. The correct string is the id attribute of the
-     *        <treeitem> tags in preftree.xul. For example: "debuggerItem",
-     *        "editorItem", "perlItem".
-     */
-    function Onload()
-    {
-        hPrefWindow = new koPrefWindow('panelFrame', null, true);
-        prefPanelTree = document.getElementById( "prefsTree" );
-
-        if (!hPrefWindow) {
-            throw new Error("failed to create prefwindow");
-        }
-        var filteredTreeView = setupFilteredTree();
-        hPrefWindow.setTreeView(filteredTreeView);
-        document.getElementById("pref-deck").selectedIndex = 1;
-        hPrefWindow.prefDeckSwitched(1);
-
-        // The following selects the default selection (see preftree.xul
-        // for the ids of the treeitems to choose from)
-        // if an argument is passed in, otherwise loads it from a preference.
-        var selectedItem;
-        if (window.arguments && window.arguments[0] != null) {
-            selectedItem = window.arguments[0];
-        } else {
-            selectedItem = Components.classes["@activestate.com/koPrefService;1"]
-                  .getService(Components.interfaces.koIPrefService).prefs
-                  .getStringPref('defaultSelectedPref');
-        }
-        if (!selectedItem || !document.getElementById(selectedItem)) {
-            var firstChild = document.getElementById( "panelChildren" ).firstChild;
-            selectedItem = firstChild.getAttribute('id');
-        }
-        switchToPanel(selectedItem);
-        koFilteredTreeView.loadPrefsFullText();
-    }
-
-    function switchToPanel(selectedItem) {
-        hPrefWindow.helper.selectRowById(selectedItem);
-        prefPanelTree.focus();
-    }
-
-    function doOk() {
-        if (!hPrefWindow.onOK())
-            return false;
-        return true;
-    }
-
-    function doCancel() {
-        if (!hPrefWindow.onCancel())
-            return false;
-        return true;
-    }
-
-    function getHelpTag() {
-        return hPrefWindow.helper.getSelectedCellValue("helptag");
-    }
-    
-    function canHelp() {
-        // enable or disable the help button based on whether a tag exists
-        var helpTag = getHelpTag();
-        // help_tag2page located in launch.js
-        if (helpTag) {
-            document.getElementById('prefs_help_button').removeAttribute('disabled');
-        } else {
-            document.getElementById('prefs_help_button').setAttribute('disabled','true');
-        }
-    }
-    
-    function doHelp() {
-        ko.windowManager.getMainWindow().ko.help.open(getHelpTag());
-    }
-    
-    function setupFilteredTree() {
-        var filteredTreeView = koFilteredTreeView.getPrefTreeView.apply(koFilteredTreeView);
-        if (!filteredTreeView) {
-            throw new Error("Couldn't create a filteredTreeView");
-        }
-        var filteredTree = document.getElementById("filteredPrefsTree");
-        filteredTree.treeBoxObject
-                    .QueryInterface(Components.interfaces.nsITreeBoxObject)
-                    .view = filteredTreeView;
-        koFilterBox = document.getElementById("pref-filter-textbox");
-        return filteredTreeView;
-    }
-
-    function onFilterKeypress(event) {
-        try {
-            if (event.keyCode == event.DOM_VK_ESCAPE) {
-                if (koFilterBox.value !== '') {
-                    koFilterBox.value = '';
-                    koFilteredTreeView.updateFilter("");
-                    event.cancelBubble = true;
-                    event.stopPropagation();
-                    event.preventDefault();
-                }
-                return;
-            }
-        } catch (e) {
-            log.exception(e);
-        }
-    }
-
-    function updateFilter(event) {
-        koFilteredTreeView.updateFilter(koFilterBox.value);
-    }
-    ]]></script>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/pref.js"/>
 
     <keyset id="prefKeys">
         <key keycode="VK_ESCAPE" modifiers="" oncommand="doCancel();"/>
@@ -224,7 +106,7 @@
                                  class="treecell-header outset" url="__header"
                                  label="&category.label;" flex="1"/>
                     </treecols>
-        
+
                     <treechildren id="panelChildren" flex="1">
                         <treeitem container="false" id="uiSettingsItem">
                             <treerow>
@@ -243,6 +125,16 @@
                                           helptag="code_intelligence_preferences"/>
                             </treerow>
                         </treeitem>
+
+                        <treeitem container="false" id="fontsItem" persist="open">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-alllangfonts.xul"
+                                          label="&fontsAndColors.label;"
+                                          helptag="fonts_and_colors"/>
+                            </treerow>
+                        </treeitem>
+
                         <!--<treeitem container="false" id="folderImport">-->
                         <!--    <treerow>-->
                         <!--        <treecell class="treecell-indent"-->
@@ -260,14 +152,6 @@
                                           helptag="editor"/>
                             </treerow>
                             <treechildren id="editorChildren">
-                                <treeitem container="false" id="editKeys">
-                                    <treerow>
-                                        <treecell class="treecell-indent"
-                                                  url="chrome://komodo/content/pref/pref-keys.xul"
-                                                  label="&keyBindings.label;"
-                                                  helptag="key_bindings"/>
-                                    </treerow>
-                                </treeitem>
                                 <treeitem container="false" id="indentItem">
                                     <treerow>
                                         <treecell class="treecell-indent"
@@ -284,18 +168,10 @@
                                                   helptag="smart_editing"/>
                                     </treerow>
                                 </treeitem>
-                                <treeitem container="false" id="editSaveItem">
-                                    <treerow>
-                                        <treecell class="treecell-indent"
-                                                  url="chrome://komodo/content/pref/pref-save.xul"
-                                                  label="&saveOptions.label;"
-                                                  helptag="save_options"/>
-                                    </treerow>
-                                </treeitem>
                             </treechildren>
                         </treeitem>
         
-                        <treeitem container="false" id="environItem">
+                        <treeitem container="false" id="environItem" advanced="true">
                             <treerow>
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-environ.xul"
@@ -303,7 +179,7 @@
                             </treerow>
                         </treeitem>
         
-                        <treeitem container="false" id="associationsItem">
+                        <treeitem container="false" id="associationsItem" advanced="true">
                             <treerow>
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-association.xul"
@@ -312,7 +188,7 @@
                             </treerow>
                         </treeitem>
         
-                        <treeitem container="false" id="findItem">
+                        <treeitem container="false" id="findItem" advanced="true">
                             <treerow>
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-find.xul"
@@ -321,16 +197,7 @@
                             </treerow>
                         </treeitem>
         
-                        <treeitem container="false" id="fontsItem" persist="open">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-alllangfonts.xul"
-                                          label="&fontsAndColors.label;"
-                                          helptag="fonts_and_colors"/>
-                            </treerow>
-                        </treeitem>
-        
-                        <treeitem container="false" id="internationalItem">
+                        <treeitem container="false" id="internationalItem" class="advanced">
                             <treerow>
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-intl.xul"
@@ -339,8 +206,16 @@
                             </treerow>
                         </treeitem>
         
+                        <treeitem container="false" id="editKeys">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-keys.xul"
+                                          label="&keyBindings.label;"
+                                          helptag="key_bindings"/>
+                            </treerow>
+                        </treeitem>
         
-                        <treeitem container="false" id="helpItem">
+                        <treeitem container="false" id="helpItem" advanced="true">
                             <treerow>
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-helplang.xul"
@@ -434,7 +309,7 @@
                         </treeitem>
         
         
-                        <treeitem container="false" id="mappedURIsItem">
+                        <treeitem container="false" id="mappedURIsItem" advanced="true">
                             <treerow>
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-mappeduri.xul"
@@ -443,12 +318,21 @@
                             </treerow>
                         </treeitem>
                         
-                        <treeitem container="false" id="newFilesItem">
+                        <treeitem container="false" id="newFilesItem" advanced="true">
                             <treerow>
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-newfiles.xul"
                                           label="&newFiles.label;"
                                           helptag="new_files"/>
+                            </treerow>
+                        </treeitem>
+
+                        <treeitem container="false" id="editSaveItem" advanced="true">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-save.xul"
+                                          label="&saveOptions.label;"
+                                          helptag="save_options"/>
                             </treerow>
                         </treeitem>
         
@@ -458,15 +342,6 @@
                                           url="chrome://komodo/content/pref/pref-printing.xul"
                                           label="&printing.label;"
                                           helptag="printing"/>
-                            </treerow>
-                        </treeitem>
-        
-                        <treeitem container="false" id="projectsItem">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-projects.xul"
-                                          label="&projectsAndWorkspace.label;"
-                                          helptag="projects_and_workspace"/>
                             </treerow>
                         </treeitem>
         
@@ -495,6 +370,16 @@
                                           helptag="web_and_browser"/>
                             </treerow>
                         </treeitem>
+
+                        <treeitem container="false" id="projectsItem">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-projects.xul"
+                                          label="&projectsAndWorkspace.label;"
+                                          helptag="projects_and_workspace"/>
+                            </treerow>
+                        </treeitem>
+
 <!-- #if PLATFORM == "win" -->
                         <treeitem container="false" id="windowsIntegrationItem">
                             <treerow>
@@ -520,10 +405,12 @@
                                  label="&category.label;" flex="1"
                                  mousethrough="always"/>
                     </treecols>
-        
+
                     <treechildren id="panelChildrenDynamic" flex="1" />
                 </tree>
             </deck>
+            <checkbox id="toggleAdvanced" label="&showAdvanced.label;"
+                      oncommand="toggleAdvanced()"/>
         </vbox>
         <splitter orient="horizontal"/>
         <!-- Main prefs panel -->

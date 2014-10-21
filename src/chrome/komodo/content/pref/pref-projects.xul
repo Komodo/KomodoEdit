@@ -153,16 +153,6 @@
             </radiogroup>
         </groupbox>
 
-        <groupbox orient="vertical">
-            <caption label="&activeStateNotificationMessages.label;"/>
-    
-            <checkbox id="activestate_notification_messages_enabled"
-                      label="&activeStateNotificationMessagesEnabled.label;"
-                      tooltiptext="&activeStateNotificationMessagesEnabled.tooltiptext;"
-                      pref="true"
-                      prefattribute="checked"/>
-        </groupbox>
-
     </vbox>
 
 </window>

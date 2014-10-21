@@ -212,7 +212,7 @@ koPrefWindow.prototype =
     },
 
     observe: function(subject, topic, data) {
-        if (typeof(prefLog) != "undefined" && prefLog) {
+        if (typeof(prefLog) != "undefined" && prefLog && topic != "prefs_show_advanced") {
             prefLog.warn("The '"+topic+"' preference has changed while the pref window was open. "+
                          "If you get this message, a pref panel is incorrectly modifying prefs "+
                          "and the modified value will be lost.");
@@ -800,12 +800,21 @@ koPrefWindow.prototype =
         if (!url) {
             return;
         }
+
         var panelName = url;
         if (!(panelName in this.contentFrames)) {
             var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
             this.contentFrame = document.createElementNS(XUL_NS,'iframe');
             this.contentFrames[panelName] = this.contentFrame;
             this.deck.appendChild(this.contentFrame);
+
+            this.contentFrame.addEventListener("load", function() {
+                var showAdvanced = prefs.getBoolean("prefs_show_advanced", false);
+                var docElem = this.contentFrame.contentWindow.document.documentElement;
+                docElem.classList.add("pref-window");
+                if (showAdvanced) docElem.classList.add("show-advanced");
+            }.bind(this), true);
+
             this.contentFrame.setAttribute("src", url);
         } else {
             this.contentFrame = this.contentFrames[panelName];

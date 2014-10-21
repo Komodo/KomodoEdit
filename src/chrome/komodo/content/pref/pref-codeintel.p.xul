@@ -94,21 +94,21 @@
                 &codeIntelAutocompleteFillUpCharacters.description;
             </description>
 
-            <hbox align="center">
+            <hbox align="center" class="advanced">
                 <label value="&codeIntelAutocompleteMaxRows.label;"/>
                 <textbox id="codeintel_autocomplete_max_rows"
                          size="3"
                          pref="true"/>
             </hbox>
 
-            <separator class="thin"/>
-            <hbox align="center">
+            <separator class="thin advanced"/>
+            <hbox align="center" class="advanced">
                 <label value="&codeIntelCalltipMaxLength.label;"/>
                 <textbox id="codeintel_calltip_max_lines"
                          size="3"
                          pref="true"/>
             </hbox>
-            <hbox align="center">
+            <hbox align="center" class="advanced">
                 <label value="&codeIntelCalltipMaxLineWidth.label;"/>
                 <textbox id="codeintel_calltip_max_line_width"
                          size="3"
@@ -122,7 +122,7 @@
                       prefattribute="checked"/>
         </groupbox>
 
-        <groupbox id="scanning_groupbox" orient="vertical">
+        <groupbox id="scanning_groupbox" orient="vertical" class="advanced">
             <caption label="&codeintelScanning.caption;"/>
             <description>
                 &codeintelScanning.description;

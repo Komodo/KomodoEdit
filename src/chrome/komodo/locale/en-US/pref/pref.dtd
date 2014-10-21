@@ -259,7 +259,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY foldMarginColor.label "Fold margin color">
 <!ENTITY fonts.accesskey "F">
 <!ENTITY fonts.label "Fonts">
-<!ENTITY fontsAndColors.label "Fonts and Colors">
+<!ENTITY fontsAndColors.label "Color Scheme">
 <!ENTITY general.label "General">
 <!ENTITY h.accesskey "h">
 <!ENTITY hash.label "#">
@@ -331,7 +331,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY new.label "New...">
 <!ENTITY newAssociation.label "New Association">
 <!ENTITY newConfiguration.accesskey "n">
-<!ENTITY newFiles.label "New Files">
+<!ENTITY newFiles.label "File Opening">
 <!ENTITY newServer.label "New Server">
 <!ENTITY newServer.tooltiptext "New Server">
 <!ENTITY none.label "None">
@@ -379,7 +379,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY priority2.label "Priority 2">
 <!ENTITY priority3.label "Priority 3">
 <!ENTITY projectPreferences.label "Project Preferences">
-<!ENTITY projectsAndWorkspace.label "Projects and Workspace">
+<!ENTITY projectsAndWorkspace.label "Workspace">
 <!ENTITY properties.label "Properties">
 <!ENTITY proportional.label "Proportional">
 <!ENTITY pyflakesChecking.label "Pyflakes Checking">
@@ -412,7 +412,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY restoreFoldStateOnDocumentLoadSlowsDownFileOpening.label "Restore fold state on document load (slows down file opening)">
 <!ENTITY restoreLastWorkspace.label "Restore last workspace">
 <!ENTITY ruby.label "Ruby">
-<!ENTITY saveOptions.label "Save Options">
+<!ENTITY saveOptions.label "File Saving">
 <!ENTITY sassUseInterpreter.label "Use Sass Interpreter:">
 <!ENTITY scssKomodoChecker.label "Use Built-In SCSS Syntax Checker:">
 <!ENTITY scssUseInterpreter.label "Use SCSS Interpreter:">
@@ -517,6 +517,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY sampleText.label "Sample text:">
 <!ENTITY schemeType.label "Scheme: (system schemes are in bold)">
 <!ENTITY schemeType.accesskey "S">
+<!ENTITY filePrefAllLangFontFamily.label "Font Family:">
 <!ENTITY filePrefAllLangFixedWidth.label "Fixed width:">
 <!ENTITY filePrefAllLangFixedWidth.accesskey "W">
 <!ENTITY filPrefAllLangForeText "Fore:">

@@ -124,7 +124,7 @@
                     <tab id="fonts_tab" label="&fonts.label;" accesskey="&fonts.accesskey;"/>
                     <tab id="colors_tab" label="&colors.label;" accesskey="&colors.accesskey;"/>
                     <tab id="common_tab" label="&commonSyntax.label;" accesskey="&commonSyntax.accesskey;"/>
-                    <tab id="specific_tab" label="&langSpecific.label;" accesskey="&langSpecific.accesskey;"/>
+                    <tab id="specific_tab" label="&langSpecific.label;" accesskey="&langSpecific.accesskey;" class="advanced"/>
                     <tab id="indicator_tab" label="&indicators.label;" accesskey="&indicators.accesskey;"/>
                 </tabs>
                 <tabpanels>
@@ -132,7 +132,7 @@
                         <radiogroup>
                         <hbox>
                         <vbox flex="1">
-                            <hbox align="center">
+                            <hbox align="center" class="advanced">
                                 <label value="&filePrefAllLangFixedWidth.label;"
                                        accesskey="&filePrefAllLangFixedWidth.accesskey;"
                                        control="fixed"/>
@@ -143,6 +143,7 @@
                                        />
                             </hbox>
                             <hbox flex="1" align="center">
+                                <label value="&filePrefAllLangFontFamily.label;"/>
                                 <menulist flex="1"
                                           style="width: 90px"
                                           id="fixed"
@@ -224,7 +225,7 @@
                                 </vbox>
                             </hbox>
                         </vbox>
-                        <vbox flex="1">
+                        <vbox flex="1" class="advanced">
                             <hbox align="center">
                                 <label value="&filePrefAllLangProportional.label;"
                                        control="proportional"/>
@@ -235,6 +236,7 @@
                                        />
                             </hbox>
                             <hbox flex="1" align="center">
+                                <label value="&filePrefAllLangFontFamily.label;"/>
                                 <menulist flex="1"
                                           id="proportional"
                                           style="width: 90px"
@@ -498,7 +500,7 @@
                                 </hbox>
                         </vbox>
                     </tabpanel>
-                    <tabpanel id="specific_panel" orient="vertical">
+                    <tabpanel id="specific_panel" orient="vertical" class="advanced">
                         <description style="margin-bottom: 10px;">
                             &styleForSpecElements.description;
                         </description>

@@ -70,6 +70,7 @@ $cons->InstallInChrome('_helpers/shortcuts.less');
 $cons->Preprocess('templates/new.p.css', 'templates/new.css');
 $cons->InstallInChrome('templates/new.css');
 
+$cons->InstallInChrome('prefs/pref-window.less');
 $cons->InstallInChrome('prefs/prefs.css');
 $cons->InstallInChrome('prefs/pref-codeintel.css');
 

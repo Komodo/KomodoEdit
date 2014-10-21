@@ -205,12 +205,12 @@ function changeNewLanguage(item, name)  {
                   <checkbox id="indentStringsAfterParens" label="&indentStringsAfterParens.label;"
                       pref="true" prefstring="indentStringsAfterParens"
                       prefattribute="checked"
-                      class="load-context-check" showIfLoadContext="global"/>
+                      class="load-context-check advanced" showIfLoadContext="global"/>
       
                   <checkbox id="dedentOnColon" label="&dedentOnColon.label;"
                       pref="true" prefstring="dedentOnColon"
                       prefattribute="checked"
-                      class="load-context-check" showIfLoadContext="global"/>
+                      class="load-context-check advanced" showIfLoadContext="global"/>
       
             <checkbox id="useTabs"
                       label="&preferTabCharactersOverSpaces.label;"
@@ -239,7 +239,7 @@ function changeNewLanguage(item, name)  {
         </groupbox>
       
         <groupbox orient="vertical"
-                  class="load-context-check" showIfLoadContext="global">
+                  class="load-context-check advanced" showIfLoadContext="global">
             <caption label="&indentation-per-language.label;"/>
             <langlist id="langList" class="lang-menulist"
                       oncommand="changeNewLanguage(this, null)"/>

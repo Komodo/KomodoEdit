@@ -39,12 +39,12 @@ var koFilteredTreeView = {};
 
 const OPEN_NODE_PREFS_NAME = "filtered-prefs-open-nodes-by-id";
 var log = ko.logging.getLogger('filtered-prefs');
+var prefs = Components.classes["@activestate.com/koPrefService;1"].
+    getService(Components.interfaces.koIPrefService).prefs;
 
 var _openPrefTreeNodes;
 
 function setupOpenPrefTreeNodes() {
-    var prefs = Components.classes["@activestate.com/koPrefService;1"].
-        getService(Components.interfaces.koIPrefService).prefs;
     if (!prefs.hasPref(OPEN_NODE_PREFS_NAME)) {
         _openPrefTreeNodes = {};
     } else {
@@ -60,8 +60,9 @@ function saveOpenPrefTreeNodes() {
 
 var treeItemsByURI = {}; // URI => array of TreeInfoItem;
 
-function TreeInfoItem(id, isContainer, isOpen, cls, url, label, helptag) {
+function TreeInfoItem(id, isContainer, isOpen, cls, url, label, helptag, advanced, properties) {
     this.id = id;
+    this._isContainer = isContainer;
     this.isContainer = isContainer;
     this.cls = cls;
     this.url = url;
@@ -70,14 +71,19 @@ function TreeInfoItem(id, isContainer, isOpen, cls, url, label, helptag) {
     this.level = 0; // for nsITreeView
     this.state = isOpen ? xtk.hierarchicalTreeView.STATE_OPENED : xtk.hierarchicalTreeView.STATE_CLOSED;
     this.filteredOut = false;
+    this.advanced = advanced;
+    this.properties = properties || id;
 }
 
 TreeInfoItem.prototype.getChildren = function() {
-    return treeItemsByURI[this.url];
+    var showAdvanced = prefs.getBoolean("prefs_show_advanced", false);
+    return treeItemsByURI[this.url].filter(function(row) {
+        return showAdvanced || ! row.advanced;
+    });
 };
 
 TreeInfoItem.prototype.hasChildren = function() {
-    return this.isContainer && (this.url in treeItemsByURI);
+    return this.isContainer && (this.url in treeItemsByURI) && this.getChildren().length > 0;
 };
 
 TreeInfoItem.prototype.toString = function() {
@@ -122,7 +128,9 @@ this.buildTree = function(root, key) {
                                 treecell.getAttribute("class"),
                                 url,
                                 treecell.getAttribute("label"),
-                                treecell.getAttribute("helptag"));
+                                treecell.getAttribute("helptag"),
+                                treeitem.getAttribute("advanced") == "true",
+                                treeitem.getAttribute("properties"));
         currentList.push(item);
         if (isContainer) {
             if (treeitem.childNodes.length != 2) {
@@ -172,6 +180,12 @@ PrefTreeView.prototype.constructor = PrefTreeView;
 // and other nsITreeView methods
 PrefTreeView.prototype.getCellText = function(row, column) {
     return this._rows[row].label;
+};
+PrefTreeView.prototype.getRowProperties = function(row, column) {
+    return this._rows[row].properties;
+};
+PrefTreeView.prototype.getCellProperties = function(row, column) {
+    return this._rows[row].properties;
 };
 PrefTreeView.prototype.getCellValue = function(row, column) {
     if (typeof(row) == "undefined"
@@ -302,7 +316,13 @@ PrefTreeView.prototype.removeFilter = function() {
     this.filtering = false;
     this._applyFilter(false);
     var oldCount = this._rows.length;
-    this._rows = this._unfilteredRows;
+    var showAdvanced = prefs.getBoolean("prefs_show_advanced", false);
+    this._rows = this._unfilteredRows.filter(function(row) {
+        if (row._isContainer) {
+            row.isContainer = row.hasChildren();
+        }
+        return showAdvanced || ! row.advanced;
+    });
     this.tree.rowCountChanged(oldCount, this._rows.length - oldCount);
     this.tree.invalidate();
 };
@@ -318,6 +338,7 @@ PrefTreeView.prototype.updateFilter = function(urls) {
     var i, j, i1, row;
     var originalRows = this._rows;
     var oldCount = this._rows.length;
+    var showAdvanced = prefs.getBoolean("prefs_show_advanced", false);
     // assign the total rows to this._rows so getParentIndex can work
     this._rows = this._totalRows;
     this._rows.forEach(function(rowItem) {
@@ -329,7 +350,7 @@ PrefTreeView.prototype.updateFilter = function(urls) {
     var lim = this._rows.length;
     for (i = lim - 1; i >= 0; i--) {
         row = this._rows[i];
-        if (row.filteredOut && urls.indexOf(row.url) != -1) {
+        if (row.filteredOut && urls.indexOf(row.url) != -1 && (showAdvanced || !row.advanced)) {
             row.filteredOut = false;
             i1 = i;
             while ((j = this.getParentIndex(i1)) != -1) {
@@ -515,6 +536,9 @@ this.updateFilter = function(target) {
         if (!target) {
             this.prefTreeView.removeFilter();
             return;
+        }
+        if (target == "-1") {
+            target = "";
         }
         // Support multi-word queries by splitting target on spaces
         // Interpret w1 w2 w3 ... wn into groups, where each run of

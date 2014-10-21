@@ -9,7 +9,7 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
     <treechildren id="panelChildren">
-        <treeitem id="commandoItem" insertbefore="associationsItem">
+        <treeitem id="commandoItem" insertafter="fontsItem" advanced="true">
             <treerow>
                 <treecell class="treecell-indent"
                           url="chrome://commando/content/ui/pref.xul"

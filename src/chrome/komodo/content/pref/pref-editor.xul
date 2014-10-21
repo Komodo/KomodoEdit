@@ -190,7 +190,7 @@
         </groupbox>
 
         <groupbox orient="vertical"
-                  class="load-context-check" showIfLoadContext="global">
+                  class="load-context-check advanced" showIfLoadContext="global">
             <caption label="&confirmationDialogs.label;"/>
             <checkbox id="checkDiskFile"
                       label="&detectWhenFilesAreChangedOutsideTheEnvironment.label;"
@@ -256,7 +256,7 @@
                           prefattribute="checked" />
             </hbox>
             <hbox id="editEnableMouseZoom_hbox" align="center"
-                  class="load-context-check" showIfLoadContext="global">
+                  class="load-context-check advanced" showIfLoadContext="global">
                 <checkbox id="editEnableMouseZoom"
                           label="&enableMouseZoom.label;"
                           tooltiptext="&enableMouseZoomHow.tooltiptext;"
@@ -265,7 +265,7 @@
             <!-- This is only used in scintilla.p.xml, and it can't
                  see it's containing koDoc object, so it can only
                  use the global prefs -->
-            <vbox class="load-context-check" showIfLoadContext="global">
+            <vbox class="load-context-check advanced" showIfLoadContext="global">
                 <checkbox id="scrollEndAtLastLine" label="&enableScrollingPastEndOfBufferOnlyAppliesToNewBuffers.label;"
                           pref="true" prefstring="scrollEndAtLastLine"
                           prefattribute="checked"/>
@@ -291,7 +291,7 @@
                             prefattribute="value"/>
             </hbox>
             <hbox id="scrollWidthTracking_hbox" align="center"
-                  class="load-context-check" showIfLoadContext="global">
+                  class="load-context-check advanced" showIfLoadContext="global">
                 <checkbox id="scrollWidthTracking"
                           label="&horizScrollWidthTracking.label;"
                           pref="true"
@@ -301,7 +301,7 @@
             </hbox>
         </groupbox>
 
-        <groupbox orient="vertical">
+        <groupbox orient="vertical" class="advanced">
             <caption label="&tabs.label;"/>
             <vbox>
                 <checkbox id="select_most_recent_buffer_on_buffer_close"

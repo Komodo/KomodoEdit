@@ -54,6 +54,7 @@ $cons->InstallInChrome('koFilteredPrefTree.js');
 
 $cons->Preprocess('pref.p.xul', 'pref.xul');
 $cons->InstallInChrome('pref.xul');
+$cons->InstallInChrome('pref.js');
 
 $cons->Preprocess('project.p.xul', 'project.xul');
 $cons->InstallInChrome('project.xul');

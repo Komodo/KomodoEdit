@@ -12,7 +12,7 @@
          >
 
     <treechildren id="panelChildren">
-        <treeitem id="placesPref" insertbefore="printItem">
+        <treeitem id="placesPref" insertbefore="printItem" class="advanced">
             <treerow>
                 <treecell class="treecell-indent"
                           url="chrome://komodo-places/content/pref_places.xul"

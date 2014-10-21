@@ -1027,4 +1027,6 @@
 
   <string id="fileicons_color_whitelist">class:rss:rtf:csv:com:bat:sh:dtd:xpi:conscript:construct:manifest</string>
 
+  <boolean id="prefs_show_advanced">0</boolean>
+
 </preference-set>
