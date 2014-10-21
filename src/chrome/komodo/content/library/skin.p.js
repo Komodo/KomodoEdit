@@ -79,7 +79,7 @@ if (ko.skin == undefined)
 
             this._setupCustomScrollbars();
 
-            window.setTimeout(this._loadStatusbarColors.bind(this), 500);
+            this._loadStatusbarColors();
         },
         
         /**
