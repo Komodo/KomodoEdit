@@ -78,7 +78,8 @@ if (ko.skin == undefined)
             }
 
             this._setupCustomScrollbars();
-            this._loadStatusbarColors();
+
+            window.setTimeout(this._loadStatusbarColors.bind(this), 500);
         },
         
         /**
