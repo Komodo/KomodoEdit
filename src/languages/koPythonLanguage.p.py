@@ -130,7 +130,7 @@ class KoPythonCommonLanguage(KoLanguageBase):
     namedBlockDescription = 'Python functions and classes'
     # XXX read url from some config file
     downloadURL = 'http://www.activestate.com/activepython'
-    commentDelimiterInfo = { "line": [ "# " ]  }
+    commentDelimiterInfo = { "line": [ "# ", "#" ]  }
     _indent_open_chars = ':{[('
     _lineup_open_chars = "([{" 
     _lineup_close_chars = ")]}"
