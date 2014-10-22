@@ -573,7 +573,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 
 <!--pref-intl.xul-->
 <!ENTITY useEncodeEnvironment.label "Use encoding defined in environment:">
-<!ENTITY customEncoding.label "Custom encoding:">
+<!ENTITY defaultEncoding.label "Default encoding:">
 <!ENTITY dateTime.label "Date &amp; Time">
 <!ENTITY format.label "Format">
 <!ENTITY dateTimeExample.label "Example:">

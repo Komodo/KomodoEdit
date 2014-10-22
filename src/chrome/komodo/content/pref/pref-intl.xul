@@ -66,25 +66,8 @@
         <groupbox orient="vertical">
             <caption label="&defaultEditorEncoding.label;"/>
             <vbox flex="1">
-                <hbox flex="1"
-                  class="load-context-check" hideUnlessLoadContext="global">
-                    <checkbox id="encodingEnvironment"
-                              baselabel="&useEncodeEnvironment.label;"
-                              pref="true" oncommand="updateDefaultEncodingSection();"
-                              prefattribute="checked" flex="1"/>
-                    <hbox id="unsupportedEncodingWarningBox" collapsed="true"
-                          align="center">
-                        <image id="unsupportedEncodingWarningImage"
-                               src="chrome://komodo/skin/global/images/warning_small.png"/>
-                        <label id="unsupportedEncodingWarningLabel"
-                               style="color: #CC3333;"/>
-                    </hbox>
-                </hbox>
-                <hbox flex="1" style="padding-left: 20px;"
-                  class="load-context-check" hideUnlessLoadContext="global">
-                    <hbox align="center" pack="end">
-                        <text class="kopadded" value="&customEncoding.label;"/>
-                    </hbox>
+                <hbox flex="1" align="center" class="load-context-check" hideUnlessLoadContext="global">
+                    <label value="&defaultEncoding.label;"/>
                     <menulist id="encodingDefault" flex="1"
                               pref="true"
                               prefattribute="data">

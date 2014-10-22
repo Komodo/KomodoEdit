@@ -59,10 +59,6 @@ function PrefIntl_OnLoad() {
         dialog.newencodingList = document.getElementById('newencodingList');
         dialog.bomBox = document.getElementById('bomBox');
         dialog.encodingDefault = document.getElementById('encodingDefault');
-        dialog.encodingEnvironment = document.getElementById('encodingEnvironment');
-        dialog.unsupportedEncodingWarningBox = document.getElementById('unsupportedEncodingWarningBox');
-        dialog.unsupportedEncodingWarningImage = document.getElementById('unsupportedEncodingWarningImage');
-        dialog.unsupportedEncodingWarningLabel = document.getElementById('unsupportedEncodingWarningLabel');
         dialog.encodingAutoDetect = document.getElementById('encodingAutoDetect');
         dialog.encodingXMLDec = document.getElementById('encodingXMLDec');
 
@@ -76,7 +72,6 @@ function PrefIntl_OnLoad() {
 
         updateNewFilesEncodingSection();
         updateForStartupEncoding();
-        updateDefaultEncodingSection();
     } catch(ex) {
         log.exception(ex);
     }
@@ -337,54 +332,20 @@ function _getSelectedEncoding(elt,encoding) {
 function updateForStartupEncoding() {
     // Determine if the startup/system encoding is supported by Komodo
     // and adjust UI as appropriate.
-    //XXX The system encoding is not subject to change in the editor so this
-    //    block could be move to the OnLoad handler.
+    //
+    // Note: Komodo init handling will have ensured that if the user's chosen
+    //       encoding is not supported that 'defaultEncoding' will be reset to
+    //       "utf-8".
     var initSvc = Components.classes["@activestate.com/koInitService;1"].
                   getService(Components.interfaces.koIInitService);
     var encodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
                       getService(Components.interfaces.koIEncodingServices);
     var startupEncoding = initSvc.getStartupEncoding();
-    var startupEncodingSupported =
-            (encodingSvc.get_encoding_index(startupEncoding) != -1);
-    if (! startupEncodingSupported) {
-        // Komodo init handling will have ensured that if the startup
-        // encoding is not supported that 'encodingEnvironment' will be false.
-        dialog.encodingEnvironment.setAttribute("disabled", "true");
-        if (dialog.unsupportedEncodingWarningBox.hasAttribute("collapsed"))
-            dialog.unsupportedEncodingWarningBox.removeAttribute("collapsed");
-        var tooltip = "Your system encoding, "+startupEncoding+
-                      ", is not supported by Komodo.";
-        //XXX Putting the tooltip on the <hbox> doesn't work properly.
-        dialog.unsupportedEncodingWarningImage.setAttribute("tooltiptext", tooltip);
-        dialog.unsupportedEncodingWarningLabel.setAttribute("tooltiptext", tooltip);
-        dialog.unsupportedEncodingWarningLabel.setAttribute("value",
-            startupEncoding+" is not supported");
-        dialog.encodingEnvironment.setAttribute("label",
-            dialog.encodingEnvironment.getAttribute("baselabel"));
-    } else {
-        if (dialog.encodingEnvironment.hasAttribute("disabled"))
-            dialog.encodingEnvironment.removeAttribute("disabled");
-        dialog.unsupportedEncodingWarningBox.setAttribute("collapsed", "true");
-        dialog.encodingEnvironment.setAttribute("label",
-            dialog.encodingEnvironment.getAttribute("baselabel")+
-            ": "+startupEncoding);
+    if (encodingSvc.get_encoding_index(startupEncoding) >= 0) {
+        // TODO: Add a new menulist entry to the menu if it's not already there.
     }
 }
 
-
-// Update the UI inside the "Default Editor Encoding" groupbox as appropriate.
-function updateDefaultEncodingSection() {
-    if (dialog.encodingEnvironment.checked) { // disable the menu
-        var initSvc = Components.classes["@activestate.com/koInitService;1"].
-                      getService(Components.interfaces.koIInitService);
-        _setSelectedEncoding(dialog.encodingDefault,
-                             initSvc.getStartupEncoding());
-        dialog.encodingDefault.setAttribute("disabled", "true");
-    } else { // enable the menu
-        if (dialog.encodingDefault.hasAttribute("disabled"))
-            dialog.encodingDefault.removeAttribute("disabled");
-    }
-}
 
 function changeOpenEncoding(item)  {
     updateMenuListValue(dialog.encodingDefault, item);

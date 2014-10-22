@@ -5,7 +5,7 @@
   <!-- This version field is used by Komodo to upgrade preferences.
        The value should be kept in sync with "../components/koInitService.p.py"
   -->
-  <long id="version">14</long>
+  <long id="version">16</long>
 
   <!-- "uilayout_version" is used by Komodo to upgrade ui layouts.
        Must keep in sync with "../chrome/komodo/content/library/uilayout.p.js"
@@ -452,8 +452,7 @@
   <string id="fileDefaultNew">Text</string>
   <long id="gui_port">11010</long> <!-- port to be used in socket communication -->
   <string id="defaultSelectedPref">editorItem</string>
-  <string id="encodingDefault">iso8859-1</string>
-  <boolean id="encodingEnvironment">1</boolean>
+  <string id="encodingDefault">utf-8</string>
   <boolean id="encodingAutoDetect">1</boolean>
   <boolean id="encodingXMLDec">1</boolean>
   <boolean id="encodingHTML">0</boolean>
@@ -531,15 +530,10 @@
   <boolean id="checkNetworkDiskFile">1</boolean>
 
   <!-- Language Preferences; these are treated specially in koDocumentBase -->
-  <string id="languages/Node.js/newEncoding">utf-8</string>
   <boolean id="languages/Makefile/useTabs">1</boolean>
   <string id="languages/Python/newEncoding">ascii</string>
-  <string id="languages/Python3/newEncoding">utf-8</string>
   <long id="languages/Ruby/indentWidth">2</long>
   <long id="languages/RHTML/indentWidth">2</long>
-  <string id="languages/VisualBasic/newEncoding">utf-8</string>
-  <string id="languages/XML/newEncoding">utf-8</string>
-  <string id="languages/XSLT/newEncoding">utf-8</string>
   <long id="languages/YAML/indentWidth">2</long>
 
   <preference-set id="filepickers.defaultDirs"/>
