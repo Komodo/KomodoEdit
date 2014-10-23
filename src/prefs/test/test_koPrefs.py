@@ -356,6 +356,36 @@ class PrefSerializeTestCase(unittest.TestCase):
                 </ordered-preference>
             </preference-set>""")
 
+    @tag("bug105438")
+    def test_pickle_serialization(self):
+        """Check that shadow ordered prefs don't get serialized"""
+        base = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
+        root = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
+        ordered = Cc["@activestate.com/koOrderedPreference;1"].createInstance()
+        ordered.id = "test_ordered_inheritance_shadowing"
+        ordered.appendLong(1)
+        base.setPref("test_ordered_inheritance_shadowing", ordered)
+        root.inheritFrom = base
+
+        o = root.getPref("test_ordered_inheritance_shadowing")
+        self.failIf(root.hasPrefHere("test_ordered_inheritance_shadowing"),
+                    "Root gained an ordered preference after getting from parent")
+
+        self.assertSerializesTo(root, """
+            <preference-set/>""")
+
+        from tempfile import mkstemp
+        (fd, pickleFilename) = mkstemp(".tmp", "koPickle_")
+        os.close(fd)
+        try:
+            root.serializeToFileFast(pickleFilename)
+            import pickle
+            uroot = pickle.loads(open(pickleFilename, "rb").read())
+            self.assertSerializesTo(uroot, """
+            <preference-set/>""")
+        finally:
+            os.remove(pickleFilename)
+
     def test_serialize_empty_prefsets(self):
         """Ensure empty preferences sets are serialized correctly"""
         base = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
