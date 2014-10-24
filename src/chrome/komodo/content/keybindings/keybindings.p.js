@@ -994,7 +994,7 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
             });
             this._add_keybinding_sequences({
                 "cmd_selectDocumentHome": [ "Meta+Shift+Home" ],
-                "cmd_selectDocumentEnd":  [ "Meta+Shift+End" ]
+                "cmd_selectDocumentEnd":  [ "Meta+Shift+End" ],
                 "cmd_lineTransposeUp":    [ "Meta+Up" ],
                 "cmd_lineTransposeDown":  [ "Meta+Down" ],
                 "cmd_lineDuplicateUp":    [ "Meta+Shift+Up" ],
