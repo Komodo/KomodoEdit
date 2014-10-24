@@ -59,7 +59,8 @@ Typical commands for building all Komodo bits:
 PKGNAME's are docs, installer (aka msi, dbg, aspackage).
 """
 
-import os, sys, os, shutil, pickle
+import os, sys, os, shutil
+import cPickle as pickle
 import time
 from os.path import join, dirname, exists, isfile, basename, abspath, \
                     isdir, splitext
