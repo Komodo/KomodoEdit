@@ -169,20 +169,28 @@ class PrefSetTestCase(unittest.TestCase):
         base.getPref("child").setLong("long", 68)
         self.assertEquals(root.getPref("child").getLong("long"),
                           base.getPref("child").getLong("long"))
+        uroot = UnwrapObject(root)
+        self.assertTrue(uroot.getPref("child")._is_shadow)
+        # Once root.child is assigned a value, child becomes unshadowed.
         root.getPref("child").setDouble("double", 1.23456)
         self.assertFalse(base.getPref("child").hasDoublePref("double"))
         self.assertTrue(root.getPref("child").hasPref("double"))
+        self.assertTrue(root.getPref("child").hasPrefHere("double"))
+        self.assertFalse(uroot.getPref("child")._is_shadow)
 
         base = serializePrefSet(base)
         root = serializePrefSet(root)
-        root.inheritFrom = base
+        root.inheritFrom = base  # reset inheritFrom after serialization
 
-        self.assertTrue(root.hasPref("child"))
+        self.assertTrue(root.hasPrefHere("child"))
         self.assertAlmostEquals(root.getPref("child").getDouble("double"),
                                 1.23456)
         base.getPref("child").setLong("long", 42)
-        self.assertEquals(root.getPref("child").getLong("long"), 42,
-                          "child pref lost its base pref")
+        self.assertTrue(root.hasPrefHere("child"))
+        long_value = root.getPref("child").getLong("long")
+        self.assertEquals(long_value, 68,
+                          "child pref lost its base pref, expected 42, got %r"
+                          % (long_value,))
 
     def test_inheritance(self):
         """Test the use of prefset.inheritFrom"""
@@ -260,6 +268,8 @@ class PrefSetTestCase(unittest.TestCase):
 
 class PrefSerializeTestCase(unittest.TestCase):
     def assertXMLEqual(self, first, second, msg=None, ignore_white_space=True):
+        if first is None and second is None:
+            return True
         if ignore_white_space:
             def cleanup(elem):
                 for e in elem.iter():
@@ -269,6 +279,8 @@ class PrefSerializeTestCase(unittest.TestCase):
                         e.tail = e.tail.strip()
             cleanup(first)
             cleanup(second)
+        if (first is None and second is not None) or (second is None and first is not None):
+            self.fail("unequal elements: first %r, second %r" % (first, second))
         self.assertEqual(ET.tostring(first),
                          ET.tostring(second),
                          msg=msg)
@@ -285,6 +297,8 @@ class PrefSerializeTestCase(unittest.TestCase):
 
         try:
             xml = ET.parse(path).getroot()
+        except ET.ParseError:
+            xml = None
         finally:
             os.remove(path)
             try:
@@ -309,7 +323,7 @@ class PrefSerializeTestCase(unittest.TestCase):
         child.setBoolean("bool", True)
         base.setLong("long", 987654321)
         root.setLong("long", 123456789)
-        self.assertEquals(root.getPref("child").getBoolean("bool"),
+        self.assertEquals(base.getPref("child").getBoolean("bool"),
                           root.getPref("child").getBoolean("bool"))
 
         self.assertSerializesTo(root, """
@@ -404,4 +418,4 @@ class PrefSerializeTestCase(unittest.TestCase):
             <preference-set>
                 <preference-set id="child" />
                 <ordered-preference id="ordered" />
-            <preference-set/>""")
+            </preference-set>""")
