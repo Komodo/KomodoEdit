@@ -195,7 +195,7 @@ JSLoggingTestCase.prototype.test_deprecated = function() {
     let message = stack.shift();
     this.assertEqual(message, "This is a test",
                      "Deprecation message does not start with supplied message");
-    this.assertGreater(stack[1].indexOf("test_logging.jsm"), -1,
+    this.assertGreater(stack[0].indexOf("test_logging.jsm"), -1,
                        "Failed to find test file on top of stack:\n    " +
                        stack.join("    \n"));
 };
