@@ -18,8 +18,8 @@
     <script src="chrome://breadcrumbs/content/breadcrumbs.js"
             type="application/x-javascript;version=1.7"/>
 
-    <deck id="statusbar-message-internal-deck">
-        <hbox position="1" id="breadcrumbbarWrap">
+    <deck id="statusbar-message-deck">
+        <hbox position="0" id="breadcrumbbarWrap">
             <toolbar
                 id="breadcrumbBar"
                 class="native-icons"
