@@ -11,7 +11,7 @@
     var $       = require("ko/dom");
     var log     = require("ko/logging").getLogger("pref-notify");
 
-    log.setLevel(10);
+    //log.setLevel(10);
 
     window.OnPreferencePageLoading = (prefset) =>
     {
@@ -30,7 +30,7 @@
             {
                 label: category.label,
                 value: key,
-                checked: pref.findString(category.toString()) == -1
+                checked: pref.findString(key) == -1
             });
 
             wrap.append(elem);
