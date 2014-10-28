@@ -9,7 +9,7 @@
                         .getService(Ci.koIPrefService).prefs;
     const logging   = require("ko/logging");
     const log       = logging.getLogger("notify");
-    log.setLevel(require("ko/logging").LOG_DEBUG);
+    //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var notify = this;
     var queue = {};
