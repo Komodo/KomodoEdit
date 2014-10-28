@@ -386,7 +386,6 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
 
     // Clear the highlight now because we're starting a new search
     ko.find.highlightClearAll(this._view.scimoz);
-    ko.statusBar.AddMessage(null, "isearch");
 
     // Apply new find settings
     this._findSvc.options.searchBackward = backwards;
@@ -424,11 +423,6 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
 
 FindController.prototype._stopIncrementalSearch = function(why, highlight) {
     _log.debug("stopping incremental search (" + why + ")");
-    if (why !== null) {
-        ko.statusBar.AddMessage(locals.bundle.formatStringFromName("incrementalSearchStopped",
-                                                             [why], 1),
-                                "isearch", 3000, highlight, true);
-    }
     if (this._incrementalSearchPattern && this._lastResult) {
         // Found something; force add to the MRU.
         ko.mru.add("find-patternMru", this._incrementalSearchPattern, true)
@@ -565,7 +559,6 @@ FindController.prototype.searchAgain = function(isBackwards) {
         this._view.findbar.notFound = true;
     } else {
         this._incrementalSearchStartPos = this._view.scintilla.scimoz.currentPos;
-        ko.statusBar.AddMessage(null, "isearch");
         if (isBackwards) {
             var newPos = Math.max(scimoz.anchor, scimoz.currentPos);
             if (newPos > lastPos) {

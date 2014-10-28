@@ -1549,11 +1549,8 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
             try {
                 view.saveState();
                 if (ko.macros.eventHandler.hookPreFileClose(view)) {
-                    ko.statusBar.AddMessage(
-                        locals.bundle.GetStringFromName("macroInterruptedFileClosingProcedure.message"),
-                        "macro",
-                        5000,
-                        true);
+                    var msg = locals.bundle.GetStringFromName("macroInterruptedFileClosingProcedure.message");
+                    require("notify/notify").send(msg, "editor", {priority: "warning"});
                     return false;
                 }
             } catch (e) {

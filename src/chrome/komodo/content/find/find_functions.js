@@ -1008,8 +1008,7 @@ this.regexEscapeString = function _Find_RegexEscapeString(original) {
 this.getStatusbarMsgHandler = function _Find_GetStatusbarMsgHandler(editor)
 {
     return function (level, context, msg) {
-        editor.ko.statusBar.AddMessage(context+": "+msg, "find",
-                                       3000, true);
+        require("notify/notify").send(context+": "+msg, "find", "searchReplace");
     }
 }
 
@@ -1205,8 +1204,7 @@ this.replaceAllInMacro = function Find_ReplaceAllInMacro(editor, contexttype, pa
             msg = lazy.ffBundle.GetStringFromName("No current view");
         }
         if (msg) {
-            editor.ko.statusBar.AddMessage("macro-replace: " + msg, "find",
-                                           3000, true);
+            require("notify/notify").send("macro-replace: " + msg, "searchReplace");
             return;
         }
     }
@@ -1880,7 +1878,7 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
     } else {
         msg = lazy.ffBundle.formatStringFromName("Made X replacement(s) in Y",
                                            [numReplacements, context.name], 2);
-        editor.ko.statusBar.AddMessage(msg, "find", 3000, true);
+        require("notify/notify").send(msg, "searchReplace");
     }
     lazy.findSession.Reset();
 

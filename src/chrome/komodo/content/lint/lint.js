@@ -659,10 +659,10 @@ this.jumpToNextLintResult = function lint_jumpToNextLintResult()
         if (view.lintBuffer.errorString) {
             ko.dialogs.alert(view.lintBuffer.errorString);
         } else if (!lintResults) {
-            ko.statusBar.AddMessage("Running syntax check...", "lint", 1000, true);
+            require("notify/notify").send("Running syntax check...", "lint");
             ko.lint.doRequest();
         } else if (! lintResults.getNumResults()) {
-            ko.statusBar.AddMessage("There are no syntax errors.", "lint", 3000, true);
+            require("notify/notify").send("There are no syntax errors.", "lint");
         } else {
             // Determine the current position.
             var next = lintResults.getNextResult(view.currentLine,

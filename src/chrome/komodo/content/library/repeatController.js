@@ -114,9 +114,9 @@ repeatController.prototype.do_cmd_repeatNextCommandBy = function() {
         this.repeatCounter = 0;
         this.defaultRepeatCounter = this.defaultRepeatFactor;
         
-        ko.statusBar.AddMessage(_bundle.formatStringFromName("numberOfRepeats",
-                                     [this.defaultRepeatCounter], 1),
-                                "multi_input", 0, true, true);
+        var msg = _bundle.formatStringFromName("numberOfRepeats",
+                                     [this.defaultRepeatCounter], 1);
+        require("notify/notify").send(msg, "editor");
     } catch (e) {
         _log.exception(e);
     }
@@ -147,7 +147,6 @@ repeatController.prototype._cancelMultiHandler = function cancelMultiHandler(eve
         this._scintilla.removeEventListener('blur', this.cancelMultiHandler, false);
         this._scintilla.key_handler = null;
     }
-    ko.statusBar.AddMessage(null, "multi_input", 0, false, true)
 };
 
 /* _lookingAtRepeatCommand -
@@ -191,22 +190,23 @@ repeatController.prototype._lookingAtRepeatCommand = function(event) {
 }
 
 repeatController.prototype._multiHandler = function(event) {
+    var msg;
     try {
         if (event.type != 'keypress') return;
         if (event.charCode >= 48 && event.charCode <= 57) {
             this.defaultRepeatCounter = 0;
             this.repeatCounter = this.repeatCounter * 10 + (event.charCode - 48);
-            ko.statusBar.AddMessage(_bundle.formatStringFromName("numberOfRepeats",
-                                         [this.repeatCounter], 1),
-                                    "multi_input", 0, false, true);
+            msg = _bundle.formatStringFromName("numberOfRepeats",
+                                         [this.repeatCounter], 1);
+            require("notify/notify").send(msg, "editor");
             return;
         } else if (this._lookingAtRepeatCommand(event)) {
             event.cancelBubble = true;
             event.preventDefault();
             this.defaultRepeatCounter *= this.defaultRepeatFactor;
-            ko.statusBar.AddMessage(_bundle.formatStringFromName("numberOfRepeats",
-                                         [this.defaultRepeatCounter], 1),
-                                    "multi_input", 0, false, true);
+            msg = _bundle.formatStringFromName("numberOfRepeats",
+                                         [this.defaultRepeatCounter], 1);
+            require("notify/notify").send(msg, "editor");
             return;
         }
         var key = ko.keybindings.manager.event2keylabel(event);

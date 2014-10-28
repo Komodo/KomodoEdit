@@ -620,7 +620,8 @@ VimController.prototype.updateViInternals = function() {
 VimController.prototype.setStatusBarMessage = function(message, timeout,
                                                        highlight)
 {
-    ko.statusBar.AddMessage(message, "vi_emulation", timeout, highlight);
+    require("notify/notify").send(message, "viEmulation",
+                                  {priority: highlight ? "warning" : "info"});
 }
 
 VimController.prototype.updateStatusBarMode = function() {
@@ -3633,7 +3634,8 @@ function _cmd_vim_findWordUnderCursor_wrapper(scimoz, searchDirection) {
             gVimController._searchOptions = [];
             gVimController.performSearch(scimoz, word, null, true /* matchWord */);
         } else {
-            ko.statusBar.AddMessage("Search: No word found under the cursor.", 5000, true);
+            var msg = "Search: No word found under the cursor.";
+            require("notify/notify").send(msg, "viEmulation", {priority: "warning"});
         }
     } catch (e) {
         vimlog.exception(e);

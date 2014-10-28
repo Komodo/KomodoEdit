@@ -1136,7 +1136,8 @@ projectManager.prototype.workOnSelectedProject = function(callback, noProjectCal
     } else if (noProjectCallback) {
         return noProjectCallback();
     } else {
-        ko.statusBar.AddMessage("The selected item isn't an opened project; request ignored", "Projects", 3000, true);
+        var msg = "The selected item isn't an opened project; request ignored";
+        require("notify/notify").send(msg, "projects", {priority: "warning"});
         return undefined;
     }
 }

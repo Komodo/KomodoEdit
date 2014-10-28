@@ -364,7 +364,8 @@ this.FindResultsTabManager.prototype.copyResults = function()
     try {
         var treeWidget = this.doc.getElementById("findresults");
         if (treeWidget.view.rowCount < 1) {
-            ko.statusBar.AddMessage("No find results to copy", "find_in_files", 3000, true);
+            require("notify/notify").send("No find results to copy", "searchReplace",
+                                          {priority: "warning"});
             return;
         }
 
@@ -380,7 +381,8 @@ this.FindResultsTabManager.prototype.copyResults = function()
         }
         // Copy to the clipboard and add message it's done.
         xtk.clipboard.setText(text);
-        ko.statusBar.AddMessage("Copied " + row + " find result rows to the clipboard", "find_in_files", 5000, true);
+        var msg = "Copied " + row + " find result rows to the clipboard";
+        require("notify/notify").send(msg, "searchReplace");
     } catch (ex) {
         findResultsLog.exception(ex);
     }
@@ -512,7 +514,7 @@ this.FindResultsTabManager.prototype.setDescription = function(subDesc /* =null 
 
     if (important) {
         var msg = "Find in Files: "+subDesc;
-        ko.statusBar.AddMessage(msg, "find_in_files", 3000, 1);
+        require("notify/notify").send(msg, "searchReplace");
     }
 }
 
@@ -934,9 +936,8 @@ this.FindResultsTabManager.prototype._doubleClick = function()
                             end = lineStartIndex;
 
                             // Let the user know about the problem on the status bar.
-                            ko.statusBar.AddMessage(
-                                "The specified text has been moved or deleted.", "find",
-                                3000, true);
+                            var msg = "The specified text has been moved or deleted.";
+                            require("notify/notify").send(msg, "searchReplace");
                         }
                     }
                 }

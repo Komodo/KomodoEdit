@@ -79,7 +79,8 @@ MacroRecorder.prototype.startRecording = function() {
     this.mode = 'recording';
     var record = document.getElementById("macroRecord");
     window.updateCommands("macro");
-    ko.statusBar.AddMessage(_bundle.GetStringFromName("recordingMacro"), "macro", 0, true)
+    var msg = _bundle.GetStringFromName("recordingMacro");
+    require("notify/notify").send(msg, "macros", {id: "macroRecording"});
 }
 
 MacroRecorder.prototype.stopRecording = function(quiet /* false */) {
@@ -90,8 +91,8 @@ MacroRecorder.prototype.stopRecording = function(quiet /* false */) {
     }
     window.updateCommands("macro");
     if (!quiet) {
-        ko.statusBar.AddMessage(null, "macro", 0, false)
-        ko.statusBar.AddMessage(_bundle.GetStringFromName("macroRecorded"), "macro", 3000, true)
+        var msg = _bundle.GetStringFromName("macroRecorded");
+        require("notify/notify").send(msg, "macros", {id: "macroRecording"});
     }
 }
 
@@ -207,7 +208,8 @@ MacroRecorder.prototype.executeMacro = function(macro) {
 }
 
 MacroRecorder.prototype.executeLastMacro = function(macro) {
-    ko.statusBar.AddMessage(_bundle.GetStringFromName("executingLastRecordedMacro"), "macro", 3000, false)
+    var msg = _bundle.GetStringFromName("executingLastRecordedMacro");
+    require("notify/notify").send(msg, "macros");
     this.executeMacro(this._currentMacro);
 }
 

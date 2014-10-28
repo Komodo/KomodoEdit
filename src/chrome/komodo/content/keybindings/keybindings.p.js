@@ -2451,11 +2451,6 @@ this.Manager.prototype.cancelPrefix = function (why) {
     this._keyPressCaptureWindow.removeEventListener('mousedown', gCancelKeyHandler, true);
     this._keyPressCaptureWindow.removeEventListener('blur', gCancelKeyHandler, false);
     this._keyPressCaptureWindow = null;
-    if (why == null) {
-        ko.statusBar.AddMessage(null, "prefix", 0, false)
-    } else {
-        ko.statusBar.AddMessage(why, "prefix", 3000, false)
-    }
 }
 
 this.Manager.prototype.startPrefixCapture = function() {
@@ -2598,8 +2593,8 @@ this.Manager.prototype.keypressHandler = function (event, ignorePhase) {
         } else {
             this.startPrefixCapture();
             this.currentPrefixMap = this.currentPrefixMap[key]
-            ko.statusBar.AddMessage(this.currentPrefixString + " was pressed.  Awaiting further keys.",
-                                    "prefix", 0, false, false, false);
+            var msg = this.currentPrefixString + " was pressed.  Awaiting further keys.";
+            require("notify/notify").send(msg, "keybindings");
             event.cancelBubble = true;
             event.stopPropagation();
             event.preventDefault();

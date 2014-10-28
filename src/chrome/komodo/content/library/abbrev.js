@@ -215,9 +215,8 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
             // Only do abbreviation expansion if next to a word char,
             // i.e. valid abbrev chars.
             if (pos == 0 || !is_abbrev(scimoz.getTextRange(prevPos, pos))) {
-                ko.statusBar.AddMessage(
-                    lazy.bundle.GetStringFromName("noAbbreviationAtTheCurrentPosition"),
-                    "abbrev", 5000, false);
+                var msg =  lazy.bundle.GetStringFromName("noAbbreviationAtTheCurrentPosition");
+                require("notify/notify").send(msg, "tools", {priority: "warning"});
                 return false;
             }
         }
@@ -259,7 +258,7 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
         scimoz.currentPos = origPos;
         scimoz.anchor = origAnchor;
     }
-    ko.statusBar.AddMessage(msg, "Editor", 5000, true);
+    require("notify/notify").send(msg, "tools", {priority: "warning"});
     return false;
 };
 
@@ -340,25 +339,24 @@ this.expandAutoAbbreviation = function(currView) {
             var msg = lazy.bundle.formatStringFromName("inserted autoabbreviation X",
                                                    [snippet.name], 1);
             var notify = require("notify/notify");
-            notify.send(msg, notify.categories.autoComplete,
+            notify.send(msg, "autoComplete",
                 {
                     icon: snippet.iconurl,
-                    undo: function() { ko.commands.doCommandAsync('cmd_undo'); },
+                    undo: function(e) {
+                        ko.commands.doCommand('cmd_focusEditor');
+                        ko.commands.doCommandAsync('cmd_undo', e);
+                    },
                     actions: [
                         {
-                            name: lazy.bundle.GetStringFromName("Edit Snippet"),
+                            label: lazy.bundle.GetStringFromName("Edit Snippet"),
                             command: function() {
-                                // Todo: Highlight snippet in toolbox
-                                // Need to add functionality to Toolbox2HTreeView
-                                // To load in the folder structure for a given tool
-                                // ko.toolbox2.manager.view.toggleOpenState(index), then
-                                // var index = ko.toolbox2.manager.view.getIndexByTool(abbrev)
-                                // ko.toolbox2.manager.view.selection.select(index);
+                                ko.commands.doCommand("cmd_viewToolbox");
+                                ko.toolbox2.ensureToolVisible(snippet, {select: true});
                                 ko.toolbox2.editProperties_snippet(snippet);
                             }
                         },
                         {
-                            name: lazy.bundle.GetStringFromName("disableAbbreviation"),
+                            label: lazy.bundle.GetStringFromName("disableAbbreviation"),
                             command: function() {
                                 snippet.setStringAttribute("auto_abbreviation", "false");
                             }

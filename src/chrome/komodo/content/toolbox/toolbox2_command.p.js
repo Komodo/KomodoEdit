@@ -545,8 +545,7 @@ this._selectCurrentItems = function(isCopying) {
 this.cutItem = function(event) {
     if (this._clickedOnRoot()) {
         // Don't allow the standard toolbox to be "cut"
-        var msg = peFolder_bundle.GetStringFromName("cantCutStandardToolbox");
-        ko.statusBar.AddMessage(msg, "editor", 3000, true);
+        require("notify/notify").send(msg, "toolbox", {priority: "warning"});
 
         return;
     }
@@ -758,7 +757,7 @@ this.saveToolsAs = function(event) {
         var msg = peFolder_bundle.formatStringFromName("copied_X_Files_Y_Folders",
                                  [numFiles,
                                   numFolders], 2);
-        ko.statusBar.AddMessage(msg, "editor", 5000, true);
+        require("notify/notify").send(msg, "toolbox");
     } catch(ex) {
         alert(ex);
     }
@@ -871,7 +870,7 @@ this.exportAsZipFile = function(event) {
         var numFilesZipped = ko.toolbox2.manager.view.zipSelectionToFile(targetPath, this._clickedOnRoot());
         var msg = peFolder_bundle.formatStringFromName("zippedNTools",
                                                    [numFilesZipped], 1);
-        ko.statusBar.AddMessage(msg, "toolbox", 5000, true);
+        require("notify/notify").send(msg, "toolbox");
     } catch(ex) {
         alert(ex);
     }

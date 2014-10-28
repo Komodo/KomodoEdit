@@ -1773,8 +1773,6 @@
       </field>
 
       <field name="_notification">
-        /* This is used for the status messages on drag-and-drop */
-        ko.statusBar.AddMessage(null, "panes", 500, false, true, false)
       </field>
 
       <property name="label">
@@ -2080,7 +2078,7 @@
                         " attrib: " + this.getAttribute("ko-pane-drag-status"));
         this.setAttribute("ko-pane-drag-status", status ? "dragover" : "waiting");
         this._notification.summary = status;
-        ko.statusBar.AddMessage(this._notification);
+        require("notify/notify").send(status, "customization");
         // Need to preventDefault, otherwise we always get a no-drop
         event.preventDefault();
         this._log.debug("<<< drag over " + this.id +

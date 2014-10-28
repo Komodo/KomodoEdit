@@ -152,8 +152,7 @@ _terminationListener.prototype = {
         //dump("_terminationListener::onTerminate(retval="+retval+")\n");
         this._editor.ko.run.output.endSession(retval);
         var msg = lazy.bundle.formatStringFromName("terminateMessage", [this._command ,retval], 2);
-        this._editor.ko.statusBar.AddMessage(msg, "run_command", 3000,
-                                          retval ? 1 : 0);
+        require("notify/notify").send(msg, "commands");
         if (this._callback) {
             // Want the callback to come _after_ this thread of control so call
             // it in a timeout.
@@ -760,11 +759,13 @@ this.runRemoteCommand = function Run_RemoteRunCommand(serverAliasOrURI,
 {
     try {
         if (!serverAliasOrURI) {
-            ko.statusBar.AddMessage("runRemoteCommand: no server name provided", "remote", 5000, true);
+            require("notify/notify").send("runRemoteCommand: no server name provided",
+                                          "remote", {priority: "error"});
             return false;
         }
         if (!command) {
-            ko.statusBar.AddMessage("runRemoteCommand: no command provided", "remote", 5000, true);
+            require("notify/notify").send("runRemoteCommand: no command provided",
+                                          "remote", {priority: "error"});
             return false;
         }
         if (!terminationCallback) terminationCallback = null;
@@ -788,7 +789,8 @@ this.runRemoteCommand = function Run_RemoteRunCommand(serverAliasOrURI,
         try {
             var ssh_conn = conn.QueryInterface(Components.interfaces.koISSHConnection)
         } catch(e) {
-            ko.statusBar.AddMessage("runRemoteCommand: SFTP or SCP connection required", "remote", 5000, true);
+            require("notify/notify").send("runRemoteCommand: SFTP or SCP connection required",
+                                          "remote", {priority: "error"});
             return false;
         }
 
@@ -799,7 +801,9 @@ this.runRemoteCommand = function Run_RemoteRunCommand(serverAliasOrURI,
         return true;
     } catch (e) {
         lazy.log.exception(e);
-        ko.statusBar.AddMessage("runRemoteCommand: error: " + e, "remote", 5000, true);
+        require("notify/notify").send("runRemoteCommand: error: " + e,
+                                          "remote", {priority: "error"});
+
     }
     return false;
 }

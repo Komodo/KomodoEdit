@@ -1013,10 +1013,9 @@
                 if (isLastDocumentInstance
                     && this.getAttribute('type') == 'editor'
                     && ko.macros.eventHandler.hookPreFileClose(this)) {
-                    ko.statusBar.AddMessage(
-                        this.viewsPropertiesBundle.GetStringFromName(
-			    "macroInterruptedFileClosingProcedure.message"),
-                        "macro", 5000, true);
+                    var msg = this.viewsPropertiesBundle.GetStringFromName(
+                                "macroInterruptedFileClosingProcedure.message");
+                    require("notify/notify").send(msg, "macros");
                     return false;
                 }
                     
@@ -1244,10 +1243,8 @@
         <![CDATA[
             try {
                 if (ko.macros.eventHandler.hookPreFileSave(this)) {
-                    ko.statusBar.AddMessage("Macro interrupted file saving procedure.",
-                                         "macro",
-                                         5000,
-                                         true);
+                    var msg = "Macro interrupted file saving procedure.";
+                    require("notify/notify").send(msg, "macros", {priority: "warning"});
                     return false;
                 }
 

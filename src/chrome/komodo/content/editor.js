@@ -219,9 +219,10 @@ editor_editorController.prototype.do_cmd_bookmarkGotoNext = function() {
         nextLine = v.scimoz.markerNext(0, marker_mask);
     }
     if (nextLine < 0 || nextLine == thisLine) {
-        ko.statusBar.AddMessage(_bundle.GetStringFromName("noNextBookmark.message"),
-                            "bookmark",
-                             3000, true);
+        require("notify/notify").send(
+            _bundle.GetStringFromName("noNextBookmark.message"),
+            "bookmark");
+        
     } else {
         ko.history.note_curr_loc(v);
         v.scimoz.ensureVisibleEnforcePolicy(nextLine);
@@ -246,9 +247,9 @@ editor_editorController.prototype.do_cmd_bookmarkGotoPrevious = function() {
         prevLine = v.scimoz.markerPrevious(v.scimoz.lineCount-1, marker_mask);
     }
     if (prevLine < 0 || prevLine == thisLine) {
-        ko.statusBar.AddMessage(_bundle.GetStringFromName("noPreviousBookmark.message"),
-                            "bookmark.message",
-                             3000, true);
+        require("notify/notify").send(
+            _bundle.GetStringFromName("noPreviousBookmark.message"),
+            "bookmark.message");
     } else {
         ko.history.note_curr_loc(v);
         v.scimoz.ensureVisibleEnforcePolicy(prevLine);
@@ -387,8 +388,6 @@ editor_editorController.prototype.do_cmd_rawKey= function() {
     scintilla.key_handler = editor_controller_instance.rawHandler;
     scintilla.addEventListener('blur', gCancelRawHandler, false);
     scintilla.scimoz.isFocused = true;
-    ko.statusBar.AddMessage(_bundle.GetStringFromName("enterControlCharacter"),
-                            "raw_input", 0, true, true);
 }
 
 function gCancelRawHandler(event) {
@@ -400,7 +399,6 @@ function gCancelRawHandler(event) {
         }
         v.scintilla.removeEventListener('blur', gCancelRawHandler, false);
     }
-    ko.statusBar.AddMessage(null, "raw_input", 0, false, true)
 }
 
 editor_editorController.prototype.rawHandler= function(event) {
@@ -435,7 +433,6 @@ editor_editorController.prototype.rawHandler= function(event) {
                 }
             }
         }
-        ko.statusBar.AddMessage(null, "raw_input", 0, false, true)
     } catch (e) {
         log.error(e);
     }
@@ -516,7 +513,9 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
     var parts, isEnabled, view, koDoc;
     parts = editor_controller_instance._aux_is_cmd_rename_tag_enabled();
     if (!parts[0]) {
-        ko.statusBar.AddMessage("Invalid context for renaming a tag", "editor", 3000, true);
+        require("notify/notify").send(
+            "Invalid context for renaming a tag",
+            "editor", {priority: "warning"});
         return;
     }
     [isEnabled, view, koDoc] = parts;
@@ -570,8 +569,9 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
                 tagNameStartPos = pos + 1;
                 break;
             } else if (validStyles.indexOf(style) == -1) {
-                ko.statusBar.AddMessage(_bundle.GetStringFromName("RenameTag not in a start or end tag"),
-                                        "editor", 3000, true);
+                require("notify/notify").send(
+                    _bundle.GetStringFromName("RenameTag not in a start or end tag"),
+                    "editor", {priority: "warning"});
                 return;
             }
         }
@@ -588,9 +588,9 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
     var result = {};
     koDoc.languageObj.getMatchingTagInfo(scimoz, tagNameStartPos - 1, false, result, {});
     if (!result.value || !result.value.length) {
-        ko.statusBar.AddMessage(_bundle.formatStringFromName("RenameTag Failed to find a matching tag for X",
-                                                             [tagName], 1),
-                                "editor", 3000, true);
+        var msg = _bundle.formatStringFromName("RenameTag Failed to find a matching tag for X",
+                                               [tagName], 1);
+        require("notify/notify").send(msg, "editor", {priority: "warning"});
         return;
     }
     let atStartTag, s1, s2, e1, e2, sn1, en1;
@@ -604,8 +604,8 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
     e1 += 2;
     if (scimoz.getStyleAt(s1) != scimoz.SCE_UDL_M_TAGNAME
         || scimoz.getStyleAt(e1) != scimoz.SCE_UDL_M_TAGNAME) {
-        ko.statusBar.AddMessage(_bundle.GetStringFromName("RenameTag Cant find the start of a tagname"),
-                                "editor", 3000, true);
+        var msg = _bundle.GetStringFromName("RenameTag Cant find the start of a tagname");
+        require("notify/notify").send(msg, "editor", {priority: "warning"});
         return;
     }
     for (sn1 = s1 + 1; sn1 <= lim && scimoz.getStyleAt(sn1) == scimoz.SCE_UDL_M_TAGNAME; ++sn1) {
@@ -691,8 +691,7 @@ editor_editorController.prototype.do_cmd_htmlTagRelocator = function() {
         // warning terrible function name coming
         if(!isContextCorrect(scimoz, view)){
             var statMsg = _bundle.GetStringFromName("htmlRelocatorLostContext");
-            ko.statusBar.AddMessage(statMsg, "htmlTagRelocator", 3000, true,
-                                    true);
+            require("notify/notify").send(statMsg, "editor", {priority: "warning"});
             deleteHtmlRelocator();
             return;
         }
@@ -710,8 +709,7 @@ editor_editorController.prototype.do_cmd_htmlTagRelocator = function() {
                                   text);
             } else {
                 var sttMsg = _bundle.GetStringFromName("htmlRelocatorRunExist");
-                ko.statusBar.AddMessage(sttMsg, "htmlTagRelocator", 3000, true,
-                                        true);
+                require("notify/notify").send(sttMsg, "editor", {priority: "warning"});
                 makeRelocatorSelection(view, scimoz);
             }
         }
@@ -752,7 +750,7 @@ function makeRelocatorSelection(view, scimoz) {
     var startOfCurrentTag;
     if(!relocatorInsideTag(scimoz)){
         var sttMsg = _bundle.GetStringFromName("htmlRelocateNotInTagNotCosed");
-        ko.statusBar.AddMessage(sttMsg, "htmlTagRelocator", 3000, true, true);
+        require("notify/notify").send(sttMsg, "editor", {priority: "warning"});
         log.debug("htmlTagRelocator stopped. Not in tag or tag does not close");
         return;
     }
@@ -773,7 +771,7 @@ function makeRelocatorSelection(view, scimoz) {
     
     if (nextStartTagOpen < endOfCurrentTag && nextStartTagOpen != -1) {
         var sttMsg = _bundle.GetStringFromName("htmlRelocatorNotClosed");
-        ko.statusBar.AddMessage(sttMsg, "htmlTagRelocator", 3000, true, true);
+        require("notify/notify").send(sttMsg, "editor", {priority: "warning"});
         return;
     } 
     endOfCurrentTag  = scimoz.positionAfter(endOfCurrentTag);
@@ -784,7 +782,7 @@ function makeRelocatorSelection(view, scimoz) {
     
     if (startOfCurrentTag == endOfCurrentTag) {
         var stMg = _bundle.GetStringFromName("htmlRelocatorNothingSelected");
-        ko.statusBar.AddMessage(stMg, "htmlTagRelocator", 3000, true, true);
+        require("notify/notify").send(stMsg, "editor", {priority: "warning"});
     } else {
         scimoz.setSel(startOfCurrentTag, endOfCurrentTag);
         saveRelocatorSelection(scimoz.selectionStart, scimoz.selectionEnd);
@@ -833,8 +831,7 @@ function skipWordsTagsRight(view, scimoz) {
         // of the doc.  It's what the user would have wanted...
         if (nextValidChar == -1) {
             var statMsg =  _bundle.GetStringFromName("htmlRelocatorNoEnd");
-            ko.statusBar.AddMessage(statMsg,"htmlTagRelocator",
-                                    3000, true, true);
+            require("notify/notify").send(statMsg, "editor", {priority: "warning"});
             nextValidChar = endOfDocument;
         }
         shufflePos = scimoz.positionAfter(nextValidChar);
@@ -976,7 +973,7 @@ function saveRelocatorSelection(selStart, selEnd){
 function relocateTimeoutDelete(){
     log.debug("Timeout delete relocator variables");
     var sttMsg = _bundle.GetStringFromName("htmlRelocateRmVars");
-    var bundle = ko.statusBar.AddMessage(sttMsg,"htmlTagRelocator",3000, true);
+    require("notify/notify").send(sttMsg, "editor", {priority: "warning"});
     deleteHtmlRelocator();
 }
 /**

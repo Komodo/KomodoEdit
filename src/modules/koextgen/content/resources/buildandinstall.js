@@ -6,7 +6,7 @@
 var project = ko.macros.current.project;
 var projectDir = ko.interpolate.interpolateString('%p');
 var callback = function() {
-  ko.statusBar.AddMessage('Build complete', 'projects', 5000, true);
+  require("notify/notify").send("Build complete", "projects");
   ko.projects.manager.saveProject(project);
   var os = Components.classes["@activestate.com/koOs;1"].
                   getService(Components.interfaces.koIOs);

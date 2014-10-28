@@ -194,7 +194,7 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
             } else {
                 msg = _bundle.formatStringFromName("snippet X insertion deliberately suppressed", [snippet.name], 1);
             }
-            ko.statusBar.AddMessage(msg, "Editor", 1000, true);
+            require("notify/notify").send(msg, "tools", {priority: "warning"});
         } catch (ex) {
             var errno = lastErrorSvc.getLastErrorCode();
             if (errno == Components.results.NS_ERROR_ABORT) {

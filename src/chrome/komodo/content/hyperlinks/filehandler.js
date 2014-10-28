@@ -156,8 +156,8 @@
                     var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
                         .getService(Components.interfaces.nsIStringBundleService)
                         .createBundle("chrome://komodo/locale/hyperlinks/hyperlinks.properties");
-                    ko.statusBar.AddMessage(_bundle.formatStringFromName("noAnchorFound.message", [filepath], 1),
-                                            "hyperlinks", 3000, true);
+                    var msg = _bundle.formatStringFromName("noAnchorFound.message", [filepath], 1);
+                    require("notify/notify").send(msg, "editor", {priority: "warning"});
                 }
             } else {
                 ko.open.URI(getUriForPath(view, filepath, alternativePaths));

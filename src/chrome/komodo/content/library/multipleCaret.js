@@ -651,7 +651,7 @@ function addWordMessage(scimoz, startPos, endPos) {
     var word = scimoz.getTextRange(startPos, endPos);
     var msg = _bundle.formatStringFromName("adding word x at line y column z",
                                            [word, line + 1, col + 1], 3);
-    ko.statusBar.AddMessage(msg, "editor", 3000, true);
+    require("notify/notify").send(msg, "editor");
 }    
 
 this._isWordChar = function(c, variableIndicators) {

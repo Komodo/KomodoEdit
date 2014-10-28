@@ -331,9 +331,10 @@ this.browseTag = function(tag) {
     if (tag in tag2uri) {
         ko.browse.openUrlInDefaultBrowser(tag2uri[tag]);
     } else {
-        ko.statusBar.AddMessage(
-            "ko.browse.browseTag error: unknown tag '"+tag+"'",
-            "browse", 3000, true);
+        require("notify/notify").send(
+            "ko.browse.browseTag error: unknown tag '"+tag+"'", "browser",
+            "browser", {priority: "error"}
+        );
     }
 }
 }).apply(ko.browse);

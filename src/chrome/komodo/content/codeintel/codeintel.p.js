@@ -153,7 +153,7 @@ ko.codeintel = {};
     }
 
     function handleError(msg) {
-        ko.statusBar.AddMessage(msg, "codeintel", 3000, false, true);
+        require("notify/notify").send(msg, "codeintel", {priority: "error"});
     };
 
 
@@ -499,8 +499,8 @@ ko.codeintel = {};
                     ciBuf.async_eval_at_trg(trg, this);
                 } else if (typeof(ko.statusBar.AddMessage) != "undefined") {
                     this._setLastRecentPrecedingCompletionAttemptPos(null);
-                    ko.statusBar.AddMessage("No preceding trigger point within range of current position.",
-                                         "codeintel", 3000, false);
+                    var msg = "No preceding trigger point within range of current position.";
+                    require("notify/notify").send(msg, "codeintel", {priority: "warning"});
                 }
             }.bind(this), handleError);
         } catch(ex) {
@@ -952,6 +952,7 @@ ko.codeintel = {};
     this.CompletionUIHandler.prototype._setDefinitionsInfo = function(
           defns, trg)
     {
+        var msg;
         var triggerPos = trg.pos;
         log.debug("CompletionUIHandler.setDefinitionsInfo"+
                               "(triggerPos="+triggerPos+
@@ -995,14 +996,15 @@ ko.codeintel = {};
                     // No file information for ...
                     log.info("goto definition at "+triggerPos+
                                          ": no path information, as symbol is defined in a CIX.");
-                    ko.statusBar.AddMessage("Cannot show definition: symbol is defined in the stdlib or in an API catalog.",
-                                         "codeintel", 5000, true);
+                    msg = "Cannot show definition: symbol is defined in the stdlib or in an API catalog.";
+                    require("notify/notify").send(msg, "codeintel", {priority: "warning"});
                 }
             } else {
                 log.info("goto definition at "+triggerPos+
                                      ": no results found.");
-                ko.statusBar.AddMessage("No definition was found.'",
-                                     "codeintel", 3000, true);
+                msg = "No definition was found.'";
+                require("notify/notify").send(msg, "codeintel",
+                                              {priority: "warning"});
             }
         } catch(ex) {
             log.exception(ex);
@@ -1044,11 +1046,9 @@ ko.codeintel = {};
         msg, highlight)
     {
         setTimeout((function() {
-            var n = this._notification;
-            n.msg = msg;
-            n.highlight = highlight;
-            n.maxProgress = Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE;
-            ko.statusBar.AddMessage(n);
+            require("notify/notify").send(
+                msg, "codeintel",
+                {priority: highlight ? "warning" : "info"});
         }).bind(this), 0);
     }
     
@@ -1230,13 +1230,6 @@ ko.codeintel = {};
                     }
                 });
             } else {
-                if (!matchPrefix && useScopes) {
-                    let message = this._bundle.formatStringFromName(
-                        "Variable X is unknown, falling back to full text search",
-                        [searchText], 1);
-                    ko.statusBar.AddMessage(message, "variable-highlight",
-                                            3000, false, true);
-                }
                 if (start > 0) {
                     let text = scimoz.getTextRange(scimoz.positionBefore(start),
                                                    scimoz.positionAfter(start));

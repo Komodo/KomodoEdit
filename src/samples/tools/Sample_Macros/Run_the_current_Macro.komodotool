@@ -44,7 +44,7 @@
     "    }", 
     "  }", 
     "  if (msg) {", 
-    "    ko.statusBar.AddMessage(msg, 'editor', 3000);", 
+    "    require("notify/notify").send(msg, 'editor');",
     "  }", 
     "} catch(e) {", 
     "  ko.dialogs.internalError(e, 'Error: '+e);", 

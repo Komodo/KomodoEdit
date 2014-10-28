@@ -638,7 +638,7 @@ this._history_move = function(go_method_name, check_method_name, delta,
                                              ? "historyCouldntMoveBack.template"
                                              : "historyCouldntMoveForward.template",
                                              [msg1], 1);
-        ko.statusBar.AddMessage(msg2, "editor", 3000, true);
+        require("notify/notify").send(msg2, "history");
     });
 };
 

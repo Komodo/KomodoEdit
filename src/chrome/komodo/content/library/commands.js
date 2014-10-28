@@ -277,7 +277,7 @@ this.doCommand = function command_doCommand(command, options) {
     } catch (e) {
         if (!suppressExceptions) {
             _log.exception(e,"An error occurred executing the "+command+" command");
-            ko.statusBar.AddMessage(e, "commands", 5000, true, false);
+            require("notify/notify").send(e, "commands", {priority: "error"});
             throw Components.results.NS_ERROR_FAILURE;
         }
     }

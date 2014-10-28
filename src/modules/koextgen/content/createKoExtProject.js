@@ -47,7 +47,7 @@ this.enableCodeIntelForLanguage = function koextgen_komodolang(projectDir, data)
             ko.koextgen.extensionLib.writeFile(codeintel_filepath, content);
         }
 
-        ko.statusBar.AddMessage('Enabled codeintel for ' + data.lang, 'projects', 5000, true);
+        require("notify/notify").send('Enabled codeintel for ' + data.lang, "projects");
     };
     ko.koextgen.extensionLib.command(cmd, callback);
 }
@@ -108,7 +108,7 @@ this.generateKomodoLanguage = function koextgen_komodolang(projectDir, data) {
         ko.koextgen.extensionLib.writeFile(udl_filepath, udl_content);
         ko.koextgen.extensionLib.writeFile(kolang_filepath, kolang_content);
 
-        ko.statusBar.AddMessage('Added language ' + data.lang, 'projects', 5000, true);
+        require("notify/notify").send('Added language ' + data.lang, "projects");
 
         if (data.enable_codeintel) {
             ko.koextgen.enableCodeIntelForLanguage(projectDir, data);
@@ -157,7 +157,7 @@ this.createExtGenProject = function(targetName) {
 
             //TODO: Finish building the configure macro
             var msg = 'Extension Project ' + data.vars.name + ' configured!';
-            ko.statusBar.AddMessage(msg, 'project', 3000, true);
+            require("notify/notify").send(msg, "projects");
             ko.projects.manager.saveProject(project);
 
             var fromFile = 1, fromString = 2; // Enums

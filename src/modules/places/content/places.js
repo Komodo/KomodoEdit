@@ -793,7 +793,7 @@ viewMgrClass.prototype = {
 
     _dropProblem: function(msg) {
         log.error(msg);
-        ko.statusBar.AddMessage(msg, "editor", 10 * 1000, true);
+        require("notify/notify").send(msg, "places", {priority: "error"});
         return false;
     },
     
@@ -2220,7 +2220,7 @@ ManagerClass.prototype = {
                             ("Directory X no longer exists",
                              [ko.uriparse.baseName(uri)], 1);
                         //log.info(msg);
-                        ko.statusBar.AddMessage(msg, "editor", 10 * 1000, true);
+                        require("notify/notify").send(msg, "places", {priority: "warning"});
                         _globalPrefs.getPref("places").deletePref(parent._koNum);
                         uri = null;
                     }

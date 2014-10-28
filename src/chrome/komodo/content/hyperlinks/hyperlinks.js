@@ -347,7 +347,6 @@ ko.hyperlinks = {};
             if (handlers[i].show(view, scimoz, position, line,
                                  startOfLine, endOfLine, reason)) {
                 log.debug("Showing hyperlink for handler: " + handlers[i].name);
-                ko.statusBar.AddMessage("Hyperlink handler: " + handlers[i].name, "hyperlinks", 3000, false, false);
                 return handlers[i];
             }
         }

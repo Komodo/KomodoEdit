@@ -310,8 +310,7 @@
                             }
                         }
                         this._transientMarkRing.pop();
-                        ko.statusBar.AddMessage("Mark not found - deleted",
-                                             "mark", 3000, true);
+                        require("notify/notify").send("Mark not found - deleted", "mark");
                         return -1;
                     }
                     return pos;
@@ -342,8 +341,7 @@
                     var dict = {'handle': handle, 'column' : column,
                                 'context': context}
                     this._transientMarkRing.push(dict);
-                    ko.statusBar.AddMessage("Transient mark set",
-                                         "mark", 3000, false);
+                    require("notify/notify").send("Transient mark set", "mark");
                 } catch (e) {
                     this.log.exception(e);
                 }
@@ -397,7 +395,7 @@
             } else {
                 msg = "No transient marks to pop";
             }
-            ko.statusBar.AddMessage(msg, "mark", 3000, false);
+            require("notify/notify").send(msg, "mark");
             ]]>
             </body>
         </method>
@@ -1217,6 +1215,7 @@
                 this.docSvc.parseHotspotLine(line, this.cwd, countObj,
                                              resultsObj);
                 var results = resultsObj.value;
+                var msg;
                 // We don't know how to stop the double-click on a hotspot
                 // line from selecting the current word, so we 'undo' that
                 // word selection here.  It'd be nice to avoid this.
@@ -1231,14 +1230,14 @@
                         ko.history.note_curr_loc();
                         ko.views.manager.doFileOpenAtLineAsync(ko.uriparse.pathToURI(fname), lineNo);
                     } else {
-                        ko.statusBar.AddMessage("The file '" + fname + "' could not be found.",
-                                             'hotspot', 5000, true);
+                        msg = "The file '" + fname + "' could not be found.";
+                        require("notify/notify").send(msg, "editor", {priority: "warning"});
                     }
                 } else {
                     // Parsing in koIDocumentService.parseHotspotLine() is not
                     // fully compliant with LexOthers.cxx hotspot lexing.
-                    ko.statusBar.AddMessage("Could not parse hotspot line: " + line,
-                                         'hotspot', 5000, true);
+                    msg = "Could not parse hotspot line: " + line;
+                    require("notify/notify").send(msg, "editor", {priority: "warning"});
                     // internal error dialogs are too much of a bother for users.
                     //ko.dialogs.internalError("Komodo could not successfully parse a "+
                     //    "filename and line number from the hotspot line "+
