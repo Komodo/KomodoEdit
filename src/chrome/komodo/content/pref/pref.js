@@ -127,9 +127,11 @@ function updateFilter(event) {
 }
 
 function toggleAdvanced(event) {
+    var prefset = hPrefWindow._getCurrentPrefSet();
     var checkbox = document.getElementById('toggleAdvanced');
     var checked = checkbox.checked;
     prefs.setBoolean("prefs_show_advanced", checked);
+    prefset.setBoolean("prefs_show_advanced", checked);
     koFilteredTreeView.updateFilter(lastFilter);
     setAdvancedPanelState();
 }
