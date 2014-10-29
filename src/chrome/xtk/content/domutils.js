@@ -208,7 +208,7 @@ fireDataEvent : function(target, eventName, data) {
     var event = document.createEvent("DataContainerEvent");
     event.initEvent(eventName, true, true);
     if (data) {
-        for (var key in data) {
+        for (var key of Object.keys(data)) {
             event.setData(key, data[key]);
         }
     }
