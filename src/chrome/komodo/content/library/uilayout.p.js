@@ -1,25 +1,25 @@
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- * 
+ *
  * The contents of this file are subject to the Mozilla Public License
  * Version 1.1 (the "License"); you may not use this file except in
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
- * 
+ *
  * Software distributed under the License is distributed on an "AS IS"
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
  * License for the specific language governing rights and limitations
  * under the License.
- * 
+ *
  * The Original Code is Komodo code.
- * 
+ *
  * The Initial Developer of the Original Code is ActiveState Software Inc.
  * Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
  * ActiveState Software Inc. All Rights Reserved.
- * 
+ *
  * Contributor(s):
  *   ActiveState Software Inc
- * 
+ *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
  * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -31,7 +31,7 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- * 
+ *
  * ***** END LICENSE BLOCK ***** */
 
 /* ---- UI Helpers for showing/hiding, expanding collapsing, various UI features ---- */
@@ -110,7 +110,7 @@ this.toggleToolbarVisibility = function uilayout_toggleToolbarVisibility(toolbar
         broadcaster.setAttribute("checked", "false");
     }
     document.persist(toolbarId, "kohidden");
-    
+
     this._updateToolbarViewStates();
 }
 
@@ -148,7 +148,7 @@ this.setToolbarsVisibility = function uilayout_setToolbarsVisibility(toolbarsSho
 {
     var broadcaster = document.getElementById('cmd_toggleToolbars');
     broadcaster.setAttribute("checked", toolbarsShowing);
-    
+
     var toolboxrow = document.getElementById('main-toolboxrow-wrapper');
     if (toolbarsShowing)
     {
@@ -241,7 +241,7 @@ this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems() {
  *
  * Note that even when the menubar is hidden, it can still be made visible using
  * the Alt key.
- * 
+ *
  * @param menubarShowing {Boolean}  Whether the menu is always showing.
  */
 this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowing) {
@@ -342,7 +342,7 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
      */
     var syncUIWithReality = (function syncUIWithReality() {
         var toolbars = Array.slice(toolbox.childNodes).concat(toolbox.externalToolbars);
-        
+
         // Update hidden / visible state of toolbar items
         // and set relevant ancestry classes
         this._updateToolbarViewStates(toolbox);
@@ -365,7 +365,7 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
                 }
             }
         }
-		
+
         // make the overflow button rebuild the next time it's open
         var toolboxRow = document.getElementById("main-toolboxrow");
         if (toolboxRow) {
@@ -473,13 +473,13 @@ this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(tool
         // which case the argument is an Event rather than a <toolbox>...
         toolbox = document.getElementById("toolbox_main");
     }
-    
+
     var buttonSets = toolbox.querySelectorAll("toolbar > toolbaritem > toolbarbutton:first-child");
     for (var i=0;i<buttonSets.length;i++)
     {
         var toolbarItem     = buttonSets[i].parentNode;
         var toolbar         = toolbarItem.parentNode;
-        
+
         var children = Array.slice(toolbarItem.querySelectorAll(".first-child, .last-child"));
         for each (var child in children) {
             if (child.parentNode == toolbarItem) {
@@ -487,17 +487,17 @@ this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(tool
                 child.classList.remove("last-child");
             }
         }
-        
+
         children = Array.slice(toolbarItem.querySelectorAll(":not([kohidden='true']):not(toolbarseparator):not(spacer)"));
         children = children.filter(function(child) child.parentNode === toolbarItem && child.parentNode.parentNode.getAttribute("kohidden") !== "true");
-        
+
         if (children.length > 0) {
             toolbarItem.removeAttribute("kohidden");
             toolbarItem.classList.remove('no-children');
             toolbarItem.classList.add('has-children');
             children[0].classList.add("first-child");
             children[children.length - 1].classList.add("last-child");
-            
+
             if (i==0) {
                 toolbar.classList.add('first-child');
             } else if (typeof previousLastChild != 'undefined') {
@@ -512,7 +512,7 @@ this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(tool
             toolbarItem.classList.remove('has-children');
         }
     }
-    
+
     // Update toolbar child visibility as otherwise it does not get updated
     // when the visible children have changed but no overflow events
     // were fired
@@ -662,7 +662,7 @@ this.toggleTab = function uilayout_toggleTab(widgetId, collapseIfFocused /* =tru
 
 
 /*
- ** 
+ **
  * updateTabpickerMenu
  * @param {XUL menupopup} menupopup
  *
@@ -806,7 +806,7 @@ function MruMenusAddItem(menuitem) {
 
     // Currently this method can be called twice due to us listening for both
     // command and click events as command events don't properly bubble up the
-    // chain. We should properly fix this in a larger release 
+    // chain. We should properly fix this in a larger release
     setTimeout(UpdateUnifiedMenuMru.bind(this), 0);
 }
 
@@ -843,7 +843,7 @@ function UpdateUnifiedMenuMru() {
         } else {
             menuitem = document.getElementById(id);
         }
-        
+
         if ( ! menuitem) continue;
 
         let _item = menuitem.cloneNode(true);
@@ -1070,7 +1070,7 @@ this.newFileFromTemplateOrTrimMRU = function uilayout_newFileFromTemplateOrTrimM
             return;
         }
     }
-    
+
     ko.views.manager.doFileNewFromTemplateAsync(templateURI);
 }
 
@@ -1193,7 +1193,7 @@ _Observer.prototype.destroy = function()
                     getService(Components.interfaces.nsIObserverService);
     observerSvc.removeObserver(this, "mru_changed");
     observerSvc.removeObserver(this, "primary_languages_changed");
-    
+
     window.removeEventListener('current_view_changed',
                                this.handle_current_view_changed_setup, false);
     window.removeEventListener('view_list_closed',
@@ -1764,10 +1764,42 @@ this.onload = function uilayout_onload()
     // Also track click events, as not all menuitem's fire a command event
     document.getElementById('unifiedMenuButton').addEventListener('click', trackMenuItemMru);
     document.getElementById('menubar_main').addEventListener('click', trackMenuItemMru);
-    
+
     ko.uilayout.setMenubarVisibility();
 // #endif
+
+    var deck = document.getElementById('editorviewbox');
+    if ( ! ko.views.manager.getAllViews().length) {
+        deck.selectedPanel = document.getElementById("quicklaunch");
+    }
 }
+
+this.updateViewRef = function(view) {
+    if ( ! view) {
+        view = ko.views.manager.currentView;
+    }
+
+    var viewType = "";
+    var deck = document.getElementById('editorviewbox');
+    if (deck.selectedPanel == document.getElementById("editorvbox") && view) {
+        viewType = view.getAttribute("type");
+    }
+
+    document.getElementById("komodo_main").setAttribute("view-type", viewType);
+}
+
+this.updateViewDeck = function() {
+    var tv = document.getElementById("topview");
+    var deck = document.getElementById('editorviewbox');
+    var hasViews = tv.currentView.currentView || tv.otherView.otherView;
+
+    if ( ! hasViews) {
+        deck.selectedPanel = document.getElementById("quicklaunch");
+    } else
+    {
+        deck.selectedPanel = document.getElementById("editorvbox");
+    }
+ }
 
 this._setTabPaneLayoutForTabbox = function(layout, pane, position) {
     if (position == "right" && layout != "vertical") {
@@ -1827,7 +1859,7 @@ this.restoreWindowState = function uilayout_restoreWindowState()
         else if (_gPrefs.getBooleanPref("startupMaximized")) {
             window.maximize();
         }
-    
+
         ko.uilayout.setTabPaneLayout();
     } catch (e) {
         _log.exception("Couldn't restore layout:" + e);
@@ -1890,7 +1922,7 @@ function _updateHiddenToolbars()
                 toolbars[i].setAttribute("kohidden", "true");
             } else {
                 toolbars[i].setAttribute("kohidden", "false");
-            } 
+            }
             toolbars[i].removeAttribute("hidden");
             _log.debug("Migrating hidden toolbar " + toolbars[i].id);
         }
@@ -1938,3 +1970,4 @@ _PrefObserver.prototype.destroy = function() {
 }
 
 }).apply(ko.uilayout);
+

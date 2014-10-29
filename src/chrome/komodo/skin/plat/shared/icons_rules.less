@@ -10,7 +10,7 @@ treechildren::-moz-tree-image(project-icon),
 treechildren::-moz-tree-image(project-icon),
 .project-icon
 {
-    list-style-image: @icon-project;
+    list-style-image: @icon-project !important;
 }
 
 /* GLOBAL */
@@ -380,7 +380,7 @@ menu .help-icon, menuitem .help-icon
 .new-file-icon, /* new-file-icon is deprecated since Komodo 7 */
 .native-new-file-icon
 {
-    list-style-image: @icon-new-file;
+    list-style-image: @icon-new-file !important;
 }
 
 #tabbed-view
@@ -399,7 +399,7 @@ menu .help-icon, menuitem .help-icon
 .native_open_icon, /* open-file-icon deprecated since Komodo 7 */
 .open-file-icon
 {
-    list-style-image: @icon-open-file;
+    list-style-image: @icon-open-file !important;
 }
 
 .native_folder_icon
@@ -411,14 +411,20 @@ menu .help-icon, menuitem .help-icon
 .collab-sessions-menu-icon,
 .codeintel-settings-button,
 .project-tools-icon,
+.preferences-icon,
 page .cog-icon,
 {
     list-style-image: @icon-gear !important;
 }
 
+.customize-panes-icon
+{
+    list-style-image: @icon-customize-panes;
+}
+
 .new-template-icon
 {
-    list-style-image: @icon-new-template;
+    list-style-image: @icon-new-template !important;
 }
 
 .save-buffer-icon,
@@ -604,12 +610,12 @@ treechildren::-moz-tree-image(remotefile)
 
     .native-new-file-icon
     {
-        list-style-image: @icon-toolbar-new-file;
+        list-style-image: @icon-toolbar-new-file !important;
     }
 
     .native_open_icon
     {
-        list-style-image: @icon-toolbar-open-file;
+        list-style-image: @icon-toolbar-open-file !important;
     }
 
     .native-save-icon

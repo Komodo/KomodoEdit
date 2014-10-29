@@ -2175,6 +2175,43 @@
                         <button label="&pane.customize.done.label;"
                                 oncommand="ko.uilayout._customizeComplete(true);"/>
                     </vbox>
+                    <hbox id="quicklaunch" pack="center">
+                        <vbox pack="center" align="left">
+
+                            <button label="New File"
+                                    class="new-file-icon"
+                                    oncommand="ko.commands.doCommandAsync('cmd_new', event)"/>
+
+                            <button label="New File from Template"
+                                    class="new-template-icon"
+                                    oncommand="ko.commands.doCommandAsync('cmd_newTemplate', event)"/>
+
+                            <button label="New Project"
+                                    class="project-icon"
+                                    oncommand="ko.commands.doCommandAsync('cmd_newProject', event)"/>
+
+                            <separator/>
+
+                            <button label="Open File"
+                                    class="open-file-icon"
+                                    oncommand="ko.commands.doCommandAsync('cmd_open', event)"/>
+
+                            <button label="Open Project"
+                                    class="project-icon"
+                                    oncommand="ko.commands.doCommandAsync('cmd_openProject', event)"/>
+
+                            <separator/>
+
+                            <button label="Preferences"
+                                    class="preferences-icon"
+                                    oncommand="ko.commands.doCommandAsync('cmd_editPrefs', event)"/>
+
+                            <button label="Customize Panes"
+                                    class="customize-panes-icon"
+                                    oncommand="ko.uilayout.customize()"/>
+
+                        </vbox>
+                    </hbox>
                 </deck>
 
                 <statusbar fullscreentoolbar="true" orient="horizontal"
