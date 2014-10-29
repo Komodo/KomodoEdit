@@ -226,8 +226,10 @@ fireDataEvent : function(target, eventName, data) {
  */
 newElement : function(name, attributes) {
     var elem = document.createElement(name);
-    for (var attr in attributes) {
-        elem.setAttribute(attr, attributes[attr]);
+    if (attributes) {
+        for (var attr of Object.keys(attributes)) {
+            elem.setAttribute(attr, attributes[attr]);
+        }
     }
     return elem;
 },
