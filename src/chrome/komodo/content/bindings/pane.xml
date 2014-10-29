@@ -145,6 +145,7 @@
         <parameter name="params"/>
         <body>
         <![CDATA[
+          //this._log.setLevel(this._log.DEBUG);
           try {
             try {
               this._log.debug("addWidget: " + widget + ", " + JSON.stringify(params));
@@ -648,6 +649,11 @@
           -->
         <parameter name="event"/>
         <body>
+        <![CDATA[
+          if (this.tabpanels.firstChild && this.tabpanels.firstChild.localName == "children") {
+            this._log.warn("Removing strange 'children' childNode from tabpanels");
+            this.tabpanels.removeChild(this.tabpanels.firstChild);
+          }
           ko.widgets.createPane((function(pane) {
             let widget = Array.slice(this.selectedPanel.childNodes)
                               .filter(function(child) "_is_ko_widget" in child)
@@ -670,6 +676,7 @@
               }
             }
           }).bind(this), this);
+        ]]>
         </body>
       </method>
 
