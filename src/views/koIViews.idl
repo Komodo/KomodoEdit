@@ -203,12 +203,6 @@ interface koIXULView : koIView
 
 };
 
-[scriptable, uuid(139B47D9-014C-463b-826C-DEC33F7E157A)]
-interface koIStartPageView : koIView
-{
-
-};
-
 [scriptable, uuid(4F4EFA9D-DE1C-472C-B067-67B9B81F8720)]
 interface koIBookmarkableView : nsISupports
 {

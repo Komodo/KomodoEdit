@@ -411,21 +411,6 @@
                   observes="cmd_editPrefsCurrent"/>
     </menupopup>
 
-    <!-- Popup for clicking on the Start Page *tab* -->
-    <menupopup id="startpageTabContextMenu">
-        <menuitem id="menu_startpage_tabcontextmenu_bufferClose"
-                  label="&close.label;"
-                  accesskey="&menuBufferClose.accesskey;"
-                  observes="cmd_bufferClose"/>
-        <menuitem id="menu_startpage_tabcontextmenu_bufferCloseOthers"
-                  observes="cmd_bufferCloseOthers"
-                  accesskey="&menuCloseOtherBuffers.accesskey;"
-                  label="&menuCloseOtherBuffers.label;"/>
-        <menuitem id="menu_startpage_tabcontextmenu_movetab"
-                  observes="cmd_movetab"
-                  label="&moveToOtherTabGroup.label;"/>
-    </menupopup>
-
 <!-- Popup for clicking on the buffer windows -->
     <menupopup id="bufferContextMenu"
                onpopupshowing="window.updateCommands('buffer_context_menu_showing');">
@@ -1175,12 +1160,6 @@
                                     <!-- #endif -->
                                 </menupopup>
                             </menu>
-                            <menuitem
-                                id="menu_openStartPage"
-                                label="&startPage.label;"
-                                observes="cmd_openStartPage"
-                                accesskey="&menuOpenStartPage.accesskey;"
-                                />
                             <menuitem id="menu_previewInBrowser"
                                       label="&browserPreview.menu.label;"
                                       accesskey="&browserPreview.menu.accesskey;"
@@ -1589,6 +1568,11 @@
                                 label="&listKeyBindings.label;"
                                 accesskey="&menuHelpShowKeybindings.accesskey;"
                                 oncommand="ko.browse.showKeybindings()"
+                                />
+                            <menuitem
+                                id="menu_helpCheckConfig"
+                                label="&checkConfig.label;"
+                                oncommand="window.openDialog('chrome://komodo/content/dialogs/featureControlPanel.xul','Komodo:FeatureControlPanel','chrome,titlebar')"
                                 />
                             <menuseparator/>
                             <menuitem

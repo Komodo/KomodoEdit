@@ -1520,33 +1520,6 @@ this.ensurePaneShown = function uilayout_ensurePaneShown(aPane) {
     pane.collapsed = false;
 };
 
-/**
- * Check whether only the start page is open and if so hide the tab bar
- */
-this.checkTabsVisibility = function uilayout_checkTabboxState() {
-
-    // Get open views - workaround until bug #97773 is resolved
-    var viewTypes = ["startpage", "editor", "browser"];
-    var _views = ko.views.manager.topView.getViews(true);
-    var views = [];
-
-    for (var i=0; i<_views.length; i++) {
-	if (viewTypes.indexOf(_views[i].getAttribute("type")) != -1) {
-	    views.push(_views[i]);
-	}
-    }
-
-    var classList = document.getElementById('topview').classList;
-    if ( ! views || (views.length == 1 && views[0].getAttribute('type') == 'startpage')
-    ) {
-	classList.add('startpage-single-tab');
-    } else {
-	classList.remove('startpage-single-tab');
-    }
-
-}
-addEventListener('current_view_changed', this.checkTabsVisibility);
-
 this.isTabShown = function uilayout_isTabShown(widgetId) {
     var widget;
     try {
@@ -1642,8 +1615,7 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
             viewPart += "*";
         }
         if (view.koDoc &&
-            view.koDoc.file &&
-            view.getAttribute("type") != "startpage") {
+            view.koDoc.file) {
             var fullPath = (view.koDoc.file.isLocal
                             ? view.koDoc.file.dirName
                             : view.koDoc.displayPath);

@@ -64,11 +64,6 @@ class koFileEx:
             elif scheme in RemoteURISchemeTypes: # Imported from URIlib
                 handler = RemoteURIHandler(self._URI.URI)
 
-            # XXX TODO we don't really need this now, can use the below
-            # chrome handler
-            elif self._URI.URI == "chrome://komodo/content/startpage/startpage.xml#view-startpage":
-                handler = StartPageHandler(self._URI.URI)
-
             elif scheme in ['chrome', 'dbgp']:
                 # pass through to mozilla's uri handling
                 handler = xpURIHandler(self._URI.URI)

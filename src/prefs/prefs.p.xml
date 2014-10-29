@@ -75,24 +75,6 @@
   <string id="rx-default-regex">(.*)(\d+)</string>
   <string id="rx-default-teststring">testing123</string>
 
-  <!-- 'show_start_page' indicates whether to show the Start Page at startup. -->
-  <boolean id="show_start_page">1</boolean>
-  <boolean id="start_page_quick_links_box_closed">0</boolean>
-  <boolean id="start_page_tip_box_closed">1</boolean>
-  <boolean id="start_page_landing_box_closed">0</boolean>
-  <string id="start_page_landing_box_url">http://komodo.activestate.com/startpage/komodoedit/index_edit.html</string>
-  <ordered-preference id="start_page_default_templates">
-    <string>resource://app/extensions/html_language@ActiveState.com/templates/Common/HTML.html</string>
-    <string>resource://app/extensions/html_language@ActiveState.com/templates/Common/HTML 5.html</string>
-    <string>/Common/JavaScript.js</string>
-    <string>/Common/Node.js</string>
-    <string>/Common/Perl.pl</string>
-    <string>resource://app/extensions/php_language@ActiveState.com/templates/Common/PHP.php</string>
-    <string>/Common/Python.py</string>
-    <string>/Common/Ruby.rb</string>
-    <string>/All Languages/Tcl.tcl</string>
-  </ordered-preference>
-
   <boolean id="uiRxSeparateWindow">0</boolean>
 
   <string id="ui.tabs.sidepanes.left.layout">icons</string>

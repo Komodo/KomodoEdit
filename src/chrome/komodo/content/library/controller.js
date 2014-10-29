@@ -66,7 +66,6 @@ var handlers = {
     'cmd_viewopentoolbar': 'ko.uilayout.toggleToolbarVisibility(\'openToolbar\')',
     'cmd_viewFullScreen': 'ko.uilayout.fullScreen()',
     'cmd_editPrefs': 'prefs_doGlobalPrefs(null)',
-    'cmd_openStartPage': 'ko.open.startPage()',
     'cmd_helpHelp': 'ko.help.open()',
     'cmd_helpShowKeybindings': 'ko.browse.showKeybindings()',
     'cmd_helpPerlRef_Local': 'ko.browse.localHelp("Perl")',

@@ -461,10 +461,6 @@ function _label_from_loc(loc) {
             baseName = loc.uri;
             lineNo = null;
             break;
-        case 'startpage':
-            baseName = _komodoBundle.GetStringFromName("startPageDisplayPath");
-            lineNo = null;
-            break;
         default:
             return null;
         }
@@ -504,7 +500,7 @@ this.init_popup_menu_recent_locations = function(event) {
         for (let i = 0; i < locList.length; ++i) {
             let loc = locList[i];
             if (!loc) {
-                // Null items can come from unhandled views, like the startPage
+                // Null items can come from unhandled views
                 continue;
             }
             var tooltip;
@@ -720,9 +716,6 @@ function _rctab_from_event(event) {
     case "browser":
         uri = view.koDoc.file.URI;
         break;
-    case "startpage":
-        uri = view.koDoc.displayPath;
-        break;
     case "terminal":
         // Ignore closing terminal views
         return null;
@@ -852,9 +845,7 @@ this.open_rctab = function(idx) {
         return;
     }
     var tabList = document.getElementById(rctab.tabGroup);
-    var uri = (rctab.viewType == "startpage"
-               ? "chrome://komodo/content/startpage/startpage.xml#view-startpage"
-               : rctab.uri);
+    var uri = rctab.uri;
     this.note_curr_loc();
     ko.views.manager.doFileOpenAsync(uri, rctab.viewType, tabList, rctab.tabIndex);
 };

@@ -347,7 +347,6 @@
 <!ENTITY helpLanguageSpecificHelpOnSelection.desc "Help: Language-Specific Help on Selection">
 <!ENTITY helpMenu.accesskey "H">
 <!ENTITY helpShowKeybindings.desc "Help: Show Keybindings...">
-<!ENTITY helpStartPage.desc "Help: Start Page">
 <!ENTITY helpTroubleshootingContactUs.accesskey "C">
 <!ENTITY helpTroubleshootingContactUs.desc "Help: Contact ActiveState using a Web Feedback Form">
 <!ENTITY helpTroubleshootingContactUs.label "Contact ActiveState">
@@ -392,6 +391,7 @@
 <!ENTITY komodoResourcesToolbar.tooltiptext "Komodo Resources Toolbar">
 <!ENTITY line.label "Line">
 <!ENTITY listKeyBindings.label "List Key Bindings">
+<!ENTITY checkConfig.label "Check Configuration">
 <!ENTITY macro.label "Macro">
 <!ENTITY macroEndRecording.desc "Macro: End Recording">
 <!ENTITY macroExecuteLastMacro.desc "Macro: Execute Last Macro">
@@ -446,7 +446,6 @@
 <!ENTITY menuMoveTab.accesskey "M">
 <!ENTITY menuMruFiles.accesskey "F">
 <!ENTITY menuMruWindows.accesskey "w">
-<!ENTITY menuOpenStartPage.accesskey "t">
 <!ENTITY menuPreferences.accesskey "e">
 <!ENTITY menuPrint.accesskey "P">
 <!ENTITY menuPrintPreview.accesskey "e">
@@ -688,7 +687,6 @@
 <!ENTITY splitView.label "Split View">
 <!ENTITY standard.label "Standard">
 <!ENTITY standardToolbar.tooltiptext "Standard Toolbar">
-<!ENTITY startPage.label "Start Page">
 <!ENTITY startRecording.label "Start Recording">
 <!ENTITY stop.label "Stop">
 <!ENTITY stopRecording.label "Stop Recording">

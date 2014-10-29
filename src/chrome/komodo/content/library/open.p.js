@@ -452,16 +452,6 @@ this.displayPath = function open_openDisplayPath(displayPath,
     ko.open.URI(displayPath, viewType, true, callback);
 }
 
-
-/**
- * Open Komodo's Start Page - the view will be opened synchronously.
- */
-this.startPage = function open_openStartPage() {
-    ko.history.note_curr_loc();
-    ko.views.manager._doFileOpen("chrome://komodo/content/startpage/startpage.xml#view-startpage",
-                                 "startpage");
-}
-
 this.multipleURIs = function open_openMultipleURIs(urls, viewType, isRecent)
 {
     var i,j;

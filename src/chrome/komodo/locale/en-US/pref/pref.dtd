@@ -430,7 +430,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY showEdgeLine.label "Draw the edge line column">
 <!ENTITY showEndOfLineCharacters.label "Show end-of-line (EOL) characters">
 <!ENTITY showIndentationGuides.label "Show indentation guides">
-<!ENTITY showKomodoStartPageOnStartup.label "Show Komodo Start Page on startup">
 <!ENTITY showLineNumbers.label "Show line numbers">
 <!ENTITY showWhitespaceCharacters.label "Show whitespace characters">
 <!ENTITY signatureBOM.label "Signature (BOM)">
@@ -441,7 +440,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY foldSeparateBlockParts.tooltiptext "Splits folding blocks on single-line constructs like '} ... {'">
 <!ENTITY squareTrees.label "Square trees">
 <!ENTITY startOfLine.label "Start of line">
-<!ENTITY startPage.label "Start Page">
 <!ENTITY syntaxChecking.label "Syntax Checking">
 <!ENTITY tPerlTestScript.label ".t: Perl Test Script">
 <!ENTITY templates.label "Templates">

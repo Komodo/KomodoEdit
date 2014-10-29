@@ -1,6 +1,6 @@
 <!ENTITY openFiles.label "Open Files">
 <!ENTITY viewEditorTabs.label "View Editor Tabs">
-<!ENTITY viewEditorTabs.tooltip "Toggle Editor Tabs, note that editor tabs are always hidden when only the start page is opened.">
+<!ENTITY viewEditorTabs.tooltip "Toggle Editor Tabs">
 <!ENTITY closeFile.tooltip "Close File">
 
 <!ENTITY userInterfaceShowHideOpenFilesTab.desc "User Interface: Show/Hide Open Files Pane">

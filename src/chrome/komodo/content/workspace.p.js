@@ -422,11 +422,6 @@ this._restoreWindowWorkspace =
             // otherwise the window manager may resize or reposition it.
             setTimeout(_restoreWindowPosition, 1, currentWindow, coordinates);
         }
-        // Opening the Start Page should be before commandment system init and
-        // workspace restoration because it should be the first view opened.
-        if (ko.prefs.getBooleanPref("show_start_page")) {
-            ko.open.startPage();
-        }
 
         if (workspace.hasPref('windowNum')) {
             let windowNum = workspace.getLongPref('windowNum');
@@ -455,8 +450,7 @@ this._restoreWindowWorkspace =
         if (wko.history) {
             wko.history.restore_prefs(workspace);
         }
-        // Don't open startPage here (bug 87854)
-        this.initializeEssentials(currentWindow, false);
+        this.initializeEssentials(currentWindow);
 
         // Projects depends on places, so open it after Places is initialized.
         if (workspace.hasPref('opened_projects_v7')) {
@@ -512,18 +506,14 @@ this.waitForProjectManager = function(callback) {
 };
 
 this._calledInitializeEssentials = false;
-this.initializeEssentials = function(currentWindow, showStartPage /*true*/) {
+this.initializeEssentials = function(currentWindow) {
     if (this._calledInitializeEssentials) {
         return;
     }
-    if (typeof(showStartPage) == "undefined") showStartPage=true;
     var infoService = Components.classes["@activestate.com/koInfoService;1"].
                                  getService(Components.interfaces.koIInfoService);
     if (!("__koNum" in currentWindow.ko.main)) {
         currentWindow._koNum = infoService.nextWindowNum();
-    }
-    if (showStartPage && ko.prefs.getBooleanPref("show_start_page")) {
-        ko.open.startPage();
     }
     xtk.domutils.fireEvent(window, 'workspace_restored');
     this._calledInitializeEssentials = true;

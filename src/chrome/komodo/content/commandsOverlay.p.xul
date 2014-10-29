@@ -192,10 +192,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_editPrefs', event);"
             desc="&generalPreferences.desc;"/>
         <command
-            id="cmd_openStartPage" key="key_cmd_openStartPage"
-            oncommand="ko.commands.doCommandAsync('cmd_openStartPage', event)"
-            desc="&helpStartPage.desc;"/>
-        <command
             id="cmd_newWindow" key="key_cmd_newWindow"
             oncommand="ko.commands.doCommandAsync('cmd_newWindow', event)"
             desc="&generalNewWindow.desc;"/>

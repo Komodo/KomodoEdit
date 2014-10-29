@@ -274,47 +274,6 @@ wizard#accountSetup
     }
 }
 
-/* Start Page Styling
- *
- * Ideally this would be in it's own dedicated .less file, but due
- * to the way the startpage is currently structured it is not compatible
- * with the less loader.
- *
- * The main styling for the startpage is still in startpage.css, styling here
- * is only for platform specific tweaks (eg. colors) */
-
-view[type='startpage']
-{
-    background: @startpage-background;
-
-    .startpage-header
-    {
-        font-family: @startpage-heading-font;
-        background: @startpage-heading-background;
-        color: @startpage-heading-color;
-        text-shadow: @startpage-heading-text-shadow;
-        border: 0;
-        border-top: 1px solid @startpage-border-color;
-        border-bottom: 1px solid @startpage-border-color;
-    }
-
-    box[type="startpage"]:first-child .startpage-header
-    {
-        border-top: 0;
-    }
-
-    vbox[anonid="quicklinks-right"]
-    {
-        background: @startpage-quicklinks-background;
-        border-left: 1px solid @startpage-border-color;
-    }
-
-    .button-text
-    {
-        color: @startpage-color;
-    }
-}
-
 /* Breadcrumbs */
 
 #breadcrumbBar

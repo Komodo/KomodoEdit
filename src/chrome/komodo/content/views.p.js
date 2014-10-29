@@ -192,8 +192,8 @@ viewManager.prototype.postCanClose = function()
         // We didn't call _doCloseViews originally when the view mgr
         // was designed around v2, for perf reasons,
         // which prob don't hold anymore.
-        var ignoreFailures=true, closeStartPage=true, doNotOfferToSave=true;
-        this._doCloseViews(null /* all */, ignoreFailures, closeStartPage, doNotOfferToSave);
+        var ignoreFailures=true, doNotOfferToSave=true;
+        this._doCloseViews(null /* all */, ignoreFailures, doNotOfferToSave);
     } catch(e) {
         /* moz probably already removed them */
         this.log.warn('exception in viewManager.postCanClose:'+e);
@@ -887,12 +887,6 @@ viewManager.prototype.openViewAsync = function(viewType, uri, tabGroup, tabIndex
 
     var tabList = tabGroup ? document.getElementById(tabGroup) : null;
     switch (viewType) {
-    case "startpage":
-        // ko.open.startPage() uses the current view.
-        // Using doFileOpen... uses the same view when it was closed,
-        // but we have to hardwire the startpage URI
-        uri = "chrome://komodo/content/startpage/startpage.xml#view-startpage";
-        // FALLTHRU
     case "editor":
         ko.views.manager.doFileOpenAsync(uri, viewType, tabList, tabIndex, callback);
         break;
@@ -1364,7 +1358,7 @@ viewManager.prototype.do_cmd_closeAll = function() {
     if (retval) {
         // Now close all files, without offering to save each individual file,
         // bug 85489.
-        this._doCloseViews(null /* all */, false, false,  /* doNotOfferToSave */ true);
+        this._doCloseViews(null /* all */, false, /* doNotOfferToSave */ true);
     }
     // Ensure the title bar is correctly set - bug 91958.
     ko.uilayout.updateTitlebar(this.currentView);
@@ -1375,13 +1369,11 @@ viewManager.prototype.do_cmd_closeAll = function() {
  * @param {koIView} views - Views to close - when no views are provided, then
  *                          the list of all views will be used.
  * @param {boolean} ignoreFailures - ignore any failures when closing files
- * @param {boolean} closeStartPage - close the start page?
  * @param {boolean} doNotOfferToSave - whether to offer to save dirty files
  */
-viewManager.prototype._doCloseViews = function(views, ignoreFailures, closeStartPage, doNotOfferToSave) {
+viewManager.prototype._doCloseViews = function(views, ignoreFailures, doNotOfferToSave) {
     if (!views) views = this.topView.getDocumentViews(true);
     if (typeof(ignoreFailures) == "undefined") ignoreFailures = false;
-    if (typeof(closeStartPage) == "undefined") closeStartPage = false;
     if (typeof(doNotOfferToSave) == "undefined") doNotOfferToSave = false;
     // returns true if all views were closed.
     var i;
@@ -1390,10 +1382,6 @@ viewManager.prototype._doCloseViews = function(views, ignoreFailures, closeStart
     ko.views.manager.batchMode = true;
     try {
         for (i = views.length-1; i >= 0; i--) {
-            // Exclude the Start Page from "Close All".
-            //   http://bugs.activestate.com/show_bug.cgi?id=27321
-            if (views[i].getAttribute("type") == "startpage" && !closeStartPage)
-                continue;
             if (i == 0 && !this._shuttingDown) {
                 // Ensure the last file closure causes currentView changed
                 // notifications, to update the Komodo window title.
@@ -1457,7 +1445,6 @@ viewManager.prototype.do_cmd_bufferCloseOthers = function() {
     }
     // Now close the "other" files, the offering to save is already done.
     this._doCloseViews(filtered_views, false /* ignoreFailures */,
-                       true /* closeStartPage */,
                        true /* doNotOfferToSave */);
 }
 
@@ -2608,7 +2595,7 @@ this.labelsFromView = function(view,
  * @param {string} dirName
  * @param {Number} lineNo - one-based line number
  * @param {string} tabId - Komodo tab id
- * @param {string} viewType - editor/browser/startpage/...
+ * @param {string} viewType - editor/browser/...
  * @param {string} sectionTitle
  * @param {Boolean} showDirty
  * @returns {string} returns a formatted string: 

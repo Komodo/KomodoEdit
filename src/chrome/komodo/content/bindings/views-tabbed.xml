@@ -341,7 +341,7 @@
                 // check for file changed status
                 view.reloadIfChanged();
                 // we need to update the dirty status for non-editor views,
-                // such as browsers and startpage, otherwise the save button
+                // such as browsers, otherwise the save button
                 // may still be enabled
                 this.updateDirtyStatus(view);
             }

@@ -43,7 +43,6 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/startpage/startpage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/feature_control_panel.css" type="text/css"?>
 
 <dialog id="dialog-featurecontrolpanel"
@@ -57,8 +56,7 @@
         screenY="20"
         persist="width screenX screenY"
         orient="vertical"
-        style="background-image: url(chrome://komodo/skin/startpage/images/bg.gif);
-               background-repeat: no-repeat;
+        style="background-repeat: no-repeat;
                background-color: white;
                overflow: auto;
                padding: 10px;"

@@ -18,7 +18,7 @@
         <menupopup id="popup_view">
             <menuitem
                 id="menu_viewGetStarted"
-                insertafter="menu_openStartPage"
+                insertbefore="menu_previewInBrowser"
                 label="&viewGetStarted.label;"
                 oncommand="ko.commands.doCommandAsync('cmd_viewGetStarted')"
                 />

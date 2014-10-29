@@ -70,8 +70,6 @@ class KoFeatureStatusService:
     status retrieval in a separate thread and then return the result in
     a "feature_status_result".
     
-    Currently this is used exclusively by Komodo's Start Page.
-    
     Implementation Notes:
         This service currently will startup a background thread only when
         necessary to avoid having a thread always sitting there to

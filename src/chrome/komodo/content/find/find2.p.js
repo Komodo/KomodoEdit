@@ -1286,9 +1286,6 @@ function reset_find_context(reason /* =null */) {
         } else {
             var type = curr_view.getAttribute("type");
             switch (type) {
-            case "startpage":
-                msg_warn(_bundle.GetStringFromName("cannotSearchInTheStartPage"));
-                break;
             case "browser":
                 msg_warn(_bundle.GetStringFromName("cannotSearchInABrowserPreviewTab"));
                 break;
