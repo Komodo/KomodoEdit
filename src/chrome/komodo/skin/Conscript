@@ -119,5 +119,5 @@ $cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/shared/",
 $cons->InstallInChrome('iconset/config.less');
 $cons->InstallInChrome('iconset/rules.less');
 
-$cons->InstallInChrome('partials/editor-statusbar.less');
+$cons->InstallInChrome('partials/scheme-skinning.less');
 

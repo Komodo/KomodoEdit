@@ -58,6 +58,7 @@
                     </vbox>
                     <textbox flex="1" id="commando-search"/>
                 </hbox>
+                <separator flex="1"/>
                 <hbox id="commando-loader"></hbox>
                 <vbox flex="1" id="commando-results-wrapper">
                     <!-- Result template -->

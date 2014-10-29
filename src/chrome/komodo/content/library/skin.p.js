@@ -79,7 +79,7 @@ if (ko.skin == undefined)
 
             this._setupCustomScrollbars();
 
-            this._loadStatusbarColors();
+            this.loadSchemeSkinning();
         },
         
         /**
@@ -130,7 +130,7 @@ if (ko.skin == undefined)
                     break;
 
                 case PREF_EDITOR_SCHEME:
-                    this._loadStatusbarColors();
+                    this.loadSchemeSkinning();
                     break;
             }
 
@@ -296,16 +296,17 @@ if (ko.skin == undefined)
             }
         },
 
-        _loadStatusbarColors: function()
+        loadSchemeSkinning: function()
         {
             var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
             var scheme = schemeService.getScheme(prefs.getString(PREF_EDITOR_SCHEME));
 
             // Skip if the value hasn't changed
             var lessCode = "" +
+                "@dark: " + (scheme.isDarkBackground ? "1" : "0") + ";\n" +
                 "@background: " + scheme.getBack('', 'linenumbers') + ";\n" +
                 "@foreground: " + scheme.foregroundColor + ";\n" +
-                "@import url('chrome://komodo/skin/partials/editor-statusbar.less');";
+                "@import url('chrome://komodo/skin/partials/scheme-skinning.less');";
             this.loadVirtualStyle(lessCode, "statusbar-partial");
         },
 
