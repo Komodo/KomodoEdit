@@ -1216,7 +1216,10 @@ viewManager.prototype.handle_current_view_changed = function(event) {
     this.currentView = event.originalTarget;
 
     if ("koDoc" in this.currentView) {
-        this.currentView.koDoc.setFileAccessed();
+        var koDoc = this.currentView.koDoc;
+        if (koDoc) {
+            koDoc.setFileAccessed();
+        }
     }
 
     if (this.batchMode) {
