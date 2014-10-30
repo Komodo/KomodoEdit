@@ -113,9 +113,14 @@
                     .getService(Components.interfaces.nsIURIFixup);
         </field>
 
-        <property name="title" readonly="true">
+        <field name="_title">null</field>
+
+        <property name="title">
         <getter>
         <![CDATA[
+            if (this._title) {
+                return this._title;
+            }
             var title = this.browser.contentTitle;
             if (!title) {
               if (!this.tempPreviewFile && this.browser.currentURI &&
@@ -153,6 +158,9 @@
             return title;
         ]]>
         </getter>
+        <setter>
+            this._title = val;
+        </setter>
         </property>
 
         <method name="getURI">
