@@ -4,7 +4,6 @@ version 43
 #  - ?? insert forward tab / insert backward tab
 #  - insert file? (Ctrl+X, I)
 #  - delete forward word ??  (Ctrl+Delete, Alt+D)
-#  - kill line (Ctrl+K)
 #  - clone window (Ctrl+X 5 2)
 #  - move editor to new window (Ctrl+X 5 3)
 #  - Ctrl+Alt+L: move to last buffer
@@ -197,7 +196,7 @@ binding cmd_executeLastMacro Ctrl+X E
 binding cmd_startIncrementalSearch Ctrl+S
 binding cmd_startIncrementalSearchBackwards Ctrl+R
 binding cmd_browserPreview Ctrl+C Ctrl+V
-binding cmd_reloadBrowserPreview Ctrl+K Ctrl+R
+binding cmd_reloadBrowserPreview Ctrl+C Ctrl+R
 binding cmd_focusSource Ctrl+C Ctrl+S
 binding cmd_findNextResult Ctrl+Shift+F3
 binding cmd_join Ctrl+J
@@ -233,5 +232,5 @@ binding cmd_scope-openfiles Ctrl+<
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
 
-binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y
-binding cmd_addNextWordToCaretSet Ctrl+K Ctrl+D
+#binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y
+#binding cmd_addNextWordToCaretSet Ctrl+K Ctrl+D
