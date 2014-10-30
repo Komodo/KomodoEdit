@@ -15,7 +15,7 @@
 <!ENTITY morekomodo.rename.desc "File - Rename">
 
 <!ENTITY make.backup.label "Make Copy...">
-<!ENTITY make.backup.accesskey "B">
+<!ENTITY make.backup.accesskey "C">
 <!ENTITY morekomodo.make.backup.desc "File - Copy">
 
 <!ENTITY delete.label "Delete...">
