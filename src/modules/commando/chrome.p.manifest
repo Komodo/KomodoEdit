@@ -10,4 +10,4 @@ locale commando en-US jar:commando.jar!/locale/en-US/
 
 overlay chrome://komodo/content/pref/pref.xul chrome://commando/content/ui/overlay/pref.xul
 overlay chrome://komodo/content/komodo.xul chrome://commando/content/ui/overlay/komodo.xul
-category require-path commando chrome://commando/content/js/
+category require-path commando chrome://commando/content/sdk/

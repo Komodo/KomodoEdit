@@ -7,13 +7,15 @@
     const uuidGen   = require("sdk/util/uuid");
     const keybinds  = require("ko/keybindings");
     const commands  = require("ko/commands");
+    const _         = require("contrib/underscore");
+    const controller= require("./controller");
 
     const ioService = Cc["@mozilla.org/network/io-service;1"]
                         .getService(Ci.nsIIOService);
 
-    const commando  = this;
+    const commando = c = this;
 
-    //log.setLevel(require("ko/logging").LOG_DEBUG);
+    log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var local = {
         scopes: {},
@@ -27,13 +29,15 @@
         prevSearchValue: null,
         transitKeyBinds: false,
         renderResultsTimer: undefined,
-        searchTimer: false
+        searchTimer: false,
+        favourites: null,
+        history: []
     };
 
     var elems = {
         panel: function() { return $("#commando-panel"); },
         scope: function() { return $("#commando-scope"); },
-        subscope: function() { return $("#commando-subscope"); },
+        subscopeWrap: function() { return $("#commando-subscope-wrap"); },
         results: function() { return $("#commando-results"); },
         search: function() { return $("#commando-search"); },
         scopePopup: function() { return $("commando-scope-menupopup"); },
@@ -42,7 +46,8 @@
         template: {
             scopeMenuItem: function() { return $("#tpl-co-scope-menuitem"); },
             scopeNavMenuItem: function() { return $("#tpl-co-scope-nav-menuitem"); },
-            resultItem: function() { return $("#tpl-co-result"); }
+            resultItem: function() { return $("#tpl-co-result"); },
+            subscope: function() { return $("#tpl-co-subscope"); }
         }
     };
 
@@ -62,6 +67,8 @@
             log.debug("Transitioning keybinds");
             ko.prefs.deletePref("transit_commando_keybinds");
         }
+
+        local.favourites = ko.prefs.getPref('commando_favourites');
     }
 
     var elem = function(name, noCache)
@@ -81,96 +88,38 @@
         return local.templateCache[name](params);
     }
 
+    /** Controllers **/
+
     var onKeyNav = function(e)
     {
         log.debug("Event: onKeyNav");
 
         var results = elem('results');
         if ( ! results.visible()) return;
-        var resultElem = results.element();
-        var resultCount = resultElem.getRowCount();
         var prevDefault = false;
 
         // Todo: support selecting multiple items
         switch (e.keyCode)
         {
             case 8: // backspace
-                if (elem('search').value() == "" && commando.getSubscope() && local.prevKeyCode == 8)
-                    commando.setSubscope(null);
+            case 37: // left arrow
+                onNavBack();
                 break;
             case 13: // enter
-                onSelectResult(e);
+                onSelectResult();
+                prevDefault = true;
                 break;
             case 40: // down arrow
             case 9:  // tab
+                onNavDown(e);
                 prevDefault = true;
-
-                var selIndex = resultElem.selectedIndex;
-                for (let item of resultElem.selectedItems)
-                {
-                    let itemIndex = resultElem.getIndexOfItem(item);
-                    if (itemIndex > selIndex) selIndex = itemIndex;
-                }
-
-                if (e.shiftKey && resultElem.selectedItems.length)
-                {
-                    log.debug("Add Next to Selection in Results");
-
-                    var selItem = resultElem.getItemAtIndex(selIndex);
-                    var sibling = selItem.nextSibling;
-                    if (sibling && selItem.resultData.allowMultiSelect && sibling.resultData.allowMultiSelect)
-                    {
-                        resultElem.addItemToSelection(sibling);
-                        resultElem.ensureElementIsVisible(sibling);
-                    }
-                }
-                else
-                {
-                    log.debug("Navigate Down in Results");
-
-                    if (selIndex+1 == resultCount)
-                        resultElem.selectedIndex = selIndex = 0;
-                    else
-                        resultElem.selectedIndex = selIndex = selIndex+1;
-
-                    resultElem.ensureIndexIsVisible(selIndex);
-                }
-                    
                 break;
             case 38: // up arrow
+                onNavUp(e);
                 prevDefault = true;
-
-                var selIndex = resultElem.selectedIndex;
-                for (let item of resultElem.selectedItems)
-                {
-                    let itemIndex = resultElem.getIndexOfItem(item);
-                    if (itemIndex < selIndex) selIndex = itemIndex;
-                }
-
-                if (e.shiftKey && resultElem.selectedItems.length)
-                {
-                    log.debug("Add Previous to Selection in Results");
-
-                    var selItem = resultElem.getItemAtIndex(selIndex);
-                    var sibling = selItem.previousSibling;
-                    if (sibling && selItem.resultData.allowMultiSelect && sibling.resultData.allowMultiSelect)
-                    {
-                        resultElem.addItemToSelection(sibling);
-                        resultElem.ensureElementIsVisible(sibling);
-                    }
-                }
-                else
-                {
-                    log.debug("Navigate Up in Results");
-                    
-                    if (selIndex == 0)
-                        resultElem.selectedIndex = selIndex = resultCount-1;
-                    else
-                        resultElem.selectedIndex = selIndex = selIndex-1;
-
-                    resultElem.ensureIndexIsVisible(selIndex);
-                }
-
+                break;
+            case 39: // right arrow
+                onExpandResult(e);
                 break;
         }
 
@@ -187,88 +136,88 @@
         }
     }
 
-    var onSearch = function(e, noDelay)
+    var onNavBack = function()
     {
-        _onKitt();
-
-        if (local.searchTimer && ! noDelay) return; // Search is already queued
-
-        elem("panel").addClass("loading");
-        var searchDelay = ko.prefs.getLong('commando_search_delay', 200);
-
-        if (noDelay)
+        var textbox = elem("search").element();
+        if (textbox.selectionEnd != textbox.selectionStart ||
+            textbox.selectionStart != 0)
         {
-            window.clearTimeout(local.searchTimer);
-            local.searchTimer = false;
-        }
-        else if ( ! local.lastSearch || (new Date().getTime()) - local.lastSearch > searchDelay)
-            noDelay = true; // why delay the inevitable
-
-        local.lastSearch = new Date().getTime();
-
-        local.searchTimer = window.setTimeout(function()
-        {
-            local.searchTimer = false;
-            
-            log.debug("Event: onSearch");
-            var searchValue = elem('search').value();
-            if (local.prevSearchValue == searchValue) return;
-
-            local.searchingUuid = uuidGen.uuid();
-            local.resultCache = [];
-            local.resultsReceived = 0;
-            local.resultsRendered = 0;
-            local.prevSearchValue = searchValue;
-
-            // perform onSearch
-            log.debug(local.searchingUuid + " - Starting Search for: " + searchValue);
-            getScopeHandler().onSearch(searchValue, local.searchingUuid);
-        }, noDelay ? 0 : searchDelay);
-    }
-
-    _onKitt = function()
-    {
-        // You didn't see this, you were never here
-        if (_onKitt.kitt)
-        {
-            elem("panel").removeClass("kitt");
-            delete _onKitt.kitt
-        }
-        if (["kitt", "michael"].indexOf(elem('search').value()) !== -1)
-        {
-            var sound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
-            sound.play(ioService.newURI('chrome://commando/content/loading.wav', null, null));
-            elem("panel").addClass("kitt");
-            _onKitt.kitt = true;
-        }
-    }
-
-    var onSelectResult = function(e)
-    {
-        log.debug("Selected Result(s)");
-
-        e.cancelBubble = true;
-        e.preventDefault();
-
-        var selected = elem('results').element().selectedItems.slice();
-
-        if (selected.length == 1 && selected.slice(0)[0].resultData.isScope)
-        {
-            commando.setSubscope(selected.slice(0)[0].resultData);
             return;
         }
 
-        if (selected.length > 1)
+        c.navBack();
+    }
+
+    var onNavDown = function(e)
+    {
+        c.navDown(e && e.shiftKey);
+    }
+
+    var onNavUp = function(e)
+    {
+        c.navUp(e && e.shiftKey);
+    }
+
+    var onSearch = function(e)
+    {
+        var uuid = c.search(null, function()
         {
-            for (let i in selected)
-            {
-                if ( ! selected[i].resultData.allowMultiSelect)
-                    delete selected[i];
-            }
+            onSearchComplete(uuid);
+        });
+    }
+
+    var onExpandSearch = function(query, uuid)
+    {
+        c.expandSearch(query, uuid, function()
+        {
+            onSearchComplete(uuid);
+        });
+    }
+
+    var onSearchComplete = function(uuid)
+    {
+        if (local.searchingUuid != uuid) return;
+
+        if (local.resultsReceived == 0)
+        {
+            this.renderResult({
+                id: "",
+                name: "No Results",
+                classList: "no-result-msg non-interact"
+            }, uuid);
         }
 
-        if (selected.length)
-            getScopeHandler().onSelectResult(selected);
+        window.setTimeout(function()
+        {
+            elem("panel").removeClass("loading");
+        }, kitt.kitt ? 1000 : 0);
+    }
+
+    var onSelectResult = function()
+    {
+        log.debug("Selected Result(s)");
+
+        var selected = c.getSelected();
+        c.selectResults(selected);
+    }
+
+    var onExpandResult = function()
+    {
+        var textbox = elem("search").element();
+
+        if (textbox.selectionEnd != textbox.selectionStart ||
+            textbox.selectionStart < textbox.value.length)
+        {
+            return;
+        }
+
+        log.debug("Expanding Result");
+
+        var selected = c.getSelectedResult();
+        if ( ! selected)
+            return;
+
+        c.expandResult(selected);
     }
 
     var onChangeScope = function(e)
@@ -288,28 +237,18 @@
             return;
         }
 
-        commando.selectScope(scopeElem.element().selectedItem, true);
-    }
-
-    var getScope = function()
-    {
-        return elem('scope').element().selectedItem._scope;
-    }
-
-    var getScopeHandler = function()
-    {
-        var scope = getScope();
-        return require(scope.handler);
+        c.selectScope(scopeElem.element().selectedItem);
+        c.execScopeHandler("onShow");
+        window.setTimeout(function() { elem('search').focus(); }, 0);
     }
 
     /* Public Methods */
-
     this.showCommando = function(scope)
     {
         log.debug("Showing Commando");
 
         if (scope)
-            commando.selectScope(scope);
+            c.selectScope(scope);
 
         var panel = elem('panel');
         var search = elem('search');
@@ -320,22 +259,174 @@
 
         search.focus();
 
-        if (ko.prefs.getBoolean('commando_preserve_query', true))
-            search.element().select();
-        else
-            search.value("");
-        
-        elem('results').element().clearSelection();
-
-        var scopeHandler = getScopeHandler();
-        if ("onShow" in scopeHandler)
-            scopeHandler.onShow();
+        c.execScopeHandler("onShow");
     }
 
-    this.search = function(value)
+    this.search = function(value, callback, noDelay = false)
     {
-        elem('search').value(value);
-        onSearch();
+        if (value)
+        {
+            elem('search').value(value);
+        }
+
+        if ( ! callback) // this is a manual search
+            return onSearch();
+
+        kitt();
+
+        if (local.searchTimer && ! noDelay) return; // Search is already queued
+
+        elem("panel").addClass("loading");
+        var searchDelay = ko.prefs.getLong('commando_search_delay', 200);
+
+        if (noDelay)
+        {
+            window.clearTimeout(local.searchTimer);
+            local.searchTimer = false;
+        }
+        else if ( ! local.lastSearch || (new Date().getTime()) - local.lastSearch > searchDelay)
+            noDelay = true; // why delay the inevitable
+
+        local.lastSearch = new Date().getTime();
+
+        var uuid = uuidGen.uuid();
+        local.searchTimer = window.setTimeout(function()
+        {
+            local.searchTimer = false;
+
+            log.debug("Event: onSearch");
+            var searchValue = elem('search').value();
+            if (local.prevSearchValue == searchValue) return;
+
+            local.searchingUuid = uuid;
+            local.resultCache = [];
+            local.resultsReceived = 0;
+            local.resultsRendered = 0;
+            local.prevSearchValue = searchValue;
+
+            var subscope = c.getSubscope();
+
+            if (subscope && subscope.isExpanded)
+            {
+                onExpandSearch(searchValue, local.searchingUuid);
+            }
+            else
+            {
+                // perform onSearch
+                log.debug(local.searchingUuid + " - Starting Search for: " + searchValue);
+                c.execScopeHandler("onSearch", [searchValue, local.searchingUuid, callback])
+            }
+        }.bind(this), noDelay ? 0 : searchDelay);
+
+        return uuid;
+    }
+
+    this.reSearch = function()
+    {
+        var query = local.prevSearchValue;
+
+        c.stop();
+        c.search(query);
+    }
+
+    this.expandSearch = function(query, uuid, callback)
+    {
+        var subscope = c.getSubscope();
+
+        var results = [
+            {
+                id: "open",
+                name: "Open",
+                weight: 50,
+                command: function()
+                {
+                    subscope.isExpanded = false;
+                    c.selectResults([{resultData: subscope}]);
+                }
+            }
+        ];
+
+        if (local.favourites.findString(subscope.id) == -1)
+        {
+            results.push({
+                id: "favourite",
+                name: "Favourite",
+                weight: 40,
+                command: function()
+                {
+                    subscope.favourite = true;
+                    local.favourites.appendString(subscope.id);
+                    c.reSearch();
+                }
+            });
+        }
+        else
+        {
+            results.push({
+                id: "unfavourite",
+                name: "Un-Favourite",
+                weight: 40,
+                command: function()
+                {
+                    subscope.favourite = false;
+                    local.favourites.findAndDeleteString(subscope.id);
+                    c.reSearch();
+                }
+            });
+        }
+
+        log.debug(local.searchingUuid + " - Starting Expanded Search for: " + query);
+        results = c.filter(results, query);
+        c.renderResults(results, uuid);
+
+        // perform onSearch
+        c.execScopeHandler("onExpandSearch", [query, uuid, callback])
+    }
+
+    this.selectResults = function(selected)
+    {
+        if (selected.length == 1 && selected.slice(0)[0].resultData.isScope)
+        {
+            c.setSubscope(selected.slice(0)[0].resultData);
+            return;
+        }
+
+        selected = selected.filter(function(el)
+        {
+            if (selected.length > 1 && ! el.resultData.allowMultiSelect)
+                return false;
+
+            return true;
+        });
+
+        selected = selected.filter(function(el)
+        {
+            if ("command" in el.resultData)
+            {
+                log.debug("doCommand");
+                el.resultData.command();
+                return false;
+            }
+
+            return true;
+        });
+
+        if (selected.length)
+            c.execScopeHandler("onSelectResult", [selected]);
+    }
+
+    this.expandResult = function(selected)
+    {
+        if ( ! selected.allowExpand)
+            return;
+
+        var resultData = _.extend({}, selected);
+        resultData.isExpanded = true;
+
+        c.setSubscope(resultData);
+        c.execScopeHandler("onExpand");
+
+        c.clear();
     }
 
     this.hideCommando = function()
@@ -434,7 +525,7 @@
         commands.unregister(id);
     }
 
-    this.selectScope = function(scopeId, doOnShow)
+    this.selectScope = function(scopeId)
     {
         var scopeElem = elem('scope');
         var selectedItem = scopeElem.element().selectedItem;
@@ -455,18 +546,9 @@
 
         local.selectedScope = selectItem.id;
 
-        commando.stop();
-        commando.empty();
-        commando.setSubscope(null);
-
-        if (doOnShow)
-        {
-            var scopeHandler = getScopeHandler();
-            if ("onShow" in scopeHandler)
-                scopeHandler.onShow();
-
-            window.setTimeout(function() { elem('search').focus(); }, 0);
-        }
+        c.stop();
+        c.empty();
+        c.setSubscope(null);
     }
 
     this.renderResult = function(result, searchUuid)
@@ -523,6 +605,11 @@
         var process = [];
         for (let result of results)
         {
+            if (local.favourites.findString(result.id) != -1)
+            {
+                result.favourite = true;
+            }
+
             result.subscope = local.subscope;
             var resultEntry = $.createElement(template('resultItem', result));
             resultEntry.resultData = result;
@@ -541,6 +628,26 @@
         resultElem.element().selectedIndex = 0;
 
         if (process) processResults(process);
+    }
+
+    this.filter = function(results, query, field)
+    {
+        field = "name";
+        words = query.toLowerCase().split(/\s+/);
+
+        return results.filter(function(result)
+        {
+            if ( ! (field in result))
+                return false;
+
+            for (let w in words)
+            {
+                if (result[field].toLowerCase().indexOf(words[w]) == -1)
+                    return false;
+            }
+
+            return true;
+        });
     }
 
     var processResults = function(resultEntries)
@@ -571,7 +678,7 @@
     this.sortResult = function(elem)
     {
         // Sort by handler.sort
-        var handler = getScopeHandler();
+        var handler = c.getScopeHandler();
         if ("sort" in handler)
         {
             while (elem.previousSibling)
@@ -614,26 +721,127 @@
                     cont = false;
             }
         }
+
+        if (elem.resultData.favourite)
+        {
+            while (elem.previousSibling)
+            {
+                let previous = elem.previousSibling.resultData;
+                if ( ! previous || ! previous.favourite)
+                    elem.parentNode.insertBefore(elem, elem.previousSibling);
+                else
+                    break;
+            }
+        }
     }
 
-    this.onSearchComplete = function(searchUuid)
+    this.navBack = function()
     {
-        if (local.searchingUuid != searchUuid) return;
-
-        if (local.resultsReceived == 0)
+        if ( ! c.getSubscope())
         {
-            this.renderResult({
-                id: "",
-                name: "No Results",
-                classList: "no-result-msg non-interact"
-            }, searchUuid);
+            return;
         }
 
-        window.setTimeout(function()
-        {
-            elem("panel").removeClass("loading");
-        }, _onKitt.kitt ? 1000 : 0);
+        var history = local.history.pop();
 
+        if ( ! history)
+        {
+            c.setSubscope();
+            c.clear();
+        }
+        else
+        {
+            c.setSubscope(history.subscope, false);
+            c.search(history.query);
+        }
+    }
+
+    this.navDown = function(append = false)
+    {
+        var results = elem('results');
+        var resultElem = results.element();
+        var resultCount = resultElem.getRowCount();
+
+        var selIndex = resultElem.selectedIndex;
+        for (let item of resultElem.selectedItems)
+        {
+            let itemIndex = resultElem.getIndexOfItem(item);
+            if (itemIndex > selIndex) selIndex = itemIndex;
+        }
+
+        if (append && resultElem.selectedItems.length)
+        {
+            log.debug("Add Next to Selection in Results");
+
+            var selItem = resultElem.getItemAtIndex(selIndex);
+            var sibling = selItem.nextSibling;
+            if (sibling && selItem.resultData.allowMultiSelect && sibling.resultData.allowMultiSelect)
+            {
+                resultElem.addItemToSelection(sibling);
+                resultElem.ensureElementIsVisible(sibling);
+            }
+        }
+        else
+        {
+            log.debug("Navigate Down in Results");
+
+            if (selIndex+1 == resultCount)
+                resultElem.selectedIndex = selIndex = 0;
+            else
+                resultElem.selectedIndex = selIndex = selIndex+1;
+
+            resultElem.ensureIndexIsVisible(selIndex);
+        }
+    }
+
+    this.navUp = function(append = false)
+    {
+        var results = elem('results');
+        var resultElem = results.element();
+        var resultCount = resultElem.getRowCount();
+
+        var selIndex = resultElem.selectedIndex;
+        for (let item of resultElem.selectedItems)
+        {
+            let itemIndex = resultElem.getIndexOfItem(item);
+            if (itemIndex < selIndex) selIndex = itemIndex;
+        }
+
+        if (append && resultElem.selectedItems.length)
+        {
+            log.debug("Add Previous to Selection in Results");
+
+            var selItem = resultElem.getItemAtIndex(selIndex);
+            var sibling = selItem.previousSibling;
+            if (sibling && selItem.resultData.allowMultiSelect && sibling.resultData.allowMultiSelect)
+            {
+                resultElem.addItemToSelection(sibling);
+                resultElem.ensureElementIsVisible(sibling);
+            }
+        }
+        else
+        {
+            log.debug("Navigate Up in Results");
+
+            if (selIndex == 0)
+                resultElem.selectedIndex = selIndex = resultCount-1;
+            else
+                resultElem.selectedIndex = selIndex = selIndex-1;
+
+            resultElem.ensureIndexIsVisible(selIndex);
+        }
+    }
+
+    this.getSelected = function()
+    {
+        return elem('results').element().selectedItems.slice();
+    }
+
+    this.getSelectedResult = function()
+    {
+        var selected = c.getSelected();
+        if ( ! selected.length) return false;
+        return selected[0].resultData;
     }
 
     this.getSubscope = function()
@@ -641,28 +849,64 @@
         return local.subscope;
     }
 
-    this.setSubscope = function(subscope)
+    this.setSubscope = function(subscope, record = true)
     {
-        if (subscope && (! subscope.scope in local.scopes))
-            return log.error("Scope does not exist: " + subscope.scope);
-
-        local.subscope = subscope;
-
-        if (subscope)
-            elem('subscope').value(subscope.name).show();
-        else
-            elem('subscope').value("").hide();
-
-        local.prevSearchValue = null;
+        if (subscope && ! (subscope.scope in local.scopes))
+            return log.error("Subscope does not exist: " + subscope.scope);
 
         if (subscope)
         {
-            var scopeHandler = require(local.scopes[subscope.scope].handler);
-            if ("onShow" in scopeHandler)
-                return scopeHandler.onShow();
+            log.debug("Setting Subscope");
+
+            if (local.subscope && record)
+            {
+                local.history.push({
+                    subscope: local.subscope,
+                    query: local.prevSearchValue
+                });
+            }
+
+            var el = $(template('subscope', {scope: subscope, scopes: local.history}));
+            elem('subscopeWrap').html(el).show();
+            elem('panel').addClass("subscoped");
+        }
+        else
+        {
+            log.debug("Removing Subscope");
+
+            elem('subscopeWrap').empty().hide();
+            elem('panel').removeClass("subscoped");
         }
 
-        this.empty();
+        local.subscope = subscope;
+
+        this.clear();
+
+        return true;
+    }
+
+    this.getScope = function()
+    {
+        return elem('scope').element().selectedItem._scope;
+    }
+
+    this.getScopeHandler = function()
+    {
+        var scope = c.getScope();
+        return require(scope.handler);
+    }
+
+    this.execScopeHandler = function(method, arguments)
+    {
+        var scopeHandler = c.getScopeHandler();
+        if (method in scopeHandler)
+        {
+            var result = scopeHandler[method].apply(scopeHandler, arguments);
+            if (result == undefined) result = true;
+            return result;
+        }
+
+        return false;
     }
 
     this.stop = function()
@@ -679,6 +923,40 @@
         resultElem.empty();
         resultElem.removeClass("has-results");
         local.resultsRendered = 0;
+    }
+
+    this.clear = function()
+    {
+        elem('search').value("");
+
+        c.stop();
+        c.empty();
+        c.search();
+    }
+
+    this.reset = function()
+    {
+        local.history = [];
+        c.clear();
+    }
+
+    /* Helpers */
+
+    var kitt = function()
+    {
+        // You didn't see this, you were never here
+        if (kitt.kitt)
+        {
+            elem("panel").removeClass("kitt");
+            delete kitt.kitt
+        }
+        if (["kitt", "michael"].indexOf(elem('search').value()) !== -1)
+        {
+            var sound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
+            sound.play(ioService.newURI('chrome://commando/content/loading.wav', null, null));
+            elem("panel").addClass("kitt");
+            kitt.kitt = true;
+        }
     }
 
     init();

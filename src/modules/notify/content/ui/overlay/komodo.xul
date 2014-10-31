@@ -19,6 +19,9 @@
         <script id="tpl-notify-panel" type="x-dot-template">
             <panel anonid="notify-panel"
                    class="notify-panel {{=it.classlist}}"
+                   type="drag"
+                   ignorekeys="true"
+                   level="floating"
                    noautofocus="true">
                 <hbox class="wrapper">
                     {{?it.icon}}

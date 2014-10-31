@@ -1007,4 +1007,6 @@
 
   <ordered-preference id="notify_disabled_categories"/>
 
+  <ordered-preference id="commando_favourites"/>
+
 </preference-set>

@@ -26,15 +26,26 @@
         -moz-appearance: none;
     }
 
-    #commando-subscope
+    separator
+    {
+        margin: 0;
+    }
+
+    #commando-subscope-wrap
     {
         visibility: collapse;
         font-weight: bold;
-        padding: 3px;
-        background-color: @hud-selection-background;
-        color: @hud-selection-foreground;
-        border-radius: 3px;
-        max-width: 150px;
+        padding: 5px;
+        font-size: 1.1rem;
+        max-width: 490px;
+
+        .icon
+        {
+            background-repeat: no-repeat;
+            width: 16px;
+            height: 16px;
+            max-height: 16px;
+        }
     }
     
     #commando-loader
@@ -183,5 +194,10 @@
             }
         }
 
+    }
+
+    &.subscoped richlistitem
+    {
+        padding-left: 10px !important;
     }
 }

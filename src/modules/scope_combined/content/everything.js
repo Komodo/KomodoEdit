@@ -9,7 +9,7 @@
         return commando.getRegisteredScopes();
     }
 
-    this.onSearch = function(query, uuid)
+    this.onSearch = function(query, uuid, onComplete)
     {
         var scopes = getScopes();
         var subscope = commando.getSubscope();
@@ -26,10 +26,10 @@
         for (let id in _scopes)
         {
             let scope = _scopes[id];
-            require(scope.handler).onSearch(query, uuid, function(id)
+            require(scope.handler).onSearch(query, uuid, function()
             {
-                if (--length === 0) commando.onSearchComplete(uuid);
-            }.bind(this, id));
+                if (--length === 0) onComplete();
+            }.bind(this));
         }
 
     }

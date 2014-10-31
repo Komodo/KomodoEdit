@@ -176,10 +176,10 @@
 
     this.onShow = function()
     {
-        commando.search("");
+        commando.reset();
     }
 
-    this.onSearch = function(query, uuid, onComplete = null)
+    this.onSearch = function(query, uuid, onComplete)
     {
         log.debug(uuid + " - Starting Scoped Search");
 
@@ -252,10 +252,7 @@
             {
                 // Since python is multi-threaded, results might still be processed
                 // Todo: find proper solution
-                if (onComplete)
-                    onComplete(uuid);
-                else
-                    commando.onSearchComplete(uuid);
+                onComplete();
                 return;
             }
 
@@ -287,7 +284,8 @@
                     data: {
                         path: path
                     },
-                    allowMultiSelect: type != 'dir'
+                    allowMultiSelect: type != 'dir',
+                    allowExpand: true
                 });
             }
 
@@ -318,6 +316,12 @@
         ko.open.multipleURIs(uris);
 
         commando.hideCommando();
+    }
+
+    this.onExpandSearch = function(query, uuid, callback)
+    {
+        var commands = require("./commands");
+        commands.onSearch(query, uuid, callback);
     }
 
 }).apply(module.exports);

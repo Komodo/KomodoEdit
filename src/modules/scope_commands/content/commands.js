@@ -10,10 +10,10 @@
 
     this.onShow = function()
     {
-        commando.search("");
+        commando.search();
     }
 
-    this.onSearch = function(query, uuid, onComplete = null)
+    this.onSearch = function(query, uuid, onComplete)
     {
         log.debug(uuid + " - Starting Scoped Search");
 
@@ -69,10 +69,7 @@
         if (commands.length)
             commando.renderResults(commands, uuid);
 
-        if (onComplete)
-            onComplete(uuid);
-        else
-            commando.onSearchComplete(uuid);
+        onComplete(uuid);
     }
 
     this.onSelectResult = function(selectedItems)

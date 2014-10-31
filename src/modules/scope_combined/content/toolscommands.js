@@ -25,7 +25,7 @@
 
     this.onShow = function()
     {
-        commando.search("");
+        commando.search();
     }
 
     this.onSelectResult = function(selectedItems)
