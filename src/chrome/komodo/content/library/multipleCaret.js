@@ -645,15 +645,6 @@ function allPositionsAreIndicated(scimoz, startPos, endPos) {
     return true;
 }
 
-function addWordMessage(scimoz, startPos, endPos) {
-    var line = scimoz.lineFromPosition(startPos);
-    var col = scimoz.getColumn(startPos);
-    var word = scimoz.getTextRange(startPos, endPos);
-    var msg = _bundle.formatStringFromName("adding word x at line y column z",
-                                           [word, line + 1, col + 1], 3);
-    require("notify/notify").send(msg, "editor");
-}    
-
 this._isWordChar = function(c, variableIndicators) {
     return /\w/.test(c) || variableIndicators.indexOf(c) !== -1;
 };
@@ -863,7 +854,6 @@ this.addNextWordToCaretSet = function addNextWordToCaretSet(view) {
         setTimeout(function() { scimoz.scrollCaret() }, 0);
 
         multiCaretSession.addRange(startPos, endPos);
-        addWordMessage(scimoz, startPos, endPos);
             
         // Mark the current selection/position, to reuse if the user
         // invokes this command with the same selected text.
