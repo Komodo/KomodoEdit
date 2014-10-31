@@ -47,7 +47,7 @@
 
     this.send = (message, category, opts) =>
     {
-        log.debug("Sending: " + message);
+        log.debug("Sending: " + message + " ("+category+")");
         log.debug("Source: " + logging.getStack(null, 0, 4));
 
         var _ = require("contrib/underscore");
@@ -111,6 +111,7 @@
 
         if (disabledCats.findString(category) != -1 && opts.priority == this.P_INFO)
         {
+            log.debug("Notification category is disabled, skipping");
             return;
         }
 

@@ -1047,7 +1047,7 @@ ko.codeintel = {};
     {
         setTimeout((function() {
             require("notify/notify").send(
-                msg, "codeintel",
+                msg, "codeintel-verbose",
                 {priority: highlight ? "warning" : "info"});
         }).bind(this), 0);
     }

@@ -1005,7 +1005,9 @@
 
   <boolean id="prefs_show_advanced">0</boolean>
 
-  <ordered-preference id="notify_disabled_categories"/>
+  <ordered-preference id="notify_disabled_categories">
+    <string>codeintel-verbose</string>
+  </ordered-preference>
 
   <ordered-preference id="commando_favourites"/>
 
