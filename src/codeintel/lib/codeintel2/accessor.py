@@ -493,6 +493,10 @@ class AccessorCache:
         # _cacheLastBufPos is exclusive
         self._cacheLastBufPos  = position
 
+    def _initializeCacheBackwards(self):
+        self._cachePos -= 1
+        self._extendCacheBackwards()
+
     def _extendCacheBackwards(self, byAmount=None):
         if self._cacheFirstBufPos > 0:
             if byAmount is None:
@@ -516,6 +520,10 @@ class AccessorCache:
                 print "Ch cache now: %r" % (self._chCache)
         else:
             raise IndexError("No buffer left to examine")
+
+    def _initializeCacheForwards(self):
+        self._cachePos -= 1
+        self._extendCacheForwards()
 
     def _extendCacheForwards(self, byAmount=None):
         buf_length = self._accessor.length()
@@ -668,6 +676,8 @@ class AccessorCache:
         at and there is still no previous style found.
         """
         if current_style is None:
+            if not self._styleCache:
+                self._initializeCacheBackwards()
             current_style = self._styleCache[self._cachePos]
         try:
             new_ignore_styles = [current_style]
@@ -729,6 +739,8 @@ class AccessorCache:
         at and there is still no previous style found.
         """
         if current_style is None:
+            if not self._styleCache:
+                self._initializeCacheForwards()
             current_style = self._styleCache[self._cachePos]
         try:
             new_ignore_styles = [current_style]
