@@ -15,7 +15,7 @@
 
     const commando = c = this;
 
-    log.setLevel(require("ko/logging").LOG_DEBUG);
+    //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var local = {
         scopes: {},
