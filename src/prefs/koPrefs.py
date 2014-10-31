@@ -732,6 +732,9 @@ class koPreferenceRoot(koPreferenceSetBase):
         ret.inheritFrom = self.inheritFrom
         for name, (val, typ) in self.prefs.items():
             if typ == "object":
+                if val._is_shadow:
+                    # No point in cloning shadow prefs.
+                    continue
                 val = val.clone()
             ret.prefs[name] = val,typ
         return ret
@@ -844,6 +847,9 @@ class koPreferenceChild(koPreferenceSetBase):
         ret.inheritFrom = self.inheritFrom
         for name, (val, typ) in self.prefs.items():
             if typ == "object":
+                if val._is_shadow:
+                    # No point in cloning shadow prefs.
+                    continue
                 val = val.clone()
             ret.prefs[name] = (val, typ)
         return ret
@@ -1123,13 +1129,13 @@ class koOrderedPreference(object):
     def clone(self):
         ret = koOrderedPreference()
         ret.id = self.id
-        for val in self._collection:
-            assert isinstance(val, tuple), \
-                "something in the collection that isn't a tuple"
-            assert len(val) == 2, "invalid tuple in collection"
-            if val[1] == "object":
-                val = (val[0].clone(), "object")
-            ret._collection.append(val)
+        for val, typ in self._collection:
+            if typ == "object":
+                if val._is_shadow:
+                    # No point in cloning shadow prefs.
+                    continue
+                val = val.clone()
+            ret._collection.append((val, typ))
         return ret
 
     @_detaches
