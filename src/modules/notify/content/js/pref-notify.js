@@ -19,6 +19,8 @@
         var categories = notify.categories.get();
         var wrapper = $("#enabled-notifications-vbox");
 
+        log.debug("Disabled categories: " + pref.length);
+
         var i = 0, wrap;
         for (let key in categories)
         {
@@ -45,11 +47,21 @@
     {
         var pref = prefset.getPref('notify_disabled_categories');
 
-        pref.reset();
         $("checkbox").each(function()
         {
-            if (this.checked) return;
-            pref.appendString(this.getAttribute("value"));
+            var id = this.getAttribute("value");
+            var disabled = pref.findString(id) != -1;
+
+            if ( ! this.checked && ! disabled)
+            {
+                log.debug("Add: " + id);
+                pref.appendString(id);
+            }
+            else if (this.checked && disabled)
+            {
+                log.debug("Remove: " + id);
+                pref.findAndDeleteString(id);
+            }
         });
         return true;
     }
