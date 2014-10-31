@@ -78,6 +78,17 @@ class PrefsCloneTestCase(unittest.TestCase):
             deleter = lambda pref: pref.deletePref(0)
             self._run_test(old, getter, deleter, val, "ordered/%s" % (typ,))
 
+    def test_ordered_string(self):
+        base = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
+        child = Cc["@activestate.com/koOrderedPreference;1"].createInstance()
+        child.appendString("hello")
+        base.setPref("child", child)
+        prefset = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
+        prefset.inheritFrom = base
+        self.assertEquals(prefset.getPref("child").length, 1)
+        clone = prefset.clone()
+        self.assertEquals(clone.getPref("child").length, 1)
+
     def test_ordered_unordered(self):
         old = Cc["@activestate.com/koOrderedPreference;1"].createInstance()
         child = Cc["@activestate.com/koPreferenceSet;1"].createInstance()
