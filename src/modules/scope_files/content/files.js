@@ -24,11 +24,34 @@
     var getShortcuts = function()
     {
         // Reload shortcuts when a change is detected.
-        var scopeVersion = scope.shortcutsVersion;
+        var koDoc = ko.views.manager.currentView.koDoc;
+        var koFile = koDoc.file || {};
+        var scopeVersion = scope.shortcutsVersion + (koFile.path || "");
         if (shortcutsVersion != scopeVersion) {
+            log.debug("Updating shortcut cache");
+
             shortcutsCache = JSON.parse(scope.getShortcutsAsJson());
-            scopeVersion = scopeVersion;
+            shortcutsVersion = scopeVersion;
+
+            if ("baseName" in koFile)
+            {
+                log.debug("Including koDoc.file shorcuts");
+                shortcutsCache["%d"] = ioFile.basename(koFile.dirName);
+                shortcutsCache["%D"] = koFile.dirName;
+            }
+
+            var url = require("sdk/url");
+            var curProject = partSvc.currentProject;
+            if (curProject)
+            {
+                log.debug("Including curProject shorcuts");
+                shortcutsCache["%i"] = curProject.liveDirectory;
+                shortcutsCache["%P"] = url.URL(curProject.url).path;
+            }
+
+            shortcutsCache["%w"] = url.URL(ko.places.getDirectory()).path;
         }
+
         return shortcutsCache;
     }
 
@@ -90,8 +113,19 @@
         {
             // Relative paths
             var isRelative = query.substr(0,2) == ("." + sep) || query.substr(0,3) == (".." + sep);
-            var currentFilePath = _dirname(view.koDoc.file.path);
-            var relativePath = currentFilePath + sep + query;
+            var url = require("sdk/url");
+            var curProject = partSvc.currentProject;
+            if (curProject)
+            {
+                log.debug("Including curProject shorcuts");
+                shortcutsCache["%i"] = curProject.liveDirectory;
+                shortcutsCache["%P"] = url.URL(curProject.url).path;
+            }
+
+            shortcutsCache["%w"] = url.URL(ko.places.getDirectory()).path;
+            var curProject = partSvc.currentProject;
+            var cwd = curProject ? curProject.liveDirectory : ko.uriparse.URIToPath(ko.places.getDirectory());
+            var relativePath = cwd + sep + query;
             dirname = _dirname(relativePath);
             if (isRelative && (_ioFile("exists", relativePath) || _ioFile("exists", dirname)))
             {
