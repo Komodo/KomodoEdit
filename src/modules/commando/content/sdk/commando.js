@@ -180,7 +180,7 @@
 
         if (local.resultsReceived == 0)
         {
-            this.renderResult({
+            c.renderResult({
                 id: "",
                 name: "No Results",
                 classList: "no-result-msg non-interact"
