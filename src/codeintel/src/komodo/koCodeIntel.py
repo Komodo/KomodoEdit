@@ -311,8 +311,9 @@ class KoCodeIntelService:
                 instead of being queued if the manager is not available
             @note This is used directly by the code browser implementation
         """
-        assert self._enabled, \
-            "KoCodeIntelManager.send() shouldn't be called when not enabled"
+        if not self._enabled:
+            log.warn("send called when not enabled (ignoring command) %r", kwargs)
+            return
         if self.mgr:
             self.mgr.send(**kwargs)
         elif not discardable:
