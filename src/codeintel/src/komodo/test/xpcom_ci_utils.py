@@ -16,69 +16,28 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         unittest.TestCase.__init__(self, *args, **kwargs)
         #self.log = log.getChild(self.__class__.__name__)
 
+    svc = None
     __has_codeintel_db_been_setup = False
 
     @classmethod
     def setUpClass(cls):
         """Start the codeintel service once to make sure the database is ready
         """
-        svc = Cc["@activestate.com/koCodeIntelService;1"].getService()
+        if _CodeIntelTestCaseBase.__has_codeintel_db_been_setup:
+            return
+        sys.stdout.write("Setting up codeintel database...\n")
+        _CodeIntelTestCaseBase.svc = svc = Cc["@activestate.com/koCodeIntelService;1"].getService()
         tm = Cc["@mozilla.org/thread-manager;1"].getService(Ci.nsIThreadManager)
         start = time.time()
         ready = set()
         callback = lambda status, data: ready.add(True)
         svc.addActivateCallback(callback)
-        if not _CodeIntelTestCaseBase.__has_codeintel_db_been_setup:
-            sys.stdout.write("Setting up codeintel database...\n")
         svc.activate(True)
         while not ready:
             tm.currentThread.processNextEvent(True)
         svc.removeActivateCallback(callback)
-        sys.stdout.write(".")
-        log.debug("[codeintel started, stopping...]")
-        svc.deactivate()
-        while svc.isBackEndActive:
-            tm.currentThread.processNextEvent(True)
-        if not _CodeIntelTestCaseBase.__has_codeintel_db_been_setup:
-            sys.stdout.write("Codeintel database initialization completed\n")
-            _CodeIntelTestCaseBase.__has_codeintel_db_been_setup = True
-
-    def setUp(self):
-        # Start up the service
-        self.svc = Cc["@activestate.com/koCodeIntelService;1"].getService()
-        # Note that the service might be set up already! (when running multiple
-        # tests; deactivate currently doesn't have a callback)
-        self._waiting_for_activation = True
-        self._active = False
-        self.svc.addActivateCallback(self._activate_callback)
-        self.svc.activate(True)
-        # Let codeintel start up...
-        self._wait_for_callback(lambda: not self._waiting_for_activation,
-                                timeout=60, action="startup")
-        self.svc.removeActivateCallback(self._activate_callback)
-        self.assertTrue(self._active)
-
-    def _wait_for_callback(self, callback, timeout=None, action=""):
-        """Wait for some callback to occur
-        @param callback {Function} Something that should return true when ready
-        @param timeout {int} Timeout in seconds
-        @param action {str} Description for what to wait for (for the timeout)
-        """
-        tm = Cc["@mozilla.org/thread-manager;1"].getService(Ci.nsIThreadManager)
-        start = time.time()
-        while not callback():
-            if timeout is not None:
-                self.assertLess(time.time() - start, timeout,
-                                "Timed out waiting: " + action)
-            tm.currentThread.processNextEvent(True)
-
-    def _activate_callback(self, status, data):
-        self._active = Cr.NS_SUCCEEDED(status)
-        self._waiting_for_activation = False
-
-    def tearDown(self):
-        self.svc.deactivate()
-        self.svc = None
+        sys.stdout.write("Codeintel database initialization completed\n")
+        _CodeIntelTestCaseBase.__has_codeintel_db_been_setup = True
 
     def run(self, result=None):
         try:
