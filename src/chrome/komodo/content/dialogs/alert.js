@@ -66,6 +66,18 @@ function OnLoad()
     var okButton = dialog.getButton("accept");
     okButton.setAttribute("accesskey", "o");
 
+    if (("classNames" in window.arguments[0]) && window.arguments[0].classNames) {
+        var classes = window.arguments[0].classNames.split(/\s+/);
+        for (let c in classes)
+        {
+            dialog.classList.add(classes[c]);
+        }
+    }
+
+    if (("hidechrome" in window.arguments[0]) && window.arguments[0].hidechrome) {
+        dialog.setAttribute("hidechrome", "true");
+    }
+
     // .prompt
     var descWidget = document.getElementById("prompt");
     var desc = window.arguments[0].prompt;

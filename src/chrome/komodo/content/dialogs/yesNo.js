@@ -74,6 +74,18 @@ function OnLoad()
     var yesA = yes.substr(0,1).toLowerCase();
     var noA = no.substr(0,1).toLowerCase();
 
+    if ("classNames" in window.arguments[0]) {
+        var classes = window.arguments[0].classNames.split(/\s+/);
+        for (let c in classes)
+        {
+            dialog.classList.add(classes[c]);
+        }
+    }
+
+    if ("hidechrome" in window.arguments[0]) {
+        document.documentElement.setAttribute("hidechrome", "yes");
+    }
+
     var dialog = document.getElementById("dialog-yesno");
     var yesButton = dialog.getButton("accept");
     var noButton = dialog.getButton("cancel");

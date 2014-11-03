@@ -39,7 +39,8 @@
                      "label2", "value2", "mruName2", "multiline2",
                      "validator", "multiline", "screenX", "screenY",
                      "tacType", "tacParam", "tacShowCommentColumn",
-                     "selectionStart", "selectionEnd"];
+                     "selectionStart", "selectionEnd", "classNames",
+                     "hidechrome"];
 
         _.each(props, (prop) => { _opts[prop] = opts[prop] || null });
         _opts.prompt = message;
@@ -52,7 +53,7 @@
 
         window.openDialog("chrome://komodo/content/dialogs/prompt.xul",
                   "_blank",
-                  "chrome,modal,titlebar,centerscreen",
+                  opts.features || "chrome,modal,titlebar,centerscreen",
                   _opts);
 
         if (_opts.retval == "OK")
@@ -94,7 +95,8 @@
     this.confirm = (message, opts = {}) =>
     {
         var _opts = {};
-        var props = ["response", "text", "title", "doNotAskPref", "helpTopic", "yes", "no"];
+        var props = ["response", "text", "title", "doNotAskPref", "helpTopic",
+                     "yes", "no", "classNames","hidechrome"];
         _.each(props, (prop) => { _opts[prop] = opts[prop] || null });
         _opts.prompt = message;
 
@@ -133,7 +135,7 @@
 
         window.openDialog("chrome://komodo/content/dialogs/yesNo.xul",
                           "_blank",
-                          "chrome,modal,titlebar,centerscreen",
+                          opts.features || "chrome,modal,titlebar,centerscreen",
                           _opts);
 
         if (_opts.doNotAskPref && _opts.doNotAsk) {
@@ -143,6 +145,19 @@
         }
 
         return _opts.response == _opts.yes;
+    }
+
+    this.alert = (message, opts) =>
+    {
+        var _opts = {};
+        var props = ["prompt", "text", "title", "classNames","hidechrome"];
+        _.each(props, (prop) => { _opts[prop] = opts[prop] || null });
+        _opts.prompt = message;
+
+        window.openDialog("chrome://komodo/content/dialogs/alert.xul",
+                          "_blank",
+                          opts.features || "chrome,modal,titlebar,centerscreen",
+                          _opts);
     }
 
 }).apply(module.exports);
