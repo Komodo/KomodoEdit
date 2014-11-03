@@ -1212,9 +1212,11 @@ class KoCodeIntelManager(threading.Thread):
             try:
                 command = str(response.get("command", ""))
                 if not command:
+                    log.error("No 'command' in response %r", response)
                     raise ValueError("Invalid response frame %s" % (json.dumps(response),))
                 meth = getattr(self, "do_" + command.replace("-", "_"), None)
                 if not meth:
+                    log.error("Unknown command %r, response %r", command, response)
                     raise ValueError("Unknown unsolicited response \"%s\"" % (command,))
                 meth(response)
             except:
