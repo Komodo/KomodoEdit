@@ -22,6 +22,7 @@ $cons->InstallInChrome('color.js');
 $cons->InstallInChrome('dom.js');
 $cons->InstallInChrome('editor.js');
 $cons->InstallInChrome('icons.js');
+$cons->InstallInChrome('prefs.js');
 $cons->InstallInChrome('printing.js');
 $cons->InstallInChrome('keybindings.js');
 $cons->InstallInChrome('commands.js');
