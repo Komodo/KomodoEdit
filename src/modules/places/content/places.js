@@ -2105,19 +2105,7 @@ ManagerClass.prototype = {
             }
             [oldname, newname, carryOn] = this.promptForNewName(uri);
             if (!carryOn) return;
-            var newPath = moreKomodoCommon.renameFile(viewDoc.displayPath, newname);
-            if (newPath) {
-                // Reopen file at same tab position
-                var newDoc = moreKomodoCommon.createDocumentFromURI(newPath);
-                // the observer will set the new document also for this view
-                var data = {document : viewDoc,
-                            newDocument : newDoc,
-                            command : "rename"
-                };
-                data.wrappedJSObject = data;
-                var obs = moreKomodoCommon.getObserverService();
-                obs.notifyObservers(data, "morekomodo_command", null);
-            }
+            moreKomodoCommon.renameFile(uri, newname);
         }
     },
 

@@ -30,6 +30,8 @@ $cons->InstallInChrome('less.js');
 $cons->InstallInChrome('console.js');
 $cons->InstallInChrome('menu.js');
 $cons->InstallInChrome('dialogs.js');
+$cons->InstallInChrome('file.js');
+$cons->InstallInChrome('prefs.js');
 
 if ($buildFlavour eq "dev") {
     $cons->InstallInChrome('benchmark.js');

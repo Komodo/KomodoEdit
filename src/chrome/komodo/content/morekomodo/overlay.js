@@ -434,34 +434,7 @@ var moreKomodo = {
         try {
             var viewDoc = this._getView().koDoc;
             var file = viewDoc.file;
-            var currentPath = MoreKomodoCommon.makeLocalFile(file.path);
-            var msg = MoreKomodoCommon.getLocalizedMessage("select.move.file.title");
-            var fp = MoreKomodoCommon.makeFilePicker(window,
-                        msg,
-                        Components.interfaces.nsIFilePicker.modeSave,
-                        currentPath.parent);
-            fp.defaultString = currentPath.leafName;
-            var res = fp.show();
-            var isOk = (res == Components.interfaces.nsIFilePicker.returnOK
-                        || res == Components.interfaces.nsIFilePicker.returnReplace);
-            if (isOk && fp.file) {
-                if (fp.file.exists()) {
-                    fp.file.remove(false);
-                }
-                currentPath.copyTo(fp.file.parent, fp.file.leafName);
-                MoreKomodoCommon.deleteFile(file.path);
-
-                // Reopen file at same tab position
-                var newDoc = MoreKomodoCommon.createDocumentFromURI(fp.file.path);
-                // the observer will set the new document also for this view
-                var data = {document : viewDoc,
-                            newDocument : newDoc,
-                            command : "move"
-                            };
-                data.wrappedJSObject = data;
-                var obs = MoreKomodoCommon.getObserverService();
-                obs.notifyObservers(data, "morekomodo_command", null);
-            }
+            MoreKomodoCommon.moveFile(file.path);
         } catch (err) {
             alert("Unable to move file: " + err);
         }

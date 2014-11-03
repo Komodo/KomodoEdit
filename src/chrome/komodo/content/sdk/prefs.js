@@ -59,3 +59,46 @@ for (var name of Object.keys(prefs.__proto__)) {
         })(name);
     }
 }
+
+var observer =
+{
+    observing: {},
+    observe: function(subject, topic, data)
+    {
+        observer.observing[topic].forEach(function(callback)
+        {
+            callback(subject, topic, data);
+        });
+    }
+}
+
+exports.onChange = function(pref, callback)
+{
+    if ( ! (pref in observer.observing))
+    {
+        observer.observing[pref] = [];
+        prefs.prefObserverService.addObserver(observer, pref, false);
+    }
+
+    observer.observing[pref].push(callback);
+}
+
+exports.removeOnChange = function(pref, callback)
+{
+    if ( ! (pref in observer.observing)) return;
+
+    observer.observing[pref].forEach(function(_callback, index)
+    {
+        if (callback == _callback)
+        {
+            observer.observing[pref].splice(index,1);
+
+            if ( ! observer.observing[pref].length)
+            {
+                delete observer.observing[pref];
+                prefs.prefObserverService.removeObserver(observer, pref, false);
+                return false;
+            }
+        }
+    });
+}

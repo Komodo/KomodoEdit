@@ -10,9 +10,9 @@
     const scope     = Cc["@activestate.com/commando/koScopeFiles;1"].getService(Ci.koIScopeFiles);
     const partSvc   = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService);
     const ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
-    const prefs     = ko.prefs;
+    const prefs     = require("ko/prefs");
 
-    //log.setLevel(require("ko/logging").LOG_DEBUG);
+    log.setLevel(require("ko/logging").LOG_DEBUG);
     var activeUuid = null;
 
     var local = {warned: {}};
@@ -33,6 +33,14 @@
             shortcutsCache = JSON.parse(scope.getShortcutsAsJson());
             shortcutsVersion = scopeVersion;
 
+            var spref = prefs.getPref("scope-files-shortcuts");
+
+            for (let x=0;x<spref.length;x++)
+            {
+                let [shortcut, path] = spref.getString(x).split(":");
+                shortcutsCache[shortcut] = path;
+            }
+
             if ("baseName" in koFile)
             {
                 log.debug("Including koDoc.file shorcuts");
@@ -50,6 +58,18 @@
             }
 
             shortcutsCache["%w"] = url.URL(ko.places.getDirectory()).path;
+        }
+
+        if ( ! "observing" in getShortcuts)
+        {
+            log.debug("Adding shortcut pref observer");
+
+            getShortcuts.observing = true;
+
+            prefs.onChange("scope-files-shortcuts", function()
+            {
+                shortcutsVersion = -1;
+            });
         }
 
         return shortcutsCache;
@@ -208,11 +228,6 @@
         scope.buildCache(path, JSON.stringify(opts));
     }
 
-    this.onShow = function()
-    {
-        commando.reset();
-    }
-
     this.onSearch = function(query, uuid, onComplete)
     {
         log.debug(uuid + " - Starting Scoped Search");
@@ -316,10 +331,10 @@
                     scope: "scope-files",
                     descriptionPrefix: subscope.name,
                     data: {
-                        path: path
+                        path: path,
+                        type: type
                     },
-                    allowMultiSelect: type != 'dir',
-                    allowExpand: true
+                    allowMultiSelect: type != 'dir'
                 });
             }
 
