@@ -544,6 +544,16 @@ class Scheme(SchemeBase):
         scincolor = self._getAspect(language, style, 'fore')
         #print "asked for fore of ", language, style, "got", scincolor
         return scincolor2mozcolor(scincolor)
+
+    def getCommon(self, style, key):
+        color = None
+        if style in self._commonStyles:
+             color = self._commonStyles[style].get(key, None)
+
+        if color:
+            return  scincolor2mozcolor(color)
+        else:
+            return ""
         
     def getBack(self, language, style):
         #style = self._fixstyle(style)

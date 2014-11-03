@@ -13,6 +13,16 @@
     border-radius: @hud-border-radius;
     box-shadow: @hud-shadow;
 
+    .docked
+    {
+        background: @hud-dock-color;
+    }
+
+    .special
+    {
+        background: @hud-special-color;
+    }
+
     scrollbar
     {
         border: 0;
@@ -59,6 +69,7 @@
     listitem,
     row
     {
+        -moz-appearance: none !important;
         background-color: transparent;
         color: @hud-foreground;
         border: @hud-item-border;
@@ -75,6 +86,18 @@
             border: @hud-focused-border;
         }
     }
+
+    textbox
+    {
+        -moz-appearance: none !important;
+        background-color: @hud-selection-background;
+
+        & > hbox
+        {
+            -moz-appearance: none !important;
+        }
+    }
+
 }
 
 /* Findbar */
@@ -143,3 +166,15 @@ scintilla[anonid="scintilla"] > panel[anonid="autocompletepopup"]
     }
 }
 
+/* Dialogs */
+
+#dialog-prompt.hud
+{
+    separator,
+    .dialog-button[icon="cancel"],
+    .dialog-button[icon="accept"],
+    textbox dropmarker
+    {
+        visibility: collapse;
+    }
+}

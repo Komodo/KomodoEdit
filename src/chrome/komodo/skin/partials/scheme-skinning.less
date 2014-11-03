@@ -5,6 +5,7 @@
     @border:                lighten(@background, 5%);
     @background-odd:        fade(darken(@background-contrast, 3%), 80%);
     @background-selected:   darken(@background-contrast, 5%);
+    @background-input:      lighten(@background-contrast, 10%);
 }
 
 .setVars() when (@dark = 0)
@@ -14,15 +15,18 @@
     @border:                darken(@background, 10%);
     @background-odd:        fade(darken(@background-contrast, 1%), 80%);
     @background-selected:   darken(@background-contrast, 10%);
+    @background-input:      darken(@background-contrast, 10%);
 }
 
 .setVars();
+
+@special-fore: contrast(@special);
 
 /* Hud */
 
 .hud
 {
-    background: fade(@background-contrast, 90%) !important;
+    background-color: fade(@background-contrast, 90%) !important;
     color: @foreground !important;
     border-color: @border !important;
 
@@ -37,6 +41,12 @@
     .docked
     {
         background: fade(@border, 50%) !important;
+    }
+
+    .special
+    {
+        background: @special !important;
+        color: @special-fore !important;
     }
 
     scrollbar
@@ -82,9 +92,24 @@
         }
     }
 
+    .loader
+    {
+        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @special 200px, @special 300px, rgba(0,0,0,0.0) 500px) !important;
+    }
+
+    textbox:not(.transparent)
+    {
+        background: @background-input !important;
+    }
+
     textbox
     {
         color: @foreground !important;
+    }
+
+    ::-moz-selection {
+        color: @special-fore !important;
+        background: @special;
     }
 }
 

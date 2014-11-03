@@ -113,6 +113,8 @@ interface koIScintillaScheme : nsISupports {
     void setIndicator(in wstring name, in long style, in string color,
                       in long alpha, in boolean draw_underneath);
 
+    string getCommon(in string style,
+                 in string key);
     string getFore(in string language, /* null means common styles */
                  in string styleId);
     string getBack(in string language, /* null means common styles */
