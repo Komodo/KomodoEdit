@@ -1387,6 +1387,13 @@ class KoCodeIntelManager(threading.Thread):
         """Kill the subprocess. This may be safely called when the process has
         already exited.  This should *always* be called no matter how the
         process exits, in order to maintain the correct state."""
+        # Check if it's already been destroyed.
+        with self.svc._mgr_lock:
+            if self.state == KoCodeIntelManager.STATE.DESTROYED:
+                return
+
+        # It's destroying time.
+        self.state = KoCodeIntelManager.STATE.DESTROYED
         try:
             self.proc.kill()
         except:
@@ -1404,7 +1411,6 @@ class KoCodeIntelManager(threading.Thread):
             self.unsent_requests.put((None, None))
         except:
             pass # umm... no idea?
-        self.state = KoCodeIntelManager.STATE.DESTROYED
         self.pipe = None
         if self._shutdown_callback:
             self._shutdown_callback(self)
