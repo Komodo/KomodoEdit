@@ -1011,4 +1011,6 @@
 
   <ordered-preference id="commando_favourites"/>
 
+  <ordered-preference id="scope-files-shortcuts"/>
+
 </preference-set>

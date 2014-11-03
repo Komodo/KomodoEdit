@@ -15,7 +15,7 @@
 
     const commando = c = this;
 
-    //log.setLevel(require("ko/logging").LOG_DEBUG);
+    log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var local = {
         scopes: {},
@@ -31,7 +31,8 @@
         renderResultsTimer: undefined,
         searchTimer: false,
         favourites: null,
-        history: []
+        history: [],
+        open: false
     };
 
     var elems = {
@@ -43,6 +44,7 @@
         scopePopup: function() { return $("commando-scope-menupopup"); },
         scopesSeparator: function() { return $("#scope-separator"); },
         menuItem: function() { return $("#menu_show_commando"); },
+        tip: function() { return $("#commando-tip description"); },
         template: {
             scopeMenuItem: function() { return $("#tpl-co-scope-menuitem"); },
             scopeNavMenuItem: function() { return $("#tpl-co-scope-nav-menuitem"); },
@@ -69,6 +71,19 @@
         }
 
         local.favourites = ko.prefs.getPref('commando_favourites');
+
+        elem('panel').on("popupshown", function()
+        {
+            local.open = true;
+            c.focus();
+        });
+
+        elem('panel').on("popuphidden", function()
+        {
+            local.open = false;
+        });
+
+        window.addEventListener("click", onWindowClick);
     }
 
     var elem = function(name, noCache)
@@ -101,6 +116,9 @@
         // Todo: support selecting multiple items
         switch (e.keyCode)
         {
+            case 27: // escape
+                c.hide();
+                break;
             case 8: // backspace
             case 37: // left arrow
                 onNavBack();
@@ -242,8 +260,16 @@
         window.setTimeout(function() { elem('search').focus(); }, 0);
     }
 
+    var onWindowClick = function(e)
+    {
+        if ( ! local.open) return;
+        var target = e.originalTarget || e.target;
+        while((target=target.parentNode) && target !== elem('panel').element() && target.nodeName != "dialog");
+        if ( ! target) c.hide();
+    }
+
     /* Public Methods */
-    this.showCommando = function(scope)
+    this.show = function(scope)
     {
         log.debug("Showing Commando");
 
@@ -257,9 +283,15 @@
         left -= panel.element().width / 2;
         panel.element().openPopup(undefined, undefined, left, 100);
 
-        search.focus();
+        if (c.execScopeHandler("onShow") === false)
+        {
+            search.element().select();
+        }
+    }
 
-        c.execScopeHandler("onShow");
+    this.hide = function()
+    {
+        elem('panel').element().hidePopup();
     }
 
     this.search = function(value, callback, noDelay = false)
@@ -357,7 +389,8 @@
                     subscope.favourite = true;
                     local.favourites.appendString(subscope.id);
                     c.reSearch();
-                }
+                },
+                allowExpand: false
             });
         }
         else
@@ -371,7 +404,8 @@
                     subscope.favourite = false;
                     local.favourites.findAndDeleteString(subscope.id);
                     c.reSearch();
-                }
+                },
+                allowExpand: false
             });
         }
 
@@ -417,7 +451,7 @@
 
     this.expandResult = function(selected)
     {
-        if ( ! selected.allowExpand)
+        if (selected.allowExpand === false)
             return;
 
         var resultData = _.extend({}, selected);
@@ -452,7 +486,7 @@
         scopeElem._scope = local.scopes[id];
 
         // Register command
-        commands.register(id, this.showCommando.bind(this, id), {
+        commands.register(id, this.show.bind(this, id), {
             defaultBind: opts.keybind,
             label: "Commando: Open Commando with the " + opts.name + " scope"
         });
@@ -541,8 +575,10 @@
             return;
         }
 
-        if (selectedItem != selectItem)
-            scopeElem.element().selectedItem = selectItem;
+        if (selectedItem == selectItem)
+            return;
+
+        scopeElem.element().selectedItem = selectItem;
 
         local.selectedScope = selectItem.id;
 
@@ -780,6 +816,8 @@
                 resultElem.addItemToSelection(sibling);
                 resultElem.ensureElementIsVisible(sibling);
             }
+
+            c.tip("Selected " + resultElem.selectedCount + " items");
         }
         else
         {
@@ -791,6 +829,10 @@
                 resultElem.selectedIndex = selIndex = selIndex+1;
 
             resultElem.ensureIndexIsVisible(selIndex);
+
+            data = resultElem.selectedItem.resultData;
+            var description = data.tip || data.description || data.name;
+            c.tip(description);
         }
     }
 
@@ -818,6 +860,8 @@
                 resultElem.addItemToSelection(sibling);
                 resultElem.ensureElementIsVisible(sibling);
             }
+
+            c.tip("Selected " + resultElem.selectedCount + " items");
         }
         else
         {
@@ -829,6 +873,10 @@
                 resultElem.selectedIndex = selIndex = selIndex-1;
 
             resultElem.ensureIndexIsVisible(selIndex);
+
+            data = resultElem.selectedItem.resultData;
+            var description = data.tip || data.description || data.name;
+            c.tip(description);
         }
     }
 
@@ -901,10 +949,13 @@
         var scopeHandler = c.getScopeHandler();
         if (method in scopeHandler)
         {
+            log.debug("Executing " + method + " on scope");
             var result = scopeHandler[method].apply(scopeHandler, arguments);
             if (result == undefined) result = true;
             return result;
         }
+
+        log.debug(method + " not found in scope, skipping");
 
         return false;
     }
@@ -940,7 +991,71 @@
         c.clear();
     }
 
+    this.tip = function(tipMessage)
+    {
+        // todo: Use localized database of tips
+        elem("tip").html(tipMessage || "TIP: Hit the right arrow key to \"expand\" your selection");
+    }
+
     /* Helpers */
+
+    // XUL panel focus is buggy as hell, so we have to get crafty
+    this.focus = function(times=0, timer = 10)
+    {
+        window.focus();
+        elem('panel').focus();
+        elem('search').focus();
+
+        if (document.activeElement.nodeName != "html:input")
+        {
+            log.debug("Can't grab focus, retrying");
+            timer = 100;
+        }
+
+        if (times < 10)
+        {
+            window.setTimeout(c.focus.bind(this, ++times), timer);
+        }
+    }
+
+    this.prompt = function(message, label, defaultValue)
+    {
+        var panel = elem('panel');
+        var bo = panel.element().boxObject;
+
+        panel.css("opacity", 0.8);
+
+        var result =  require("ko/dialogs").prompt(message,
+        {
+            label: label,
+            value: defaultValue,
+            classNames: 'hud',
+            hidechrome: true,
+            features: "modal,width=600,left=" + (bo.x - 50) + ",top=" + (bo.y + 50)
+        });
+
+        panel.css("opacity", 1.0);
+
+        return result;
+    }
+
+    this.alert = function(message)
+    {
+        var panel = elem('panel');
+        var bo = panel.element().boxObject;
+
+        panel.css("opacity", 0.8);
+
+        var result = require("ko/dialogs").alert(message,
+        {
+            classNames: 'hud',
+            hidechrome: true,
+            features: "modal,width=600,left=" + (bo.x - 50) + ",top=" + (bo.y + 50)
+        });
+
+        panel.css("opacity", 1.0);
+        return result;
+    }
 
     var kitt = function()
     {

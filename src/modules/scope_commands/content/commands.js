@@ -8,11 +8,6 @@
 
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
-    this.onShow = function()
-    {
-        commando.search();
-    }
-
     this.onSearch = function(query, uuid, onComplete)
     {
         log.debug(uuid + " - Starting Scoped Search");

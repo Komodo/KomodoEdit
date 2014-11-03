@@ -18,7 +18,7 @@
 
         do_cmd_showCommando: function()
         {
-            commando().showCommando();
+            commando().show();
         },
 
         /**

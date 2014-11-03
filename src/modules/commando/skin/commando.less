@@ -21,7 +21,7 @@
         padding: 4px;
         border: 0;
         margin: 0;
-        background: transparent;
+        background-color: transparent !important;
         color: @hud-selection-foreground;
         -moz-appearance: none;
     }
@@ -45,7 +45,18 @@
             width: 16px;
             height: 16px;
             max-height: 16px;
+            padding-top: 3px;
         }
+
+        description
+        {
+            padding-top: 2px;
+        }
+    }
+
+    #commando-tip description
+    {
+        max-width: 490px;
     }
     
     #commando-loader
@@ -58,14 +69,14 @@
 
     &:not(.kitt) #commando-loader
     {
-        background: linear-gradient(to right, rgba(0,0,0,0.0) 0, @hud-loader-color 200px, @hud-loader-color 300px, rgba(0,0,0,0.0) 500px);
+        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @hud-loader-color 200px, @hud-loader-color 300px, rgba(0,0,0,0.0) 500px);
         background-repeat: no-repeat;
         animation: loading 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
     }
 
     &.kitt #commando-loader
     {
-        background: linear-gradient(to right, rgba(0,0,0,0.0) 0, rgba(255, 0, 0, 0.4) 200px, rgba(255, 0, 0, 0.4) 300px, rgba(0,0,0,0.0) 500px);
+        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, rgba(255, 0, 0, 0.4) 200px, rgba(255, 0, 0, 0.4) 300px, rgba(0,0,0,0.0) 500px) !important;
         background-repeat: no-repeat;
         animation: loading 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
     }
@@ -201,3 +212,4 @@
         padding-left: 10px !important;
     }
 }
+

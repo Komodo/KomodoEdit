@@ -14,11 +14,6 @@
         return local.editor;
     }
 
-    this.onShow = function()
-    {
-        commando.search();
-    }
-
     this.onSearch = function(query, uuid, onComplete)
     {
         log.debug(uuid + " - Starting Scoped Search");

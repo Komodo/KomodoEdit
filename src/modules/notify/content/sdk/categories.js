@@ -97,4 +97,6 @@ categories.register("publishing", { label: "Publishing" });
 
 categories.register("places", { label: "Places" });
 
+categories.register("fs", { label: "Filesystem" });
+
 module.exports = categories;

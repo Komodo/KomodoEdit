@@ -33,7 +33,7 @@
     </menupopup>
 
     <popupset id="komodoMainPopupSet">
-        <panel id="commando-panel" titlebar="normal" width="500" class="hud">
+        <panel id="commando-panel" width="500" class="hud" noautohide="true" level="floating">
             <vbox flex="1">
                 <hbox id="commando-search-wrapper">
                     <!-- Menuitem template -->
@@ -53,17 +53,17 @@
                                       oncommand="ko.commands.doCommand('cmd_commandoPrefs', event)"/>
                         </menupopup>
                     </menulist>
-                    <textbox flex="1" id="commando-search"/>
+                    <textbox flex="1" id="commando-search" class="transparent"/>
                 </hbox>
                 <separator flex="1"/>
-                <hbox id="commando-subscope-wrap" class="docked"></hbox>
-                <hbox id="commando-loader"></hbox>
+                <vbox id="commando-subscope-wrap" class="docked" pack="start"></vbox>
+                <hbox id="commando-loader" class="loader"></hbox>
                 <script id="tpl-co-subscope" type="x-dot-template">
-                    <hbox pack="start">
+                    <hbox>
                         <hbox class="icon-wrapper" pack="center" align="center">
-                            {{?it.favourite}}
+                            {{?it.scope.favourite}}
                                 <box class="icon favourite-icon"></box>
-                            {{??it.icon}}
+                            {{??it.scope.icon}}
                                 <box class="icon" style='background-image: url({{=it.scope.icon}})'></box>
                             {{?}}
                         </hbox>
@@ -112,6 +112,9 @@
 
                     <richlistbox id="commando-results" flex="1" seltype="multiple"></richlistbox>
                 </vbox>
+                <hbox id="commando-tip" class="docked">
+                    <description>TIP: Hit the right arrow key to "expand" your selection</description>
+                </hbox>
             </vbox>
         </panel>
     </popupset>

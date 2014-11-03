@@ -23,11 +23,6 @@
         }
     }
 
-    this.onShow = function()
-    {
-        commando.search();
-    }
-
     this.onSelectResult = function(selectedItems)
     {
         var scopeItems = {};
