@@ -12,7 +12,7 @@
     const ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
     const prefs     = require("ko/prefs");
 
-    log.setLevel(require("ko/logging").LOG_DEBUG);
+    //log.setLevel(require("ko/logging").LOG_DEBUG);
     var activeUuid = null;
 
     var local = {warned: {}};
