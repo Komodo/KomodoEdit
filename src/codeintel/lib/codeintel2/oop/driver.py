@@ -387,8 +387,8 @@ class Driver(threading.Thread):
             req_id = request["id"]
             with self.queue_cv:
                 for item in self.queue:
-                    if queue.get("req_id") == req_id:
-                        self.queue.remove(queue)
+                    if item.get("req_id") == req_id:
+                        self.queue.remove(item)
                         self.send(request=request)
                         break
                 else:
