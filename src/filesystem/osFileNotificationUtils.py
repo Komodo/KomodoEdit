@@ -368,14 +368,3 @@ class ObserverMonitor:
         """Set the observer to be shut down; this is permanent and cannot be
         reset."""
         self.__shutdown = True
-
-
-##
-# Deprecated since Komodo 7.0.0b1 - typo in the name.
-#
-class ObserverMonitior(ObserverMonitor):
-    def __init__(self, *args, **kwargs):
-        import warnings
-        warnings.warn("ObserverMonitior is deprecated - use ObserverMonitor instead",
-                      category=DeprecationWarning)
-        ObserverMonitor.__init__(self, *args, **kwargs)
