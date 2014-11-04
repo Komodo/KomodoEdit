@@ -294,6 +294,10 @@ class Driver(threading.Thread):
         return self.send(request=request, success=False, **kwargs)
 
     def exception(self, request=REQUEST_DEFAULT, **kwargs):
+        kwargs["command"] = "report-error"
+        kwargs["type"] = "logging"
+        kwargs["name"] = log.name
+        kwargs["level"] = logging.ERROR
         return self.fail(request=request, stack=traceback.format_exc(), **kwargs)
 
     @staticmethod

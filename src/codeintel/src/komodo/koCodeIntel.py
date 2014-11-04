@@ -1210,39 +1210,37 @@ class KoCodeIntelManager(threading.Thread):
             "KoCodeIntelService.handle() should run on main thread!"
         self.debug("handling: %s", json.dumps(response))
         req_id = response.get("req_id")
-        if req_id is None:
+        callback, request, sent_time = self.requests.get(req_id, (None, None, None))
+        request_command = request.get("command", "") if request else None
+        response_command = response.get("command", request_command)
+        if req_id is None or request_command != response_command:
             # unsolicited response, look for a handler
             try:
-                command = str(response.get("command", ""))
-                if not command:
+                response_command = str(response_command)
+                if not response_command:
                     log.error("No 'command' in response %r", response)
                     raise ValueError("Invalid response frame %s" % (json.dumps(response),))
-                meth = getattr(self, "do_" + command.replace("-", "_"), None)
+                meth = getattr(self, "do_" + response_command.replace("-", "_"), None)
                 if not meth:
-                    log.error("Unknown command %r, response %r", command, response)
-                    raise ValueError("Unknown unsolicited response \"%s\"" % (command,))
+                    log.error("Unknown command %r, response %r", response_command, response)
+                    raise ValueError("Unknown unsolicited response \"%s\"" % (response_command,))
                 meth(response)
             except:
                 log.exception("Error handling unsolicited response")
             return
-        callback, request, sent_time = self.requests.get(req_id, (None, None, None))
         if not request:
             try:
                 log.error("Discard response for unknown request %s (command %s): have %s",
-                          req_id, response["command"],
+                          req_id, response_command,
                           sorted(self.requests.keys()))
             except KeyError:
                 log.error("Discard response for unknown request %s (%r): have %s",
                           req_id, response,
                           sorted(self.requests.keys()))
             return
-        command = request.get("command", "")
         log_timing.info("Request %s (command %s) took %0.2f seconds",
                         req_id, request.get("command", "<unknown>"),
                         time.time() - sent_time)
-        assert response.get("command", command) == command, \
-            "Got unexpected response command %s from request %s" % (
-                response.get("command"), command)
         if "success" in response:
             self.debug("Removing completed request %s", req_id)
             del self.requests[req_id]
@@ -1366,7 +1364,11 @@ class KoCodeIntelManager(threading.Thread):
         """Report a codeintel error into the error log"""
         message = response.get("message")
         if message:
-            self._codeintel_logger.error(message.rstrip())
+            stack = response.get("stack")
+            if stack:
+                self._codeintel_logger.error(message.rstrip() + "\n" + stack)
+            else:
+                self._codeintel_logger.error(message.rstrip())
 
     def do_quit(self, request, response):
         """Quit successful"""
