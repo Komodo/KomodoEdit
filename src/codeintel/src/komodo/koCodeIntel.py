@@ -208,11 +208,13 @@ class KoCodeIntelService:
         if mgr:
             mgr.abort()
 
-    def scan_document(self, doc, linesAdded, useFileMtime):
+    def scan_document(self, doc, linesAdded, useFileMtime, callback=None):
         """ Scan a given document """
         if not self.enabled:
             return
         lang = doc.language
+        if callback is None:
+            callback = lambda request, response: None
         # Getting the path should match buf_from_koIDocument
         if doc.file:
             path = doc.file.displayPath
@@ -238,7 +240,7 @@ class KoCodeIntelService:
                   text=text,
                   env=buf.env,
                   mtime=mtime,
-                  callback=lambda request, response: None)
+                  callback=callback)
 
     def buf_from_koIDocument(self, doc):
         if not self.enabled:
