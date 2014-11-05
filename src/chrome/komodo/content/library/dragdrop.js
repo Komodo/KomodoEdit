@@ -204,43 +204,43 @@ if (typeof(ko.dragdrop)=='undefined') {
 
     KomodoDropData.prototype.__defineGetter__("isImageURL",
         function KoDropData_get_isImageURL() {
-            return this.isURL && this.value.match(/\.(png|jpe?g|gif)$/i);
+            return this.isURL && this.value.match(/\.(png|jpe?g|gif)(\?.*)?$/i);
         }
     );
 
     KomodoDropData.prototype.__defineGetter__("isXpiURL",
         function KoDropData_get_isXpiURL() {
-            return this.isURL && this.value.match(/\.xpi$/i);
+            return this.isURL && this.value.match(/\.xpi(\?.*)?$/i);
         }
     );
 
     KomodoDropData.prototype.__defineGetter__("isKpfURL",
         function KoDropData_get_isKpfURL() {
-            return this.isURL && this.value.match(/\.kpf$/i);
+            return this.isURL && this.value.match(/\.kpf(\?.*)?$/i);
         }
     );
 
     KomodoDropData.prototype.__defineGetter__("isKsfURL",
         function KoDropData_get_isKsfURL() {
-            return this.isURL && this.value.match(/\.ksf$/i);
+            return this.isURL && this.value.match(/\.ksf(\?.*)?$/i);
         }
     );
 
     KomodoDropData.prototype.__defineGetter__("isKpzURL",
         function KoDropData_get_isKpzURL() {
-            return this.isURL && this.value.match(/\.kpz$/i);
+            return this.isURL && this.value.match(/\.kpz(\?.*)?$/i);
         }
     );
 
     KomodoDropData.prototype.__defineGetter__("isKomodoProjectURL",
         function KoDropData_get_isKomodoProjectURL() {
-            return this.isURL && this.value.match(/\.komodoproject$/i);
+            return this.isURL && this.value.match(/\.komodoproject(\?.*)?$/i);
         }
     );
 
     KomodoDropData.prototype.__defineGetter__("isKomodoToolURL",
         function KoDropData_get_isKomodoToolURL() {
-            return this.isURL && this.value.match(/\.komodotool$/i);
+            return this.isURL && this.value.match(/\.komodotool(\?.*)?$/i);
         }
     );
 
@@ -252,7 +252,7 @@ if (typeof(ko.dragdrop)=='undefined') {
 
     KomodoDropData.prototype.__defineGetter__("isZipURL",
         function KoDropData_get_isZipURL() {
-            return this.isURL && this.value.match(/\.zip/i);
+            return this.isURL && this.value.match(/\.zip(\?.*)?/i);
         }
     );
 
