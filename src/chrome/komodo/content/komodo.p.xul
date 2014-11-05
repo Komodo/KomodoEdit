@@ -2325,17 +2325,6 @@
                              collapsed="true" label="&findResults2.label;"
                              src="chrome://komodo/content/find/findResultsTab.xul"
                              icon="chrome://icomoon/skin/icons/binoculars.png"/>
-
-
-        <!-- #if WITH_SLEUTH -->
-                    <!-- Project Unit Tests output tab of the output pane -->
-                    <browser type="ko-widget"
-                             id="projectUnitTestsResults_tabpanel"
-                             tab_results="none"
-                             label="&testResults_tab.label;"
-                             src="chrome://komodo/content/sleuth/sleuthPane.xul"
-                             icon="chrome://icomoon/skin/icons/lab.png"/>
-        <!-- #endif -->
                 </ko-pane>
             </vbox>
             <splitter id="workspace_right_splitter"
