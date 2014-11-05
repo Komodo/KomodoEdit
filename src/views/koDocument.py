@@ -1405,43 +1405,10 @@ class koDocumentBase(object):
             raise
         
     def getChangedLinesWithTrailingWhitespace(self):
-        """
-        Most straightforward way: look at the unsaved changes, and
-        remove trailing whitespace only from those lines that start with
-        a "+". End of story.
-        """
-        diffLines = self.getUnsavedChanges(joinLines=False)
-        linesToStripByLineNum = []
-        
-        # nested loop processing all @@ things...
-        hunk_re = re.compile(r'\@\@\s*-(\d+),(\d+)\s*\+(\d+),(\d+)\s+\@\@')
-        ends_with_space_re = re.compile(r'[\-\+](.*?)(\s+)\Z')
-        newLineNum = -1
-        for diffLine in diffLines:
-            m = hunk_re.match(diffLine)
-            if m:
-                # We only care about the line in the final file where the hunk starts.
-                newLineNum = int(m.group(3))
-            elif newLineNum == -1:
-                # keep looking
-                pass
-            else:
-                c = diffLine[0]
-                if c == '-':
-                    pass
-                elif c == ' ':
-                    newLineNum += 1
-                elif c == "+":
-                    m = ends_with_space_re.match(diffLine)
-                    if m or len(diffLine) == 1:
-                        #status = "yes"
-                        # lines are 0-based for scimoz, 1-based for diff
-                        linesToStripByLineNum.append(newLineNum - 1)
-                    # Increment newLineNum for all lines that don't start
-                    # with a '-'
-                    newLineNum += 1
-        # end for
-        return linesToStripByLineNum
+        """Generate a diff and return the changed lines."""
+        diff_content = self.getUnsavedChanges()
+        diff = difflibex.Diff(diff_content)
+        return diff.get_changed_line_numbers_by_filepath().values()[0]
 
     def _getCleanChangedLinesOnly(self):
         if not self._globalPrefs.getBooleanPref("cleanLineEnds_ChangedLinesOnly"):
