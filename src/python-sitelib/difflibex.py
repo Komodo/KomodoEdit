@@ -895,6 +895,22 @@ class Diff:
 
         return (file_path, file_line, file_col)
 
+    def get_changed_line_numbers_by_filepath(self):
+        """A dict of filepaths and their changed line numbers (0 based)"""
+        result = {}
+        for file_diff in self.file_diffs:
+            file_path = file_diff.best_path()
+            result[file_path] = linenums = []
+            _, file_line, _ = self.file_pos_from_diff_pos(file_diff.header_start_line, 0)
+            for hunk in file_diff.hunks:
+                for line in hunk.lines:
+                    if line.startswith(" "):
+                        file_line += 1
+                    elif line.startswith("+"):
+                        linenums.append(file_line)
+                        file_line += 1
+        return result
+
     def possible_paths_from_diff_pos(self, diff_line, diff_col):
         """Return a list of all possible file paths for the given position.
 
