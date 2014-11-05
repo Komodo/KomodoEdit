@@ -5,7 +5,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 var ko = {};
 Cu.import("resource://komodo-jstest/mock/mock.jsm", {})
   .import(ko, "logging", "views", "macros", "mru", "history", "stringutils",
-          "findresults", "statusbar",
+          "findresults", "statusbar", "notifications",
           "chrome://komodo/content/library/tabstops.js");
 
 const SciMoz = Components.Constructor("@activestate.com/ISciMozHeadless;1");

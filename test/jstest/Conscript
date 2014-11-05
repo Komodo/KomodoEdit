@@ -15,7 +15,6 @@ Import(
     'mozIdlIncludePath',
     'mozSrc',
     'mozVersion',
-    'mozVersionNumber',
     'platform',
     'productType',
     'ranRegxpcomStateFileName',
@@ -37,13 +36,11 @@ $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/findresults.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/history.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/macros.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/mru.jsm");
+$cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/notifications.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/statusbar.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/TreeBoxObject.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/views.jsm");
 my $buildlistScript = "$mozSrc/mozilla/python/mozbuild/mozbuild/action/buildlist.py";
-if ($mozVersionNumber le 2499) {
-    $buildlistScript = "$mozSrc/mozilla/config/buildlist.py";
-}
 # Tweak env to point PYTHONPATH at the mozbuild dir.
 my %envLocal = $cons->copy();
 my $platformPathSep = ($^O eq "MSWin32" ? ";" : ":");
