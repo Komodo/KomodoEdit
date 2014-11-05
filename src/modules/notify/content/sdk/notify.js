@@ -106,7 +106,7 @@
         {
             // For now we'll use the old notification library, ideally this should
             // be merged into the notify module
-            ko.notifications.add(message, [category], opts.id || window.Date.now(),
+            ko.notifications.add(message, [category], opts.id || Date.now(),
                                  {severity: opts.priority, notify: true});
         }
 
