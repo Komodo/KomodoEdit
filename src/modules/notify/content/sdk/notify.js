@@ -4,6 +4,7 @@
     const {Cc, Ci}  = require("chrome");
     const $         = require("ko/dom");
     const editor    = require("ko/editor");
+    const timers    = require("sdk/timers");
     const doT       = require("contrib/dot");
     const prefs     = Cc['@activestate.com/koPrefService;1']
                         .getService(Ci.koIPrefService).prefs;
@@ -175,7 +176,7 @@
 
         if (notif)
         {
-            window.setTimeout(this.showNotification.bind(this, notif), 250);
+            timers.setTimeout(this.showNotification.bind(this, notif), 250);
         }
         else
         {
@@ -251,7 +252,7 @@
         }
 
         var time = opts.duration || prefs.getLong("notify_duration", 4000);
-        var timeout = window.setTimeout(() =>
+        var timeout = timers.setTimeout(() =>
         {
             log.debug("Calling callback from timeout");
             callback();
@@ -266,7 +267,7 @@
         {
             log.debug("Panel interact");
 
-            window.clearTimeout(timeout);
+            timers.clearTimeout(timeout);
             interacting = true;
         };
         var blur = () =>
@@ -274,7 +275,7 @@
             log.debug("Panel blur");
 
             interacting = false;
-            timeout = window.setTimeout(callback.bind(this), 1000);
+            timeout = timers.setTimeout(callback.bind(this), 1000);
 
             if ("focus" in focus)
                 focus.focus();
