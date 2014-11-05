@@ -221,7 +221,8 @@ class CoffeeScriptLangInfo(_JSLikeLangInfo):
                          '__slice', 'and', 'arguments', 'await', 'by', 'defer',
                          'enumexport', 'eval', 'is', 'isnt', 'loop', 'no',
                          'not', 'of', 'onoff', 'or', 'protectedpublic', 'then',
-                         'unless', 'until', 'when', 'yes'])
+                         'unless', 'until', 'when', 'yes', 'class', 'extends',
+                         'constructor', 'super'])
     keywords = common_keywords.union(_new_keywords)
 
 class CLangInfo(LangInfo):
