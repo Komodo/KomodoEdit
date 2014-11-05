@@ -34,7 +34,7 @@
     this.categories = require("./categories.js");
 
     var templates = {
-        "panel": () => { $("#tpl-notify-panel") }
+        "panel": () => { return $("#tpl-notify-panel"); }
     }
 
     templates.get = function(name, params)
@@ -347,7 +347,7 @@
     this._calculatePosition = (from, panel) =>
     {
         var pos,
-            scintilla = ko.views.manager.currentView.scintilla;
+            scintilla = ko.views.manager.currentView ? ko.views.manager.currentView.scintilla : false;
 
         var normalize = function(pos)
         {
