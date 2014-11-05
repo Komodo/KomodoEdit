@@ -217,11 +217,21 @@ class CoffeeScriptLangInfo(_JSLikeLangInfo):
         common_keywords.remove("var")
     except KeyError:
         log.exception("Can't remove 'var'")
-    _new_keywords = set(['__bind__indexOf', '__extends', '__hasProp',
-                         '__slice', 'and', 'arguments', 'await', 'by', 'defer',
-                         'enumexport', 'eval', 'is', 'isnt', 'loop', 'no',
-                         'not', 'of', 'onoff', 'or', 'protectedpublic', 'then',
-                         'unless', 'until', 'when', 'yes'])
+    _new_keywords = set(['__bind__indexOf', '__extends', '__hasProp', '__slice',
+                         'and', 'arguments', 'await',
+                         'by',
+                         'class', 'constructor',
+                         'defer',
+                         'enum', 'export', 'eval', 'extends',
+                         'is', 'isnt',
+                         'loop', 'no', 'not',
+                         'of', 'on', 'off', 'or',
+                         'protected', 'public',
+                         'super',
+                         'then',
+                         'unless', 'until',
+                         'when',
+                         'yes'])
     keywords = common_keywords.union(_new_keywords)
 
 class CLangInfo(LangInfo):
