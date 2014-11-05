@@ -3,7 +3,7 @@
 * https://github.com/dciccale/ki.js
 */
 if (typeof module === 'undefined') module = {}; // debugging helper
-(function(parent) {
+(function() {
 
     const log   = require("ko/logging").getLogger("ko-dom");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
@@ -12,11 +12,13 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
     /*
      * $ main function
-     * a = css selector, dom object, or function
+     * query = css selector, dom object, or function
      * http://www.dustindiaz.com/smallest-domready-ever
      * returns instance or executes function on ready
      */
     var $ = function(query) {
+        var parent = window.document;
+
         if ((typeof query) == "object" && ("koDom" in query))
         {
             return query;
@@ -113,6 +115,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
      */
     function queryObject(query, customParent)
     {
+        var parent = window.document;
+
         this._elements = [];
         
         // Use push.apply to force array type
@@ -588,4 +592,4 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
     module.exports = $;
     
-})(window.document);
+})();

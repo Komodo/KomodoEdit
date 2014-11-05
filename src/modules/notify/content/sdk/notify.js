@@ -34,14 +34,14 @@
     this.categories = require("./categories.js");
 
     var templates = {
-        "panel": $("#tpl-notify-panel")
+        "panel": () => { $("#tpl-notify-panel") }
     }
 
     templates.get = function(name, params)
     {
         if ( ! templates.cache) templates.cache = {};
         if ( ! (name in templates.cache))
-            templates.cache[name] = doT.template(templates[name].html());
+            templates.cache[name] = doT.template(templates[name]().html());
 
         return templates.cache[name](params);
     }
