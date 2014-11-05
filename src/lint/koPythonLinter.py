@@ -472,12 +472,20 @@ class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
             # stderr for __builtin__.compile()
             p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
             stdout, stderr = p.communicate()
+            warnLines = []
+            errorLines = []
             if p.returncode and stderr and not stdout:
-                _complainIfNeeded(stderr, "Error running pyflakes on file %r\n%s",
-                                  request.koDoc.displayPath, stderr)
-                return
-            errorLines = stderr.splitlines(0) # Don't need the newlines.
-            warnLines = stdout.splitlines() 
+                m = re.match("^(.*?):(\d+):(\d+): invalid syntax", stderr)
+                if m is None:
+                    _complainIfNeeded(stderr, "Error running pyflakes on file %r\n%s",
+                                      request.koDoc.displayPath, stderr)
+                # It's a syntax error - convert it.
+                error = "%s:%s: invalid syntax (at column %s)" % (
+                            m.group(1), m.group(2), m.group(3))
+                errorLines = [error]
+            else:
+                warnLines = stdout.splitlines()
+                errorLines = stderr.splitlines(0) # Don't need the newlines.
         finally:
             os.unlink(tmpfilename)
         results = koLintResults()
