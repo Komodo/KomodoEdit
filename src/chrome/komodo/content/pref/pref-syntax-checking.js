@@ -684,7 +684,7 @@ function python_setup() {
                             log.debug("which(pyflakes) failed: " + ex);
                         }
                         if (!res) {
-                            res = appInfoEx.haveModules(1, ['pyflakes.scripts.pyflakes']);
+                            res = appInfoEx.haveModules(1, ['pyflakes']);
                         }
                         pyflakesStatusByExecutable[pythonExe] = res;
                     }
