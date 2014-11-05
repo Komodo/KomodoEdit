@@ -108,18 +108,9 @@ KoJSTestCase.prototype.runTest = function KoJSTestCase_runTest(aResult, aTestNam
     } catch (ex if ex instanceof SkipTest) {
         aResult.reportSkip(ex.message);
     } catch (ex if ex instanceof TestError) {
-        let stack = this._getStackForException(ex);
-        aResult.reportError(ex.message || ex,
-                            stack, stack.length,
-                            ex.type);
-    } catch (ex if ex instanceof Error || ex instanceof Ci.nsIException) {
-        let stack = this._getStackForException(ex);
-        aResult.reportError("While testing " + aTestName + ": " + (ex.message || ex),
-                            stack, stack.length,
-                            ex.constructor.name);
+        this._reportTestException(aResult, ex, ex.message || ex);
     } catch (ex) {
-        aResult.reportError("While testing " + aTestName + ": " + (ex.message || ex),
-                            [], 0, null);
+        this._reportTestException(aResult, ex, "While testing " + aTestName + ": " + (ex.message || ex));
     }
 };
 
@@ -130,29 +121,16 @@ KoJSTestCase.prototype.setUp = function KoJSTestCase_setUp(aResult) {
     } catch (ex if ex instanceof SkipTest) {
         aResult.reportSkip(ex.message);
         return;
-    } catch (ex if ex instanceof Error || ex instanceof Ci.nsIException) {
-        let stack = this._getStackForException(ex);
-        aResult.reportError("While creating " + this.name + ": " + (ex.message || ex),
-                            stack, stack.length,
-                            ex.constructor.name);
-        return;
     } catch (ex) {
-        aResult.reportError("While creating " + this.name + ": " + (ex.message || ex),
-                            [], 0, ex.constructor ? ex.constructor.name : "Error");
+        this._reportTestException(aResult, ex, "While creating " + this.name + ": " + (ex.message || ex));
         return;
     }
     try {
         this.instance.setUp();
     } catch (ex if ex instanceof SkipTest) {
         aResult.reportSkip(ex.message);
-    } catch (ex if ex instanceof Error || ex instanceof Ci.nsIException) {
-        let stack = this._getStackForException(ex);
-        aResult.reportError("While setting up " + this.name + ": " + (ex.message || ex),
-                            stack, stack.length,
-                            ex.constructor.name);
     } catch (ex) {
-        aResult.reportError("While setting up " + this.name + ": " + (ex.message || ex),
-                            [], 0, ex.constructor ? ex.constructor.name : "Error");
+        this._reportTestException(aResult, ex, "While setting up " + this.name + ": " + (ex.message || ex));
     }
 }
 
@@ -161,14 +139,8 @@ KoJSTestCase.prototype.tearDown = function KoJSTestCase_tearDown(aResult) {
         this.instance.tearDown();
     } catch (ex if ex instanceof SkipTest) {
         aResult.reportSkip(ex.message);
-    } catch (ex if ex instanceof Error || ex instanceof Ci.nsIException) {
-        let stack = this._getStackForException(ex);
-        aResult.reportError("While tearing down " + this.name + ": " + (ex.message || ex),
-                            stack, stack.length,
-                            ex.constructor.name);
     } catch (ex) {
-        aResult.reportError("While tearing down " + this.name + ": " + (ex.message || ex),
-                            [], 0, ex.constructor ? ex.constructor.name : "Error");
+        this._reportTestException(aResult, ex, "While tearing down " + this.name + ": " + (ex.message || ex));
     }
     delete this.instance;
     try {
@@ -192,6 +164,18 @@ KoJSTestCase.prototype.tearDown = function KoJSTestCase_tearDown(aResult) {
         }
     } catch (ex) {
         dump(ex);
+    }
+}
+
+KoJSTestCase.prototype._reportTestException = function KoJSTestCase__reportException(testcase, ex, message) {
+    try {
+        let stack = this._getStackForException(ex);
+        testcase.reportError(message,
+                            stack, stack.length,
+                            ex.constructor.name);
+    } catch (stackex) {
+        testcase.reportError("While testing " + aTestName + ": " + (ex.message || ex),
+                            [], 0, null);
     }
 }
 
