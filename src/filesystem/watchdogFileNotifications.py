@@ -127,8 +127,6 @@ class WatchdogFileNotificationService(object):
         for handler, _ in self._handler_and_watch_map.values():
             handler.observer_monitor.shutdown()
         self._observer.stop()
-        # Make sure the observer tears everything down before continuing.
-        self._observer.join()
         log.debug("Stopped notification service")
         return True
 
