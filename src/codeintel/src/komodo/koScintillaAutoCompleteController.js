@@ -18,6 +18,10 @@ XPCOMUtils.defineLazyGetter(Components.utils.getGlobalForObject({}), "log", func
   return log;
 });
 
+XPCOMUtils.defineLazyGetter(Components.utils.getGlobalForObject({}), "OSname", function() {
+  return Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS;
+});
+
 function KoScintillaAutoCompleteController() {
   this.wrappedJSObject = this; // needed for init()
   this._scintilla_weak = null;
@@ -88,7 +92,7 @@ KoScintillaAutoCompleteController.prototype = {
       if (scimoz) {
         const STYLE_DEFAULT = Components.interfaces.ISciMoz.STYLE_DEFAULT;
         let sizeUnit = "pt";
-        if (Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS == "Darwin") {
+        if (OSname == "Darwin") {
           // on Max OSX, use px instead of pt due to odd sizing issues
           sizeUnit = "px";
         }
