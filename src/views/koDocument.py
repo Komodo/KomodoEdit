@@ -84,7 +84,7 @@ class koDocumentBase(object):
     _tabWidth = None
     _useTabs = None
 
-    # The original on-disk file contents.
+    # The original unicode (decoded) on-disk file lines.
     ondisk_lines = None
 
     _DOCUMENT_SIZE_NOT_LARGE = 0
@@ -631,7 +631,8 @@ class koDocumentBase(object):
             data = ''
             self._lastModifiedTime = None
         self._lastmd5 = md5(data).digest()
-        self.set_buffer(data,0)
+        buffer = self.set_buffer(data,0)
+        self.ondisk_lines = buffer.splitlines(True)
         self.setSavePoint()
 
         # Bug 93790: If the file is new to Komodo, and has any long lines,
@@ -664,7 +665,6 @@ class koDocumentBase(object):
                 path = getattr(file, 'path', 'path:?')
                 log.exception("_loadfile: failed to set eol on file %s", path)
         self.set_isDirty(0)
-        self.ondisk_lines = data.splitlines(True)
         
     def _get_buffer_from_file(self, file):
         try:
@@ -923,12 +923,14 @@ class koDocumentBase(object):
                     pass # no one is listening!
             else:
                 encoded_buffer = text
-            self._set_buffer_encoded(encoded_buffer, makeDirty)
         else:
-            self._set_buffer_encoded(text, makeDirty)
+            encoded_buffer = text
+
+        self._set_buffer_encoded(encoded_buffer, makeDirty)
         log.info("set_buffer encoding %s codePage %r", self.encoding.python_encoding_name, self._codePage)
         self.prefs.setStringPref("encoding",
                                  self.encoding.python_encoding_name)
+        return encoded_buffer
 
     @property
     def buffer(self):
@@ -1348,13 +1350,15 @@ class koDocumentBase(object):
             self.lastErrorSvc.setLastError(nsError.NS_ERROR_FAILURE, errmsg)
             raise
         
-    def _getEncodedBufferText(self, encoding_name=None, mode='strict'):
+    def _getEncodedBufferText(self, encoding_name=None, mode='strict', buffer=None):
         """Get the buffer text encoded in a particular encoding, by
         default the current configured encoding.
         """
         if not encoding_name:
             encoding_name = self.encoding.python_encoding_name
-        encodedText = self.get_buffer().encode(encoding_name, mode)
+        if buffer is None:
+            buffer = self.get_buffer()
+        encodedText = buffer.encode(encoding_name, mode)
         if self.encoding.use_byte_order_marker:
             encodedText = self.encoding.encoding_info.byte_order_marker + encodedText
         if self.get_bufferLength() and not len(encodedText):
@@ -1685,8 +1689,9 @@ class koDocumentBase(object):
     
             # Translate the buffer before opening the file so if it
             # fails, we haven't truncated the file.
+            buffer = self.get_buffer()
             try:
-                data = self._getEncodedBufferText()
+                data = self._getEncodedBufferText(buffer=buffer)
             except UnicodeError, ex:
                 log.error("unable to encode document as %r: %s",
                     self.encoding.python_encoding_name, ex)
@@ -1725,7 +1730,7 @@ class koDocumentBase(object):
             except:
                 pass # ignore, no one listening
             
-            self.ondisk_lines = data.splitlines(True)
+            self.ondisk_lines = buffer.splitlines(True)
         finally:
             # fix file mode
             if forceSave and mode:
