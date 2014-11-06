@@ -85,8 +85,6 @@ log = logging.getLogger("codeintel.python")
 #log.setLevel(logging.DEBUG)
 makePerformantLogger(log)
 
-CACHING = True #DEPRECATED: kill it
-
 # See http://effbot.org/zone/pythondoc.htm
 _g_pythondoc_tags = list(sorted("param keyparam return exception def "
                                 "defreturn see link linkplain".split()))
