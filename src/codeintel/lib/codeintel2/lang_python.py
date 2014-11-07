@@ -1192,13 +1192,19 @@ class PythonCILEDriver(CILEDriver):
     def scan_purelang(self, buf):
         #log.warn("TODO: python cile that uses elementtree")
         content = buf.accessor.text
+        assert not isinstance(content, unicode)
+
         encoding = buf.encoding or "utf-8"
-        if isinstance(content, unicode):
+        # The accessor.text is always raw "utf-8" - if the encoding of the
+        # actual file is different, then we need to convert back to that
+        # original encoding for the ast scanning to work correctly.
+        if encoding not in ("utf-8", "ascii"):
             try:
-                content = content.encode(encoding)
+                content = content.decode("utf-8").encode(encoding)
             except UnicodeError, ex:
                 raise CodeIntelError("cannot encode Python content as %r (%s)"
                                      % (encoding, ex))
+
         el = pythoncile.scan_et(content, buf.path, lang=self.lang)
         return el
 
