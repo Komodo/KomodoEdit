@@ -65,6 +65,10 @@ const [JetPack, require] = (function() {
                          globals: globals});
 
     const JetPack = {
+        // Keep handle to the JetPack ko namespace... as some tests require
+        // access to tweak this namespace.
+        ko: ko,
+
         defineLazyProperty: (object, property, id) => {
             const JetPack_LazyProperty = () => {
                 delete object[property];

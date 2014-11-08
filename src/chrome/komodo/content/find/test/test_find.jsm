@@ -8,6 +8,11 @@ Cu.import("resource://komodo-jstest/mock/mock.jsm", {})
           "findresults", "statusbar", "notifications",
           "chrome://komodo/content/library/tabstops.js");
 
+// For some strange reason, we must set "ko.notifications" onto the jetpack
+// module, otherwise we'll see "ko.notifications is undefined" and the tests
+// will fail.
+JetPack.ko.notifications = ko.notifications;
+
 const SciMoz = Components.Constructor("@activestate.com/ISciMozHeadless;1");
 
 /**
