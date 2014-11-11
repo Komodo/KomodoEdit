@@ -24,6 +24,7 @@ from mklib.common import MkError
 sys.path.insert(0, join(dirname(__file__), "util"))
 import buildsupport
 
+sys.path.append(join(dirname(__file__), "contrib", "zope", "cachedescriptors", "src"))
 sys.path.insert(0, join(dirname(__file__), "src", "python-sitelib"))
 import textinfo
 
