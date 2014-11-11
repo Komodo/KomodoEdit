@@ -1087,4 +1087,58 @@ TestKoFind.prototype.test_replaceInMacro = function test_replaceInMacro() {
     }
 };
 
+// bug 105541
+TestKoFind.prototype.test_replace_unicode = function test_replace() {
+    this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
+    let scimoz = ko.views.currentView.scimoz = new SciMoz();
+
+    var runs = [
+        {
+            text: "XXXXXX兌",
+            pattern: "XXXXXX",
+            replacement: "",
+            result: "兌",
+        },
+        {
+            text: "XXXXXXÜÖÄ0123456\n",
+            pattern: "XXXXXX",
+            replacement: "",
+            result: "ÜÖÄ0123456\n",
+        },
+        {
+            text: "XXXXXX兌",
+            pattern: "XXXXXX",
+            replacement: "ÜÖÄ",
+            result: "ÜÖÄ兌",
+        },
+        {
+            text: "XXXXXXÜÖÄ0123456\n",
+            pattern: "XXXXXX",
+            replacement: "兌",
+            result: "兌ÜÖÄ0123456\n",
+        },
+    ];
+    this.options.patternType = FOT_SIMPLE;
+    this.options.caseSensitivity = FOC_SENSITIVE;
+
+    for (let run of runs) {
+        var {text, pattern, replacement, result} = run;
+        dump('text: ' + text + '\n');
+        dump('result: ' + result + '\n');
+        scimoz.text = text;
+        let success = ko.find.replaceAll(this.scope, /* editor */
+                                    this.context, /* context */
+                                    pattern, /* pattern */
+                                    replacement, /* replacement */
+                                    false, /* show replace results */
+                                    false, /* first on line */
+                                    function() {}, /* msg handler */
+                                    false); /* highlight replacements */
+    
+        this.assertTrue(success, "replaceAll didn't find any results");
+        this.assertEquals(result, scimoz.text,
+                          "Unexpected replace text result");
+    }
+};
+
 const JS_TESTS = ["TestKoFind"];
