@@ -115,6 +115,7 @@ from xpcom.server import WrapObject, UnwrapObject
 from xpcom.client import WeakReference
 from zope.cachedescriptors.property import Lazy as LazyProperty
 from zope.cachedescriptors.property import LazyClassAttribute
+from fileutils import AtomicFileWriter
 
 from koXMLPrefs import *
 
@@ -574,11 +575,12 @@ class koPreferenceSetBase(object):
         pickleCache(self, filename)
 
     def serializeToFile(self, filename):
-        with codecs.open(filename, "wb", "utf-8") as stream:
+        with AtomicFileWriter(filename, "wb", encoding="utf-8") as stream:
             writeXMLHeader(stream)
             self.serialize(stream, "")
             writeXMLFooter(stream)
         self.serializeToFileFast(filename + "c")
+
 
     def serialize(self, stream, basedir):
         """Serializes the preference set to a stream."""
@@ -1167,7 +1169,7 @@ class koOrderedPreference(object):
         return True
 
     def serializeToFile(self, filename):
-        with codecs.open(filename, "wb", "utf-8") as stream:
+        with AtomicFileWriter(filename, "wb", encoding="utf-8") as stream:
             self.serialize(stream, "")
 
     def serialize(self, stream, basedir):
@@ -1277,7 +1279,7 @@ class koPreferenceCache(object):
         assert self._is_sane()
     
     def serializeToFile(self, filename):
-        with codecs.open(filename, "wb", "utf-8") as stream:
+        with AtomicFileWriter(filename, "wb", encoding="utf-8") as stream:
             writeXMLHeader(stream)
             self.serialize(stream, "")
             writeXMLFooter(stream)
