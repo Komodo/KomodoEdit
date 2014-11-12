@@ -100,14 +100,17 @@
 #   of that has changed :)
 #   
 
+import sys
+import os
+import types
+import shutil
+import operator
 import functools
-import sys, os, types, re, shutil, operator, copy
+import copy
 import time
-import codecs
-from xml.dom import minidom
-from xml.sax import SAXParseException
-from eollib import newl
+import logging
 import warnings
+from eollib import newl
 
 from xpcom import components, ServerException, COMException, nsError
 from xpcom.server.enumerator import SimpleEnumerator
@@ -115,11 +118,11 @@ from xpcom.server import WrapObject, UnwrapObject
 from xpcom.client import WeakReference
 from zope.cachedescriptors.property import Lazy as LazyProperty
 from zope.cachedescriptors.property import LazyClassAttribute
-from fileutils import AtomicFileWriter
 
+from fileutils import AtomicFileWriter
 from koXMLPrefs import *
 
-import logging
+
 log = logging.getLogger('koPrefs')
 #log.setLevel(logging.DEBUG)
 
