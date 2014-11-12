@@ -30,9 +30,6 @@
        -->
     <ko-pane id="pane" class="native" floating="true" flex="1"
              style="-moz-binding: none;"/>
-    <hbox pack="end">
-        <resizer dir="bottomend"/>
-    </hbox>
     <script type="application/x-javascript;version=1.8">
         <![CDATA[
             var gPane = null;
