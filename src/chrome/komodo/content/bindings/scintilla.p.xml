@@ -559,23 +559,6 @@
                     scimoz.usePopUp(0);
                 }
 
-                // mouseDownCaptures must be true, otherwise, when
-                // selecting text with the mouse, if you go outside
-                // the scimoz plugin and release the mouse button,
-                // scintilla will not know and continue to track the
-                // mouse position as if you had not released the mouse
-                // button.
-                // XXX unfortunately, this causes other mouse problems,
-                // so we'll keep one bug until we figure it out.
-<!-- #if PLATFORM == "darwin" or PLATFORM == "win" -->
-                scimoz.mouseDownCaptures = 1;
-<!-- #else -->
-                scimoz.mouseDownCaptures = 0;
-<!-- #endif -->
-                scimoz.mouseDwellTime = 500;
-                scimoz.indent = 4;
-                scimoz.tabWidth = 4;
-                scimoz.setProperty('smartCloseTags', '1');
                 scimoz.wrapVisualFlags = prefs.getLongPref("editWordWrapMarker");
                 scimoz.wrapIndentMode = prefs.getLongPref("editWordWrapIndentation");
                 // XXX this allows us to scroll the last line to the top of the
@@ -587,13 +570,6 @@
                 this.scimoz.suppressZoomOnScrollWheel = !this.editEnableMouseZoom;
                 this.enableSmartTabSkipsSoftCharacters = prefs.getBoolean('enableSmartTabSkipsSoftCharacters', true);
 
-<!-- #if PLATFORM == "win" -->
-                scimoz.eOLMode = scimoz.SC_EOL_CRLF;
-<!-- #else -->
-                scimoz.eOLMode = scimoz.SC_EOL_LF;
-<!-- #endif -->
-                scimoz.codePage = 65001;
-
                 const SC_MOD_WANTED = scimoz.SC_MOD_CHANGESTYLE |
                       scimoz.SC_MOD_INSERTTEXT | scimoz.SC_MOD_DELETETEXT |
                       scimoz.SC_MOD_BEFOREDELETE | scimoz.SC_MOD_BEFOREINSERT;
@@ -601,9 +577,6 @@
                 // Don't let scintilla send us every single event it fires, these are the
                 // only ones we care about.
                 scimoz.modEventMask = SC_MOD_WANTED;
-
-                // Don't feel the need to make this a pref yet.
-                scimoz.setXCaretPolicy(scimoz.CARET_SLOP, 75);
 
                 // Setup margins and markers.
 
@@ -633,16 +606,6 @@
                 scimoz.setMarginTypeN(scimoz.MARGIN_FOLDING, scimoz.SC_MARGIN_SYMBOL);
                 scimoz.setMarginMaskN(scimoz.MARGIN_FOLDING, scimoz.SC_MASK_FOLDERS);
                 scimoz.setMarginSensitiveN(scimoz.MARGIN_FOLDING, 1);
-
-                // Allow column editing through Scintilla.
-                scimoz.multipleSelection = false;
-                scimoz.additionalSelectionTyping = true;
-                // This allows a rectangular selection to extend past the
-                // end of the line when there is a longer selected line.
-                scimoz.virtualSpaceOptions = scimoz.SCVS_RECTANGULARSELECTION;
-                // This allows Scintilla to perform indenting/dedenting when
-                // there is a rectangular selection.
-                scimoz.tabIndents = true;
 
                 // Setup custom scroll bars.
                 this.useCustomScrollBars = prefs.getBoolean('koSkin_use_custom_scrollbars', false);

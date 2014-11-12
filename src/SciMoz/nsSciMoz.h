@@ -230,6 +230,8 @@ private:
     // Last line count gets updated whenever the text is changed.
     long mLastLineCount;
     
+    void DefaultSettings();
+
     // brace match support
     long bracesStyle;
     long bracesCheck;

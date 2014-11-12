@@ -154,6 +154,58 @@ void SciMoz::SciMozInit() {
     mLastLineCount = 1;
 
     PlatformNew();
+
+    DefaultSettings();
+}
+
+// Default settings for Komodo scintilla widgets.
+void SciMoz::DefaultSettings() {
+    SendEditor(SCI_SETLEXER, SCLEX_CPP);
+    SendEditor(SCI_STYLECLEARALL);    // Copies global style to all others
+
+    // UTF-8 always.
+    SendEditor(SCI_SETCODEPAGE, SC_CP_UTF8);
+
+    // We set mouseDownCaptures to true, otherwise, when selecting text with the
+    // mouse, if you go outside the scimoz plugin and release the mouse button,
+    // scintilla will not know and continue to track the mouse position as if
+    // you had not released the mouse button.
+#if defined(XP_MACOSX) || defined(_WINDOWS)
+    SendEditor(SCI_SETMOUSEDOWNCAPTURES, 1);
+#else
+    SendEditor(SCI_SETMOUSEDOWNCAPTURES, 0);
+#endif
+    SendEditor(SCI_SETMOUSEDWELLTIME, 500);
+
+    // Indentation.
+    SendEditor(SCI_SETINDENT, 4);
+    SendEditor(SCI_SETTABWIDTH, 4);
+    // Allow column editing through Scintilla.
+    SendEditor(SCI_SETMULTIPLESELECTION, 0);
+    SendEditor(SCI_SETADDITIONALSELECTIONTYPING, 1);
+    // This allows a rectangular selection to extend past the
+    // end of the line when there is a longer selected line.
+    SendEditor(SCI_SETVIRTUALSPACEOPTIONS, SCVS_RECTANGULARSELECTION);
+    // This allows Scintilla to perform indenting/dedenting when
+    // there is a rectangular selection.
+    SendEditor(SCI_SETTABINDENTS, 1);
+
+#if defined(_WINDOWS)
+    SendEditor(SCI_SETEOLMODE, SC_EOL_CRLF);
+#else
+    SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
+#endif
+
+    // Caret slop controls.
+    SendEditor(SCI_SETXCARETPOLICY, CARET_SLOP, 75);
+
+    SendEditor(SCI_SETPROPERTY, (unsigned long) "smartCloseTags", (long) "1");
+
+    //SendEditor(SCI_SETMULTIPLESELECTION, 0);
+    //SendEditor(SCI_SETMULTIPLESELECTION, 0);
+    //SendEditor(SCI_SETMULTIPLESELECTION, 0);
+    //SendEditor(SCI_SETMULTIPLESELECTION, 0);
+    //SendEditor(SCI_SETMULTIPLESELECTION, 0);
 }
 
 long SciMoz::SendEditor(unsigned int Msg, unsigned long wParam, long lParam) {
@@ -182,9 +234,6 @@ void SciMoz::Create(WinID hWnd) {
 	fprintf(stderr,"SciMoz::Create %lx\n", hWnd);
 #endif
 	PlatformCreate(hWnd);
-	SendEditor(SCI_SETLEXER, SCLEX_CPP);
-	SendEditor(SCI_STYLECLEARALL);	// Copies global style to all others
-	SendEditor(SCI_SETMOUSEDOWNCAPTURES, 0);
 }
 
 static bool IsBrace(char ch) {
