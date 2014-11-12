@@ -38,6 +38,8 @@ import os
 from os.path import islink, realpath, join
 import shutil
 import sys
+import tempfile
+import codecs
 
 # Modified recipe: paths_from_path_patterns (0.5)
 def should_include_path(path, includes=None, excludes=None, isRemotePath=False):
@@ -158,3 +160,34 @@ if sys.platform == "win32":
 else:
     def isHiddenFile(path):
         return False
+
+
+class AtomicFileWriter(object):
+    """A contextual utility class to give atomic write operations.
+    
+    Writes to a temporary file and then performs an atomic move when completed.
+    """
+    def __init__(self, filename, mode, encoding=None):
+        self.filename = filename
+        self.mode = mode
+        self.encoding = encoding
+    def __enter__(self):
+        (temp_fd, self.temp_filename) = tempfile.mkstemp(".komodo")
+        os.close(temp_fd)
+        if self.encoding:
+            self.file = codecs.open(self.temp_filename, self.mode, self.encoding)
+        else:
+            self.file = open(self.temp_filename, self.mode)
+        return self.file
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        if exc_type:
+            return
+        if not self.file.closed:
+            self.file.close()
+        self.file = None
+        try:
+            shutil.move(self.temp_filename, self.filename)
+        except OSError, details:
+            # Could not move, resort to a copy then.
+            shutil.copy(self.temp_filename, self.filename)
+
