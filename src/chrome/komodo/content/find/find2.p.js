@@ -49,8 +49,8 @@
 
 var { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-var log = ko.logging.getLogger("find.dialog");
-//log.setLevel(ko.logging.LOG_DEBUG);
+var log = opener.ko.logging.getLogger("find.dialog");
+//log.setLevel(log.LOG_DEBUG);
 
 var koIFindContext = Components.interfaces.koIFindContext;
 var koIFindOptions = Components.interfaces.koIFindOptions;
@@ -504,8 +504,8 @@ function dirs_on_focus(widget, event)
         // cwd is that of the current file in the main editor window.
         if (event.target.nodeName == 'html:input') { 
             var textbox = widget.parentNode.parentNode.parentNode;
-            var cwd = ko.windowManager.getMainWindow().ko.window.getCwd();
-            textbox.searchParam = ko.stringutils.updateSubAttr(
+            var cwd = opener.ko.window.getCwd();
+            textbox.searchParam = opener.ko.stringutils.updateSubAttr(
                 textbox.searchParam, 'cwd', cwd);            
         }
     } catch(ex) {
@@ -518,8 +518,7 @@ function browse_for_dirs() {
     try {
         var obj = new Object();
         obj.encodedFolders = widgets.dirs.value;
-        var origWindow = ko.windowManager.getMainWindow();
-        obj.cwd = origWindow.ko.window.getCwd();
+        obj.cwd = opener.ko.window.getCwd();
         window.openDialog("chrome://komodo/content/find/browseForDirs.xul",
                           "_blank",
                           "chrome,modal,titlebar,resizable",
@@ -564,7 +563,7 @@ function find_next(backward /* =false */) {
         if (widgets.opt_multiline.checked) {
             widgets.pattern.value = widgets.curr_pattern.value;
         }
-        ko.mru.addFromACTextbox(widgets.pattern);
+        opener.ko.mru.addFromACTextbox(widgets.pattern);
     
         //TODO: Icky. The "searchBackward" state being set on the global
         //      object then restored is gross. koIFindOptions should be
@@ -574,7 +573,7 @@ function find_next(backward /* =false */) {
         gFindSvc.options.searchBackward = backward;
     
         var mode = (widgets.opt_repl.checked ? "replace" : "find");
-        var found_one = ko.find.findNext(opener, _g_find_context, pattern, mode,
+        var found_one = opener.ko.find.findNext(opener, _g_find_context, pattern, mode,
                                       false,         // quiet
                                       true,          // useMRU
                                       msg_callback); // msgHandler
@@ -615,7 +614,7 @@ function find_all() {
         if (widgets.opt_multiline.checked) {
             widgets.pattern.value = widgets.curr_pattern.value;
         }
-        ko.mru.addFromACTextbox(widgets.pattern);
+        opener.ko.mru.addFromACTextbox(widgets.pattern);
 
         // Always reset the find session for find all
         var findSessionSvc = Components.classes["@activestate.com/koFindSession;1"].
@@ -623,28 +622,28 @@ function find_all() {
         findSessionSvc.Reset();
 
         if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
-            if (ko.find.findAllInFiles(opener, _g_find_context,
+            if (opener.ko.find.findAllInFiles(opener, _g_find_context,
                                     pattern, null,
                                     msg_callback)) {
                 window.close();
             }
             
         } else if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
-            ko.mru.addFromACTextbox(widgets.dirs);
+            opener.ko.mru.addFromACTextbox(widgets.dirs);
             if (widgets.includes.value)
-                ko.mru.addFromACTextbox(widgets.includes);
+                opener.ko.mru.addFromACTextbox(widgets.includes);
             if (widgets.excludes.value)
-                ko.mru.addFromACTextbox(widgets.excludes);
+                opener.ko.mru.addFromACTextbox(widgets.excludes);
             gFindSvc.options.cwd = _g_find_context.cwd;
 
-            if (ko.find.findAllInFiles(opener, _g_find_context,
+            if (opener.ko.find.findAllInFiles(opener, _g_find_context,
                                     pattern, null,
                                     msg_callback)) {
                 window.close();
             }
 
         } else {
-            var found_some = ko.find.findAll(opener, _g_find_context, pattern,
+            var found_some = opener.ko.find.findAll(opener, _g_find_context, pattern,
                                           null,          // patternAlias
                                           msg_callback); // msgHandler
             if (found_some) {
@@ -688,14 +687,14 @@ function mark_all() {
         if (widgets.opt_multiline.checked) {
             widgets.pattern.value = widgets.curr_pattern.value;
         }
-        ko.mru.addFromACTextbox(widgets.pattern);
+        opener.ko.mru.addFromACTextbox(widgets.pattern);
 
         // Always reset the find session for mark all
         var findSessionSvc = Components.classes["@activestate.com/koFindSession;1"].
                                 getService(Components.interfaces.koIFindSession);
         findSessionSvc.Reset();
 
-        var found_some = ko.find.markAll(opener, _g_find_context, pattern,
+        var found_some = opener.ko.find.markAll(opener, _g_find_context, pattern,
                                       null,          // patternAlias
                                       msg_callback); // msgHandler
         if (found_some) {
@@ -735,12 +734,12 @@ function replace() {
             widgets.pattern.value = widgets.curr_pattern.value;
             widgets.repl.value = widgets.curr_repl.value;
         }
-        ko.mru.addFromACTextbox(widgets.pattern);
+        opener.ko.mru.addFromACTextbox(widgets.pattern);
         if (repl)
-            ko.mru.addFromACTextbox(widgets.repl);
+            opener.ko.mru.addFromACTextbox(widgets.repl);
     
         gFindSvc.options.searchBackward = false;
-        var found_one = ko.find.replace(opener, _g_find_context,
+        var found_one = opener.ko.find.replace(opener, _g_find_context,
                 pattern, repl, msg_callback);
         if (!found_one) {
             // If no match was hilighted then it is likely that the user will
@@ -780,9 +779,9 @@ function replace_all() {
             widgets.pattern.value = widgets.curr_pattern.value;
             widgets.repl.value = widgets.curr_repl.value;
         }
-        ko.mru.addFromACTextbox(widgets.pattern);
+        opener.ko.mru.addFromACTextbox(widgets.pattern);
         if (repl)
-            ko.mru.addFromACTextbox(widgets.repl);
+            opener.ko.mru.addFromACTextbox(widgets.repl);
 
         // Always reset the find session for replace all
         var findSessionSvc = Components.classes["@activestate.com/koFindSession;1"].
@@ -790,21 +789,21 @@ function replace_all() {
         findSessionSvc.Reset();
 
         if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
-            if (ko.find.replaceAllInFiles(opener, _g_find_context,
+            if (opener.ko.find.replaceAllInFiles(opener, _g_find_context,
                                        pattern, repl,
                                        gFindSvc.options.confirmReplacementsInFiles,
                                        msg_callback)) {
                 window.close();
             }
         } else if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
-            ko.mru.addFromACTextbox(widgets.dirs);
+            opener.ko.mru.addFromACTextbox(widgets.dirs);
             if (widgets.includes.value)
-                ko.mru.addFromACTextbox(widgets.includes);
+                opener.ko.mru.addFromACTextbox(widgets.includes);
             if (widgets.excludes.value)
-                ko.mru.addFromACTextbox(widgets.excludes);
+                opener.ko.mru.addFromACTextbox(widgets.excludes);
             gFindSvc.options.cwd = _g_find_context.cwd;
 
-            if (ko.find.replaceAllInFiles(opener, _g_find_context,
+            if (opener.ko.find.replaceAllInFiles(opener, _g_find_context,
                                        pattern, repl,
                                        gFindSvc.options.confirmReplacementsInFiles,
                                        msg_callback)) {
@@ -812,7 +811,7 @@ function replace_all() {
             }
         } else {
             var found_some = null;
-            var found_some = ko.find.replaceAll(
+            var found_some = opener.ko.find.replaceAll(
                     opener, _g_find_context, pattern, repl,
                     widgets.show_replace_all_results.checked,
                     false,  /* firstOnLine */
@@ -959,7 +958,7 @@ function _init() {
         escape_default_pattern = true;
     } else {
         // Use the last searched for pattern.
-        default_pattern = ko.mru.get("find-patternMru", 0);
+        default_pattern = opener.ko.mru.get("find-patternMru", 0);
         escape_default_pattern = false;
     }
 
@@ -1028,7 +1027,7 @@ function _init() {
 
     if (verb == "replace") {
         // When in replace mode - restore the last replaced text.
-        widgets.repl.value = ko.mru.get("find-replacementMru", 0);
+        widgets.repl.value = opener.ko.mru.get("find-replacementMru", 0);
     }
 
     // - Setup for there being a current project.
