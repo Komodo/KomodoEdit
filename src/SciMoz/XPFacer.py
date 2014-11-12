@@ -533,7 +533,7 @@ def generate_idl_method_fragment(feature, file, indent=8):
         assert typeInfo[feature["Params"][0]["Type"]]["idlType"] == "long"
         assert typeInfo[feature["Params"][1]["Type"]]["idlDirection"] == "in"
         args = ["in nsIVariant text_or_length",
-                "[optional] in AUTF8String text_deprecated"]
+                "[optional] in AString text_deprecated"]
 
     log.debug("Writing IDL method %s", feature.get("Name"))
     if missingType is not None:
@@ -764,7 +764,7 @@ def generate_cxx_xpcom_method_fragment(feature, file):
         resultline = cxxGetterResultOverride
 
     if idlName(feature["Name"]) in textAndLengthFunctions:
-        args = ["nsIVariant* v", "const nsACString& t"]
+        args = ["nsIVariant* v", "const nsAString& t"]
         replacements["has_return"] = "0"
         if feature["ReturnType"] == "int":
             args.append("int32_t *_retval")
@@ -774,26 +774,28 @@ def generate_cxx_xpcom_method_fragment(feature, file):
             nsresult rv;
             int32_t result;
             if (t.IsVoid()) {
-                nsCString text;
-                rv = v->GetAsACString(text);
+                nsAutoString text;
+                rv = v->GetAsAString(text);
                 NS_ENSURE_SUCCESS(rv, rv);
-                result = SendEditor(%(sciApiName)s, text.Length(),
-                                    reinterpret_cast<long>(text.get()));
+                NS_ConvertUTF16toUTF8 textUtf8(text);
+                result = SendEditor(%(sciApiName)s, textUtf8.Length(),
+                                    reinterpret_cast<long>(textUtf8.get()));
             } else {
                 int32_t signed_length;
                 uint32_t length;
                 rv = v->GetAsInt32(&signed_length);
                 NS_ENSURE_SUCCESS(rv, rv);
+                NS_ConvertUTF16toUTF8 textUtf8(t);
                 if (signed_length >= 0) {
                     length = static_cast<uint32_t>(signed_length);
-                    if (length > t.Length()) {
-                        length = t.Length();
+                    if (length > textUtf8.Length()) {
+                        length = textUtf8.Length();
                     }
                 } else {
                     length = static_cast<uint32_t>(-1);
                 }
                 result = SendEditor(%(sciApiName)s, length,
-                                    reinterpret_cast<long>(t.BeginReading()));
+                                    reinterpret_cast<long>(textUtf8.get()));
             }
             #if %(has_return)s
                 *_retval = result;

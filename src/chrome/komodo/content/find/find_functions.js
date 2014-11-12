@@ -503,7 +503,7 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
 this._doMarkerClearingReplacement = function _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText) {
     scimoz.targetStart = startByte;
     scimoz.targetEnd = endByte;
-    scimoz.replaceTarget(replacementText.length, replacementText);
+    scimoz.replaceTarget(replacementText);
 }
 
 this._doMarkerPreservingReplacement = function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, replacementText) {
@@ -534,7 +534,7 @@ this._doMarkerPreservingReplacement = function _doMarkerPreservingReplacement(ed
             
             scimoz.targetStart = prevPos;
             scimoz.targetEnd = restorePos;
-            scimoz.replaceTarget(prevChar.length, prevChar);
+            scimoz.replaceTarget(prevChar);
         }
         
         var numLinesInReplacement = (replacementText.match(eol_re) || "").length;
@@ -567,7 +567,7 @@ this._doMarkerPreservingReplacement = function _doMarkerPreservingReplacement(ed
             if (currText != replText) {
                 scimoz.targetStart = currLineStartPos;
                 scimoz.targetEnd = currLineEndPos;
-                scimoz.replaceTarget(replText.length, replText);
+                scimoz.replaceTarget(replText);
             }
         }
         
@@ -580,7 +580,7 @@ this._doMarkerPreservingReplacement = function _doMarkerPreservingReplacement(ed
             var prevChar = scimoz.getTextRange(prevPos, restorePos);
             scimoz.targetStart = prevPos;
             scimoz.targetEnd = restorePos;
-            scimoz.replaceTarget(prevChar.length, prevChar);
+            scimoz.replaceTarget(prevChar);
         }
 
         scimoz.endUndoAction();
@@ -821,7 +821,7 @@ this._replaceAllInView = function _ReplaceAllInView(editor, view, context, patte
             ko.find._doMarkerPreservingReplacement(editor,
                                            scimoz,
                                            0,
-                                           ko.stringutils.bytelength(text),
+                                           scimoz.length,
                                            replacementText);
             // Put the cursor on the same line as before replacement.
             scimoz.anchor = scimoz.currentPos = scimoz.positionFromLine(line);
