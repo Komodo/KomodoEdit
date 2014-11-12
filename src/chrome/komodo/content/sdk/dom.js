@@ -126,6 +126,9 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             this._elements.push.apply(this._elements, [query]);
         else if ('' + query === query)
             this._elements.push.apply(this._elements,  (customParent || parent).querySelectorAll(query));
+        else if ((query != null && query === query.window) ||
+                 (query != null && query.window && query == query.window.document))
+            this._elements.push(query);
 
         this.length = this._elements.length;
     }
