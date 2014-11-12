@@ -170,6 +170,25 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
+        /**
+         * Trigger an event
+         *
+         * @returns this
+         */
+        trigger: function(type, params)
+        {
+            var evt = new window.CustomEvent(type, {
+                bubbles: true,
+                cancelable: true,
+                detail: params
+            });
+
+            return this.each(function()
+            {
+                this.dispatchEvent(evt);
+            });
+        },
+
         /*
          * each method
          * use native forEach to iterate collection
