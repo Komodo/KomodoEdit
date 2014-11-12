@@ -50,6 +50,8 @@ const [JetPack, require] = (function() {
         // Have a window scope available
         globals.window = window;
         globals.document = document;
+        globals.setTimeout = window.setTimeout;
+        globals.clearTimeout = window.clearTimeout;
         if ("console" in window) {
             // Add the console when available too - some of the SDK depends on
             // this being defined.

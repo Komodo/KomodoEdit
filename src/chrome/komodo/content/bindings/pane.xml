@@ -2297,7 +2297,7 @@
         Object.defineProperty(this.contentWindow, "parent", {
           value: win, writable: true, configurable: true, enumerable: true,
         });
-        for (let prop of ["ko", "xtk", "gEditorTooltipHandler"]) {
+        for (let prop of ["require", "JetPack", "ko", "xtk", "gEditorTooltipHandler"]) {
           Object.defineProperty(this.contentWindow, prop, {
             value: win[prop], writable: false, configurable: true, enumerable: true,
           });

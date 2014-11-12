@@ -22,4 +22,8 @@ interface koIScopeFiles: nsISupports {
                 in AString opts,
                 in koIAsyncCallback callback);
 
+    void deleteCachePath(in AString path);
+
+    void emptyCache();
+
 };

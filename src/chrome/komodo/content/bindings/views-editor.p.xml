@@ -1187,6 +1187,7 @@
 
             window.dispatchEvent(new CustomEvent('file_saved', { bubbles: true, detail: {view: this} }));
             ko.macros.eventHandler.hookPostFileSave(this);
+            require("ko/dom")(window).trigger("folder_touched", {path: this.koDoc.file.dirName});
             return true;
         ]]>
         </body>

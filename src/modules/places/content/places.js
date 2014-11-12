@@ -347,6 +347,9 @@ viewMgrClass.prototype = {
                 this._openFolder(index);
             }
             this.tree.treeBoxObject.invalidate();
+
+            require("ko/dom")(window.parent).trigger("folder_touched", {path: dir});
+
         }.bind(this);
         ko.views.manager.newTemplateAsync(dir, callback);
     },
@@ -358,14 +361,19 @@ viewMgrClass.prototype = {
         try {
             this.view.addNewFileAtParent(name, index);
             this.tree.treeBoxObject.invalidate();
-            let parentURI = (index >= 0
+            var parentURI = (index >= 0
                              ? this.view.getURIForRow(index)
                              : ko.places.manager.currentPlace);
             ko.views.manager.doFileOpenAsync(parentURI + "/" + name);
             this._openFolder(index);
         } catch(ex) {
             ko.dialogs.alert(ex);
+        } finally {
+            var sdkFile = require("ko/file");
+            require("ko/dom")(window.parent).trigger("folder_touched",
+                                                  {path: ko.uriparse.URIToPath(parentURI)});
         }
+
     },
 
     addNewFolder: function() {
@@ -377,6 +385,13 @@ viewMgrClass.prototype = {
             this._openFolder(index);
         } catch(ex) {
             ko.dialogs.alert(ex);
+        } finally {
+            var parentURI = (index >= 0
+                             ? this.view.getURIForRow(index)
+                             : ko.places.manager.currentPlace);
+            var sdkFile = require("ko/file");
+            require("ko/dom")(window.parent).trigger("folder_touched",
+                                                  {path: ko.uriparse.URIToPath(parentURI)});
         }
     },
 
@@ -1941,8 +1956,28 @@ ManagerClass.prototype = {
         try {
             gPlacesViewMgr.finishFileCopyOperation(srcURIs, target_uri, index,
                                                     isCopying);
+
         } catch(ex) {
             ko.dialogs.alert(ex);
+        } finally {
+            var sdkFile = require("ko/file"),
+                w       = require("ko/dom")(window.parent);
+
+            w.trigger(
+                "folder_touched",
+                {path: sdkFile.dirname(ko.uriparse.URIToPath(target_uri)) }),
+                triggered = {};
+
+            if ( ! isCopying)
+            {
+                srcURIs.forEach(function(uri) {
+                    if (uri in triggered) return;
+
+                    var path = sdkFile.dirname(ko.uriparse.URIToPath(uri));
+                    w.trigger("folder_touched", {path: _path });
+                    triggered[uri] = true;
+                });
+            }
         }
         if (!isCopying) {
             xtk.clipboard.emptyClipboard();
@@ -2071,6 +2106,11 @@ ManagerClass.prototype = {
                     if (result == response) {
                         try {
                             gPlacesViewMgr.view.renameItem(index, newname, true);
+
+                            require("ko/dom")(window).trigger(
+                                "file_touched",
+                                {path: ko.uriparse.URIToPath(uri) });
+
                         } catch(ex2) {
                             if (this._doRenameItem_files_are_same_re.test(ex2.message)) {
                                 ko.dialogs.alert(_bundle.formatStringFromName("Files X and X are the same, rename stopped.template", [oldname, newname], 2));
@@ -2170,6 +2210,18 @@ ManagerClass.prototype = {
                                             uris.length, uris);
         } catch(ex) {
             alert(ex);
+        }
+        finally {
+            var sdkFile = require("ko/file"),
+                w       = require("ko/dom")(window.parent),
+                triggered= {};
+            uris.forEach(function(uri) {
+                if (uri in triggered) return;
+
+                var _path = sdkFile.dirname(ko.uriparse.URIToPath(uri));
+                w.trigger("folder_touched", {path: _path});
+                triggered[uri] = true;
+            });
         }
     },
     /*

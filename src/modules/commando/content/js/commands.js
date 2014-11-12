@@ -11,6 +11,11 @@
 
     var controller =
     {
+        do_cmd_commandoClearCache: function()
+        {
+            commando().clearCache();
+        },
+
         do_cmd_commandoPrefs: function()
         {
             prefs_doGlobalPrefs("commandoItem");

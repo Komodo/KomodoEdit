@@ -4,6 +4,7 @@
     const {Cc, Ci}  = require("chrome");
     const system    = require("sdk/system");
     const ioFile    = require("sdk/io/file");
+    const $         = require("ko/dom");
     const sep       = system.platform == "winnt" ? "\\" : "/";
     const isep      = sep == "/" ? /\\/g : /\//g;
 
@@ -16,6 +17,20 @@
     var activeUuid = null;
 
     var local = {warned: {}};
+
+    var init = function()
+    {
+        $(window).on("folder_touched", require("contrib/underscore").debounce(function(e)
+        {
+            scope.deleteCachePath(e.detail.path);
+
+            if (commando.getScope().handler == "scope-files/files")
+            {
+                commando.reSearch();
+                if (commando.isOpen()) commando.focus();
+            }
+        }, 100));
+    };
 
     // Shortcut cache variables.
     var shortcutsVersion = -1;
@@ -372,5 +387,12 @@
         var commands = require("./commands");
         commands.onSearch(query, uuid, callback);
     }
+
+    this.clearCache = function()
+    {
+        scope.emptyCache();
+    }
+
+    init();
 
 }).apply(module.exports);

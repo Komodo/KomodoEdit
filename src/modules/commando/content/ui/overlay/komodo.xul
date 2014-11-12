@@ -49,7 +49,9 @@
                     <menulist id="commando-scope" sizetopopup="none">
                         <menupopup id="commando-scope-menupopup">
                             <menuseparator id="scope-separator"/>
-                            <menuitem label="Manage Scopes ..."
+                            <menuitem label="Clear Cache"
+                                      oncommand="ko.commands.doCommand('cmd_commandoClearCache', event)"/>
+                            <menuitem label="Preferences"
                                       oncommand="ko.commands.doCommand('cmd_commandoPrefs', event)"/>
                         </menupopup>
                     </menulist>
@@ -70,7 +72,7 @@
                         <hbox class="entry-wrapper" align="center" pack="center">
                             <description class="title">
                                 {{~it.scopes :s:index}}
-                                    {{=s.name}} >
+                                    {{=s.subscope.name}} >
                                 {{~}}
 
                                 {{=it.scope.name}} >
@@ -146,6 +148,12 @@
             key="key_cmd_commandoPrefs"
             oncommand="ko.commands.doCommand('cmd_commandoPrefs', event)"
             desc="&commandoPrefs.desc;"/>
+
+        <command
+            id="cmd_commandoClearCache"
+            key="key_cmd_commandoClearCache"
+            oncommand="ko.commands.doCommand('cmd_commandoClearCache', event)"
+            desc="&clearCache.desc;"/>
 
     </commandset>
 

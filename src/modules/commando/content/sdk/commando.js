@@ -289,6 +289,11 @@
         }
     }
 
+    this.isOpen = function()
+    {
+        return local.open;
+    }
+
     this.hide = function()
     {
         elem('panel').element().hidePopup();
@@ -935,6 +940,19 @@
 
     this.getScope = function()
     {
+        try
+        {
+            if (local.selectedScope)
+            {
+                var scopeElem = elem('scope');
+                return scopeElem.find("#"+local.selectedScope).element()._scope;
+            }
+        }
+        catch (e)
+        {
+            log.exception(e);
+        }
+
         return elem('scope').element().selectedItem._scope;
     }
 
@@ -995,6 +1013,15 @@
     {
         // todo: Use localized database of tips
         elem("tip").html(tipMessage || "TIP: Hit the right arrow key to \"expand\" your selection");
+    }
+
+    this.clearCache = function()
+    {
+        c.execScopeHandler("clearCache");
+        c.tip("Cache Cleared");
+
+        c.reSearch();
+        c.focus();
     }
 
     /* Helpers */

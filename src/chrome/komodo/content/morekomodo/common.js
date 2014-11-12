@@ -181,7 +181,7 @@ MoreKomodoCommon.renameFile = function(uri, newName, askConfirm) {
         if (!exists || canRename(newFile.isFile(), newName)) {
             newPath = parent + "/" + newName;
             conn.rename(oldPath, newPath);
-        }
+        }c
         newPath = koFileEx.scheme + "://" + koFileEx.server
                     + "/" + koFileEx.dirName + "/" + newName;
     } else {
@@ -207,6 +207,9 @@ MoreKomodoCommon.renameFile = function(uri, newName, askConfirm) {
         var obs = MoreKomodoCommon.getObserverService();
         obs.notifyObservers(data, "morekomodo_command", null);
     }
+
+    var sdkFile = require("ko/file");
+    require("ko/dom")(window.parent).trigger("folder_touched", {path: sdkFile.dirname(newPath)});
 
     return newPath;
 }
@@ -268,6 +271,10 @@ MoreKomodoCommon.moveFile = function(path, newPath, command = "move") {
         var obs = MoreKomodoCommon.getObserverService();
         obs.notifyObservers(data, "morekomodo_command", null);
     }
+
+    var sdkFile = require("ko/file");
+    require("ko/dom")(window.parent).trigger("folder_touched", {path: sdkFile.dirname(oldPath)});
+    require("ko/dom")(window.parent).trigger("folder_touched", {path: sdkFile.dirname(newPath)});
 }
 
 MoreKomodoCommon.deleteFile = function(uri) {
@@ -283,6 +290,9 @@ MoreKomodoCommon.deleteFile = function(uri) {
     } else {
         MoreKomodoCommon.makeLocalFile(path).remove(false);
     }
+
+    var sdkFile = require("ko/file");
+    require("ko/dom")(window.parent).trigger("folder_touched", {path: sdkFile.dirname(path)});
 }
 
 MoreKomodoCommon.isRemotePath = function(ko, path) {

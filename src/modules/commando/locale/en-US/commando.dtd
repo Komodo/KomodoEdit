@@ -1,5 +1,6 @@
 <!ENTITY commando.label "Commando">
 <!ENTITY showCommando.desc "Go to Anything">
 <!ENTITY commandoPrefs.desc "Commando Preferences">
+<!ENTITY clearCache.desc "Commando: Clear Cache">
 
 <!ENTITY searchScopes.label "Search Scopes">

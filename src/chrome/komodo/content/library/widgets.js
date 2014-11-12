@@ -473,7 +473,7 @@ if (typeof(ko.widgets)=='undefined') {
             }
         }
         let initializer = (function(win) {
-            ["ko", "xtk", "gEditorTooltipHandler"].forEach(function(prop) {
+            ["require", "JetPack", "ko", "xtk", "gEditorTooltipHandler"].forEach(function(prop) {
                 Object.defineProperty(win, prop, {
                     get: function() window[prop],
                     enumerable: true, configurable: true,

@@ -34,6 +34,10 @@ class koScopeFiles:
     activeUuid = None
     searches = {}
 
+    # Cache Data
+    cache = {}
+    observers = 0
+
     @property
     def history(self):
         if not self._history:
@@ -58,7 +62,7 @@ class koScopeFiles:
         opts["callback"] = callback
         opts["getShortcuts"] = self.getShortcuts
 
-        self.searches[uuid] = Searcher(opts, self.onSearchResults, self.onSearchComplete)
+        self.searches[uuid] = Searcher(self, opts, self.onSearchResults, self.onSearchComplete)
         t = threading.Thread(target=self.searches[uuid].start, args=(query, path),
                              name="Scope files search")
         t.setDaemon(True)
@@ -149,11 +153,23 @@ class koScopeFiles:
     def getShortcutsAsJson(self):
         return json.dumps(self.getShortcuts())
 
+    def deleteCachePath(self, path):
+        log.debug("Deleting cached path: " + path)
+
+        if self.cache.get(path):
+            del self.cache[path]
+
+    def emptyCache(self):
+        log.debug("Emptying Cache")
+
+        self.cache = {}
+
 class Searcher:
 
-    def __init__(self, opts, callback, callbackComplete):
+    def __init__(self, koScopeFiles, opts, callback, callbackComplete):
         self._stop = False
 
+        self.scopeFiles = koScopeFiles
         self.opts = opts
         self.callback = callback
         self.callbackComplete = callbackComplete
@@ -197,7 +213,7 @@ class Searcher:
         self.opts["path"] = path
         self.opts["stripPathRe"] = re.compile("^" + re.escape(path) + "/??")
 
-        self.walker = Walker(self.opts, self.onWalk, self.onWalkComplete)
+        self.walker = Walker(self.scopeFiles, self.opts, self.onWalk, self.onWalkComplete)
         self.walker.start(path)
 
     def searchShortcuts(self, word):
@@ -357,9 +373,9 @@ class Searcher:
 
 class Walker:
 
-    cache = {}
+    def __init__(self, koScopeFiles, opts, callback = None, callbackComplete = None):
+        self.scopeFiles = koScopeFiles
 
-    def __init__(self, opts, callback = None, callbackComplete = None):
         self._stop = False
 
         self.opts = opts
@@ -405,13 +421,13 @@ class Walker:
         result = None
 
         if self.opts.get("usecache", True):
-            result = self.cache.get(path, False)
+            result = self.scopeFiles.cache.get(path, False)
 
         if not result:
             result = self.scandir(path)
 
             if self.opts.get("cacheable", False):
-                self.cache[path] = result
+                self.scopeFiles.cache[path] = result
 
         # Get dirnames, filenames from cache
         [dirnames, filenames] = result;
