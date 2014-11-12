@@ -458,10 +458,16 @@ function javaScriptInfo(languageName) {
                         koFileEx.close();
                         var p = /(?:^|\n)\s*\/\/\s*(\d\d\d\d-\d\d-\d\d)/;
                         var m = p.exec(s);
+                        if (!m) {
+                            // Modern jshint form:
+                            // /*! 2.5.10
+                            p = /(?:^|\n)\s*(?:\/\/|\/\*)[\s\!]*([\d\.]+)/;
+                            m = p.exec(s);
+                        }
                         if (m) {
                             specificText = bundleLang.formatStringFromName("Selected Version X", [m[1]], 1);
                         } else {
-                            specificText = bundleLang.formatStringFromName("Selected Version X", [bundleLang.GetStringFromName("Unknown")]);
+                            specificText = bundleLang.formatStringFromName("Selected Version X", [bundleLang.GetStringFromName("Unknown")], 1);
                         }
                     }
                 } catch(ex) {
