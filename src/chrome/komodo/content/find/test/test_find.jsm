@@ -1123,8 +1123,6 @@ TestKoFind.prototype.test_replace_unicode = function test_replace() {
 
     for (let run of runs) {
         var {text, pattern, replacement, result} = run;
-        dump('text: ' + text + '\n');
-        dump('result: ' + result + '\n');
         scimoz.text = text;
         let success = ko.find.replaceAll(this.scope, /* editor */
                                     this.context, /* context */
