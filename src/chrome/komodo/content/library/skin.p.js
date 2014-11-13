@@ -308,7 +308,7 @@ if (ko.skin == undefined)
                 "@background: " + scheme.getBack('', 'linenumbers') + ";\n" +
                 "@foreground: " + scheme.foregroundColor + ";\n" +
                 "@import url('chrome://komodo/skin/partials/scheme-skinning.less');";
-            this.loadVirtualStyle(lessCode, "statusbar-partial");
+            this.loadVirtualStyle(lessCode, "statusbar-partial", "agent");
         },
 
         _getFile: function(uri)
@@ -597,14 +597,14 @@ if (ko.skin == undefined)
         {
             if ( ! id) throw "You must provide a unique id for your style";
 
-            var uri = this._virtualStyles[id];
+            var style = this._virtualStyles[id];
             var styleUtil = require("sdk/stylesheet/utils");
 
             var unloadFromWindow = function(_window)
             {
                 try
                 {
-                    styleUtil.removeSheet(_window, uri, "agent");
+                    styleUtil.removeSheet(_window, style.href, style.type);
                 } catch (e) {} // no need for an exception if its already removed
             }
 
@@ -626,7 +626,7 @@ if (ko.skin == undefined)
         },
 
         _virtualStyles: {},
-        loadVirtualStyle: function(lessCode, id)
+        loadVirtualStyle: function(lessCode, id, type = "author")
         {
             this.unloadVirtualStyle(id);
 
@@ -645,7 +645,7 @@ if (ko.skin == undefined)
                 file.write(cssCode);
                 file.close();
 
-                this._virtualStyles[id] = ko.uriparse.pathToURI(path);
+                this._virtualStyles[id] = {href: ko.uriparse.pathToURI(path), type: type};
 
                 this._loadVirtualStyle(id);
                 this._virtualStyleListener();
@@ -685,12 +685,12 @@ if (ko.skin == undefined)
             if (_window)
                 log.debug("Loading virtual style " + id + " into " + (_window.name || _window.id || "unknown window"));
 
-            var uri = this._virtualStyles[id];
+            var style = this._virtualStyles[id];
             var styleUtil = require("sdk/stylesheet/utils");
 
             var loadIntoWindow = function(xulWindow)
             {
-                styleUtil.loadSheet(xulWindow, uri, "agent");
+                styleUtil.loadSheet(xulWindow, style.href, style.type);
             }
 
             if (_window)
