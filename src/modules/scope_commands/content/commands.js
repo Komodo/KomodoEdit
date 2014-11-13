@@ -64,7 +64,7 @@
         if (commands.length)
             commando.renderResults(commands, uuid);
 
-        onComplete(uuid);
+        onComplete();
     }
 
     this.onSelectResult = function(selectedItems)

@@ -61,7 +61,7 @@
             if (results.length)
                 commando.renderResults(tools, uuid);
 
-            onComplete(uuid);
+            onComplete();
         });
     }
 

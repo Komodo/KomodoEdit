@@ -9,7 +9,7 @@
         return commando.getRegisteredScopes();
     }
 
-    this.onSearch = function(query, uuid)
+    this.onSearch = function(query, uuid, onComplete)
     {
         var scopes = getScopes();
         var subscope = commando.getSubscope();
@@ -19,8 +19,10 @@
             if (subscope && subscope.scope != id) continue;
 
             let scope = scopes[id];
-            require(scope.handler).onSearch(query, uuid);
+            require(scope.handler).onSearch(query, uuid, function() {});
         }
+
+        onComplete(); // todo: make async compatible
     }
 
     this.onSelectResult = function(selectedItems)
