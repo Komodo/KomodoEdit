@@ -154,8 +154,6 @@ void SciMoz::SciMozInit() {
     mLastLineCount = 1;
 
     PlatformNew();
-
-    DefaultSettings();
 }
 
 // Default settings for Komodo scintilla widgets.
@@ -234,6 +232,7 @@ void SciMoz::Create(WinID hWnd) {
 	fprintf(stderr,"SciMoz::Create %lx\n", hWnd);
 #endif
 	PlatformCreate(hWnd);
+	DefaultSettings();
 }
 
 static bool IsBrace(char ch) {

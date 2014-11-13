@@ -173,6 +173,7 @@ void * SciMoz::GetCoreAnimationLayer() {
 SciMoz::SciMoz()
 {
     SciMozInit();
+    DefaultSettings();
 }
 
 
