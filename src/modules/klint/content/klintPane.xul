@@ -19,6 +19,36 @@
             src="chrome://klint/content/klintPane.js" />
 
     <vbox flex="1">
+        <tree id="klint-tree"
+              flex="999"
+              seltype="single">
+            <treecols>
+                <treecol primary="true"
+                         id="klint-linenum"
+                         style="min-width: 8em;"
+                         label="&klint.line.number.label;"
+                         sortActive="true"
+                         sortDirection="ascending"
+                         onclick="gKlint.sort(event)"
+                         persist="width ordinal hidden sortActive sortDirection"/>
+                <splitter class="tree-splitter"/>
+                <treecol id="klint-messageType"
+                         style="min-width: 8em;"
+                         onclick="gKlint.sort(event)"
+                         label="&klint.message.type.label;"
+                         persist="width ordinal hidden sortActive sortDirection"/>
+                <splitter class="tree-splitter"/>
+                <treecol id="klint-message"
+                         flex="1"
+                         label="&klint.message.text.label;"
+                         onclick="gKlint.sort(event)"
+                         persist="width ordinal hidden sortActive sortDirection"/>
+            </treecols>
+            <treechildren id="klint-treechildren"
+                          class="klintTreeChildren"
+                          flex="1"
+                          ondblclick="gKlint.onDblClick(event);"/>
+        </tree>
         <box class="widgetToolbarWrap">
             <menulist id="klint-filter-type">
                 <menupopup>
@@ -58,36 +88,6 @@
                 onkeypress="gKlint.onTextFilterKeypress(event)"
                 oninput="gKlint.onTextFilterInput(event);" />
         </box>
-        <tree id="klint-tree"
-              flex="1"
-              seltype="single">
-            <treecols>
-                <treecol primary="true"
-                         id="klint-linenum"
-                         style="min-width: 8em;"
-                         label="&klint.line.number.label;"
-                         sortActive="true"
-                         sortDirection="ascending"
-                         onclick="gKlint.sort(event)"
-                         persist="width ordinal hidden sortActive sortDirection"/>
-                <splitter class="tree-splitter"/>
-                <treecol id="klint-messageType"
-                         style="min-width: 8em;"
-                         onclick="gKlint.sort(event)"
-                         label="&klint.message.type.label;"
-                         persist="width ordinal hidden sortActive sortDirection"/>
-                <splitter class="tree-splitter"/>
-                <treecol id="klint-message"
-                         flex="1"
-                         label="&klint.message.text.label;"
-                         onclick="gKlint.sort(event)"
-                         persist="width ordinal hidden sortActive sortDirection"/>
-            </treecols>
-            <treechildren id="klint-treechildren"
-                          class="klintTreeChildren"
-                          flex="1"
-                          ondblclick="gKlint.onDblClick(event);"/>
-        </tree>
     </vbox>
     
 </page>

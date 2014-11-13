@@ -13,6 +13,30 @@
 <?xml-stylesheet href="chrome://komodo/skin/find.css" type="text/css"?>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <tree id="findresults" flex="1"
+          seltype="single" class="no-border"
+          onclick="gFindResultsTabManager.onClick(event);"
+          onkeypress="return gFindResultsTabManager.onKeyPress(event);">
+        <treecols>
+            <treecol primary="true"
+                     id="findresults-filename"
+                     label="&file.label;" flex="6"
+                     persist="width"
+                     crop="left"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="findresults-linenum"
+                     label="&line.label;"
+                     persist="width"
+                     style="width: 4em;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="findresults-context"
+                     persist="width"
+                     label="&content.label;" flex="12"/>
+        </treecols>
+        <treechildren id="findresults-body" flex="1"
+                      class="findresults"/>
+    </tree>
+
     <box id="findresults_tabpanel-toolbarbox"
         class="widgetToolbarWrap">
         <toolbar id="findtoolbar-button-box" class="widgetToolbar">
@@ -58,29 +82,6 @@
                  tooltiptext="&findFilter.tooltiptext;"
                  />
     </box>
-    <tree id="findresults" flex="1"
-          seltype="single" class="no-border"
-          onclick="gFindResultsTabManager.onClick(event);"
-          onkeypress="return gFindResultsTabManager.onKeyPress(event);">
-        <treecols>
-            <treecol primary="true"
-                     id="findresults-filename"
-                     label="&file.label;" flex="6"
-                     persist="width"
-                     crop="left"/>
-            <splitter class="tree-splitter"/>
-            <treecol id="findresults-linenum"
-                     label="&line.label;"
-                     persist="width"
-                     style="width: 4em;"/>
-            <splitter class="tree-splitter"/>
-            <treecol id="findresults-context"
-                     persist="width"
-                     label="&content.label;" flex="12"/>
-        </treecols>
-        <treechildren id="findresults-body" flex="1"
-                      class="findresults"/>
-    </tree>
 
     <script src="chrome://komodo/content/find/findResultsTab.js"          type="application/x-javascript;version=1.7"/>
 </page>

@@ -17,25 +17,8 @@
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <box id="runoutput-desc-tabpanel-toolbar" class="widgetToolbarWrap">
-        <toolbar class="widgetToolbar">
-            <toolbarbutton id="runoutput-list-button"
-                    class="bulletlist-icon"
-                    tooltiptext="&toggleRawParsedOutputView.tooltiptext;"
-                    oncommand="ko.run.output.toggleView();"
-                    disabled="true"/>
-            <toolbarbutton id="runoutput-close-button"
-                    class="find-stop-icon"
-                    tooltiptext="&terminateProcess.tooltiptext;"
-                    oncommand="ko.run.output.kill(-1);"
-                    disabled="true"/>
-        </toolbar>
-        <hbox valign="middle">
-            <label id="runoutput-desc" class="desc" crop="center" />
-        </hbox>
-    </box>
     <vbox flex="1" id="runoutput-desc-tabpanel-vbox">
-        <hbox flex="1" id="runoutput-desc-tabpanel-hbox">
+        <hbox flex="999" id="runoutput-desc-tabpanel-hbox">
             <deck id="runoutput-deck"
                   selectedIndex="0" flex="1">
                 <view type="terminal"
@@ -74,6 +57,25 @@
                 </tree>
             </deck>
         </hbox>
+
+        <box id="runoutput-desc-tabpanel-toolbar" class="widgetToolbarWrap">
+            <toolbar class="widgetToolbar">
+                <toolbarbutton id="runoutput-list-button"
+                        class="bulletlist-icon"
+                        tooltiptext="&toggleRawParsedOutputView.tooltiptext;"
+                        oncommand="ko.run.output.toggleView();"
+                        disabled="true"/>
+                <toolbarbutton id="runoutput-close-button"
+                        class="find-stop-icon"
+                        tooltiptext="&terminateProcess.tooltiptext;"
+                        oncommand="ko.run.output.kill(-1);"
+                        disabled="true"/>
+            </toolbar>
+            <hbox valign="middle">
+                <label id="runoutput-desc" class="desc" crop="center" />
+            </hbox>
+        </box>
+
     </vbox>
 
     <commandset id="runoutput-commandset"/>

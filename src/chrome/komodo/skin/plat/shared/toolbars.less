@@ -328,14 +328,30 @@ toolbarbutton[disabled="true"] > dropmarker
     border-bottom: none !important;
 }
 
+toolbarbutton > .toolbarbutton-text[label],
+toolbarbutton > .toolbarbutton-text[value]
+{
+    padding-left: 4px;
+}
+
 /* Widget Toolbar */
 
 .widgetToolbarWrap
 {
     -moz-box-align: center;
-    border-bottom: @main-border;
-    box-shadow: @panel-separator-shadow;
-    min-height: 30px;
+
+    &:not(.embedded)
+    {
+        border-top: @main-border;
+        box-shadow: @panel-separator-shadow;
+    }
+
+    &.top
+    {
+        border-bottom: @main-border;
+        border-top: 0;
+        box-shadow: none;
+    }
 
     .widgetToolbar
     {
@@ -351,3 +367,19 @@ toolbarbutton[disabled="true"] > dropmarker
     }
 
 }
+
+.widgetToolbarWrap.embedded,
+{
+    &, .widgetToolbar
+    {
+        background: @list-tree-background;
+    }
+}
+
+.widgetToolbarWrap.centered,
+.widgetToolbar.centered
+{
+    -moz-box-pack: center;
+    -moz-box-flex: 1;
+}
+

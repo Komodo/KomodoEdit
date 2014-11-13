@@ -16,7 +16,8 @@
 <page id="notificationWidget" title="(Notifications Widget)"
       xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <vbox flex="1">
-    <box class="widgetToolbarWrap">
+    <richlistbox id="message-container" seltype="multiple" flex="999"/>
+    <box class="widgetToolbarWrap centered">
         <toolbar id="toolbar" class="widgetToolbar">
           <toolbargroup class="solo-toolbaritem">
             <toolbarbutton type="checkbox" id="filter-error"
@@ -34,13 +35,12 @@
                            oncommand="NotificationsWidgetController.updateFilters()"/>
           </toolbargroup>
         </toolbar>
-        <toolbarseparator flex="1"/>
+        <separator flex="1"/>
         <textbox id="filter-search" flex="1"
 		 emptytext="&filterSearchEmpty;" type="search"
                  oninput="NotificationsWidgetController.updateFilters()"
                  oncommand="NotificationsWidgetController.updateFilters()"/>
     </box>
-    <richlistbox id="message-container" seltype="multiple"/>
   </vbox>
 
   <popupset id="mainPopupSet">
