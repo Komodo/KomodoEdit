@@ -91,22 +91,14 @@ function initDialog() {
     dialog.deleteButton = document.getElementById('deleteScheme');
     dialog.schemeslist = document.getElementById('schemeslist');
     dialog.schemespopup = document.getElementById('schemespopup');
-    dialog.fixedList = document.getElementById('fixed');
-    dialog.propList = document.getElementById('proportional');
-    dialog.fixedSize = document.getElementById('fixedSize');
-    dialog.propSize = document.getElementById('propSize');
-    dialog.fixedBold = document.getElementById('fixedBold');
-    dialog.fixedItalic = document.getElementById('fixedItalic');
-    dialog.propBold = document.getElementById('propBold');
-    dialog.propItalic = document.getElementById('propItalic');
-    dialog.preferFixed = document.getElementById('preferFixed');
-    dialog.preferProp = document.getElementById('preferProp');
-    dialog.fixedColorPickerFore = document.getElementById('fixedColorPickerFore');
-    dialog.fixedColorPickerBack = document.getElementById('fixedColorPickerBack');
-    dialog.propColorPickerFore = document.getElementById('propColorPickerFore');
-    dialog.propColorPickerBack = document.getElementById('propColorPickerBack');
-    dialog.fixedLineSpacing = document.getElementById('fixedLineSpacing');
-    dialog.propLineSpacing = document.getElementById('propLineSpacing');
+    dialog.fixedOrPropMenu = document.getElementById('fixedOrPropMenu');
+    dialog.fontList = document.getElementById('fontlist');
+    dialog.fontSize = document.getElementById('fontSize');
+    dialog.fontBold = document.getElementById('fontBold');
+    dialog.fontItalic = document.getElementById('fontItalic');
+    dialog.fontColorPickerFore = document.getElementById('fontColorPickerFore');
+    dialog.fontColorPickerBack = document.getElementById('fontColorPickerBack');
+    dialog.fontLineSpacing = document.getElementById('fontLineSpacing');
     dialog.tabbox = document.getElementById('tabbox');
     dialog.current_tab_id = null;
     // second tab: colors
@@ -212,9 +204,9 @@ function OnPreferencePageLoading(prefset) {
                 listElement.selectedIndex = 0;
             }
         }
+        initFontsMenulist();
         changeLanguage();
         updateFromScheme();
-        initFonts();
         loadColorpickerPreferences(prefset);
     } catch (e) {
         log.exception(e);
@@ -386,13 +378,7 @@ function updateDelete()
 function updateFromScheme()
 {
     try {
-        if (gDialog.currentScheme.preferFixed) {
-            gDialog.preferFixed.setAttribute('selected', 'true');
-            gDialog.preferProp.setAttribute('selected', 'false');
-        } else {
-            gDialog.preferFixed.setAttribute('selected', 'false');
-            gDialog.preferProp.setAttribute('selected', 'true');
-        }
+        gDialog.fixedOrPropMenu.value = (gDialog.currentScheme.preferFixed ? "1" : "0");
         gDialog.useSelFore.setAttribute('checked',
                                         gDialog.currentScheme.useSelFore);
         updateMenuitemAndCheckbox('useSelFore', 'selFore', false);
@@ -445,17 +431,11 @@ function setColour(colorpicker)
     } else {
         colorid = colorpickerid;
         switch (colorid) {
-            case 'fixedColorPickerFore':
+            case 'fontColorPickerFore':
                 gDialog.currentScheme.setFore('', faceIdentifier(1), color);
                 break;
-            case 'fixedColorPickerBack':
+            case 'fontColorPickerBack':
                 gDialog.currentScheme.setBack('', faceIdentifier(1), color);
-                break;
-            case 'propColorPickerFore':
-                gDialog.currentScheme.setFore('', faceIdentifier(0), color);
-                break;
-            case 'propColorPickerBack':
-                gDialog.currentScheme.setBack('', faceIdentifier(0), color);
                 break;
             case 'commonColorPickerFore':
                 gDialog.currentScheme.setFore('',
@@ -493,18 +473,8 @@ function setLineSpacing(fontStyle)
 {
     if (!ensureWriteableScheme()) return;
 
-    var value, style;
-    if (fontStyle == "fixed")
-    {
-        style = faceIdentifier(1);
-        value = gDialog.fixedLineSpacing.value;
-    }
-    else
-    {
-        style = faceIdentifier(0);
-        value = gDialog.propLineSpacing.value;
-    }
-
+    var style = faceIdentifier();
+    var value = gDialog.fontLineSpacing.value;
     gDialog.currentScheme.setLineSpacing(style, value);
     updateScintilla();
     updateCommonStyle();
@@ -527,27 +497,15 @@ function onClickBoldOrItalic(button)
         var id = button.getAttribute('id');
         var checked = button.hasAttribute('checked') ? true : false;
         switch (id) {
-            case 'fixedBold':
+            case 'fontBold':
                 gDialog.currentScheme.setBold('',
                                              faceIdentifier(1),
                                              checked);
                 updateCommon = true;
                 break;
-            case 'fixedItalic':
+            case 'fontItalic':
                 gDialog.currentScheme.setItalic('',
                                                faceIdentifier(1),
-                                               checked);
-                updateCommon = true;
-                break;
-            case 'propBold':
-                gDialog.currentScheme.setBold('',
-                                             faceIdentifier(0),
-                                             checked);
-                updateCommon = true;
-                break;
-            case 'propItalic':
-                gDialog.currentScheme.setItalic('',
-                                               faceIdentifier(0),
                                                checked);
                 updateCommon = true;
                 break;
@@ -585,11 +543,11 @@ function onClickBoldOrItalic(button)
     }
 }
 
-function onClickFixedFont()
+function onChangeFont()
 {
     try {
         if (!ensureWriteableScheme()) return;
-        var face = gDialog.fixedList.value;
+        var face = gDialog.fontList.value;
         gDialog.currentScheme.setFont(faceIdentifier(1), face);
         updateScintilla();
     } catch (e) {
@@ -597,36 +555,12 @@ function onClickFixedFont()
     }
 }
 
-function onClickFixedSize()
+function onChangeFontSize()
 {
     try {
         if (!ensureWriteableScheme()) return;
-        var size = gDialog.fixedSize.value;
+        var size = gDialog.fontSize.value;
         gDialog.currentScheme.setSize('', faceIdentifier(1), size);
-        updateScintilla();
-    } catch (e) {
-        log.error(e);
-    }
-}
-
-function onClickProportionalFont()
-{
-    try {
-        if (!ensureWriteableScheme()) return;
-        var face = gDialog.propList.value;
-        gDialog.currentScheme.setFont(faceIdentifier(0), face);
-        updateScintilla();
-    } catch (e) {
-        log.error(e);
-    }
-}
-
-function onClickProportionalSize()
-{
-    try {
-        if (!ensureWriteableScheme()) return;
-        var size = gDialog.propSize.value;
-        gDialog.currentScheme.setSize('', faceIdentifier(0), size);
         updateScintilla();
     } catch (e) {
         log.error(e);
@@ -1031,37 +965,26 @@ function checkSubLanguageBackground(checkbox) {
     updateSubLanguageBackgroundField(checkbox);
 }
 
-var gFontsProp;
-var gFontsFixed;
-
 function generateFontList()
 {
 try {
     // get all the fonts on the system
     var strFontSpecs;
     var j;
-    gFontsProp = [];
-    gFontsFixed = [];
-    gFontNames = {};
+    var fontmap = {};
     var re = /^([^-]+)-([^-]+)/;
-    var fProp = {};
     var fMono = {};
     var fName = "";
     for (var i=0;i<gFontLanguages.length;i++) {
-// #if PLATFORM != 'win' and PLATFORM != 'darwin'
+// #if PLATFORM == 'linux'
         strFontSpecs = enumerator.EnumerateFonts(gFontLanguages[i],
                                                  'sans',
                                                  new Object());
         var fontspec;
         for (j=0; j < strFontSpecs.length; j++) {
-            if (typeof(gFontNames[strFontSpecs[j]])=='undefined' ||
-                !gFontNames[strFontSpecs[j]]) {
-                gFontNames[strFontSpecs[j]] = strFontSpecs[j];
-                // Mozilla doesn't tell us which fonts are fixed
-                // width and which are proportional =(
-                // We could guess based on the names?
-                gFontsFixed.push(strFontSpecs[j]);
-                gFontsProp.push(strFontSpecs[j]);
+            if (typeof(fontmap[strFontSpecs[j]])=='undefined' ||
+                !fontmap[strFontSpecs[j]]) {
+                fontmap[strFontSpecs[j]] = strFontSpecs[j];
             }
         }
 // #else
@@ -1073,22 +996,9 @@ try {
                                                      new Object());
             for (j=0; j < strFontSpecs.length; j++) {
                 fName = strFontSpecs[j];
-                if (gFontTypes[t]=='monospace') {
-                    if (typeof(fMono[fName])=='undefined' ||
-                       !fMono[fName]) {
-                        fMono[fName]=fName;
-                        gFontsFixed[gFontsFixed.length] = fName;
-                    }
-                } else {
-                    if (typeof(fProp[fName])=='undefined' ||
-                       !fProp[fName]) {
-                        fProp[fName]=fName;
-                        gFontsProp[gFontsProp.length] = fName;
-                    }
-                }
-                if (typeof(gFontNames[fName])=='undefined' ||
-                    !gFontNames[fName]) {
-                    gFontNames[fName]=fName;
+                if (typeof(fontmap[fName])=='undefined' ||
+                    !fontmap[fName]) {
+                    fontmap[fName]=fName;
                 }
             }
         }
@@ -1103,37 +1013,22 @@ try {
     for (i = 0; i < lim; i++) {
         fName = allLanguages[i];
         if (!fName) continue;
-        if (!(fName in fProp)) {
-            fProp[fName]=fName;
-            gFontsProp.push(fName);
-            gFontNames[fName]=fName;
-        }
+        fontmap[fName]=fName;
     }
 // #endif
+
+    gFontNames = Object.keys(fontmap);
+
 } catch (e) {
     log.exception(e);
 }
 }
 
-function initFonts()  {
+function initFontsMenulist()  {
     // Do all fonts list first
-    var fixedElement = new listElement( 'fixed' );
-    var propElement = new listElement( 'proportional' );
-    var strFontFaces = [];
-    var strFontSpecs = {};
-    // Fixed and Proportional
-    fixedElement.clearList();
-    propElement.clearList();
-
-    propElement.appendStrings(gFontsProp,null);
-    fixedElement.appendStrings(gFontsFixed,null);
-}
-
-function _findFontName(name) {
-    if (typeof(gFontNames[name]) == 'undefined') {
-        return name;
-    }
-    return gFontNames[name];
+    var fontsElement = new listElement( 'fontlist' );
+    fontsElement.clearList();
+    fontsElement.appendStrings(gFontNames, null);
 }
 
 function customColor(colorpickerid) {
@@ -1192,44 +1087,36 @@ function updateFonts()  {
     var pSpace = gDialog.currentScheme.getLineSpacing(faceIdentifier(0));
     var m;
 
-    gDialog.fixedList.setAttribute('label', _findFontName(fLabel));
-    gDialog.propList.setAttribute('label', _findFontName(pLabel));
-    gDialog.fixedSize.setAttribute('label', fSize);
-    m = document.getElementById('fixedSize_'+fSize);
-    gDialog.fixedSize.selectedItem = m;
-    gDialog.propSize.setAttribute('label', pSize);
-    m = document.getElementById('propSize_'+pSize);
-    gDialog.propSize.selectedItem = m;
+    gDialog.fontList.setAttribute('label', fLabel);
+    dump('fLabel: ' + fLabel + '\n');
+    dump('gDialog.fontList.menupopup.childNodes.length: ' + gDialog.fontList.menupopup.childNodes.length + '\n');
+    gDialog.fontList.selectedIndex = gFontNames.indexOf(fLabel);
+    dump('gFontNames.indexOf(fLabel): ' + gFontNames.indexOf(fLabel) + '\n');
+    dump('gDialog.fontList.selectedIndex: ' + gDialog.fontList.selectedIndex + '\n');
+    dump('gDialog.fontList.selectedItem: ' + gDialog.fontList.selectedItem + '\n');
+    dump('gFontNames.indexOf(fLabel): ' + gFontNames.indexOf(fLabel) + '\n');
+
+    gDialog.fontSize.setAttribute('label', fSize);
+    m = document.getElementById('fontSize_'+fSize);
+    gDialog.fontSize.selectedItem = m;
 
     var fore, back, italic, bold, face;
     // do fixed width
-    fore = gDialog.currentScheme.getFore('', faceIdentifier(1));
-    gDialog.fixedColorPickerFore.color = fore;
-    back = gDialog.currentScheme.getBack('', faceIdentifier(1));
-    gDialog.fixedColorPickerBack.color = back;
-    fore = gDialog.currentScheme.getFore('', faceIdentifier(0));
-    gDialog.propColorPickerFore.color = fore;
-    back = gDialog.currentScheme.getBack('', faceIdentifier(0));
-    gDialog.propColorPickerBack.color = back;
+    fore = gDialog.currentScheme.getFore('', faceIdentifier());
+    gDialog.fontColorPickerFore.color = fore;
+    back = gDialog.currentScheme.getBack('', faceIdentifier());
+    gDialog.fontColorPickerBack.color = back;
     // bold/italic
-    var propBold = gDialog.currentScheme.getBold('', faceIdentifier(0));
-    setCheckboxButton(gDialog.propBold, propBold);
-    var fixedBold = gDialog.currentScheme.getBold('', faceIdentifier(1));
-    setCheckboxButton(gDialog.fixedBold, fixedBold);
-    var propItalic = gDialog.currentScheme.getItalic('', faceIdentifier(0));
-    setCheckboxButton(gDialog.propItalic, propItalic);
-    var fixedItalic = gDialog.currentScheme.getItalic('', faceIdentifier(1));
-    setCheckboxButton(gDialog.fixedItalic, fixedItalic);
+    var fontBold = gDialog.currentScheme.getBold('', faceIdentifier(1));
+    setCheckboxButton(gDialog.fontBold, fontBold);
+    var fontItalic = gDialog.currentScheme.getItalic('', faceIdentifier(1));
+    setCheckboxButton(gDialog.fontItalic, fontItalic);
     // line spacing
-    gDialog.fixedLineSpacing.value = fSpace;
-    gDialog.propLineSpacing.value = pSpace;
+    gDialog.fontLineSpacing.value = fSpace;
 }
 
-function faceIdentifier(fixed){
-    if (fixed) {
-        return 'default_fixed';
-    }
-    return 'default_proportional';
+function faceIdentifier() {
+    return 'default_' + (gDialog.currentScheme.preferFixed ? 'fixed' : 'proportional');
 }
 
 function onSampleBlur() {
@@ -1297,8 +1184,7 @@ listElement.prototype =
           }
 
           // Be sure to add the current font
-          var isFixed = (faces == gFontsFixed) ? 1 : 0;
-          var currFont = gDialog.currentScheme.getFont(faceIdentifier(isFixed));
+          var currFont = gDialog.currentScheme.getFont(faceIdentifier());
           if (faces.indexOf(currFont) == -1) {
               faces.push(currFont);
           }

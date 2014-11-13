@@ -353,10 +353,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY plPerl.label ".pl: Perl">
 <!ENTITY plainText.label "Plain text">
 <!ENTITY pmPerlModule.label ".pm: Perl Module">
-<!ENTITY preferFixed.accesskey "X">
-<!ENTITY preferFixed.label "Prefer Fixed">
-<!ENTITY preferProp.accesskey "P">
-<!ENTITY preferProp.label "Prefer Prop.">
 <!ENTITY preferTabCharactersOverSpaces.label "Prefer Tab characters over spaces">
 <!ENTITY preferences.title "Preferences">
 <!ENTITY prefsHelpButton.accesskey "H">
@@ -516,7 +512,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY sampleText.label "Sample text:">
 <!ENTITY schemeType.label "Scheme: (system schemes are in bold)">
 <!ENTITY schemeType.accesskey "S">
-<!ENTITY filePrefAllLangFontFamily.label "Font Family:">
+<!ENTITY filePrefAllLangFontFamily.label "Font:">
 <!ENTITY filePrefAllLangFixedWidth.label "Fixed width:">
 <!ENTITY filePrefAllLangFixedWidth.accesskey "W">
 <!ENTITY filPrefAllLangForeText "Fore:">
@@ -530,7 +526,9 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePrefAllLangElementType.label "Element type: ">
 <!ENTITY filePrefAllLangElementType1.accesskey "T">
 <!ENTITY filePrefAllLangFace.label "Face:">
+<!ENTITY filePrefAllLangFont.label "Font:">
 <!ENTITY filePrefAllLangSize.label "Size:">
+<!ENTITY filePrefAllLangStyle.label "Style:">
 <!ENTITY filePrefAllLangForeground.label "Foreground:">
 <!ENTITY filePrefAllLangBackground.label "Background:">
 <!ENTITY filePrefSubLanguageBackground.label "Sub-language background:">
