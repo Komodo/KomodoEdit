@@ -1,0 +1,4 @@
+import templates.dark as template
+import schemes.default as scheme
+
+exports = template.parse(scheme.colors)

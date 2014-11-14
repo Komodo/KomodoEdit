@@ -1,0 +1,4 @@
+import templates.light as template
+import schemes.mocha as scheme
+
+exports = template.parse(scheme.colors)

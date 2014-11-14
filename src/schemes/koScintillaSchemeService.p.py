@@ -100,17 +100,29 @@ class Scheme(SchemeBase):
         SchemeBase.__init__(self, fname, userDefined, unsaved)
         namespace = {}
         if not unsaved:
-            if not self._execfile(fname, namespace):
+            namespace = self._execfile(fname)
+            if not namespace:
                 return False
+            import json
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
     _current_scheme_version = 13
 
-    def _execfile(self, fname, namespace):
+    def _execfile(self, fname):
         try:
+            fpath = os.path.dirname(fname)
+            sys.path.append(fpath)
+
+            namespace = {}
             execfile(fname, namespace)
-            return True
+
+            sys.path.remove(fpath)
+
+            if namespace.get("exports"):
+                return namespace["exports"]
+
+            return namespace
         except SyntaxError:
             log.exception("Syntax Error loading scheme %s:", fname)
             return False
@@ -311,8 +323,8 @@ class Scheme(SchemeBase):
                          self.name, ex)
 
     def revert(self):
-        namespace = {}
-        if self._execfile(self.fname, namespace):
+        namespace = self._execfile(self.fname)
+        if namespace:
             self._loadSchemeSettings(namespace)
             self.isDirty = 0
 

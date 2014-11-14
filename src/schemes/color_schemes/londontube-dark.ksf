@@ -1,0 +1,4 @@
+import templates.dark as template
+import schemes.londontube as scheme
+
+exports = template.parse(scheme.colors)
