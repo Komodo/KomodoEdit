@@ -109,7 +109,12 @@ class CommonJSLinter(object):
         return env
 
     def lint(self, request):
-        text = request.content.encode(request.encoding.python_encoding_name)
+        try:
+            # Spidermonkey will choke on latin1 file input - bug 105635 - so try
+            # and use UTF-8, else fall back to the original encoding.
+            text = request.content.encode("utf8")
+        except UnicodeEncodeError:
+            text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)
 
     def _createAddResult(self, results, datalines, errorType, lineNo, desc, numDots):
