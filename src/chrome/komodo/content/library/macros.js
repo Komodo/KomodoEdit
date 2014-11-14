@@ -208,8 +208,6 @@ MacroRecorder.prototype.executeMacro = function(macro) {
 }
 
 MacroRecorder.prototype.executeLastMacro = function(macro) {
-    var msg = _bundle.GetStringFromName("executingLastRecordedMacro");
-    require("notify/notify").send(msg, "macros");
     this.executeMacro(this._currentMacro);
 }
 
