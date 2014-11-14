@@ -99,7 +99,6 @@ $cons->InstallAs("$supportDir/schemes/Monokai_Dark.ksf", 'color_schemes/monokai-
 $cons->InstallAs("$supportDir/schemes/Monokai_Light.ksf", 'color_schemes/monokai-light.ksf');
 $cons->InstallAs("$supportDir/schemes/Ocean_Dark.ksf", 'color_schemes/ocean-dark.ksf');
 $cons->InstallAs("$supportDir/schemes/Ocean_Light.ksf", 'color_schemes/ocean-light.ksf');
-$cons->InstallAs("$supportDir/schemes/Paraiso_Dark.ksf", 'color_schemes/paraiso-dark.ksf');
 $cons->InstallAs("$supportDir/schemes/Paraiso.ksf", 'color_schemes/paraiso.ksf');
 $cons->InstallAs("$supportDir/schemes/Railscasts_Dark.ksf", 'color_schemes/railscasts-dark.ksf');
 $cons->InstallAs("$supportDir/schemes/Railscasts_Light.ksf", 'color_schemes/railscasts-light.ksf');
