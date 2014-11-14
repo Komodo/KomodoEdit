@@ -65,6 +65,7 @@ testdir_from_ns = {
     "components": join("..", "src", "components", "test"),
     "jstest": "jstest",
     "prefs": join("..", "src", "prefs", "test"),
+    "lint": join("..", "src", "lint", "test"),
 }
 default_tags = ["-knownfailure", "-casper"]
 
