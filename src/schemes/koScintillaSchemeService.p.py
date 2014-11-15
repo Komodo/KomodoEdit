@@ -623,12 +623,11 @@ class Scheme(SchemeBase):
         return fontStack[-1]
 
     def getLineSpacing(self, style):
-        try:
-            return self._getAspectFromAppliedData(style, 'lineSpacing')
-        except:
+        val = self._getAspectFromAppliedData(style, 'lineSpacing')
+        if val is None:
             log.debug("Style does not have lineSpacing, returning 0")
-
-        return 0
+            return 0
+        return val
 
     def _getFallbackStyle(self, style):
         if style.endswith('_fixed'):
