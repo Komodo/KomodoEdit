@@ -1088,14 +1088,7 @@ function updateFonts()  {
     var m;
 
     gDialog.fontList.setAttribute('label', fLabel);
-    dump('fLabel: ' + fLabel + '\n');
-    dump('gDialog.fontList.menupopup.childNodes.length: ' + gDialog.fontList.menupopup.childNodes.length + '\n');
     gDialog.fontList.selectedIndex = gFontNames.indexOf(fLabel);
-    dump('gFontNames.indexOf(fLabel): ' + gFontNames.indexOf(fLabel) + '\n');
-    dump('gDialog.fontList.selectedIndex: ' + gDialog.fontList.selectedIndex + '\n');
-    dump('gDialog.fontList.selectedItem: ' + gDialog.fontList.selectedItem + '\n');
-    dump('gFontNames.indexOf(fLabel): ' + gFontNames.indexOf(fLabel) + '\n');
-
     gDialog.fontSize.setAttribute('label', fSize);
     m = document.getElementById('fontSize_'+fSize);
     gDialog.fontSize.selectedItem = m;
