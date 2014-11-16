@@ -229,10 +229,7 @@ class CoffeeScriptLangInfo(_JSLikeLangInfo):
                          'when',
                          'yes'])
     
-    keywords = set()
-    keywords.union(_inherited_keywords)
-    keywords.union(_compiler_reserved_words)
-    keywords.union(_new_keywords)
+    keywords = _inherited_keywords.union(_compiler_reserved_words).union(_new_keywords)
 
 class CLangInfo(LangInfo):
     #TODO: rationalize with C++ and Komodo's usage
