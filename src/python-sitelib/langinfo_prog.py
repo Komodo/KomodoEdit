@@ -223,7 +223,7 @@ class CoffeeScriptLangInfo(_JSLikeLangInfo):
                          'is', 'isnt',
                          'loop',
                          'no', 'not',
-                         'of', 'off', 'on', 'or',
+                         'of', 'off', 'on', 'or', 'own',
                          'then',
                          'unless', 'until',
                          'when',
