@@ -51,11 +51,6 @@
                 }
             }
 
-            // Force global pref until bug #104645 has been resolved
-            prefs.deletePref("fileicons_presets");
-            prefs.deletePref("fileicons_color_whitelist");
-            prefs.deletePref("fileicons_ext_mapping");
-
             var onPrefChanged = { observe: (subject, topic, data) => {
                 delete self.cached;
 
