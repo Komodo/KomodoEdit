@@ -304,7 +304,7 @@ if (ko.skin == undefined)
             // Skip if the value hasn't changed
             var lessCode = "" +
                 "@dark: " + (scheme.isDarkBackground ? "1" : "0") + ";\n" +
-                "@special: " + scheme.getCommon("keywords", "fore") + ";\n" +
+                "@special: " + scheme.getCommon("keywords2", "fore") + ";\n" +
                 "@background: " + scheme.getBack('', 'linenumbers') + ";\n" +
                 "@foreground: " + scheme.foregroundColor + ";\n" +
                 "@import url('chrome://komodo/skin/partials/scheme-skinning.less');";
