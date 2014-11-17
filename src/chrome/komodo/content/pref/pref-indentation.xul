@@ -57,8 +57,9 @@
     <![CDATA[
 var log = ko.logging.getLogger("pref-indent");
 var langData = {};
-var langPrefs = null;
 var curLang = null;
+var g_prefset = null;
+
 function MyOnload() {
         // register with preferences
         parent.hPrefWindow.onpageload();
@@ -66,14 +67,12 @@ function MyOnload() {
 }
 function OnPreferencePageInitalize(prefset) {
     log.info("OnPreferencePageInitalize");
+    g_prefset = prefset;
     if (parent.prefInvokeType != "global") {
         return;
     }
     try {
         var langToUse;
-        // set up the prefs
-        langPrefs = prefset.getPref('languages');
-        langPrefs.parent = prefset;
         var view = getKoObject('views').manager.currentView;
         if (view)
             langToUse = view.koDoc.language;
@@ -94,14 +93,14 @@ function OnPreferencePageOK(prefset)  {
     try {
         changeNewLanguage(null,null);
         for (var language in langData) {
-            var prefs = langPrefs.getPref('languages/'+language);
             var o = langData[language];
+            var prefix = 'languages/' + language + '/';
             if (o.useTabs != o.defaults.useTabs)
-                o.prefs.setBooleanPref('useTabs', o.useTabs);
+                prefset.setBoolean(prefix+'useTabs', o.useTabs);
             if (o.tabWidth != o.defaults.tabWidth)
-                o.prefs.setLongPref('tabWidth', o.tabWidth);
+                prefset.setLong(prefix+'tabWidth', o.tabWidth);
             if (o.indentWidth != o.defaults.indentWidth)
-                o.prefs.setLongPref('indentWidth', o.indentWidth);
+                prefset.setLong(prefix+'indentWidth', o.indentWidth);
         }
         return true;
     } catch(e) {
@@ -112,36 +111,21 @@ function OnPreferencePageOK(prefset)  {
     }
 }
 
-function _getCurrentLangPrefs(language) {
-    var prefs;
-    if (!langPrefs.hasPref('languages/'+language)) {
-        // create a prefset for this
-        prefs = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
-        prefs.id = 'languages/'+language;
-        langPrefs.setPref(prefs.id, prefs);
-    } else {
-        prefs = langPrefs.getPref('languages/'+language);
-    }
-    prefs.parent = langPrefs;
-    return prefs;
-}
-
 function getPrefsForLanguage(name) {
     if (name in langData) {
         return langData[name];
     }
+    var prefix = 'languages/' + name + '/';
     var o = {};
     o.name = name;
-    o.prefs = _getCurrentLangPrefs(name);
     // get the defaults
-    var rootPrefs = langPrefs.parent;
     o.defaults = {};
     o.useTabs = o.defaults.useTabs =
-        o.prefs.getBoolean('useTabs', rootPrefs.getBoolean('useTabs', false));
+        g_prefset.getBoolean(prefix+'useTabs', g_prefset.getBoolean('useTabs', false));
     o.tabWidth = o.defaults.tabWidth =
-        o.prefs.getLong('tabWidth', rootPrefs.getLong('tabWidth', false));
+        g_prefset.getLong(prefix+'tabWidth', g_prefset.getLong('tabWidth', false));
     o.indentWidth = o.defaults.indentWidth =
-        o.prefs.getLong('indentWidth', rootPrefs.getLong('indentWidth', false));
+        g_prefset.getLong(prefix+'indentWidth', g_prefset.getLong('indentWidth', false));
     langData[name] = o;
     return o;
 }
