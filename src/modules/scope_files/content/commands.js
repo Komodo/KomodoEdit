@@ -5,7 +5,7 @@
     const prefs     = require("ko/prefs");
 
     var spref       = prefs.getPref("scope-files-shortcuts");
-    log.setLevel(require("ko/logging").LOG_DEBUG);
+    //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var local       = {
         copy: null,
@@ -76,7 +76,6 @@
 
         if (item.data.type == "dir" && ! shortcut)
         {
-            log.debug('wtf');
             resultCache.push({
                 id: "addShortcut",
                 name: "Add Shortcut",
@@ -88,7 +87,6 @@
 
         if (item.data.type == "dir" && shortcut)
         {
-            log.debug('yes');
             resultCache.push({
                 id: "removeShortcut",
                 name: "Remove Shortcut",
@@ -114,7 +112,6 @@
         var path = (local.cut || local.copy).data.path;
         var ioFile = require("ko/file");
         var newPath = ioFile.join(item.data.path, ioFile.basename(path));
-        log.debug(newPath);
 
         if (local.cut)
             ioFile.move(path, newPath);

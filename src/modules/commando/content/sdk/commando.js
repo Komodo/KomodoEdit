@@ -20,6 +20,7 @@
     var local = {
         scopes: {},
         subscope: null,
+        handlers: {},
         elemCache: {},
         templateCache: {},
         resultCache: [],
@@ -184,14 +185,6 @@
         });
     }
 
-    var onExpandSearch = function(query, uuid)
-    {
-        c.expandSearch(query, uuid, function()
-        {
-            onSearchComplete(uuid);
-        });
-    }
-
     var onSearchComplete = function(uuid)
     {
         if (local.searchingUuid != uuid) return;
@@ -342,10 +335,9 @@
             local.prevSearchValue = searchValue;
 
             var subscope = c.getSubscope();
-
             if (subscope && subscope.isExpanded)
             {
-                onExpandSearch(searchValue, local.searchingUuid);
+                c.expandSearch(searchValue, local.searchingUuid, callback);
             }
             else
             {
@@ -353,6 +345,7 @@
                 log.debug(local.searchingUuid + " - Starting Search for: " + searchValue);
                 c.execScopeHandler("onSearch", [searchValue, local.searchingUuid, callback])
             }
+            
         }.bind(this), noDelay ? 0 : searchDelay);
 
         return uuid;
@@ -562,6 +555,32 @@
         delete local.scopes[id];
 
         commands.unregister(id);
+    }
+
+    this.registerHandler = function(id, scope, method, handler)
+    {
+        if ( ! (scope in local.handlers))
+        {
+            local.handlers[scope] = {};
+        }
+
+        if ( ! (method in local.handlers[scope]))
+        {
+            local.handlers[scope][method] = {};
+        }
+        
+        local.handlers[scope][method][id] = handler;
+    }
+
+    this.unregisterHandler = function(id, scope, method)
+    {
+        if ((scope in local.handlers) && (method in local.handlers[scope]))
+        {
+            if (id in local.handlers[scope][method])
+            {
+                delete local.handlers[scope][method][id];
+            }
+        }
     }
 
     this.selectScope = function(scopeId)
@@ -964,18 +983,32 @@
 
     this.execScopeHandler = function(method, arguments)
     {
+        var scope = c.getScope().handler;
+        log.debug("Executing scope handler: " + method + " on " + scope);
+
+        var result = false;
         var scopeHandler = c.getScopeHandler();
         if (method in scopeHandler)
         {
             log.debug("Executing " + method + " on scope");
-            var result = scopeHandler[method].apply(scopeHandler, arguments);
+            result = scopeHandler[method].apply(scopeHandler, arguments);
             if (result == undefined) result = true;
-            return result;
+        }
+        else
+        {
+            log.debug(method + " not found in scope, skipping");
         }
 
-        log.debug(method + " not found in scope, skipping");
+        if ((scope in local.handlers) && (method in local.handlers[scope]))
+        {
+            for (let id in local.handlers[scope][method])
+            {
+                log.debug("Executing Custom Handler: " + id);
+                local.handlers[scope][method][id].apply(null, arguments);
+            }
+        }
 
-        return false;
+        return result;
     }
 
     this.stop = function()
