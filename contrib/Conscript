@@ -115,7 +115,8 @@ $consLocal->InstallRecursive("$supportDir/catalogs",
                         ('\.svn'));
 
 
-#----  Komodo's SFTP support uses 'paramiko' which, in turn, uses PyCrypto.
+#---- Komodo's SFTP support uses 'paramiko' which, in turn, uses PyCrypto and
+#     ecdsa.
 # PyCrypto (http://www.amk.ca/python/code/crypto)
 my $landmark = "$komodoPythonUtilsDir/Crypto/__init__.py";
 $consLocal->Command($landmark,
@@ -125,6 +126,12 @@ $consLocal->Command($landmark,
                 cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                ));
 $consLocal->DependsRecursive($landmark, "pycrypto", ("build", '\.svn'));
+
+# ecdsa (http://github.com/warner/python-ecdsa)
+my $landmark = "$komodoPythonUtilsDir/ecdsa";
+$consLocal->InstallRecursive($landmark,
+                        #XXX must be absolute path (bug in InstallRecursive)
+                        cwd()."/contrib/ecdsa/ecdsa");
 
 # paramiko (http://www.lag.net/paramiko/)
 # See bug 73155 for a long discussion on why we are NOT using

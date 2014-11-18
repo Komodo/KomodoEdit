@@ -7,14 +7,14 @@
 # Software Foundation; either version 2.1 of the License, or (at your option)
 # any later version.
 #
-# Paramiko is distrubuted in the hope that it will be useful, but WITHOUT ANY
+# Paramiko is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 # A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
 # details.
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with Paramiko; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
+# 51 Franklin Street, Suite 500, Boston, MA  02110-1335  USA.
 
 
 longdesc = '''
@@ -25,6 +25,10 @@ are supported.  SFTP client and server mode are both supported too.
 
 Required packages:
     pyCrypto
+
+To install the `in-development version
+<https://github.com/paramiko/paramiko/tarball/master#egg=paramiko-dev>`_, use
+`pip install paramiko==dev`.
 '''
 
 # if someday we want to *require* setuptools, uncomment this:
@@ -36,32 +40,53 @@ import sys
 try:
     from setuptools import setup
     kw = {
-        'install_requires': 'pycrypto >= 2.1',
+        'install_requires': [
+            'pycrypto >= 2.1, != 2.4',
+            'ecdsa >= 0.11',
+        ],
     }
 except ImportError:
     from distutils.core import setup
     kw = {}
 
 if sys.platform == 'darwin':
-	import setup_helper
-	setup_helper.install_custom_make_tarball()
+    import setup_helper
+    setup_helper.install_custom_make_tarball()
 
 
-setup(name = "paramiko",
-      version = "1.7.7.1",
-      description = "SSH2 protocol library",
-      author = "Robey Pointer",
-      author_email = "robeypointer@gmail.com",
-      url = "http://www.lag.net/paramiko/",
-      packages = [ 'paramiko' ],
-      license = 'LGPL',
-      platforms = 'Posix; MacOS X; Windows',
-      classifiers = [ 'Development Status :: 5 - Production/Stable',
-                      'Intended Audience :: Developers',
-                      'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
-                      'Operating System :: OS Independent',
-                      'Topic :: Internet',
-                      'Topic :: Security :: Cryptography' ],
-      long_description = longdesc,
-      **kw
-      )
+# Version info -- read without importing
+_locals = {}
+with open('paramiko/_version.py') as fp:
+    exec(fp.read(), None, _locals)
+version = _locals['__version__']
+
+
+setup(
+    name = "paramiko",
+    version = version,
+    description = "SSH2 protocol library",
+    long_description = longdesc,
+    author = "Jeff Forcier",
+    author_email = "jeff@bitprophet.org",
+    url = "https://github.com/paramiko/paramiko/",
+    packages = [ 'paramiko' ],
+    license = 'LGPL',
+    platforms = 'Posix; MacOS X; Windows',
+    classifiers = [
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
+        'Operating System :: OS Independent',
+        'Topic :: Internet',
+        'Topic :: Security :: Cryptography',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+    ],
+    **kw
+)

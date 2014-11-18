@@ -1,0 +1,44 @@
+* Release 0.11 (10 Mar 2014)
+
+Add signature-encoding functions "sigencode_{strings,string,der}_canonize"
+which canonicalize the S value (using the smaller of the two possible
+values). Add "validate_point=" argument to VerifyingKey.from_string()
+constructor (defaults to True) which can be used to disable time-consuming
+point validation when importing a pre-validated verifying key. Drop python2.5
+support (untested but not explicitly broken yet), update trove classifiers.
+
+* Release 0.10 (23 Oct 2013)
+
+Make the secp256k1 available in __init__.py too (thanks to Scott Bannert).
+
+* Release 0.9 (01 Oct 2013)
+
+Add secp256k1 curve (thanks to Benjamin Dauvergne). Add deterministic (no
+entropy needed) signatures (thanks to slush). Added py3.2/py3.3 compatibility
+(thanks to Elizabeth Myers).
+
+* Release 0.8 (04 Oct 2011)
+
+Small API addition: accept a hashfunc= argument in the constructors for
+SigningKey and VerifyingKey. This makes it easier to write wrappers that e.g.
+use NIST256p and SHA256 without their obligating callers to pass
+hashfunc=sha256 in each time they call sign() or verify().
+
+* Release 0.7 (28 Nov 2010)
+
+Fix test failure against OpenSSL-1.0.0 (previous versions only worked against
+openssl-0.9.8 or earlier). Increase python requirement to py2.5 or later
+(still no py3 compatibility, but work is underway). Replace use of obsolete
+'sha' library with modern 'hashlib'. Clean up unit test runner (stop using
+subprocesses).
+
+* Release 0.6 (15 Oct 2010)
+
+Small packaging changes: extract version number from git, add 'setup.py test'
+command, set exit code correctly on test failure. Fix pyflakes warnings.
+
+* Release 0.5 (27 Apr 2010)
+
+Initial release. EC-DSA signature for five NIST "Suite B" GF(p) curves:
+prime192v1, secp224r1, prime256v1, secp384r1, and secp521r1. DER/PEM
+input/output functions, seed-to-randrange helper functions.

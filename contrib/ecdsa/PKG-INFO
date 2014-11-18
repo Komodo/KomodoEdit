@@ -1,0 +1,17 @@
+Metadata-Version: 1.1
+Name: ecdsa
+Version: 0.11
+Summary: ECDSA cryptographic signature library (pure python)
+Home-page: http://github.com/warner/python-ecdsa
+Author: Brian Warner
+Author-email: warner-pyecdsa@lothar.com
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.2
+Classifier: Programming Language :: Python :: 3.3
