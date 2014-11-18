@@ -103,6 +103,7 @@ function filebrowseview() {
   /* mNotifySelectionChanges - internal variable to allow the tree to       */
   /*                           temporarily disable selection notifications. */
   this.mNotifySelectionChanges = true;
+  this.mSelection = null;
   this.mSelectionCallback = null;
   this.mTree = null;
   this.mReverseSort = false;
