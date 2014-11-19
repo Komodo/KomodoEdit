@@ -3,17 +3,39 @@
     const {Cc, Ci}  = require("chrome");
     const prefs     = ko.prefs;
     const menu      = require("ko/menu");
+    const button      = require("ko/button");
     const commands  = require("ko/commands");
     const editor    = require("ko/editor");
 
-    var context = [
+    var trackChanges = false;
+
+    var menuContext = [
         {
             select: menu.context.editorContext,
             after: "#editor-context-makeSnippet"
         }
     ];
 
+    var buttonContext = [
+        {
+            select: "#changeTracker_undo"
+        }
+    ];
+
     this.load = function()
+    {
+        var addonMgr = Cc["@activestate.com/platform/addons/addon-manager;1"]
+                        .getService(Ci.koamIAddonManager)
+        addonMgr.getAddonByID("trackchanges@activestate.com", function(addon)
+        {
+            if (addon && addon.isActive)
+                trackChanges = true;
+
+            this._load();
+        }.bind(this));
+    }
+
+    this._load = function()
     {
         commands.register("kopy", this.share.bind(this, undefined), {
             label: "kopy: Share Code via kopy.io"
@@ -24,18 +46,30 @@
             label: "Share Code via kopy.io",
             image: "chrome://kopy/skin/icon.png",
             command: ko.commands.doCommandAsync.bind(ko.commands, "cmd_kopy"),
-            context: context
+            context: menuContext
         });
-
+        
         require("notify/notify").categories.register("kopy",
         {
             label: "kopy.io Integration"
         });
+
+        if (trackChanges)
+        {
+            button.register({
+                id: "kopyTrackChanges",
+                label: "Share via kopy.io",
+                command: this.changeTrackerShare.bind(this),
+                context: buttonContext
+            });
+        }
     }
 
     this.unload = function()
     {
-        menu.unregister("kopy", context);
+        menu.unregister("kopy", menuContext);
+
+        if (trackChanges) button.unregister("kopyTrackChanges", buttonContext);
     }
 
     this.share = function(data, language)
@@ -136,6 +170,24 @@
             log.warn(errorMsg);
             require("notify/notify").send(errorMsg, "kopy", {priority: "error"});
         }
+    }
+    
+    this.changeTrackerShare = function()
+    {
+        try
+        {
+            var tracker = ko.views.manager.currentView.changeTracker;
+            var patch = tracker.getFormattedPatch();
+        }
+        catch (e)
+        {
+            log.exception(e);
+            var errorMsg = "Sharing failed, exception occured: " + e.message;
+            require("notify/notify").send(errorMsg, "kopy", {priority: "error"});
+            return;
+        }
+
+        this.share(patch, "diff");
     }
 
 }).apply(module.exports);
