@@ -8,15 +8,15 @@
         editorContext: "#editorContextMenu"
     }
 
-    this.register = (name, command, opts) =>
+    this.register = (label, command, opts) =>
     {
-        if ((typeof name) == "object")
+        if ((typeof label) == "object")
         {
-            opts = name;
+            opts = label;
         }
         else
         {
-            opts.name = name;
+            opts.label = label;
             opts.command = command;
         }
 
@@ -58,7 +58,7 @@
             if ( ! context || ! context.length || context.element().nodeName != "menupopup")
                 throw new exceptionInvalidContext(contextOpts.select || "null");
 
-            _context.find("sdk_menuitem_" + contextOpts.select + opts.id).remove();
+            _context.find("sdk_menuitem_" + contextOpts.uniqueId() + opts.id).remove();
         }
     }
 
