@@ -182,9 +182,9 @@ function PrefTreeView(initial_rows) {
     //               it can be a filtered view
     // this._unfilteredRows -- the rows to show when there's no filter in place
     // this._totalRows -- the full tree of rows, which filtered rows are built from.
-    this._unfilteredRows = this._rows;
     this._buildAllRows();
-    this._processOpenContainerRows();    
+    this._processOpenContainerRows();
+    this._unfilteredRows = this._rows;
 };
 PrefTreeView.prototype = new xtk.hierarchicalTreeView();
 PrefTreeView.prototype.constructor = PrefTreeView;
