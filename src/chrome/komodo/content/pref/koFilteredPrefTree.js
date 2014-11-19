@@ -94,6 +94,10 @@ Object.defineProperty(TreeInfoItem.prototype, "isContainer", {
     get: function() { return this._isContainer && this.hasChildren(); },
 });
 
+Object.defineProperty(TreeInfoItem.prototype, "isContainerOpen", {
+    get: function() { return this.state === xtk.hierarchicalTreeView.STATE_CLOSED; },
+});
+
 TreeInfoItem.prototype.toString = function() {
     var s = [];
     for (var p in this) {
@@ -209,7 +213,7 @@ PrefTreeView.prototype.isContainer = function(row) {
     return this._rows[row].isContainer;
 };
 PrefTreeView.prototype.isContainerOpen = function(row) {
-    return this._rows[row].state == xtk.hierarchicalTreeView.STATE_OPENED;
+    return this._rows[row].isContainerOpen;
 };
 
 PrefTreeView.prototype._buildAllRows = function() {
@@ -252,10 +256,9 @@ PrefTreeView.prototype.toggleOpenState = function(row, updateTree) {
         return;
     }
     if (typeof(updateTree) == "undefined") updateTree = true;
-    var old_row_length = this._rows.length;
     var new_rows;
 
-    if (item.state === xtk.hierarchicalTreeView.STATE_CLOSED) {
+    if (!item.isContainerOpen) {
         var children = [];
         this._expand_child_rows(item, children);
         new_rows = this._rows.slice(0, row+1);
@@ -280,8 +283,7 @@ PrefTreeView.prototype.toggleOpenState = function(row, updateTree) {
     this._rows = new_rows;
     // Using rowCountChanged to notify rows were added
     if (updateTree) {
-        _openPrefTreeNodes[item.id] = (item.state
-                                   === xtk.hierarchicalTreeView.STATE_OPENED);
+        _openPrefTreeNodes[item.id] = item.isContainerOpen;
         this.tree.rowCountChanged(row+1, num_rows_changed);
         this.tree.invalidateRow(row); // To redraw the twisty.
     }
@@ -295,8 +297,7 @@ PrefTreeView.prototype._processOpenContainerRows = function() {
     var i, row, lim = this._rows.length;
     for (var i = lim - 1; i >= 0; i--) {
         row = this._rows[i];
-        if (row.isContainer
-            && row.state === xtk.hierarchicalTreeView.STATE_OPENED) {
+        if (row.isContainer && row.isContainerOpen) {
             // get toggleOpenState to do all the work
             row.state = xtk.hierarchicalTreeView.STATE_CLOSED;
             this.toggleOpenState(i, /*updateTree=*/ false);
@@ -310,7 +311,7 @@ PrefTreeView.prototype._expand_child_rows = function(rowItem, newChildren) {
     rowItem.getChildren().forEach(function(child) {
         child.level = child_level;
         newChildren.push(child);
-        if (child.state === xtk.hierarchicalTreeView.STATE_OPENED && child.isContainer) {
+        if (child.isContainer && child.isContainerOpen) {
             this_._expand_child_rows(child, newChildren);
         }
     })
@@ -388,7 +389,7 @@ PrefTreeView.prototype.findChild = function(id) {
     var row, nodePath;
     for (var i = this._rows.length - 1; i >= 0; i--) {
         row = this._rows[i];
-        if (row.isContainer && row.state === xtk.hierarchicalTreeView.STATE_CLOSED) {
+        if (row.isContainer && row.isContainerOpen) {
             nodePath = [];
             if (this._burrowForChildren(id, row, nodePath)) {
                 nodePath.unshift([row, i]);
@@ -405,7 +406,7 @@ PrefTreeView.prototype._openNodes = function(nodePath) {
     var i, lim, row, idx, prevIdx = 0;
     while (nodePath.length > 0) {
         [row, idx] = nodePath.shift();
-        if (row.isContainer && row.state === xtk.hierarchicalTreeView.STATE_CLOSED) {
+        if (row.isContainer && row.isContainerOpen) {
             if (row == this._rows[idx]) {
                 this.toggleOpenState(idx);
                 prevIdx = idx;
