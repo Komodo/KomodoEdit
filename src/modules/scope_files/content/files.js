@@ -45,7 +45,14 @@
         if (shortcutsVersion != scopeVersion) {
             log.debug("Updating shortcut cache");
 
-            shortcutsCache = JSON.parse(scope.getShortcutsAsJson());
+            try
+            {
+                shortcutsCache = JSON.parse(scope.getShortcutsAsJson());
+            } catch (e)
+            {
+                log.exception(e);
+                shortcutsCache = {};
+            }
             shortcutsVersion = scopeVersion;
 
             var spref = prefs.getPref("scope-files-shortcuts");
