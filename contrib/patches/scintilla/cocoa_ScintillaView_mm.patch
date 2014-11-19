@@ -42,6 +42,16 @@ Index: cocoa/ScintillaView.mm
    if (mMarkedTextRange.length == 0)
  	mOwner.backend->KeyboardInput(theEvent);
    NSArray* events = [NSArray arrayWithObject: theEvent];
+@@ -900,6 +900,9 @@
+  */
+ - (void) magnifyWithEvent: (NSEvent *) event
+ {
++  if ([self getGeneralProperty: SCI_GETSUPPRESSZOOMONSCROLLWHEEL] != 0) {
++	return; /* bug 105669 */
++  }
+ #if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
+   zoomDelta += event.magnification * 10.0;
+ 
 @@ -1583,5 +1593,33 @@
  
  //--------------------------------------------------------------------------------------------------
