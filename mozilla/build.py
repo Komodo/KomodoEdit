@@ -424,14 +424,6 @@ def _getAutoconfVersion(autoconf=None):
     return tuple(version)
 
 
-def _determineMozCoProject(mozApp):
-    if mozApp == "komodo":
-        return "xulrunner"
-    names = [ s.strip() for s in mozApp.split(",") ]
-    if "xulrunner" not in names:
-        names.append("xulrunner")
-    return ",".join(names)
-
 def _setupMozillaEnv():
     """Setup the required environment variables for building Mozilla."""
     config = _importConfig()
@@ -447,8 +439,7 @@ def _setupMozillaEnv():
     os.environ["DISABLE_TESTS"] = "1"
     os.environ["MOZ_BITS"] = "32"
     os.environ["FORCE_BUILD_REFCNT_LOGGING"] = "0"
-    os.environ["MOZ_CURRENT_PROJECT"] \
-        = os.environ["MOZ_CO_PROJECT"] = _determineMozCoProject(config.mozApp)
+    os.environ["MOZ_CURRENT_PROJECT"] = "komodo"
 
     os.environ["MOZBUILD_STATE_PATH"] = join(config.buildDir, "moz-state")
     
@@ -579,7 +570,7 @@ Patch '%s' will not apply cleanly:
         raise BuildError("Error applying patch '%s': argv=%r, cwd=%r"\
                          "retval=%r" % (patchFile, argv, cwd, retval))
 
-def _getMozSrcInfo(scheme, mozApp):
+def _getMozSrcInfo(scheme):
     """Return information about how to get the Mozilla source to use for
     building.
     
@@ -593,8 +584,6 @@ def _getMozSrcInfo(scheme, mozApp):
                 <path-to-tarball>
                     A path to a mozilla/firefox source tarball to use
                     for the source.
-
-        "mozApp" must be one of ("komodo", "xulrunner")
 
     The return value is a dict with the suggested configuration
     variables identifying the mozilla source.
@@ -621,14 +610,8 @@ def _getMozSrcInfo(scheme, mozApp):
             mozSrcTarball=scheme,
         )
 
-        if mozApp in ("komodo", "browser"):
-            patterns = [re.compile("^firefox-(.*?)-source%s$"
-                                 % re.escape(suffix)),
-                        re.compile("^xulrunner-(.*?)-source%s$"
-                                 % re.escape(suffix))]
-        else:
-            raise BuildError("do we use the 'firefox-*-source.tar.gz' "
-                             "tarballs for mozApp='%s' builds?" % mozApp)
+        patterns = [re.compile("^firefox-(.*?)-source%s$"
+                             % re.escape(suffix))]
         for pattern in patterns:
             scheme_basename = basename(scheme)
             match = pattern.match(scheme_basename)
@@ -885,14 +868,9 @@ def target_configure(argv):
             Re-run configuration with the previous config options.
 
         --komodo (the default)
-        --xulrunner
         --suite (i.e. the Mozilla suite)
         --browser (i.e. Firefox)
-        --moz-app=<komodo|xulrunner|suite|browser>
-            Which moz-application to build? The stub komodo app (in prep
-            for full Komodo builds), xulrunner, Firefox (a.k.a. the
-            browser) or the Mozilla suite?  This is called the "mozApp".
-
+        --moz-app=komodo (the only possible choice)
         --debug, --release, --symbols
             specify mozilla build-type (default: release)
 
@@ -994,7 +972,6 @@ def target_configure(argv):
         "srcTreeName": None,
         "buildDir": abspath("build"),
         "mozconfig": None,
-        "mozApp": "komodo",
         "jsStandalone": False,
         "mozSrcScheme": "3100",
         "withCrashReportSymbols": False,
@@ -1032,7 +1009,7 @@ def target_configure(argv):
              "komodo-version=", "python=", "python-version=",
              "moz-src=",
              "blessed", "universal",
-             "komodo", "xulrunner", "suite", "browser", "moz-app=",
+             "komodo", "moz-app=",
              "with-crashreport-symbols",
              "with-pgo-generation",
              "with-pgo-collection",
@@ -1072,16 +1049,6 @@ def target_configure(argv):
             if sys.platform != "darwin":
                 raise BuildError("Universal builds are only supported on Mac OSX")
             config["universal"] = True
-        elif opt == "--komodo":
-            config["mozApp"] = "komodo"
-        elif opt == "--xulrunner":
-            config["mozApp"] = "xulrunner"
-        elif opt == "--suite":
-            config["mozApp"] = "suite"
-        elif opt == "--browser":
-            config["mozApp"] = "browser"
-        elif opt == "--moz-app":
-            config["mozApp"] = optarg
         elif opt == "--js":
             config["jsStandalone"] = True
         elif opt == "--no-mar":
@@ -1157,7 +1124,6 @@ def target_configure(argv):
     for name, value in config.items():
         if isinstance(value, Exception):
             raise value
-    assert config["mozApp"] in ("komodo", "xulrunner", "suite", "browser")
 
     if sys.platform.startswith("win") and config["buildDir"][1] == ":":
         # NSS builds fail if the object directory doesn't use a lower case
@@ -1168,7 +1134,7 @@ def target_configure(argv):
     # options.
 
     config.update(
-        _getMozSrcInfo(config["mozSrcScheme"], config["mozApp"])
+        _getMozSrcInfo(config["mozSrcScheme"])
     )
 
     # Finish determining the configuration: some defaults depend on user
@@ -1385,12 +1351,10 @@ def target_configure(argv):
     # objdir (encodes build config), and full build name (for the packages)
     # unless specifically given.
     shortBuildType = {"release": "rel", "debug": "dbg", "symbols": "sym"}[buildType]
-    shortMozApp = {"komodo": "ko", "xulrunner": "xulr",
-                   "suite": "ste", "browser": "ff"}[config["mozApp"]]
     buildOpts = config["buildOpt"][:]
     buildOpts.sort()
     srcTreeNameBits = [config["mozSrcName"], "ko"+config["komodoVersion"]]
-    mozObjDirBits = [shortMozApp, shortBuildType] + buildOpts
+    mozObjDirBits = ["ko", shortBuildType] + buildOpts
     if config["buildTag"]:
         srcTreeNameBits.append(config["buildTag"])
     if config["srcTreeName"] is None:
@@ -1429,29 +1393,21 @@ def target_configure(argv):
                 mozRawOptions.append('export CFLAGS="-gdwarf-2"')
                 mozRawOptions.append('export CXXFLAGS="-gdwarf-2"')
 
-        if config["mozApp"] in ("browser", "komodo"):
-            # Needed for building update-service packages.
-            mozBuildOptions.append('enable-update-packaging')
-            
-            # these extensions are built into firefox, we need to figure out
-            # what we dont want or need.
-            mozBuildExtensions.append('cookie')
-            mozBuildExtensions.append('spellcheck')
-            
-            # XXX these fail, but we probably dont care
-            #mozBuildExtensions.append('gnomevfs')
-            #mozBuildExtensions.append('negotiateauth')
-            
-            # XXX necessary to complete the build for now...need to find the
-            # dependency so we dont build with them
-            mozBuildOptions.append('enable-xsl')
+        # Needed for building update-service packages.
+        mozBuildOptions.append('enable-update-packaging')
 
-        elif config["mozApp"] == "xulrunner":
-            mozBuildOptions.append('enable-application=xulrunner')
-        else:
-            # needed for print preview, see change 67368
-            # (XXX Cruft? --TM)
-            mozBuildOptions.append('enable-mailnews') 
+        # these extensions are built into firefox, we need to figure out
+        # what we dont want or need.
+        mozBuildExtensions.append('cookie')
+        mozBuildExtensions.append('spellcheck')
+
+        # XXX necessary to complete the build for now...need to find the
+        # dependency so we dont build with them
+        mozBuildOptions.append('enable-xsl')
+
+        # needed for print preview, see change 67368
+        # (XXX Cruft? --TM)
+        mozBuildOptions.append('enable-mailnews') 
 
         mozMakeOptions.append('MOZ_OBJDIR=@TOPSRCDIR@/%s' % config["mozObjDir"])
         
@@ -1474,8 +1430,7 @@ def target_configure(argv):
         if sys.platform == 'darwin' and config["universal"]:
             config["mozconfig"] += ". $topsrcdir/build/macosx/universal/mozconfig\n"
 
-        if config["mozApp"] == "komodo":
-            mozBuildOptions.append('enable-application=komodo')
+        mozBuildOptions.append('enable-application=komodo')
 
         if config["stripBuild"]:
             mozBuildOptions.append('enable-strip')
@@ -1647,14 +1602,8 @@ def _relocatePyxpcom(config):
                 if line.strip().endswith(landmark):
                     old = line.strip().split(None, 1)[0]
         if old:
-            if config.mozApp == "xulrunner":
-                # xulrunner is a framework, so the path layout is
-                # slightly different
-                new = "@rpath/../../Frameworks/Python.framework/" \
-                      "Versions/%s/Python" % config.pyVer
-            else:
-                new = "@rpath/../Frameworks/Python.framework/" \
-                      "Versions/%s/Python" % config.pyVer
+            new = "@rpath/../Frameworks/Python.framework/" \
+                  "Versions/%s/Python" % config.pyVer
             cmd = "chmod +w %s && install_name_tool -change %s %s %s"\
                   % (lib, old, new, lib)
             log.info("\t%s", lib)
@@ -1717,13 +1666,7 @@ def target_silo_python(argv=["silo_python"]):
         # dir.
         komodo_app_name = "Komodo%s" % (config.buildType == 'debug'
                                         and 'debug' or '')
-        frameworks_subpath_from_mozApp = {
-            "komodo": ["%s.app" % komodo_app_name, "Contents", "Frameworks"],
-            "browser": ["Firefox.app", "Contents", "Frameworks"],
-            "xulrunner": ["XUL.framework", "Frameworks"],
-            "suite": ["SeaMonkey.app", "Contents", "Frameworks"],
-        }
-        siloDir = join(distDir, *frameworks_subpath_from_mozApp[config.mozApp])
+        siloDir = join(distDir, "%s.app" % komodo_app_name, "Contents", "Frameworks")
         # In a clean build the "Frameworks" dir may not yet have been
         # created, but the dir up one level should be there.
         if not exists(dirname(siloDir)):
@@ -2028,14 +1971,7 @@ def target_pyxpcom(argv=["pyxpcom"]):
                        config.mozObjDir, "dist")
         komodo_app_name = "Komodo%s" % (config.buildType == 'debug'
                                         and 'debug' or '')
-        frameworks_subpath_from_mozApp = {
-            "komodo": ["%s.app" % komodo_app_name, "Contents", "Frameworks"],
-            "browser": ["Firefox.app", "Contents", "Frameworks"],
-            "xulrunner": ["XUL.framework", "Frameworks"],
-            "suite": ["SeaMonkey.app", "Contents", "Frameworks"],
-        }
-        siloDir = join(distDir, *frameworks_subpath_from_mozApp[config.mozApp])
-        siloDir = join(distDir, *frameworks_subpath_from_mozApp[config.mozApp])
+        siloDir = join(distDir, "%s.app" % komodo_app_name, "Contents", "Frameworks")
         komodoAppPath = join(dirname(siloDir), "MacOS")
         if exists(komodoAppPath):
             copy_cmd = 'cp -r %s %s' % (join(pyxpcom_obj_dir, "dist", "bin", "*"), komodoAppPath)
