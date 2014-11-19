@@ -11,7 +11,7 @@
     "// not function expressions.", 
     "if (!(/^\\s*$/.test(currentLine))) {", 
     "    var msg = \"Auto-abbreviation 'function' cancelled due to leading characters.\"", 
-    "    require("notify/notify").send(msg, \"Editor\");",
+    "    require(\"notify/notify\").send(msg, \"Editor\");",
     "    throw new ko.snippets.RejectedSnippet(msg)", 
     "}", 
     "%>", 

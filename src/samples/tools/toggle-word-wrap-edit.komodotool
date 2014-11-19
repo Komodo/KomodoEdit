@@ -23,7 +23,7 @@
     "    scimoz.wrapIndentMode = wrapIndentMode;", 
     "    var msg = (\"wrap mode for file \" + view.koDoc.displayPath + \": \"", 
     "               + wrapIndentMode);", 
-    "    require("notify/notify").send(msg, \"Editor\");",
+    "    require(\"notify/notify\").send(msg, \"Editor\");",
     "} catch(ex) {", 
     "    dump(ex + \"\\n\");", 
     "}"
