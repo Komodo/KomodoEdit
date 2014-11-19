@@ -95,7 +95,7 @@ Object.defineProperty(TreeInfoItem.prototype, "isContainer", {
 });
 
 Object.defineProperty(TreeInfoItem.prototype, "isContainerOpen", {
-    get: function() { return this.state === xtk.hierarchicalTreeView.STATE_CLOSED; },
+    get: function() { return this.state === xtk.hierarchicalTreeView.STATE_OPENED; },
 });
 
 TreeInfoItem.prototype.toString = function() {
@@ -389,7 +389,7 @@ PrefTreeView.prototype.findChild = function(id) {
     var row, nodePath;
     for (var i = this._rows.length - 1; i >= 0; i--) {
         row = this._rows[i];
-        if (row.isContainer && row.isContainerOpen) {
+        if (row.isContainer && !row.isContainerOpen) {
             nodePath = [];
             if (this._burrowForChildren(id, row, nodePath)) {
                 nodePath.unshift([row, i]);
@@ -406,7 +406,7 @@ PrefTreeView.prototype._openNodes = function(nodePath) {
     var i, lim, row, idx, prevIdx = 0;
     while (nodePath.length > 0) {
         [row, idx] = nodePath.shift();
-        if (row.isContainer && row.isContainerOpen) {
+        if (row.isContainer && !row.isContainerOpen) {
             if (row == this._rows[idx]) {
                 this.toggleOpenState(idx);
                 prevIdx = idx;
