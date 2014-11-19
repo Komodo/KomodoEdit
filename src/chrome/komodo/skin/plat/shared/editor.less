@@ -91,10 +91,27 @@
     {
         -moz-appearance: none !important;
         background-color: @hud-selection-background;
+        border: 0;
 
         & > hbox
         {
             -moz-appearance: none !important;
+        }
+    }
+
+    button:not(.button-plain)
+    {
+        -moz-appearance: none !important;
+        background-color: @hud-dock-color;
+        background-image: @hud-background-image;
+        color: @hud-foreground;
+        border: 0;
+        border-radius: 3px;
+        padding: 2px 4px;
+
+        &:hover
+        {
+            background-color: darken(@hud-dock-color, 20%);
         }
     }
 
