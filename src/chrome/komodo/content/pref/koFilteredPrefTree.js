@@ -63,7 +63,6 @@ var treeItemsByURI = {}; // URI => array of TreeInfoItem;
 function TreeInfoItem(id, isContainer, isOpen, cls, url, label, helptag, advanced, properties) {
     this.id = id;
     this._isContainer = isContainer;
-    this.isContainer = isContainer;
     this.cls = cls;
     this.url = url;
     this.label = label;
@@ -76,15 +75,24 @@ function TreeInfoItem(id, isContainer, isOpen, cls, url, label, helptag, advance
 }
 
 TreeInfoItem.prototype.getChildren = function() {
-    var showAdvanced = prefs.getBoolean("prefs_show_advanced", false);
+    if (!(this.url in treeItemsByURI)) {
+        return [];
+    }
+    if (prefs.getBoolean("prefs_show_advanced", false)) {
+        return treeItemsByURI[this.url];
+    }
     return treeItemsByURI[this.url].filter(function(row) {
-        return showAdvanced || ! row.advanced;
+        return !row.advanced;
     });
 };
 
 TreeInfoItem.prototype.hasChildren = function() {
-    return this.isContainer && (this.url in treeItemsByURI) && this.getChildren().length > 0;
+    return this._isContainer && this.getChildren().length > 0;
 };
+
+Object.defineProperty(TreeInfoItem.prototype, "isContainer", {
+    get: function() { return this._isContainer && this.hasChildren(); },
+});
 
 TreeInfoItem.prototype.toString = function() {
     var s = [];
@@ -94,6 +102,8 @@ TreeInfoItem.prototype.toString = function() {
             s.push(p + ": " + o);
         }
     }
+    s.push("isContainer: " + this.isContainer);
+    s.push("hasChildren: " + this.hasChildren());
     return "{ " + s.join(", ") + " }";
 }
 
@@ -106,9 +116,6 @@ this.buildTree = function(root, key) {
     }
     currentList = treeItemsByURI[key];
     lim = rootChildren.length;
-    if (key) {
-        currentList.hasChildren = lim > 0;
-    }
     for (var i = 0; i < lim; i++) {
         treeitem = rootChildren[i];
         treerow = treeitem.firstChild;
@@ -318,9 +325,6 @@ PrefTreeView.prototype.removeFilter = function() {
     var oldCount = this._rows.length;
     var showAdvanced = prefs.getBoolean("prefs_show_advanced", false);
     this._rows = this._unfilteredRows.filter(function(row) {
-        if (row._isContainer) {
-            row.isContainer = row.hasChildren();
-        }
         return showAdvanced || ! row.advanced;
     });
     this.tree.rowCountChanged(oldCount, this._rows.length - oldCount);
