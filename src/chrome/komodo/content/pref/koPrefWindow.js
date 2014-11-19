@@ -287,7 +287,7 @@ koPrefWindow.prototype =
      * _onOK: if this function is called and it returns OK, the current
      * pref object is no longer usable.
      */
-    _onOK: function () {
+    _onOK: function (close = true) {
         try {
         // Save the prefs to our temp prefset, so the OK handlers see the new values.
         if (!this.savepageprefs()) {
@@ -302,13 +302,18 @@ koPrefWindow.prototype =
 
         this.savePrefs();
 
-        this._doClosingHandlers(true);
+        if (close) {
+            this._doClosingHandlers(true);
+        }
 
         if (this.deck != null) {
             this._saveCurrentPref();
         }
         
-        this.setResult('ok');
+        if (close) {
+            this.setResult('ok');
+        }
+
         return true;
         } catch (e) {
             prefLog.exception(e);
@@ -317,20 +322,31 @@ koPrefWindow.prototype =
     },
 
     doClose: function() {
-        try {
-            this.filteredTreeView.doClose();
-        } catch(ex) {
-            prefLog.exception(ex);
-        }
         close();
     },
 
     onOK: function () {
-        if (this._onOK()) {
-            this.doClose();
-            return true;
+        if ( ! this.onApply(true)) {
+            return false;
         }
-        return false;
+
+        this.doClose();
+        return true;
+    },
+    
+    onApply: function (close = false) {
+        if ( ! this._onOK(close)) {
+            return false;
+        }
+
+        try {
+            this.filteredTreeView.doApply();
+        } catch(ex) {
+            prefLog.exception(ex);
+            return false;
+        }
+
+        return true;
     },
     
     onCancel: function () {
@@ -371,7 +387,12 @@ koPrefWindow.prototype =
 
     setResult: function (res) {
         if (window.arguments && window.arguments[1])
-            window.arguments[1].res=res;
+        {
+            if ( ! res)
+                delete window.arguments[1].res
+            else
+                window.arguments[1].res=res;
+        }
         return true;
     },
 

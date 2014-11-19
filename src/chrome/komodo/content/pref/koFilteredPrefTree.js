@@ -289,7 +289,7 @@ PrefTreeView.prototype.toggleOpenState = function(row, updateTree) {
     }
 };
 
-PrefTreeView.prototype.doClose = function() {
+PrefTreeView.prototype.doApply = function() {
     saveOpenPrefTreeNodes();
 };
 

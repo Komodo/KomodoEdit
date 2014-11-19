@@ -65,6 +65,24 @@ function doOk() {
     return true;
 }
 
+function doApply() {
+    if ( ! hPrefWindow.onApply())
+        return false;
+
+    // The pref change itself might trigger more pref changes from
+    // observers, give them a bit of time to modify prefs further
+    // before we reinitialize
+    // todo: use actual events for this
+    // todo: block pref ui while this is in progress
+    setTimeout(function()
+    {
+        hPrefWindow.orig_prefset = null;
+        hPrefWindow.init();
+    }, 500);
+
+    return true;
+}
+
 function doCancel() {
     if (!hPrefWindow.onCancel())
         return false;

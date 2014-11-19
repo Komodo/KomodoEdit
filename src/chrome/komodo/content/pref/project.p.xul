@@ -80,6 +80,7 @@
     var file = null;
     var prefInvokeType;
     var koFilterBox;
+    var prefset = null;
 
     var gprefs = Components.classes["@activestate.com/koPrefService;1"]
                   .getService(Components.interfaces.koIPrefService).prefs;
@@ -97,7 +98,6 @@
     try {
         // get the project prefs passed in via the window arguments, otherwise
         // get the current project preferences
-        var prefset = null;
         if (window.arguments && window.arguments[0] != null) {
             part = window.arguments[0].part;
             view = window.arguments[0].view;
@@ -205,6 +205,24 @@
         }
         gprefs.setStringPref('defaultSelectedSubPref',
                              hPrefWindow.helper.getSelectedItemId());
+        return true;
+    }
+
+    function doApply() {
+        if ( ! hPrefWindow.onApply())
+            return false;
+
+        // The pref change itself might trigger more pref changes from
+        // observers, give them a bit of time to modify prefs further
+        // before we reinitialize
+        // todo: use actual events for this
+        // todo: block pref ui while this is in progress
+        setTimeout(function()
+        {
+            hPrefWindow.orig_prefset = null;
+            hPrefWindow.init(prefset);
+        }, 500);
+
         return true;
     }
 
@@ -498,10 +516,11 @@
             <separator/>
 
             <hbox>
+                <button id="prefs_help_button" label="&help.label;" accesskey="&prefsHelpButton.accesskey;" oncommand="doHelp();"/>
                 <separator flex="1"/>
                 <button label="&OK.label;" default="true" oncommand="doOk();"/>
                 <button label="&cancel.label;" oncommand="doCancel();"/>
-                <button id="prefs_help_button" label="&help.label;" accesskey="&prefsHelpButton.accesskey;" oncommand="doHelp();"/>
+                <button label="&Apply.label;" default="true" oncommand="doApply();"/>
             </hbox>
         </vbox>
     </hbox>

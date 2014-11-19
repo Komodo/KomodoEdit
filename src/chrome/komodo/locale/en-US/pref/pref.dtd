@@ -97,6 +97,7 @@
 <!ENTITY L.accesskey "L">
 <!ENTITY MMinute0059.label "&#37;M : minute [00,59]">
 <!ENTITY OK.label "OK">
+<!ENTITY Apply.label "Apply">
 <!ENTITY PHP.label "PHP">
 <!ENTITY PHPDirectories.label "PHP Directories">
 <!ENTITY POST.label "POST">
