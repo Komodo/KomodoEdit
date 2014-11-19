@@ -830,7 +830,6 @@ configuration = {
     "withPGOGeneration": WithPGOGeneration(),
     "withPGOCollection": WithPGOCollection(),
     
-    "xulrunner": XULRunnerApp(), # xulrunner based builds
     "universal": UniversalApp(), # ppc+i386 builds
 
     "ludditeVersion": LudditeVersion(),
@@ -840,7 +839,6 @@ configuration = {
     "buildTime": BuildTime(),
     "buildASCTime": BuildASCTime(),
     "buildPlatform": BuildPlatform(),
-    "xulrunnerBuildId": XULRunnerBuildId(),
 
     #---- items necessary for building a Komodo installer
     # (i.e. not required for plain development builds),

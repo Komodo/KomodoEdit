@@ -314,22 +314,13 @@ class SiloedPythonInstallDir(black.configure.std.Datum):
     def _Determine_Do(self):
         from os.path import join
         self.applicable = 1
-        xulrunner = black.configure.items["xulrunner"].Get()
-        if xulrunner:
-            mozDevelDist = black.configure.items["mozDevelDist"].Get()
-            if sys.platform == "darwin":
-                # try a xulrunner based build before the old Komodo based build
-                self.value = join(mozDevelDist, "XUL.framework", "Frameworks")
-            else:
-                self.value = join(mozDevelDist, "python")
+        mozDist = black.configure.items["mozDist"].Get()
+        if sys.platform == "darwin":
+            macKomodoAppBuildName = black.configure.items['macKomodoAppBuildName'].Get()
+            self.value = join(mozDist, macKomodoAppBuildName,
+                "Contents", "Frameworks")
         else:
-            mozDist = black.configure.items["mozDist"].Get()
-            if sys.platform == "darwin":
-                macKomodoAppBuildName = black.configure.items['macKomodoAppBuildName'].Get()
-                self.value = join(mozDist, macKomodoAppBuildName,
-                    "Contents", "Frameworks")
-            else:
-                self.value = join(mozDist, "python")
+            self.value = join(mozDist, "python")
         self.determined = 1
 
 class SiloedPythonBinDir(black.configure.std.Datum):
@@ -1589,23 +1580,6 @@ class IsGTK2Siloed(black.configure.BooleanDatum):
         self.determined = 1
 
 
-class XULRunnerApp(black.configure.Datum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "xulrunner",
-            desc="build Komodo to run on XULRunner",
-            acceptedOptions=("", ["with-xulrunner", "without-xulrunner"]))
-
-    def _Determine_Do(self):
-        self.applicable = 1
-        self.value = 0
-        for opt, optarg in self.chosenOptions:
-            if opt == "--with-xulrunner":
-                self.value = 1
-            elif opt == "--without-xulrunner":
-                self.value = 0
-        self.determined = 1
-
-
 class UniversalApp(black.configure.Datum):
     def __init__(self):
         black.configure.Datum.__init__(self, "universal",
@@ -1636,17 +1610,7 @@ class MozResourcesDir(black.configure.Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        xulrunner = black.configure.items["xulrunner"].Get()
-        if xulrunner:
-            mozDist = black.configure.items['mozDist'].Get()
-            if sys.platform.startswith('darwin'):
-                macKomodoAppBuildName = black.configure.items['macKomodoAppBuildName'].Get()
-                self.value = os.path.join(mozDist, macKomodoAppBuildName,
-                                          "Contents", "Resources")
-            else:
-                self.value = mozDist
-        else:
-            self.value = black.configure.items["mozBin"].Get()
+        self.value = black.configure.items["mozBin"].Get()
         self.determined = 1
 
 class MozComponentsDir(black.configure.Datum):
@@ -2096,12 +2060,7 @@ class MozConfig(black.configure.Datum):
             # to match MSYS (pwd -W).
             buildDir = buildDir[0].lower() + buildDir[1:]
         srcTreeName = os.path.basename(moz_src)
-        xulrunner = black.configure.items["xulrunner"].Get()
-        if xulrunner:
-            # try xulrunner then komodo
-            mozApp="xulrunner"
-        else:
-            mozApp="komodo"
+        mozApp="komodo"
         self.value = regmozbuild.find_latest_mozilla_config(mozApp=mozApp,
                                                     buildDir=buildDir,
                                                     srcTreeName=srcTreeName)
@@ -2286,15 +2245,7 @@ class MozDist(black.configure.Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        xulrunner = black.configure.items["xulrunner"].Get()
-        if xulrunner:
-            # If we're building with xulrunner, this will be our own
-            # directory in komodo-devel, otherwise, it is the objdir/dist
-            # directory.
-            baseDir = black.configure.items["komodoDevDir"].Get()
-            self.value = os.path.join(baseDir, "instdir")
-        else:
-            self.value = black.configure.items['mozDevelDist'].Get()
+        self.value = black.configure.items['mozDevelDist'].Get()
         self.determined = 1
 
 class SetMozStatePath(black.configure.SetEnvVar):
@@ -3934,18 +3885,6 @@ class BuildASCTime(black.configure.Datum):
         buildTime = black.configure.items["buildTime"].Get()
         # Use localtime, as it's more useful for us humans :)
         self.value = time.asctime(time.gmtime(buildTime))
-        self.determined = 1
-
-class XULRunnerBuildId(black.configure.Datum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "xulrunnerBuildId",
-            desc="a XULRunner-specified format build id")
-
-    def _Determine_Do(self):
-        self.applicable = 1
-        buildTime = black.configure.items["buildTime"].Get()
-        year, month, day = time.gmtime(buildTime)[:3]
-        self.value = "%04d%02d%02d" % (year, month, day)
         self.determined = 1
 
 class ConfigTokens(black.configure.Datum):

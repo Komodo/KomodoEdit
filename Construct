@@ -65,8 +65,6 @@ my @toExport = (
     'withPGOCollection',
     'withDocs',
     'withKomodoCix',
-    'xulrunner', # xulrunner based builds
-    'xulrunnerBuildId',
     'universal', # universal binary builds for osx
 
     'ludditeVersion',
