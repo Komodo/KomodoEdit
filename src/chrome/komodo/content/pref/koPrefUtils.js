@@ -77,7 +77,7 @@ function ignorePrefPageOKFailure(prefset, context, message) {
     var ignoreText = bundle.GetStringFromName("ignore.buttonText");
     var buttons = [fixText, ignoreText];
     var response = fixText;
-    var res = ko.dialogs.customButtons(prompt,
+    var res = getKoObject("dialogs").customButtons(prompt,
                                        buttons,
                                        response,
                                        text,
