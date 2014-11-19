@@ -2060,9 +2060,7 @@ class MozConfig(black.configure.Datum):
             # to match MSYS (pwd -W).
             buildDir = buildDir[0].lower() + buildDir[1:]
         srcTreeName = os.path.basename(moz_src)
-        mozApp="komodo"
-        self.value = regmozbuild.find_latest_mozilla_config(mozApp=mozApp,
-                                                    buildDir=buildDir,
+        self.value = regmozbuild.find_latest_mozilla_config(buildDir=buildDir,
                                                     srcTreeName=srcTreeName)
         self.determined = 1
 
@@ -2118,7 +2116,6 @@ class MozObjDir(black.configure.Datum):
         komodoShortVersion = black.configure.items["komodoShortVersion"].Get()
         buildType = black.configure.items["buildType"].Get()
         mozObjDir = regmozbuild.find_latest_build(
-            mozApp="komodo",
             komodoVersion=komodoShortVersion,
             buildType=buildType,
             blessed=blessed,
