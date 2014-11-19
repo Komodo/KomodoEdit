@@ -74,7 +74,7 @@ function OnLoad()
     var yesA = yes.substr(0,1).toLowerCase();
     var noA = no.substr(0,1).toLowerCase();
 
-    if ("classNames" in window.arguments[0]) {
+    if ("classNames" in window.arguments[0] && window.arguments[0].classNames) {
         var classes = window.arguments[0].classNames.split(/\s+/);
         for (let c in classes)
         {
