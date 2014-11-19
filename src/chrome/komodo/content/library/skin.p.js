@@ -235,9 +235,14 @@ if (ko.skin == undefined)
             this._setupCustomScrollbars();
 
             koLess.reload();
+            setTimeout(function()
+            {
+                koLess.reload();
+            }, 100);
 
             var nb = document.getElementById("komodo-notificationbox");
-            var nf = nb.appendNotification("Some of the changes made may require a Komodo restart to apply properly",
+            if (("_koSkinElem" in nb) && nb._koSkinElem) nb.removeNotification(nb._koSkinElem);
+            nb._koSkinElem = nb.appendNotification("Some of the changes made may require a Komodo restart to apply properly",
                                   "skin-restart", null, nb.PRIORITY_INFO_HIGH,
             [
                 {
@@ -247,7 +252,7 @@ if (ko.skin == undefined)
                 },
                 {
                     accessKey: "l",
-                    callback: nb.removeNotification.bind(nb, nf),
+                    callback: function() { nb.removeNotification(nb._koSkinElem); },
                     label: "Restart Later"
                 },
             ]);
