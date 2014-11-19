@@ -113,7 +113,6 @@ def find_latest_build(**conditions):
     Typical ones are:
         buildType       release|debug
         komodoVersion   "X.Y"
-        mozApp          komodo|xulrunner|suite|browser
         blessed         True|False (i.e. was this build blessed for
                         Komodo production builds)
     
@@ -136,7 +135,6 @@ def find_latest_mozilla_config(**conditions):
     Typical ones are:
         buildType       release|debug
         komodoVersion   "X.Y"
-        mozApp          komodo|xulrunner|suite|browser
         blessed         True|False (i.e. was this build blessed for
                         Komodo production builds)
         buildDir        The directory path to the mozilla build.
@@ -242,7 +240,6 @@ class _MozBuildRegistry:
         Typical ones are:
             buildType       release|debug
             komodoVersion   "X.Y"
-            mozApp          komodo|xulrunner|suite|browser
             blessed         True|False (i.e. was this build blessed for
                             Komodo production builds)
 
