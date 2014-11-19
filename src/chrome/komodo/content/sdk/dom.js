@@ -326,6 +326,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
+        parent: function()
+        {
+            return $(this.first().parentNode);
+        },
+
         /**
          * Delete element
          */
