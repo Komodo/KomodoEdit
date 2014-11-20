@@ -154,19 +154,14 @@ this.maxEntries = function MRU_maxEntries(listPrefName)
     _log.info("maxEntries(listPrefName="+listPrefName+")");
     // XXX:HACK This should be an attribute on difference instances of a
     //          koIMRU interface.
-    var maxEntries;
+    var maxEntries = 50; // Bigger?
     var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
                   getService(Components.interfaces.koIPrefService);
-    var sizePrefName = null;
     if (listPrefName.slice(0, 3) == "mru"
         && listPrefName.slice(-4) == "List")
     {
-        sizePrefName = listPrefName.replace("List", "Size");
-    }
-    if (sizePrefName && prefSvc.prefs.hasPref(sizePrefName))  {
-        maxEntries = prefSvc.prefs.getLongPref(sizePrefName);
-    } else {
-        maxEntries = 50; // Bigger?
+        var sizePrefName = listPrefName.replace("List", "Size");
+        maxEntries = prefSvc.prefs.getLong(sizePrefName, maxEntries);
     }
     return maxEntries;
 }
