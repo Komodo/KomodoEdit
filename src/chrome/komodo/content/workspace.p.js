@@ -683,8 +683,6 @@ this.collectOpenViewPaths = function(){
     var curPaths = [];
     var curViews = ko.views.manager.getAllViews();
     for (var i = 0; i < curViews.length; i++){
-        // Don't need the start page to reload which is not an editor type
-        // window.
         if (curViews[i].getAttribute("type") != "editor") {
             continue;
         }
@@ -702,25 +700,24 @@ this.collectOpenViewPaths = function(){
     return curPaths;
 }
 
+function getLastSaveLocation() {
+    var prevSaveFile = ko.mru.get("mruWorkspaceList");
+    var defaultName = null;
+    var defaultDir = null;
+    if (prevSaveFile) {
+        // convert the path string into a file object, get dirname and basename
+        defaultDir = ko.uriparse.dirName(prevSaveFile);
+        defaultName = ko.uriparse.baseName(prevSaveFile);
+    }
+    return { "defaultName": defaultName, "defaultDir": defaultDir };
+}
 /**
 * Open dialog to allow user to pick location to save workspace file
 * @returns {String} path to save location
 */
-this.pickSpaceSavePath = function(){
-    var prevSaveFile = this.lastSavedWorkspace;
-    var fileSvc = Components.classes["@activestate.com/koFileService;1"]
-            .getService(Components.interfaces.koIFileService)
-    var defaultName = null;
-    var defaultDir = null;
-    if (typeof(prevSaveFile) != "undefined"){
-        // convert the path string into a file object, get dirname and basename
-        file = fileSvc.getFileFromURI(prevSaveFile);
-        defaultName = file.baseName;
-        defaultDir = file.dirName;
-    } else {
-        defaultDir = this.getDefaultDir();  
-    }
-    if (defaultName == null) {
+this.pickSpaceSavePath = function() {
+    var {defaultName, defaultDir} = getLastSaveLocation();
+    if (!defaultName) {
         defaultName = "MySpace.komodospace";
     }
     var saveFilePath = ko.filepicker.saveFile(defaultDir,
@@ -748,8 +745,12 @@ this.save = function (filepath){
     fileEx.open('w');
     fileEx.puts(JSON.stringify(workspace));
     fileEx.close();
-    // Set filepath as prop to use during later Saves.
-    this.lastSavedWorkspace = filepath;
+
+    // Save in a MRU for restoring operation.
+    if (!ko.prefs.hasPref("mruWorkspaceSize")) {
+        ko.prefs.setLong("mruWorkspaceSize", 10);
+    }
+    ko.mru.add("mruWorkspaceList", fileEx.URI);
 }
 
 /**
@@ -757,33 +758,15 @@ this.save = function (filepath){
 * @returns {String} file path to workspace file
 */
 this.pickSpaceFileToOpen = function () {
-    var defaultDir; 
-    defaultDir = this.getDefaultDir();
-    var spaceFile = ko.filepicker.openFile(defaultDir,
-                                           null, //don't want a default name
+    var {defaultName, defaultDir} = getLastSaveLocation();
+    var spaceFile = ko.filepicker.browseForFile(defaultDir,
+                                           defaultName,
                                            "Choose workspace file"
                                            //"komodospace"  // Not as easy as I
                                                             // thought.  
                                            //["komodospace",["*.komodospace"]]
                                            )
     return spaceFile;
-}
-
-/**
-* Try to guess a default path to open to, return null otherwise
-* @returns {String} string of path to use as default save/open location
-*/
-this.getDefaultDir = function() {
-    var defaultDir = null;
-    var project = ko.projects.manager.currentProject;
-    var koDoc =  ko.views.manager.currentView.koDoc;
-    if (project) {
-        defaultDir = project.liveDirectory;
-    }
-    else if(koDoc){
-        defaultDir = koDoc.file.dirName;
-    }
-    return defaultDir;
 }
 
 /**
@@ -796,32 +779,27 @@ this.loadWorkspaceFile =  function(filepath){
         filepath = this.pickSpaceFileToOpen();
         // If the user cancels out of the dialog filepath will be null so bail
         if (!filepath) {
-            return;
+            return null;
         }
     }
-    if (filepath.endsWith(".komodospace")) {
-        var fileSvc = Components.classes["@activestate.com/koFileService;1"]
-                        .getService(Components.interfaces.koIFileService)
-        try{
-            spaceFile = fileSvc.getFileFromURI(filepath);
-        } catch(e) {
+    if (filepath) {
+        var spaceFile = Components.classes["@activestate.com/koFileEx;1"]
+                        .createInstance(Components.interfaces.koIFileEx);
+        spaceFile.URI = filepath;
+        try {
+            spaceFile.open("r");
+            // It should be a JSON file.
+            return JSON.parse(spaceFile.readfile());
+        } catch(ex) {
             require("notify/notify").send("Could not load workspace file: " + spaceFile.baseName,
                                           "workspace", {priority: "warning"});
-            return;
-        }
-        try{
-            spaceFile.open("r");
-            fileContents = spaceFile.readfile();
-            // JSON stringify for easier parsing later
-            fileContents = JSON.parse(fileContents);
         } finally {
             spaceFile.close();
         }
     } else {
         alert("Choose a *.komodospace file.");
-        return;
     }
-    return fileContents;
+    return null;
 }
 
 /**
