@@ -805,12 +805,8 @@ this.loadWorkspaceFile =  function(filepath){
         try{
             spaceFile = fileSvc.getFileFromURI(filepath);
         } catch(e) {
-            ko.statusBar.AddMessage("Could not load workspace file.",
-                                    "ko.workspace",
-                                    3000, // 3 seconds
-                                    true, // yes highlight
-                                    false // non interactive
-                                   )
+            require("notify/notify").send("Could not load workspace file: " + spaceFile.baseName,
+                                          "workspace", {priority: "warning"});
             return;
         }
         try{
@@ -840,7 +836,6 @@ this.open = function(filepath){
     }
     try{
         ko.open.multipleURIs(jsonPaths);
-        ko.statusBar.AddMessage("Workspace loaded.  You're welcome!");
     } catch(e){
         workLog.warn("Could not load file from workspace file:  ERROR: ", e)
     }
