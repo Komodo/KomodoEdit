@@ -2226,12 +2226,10 @@
 
                         <statusbarpanel id="statusbar-message-panel" flex="1">
                             <!-- the deck is here to support vi mode -->
-                            <deck id="statusbar-message-deck" selectedIndex="0" flex="1"></deck>
-                        </statusbarpanel>
-
-                        <statusbarpanel id="statusbar-section"
-                                        style="min-width: 12em; max-width: 20em;">
-                            <sectionlist id="statusbar-sectionlist" />
+                            <deck id="statusbar-message-deck" selectedIndex="0" flex="1">
+                                <hbox id="statusbar-message-deck-default">
+                                </hbox>
+                            </deck>
                         </statusbarpanel>
 
                         <statusbarpanel id="statusbar-encoding"

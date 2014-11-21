@@ -18,8 +18,8 @@
     <script src="chrome://breadcrumbs/content/breadcrumbs.js"
             type="application/x-javascript;version=1.7"/>
 
-    <deck id="statusbar-message-deck">
-        <hbox position="0" id="breadcrumbbarWrap">
+    <hbox id="statusbar-message-deck-default">
+        <hbox id="breadcrumbBarWrap" flex="1">
             <toolbar
                 id="breadcrumbBar"
                 class="native-icons"
@@ -105,7 +105,7 @@
                     class="menu-iconic folder-item breadcrumb-folder-icon"/>
             </box>
         </hbox>
-    </deck>
+    </hbox>
 
     <broadcasterset id="broadcasterset_global">
 
