@@ -207,9 +207,6 @@ ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="270"] .vertical-button-te
   -moz-box-direction: reverse;
 }
 
-ko-pane[type="icons"] .pane-container {
-  -moz-box-direction: reverse;
-}
 ko-pane[type="icons"] .pane-tabs-container tab {
   /* default image for icons panes */
   list-style-image: url("chrome://komodo/skin/images/existing_file.png");
