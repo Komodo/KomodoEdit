@@ -72,6 +72,8 @@ if (typeof ko.breadcrumbs == 'undefined')
          */
         init: function breadcrumbs_init()
         {
+            log.debug("Init");
+
             self = this;
 
             // Record references
@@ -89,6 +91,8 @@ if (typeof ko.breadcrumbs == 'undefined')
 
             // Register Controller 
             window.controllers.appendController(this.controller);
+
+            this.load();
         },
 
         /**
@@ -108,6 +112,8 @@ if (typeof ko.breadcrumbs == 'undefined')
          */
         load: function breadcrumbs_load(noDelay = false)
         {
+            log.debug("Load");
+            
             // By default the load is delayed so as not to interfere with the
             // event that triggered it. 
             if ( ! noDelay || eventContext.loadInProgress)
@@ -131,6 +137,7 @@ if (typeof ko.breadcrumbs == 'undefined')
 
             var view = ko.views.manager.currentView;
             if ( ! view) {
+                log.debug("No view, cancelling load");
                 return;
             }
             log.debug("Loading crumbs for view ("+view.uid+" : "+view.title+")");
