@@ -9,6 +9,7 @@
     @background-input:      lighten(@background-contrast, 10%);
     @background-image:      linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.3));
     @background-selected:   fade(desaturate(@special, 20%), 30%);
+    @icon-filter:           url("chrome://komodo/skin/filters.svg#fill-lightgray");
 }
 
 .setVars() when (@dark = 0)
@@ -22,6 +23,7 @@
     @background-input:      darken(@background-contrast, 10%);
     @background-image:      linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1));
     @background-selected:   desaturate(@special, 20%);
+    @icon-filter:           url("chrome://komodo/skin/filters.svg#fill-darkgray");
 }
 
 .setVars();
@@ -120,16 +122,27 @@
         background: @special;
     }
     
-    button:not(.button-plain)
+    :not(button) > button:not(.button-plain)
     {
         background-color: @background-button !important;
         background-image: @background-image !important;
-        color: @foreground !important;
 
         &:hover
         {
             background-color: @background-button-hover !important;
         }
+    }
+
+    button:not(.button-plain)
+    {
+        color: @foreground !important;
+    }
+
+    .button-icon,
+    .dropmarker-icon
+    {
+        /* Todo: Fix this from the iconset level, probably with ko-icon */
+        filter: @icon-filter !important;
     }
 }
 
@@ -200,4 +213,11 @@ statusbar#statusbarviewbox
     {
         visibility: collapse;
     }
+
+}
+
+#quicklaunch
+{
+    border: 0;
+    background-image: none;
 }

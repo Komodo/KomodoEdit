@@ -121,3 +121,4 @@ $cons->InstallInChrome('iconset/rules.less');
 
 $cons->InstallInChrome('partials/scheme-skinning.less');
 
+$cons->InstallInChrome('filters.svg');

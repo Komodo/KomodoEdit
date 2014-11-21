@@ -869,7 +869,7 @@ function _addManageMRUMenuItem(prefName, parentNode, MRUName) {
     parentNode.appendChild(menuitem);
 }
 
-function _updateMRUMenu(prefName, limit, addManageItem, MRUName)
+function _updateMRUMenu(prefName, limit, addManageItem, MRUName, popupId)
 {
     // Update a MRU menu popup under the file menu.
     //    "prefName" indicate which MRU menu to update.
@@ -878,12 +878,12 @@ function _updateMRUMenu(prefName, limit, addManageItem, MRUName)
     //     template MRU menu under File->New. Perhaps that should be
     //     factored out.
     if (typeof(addManageItem) == "undefined") addManageItem = false;
-    var popupId, separatorId, prettyName;
+    var separatorId, prettyName;
     if (prefName == "mruProjectList") {
-        popupId = "recentProjects_menupopup";
+        popupId = popupId || "recentProjects_menupopup";
         prettyName = _bundle.GetStringFromName("Projects");
     } else if (prefName == "mruFileList") {
-        popupId = "popup_mruFiles"; // MRU list is the whole popup.
+        popupId = popupId || "popup_mruFiles"; // MRU list is the whole popup.
         separatorId = null;
         prettyName = _bundle.GetStringFromName("Files");
     } else if (prefName == "mruTemplateList") {
@@ -1100,7 +1100,7 @@ var _gNeedToUpdateFileMRUMenu = false;
 var _gNeedToUpdateProjectMRUMenu = false;
 var _gNeedToUpdateTemplateMRUMenu = false;
 
-this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, limit)
+this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, limit, popupId)
 {
     if (typeof(limit) == "undefined") {
         limit = 0;
@@ -1111,14 +1111,14 @@ this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, 
     if (mru == "project" && _gNeedToUpdateProjectMRUMenu) {
         _updateMRUMenu("mruProjectList", limit,
                        true /* addManageItem */,
-                       "Most Recent Projects");
+                       "Most Recent Projects", popupId);
         /*Note: "Most Recent Projects" is a bundle key in library.properties */
         _gNeedToUpdateProjectMRUMenu = false;
     } else if (mru == "file" && _gNeedToUpdateFileMRUMenu) {
-        _updateMRUMenu("mruFileList", limit);
+        _updateMRUMenu("mruFileList", limit, undefined, undefined, popupId);
         _gNeedToUpdateFileMRUMenu = false;
     } else if (mru == "template" && _gNeedToUpdateTemplateMRUMenu) {
-        _updateMRUMenu("mruTemplateList", limit);
+        _updateMRUMenu("mruTemplateList", limit, undefined, undefined, popupId);
         _gNeedToUpdateTemplateMRUMenu = false;
     } else if (mru == "window") { // && _gNeedToUpdateTemplateMRUMenu) {
         this._updateMRUClosedWindowMenu(limit);

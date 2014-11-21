@@ -156,9 +156,10 @@ menu .menu-right
     list-style-image: @icon-newfolder;
 }
 
-menulist dropmarker, textbox[type="autocomplete"] dropmarker
+menulist dropmarker, textbox[type="autocomplete"] dropmarker,
+.button-menubutton-dropmarker,
 {
-    list-style-image: @icon-dropmarker;
+    list-style-image: @icon-dropmarker !important;
     width: 16px;
 }
 
@@ -1657,3 +1658,4 @@ ko-pane[type="icons"]
     }
 
 }
+

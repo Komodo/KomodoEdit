@@ -322,12 +322,12 @@ toolbar#nav-bar
 
 #quicklaunch
 {
-    button
+    :not(button) > button
     {
-        padding: 6px 4px;
         width: 250px;
+        padding: 6px 4px;
 
-        image
+        image.button-icon
         {
             display: block;
             margin-right: 6px;
@@ -338,4 +338,5 @@ toolbar#nav-bar
             text-align: left;
         }
     }
+
 }

@@ -1,4 +1,5 @@
 content iconset-light content/
 skin iconset-light classic/1.0 skin/
+skin icomoon-light classic/1.0 jar:content/light.jar!/skin/
 locale iconset-light en-US locale/en-US/
 overlay chrome://komodo/content/pref/pref-ui.xul chrome://iconset-light/content/overlay_pref-ui.xul

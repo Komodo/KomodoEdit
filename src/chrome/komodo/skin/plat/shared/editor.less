@@ -99,7 +99,7 @@
         }
     }
 
-    button:not(.button-plain)
+    :not(button) > button:not(.button-plain)
     {
         -moz-appearance: none !important;
         background-color: @hud-dock-color;
@@ -113,6 +113,20 @@
         {
             background-color: darken(@hud-dock-color, 20%);
         }
+    }
+
+    button > button
+    {
+        -moz-appearance: none;
+        background: transparent;
+        border: 0;
+        padding: 0;
+        margin: 0;
+    }
+
+    .button-menubutton-dropmarker
+    {
+        -moz-appearance: none !important;
     }
 
 }
