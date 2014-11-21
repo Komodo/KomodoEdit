@@ -80,13 +80,14 @@ if (ko.skin == undefined)
             this._setupCustomScrollbars();
 
             this.loadSchemeSkinning();
+            this.setSchemeClasses();
         },
         
         /**
          * Preference Observer
          * 
          * @param   {Object} subject 
-         * @param   {String} topic   
+         * @param   {String} topic
          * @param   {String} data    
          * 
          * @returns {Void} 
@@ -131,6 +132,7 @@ if (ko.skin == undefined)
 
                 case PREF_EDITOR_SCHEME:
                     this.loadSchemeSkinning();
+                    this.setSchemeClasses();
                     break;
             }
 
@@ -299,6 +301,15 @@ if (ko.skin == undefined)
                 log.error("Failed unloading manifest: '" + uri);
                 return;
             }
+        },
+        
+        setSchemeClasses:function()
+        {
+            var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
+            var scheme = schemeService.getScheme(prefs.getString(PREF_EDITOR_SCHEME));
+            document.documentElement.classList.remove("hud-isdark");
+            document.documentElement.classList.remove("hud-islight");
+            document.documentElement.classList.add(scheme.isDarkBackground ? "hud-isdark" : "hud-islight");
         },
 
         loadSchemeSkinning: function()
