@@ -1958,10 +1958,8 @@
             // Default to the view's own document.
             previewURI = this.koDoc.file.URI;
         }
-        var doc;
-        if (previewURI == this.koDoc.file.URI) {
-            doc = this.koDoc;
-        } else {
+        var doc = this.koDoc;
+        if (!doc.file || previewURI != doc.file.URI) {
             doc = this.docSvc.createDocumentFromURI(previewURI);
         }
         this.preview = viewlist.createViewFromDocument(doc, 'browser', -1);
