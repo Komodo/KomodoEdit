@@ -870,6 +870,34 @@ function _addManageMRUMenuItem(prefName, parentNode, MRUName) {
 
 function _updateMRUMenu(prefName, limit, addManageItem, MRUName, popupId)
 {
+    var separatorId;
+    if (prefName == "mruProjectList") {
+        popupId = popupId || "recentProjects_menupopup";
+    } else if (prefName == "mruFileList") {
+        popupId = popupId || "popup_mruFiles"; // MRU list is the whole popup.
+    } else if (prefName == "mruTemplateList") {
+        separatorId = "separator_mruTemplates"; // MRU list is everything after the separator.
+        popupId = null;
+    } else {
+        throw new Error("Unexpected MRU menu to update: prefName='"+prefName+"'");
+    }
+
+    if (separatorId) {
+        var separators = document.querySelectorAll("#" + separatorId);
+        for (let i=0; i<separators.length; i++) {
+            _doUpdateMRUMenu(prefName, limit, addManageItem, MRUName, null, separators[i])
+        };
+    } else {
+        var menupopups = document.querySelectorAll("#" + popupId);
+        for (let i=0; i<menupopups.length; i++) {
+            _doUpdateMRUMenu(prefName, limit, addManageItem, MRUName, menupopups[i])
+        };
+    }
+
+}
+
+function _doUpdateMRUMenu(prefName, limit, addManageItem, MRUName, menupopup, separator)
+{
     // Update a MRU menu popup under the file menu.
     //    "prefName" indicate which MRU menu to update.
     //
@@ -877,24 +905,15 @@ function _updateMRUMenu(prefName, limit, addManageItem, MRUName, popupId)
     //     template MRU menu under File->New. Perhaps that should be
     //     factored out.
     if (typeof(addManageItem) == "undefined") addManageItem = false;
-    var separatorId, prettyName;
+    var prettyName;
     if (prefName == "mruProjectList") {
-        popupId = popupId || "recentProjects_menupopup";
         prettyName = _bundle.GetStringFromName("Projects");
     } else if (prefName == "mruFileList") {
-        popupId = popupId || "popup_mruFiles"; // MRU list is the whole popup.
-        separatorId = null;
         prettyName = _bundle.GetStringFromName("Files");
     } else if (prefName == "mruTemplateList") {
-        popupId = null;
-        separatorId = "separator_mruTemplates"; // MRU list is everything after the separator.
         prettyName = _bundle.GetStringFromName("Templates");
-    } else {
-        throw new Error("Unexpected MRU menu to update: prefName='"+prefName+"'");
-    }
+    } 
 
-    var menupopup = popupId ? document.getElementById(popupId) : null;
-    var separator = separatorId ? document.getElementById(separatorId) : null;
     var mruList = null;
     var menuitem;
     if (_gPrefs.hasPref(prefName)) {
@@ -1007,16 +1026,15 @@ function _updateMRUMenu(prefName, limit, addManageItem, MRUName, popupId)
             // ignored when the menu item is inside a popup, so we call
             // ko.commands.doCommand directly. THIS IS NOT A GOOD THING!
             if (prefName == "mruTemplateList") {
-                let args = ["'" + url + "'",
-                            "'" + prefName + "'",
-                            i];
-                menuitem.setAttribute("oncommand",
-                    "ko.uilayout.newFileFromTemplateOrTrimMRU("
-                                      + args.join(", ")
-                                      + ");");
+                menuitem.addEventListener("command", function(_url, _prefName, _i, e) {
+                    ko.uilayout.newFileFromTemplateOrTrimMRU(_url, _prefName, _i);
+                    e.stopPropagation();
+                }.bind(null, url, prefName, i));
             } else {
-                menuitem.setAttribute("oncommand",
-                                      "ko.open.recentURI('" + url + "')");
+                menuitem.addEventListener("command", function(_url, e) {
+                    ko.open.recentURI(_url);
+                    e.stopPropagation();
+                }.bind(null, url));
             }
 
             menupopup.appendChild(menuitem);
@@ -1099,7 +1117,7 @@ var _gNeedToUpdateFileMRUMenu = false;
 var _gNeedToUpdateProjectMRUMenu = false;
 var _gNeedToUpdateTemplateMRUMenu = false;
 
-this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, limit, popupId)
+this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, limit, popupId, force)
 {
     if (typeof(limit) == "undefined") {
         limit = 0;
@@ -1107,18 +1125,18 @@ this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, 
     // (Re)build the identified MRU menu if necessary.
     //    "mru" is indicates which MRU menu to update.
     // Current possible values: project, file, template, window
-    if (mru == "project" && _gNeedToUpdateProjectMRUMenu) {
+    if (mru == "project" && (_gNeedToUpdateProjectMRUMenu || force)) {
         _updateMRUMenu("mruProjectList", limit,
                        true /* addManageItem */,
                        "Most Recent Projects", popupId);
         /*Note: "Most Recent Projects" is a bundle key in library.properties */
-        _gNeedToUpdateProjectMRUMenu = false;
-    } else if (mru == "file" && _gNeedToUpdateFileMRUMenu) {
+        if ( ! force) _gNeedToUpdateProjectMRUMenu = false;
+    } else if (mru == "file" && (_gNeedToUpdateFileMRUMenu || force)) {
         _updateMRUMenu("mruFileList", limit, undefined, undefined, popupId);
-        _gNeedToUpdateFileMRUMenu = false;
-    } else if (mru == "template" && _gNeedToUpdateTemplateMRUMenu) {
+        if ( ! force) _gNeedToUpdateFileMRUMenu = false;
+    } else if (mru == "template" && (_gNeedToUpdateTemplateMRUMenu || force)) {
         _updateMRUMenu("mruTemplateList", limit, undefined, undefined, popupId);
-        _gNeedToUpdateTemplateMRUMenu = false;
+        if ( ! force) _gNeedToUpdateTemplateMRUMenu = false;
     } else if (mru == "window") { // && _gNeedToUpdateTemplateMRUMenu) {
         this._updateMRUClosedWindowMenu(limit);
     }

@@ -2199,21 +2199,21 @@
                                 <button label="Open File"
                                         class="open-file-icon"
                                         type="menu-button"
-                                        command="ko.commands.doCommandAsync('cmd_open', event)">
+                                        oncommand="ko.commands.doCommandAsync('cmd_open', event)">
                                     <menupopup
                                         id="popup_mruFilesQL"
                                         class="popup_mru"
-                                        onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('file',0,'popup_mruFilesQL');"/>
+                                        onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('file',0,'popup_mruFilesQL', true);"/>
                                 </button>
 
                                 <button label="Open Project"
                                         class="project-icon"
                                         type="menu-button"
-                                        command="ko.commands.doCommandAsync('cmd_openProject', event)">
+                                        oncommand="ko.commands.doCommandAsync('cmd_openProject', event)">
                                   <menupopup
                                         id="popup_mruProjectsQL"
                                         class="popup_mru"
-                                        onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('project',0,'popup_mruProjectsQL');"/>
+                                        onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('project',0,'popup_mruProjectsQL', true);"/>
                                 </button>
 
                                 <hbox height="15"/>
