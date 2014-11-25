@@ -1282,6 +1282,8 @@ def ImageKomodo(cfg, argv):
         # Don't need Windows debug symbol files.
         ibits += [
             ("rtrim", "*.pdb"),
+            ("rm",    iimozbinpath("mangle.exe")),
+            ("rm",    iimozbinpath("shlibsign.exe")),
         ]
         # We don't need the Python DLLs beside python.exe in the siloed
         # Python. The DLLs are already beside the main komodo.exe where
