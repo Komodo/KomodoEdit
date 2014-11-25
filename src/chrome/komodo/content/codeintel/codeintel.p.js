@@ -771,7 +771,7 @@ ko.codeintel = {};
                             types.length);
             autoc.addColumn(Ci.koIScintillaAutoCompleteController.COLUMN_TYPE_TEXT,
                             completions, completions.length, true);
-            var typedAlready = scimoz.getTextRange(triggerPos, curPos);
+            var typedAlready = (triggerPos >= curPos) ? "" : scimoz.getTextRange(triggerPos, curPos);
             this._lastPrefix = typedAlready;
             scintilla.autocomplete.show(triggerPos, curPos, triggerPos,
                                         typedAlready);
