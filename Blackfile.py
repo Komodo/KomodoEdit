@@ -1241,6 +1241,16 @@ def ImageKomodo(cfg, argv):
         ("rm",    iimozbinpath("*.txt")),
         ("rm",    iimozbinpath("LICENSE")),
 
+        # Trim Mozilla stuff.
+        ("rm",    iimozbinpath("*.sh")),
+        ("rm",    iimozbinpath(".gdbinit")),
+        ("rm",    iimozbinpath(".lldbinit")),
+        ("rm",    iimozbinpath("js-gdb.py")),
+        ("rm",    iimozbinpath("mangle")),
+        ("rm",    iimozbinpath("mozilla-xremote-client")),
+        ("rm",    iimozbinpath("nsinstall")),
+        ("rm",    iimozbinpath("shlibsign")),
+
         # Trim some unneeded stuff in siloed Python.
         ("rmdir", iipylibpath("ctypes", "test")),
         ("rmdir", iipylibpath("sqlite3", "test")),
