@@ -95,6 +95,11 @@ NS_IMPL_ISUPPORTS_CI(SciMoz,
                      nsISupportsWeakReference)
 #endif
 
+int16_t GenerateScimozId() {
+    static int16_t s_pluginId = 0;
+    return s_pluginId++;
+}
+
 SciMoz::SciMoz(SciMozPluginInstance* aPlugin)
 {
 #ifdef SCIMOZ_DEBUG
@@ -150,7 +155,8 @@ void SciMoz::SciMozInit() {
     bracesSloppy = true;
 
     // There is no cached text to start with.
-    _textHasChanged = true;
+    _scimozId = GenerateScimozId();
+    _textId = 0;
     mLastLineCount = 1;
 
     PlatformNew();
@@ -512,7 +518,9 @@ void SciMoz::Notify(long lParam) {
 			bool isInsertOrDeleteText = notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT);
 			if (isInsertOrDeleteText) {
 				// Buffer has changed, reset the text cache.
-				_textHasChanged = true;
+				if (_textId >= 0x7FFF)
+                    _textId = 0; // Wrap around to start.
+                _textId += 1;
 			}
 
 			// Check if the line count has changed - if so, we'll
@@ -1341,18 +1349,29 @@ NS_IMETHODIMP SciMoz::SetModEventMask(PRInt32 mask)
 	SendEditor(SCI_SETMODEVENTMASK, mask, 0);
 
 	// Void the cached text - see bug 85194 for why.
-	_textHasChanged = true;
+    if (_textId >= 0x7FFF)
+        _textId = 0; // Wrap around to start.
+    _textId += 1;
 	return NS_OK;
 }
 
-/* readonly attribute boolean textHasChanged; */
-NS_IMETHODIMP SciMoz::GetTextHasChanged(bool *hasChanged)
+/* readonly attribute long textId; */
+NS_IMETHODIMP SciMoz::GetTextId(int32_t *textId)
 {
-	SCIMOZ_CHECK_VALID("GetTextHasChanged");
+	SCIMOZ_CHECK_VALID("GetTextId");
 #ifdef SCIMOZ_DEBUG_VERBOSE
-	fprintf(stderr,"SciMoz::GetTextHasChanged\n");
+	fprintf(stderr,"SciMoz::GetTextId\n");
 #endif
-	*hasChanged = _textHasChanged;
+    /**
+     * Return a combination of a unique SciMoz id and a rolling text id.
+     * This should give a unique text id (or close enough) for the life of
+     * Komodo.
+     * 
+     * Caveats:
+     *   1) if > 0x7FFF scintilla text changes, the _textId wraps around to 0.
+     *   2) if > 0x7FFF plugins are created - then what the hell are you doing?
+     */
+	*textId = (_scimozId << 16) | _textId;
 	return NS_OK;
 }
 
@@ -1369,7 +1388,6 @@ NS_IMETHODIMP SciMoz::GetText(nsAString &text)
 	fprintf(stderr,"SciMoz::GetText\n");
 #endif
 	GetTextRange(0, -1, text);
-	_textHasChanged = false;
 	return NS_OK;
 }
 

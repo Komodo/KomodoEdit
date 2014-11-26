@@ -87,12 +87,12 @@ interface ISciMozLite : nsISupports {
 	AString getTextRange(in long min, in long max);
 	attribute AString text;
 	/**
-	 * The textHasChanged attribute is set to true whenever the Scintilla
-	 * text is modified. This is so the JavaScript SciMoz wrapper can keep
-	 * a cached copy of the text without having to go through XPCOM and
-	 * Scintilla each time.
+	 * textId is a number that is incremented whenever the Scintilla text is
+	 * modified. This is so the JavaScript SciMoz wrapper can keep a cached
+	 * copy of the text without having to go through XPCOM and Scintilla
+	 * each time.
 	 */
-	readonly attribute boolean textHasChanged;
+	readonly attribute int32_t textId;
 	readonly attribute AString selText;
 	
 	// stuff to minimize some of our eventist usage

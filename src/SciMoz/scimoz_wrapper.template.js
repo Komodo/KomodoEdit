@@ -45,6 +45,7 @@ koSciMozWrapper.prototype = {
 
     __scimoz: null,
 
+    __lastTextId: -1,
     __cachedText: null,
 };
 
@@ -66,8 +67,10 @@ koSciMozWrapper.prototype.setWordChars =
 // Override text to use locally cached text (for performance). Only reload the
 // text when it's out-dated.
 koSciMozWrapper.prototype.__defineGetter__("text", function get_text() {
-    if (this.__scimoz.textHasChanged) {
+    let textId = this.__scimoz.textId;
+    if (textId != this.__lastTextId) {
         this.__cachedText = this.__scimoz.text;
+        this.__lastTextId = textId;
     }
     return this.__cachedText;
 });

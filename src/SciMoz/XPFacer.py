@@ -70,12 +70,12 @@ manualGetterProperties = {
             return true;
             """
     },
-    "textHasChanged": {
-        "ReturnType": "bool",
+    "textId": {
+        "ReturnType": "long",
         "code": """
-            bool myresult;
-            GetTextHasChanged(&myresult);
-            BOOLEAN_TO_NPVARIANT(myresult, *result);
+            int32_t myresult;
+            GetTextId(&myresult);
+            INT32_TO_NPVARIANT(myresult, *result);
             return true;
             """,
     },

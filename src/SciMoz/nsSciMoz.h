@@ -225,8 +225,9 @@ class SciMoz : public ISciMoz,
                
 {
 private:
-    // Used to cache the "text" property - resets when the buffer changes.
-    bool _textHasChanged;
+    // Used to cache the "text" property - increments when the buffer changes.
+    int16_t _scimozId;
+    int16_t _textId;
     // Last line count gets updated whenever the text is changed.
     long mLastLineCount;
     
