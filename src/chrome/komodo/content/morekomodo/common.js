@@ -181,7 +181,7 @@ MoreKomodoCommon.renameFile = function(uri, newName, askConfirm) {
         if (!exists || canRename(newFile.isFile(), newName)) {
             newPath = parent + "/" + newName;
             conn.rename(oldPath, newPath);
-        }c
+        }
         newPath = koFileEx.scheme + "://" + koFileEx.server
                     + "/" + koFileEx.dirName + "/" + newName;
     } else {
