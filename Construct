@@ -731,6 +731,8 @@ sub cons::Preprocess {
         die "*** 'mozVersion' is not defined for " .
         "Preprocess(). You need to 'Import' it.\n";
     $substStr .= " -D MOZILLA_VERSION=$mozVersion";
+    my $mozVersionMajor = int($mozVersion);
+    $substStr .= " -DMOZILLA_VERSION_MAJOR=$mozVersionMajor";
     
     #XXX Would prefer that each of these grow the checking that the other
     #    vars have to _require_ that they be defined. This will avoid
