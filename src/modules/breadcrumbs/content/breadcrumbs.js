@@ -240,7 +240,11 @@ if (typeof ko.breadcrumbs == 'undefined')
                     // Fast Open shortcut
                     if (e.shiftKey && e.ctrlKey)
                     {
-                        this.doCommandFastOpen(crumb);
+                        // on timeout so as not to make the mouseup event hide
+                        // commando
+                        setTimeout(function() {
+                            this.doCommandFastOpen(crumb);
+                        }.bind(this), 100);
                     }
 
                     // Show in places shortcut
@@ -479,6 +483,36 @@ if (typeof ko.breadcrumbs == 'undefined')
         doCommandSelect: function breadcrumbs_onCommandSelect(popupmenu, menuitem)
         {
             popupmenu.file.getChild(menuitem.getAttribute("label")).open();
+        },
+
+        /**
+         * Open the Find in File dialog with the current crumb's folder selected
+         *
+         * @param   {Object} crumb
+         *
+         * @returns {Void}
+         */
+        doCommandFastOpen: function breadcrumbs_doCommandFastOpen(popupmenu)
+        {
+            if ( ! popupmenu.file || popupmenu.file.isRemote()) return;
+
+            var path = popupmenu.file.getPath();
+            var commando = require("commando/commando");
+            var sdkFile = require("ko/file");
+
+            commando.selectScope("scope-files");
+            commando.setSubscope({
+                id: path,
+                name: sdkFile.basename(path),
+                description: path,
+                isScope: true,
+                scope: "scope-files",
+                data: {
+                    path: path,
+                    type: "dir"
+                }
+            });
+            commando.show();
         },
 
         /**

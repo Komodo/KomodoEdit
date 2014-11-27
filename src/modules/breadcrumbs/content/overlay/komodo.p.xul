@@ -67,12 +67,12 @@
                     ignorekeys="true">
 
                     <menuseparator anonid="reloadSeparator" preserve="true" />
-<!--                    <menuitem
+                    <menuitem
                         anonid="fastOpenHere"
                         label="&fastopenHere.label;"
                         oncommand="ko.breadcrumbs.onCommandMenuItem('FastOpen', this)"
                         acceltext="Ctrl+Shift+Click"
-                        preserve="true"/>-->
+                        preserve="true"/>
                     <menuitem
                         anonid="findInFolder"
                         label="&findInFolder.label;"
