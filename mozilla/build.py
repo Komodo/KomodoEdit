@@ -1837,7 +1837,7 @@ def target_src_pyxpcom(argv=["src_pyxpcom"]):
         # Checkout pyxpcom - ensure we use the matching version to mozilla.
         repo_url = "http://hg.mozilla.org/pyxpcom/"
         repo_rev = None
-        if int(config.mozVer) < 31:
+        if int(config.mozVer) <= 31:
             # Requires the matching branch.
             repo_rev = "TAG_MOZILLA_%d" % (int(config.mozVer), )
         cmd = "hg clone"
