@@ -24,11 +24,16 @@ treechildren#places-files-tree-body::-moz-tree-image {
   margin-left: -5px;
 /* #endif */
 }
+
 treechildren#places-files-tree-body::-moz-tree-image(places_folder_open) {
   list-style-image: @icon-folder-open;
 }
 treechildren#places-files-tree-body::-moz-tree-image(places_folder_closed) {
   list-style-image: @icon-folder-closed;
+}
+
+treechildren#places-files-tree-body::-moz-tree-image {
+    margin-left: 3px;
 }
 
 treechildren#places-files-tree-body::-moz-tree-cell-text {
@@ -109,6 +114,7 @@ treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccConflict
 
 tree.placestree {
   -moz-binding: url('chrome://komodo-places/content/widgets-places.xml#places_tree_b');
+  margin-left: 2px !important;
 }
 
 tree.projectPlacesTree {
