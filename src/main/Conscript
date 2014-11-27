@@ -183,7 +183,7 @@ my %ppData = (
 if ($platform eq "win") {
     $cp = "copy";
     $mozKomodoSrcDir = "$mozSrc\\mozilla\\komodo";
-    $mozKomodoObjDir = "$mozObjDir\\komodo";
+    $mozKomodoObjDir = "$mozObjDir\\komodo\\app";
     if ($buildFlavour eq "dev") {
         $envVars = "MOZ_WINCONSOLE=1";
     } else {
@@ -217,7 +217,7 @@ if ($platform eq "win") {
 } else {
     $cp = "cp -f";
     $mozKomodoSrcDir = "$mozSrc/mozilla/komodo";
-    $mozKomodoObjDir = "$mozObjDir/komodo";
+    $mozKomodoObjDir = "$mozObjDir/komodo/app";
     # Mozilla will use it's own virtualenv Python - we must set it's home
     # directory, else it will complain about being unable to find modules.
     my $pythonHome = "$mozObjDir/_virtualenv";
