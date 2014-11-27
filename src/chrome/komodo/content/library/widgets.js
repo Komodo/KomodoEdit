@@ -512,8 +512,8 @@ if (typeof(ko.widgets)=='undefined') {
               pane.ownerDocument.title = label;
             } else {
               for (let i = 1;; ++i) {
-                var label = this._strings.formatStringFromName("pane.floating.count.label",
-                                                               [i], 1);
+                label = this._strings.formatStringFromName("pane.floating.count.label",
+                                                           [i], 1);
                 if (labels.indexOf(label) == -1) {
                   pane.setAttribute("label", label);
                   pane.ownerDocument.title = label;
