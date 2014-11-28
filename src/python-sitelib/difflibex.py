@@ -380,8 +380,9 @@ class Diff:
                 re.compile(r"^([\*-]){3} (?P<startline>\d+)(,(?P<endline>\d+))? \1{4}$"),
             "unified hunk header":
                 # E.g., '@@ -296,7 +296,8 @@'
-                re.compile(r"^@@ -(?P<beforestartline>\d+),(\d+) "
-                            "\+(?P<afterstartline>\d+),(\d+) @@"),
+                # E.g., '@@ -1 +0,0 @@'
+                re.compile(r"^@@\s-(?P<beforestartline>\d+)(,(\d+))?\s"
+                            "\+(?P<afterstartline>\d+)(,(\d+))?\s@@"),
         }
 
     def __init__(self, content):
