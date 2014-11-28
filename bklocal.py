@@ -4061,6 +4061,14 @@ class MozGxx(black.configure.Datum):
         self.determined = 1
 
 
+def stripConflictingCFlags(flags):
+    """Remove compile flags that are known to break other Komodo components."""
+    flags_split = flags.split(" ")
+    # Python uses this in PyString_FromStringAndSize:
+    while "-Werror=pointer-sign" in flags_split:
+        flags_split.remove("-Werror=pointer-sign")
+    return " ".join(flags_split)
+
 class MozCFlags(black.configure.Datum):
     def __init__(self):
         black.configure.Datum.__init__(self, "mozCFlags",
@@ -4071,8 +4079,20 @@ class MozCFlags(black.configure.Datum):
         mozObjDir = black.configure.items['mozObjDir'].Get()
         cmd = black.configure.items['mozMake'].Get() + ["echo-variable-CFLAGS"]
         self.value = _capture_stdout(cmd, cwd=mozObjDir).strip()
+        self.value = stripConflictingCFlags(self.value)
         self.determined = 1
 
+
+def stripConflictingCxxFlags(flags):
+    """Remove compile flags that are known to break other Komodo components."""
+    flags_split = flags.split(" ")
+    # Scintilla uses these for struct initialization:
+    while "-Werror=missing-braces" in flags_split:
+        flags_split.remove("-Werror=missing-braces")
+    # Scintilla uses these for UTF comparison:
+    while "-Werror=type-limits" in flags_split:
+        flags_split.remove("-Werror=type-limits")
+    return " ".join(flags_split)
 
 class MozCxxFlags(black.configure.Datum):
     def __init__(self):
@@ -4084,6 +4104,7 @@ class MozCxxFlags(black.configure.Datum):
         mozObjDir = black.configure.items['mozObjDir'].Get()
         cmd = black.configure.items['mozMake'].Get() + ["echo-variable-CXXFLAGS"]
         self.value = _capture_stdout(cmd, cwd=mozObjDir).strip()
+        self.value = stripConflictingCxxFlags(self.value)
         self.determined = 1
 
 
