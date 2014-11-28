@@ -439,7 +439,6 @@ def _setupMozillaEnv():
     os.environ["DISABLE_TESTS"] = "1"
     os.environ["MOZ_BITS"] = "32"
     os.environ["FORCE_BUILD_REFCNT_LOGGING"] = "0"
-    os.environ["MOZ_CURRENT_PROJECT"] = "komodo"
 
     os.environ["MOZBUILD_STATE_PATH"] = join(config.buildDir, "moz-state")
     
