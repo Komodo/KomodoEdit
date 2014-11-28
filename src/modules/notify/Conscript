@@ -16,9 +16,9 @@ Import(
     'mozExtensionDir',
     'mozIdlIncludePath',
 );
- 
-$cons->KoExt("koinstall");
- 
+
+$cons->KoExt("kodistinstall");
+
 # For quick development, comment out the "KoExt" call above and 
 # use the following. The first time this is run, it will setup the
 # appropriate extension link. Then you need to *manually* do
