@@ -1412,7 +1412,10 @@ class koDocumentBase(object):
         """Generate a diff and return the changed lines."""
         diff_content = self.getUnsavedChanges()
         diff = difflibex.Diff(diff_content)
-        return diff.get_changed_line_numbers_by_filepath().values()[0]
+        changes = diff.get_changed_line_numbers_by_filepath().values()
+        if changes:
+            return changes[0]
+        return []
 
     def _getCleanChangedLinesOnly(self):
         if not self._globalPrefs.getBooleanPref("cleanLineEnds_ChangedLinesOnly"):
