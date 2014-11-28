@@ -1,0 +1,61 @@
+commit 5315dc50e58afa2353a5ab9def5211d740535110 (HEAD, wip)
+Author: Mark Yen <marky+git@activestate.com>
+Date:   Tue Oct 15 11:25:03 2013 -0700
+
+    network: io service: use atomic operations on NewURI recursion count
+    
+    This works around problems in Komodo making URIs off the main thread; we
+    still need to fix the usage, though (hence not removing the assertion)
+
+diff --git a/netwerk/base/src/nsIOService.cpp b/netwerk/base/src/nsIOService.cpp
+index 9652c12..2d65b22 100644
+--- a/netwerk/base/src/nsIOService.cpp
++++ b/netwerk/base/src/nsIOService.cpp
+@@ -12,6 +12,7 @@
+ #include "nscore.h"
+ #include "nsIURI.h"
+ #include "prprf.h"
++#include "pratom.h"
+ #include "nsIErrorService.h"
+ #include "netCore.h"
+ #include "nsIObserverService.h"
+@@ -511,19 +511,19 @@
+     return rv;
+ }
+ 
+-class AutoIncrement
++class AtomicAutoIncrement
+ {
+     public:
+-        explicit AutoIncrement(uint32_t *var) : mVar(var)
++        explicit AtomicAutoIncrement(PRInt32 *var) : mVar(var)
+         {
+-            ++*var;
+-        }
+-        ~AutoIncrement()
++            PR_ATOMIC_INCREMENT(var);
++        }
++        ~AtomicAutoIncrement()
+         {
+-            --*mVar;
++            PR_ATOMIC_DECREMENT(mVar);
+         }
+     private:
+-        uint32_t *mVar;
++        PRInt32 *mVar;
+ };
+ 
+ nsresult
+@@ -521,10 +521,10 @@ nsIOService::NewURI(const nsACString &aSpec, const char *aCharset, nsIURI *aBase
+ {
+     NS_ASSERTION(NS_IsMainThread(), "wrong thread");
+ 
+-    static uint32_t recursionCount = 0;
++    static PRInt32 recursionCount = 0;
+     if (recursionCount >= MAX_RECURSION_COUNT)
+         return NS_ERROR_MALFORMED_URI;
+-    AutoIncrement inc(&recursionCount);
++    AtomicAutoIncrement inc(&recursionCount);
+ 
+     nsAutoCString scheme;
+     nsresult rv = ExtractScheme(aSpec, scheme);

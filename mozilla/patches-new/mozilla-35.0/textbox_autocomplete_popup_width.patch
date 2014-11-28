@@ -1,0 +1,81 @@
+Allow one to use
+|   <textbox type="autocomplete" sizetopopup="none" autocompletepopup="myPopup" />
+and
+|   <panel type="autocomplete" id="myPopup" width="300"/>
+to specify that the popup's width should NOT be set to that of the
+textbox. When using this, one must manually set the width on the
+popup widget (set to 300 in the example above).
+
+Currently the popup is sized to the textbox's width regardless of the
+value of "sizetopopup".
+
+The `.removeAttribute("width")` call was added for this bug:
+https://bugzilla.mozilla.org/show_bug.cgi?id=381084
+
+See: https://bugzilla.mozilla.org/show_bug.cgi?id=416250
+
+diff --git a/toolkit/content/widgets/autocomplete.xml b/toolkit/content/widgets/autocomplete.xml
+--- a/toolkit/content/widgets/autocomplete.xml	Mon Sep 24 23:04:32 2012 +0200
++++ b/toolkit/content/widgets/autocomplete.xml	Mon Nov 26 10:19:59 2012 -0800
+@@ -738,13 +738,16 @@
+             this.showCommentColumn = this.mInput.showCommentColumn;
+             this.showImageColumn = this.mInput.showImageColumn;
+ 
+-            var rect = aElement.getBoundingClientRect();
+-            var nav = aElement.ownerDocument.defaultView.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+-                              .getInterface(Components.interfaces.nsIWebNavigation);
+-            var docShell = nav.QueryInterface(Components.interfaces.nsIDocShell);
+-            var docViewer = docShell.contentViewer;
+-            var width = (rect.right - rect.left) * docViewer.fullZoom;
+-            this.setAttribute("width", width > 100 ? width : 100);
++            let sizetopopup = aInput.getAttribute("sizetopopup");
++            if (sizetopopup == "always" || sizetopopup == "pref") {
++              var rect = aElement.getBoundingClientRect();
++              var nav = aElement.ownerDocument.defaultView.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
++                                .getInterface(Components.interfaces.nsIWebNavigation);
++              var docShell = nav.QueryInterface(Components.interfaces.nsIDocShell);
++              var docViewer = docShell.contentViewer;
++              var width = (rect.right - rect.left) * docViewer.fullZoom;
++              this.setAttribute("width", width > 100 ? width : 100);
++            }
+ 
+             // Adjust the direction of the autocomplete popup list based on the textbox direction, bug 649840
+             var popupDirection = aElement.ownerDocument.defaultView.getComputedStyle(aElement).direction;
+@@ -829,13 +832,16 @@
+ 
+       <method name="closePopup">
+         <body>
+           <![CDATA[
+           if (this.mPopupOpen) {
+             this.hidePopup();
+-            this.removeAttribute("width");
++            var sizetopopup = this.mInput.getAttribute("sizetopopup");
++            if (sizetopopup == "always" || sizetopopup == "pref") {
++              this.removeAttribute("width");
++            }
+           }
+         ]]>
+         </body>
+       </method>
+ 
+       <!-- This is the default number of rows that we give the autocomplete
+@@ -983,14 +989,17 @@
+           <![CDATA[
+           if (!this.mPopupOpen) {
+             this.mInput = aInput;
+             // clear any previous selection, see bugs 400671 and 488357
+             this.selectedIndex = -1;
+ 
+-            var width = aElement.getBoundingClientRect().width;
+-            this.setAttribute("width", width > 100 ? width : 100);
++            let sizetopopup = aInput.getAttribute("sizetopopup");
++            if (sizetopopup == "always" || sizetopopup == "pref") {
++              var width = aElement.getBoundingClientRect().width;
++              this.setAttribute("width", width > 100 ? width : 100);
++            }
+             // invalidate() depends on the width attribute
+             this._invalidate();
+ 
+             this.openPopup(aElement, "after_start", 0, 0, false, false);
+           }
+         ]]>

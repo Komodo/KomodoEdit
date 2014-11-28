@@ -1,0 +1,46 @@
+Use Komodo's browser functionality to view update URLs, as the openURL method
+is not working for Komodo - bug 86513.
+
+Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/toolkit/mozapps/update/content/updates.js
+--- a/toolkit/mozapps/update/content/updates.js
++++ b/toolkit/mozapps/update/content/updates.js
+@@ -75,17 +75,17 @@
+ 
+ /**
+  * Opens a URL using the event target's url attribute for the URL. This is a
+  * workaround for Bug 263433 which prevents respecting tab browser preferences
+  * for where to open a URL.
+  */
+ function openUpdateURL(event) {
+   if (event.button == 0)
+-    openURL(event.target.getAttribute("url"));
++    ko.browse.openUrlInDefaultBrowser(event.target.getAttribute("url"));
+ }
+ 
+ /**
+  * Gets a preference value, handling the case where there is no default.
+  * @param   func
+  *          The name of the preference function to call, on nsIPrefBranch
+  * @param   preference
+  *          The name of the preference
+Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/toolkit/mozapps/update/content/updates.xul
+--- a/toolkit/mozapps/update/content/updates.xul
++++ b/toolkit/mozapps/update/content/updates.xul
+@@ -22,16 +22,17 @@
+         style="width: auto; height: auto"
+         onwizardfinish="gUpdates.onWizardFinish();"
+         onwizardcancel="gUpdates.onWizardCancel();"
+         onwizardnext="gUpdates.onWizardNext();"
+         onload="gUpdates.onLoad();"
+         onunload="gUpdates.onUnload();">
+ 
+   <script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
++  <script type="application/javascript" src="chrome://komodo/content/browse.js"/>
+   <script type="application/javascript" src="chrome://mozapps/content/update/updates.js"/>
+ 
+   <stringbundleset id="updateSet">
+     <stringbundle id="brandStrings" src="chrome://branding/locale/brand.properties"/>
+     <stringbundle id="updateStrings" src="chrome://mozapps/locale/update/updates.properties"/>
+   </stringbundleset>
+ 
+   <wizardpage id="dummy" pageid="dummy" firstpage="true"/>

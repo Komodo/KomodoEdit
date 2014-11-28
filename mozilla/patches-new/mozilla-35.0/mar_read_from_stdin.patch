@@ -1,0 +1,129 @@
+# HG changeset patch
+# Parent c0e76ab73ff6d8ccf7ff874672992bb8f65c9f2a
+mozilla bug 385962 - allow mar to take file list from stdin
+
+Index: /Users/toddw/as/komodo-devel_clang1/mozilla/build/moz1700-ko8.13/mozilla/modules/libmar/tool/mar.c
+--- a/modules/libmar/tool/mar.c	Wed Oct 24 15:00:36 2012 -0400
++++ b/modules/libmar/tool/mar.c	Thu Oct 25 16:05:52 2012 -0700
+@@ -35,12 +35,13 @@
+ 
+ static void print_usage() {
+   printf("usage:\n");
+   printf("Create a MAR file:\n");
+   printf("  mar [-H MARChannelID] [-V ProductVersion] [-C workingDir] "
+          "-c archive.mar [files...]\n");
++  printf("  Use '-' for 'files...' to provide files on stdin (one per line).\n");
+ 
+   printf("Extract a MAR file:\n");
+   printf("  mar [-C workingDir] -x archive.mar\n");
+ #ifndef NO_SIGN_VERIFY
+   printf("Sign a MAR file:\n");
+   printf("  mar [-C workingDir] -d NSSConfigDir -n certname -s "
+@@ -87,12 +88,42 @@
+   mar_enum_items(mar, mar_test_callback, NULL);
+ 
+   mar_close(mar);
+   return 0;
+ }
+ 
++#define MAXLINE 1024
++
++/* Get a line from stdin (up to MAXLINE-1 chars).
++ * Line will always be null-terminated.
++ *
++ * Returns 0 on success, 1 on EOF, -1 on line too long (the rest of the
++ * line will have been read and thrown away).
++ */
++static int mar_getline(char *buf) {
++  int c, i = 0;
++  int rv = 0;
++  while ((c = getchar()) != EOF) {
++    if (c == '\n') break;
++    if (i < MAXLINE-1)
++      buf[i++] = c;
++    else
++      rv = -1;
++  }
++  buf[i] = '\0';
++
++  if (c == EOF && i == 0) {
++    /* Only report EOF when didn't read anything on this line, otherwise
++     * caller will miss last line.
++     */
++    rv = 1;
++  }
++  return rv;
++}
++
++
+ int main(int argc, char **argv) {
+   char *NSSConfigDir = NULL;
+   const char *certNames[MAX_SIGNATURES];
+   char *MARChannelID = MAR_CHANNEL_ID;
+   char *productVersion = MOZ_APP_VERSION;
+   uint32_t i, k;
+@@ -138,17 +170,63 @@
+     return -1;
+   }
+ 
+   switch (argv[1][1]) {
+   case 'c': {
+     struct ProductInformationBlock infoBlock;
+     infoBlock.MARChannelID = MARChannelID;
+     infoBlock.productVersion = productVersion;
+-    return mar_create(argv[2], argc - 3, argv + 3, &infoBlock);
++
++    if (argc == 4 && strcmp(argv[3], "-") == 0) {
++      /* Read files from stdin. */
++
++      #define FILES_AT_A_TIME 100
++      char line[MAXLINE];
++      int len, i, rv;
++      char **files = (char**) malloc(sizeof(char*) * FILES_AT_A_TIME);
++      int num_files_until_realloc = FILES_AT_A_TIME;
++      char *file;
++      int num_files = 0;
++      
++      while (1) {
++        /* Read a line. */
++        rv = mar_getline(line);
++        if (rv == 1) break; /* EOF */
++        if (rv == -1) {
++          fprintf(stderr, "mar: ERROR: stdin line too long: '%s...'\n",
++                  line);
++          return -1;
++        }
++        len = strlen(line);
++        if (len == 0) continue; /* skip empty lines */
++
++        /* Ensure have space in 'files' array for new file. */
++        if (num_files_until_realloc == 0) {
++          files = (char**) realloc(files, sizeof(char*) * (num_files + FILES_AT_A_TIME));
++          num_files_until_realloc = FILES_AT_A_TIME;
++        }
++
++        file = (char*) malloc(len+1);
++        strcpy(file, line);
++        files[num_files++] = file;
++        num_files_until_realloc--;
++      }
++
++      rv = mar_create(argv[2], num_files, files, &infoBlock);
++
++      for (i = 0; i < num_files; ++i) {
++        free(files[i]);
++      }
++      free(files);
++      
++      return rv;
++    } else {
++      return mar_create(argv[2], argc - 3, argv + 3, &infoBlock);
++    }
+   }
+   case 'i': {
+     struct ProductInformationBlock infoBlock;
+     infoBlock.MARChannelID = MARChannelID;
+     infoBlock.productVersion = productVersion;
+     return refresh_product_info_block(argv[2], &infoBlock);
+   }
+   case 'T': {

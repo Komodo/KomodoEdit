@@ -1,0 +1,47 @@
+Patch the mozilla nsIUpdateService to process ActiveState notification messages
+(bug 66793).
+
+Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/toolkit/mozapps/update/nsUpdateService.js
+--- a/toolkit/mozapps/update/nsUpdateService.js
++++ b/toolkit/mozapps/update/nsUpdateService.js
+@@ -2727,21 +2727,37 @@
+       throw new Error("Unexpected node name, expected: updates, got: " +
+                       updatesElement.nodeName);
+     }
+ 
+     const ELEMENT_NODE = Ci.nsIDOMNode.ELEMENT_NODE;
+     var updates = [];
+     for (var i = 0; i < updatesElement.childNodes.length; ++i) {
+       var updateElement = updatesElement.childNodes.item(i);
+-      if (updateElement.nodeType != ELEMENT_NODE ||
+-          updateElement.localName != "update")
++      if (updateElement.nodeType != ELEMENT_NODE)
+         continue;
+-
+       updateElement.QueryInterface(Ci.nsIDOMElement);
++
++      if (updateElement.localName == "notification") {
++        let notificationObj = {};
++        let attrs = ["action_label", "action_url", "id", "message", "title", "type"];
++        attrs.forEach(function(attr) {
++          notificationObj[attr] = (updateElement.hasAttribute(attr)
++                                   ? updateElement.getAttribute(attr)
++                                   : null);
++        });
++        Services.obs.notifyObservers(null,
++                                     "autoupdate-notification",
++                                     JSON.stringify(notificationObj));
++        continue;
++      }
++
++      if (updateElement.localName != "update")
++        continue;
++
+       try {
+         var update = new Update(updateElement);
+       } catch (e) {
+         LOG("Checker:_updates get - invalid <update/>, ignoring...");
+         continue;
+       }
+       update.serviceURL = this.getUpdateURL(this._forced);
+       update.channel = getUpdateChannel();

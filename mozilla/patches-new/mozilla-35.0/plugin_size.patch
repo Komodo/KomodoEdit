@@ -1,0 +1,15 @@
+Index: /home/toddw/as/komodo-devel_moz7/mozilla/build/moz700-ko7.16/mozilla/layout/generic/nsPluginFrame.cpp
+--- a/layout/generic/nsPluginFrame.cpp	Mon Sep 17 20:00:29 2012 -0500
++++ b/layout/generic/nsPluginFrame.cpp	Tue Oct 16 14:14:31 2012 -0700
+@@ -468,8 +468,9 @@
+   return NS_OK;
+ }
+ 
+-#define EMBED_DEF_WIDTH 240
+-#define EMBED_DEF_HEIGHT 200
++// ACTIVESTATE
++#define EMBED_DEF_WIDTH 20
++#define EMBED_DEF_HEIGHT 20
+ 
+ /* virtual */ nscoord
+ nsPluginFrame::GetMinWidth(nsRenderingContext *aRenderingContext)

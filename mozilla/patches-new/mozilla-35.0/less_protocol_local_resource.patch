@@ -1,0 +1,29 @@
+Without this patch, the Komodo UI will startup in a broken and unstyled state.
+https://bugs.activestate.com/show_bug.cgi?id=103800
+diff -r efd77a0745c6 chrome/nsChromeRegistryChrome.cpp
+--- a/chrome/nsChromeRegistryChrome.cpp	Tue Apr 22 12:50:29 2014 -0700
++++ b/chrome/nsChromeRegistryChrome.cpp	Wed Apr 23 10:29:35 2014 -0700
+@@ -513,12 +513,23 @@
+ CanLoadResource(nsIURI* aResourceURI)
+ {
+   bool isLocalResource = false;
+   (void)NS_URIChainHasFlags(aResourceURI,
+                             nsIProtocolHandler::URI_IS_LOCAL_RESOURCE,
+                             &isLocalResource);
++  // The Komodo less protocol is a local resource, but since it's a JS
++  // component, the flags detection doesn't work during early startup (maybe JS
++  // not available at that time), so we have to manually make a correction for
++  // the less protocol handler.
++  if (!isLocalResource) {
++    bool isLessScheme = false;
++    aResourceURI->SchemeIs("less", &isLessScheme);
++    if (isLessScheme) {
++      return true;
++    }
++  }
+   return isLocalResource;
+ }
+ 
+ nsIURI*
+ nsChromeRegistryChrome::GetBaseURIFromPackage(const nsCString& aPackage,
+                                               const nsCString& aProvider,

@@ -1,0 +1,41 @@
+This allows cocoa mouse events (like mousedown, mousemove) that originate in the
+plugin, to travel through the DOM.
+
+Index: /Users/toddw/as/komodo-devel_12/mozilla/build/moz1700-ko8.12/mozilla/widget/cocoa/nsChildView.mm
+--- a/widget/cocoa/nsChildView.mm	Thu Oct 18 16:40:12 2012 +1100
++++ b/widget/cocoa/nsChildView.mm	Sat Nov 03 17:46:25 2012 -0700
+@@ -5708,20 +5708,31 @@
+ ChildView*
+ ChildViewMouseTracker::ViewForEvent(NSEvent* aEvent)
+ {
+   NSWindow* window = sWindowUnderMouse;
+   if (!window)
+     return nil;
+ 
+   NSPoint windowEventLocation = nsCocoaUtils::EventLocationForWindow(aEvent, window);
+-  NSView* view = [[[window contentView] superview] hitTest:windowEventLocation];
+-
+-  if (![view isKindOfClass:[ChildView class]])
++  NSView* contentView = [window contentView];
++  NSView* view = [[contentView superview] hitTest:windowEventLocation];
++
++  // ACTIVESTATE: for plugin windows - find a *parent* ChildView instead.
++  while (view) {
++    if ([view isKindOfClass:[ChildView class]])
++      break;
++    if (view == contentView)
++      return nil;
++    view = [view superview];
++  }
++  if (!view) {
+     return nil;
++  }
++  // ACTIVESTATE: end
+ 
+   ChildView* childView = (ChildView*)view;
+   // If childView is being destroyed return nil.
+   if (![childView widget])
+     return nil;
+   return WindowAcceptsEvent(window, aEvent, childView) ? childView : nil;
+ }
+ 

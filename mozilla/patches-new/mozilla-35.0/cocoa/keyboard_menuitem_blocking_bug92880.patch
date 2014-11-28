@@ -1,0 +1,67 @@
+Stop menu commands from firing if they were initiated via performKeyEquivalent
+(i.e. a keyboard command). This lets Komodo handle the keyboard event through
+the keybindings.js code (DOM events).
+http://bugs.activestate.com/show_bug.cgi?id=92880
+Index: /Users/toddw/as/komodo-devel/mozilla/build/moz2400-ko8.9/mozilla/widget/cocoa/nsMenuBarX.mm
+--- a/widget/cocoa/nsMenuBarX.mm	Tue Jun 25 11:28:34 2013 -0400
++++ b/widget/cocoa/nsMenuBarX.mm	Thu Aug 01 12:25:04 2013 -0700
+@@ -762,16 +762,18 @@
+ //
+ // Objective-C class used to allow us to have keyboard commands
+ // look like they are doing something but actually do nothing.
+ // We allow mouse actions to work normally.
+ //
+ 
+ // Controls whether or not native menu items should invoke their commands.
+ static BOOL gMenuItemsExecuteCommands = YES;
++// ACTIVESTATE KOMODO: Used to block keyboard commands - bug 92880.
++static int gPerformKeyEquivalentCount = 0;
+ 
+ @implementation GeckoNSMenu
+ 
+ - (id)initWithTitle:(NSString *)aTitle
+ {
+   if (self = [super initWithTitle:aTitle]) {
+     mMenuBarOwner = nullptr;
+     mDelayResignMainMenu = false;
+@@ -768,19 +770,21 @@
+       if ([unmodchars length] == 1) {
+         if ([unmodchars characterAtIndex:0] == nsMenuBarX::GetLocalizedAccelKey("key_selectAll")) {
+           handleForPluginHack = NO;
+         }
+       }
+     }
+   }
+ 
++  gPerformKeyEquivalentCount += 1;
+   gMenuItemsExecuteCommands = handleForPluginHack;
+   [super performKeyEquivalent:theEvent];
+   gMenuItemsExecuteCommands = YES; // return to default
++  gPerformKeyEquivalentCount -= 1;
+ 
+   // Return YES if we invoked a command and there is now no key window or we changed
+   // the first responder. In this case we do not want to propagate the event because
+   // we don't want it handled again.
+   if (handleForPluginHack) {
+     if (![NSApp keyWindow] || [[NSApp keyWindow] firstResponder] != firstResponder) {
+       return YES;
+     }
+@@ -815,17 +819,17 @@
+   // nsMenuBarX destructor will null out sLastGeckoMenuBarPainted.  So we can
+   // probably eliminate most of these crashes if we use this variable being
+   // null as an indicator that we're likely to crash below when we dereference
+   // menuGroupOwner.
+   if (!nsMenuBarX::sLastGeckoMenuBarPainted) {
+     return;
+   }
+ 
+-  if (!gMenuItemsExecuteCommands) {
++  if (!gMenuItemsExecuteCommands || (gPerformKeyEquivalentCount > 0)) {
+     return;
+   }
+ 
+   int tag = [sender tag];
+ 
+   MenuItemInfo* info = [sender representedObject];
+   if (!info)
+     return;

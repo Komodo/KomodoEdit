@@ -1,0 +1,28 @@
+The Komodo side panes will select the incorrect widget (tabpanel) for the
+selected tab, due to a XBL issue?
+diff -r f11b164d7544 toolkit/content/widgets/tabbox.xml
+--- a/toolkit/content/widgets/tabbox.xml	Fri Jun 06 11:25:08 2014 -0700
++++ b/toolkit/content/widgets/tabbox.xml	Thu Sep 11 15:02:13 2014 -0700
+@@ -653,6 +653,11 @@
+             return val;
+           var panel = this._selectedPanel;
+           this._selectedPanel = this.childNodes[val];
++          // KOMODO - Our tabpanel panes unexpectedly run into a "children"
++          //          previousSibling, bug 105099.
++          if (this.childNodes[0].localName == "children") {
++            this._selectedPanel = this.childNodes[val+1];
++          }
+           this.setAttribute("selectedIndex", val);
+           if (this._selectedPanel != panel) {
+             var event = document.createEvent("Events");
+@@ -674,7 +679,9 @@
+         <setter>
+           <![CDATA[
+             var selectedIndex = -1;
+-            for (var panel = val; panel != null; panel = panel.previousSibling)
++            // KOMODO - Our tabpanel panes unexpectedly run into a "children"
++            //          previousSibling, bug 105099.
++            for (var panel = val; panel != null && panel.tagName != "children"; panel = panel.previousSibling)
+               ++selectedIndex;
+             this.selectedIndex = selectedIndex;
+             return val;

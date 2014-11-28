@@ -1,0 +1,192 @@
+A Komodo CSS linter. Exposes Mozilla CSS parsing api. Builds as part of libxul.
+http://bugs.activestate.com/show_bug.cgi?id=89710
+diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
+--- a/layout/build/nsLayoutModule.cpp
++++ b/layout/build/nsLayoutModule.cpp
+diff -r ba2dde89f614 layout/build/nsLayoutModule.cpp
+--- a/layout/build/nsLayoutModule.cpp	Mon Apr 28 00:59:00 2014 -0700
++++ b/layout/build/nsLayoutModule.cpp	Tue Apr 29 16:10:46 2014 -0700
+@@ -54,6 +54,9 @@
+ #include "nsIEventListenerService.h"
+ #include "nsIMessageManager.h"
+ 
++// Komodo CSS parser
++#include "koCSSParser.h"
++
+ // Transformiix stuff
+ #include "mozilla/dom/XPathEvaluator.h"
+ #include "txMozillaXSLTProcessor.h"
+@@ -256,6 +259,10 @@
+ using mozilla::dom::time::TimeService;
+ using mozilla::net::StreamingProtocolControllerService;
+ 
++// Komodo CSS parser
++NS_GENERIC_FACTORY_CONSTRUCTOR(koCSSParser)
++NS_DEFINE_NAMED_CID(KO_CSSPARSER_CID);
++
+ // Transformiix
+ /* 5d5d92cd-6bf8-11d9-bf4a-000a95dc234c */
+ #define TRANSFORMIIX_NODESET_CID \
+@@ -913,6 +920,10 @@
+ 
+ static const mozilla::Module::CIDEntry kLayoutCIDs[] = {
+   XPCONNECT_CIDENTRIES
++
++  // Komodo CSS parser
++  { &kKO_CSSPARSER_CID, false, NULL, koCSSParserConstructor },
++
+ #ifdef DEBUG
+   { &kNS_FRAME_UTIL_CID, false, nullptr, CreateNewFrameUtil },
+   { &kNS_LAYOUT_DEBUGGER_CID, false, nullptr, CreateNewLayoutDebugger },
+@@ -1069,6 +1080,10 @@
+ 
+ static const mozilla::Module::ContractIDEntry kLayoutContracts[] = {
+   XPCONNECT_CONTRACTS
++
++  // Komodo CSS parser
++  { "@activestate.com/koCSSParser;1", &kKO_CSSPARSER_CID },
++
+   { "@mozilla.org/layout/xul-boxobject;1", &kNS_BOXOBJECT_CID },
+ #ifdef MOZ_XUL
+   { "@mozilla.org/layout/xul-boxobject-listbox;1", &kNS_LISTBOXOBJECT_CID },
+diff --git a/layout/style/koCSSParser.cpp b/layout/style/koCSSParser.cpp
+new file mode 100644
+--- /dev/null
++++ b/layout/style/koCSSParser.cpp
+@@ -0,0 +1,61 @@
++/* Copyright (c) 2000-2013 ActiveState Software Inc.
++   See the file LICENSE.txt for licensing information. */
++
++#include "nsXPCOM.h"
++#include "nsCOMPtr.h"
++
++#include "nsILocalFile.h"
++#include "nsNetUtil.h"
++
++#include "mozilla/css/Loader.h"
++#include "CSSStyleSheet.h"
++
++#include "koCSSParser.h"
++
++using namespace mozilla;
++
++
++NS_IMPL_ISUPPORTS(koCSSParser, koICSSParser)
++
++koCSSParser::koCSSParser()
++{
++}
++
++koCSSParser::~koCSSParser()
++{
++}
++
++static already_AddRefed<nsIURI>
++FileToURI(const char *aFilename, nsresult *aRv = 0)
++{
++    nsCOMPtr<nsILocalFile> lf(do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, aRv));
++    NS_ENSURE_TRUE(lf, nullptr);
++    // XXX Handle relative paths somehow.
++    lf->InitWithNativePath(nsDependentCString(aFilename));
++
++    nsCOMPtr<nsIURI> uri;
++    nsresult rv = NS_NewFileURI(getter_AddRefs(uri), lf);
++    if (aRv)
++        *aRv = rv;
++    return uri.forget();
++}
++
++NS_IMETHODIMP koCSSParser::ParseFile(const char *filename)
++{
++    nsRefPtr<mozilla::css::Loader> loader = new mozilla::css::Loader();
++    nsRefPtr<CSSStyleSheet> sheet;
++    nsresult rv;
++    nsCOMPtr<nsIURI> aSheetURI = FileToURI(filename, &rv);
++    if (!aSheetURI) {
++      return NS_ERROR_FILE_NOT_FOUND;
++    }
++    loader->LoadSheetSync(aSheetURI, getter_AddRefs(sheet));
++    NS_ASSERTION(sheet, "sheet load failed");
++    /* This can happen if the file can't be found (e.g. you
++     * ask for a relative path and xpcom/io rejects it)
++     */
++    if (!sheet) {
++        return NS_ERROR_FILE_NOT_FOUND;
++    }
++    return NS_OK;
++}
+diff --git a/layout/style/koCSSParser.h b/layout/style/koCSSParser.h
+new file mode 100644
+--- /dev/null
++++ b/layout/style/koCSSParser.h
+@@ -0,0 +1,26 @@
++/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* This Source Code Form is subject to the terms of the Mozilla Public
++ * License, v. 2.0. If a copy of the MPL was not distributed with this
++ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
++
++#ifndef koCssParser_h___
++#define koCssParser_h___
++
++#include "koICSSParser.h"
++
++class koCSSParser : public koICSSParser
++{
++public:
++  NS_DECL_ISUPPORTS
++  NS_DECL_KOICSSPARSER
++
++  koCSSParser();
++protected:
++  virtual ~koCSSParser();
++};
++
++// {c85cf33c-1907-44a7-bd65-f11fdd251354}
++#define KO_CSSPARSER_CID \
++{ 0xc85cf33c, 0x1907, 0x44a7, { 0xbd, 0x65, 0xf1, 0x1f, 0xdd, 0x25, 0x13, 0x54 } }
++
++#endif /* koCssParser_h___ */
+diff --git a/layout/style/koICSSParser.idl b/layout/style/koICSSParser.idl
+new file mode 100644
+--- /dev/null
++++ b/layout/style/koICSSParser.idl
+@@ -0,0 +1,11 @@
++/* Copyright (c) 2000-2006 ActiveState Software Inc.
++   See the file LICENSE.txt for licensing information. */
++
++#include "nsISupports.idl"
++#include "nsIConsoleService.idl"
++
++[scriptable, uuid(7D82F06D-CF2D-11DA-AE2F-000D935D3368)]
++interface koICSSParser: nsISupports
++{
++    void parseFile(in string filename);
++};
+diff --git a/layout/style/moz.build b/layout/style/moz.build
+--- a/layout/style/moz.build
++++ b/layout/style/moz.build
+@@ -7,9 +7,16 @@
+ DIRS += ['xbl-marquee']
+ TEST_DIRS += ['test']
+ 
++XPIDL_SOURCES += [
++    'koICSSParser.idl',
++]
++
++XPIDL_MODULE = 'layout_style'
++
+ EXPORTS += [
+     'AnimationCommon.h',
+     'CounterStyleManager.h',
++    'koCSSParser.h',
+     'nsAnimationManager.h',
+     'nsComputedDOMStylePropertyList.h',
+     'nsCSSAnonBoxes.h',
+@@ -97,6 +97,7 @@
+     'Declaration.cpp',
+     'ErrorReporter.cpp',
+     'ImageLoader.cpp',
++    'koCSSParser.cpp',
+     'Loader.cpp',
+     'MediaQueryList.cpp',
+     'nsAnimationManager.cpp',

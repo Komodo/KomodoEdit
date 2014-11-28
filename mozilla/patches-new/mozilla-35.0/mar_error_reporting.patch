@@ -1,0 +1,50 @@
+# HG changeset patch
+# Parent ca5dfcd6d612779d1fc9fdc2912ef93c72b3a41a
+mozilla bug 386245 - add some extra error reporting to mar
+
+Index: /Users/toddw/as/komodo-devel_clang1/mozilla/build/moz1700-ko8.13/mozilla/modules/libmar/src/mar_extract.c
+--- a/modules/libmar/src/mar_extract.c	Wed Oct 24 15:00:36 2012 -0400
++++ b/modules/libmar/src/mar_extract.c	Thu Oct 25 15:58:13 2012 -0700
+@@ -4,16 +4,17 @@
+  * License, v. 2.0. If a copy of the MPL was not distributed with this
+  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ 
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <string.h>
+ #include <stdlib.h>
++#include <errno.h>
+ #include "mar_private.h"
+ #include "mar.h"
+ 
+ #ifdef XP_WIN
+ #include <io.h>
+ #include <direct.h>
+ #endif
+ 
+@@ -55,8 +55,11 @@
+   }
+ 
+   fp = fdopen(fd, "wb");
+-  if (!fp)
++  if (!fp) {
++    fprintf(stderr, "mar: ERROR(%d) %s: could not fdopen() descriptor for `%s'\n",
++            errno, strerror(errno), item->name);
+     return -1;
++  }
+ 
+   while ((len = mar_read(mar, item, offset, buf, sizeof(buf))) > 0) {
+     if (fwrite(buf, len, 1, fp) != 1)
+@@ -73,8 +76,10 @@
+   int rv;
+ 
+   mar = mar_open(path);
+-  if (!mar)
++  if (!mar) {
++    fprintf(stderr, "mar: ERROR: error opening `%s'\n", path);
+     return -1;
++  }
+ 
+   rv = mar_enum_items(mar, mar_test_callback, NULL);
+ 

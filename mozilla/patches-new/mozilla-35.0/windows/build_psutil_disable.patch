@@ -1,0 +1,23 @@
+Disable the use of psutil, as it causes "src/main" build failures.
+
+diff -r 4cfb6c61b137 testing/mozbase/mozsystemmonitor/mozsystemmonitor/resourcemonitor.py
+--- a/testing/mozbase/mozsystemmonitor/mozsystemmonitor/resourcemonitor.py	Thu Feb 27 15:34:11 2014 +0100
++++ b/testing/mozbase/mozsystemmonitor/mozsystemmonitor/resourcemonitor.py	Wed Apr 16 12:12:46 2014 -0700
+@@ -7,10 +7,13 @@
+ import time
+ 
+ # psutil will raise NotImplementedError if the platform is not supported.
+-try:
+-    import psutil
+-except Exception:
+-    psutil = None
++# KOMODO - disable psutil usage on Windows - as it causes build failures.
++psutil = None
++if not sys.platform.startswith("win"):
++    try:
++        import psutil
++    except Exception:
++        psutil = None
+ 
+ from collections import (
+     OrderedDict,

@@ -1,0 +1,20 @@
+Don't allow the scimoz plugin element to be focusable, as we always want the
+scintilla element to be focused instead.
+
+Index: /Users/toddw/as/komodo-devel_12/mozilla/build/moz1700-ko8.12/mozilla/layout/generic/nsPluginFrame.cpp
+--- a/layout/generic/nsPluginFrame.cpp	Thu Oct 18 16:40:12 2012 +1100
++++ b/layout/generic/nsPluginFrame.cpp	Sat Nov 03 17:32:42 2012 -0700
+@@ -745,6 +745,13 @@
+ bool
+ nsPluginFrame::IsFocusable(int32_t *aTabIndex, bool aWithMouse)
+ {
++  // ACTIVESTATE: don't allow scimoz plugin element to become focused.
++  nsAutoString embed_type;
++  if (mContent->GetAttr(kNameSpaceID_None, nsGkAtoms::type, embed_type) &&
++      embed_type.LowerCaseEqualsLiteral("application/x-scimoz-plugin")) {
++    return false;
++  }
++  // ACTIVESTATE: end
+   if (aTabIndex)
+     *aTabIndex = -1;
+   return nsPluginFrameSuper::IsFocusable(aTabIndex, aWithMouse);

@@ -1,0 +1,19 @@
+We want the Scintilla plugin to be loaded synchronously. Without this patch, the
+plugin would be loaded asynchronously and then the JS code could not interact
+with Scintilla when a view is initially created.
+Index: /as/komodo-moz31/mozilla/build/moz3100-ko8.31/mozilla/content/base/src/nsObjectLoadingContent.cpp
+--- a/content/base/src/nsObjectLoadingContent.cpp	Thu Feb 27 15:34:11 2014 +0100
++++ b/content/base/src/nsObjectLoadingContent.cpp	Tue Mar 04 16:35:10 2014 -0800
+@@ -2083,7 +2083,11 @@
+     break;
+     case eType_Plugin:
+     {
+-      if (mChannel) {
++      // KOMODO: Always force the Scintilla plugin to be created synchronously,
++      //         as we want to be able to use it straight away.
++      nsAutoString pluginType;
++      thisContent->GetAttr(kNameSpaceID_None, nsGkAtoms::type, pluginType);
++      if (pluginType.LowerCaseEqualsLiteral("application/x-scimoz-plugin") || mChannel) {
+         // Force a sync state change now, we need the frame created
+         NotifyStateChanged(oldType, oldState, true, aNotify);
+         oldType = mType;
