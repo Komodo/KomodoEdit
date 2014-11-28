@@ -289,7 +289,7 @@ protected:
 	Scintilla::ScintillaCocoa *scintilla;
 #endif
 #endif
-#ifdef XP_PC
+#if defined(_WINDOWS) && !defined(HEADLESS_SCIMOZ)
     void LoadScintillaLibrary();
 #endif
 
