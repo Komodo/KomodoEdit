@@ -58,9 +58,9 @@ public:
 	SciMozEventsWrapper(NPObject* aWrappee, NPP aInstance)
 		: mWrappee(aWrappee), mInstance(aInstance)
 		{}
-	virtual ~SciMozEventsWrapper() {}
 	NPObject* GetWrappee() { return mWrappee; }
 protected:
+	virtual ~SciMozEventsWrapper() {}
 	nsresult Invoke(const char* aMethodName,  const NPVariant *args, uint32_t argCount);
 	koNPObjectPtr mWrappee;
 	NPP mInstance;
@@ -104,10 +104,6 @@ public:
 	}
   
 	// Does one EventListener equal another???
-	bool Equals(ISciMozEvents *anotherListener) {
-		nsCOMPtr<SciMozEventsWrapper> other = do_QueryInterface(anotherListener);
-		return other->GetWrappee() == pListener;
-	}
 	bool Equals(NPObject *anotherListener) {
 		return anotherListener == pListener;
 	}

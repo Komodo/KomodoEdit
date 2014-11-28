@@ -246,9 +246,9 @@ public:
   SciMoz();
 #endif
   SciMoz(SciMozPluginInstance* plugin);
-  virtual ~SciMoz();
 
 protected: 
+    virtual ~SciMoz();
     NPWindow* fWindow;
 //    nsPluginMode fMode;
     PlatformInstance fPlatform;
@@ -385,6 +385,7 @@ public:
     #undef NPRUNTIME_CUSTOM_METHOD
 protected:
   SciMozPluginInstance* mPlugin;
+  friend class SciMozPluginInstance;
 };
 
 #endif
