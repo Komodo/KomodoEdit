@@ -879,7 +879,6 @@
             }
           }
 
-          let menuitem;
           menuitem = popup.querySelector('[anonid="tabs_popup_move_tab_up"]');
           menuitem.setAttribute("label", getMoveLabel("tab", "up"));
           if (widget.tab === tabs[0]) {
