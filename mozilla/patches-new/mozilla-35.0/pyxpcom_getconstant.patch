@@ -1,0 +1,99 @@
+diff -r 7242a447378b xpcom/reflect/xptinfo/ShimInterfaceInfo.cpp
+--- a/xpcom/reflect/xptinfo/ShimInterfaceInfo.cpp	Tue Nov 25 17:58:28 2014 -0500
++++ b/xpcom/reflect/xptinfo/ShimInterfaceInfo.cpp	Mon Dec 01 19:57:19 2014 -0800
+@@ -626,6 +626,13 @@
+ }
+ 
+ NS_IMETHODIMP
++ShimInterfaceInfo::GetXptConstant(uint16_t index, const nsXPTConstant **constant)
++{
++    MOZ_ASSERT(false, "This should never be called");
++    return NS_ERROR_NOT_IMPLEMENTED;
++}
++
++NS_IMETHODIMP
+ ShimInterfaceInfo::GetInfoForParam(uint16_t aIndex, const nsXPTParamInfo* aParam, nsIInterfaceInfo** aRetVal)
+ {
+     MOZ_ASSERT(false, "This should never be called");
+diff -r 7242a447378b xpcom/reflect/xptinfo/nsIInterfaceInfo.idl
+--- a/xpcom/reflect/xptinfo/nsIInterfaceInfo.idl	Tue Nov 25 17:58:28 2014 -0500
++++ b/xpcom/reflect/xptinfo/nsIInterfaceInfo.idl	Mon Dec 01 19:57:19 2014 -0800
+@@ -11,6 +11,7 @@
+ // forward declaration of non-XPCOM types
+ 
+ [ptr] native nsXPTMethodInfoPtr(nsXPTMethodInfo);
++[ptr] native nsXPTConstantPtr(nsXPTConstant);
+ [ptr] native nsXPTParamInfoPtr(nsXPTParamInfo);
+       native nsXPTType(nsXPTType);
+ 
+@@ -19,6 +20,7 @@
+ 
+ %{C++
+ class nsXPTMethodInfo;
++class nsXPTConstant;
+ class nsXPTParamInfo;
+ class nsXPTType;
+ %}
+@@ -57,6 +59,8 @@
+                      out jsval constant,
+                      out string name);
+ 
++    void getXptConstant(in uint16_t index,
++                        [shared, retval] out nsXPTConstantPtr constant);
+ 
+     /**
+     * Get the interface information or iid associated with a param of some
+diff -r 7242a447378b xpcom/reflect/xptinfo/xptiInterfaceInfo.cpp
+--- a/xpcom/reflect/xptinfo/xptiInterfaceInfo.cpp	Tue Nov 25 17:58:28 2014 -0500
++++ b/xpcom/reflect/xptinfo/xptiInterfaceInfo.cpp	Mon Dec 01 19:57:19 2014 -0800
+@@ -316,6 +316,31 @@
+     return NS_OK;
+ }
+ 
++nsresult
++xptiInterfaceEntry::GetXptConstant(uint16_t index, const nsXPTConstant** constant)
++{
++    if(!EnsureResolved())
++        return NS_ERROR_UNEXPECTED;
++
++    if(index < mConstantBaseIndex)
++        return mParent->GetXptConstant(index, constant);
++
++    if(index >= mConstantBaseIndex +
++                mDescriptor->num_constants)
++    {
++        NS_PRECONDITION(0, "bad param");
++        *constant = nullptr;
++        return NS_ERROR_INVALID_ARG;
++    }
++
++    // else...
++    *constant =
++        reinterpret_cast<nsXPTConstant*>
++                        (&mDescriptor->
++                                const_descriptors[index -
++                                    mConstantBaseIndex]);
++    return NS_OK;
++}
+ // this is a private helper
+ 
+ nsresult
+diff -r 7242a447378b xpcom/reflect/xptinfo/xptiprivate.h
+--- a/xpcom/reflect/xptinfo/xptiprivate.h	Tue Nov 25 17:58:28 2014 -0500
++++ b/xpcom/reflect/xptinfo/xptiprivate.h	Mon Dec 01 19:57:19 2014 -0800
+@@ -244,6 +244,7 @@
+     nsresult GetMethodInfo(uint16_t index, const nsXPTMethodInfo * *info);
+     nsresult GetMethodInfoForName(const char *methodName, uint16_t *index, const nsXPTMethodInfo * *info);
+     nsresult GetConstant(uint16_t index, JS::MutableHandleValue, char** constant);
++    nsresult GetXptConstant(uint16_t index, const nsXPTConstant **constant);
+     nsresult GetInfoForParam(uint16_t methodIndex, const nsXPTParamInfo * param, nsIInterfaceInfo **_retval);
+     nsresult GetIIDForParam(uint16_t methodIndex, const nsXPTParamInfo * param, nsIID * *_retval);
+     nsresult GetTypeForParam(uint16_t methodIndex, const nsXPTParamInfo * param, uint16_t dimension, nsXPTType *_retval);
+@@ -332,6 +333,7 @@
+     NS_IMETHOD GetMethodInfo(uint16_t index, const nsXPTMethodInfo * *info) { return !mEntry ? NS_ERROR_UNEXPECTED : mEntry->GetMethodInfo(index, info); }
+     NS_IMETHOD GetMethodInfoForName(const char *methodName, uint16_t *index, const nsXPTMethodInfo * *info) { return !mEntry ? NS_ERROR_UNEXPECTED : mEntry->GetMethodInfoForName(methodName, index, info); }
+     NS_IMETHOD GetConstant(uint16_t index, JS::MutableHandleValue constant, char** name) { return !mEntry ? NS_ERROR_UNEXPECTED : mEntry->GetConstant(index, constant, name); }
++    NS_IMETHOD GetXptConstant(uint16_t index, const nsXPTConstant **constant) { return !mEntry ? NS_ERROR_UNEXPECTED : mEntry->GetXptConstant(index, constant); }
+     NS_IMETHOD GetInfoForParam(uint16_t methodIndex, const nsXPTParamInfo * param, nsIInterfaceInfo **_retval) { return !mEntry ? NS_ERROR_UNEXPECTED : mEntry->GetInfoForParam(methodIndex, param, _retval); }
+     NS_IMETHOD GetIIDForParam(uint16_t methodIndex, const nsXPTParamInfo * param, nsIID * *_retval) { return !mEntry ? NS_ERROR_UNEXPECTED : mEntry->GetIIDForParam(methodIndex, param, _retval); }
+     NS_IMETHOD GetTypeForParam(uint16_t methodIndex, const nsXPTParamInfo * param, uint16_t dimension, nsXPTType *_retval) { return !mEntry ? NS_ERROR_UNEXPECTED : mEntry->GetTypeForParam(methodIndex, param, dimension, _retval); }
