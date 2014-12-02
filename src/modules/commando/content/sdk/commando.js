@@ -190,7 +190,11 @@
 
     var onNavUp = function(e)
     {
-        c.navUp(e && e.shiftKey);
+        if (e.ctrlKey) {
+            c.onNavBack();
+        } else {
+            c.navUp(e && e.shiftKey);
+        }
     }
 
     var onSearch = function(e)
