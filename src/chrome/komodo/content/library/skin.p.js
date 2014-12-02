@@ -316,13 +316,21 @@ if (ko.skin == undefined)
         {
             var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
             var scheme = schemeService.getScheme(prefs.getString(PREF_EDITOR_SCHEME));
+            
+            var back = scheme.getBack('', 'linenumbers');
+            var fore = scheme.getFore('', 'linenumbers')
+            if (back == "#000000") // Most likely the linenumers dont have a bg color defined
+            {
+                back = scheme.backgroundColor;
+                fore = scheme.foregroundColor;
+            }
 
             // Skip if the value hasn't changed
             var lessCode = "" +
                 "@dark: " + (scheme.isDarkBackground ? "1" : "0") + ";\n" +
-                "@special: " + scheme.getCommon("keywords2", "fore") + ";\n" +
-                "@background: " + scheme.getBack('', 'linenumbers') + ";\n" +
-                "@foreground: " + scheme.foregroundColor + ";\n" +
+                "@special: " + scheme.getCommon("keywords", "fore") + ";\n" +
+                "@background: " + back + ";\n" +
+                "@foreground: " + fore + ";\n" +
                 "@import url('chrome://komodo/skin/partials/scheme-skinning.less');";
             this.loadVirtualStyle(lessCode, "statusbar-partial", "agent");
         },
