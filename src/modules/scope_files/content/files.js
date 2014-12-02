@@ -39,7 +39,7 @@
     var getShortcuts = function()
     {
         // Reload shortcuts when a change is detected.
-        var koDoc = ko.views.manager.currentView.koDoc;
+        var koDoc = ko.views.manager.currentView.koDoc || {};
         var koFile = koDoc.file || {};
         var scopeVersion = scope.shortcutsVersion + (koFile.path || "");
         if (shortcutsVersion != scopeVersion) {
