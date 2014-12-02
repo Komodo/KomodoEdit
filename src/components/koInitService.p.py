@@ -360,7 +360,6 @@ class KoInitService(object):
             self.initExtensions()
             loadStartupCategories('komodo-pre-startup-service')
             observerSvc.addObserver(self, "komodo-ui-started", 1)
-            observerSvc.addObserver(self, "quit-application", 1)
 
         elif topic == "komodo-ui-started":
             observerSvc.removeObserver(self, "komodo-ui-started")
@@ -371,23 +370,6 @@ class KoInitService(object):
             observerSvc.removeObserver(self, "komodo-post-startup")
             loadStartupCategories('komodo-delayed-startup-service')
             
-        elif topic == "quit-application":
-            observerSvc.removeObserver(self, "quit-application")
-            self._clearBrowserCache()
-            
-    def _clearBrowserCache(self):
-        """clear the browser cache on shutdown (bug 67586)"""
-        cacheService = components.classes["@mozilla.org/network/cache-service;1"]\
-             .getService(components.interfaces.nsICacheService);
-        try:
-            cacheService.evictEntries(components.interfaces.nsICache.STORE_ANYWHERE)
-        except Exception:
-            # Most Mozilla JS code that calls this method wraps it in a
-            # JS exception handler.  I didn't see which exception this
-            # throws in XPCOM - it always works, so use a generic exception.
-            # We wouldn't want an exception to mess with the shutdown procedure.
-            log.exception("error clearing browser cache")
-
     def setPlatformErrorMode(self):
         if sys.platform.startswith("win"):
             try:
