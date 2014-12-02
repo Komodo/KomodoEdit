@@ -4,12 +4,7 @@ properly - komodo bug 46101.
 Index: /Users/toddw/as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/widget/cocoa/nsToolkit.h
 --- a/widget/cocoa/nsToolkit.h	Fri Oct 26 15:51:42 2012 -0700
 +++ b/widget/cocoa/nsToolkit.h	Mon Oct 29 10:41:29 2012 -0700
-@@ -30,25 +30,29 @@
-   static void        PostSleepWakeNotification(const char* aNotification);
- 
-   static nsresult    SwizzleMethods(Class aClass, SEL orgMethod, SEL posedMethod,
-                                     bool classMethods = false);
- 
+@@ -35,6 +35,9 @@
    void               RegisterForAllProcessMouseEvents();
    void               UnregisterAllProcessMouseEventHandlers();
  
@@ -18,12 +13,8 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/widget/c
 +
  protected:
  
-   nsresult           RegisterForSleepWakeNotifcations();
-   void               RemoveSleepWakeNotifcations();
- 
- protected:
- 
-   static nsToolkit*  gToolkit;
+   nsresult           RegisterForSleepWakeNotifications();
+@@ -46,6 +49,7 @@
  
    CFRunLoopSourceRef mSleepWakeNotificationRLS;
    io_object_t        mPowerNotifier;
@@ -31,18 +22,10 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/widget/c
  
    CFMachPortRef      mEventTapPort;
    CFRunLoopSourceRef mEventTapRLS;
- };
- 
- #endif // nsToolkit_h_
 Index: /Users/toddw/as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/widget/cocoa/nsToolkit.mm
 --- a/widget/cocoa/nsToolkit.mm	Fri Oct 26 15:51:42 2012 -0700
 +++ b/widget/cocoa/nsToolkit.mm	Mon Oct 29 10:41:12 2012 -0700
-@@ -29,38 +29,44 @@
- #include "nsGkAtoms.h"
- #include "nsIRollupListener.h"
- #include "nsIWidget.h"
- #include "nsBaseWidget.h"
- 
+@@ -34,6 +34,9 @@
  #include "nsIObserverService.h"
  #include "nsIServiceManager.h"
  
@@ -52,10 +35,7 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/widget/c
  #include "mozilla/Preferences.h"
  
  using namespace mozilla;
- 
- static io_connect_t gRootPort = MACH_PORT_NULL;
- 
- nsToolkit* nsToolkit::gToolkit = nullptr;
+@@ -44,11 +47,13 @@
  
  nsToolkit::nsToolkit()
  : mSleepWakeNotificationRLS(nullptr)
@@ -64,24 +44,19 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/widget/c
  , mEventTapRLS(nullptr)
  {
    MOZ_COUNT_CTOR(nsToolkit);
-   RegisterForSleepWakeNotifcations();
+   RegisterForSleepWakeNotifications();
 +  RegisterForAppFrontEvents();
  }
  
  nsToolkit::~nsToolkit()
- {
+@@ -56,6 +61,7 @@
    MOZ_COUNT_DTOR(nsToolkit);
-   RemoveSleepWakeNotifcations();
+   RemoveSleepWakeNotifications();
    UnregisterAllProcessMouseEventHandlers();
 +  UnregisterAppFrontEventHandlers();
  }
  
  void
- nsToolkit::PostSleepWakeNotification(const char* aNotification)
- {
-   nsCOMPtr<nsIObserverService> observerService = do_GetService("@mozilla.org/observer-service;1");
-   if (observerService)
-     observerService->NotifyObservers(nullptr, aNotification, nullptr);
 @@ -259,16 +265,96 @@
      CFMachPortInvalidate(mEventTapPort);
      CFRelease(mEventTapPort);
