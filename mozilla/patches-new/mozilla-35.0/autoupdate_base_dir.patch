@@ -19,11 +19,11 @@ index 74bb1ec..c1469cf 100644
 +#ifndef XP_MACOSX
 +  // XXX ActiveState change: update into the root of the app dir (strip
 +  // "lib/mozilla")
-+  slash = NS_tstrrchr(gDestinationPath, NS_SLASH);
++  slash = NS_tstrrchr(gInstallDirPath, NS_SLASH);
 +  if (slash) {
 +    *slash = NS_T('\0');
 +  }
-+  slash = NS_tstrrchr(gDestinationPath, NS_SLASH);
++  slash = NS_tstrrchr(gInstallDirPath, NS_SLASH);
 +  if (slash) {
 +    *slash = NS_T('\0');
 +  }
