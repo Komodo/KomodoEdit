@@ -128,8 +128,11 @@
                 onSelectResult();
                 prevDefault = true;
                 break;
-            case 40: // down arrow
             case 9:  // tab
+                onTab(e);
+                prevDefault = true;
+                break;
+            case 40: // down arrow
                 onNavDown(e);
                 prevDefault = true;
                 break;
@@ -165,6 +168,19 @@
         }
 
         c.navBack();
+    }
+
+    var onTab = function(e)
+    {
+        var selected = c.getSelectedResult();
+        if (selected.isScope) {
+            // Set to the selected scope.
+            c.setSubscope(selected);
+        } else {
+            // Set to the id of the selected item.
+            var textbox = elem("search").element();
+            textbox.value = selected.id;
+        }
     }
 
     var onNavDown = function(e)
