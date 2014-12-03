@@ -40,8 +40,7 @@ koSciMozWrapper.prototype = {
 
     getHelperForLanguage: function() null,
     implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
-    flags: Ci.nsIClassInfo.MAIN_THREAD_ONLY |
-           Ci.nsIClassInfo.EAGER_CLASSINFO,
+    flags: Ci.nsIClassInfo.MAIN_THREAD_ONLY,
 
     __scimoz: null,
 
