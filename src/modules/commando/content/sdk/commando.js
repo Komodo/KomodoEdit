@@ -1003,7 +1003,7 @@
         return require(scope.handler);
     }
 
-    this.execScopeHandler = function(method, arguments)
+    this.execScopeHandler = function(method, args)
     {
         var scope = c.getScope().handler;
         log.debug("Executing scope handler: " + method + " on " + scope);
@@ -1013,7 +1013,7 @@
         if (method in scopeHandler)
         {
             log.debug("Executing " + method + " on scope");
-            result = scopeHandler[method].apply(scopeHandler, arguments);
+            result = scopeHandler[method].apply(scopeHandler, args);
             if (result == undefined) result = true;
         }
         else
@@ -1026,7 +1026,7 @@
             for (let id in local.handlers[scope][method])
             {
                 log.debug("Executing Custom Handler: " + id);
-                local.handlers[scope][method][id].apply(null, arguments);
+                local.handlers[scope][method][id].apply(null, args);
             }
         }
 
