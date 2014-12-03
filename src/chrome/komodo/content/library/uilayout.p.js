@@ -202,7 +202,6 @@ this.toggleMenubar = function uilayout_toggleMenubar() {
 }
 
 this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems() {
-	alreadyInitialized = "g_initialized_button_menu" in window;
 	// Copy the top-level menus into the button menus.
 	g_initialized_button_menu = true;
 
