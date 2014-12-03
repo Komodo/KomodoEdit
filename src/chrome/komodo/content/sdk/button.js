@@ -43,7 +43,7 @@
         }
     };
 
-    this.unregister = (id, context) =>
+    this.unregister = (id, opts) =>
     {
         id = id.replace(/\W+/g, "");
 
