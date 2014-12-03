@@ -13,7 +13,8 @@
     const ioService = Cc["@mozilla.org/network/io-service;1"]
                         .getService(Ci.nsIIOService);
 
-    const commando = c = this;
+    // Short alias for the commando scope.
+    const c = this;
 
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
