@@ -33,6 +33,7 @@
         searchTimer: false,
         favourites: null,
         history: [],
+        uilaoutTimer: -1,
         open: false
     };
 
