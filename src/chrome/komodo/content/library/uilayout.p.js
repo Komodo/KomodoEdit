@@ -213,7 +213,7 @@ this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems() {
 	var menuSeparator = document.getElementById('unifiedMenuMruSeparator');
 
 	panePrimary.innerHTML = "";
-	for (x=0;x<paneSecondary.childNodes.length;x++)
+	for (var x=0; x < paneSecondary.childNodes.length; x++)
 	{
 		let node = paneSecondary.childNodes[x];
 		if (node.getAttribute("preserve") == "true")
