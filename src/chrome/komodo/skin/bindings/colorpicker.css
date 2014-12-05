@@ -49,14 +49,18 @@ colorpicker[type="dbl-button"]  {
 colorpicker[type="button-flat"] {
     -moz-binding: url("chrome://global/content/bindings/colorpicker.xml#colorpicker-button");
     margin: 2px;
-    border: 1px inset #5B7693;
     padding: 0px;
     width: 16px;
     height: 16px;
 }
 
+colorpicker.large {
+    width: 32px;
+    height: 32px;
+}
+
 /* Without the button appearance is more compatible across different skins
- * plus it acutally looks better 
+ * plus it acutally looks better
  */
 colorpicker[type="button"] {
     -moz-appearance: none;
@@ -76,7 +80,7 @@ colorpicker[type="button"] .colorpicker-button-colorbox {
 }
 
 colorpicker[type="button-flat"]:hover {
-    border: 1px solid white;
+    opacity: 0.8;
 }
 
 colorpicker[type="button-flat"].fore {

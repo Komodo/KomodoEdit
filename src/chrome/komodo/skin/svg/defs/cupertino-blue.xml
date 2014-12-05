@@ -1,0 +1,47 @@
+<style type="text/css" >
+  <![CDATA[
+
+    path {
+        filter: url(#filter);
+    }
+
+  ]]>
+</style>
+<filter id="filter">
+    <!-- Change Color to Light Blue -->
+    <feFlood
+       flood-color="rgb(89,152,196)"
+       in="SourceAlpha"
+       result="result1" />
+    <feComposite
+       id="feComposite4062"
+       in2="SourceGraphic"
+       in="result1"
+       operator="in"
+       result="result2" />
+
+    <!-- Add Blue Shadow -->
+    <feFlood
+       id="feFlood3007"
+       in="SourceAlpha"
+       flood-color="rgb(39,131,195)"
+       flood-opacity="0.40"
+       result="result9" />
+    <feComposite
+       id="feComposite3009"
+       operator="in"
+       in="result9"
+       in2="SourceGraphic"
+       result="result10" />
+    <feGaussianBlur
+       stdDeviation="3"
+       id="feGaussianBlur3003"
+       in="result10"
+       result="result7" />
+    <feComposite
+       id="feComposite3005"
+       in2="result7"
+       in="result2"
+       result="result8"
+       stdDeviation="3" />    
+</filter>

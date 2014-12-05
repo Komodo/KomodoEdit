@@ -625,6 +625,7 @@
             return;
 
         scopeElem.element().selectedItem = selectItem;
+        scopeElem.attr("image", scopeElem.attr("image") + "?preset=hud");
 
         local.selectedScope = selectItem.id;
 

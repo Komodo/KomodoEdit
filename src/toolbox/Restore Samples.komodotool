@@ -57,5 +57,5 @@
   "version": "1.0.11", 
   "async": false, 
   "type": "macro", 
-  "icon": "chrome://icomoon/skin/icons/new-tab.png"
+  "icon": "koicon://ko-svg/chrome/icomoon/skin/new-tab.svg"
 }

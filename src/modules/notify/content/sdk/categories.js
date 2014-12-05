@@ -38,7 +38,7 @@ categories.register("autoUpdate",
     label: "Auto Update",
     opts:
     {
-        icon: "chrome://icomoon/skin/icons/notification2.png",
+        icon: "koicon://ko-svg/chrome/icomoon/skin/notification2.svg",
         duration: 10000 // 10 seconds
     }
 });

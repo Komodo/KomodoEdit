@@ -126,6 +126,14 @@ if (ko.skin == undefined)
                     }
                     else if (topic == PREF_CUSTOM_ICONS)
                     {
+                        var values = ["iconset-base-color", "iconset-toolbar-color",
+                                     "iconset-widgets-color", "iconset-selected-color",
+                                     "iconset-base-defs", "iconset-toolbar-defs",
+                                     "iconset-widgets-defs", "iconset-selected-defs"];
+                        values.forEach(function(pref)
+                        {
+                            prefs.deletePref(pref);
+                        });
                         this.loadPreferredIcons();
                     }
                     break;
@@ -212,7 +220,7 @@ if (ko.skin == undefined)
                 try
                 {
                     let initUri = Services.io.newFileURI(initFile);
-                    Services.scriptloader.loadSubScript(initUri.spec, {koSkin: this});
+                    Services.scriptloader.loadSubScript(initUri.spec, {koSkin: this, ko: ko});
                 }
                 catch (e)
                 {

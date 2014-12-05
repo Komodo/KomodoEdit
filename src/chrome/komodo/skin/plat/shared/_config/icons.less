@@ -1,19 +1,24 @@
-@icon-url-prefix:               "chrome://icomoon/skin/icons/";
-@icon-toolbar-url-prefix:       "chrome://icomoon/skin/icons/";
-@icon-widget-url-prefix:        "chrome://icomoon/skin/icons/";
-@icon-selected-url-prefix:      "chrome://icomoon/skin/icons/";
+@icon-url-prefix:               "koicon://ko-svg/chrome/icomoon/skin/";
+@icon-toolbar-url-prefix:       "koicon://ko-svg/chrome/icomoon/skin/";
+@icon-widget-url-prefix:        "koicon://ko-svg/chrome/icomoon/skin/";
+@icon-selected-url-prefix:      "koicon://ko-svg/chrome/icomoon/skin/";
+
+@icon-url-suffix:               "?preset=base";
+@icon-toolbar-url-suffix:       "?preset=toolbar";
+@icon-widget-url-suffix:        "?preset=widgets";
+@icon-selected-url-suffix:      "?preset=selected";
 
 /* Action Icons */
 @icon-undo:                     url("chrome://komodo/skin/images/undo.png");
-@icon-accept:                   url("@{icon-url-prefix}checkmark.png");
-@icon-cancel:                   url("@{icon-url-prefix}close.png");
+@icon-accept:                   url("@{icon-url-prefix}checkmark.svg@{icon-url-suffix}");
+@icon-cancel:                   url("@{icon-url-prefix}close.svg@{icon-url-suffix}");
 
 /* Folder Icons */
 @icon-folder-large:             url('chrome://komodo/skin/images/folder-32.png');
 @icon-folder-open:              url("chrome://komodo/skin/images/folder-open.png");
 @icon-folder-closed:            url("chrome://komodo/skin/images/folder-closed.png");
 @icon-folder-remote:            url("chrome://famfamfamsilk/skin/icons/folder_link.png");
-@icon-project:                  url("@{icon-url-prefix}box.png");
+@icon-project:                  url("@{icon-url-prefix}box.svg@{icon-url-suffix}");
 
 /* SCC File Symbols */
 @icon-scc-ok:                   url('chrome://komodo/skin/images/status_icon_ok.png');
@@ -38,50 +43,50 @@
 @icon-open-subpanel:            url("chrome://fugue/skin/icons/control-090.png");
 
 /* Scrolltabs */
-@icon-tab-close-button:         url("@{icon-url-prefix}close2.png");
-@icon-tab-select:               url("@{icon-url-prefix}ko_tab-down.png");
-@icon-tab-scroll-left:          url("@{icon-url-prefix}arrow-left2.png");
-@icon-tab-scroll-right:         url("@{icon-url-prefix}arrow-right3.png");
-@icon-tab-scroll-up:            url("@{icon-url-prefix}arrow-up2.png");
-@icon-tab-scroll-down:          url("@{icon-url-prefix}arrow-down2.png");
+@icon-tab-close-button:         url("@{icon-url-prefix}close2.svg@{icon-url-suffix}");
+@icon-tab-select:               url("@{icon-url-prefix}ko_tab-down.svg@{icon-url-suffix}");
+@icon-tab-scroll-left:          url("@{icon-url-prefix}arrow-left2.svg@{icon-url-suffix}");
+@icon-tab-scroll-right:         url("@{icon-url-prefix}arrow-right3.svg@{icon-url-suffix}");
+@icon-tab-scroll-up:            url("@{icon-url-prefix}arrow-up2.svg@{icon-url-suffix}");
+@icon-tab-scroll-down:          url("@{icon-url-prefix}arrow-down2.svg@{icon-url-suffix}");
 
 /* File/Folder actions */
 @icon-folder-up:                url("chrome://komodo/skin/global/images/upLevel.png");
 @icon-newfolder:                url("chrome://komodo/skin/global/images/newDirectory.png");
 @icon-refreshFile:              url("chrome://komodo/skin/global/images/refreshFile.png");
-@icon-new-project:              url("@{icon-url-prefix}box.png");
-@icon-new-file:                 url("@{icon-url-prefix}file-plus.png");
+@icon-new-project:              url("@{icon-url-prefix}box.svg@{icon-url-suffix}");
+@icon-new-file:                 url("@{icon-url-prefix}file-plus.svg@{icon-url-suffix}");
 @icon-new-window:               url("chrome://komodo/skin/images/komodo_16x16.png");
-@icon-open-file:                url("@{icon-url-prefix}folder-open.png");
+@icon-open-file:                url("@{icon-url-prefix}folder-open.svg@{icon-url-suffix}");
 @icon-native-folder:            url("chrome://global/skin/dirListing/folder.png");
-@icon-new-template:             url("@{icon-url-prefix}file6.png");
+@icon-new-template:             url("@{icon-url-prefix}file6.svg@{icon-url-suffix}");
 @icon-remotefolder:             url('chrome://komodo/skin/images/folder-closed.png');
 @icon-remotefile:               url('chrome://komodo/skin/images/file_icon.png');
 
 /* Buffer Actions */
-@icon-history-back:             url("@{icon-url-prefix}arrow-left3.png");
-@icon-history-forward:          url("@{icon-url-prefix}arrow-right4.png");
+@icon-history-back:             url("@{icon-url-prefix}arrow-left3.svg@{icon-url-suffix}");
+@icon-history-forward:          url("@{icon-url-prefix}arrow-right4.svg@{icon-url-suffix}");
 @icon-refresh:                  url("chrome://komodo/skin/global/images/refresh.png");
 @icon-goback:                   url("chrome://komodo/skin/global/images/goBack.png");
 @icon-find-stop:                url("chrome://komodo/skin/images/find_stop.png");
 @icon-find-stop-disabled:       url("chrome://komodo/skin/images/find_stop_disable.png");
-@icon-native-undo:              url("@{icon-url-prefix}undo2.png");
-@icon-native-redo:              url("@{icon-url-prefix}redo2.png");
+@icon-native-undo:              url("@{icon-url-prefix}undo2.svg@{icon-url-suffix}");
+@icon-native-redo:              url("@{icon-url-prefix}redo2.svg@{icon-url-suffix}");
 @icon-find-copy:                url("chrome://fugue/skin/icons/clipboard--plus.png");
 @icon-find-lock:                url("chrome://fugue/skin/icons/lock-unlock.png");
 @icon-find-lock-locked:         url("chrome://fugue/skin/icons/lock.png");
 @icon-native-save:              url("chrome://komodo/skin/images/save.png");
-@icon-save-all-buffers:         url("@{icon-url-prefix}ko_save-all.png");
-@icon-cut:                      url("@{icon-url-prefix}scissors.png");
+@icon-save-all-buffers:         url("@{icon-url-prefix}ko_save-all.svg@{icon-url-suffix}");
+@icon-cut:                      url("@{icon-url-prefix}scissors.svg@{icon-url-suffix}");
 @icon-next-buffer:              url("chrome://komodo/skin/images/scrollArrowRight.png");
 @icon-next-buffer-disabled:     url("chrome://komodo/skin/images/scrollArrowRight_disable.png");
 @icon-previous-buffer:          url("chrome://komodo/skin/images/scrollArrowLeft.png");
 @icon-previous-buffer-disabled: url("chrome://komodo/skin/images/scrollArrowLeft_disable.png");
-@icon-green-undo:               url("@{icon-url-prefix}undo.png");
+@icon-green-undo:               url("@{icon-url-prefix}undo.svg@{icon-url-suffix}");
 @icon-cut-small:                url("chrome://komodo/skin/images/cut.png");
-@icon-cut:                      url("@{icon-url-prefix}scissors.png");
-@icon-copy:                     url("@{icon-url-prefix}files.png");
-@icon-paste:                    url("@{icon-url-prefix}paste2.png");
+@icon-cut:                      url("@{icon-url-prefix}scissors.svg@{icon-url-suffix}");
+@icon-copy:                     url("@{icon-url-prefix}files.svg@{icon-url-suffix}");
+@icon-paste:                    url("@{icon-url-prefix}paste2.svg@{icon-url-suffix}");
 
 /* Editing Icons */
 @icon-colorbg:                  url("chrome://komodo/skin/images/colorbg.png");
@@ -98,9 +103,9 @@
 @icon-small-warning:            url("chrome://komodo/skin/global/images/warning_small.png");
 @icon-question:                 url("chrome://global/skin/icons/Question.png");
 @icon-help:                     url("chrome://komodo/skin/images/help.png");
-@icon-more:                     url("@{icon-url-prefix}arrow-down2.png");
-@icon-less:                     url("@{icon-url-prefix}arrow-up2.png");
-@icon-arrow-right-small:        url("@{icon-url-prefix}arrow-right3.png");
+@icon-more:                     url("@{icon-url-prefix}arrow-down2.svg@{icon-url-suffix}");
+@icon-less:                     url("@{icon-url-prefix}arrow-up2.svg@{icon-url-suffix}");
+@icon-arrow-right-small:        url("@{icon-url-prefix}arrow-right3.svg@{icon-url-suffix}");
 @icon-preview:                  url("chrome://komodo/skin/global/images/preview.png");
 @icon-configure:                url("chrome://komodo/skin/global/images/cog_edit.png");
 @icon-properties:               url("chrome://komodo/skin/global/images/cog.png");
@@ -111,303 +116,303 @@
 @icon-scroll-arrow-left:        url("chrome://komodo/skin/images/scrollArrowLeft.png");
 @icon-scroll-arrow-left-hover:  url("chrome://komodo/skin/images/scrollArrowLeft_hover.png");
 @icon-scroll-arrow-left-disabled: url("chrome://komodo/skin/images/scrollArrowLeft_disable.png");
-@icon-gear:                     url("@{icon-url-prefix}ko_cog_small.png");
-@icon-list-item-down:           url("@{icon-url-prefix}arrow-down4.png");
-@icon-list-item-up:             url("@{icon-url-prefix}arrow-up4.png");
-@icon-list-item-add:            url("@{icon-url-prefix}plus.png");
-@icon-list-item-edit:           url("@{icon-url-prefix}pencil6.png");
-@icon-list-item-remove:         url("@{icon-url-prefix}close2.png");
+@icon-gear:                     url("@{icon-url-prefix}ko_cog_small.svg@{icon-url-suffix}");
+@icon-list-item-down:           url("@{icon-url-prefix}arrow-down4.svg@{icon-url-suffix}");
+@icon-list-item-up:             url("@{icon-url-prefix}arrow-up4.svg@{icon-url-suffix}");
+@icon-list-item-add:            url("@{icon-url-prefix}plus.svg@{icon-url-suffix}");
+@icon-list-item-edit:           url("@{icon-url-prefix}pencil6.svg@{icon-url-suffix}");
+@icon-list-item-remove:         url("@{icon-url-prefix}close2.svg@{icon-url-suffix}");
 @icon-button-moreinfo-open:     url("chrome://komodo/skin/images/less.gif");
 @icon-button-moreinfo:          url("chrome://komodo/skin/images/more.gif");
 @icon-stopsign-small:           url("chrome://komodo/skin/images/find_stop.png");
 @icon-komodo-16px:              url("chrome://komodo/skin/images/komodo_16x16.png");
-@icon-textbox-search:           url("@{icon-url-prefix}search3.png");
-@icon-dropdownmarker:           url("@{icon-url-prefix}arrow-down2.png");
-@icon-close:                    url("@{icon-url-prefix}close2.png");
-@icon-status-invalid:           url("@{icon-url-prefix}warning2.png");
-@icon-status-valid:             url("@{icon-url-prefix}checkmark.png");
-@icon-status-checking:          url("@{icon-url-prefix}loop4.png");
-@icon-dropmarker:               url("@{icon-url-prefix}arrow-down2.png");
+@icon-textbox-search:           url("@{icon-url-prefix}search3.svg@{icon-url-suffix}");
+@icon-dropdownmarker:           url("@{icon-url-prefix}arrow-down2.svg@{icon-url-suffix}");
+@icon-close:                    url("@{icon-url-prefix}close2.svg@{icon-url-suffix}");
+@icon-status-invalid:           url("@{icon-url-prefix}warning2.svg@{icon-url-suffix}");
+@icon-status-valid:             url("@{icon-url-prefix}checkmark.svg@{icon-url-suffix}");
+@icon-status-checking:          url("@{icon-url-prefix}loop4.svg@{icon-url-suffix}");
+@icon-dropmarker:               url("@{icon-url-prefix}arrow-down2.svg@{icon-url-suffix}");
 @icon-checkbox:                 disabled;
 @icon-checkbox-checked:         disabled;
 @icon-radio:                    disabled;
 @icon-radio-selected:           disabled;
-@icon-checkbox-small:           url("@{icon-url-prefix}checkmark2.png");
-@icon-checkbox-small-checked:   url("@{icon-url-prefix}checkmark.png");
-@icon-customize-panes:          url("@{icon-url-prefix}grid3.png");
+@icon-checkbox-small:           url("@{icon-url-prefix}checkmark2.svg@{icon-url-suffix}");
+@icon-checkbox-small-checked:   url("@{icon-url-prefix}checkmark.svg@{icon-url-suffix}");
+@icon-customize-panes:          url("@{icon-url-prefix}grid3.svg@{icon-url-suffix}");
 @icon-favourite:                url("chrome://famfamfamsilk/skin/icons/star.png");
 
 /* Menu Specific Icons */
-@icon-menu-help:                url("@{icon-url-prefix}question2.png");
+@icon-menu-help:                url("@{icon-url-prefix}question2.svg@{icon-url-suffix}");
 @icon-menu-arrow:               disabled;
 
 /* Browser Icons */
-@icon-browser-firefox:          url("@{icon-url-prefix}firefox.png");
-@icon-browser-camino:           url("@{icon-url-prefix}earth.png");
-@icon-browser-ie:               url("@{icon-url-prefix}IE.png");
-@icon-browser-konqueror:        url("@{icon-url-prefix}earth.png");
-@icon-browser-mozilla:          url("@{icon-url-prefix}earth.png");
-@icon-browser-msnexplorer:      url("@{icon-url-prefix}earth.png");
-@icon-browser-netscape:         url("@{icon-url-prefix}earth.png");
-@icon-browser-opera:            url("@{icon-url-prefix}opera.png");
-@icon-browser-safari:           url("@{icon-url-prefix}safari.png");
-@icon-browser-chrome:           url("@{icon-url-prefix}chrome.png");
-@icon-browser-preview:          url("@{icon-url-prefix}earth.png");
+@icon-browser-firefox:          url("@{icon-url-prefix}firefox.svg@{icon-url-suffix}");
+@icon-browser-camino:           url("@{icon-url-prefix}earth.svg@{icon-url-suffix}");
+@icon-browser-ie:               url("@{icon-url-prefix}IE.svg@{icon-url-suffix}");
+@icon-browser-konqueror:        url("@{icon-url-prefix}earth.svg@{icon-url-suffix}");
+@icon-browser-mozilla:          url("@{icon-url-prefix}earth.svg@{icon-url-suffix}");
+@icon-browser-msnexplorer:      url("@{icon-url-prefix}earth.svg@{icon-url-suffix}");
+@icon-browser-netscape:         url("@{icon-url-prefix}earth.svg@{icon-url-suffix}");
+@icon-browser-opera:            url("@{icon-url-prefix}opera.svg@{icon-url-suffix}");
+@icon-browser-safari:           url("@{icon-url-prefix}safari.svg@{icon-url-suffix}");
+@icon-browser-chrome:           url("@{icon-url-prefix}chrome.svg@{icon-url-suffix}");
+@icon-browser-preview:          url("@{icon-url-prefix}earth.svg@{icon-url-suffix}");
 
 /* Miscellaneous */
 @icon-server-pref:              url("chrome://komodo/skin/global/images/serverAccount.png");
-@icon-run-command:              url("@{icon-url-prefix}play4.png");
-@icon-print:                    url("@{icon-url-prefix}print.png");
-@icon-pin:                      url("@{icon-url-prefix}pushpin.png");
-@icon-community:                url("@{icon-url-prefix}users4.png");
-@icon-maillist:                 url("@{icon-url-prefix}envelop.png");
-@icon-bugs:                     url("@{icon-url-prefix}bug.png");
-@icon-toggle-left-pane:         url("@{icon-url-prefix}ko_layout-left3.png");
-@icon-toggle-right-pane:        url("@{icon-url-prefix}ko_layout-right3.png");
-@icon-toggle-bottom-pane:       url("@{icon-url-prefix}ko_layout-bottom3.png");
-@icon-toggle-left-pane-checked: url("@{icon-selected-url-prefix}ko_layout-left4.png");
-@icon-toggle-right-pane-checked:url("@{icon-selected-url-prefix}ko_layout-right4.png");
-@icon-toggle-bottom-pane-checked:url("@{icon-selected-url-prefix}ko_layout-bottom4.png");
-@icon-tabpicker:                url("@{icon-url-prefix}ko_tab-down.png");
-@icon-previous-diff:            url("@{icon-url-prefix}arrow-up16.png");
-@icon-next-diff:                url("@{icon-url-prefix}arrow-down16.png");
-@icon-reveal-in-editor:         url("@{icon-url-prefix}file.png");
-@icon-move-to-editor:           url("@{icon-url-prefix}file-upload2.png");
-@icon-toolbar-overflow:         url("@{icon-selected-url-prefix}arrow-right3.png");
+@icon-run-command:              url("@{icon-url-prefix}play4.svg@{icon-url-suffix}");
+@icon-print:                    url("@{icon-url-prefix}print.svg@{icon-url-suffix}");
+@icon-pin:                      url("@{icon-url-prefix}pushpin.svg@{icon-url-suffix}");
+@icon-community:                url("@{icon-url-prefix}users4.svg@{icon-url-suffix}");
+@icon-maillist:                 url("@{icon-url-prefix}envelop.svg@{icon-url-suffix}");
+@icon-bugs:                     url("@{icon-url-prefix}bug.svg@{icon-url-suffix}");
+@icon-toggle-left-pane:         url("@{icon-url-prefix}ko_layout-left3.svg@{icon-url-suffix}");
+@icon-toggle-right-pane:        url("@{icon-url-prefix}ko_layout-right3.svg@{icon-url-suffix}");
+@icon-toggle-bottom-pane:       url("@{icon-url-prefix}ko_layout-bottom3.svg@{icon-url-suffix}");
+@icon-toggle-left-pane-checked: url("@{icon-selected-url-prefix}ko_layout-left4.svg@{icon-selected-url-suffix}");
+@icon-toggle-right-pane-checked:url("@{icon-selected-url-prefix}ko_layout-right4.svg@{icon-selected-url-suffix}");
+@icon-toggle-bottom-pane-checked:url("@{icon-selected-url-prefix}ko_layout-bottom4.svg@{icon-selected-url-suffix}");
+@icon-tabpicker:                url("@{icon-url-prefix}ko_tab-down.svg@{icon-url-suffix}");
+@icon-previous-diff:            url("@{icon-url-prefix}arrow-up16.svg@{icon-url-suffix}");
+@icon-next-diff:                url("@{icon-url-prefix}arrow-down16.svg@{icon-url-suffix}");
+@icon-reveal-in-editor:         url("@{icon-url-prefix}file.svg@{icon-url-suffix}");
+@icon-move-to-editor:           url("@{icon-url-prefix}file-upload2.svg@{icon-url-suffix}");
+@icon-toolbar-overflow:         url("@{icon-selected-url-prefix}arrow-right3.svg@{icon-selected-url-suffix}");
 
 /* Toolbars - Standard */
-@icon-toolbar-back:             url("@{icon-toolbar-url-prefix}arrow-left3.png");
-@icon-toolbar-forward:          url("@{icon-toolbar-url-prefix}arrow-right4.png");
-@icon-toolbar-undo:             url("@{icon-toolbar-url-prefix}undo2.png");
-@icon-toolbar-redo:             url("@{icon-toolbar-url-prefix}redo2.png");
-@icon-toolbar-new-file:         url("@{icon-toolbar-url-prefix}file-plus.png");
-@icon-toolbar-open-file:        url("@{icon-toolbar-url-prefix}folder-open.png");
-@icon-toolbar-save:             url("@{icon-toolbar-url-prefix}ko_save.png");
-@icon-toolbar-save-all:         url("@{icon-toolbar-url-prefix}ko_save-all.png");
-@icon-toolbar-cut:              url("@{icon-toolbar-url-prefix}scissors.png");
-@icon-toolbar-copy:             url("@{icon-toolbar-url-prefix}files.png");
-@icon-toolbar-paste:            url("@{icon-toolbar-url-prefix}paste2.png");
-@icon-toolbar-print:            url("@{icon-toolbar-url-prefix}print.png");
-@icon-toolbar-help:             url("@{icon-toolbar-url-prefix}question2.png");
-@icon-toolbar-menu:             url("@{icon-toolbar-url-prefix}menu3.png");
+@icon-toolbar-back:             url("@{icon-toolbar-url-prefix}arrow-left3.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-forward:          url("@{icon-toolbar-url-prefix}arrow-right4.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-undo:             url("@{icon-toolbar-url-prefix}undo2.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-redo:             url("@{icon-toolbar-url-prefix}redo2.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-new-file:         url("@{icon-toolbar-url-prefix}file-plus.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-open-file:        url("@{icon-toolbar-url-prefix}folder-open.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-save:             url("@{icon-toolbar-url-prefix}ko_save.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-save-all:         url("@{icon-toolbar-url-prefix}ko_save-all.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-cut:              url("@{icon-toolbar-url-prefix}scissors.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-copy:             url("@{icon-toolbar-url-prefix}files.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-paste:            url("@{icon-toolbar-url-prefix}paste2.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-print:            url("@{icon-toolbar-url-prefix}print.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-help:             url("@{icon-toolbar-url-prefix}question2.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-menu:             url("@{icon-toolbar-url-prefix}menu3.svg@{icon-toolbar-url-suffix}");
 
 /* Toolbars - Tools */
-@icon-toolbar-browser-preview:  url("@{icon-toolbar-url-prefix}earth.png");
-@icon-toolbar-rx:               url("@{icon-toolbar-url-prefix}ko_regexp.png");
-@icon-toolbar-http-inspector:   url("@{icon-toolbar-url-prefix}ko_http_inspector.png");
-@icon-toolbar-ishell:           url("@{icon-toolbar-url-prefix}console.png");
-@icon-toolbar-tcldevkit:        url("@{icon-toolbar-url-prefix}quill3.png");
-@icon-toolbar-perldevkit:       url("@{icon-toolbar-url-prefix}ko_perl.png");
+@icon-toolbar-browser-preview:  url("@{icon-toolbar-url-prefix}earth.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-rx:               url("@{icon-toolbar-url-prefix}ko_regexp.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-http-inspector:   url("@{icon-toolbar-url-prefix}ko_http_inspector.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-ishell:           url("@{icon-toolbar-url-prefix}console.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-tcldevkit:        url("@{icon-toolbar-url-prefix}quill3.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-perldevkit:       url("@{icon-toolbar-url-prefix}ko_perl.svg@{icon-toolbar-url-suffix}");
 
 /* Toolbars - Workspace */
-@icon-toolbar-toggle-left-pane:         url("@{icon-toolbar-url-prefix}ko_layout-left3.png");
-@icon-toolbar-toggle-right-pane:        url("@{icon-toolbar-url-prefix}ko_layout-right3.png");
-@icon-toolbar-toggle-bottom-pane:       url("@{icon-toolbar-url-prefix}ko_layout-bottom3.png");
-@icon-toolbar-toggle-left-pane-checked: url("@{icon-selected-url-prefix}ko_layout-left4.png");
-@icon-toolbar-toggle-right-pane-checked:url("@{icon-selected-url-prefix}ko_layout-right4.png");
-@icon-toolbar-toggle-bottom-pane-checked:url("@{icon-selected-url-prefix}ko_layout-bottom4.png");
-@icon-toolbar-tabpicker:                url("@{icon-toolbar-url-prefix}ko_tab-down.png");
+@icon-toolbar-toggle-left-pane:         url("@{icon-toolbar-url-prefix}ko_layout-left3.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-toggle-right-pane:        url("@{icon-toolbar-url-prefix}ko_layout-right3.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-toggle-bottom-pane:       url("@{icon-toolbar-url-prefix}ko_layout-bottom3.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-toggle-left-pane-checked: url("@{icon-selected-url-prefix}ko_layout-left4.svg@{icon-selected-url-suffix}");
+@icon-toolbar-toggle-right-pane-checked:url("@{icon-selected-url-prefix}ko_layout-right4.svg@{icon-selected-url-suffix}");
+@icon-toolbar-toggle-bottom-pane-checked:url("@{icon-selected-url-prefix}ko_layout-bottom4.svg@{icon-selected-url-suffix}");
+@icon-toolbar-tabpicker:                url("@{icon-toolbar-url-prefix}ko_tab-down.svg@{icon-toolbar-url-suffix}");
 
 /* Toolbars - SCC */
-@icon-toolbar-scc:                url("@{icon-toolbar-url-prefix}ko_scc_menu2.png");
-@icon-toolbar-scc-checkout:       url("@{icon-toolbar-url-prefix}ko_scc_checkout.png");
-@icon-toolbar-scc-add:            url("@{icon-toolbar-url-prefix}ko_scc_add.png");
-@icon-toolbar-scc-edit:           url("@{icon-toolbar-url-prefix}ko_scc_edit2.png");
-@icon-toolbar-scc-revert:         url("@{icon-toolbar-url-prefix}ko_scc_revert.png");
-@icon-toolbar-scc-remove:         url("@{icon-toolbar-url-prefix}ko_scc_remove.png");
-@icon-toolbar-scc-update:         url("@{icon-toolbar-url-prefix}ko_scc_update.png");
-@icon-toolbar-scc-diff:           url("@{icon-toolbar-url-prefix}ko_scc_diff.png");
-@icon-toolbar-scc-history:        url("@{icon-toolbar-url-prefix}ko_scc_history.png");
-@icon-toolbar-scc-commit:         url("@{icon-toolbar-url-prefix}ko_scc_commit.png");
-@icon-toolbar-scc-push:           url("@{icon-toolbar-url-prefix}ko_scc_push.png");
+@icon-toolbar-scc:                url("@{icon-toolbar-url-prefix}ko_scc_menu2.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-scc-checkout:       url("@{icon-toolbar-url-prefix}ko_scc_checkout.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-scc-add:            url("@{icon-toolbar-url-prefix}ko_scc_add.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-scc-edit:           url("@{icon-toolbar-url-prefix}ko_scc_edit2.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-scc-revert:         url("@{icon-toolbar-url-prefix}ko_scc_revert.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-scc-remove:         url("@{icon-toolbar-url-prefix}ko_scc_remove.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-scc-update:         url("@{icon-toolbar-url-prefix}ko_scc_update.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-scc-diff:           url("@{icon-toolbar-url-prefix}ko_scc_diff.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-scc-history:        url("@{icon-toolbar-url-prefix}ko_scc_history.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-scc-commit:         url("@{icon-toolbar-url-prefix}ko_scc_commit.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-scc-push:           url("@{icon-toolbar-url-prefix}ko_scc_push.svg@{icon-toolbar-url-suffix}");
 
 /* Toolbars - Debug */
-@icon-toolbar-debug-stepin:       url("@{icon-toolbar-url-prefix}ko_step-into.png");
-@icon-toolbar-debug-stepover:     url("@{icon-toolbar-url-prefix}ko_step-over.png");
-@icon-toolbar-debug-stepout:      url("@{icon-toolbar-url-prefix}ko_step-out.png");
-@icon-toolbar-debug-continue:     url("@{icon-toolbar-url-prefix}play4.png");
-@icon-toolbar-debug-break:        url("@{icon-toolbar-url-prefix}pause2.png");
-@icon-toolbar-debug-stop:         url("@{icon-toolbar-url-prefix}stop2.png");
+@icon-toolbar-debug-stepin:       url("@{icon-toolbar-url-prefix}ko_step-into.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-debug-stepover:     url("@{icon-toolbar-url-prefix}ko_step-over.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-debug-stepout:      url("@{icon-toolbar-url-prefix}ko_step-out.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-debug-continue:     url("@{icon-toolbar-url-prefix}play4.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-debug-break:        url("@{icon-toolbar-url-prefix}pause2.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-debug-stop:         url("@{icon-toolbar-url-prefix}stop2.svg@{icon-toolbar-url-suffix}");
 
 /* Toolbars - Macro's */
-@icon-toolbar-macro-new:          url("@{icon-toolbar-url-prefix}plus-circle.png");
-@icon-toolbar-macro-play:         url("@{icon-toolbar-url-prefix}play3.png");
-@icon-toolbar-macro-pause:        url("@{icon-toolbar-url-prefix}pause.png");
-@icon-toolbar-macro-record:       url("@{icon-toolbar-url-prefix}ko_record.png");
-@icon-toolbar-macro-stop:         url("@{icon-toolbar-url-prefix}stop.png");
-@icon-toolbar-macro-save:         url("@{icon-toolbar-url-prefix}ko_save-circle.png");
+@icon-toolbar-macro-new:          url("@{icon-toolbar-url-prefix}plus-circle.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-macro-play:         url("@{icon-toolbar-url-prefix}play3.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-macro-pause:        url("@{icon-toolbar-url-prefix}pause.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-macro-record:       url("@{icon-toolbar-url-prefix}ko_record.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-macro-stop:         url("@{icon-toolbar-url-prefix}stop.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-macro-save:         url("@{icon-toolbar-url-prefix}ko_save-circle.svg@{icon-toolbar-url-suffix}");
 
 /* Toolbars - Komodo Resources */
-@icon-toolbar-community:          url("@{icon-toolbar-url-prefix}users4.png");
-@icon-toolbar-maillist:           url("@{icon-toolbar-url-prefix}envelop.png");
-@icon-toolbar-bugs:               url("@{icon-toolbar-url-prefix}bug.png");
+@icon-toolbar-community:          url("@{icon-toolbar-url-prefix}users4.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-maillist:           url("@{icon-toolbar-url-prefix}envelop.svg@{icon-toolbar-url-suffix}");
+@icon-toolbar-bugs:               url("@{icon-toolbar-url-prefix}bug.svg@{icon-toolbar-url-suffix}");
 
 /* Addon Icons */
-@icon-addon-rx:                 url("@{icon-url-prefix}ko_regexp.png");
-@icon-addon-http-inspector:     url("@{icon-url-prefix}direction.png");
-@icon-addon-ishell:             url("@{icon-url-prefix}console.png");
-@icon-addon-tcldevkit:          url("@{icon-url-prefix}quill3.png");
-@icon-addon-perldevkit:         url("@{icon-url-prefix}ko_perl.png");
+@icon-addon-rx:                 url("@{icon-url-prefix}ko_regexp.svg@{icon-url-suffix}");
+@icon-addon-http-inspector:     url("@{icon-url-prefix}direction.svg@{icon-url-suffix}");
+@icon-addon-ishell:             url("@{icon-url-prefix}console.svg@{icon-url-suffix}");
+@icon-addon-tcldevkit:          url("@{icon-url-prefix}quill3.svg@{icon-url-suffix}");
+@icon-addon-perldevkit:         url("@{icon-url-prefix}ko_perl.svg@{icon-url-suffix}");
 
 /* SCC Icons */
-@icon-addon-scc:                url("@{icon-url-prefix}ko_scc_menu2.png");
-@icon-addon-scc-checkout:       url("@{icon-url-prefix}ko_scc_checkout.png");
-@icon-addon-scc-add:            url("@{icon-url-prefix}ko_scc_add.png");
-@icon-addon-scc-edit:           url("@{icon-url-prefix}ko_scc_edit2.png");
-@icon-addon-scc-revert:         url("@{icon-url-prefix}ko_scc_revert.png");
-@icon-addon-scc-remove:         url("@{icon-url-prefix}ko_scc_remove.png");
-@icon-addon-scc-update:         url("@{icon-url-prefix}ko_scc_update.png");
-@icon-addon-scc-diff:           url("@{icon-url-prefix}ko_scc_diff.png");
-@icon-addon-scc-history:        url("@{icon-url-prefix}ko_scc_history.png");
-@icon-addon-scc-commit:         url("@{icon-url-prefix}ko_scc_commit.png");
-@icon-addon-scc-push:           url("@{icon-url-prefix}ko_scc_push.png");
+@icon-addon-scc:                url("@{icon-url-prefix}ko_scc_menu2.svg@{icon-url-suffix}");
+@icon-addon-scc-checkout:       url("@{icon-url-prefix}ko_scc_checkout.svg@{icon-url-suffix}");
+@icon-addon-scc-add:            url("@{icon-url-prefix}ko_scc_add.svg@{icon-url-suffix}");
+@icon-addon-scc-edit:           url("@{icon-url-prefix}ko_scc_edit2.svg@{icon-url-suffix}");
+@icon-addon-scc-revert:         url("@{icon-url-prefix}ko_scc_revert.svg@{icon-url-suffix}");
+@icon-addon-scc-remove:         url("@{icon-url-prefix}ko_scc_remove.svg@{icon-url-suffix}");
+@icon-addon-scc-update:         url("@{icon-url-prefix}ko_scc_update.svg@{icon-url-suffix}");
+@icon-addon-scc-diff:           url("@{icon-url-prefix}ko_scc_diff.svg@{icon-url-suffix}");
+@icon-addon-scc-history:        url("@{icon-url-prefix}ko_scc_history.svg@{icon-url-suffix}");
+@icon-addon-scc-commit:         url("@{icon-url-prefix}ko_scc_commit.svg@{icon-url-suffix}");
+@icon-addon-scc-push:           url("@{icon-url-prefix}ko_scc_push.svg@{icon-url-suffix}");
 
 /* Debug Icons */
-@icon-debug-stepin:             url("@{icon-url-prefix}ko_step-into.png");
-@icon-debug-stepover:           url("@{icon-url-prefix}ko_step-over.png");
-@icon-debug-stepout:            url("@{icon-url-prefix}ko_step-out.png");
-@icon-debug-continue:           url("@{icon-url-prefix}play4.png");
-@icon-debug-break:              url("@{icon-url-prefix}pause2.png");
-@icon-debug-stop:               url("@{icon-url-prefix}stop2.png");
-@icon-debug-detach:             url("@{icon-url-prefix}forward3.png");
-@icon-debug-inspect:            url("@{icon-url-prefix}ko_forward3.png");
+@icon-debug-stepin:             url("@{icon-url-prefix}ko_step-into.svg@{icon-url-suffix}");
+@icon-debug-stepover:           url("@{icon-url-prefix}ko_step-over.svg@{icon-url-suffix}");
+@icon-debug-stepout:            url("@{icon-url-prefix}ko_step-out.svg@{icon-url-suffix}");
+@icon-debug-continue:           url("@{icon-url-prefix}play4.svg@{icon-url-suffix}");
+@icon-debug-break:              url("@{icon-url-prefix}pause2.svg@{icon-url-suffix}");
+@icon-debug-stop:               url("@{icon-url-prefix}stop2.svg@{icon-url-suffix}");
+@icon-debug-detach:             url("@{icon-url-prefix}forward3.svg@{icon-url-suffix}");
+@icon-debug-inspect:            url("@{icon-url-prefix}ko_forward3.svg@{icon-url-suffix}");
 
-@icon-debug-tab-starting:       url("@{icon-url-prefix}arrow-right3.png");
-@icon-debug-tab-running:        url("@{icon-url-prefix}play4.png");
-@icon-debug-tab-break:          url("@{icon-url-prefix}pause2.png");
-@icon-debug-tab-stopping:       url("@{icon-url-prefix}checkbox-partial2.png");
-@icon-debug-tab-stopped:        url("@{icon-url-prefix}stop2.png");
-@icon-debug-tab-interactive:    url("@{icon-url-prefix}last.png");
+@icon-debug-tab-starting:       url("@{icon-url-prefix}arrow-right3.svg@{icon-url-suffix}");
+@icon-debug-tab-running:        url("@{icon-url-prefix}play4.svg@{icon-url-suffix}");
+@icon-debug-tab-break:          url("@{icon-url-prefix}pause2.svg@{icon-url-suffix}");
+@icon-debug-tab-stopping:       url("@{icon-url-prefix}checkbox-partial2.svg@{icon-url-suffix}");
+@icon-debug-tab-stopped:        url("@{icon-url-prefix}stop2.svg@{icon-url-suffix}");
+@icon-debug-tab-interactive:    url("@{icon-url-prefix}last.svg@{icon-url-suffix}");
 
-@icon-debug-below-show-hidden:  url("@{icon-url-prefix}eye3.png");
+@icon-debug-below-show-hidden:  url("@{icon-url-prefix}eye3.svg@{icon-url-suffix}");
 
 /* Unit Test Icons */
 
-@icon-unittest-edit-plan:       url("@{icon-url-prefix}pencil6.png");
+@icon-unittest-edit-plan:       url("@{icon-url-prefix}pencil6.svg@{icon-url-suffix}");
 
 /* Macro Icons */
-@icon-macro-new:                url("@{icon-url-prefix}plus-circle.png");
-@icon-macro-play:               url("@{icon-url-prefix}play3.png");
-@icon-macro-pause:              url("@{icon-url-prefix}pause.png");
-@icon-macro-record:             url("@{icon-url-prefix}ko_record.png");
-@icon-macro-stop:               url("@{icon-url-prefix}stop.png");
-@icon-macro-save:               url("@{icon-url-prefix}ko_save-circle.png");
+@icon-macro-new:                url("@{icon-url-prefix}plus-circle.svg@{icon-url-suffix}");
+@icon-macro-play:               url("@{icon-url-prefix}play3.svg@{icon-url-suffix}");
+@icon-macro-pause:              url("@{icon-url-prefix}pause.svg@{icon-url-suffix}");
+@icon-macro-record:             url("@{icon-url-prefix}ko_record.svg@{icon-url-suffix}");
+@icon-macro-stop:               url("@{icon-url-prefix}stop.svg@{icon-url-suffix}");
+@icon-macro-save:               url("@{icon-url-prefix}ko_save-circle.svg@{icon-url-suffix}");
 
 /* Breakpoint Icons */
-@icon-breakpoint:               url("@{icon-url-prefix}ko_breakpoint.png");
-@icon-breakpoint-new:           url("@{icon-url-prefix}ko_breakpoint_add.png");
-@icon-spawnpoint-new:           url("@{icon-url-prefix}arrow-right2.png");
-@icon-breakpoint-delete:        url("@{icon-url-prefix}ko_breakpoint_remove.png");
-@icon-breakpoint-delete-all:    url("@{icon-url-prefix}ko_breakpoint_delete_all.png");
-@icon-breakpoint-toggle-state:  url("@{icon-url-prefix}ko_breakpoint_toggle.png");
-@icon-breakpoint-go-to:         url("@{icon-url-prefix}ko_breakpoint_goto.png");
-@icon-breakpoint-properties:    url("@{icon-url-prefix}ko_breakpoint_properties.png");
+@icon-breakpoint:               url("@{icon-url-prefix}ko_breakpoint.svg@{icon-url-suffix}");
+@icon-breakpoint-new:           url("@{icon-url-prefix}ko_breakpoint_add.svg@{icon-url-suffix}");
+@icon-spawnpoint-new:           url("@{icon-url-prefix}arrow-right2.svg@{icon-url-suffix}");
+@icon-breakpoint-delete:        url("@{icon-url-prefix}ko_breakpoint_remove.svg@{icon-url-suffix}");
+@icon-breakpoint-delete-all:    url("@{icon-url-prefix}ko_breakpoint_delete_all.svg@{icon-url-suffix}");
+@icon-breakpoint-toggle-state:  url("@{icon-url-prefix}ko_breakpoint_toggle.svg@{icon-url-suffix}");
+@icon-breakpoint-go-to:         url("@{icon-url-prefix}ko_breakpoint_goto.svg@{icon-url-suffix}");
+@icon-breakpoint-properties:    url("@{icon-url-prefix}ko_breakpoint_properties.svg@{icon-url-suffix}");
 
 /* Sync Icons */
-@icon-sync:                     url("@{icon-url-prefix}spinner10.png");
+@icon-sync:                     url("@{icon-url-prefix}spinner10.svg@{icon-url-suffix}");
 
 /* Widget Icons */
-@icon-widget-default:               url("@{icon-widget-url-prefix}file5.png");
-@icon-widget-default-selected:      url("@{icon-selected-url-prefix}file5.png");
-@icon-widget-openfiles:             url("@{icon-widget-url-prefix}files.png");
-@icon-widget-openfiles-selected:    url("@{icon-selected-url-prefix}files.png");
-@icon-widget-places:                url("@{icon-widget-url-prefix}folder5.png");
-@icon-widget-places-selected:       url("@{icon-selected-url-prefix}folder5.png");
-@icon-widget-codebrowser:           url("@{icon-widget-url-prefix}ko_code2.png");
-@icon-widget-codebrowser-selected:  url("@{icon-selected-url-prefix}ko_code2.png");
-@icon-widget-dbexplorer:            url("@{icon-widget-url-prefix}ko_database.png");
-@icon-widget-dbexplorer-selected:   url("@{icon-selected-url-prefix}ko_database.png");
-@icon-widget-dom:                   url("@{icon-widget-url-prefix}ko_markup.png");
-@icon-widget-dom-selected:          url("@{icon-selected-url-prefix}ko_markup.png");
-@icon-widget-collab:                url("@{icon-widget-url-prefix}ko_collab.png");
-@icon-widget-collab-selected:       url("@{icon-selected-url-prefix}ko_collab.png");
-@icon-widget-toolbox:               url("@{icon-widget-url-prefix}briefcase3.png");
-@icon-widget-toolbox-selected:      url("@{icon-selected-url-prefix}briefcase3.png");
-@icon-widget-breakpoints:           url("@{icon-widget-url-prefix}ko_breakpoint.png");
-@icon-widget-breakpoints-selected:  url("@{icon-selected-url-prefix}ko_breakpoint.png");
-@icon-widget-command-output:        url("@{icon-widget-url-prefix}console.png");
-@icon-widget-command-output-selected:url("@{icon-selected-url-prefix}console.png");
-@icon-widget-find-results:          url("@{icon-widget-url-prefix}binoculars.png");
-@icon-widget-find-results-selected: url("@{icon-selected-url-prefix}binoculars.png");
-@icon-widget-unit-tests:            url("@{icon-widget-url-prefix}lab.png");
-@icon-widget-unit-tests-selected:   url("@{icon-selected-url-prefix}lab.png");
-@icon-widget-notifications:         url("@{icon-widget-url-prefix}info2.png");
-@icon-widget-notifications-selected:url("@{icon-selected-url-prefix}info2.png");
-@icon-widget-klint:                 url("@{icon-widget-url-prefix}warning2.png");
-@icon-widget-klint-selected:        url("@{icon-selected-url-prefix}warning2.png");
+@icon-widget-default:               url("@{icon-widget-url-prefix}file5.svg@{icon-widget-url-suffix}");
+@icon-widget-default-selected:      url("@{icon-selected-url-prefix}file5.svg@{icon-selected-url-suffix}");
+@icon-widget-openfiles:             url("@{icon-widget-url-prefix}files.svg@{icon-widget-url-suffix}");
+@icon-widget-openfiles-selected:    url("@{icon-selected-url-prefix}files.svg@{icon-selected-url-suffix}");
+@icon-widget-places:                url("@{icon-widget-url-prefix}folder5.svg@{icon-widget-url-suffix}");
+@icon-widget-places-selected:       url("@{icon-selected-url-prefix}folder5.svg@{icon-selected-url-suffix}");
+@icon-widget-codebrowser:           url("@{icon-widget-url-prefix}ko_code2.svg@{icon-widget-url-suffix}");
+@icon-widget-codebrowser-selected:  url("@{icon-selected-url-prefix}ko_code2.svg@{icon-selected-url-suffix}");
+@icon-widget-dbexplorer:            url("@{icon-widget-url-prefix}ko_database.svg@{icon-widget-url-suffix}");
+@icon-widget-dbexplorer-selected:   url("@{icon-selected-url-prefix}ko_database.svg@{icon-selected-url-suffix}");
+@icon-widget-dom:                   url("@{icon-widget-url-prefix}ko_markup.svg@{icon-widget-url-suffix}");
+@icon-widget-dom-selected:          url("@{icon-selected-url-prefix}ko_markup.svg@{icon-selected-url-suffix}");
+@icon-widget-collab:                url("@{icon-widget-url-prefix}ko_collab.svg@{icon-widget-url-suffix}");
+@icon-widget-collab-selected:       url("@{icon-selected-url-prefix}ko_collab.svg@{icon-selected-url-suffix}");
+@icon-widget-toolbox:               url("@{icon-widget-url-prefix}briefcase3.svg@{icon-widget-url-suffix}");
+@icon-widget-toolbox-selected:      url("@{icon-selected-url-prefix}briefcase3.svg@{icon-selected-url-suffix}");
+@icon-widget-breakpoints:           url("@{icon-widget-url-prefix}ko_breakpoint.svg@{icon-widget-url-suffix}");
+@icon-widget-breakpoints-selected:  url("@{icon-selected-url-prefix}ko_breakpoint.svg@{icon-selected-url-suffix}");
+@icon-widget-command-output:        url("@{icon-widget-url-prefix}console.svg@{icon-widget-url-suffix}");
+@icon-widget-command-output-selected:url("@{icon-selected-url-prefix}console.svg@{icon-selected-url-suffix}");
+@icon-widget-find-results:          url("@{icon-widget-url-prefix}binoculars.svg@{icon-widget-url-suffix}");
+@icon-widget-find-results-selected: url("@{icon-selected-url-prefix}binoculars.svg@{icon-selected-url-suffix}");
+@icon-widget-unit-tests:            url("@{icon-widget-url-prefix}lab.svg@{icon-widget-url-suffix}");
+@icon-widget-unit-tests-selected:   url("@{icon-selected-url-prefix}lab.svg@{icon-selected-url-suffix}");
+@icon-widget-notifications:         url("@{icon-widget-url-prefix}info2.svg@{icon-widget-url-suffix}");
+@icon-widget-notifications-selected:url("@{icon-selected-url-prefix}info2.svg@{icon-selected-url-suffix}");
+@icon-widget-klint:                 url("@{icon-widget-url-prefix}warning2.svg@{icon-widget-url-suffix}");
+@icon-widget-klint-selected:        url("@{icon-selected-url-prefix}warning2.svg@{icon-selected-url-suffix}");
 
 /* Notification Widget */
-@icon-filter-error:             url("@{icon-url-prefix}cancel-circle2.png");
-@icon-filter-warning:           url("@{icon-url-prefix}warning2.png");
-@icon-filter-info:              url("@{icon-url-prefix}info2.png");
-@icon-filter-progress:          url("@{icon-url-prefix}history.png");
+@icon-filter-error:             url("@{icon-url-prefix}cancel-circle2.svg@{icon-url-suffix}");
+@icon-filter-warning:           url("@{icon-url-prefix}warning2.svg@{icon-url-suffix}");
+@icon-filter-info:              url("@{icon-url-prefix}info2.svg@{icon-url-suffix}");
+@icon-filter-progress:          url("@{icon-url-prefix}history.svg@{icon-url-suffix}");
 
 /* Code Browser Widget */
-@icon-codebrowser-locate:       url("@{icon-url-prefix}ko_locate_small.png");
+@icon-codebrowser-locate:       url("@{icon-url-prefix}ko_locate_small.svg@{icon-url-suffix}");
 
 /* DOM Browser Widget */
-@icon-dombrowser-show-attributes: url("@{icon-url-prefix}ko_dom_small.png");
-@icon-dombrowser-locate:        url("@{icon-url-prefix}ko_locate_small.png");
+@icon-dombrowser-show-attributes: url("@{icon-url-prefix}ko_dom_small.svg@{icon-url-suffix}");
+@icon-dombrowser-locate:        url("@{icon-url-prefix}ko_locate_small.svg@{icon-url-suffix}");
 
 /* Database Widget */
-@icon-database-add:             url("@{icon-url-prefix}ko_plus_small.png");
+@icon-database-add:             url("@{icon-url-prefix}ko_plus_small.svg@{icon-url-suffix}");
 
 /* Collaboration Widget */
-@icon-collab-add:               url("@{icon-url-prefix}ko_plus_small.png");
-@icon-collab-refresh:           url("@{icon-url-prefix}ko_refresh_small.png");
+@icon-collab-add:               url("@{icon-url-prefix}ko_plus_small.svg@{icon-url-suffix}");
+@icon-collab-refresh:           url("@{icon-url-prefix}ko_refresh_small.svg@{icon-url-suffix}");
 
 /* Collaboration Widget */
-@icon-places-panel-toggle:      url("@{icon-url-prefix}arrow-down2.png");
-@icon-places-panel-toggle-collapsed: url("@{icon-url-prefix}arrow-up2.png");
+@icon-places-panel-toggle:      url("@{icon-url-prefix}arrow-down2.svg@{icon-url-suffix}");
+@icon-places-panel-toggle-collapsed: url("@{icon-url-prefix}arrow-up2.svg@{icon-url-suffix}");
 
 /* Syntax checking widget */
-@icon-klint-disable-syntax:     url("@{icon-url-prefix}blocked.png");
-@icon-klint-refresh:            url("@{icon-url-prefix}loop4.png");
+@icon-klint-disable-syntax:     url("@{icon-url-prefix}blocked.svg@{icon-url-suffix}");
+@icon-klint-refresh:            url("@{icon-url-prefix}loop4.svg@{icon-url-suffix}");
 
 /* Find Results Widget */
-@icon-findresult-up:            url("@{icon-url-prefix}arrow-up4.png");
-@icon-findresult-down:          url("@{icon-url-prefix}arrow-down4.png");
-@icon-findresult-stop:          url("@{icon-url-prefix}stop2.png");
-@icon-findresult-undo:          url("@{icon-url-prefix}undo2.png");
-@icon-findresult-copy:          url("@{icon-url-prefix}files.png");
-@icon-findresult-lock:          url("@{icon-url-prefix}ko_unlocked.png");
-@icon-findresult-locked:        url("@{icon-url-prefix}lock.png");
+@icon-findresult-up:            url("@{icon-url-prefix}arrow-up4.svg@{icon-url-suffix}");
+@icon-findresult-down:          url("@{icon-url-prefix}arrow-down4.svg@{icon-url-suffix}");
+@icon-findresult-stop:          url("@{icon-url-prefix}stop2.svg@{icon-url-suffix}");
+@icon-findresult-undo:          url("@{icon-url-prefix}undo2.svg@{icon-url-suffix}");
+@icon-findresult-copy:          url("@{icon-url-prefix}files.svg@{icon-url-suffix}");
+@icon-findresult-lock:          url("@{icon-url-prefix}ko_unlocked.svg@{icon-url-suffix}");
+@icon-findresult-locked:        url("@{icon-url-prefix}lock.svg@{icon-url-suffix}");
 
 /* Breadcrumbs */
 @icon-breadcrumb-project:       @icon-project;
 @icon-breadcrumb-folder:        @icon-native-folder;
 @icon-breadcrumb-file:          disabled;
-@icon-breadcrumb-arrow:         url("@{icon-url-prefix}arrow-right3.png");
+@icon-breadcrumb-arrow:         url("@{icon-url-prefix}arrow-right3.svg@{icon-url-suffix}");
 
 /* Pref Icons */
 
-@icon-pref-uiSettings:          url("@{icon-url-prefix}eye.png");
-@icon-pref-codeIntel:           url("@{icon-url-prefix}info.png");
-@icon-pref-fonts:               url("@{icon-url-prefix}palette.png");
-@icon-pref-debugger:            url("@{icon-url-prefix}play4.png");
-@icon-pref-editor:              url("@{icon-url-prefix}code.png");
-@icon-pref-environ:             url("@{icon-url-prefix}cog2.png");
-@icon-pref-associations:        url("@{icon-url-prefix}files.png");
-@icon-pref-find:                url("@{icon-url-prefix}binoculars.png");
-@icon-pref-ishell:              url("@{icon-url-prefix}console.png");
-@icon-pref-international:       url("@{icon-url-prefix}radio.png");
-@icon-pref-editKeys:            url("@{icon-url-prefix}keyboard2.png");
-@icon-pref-help:                url("@{icon-url-prefix}question4.png");
-@icon-pref-languages:           url("@{icon-url-prefix}globe2.png");
-@icon-pref-mappedURIs:          url("@{icon-url-prefix}link4.png");
-@icon-pref-newFiles:            url("@{icon-url-prefix}file-plus.png");
-@icon-pref-editSave:            url("@{icon-url-prefix}ko_save.png");
-@icon-pref-print:               url("@{icon-url-prefix}print2.png");
-@icon-pref-servers:             url("@{icon-url-prefix}database.png");
-@icon-pref-sharedSupport:       url("@{icon-url-prefix}cabinet.png");
-@icon-pref-sourceCodeControl:   url("@{icon-url-prefix}ko_scc_add.png");
-@icon-pref-syntaxChecking:      url("@{icon-url-prefix}checkmark-circle2.png");
-@icon-pref-testPlan:            url("@{icon-url-prefix}list.png");
-@icon-pref-web:                 url("@{icon-url-prefix}earth.png");
-@icon-pref-projects:            url("@{icon-url-prefix}box.png");
-@icon-pref-windowsIntegration:  url("@{icon-url-prefix}windows8.png");
-@icon-pref-commando:            url("@{icon-url-prefix}command.png");
-@icon-pref-places:              url("@{icon-url-prefix}folder.png");
-@icon-pref-httpinspect:         url("@{icon-url-prefix}direction.png");
-@icon-pref-formatters:          url("@{icon-url-prefix}clear-formatting.png");
-@icon-pref-notify:              url("@{icon-url-prefix}notification2.png");
+@icon-pref-uiSettings:          url("@{icon-url-prefix}eye.svg@{icon-url-suffix}");
+@icon-pref-codeIntel:           url("@{icon-url-prefix}info.svg@{icon-url-suffix}");
+@icon-pref-fonts:               url("@{icon-url-prefix}palette.svg@{icon-url-suffix}");
+@icon-pref-debugger:            url("@{icon-url-prefix}play4.svg@{icon-url-suffix}");
+@icon-pref-editor:              url("@{icon-url-prefix}code.svg@{icon-url-suffix}");
+@icon-pref-environ:             url("@{icon-url-prefix}cog2.svg@{icon-url-suffix}");
+@icon-pref-associations:        url("@{icon-url-prefix}files.svg@{icon-url-suffix}");
+@icon-pref-find:                url("@{icon-url-prefix}binoculars.svg@{icon-url-suffix}");
+@icon-pref-ishell:              url("@{icon-url-prefix}console.svg@{icon-url-suffix}");
+@icon-pref-international:       url("@{icon-url-prefix}radio.svg@{icon-url-suffix}");
+@icon-pref-editKeys:            url("@{icon-url-prefix}keyboard2.svg@{icon-url-suffix}");
+@icon-pref-help:                url("@{icon-url-prefix}question4.svg@{icon-url-suffix}");
+@icon-pref-languages:           url("@{icon-url-prefix}globe2.svg@{icon-url-suffix}");
+@icon-pref-mappedURIs:          url("@{icon-url-prefix}link4.svg@{icon-url-suffix}");
+@icon-pref-newFiles:            url("@{icon-url-prefix}file-plus.svg@{icon-url-suffix}");
+@icon-pref-editSave:            url("@{icon-url-prefix}ko_save.svg@{icon-url-suffix}");
+@icon-pref-print:               url("@{icon-url-prefix}print2.svg@{icon-url-suffix}");
+@icon-pref-servers:             url("@{icon-url-prefix}database.svg@{icon-url-suffix}");
+@icon-pref-sharedSupport:       url("@{icon-url-prefix}cabinet.svg@{icon-url-suffix}");
+@icon-pref-sourceCodeControl:   url("@{icon-url-prefix}ko_scc_add.svg@{icon-url-suffix}");
+@icon-pref-syntaxChecking:      url("@{icon-url-prefix}checkmark-circle2.svg@{icon-url-suffix}");
+@icon-pref-testPlan:            url("@{icon-url-prefix}list.svg@{icon-url-suffix}");
+@icon-pref-web:                 url("@{icon-url-prefix}earth.svg@{icon-url-suffix}");
+@icon-pref-projects:            url("@{icon-url-prefix}box.svg@{icon-url-suffix}");
+@icon-pref-windowsIntegration:  url("@{icon-url-prefix}windows8.svg@{icon-url-suffix}");
+@icon-pref-commando:            url("@{icon-url-prefix}command.svg@{icon-url-suffix}");
+@icon-pref-places:              url("@{icon-url-prefix}folder.svg@{icon-url-suffix}");
+@icon-pref-httpinspect:         url("@{icon-url-prefix}direction.svg@{icon-url-suffix}");
+@icon-pref-formatters:          url("@{icon-url-prefix}clear-formatting.svg@{icon-url-suffix}");
+@icon-pref-notify:              url("@{icon-url-prefix}notification2.svg@{icon-url-suffix}");

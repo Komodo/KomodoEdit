@@ -286,34 +286,72 @@
             relativePath = url.pathname.split("/").slice(3);
             if (relativePath.slice(-1)[0].substr(-4) != ".svg")
                 return callback();
-
+            namespace = relativePath.shift();
+            
             //koicon://ko-svg/chrome/komodo/skin/images/codeintel/cb_class.svg
+            
+            // Generate unique id for query based on the params
+            var params = sdkQuery.parse(url.search.substr(1));
+            params.size = Math.round((params.size || 16) * window.devicePixelRatio);
+            
+            if ( ! ("fill" in params) &&  ! ("color" in params))
+            {
+                var preset = ("preset" in params) ? params.preset : 'base';
+                if (preset == "hud")
+                {
+                    var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
+                    var scheme = schemeService.getScheme(prefs.getString("editor-scheme"));
+                    params.fill = scheme.isDarkBackground ? "#C8C8C8" : "#4B4B4B";
+                }
+                else if (prefs.hasStringPref("iconset-" + preset + "-defs"))
+                {
+                    params.defs = prefs.getStringPref("iconset-" + preset + "-defs");
+                }
+                else if (prefs.hasStringPref("iconset-base-defs"))
+                {
+                    params.defs = prefs.getStringPref("iconset-base-defs");
+                }
+                else 
+                {
+                    if ( ! prefs.hasStringPref("iconset-" + preset + "-color"))
+                    {
+                        preset = "base";
+                    }
+                    
+                    params.fill = prefs.getStringPref("iconset-" + preset + "-color");
+                }
+            }
 
+            if ("color" in params)
+            {
+                params.fill = params.color;
+                delete params.color;
+            }
+
+            if ("defs" in params)
+            {
+                var defs = params.defs;
+                var path = "chrome://komodo/skin/svg/defs/" + defs + ".xml";
+                params.defs = prefs.getString("ko-svg-defs-" + defs, path);
+            }
+            
             var filePointer;
-            var iconNamespace = relativePath.slice(0,1);
-            relativePath = relativePath.slice(1);
-
             try
             {
-                var iconFile = FileUtils.getFile(iconNamespace, relativePath, true);
+                var iconFile = FileUtils.getFile(namespace, relativePath, true);
                 if (iconFile.exists())
                     filePointer = iconFile.path;
             } catch (e) {}
 
             if ( ! filePointer)
-                filePointer = iconNamespace + "://" + relativePath.join("/");
+                filePointer = namespace + "://" + relativePath.join("/");
 
             log.debug("Filepointer: " + filePointer);
 
-            // Generate unique id for query based on the params
-            var params = sdkQuery.parse(url.search.substr(1));
             var id = hash(params);
             relativePath[relativePath.length-1] = id + "-" + relativePath[relativePath.length-1] + ".png";
 
-            if (params.size)
-                params.size = Math.round(params.size * window.devicePixelRatio);
-
-            var savePath = ["icons", iconNamespace].concat(relativePath);
+            var savePath = ["icons", namespace].concat(relativePath);
             var pngFile = FileUtils.getFile("ProfD", savePath, true);
 
             if (pngFile.exists())
@@ -345,6 +383,24 @@
             if (value == sizeFrom) return false;
             var scale = value / sizeFrom;
             return this.forceSvgAttribute(svgData, "transform", 'scale('+scale+')');
+        }
+
+        if (attribute == "_defs")
+        {
+            log.debug("Injecting defs");
+
+            if (svgData.indexOf("</defs>") !== -1)
+            {
+                log.debug("Injecting into existing defs");
+                svgData = svgData.replace('</defs>', value + "</defs>");
+            }
+            else
+            {
+                log.debug("Creating new defs");
+                svgData = svgData.replace(/(<svg[\s\S]*?>)/i, "$1<defs>" + value + "</defs>");
+            }
+
+            return svgData;
         }
 
         var reAttr = attribute + '="[^]*?"';
@@ -405,6 +461,26 @@
         if ( ! attrs)
             return _createPngFromSvg(false, svgPath, savePath, opts, {}, callback);
 
+        if ("defs" in attrs)
+        {
+            try
+            {
+                readFile(attrs.defs, function(data)
+                {
+                    delete attrs.defs;
+                    attrs._defs = data;
+
+                    this.createPngFromSvg(svgPath, savePath, opts, attrs, callback);
+                }.bind(this));
+                return;
+            }
+            catch (e)
+            {
+                log.exception(e);
+                log.warn("Grabbing defs failed, continuing without custom defs");
+            }
+        }
+
         log.debug("Creating png: " + savePath);
         readFile(svgPath, function(svgData)
         {
@@ -414,6 +490,7 @@
 
     var _createPngFromSvg = (svgData, svgPath, savePath, opts = {}, attrs = false, callback = false) =>
     {
+        var dirty = false;
         if (attrs)
         {
             if ("size" in attrs)
@@ -434,21 +511,23 @@
                     svgData = _svgData;
             }
 
-            if (svgData)
-            {
-                log.debug("Saving temp svg with forced attributes");
+            dirty = true;
+        }
 
-                if (opts.delete)
-                    opts.deleteAlso = svgPath
+        if (dirty && svgData)
+        {
+            log.debug("Saving temp svg with forced attributes");
 
-                svgPath = savePath + ".forcedAttrs.svg";
-                opts.delete = true;
+            if (opts.delete)
+                opts.deleteAlso = svgPath
 
-                // Save to temporary SVG file
-                var textStream = ioFile.open(svgPath, "w");
-                textStream.write(svgData);
-                textStream.close();
-            }
+            svgPath = savePath + ".forcedAttrs.svg";
+            opts.delete = true;
+
+            // Save to temporary SVG file
+            var textStream = ioFile.open(svgPath, "w");
+            textStream.write(svgData);
+            textStream.close();
         }
 
         var canvas = document.getElementById('canvas-proxy').cloneNode();
@@ -528,20 +607,28 @@
             filePointer = "file://" + filePointer;
         var path = (typeof filePointer) == "string" ? filePointer : filePointer.path;
 
+        if (path in readFile.cache)
+        {
+            callback(readFile.cache[path]);
+        }
+
         NetUtil.asyncFetch(filePointer, function(inputStream, status)
         {
             // Validate result
             if ((status & 0x80000000) != 0) // https://developer.mozilla.org/en/docs/Components.isSuccessCode
             {
-                log.error("asyncFetch failed for file: " + filePointer + " :: " + status);
+                log.error("asyncFetch failed for file: " + path + " :: " + status);
                 return callback();
             }
 
             // Parse contents
             var data = NetUtil.readInputStreamToString(inputStream, inputStream.available());
+            readFile.cache[path] = data;
             callback(data);
         });
     }
+    
+    readFile.cache = {};
 
     var hash = (str) =>
     {

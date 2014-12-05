@@ -1,0 +1,64 @@
+<style type="text/css" >
+  <![CDATA[
+
+    path {
+        filter: url(#filter);
+    }
+
+  ]]>
+</style>
+<filter id="filter">
+    <!-- Change Color to Dark Gray -->
+    <feFlood
+       flood-color="rgb(120,120,120)"
+       in="SourceAlpha"
+       result="result1" />
+    <feComposite
+       id="feComposite4062"
+       in2="SourceGraphic"
+       in="result1"
+       operator="in"
+       result="result2" />
+
+    <!-- Add Inset Shadow -->
+    <feOffset
+       dx="1"
+       dy="1"
+       in="SourceAlpha" />
+    <feGaussianBlur
+       stdDeviation="1.5"
+       result="result3" />
+    <feComposite
+       in2="result3"
+       operator="out"
+       in="SourceAlpha"
+       result="result4" />
+    <feFlood
+       flood-opacity="0.8"
+       flood-color="rgb(0,0,0)" />
+    <feComposite
+       in2="result4"
+       result="result6"
+       operator="in" />
+    <feComposite
+       in2="result2"
+       in="result6"
+       result="result5" />
+
+    <!-- Add Outer White Stroke -->
+    <feFlood
+       in="SourceAlpha"
+       flood-color="rgb(255,255,255)"
+       flood-opacity="0.90"
+       result="result7" />
+    <feComposite
+       in2="SourceAlpha"
+       operator="in" />
+    <feOffset
+       dx="1"
+       dy="1"
+       result="result8" />
+    <feComposite
+       in2="result8"
+       in="result5" />
+</filter>

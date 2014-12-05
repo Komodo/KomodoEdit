@@ -97,12 +97,12 @@
     </hbox>
     <separator class="thin"/>
     <hbox>
-        <image id="icon32" style="width: 32px; height: 32px;"/>
+        <image id="icon32" style="width: 32px; height: 32px; max-height: 32px;"/>
         <spring width="15"/>
         <vbox>
             <spring flex="1"/>
             <hbox>
-                <image id="icon16" style="width: 16px; height: 16px;"/>
+                <image id="icon16" style="width: 16px; height: 16px; max-height: 16px;"/>
                 <spring width="15"/>
                 <label id="iconlabel" value=""/>
             </hbox>

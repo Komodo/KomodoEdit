@@ -11,7 +11,7 @@ function loadIntoWindow(window) {
         var system   = require("sdk/system");
         commando.registerScope("scope-files", {
             name: "Files",
-            icon: "chrome://icomoon/skin/icons/file5.png",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/file5.svg",
             handler: "scope-files/files",
             keybindTransit: "cmd_goToFile"
         });

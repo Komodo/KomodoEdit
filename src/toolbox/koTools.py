@@ -106,10 +106,17 @@ class _KoTool(object):
         return iconurl is not None
 
     def get_iconurl(self):
+        iconurl = None
         if self._attributes.has_key('icon'):
-            return self._attributes['icon']
+            iconurl = self._attributes['icon']
         else:
-            return self._iconurl
+            iconurl = self._iconurl
+            
+        if iconurl.startswith("chrome://icomoon"):
+            iconurl = re.sub(r'chrome:.*\/(.*?).png', r'koicon://ko-svg/chrome/icomoon/skin/\1.svg', iconurl)
+            self.set_iconurl(iconurl)
+            
+        return iconurl
 
     def set_iconurl(self, url):
         if not url or url == self._iconurl:

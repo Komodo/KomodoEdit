@@ -24,9 +24,9 @@ footer = """</body>
 </html>"""
 
 imgtemplate = """
-<img ondblclick="parent.ValidatedPickIcon('chrome://icomoon/%(fname)s');"
-     onclick="parent.Pick_Icon('chrome://icomoon/%(fname)s');"
-     src="chrome://icomoon/%(fname)s"
+<img ondblclick="parent.ValidatedPickIcon('koicon://ko-svg/chrome/icomoon/%(fname)s');"
+     onclick="parent.Pick_Icon('koicon://ko-svg/chrome/icomoon/%(fname)s');"
+     src="koicon://ko-svg/chrome/icomoon/%(fname)s"
      alt="%(basename)s" />
 """
 
@@ -36,12 +36,12 @@ target = here + os.path.sep + 'icomoon.html'
 fp = open(target, 'w')
 where = os.path.dirname(target)
 content = []
-extensions = ['.png', '.gif']
+extensions = ['.svg']
 try:
     os.chdir(where)
     print os.getcwd()
     fp.write(header)
-    zip = zipfile.ZipFile(here + os.path.sep + "../../chrome/iconsets/dark/dark.jar")
+    zip = zipfile.ZipFile(here + os.path.sep + "../../modules/icomoon/content/icons.jar")
     zipFiles = zip.namelist()
     for f in sorted(zipFiles):
         extension = os.path.splitext(f)[-1].lower()

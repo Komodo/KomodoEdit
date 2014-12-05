@@ -32,7 +32,7 @@
                 id: view.uid + line,
                 name: "line " + line,
                 description: bookmarks[line],
-                icon: "chrome://icomoon/skin/icons/arrow-right14.png",
+                icon: "koicon://ko-svg/chrome/icomoon/skin/arrow-right14.svg",
                 scope: "scope-bookmarks",
                 allowMultiSelect: false,
                 data: {

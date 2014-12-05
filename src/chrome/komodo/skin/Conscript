@@ -122,3 +122,6 @@ $cons->InstallInChrome('iconset/rules.less');
 $cons->InstallInChrome('partials/scheme-skinning.less');
 
 $cons->InstallInChrome('filters.svg');
+
+$cons->InstallInChrome('svg/defs/cupertino.xml');
+$cons->InstallInChrome('svg/defs/cupertino-blue.xml');

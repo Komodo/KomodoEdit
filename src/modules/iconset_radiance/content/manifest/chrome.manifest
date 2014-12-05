@@ -1,4 +1,2 @@
 override chrome://komodo/skin/iconset/config.less chrome://iconset-radiance/skin/config.less
 
-skin icomoon radiance jar:../../../iconset_dark@activestate.com/content/dark.jar!/skin/
-skin icomoon-orange radiance jar:../../../iconset_orange@activestate.com/content/orange.jar!/skin/

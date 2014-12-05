@@ -1,4 +1,1 @@
 override chrome://komodo/skin/iconset/config.less chrome://iconset-dark/skin/config.less
-
-skin icomoon dark jar:../dark.jar!/skin/
-skin icomoon-blue dark jar:../../../iconset_blue@activestate.com/content/blue.jar!/skin/

@@ -23,7 +23,7 @@
             id="openfilesViewbox"
             label="&openFiles.label;"
             insertafter="placesViewbox"
-            icon="chrome://icomoon/skin/icons/files.png"
+            icon="koicon://ko-svg/chrome/icomoon/skin/files.svg"
             src="chrome://openfiles/content/panel.xul"/>
     </ko-pane>
 

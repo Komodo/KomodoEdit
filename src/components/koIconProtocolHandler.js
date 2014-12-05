@@ -11,6 +11,8 @@ const loggingSvc= Cc["@activestate.com/koLoggingService;1"].
 const log       = this.loggingSvc.getLogger('koiconprotocol');
 //log.setLevel(10);
 
+var queued = {};
+
 var getIconLib = function()
 {
     if ( ! ("cached" in getIconLib))
@@ -37,9 +39,7 @@ IconProtocolHandler.prototype = {
     scheme: "koicon",
     defaultPort: -1,
     allowPort: function() false,
-    protocolFlags:  Ci.nsIProtocolHandler.URI_IS_LOCAL_RESOURCE |
-                    Ci.nsIProtocolHandler.URI_NON_PERSISTABLE |
-                    Ci.nsIProtocolHandler.URI_SYNC_LOAD_IS_OK |
+    protocolFlags:  Ci.nsIProtocolHandler.URI_NON_PERSISTABLE |
                     Ci.nsIProtocolHandler.URI_IS_UI_RESOURCE,
 
     newURI: function Proto_newURI(aSpec, aOriginCharset)
@@ -101,6 +101,24 @@ IconChannel.prototype = {
 
         var listener = new WrapperListener(aListener, self);
         
+        var alreadyQueued = false;
+        if (self.URI.spec in queued && queued[self.URI.spec].length)
+        {
+            alreadyQueued = true;
+        }
+        else
+        {
+            queued[self.URI.spec] = [];
+        }
+        
+        queued[self.URI.spec].push(
+            function(_listener, _aContext, _iconFile)
+            {
+                self._asyncOpen(_iconFile, _listener, _aContext);
+            }.bind(self, listener, aContext)
+        );
+        if (alreadyQueued) return;
+        
         var iconLib = getIconLib();
         var iconFile = "chrome://komodo/skin/images/existing_file.png";
 
@@ -110,15 +128,27 @@ IconChannel.prototype = {
             {
                 iconLib.getIconForUri(self.URI.spec, function(_iconFile)
                 {
-                    if (_iconFile)
-                        iconFile = _iconFile;
-
-                    self._asyncOpen(iconFile, listener, aContext);
+                    if ( ! (self.URI.spec in queued))
+                    {
+                        log.warn("Cannot callback, queue is empty: " + self.URI.spec);
+                        return;
+                    }
+                    
+                    log.debug("Callback: " + self.URI.spec);
+                    
+                    if (_iconFile) iconFile = _iconFile;
+                    
+                    for (let i=0;i<queued[self.URI.spec].length;i++)
+                    {
+                        queued[self.URI.spec][i](iconFile);
+                    }
+                    
+                    delete queued[self.URI.spec];
                 });
             }
             catch (e)
             {
-                log.error("Unable to detect icon, falling back on moz-icon: " + e.message);
+                log.error("Unable to detect icon, falling back on default: " + e.message);
                 if ("stack" in e)
                     log.error(e.stack);
 
@@ -127,6 +157,7 @@ IconChannel.prototype = {
         }
         else
         {
+            log.error("Unable to load icon lib, falling back on default: " + e.message);
             self._asyncOpen(iconFile, listener, aContext);
         }
 

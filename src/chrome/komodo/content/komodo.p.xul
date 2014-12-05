@@ -2343,19 +2343,19 @@
                              src="chrome://komodo/content/run/runOutputPane.xul"
                              tab_onmousedown="document.getElementById('runoutput-desc-tabpanel').focus();"
                              tab_onfocus="document.getElementById('runoutput-desc-tabpanel').focus();"
-                             icon="chrome://icomoon/skin/icons/console.png"/>
+                             icon="koicon://ko-svg/chrome/icomoon/skin/console.svg"/>
 
                     <!-- The two Find Results tabs of the output pane -->
                     <browser type="ko-widget"
                              id="findresults1_tabpanel"
                              collapsed="true" label="&findResults1.label;"
                              src="chrome://komodo/content/find/findResultsTab.xul"
-                             icon="chrome://icomoon/skin/icons/binoculars.png"/>
+                             icon="koicon://ko-svg/chrome/icomoon/skin/binoculars.svg"/>
                     <browser type="ko-widget"
                              id="findresults2_tabpanel"
                              collapsed="true" label="&findResults2.label;"
                              src="chrome://komodo/content/find/findResultsTab.xul"
-                             icon="chrome://icomoon/skin/icons/binoculars.png"/>
+                             icon="koicon://ko-svg/chrome/icomoon/skin/binoculars.svg"/>
                 </ko-pane>
             </vbox>
             <splitter id="workspace_right_splitter"
@@ -2378,7 +2378,7 @@
                          label="&toolbox2.label;"
                          locktip="&thisToolboxIsReadOnly.locktip;"
                          src="chrome://komodo/content/toolbox/toolboxPanel.xul"
-                         icon="chrome://icomoon/skin/icons/briefcase3.png"/>
+                         icon="koicon://ko-svg/chrome/icomoon/skin/briefcase3.svg"/>
             </ko-pane>
         </hbox>
 

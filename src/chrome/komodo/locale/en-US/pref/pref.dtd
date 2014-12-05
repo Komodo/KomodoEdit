@@ -766,6 +766,12 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY skinDefault.label "Default">
 <!ENTITY iconset.label "Icon Set: ">
 <!ENTITY iconset.tooltip "Select what icon set Komodo should use. Note that selecting a skin may set the iconset selection to the best suited iconset for the skin.">
+<!ENTITY colored.value "Colored">
+<!ENTITY iconsetColor.label "Icon Colors:">
+<!ENTITY colorBase.label "Base">
+<!ENTITY colorToolbar.label "Toolbar">
+<!ENTITY colorWidgets.label "Widgets">
+<!ENTITY colorSelected.label "Selected">
 
 <!--pref-perl.xul-->
 <!ENTITY noPerlInterpreter.description "No Perl interpreter was found on your system. If you would like to debug and run Perl programs in Komodo you will need to install Perl. You can get Perl from ActiveState at">

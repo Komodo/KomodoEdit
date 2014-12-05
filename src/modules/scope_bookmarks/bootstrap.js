@@ -9,7 +9,7 @@ function loadIntoWindow(window) {
         var commando = window.require("commando/commando");
         commando.registerScope("scope-bookmarks", {
             name: "Bookmarks",
-            icon: "chrome://icomoon/skin/icons/star6.png",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/star6.svg",
             handler: "scope-bookmarks/bookmarks"
         });
     } catch (e) {

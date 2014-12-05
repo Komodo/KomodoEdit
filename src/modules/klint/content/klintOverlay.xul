@@ -18,7 +18,7 @@
                  label="&klint.tab.title;"
                  short-label="&klint.tab.title.short;"
                  src="chrome://klint/content/klintPane.xul"
-                 icon="chrome://icomoon/skin/icons/warning2.png"/>
+                 icon="koicon://ko-svg/chrome/icomoon/skin/warning2.svg"/>
     </ko-pane>
 
 </overlay>

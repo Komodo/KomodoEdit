@@ -13,7 +13,7 @@ function loadIntoWindow(window) {
         commando.registerScope("scope-combined", {
             name: "Everything",
             weight: 100,
-            icon: "chrome://icomoon/skin/icons/search3.png",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/search3.svg",
             handler: "scope-combined/everything"
         });
     } catch (e) {
@@ -24,7 +24,7 @@ function loadIntoWindow(window) {
     try {
         commando.registerScope("scope-combined-toolscmds", {
             name: "Tools &amp; Commands",
-            icon: "chrome://icomoon/skin/icons/cogs.png",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/cogs.svg",
             handler: "scope-combined/toolscommands",
             keybindTransit: "cmd_invokeTool"
         });

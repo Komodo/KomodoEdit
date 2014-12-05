@@ -13,7 +13,7 @@
         <browser type="ko-widget" id="notifications-widget"
                  label="&notifications.label;"
                  src="chrome://komodo/content/notifications/notificationsWidget.xul"
-                 icon="chrome://icomoon/skin/icons/info2.png"/>
+                 icon="koicon://ko-svg/chrome/icomoon/skin/info2.svg"/>
     </ko-pane>
 
 </overlay>

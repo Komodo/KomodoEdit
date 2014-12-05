@@ -449,6 +449,7 @@ Build(
     "$build/modules/iconset_light/Conscript",
     "$build/modules/iconset_orange/Conscript",
     "$build/modules/iconset_radiance/Conscript",
+    "$build/modules/icomoon/Conscript",
 
     # 3rd-party contributed code in contrib/...
     "$contribBuild/Conscript",

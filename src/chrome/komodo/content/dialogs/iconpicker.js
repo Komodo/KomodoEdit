@@ -97,7 +97,7 @@ function ValidatedPickIcon(uri)
 function Pick_Icon(uri) {
     try {
         gCurrentURI = uri;
-        document.getElementById('icon32').setAttribute('src', uri);
+        document.getElementById('icon32').setAttribute('src', uri + "?size=32");
         document.getElementById('icon16').setAttribute('src', uri);
         var os_path = Components.classes["@activestate.com/koOsPath;1"].getService();
         document.getElementById('iconlabel').setAttribute('value', os_path.withoutExtension(ko.uriparse.baseName(uri)));

@@ -262,7 +262,7 @@
 
   <ko-pane id="workspace_left_area">
     <browser type="ko-widget" id="placesViewbox" label="&Places.label;"
-             position="1" icon="chrome://icomoon/skin/icons/folder5.png"
+             position="1" icon="koicon://ko-svg/chrome/icomoon/skin/folder5.svg"
              tab_oncommand="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
              tab_onfocus="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
 	     src="chrome://komodo-places/content/places_panel.xul"/>
