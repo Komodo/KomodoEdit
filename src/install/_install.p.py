@@ -64,7 +64,6 @@ import os
 from os.path import (abspath, expanduser, normpath, join, dirname, basename,
                      isdir, islink, exists, relpath)
 import shutil
-import socket
 import tempfile
 import getopt
 import logging
@@ -73,6 +72,7 @@ import re
 import subprocess
 from glob import glob
 
+import which
 
 class Error(Exception):
     pass
@@ -96,9 +96,8 @@ def _rmtreeOnError(rmFunction, filePath, excInfo):
         os.chmod(filePath, 0777)
         rmFunction(filePath)
 
-def _rmtree(dirname):
-    import shutil
-    shutil.rmtree(dirname, 0, _rmtreeOnError)
+def _rmtree(dname):
+    shutil.rmtree(dname, 0, _rmtreeOnError)
 
 # Recipe: banner (1.0) in /Users/trentm/tm/recipes/cookbook
 def _banner(text, ch='=', length=78):
@@ -252,11 +251,16 @@ def _run_in_dir(cmd, cwd, logstream=_RUN_DEFAULT_LOGSTREAM):
 def _run_and_capture(argv):
     log.debug("running '%s'", ' '.join(argv))
     p = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout = p.stdout.read()
-    stderr = p.stderr.read()
-    status = p.wait()
-    return stdout, stderr, status
+    stdout, stderr = p.communicate()
+    return stdout, stderr, p.returncode
 
+def _ensure_executable(filename):
+    try:
+        filestat = os.stat(filename)
+        perms = 0700 | (filestat.st_mode & (0077))
+        os.chmod(filename, perms)
+    except Exception, ex:
+        log.warn("could not set exec permissions on path %r - %s", filename, ex)
 
 def _install_desktop_shortcut(absInstallDir, suppressShortcut):
     """Install a desktop shortcut as appropriate.
@@ -295,6 +299,27 @@ Categories=__GNOME_DESKTOP_CATEGORIES__
         if suppressShortcut:
             raise ShortcutInstallError("shortcut suppressed by user")
 
+        # Write desktop file to a temporary file.
+        fd, tempPath = tempfile.mkstemp(suffix='.desktop', prefix='komodo_shortcut')
+        os.write(fd, content)
+        os.close(fd)
+
+        # Use 'xdg-desktop-menu' and 'xdg-desktop-icon' if it's available.
+        xdg_exe_name = 'xdg-desktop-menu'
+        try:
+            xdg_exe = which.which(xdg_exe_name)
+        except which.WhichError:
+            pass
+        else:
+            try:
+                _run("xdg-desktop-menu install --novendor %s" % (tempPath))
+                _run("xdg-desktop-icon install --novendor %s" % (tempPath))
+                log.info("Komodo desktop shortcuts created successfully")
+                return
+            except OSError:
+                # Fallback to manual install.
+                pass
+
         # Determine if installing under HOME or to shared area.
         HOME = os.environ.get("HOME", None)
         if not HOME:
@@ -310,41 +335,18 @@ Categories=__GNOME_DESKTOP_CATEGORIES__
         if not exists(shortcutDir):
             raise ShortcutInstallError("'%s' does not exist" % shortcutDir)
         else:
-            fout = open(shortcutPath, 'w')
-            try:
-                fout.write(content)
-            finally:
-                fout.close()
-            # Ensure the desktop shortcut has executable permissions, otherwise
-            # the OS may give a warning about being an untrusted application.
-            try:
-                import stat
-                filestat = os.stat(shortcutPath)
-                perms = 0700 | (filestat.st_mode & (0077))
-                os.chmod(shortcutPath, perms)
-            except Exception, ex:
-                log.warn("could not set exec permissions on desktop shortcut"
-                         "'%s': %s", shortcutPath, ex)
+            shutil.copy(tempPath, shortcutPath)
+            # Ensure the desktop shortcut has executable permissions.
+            _ensure_executable(shortcutPath)
     except (EnvironmentError, ShortcutInstallError), ex:
         fallbackDir = join(absInstallDir, "share", "desktop")
         fallbackPath = join(fallbackDir, shortcutName)
         try:
             if not exists(fallbackDir):
                 os.makedirs(fallbackDir)
-            fout = open(fallbackPath, 'w')
-            fout.write(content)
-            fout.close()
-            # Ensure the backup desktop shortcut has executable permissions,
-            # otherwise the OS may give a warning about being an untrusted
-            # application.
-            try:
-                import stat
-                filestat = os.stat(fallbackPath)
-                perms = 0700 | (filestat.st_mode & (0077))
-                os.chmod(fallbackPath, perms)
-            except Exception, ex:
-                log.warn("could not set exec permissions on desktop shortcut"
-                         "'%s': %s", fallbackPath, ex)
+            shutil.copy(tempPath, fallbackPath)
+            # Ensure the backup desktop shortcut has executable permissions.
+            _ensure_executable(fallbackPath)
         except EnvironmentError, ex2:
             log.warn("unexpected error creating fallback .desktop file "
                      "'%s': %s", fallbackPath, ex2)
