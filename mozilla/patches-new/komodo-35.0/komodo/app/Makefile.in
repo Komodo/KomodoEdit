@@ -18,25 +18,11 @@ AB_CD = en-US
 
 DEFINES += \
   -DAB_CD=$(AB_CD) \
-  -DKOMODO_ICO='"$(srcdir)/komodo.ico\"' \
-  -DDOCUMENT_ICO='"$(DIST)/branding/document.ico"' \
+  -DKOMODO_ICO='$(srcdir)/komodo.ico' \
+  -DDOCUMENT_ICO='$(DIST)/branding/document.ico' \
   $(NULL)
 
 # Build a binary bootstrapping with XRE_main
-
-CPPSRCS = nsKomodoApp.cpp
-CSRCS = my_getopt.c \
-	koStart.c \
-	$(NULL)
-
-LOCAL_INCLUDES += \
-  -I$(topsrcdir)/toolkit/xre \
-  -I$(topsrcdir)/xpcom/base \
-  -I$(topsrcdir)/xpcom/build \
-  -I$(DEPTH)/build \
-  $(NULL)
-
-STL_FLAGS=
 
 ifndef MOZ_WINCONSOLE
 ifdef MOZ_DEBUG
@@ -51,12 +37,6 @@ endif
 NSDISTMODE = copy
 
 include $(topsrcdir)/config/config.mk
-
-ifdef _MSC_VER
-# Always enter a Windows program through wmain, whether or not we're
-# a console application.
-WIN32_EXE_LDFLAGS += -ENTRY:wmainCRTStartup
-endif
 
 ifeq ($(OS_ARCH),WINNT)
 OS_LIBS += $(call EXPAND_LIBNAME,comctl32 comdlg32 uuid shell32 ole32 oleaut32 version winspool)

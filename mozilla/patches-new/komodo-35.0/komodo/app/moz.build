@@ -6,6 +6,15 @@
 
 Program(CONFIG['MOZ_APP_NAME'])
 
+if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
+    SOURCES += [ 'koStart.mm' ]
+else:
+    SOURCES += [ 'koStart.c' ]
+SOURCES += [
+    'my_getopt.c',
+    'nsKomodoApp.cpp',
+]
+
 DEFINES['APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
 DEFINES['MOZ_APP_BASENAME'] = CONFIG['MOZ_APP_BASENAME']
 DEFINES['MOZ_APP_VENDOR'] = CONFIG['MOZ_APP_VENDOR']
@@ -15,6 +24,12 @@ DEFINES['KOMODO_USE_WMAIN'] = True
 for var in ('MOZILLA_OFFICIAL', 'LIBXUL_SDK'):
     if CONFIG[var]:
         DEFINES[var] = True
+
+LOCAL_INCLUDES += [
+    '/toolkit/xre',
+    '/xpcom/base',
+    '/xpcom/build',
+]
 
 if CONFIG['_MSC_VER']:
     # Always enter a Windows program through wmain, whether or not we're
