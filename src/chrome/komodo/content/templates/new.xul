@@ -110,7 +110,7 @@
         </vbox>
     </hbox>
 
-    <grid id="filepicker" flex="1" style="margin-top: 10px;">
+    <grid id="filepicker" style="margin-top: 10px;">
         <columns>
             <column/>
             <column flex="1"/>
