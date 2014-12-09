@@ -325,13 +325,8 @@ if (ko.skin == undefined)
             var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
             var scheme = schemeService.getScheme(prefs.getString(PREF_EDITOR_SCHEME));
             
-            var back = scheme.getBack('', 'linenumbers');
-            var fore = scheme.getFore('', 'linenumbers')
-            if (back == "#000000") // Most likely the linenumers dont have a bg color defined
-            {
-                back = scheme.backgroundColor;
+            var back = scheme.backgroundColor,
                 fore = scheme.foregroundColor;
-            }
 
             // Skip if the value hasn't changed
             var lessCode = "" +
