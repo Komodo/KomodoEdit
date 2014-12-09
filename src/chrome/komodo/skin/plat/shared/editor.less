@@ -114,6 +114,18 @@
             background-color: darken(@hud-dock-color, 20%);
         }
     }
+    
+    toolbarbutton
+    {
+        -moz-appearance: none !important;
+        opacity: 0.8;
+        margin: auto 4px;
+        
+        &:hover
+        {
+            opacity: 1.0;
+        }
+    }
 
     button > button
     {
@@ -128,6 +140,11 @@
     {
         -moz-appearance: none !important;
     }
+    
+    dropmarker
+    {
+        -moz-appearance: none !important;
+    }
 
 }
 
@@ -136,6 +153,11 @@
 ko-findbar.hud
 {
     border-width: 1px 0 0 0 !important;
+    
+    toolbarbutton
+    {
+        width: 32px !important;
+    }
 }
 
 /* Autocompletions */

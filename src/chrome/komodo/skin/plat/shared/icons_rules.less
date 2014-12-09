@@ -1691,5 +1691,79 @@ ko-pane[type="icons"]
     {
         list-style-image: @icon-hud-customize-panes;
     }
+    
+    .ko-findbar-case-sensitive
+    {
+        -moz-image-region: auto !important;
+    }
+    
+    .ko-findbar-case-sensitive[value="FOC_SENSITIVE"]
+    {
+        list-style-image: @icon-hud-case-sensitive !important;
+    }
+    
+    .ko-findbar-case-sensitive[value="FOC_INSENSITIVE"]
+    {
+        list-style-image: @icon-hud-case-insensitive !important;
+    }
+    
+    .ko-findbar-case-sensitive[value="FOC_SMART"]
+    {
+        list-style-image: @icon-hud-case-smart-size !important;
+    }
+    
+    .ko-findbar-open-dialog
+    {
+        list-style-image: @icon-hud-open-find !important;
+    }
+    
+    .ko-findbar-next,
+    .down-icon
+    {
+        list-style-image: @icon-hud-down !important;
+    }
+        
+    .ko-findbar-prev,
+    .up-icon
+    {
+        list-style-image: @icon-hud-up !important;
+    }
+    
+    .ko-findbar-closebutton,
+    .close-icon
+    {
+        -moz-image-region: auto !important;
+        list-style-image: @icon-hud-close !important;
+    }
+    
+    .ko-findbar-pattern-type
+    {
+        -moz-image-region: auto !important;
+    }
+    
+    .ko-findbar-pattern-type[value="FOT_SIMPLE"]
+    {
+        list-style-image: @icon-hud-findpattern-simple !important;
+    }
+    
+    .ko-findbar-pattern-type[value="FOT_WILDCARD"]
+    {
+        list-style-image: @icon-hud-findpattern-wildcard !important;
+    }
+    
+    .ko-findbar-pattern-type[value="FOT_REGEX_PYTHON"]
+    {
+        list-style-image: @icon-hud-findpattern-regex !important;
+    }
 
+    toolbarbutton > dropmarker
+    {
+        visibility: collapse;
+    }
+    
+    menulist dropmarker, textbox[type="autocomplete"] dropmarker,
+    .button-menubutton-dropmarker,
+    {
+        list-style-image: @icon-hud-dropmarker !important;
+    }
 }
