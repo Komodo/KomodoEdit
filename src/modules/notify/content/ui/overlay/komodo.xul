@@ -20,9 +20,10 @@
             <panel anonid="notify-panel"
                    class="notify-panel {{=it.classlist}}"
                    type="drag"
+                   noautofocus="true"
+                   noautohide="true"
                    ignorekeys="true"
-                   level="floating"
-                   noautofocus="true">
+                   level="floating">
                 <hbox class="wrapper">
                     {{?it.icon}}
                         <image class="icon" src="{{=it.icon}}?preset=hud"></image>
@@ -41,6 +42,7 @@
                                         label="&notifyPrefs.label;"/>-->
                         </menupopup>
                     </button>
+                    <button class="close button-close"/>
                 </hbox>
             </panel>
         </script>

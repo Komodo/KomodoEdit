@@ -17,6 +17,7 @@
     var notify = this;
     var queue = {};
     var disabledCats = prefs.getPref('notify_disabled_categories');
+    var activePanel = null;
 
     this.P_INFO = Ci.koINotification.SEVERITY_INFO;
     this.P_WARNING = Ci.koINotification.SEVERITY_WARNING;
@@ -254,6 +255,8 @@
         callback = () =>
         {
             if ( ! panel.exists()) return;
+            
+            clearTimeout(timeout);
 
             log.debug("Hiding panel");
 
@@ -268,6 +271,8 @@
             log.debug("Calling callback from timeout");
             callback();
         }, time);
+        
+        panel.find(".close").on("command", callback);
 
         log.debug("Showing for " + time + "ms");
 
@@ -305,7 +310,7 @@
         {
             panel.find(".undo").on("command", notif.opts.undo);
         }
-
+        
         if ("actions" in notif.opts)
         {
             var popup = panel.find("menupopup");
