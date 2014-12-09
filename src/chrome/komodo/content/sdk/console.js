@@ -1,5 +1,6 @@
 (function() {
 
+    var addObs = false;
     if (typeof(require) === "function")
     {
         // This is being loaded as a jetpack module
@@ -12,6 +13,7 @@
         var { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         this.EXPORTED_SYMBOLS = ["console"];
         this.console = this;
+        addObs = true;
     }
 
     Cu.import("resource://gre/modules/Services.jsm");
@@ -20,6 +22,7 @@
     const console       = new ConsoleAPI({innerID: "koConsoleWrapper"});
     const {logging}     = Cu.import("chrome://komodo/content/library/logging.js", {});
     const log           = logging.getLogger("console");
+    const obs           = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
     log.setLevel(logging.LOG_DEBUG);
 
     this.debug = console.debug;
@@ -31,47 +34,51 @@
     this.trace = console.trace;
     this.warn = console.warn;
 
-    Services.obs.addObserver(
+    if (addObs)
     {
-        observe: function(aMessage, aTopic)
+        obs.addObserver(
         {
-            aMessage = aMessage.wrappedJSObject;
-
-            if (aMessage.innerID != console.innerID)
-                return;
-
-            var args = aMessage.arguments;
-            var data = args.map(function(arg)
+            observe: function(aMessage, aTopic)
             {
-                return stringify(arg, true);
-            }).join(" ");
-
-            switch (aMessage.level)
-            {
-                case "info":
-                    log.info(data);
-                    break;
-                case "warn":
-                    log.warn(data);
-                    break;
-                case "error":
-                    log.error(data);
-                    break;
-                case "exception":
-                    log.error(data);
-                    break;
-                default:
-                    if (aMessage.level == "timeEnd")
-                        data = "'" + aMessage.timer.name + "' " + aMessage.timer.duration + "ms";
-                    if (aMessage.level == "time")
-                        data = "'" + aMessage.timer.name + "' @ " + (new Date());
-                    if (aMessage.level == "trace")
-                        data = "trace" + "\n" + formatTrace(aMessage.stacktrace);
-                    log.debug(data);
-                    break;
+                aMessage = aMessage.wrappedJSObject;
+                
+                // This causes logs not to work from a component context
+                //if (aMessage.innerID != console.innerID)
+                //    return;
+    
+                var args = aMessage.arguments;
+                var data = args.map(function(arg)
+                {
+                    return stringify(arg, true);
+                }).join(" ");
+                
+                switch (aMessage.level)
+                {
+                    case "info":
+                        log.info(data);
+                        break;
+                    case "warn":
+                        log.warn(data);
+                        break;
+                    case "error":
+                        log.error(data);
+                        break;
+                    case "exception":
+                        log.error(data);
+                        break;
+                    default:
+                        if (aMessage.level == "timeEnd")
+                            data = "'" + aMessage.timer.name + "' " + aMessage.timer.duration + "ms";
+                        if (aMessage.level == "time")
+                            data = "'" + aMessage.timer.name + "' @ " + (new Date());
+                        if (aMessage.level == "trace")
+                            data = "trace" + "\n" + formatTrace(aMessage.stacktrace);
+                        log.debug(data);
+                        break;
+                }
             }
-        }
-    }, "console-api-log-event", false);
+        }, "console-api-log-event", false);
+    }
 
     this.log = () =>
     {
