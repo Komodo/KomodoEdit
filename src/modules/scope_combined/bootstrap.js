@@ -23,7 +23,7 @@ function loadIntoWindow(window) {
 
     try {
         commando.registerScope("scope-combined-toolscmds", {
-            name: "Tools &amp; Commands",
+            name: "Tools and Commands",
             icon: "koicon://ko-svg/chrome/icomoon/skin/cogs.svg",
             handler: "scope-combined/toolscommands",
             keybindTransit: "cmd_invokeTool"
