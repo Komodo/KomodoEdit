@@ -5,12 +5,13 @@
     @foreground-focus:      lighten(@foreground, 20%);
     @background-contrast:   darken(@_background, 10%);
     @border:                lighten(@_background, 5%);
-    @background-button:     lighten(@_background, 5%);
-    @background-button-hover:lighten(@_background, 10%);
+    @background-button:     lighten(desaturate(@_background, 5%), 5%);
+    @background-button-hover:lighten(desaturate(@_background, 5%), 2%);
+    @background-image-button:linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
     @background-odd:        fade(darken(@background-contrast, 3%), 80%);
     @background-input:      lighten(@background-contrast, 10%);
     @background-image:      linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.3));
-    @background-selected:   fade(desaturate(@special, 5%), 30%);
+    @background-selected:   fade(desaturate(@special, 2%), 30%);
 }
 
 .setVars() when (@dark = 0)
@@ -127,7 +128,7 @@
     :not(button) > button:not(.button-plain)
     {
         background-color: @background-button !important;
-        background-image: @background-image !important;
+        background-image: @background-image-button !important;
         border: 1px solid @border !important;
 
         &:hover
