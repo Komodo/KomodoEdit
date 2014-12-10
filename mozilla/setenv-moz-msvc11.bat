@@ -34,8 +34,9 @@ rem append moztools to PATH
 SET PATH=%PATH%;%MOZ_TOOLS%\bin
 
 rem Other PATH additions.
-rem - not sure make 3.81 is necessary but probably is
 rem - msys\local\bin to get iconv.exe
+set PATH=%MOZILLABUILD%\mozmake;%PATH%
+rem - make 3.81 is fallback, in case mozmake isn't around
 set PATH=%MOZILLABUILD%\make-3.81\bin;%PATH%
 set PATH=%MOZILLABUILD%\msys\local\bin;%PATH%
 set PATH=%MOZILLABUILD%\info-zip;%PATH%
