@@ -473,7 +473,7 @@
   <string id="find-lastInFilesContext">files</string>
   <boolean id="find-skipLargeFilesEnabled">1</boolean>
   <long id="find-skipFileSizesLargerThan">104857600</long> <!-- 100 MB -->
-  <boolean id="find-pinFindReplaceDialog">0</boolean>
+  <boolean id="find-pinFindReplaceDialog">1</boolean>
 
   <!-- variable highlighting preferences (see kd 0277) -->
   <boolean id="codeintel_highlight_variables_auto_mouse">1</boolean>

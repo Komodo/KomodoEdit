@@ -184,6 +184,12 @@ function update(changed /* =null */) {
             _disable_widget(widgets.repl, !repl);
             _disable_widget(widgets.multiline_repl, !repl);
         }
+        
+        if (repl) {
+            document.documentElement.classList.add("mode-replace");
+        } else {
+            document.documentElement.classList.remove("mode-replace");
+        }
 
         // Don't muck with the focus for dialog init (changed=null)
         // because we want the pattern widget to get the focus, even
@@ -257,6 +263,9 @@ function update(changed /* =null */) {
     if (changed == null || changed == "regex") {
         opts.patternType = (widgets.opt_regex.checked ?
             koIFindOptions.FOT_REGEX_PYTHON : koIFindOptions.FOT_SIMPLE);
+        
+        _collapse_widget(widgets.pattern_btn, !widgets.opt_regex.checked);
+        _collapse_widget(widgets.rx_btn, !widgets.opt_regex.checked);
     }
     if (changed == "case") {
         // Skip this for initialization (changed=null).
@@ -434,6 +443,7 @@ function msg_callback(level, context, msg) {
     }
 }
 function _msg_erase() {
+    widgets.msg_deck.parentNode.classList.add("collapsed");
     // Clear text nodes from the current panel <description>.
     if (widgets.msg_deck.selectedIndex != 0) {
         var elem = widgets.msg_deck.selectedPanel;
@@ -450,6 +460,7 @@ function _msg_erase() {
 }
 function _msg_write(deck_idx, desc, msg) {
     _msg_erase();
+    widgets.msg_deck.parentNode.classList.remove("collapsed");
     desc.removeChild(desc.firstChild); // remove the "blank" text node
     desc.appendChild(document.createTextNode(msg));
     widgets.msg_deck.selectedIndex = deck_idx;
@@ -843,6 +854,8 @@ function _init_widgets()
 
     widgets.pattern_deck = document.getElementById('pattern-deck');
     widgets.pattern = document.getElementById('pattern');
+    widgets.pattern_btn = document.getElementById('pattern-shortcuts');
+    widgets.rx_btn = document.getElementById('open-in-rx-btn');
     widgets.multiline_pattern = document.getElementById('multiline-pattern');
     widgets.curr_pattern = widgets.pattern;
     widgets.repl_row = document.getElementById('repl-row');
@@ -1192,7 +1205,7 @@ function _update_mode_ui() {
             break
         default:
             // Replace: Find Next, *Replace*, Replace All
-            _collapse_widget(widgets.find_prev_btn, true);
+            _collapse_widget(widgets.find_prev_btn, false);
             _collapse_widget(widgets.find_next_btn, false);
             _collapse_widget(widgets.replace_btn, false);
             _collapse_widget(widgets.find_all_btn, true);
@@ -1231,6 +1244,9 @@ function _update_mode_ui() {
             default_btn = widgets.find_next_btn;
         }
     }
+    
+    _collapse_widget(widgets.pattern_btn, !widgets.opt_regex.checked);
+    _collapse_widget(widgets.rx_btn, !widgets.opt_regex.checked);
     
     // Set the default button.
     if (_g_curr_default_btn == default_btn) {

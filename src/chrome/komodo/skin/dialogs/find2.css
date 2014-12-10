@@ -18,6 +18,38 @@
     -moz-border-left-colors:   rgb(185, 185, 185) rgb(128, 128, 128);
     padding: 4px;
 }
+
 #pin-btn > label {
     display: none;
+}
+
+/* Todo: Remove this custom styling globally */
+.rightarrow-button,
+.button-toolbar-a {
+    -moz-appearance: button;
+}
+
+.button-toolbar-a > .button-internal-box {
+    border: 0 !important;
+}
+
+row > label {
+    width: 85px;
+}
+
+spacer.button-spacer {
+    width: 96px; /* Add margin of label above */
+}
+
+#find-buttons button,
+#find-buttons checkbox {
+    width: 150px;
+}
+
+window:not(.mode-replace) #repl-row {
+    visibility: collapse;
+}
+
+.collapsed {
+    visibility: collapse;
 }

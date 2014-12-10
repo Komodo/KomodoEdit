@@ -475,15 +475,10 @@ button[type="button-toolbar-a"],
  */
 .rightarrow-button  {
     -moz-binding          : url("chrome://komodo/content/bindings/buttons.xml#rightarrow-button");
+    -moz-appearance       : button;
     margin		  : 1px;
     min-width		  : 0px;
     max-width		  : 14em;
-    border-left           : 1px solid ThreeDHighlight;
-    border-top            : 1px solid ThreeDHighlight;
-    border-right          : 1px solid ThreeDShadow;
-    border-bottom         : 1px solid ThreeDShadow;
-    background-color	  : buttonface;
-    color		  : windowtext;
     -moz-user-focus       : ignore !important;
 }
 
@@ -493,14 +488,6 @@ button[type="button-toolbar-a"],
    border              : 1px solid transparent;
    padding             : 1px 3px 1px 3px;
    vertical-align      : middle;
-}
-
-.rightarrow-button:hover  {
-	border              : 1px solid ThreeDDarkShadow;
-}
-
-.rightarrow-button:hover:active  {
-    text-decoration       : none;
 }
 
 .rightarrow-button:hover > .menubutton-internal-box  {

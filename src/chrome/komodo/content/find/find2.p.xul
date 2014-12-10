@@ -108,12 +108,12 @@
         <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
     </popupset>
 
-    <hbox style="padding: 5px 10px 5px 10px;">
+    <vbox id="find-box-wrap">
 
       <grid flex="1">
         <columns>
           <column />
-          <column flex="1" style="min-width: 30em;"/>
+          <column flex="1"/>
           <column />  <!-- buttons, if any, for the widget in the prev column -->
         </columns>
         <rows>
@@ -310,39 +310,6 @@
             </hbox>
           </row>
 
-          <!-- Note: Could use a notificationbox element here. This would
-               be a little cleaner. However, would require some CSS to
-               style the notifcation's as with the custom boxes here
-               and an attempt to get rid of the notifcation close
-               buttons. -->
-          <row>
-            <hbox/>
-            <deck id="msg-deck" selectedIndex="0">
-              <hbox />
-              <hbox id="msg-info-box" align="center"
-                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; border-radius: 7px; border: 1px solid #bbb;">
-                <hbox align="start" style="padding-right: 3px;">
-                  <image src="chrome://famfamfamsilk/skin/icons/information.png"/>
-                </hbox>
-                <description id="msg-info" flex="1">blank</description>
-              </hbox>
-              <hbox id="msg-warn-box" align="center"
-                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; border-radius: 7px; border: 1px solid #bbb; padding: 2px;">
-                <hbox align="start" style="padding-right: 3px;">
-                  <image src="chrome://famfamfamsilk/skin/icons/error.png"/>
-                </hbox>
-                <description id="msg-warn" flex="1">blank</description>
-              </hbox>
-              <hbox id="msg-error-box" align="center"
-                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; border-radius: 7px;  border: 1px solid #bbb; padding: 2px;">
-                <hbox align="start" style="padding-right: 3px;">
-                  <image src="chrome://famfamfamsilk/skin/icons/exclamation.png"/>
-                </hbox>
-                <description id="msg-error" flex="1">blank</description>
-              </hbox>
-            </deck>
-          </row>
-
           <row align="center" style="margin-top: 10px;">
               <label value="&searchIn.label;" accesskey="&searchIn.accesskey;" control="search-in-menu"/>
               <menulist id="search-in-menu" oncommand="update('search-in')"
@@ -427,51 +394,93 @@
                      onfocus="this.setSelectionRange(0, this.value.length);"
                      oninput="update('excludes');"/>
           </row>
+          
+          <!-- Note: Could use a notificationbox element here. This would
+               be a little cleaner. However, would require some CSS to
+               style the notifcation's as with the custom boxes here
+               and an attempt to get rid of the notifcation close
+               buttons. -->
+          <row class="collapsed">
+            <hbox/>
+            <deck id="msg-deck" selectedIndex="0">
+              <hbox />
+              <hbox id="msg-info-box" align="center"
+                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; border-radius: 7px; border: 1px solid #bbb;">
+                <hbox align="start" style="padding-right: 3px;">
+                  <image src="chrome://famfamfamsilk/skin/icons/information.png"/>
+                </hbox>
+                <description id="msg-info" flex="1">blank</description>
+              </hbox>
+              <hbox id="msg-warn-box" align="center"
+                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; border-radius: 7px; border: 1px solid #bbb; padding: 2px;">
+                <hbox align="start" style="padding-right: 3px;">
+                  <image src="chrome://famfamfamsilk/skin/icons/error.png"/>
+                </hbox>
+                <description id="msg-warn" flex="1">blank</description>
+              </hbox>
+              <hbox id="msg-error-box" align="center"
+                    style="background-color: #FFF1A8; margin: 0px 5px; padding: 1px; border-radius: 7px;  border: 1px solid #bbb; padding: 2px;">
+                <hbox align="start" style="padding-right: 3px;">
+                  <image src="chrome://famfamfamsilk/skin/icons/exclamation.png"/>
+                </hbox>
+                <description id="msg-error" flex="1">blank</description>
+              </hbox>
+            </deck>
+          </row>
         </rows>
       </grid>
 
       <separator class="thin"/>
-      <vbox id="find-buttons" style="width: 11em">
-        <button id="find-prev-btn" label="&findPrevious.label;"
-                style="margin-top: 0px;"
-                accesskey="&findPrev.accesskey;" oncommand="find_prev();"/>
-        <button id="find-next-btn" label="&findNext.label;"
-                style="margin-top: 0px;"
-                accesskey="&findNextButton.accesskey;" oncommand="find_next();"/>
-        <button id="replace-btn" label="&replace.label;"
-                style="margin-top: 0px;"
-                accesskey="&replaceButton.accesskey;" oncommand="replace();"/>
-        <button id="find-all-btn" label="&findAll.label;"
-                style="margin-top: 0px;"
-                _accesskey="&findAllButton.accesskey;" uses-accesskey="true"
-                oncommand="find_all();"/>
-        <button id="replace-all-btn" label="&replaceAll.label;"
-                style="margin-top: 0px;" collapsed="true"
-                _accesskey="&replaceAllButton.accesskey;" uses-accesskey="true"
-                oncommand="replace_all();"/>
-        <checkbox id="confirm-replacements-in-files" label="&confirm.label;"
-                  style="margin-top: 0px;" collapsed="true"
-                  accesskey="&confirm.accesskey;" oncommand="update('confirm-replacements')"
-                  tooltiptext="&confirm.tooltiptext;"/>
-        <checkbox id="show-replace-all-results" label="&showResults.label;"
-                  style="margin-top: 0px;" collapsed="true"
-                  accesskey="&showResults.accesskey;" oncommand="update('show-replace-all-results')"
-                  tooltiptext="&showResults.tooltiptext;"/>
-        <button id="mark-all-btn" label="&markAll.label;"
-                style="margin-top: 0px;"
-                accesskey="&markAll.accesskey;" oncommand="mark_all();" />
-        <!-- Exclude for lack of space. This isn't crucial.
-        <button id="close-btn" label="&close.label;"
-                accesskey="&findCloseButton.accesskey;" oncommand="window.close();"/> -->
-        <!-- Exclude for lack of space. This isn't crucial.
-        <button id="help-btn" label="&help.label;" accesskey="&helpButton.accesskey;"
-                oncommand="ko.help.open('find2_dialog');"/> -->
+      <hbox>
+        <spacer class="button-spacer"/>
+        <vbox id="find-buttons">
+          <hbox>
+              <button id="find-next-btn" label="&findNext.label;"
+                      accesskey="&findNextButton.accesskey;" oncommand="find_next();"/>
+              <button id="find-prev-btn" label="&findPrevious.label;"
+                      style="margin-top: 0px;"
+                      accesskey="&findPrev.accesskey;" oncommand="find_prev();"/>
+          </hbox>
+          <hbox>
+              <button id="find-all-btn" label="&findAll.label;"
+                      _accesskey="&findAllButton.accesskey;" uses-accesskey="true"
+                      oncommand="find_all();"/>
+              <button id="mark-all-btn" label="&markAll.label;"
+                      accesskey="&markAll.accesskey;" oncommand="mark_all();"/>
+          </hbox>
+          <hbox>
+              <button id="replace-btn" label="&replace.label;"
+                      accesskey="&replaceButton.accesskey;" oncommand="replace();"/>
+              <button id="replace-all-btn" label="&replaceAll.label;"
+                      collapsed="true"
+                      _accesskey="&replaceAllButton.accesskey;" uses-accesskey="true"
+                      oncommand="replace_all();"/>
+          </hbox>
+          <hbox>
+              <checkbox id="confirm-replacements-in-files" label="&confirm.label;"
+                        collapsed="true"
+                        accesskey="&confirm.accesskey;" oncommand="update('confirm-replacements')"
+                        tooltiptext="&confirm.tooltiptext;"
+  />
+              <checkbox id="show-replace-all-results" label="&showResults.label;"
+                        collapsed="true"
+                        accesskey="&showResults.accesskey;" oncommand="update('show-replace-all-results')"
+                        tooltiptext="&showResults.tooltiptext;"
+  />
+          </hbox>
+          <!-- Exclude for lack of space. This isn't crucial.
+          <button id="close-btn" label="&close.label;"
+                  accesskey="&findCloseButton.accesskey;" oncommand="window.close();"/> -->
+          <!-- Exclude for lack of space. This isn't crucial.
+          <button id="help-btn" label="&help.label;" accesskey="&helpButton.accesskey;"
+                  oncommand="ko.help.open('find2_dialog');"/> -->
+        </vbox>
         <hbox pack="end" flex="1" align="end">
             <toolbarbutton id="pin-btn" type="checkbox" oncommand="toggle_pin();"
                            tooltiptext="&pin.tooltiptext;"/>
         </hbox>
-      </vbox>
-    </hbox>
+      </hbox>
+    </vbox>
 
 </window>
 
