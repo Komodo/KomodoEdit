@@ -70,11 +70,22 @@
         onfocus="on_focus(event);"
         orient="vertical">
 
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/dialogs.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/mru.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/uriparse.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/stringutils.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/filepickers.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/windowManager.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/launch.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/run/interpolate.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/find/find_functions.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/find/find2.js"/>
       
     <keyset id="findKeys">
         <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
-        <key keycode="VK_RETURN" oncommand="opener.ko.dialogs.handleEnterKey();"/>
+        <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
 <!-- #if PLATFORM != "darwin" -->
         <key key="d" modifiers="control" oncommand="search_in('document')" />
         <key key="o" modifiers="control" oncommand="search_in('open-files')" />
