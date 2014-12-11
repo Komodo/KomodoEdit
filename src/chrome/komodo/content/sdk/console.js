@@ -155,6 +155,36 @@
 
         return str;
     }
+    
+    /**
+     * Utility to extract the constructor name of an object.
+     * Object.toString gives: "[object ?????]"; we want the "?????".
+     *
+     * @param {object} aObj
+     *        The object from which to extract the constructor name
+     * @return {string}
+     *        The constructor name
+     *
+     * Taken from resource://gre/modules/devtools/Console.jsm
+     */
+    function getCtorName(aObj) {
+        if (aObj === null)
+        {
+            return "null";
+        }
+        if (aObj === undefined)
+        {
+            return "undefined";
+        }
+        if (aObj.constructor && aObj.constructor.name)
+        {
+            return aObj.constructor.name;
+        }
+        
+        // If that fails, use Objects toString which sometimes gives something
+        // better than 'Object', and at least defaults to Object if nothing better
+        return Object.prototype.toString.call(aObj).slice(8, -1);
+    }
 
     /**
      * Take the output from parseStack() and convert it to nice readable
