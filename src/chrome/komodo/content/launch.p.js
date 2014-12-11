@@ -253,7 +253,7 @@ this.find = function(pattern /* =null */) {
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes,centerscreen",
+        "chrome,close=yes,centerscreen,dependent",
         {"pattern": pattern,
          "mode": "find"
         });
@@ -277,7 +277,7 @@ this.replace = function(pattern /* =null */, repl /* =null */) {
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes,centerscreen",
+        "chrome,close=yes,centerscreen,dependent",
         { "pattern": pattern,
           "repl": repl,
           "mode": "replace"
@@ -301,7 +301,7 @@ this.findInCollection = function(collection, pattern /* =null */) {
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes,centerscreen",
+        "chrome,close=yes,centerscreen,dependent",
         { "collection": collection,
           "pattern": pattern,
           "mode": "findincollection"
@@ -327,7 +327,7 @@ this.replaceInCollection = function(collection, pattern /* =null */,
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes,centerscreen",
+        "chrome,close=yes,centerscreen,dependent",
         { "collection": collection,
           "pattern": pattern,
           "repl": repl,
@@ -351,7 +351,7 @@ this.findInCurrProject = function(pattern /* =null */) {
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes,centerscreen",
+        "chrome,close=yes,centerscreen,dependent",
         { "pattern": pattern,
           "mode": "findincurrproject"
         });
@@ -375,7 +375,7 @@ this.replaceInCurrProject = function(pattern /* =null */, repl /* =null */) {
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes,centerscreen",
+        "chrome,close=yes,centerscreen,dependent",
         { "pattern": pattern,
           "repl": repl,
           "mode": "replaceincurrproject"
@@ -414,7 +414,7 @@ this.findInFiles = function(pattern /* =null */, dirs /* =null */,
     return ko.windowManager.openDialog(
             "chrome://komodo/content/find/find2.xul",
             "komodo_find2",
-            "chrome,close=yes,centerscreen",
+            "chrome,close=yes,centerscreen,dependent",
             { "pattern": pattern,
                "dirs": dirs,
                "includes": includes,
@@ -448,7 +448,7 @@ this.replaceInFiles = function(pattern /* =null */, repl /* =null */,
     return ko.windowManager.openDialog(
             "chrome://komodo/content/find/find2.xul",
             "komodo_find2",
-            "chrome,close=yes,centerscreen",
+            "chrome,close=yes,centerscreen,dependent",
             { "pattern": pattern,
               "repl": repl,
               "dirs": dirs,
