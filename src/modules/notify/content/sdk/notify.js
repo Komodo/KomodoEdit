@@ -17,7 +17,7 @@
     var notify = this;
     var queue = {};
     var disabledCats = prefs.getPref('notify_disabled_categories');
-    var activePanel = null;
+    var activeNotifs = {};
 
     this.P_INFO = Ci.koINotification.SEVERITY_INFO;
     this.P_WARNING = Ci.koINotification.SEVERITY_WARNING;
@@ -48,6 +48,22 @@
 
         return templates.cache[name](params);
     }
+    
+    this.init = () =>
+    {
+        var addScrollListener = function()
+        {
+            var scimoz = ko.views.manager.currentView ? ko.views.manager.currentView.scimoz : false;
+            if ( ! scimoz) return;
+            
+            scimoz.unhookEvents(onMozScroll, Ci.ISciMozEvents.SME_UPDATEUI);
+            scimoz.hookEvents(onMozScroll, Ci.ISciMozEvents.SME_UPDATEUI);
+        }
+        
+        window.addEventListener('current_view_changed', addScrollListener);
+        
+        addScrollListener();
+    }
 
     this.send = (message, category, opts) =>
     {
@@ -69,6 +85,8 @@
 
         opts = _.extend(_defaultOpts, opts || {});
         opts.message = message;
+        
+        opts.id = opts.id || Date.now();
 
         if (opts.command)
         {
@@ -185,7 +203,7 @@
     this.queue.process = (from) =>
     {
         var notif = queue[from].items.shift();
-
+        
         if (notif)
         {
             timers.setTimeout(this.showNotification.bind(this, notif), 250);
@@ -198,6 +216,8 @@
 
     this.showNotification = (notif) =>
     {
+        activeNotifs[notif.opts.id] = notif;
+        
         var replace = queue[notif.opts.from].activePanel &&
             queue[notif.opts.from].activePanel.exists();
         if (replace)
@@ -224,14 +244,16 @@
         panel.on("popupshown", function(e)
         {
             if (e.target != panel.element()) return;
-            this.doShowNotification(notif, panel, ! replace);
+            this.doShowNotification(notif, ! replace);
         }.bind(this));
         panel.element().openPopup();
     }
 
-    this.doShowNotification = (notif, panel, animate = true) =>
+    this.doShowNotification = (notif, animate = true) =>
     {
         log.debug("Showing: " + notif.message);
+        
+        var panel = queue[notif.opts.from].activePanel;
 
         var opts = notif.opts;
 
@@ -252,27 +274,14 @@
             }
         );
 
-        callback = () =>
-        {
-            if ( ! panel.exists()) return;
-            
-            clearTimeout(timeout);
-
-            log.debug("Hiding panel");
-
-            queue[notif.opts.from].activeId = null;
-            queue[notif.opts.from].activePanel = null;
-            this.hideNotification(panel, this.queue.process.bind(this,notif.opts.from))
-        }
-
         var time = opts.duration || prefs.getLong("notify_duration", 4000);
-        var timeout = timers.setTimeout(() =>
+        var timeout = timers.setTimeout(function()
         {
             log.debug("Calling callback from timeout");
-            callback();
-        }, time);
+            this.hideNotification(notif);
+        }.bind(this), time);
         
-        panel.find(".close").on("command", callback);
+        panel.find(".close").on("command", this.hideNotification.bind(this, notif));
 
         log.debug("Showing for " + time + "ms");
 
@@ -291,7 +300,7 @@
             log.debug("Panel blur");
 
             interacting = false;
-            timeout = timers.setTimeout(callback.bind(this), 1000);
+            timeout = timers.setTimeout(this.hideNotification.bind(this, notif), 1000);
 
             if ("focus" in focus)
                 focus.focus();
@@ -337,14 +346,40 @@
 
         });
     }
-
-    this.hideNotification = (panel, callback) =>
+    
+    this.hideNotificationsByProp = (prop, value) =>
     {
-        if (panel.element().hasFocus)
+        for (let k in activeNotifs)
         {
-            panel.on("blur", this.hideNotification.bind(this, panel, callback));
+            let notif = activeNotifs[k];
+            if ((prop in notif.opts) && notif.opts[prop] == value)
+            {
+                this.hideNotification(notif);
+            }
+        }
+    }
+    
+    this.hideNotification = (notif) =>
+    {
+        var panel = queue[notif.opts.from].activePanel;
+        if ( ! panel || ! panel.exists())
+        {
+            log.warn("Notification panel has already been removed, callback is likely called twice");
             return;
         }
+        
+        delete activeNotifs[notif.opts.id];
+        
+        log.debug("Closing panel");
+        
+        queue[notif.opts.from].activeId = null;
+        queue[notif.opts.from].activePanel = null;
+        
+        //if (panel.element().hasFocus)
+        //{
+        //    panel.on("blur", this.hideNotification.bind(this, panel, callback));
+        //    return;
+        //}
 
         panel.animate(
             {
@@ -354,9 +389,9 @@
             { duration: 100 },
             function()
             {
-                panel.remove(panel);
-                callback();
-            }
+                panel.remove();
+                this.queue.process(notif.opts.from);
+            }.bind(this)
         );
     }
 
@@ -421,5 +456,18 @@
 
         return normalize(pos);
     }
+    
+    var onMozScroll = {
+        onUpdateUI: function(updated)
+        {
+            var ISciMoz = Ci.ISciMoz;
+            if ((updated & ISciMoz.SC_UPDATE_H_SCROLL) || (updated & ISciMoz.SC_UPDATE_V_SCROLL))
+            {
+                notify.hideNotificationsByProp("from", "editor");
+            }
+        }
+    }
+    
+    this.init();
 
 }).apply(module.exports);
