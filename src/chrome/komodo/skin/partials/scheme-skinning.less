@@ -204,6 +204,12 @@ statusbar#statusbarviewbox
         background: lighten(@_background, 5%) !important;
         color: @foreground !important;
         border: 0 !important;
+        
+        & > hbox
+        {
+            -moz-appearance: none !important;
+            background: transparent !important;
+        }
     }
 
     .statusbar-resizerpanel
