@@ -297,7 +297,7 @@ ko.analytics = new function()
     {
         var view = ko.views.manager.currentView;
         this.trackPageView("/editor/" + view.koDoc.language);
-        if ("koDoc" in view && "file" in view.koDoc && "scimoz" in view)
+        if ("koDoc" in view && "file" in view.koDoc && view.koDoc.file && "scimoz" in view)
         {
             this.trackEvent(CAT_FILE_METRIC, "Opened");
             this.trackEvent(CAT_FILE_METRIC, "Language", view.koDoc.language);
