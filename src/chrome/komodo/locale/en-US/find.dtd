@@ -83,7 +83,7 @@
 <!ENTITY oneOrMoreOfThePrecedingBlock.label "+ : one or more of the preceding block">
 <!ENTITY oneOrMoreOfThePrecedingBlockNonGreedy.label "+? : one or more of the preceding block (non-greedy)">
 <!ENTITY options.label "Options">
-<!ENTITY pin.tooltiptext "Pin this window">
+<!ENTITY pin.tooltiptext "Pin this window (always on top)">
 <!ENTITY replace.label "Replace">
 <!ENTITY replaceAll.label "Replace All">
 <!ENTITY replaceAllButton.accesskey "A">
