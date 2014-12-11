@@ -63,6 +63,7 @@
             <caption label="&interface.caption;" />
 <!-- #if PLATFORM == "linux" -->
             <hbox>
+                <spacer width="80"/>
                 <checkbox id="koSkin_use_gtk_detection"
                           label="&useGtkDetection.label;"
                           pref="true"
@@ -72,9 +73,10 @@
             </hbox>
 <!-- #endif -->
             <!-- Skins -->
-            <hbox align="center" id="pref_appearance_skin_hbox" style="margin-left: 20px">
+            <hbox align="center" id="pref_appearance_skin_hbox">
                 <label id="pref_appearance_skin_label"
-                       value="&skin.label;" />
+                       value="&skin.label;"
+                        width="70"/>
                 <menulist id="koSkin_custom_skin"
                           pref="true"
                           preftype="string"
@@ -97,9 +99,10 @@
                 </menulist>
             </hbox>
             <!-- Icons -->
-            <hbox align="center" style="margin-left: 20px">
+            <hbox align="center">
                 <label id="pref_appearance_iconsets_label"
-                       value="&iconset.label;" />
+                       value="&iconset.label;"
+                       width="70"/>
                 <menulist id="koSkin_custom_icons"
                           pref="true"
                           preftype="string"
@@ -109,6 +112,17 @@
                     <menupopup id="koSkin_custom_icons_menupopup">
                     </menupopup>
                 </menulist>
+            </hbox>
+            
+            <!-- Scrollbar Skinning -->
+            <hbox>
+                <spacer width="80"/>
+                <checkbox id="koSkin_use_custom_scrollbars"
+                          label="&skinEditorScrollbars.label;"
+                          pref="true"
+                          preftype="boolean"
+                          prefdefault="true"
+                          prefattribute="checked"/>
             </hbox>
         </groupbox>
 

@@ -12,6 +12,11 @@
     @background-input:      lighten(@background-contrast, 10%);
     @background-image:      linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.3));
     @background-selected:   fade(desaturate(@special, 2%), 30%);
+    
+    @background-scrollbar:          @background;
+    @background-scrollbar-thumb:    darken(@background, 4%);
+    @background-scrollbar-thumb-hover: darken(@background, 8%);
+    @background-scrollbar-hover:    lighten(@background, 5%);
 }
 
 .setVars() when (@dark = 0)
@@ -26,7 +31,13 @@
     @background-odd:        fade(darken(@background-contrast, 1%), 80%);
     @background-input:      darken(@background-contrast, 10%);
     @background-image:      linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1));
+    @background-image-button:linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1));
     @background-selected:   desaturate(@special, 5%);
+    
+    @background-scrollbar:          @background;
+    @background-scrollbar-thumb:    darken(@background, 12%);
+    @background-scrollbar-thumb-hover: darken(@background, 20%);
+    @background-scrollbar-hover:    darken(@background, 5%);
 }
 
 .setVars();
@@ -60,29 +71,6 @@
     {
         background: @special !important;
         color: @special-fore !important;
-    }
-
-    scrollbar
-    {
-        slider
-        {
-            background: fade(@background-contrast, 100%) !important;
-        }
-
-        thumb
-        {
-            background: darken(@background-contrast, 5%) !important;
-        }
-
-        thumb:hover
-        {
-            background: darken(@background-contrast, 10%) !important;
-        }
-
-        &:hover slider
-        {
-            background: darken(fade(@background-contrast, 100%), 2%) !important;
-        }
     }
 
     richlistitem,
@@ -140,6 +128,52 @@
     button:not(.button-plain)
     {
         color: @foreground !important;
+    }
+}
+
+.hud scrollbar,
+view[type="editor"] scrollbar
+{
+    border: 0;
+    background: transparent;
+
+    slider
+    {
+        -moz-appearance: none !important;
+        border: 0;
+        background: @background-scrollbar !important;
+    }
+
+    thumb
+    {
+        -moz-appearance: none;
+        background: @background-scrollbar-thumb !important;
+        border: 0;
+    }
+
+    thumb:hover
+    {
+        -moz-appearance: none;
+        background: @background-scrollbar-thumb-hover !important;
+    }
+
+    &:hover
+    {
+        slider
+        {
+            -moz-appearance: none;
+            background: @background-scrollbar-hover !important;
+        }
+    }
+    
+    &[orient="vertical"]
+    {
+        width: 15px;
+    }
+    
+    &[orient="horizontal"]
+    {
+        height: 15px;
     }
 }
 

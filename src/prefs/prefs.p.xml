@@ -5,7 +5,7 @@
   <!-- This version field is used by Komodo to upgrade preferences.
        The value should be kept in sync with "../components/koInitService.p.py"
   -->
-  <long id="version">16</long>
+  <long id="version">17</long>
 
   <!-- "uilayout_version" is used by Komodo to upgrade ui layouts.
        Must keep in sync with "../chrome/komodo/content/library/uilayout.p.js"
@@ -938,6 +938,7 @@
   <!-- #else -->
       <string id="koSkin_custom_icons">chrome://iconset-dark/content/manifest/chrome.manifest</string>
   <!-- #endif -->
+      <boolean id="koSkin_use_custom_scrollbars">1</boolean>
   
   <!-- Todo: This is ugly and redundant, the icon system needs an overhaul to simplify eeeverything -->
   <!-- #if PLATFORM == "darwin" -->

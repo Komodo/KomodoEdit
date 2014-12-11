@@ -38,7 +38,6 @@ if (ko.skin == undefined)
     const   PREF_CUSTOM_ICONS     = 'koSkin_custom_icons',
             PREF_CUSTOM_SKIN      = 'koSkin_custom_skin',
             PREF_USE_GTK_DETECT   = 'koSkin_use_gtk_detection',
-            PREF_USE_CUSTOM_SCROLLBARS = 'koSkin_use_custom_scrollbars',
             PREF_EDITOR_SCHEME    = 'editor-scheme';
     
     // Old preference value reference
@@ -76,8 +75,6 @@ if (ko.skin == undefined)
             {
                 this.gtk.loadDetectedTheme();
             }
-
-            this._setupCustomScrollbars();
 
             this.loadSchemeSkinning();
             this.setSchemeClasses();
@@ -242,8 +239,6 @@ if (ko.skin == undefined)
                 this._loadCustomSkin(uri);
             }
 
-            this._setupCustomScrollbars();
-
             koLess.reload();
             setTimeout(function()
             {
@@ -266,29 +261,6 @@ if (ko.skin == undefined)
                     label: "Restart Later"
                 },
             ]);
-        },
-
-        /**
-         * Apply the custom scrollbar preferences
-         */
-        _setupCustomScrollbars: function()
-        {
-            var skinName = prefs.getString(PREF_CUSTOM_SKIN, "");
-            try
-            {
-                Cc["@mozilla.org/categorymanager;1"]
-                  .getService(Ci.nsICategoryManager)
-                  .getCategoryEntry("komodo-skins-use-custom-scrollbars",
-                                    skinName);
-                prefs.setBooleanPref(PREF_USE_CUSTOM_SCROLLBARS, true);
-                log.debug("Using custom scrollbars for " + skinName);
-            }
-            catch (ex)
-            {
-                // no category entry
-                prefs.setBooleanPref(PREF_USE_CUSTOM_SCROLLBARS, false);
-                log.debug("Not using custom scrollbars for " + skinName);
-            }
         },
 
         /**

@@ -145,32 +145,11 @@
                                             "anonid", "scrollbar_v"),
                     onUpdateUI: (function(updated, horizScrollPageIncrement) {
                         const ISciMoz = Components.interfaces.ISciMoz;
-                        const scimoz = this.scimoz;
                         if (updated & ISciMoz.SC_UPDATE_H_SCROLL) {
-                            let scrollbar = this._scrollEventHandler.horizontal;
-                            if (!scrollbar.suppress) {
-                                scrollbar.setAttribute("curpos", scimoz.xOffset);
-                                scrollbar.setAttribute("pageincrement", horizScrollPageIncrement);
-                                scrollbar.setAttribute("maxpos", scimoz.scrollWidth - horizScrollPageIncrement);
-                                scrollbar.setAttribute("can-scroll",
-                                                       scimoz.scrollWidth > horizScrollPageIncrement);
-                            }
+                            this.updateScrollbarH(horizScrollPageIncrement);
                         }
                         if (updated & ISciMoz.SC_UPDATE_V_SCROLL) {
-                            let scrollbar = this._scrollEventHandler.vertical;
-                            let lastDocLine = scimoz.lineCount - 1;
-                            if (!scrollbar.suppress) {
-                                scrollbar.setAttribute("curpos", scimoz.firstVisibleLine);
-                                scrollbar.setAttribute("pageincrement", scimoz.linesOnScreen);
-                                let maxVisibleLine = scimoz.visibleFromDocLine(lastDocLine) +
-                                                     scimoz.wrapCount(lastDocLine);
-                                scrollbar.setAttribute("maxpos",
-                                                       maxVisibleLine -
-                                                            scimoz.linesOnScreen);
-                                scrollbar.setAttribute("can-scroll",
-                                                       maxVisibleLine >
-                                                            scimoz.linesOnScreen);
-                            }
+                            this.updateScrollbarV();
                         }
                     }).bind(this),
                     QueryInterface:
@@ -193,6 +172,52 @@
             <field name='needToStopAltPropagation'>false</field>
             <field name='_dragScrollHits'>1</field>
 <!-- #endif -->
+
+            <!--Virtual Scrollbars-->
+            <method name="updateScrollbarH">
+            <parameter name="horizScrollPageIncrement"/>
+            <body>
+            <![CDATA[
+                horizScrollPageIncrement = horizScrollPageIncrement || 0;
+                
+                const ISciMoz = Components.interfaces.ISciMoz;
+                const scimoz = this.scimoz;
+                
+                let scrollbar = this._scrollEventHandler.horizontal;
+                if (!scrollbar.suppress) {
+                    scrollbar.setAttribute("curpos", scimoz.xOffset);
+                    scrollbar.setAttribute("pageincrement", horizScrollPageIncrement);
+                    scrollbar.setAttribute("maxpos", scimoz.scrollWidth - horizScrollPageIncrement);
+                    scrollbar.setAttribute("can-scroll", scimoz.wrapMode ? false :
+                                                         scimoz.scrollWidth > horizScrollPageIncrement);
+                }
+            ]]>
+            </body>
+            </method>
+            
+            <method name="updateScrollbarV">
+            <body>
+            <![CDATA[
+                const ISciMoz = Components.interfaces.ISciMoz;
+                const scimoz = this.scimoz;
+                
+                let scrollbar = this._scrollEventHandler.vertical;
+                let lastDocLine = scimoz.lineCount - 1;
+                if (!scrollbar.suppress) {
+                    scrollbar.setAttribute("curpos", scimoz.firstVisibleLine);
+                    scrollbar.setAttribute("pageincrement", scimoz.linesOnScreen);
+                    let maxVisibleLine = scimoz.visibleFromDocLine(lastDocLine) +
+                                         scimoz.wrapCount(lastDocLine);
+                    scrollbar.setAttribute("maxpos",
+                                           maxVisibleLine -
+                                                scimoz.linesOnScreen);
+                    scrollbar.setAttribute("can-scroll",
+                                           maxVisibleLine >
+                                                scimoz.linesOnScreen);
+                }
+            ]]>
+            </body>
+            </method>
 
             <!--nsIObserver implementation-->
             <method name="observe">
@@ -467,6 +492,9 @@
                                             {attributes: true, attributeFilter: ["curpos"]});
                         this.scimoz.useCustomScrollBars = true;
                         this._customScrollbarObservers = ob;
+                        
+                        this.updateScrollbarH();
+                        this.updateScrollbarV();
                     } else {
                         this.scimoz.unhookEvents(this._scrollEventHandler);
                         this.scimoz.useCustomScrollBars = false;
