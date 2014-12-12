@@ -325,7 +325,7 @@ menuitem.languageicon image {
   /* Push the image to the right of the menuitem checkbox. */
   margin-left: 24px;
   max-width: 24px !important;
-  width: 24px;
+  width: 24px !important;
   height: 24px !important;
 }
 
@@ -335,8 +335,8 @@ menupopup menupopup menuitem.languageicon {
 menupopup menupopup menuitem.languageicon image {
   /* Push the image to the right of the menuitem checkbox. */
   margin-left: 16px;
-  max-width: 16px;
-  width: 16px;
+  max-width: 16px !important;
+  width: 16px !important;
   height: 16px !important;
 }
 treechildren::-moz-tree-image(DefaultLanguage) {
