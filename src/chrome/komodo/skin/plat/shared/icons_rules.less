@@ -1,3 +1,45 @@
+/* Force icon size for HiDPI displays */
+
+button, toolbarbutton, menuitem
+{
+    &[class$='-icon'] image, [class$='-icon'] image,
+    &[class$='_icon'] image, [class$='_icon'] image,
+    image[class$='-icon'], image[class$='-icon'],
+    image[class$='_icon'], image[class$='_icon']
+    {
+        max-width: 16px;
+    }
+}
+
+.toolbarbutton-icon,
+.button-icon,
+.menu-iconic-icon,
+treechildren::-moz-tree-image,
+.textbox-search-icon,
+.native_file_image,
+dropmarker > image
+{
+    max-width: 16px;
+}
+
+#main-toolboxrow toolbarbutton > image,
+#main-toolboxrow toolbarbutton .toolbarbutton-icon
+{
+    width: 16px;
+    max-width: none;
+}
+
+#placesViewbox_placesWrapper
+#findresults_tabpanel-toolbarbox,
+.panel-toolbar-buttons
+{
+    toolbarbutton image &.toolbarbutton-icon,
+    button image &.toolbarbutton-icon
+    {
+        max-width: 14px;
+    }
+}
+
 /* Icon Tweaks */
 treechildren::-moz-tree-image(project-icon),
 #placesSubpanelProjectsTreechildren_SPV::-moz-tree-image
