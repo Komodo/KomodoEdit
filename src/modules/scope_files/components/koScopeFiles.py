@@ -83,7 +83,7 @@ class koScopeFiles:
     def buildCache(self, path, opts):
         opts = json.loads(opts)
         opts["uuid"] = "cache-builder"
-        walker = Walker(opts)
+        walker = Walker(self, opts)
         t = threading.Thread(target=walker.start, args=(path, ),
                              name="Scope files build cache")
         t.setDaemon(True)
