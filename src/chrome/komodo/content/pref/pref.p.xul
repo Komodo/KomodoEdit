@@ -422,7 +422,7 @@
             <hbox style="overflow-x: auto; overflow-y: hidden;">
                 <button id="prefs_help_button" label="&help.label;" accesskey="&prefsHelpButton.accesskey;" oncommand="doHelp();"/>
                 <separator flex="1"/>
-                <button label="&OK.label;" default="true" oncommand="doOk();"/>
+                <button label="&OK.label;" oncommand="doOk();"/>
                 <button label="&cancel.label;" oncommand="doCancel();"/>
                 <button label="&Apply.label;" default="true" oncommand="doApply();"/>
             </hbox>
