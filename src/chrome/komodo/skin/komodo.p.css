@@ -324,9 +324,20 @@ menuitem.languageicon {
 menuitem.languageicon image {
   /* Push the image to the right of the menuitem checkbox. */
   margin-left: 24px;
-  max-width: 24px;
+  max-width: 24px !important;
   width: 24px;
   height: 24px !important;
+}
+
+menupopup menupopup menuitem.languageicon {
+  height: 24px;
+}
+menupopup menupopup menuitem.languageicon image {
+  /* Push the image to the right of the menuitem checkbox. */
+  margin-left: 16px;
+  max-width: 16px;
+  width: 16px;
+  height: 16px !important;
 }
 treechildren::-moz-tree-image(DefaultLanguage) {
   /* Put spacing around the tree images. */
