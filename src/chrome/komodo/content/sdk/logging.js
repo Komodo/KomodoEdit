@@ -78,6 +78,7 @@ if (typeof(require) === "function") {
 
 var _gLoggingMgr = null;
 var _gSeenDeprectatedMsg = {};
+var _gLoggers = {};
 
 const LOG_NOTSET = 0;
 const LOG_DEBUG = 10;
@@ -705,6 +706,17 @@ exports.dumpView = function(view) {
     dump("--------------------------------------\n");
 }
 
+exports.setGlobalLevel = function(level) {
+    require("notify/notify").send("Setting global logging level,\
+                                  do not use this unless you know what you're doing",
+            "dev", {priority: "warning"})
+    
+    for (let k in _gLoggers)
+    {
+        getLogger(k).setLevel(level);
+    }
+}
+
 const LoggingMgr = exports.LoggingMgr = function() {
     this.LoggerMap = {}
     this.loggingSvc = Cc["@activestate.com/koLoggingService;1"]
@@ -729,6 +741,7 @@ const getLoggingMgr = exports.getLoggingMgr = function() {
 }
 
 const getLogger = exports.getLogger = function(logger_name) {
+    _gLoggers[logger_name] = true;
     return getLoggingMgr().getLogger(logger_name);
 }
 
