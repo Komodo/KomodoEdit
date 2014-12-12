@@ -26,12 +26,14 @@ def run(argv, stdout=False, check=True):
         raise subprocess.CalledProcessError(proc.returncode, argv[0])
     return output
 
-def codesign(app, certificate=None, password=""):
+def codesign(app, certificate=None, password="", codesign_exe=None):
     """ Sign the given application
     @param app {str} The absolute path to the .app bundle to sign
     @param certificate {str} The absolute path to a PKCS12 file containing both
         the certificate and the private key used to sign.  It must have an empty
         password.  This can be exported via Keychain Access.
+    @param password {str} Optional, used if the certificate requires a password.
+    @param codesign_exe {str} Optional, location of codesign executable to use.
     """
     if not os.path.exists(os.path.join(app, "Contents", "Info.plist")):
         raise RuntimeError("%s does not appear to be an application" % (app,))
@@ -39,6 +41,10 @@ def codesign(app, certificate=None, password=""):
         raise RuntimeError("No certificate given")
     if not os.path.exists(certificate):
         raise RuntimeError("Certificate file does not exist")
+    if not codesign_exe:
+        codesign_exe = "/usr/bin/codesign"
+    if not os.path.exists(codesign_exe):
+        raise RuntimeError("codesign exe does not exist at %r" % (codesign_exe,))
 
     dirname = os.path.dirname(os.path.abspath(__file__))
     tempdir = tempfile.mkdtemp()
@@ -52,7 +58,7 @@ def codesign(app, certificate=None, password=""):
             argv += ["-P", password]
         else:
             print("Please enter passpharse (via the GUI)...")
-        argv += ["-x", "-T", "/usr/bin/codesign"]
+        argv += ["-x", "-T", codesign_exe]
         run(argv)
         run(["/usr/bin/security", "unlock-keychain", "-p", "", keychain])
         stdout = run(["/usr/bin/security", "find-identity", "-v",
@@ -64,7 +70,7 @@ def codesign(app, certificate=None, password=""):
                 break
         else:
             raise RuntimeError("Failed to find identity in imported keychain")
-        run(["/usr/bin/codesign", "--sign", identity,
+        run([codesign_exe, "--sign", identity,
              "--keychain", keychain, "--force", "--verbose",
              "--requirements", os.path.join(dirname, "requirements.txt"),
              "--resource-rules", os.path.join(dirname, "CodeResources.plist"),
@@ -76,8 +82,8 @@ def codesign(app, certificate=None, password=""):
         if os.path.exists(tempdir):
             os.rmdir(tempdir)
     # Display the new requirements so we can see it in the logs
-    run(["/usr/bin/codesign", "--display", "--requirements", "-", app])
-    run(["/usr/bin/codesign", "--verify", "--verbose", app])
+    run([codesign_exe, "--display", "--requirements", "-", app])
+    run([codesign_exe, "--verify", "--verbose", app])
 
 def main():
     import optparse

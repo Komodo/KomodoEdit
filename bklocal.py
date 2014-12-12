@@ -3260,6 +3260,34 @@ class MSIRegistryId(black.configure.Datum):
         self.determined = 1
 
 
+class OSXCodeSignExecutable(black.configure.Datum):
+    """Optional codesign executable to sign the Mac application bundle with."""
+    def __init__(self):
+        self.longopt = "with-osx-codesign-executable"
+        black.configure.Datum.__init__(self, "osxCodeSignExecutable",
+            desc="Path to codesign executable for Mac OSX code signing",
+            acceptedOptions=("", [self.longopt + "="]))
+
+    def _Determine_Sufficient(self):
+        if not self.applicable:
+            return
+        if self.value is not None:
+            if not os.path.exists(self.value):
+                raise black.configure.ConfigureError(
+                    "OSX codesign executable does not exist %r" % (self.value,))
+
+    def _Determine_Do(self):
+        if sys.platform == "darwin":
+            self.applicable = True
+            for opt, optarg in self.chosenOptions:
+                if opt == "--"+self.longopt:
+                    self.value = os.path.abspath(optarg)
+                    break
+        else:
+            self.applicable = False
+        self.determined = True
+
+
 class OSXCodeSigningCert(black.configure.Datum):
     """The code signing certificate to use to sign the Mac OSX application
     bundle. It should be a PKCS12 or x509/PEM file with no password."""

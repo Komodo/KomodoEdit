@@ -748,7 +748,8 @@ configuration = {
     "msiVccrtRedistPath": MSIVccrtRedistPath(),
     "msiVccrtPolicyMsmPath": MSIVccrtPolicyMsmPath(),
 
-    # OSX packagig:
+    # OSX packaging:
+    "osxCodeSignExecutable": OSXCodeSignExecutable(),
     "osxCodeSigningCert": OSXCodeSigningCert(),
 
     "komodoPackageBase": KomodoPackageBase(),
@@ -1466,10 +1467,11 @@ def _PackageKomodoDMG(cfg):
     if hasattr(cfg, "osxCodeSigningCert"):
         codesignDir = os.path.join(cfg.komodoDevDir, "src/install/osx-codesign")
         try:
+            codesign_exe = getattr(cfg, "osxCodeSignExecutable", None)
             sys.path.append(codesignDir)
             import codesign
             codesign.codesign(os.path.join(cfg.installRelDir, cfg.macKomodoAppInstallName),
-                              cfg.osxCodeSigningCert)
+                              cfg.osxCodeSigningCert, codesign_exe=codesign_exe)
         finally:
             sys.path.remove(codesignDir)
 
