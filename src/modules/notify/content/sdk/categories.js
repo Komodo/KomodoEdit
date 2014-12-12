@@ -99,4 +99,6 @@ categories.register("places", { label: "Places" });
 
 categories.register("fs", { label: "Filesystem" });
 
+categories.register("dev", { label: "Development" });
+
 module.exports = categories;
