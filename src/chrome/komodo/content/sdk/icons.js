@@ -288,8 +288,6 @@
                 return callback();
             namespace = relativePath.shift();
             
-            //koicon://ko-svg/chrome/komodo/skin/images/codeintel/cb_class.svg
-            
             // Generate unique id for query based on the params
             var params = sdkQuery.parse(url.search.substr(1));
             params.size = Math.round((params.size || 16) * window.devicePixelRatio);
@@ -299,16 +297,20 @@
                 var preset = ("preset" in params) ? params.preset : 'base';
                 if (preset == "hud")
                 {
+                    log.debug("Using hud preset");
+                    
                     var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
                     var scheme = schemeService.getScheme(prefs.getString("editor-scheme"));
                     params.fill = scheme.isDarkBackground ? "#C8C8C8" : "#4B4B4B";
                 }
                 else if (prefs.hasStringPref("iconset-" + preset + "-defs"))
                 {
+                    log.debug("Using "+preset+" preset defs");
                     params.defs = prefs.getStringPref("iconset-" + preset + "-defs");
                 }
                 else if (prefs.hasStringPref("iconset-base-defs"))
                 {
+                    log.debug("Using base preset defs");
                     params.defs = prefs.getStringPref("iconset-base-defs");
                 }
                 else 
@@ -318,18 +320,24 @@
                         preset = "base";
                     }
                     
+                    log.debug("Using "+preset+" preset color");
+                    
                     params.fill = prefs.getStringPref("iconset-" + preset + "-color");
                 }
             }
 
             if ("color" in params)
             {
+                log.debug("Using custom color");
+                
                 params.fill = params.color;
                 delete params.color;
             }
 
             if ("defs" in params)
             {
+                log.debug("Using custom defs");
+                
                 var defs = params.defs;
                 var path = "chrome://komodo/skin/svg/defs/" + defs + ".xml";
                 params.defs = prefs.getString("ko-svg-defs-" + defs, path);
@@ -341,7 +349,10 @@
                 var iconFile = FileUtils.getFile(namespace, relativePath, true);
                 if (iconFile.exists())
                     filePointer = iconFile.path;
-            } catch (e) {}
+            } catch (e)
+            {
+                log.exception("Failed calling getFile from file path: " + relativePath, e);
+            }
 
             if ( ! filePointer)
                 filePointer = namespace + "://" + relativePath.join("/");
@@ -595,10 +606,22 @@
             case "fileicon":
             case "language":
             default:
-                return self.handlers.fileicon.getIconForUri(uri, namespace, relativePath, callback);
+                try
+                {
+                    return self.handlers.fileicon.getIconForUri(uri, namespace, relativePath, callback);
+                } catch (e)
+                {
+                    log.exception(e, "failed retrieving fileicon");
+                }
                 break;
             case "svg":
-                return self.handlers.svg.getIconForUri(uri, namespace, relativePath, callback);
+                try
+                {
+                    return self.handlers.svg.getIconForUri(uri, namespace, relativePath, callback);
+                } catch (e)
+                {
+                    log.exception(e, "failed retrieving svg icon");
+                }
                 break;
         }
     }

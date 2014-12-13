@@ -52,6 +52,8 @@ IconProtocolHandler.prototype = {
     newChannel: function Proto_newChannel(aURI)
     {
         var channel = new IconChannel();
+        
+        log.debug("Opening " + aURI.spec);
 
         channel.name = aURI.spec;
         channel.originalURI = aURI;
