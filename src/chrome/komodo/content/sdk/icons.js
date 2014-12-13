@@ -579,8 +579,10 @@
 
         log.debug("Retrieving icon for " + uri);
 
-        if (uri in this.getIconForUri.cached)
-            return window.setTimeout(function() { callback(self.getIconForUri.cached[uri]) },0);
+        if (uri in this.getIconForUri.cached) {
+            log.debug("Returning cached version");
+            return callback(self.getIconForUri.cached[uri]);
+        }
 
         var namespace = "";
         var relativePath = "";
