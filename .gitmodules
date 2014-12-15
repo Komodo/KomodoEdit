@@ -6,3 +6,7 @@
 	path = src/modules/golang
 	url = https://github.com/Komodo/komodo-go
 	branch = master
+[submodule "src/modules/markdown-viewer"]
+	path = src/modules/markdown-viewer
+	url = https://github.com/Komodo/markdown-viewer.git
+	branch = master
