@@ -351,7 +351,7 @@
                     filePointer = iconFile.path;
             } catch (e)
             {
-                log.exception("Failed calling getFile from file path: " + relativePath, e);
+                log.debug("Failed calling getFile from file path: " + relativePath.join("/"));
             }
 
             if ( ! filePointer)
