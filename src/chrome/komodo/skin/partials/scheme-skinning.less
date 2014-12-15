@@ -132,7 +132,7 @@
 }
 
 .hud scrollbar,
-view[type="editor"] scrollbar
+scintilla scrollbar
 {
     border: 0;
     background: transparent;
@@ -146,14 +146,14 @@ view[type="editor"] scrollbar
 
     thumb
     {
-        -moz-appearance: none;
+        -moz-appearance: none !important;
         background: @background-scrollbar-thumb !important;
         border: 0;
     }
 
     thumb:hover
     {
-        -moz-appearance: none;
+        -moz-appearance: none !important;
         background: @background-scrollbar-thumb-hover !important;
     }
 

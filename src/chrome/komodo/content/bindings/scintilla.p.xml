@@ -178,7 +178,7 @@
             <parameter name="horizScrollPageIncrement"/>
             <body>
             <![CDATA[
-                horizScrollPageIncrement = horizScrollPageIncrement || 0;
+                horizScrollPageIncrement = horizScrollPageIncrement || this.boxObject.width;
                 
                 const ISciMoz = Components.interfaces.ISciMoz;
                 const scimoz = this.scimoz;
@@ -190,6 +190,18 @@
                     scrollbar.setAttribute("maxpos", scimoz.scrollWidth - horizScrollPageIncrement);
                     scrollbar.setAttribute("can-scroll", scimoz.wrapMode ? false :
                                                          scimoz.scrollWidth > horizScrollPageIncrement);
+                }
+                
+                // Scintilla isn't sized properly on first load, attempt to redetect size on a timeout
+                // Using document readyState & DOMContentLoaded does not work here
+                if (horizScrollPageIncrement == this.boxObject.width) {
+                    setTimeout(function() {
+                        horizScrollPageIncrement = this.boxObject.width;
+                        scrollbar.setAttribute("pageincrement", horizScrollPageIncrement);
+                        scrollbar.setAttribute("maxpos", scimoz.scrollWidth - horizScrollPageIncrement);
+                        scrollbar.setAttribute("can-scroll", scimoz.wrapMode ? false :
+                                                             scimoz.scrollWidth > horizScrollPageIncrement);
+                    }.bind(this), 100);
                 }
             ]]>
             </body>
@@ -636,9 +648,9 @@
                 scimoz.setMarginSensitiveN(scimoz.MARGIN_FOLDING, 1);
 
                 // Setup custom scroll bars.
-                this.useCustomScrollBars = prefs.getBoolean('koSkin_use_custom_scrollbars', false);
                 scimoz.hScrollBar = this.hScrollBar;
                 scimoz.vScrollBar = this.vScrollBar;
+                this.useCustomScrollBars = prefs.getBoolean('koSkin_use_custom_scrollbars', false);
 
                 this.applyColorScheme();
 
