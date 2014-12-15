@@ -423,6 +423,7 @@ Build(
     "$build/modules/openfiles/Conscript",
     "$build/modules/getstarted/Conscript",
     "$build/modules/golang/Conscript",
+    "$build/modules/markdown-viewer/Conscript",
     "$build/modules/rails/Conscript",
     "$build/modules/spellcheck/Conscript",
     "$build/modules/trackchanges/Conscript",
