@@ -229,7 +229,7 @@ MoreKomodoCommon.moveFile = function(path, newPath, command = "move") {
         var isOk = (res == Components.interfaces.nsIFilePicker.returnOK
                     || res == Components.interfaces.nsIFilePicker.returnReplace);
 
-        if (isOK && fp.file)
+        if (isOk && fp.file)
         {
             file = fp.file;
 
