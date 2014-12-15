@@ -295,14 +295,14 @@ Categories=__GNOME_DESKTOP_CATEGORIES__
     class ShortcutInstallError(Exception):
         pass
 
+    # Write desktop file to a temporary file.
+    fd, tempPath = tempfile.mkstemp(suffix='.desktop', prefix='komodo_shortcut')
+    os.write(fd, content)
+    os.close(fd)
+
     try:
         if suppressShortcut:
             raise ShortcutInstallError("shortcut suppressed by user")
-
-        # Write desktop file to a temporary file.
-        fd, tempPath = tempfile.mkstemp(suffix='.desktop', prefix='komodo_shortcut')
-        os.write(fd, content)
-        os.close(fd)
 
         # Use 'xdg-desktop-menu' and 'xdg-desktop-icon' if it's available.
         xdg_exe_name = 'xdg-desktop-menu'
@@ -358,6 +358,11 @@ Categories=__GNOME_DESKTOP_CATEGORIES__
     else:
         log.info("'__GNOME_DESKTOP_NAME__' desktop shortcut created at '%s'",
                  shortcutPath)
+    finally:
+        try:
+            os.remove(tempPath)
+        except:
+            pass
 
 def _gen_so_paths(basedir):
     for dirpath, dirnames, filenames in os.walk(basedir):
