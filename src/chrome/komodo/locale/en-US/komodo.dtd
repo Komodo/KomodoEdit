@@ -524,7 +524,6 @@
 <!ENTITY openThisProjectInNewWindow.label "Open Project In New Window">
 <!ENTITY openRemoteProject.label "Open Remote Project...">
 <!ENTITY tabPlacement.label "Placement">
-<!ENTITY tabFileChanges.label "File Changes">
 <!ENTITY tabFileActions.label "File Actions">
 <!ENTITY openTabInNewWindow.label "Open in a New Window">
 <!ENTITY openURLInBrowser.label "Open URL In Browser">

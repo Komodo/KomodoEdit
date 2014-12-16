@@ -358,10 +358,10 @@
                             label="&splitView.label;"/>
             </menupopup>
         </menu>
+        <menu id="menu_tab_actions"
+                label="&tabFileActions.label;">
+            <menupopup id="menu_tab_actions_popup">
 
-        <menu id="menu_tab_changes"
-                label="&tabFileChanges.label;">
-            <menupopup>
                 <menuitem id="menu_save2"
                           observes="cmd_save"
                           label="&save.label;"/>
@@ -382,7 +382,6 @@
                             label="&template.label;"/>
                     </menupopup>
                 </menu>
-
                 <menuitem id="menu_showUnsavedChanges2"
                           label="&showUnsavedChanges.label;"
                           observes="cmd_showUnsavedChanges"/>
@@ -391,12 +390,14 @@
                           accesskey="&menuRevert.accesskey;"
                           observes="cmd_revert"
                           />
-            </menupopup>
-        </menu>
-        <menu id="menu_tab_actions"
-                label="&tabFileActions.label;">
-            <menupopup id="menu_tab_actions_popup">
-                <!-- MoreKomodo Items -->
+
+                <menuseparator id="tabContextMenu_separator_file_action_changes" />
+
+                <menuseparator id="tabContextMenu_separator_advanced" />
+
+                <menuitem id="buffertab-context-mapuri"
+                          label="&createMappedURI.label;"
+                          observes="cmd_createMappedURI"/>
             </menupopup>
         </menu>
 
