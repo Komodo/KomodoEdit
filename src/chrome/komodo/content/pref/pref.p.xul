@@ -188,6 +188,24 @@
                             </treerow>
                         </treeitem>
         
+                        <treeitem container="false" id="newFilesItem" advanced="true">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-newfiles.xul"
+                                          label="&newFiles.label;"
+                                          helptag="new_files"/>
+                            </treerow>
+                        </treeitem>
+
+                        <treeitem container="false" id="editSaveItem" advanced="true">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-save.xul"
+                                          label="&saveOptions.label;"
+                                          helptag="save_options"/>
+                            </treerow>
+                        </treeitem>
+        
                         <treeitem container="false" id="findItem" advanced="true">
                             <treerow>
                                 <treecell class="treecell-indent"
@@ -318,24 +336,6 @@
                             </treerow>
                         </treeitem>
                         
-                        <treeitem container="false" id="newFilesItem" advanced="true">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-newfiles.xul"
-                                          label="&newFiles.label;"
-                                          helptag="new_files"/>
-                            </treerow>
-                        </treeitem>
-
-                        <treeitem container="false" id="editSaveItem" advanced="true">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-save.xul"
-                                          label="&saveOptions.label;"
-                                          helptag="save_options"/>
-                            </treerow>
-                        </treeitem>
-        
                         <treeitem container="false" id="printItem">
                             <treerow>
                                 <treecell class="treecell-indent"
