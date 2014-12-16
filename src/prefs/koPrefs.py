@@ -795,32 +795,25 @@ class koPreferenceChild(koPreferenceSetBase):
         shadow pref which should not be serialized"""
         return self.inheritFrom is not None
 
-    def _unshadow(self):
+    def _unshadow(self, check_container=True):
         """Creates a hard copy of the inherited pref set."""
         if not self._is_shadow:
             return
-        # We have to unshadow all child preference sets in holding containers.
-        if self.container and self.container._is_shadow:
+        # We have to unshadow all parent preference sets.
+        if check_container and self.container and self.container._is_shadow:
             self.container._unshadow()
+            return
 
         log.debug("Unshadowing %r ", self.id)
         new_prefs = {}
         for prefid, (pref, typ) in self.inheritFrom.prefs.items():
             if typ == "object":
+                # We have to unshadow all child preference sets.
+                pref = self.getPref(prefid)
                 pref = UnwrapObject(pref)
-                if isinstance(pref, koPreferenceSetBase):
-                    shadow = koPreferenceChild()
-                    shadow.id = pref.id
-                    if hasattr(shadow, "container"):
-                        shadow.container = self
-                elif isinstance(child_base, koOrderedPreference):
-                    shadow = koOrderedPreference()
-                else:
-                    raise ServerException(nsError.NS_ERROR_UNEXPECTED,
-                                          "Don't know how to detach %s"
-                                            % (type(pref,)))
-                shadow.inheritFrom = pref
-                pref = shadow
+                assert pref._is_shadow
+                pref._unshadow(check_container=False)
+                assert not pref._is_shadow
             elif typ not in ("string", "long", "double", "boolean"):
                 raise ServerException(nsError.NS_ERROR_UNEXPECTED,
                                       "unknown type '%s'" % (typ,))

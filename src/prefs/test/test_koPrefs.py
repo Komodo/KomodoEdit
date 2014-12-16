@@ -20,6 +20,42 @@ from testlib import tag
 
 log = logging.getLogger("test.koprefs")
 
+def _deserializePrefString(content):
+    fd, path = tempfile.mkstemp(suffix=".xml")
+    try:
+        os.write(fd, content)
+        os.close(fd)
+        return (Cc["@activestate.com/koPreferenceSetObjectFactory;1"]
+                    .getService()
+                    .deserializeFile(path))
+    finally:
+        os.remove(path)
+
+def _serializePrefToString(prefset):
+    fd, path = tempfile.mkstemp(suffix=".xml")
+    os.close(fd)
+    try:
+        prefset.serializeToFile(path)
+        return file(path).read()
+    finally:
+        os.remove(path)
+
+def prettify_tree(elem, level=0):
+    i = "\n" + level*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            prettify_tree(elem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+    return elem
+
 class PrefsCloneTestCase(unittest.TestCase):
     """Test that cloning prefs actually gives new prefs (bug 98861)"""
     _children = {"string": "hello",
@@ -292,9 +328,17 @@ class PrefSerializeTestCase(unittest.TestCase):
             cleanup(second)
         if (first is None and second is not None) or (second is None and first is not None):
             self.fail("unequal elements: first %r, second %r" % (first, second))
-        self.assertEqual(ET.tostring(first),
-                         ET.tostring(second),
-                         msg=msg)
+        first_string = ET.tostring(prettify_tree(first, level=2))
+        second_string = ET.tostring(prettify_tree(second, level=2))
+        if not msg:
+            msg = 'xml is not equal'
+        msg += "\nfirst_string:\n" + first_string + \
+               "\nsecond_string:\n" + second_string
+        if first_string != second_string:
+            # Could be xml ordering - try reparsing to ensure consistent ordering.
+            first_string = _serializePrefToString(_deserializePrefString(first_string))
+            second_string = _serializePrefToString(_deserializePrefString(second_string))
+        self.assertEqual(first_string, second_string, msg=msg)
 
     def assertSerializesTo(self, pref_root, expected_xml, msg=None):
         """Assert that the given preference root will serialize to the given
@@ -430,3 +474,33 @@ class PrefSerializeTestCase(unittest.TestCase):
                 <preference-set id="child" />
                 <ordered-preference id="ordered" />
             </preference-set>""")
+
+    @tag("bug105850")
+    def test_formatter_modify_prefs(self):
+        """Ensure formatters can properly change their preferences."""
+        pref_string = """
+          <preference-set id="default">
+            <preference-set id="{a5b90f01-8d7b-4006-8b44-e59ea21c968d}">
+              <string id="formatter_name">generic</string>
+              <string id="lang">Python</string>
+              <string id="name">Reindent</string>
+              <preference-set id="genericFormatterPrefs">
+                <string id="arguments">"%(path:komodoPythonLibDir)/reindent.py" -i %(pref:indentWidth)</string>
+                <string id="executable">%(python)</string>
+              </preference-set>
+            </preference-set>
+          </preference-set>
+        """
+        base = _deserializePrefString(pref_string)
+        root = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
+        root.inheritFrom = base
+
+        # Change prefs and save.
+        uuid = "{a5b90f01-8d7b-4006-8b44-e59ea21c968d}"
+        reindent = root.getPref(uuid)
+        reindent.setString("name", "Reindenta")
+        root.setPref(uuid, reindent)
+
+        # We should end up with a full copy of these prefs on the root.
+        result_pref_string = pref_string.replace("Reindent", "Reindenta")
+        self.assertSerializesTo(root, result_pref_string)

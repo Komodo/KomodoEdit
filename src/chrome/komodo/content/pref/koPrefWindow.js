@@ -724,14 +724,15 @@ koPrefWindow.prototype =
                 this.orig_prefset.prefObserverService.removeObserver(this, '' /* all prefs */);
             } catch(e) { /* do nothing */ }
             let ids = {};
+
             /**
-             * Trim any newly-set preferences that are the same as old prefs
+             * Check if the newly-set preferences are the same as old prefs.
              * @param oldset {koIPreferenceSet} The old pref set
              * @param newset {koIPreferenceSet} The new pref set
-             * @param id {String} The sub-pref to check/trim
-             * @returns {Boolean} True if the two sub-prefs are equal and have been trimmed
+             * @param id {String} The sub-pref to check.
+             * @returns {Boolean} True if the two sub-prefs are equal.
              */
-            let trimEqualPrefs = function(oldset, newset, id) {
+            let _prefsEqual = function(oldset, newset, id) {
                 let type = newset.getPrefType(id);
                 if (!type) {
                     return false; // no need to check for non-existing prefs
@@ -746,61 +747,54 @@ koPrefWindow.prototype =
                         newPref instanceof Ci.koIPreferenceSet)
                     {
                         let children = newPref.getPrefIds();
-                        let hasDifference = false;
                         for (let child of children) {
-                            if (!trimEqualPrefs(oldPref, newPref, child)) {
-                                hasDifference = true;
+                            if (!_prefsEqual(oldPref, newPref, child)) {
+                                return false;
                             }
                         }
-                        if (!hasDifference) {
-                            newset.deletePref(id);
-                            return true;
-                        }
-                        return false;
                     } else if (oldPref instanceof Ci.koIOrderedPreference &&
                                newPref instanceof Ci.koIOrderedPreference)
                     {
                         if (oldPref.length != newPref.length) {
-                            return false; // Different length; overwrite
+                            return false; // Different length
                         }
-                        // Don't actually modify the new set, since order matters
-                        let tempPref = newPref.clone();
-                        for (let i = newPref.length - 1; i >= 0; --i) {
-                            if (!trimEqualPrefs(oldPref, tempPref, i)) {
+                        for (let i=0; i < newPref.length; i++) {
+                            if (!_prefsEqual(oldPref, newPref, i)) {
                                 return false;
                             }
                         }
-                        // Getting here means the two are exactly the same
-                        newset.deletePref(id);
-                        return true;
-                    }
-                    // Reaching here means we failed to have type-specific logic
-                    let path = [];
-                    try {
-                        for (let parent = oldPref; parent; parent = parent.parent) {
-                            path.push(parent.id);
+                    } else {
+                        // Reaching here means we failed to have type-specific logic
+                        let path = [];
+                        try {
+                            for (let parent = oldPref; parent; parent = parent.parent) {
+                                path.push(parent.id);
+                            }
+                        } catch (ex) {
+                            /* ignore - shouldn't throw, nothing we can do */
                         }
-                    } catch (ex) {
-                        /* ignore - shouldn't throw, nothing we can do */
+                        prefLog.warn("Can't deal with preference object of types " +
+                                     String(oldPref) + " / " + String(newPref) +
+                                     " with id " + (path.reverse().join("::") || id));
+                        return false; // Can't deal with this pref type?
                     }
-                    prefLog.warn("Can't deal with preference object of types " +
-                                 String(oldPref) + " / " + String(newPref) +
-                                 " with id " + (path.reverse().join("::") || id));
-                    return false; // Can't deal with this pref type?
+                } else {
+                    let func = "get" + type.replace(/^./, function(c) c.toUpperCase()) + "Pref";
+                    let oldVal = oldset[func](id);
+                    let newVal = newset[func](id);
+                    if (oldVal != newVal) {
+                        return false;
+                    }
                 }
-                let func = "get" + type.replace(/^./, function(c) c.toUpperCase()) + "Pref";
-                let oldVal = oldset[func](id);
-                let newVal = newset[func](id);
-                let equals = (oldVal == newVal);
-                if (equals) {
-                    newset.deletePref(id);
-                }
-                return equals;
+                return true;
             }
+
             ids = this.prefset.getPrefIds();
             try {
                 for (let id of ids) {
-                    trimEqualPrefs(this.orig_prefset, this.prefset, id);
+                    if (_prefsEqual(this.orig_prefset, this.prefset, id)) {
+                        this.prefset.deletePref(id);
+                    }
                 }
             } catch(e) {
                 prefLog.exception(e, "Failed to trim unchanged prefs, may have unncessary values");
