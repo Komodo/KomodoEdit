@@ -65,6 +65,7 @@
         elem('search').on("keydown", onKeyNav.bind(this));
         elem('scope').on("command", onChangeScope.bind(this));
         elem('results').on("keydown", onKeyNav.bind(this));
+        elem('results').on("dblclick", onSelectResult.bind(this));
 
         local.transitKeyBinds = ko.prefs.getBoolean("transit_commando_keybinds", false);
         if (local.transitKeyBinds)
