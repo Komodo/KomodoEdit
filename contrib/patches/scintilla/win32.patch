@@ -1,25 +1,24 @@
 diff -u -r1.156 win32/ScintillaWin.cxx
 --- win32/ScintillaWin.cxx	12 May 2007 00:30:55 -0000	1.156
 +++ win32/ScintillaWin.cxx	23 May 2007 21:27:33 -0000
-@@ -99,7 +99,9 @@
- extern void Platform_Finalise();
- 
- typedef BOOL (WINAPI *TrackMouseEventSig)(LPTRACKMOUSEEVENT);
+@@ -107,6 +107,8 @@ typedef BOOL (WINAPI *TrackMouseEventSig)(LPTRACKMOUSEEVENT);
+ typedef UINT_PTR (WINAPI *SetCoalescableTimerSig)(HWND hwnd, UINT_PTR nIDEvent,
+ 	UINT uElapse, TIMERPROC lpTimerFunc, ULONG uToleranceDelay);
  
 +#define DISABLE_DRAG_DROP // KOMODO
 +
  // GCC has trouble with the standard COM ABI so do it the old C way with explicit vtables.
  
  const TCHAR scintillaClassName[] = TEXT("Scintilla");
-@@ -122,6 +124,7 @@
- 	FormatEnumerator(int pos_, CLIPFORMAT formats_[], int formatsLen_);
+@@ -149,6 +151,7 @@ public:
+ 	FormatEnumerator(int pos_, CLIPFORMAT formats_[], size_t formatsLen_);
  };
  
 +#ifndef DISABLE_DRAG_DROP
  /**
   */
  class DropSource {
-@@ -148,6 +151,7 @@
+@@ -175,6 +178,7 @@ public:
  	ScintillaWin *sci;
  	DropTarget();
  };
@@ -27,8 +26,8 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  
  /**
   */
-@@ -169,10 +173,11 @@
- 	CLIPFORMAT cfLineSelect;
+@@ -201,10 +205,11 @@ class ScintillaWin :
+ 	CLIPFORMAT cfVSLineTag;
  
  	HRESULT hrOle;
 +#ifndef DISABLE_DRAG_DROP
@@ -38,9 +37,9 @@ diff -u -r1.156 win32/ScintillaWin.cxx
 -
 +#endif
  	static HINSTANCE hInstance;
- 
- 	ScintillaWin(HWND hwnd);
-@@ -248,6 +253,7 @@
+ 	static ATOM scintillaClassAtom;
+ 	static ATOM callClassAtom;
+@@ -301,6 +306,7 @@ public:
  	// Public for benefit of Scintilla_DirectFunction
  	virtual sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
  
@@ -48,7 +47,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  	/// Implement IUnknown
  	STDMETHODIMP QueryInterface(REFIID riid, PVOID *ppv);
  	STDMETHODIMP_(ULONG)AddRef();
-@@ -307,17 +307,18 @@
+@@ -316,17 +322,18 @@ public:
  
  	/// Implement important part of IDataObject
  	STDMETHODIMP GetData(FORMATETC *pFEIn, STGMEDIUM *pSTM);
@@ -69,7 +68,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  private:
  	// For use in creating a system caret
  	bool HasCaretSizeChanged() const;
-@@ -289,6 +295,11 @@
+@@ -336,6 +343,11 @@ private:
  	int sysCaretWidth;
  	int sysCaretHeight;
  	bool keysAlwaysUnicode;
@@ -81,7 +80,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  };
  
  HINSTANCE ScintillaWin::hInstance = 0;
-@@ -317,11 +328,11 @@
+@@ -373,11 +385,11 @@ ScintillaWin::ScintillaWin(HWND hwnd) {
  	hrOle = E_FAIL;
  
  	wMain = hwnd;
@@ -95,7 +94,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  	sysCaretBitmap = 0;
  	sysCaretWidth = 0;
  	sysCaretHeight = 0;
-@@ -362,6 +373,7 @@
+@@ -536,6 +548,7 @@ bool ScintillaWin::DragThreshold(Point ptStart, Point ptNow) {
  }
  
  void ScintillaWin::StartDrag() {
@@ -103,7 +102,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  	inDragDrop = ddDragging;
  	DWORD dwEffect = 0;
  	dropWentOutside = true;
-@@ -381,6 +393,7 @@
+@@ -555,6 +568,7 @@ void ScintillaWin::StartDrag() {
  	}
  	inDragDrop = ddNone;
  	SetDragPosition(SelectionPosition(invalidPosition));
@@ -111,7 +110,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  }
  
  // Avoid warnings everywhere for old style casts by concentrating them here
-@@ -598,7 +611,9 @@
+@@ -971,7 +985,9 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
  			ctrlID = ::GetDlgCtrlID(reinterpret_cast<HWND>(wMain.GetID()));
  			// Get Intellimouse scroll line parameters
  			GetIntelliMouseParameters();
@@ -121,7 +120,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  			break;
  
  		case WM_COMMAND:
-@@ -669,7 +684,7 @@
+@@ -1042,7 +1058,7 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
  				else
  					wheelDelta = - (-wheelDelta % WHEEL_DELTA);
  
@@ -130,15 +129,15 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  					// Zoom! We play with the font sizes in the styles.
  					// Number of steps/line is ignored, we just care if sizing up or down
  					if (linesToScroll < 0) {
-@@ -675,6 +690,7 @@
- 		case WM_TIMER:
- 			if (wParam == standardTimerID && timer.ticking) {
- 				Tick();
-+				DragScroll();
- 			} else if (wParam == idleTimerID && idler.state) {
+@@ -1062,6 +1078,7 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
  				SendMessage(MainHWND(), SC_WIN_IDLE, 0, 1);
  			} else {
-@@ -726,7 +742,11 @@
+ 				TickFor(static_cast<TickReason>(wParam - fineTimerStart));
++				DragScroll();
+ 			}
+ 			break;
+ 
+@@ -1103,7 +1120,11 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
  			//	Platform::IsKeyDown(VK_SHIFT),
  			//	Platform::IsKeyDown(VK_CONTROL),
  			//	Platform::IsKeyDown(VK_MENU));
@@ -147,11 +146,11 @@ diff -u -r1.156 win32/ScintillaWin.cxx
 +    this is generaly bad because we do a lot of stuff there, see komodo.xul onfocus */
  			::SetFocus(MainHWND());
 +#endif
- 			ButtonDown(Point::FromLong(lParam), ::GetMessageTime(),
+ 			ButtonDown(Point::FromLong(static_cast<long>(lParam)), ::GetMessageTime(),
  				(wParam & MK_SHIFT) != 0,
  				(wParam & MK_CONTROL) != 0,
-@@ -1125,6 +1145,41 @@
- 	return contains;
+@@ -1573,6 +1594,41 @@ bool ScintillaWin::PaintContains(PRectangle rc) {
+ 	return true;
  }
  
 +void ScintillaWin::DragScroll() {
@@ -192,24 +191,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  void ScintillaWin::ScrollText(int /* linesToMove */) {
  	//Platform::DebugPrintf("ScintillaWin::ScrollText %d\n", linesToMove);
  	//::ScrollWindow(MainHWND(), 0,
-@@ -1345,8 +1400,16 @@
- 			}
- 			if (sel.MainCaret() == insertPos) {
- 				SetEmptySelection(sel.MainCaret() + len);
-+                                // XXX ActiveState bug 33804
-+                                if (ac.Active()) {
-+                                        AutoCompleteMoveToCurrentWord();
-+                                }
- 			}
- 		} else {
- 			InsertPaste(selStart, text, len);
-+                                // XXX ActiveState bug 33804
-+                                if (ac.Active()) {
-+                                        AutoCompleteMoveToCurrentWord();
-+                                }
- 		}
- 		delete []convertedText;
-@@ -1498,6 +1561,7 @@
+@@ -2034,6 +2090,7 @@ void ScintillaWin::ClaimSelection() {
  	// Windows does not have a primary selection
  }
  
@@ -217,7 +199,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  /// Implement IUnknown
  
  STDMETHODIMP_(ULONG)FormatEnumerator_AddRef(FormatEnumerator *fe);
-@@ -1805,6 +1869,7 @@
+@@ -2338,6 +2395,7 @@ DropTarget::DropTarget() {
  	vtbl = vtDropTarget;
  	sci = 0;
  }
@@ -225,7 +207,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  
  /**
   * DBCS: support Input Method Editor (IME).
-@@ -2003,6 +2068,15 @@
+@@ -2546,6 +2604,15 @@ void ScintillaWin::HorizontalScrollMessage(WPARAM wParam) {
  		break;
  	case SB_LINEDOWN:	// May move past the logical end
  		xPos += 20;
@@ -241,7 +223,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  		break;
  	case SB_PAGEUP:
  		xPos -= pageWidth;
-@@ -2105,6 +2179,7 @@
+@@ -2653,6 +2720,7 @@ DWORD ScintillaWin::EffectFromState(DWORD grfKeyState) const {
  	return dwEffect;
  }
  
@@ -249,7 +231,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  /// Implement IUnknown
  STDMETHODIMP ScintillaWin::QueryInterface(REFIID riid, PVOID *ppv) {
  	*ppv = NULL;
-@@ -2299,12 +2374,13 @@
+@@ -2844,12 +2912,13 @@ STDMETHODIMP ScintillaWin::GetData(FORMATETC *pFEIn, STGMEDIUM *pSTM) {
  	pSTM->pUnkForRelease = 0;
  	return S_OK;
  }
@@ -264,24 +246,24 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  	// Register the Scintilla class
  	if (IsNT()) {
  
-@@ -2324,7 +2400,7 @@
- 		wndclass.hIconSm = 0;
- 		result = ::RegisterClassExW(&wndclass) != 0;
+@@ -2870,7 +2939,7 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
+ 		scintillaClassAtom = ::RegisterClassExW(&wndclass);
+ 		result = 0 != scintillaClassAtom;
  	} else {
 -
 +#endif
  		// Register Scintilla as a normal character window
  		WNDCLASSEX wndclass;
  		wndclass.cbSize = sizeof(wndclass);
-@@ -2340,7 +2416,7 @@
- 		wndclass.lpszClassName = scintillaClassName;
+@@ -2887,7 +2956,6 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
  		wndclass.hIconSm = 0;
- 		result = ::RegisterClassEx(&wndclass) != 0;
+ 		scintillaClassAtom = ::RegisterClassEx(&wndclass);
+ 		result = 0 != scintillaClassAtom;
 -	}
-+	//}
  
  	if (result) {
  		// Register the CallTip class
+
 diff -r -du win32/scintilla.mak win32/scintilla.mak
 --- win32/scintilla.mak	2005-05-27 04:29:46.000000000 -0700
 +++ win32/scintilla.mak	2007-05-01 17:00:17.000000000 -0700
@@ -317,10 +299,10 @@ diff -r -du win32/scintilla.mak win32/scintilla.mak
  	$(CC) $(CXXFLAGS) -DSTATIC_BUILD -c $(NAME)$@ ScintillaWin.cxx
  
 +# Generate header files from Scintilla.iface
-+..\include\Scintilla_gen.h: ..\include\HFacer.py ..\include\Face.py ..\include\Scintilla.iface
++..\include\Scintilla_gen.h: ..\scripts\HFacer.py ..\scripts\Face.py ..\include\Scintilla.iface
 +	cd ..\include && python HFacer.py
-+..\include\SciLexer_gen.h: ..\include\HFacer.py ..\include\Face.py ..\include\Scintilla.iface
-+	cd ..\include && python HFacer.py
++..\include\SciLexer_gen.h: ..\scripts\HFacer.py ..\scripts\Face.py ..\include\Scintilla.iface
++	cd ..\scripts && python HFacer.py
 +..\include\Scintilla.h: ..\include\Scintilla_gen.h
 +..\include\SciLexer.h: ..\include\SciLexer_gen.h
 +

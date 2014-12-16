@@ -2,48 +2,12 @@ Patch to take CC, CXX, CFLAGS, LDFLAGS from the users (Cons) environment.
 ===================================================================
 --- gtk/makefile	(revision 34521)
 +++ gtk/makefile	(working copy)
-@@ -7,13 +7,6 @@
- # Also works with ming32-make on Windows.
- 
- .SUFFIXES: .cxx .c .o .h .a
--ifdef CLANG
--CC = clang --std=c++0x
--CCOMP = clang
--else
--CC = g++
--CCOMP = gcc
--endif
- AR = ar
- RANLIB = touch
- 
-@@ -56,23 +56,23 @@
- 
- ifdef DEBUG
- ifdef CLANG
--CXXTFLAGS=-DDEBUG -g -fsanitize=address $(CXXBASEFLAGS) $(THREADFLAGS)
-+CXXTFLAGS +=-DDEBUG -g -fsanitize=address $(CXXBASEFLAGS) $(THREADFLAGS)
- else
--CXXTFLAGS=-DDEBUG -g $(CXXBASEFLAGS) $(THREADFLAGS)
-+CXXTFLAGS +=-DDEBUG -g $(CXXBASEFLAGS) $(THREADFLAGS)
+@@ -69,7 +69,7 @@ CTFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
  endif
-+CFLAGS += -DDEBUG -g
- else
--CXXTFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
-+CXXTFLAGS +=-DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
-+CFLAGS += -DNDEBUG
- endif
--
--CFLAGS:=$(CXXTFLAGS)
+ 
+ CFLAGS:=$(CTFLAGS)
+-CXXTFLAGS:=--std=c++0x $(CTFLAGS) $(REFLAGS)
++CXXTFLAGS:=$(CTFLAGS) $(REFLAGS)
  
  CONFIGFLAGS:=$(shell pkg-config --cflags $(GTKVERSION))
  MARSHALLER=scintilla-marshal.o
- 
- .cxx.o:
--	$(CC) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $<
-+	$(CXX) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $<
- .c.o:
--	$(CCOMP) $(CONFIGFLAGS) $(CFLAGS) -w -c $<
-+	$(CC) $(CONFIGFLAGS) $(CFLAGS) -w -c $<
- 
- LEXOBJS:=$(addsuffix .o,$(basename $(notdir $(wildcard ../lexers/Lex*.cxx))))
- 

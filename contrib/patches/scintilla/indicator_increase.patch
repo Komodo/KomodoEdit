@@ -7,38 +7,24 @@ Index: /as/komodo-devel/src/scintilla/include/Scintilla.iface
 ===================================================================
 --- include/Scintilla.iface    (revision 75338)
 +++ include/Scintilla.iface    (working copy)
-@@ -582,7 +582,7 @@
- val INDIC_DOTBOX=12
- val INDIC_SQUIGGLEPIXMAP=13
+@@ -607,7 +607,7 @@ val INDIC_SQUIGGLEPIXMAP=13
  val INDIC_COMPOSITIONTHICK=14
--val INDIC_MAX=31
+ val INDIC_IME=32
+ val INDIC_IME_MAX=35
+-val INDIC_MAX=35
 +val INDIC_MAX=63
  val INDIC_CONTAINER=8
  val INDIC0_MASK=0x20
  val INDIC1_MASK=0x40
+
 --- include/Scintilla.h    (revision 75338)
 +++ include/Scintilla.h    (working copy)
-@@ -265,7 +265,7 @@
- #define INDIC_DOTBOX 12
- #define INDIC_SQUIGGLEPIXMAP 13
+@@ -276,7 +276,7 @@ typedef sptr_t (*SciFnDirect)(sptr_t ptr, unsigned int iMessage, uptr_t wParam,
  #define INDIC_COMPOSITIONTHICK 14
--#define INDIC_MAX 31
+ #define INDIC_IME 32
+ #define INDIC_IME_MAX 35
+-#define INDIC_MAX 35
 +#define INDIC_MAX 63
  #define INDIC_CONTAINER 8
  #define INDIC0_MASK 0x20
  #define INDIC1_MASK 0x40
---- src/Decoration.cxx	(revision 76026)
-+++ src/Decoration.cxx	(working copy)
-@@ -161,7 +161,10 @@
- 	int mask = 0;
- 	for (Decoration *deco=root; deco; deco = deco->next) {
- 		if (deco->rs.ValueAt(position)) {
--			mask |= 1 << deco->indicator;
-+			// Indicators above 31 will not work with this API.
-+			if (deco->indicator < 32) {
-+				mask |= 1 << deco->indicator;
-+			}
- 		}
- 	}
- 	return mask;
-

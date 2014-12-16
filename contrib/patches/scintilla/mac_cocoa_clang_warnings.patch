@@ -13,11 +13,11 @@ diff -r -U3 scintilla.old/cocoa/ScintillaCocoa.mm scintilla/cocoa/ScintillaCocoa
 Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaView.mm
 --- cocoa/ScintillaView.mm	2012-09-28 12:37:26.000000000 -0700
 +++ cocoa/ScintillaView.mm	2012-09-28 12:39:11.000000000 -0700
-@@ -1188,8 +1188,7 @@
+@@ -1190,8 +1190,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  
    // Horizontal offset of the content. Almost always 0 unless the vertical scroller
    // is on the left side.
--  int contentX = 0;
+-  CGFloat contentX = 0;
 -  NSRect scrollRect = {contentX, 0, size.width, size.height};
 +  NSRect scrollRect = {0, 0, size.width, size.height};
  

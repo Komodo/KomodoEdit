@@ -9,21 +9,28 @@ import os, sys, logging
 # duplicate files ensures that SciMoz is definately in synch with
 # the relevant scintilla!
 
-scintillaFilesPath = ""
+scintillaIncPath = ""
+scintillaScriptsPath = ""
 
 log = logging.getLogger("xpfacer")
 
 try:
     import Face
 except ImportError:
-    scintillaFilesPath = os.path.abspath(
+    scintillaIncPath = os.path.abspath(
                 os.path.join(
                     os.path.split(sys.argv[0])[0], "../scintilla/include"
                 ))
-    if not os.path.isfile(os.path.join(scintillaFilesPath,"Scintilla.iface")):
+    scintillaScriptsPath = os.path.abspath(
+                os.path.join(
+                    os.path.split(sys.argv[0])[0], "../scintilla/scripts"
+                ))
+    if not os.path.isfile(os.path.join(scintillaIncPath,"Scintilla.iface")):
         print "WARNING: Expecting to find 'Face.py' and 'Scintilla.iface' in path"
-        print scintillaFilesPath, ", but I can't.  I'm probably gunna fail real-soon-now!"
-    sys.path.insert(0, scintillaFilesPath)
+        print scintillaIncPath, ", but I can't. "
+        print "I'm probably gunna fail real-soon-now!"
+    sys.path.insert(0, scintillaIncPath)
+    sys.path.insert(1, scintillaScriptsPath)
     import Face
 
 manualFunctions = """
@@ -1902,7 +1909,7 @@ def main():
 
     # Generate the interface information and dump them to separate files
     face = Face.Face()
-    face.ReadFromFile(os.path.join(scintillaFilesPath, "Scintilla.iface"))
+    face.ReadFromFile(os.path.join(scintillaIncPath, "Scintilla.iface"))
     fixup_iface_data(face)
     generate_idl_constants_fragment(face)
     generate_idl_lite_fragment(face)

@@ -2,9 +2,9 @@ Index: cocoa/ScintillaCocoa.mm
 ===================================================================
 --- cocoa/ScintillaCocoa.mm	(revision 73437)
 +++ cocoa/ScintillaCocoa.mm	(working copy)
-@@ -780,7 +780,11 @@
-       return reinterpret_cast<sptr_t>(this);
-       
+@@ -832,7 +832,11 @@ sptr_t ScintillaCocoa::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lPar
+       break;
+ 
      case SCI_GRABFOCUS:
 -      [[ContentView() window] makeFirstResponder:ContentView()];
 +      // Commenting this out makes no difference -- this code wasn't called.
@@ -13,9 +13,9 @@ Index: cocoa/ScintillaCocoa.mm
 +#endif
 +      // [[ContentView() window] makeFirstResponder:ContentView()];
        break;
-       
+ 
      case SCI_SETBUFFEREDDRAW:
-@@ -1083,6 +1086,10 @@
+@@ -1222,6 +1226,10 @@ void ScintillaCocoa::DragScroll()
   */
  void ScintillaCocoa::StartDrag()
  {
@@ -26,7 +26,7 @@ Index: cocoa/ScintillaCocoa.mm
    if (sel.Empty())
      return;
  
-@@ -1328,6 +1335,11 @@ bool ScintillaCocoa::PerformDragOperation(id <NSDraggingInfo> info)
+@@ -1452,6 +1460,11 @@ bool ScintillaCocoa::PerformDragOperation(id <NSDraggingInfo> info)
      for (NSString* uri in files)
        NotifyURIDropped([uri UTF8String]);
    }
@@ -38,12 +38,11 @@ Index: cocoa/ScintillaCocoa.mm
    else
    {
      SelectionText text;
-@@ -2004,7 +2023,8 @@
+@@ -2130,7 +2143,7 @@ void ScintillaCocoa::MouseWheel(NSEvent* event)
      else
      dY = (int) sqrt(10.0 * [event deltaY]);
-   
+ 
 -  if (command)
-+    
 +  if (command && !suppressZoomOnScrollWheel)
    {
      // Zoom! We play with the font sizes in the styles.

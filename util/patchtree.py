@@ -615,6 +615,7 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
     else:
         log.info("apply '%s'%s", patchRelPath, inReverse)
         argv = baseArgv
+    sys.stdout.write("apply '%s'%s\n" % (patchRelPath, inReverse))
     if reverse:
         argv.append("-R")
     log.debug("run %s in '%s' (stdin '%s')", argv, sourceDir, patchFile)

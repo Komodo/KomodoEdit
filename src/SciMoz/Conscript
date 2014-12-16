@@ -99,7 +99,7 @@ $cons->Command(
     # files needed to do the generation
     "XPFacer.py",
     "../scintilla/include/Scintilla.iface",
-    "../scintilla/include/Face.py",
+    "../scintilla/scripts/Face.py",
     qq(
         $unsiloedPythonExe bin/run-in-dir.py %1:d $unsiloedPythonExe %1:f
     )

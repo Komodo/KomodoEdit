@@ -41,7 +41,7 @@ ScintillaEditBase::ScintillaEditBase(QWidget *parent)
 	setFrameStyle(QFrame::NoFrame);
 	setFocusPolicy(Qt::StrongFocus);
 	setAttribute(Qt::WA_StaticContents);
-	setAttribute(Qt::WA_OpaquePaintEvent);
+	viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
 	setAttribute(Qt::WA_KeyCompression);
 	setAttribute(Qt::WA_InputMethodEnabled);
 
@@ -310,16 +310,35 @@ void ScintillaEditBase::mouseReleaseEvent(QMouseEvent *event)
 	emit buttonReleased(event);
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 void ScintillaEditBase::mouseDoubleClickEvent(QMouseEvent *event)
 {
 	// Scintilla does its own double-click detection.
 	mousePressEvent(event);
 }
+#else
+void ScintillaEditBase::mouseDoubleClickEvent(QMouseEvent *)
+{
+}
+#endif
 
 void ScintillaEditBase::mouseMoveEvent(QMouseEvent *event)
 {
 	Point pos = PointFromQPoint(event->pos());
-	sqt->ButtonMove(pos);
+
+	bool shift = QApplication::keyboardModifiers() & Qt::ShiftModifier;
+	bool ctrl  = QApplication::keyboardModifiers() & Qt::ControlModifier;
+#ifdef Q_WS_X11
+	// On X allow choice of rectangular modifier since most window
+	// managers grab alt + click for moving windows.
+	bool alt   = QApplication::keyboardModifiers() & modifierTranslated(sqt->rectangularSelectionModifier);
+#else
+	bool alt   = QApplication::keyboardModifiers() & Qt::AltModifier;
+#endif
+
+	int modifiers = (shift ? SCI_SHIFT : 0) | (ctrl ? SCI_CTRL : 0) | (alt ? SCI_ALT : 0);
+
+	sqt->ButtonMoveWithModifiers(pos, modifiers);
 }
 
 void ScintillaEditBase::contextMenuEvent(QContextMenuEvent *event)
@@ -392,7 +411,7 @@ void ScintillaEditBase::inputMethodEvent(QInputMethodEvent *event)
 		// Replace the selection with the commit string.
 		QByteArray commitBytes = sqt->BytesForDocument(event->commitString());
 		char *commitData = commitBytes.data();
-		sqt->AddCharUTF(commitData, strlen(commitData));
+		sqt->AddCharUTF(commitData, static_cast<unsigned int>(strlen(commitData)));
 	}
 
 	// Select the previous preedit string.
@@ -406,7 +425,7 @@ void ScintillaEditBase::inputMethodEvent(QInputMethodEvent *event)
 	bool recording = sqt->recordingMacro;
 	sqt->recordingMacro = false;
 	send(SCI_SETUNDOCOLLECTION, false);
-	sqt->AddCharUTF(data, strlen(data));
+	sqt->AddCharUTF(data, static_cast<unsigned int>(strlen(data)));
 	send(SCI_SETUNDOCOLLECTION, true);
 	sqt->recordingMacro = recording;
 	sqt->SetSelection(pos, pos);

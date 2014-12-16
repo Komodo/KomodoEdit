@@ -136,10 +136,11 @@ index e144a96..2a08e9c 100644
 index 1c25ed0..fe1ac2e 100644
 --- src/Editor.cxx
 +++ src/Editor.cxx
-@@ -9350,6 +9350,22 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
- 	case SCI_GETSUPPRESSZOOMONSCROLLWHEEL: //  bug 98938
- 		return suppressZoomOnScrollWheel;
+@@ -7221,6 +7221,22 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
  
+ 	case SCI_GETPASTECONVERTENDINGS:
+ 		return convertPastes ? 1 : 0;
++	
 +	case SCI_GETLOGPIXELSX: { // bug 100492
 +			AutoSurface surface(this);
 +			if (surface) {
@@ -155,10 +156,10 @@ index 1c25ed0..fe1ac2e 100644
 +			}
 +			return 72;
 +		}
-+
- 	// END ACTIVESTATE
  
  	case SCI_GETCHARACTERPOINTER:
+ 		return reinterpret_cast<sptr_t>(pdoc->BufferPointer());
+
 diff --git win32/PlatWin.cxx win32/PlatWin.cxx
 index e92ef94..3cd5873 100644
 --- win32/PlatWin.cxx

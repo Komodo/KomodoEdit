@@ -212,17 +212,17 @@ Index: src/SplitVector.h
  protected:
  	T *body;
  	int size;
-@@ -240,5 +240,10 @@
- 		return body;
- 	}
- };
+@@ -288,4 +288,9 @@ public:
+ }
+ #endif
  
 +#ifdef SCIAPI_DLL
 +SCIEXTERN template class SCIAPI SplitVector<int>;
 +SCIEXTERN template class SCIAPI SplitVector<char>;
- #endif
-+
 +#endif
++
+ #endif
+
 Index: win32/scintilla_vc6.mak
 ===================================================================
 --- win32/scintilla.mak	(revision 518)

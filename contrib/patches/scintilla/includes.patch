@@ -1,10 +1,6 @@
 --- include/Scintilla.iface	2007-11-04 02:03:56.000000000 -0800
 +++ include/Scintilla.iface	2007-11-11 17:14:56.000000000 -0800
-@@ -2112,14 +2112,48 @@
- # Retrieve the number of bits the current lexer needs for styling.
- get int GetStyleBitsNeeded=4011(,)
- 
- # Retrieve the name of the lexer.
+@@ -2472,6 +2472,40 @@ get int GetStyleBitsNeeded=4011(,)
  # Return the length of the text.
  get int GetLexerLanguage=4012(, stringresult text)
  
@@ -45,25 +41,17 @@
  # For private communication between an application and a known lexer.
  fun int PrivateLexerCall=4013(int operation, int pointer)
  
- # Retrieve a '\n' separated list of properties understood by the current lexer.
- fun int PropertyNames=4014(, stringresult names)
- 
- enu TypeProperty=SC_TYPE_
-@@ -2580,6 +2580,9 @@
- val SCLEX_VISUALPROLOG=107
- val SCLEX_LITERATEHASKELL=108
- val SCLEX_STTXT=109
+@@ -2719,6 +2753,9 @@ val SCLEX_AS=113
+ val SCLEX_DMIS=114
+ val SCLEX_REGISTRY=115
+ val SCLEX_BIBTEX=116
 +val SCLEX_XSLT=110
 +# User-defined languages
 +val SCLEX_UDL=111
  
  # When a lexer specifies its language as SCLEX_AUTOMATIC it receives a
  # value assigned in sequence from SCLEX_AUTOMATIC+1.
-@@ -2302,14 +2323,19 @@
- val SCE_P_DEFNAME=9
- val SCE_P_OPERATOR=10
- val SCE_P_IDENTIFIER=11
- val SCE_P_COMMENTBLOCK=12
+@@ -2742,6 +2779,11 @@ val SCE_P_COMMENTBLOCK=12
  val SCE_P_STRINGEOL=13
  val SCE_P_WORD2=14
  val SCE_P_DECORATOR=15
@@ -75,27 +63,17 @@
  # Lexical states for SCLEX_CPP
  lex Cpp=SCLEX_CPP SCE_C_
  lex BullAnt=SCLEX_BULLANT SCE_C_
- val SCE_C_DEFAULT=0
- val SCE_C_COMMENT=1
- val SCE_C_COMMENTLINE=2
- val SCE_C_COMMENTDOC=3
-@@ -2631,7 +2631,10 @@
- val SCE_C_HASHQUOTEDSTRING=22
- val SCE_C_PREPROCESSORCOMMENT=23
- val SCE_C_PREPROCESSORCOMMENTDOC=24
--# Lexical states for SCLEX_D
+@@ -2773,6 +2815,9 @@ val SCE_C_PREPROCESSORCOMMENTDOC=24
+ val SCE_C_USERLITERAL=25
+ val SCE_C_TASKMARKER=26
+ val SCE_C_ESCAPESEQUENCE=27
 +val SCE_C_STDIN=25
 +val SCE_C_STDOUT=26
 +val SCE_C_STDERR=27
-+ # Lexical states for SCLEX_D
+ # Lexical states for SCLEX_D
  lex D=SCLEX_D SCE_D_
  val SCE_D_DEFAULT=0
- val SCE_D_COMMENT=1
-@@ -2354,34 +2383,30 @@
- val SCE_D_WORD5=20
- val SCE_D_WORD6=21
- val SCE_D_WORD7=22
- # Lexical states for SCLEX_TCL
+@@ -2802,26 +2847,22 @@ val SCE_D_WORD7=22
  lex TCL=SCLEX_TCL SCE_TCL_
  val SCE_TCL_DEFAULT=0
  val SCE_TCL_COMMENT=1
@@ -138,15 +116,7 @@
  # Lexical states for SCLEX_HTML, SCLEX_XML
  lex HTML=SCLEX_HTML SCE_H_ SCE_HJ_ SCE_HJA_ SCE_HB_ SCE_HBA_ SCE_HP_ SCE_HPHP_ SCE_HPA_
  lex XML=SCLEX_XML SCE_H_ SCE_HJ_ SCE_HJA_ SCE_HB_ SCE_HBA_ SCE_HP_ SCE_HPHP_ SCE_HPA_
- lex ASP=SCLEX_ASP SCE_H_ SCE_HJ_ SCE_HJA_ SCE_HB_ SCE_HBA_ SCE_HP_ SCE_HPHP_ SCE_HPA_
- lex PHP=SCLEX_PHP SCE_H_ SCE_HJ_ SCE_HJA_ SCE_HB_ SCE_HBA_ SCE_HP_ SCE_HPHP_ SCE_HPA_
- val SCE_H_DEFAULT=0
- val SCE_H_TAG=1
-@@ -2539,24 +2564,22 @@
- val SCE_PL_STRING_QX=28
- val SCE_PL_STRING_QR=29
- val SCE_PL_STRING_QW=30
- val SCE_PL_POD_VERB=31
+@@ -2985,16 +3026,14 @@ val SCE_PL_POD_VERB=31
  val SCE_PL_SUB_PROTOTYPE=40
  val SCE_PL_FORMAT_IDENT=41
  val SCE_PL_FORMAT=42
@@ -171,11 +141,7 @@
  # Lexical states for SCLEX_RUBY
  lex Ruby=SCLEX_RUBY SCE_RB_
  val SCE_RB_DEFAULT=0
- val SCE_RB_ERROR=1
- val SCE_RB_COMMENTLINE=2
- val SCE_RB_POD=3
- val SCE_RB_NUMBER=4
-@@ -2830,11 +2830,12 @@
+@@ -3026,11 +3065,12 @@ val SCE_RB_STRING_QQ=25
  val SCE_RB_STRING_QX=26
  val SCE_RB_STRING_QR=27
  val SCE_RB_STRING_QW=28
@@ -193,9 +159,7 @@
  # Lexical states for SCLEX_VB, SCLEX_VBSCRIPT, SCLEX_POWERBASIC
  lex VB=SCLEX_VB SCE_B_
  lex VBScript=SCLEX_VBSCRIPT SCE_B_
-@@ -2906,10 +2950,13 @@
- val SCE_CSS_EXTENDED_IDENTIFIER=19
- val SCE_CSS_EXTENDED_PSEUDOCLASS=20
+@@ -3373,6 +3413,9 @@ val SCE_CSS_EXTENDED_PSEUDOCLASS=20
  val SCE_CSS_EXTENDED_PSEUDOELEMENT=21
  val SCE_CSS_MEDIA=22
  val SCE_CSS_VARIABLE=23
@@ -205,14 +169,10 @@
  # Lexical states for SCLEX_POV
  lex POV=SCLEX_POV SCE_POV_
  val SCE_POV_DEFAULT=0
- val SCE_POV_COMMENT=1
- val SCE_POV_COMMENTLINE=2
-@@ -4093,13 +4126,13 @@
- val SCE_COFFEESCRIPT_COMMENTDOCKEYWORDERROR=18
+@@ -4335,9 +4378,9 @@ val SCE_COFFEESCRIPT_COMMENTDOCKEYWORDERROR=18
  val SCE_COFFEESCRIPT_GLOBALCLASS=19
  val SCE_COFFEESCRIPT_STRINGRAW=20
  val SCE_COFFEESCRIPT_TRIPLEVERBATIM=21
- val SCE_COFFEESCRIPT_HASHQUOTEDSTRING=22
 -val SCE_COFFEESCRIPT_COMMENTBLOCK=22
  val SCE_COFFEESCRIPT_VERBOSE_REGEX=23
  val SCE_COFFEESCRIPT_VERBOSE_REGEX_COMMENT=24
@@ -220,11 +180,9 @@
  # Lexical states for SCLEX_AVS
  lex AVS=SCLEX_AVS SCE_AVS_
  val SCE_AVS_DEFAULT=0
- val SCE_AVS_COMMENTBLOCK=1
- val SCE_AVS_COMMENTBLOCKN=2
-@@ -3713,6 +3746,141 @@
- val SCE_MODULA_OPERATOR=16
- val SCE_MODULA_BADSTR=17
+@@ -4543,6 +4586,141 @@ val SCE_BIBTEX_PARAMETER=4
+ val SCE_BIBTEX_VALUE=5
+ val SCE_BIBTEX_COMMENT=6
  
 +# Lexical states for the SCLEX_XML (XML files)
 +val SCE_XML_DEFAULT=0

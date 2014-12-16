@@ -2143,7 +2143,7 @@ def GetScintillaSource(cfg, argv):
                     logDir=join(cfg.buildAbsDir, "scintilla-patch-log"))
     # Run the HFacer to generate the scintilla include files.
     _run_in_dir(sys.executable + " HFacer.py",
-                join("src", "scintilla", "include"),
+                join("src", "scintilla", "scripts"),
                 log.debug)
 
 

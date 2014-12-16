@@ -155,7 +155,7 @@ def make_src_scintilla(maker, log):
     if METHOD == "komodo":
         # Generate the *_gen.h files that have been added to the
         # Scintilla build process by Komodo.
-        _run_in_dir(cfg.python+" HFacer.py", "src/scintilla/include",
+        _run_in_dir(cfg.python+" HFacer.py", "src/scintilla/scripts",
                     logstream=log.info)
 
 

@@ -18,7 +18,7 @@ diff --git cocoa/ScintillaCocoa.mm cocoa/ScintillaCocoa.mm
 index 8ad44bd..6ee932f 100644
 --- cocoa/ScintillaCocoa.mm
 +++ cocoa/ScintillaCocoa.mm
-@@ -1660,8 +1660,8 @@
+@@ -1743,8 +1743,8 @@ bool ScintillaCocoa::SetScrollingSize(void) {
  		if (changes) {
  			[inner setFrame: contentRect];
  		}
@@ -29,41 +29,42 @@ index 8ad44bd..6ee932f 100644
  		SetVerticalScrollPos();
  		enteredSetScrollingSize = false;
  	}
+
 diff --git cocoa/ScintillaView.h cocoa/ScintillaView.h
 index 29bf559..8b97410 100644
 --- cocoa/ScintillaView.h
 +++ cocoa/ScintillaView.h
-@@ -77,6 +77,8 @@ extern NSString *SCIUpdateUINotification;
-   int mInitialInfoBarWidth;
+@@ -112,6 +112,8 @@ extern NSString *const SCIUpdateUINotification;
+   BOOL mInfoBarAtTop;
  
    id<ScintillaNotificationProtocol> mDelegate;
-+
++  
 +  BOOL mScrollerForceHide;
  }
  
- @property (nonatomic, assign) Scintilla::ScintillaCocoa* backend;
-@@ -98,6 +100,7 @@ extern NSString *SCIUpdateUINotification;
+ @property (nonatomic, readonly) Scintilla::ScintillaCocoa* backend;
+@@ -129,6 +131,7 @@ extern NSString *const SCIUpdateUINotification;
+ 
  // Scroller handling
  - (void) setMarginWidth: (int) width;
- - (void) scrollerAction: (id) sender;
 +- (void) setScrollForceHide: (BOOL) hide;
- - (InnerView*) content;
+ - (SCIContentView*) content;
+ - (void) updateMarginCursors;
  
- // NSTextView compatibility layer.
 diff --git cocoa/ScintillaView.mm cocoa/ScintillaView.mm
 index 92aacdb..da2ef4d 100644
 --- cocoa/ScintillaView.mm
 +++ cocoa/ScintillaView.mm
-@@ -1073,6 +1073,8 @@
+@@ -1105,6 +1105,8 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
      [scrollView setHasHorizontalRuler:NO];
      [scrollView setHasVerticalRuler:YES];
      [scrollView setRulersVisible:YES];
-+
++    
 +    mScrollerForceHide = NO;
-     
+ 
      mBackend = new ScintillaCocoa(mContent, marginView);
  
-@@ -1181,6 +1181,12 @@
+@@ -1214,6 +1216,12 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  }
  
  //--------------------------------------------------------------------------------------------------
@@ -76,20 +77,21 @@ index 92aacdb..da2ef4d 100644
  
  /**
   * Set the width of the margin.
+
 diff --git gtk/ScintillaGTK.cxx gtk/ScintillaGTK.cxx
 index d07d464..15481d0 100644
 --- gtk/ScintillaGTK.cxx
 +++ gtk/ScintillaGTK.cxx
-@@ -1740,7 +1982,7 @@
+@@ -1759,7 +1759,7 @@ void ScintillaGTK::Resize(int width, int height) {
  
  	// These allocations should never produce negative sizes as they would wrap around to huge
  	// unsigned numbers inside GTK+ causing warnings.
--	bool showSBHorizontal = horizontalScrollBarVisible && (wrapState == eWrapNone);
-+	bool showSBHorizontal = horizontalScrollBarVisible && (wrapState == eWrapNone) && !useCustomScrollBars;
+-	bool showSBHorizontal = horizontalScrollBarVisible && !Wrapping();
++	bool showSBHorizontal = horizontalScrollBarVisible && !Wrapping() && !useCustomScrollBars;
  
  	GtkAllocation alloc;
  	if (showSBHorizontal) {
-@@ -1691,7 +1691,7 @@
+@@ -1774,7 +1774,7 @@ void ScintillaGTK::Resize(int width, int height) {
  		horizontalScrollBarHeight = 0; // in case horizontalScrollBarVisible is true.
  	}
  
@@ -98,11 +100,12 @@ index d07d464..15481d0 100644
  		gtk_widget_show(GTK_WIDGET(PWidget(scrollbarv)));
  		alloc.x = width - verticalScrollBarWidth;
  		alloc.y = 0;
+
 diff --git include/Scintilla.iface include/Scintilla.iface
 index 2c23ef2..91293e6 100644
 --- include/Scintilla.iface
 +++ include/Scintilla.iface
-@@ -780,6 +780,12 @@ set void SetHScrollBar=2130(bool show,)
+@@ -807,6 +807,12 @@ set void SetHScrollBar=2130(bool show,)
  # Is the horizontal scroll bar visible?
  get bool GetHScrollBar=2131(,)
  
@@ -115,43 +118,45 @@ index 2c23ef2..91293e6 100644
  enu IndentView=SC_IV_
  val SC_IV_NONE=0
  val SC_IV_REAL=1
+
 Index: /as/komodo-devel/src/scintilla/include/Scintilla.h
 --- include/Scintilla.h
 +++ include/Scintilla.h (unsaved)
-@@ -855,7 +855,8 @@
- #define SCI_VCHOMEDISPLAY 2652
+@@ -910,6 +910,8 @@ typedef sptr_t (*SciFnDirect)(sptr_t ptr, unsigned int iMessage, uptr_t wParam,
  #define SCI_VCHOMEDISPLAYEXTEND 2653
  #define SCI_GETCARETLINEVISIBLEALWAYS 2654
--#define SCI_SETCARETLINEVISIBLEALWAYS 2655
+ #define SCI_SETCARETLINEVISIBLEALWAYS 2655
 +#define SCI_SETUSECUSTOMSCROLLBARS 2656
 +#define SCI_GETUSECUSTOMSCROLLBARS 2657
- #define SCI_STARTRECORD 3001
- #define SCI_STOPRECORD 3002
- #define SCI_SETLEXER 4001
+ #define SC_LINE_END_TYPE_DEFAULT 0
+ #define SC_LINE_END_TYPE_UNICODE 1
+ #define SCI_SETLINEENDTYPESALLOWED 2656
+
 diff --git src/Editor.cxx src/Editor.cxx
 index 288118d..8304633 100644
 --- src/Editor.cxx
 +++ src/Editor.cxx
-@@ -161,6 +161,7 @@ Editor::Editor() {
- 	trackLineWidth = false;
- 	lineWidthMaxSeen = 0;
+@@ -147,6 +147,7 @@ Editor::Editor() {
+ 	horizontalScrollBarVisible = true;
+ 	scrollWidth = 2000;
  	verticalScrollBarVisible = true;
 +	useCustomScrollBars = false;
  	endAtLastLine = true;
  	caretSticky = SC_CARETSTICKY_OFF;
  	marginOptions = SC_MARGINOPTION_NONE;
-@@ -4506,6 +4506,7 @@ void Editor::NotifyUpdateUI() {
- 		SCNotification scn = {0};
+@@ -2297,6 +2298,7 @@ bool Editor::NotifyUpdateUI() {
+ 		SCNotification scn = {};
  		scn.nmhdr.code = SCN_UPDATEUI;
  		scn.updated = needUpdateUI;
 +		scn.length = GetTextRectangle().Width();
  		NotifyParent(scn);
  		needUpdateUI = 0;
  		return true;
-@@ -8080,6 +8082,17 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
- 	case SCI_FINDCOLUMN:
- 		return pdoc->FindColumn(wParam, lParam);
+@@ -6211,6 +6213,17 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
  
+ 	case SCI_FINDCOLUMN:
+ 		return pdoc->FindColumn(static_cast<int>(wParam), static_cast<int>(lParam));
++	
 +	case SCI_SETUSECUSTOMSCROLLBARS:
 +		if (useCustomScrollBars != (wParam != 0)) {
 +			useCustomScrollBars = wParam != 0;
@@ -162,27 +167,28 @@ index 288118d..8304633 100644
 +
 +	case SCI_GETUSECUSTOMSCROLLBARS:
 +		return useCustomScrollBars;
-+
+ 
  	case SCI_SETHSCROLLBAR :
  		if (horizontalScrollBarVisible != (wParam != 0)) {
- 			horizontalScrollBarVisible = wParam != 0;
+
 diff --git src/Editor.h src/Editor.h
 index d25ab70..f4ecdf3 100644
 --- src/Editor.h
 +++ src/Editor.h
-@@ -176,6 +176,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
- 	bool trackLineWidth;
- 	int lineWidthMaxSeen;
+@@ -183,6 +183,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
+ 	bool horizontalScrollBarVisible;
+ 	int scrollWidth;
  	bool verticalScrollBarVisible;
 +	bool useCustomScrollBars;
  	bool endAtLastLine;
  	int caretSticky;
  	int marginOptions;
+
 diff --git win32/ScintillaWin.cxx win32/ScintillaWin.cxx
 index 945eec9..5dacfeb 100644
 --- win32/ScintillaWin.cxx
 +++ win32/ScintillaWin.cxx
-@@ -1381,6 +1381,9 @@ void ScintillaWin::ChangeScrollPos(int barType, int pos) {
+@@ -1609,6 +1609,9 @@ void ScintillaWin::ChangeScrollPos(int barType, int pos) {
  	sci.fMask = SIF_POS;
  	GetScrollInfo(barType, &sci);
  	if (sci.nPos != pos) {
@@ -192,7 +198,7 @@ index 945eec9..5dacfeb 100644
  		DwellEnd(true);
  		sci.nPos = pos;
  		SetScrollInfo(barType, &sci, TRUE);
-@@ -1403,7 +1406,7 @@ bool ScintillaWin::ModifyScrollBars(int nMax, int nPage) {
+@@ -1631,7 +1634,7 @@ bool ScintillaWin::ModifyScrollBars(int nMax, int nPage) {
  	sci.fMask = SIF_PAGE | SIF_RANGE;
  	GetScrollInfo(SB_VERT, &sci);
  	int vertEndPreferred = nMax;
@@ -201,7 +207,7 @@ index 945eec9..5dacfeb 100644
  		nPage = vertEndPreferred + 1;
  	if ((sci.nMin != 0) ||
  		(sci.nMax != vertEndPreferred) ||
-@@ -1416,6 +1419,7 @@ bool ScintillaWin::ModifyScrollBars(int nMax, int nPage) {
+@@ -1644,6 +1647,7 @@ bool ScintillaWin::ModifyScrollBars(int nMax, int nPage) {
  		sci.nPos = 0;
  		sci.nTrackPos = 1;
  		SetScrollInfo(SB_VERT, &sci, TRUE);
@@ -209,9 +215,9 @@ index 945eec9..5dacfeb 100644
  		modified = true;
  	}
  
-@@ -1426,19 +1430,22 @@ bool ScintillaWin::ModifyScrollBars(int nMax, int nPage) {
- 	unsigned int pageWidth = rcText.Width();
- 	if (!horizontalScrollBarVisible || (wrapState != eWrapNone))
+@@ -1654,19 +1658,22 @@ bool ScintillaWin::ModifyScrollBars(int nMax, int nPage) {
+ 	unsigned int pageWidth = static_cast<unsigned int>(rcText.Width());
+ 	if (!horizontalScrollBarVisible || Wrapping())
  		pageWidth = horizEndPreferred + 1;
 +	unsigned int usedPageWidth = useCustomScrollBars ?
 +		horizEndPreferred + 1 : pageWidth;
@@ -234,6 +240,7 @@ index 945eec9..5dacfeb 100644
  		modified = true;
  		if (scrollWidth < static_cast<int>(pageWidth)) {
  			HorizontalScrollTo(0);
+
 -- 
 1.7.12
 

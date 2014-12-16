@@ -6,22 +6,22 @@ Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaView.mm
 --- cocoa/ScintillaView.mm	(revision 81864)
 +++ cocoa/ScintillaView.mm	(working copy)
 @@ -983,12 +1007,13 @@
-       {
-         case SCN_MARGINCLICK:
-         {
--          if (scn->margin == 2)
--          {
--            // Click on the folder margin. Toggle the current line if possible.
--            long line = [editor getGeneralProperty: SCI_LINEFROMPOSITION parameter: scn->position];
--            [editor setGeneralProperty: SCI_TOGGLEFOLD value: line];
--          }
-+          // KOMODO: interferes with Komodo's breakpoint margin - bug 100390.
-+          //if (scn->margin == 2)
-+          //{
-+          //  // Click on the folder margin. Toggle the current line if possible.
-+          //  long line = [editor getGeneralProperty: SCI_LINEFROMPOSITION parameter: scn->position];
-+          //  [editor setGeneralProperty: SCI_TOGGLEFOLD value: line];
-+          //}
-           break;
-           };
-         case SCN_MODIFIED:
+   {
+     case SCN_MARGINCLICK:
+     {
+-      if (scn->margin == 2)
+-      {
+-	// Click on the folder margin. Toggle the current line if possible.
+-	long line = [self getGeneralProperty: SCI_LINEFROMPOSITION parameter: scn->position];
+-	[self setGeneralProperty: SCI_TOGGLEFOLD value: line];
+-      }
++      // KOMODO: interferes with Komodo's breakpoint margin - bug 100390.
++      //if (scn->margin == 2)
++      //{
++	// Click on the folder margin. Toggle the current line if possible.
++	//long line = [self getGeneralProperty: SCI_LINEFROMPOSITION parameter: scn->position];
++	//[self setGeneralProperty: SCI_TOGGLEFOLD value: line];
++      //}
+       break;
+     };
+     case SCN_MODIFIED:

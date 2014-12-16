@@ -25,12 +25,12 @@ Index: cocoa/ScintillaCocoa.h
  extern "C" NSString* ScintillaRecPboardType;
  
  @class ScintillaView;
-@@ -202,6 +206,8 @@
+@@ -214,6 +235,8 @@ public:
    void DraggingExited(id <NSDraggingInfo> info);
    bool PerformDragOperation(id <NSDraggingInfo> info);
    void DragScroll();
 +  bool inDragSession() { return inDragDrop == ddDragging; };
 +  bool isTracking;
-   
+ 
    // Promote some methods needed for NSResponder actions.
    virtual void SelectAll();

@@ -1,20 +1,20 @@
 --- lexers/LexCPP.cxx	2011-01-03 12:22:32.000000000 -0800
 +++ lexers/LexCPP.cxx	2011-07-08 11:11:54.000000000 -0700
-@@ -39,6 +39,13 @@
- using namespace Scintilla;
- #endif
+@@ -38,6 +38,13 @@ using namespace Scintilla;
  
+ namespace {
+ 	// Use an unnamed namespace to protect the functions and classes from name conflicts
++	
 +// KOMODO  see if a style is one of our IO styles
 +static inline bool IsIOStyle(int style) {
 +	return style == SCE_C_STDIN ||
 +		style == SCE_C_STDOUT ||
 +		style == SCE_C_STDERR;
 +}
-+
- static bool IsSpaceEquiv(int state) {
+ 
+ bool IsSpaceEquiv(int state) {
  	return (state <= SCE_C_COMMENTDOC) ||
- 		// including SCE_C_DEFAULT, SCE_C_COMMENT, SCE_C_COMMENTLINE
-@@ -64,6 +71,84 @@
+@@ -64,6 +71,84 @@ bool FollowsPostfixOperator(StyleContext &sc, LexAccessor &styler) {
  	return false;
  }
  
@@ -96,30 +96,28 @@
 +	return sjslb_matchKeyword("function", pos, styler);
 +}
 +
- static bool followsReturnKeyword(StyleContext &sc, LexAccessor &styler) {
+ bool followsReturnKeyword(StyleContext &sc, LexAccessor &styler) {
  	// Don't look at styles, so no need to flush.
  	int pos = (int) sc.currentPos;
-@@ -519,12 +605,14 @@
- 	for (; sc.More(); ) {
- 
+@@ -721,10 +811,14 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
  		if (sc.atLineStart) {
--			// Using MaskActive() is not needed in the following statement.
--			// Inside inactive preprocessor declaration, state will be reset anyway at the end of this block.
+ 			// Using MaskActive() is not needed in the following statement.
+ 			// Inside inactive preprocessor declaration, state will be reset anyway at the end of this block.
 -			if ((sc.state == SCE_C_STRING) || (sc.state == SCE_C_CHARACTER)) {
 +			int lineStartState = sc.state;
 +			if (lineStartState == SCE_C_STRING
 +			    || lineStartState == SCE_C_CHARACTER) {
  				// Prevent SCE_C_STRINGEOL from leaking back to previous line which
- 				// ends with a line continuation by locking in the state upto this position.
+ 				// ends with a line continuation by locking in the state up to this position.
 -				sc.SetState(sc.state);
 +				sc.SetState(lineStartState);
 +			} else if (IsIOStyle(sc.state)) {
 +				sc.SetState(SCE_C_DEFAULT);
  			}
- 			// Reset states to begining of colourise so no surprises
- 			// if different sets of lines lexed.
-@@ -632,7 +632,7 @@
- 				}
+ 			if ((MaskActive(sc.state) == SCE_C_PREPROCESSOR) && (!continuationLine)) {
+ 				sc.SetState(SCE_C_DEFAULT|activitySet);
+@@ -790,7 +884,7 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
+ 					sc.SetState(SCE_C_DEFAULT|activitySet);
  				break;
  			case SCE_C_IDENTIFIER:
 -				if (sc.atLineStart || sc.atLineEnd || !setWord.Contains(sc.ch) || (sc.ch == '.')) {
@@ -127,7 +125,7 @@
  					char s[1000];
  					if (caseSensitive) {
  						sc.GetCurrent(s, sizeof(s));
-@@ -875,7 +875,7 @@
+@@ -1093,7 +1191,7 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
  				} else {
  					sc.SetState(SCE_C_NUMBER|activitySet);
  				}
@@ -136,7 +134,7 @@
  				if (lastWordWasUUID) {
  					sc.SetState(SCE_C_UUID|activitySet);
  					lastWordWasUUID = false;
-@@ -790,16 +880,18 @@
+@@ -1108,16 +1206,18 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
  				}
  				sc.Forward();	// Eat the * so it isn't used for the end of the comment
  			} else if (sc.Match('/', '/')) {
@@ -157,9 +155,9 @@
 +					    || !FollowsPostfixOperator(sc, styler)))
 +				       || startsJavaScriptLambdaBody(sc, styler))) {
  				sc.SetState(SCE_C_REGEX|activitySet);	// JavaScript's RegEx
+ 				inRERange = false;
  			} else if (sc.ch == '\"') {
- 				if (sc.chPrev == 'R') {
-@@ -992,8 +1084,12 @@
+@@ -1351,8 +1451,12 @@ void SCI_METHOD LexerCPP::Fold(unsigned int startPos, int length, int initStyle,
  					levelMinCurrent = levelNext;
  				}
  				levelNext++;

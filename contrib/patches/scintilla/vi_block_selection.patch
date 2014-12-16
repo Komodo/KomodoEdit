@@ -17,12 +17,12 @@ Index: C:\as\komodo-devel\src\scintilla\src\Selection.h
 Index: C:\as\komodo-devel\src\scintilla\src\Selection.cxx
 --- src/Selection.cxx 
 +++ src/Selection.cxx (unsaved) 
-@@ -156,7 +156,7 @@
+@@ -170,7 +170,7 @@ void SelectionRange::MinimizeVirtualSpace() {
  	}
  }
  
 -Selection::Selection() : mainRange(0), moveExtends(false), tentativeMain(false), selType(selStream) {
 +Selection::Selection() : mainRange(0), moveExtends(false), tentativeMain(false), selType(selStream), enforceRectangular(false) {
- 	AddSelection(SelectionPosition(0));
+ 	AddSelection(SelectionRange(SelectionPosition(0)));
  }
  

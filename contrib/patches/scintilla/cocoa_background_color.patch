@@ -5,14 +5,14 @@ Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaView.mm
 --- cocoa/ScintillaView.mm	(revision 81787)
 +++ cocoa/ScintillaView.mm	(working copy)
 @@ -997,6 +1014,11 @@
-           // There can be more than one modification carried by one notification.
-           if (scn->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))
-             [editor sendNotification: NSTextDidChangeNotification];
-+          else if (scn->modificationType & SC_MOD_CHANGESTYLE) {
-+            // Komodo: set the background color on the scroll view, bug 100251.
-+            NSColor *color = [editor getColorProperty: SCI_STYLEGETBACK parameter: STYLE_DEFAULT];
-+            [editor->scrollView setBackgroundColor: color];
-+          }
-           break;
-         }
-         case SCN_ZOOM:
+       // There can be more than one modification carried by one notification.
+       if (scn->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))
+ 	[self sendNotification: NSTextDidChangeNotification];
++      else if (scn->modificationType & SC_MOD_CHANGESTYLE) {
++        // Komodo: set the background color on the scroll view, bug 100251.
++        NSColor *color = [editor getColorProperty: SCI_STYLEGETBACK parameter: STYLE_DEFAULT];
++        [editor->scrollView setBackgroundColor: color];
++      }
+       break;
+     }
+     case SCN_ZOOM:

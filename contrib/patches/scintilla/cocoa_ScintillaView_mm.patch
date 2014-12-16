@@ -2,7 +2,7 @@ Index: cocoa/ScintillaView.mm
 ===================================================================
 --- cocoa/ScintillaView.mm	(revision 73437)
 +++ cocoa/ScintillaView.mm	(working copy)
-@@ -159,6 +159,7 @@
+@@ -315,6 +315,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  - (BOOL) acceptsFirstMouse: (NSEvent *) theEvent
  {
  #pragma unused(theEvent)
@@ -10,7 +10,7 @@ Index: cocoa/ScintillaView.mm
    return YES;
  }
  
-@@ -169,7 +170,10 @@
+@@ -325,7 +326,10 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   */
  - (BOOL) acceptsFirstResponder
  {
@@ -22,7 +22,7 @@ Index: cocoa/ScintillaView.mm
  }
  
  //--------------------------------------------------------------------------------------------------
-@@ -179,6 +183,9 @@
+@@ -335,6 +339,9 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   */
  - (NSMenu*) menuForEvent: (NSEvent*) theEvent
  {
@@ -32,7 +32,7 @@ Index: cocoa/ScintillaView.mm
    if (![mOwner respondsToSelector: @selector(menuForEvent:)])
      return mOwner.backend->CreateContextMenu(theEvent);
    else
-@@ -374,6 +381,9 @@
+@@ -593,6 +600,9 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   */
  - (void) keyDown: (NSEvent *) theEvent
  {
@@ -42,7 +42,7 @@ Index: cocoa/ScintillaView.mm
    if (mMarkedTextRange.length == 0)
  	mOwner.backend->KeyboardInput(theEvent);
    NSArray* events = [NSArray arrayWithObject: theEvent];
-@@ -900,6 +900,9 @@
+@@ -926,6 +936,9 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   */
  - (void) magnifyWithEvent: (NSEvent *) event
  {
@@ -52,7 +52,7 @@ Index: cocoa/ScintillaView.mm
  #if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
    zoomDelta += event.magnification * 10.0;
  
-@@ -1583,5 +1593,33 @@
+@@ -1895,5 +1908,33 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  
  //--------------------------------------------------------------------------------------------------
  
