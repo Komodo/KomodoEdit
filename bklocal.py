@@ -2726,25 +2726,12 @@ class SCCBranch(black.configure.Datum):
         
         scc_type = black.configure.items["sccType"].Get()
 
-        if scc_type == "svn":
-            stdout = _capture_stdout(['svn', 'info', dir])
-            for line in stdout.splitlines(0):
-                if re.compile(r"^URL\s*:").match(line):
-                    repo_url = line.split(':', 1)[1].strip()
-                    break
-            scc_branch = ubasename(repo_url)
-        elif scc_type == "git":
+        if scc_type == "git":
             stdout = _capture_stdout(['git', 'branch', '-l'])
             for line in stdout.splitlines(0):
                 if line.startswith("*"):
                     scc_branch = line[1:].strip()
                     break
-            if scc_branch == "master":
-                scc_branch = "trunk"
-        elif scc_type == "hg": # ???
-            scc_branch = _capture_stdout(['hg', 'branch']).strip()
-            if scc_branch == "default":
-                scc_branch = "trunk"
         else:
             return ""
         return scc_branch
