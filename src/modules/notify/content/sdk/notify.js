@@ -22,6 +22,7 @@
     this.P_INFO = Ci.koINotification.SEVERITY_INFO;
     this.P_WARNING = Ci.koINotification.SEVERITY_WARNING;
     this.P_ERROR = Ci.koINotification.SEVERITY_ERROR;
+    this.P_NOW = 10;
 
     var defaultOpts = {
         id: false,
@@ -69,13 +70,19 @@
 
     this.send = (message, category, opts) =>
     {
+        if ((typeof category) == "object")
+        {
+            opts = category;
+            category = undefined;
+        }
+        
         log.debug("Sending: " + message + " ("+category+")");
         log.debug("Source: " + logging.getStack(null, 0, 4));
-
+        
         var _ = require("contrib/underscore");
 
         var _defaultOpts = _.clone(defaultOpts);
-        if (this.categories.get(category))
+        if (category && this.categories.get(category))
         {
             log.debug("Category exists: " + category);
             _defaultOpts  = _.extend(_defaultOpts , this.categories.get(category).opts);
@@ -99,12 +106,12 @@
         {
             if (("P_" + opts.priority.toUpperCase() in this) != 'undefined')
             {
-                opts.classlist += " " + opts.priority.toLowerCase();
+                opts.classlist += " p-" + opts.priority.toLowerCase();
                 opts.priority = this["P_" + opts.priority.toUpperCase()];
             }
             else
             {
-                opts.classlist += " notification";
+                opts.classlist += " p-notification";
                 opts.priority = this.P_INFO;
             }
         }
@@ -113,14 +120,17 @@
             switch (opts.priority)
             {
                 case this.P_ERROR:
-                    opts.classlist += " error";
+                    opts.classlist += " p-error";
                     break;
                 case this.P_WARNING:
-                    opts.classlist += " warning";
+                    opts.classlist += " p-warning";
                     break;
                 default:
                 case this.P_INFO:
-                    opts.classlist += " notification";
+                    opts.classlist += " p-notification";
+                    break;
+                case this.P_NOW:
+                    opts.classlist += " p-now";
                     break;
             }
         }
@@ -178,6 +188,8 @@
             var append = queue.length;
             var replace = 0;
             var _queue = queue[notif.opts.from].items;
+            
+            // determine the notifications place in the queue
             for (let x in _queue)
             {
                 if ( ! append && _queue[x].opts.priority < notif.opts.priority)
@@ -193,6 +205,12 @@
             }
 
             queue[notif.opts.from].items.splice(append, replace, notif);
+            
+            if (notif.opts.priority == this.P_NOW)
+            {
+                log.debug("Notification type is NOW, hide active Notification and show it right away");
+                this.hideNotification();
+            }
         }
         else
         {
@@ -363,6 +381,16 @@
     
     this.hideNotification = (notif) =>
     {
+        if ( ! notif)
+        {
+            for (let k in activeNotifs)
+            {
+                let notif = activeNotifs[k];
+                this.hideNotification(notif);
+            }
+            return;
+        }
+        
         var panel = queue[notif.opts.from].activePanel;
         if ( ! panel || ! panel.exists())
         {
