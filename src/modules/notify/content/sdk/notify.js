@@ -53,6 +53,8 @@
     {
         var addScrollListener = function()
         {
+            if ( ! ("views" in ko)) return;
+            
             var scimoz = ko.views.manager.currentView ? ko.views.manager.currentView.scimoz : false;
             if ( ! scimoz) return;
             
