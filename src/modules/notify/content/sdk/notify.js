@@ -185,6 +185,8 @@
         if (queue[notif.opts.from].active && (! notif.opts.id ||
             notif.opts.id != queue[notif.opts.from].activeId))
         {
+            log.debug("Adding notification to queue");
+            
             var append = queue.length;
             var replace = 0;
             var _queue = queue[notif.opts.from].items;
@@ -214,6 +216,8 @@
         }
         else
         {
+            log.debug("Showing notification immediately");
+            
             this.showNotification(notif);
         }
 
@@ -226,16 +230,20 @@
         
         if (notif)
         {
+            log.debug("Processing next queued notification");
             timers.setTimeout(this.showNotification.bind(this, notif), 250);
         }
         else
         {
+            log.debug("Reached end of queue");
             queue[from].active = false;
         }
     }
 
     this.showNotification = (notif) =>
     {
+        log.debug("Showing notification");
+        
         activeNotifs[notif.opts.id] = notif;
         
         var replace = queue[notif.opts.from].activePanel &&
@@ -271,7 +279,7 @@
 
     this.doShowNotification = (notif, animate = true) =>
     {
-        log.debug("Showing: " + notif.message);
+        log.debug("doShowing: " + notif.message);
         
         var panel = queue[notif.opts.from].activePanel;
 
@@ -369,6 +377,7 @@
     
     this.hideNotificationsByProp = (prop, value) =>
     {
+        log.debug("Hide notification by prop " + prop + ": " + value);
         for (let k in activeNotifs)
         {
             let notif = activeNotifs[k];
@@ -381,8 +390,12 @@
     
     this.hideNotification = (notif) =>
     {
+        log.debug("Hiding Notification");
+        
         if ( ! notif)
         {
+            log.debug("Hiding All Notifications");
+            
             for (let k in activeNotifs)
             {
                 let notif = activeNotifs[k];
