@@ -2451,6 +2451,8 @@ this.Manager.prototype.cancelPrefix = function (why) {
     this._keyPressCaptureWindow.removeEventListener('mousedown', gCancelKeyHandler, true);
     this._keyPressCaptureWindow.removeEventListener('blur', gCancelKeyHandler, false);
     this._keyPressCaptureWindow = null;
+    
+    require("notify/notify").hideNotificationsByProp("id", "keyCompletion");
 }
 
 this.Manager.prototype.startPrefixCapture = function() {
@@ -2594,7 +2596,7 @@ this.Manager.prototype.keypressHandler = function (event, ignorePhase) {
             this.startPrefixCapture();
             this.currentPrefixMap = this.currentPrefixMap[key]
             var msg = this.currentPrefixString + " was pressed.  Awaiting further keys.";
-            require("notify/notify").send(msg, "keybindings");
+            require("notify/notify").send(msg, "keybindings", {id: "keyCompletion", priority: "now"});
             event.cancelBubble = true;
             event.stopPropagation();
             event.preventDefault();
