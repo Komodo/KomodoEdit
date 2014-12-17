@@ -715,7 +715,7 @@ configuration = {
 
     # Komodo build/version configuration vars.
     "sourceId": SourceId(),                                         #   e.g., 1234M
-    "sccRepoName": "oksvn",                 # openkomodo.com SVN repo
+    "sccRepoName": "kegit",                 # Github/Komodo/KomodoEdit
     "sccType": SCCType(),
     "sccBranch": SCCBranch(),               # e.g.: "trunk"
     "sccRepo": SCCRepo(),                   # upstream repo location
