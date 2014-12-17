@@ -769,6 +769,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY colored.value "Colored">
 <!ENTITY iconsetColor.label "Icon Colors:">
 <!ENTITY skinEditorScrollbars.label "Skin Editor Scrollbars">
+<!ENTITY enableSchemeSkinning.label "Color HUD with Color Scheme">
 <!ENTITY colorBase.label "Base">
 <!ENTITY colorToolbar.label "Toolbar">
 <!ENTITY colorWidgets.label "Widgets">

@@ -74,6 +74,17 @@ function PrefUi_OnLoad() {
 
         checkboxDetect.addEventListener('click', setSkinState);
     }
+    
+    var ssCheck = document.getElementById('koSkin_scheme_skinning');
+    var csCheck = document.getElementById('koSkin_use_custom_scrollbars');
+    
+    var setSchemeSkinningState = function()
+    {
+        csCheck.checked = ssCheck.checked;
+        csCheck.disabled = ! ssCheck.checked;
+    }
+    
+    ssCheck.addEventListener('click', setSchemeSkinningState);
 
     // Run default actions (load prefs and their selected state)
     parent.hPrefWindow.onpageload();
@@ -82,4 +93,6 @@ function PrefUi_OnLoad() {
     {
         setSkinState();
     }
+    
+    setSchemeSkinningState();
 }

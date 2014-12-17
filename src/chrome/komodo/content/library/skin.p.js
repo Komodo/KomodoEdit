@@ -38,7 +38,8 @@ if (ko.skin == undefined)
     const   PREF_CUSTOM_ICONS     = 'koSkin_custom_icons',
             PREF_CUSTOM_SKIN      = 'koSkin_custom_skin',
             PREF_USE_GTK_DETECT   = 'koSkin_use_gtk_detection',
-            PREF_EDITOR_SCHEME    = 'editor-scheme';
+            PREF_EDITOR_SCHEME    = 'editor-scheme',
+            PREF_SCHEME_SKINNING  = 'koSkin_scheme_skinning';
     
     // Old preference value reference
     var prefInfo = {};
@@ -46,12 +47,15 @@ if (ko.skin == undefined)
     prefInfo[PREF_CUSTOM_SKIN]       = {type: "String", old: prefs.getString(PREF_CUSTOM_SKIN, '')};
     prefInfo[PREF_USE_GTK_DETECT]    = {type: "Boolean", old: prefs.getBoolean(PREF_USE_GTK_DETECT, true)};
     prefInfo[PREF_EDITOR_SCHEME]     = {type: "String", old: prefs.getString(PREF_EDITOR_SCHEME, '')};
+    prefInfo[PREF_SCHEME_SKINNING]   = {type: "Boolean", old: prefs.getBoolean(PREF_SCHEME_SKINNING, '')};
     
     ko.skin.prototype  =
     {
         PREF_CUSTOM_ICONS:      PREF_CUSTOM_ICONS,
         PREF_CUSTOM_SKIN:       PREF_CUSTOM_SKIN,
         PREF_USE_GTK_DETECT:    PREF_USE_GTK_DETECT,
+        PREF_EDITOR_SCHEME:     PREF_EDITOR_SCHEME,
+        PREF_SCHEME_SKINNING:   PREF_SCHEME_SKINNING,
         
         shouldFlushCaches: false,
         
@@ -136,6 +140,7 @@ if (ko.skin == undefined)
                     break;
 
                 case PREF_EDITOR_SCHEME:
+                case PREF_SCHEME_SKINNING:
                     this.loadSchemeSkinning();
                     this.setSchemeClasses();
                     break;
@@ -294,6 +299,10 @@ if (ko.skin == undefined)
 
         loadSchemeSkinning: function()
         {
+            this.unloadVirtualStyle("scheme-skinning-partial");
+            
+            if ( ! prefs.getBoolean(PREF_SCHEME_SKINNING)) return;
+            
             var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
             var scheme = schemeService.getScheme(prefs.getString(PREF_EDITOR_SCHEME));
             
@@ -307,7 +316,7 @@ if (ko.skin == undefined)
                 "@background: " + back + ";\n" +
                 "@foreground: " + fore + ";\n" +
                 "@import url('chrome://komodo/skin/partials/scheme-skinning.less');";
-            this.loadVirtualStyle(lessCode, "statusbar-partial", "agent");
+            this.loadVirtualStyle(lessCode, "scheme-skinning-partial", "agent");
         },
 
         _getFile: function(uri)
@@ -595,6 +604,7 @@ if (ko.skin == undefined)
         unloadVirtualStyle: function(id)
         {
             if ( ! id) throw "You must provide a unique id for your style";
+            if ( ! (id in this._virtualStyles)) return;
 
             var style = this._virtualStyles[id];
             var styleUtil = require("sdk/stylesheet/utils");

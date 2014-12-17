@@ -114,6 +114,17 @@
                 </menulist>
             </hbox>
             
+            <!-- HUD Skinning -->
+            <hbox>
+                <spacer width="80"/>
+                <checkbox id="koSkin_scheme_skinning"
+                          label="&enableSchemeSkinning.label;"
+                          pref="true"
+                          preftype="boolean"
+                          prefdefault="true"
+                          prefattribute="checked"/>
+            </hbox>
+            
             <!-- Scrollbar Skinning -->
             <hbox>
                 <spacer width="80"/>
@@ -124,6 +135,7 @@
                           prefdefault="true"
                           prefattribute="checked"/>
             </hbox>
+            
         </groupbox>
 
         <groupbox id="ui.tabs.sidepanes.groupbox">

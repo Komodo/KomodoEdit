@@ -939,6 +939,7 @@
       <string id="koSkin_custom_icons">chrome://iconset-dark/content/manifest/chrome.manifest</string>
   <!-- #endif -->
       <boolean id="koSkin_use_custom_scrollbars">1</boolean>
+      <boolean id="koSkin_scheme_skinning">1</boolean>
   
   <!-- Todo: This is ugly and redundant, the icon system needs an overhaul to simplify eeeverything -->
   <!-- #if PLATFORM == "darwin" -->
@@ -1022,5 +1023,5 @@
   <ordered-preference id="commando_favourites"/>
 
   <ordered-preference id="scope-files-shortcuts"/>
-
+  
 </preference-set>
