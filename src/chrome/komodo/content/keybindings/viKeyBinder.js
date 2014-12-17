@@ -1543,7 +1543,7 @@ VimController.prototype.performSearch = function (scimoz, searchString,
             this._setFindSvcContext("find");
             var repeatSearchCount = Math.max(1, this.repeatCount);
             vimlog.debug("Repeating search: " + repeatSearchCount + " times");
-            var msg = "Search: '" + searchString + "'";
+            var msg = null;
             // Track how many times the search has looped around the document.
             var loopcount = 0;
             var loop_trackingPos = orig_currentPos;
@@ -1608,7 +1608,8 @@ VimController.prototype.performSearch = function (scimoz, searchString,
                 scimoz.currentPos = orig_currentPos;
                 msg = "Operation cancelled: Search looped around twice";
             }
-            this.setStatusBarMessage(msg, 5000, true);
+            
+            if (msg) this.setStatusBarMessage(msg, 5000, true);
         } finally {
             this._restoreFindSvcOptions();
         }
