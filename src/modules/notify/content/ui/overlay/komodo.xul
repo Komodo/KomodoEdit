@@ -19,11 +19,10 @@
         <script id="tpl-notify-panel" type="x-dot-template">
             <panel anonid="notify-panel"
                    class="notify-panel {{=it.classlist}}"
-                   type="drag"
                    noautofocus="true"
                    noautohide="true"
                    ignorekeys="true"
-                   level="floating">
+                   level="parent">
                 <hbox class="wrapper">
                     {{?it.icon}}
                         <image class="icon" src="{{=it.icon}}?preset=hud"></image>
