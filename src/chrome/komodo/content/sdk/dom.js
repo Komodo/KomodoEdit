@@ -512,57 +512,73 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
 
             this._animComplete = opts.complete;
-            this._animTimer = window.setInterval(function()
+            
+            var frameStep = function()
             {
                 frameCounter++;
                 log.debug("Frame: " + frameCounter);
 
-                this.each(function()
+                try
                 {
-                    for (var prop in props)
+                    
+                    this.each(function()
                     {
-                        let style = styles[this.id];
-                        let currentValue = style[prop];
-                        let increment = style[prop + "::Increments"];
-
-                        if (isNaN(currentValue))
-                            continue;
-
-                        let newValue = frameCounter == frameCount ?
-                                        props[prop] : currentValue + increment;
-
-                        log.debug("Setting " + prop + " to " + newValue);
-
-                        switch (prop)
+                        for (var prop in props)
                         {
-                            case 'panelX':
-                                this.moveTo(newValue, this.popupBoxObject.screenY);
-                                break;
-                            case 'panelY':
-                                this.moveTo(this.popupBoxObject.screenX, newValue);
-                                break;
-                            default:
-                                this.style[prop] = newValue;
-                                break;
-                        }
-
-                        styles[this.id][prop] = newValue;
-                    };
-                });
+                            let style = styles[this.id];
+                            let currentValue = style[prop];
+                            let increment = style[prop + "::Increments"];
+    
+                            if (isNaN(currentValue))
+                                continue;
+    
+                            let newValue = frameCounter == frameCount ?
+                                            props[prop] : currentValue + increment;
+    
+                            log.debug("Setting " + prop + " to " + newValue);
+    
+                            switch (prop)
+                            {
+                                case 'panelX':
+                                    this.moveTo(newValue, this.popupBoxObject.screenY);
+                                    break;
+                                case 'panelY':
+                                    this.moveTo(this.popupBoxObject.screenX, newValue);
+                                    break;
+                                default:
+                                    this.style[prop] = newValue;
+                                    break;
+                            }
+    
+                            styles[this.id][prop] = newValue;
+                        };
+                    });
+                    
+                } catch (e)
+                {
+                    log.exception(e, "Something went wrong while animating a frame, stopping animation");
+                    this.stop();
+                }
 
                 if (frameCounter == frameCount)
                 {
                     this.stop();
                 }
+                else
+                {
+                    this._animTimer = window.setTimeout(frameStep.bind(this), interval);
+                }
 
-            }.bind(this), interval);
+            }
+            
+            this._animTimer = window.setTimeout(frameStep.bind(this), interval);
         },
 
         stop: function()
         {
             if ("_animTimer" in this)
             {
-                window.clearInterval(this._animTimer);
+                window.clearTimeout(this._animTimer);
                 delete this._animTimer;
 
                 if ("_animComplete" in this)
