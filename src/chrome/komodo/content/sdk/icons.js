@@ -612,6 +612,7 @@
                 } catch (e)
                 {
                     log.exception(e, "failed retrieving fileicon");
+                    callback();
                 }
                 break;
             case "svg":
@@ -621,6 +622,7 @@
                 } catch (e)
                 {
                     log.exception(e, "failed retrieving svg icon");
+                    callback();
                 }
                 break;
         }
