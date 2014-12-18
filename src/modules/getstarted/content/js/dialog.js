@@ -21,7 +21,9 @@ document.addEventListener('DOMContentLoaded', function()
         }.bind(link));
     }
 
-    var showGetStarted  = ko.prefs.getBoolean('show-getstarted', false);
+    var koMajorMinor = ko.version.split(".").slice(0, 2).join(".");
+    var prefName = 'show-getstarted-' + koMajorMinor;
+    var showGetStarted  = ko.prefs.getBoolean(prefName, false);
     var checkbox        = document.getElementById('showGetStartedCheck');
     if (showGetStarted)
     {
@@ -31,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function()
     checkbox.addEventListener("click", function()
     {
         showGetStarted = ! showGetStarted;
-        ko.prefs.setBooleanPref('show-getstarted', showGetStarted);
+        ko.prefs.setBoolean(prefName, showGetStarted);
     });
 
     // Close dialog when escape key is pressed
