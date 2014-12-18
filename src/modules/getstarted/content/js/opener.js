@@ -42,13 +42,16 @@
 
     window.controllers.appendController(controller);
 
-    // Show dialog on startup if preferred / unconfigured
-    var hasPref = ko.prefs.hasPref('show-getstarted');
-    if (ko.prefs.getBoolean('show-getstarted', false) || ! hasPref)
+    // Show dialog on startup if preferred / unconfigured. We also want to
+    // force showing of this dialog on every major.minor Komodo update.
+    var koMajorMinor = ko.version.split(".").slice(0, 2).join(".");
+    var prefName = 'show-getstarted-' + koMajorMinor;
+    var hasPref = ko.prefs.hasPref(prefName);
+    if (ko.prefs.getBoolean(prefName, false) || ! hasPref)
     {
         if ( ! hasPref)
         {
-            ko.prefs.setBooleanPref('show-getstarted', false);
+            ko.prefs.setBooleanPref(prefName, false);
         }
 
         window.addEventListener("komodo-ui-started", function() { ko.commands.doCommandAsync('cmd_viewGetStarted') });
