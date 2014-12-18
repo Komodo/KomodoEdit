@@ -122,7 +122,7 @@ IconChannel.prototype = {
         if (alreadyQueued) return;
         
         var iconLib = getIconLib();
-        var iconFile = "chrome://komodo/skin/images/icon_check_error.png";
+        var iconFile = "chrome://komodo/skin/images/sad.png";
 
         if (iconLib)
         {
