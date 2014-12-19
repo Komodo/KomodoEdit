@@ -10,8 +10,8 @@ Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaView.mm
  	[self sendNotification: NSTextDidChangeNotification];
 +      else if (scn->modificationType & SC_MOD_CHANGESTYLE) {
 +        // Komodo: set the background color on the scroll view, bug 100251.
-+        NSColor *color = [editor getColorProperty: SCI_STYLEGETBACK parameter: STYLE_DEFAULT];
-+        [editor->scrollView setBackgroundColor: color];
++        NSColor *color = [self getColorProperty: SCI_STYLEGETBACK parameter: STYLE_DEFAULT];
++        [[self scrollView] setBackgroundColor: color];
 +      }
        break;
      }
