@@ -116,7 +116,7 @@ Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaCocoa.mm
 -  if (notifyProc != NULL)
 -    notifyProc(notifyObj, WM_NOTIFY, GetCtrlID(), (uintptr_t) &scn);
 +  std::vector<NotificationHandler>::iterator it;
-+  for (it = notificationHandlers.begin(); it != notificationHandlers.end(); it++)
++  for (it = notificationHandlers.begin(); it != notificationHandlers.end(); it++) {
 +    it->callback(it->windowid, WM_NOTIFY, (uintptr_t) 0, (uintptr_t) &scn);
 +  }
    if (delegate)
