@@ -176,6 +176,7 @@ function PrefTreeView(initial_rows) {
     xtk.hierarchicalTreeView.apply(this, [initial_rows]);
     this._atomService = Components.classes["@mozilla.org/atom-service;1"].
                             getService(Components.interfaces.nsIAtomService);
+    this.enableSorting = false;
     this.filtering = false;
     // Three kinds of rows in this tree:
     // this._rows -- the current view of rows, which the parent class expects to work with
