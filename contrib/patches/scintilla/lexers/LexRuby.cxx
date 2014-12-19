@@ -896,8 +896,7 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
     char chPrev = styler.SafeGetCharAt(startPos - 1);
     char chNext = styler.SafeGetCharAt(startPos);
     bool is_real_number = true;   // Differentiate between constants and ?-sequences.
-    // Ruby uses a different mask because bad indentation is marked by oring with 32
-    styler.StartAt(startPos, 127);
+    styler.StartAt(startPos);
     styler.StartSegment(startPos);
 
     static int q_states[] = {SCE_RB_STRING_Q,

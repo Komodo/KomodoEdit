@@ -3261,9 +3261,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
     int redoCount = 0;
     const int redoLimit = 1000;
 
-    char lexerMask = 0x3f; // 6 bits
-
-    styler.StartAt(startPos, lexerMask);
+    styler.StartAt(startPos);
     styler.StartSegment(startPos);
     if (lengthDoc > 1) {
         // If there's an indicator at the very start of this line,

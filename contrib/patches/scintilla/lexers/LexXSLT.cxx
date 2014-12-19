@@ -191,7 +191,7 @@ static void ColouriseXSLTDoc(unsigned int startPos,
     int levelCurrent = levelPrev;
     bool hasVisibleChars = false;
 
-    styler.StartAt(startPos,63);
+    styler.StartAt(startPos);
     styler.StartSegment(startPos);
 
     char ch;

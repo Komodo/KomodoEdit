@@ -1013,8 +1013,7 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
     }
     
     // Get the styler and the character variables ready to go.
-    char lexerMask = 0x3f; // 6 bits
-    styler.StartAt(startPos, lexerMask);
+    styler.StartAt(startPos);
     char chPrev = styler.SafeGetCharAt(startPos - 1);
     char chNext = styler.SafeGetCharAt(startPos);
     styler.StartSegment(startPos);
