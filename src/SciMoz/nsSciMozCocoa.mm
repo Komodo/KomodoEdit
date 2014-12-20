@@ -11,12 +11,12 @@
   require massive proxying of events, and I'm not seeing the events.
 
  */
+#import "ScintillaView.h"
+
 #import "plugin.h"
 #import "nsSciMoz.h"
 
 #import <Cocoa/Cocoa.h>
-
-#import "ScintillaView.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -77,7 +77,8 @@ static char *getNSRectStr(NSRect rect, char *buf) {
 void SciMoz::PlatformCreate(WinID) {
   SendEditor(SCI_USEPOPUP, FALSE, 0);
   SendEditor(SCI_SETFOCUS, FALSE, 0);
-  scintilla->RegisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
+  //scintilla->RegisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
+  //scintilla->SetScimozDelegate(this);
 }
 
 void SciMoz::Resize() {
@@ -212,7 +213,6 @@ nsresult SciMoz::PlatformDestroy(void) {
     fprintf(stderr,"SciMoz::PlatformDestroy wEditor %p scintilla %p\n", wEditor, scintilla);
 #endif
     if (scintilla) {
-        scintilla->unregisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
         scintilla->SetTicking(false);
         scintilla = NULL;
     }
@@ -234,9 +234,6 @@ nsresult SciMoz::PlatformDestroy(void) {
 
 
 void SciMoz::PlatformMarkClosed() {
-	if (scintilla) {
-            scintilla->unregisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
-	}
 }
 
 #if 0

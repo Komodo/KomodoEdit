@@ -489,6 +489,7 @@ def generate_idl_constants_fragment(face):
     unwantedValues = ["SCI_START", "SCI_OPTIONAL_START", "SCI_LEXER_START"]
     outputfile = file("ISciMoz_gen.consts.fragment", "w")
     print "Dumping ISciMoz interface constants to %s" % outputfile.name
+    outputfile.write("%{C++\n#ifndef SCINTILLA_HIDE_DEFINES\n%}\n")
     for name in face.order:
         if name in unwantedValues:
             # we don't want to expose this constant
@@ -508,6 +509,7 @@ def generate_idl_constants_fragment(face):
                 "unsigned": "unsigned " if len(value) >= 10 and value.startswith("0x") else ""
               },
               file=outputfile)
+    outputfile.write("%{C++\n#endif\n%}\n")
 
 def generate_idl_method_fragment(feature, file, indent=8):
     """

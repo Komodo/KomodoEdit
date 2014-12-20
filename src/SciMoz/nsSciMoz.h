@@ -120,6 +120,7 @@
 #ifdef XP_MACOSX
 #ifndef HEADLESS_SCIMOZ
 #include <Platform.h>
+#include <ScintillaView.h>
 #include <ScintillaCocoa.h>
 #endif
 #endif

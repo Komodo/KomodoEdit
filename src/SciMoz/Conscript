@@ -221,14 +221,14 @@ elsif ($platform eq "darwin") {
     $pluginDir = "SciMoz.plugin";
 
     %consLocal = $cons->copy();
-    $consLocal{'LDFLAGS'} = "-dynamic";
-    $consLocal{'LIBS'} = "-bundle -lscintilla";
+    $consLocal{'LIBS'} = "$xScintillaBuildDir/bin/scintilla.a";
+	$consLocal{'LIBS'} .= " $xScintillaBuildDir/cocoa/libpcre.a";
     $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
 #    $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
     $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozBin";
     $consLocal{'LIBS'} .= " $mozDevelDist/bin/XUL $mozDevelDist/lib/libxpcomglue_s.a -lnspr4 -lmozalloc ";
     # add required frameworks
-    $consLocal{'LIBS'} .= " -framework CoreFoundation ";
+    $consLocal{'LIBS'} .= " -framework CoreFoundation -framework QuartzCore";
     # scintilla
     
 
@@ -239,6 +239,8 @@ elsif ($platform eq "darwin") {
     $consLocal{'CXXFLAGS'} .= " $consLocal{ENV}{'CXXFLAGS'}";
     $consLocal{'CFLAGS'} = $consLocal{ENV}{'CFLAGS'};
     $consLocal{'LDFLAGS'} = $consLocal{ENV}{'LDFLAGS'};
+    $consLocal{'LDFLAGS'} .= " -bundle";
+    $consLocal{'CXXFLAGS'} .= " -DSCINTILLA_HIDE_DEFINES";
     $consLocal{'CXXFLAGS'} .= " -DSCI_NAMESPACE=1 -DMACOSX=1 -DSCI_LEXER ".
                             " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES".
                             " -DXP_MACOSX=1 -DNO_X11=1 -DUSE_SYSTEM_CONSOLE=1 ".
@@ -263,8 +265,7 @@ elsif ($platform eq "darwin") {
     }
 
     $consLocal = new cons(%consLocal);
-    $consLocal->Depends("SciMoz", "$mozBin/libscintilla.dylib");
-    $consLocal->Install("$mozBin", "$scintillaBuildDir/bin/libscintilla.dylib");
+    $consLocal->Depends("SciMoz", "$scintillaBuildDir/bin/scintilla.a");
 
 
     # Make ".mm" file wrappers - so C/C++ code gets treated as objective-C.
@@ -428,7 +429,6 @@ if ($withTests && $platform ne "win") {
 
     if ($platform eq "darwin") {
 	# Mac tweaks
-	$consHeadless{'LIBS'} =~ s/ -lscintilla//;   # Mac
 	$consHeadless{'LIBS'} .= " $xScintillaBuildDir/bin/headlessscintilla.a";
 	$consHeadless{'LIBS'} .= " $xScintillaBuildDir/cocoa/libpcre.a";
 	# Ensure to hide symbol names by default.
