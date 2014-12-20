@@ -89,7 +89,7 @@ $consLocal->Command(
     #    dir.
     qq(
         cd %1:d && $mkwriteable PySilverCity/SilverCity/ScintillaConstants.py
-        cd %1:d && $siloedPython PySilverCity/Src/write_scintilla.py ../scintilla/include ../scintilla/include/Scintilla.iface PySilverCity/SilverCity/ScintillaConstants.py
+        cd %1:d && $siloedPython PySilverCity/Src/write_scintilla.py ../scintilla/scripts ../scintilla/include/Scintilla.iface PySilverCity/SilverCity/ScintillaConstants.py
         cd %1:d && $archFlags $siloedPython setup.py build $debugFlags
         cd %1:d && $archFlags $siloedPython setup.py install --skip-build --install-lib=$komodoPythonUtilsDir --install-scripts=bitbucket --install-data=bitbucket --prefix=bitbucket
     )
