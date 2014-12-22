@@ -186,18 +186,20 @@ class _JSLikeLangInfo(LangInfo):
                           ])
     keywords = common_keywords.union(
                 # Additional JavaScript reserved keywords.
-                set(["abstract", "boolean", "byte",
+                set(["abstract", "arguments",
+                    "boolean", "byte",
                     "char", "class",
                     "double",
-                    "enum", "extends",
-                    "float",
+                    "enum", "extends", "eval",
+                    "float", "final",
                     "goto",
                     "implements", "int", "interface",
                     "long",
                     "native",
                     "package", "private", "protected", "public",
                     "short", "static", "super", "synchronized",
-                    "transient"
+                    "throws", "transient",
+                    "volatile"
                     ]))
 
 class JavaScriptLangInfo(_JSLikeLangInfo):
@@ -210,29 +212,24 @@ class NodeJSLangInfo(_JSLikeLangInfo):
 
 class CoffeeScriptLangInfo(_JSLikeLangInfo):
     name = "CoffeeScript"
-    exts = ['.coffee']
+    exts = ['.coffee', '.litcoffee']
+    filename_patterns = ['Cakefile']
     
-    common_keywords = set().union(_JSLikeLangInfo.common_keywords)
-    try:
-        common_keywords.remove("var")
-    except KeyError:
-        log.exception("Can't remove 'var'")
-    _new_keywords = set(['__bind__indexOf', '__extends', '__hasProp', '__slice',
-                         'and', 'arguments', 'await',
+    _inherited_keywords = set().union(_JSLikeLangInfo.keywords)
+    _compiler_reserved_words = set(['__hasProp', '__extends', '__slice', '__bind', '__indexOf'])
+    _new_keywords = set(['and',
                          'by',
                          'class', 'constructor',
-                         'defer',
-                         'enum', 'export', 'eval', 'extends',
                          'is', 'isnt',
-                         'loop', 'no', 'not',
-                         'of', 'on', 'off', 'or',
-                         'protected', 'public',
-                         'super',
+                         'loop',
+                         'no', 'not',
+                         'of', 'off', 'on', 'or', 'own',
                          'then',
                          'unless', 'until',
                          'when',
                          'yes'])
-    keywords = common_keywords.union(_new_keywords)
+    
+    keywords = _inherited_keywords.union(_compiler_reserved_words).union(_new_keywords)
 
 class CLangInfo(LangInfo):
     #TODO: rationalize with C++ and Komodo's usage
