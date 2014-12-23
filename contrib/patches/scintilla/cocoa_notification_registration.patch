@@ -59,7 +59,7 @@ Index: /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.h
    BOOL mInfoBarAtTop;
  
    id<ScintillaNotificationProtocol> mDelegate;
-+  id<ScintillaNotificationProtocol> mSciMozDelegate;
++  id<ScintillaNotificationProtocol> mScimozDelegate;
  }
  
  @property (nonatomic, readonly) Scintilla::ScintillaCocoa* backend;
