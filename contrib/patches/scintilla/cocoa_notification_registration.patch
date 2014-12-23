@@ -3,8 +3,8 @@ handler. This is because in SciMoz we use this method to setup and listen for
 notification events, in order to pass back to DOM listeners, but ScintillaView
 also registers a handler in order to deal with certain events.
 Index: /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.h
---- /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.h
-+++ /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.h (unsaved)
+--- cocoa/ScintillaCocoa.h
++++ cocoa/ScintillaCocoa.h (unsaved)
 @@ -100,6 +100,7 @@
    NSEvent* lastMouseEvent;
  
@@ -22,8 +22,8 @@ Index: /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.h
    sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
  
 Index: /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.mm
---- /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.mm
-+++ /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.mm (unsaved)
+--- cocoa/ScintillaCocoa.mm
++++ cocoa/ScintillaCocoa.mm (unsaved)
 @@ -385,6 +385,7 @@
    timerTarget = [[TimerTarget alloc] init: this];
    lastMouseEvent = NULL;
@@ -53,8 +53,8 @@ Index: /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.mm
  
  //--------------------------------------------------------------------------------------------------
 Index: /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.h
---- /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.h
-+++ /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.h (unsaved)
+--- cocoa/ScintillaView.h
++++ cocoa/ScintillaView.h (unsaved)
 @@ -112,10 +112,12 @@
    BOOL mInfoBarAtTop;
  
@@ -69,8 +69,8 @@ Index: /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.h
  
  + (Class) contentViewClass;
 Index: /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.mm
---- /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.mm
-+++ /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.mm (unsaved)
+--- cocoa/ScintillaView.mm
++++ cocoa/ScintillaView.mm (unsaved)
 @@ -902,6 +902,7 @@
  
  @synthesize backend = mBackend;
