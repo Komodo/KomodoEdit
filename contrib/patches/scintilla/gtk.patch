@@ -538,7 +538,7 @@ scrollbars was causing an infinite loop.
  
  int ScintillaGTK::TimeOut(TimeThunk *tt) {
  	tt->scintilla->TickFor(tt->reason);
-+	sciThis->DragScroll();
++	tt->scintilla->DragScroll();
  	return 1;
  }
  
