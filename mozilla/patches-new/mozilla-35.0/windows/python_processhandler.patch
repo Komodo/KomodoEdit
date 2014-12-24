@@ -1,0 +1,23 @@
+Update handler to work with Python 2.7.8
+diff --git a/testing/mozbase/mozprocess/mozprocess/processhandler.py b/testing/mozbase/mozprocess/mozprocess/processhandler.py
+--- a/testing/mozbase/mozprocess/mozprocess/processhandler.py
++++ b/testing/mozbase/mozprocess/mozprocess/processhandler.py
+@@ -164,17 +164,17 @@ class ProcessHandlerMixin(object):
+             return self.returncode
+ 
+         """ Private Members of Process class """
+ 
+         if isWin:
+             # Redefine the execute child so that we can track process groups
+             def _execute_child(self, *args_tuple):
+                 # workaround for bug 950894
+-                if sys.hexversion < 0x02070600: # prior to 2.7.6
++                if len(args_tuple) == 16: # not 2.7.6 or 2.7.7
+                     (args, executable, preexec_fn, close_fds,
+                      cwd, env, universal_newlines, startupinfo,
+                      creationflags, shell,
+                      p2cread, p2cwrite,
+                      c2pread, c2pwrite,
+                      errread, errwrite) = args_tuple
+                     to_close = set()
+                 else: # 2.7.6 and later
