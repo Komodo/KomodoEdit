@@ -2,11 +2,13 @@ Patch to take CC, CXX, CFLAGS, LDFLAGS from the users (Cons) environment.
 ===================================================================
 --- gtk/makefile	(revision 34521)
 +++ gtk/makefile	(working copy)
-@@ -69,7 +69,7 @@ CTFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
+@@ -68,8 +68,8 @@
+ CTFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
  endif
  
- CFLAGS:=$(CTFLAGS)
+-CFLAGS:=$(CTFLAGS)
 -CXXTFLAGS:=--std=c++0x $(CTFLAGS) $(REFLAGS)
++CFLAGS:=-fPIC $(CTFLAGS)
 +CXXTFLAGS:=$(CTFLAGS) $(REFLAGS)
  
  CONFIGFLAGS:=$(shell pkg-config --cflags $(GTKVERSION))
