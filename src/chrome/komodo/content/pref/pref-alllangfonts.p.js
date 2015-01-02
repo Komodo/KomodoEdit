@@ -1079,19 +1079,14 @@ function changeLanguage() {
 function updateFonts()  {
     // order is font, size, back, fore, italic, bold
 
-    var fLabel = gDialog.currentScheme.getFont(faceIdentifier(1));
-    var pLabel = gDialog.currentScheme.getFont(faceIdentifier(0));
-    var fSize = gDialog.currentScheme.getSize('', faceIdentifier(1));
-    var pSize = gDialog.currentScheme.getSize('', faceIdentifier(0));
-    var fSpace = gDialog.currentScheme.getLineSpacing(faceIdentifier(1));
-    var pSpace = gDialog.currentScheme.getLineSpacing(faceIdentifier(0));
-    var m;
+    var fLabel = gDialog.currentScheme.getFont(faceIdentifier());
+    var fSize = gDialog.currentScheme.getSize('', faceIdentifier());
+    var fSpace = gDialog.currentScheme.getLineSpacing(faceIdentifier());
 
     gDialog.fontList.setAttribute('label', fLabel);
     gDialog.fontList.selectedIndex = gFontNames.indexOf(fLabel);
     gDialog.fontSize.setAttribute('label', fSize);
-    m = document.getElementById('fontSize_'+fSize);
-    gDialog.fontSize.selectedItem = m;
+    gDialog.fontSize.selectedItem = document.getElementById('fontSize_'+fSize);
 
     var fore, back, italic, bold, face;
     // do fixed width
@@ -1100,9 +1095,9 @@ function updateFonts()  {
     back = gDialog.currentScheme.getBack('', faceIdentifier());
     gDialog.fontColorPickerBack.color = back;
     // bold/italic
-    var fontBold = gDialog.currentScheme.getBold('', faceIdentifier(1));
+    var fontBold = gDialog.currentScheme.getBold('', faceIdentifier());
     setCheckboxButton(gDialog.fontBold, fontBold);
-    var fontItalic = gDialog.currentScheme.getItalic('', faceIdentifier(1));
+    var fontItalic = gDialog.currentScheme.getItalic('', faceIdentifier());
     setCheckboxButton(gDialog.fontItalic, fontItalic);
     // line spacing
     gDialog.fontLineSpacing.value = fSpace;
