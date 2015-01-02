@@ -165,7 +165,7 @@ class koDocumentBase(object):
     def __init__(self):
         self._buffer = None # string The contents of the document
         self._codePage = 65001 # Komodo always uses 65001 (i.e. scintilla UTF-8 mode)
-        self.encoding = None # string The name of the Unicode encoding -- undefined if codepage is not 65001
+        self.encoding = None # string The name of the Unicode encoding
         self._language = None # string what language is this document in?
         self._languageObj = None
         self.prefs = None # set after initWith() call
@@ -898,9 +898,9 @@ class koDocumentBase(object):
     def set_codePage(self, codePage):
         # We never allow a code page other than 65001 (aka put scintilla
         # in Unicode/UTF-8 mode).
-        log.warn("setting `koDocument.codePage` is DEPRECATED, hardwired "
-            "to 65001 (unicode mode): %r ignored", codePage)
-        self._codePage = 65001
+        if codePage != "65001":
+            log.warn("setting `koDocument.codePage` is DEPRECATED, hardwired "
+                "to 65001 (unicode mode): %r ignored", codePage)
 
     @components.ProxyToMainThread
     def get_buffer(self):
