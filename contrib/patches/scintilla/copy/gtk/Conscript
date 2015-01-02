@@ -303,6 +303,8 @@ if ($buildType eq 'debug'
 $consLocal{ENV}{'CXXFLAGS'} .= $cxxFlags;
 # Scintilla uses exceptions - remove any disabling of it from CXXFLAGS.
 $consLocal{ENV}{'CXXFLAGS'} =~ s/-fno-exceptions //g;
+# Must enable rtti (run time type information) for Scintilla.
+$consLocal{ENV}{'CXXFLAGS'} =~ s/-fno-rtti //g;
 $consLocal = new cons(%consLocal);
 
 push(@args, ("scintilla-marshal.h", "scintilla-marshal.c"));
