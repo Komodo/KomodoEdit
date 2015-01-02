@@ -322,22 +322,21 @@ else {
     $consLocal{'LIBS'} .= " $xScintillaBuildDir/gtk/libpcre.a";
     $consLocal{'LIBS'} .= " `pkg-config --libs gthread-2.0 gtk+-2.0 gmodule-no-export-2.0`";
     $consLocal{'LIBS'} .= " -lxpcomglue_s -lxul -lmozalloc -lplds4 -lplc4 -lnspr4 ";
-    $consLocal{'LDFLAGS'} = " -fPIC -Wl,-z,defs -shared";
 
     $consLocal{'CPPPATH'} = "$mozIncludePath:$scintillaBuildDir/include";
     $consLocal{'LIBPATH'} = "$mozLibPath:$pluginSdkObjDir/samples/common:../scintilla/bin";
-
-    # Scintilla uses dynamic cast - remove any disabling of it from CXXFLAGS.
-    $consLocal{ENV}{'CXXFLAGS'} =~ s/-fno-rtti //g;
 
     ## XXX PKG_CONFIG_PATH env var will point to pgkconfig dir for the platform.
     ## -DGTK is required to properly include the Scintilla headers.
     $consLocal{'CXXFLAGS'} = "`pkg-config --cflags gtk+-2.0` -DGTK -DGTK2_XEMBED";
     $consLocal{'CXXFLAGS'} .= " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES ";
+    $consLocal{'LDFLAGS'} = " -fPIC -Wl,-z,defs -shared ";
     # Add the global FLAGS.
     $consLocal{'CXXFLAGS'} .= $consLocal{ENV}{'CXXFLAGS'};
     $consLocal{'CFLAGS'} = $consLocal{ENV}{'CFLAGS'};
-    $consLocal{'LDFLAGS'} = $consLocal{'LDFLAGS'} . " " . $consLocal{ENV}{'LDFLAGS'};
+    $consLocal{'LDFLAGS'} .= $consLocal{ENV}{'LDFLAGS'};
+    # Scintilla uses dynamic cast - remove any disabling of it via LDFLAGS.
+    $consLocal{'LDFLAGS'} =~ s/-fno-rtti //g;
 
     # Ensure that these are defined for use by mozilla headers
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
