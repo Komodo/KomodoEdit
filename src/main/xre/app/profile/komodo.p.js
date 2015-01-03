@@ -193,3 +193,11 @@ pref("dom.max_chrome_script_run_time", 0);
 // On GTK, we now default to showing the menubar only when alt is pressed:
 pref("ui.key.menuAccessKeyFocuses", true);
 #endif
+
+// Set plugins as "click to play" by default.
+pref("plugins.click_to_play", true);
+pref("plugin.default.state", 1);
+// Enable scimoz (yes, we give it a different name on each platform!).
+pref("plugin.state.SciMoz", 2);
+pref("plugin.state.npscimoz", 2);
+pref("plugin.state.libnpscimoz", 2);
