@@ -273,6 +273,12 @@
         }
         else if ( ! subscope)
         {
+            if ( ! ko.places || ! ko.places.manager)
+            {
+                log.warn("ko.places(.manager) has not yet been initialized, delaying search");
+                return setTimeout(this.onSearch.bind(this, query, uuid, onComplete), 200);
+            }
+            
             var placesPath = ko.uriparse.URIToPath(ko.places.getDirectory());
             subscope = {name: ioFile.basename(placesPath), path: placesPath};
         }
