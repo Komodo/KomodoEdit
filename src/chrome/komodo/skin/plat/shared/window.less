@@ -529,6 +529,24 @@ tree { .list-styling.tree(tree); }
 listbox { .list-styling.listbox(listbox); }
 richlistbox { .list-styling.richlistbox(listbox); }
 
+/* Pref Window */
+
+.pref-window:not(#prefWindow):not(#prefProjectsWindow)
+{
+    background: transparent;
+    -moz-appearance: none;
+}
+
+#prefWindow #panelFrame,
+#prefProjectsWindow #panelFrame
+{
+    margin-top: 2px;
+    -moz-appearance: @list-listbox-appearance !important;
+    background: @list-listbox-background !important;
+    border: @list-listbox-border;
+    padding: 10px;
+}
+
 /* Unified Menu */
 
 #unifiedMenuPrimaryPane, #unifiedMenuSecondaryPane

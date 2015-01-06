@@ -30,7 +30,7 @@ tabbox:not(.native):not(#tabbed-view):not(#variables-tabpanels):not(.tabs-bottom
 
 tabbox:not(.tabs-bottom) tabpanels
 {
-    -moz-appearance: none !important;
+    -moz-appearance: @tab-box-appearance;
     border: none;
     -moz-border-bottom-colors: none;
     background-color: @tab-box-content-background-color;
@@ -41,6 +41,11 @@ tabbox:not(.tabs-bottom) tabpanels
         margin: 0;
         padding: 0;
     }
+}
+
+tabbox#tabbed-view tabpanels
+{
+    -moz-appearance: none;
 }
 
 tabbox#tabbed-view:not(.tabs-bottom) tabpanels

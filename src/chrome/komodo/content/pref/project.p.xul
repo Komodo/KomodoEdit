@@ -314,7 +314,6 @@
             <deck id="pref-deck" selectedIndex="0" flex="1">
                <!-- tree sidebar -->
                <tree id="prefsTree" style="min-width: 14em;"
-                     class="inset"
                      persist="width"
                      hidecolumnpicker="true" seltype="single"
                      onselect="if( hPrefWindow ) hPrefWindow.switchPage();">
@@ -492,7 +491,6 @@
                 </tree>
                 <!-- The dynamically built nsITreeView tree -->
                 <tree id="filteredPrefsTree" style="min-width: 14em;"
-                      class="inset"
                       persist="width"
                       hidecolumnpicker="true" seltype="single"
                       onselect="if( hPrefWindow ) hPrefWindow.switchPage();">
@@ -506,6 +504,10 @@
                     <treechildren id="panelChildrenDynamic" flex="1" />
                 </tree>
             </deck>
+            <hbox style="padding-top: 5px">
+                <!-- Ensure same height as buttons box -->
+                <button label="X" style="visibility: hidden"/> 
+            </hbox>
         </vbox>
         <splitter orient="horizontal"
                   style="margin: 0px; padding: 0px; border: none;"/>
@@ -513,9 +515,8 @@
         <vbox flex="1" style="min-width: 30em;">
             <deck id="panelFrame" name="panelFrame" style="width:0px"
                     flex="1"/>
-            <separator/>
 
-            <hbox>
+            <hbox style="padding-top: 5px;">
                 <button id="prefs_help_button" label="&help.label;" accesskey="&prefsHelpButton.accesskey;" oncommand="doHelp();"/>
                 <separator flex="1"/>
                 <button label="&OK.label;" default="true" oncommand="doOk();"/>

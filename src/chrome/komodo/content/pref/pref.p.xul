@@ -409,17 +409,20 @@
                     <treechildren id="panelChildrenDynamic" flex="1" />
                 </tree>
             </deck>
-            <checkbox id="toggleAdvanced" label="&showAdvanced.label;"
+            <hbox style="padding-top: 5px">
+                <checkbox id="toggleAdvanced" label="&showAdvanced.label;"
                       oncommand="toggleAdvanced()"/>
+                <!-- Ensure same height as buttons box -->
+                <button label="X" style="visibility: hidden"/> 
+            </hbox>
         </vbox>
         <splitter orient="horizontal"/>
         <!-- Main prefs panel -->
         <vbox flex="1">
             <deck id="panelFrame" name="panelFrame" style="width:0px"
                     flex="1"/>
-            <separator/>
 
-            <hbox style="overflow-x: auto; overflow-y: hidden;">
+            <hbox style="overflow-x: auto; overflow-y: hidden; padding-top: 5px;">
                 <button id="prefs_help_button" label="&help.label;" accesskey="&prefsHelpButton.accesskey;" oncommand="doHelp();"/>
                 <separator flex="1"/>
                 <button label="&OK.label;" default="true" oncommand="doOk();"/>
