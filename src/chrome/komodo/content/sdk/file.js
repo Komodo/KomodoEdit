@@ -14,6 +14,22 @@
     this.remove = ioFile.remove;
     this.rmdir = ioFile.rmdir;
     this.isFile = ioFile.isFile;
+    
+    this.create = (path, name) =>
+    {
+        if (name) path = ioFile.join(path, name);
+        
+        if (ioFile.exists(path))
+        {
+            throw new Error("File already exists: " + ioFile.basename(path));
+        }
+        
+        ioFile.open(path, "w").close();
+        
+        require("ko/dom")(window.parent).trigger("folder_touched", {path: ioFile.dirname(path)});
+        
+        return true;
+    }
 
     this.rename = (path, newName = null) =>
     {
