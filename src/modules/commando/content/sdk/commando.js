@@ -47,7 +47,8 @@
         scopePopup: function() { return $("commando-scope-menupopup"); },
         scopesSeparator: function() { return $("#scope-separator"); },
         menuItem: function() { return $("#menu_show_commando"); },
-        tip: function() { return $("#commando-tip description"); },
+        tip: function() { return $("#commando-tip"); },
+        tipDesc: function() { return $("#commando-tip description"); },
         template: {
             scopeMenuItem: function() { return $("#tpl-co-scope-menuitem"); },
             scopeNavMenuItem: function() { return $("#tpl-co-scope-nav-menuitem"); },
@@ -1066,10 +1067,12 @@
         c.clear();
     }
 
-    this.tip = function(tipMessage)
+    this.tip = function(tipMessage, type = "normal")
     {
         // todo: Use localized database of tips
-        elem("tip").html(tipMessage || "TIP: Hit the right arrow key to \"expand\" your selection");
+        elem("tip").attr("tip-type", type);
+        elem("tipDesc").html(tipMessage ||
+                             "TIP: Hit the right arrow key to \"expand\" your selection");
     }
 
     this.clearCache = function()

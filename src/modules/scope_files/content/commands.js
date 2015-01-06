@@ -14,6 +14,14 @@
 
     var entries = [
         {
+            id: "create",
+            name: "Create File",
+            scope: "scope-files",
+            command: doCreate,
+            allowExpand: false,
+            type: "dir"
+        },
+        {
             id: "move",
             name: "Move",
             scope: "scope-files",
@@ -46,7 +54,10 @@
         if (resultCacheVersion == item.id) return resultCache;
         resultCacheVersion  = item.id
 
-        resultCache = entries.slice(0);
+        resultCache = entries.slice(0).filter(function(entry)
+        {
+            return ! ("type" in entry) || entry.type == item.data.type;
+        });
 
         if (item.data.type == "dir" && (local.cut || local.copy))
         {
@@ -104,6 +115,28 @@
     {
         commando.renderResults(commando.filter(getResults(query), query), uuid);
         onComplete()
+    }
+    
+    function doCreate()
+    {
+        var ioFile = require("sdk/io/file");
+        var item = commando.getSubscope();
+
+        var filename = commando.prompt("Filename: ");
+
+        if ( ! filename) return;
+
+        try
+        {
+            require("ko/file").create(item.data.path, filename);
+        }
+        catch (e)
+        {
+            commando.tip("Error: " + e.message, "error");
+            return false;
+        }
+        
+        commando.tip("File \""+filename+"\" has been created");
     }
 
     function doPaste()
@@ -179,7 +212,7 @@
 
         if (shortcut.search(/^[A-Za-z0-9]+$/) == -1)
         {
-            return commando.alert("Shortcuts need to be alphanumeric and can not contain whitespace")
+            return commando.tip("Shortcuts need to be alphanumeric and can not contain whitespace", "error");
         }
 
         var _shortcut = shortcut + ":" + item.data.path;
