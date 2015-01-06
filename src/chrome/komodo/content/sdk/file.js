@@ -45,17 +45,30 @@
             if ( ! newName) return;
         }
 
-        return mkCommon.renameFile("file://" + path, newName, false);
+        var result = mkCommon.renameFile("file://" + path, newName, false);
+    
+        require("ko/dom")(window.parent).trigger("folder_touched", {path: path});
+        
+        return result;
     }
 
     this.copy = (path, toDirname = null) =>
     {
-        return mkCommon.moveFile(path, toDirname, "copy");
+        var result =  mkCommon.moveFile(path, toDirname, "copy");
+    
+        require("ko/dom")(window.parent).trigger("folder_touched", {path: toDirname});
+        
+        return result;
     }
 
     this.move = (path, toDirname = null) =>
     {
-        return mkCommon.moveFile(path, toDirname);
+        var result = mkCommon.moveFile(path, toDirname);
+    
+        require("ko/dom")(window.parent).trigger("folder_touched", {path: toDirname});
+        require("ko/dom")(window.parent).trigger("folder_touched", {path: ioFile.dirname(path)});
+        
+        return result;
     }
 
 }).apply(module.exports);
