@@ -122,8 +122,6 @@ tabs:not(.tabs-bottom)
         margin: 0;
         padding-left: 0;
         padding-right: 0;
-        list-style-image: url("chrome://global/skin/icons/close.png");
-        -moz-image-region: rect(0px, 16px, 16px, 0px);
 
         &[selected="true"]
         {
@@ -139,13 +137,7 @@ tabs:not(.tabs-bottom)
         &:hover
         {
             opacity: 1;
-            -moz-image-region: rect(0px, 32px, 16px, 16px);
             border-color: transparent;
-
-            &:active
-            {
-                -moz-image-region: rect(0px, 48px, 16px, 32px);
-            }
         }
     }
 }

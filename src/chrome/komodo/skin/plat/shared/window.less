@@ -188,7 +188,7 @@ button:not([disabled="true"]):not(.button-link):not([type="menu"]),
     {
         background: @button-background-hover !important;
         color: @button-color-hover !important;
-        border: @button-border-hover !important;
+        border: @button-border-hover;
         text-shadow: @button-text-shadow-hover !important;
 
         .button-internal-box
@@ -201,7 +201,7 @@ button:not([disabled="true"]):not(.button-link):not([type="menu"]),
     {
         background: @button-background-active !important;
         color: @button-color-active !important;
-        border: @button-border-active !important;
+        border: @button-border-active;
         text-shadow: @button-text-shadow-active !important;
     }
 }
@@ -285,7 +285,7 @@ statusbar:not(.bottombar) toolbarbutton
     -moz-appearance: @statusbar-button-appearance;
     background: @statusbar-button-background;
     color: @statusbar-button-color;
-    border: @statusbar-button-border;
+    border: @statusbar-button-border !important;
 
     margin: 0;
     padding: 0 2px !important;
@@ -295,7 +295,7 @@ statusbar:not(.bottombar) toolbarbutton
     {
         background: @statusbar-button-background-hover;
         color: @statusbar-button-color-hover;
-        border: @statusbar-button-border-hover;
+        border: @statusbar-button-border-hover !important;
     }
 }
 

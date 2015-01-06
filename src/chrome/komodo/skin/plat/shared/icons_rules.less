@@ -964,6 +964,7 @@ statusbar .menu-icon
     list-style-image: @icon-bugs;
 }
 
+
 .tabs-select-button
 {
     // override hover effect in debugger panel with !important
@@ -971,9 +972,19 @@ statusbar .menu-icon
 }
 
 .close-button,
-#tabs-closebutton
+#tabs-closebutton,
+.tabs-closebutton
 {
     list-style-image: @icon-close;
+}
+
+.tabs-closebutton
+{
+    opacity: 0.5;
+    &:hover
+    {
+        opacity: 1.0;
+    }
 }
 
 .favourite-icon

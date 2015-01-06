@@ -60,15 +60,15 @@
 @tab-icons-border-radius:               4px;
 @tab-icons-box-shadow:                  none;
 
-@tab-icons-hover-background:            rgba(0,0,0, 0.25);
-@tab-icons-hover-border:                1px solid rgba(255, 255, 255, 0.1);
+@tab-icons-hover-background:            @tab-icons-background;
+@tab-icons-hover-border:                @tab-icons-border;
 @tab-icons-hover-border-radius:         @tab-icons-border-radius;
-@tab-icons-hover-box-shadow:            none;
+@tab-icons-hover-box-shadow:            @tab-icons-box-shadow;
 
-@tab-icons-selected-background:         -moz-linear-gradient(top, rgba(80, 157, 212, 0.1) 5%, rgba(80, 157, 212, 0.2) 100%);
-@tab-icons-selected-border:             1px solid lighten(@main-border-color, 1%);
+@tab-icons-selected-background:         @tab-icons-background;
+@tab-icons-selected-border:             @tab-icons-border;
 @tab-icons-selected-border-radius:      @tab-icons-border-radius;
-@tab-icons-selected-box-shadow:         none;
+@tab-icons-selected-box-shadow:         @tab-icons-box-shadow;
 
 @tab-icons-selected-opacity:            1.0;
-@tab-icons-unselected-opacity:          1.0;
+@tab-icons-unselected-opacity:          0.5;
