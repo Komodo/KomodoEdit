@@ -45,9 +45,9 @@
  val SCLEX_DMIS=114
  val SCLEX_REGISTRY=115
  val SCLEX_BIBTEX=116
-+val SCLEX_XSLT=110
++val SCLEX_XSLT=200
 +# User-defined languages
-+val SCLEX_UDL=111
++val SCLEX_UDL=201
  
  # When a lexer specifies its language as SCLEX_AUTOMATIC it receives a
  # value assigned in sequence from SCLEX_AUTOMATIC+1.
@@ -67,9 +67,9 @@
  val SCE_C_USERLITERAL=25
  val SCE_C_TASKMARKER=26
  val SCE_C_ESCAPESEQUENCE=27
-+val SCE_C_STDIN=25
-+val SCE_C_STDOUT=26
-+val SCE_C_STDERR=27
++val SCE_C_STDIN=28
++val SCE_C_STDOUT=29
++val SCE_C_STDERR=30
  # Lexical states for SCLEX_D
  lex D=SCLEX_D SCE_D_
  val SCE_D_DEFAULT=0
