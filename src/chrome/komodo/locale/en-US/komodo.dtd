@@ -764,7 +764,7 @@
 <!ENTITY userInterfaceUseFixedProportionalFont.desc "User Interface: Use Fixed/Proportional Font">
 <!ENTITY userInterfaceViewHideIndentationGuides.desc "User Interface: View/Hide Indentation Guides">
 <!ENTITY userInterfaceViewHideLineNumbers.desc "User Interface: View/Hide Line Numbers">
-<!ENTITY userInterfaceViewSource.desc "User Interface: View Source">
+<!ENTITY userInterfaceViewSource.desc "Browser Preview: View Source">
 <!ENTITY userInterfaceWordWrapLongLines.desc "User Interface: Word-wrap long lines">
 <!ENTITY view.label "View">
 <!ENTITY viewAsLanguage.accesskey "L">
