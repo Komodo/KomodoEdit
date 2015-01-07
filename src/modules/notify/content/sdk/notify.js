@@ -9,8 +9,12 @@
     const prefs     = Cc['@activestate.com/koPrefService;1']
                         .getService(Ci.koIPrefService).prefs;
     const logging   = require("ko/logging");
+    const winUtils  = require("sdk/window/utils");
     const log       = logging.getLogger("notify");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
+    
+    const _window   = winUtils.getToplevelWindow(window);
+    const _document = _window.document;
 
     var _window_test_warning_logged = false;
 
@@ -63,7 +67,7 @@
             scimoz.hookEvents(onMozScroll, Ci.ISciMozEvents.SME_UPDATEUI);
         }
         
-        window.addEventListener('current_view_changed', addScrollListener);
+        _window.addEventListener('current_view_changed', addScrollListener);
         
         addScrollListener();
     }
@@ -181,44 +185,41 @@
             };
         }
 
-        // Queue or hand off immediately
-        if (queue[notif.opts.from].active && (! notif.opts.id ||
-            notif.opts.id != queue[notif.opts.from].activeId))
+        log.debug("Adding notification to queue");
+        
+        var append = queue.length;
+        var replace = 0;
+        var _queue = queue[notif.opts.from].items;
+        
+        // determine the notifications place in the queue
+        for (let x in _queue)
         {
-            log.debug("Adding notification to queue");
-            
-            var append = queue.length;
-            var replace = 0;
-            var _queue = queue[notif.opts.from].items;
-            
-            // determine the notifications place in the queue
-            for (let x in _queue)
+            if ( ! append && _queue[x].opts.priority < notif.opts.priority)
             {
-                if ( ! append && _queue[x].opts.priority < notif.opts.priority)
-                {
-                    append = x;
-                }
-
-                if (_queue[x].opts.id && _queue[x].opts.id == notif.opts.id)
-                {
-                    append = x;
-                    replace = 1;
-                }
+                append = x;
             }
 
-            queue[notif.opts.from].items.splice(append, replace, notif);
-            
-            if (notif.opts.priority == this.P_NOW)
+            if (_queue[x].opts.id && _queue[x].opts.id == notif.opts.id)
             {
-                log.debug("Notification type is NOW, hide active Notification and show it right away");
-                this.hideNotification();
+                append = x;
+                replace = 1;
             }
         }
-        else
+
+        queue[notif.opts.from].items.splice(append, replace, notif);
+        
+        if (notif.opts.priority == this.P_NOW)
+        {
+            log.debug("Notification type is NOW, hide active Notification and show it right away");
+            this.hideNotification();
+        }
+        
+        if ( ! queue[notif.opts.from].active || (! notif.opts.id &&
+            notif.opts.id == queue[notif.opts.from].activeId))
         {
             log.debug("Showing notification immediately");
             
-            this.showNotification(notif);
+            this.queue.process(notif.opts.from);
         }
 
         queue[notif.opts.from].active = true;
@@ -231,7 +232,37 @@
         if (notif)
         {
             log.debug("Processing next queued notification");
-            timers.setTimeout(this.showNotification.bind(this, notif), 250);
+            
+            // Don't show notifications when the main window has no focus, bug #105975
+            if ( ! _document.hasFocus())
+            {
+                if (notif.opts.priority < this.P_WARNING)
+                {
+                    // if window has no focus and this is not an important notification,
+                    // drop it and process the next one
+                    this.queue.process(from);
+                    log.debug("Notification dropped as window has no focus and priority is low");
+                }
+                else
+                {
+                    // Wait until window has focus again
+                    queue[from].items.unshift(notif);
+                    
+                    var onFocus = function()
+                    {
+                        _window.removeEventListener("focus", onFocus);
+                        notify.queue.process(from);
+                    }
+                    
+                    _window.addEventListener("focus", onFocus);
+                    
+                    log.debug("Notification delayed until window has focus");
+                }
+                
+                return;
+            }
+            
+            timers.setTimeout(this.showNotification.bind(this, notif), 0);
         }
         else
         {
@@ -314,7 +345,7 @@
         log.debug("Showing for " + time + "ms");
 
         // Handle notification interactions
-        var focus = document.activeElement;
+        var focus = _document.activeElement;
         var interacting = false;
         var interact = () =>
         {
@@ -467,7 +498,7 @@
             pos = editor.getCursorWindowPosition(true);
             pos.y -= editor.defaultTextHeight();
 
-            var computed = window.getComputedStyle(panel.element());
+            var computed = _window.getComputedStyle(panel.element());
             pos.y -= parseInt(computed.paddingBottom.replace(/px$/,''));
             pos.y -= parseInt(computed.paddingTop.replace(/px$/,''));
 
@@ -488,8 +519,8 @@
         else
         {
             // Center horizontally on the window
-            var w = window.innerWidth,
-                h = window.innerHeight;
+            var w = _window.innerWidth,
+                h = _window.innerHeight;
             pos = {x: (scw / 2) + scx, y: (scy + sch) + 100};
         }
 
