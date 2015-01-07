@@ -13,8 +13,8 @@ def parse(colors):
     colors["baseBackBlend2"]    = colors["B05"]
     colors["baseBackBlend3"]    = colors["B04"]
 
-    colors["comment"]           = colors["B03"]
-    colors["commentBlend"]      = colors["B04"]
+    colors["comment"]           = colors["B04"]
+    colors["commentBlend"]      = colors["B05"]
 
     return common.parseScheme(colors)
 
