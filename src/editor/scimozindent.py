@@ -522,7 +522,6 @@ def _tagEndPosFromPos(scimoz, pos, targetStyle):
     return -1
 
 def _tagStartPosFromPos(scimoz, pos, targetStyle):
-    textLength = scimoz.length
     while pos >= 0:
         if scimoz.getStyleAt(pos) == targetStyle:
             return pos
