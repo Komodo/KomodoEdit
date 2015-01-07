@@ -108,7 +108,7 @@
 
         if (isNaN(opts.priority))
         {
-            if (("P_" + opts.priority.toUpperCase() in this) != 'undefined')
+            if (("P_" + opts.priority.toUpperCase()) in this)
             {
                 opts.classlist += " p-" + opts.priority.toLowerCase();
                 opts.priority = this["P_" + opts.priority.toUpperCase()];
@@ -138,7 +138,7 @@
                     break;
             }
         }
-
+        
         if (opts.panel)
         {
             // For now we'll use the old notification library, ideally this should
@@ -187,9 +187,22 @@
 
         log.debug("Adding notification to queue");
         
-        var append = queue.length;
         var replace = 0;
         var _queue = queue[notif.opts.from].items;
+        var append = _queue.length;
+        
+        var maxLength = prefs.getLong("notify_max_queue_length");
+        var length = _queue.length;
+        if (queue[notif.opts.from].active) length++;
+        if (length >= maxLength && ! notif.opts.force)
+        {
+            if (length == maxLength)
+            {
+                this.send("Repeat notifications trunkated, please check your Notifications panel",
+                          "internal", {force: "true"});
+            }
+            return;
+        }
         
         // determine the notifications place in the queue
         for (let x in _queue)
