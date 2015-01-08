@@ -198,6 +198,6 @@ pref("ui.key.menuAccessKeyFocuses", true);
 pref("plugins.click_to_play", true);
 pref("plugin.default.state", 1);
 // Enable scimoz (yes, we give it a different name on each platform!).
-pref("plugin.state.SciMoz", 2);
+pref("plugin.state.scimoz", 2);
 pref("plugin.state.npscimoz", 2);
 pref("plugin.state.libnpscimoz", 2);
