@@ -13,5 +13,9 @@ MOZ_EXTENSION_MANAGER=1
 MOZ_PROFILE_MIGRATOR=1
 # The application.ini will get defined and included into komodo automatically.
 MOZ_APP_STATIC_INI=1
-# Thngs we don't really need but upstream wants
+
+# Enable generational GC?
+JSGC_GENERATIONAL=1
+
+# Things we don't really need but upstream wants
 MOZ_MEDIA_NAVIGATOR=1
