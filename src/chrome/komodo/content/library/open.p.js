@@ -43,6 +43,8 @@ if (typeof(ko)=='undefined') {
  */
 ko.open = {};
 (function() {
+var log = require("ko/logging").getLogger("open");
+
 var fileLineNoRE = /^(.*)[#:](\d+)$/;
 
 var _viewsBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
