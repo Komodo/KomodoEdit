@@ -77,8 +77,8 @@ static char *getNSRectStr(NSRect rect, char *buf) {
 void SciMoz::PlatformCreate(WinID) {
   SendEditor(SCI_USEPOPUP, FALSE, 0);
   SendEditor(SCI_SETFOCUS, FALSE, 0);
-  //scintilla->RegisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
-  //scintilla->SetScimozDelegate(this);
+  // Note: The Scintilla RegisterNotifyCallback method is deprecated.
+  scintilla->RegisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
 }
 
 void SciMoz::Resize() {
@@ -181,8 +181,9 @@ NS_IMETHODIMP SciMoz::ButtonMove(PRInt32 x, PRInt32 y) {
 /* void AddChar( in PRUint32 ch); */
 NS_IMETHODIMP SciMoz::AddChar(PRUint32 ch) {
     SCIMOZ_CHECK_VALID("AddChar");
-    // XXX - Scintilla needs an SCI_ADDCHAR API??
-    SendEditor(WM_UNICHAR, ch);
+    PRUnichar ustr[2] = { static_cast <char16_t>(ch), '\0'};
+    NS_ConvertUTF16toUTF8 utf8_str(ustr);
+    scintilla->AddCharUTF(utf8_str.get(), utf8_str.Length(), false);
     return NS_OK;
 }
 
