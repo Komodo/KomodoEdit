@@ -46,4 +46,6 @@ else:
         'xpcomglue',
     ]
 
+DISABLE_STL_WRAPPING = True
+
 JAR_MANIFESTS += ['jar.mn']
