@@ -1,0 +1,56 @@
+Index: /as/komodo-devel/src/scintilla/include/Scintilla.iface
+--- include/Scintilla.iface
++++ include/Scintilla.iface (unsaved)
+@@ -2421,6 +2421,11 @@
+ # Get the number of logical pixels per inch, in the X and Y directions
+ get int GetLogPixelsX=5014(,)
+ get int GetLogPixelsY=5015(,)
++
++# Find styled text within a document.
++fun int FindStyleBackwards=5016(int style, position pos)
++fun int FindStyleForwards=5017(int style, position pos)
++
+ 
+ # For private communication between an application and a known lexer.
+ fun int PrivateLexerCall=4013(int operation, int pointer)
+Index: /as/komodo-devel/src/scintilla/src/Editor.cxx
+--- src/Editor.cxx
++++ src/Editor.cxx (unsaved)
+@@ -7930,6 +7930,37 @@
+ 		else
+ 			return pdoc->StyleAt(wParam);
+ 
++	case SCI_FINDSTYLEBACKWARDS:
++		{
++			int style = static_cast<int>(wParam);
++			int pos = lParam;
++			// search backwards
++			for (; pos >= 0; pos--) {
++				if (pdoc->StyleAt(pos) == style)
++					return pos;
++				
++			}
++			// Not found.
++			return -1;
++		}
++		break;
++
++	case SCI_FINDSTYLEFORWARDS:
++		{
++			int style = static_cast<int>(wParam);
++			int pos = lParam;
++			int max = pdoc->Length();
++			// search forwards
++			for (; pos < max; pos++) {
++				if (pdoc->StyleAt(pos) == style)
++					return pos;
++				
++			}
++			// Not found.
++			return -1;
++		}
++		break;
++
+ 	case SCI_REDO:
+ 		Redo();
+ 		break;
