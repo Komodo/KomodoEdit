@@ -1,0 +1,40 @@
+Allow SciMoz to add UTF8 keypress characters to Scintilla editor.
+Index: /Users/toddw/as/komodo-devel_play/src/scintilla/src/ScintillaBase.h
+--- src/ScintillaBase.h
++++ src/ScintillaBase.h (unsaved)
+@@ -62,7 +62,6 @@
+ 	virtual void Initialise() = 0;
+ 	virtual void Finalise();
+ 
+-	virtual void AddCharUTF(const char *s, unsigned int len, bool treatAsDBCS=false);
+ 	void Command(int cmdId);
+ 	virtual void CancelModes();
+ 	virtual int KeyCommand(unsigned int iMessage);
+@@ -95,6 +94,7 @@
+ public:
+ 	// Public so scintilla_send_message can use it
+ 	virtual sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
++	virtual void AddCharUTF(const char *s, unsigned int len, bool treatAsDBCS=false);
+ };
+ 
+ #ifdef SCI_NAMESPACE
+Index: /Users/toddw/as/komodo-devel_play/src/scintilla/src/Editor.h
+--- src/Editor.h
++++ src/Editor.h (unsaved)
+@@ -399,7 +399,6 @@
+ 	void FilterSelections();
+ 	int InsertSpace(int position, unsigned int spaces);
+ 	void AddChar(char ch);
+-	virtual void AddCharUTF(const char *s, unsigned int len, bool treatAsDBCS=false);
+ 	void InsertPaste(const char *text, int len);
+ 	enum PasteShape { pasteStream=0, pasteRectangular = 1, pasteLine = 2 };
+ 	void InsertPasteShape(const char *text, int len, PasteShape shape);
+@@ -583,6 +582,8 @@
+ 	int errorStatus;
+ 	friend class AutoSurface;
+ 	friend class SelectionLineIterator;
++	// ACTIVESTATE KOMODO - public so SciMoz can add chars directly.
++	virtual void AddCharUTF(const char *s, unsigned int len, bool treatAsDBCS=false);
+ };
+ 
+ /**

@@ -39,6 +39,6 @@ expose_dpi.patch
 perf_no_abandon_paint.patch
 marker_increase_leftrect_size.diff
 find_style.patch
-cocoa_notification_registration.patch
 expose_setticking.patch
+expose_addCharUTF.patch
 
