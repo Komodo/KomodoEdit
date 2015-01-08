@@ -514,19 +514,10 @@ def _getCurrTagName(scimoz, pos):
     return tagName
 
 def _tagEndPosFromPos(scimoz, pos, targetStyle):
-    textLength = scimoz.length
-    while pos < textLength:
-        if scimoz.getStyleAt(pos) == targetStyle:
-            return pos
-        pos += 1 # UTF8-safe, since we're searching for ASCII
-    return -1
+    return scimoz.findStyleForwards(targetStyle, pos)
 
 def _tagStartPosFromPos(scimoz, pos, targetStyle):
-    while pos >= 0:
-        if scimoz.getStyleAt(pos) == targetStyle:
-            return pos
-        pos -= 1
-    return -1
+    return scimoz.findStyleBackwards(targetStyle, pos)
 
 def _tagStartOnLine(scimoz, lineNo, styles):
     lineStartPos = scimoz.positionFromLine(lineNo)
