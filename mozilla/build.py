@@ -985,11 +985,7 @@ def target_configure(argv):
         "patchesDirs": ["patches-new"],
     }
 
-    mozBuildOptions = [
-       'disable-installer',
-       # prevents a "C++ compiler has -pedantic long long bug" configure error
-       'disable-pedantic',
-    ]
+    mozBuildOptions = []
     if sys.platform.startswith("linux"):
         # Avoid having a dependency on libstdc++
         mozBuildOptions.append('enable-stdcxx-compat')
@@ -1393,20 +1389,7 @@ def target_configure(argv):
                 mozRawOptions.append('export CXXFLAGS="-gdwarf-2"')
 
         # Needed for building update-service packages.
-        mozBuildOptions.append('enable-update-packaging')
-
-        # these extensions are built into firefox, we need to figure out
-        # what we dont want or need.
-        mozBuildExtensions.append('cookie')
-        mozBuildExtensions.append('spellcheck')
-
-        # XXX necessary to complete the build for now...need to find the
-        # dependency so we dont build with them
-        mozBuildOptions.append('enable-xsl')
-
-        # needed for print preview, see change 67368
-        # (XXX Cruft? --TM)
-        mozBuildOptions.append('enable-mailnews') 
+        # mozBuildOptions.append('enable-update-packaging')
 
         mozMakeOptions.append('MOZ_OBJDIR=@TOPSRCDIR@/%s' % config["mozObjDir"])
         
@@ -1415,13 +1398,6 @@ def target_configure(argv):
         else:
             # No need to specify count, mach will do parallel builds by default
             pass
-
-        # Platform options
-        if sys.platform.startswith("sunos"):
-            mozBuildOptions.append('disable-gnomevfs')
-            mozBuildOptions.append('disable-gnomeui')
-        if sys.platform == 'darwin':
-            mozBuildOptions.append('enable-prebinding')
 
         config["mozconfig"] = "# Options for 'configure' (same as command-line options).\n"
         
