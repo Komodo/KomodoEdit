@@ -1,0 +1,13 @@
+Lower warning message to info, to avoid console/log spam.
+Index: /as/komodo-devel/mozilla/build/moz3100-ko9.9/mozilla/toolkit/mozapps/extensions/internal/AddonUpdateChecker.jsm
+--- a/toolkit/mozapps/extensions/internal/AddonUpdateChecker.jsm
++++ b/toolkit/mozapps/extensions/internal/AddonUpdateChecker.jsm
+@@ -493,7 +493,7 @@
+       return;
+     }
+ 
+-    logger.warn("Update manifest had an unrecognised namespace: " + xml.documentElement.namespaceURI);
++    logger.info("Update manifest had an unrecognised namespace: " + xml.documentElement.namespaceURI);
+     this.notifyError(AddonUpdateChecker.ERROR_UNKNOWN_FORMAT);
+   },
+ 
