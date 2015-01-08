@@ -444,6 +444,17 @@ this.customize = (function uilayout_customize() {
     let toolbox = document.getElementById("toolbox_main");
     let hoverBox = document.getAnonymousElementByAttribute(toolbox, "anonid", "hover-box");
     hoverBox.removeAttribute("bottom");
+    this.updateViewRef();
+    
+    this.customize._state = {
+        'workspace_left_area': this.isPaneShown('workspace_left_area'),
+        'workspace_right_area': this.isPaneShown('workspace_right_area'),
+        'workspace_bottom_area': this.isPaneShown('workspace_bottom_area')
+    }
+    
+    this.ensurePaneShown('workspace_left_area');
+    this.ensurePaneShown('workspace_right_area');
+    this.ensurePaneShown('workspace_bottom_area');
 }).bind(this);
 
 this._customizeComplete = (function uilayout__customizeComplete() {
@@ -457,6 +468,14 @@ this._customizeComplete = (function uilayout__customizeComplete() {
     let toolbox = document.getElementById("toolbox_main");
     let hoverBox = document.getAnonymousElementByAttribute(toolbox, "anonid", "hover-box");
     hoverBox.setAttribute("bottom", "0");
+    
+    if ('_state' in this.customize) {
+        for (let k in this.customize._state) {
+            if (this.customize._state[k]) continue;
+            this.ensurePaneHidden(k);
+        }
+        delete this.customize._state;
+    }
 }).bind(this);
 
 /**
@@ -1535,6 +1554,45 @@ this.ensurePaneShown = function uilayout_ensurePaneShown(aPane) {
         log.error("ensurePaneShown: no pane with the id: " + aPane);
     }
     pane.collapsed = false;
+};
+
+
+/**
+ * Makes the given pane open/visible in Komodo.
+ *
+ * @param pane {object | id} - The pane element, or the id of the pane element.
+ */
+this.ensurePaneShown = function uilayout_ensurePaneShown(aPane) {
+    let pane = ko.widgets.getWidget(aPane) || aPane;
+    if (pane && pane.containerPane) {
+        pane = pane.containerPane;
+    }
+    if (!pane || !pane.id || (ko.widgets.panes.indexOf(pane.id) < 0)) {
+        pane = ko.widgets.getPaneAt(aPane) || aPane;
+    }
+    if (!pane || !pane.id || (ko.widgets.panes.indexOf(pane.id) < 0)) {
+        log.error("ensurePaneShown: no pane with the id: " + aPane);
+    }
+    pane.collapsed = false;
+};
+
+/**
+ * Makes the given pane closed/invisible in Komodo.
+ *
+ * @param pane {object | id} - The pane element, or the id of the pane element.
+ */
+this.ensurePaneHidden = function uilayout_ensurePaneHidden(aPane) {
+    let pane = ko.widgets.getWidget(aPane) || aPane;
+    if (pane && pane.containerPane) {
+        pane = pane.containerPane;
+    }
+    if (!pane || !pane.id || (ko.widgets.panes.indexOf(pane.id) < 0)) {
+        pane = ko.widgets.getPaneAt(aPane) || aPane;
+    }
+    if (!pane || !pane.id || (ko.widgets.panes.indexOf(pane.id) < 0)) {
+        log.error("ensurePaneHidden: no pane with the id: " + aPane);
+    }
+    pane.collapsed = true;
 };
 
 this.isTabShown = function uilayout_isTabShown(widgetId) {
