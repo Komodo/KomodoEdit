@@ -1048,11 +1048,13 @@
             if (!this.log) return; // closed
             this.log.debug('doUpdateUI called');
             this._uiTimer = null;
+            var scimoz = this.scimoz;
             // None of the registered callbacks should need to do
             // a timeout, because they're already run after a delay.
             // other update-events, they will be run at a later time.
             var callbacks = this._updateUICallbacks;
-            if (callbacks.length) {
+            // Note: We check linesOnScreen to ensure Scintilla is ready.
+            if (callbacks.length && scimoz.linesOnScreen > 0) {
                 var log = this.log;
                 this._updateUICallbacks = [];
                 callbacks.forEach(function(cb) {
@@ -1066,7 +1068,6 @@
 
             // Since onUpdateUI is called for a lot of different cases, we
             // check to see if the position has really changed.
-            var scimoz = this.scimoz;
             var currentPos = scimoz.currentPos;
             var currentLineNo = scimoz.lineFromPosition(currentPos);
             var columnNo = scimoz.getColumn(currentPos);
