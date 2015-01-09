@@ -48,7 +48,7 @@
 <window xmlns:html="http://www.w3.org/1999/xhtml"
                     id="languagesPrefWindow"
 		    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-		    class="kodialog" orient="vertical"
+		    class="kodialog pref-window" orient="vertical"
                     onload="PrefLanguages_OnLoad();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
@@ -85,7 +85,7 @@
             </hbox>
             <separator class="thin"/>
             <tree id="languageStatus" flex="1"
-                  seltype="multiple" class="no-border"
+                  seltype="multiple" 
                   hidecolumnpicker="true"
                   editable="true"
                   rows="8"

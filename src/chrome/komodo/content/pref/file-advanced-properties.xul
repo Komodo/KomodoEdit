@@ -13,7 +13,7 @@
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        class="kodialog"
+        class="kodialog pref-window"
         orient="vertical"
         onload="parent.initPanel();">
 
