@@ -1172,6 +1172,9 @@ static int _GetVerUserDataDir(
 #elif defined(MACOSX)
         char tmpBuffer[MAXPATHLEN];
         ssize_t overflow;
+
+
+// #if MOZILLA_VERSION_MAJOR < 35
         FSRef fsRef;
         OSErr err = FSFindFolder(kUserDomain, kApplicationSupportFolderType,
                                  kCreateFolder, &fsRef);
@@ -1191,6 +1194,23 @@ static int _GetVerUserDataDir(
         overflow = snprintf(tmpBuffer, MAXPATHLEN,
             "%s%c%s%c%s", 
             lpBuffer, SEP, KO_APPDATADIR_NAME, SEP, KO_SHORT_VERSION);
+// #else
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+        if ([paths count] == 0) {
+          _LogError("Unable to determine the User Data Directory\n");
+          return 0;
+        }
+        NSString *appSupportDir = [paths objectAtIndex:0];
+        /* have "~/Library/Application Support" 
+         * append "Komodo[IDE|Edit]/<ver>"
+         */
+
+        overflow = snprintf(tmpBuffer, MAXPATHLEN,
+            "%s%c%s%c%s", 
+            [appSupportDir UTF8String], SEP, KO_APPDATADIR_NAME, SEP, KO_SHORT_VERSION);
+// #endif
+
+
         if (overflow > (ssize_t)nBufferLength || overflow < 0) {
             _LogError("buffer overflow while determining "\
                       "Komodo user data directory\n");

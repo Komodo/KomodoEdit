@@ -60,6 +60,7 @@ Import(
     "mozResourcesDir",
     'mozDevelDist',
     "mozVersion",
+    "mozVersionNumber",
     "mozGreMilestone",
     "mozMake",
     "idlExportDir",
@@ -258,6 +259,13 @@ my @xreFiles = (
                          "app/macbuild/komodo.icns"],
     ["cp",               "../komodo16.$productType.xpm", "app/default.xpm"],
 );
+
+if ($platform eq "darwin" && $mozVersionNumber >= 3500) {
+    # Objective-C code.
+    push(@xreFiles, ["preprocess+share", 'app/koStart.p.c', 'app/koStart.mm']);
+} else {
+    push(@xreFiles, ["preprocess+share", 'app/koStart.p.c', 'app/koStart.c']);
+}
 
 foreach my $xreFileData_ref (@xreFiles) {
     my @xreFileData = @$xreFileData_ref;
