@@ -314,6 +314,10 @@
     this.hide = function()
     {
         elem('panel').element().hidePopup();
+        
+        var view = ko.views.manager.currentView;
+        if (view & view.getAttribute("type") != "editor")
+            view.scintilla.focus();
     }
 
     this.search = function(value, callback, noDelay = false)
