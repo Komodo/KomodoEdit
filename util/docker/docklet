@@ -136,11 +136,18 @@ function _sshroot {
     ${SSH_CMD_ROOT}
 }
 
+function clean {
+    setSshCmd
+    ${SSH_CMD} "PATH=/komodo/dev/util/black:\$PATH && cd /komodo/dev && bk distclean"
+    cd $KODIRNAME
+    ./mozilla/build/moz3500-ko9.10/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
+}
+
 function run {
     setSshCmd
     ${SSH_CMD} "PATH=/komodo/dev/util/black:\$PATH && cd /komodo/dev && bk build"
     cd $KODIRNAME
-    ./mozilla/build/moz3100-ko9.10/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
+    ./mozilla/build/moz3500-ko9.10/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
 }
 
 function build {
@@ -165,6 +172,7 @@ function help {
     echo "rebuild                   rebuild the image (deletes image and containers)"
     echo "start                     start container"    
     echo "stop                      stop container"
+    echo "clean                     bk distclean"
     echo "run                       build & run Komodo on host"
     echo "status                    show container status"    
     echo "ssh                       ssh into container"
@@ -192,6 +200,10 @@ while true; do
             ;;
         stop)
             stop
+            shift
+            ;;
+        clean)
+            clean
             shift
             ;;
         run)
