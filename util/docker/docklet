@@ -154,7 +154,7 @@ function build {
 
 function deleteBuild {
     stop
-    docker rmi ${DOCKER_IMAGE_NAME}
+    docker rmi -f ${DOCKER_IMAGE_NAME}
 }
 
 function help {
