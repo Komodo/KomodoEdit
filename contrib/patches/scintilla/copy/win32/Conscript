@@ -169,6 +169,8 @@ $cons->Command(
     "scintilla.mak",            # %1
     "../scripts/HFacer.py",     # %2
     "../scripts/Face.py",
+    "../scripts/FileGenerator.py",
+    "../scripts/LexGen.py",
     "../include/ILexer.h",
     "../include/Platform.h",
     "../include/SciLexer.h",

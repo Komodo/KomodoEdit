@@ -300,7 +300,7 @@ diff -r -du win32/scintilla.mak win32/scintilla.mak
  
 +# Generate header files from Scintilla.iface
 +..\include\Scintilla_gen.h: ..\scripts\HFacer.py ..\scripts\Face.py ..\include\Scintilla.iface
-+	cd ..\include && python HFacer.py
++	cd ..\scripts && python HFacer.py
 +..\include\SciLexer_gen.h: ..\scripts\HFacer.py ..\scripts\Face.py ..\include\Scintilla.iface
 +	cd ..\scripts && python HFacer.py
 +..\include\Scintilla.h: ..\include\Scintilla_gen.h

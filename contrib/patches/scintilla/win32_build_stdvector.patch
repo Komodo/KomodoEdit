@@ -1,0 +1,12 @@
+Import std::vector, otherwise build fails.
+Index: C:\as\komodo-devel_play\src\scintilla\src\CellBuffer.cxx
+--- src\CellBuffer.cxx
++++ src\CellBuffer.cxx (unsaved)
+@@ -11,6 +11,7 @@
+ #include <stdarg.h>
+ 
+ #include <algorithm>
++#include <vector>
+ 
+ #include "Platform.h"
+ 
