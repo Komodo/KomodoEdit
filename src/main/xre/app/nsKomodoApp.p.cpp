@@ -78,6 +78,10 @@
 
 using namespace mozilla;
 
+#ifdef XP_MACOSX
+#define kOSXResourcesFolder "Resources"
+#endif
+
 static void Output(const char *fmt, ... )
 {
   va_list ap;
@@ -191,6 +195,31 @@ static int do_main(const char *xpcomDllPath, int argc, char* argv[])
   xpcomFile->GetParent(&appData.xreDirectory);
 
   #ifdef XP_MACOSX
+    // Set the GRE directory:
+    //   1) look for ./chrome.manifest, if that doesn't exist, try 2)
+    //   2) look for ../Resources/chrome.manifest
+    nsCOMPtr<nsIFile> greDir;
+    nsAutoString grePath;
+    xpcomFile->GetParent(getter_AddRefs(greDir));
+    greDir->Append(NS_LITERAL_STRING("chrome.manifest"));
+    bool greExists;
+    greDir->Exists(&greExists);
+    if (!greExists) {
+      xpcomFile->GetParent(getter_AddRefs(greDir));
+      greDir->SetNativeLeafName(NS_LITERAL_CSTRING(kOSXResourcesFolder));
+      greDir->Append(NS_LITERAL_STRING("chrome.manifest"));
+      greDir->Exists(&greExists);
+      if (!greExists) {
+        Output("Couldn't locate chrome.manifest file");
+        return 255;
+      }
+      nsCOMPtr<nsIFile> appSubdir;
+      greDir->GetParent(getter_AddRefs(appSubdir));
+      SetStrongPtr(appData.directory, static_cast<nsIFile*>(appSubdir.get()));
+    }
+  #endif /* XP_MACOSX */
+
+  #ifdef XP_MACOSX
     // Mac OSX: Disable press-and-hold for OSX 10.7, see bug 90870
     CFPreferencesSetAppValue(CFSTR("ApplePressAndHoldEnabled"),
                              kCFBooleanFalse,
@@ -268,7 +297,7 @@ int main(int argc, char* argv[])
 
   nsresult rv = mozilla::BinaryPath::Get(argv[0], exePath);
   if (NS_FAILED(rv)) {
-    Output("Couldn't calculate the application directory.\n");
+    Output("Couldn't find the application directory.\n");
     return 255;
   }
 
