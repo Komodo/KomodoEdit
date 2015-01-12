@@ -17,7 +17,7 @@
     window.OnPreferencePageLoading = (prefset) =>
     {
         var pref = prefset.getPref('notify_disabled_categories');
-        var categories = notify.categories.get()
+        var categories = notify.categories.get();
         categories = _.sortBy(categories, (o) => o.label);
         var wrapper = $("#enabled-notifications-vbox");
         
@@ -33,8 +33,8 @@
             elem.attr(
             {
                 label: category.label,
-                value: key,
-                checked: pref.findString(key) == -1
+                value: category.id,
+                checked: pref.findString(category.id) == -1
             });
 
             wrap.append(elem);

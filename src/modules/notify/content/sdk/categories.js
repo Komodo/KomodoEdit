@@ -5,6 +5,7 @@ var categories = {
 
     register: function(key, opts)
     {
+        opts.id = key;
         this._registered[key] = opts;
     },
 
