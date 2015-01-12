@@ -25,7 +25,6 @@
 #ifdef SCI_LEXER
 #include "SciLexer.h"
 #endif
-#include "SVector.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -224,6 +223,13 @@ void ScintillaHeadless::ClaimSelection() {
 
 void ScintillaHeadless::StoreOnClipboard(SelectionText *clipText) {
 }
+
+#ifdef _WIN32
+sptr_t __stdcall Scintilla_DirectFunction(
+    ScintillaHeadless *sci, unsigned int  iMessage, uptr_t wParam, sptr_t lParam) {
+	return sci->WndProc(iMessage, wParam, lParam);
+}
+#endif
 
 sptr_t ScintillaHeadless::DirectFunction(
     ScintillaHeadless *sciThis, unsigned int iMessage, uptr_t wParam, sptr_t lParam) {

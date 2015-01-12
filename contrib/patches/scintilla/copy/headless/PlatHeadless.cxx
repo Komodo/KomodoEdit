@@ -8,7 +8,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <math.h>
+
+#ifdef MACOSX
 #include <sys/time.h>
+#endif
 
 #include <vector>
 #include <map>
@@ -510,6 +513,44 @@ double ElapsedTime::Duration(bool reset) {
 
 //----------------- DynamicLibrary -----------------------------------------------------------------
 
+#if defined(_WIN32)
+#include <windows.h>
+#include <commctrl.h>
+#include <richedit.h>
+#include <windowsx.h>
+class DynamicLibraryImpl : public DynamicLibrary {
+protected:
+	HMODULE h;
+public:
+	DynamicLibraryImpl(const char *modulePath) {
+		h = ::LoadLibraryA(modulePath);
+	}
+	virtual ~DynamicLibraryImpl() {
+		if (h != NULL)
+			::FreeLibrary(h);
+	}
+	// Use GetProcAddress to get a pointer to the relevant function.
+	virtual Function FindFunction(const char *name) {
+		if (h != NULL) {
+			// C++ standard doesn't like casts betwen function pointers and void pointers so use a union
+			union {
+				FARPROC fp;
+				Function f;
+			} fnConv;
+			fnConv.fp = ::GetProcAddress(h, name);
+			return fnConv.f;
+		} else
+			return NULL;
+	}
+	virtual bool IsValid() {
+		return h != NULL;
+	}
+};
+DynamicLibrary *DynamicLibrary::Load(const char *modulePath) {
+	return static_cast<DynamicLibrary *>(new DynamicLibraryImpl(modulePath));
+}
+#endif
+
 #if defined(GTK)
 class DynamicLibraryImpl : public DynamicLibrary {
 protected:
@@ -592,8 +633,6 @@ bool Platform::IsKeyDown(int) {
 	// TODO: discover state of keys in GTK+/X
 	return false;
 }
-
-extern sptr_t scintilla_send_message(void* sci, unsigned int iMessage, uptr_t wParam, sptr_t lParam);
 
 long Platform::SendScintilla(WindowID w, unsigned int msg, unsigned long wParam, long lParam) {
 	return scintilla_send_message(w, msg, wParam, lParam);

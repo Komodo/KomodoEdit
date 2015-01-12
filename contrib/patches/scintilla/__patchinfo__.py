@@ -3,9 +3,12 @@
 import sys
 
 def patchfile_applicable(config, filepath):
-    if filepath.endswith("perf_no_abandon_paint.patch"):
-        # Only apply on Darwin - bug 98677.
-        return sys.platform == "darwin"
+    if filepath.startswith("win32") and not sys.platform.startswith("win32"):
+        return False
+    if filepath.startswith("gtk") and not sys.platform.startswith("linux"):
+        return False
+    if filepath.startswith("cocoa") and sys.platform != "darwin":
+        return False
     return True
 
 def remove(config):
@@ -14,11 +17,19 @@ def remove(config):
     ]
 
 def add(config):
-    return [
-        ("cocoa", "cocoa"),
-        ("cons", "."),
-        ("lexers", "lexers", "force"),
-        ("headless", "headless", "force"),
-        ("include", "include", "force"),
+    manifest = [
+        ("copy/lexers", "lexers", "force"),
+        ("copy/headless", "headless", "force"),
+        ("copy/include", "include", "force"),
     ]
 
+    if sys.platform.startswith("win"):
+        manifest.append(("copy/win32", "win32", "force"))
+    elif sys.platform.startswith("linux"):
+        manifest.append(("copy/gtk", "gtk", "force"))
+    elif sys.platform == "darwin":
+        manifest.append(("copy/cocoa", "cocoa", "force"))
+    else:
+        raise RuntimeError("Unexpected platform %r" % (sys.platform))
+
+    return manifest

@@ -1,0 +1,16 @@
+Performance tweak: don't abandon paints - bug 97330, bug 97214.
+But only apply on Mac - bug 98677
+Index: /Users/toddw/as/komodo-devel_clean/src/scintilla/src/Editor.cxx
+--- src/Editor.cxx
++++ src/Editor.cxx (unsaved)
+@@ -593,6 +593,10 @@
+  * @return true if calling code should stop drawing.
+  */
+ bool Editor::AbandonPaint() {
++	// KOMODO performance - never abandon paint - just leave as is... there
++	//                      will always be another paint.
++	//                      Bug 97330, bug 97214.
++	return false;
+ 	if ((paintState == painting) && !paintingAllText) {
+ 		paintState = paintAbandoned;
+ 	}

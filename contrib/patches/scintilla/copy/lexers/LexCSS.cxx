@@ -237,7 +237,6 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 		char s2[100];
 		switch (sc.state) {
 		case SCE_CSS_IDENTIFIER:
-		case SCE_CSS_VARIABLE:
 			if (!IsAWordChar(ch)) {
 				if (identifier_substate == IDENTIFIER_SUBSTATE_SCSS_DOLLAR) {
 					// In SCSS, all $... things are identifiers only.
@@ -642,7 +641,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 					if (main_substate == MAIN_SUBSTATE_TOP_LEVEL) {
 						main_substate = MAIN_SUBSTATE_SCSS_ASSIGNMENT;
 					}
-					sc.SetState(SCE_CSS_VARIABLE);
+					sc.SetState(SCE_CSS_IDENTIFIER);
 					break;
 				}
 				// If we're still here, it's a CSS-3 selector, treat as operator
