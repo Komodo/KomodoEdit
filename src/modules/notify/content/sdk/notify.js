@@ -13,8 +13,23 @@
     const log       = logging.getLogger("notify");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     
-    const _window   = winUtils.getToplevelWindow(window);
+    var _window;
+    try
+    {
+        _window = winUtils.getToplevelWindow(window);
+    }
+    catch (e)
+    {
+        log.debug("getTopLevelWindow failed, falling back on window mediator");
+        
+        var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
+        let windows = wm.getEnumerator("Komodo");
+        while (windows.hasMoreElements()) {
+            _window = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
+        }
+    }
     const _document = _window.document;
+    const _ko = _window.ko;
 
     var _window_test_warning_logged = false;
 
@@ -58,9 +73,9 @@
     {
         var addScrollListener = function()
         {
-            if ( ! ("views" in ko)) return;
+            if ( ! ("views" in _ko)) return;
             
-            var scimoz = ko.views.manager.currentView ? ko.views.manager.currentView.scimoz : false;
+            var scimoz = _ko.views.manager.currentView ? _ko.views.manager.currentView.scimoz : false;
             if ( ! scimoz) return;
             
             scimoz.unhookEvents(onMozScroll, Ci.ISciMozEvents.SME_UPDATEUI);
@@ -71,7 +86,7 @@
         
         addScrollListener();
     }
-
+    
     this.send = (message, category, opts) =>
     {
         if ((typeof category) == "object")
@@ -143,7 +158,7 @@
         {
             // For now we'll use the old notification library, ideally this should
             // be merged into the notify module
-            ko.notifications.add(message, [category], opts.id || Date.now(),
+            _ko.notifications.add(message, [category], opts.id || Date.now(),
                                  {severity: opts.priority, notify: true});
         }
 
@@ -485,7 +500,7 @@
     this._calculatePosition = (from, panel) =>
     {
         var pos,
-            scintilla = ko.views.manager.currentView ? ko.views.manager.currentView.scintilla : false;
+            scintilla = _ko.views.manager.currentView ? _ko.views.manager.currentView.scintilla : false;
 
         var normalize = function(pos)
         {
