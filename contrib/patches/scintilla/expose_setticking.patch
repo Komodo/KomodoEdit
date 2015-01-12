@@ -1,0 +1,21 @@
+diff --git a/src/Editor.h b/src/Editor.h
+index cb6141b..7e64841 100755
+--- src/Editor.h
++++ src/Editor.h
+@@ -500,7 +500,6 @@
+ 
+ 	void Tick();
+ 	bool Idle();
+-	virtual void SetTicking(bool on);
+ 	enum TickReason { tickCaret, tickScroll, tickWiden, tickDwell, tickPlatform };
+ 	virtual void TickFor(TickReason reason);
+ 	virtual bool FineTickerAvailable();
+@@ -560,6 +559,8 @@
+ 	static sptr_t BytesResult(sptr_t lParam, const unsigned char *val, size_t len);
+ 
+ public:
++	// ACTIVESTATE KOMODO - expose so SciMoz on Mac can call it.
++	virtual void SetTicking(bool on);
+ 	// Public so the COM thunks can access it.
+ 	bool IsUnicodeMode() const;
+ 	// Public so scintilla_send_message can use it.
