@@ -152,7 +152,7 @@ _terminationListener.prototype = {
         //dump("_terminationListener::onTerminate(retval="+retval+")\n");
         this._editor.ko.run.output.endSession(retval);
         var msg = lazy.bundle.formatStringFromName("terminateMessage", [this._command ,retval], 2);
-        require("notify/notify").send(msg, "commands");
+        require("notify/notify").send(msg, "commands", {panelOnly: true});
         if (this._callback) {
             // Want the callback to come _after_ this thread of control so call
             // it in a timeout.

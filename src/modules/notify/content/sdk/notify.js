@@ -161,6 +161,12 @@
             _ko.notifications.add(message, [category], opts.id || Date.now(),
                                  {severity: opts.priority, notify: true});
         }
+        
+        if (("panelOnly" in opts) && opts.panelOnly)
+        {
+            log.debug("Notification has panelOnly set, not showing notification bubble");
+            return;
+        }
 
         if (disabledCats.findString(category) != -1 && opts.priority == this.P_INFO)
         {
