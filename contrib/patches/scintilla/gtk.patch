@@ -192,7 +192,7 @@ scrollbars was causing an infinite loop.
  	                  GTK_DEST_DEFAULT_ALL, clipboardPasteTargets, nClipboardPasteTargets,
  	                  static_cast<GdkDragAction>(GDK_ACTION_COPY | GDK_ACTION_MOVE));
 -
-++#endif
++#endif
  	/* create pre-edit window */
  	wPreedit = gtk_window_new(GTK_WINDOW_POPUP);
  	wPreeditDraw = gtk_drawing_area_new();
