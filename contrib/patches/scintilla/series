@@ -6,7 +6,6 @@ cocoa_cursor.patch
 cocoa_marginclick.patch
 cocoa_margin_draw_recursion.patch
 cocoa_mouse_events.patch
-cocoa_notification_registration.patch
 cocoa_repaint_when_scrolled.patch
 cocoa_ScintillaCocoa_h.patch
 cocoa_ScintillaCocoa_mm.patch
@@ -40,3 +39,6 @@ expose_dpi.patch
 perf_no_abandon_paint.patch
 marker_increase_leftrect_size.diff
 find_style.patch
+cocoa_notification_registration.patch
+expose_setticking.patch
+

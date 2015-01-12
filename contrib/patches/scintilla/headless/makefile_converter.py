@@ -20,7 +20,7 @@ if sys.platform == "darwin":
     # Ensure symbols are hidden.
     contents = contents.replace("-DSCI_LEXER", "-DSCI_LEXER -fvisibility=hidden")
     # Change library name.
-    contents = contents.replace("libscintilla", "headlessscintilla")
+    contents = contents.replace("scintilla.a", "headlessscintilla.a")
     # Write new makefile
     file("makefile", "w").write(contents)
 elif sys.platform.startswith("linux"):

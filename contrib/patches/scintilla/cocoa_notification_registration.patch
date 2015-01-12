@@ -2,137 +2,91 @@ Turn the cocoa notification handler into a list, instead of having just one
 handler. This is because in SciMoz we use this method to setup and listen for
 notification events, in order to pass back to DOM listeners, but ScintillaView
 also registers a handler in order to deal with certain events.
-Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaCocoa.h
-===================================================================
---- cocoa/ScintillaCocoa.h	(revision 81787)
-+++ cocoa/ScintillaCocoa.h	(working copy)
-@@ -81,6 +81,17 @@ extern "C" NSString* ScintillaRecPboardType;
- 
- namespace Scintilla {
- 
-+class NotificationHandler {
-+public:
-+  intptr_t windowid;
-+  SciNotifyFunc callback;
-+
-+  NotificationHandler(intptr_t id, SciNotifyFunc cb) : windowid(id), callback(cb) { }
-+  bool operator==(const NotificationHandler &handler) const {
-+    return (windowid == handler.windowid && callback == handler.callback);
-+  }
-+};
-+
- /**
-  * Main scintilla class, implemented for OS X (Cocoa).
-  */
-@@ -92,8 +103,7 @@ private:
+Index: /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.h
+--- /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.h
++++ /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.h (unsaved)
+@@ -100,6 +100,7 @@
+   NSEvent* lastMouseEvent;
  
    id<ScintillaNotificationProtocol> delegate;
++  id<ScintillaNotificationProtocol> scimozDelegate;
  
--  SciNotifyFunc	notifyProc;
--  intptr_t notifyObj;
-+  std::vector<NotificationHandler> notificationHandlers;
- 
-   bool capturedMouse;
- 
-@@ -135,6 +145,8 @@ public:
+   SciNotifyFunc	notifyProc;
+   intptr_t notifyObj;
+@@ -143,6 +144,7 @@
+   virtual ~ScintillaCocoa();
  
    void SetDelegate(id<ScintillaNotificationProtocol> delegate_);
++  void SetScimozDelegate(id<ScintillaNotificationProtocol> delegate_);
    void RegisterNotifyCallback(intptr_t windowid, SciNotifyFunc callback);
-+  // lower-case 'u' is deliberate.
-+  void unregisterNotifyCallback(intptr_t windowid, SciNotifyFunc callback);
    sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
  
-   NSScrollView* ScrollContainer() const;
-
-Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaCocoa.mm
-===================================================================
---- cocoa/ScintillaCocoa.mm	(revision 81787)
-+++ cocoa/ScintillaCocoa.mm	(working copy)
-@@ -385,8 +385,6 @@ ScintillaCocoa::ScintillaCocoa(SCIContentView* view, SCIMarginView* viewMargin)
+Index: /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.mm
+--- /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.mm
++++ /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaCocoa.mm (unsaved)
+@@ -385,6 +385,7 @@
    timerTarget = [[TimerTarget alloc] init: this];
    lastMouseEvent = NULL;
    delegate = NULL;
--  notifyObj = NULL;
--  notifyProc = NULL;
++  scimozDelegate = NULL;
+   notifyObj = NULL;
+   notifyProc = NULL;
    capturedMouse = false;
-   enteredSetScrollingSize = false;
-   scrollSpeed = 1;
-@@ -1800,26 +1798,43 @@ void ScintillaCocoa::SetDelegate(id<ScintillaNotificationProtocol> delegate_)
-  */
- void ScintillaCocoa::RegisterNotifyCallback(intptr_t windowid, SciNotifyFunc callback)
+@@ -1811,6 +1812,10 @@
  {
--  notifyObj = windowid;
--  notifyProc = callback;
-+  notificationHandlers.push_back(NotificationHandler(windowid, callback));
-+}
-+
-+void ScintillaCocoa::unregisterNotifyCallback(intptr_t windowid, SciNotifyFunc callback)
+   delegate = delegate_;
+ }
++void ScintillaCocoa::SetScimozDelegate(id<ScintillaNotificationProtocol> delegate_)
 +{
-+  std::vector<NotificationHandler>::iterator it = std::find(notificationHandlers.begin(),
-+								  notificationHandlers.end(),
-+								  NotificationHandler(windowid, callback));
-+  if (it != notificationHandlers.end()) {
-+    notificationHandlers.erase(it);
-+  }
- }
++  scimozDelegate = delegate_;
++}
  
  //--------------------------------------------------------------------------------------------------
  
- void ScintillaCocoa::NotifyChange()
- {
--  if (notifyProc != NULL)
--    notifyProc(notifyObj, WM_COMMAND, Platform::LongFromTwoShorts(GetCtrlID(), SCEN_CHANGE),
--	       (uintptr_t) this);
-+  std::vector<NotificationHandler>::iterator it;
-+  for (it = notificationHandlers.begin(); it != notificationHandlers.end(); it++)
-+  {
-+    it->callback(it->windowid, WM_COMMAND,
-+		      Platform::LongFromTwoShorts(GetCtrlID(), SCEN_CHANGE),
-+	              (uintptr_t) this);
-+  }
- }
- 
- //--------------------------------------------------------------------------------------------------
- 
- void ScintillaCocoa::NotifyFocus(bool focus)
- {
--  if (notifyProc != NULL)
--    notifyProc(notifyObj, WM_COMMAND, Platform::LongFromTwoShorts(GetCtrlID(), (focus ? SCEN_SETFOCUS : SCEN_KILLFOCUS)),
--	       (uintptr_t) this);
-+  std::vector<NotificationHandler>::iterator it;
-+  for (it = notificationHandlers.begin(); it != notificationHandlers.end(); it++)
-+  {
-+    it->callback(it->windowid, WM_COMMAND,
-+		      Platform::LongFromTwoShorts(GetCtrlID(), (focus ? SCEN_SETFOCUS : SCEN_KILLFOCUS)),
-+	              (uintptr_t) this);
-+  }
- 
-   Editor::NotifyFocus(focus);
- }
-@@ -1836,8 +1851,10 @@ void ScintillaCocoa::NotifyParent(SCNotification scn)
- {
-   scn.nmhdr.hwndFrom = (void*) this;
+@@ -1863,6 +1868,8 @@
    scn.nmhdr.idFrom = GetCtrlID();
--  if (notifyProc != NULL)
--    notifyProc(notifyObj, WM_NOTIFY, GetCtrlID(), (uintptr_t) &scn);
-+  std::vector<NotificationHandler>::iterator it;
-+  for (it = notificationHandlers.begin(); it != notificationHandlers.end(); it++) {
-+    it->callback(it->windowid, WM_NOTIFY, (uintptr_t) 0, (uintptr_t) &scn);
-+  }
    if (delegate)
      [delegate notification:&scn];
++  if (scimozDelegate)
++    [scimozDelegate notification:&scn];
  }
-
  
-Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaView.mm
-===================================================================
---- cocoa/ScintillaView.mm	(revision 81787)
-+++ cocoa/ScintillaView.mm	(working copy)
-@@ -1144,6 +1144,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
- - (void) dealloc
+ //--------------------------------------------------------------------------------------------------
+Index: /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.h
+--- /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.h
++++ /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.h (unsaved)
+@@ -112,10 +112,12 @@
+   BOOL mInfoBarAtTop;
+ 
+   id<ScintillaNotificationProtocol> mDelegate;
++  id<ScintillaNotificationProtocol> mSciMozDelegate;
+ }
+ 
+ @property (nonatomic, readonly) Scintilla::ScintillaCocoa* backend;
+ @property (nonatomic, assign) id<ScintillaNotificationProtocol> delegate;
++@property (nonatomic, assign) id<ScintillaNotificationProtocol> scimozDelegate;
+ @property (nonatomic, readonly) NSScrollView *scrollView;
+ 
+ + (Class) contentViewClass;
+Index: /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.mm
+--- /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.mm
++++ /Users/toddw/as/komodo-devel_play/src/scintilla/cocoa/ScintillaView.mm (unsaved)
+@@ -902,6 +902,7 @@
+ 
+ @synthesize backend = mBackend;
+ @synthesize delegate = mDelegate;
++@synthesize scimozDelegate = mScimozDelegate;
+ @synthesize scrollView;
+ 
+ /**
+@@ -1040,6 +1041,10 @@
  {
-   [[NSNotificationCenter defaultCenter] removeObserver:self];
-+  mBackend->unregisterNotifyCallback(nil, notification);
-   delete mBackend;
-   [marginView release];
-   [super dealloc];
+   // Parent notification. Details are passed as SCNotification structure.
+ 
++  if (mScimozDelegate != nil)
++  {
++    [mScimozDelegate notification: scn];
++  }
+   if (mDelegate != nil)
+   {
+     [mDelegate notification: scn];

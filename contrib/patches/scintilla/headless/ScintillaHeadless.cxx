@@ -12,6 +12,7 @@
 #include <ctype.h>
 #include <time.h>
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include <map>
@@ -44,6 +45,10 @@
 #include "Document.h"
 #include "Selection.h"
 #include "PositionCache.h"
+#include "EditModel.h"
+#include "MarginView.h"
+#include "LineMarker.h"
+#include "EditView.h"
 #include "Editor.h"
 #include "UniConversion.h"
 #include "CaseConvert.h"

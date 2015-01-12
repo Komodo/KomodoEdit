@@ -15,6 +15,7 @@ def remove(config):
 
 def add(config):
     return [
+        ("cocoa", "cocoa"),
         ("cons", "."),
         ("lexers", "lexers", "force"),
         ("headless", "headless", "force"),
