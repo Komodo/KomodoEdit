@@ -327,6 +327,9 @@ else {
     $consLocal{'CPPPATH'} = "$mozIncludePath:$scintillaBuildDir/include";
     $consLocal{'LIBPATH'} = "$mozLibPath:$pluginSdkObjDir/samples/common:../scintilla/bin";
 
+    # Scintilla uses dynamic cast - remove any disabling of it from CXXFLAGS.
+    $consLocal{ENV}{'CXXFLAGS'} =~ s/-fno-rtti //g;
+
     ## XXX PKG_CONFIG_PATH env var will point to pgkconfig dir for the platform.
     ## -DGTK is required to properly include the Scintilla headers.
     $consLocal{'CXXFLAGS'} = "`pkg-config --cflags gtk+-2.0` -DGTK -DGTK2_XEMBED";
