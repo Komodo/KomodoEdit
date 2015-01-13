@@ -216,6 +216,8 @@ static int do_main(const char *xpcomDllPath, int argc, char* argv[])
       nsCOMPtr<nsIFile> appSubdir;
       greDir->GetParent(getter_AddRefs(appSubdir));
       SetStrongPtr(appData.directory, static_cast<nsIFile*>(appSubdir.get()));
+      // Update XRE directory too.
+      SetStrongPtr(appData.xreDirectory, static_cast<nsIFile*>(appSubdir.get()));
     }
   #endif /* XP_MACOSX */
 
