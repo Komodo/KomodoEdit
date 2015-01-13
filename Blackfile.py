@@ -1049,6 +1049,12 @@ def ImageKomodo(cfg, argv):
             return ipkgpath(cfg.macKomodoAppInstallName, "Contents", "MacOS", *parts)
         else:
             return ipkgpath("INSTALLDIR", "lib", "mozilla", *parts)
+    def iimozresourcespath(*parts):
+        """Mac uses Resources folder for most data files."""
+        if sys.platform == "darwin":
+            return ipkgpath(cfg.macKomodoAppInstallName, "Contents", "Resources", *parts)
+        else:
+            return iimozbinpath(*parts)
     def iipylibpath(*parts):
         if sys.platform == "win32":
             return ipkgpath("feature-core", "INSTALLDIR", "lib", "python", "Lib", *parts)
@@ -1302,6 +1308,28 @@ def ImageKomodo(cfg, argv):
         # Don't need the pyxpcom manifest as we have our own komodo manifest.
         ("trim", iimozbinpath("components", "pyxpcom.manifest")),
     ]
+
+    # Mac requires most files to reside in the Resources directory.
+    if sys.platform == "darwin":
+        ibits += [
+            ("mv", iimozbinpath("components"), iimozresourcespath("components")),
+            ("mv", iimozbinpath("chrome"), iimozresourcespath("chrome")),
+            ("mv", iimozbinpath("chrome.manifest"), iimozresourcespath("chrome.manifest")),
+            ("mv", iimozbinpath("defaults"), iimozresourcespath("defaults")),
+            ("mv", iimozbinpath("dictionaries"), iimozresourcespath("dictionaries")),
+            ("mv", iimozbinpath("distribution"), iimozresourcespath("distribution")),
+            ("mv", iimozbinpath("extensions"), iimozresourcespath("extensions")),
+            ("mv", iimozbinpath("greprefs.js"), iimozresourcespath("greprefs.js")),
+            ("mv", iimozbinpath("hyphenation"), iimozresourcespath("hyphenation")),
+            ("mv", iimozbinpath("modules"), iimozresourcespath("modules")),
+            ("mv", iimozbinpath("platform.ini"), iimozresourcespath("platform.ini")),
+            ("mv", iimozbinpath("pyxpcom.manifest"), iimozresourcespath("pyxpcom.manifest")),
+            ("mv", iimozbinpath("res"), iimozresourcespath("res")),
+            ("mv", iimozbinpath("update.locale"), iimozresourcespath("update.locale")),
+            ("mv", iimozbinpath("update-settings.ini"), iimozresourcespath("update-settings.ini")),
+            ("mv", iimozbinpath("updater.ini"), iimozresourcespath("updater.ini")),
+            ("mv", iimozbinpath("python"), iimozresourcespath("python")),
+        ]
 
     GenerateCaches(cfg)
 
