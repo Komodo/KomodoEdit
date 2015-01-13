@@ -1447,12 +1447,6 @@ def ImageKomodo(cfg, argv):
             os.symlink("../python/lib/%s.1.0" % basename(libpythonXYso), path)
             log.debug("image:: symlinking %r => %r", path, "../python/lib/%s.1.0" % basename(libpythonXYso))
 
-    # Ensure that there is a <image>/lib/mozilla/extensions directory
-    # (bug 42497).
-    extensions_dir = iimozbinpath("extensions")
-    if not exists(extensions_dir):
-        os.makedirs(extensions_dir)
-
     # Strip off any fat from the Komodo/Mozilla binaries to reduce the overall
     # size.
     # Note: This will still leave in the necessary crash-reporter information
