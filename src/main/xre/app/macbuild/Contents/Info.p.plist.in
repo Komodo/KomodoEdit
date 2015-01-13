@@ -248,7 +248,7 @@
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
-	<string>komodo-bin</string>
+	<string>komodo</string>
 	<key>CFBundleGetInfoString</key>
 	<string>Komodo PP_KO_SHORT_VERSION, (c) 2000-2007 ActiveState Software Inc.</string>
     <!-- Don't use Apple Help for now. See bug 37359
