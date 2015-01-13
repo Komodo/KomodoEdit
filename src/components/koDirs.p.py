@@ -168,7 +168,12 @@ class KoDirs:
         # By definition this is the directory of the main komodo/mozilla
         # executable. 'koDirs.py' is in the components directory, always one
         # dir under the moz bin dir.
-        return dirname(dirname(__file__))
+        # Note: On Mac install, the 'koDirs.py' file resides in the
+        #       'Resources/components' directory.
+        location = dirname(dirname(__file__))
+        if sys.platform == "darwin" and basename(location) == "Resources":
+            location = join(dirname(location), "MacOS")
+        return location
 
     __isDevTreeCache = None
     def _isDevTree(self):
