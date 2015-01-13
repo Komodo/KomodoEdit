@@ -1329,6 +1329,7 @@ def ImageKomodo(cfg, argv):
             ("mv", iimozbinpath("hyphenation"), iimozresourcespath("hyphenation")),
             ("mv", iimozbinpath("modules"), iimozresourcespath("modules")),
             ("mv", iimozbinpath("platform.ini"), iimozresourcespath("platform.ini")),
+            ("mv", iimozbinpath("plugins"), iimozresourcespath("plugins")),
             ("mv", iimozbinpath("pyxpcom.manifest"), iimozresourcespath("pyxpcom.manifest")),
             ("mv", iimozbinpath("res"), iimozresourcespath("res")),
             ("mv", iimozbinpath("update.locale"), iimozresourcespath("update.locale")),
