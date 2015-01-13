@@ -2332,6 +2332,18 @@ def target_mozilla(argv=["mozilla"]):
                         (join(buildDir, "mach.log"), build_args),
                     buildDir, log.info)
 
+    mozVer = config["mozVer"]
+    if int(mozVer) >= 35 and sys.platform.startswith("darwin"):
+        # Copy 'dependentlibs.list' into the Resources directory.
+        distDir = join(config.buildDir, config.srcTreeName, "mozilla",
+                       config.mozObjDir, "dist")
+        komodo_app_name = "Komodo%s" % (config.buildType == 'debug'
+                                        and 'debug' or '')
+        binDepPath = join(distDir, "%s.app" % komodo_app_name, "Contents", "MacOS", "dependentlibs.list")
+        resDepPath = join(distDir, "%s.app" % komodo_app_name, "Contents", "Resources", "dependentlibs.list")
+        if exists(binDepPath):
+            shutil.move(binDepPath, resDepPath)
+
         argv = argv[1:]
     return argv
 
