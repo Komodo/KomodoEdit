@@ -621,8 +621,11 @@
                 // Setup margins and markers.
 
                 // Symbol margin.
+                // Note: We have to call setup even if the margin is not
+                //       visible, as some markers don't rely on the margin
+                //       itself - bug 105933.
+                ko.markers.setup(scimoz, this.scheme.isDarkBackground);
                 if (this.symbolMargin) {
-                    ko.markers.setup(scimoz, this.scheme.isDarkBackground);
                     scimoz.setMarginWidthN(scimoz.MARGIN_SYMBOLS, 16);
                 } else {
                     scimoz.setMarginWidthN(scimoz.MARGIN_SYMBOLS, 0);
