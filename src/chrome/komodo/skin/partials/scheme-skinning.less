@@ -1,3 +1,5 @@
+@import url("chrome://komodo/skin/plat/shared/icons_depend.less");
+
 .setVars() when (@dark = 1)
 {
     @_background:           lighten(@background, 5%);
@@ -257,4 +259,15 @@ statusbar#statusbarviewbox
 {
     border: 0;
     background-image: none !important;
+}
+
+statusbarpanel > toolbarbutton[type="menu"] > dropmarker
+{
+    opacity: 0.6;
+    list-style-image: @icon-hud-dropmarker !important;
+}
+
+#breadcrumbBar .breadcrumb .breadcrumb-arrow
+{
+    background-image: @icon-hud-crumb-arrow !important;
 }
