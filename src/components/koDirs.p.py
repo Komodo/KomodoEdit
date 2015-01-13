@@ -211,6 +211,16 @@ class KoDirs:
                 supportDir = join(dirname(self.get_mozBinDir()), "support")
         return supportDir
 
+    def get_resourcesDir(self):
+        # Mac install:
+        #   $installDir/Contents/Resources
+        # else:
+        #   $mozBinDir
+        if sys.platform == "darwin" and not self._isDevTree():
+            return normpath(join(self.get_mozBinDir(), os.pardir, "Resources"))
+        else:
+            return self.get_mozBinDir()
+
     def get_sdkDir(self):
         if self._isDevTree(): # in a development tree
             sdkDir = join(self._getKomodoBitsDir(), "sdk")
@@ -297,7 +307,7 @@ class KoDirs:
         return pythonExe
 
     def get_komodoPythonLibDir(self):
-        return join(self.get_mozBinDir(), "python", "komodo")
+        return join(self.get_resourcesDir(), "python", "komodo")
     def get_binDBGPDir(self):
         return os.path.join(self.get_supportDir(), "dbgp", "bin")
     def get_perlDBGPDir(self):
