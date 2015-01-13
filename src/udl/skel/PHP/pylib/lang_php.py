@@ -3123,6 +3123,13 @@ class PHPParser:
                         newstate = S_TRAIT_RESOLUTION
                 elif keyword == "foreach":
                     self._foreachKeywordHandler(styles, text, pos+1)
+                elif keyword == "if" and "(" in text:
+                    # Skip over the if statement and use the rest.
+                    p = text.index("(")
+                    p = self._skipPastParenArguments(styles, text, p+1)
+                    self.text = text[p:]
+                    self.styles = styles[p:]
+                    self._addCodePiece()
                 else:
                     log.debug("Ignoring keyword: %s", keyword)
                     self._addAllVariables(styles, text, pos)
@@ -3255,7 +3262,7 @@ class PHPParser:
                         else:
                             self._addCodePiece()
                         self.decBlock()
-                    elif op == ":":
+                    elif op == ":" and self.text and self.text[-1] not in ("self", "parent", ":"):
                         # May be an alternative syntax
                         if len(self.text) > 0 and \
                            self.styles[0] == self.PHP_WORD and \

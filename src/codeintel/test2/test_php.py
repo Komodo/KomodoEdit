@@ -3172,6 +3172,31 @@ EOD;
                         ("class", "DOMDocument"),
                     ])
 
+    @tag("bug106103")
+    def test_instance_static_class_completions(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            class class1 {
+              private static $instance;
+              public static function get_instance() {
+                if (self::$instance == null) self::$instance = new self;
+                return self::$instance;
+              }
+              public static function call() { echo 1; }
+            }
+            $obj = class1::<1>get_instance(<2>);
+            $obj::<3>call(<4>);
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [
+                ("function", "call"),
+                ("function", "get_instance"),
+            ])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+            [
+                ("function", "call"),
+                ("function", "get_instance"),
+            ])
+
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
     test_dir = join(os.getcwd(), "tmp")
