@@ -1138,40 +1138,21 @@ def target_configure(argv):
     if sys.platform == "darwin":
         # See http://developer.mozilla.org/en/docs/Mac_OS_X_Build_Prerequisites#.mozconfig_Options_and_Other_Tunables
         # for issues with setting:
-        #   ac_add_options --with-macos-sdk=/path/to/SDK
         #   ac_add_options --enable-macos-target=version
-        #
-        # building on panther, we must now specify --with-macos-sdk= due to
-        # changes in quicktime (yes, it affects us).  So, for any ppc build,
-        # we will use the 10.2.8 sdk
-        # If building on panther, we do not want to use with-macos-sdk,
-        # it is broken.
 
         osx_major_ver = int(os.uname()[2].split(".")[0])
         # The osx_major_ver has the following values:
+        #   14: Yosemite (OS X 10.10)
+        #   13: Mavericks (OS X 10.9)
         #   12: Mountain Lion (OS X 10.8)
         #   11: Lion (OS X 10.7)
         #   10: Snow Leopard (OS X 10.6)
-        #   9:  Leopard (OS X 10.5)
-        #   8:  Tiger (OS X 10.4)
 
         mozVer = config["mozVer"]
 
-        # Komodo 8 defaults to building with the MacOSX 10.6 SDK.
-        macosx_min_version = "10.6"
-        sdk = "/Developer/SDKs/MacOSX%s.sdk" % (macosx_min_version, )
-        if not os.path.exists(sdk):
-            # Newer installs of Xcode use a different location - try that now.
-            for sdk_ver in ("10.7", "10.8", "10.9", "10.10"):
-                sdk = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX%s.sdk" % (sdk_ver, )
-                if os.path.exists(sdk):
-                    break
-            else:
-                raise BuildError("Unable to locate the MacOSX sdk - you "
-                                 "probably need to install Xcode.")
-
+        # Komodo 9 supports Mavericks and higher.
+        macosx_min_version = "10.9"
         mozBuildOptions.append("enable-macos-target=%s" % macosx_min_version)
-        mozBuildOptions.append("with-macos-sdk=%s" % sdk)
 
         gcc = config.get("gcc") or os.environ.get("CC")
         gxx = config.get("gxx") or os.environ.get("CXX")
