@@ -1247,12 +1247,18 @@ def ImageKomodo(cfg, argv):
         ("rtrim", "*.pyo"),
         ("rm",    iimozbinpath("*.txt")),
         ("rm",    iimozbinpath("LICENSE")),
+        ("rm",    iimozbinpath("pydbgp*")),
+        ("rm",    iimozbinpath("scintilla.a")),
 
         # Trim Mozilla stuff.
         ("rm",    iimozbinpath("*.sh")),
         ("rm",    iimozbinpath(".gdbinit")),
         ("rm",    iimozbinpath(".lldbinit")),
+        ("rm",    iimozbinpath("application.ini")),
+        ("rmdir", iimozbinpath("gmp-clearkey")),
+        ("rmdir", iimozbinpath("gmp-fake")),
         ("rm",    iimozbinpath("js-gdb.py")),
+        ("rm",    iimozbinpath("komodo-bin")),
         ("rm",    iimozbinpath("mangle")),
         ("rm",    iimozbinpath("mozilla-xremote-client")),
         ("rm",    iimozbinpath("nsinstall")),
