@@ -1,0 +1,13 @@
+Upstreamed patch.
+diff -r 7033680d2fc4 toolkit/crashreporter/google-breakpad/src/client/mac/crash_generation/crash_generation_server.cc
+--- a/toolkit/crashreporter/google-breakpad/src/client/mac/crash_generation/crash_generation_server.cc	Wed Nov 26 18:02:57 2014 -0500
++++ b/toolkit/crashreporter/google-breakpad/src/client/mac/crash_generation/crash_generation_server.cc	Tue Jan 13 13:28:27 2015 -0800
+@@ -33,6 +33,8 @@
+ #include "client/mac/handler/minidump_generator.h"
+ #include "common/mac/scoped_task_suspend-inl.h"
+ 
++#include <pthread.h>
++
+ namespace google_breakpad {
+ 
+ CrashGenerationServer::CrashGenerationServer(
