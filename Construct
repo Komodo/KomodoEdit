@@ -300,9 +300,9 @@ elsif ($platform eq "darwin") {
     $environ{LDFLAGS} .= " -arch x86_64";
 
     # Use 10.6 as the minimum required version.
-    $environ{CFLAGS} .= ' -mmacosx-version-min=10.6';
-    $environ{CXXFLAGS} .= ' -mmacosx-version-min=10.6';
-    $environ{LDFLAGS} .= ' -mmacosx-version-min=10.6';
+    $environ{CFLAGS} .= ' -mmacosx-version-min=10.9';
+    $environ{CXXFLAGS} .= ' -mmacosx-version-min=10.9';
+    $environ{LDFLAGS} .= ' -mmacosx-version-min=10.9';
 }
 
 if ($withPGOGeneration) {
