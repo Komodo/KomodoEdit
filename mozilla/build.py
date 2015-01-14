@@ -587,7 +587,7 @@ def _getMozSrcInfo(scheme):
     The return value is a dict with the suggested configuration
     variables identifying the mozilla source.
         {
-         'mozVer':          The Mozilla version number as a float, i.e. 31.0
+         'mozVer':          The Mozilla version number as a float, i.e. 35.0
          'mozSrcType':      <'hg', 'git' or 'tarball'>,
          'mozSrcName':      <a short string to *loosely* describing the mozilla src>,
          # The following only if mozSrcType==hg:
@@ -859,8 +859,8 @@ def target_configure(argv):
 
             Scheme      Tag                     KoVer   FFVer   MozVer
             ----------  ----------------------  ------  ------  ----------
-            2400        FIREFOX_24_0_0_RELEASE  8.1.X  24.0.X   24.00
-            3100        FIREFOX_31_0_0_RELEASE  9.0.X  31.0.X   31.00
+            3100        FIREFOX_31_0_RELEASE    9.0.X  31.0.X   31.00
+            3500        FIREFOX_35_0_RELEASE    9.0.X  35.0.X   35.00
 
     Other Options:
         -r, --reconfigure
@@ -972,7 +972,7 @@ def target_configure(argv):
         "buildDir": abspath("build"),
         "mozconfig": None,
         "jsStandalone": False,
-        "mozSrcScheme": "3100",
+        "mozSrcScheme": "3500",
         "withCrashReportSymbols": False,
         "withPGOGeneration": False,
         "withPGOCollection": False,
