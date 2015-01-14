@@ -2332,8 +2332,7 @@ def target_mozilla(argv=["mozilla"]):
                         (join(buildDir, "mach.log"), build_args),
                     buildDir, log.info)
 
-    mozVer = config["mozVer"]
-    if int(mozVer) >= 35 and sys.platform.startswith("darwin"):
+    if int(config.mozVer) >= 35 and sys.platform.startswith("darwin"):
         # Copy 'dependentlibs.list' into the Resources directory.
         distDir = join(config.buildDir, config.srcTreeName, "mozilla",
                        config.mozObjDir, "dist")
