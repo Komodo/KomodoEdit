@@ -295,7 +295,7 @@
             // this needs to be present to properly update komodoFileSaveItems
             // in several instances, such as closing a dirty file without
             // saving it.
-            window.setTimeout("window.updateCommands('dirty', 1);");
+            window.setTimeout(window.updateCommands, 1, 'dirty');
         ]]>
         </body>
         </method>
