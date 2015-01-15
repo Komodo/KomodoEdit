@@ -34,7 +34,7 @@
         searchTimer: false,
         favourites: null,
         history: [],
-        uilaoutTimer: -1,
+        uilayoutTimer: -1,
         open: false
     };
 
@@ -566,11 +566,14 @@
             }
         }
 
-        window.clearTimeout(local.uilaoutTimer);
-        local.uilaoutTimer = window.setTimeout(function()
+        if ("cloneUnifiedMenuItems" in ko.uilayout)
         {
-            ko.uilayout.cloneUnifiedMenuItems();
-        }, 50);
+            window.clearTimeout(local.uilayoutTimer);
+            local.uilayoutTimer = window.setTimeout(function()
+            {
+                ko.uilayout.cloneUnifiedMenuItems();
+            }, 50);
+        }
     }
 
     this.unregisterScope = function(id)
