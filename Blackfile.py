@@ -612,11 +612,12 @@ def __run_log(logstream, msg, *args, **kwargs):
     else:
         logstream(msg, *args, **kwargs)
 
-def _run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM, cwd=None):
+def _run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM, cwd=None, env=None):
     """Run the given command.
 
         "cmd" is the command to run
         "cwd" is the directory in which the commmand is run.
+        "env" is the optional environment dict to use
         "logstream" is an optional logging stream on which to log the 
             command. If None, no logging is done. If unspecifed, this 
             looks for a Logger instance named 'log' and logs the command 
@@ -635,7 +636,7 @@ def _run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM, cwd=None):
         __run_log(logstream, "running '%s' in '%s'", cmdline, cwd)
     else:
         __run_log(logstream, "running '%s'", cmdline)
-    p = subprocess.Popen(cmd, cwd=cwd, shell=shell)
+    p = subprocess.Popen(cmd, cwd=cwd, shell=shell, env=env)
     status = p.wait()
     if status:
         #TODO: add std OSError attributes or pick more approp. exception
