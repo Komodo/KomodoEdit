@@ -110,7 +110,8 @@ $cons->InstallAs("$supportDir/schemes/Twilight_Dark.ksf", 'color_schemes/twiligh
 $cons->InstallAs("$supportDir/schemes/Twilight_Light.ksf", 'color_schemes/twilight-light.ksf');
 
 $cons->InstallRecursive("$supportDir/schemes/schemes", cwd()."/src/schemes/color_schemes/schemes", ('\.consign'));
-$cons->InstallRecursive("$supportDir/schemes/templates", cwd()."/src/schemes/color_schemes/templates", ('\.consign'));
+$cons->Preprocess("color_schemes/templates/common.p.py", "color_schemes/templates/common.py");
+$cons->InstallRecursive("$supportDir/schemes/templates", cwd()."/src/schemes/color_schemes/templates", ('\.consign', 'common.p.py'));
 
 $cons->BuildAndInstallXpt('koIKeybindingSchemeService.idl');
 $cons->InstallXpcomComponent('koKeybindingSchemeService.py');

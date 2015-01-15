@@ -84,11 +84,11 @@ def parseScheme(colors):
                 'fore': colors["baseFore"],
                 'hotspot': 0,
                 'italic': 0,
-
+# #if PLATFORM == "darwin"
                 'size': 13,
-
-
-
+# #else
+                'size': 11,
+# #endif
                 
                 'useFixed': 1,
                 'bold': 0,
@@ -101,11 +101,11 @@ def parseScheme(colors):
                 'fore': colors["baseFore"],
                 'hotspot': 0,
                 'italic': 0,
-
+# #if PLATFORM == "darwin"
                 'size': 13,
-
-
-
+# #else
+                'size': 11,
+# #endif
                 'useFixed': 0,
                 'bold': 0,
                 'lineSpacing': 2
