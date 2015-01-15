@@ -446,6 +446,7 @@ Build(
     "$build/modules/iconset_classic/Conscript",
     "$build/modules/iconset_cupertino/Conscript",
     "$build/modules/iconset_cupertino_blue/Conscript",
+    "$build/modules/iconset_yosemite/Conscript",
     "$build/modules/iconset_dark/Conscript",
     "$build/modules/iconset_light/Conscript",
     "$build/modules/iconset_orange/Conscript",

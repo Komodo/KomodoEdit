@@ -1,0 +1,2 @@
+override chrome://komodo/skin/iconset/config.less chrome://iconset-yosemite/skin/config.less
+
