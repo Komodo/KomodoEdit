@@ -303,19 +303,19 @@
                     var scheme = schemeService.getScheme(prefs.getString("editor-scheme"));
                     params.fill = scheme.isDarkBackground ? "#C8C8C8" : "#4B4B4B";
                 }
-                else if (prefs.hasStringPref("iconset-" + preset + "-defs"))
+                else if (prefs.getString("iconset-" + preset + "-defs", '-1') != '-1')
                 {
                     log.debug("Using "+preset+" preset defs");
                     params.defs = prefs.getStringPref("iconset-" + preset + "-defs");
                 }
-                else if (prefs.hasStringPref("iconset-base-defs"))
+                else if (prefs.getString("iconset-base-defs", '-1') != '-1')
                 {
                     log.debug("Using base preset defs");
                     params.defs = prefs.getStringPref("iconset-base-defs");
                 }
                 else 
                 {
-                    if ( ! prefs.hasStringPref("iconset-" + preset + "-color"))
+                    if (prefs.getString("iconset-" + preset + "-color", '-1') == '-1')
                     {
                         preset = "base";
                     }

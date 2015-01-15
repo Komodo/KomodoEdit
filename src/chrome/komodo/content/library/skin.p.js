@@ -133,7 +133,9 @@ if (ko.skin == undefined)
                                      "iconset-widgets-defs", "iconset-selected-defs"];
                         values.forEach(function(pref)
                         {
-                            prefs.deletePref(pref);
+                            // Set value as -1, as deletePref only resets it to the
+                            // global default, it does not actually delete the pref
+                            prefs.setString(pref, '-1');
                         });
                         this.loadPreferredIcons();
                     }
