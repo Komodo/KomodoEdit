@@ -20,7 +20,7 @@
     const log           = require("ko/logging").getLogger("ko-fileicons");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
-    var self = icons    = this;
+    var self = this, icons = this;
 
     this.handlers = {};
 
