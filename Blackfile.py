@@ -2761,7 +2761,15 @@ def BuildCrashReportSymbols(cfg):
                output_dir,             # where crashreporter symbol files end up
                cfg.buildAbsDir,        # where to look for ".pdb" files
               ]
-        _run(' '.join(cmd))
+
+        # Ensure the Mozilla Python libraries are on the pythonpath:
+        env = os.environ.copy()
+        pypath = env.get('PYTHONPATH', '').split(os.pathsep)
+        pypath.append(join(cfg.mozSrc, "mozilla", "python", "mozbuild"))
+        pypath.append(join(cfg.mozSrc, "mozilla", "python", "jsmin"))
+        env['PYTHONPATH'] = os.pathsep.join(pypath)
+
+        _run(' '.join(cmd), env=env)
 
 
 commandOverrides = {
