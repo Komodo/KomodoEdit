@@ -1255,6 +1255,7 @@ def ImageKomodo(cfg, argv):
         ("rm",    iimozbinpath("*.sh")),
         ("rm",    iimozbinpath(".gdbinit")),
         ("rm",    iimozbinpath(".lldbinit")),
+        ("rm",    iimozbinpath(".purgecaches")),
         ("rm",    iimozbinpath("application.ini")),
         ("rmdir", iimozbinpath("gmp-clearkey")),
         ("rmdir", iimozbinpath("gmp-fake")),
