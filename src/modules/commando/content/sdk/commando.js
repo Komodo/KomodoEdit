@@ -883,7 +883,7 @@
 
             resultElem.ensureIndexIsVisible(selIndex);
 
-            data = resultElem.selectedItem.resultData;
+            var data = resultElem.selectedItem.resultData;
             var description = data.tip || data.description || data.name;
             c.tip(description);
         }
