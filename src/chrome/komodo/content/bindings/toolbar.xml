@@ -339,7 +339,7 @@
                 }
 
                 // need to figure out which children to hide
-                children = Array.slice(first_overflow.querySelectorAll('toolbaritem > *'));
+                children = Array.slice(first_overflow.childNodes);
                 for ([i, child] in Iterator(children)) {
                     childRect = child.getBoundingClientRect();
                     if (childRect.right > scrollRect.right) {
