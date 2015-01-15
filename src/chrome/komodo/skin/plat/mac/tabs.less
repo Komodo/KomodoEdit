@@ -47,9 +47,17 @@ tabbox#tabbed-view tab,
     border-top: @tab-box-border;
 }
 
-tabbox#tabbed-view tab .tab-text
+tabbox#tabbed-view tab 
 {
-    text-align: left;
+    .tab-text
+    {
+        text-align: right;
+    }
+    
+    .tab-icons
+    {
+        margin-left: 4px;
+    }
 }
 
 tabbox:not(.native):not(#tabbed-view):not(#variables-tabpanels):not(.tabs-bottom)
