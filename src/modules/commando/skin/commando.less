@@ -70,6 +70,7 @@
         width: 100%;
         opacity: 0;
         transition: opacity 0.2s linear;
+        visibility: collapse;
     }
 
     &:not(.kitt) #commando-loader
@@ -89,6 +90,7 @@
     &.loading #commando-loader
     {
         opacity: 1.0;
+        visibility: visible;
     }
 
     @keyframes loading {
