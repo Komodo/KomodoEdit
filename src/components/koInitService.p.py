@@ -782,7 +782,7 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 17
+    _current_pref_version = 18
 
     def _upgradeUserPrefs(self, prefs):
         """Upgrade any specific info in the user's prefs.xml.
@@ -887,6 +887,12 @@ class KoInitService(object):
             
         if version < 17:
             prefs.setBoolean("koSkin_use_custom_scrollbars", True)
+            
+        if version < 18:
+            # Reset skin and iconset to defaults because 9.0 is a major release
+            prefs.deletePref("koSkin_custom_icons")
+            prefs.deletePref("koSkin_custom_skin")
+            prefs.deletePref("runtime_manifests")
 
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)
