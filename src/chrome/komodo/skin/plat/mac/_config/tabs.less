@@ -1,17 +1,19 @@
 @import url("chrome://komodo/skin/plat/shared/_config/tabs.less");
 
-@tab-box-box-shadow:                    inset 0px 1px 0px rgba(255,255,255,0.7);
-@tab-box-border:                        1px solid #bfbfbf;
-@tab-box-background-color:              rgb(218,218,218);
-@tab-box-background-image:              -moz-linear-gradient(90deg , rgb(220,220,220) 0%, rgb(236,236,236) 100%);
-@tab-box-background-image-vertical:     -moz-linear-gradient(180deg , rgb(218,218,218) 0%, rgb(236,236,236) 100%);
-@tab-box-background-icons:              url('chrome://komodo/skin/images/status-bg.png');
-@tab-box-box-shadow-icons:              0px -3px 10px rgba(0,0,0,0.10);
+@tab-box-box-shadow:                    disabled;
+@tab-box-border:                        1px solid #ACACAC;
+@tab-box-background-color:              #BFBFBF;
+@tab-box-background-image:              disabled;
+@tab-box-background-image-vertical:     disabled;
+@tab-box-background-icons:              #BFBFBF;
+@tab-box-box-shadow-icons:              disabled;
+@tab-box-background-inactive:           #EDEDED;
+@tab-box-background-icons-inactive:     @tab-box-background-inactive;
 
-@tab-font:                              "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
-@tab-font-size:                         90%;
-@tab-color:                             #545454;
-@tab-text-shadow:                       0 1px 0 rgba(255, 255, 255, 0.7);
+@tab-font:                              "Helvetica Neue", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+@tab-font-size:                         1rem;
+@tab-color:                             #616161;
+@tab-text-shadow:                       disabled;
 @tab-text-opacity:                      1.0;
 @tab-text-opacity-selected:             1.0;
 
@@ -19,48 +21,43 @@
 @tab-moz-appearance-vertical:           none;
 @tab-moz-appearance-icons:              none;
 
-@tab-box-shadow:                        inset -1px 1px 0px rgba(255,255,255,0.5);
-@tab-border:                            1px solid rgb(191,191,191);
-@tab-transition:                        all 0.20s linear;
-@tab-background:                        -moz-linear-gradient(90deg , rgb(200,200,200) 0%, rgb(230,230,230) 100%);
-@tab-background-vertical:               @tab-background;
-@tab-box-shadow-vertical:               @tab-box-shadow;
+@tab-box-shadow:                        disabled;
+@tab-border:                            1px solid #ACACAC;
+@tab-transition:                        disabled;
+@tab-background:                        transparent;
+@tab-background-inactive:               transparent;
+@tab-background-vertical:               transparent;
+@tab-box-shadow-vertical:               disabled;
 
 @tab-selected-border:                   @tab-border;
-@tab-selected-background:               rgba(255,255,255,0.7);
-@tab-selected-box-shadow:               @tab-box-shadow, inset 0px -1px 5px 0px rgba(0, 0, 0, 0.1);
-@tab-selected-color:                    #1C1C1C;
+@tab-selected-background:               #D1D1D1;
+@tab-selected-background-inactive:      #E2E2E2;
+@tab-selected-box-shadow:               none;
+@tab-selected-color:                    #2A2A2A;
 @tab-selected-background-vertical:      @tab-selected-background;
 @tab-selected-box-shadow-vertical:      @tab-selected-box-shadow;
 
 @tab-hover-border:                      @tab-border;
-@tab-hover-background:                  rgba(255,255,255,0.4);
+@tab-hover-background:                  #AFAFAF;
 @tab-hover-box-shadow:                  @tab-box-shadow;
 @tab-hover-color:                       @tab-color;
 @tab-hover-background-vertical:         @tab-hover-background;
 @tab-hover-box-shadow-vertical:         @tab-hover-box-shadow;
 
-@tab-active-border:                     @tab-border;
-@tab-active-background:                 @tab-selected-background;
-@tab-active-box-shadow:                 @tab-box-shadow, inset 0px -1px 5px 0px rgba(0, 0, 0, 0.2);
-@tab-active-color:                      @tab-color;
-@tab-active-background-vertical:        @tab-active-background;
-@tab-active-box-shadow-vertical:        @tab-active-box-shadow;
-
 @tab-icons-background:                  none;
 @tab-icons-border:                      0;
-@tab-icons-border-radius:               0;
+@tab-icons-border-radius:               4px;
 @tab-icons-box-shadow:                  none;
 
 @tab-icons-hover-background:            none;
 @tab-icons-hover-border:                0;
-@tab-icons-hover-border-radius:         0;
+@tab-icons-hover-border-radius:         disabled;
 @tab-icons-hover-box-shadow:            none;
 
-@tab-icons-selected-background:         none;
+@tab-icons-selected-background:         #696969;
 @tab-icons-selected-border:             0;
-@tab-icons-selected-border-radius:      0;
+@tab-icons-selected-border-radius:      disabled;
 @tab-icons-selected-box-shadow:         none;
 
 @tab-icons-selected-opacity:            1.0;
-@tab-icons-unselected-opacity:          0.7;
+@tab-icons-unselected-opacity:          1.0;

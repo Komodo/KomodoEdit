@@ -81,6 +81,11 @@ tabs:not(.tabs-bottom)
         border-bottom: @tab-box-border;
         background-color: @tab-box-background-color;
         background-image: @tab-box-background-image;
+        
+        &:-moz-window-inactive
+        {
+            background: @tab-box-background-inactive;
+        }
     }
 
     .tabs-left
@@ -279,6 +284,11 @@ tabs:not(.tabs-bottom) tab
     padding: 0;
     text-align: center;
     -moz-transition: @tab-transition;
+    
+    &:-moz-window-inactive
+    {
+        background: @tab-background-inactive;
+    }
 
     .tab-text
     {
@@ -309,18 +319,6 @@ tabs:not(.tabs-bottom) tab
         }
     }
 
-    &:active {
-        border-right: @tab-active-border;
-        background: @tab-active-background;
-        box-shadow: @tab-active-box-shadow;
-        border-top: @tab-active-border-top;
-
-        .tab-text
-        {
-            color: @tab-active-color;
-        }
-    }
-
     &[selected="true"]
     {
         -moz-user-focus: normal;
@@ -328,6 +326,11 @@ tabs:not(.tabs-bottom) tab
         background: @tab-selected-background;
         box-shadow: @tab-selected-box-shadow;
         border-top: @tab-selected-border-top;
+            
+        &:-moz-window-inactive
+        {
+            background: @tab-selected-background-inactive;
+        }
 
         .tab-text
         {
@@ -418,6 +421,11 @@ ko-pane[type="icons"] .pane-tabs-container tabs .tabstrip-box
     border-bottom: @tab-box-border-icons;
     
     box-shadow: @tab-box-box-shadow-icons;
+    
+    &:-moz-window-inactive
+    {
+        background: @tab-box-background-icons-inactive;
+    }
 
     .scrollbox-innerbox
     {
@@ -443,7 +451,7 @@ ko-pane[type="icons"] tab
     border: @tab-icons-border !important;
     border-radius: @tab-icons-border-radius;
     box-shadow: @tab-icons-box-shadow;
-
+    
     &:hover
     {
         background: @tab-icons-hover-background;
@@ -454,7 +462,7 @@ ko-pane[type="icons"] tab
 
     &[selected="true"]
     {
-        background: @tab-icons-selected-background;
+        background: @tab-icons-selected-background !important;
         border: @tab-icons-selected-border !important;
         border-radius: @tab-icons-selected-border-radius;
         box-shadow: @tab-icons-selected-box-shadow;
@@ -470,6 +478,7 @@ ko-pane[type="icons"] tab
     {
         width: 16px;
         height: 16px;
+        margin: 0;
     }
 }
 

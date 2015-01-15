@@ -7,49 +7,50 @@
 
 @main-toolbox-group-first-border-width:         inherit;
 @main-toolbox-group-last-border-width:          inherit;
-@main-toolbox-group-border-width:               0;
+@main-toolbox-group-border-width:               1px solid transparent;
 @main-toolbox-group-border-style:               inherit;
 @main-toolbox-group-border-color:               inherit;
+@main-toolbox-group-shadow:                     inset 0px 1px 0px 0px rgba(255,255,255,1),
+                                                0px 1px 1px 0px rgba(0,0,0,0.05);
 
-@main-toolbox-button-first-border-width:        1px 0 1px 1px;
-@main-toolbox-button-last-border-width:         1px 1px 1px 0;
-@main-toolbox-button-single-border-width:       1px;
+@main-toolbox-button-first-border-width:        0 1px 0 0;
+@main-toolbox-button-last-border-width:         0;
+@main-toolbox-button-single-border-width:       0;
 
-@main-toolbox-button-border-width:              1px 0 1px 0;
+@main-toolbox-button-border-width:              0 1px 0 0;
 @main-toolbox-button-border-style:              solid;
-@main-toolbox-button-border-color:              #969696;
+@main-toolbox-button-border-color:              #E0E0E0;
 @main-toolbox-button-border-radius:             0;
 
-@_menubar-button-separator:                     url('chrome://komodo/skin/images/menubar-button-separator.png');
-@_menubar-button-gradient:                      -moz-linear-gradient(top, #f6f6f6 0%, #f6f6f6 20%, #cfcfcf 100%);
-@_menubar-button-gradient-active:               -moz-linear-gradient(top, #8E8E8E 0%, #b3b3b3 5%, #d8d8d8 65%);
-
-@main-toolbox-button-background-color:          #f6f6f6;
-@main-toolbox-button-background-image:          @_menubar-button-separator, @_menubar-button-gradient;
+@main-toolbox-button-background-color:          #FBFBFB;
+@main-toolbox-button-background-image:          disabled;
 @main-toolbox-button-background-position:       left center;
 @main-toolbox-button-background-repeat:         no-repeat;
-@main-toolbox-button-shadow:                    1px 1px 0 rgba(255,255,255,0.30), inset 0 1px 0 rgba(255,255,255,0.40);
+@main-toolbox-button-shadow:                    disabled;
 
-@main-toolbox-group-border-color-inactive:      inherit;
-@main-toolbox-button-border-color-inactive:      #C4C4C4;
+@main-toolbox-group-border-color-inactive:      1px solid #88BBE4;
+@main-toolbox-button-border-color-inactive:     disabled;
 
-@main-toolbox-button-background-color-hover:    inherit;
-@main-toolbox-button-background-image-hover:    @main-toolbox-button-background-image;
-@main-toolbox-button-shadow-hover:              @main-toolbox-button-shadow;
-@main-toolbox-button-border-width-hover:        @main-toolbox-button-border-width;
-@main-toolbox-button-border-style-hover:        @main-toolbox-button-border-style;
-@main-toolbox-button-border-color-hover:        @main-toolbox-button-border-color;
+@main-toolbox-button-background-color-hover:    disabled;
+@main-toolbox-button-background-image-hover:    disabled;
+@main-toolbox-button-shadow-hover:              disabled;
+@main-toolbox-button-border-width-hover:        disabled;
+@main-toolbox-button-border-style-hover:        disabled;
+@main-toolbox-button-border-color-hover:        disabled;
 
-@main-toolbox-button-background-color-active:   inherit;
-@main-toolbox-button-background-image-active:   @_menubar-button-separator, @_menubar-button-gradient-active;
-@main-toolbox-button-shadow-active:             @main-toolbox-button-shadow;
-@main-toolbox-button-border-width-active:       @main-toolbox-button-border-width;
-@main-toolbox-button-border-style-active:       @main-toolbox-button-border-style;
-@main-toolbox-button-border-color-active:       @main-toolbox-button-border-color;
+@main-toolbox-button-background-color-active:   #696969;
+@main-toolbox-button-background-image-active:   disabled;
+@main-toolbox-button-shadow-active:             inset 0 2px 0px 0px #696969,
+                                                inset 0 -2px 0px 0px #696969,
+                                                inset 4px 0 4px -4px #494949,
+                                                inset -4px 0 4px -4px #494949;
+@main-toolbox-button-border-width-active:       disabled;
+@main-toolbox-button-border-style-active:       disabled;
+@main-toolbox-button-border-color-active:       #494949;
 
 @main-toolbox-findtoolbar-color:                #5B5B5B;
-@main-toolbox-findtoolbar-background:           -moz-Field;
-@main-toolbox-findtoolbar-separator-color:      ThreeDShadow;
-@main-toolbox-findtoolbar-border:               1px solid rgba(142, 142, 142, 0.8);
-@main-toolbox-findtoolbar-shadow:               0px 1px 0px 0px rgba(255, 255, 255, 0.3), 0px 1px 3px 0px rgba(0, 0, 0, 0.2) inset;
-@main-toolbox-findtoolbar-shadow-focus:         0px 0px 3px rgba(0, 150, 255, 0.7), 0px 1px 3px 0px rgba(0, 0, 0, 0.2) inset;
+@main-toolbox-findtoolbar-background:           @main-toolbox-button-background-color;
+@main-toolbox-findtoolbar-separator-color:      @main-toolbox-button-border-color;
+@main-toolbox-findtoolbar-border:               0;
+@main-toolbox-findtoolbar-shadow:               @main-toolbox-group-shadow;
+@main-toolbox-findtoolbar-shadow-focus:         0px 0px 0px 3px #88BBE4;

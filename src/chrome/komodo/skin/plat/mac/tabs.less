@@ -27,3 +27,43 @@ ko-pane[type="vertical"] tabs[anonid="tabs"] ko-vertical-text .label
 {
     margin-left: 2px;
 }
+
+tab[selected="true"]
+{
+    text-shadow: none !important; /* Override text-shadow set in tabbox.css */
+}
+
+tabbox#tabbed-view tab,
+#workspace_bottom_area tab
+{
+    -moz-box-flex: 1;
+    max-width: none !important;
+    min-width: 100px;
+    width: 0;
+}
+
+#workspace_bottom_area .tabstrip-box
+{
+    border-top: @tab-box-border;
+}
+
+tabbox#tabbed-view tab .tab-text
+{
+    text-align: left;
+}
+
+tabbox:not(.native):not(#tabbed-view):not(#variables-tabpanels):not(.tabs-bottom)
+{
+    tab:not([selected="true"])
+    {
+        border: 1px solid transparent !important;
+        background: transparent !important;
+    }
+    
+    tab[selected="true"]
+    {
+        border: 1px solid #E3E3E3 !important;
+        border-bottom: 0 !important;
+        background: #F5F5F5 !important;
+    }
+}

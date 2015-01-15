@@ -4,6 +4,11 @@
 #main-toolboxrow
 {
     padding: 4px 0;
+    
+    toolbar > toolbaritem
+    {
+        border-radius: 4px;
+    }
 
     toolbar > toolbaritem > toolbarbutton
     {
@@ -33,5 +38,21 @@
 
 #historyRecentLocations
 {
-    background: @_menubar-button-gradient !important;
+    background: @main-toolbox-button-background-color !important;
+}
+
+/* Todo: Handle via config vars */
+.widgetToolbarWrap
+{
+    &:not(.embedded)
+    {
+        background: #D1D1D1;
+        box-shadow: none !important;
+        padding: 2px;
+        
+        &:-moz-window-inactive
+        {
+            background: #EDEDED;
+        }
+    }
 }
