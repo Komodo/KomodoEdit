@@ -42,6 +42,7 @@ import glob
 import fnmatch
 import re
 import logging
+import operator
 from pprint import pprint, pformat
 
 from xpcom import components, nsError, ServerException, COMException, _xpcom
@@ -368,8 +369,10 @@ class KoLanguageRegistryService:
                 primaries.append(languageName)
             else:
                 others.append(languageName)
-        primaries.sort()
-        others.sort()
+
+        # Sort by language name - case insensitive.
+        primaries.sort(key=lambda x: x.lower())
+        others.sort(key=lambda x: x.lower())
 
         otherContainer = KoLanguageContainer('Other',
             [KoLanguageItem(ln, self.__accessKeyFromLanguageName.get(ln, ""))
