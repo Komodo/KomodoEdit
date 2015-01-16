@@ -58,10 +58,14 @@ class KoConsoleLogger:
         "/analytics_debug.js",
         "/socketio.js",
         "/jquery.js",
+        "chrome://komodo/content/contrib/less.js",
         # Returns an empty XML node - nothing to be concerned about.
         "addons.updates: Update manifest had an unrecognised namespace",
         # Preferences xpath queries result in this message - nothing we can do about that.
         'Use of getAttributeNodeNS() is deprecated.',
+        # XPCOMUtils and Services being a global constant:
+        'TypeError: "XPCOMUtils" is read-only',
+        'TypeError: "Services" is read-only',
     ]
     def _handleScriptError(self, error):
         try:
