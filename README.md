@@ -26,9 +26,7 @@ the entire project.
 
 ## Download
 
-You can [download Komodo Edit here](http://www.activestate.com/komodo-edit), 
-or if you wish to try the more powerful IDE  version you can [download Komodo 
-IDE here](http://www.activestate.com/komodo-ide).
+You can [download Komodo Edit here](http://komodoide.com).
 
 ## Feedback
 
@@ -36,7 +34,7 @@ There are several ways to get in contact with the Komodo devs:
 
 Github: <https://github.com/Komodo/KomodoEdit>
 
-Forums: <http://community.activestate.com/forums/komodo>
+Forums: <http://forum.komodoide.com/>
 
 Bug Tracker: <http://bugs.activestate.com/enter_bug.cgi?product=Komodo>
 
