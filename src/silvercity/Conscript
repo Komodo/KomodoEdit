@@ -69,6 +69,8 @@ if ($platform eq "darwin") {
     $consLocal{'CFLAGS'} .= " -arch x86_64";
     $consLocal{'CXXFLAGS'} .= " -arch x86_64";
     $consLocal{'LDFLAGS'} .= " -arch x86_64";
+    # Needs to link with stdlibc++ - otherwise will get std:: runtime errors - bug 106111.
+    $consLocal{'LDFLAGS'} .= " -stdlib=libstdc++";
     $consLocal = new cons(ENV => \%consLocal);
 }
 $consLocal->Command(
