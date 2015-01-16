@@ -6,6 +6,11 @@
 
 #include <stdio.h>
 
+#if defined(XP_WIN)
+#include <windows.h>
+#include <stdlib.h>
+#endif
+
 int main(int argc, char* argv[])
 {
   fprintf(stderr, "This is just a place holder - go finish building Komodo\n");
