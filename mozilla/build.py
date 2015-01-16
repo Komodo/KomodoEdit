@@ -450,14 +450,34 @@ def _setupMozillaEnv():
             os.environ['CXXFLAGS'] = "-gdwarf-2"
 
     if sys.platform == "win32":
+        # Important: Tell pymake to use msys
+        os.environ["MSYSTEM"] = "MINGW32"
+
+        # Mozilla SDK checks fails when using msys perl (not sure why), so we
+        # ensure ActivePerl is the first perl on the path.
+        p = subprocess.Popen("where perl", shell=True, stdout=subprocess.PIPE)
+        stdout, _ = p.communicate()
+        perl_exes = stdout.splitlines(0)
+        if perl_exes and "msys" in perl_exes[0]:
+            for alt_perl in perl_exes[1:]:
+                if "msys" not in alt_perl:
+                    # Insert ActivePerl first on the path.
+                    paths = os.environ.get("PATH", "").split(os.pathsep)
+                    paths.insert(0, dirname(alt_perl))
+                    os.environ["PATH"] = os.pathsep.join(paths)
+                    log.info("Placing non-msys perl first on path: %s", alt_perl)
+                    break
+            else:
+                log.warn("Could not find non-msys perl")
+        else:
+            log.warn("Could not find msys perl")
+
+        # This is in conflict with above!
         # Mozilla requires using Msys perl rather than AS perl; use the one
         # bundled with MozillaBuild
         if not "PERL" in os.environ:
             os.environ["PERL"] = os.path.join(os.environ["MOZILLABUILD"],
                                               "msys", "bin", "perl.exe").replace("\\", "/")
-        # Tell pymake to use msys
-        os.environ["MSYSTEM"] = "MINGW32"
-
     else:
         #TODO: drop what isn't necessary here
         
