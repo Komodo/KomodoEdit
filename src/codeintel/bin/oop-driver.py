@@ -183,10 +183,9 @@ if __name__ == '__main__':
     try:
         main(argv=sys.argv)
     except Exception as ex:
+        print(ex)
         if log:
-            log.debug(ex, exc_info=True)
-        else:
-            print(ex)
+            log.exception(ex)
     finally:
         if log:
             log.debug("Shutting down")
