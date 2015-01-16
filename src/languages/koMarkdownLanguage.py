@@ -78,6 +78,7 @@ class koMarkdownLanguage(KoLanguageBase):
         'identifiers': ('SCE_MARKDOWN_CODEBK',),
     }
     defaultExtension = '.md'
+    primary = 1
     commentDelimiterInfo = {"line": [ ";" ]}
     
     sample = """
