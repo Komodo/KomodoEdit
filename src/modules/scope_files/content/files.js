@@ -168,7 +168,6 @@
             var curProject = partSvc.currentProject;
             
             var cwd = curProject ? curProject.liveDirectory : ko.uriparse.URIToPath(ko.places.getDirectory());
-            dump('\nopts["relativeFromCurrentView"]: ' + opts["relativeFromCurrentView"] + '\n');
             if (opts["relativeFromCurrentView"]) {
                 cwd = view.koDoc.file.dirName;
             }
