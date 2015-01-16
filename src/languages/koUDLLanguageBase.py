@@ -250,6 +250,8 @@ class KoUDLLanguage(KoLanguageBase):
                             "TPL" : default_tpl_style_info,
                             }
 
+    supportsFolding = 1
+
     def __init__(self):
         # log.debug("creating a KoUDLLanguage(%s)[clsid %s], lang_from_udl_family=%r", self.name, self._reg_clsid_, self.lang_from_udl_family)
         if self.name:
@@ -387,7 +389,7 @@ class KoUDLLanguage(KoLanguageBase):
                 #XXX Use properties instead
                 log.debug("loading lexres for '%s' (%s)", languageName,
                           lexresPath)
-                lexer.supportsFolding = 1
+                lexer.supportsFolding = self.supportsFolding
                 lexer.setKeywords(0, [_urlescape(lexresPath)])
             self._lexerFromLanguageName[languageName] = lexer
 

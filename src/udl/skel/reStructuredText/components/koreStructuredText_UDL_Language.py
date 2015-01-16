@@ -23,6 +23,7 @@ class KoReStructuredTextLanguage(KoUDLLanguage):
     _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.rst'
     primary = 0
+    supportsFolding = 0
 
     lang_from_udl_family = {'CSL': name, 'TPL': name, 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'Python'}
     _total_string_styles = None
