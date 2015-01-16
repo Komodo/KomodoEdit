@@ -25,21 +25,31 @@
         <vbox>
             <hbox align="center">
                 <label value="Max Results:" />
-                <textbox size="6" pref="true"
+                <textbox size="6"
+                         pref="true"
                          id="commando_search_max_results"
-                         preftype="long" prefattribute="value"
+                         preftype="long"
                          prefdefault="100" />
                 <description value="Setting this to a high value (100+) may result in sluggish search results"/>
             </hbox>
         </vbox>
         <vbox>
             <hbox>
-                <label/>
                 <checkbox label="Preserve Previous Search Query"
+                          pref="true"
                           id="commando_preserve_query"
-                          prefattribute="checked"
                           preftype="boolean"
                           prefdefault="true" />
+            </hbox>
+        </vbox>
+        <vbox>
+            <hbox>
+                <checkbox pref="true"
+                          id="commando_relative_from_currentview"
+                          preftype="boolean"
+                          prefdefault="false"
+                          label="&relativePathsFromCurrentFile.checkbox.label;"
+                          tooltiptext="&relativePathsFromCurrentFile.checkbox.tooltiptext;" />
             </hbox>
         </vbox>
     </groupbox>

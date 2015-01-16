@@ -166,7 +166,12 @@
 
             shortcutsCache["%w"] = url.URL(ko.places.getDirectory()).path;
             var curProject = partSvc.currentProject;
+            
             var cwd = curProject ? curProject.liveDirectory : ko.uriparse.URIToPath(ko.places.getDirectory());
+            dump('\nopts["relativeFromCurrentView"]: ' + opts["relativeFromCurrentView"] + '\n');
+            if (opts["relativeFromCurrentView"]) {
+                cwd = view.koDoc.file.dirName;
+            }
             var relativePath = cwd + sep + query;
             dirname = _dirname(relativePath);
             if (isRelative && (_ioFile("exists", relativePath) || _ioFile("exists", dirname)))
@@ -259,6 +264,7 @@
         var opts = {
             "maxresults": ko.prefs.getLong("commando_search_max_results", 50),
             "allowShortcuts": ko.prefs.getBoolean("commando_allow_shortcuts", true),
+            "relativeFromCurrentView": ko.prefs.getBoolean("commando_relative_from_currentview", false),
             "recursive": true,
             "usecache": true,
             "cacheable": true

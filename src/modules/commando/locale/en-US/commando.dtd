@@ -2,5 +2,7 @@
 <!ENTITY showCommando.desc "Go to Anything">
 <!ENTITY commandoPrefs.desc "Commando Preferences">
 <!ENTITY clearCache.desc "Commando: Clear Cache">
+<!ENTITY relativePathsFromCurrentFile.checkbox.label "Relative paths use the current file's directory">
+<!ENTITY relativePathsFromCurrentFile.checkbox.tooltiptext "If disabled, commando will use the current project or current places directory for the relative path lookups.">
 
 <!ENTITY searchScopes.label "Search Scopes">
