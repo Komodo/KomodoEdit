@@ -72,7 +72,9 @@ def codesign(app, certificate=None, password="", codesign_exe=None):
             raise RuntimeError("Failed to find identity in imported keychain")
         run([codesign_exe, "--sign", identity,
              "--keychain", keychain, "--force", "--deep", "--verbose",
-             "--requirements", os.path.join(dirname, "requirements.txt"),
+             # Requirements causes problems with "--deep", resulting in signed
+             # files that won't pass the verification step.
+             # "--requirements", os.path.join(dirname, "requirements.txt"),
              app])
     finally:
         run(["/usr/bin/security", "delete-keychain", keychain], check=False)
