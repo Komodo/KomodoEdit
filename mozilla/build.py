@@ -505,6 +505,14 @@ def _setupMozillaEnv():
             log.info("shell: zsh detected, replacing SHELL environment with bash")
             os.environ["SHELL"] = "/bin/bash"
 
+    # Check for Centos 6, and add appropriate LDFLAGS.
+    if sys.platform == "linux" and exists("/etc/redhat-release"):
+        contents = file("/etc/redhat-release").read()
+        if "CentOS release 6." in contents:
+            ldflags = os.environ.get('LDFLAGS', '').split(' ')
+            ldflags.append("-lrt")
+            os.environ['LDFLAGS'] = ' '.join(ldflags)
+
 
 def _applyMozillaPatch(patchFile, mozSrcDir):
     """apply the given patch to the mozilla source and fail gracefully
