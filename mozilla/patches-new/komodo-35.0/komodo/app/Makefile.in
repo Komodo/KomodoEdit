@@ -18,8 +18,8 @@ AB_CD = en-US
 
 DEFINES += \
   -DAB_CD=$(AB_CD) \
-  -DKOMODO_ICO='$(srcdir)/komodo.ico' \
-  -DDOCUMENT_ICO='$(DIST)/branding/document.ico' \
+  -DKOMODO_ICO='"$(srcdir)/komodo.ico"' \
+  -DDOCUMENT_ICO='"$(DIST)/branding/document.ico"' \
   $(NULL)
 
 # Build a binary bootstrapping with XRE_main
