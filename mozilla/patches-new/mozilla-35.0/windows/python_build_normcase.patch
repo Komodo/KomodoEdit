@@ -1,8 +1,8 @@
 Ensure file/directory comparison is case insensitive on Windows, otherwise the
 mozilla build system may complain about the obj-dir no longer exists.
 Index: C:\as\komodo-devel\mozilla\build\moz3500-ko9.9\mozilla\python\mozbuild\mozbuild\base.py
---- a\python\mozbuild\mozbuild\base.py
-+++ b\python\mozbuild\mozbuild\base.py
+--- a/python/mozbuild/mozbuild/base.py
++++ b/python/mozbuild/mozbuild/base.py
 @@ -40,8 +40,8 @@
  def samepath(path1, path2):
      if hasattr(os.path, 'samefile'):
