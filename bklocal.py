@@ -4016,30 +4016,7 @@ class MozMake(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         if sys.platform.startswith("win"):
-            with open(join(black.configure.items['mozObjDir'].Get(),
-                           "config.status")) as status:
-                for line in status:
-                    try:
-                        parts = line.split("'''")
-                        if parts[1].strip() == "top_srcdir":
-                            # Python-style config.status
-                            path = parts[3].strip()
-                            if path[1:3] == ":/":
-                                # Python-style path, using pymake
-                                mozSrc = black.configure.items['mozSrc'].Get()
-                                pymake = join(mozSrc, "mozilla", "build", "pymake",
-                                              "make.py")
-                                self.value = [sys.executable, pymake, "-s"]
-                                break
-                            elif path.startswith("/"):
-                                # Msys-style path, using gmake
-                                self.value = [which.which("make")]
-                                break
-                    except:
-                        pass # Wrong line
-                else:
-                    # Shell-style config.status; too old to be pymake
-                    self.value = [which.which("make")]
+            self.value = [which.which("mozmake")]
         else:
             self.value = [which.which("make")]
         assert self.value is not None
