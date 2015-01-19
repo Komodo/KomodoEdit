@@ -55,7 +55,7 @@
         .rules(@id, x);
 
         thumb {
-            min-height: 25px;
+            min-width: 25px;
         }
     }
 
@@ -76,12 +76,12 @@
 
 /* Scrollbar definitions */
 
-scrollbar { .scrollbar(default); }
+scrollbar:not([for="scintilla"]) { .scrollbar(default); }
 
 // Can't use .widget here as this class is not added until after the document
 // is loaded and scrollbars apparently don't like having their style changed
 // after being loaded
-page scrollbar
+page scrollbar:not([for="scintilla"])
 {
     .scrollbar(pane);
     opacity: 0.3;
@@ -93,5 +93,4 @@ page scrollbar
         margin-left: (0 - @scrollbar-pane-y-wrapper-width);
     }
 }
-page:hover scrollbar { opacity: 1.0; }
-view[type="editor"] scrollbar { .scrollbar(editor); }
+page:hover scrollbar:not([for="scintilla"]) { opacity: 1.0; }

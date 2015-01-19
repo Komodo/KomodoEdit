@@ -66,12 +66,12 @@
                                     pluginAllowsFocusEvents="false"
                                     pluginHandlesDomEvents="false"
                                     />
-                        <xul:scrollbar orient="vertical" anonid="scrollbar_v"
-                                       can-scroll="false"/>
+                        <xul:scrollbar orient="vertical" anonid="scrollbar_v" 
+                                       can-scroll="false" for="scintilla"/>
                     </xul:row>
                     <xul:row>
                         <xul:scrollbar orient="horizontal" anonid="scrollbar_h"
-                                       can-scroll="false"/>
+                                       can-scroll="false" for="scintilla"/>
                         <xul:spacer/>
                     </xul:row>
                 </xul:rows>

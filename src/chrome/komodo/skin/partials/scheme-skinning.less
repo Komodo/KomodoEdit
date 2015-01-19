@@ -159,6 +159,16 @@ scintilla scrollbar
         -moz-appearance: none !important;
         background: @background-scrollbar-thumb-hover !important;
     }
+    
+    &[orient="horizontal"] thumb
+    {
+        min-width: 25px;
+    }
+
+    &[orient="vertical"] thumb
+    {
+        min-height: 25px;
+    }
 
     &:hover
     {
