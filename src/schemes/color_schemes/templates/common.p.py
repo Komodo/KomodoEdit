@@ -289,7 +289,7 @@ def parseScheme(colors):
             'changeMarginReplaced': colors["blue"],
             'currentLineColor': colors["baseBackBlend1"],
             'edgeColor': colors["baseBackBlend1"],
-            'foldMarginColor': colors["baseBack"],
+            'foldMarginColor': colors["baseBackBlend1"],
             'selBack': colors["baseBackBlend2"],
             'selFore': colors["baseFore"],
             'whitespaceColor': colors["baseBackBlend2"]
