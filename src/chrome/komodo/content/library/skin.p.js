@@ -689,6 +689,12 @@ if (ko.skin == undefined)
                 for (let id in this._virtualStyles)
                     this._loadVirtualStyle(id, e.detail.browser.contentWindow);
             }.bind(this));
+            
+            window.addEventListener("pref-frame-load", function(e)
+            {
+                for (let id in this._virtualStyles)
+                    this._loadVirtualStyle(id, e.detail);
+            }.bind(this));
         },
 
         _loadVirtualStyle: function(id, _window = null)

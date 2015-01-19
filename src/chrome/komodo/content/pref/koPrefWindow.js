@@ -829,6 +829,19 @@ koPrefWindow.prototype =
                 docElem.classList.add("pref-window");
                 if (showAdvanced) docElem.classList.add("show-advanced");
             }.bind(this), true);
+            
+            var detail = this.contentFrame.contentWindow;
+            var loadEvent = function() {
+                var event = new CustomEvent("pref-frame-load",
+                {
+                    bubbles: false,
+                    cancelable: false,
+                    detail: detail
+                });
+                var _window = parent.opener.ko.windowManager.getMainWindow();
+                _window.dispatchEvent(event);
+            }
+            this.contentFrame.addEventListener("load", loadEvent, true);
 
             this.contentFrame.setAttribute("src", url);
         } else {
