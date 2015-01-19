@@ -203,6 +203,12 @@
                                                              scimoz.scrollWidth > horizScrollPageIncrement);
                     }.bind(this), 100);
                 }
+                
+                var wrapped = this.getAttribute("wrapped");
+                var wrap = this.scimoz.wrapMode !== 0 ? "true" : "false";
+                if (wrapped != wrap) {
+                    this.setAttribute("wrapped", wrap);
+                }
             ]]>
             </body>
             </method>
@@ -468,6 +474,7 @@
                         !!val === !!this._customScrollbarObservers) {
                         return; // no change
                     }
+                    this.setAttribute("virtualScrollbars", (!! val) ? "true" : "false");
                     if (val) {
                         let ob = {};
                         this.scimoz.hookEvents(this._scrollEventHandler,

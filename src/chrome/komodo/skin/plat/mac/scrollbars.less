@@ -1,1 +1,34 @@
 @import url("chrome://komodo/skin/plat/shared/scrollbars.less");
+
+@media all and (-moz-overlay-scrollbars)
+{
+    scintilla[virtualScrollbars="true"]
+    {
+        /* Something is hiding the scrollbar on OSX when "only on scroll" OS
+           setting is enabled, by making space for the virtual scrollbar we force
+           it to show */
+        embed[anonid="scimoz"]
+        {
+            margin-right: 16px;
+        }
+        
+        /* Only force bottom scrollbar when wrapping is off */
+        &[wrapped="false"] embed[anonid="scimoz"]
+        {
+            margin-bottom: 16px;
+        }
+        
+        /* Force visibility (override OS level setting, though only partly (see above) */
+        scrollbar:not([active="true"]),
+        scrollbar[disabled="true"]
+        {
+            visibility: visible !important;
+        }
+        
+        /* Hide bottom scrollbar when wrapping is turned on */
+        &[wrapped="true"] scrollbar[orient="horizontal"]
+        {
+            visibility: collapse !important;
+        }
+    }
+}
