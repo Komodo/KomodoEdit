@@ -231,15 +231,6 @@ def _run(argv, cwd=None, stdin=None):
         raise Error("no subprocess module to work with")
     return stdout, stderr, retval
 
-def _createTempDir():
-    """Create a temporary directory and return the path to it."""
-    if hasattr(tempfile, "mkdtemp"): # use the newer mkdtemp is available
-        path = tempfile.mkdtemp()
-    else:
-        path = tempfile.mktemp()
-        os.makedirs(path)
-    return path
-
 def _getPatchInfo(dirname):
     if "__patchinfo__" in sys.modules:
         del sys.modules["__patchinfo__"]
@@ -890,7 +881,7 @@ def patch(patchesDir, sourceDir, config=None, logDir=None, dryRun=0,
     patchExe = _getPatchExe(patchExe)
 
     # Create a clean working directory.
-    tempDir = _createTempDir()
+    tempDir = tempfile.mkdtemp()
     if sys.platform.startswith("win"):
         # Windows patching leaves around temp files, so we work around this
         # problem by setting a different temp directory, which is later removed
