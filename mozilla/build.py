@@ -960,10 +960,10 @@ def target_configure(argv):
             specified then tests are NOT built for release builds and
             ARE for debug builds.
 
-        --compiler=<vc9|vc10|vc11>  # Windows-only
+        --compiler=<vc9|vc11>  # Windows-only
             There is *some* support for building Mozilla/Firefox with
             the non-default compiler on Windows. Currently we build with
-            VC9 and this is the default.
+            VC11 and this is the default.
 
         --gcc=<gcc44>  # Unix-only
         --gxx=<g++44>  # Unix-only
@@ -1005,7 +1005,7 @@ def target_configure(argv):
         "withPGOGeneration": False,
         "withPGOCollection": False,
         "stripBuild": False,
-        "compiler": None, # Windows-only; 'vc9' (the default)
+        "compiler": None, # Windows-only; 'vc11' (the default)
         "gcc": None, # Unix-only; 'gcc44' (the default)
         "gxx": None, # Unix-only; 'g++44' (the default)
         "mozObjDir": None,
@@ -1126,7 +1126,7 @@ def target_configure(argv):
         elif opt == "--compiler":
             assert sys.platform == "win32", \
                 "'--compiler' configure option is only supported on Windows"
-            validCompilers = ('vc9', 'vc10', 'vc11')
+            validCompilers = ('vc9', 'vc11')
             assert optarg in validCompilers, \
                 "invalid compiler value (%s), must be one of: %s"\
                 % (optarg, validCompilers)
@@ -1265,7 +1265,7 @@ def target_configure(argv):
 
     config["changenum"] = _getChangeNum()
     if sys.platform == "win32":
-        defaultWinCompiler = "vc9"
+        defaultWinCompiler = "vc11"
         if not config["compiler"]:
             # Attempt to auto-detect the compiler version number
             try:
@@ -1281,10 +1281,12 @@ def target_configure(argv):
                 version = None # Failed to auto-detect version
             config["compiler"] = {
                 # version numbers taken from https://en.wikipedia.org/wiki/Visual_C++
-                "14": "vc8",
-                "15": "vc9",
-                "16": "vc10",
-                "17": "vc11",
+                "14": "vc8",   # Visual C++ 2005
+                "15": "vc9",   # Visual C++ 2008
+                "16": "vc10",  # Visual C++ 2010
+                "17": "vc11",  # Visual C++ 2012
+                "18": "vc12",  # Visual C++ 2013
+                "19": "vc13",  # Visual C++ 2015
             }.get(version, defaultWinCompiler)
         if config["compiler"] != defaultWinCompiler:
             config["buildOpt"].append(config["compiler"])
