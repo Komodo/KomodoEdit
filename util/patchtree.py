@@ -589,6 +589,8 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
         # on Windows, we need to convert everything to use DOS line endings, so
         # that patch.exe can deal with them - and then convert back after
         for resultRelPath in _getPathsInPatch(patchContent, baseArgv)[1]:
+            if not resultRelPath:
+                continue
             resultPath = join(sourceDir, resultRelPath)
             if exists(resultPath):
                 with open(resultPath, "rU") as destFile:
