@@ -219,19 +219,19 @@
                 const ISciMoz = Components.interfaces.ISciMoz;
                 const scimoz = this.scimoz;
                 
+                if (scimoz.lineCount < scimoz.firstVisibleLine) {
+                    return;
+                }
+                
                 let scrollbar = this._scrollEventHandler.vertical;
                 let lastDocLine = scimoz.lineCount - 1;
                 if (!scrollbar.suppress) {
                     scrollbar.setAttribute("curpos", scimoz.firstVisibleLine);
                     scrollbar.setAttribute("pageincrement", scimoz.linesOnScreen);
-                    let maxVisibleLine = scimoz.visibleFromDocLine(lastDocLine) +
-                                         scimoz.wrapCount(lastDocLine);
-                    scrollbar.setAttribute("maxpos",
-                                           maxVisibleLine -
-                                                scimoz.linesOnScreen);
-                    scrollbar.setAttribute("can-scroll",
-                                           maxVisibleLine >
-                                                scimoz.linesOnScreen);
+                                         
+                    var canScroll = scimoz.linesOnScreen < scimoz.lineCount;
+                    scrollbar.setAttribute("maxpos", scimoz.lineCount);
+                    scrollbar.setAttribute("can-scroll", canScroll);
                 }
             ]]>
             </body>

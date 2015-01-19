@@ -144,7 +144,17 @@ index 288118d..8304633 100644
  	endAtLastLine = true;
  	caretSticky = SC_CARETSTICKY_OFF;
  	marginOptions = SC_MARGINOPTION_NONE;
-@@ -2297,6 +2298,7 @@ bool Editor::NotifyUpdateUI() {
+@@ -437,8 +438,8 @@ int Editor::LineFromLocation(Point pt) const {
+ void Editor::SetTopLine(int topLineNew) {
+ 	if ((topLine != topLineNew) && (topLineNew >= 0)) {
+ 		topLine = topLineNew;
+-		ContainerNeedsUpdate(SC_UPDATE_V_SCROLL);
+ 	}
++	ContainerNeedsUpdate(SC_UPDATE_V_SCROLL);
+ 	posTopLine = pdoc->LineStart(cs.DocFromDisplay(topLine));
+ }
+ 
+@@ -2315,6 +2316,7 @@ bool Editor::NotifyUpdateUI() {
  		SCNotification scn = {};
  		scn.nmhdr.code = SCN_UPDATEUI;
  		scn.updated = needUpdateUI;
@@ -152,7 +162,7 @@ index 288118d..8304633 100644
  		NotifyParent(scn);
  		needUpdateUI = 0;
  		return true;
-@@ -6211,6 +6213,17 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
+@@ -6251,6 +6253,17 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
  
  	case SCI_FINDCOLUMN:
  		return pdoc->FindColumn(static_cast<int>(wParam), static_cast<int>(lParam));
