@@ -2,8 +2,10 @@ Gisle Aas
 Stan Angeloff
 David Ascher
 Aaron Bingham
+Seth David Bullock
 Shane Caraveo
 Chiko Chow
+Travis Cline
 Terry Coatta
 Bruce Cox
 Michael Donat
@@ -22,6 +24,7 @@ Jeff Hobbs
 Neil Hodgson
 Carey Hoffman
 Mike Ivanov
+Adrian Kalbarczyk
 Brian King
 Martin Kreichgauer
 Andreas Kupries
