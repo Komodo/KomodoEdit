@@ -28,6 +28,7 @@
             _window = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
         }
     }
+    const isLinux = _window.navigator.platform.startsWith("Linux");
     const _document = _window.document;
     const _ko = _window.ko;
 
@@ -332,7 +333,12 @@
             panel.find(".icon, .description").on("click", () => { notif.opts.command(); });
         }
 
-        panel.css("opacity", 0);
+        // Linux has problems with setting *any* opacity on a popup - as it
+        // can make the popup invisible/disappear.
+        if (!isLinux) {
+            panel.css("opacity", 0);
+        }
+
         $("#komodoMainPopupSet").append(panel);
         panel.on("popupshown", function(e)
         {
