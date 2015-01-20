@@ -63,6 +63,8 @@ class KoConsoleLogger:
         "addons.updates: Update manifest had an unrecognised namespace",
         # Preferences xpath queries result in this message - nothing we can do about that.
         'Use of getAttributeNodeNS() is deprecated.',
+        # SVG icons:
+        'Error: path does not exist:',
         # XPCOMUtils and Services being a global constant:
         'TypeError: "XPCOMUtils" is read-only',
         'TypeError: "Services" is read-only',
