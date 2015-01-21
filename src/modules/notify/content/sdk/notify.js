@@ -28,7 +28,6 @@
             _window = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
         }
     }
-    const isLinux = _window.navigator.platform.startsWith("Linux");
     const _document = _window.document;
     const _ko = _window.ko;
 
@@ -333,19 +332,29 @@
             panel.find(".icon, .description").on("click", () => { notif.opts.command(); });
         }
 
-        // Linux has problems with setting *any* opacity on a popup - as it
-        // can make the popup invisible/disappear.
-        if (!isLinux) {
+        // Some Linux distro's have problems with setting *any* opacity on a popup -
+        // as it can make the popup invisible/disappear.
+        if (prefs.getBoolean("notify_use_opacity", true))
+        {
             panel.css("opacity", 0);
         }
 
+        panel.element().style.visibility = "hidden";
         $("#komodoMainPopupSet").append(panel);
+        
         panel.on("popupshown", function(e)
         {
             if (e.target != panel.element()) return;
             this.doShowNotification(notif, ! replace);
         }.bind(this));
-        panel.element().openPopup();
+        
+        // Calculate initial pos, this will have to be re-calculated
+        // once the panel is actually visible as the actual position
+        // depends on the size of the panel, but giving it an approximate
+        // initial position makes things look less glitchy
+        // When opacity works this is a non-issue
+        var pos = this._calculatePosition(notif.opts.from || null, panel);
+        panel.element().openPopupAtScreen(pos.x, pos.y + 30);
     }
 
     this.doShowNotification = (notif, animate = true) =>
@@ -353,13 +362,11 @@
         log.debug("doShowing: " + notif.message);
         
         var panel = queue[notif.opts.from].activePanel;
-
-        var opts = notif.opts;
-
+        var pos = this._calculatePosition(notif.opts.from || null, panel);
         panel.attr("noautohide", true);
         panel.noautohide = true;
-        var pos = this._calculatePosition(opts.from || null, panel);
-        panel.element().moveTo(pos.x, pos.y);
+        panel.element().moveTo(pos.x, pos.y + 30);
+        panel.element().style.visibility = "";
 
         panel.animate(
             {
@@ -373,8 +380,8 @@
             }
         );
 
-        var time = opts.duration || prefs.getLong("notify_duration", 4000);
-        var timeout = timers.setTimeout(function()
+        var time = notif.opts.duration || prefs.getLong("notify_duration", 4000);
+        panel.timeout = timers.setTimeout(function()
         {
             log.debug("Calling callback from timeout");
             this.hideNotification(notif);
@@ -391,7 +398,7 @@
         {
             log.debug("Panel interact");
 
-            timers.clearTimeout(timeout);
+            timers.clearTimeout(panel.timeout);
             interacting = true;
         };
         var blur = () =>
@@ -399,7 +406,7 @@
             log.debug("Panel blur");
 
             interacting = false;
-            timeout = timers.setTimeout(this.hideNotification.bind(this, notif), 1000);
+            panel.timeout = timers.setTimeout(this.hideNotification.bind(this, notif), 1000);
 
             if ("focus" in focus)
                 focus.focus();
@@ -476,6 +483,7 @@
         }
         
         var panel = queue[notif.opts.from].activePanel;
+        if (panel && panel.timeout) timers.clearTimeout(panel.timeout);
         if ( ! panel || ! panel.exists())
         {
             log.warn("Notification panel has already been removed, callback is likely called twice");
@@ -566,7 +574,7 @@
 
         // Center the panel
         var box = panel.element().boxObject;
-        pos.x = pos.x - (box.width / 2);
+        pos.x = pos.x - ((box.width || 400) / 2); // placeholder width if it is not yet available
 
         return normalize(pos);
     }

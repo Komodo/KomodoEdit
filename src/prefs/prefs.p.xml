@@ -1027,4 +1027,8 @@
 
   <ordered-preference id="scope-files-shortcuts"/>
   
+  <!-- #if PLATFORM == "linux" -->
+  <boolean id="notify_use_opacity">0</boolean>
+  <!-- #endif -->
+  
 </preference-set>
