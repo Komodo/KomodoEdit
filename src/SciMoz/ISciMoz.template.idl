@@ -58,9 +58,9 @@ interface nsIVariant; // Needed for generated code
 interface ISciMozLite : nsISupports {
 	// Margin constants.
 	const long MARGIN_SYMBOLS = 0; // Bookmarks, breakpoints...
-	const long MARGIN_LINENUMBERS = 1;
-	const long MARGIN_TRACKING = 2;
-	const long MARGIN_FOLDING = 3;
+	const long MARGIN_FOLDING = 1;
+	const long MARGIN_LINENUMBERS = 2;
+	const long MARGIN_TRACKING = 3;
 	//const long MARGIN_UNUSED = 4;
 
 	void updateMarginWidths();
