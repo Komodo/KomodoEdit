@@ -119,10 +119,10 @@ rem so the build will find and use our own patch.exe.
 set "PATH=%~dp0\bin-win32;%PATH%"
 
 rem Force WinXP compatibility - bug 99164.
-set INCLUDE=%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Include;%INCLUDE%
-set PATH=%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Bin;%PATH%
-set LIB=%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Lib;%LIB%
-set CL=/D_USING_V110_SDK71_;%CL%
-set LINK=/SUBSYSTEM:CONSOLE,5.01
+rem set INCLUDE=%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Include;%INCLUDE%
+rem set PATH=%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Bin;%PATH%
+rem set LIB=%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Lib;%LIB%
+rem set CL=/D_USING_V110_SDK71_;%CL%
+rem set LINK=/SUBSYSTEM:CONSOLE,5.01
 
 echo ========================== done ==================================
