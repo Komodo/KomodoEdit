@@ -450,7 +450,7 @@ def _setupMozillaEnv():
             os.environ['CXXFLAGS'] = "-gdwarf-2"
 
     if sys.platform == "win32":
-        # Important: Tell pymake to use msys
+        # Important: Tell make to use msys
         os.environ["MSYSTEM"] = "MINGW32"
 
         # Mozilla SDK checks fails when using msys perl (not sure why), so we
@@ -1881,7 +1881,7 @@ def target_pyxpcom(argv=["pyxpcom"]):
     pyxpcom_obj_dir = join(moz_obj_dir, "extensions", "python")
     if not exists(pyxpcom_obj_dir):
         os.makedirs(pyxpcom_obj_dir)
-    configure_flags = 'PYTHON="%s"' % (_pymake_path_from_path(config.python), )
+    configure_flags = 'PYTHON="%s"' % (_unix_path_from_path(config.python), )
     configure_options = []
     if sys.platform.startswith("linux"):
         configure_flags += " ac_cv_visibility_pragma=no"
@@ -2186,10 +2186,11 @@ def _get_mozilla_objdir(convert_to_native_win_path=False, force_echo_variable=Fa
     # the moz tree.
     objdir = None
     cmds = [ # one of these command should work
-        'python build/pymake/make.py -s -f client.mk echo-variable-OBJDIR',
         'make -f client.mk echo-variable-OBJDIR',
         'make -f client.mk echo_objdir',
     ]
+    if sys.platform.startswith("win"):
+        cmds.insert(0, 'mozmake -f client.mk echo-variable-OBJDIR')
     old_cwd = os.getcwd()
     os.chdir(srcdir)
     try:
@@ -2227,8 +2228,8 @@ def _msys_path_from_path(path):
     return msys_path
 
 
-def _pymake_path_from_path(path):
-    """Convert a path to pymake-compatible (i.e. forward-slash) path."""
+def _unix_path_from_path(path):
+    """Convert a path to unix-compatible (i.e. forward-slash) path."""
     return path.replace(os.sep, "/")
 
 
@@ -2250,13 +2251,10 @@ def _get_exe_path(cmd):
 def _get_make_command(config, srcDir):
     """Get the command to use for make
 
-    Returns a pymake command line on Windows, and make elsewhere
-    (because pymake is broken for Gecko17, fixed later)
+    Returns a mozmake command line on Windows, and make elsewhere
     """
-
     if sys.platform.startswith("win") :
-        return "python %s/build/pymake/make.py" % (srcDir, )
-
+        return "mozmake"
     return "make"
 
 def target_configure_mozilla(argv=["configure_mozilla"]):
