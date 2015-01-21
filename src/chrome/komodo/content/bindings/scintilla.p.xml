@@ -223,14 +223,15 @@
                     return;
                 }
                 
-                let scrollbar = this._scrollEventHandler.vertical;
-                let lastDocLine = scimoz.lineCount - 1;
+                var scrollbar = this._scrollEventHandler.vertical;
+                var lineCount = scimoz.visibleFromDocLine(scimoz.lineCount);
                 if (!scrollbar.suppress) {
                     scrollbar.setAttribute("curpos", scimoz.firstVisibleLine);
                     scrollbar.setAttribute("pageincrement", scimoz.linesOnScreen);
                                          
-                    var canScroll = scimoz.linesOnScreen < scimoz.lineCount;
-                    scrollbar.setAttribute("maxpos", scimoz.lineCount);
+                    var canScroll = scimoz.linesOnScreen < lineCount;
+                    var maxpos = lineCount - scimoz.linesOnScreen;
+                    scrollbar.setAttribute("maxpos", maxpos < 0 ? 0 : maxpos);
                     scrollbar.setAttribute("can-scroll", canScroll);
                 }
             ]]>
