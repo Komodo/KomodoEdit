@@ -45,7 +45,6 @@ Import(
     "komodoPythonUtilsDir",
     "productType",
     "version",
-    'scintillaBuildDir',
     "buildType",
     "siloedPython",
 );
@@ -96,16 +95,6 @@ $consLocal->Command(
         cd %1:d && $archFlags $siloedPython setup.py install --skip-build --install-lib=$komodoPythonUtilsDir --install-scripts=bitbucket --install-data=bitbucket --prefix=bitbucket
     )
 );
-
-my $pluginName;
-
-if ($platform eq "win") {
-    # no depends?
-} elsif ($platform eq "darwin") {
-    $cons->Depends($landmark, "$scintillaBuildDir/bin/libscintilla.dylib");
-} else {
-    $cons->Depends($landmark, "$scintillaBuildDir/bin/scintilla.a");
-}
 $cons->DependsRecursive($landmark, "PySilverCity", ('\.svn'));
 $cons->DependsRecursive($landmark, "Lib", ('\.svn'));
 $cons->DependsRecursive($landmark, "CSS", ('\.svn'));
