@@ -1,0 +1,11 @@
+# Additional LDFLAGS for Centos 6 builds.
+diff -r 32e36869f84a security/nss/coreconf/config.mk
+--- a/security/nss/coreconf/config.mk	Thu Jan 08 23:22:45 2015 -0500
++++ b/security/nss/coreconf/config.mk	Tue Jan 20 17:12:50 2015 -0800
+@@ -188,3 +188,6 @@
+ 
+ # Hide old, deprecated, TLS cipher suite names when building NSS
+ DEFINES += -DSSL_DISABLE_DEPRECATED_CIPHER_SUITE_NAMES
++
++EXTRA_SHARED_LIBS += -lrt
++
