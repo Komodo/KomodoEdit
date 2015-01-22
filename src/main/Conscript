@@ -370,6 +370,8 @@ if ($platform eq "win") {
     # Build the Komodo starter stub (ko.exe: console, komodo.exe: windows)
     my $CFLAGS = " /W3 /Ox /DNDEBUG /D_NDEBUG /DWIN32 /DXP_WIN /DXRE_DONT_PROTECT_DLL_LOAD /MT /Zi";
     my $stub_CFLAGS = " -DMOZ_NO_MOZALLOC -TP -I$mozObjDir/dist/include -FI $mozObjDir/dist/include/mozilla-config.h";
+    # XRE_DONT_SUPPORT_XPSP2 - to avoid include a bunch of useless header defines.
+    $stub_CFLAGS .= ' -DXRE_DONT_SUPPORT_XPSP2';
     my $LDFLAGS = "kernel32.lib user32.lib gdi32.lib advapi32.lib shlwapi.lib ws2_32.lib shell32.lib";
     $cons->Command(
         "stub/ko.exe",                  # 0
