@@ -468,7 +468,7 @@ def _setupMozillaEnv():
                     log.info("Placing non-msys perl first on path: %s", alt_perl)
                     break
             else:
-                log.warn("Could not find non-msys perl")
+                log.warn("Could not find non-msys perl - Windows SDK check may fail")
         else:
             log.warn("Could not find msys perl")
 
