@@ -1,0 +1,15 @@
+Added "-f" to gzip command, otherwise it can hang.
+https://bugzilla.mozilla.org/show_bug.cgi?id=1124984
+Index: /home/toddw/src/mozilla/mozilla-central-git/toolkit/crashreporter/tools/symbolstore.py
+index 46b7962..f01eb04 100755
+--- a/toolkit/crashreporter/tools/symbolstore.py
++++ b/toolkit/crashreporter/tools/symbolstore.py
+@@ -781,7 +781,7 @@ class Dumper_Linux(Dumper):
+                                                       rel_path))
+             shutil.move(file_dbg, full_path)
+             # gzip the shipped debug files
+-            os.system("gzip %s" % full_path)
++            os.system("gzip -f %s" % full_path)
+             self.output(sys.stdout, rel_path + ".gz")
+         else:
+             if os.path.isfile(file_dbg):
