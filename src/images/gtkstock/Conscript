@@ -8,9 +8,8 @@ Import(
     'sdkDir',
     'build',
     'mozBin',
+    'mozExtensionDir',
     'unsiloedPythonExe',
 );
 
-
-$cons->KoExtUnpack("kounpack", SourcePath("gtkstock.xpi"));
-
+$cons->InstallAs("$mozExtensionDir/gtkstock\@developer.gnome.org.xpi", "gtkstock.xpi");

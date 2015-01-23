@@ -11,5 +11,4 @@ Import(
     'unsiloedPythonExe',
 );
 
-
-$cons->KoExtUnpack("kounpack", SourcePath("crystal.xpi"));
+$cons->InstallAs("$mozExtensionDir/crystal\@everaldo.com.xpi", "crystal.xpi");

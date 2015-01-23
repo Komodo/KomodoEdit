@@ -47,4 +47,4 @@ Import(
     'unsiloedPythonExe',
 );
 
-$cons->KoExt("koinstall");
+$cons->KoExt("koinstall --packed");
