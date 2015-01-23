@@ -2126,15 +2126,21 @@ class MozObjDir(black.configure.Datum):
     def _mozobjdir_from_mozsrc(self, mozsrc):
         srcdir = os.path.join(mozsrc, 'mozilla')
         # XXX we cannot get the version number yet, so try both
-        buildpath = os.sep.join(["build", "pymake", "make.py"])
-        cmd = 'python ' + buildpath + ' -s -f client.mk echo-variable-OBJDIR'
-        p = subprocess.Popen(cmd, cwd=srcdir, shell=True,
+        make = 'make'
+        env = None
+        if sys.platform == "win32":
+            make = 'mozmake.exe'
+            # Windows mozmake requires setting MSYSTEM environ variable.
+            env = os.environ.copy()
+            env['MSYSTEM'] = 'MINGW32'
+        cmd = make + ' -s -f client.mk echo-variable-OBJDIR'
+        p = subprocess.Popen(cmd, cwd=srcdir, shell=True, env=env,
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
         objdir = stdout.splitlines()[-1].strip()
         if p.returncode != 0:
             raise black.configure.ConfigureError(\
-                "error running '%s', stderr:\n" % (cmd, stderr))
+                "error running %r, stderr:\n%s\n" % (cmd, stderr))
 
         if sys.platform == "win32":
             if re.match(r"/\w/", objdir):
