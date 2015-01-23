@@ -483,10 +483,6 @@ if ($withTests) {
 if ($withCasper) {
     Build(
         "$build/modules/casper/Conscript",
-        "$build/modules/casper/components/Conscript",
-        "$build/modules/casper/skin/Conscript",
-        "$build/modules/casper/content/Conscript",
-        "$build/modules/casper/content/test/Conscript",
     );
 }
 
