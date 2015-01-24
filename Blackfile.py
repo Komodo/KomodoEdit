@@ -2312,6 +2312,7 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("plugins", "libnpscimoz.so"),
 
         mozbinpath("extensions"),
+        mozbinpath("distribution", "bundles"),
         mozbinpath("updater.ini"),
 
         mozbinpath("plugins", "SciMoz.plugin"), # its name on OS X
