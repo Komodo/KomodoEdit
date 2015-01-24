@@ -67,6 +67,9 @@ $cons->Preprocess('koScintillaSchemeService.p.py',
                   'koScintillaSchemeService.py');
 $cons->InstallXpcomComponent('koScintillaSchemeService.py');
 
+# TODO: Rename these so they are using the same name - so we can use
+#       $cons->InstallRecursive() to install all of them.
+
 $cons->InstallAs("$supportDir/schemes/3024.ksf", 'color_schemes/3024.ksf');
 $cons->InstallAs("$supportDir/schemes/Ashes_Dark.ksf", 'color_schemes/ashes-dark.ksf');
 $cons->InstallAs("$supportDir/schemes/Ashes_Light.ksf", 'color_schemes/ashes-light.ksf');
@@ -109,6 +112,7 @@ $cons->InstallAs("$supportDir/schemes/Tomorrow_Light.ksf", 'color_schemes/tomorr
 $cons->InstallAs("$supportDir/schemes/Twilight_Dark.ksf", 'color_schemes/twilight-dark.ksf');
 $cons->InstallAs("$supportDir/schemes/Twilight_Light.ksf", 'color_schemes/twilight-light.ksf');
 
+$cons->InstallRecursive("$supportDir/schemes/schemes", cwd()."/src/schemes/color_schemes/schemes", ('\.consign'));
 $cons->InstallRecursive("$supportDir/schemes/templates", cwd()."/src/schemes/color_schemes/templates", ('\.consign', 'common.p.py'));
 $cons->PreprocessAndInstallAs("$supportDir/schemes/templates/common.py", "color_schemes/templates/common.p.py");
 
