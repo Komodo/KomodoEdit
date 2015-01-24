@@ -1033,6 +1033,12 @@
             <handler event="focus" phase="capturing">
                 <![CDATA[
                 //dump("scintilla:: focus\n");
+
+                // Always ensure scimoz is marked as focused, even if the real
+                // focused element is a child element of scintilla xbl.
+                var scimoz = this.scimoz;
+                scimoz.isFocused = true;
+
                 var focusedElement = window.document.commandDispatcher.focusedElement;
                 if ([null, this, this._embed, this._ime].indexOf(focusedElement) == -1) {
                     // something else inside <scintilla>; ignore focus on that.
@@ -1040,12 +1046,10 @@
                     //               " (state=" + this.scimoz.isFocused + ")");
                     return;
                 }
-                var scimoz = this.scimoz;
                 if (!this.suppressSoftCharHardeningOnFocus) {
                     scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
                     scimoz.indicatorClearRange(0, scimoz.textLength);
                 }
-                scimoz.isFocused = true;
                 // Ensure the command dispatcher is referencing the scintilla
                 // element, not the plugin element. Otherwise commands will not
                 // work correctly.
