@@ -7,6 +7,7 @@
     const $         = require("ko/dom");
     const sep       = system.platform == "winnt" ? "\\" : "/";
     const isep      = sep == "/" ? /\\/g : /\//g;
+    const pathsep   = system.platform == "winnt" ? ":" : ";";
 
     const scope     = Cc["@activestate.com/commando/koScopeFiles;1"].getService(Ci.koIScopeFiles);
     const partSvc   = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService);
@@ -240,8 +241,8 @@
             opts["excludes"] = curProject.prefset.getString("import_exclude_matches");
             opts["includes"] = curProject.prefset.getString("import_include_matches");
 
-            opts["excludes"] = opts["excludes"] == "" ? [] : opts["excludes"].split(";");
-            opts["includes"] = opts["includes"] == "" ? [] : opts["includes"].split(";");
+            opts["excludes"] = opts["excludes"] == "" ? [] : opts["excludes"].split(pathsep);
+            opts["includes"] = opts["includes"] == "" ? [] : opts["includes"].split(pathsep);
             opts["cacheable"] = true;
         }
         else
@@ -301,15 +302,15 @@
         if ( ! opts['recursive'])
             opts["usecache"] = false;
 
-        // Set includes/excludes, if relevant
-        if (curProject && subscope.path.indexOf(curProject.liveDirectory) === 0)
-        {
-            opts["excludes"] = curProject.prefset.getString("import_exclude_matches");
-            opts["includes"] = curProject.prefset.getString("import_include_matches");
+        // Set includes/excludes.
+        var opts_prefs = ((curProject && subscope.path.indexOf(curProject.liveDirectory) === 0) ?
+                          curProject.prefset :
+                          prefs);
+        opts["excludes"] = opts_prefs.getString("import_exclude_matches");
+        opts["includes"] = opts_prefs.getString("import_include_matches");
 
-            opts["excludes"] = opts["excludes"] == "" ? [] : opts["excludes"].split(";");
-            opts["includes"] = opts["includes"] == "" ? [] : opts["includes"].split(";");
-        }
+        opts["excludes"] = opts["excludes"] == "" ? [] : opts["excludes"].split(pathsep);
+        opts["includes"] = opts["includes"] == "" ? [] : opts["includes"].split(pathsep);
 
         opts["weightMatch"] = prefs.getBoolean('commando_files_weight_multiplier_match', 30);
         opts["weightHits"] = prefs.getBoolean('commando_files_weight_multiplier_hits', 20);
@@ -349,7 +350,7 @@
 
                 var [name, path, relativePath, type, description, weight] = entry;
 
-                descriptionComplex = "<html:div class=\"crop rtl\" xmlns:html=\"http://www.w3.org/1999/xhtml\">";
+                var descriptionComplex = "<html:div class=\"crop rtl\" xmlns:html=\"http://www.w3.org/1999/xhtml\">";
                 descriptionComplex += "<html:span dir=\"ltr\">"+description+"</html:span></html:div>";
 
                 _results.push({
