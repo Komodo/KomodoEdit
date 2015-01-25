@@ -6,7 +6,7 @@
 
 """The main PyXPCOM module for Commando's Files scope"""
 
-from os.path import exists, expanduser, join
+from os.path import abspath, dirname, exists, expanduser, join
 import sys
 from xpcom.components import interfaces as Ci
 from xpcom.components import classes as Cc
