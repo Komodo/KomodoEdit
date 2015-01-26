@@ -1506,6 +1506,9 @@ def _mv(src, dest, logstream=None):
 
 def _cp(src, dest, logstream=None):
     """My little lame cross-platform 'cp'"""
+    dest_parent = dirname(dest)
+    if dest_parent:
+        _mkdir(dest_parent)
     if isdir(src):
         shutil.copytree(src, dest)
     else:
