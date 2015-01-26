@@ -27,7 +27,7 @@ log.setLevel(logging.INFO)
 HI_LOW_FROM_FILETYPE = {
     "feature-core": {
         "low": "[default]",
-        "high": "[withCodeBrowser]",
+        "high": "[withWatchdogFSNotifications]",
     },
     "feature-docs": {
         "low": "[withDocs]",
