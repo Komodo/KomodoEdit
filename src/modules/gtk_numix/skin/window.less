@@ -1,0 +1,43 @@
+@import url("chrome://komodo/skin/plat/current/window.less");
+
+:-moz-any(button, toolbarbutton, menuitem)[class$='-icon'] > image,
+:-moz-any(button, toolbarbutton, menuitem) [class$='-icon'] > image,
+:-moz-any(button, toolbarbutton, menuitem)[class$='_icon'] > image,
+:-moz-any(button, toolbarbutton, menuitem) [class$='_icon'] > image,
+image.toolbarbutton-icon
+{
+    opacity: 0.8;
+}
+
+#toolbox_main toolbar:not([mode="full"]) > toolbaritem > toolbarbutton:first-child,
+#toolbox_main toolbar:not([mode="full"]) > toolbaritem > toolbarbutton.first-child
+{
+  margin-left: 3px;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+#toolbox_main toolbar:not([mode="full"]) > toolbaritem > toolbarbutton:last-child,
+#toolbox_main toolbar:not([mode="full"]) > toolbaritem > toolbarbutton.last-child
+{
+  margin-right: 3px;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+toolbox #main-toolboxrow toolbar > toolbaritem > toolbarbutton
+{
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    padding: 6px !important;
+}
+
+#main-toolboxrow toolbar
+{
+    toolbaritem
+    {
+        margin-right: 5px;
+    }
+}
+
+

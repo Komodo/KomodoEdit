@@ -1,0 +1,7 @@
+override chrome://komodo/skin/modules.less chrome://gtk-numix/skin/modules.less
+override chrome://komodo/skin/window.less chrome://gtk-numix/skin/window.less
+override chrome://komodo/skin/_config/window.less chrome://gtk-numix/skin/_config/window.less
+override chrome://komodo/skin/_config/toolbars.less chrome://gtk-numix/skin/_config/toolbars.less
+override chrome://komodo/skin/_config/tabs.less chrome://gtk-numix/skin/_config/tabs.less
+override chrome://komodo/skin/_config/scrollbars.less chrome://gtk-numix/skin/_config/scrollbars.less
+override chrome://komodo/skin/tabs.less chrome://gtk-numix/skin/tabs.less

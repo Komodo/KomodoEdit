@@ -1,0 +1,20 @@
+@import url("chrome://komodo/skin/plat/current/tabs.less");
+
+tabs:not(.tabs-bottom)
+{
+    .tabstrip-box
+    {
+        border-bottom: 0 !important;
+    }
+
+    tab
+    {
+        border-width: 0 1px 0 1px !important;
+        padding: 6px;
+
+        &[selected]
+        {
+            border-left: @tab-selected-border;
+        }
+    }
+}

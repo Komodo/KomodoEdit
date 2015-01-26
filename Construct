@@ -463,6 +463,7 @@ if ($platform eq "linux") {
         "$build/modules/gtk_ambiance/Conscript",
         "$build/modules/gtk_dark/Conscript",
         "$build/modules/gtk_elementary/Conscript",
+        "$build/modules/gtk_numix/Conscript",
         "$build/modules/gtk_radiance/Conscript",
     );
 }

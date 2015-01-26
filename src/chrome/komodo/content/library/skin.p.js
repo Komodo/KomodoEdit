@@ -445,10 +445,11 @@ if (ko.skin == undefined)
                 var entries = this.catMan.enumerateCategory('ko-gtk-compat');
                 Components.utils.import("resource://gre/modules/Services.jsm");
 
+                var themeName = themeInfo.name.toLowerCase().replace(/\s+/g, '-');
                 while (entries.hasMoreElements())
                 {
                     var entry = entries.getNext().QueryInterface(Ci.nsISupportsCString);
-                    if (entry == themeInfo.name.toLowerCase())
+                    if (entry == themeName)
                     {
                         var uri = this.catMan.getCategoryEntry('ko-gtk-compat', entry);
                         return uri;
