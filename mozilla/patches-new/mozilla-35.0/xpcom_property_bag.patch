@@ -1,0 +1,27 @@
+Mozilla changed property bags from an XPCOM threadsafe class into a cycle
+collected (thread unsafe) class - we change that back to threadsafe here.
+Details of change: https://bugzilla.mozilla.org/show_bug.cgi?id=931285
+diff -r 32e36869f84a xpcom/build/XPCOMInit.cpp
+--- a/xpcom/build/XPCOMInit.cpp	Thu Jan 08 23:22:45 2015 -0500
++++ b/xpcom/build/XPCOMInit.cpp	Mon Jan 26 10:23:57 2015 -0800
+@@ -216,7 +216,7 @@
+ 
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsVariant)
+ 
+-NS_GENERIC_FACTORY_CONSTRUCTOR(nsHashPropertyBagCC)
++NS_GENERIC_FACTORY_CONSTRUCTOR(nsHashPropertyBag)
+ 
+ NS_GENERIC_AGGREGATED_CONSTRUCTOR(nsProperties)
+ 
+diff -r 32e36869f84a xpcom/build/XPCOMModule.inc
+--- a/xpcom/build/XPCOMModule.inc	Thu Jan 08 23:22:45 2015 -0500
++++ b/xpcom/build/XPCOMModule.inc	Mon Jan 26 10:23:57 2015 -0800
+@@ -63,7 +63,7 @@
+     COMPONENT(VARIANT, nsVariantConstructor)
+     COMPONENT(INTERFACEINFOMANAGER_SERVICE, nsXPTIInterfaceInfoManagerGetSingleton)
+ 
+-    COMPONENT(HASH_PROPERTY_BAG, nsHashPropertyBagCCConstructor)
++    COMPONENT(HASH_PROPERTY_BAG, nsHashPropertyBagConstructor)
+ 
+     COMPONENT(UUID_GENERATOR, nsUUIDGeneratorConstructor)
+ 
