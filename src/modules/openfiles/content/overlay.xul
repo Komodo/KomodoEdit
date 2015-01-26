@@ -127,12 +127,12 @@
 
     </broadcasterset>
 
-    <menupopup id="popup_view">
+    <menupopup id="popup_toolbars">
         <menuitem
             id="menu_toggleTabBar"
             label="&viewEditorTabs.label;"
             observes="cmd_toggleTabBar"
-            insertafter="view_menu_editor_settings_menuseparator"
+            insertbefore="menu_toggleMenubar"
             tooltiptext="&viewEditorTabs.tooltip;"/>
     </menupopup>
 </overlay>

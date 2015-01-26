@@ -1,5 +1,5 @@
 <!ENTITY openFiles.label "Open Files">
-<!ENTITY viewEditorTabs.label "View Editor Tabs">
+<!ENTITY viewEditorTabs.label "Show Editor Tabs">
 <!ENTITY viewEditorTabs.tooltip "Toggle Editor Tabs">
 <!ENTITY closeFile.tooltip "Close File">
 
