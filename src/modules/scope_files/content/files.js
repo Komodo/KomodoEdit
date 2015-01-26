@@ -340,6 +340,8 @@
             }
 
             var folderIcon = "chrome://komodo/skin/images/folder-closed.png";
+            if (system.platform == "darwin")
+                folderIcon = "chrome://global/skin/dirListing/folder.png"
             if (system.platform == "linux")
                 folderIcon = "moz-icon://stock/gtk-directory?size=16";
 
