@@ -535,6 +535,12 @@ richlistbox { .list-styling.richlistbox(listbox); }
 {
     background: transparent;
     -moz-appearance: none;
+    
+    /* Cannot set padding on window element as it screws up scrollbar positioning */
+    & > vbox, & > hbox, & > box
+    {
+        padding: 10px;
+    }
 }
 
 #prefWindow #panelFrame,
@@ -544,7 +550,6 @@ richlistbox { .list-styling.richlistbox(listbox); }
     -moz-appearance: @list-listbox-appearance !important;
     background: @list-listbox-background !important;
     border: @list-listbox-border;
-    padding: 10px;
 }
 
 /* Unified Menu */
