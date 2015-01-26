@@ -144,7 +144,7 @@ $consLocal->InstallRecursive($landmark,
 
 
 
-if ($withJSLib or $buildFlavour eq "dev") {
+if ($withJSLib) {
     #---- jslib
     # Some of Komodo's optional extensions use jslib:
     #   komodo_javascript_debugger (Komodo's FF extension for JS debugging)
