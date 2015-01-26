@@ -1262,6 +1262,8 @@ def target_configure(argv):
         config["gxx"] = gxx
         mozRawOptions.append("export CC=%s" % gcc)
         mozRawOptions.append("export CXX=%s" % gxx)
+        # Try to enable gold linker where available.
+        mozBuildOptions.append('enable-gold')
 
     config["changenum"] = _getChangeNum()
     if sys.platform == "win32":
