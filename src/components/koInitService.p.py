@@ -863,15 +863,15 @@ class KoInitService(object):
             prefs.setBoolean("transit_commando_keybinds", True)
 
         if version < 14:
-            oldScheme = prefs.getString("editor-scheme", "Default_Light")
+            oldScheme = prefs.getString("editor-scheme", "Ocean_Dark")
             if oldScheme.startswith("Dark_"):
-                prefs.setString("editor-scheme", "Default_Dark")
+                prefs.setString("editor-scheme", "Ocean_Dark")
             elif oldScheme == "Solarized":
                 prefs.setString("editor-scheme", "Solarized_Light")
             elif oldScheme in ("BlueWater", "Bright", "Default", "Komodo",
                                "LowContrast_Zenburn", "Medium"):
                 # Transition to the new light scheme.
-                prefs.setString("editor-scheme", "Default_Light")
+                prefs.setString("editor-scheme", "Base16_Light")
             # Else it's a custom scheme - leave it alone.
 
         if version < 16:

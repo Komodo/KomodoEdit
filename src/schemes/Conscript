@@ -82,8 +82,8 @@ $cons->InstallAs("$supportDir/schemes/Atelierheath_Light.ksf", 'color_schemes/at
 $cons->InstallAs("$supportDir/schemes/Bespin.ksf", 'color_schemes/bespin.ksf');
 $cons->InstallAs("$supportDir/schemes/Chalk_Dark.ksf", 'color_schemes/chalk-dark.ksf');
 $cons->InstallAs("$supportDir/schemes/Chalk_Light.ksf", 'color_schemes/chalk-light.ksf');
-$cons->InstallAs("$supportDir/schemes/Default_Dark.ksf", 'color_schemes/default-dark.ksf');
-$cons->InstallAs("$supportDir/schemes/Default_Light.ksf", 'color_schemes/default-light.ksf');
+$cons->InstallAs("$supportDir/schemes/Base16_Dark.ksf", 'color_schemes/default-dark.ksf');
+$cons->InstallAs("$supportDir/schemes/Base16_Light.ksf", 'color_schemes/default-light.ksf');
 $cons->InstallAs("$supportDir/schemes/Eighties_Dark.ksf", 'color_schemes/eighties-dark.ksf');
 $cons->InstallAs("$supportDir/schemes/Eighties_Light.ksf", 'color_schemes/eighties-light.ksf');
 $cons->InstallAs("$supportDir/schemes/Embers_Dark.ksf", 'color_schemes/embers-dark.ksf');
