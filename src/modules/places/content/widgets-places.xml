@@ -66,11 +66,6 @@
         </method>
         </implementation>
         <handlers>
-            <handler event="keypress" keycode="vk_enter" phase="capturing">
-                <![CDATA[
-                    this.handleReturnKey(event);
-                ]]>
-            </handler>
             <handler event="keypress" keycode="vk_return" phase="capturing">
                 <![CDATA[
                     this.handleReturnKey(event);
