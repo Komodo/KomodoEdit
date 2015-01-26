@@ -219,10 +219,8 @@ binding cmd_openLine Ctrl+O
 binding cmd_deleteBlankLines Ctrl+X Ctrl+O
 binding cmd_rawKey Ctrl+Q
 binding cmd_expandAbbrev Ctrl+T
-binding cmd_lineTransposeUp  Ctrl+Up
-binding cmd_lineTransposeDown  Ctrl+Down
-binding cmd_lineDuplicateUp  Ctrl+Shift+Up
-binding cmd_lineDuplicateDown  Ctrl+Shift+Down
+binding cmd_lineTransposeUp  Alt+Up
+binding cmd_lineTransposeDown  Alt+Down
 
 binding cmd_goToDefinition Escape .
 

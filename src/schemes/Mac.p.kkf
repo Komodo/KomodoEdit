@@ -85,7 +85,11 @@ binding cmd_killLine Ctrl+Delete
 binding cmd_killLine Ctrl+Backspace
 binding cmd_left  Left
 binding cmd_lineNext  Down
-binding cmd_linePrevious  Up 
+binding cmd_linePrevious  Up
+binding cmd_documentHome    Meta+Up
+binding cmd_documentEnd Meta+Down
+binding cmd_selectDocumentHome  Meta+Shift+Down
+binding cmd_selectDocumentEnd   Meta+Shift+Down
 binding cmd_lineScrollDown  Meta+Alt+Down
 binding cmd_lineScrollUp  Meta+Alt+Up
 binding cmd_new Meta+N
@@ -172,7 +176,5 @@ binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y
 binding cmd_addNextWordToCaretSet Ctrl+D
 binding cmd_htmlTagRelocator Ctrl+Shift+Z
 
-binding cmd_lineTransposeUp  Meta+Up
-binding cmd_lineTransposeDown  Meta+Down
-binding cmd_lineDuplicateUp  Meta+Shift+Up
-binding cmd_lineDuplicateDown  Meta+Shift+Down
+binding cmd_lineTransposeUp  Ctrl+Up
+binding cmd_lineTransposeDown  Ctrl+Down

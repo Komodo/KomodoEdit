@@ -973,35 +973,6 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
                 "cmd_scope-openfiles":          [ "Meta+<" ]
             });
             break;
-        case 43:
-// #if PLATFORM != 'darwin'
-            this._remove_keybinding_sequences({
-                "cmd_lineScrollUp":       [ "Ctrl+Up" ],
-                "cmd_lineScrollDown":     [ "Ctrl+Down" ]
-            });
-            this._add_keybinding_sequences({
-                "cmd_lineTransposeUp":    [ "Ctrl+Up" ],
-                "cmd_lineTransposeDown":  [ "Ctrl+Down" ],
-                "cmd_lineDuplicateUp":    [ "Ctrl+Shift+Up" ],
-                "cmd_lineDuplicateDown":  [ "Ctrl+Shift+Down" ]
-            });
-// #else
-            this._remove_keybinding_sequences({
-                "cmd_documentHome":       [ "Meta+Up" ],
-                "cmd_documentEnd":        [ "Meta+Down" ],
-                "cmd_selectDocumentHome": [ "Meta+Shift+Down" ],
-                "cmd_selectDocumentEnd":  [ "Meta+Shift+Down" ]
-            });
-            this._add_keybinding_sequences({
-                "cmd_selectDocumentHome": [ "Meta+Shift+Home" ],
-                "cmd_selectDocumentEnd":  [ "Meta+Shift+End" ],
-                "cmd_lineTransposeUp":    [ "Meta+Up" ],
-                "cmd_lineTransposeDown":  [ "Meta+Down" ],
-                "cmd_lineDuplicateUp":    [ "Meta+Shift+Up" ],
-                "cmd_lineDuplicateDown":  [ "Meta+Shift+Down" ]
-            });
-// #endif
-            break;
 // #endif
         }
         from_version += 1;
