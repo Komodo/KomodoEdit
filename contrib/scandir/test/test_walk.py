@@ -1,11 +1,14 @@
 """Tests for scandir.walk(), copied from CPython's tests for os.walk()."""
 
 import os
+import shutil
+import sys
 import unittest
 
 import scandir
 
 walk_func = scandir.walk
+
 
 class TestWalk(unittest.TestCase):
     testfn = os.path.join(os.path.dirname(__file__), 'temp')
@@ -45,7 +48,7 @@ class TestWalk(unittest.TestCase):
         has_symlink = hasattr(os, "symlink")
         if has_symlink:
             try:
-                os.symlink(os.path.abspath(t2_path), link_path, True)
+                os.symlink(os.path.abspath(t2_path), link_path)
                 sub2_tree = (sub2_path, ["link"], ["tmp3"])
             except NotImplementedError:
                 sub2_tree = (sub2_path, [], ["tmp3"])
@@ -126,3 +129,77 @@ class TestWalk(unittest.TestCase):
                 else:
                     os.remove(dirname)
         os.rmdir(self.testfn)
+
+
+class TestWalkSymlink(unittest.TestCase):
+    temp_dir = os.path.join(os.path.dirname(__file__), 'temp')
+
+    def setUp(self):
+        os.mkdir(self.temp_dir)
+        self.dir_name = os.path.join(self.temp_dir, 'dir')
+        os.mkdir(self.dir_name)
+        open(os.path.join(self.dir_name, 'subfile'), 'w').close()
+        self.file_name = os.path.join(self.temp_dir, 'file')
+        open(self.file_name, 'w').close()
+
+    def tearDown(self):
+        shutil.rmtree(self.temp_dir)
+
+    def test_symlink_to_file(self):
+        if not hasattr(os, 'symlink'):
+            return
+
+        try:
+            os.symlink(self.file_name, os.path.join(self.temp_dir,
+                                                    'link_to_file'))
+        except NotImplementedError:
+            # Windows versions before Vista don't support symbolic links
+            return
+
+        output = sorted(walk_func(self.temp_dir))
+        dirs = sorted(output[0][1])
+        files = sorted(output[0][2])
+        self.assertEqual(dirs, ['dir'])
+        self.assertEqual(files, ['file', 'link_to_file'])
+
+        self.assertEqual(len(output), 2)
+        self.assertEqual(output[1][1], [])
+        self.assertEqual(output[1][2], ['subfile'])
+
+    def test_symlink_to_directory(self):
+        if not hasattr(os, 'symlink'):
+            return
+
+        link_name = os.path.join(self.temp_dir, 'link_to_dir')
+        try:
+            if sys.version_info >= (3, 3):
+                # "target_is_directory" was only added in Python 3.3
+                os.symlink(self.dir_name, link_name, target_is_directory=True)
+            else:
+                os.symlink(self.dir_name, link_name)
+        except NotImplementedError:
+            # Windows versions before Vista don't support symbolic links
+            return
+
+        output = sorted(walk_func(self.temp_dir))
+        dirs = sorted(output[0][1])
+        files = sorted(output[0][2])
+        self.assertEqual(dirs, ['dir', 'link_to_dir'])
+        self.assertEqual(files, ['file'])
+
+        self.assertEqual(len(output), 2)
+        self.assertEqual(output[1][1], [])
+        self.assertEqual(output[1][2], ['subfile'])
+
+        output = sorted(walk_func(self.temp_dir, followlinks=True))
+        dirs = sorted(output[0][1])
+        files = sorted(output[0][2])
+        self.assertEqual(dirs, ['dir', 'link_to_dir'])
+        self.assertEqual(files, ['file'])
+
+        self.assertEqual(len(output), 3)
+        self.assertEqual(output[1][1], [])
+        self.assertEqual(output[1][2], ['subfile'])
+        self.assertEqual(os.path.basename(output[2][0]), 'link_to_dir')
+        self.assertEqual(output[2][1], [])
+        self.assertEqual(output[2][2], ['subfile'])

@@ -1,9 +1,20 @@
 
+2014-05-30 version 0.4
+
+* Merged Tim Golden's _scandir.c improvements, making it an iterator
+  at the C level
+
+
+2013-11-27 version 0.3
+
+* Changed API so function names match new pathlib module
+
+
 2013-11-21 version 0.2
 
-* Define DirEntry differently on different platforms for performance.
-* Added tests for scandir and fix a few regressions.
-* Mark _scandir.c as "work in progress" for now.
+* Define DirEntry differently on different platforms for performance
+* Added tests for scandir and fix a few regressions
+* Mark _scandir.c as "work in progress" for now
 
 
 2013-05-13 version 0.1

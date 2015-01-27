@@ -12,12 +12,14 @@ DEPTH = 4
 NUM_DIRS = 5
 NUM_FILES = 50
 
+os_walk_func = None
+
 # ctypes versions of os.listdir() so benchmark can compare apples with apples
 if sys.platform == 'win32':
     import ctypes
     from ctypes import wintypes
 
-    def os_listdir(path):
+    def listdir_python(path):
         data = wintypes.WIN32_FIND_DATAW()
         data_p = ctypes.byref(data)
         filename = os.path.join(path, '*.*')
@@ -45,7 +47,7 @@ if sys.platform == 'win32':
         return names
 
 elif sys.platform.startswith(('linux', 'darwin')) or 'bsd' in sys.platform:
-    def os_listdir(path):
+    def listdir_python(path):
         dir_p = scandir.opendir(path.encode(scandir.file_system_encoding))
         if not dir_p:
             raise scandir.posix_error(path)
@@ -67,14 +69,15 @@ elif sys.platform.startswith(('linux', 'darwin')) or 'bsd' in sys.platform:
         return names
 
 else:
-    os_listdir = os.listdir
+    listdir_python = os.listdir
 
-def os_walk(top, topdown=True, onerror=None, followlinks=False):
+
+def os_walk_python(top, topdown=True, onerror=None, followlinks=False):
     """Identical to os.walk(), but use ctypes-based listdir() so benchmark
     against ctypes-based scandir() is valid.
     """
     try:
-        names = os_listdir(top)
+        names = listdir_python(top)
     except OSError as err:
         if onerror is not None:
             onerror(err)
@@ -92,10 +95,11 @@ def os_walk(top, topdown=True, onerror=None, followlinks=False):
     for name in dirs:
         new_path = os.path.join(top, name)
         if followlinks or not os.path.islink(new_path):
-            for x in os_walk(new_path, topdown, onerror, followlinks):
+            for x in os_walk_python(new_path, topdown, onerror, followlinks):
                 yield x
     if not topdown:
         yield top, dirs, nondirs
+
 
 def create_tree(path, depth=DEPTH):
     """Create a directory tree at path with given depth, and NUM_DIRS and
@@ -112,18 +116,20 @@ def create_tree(path, depth=DEPTH):
         dirname = os.path.join(path, 'dir{0:03}'.format(i))
         create_tree(dirname, depth - 1)
 
+
 def get_tree_size(path):
     """Return total size of all files in directory tree at path."""
     size = 0
     try:
         for entry in scandir.scandir(path):
-            if entry.is_dir():
+            if entry.is_dir(follow_symlinks=False):
                 size += get_tree_size(os.path.join(path, entry.name))
             else:
-                size += entry.lstat().st_size
+                size += entry.stat(follow_symlinks=False).st_size
     except OSError:
         pass
     return size
+
 
 def benchmark(path, get_size=False):
     sizes = {}
@@ -131,7 +137,7 @@ def benchmark(path, get_size=False):
     if get_size:
         def do_os_walk():
             size = 0
-            for root, dirs, files in os_walk(path):
+            for root, dirs, files in os_walk_func(path):
                 for filename in files:
                     fullname = os.path.join(root, filename)
                     size += os.path.getsize(fullname)
@@ -142,7 +148,7 @@ def benchmark(path, get_size=False):
 
     else:
         def do_os_walk():
-            for root, dirs, files in os_walk(path):
+            for root, dirs, files in os_walk_func(path):
                 pass
 
         def do_scandir_walk():
@@ -161,7 +167,8 @@ def benchmark(path, get_size=False):
         print('Benchmarking walks on {0}, repeat {1}/{2}...'.format(
             path, i + 1, N))
         os_walk_time = min(os_walk_time, timeit.timeit(do_os_walk, number=1))
-        scandir_walk_time = min(scandir_walk_time, timeit.timeit(do_scandir_walk, number=1))
+        scandir_walk_time = min(scandir_walk_time,
+                                timeit.timeit(do_scandir_walk, number=1))
 
     if get_size:
         if sizes['os_walk'] == sizes['scandir_walk']:
@@ -174,18 +181,20 @@ def benchmark(path, get_size=False):
     print('os.walk took {0:.3f}s, scandir.walk took {1:.3f}s -- {2:.1f}x as fast'.format(
           os_walk_time, scandir_walk_time, os_walk_time / scandir_walk_time))
 
-def main():
-    """Usage: benchmark.py [-h] [tree_dir]
+
+if __name__ == '__main__':
+    usage = """Usage: benchmark.py [-h] [tree_dir]
 
 Create a large directory tree named "benchtree" (relative to this script) and
 benchmark os.walk() versus scandir.walk(). If tree_dir is specified, benchmark
-using it instead of creating a tree.
-"""
-    parser = optparse.OptionParser(usage=main.__doc__.rstrip())
+using it instead of creating a tree."""
+    parser = optparse.OptionParser(usage=usage)
     parser.add_option('-s', '--size', action='store_true',
                       help='get size of directory tree while walking')
-    parser.add_option('-r', '--real-os-walk', action='store_true',
-                      help='use real os.walk() instead of ctypes emulation')
+    parser.add_option('-c', '--scandir', type='choice', choices=['best', 'generic', 'c', 'python', 'os'], default='best',
+                      help='version of scandir() to use, default "%default"')
+    parser.add_option('-o', '--os-walk', type='choice', choices=['match', 'builtin', 'python'], default='builtin',
+                      help='version of os.walk() to use, default "%default"')
     options, args = parser.parse_args()
 
     if args:
@@ -197,16 +206,50 @@ using it instead of creating a tree.
                 tree_dir, DEPTH, NUM_DIRS, NUM_FILES))
             create_tree(tree_dir)
 
-    if options.real_os_walk:
-        global os_walk
-        os_walk = os.walk
+    if options.scandir == 'generic':
+        scandir.scandir = scandir.scandir_generic
+    elif options.scandir == 'c':
+        if not hasattr(scandir, 'scandir_c'):
+            print("ERROR: Compiled C version of scandir not found!")
+            sys.exit(1)
+        scandir.scandir = scandir.scandir_c
+    elif options.scandir == 'python':
+        if not hasattr(scandir, 'scandir_python'):
+            print("ERROR: Python version of scandir not found!")
+            sys.exit(1)
+        scandir.scandir = scandir.scandir_python
+    elif options.scandir == 'os':
+        if not hasattr(os, 'scandir'):
+            print("ERROR: Python 3.5's os.scandir() not found!")
+            sys.exit(1)
+        scandir.scandir = os.scandir
+    elif hasattr(os, 'scandir'):
+        scandir.scandir = os.scandir
 
-    if scandir._scandir:
-        print 'Using fast C version of scandir'
+    if scandir.scandir == getattr(os, 'scandir', None):
+        print("Using Python 3.5's builtin os.scandir()")
+        os_walk_func = os.walk
+    elif scandir.scandir == getattr(scandir, 'scandir_c', None):
+        print('Using fast C version of scandir')
+        os_walk_func = os.walk
+    elif scandir.scandir == getattr(scandir, 'scandir_python', None):
+        print('Using slower ctypes version of scandir')
+        os_walk_func = os_walk_python
+    elif scandir.scandir == scandir.scandir_generic:
+        print('Using very slow generic version of scandir')
+        os_walk_func = os_walk_python
     else:
-        print 'Using slower ctypes version of scandir'
+        print('ERROR: Unsure which version of scandir we are using!')
+        sys.exit(1)
+
+    if options.os_walk == 'builtin':
+        os_walk_func = os.walk
+    elif options.os_walk == 'python':
+        os_walk_func = os_walk_python
+
+    if os_walk_func == os.walk:
+        print('Comparing against builtin version of os.walk()')
+    else:
+        print('Comparing against ctypes emulation of os.walk()')
 
     benchmark(tree_dir, get_size=options.size)
-
-if __name__ == '__main__':
-    main()

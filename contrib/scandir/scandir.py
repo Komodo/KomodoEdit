@@ -12,69 +12,111 @@ the full license text.
 
 from __future__ import division
 
+from errno import ENOENT
+from os import listdir, lstat, stat, strerror
+from os.path import join
+from stat import S_IFDIR, S_IFLNK, S_IFREG
+import collections
 import ctypes
 import os
-import stat
 import sys
 
-__version__ = '0.3'
+__version__ = '0.9'
 __all__ = ['scandir', 'walk']
 
-# Shortcuts to these functions for speed and ease
-join = os.path.join
-lstat = os.lstat
+# Windows FILE_ATTRIBUTE constants for interpreting the
+# FIND_DATA.dwFileAttributes member
+FILE_ATTRIBUTE_ARCHIVE = 32
+FILE_ATTRIBUTE_COMPRESSED = 2048
+FILE_ATTRIBUTE_DEVICE = 64
+FILE_ATTRIBUTE_DIRECTORY = 16
+FILE_ATTRIBUTE_ENCRYPTED = 16384
+FILE_ATTRIBUTE_HIDDEN = 2
+FILE_ATTRIBUTE_INTEGRITY_STREAM = 32768
+FILE_ATTRIBUTE_NORMAL = 128
+FILE_ATTRIBUTE_NOT_CONTENT_INDEXED = 8192
+FILE_ATTRIBUTE_NO_SCRUB_DATA = 131072
+FILE_ATTRIBUTE_OFFLINE = 4096
+FILE_ATTRIBUTE_READONLY = 1
+FILE_ATTRIBUTE_REPARSE_POINT = 1024
+FILE_ATTRIBUTE_SPARSE_FILE = 512
+FILE_ATTRIBUTE_SYSTEM = 4
+FILE_ATTRIBUTE_TEMPORARY = 256
+FILE_ATTRIBUTE_VIRTUAL = 65536
 
-S_IFDIR = stat.S_IFDIR
-S_IFREG = stat.S_IFREG
-S_IFLNK = stat.S_IFLNK
+IS_PY3 = sys.version_info >= (3, 0)
 
-# 'unicode' isn't defined on Python 3
-try:
-    unicode
-except NameError:
-    unicode = str
+if not IS_PY3:
+    str = unicode
 
 _scandir = None
 
 
 class GenericDirEntry(object):
-    __slots__ = ('name', '_lstat', '_path')
+    __slots__ = ('name', '_stat', '_lstat', '_scandir_path', '_path')
 
-    def __init__(self, path, name):
-        self._path = path
+    def __init__(self, scandir_path, name):
+        self._scandir_path = scandir_path
         self.name = name
+        self._stat = None
         self._lstat = None
+        self._path = None
 
-    def lstat(self):
-        if self._lstat is None:
-            self._lstat = lstat(join(self._path, self.name))
-        return self._lstat
+    @property
+    def path(self):
+        if self._path is None:
+            self._path = join(self._scandir_path, self.name)
+        return self._path
 
-    def is_dir(self):
+    def stat(self, follow_symlinks=True):
+        if follow_symlinks:
+            if self._stat is None:
+                self._stat = stat(self.path)
+            return self._stat
+        else:
+            if self._lstat is None:
+                self._lstat = lstat(self.path)
+            return self._lstat
+
+    def is_dir(self, follow_symlinks=True):
         try:
-            self.lstat()
-        except OSError:
-            return False
-        return self._lstat.st_mode & 0o170000 == S_IFDIR
+            st = self.stat(follow_symlinks=follow_symlinks)
+        except OSError as e:
+            if e.errno != ENOENT:
+                raise
+            return False  # Path doesn't exist or is a broken symlink
+        return st.st_mode & 0o170000 == S_IFDIR
 
-    def is_file(self):
+    def is_file(self, follow_symlinks=True):
         try:
-            self.lstat()
-        except OSError:
-            return False
-        return self._lstat.st_mode & 0o170000 == S_IFREG
+            st = self.stat(follow_symlinks=follow_symlinks)
+        except OSError as e:
+            if e.errno != ENOENT:
+                raise
+            return False  # Path doesn't exist or is a broken symlink
+        return st.st_mode & 0o170000 == S_IFREG
 
     def is_symlink(self):
         try:
-            self.lstat()
-        except OSError:
-            return False
-        return self._lstat.st_mode & 0o170000 == S_IFLNK
+            st = self.stat(follow_symlinks=False)
+        except OSError as e:
+            if e.errno != ENOENT:
+                raise
+            return False  # Path doesn't exist or is a broken symlink
+        return st.st_mode & 0o170000 == S_IFLNK
 
     def __str__(self):
         return '<{0}: {1!r}>'.format(self.__class__.__name__, self.name)
 
     __repr__ = __str__
+
+
+def scandir_generic(path=u'.'):
+    """Like os.listdir(), but yield DirEntry objects instead of returning
+    a list of names.
+    """
+    for name in listdir(path):
+        yield GenericDirEntry(path, name)
 
 
 if sys.platform == 'win32':
@@ -84,9 +126,7 @@ if sys.platform == 'win32':
     INVALID_HANDLE_VALUE = ctypes.c_void_p(-1).value
     ERROR_FILE_NOT_FOUND = 2
     ERROR_NO_MORE_FILES = 18
-    FILE_ATTRIBUTE_READONLY = 1
-    FILE_ATTRIBUTE_DIRECTORY = 16
-    FILE_ATTRIBUTE_REPARSE_POINT = 1024
+    IO_REPARSE_TAG_SYMLINK = 0xA000000C
 
     # Numer of seconds between 1601-01-01 and 1970-01-01
     SECONDS_BETWEEN_EPOCHS = 11644473600
@@ -113,6 +153,23 @@ if sys.platform == 'win32':
     FindClose.argtypes = [wintypes.HANDLE]
     FindClose.restype = wintypes.BOOL
 
+    Win32StatResult = collections.namedtuple('Win32StatResult', [
+        'st_mode',
+        'st_ino',
+        'st_dev',
+        'st_nlink',
+        'st_uid',
+        'st_gid',
+        'st_size',
+        'st_atime',
+        'st_mtime',
+        'st_ctime',
+        'st_atime_ns',
+        'st_mtime_ns',
+        'st_ctime_ns',
+        'st_file_attributes',
+    ])
+
     def filetime_to_time(filetime):
         """Convert Win32 FILETIME to time since Unix epoch in seconds."""
         total = filetime.dwHighDateTime << 32 | filetime.dwLowDateTime
@@ -131,7 +188,9 @@ if sys.platform == 'win32':
             st_mode |= 0o444
         else:
             st_mode |= 0o666
-        if attributes & FILE_ATTRIBUTE_REPARSE_POINT:
+        if (attributes & FILE_ATTRIBUTE_REPARSE_POINT and
+                data.dwReserved0 == IO_REPARSE_TAG_SYMLINK):
+            st_mode ^= st_mode & 0o170000
             st_mode |= S_IFLNK
 
         st_size = data.nFileSizeHigh << 32 | data.nFileSizeLow
@@ -141,35 +200,83 @@ if sys.platform == 'win32':
 
         # Some fields set to zero per CPython's posixmodule.c: st_ino, st_dev,
         # st_nlink, st_uid, st_gid
-        return os.stat_result((st_mode, 0, 0, 0, 0, 0, st_size, st_atime,
-                               st_mtime, st_ctime))
+        return Win32StatResult(st_mode, 0, 0, 0, 0, 0, st_size,
+                               st_atime, st_mtime, st_ctime,
+                               int(st_atime * 1000000000),
+                               int(st_mtime * 1000000000),
+                               int(st_ctime * 1000000000),
+                               attributes)
 
-    class Win32DirEntry(object):
-        __slots__ = ('name', '_lstat', '_find_data')
+    class Win32DirEntryPython(object):
+        __slots__ = ('name', '_stat', '_lstat', '_find_data', '_scandir_path', '_path')
 
-        def __init__(self, name, find_data):
+        def __init__(self, scandir_path, name, find_data):
+            self._scandir_path = scandir_path
             self.name = name
+            self._stat = None
             self._lstat = None
             self._find_data = find_data
+            self._path = None
 
-        def lstat(self):
-            if self._lstat is None:
-                # Lazily convert to stat object, because it's slow, and often
-                # we only need is_dir() etc
-                self._lstat = find_data_to_stat(self._find_data)
-            return self._lstat
+        @property
+        def path(self):
+            if self._path is None:
+                self._path = join(self._scandir_path, self.name)
+            return self._path
 
-        def is_dir(self):
-            return (self._find_data.dwFileAttributes &
-                    FILE_ATTRIBUTE_DIRECTORY != 0)
+        def stat(self, follow_symlinks=True):
+            if follow_symlinks:
+                if self._stat is None:
+                    if self.is_symlink():
+                        # It's a symlink, call link-following stat()
+                        self._stat = stat(self.path)
+                    else:
+                        # Not a symlink, stat is same as lstat value
+                        if self._lstat is None:
+                            self._lstat = find_data_to_stat(self._find_data)
+                        self._stat = self._lstat
+                return self._stat
+            else:
+                if self._lstat is None:
+                    # Lazily convert to stat object, because it's slow
+                    # in Python, and often we only need is_dir() etc
+                    self._lstat = find_data_to_stat(self._find_data)
+                return self._lstat
 
-        def is_file(self):
-            return (self._find_data.dwFileAttributes &
-                    FILE_ATTRIBUTE_DIRECTORY == 0)
+        def is_dir(self, follow_symlinks=True):
+            is_symlink = self.is_symlink()
+            if follow_symlinks and is_symlink:
+                try:
+                    return self.stat().st_mode & 0o170000 == S_IFDIR
+                except OSError as e:
+                    if e.errno != ENOENT:
+                        raise
+                    return False
+            elif is_symlink:
+                return False
+            else:
+                return (self._find_data.dwFileAttributes &
+                        FILE_ATTRIBUTE_DIRECTORY != 0)
+
+        def is_file(self, follow_symlinks=True):
+            is_symlink = self.is_symlink()
+            if follow_symlinks and is_symlink:
+                try:
+                    return self.stat().st_mode & 0o170000 == S_IFREG
+                except OSError as e:
+                    if e.errno != ENOENT:
+                        raise
+                    return False
+            elif is_symlink:
+                return False
+            else:
+                return (self._find_data.dwFileAttributes &
+                        FILE_ATTRIBUTE_DIRECTORY == 0)
 
         def is_symlink(self):
             return (self._find_data.dwFileAttributes &
-                    FILE_ATTRIBUTE_REPARSE_POINT != 0)
+                        FILE_ATTRIBUTE_REPARSE_POINT != 0 and
+                    self._find_data.dwReserved0 == IO_REPARSE_TAG_SYMLINK)
 
         def __str__(self):
             return '<{0}: {1!r}>'.format(self.__class__.__name__, self.name)
@@ -181,14 +288,19 @@ if sys.platform == 'win32':
         exc.filename = filename
         return exc
 
-    def scandir(path='.', windows_wildcard='*.*'):
+    def scandir_python(path=u'.'):
         """Like os.listdir(), but yield DirEntry objects instead of returning
         a list of names.
         """
         # Call FindFirstFile and handle errors
+        if isinstance(path, bytes):
+            is_bytes = True
+            filename = join(path.decode('mbcs', 'strict'), '*.*')
+        else:
+            is_bytes = False
+            filename = join(path, '*.*')
         data = wintypes.WIN32_FIND_DATAW()
         data_p = ctypes.byref(data)
-        filename = join(path, windows_wildcard)
         handle = FindFirstFile(filename, data_p)
         if handle == INVALID_HANDLE_VALUE:
             error = ctypes.GetLastError()
@@ -204,7 +316,9 @@ if sys.platform == 'win32':
                 # otherwise yield (filename, stat_result) tuple
                 name = data.cFileName
                 if name not in ('.', '..'):
-                    yield Win32DirEntry(name, data)
+                    if is_bytes:
+                        name = name.encode('mbcs', 'replace')
+                    yield Win32DirEntryPython(path, name, data)
 
                 data = wintypes.WIN32_FIND_DATAW()
                 data_p = ctypes.byref(data)
@@ -223,21 +337,56 @@ if sys.platform == 'win32':
 
         scandir_helper = _scandir.scandir_helper
 
-        class Win32DirEntry(object):
-            __slots__ = ('name', '_lstat')
+        class Win32DirEntryC(object):
+            __slots__ = ('name', '_stat', '_lstat', '_scandir_path', '_path')
 
-            def __init__(self, name, lstat):
+            def __init__(self, scandir_path, name, lstat):
+                self._scandir_path = scandir_path
                 self.name = name
+                self._stat = None
                 self._lstat = lstat
+                self._path = None
 
-            def lstat(self):
-                return self._lstat
+            @property
+            def path(self):
+                if self._path is None:
+                    self._path = join(self._scandir_path, self.name)
+                return self._path
 
-            def is_dir(self):
-                return self._lstat.st_mode & 0o170000 == S_IFDIR
+            def stat(self, follow_symlinks=True):
+                if follow_symlinks:
+                    if self._stat is None:
+                        if self.is_symlink():
+                            self._stat = stat(self.path)
+                        else:
+                            self._stat = self._lstat
+                    return self._stat
+                else:
+                    return self._lstat
 
-            def is_file(self):
-                return self._lstat.st_mode & 0o170000 == S_IFREG
+            def is_dir(self, follow_symlinks=True):
+                if follow_symlinks and self.is_symlink():
+                    try:
+                        st = self.stat()
+                    except OSError as e:
+                        if e.errno != ENOENT:
+                            raise
+                        return False
+                else:
+                    st = self._lstat
+                return st.st_mode & 0o170000 == S_IFDIR
+
+            def is_file(self, follow_symlinks=True):
+                if follow_symlinks and self.is_symlink():
+                    try:
+                        st = self.stat()
+                    except OSError as e:
+                        if e.errno != ENOENT:
+                            raise
+                        return False
+                else:
+                    st = self._lstat
+                return st.st_mode & 0o170000 == S_IFREG
 
             def is_symlink(self):
                 return self._lstat.st_mode & 0o170000 == S_IFLNK
@@ -247,12 +396,19 @@ if sys.platform == 'win32':
 
             __repr__ = __str__
 
-        def scandir(path='.'):
-            for name, stat in scandir_helper(unicode(path)):
-                yield Win32DirEntry(name, stat)
+        def scandir_c(path=u'.'):
+            if isinstance(path, bytes):
+                for name, stat in scandir_helper(path.decode('mbcs', 'replace')):
+                    name = name.encode('mbcs', 'replace')
+                    yield Win32DirEntryC(path, name, stat)
+            else:
+                for name, stat in scandir_helper(path):
+                    yield Win32DirEntryC(path, name, stat)
+
+        scandir = scandir_c
 
     except ImportError:
-        pass
+        scandir = scandir_python
 
 
 # Linux, OS X, and BSD implementation
@@ -305,50 +461,74 @@ elif sys.platform.startswith(('linux', 'darwin')) or 'bsd' in sys.platform:
     file_system_encoding = sys.getfilesystemencoding()
 
     class PosixDirEntry(object):
-        __slots__ = ('name', '_d_type', '_lstat', '_path')
+        __slots__ = ('name', '_d_type', '_stat', '_lstat', '_scandir_path', '_path')
 
-        def __init__(self, path, name, d_type):
-            self._path = path
+        def __init__(self, scandir_path, name, d_type):
+            self._scandir_path = scandir_path
             self.name = name
             self._d_type = d_type
+            self._stat = None
             self._lstat = None
+            self._path = None
 
-        def lstat(self):
-            if self._lstat is None:
-                self._lstat = lstat(join(self._path, self.name))
-            return self._lstat
+        @property
+        def path(self):
+            if self._path is None:
+                self._path = join(self._scandir_path, self.name)
+            return self._path
 
-        # Ridiculous duplication between these is* functions -- helps a little
-        # bit with os.walk() performance compared to calling another function.
-        def is_dir(self):
-            d_type = self._d_type
-            if d_type != DT_UNKNOWN:
-                return d_type == DT_DIR
-            try:
-                self.lstat()
-            except OSError:
-                return False
-            return self._lstat.st_mode & 0o170000 == S_IFDIR
+        def stat(self, follow_symlinks=True):
+            if follow_symlinks:
+                if self._stat is None:
+                    if self.is_symlink():
+                        self._stat = stat(self.path)
+                    else:
+                        if self._lstat is None:
+                            self._lstat = lstat(self.path)
+                        self._stat = self._lstat
+                return self._stat
+            else:
+                if self._lstat is None:
+                    self._lstat = lstat(self.path)
+                return self._lstat
 
-        def is_file(self):
-            d_type = self._d_type
-            if d_type != DT_UNKNOWN:
-                return d_type == DT_REG
-            try:
-                self.lstat()
-            except OSError:
-                return False
-            return self._lstat.st_mode & 0o170000 == S_IFREG
+        def is_dir(self, follow_symlinks=True):
+            if (self._d_type == DT_UNKNOWN or
+                    (follow_symlinks and self.is_symlink())):
+                try:
+                    st = self.stat(follow_symlinks=follow_symlinks)
+                except OSError as e:
+                    if e.errno != ENOENT:
+                        raise
+                    return False
+                return st.st_mode & 0o170000 == S_IFDIR
+            else:
+                return self._d_type == DT_DIR
+
+        def is_file(self, follow_symlinks=True):
+            if (self._d_type == DT_UNKNOWN or
+                    (follow_symlinks and self.is_symlink())):
+                try:
+                    st = self.stat(follow_symlinks=follow_symlinks)
+                except OSError as e:
+                    if e.errno != ENOENT:
+                        raise
+                    return False
+                return st.st_mode & 0o170000 == S_IFREG
+            else:
+                return self._d_type == DT_REG
 
         def is_symlink(self):
-            d_type = self._d_type
-            if d_type != DT_UNKNOWN:
-                return d_type == DT_LNK
-            try:
-                self.lstat()
-            except OSError:
-                return False
-            return self._lstat.st_mode & 0o170000 == S_IFLNK
+            if self._d_type == DT_UNKNOWN:
+                try:
+                    st = self.stat(follow_symlinks=False)
+                except OSError as e:
+                    if e.errno != ENOENT:
+                        raise
+                    return False
+                return st.st_mode & 0o170000 == S_IFLNK
+            else:
+                return self._d_type == DT_LNK
 
         def __str__(self):
             return '<{0}: {1!r}>'.format(self.__class__.__name__, self.name)
@@ -357,15 +537,21 @@ elif sys.platform.startswith(('linux', 'darwin')) or 'bsd' in sys.platform:
 
     def posix_error(filename):
         errno = ctypes.get_errno()
-        exc = OSError(errno, os.strerror(errno))
+        exc = OSError(errno, strerror(errno))
         exc.filename = filename
         return exc
 
-    def scandir(path='.'):
+    def scandir_python(path=u'.'):
         """Like os.listdir(), but yield DirEntry objects instead of returning
         a list of names.
         """
-        dir_p = opendir(path.encode(file_system_encoding))
+        if isinstance(path, bytes):
+            opendir_path = path
+            is_bytes = True
+        else:
+            opendir_path = path.encode(file_system_encoding)
+            is_bytes = False
+        dir_p = opendir(opendir_path)
         if not dir_p:
             raise posix_error(path)
         try:
@@ -376,8 +562,10 @@ elif sys.platform.startswith(('linux', 'darwin')) or 'bsd' in sys.platform:
                     raise posix_error(path)
                 if not result:
                     break
-                name = entry.d_name.decode(file_system_encoding)
-                if name not in ('.', '..'):
+                name = entry.d_name
+                if name not in (b'.', b'..'):
+                    if not is_bytes:
+                        name = name.decode(file_system_encoding)
                     yield PosixDirEntry(path, name, entry.d_type)
         finally:
             if closedir(dir_p):
@@ -388,22 +576,22 @@ elif sys.platform.startswith(('linux', 'darwin')) or 'bsd' in sys.platform:
 
         scandir_helper = _scandir.scandir_helper
 
-        def scandir(path='.'):
-            for name, d_type in scandir_helper(unicode(path)):
+        def scandir_c(path=u'.'):
+            is_bytes = isinstance(path, bytes)
+            for name, d_type in scandir_helper(path):
+                if not is_bytes:
+                    name = name.decode(file_system_encoding)
                 yield PosixDirEntry(path, name, d_type)
 
+        scandir = scandir_c
+
     except ImportError:
-        pass
+        scandir = scandir_python
 
 
 # Some other system -- no d_type or stat information
 else:
-    def scandir(path='.'):
-        """Like os.listdir(), but yield DirEntry objects instead of returning
-        a list of names.
-        """
-        for name in os.listdir(path):
-            yield GenericDirEntry(path, name)
+    scandir = scandir_generic
 
 
 def walk(top, topdown=True, onerror=None, followlinks=False):
@@ -411,12 +599,24 @@ def walk(top, topdown=True, onerror=None, followlinks=False):
     # Determine which are files and which are directories
     dirs = []
     nondirs = []
+    symlinks = set()
     try:
         for entry in scandir(top):
-            if entry.is_dir():
-                dirs.append(entry)
-            else:
-                nondirs.append(entry)
+            try:
+                if entry.is_dir():
+                    dirs.append(entry.name)
+                else:
+                    nondirs.append(entry.name)
+            except OSError:
+                # Need this to emulate os.walk(), which uses
+                # os.path.isdir(), and that returns False (nondir) on
+                # any OSError; same with entry.is_symlink() below
+                nondirs.append(entry.name)
+            try:
+                if entry.is_symlink():
+                    symlinks.add(entry.name)
+            except OSError:
+                pass
     except OSError as error:
         if onerror is not None:
             onerror(error)
@@ -424,33 +624,15 @@ def walk(top, topdown=True, onerror=None, followlinks=False):
 
     # Yield before recursion if going top down
     if topdown:
-        # Need to do some fancy footwork here as caller is allowed to modify
-        # dir_names, and we really want them to modify dirs (list of DirEntry
-        # objects) instead. Keep a mapping of entries keyed by name.
-        dir_names = []
-        entries_by_name = {}
-        for entry in dirs:
-            dir_names.append(entry.name)
-            entries_by_name[entry.name] = entry
-
-        yield top, dir_names, [e.name for e in nondirs]
-
-        dirs = []
-        for dir_name in dir_names:
-            entry = entries_by_name.get(dir_name)
-            if entry is None:
-                # Only happens when caller creates a new directory and adds it
-                # to dir_names
-                entry = GenericDirEntry(top, dir_name)
-            dirs.append(entry)
+        yield top, dirs, nondirs
 
     # Recurse into sub-directories, following symbolic links if "followlinks"
-    for entry in dirs:
-        if followlinks or not entry.is_symlink():
-            new_path = join(top, entry.name)
+    for name in dirs:
+        if followlinks or name not in symlinks:
+            new_path = join(top, name)
             for x in walk(new_path, topdown, onerror, followlinks):
                 yield x
 
-    # Yield before recursion if going bottom up
+    # Yield after recursion if going bottom up
     if not topdown:
-        yield top, [e.name for e in dirs], [e.name for e in nondirs]
+        yield top, dirs, nondirs

@@ -5,6 +5,7 @@ import os
 import sys
 import unittest
 
+
 def main():
     test_dir = os.path.dirname(os.path.abspath(__file__))
     test_files = glob.glob(os.path.join(test_dir, 'test_*.py'))
