@@ -49,7 +49,7 @@ set PATH=%PATH%;%MOZILLABUILD%\nsis-2.46u
 set PATH=%PATH%;%MOZILLABUILD%\nsis-2.33u
 rem Add hg - in case the user doesn't have it on their path.
 set PATH=%PATH%;%MOZILLABUILD%\hg
-
+set PATH=%PATH%;%~dp0\..\util\black
 
 if "%VC11DIR%"=="" (
     if "%VC11EXPRESSDIR%"=="" (
