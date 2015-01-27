@@ -103,6 +103,8 @@ class KoInterpolationService:
     _reg_clsid_ = "{C94C3130-A07E-4840-877B-E03D2F4BC872}"
     _reg_contractid_ = "@activestate.com/koInterpolationService;1"
 
+    _codemapAdditions = {}
+
     @LazyProperty
     def lastErrorSvc(self):
         return components.classes["@activestate.com/koLastErrorService;1"]\
@@ -255,7 +257,31 @@ class KoInterpolationService:
                     selection = selection.encode('utf-8')
             codeMap['S'] = urllib.quote_plus(selection)
             codeMap['W'] = urllib.quote_plus(selection)
+
+        # Add extensible items:
+        for code, handler in self._codemapAdditions.items():
+            if code in codeMap:
+                log.warn("overriding interpolation code %r", code)
+            codeMap[code] = lambda: self._interpolationCallbackHandler(handler,
+                                            code, fileName, lineNum, word,
+                                            selection, projectFile, prefSet)
+
         return codeMap
+
+    def addCode(self, code, callback):
+        self._codemapAdditions[code] = callback
+
+    def removeCode(self, code):
+        self._codemapAdditions.pop(code, None)
+
+    def _interpolationCallbackHandler(self, handler, code, fileName, lineNum,
+                                      word, selection, projectFile, prefSet):
+        try:
+            result = handler.interpolationCallback(code, fileName, lineNum, word,
+                                                   selection, projectFile, prefSet)
+        except Exception as ex:
+            result = "<%r ERROR: %s>" % (code, str(ex))
+        return result
 
     special_modifiers = ("lowercase", "uppercase", "capitalize",
                          "dirname", "basename")

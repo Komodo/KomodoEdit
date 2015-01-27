@@ -78,6 +78,15 @@ interface koIInterpolationQuery : nsISupports {
 };
 
 
+[scriptable, function, uuid(0e8f9db6-fb16-4e07-8334-41ce74e01730)]
+interface koIInterpolationCallback : nsISupports {
+    AString interpolationCallback(in AString code, in AString filepath,
+                                  in long lineNum, in AString word,
+                                  in AString selection, in AString projectFile,
+                                  in koIPreferenceSet prefSet);
+};
+
+
 // A generic interpolate service to enable parts of Komodo to
 // interpolate the shortcut codes that were born as part of the Run
 // Command system, e.g. %F for the full path to the current file, etc.
@@ -212,6 +221,9 @@ interface koIInterpolationService : nsISupports {
     void GetBlockOffsets(in wstring s, in boolean bracketed,
                          out unsigned long count,
                          [array, size_is(count)] out long offsets);
+
+    void addCode(in AString code, in koIInterpolationCallback callback);
+    void removeCode(in AString code);
 };
 
 [scriptable, uuid(03276c9a-6140-40ea-9906-a0f77a4d8227)]
