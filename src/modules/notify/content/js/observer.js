@@ -1,40 +1,68 @@
 (function() {
 
     const log       = require("ko/logging").getLogger("notify-observer");
-    log.setLevel(require("ko/logging").LOG_DEBUG);
+    //log.setLevel(require("ko/logging").LOG_DEBUG);
 
-    const prefs     = Cc['@activestate.com/koPrefService;1']
-                        .getService(Ci.koIPrefService).prefs;
+    var NotifyObserver = function() { }
 
-    this.init = () =>
+    NotifyObserver.prototype.init = function()
     {
-        var obsSvc = Cc["@mozilla.org/observer-service;1"].
-                        getService(Ci.nsIObserverService);
-        obsSvc.addObserver(this, 'status_message',false);
-        obsSvc.addObserver(this, 'autoupdate-notification', false);
+        log.info("init");
+        // Old Komodo status messages (usually from Python).
+        Services.obs.addObserver(this, 'status_message', false);
+        // Simple string notifications (usually from Python).
+        Services.obs.addObserver(this, 'komodo_notify_error', false);
+        Services.obs.addObserver(this, 'komodo_notify_warning', false);
+        Services.obs.addObserver(this, 'komodo_notify_info', false);
+        // Mozilla auto update notifications (from JS/C++).
+        Services.obs.addObserver(this, 'autoupdate-notification', false);
 
-        Cc["@activestate.com/koNotification/manager;1"]
-          .getService(Ci.koINotificationManager)
-          .addListener(this);
+        // TODO: Is this needed (instead of 'status_message')?
+        //Cc["@activestate.com/koNotification/manager;1"]
+        //  .getService(Ci.koINotificationManager)
+        //  .addListener(this);
     }
 
-    this.observe = (subject, topic, data) =>
+    NotifyObserver.prototype.observe = function(subject, topic, data)
     {
-        // Unless otherwise specified the 'subject' is the view, and 'data'
-        // arguments are expected to be empty for all notifications.
-        log.debug("StatusBar observed '"+topic+"': ");
-        var view = subject;
-
+        log.debug("observed '"+topic+"': ");
         switch (topic)
         {
             case 'status_message':
+                // Note: subject implements the koINotification interface.
+                if (!subject.summary) {
+                    // TODO: Handle codeintel progress notifications.
+                    // Nothing to say?
+                    return;
+                }
+                let severity_array = ["info", "warning", "error"];
                 // "subject" is expected to be a koIStatusMessage object.
-                require("notify/notify").send(subject.msg, subject.category,
+                require("notify/notify").send(subject.summary, subject.category,
                 {
-                    priority: subject.highlight ? "warning" : "info"
+                    priority: severity_array[subject.severity]
+                });
+                break;
+            case 'komodo_notify_error':
+            case 'komodo_notify_warning':
+            case 'komodo_notify_info':
+                // data string expected to be in the form:
+                //   "debugger: This is the error message"
+                let priority = topic.substr("komodo_notify_".length);
+                let message = data;
+                let category = message.split(":", 1)[0];
+                if (category.length < message.length) {
+                    message = message.substr(category.length + 1);
+                } else {
+                    category = priority;
+                }
+                // "data" is expected to be an error message string.
+                require("notify/notify").send(message, category,
+                {
+                    priority: priority,
                 });
                 break;
             case 'autoupdate-notification':
+                // TODO: Verify this code.
                 window.setTimeout(function()
                 {
                     try
@@ -76,6 +104,16 @@
         });
     }
 
-    this.init();
+    //NotifyObserver.prototype.onNotification = function(notification, oldIndex, newIndex, reason)
+    //{
+    //    dump('\nnotification: ' + notification + '\n');
+    //    dump('oldIndex: ' + oldIndex + '\n');
+    //    dump('reason: ' + reason + '\n');
+    //    dump('newIndex: ' + newIndex + '\n\n');
+    //}
+
+    // Instantiate the observer.
+    var observer = new NotifyObserver();
+    observer.init();
 
 })();

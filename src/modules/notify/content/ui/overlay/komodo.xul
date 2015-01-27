@@ -15,6 +15,8 @@
          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
+    <script src="chrome://notify/content/js/observer.js" />
+
     <popupset id="komodoMainPopupSet">
         <script id="tpl-notify-panel" type="x-dot-template">
             <panel anonid="notify-panel"
