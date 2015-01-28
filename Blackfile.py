@@ -1282,6 +1282,7 @@ def ImageKomodo(cfg, argv):
 
         # Trim stuff from the Python install.
         ("rm", iipylibpath("lib2to3", "*.pickle")),  # lazily-generated cache grammar files
+        ("rm", iipysitelibpath("*.egg-info")),  # setup/easyinstall files
 
         #XXX:TODO
         #XXX trim other generated tmp files?
