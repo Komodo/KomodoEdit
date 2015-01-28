@@ -713,8 +713,7 @@ class KoCodeIntelManager(threading.Thread):
           .addObserverForTopics(self, ["xmlCatalogPaths"], True)
 
         # Ensure observer service is used on the main thread - bug 101543.
-        ProxyToMainThreadAsync(lambda:
-            self.observerSvc.addObserver(self, "quit-application", False))
+        ProxyToMainThreadAsync(self.observerSvc.addObserver)(self, "quit-application", False)
 
     @LazyClassAttribute
     def observerSvc(self):
