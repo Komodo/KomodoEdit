@@ -460,8 +460,8 @@ this.customize = (function uilayout_customize() {
 this._customizeComplete = (function uilayout__customizeComplete() {
     // Get us out of customize mode
     document.documentElement.removeAttribute("customizing");
-    document.getElementById("editorviewbox").selectedPanel =
-        document.getElementById("topview");
+    this.updateViewDeck();
+    this.updateViewRef();
     for (let paneId of ko.widgets.panes) {
         ko.widgets.getPaneAt(paneId).customizing = false;
     }
@@ -1274,8 +1274,8 @@ _Observer.prototype.current_view_changed_common = function(view) {
         ko.uilayout.updateTitlebar(view);
     }
 
-    document.getElementById("komodo_main").setAttribute("view-type",
-                                                        view ? view.getAttribute("type") : '');
+    ko.uilayout.updateViewDeck();
+    ko.uilayout.updateViewRef(view);
 }
 
 _Observer.prototype.handle_project_changed = function(event) {
