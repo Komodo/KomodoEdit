@@ -1,56 +1,57 @@
 @import url("chrome://komodo/skin/plat/shared/tabs.less");
 
-.native tabs {
-  height: auto;
+.native tabs
+{
+    height: auto;
 }
 
-ko-pane[type="vertical"] tabs[anonid="tabs"] {
+ko-pane[type="vertical"] tabs[anonid="tabs"]
+{
 
-  ko-vertical-text .label {
-    margin-left: 3px;
-  }
+    ko-vertical-text .label
+    {
+        margin-left: 3px;
+    }
 }
 
-ko-pane[type="icons"] .tabstrip-box {
-  height: auto !important;
+ko-pane[type="icons"] .tabstrip-box
+{
+    height: auto !important;
+    padding-top: 2px;
 }
 
-ko-pane[type="icons"] tab {
-  margin: 4px 4px 4px 0;
-
-  &:last-child {
-    margin-right: 0;
-    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-  }
+window ko-pane[type="icons"] tab
+{
+    margin: 0 2px;
+    
+    &:not(.foobar),
+    &:hover,
+    &[selected="true"]
+    {
+        border-bottom: 0 !important;
+    }
+    
 }
 
-@import url("chrome://komodo/skin/plat/shared/tabs.less");
-
-.native tabs {
-  height: auto;
+view[type="editor"] tabs .tabstrip-box
+{
+    border-bottom: 0 !important;
 }
 
-ko-pane[type="vertical"] tabs[anonid="tabs"] {
-
-  ko-vertical-text .label {
-    margin-left: 3px;
-  }
+tabs:not(.tabs-bottom) tab
+{
+    &[selected="true"]
+    {
+        border-left: @tab-selected-border;
+    }
 }
 
-ko-pane[type="icons"] .tabstrip-box {
-  height: auto !important;
+tabs.tabs-bottom tab:first-child
+{
+    margin-left: 4px;
 }
 
-ko-pane[type="icons"] tab {
-  margin: 4px 4px 4px 0;
-
-  &:last-child {
-    margin-right: 0;
-    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-  }
+#workspace_bottom_area tabs tab
+{
+    border-top: 0 !important;
 }
-
-tabs:not(.tabs-bottom) tab:last-child {
-  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-}
-
