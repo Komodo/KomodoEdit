@@ -553,28 +553,22 @@
             // Editor preset cant (shouldnt) be centered
             return normalize(pos);
         }
-
-        // Center horizontally on the editor
-        else if (scintilla && editor.available())
-        {
-            var scx = scintilla.boxObject.screenX,
-                scy = scintilla.boxObject.screenY,
-                scw = scintilla.boxObject.width,
-                sch = scintilla.boxObject.height,
-                sclh = editor.defaultTextHeight();
-            pos = {x: (scw / 2) + scx, y: (scy + sch) - (sclh * 4)};
-        }
         else
         {
             // Center horizontally on the window
-            var w = _window.innerWidth,
-                h = _window.innerHeight;
-            pos = {x: (scw / 2) + scx, y: (scy + sch) + 100};
+            var bo = document.getElementById('komodo-editor-vbox');
+            bo = bo ? bo.boxObject : document.documentElement.boxObject;
+            var wx = bo.screenX,
+                wy = bo.screenY,
+                ww = bo.width,
+                wh = bo.height;
+            pos = {x: (ww / 2) + wx, y: (wy + wh) - 100};
         }
 
         // Center the panel
         var box = panel.element().boxObject;
         pos.x = pos.x - ((box.width || 400) / 2); // placeholder width if it is not yet available
+        pos.y = pos.y - box.height;
 
         return normalize(pos);
     }
