@@ -1716,7 +1716,27 @@ ko-pane[type="icons"]
 
 }
 
-.hud
+/**
+ * Syntax checking statusbar images.
+ */
+#statusbar-check.syntax-okay {
+    list-style-image: @icon-statusbar-syntax-ok !important;
+}
+
+#statusbar-check.syntax-in-progress {
+    list-style-image: @icon-statusbar-syntax-inprogress !important;
+}
+
+#statusbar-check.syntax-warning {
+    list-style-image: @icon-statusbar-syntax-warning !important;
+}
+
+#statusbar-check.syntax-error {
+    list-style-image: @icon-statusbar-syntax-error !important;
+}
+
+window.hud-skinning .hud,
+window.hud-skinning statusbar
 {
     .new-file-icon
     {
@@ -1822,5 +1842,24 @@ ko-pane[type="icons"]
     .button-menubutton-dropmarker,
     {
         list-style-image: @icon-hud-dropmarker !important;
+    }
+    
+    /**
+     * Syntax checking statusbar images.
+     */
+    #statusbar-check.syntax-okay {
+        list-style-image: @icon-hud-statusbar-syntax-ok !important;
+    }
+    
+    #statusbar-check.syntax-in-progress {
+        list-style-image: @icon-hud-statusbar-syntax-inprogress !important;
+    }
+    
+    #statusbar-check.syntax-warning {
+        list-style-image: @icon-hud-statusbar-syntax-warning !important;
+    }
+    
+    #statusbar-check.syntax-error {
+        list-style-image: @icon-hud-statusbar-syntax-error !important;
     }
 }

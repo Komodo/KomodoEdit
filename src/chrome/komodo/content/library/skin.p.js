@@ -303,7 +303,12 @@ if (ko.skin == undefined)
         {
             this.unloadVirtualStyle("scheme-skinning-partial");
             
-            if ( ! prefs.getBoolean(PREF_SCHEME_SKINNING)) return;
+            document.documentElement.classList.add("hud-skinning");
+            if ( ! prefs.getBoolean(PREF_SCHEME_SKINNING))
+            {
+                document.documentElement.classList.remove("hud-skinning");
+                return;
+            }
             
             var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
             var scheme = schemeService.getScheme(prefs.getString(PREF_EDITOR_SCHEME));
