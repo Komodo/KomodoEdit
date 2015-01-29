@@ -431,6 +431,14 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 }
             });
         },
+        
+        removeAttr: function(key)
+        {
+            return this.each(function()
+            {
+                this.removeAttribute(key);
+            });
+        },
 
         uniqueId: function()
         {

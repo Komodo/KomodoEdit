@@ -362,6 +362,8 @@
             local.resultsReceived = 0;
             local.resultsRendered = 0;
             local.prevSearchValue = searchValue;
+            
+            elem('results').attr("dirty", "true");
 
             var subscope = c.getSubscope();
             if (subscope && subscope.isExpanded)
@@ -1055,6 +1057,8 @@
         resultElem.empty();
         resultElem.removeClass("has-results");
         local.resultsRendered = 0;
+        
+        resultElem.removeAttr("dirty");
     }
 
     this.clear = function()
