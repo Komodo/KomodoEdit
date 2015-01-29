@@ -50,7 +50,6 @@ binding cmd_documentEnd Meta+End
 binding cmd_documentHome  Meta+Home
 binding cmd_editPrefs Meta+,
 binding cmd_editProperties Alt+Return
-binding cmd_editReflow Meta+Shift+Q
 binding cmd_selectAll Meta+A
 binding cmd_end  End 
 binding cmd_end  Meta+Right
