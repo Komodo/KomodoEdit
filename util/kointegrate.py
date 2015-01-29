@@ -590,8 +590,9 @@ class Configuration(SafeConfigParser):
 
     def get_revision(self, revision):
         for branch in self.branches.values():
-            cwd = os.getcwd() + os.sep
-            if not cwd.startswith(branch.base_dir + os.sep):
+            cwd = os.path.normcase(os.getcwd() + os.sep)
+            branch_base_dir = os.path.normcase(branch.base_dir + os.sep)
+            if not cwd.startswith(branch_base_dir):
                 continue
             try:
                 return branch.get_revision(revision)
