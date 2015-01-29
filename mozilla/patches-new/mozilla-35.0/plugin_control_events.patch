@@ -29,16 +29,26 @@ Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/content/base/src/nsG
 Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/dom/plugins/base/nsPluginInstanceOwner.cpp
 --- a/dom/plugins/base/nsPluginInstanceOwner.cpp	Mon Sep 24 23:04:32 2012 +0200
 +++ b/dom/plugins/base/nsPluginInstanceOwner.cpp	Wed Nov 07 13:32:23 2012 -0800
-@@ -296,6 +296,9 @@
-   mCachedAttrParamNames = nullptr;
-   mCachedAttrParamValues = nullptr;
+@@ -337,6 +337,10 @@
+   mPluginWindowVisible = false;
+   mPluginDocumentActiveState = true;
    mLastMouseDownButtonType = -1;
++  mScimozPlugin = false;
 +  mPluginAllowsFocus = true;
 +  mPluginHandlesDomEvents = false;
 +  mPluginHandlesDragEvents = false;
  
  #ifdef XP_MACOSX
  #ifndef NP_NO_CARBON
+@@ -876,7 +880,7 @@
+ }
+ 
+ void nsPluginInstanceOwner::AddToCARefreshTimer() {
+-  if (!mInstance) {
++  if (!mInstance || mScimozPlugin) {
+     return;
+   }
+ 
 @@ -2344,34 +2347,38 @@
      ::CGColorSpaceRelease(mColorProfile);
  #endif
@@ -202,10 +212,25 @@ Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/dom/plugins/base/nsP
  
    return NS_OK; 
  }
+@@ -2468,6 +2503,14 @@
+     return NS_ERROR_FAILURE;
+   }
+ 
++  // Check and set scimoz plugin boolean.
++  const char* mime = nullptr;
++  if (mInstance && NS_SUCCEEDED(mInstance->GetMIMEType(&mime)) && mime &&
++      strcmp(mime, "application/x-scimoz-plugin") == 0)
++  {
++    mScimozPlugin = true;
++  }
++
+   bool windowless = false;
+   mInstance->IsWindowless(&windowless);
+   if (!windowless
 Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/dom/plugins/base/nsPluginInstanceOwner.h
 --- a/dom/plugins/base/nsPluginInstanceOwner.h	Mon Sep 24 23:04:32 2012 +0200
 +++ b/dom/plugins/base/nsPluginInstanceOwner.h	Wed Nov 07 13:32:23 2012 -0800
-@@ -254,6 +254,11 @@
+@@ -254,6 +254,16 @@
    static void ExitFullScreen(jobject view);
  #endif
    
@@ -214,17 +239,23 @@ Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/dom/plugins/base/nsP
 +    return mPluginAllowsFocus;
 +  }
 +
++  bool IsScimozPlugin()
++  {
++    return mScimozPlugin;
++  }
++
  private:
    virtual ~nsPluginInstanceOwner();
  
-@@ -309,6 +314,10 @@
- #endif
+@@ -310,6 +320,11 @@
    bool                        mPluginWindowVisible;
    bool                        mPluginDocumentActiveState;
-+
+ 
++  bool                        mScimozPlugin;
 +  bool                        mPluginAllowsFocus;
 +  bool                        mPluginHandlesDomEvents;
 +  bool                        mPluginHandlesDragEvents;
- 
++
  #ifdef XP_MACOSX
    NPEventModel mEventModel;
+   // This is a hack! UseAsyncRendering() can incorrectly return false

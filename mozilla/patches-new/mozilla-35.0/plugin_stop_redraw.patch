@@ -1,0 +1,17 @@
+Don't need to redraw the plugin here, as it's drawn directly by Scintilla.
+diff -r 32e36869f84a layout/generic/nsPluginFrame.cpp
+--- a/layout/generic/nsPluginFrame.cpp	Thu Jan 08 23:22:45 2015 -0500
++++ b/layout/generic/nsPluginFrame.cpp	Thu Jan 29 06:20:22 2015 -0800
+@@ -1598,6 +1604,12 @@
+                            nsRenderingContext& aRenderingContext,
+                            const nsRect& aDirtyRect, const nsRect& aPluginRect)
+ {
++  // ACTIVESTATE: don't waste time trying to draw again - it's already drawn!
++  if (mInstanceOwner && mInstanceOwner->IsScimozPlugin()) {
++    return;
++  }
++  // ACTIVESTATE: end
++
+ #if defined(MOZ_WIDGET_ANDROID)
+   if (mInstanceOwner) {
+     gfxRect frameGfxRect =
