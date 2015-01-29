@@ -290,7 +290,7 @@
     {
         log.debug("Showing Commando");
 
-        if (scope)
+        if (scope && scope != this.getScope().id)
             c.selectScope(scope);
 
         var panel = elem('panel');
