@@ -2317,6 +2317,10 @@
                             </toolbarbutton>
                         </statusbarpanel>
 
+                        <statusbarpanel id="statusbar-throbber">
+                            <box id="statusbar-throbber-inner"></box>
+                        </statusbarpanel>
+
                     </statusbar>
                 </vbox>
 

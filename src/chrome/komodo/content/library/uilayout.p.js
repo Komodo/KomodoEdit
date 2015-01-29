@@ -1207,6 +1207,10 @@ function _Observer ()
                     getService(Components.interfaces.nsIObserverService);
     observerSvc.addObserver(this, "mru_changed",false);
     observerSvc.addObserver(this, "primary_languages_changed",false);
+	
+	// Progress throbber related events
+	observerSvc.addObserver(this, 'status_message', false);
+	
     var self = this;
     this.handle_current_view_changed_setup = function(event) {
         self.current_view_changed_common(event.originalTarget);
@@ -1266,6 +1270,23 @@ _Observer.prototype.observe = function(subject, topic, data)
     case 'project_opened':
         ko.uilayout.updateTitlebar(ko.views.manager.currentView);
         break;
+	case 'status_message':
+		if (subject instanceof Ci.koINotificationProgress)
+		{
+			var throbber = document.getElementById("statusbar-throbber");
+			if (subject.maxProgress == Ci.koINotificationProgress.PROGRESS_INDETERMINATE ||
+				subject.maxProgress > subject.progress)
+			{
+				throbber.setAttribute("active", true);
+				throbber.setAttribute("tooltiptext", subject.summary);
+			}
+			else
+			{
+				throbber.removeAttribute("active");
+				throbber.setAttribute("tooltiptext", "");
+			}
+		}
+		break;
     }
 }
 
@@ -2015,6 +2036,8 @@ _PrefObserver.prototype.init = function() {
 _PrefObserver.prototype.destroy = function() {
     _gPrefs.prefObserverService.removeObserverForTopics(this, _PrefObserver.topics.length, _PrefObserver.topics, false);
 }
+
+
 
 }).apply(ko.uilayout);
 

@@ -31,8 +31,13 @@
             case 'status_message':
                 // Note: subject implements the koINotification interface.
                 if (!subject.summary) {
-                    // TODO: Handle codeintel progress notifications.
                     // Nothing to say?
+                    return;
+                }
+                if (subject instanceof Ci.koINotificationProgress &&
+                    subject.maxProgress != Ci.koINotificationProgress.PROGRESS_INDETERMINATE)
+                {
+                    // Don't log repeat notifications 
                     return;
                 }
                 let severity_array = ["info", "warning", "error"];

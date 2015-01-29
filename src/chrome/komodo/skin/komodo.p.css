@@ -510,15 +510,30 @@ tab > .tab-text {
 }
 
 /* Notifications / progress button */
-#statusbar-notifications-button {
+#statusbar-throbber {
     -moz-box-align: center;
-    list-style-image: url("chrome://global/skin/icons/loading_16.png");
-    padding-left: 2px;
-    border-right: none;
 }
-#statusbar-notifications-button:not([active]) {
-    display: none;
+#statusbar-throbber:not([active]) {
+    visibility: collapse;
 }
+
+#statusbar-throbber-inner
+{
+    margin: 2px 4px 0;
+    width: 12px;
+    height: 12px;
+    background: #999999;
+}
+
+#statusbar-throbber[active] #statusbar-throbber-inner {
+    animation: throbber 0.5s linear infinite;
+}
+
+@keyframes throbber {
+    0%   { opacity:1; transform: scale(0.1); }
+    100% { opacity:0; transform: scale(1.0); }
+}
+
 
 /* toolbox2 styles */
 treechildren#toolbox2-hierarchy-treebody::-moz-tree-image {
