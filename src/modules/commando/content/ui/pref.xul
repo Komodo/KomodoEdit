@@ -25,13 +25,37 @@
         <vbox>
             <hbox align="center">
                 <label value="Max Results:" />
-                <textbox size="6"
+                <textbox size="4"
                          pref="true"
                          id="commando_search_max_results"
                          preftype="long"
-                         prefdefault="100" />
-                <description value="Setting this to a high value (100+) may result in sluggish search results"/>
+                         prefdefault="100"
+                         tooltiptext="Setting this to a high value (100+) may result in sluggish search results"/>
             </hbox>
+            <spacer/>
+            
+            <hbox align="center">
+                <label value="Search Delay (ms):" />
+                <textbox size="4"
+                         pref="true"
+                         id="commando_search_delay"
+                         preftype="long"
+                         prefdefault="200"
+                         tooltiptext="Search input will be delayed/grouped by this interval"/>
+            </hbox>
+            <spacer/>
+            
+            <hbox align="center">
+                <label value="Result Render Delay (ms):" />
+                <textbox size="4"
+                         pref="true"
+                         id="commando_result_render_delay"
+                         preftype="long"
+                         prefdefault="50"
+                         tooltiptext="Groups multiple results together in the given timeframe and renders them together"/>
+            </hbox>
+            <spacer/>
+            
         </vbox>
         <vbox>
             <hbox>

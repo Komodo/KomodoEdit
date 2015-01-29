@@ -290,7 +290,8 @@
     {
         log.debug("Showing Commando");
 
-        if (scope && scope != this.getScope().id)
+        var preserve = ko.prefs.getBooleanPref('commando_preserve_query');
+        if (scope && (scope != c.getScope().id || ! preserve))
             c.selectScope(scope);
 
         var panel = elem('panel');
@@ -299,7 +300,7 @@
         let left = window.innerWidth / 2;
         left -= panel.element().width / 2;
         panel.element().openPopup(undefined, undefined, left, 100);
-
+        
         if (c.execScopeHandler("onShow") === false)
         {
             search.element().select();

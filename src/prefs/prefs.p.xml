@@ -1024,6 +1024,7 @@
   <long id="notify_max_queue_length">3</long>
 
   <ordered-preference id="commando_favourites"/>
+  <boolean id="commando_preserve_query">1</boolean>
 
   <ordered-preference id="scope-files-shortcuts"/>
   
