@@ -78,7 +78,7 @@
                             details = "'" + aMessage.timer.name + "' @ " + (new Date());
                         if (aMessage.level == "trace")
                             details = "trace" + "\n" + formatTrace(aMessage.stacktrace);
-                        log.debug(details);
+                        log.debug(details || data);
                         break;
                 }
                 
