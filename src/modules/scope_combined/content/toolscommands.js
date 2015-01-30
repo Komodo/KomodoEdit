@@ -13,16 +13,24 @@
     {
         var scopes = getScopes();
         var subscope = commando.getSubscope();
+        var _scopes = {};
+        var length = 0;
         for (let id in scopes)
         {
             if (["scope-tools","scope-commands"].indexOf(id) == -1) continue;
             if (subscope && subscope.scope != id) continue;
-
-            let scope = scopes[id];
-            require(scope.handler).onSearch(query, uuid, function() {});
+            _scopes[id] = scopes[id];
+            length++;
         }
-
-        onComplete(); // todo: make async compatible
+        
+        for (let id in _scopes)
+        {
+            let scope = _scopes[id];
+            require(scope.handler).onSearch(query, uuid, function()
+            {
+                if (--length === 0) onComplete();
+            }.bind(this));
+        }
     }
 
     this.onSelectResult = function(selectedItems)
