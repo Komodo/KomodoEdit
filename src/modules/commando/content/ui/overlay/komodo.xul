@@ -57,9 +57,9 @@
                     </menulist>
                     <textbox flex="1" id="commando-search" class="transparent"/>
                 </hbox>
+                <hbox id="commando-loader" class="loader"></hbox>
                 <separator flex="1"/>
                 <vbox id="commando-subscope-wrap" class="docked" pack="start"></vbox>
-                <hbox id="commando-loader" class="loader"></hbox>
                 <script id="tpl-co-subscope" type="x-dot-template">
                     <hbox>
                         <hbox class="icon-wrapper" pack="center" align="center">
