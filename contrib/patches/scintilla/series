@@ -12,6 +12,7 @@ cocoa_ScintillaCocoa_mm.patch
 cocoa_ScintillaView_mm.patch
 cocoa_scrollbar_notifications.patch
 custom_scrollbars.patch
+editor_background2.patch
 editor_cxx.patch
 fixes.patch
 gtk.patch
