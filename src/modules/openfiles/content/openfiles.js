@@ -756,13 +756,22 @@ if (typeof ko.openfiles == 'undefined')
                 );
             }
             
+            listItem.querySelector('.file-close-button').addEventListener(
+                "mousedown", function(e) {
+                    if (e.which != 1) // Only allow left click
+                        return;
+                    
+                    // Don't bubble mousedown events on the close button
+                    // We don't want to switch to a file that is being closed
+                    e.preventDefault();
+                }.bind(this)
+            );
+            
             // Bind click event on the close button
             listItem.querySelector('.file-close-button').addEventListener(
                 "mouseup", function(e) {
                     if (e.which != 1) // Only allow left click
-                    {
                         return;
-                    }
                     
                     this.onClickItemClose(editorView);
                 }.bind(this)

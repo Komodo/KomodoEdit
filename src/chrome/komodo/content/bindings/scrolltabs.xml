@@ -70,6 +70,13 @@
             <xul:hbox class="tab-image-right" xbl:inherits="selected"/>
         </content>
         <implementation>
+            <constructor>
+                var closeBtn = document.getAnonymousElementByAttribute(this, "anonid", "close-button");
+                closeBtn.addEventListener("mousedown", function(e) {
+                    this._mouseDownOnCloseButton = true;
+                    e.stopPropagation();
+                }.bind(this));
+            </constructor>
             <field name="_mouseDownOnCloseButton">false</field>
             <method name="getTabController">
                 <parameter name="tab"/>
@@ -96,16 +103,6 @@
                  updater failing to update view commands, as there is no
                  currently focused view.
                  -->
-            <handler event="mousedown" button="0" phase="capturing">
-            <![CDATA[
-                var anonid = event.originalTarget.getAttribute("anonid");
-                if (anonid == "close-button") {
-                    this._mouseDownOnCloseButton = true;
-                } else {
-                    this._mouseDownOnCloseButton = false;
-                }
-            ]]>
-            </handler>
             <handler event="mouseup" button="0" phase="capturing">
             <![CDATA[
                 var anonid = event.originalTarget.getAttribute("anonid");
@@ -116,6 +113,7 @@
                 } else {
                     ko.views.manager.currentView.setFocus(); 
                 }
+                this._mouseDownOnCloseButton = false;
             ]]>
             </handler>
         </handlers>

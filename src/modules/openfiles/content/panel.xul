@@ -177,6 +177,7 @@
                     flex="2147483647"/>
                 
                 <toolbarbutton
+                    anonid="close-button"
                     class="file-close-button"
                     tooltiptext="&closeFile.tooltip;"/>
                 
