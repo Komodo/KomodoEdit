@@ -219,7 +219,7 @@
         {
             if (length == maxLength)
             {
-                this.send("Repeat notifications trunkated, please check your Notifications panel",
+                this.send("Repeat notifications truncated, please check your Notifications panel",
                           "internal", {force: "true"});
             }
             return;
