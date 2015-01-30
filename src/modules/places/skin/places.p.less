@@ -21,7 +21,7 @@
 treechildren#places-files-tree-body::-moz-tree-image {
   margin-right: 5px;
 /* #if PLATFORM == "darwin" */
-  margin-left: -5px;
+  margin-left: 0 !important; 
 /* #endif */
 }
 
@@ -194,11 +194,7 @@ undo-button {
 
   treechildren#places-files-tree-body::-moz-tree-cell-text {
     background-image: none;
-/* #if PLATFORM == "darwin" */
-    margin-left: -8px;
-/* #else */
     margin-left: 2px;
-/* #endif */
     padding-left: 0;
   }
 

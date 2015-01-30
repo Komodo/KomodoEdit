@@ -28,3 +28,8 @@ statusbar#statusbarviewbox
 {
     background-image: none !important;
 }
+
+/* For some reason as of moz35 the tree images seem miss-aligned on mac (too much space in front) */
+treechildren::-moz-tree-twisty {
+    margin-right: -7px;
+}
