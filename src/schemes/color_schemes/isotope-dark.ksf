@@ -1,4 +1,0 @@
-import templates.dark as template
-import schemes.isotope as scheme
-
-exports = template.parse(scheme.colors)

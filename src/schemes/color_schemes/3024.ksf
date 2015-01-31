@@ -1,4 +1,0 @@
-import templates.dark as template
-import schemes.s3024 as scheme
-
-exports = template.parse(scheme.colors)

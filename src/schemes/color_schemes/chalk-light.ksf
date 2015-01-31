@@ -1,4 +1,0 @@
-import templates.light as template
-import schemes.chalk as scheme
-
-exports = template.parse(scheme.colors)

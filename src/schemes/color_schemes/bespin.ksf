@@ -1,4 +1,0 @@
-import templates.dark as template
-import schemes.bespin as scheme
-
-exports = template.parse(scheme.colors)
