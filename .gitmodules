@@ -10,3 +10,6 @@
 	path = src/modules/markdown-viewer
 	url = https://github.com/Komodo/markdown-viewer.git
 	branch = master
+[submodule "src/schemes/color_schemes"]
+	path = src/schemes/color_schemes
+	url = https://github.com/Komodo/komodo-color-schemes
