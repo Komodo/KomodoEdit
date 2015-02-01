@@ -316,7 +316,34 @@ class PrefSetTestCase(unittest.TestCase):
         self.assertEquals(root.getPref("ordered").length, 0)
 
         # Add new ordered prefs and check again.
-        # o = root.getPref("ordered")
+        o.appendLong(9)
+        self.assertEquals(base.getPref("ordered").length, 2)
+        self.assertEquals(base.getPref("ordered").getLong(0), 1)
+        self.assertEquals(base.getPref("ordered").getLong(1), 2)
+        self.assertEquals(root.getPref("ordered").length, 1)
+        self.assertEquals(root.getPref("ordered").getLong(0), 9)
+        self.assertEquals(o.length, 1)
+        self.assertEquals(o.getLong(0), 9)
+
+    def test_ordered_reset(self):
+        base = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
+        root = Cc["@activestate.com/koPreferenceRoot;1"].createInstance()
+        ordered = Cc["@activestate.com/koOrderedPreference;1"].createInstance()
+        ordered.id = "test_ordered_inheritance"
+        ordered.appendLong(1)
+        ordered.appendLong(2)
+        base.setPref("ordered", ordered)
+        root.inheritFrom = base
+
+        # ordered pref reset just clears it...
+        o = root.getPref("ordered")
+        o.reset()
+        self.assertTrue(root.hasPrefHere("ordered"))
+        self.assertEquals(o.length, 0)
+        self.assertEquals(root.getPref("ordered").length, 0)
+        self.assertEquals(base.getPref("ordered").length, 2)
+
+        # Add new ordered prefs and check again.
         o.appendLong(9)
         self.assertEquals(base.getPref("ordered").length, 2)
         self.assertEquals(base.getPref("ordered").getLong(0), 1)
