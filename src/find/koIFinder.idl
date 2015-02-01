@@ -73,6 +73,11 @@ interface koIConfirmReplaceController : nsISupports {
  */
 [scriptable, uuid(9ad2b49f-b71f-4c32-b2f5-478e5adbc46a)]
 interface koIConfirmReplacerInFiles : nsITreeView {
+
+    const long SKIPPED_LARGE_FILE = 1;
+    const long SKIPPED_BINARY_FILE = 2;
+    const long SKIPPED_UNKNOWN_LANG = 3;
+
     readonly attribute koIConfirmReplaceController controller;
 
     readonly attribute unsigned long num_hits;
@@ -83,6 +88,11 @@ interface koIConfirmReplacerInFiles : nsITreeView {
     void start();
     boolean isAlive();
     void stop();
+
+    AString getPath(in unsigned long row_idx);
+
+    // Return the reason a path was skipped.
+    long getSkippedReason(in unsigned long row_idx);
 
     void filterSkippedPaths(in boolean filter);
 

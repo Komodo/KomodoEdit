@@ -625,6 +625,19 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
             if not self._stopped:
                 self.controllerProxy.done()
 
+    def getPath(self, row_idx):
+        return self.events[row_idx].path
+
+    def getSkippedReason(self, row_idx):
+        event = self.events[row_idx]
+        if isinstance(event, findlib2.SkipLargeFilePath):
+            return components.interfaces.koIConfirmReplacerInFiles.SKIPPED_LARGE_FILE
+        if isinstance(event, findlib2.SkipBinaryPath):
+            return components.interfaces.koIConfirmReplacerInFiles.SKIPPED_BINARY_FILE
+        if isinstance(event, findlib2.SkipUnknownLangPath):
+            return components.interfaces.koIConfirmReplacerInFiles.SKIPPED_UNKNOWN_LANG
+        return 0
+
     def toggle_mark(self, row_idx):
         with self._lock:
             self.events[row_idx]._marked = not self.events[row_idx]._marked
