@@ -89,6 +89,10 @@
                        onpopupshowing="updateAssociateLanguageMenu(this);"
                        />
         </menu>
+        <menuitem id="context_menu_ignore"
+                  label="&context_menu_ignore.label;"
+                  accesskey="&context_menu_ignore.accesskey;"
+                  oncommand="addIgnoredAssociation();"/>
     </menupopup>
 
     <hbox align="center">

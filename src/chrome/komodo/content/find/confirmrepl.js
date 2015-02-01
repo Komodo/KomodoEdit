@@ -137,9 +137,10 @@ function associateAsLanguage(elem) {
     try {
         var lang = elem.getAttribute("language");
         var path = _g_replacer.getPath(_get_selected_indeces()[0]);
+        var bname = ko.uriparse.baseName(path);
         var ext = ko.uriparse.ext(path);
         var pattern;
-        if (!ext) {
+        if (!ext || ext == bname) {
             // Take the whole name then.
             pattern = ko.uriparse.baseName(path);
         } else {
@@ -149,7 +150,6 @@ function associateAsLanguage(elem) {
                 "Create association '" + ext +"' to language '" + lang + "'?",
                 ["Associate", "Cancel"],
                 "Associate");
-        dump('answer: ' + answer + '\n');
         if (answer == "Associate") {
             // Save the new association.
             var langRegistrySvc = Components.classes["@activestate.com/koLanguageRegistryService;1"]
@@ -164,7 +164,6 @@ function associateAsLanguage(elem) {
             languageNames.push(lang);
             langRegistrySvc.saveFileAssociations(patterns.length, patterns,
                                                  languageNames.length, languageNames);
-            dump('saved: file association ' + pattern + '\n');
         }
     } catch(ex) {
         log.exception(ex);
@@ -197,16 +196,56 @@ function updateAssociateLanguageMenu(menupopup)
     }
 }
 
+function addIgnoredAssociation(elem) {
+    try {
+        var path = _g_replacer.getPath(_get_selected_indeces()[0]);
+        var bname = ko.uriparse.baseName(path);
+        var ext = ko.uriparse.ext(path);
+        var pattern = ext;
+        if (!ext || ext == bname) {
+            // Take the whole name then.
+            pattern = ko.uriparse.baseName(path);
+        } else {
+            pattern = "*" + ext;
+        }
+        var answer = ko.dialogs.customButtons(
+                "Exclude filepaths like '" + pattern +"'?",
+                ["Yes, Exclude", "Cancel"],
+                "Yes, Exclude");
+        if (answer == "Yes, Exclude") {
+            // Save the new association.
+            var prefs = Components.classes["@activestate.com/koPrefService;1"]
+                .getService(Components.interfaces.koIPrefService).prefs;
+            var excludePrefs = prefs.getPref("find-excludeFiletypes");
+            excludePrefs.appendString(pattern);
+            // Update the excludes textbox in the find dialog.
+            var excludes_textbox = opener.document.getElementById("excludes");
+            if (excludes_textbox) {
+                var pathsep = navigator.platform.startsWith("Win") ? ";" : ":";
+                var excludes = excludes_textbox.value.split(pathsep);
+                excludes.push(pattern);
+                excludes_textbox.value = excludes.join(pathsep);
+                opener.update("excludes");
+            }
+        }
+    } catch(ex) {
+        log.exception(ex);
+    }
+}
+
 function onTreeContextMenuShowing()
 {
     try {
         var assoc_menuitem = document.getElementById("context_menu_associate");
+        var ignore_menuitem = document.getElementById("context_menu_ignore");
         assoc_menuitem.setAttribute("disabled", "true");
+        ignore_menuitem.setAttribute("disabled", "true");
         var selected_indeces = _get_selected_indeces();
         if (selected_indeces.length == 1) {
             var idx = selected_indeces[0];
             if (_g_replacer.getSkippedReason(idx) == Components.interfaces.koIConfirmReplacerInFiles.SKIPPED_UNKNOWN_LANG) {
                 assoc_menuitem.removeAttribute("disabled");
+                ignore_menuitem.removeAttribute("disabled");
             }
         }
     } catch(ex) {

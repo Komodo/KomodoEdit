@@ -115,8 +115,10 @@
 <!ENTITY showMarkedChanges.accesskey "S">
 <!ENTITY context_menu_check.label "Check">
 <!ENTITY context_menu_uncheck.label "Uncheck">
-<!ENTITY context_menu_associate.accesskey "L">
-<!ENTITY context_menu_associate.label "Associate to Language">
+<!ENTITY context_menu_associate.accesskey "A">
+<!ENTITY context_menu_associate.label "Associate with Language">
+<!ENTITY context_menu_ignore.accesskey "E">
+<!ENTITY context_menu_ignore.label "Exclude path">
 
 <!--find2.xul-->
 <!ENTITY findWhat.label "Find what:">
