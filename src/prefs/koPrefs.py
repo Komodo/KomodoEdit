@@ -915,7 +915,8 @@ class koOrderedPreference(object):
 
     def __init__(self):
         self.id = ""
-        self.reset()
+        self._collection = []
+        self.type = "ordered-preference"
 
     def __str__(self):
         return '<koOrderedPreference: id=%s>'%self.id
@@ -924,7 +925,8 @@ class koOrderedPreference(object):
     def reset(self):
         self.container = None
         self._collection = []
-        self.type = "ordered-preference"
+        # Clear any inheritance.
+        self.inheritFrom = None
 
     def __getstate__(self):
         collection = []

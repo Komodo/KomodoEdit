@@ -309,9 +309,22 @@ class PrefSetTestCase(unittest.TestCase):
                           "Unexpected exception %s" % (cm.exception,))
 
         # ordered pref reset just clears it...
-        root.getPref("ordered").reset()
+        o = root.getPref("ordered")
+        o.reset()
         self.assertTrue(root.hasPrefHere("ordered"))
+        self.assertEquals(o.length, 0)
         self.assertEquals(root.getPref("ordered").length, 0)
+
+        # Add new ordered prefs and check again.
+        # o = root.getPref("ordered")
+        o.appendLong(9)
+        self.assertEquals(base.getPref("ordered").length, 2)
+        self.assertEquals(base.getPref("ordered").getLong(0), 1)
+        self.assertEquals(base.getPref("ordered").getLong(1), 2)
+        self.assertEquals(root.getPref("ordered").length, 1)
+        self.assertEquals(root.getPref("ordered").getLong(0), 9)
+        self.assertEquals(o.length, 1)
+        self.assertEquals(o.getLong(0), 9)
 
 class PrefSerializeTestCase(unittest.TestCase):
     def assertXMLEqual(self, first, second, msg=None, ignore_white_space=True):
