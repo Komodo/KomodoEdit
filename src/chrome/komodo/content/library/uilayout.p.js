@@ -537,7 +537,6 @@ this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(tool
     document.getElementById('main-toolboxrow')._updateChildVisibility();
 
 }).bind(this);
-addEventListener("load", this._updateToolbarViewStates, false);
 
 /**
  * Show/hide toolbar separators in response to their surrounding elements being
@@ -585,7 +584,6 @@ this._updateToolbarSeparators = (function uilayout__updateToolbarSeparators(tool
         checkForSeparators(toolbar.lastChild, "previousSibling");
     }
 }).bind(this);
-addEventListener("load", this._updateToolbarSeparators, false);
 
 this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButton(popup)
 {
@@ -1818,6 +1816,8 @@ this.onload = function uilayout_onload()
     _prefobserver.init();
     _updateAccesskeys();
     _updateHiddenToolbars();
+    this._updateToolbarViewStates();
+    this._updateToolbarSeparators();
     ko.main.addWillCloseHandler(ko.uilayout.unload);
 
 // #if PLATFORM != "darwin"
