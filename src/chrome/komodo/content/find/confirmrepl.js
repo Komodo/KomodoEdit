@@ -133,6 +133,87 @@ function uncheck_selected()
     _set_selected_checkboxes("false");
 }
 
+function associateAsLanguage(elem) {
+    try {
+        var lang = elem.getAttribute("language");
+        var path = _g_replacer.getPath(_get_selected_indeces()[0]);
+        var ext = ko.uriparse.ext(path);
+        var pattern;
+        if (!ext) {
+            // Take the whole name then.
+            pattern = ko.uriparse.baseName(path);
+        } else {
+            pattern = "*" + ext;
+        }
+        var answer = ko.dialogs.customButtons(
+                "Create association '" + ext +"' to language '" + lang + "'?",
+                ["Associate", "Cancel"],
+                "Associate");
+        dump('answer: ' + answer + '\n');
+        if (answer == "Associate") {
+            // Save the new association.
+            var langRegistrySvc = Components.classes["@activestate.com/koLanguageRegistryService;1"]
+                                    .getService(Components.interfaces.koILanguageRegistryService);
+            var patternsObj = new Object();
+            var languageNamesObj = new Object();
+            langRegistrySvc.getFileAssociations(new Object(), patternsObj,
+                                                new Object(), languageNamesObj);
+            var patterns = patternsObj.value;
+            var languageNames = languageNamesObj.value;
+            patterns.push(pattern);
+            languageNames.push(lang);
+            langRegistrySvc.saveFileAssociations(patterns.length, patterns,
+                                                 languageNames.length, languageNames);
+            dump('saved: file association ' + pattern + '\n');
+        }
+    } catch(ex) {
+        log.exception(ex);
+    }
+}
+
+function updateLanguageCommandElement(elem)
+{
+    if (elem.nodeName == "menuitem" && elem.getAttribute("oncommand")) {
+        elem.setAttribute("oncommand", "associateAsLanguage(this)");
+    }
+    var limit = elem.childNodes.length;
+    for (var i=0; i < limit; i++) {
+        updateLanguageCommandElement(elem.childNodes[i]);
+    }
+}
+
+function updateAssociateLanguageMenu(menupopup)
+{
+    try {
+        if (!menupopup.hasAttribute("komodo_language_menu_already_built")) {
+            // Build the menu;
+            ko.uilayout.buildViewAsLanguageMenu(menupopup);
+            // Update commands
+            updateLanguageCommandElement(menupopup);
+            menupopup.setAttribute("komodo_language_menu_already_built", "true");
+        }
+    } catch(ex) {
+        log.exception(ex);
+    }
+}
+
+function onTreeContextMenuShowing()
+{
+    try {
+        var assoc_menuitem = document.getElementById("context_menu_associate");
+        assoc_menuitem.setAttribute("disabled", "true");
+        var selected_indeces = _get_selected_indeces();
+        if (selected_indeces.length == 1) {
+            var idx = selected_indeces[0];
+            if (_g_replacer.getSkippedReason(idx) == Components.interfaces.koIConfirmReplacerInFiles.SKIPPED_UNKNOWN_LANG) {
+                assoc_menuitem.removeAttribute("disabled");
+            }
+        }
+    } catch(ex) {
+        log.exception(ex);
+    }
+}
+
 function show_selected_changes()
 {
     try {
