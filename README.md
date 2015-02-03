@@ -197,7 +197,7 @@ should be a lot faster as much of the compiled data is cached.
 The easiest way to get started is to use our Docker image, this will basically
 provide you with a Ubuntu 12.04 based build of Komodo.
 
-After cloning the repository simply navigate into {repo}/util/docker and check
+After cloning the repository simply navigate into `{repo}/util/docker` and check
 out `./docklet --help`
 
 To use the docker image you need to of course have Docker installed as well as
