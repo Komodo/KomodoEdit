@@ -42,7 +42,7 @@ import tempfile
 from URIlib import *
 win32 = sys.platform.startswith("win")
 
-from testlib import TestSkipped
+from testlib import TestSkipped, tag
 
 def _koFileSymlinkMatchesOSPath(path, koFile):
     if os.path.islink(path):
@@ -208,6 +208,24 @@ class TestURIParser(unittest.TestCase):
         URI.URI = 'file://///netshare/apps/Komodo/Naming Rules for Tarballs.txt'
         self.assertEqual(URI.URI, 'file://///netshare/apps/Komodo/Naming%20Rules%20for%20Tarballs.txt')
         self.failUnlessSamePath(URI.path, r'\\netshare\apps\Komodo\Naming Rules for Tarballs.txt')
+
+    @tag("bug106180")
+    def test_doubleroot(self):
+        if win32:
+            raise TestSkipped("Not applicable on Windows")
+        URI = URIParser()
+        URI.path = '//home/toddw/file.txt'
+        self.assertEqual(URI.URI, 'file:///home/toddw/file.txt')
+        self.failUnlessSamePath(URI.path, '/home/toddw/file.txt')
+
+    @tag("bug106180")
+    def test_tripleroot(self):
+        if win32:
+            raise TestSkipped("Not applicable on Windows")
+        URI = URIParser()
+        URI.path = '///home/toddw/file.txt'
+        self.assertEqual(URI.URI, 'file:///home/toddw/file.txt')
+        self.failUnlessSamePath(URI.path, '/home/toddw/file.txt')
 
     def test_md5name(self):
         filename = os.path.normpath(os.path.join(tempfile.gettempdir(),'testwrite.py.txt'))

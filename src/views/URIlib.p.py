@@ -388,6 +388,10 @@ class URIParser(object):
                 else:
                     sortaURI = path2
             elif path[0] == '/':       # Absolute Unix path
+                # Fix double-root paths, by collapsing them - bug 106180.
+                path = os.path.normpath(path)
+                if path.startswith("//"):
+                    path = path[1:]
                 sortaURI = "file://" + path
             elif path[1:2] == ':':  # Looks like an absolute Windows path
                 # We allow Windows file paths on Unix, for things like mapped
