@@ -396,7 +396,7 @@
                      intoplevel="true"/>
       <menuitem id="placesContextMenu_editProperties"
                 observes="cmd_editProperties"
-                label="&projectPreferences.label;"
+                label="&filePreferences.label;"
                 intoplevel="true"
                 disableIf="folder"
                 hideIf="project"
