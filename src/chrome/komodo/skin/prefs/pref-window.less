@@ -11,14 +11,24 @@
 
     treechildren::-moz-tree-row
     {
-        height: 30px;
+        height: 26px;
     }
 
     treechildren::-moz-tree-cell-text
     {
-        font-size: 1.1rem;
         font-weight: bold;
         padding-left: 28px;
+    }
+    
+    treechildren::-moz-tree-cell-text(child-row)
+    {
+        padding-left: 8px;
+        font-weight: normal;
+    }
+    
+    treechildren::-moz-tree-twisty(child-row)
+    {
+        margin-left: 5px !important;
     }
 
     treechildren::-moz-tree-cell
