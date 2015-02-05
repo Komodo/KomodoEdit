@@ -641,6 +641,9 @@ module.exports = {
     },
 
     /** ****** Helpers ****** **/
+    
+    scimoz: scimoz,
+    scintilla: scintilla,
 
     /**
      * Convert the given position(s) into the given format, regardless of what
