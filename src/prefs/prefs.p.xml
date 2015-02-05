@@ -752,7 +752,7 @@
        current project, if any. -->
   <boolean id="new_file_add_to_project">1</boolean>
 
-  <string id="editor-scheme">Ocean_Dark</string>
+  <string id="editor-scheme">Tomorrow_Dark</string>
 
   <!-- #if PLATFORM == "darwin" -->
   <!-- Use a different fontQuality setting on the Mac - see bug 99891. -->
