@@ -189,3 +189,29 @@
     }
 
 }
+
+#prefProjectsWindow
+{
+    treecols
+    {
+        height: 0px;
+        overflow: hidden;
+    }
+
+    treechildren::-moz-tree-row
+    {
+        height: 26px;
+    }
+
+    treechildren::-moz-tree-cell-text
+    {
+        font-weight: bold;
+        padding-left: 4px;
+    }
+    
+    treechildren::-moz-tree-cell-text(child-row)
+    {
+        font-weight: normal;
+    }
+    
+}
