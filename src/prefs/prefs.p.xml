@@ -98,8 +98,8 @@
   <boolean id="lintClearOnTextChange">0</boolean>
   <boolean id="colorizing_enabled">1</boolean>
   <boolean id="editUseAlternateFaceType">0</boolean>
-  <!-- editFoldStyle: none, box, plusminus, curvytree, squaretree -->
-  <string id="editFoldStyle">plusminus</string>
+  <!-- editFoldStyle: none, box, plusminus, curvytree, squaretree, arrows -->
+  <string id="editFoldStyle">arrows</string>
   
   <!-- editShowMinimap: whether to show a minimap scrollbar -->
   <boolean id="editShowMinimap">false</boolean>
