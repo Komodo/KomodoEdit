@@ -296,8 +296,11 @@
 
         var panel = elem('panel');
         var search = elem('search');
-
-        let left = window.innerWidth / 2;
+        
+        var bo = document.getElementById('komodo-editor-vbox');
+        bo = bo ? bo.boxObject : document.documentElement.boxObject;
+        
+        var left = bo.x + (bo.width / 2);
         left -= panel.element().width / 2;
         panel.element().openPopup(undefined, undefined, left, 100);
         
