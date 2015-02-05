@@ -6,6 +6,7 @@
  */
 
 @import url("chrome://komodo/skin/_config/window.less");
+@import url("chrome://komodo/skin/_config/panes.less");
 @import url("chrome://komodo/skin/plat/shared/icons_depend.less");
 
 @icon-folder-explore: url("chrome://komodo-places/skin/folder_explore.png");
@@ -146,8 +147,10 @@ undo-button {
   background: transparent !important;
   border: 0 !important;
 }
-#placesSubpanelSplitterHbox {
-  border-top: 1px dashed @panel-border-color;
+#placesSubpanelSplitterHboxBorder {
+  -moz-box-orient: horizontal;
+  height: 1px;
+  background: @widget-splitter-background;
 }
 #placesSubpanelSplitter > grippy {
   background-image: none !important;
