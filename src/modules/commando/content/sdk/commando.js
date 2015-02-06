@@ -721,6 +721,7 @@
         tmpResultElem.parentNode.replaceChild(resultElem.element(), tmpResultElem);
 
         resultElem.element().selectedIndex = 0;
+        resultElem.element().scrollToIndex(0);
 
         if (process) processResults(process);
     }
