@@ -1964,6 +1964,14 @@ def target_pyxpcom(argv=["pyxpcom"]):
         if exists(komodoAppPath):
             copy_cmd = 'cp -r %s %s' % (join(pyxpcom_obj_dir, "dist", "bin", "*"), komodoAppPath)
             _run(copy_cmd, log.info)
+    elif sys.platform.startswith("linux"):
+        # Ensure pyxpcom library is loaded at startup, otherwise Komodo will
+        # fail to load pyxpcom components.
+        dependentlibs_path = join(moz_obj_dir, "dist", "bin", "dependentlibs.list")
+        assert exists(dependentlibs_path)
+        if "libpyxpcom.so" not in file(dependentlibs_path).read():
+            file(dependentlibs_path, "a").write("libpyxpcom.so\n")
+            log.info("pyxpcom: added libpyxpcom.so to dependentlibs.list")
 
     _relocatePyxpcom(config)
 
