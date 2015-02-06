@@ -215,7 +215,7 @@ statusbar#statusbarviewbox
     -moz-appearance: none !important;
     background: @background-statusbar !important;
     background-image: none !important;
-    color: fade(@foreground, 80%) !important;
+    color: fade(@foreground, 60%) !important;
     border: 0 !important;
     border-top: 1px solid @border-statusbar !important;
 
@@ -236,7 +236,7 @@ statusbar#statusbarviewbox
     {
         -moz-appearance: none !important;
         background: transparent;
-        color: fade(@foreground, 80%) !important;
+        color: fade(@foreground, 60%) !important;
         border: 0;
         border-radius: 0 !important;
 
@@ -245,13 +245,17 @@ statusbar#statusbarviewbox
 
         & > label
         {
-            color: fade(@foreground, 80%) !important;
+            color: fade(@foreground, 60%) !important;
         }
 
         &:hover
         {
             background: fade(darken(@_background, 5%), 40%) !important;
-            color: lighten(@foreground, 10%) !important;
+            
+            &, & > label
+            {
+                color: lighten(@foreground, 10%) !important;
+            }
         }
     }
 
@@ -296,4 +300,15 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker
 #breadcrumbBar .breadcrumb .breadcrumb-arrow
 {
     background-image: @icon-hud-crumb-arrow !important;
+}
+
+#commando-search-quick[open]
+{
+    background: @background-primary !important;
+    color: @foreground !important;
+    
+    &[placeholder="true"]
+    {
+        color: fade(@foreground, 50%) !important;
+    }
 }

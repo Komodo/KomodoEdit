@@ -120,6 +120,36 @@
             </vbox>
         </panel>
     </popupset>
+    
+    <hbox id="main-toolboxrow-wrapper">
+        <toolbar id="quickCommando"
+                 align="end"
+                 valign="middle"
+                 kohidden="false"
+                 persist="kohidden"
+                 broadcaster="cmd_viewgotoanything"
+                 insertafter="findToolbar"
+                >
+
+                <label id="commando-search-quick"
+                     tooltiptext="Quickly open/execute files, macros, tools, commands, etc"
+                     placeholder="true"
+                     placeholdervalue="Go To Anything"
+                     value="Go To Anything"
+                     style="min-height: 16px;"/>
+        </toolbar>
+    </hbox>
+    
+    <menupopup id="popup_toolbars">
+        <menuitem label="&gotoAnythingToolbar.label;"
+                  id="menu_viewgotoanything"
+                  observes="cmd_viewgotoanything"
+                  persist="checked"
+                  checked="false"
+                  type="checkbox"
+                  insertafter="menu_viewfindtoolbar"
+                  />
+    </menupopup>
 
     <broadcasterset id="broadcasterset_global">
 
@@ -129,6 +159,21 @@
             key="key_cmd_showCommando"
             desc="&showCommando.desc;"
             autoCheck="false"/>
+        
+        <broadcaster
+            id="cmd_focusQuickCommando"
+            observes="cmd_focusQuickCommando"
+            key="key_cmd_focusQuickCommando"
+            desc="&focusQuickCommando.desc;"
+            autoCheck="false"/>
+        
+        <broadcaster
+            id="cmd_viewgotoanything" key="key_cmd_viewgotoanything"
+            desc="&showHideGotoAnythingToolbar.desc;"
+            autoCheck="false"
+            checked="false"
+            persist="checked"
+            oncommand="ko.commands.doCommandAsync('cmd_viewgotoanything', event)"/>
 
     </broadcasterset>
 
@@ -154,6 +199,12 @@
             key="key_cmd_commandoClearCache"
             oncommand="ko.commands.doCommand('cmd_commandoClearCache', event)"
             desc="&clearCache.desc;"/>
+        
+        <command
+            id="cmd_focusQuickCommando"
+            key="key_cmd_focusQuickCommando"
+            oncommand="ko.commands.doCommand('cmd_focusQuickCommando', event)"
+            desc="&focusQuickCommando.desc;"/>
 
     </commandset>
 

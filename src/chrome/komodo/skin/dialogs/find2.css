@@ -53,3 +53,7 @@ window:not(.mode-replace) #repl-row {
 .collapsed {
     visibility: collapse;
 }
+
+#msg-deck {
+    max-width: 600px;
+}

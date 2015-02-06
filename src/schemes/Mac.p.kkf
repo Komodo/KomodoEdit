@@ -166,7 +166,7 @@ binding cmd_endOfWord  Alt+Right
 binding cmd_wordWrap Meta+Shift+(
 
 binding cmd_scope-combined-toolscmds Meta+Shift+K
-binding cmd_scope-files Meta+Shift+O
+binding cmd_showCommando Meta+Shift+O
 binding cmd_scope-openfiles Meta+<
 
 binding cmd_invokeHyperlink Ctrl+Shift+G

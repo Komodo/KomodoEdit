@@ -24,8 +24,19 @@
         do_cmd_showCommando: function()
         {
             commando().show();
+            commando().search();
         },
-
+        
+        do_cmd_focusQuickCommando: function()
+        {
+            document.getElementById('commando-search-quick').dispatchEvent(new CustomEvent('click'));
+        },
+        
+        do_cmd_viewgotoanything: function()
+        {
+            ko.uilayout.toggleToolbarVisibility('quickCommando');
+        },
+        
         /**
          * Check whether command is supported
          *

@@ -225,7 +225,7 @@ binding cmd_lineTransposeDown  Alt+Down
 binding cmd_goToDefinition Escape .
 
 binding cmd_scope-combined-toolscmds Ctrl+Shift+K
-binding cmd_scope-files Ctrl+Shift+O
+binding cmd_showCommando Ctrl+Shift+O
 binding cmd_scope-openfiles Ctrl+<
 
 binding cmd_invokeHyperlink Ctrl+Shift+G

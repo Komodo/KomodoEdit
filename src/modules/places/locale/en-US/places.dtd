@@ -125,3 +125,5 @@
 <!ENTITY places.multiple_project_view.accesskey "M">
 
 <!ENTITY options.label "Options">
+
+<!ENTITY filePreferences.label "File Preferences">

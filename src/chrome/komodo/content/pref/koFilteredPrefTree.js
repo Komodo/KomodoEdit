@@ -111,9 +111,9 @@ TreeInfoItem.prototype.toString = function() {
     return "{ " + s.join(", ") + " }";
 }
 
-this.buildTree = function(root, key) {
+this.buildTree = function(root, key, isRoot = false) {
     var i, lim, currentList, rootChildren = root.childNodes, isContainer, isOpen, url, item;
-    var treeitem, treerow, treecell, treechildren;
+    var treeitem, treerow, treecell, treechildren, properties;
     if (typeof(key) === "undefined") key = ""; // top-level
     if (!(key in treeItemsByURI)) {
         treeItemsByURI[key] = [];
@@ -132,6 +132,8 @@ this.buildTree = function(root, key) {
                 isOpen = treeitem.getAttribute("open") === "true";
             }
         }
+        properties = treeitem.getAttribute("properties") || "";
+        if ( ! isRoot) properties += " child-row"
         url = treecell.getAttribute("url");
         item = new TreeInfoItem(treeitem.id,
                                 isContainer,
@@ -141,7 +143,7 @@ this.buildTree = function(root, key) {
                                 treecell.getAttribute("label"),
                                 treecell.getAttribute("helptag"),
                                 treeitem.getAttribute("advanced") == "true",
-                                treeitem.getAttribute("properties"));
+                                properties);
         currentList.push(item);
         if (isContainer) {
             if (treeitem.childNodes.length != 2) {
@@ -162,7 +164,7 @@ this.getPrefTreeView = function() {
     setupOpenPrefTreeNodes();
     var rows = treeItemsByURI[""];
     if (!rows || rows.length == 0) {
-        this.buildTree(document.getElementById("panelChildren"), "");
+        this.buildTree(document.getElementById("panelChildren"), "", true);
         rows = treeItemsByURI[""];
         if (!rows || rows.length == 0) {
             throw new Error("No rows for PrefTreeView");

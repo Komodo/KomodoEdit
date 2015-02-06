@@ -199,7 +199,7 @@ binding cmd_selectRectPageUp Alt+Shift+Page_Up
 binding cmd_selectRectPageDown Alt+Shift+Page_Down
 
 binding cmd_scope-combined-toolscmds Ctrl+Shift+K
-binding cmd_scope-files Ctrl+Shift+O
+binding cmd_showCommando Ctrl+Shift+O
 binding cmd_scope-openfiles Ctrl+<
 
 binding cmd_invokeHyperlink Ctrl+Shift+G

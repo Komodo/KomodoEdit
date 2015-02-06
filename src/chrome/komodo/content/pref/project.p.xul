@@ -46,6 +46,8 @@
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 
+<?xml-stylesheet href="less://komodo/skin/prefs/pref-window.less" type="text/css"?>
+
 <window id="prefProjectsWindow"
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"

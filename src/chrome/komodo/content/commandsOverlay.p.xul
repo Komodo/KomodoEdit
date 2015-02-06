@@ -159,13 +159,6 @@
             persist="checked"
             oncommand="ko.commands.doCommandAsync('cmd_viewfindtoolbar', event)"/>
         <broadcaster
-            id="cmd_viewopentoolbar" key="key_cmd_viewopentoolbar"
-            desc="&userInterfaceShowHideOpenToolbar.desc;"
-            autoCheck="false"
-            checked="false"
-            persist="checked"
-            oncommand="ko.commands.doCommandAsync('cmd_viewopentoolbar', event)"/>
-        <broadcaster
             id="cmd_openextmgr"
             desc="&openAddonsDialog.desc;"
             oncommand="ko.launch.openAddonsMgr();"/>

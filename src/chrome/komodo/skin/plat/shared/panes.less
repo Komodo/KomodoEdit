@@ -19,14 +19,15 @@ ko-pane tabpanels
     margin: 0px;
 }
 
-.widget_splitter
+.widget_splitter,
+#placesSubpanelSplitter
 {
     -moz-appearance: none;
     background-image: none;
     background: transparent;
     border: 0;
 
-    &[orient="vertical"] // This splitter is in a vertical pane
+    &[orient="vertical"], // This splitter is in a vertical pane
     {
         margin-top: 3px;
         margin-bottom: 3px;

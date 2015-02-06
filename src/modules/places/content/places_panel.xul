@@ -168,46 +168,49 @@
         resizeafter="farthest"
         ondblclick="ko.places.projects.toggleSubpanel()"
         collapse="after">
-      <hbox id="placesSubpanelSplitterHbox"
-            flex="1"
-            align="center">
-        <!-- Using a deck inside a splitter causes layout problems on Linux,
-             see bug 88126. This is unfortunate, as it makes it near
-             impossible to overlay with another widget.
-          -->
-        <label id="placesSubpanelSplitterProjectLabel">&projects.label;</label>
-        <!-- Note: We intentionally do not use a child 'menupopup' element
-          here because there is some interaction with the containing
-          splitter such that you can't invoke the menu entries, at least
-          on Mac. Using a separate 'popup' outside of the splitter is
-          a workaround. -->
-        <!-- Note #2: this menu comes from popup_project
-             via ko.places.projects.initProjectMRUCogMenu_MPV()
-           -->
-        <spacer flex="1"/>
-        <toolbarbutton id="placesSubpanelToggle"
-            buttonstyle="pictures"
-            oncommand="ko.places.projects.toggleSubpanel()"
-            persist="state"
-            state="collapsed" />
-        <spacer flex="1"/>
-        <toolbarbutton id="placesSubpanelProjectsTools_SPV"
-            buttonstyle="pictures"
-            type="menu"
-            orient="horizontal"
-            class="project-tools-icon"
-            popup="placesSubpanelProjectsToolsPopup_SPV"/>
-        <toolbarbutton id="placesSubpanelProjectsTools_MPV"
-            buttonstyle="pictures"
-            type="menu"
-            tooltiptext="&placesProjectMenu.tooltiptext;"
-            orient="horizontal"
-            class="project-tools-icon"
-            popup="placesSubpanelProjectsToolsPopup_MPV"/>
-            <!-- tooltiptext attr set dynamically in
-            project_places.js._updateSubpanelFromState
+      <vbox flex="1">
+        <hbox id="placesSubpanelSplitterHboxBorder"></hbox>
+        <hbox id="placesSubpanelSplitterHbox"
+              flex="1"
+              align="center">
+          <!-- Using a deck inside a splitter causes layout problems on Linux,
+               see bug 88126. This is unfortunate, as it makes it near
+               impossible to overlay with another widget.
             -->
-      </hbox>
+          <label id="placesSubpanelSplitterProjectLabel">&projects.label;</label>
+          <!-- Note: We intentionally do not use a child 'menupopup' element
+            here because there is some interaction with the containing
+            splitter such that you can't invoke the menu entries, at least
+            on Mac. Using a separate 'popup' outside of the splitter is
+            a workaround. -->
+          <!-- Note #2: this menu comes from popup_project
+               via ko.places.projects.initProjectMRUCogMenu_MPV()
+             -->
+          <spacer flex="1"/>
+          <toolbarbutton id="placesSubpanelToggle"
+              buttonstyle="pictures"
+              oncommand="ko.places.projects.toggleSubpanel()"
+              persist="state"
+              state="collapsed" />
+          <spacer flex="1"/>
+          <toolbarbutton id="placesSubpanelProjectsTools_SPV"
+              buttonstyle="pictures"
+              type="menu"
+              orient="horizontal"
+              class="project-tools-icon"
+              popup="placesSubpanelProjectsToolsPopup_SPV"/>
+          <toolbarbutton id="placesSubpanelProjectsTools_MPV"
+              buttonstyle="pictures"
+              type="menu"
+              tooltiptext="&placesProjectMenu.tooltiptext;"
+              orient="horizontal"
+              class="project-tools-icon"
+              popup="placesSubpanelProjectsToolsPopup_MPV"/>
+              <!-- tooltiptext attr set dynamically in
+              project_places.js._updateSubpanelFromState
+              -->
+        </hbox>
+      </vbox>
     </splitter>
 
     <deck id="placesSubpanelDeck" selectedIndex="0" orient="vertical"
@@ -396,7 +399,7 @@
                      intoplevel="true"/>
       <menuitem id="placesContextMenu_editProperties"
                 observes="cmd_editProperties"
-                label="&projectPreferences.label;"
+                label="&filePreferences.label;"
                 intoplevel="true"
                 disableIf="folder"
                 hideIf="project"
