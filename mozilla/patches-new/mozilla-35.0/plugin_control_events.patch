@@ -7,7 +7,7 @@ these events and thus getting drag/drop working correctly in scintilla/scimoz.
 Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/content/base/src/nsGkAtomList.h
 --- a/content/base/src/nsGkAtomList.h	Mon Sep 24 23:04:32 2012 +0200
 +++ b/content/base/src/nsGkAtomList.h	Wed Nov 07 13:32:23 2012 -0800
-@@ -1949,12 +1949,18 @@
+@@ -1949,12 +1949,19 @@
  GK_ATOM(pixels,     "pixels")
  GK_ATOM(lines,      "lines")
  GK_ATOM(pages,      "pages")
@@ -16,6 +16,7 @@ Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/content/base/src/nsG
  
 +// Komodo additions.
 +GK_ATOM(allowIME, "allowIME")
++GK_ATOM(pluginPaintHack, "pluginPaintHack")
 +GK_ATOM(pluginAllowsFocusEvents, "pluginAllowsFocusEvents")
 +GK_ATOM(pluginHandlesDomEvents, "pluginHandlesDomEvents")
 +GK_ATOM(pluginHandlesDragEvents, "pluginHandlesDragEvents")
