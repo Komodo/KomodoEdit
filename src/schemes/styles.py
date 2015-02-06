@@ -506,7 +506,6 @@ StateMap = {
         'strings': ('SCE_COFFEESCRIPT_STRING',
                     'SCE_COFFEESCRIPT_CHARACTER',
                     'SCE_COFFEESCRIPT_STRINGRAW',
-                    'SCE_COFFEESCRIPT_HASHQUOTEDSTRING',
                     ),
         'keywords': ('SCE_COFFEESCRIPT_WORD',),
         'keywords2': ('SCE_COFFEESCRIPT_WORD2',),
