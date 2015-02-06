@@ -1136,20 +1136,6 @@
                                               checked="true"
                                               type="checkbox"
                                               />
-                                    <menuitem label="&findInFilesToolbar.label;"
-                                              id="menu_viewfindtoolbar"
-                                              observes="cmd_viewfindtoolbar"
-                                              persist="checked"
-                                              checked="true"
-                                              type="checkbox"
-                                              />
-                                    <menuitem label="&openFileToolbar.label;"
-                                              id="menu_viewopentoolbar"
-                                              observes="cmd_viewopentoolbar"
-                                              persist="checked"
-                                              checked="false"
-                                              type="checkbox"
-                                              />
                                     <menuitem label="&macro.label;"
                                               id="menu_viewmacrotoolbar"
                                               observes="cmd_viewmacrotoolbar"
@@ -1162,6 +1148,13 @@
                                               observes="cmd_viewkomodotoolbar"
                                               persist="checked"
                                               checked="false"
+                                              type="checkbox"
+                                              />
+                                    <menuitem label="&findInFilesToolbar.label;"
+                                              id="menu_viewfindtoolbar"
+                                              observes="cmd_viewfindtoolbar"
+                                              persist="checked"
+                                              checked="true"
                                               type="checkbox"
                                               />
                                     <menuseparator id="popup_toolbars_custom_separator"
@@ -2005,44 +1998,6 @@
 
                 </toolbar>
             </toolboxrow>
-
-            <toolbar id="openToolbar"
-                     align="end"
-                     valign="middle"
-                     broadcaster="cmd_viewopentoolbar"
-                     mode="icons"
-                     kohidden="true"
-                     persist="kohidden collapsed buttonstyle mode"
-                     tooltiptext="&openFileToolbar.label;"
-                    >
-                <hbox class="unified-textbox-wrapper">
-
-                    <textbox id="textbox_open"
-                         tooltiptext="&openFile.tooltiptext;"
-                         placeholder="&openFile.placeholder;"
-                         type="autocomplete"
-                         style="min-height: 16px;"
-                         class="search-box-open-icon"
-                         flex="1"
-                         maxrows="10"
-                         size="30"
-                         onfocus="this.searchParam = ko.window.getCwd();
-                                  event.currentTarget.parentNode.classList.add('focus')
-                                  "
-                         onblur="event.currentTarget.parentNode.classList.remove('focus')"
-                         onmousedown="this.searchParam = ko.window.getCwd();"
-                         autocompletesearch="filepath"
-                         autocompletepopup="popupTextboxAutoComplete"
-                         enablehistory="true"
-                         tabscrolling="true"
-                         completeselectedindex="true"
-                         ontextentered="this.focus();
-                                        this.setSelectionRange(this.textLength, this.textLength);"
-                         onkeypress="ko.findtoolbar.openTextboxKeyPress(this, event);"
-                        accesskey="&openLabel.accesskey;"/>
-
-                </hbox>
-            </toolbar>
 
             <toolbar id="findToolbar"
                      align="end"

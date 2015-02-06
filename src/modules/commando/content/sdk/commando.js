@@ -35,7 +35,8 @@
         favourites: null,
         history: [],
         uilayoutTimer: -1,
-        open: false
+        open: false,
+        quickSearch: false
     };
 
     var elems = {
@@ -44,6 +45,8 @@
         subscopeWrap: function() { return $("#commando-subscope-wrap"); },
         results: function() { return $("#commando-results"); },
         search: function() { return $("#commando-search"); },
+        quickSearch: function() { return $("#commando-search-quick"); },
+        quickSearchToolbar: function() { return $("#quickCommando"); },
         scopePopup: function() { return $("commando-scope-menupopup"); },
         scopesSeparator: function() { return $("#scope-separator"); },
         menuItem: function() { return $("#menu_show_commando"); },
@@ -64,6 +67,10 @@
         log.debug('Starting Commando');
         elem('search').on("input", onSearch.bind(this));
         elem('search').on("keydown", onKeyNav.bind(this));
+        elem('quickSearch').on("input", onSearch.bind(this));
+        elem('quickSearch').on("keydown", onKeyNav.bind(this));
+        elem('quickSearch').on("focus", onQuickSearchFocus);
+        elem('quickSearch').on("click", onQuickSearchFocus);
         elem('scope').on("command", onChangeScope.bind(this));
         elem('results').on("keydown", onKeyNav.bind(this));
         elem('results').on("dblclick", onSelectResult.bind(this));
@@ -77,15 +84,21 @@
 
         local.favourites = ko.prefs.getPref('commando_favourites');
 
-        elem('panel').on("popupshown", function()
+        var panel = elem('panel');
+        panel.on("popupshown", function(e)
         {
+            if (e.originalTarget != panel.element()) return;
+            
             local.open = true;
             c.focus();
         });
 
-        elem('panel').on("popuphidden", function()
+        panel.on("popuphidden", function(e)
         {
+            if (e.originalTarget != panel.element()) return;
+            
             local.open = false;
+            elem("quickSearch").removeAttr("open");
         });
 
         window.addEventListener("click", onWindowClick);
@@ -282,13 +295,30 @@
         if ( ! local.open) return;
         var target = e.originalTarget || e.target;
         while((target=target.parentNode) && target !== elem('panel').element() && target.nodeName != "dialog");
-        if ( ! target) c.hide();
+        if ( ! target)
+        {
+            c.hide();
+        }
+    }
+    
+    var onQuickSearchFocus = function(e)
+    {
+        if (local.open) return;
+        
+        elem("quickSearch").attr("open", true);
+        
+        setTimeout(function() {
+            c.show(undefined, true);
+            c.search();
+        }, 100);
     }
 
     /* Public Methods */
-    this.show = function(scope)
+    this.show = function(scope, quickSearch = false)
     {
         log.debug("Showing Commando");
+        
+        local.quickSearch = quickSearch;
 
         var preserve = ko.prefs.getBooleanPref('commando_preserve_query');
         if (scope && (scope != c.getScope().id || ! preserve))
@@ -297,12 +327,28 @@
         var panel = elem('panel');
         var search = elem('search');
         
-        var bo = document.getElementById('komodo-editor-vbox');
-        bo = bo ? bo.boxObject : document.documentElement.boxObject;
+        var left, top;
+        if (local.quickSearch)
+        {
+            var qs = elem('quickSearch').element().boxObject;
+            top = qs.y - 5;
+            left = qs.x + qs.width - panel.element().width + 2;
+            
+            panel.addClass("quick-search");
+        }
+        else
+        {
+            top = 100;
+            var bo = document.getElementById('komodo-editor-vbox');
+            bo = bo ? bo.boxObject : document.documentElement.boxObject;
+            
+            left = bo.x + (bo.width / 2);
+            left -= panel.element().width / 2;
+            
+            panel.removeClass("quick-search");
+        }
         
-        var left = bo.x + (bo.width / 2);
-        left -= panel.element().width / 2;
-        panel.element().openPopup(undefined, undefined, left, 100);
+        panel.element().openPopup(undefined, undefined, left, top);
         
         if (c.execScopeHandler("onShow") === false)
         {
@@ -358,7 +404,25 @@
 
             log.debug("Event: onSearch");
             var searchValue = elem('search').value();
-            if (local.prevSearchValue == searchValue) return;
+            
+            // Update quick search value
+            var preserve = ko.prefs.getBooleanPref('commando_preserve_query');
+            if (preserve && searchValue.length)
+            {
+                log.debug("Store value to quickSearch");
+                elem("quickSearch").attr({
+                    placeholder: "false",
+                    value: searchValue
+                });
+            }
+            else
+            {
+                var quickSearch = elem("quickSearch");
+                quickSearch.attr({
+                    placeholder: "true",
+                    value: quickSearch.attr("placeholdervalue")
+                });
+            }
 
             local.searchingUuid = uuid;
             local.resultCache = [];
@@ -447,6 +511,11 @@
 
         // perform onSearch
         c.execScopeHandler("onExpandSearch", [query, uuid, callback])
+        
+        if ( ! c.execScopeHandler("onExpandSearch", [query, uuid, callback]))
+        {
+            callback();
+        }
     }
 
     this.selectResults = function(selected)
@@ -1082,6 +1151,14 @@
 
     this.tip = function(tipMessage, type = "normal")
     {
+        if ( ! tipMessage && local.quickSearch)
+        {
+            var bindLabel = keybinds.getKeybindingFromCommand("key_cmd_showCommando");
+            
+            if (bindLabel != "")
+                tipMessage = "TIP: Press " + bindLabel + " to quickly Go To Anything.";
+        }
+        
         // todo: Use localized database of tips
         elem("tip").attr("tip-type", type);
         elem("tipDesc").html(tipMessage ||

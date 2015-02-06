@@ -1,9 +1,16 @@
 @import url("chrome://komodo/skin/_config/window.less");
 @import url("chrome://komodo/skin/_config/editor.less");
+@import url("chrome://komodo/skin/_config/toolbars.less");
 
 #commando-panel
 {
     padding: 0;
+    
+    &.quick-search
+    {
+        border-radius-top-left: 4px;
+        border-radius-top-right: 4px;
+    }
 
     #commando-search-wrapper
     {
@@ -53,7 +60,7 @@
             padding-top: 2px;
         }
     }
-
+    
     #commando-tip description
     {
         max-width: 490px;
@@ -238,3 +245,34 @@
     }
 }
 
+#commando-search-quick
+{
+    -moz-appearance: none;
+    padding: 2px;
+    margin: 0;
+    width: 200px;
+    
+    background: @main-toolbox-findtoolbar-background;
+    border-radius: 4px;
+    border: @main-toolbox-findtoolbar-border;
+    box-shadow: @main-toolbox-findtoolbar-shadow;
+    cursor: text;
+    color: @main-toolbox-findtoolbar-color;
+    
+    &[placeholder="true"]
+    {
+        color: rgba(150,150,150,0.8);
+    }
+    
+    &[open]
+    {
+        transition: all 0.1s;
+        border-radius: 0;
+        border: 1px solid rgba(255,255,255,0.0);
+        
+        width: 495px;
+        background-color: @hud-selection-background;
+        color: @hud-selection-foreground;
+    }
+    
+}

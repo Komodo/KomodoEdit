@@ -301,3 +301,14 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker
 {
     background-image: @icon-hud-crumb-arrow !important;
 }
+
+#commando-search-quick[open]
+{
+    background: @background-primary !important;
+    color: @foreground !important;
+    
+    &[placeholder="true"]
+    {
+        color: fade(@foreground, 50%) !important;
+    }
+}
