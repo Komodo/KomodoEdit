@@ -132,7 +132,11 @@
                     </radiogroup>
                 </hbox>
                 <separator class="thin"/>
-                <view id="macrocontents" flex="1" type="buffer"/>
+                <view id="macrocontents"
+                      flex="1"
+                      type="buffer"
+                      pluginPaintHack="true"
+                      />
                 <separator class="thin"/>
                 <checkbox id="async"
                           accesskey="&async.accesskey;"

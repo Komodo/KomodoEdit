@@ -2018,6 +2018,7 @@
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext"
                        anonid="scintilla"
                        allowIME="true"
+                       pluginPaintHack="true"
                        mozcontext="bufferContextMenu"
                        flex="1"/>
         <xul:ko-findbar anonid="findbar"/>
