@@ -65,6 +65,7 @@
                                     style="-moz-box-flex: 1;"
                                     pluginAllowsFocusEvents="false"
                                     pluginHandlesDomEvents="false"
+                                    xbl:inherits="pluginPaintHack"
                                     />
                         <xul:scrollbar orient="vertical" anonid="scrollbar_v" 
                                        can-scroll="false" for="scintilla"/>

@@ -125,7 +125,9 @@
                           onmousedown="scintillaFocus()"
                           onkeyup="updateOK()"
                           onblur="scintillaBlur()"
-                          onfocus="scintillaFocus()"/>
+                          onfocus="scintillaFocus()"
+                          pluginPaintHack="true"
+                          />
                     <vbox>
                     <button type="menu" id="shortcuts-menubutton"
                             tooltiptext="&shortcuts.tooltiptext;" tooltip="dialogTooltip"

@@ -89,7 +89,11 @@
             <textbox id="dialogheader" readonly="true" flex="1"/>
         </hbox>
         <separator />
-        <view type="buffer" id="view" flex="1"/>
+        <view type="buffer"
+              id="view"
+              flex="1"
+              pluginPaintHack="true"
+              />
     </vbox>
 
 </dialog>

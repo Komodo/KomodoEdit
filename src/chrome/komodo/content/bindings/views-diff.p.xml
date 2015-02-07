@@ -96,6 +96,7 @@
             <xul:scintilla anonid="scintilla"
                            xbl:inherits="flex,focused,context,mozcontext"
                            flex="1"
+                           pluginPaintHack="true"
                            mozcontext="bufferContextMenu"/>
             <xul:ko-findbar anonid="findbar"/>
         </xul:notificationbox>
