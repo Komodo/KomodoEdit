@@ -2,10 +2,8 @@
     const log       = require("ko/logging").getLogger("commando-scope-openfiles")
     const commando  = require("commando/commando");
     const {Cc, Ci}  = require("chrome");
-
+    
     const partSvc   = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService);
-    const ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
-    const ioFile    = require("sdk/io/file");
 
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
@@ -23,8 +21,8 @@
         }
         else
         {
-            curPath = ioService.newURI(ko.places.getDirectory(), null, null).path;
-            curPrefix = ioFile.basename(curPath);
+            curPath = ko.uriparse.URIToPath(ko.places.getDirectory());
+            curPrefix = _basename(curPath);
         }
 
         var editorViews = ko.views.manager.getAllViews();
@@ -86,6 +84,13 @@
             'click'
         );
         commando.hideCommando();
+    }
+    
+    var _basename = function(str)
+    {
+        var system  = require("sdk/system");
+        var sep     = system.platform == "winnt" ? "\\" : "/";
+        return str.split(sep).pop();
     }
 
 }).apply(module.exports);
