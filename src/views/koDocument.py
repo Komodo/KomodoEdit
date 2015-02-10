@@ -1931,60 +1931,51 @@ class koDocumentBase(object):
         # likely wants for this file.
         log.info("in _guessFileIndentation")
         useTabs = False
-        usesSpaces = False
         linesChecked = 0
         buffer = self.get_buffer()
 
         # In the first 150 lines of the file, search for the non-blank
         # lines with leading white-space.  Searching farther takes too long.
+        tabcount = 0
+        spacecount = 0
         for line in buffer.splitlines()[:150]:
-            if line[:1] == "\t":
+            if line.startswith("\t"):
                 # If first char is a tab, recognize that and move on
                 linesChecked += 1
-                useTabs = True
-            elif line[:2] == "  ":
+                tabcount += 1
+            elif line.startswith("  "):
                 # If first 2 chars are spaces, recognize that and move on
                 # Require at least two spaces on the line to count it
                 linesChecked += 1
-                usesSpaces = True
+                spacecount += 1
             if linesChecked == 25:
                 # Only check up to 25 lines with indentation
                 break
 
         if linesChecked:
-            log.info("guessed useTabs = %d and usesSpaces = %d",
-                     useTabs, usesSpaces)
+            log.info("guessed useTabs = %r, tabcount %d, spacecount %d",
+                     useTabs, tabcount, spacecount)
             # We found some lines with indentation
-            if useTabs and usesSpaces:
-                # If we found both space and tab indentation, leave the
-                # indentWidth setting as default, fall back to prefs
-                # to decide which to use
-                self._useTabs = self.prefs.getBoolean("useTabs")
-                for v in self._views:
-                    v.scimoz.indent = self.indentWidth
-                    v.scimoz.useTabs = self._useTabs
-            elif useTabs:
+            if tabcount > spacecount:
                 # If only tab indentation was found, set the indentWidth
                 # to the tabWidth, so we essentially always use tabs.
                 self._useTabs = True
-                self._indentWidth = self.tabWidth
-                for v in self._views:
-                    v.scimoz.indent = self.indentWidth
-                    v.scimoz.useTabs = 1
+            elif spacecount and not tabcount:
+                self._useTabs = False
             else:
-                if usesSpaces:
-                    self._useTabs = False
-                else:
-                    # indeterminate, so use global prefs to decide
-                    self._useTabs = self.prefs.getBoolean("useTabs")
-                for v in self._views:
-                    v.scimoz.useTabs = self.useTabs
-
-            if self._indentWidth is None:
+                # indeterminate, so use global prefs to decide
+                self._useTabs = self.prefs.getBoolean("useTabs")
+            if self._useTabs:
+                self._indentWidth = self.tabWidth
+            elif self._indentWidth is None:
                 # Make sure we have a default value here (from prefs)
                 _, value = self._getLangPref(('%lang/indentWidth', 'getLong'),
                                              ('indentWidth', 'getLong'))
                 self._indentWidth = value
+            for v in self._views:
+                v.scimoz.useTabs = self.useTabs
+                v.scimoz.indent = self.indentWidth
+
         else:
             # Lacking better information, fallback to the pref values.
             if self._useTabs is None:

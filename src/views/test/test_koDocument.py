@@ -41,10 +41,20 @@ import unittest
 import tempfile
 from os.path import abspath, dirname, join
 
+from zope.cachedescriptors.property import Lazy as LazyProperty
+
 import eollib
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import WrapObject, UnwrapObject
 
+
+class _FakeScintillaView(object):
+    _com_interfaces_ = [components.interfaces.koIScintillaView]
+    def __init__(self):
+        self.scimoz = components.classes['@activestate.com/ISciMozHeadless;1']. \
+                      createInstance(components.interfaces.ISciMoz)
+    def setFoldStyle(self, val):
+        pass
 
 class _KoDocTestCase(unittest.TestCase):
     """Base class for koIDocument test cases."""
@@ -67,6 +77,9 @@ class _KoDocTestCase(unittest.TestCase):
         koDoc = components.classes["@activestate.com/koDocumentBase;1"] \
             .createInstance(components.interfaces.koIDocument)
         koDoc.initWithFile(koFile, False);
+        koDoc.load()
+        view = _FakeScintillaView()
+        koDoc.addView(view)
         return koDoc
 
     def _koDocUntitled(self):
@@ -728,6 +741,84 @@ class TestKoDocumentBase(_KoDocTestCase):
             prefs.setBooleanPref("ensureFinalEOL",
                                  ensureFinalEOL)
     
+
+class KoDocIndentationDetection(_KoDocTestCase):
+    __tags__ = ["indentation"]
+    
+    @property
+    def data_dir(self):
+        return join(dirname(abspath(__file__)), "indentation_data")
+    
+    def test_basics(self):
+        """Note that this tests code path in koDocument._guessFileIndentation"""
+
+        globalprefs = components.classes["@activestate.com/koPrefService;1"].\
+                      getService(components.interfaces.koIPrefService).prefs
+        defaultUseTabs = globalprefs.getBoolean("useTabs")
+        defaultIndentWidth = globalprefs.getLong("indentWidth")
+        defaultTabWidth = globalprefs.getLong("tabWidth")
+        manifest = [
+            {
+                "name": "empty text",
+                "content": "",
+                "encoding": "utf-8",
+                "useTabs": defaultUseTabs,
+                "indentWidth": defaultIndentWidth,
+                "tabWidth": defaultTabWidth,
+            },
+            # Tab indents == space indents (choose default)
+            {
+                "name": "Tabs equals spaces",
+                "content": "\n\tfoo\n    \n\tbar\n    \n",
+                "encoding": "utf-8",
+                "useTabs": False,
+                "indentWidth": 4,
+                "tabWidth": defaultTabWidth,
+            },
+            # Tab indents > space indents (choose tabs)
+            {
+                "name": "More tabs than spaces",
+                "content": "\n\tfoo\n    \n\tbar\n    \n\t\n",
+                "encoding": "utf-8",
+                "useTabs": True,
+                "indentWidth": defaultTabWidth,
+                "tabWidth": defaultTabWidth,
+            },
+            # Tab indents < space indents (choose spaces)
+            {
+                "name": "Less tabs than spaces",
+                "content": "\n\tfoo\n    bar\n\tbaz\n    meat\n    popsicle\n",
+                "encoding": "utf-8",
+                "useTabs": False,
+                "indentWidth": 4,
+                "tabWidth": defaultTabWidth,
+            },
+            # No tab indents, but space indents (choose spaces)
+            {
+                "name": "Spaces not tabs",
+                "content": "\nokay\n  foo\n  \n  bar\n  baz\n",
+                "encoding": "utf-8",
+                "useTabs": False,
+                "indentWidth": defaultIndentWidth,
+                "tabWidth": defaultTabWidth,
+            },
+        ]
+        for entry in manifest:
+            koDoc = self._koDocUntitled()
+            koDoc.setBufferAndEncoding(entry["content"], entry["encoding"])
+            self.assertEquals(koDoc.useTabs, entry["useTabs"],
+                              "Failed useTabs test for %r" % (entry["name"]))
+            self.assertEquals(koDoc.indentWidth, entry["indentWidth"],
+                              "Failed indentWidth test for %r" % (entry["name"]))
+            self.assertEquals(koDoc.tabWidth, entry["tabWidth"],
+                              "Failed tabWidth test for %r" % (entry["name"]))
+
+    def test_koGoLanguage(self):
+        """Note that this tests code path in koLanguageBase.guessIndentation"""
+        name = "koGoLanguage.py"
+        koDoc = self._koDocFromPath(join(self.data_dir, name))
+        koDoc.load()
+        self.assertEquals(koDoc.useTabs, False)
 
 class TestKoDocumentRemote(_KoDocTestCase):
     def test_differentOnDisk(self):
