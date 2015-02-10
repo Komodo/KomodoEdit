@@ -945,10 +945,21 @@ class KoInitService(object):
             ignoredDirNames = [
                 # Bug 90294: klint is replaced by a builtin extension in 7.0a3
                 # Ensure we don't upgrade the user-profile version of it.
-                "klint@dafizilla.sourceforge.net"
+                "klint@dafizilla.sourceforge.net",
+                # Don't upgrade caches:
+                "Cache",
+                "cache2",
+                "_CACHE_CLEAN_",
+                "crashes",
+                "lessCache",
+                "minidumps",
+                "startupCache",
             ]
             _copy(prevXREDir, currXREDir, overwriteExistingFiles=False,
                   ignoreErrors=True, ignoredDirNames=ignoredDirNames)
+            # Another cache, but name is too common to use in ignoredDirNames.
+            if exists(os.path.join(currXREDir, "icons")):
+                _rmtree(os.path.join(currXREDir, "icons"))
 
     def _upgradeUserDataDirFiles(self):
         """Upgrade files under the USERDATADIR if necessary.
