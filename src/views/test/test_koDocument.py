@@ -66,18 +66,19 @@ class _KoDocTestCase(unittest.TestCase):
                 .getService(components.interfaces.koIFileService)
         return self._fileSvcCache
 
-    def _koDocFromPath(self, path):
+    def _koDocFromPath(self, path, load=True):
         """Return an intialized `KoDocument` instance for the given path."""
         import uriparse
         uri = uriparse.localPathToURI(path)
-        return self._koDocFromURI(uri)
+        return self._koDocFromURI(uri, load=load)
     
-    def _koDocFromURI(self, uri):
+    def _koDocFromURI(self, uri, load=True):
         koFile = self._fileSvc.getFileFromURI(uri)
         koDoc = components.classes["@activestate.com/koDocumentBase;1"] \
             .createInstance(components.interfaces.koIDocument)
-        koDoc.initWithFile(koFile, False);
-        koDoc.load()
+        koDoc.initWithFile(koFile, False)
+        if load:
+            koDoc.load()
         view = _FakeScintillaView()
         koDoc.addView(view)
         return koDoc
@@ -98,7 +99,7 @@ class KoDocInfoDetectionTestCase(_KoDocTestCase):
     
     def test_basic(self):
         for name in ("exists.py", "does not exist.py"):
-            koDoc = self._koDocFromPath(join(self.data_dir, name))
+            koDoc = self._koDocFromPath(join(self.data_dir, name), load=False)
             self.assertEqual(koDoc.language, "Python")
 
     def test_recognize_perl_file(self):
@@ -113,7 +114,7 @@ class KoDocInfoDetectionTestCase(_KoDocTestCase):
         for name, content in manifest:
             path = join(self.data_dir, name)
             _writefile(path, content)
-            koDoc = self._koDocFromPath(path)
+            koDoc = self._koDocFromPath(path, load=False)
             self.assertEqual(koDoc.language, "Perl")
 
     def test_recognize_xbl_file(self):
@@ -162,7 +163,6 @@ use moz bindings with CSS to acheive everything we have here.
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, "XBL")
 
     def test_recognize_html_file(self):
@@ -188,7 +188,6 @@ use moz bindings with CSS to acheive everything we have here.
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, "HTML")
 
     def test_recognize_html5_file(self):
@@ -224,7 +223,6 @@ use moz bindings with CSS to acheive everything we have here.
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, "HTML5")
 
     def test_recognize_django_file(self):
@@ -258,7 +256,6 @@ use moz bindings with CSS to acheive everything we have here.
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, "Django")
 
     def test_recognize_smarty_file_01(self):
@@ -295,7 +292,6 @@ use moz bindings with CSS to acheive everything we have here.
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, "Smarty")
 
     def test_recognize_smarty_file_02(self):
@@ -308,7 +304,6 @@ use moz bindings with CSS to acheive everything we have here.
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, "Smarty")
 
     # bug 98264
@@ -322,7 +317,6 @@ use moz bindings with CSS to acheive everything we have here.
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, "PHP")
 
     def test_recognize_twig_file(self):
@@ -335,7 +329,6 @@ use moz bindings with CSS to acheive everything we have here.
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, "Twig")
 
     def test_recognize_python_file(self):
@@ -362,7 +355,6 @@ except AttributeError, x:
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, "Python")
 
     def test_recognize_python3_file(self):
@@ -380,7 +372,6 @@ print('should be py3')
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, "Python3",
                              "%r found, expected 'Python3', content %r" % (koDoc.language, content))
 
@@ -404,7 +395,6 @@ var x = 'no markers, default js';
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, "JavaScript")
 
     def test_recognize_nodejs_file(self):
@@ -422,7 +412,6 @@ console.log('should be node')
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, "Node.js",
                              "%r found, expected 'Node.js', content %r" % (koDoc.language, content))
 
@@ -456,7 +445,6 @@ console.log(event.name);
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, lang,
                              "%r found, expected %r, content %r" % (koDoc.language, lang, content))
 
@@ -495,7 +483,6 @@ console.log(event.name);
         ]
         for name, existing_line_endings, new_line_endings in data:
             koDoc = self._koDocFromPath(join(self.data_dir, name))
-            koDoc.load()
             self.assertEqual(koDoc.existing_line_endings, existing_line_endings,
                 "unexpected `koDoc.existing_line_endings` value for %r: "
                 "expected %r, got %r" % (
@@ -523,7 +510,6 @@ alert('should be js')
             path = join(self.data_dir, name)
             _writefile(path, content)
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             self.assertEqual(koDoc.language, lang)
             koDoc.language = "Perl"
             self.assertEqual(koDoc.language, "Perl")
@@ -539,13 +525,12 @@ class TestKoDocumentBase(_KoDocTestCase):
         text = "This is a test!"
         path = tempfile.mktemp()
         try:
-            koDoc = self._koDocFromPath(path)
+            koDoc = self._koDocFromPath(path, load=False)
             koDoc.buffer = text
             koDoc.save(0)
             del koDoc
             
             koDoc2 = self._koDocFromPath(path)
-            koDoc2.load()
             assert koDoc2.buffer == text
         finally:
             if os.path.exists(path):
@@ -558,7 +543,6 @@ class TestKoDocumentBase(_KoDocTestCase):
             _writefile(path, "blah\nblah\nblah")
 
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             oldtext = koDoc.buffer
             koDoc.buffer = None
             assert not koDoc.buffer
@@ -575,7 +559,6 @@ class TestKoDocumentBase(_KoDocTestCase):
             _writefile(path, "blah\nblah\nblah")
 
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             assert koDoc.buffer
         finally:
             if os.path.exists(path):
@@ -584,7 +567,6 @@ class TestKoDocumentBase(_KoDocTestCase):
     def test_readURI(self):
         url = 'http://downloads.activestate.com/'
         koDoc = self._koDocFromURI(url)
-        koDoc.load()
         assert koDoc.buffer
 
     def test_differentOnDisk(self):
@@ -594,7 +576,6 @@ class TestKoDocumentBase(_KoDocTestCase):
             _writefile(path, "blah\nblah\nblah\n")
 
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             oldtext = koDoc.buffer
 
             _writefile(path, "blah\nblah\nblah\nblah\n")
@@ -618,7 +599,6 @@ class TestKoDocumentBase(_KoDocTestCase):
             _writefile(path, eol.join(["blah", "blah", "blah"]))
 
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             # Does the document match our platform endings?
             assert koDoc.existing_line_endings == eollib.EOL_PLATFORM
             # test converting to each of our endings
@@ -644,7 +624,7 @@ class TestKoDocumentBase(_KoDocTestCase):
                  "test", "stuff", "charsets", "utf-8_1.html")
         utf_path = os.path.abspath(p)
         assert os.path.isfile(utf_path)
-        koDoc = self._koDocFromPath(utf_path)
+        koDoc = self._koDocFromPath(utf_path, load=False)
         koDoc.prefs.setBooleanPref('encodingAutoDetect', 1)
         koDoc.load()
         # is utf8 identified?
@@ -660,7 +640,7 @@ class TestKoDocumentBase(_KoDocTestCase):
                  "test", "stuff", "charsets", "utf-8_1.html")
         utf_path = os.path.abspath(p)
         assert os.path.isfile(utf_path)
-        koDoc = self._koDocFromPath(utf_path)
+        koDoc = self._koDocFromPath(utf_path, load=False)
         koDoc.prefs.setBooleanPref('encodingAutoDetect',1)
         koDoc.load()
         koDoc.forceEncodingFromEncodingName('latin-1')
@@ -676,7 +656,6 @@ class TestKoDocumentBase(_KoDocTestCase):
             _writefile(path, buffer)
 
             koDoc = self._koDocFromPath(path)
-            koDoc.load()
             assert not koDoc.haveAutoSave()
             
             # test the autosave path
@@ -721,7 +700,7 @@ class TestKoDocumentBase(_KoDocTestCase):
             path = tempfile.mktemp()
             import uriparse
             uri = uriparse.localPathToURI(path)
-            newdocument = self._koDocFromPath(path)
+            newdocument = self._koDocFromPath(path, load=False)
             newdocument.setBufferAndEncoding(koDoc.buffer, koDoc.encoding.python_encoding_name)
             newdocument.language = koDoc.language
             newdocument.save(True)
@@ -817,7 +796,6 @@ class KoDocIndentationDetection(_KoDocTestCase):
         """Note that this tests code path in koLanguageBase.guessIndentation"""
         name = "koGoLanguage.py"
         koDoc = self._koDocFromPath(join(self.data_dir, name))
-        koDoc.load()
         self.assertEquals(koDoc.useTabs, False)
 
 class TestKoDocumentRemote(_KoDocTestCase):
@@ -827,7 +805,7 @@ class TestKoDocumentRemote(_KoDocTestCase):
             # Init the test file with some content.
             _writefile(path, "blah\nblah\nblah\n")
 
-            koDoc = self._koDocFromPath(path)
+            koDoc = self._koDocFromPath(path, load=False)
             # Make it look like a remote file.
             rawFile = UnwrapObject(koDoc.file)
             rawFile.isLocal = 0
