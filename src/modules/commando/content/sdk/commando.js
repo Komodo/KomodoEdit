@@ -353,6 +353,7 @@
         if (c.execScopeHandler("onShow") === false)
         {
             search.element().select();
+            c.tip();
         }
     }
 
@@ -1153,7 +1154,7 @@
     {
         if ( ! tipMessage && local.quickSearch)
         {
-            var bindLabel = keybinds.getKeybindingFromCommand("key_cmd_showCommando");
+            var bindLabel = keybinds.getKeybindFromCommand("cmd_showCommando");
             
             if (bindLabel != "")
                 tipMessage = "TIP: Press " + bindLabel + " to quickly Go To Anything.";
