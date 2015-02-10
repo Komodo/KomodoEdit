@@ -46,6 +46,14 @@ tabs:not(.tabs-bottom) tab
     }
 }
 
+tabbox:not(.native):not(#tabbed-view):not(#variables-tabpanels):not(.tabs-bottom)
+{
+    tab:not([selected="true"]):not(:hover)
+    {
+        background-color: transparent;
+    }
+}
+
 tabs.tabs-bottom tab:first-child
 {
     margin-left: 4px;
@@ -54,4 +62,9 @@ tabs.tabs-bottom tab:first-child
 #workspace_bottom_area tabs tab
 {
     border-top: 0 !important;
+    
+    &:first-child
+    {
+        border-left: 0 !important;
+    }
 }

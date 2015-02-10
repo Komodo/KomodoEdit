@@ -21,9 +21,13 @@ tabbox:not(.native):not(#tabbed-view):not(#variables-tabpanels):not(.tabs-bottom
         border-top: @tab-border;
         padding: 0 4px;
 
-        &:first-child
+        &:hover {
+            border-top: @tab-hover-border-top;
+        }
+    
+        &[selected="true"]
         {
-            border-left: @tab-border;
+            border-top: @tab-selected-border-top;
         }
     }
 }
