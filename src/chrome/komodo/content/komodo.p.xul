@@ -509,6 +509,12 @@
                                               observes="cmd_open"
                                               key="key_open"
                                               />
+                                    <menuitem label="&menuOpenWorkspace.label;"
+                                              id="menu_open_workspace"
+                                              accesskey="&menuWorkspaceOpen.accesskey;" 
+                                              class="menuitem-iconic wordspace_open_icon"
+                                              observes="cmd_openWorkspace"
+                                              />
                                     <menuitem label="&remoteFile.label;"
                                               id="menu_openRemoteFile"
                                               observes="cmd_open_remote"
@@ -619,6 +625,12 @@
                                       observes="cmd_saveAll"
                                       accesskey="&menuSaveAll.accesskey;"
                                       />
+                            
+                            <menuitem label="&menuSaveWorkspace.label;"
+                                      id="menu_save_workspace"
+                                      accesskey="&menuWorkspaceSave.accesskey;" 
+                                      observes="cmd_saveWorkspace"
+                                      />
 
                             <menuseparator id="file_refresh_menuseparator"/>
 
@@ -628,25 +640,6 @@
                                       observes="cmd_refreshStatus"
                                       >
                             </menuitem>
-
-                            <menuseparator id="workspace_menuseparator"/>
-
-                            <menu id="workspace_menu"
-                                  accesskey="&menuWorkspace.accesskey;" 
-                                  label="&menuWorkspace.label;">
-                                <menupopup id="workspace_menupopup">
-                                    <menuitem label="&menuSaveWorkspace.label;" 
-                                              accesskey="&menuWorkspaceSave.accesskey;" 
-                                              id="menu_save_workspace"
-                                              observes="cmd_saveWorkspace"
-                                              />
-                                    <menuitem label="&menuOpenWorkspace.label;"
-                                              accesskey="&menuWorkspaceOpen.accesskey;" 
-                                              id="menu_open_workspace"
-                                              observes="cmd_openWorkspace"
-                                              />
-                                </menupopup>
-                            </menu>
 
                             <menuseparator id="file_print_menuseparator"/>
 

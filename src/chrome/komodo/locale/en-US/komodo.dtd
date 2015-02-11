@@ -473,8 +473,8 @@
 <!ENTITY menuViewToolbarsAutoHide.label "Hide Toolbars">
 <!ENTITY menuWatchThread.accesskey "W">
 <!ENTITY menuWorkspace.accesskey "W">
-<!ENTITY menuWorkspaceSave.accesskey "S">
-<!ENTITY menuWorkspaceOpen.accesskey "O">
+<!ENTITY menuWorkspaceSave.accesskey "W">
+<!ENTITY menuWorkspaceOpen.accesskey "W">
 
 <!ENTITY minimapZoomFontSizeReset.desc "Minimap: Zoom: Reset to Default Size">
 <!ENTITY minimapZoomFontSizeDown.desc "Minimap: Zoom Font Size Down">
@@ -751,9 +751,8 @@
 
 <!ENTITY saveUserWorkspace.desc "Workspace: Save workspace to file.">
 <!ENTITY openUserWorkspace.desc "Workspace: Open workspace from file.">
-<!ENTITY menuWorkspace.label "Workspace">
-<!ENTITY menuSaveWorkspace.label "Save">
-<!ENTITY menuOpenWorkspace.label "Open">
+<!ENTITY menuSaveWorkspace.label "Save Workspace">
+<!ENTITY menuOpenWorkspace.label "Workspace">
 
 <!ENTITY userInterfaceShowHideToolsToolbar.desc "User Interface: Show/Hide Tools Toolbar">
 <!ENTITY userInterfaceShowHideMinimap.desc "User Interface: Show/Hide Editor Minimap">
