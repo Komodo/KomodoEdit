@@ -833,6 +833,9 @@
 <!ENTITY komodoFindToolbarOpen.label "Open">
 <!ENTITY komodoFindToolbarIn.label "In current file">
 <!ENTITY menuHelpCheckForUpdates.accesskey "U">
+    <!-- Quicklaunch -->
+<!ENTITY quicklaunchOpenWorkspace.label "Open Workspace">
+
 
 <!--commented in file commandsOverlay.xul-->
 <!--
@@ -873,3 +876,4 @@
 <!ENTITY importFolderFromFileSystem.label "Import Folder from File System">
 <!ENTITY importPackage.label "Import kpz Package">
 <!ENTITY importPackageFromWeb.label "Import kpz Package From Web">
+

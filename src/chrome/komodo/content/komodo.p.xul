@@ -2164,6 +2164,13 @@
                                         class="popup_mru"
                                         onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('project',0,'popup_mruProjectsQL', true);"/>
                                 </button>
+                                
+                                <!-- Add menupopup elem and Type attr as above -->
+                                <!-- when workspace mru work is done -->
+                                <button label="&quicklaunchOpenWorkspace.label;"
+                                        class="open-workspace-icon"
+                                        oncommand="ko.commands.doCommandAsync('cmd_openWorkspace', event)">
+                                </button>
 
                                 <hbox height="15"/>
 
