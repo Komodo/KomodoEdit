@@ -1019,6 +1019,7 @@
 
   <ordered-preference id="notify_disabled_categories">
     <string>codeintel-verbose</string>
+    <string>codeintel-event</string>
   </ordered-preference>
   
   <long id="notify_max_queue_length">3</long>
