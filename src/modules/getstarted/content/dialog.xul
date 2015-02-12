@@ -111,7 +111,7 @@
                 <description>&whatsNew.description;</description>
                 <button class="button-link"
                         label="&readMore.label;"
-                        href="http://www.activestate.com/komodo-ide/whats-new"/>
+                        href="http://komodoide.com/features/"/>
 
                 <label class="sub-header" id="needHelp" value="&needHelp.label;"/>
                 <description>&needHelp.description;</description>
