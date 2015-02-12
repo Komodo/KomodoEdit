@@ -108,6 +108,10 @@ pref("app.update.showInstalledUI", false);
 //  .. etc ..
 //
 pref("extensions.update.enabled", true);
+// Change add-on auto updating to once every 5 days (default is 1 day), to
+// lessen the community.as.com server load. Note that users can still bypass
+// this by manually checking for updates via the add-on dialog.
+pref("extensions.update.interval", 432000);
 pref("extensions.update.url", "https://komodo.activestate.com/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%");
 // Non-symmetric (not shared by extensions) extension-specific [update] preferences
 pref("extensions.getMoreExtensionsURL", "http://community.activestate.com/addons");
