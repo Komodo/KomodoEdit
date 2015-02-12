@@ -71,7 +71,7 @@
                 <hbox>
                     <button class="button-link list-item"
                             label="&more.label;"
-                            href="http://www.youtube.com/user/ActiveStateSoftware/videos" />
+                            href="http://komodoide.com/screencasts/" />
                 </hbox>
 
                 <!-- INSTALL EXTENSIONS -->
