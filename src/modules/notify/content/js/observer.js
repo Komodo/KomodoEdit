@@ -42,7 +42,7 @@
                 }
                 let severity_array = ["info", "warning", "error"];
                 // "subject" is expected to be a koIStatusMessage object.
-                require("notify/notify").send(subject.summary, subject.category,
+                require("notify/notify").send(subject.summary, subject.category + "-event",
                 {
                     priority: severity_array[subject.severity]
                 });
@@ -61,7 +61,7 @@
                     category = priority;
                 }
                 // "data" is expected to be an error message string.
-                require("notify/notify").send(message, category,
+                require("notify/notify").send(message, category + "-event",
                 {
                     priority: priority,
                 });

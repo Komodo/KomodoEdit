@@ -62,6 +62,8 @@ categories.register("codeintel", { label: "CodeIntel" });
 
 categories.register("codeintel-verbose", { label: "CodeIntel (Verbose)" });
 
+categories.register("codeintel-event", { label: "CodeIntel (Event)" });
+
 categories.register("toolbox", { label: "Toolbox" });
 
 categories.register("tools", { label: "Tools" });
