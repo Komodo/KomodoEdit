@@ -249,7 +249,7 @@ class GitBranch(Branch):
         cmd = ["apply", "--binary", "--reject", "-"]
         proc = self._open(*cmd, stdin=subprocess.PIPE)
         proc.communicate(patch)
-        self._execute("add", "--all", "--", *all_changed_paths)
+        self._execute("add", "-f", "--all", "--", *all_changed_paths)
         if proc.returncode:
             raise IntegrationError("Failed to apply patch")
         return message
