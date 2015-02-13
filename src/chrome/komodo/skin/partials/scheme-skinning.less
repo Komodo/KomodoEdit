@@ -138,8 +138,8 @@
     }
 }
 
-.hud scrollbar,
-scintilla scrollbar
+scintilla[virtualScrollbars="true"] row > scrollbar,
+.skinnedScrollbars
 {
     border: 0;
     background: transparent;
@@ -197,6 +197,15 @@ scintilla scrollbar
     &[orient="horizontal"]
     {
         height: 15px;
+    }
+}
+
+/* Do not skin non-editor scrollbars on OSX when overlay scrollbars are enabled */
+@media all and not (-moz-overlay-scrollbars)
+{
+    .hud scrollbar
+    {
+        .skinnedScrollbars();
     }
 }
 
