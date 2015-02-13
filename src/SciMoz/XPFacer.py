@@ -782,30 +782,18 @@ def generate_cxx_xpcom_method_fragment(feature, file):
         resultline = """
             nsresult rv;
             int32_t result;
+            nsAutoString text;
             if (t.IsVoid()) {
-                nsAutoString text;
+                // Only one argument used, variant should be a string.
                 rv = v->GetAsAString(text);
                 NS_ENSURE_SUCCESS(rv, rv);
-                NS_ConvertUTF16toUTF8 textUtf8(text);
-                result = SendEditor(%(sciApiName)s, textUtf8.Length(),
-                                    reinterpret_cast<long>(textUtf8.get()));
             } else {
-                int32_t signed_length;
-                uint32_t length;
-                rv = v->GetAsInt32(&signed_length);
-                NS_ENSURE_SUCCESS(rv, rv);
-                NS_ConvertUTF16toUTF8 textUtf8(t);
-                if (signed_length >= 0) {
-                    length = static_cast<uint32_t>(signed_length);
-                    if (length > textUtf8.Length()) {
-                        length = textUtf8.Length();
-                    }
-                } else {
-                    length = static_cast<uint32_t>(-1);
-                }
-                result = SendEditor(%(sciApiName)s, length,
-                                    reinterpret_cast<long>(textUtf8.get()));
+                // Two arguments, we only want the string (second argument).
+                text = t;
             }
+            NS_ConvertUTF16toUTF8 textUtf8(text);
+            result = SendEditor(%(sciApiName)s, textUtf8.Length(),
+                                reinterpret_cast<long>(textUtf8.get()));
             #if %(has_return)s
                 *_retval = result;
             #endif /* %(has_return)s */
@@ -1246,10 +1234,6 @@ def generate_npapi_invoke_text_and_length_fragment(feature, file):
               }
               text = NPVARIANT_TO_STRING(args[1]).UTF8Characters;
               length = NPVARIANT_TO_STRING(args[1]).UTF8Length;
-              int32_t signed_length = NPVARIANT_TO_INT32(args[0]);
-              if (signed_length >= 0 && length > (uint32_t)signed_length) {
-                  length = static_cast<uint32_t>(signed_length);
-              }
           }
           int retval = SendEditor(%(messageName)s,
                                   length,

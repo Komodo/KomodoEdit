@@ -50,7 +50,7 @@ import unittest
 from xpcom import components
 from xpcom.server import UnwrapObject
 
-from testlib import TestFailed
+from testlib import tag, TestFailed
 
 class IfaceTestCase(unittest.TestCase):
     def test_scintilla_iface(self):
@@ -192,3 +192,31 @@ class ScintillaHeadless(unittest.TestCase):
             styles = sm.getStyleRange(0, sm.length)
             self.maxDiff = None
             self.assertEqual(expected_styles, styles)
+
+    @tag("bug80493")
+    def test_unicode_replacetarget(self):
+        with SciMozHeadlessContext() as sm:
+            text = """\
+This is a plain ASCII line of text.
+But this one is more styl\xc3\xa9e.
+""".replace('\r', '')
+            # Convert to unicode string.
+            utext = text.decode("utf8")
+            # Add/replace the text using replaceTarget.
+            sm.targetStart = 0
+            sm.targetEnd = 0
+            # Try with byte length argument (length should get ignored).
+            sm.text = ""
+            sm.replaceTarget(len(text), utext)
+            self.assertEqual(sm.text, utext)
+            self.assertEqual(sm.length, len(text))   # byte length!
+            # Try with character length argument (length should get ignored).
+            sm.text = ""
+            sm.replaceTarget(len(utext), utext)
+            self.assertEqual(sm.text, utext)
+            self.assertEqual(sm.length, len(text))   # byte length!
+            # Try with just the string argument.
+            sm.text = ""
+            sm.replaceTarget(utext)
+            self.assertEqual(sm.text, utext)
+            self.assertEqual(sm.length, len(text))   # byte length!
