@@ -48,6 +48,7 @@ from os.path   import join, dirname, abspath
 import unittest
 
 from xpcom import components
+from xpcom.server import UnwrapObject
 
 from testlib import TestFailed
 
@@ -81,77 +82,113 @@ class IfaceTestCase(unittest.TestCase):
                         len(msgs) > 1 and "s" or "", filename))
             raise TestFailed("\n".join(msgs))
 
-if sys.platform.startswith("linux") or sys.platform == "darwin":
-    # Headless SciMoz is only enabled on Linux thus far.
-    class SciMozHeadlessContext(object):
-        def __init__(self):
-            self._sm = components.classes["@activestate.com/ISciMozHeadless;1"]. \
-                            createInstance(components.interfaces.ISciMoz)
-        def __enter__(self):
-            return self._sm
-        def __exit__(self, exc_type, exc_value, traceback):
-            """Mark as closed, so ~SciMoz() doesn't show stderr messages."""
-            try:
-                self._sm.markClosed()
-            except Exception:
-                pass
-            self._sm = None
+class SciMozHeadlessContext(object):
+    def __init__(self):
+        self._sm = components.classes["@activestate.com/ISciMozHeadless;1"]. \
+                        createInstance(components.interfaces.ISciMoz)
+    def __enter__(self):
+        return self._sm
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Mark as closed, so ~SciMoz() doesn't show stderr messages."""
+        try:
+            self._sm.markClosed()
+        except Exception:
+            pass
+        self._sm = None
 
-    class ScintillaHeadless(unittest.TestCase):
-        def test_scintilla_headless(self):
-            with SciMozHeadlessContext() as sm:
-                text = "def foo():\n    pass\n"
-                sm.text = text
-                sm.lexer = sm.SCLEX_PYTHON
-                sm.colourise(0, sm.length)
-                #from binascii import hexlify
-                #print '\n\nsm.text: %r\n' % (sm.text, )
-                from binascii import hexlify
-                styledText = sm.getStyledText(0, sm.length)
-                self.assertEqual(styledText[0::2], text)
-                self.assertEqual(hexlify(styledText[1::2]),
-                                 "0b0b0b"      # 'def'
-                                 "00"          # ' '
-                                 "0b0b0b"      # 'foo'
-                                 "0a0a0a"      # '():'
-                                 "0000000000"  # '\n    '
-                                 "0b0b0b0b"    # 'pass'
-                                 "00"          # '\n'
-                                 )
+class ScintillaHeadless(unittest.TestCase):
+    def test_scintilla_headless(self):
+        with SciMozHeadlessContext() as sm:
+            text = "def foo():\n    pass\n"
+            sm.text = text
+            sm.lexer = sm.SCLEX_PYTHON
+            sm.colourise(0, sm.length)
+            #from binascii import hexlify
+            #print '\n\nsm.text: %r\n' % (sm.text, )
+            from binascii import hexlify
+            styledText = sm.getStyledText(0, sm.length)
+            self.assertEqual(styledText[0::2], text)
+            self.assertEqual(hexlify(styledText[1::2]),
+                             "0b0b0b"      # 'def'
+                             "00"          # ' '
+                             "0b0b0b"      # 'foo'
+                             "0a0a0a"      # '():'
+                             "0000000000"  # '\n    '
+                             "0b0b0b0b"    # 'pass'
+                             "00"          # '\n'
+                             )
 
-        def test_selText(self):
-            with SciMozHeadlessContext() as sm:
-                text = "def foo():\n    pass\n"
-                sm.text = text
+    def test_selText(self):
+        with SciMozHeadlessContext() as sm:
+            text = "def foo():\n    pass\n"
+            sm.text = text
 
-                sm.currentPos = currentPos = 8
-                sm.anchor = anchor = 4
-                self.assertEqual(sm.selText, text[anchor:currentPos])
+            sm.currentPos = currentPos = 8
+            sm.anchor = anchor = 4
+            self.assertEqual(sm.selText, text[anchor:currentPos])
 
-                sm.currentPos = currentPos = 8
-                sm.anchor = anchor = 20
-                self.assertEqual(sm.selText, text[currentPos:anchor])
+            sm.currentPos = currentPos = 8
+            sm.anchor = anchor = 20
+            self.assertEqual(sm.selText, text[currentPos:anchor])
 
-        def test_getStyleRange(self):
-            with SciMozHeadlessContext() as sm:
-                text = "def foo():\n    pass\n"
-                sm.text = text
-                sm.lexer = sm.SCLEX_PYTHON
-                sm.colourise(0, sm.length)
-                expected_styles = (
-                           [0xb] * len('def')  +
-                           [0x0] * len(' ')    +
-                           [0xb] * len('foo')  +
-                           [0xa] * len('():')  +
-                           [0x0] * len('\n')   +
-                           [0x0] * len('    ') +
-                           [0xb] * len('pass') +
-                           [0x0] * len('\n')
-                          )
+    def test_getStyleRange(self):
+        with SciMozHeadlessContext() as sm:
+            text = "def foo():\n    pass\n"
+            sm.text = text
+            sm.lexer = sm.SCLEX_PYTHON
+            sm.colourise(0, sm.length)
+            expected_styles = (
+                       [0xb] * len('def')  +
+                       [0x0] * len(' ')    +
+                       [0xb] * len('foo')  +
+                       [0xa] * len('():')  +
+                       [0x0] * len('\n')   +
+                       [0x0] * len('    ') +
+                       [0xb] * len('pass') +
+                       [0x0] * len('\n')
+                      )
 
-                # Test getStyleRange method.
-                styles = sm.getStyleRange(0, sm.length)
-                self.assertEqual(styles, expected_styles)
-                # Test getStyleRange method with a partial range.
-                styles = sm.getStyleRange(5, 10)
-                self.assertEqual(styles, expected_styles[5:10])
+            # Test getStyleRange method.
+            styles = sm.getStyleRange(0, sm.length)
+            self.assertEqual(styles, expected_styles)
+            # Test getStyleRange method with a partial range.
+            styles = sm.getStyleRange(5, 10)
+            self.assertEqual(styles, expected_styles[5:10])
+
+    def _extractStyles(self, text):
+        text2 = re.sub(r'(\s+)', r'<0>\1', text)
+        parts = re.split(r'<(\d+)>', text2)[1:]
+        styleParts = [int(x) for x in parts[0::2]]
+        textParts = parts[1::2]
+        finalText = "".join(textParts)
+        expected_parts = [[stylePart] * len(textPart)
+                          for (stylePart, textPart)
+                          in zip(styleParts, textParts)]
+        return finalText, reduce(lambda x,y:x + y, expected_parts, [])
+
+    def test_checkCPP11Keywords(self):
+        # bug 101299: verify some of the new C++11 keywords
+        with SciMozHeadlessContext() as sm:
+            text = """\
+<5>thread_local <5>int <11>i <10>= <4>0<10>;
+<5>struct <5>alignas<10>(<4>16<10>) <11>sse_t
+<10>{
+   <5>float <11>sse_data<10>[<4>4<10>];
+   <5>void <11>foo<10>() <5>noexcept<10>(<5>true<10>) <10>{};
+<10>};
+<5>int <11>main <10>{
+  <11>cout <10><< <5>alignof<10>(<11>sse_t<10>);
+<10>}""".replace('\r', '')
+            text, expected_styles = self._extractStyles(text)
+            sm.text = text
+            lexerSvc = (components.classes["@activestate.com/koLanguageRegistryService;1"].
+                getService(components.interfaces.koILanguageRegistryService).
+                getLanguage("C++").
+                getLanguageService(components.interfaces.koILexerLanguageService))
+            lexerSvc.setCurrent(sm)
+            sm.colourise(0, len(sm.text))
+
+            # Test getStyleRange method.
+            styles = sm.getStyleRange(0, sm.length)
+            self.maxDiff = None
+            self.assertEqual(expected_styles, styles)
