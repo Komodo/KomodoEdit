@@ -551,7 +551,11 @@ class PythonTreeEvaluator(TreeEvaluator):
             if module_name.startswith("."):
                 allow_parentdirlib = False
                 # Need a different curdirlib.
-                lookuppath = self.buf.path
+                if libs[0].name == "reldirlib":
+                    lookuppath = libs[0].dirs[0]
+                    module_name = module_name[1:]
+                else:
+                    lookuppath = self.buf.path
                 while module_name.startswith("."):
                     lookuppath = dirname(lookuppath)
                     module_name = module_name[1:]
