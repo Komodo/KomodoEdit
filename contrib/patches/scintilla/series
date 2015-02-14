@@ -2,6 +2,7 @@ bug96667a_unicode_lexer.patch
 bug97299_set_line_state_no_notify.patch
 cocoa_background_color.patch
 cocoa_core_animation.patch
+cocoa_crash_on_calltip_close.patch
 cocoa_cursor.patch
 cocoa_marginclick.patch
 cocoa_margin_draw_recursion.patch

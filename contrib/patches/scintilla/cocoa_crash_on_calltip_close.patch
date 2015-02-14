@@ -1,0 +1,27 @@
+On OS X, Komodo was crashing when a Scintilla calltip was closed - bug 106239.
+We work around this issue by calling close() (instead of release) on the calltip
+window instance.
+
+Note that the window instance should still get cleaned up, as the NSWindow has a
+releasedWhenClosed property set to TRUE by default, which is meant to ensure the
+window is later released after it's been closed.
+Index: /as/komodo-devel/src/scintilla/cocoa/PlatCocoa.mm
+--- cocoa/PlatCocoa.mm
++++ cocoa/PlatCocoa.mm
+@@ -1116,11 +1116,15 @@
+   {
+     id idWin = reinterpret_cast<id>(wid);
+     if ([idWin isKindOfClass: [NSWindow class]])
+     {
+       NSWindow* win = reinterpret_cast<NSWindow*>(idWin);
+-      [win release];
++      // KOMODO: Don't release the Window yet, just close it to avoid calltip
++      //         close crash - bug 105699.
++      //[win release];
++      [win close];
++      // KOMODO
+     }
+   }
+   wid = 0;
+ }
+ 
