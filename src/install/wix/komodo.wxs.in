@@ -49,7 +49,7 @@
       Description="$(var.ProductName)"
       Comments="Komodo is a registered trademark of ActiveState Software Inc."
       Manufacturer="ActiveState Software Inc."
-      InstallerVersion="450" Languages="1033" Compressed="yes"
+      InstallerVersion="405" Languages="1033" Compressed="yes"
       SummaryCodepage="1252" />
 
     <Media Id="1" Cabinet="media.cab" EmbedCab="yes" DiskPrompt="XXX" />
