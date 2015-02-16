@@ -88,6 +88,11 @@
         panel.on("popupshown", function(e)
         {
             if (e.originalTarget != panel.element()) return;
+
+            // Sometimes Commando gets a height attribute set on it (externally)
+            // Work around this by removing it on show, least until we find the
+            // cause of the issue - https://bugs.activestate.com/show_bug.cgi?id=106266
+            panel.removeAttr("height");
             
             local.open = true;
             c.focus();
