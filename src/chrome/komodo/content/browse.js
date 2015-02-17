@@ -305,9 +305,14 @@ function getKomodoBugzillaQueryParams() {
 }
 
 // XXX move these to a properties file or prefs.js
+// XXX add links in HELP menu for:
+//   -home
+//   -aspn
 var tag2uri = {
-    'mailLists': "http://aspn.activestate.com/ASPN/Mail/Browse/Threaded/komodo-discuss",
-    'community': "http://community.activestate.com/products/Komodo",
+    'mailLists': "http://code.activestate.com/lists/komodo-discuss/",
+    'home': "http://komodoide.com/",  // this one
+    'aspn': "http://code.activestate.com/", // This one
+    'community': "http://forum.komodoide.com/",
     'contactus': "http://www.activestate.com/company/contact-us"
 };
 // Defines a lazy getter for "bugs" uri.
