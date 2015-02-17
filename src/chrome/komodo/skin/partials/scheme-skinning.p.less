@@ -200,14 +200,13 @@ scintilla[virtualScrollbars="true"] row > scrollbar,
     }
 }
 
-/* Do not skin non-editor scrollbars on OSX when overlay scrollbars are enabled */
-@media all and not (-moz-overlay-scrollbars)
+/* Do not skin non-editor scrollbars on OSX */
+/* #if PLATFORM != "darwin" */
+.hud scrollbar
 {
-    .hud scrollbar
-    {
-        .skinnedScrollbars();
-    }
+    .skinnedScrollbars();
 }
+/* #endif */
 
 /* Statusbar */
 

@@ -119,6 +119,7 @@ $cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/shared/",
 $cons->InstallInChrome('iconset/config.less');
 $cons->InstallInChrome('iconset/rules.less');
 
+$cons->Preprocess('partials/scheme-skinning.p.less', 'partials/scheme-skinning.less');
 $cons->InstallInChrome('partials/scheme-skinning.less');
 
 $cons->InstallInChrome('filters.svg');

@@ -1,0 +1,34 @@
+.hud scrollbar
+{
+    border: 0;
+    background: transparent;
+
+    slider
+    {
+        -moz-appearance: none;
+        border: 0;
+        background: fade(@hud-background, 100%);
+    }
+
+    thumb
+    {
+        -moz-appearance: none;
+        background: darken(@hud-background, 5%);
+        border: 0;
+    }
+
+    thumb:hover
+    {
+        -moz-appearance: none;
+        background: darken(@hud-background, 10%);
+    }
+
+    &:hover
+    {
+        slider
+        {
+            -moz-appearance: none;
+            background: darken(fade(@hud-background, 100%), 2%);
+        }
+    }
+}
