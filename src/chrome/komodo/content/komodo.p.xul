@@ -1584,7 +1584,7 @@
                             <menuitem
                                 id="menu_tryKomodoIDE"
                                 label="&tryKomodoIDE.label;"
-                                oncommand="ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/komodo/downloads/');"
+                                oncommand="ko.browse.openUrlInDefaultBrowser('http://komodoide.com/download/');"
                             />
                             <menuseparator id="support_separator"/>
                             <menu
