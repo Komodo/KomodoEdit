@@ -12,7 +12,7 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
     <menupopup id="koSkin_custom_icons_menupopup">
-        <menuitem id="pref_appearance_iconset_ambiance"
+        <menuitem id="pref_appearance_iconset_yosemite"
                   label="&iconsetYosemite.label;"
                   value="chrome://iconset-yosemite/content/manifest/chrome.manifest"
                   />
