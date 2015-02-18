@@ -51,7 +51,7 @@
                          pref="true"
                          id="commando_result_render_delay"
                          preftype="long"
-                         prefdefault="50"
+                         prefdefault="100"
                          tooltiptext="Groups multiple results together in the given timeframe and renders them together"/>
             </hbox>
             <spacer/>

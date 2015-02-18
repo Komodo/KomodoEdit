@@ -737,7 +737,7 @@
         {
             this.renderResults(local.resultCache, searchUuid, true);
             local.resultCache = [];
-        }.bind(this), ko.prefs.getLong("commando_result_render_delay", 50));
+        }.bind(this), ko.prefs.getLong("commando_result_render_delay", 100));
     }
 
     this.renderResults = function(results, searchUuid, cacheOrigin)
