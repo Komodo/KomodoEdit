@@ -2735,6 +2735,8 @@ this.gotoLine_onkeypress_handler = function ko_views_gotoLine_onkeypress_handler
     gotoLinePanel.hidePopup();
 
     var view = ko.views.manager.currentView;
+    ko.history.note_curr_loc(view);
+    
     var scimoz = view.scintilla.scimoz;
     var currentPos = scimoz.currentPos;
     var currentColumn = scimoz.getColumn(currentPos);
