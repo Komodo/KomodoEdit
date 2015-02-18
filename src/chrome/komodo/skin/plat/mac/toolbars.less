@@ -17,6 +17,20 @@
         &:-moz-window-inactive {
             border-color: @main-toolbox-button-border-color-inactive;
         }
+
+        /* First button in group */
+        &.first-child
+        {
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+        }
+
+        /* Last button in group */
+        &.last-child
+        {
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+        }
     }
 
     & > hbox
