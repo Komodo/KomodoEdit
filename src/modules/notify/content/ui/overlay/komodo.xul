@@ -30,9 +30,11 @@
                     {{?it.icon}}
                         <image class="icon" src="{{=it.icon}}?preset=hud"></image>
                     {{?}}
-                    <description class="description">
-                        {{=it.message}}
-                    </description>
+                    <vbox> <!-- Description max-width is not respected unless its in a vbox -->
+                        <description class="description">
+                            {{=it.message}}
+                        </description>
+                    </vbox>
                     {{?it.undo}}
                         <button class="undo button-plain"/>
                     {{?}}
