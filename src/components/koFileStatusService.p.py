@@ -127,10 +127,16 @@ class KoFileStatusService:
 
     monitoredFileNotifications = ("file_update_now", "file_status_now")
 
+    IDLE_TIMEOUT_SECS = 5 * 60  # 5 minutes (in seconds)
+    # Whether the user is currently idle.
+    _is_idle = False
+
     def __init__(self):
         #print "file status created"
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
+        self._idleSvc = components.classes["@mozilla.org/widget/idleservice;1"].\
+            getService(components.interfaces.nsIIdleService)
         self._fileSvc = \
             components.classes["@activestate.com/koFileService;1"] \
             .getService(components.interfaces.koIFileService)
@@ -164,6 +170,8 @@ class KoFileStatusService:
         for notification in self.monitoredFileNotifications:
             self._observerSvc.addObserver(self, notification, 0)
         self._observerSvc.addObserver(self, 'xpcom-shutdown', False)
+
+        self._idleSvc.addIdleObserver(self, self.IDLE_TIMEOUT_SECS)
 
         # Add file status checker services
         self.addFileStatusChecker(KoDiskFileChecker())
@@ -282,7 +290,18 @@ class KoFileStatusService:
                 log.debug("file status got xpcom-shutdown, unloading")
                 self.unload()
                 return
-    
+            if topic in ('idle', 'idle-daily'):
+                log.warn("Idle - take a break kid")
+                self._is_idle = True
+                return
+            if topic in ('active', 'back'):
+                log.warn("Get back to work")
+                self._is_idle = False
+                self._cv.acquire()
+                self._cv.notify()
+                self._cv.release()
+                return
+
             # These are other possible topics, they just force the
             # file status service to update itself immediately
             #elif topic == "file_changed":
@@ -338,6 +357,8 @@ class KoFileStatusService:
     
         for notification in self.monitoredFileNotifications:
             self._removeObserver(notification)
+
+        self._idleSvc.removeIdleObserver(self, self.IDLE_TIMEOUT_SECS)
 
     def updateStatusForAllFiles(self, updateReason):
         self._cv.acquire()
@@ -415,7 +436,8 @@ class KoFileStatusService:
                     if not self._items_to_check and \
                        self._updateReason == self.REASON_BACKGROUND_CHECK and \
                        time_till_next_run > 0:
-                        self._cv.wait(time_till_next_run)
+                        # When idle, use None as wait period, else time_till_next_run.
+                        self._cv.wait(None if self._is_idle else time_till_next_run)
                     items_to_check = list(self._items_to_check)
                     self._items_to_check = set()
                     updateReason = self._updateReason
