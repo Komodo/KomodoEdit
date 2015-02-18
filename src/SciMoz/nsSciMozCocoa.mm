@@ -262,7 +262,7 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
       fprintf(stderr, "    creating new scintilla view\n");
 #endif
       NSRect winRect = NSMakeRect(0, 0, 200, 200); /* temporary size */
-      ScintillaView *scView = [[ScintillaView alloc] initWithFrame:winRect];
+      ScintillaView *scView = [[[ScintillaView alloc] initWithFrame:winRect] autorelease];
       wEditor = [scView retain];
       scintilla = [scView backend];
 #ifdef XP_MACOSX_USE_CORE_ANIMATION
