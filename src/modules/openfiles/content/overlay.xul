@@ -132,7 +132,7 @@
             id="menu_toggleTabBar"
             label="&viewEditorTabs.label;"
             observes="cmd_toggleTabBar"
-            insertbefore="menu_toggleMenubar"
+            position="1"
             tooltiptext="&viewEditorTabs.tooltip;"/>
     </menupopup>
 </overlay>
