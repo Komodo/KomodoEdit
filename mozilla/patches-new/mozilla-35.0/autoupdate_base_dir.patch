@@ -32,6 +32,27 @@ index 74bb1ec..c1469cf 100644
  #ifdef XP_WIN
    bool useService = false;
    bool testOnlyFallbackKeyExists = false;
--- 
-1.7.9.5
+@@ -2332,10 +2539,23 @@
+   slash = NS_tstrrchr(gWorkingDirPath, NS_SLASH);
+   if (slash && !slash[1]) {
+     *slash = NS_T('\0');
+   }
+
++#ifndef XP_MACOSX
++  // XXX ActiveState change: use the root of the app dir (strip
++  // "lib/mozilla")
++  slash = NS_tstrrchr(gWorkingDirPath, NS_SLASH);
++  if (slash) {
++    *slash = NS_T('\0');
++  }
++  slash = NS_tstrrchr(gWorkingDirPath, NS_SLASH);
++  if (slash) {
++    *slash = NS_T('\0');
++  }
++#endif /* XP_MACOSX */
++
+   if (getenv("MOZ_OS_UPDATE")) {
+     sIsOSUpdate = true;
+     putenv(const_cast<char*>("MOZ_OS_UPDATE="));
+   }
 
