@@ -184,7 +184,11 @@ ko.windowManager = {
             do {
                 var openWindow = openWindows.getNext();
                 if (openWindow && openWindow != window) {
-                    if (parent && parent != openWindow.parent) continue;
+                    if (parent &&
+                        // Skip if isn't a child or it is itself 
+                        (parent !== openWindow.parent || parent === openWindow)){
+                        continue;
+                    }
                     openWindow.close();
                     if (!openWindow.closed) {
                         return false;
@@ -195,14 +199,6 @@ ko.windowManager = {
             log.exception(e);
         }
         return true;
-    },
-    
-    /**
-     * Close children of the current main Komodo window.
-     */
-    closeChildren: function() {
-        var me = this.getMainWindow();
-        return this.closeAll(me);
     },
 
     otherWindowHasViewForURI: function(uri) {
