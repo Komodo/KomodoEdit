@@ -183,15 +183,6 @@ Editor::Editor() {
 	convertPastes = true;
 
 	SetRepresentations();
-	
-	// XXX ActiveState prevent minimap selection-claiming (bug 97956)
-	rejectSelectionClaim = false;
-
-	// ActiveState suppress drag/drop when in minimap (bug 97159)
-	suppressDragDrop = false;
-
-	// ActiveState hook cmd-scroll-wheel zooming pref (bug 98938)
-	suppressZoomOnScrollWheel = false;
 }
 
 Editor::~Editor() {
@@ -726,11 +717,6 @@ bool Editor::SelectionContainsProtected() {
 /**
  * Asks document to find a good position and then moves out of any invisible positions.
  */
-// ACTIVESTATE
-int Editor::GetBytePositionForCharOffset(int bytePos, int charOffset, bool checkLineEnd) {
-	return pdoc->GetBytePositionForCharOffset(bytePos, charOffset, checkLineEnd);
-}
-
 int Editor::MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd) const {
 	return MovePositionOutsideChar(SelectionPosition(pos), moveDir, checkLineEnd).Position();
 }
@@ -760,10 +746,6 @@ SelectionPosition Editor::MovePositionOutsideChar(SelectionPosition pos, int mov
 int Editor::MovePositionTo(SelectionPosition newPos, Selection::selTypes selt, bool ensureVisible) {
 	bool simpleCaret = (sel.Count() == 1) && sel.Empty();
 	SelectionPosition spCaret = sel.Last();
-	
-	if (sel.enforceRectangular) {
-		selt = Selection::selRectangle;
-	}
 
 	int delta = newPos.Position() - sel.MainCaret();
 	newPos = ClampPositionIntoDocument(newPos);
@@ -2160,7 +2142,7 @@ void Editor::DelCharBack(bool allowLineStartDeletion) {
 	RefreshStyleData();
 	if (!sel.IsRectangular())
 		FilterSelections();
-	if (sel.IsRectangular() || sel.Count() > 1)
+	if (sel.IsRectangular())
 		allowLineStartDeletion = false;
 	UndoGroup ug(pdoc, (sel.Count() > 1) || !sel.Empty());
 	if (sel.Empty()) {
@@ -2964,9 +2946,6 @@ void Editor::NewLine() {
 }
 
 void Editor::CursorUpOrDown(int direction, Selection::selTypes selt) {
-	if (sel.enforceRectangular) {
-		selt = Selection::selRectangle;
-	}
 	SelectionPosition caretToUse = sel.Range(sel.Main()).caret;
 	if (sel.IsRectangular()) {
 		if (selt ==  Selection::noSel) {
@@ -3022,9 +3001,6 @@ void Editor::CursorUpOrDown(int direction, Selection::selTypes selt) {
 }
 
 void Editor::ParaUpOrDown(int direction, Selection::selTypes selt) {
-	if (sel.enforceRectangular) {
-		selt = Selection::selRectangle;
-	}
 	int lineDoc, savedPos = sel.MainCaret();
 	do {
 		MovePositionTo(SelectionPosition(direction > 0 ? pdoc->ParaDown(sel.MainCaret()) : pdoc->ParaUp(sel.MainCaret())), selt);
@@ -3916,10 +3892,6 @@ void Editor::StartDrag() {
 
 void Editor::DropAt(SelectionPosition position, const char *value, size_t lengthValue, bool moving, bool rectangular) {
 	//Platform::DebugPrintf("DropAt %d %d\n", inDragDrop, position);
-	if (suppressDragDrop) {
-		return; // bug 97159
-	}
-
 	if (inDragDrop == ddDragging)
 		dropWentOutside = false;
 
@@ -4049,31 +4021,19 @@ void Editor::TrimAndSetSelection(int currentPos_, int anchor_) {
 	SetSelection(currentPos_, anchor_);
 }
 
-static int nextVisibleLine(int lineNo, ContractionState& cs) {
-	return cs.DocFromDisplay(cs.DisplayFromDoc(lineNo) + 1);
-}
-
 void Editor::LineSelection(int lineCurrentPos_, int lineAnchorPos_, bool wholeLine) {
 	int selCurrentPos, selAnchorPos;
 	if (wholeLine) {
 		int lineCurrent_ = pdoc->LineFromPosition(lineCurrentPos_);
 		int lineAnchor_ = pdoc->LineFromPosition(lineAnchorPos_);
-		int nextLineNo;
 		if (lineAnchorPos_ < lineCurrentPos_) {
-			nextLineNo = nextVisibleLine(lineCurrent_, cs);
-			selCurrentPos = pdoc->LineStart(nextLineNo);
+			selCurrentPos = pdoc->LineStart(lineCurrent_ + 1);
 			selAnchorPos = pdoc->LineStart(lineAnchor_);
 		} else if (lineAnchorPos_ > lineCurrentPos_) {
-			nextLineNo = nextVisibleLine(lineAnchor_, cs);
 			selCurrentPos = pdoc->LineStart(lineCurrent_);
-			selAnchorPos = pdoc->LineStart(nextLineNo);
+			selAnchorPos = pdoc->LineStart(lineAnchor_ + 1);
 		} else { // Same line, select it
-			nextLineNo = nextVisibleLine(lineAnchor_, cs);
-			if (nextLineNo <= lineAnchor_ && lineAnchor_ < pdoc->LinesTotal()) {
-				// Bug 98494 -- Make sure we advance with wrapped lines.
-				nextLineNo = lineAnchor_ + 1;
-			}
-			selCurrentPos = pdoc->LineStart(nextLineNo);
+			selCurrentPos = pdoc->LineStart(lineAnchor_ + 1);
 			selAnchorPos = pdoc->LineStart(lineAnchor_);
 		}
 	} else {
@@ -4388,7 +4348,7 @@ void Editor::ButtonMoveWithModifiers(Point pt, int modifiers) {
 	movePos = MovePositionOutsideChar(movePos, sel.MainCaret() - movePos.Position());
 
 	if (inDragDrop == ddInitial) {
-		if (!suppressDragDrop && DragThreshold(ptMouseLast, pt)) {
+		if (DragThreshold(ptMouseLast, pt)) {
 			SetMouseCapture(false);
 			if (FineTickerAvailable()) {
 				FineTickerCancel(tickScroll);
@@ -7094,27 +7054,22 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 			case SC_SEL_STREAM:
 				sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selStream));
 				sel.selType = Selection::selStream;
-				sel.enforceRectangular = false;
 				break;
 			case SC_SEL_RECTANGLE:
 				sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selRectangle));
 				sel.selType = Selection::selRectangle;
-				sel.enforceRectangular = true;
 				break;
 			case SC_SEL_LINES:
 				sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selLines));
 				sel.selType = Selection::selLines;
-				sel.enforceRectangular = false;
 				break;
 			case SC_SEL_THIN:
 				sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selThin));
 				sel.selType = Selection::selThin;
-				sel.enforceRectangular = false;
 				break;
 			default:
 				sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selStream));
 				sel.selType = Selection::selStream;
-				sel.enforceRectangular = false;
 			}
 			InvalidateSelection(sel.RangeMain(), true);
 			break;
@@ -7256,52 +7211,6 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 		vs.hotspotSingleLine = wParam != 0;
 		InvalidateStyleRedraw();
 		break;
-	
-	// ACTIVESTATE Komodo-only function.
-	case SCI_POSITIONATCHAR:
-		// The 'false' is to ensure CRLF is treated at _two_ chars
-		// instead of one, as MovePositionOutsideChar (the underlying
-		// function) would otherwise do. (E.g., for the find system
-		// which must treat CRLF as two characters).
-		return pdoc->GetBytePositionForCharOffset(wParam, lParam, false);
-
-	case SCI_POSITIONATCOLUMN:
-		return pdoc->FindColumn(wParam, lParam);
-
-	case SCI_SETDRAGPOSITION:
-		SetDragPosition(SelectionPosition(wParam));
-		break;
-
-	case SCI_GETDRAGPOSITION:
-		return posDrag.Position();
-
-	case SCI_STOPTIMERS: // This patch from stop_timers.patch
-		SetTicking(false);
-		SetIdle(false);
-		break;
-
-	case SCI_SETREJECTSELECTIONCLAIM: // bug 97956
-		rejectSelectionClaim = wParam;
-		break;
-
-	case SCI_GETREJECTSELECTIONCLAIM: //  bug 97956
-		return rejectSelectionClaim;
-
-	case SCI_SETSUPPRESSDRAGDROP: // bug 97159
-		suppressDragDrop = wParam;
-		break;
-
-	case SCI_GETSUPPRESSDRAGDROP: //  bug 97159
-		return suppressDragDrop;
-
-	case SCI_SETSUPPRESSZOOMONSCROLLWHEEL: // bug 98938
-		suppressZoomOnScrollWheel = wParam;
-		break;
-
-	case SCI_GETSUPPRESSZOOMONSCROLLWHEEL: //  bug 98938
-		return suppressZoomOnScrollWheel;
-
-	// END ACTIVESTATE
 
 	case SCI_GETHOTSPOTSINGLELINE:
 		return vs.hotspotSingleLine ? 1 : 0;
