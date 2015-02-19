@@ -958,7 +958,7 @@ class KoInitService(object):
             _copy(prevXREDir, currXREDir, overwriteExistingFiles=False,
                   ignoreErrors=True, ignoredDirNames=ignoredDirNames)
             # Another cache, but name is too common to use in ignoredDirNames.
-            if exists(os.path.join(currXREDir, "icons")):
+            if os.path.exists(os.path.join(currXREDir, "icons")):
                 _rmtree(os.path.join(currXREDir, "icons"))
 
     def _upgradeUserDataDirFiles(self):
