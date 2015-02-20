@@ -12,6 +12,7 @@ cocoa_ScintillaCocoa_h.patch
 cocoa_ScintillaCocoa_mm.patch
 cocoa_ScintillaView_mm.patch
 cocoa_scrollbar_notifications.patch
+cocoa_stop_setidle.patch
 custom_scrollbars.patch
 editor_background2.patch
 editor_cxx.patch
