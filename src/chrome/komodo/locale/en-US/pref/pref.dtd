@@ -925,6 +925,12 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY indicAlpha.label "Alpha (0&#8211;256):">
 <!ENTITY indicColor.label "Color:">
 <!ENTITY indicDrawUnderneath.label "Draw indicator underneath the text">
+<!ENTITY label.4 "4">
+<!ENTITY label.5 "5">
+<!ENTITY label.6 "6">
+<!ENTITY label.7 "7">
+<!ENTITY label.8 "8">
+<!ENTITY label.9 "9">
 <!ENTITY label.10 "10">
 <!ENTITY label.11 "11">
 <!ENTITY label.12 "12">
@@ -948,7 +954,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY label.74 "7.4">
 <!ENTITY label.75 "7.5">
 <!ENTITY label.76 "7.6">
-<!ENTITY label.8 "8">
 <!ENTITY label.80 "8.0">
 <!ENTITY label.81 "8.1">
 <!ENTITY label.82 "8.2">
@@ -956,4 +961,3 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY label.84 "8.4">
 <!ENTITY label.85 "8.5">
 <!ENTITY label.86 "8.6">
-<!ENTITY label.9 "9">
