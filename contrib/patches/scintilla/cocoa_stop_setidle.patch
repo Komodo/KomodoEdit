@@ -1,3 +1,5 @@
+Stop calls to SetIdle and don't start the timer. This fixes crash on cocoa,
+see bug 106242.
 Index: /Users/toddw/as/komodo-devel_play/contrib/scintilla/cocoa/ScintillaCocoa.mm
 index 5f5d68b..b4c54da 100644
 --- cocoa/ScintillaCocoa.mm
