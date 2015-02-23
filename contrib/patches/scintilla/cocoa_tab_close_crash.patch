@@ -1,0 +1,53 @@
+Stop calls to SetIdle and don't start the timer. This fixes crash on cocoa,
+see bug 106242.
+Index: /Users/toddw/as/komodo-devel_play/contrib/scintilla/cocoa/ScintillaCocoa.mm
+index 5f5d68b..b4c54da 100644
+--- cocoa/ScintillaCocoa.mm
++++ cocoa/ScintillaCocoa.mm
+@@ -946,6 +946,9 @@ void ScintillaCocoa::FineTickerCancel(TickReason reason)
+ 
+ bool ScintillaCocoa::SetIdle(bool on)
+ {
++  // KOMODO: Don't use idle timer - it's not needed and can cause a Komodo crash.
++  return false;
++
+   if (idler.state != on)
+   {
+     idler.state = on;
+Index: /Users/nathanrijksen/Projects/komodo-dev/contrib/scintilla/src/Editor.cxx
+--- src/Editor.cxx
++++ src/Editor.cxx
+@@ -1414,6 +1414,11 @@ bool Editor::WrapOneLine(Surface *surface, int lineToWrap) {
+ // wsIdle: wrap one page + 100 lines
+ // Return true if wrapping occurred.
+ bool Editor::WrapLines(enum wrapScope ws) {
++	if (pdoc == NULL) {
++		printf("pdoc is null when executing WrapLines\n");
++		return false;
++	}
++	
+ 	int goodTopLine = topLine;
+ 	bool wrapOccurred = false;
+ 	if (!Wrapping()) {
+Index: /Users/nathanrijksen/Projects/komodo-dev/contrib/scintilla/cocoa/ScintillaView.mm
+--- cocoa/ScintillaView.mm
++++ cocoa/ScintillaView.mm
+@@ -668,6 +668,10 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
+ - (NSRect)adjustScroll:(NSRect)proposedVisibleRect
+ {
+   NSRect rc = proposedVisibleRect;
++  if (!mOwner.backend) {
++    return rc;
++  }
++  
+   // Snap to lines
+   NSRect contentRect = [self bounds];
+   if ((rc.origin.y > 0) && (NSMaxY(rc) < contentRect.size.height)) {
+@@ -1145,6 +1149,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
+ {
+   [[NSNotificationCenter defaultCenter] removeObserver:self];
+   delete mBackend;
++  mBackend = NULL;
+   [marginView release];
+   [super dealloc];
+ }
