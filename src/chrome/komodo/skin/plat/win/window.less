@@ -1,10 +1,15 @@
 @import url("chrome://komodo/skin/plat/shared/window.less");
 
-view[type="editor"] tabbox > tabpanels,
+view tabbox:not(.tabs-bottom) > tabpanels,
 #workspace_bottom_area,
 #statusbarviewbox,
 #customizingPlaceHolder
 {
     border-left: @main-border;
     border-right: @main-border;
+}
+
+view tabbox:not(.tabs-bottom) > tabpanels
+{
+    border-top: @main-border;
 }
