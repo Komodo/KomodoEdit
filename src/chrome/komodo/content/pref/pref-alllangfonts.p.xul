@@ -153,6 +153,10 @@
                                     <label value="&filePrefAllLangSize.label;"/>
                                     <menulist id="fontSize" oncommand="onChangeFontSize()">
                                         <menupopup>
+                                            <menuitem id="fontSize_4" value="4" label="&label.4;"/>
+                                            <menuitem id="fontSize_5" value="5" label="&label.5;"/>
+                                            <menuitem id="fontSize_6" value="6" label="&label.6;"/>
+                                            <menuitem id="fontSize_7" value="7" label="&label.7;"/>
                                             <menuitem id="fontSize_8" value="8" label="&label.8;"/>
                                             <menuitem id="fontSize_9" value="9" label="&label.9;"/>
                                             <menuitem id="fontSize_10" value="10" label="&label.10;"/>
