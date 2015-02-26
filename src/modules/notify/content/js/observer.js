@@ -63,7 +63,7 @@
                 // "data" is expected to be an error message string.
                 require("notify/notify").send(message, category + "-event",
                 {
-                    priority: priority,
+                    priority: priority
                 });
                 break;
             case 'autoupdate-notification':

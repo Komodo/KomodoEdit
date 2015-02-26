@@ -35,7 +35,11 @@
 
     var notify = this;
     var queue = {};
-    var disabledCats = prefs.getPref('notify_disabled_categories');
+    var disabledCats = {
+        info: prefs.getPref('notify_disabled_categories'),
+        warning: prefs.getPref('notify_disabled_categories_warning'),
+        error: prefs.getPref('notify_disabled_categories_error')
+    };
     var activeNotifs = {};
 
     this.P_INFO = Ci.koINotification.SEVERITY_INFO;
@@ -168,7 +172,8 @@
             return;
         }
 
-        if (disabledCats.findString(category) != -1 && opts.priority == this.P_INFO)
+        var cats = disabledCats[priorityName(opts.priority)] || false;
+        if (cats && cats.findString(category) != -1)
         {
             log.debug("Notification category is disabled, skipping");
             return;
@@ -444,7 +449,9 @@
 
         panel.find("menuitem[anonid=disableCategory]").on("command", () =>
         {
-            disabledCats.appendString(notif.category);
+            var cats = disabledCats[priorityName(notif.opts.priority)] || false;
+            if ( ! cats) return;
+            cats.appendString(notif.category);
         });
 
         panel.find("menuitem[anonid=preferences]").on("command", () =>
@@ -581,6 +588,22 @@
             {
                 notify.hideNotificationsByProp("from", "editor");
             }
+        }
+    }
+    
+    var priorityName = (priority) =>
+    {
+        switch (priority)
+        {
+            case this.P_WARNING:
+                return 'warning';
+                break;
+            case this.P_ERROR:
+                return 'error';
+                break;
+            default:
+                return 'info';
+                break;
         }
     }
     

@@ -21,7 +21,22 @@
     <vbox class="autoscroll">
         <groupbox orient="vertical" id="enabled-notifications">
             <caption label="&enabledNotifyCategories.label;" />
+            <hbox>
+                <label value="Level:"/>
+                <menulist id="level">
+                    <menupopup>
+                        <menuitem label="INFO"
+                                  value="INFO"/>
+                        <menuitem label="WARNING"
+                                  value="WARNING"/>
+                        <menuitem label="ERROR"
+                                  value="ERROR"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
             <vbox id="enabled-notifications-vbox"></vbox>
+            <vbox id="enabled-notifications-warning-vbox"></vbox>
+            <vbox id="enabled-notifications-error-vbox"></vbox>
         </groupbox>
     </vbox>
 
