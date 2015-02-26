@@ -149,6 +149,21 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  			ButtonDown(Point::FromLong(static_cast<long>(lParam)), ::GetMessageTime(),
  				(wParam & MK_SHIFT) != 0,
  				(wParam & MK_CONTROL) != 0,
+@@ -1347,7 +1347,13 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_
+ 			return 1;   // Avoid any background erasure as whole window painted.
+ 
+ 		case WM_CAPTURECHANGED:
+-			capturedMouse = false;
++			// XXX
++			// This line is forcing captureMouse to false which breaks Editor::
++			// ButtonUp so it never hits FineTickerCancel(tickScroll)
++			// if (FineTickerAvailable()) {
++			//	   FineTickerCancel(tickScroll);
++			// }
++			//capturedMouse = false;
+ 			return 0;
+ 
+ 		case WM_IME_SETCONTEXT:
 @@ -1573,6 +1594,41 @@ bool ScintillaWin::PaintContains(PRectangle rc) {
  	return true;
  }
