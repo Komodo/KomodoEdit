@@ -273,7 +273,7 @@ MoreKomodoCommon.moveFile = function(path, newPath, command = "move") {
     }
 
     var sdkFile = require("ko/file");
-    require("ko/dom")(window.parent).trigger("folder_touched", {path: sdkFile.dirname(oldPath)});
+    require("ko/dom")(window.parent).trigger("folder_touched", {path: sdkFile.dirname(path)});
     require("ko/dom")(window.parent).trigger("folder_touched", {path: sdkFile.dirname(newPath)});
 }
 
