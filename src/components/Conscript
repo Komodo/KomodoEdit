@@ -105,6 +105,12 @@ $cons->InstallXpcomComponent('koLessProtocolHandler.js',
 $cons->InstallXpcomComponent('koIconProtocolHandler.js',
                              {'@mozilla.org/network/protocol;1?name=koicon' => "{A840147B-5194-49B5-A0D5-CF5E3F87CDC5}"});
 
+# koInterfaceProxy
+$cons->InstallXpcomComponent('koInterfaceProxy.js',
+                             {'@activestate.com/koInterfaceProxy;1' => "{8B38FCD4-2035-44D2-B32F-68B1CFA780CF}"});
+$cons->Install($idlExportDir, 'koIInterfaceProxy.idl');
+$cons->BuildAndInstallXpt('koIInterfaceProxy.idl');
+
 # koIInitServive
 $cons->Preprocess('koInitService.p.py',
                   'koInitService.py');

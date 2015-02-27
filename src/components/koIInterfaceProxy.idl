@@ -1,0 +1,10 @@
+#include "nsISupports.idl"
+#include "nsIDOMEvent.idl"
+#include "nsIPropertyBag.idl"
+
+[scriptable, uuid(2BC97EA7-C6C4-40FE-B081-00343C236DDF)]
+interface koIInterfaceProxy : nsISupports
+{
+    AString unpackKeyEvent(in nsIDOMEvent event);
+};
+

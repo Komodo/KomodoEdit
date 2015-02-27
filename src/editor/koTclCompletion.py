@@ -245,13 +245,19 @@ class KoTclCompletion:
             # the first event that occurs; otherwise we can end up losing keys.
             self._scintilla.isFocused = True
         elif event.type in ("keydown", "keypress"):
-            completionCodes = [components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN,
-                               components.interfaces.nsIDOMKeyEvent.DOM_VK_TAB]
+            import json
+            
+            koInterfaceProxy = components.classes["@activestate.com/koInterfaceProxy;1"]\
+                        .getService(components.interfaces.koIInterfaceProxy)
+            eventInfo = koInterfaceProxy.unpackKeyEvent(event)
+            eventInfo = json.loads(eventInfo)
+            
+            completionCodes = [eventInfo["DOM_VK_RETURN"],
+                               eventInfo["DOM_VK_TAB"]]
             thread = components.classes["@mozilla.org/thread-manager;1"]\
                                .getService()\
                                .currentThread
-            event.QueryInterface(components.interfaces.nsIDOMKeyEvent)
-            if event.keyCode in completionCodes:
+            if eventInfo["keyCode"] in completionCodes:
                 if event.type == "keydown":
                     selectedText = controller.selectedText
                     log.debug("will accept completion " + controller.selectedText)
