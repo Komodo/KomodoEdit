@@ -151,7 +151,7 @@
             if (useClipboard)
             {
                 require("sdk/clipboard").set(url);
-                var msg = "URL copied to keyboard: " + url;
+                var msg = "URL copied to clipboard: " + url;
                 require("notify/notify").send(msg, "kopy",
                 {
                     command: () => { ko.browse.openUrlInDefaultBrowser(url) }
