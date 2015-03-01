@@ -332,6 +332,7 @@ function onloadDelay() {
     require("ko/benchmark").endTiming("workspace.restore");
 // #endif
 
+        ko.uilayout.onload();
         ko.history.init();
 
     } catch(ex) {
@@ -445,9 +446,17 @@ window.onload = function(event) {
                                   function() ko.toolbox2.onload());
         ko.projects.onload();
 
-        ko.uilayout.onload();
-
+        // For onloadDelay, on Mac we use a setTimeout, to avoid plugin
+        // initialization issues - bug 105056. Other platforms work correctly
+        // without the needed for the timeout.
+// #if PLATFORM == "darwin"
+        setTimeout(function() {
+            onloadDelay();
+        }, 1);
+// #else
         onloadDelay();
+// #endif
+
     } catch (e) {
         _log.exception(e,"Error doing KomodoOnLoad:");
         throw e;
