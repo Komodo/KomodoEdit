@@ -18,6 +18,7 @@
     const sdkUrl        = require("sdk/url");
     const randomColor   = require("contrib/randomColor");
     const log           = require("ko/logging").getLogger("ko-fileicons");
+    const timers        = require("sdk/timers");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var self = this, icons = this;
@@ -245,7 +246,7 @@
             if (pngFile.exists())
             {
                 icons.getIconForUri.cached[uri] = ioService.newFileURI(pngFile).spec;
-                window.setTimeout(function() {
+                timers.setTimeout(function() {
                     callback(pngFile);
                 },0);
                 return;
@@ -368,7 +369,7 @@
             if (pngFile.exists())
             {
                 icons.getIconForUri.cached[uri] = ioService.newFileURI(pngFile).spec;
-                window.setTimeout(function() {
+                timers.setTimeout(function() {
                     callback(pngFile);
                 },0);
             }
@@ -560,7 +561,7 @@
 
             // Give plenty of time for any simultanious queries to finish using
             // these files, we're in no hurry to delete them
-            window.setTimeout(function()
+            timers.setTimeout(function()
             {
                 if (opts.delete)
                 {
