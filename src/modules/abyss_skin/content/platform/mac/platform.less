@@ -20,3 +20,17 @@ menupopup
 {
     padding-bottom: 2px;
 }
+
+page[containerOrient="vertical"]
+{
+    -moz-appearance: none !important;
+}
+
+#main-toolboxrow toolbar > toolbaritem
+{
+    &, & > toolbarbutton
+    {
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+}
