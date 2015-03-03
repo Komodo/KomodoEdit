@@ -16,15 +16,24 @@
 <!ENTITY createProject.description "- with new or existing source">
 
 <!ENTITY watchScreencasts.label "Watch Screen Casts">
-<!ENTITY castOne.label "Komodo 8.5 Overview">
-<!ENTITY castOne.description "- see what's new in 8.5">
-<!ENTITY castOne.href "http://www.youtube.com/watch?v=h2Czga55gFw">
-<!ENTITY castTwo.label "Multiple Selections">
-<!ENTITY castTwo.description "- edit with multiple selections at once">
-<!ENTITY castTwo.href "http://www.youtube.com/watch?v=qEFAJ-vZTPQ">
-<!ENTITY castThree.label "Abyss Dark Skin">
-<!ENTITY castThree.description "- Komodo now comes with a dark skin">
-<!ENTITY castThree.href "http://www.youtube.com/watch?v=oaXfOE0LtUU">
+<!ENTITY castOne.label "Komodo 9.0 Beta Release">
+<!ENTITY castOne.description "- see what's new in 9.0">
+<!ENTITY castOne.href "http://komodoide.com/blog/2014-12/komodo-9-beta-release-now-available">
+<!ENTITY castTwo.label "Markdown Viewer">
+<!ENTITY castTwo.description "- Live markdown preview within Komodo">
+<!ENTITY castTwo.href "http://komodoide.com/blog/2014-11/live-markdown-viewing-in-komodo">
+<!ENTITY castThree.label "Go Lang">
+<!ENTITY castThree.description "- We added support for the Go programming language">
+<!ENTITY castThree.href "http://komodoide.com/blog/2014-10/introducing-go-lang-support">
+<!ENTITY castOne.label "Projects and What They're For">
+<!ENTITY castOne.description "- a short introduction">
+<!ENTITY castOne.href "http://komodoide.com/screencasts/watch/87287634-projects-and-what-theyre-for">
+<!ENTITY castTwo.label "Open Files Widget">
+<!ENTITY castTwo.description "- easily manage your opened files">
+<!ENTITY castTwo.href "http://komodoide.com/screencasts/watch/87675282-open-files-widget">
+<!ENTITY castThree.label "Auto Abbreviations">
+<!ENTITY castThree.description "- automate your snippets">
+<!ENTITY castThree.href "http://komodoide.com/screencasts/watch/89728467-auto-abbreviations-snippets">
 
 <!ENTITY installExt.label "Install Extensions">
 <!ENTITY extOne.label "New Source Tree">
@@ -33,7 +42,7 @@
 <!ENTITY extTwo.label "Emmet">
 <!ENTITY extTwo.description "- rapidly create HTML content">
 <!ENTITY extTwo.href "http://community.activestate.com/xpi/zen-coding">
-<!ENTITY extThree.label "TODO">
+<!ENTITY extThree.label "Todo Panel">
 <!ENTITY extThree.description "- show todo markers in code">
 <!ENTITY extThree.href "http://community.activestate.com/xpi/todo-helper">
 

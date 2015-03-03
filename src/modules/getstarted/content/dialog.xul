@@ -103,7 +103,7 @@
                 <hbox id="docBox">
                     <button class="button-link"
                             label="&readDoc.label;"
-                            href="http://docs.activestate.com/komodo/"/>
+                            href="http://docs.activestate.com/komodo/latest/"/>
                 </hbox>
             </vbox>
             <vbox id="pane">

@@ -570,7 +570,7 @@ Please send us any feedback you have through one of the
 channels below:
     komodo-feedback@activestate.com
     irc://irc.mozilla.org/komodo
-    http://bugs.activestate.com/
+    https://github.com/Komodo/KomodoEdit/issues
 
 Thank you for using Komodo.
 %s

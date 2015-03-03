@@ -313,21 +313,9 @@ var tag2uri = {
     'home': "http://komodoide.com/",  // this one
     'aspn': "http://code.activestate.com/", // This one
     'community': "http://forum.komodoide.com/",
-    'contactus': "http://www.activestate.com/company/contact-us"
+    'contactus': "http://www.activestate.com/company/contact-us",
+    'bugs': "https://github.com/Komodo/KomodoEdit/issues"
 };
-// Defines a lazy getter for "bugs" uri.
-Components.utils
-      .import("resource://gre/modules/XPCOMUtils.jsm", {})
-      .XPCOMUtils
-      .defineLazyGetter(tag2uri, "bugs", function()
-    {
-        var hash = getKomodoBugzillaQueryParams();
-        // Convert object pairs into an array of "foo=blah".
-        var params = Object.keys(hash).map(function(key) {
-                        return key+"="+encodeURIComponent(hash[key]);
-                     });
-        return "http://bugs.activestate.com/enter_bug.cgi?product=Komodo&" + params.join("&");
-    });
 
 /**
  * browse to a predefined url on activestate.com  see tag2uri in ko.browse
