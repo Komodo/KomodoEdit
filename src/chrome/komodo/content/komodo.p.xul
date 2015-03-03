@@ -70,8 +70,8 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        width="890"
-        height="650"
+        width="1150"
+        height="700"
         screenX="20"
         screenY="20"
         persist="screenX screenY width height"
@@ -1896,7 +1896,6 @@
                          grippyhidden="true"
                          customizable="true"
                          align="center"
-                         kohidden="true"
                          mode="icons"
                          persist="kohidden collapsed buttonstyle mode"
                          buttonstyle="pictures"
@@ -1908,13 +1907,14 @@
                                 label="&macroNew.toolbar.label;"
                                 tooltiptext="&macroNew.tooltiptext;"
                                 class="macro-new-icon"
+                                kohidden="true"
                                 buttonstyle="pictures"
-                                persist="buttonstyle"
+                                persist="buttonstyle kohidden"
                                 observes="cmd_macroNew"/>
                         <toolbarbutton id="macroRecord"
                                 label="&record.label;"
                                 tooltiptext="&recordMacro.tooltiptext;"
-                                persist="buttonstyle"
+                                persist="buttonstyle kohidden"
                                 class="macro-record-icon"
                                 buttonstyle="pictures"
                                 observes="cmd_startMacroMode"/>
@@ -1924,25 +1924,26 @@
                                 persist="buttonstyle"
                                 buttonstyle="pictures"
                                 class="macro-pause-icon"
+                                kohidden="true"
                                 observes="cmd_pauseMacroMode"/>
                         <toolbarbutton id="macroStop"
                                 label="&stop.label;"
                                 tooltiptext="&stopRecordingMacro.tooltiptext;"
-                                persist="buttonstyle"
+                                persist="buttonstyle kohidden"
                                 class="macro-stop-icon"
                                 buttonstyle="pictures"
                                 observes="cmd_stopMacroMode"/>
                         <toolbarbutton id="macroPlay"
                                 label="&runLast.label;"
                                 tooltiptext="&playLastMacro.tooltiptext;"
-                                persist="buttonstyle"
+                                persist="buttonstyle kohidden"
                                 buttonstyle="pictures"
                                 class="macro-play-icon"
                                 observes="cmd_executeLastMacro"/>
                         <toolbarbutton id="macroSave"
                                 label="&save.label;"
                                 tooltiptext="&saveLastMacroToToolbox.tooltiptext;"
-                                persist="buttonstyle"
+                                persist="buttonstyle kohidden"
                                 class="macro-save-icon"
                                 buttonstyle="pictures"
                                 observes="cmd_saveMacroToToolbox"/>
@@ -1998,6 +1999,7 @@
                      broadcaster="cmd_viewfindtoolbar"
                      mode="icons"
                      persist="kohidden collapsed buttonstyle mode"
+                     kohidden="true"
                      tooltiptext="&findInFilesToolbar.label;"
                     >
                 <hbox class="unified-textbox-wrapper">
@@ -2096,7 +2098,6 @@
                      pref="ui.tabs.sidepanes.left.layout"
                      label="&paneNameLeft;"
                      orient="vertical"
-                     collapsed="true"
                      persist="width type">
             </ko-pane>
             <splitter id="workspace_left_splitter"
