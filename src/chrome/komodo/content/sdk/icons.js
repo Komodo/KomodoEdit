@@ -192,7 +192,7 @@
             if ( ! match) return info;
 
             var ext = match[2];
-            info.ext = match[2].substr(0,4).toUpperCase();
+            info.ext = match[2].substr(0,3).toUpperCase();
             if (match.length == 4) info.size = match[3];
             var lang = langSvc.suggestLanguageForFile(match[1]);
             if (lang)
