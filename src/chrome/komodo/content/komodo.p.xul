@@ -1295,10 +1295,13 @@
                                       id="menu_openProject"
                                       observes="cmd_openProject"
                                       />
+                            <!-- Disabled because opening in new windows is broken
+                                 https://bugs.activestate.com/show_bug.cgi?id=106356
                             <menuitem label="&openProjectInNewWindow.label;"
                                       id="menu_projectOpenProject"
                                       observes="cmd_openProjectNewWindow"
                                       />
+                            -->
 <!--   XXX Implement this
                             <menuitem label="&openRemoteProject.label;"
                                       id="menu_projectOpenRemoteProject"
