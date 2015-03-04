@@ -964,7 +964,7 @@
   <string id="donotask_action_placesAllowDragDropItemsToFolders"></string>
 
   <!-- Analytics -->
-  <string id="analytics_ga_id">UA-45985051-1</string>
+  <string id="analytics_ga_id">UA-47685083-3</string>
 
   <ordered-preference id="analytics_track_prefs">
     <string>koSkin_custom_skin</string>
