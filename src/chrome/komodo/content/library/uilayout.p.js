@@ -1840,6 +1840,8 @@ this.onload = function uilayout_onload()
     if ( ! ko.views.manager.getAllViews().length) {
         deck.selectedPanel = document.getElementById("quicklaunch");
     }
+    
+    this.updateViewRef();
 }
 
 this.updateViewRef = function(view) {
