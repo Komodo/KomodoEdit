@@ -485,10 +485,11 @@ this.waitForProjectManager = function(callback) {
     ko.widgets.getWidgetAsync('placesViewbox', function() {
             var delayFunc;
             var limit = 100; // iterations
-            var delay = 50;  // time in msec
+            var delay = 100;  // time in msec
             delayFunc = function(tryNum) {
                 try {
-                    if (ko.projects.manager.viewMgr.owner.projectsTreeView) {
+                    if (ko.toolbox2 && ko.toolbox2.manager &&
+                        ko.projects.manager.viewMgr.owner.projectsTreeView) {
                         callback();
                         return;
                     }
