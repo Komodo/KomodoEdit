@@ -247,7 +247,13 @@
             {
                 icons.getIconForUri.cached[uri] = ioService.newFileURI(pngFile).spec;
                 timers.setTimeout(function() {
-                    callback(pngFile);
+                    try
+                    {
+                        callback(pngFile);
+                    } catch (e)
+                    {
+                        log.exception(e, "Exception in timeout for sdk/icons.handlers.fileicon.getIconForUri()");
+                    }
                 },0);
                 return;
             }
@@ -373,7 +379,13 @@
             {
                 icons.getIconForUri.cached[uri] = ioService.newFileURI(pngFile).spec;
                 timers.setTimeout(function() {
-                    callback(pngFile);
+                    try
+                    {
+                        callback(pngFile);
+                    } catch (e)
+                    {
+                        log.exception(e, "Exception in timeout for sdk/icons.handlers.svg.getIconForUri()");
+                    }
                 },0);
             }
             else
@@ -566,16 +578,26 @@
             // these files, we're in no hurry to delete them
             timers.setTimeout(function()
             {
-                if (opts.delete)
+                try
                 {
-                    log.debug("Deleting: " + svgPath);
-                    ioFile.remove(svgPath);
-                }
-
-                if (opts.deleteAlso)
+                    if (opts.delete)
+                    {
+                        log.debug("Deleting: " + svgPath);
+                        ioFile.remove(svgPath);
+                    }
+    
+                    if (opts.deleteAlso)
+                    {
+                        log.debug("Also deleting: " + opts.deleteAlso);
+                        ioFile.remove(opts.deleteAlso);
+                    }
+                } catch (e)
                 {
-                    log.debug("Also deleting: " + opts.deleteAlso);
-                    ioFile.remove(opts.deleteAlso);
+                    // Don't report errors if the file has already been deleted
+                    if (e.name != "NS_ERROR_FILE_UNRECOGNIZED_PATH")
+                    {
+                        log.exception(e, "Exception in timeout for sdk/icons._createPngFromSvg()");
+                    }
                 }
             }, 1000);
 
