@@ -824,7 +824,7 @@ koPrefWindow.prototype =
             this.deck.appendChild(this.contentFrame);
 
             this.contentFrame.addEventListener("load", function() {
-                var showAdvanced = prefs.getBoolean("prefs_show_advanced", false);
+                var showAdvanced = this.prefset.getBoolean("prefs_show_advanced", false);
                 var docElem = this.contentFrame.contentWindow.document.documentElement;
                 docElem.classList.add("pref-window");
                 if (showAdvanced) docElem.classList.add("show-advanced");
