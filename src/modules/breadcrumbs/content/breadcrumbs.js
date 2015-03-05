@@ -15,7 +15,7 @@ if (typeof ko.breadcrumbs == 'undefined')
 {
     ko.breadcrumbs = function()
     {
-        window.addEventListener("load", this.init.bind(this));
+        window.addEventListener("komodo-ui-started", this.init.bind(this));
     };
 }
 
