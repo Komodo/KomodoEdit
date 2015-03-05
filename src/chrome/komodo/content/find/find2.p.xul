@@ -438,7 +438,6 @@
               <button id="find-next-btn" label="&findNext.label;"
                       accesskey="&findNextButton.accesskey;" oncommand="find_next();"/>
               <button id="find-prev-btn" label="&findPrevious.label;"
-                      style="margin-top: 0px;"
                       accesskey="&findPrev.accesskey;" oncommand="find_prev();"/>
           </hbox>
           <hbox>

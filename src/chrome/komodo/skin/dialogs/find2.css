@@ -4,19 +4,11 @@
 
 #pin-btn {
     list-style-image: url(chrome://fugue/skin/icons/pin-small.png);
+    margin: 0 4px 4px 0;
 }
 #pin-btn[checked] {
     list-style-image: url(chrome://fugue/skin/icons/pin.png);
     -moz-appearance: toolbarbutton;
-    /* These rules only apply on Mac OSX, where the -moz-appearance rule doesn't */
-    background: none;
-    border: 2px inset rgb(185, 185, 185);
-    border-radius: 5px;
-    -moz-border-top-colors:    rgb(185, 185, 185) rgb(128, 128, 128);
-    -moz-border-right-colors:  rgb(255, 255, 255) rgb(185, 185, 185);
-    -moz-border-bottom-colors: rgb(255, 255, 255) rgb(185, 185, 185);
-    -moz-border-left-colors:   rgb(185, 185, 185) rgb(128, 128, 128);
-    padding: 4px;
 }
 
 #pin-btn > label {
