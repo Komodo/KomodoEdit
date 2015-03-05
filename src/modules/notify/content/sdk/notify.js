@@ -257,11 +257,9 @@
             notif.opts.id == queue[notif.opts.from].activeId))
         {
             log.debug("Showing notification immediately");
-            
+            queue[notif.opts.from].active = true;
             this.queue.process(notif.opts.from);
         }
-
-        queue[notif.opts.from].active = true;
     }
 
     this.queue.process = (from) =>
