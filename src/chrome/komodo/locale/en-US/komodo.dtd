@@ -341,7 +341,7 @@
 <!ENTITY helpAboutKomodo.desc "Help: About Komodo">
 <!ENTITY helpAlternateHelpOnSelection.desc "Help: Alternate Help on Selection">
 <!ENTITY helpHelp.desc "Help: Help...">
-<!ENTITY helpKomodoBugDatabase.desc "Help: Report a Bug">
+<!ENTITY komodoBugDatabase.tooltiptext "Report a bug on GitHub">
 <!ENTITY helpKomodoCommunity.desc "Help: Komodo Community">
 <!ENTITY helpKomodoDiscussMailingListArchives.desc "Help: Komodo Discuss Mailing List Archives">
 <!ENTITY helpLanguageSpecificHelpOnSelection.desc "Help: Language-Specific Help on Selection">
