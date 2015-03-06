@@ -93,6 +93,12 @@ function getMappedName(languageName) {
             : null);
 }
 
+function setPanel(langDeck) {
+    dialog.deck.selectedPanel.removeAttribute('active');
+    dialog.deck.selectedPanel = langDeck;
+    dialog.deck.selectedPanel.setAttribute('active', 'true');
+}
+
 function showLanguageNamePanel(languageName) {
     var deckID = null;
     if (languageName) {
@@ -101,7 +107,7 @@ function showLanguageNamePanel(languageName) {
         }
         deckID = document.getElementById("langSyntaxCheck-" + languageName);
         if (deckID) {
-            dialog.deck.selectedPanel = deckID;
+            setPanel(deckID);
         }
     }
     if (deckID === null) {
@@ -109,7 +115,7 @@ function showLanguageNamePanel(languageName) {
         if (mappedName) {
             deckID = document.getElementById("langSyntaxCheck-" + mappedName);
             if (deckID) {
-                dialog.deck.selectedPanel = deckID;
+               setPanel(deckID);
                 return;
             }
         }
@@ -120,7 +126,8 @@ function showLanguageNamePanel(languageName) {
                 getLinter_CID_ForLanguage(languageName);
         }
         if (!linterCID) {
-            descr = dialog.deck.selectedPanel = dialog.deckNoLinterFallback;
+            setPanel(dialog.deckNoLinterFallback)
+            descr = dialog.deckNoLinterFallback;
             descr = descr.firstChild;
             while (descr.firstChild) {
                 descr.removeChild(descr.firstChild);
@@ -132,11 +139,13 @@ function showLanguageNamePanel(languageName) {
             var textNode = document.createTextNode(msg);
             descr.appendChild(textNode);
         } else {
-            descr = dialog.deck.selectedPanel = dialog.genericLinterFallback;
+            setPanel(dialog.genericLinterFallback);
+            descr = dialog.genericLinterFallback;
             var checkbox = document.getElementById("generic_linter_for_current_language");
             checkbox.setAttribute("label",
                                   bundleLang.formatStringFromName("Check syntax for X", [languageName], 1));
             var linterPrefName = "genericLinter:" + languageName;
+            
             if (g_prefset.hasPref(linterPrefName)) {
                 checkbox.checked = g_prefset.getBooleanPref(linterPrefName);
             } else {

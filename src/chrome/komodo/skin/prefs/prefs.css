@@ -44,3 +44,11 @@ groupbox#pref-languages-primary-selector-groupbox.collapse {
     font-style: italic;
     padding-left: 10px;
 }
+
+/*
+ * Syntax checking prefs dialog wasn't resizing it's second box properly.
+ * Force the issue by adding a class in pref-syntax-checking.js to act on here.
+ */
+#docSyntaxCheckByLang > vbox:not([active]) {
+    visibility: collapse;
+}
