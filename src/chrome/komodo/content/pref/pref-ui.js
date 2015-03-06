@@ -80,7 +80,7 @@ function PrefUi_OnLoad() {
     
     var setSchemeSkinningState = function()
     {
-        csCheck.checked = ssCheck.checked;
+        if ( ! ssCheck.checked) csCheck.checked = false;
         csCheck.disabled = ! ssCheck.checked;
     }
     
