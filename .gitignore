@@ -28,5 +28,6 @@ src/codeintel/!src/patches/
 src/codeintel/test2/scan_actual/
 src/codeintel/test2/tmp*
 src/codeintel/tmp/
+*.komodoproject
 install/
 packages/
