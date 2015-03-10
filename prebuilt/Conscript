@@ -33,8 +33,4 @@ if ($platform ne "win" && $platform ne "darwin") {
 }
 
 
-# Install Mac OS X color picker binary.
-if ($platform eq "darwin") {
-    $sourcedir = getPrebuiltDirectory("colorpicker/osx_colorpicker");
-    $cons->Install("$supportDir/colorpicker", $sourcedir);
-}
+

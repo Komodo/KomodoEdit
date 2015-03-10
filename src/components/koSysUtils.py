@@ -525,57 +525,99 @@ elif sys.platform.startswith("darwin"):
              ("colorpicker", "macosx_system_color_picker"),
         ]
 
-        def _mac_get_color_from_process(self, startingcolor="", startingalpha="",
-                                        callback=None, originalThread=None):
-            koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
-            colorpicker_exe = os.path.join(koDirSvc.supportDir, "colorpicker", "osx_colorpicker")
-            import process
-            cmd = [colorpicker_exe]
-            if startingcolor:
-                # remove hash
-                if startingcolor.startswith("#"):
-                    startingcolor = startingcolor[1:]
-                cmd += ["-startColor", startingcolor]
-            p = process.ProcessOpen(cmd, stdin=None, stdout=process.PIPE, stderr=None)
-            stdout, stderr = p.communicate()
+        class Point(ctypes.Structure):
+            _fields_ = [("v", ctypes.c_ushort),
+                        ("h", ctypes.c_ushort)]
 
-            newcolor = stdout.strip()
-            if newcolor:
-                newcolor = "#" + newcolor
+        class RGBColor(ctypes.Structure):
+            _fields_ = [("red", ctypes.c_ushort),
+                        ("green", ctypes.c_ushort),
+                        ("blue", ctypes.c_ushort)]
 
-            if callback and originalThread:
-                def run_callback():
-                    callback.handleResult(newcolor, startingalpha)
-                originalThread.dispatch(run_callback,
-                                        components.interfaces.nsIThread.DISPATCH_NORMAL)
-
-            return newcolor
+        @property
+        def GetColor(self):
+            if hasattr(self, "_GetColor"):
+                return self._GetColor
+            carbon = ctypes.cdll.LoadLibrary("/System/Library/Carbon.framework/Carbon")
+            GetColor = carbon.GetColor
+            GetColor.restype = ctypes.c_bool
+            GetColor.argtypes = [MacOSXSystemColorPicker.Point, # where
+                                 ctypes.c_char_p, # prompt
+                                 ctypes.POINTER(MacOSXSystemColorPicker.RGBColor), # inColor
+                                 ctypes.POINTER(MacOSXSystemColorPicker.RGBColor)] # outColor
+            setattr(self, "_GetColor", GetColor)
+            return self._GetColor
 
         def pickColor(self, startingcolor):
             return self.pickColorWithPositioning(startingcolor, -1, -1)
 
         def pickColorWithPositioning(self, startingcolor, screenX, screenY):
-            self._mac_get_color_from_process()
+            import ColorPicker
+            r,g,b = int(startingcolor[1:3], 16)*256, \
+                    int(startingcolor[3:5], 16)*256, \
+                    int(startingcolor[5:], 16)*256
+            resp = ColorPicker.GetColor("Colors", (r, g, b))
+            ok = resp[1]
+            if ok:
+                 # convert from 48bit to 24bit rgb
+                 r = "%02X" % (resp[0][0]/256)
+                 g = "%02X" % (resp[0][1]/256)
+                 b = "%02X" % (resp[0][2]/256)
+                 c = "#%s%s%s" %(r,g,b)
+                 return c
 
         def pickColorAsync(self, callback, startingcolor, startingalpha, screenX=0, screenY=0):
             if not callback or not hasattr(callback, "handleResult"):
                 raise COMException(nsError.NS_ERROR_INVALID_ARG,
                                    "pickColorAsync got invalid callback %r" % (callback,))
 
-            # remember the calling thread
+            # parse the starting colors
+            try:
+                startingcolor = startingcolor.lstrip("#")
+                colors = [int(startingcolor[x:x+2], 16) for x in range(0, 6, 2)]
+            except Exception:
+                raise COMException(nsError.NS_ERROR_INVALID_ARG,
+                                   "pickColorAsync: invalid starting color %r" % (startingcolor,))
+
+            # The Carbon GetColor API takes RGBColors with 16-bit components
+            where = MacOSXSystemColorPicker.Point(screenX or -1, screenY or -1)
+            inColor = MacOSXSystemColorPicker.RGBColor(*map(lambda x: x * 256, colors))
+            outColor = MacOSXSystemColorPicker.RGBColor()
+            resp = [False, outColor]
+
+            def run_picker():
+                """ runnable used to open the color picker on a background thread """
+                try:
+                    success = self.GetColor(where, "Colors",
+                                            ctypes.pointer(inColor),
+                                            ctypes.pointer(resp[1]))
+                    if success:
+                        resp[0] = True
+                except Exception, e:
+                    log.exception("An error occurred: %r", e)
+                originalThread.dispatch(run_callback,
+                                        components.interfaces.nsIThread.DISPATCH_NORMAL)
+
+            def run_callback():
+                """ runnable used to invoke the callback on the original thread """
+                thread.shutdown()
+                if resp[0]:
+                    # convert from 48bit to 24bit rgb
+                    r, g, b = map(lambda x: x / 256,
+                                  [outColor.red, outColor.green, outColor.blue])
+                    callback.handleResult("#%02x%02x%02x" % (r, g, b), startingalpha)
+                else:
+                    callback.handleResult(None, startingalpha)
+
+            # create a new thread and run the color picker on that to prevent
+            # bad re-entrancy; see bug 91299
             tm = components.classes["@mozilla.org/thread-manager;1"]\
                            .getService(components.interfaces.nsIThreadManager)
             originalThread = tm.currentThread
+            thread = tm.newThread(0)
+            thread.dispatch(run_picker,
+                            components.interfaces.nsIThread.DISPATCH_NORMAL)
 
-            import threading
-            t = threading.Thread(name="color picker processs",
-                                 target=self._mac_get_color_from_process,
-                                 kwargs={ "startingcolor": startingcolor,
-                                          "startingalpha": startingalpha,
-                                          "callback": callback,
-                                          "originalThread": originalThread })
-            t.setDaemon(True)
-            t.start()
 
 def _escapeArg(arg):
     """Escape the given command line argument for the shell."""
