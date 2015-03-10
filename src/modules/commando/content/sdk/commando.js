@@ -516,8 +516,6 @@
         c.renderResults(results, uuid);
 
         // perform onSearch
-        c.execScopeHandler("onExpandSearch", [query, uuid, callback])
-        
         if ( ! c.execScopeHandler("onExpandSearch", [query, uuid, callback]))
         {
             callback();
