@@ -341,7 +341,6 @@
 <!ENTITY helpAboutKomodo.desc "Help: About Komodo">
 <!ENTITY helpAlternateHelpOnSelection.desc "Help: Alternate Help on Selection">
 <!ENTITY helpHelp.desc "Help: Help...">
-<!ENTITY komodoBugDatabase.tooltiptext "Report a bug on GitHub">
 <!ENTITY helpKomodoCommunity.desc "Help: Komodo Community">
 <!ENTITY helpKomodoDiscussMailingListArchives.desc "Help: Komodo Discuss Mailing List Archives">
 <!ENTITY helpLanguageSpecificHelpOnSelection.desc "Help: Language-Specific Help on Selection">
@@ -382,7 +381,7 @@
 <!ENTITY editorHistoryForward.desc "Editor: Go Forward">
 <!ENTITY komodoBugDatabase.accesskey "B">
 <!ENTITY komodoBugDatabase.label "Report a Bug">
-<!ENTITY komodoBugDatabase.tooltiptext "Report a bug in the Komodo Bugzilla database">
+<!ENTITY komodoBugDatabase.tooltiptext "Report a bug on GitHub">
 <!ENTITY komodoCommunity.label "Komodo Community">
 <!ENTITY komodoCommunity.tooltiptext "Komodo Community">
 <!ENTITY komodoEmailLists.tooltiptext "Komodo Email Lists">
