@@ -802,7 +802,7 @@
     this.filter = function(results, query, field)
     {
         field = "name";
-        words = query.toLowerCase().split(/\s+/);
+        var words = query.toLowerCase().split(/\s+/);
 
         return results.filter(function(result)
         {
