@@ -23,6 +23,21 @@ Import(
 );
 
 
+sub getPrebuiltDirectory {
+    my $endpath = shift;
+    my $myBuildType = shift || $buildType;
+    if ($platform eq 'win') {
+        return cwd()."/prebuilt/win/$myBuildType/$endpath";
+    }
+    if ($platform eq 'darwin') {
+        return cwd()."/prebuilt/macosx/$myBuildType/$endpath";
+    }
+    if (-e cwd()."/prebuilt/$platform-$architecture/$myBuildType/$endpath") {
+        return cwd()."/prebuilt/$platform-$architecture/$myBuildType/$endpath";
+    }
+    return cwd()."/prebuilt/$platform/$myBuildType/$endpath";
+}
+
 # Hack default user-skins.rdf (see bug 23047).
 # - This is only really required on Linux and, besides, it breaks the
 #   Windows build with this:
