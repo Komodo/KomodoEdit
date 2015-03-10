@@ -291,11 +291,11 @@ class KoFileStatusService:
                 self.unload()
                 return
             if topic in ('idle', 'idle-daily'):
-                log.warn("Idle - take a break kid")
+                log.info("Idle - take a break kid")
                 self._is_idle = True
                 return
             if topic in ('active', 'back'):
-                log.warn("Get back to work")
+                log.info("Get back to work")
                 self._is_idle = False
                 self._cv.acquire()
                 self._cv.notify()
