@@ -36,9 +36,9 @@
                         </description>
                     </vbox>
                     {{?it.undo}}
-                        <button class="undo button-plain"/>
+                        <button class="undo button-plain plain"/>
                     {{?}}
-                    <button type="menu" class="menu button-plain">
+                    <button type="menu" class="menu button-plain plain">
                         <menupopup>
                             <menuitem   anonid="disableCategory"
                                         label="&disableNotificationsOfType.label;"/>
