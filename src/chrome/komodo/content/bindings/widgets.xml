@@ -1175,10 +1175,10 @@
     <binding id="menuitem-file-status" extends="chrome://global/content/bindings/menu.xml#menuitem">
         <content>
             <xul:hbox class="menu-file-status-image-box" align="start" pack="start" xbl:inherits="selected,disabled,checked">
-                <xul:image class="native_file_image" xbl:inherits="validate,disabled,src=file_image_url,alt_image"/>
                 <xul:image class="file-status-icon" xbl:inherits="validate,disabled,file_status,tooltiptext=filestatustip"/>
-                <xul:image class="file-readonly-icon" xbl:inherits="validate,disabled,file_readonly,tooltiptext=locktip"/>
                 <xul:image class="file-status2-icon" xbl:inherits="validate,disabled,file_status2,tooltiptext=filestatus2tip"/>
+                <xul:image class="native_file_image" xbl:inherits="validate,disabled,src=file_image_url,alt_image"/>
+                <xul:image class="file-readonly-icon" xbl:inherits="validate,disabled,file_readonly,tooltiptext=locktip"/>
             </xul:hbox>
             <xul:label class="menu-iconic-text" flex="1" xbl:inherits="value=label,accesskey,crop" crop="right"/>
             <xul:hbox class="menu-accel-container" anonid="accel">
