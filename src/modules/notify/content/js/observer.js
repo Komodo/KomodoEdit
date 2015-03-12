@@ -102,7 +102,7 @@
             }
         }
 
-        notify.send(data.title, "autoUpdate",
+        notify.send(data.title + " - " + data.message, "autoUpdate",
         {
             command: command,
             priority: "warning"
