@@ -49,7 +49,8 @@ if (typeof(ko)=='undefined') {
 ko.browse = {};
 (function() {
 
-var log = ko.logging.getLogger("browse");
+var {logging} = Components.utils.import("chrome://komodo/content/library/logging.js", {});
+var log = logging.getLogger("browse");
 var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
         .getService(Components.interfaces.nsIStringBundleService)
         .createBundle("chrome://komodo/locale/browse.properties");
