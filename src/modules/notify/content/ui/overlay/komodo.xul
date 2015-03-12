@@ -28,7 +28,9 @@
                    level="parent">
                 <hbox class="wrapper">
                     {{?it.icon}}
-                        <image class="icon" src="{{=it.icon}}?preset=hud"></image>
+                        <vbox pack="center">
+                            <image class="icon" src="{{=it.icon}}?preset=hud"></image>
+                        </vbox>
                     {{?}}
                     <vbox> <!-- Description max-width is not respected unless its in a vbox -->
                         <description class="description">
