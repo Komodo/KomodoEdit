@@ -181,7 +181,6 @@
             <![CDATA[
                 horizScrollPageIncrement = horizScrollPageIncrement || this.boxObject.width;
                 
-                const ISciMoz = Components.interfaces.ISciMoz;
                 const scimoz = this.scimoz;
                 
                 let scrollbar = this._scrollEventHandler.horizontal;
@@ -217,7 +216,6 @@
             <method name="updateScrollbarV">
             <body>
             <![CDATA[
-                const ISciMoz = Components.interfaces.ISciMoz;
                 const scimoz = this.scimoz;
                 
                 var lineCount = scimoz.lineCount;
