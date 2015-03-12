@@ -220,18 +220,21 @@
                 const ISciMoz = Components.interfaces.ISciMoz;
                 const scimoz = this.scimoz;
                 
-                if (scimoz.lineCount < scimoz.firstVisibleLine) {
+                var lineCount = scimoz.lineCount;
+                var firstVisibleLine = scimoz.firstVisibleLine;
+                if (lineCount < firstVisibleLine) {
                     return;
                 }
                 
                 var scrollbar = this._scrollEventHandler.vertical;
-                var lineCount = scimoz.visibleFromDocLine(scimoz.lineCount);
                 if (!scrollbar.suppress) {
-                    scrollbar.setAttribute("curpos", scimoz.firstVisibleLine);
-                    scrollbar.setAttribute("pageincrement", scimoz.linesOnScreen);
+                    var linesOnScreen = scimoz.linesOnScreen;
+                    var visLineCount = scimoz.visibleFromDocLine(lineCount);
+                    scrollbar.setAttribute("curpos", firstVisibleLine);
+                    scrollbar.setAttribute("pageincrement", linesOnScreen);
                                          
-                    var canScroll = scimoz.linesOnScreen < lineCount;
-                    var maxpos = lineCount - scimoz.linesOnScreen;
+                    var canScroll = linesOnScreen < visLineCount;
+                    var maxpos = visLineCount - linesOnScreen;
                     scrollbar.setAttribute("maxpos", maxpos < 0 ? 0 : maxpos);
                     scrollbar.setAttribute("can-scroll", canScroll);
                 }
