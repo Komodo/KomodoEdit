@@ -1238,19 +1238,20 @@ viewManager.prototype.updateCommands = function() {
     //    dump('newcache['+ x +'] = ' + newcache[x] + '\n');
     //}
     this.currentView.updateCurrentLineColor();
-    if (this.currentView && this.currentView.scintilla) {
-        // Bug 83741 - ensure the scintilla focus is still correctly set,
-        // sometimes the focus may have reset to another element by the time the
-        // below timeout(s) are called, so we must reset it in that case,
-        // otherwise the updateCommands will fail to find a Scintilla
-        // controller, which means these Scintilla commands will not fail to get
-        // updated/enabled.
-        window.setTimeout(function(view) {
-                if (!view.scintilla.isFocused) {
-                    window.document.commandDispatcher.focusedElement = view.scintilla;
-                }
-            }, 1, this.currentView);
-    }
+    
+    // Bug 83741 - ensure the scintilla focus is still correctly set,
+    // sometimes the focus may have reset to another element by the time the
+    // below timeout(s) are called, so we must reset it in that case,
+    // otherwise the updateCommands will fail to find a Scintilla
+    // controller, which means these Scintilla commands will not fail to get
+    // updated/enabled.
+    window.setTimeout(function() {
+            var view = this.currentView;
+            if (view && view.scintilla && !view.scintilla.isFocused) {
+                window.document.commandDispatcher.focusedElement = view.scintilla;
+            }
+        }.bind(this), 1);
+    
     window.setTimeout(window.updateCommands, 1, 'current_view_changed');
     var update_editor_change = (oldcache.type != newcache.type) &&
         (oldcache.type == 'editor' || newcache.type== 'editor');
