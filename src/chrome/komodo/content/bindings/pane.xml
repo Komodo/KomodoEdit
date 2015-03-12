@@ -1557,6 +1557,7 @@
             return;
           }
           let elem = null;
+          if ( !  this.selectedPanel) return;
           for (let child of this.selectedPanel.childNodes) {
             if ((child instanceof Element) && child.localName == "splitter") {
               elem = document.createElement("splitter");
