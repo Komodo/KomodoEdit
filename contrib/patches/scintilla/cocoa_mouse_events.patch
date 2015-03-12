@@ -5,9 +5,16 @@ Index: /Users/toddw/as/komodo-devel_12/src/scintilla/cocoa/ScintillaView.mm
 ===================================================================
 --- cocoa/ScintillaView.mm	(revision 74680)
 +++ cocoa/ScintillaView.mm	(working copy)
-@@ -108,6 +108,9 @@
+@@ -109,9 +109,14 @@
+ 
  - (void) mouseDown: (NSEvent *) theEvent
  {
+-  NSClipView *textView = [[self scrollView] contentView];
+-  [[textView window] makeFirstResponder:textView];
++  // KOMODO: Don't want scintilla to become first responder (aka focused),
++  //         bug 106378.
++  //NSClipView *textView = [[self scrollView] contentView];
++  //[[textView window] makeFirstResponder:textView];
    owner.backend->MouseDown(theEvent);
 +  // Send the event through owner, to avoid the NSScrollView handling it.
 +  // We want it to go to the DOM instead. (Komodo bug 101290)
