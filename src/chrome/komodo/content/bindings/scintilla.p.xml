@@ -216,26 +216,28 @@
             <method name="updateScrollbarV">
             <body>
             <![CDATA[
+                var scrollbar = this._scrollEventHandler.vertical;
+                if (scrollbar.suppress) {
+                    return;
+                }
+
                 const scimoz = this.scimoz;
-                
                 var lineCount = scimoz.lineCount;
                 var firstVisibleLine = scimoz.firstVisibleLine;
                 if (lineCount < firstVisibleLine) {
                     return;
                 }
-                
-                var scrollbar = this._scrollEventHandler.vertical;
-                if (!scrollbar.suppress) {
-                    var linesOnScreen = scimoz.linesOnScreen;
-                    var visLineCount = scimoz.visibleFromDocLine(lineCount);
-                    scrollbar.setAttribute("curpos", firstVisibleLine);
-                    scrollbar.setAttribute("pageincrement", linesOnScreen);
-                                         
-                    var canScroll = linesOnScreen < visLineCount;
-                    var maxpos = visLineCount - linesOnScreen;
-                    scrollbar.setAttribute("maxpos", maxpos < 0 ? 0 : maxpos);
-                    scrollbar.setAttribute("can-scroll", canScroll);
-                }
+
+                // Update the scrollbar position.
+                var linesOnScreen = scimoz.linesOnScreen;
+                var visLineCount = scimoz.visibleFromDocLine(lineCount);
+                scrollbar.setAttribute("curpos", firstVisibleLine);
+                scrollbar.setAttribute("pageincrement", linesOnScreen);
+                                     
+                var canScroll = linesOnScreen < visLineCount;
+                var maxpos = visLineCount - linesOnScreen;
+                scrollbar.setAttribute("maxpos", maxpos < 0 ? 0 : maxpos);
+                scrollbar.setAttribute("can-scroll", canScroll);
             ]]>
             </body>
             </method>
