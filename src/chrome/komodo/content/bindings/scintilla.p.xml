@@ -228,7 +228,16 @@
                     return;
                 }
 
-                // Update the scrollbar position.
+                // Update the xul scrollbar attributes.
+
+                // When not called through the mutation observer (i.e. supress
+                // is true), then the mutation observer must supress the next
+                // event it receives, otherwise the scrollbar will jump
+                // needlessly - bug 106383.
+                if (!scrollbar.suppress) {
+                    scrollbar.suppressNext = true;
+                }
+
                 var linesOnScreen = scimoz.linesOnScreen;
                 var visLineCount = scimoz.visibleFromDocLine(lineCount);
                 scrollbar.setAttribute("curpos", firstVisibleLine);
@@ -501,6 +510,11 @@
                         ob.horizontal.observe(this._scrollEventHandler.horizontal,
                                               {attributes: true, attributeFilter: ["curpos"]});
                         ob.vertical = new MutationObserver(mutations => {
+                            // Check if it needs to supress this mutation event.
+                            if (this._scrollEventHandler.vertical.suppressNext) {
+                                this._scrollEventHandler.vertical.suppressNext = false;
+                                return;
+                            }
                             this._scrollEventHandler.vertical.suppress = true;
                             try {
                                 this.scimoz.firstVisibleLine =
