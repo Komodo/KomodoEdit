@@ -59,9 +59,19 @@ window#komodo_main :not(toolbarbutton):not(toolbaritem)
     }
 }
 
+
 notification
 {
     -moz-appearance: @window-appearance;
     background: @window-background;
     color: @window-color;
+}
+
+treechildren:not(.autocomplete-treebody)::-moz-tree-row
+{
+    -moz-border-top-colors: transparent;
+    -moz-border-right-colors: transparent;
+    -moz-border-left-colors: transparent;
+    -moz-border-bottom-colors: transparent;
+    outline: 0 !important;
 }
