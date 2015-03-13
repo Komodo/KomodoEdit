@@ -1362,7 +1362,8 @@ class koPreferenceCache(object):
     def getPref(self, id):
         assert self._is_sane()
         pref = UnwrapObject(self.pref_map.get(id, (None, None))[0])
-        if not isinstance(pref, koPreferenceRoot):
+        if not isinstance(pref, (koPreferenceRoot, koPreferenceChild)):
+            log.warn("deserializing and reserializing prefset %r", id)
             # Deserializing prefsets from before Komodo 9.0.0a1; there was no
             # separate class for root prefs.
             root = koPreferenceRoot()

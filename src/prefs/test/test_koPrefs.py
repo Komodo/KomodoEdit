@@ -353,6 +353,43 @@ class PrefSetTestCase(unittest.TestCase):
         self.assertEquals(o.length, 1)
         self.assertEquals(o.getLong(0), 9)
 
+    @tag("bug106386")
+    def test_preference_cache(self):
+        """Ensure viewStateMRU (a koPrefCache) works as intended"""
+        # Create the preference cache and original prefset.
+        pref_cache = Cc["@activestate.com/koPrefCache;1"].createInstance()
+        prefs = Cc["@activestate.com/koPreferenceSet;1"].createInstance()
+        prefs.id = "test_preference_cache"
+        pref_cache.setPref(prefs)
+
+        # Add ordered preference to the prefset.
+        openedfiles = Cc["@activestate.com/koOrderedPreference;1"].createInstance()
+        openedfiles.appendString("file1")
+        openedfiles.appendString("file2")
+        prefs.setPref("openedfiles", openedfiles)
+
+        # Check the prefs through the base preference cache instance.
+        prefs_try2 = pref_cache.getPref("test_preference_cache")
+        openedfiles_2 = prefs_try2.getPref("openedfiles")
+        self.assertEqual(openedfiles_2.length, 2)
+        self.assertEqual(openedfiles_2.getString(0), "file1")
+        self.assertEqual(openedfiles_2.getString(1), "file2")
+
+        # Set different ordered preference on the prefset.
+        openedfiles_2 = Cc["@activestate.com/koOrderedPreference;1"].createInstance()
+        openedfiles_2.appendString("file1")
+        openedfiles_2.appendString("file2")
+        openedfiles_2.appendString("file3")
+        prefs_try2.setPref("openedfiles", openedfiles_2)
+
+        # Check the prefs (again) through the base preference cache instance.
+        prefs_try3 = pref_cache.getPref("test_preference_cache")
+        openedfiles_3 = prefs_try3.getPref("openedfiles")
+        self.assertEqual(openedfiles_3.length, 3)
+        self.assertEqual(openedfiles_3.getString(0), "file1")
+        self.assertEqual(openedfiles_3.getString(1), "file2")
+        self.assertEqual(openedfiles_3.getString(2), "file3")
+
 class PrefSerializeTestCase(unittest.TestCase):
     def assertXMLEqual(self, first, second, msg=None, ignore_white_space=True):
         if first is None and second is None:
