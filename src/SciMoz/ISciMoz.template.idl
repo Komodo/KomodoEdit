@@ -98,6 +98,9 @@ interface ISciMozLite : nsISupports {
 	// stuff to minimize some of our eventist usage
 	void doBraceMatch();
 	
+	// Plugin visibility hack used on Cocoa platform.
+	void enablePluginVisibilityHack();
+
         // utility function to save every man and his dog from doing the int->char conversion.
         wchar getWCharAt(in long pos);
         // Indicates if Scintilla is currently "owned" by the plugin instance.

@@ -38,6 +38,7 @@ manualFunctions = """
     getStyleRange assignCmdKey clearCmdKey getTextRange charPosAtPosition
     sendUpdateCommands getWCharAt addChar buttonDown buttonUp buttonMove endDrop
     annotationRemoveAtLine updateMarginWidths markerDefineRGBAImage
+    enablePluginVisibilityHack
     """.split()
 """ Implemented by hand
     note: items returning strings or complex types are easier to

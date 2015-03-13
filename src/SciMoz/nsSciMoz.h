@@ -231,7 +231,9 @@ private:
     int16_t _textId;
     // Last line count gets updated whenever the text is changed.
     long mLastLineCount;
-    
+    // Setting for plugin visibility on Cocoa platform.
+    bool mPluginVisibilityHack;
+
     void DefaultSettings();
 
     // brace match support
@@ -361,6 +363,7 @@ public:
 
     NPRUNTIME_CUSTOM_METHOD(UpdateMarginWidths);
     NPRUNTIME_CUSTOM_METHOD(DoBraceMatch);
+    NPRUNTIME_CUSTOM_METHOD(EnablePluginVisibilityHack);
     NPRUNTIME_CUSTOM_METHOD(MarkClosed);
     NPRUNTIME_CUSTOM_METHOD(HookEvents);
     NPRUNTIME_CUSTOM_METHOD(UnhookEvents);

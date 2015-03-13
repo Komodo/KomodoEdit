@@ -158,6 +158,7 @@ void SciMoz::SciMozInit() {
     _scimozId = GenerateScimozId();
     _textId = 0;
     mLastLineCount = 1;
+	mPluginVisibilityHack = false;
 
     PlatformNew();
 }
@@ -364,6 +365,23 @@ bool SciMoz::DoBraceMatch(const NPVariant * /*args*/, uint32_t argCount, NPVaria
 		return false;
 	}
 	BraceMatch();
+	return true;
+}
+
+NS_IMETHODIMP SciMoz::EnablePluginVisibilityHack()
+{
+	SCIMOZ_CHECK_VALID("EnablePluginVisibilityHack");
+	mPluginVisibilityHack = true;
+	return NS_OK;
+}
+bool SciMoz::EnablePluginVisibilityHack(const NPVariant * /*args*/, uint32_t argCount, NPVariant * /*result*/) {
+        SCIMOZ_CHECK_THREAD("EnablePluginVisibilityHack", false)
+        SCIMOZ_CHECK_ALIVE("EnablePluginVisibilityHack", false)
+	if (argCount != 0) {
+		SCIMOZ_DEBUG_PRINTF("%s: expected 0 arguments, got %i\n", __FUNCTION__, argCount);
+		return false;
+	}
+	EnablePluginVisibilityHack();
 	return true;
 }
 
