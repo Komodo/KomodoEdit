@@ -212,6 +212,21 @@ typedef struct _PlatformInstance {
 #endif
 }
 PlatformInstance;
+
+/**
+ * Helper class to be used as timer target (NSTimer).
+ */
+@interface SciMozVisibilityTimer: NSObject
+{
+  void* mTimer;
+  void* mTarget;
+}
+- (id) init: (void*) target;
+- (void) startTimer;
+- (void) stopTimer;
+- (void) timerFired: (NSTimer*) timer;
+@end
+
 #endif
 
 #endif  // else not HEADLESS_SCIMOZ
@@ -328,6 +343,13 @@ public:
 
     // Notify that scimoz was closed.
     void PlatformMarkClosed(void);
+
+#ifdef XP_MACOSX
+#ifndef HEADLESS_SCIMOZ
+    SciMozVisibilityTimer *visibilityTimer;
+    void VisibilityTimerCallback(NSTimer *timer);
+#endif
+#endif
 
 #ifdef XP_MACOSX_USE_CORE_ANIMATION
     void *GetCoreAnimationLayer();

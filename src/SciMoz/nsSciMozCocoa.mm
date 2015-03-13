@@ -68,11 +68,67 @@ static char *getNSRectStr(NSRect rect, char *buf) {
 // When we get a cliprect positioned at (0,0) and it has a width & height of 0,
 // then it means we are hiding the plugin from view, otherwise we are either
 // re-showing the plugin or re-sizing the plugin - bug 97395.
-#define WINDOW_DISABLED(a) (!a || \
-                                  (npwindow->clipRect.left == 0 && \
-                                   npwindow->clipRect.top == 0 && \
-				   a->clipRect.bottom <= a->clipRect.top && \
-				   a->clipRect.right  <= a->clipRect.left))
+#define NPWINDOW_CLIP_HIDDEN(npwin) ((npwin->clipRect.bottom <= npwin->clipRect.top) || \
+				                     (npwin->clipRect.right  <= npwin->clipRect.left))
+
+
+/*-----------------------------------------------------------------------------
+ * Timer helper class used to work around the disappering plugin issue.
+ *---------------------------------------------------------------------------*/
+
+@implementation SciMozVisibilityTimer
+
+- (id) init: (void*) target
+{
+  self = [super init];
+  if (self != nil)
+  {
+    mTarget = target;
+  }
+  mTimer = nil;
+  return self;
+}
+
+/**
+ * Start the timer - will call the timerFired method every n seconds. This two
+ * step approach is needed because a native Obj-C class is required as target
+ * for the timer.
+ */
+- (void) startTimer
+{
+  if (mTimer != nil) {
+  }
+
+  mTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
+	                target:self
+	                selector:@selector(timerFired:)
+	                userInfo:nil
+	                repeats:YES];
+}
+
+/**
+ * Stop the timer.
+ */
+- (void) stopTimer
+{
+  if (mTimer != nil) {
+	[mTimer invalidate];
+	mTimer = nil;
+  }
+}
+
+/**
+ * Timer callback - notify SciMoz that the timer has fired.
+ */
+- (void) timerFired: (NSTimer*) timer
+{
+  reinterpret_cast<SciMoz*>(mTarget)->VisibilityTimerCallback(timer);
+}
+
+@end
+
+//--------------------------------------------------------------------------------------------------
+
 
 void SciMoz::PlatformCreate(WinID) {
   SendEditor(SCI_USEPOPUP, FALSE, 0);
@@ -204,6 +260,7 @@ void SciMoz::PlatformNew(void) {
     fWindow = NULL;
     wEditor = NULL;
     wMain = NULL;
+    visibilityTimer = [[SciMozVisibilityTimer alloc] init: this];
 #ifdef SCIMOZ_COCOA_DEBUG
     fprintf(stderr,"<< SciMoz::PlatformNew\n");
 #endif
@@ -230,6 +287,8 @@ nsresult SciMoz::PlatformDestroy(void) {
     portMain = NULL;
     wMain = NULL;
     fWindow = NULL;
+    [visibilityTimer stopTimer];
+    [visibilityTimer release];
     return NS_OK;
  }
 
@@ -293,7 +352,7 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
     fprintf(stderr, "fWindow == npwindow: %d\n",
 	    fWindow == npwindow);
 #endif
-    HideScintillaView(WINDOW_DISABLED(fWindow));
+    HideScintillaView(NPWINDOW_CLIP_HIDDEN(npwindow));
 
 #ifdef SCIMOZ_COCOA_DEBUG
     // Remember the window information.
@@ -346,6 +405,25 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
   return NS_OK;
 }
 
+void SciMoz::VisibilityTimerCallback(NSTimer *timer) {
+  //
+  ScintillaView *scView = (ScintillaView *) wEditor;
+
+  if ([scView isHidden]) {
+	[visibilityTimer stopTimer];
+#ifdef SCIMOZ_COCOA_DEBUG
+	fprintf(stderr, "VisibilityTimerCallback:: hidden view, stopping timer %p\n", this);
+#endif
+
+  } else {
+	[scView setHidden:YES];
+	[scView setHidden:NO];
+#ifdef SCIMOZ_COCOA_DEBUG
+	fprintf(stderr, "VisibilityTimerCallback:: toggled visibility %p\n", this);
+#endif
+  }
+}
+
 void SciMoz::HideScintillaView(bool hide) {
   ScintillaView *scView = (ScintillaView *) wEditor;
 #ifdef SCIMOZ_COCOA_DEBUG
@@ -354,6 +432,7 @@ void SciMoz::HideScintillaView(bool hide) {
 #endif
     
   if (hide) {
+	[visibilityTimer stopTimer];
     if (![scView isHidden]) {
 #ifdef SCIMOZ_COCOA_DEBUG
       fprintf(stderr, "    -scintilla->SetTicking(false)\n");
@@ -363,8 +442,10 @@ void SciMoz::HideScintillaView(bool hide) {
     }
   } else {
     if ([scView isHidden]) {
+	  if (mPluginVisibilityHack) {
+		[visibilityTimer startTimer];
+	  }
       // Make Scintilla visible.
-
       [scView setHidden:NO];
 #ifdef SCIMOZ_COCOA_DEBUG
       fprintf(stderr, "    -scintilla->SetTicking(true)\n");

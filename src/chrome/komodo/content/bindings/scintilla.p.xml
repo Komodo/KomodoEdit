@@ -65,7 +65,6 @@
                                     style="-moz-box-flex: 1;"
                                     pluginAllowsFocusEvents="false"
                                     pluginHandlesDomEvents="false"
-                                    xbl:inherits="pluginPaintHack"
                                     />
                         <xul:scrollbar orient="vertical" anonid="scrollbar_v" 
                                        can-scroll="false" for="scintilla"/>
@@ -688,6 +687,13 @@
                                                                this.pref_topics.length,
                                                                this.pref_topics,
                                                                false);
+
+                // Check if the view's scintilla widget requires the plugin paint hack.
+                let view = document.getBindingParent(this);
+                if (view.localName == "view" && view.scintilla.hasAttribute("pluginPaintHack")) {
+                    this.scimoz.enablePluginVisibilityHack();
+                }
+
                 scimoz.visible = true;
             } catch (e) {
                 this.log.exception(e);
