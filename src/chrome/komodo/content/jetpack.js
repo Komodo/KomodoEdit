@@ -164,6 +164,10 @@ const [JetPack, require] = (function() {
      * @param {String} namespace  The prefix for the required path.
      */
     require.removeRequirePath = function(namespace) {
+        // The load.mapping will store the entries with a trailing slash.
+        if (!namespace.endsWith("/")) {
+            namespace += "/";
+        }
         for (var i=0; i < loader.mapping.length; i++) {
             if (loader.mapping[i][0] == namespace) {
                 loader.mapping.splice(i, 1);
