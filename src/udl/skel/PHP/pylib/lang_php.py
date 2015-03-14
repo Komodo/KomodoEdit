@@ -3235,18 +3235,33 @@ class PHPParser:
                 #    self.styles.append(style)
                 #    self.text.append(op)
                 #log.debug("token_next: line %d, %r" % (self.lineno, text))
-                for op in text:
+                brace_count = 0
+
+                for i, op in enumerate(text):
                     self.styles.append(style)
                     self.text.append(op)
                     self.linenos.append(self.lineno)
+
+                    # Skip double-colan, class/variables accesses, like "self::"
+                    if op == ":":
+                        if i+1 < len(text) and text[i+1] == ":":
+                            continue
+                        if i > 0 and text[i-1] == ":":
+                            continue
+
                     if op == "(":
                         # We can start defining arguments now
                         #log.debug("Entering S_IN_ARGS state")
+                        brace_count += 1
                         self.return_to_state = self.state
                         self.state = S_IN_ARGS
                     elif op == ")":
                         #log.debug("Entering state %d", self.return_to_state)
+                        brace_count -= 1
                         self.state = self.return_to_state
+                        # If, else and elseif can be a one-liner, so parse now.
+                        if brace_count == 0 and self.text[0] in ("if", "elseif", "else"):
+                            self._addCodePiece()
                     elif op == "=":
                         if text == op:
                             #log.debug("Entering S_IN_ASSIGNMENT state")
@@ -3262,7 +3277,7 @@ class PHPParser:
                         else:
                             self._addCodePiece()
                         self.decBlock()
-                    elif op == ":" and self.text and (self.text[-1] not in ("self", "parent", ":") or self.text[0] in ("case", "default")):
+                    elif op == ":":
                         # May be an alternative syntax
                         if len(self.text) > 0 and \
                            self.styles[0] == self.PHP_WORD and \
