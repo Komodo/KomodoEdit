@@ -31,15 +31,10 @@ $cons->AddComponentManifestLines("test-registration",
                                  ["category komodo-jstest-paths chrome $komodoDevDir/src/chrome/komodo/content",
                                   "category komodo-jstest-paths test-root $komodoDevDir/test/jstest"]);
 $cons->Install("$mozChromeDir/komodo-jstest", "JSTest.jsm");
-$cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/mock.jsm");
-$cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/findresults.jsm");
-$cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/history.jsm");
-$cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/macros.jsm");
-$cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/mru.jsm");
-$cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/notifications.jsm");
-$cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/statusbar.jsm");
-$cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/TreeBoxObject.jsm");
-$cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/views.jsm");
+# Note: InstallRecursive must take absolute paths for input (bug in
+#       the InstallRecursive method).
+$cons->InstallRecursive("$mozChromeDir/komodo-jstest/mock",
+                        cwd()."/test/jstest/mock");
 my $buildlistScript = "$mozSrc/mozilla/python/mozbuild/mozbuild/action/buildlist.py";
 # Tweak env to point PYTHONPATH at the mozbuild dir.
 my %envLocal = $cons->copy();

@@ -87,6 +87,11 @@ function TestKoFind() {
 TestKoFind.prototype = new TestCase();
 
 TestKoFind.prototype.setUp = function TestKoFind_setUp() {
+    // Replace the notify module with a mocked version, otherwise the real notify
+    // module will try to use the window and dom (which don't exist).
+    require.removeRequirePath("notify");
+    require.setRequirePath("notify", "resource://komodo-jstest/mock/sdk");
+
     let loader = Cc['@mozilla.org/moz/jssubscript-loader;1']
                    .getService(Ci.mozIJSSubScriptLoader);
     this.scope = { ko: ko, __noSuchMethod__: function() {}};
@@ -104,6 +109,10 @@ TestKoFind.prototype.setUp = function TestKoFind_setUp() {
 };
 
 TestKoFind.prototype.tearDown = function TestKoFind_tearDown() {
+    // Hacky - add back the real notify module.
+    require.removeRequirePath("notify");
+    require.setRequirePath("notify", "chrome://notify/content/sdk");
+
     this.options.patternType = Ci.koIFindOptions.FOT_SIMPLE;
     this.options.searchBackward = false;
     this.scope = null;
