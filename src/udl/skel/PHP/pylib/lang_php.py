@@ -85,7 +85,7 @@ if _xpcom_:
 
 lang = "PHP"
 log = logging.getLogger("codeintel.php")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 util.makePerformantLogger(log)
 
 #---- language support
@@ -3262,7 +3262,7 @@ class PHPParser:
                         else:
                             self._addCodePiece()
                         self.decBlock()
-                    elif op == ":" and self.text and self.text[-1] not in ("self", "parent", ":"):
+                    elif op == ":" and self.text and (self.text[-1] not in ("self", "parent", ":") or self.text[0] in ("case", "default")):
                         # May be an alternative syntax
                         if len(self.text) > 0 and \
                            self.styles[0] == self.PHP_WORD and \
