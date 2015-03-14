@@ -58,6 +58,6 @@ class Encodings(unittest.TestCase):
             self.assertEqual(len(entries), 1, "Should have been one entry")
             result = entries[0]
             self.assertEqual(result.severity, Ci.koILintResult.SEV_ERROR, "Excepting error severity")
-            self.assertEqual(result.description, "SyntaxError:  syntax error: (on column 1)")
+            self.assertEqual(result.description, "SyntaxError:  expected expression, got ';': (on column 1)")
         finally:
             os.remove(path)
