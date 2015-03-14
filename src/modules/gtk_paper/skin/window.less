@@ -1,0 +1,70 @@
+@import url("chrome://komodo/skin/plat/current/window.less");
+
+:-moz-any(button, toolbarbutton, menuitem)[class$='-icon'] > image,
+:-moz-any(button, toolbarbutton, menuitem) [class$='-icon'] > image,
+:-moz-any(button, toolbarbutton, menuitem)[class$='_icon'] > image,
+:-moz-any(button, toolbarbutton, menuitem) [class$='_icon'] > image,
+image.toolbarbutton-icon
+{
+    opacity: 0.8;
+}
+
+#toolbox_main toolbar:not([mode="full"]) > toolbaritem > toolbarbutton:first-child,
+#toolbox_main toolbar:not([mode="full"]) > toolbaritem > toolbarbutton.first-child
+{
+  margin-left: 3px;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+#toolbox_main toolbar:not([mode="full"]) > toolbaritem > toolbarbutton:last-child,
+#toolbox_main toolbar:not([mode="full"]) > toolbaritem > toolbarbutton.last-child
+{
+  margin-right: 3px;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+toolbox #main-toolboxrow toolbar > toolbaritem > toolbarbutton
+{
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    padding: 6px !important;
+}
+
+#main-toolboxrow toolbar
+{
+    toolbaritem
+    {
+        margin-right: 5px;
+    }
+}
+
+/* The style below should be used for panes in the first "version" but I don't want to use it anymore. Feel free to uncomment that and use the "darkest" version for the panes 
+.placesTree,
+.domviewtree,
+.cbtree,
+.recentProjectsTree,
+#toolbox2-hierarchy-treebody,
+#collab-sessions-tree-children {
+        
+    &::-moz-tree-cell-text {
+        color: @sidebar-list-item-color;
+    }
+
+}
+
+#openfilesListbox {
+    richlistitem {
+        label.file-title {
+            color: @sidebar-list-item-color;
+        }
+    }
+}
+
+#placesToolbar #placesRootButton {
+    & {
+        color: @sidebar-list-item-color !important;
+    }
+}
+*/
