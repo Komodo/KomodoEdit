@@ -344,9 +344,6 @@ import URIlib
 def RelativizeURL(origbaseurl, origurl):
     if not origurl or not origbaseurl:
         return origurl
-    # ensure the base path ends with a slash
-    if origbaseurl[-1] not in ['/','\\']:
-        origbaseurl += '/'
         
     # verify that both base and full url's are file types, we will
     # not relativize ftp, etc. type url's
@@ -368,7 +365,11 @@ def RelativizeURL(origbaseurl, origurl):
     else:
         baseURI_URI_comparable = baseURI.URI
         fullURI_URI_comparable = fullURI.URI
-        
+
+    # ensure the base path ends with a slash
+    if not baseURI_URI_comparable.endswith('/'):
+        baseURI_URI_comparable += '/'
+
     # handle files with a common prefix.  This handles a full path
     # that is a subdirectory/path of the base path
     baselen = len(baseURI_URI_comparable)
