@@ -1161,14 +1161,13 @@ class CplnTestCase(CodeintelPerlTestCase):
             markup_text(content, pos=positions[1]),
             [("module", "Date"), ("module", "Headers"), ("module", "Message"),
              ("module", "Request")])
-        self.assertCompletionsAre(
+        self.assertCompletionsInclude(
             markup_text(content, pos=positions[2]),
             [("class", "Date"),
              ("class", "Headers"),  # Message.pm imports HTTP::Headers (among others)
              ("class", "Message"),  # Request.pm imports HTTP::Message
              ("class", "Request"),  # directly imported
-             ("class", "Response"), # Message.pm imports HTTP::Response
-             ("class", "Status")])
+            ])
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[3]),
             [("class", "Util"), ("function", "as_string")])
