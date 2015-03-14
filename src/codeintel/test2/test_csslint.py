@@ -80,7 +80,8 @@ class CSSLintTest(CodeIntelTestCase):
     _skin_dir = join(_ko_src_dir, "chrome", "komodo", "skin")
     _modules_dir = join(_ko_src_dir, "modules")
     _skipSkinFiles = [
-        # No openkomodo files in this category.
+        # Fails to parse @keyframes directives.
+        join(_skin_dir, "komodo.p.css"),
     ]
     def _walk_skin_files(self, data, dirname, fnames):
         for fname in fnames:
