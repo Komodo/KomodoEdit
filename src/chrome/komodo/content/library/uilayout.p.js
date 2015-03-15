@@ -1861,7 +1861,7 @@ this.updateViewRef = function(view) {
 this.updateViewDeck = function() {
     var tv = document.getElementById("topview");
     var deck = document.getElementById('editorviewbox');
-    var hasViews = tv.currentView.currentView || tv.otherView.otherView;
+    var hasViews = tv.currentView.currentView || tv.otherView.currentView;
 
     if ( ! hasViews) {
         deck.selectedPanel = document.getElementById("quicklaunch");
