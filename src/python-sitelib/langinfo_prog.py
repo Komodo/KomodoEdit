@@ -205,10 +205,14 @@ class _JSLikeLangInfo(LangInfo):
 class JavaScriptLangInfo(_JSLikeLangInfo):
     name = "JavaScript"
     exts = ['.js', '.jsm']
+    # Remove reserved keyword "throws" - conflicts with test case ci/nodejs/stdlib.
+    keywords = _JSLikeLangInfo.keywords.difference(["throws"])
 
 class NodeJSLangInfo(_JSLikeLangInfo):
     name = "Node.js"
     exts = ['.js']
+    # Remove reserved keyword "throws" - conflicts with test case ci/nodejs/stdlib.
+    keywords = _JSLikeLangInfo.keywords.difference(["throws"])
 
 class CoffeeScriptLangInfo(_JSLikeLangInfo):
     name = "CoffeeScript"
