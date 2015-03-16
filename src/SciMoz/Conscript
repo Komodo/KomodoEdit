@@ -144,12 +144,12 @@ $cons->InstallXpcomComponent('scimoz_wrapper.js',
 # build and install the Mozilla plugin
 my $pluginName;
 my $xScintillaBuildDir = DirPath($scintillaBuildDir);
+my $LDFLAGS = $consLocal{'LDFLAGS'};
 
 if ($platform eq "win") {
     $pluginName = 'npscimoz.dll';
 
     %consLocal = $cons->copy();
-    my $LDFLAGS = $consLocal{'LDFLAGS'};
 
     $LDFLAGS .= " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xul.lib nspr4.lib mozalloc.lib";
     foreach my $libDir (split(';', $mozLibPath)) {
@@ -425,13 +425,13 @@ if ($withTests) {
         $headlessLibName = "ScintillaHeadless.dll";
     }
 
-    my $headlessSciMoz = "headless/libkoScimozHeadless.$dll_ext";
+    my $headlessSciMoz = "headless/${dll_prefix}koScimozHeadless.$dll_ext";
     my %consHeadless = $consLocal->copy();
     my $scintillaRealDir = substr $scintillaBuildDir, 1;  # starts with special cons "#" marker otherwise
 
-    $consHeadless{'CXXFLAGS'} = "-I$scintillaRealDir/headless -I$scintillaRealDir/src " . $consHeadless{'CXXFLAGS'};
-    $consHeadless{'CXXFLAGS'} .= " -DHEADLESS_SCIMOZ";
-    $consHeadless{'CXXFLAGS'} .= " -I$scintillaRealDir/../SciMoz";
+    $consHeadless{'CXXFLAGS'} = "${include_prefix}$scintillaRealDir/headless ${include_prefix}$scintillaRealDir/src " . $consHeadless{'CXXFLAGS'};
+    $consHeadless{'CXXFLAGS'} .= " ${define_prefix}HEADLESS_SCIMOZ";
+    $consHeadless{'CXXFLAGS'} .= " ${include_prefix}$scintillaRealDir/../SciMoz";
 
     if ($platform eq "win") {
         # Windows tweaks.
