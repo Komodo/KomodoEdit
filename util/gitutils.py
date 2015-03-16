@@ -10,7 +10,9 @@ def _capture_stdout(argv, ignore_retval=False, cwd=None, env=None):
 
 def _last_svn_commit():
     # Find the last known commit that was imported from svn
-    cmd = ["git", "log", "--all", "-1", "--grep=git-svn-id:",
+    # We have to use "http://svn.openkomodo.com/" in order to skip ko-integrated
+    # code from the Komodo IDE repository!
+    cmd = ["git", "log", "--all", "-1", "--grep=git-svn-id: http://svn.openkomodo.com/",
            "--date-order", "--pretty=%ci%n%b"]
     last_svn_commit = _capture_stdout(cmd).splitlines(False)
     last_svn_date = last_svn_commit.pop(0)
