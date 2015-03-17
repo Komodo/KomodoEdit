@@ -2806,8 +2806,7 @@ class JavaScriptCiler:
         last_style = self.JS_OPERATOR
         while pos < len(styles):
             style = styles[pos]
-            if style == self.JS_IDENTIFIER or \
-               (style == self.JS_WORD and text[pos] == "this"):
+            if style in (self.JS_IDENTIFIER, self.JS_WORD):
                 if last_style != self.JS_OPERATOR:
                     break
                 ids.append(text[pos])
@@ -2841,7 +2840,7 @@ class JavaScriptCiler:
             style = styles[p]
             #log.debug("p: %d, text[p]: %r", p, text[p])
             #print "style: %d, last_style: %d" % (style, last_style)
-            if style == self.JS_IDENTIFIER or text[p] == "this":
+            if style in (self.JS_IDENTIFIER, self.JS_WORD):
                 if last_style != self.JS_OPERATOR:
                     break
                 citdl.append(text[p])
