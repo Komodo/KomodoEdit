@@ -470,15 +470,10 @@ if ($platform eq "linux") {
 
 if ($withTests) {
     Build(
+	"$build/scintilla/headless/Conscript",
 	"$testBuild/pyxpcom/Conscript",
 	"$testBuild/jstest/Conscript",
     );
-    # Headless scintilla for testing.
-    if ($platform eq "linux" || $platform eq "darwin") {
-	Build(
-	    "$build/scintilla/headless/Conscript",
-	);
-    }
 }
 
 if ($withCasper) {
