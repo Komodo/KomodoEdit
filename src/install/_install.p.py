@@ -296,11 +296,11 @@ Categories=__GNOME_DESKTOP_CATEGORIES__
         pass
 
     # Write desktop file to a temporary file.
-    fd, tempPath = tempfile.mkstemp(suffix='.desktop', prefix='komodo_shortcut')
-    os.write(fd, content)
-    os.close(fd)
-
+    tempDir = tempfile.mkdtemp()
     try:
+        tempPath = join(tempDir, shortcutName)
+        file(tempPath, "w").write(content)
+
         if suppressShortcut:
             raise ShortcutInstallError("shortcut suppressed by user")
 
@@ -314,7 +314,7 @@ Categories=__GNOME_DESKTOP_CATEGORIES__
             try:
                 _run("xdg-desktop-menu install --novendor %s" % (tempPath))
                 _run("xdg-desktop-icon install --novendor %s" % (tempPath))
-                log.info("Komodo desktop shortcuts created successfully")
+                log.info("%r created successfully", shortcutName)
                 return
             except OSError:
                 # Fallback to manual install.
@@ -360,7 +360,7 @@ Categories=__GNOME_DESKTOP_CATEGORIES__
                  shortcutPath)
     finally:
         try:
-            os.remove(tempPath)
+            _rmtree(tempDir)
         except:
             pass
 
