@@ -150,6 +150,17 @@ function loadDiffResult(result, cwd) {
         diffView.setFocus();
         // Remove the notification widget.
         diffView.notificationbox.removeAllNotifications(true /* false means to slide away */);
+
+        if (navigator.platform.match(/^Mac/)) {
+            // Bug 96209, bug 105056 - hack around scintilla display problems on
+            // the mac. Note that adjusting flex doesn't actually change
+            // anything substantial - as there is only one element. If there
+            // were more elements, it would appear jerky.
+            diffView.setAttribute("flex", "2");
+            setTimeout(function() { diffView.setAttribute("flex", "3"); }, 20);
+            setTimeout(function() { diffView.setAttribute("flex", "1"); }, 2000);
+        }
+
     } catch(ex) {
         _dw_log.exception(ex, "error loading diff window dialog.");
     }
