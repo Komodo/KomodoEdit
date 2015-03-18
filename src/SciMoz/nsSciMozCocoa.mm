@@ -271,7 +271,8 @@ nsresult SciMoz::PlatformDestroy(void) {
     fprintf(stderr,"SciMoz::PlatformDestroy wEditor %p scintilla %p\n", wEditor, scintilla);
 #endif
     if (scintilla) {
-        scintilla->SetTicking(false);
+        scintilla->SetIdle(false);
+        scintilla->RegisterNotifyCallback(NULL, NULL);
         scintilla = NULL;
     }
     if (wEditor) {
@@ -294,6 +295,8 @@ nsresult SciMoz::PlatformDestroy(void) {
 
 
 void SciMoz::PlatformMarkClosed() {
+    scintilla->SetIdle(false);
+    scintilla->RegisterNotifyCallback(NULL, NULL);
 }
 
 #if 0
@@ -433,14 +436,15 @@ void SciMoz::HideScintillaView(bool hide) {
     
   if (hide) {
 	[visibilityTimer stopTimer];
+    scintilla->SetIdle(false);
     if (![scView isHidden]) {
 #ifdef SCIMOZ_COCOA_DEBUG
-      fprintf(stderr, "    -scintilla->SetTicking(false)\n");
+      fprintf(stderr, "    hiding scView\n");
 #endif
-      scintilla->SetTicking(false);
       [scView setHidden:YES];
     }
   } else {
+    scintilla->SetIdle(true);
     if ([scView isHidden]) {
 	  if (mPluginVisibilityHack) {
 		[visibilityTimer startTimer];
@@ -448,7 +452,7 @@ void SciMoz::HideScintillaView(bool hide) {
       // Make Scintilla visible.
       [scView setHidden:NO];
 #ifdef SCIMOZ_COCOA_DEBUG
-      fprintf(stderr, "    -scintilla->SetTicking(true)\n");
+      fprintf(stderr, "    unhiding scView\n");
 #endif
     } else if (fPlatform.firstVisibilityRequest) {
       // Necessary hack to ensure the view will become visible - bug 97801.
