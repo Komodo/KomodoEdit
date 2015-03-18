@@ -260,7 +260,11 @@ void SciMoz::PlatformNew(void) {
     fWindow = NULL;
     wEditor = NULL;
     wMain = NULL;
+
+#if !defined(HEADLESS_SCIMOZ)
     visibilityTimer = [[SciMozVisibilityTimer alloc] init: this];
+#endif
+
 #ifdef SCIMOZ_COCOA_DEBUG
     fprintf(stderr,"<< SciMoz::PlatformNew\n");
 #endif
