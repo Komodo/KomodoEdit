@@ -59,7 +59,7 @@
                     <xul:column/>
                 </xul:columns>
                 <xul:rows>
-                    <xul:row flex="1">
+                    <xul:row anonid="scimoz_row" flex="1">
                         <html:embed type="application/x-scimoz-plugin"
                                     anonid="scimoz"
                                     style="-moz-box-flex: 1;"
@@ -580,6 +580,22 @@
                 // control, you can do all this yourself!
                 var scimoz = this.scimoz;
                 try {
+
+/* #if PLATFORM == "darwin" */
+/**
+ * Hack for Mac OS X - when scintilla widgets are shown on the Mac, they
+ * sometimes flash (appear, disappear and then reappear) when they are first
+ * loaded. To workaround the flash, we start with the scintilla widget hidden,
+ * then it's made visible through a short setTimeout, so it looks as though the
+ * text is loaded smoothly (albeit with a very small delay).
+ */ 
+                    var scimoz_row = document.getAnonymousElementByAttribute(this, "anonid", "scimoz_row");
+                    scimoz_row.setAttribute("collapsed", "true");
+                    setTimeout(function() {
+                        scimoz_row.removeAttribute("collapsed");
+                    }, 10);
+/* #endif */
+
                     var controller = Cc['@ActiveState.com/scintilla/controller;1'].
                         createInstance(Ci.ISciMozController);
                     controller.init( scimoz );
