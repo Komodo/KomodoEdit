@@ -662,6 +662,9 @@
         <![CDATA[
         try {
             this.log.info("view-buffer:initWithBuffer");
+            if (!language) {
+                language = "Text";
+            }
             this.language = language
             this.scintilla.encoding = 'utf-8';
             this.scintilla.init();
