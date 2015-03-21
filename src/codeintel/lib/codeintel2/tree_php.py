@@ -885,6 +885,14 @@ class PHPTreeEvaluator(TreeEvaluator):
                     else:
                         new_hit, nconsumed \
                             = self._hit_from_getattr(remaining_tokens, *hit)
+                        ## if is function and return is in (this, ) return initial class
+                        if new_hit[0].get("ilk") == "function" and new_hit[0].get("returns") in ("this",):
+                            nconsumed = 2
+                            new_hit = hit
+                            if self.trg.form == TRG_FORM_CALLTIP and len(remaining_tokens) <= 1:
+                                #now get the resolve the calltip on the last hit class directly!
+                                remaining_tokens = [remaining_tokens[-1]]
+                                new_hit, nconsumed = self._hit_from_getattr(remaining_tokens, *hit)
                     remaining_tokens = remaining_tokens[nconsumed:]
                 except CodeIntelError, ex:
                     self.debug("error %s", ex)
