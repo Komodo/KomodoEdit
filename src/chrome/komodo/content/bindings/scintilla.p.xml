@@ -1260,7 +1260,8 @@
                     case event.DOM_VK_RETURN:
                         break;
                     case event.DOM_VK_TAB:
-                        if (!ko.tabstops.textHasTabstops(scimoz.text)
+                        if ((!("tabstops" in ko)
+                                || !ko.tabstops.textHasTabstops(scimoz.text))
                             && (scimoz.selectionIsRectangle
                                 || scimoz.multipleSelection))
                         {
