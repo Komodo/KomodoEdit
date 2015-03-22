@@ -1,0 +1,215 @@
+Index: /as/komodo-devel/src/scintilla/gtk/makefile
+--- gtk/makefile
++++ gtk/makefile (unsaved)
+@@ -96,7 +96,7 @@
+ 	CharClassify.o Decoration.o Document.o PerLine.o Catalogue.o CallTip.o CaseConvert.o CaseFolder.o \
+ 	ScintillaBase.o ContractionState.o EditModel.o Editor.o EditView.o ExternalLexer.o MarginView.o \
+ 	PropSetSimple.o PlatGTK.o \
+-	KeyMap.o LineMarker.o PositionCache.o ScintillaGTK.o CellBuffer.o CharacterCategory.o ViewStyle.o \
++	KeyMap.o LineMarker.o PositionCache.o ScintillaGTK.o ScintillaWrapGTK.o CellBuffer.o CharacterCategory.o ViewStyle.o \
+ 	RESearch.o RunStyles.o Selection.o Style.o Indicator.o AutoComplete.o UniConversion.o XPM.o \
+ 	$(MARSHALLER) $(LEXOBJS)
+ 	$(AR) rc $@ $^
+Index: /as/komodo-devel/src/scintilla/gtk/PlatGTK.cxx
+--- gtk/PlatGTK.cxx
++++ gtk/PlatGTK.cxx (unsaved)
+@@ -18,6 +18,8 @@
+ #include <gdk/gdk.h>
+ #include <gtk/gtk.h>
+ #include <gdk/gdkkeysyms.h>
++
++#include "ScintillaWrapGTK.h"
+ 
+ #include "Platform.h"
+ 
+@@ -41,11 +43,7 @@
+ 
+ #include "Converter.h"
+ 
+-#if GTK_CHECK_VERSION(2,20,0)
+-#define IS_WIDGET_FOCUSSED(w) (gtk_widget_has_focus(GTK_WIDGET(w)))
+-#else
+-#define IS_WIDGET_FOCUSSED(w) (GTK_WIDGET_HAS_FOCUS(w))
+-#endif
++#define IS_WIDGET_FOCUSSED(w) (ScintillaWrapGTK_gtk_widget_has_focus(w))
+ 
+ static const double kPi = 3.14159265358979323846;
+ 
+@@ -61,21 +59,7 @@
+ }
+ 
+ static cairo_surface_t *CreateSimilarSurface(GdkWindow *window, cairo_content_t content, int width, int height) {
+-#if GTK_CHECK_VERSION(2,22,0)
+-	return gdk_window_create_similar_surface(window, content, width, height);
+-#else
+-	cairo_surface_t *window_surface, *surface;
+-
+-	g_return_val_if_fail(GDK_IS_WINDOW(window), NULL);
+-
+-	window_surface = GDK_DRAWABLE_GET_CLASS(window)->ref_cairo_surface(window);
+-
+-	surface = cairo_surface_create_similar(window_surface, content, width, height);
+-
+-	cairo_surface_destroy(window_surface);
+-
+-	return surface;
+-#endif
++    return ScintillaWrapGTK_gdk_window_create_similar_surface(window, content, width, height);
+ }
+ 
+ static GdkWindow *WindowFromWidget(GtkWidget *w) {
+Index: /as/komodo-devel/src/scintilla/gtk/ScintillaGTK.cxx
+--- gtk/ScintillaGTK.cxx
++++ gtk/ScintillaGTK.cxx (unsaved)
+@@ -27,6 +27,8 @@
+ #include <gmodule.h>
+ #include <gtk/gtk.h>
+ #include <gdk/gdkkeysyms.h>
++
++#include "ScintillaWrapGTK.h"
+ 
+ #if defined(__WIN32__) || defined(_MSC_VER)
+ #include <windows.h>
+@@ -85,15 +87,9 @@
+ #pragma GCC diagnostic ignored "-Wsentinel"
+ #endif
+ 
+-#if GTK_CHECK_VERSION(2,20,0)
+-#define IS_WIDGET_REALIZED(w) (gtk_widget_get_realized(GTK_WIDGET(w)))
+-#define IS_WIDGET_MAPPED(w) (gtk_widget_get_mapped(GTK_WIDGET(w)))
+-#define IS_WIDGET_VISIBLE(w) (gtk_widget_get_visible(GTK_WIDGET(w)))
+-#else
+-#define IS_WIDGET_REALIZED(w) (GTK_WIDGET_REALIZED(w))
+-#define IS_WIDGET_MAPPED(w) (GTK_WIDGET_MAPPED(w))
+-#define IS_WIDGET_VISIBLE(w) (GTK_WIDGET_VISIBLE(w))
+-#endif
++#define IS_WIDGET_REALIZED(w) (ScintillaWrapGTK_gtk_widget_get_realized(w))
++#define IS_WIDGET_MAPPED(w) (ScintillaWrapGTK_gtk_widget_get_mapped(w))
++#define IS_WIDGET_VISIBLE(w) (ScintillaWrapGTK_gtk_widget_get_visible(w))
+ 
+ static GdkWindow *WindowFromWidget(GtkWidget *w) {
+ #if GTK_CHECK_VERSION(3,0,0)
+@@ -488,11 +484,7 @@
+ 
+ void ScintillaGTK::RealizeThis(GtkWidget *widget) {
+ 	//Platform::DebugPrintf("ScintillaGTK::realize this\n");
+-#if GTK_CHECK_VERSION(2,20,0)
+-	gtk_widget_set_realized(widget, TRUE);
+-#else
+-	GTK_WIDGET_SET_FLAGS(widget, GTK_REALIZED);
+-#endif
++	ScintillaWrapGTK_gtk_widget_set_realized(widget, true);
+ 	GdkWindowAttr attrs;
+ 	attrs.window_type = GDK_WINDOW_CHILD;
+ 	GtkAllocation allocation;
+@@ -580,11 +572,7 @@
+ 		if (IS_WIDGET_MAPPED(widget)) {
+ 			gtk_widget_unmap(widget);
+ 		}
+-#if GTK_CHECK_VERSION(2,20,0)
+-		gtk_widget_set_realized(widget, FALSE);
+-#else
+-		GTK_WIDGET_UNSET_FLAGS(widget, GTK_REALIZED);
+-#endif
++		ScintillaWrapGTK_gtk_widget_set_realized(widget, false);
+ 		gtk_widget_unrealize(PWidget(wText));
+ 		gtk_widget_unrealize(PWidget(scrollbarv));
+ 		gtk_widget_unrealize(PWidget(scrollbarh));
+@@ -617,11 +605,7 @@
+ void ScintillaGTK::MapThis() {
+ 	try {
+ 		//Platform::DebugPrintf("ScintillaGTK::map this\n");
+-#if GTK_CHECK_VERSION(2,20,0)
+-		gtk_widget_set_mapped(PWidget(wMain), TRUE);
+-#else
+-		GTK_WIDGET_SET_FLAGS(PWidget(wMain), GTK_MAPPED);
+-#endif
++		ScintillaWrapGTK_gtk_widget_set_mapped(PWidget(wMain), true);
+ 		MapWidget(PWidget(wText));
+ 		MapWidget(PWidget(scrollbarh));
+ 		MapWidget(PWidget(scrollbarv));
+@@ -643,11 +627,7 @@
+ void ScintillaGTK::UnMapThis() {
+ 	try {
+ 		//Platform::DebugPrintf("ScintillaGTK::unmap this\n");
+-#if GTK_CHECK_VERSION(2,20,0)
+-		gtk_widget_set_mapped(PWidget(wMain), FALSE);
+-#else
+-		GTK_WIDGET_UNSET_FLAGS(PWidget(wMain), GTK_MAPPED);
+-#endif
++		ScintillaWrapGTK_gtk_widget_set_mapped(PWidget(wMain), false);
+ 		DropGraphics(false);
+ 		gdk_window_hide(PWindow(wMain));
+ 		gtk_widget_unmap(PWidget(wText));
+@@ -790,11 +770,7 @@
+ void ScintillaGTK::SizeAllocate(GtkWidget *widget, GtkAllocation *allocation) {
+ 	ScintillaGTK *sciThis = ScintillaFromWidget(widget);
+ 	try {
+-#if GTK_CHECK_VERSION(2,20,0)
+-		gtk_widget_set_allocation(widget, allocation);
+-#else
+-		widget->allocation = *allocation;
+-#endif
++		ScintillaWrapGTK_gtk_widget_set_allocation(widget, allocation);
+ 		if (IS_WIDGET_REALIZED(widget))
+ 			gdk_window_move_resize(WindowFromWidget(widget),
+ 			        allocation->x,
+@@ -814,15 +790,10 @@
+ 	parentClass = reinterpret_cast<GtkWidgetClass *>(
+ 	                  g_type_class_ref(gtk_container_get_type()));
+ 
+-#if GTK_CHECK_VERSION(2,20,0)
+-	gtk_widget_set_can_focus(PWidget(wMain), TRUE);
+-	gtk_widget_set_sensitive(PWidget(wMain), TRUE);
+-#else
+ #ifndef KOMODO_NO_FOCUS
+-	GTK_WIDGET_SET_FLAGS(PWidget(wMain), GTK_CAN_FOCUS);
+-#endif
+-	GTK_WIDGET_SET_FLAGS(GTK_WIDGET(PWidget(wMain)), GTK_SENSITIVE);
+-#endif
++	ScintillaWrapGTK_gtk_widget_set_can_focus(PWidget(wMain), true);
++#endif
++	ScintillaWrapGTK_gtk_widget_set_sensitive(PWidget(wMain), true);
+ 	gtk_widget_set_events(PWidget(wMain),
+ 	                      GDK_EXPOSURE_MASK
+ 	                      | GDK_SCROLL_MASK
+@@ -864,11 +835,7 @@
+ #else
+ 	scrollbarv = gtk_vscrollbar_new(GTK_ADJUSTMENT(adjustmentv));
+ #endif
+-#if GTK_CHECK_VERSION(2,20,0)
+-	gtk_widget_set_can_focus(PWidget(scrollbarv), FALSE);
+-#else
+-	GTK_WIDGET_UNSET_FLAGS(PWidget(scrollbarv), GTK_CAN_FOCUS);
+-#endif
++	ScintillaWrapGTK_gtk_widget_set_can_focus(PWidget(scrollbarv), false);
+ 	g_signal_connect(G_OBJECT(adjustmentv), "value_changed",
+ 			   G_CALLBACK(ScrollSignal), this);
+ 	gtk_widget_set_parent(PWidget(scrollbarv), PWidget(wMain));
+@@ -880,11 +847,7 @@
+ #else
+ 	scrollbarh = gtk_hscrollbar_new(GTK_ADJUSTMENT(adjustmenth));
+ #endif
+-#if GTK_CHECK_VERSION(2,20,0)
+-	gtk_widget_set_can_focus(PWidget(scrollbarh), FALSE);
+-#else
+-	GTK_WIDGET_UNSET_FLAGS(PWidget(scrollbarh), GTK_CAN_FOCUS);
+-#endif
++	ScintillaWrapGTK_gtk_widget_set_can_focus(PWidget(scrollbarh), true);
+ 	g_signal_connect(G_OBJECT(adjustmenth), "value_changed",
+ 			   G_CALLBACK(ScrollHSignal), this);
+ 	gtk_widget_set_parent(PWidget(scrollbarh), PWidget(wMain));
+@@ -3369,12 +3332,8 @@
+ 
+ static void scintilla_init(ScintillaObject *sci) {
+ 	try {
+-#if GTK_CHECK_VERSION(2,20,0)
+-		gtk_widget_set_can_focus(GTK_WIDGET(sci), TRUE);
+-#else
+ #ifndef KOMODO_NO_FOCUS
+-		GTK_WIDGET_SET_FLAGS(sci, GTK_CAN_FOCUS);
+-#endif
++		ScintillaWrapGTK_gtk_widget_set_can_focus(GTK_WIDGET(sci), true);
+ #endif
+ 		sci->pscin = new ScintillaGTK(sci);
+ 	} catch (...) {

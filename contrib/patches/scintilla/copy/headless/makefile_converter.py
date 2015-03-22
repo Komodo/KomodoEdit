@@ -47,6 +47,7 @@ elif sys.platform.startswith("linux"):
     plat_makefile = join("..", "gtk", "makefile")
     contents = file(plat_makefile).read()
     # Change names and remove unused parts.
+    contents = contents.replace("ScintillaWrapGTK.o", "")
     contents = contents.replace("GTK.o", "Headless.o")
     contents = contents.replace("scintilla-marshal.o", "")
     # Ensure symbols are hidden.

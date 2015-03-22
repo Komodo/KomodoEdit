@@ -275,6 +275,8 @@ my @args = (
     "Converter.h",
     "PlatGTK.cxx",
     "ScintillaGTK.cxx",
+    "ScintillaWrapGTK.h",
+    "ScintillaWrapGTK.cxx",
     "../bin/empty.txt",   # as for scintilla dist, only there to create bin dir
 
     "libpcre.a", # built and installed from contrib/pcre
@@ -291,6 +293,15 @@ sub _addLexer {
 map { _addLexer($cons, $_); } @lexers;
 
 my $cxxFlags = " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES";
+
+# Define the minimum version of GTK we want to use.
+# We use 2.18, as it's the lowest common denominator:
+#   - Mozilla 35 uses this for it's minimum system requirements
+#   - RedHat Enterprise Linux 6 uses this version
+#   - Centos 6 uses 2.20
+#   - Ubuntu 14.04 LTS uses 2.24
+$cxxFlags .= " -DKOMODO_USE_GTK_MAJOR=2 -DKOMODO_USE_GTK_MINOR=18";
+
 if ($buildType eq 'debug'
     || $buildFlavour eq 'dev') {
     $cxxFlags .= " -DDEBUG=1 -g";
