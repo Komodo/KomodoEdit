@@ -237,3 +237,15 @@ with us.
 Note that if building complications arise after you updated your repo with the latest
 changes you might need to clear your local cache as it might be conflicting with the
 new changes, to do this run `bk distclean` before running your build steps.
+
+#### Pro-Tips
+
+**Build a single piece**
+
+Sometimes ```bk build``` is too much and ```bk build quick``` isn't enough.  If ```bk build quick``` doesn't appear to pickup your changes, try pointing ```bk``` at the piece in question.
+
+**Example**
+
+```bk build build/release/modules/places #this will build the places module only```
+
+---
