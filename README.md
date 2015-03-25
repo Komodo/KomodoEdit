@@ -36,11 +36,11 @@ Github: <https://github.com/Komodo/KomodoEdit>
 
 Forums: <http://forum.komodoide.com/>
 
-Bug Tracker: <http://bugs.activestate.com/enter_bug.cgi?product=Komodo>
+Bug Tracker: <https://github.com/Komodo/KomodoEdit/issues>
 
 IRC: <irc://irc.mozilla.org/#komodo>
 
-Mailing Lists: [komodo-discuss](http://code.activestate.com/lists/komodo-discuss/) & [komodo-beta](http://code.activestate.com/lists/komodo-beta/)
+Mailing Lists: [komodo-discuss](http://code.activestate.com/lists/komodo-discuss/) & [komodo-beta](http://code.activestate.com/lists/komodo-beta/) & [komodo-announce](http://code.activestate.com/lists/komodo-announce/)
 
 ## Building Komodo
 
