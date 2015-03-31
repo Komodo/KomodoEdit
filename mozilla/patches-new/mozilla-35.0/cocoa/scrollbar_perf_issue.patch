@@ -1,0 +1,27 @@
+Disable the moz-overlay-scrollbars, as it causes Komodo to consume 20% CPU
+whilst sitting idle - bug 100457, bug 106458.
+
+Index: /Users/toddw/as/komodo-devel_moz24/mozilla/build/moz2400-ko8.11/mozilla/toolkit/themes/osx/global/nativescrollbars.css
+--- a/toolkit/themes/osx/global/nativescrollbars.css	Tue Sep 10 18:37:39 2013 -0400
++++ b/toolkit/themes/osx/global/nativescrollbars.css	Wed Sep 25 09:49:31 2013 -0700
+@@ -20,18 +20,20 @@
+ 
+ html|select[size]:not([size="0"]):not([size="1"]) > scrollbar,
+ html|select[multiple] > scrollbar {
+   -moz-appearance: scrollbar-small;
+ }
+ 
++/* XXX Komodo: Disable this for 8.5.x due to CPU usage issues, bug 100457
+ @media all and (-moz-overlay-scrollbars) {
+   scrollbar:not([active="true"]),
+   scrollbar[disabled="true"] {
+     visibility: hidden;
+   }
+ }
++*/
+ 
+ /* ..... track ..... */
+ 
+ slider {
+   -moz-appearance: scrollbartrack-horizontal;
+ }
