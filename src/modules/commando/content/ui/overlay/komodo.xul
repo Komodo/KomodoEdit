@@ -101,7 +101,7 @@
                                     </hbox>
                                     {{? !it.descriptionComplex}}
                                         {{?it.description}}
-                                            <description class="description" value="{{=it.description}}" crop="{{?it.crop}}{{!it.crop}}{{??}}end{{?}}" flex="1"/>
+                                            <description class="description" value="{{!it.description}}" crop="{{?it.crop}}{{!it.crop}}{{??}}end{{?}}" flex="1"/>
                                         {{?}}
                                     {{?}}
                                     {{?it.descriptionComplex}}
