@@ -1203,6 +1203,7 @@
     {
         var panel = elem('panel');
         var bo = panel.element().boxObject;
+        var system = require("sdk/system");
 
         panel.css("opacity", 0.8);
 
@@ -1211,7 +1212,7 @@
             label: label,
             value: defaultValue,
             classNames: 'hud',
-            hidechrome: true,
+            hidechrome: system.platform != "darwin",
             features: "modal,width=600,left=" + (bo.x - 50) + ",top=" + (bo.y + 50)
         });
 
