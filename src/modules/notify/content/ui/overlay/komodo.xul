@@ -40,6 +40,7 @@
                     {{?it.undo}}
                         <button class="undo button-plain plain"/>
                     {{?}}
+                    {{?!it.noMenu}}
                     <button type="menu" class="menu button-plain plain">
                         <menupopup>
                             <menuitem   anonid="disableCategory"
@@ -48,6 +49,7 @@
                                         label="&notifyPrefs.label;"/>-->
                         </menupopup>
                     </button>
+                    {{?}}
                     <button class="close button-close"/>
                 </hbox>
             </panel>
