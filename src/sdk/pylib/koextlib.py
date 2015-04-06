@@ -94,6 +94,7 @@ import sys
 import re
 import uuid
 import shutil
+import distutils.dir_util
 import logging
 import tempfile
 from glob import glob
@@ -1510,7 +1511,8 @@ def _cp(src, dest, logstream=None):
     if dest_parent:
         _mkdir(dest_parent)
     if isdir(src):
-        shutil.copytree(src, dest)
+        #shutil.copytree(src, dest)
+        distutils.dir_util.copy_tree(src, dest)
     else:
         shutil.copy(src, dest)
 
