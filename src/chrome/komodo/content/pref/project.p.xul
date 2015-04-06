@@ -207,6 +207,9 @@
         }
         gprefs.setStringPref('defaultSelectedSubPref',
                              hPrefWindow.helper.getSelectedItemId());
+        
+        onApplied();
+        
         return true;
     }
 
@@ -224,8 +227,21 @@
             hPrefWindow.orig_prefset = null;
             hPrefWindow.init(prefset);
         }, 500);
-
+        
+        onApplied();
+        
         return true;
+    }
+    
+    function onApplied() {
+        setTimeout(function() {
+            try {
+                var _ko= ko.windowManager.getMainWindow().ko;
+                _ko.places.manager.moveToProjectDir(_ko.projects.manager.currentProject)
+            } catch (e) {
+                log.exception(e);
+            }
+        }, 0);
     }
 
     function doCancel() {
