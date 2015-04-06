@@ -158,6 +158,11 @@
             }
         }
         
+        if (opts.priority == this.P_NOW)
+        {
+            opts.noMenu = true;
+        }
+        
         if (opts.panel)
         {
             // For now we'll use the old notification library, ideally this should
