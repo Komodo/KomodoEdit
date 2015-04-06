@@ -36,6 +36,11 @@
     // Shortcut cache variables.
     var shortcutsVersion = -1;
     var shortcutsCache = {};
+    
+    this.clearShortcutCache = function()
+    {
+        shortcutsVersion = -1;
+    }
 
     var getShortcuts = function()
     {
