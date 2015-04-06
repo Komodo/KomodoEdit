@@ -3,6 +3,7 @@
     const commando  = require("commando/commando");
     const $         = require("ko/dom");
     const prefs     = require("ko/prefs");
+    const handler   = require("scope-files/files");
 
     var spref       = prefs.getPref("scope-files-shortcuts");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
@@ -217,7 +218,9 @@
 
         var _shortcut = shortcut + ":" + item.data.path;
         spref.appendString(_shortcut);
+        
         resultCacheVersion = -1;
+        handler.clearShortcutCache();
 
         commando.tip("Shortcut added, you can use it by typing '"+shortcut+"/'");
         commando.navBack();
@@ -238,6 +241,7 @@
         }
 
         resultCacheVersion = -1;
+        handler.clearShortcutCache();
 
         commando.reSearch();
         commando.tip();
