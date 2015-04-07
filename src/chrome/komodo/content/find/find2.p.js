@@ -265,7 +265,6 @@ function update(changed /* =null */) {
             koIFindOptions.FOT_REGEX_PYTHON : koIFindOptions.FOT_SIMPLE);
         
         _collapse_widget(widgets.pattern_btn, !widgets.opt_regex.checked);
-        _collapse_widget(widgets.rx_btn, !widgets.opt_regex.checked);
     }
     if (changed == "case") {
         // Skip this for initialization (changed=null).
@@ -855,7 +854,6 @@ function _init_widgets()
     widgets.pattern_deck = document.getElementById('pattern-deck');
     widgets.pattern = document.getElementById('pattern');
     widgets.pattern_btn = document.getElementById('pattern-shortcuts');
-    widgets.rx_btn = document.getElementById('open-in-rx-btn');
     widgets.multiline_pattern = document.getElementById('multiline-pattern');
     widgets.curr_pattern = widgets.pattern;
     widgets.repl_row = document.getElementById('repl-row');
@@ -1246,7 +1244,6 @@ function _update_mode_ui() {
     }
     
     _collapse_widget(widgets.pattern_btn, !widgets.opt_regex.checked);
-    _collapse_widget(widgets.rx_btn, !widgets.opt_regex.checked);
     
     // Set the default button.
     if (_g_curr_default_btn == default_btn) {
