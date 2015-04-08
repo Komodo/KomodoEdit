@@ -13,6 +13,25 @@ const log = require("ko/logging").getLogger("printing");
 const PrintUtils = window.PrintUtils;
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
+// Get window/KO
+var _window;
+try
+{
+    _window = winUtils.getToplevelWindow(window);
+}
+catch (e)
+{
+    log.debug("getTopLevelWindow failed, falling back on window mediator");
+    
+    var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
+    let windows = wm.getEnumerator("Komodo");
+    while (windows.hasMoreElements()) {
+        _window = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
+    }
+}
+
+var ko = _window.ko;
+
 function _initPrintSettings() {
     if (!PrintUtils._gOrigGetPrintSettings) {
         // Replace the PrintUtils method with our own function, one that
