@@ -2164,6 +2164,15 @@ class KoPlaceTreeView(TreeView):
         if not self._honorNextToggleOpenState:
             self._honorNextToggleOpenState = True
             return
+        
+        # Prevent double toggle calls
+        # https://github.com/Komodo/KomodoEdit/issues/61
+        timestamp = float(time.time())
+        if hasattr(self, "_toggleTimer") and (timestamp - self._toggleTimer) < 0.1:
+            log.debug(timestamp - self._toggleTimer)
+            return
+        self._toggleTimer = timestamp
+        
         rowNode = self._rows[index]
         #qlog.debug("toggleOpenState: index:%d", index)
         #qlog.debug("toggleOpenState: rowNode.isOpen: %r", rowNode.isOpen)
