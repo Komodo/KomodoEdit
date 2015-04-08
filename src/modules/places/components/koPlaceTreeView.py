@@ -2169,7 +2169,6 @@ class KoPlaceTreeView(TreeView):
         # https://github.com/Komodo/KomodoEdit/issues/61
         timestamp = float(time.time())
         if hasattr(self, "_toggleTimer") and (timestamp - self._toggleTimer) < 0.1:
-            log.debug(timestamp - self._toggleTimer)
             return
         self._toggleTimer = timestamp
         
