@@ -2295,7 +2295,7 @@
                 <!--Persisting of collapsed disabled because of http://bugs.activestate.com/show_bug.cgi?id=25918-->
                 <ko-pane id="workspace_bottom_area" height="200" collapsed="true"
                          persist="height type" label="&paneNameBottom;"
-                         class="native" orient="horizontal" flex="1">
+                         class="native" orient="horizontal">
                     <!-- Run output tab of the output pane. This pane is made
                         of two levels: (1) a scintilla terminal to show
                         unparsed output and (2) an tree to show parsed
