@@ -346,7 +346,7 @@ class KoTclCompletion:
         while index < last and buffer[index] in ": ":
             index += 1
         # Remember where the text started
-        text = buffer[index:currentPos]
-        self._lastTriggerPos = currentPos - len(text.decode("utf8"))
+        word = buffer[index:last]
+        self._lastTriggerPos = currentPos - len(word.decode("utf8"))
         # Return the slice of the buffer that represents that last "word"
-        return buffer[index:last]
+        return word
