@@ -296,6 +296,9 @@
                 />
         <!-- Todo: Fix double separator (here for compatibility with IDE) -->
         <menuseparator id="editor_context_select_separator"/>
+        <menuitem id="editor-go-to-definition"
+                label="&goToDefinition.label;"
+                observes="cmd_goToDefinition"/>
         <menuseparator id="editor-context-sep-extensions"/>
         <menuitem id="editor-context-makeSnippet"
                 label="&addAsSnippetInToolbox.label;"
