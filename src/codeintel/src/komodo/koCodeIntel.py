@@ -126,7 +126,11 @@ class KoCodeIntelService:
         if self._quit_application:
             return # don't ever restart after quit-application
 
-        self._enabled = True
+        # Ensure only one activate call can happen at a time - issue 171.
+        with self._mgr_lock:
+            if self._enabled:
+                return
+            self._enabled = True
 
         def callback(result=Cr.NS_OK, message=None, success=None):
             if success is None:
