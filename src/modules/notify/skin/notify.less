@@ -47,7 +47,7 @@
         -moz-appearance: none;
         margin: 0 6px;
         background: transparent;
-        border: 0;
+        border: 0 !important;
         min-height: 0 !important;
         min-width: 0 !important;
         width: 16px;
@@ -67,19 +67,22 @@
             opacity: 1.0;
         }
 
-        &.menu
+        &, &:hover
         {
-            background: url(koicon://ko-svg/chrome/icomoon/skin/cog2.svg?preset=hud) center left no-repeat;
-        }
-
-        &.undo
-        {
-            background: url(koicon://ko-svg/chrome/icomoon/skin/undo2.svg?preset=hud) center left no-repeat;
-        }
-        
-        &.close
-        {
-            background: url(koicon://ko-svg/chrome/icomoon/skin/close2.svg?preset=hud) center left no-repeat;
+            &.menu
+            {
+                background: url(koicon://ko-svg/chrome/icomoon/skin/cog2.svg?preset=hud) center left no-repeat !important;
+            }
+    
+            &.undo
+            {
+                background: url(koicon://ko-svg/chrome/icomoon/skin/undo2.svg?preset=hud) center left no-repeat !important;
+            }
+            
+            &.close
+            {
+                background: url(koicon://ko-svg/chrome/icomoon/skin/close2.svg?preset=hud) center left no-repeat !important;
+            }
         }
     }
 
