@@ -232,6 +232,7 @@ function RunCommandAndExit()
         "runIn": dialog.runInMenulist.value,
         "parseRegex": dialog.parseRegexTextbox.value,
         "showParsedOutputList": dialog.showParsedOutputListCheckbox.checked,
+        "saveInMRU": true
     };
 
     if (cmd == "") {
