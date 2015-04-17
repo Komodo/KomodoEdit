@@ -2591,8 +2591,15 @@ class KoLanguageBase:
         tagStartPos_Buf = -1
         startOfLine_Buf = startOfLine_Doc - startPos_Doc
         index_Buf = index_Doc - startPos_Doc
+        index_Buf_Prev = -1
         
         while index_Buf > 0:
+            
+            # Avoid getting stuck in an infinite loop, see bug #186
+            if index_Buf_Prev == index_Buf:
+                index_Buf -= 1
+            index_Buf_Prev = index_Buf
+            
             char = beforeText[index_Buf]
             style = beforeStyles[index_Buf] # scimoz.getStyleAt(index_Doc)
             state = self._findXMLState(scimoz, index_Doc, char, style)
