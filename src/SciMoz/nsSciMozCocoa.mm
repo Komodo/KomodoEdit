@@ -97,6 +97,7 @@ static char *getNSRectStr(NSRect rect, char *buf) {
 - (void) startTimer
 {
   if (mTimer != nil) {
+	[self stopTimer];
   }
 
   mTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
