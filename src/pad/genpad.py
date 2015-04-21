@@ -56,32 +56,43 @@ import logging
 #---- exceptions and globals
 
 log = logging.getLogger("genpad")
-
+# Careyh: Needed the 64 bit lines for testing on my machine for some reason
+# Decided to not remove just incase they are needed later and in case I want to
+# test and make more edits later.
 g_sysreqs_from_os = {
-     "win32": "Windows x86 or x86_64 processor, 500 MHz (or faster) with 256 MB RAM",
-     "linux": "Ubuntu 6.06+, Red Hat Enterprise Linux 4+, Fedora Core 8+, SuSE 9.0+; x86 processor",
-     "macosx": "Mac Intel processor or PowerPC G4, 256 MB RAM",
+     "win32": "1GHz (or faster) x86 or x86_64 processor with 1 GB RAM, 250 MB hard disk space and 350 MB of temporary hard disk space during installation.",
+     #"win64": "1GHz (or faster) x86 or x86_64 processor with 1 GB RAM, 250 MB hard disk space and 350 MB of temporary hard disk space during installation.",
+     "linux": "Intel processor, 1 GB RAM, 250 MB hard disk space and 350 MB of temporary hard disk space during installation.",
+     "macosx": "1GHz (or faster) x86 or x86_64 processor with 1 GB RAM, 250 MB hard disk space and 350 MB of temporary hard disk space during installation.",
 }
 
 g_os_support_from_os = {
-    "win32": "Win2000, WinXP, WinVista, Win7 x32, Win7 x64",
-    "macosx": "Mac OS X",
-    "linux": "Linux, Linux Gnome",
+    "win32": "Windows Server 2008 or later, Win7 x32, Win7 x64, Win8, Win10",
+    #"win64": "Windows Server 2008 or later, Win7 x32, Win7 x64, Win8, Win10",
+    "macosx": "Mac OS X 10.9 (Mavericks) or later",
+    "linux": "Red Hat Enterprise Linux 6 or later, CentOS 6.0 or later, Fedora Core 15 or later, OpenSUSE 12.1 or later, SuSE Linux Enterprise Desktop/Server 11.3 or later, Ubuntu 12.04 or later"
 }
 
 g_pretty_platname_from_platname = {
     "win32-x86": "Windows",
+    #"win64-x64": "Windows",
     "macosx": "Mac OS X",
     "macosx-x86": "Mac OS X/Intel",
-    "macosx-powerpc": "Mac OS X/PowerPC",
+    "macosx-powerpc": "Mac OS X/PowerPC",    
     "linux-x86": "Linux/x86",
     "linux-x86_64": "Linux/x86_64",
 }
 
 g_simple_platform_name_from_os = {
     "win32": "windows",
+    #"win64": "windows",
     "macosx": "mac",
     "linux": "linux",
+}
+
+g_EUAL_link_from_editor = {
+     "Edit": "http://www.activestate.com/komodo-edit/license-agreement",
+     "IDE": "http://www.activestate.com/komodo-ide/license-agreement"
 }
 
 class GenPadError(Exception):
@@ -91,7 +102,7 @@ class GenPadError(Exception):
 
 #---- main functionality
 
-def genpad(eula_text_path=None, output_dir=None):
+def genpad(output_dir=None):
     DEBUG = False
     if output_dir is None:
         output_dir = dirname(__file__)
@@ -155,20 +166,9 @@ def genpad(eula_text_path=None, output_dir=None):
         "$PAD_INSTALLER_PKG_NAME": basename(bkconfig.komodoInstallerPackage),
         "$PAD_PAD_BASENAME": pad_basename,
         "$PAD_SCREENSHOT_BASENAME": "komodo_%s_%s.png" % (bkconfig.productType, pi.os),
-        "$PAD_ICON_BASENAME": "komodoedit_orb_32.png",
+        "$PAD_ICON_BASENAME": "komodo_orb_32.png",
+        "$PAD_EULA": g_EUAL_link_from_editor.get(bkconfig.prettyProductType)
     }
-    if not eula_text_path:
-        log.error("no path given for eula text (use `-L` option)")
-        num_errors += 1
-    elif not exists(eula_text_path):
-        log.error("given eula text path doesn't exist: %s", eula_text_path)
-        num_errors += 1
-    else:
-        pad_info["$PAD_EULA"] = open(eula_text_path).read()
-    if DEBUG:
-        pad_info_summary = pad_info.copy()
-        pad_info_summary["$PAD_EULA"] = pad_info_summary.get("$PAD_EULA", "")[:50] + "..."
-        pprint(pad_info_summary)
 
     # Preprocess the template.
     template_path = join(dirname(__file__), "komodo_pad.p.xml")
@@ -277,22 +277,26 @@ def _ver_info_from_long_ver_str(long_ver_str):
 #---- mainline
 
 def main(argv):
-    usage = "usage: %prog [OPTIONS]"
+    usage = """usage: %prog [OPTIONS]
+     
+    NOTE: Many config settings are within this file.  Make sure to review the
+    source for potential updates needed."""
     version = "%prog "+__version__
     parser = optparse.OptionParser(usage=usage,
         version=version, description=__doc__)
     parser.add_option("-d", "--output-dir",
                       help="output dir for generate PAD file")
-    parser.add_option("-L", "--eula-text-path",
-                      help="path to EULA text file to use")
+    parser.add_option("-L", "--license-text-path",
+                      help="path to License text to use *DEPRECATED*")
     opts, args = parser.parse_args()
+    if(opts.license_text_path):
+        log.warn("'-L' option deprecated.  Update scripts to not use it.\
+                 That option is being ignored.")
     if args:
         raise GenPadError("no args at accepted by genpad")
-    return genpad(eula_text_path=opts.eula_text_path,
-                  output_dir=opts.output_dir)
+    return genpad(output_dir=opts.output_dir)
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     sys.exit( main(sys.argv) )
-
