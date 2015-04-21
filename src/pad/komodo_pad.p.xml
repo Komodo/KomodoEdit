@@ -15,12 +15,12 @@
 		<Country>Canada</Country>
 		<Company_WebSite_URL>http://www.activestate.com/</Company_WebSite_URL>
 		<Contact_Info>
-			<Author_First_Name>Shannon</Author_First_Name>
-			<Author_Last_Name>Yelland</Author_Last_Name>
-			<Author_Email>release-updates@activestate.com</Author_Email>
-			<Contact_First_Name>Shannon</Contact_First_Name>
-			<Contact_Last_Name>Yelland</Contact_Last_Name>
-			<Contact_Email>release-updates@activestate.com</Contact_Email>
+			<Author_First_Name>Komodo</Author_First_Name>
+			<Author_Last_Name>Team</Author_Last_Name>
+			<Author_Email>komodo@activestate.com</Author_Email>
+			<Contact_First_Name>Komodo</Contact_First_Name>
+			<Contact_Last_Name>Team</Contact_Last_Name>
+			<Contact_Email>komodo@activestate.com</Contact_Email>
 		</Contact_Info>
 		<Support_Info>
 			<Sales_Email>sales@activestate.com</Sales_Email>
@@ -67,10 +67,10 @@
 	</Program_Info>
 	<Program_Descriptions>
 		<English>
-			<Keywords>komodo edit,komodo editor,komodo,$PAD_SIMPLE_PLATFORM_NAME,activestate editor,code editor,komodo text editor,free editor,open source editor,dynamic languages editor,perl editor,php editor,python editor,ruby editor,rails editor,tcl editor,scripting editor</Keywords>
-			<Char_Desc_45>Free multi-platform, multi-language editor</Char_Desc_45>
-			<Char_Desc_80>Komodo Edit: Free multi-platform, multi-language editor: Perl, Python, Tcl</Char_Desc_80>
-			<Char_Desc_250>Komodo Edit from ActiveState: a free, multi-platform, multi-language editor (PHP, Python, Ruby, Perl, Tcl, JavaScript plus more). With background syntax checking and coloring catch errors immediately, while autocomplete and calltips guide you.</Char_Desc_250>
+			<Keywords>komodo, activestate komodo,development environment,komodo linux,komodo mac, komodo mac os, komodo windows,linux ide,mac ide, mac os ide,windows ide,activestate ide,perl komodo ide,ide software,perl ide,python ide,ide python,tcl ide,integrated development environment,php ide,ruby ide,css ide,javascript ide,html ide,django ide,go ide,golang ide, node ide, nodejs ide,perl,python,tcl,ruby,php,css,html,javascript,go,django,google go,golang</Keywords>
+			<Char_Desc_45>Komodo for Python, PHP, Ruby, web, more</Char_Desc_45>
+			<Char_Desc_80>Komodo Edit for Python, PHP, Go, Ruby, Perl, Tcl, NodeJS, HTML, CSS, JavaScript, more.</Char_Desc_80>
+			<Char_Desc_250>Komodo Edit from ActiveState: a cross-platform IDE for individuals and teams, for all your major languages and frameworks including Python, PHP, Go, Ruby, Perl, Tcl, NodeJS, HTML, CSS and JavaScript, and more.</Char_Desc_250>
 			<Char_Desc_450>Komodo Edit from ActiveState is a free, multi-platform, multi-language editor (PHP, Python, Ruby, Perl and Tcl, JavaScript, CSS, HTML and template languages like RHTML, Template-Toolkit, HTML-Smarty and Django). Background syntax checking and syntax coloring catch errors immediately, while autocomplete and calltips guide you as you write.</Char_Desc_450>
 			<Char_Desc_2000>Komodo Edit from ActiveState is a free, open source, multi-platform, multi-language editor (PHP, Python, Ruby, Perl and Tcl, JavaScript, CSS, HTML and template languages like RHTML, Template-Toolkit, HTML-Smarty and Django). Background syntax checking and syntax coloring catch errors immediately, while autocomplete and calltips guide you as you write. Available on Windows, Mac OS X and Linux.  XPI extensions allow you to create your own plug-ins. XPI extension support provides the same capability as Firefox, with all standard Mozilla APIs based on XUL, XBL, and XPCOM, plus our own for Python and JavaScript. Other features include Vi emulation, Emacs keybindings, code folding and code snippets.</Char_Desc_2000>
 		</English>
