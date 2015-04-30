@@ -140,7 +140,15 @@
         switch (e.keyCode)
         {
             case 27: // escape
-                c.hide();
+                if (c.getSearchValue() != "" || c.getSubscope())
+                {
+                    c.clear();
+                    c.setSubscope(null);
+                }
+                else
+                {
+                    c.hide();
+                }
                 break;
             case 8: // backspace
             case 37: // left arrow
