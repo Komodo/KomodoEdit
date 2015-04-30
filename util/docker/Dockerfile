@@ -12,6 +12,8 @@ RUN mkdir /var/run/sshd
 EXPOSE 22
 ADD id_rsa.pub /root/.ssh/authorized_keys
 RUN chown root:root /root/.ssh/authorized_keys
+ADD id_rsa.pub /root/.ssh/authorized_keys2
+RUN chown root:root /root/.ssh/authorized_keys2
 
 # start the ssh daemon
 CMD ["/usr/sbin/sshd", "-D"]

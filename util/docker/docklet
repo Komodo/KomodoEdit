@@ -38,10 +38,12 @@ retrieveContainerStatus
 function retrieveSshInfo {
     # find ssh port
     SSH_URL=$(docker port ${DOCKER_CONTAINER_NAME} 22)
-    SSH_URL_REGEX="(.*):(.*)"
 
-    SSH_INTERFACE=$(echo $SSH_URL | awk -F  ":" '/1/ {print $1}')
-    SSH_PORT=$(echo $SSH_URL | awk -F  ":" '/1/ {print $2}')
+    #SSH_URL_REGEX="(.*):(.*)"
+    #SSH_INTERFACE=$(echo $SSH_URL | awk -F  ":" '/1/ {print $1}')
+    #SSH_PORT=$(echo $SSH_URL | awk -F  ":" '/1/ {print $2}')
+
+    IFS=':' read SSH_INTERFACE SSH_PORT <<< "$SSH_URL"
 }
 
 function start {
@@ -128,6 +130,7 @@ function setSshCmd {
 
 function _ssh {
     setSshCmd
+    echo ${SSH_CMD}
     ${SSH_CMD}
 }
 
@@ -139,8 +142,6 @@ function _sshroot {
 function clean {
     setSshCmd
     ${SSH_CMD} "PATH=/komodo/dev/util/black:\$PATH && cd /komodo/dev && bk distclean"
-    cd $KODIRNAME
-    ./mozilla/build/moz3500-ko9.10/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
 }
 
 function run {
