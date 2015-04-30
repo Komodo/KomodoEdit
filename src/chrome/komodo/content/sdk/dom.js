@@ -16,8 +16,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
      * http://www.dustindiaz.com/smallest-domready-ever
      * returns instance or executes function on ready
      */
-    var $ = function(query) {
-        var parent = window.document;
+    var $ = function(query, parent) {
+        var parent = parent || window.document;
 
         if ((typeof query) == "object" && ("koDom" in query))
         {
@@ -35,7 +35,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             return new queryObject($.createElement(query));
         }
         else
-            return new queryObject(query)
+            return new queryObject(query, parent)
     }
 
     /* === HELPER FUNCTIONS === */
@@ -47,7 +47,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
      *
      * @returns {Node}
      */
-    $.createElement = function(html)
+    $.createElement = function(html, allowMultiple = false)
     {
         try
         {
@@ -58,7 +58,13 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
             var tmp = document.createElement("div");
             tmp.innerHTML = html;
-            return tmp.firstChild;
+            if (allowMultiple)
+            {
+                var x  = [].slice.call(tmp.childNodes);
+                return [].slice.call(tmp.childNodes);
+            }
+            else
+                return tmp.firstChild;
         }
         catch (e)
         {
@@ -66,6 +72,55 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             return false;
         }
     }
+    
+    /**
+     * $.create, Based on;
+     * 
+     * source      : http://gist.github.com/278016
+     * author      : Thomas Aylott
+     * site        : subtlegradient.com
+     * copyright   : 2010 Thomas Aylott
+     * license     : MIT
+     **/
+    $.create = function (selector, attributes, content, output = '')
+    {
+        if (content === undefined && ((typeof attributes == "function") || typeof attributes == 'string'))
+        {
+            content = attributes;
+            attributes = undefined;
+        }
+        
+        if (typeof content == "function")
+        {
+            content = content.toString();
+        }
+        
+        if (attributes)
+        {
+            for (let key in attributes)
+            {
+                if ( ! attributes.hasOwnProperty(key)) continue;
+                selector += " " + key + "='"+attributes[key].replace(/'/g,'\\\'')+"'";
+            }
+        }
+        
+        output += '<' + selector + '>';
+        output += ''+ ( content||'' );
+        output += '</' + selector .split (' ')[0] + '>';
+        
+        var BS = function(selector, attributes, content) {
+            return $.create(selector, attributes, content, output);
+        };
+        
+        BS.toString = function () { return output; }
+        
+        BS.finalize = function()
+        {
+            return new queryObject($.createElement(output, true /* Allow Multiple */));
+        }
+        
+        return BS;
+    };
 
     /**
      * Manipulation helper for inserting DOM content
@@ -129,7 +184,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         else if ((query != null && query === query.window) ||
                  (query != null && query.window && query == query.window.document))
             this._elements.push(query);
-
+            
         this.length = this._elements.length;
     }
 
