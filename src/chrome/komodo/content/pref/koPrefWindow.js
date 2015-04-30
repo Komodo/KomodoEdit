@@ -988,6 +988,14 @@ koPrefWindow.prototype =
     },
 
     onpageload: function ( ) {
+        try {
+            var observerSvc = Cc["@mozilla.org/observer-service;1"].
+                        getService(Ci.nsIObserverService);
+            observerSvc.notifyObservers(null, 'pref_page_loaded', this.contentFrame.contentWindow.location.href);
+        } catch(e) {
+            // Raises exception if no observers are registered. Just ignore that.
+        }
+        
         var prefset = this._getCurrentPrefSet();
         // First see if we need the once-only "OnPreferencePageInitalize" function.
         if( this.contentFrame && ('OnPreferencePageInitalize' in this.contentFrame.contentWindow)) { // is there a start function.
