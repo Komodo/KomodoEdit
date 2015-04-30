@@ -60,6 +60,17 @@ function loadExecutableIntoInterpreterList(availInterpListID) {
     return false;
 }
 
+function loadExecutableIntoTextField(fieldId) {
+    var field = document.getElementById(fieldId);
+    var currentPath = getDirectoryFromTextObject(field);
+    var path = ko.filepicker.browseForExeFile(currentPath);
+    if (path) {
+        field.value = path;
+        return true;
+    }
+    return false;
+}
+
 function loadFilePathIntoTextObject(fieldId) {
     var field = document.getElementById(fieldId);
     var path = ko.filepicker.saveFile(null, field.value);
