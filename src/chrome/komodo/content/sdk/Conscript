@@ -33,6 +33,7 @@ $cons->InstallInChrome('dialogs.js');
 $cons->InstallInChrome('file.js');
 $cons->InstallInChrome('prefs.js');
 $cons->InstallInChrome('button.js');
+$cons->InstallInChrome('ajax.js');
 
 if ($buildFlavour eq "dev") {
     $cons->InstallInChrome('benchmark.js');
