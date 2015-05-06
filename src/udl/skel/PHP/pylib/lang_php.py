@@ -1529,7 +1529,7 @@ class PHPFunction:
             if isinstance(doc, list):
                 doc = "".join(doc)
             docinfo = parseDocString(doc)
-            self.doc = docinfo[0]
+            self.doc = self.parsePHPDocBlock(docinfo[0])
             # See if there are any PHPDoc arguments defined in the docstring.
             if docinfo[1]:
                 for argInfo in docinfo[1]:
@@ -1542,11 +1542,39 @@ class PHPFunction:
             if docinfo[2]:
                 self.returnType = docinfo[2][0]
         if self.returnType:
-            self.signature = '%s %s' % (self.returnType, self.signature, )
+            self.signature = '%s %s' % (self.returnType.lower(), self.signature, )
         self.signature += "("
         if self.args:
             self.signature += ", ".join([x.signature for x in self.args])
         self.signature += ")"
+
+    def parsePHPDocBlock(self, docblock):
+        docstrings = docblock.split('\n')
+        docblock_parsed = ""
+        for docstr in docstrings:
+            if docstr.startswith("@param"):
+                info = docstr.split(" ")  # @param boolean $var (a lot of description words), () is a group
+                param_type = info[1]
+                param_name = info[2]
+                try:
+                    description = " ".join(info[3:]) # otherwise join all words in description (they are splitted by space)
+                except IndexError:
+                    description = ""
+                docblock_parsed += '<%s>%s %s\n' % (param_type.lower(), param_name, description, ) # -> <param_type>param_name param_description (if exists)
+            elif docstr.startswith("@return"):
+                info = docstr.split(" ")
+                return_type = info[1]
+                if len(info) > 2: #if @return contains info about returned value: join description array into a string
+                    description = " ".join(info[2:])
+                else:
+                    description = "" # otherwise set it to empty string
+                docblock_parsed += "Returns %s %s\n" % (return_type.lower(), description)
+            elif docstr.startswith("@"):
+                docstr = docstr[1].upper() + docstr[2:] #remove @ and make the first latter uppercase
+                docblock_parsed += "%s\n" % docstr
+            elif len(docstr.strip()) > 0: #comments which have not to be parsed (skip empty strings)
+                docblock_parsed += "%s\n" % docstr
+        return docblock_parsed
 
     def addReturnType(self, returnType):
         if self.returnType is None:
