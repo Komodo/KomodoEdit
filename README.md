@@ -242,10 +242,12 @@ new changes, to do this run `bk distclean` before running your build steps.
 
 **Build a single piece**
 
-Sometimes ```bk build``` is too much and ```bk build quick``` isn't enough.  If ```bk build quick``` doesn't appear to pickup your changes, try pointing ```bk``` at the piece in question.
+Sometimes ```bk build``` is too much and ```bk build quick``` isn't enough.  If ```bk build quick``` doesn't appear to pickup your changes, try pointing ```bk build``` at the piece in question.  
 
 **Example**
 
 ```bk build build/release/modules/places #this will build the places module only```
+
+**NOTE**: Do not rely on this method as ```bk build quick``` is faster and in some cases does some steps that the above example won't perform.  Use it as a last ditch effort before you try ```bk distclean && bk build```.
 
 ---
