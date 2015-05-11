@@ -1025,6 +1025,7 @@ projectManager.prototype.registerCommands = function() {
     em.registerCommand("cmd_importPackageToToolbox",this);
     em.registerCommand("cmd_newProject",this);
     em.registerCommand("cmd_openProject",this);
+    em.registerCommand("cmd_sampleProject",this);
     em.registerCommand("cmd_openProjectNewWindow",this);
     em.registerCommand("cmd_openProjectFromURL",this);
     em.registerCommand("cmd_projectProperties",this);
@@ -1046,6 +1047,7 @@ projectManager.prototype.supportsCommand = function(command, item) {
     case "cmd_importPackageToToolbox":
     case "cmd_newProject":
     case "cmd_openProject":
+    case "cmd_sampleProject":
     case "cmd_openProjectNewWindow":
     case "cmd_openProjectFromURL":
     case "cmd_projectProperties":
@@ -1073,6 +1075,7 @@ projectManager.prototype.isCommandEnabled = function(command) {
     case "cmd_newProject":
     case "cmd_importPackageToToolbox":
     case "cmd_openProject":
+    case "cmd_sampleProject":
     case "cmd_openProjectNewWindow":
     case "cmd_saveProjectAsTemplate":
         return true;
@@ -1181,6 +1184,30 @@ projectManager.prototype.doCommand = function(command) {
             uri = ko.uriparse.localPathToURI(filename);
             ko.projects.open(uri);
         }
+        break;
+    case "cmd_sampleProject":
+            try {
+                var koDirSvc = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs);
+                var osPathSvc = Cc["@activestate.com/koOsPath;1"].getService(Ci.koIOsPath);
+                var sampleProjectPath = osPathSvc.joinlist(3,
+                        [koDirSvc.userDataDir, "samples", "sample_project.komodoproject"]);
+                
+                if (! osPathSvc.exists(sampleProjectPath)) {
+                    var response = ko.dialogs.okCancel(_bundle.formatStringFromName(
+                                "theSampleProjectCouldNotBeFound.message",
+                                [sampleProjectPath], 1), "Cancel");
+                    if (response == "OK") {
+                        var initSvc = Cc["@activestate.com/koInitService;1"].getService(Ci.koIInitService);
+                        initSvc.installSamples(true);
+                    } else {
+                        return;
+                    }
+                }
+                var sampleProjectUrl = ko.uriparse.pathToURI(sampleProjectPath);
+                ko.projects.open(sampleProjectUrl);
+            } catch (ex) {
+                this.log.exception(ex,"cmd_sampleProject error: "+ex);
+            }
         break;
     case "cmd_closeProject":
         this.closeProject(this.currentProject);

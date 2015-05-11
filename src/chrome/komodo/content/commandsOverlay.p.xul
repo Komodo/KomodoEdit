@@ -405,6 +405,10 @@
             oncommand="ko.commands.doCommandAsync('cmd_openProject', event)"
             desc="&generalOpenProject.desc;"/>
         <command
+            id="cmd_sampleProject" key="key_cmd_sampleProject"
+            oncommand="ko.commands.doCommandAsync('cmd_sampleProject', event)"
+            desc="&generalSampleProject.desc;"/>
+        <command
             id="cmd_openProjectNewWindow" key="key_cmd_openProjectNewWindow"
             oncommand="ko.commands.doCommandAsync('cmd_openProjectNewWindow', event)"
             desc="&generalOpenProjectInNewWindow.desc;"/>

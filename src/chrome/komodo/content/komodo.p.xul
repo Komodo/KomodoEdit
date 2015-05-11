@@ -1317,6 +1317,11 @@
                                 <menupopup id="recentProjects_menupopup"
                                            onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('project', 5);"/>
                             </menu>
+                            
+                            <menuitem label="&sampleProject.label;"
+                                      id="menu_sampleProject"
+                                      observes="cmd_sampleProject"
+                                      />
 
                             <menuseparator id="menu_project_separator_1"/>
 

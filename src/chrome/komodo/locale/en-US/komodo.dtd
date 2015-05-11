@@ -294,6 +294,7 @@
 <!ENTITY generalNextWindow.desc "General: Change to the Next Komodo Window">
 <!ENTITY generalOpenFileDialog.desc "General: Open File dialog...">
 <!ENTITY generalOpenProject.desc "General: Open Project...">
+<!ENTITY generalSampleProject.desc "General: Sample Project...">
 <!ENTITY generalOpenRemoteProject.desc "General: Open Remote Project...">
 <!ENTITY generalOpenProjectInNewWindow.desc "General: Open Project in a New Window">
 <!ENTITY generalOpenRemoteFileDialog.desc "General: Open Remote File dialog...">
@@ -519,6 +520,7 @@
 <!ENTITY openLine.desc "Editor: Open Line">
 <!ENTITY splitLine.desc "Editor: Split Line">
 <!ENTITY openProject.label "Open Project...">
+<!ENTITY sampleProject.label "Sample Project">
 <!ENTITY openProjectInNewWindow.label "Open Project In New Window...">
 <!ENTITY openThisProject.label "Open Project">
 <!ENTITY openThisProjectInNewWindow.label "Open Project In New Window">
