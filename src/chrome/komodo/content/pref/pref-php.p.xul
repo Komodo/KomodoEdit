@@ -66,7 +66,7 @@
          as it adds a scrollbar when the contents are too long. -->
     <vbox id="php-prefs-vbox" flex="1" class="autoscroll">
 
-        <groupbox orient="vertical">
+        <groupbox orient="vertical" id="defaultPHPInterpreterGroupBox">
             <caption label="&defaultPHPInterpreter.label;"/>
             <vbox id="no-avail-interps-message" collapsed="true">
                 <vbox flex="1" align="center">
