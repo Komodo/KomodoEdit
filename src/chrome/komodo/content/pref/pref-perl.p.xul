@@ -65,7 +65,7 @@
          as it adds a scrollbar when the contents are too long. -->
     <vbox id="perl-prefs-vbox" flex="1" class="autoscroll">
 
-        <groupbox orient="vertical">
+        <groupbox orient="vertical" id="defaultPerlInterpreterGroupBox">
             <caption label="&defaultPerlInterpreter.label;"/>
             <vbox flex="1" align="center" id="no-avail-interps-message" collapsed="true">
                 <description style="font-weight: bold;">
