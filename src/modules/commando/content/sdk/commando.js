@@ -142,7 +142,7 @@
             case 27: // escape
                 if (c.getSearchValue() != "" || c.getSubscope())
                 {
-                    c.clear();
+                    c.reset();
                     c.setSubscope(null);
                 }
                 else
