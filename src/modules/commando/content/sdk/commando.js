@@ -139,7 +139,7 @@
         // Todo: support selecting multiple items
         switch (e.keyCode)
         {
-            case 27: // escape
+            case KeyEvent.DOM_VK_ESCAPE:
                 if (c.getSearchValue() != "" || c.getSubscope())
                 {
                     c.reset();
@@ -150,27 +150,27 @@
                     c.hide();
                 }
                 break;
-            case 8: // backspace
-            case 37: // left arrow
+            case KeyEvent.DOM_VK_BACK_SPACE:
+            case KeyEvent.DOM_VK_LEFT: 
                 onNavBack();
                 break;
-            case 13: // enter
+            case KeyEvent.DOM_VK_RETURN: 
                 onSelectResult();
                 prevDefault = true;
                 break;
-            case 9:  // tab
+            case KeyEvent.DOM_VK_TAB:  
                 onTab(e);
                 prevDefault = true;
                 break;
-            case 40: // down arrow
+            case KeyEvent.DOM_VK_DOWN: 
                 onNavDown(e);
                 prevDefault = true;
                 break;
-            case 38: // up arrow
+            case KeyEvent.DOM_VK_UP: 
                 onNavUp(e);
                 prevDefault = true;
                 break;
-            case 39: // right arrow
+            case KeyEvent.DOM_VK_RIGHT: 
                 onExpandResult(e);
                 break;
         }
