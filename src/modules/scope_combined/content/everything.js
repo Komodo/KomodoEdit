@@ -11,8 +11,12 @@
 
     this.onSearch = function(query, uuid, onComplete)
     {
-        var scopes = getScopes();
         var subscope = commando.getSubscope();
+        
+        if ( ! subscope && query == "")
+            return this.showScopes(uuid, onComplete);
+        
+        var scopes = getScopes();
         var _scopes = {};
         var length = 0;
         for (let id in scopes)
@@ -31,13 +35,50 @@
                 if (--length === 0) onComplete();
             }.bind(this));
         }
-
+    }
+    
+    this.showScopes = function(uuid, onComplete)
+    {
+        var scopes = getScopes();
+        var _scopes = [];
+        var results = [];
+        for (let id in scopes)
+        {
+            if (id.indexOf("scope-combined") != -1) continue;
+            _scopes.push(scopes[id]);
+        }
+        
+        _scopes.sort(function(a,b) { return a.name.localeCompare(b.name) > 0 ? 1 : -1; });
+        for (let x=0;x<_scopes.length;x++)
+        {
+            let scope = _scopes[x];
+            results.push({
+                id: scope.id,
+                name: scope.name,
+                description: scope.description || "",
+                icon: scope.icon,
+                scope: "scope-everything",
+                data: {
+                    isScope: true
+                }
+            });
+        }
+        
+        commando.renderResults(results, uuid);
+        onComplete();
     }
 
     this.onSelectResult = function(selectedItems)
     {
         var scopeItems = {};
         var scopes = getScopes();
+        
+        var selected = commando.getSelectedResult();
+        if (selected.data.isScope)
+        {
+            commando.selectScope(selected.id);
+            return;
+        }
 
         for (let item in selectedItems)
         {

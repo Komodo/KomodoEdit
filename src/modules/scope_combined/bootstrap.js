@@ -14,7 +14,8 @@ function loadIntoWindow(window) {
             name: "Everything",
             weight: 100,
             icon: "koicon://ko-svg/chrome/icomoon/skin/search3.svg",
-            handler: "scope-combined/everything"
+            handler: "scope-combined/everything",
+            quickscope: true
         });
     } catch (e) {
         Cu.reportError("Commando: Exception while registering scope 'Combined - Everything'");

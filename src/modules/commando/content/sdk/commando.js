@@ -40,7 +40,9 @@
         open: false,
         quickSearch: false,
         altPressed: true,
-        altNumber: null
+        altNumber: null,
+        useQuickScope: false,
+        quickScope: null
     };
 
     var elems = {
@@ -110,6 +112,7 @@
             
             local.open = false;
             elem("quickSearch").removeAttr("open");
+            local.useQuickScope = false;
         });
 
         window.addEventListener("click", onWindowClick);
@@ -148,8 +151,12 @@
             case KeyEvent.DOM_VK_ESCAPE:
                 if (c.getSearchValue() != "" || c.getSubscope())
                 {
-                    c.reset();
-                    c.setSubscope(null);
+                    c.navBack();
+                    c.empty();
+                }
+                else if (local.quickScope && local.useQuickScope && local.quickScope != c.getScope().id)
+                {
+                    c.selectScope(local.quickScope);
                 }
                 else
                 {
@@ -219,7 +226,7 @@
         log.debug("Event: onKeyUp");
         
         var results = elem('results');
-        if (results.visible())
+        if (results.visible() && local.altNumber)
         {
             var index = parseInt(local.altNumber) - 1;
             results.element().selectedIndex = index;
@@ -375,10 +382,18 @@
         log.debug("Showing Commando");
         
         local.quickSearch = quickSearch;
+        
+        if ( ! scope && local.quickScope)
+            scope = local.quickScope;
 
         var preserve = ko.prefs.getBooleanPref('commando_preserve_query');
         if (scope && (scope != c.getScope().id || ! preserve))
             c.selectScope(scope);
+        
+        scope = c.getScope();
+            
+        if ("quickscope" in scope)
+            local.useQuickScope = true;
 
         var panel = elem('panel');
         var search = elem('search');
@@ -647,6 +662,9 @@
 
         opts.id = id;
         local.scopes[id] = opts;
+        
+        if (opts.quickscope)
+            local.quickScope = id;
 
         var scopeElem = $(template('scopeMenuItem', opts)).element();
         scopeElem._scope = local.scopes[id];
@@ -856,8 +874,7 @@
 
         tmpResultElem.parentNode.replaceChild(resultElem.element(), tmpResultElem);
 
-        resultElem.element().selectedIndex = 0;
-        resultElem.element().scrollToIndex(0);
+        c.navDown();
         
         elem('panel').removeAttr("height");
     }
@@ -947,7 +964,7 @@
     {
         if ( ! c.getSubscope())
         {
-            return;
+            return false;
         }
 
         var history = local.history.pop();
@@ -962,6 +979,8 @@
             c.setSubscope(history.subscope, false);
             c.search();
         }
+        
+        return true;
     }
 
     this.navDown = function(append = false)
@@ -970,7 +989,7 @@
         var resultElem = results.element();
         var resultCount = resultElem.getRowCount();
 
-        var selIndex = resultElem.selectedIndex;
+        var selIndex = resultElem.selectedIndex || 0;
         for (let item of resultElem.selectedItems)
         {
             let itemIndex = resultElem.getIndexOfItem(item);
@@ -1003,7 +1022,10 @@
             resultElem.ensureIndexIsVisible(selIndex);
 
             var data = resultElem.selectedItem.resultData;
-            var description = data.tip || data.description || data.name;
+            var description = data.name;
+            if ("tip" in data) description = data.tip
+            if (("description" in data) && data.description && data.description.length)
+                description = data.name + " - " + data.description;
             c.tip(description);
         }
     }
@@ -1047,7 +1069,10 @@
             resultElem.ensureIndexIsVisible(selIndex);
 
             var data = resultElem.selectedItem.resultData;
-            var description = data.tip || data.description || data.name;
+            var description = data.name;
+            if ("tip" in data) description = data.tip
+            if (("description" in data) && data.description && data.description.length)
+                description = data.name + " - " + data.description;
             c.tip(description);
         }
     }
