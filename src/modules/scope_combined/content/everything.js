@@ -17,7 +17,7 @@
         var length = 0;
         for (let id in scopes)
         {
-            if (id.indexOf("scope-combined") != -1) continue;
+            if (id.indexOf("scope-combined") != -1 || id == "scope-shell") continue;
             if (subscope && subscope.scope != id) continue;
             _scopes[id] = scopes[id];
             length++;
