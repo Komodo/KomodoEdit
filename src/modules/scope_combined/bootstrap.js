@@ -12,6 +12,7 @@ function loadIntoWindow(window) {
     try {
         commando.registerScope("scope-combined", {
             name: "Everything",
+            description: "Access all scopes at once",
             weight: 100,
             icon: "koicon://ko-svg/chrome/icomoon/skin/search3.svg",
             handler: "scope-combined/everything",

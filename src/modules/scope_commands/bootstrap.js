@@ -9,6 +9,7 @@ function loadIntoWindow(window) {
         var commando = window.require("commando/commando");
         commando.registerScope("scope-commands", {
             name: "Commands",
+            description: "Run commands or invoke menu's",
             icon: "koicon://ko-svg/chrome/icomoon/skin/command.svg",
             handler: "scope-commands/commands"
         });

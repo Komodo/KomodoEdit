@@ -11,6 +11,7 @@ function loadIntoWindow(window) {
         var system   = require("sdk/system");
         commando.registerScope("scope-openfiles", {
             name: "Open Files",
+            description: "Access your opened files",
             icon: "koicon://ko-svg/chrome/icomoon/skin/files.svg",
             handler: "scope-openfiles/openfiles"
         });
