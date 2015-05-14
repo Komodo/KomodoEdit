@@ -13,6 +13,8 @@
     const ioService = Cc["@mozilla.org/network/io-service;1"]
                         .getService(Ci.nsIIOService);
 
+    const KeyEvent = window.KeyEvent; // Todo: Don't depend on window
+
     // Short alias for the commando scope.
     const c = this;
 
@@ -36,7 +38,9 @@
         history: [],
         uilayoutTimer: -1,
         open: false,
-        quickSearch: false
+        quickSearch: false,
+        altPressed: true,
+        altNumber: null
     };
 
     var elems = {
@@ -67,14 +71,16 @@
         log.debug('Starting Commando');
         elem('search').on("input", onSearch.bind(this));
         elem('search').on("keydown", onKeyNav.bind(this));
+        elem('search').on("keyup", onKeyUp.bind(this));
         elem('quickSearch').on("input", onSearch.bind(this));
         elem('quickSearch').on("keydown", onKeyNav.bind(this));
+        elem('quickSearch').on("keyup", onKeyUp.bind(this));
         elem('quickSearch').on("focus", onQuickSearchFocus);
         elem('quickSearch').on("click", onQuickSearchFocus);
         elem('scope').on("command", onChangeScope.bind(this));
         elem('results').on("keydown", onKeyNav.bind(this));
         elem('results').on("dblclick", onSelectResult.bind(this));
-
+        
         local.transitKeyBinds = ko.prefs.getBoolean("transit_commando_keybinds", false);
         if (local.transitKeyBinds)
         {
@@ -173,7 +179,24 @@
             case KeyEvent.DOM_VK_RIGHT: 
                 onExpandResult(e);
                 break;
+            case KeyEvent.DOM_VK_ALT:
+                local.altPressed = true;
+                break;
         }
+        
+        var numbers = [0,1,2,3,4,5,6,7,8,9];
+        for (let number of numbers)
+        {
+            if (e.keyCode != KeyEvent["DOM_VK_" + number])
+                continue;
+            
+            if (local.altNumber)
+                local.altNumber += number;
+            else
+                local.altNumber = number.toString();
+        }
+        
+        if (local.altPressed) prevDefault = true;
 
         local.prevKeyCode = e.keyCode;
 
@@ -186,6 +209,26 @@
             e.stopPropagation();
             return false;
         }
+    }
+    
+    var onKeyUp = function(e)
+    {
+        if ( e.keyCode != KeyEvent.DOM_VK_ALT)
+            return;
+        
+        log.debug("Event: onKeyUp");
+        
+        var results = elem('results');
+        if (results.visible())
+        {
+            var index = parseInt(local.altNumber) - 1;
+            results.element().selectedIndex = index;
+            results.element().ensureIndexIsVisible(index);
+            onSelectResult();
+        }
+        
+        local.altPressed = false;
+        local.altNumber = null;
     }
 
     var onNavBack = function()
@@ -788,7 +831,6 @@
         if (local.resultsReceived == maxResults)
             log.debug("Reached max results");
 
-        var process = [];
         for (let result of results)
         {
             if (local.favourites.findString(result.id) != -1)
@@ -801,20 +843,21 @@
             resultEntry.resultData = result;
             resultElem.element().appendChild(resultEntry);
             this.sortResult(resultEntry);
-
-            if (result.descriptionComplex)
-                process.push(resultEntry);
         }
 
         resultElem.addClass("has-results");
         resultElem.css("maxHeight", (window.screen.availHeight / 2) + "px");
+        
+        var counter = 1;
+        resultElem.find("label.number").each(function()
+        {
+            this.textContent = counter++;
+        });
 
         tmpResultElem.parentNode.replaceChild(resultElem.element(), tmpResultElem);
 
         resultElem.element().selectedIndex = 0;
         resultElem.element().scrollToIndex(0);
-
-        if (process) processResults(process);
         
         elem('panel').removeAttr("height");
     }
@@ -837,30 +880,6 @@
 
             return true;
         });
-    }
-
-    var processResults = function(resultEntries)
-    {
-        var getByAttr = window.xtk.domutils.getChildByAttribute;
-        for (let entry in resultEntries)
-        {
-            entry = resultEntries[entry];
-            var wrapper = getByAttr(entry.childNodes[0], "class", "entry-wrapper");
-            var prefix = getByAttr(wrapper, "class", "prefix")
-            var descComplex = getByAttr(wrapper, "class", "descriptionComplex")
-
-            var prefixWidth = prefix.boxObject.width;
-
-            // Todo: account for other nodes, clean up
-            // Detect width automatically
-            // MAKE XUL RESPECT THE FREAKING PARENT NODE WIDTH! SERIOUSL XUL GRRRRRRR
-            // And if at all possible find a pure XUL/CSS way, this sucks
-            descComplex.style.maxWidth = (430 - prefixWidth) + "px";
-
-            // Yes this code sucks, XUL made me do it
-            if (descComplex.firstChild && descComplex.firstChild.classList && descComplex.firstChild.classList.contains("crop"))
-                descComplex.firstChild.style.maxWidth = descComplex.style.maxWidth;
-        }
     }
 
     // Todo: prevent multiple paints

@@ -178,6 +178,11 @@
         {
             padding: 5px;
             height: 35px;
+            
+            label, description
+            {
+                font-size: 1.1rem;
+            }
 
             .icon
             {
@@ -187,13 +192,22 @@
                 max-height: 16px;
                 background-size: 16px 16px;
             }
+            
+            .number-wrapper
+            {
+                .number
+                {
+                    margin: 0 0 0 6px;
+                    opacity: 0.6;
+                }
+            }
 
             .entry-wrapper
             {
                 .title
                 {
-                    font-size: 1.1rem;
                     margin: 0 0 0 6px;
+                    vertical-align: middle;
                 }
 
                 .descriptionPrefix
@@ -207,36 +221,10 @@
                     text-overflow: ellipsis;
                 }
 
-                .description,
-                .descriptionComplex
+                .description
                 {
                     opacity: 0.7;
                     margin: 0 0 0 4px;
-                }
-
-                .descriptionComplex
-                {
-                    max-width: 300px;
-
-                    strong
-                    {
-                        background: @hud-selection-background;
-                        color: @hud-selection-foreground;
-                    }
-
-                    .crop
-                    {
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        min-width: 0;
-                        text-align: left;
-
-                        &.rtl
-                        {
-                            direction: rtl;
-                        }
-                    }
                 }
             }
         }

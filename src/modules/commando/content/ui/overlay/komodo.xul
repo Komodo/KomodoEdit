@@ -92,20 +92,16 @@
                                         <box class="icon" style='background-image: url({{=it.icon}})'></box>
                                     {{?}}
                                 </hbox>
-                                <hbox class="entry-wrapper" align="center" pack="center"> <!-- processResults relies on the order of these nodes -->
+                                <hbox class="number-wrapper" pack="end"><label class="number"/></hbox>
+                                <hbox class="entry-wrapper" align="center" pack="center">
                                     <hbox class="prefix">
-                                        <label class="title" value="{{!it.name}}"/>
+                                        <label class="title">{{!it.name}}</label>
                                         {{?it.descriptionPrefix}}
-                                            <label class="descriptionPrefix" value="{{!it.descriptionPrefix}}"/>
+                                            <label class="descriptionPrefix">{{!it.descriptionPrefix}}</label>
                                         {{?}}
                                     </hbox>
-                                    {{? !it.descriptionComplex}}
-                                        {{?it.description}}
-                                            <description class="description" value="{{!it.description}}" crop="{{?it.crop}}{{!it.crop}}{{??}}end{{?}}" flex="1"/>
-                                        {{?}}
-                                    {{?}}
-                                    {{?it.descriptionComplex}}
-                                        <description class="descriptionComplex">{{=it.descriptionComplex}}</description>
+                                    {{?it.description}}
+                                        <description class="description" flex="1">{{!it.description}}</description>
                                     {{?}}
                                 </hbox>
                             </hbox>

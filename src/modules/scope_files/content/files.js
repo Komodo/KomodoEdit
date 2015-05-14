@@ -364,8 +364,6 @@
                     id: path,
                     name: name,
                     description: relativePath,
-                    descriptionComplex: descriptionComplex,
-                    crop: "start",
                     icon: type == 'dir' ? folderIcon : "koicon://" + path + "?size=16",
                     isScope: type == 'dir',
                     weight: weight,
