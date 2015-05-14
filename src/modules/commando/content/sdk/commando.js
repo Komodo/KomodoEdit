@@ -941,7 +941,7 @@
         else
         {
             c.setSubscope(history.subscope, false);
-            c.search(history.query);
+            c.search();
         }
     }
 
