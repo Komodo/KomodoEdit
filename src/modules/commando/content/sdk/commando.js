@@ -462,7 +462,7 @@
 
         return uuid;
     }
-
+    
     this.reSearch = function()
     {
         var query = local.prevSearchValue;
@@ -528,6 +528,16 @@
         {
             callback();
         }
+    }
+    
+    this.getSearchValue = function()
+    {
+        return elem('search').value();
+    }
+    
+    this.getActiveSearchUuid = function()
+    {
+        return local.searchingUuid;
     }
 
     this.selectResults = function(selected)
@@ -765,7 +775,7 @@
         log.debug(searchUuid + " - Rendering "+results.length+" Results");
 
         // Replace result elem with temporary cloned node so as not to paint the DOM repeatedly
-        var resultElem = elem('results');
+        var resultElem = elem('results', true);
         var tmpResultElem = resultElem.element().cloneNode();
         resultElem.element().clearSelection();
         resultElem = $(resultElem.replaceWith(tmpResultElem));
@@ -805,6 +815,8 @@
         resultElem.element().scrollToIndex(0);
 
         if (process) processResults(process);
+        
+        elem('panel').removeAttr("height");
     }
 
     this.filter = function(results, query, field)
@@ -1096,6 +1108,11 @@
     {
         var scope = c.getScope();
         return require(scope.handler);
+    }
+    
+    this.getHistory = function()
+    {
+        return _.clone(local.history);
     }
 
     this.execScopeHandler = function(method, args)
