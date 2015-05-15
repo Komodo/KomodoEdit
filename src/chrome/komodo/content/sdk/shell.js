@@ -85,9 +85,158 @@
         
         binary = this.lookup(binary) || binary;
         
-        // Start child process - `npm ls --depth=0`
         var proc = require("sdk/system/child_process");
-        return proc.spawn(binary, args, _opts);
+        var process = proc.spawn(binary, args, _opts);
+        
+        return process;
+    }
+    this.spawn = this.run;
+    
+    this.exec = function(command, opts, callback)
+    {
+        var _opts = {
+            cwd: this.getCwd(),
+            env: this.getEnv()
+        };
+        
+        var _ = require("contrib/underscore");
+        _opts = _.extend(_opts, opts);
+        
+        var proc = require("sdk/system/child_process");
+        var process = proc.exec(command, _opts, callback);
+        
+        if ("runIn" in opts && opts.runIn == "hud")
+            showOutputInHud(process, command);
+        
+        return process;
+    }
+    
+    // Show the result of a command in the HUD
+    var showOutputInHud = function(process, command)
+    {
+        var running = true;
+        
+        // Create the output panel
+        var $ = require("ko/dom");
+        var hud =
+        $($.create("panel", {class: "hud shell-output", noautohide: true, width: 500, level: "floating"},
+            $.create("textbox", {multiline: true, rows: 15, readonly: true})
+                    ("button", {label: "stop"})
+        ).toString());
+        
+        // Append command name if given
+        if (command)
+            hud.prepend($.create("label", {value: "$ " + command}).toString());
+        
+        // Append to DOM
+        $("#komodoMainPopupSet").append(hud);
+        
+        // Center the panel on the editor
+        var elem = hud.element();
+        var bo = document.getElementById('komodo-editor-vbox');
+        bo = bo ? bo.boxObject : document.documentElement.boxObject;
+        var left = (bo.x + (bo.width / 2)) - (elem.width / 2);
+        elem.openPopup(undefined, undefined, left, 100);
+        
+        // Show stdout and stderr data the same way, leave to user to interpret
+        var onData = function(data)
+        {
+            var textbox = hud.find("textbox");
+            var elem = document.getAnonymousNodes(textbox.element())[0].childNodes[0];
+            var isAtBottom = elem.scrollTop == elem.scrollTopMax;
+            
+            textbox.value(textbox.value() + data);
+            
+            if (isAtBottom)
+                elem.scrollTop = elem.scrollTopMax;
+            
+            focus();
+        }
+        
+        var hudElem = hud.element();
+        var textboxElem = hud.find("textbox");
+        
+        // XUL panel focus is buggy as hell, so we have to get crafty
+        var focus = function(times=0, timer = 10)
+        {
+            window.focus();
+            hudElem.focus();
+            textboxElem.focus();
+    
+            if (document.activeElement.nodeName != "html:input")
+            {
+                log.debug("Can't grab focus, retrying");
+                timer = 100;
+            }
+    
+            if (times < 10)
+            {
+                window.setTimeout(focus.bind(this, ++times), timer);
+            }
+        }
+        
+        process.stdout.on('data', onData)
+        process.stderr.on('data', onData)
+        
+        // Command finished executing
+        process.on('close', function (code, signal)
+        {
+            running = false;
+            hud.removeAttr("noautohide");
+            hud.find("button").attr("label", "close");
+            
+            // Indicate that something went wrong if status code isnt 0
+            if (code != 0)
+            {
+                var textbox = hud.find("textbox");
+                textbox.value(textbox.value() + "\n" + "FAIL: " + (code || signal));
+            }
+            
+            focus();
+        });
+        
+        // Stop process or hide panel when button is clicked
+        hud.find("button").on("click", function()
+        {
+            if (running)
+                process.kill("SIGTERM");
+            else
+                hud.element().hidePopup();
+        });
+
+        // Destroy panel and force focus on editor when its hidden
+        var showing = true;
+        hud.on("popuphidden", function(e)
+        {
+            showing = false;
+            hud.remove();
+            
+            var view = ko.views.manager.currentView;
+            if (view && view.getAttribute("type") != "editor")
+                view.scintilla.focus();
+        });
+        
+        // We need to manually handle hiding the panel because XUL panels are a
+        // buggy mess
+        // Hide when a mouse click is made outside the panel
+        var hideOnClick = function(e)
+        {
+            if (running) return; // Unless the command is still running
+            $("#komodo_main").off(hideOnClick);
+            if ( ! showing) return;
+            
+            var target = e.originalTarget || e.target;
+            while((target=target.parentNode) && target !== hud.element() && target.nodeName != "dialog");
+            if ( ! target) hud.element().hidePopup();
+        };
+        $("#komodo_main").on("click", hideOnClick);
+        
+        // Hide panel when escape is pressed
+        hud.on("keydown", function(e)
+        {
+            if (running || e.keyCode != window.KeyEvent.DOM_VK_ESCAPE) return;
+            hud.element().hidePopup();
+        });
     }
 
 }).apply(module.exports)

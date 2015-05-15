@@ -110,7 +110,8 @@
         background: @special;
     }
     
-    :not(button) > button:not(.button-plain)
+    :not(button) > button:not(.button-plain),
+    & > button:not(.button-plain)
     {
         background-color: @background-button !important;
         background-image: @background-image-button !important;
@@ -336,4 +337,12 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker
 minimap
 {
     border-left: 1px solid @border !important;
+}
+
+.hud.shell-output
+{
+    textbox
+    {
+        background: transparent !important;
+    }
 }
