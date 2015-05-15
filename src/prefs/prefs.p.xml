@@ -1034,6 +1034,7 @@
 
   <ordered-preference id="commando_favourites"/>
   <boolean id="commando_preserve_query">1</boolean>
+  <string id="commando_shell_output">hud</string>
 
   <ordered-preference id="scope-files-shortcuts"/>
   

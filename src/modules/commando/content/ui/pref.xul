@@ -77,5 +77,36 @@
             </hbox>
         </vbox>
     </groupbox>
+    
+    <groupbox orient="vertical" id="search-behaviour">
+        <caption label="Shell Commands" />
+        <hbox id="defaultShellOutputBox"
+              align="center">
+            <label id="defaultShellOutputLabel"
+                   value="Default Shell Output" />
+            <menulist id="commando_shell_output"
+                      pref="true"
+                      prefattribute="value">
+                <menupopup id="defaultShellOutputPopup">
+                    <menuitem id="defaultShellOutputHud"
+                              label="HUD"
+                              value="hud"
+                              />
+                    <menuitem id="defaultShellOutputCmdOut"
+                              label="Command Output Panel"
+                              value="command-output-window"
+                              />
+                    <menuitem id="defaultShellOutputTerminal"
+                              label="Terminal Window"
+                              value="new-console"
+                              />
+                    <menuitem id="defaultShellOutputNone"
+                              label="Don't Show Output"
+                              value="no-console"
+                              />
+                </menupopup>
+            </menulist>
+        </hbox>
+    </groupbox>
 
 </window>
