@@ -100,7 +100,9 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             for (let key in attributes)
             {
                 if ( ! attributes.hasOwnProperty(key)) continue;
-                selector += " " + key + "='"+attributes[key].replace(/'/g,'\\\'')+"'";
+                let value = attributes[key];
+                if (typeof value == "string") value = value.replace(/'/g,'\\\'')
+                selector += " " + key + "='"+value+"'";
             }
         }
         
