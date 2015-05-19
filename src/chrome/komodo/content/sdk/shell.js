@@ -102,8 +102,26 @@
         var _ = require("contrib/underscore");
         _opts = _.extend(_opts, opts);
         
+        // Prepare platform command
+        var platform = require("sdk/system").platform
+        var file, cmdArgs;
+        if (platform.indexOf('win') === 0)
+        {
+            file = 'C:\\Windows\\System32\\cmd.exe';
+            cmdArgs = ['/s', '/c', command];
+        }
+        else
+        {
+            file = '/bin/sh';
+            cmdArgs = ['-c', command];
+        }
+      
+        // Undocumented option from node being able to specify shell
+        if (_opts && _opts.shell)
+            file = _opts.shell;
+      
         var proc = require("sdk/system/child_process");
-        var process = proc.exec(command, _opts, callback);
+        var process = proc.execFile(file, cmdArgs, _opts, callback);
         
         if ("runIn" in opts && opts.runIn == "hud")
             showOutputInHud(process, command);
