@@ -394,8 +394,8 @@
         
         local.quickSearch = quickSearch;
         
-        if ( ! scope && local.quickScope)
-            scope = local.quickScope;
+        if ( ! scope)
+            local.useQuickScope = true;
 
         var preserve = ko.prefs.getBooleanPref('commando_preserve_query');
         if (scope && (scope != c.getScope().id || ! preserve))
@@ -785,6 +785,8 @@
 
     this.selectScope = function(scopeId)
     {
+        log.debug("selectScope(): " + scopeId);
+        
         var scopeElem = elem('scope');
         var selectedItem = scopeElem.element().selectedItem;
 
