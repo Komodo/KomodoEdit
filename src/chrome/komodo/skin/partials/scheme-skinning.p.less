@@ -132,7 +132,7 @@
 statusbar#statusbarviewbox,
 .hud
 {
-    textbox:not(.transparent)
+    :not(menupopup) > textbox:not(.transparent)
     {
         -moz-appearance: none !important;
         background: @background-input !important;
@@ -145,7 +145,7 @@ statusbar#statusbarviewbox,
         }
     }
 
-    textbox
+    :not(menupopup) > textbox
     {
         color: @foreground !important;
     }
