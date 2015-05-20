@@ -870,10 +870,21 @@
             }
 
             result.subscope = local.subscope;
-            var resultEntry = $.createElement(template('resultItem', result));
-            resultEntry.resultData = result;
-            resultElem.element().appendChild(resultEntry);
-            this.sortResult(resultEntry);
+            
+            let resultEntry, appended = false;
+            try
+            {
+                resultEntry = $.createElement(template('resultItem', result));
+                resultEntry.resultData = result;
+                resultElem.element().appendChild(resultEntry);
+                appended = true;
+            }
+            catch (e)
+            {
+                log.exception(e, "Failed rendering result: " + result.name);
+            }
+            
+            if (appended) this.sortResult(resultEntry);
         }
 
         resultElem.addClass("has-results");
@@ -1247,7 +1258,7 @@
         
         // todo: Use localized database of tips
         elem("tip").attr("tip-type", type);
-        elem("tipDesc").html(tipMessage ||
+        elem("tipDesc").text(tipMessage ||
                              "TIP: Hit the right arrow key to \"expand\" your selection");
     }
 

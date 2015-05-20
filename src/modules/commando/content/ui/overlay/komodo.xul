@@ -83,13 +83,13 @@
                 <vbox flex="1" id="commando-results-wrapper">
                     <!-- Result template -->
                     <script id="tpl-co-result" type="x-dot-template">
-                        <richlistitem class="{{?it.classList}}{{=it.classList}}{{?}}" id="co-result-item-{{=it.id}}">
+                        <richlistitem class="{{?it.classList}}{{=it.classList}}{{?}}" id="co-result-item-{{!it.id}}">
                             <hbox>
                                 <hbox class="icon-wrapper" pack="center" align="center">
                                     {{?it.favourite}}
                                         <box class="icon favourite-icon"></box>
                                     {{??it.icon}}
-                                        <box class="icon" style='background-image: url({{=it.icon}})'></box>
+                                        <box class="icon" style="background-image: url('{{=it.icon}}')"></box>
                                     {{?}}
                                 </hbox>
                                 <hbox class="number-wrapper" pack="end"><label class="number"/></hbox>

@@ -351,6 +351,7 @@
                 folderIcon = "moz-icon://stock/gtk-directory?size=16";
 
             var _results = [];
+            var encodeURIComponent = window.encodeURIComponent;
             for (let x in results)
             {
                 let entry = results[x];
@@ -364,7 +365,7 @@
                     id: path,
                     name: name,
                     description: relativePath,
-                    icon: type == 'dir' ? folderIcon : "koicon://" + path + "?size=16",
+                    icon: type == 'dir' ? folderIcon : "koicon://" + encodeURIComponent(name) + "?size=16",
                     isScope: type == 'dir',
                     weight: weight,
                     scope: "scope-files",
