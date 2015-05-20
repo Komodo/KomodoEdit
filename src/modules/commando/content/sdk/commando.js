@@ -611,9 +611,14 @@
 
     this.selectResults = function(selected)
     {
-        if (selected.length == 1 && selected.slice(0)[0].resultData.isScope)
+        var resultData = selected.slice(0)[0].resultData;
+        if (selected.length == 1 && resultData.isScope)
         {
-            c.setSubscope(selected.slice(0)[0].resultData);
+            if ( ! c.setSubscope(resultData))
+            {
+                // Scope is already set
+                this.clear();
+            }
             return;
         }
 
@@ -1122,10 +1127,13 @@
     {
         if (subscope && ! (subscope.scope in local.scopes))
             return log.error("Subscope does not exist: " + subscope.scope);
-
+    
         if (subscope)
         {
             log.debug("Setting Subscope");
+
+            if (local.subscope && subscope.id == local.subscope.id)
+                return false;
 
             if (local.subscope && record)
             {
