@@ -1550,30 +1550,44 @@ class PHPFunction:
 
     def parsePHPDocBlock(self, docblock):
         docstrings = docblock.split('\n')
-        docblock_parsed = ""
-        for docstr in docstrings:
-            if docstr.startswith("@param"):
-                info = docstr.split(" ")  # @param boolean $var (a lot of description words), () is a group
-                param_type = info[1]
-                param_name = info[2]
-                try:
-                    description = " ".join(info[3:]) # otherwise join all words in description (they are splitted by space)
-                except IndexError:
+        docblock_parsed = "\n"
+        try:
+            for docstr in docstrings:
+                
+                # @param entries
+                if docstr.startswith("@param"):
+                    info = docstr.split() 
+                    param_type = info[1]
+                    param_name = info[2]
                     description = ""
-                docblock_parsed += '<%s>%s %s\n' % (param_type.lower(), param_name, description, ) # -> <param_type>param_name param_description (if exists)
-            elif docstr.startswith("@return"):
-                info = docstr.split(" ")
-                return_type = info[1]
-                if len(info) > 2: #if @return contains info about returned value: join description array into a string
-                    description = " ".join(info[2:])
-                else:
-                    description = "" # otherwise set it to empty string
-                docblock_parsed += "Returns %s %s\n" % (return_type.lower(), description)
-            elif docstr.startswith("@"):
-                docstr = docstr[1].upper() + docstr[2:] #remove @ and make the first latter uppercase
-                docblock_parsed += "%s\n" % docstr
-            elif len(docstr.strip()) > 0: #comments which have not to be parsed (skip empty strings)
-                docblock_parsed += "%s\n" % docstr
+                    if len(info) > 2:
+                        description = " - " + " ".join(info[3:])
+                    # <param_type> param_name - param_description (if exists)
+                    docblock_parsed += '<%s> %s %s\n' % (param_type.lower(), param_name, description, )
+                    
+                # @return entries
+                elif docstr.startswith("@return"):
+                    info = docstr.split()
+                    return_type = info[1]
+                    description = ""
+                    if len(info) > 2: 
+                        description = " - " + " ".join(info[2:])
+                    docblock_parsed += "Returns %s %s\n" % (return_type.lower(), description)
+                
+                # Misc @ prefixed entries
+                elif docstr.startswith("@"):
+                    # remove @ and make the first latter uppercase
+                    docstr = docstr[1].upper() + docstr[2:] 
+                    docblock_parsed += "%s\n" % docstr
+                    
+                # comments which have not to be parsed (skip empty strings)
+                elif len(docstr.strip()) > 0: 
+                    docblock_parsed += "%s\n" % docstr
+
+        except IndexError:
+            # Malformed docblock
+            return docblock
+        
         return docblock_parsed
 
     def addReturnType(self, returnType):
