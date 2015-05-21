@@ -82,6 +82,28 @@ if (ko.skin == undefined)
 
             this.loadSchemeSkinning();
             this.setSchemeClasses();
+            
+            // Force skin reload if Komodo has been updated
+            var skinVersion = prefs.getString('skinVersion', '');
+            var infoSvc = Cc["@activestate.com/koInfoService;1"].getService(Ci.koIInfoService);
+            var platVersion = infoSvc.buildPlatform + infoSvc.buildNumber;
+            if (skinVersion != platVersion)
+            {
+                log.info("Komodo has been updated, forcing a skin reload");
+                prefs.setStringPref('skinVersion', platVersion);
+                [PREF_CUSTOM_SKIN, PREF_CUSTOM_ICONS].forEach(function(keyName)
+                {
+                    if (prefs.getString(keyName, '') == '') return;
+                    var value = prefs.getStringPref(keyName);
+                    
+                    // Set pref to default without triggering a reload
+                    prefInfo[keyName] = {type: "String", old: prefs.parent.getString(keyName, '')};
+                    prefs.setString(keyName, prefs.parent.getString(keyName, ''));
+                    
+                    // Set pref and trigger reload
+                    prefs.setString(keyName, value);
+                })
+            }
         },
         
         /**

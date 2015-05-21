@@ -14,6 +14,8 @@ function koManifestLoader()
     var loggingSvc, prefSvc, log, prefs, koResolve;
 
     var initialized = false;
+    
+    var loaded = {};
 
     koManifestLoader.prototype =
     {
@@ -65,11 +67,13 @@ function koManifestLoader()
             log.debug("Loading " + uri);
 
             var file = this._getFile(uri);
-
             if ( ! this._validateFile(file))
             {
                 return false;
             }
+            
+            if (uri in loaded)
+                this.unloadManifest(uri);
 
             try
             {
@@ -85,6 +89,8 @@ function koManifestLoader()
             {
                 this.addManifest(uri);
             }
+            
+            loaded[uri] = true;
 
             return true;
         },
@@ -94,7 +100,6 @@ function koManifestLoader()
             log.debug("Unloading " + uri);
 
             var file = this._getFile(uri);
-
             if ( ! file ||  ! this._validateFile(file))
             {
                 return false;
@@ -114,6 +119,9 @@ function koManifestLoader()
             {
                 this.deleteManifest(uri);
             }
+            
+            if (uri in loaded)
+                delete loaded[uri];
 
             return true;
         },
