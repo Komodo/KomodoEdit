@@ -751,11 +751,6 @@
 <!ENTITY userInterfaceShowHideRightPane.desc "User Interface: Show/Hide Right Pane">
 <!ENTITY userInterfaceShowHideToolboxTab.desc "User Interface: Show/Hide Toolbox Tab">
 
-<!ENTITY saveUserWorkspace.desc "Workspace: Save workspace to file.">
-<!ENTITY openUserWorkspace.desc "Workspace: Open workspace from file.">
-<!ENTITY menuSaveWorkspace.label "Save Workspace">
-<!ENTITY menuOpenWorkspace.label "Workspace">
-
 <!ENTITY userInterfaceShowHideToolsToolbar.desc "User Interface: Show/Hide Tools Toolbar">
 <!ENTITY userInterfaceShowHideMinimap.desc "User Interface: Show/Hide Editor Minimap">
 <!ENTITY userInterfaceShowHideWhitespace.desc "User Interface: Show/Hide Whitespace">
@@ -836,7 +831,6 @@
 <!ENTITY komodoFindToolbarIn.label "In current file">
 <!ENTITY menuHelpCheckForUpdates.accesskey "U">
     <!-- Quicklaunch -->
-<!ENTITY quicklaunchOpenWorkspace.label "Open Workspace">
 
 
 <!--commented in file commandsOverlay.xul-->

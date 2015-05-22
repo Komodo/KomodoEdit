@@ -512,12 +512,6 @@
                                               observes="cmd_open"
                                               key="key_open"
                                               />
-                                    <menuitem label="&menuOpenWorkspace.label;"
-                                              id="menu_open_workspace"
-                                              accesskey="&menuWorkspaceOpen.accesskey;" 
-                                              class="menuitem-iconic wordspace_open_icon"
-                                              observes="cmd_openWorkspace"
-                                              />
                                     <menuitem label="&remoteFile.label;"
                                               id="menu_openRemoteFile"
                                               observes="cmd_open_remote"
@@ -627,12 +621,6 @@
                                       id="menu_saveAll"
                                       observes="cmd_saveAll"
                                       accesskey="&menuSaveAll.accesskey;"
-                                      />
-                            
-                            <menuitem label="&menuSaveWorkspace.label;"
-                                      id="menu_save_workspace"
-                                      accesskey="&menuWorkspaceSave.accesskey;" 
-                                      observes="cmd_saveWorkspace"
                                       />
 
                             <menuseparator id="file_refresh_menuseparator"/>
@@ -2177,13 +2165,6 @@
                                         onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('project',0,'popup_mruProjectsQL', true);"/>
                                 </button>
                                 
-                                <!-- Add menupopup elem and Type attr as above -->
-                                <!-- when workspace mru work is done -->
-                                <button label="&quicklaunchOpenWorkspace.label;"
-                                        class="open-workspace-icon"
-                                        oncommand="ko.commands.doCommandAsync('cmd_openWorkspace', event)">
-                                </button>
-
                                 <hbox height="15"/>
 
                                 <button label="Preferences"
