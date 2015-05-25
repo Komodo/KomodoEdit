@@ -403,7 +403,7 @@ viewMgrClass.prototype = {
             this.view.markRow(index);
         }
 
-        if (ko.prefs.getBoolean('pref_places_singleClickExpand', false)) {
+        if (this.view.isContainer(index) && ko.prefs.getBoolean('pref_places_singleClickExpand', false)) {
             this.view.toggleOpenState(index);
         }
     },
