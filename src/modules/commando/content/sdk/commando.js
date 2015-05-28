@@ -149,10 +149,13 @@
         switch (e.keyCode)
         {
             case KeyEvent.DOM_VK_ESCAPE:
-                if (c.getSearchValue() != "" || c.getSubscope())
+                if (c.getSearchValue() != "")
+                {
+                    c.clear();
+                }
+                else if (c.getSubscope())
                 {
                     c.navBack();
-                    c.empty();
                 }
                 else if (local.quickScope && local.useQuickScope && local.quickScope != c.getScope().id)
                 {
