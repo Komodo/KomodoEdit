@@ -39,7 +39,8 @@ if (ko.skin == undefined)
             PREF_CUSTOM_SKIN      = 'koSkin_custom_skin',
             PREF_USE_GTK_DETECT   = 'koSkin_use_gtk_detection',
             PREF_EDITOR_SCHEME    = 'editor-scheme',
-            PREF_SCHEME_SKINNING  = 'koSkin_scheme_skinning';
+            PREF_SCHEME_SKINNING  = 'koSkin_scheme_skinning',
+            PREF_SCHEME_FORCE_DARK  = 'scheme-force-is-dark';
     
     // Old preference value reference
     var prefInfo = {};
@@ -48,6 +49,7 @@ if (ko.skin == undefined)
     prefInfo[PREF_USE_GTK_DETECT]    = {type: "Boolean", old: prefs.getBoolean(PREF_USE_GTK_DETECT, true)};
     prefInfo[PREF_EDITOR_SCHEME]     = {type: "String", old: prefs.getString(PREF_EDITOR_SCHEME, '')};
     prefInfo[PREF_SCHEME_SKINNING]   = {type: "Boolean", old: prefs.getBoolean(PREF_SCHEME_SKINNING, '')};
+    prefInfo[PREF_SCHEME_FORCE_DARK] = {type: "String", old: prefs.getString(PREF_SCHEME_FORCE_DARK, '-1')};
     
     ko.skin.prototype  =
     {
@@ -56,6 +58,7 @@ if (ko.skin == undefined)
         PREF_USE_GTK_DETECT:    PREF_USE_GTK_DETECT,
         PREF_EDITOR_SCHEME:     PREF_EDITOR_SCHEME,
         PREF_SCHEME_SKINNING:   PREF_SCHEME_SKINNING,
+        PREF_SCHEME_FORCE_DARK: PREF_SCHEME_FORCE_DARK,
         
         shouldFlushCaches: false,
         
@@ -165,6 +168,10 @@ if (ko.skin == undefined)
 
                 case PREF_EDITOR_SCHEME:
                 case PREF_SCHEME_SKINNING:
+                    this.loadSchemeSkinning();
+                    this.setSchemeClasses();
+                    break;
+                case PREF_SCHEME_FORCE_DARK:
                     this.loadSchemeSkinning();
                     this.setSchemeClasses();
                     break;
@@ -318,7 +325,12 @@ if (ko.skin == undefined)
             var scheme = schemeService.getScheme(prefs.getString(PREF_EDITOR_SCHEME));
             document.documentElement.classList.remove("hud-isdark");
             document.documentElement.classList.remove("hud-islight");
-            document.documentElement.classList.add(scheme.isDarkBackground ? "hud-isdark" : "hud-islight");
+            
+            var darkScheme = prefs.getString('scheme-force-is-dark', '-1');
+            if (darkScheme == '-1')
+                darkScheme = scheme.isDarkBackground ? "1" : "0";
+            
+            document.documentElement.classList.add(darkScheme == "1" ? "hud-isdark" : "hud-islight");
         },
 
         loadSchemeSkinning: function()
@@ -334,13 +346,18 @@ if (ko.skin == undefined)
             
             var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
             var scheme = schemeService.getScheme(prefs.getString(PREF_EDITOR_SCHEME));
+            var darkScheme = prefs.getString('scheme-force-is-dark', '-1');
+            if (darkScheme == '-1')
+            {
+                darkScheme = scheme.isDarkBackground ? "1" : "0";
+            }
             
             var back = scheme.backgroundColor,
                 fore = scheme.foregroundColor;
 
             // Skip if the value hasn't changed
             var lessCode = "" +
-                "@dark: " + (scheme.isDarkBackground ? "1" : "0") + ";\n" +
+                "@dark: " + darkScheme + ";\n" +
                 "@special: " + scheme.getCommon("keywords", "fore") + ";\n" +
                 "@background: " + back + ";\n" +
                 "@foreground: " + fore + ";\n" +

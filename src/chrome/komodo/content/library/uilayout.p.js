@@ -311,10 +311,13 @@ this.updateToolboxVisibility = function uilayout_updateToolboxVisibility()
     var toolbarsShowing = (broadcaster && broadcaster.getAttribute('checked') == 'true');
     
     var toolbox = document.getElementById('toolbox_main');
+    var windowNode = document.getElementById('komodo_main');
     if ( ! menubarShowing && ! toolbarsShowing) {
         toolbox.collapsed = true;
+        windowNode.classList.add("toolbox-hidden");
     } else {
         toolbox.collapsed = false;
+        windowNode.classList.remove("toolbox-hidden");
     }
 }
 

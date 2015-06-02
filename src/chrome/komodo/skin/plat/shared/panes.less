@@ -1,8 +1,14 @@
 /* Variables & Helpers */
 @import url("chrome://komodo/skin/_config/window.less");
 @import url("chrome://komodo/skin/_config/panes.less");
+@import url("chrome://komodo/skin/_config/toolbars.less");
 
 /* Widgets & Panes */
+
+#komodo_main:not(.toolbox-hidden) ko-pane:not(#workspace_bottom_area)
+{
+    border-top: @main-toolbox-border-bottom !important;
+}
 
 page.widget,
 page.widget .toolbar-background

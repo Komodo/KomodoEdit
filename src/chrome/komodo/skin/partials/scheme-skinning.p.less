@@ -1,4 +1,5 @@
 @import url("chrome://komodo/skin/plat/shared/icons_depend.less");
+@import url("chrome://komodo/skin/_config/window.less");
 
 .setVars() when (@dark = 1)
 {
@@ -21,6 +22,42 @@
     
     @background-statusbar:      @background-primary;
     @border-statusbar:          lighten(@background, 5%);
+    
+    splitter.workspace_splitter
+    {
+        &[orient="vertical"], &[orient="vertical"]:-moz-window-inactive
+        {
+            border-top: 0 !important;
+            margin-bottom: -3px !important;
+        }
+    
+        &[orient="horizontal"]
+        {
+            &:not(.workspace_splitter_right)
+            {
+                border-right: 0 !important;
+                margin-left: -3px !important;
+            }
+    
+            &.workspace_splitter_right
+            {
+                border-left: 0 !important;
+                margin-right: -3px !important;
+            }
+        }
+    }
+    
+    #workspace_bottom_area,
+    #editorvbox tabbox
+    {
+        border-left: @panel-border;
+        border-right: @panel-border;
+    }
+    
+    #komodo-editor-vbox
+    {
+        border-top: 0 !important;
+    }
 }
 
 .setVars() when (@dark = 0)
