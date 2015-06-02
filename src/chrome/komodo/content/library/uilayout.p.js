@@ -152,18 +152,19 @@ this.setToolbarsVisibility = function uilayout_setToolbarsVisibility(toolbarsSho
     var toolboxrow = document.getElementById('main-toolboxrow-wrapper');
     if (toolbarsShowing)
     {
-	toolboxrow.removeAttribute('collapsed');
+        toolboxrow.removeAttribute('collapsed');
     }
     else
     {
-	toolboxrow.setAttribute('collapsed', 'true');
+        toolboxrow.setAttribute('collapsed', 'true');
     }
 
     document.persist('cmd_toggleToolbars', 'checked');
 
 // #if PLATFORM != "darwin"
-	ko.uilayout.ensureMenuButtonVisible();
+        ko.uilayout.ensureMenuButtonVisible();
 // #endif
+    ko.uilayout.updateToolboxVisibility();
 }
 
 var _buttonTextShowing = false;
@@ -269,6 +270,7 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
     }
 
 	ko.uilayout.ensureMenuButtonVisible();
+    ko.uilayout.updateToolboxVisibility();
 };
 
 this.ensureMenuButtonVisible = function uilayout_ensureMenuButtonVisible()
@@ -298,6 +300,22 @@ this.ensureMenuButtonVisible = function uilayout_ensureMenuButtonVisible()
 		var panel = document.getElementById("menubuttonpanel");
 		statusbar.removeChild(panel);
 	}
+}
+
+this.updateToolboxVisibility = function uilayout_updateToolboxVisibility()
+{
+    var broadcaster = document.getElementById('cmd_toggleMenubar');
+    var menubarShowing = (broadcaster && broadcaster.getAttribute('checked') == 'true');
+    
+    var broadcaster = document.getElementById('cmd_toggleToolbars');
+    var toolbarsShowing = (broadcaster && broadcaster.getAttribute('checked') == 'true');
+    
+    var toolbox = document.getElementById('toolbox_main');
+    if ( ! menubarShowing && ! toolbarsShowing) {
+        toolbox.collapsed = true;
+    } else {
+        toolbox.collapsed = false;
+    }
 }
 
 // #endif
