@@ -167,8 +167,15 @@
         {
             // For now we'll use the old notification library, ideally this should
             // be merged into the notify module
-            _ko.notifications.add(message, [category], opts.id || Date.now(),
-                                 {severity: opts.priority, notify: true});
+            try
+            {
+                _ko.notifications.add(message, [category], opts.id || Date.now(),
+                                     {severity: opts.priority, notify: true});
+            }
+            catch (e)
+            {
+                log.exception(e, "Caught exception when trying to use legacy notification library");
+            }
         }
         
         if (("panelOnly" in opts) && opts.panelOnly)
