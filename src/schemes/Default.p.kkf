@@ -53,6 +53,7 @@ binding cmd_pasteAndSelect Ctrl+Shift+V
 binding cmd_tabAwarePaste Ctrl+Alt+V
 binding cmd_delete Delete
 binding cmd_deleteWordLeft  Ctrl+Backspace
+binding cmd_deleteWordRight  Ctrl+Delete
 binding cmd_lineTransposeUp  Alt+Up
 binding cmd_lineTransposeDown  Alt+Down
 
