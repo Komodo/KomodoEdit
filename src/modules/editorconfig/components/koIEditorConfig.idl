@@ -1,0 +1,12 @@
+/* Copyright (c) 2015 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+interface koIAsyncCallback;
+
+[scriptable, uuid(2cf77db4-c923-4a37-bfea-91764163ff84)]
+interface koIEditorConfig: nsISupports {
+
+    AString get_properties(in AString filepath);
+
+};

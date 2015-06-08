@@ -1,0 +1,9 @@
+manifest components/component.manifest
+
+# #if MODE == "dev"
+content editorconfig content/
+# #else
+content editorconfig jar:editorconfig.jar!/content/
+# #endif
+
+overlay chrome://komodo/content/komodo.xul chrome://editorconfig/content/overlay.xul
