@@ -13,3 +13,6 @@
 [submodule "src/schemes/color_schemes"]
 	path = src/schemes/color_schemes
 	url = https://github.com/Komodo/komodo-color-schemes
+[submodule "src/modules/editorconfig"]
+	path = src/modules/editorconfig
+	url = git@github.com:Komodo/komodo-editorconfig.git
