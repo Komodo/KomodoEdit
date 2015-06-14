@@ -478,6 +478,21 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         css: function(key, value)
         {
+            var pxRules = ["width", "height", "top", "left", "bottom", "right", "font-size"];
+            
+            if ((typeof key) == 'string' && value === undefined)
+            {
+                value = this.first().style[key];
+                
+                if (pxRules.indexOf(key) != -1 && value.indexOf("px") == (value.length-2))
+                    value = value.substring(0, value.length-2);
+                
+                return value;
+            }
+            
+            if (pxRules.indexOf(key) != -1 && ! isNaN(value))
+                value = value + "px";
+            
             var rules = {};
             if (value !== undefined)
                 rules[key] = value;
