@@ -52,7 +52,7 @@ from pprint import pprint, pformat
 
 try:
     from scandir import walk as os_walk
-except ImportError:
+except (ImportError, IOError):
     logging.getLogger("findlib2").warn("Unable to import scandir - defaulting to os.walk")
     os_walk = os.walk
 
