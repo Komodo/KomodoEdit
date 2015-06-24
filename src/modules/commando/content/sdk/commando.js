@@ -1283,10 +1283,15 @@
                 tipMessage = "TIP: Press " + bindLabel + " to quickly Go To Anything.";
         }
         
+        elem("tip").removeAttr("height");
+        
         // todo: Use localized database of tips
         elem("tip").attr("tip-type", type);
         elem("tipDesc").text(tipMessage ||
                              "TIP: Hit the right arrow key to \"expand\" your selection");
+        
+        var height = elem("tip").element().boxObject.height;
+        elem("tip").attr("height", height);
     }
 
     this.clearCache = function()
