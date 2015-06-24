@@ -909,6 +909,22 @@
         c.navDown();
         
         elem('panel').removeAttr("height");
+        
+        // Work around weird XUL flex issue where the richlistbox shows a scrollbar
+        // when none is needed
+        var results = elem('results');
+        var height = results.element().boxObject.height;
+        var maxHeight = results.css("max-height");
+        maxHeight = parseInt(maxHeight.substr(0,maxHeight.length-2));
+        
+        if (height+5 > maxHeight)
+        {
+            results.addClass("scrollable");
+        }
+        else
+        {
+            results.removeClass("scrollable");
+        }
     }
 
     this.filter = function(results, query, field)
