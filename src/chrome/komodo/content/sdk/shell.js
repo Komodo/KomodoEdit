@@ -138,7 +138,7 @@
         var $ = require("ko/dom");
         var hud =
         $($.create("panel", {class: "hud shell-output", noautohide: true, width: 500, level: "floating"},
-            $.create("textbox", {multiline: true, rows: 15, readonly: true})
+            $.create("textbox", {multiline: true, rows: 15, readonly: true, style: "max-width: 490px"})
                     ("button", {label: "stop"})
         ).toString());
         
