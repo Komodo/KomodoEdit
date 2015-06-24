@@ -813,6 +813,8 @@
         scopeElem.attr("image", scopeElem.attr("image") + "?preset=hud");
 
         local.selectedScope = selectItem.id;
+        
+        local.history = [];
 
         c.stop();
         c.empty();
