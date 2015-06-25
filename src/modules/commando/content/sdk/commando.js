@@ -914,18 +914,18 @@
         
         // Work around weird XUL flex issue where the richlistbox shows a scrollbar
         // when none is needed
-        var results = elem('results');
-        var height = results.element().boxObject.height;
-        var maxHeight = results.css("max-height");
+        var resultElem = elem('results');
+        var height = resultElem.element().boxObject.height;
+        var maxHeight = resultElem.css("max-height");
         maxHeight = parseInt(maxHeight.substr(0,maxHeight.length-2));
         
         if (height+5 > maxHeight)
         {
-            results.addClass("scrollable");
+            resultElem.addClass("scrollable");
         }
         else
         {
-            results.removeClass("scrollable");
+            resultElem.removeClass("scrollable");
         }
     }
 
