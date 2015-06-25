@@ -1148,6 +1148,9 @@
     {
         if (subscope && ! (subscope.scope in local.scopes))
             return log.error("Subscope does not exist: " + subscope.scope);
+        
+        elem('search').removeAttr("placeholder");
+        elem("quickSearch").removeAttr("placeholder");
     
         if (subscope)
         {
@@ -1167,6 +1170,9 @@
             var el = $(template('subscope', {scope: subscope, scopes: local.history}));
             elem('subscopeWrap').html(el).show();
             elem('panel').addClass("subscoped");
+            
+            elem('search').attr("placeholder", subscope.placeholder || "");
+            elem('quickSearch').attr("placeholder", subscope.placeholder || "");
         }
         else
         {
