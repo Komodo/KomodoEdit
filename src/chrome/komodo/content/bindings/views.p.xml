@@ -308,8 +308,13 @@
             var v;
             // now weed out the duplicates
             for (v in views) {
-                if (views[v].koDoc && views[v].koDoc.file)
-                    unique_views[views[v].koDoc.file.URI] = views[v];
+                if (views[v].koDoc) {
+                    if (views[v].koDoc.file) {
+                        unique_views[views[v].koDoc.file.URI] = views[v];
+                    } else if (views[v].koDoc.isUntitled) {
+                        unique_views[views[v].koDoc.baseName] = views[v];
+                    }
+                }
             }
             // build an array from that
             views = [];
