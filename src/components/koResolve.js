@@ -44,12 +44,14 @@ function koResolve()
             initialized = true;
         },
 
-        uriToPath: function(fileUri)
+        uriToPath: function(fileUri, originalUri)
         {
             if (fileUri in cache)
             {
                 return cache[fileUri];
             }
+            
+            originalUri = originalUri || fileUri;
             
             var filePath = false;
             var match = fileUri.match(/([a-z]{2,})\:/);
@@ -67,12 +69,12 @@ function koResolve()
                         resolvedPath = resolvedPath.innermostURI;
                         if (resolvedPath instanceof Ci.nsIFileURL)
                         {
-                            return this.uriToPath(resolvedPath.file.path);
+                            return this.uriToPath(resolvedPath.file.path, originalUri);
                         }
                     }
                     else
                     {
-                        return this.uriToPath(resolvedPath.spec);
+                        return this.uriToPath(resolvedPath.spec, originalUri);
                     }
                     break;
 
@@ -102,9 +104,9 @@ function koResolve()
                 return false;
             }
 
-            log.debug('Resolved "' + fileUri + '" as "' + filePath + '"');
+            log.debug('Resolved "' + originalUri + '" as "' + filePath + '"');
 
-            cache[fileUri] = filePath;
+            cache[originalUri] = filePath;
 
             return filePath;
         }
