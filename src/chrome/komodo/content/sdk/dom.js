@@ -475,11 +475,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             }
 
             var attrs = {};
-            if (value)
+            if (value !== undefined)
                 attrs[key] = value;
             else
                 attrs = key;
-
+                
             return this.each(function()
             {
                 for (let k in attrs)
