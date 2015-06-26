@@ -7,6 +7,8 @@
 
 #komodo_main:not(.toolbox-hidden) ko-pane:not(#workspace_bottom_area)
 {
+    /* Set the border exclusively on the pane, as setting it on the toolbox
+       creates an awkward fuzzy effect when using dark color shchemes */
     border-top: @main-toolbox-border-bottom !important;
 }
 

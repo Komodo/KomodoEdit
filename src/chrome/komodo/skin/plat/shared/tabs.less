@@ -67,6 +67,13 @@ spacer.tabs-left, spacer.tabs-right
     border-bottom: 0;
 }
 
+#komodo_main:not(.toolbox-hidden) #editorvbox #tabbed-view tabs
+{
+    /* Set the border exclusively on the pane, as setting it on the toolbox
+       creates an awkward fuzzy effect when using dark color shchemes */
+    border-top: @main-toolbox-border-bottom !important;
+}
+
 tabs:not(.tabs-bottom)
 {
     border: none;
