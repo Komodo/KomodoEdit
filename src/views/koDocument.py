@@ -278,7 +278,13 @@ class koDocumentBase(object):
         encoding = self._globalPrefs.getString(prefName, "Default Encoding")
         if encoding != "Default Encoding":
             return encoding
-        return self.prefs.getString('encodingDefault')
+        
+        # Attempt to work around issue with file prefs that we have not yet been
+        # able to isolate: https://github.com/Komodo/KomodoEdit/issues/217
+        try:
+            return self.prefs.getString('encodingDefault')
+        except nsError.NS_ERROR_UNEXPECTED:
+            return self._globalPrefs.getString('encodingDefault')
     
     def _setupPrefs(self, encoding_name=None):
         """ We can only setup the prefs on the document once we have a URI for it
