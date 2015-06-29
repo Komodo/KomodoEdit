@@ -810,6 +810,14 @@ class GenericCommandHandler:
         # Closing a tag means "the selected autocomplete text is preceeded by
         # "</" (since the autocomplete is the tag name plus ">")
         sm = self._view.scimoz
+        if sm.selections > 1:
+            # TODO: if there are multiple selections present, there's no telling
+            # which of them was emitted by the "codeintel_autocomplete_selected"
+            # event. Thus `start_pos` is not guaranteed to be behind
+            # `sm.currentPos`; this may cause memory access errors and crashes.
+            # For now, don't bother to autocomplete multiple selections; the
+            # method needs to be reworked anyway.
+            return
         langObj = self._view.languageObj
         if start_pos > 1 and langObj.supportsXMLIndentHere(sm, sm.currentPos):
             text = sm.getStyledText(start_pos - 2, sm.currentPos)[0::2]
