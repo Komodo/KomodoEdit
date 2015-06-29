@@ -246,8 +246,8 @@
             opts["excludes"] = curProject.prefset.getString("import_exclude_matches");
             opts["includes"] = curProject.prefset.getString("import_include_matches");
 
-            opts["excludes"] = opts["excludes"] == "" ? [] : opts["excludes"].split(pathsep);
-            opts["includes"] = opts["includes"] == "" ? [] : opts["includes"].split(pathsep);
+            opts["excludes"] = opts["excludes"] == "" ? [] : opts["excludes"].split(";");
+            opts["includes"] = opts["includes"] == "" ? [] : opts["includes"].split(";");
             opts["cacheable"] = true;
         }
         else
@@ -314,8 +314,8 @@
         opts["excludes"] = opts_prefs.getString("import_exclude_matches");
         opts["includes"] = opts_prefs.getString("import_include_matches");
 
-        opts["excludes"] = opts["excludes"] == "" ? [] : opts["excludes"].split(pathsep);
-        opts["includes"] = opts["includes"] == "" ? [] : opts["includes"].split(pathsep);
+        opts["excludes"] = opts["excludes"] == "" ? [] : opts["excludes"].split(";");
+        opts["includes"] = opts["includes"] == "" ? [] : opts["includes"].split(";");
 
         opts["weightMatch"] = prefs.getBoolean('commando_files_weight_multiplier_match', 30);
         opts["weightHits"] = prefs.getBoolean('commando_files_weight_multiplier_hits', 20);
