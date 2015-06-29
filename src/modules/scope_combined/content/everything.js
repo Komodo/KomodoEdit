@@ -74,7 +74,7 @@
         var scopes = getScopes();
         
         var selected = commando.getSelectedResult();
-        if (selected.data.isScope)
+        if (selected.data && selected.data.isScope)
         {
             commando.selectScope(selected.id);
             return;
