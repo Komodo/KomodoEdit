@@ -155,6 +155,7 @@
 
         return str;
     }
+    this._stringify = stringify;
     
     /**
      * Utility to extract the constructor name of an object.
@@ -185,6 +186,7 @@
         // better than 'Object', and at least defaults to Object if nothing better
         return Object.prototype.toString.call(aObj).slice(8, -1);
     }
+    this._getCtorName = getCtorName;
 
     /**
      * Take the output from parseStack() and convert it to nice readable
@@ -210,6 +212,7 @@
         });
         return reply;
     }
+    this._formatTrace = formatTrace;
 
     /**
      * String utility to ensure that strings are a specified length. Strings
@@ -261,6 +264,7 @@
         }
         return aStr;
     }
+    this._fmt = fmt;
     
     /**
      * Create a simple debug representation of a given element.
@@ -281,5 +285,57 @@
                 "") +
             ">";
     }
+    this._debugElement = debugElement;
+    
+    /**
+     * parseUri helper, taken from https://github.com/mozilla/addon-sdk/blob/master/lib/toolkit/loader.js
+     * This is also accessible under `require("toolkit/loader")`, but this
+     * is bugged in the current version of Mozilla
+     */
+    var parseURI = function(uri)
+    {
+        return String(uri).split(" -> ").pop();
+    }
+    this._parseURI = parseURI;
+
+    /**
+     * parseStack helper, based on https://github.com/errwischt/stacktrace-parser/blob/master/lib/stacktrace-parser.js
+     * License: https://github.com/errwischt/stacktrace-parser/blob/master/README.md#license
+     * The version available in the mozilla SDK doesnt properly parse filenames
+     * 
+     */
+    function parseStack(stackString)
+    {
+        var UNKNOWN_FUNCTION = '<unknown>';
+        
+        var rx = /^(?:\s*(\S*)(?:\((.*?)\))?@)?((?:\w).*?):(\d+)(?::(\d+))?\s*$/i,
+            lines = stackString.split('\n'),
+            stack = [],
+            parts;
+        
+        for (var i = 0, j = lines.length; i < j; ++i)
+        {
+            if ((parts = rx.exec(lines[i])))
+            {
+                // Redundant values are for backwards/forwards compatibility
+                stack.push({
+                    'file': parts[3],
+                    'fileName': parts[3],
+                    'methodName': parts[1] || UNKNOWN_FUNCTION,
+                    'name': parts[1] || UNKNOWN_FUNCTION,
+                    'lineNumber': +parts[4],
+                    'column': parts[5] ? +parts[5] : null,
+                    'columnNumber': parts[5] ? +parts[5] : null
+                });
+            }
+            else
+            {
+                continue;
+            }
+        }
+        
+        return stack;
+    }
+    this._parseStack = parseStack;
 
 })();
