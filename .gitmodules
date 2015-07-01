@@ -15,4 +15,4 @@
 	url = https://github.com/Komodo/komodo-color-schemes
 [submodule "src/modules/editorconfig"]
 	path = src/modules/editorconfig
-	url = git@github.com:Komodo/komodo-editorconfig.git
+	url = https://github.com/Komodo/komodo-editorconfig.git
