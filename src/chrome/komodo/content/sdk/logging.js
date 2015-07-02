@@ -297,6 +297,10 @@ Logger.prototype.error = function(message, noTraceback=false) {
                           getStack(null, 0, 4);
             }
             this._logger.error(message);
+            
+            if (!noTraceback) {
+                this.report(new Error(), message, "ERROR");
+            }
         }
     } catch(ex) {
         dump("*** Error in logger.error: "+ex+"\n");
@@ -308,6 +312,8 @@ Logger.prototype.critical = function(message) {
         if (this.isEnabledFor(LOG_CRITICAL)) {
             this._logger.critical(message);
         }
+        
+        this.report(new Error(), message, "CRITICAL");
     } catch(ex) {
         dump("*** Error in logger.critical: "+ex+"\n");
     }
@@ -330,6 +336,8 @@ Logger.prototype.exception = function(e, message="") {
                        objDump +
                        '-- EXCEPTION END --',
                        true /* noTraceback */);
+            
+            this.report(e, message);
         }
     } catch(ex) {
         dump("*** Error in logger.exception: "+ex+"\n");
@@ -338,6 +346,61 @@ Logger.prototype.exception = function(e, message="") {
         //dump("*** Original exception was: " + e + "\n");
         //dump("*** Original message was: " + message + "\n");
     }
+}
+
+Logger.prototype.report = function(e, message, level = "EXCEPTION") {
+    var prefs = require("ko/prefs");
+    
+    if ( ! prefs.getBooleanPref("analytics_enabled", false)) {
+        return;
+    }
+    
+    var view = require("ko/views").current();
+    var i = Cc["@activestate.com/koInfoService;1"].getService(Ci.koIInfoService);
+    
+    message = level + " :: " + e.name + " :: " + message + " :: " + e.message;
+    
+    var payload = {
+        apiKey: prefs.getString("bugsnag_key"),
+        notifier: {
+            name: "Komodo-JS",
+            version: "1.0"
+        },
+        events: [{
+                context: level + "::" + e.fileName + ":" + e.lineNumber,
+                app: {
+                    type: i.productType,
+                    version: i.version,
+                    build: i.buildNumber,
+                    releaseStage: i.buildFlavour
+                },
+                device: {
+                    platform: i.buildPlatform,
+                    release: i.osRelease
+                },
+                metaData: {
+                    state: {
+                        numViews: ko.views.manager.getAllViews().length,
+                        language: view.language,
+                        size: view.scimoz.length
+                    }
+                },
+                exceptions: [{
+                        payloadVersion: "2",
+                        errorClass: message,
+                        message: message,
+                        stacktrace: e.stack ? require("ko/console")._parseStack(e.stack) : null
+                    }
+                ]
+            }
+        ]
+    }
+    
+    require("ko/ajax").request({
+        url: "https://notify.bugsnag.com",
+        method: 'POST',
+        body: JSON.stringify(payload)
+    });
 }
 
 const getStack = exports.getStack = function(ex=null, skipCount=0, indentWidth=0)

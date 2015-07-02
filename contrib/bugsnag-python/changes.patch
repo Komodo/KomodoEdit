@@ -1,0 +1,14 @@
+Index: /home/nathan/Projects/komodo-dev/contrib/bugsnag-python/2.3.1/handlers.py
+--- /home/nathan/Projects/komodo-dev/contrib/bugsnag-python/2.3.1/handlers.py
++++ /home/nathan/Projects/komodo-dev/contrib/bugsnag-python/2.3.1/handlers.py (unsaved)
+@@ -14,8 +14,8 @@
+         # a fixed number of severity levels available server side
+         if record.levelname.lower() in ['error', 'critical']:
+             severity = 'error'
+-        elif record.levelname.lower() in ['warning', ]:
+-            severity = 'warning'
++        elif record.levelname.lower() in ['warning', 'info', 'debug']:
++            return # KOMODO: Don't report warnings, info or debug messages
+         else:
+             severity = 'info'
+ 

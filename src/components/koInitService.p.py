@@ -316,6 +316,7 @@ class KoInitService(object):
         else:
             sys._komodo_initsvc_init_count_sentinel = 1
 
+        self.startErrorReporter()
         self.upgradeUserSettings()
         self.installSamples(False)
         self.installSampleTools()
@@ -396,6 +397,30 @@ class KoInitService(object):
             except ImportError:
                 log.error("Could not import ctypes to set the "\
                          "Win32 Error Mode.")
+                
+    def startErrorReporter(self):
+        prefs = components.classes["@activestate.com/koPrefService;1"]\
+                .getService(components.interfaces.koIPrefService).prefs
+        
+        if not prefs.getBooleanPref("analytics_enabled"):
+            return
+        
+        try:
+            import bugsnag
+            from bugsnag.handlers import BugsnagHandler
+            koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+            
+            bugsnag.configure(
+                api_key = prefs.getString("bugsnag_key"),
+                project_root = koDirSvc.installDir,
+            )
+            
+            # Hook it up to our loggers
+            logger = logging.getLogger()
+            logger.addHandler(BugsnagHandler())
+        except:
+            log.error("Failed starting bugsnag error reporter")
+        
 
     def _safelyReloadSys(self):
         """Safely reload the sys module.

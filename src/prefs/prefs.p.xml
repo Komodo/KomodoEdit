@@ -965,6 +965,7 @@
 
   <!-- Analytics -->
   <string id="analytics_ga_id">UA-47685083-3</string>
+  <boolean id="analytics_enabled">0</boolean> <!-- Analytics is opt-in, not opt-out -->
 
   <ordered-preference id="analytics_track_prefs">
     <string>koSkin_custom_skin</string>
@@ -1041,5 +1042,7 @@
   <!-- #if PLATFORM == "linux" -->
   <boolean id="notify_use_opacity">0</boolean>
   <!-- #endif -->
+
+  <string id="bugsnag_key">c9d60ae4c7e70c4b6c4ebd3e8056d2b8</string>
   
 </preference-set>

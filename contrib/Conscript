@@ -560,6 +560,12 @@ if ($platform eq "win") {
     $consLocal->InstallPythonUtility('smallstuff/winprocess.py');
 }
 
+ 
+# Bugsnag
+$consLocal->InstallRecursive("$komodoPythonUtilsDir/bugsnag",
+                        #XXX must be absolute path (bug in InstallRecursive)
+                        cwd()."/contrib/bugsnag-python/2.3.1");
+
 if ($platform ne "win") {
     #---- Newer subprocess module back-ported from Python 3.2.
     # http://code.google.com/p/python-subprocess32/
