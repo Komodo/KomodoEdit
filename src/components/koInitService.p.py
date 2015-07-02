@@ -401,6 +401,8 @@ class KoInitService(object):
     def startErrorReporter(self):
         prefs = components.classes["@activestate.com/koPrefService;1"]\
                 .getService(components.interfaces.koIPrefService).prefs
+        i = components.classes["@activestate.com/koInfoService;1"]\
+                .getService(components.interfaces.koIInfoService);
         
         if not prefs.getBooleanPref("analytics_enabled"):
             return
@@ -413,13 +415,23 @@ class KoInitService(object):
             bugsnag.configure(
                 api_key = prefs.getString("bugsnag_key"),
                 project_root = koDirSvc.installDir,
-            )
+                release_stage = i.buildFlavour,
+                app_version = i.version)
+            
+            bugsnag.configure_request(extra_data = {
+                "platform": i.buildPlatform,
+                "release": i.osRelease,
+                "type": i.productType,
+                "version": i.version,
+                "build": i.buildNumber,
+                "releaseStage": i.buildFlavour
+            })
             
             # Hook it up to our loggers
             logger = logging.getLogger()
             logger.addHandler(BugsnagHandler())
-        except:
-            log.error("Failed starting bugsnag error reporter")
+        except Exception as e:
+            log.error("Failed starting bugsnag error reporter: %s" % e.message)
         
 
     def _safelyReloadSys(self):
