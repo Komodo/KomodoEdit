@@ -1043,6 +1043,6 @@
   <boolean id="notify_use_opacity">0</boolean>
   <!-- #endif -->
 
-  <string id="bugsnag_key">c9d60ae4c7e70c4b6c4ebd3e8056d2b8</string>
+  <string id="bugsnag_key">a0ffb67a805253227e906fb6ec1a1cde</string>
   
 </preference-set>
