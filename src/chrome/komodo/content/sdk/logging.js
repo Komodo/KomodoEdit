@@ -291,15 +291,15 @@ Logger.prototype.error = function(message, noTraceback=false) {
     try {
         if (this.isEnabledFor(LOG_ERROR)) {
             if (!noTraceback) {
-                message = String(message).replace(/\n$/, "") +
+                var _message = String(message).replace(/\n$/, "") +
                           "\nTraceback from ERROR in '" +
                           this._logger_name + "' logger:\n" +
                           getStack(null, 0, 4);
             }
-            this._logger.error(message);
+            this._logger.error(_message);
             
             if (!noTraceback) {
-                this.report(new Error(), message, "ERROR");
+                this.report(new Error(String(message)), "", "ERROR");
             }
         }
     } catch(ex) {
@@ -313,7 +313,7 @@ Logger.prototype.critical = function(message) {
             this._logger.critical(message);
         }
         
-        this.report(new Error(), message, "CRITICAL");
+        this.report(new Error(message), "", "CRITICAL");
     } catch(ex) {
         dump("*** Error in logger.critical: "+ex+"\n");
     }
