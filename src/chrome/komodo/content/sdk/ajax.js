@@ -26,7 +26,7 @@
         req.withCredentials = params.withCredentials || false;
 
         req.onreadystatechange = function() {
-            if (req.readyState == 4)
+            if (req.readyState == 4 && callback)
                 callback(req.status, req.responseText, req);
         }
 
