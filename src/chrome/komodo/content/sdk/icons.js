@@ -663,6 +663,7 @@
         if (path in readFile.cache)
         {
             callback(readFile.cache[path]);
+            return;
         }
 
         NetUtil.asyncFetch(filePointer, function(inputStream, status)
