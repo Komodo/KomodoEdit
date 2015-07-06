@@ -254,7 +254,7 @@ FindController.prototype.do_cmd_findAllFunctions = function() {
  * @see nsIController::isCommandEnabled
  */
 FindController.prototype.is_cmd_startIncrementalSearch_enabled = function() {
-    return this._currentView != null;
+    return this._currentView != null && this._currentView.getAttribute("type") == "editor";
 }
 
 /**
@@ -270,7 +270,7 @@ FindController.prototype.do_cmd_startIncrementalSearch = function() {
  * @see nsIController::isCommandEnabled
  */
 FindController.prototype.is_cmd_startIncrementalSearchBackwards_enabled = function() {
-    return this._currentView != null;
+    return this._currentView != null && this._currentView.getAttribute("type") == "editor";
 }
 
 /**
@@ -348,13 +348,14 @@ FindController.prototype._focusHandlerBase = function(e) {
 
 
 FindController.prototype._startIncrementalSearch = function(backwards) {
-    if (!this._currentView) {
-        _log.error("Couldn't start incremental search with no focused scintilla");
+    if (!this._currentView || this._currentView.getAttribute("type") != "editor") {
+        _log.error("Couldn't start incremental search with no focused scintilla", false);
         return;
     }
     _log.debug("Starting incremental search " + (backwards ? "backwards" : "forwards"));
     this._view = this._currentView;
     var scintilla = this._currentView.scintilla;
+    
     var scimoz = scintilla.scimoz;
     this._view.findbar.controller = this;
     this._view.findbar.notFound = false;
