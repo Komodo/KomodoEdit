@@ -72,10 +72,10 @@
             <label value="&pleaseReport.label;"/>
             <hbox align="center">
                 <separator style="width: 20px;"/>
-                <button label="&lt;http://bugs.activestate.com/&gt;"
+                <button label="&lt;https://github.com/Komodo/KomodoEdit&gt;"
                         class="button-link"
                         style="margin: -10px; color: #b82619;"
-                        oncommand="Browse('http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo');"/>
+                        oncommand="Browse('https://github.com/Komodo/KomodoEdit/issues/new');"/>
                 <label value="&or.label;"/>
                 <button label="&lt;komodo-feedback@ActiveState.com&gt;"
                         class="button-link"
