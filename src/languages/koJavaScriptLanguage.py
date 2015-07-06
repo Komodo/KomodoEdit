@@ -214,7 +214,7 @@ class koCoffeeScriptLanguage(koJSLikeLanguage):
         "block": [ ("/*", "*/") ],
         "markup": "*",
     }
-    _indent_open_chars = "{[(=:"  # Yes, = starts a yaml-like object
+    _indent_open_chars = "{[(:"
     _indenting_keywords = [u'if', u'while', u'else', u'for', u'try', u'catch',
                            u'catch', u'finally', u'switch', u'when']
     _dedenting_statements = [u'throw', u'return', u'break', u'continue']
@@ -285,6 +285,25 @@ chkrange {name:'five', value:5}, 7, 12
                     and ord(data[(p - lineStart - 1) * 2 + 1]) == style
                     and data[(p - lineStart - 1) * 2] in "-="):
                     # => and -> both denote functions, => rebinds 'this'
+                    return self._findIndentationBasedOnStartOfLogicalStatement(scimoz, pos, style_info, curLineNo)
+            elif (char == '=' and style in style_info._indent_open_styles):
+                # Only indent on '=' if it occurs at the end of a code line.
+                # Retrieve all text beyond '=' and verify it does not have any
+                # non-whitespace, non-comment character.
+                # Note: For lines like "x = [[...]", the open '[' is recognized
+                # first, and the code below is never reached.
+                equalsAtEnd = True
+                lineEnd = scimoz.getLineEndPosition(curLineNo)
+                dataEnd = scimoz.getStyledText(p + 1, lineEnd)
+                for p2 in range(0, lineEnd-p-1):
+                    nextChar = dataEnd[p2*2]
+                    nextStyle = ord(dataEnd[p2*2+1])
+                    if nextStyle in style_info._comment_styles:
+                        break # equalsAtEnd remains True since a comment ends the line
+                    if not nextChar in ' \t':
+                        equalsAtEnd = False
+                        break
+                if equalsAtEnd:
                     return self._findIndentationBasedOnStartOfLogicalStatement(scimoz, pos, style_info, curLineNo)
             eol_pos = p + 1
             break
