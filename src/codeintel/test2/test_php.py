@@ -3172,6 +3172,48 @@ EOD;
                         ("class", "DOMDocument"),
                     ])
 
+    @tag("pr44")
+    def test_resolve_methods_returning_this(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            class A {
+                public function a() {return $this;}
+                public function b() {return $this;}
+            }
+            class B extends A {
+                public function a() {return $this;}
+                public function c() {return $this;}
+            }
+            $b = new B;
+            $b->b()-><1>c();
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [
+                    ("function", "c"),
+                ])
+
+        content, positions = unmark_text(dedent(php_markup("""\
+            class MyClass {
+                public function obj() {
+                    return $this;
+                }
+                public function obj2() {
+                    return $this->obj();
+                }
+                public function call() {
+                    echo "Called";
+                }
+            }
+            $obj = new MyClass();
+            $obj-><1>obj2()-><2>obj()-><3>call();
+        """)))
+        for pos in (1, 2, 3):
+            self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
+                    [
+                        ("function", "obj"),
+                        ("function", "obj2"),
+                        ("function", "call"),
+                    ])
+
     @tag("bug106103")
     def test_instance_static_class_completions(self):
         content, positions = unmark_text(dedent(php_markup("""\
