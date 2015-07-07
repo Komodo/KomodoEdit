@@ -511,6 +511,7 @@ StateMap = {
         'keywords2': ('SCE_COFFEESCRIPT_WORD2',),
         'operators': ('SCE_COFFEESCRIPT_OPERATOR',),
         'identifiers': ('SCE_COFFEESCRIPT_IDENTIFIER',),
+        'instance properties': ('SCE_COFFEESCRIPT_INSTANCEPROPERTY',),
         'stringeol': ('SCE_COFFEESCRIPT_STRINGEOL',),
         'preprocessor': ('SCE_COFFEESCRIPT_PREPROCESSOR',),
         # these are specific to this lexer

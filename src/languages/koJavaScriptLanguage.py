@@ -233,8 +233,9 @@ class koCoffeeScriptLanguage(koJSLikeLanguage):
 """chkrange = (elem, minval, maxval) =>
 # Comment
 if elem.value < minval - 1 || elem.value > maxval + 1
-    alert("Prlb:" + elem.name + " is out of range!")
+    alert("Prob:" + elem.name + " is out of range!")
 chkrange {name:'five', value:5}, 7, 12
+@valid = false
 """
 
     def get_lexer(self):

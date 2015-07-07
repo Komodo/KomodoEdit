@@ -114,6 +114,7 @@ LanguageFactoryStyles = {
         'verbatim': {'fore': 0},
         'globalclass': {'fore': 0x8b8b00},
         'commentdockeyword': {'fore': 0},
+        'instance properties': {'fore': 0},
     },
     'HTML': {
         
