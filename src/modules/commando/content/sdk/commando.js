@@ -878,6 +878,12 @@
             {
                 result.favourite = true;
             }
+            
+            if (result.icon && result.icon.substr(0,6) == 'koicon' &&
+                               result.icon.substr(-3) == 'svg')
+            {
+                result.icon += "?preset=hud"
+            }
 
             result.subscope = local.subscope;
             
