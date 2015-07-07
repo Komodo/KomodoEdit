@@ -131,7 +131,7 @@ def make_src_scintilla(maker, log):
     # Purge all but the following lexer languages.
     langs_to_keep = [
         "Python", "HTML", "Perl", "CSS", "Ruby", "Tcl", "XSLT",
-        "UDL",
+        "UDL", "CoffeeScript",
         "Others",   # to get SCLEX_NULL
         # Hardcoded expectations in SilverCity/LanguageInfo.py
         "CPP", "SQL", "YAML", "PS",
@@ -149,7 +149,7 @@ def make_src_scintilla(maker, log):
         _rm(cxx_path, log.info)
 
     # Run the source generators post- changes to the sources.
-    _run_in_dir(cfg.python+" LexGen.py", scintilla_src_dir,
+    _run_in_dir(cfg.python+" LexGen.py", "src/scintilla/scripts",
                 logstream=log.info)
 
     if METHOD == "komodo":
@@ -274,6 +274,7 @@ def make_silvercity(maker, log):
     src_dir = xpath("src/SilverCity")
 
     # Regenerate ScintillaConstants.py for new scintilla sources.
+    _cp("src/scintilla/scripts/Face.py", src_dir+"/PySilverCity/Src/Face.py")
     _run_in_dir(cfg.python+" PySilverCity/Src/write_scintilla.py ../scintilla/include ../scintilla/include/Scintilla.iface PySilverCity/SilverCity/ScintillaConstants.py",
                 src_dir, logstream=log.info)
 
