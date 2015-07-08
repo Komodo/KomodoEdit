@@ -921,6 +921,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY indicStyleHidden.label "Hidden">
 <!ENTITY indicStyleBox.label "Box outline">
 <!ENTITY indicStyleRoundBox.label "Rounded box">
+<!ENTITY indicStyleSquareBox.label "Square box">
 <!ENTITY indicStyleSquigglePixmap.label "Squiggle (Pixel Map)">
 <!ENTITY indicAlpha.label "Alpha (0&#8211;256):">
 <!ENTITY indicColor.label "Color:">

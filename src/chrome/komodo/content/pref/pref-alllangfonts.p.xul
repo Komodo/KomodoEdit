@@ -566,6 +566,9 @@
                                         <menuitem id="indicator_style_menuitem_7"
                                                   value="7"
                                                   label="&indicStyleRoundBox.label;" />
+                                        <menuitem id="indicator_style_menuitem_8"
+                                                  value="16"
+                                                  label="&indicStyleSquareBox.label;" />
                                     </menupopup>
                                 </menulist>
                             </hbox>
