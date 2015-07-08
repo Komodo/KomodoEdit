@@ -916,6 +916,7 @@ class Scheme(SchemeBase):
             'style' :           scimoz.indicSetStyle,
             'color' :           scimoz.indicSetFore,
             'alpha' :           scimoz.indicSetAlpha,
+            'outline_alpha' :   scimoz.indicSetOutlineAlpha,
             'draw_underneath' : scimoz.indicSetUnder,
         }
         for indic_name in self._indicators:
@@ -923,6 +924,8 @@ class Scheme(SchemeBase):
             if not indic_no:
                 log.warn("applyScheme:: no indicator for name %r", indic_name)
                 continue
+            if "alpha" in self._indicators[indic_name]:
+                self._indicators[indic_name]["outline_alpha"] = self._indicators[indic_name]["alpha"]
             for key, value in self._indicators[indic_name].items():
                 setter = indicator_setters.get(key)
                 if setter is None:
