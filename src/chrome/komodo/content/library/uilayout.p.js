@@ -1570,7 +1570,7 @@ this.isPaneShown = function uilayout_isPaneShown(pane) {
         var paneId = pane;
         pane = document.getElementById(paneId);
         if (!pane) {
-            log.error("isPaneShown: no pane with the id: " + paneId);
+            _log.error("isPaneShown: no pane with the id: " + paneId);
             return false;
         }
     }
@@ -1591,7 +1591,7 @@ this.ensurePaneShown = function uilayout_ensurePaneShown(aPane) {
         pane = ko.widgets.getPaneAt(aPane) || aPane;
     }
     if (!pane || !pane.id || (ko.widgets.panes.indexOf(pane.id) < 0)) {
-        log.error("ensurePaneShown: no pane with the id: " + aPane);
+        _log.error("ensurePaneShown: no pane with the id: " + aPane);
     }
     pane.collapsed = false;
 };
@@ -1611,7 +1611,7 @@ this.ensurePaneShown = function uilayout_ensurePaneShown(aPane) {
         pane = ko.widgets.getPaneAt(aPane) || aPane;
     }
     if (!pane || !pane.id || (ko.widgets.panes.indexOf(pane.id) < 0)) {
-        log.error("ensurePaneShown: no pane with the id: " + aPane);
+        _log.error("ensurePaneShown: no pane with the id: " + aPane);
     }
     pane.collapsed = false;
 };
@@ -1630,7 +1630,7 @@ this.ensurePaneHidden = function uilayout_ensurePaneHidden(aPane) {
         pane = ko.widgets.getPaneAt(aPane) || aPane;
     }
     if (!pane || !pane.id || (ko.widgets.panes.indexOf(pane.id) < 0)) {
-        log.error("ensurePaneHidden: no pane with the id: " + aPane);
+        _log.error("ensurePaneHidden: no pane with the id: " + aPane);
     }
     pane.collapsed = true;
 };
@@ -1653,7 +1653,7 @@ this.isTabShown = function uilayout_isTabShown(widgetId) {
             var mainWindow = wm.getMostRecentWindow('Komodo');
             widget = mainWindow.document.getElementById(widgetId);
             if (!widget) {
-                log.error("ko.uilayout.isTabShown: couldn't find tab: " + widgetId);
+                _log.error("ko.uilayout.isTabShown: couldn't find tab: " + widgetId);
                 return false;
             }
         }
