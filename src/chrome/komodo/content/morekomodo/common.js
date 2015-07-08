@@ -248,7 +248,7 @@ MoreKomodoCommon.moveFile = function(path, newPath, command = "move") {
 
         if (file.exists())
         {
-            require("ko/notify").send("Could not "+command+" file, destination already exists",
+            require("notify").send("Could not "+command+" file, destination already exists",
                                       "fs", {priority: "warning"});
             return false;
         }
