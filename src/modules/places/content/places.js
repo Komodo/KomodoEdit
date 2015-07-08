@@ -1974,7 +1974,7 @@ ManagerClass.prototype = {
                     if (uri in triggered) return;
 
                     var path = sdkFile.dirname(ko.uriparse.URIToPath(uri));
-                    w.trigger("folder_touched", {path: _path });
+                    w.trigger("folder_touched", {path: path });
                     triggered[uri] = true;
                 });
             }
