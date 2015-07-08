@@ -441,6 +441,7 @@ Build(
     "$build/modules/kopy/Conscript",
     "$build/modules/notify/Conscript",
     "$build/modules/editorconfig/Conscript",
+    "$build/modules/focusmode/Conscript",
 
     "$build/modules/iconset_ambiance/Conscript",
     "$build/modules/iconset_blue/Conscript",
