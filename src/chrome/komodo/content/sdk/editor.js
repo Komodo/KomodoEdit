@@ -389,6 +389,17 @@ module.exports = {
     {
         return scimoz().textHeight(0);
     },
+    
+    /**
+     * Get the default text width (Based on first character, not very useful
+     * if someone is using a proportional font -- who would do such a thing?!)
+     *
+     * @returns {Int} Width in pixels
+     */
+    defaultTextWidth: function()
+    {
+        return scimoz().textWidth(0,1);
+    },
 
     /**
      * Get the current line number
