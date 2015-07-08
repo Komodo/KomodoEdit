@@ -1,6 +1,7 @@
 (function(){
 
-    var $ = require("ko/dom");
+    const $ = require("ko/dom");
+    const log = require("ko/logging").getLogger("sdk-menu");
 
     const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
@@ -10,6 +11,8 @@
 
     this.register = (label, command, opts) =>
     {
+        log.debug("Registering " + label);
+        
         if ((typeof label) == "object")
         {
             opts = label;
@@ -27,7 +30,7 @@
             context: []
         }, opts);
 
-        if ( ! ("label" in opts))
+        if ( ! ("label" in opts) && !(opts.separator))
         {
             throw new exceptionMissingProp("label");
         }
@@ -55,10 +58,12 @@
         {
             let contextOpts = context[i];
             let _context = $(contextOpts.select);
-            if ( ! context || ! context.length || context.element().nodeName != "menupopup")
+            if ( ! _context || ! _context.length || _context.element().nodeName != "menupopup")
                 throw new exceptionInvalidContext(contextOpts.select || "null");
 
-            _context.find("sdk_menuitem_" + contextOpts.uniqueId() + opts.id).remove();
+            // TODO: this does not work.
+            // $("#sdk_menuitem_" + _context.uniqueId() + id).element().remove() works.
+            _context.find("sdk_menuitem_" + _context.uniqueId() + id).element().remove();
         }
     }
 
@@ -69,41 +74,48 @@
             contextOpts = {select: contextOpts};
         }
 
-        var context = $(contextOpts.select);
-        if ( ! context.length || context.element().nodeName != "menupopup")
+        var contexts = $(contextOpts.select);
+        if ( ! contexts.length || contexts.element().nodeName != "menupopup")
             throw new exceptionInvalidContext();
 
-        var id = "sdk_menuitem_" + context.uniqueId() + opts.id;
-        context.find(id).remove();
-
-        var menuitem = document.createElementNS(XUL_NS, 'menuitem');
-        menuitem.setAttribute("id", id);
-        menuitem.setAttribute("label", opts.label);
-        menuitem.setAttribute("image", opts.image);
-        menuitem.setAttribute("class", opts.classList);
-
-        menuitem.addEventListener("command", opts.command);
-        menuitem.classList.add("sdk-menuitem");
-
-        menuitem.sdkOpts = opts;
-
-        var sibling, appended;
-        if (contextOpts.before || contextOpts.after)
+        contexts.each(function()
         {
-            sibling = context.find(contextOpts.before || contextOpts.after);
-            if (sibling.length)
-            {
-                sibling[contextOpts.before ? 'before' : 'after'](menuitem);
-                appended = true;
+            let context = $(this);
+            
+            let id = "sdk_menuitem_" + context.uniqueId() + opts.id;
+            context.find(id).remove();
+    
+            let menuitem = document.createElementNS(XUL_NS, !opts.separator ? 'menuitem' : 'menuseparator');
+            menuitem.setAttribute("id", id);
+            if (!opts.separator) {
+                menuitem.setAttribute("label", opts.label);
+                menuitem.setAttribute("image", opts.image);
+                menuitem.setAttribute("class", opts.classList);
+                menuitem.setAttribute("disabled", opts.disabled || false);
+                menuitem.addEventListener("command", opts.command);
             }
-        }
-
-        if ( ! appended)
-        {
-            context.append(menuitem);
-        }
-
-        placeMenuEventListener(context);
+            menuitem.classList.add("sdk-menuitem");
+    
+            menuitem.sdkOpts = opts;
+    
+            let sibling, appended;
+            if (contextOpts.before || contextOpts.after)
+            {
+                sibling = context.find(contextOpts.before || contextOpts.after);
+                if (sibling.length)
+                {
+                    sibling[contextOpts.before ? 'before' : 'after'](menuitem);
+                    appended = true;
+                }
+            }
+    
+            if ( ! appended)
+            {
+                context.append(menuitem);
+            }
+    
+            placeMenuEventListener(context);
+        });
     }
 
     var _parseContext = (context) =>
