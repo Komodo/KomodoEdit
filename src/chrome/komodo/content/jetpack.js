@@ -115,6 +115,11 @@ const [JetPack, require] = (function() {
     };
 
     const require = function(id) {
+        if (id.indexOf("/") == -1) {
+            // Automatically resolve module namespaces
+            id = id + "/" + id;
+        }
+            
         try {
             let uri = resolveURI(id, loader.mapping)
             if (uri in loader.modules) {
