@@ -17,7 +17,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
      * returns instance or executes function on ready
      */
     var $ = function(query, parent) {
-        var parent = parent || window.document;
+        parent = parent || window.document;
 
         if ((typeof query) == "object" && ("koDom" in query))
         {
