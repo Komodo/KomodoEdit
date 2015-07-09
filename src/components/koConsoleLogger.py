@@ -68,6 +68,12 @@ class KoConsoleLogger:
         # XPCOMUtils and Services being a global constant:
         'TypeError: "XPCOMUtils" is read-only',
         'TypeError: "Services" is read-only',
+        'SyntaxError: test for equality (==) mistyped as assignment',
+        'Key event not available on some keyboard layouts: key="u" modifiers="control,alt"',
+        'ReferenceError: reference to undefined property this._nm',
+        'Bootstrapped manifest not allowed to use',
+        'ReferenceError: reference to undefined property this.treeBoxObject.columns',
+        'SyntaxError: applying the \'delete\' operator to an unqualified name is deprecated (5) in resource://gre/modules/DownloadUtils.jsm'
     ]
     def _handleScriptError(self, error):
         try:
@@ -106,6 +112,6 @@ class KoConsoleLogger:
 
         messagetext = message.message
         if any(x in messagetext for x in self.ignored_error_strings):
-            return
-
-        self.log.info("%s", messagetext)
+            self.log.debug("FILTERED: %s", messagetext)
+        else:
+            self.log.info("%s", messagetext)
