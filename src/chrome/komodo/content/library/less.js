@@ -68,7 +68,7 @@ var koLess = function koLess()
                 return;
             }
 
-            initialising = true;
+            this.initialising = true;
             self = this;
             log = logging.getLogger('koLess');
             //log.setLevel(10); // debug
@@ -193,6 +193,7 @@ var koLess = function koLess()
                 this.debug(threadId + " Loading: " + sheet.href);
 
                 // Check if we can load the sheet via the file cache
+                var youngest;
                 var cacheFile = this.cache.getFile(sheet.href);
                 if (cacheFile && cacheFile.exists())
                 {
