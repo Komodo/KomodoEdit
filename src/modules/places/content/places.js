@@ -83,7 +83,7 @@ const DEFAULT_INCLUDE_MATCHES = "";
 const PROJECT_URI_REGEX = /^.*\/(.+?)\.(?:kpf|komodoproject)$/;
 
 var log = ko.logging.getLogger("places_js");
-log.setLevel(ko.logging.LOG_DEBUG);
+//log.setLevel(ko.logging.LOG_DEBUG);
 
 // Yeah, not really a class per se, but it acts like one, so
 // give it an appropriate name.
