@@ -212,6 +212,31 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 this.addEventListener(event, action);
             });
         },
+        
+        /*
+         * once method
+         * event = string event type i.e 'click'
+         * action = function
+         * return this
+         */
+        once: function(event, action)
+        {
+            var elems = this;
+            
+            var listener = function()
+            {
+                action.apply(this, arguments);
+                elems.each(function()
+                {
+                    this.removeEventListener(event, listener);
+                });
+            };
+            
+            return this.each(function()
+            {
+                this.addEventListener(event, listener);
+            });
+        },
 
         /*
          * off method
