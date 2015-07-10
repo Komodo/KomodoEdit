@@ -17,26 +17,45 @@ const [JetPack, require] = (function() {
     /* Populate requirePaths with category entries */
     const catMan = Cc["@mozilla.org/categorymanager;1"]
                         .getService(Ci.nsICategoryManager);
-    let requirePaths = {};
-    let setRequirePaths = function() {
-        // Komodo API fallback...
-        requirePaths["ko/"] = "chrome://komodo/content/sdk/";
-        // Komodo API fallback...
-        requirePaths["contrib/"] = "chrome://komodo/content/contrib/commonjs/";
-        // Default path
-        requirePaths[''] = 'resource://gre/modules/commonjs/';
-
-        let entries = catMan.enumerateCategory('require-path');
-        while (entries.hasMoreElements()) {
-            let entry = entries.getNext().QueryInterface(Ci.nsISupportsCString);
-            let uri = catMan.getCategoryEntry('require-path', entry);
-            // Stringafy entry - in order to get the nice JS string functions.
-            entry = entry.toString();
-            if (entry && !entry.endsWith("/")) {
-                // Needs a trailing slash in order to map correctly.
-                entry += "/";
+    var requirePaths = {};
+    var setRequirePaths = function() {
+        
+        // Attempt to get the main komodo window to inherit require paths from it
+        var _window = window;
+        var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
+        let windows = wm.getEnumerator("Komodo");
+        while (windows.hasMoreElements()) {
+            let __window = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
+            if ("require" in __window && __window.require) {
+                _window = __window;
             }
-            requirePaths[entry] = uri;
+        }
+        
+        if ("require" in _window && _window.require) {
+            // Inherit requirePaths
+            requirePaths = _window.require.getRequirePaths();
+        } else {
+            // Set requirePaths manually
+            
+            // Komodo API fallback...
+            requirePaths["ko/"] = "chrome://komodo/content/sdk/";
+            // Komodo API fallback...
+            requirePaths["contrib/"] = "chrome://komodo/content/contrib/commonjs/";
+            // Default path
+            requirePaths[''] = 'resource://gre/modules/commonjs/';
+            
+            var entries = catMan.enumerateCategory('require-path');
+            while (entries.hasMoreElements()) {
+                let entry = entries.getNext().QueryInterface(Ci.nsISupportsCString);
+                let uri = catMan.getCategoryEntry('require-path', entry);
+                // Stringafy entry - in order to get the nice JS string functions.
+                entry = entry.toString();
+                if (entry && !entry.endsWith("/")) {
+                    // Needs a trailing slash in order to map correctly.
+                    entry += "/";
+                }
+                requirePaths[entry] = uri;
+            }
         }
     }
     setRequirePaths();
@@ -147,6 +166,9 @@ const [JetPack, require] = (function() {
      * @param {String} path       The directory to which this prefix is mapped.
      */
     require.setRequirePath = function(namespace, path) {
+        if (namespace in requirePaths) return;
+        requirePaths[namespace] = path;
+        
         // Modify the loader mapping (a mapping of the paths) in place.
         //
         // We know the last item in the mapping is '' - so we cannot
@@ -161,6 +183,10 @@ const [JetPack, require] = (function() {
         if (loader.mapping.length <= mapping_length) {
             throw new Error("setRequirePath didn't succeed in adding a mapping");
         }
+    }
+    
+    require.getRequirePaths = function() {
+        return requirePaths;
     }
 
     /**
