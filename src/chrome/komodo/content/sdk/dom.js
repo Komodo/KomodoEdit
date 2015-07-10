@@ -319,9 +319,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
             this.each(function()
             {
-                this.innerHTML = "";
+                this.innerHTML = value ? value : "";
             });
-            return this.append(value);
         },
 
         /**
