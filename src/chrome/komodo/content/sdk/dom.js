@@ -144,7 +144,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         return elems.each(function()
         {
             if (insert.koDom)
-                var _insert = insert.first()
+                var _insert = insert.element()
             else
                 var _insert = __insert ? __insert.cloneNode(true) : insert;
                 
@@ -300,7 +300,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         text: function(value)
         {
             if (value === undefined)
-                return this.first().textContent;
+                return this.element().textContent;
 
             return this.each(function()
             {
@@ -315,7 +315,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         html: function(value)
         {
             if (value === undefined)
-                return this.first().innerHTML;
+                return this.element().innerHTML;
 
             this.each(function()
             {
@@ -330,7 +330,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          */
         outerHtml: function()
         {
-            return this.first().outerHTML;
+            return this.element().outerHTML;
         },
 
         /**
@@ -401,7 +401,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             var valueKey = 'value';
 
             if (value === undefined)
-                return this.first()[valueKey];
+                return this.element()[valueKey];
 
             return this.each(function()
             {
@@ -411,7 +411,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         parent: function()
         {
-            return $(this.first().parentNode);
+            return $(this.element().parentNode);
         },
 
         /**
@@ -457,7 +457,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         exists: function()
         {
-            return !! this.first().parentNode;
+            return !! this.element().parentNode;
         },
 
         addClass: function(className)
@@ -482,7 +482,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             
             if ((typeof key) == 'string' && value === undefined)
             {
-                value = this.first().style[key];
+                value = this.element().style[key];
                 
                 if (pxRules.indexOf(key) != -1 && value.indexOf("px") == (value.length-2))
                     value = value.substring(0, value.length-2);
@@ -512,7 +512,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         {
             if ((typeof key) == 'string' && value === undefined)
             {
-                return this.first().getAttribute(key);
+                return this.element().getAttribute(key);
             }
 
             var attrs = {};
@@ -549,7 +549,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 this.id = "_uuid-" + self.uniqueId.uuid++;
             });
 
-            return this.first().id;
+            return this.element().id;
         },
 
         animate: function(props, opts = {}, callback = null)
@@ -702,7 +702,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          */
         focus: function()
         {
-            this.first().focus();
+            this.element().focus();
             return this;
         },
 
@@ -716,7 +716,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         children: function()
         {
-            return new queryObject(this.first().childNodes);
+            return new queryObject(this.element().childNodes);
         },
 
         remove: function()
@@ -732,9 +732,9 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         splice: function() { return this._elements.splice.call(arguments); },
 
         // Use first entry
-        first: function() { return this.element(0); },
+        first: function() { return new queryObject(this.element(0)); },
 
-        last: function() { return this.element(-1); },
+        last: function() { return new queryObject(this.element(-1)); },
 
         element:  function(k) { return this._elements.slice(k || 0)[0]; }
     }
