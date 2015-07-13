@@ -78,14 +78,14 @@
         visibility: hidden;
     }
 
-    &:not(.kitt) #commando-loader
+    &.loading:not(.kitt) #commando-loader
     {
         background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @hud-loader-color 200px, @hud-loader-color 300px, rgba(0,0,0,0.0) 500px);
         background-repeat: no-repeat;
         animation: loading 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
     }
 
-    &.kitt #commando-loader
+    &.loading.kitt #commando-loader
     {
         background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, rgba(225, 50, 50, 0.9) 200px, rgba(225, 50, 50, 0.9) 300px, rgba(0,0,0,0.0) 500px) !important;
         background-repeat: no-repeat;
