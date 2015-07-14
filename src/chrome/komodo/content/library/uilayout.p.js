@@ -262,7 +262,7 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
         menuButton.collapsed = true;
     } else {
         if (!g_initialized_button_menu) {
-            ko.uilayout.cloneUnifiedMenuItems;
+            ko.uilayout.cloneUnifiedMenuItems();
         }
 
         menuButton.collapsed = false;
