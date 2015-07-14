@@ -44,6 +44,11 @@ const [JetPack, require] = (function() {
             // Default path
             requirePaths[''] = 'resource://gre/modules/commonjs/';
             
+            Components.utils.import("resource://gre/modules/osfile.jsm")
+            var tmpPath = Cc["@mozilla.org/file/directory_service;1"]
+             .getService(Ci.nsIProperties).get("TmpD", Ci.nsIFile).path;
+            requirePaths['tmp'] = OS.Path.toFileURI(tmpPath);
+            
             var entries = catMan.enumerateCategory('require-path');
             while (entries.hasMoreElements()) {
                 let entry = entries.getNext().QueryInterface(Ci.nsISupportsCString);
