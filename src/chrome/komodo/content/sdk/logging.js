@@ -291,12 +291,12 @@ Logger.prototype.error = function(message, noTraceback=false) {
     try {
         if (this.isEnabledFor(LOG_ERROR)) {
             if (!noTraceback) {
-                var _message = String(message).replace(/\n$/, "") +
+                message = String(message).replace(/\n$/, "") +
                           "\nTraceback from ERROR in '" +
                           this._logger_name + "' logger:\n" +
                           getStack(null, 0, 4);
             }
-            this._logger.error(_message);
+            this._logger.error(message);
             
             if (!noTraceback) {
                 this.report(new Error(String(message)), "", "ERROR");
