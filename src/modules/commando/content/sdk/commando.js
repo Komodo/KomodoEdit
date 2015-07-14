@@ -39,7 +39,7 @@
         uilayoutTimer: -1,
         open: false,
         quickSearch: false,
-        altPressed: true,
+        altPressed: false,
         altNumber: null,
         useQuickScope: false,
         quickScope: null
@@ -194,7 +194,8 @@
                 break;
         }
         
-        if (local.altPressed && e.keyCode != KeyEvent.DOM_VK_ALT)
+        var numberNav = ko.prefs.getBoolean('commando_navigate_by_number', true);
+        if (numberNav || (local.altPressed && e.keyCode != KeyEvent.DOM_VK_ALT))
         {
             var numberPressed = false;
             var numbers = [0,1,2,3,4,5,6,7,8,9];
@@ -210,6 +211,17 @@
                     local.altNumber += number;
                 else
                     local.altNumber = number.toString();
+                
+                if (numberNav && ! local.altPressed)
+                {
+                    if (local.numberSelectTimer)
+                    {
+                        window.clearTimeout(local.numberSelectTimer);
+                    }
+                    
+                    var delay = ko.prefs.getLongPref('commando_number_select_delay');
+                    local.numberSelectTimer = window.setTimeout(onNumberSelect.bind(this), delay);
+                }
             }
             
             if ( ! numberPressed)
@@ -238,6 +250,13 @@
             return;
         
         log.debug("Event: onKeyUp");
+        
+        onNumberSelect();
+    }
+    
+    var onNumberSelect = function()
+    {
+        log.debug("Event: onNumberSelect");
         
         var results = elem('results');
         if (results.visible() && local.altNumber)

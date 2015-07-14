@@ -1036,6 +1036,8 @@
   <ordered-preference id="commando_favourites"/>
   <boolean id="commando_preserve_query">1</boolean>
   <string id="commando_shell_output">hud</string>
+  <boolean id="commando_navigate_by_number">1</boolean>
+  <long id="commando_number_select_delay">200</long>
 
   <ordered-preference id="scope-files-shortcuts"/>
   

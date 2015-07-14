@@ -5,6 +5,8 @@
 <!ENTITY clearCache.desc "Commando: Clear Cache">
 <!ENTITY relativePathsFromCurrentFile.checkbox.label "Relative paths use the current file's directory">
 <!ENTITY relativePathsFromCurrentFile.checkbox.tooltiptext "If disabled, commando will use the current project or current places directory for the relative path lookups.">
+<!ENTITY preserveQuery.checkbox.label "Preserve Previous Search Query">
+<!ENTITY navigateByNumber.checkbox.label "Don't require Alt to select results by number">
 
 <!ENTITY gotoAnythingToolbar.label "Go To Anything">
 <!ENTITY showHideGotoAnythingToolbar.desc "Show/Hide Go To Anything Toolbar">

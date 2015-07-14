@@ -59,7 +59,21 @@
         </vbox>
         <vbox>
             <hbox>
-                <checkbox label="Preserve Previous Search Query"
+                <checkbox pref="true"
+                          id="commando_relative_from_currentview"
+                          preftype="boolean"
+                          prefdefault="false"
+                          label="&relativePathsFromCurrentFile.checkbox.label;"
+                          tooltiptext="&relativePathsFromCurrentFile.checkbox.tooltiptext;" />
+            </hbox>
+        </vbox>
+    </groupbox>
+    
+    <groupbox orient="vertical" id="search-behaviour">
+        <caption label="Results" />
+        <vbox>
+            <hbox>
+                <checkbox label="&preserveQuery.checkbox.label;"
                           pref="true"
                           id="commando_preserve_query"
                           preftype="boolean"
@@ -69,11 +83,10 @@
         <vbox>
             <hbox>
                 <checkbox pref="true"
-                          id="commando_relative_from_currentview"
+                          id="commando_navigate_by_number"
                           preftype="boolean"
                           prefdefault="false"
-                          label="&relativePathsFromCurrentFile.checkbox.label;"
-                          tooltiptext="&relativePathsFromCurrentFile.checkbox.tooltiptext;" />
+                          label="&navigateByNumber.checkbox.label;" />
             </hbox>
         </vbox>
     </groupbox>
