@@ -163,8 +163,8 @@ this.setToolbarsVisibility = function uilayout_setToolbarsVisibility(toolbarsSho
 
 // #if PLATFORM != "darwin"
         ko.uilayout.ensureMenuButtonVisible();
+        ko.uilayout.updateToolboxVisibility();
 // #endif
-    ko.uilayout.updateToolboxVisibility();
 }
 
 var _buttonTextShowing = false;
