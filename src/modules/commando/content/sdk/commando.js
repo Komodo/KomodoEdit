@@ -571,6 +571,7 @@
                 id: "open",
                 name: "Open",
                 weight: 50,
+                allowExpand: false,
                 command: function()
                 {
                     subscope.isExpanded = false;
