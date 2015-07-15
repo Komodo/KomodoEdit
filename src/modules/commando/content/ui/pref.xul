@@ -11,7 +11,8 @@
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         orient="vertical"
-        onload="onLoad()">
+        onload="onLoad()"
+        id="commando-prefs-window">
 
     <script type="application/x-javascript">
         function onLoad()
@@ -69,7 +70,7 @@
         </vbox>
     </groupbox>
     
-    <groupbox orient="vertical" id="search-behaviour">
+    <groupbox orient="vertical" id="results-behaviour">
         <caption label="Results" />
         <vbox>
             <hbox>
@@ -91,7 +92,7 @@
         </vbox>
     </groupbox>
     
-    <groupbox orient="vertical" id="search-behaviour">
+    <groupbox orient="vertical" id="shell-commands-behaviour">
         <caption label="Shell Commands" />
         <hbox id="defaultShellOutputBox"
               align="center">
