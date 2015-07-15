@@ -20,6 +20,7 @@
 # 
 # Contributor(s):
 #   ActiveState Software Inc
+#   Sergey Kislyakov
 # 
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -465,7 +466,8 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
     @LazyClassAttribute
     def CSS_AT_RULE_NAMES(self):
         # at rules
-        return sorted(["import", "media", "charset", "font-face", "page", "namespace"],
+
+        return sorted(["import", "media", "charset", "font-face", "page", "namespace", "keyframes"],
                       key=OrdPunctLast)
 
     def preceding_trg_from_pos(self, buf, pos, curr_pos):
