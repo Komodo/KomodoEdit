@@ -60,5 +60,6 @@ interface koIKeybindingSchemeService : nsISupports {
     void getSchemeNames([array, size_is(count)] out wstring schemes,
                         out unsigned long count);
     koIKeybindingScheme getScheme(in wstring name);
+    void reloadAvailableSchemes();
 };
 

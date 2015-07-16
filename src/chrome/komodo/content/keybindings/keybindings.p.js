@@ -241,6 +241,12 @@ this.Manager.prototype.manageKeyboardShortcut = function(part, topic, partId) {
     }
 }
 
+this.Manager.prototype.reloadConfigurations = function () {
+    var schemes = new Array();
+    this.keybindingSchemeService.getSchemeNames(schemes, new Object());
+    this._knownconfigs = schemes.value;
+}
+
 this.Manager.prototype.getConfigurations = function () {
     return this._knownconfigs;
 }
