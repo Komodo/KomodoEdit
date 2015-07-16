@@ -1385,7 +1385,7 @@ class KoScintillaSchemeService(SchemeServiceBase):
                      "'" + "', '".join(dangerous_keywords) + "'"])
                 raise ServerException(nsError.NS_ERROR_INVALID_ARG, msg)
         
-        targetPath = os.path.join(self._userSchemeDir, schemeBaseName)
+        targetPath = os.path.join(self._userSchemeDir, schemeBaseName + '.ksf')
         fd = open(targetPath, "w")
         fd.write(data)
         fd.close()
