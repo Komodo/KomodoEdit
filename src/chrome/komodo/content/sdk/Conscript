@@ -37,6 +37,7 @@ $cons->InstallInChrome('ajax.js');
 $cons->InstallInChrome('shell.js');
 $cons->InstallInChrome('locale.js');
 $cons->InstallInChrome('views.js');
+$cons->InstallInChrome('windows.js');
 
 if ($buildFlavour eq "dev") {
     $cons->InstallInChrome('benchmark.js');
