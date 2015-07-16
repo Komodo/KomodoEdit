@@ -4,10 +4,11 @@
 
 (function() {
 
+    const _ko            = require("ko/windows").getMain().ko;
     const {Cc, Ci, Cu}  = require("chrome");
     const $             = require("ko/dom");
-    const prefs         = ko.prefs;
-    const keyManager    = ko.keybindings.manager;
+    const prefs         = _ko.prefs;
+    const keyManager    = _ko.keybindings.manager;
 
     const log           = require("ko/logging").getLogger("ko-keybindings");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
@@ -17,7 +18,7 @@
         keyManager.saveCurrentConfiguration();
         keyManager._saveKnownConfigs();
         keyManager.loadConfiguration(keyManager.currentConfiguration, true);
-        ko.toolbox2.applyKeybindings();
+        _ko.toolbox2.applyKeybindings();
     };
 
     /**
