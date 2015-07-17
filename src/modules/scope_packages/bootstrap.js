@@ -1,0 +1,80 @@
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+Cu.import('resource://gre/modules/Services.jsm');
+
+var startupData;
+
+function loadIntoWindow(window) {
+    try {
+        window.require.setRequirePath("scope-packages/", "chrome://scope-packages/content/");
+        var commando = window.require("commando/commando");
+        commando.registerScope("scope-packages", {
+            name: "Packages",
+            description: "Manage Komodo packages",
+            //icon: "koicon://ko-svg/chrome/icomoon/skin/bag.svg",
+            //icon: "koicon://ko-svg/chrome/icomoon/skin/box.svg",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/box-add.svg",
+            //icon: "koicon://ko-svg/chrome/icomoon/skin/download.svg",
+            //icon: "koicon://ko-svg/chrome/icomoon/skin/gift.svg",
+            //icon: "koicon://ko-svg/chrome/icomoon/skin/puzzle.svg",
+            //icon: "koicon://ko-svg/chrome/icomoon/skin/puzzle2.svg",
+            handler: "scope-packages/packages"
+        });
+    } catch (e) {
+        Cu.reportError("Commando: Exception while registering scope 'Packages'");
+        Cu.reportError(e);
+    }
+}
+
+function unloadFromWindow(window) {
+    if (!window) return;
+    var commando = window.require("commando/commando");
+    commando.unregisterScope("scope-packages");
+}
+
+var windowListener = {
+    onOpenWindow: function(aWindow) {
+        // Wait for the window to finish loading
+        let domWindow = aWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowInternal || Ci.nsIDOMWindow);
+        domWindow.addEventListener("komodo-post-startup", function onLoad() {
+            domWindow.removeEventListener("komodo-post-startup", onLoad, false);
+            loadIntoWindow(domWindow);
+        }, false);
+    },
+
+    onCloseWindow: function(aWindow) {},
+    onWindowTitleChange: function(aWindow, aTitle) {}
+};
+
+function startup(data, reason) {
+    startupData = data;
+
+    // Load into any existing windows
+    let windows = Services.wm.getEnumerator("Komodo");
+    while (windows.hasMoreElements()) {
+        let domWindow = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
+        loadIntoWindow(domWindow);
+    }
+
+    // Load into any new windows
+    Services.wm.addListener(windowListener);
+}
+
+function shutdown(data, reason) {
+    // When the application is shutting down we normally don't have to clean
+    // up any UI changes made
+    if (reason == APP_SHUTDOWN) return;
+
+    // Stop listening for new windows
+    Services.wm.removeListener(windowListener);
+
+    // Unload from any existing windows
+    let windows = Services.wm.getEnumerator("Komodo");
+    while (windows.hasMoreElements()) {
+        let domWindow = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
+        unloadFromWindow(domWindow);
+    }
+}
+
+function install(data, reason) {}
+
+function uninstall(data, reason) {}

@@ -438,6 +438,7 @@ Build(
     "$build/modules/scope_openfiles/Conscript",
     "$build/modules/scope_bookmarks/Conscript",
     "$build/modules/scope_combined/Conscript",
+    "$build/modules/scope_packages/Conscript",
     "$build/modules/kopy/Conscript",
     "$build/modules/notify/Conscript",
     "$build/modules/editorconfig/Conscript",

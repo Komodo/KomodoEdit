@@ -1,0 +1,7 @@
+# #if MODE == "dev"
+content scope-packages content/
+locale scope-packages en-US locale/en-US/
+# #else
+content scope-packages jar:scope-packages.jar!/content/
+locale scope-packages en-US jar:scope-packages.jar!/locale/en-US/
+# #endif
