@@ -641,8 +641,11 @@ class koRemoteConnectionService:
     def getConnectionUsingUriNoCache(self, uri):
         return self._getConnectionUsingUri(uri, useConnectionCache=False)
 
-    # Return the connection object for the given server alias.
     def getConnectionUsingServerAlias(self, server_alias):
+        return self._getConnectionUsingServerAlias(server_alias)
+    
+    # Return the connection object for the given server alias.
+    def _getConnectionUsingServerAlias(self, server_alias, callback=False):
         server_prefs = self._getServerPrefSettings(server_alias)
         if server_prefs:
             protocol = server_prefs[0]
@@ -660,10 +663,30 @@ class koRemoteConnectionService:
             if connection:
                 # Remember the alias used to get the connection.
                 connection.alias = server_alias;
-            return connection
-        raise ServerException(nsError.NS_ERROR_FAILURE,
-                              "No server found for alias: %r" % (
-                                    server_alias))
+            
+            if callback:
+                return self.asyncCallback(callback, connection)
+            else:
+                return connection
+        
+        if callback:
+            self.asyncCallback(callback, False)
+        else:
+            raise ServerException(nsError.NS_ERROR_FAILURE,
+                                "No server found for alias: %r" % (
+                                        server_alias))
+    
+    def getConnByAliasAsync(self, server_alias, callback):
+        import threading
+        t = threading.Thread(target=self._getConnectionUsingServerAlias,
+                             args=(server_alias, callback),
+                             name="getConnAsync")
+        t.setDaemon(True)
+        t.start()
+        
+    @components.ProxyToMainThreadAsync
+    def asyncCallback(self, callback, result):
+        callback.callback(0, result)
 
     # Return the connection object for the given serverInfo.
     def getConnectionUsingServerInfo(self, serverInfo):

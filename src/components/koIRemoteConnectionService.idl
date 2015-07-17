@@ -47,6 +47,7 @@
 #include "nsILoginInfo.idl"
 #include "koIRemoteFileInfo.idl"
 #include "koIRemoteConnection.idl"
+interface koIAsyncCallback;
 
 /**
  * Komodo Server Account information.
@@ -137,6 +138,8 @@ interface koIRemoteConnectionService : nsISupports {
      */
     void getConnectionUsingServerAlias(in wstring server_alias,
                                        [retval] out koIRemoteConnection connection);
+    
+    void getConnByAliasAsync(in wstring server_alias, in koIAsyncCallback callback);
 
     /**
      * Return the connection object for the given serverInfo.
