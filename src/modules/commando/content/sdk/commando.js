@@ -195,6 +195,7 @@
         }
         
         var numberNav = ko.prefs.getBoolean('commando_navigate_by_number', true);
+        numberNav = numberNav && ! local.prevSearchValue;
         if (numberNav || (local.altPressed && e.keyCode != KeyEvent.DOM_VK_ALT))
         {
             var numberPressed = false;
