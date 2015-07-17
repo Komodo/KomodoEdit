@@ -212,7 +212,7 @@ koPrefWindow.prototype =
     },
 
     observe: function(subject, topic, data) {
-        if (typeof(prefLog) != "undefined" && prefLog && topic != "prefs_show_advanced") {
+        if (typeof(prefLog) != "undefined" && prefLog && topic.indexOf("prefs_show_advanced") !== 0) {
             prefLog.warn("The '"+topic+"' preference has changed while the pref window was open. "+
                          "If you get this message, a pref panel is incorrectly modifying prefs "+
                          "and the modified value will be lost.");

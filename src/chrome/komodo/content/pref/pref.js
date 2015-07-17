@@ -154,6 +154,28 @@ function toggleAdvanced(event) {
     setAdvancedPanelState();
 }
 
+function forceAdvanced() {
+    var prefset = hPrefWindow._getCurrentPrefSet();
+    var checkbox = document.getElementById('toggleAdvanced');
+    console.log(checkbox.checked);
+    if (checkbox.checked) return;
+    
+    checkbox.setAttribute("checked", true);
+    toggleAdvanced();
+    
+    var showAdvancedWarned = prefs.getBoolean("prefs_show_advanced_warned", false);
+    if (! showAdvancedWarned) {
+        setTimeout(function() {
+            var msg = 'Advanced preferences have been enabled, you can disable them ' +
+                      'by toggling "Show Advanced" at the bottom left of the preference window.';
+            require("ko/dialogs").alert(msg);
+            
+            prefs.setBoolean("prefs_show_advanced_warned", true);
+            prefset.setBoolean("prefs_show_advanced_warned", true);
+        }, 100);
+    }
+}
+
 function setAdvancedPanelState() {
     var showAdvanced = prefs.getBoolean("prefs_show_advanced", false);
     var frames = document.getElementById("panelFrame").childNodes;
