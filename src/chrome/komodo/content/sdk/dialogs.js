@@ -147,7 +147,7 @@
         return _opts.response == _opts.yes;
     }
 
-    this.alert = (message, opts) =>
+    this.alert = (message, opts = {}) =>
     {
         var _opts = {};
         var props = ["prompt", "text", "title", "classNames","hidechrome"];
