@@ -380,14 +380,18 @@
     /**
      * Installs the given package.
      * @param pkg A package object obtained via `_getAvailablePackages()`.
+     * @param callback The callback to be called upon success.
+     * @param errorCallback the Callback to be called upon failure. The first
+     *   argument will be the error message.
      */
-    this._installPackage = function(pkg)
+    this._installPackage = function(pkg, callback, errorCallback)
     {
         // Verify the package has a release.
         log.info("Attempting to install package " + pkg.name);
         if (!(pkg.releases) || pkg.releases.length == 0)
         {
             log.info("No releases for package " + pkg.name + "; aborting.");
+            errorCallback("No releases for package " + pkg.name);
             return;
         }
         
@@ -397,7 +401,8 @@
         if (!(release.assets) || release.assets.length == 0)
         {
             log.info("No assets for package " + pkg.name + " v" + release.name + "; aborting.");
-            return null;
+            errorCallback("No assets for package " + pkg.name + " v" + release.name);
+            return;
         }
         
         // Determine the package's content type and act appropriately.
@@ -410,6 +415,8 @@
                 // Install the XPI via Mozilla's AddonManager.
                 AddonManager.getInstallForURL(asset.browser_download_url, function(aInstall)
                 {
+                    this._addonInstallListener.callback = callback;
+                    this._addonInstallListener.errorCallback = errorCallback;
                     aInstall.addListener(this._addonInstallListener);
                     aInstall.install();
                 }.bind(this), asset.content_type);
@@ -427,7 +434,8 @@
                     log.info("Package successfully installed.");
                     // TODO: prompt for running tutorials.
                     // TODO: delete temporary file.
-                });
+                    callback();
+                }, errorCallback);
                 break;
             case SCHEMES:
                 // Install the file via Komodo's color scheme service.
@@ -447,7 +455,8 @@
                         schemeService.activateScheme(scheme);
                     }
                     // TODO: delete temporary file.
-                });
+                    callback();
+                }, errorCallback);
                 break;
             case KEYBINDS:
                 // Install the file into Komodo's schemes directory and activate
@@ -470,6 +479,7 @@
                     // Refresh the list of known schemes.
                     schemeService.reloadAvailableSchemes();
                     keybindings.manager.reloadConfigurations(true); // refresh
+                    callback(); // indicate success before potentially restarting
                     // Prompt the user to apply the new scheme.
                     if (dialog.confirm(bundle.GetStringFromName("applyKeybinds.prompt"),
                         {
@@ -497,7 +507,7 @@
                         keybindings.manager.revertToPref(newSchemeName); // probably not the intended use, but it works
                         utils.restart(false);
                     }
-                }, OS.Path.join(dirService.userDataDir, 'schemes'));
+                }, errorCallback, OS.Path.join(dirService.userDataDir, 'schemes'));
                 break;
             default:
                 log.debug("Unknown package kind; aborting");
@@ -507,8 +517,11 @@
     /**
      * Uninstalls the given package.
      * @param pkg A package object obtained via `_getInstalledPackages()`.
+     * @param callback The callback to be called upon success.
+     * @param errorCallback the Callback to be called upon failure. The first
+     *   argument will be the error message.
      */
-    this._uninstallPackage = function(pkg)
+    this._uninstallPackage = function(pkg, callback, errorCallback)
     {
         log.debug("Attempting to uninstall package " + pkg.name);
         switch (pkg.kind)
@@ -523,6 +536,7 @@
                     addon.uninstall();
                     // Prompt for restart if necessary.
                     log.debug("Package pending operations: " + addon.pendingOperations);
+                    callback(); // indicate success before potentially restarting
                     if ((addon.pendingOperations & AddonManager.PENDING_DISABLE) ||
                         (addon.pendingOperations & AddonManager.PENDING_UNINSTALL))
                     {
@@ -546,6 +560,7 @@
                 log.info("Uninstalling package " + pkg.name);
                 toolbox.manager.view.deleteToolAt(pkg.data);
                 toolbox.manager.view.reloadToolsDirectoryView(-1); // for std toolbox
+                callback();
                 break;
             case SCHEMES:
             case KEYBINDS:
@@ -573,12 +588,15 @@
                         log.debug("Reverted to Default scheme");
                     }
                 }
+                callback();
                 break;
         }
     }
     
     /** Listener for addon (XPI) installation events. */
     this._addonInstallListener = {
+        callback: null, // will be specified prior to each install
+        errorCallback: null, // will be specified prior to each install
         /**
          * Checks for the addon's compatibility with this Komodo version.
          * If the check fails, prompts the user to abort the installation.
@@ -594,6 +612,7 @@
                     }))
                 {
                     log.info("Package installation cancelled by the user.");
+                    this.errorCallback("Package installation cancelled by user.");
                     return false;
                 }
             }
@@ -604,6 +623,7 @@
          */
         onInstallEnded: function(aInstall, addon) {
             log.info("Package successfully installed.");
+            this.callback(); // indicate success before potentially restarting
             log.debug("Package pending operations: " + addon.pendingOperations);
             if ((addon.pendingOperations & AddonManager.PENDING_ENABLE) ||
                 (addon.pendingOperations & AddonManager.PENDING_INSTALL) ||
@@ -623,7 +643,7 @@
         },
         /** Notifies the user that installation of the addon failed. */
         onInstallFailed: function(aInstall) {
-            require('notify/notify').send("Unable to install " + aInstall.name + ": " + aInstall.error);
+            this.errorCallback("Unable to install " + aInstall.name + ": " + aInstall.error);
         }
     }
     
@@ -635,10 +655,12 @@
      * @param url The URL of the file to download.
      * @param callback The callback function to call with the downloaded file's
      *   filesystem path.
-     * @param dir The directory to download the file to. The default value is
-     *   the platform's temporary directory.
+     * @param errorCallback the Callback to be called upon failure. The first
+     *   argument will be the error message.
+     * @param dir Optional directory to download the file to. The default value
+     *   is the platform's temporary directory.
      */
-    this._downloadFile = function(url, callback, dir)
+    this._downloadFile = function(url, callback, errorCallback, dir)
     {
         var filename = url.match(/[^\/\\]+$/);
         var target = OS.Path.join(dir || OS.Constants.Path.tmpDir, filename);
@@ -650,6 +672,7 @@
         }).then(callback, function(exception)
         {
             log.error("Error downloading " + url + ": " + exception);
+            errorCallback("Error downloading " + url + ": " + exception);
         });
     }
     
