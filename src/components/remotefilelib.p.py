@@ -1019,7 +1019,52 @@ class koRemoteSSH(koRFConnection):
         #if stderr:
         #    print "runCommand: stderr\n%s" % (stderr, )
         return status, stdout, stderr
+    
+    def runCommandAsync(self, command, callbackStdout, callbackStderr):
+        import threading
+        t = threading.Thread(target=self._runCommandAsync,
+                             args=(command, callbackStdout, callbackStderr),
+                             name="runRemoteAsync")
+        t.setDaemon(True)
+        t.start()
+        
+    def _runCommandAsync(self, command, cbStdo, cbStde):
+        channel = self._connection.open_session()
+        channel.settimeout(self._socket_timeout)
+        status = -1
+        try:
+            try:
+                # This was causing problems on different platforms, so just grab the
+                # response to the command.
+                channel.exec_command(command)
+                channels = [channel]
+                while 1:
+                    # XXX - Paramiko needs to support stderr select
+                    i, o, e = select.select(channels, [], channels, None)
+                    if e:
+                        break
+                    data = ''
+                    if channel.recv_ready():
+                        data = channel.recv(8192)
+                        if not data:
+                            break
+                        self._runCmdCb(cbStdo, data)
+                    if channel.recv_stderr_ready():
+                        data = channel.recv_stderr(8192)
+                        if not data:
+                            break
+                        self._runCmdCb(cbStde, data)
+                    if not data:
+                        break
+                status = channel.recv_exit_status()
+            finally:
+                channel.close()
+        except Exception, e:
+            self.log.exception(e)
 
+    @components.ProxyToMainThreadAsync
+    def _runCmdCb(self, callback, result):
+        callback.callback(0, result)
 
 # Debug the directory cache
 def debug_dirCache(log, cache):
