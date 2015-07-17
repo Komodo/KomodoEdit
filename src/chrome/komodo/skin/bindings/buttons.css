@@ -347,15 +347,12 @@ button[type="button-toolbar-a"],
  **/
 .button-link-a
 {
+    -moz-appearance     : button;
     -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-toolbar-b");
     min-width           : 1px;
     margin              : 0px;
-    border-top          : 1px solid #eaeaea;
-    border-right	: 1px solid black;
-    border-bottom	: 1px solid black;
-    border-left		: 1px solid #dadada;
     color               : WindowText;
-    background-color    : #F6F6F6;
+    background-color    : Window;
     -moz-user-focus     : ignore;
 }
 
