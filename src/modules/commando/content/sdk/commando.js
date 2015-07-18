@@ -922,6 +922,9 @@
         c.navDown();
         
         elem('panel').removeAttr("height");
+        setTimeout(function() {
+            elem('panel').removeAttr("height");
+        }, 100);
         
         // Work around weird XUL flex issue where the richlistbox shows a scrollbar
         // when none is needed
