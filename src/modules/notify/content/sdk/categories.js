@@ -104,4 +104,6 @@ categories.register("fs", { label: "Filesystem" });
 
 categories.register("dev", { label: "Development" });
 
+categories.register("packages", { label: "Packages" });
+
 module.exports = categories;

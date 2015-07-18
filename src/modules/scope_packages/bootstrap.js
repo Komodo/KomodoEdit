@@ -9,7 +9,7 @@ function loadIntoWindow(window) {
         var commando = window.require("commando/commando");
         commando.registerScope("scope-packages", {
             name: "Packages",
-            description: "Manage Komodo packages",
+            description: "Install Komodo packages",
             //icon: "koicon://ko-svg/chrome/icomoon/skin/bag.svg",
             //icon: "koicon://ko-svg/chrome/icomoon/skin/box.svg",
             icon: "koicon://ko-svg/chrome/icomoon/skin/box-add.svg",

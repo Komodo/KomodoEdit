@@ -7,28 +7,7 @@
     const utils        = ko.utils;
     const prefs        = ko.prefs;
     const keybindings  = ko.keybindings;
-    
-    /** Locale bundle. */
-    const bundle = Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService).
-        createBundle("chrome://scope-packages/locale/scope-packages.properties");
-    
-    /** The root directory for package archives. */
-    //const ROOT = "http://komodoide.com/json/";
-    const ROOT = "http://dev.komodoide.com:4567/json/"; // TODO: disable
-    /** The name of the file (no extension) that lists available addons. */
-    const ADDONS = "addons";
-    /**
-     * The name of the file (no extension) that lists available toolbox items.
-     */
-    const TOOLBOX = "toolbox";
-    /** The name of the file (no extension) that lists available macros. */
-    const MACROS = "macros";
-    /** The name of the file (no extension) that lists available schemes. */
-    const SCHEMES = "schemes";
-    /** The name of the file (no extension) that lists available skins. */
-    const SKINS = "skins";
-    /** The name of the file (no extension) that lists available keybindings. */
-    const KEYBINDS = "keybinds";
+    const l            = require("ko/locale");
     
     // Import the XPI addon manager as "AddonManager".
     Cu.import("resource://gre/modules/AddonManager.jsm");
@@ -39,151 +18,239 @@
     // Import asynchronous task management for downloads as "Task".
     Cu.import("resource://gre/modules/Task.jsm");
     
+    /** Locale bundle. */
+    const bundle = Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService).
+        createBundle("chrome://scope-packages/locale/scope-packages.properties");
+    
+    /** The root directory for package archives. */
+    //const ROOT = "http://komodoide.com/json/resources/";
+    const ROOT = "http://dev.komodoide.com:4567/json/resources/"; // TODO: disable
+    
+    /** The names of the files (no extension) that lists available packages of given kind. */
+    const ADDONS = "addons";
+    const TOOLBOX = "toolbox";
+    const MACROS = "macros";
+    const SCHEMES = "schemes";
+    const SKINS = "skins";
+    const KEYBINDS = "keybinds";
+    
     log.setLevel(require("ko/logging").LOG_DEBUG);
     
+    //this.onShow = function()
+    //{
+    //    this._getInstalledPackagesByKind.cache = {};
+    //}
+    //
+    //this.onSearch = function(query, uuid, onComplete)
+    //{
+    //    var done = 0;
+    //    var installed, upgradeable;
+    //    this._getInstalledPackages(function(packages)
+    //    {
+    //        installed = packages;
+    //        if (++done == 2)
+    //        {
+    //            this._onSearch(query, uuid, onComplete, installed, upgradeable);
+    //        }
+    //    }.bind(this));
+    //    
+    //    this._getUpgradablePackages(function(packages)
+    //    {
+    //        upgradeable = upgradeable;
+    //        if (++done == 2)
+    //        {
+    //            this._onSearch(query, uuid, onComplete, installed, upgradeable);
+    //        }
+    //    }.bind(this));
+    //}
+    
+    /**
+     * Start Commando using the package scope and select the given category
+     */
+    this.openCategory = function(kind)
+    {
+        var kinds = this.getPackageKinds();
+        if ( ! kind in kinds)
+        {
+            log.error("Missing category: " + kind);
+            return;
+        }
+        
+        commando.show('scope-packages');
+        commando.setSubscope({
+            id: kind,
+            name: kinds[kind].locale,
+            icon: kinds[kind].icon,
+            isScope: true,
+            scope: "scope-packages",
+            data: {},
+            allowMultiSelect: false
+        });
+    }
+    
+    //this._onSearch = function(query, uuid, onComplete, installed = {}, upgradeable = {})
     this.onSearch = function(query, uuid, onComplete)
     {
         log.debug(uuid + " - Starting Scoped Search");
         
+        var kinds = this.getPackageKinds();
         var subscope = commando.getSubscope();
-        if (subscope) subset = subscope.data.subset || {};
-        
-        if (query != "" || subscope)
+        if ( ! subscope && query == '')
         {
-            commando.renderResults([{
-                id: "scope-shell-run-cmd",
-                name: "run command",
-                scope: "scope-shell",
-                data: {},
-                allowMultiSelect: false,
-                weight: query == "" ? 100 : -1
-            }], uuid);
-        }
-        
-        this.searchSubset(subset, query, uuid, onComplete);
-    }
-    
-    this.searchSubset = function(subset, query, uuid, callback)
-    {
-        if (typeof subset == 'function')
-        {
-            try
+            // Kind listing
+            for (let kind in kinds)
             {
-                subset = subset(query, function(_subset)
-                {
-                    this.searchSubset(_subset, query, uuid, callback);
-                }.bind(this));
-            }
-            catch (e)
-            {
-                log.exception(e, "Exception while searching subset");
+                if ( ! kinds.hasOwnProperty(kind)) continue;
+                commando.renderResults([{
+                    id: kind,
+                    name: kinds[kind].locale,
+                    icon: kinds[kind].icon,
+                    isScope: true,
+                    scope: "scope-packages",
+                    data: {},
+                    allowMultiSelect: false
+                }], uuid);
+                onComplete();
             }
             return;
         }
-            
-        query = query.trim().toLowerCase();
         
-        // Search within subset
-        var results = [];
-        var _ = require("contrib/underscore");
-        _.find(subset, function(data, key) // _.each doesn't let you break out
-        {
-            if ( ! isNaN(key))
+        // Scoped search
+        var caller = this._getAvailablePackages.bind(this);
+        if (subscope)
+            caller = this._getAvailablePackagesByKind.bind(this, subscope.id)
+            
+        caller(function(packages) {
+            if ( ! packages) return onComplete();
+            
+            if (query.length)
+                packages = commando.filter(packages, query);
+            
+            for (let name in packages)
             {
-                if (typeof data == "object")
+                if ( ! packages.hasOwnProperty(name)) continue;
+                let pkg = packages[name];
+                try
                 {
-                    key = data.command;
+                    //var icon = "koicon://ko-svg/chrome/icomoon/skin/circle.svg";
+                    //if (pkg.name in installed)
+                    //    icon = "koicon://ko-svg/chrome/icomoon/skin/checkmark-circle2.svg";
+                    //if (pkg.name in upgradeable)
+                    //    icon = "koicon://ko-svg/chrome/icomoon/skin/arrow-up13.svg";
+                    commando.renderResults([{
+                        id: pkg.id,
+                        name: pkg.name,
+                        description: pkg.description,
+                        descriptionPrefix: subscope ? undefined : kinds[pkg.kind].locale + " /",
+                        scope: "scope-packages",
+                        data: {
+                            package: pkg,
+                            //installed: pkg.name in installed,
+                            //upgradeable: pkg.name in upgradeable
+                        },
+                        allowMultiSelect: false
+                    }], uuid);
                 }
-                else
+                catch (e)
                 {
-                    key = data;
-                    data = {};
+                    log.exception(e, "Failed parsing package info");
                 }
             }
             
-            let indexOf = key.toLowerCase().indexOf(query);
-            if (query == "" || indexOf !== -1)
-            {
-                let command = key;
-                if ("command" in data) command = data.command;
-                let weight = indexOf == 0 ? 5 : 0;
-                if ("weight" in data) weight = data.weight;
-                let subset = data.results || {};
-                let entry = _.extend({
-                    id: id + key,
-                    name: key,
-                    scope: "scope-shell",
-                    isScope: true,
-                    weight: weight,
-                    data: _.extend({
-                        subset: subset,
-                        command: command
-                    }, data.data || {}),
-                    allowMultiSelect: false
-                }, data);
-                
-                if (local.hasTrailingSpace)
-                {
-                    commando.setSubscope(entry);
-                    return true;
-                }
-                
-                results.push(entry);
-                
-                return false; // continue
-            }
+            // If searching with a subscope there will only be one callback
+            if (subscope) onComplete();
         });
-        
-        commando.renderResults(results, uuid);
-        
-        callback();
     }
     
-    this.onSelectResult = function(selectedItems)
+    this.onSelectResult = function()
     {
-        var shell = this.getShell();
+        var result = commando.getSelectedResult();
         
-        var env     = shell.env;
-        var command = shell.command;
-        var options = shell.options;
+        require("notify/notify").send(l.get("installing", result.name), "packages", {id: "packageInstall"});
         
-        // Detect current working directory
-        var partSvc = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService);
-        options.cwd = ko.uriparse.URIToPath(ko.places.getDirectory());
-        if (partSvc.currentProject)
-            options.cwd = partSvc.currentProject.liveDirectory;
-        
-        if (options.runIn == "hud")
-            require("ko/shell").exec(command, options);
-        else
+        commando.block();
+        this._installPackage(result.data.package, function()
         {
-            if ( ! ("env" in options))
-            options.env = [];
-            for (let k in env)
-                options.env.push(k+"="+env[k]);
-            options.env = options.env.join("\n");
-            
-            log.debug("Running command: " + command + " ("+options.env+")");
-            
-            ko.run.command(command, options);
-        }
-        
-        commando.hideCommando();
-    }
-    
-    this.sort = function(current, previous)
-    {
-        return previous.name.localeCompare(current.name) > 0 ? 1 : -1;
+            require("notify/notify").send(l.get("installed", result.name), "packages", {id: "packageInstall"});
+            commando.unblock();
+            commando.hide();
+        });
     }
     
     // Package Logic.
+    
+    /**
+     * Helper function that repeats a function call for each package kind 
+     */
+    this._getPackageIterator = function(method, callback)
+    {
+        var total = 0;
+        var kinds = this.getPackageKinds();
+        for (let _kind in kinds)
+        {
+            if ( ! kinds.hasOwnProperty(_kind)) continue;
+            total++;
+        }
+        
+        for (let _kind in kinds)
+        {
+            if ( ! kinds.hasOwnProperty(_kind)) continue;
+            this[method](_kind, function(results)
+            {
+                callback(results);
+                total = total - 1;
+                if (total === 0) callback();
+            });
+        }
+    }
     
     /**
      * All package kinds supported.
      * Calling `_getAvailablePackages()` individually with each of these would
      * yield every package currently available.
      */
-    this.ALL_KINDS = [ADDONS, TOOLBOX, MACROS, SCHEMES, SKINS, KEYBINDS];
+    this.getPackageKinds = function()
+    {
+        if ("__cached" in this.getPackageKinds)
+            return this.getPackageKinds.__cached;
+        
+        var results = {};
+        results[ADDONS] = {
+            locale: l.get(ADDONS),
+            icon: "koicon://ko-svg/chrome/icomoon/skin/plus-circle2.svg"
+        };
+        results[TOOLBOX] = {
+            locale: l.get(TOOLBOX),
+            icon: "koicon://ko-svg/chrome/icomoon/skin/briefcase3.svg"
+        };
+        results[MACROS] = {
+            locale: l.get(MACROS),
+            icon: "koicon://ko-svg/chrome/icomoon/skin/play3.svg"
+        };
+        results[SCHEMES] = {
+            locale: l.get(SCHEMES),
+            icon: "koicon://ko-svg/chrome/icomoon/skin/text-color.svg"
+        };
+        results[SKINS] = {
+            locale: l.get(SKINS),
+            icon: "koicon://ko-svg/chrome/icomoon/skin/palette.svg"
+        };
+        results[KEYBINDS] = {
+            locale: l.get(KEYBINDS),
+            icon: "koicon://ko-svg/chrome/icomoon/skin/keyboard.svg"
+        };
+        
+        this.getPackageKinds.__cached = results;
+        
+        return results;
+    }
+    
+    /**
+     * Get all available packages from all kinds, this calls the callback
+     * multiple times and will call it once with no arguments to indicate
+     * that it is done fetching packages
+     */
+    this._getAvailablePackages = this._getPackageIterator.bind(this, '_getAvailablePackagesByKind');
     
     /**
      * Retrieves a dictionary of packages of the given kind that are available
@@ -198,28 +265,54 @@
      *   kinds are ADDONS, TOOLBOX, MACROS, SCHEMES, SKINS, and KEYBINDS.)
      * @param callback The callback to call with the dictionary retrieved.
      */
-    this._getAvailablePackages = function(kind, callback)
+    this._getAvailablePackagesByKind = function(kind, callback)
     {
         log.debug("Retrieving all packages for " + kind);
+        
+        // Check if this request is already cached and if the cache is recent
+        // we don't want to be spamming the web server
+        var time = Math.floor(Date.now() / 1000);
+        if ( ! ("cache" in this._getAvailablePackagesByKind))
+            this._getAvailablePackagesByKind.cache = {};
+        var cache = this._getAvailablePackagesByKind.cache;
+        if ((kind in cache) && (time - cache[kind].time) < 3600)
+        {
+            return callback(cache[kind].result);
+        }
+        
+        // Not cached or cache has expired, get a fresh copy
+        log.debug("Retrieving fresh copy");
         var ajax = require('ko/ajax');
         var url = ROOT + kind + '.json';
         ajax.get(url, function(code, response)
         {
             if (code != 200)
             {
-                log.error("Unable to retrieve package listing for " + kind);
-                require('notify/notify').send("Unable to retrieve package listing for " + kind);
+                var msg = "Unable to retrieve package listing for " + kind;
+                log.error(msg);
+                require('notify/notify').send(msg, 'packages', {priority: 'error'});
                 return;
             }
             var results = {};
             for (let pkg of JSON.parse(response))
             {
                 pkg.kind = kind;
+                if ( ! this._getInstallable(pkg)) continue;
                 results[pkg.name] = pkg;
             }
+            
+            cache[kind] = {result: results, time: time};
+            
             callback(results);
-        });
+        }.bind(this));
     }
+    
+    /**
+     * Get all installed packages from all kinds, this calls the callback
+     * multiple times and will call it once with no arguments to indicate
+     * that it is done fetching packages
+     */
+    this._getInstalledPackages = this._getPackageIterator.bind(this, '_getInstalledPackagesByKind');
     
     /**
      * Retrieves a dictionary of installed packages of the given kind.
@@ -233,9 +326,24 @@
      *   kinds are ADDONS, TOOLBOX, MACROS, SCHEMES, SKINS, and KEYBINDS.)
      * @param callback The callback to call with the dictionary retrieved.
      */
-    this._getInstalledPackages = function(kind, callback)
+    this._getInstalledPackagesByKind = function(kind, callback)
     {
         log.debug("Retrieving all installed packages for " + kind);
+        
+        // Check if this request is already cached and if the cache is recent
+        // this cache clears whenever commando shows and is just intended to reduce
+        // CPU usage when someone is doing rapid subsequent searches
+        var time = Math.floor(Date.now() / 1000);
+        if ( ! ("cache" in this._getInstalledPackagesByKind))
+            this._getInstalledPackagesByKind.cache = {};
+        var cache = this._getInstalledPackagesByKind.cache;
+        if ((kind in cache) && (time - cache[kind].time) < 3600)
+        {
+            return callback(cache[kind].result);
+        }
+        
+        // Not cached or cache has expired, get a fresh copy
+        log.debug("Retrieving fresh copy");
         switch (kind)
         {
             case ADDONS:
@@ -253,8 +361,9 @@
                         pkg.version = addon.version;
                         pkg.data = addon; // needed by _uninstallPackage()
                         packages[pkg.name] = pkg;
-                        log.debug("Found " + pkg.name + " v" + pkg.version);
+                        //log.debug("Found " + pkg.name + " v" + pkg.version);
                     }
+                    cache[kind] = {result: packages, time: time};
                     callback(packages);
                 });
                 break;
@@ -273,8 +382,9 @@
                     pkg.kind = kind; // needed by _uninstallPackage()
                     pkg.data = i; // needed by _uninstallPackage()
                     packages[pkg.name] = pkg;
-                    log.debug("Found " + pkg.name);
+                    //log.debug("Found " + pkg.name);
                 }
+                cache[kind] = {result: packages, time: time};
                 callback(packages);
                 break;
             case SCHEMES:
@@ -291,15 +401,16 @@
                     if ((kind == SCHEMES && !schemeService.getScheme(name).writeable) ||
                         (kind == KEYBINDS && !keybindings.manager.configurationWriteable(name)))
                     {
-                        log.debug("Scheme " + name + " is a default scheme (not writable); ignoring");
+                        //log.debug("Scheme " + name + " is a default scheme (not writable); ignoring");
                         continue; // filter out default schemes
                     }
                     let pkg = {};
                     pkg.name = name;
                     pkg.kind = kind; // needed by _uninstallPackage()
                     packages[pkg.name] = pkg;
-                    log.debug("Found " + pkg.name);
+                    //log.debug("Found " + pkg.name);
                 }
+                cache[kind] = {result: packages, time: time};
                 callback(packages);
                 break;
             default:
@@ -307,6 +418,13 @@
                 return;
         }
     }
+    
+    /**
+     * Get all upgradeable packages from all kinds, this calls the callback
+     * multiple times and will call it once with no arguments to indicate
+     * that it is done fetching packages
+     */
+    this._getUpgradablePackages = this._getPackageIterator.bind(this, '_getUpgradablePackagesByKind');
     
     /**
      * Retrieves a dictionary of upgradable packages of the given kind.
@@ -320,11 +438,11 @@
      *   kinds are ADDONS, TOOLBOX, MACROS, SCHEMES, SKINS, and KEYBINDS.)
      * @param callback The callback to call with the dictionary retrieved.
      */
-    this._getUpgradablePackages = function(kind, callback)
+    this._getUpgradablePackagesByKind = function(kind, callback)
     {
-        this._getAvailablePackages(kind, function(available)
+        this._getAvailablePackagesByKind(kind, function(available)
         {
-            this._getInstalledPackages(kind, function(installed)
+            this._getInstalledPackagesByKind(kind, function(installed)
             {
                 var upgradable = {};
                 // Iterate over installed packages and check upstream to see if
@@ -335,14 +453,14 @@
                     let upstreamPkg = available[name];
                     if (!upstreamPkg)
                     {
-                        log.debug("Installed package " + name + " does not exist upstream; ignoring.");
+                        //log.debug("Installed package " + name + " does not exist upstream; ignoring.");
                         continue;
                     }
-                    log.debug("Installed package " + name + " exists upstream.");
+                    //log.debug("Installed package " + name + " exists upstream.");
                     // Verify the package has a release.
                     if (!(upstreamPkg.releases) || upstreamPkg.releases.length == 0)
                     {
-                        log.debug("Package has no upstream releases; ignoring.");
+                        //log.debug("Package has no upstream releases; ignoring.");
                         continue;
                     }
                     // Verify the package's latest release has an artifact.
@@ -351,7 +469,7 @@
                     let release = upstreamPkg.releases[0];
                     if (!(release.assets) || release.assets.length == 0)
                     {
-                        log.debug("Package has no upstream releases; ignoring.");
+                        //log.debug("Package has no upstream releases; ignoring.");
                         continue;
                     }
                     // Compare the versions and if the current version is not
@@ -365,11 +483,11 @@
                     if (installedPkg.version != release.name)
                     {
                         upgradable[name] = upstreamPkg;
-                        log.debug("Package has a newer version; marking as upgradable.");
+                        //log.debug("Package has a newer version; marking as upgradable.");
                     }
                     else
                     {
-                        log.debug("Package is up to date.");
+                        //log.debug("Package is up to date.");
                     }
                 }
                 callback(upgradable);
@@ -386,27 +504,22 @@
      */
     this._installPackage = function(pkg, callback, errorCallback)
     {
-        // Verify the package has a release.
-        log.info("Attempting to install package " + pkg.name);
-        if (!(pkg.releases) || pkg.releases.length == 0)
+        callback = callback || function() {};
+        errorCallback = errorCallback || function(msg)
         {
-            log.info("No releases for package " + pkg.name + "; aborting.");
-            errorCallback("No releases for package " + pkg.name);
-            return;
-        }
+            require('notify/notify').send(msg, 'packages', {priority: 'error'}); 
+        };
         
-        // Verify the package's latest release has an artifiact.
-        var release = pkg.releases[0];
-        log.debug("Preparing to install version " + release.name);
-        if (!(release.assets) || release.assets.length == 0)
+        // Verify if the package has any installable assets
+        var asset = this._getInstallable(pkg, 'asset');
+        if ( ! asset)
         {
-            log.info("No assets for package " + pkg.name + " v" + release.name + "; aborting.");
-            errorCallback("No assets for package " + pkg.name + " v" + release.name);
+            log.info("No installable assets for package " + pkg.name + " v" + release.name + "; aborting.");
+            errorCallback("No installable assets for package " + pkg.name + " v" + release.name);
             return;
         }
         
         // Determine the package's content type and act appropriately.
-        var asset = release.assets[0];
         log.debug("Package kind is " + pkg.kind);
         switch (pkg.kind)
         {
@@ -417,6 +530,7 @@
                 {
                     this._addonInstallListener.callback = callback;
                     this._addonInstallListener.errorCallback = errorCallback;
+                    this._addonInstallListener.package = pkg;
                     aInstall.addListener(this._addonInstallListener);
                     aInstall.install();
                 }.bind(this), asset.content_type);
@@ -445,14 +559,15 @@
                     var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
                     var scheme = schemeService.loadSchemeFromURI(file, pkg.name);
                     // Ask the user if the scheme should be applied immediately.
-                    if (dialog.confirm(bundle.GetStringFromName("applyScheme.prompt"),
+                    if (dialog.confirm(l.get("applyScheme.prompt"),
                         {
-                            yes: bundle.GetStringFromName("applySchemeNow.label"),
-                            no: bundle.GetStringFromName("applySchemeLater.label"),
-                            response: bundle.GetStringFromName("applySchemeNow.label")
+                            yes: l.get("applySchemeNow.label"),
+                            no: l.get("applySchemeLater.label"),
+                            response: l.get("applySchemeNow.label")
                         }))
                     {
                         schemeService.activateScheme(scheme);
+                        require("notify/notify").send(l.get("schemeApplied", pkg.name), "packages", {id: "packageInstall"});
                     }
                     // TODO: delete temporary file.
                     callback();
@@ -466,52 +581,86 @@
                 this._downloadFile(asset.browser_download_url, function(file)
                 {
                     log.debug("Importing " + file + " as scheme " + pkg.name);
+                    var schemeName = asset.browser_download_url.split(/\/|\./).slice(-2)[0];
                     var schemeService = Cc['@activestate.com/koKeybindingSchemeService;1'].getService();
-                    // Record existing scheme names for later use when applying
-                    // the new scheme.
-                    var schemes = {};
-                    schemeService.getSchemeNames(schemes, {});
-                    var oldSchemes = [];
-                    for (let name of schemes.value)
-                    {
-                        oldSchemes.push(name);
-                    }
                     // Refresh the list of known schemes.
                     schemeService.reloadAvailableSchemes();
                     keybindings.manager.reloadConfigurations(true); // refresh
                     callback(); // indicate success before potentially restarting
                     // Prompt the user to apply the new scheme.
-                    if (dialog.confirm(bundle.GetStringFromName("applyKeybinds.prompt"),
-                        {
-                            yes: bundle.GetStringFromName("applyKeybindsNow.label"),
-                            no: bundle.GetStringFromName("applyKeybindsLater.label"),
-                            response: bundle.GetStringFromName("applyKeybindsNow.label")
-                        }))
+                    if (dialog.confirm(l.get("applyKeybinds.prompt")))
                     {
-                        // As noted in the TODO above, there is no keybinding
-                        // service that imports a scheme file, reads it, and
-                        // reports the name. In the interest of time, the
-                        // pure-JS way is to take snapshots of known schemes
-                        // before and after the import, and compare the two.
-                        schemeService.getSchemeNames(schemes, {});
-                        var newSchemes = [];
-                        for (let name of schemes.value)
-                        {
-                            newSchemes.push(name);
-                        }
-                        var newSchemeName = newSchemes.filter(function(name)
-                        {
-                            return oldSchemes.indexOf(name) < 0;
-                        })[0];
-                        log.debug("Applying scheme " + newSchemeName);
-                        keybindings.manager.revertToPref(newSchemeName); // probably not the intended use, but it works
-                        utils.restart(false);
+                        log.debug("Applying scheme " + schemeName);
+                        keybindings.manager.revertToPref(schemeName); // probably not the intended use, but it works
+                        require("notify/notify").send(l.get("keybindingsApplied", pkg.name), "packages", {id: "packageInstall"});
                     }
                 }, errorCallback, OS.Path.join(dirService.userDataDir, 'schemes'));
                 break;
             default:
                 log.debug("Unknown package kind; aborting");
         }
+    }
+    
+    /**
+     * Gets installable release or asset for the given package
+     *
+     * @param pkg The package object
+     * @param want What do you want it to return, the 'release', 'asset' or 'url' (download url)
+     *
+     * @returns {boolean|object|string} returns false if nothing installable was found
+     */
+    this._getInstallable = function(pkg, want = 'url')
+    {
+        if ( ! pkg.releases || ! pkg.releases.length)
+            return false;
+        
+        // Helper function that returns the right information, based on the 'want' param
+        var result = function(release, asset)
+        {
+            if (want == 'release')
+                return release;
+            else if (want == 'asset')
+                return asset;
+            else
+                return asset.browser_download_url;
+        }
+        
+        // Iterate over and validate releases
+        for (let release of pkg.releases)
+        {
+            if ( ! release.assets || ! release.assets.length)
+            {
+                continue;
+            }
+            
+            // Iterate over and validate assets
+            for (let asset of release.assets)
+            {
+                switch (pkg.kind)
+                {
+                    case ADDONS:
+                    case SKINS:
+                        if (asset.browser_download_url.substr(-4) == '.xpi')
+                            return result(release, asset);
+                        break;
+                    case TOOLBOX:
+                    case MACROS:
+                        if (asset.browser_download_url.substr(-11) == '.komodotool')
+                            return result(release, asset);
+                        break;
+                    case SCHEMES:
+                        if (asset.browser_download_url.substr(-4) == '.ksf')
+                            return result(release, asset);
+                        break;
+                    case KEYBINDS:
+                        if (asset.browser_download_url.substr(-4) == '.kkf')
+                            return result(release, asset);
+                        break;
+                }
+            }
+        }
+
+        return false;
     }
     
     /**
@@ -541,11 +690,11 @@
                         (addon.pendingOperations & AddonManager.PENDING_UNINSTALL))
                     {
                         log.debug("Package requires Komodo restart.");
-                        if (dialog.confirm(bundle.GetStringFromName("restartKomodoAfterUninstall.prompt"),
+                        if (dialog.confirm(l.get("restartKomodoAfterUninstall.prompt"),
                             {
-                                yes: bundle.GetStringFromName("restartNow.label"),
-                                no: bundle.GetStringFromName("restartLater.label"),
-                                response: bundle.GetStringFromName("restartLater.label")
+                                yes: l.get("restartNow.label"),
+                                no: l.get("restartLater.label"),
+                                response: l.get("restartLater.label")
                             }))
                         {
                             utils.restart(false);
@@ -597,6 +746,7 @@
     this._addonInstallListener = {
         callback: null, // will be specified prior to each install
         errorCallback: null, // will be specified prior to each install
+        package: null,
         /**
          * Checks for the addon's compatibility with this Komodo version.
          * If the check fails, prompts the user to abort the installation.
@@ -605,10 +755,10 @@
             if (!aInstall.addon.isCompatible)
             {
                 log.debug("Package incompatible with this Komodo version.");
-                if (dialog.confirm(bundle.GetStringFromName("confirmIncompatible.prompt"),
+                if (dialog.confirm(l.get("confirmIncompatible.prompt"),
                     {
-                        yes: bundle.GetStringFromName("abortInstallation.label"),
-                        no: bundle.GetStringFromName("continueAnyway.label")
+                        yes: l.get("abortInstallation.label"),
+                        no: l.get("continueAnyway.label")
                     }))
                 {
                     log.info("Package installation cancelled by the user.");
@@ -630,14 +780,29 @@
                 (addon.pendingOperations & AddonManager.PENDING_UPGRADE))
             {
                 log.debug("Package requires Komodo restart.");
-                if (dialog.confirm(bundle.GetStringFromName("restartKomodoAfterInstall.prompt"),
+                var locale;
+                if (this.package.kind == SKINS)
+                    locale = l.get("restartKomodoAfterSkinInstall.prompt", this.package.name)
+                else
+                    locale = l.get("restartKomodoAfterInstall.prompt");
+                if (dialog.confirm(locale,
                     {
-                        yes: bundle.GetStringFromName("restartNow.label"),
-                        no: bundle.GetStringFromName("restartLater.label"),
-                        response: bundle.GetStringFromName("restartLater.label")
+                        yes: l.get("restartNow.label"),
+                        no: l.get("restartLater.label"),
+                        response: l.get("restartLater.label")
                     }))
                 {
                     utils.restart(false);
+                }
+            }
+            else
+            {
+                if (this.package.kind == SKINS)
+                {
+                    if (dialog.confirm(l.get("skinInstalledOpenPrefs.prompt", this.package.name)))
+                    {
+                        prefs_doGlobalPrefs('appearance');
+                    }
                 }
             }
         },
