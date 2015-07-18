@@ -756,29 +756,6 @@
         // Set Default Scope Selection
         if ( ! scopeElem.previousSibling)
             elem('scope').element().selectedIndex = 0;
-
-        // Inset Menuitem
-        opts.menuLabel = "Go to " + opts.name;
-        var menuitem = $(template('scopeNavMenuItem', opts)).element();
-        var sibling = elem('menuItem').element();
-        while (sibling.nextSibling)
-        {
-            sibling = sibling.nextSibling;
-            if (sibling.nodeName == "menuseparator" || sibling.getAttribute("label").localeCompare(opts.menuLabel)>0)
-            {
-                $(sibling).before(menuitem);
-                break;
-            }
-        }
-
-        if ("cloneUnifiedMenuItems" in ko.uilayout)
-        {
-            window.clearTimeout(local.uilayoutTimer);
-            local.uilayoutTimer = window.setTimeout(function()
-            {
-                ko.uilayout.cloneUnifiedMenuItems();
-            }, 50);
-        }
     }
 
     this.unregisterScope = function(id)
