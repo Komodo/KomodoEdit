@@ -943,12 +943,11 @@
         }
     }
 
-    this.filter = function(results, query, field)
+    this.filter = function(results, query, field = "name")
     {
-        field = "name";
         var words = query.toLowerCase().split(/\s+/);
 
-        return results.filter(function(result)
+        var passes = function(result)
         {
             if ( ! (field in result))
                 return false;
@@ -960,7 +959,23 @@
             }
 
             return true;
-        });
+        };
+
+        if (Array.isArray(results))
+        {
+            return results.filter(passes);
+        }
+        {
+            var _results = {};
+            for (let k in results)
+            {
+                if (passes(results[k]))
+                {
+                    _results[k] = results[k];
+                }
+            }
+            return _results;
+        }
     }
 
     // Todo: prevent multiple paints
