@@ -321,6 +321,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             {
                 this.innerHTML = value ? value : "";
             });
+            
+            return this;
         },
 
         /**
