@@ -36,6 +36,7 @@
                 }
                 else
                 {
+                    args = Array.prototype.slice.call(args);
                     return bundle.formatStringFromName(name, args, args.length);
                 }
             }
