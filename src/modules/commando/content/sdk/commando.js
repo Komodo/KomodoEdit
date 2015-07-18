@@ -42,7 +42,8 @@
         altPressed: false,
         altNumber: null,
         useQuickScope: false,
-        quickScope: null
+        quickScope: null,
+        blocked: null
     };
 
     var elems = {
@@ -144,6 +145,12 @@
         var results = elem('results');
         if ( ! results.visible()) return;
         var prevDefault = false;
+        
+        if (local.blocked)
+        {
+            e.preventDefault();
+            return false;
+        }
 
         // Todo: support selecting multiple items
         switch (e.keyCode)
@@ -1306,6 +1313,22 @@
     {
         local.history = [];
         c.clear();
+    }
+    
+    this.block = function()
+    {
+        elem("panel").addClass("blocked");
+        elem("search").attr("disabled", true);
+        elem("quickSearch").attr("disabled", true);
+        local.blocked = true;
+    }
+    
+    this.unblock = function()
+    {
+        elem("panel").removeClass("blocked");
+        elem("search").removeAttr("disabled");
+        elem("quickSearch").removeAttr("disabled");
+        local.blocked = false;
     }
 
     this.tip = function(tipMessage, type = "normal")
