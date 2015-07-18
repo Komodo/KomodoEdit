@@ -1046,5 +1046,7 @@
   <!-- #endif -->
 
   <string id="bugsnag_key">a0ffb67a805253227e906fb6ec1a1cde</string>
+
+  <string id="package_api_endpoint">http://komodoide.com/json/resources/</string>
   
 </preference-set>

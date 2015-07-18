@@ -23,8 +23,7 @@
         createBundle("chrome://scope-packages/locale/scope-packages.properties");
     
     /** The root directory for package archives. */
-    //const ROOT = "http://komodoide.com/json/resources/";
-    const ROOT = "http://dev.komodoide.com:4567/json/resources/"; // TODO: disable
+    const ROOT = ko.prefs.getString("package_api_endpoint");
     
     /** The names of the files (no extension) that lists available packages of given kind. */
     const ADDONS = "addons";
