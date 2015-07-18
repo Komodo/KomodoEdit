@@ -34,6 +34,13 @@
     const SKINS = "skins";
     const KEYBINDS = "keybinds";
     
+    this.ADDONS = ADDONS;
+    this.TOOLBOX = TOOLBOX;
+    this.MACROS = MACROS;
+    this.SCHEMES = SCHEMES;
+    this.SKINS = SKINS;
+    this.KEYBINDS = KEYBINDS;
+    
     log.setLevel(require("ko/logging").LOG_DEBUG);
     
     //this.onShow = function()
@@ -514,8 +521,8 @@
         var asset = this._getInstallable(pkg, 'asset');
         if ( ! asset)
         {
-            log.info("No installable assets for package " + pkg.name + " v" + release.name + "; aborting.");
-            errorCallback("No installable assets for package " + pkg.name + " v" + release.name);
+            log.info("No installable assets for package " + pkg.name + "; aborting.");
+            errorCallback("No installable assets for package " + pkg.name);
             return;
         }
         

@@ -819,7 +819,7 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 18
+    _current_pref_version = 20
 
     def _upgradeUserPrefs(self, prefs):
         """Upgrade any specific info in the user's prefs.xml.
@@ -930,6 +930,15 @@ class KoInitService(object):
             prefs.deletePref("koSkin_custom_icons")
             prefs.deletePref("koSkin_custom_skin")
             prefs.deletePref("runtime_manifests")
+            
+        if version < 20: # Komodo 9.2
+            activeSkin = prefs.getString("koSkin_custom_skin", "")
+            if activeSkin == "chrome://abyss-skin/content/manifest/chrome.manifest":
+                prefs.deletePref("koSkin_custom_icons")
+                prefs.deletePref("koSkin_custom_skin")
+                prefs.deletePref("runtime_manifests")
+                prefs.setBoolean("removedAbyss", True)
+                prefs.setBoolean("forceSkinReload", True)
 
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)

@@ -90,10 +90,12 @@ if (ko.skin == undefined)
             var skinVersion = prefs.getString('skinVersion', '');
             var infoSvc = Cc["@activestate.com/koInfoService;1"].getService(Ci.koIInfoService);
             var platVersion = infoSvc.buildPlatform + infoSvc.buildNumber;
-            if (skinVersion != platVersion)
+            var forceReload = prefs.getBoolean('forceSkinReload', false);
+            if (skinVersion != platVersion || forceReload)
             {
                 log.info("Komodo has been updated, forcing a skin reload");
                 prefs.setStringPref('skinVersion', platVersion);
+                this.shouldFlushCaches = true;
                 [PREF_CUSTOM_SKIN, PREF_CUSTOM_ICONS].forEach(function(keyName)
                 {
                     if (prefs.getString(keyName, '') == '') return;
@@ -105,7 +107,69 @@ if (ko.skin == undefined)
                     
                     // Set pref and trigger reload
                     prefs.setString(keyName, value);
-                })
+                });
+                
+                // And in case that didn't do it ..
+                koLess.reload(true);
+                setTimeout(function()
+                {
+                    koLess.reload();
+                }, 100);
+                prefs.deletePref('forceSkinReload');
+            }
+            
+            // Check if this user used to be an Abyss user, and notify them accordingly
+            if (prefs.getBoolean("removedAbyss", false))
+            {
+                var elem;
+                var installAbyss = function()
+                {
+                    nb.removeNotification(elem);
+                    
+                    var p = require("scope-packages/packages");
+                    p._getAvailablePackagesByKind(p.SKINS, function(pkgs)
+                    {
+                        var abyss;
+                        for (let pkg in pkgs)
+                        {
+                            if (pkg == "Abyss") abyss = pkgs[pkg];
+                        }
+                        
+                        if ( ! abyss)
+                        {
+                            var msg = "Unable to find the Abyss skin, " +
+                                "possibly the Komodo website is under maintenance, " +
+                                "please try again later."
+                            require("ko/dialogs").alert(msg);
+                            return;
+                        }
+                        
+                        p._installPackage(abyss);
+                    });
+                    prefs.deletePref("removedAbyss");
+                };
+                
+                var nb = document.getElementById("komodo-notificationbox");
+                var msg = "The Abyss skin is no longer packaged with Komodo, " +
+                          "would you like to have Komodo download and install it?";
+                elem = nb.appendNotification(msg,
+                                      "abyss-install", null, nb.PRIORITY_INFO_HIGH,
+                [
+                    {
+                        accessKey: "y",
+                        callback: installAbyss,
+                        label: "Yes (Install Abyss Skin)"
+                    },
+                    {
+                        accessKey: "n",
+                        callback: function()
+                        {
+                            prefs.deletePref("removedAbyss");
+                            nb.removeNotification(elem);
+                        },
+                        label: "No Thanks"
+                    },
+                ]);
             }
         },
         
