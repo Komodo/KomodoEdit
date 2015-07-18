@@ -1197,7 +1197,8 @@
             }
 
             var el = $(template('subscope', {scope: subscope, scopes: local.history}));
-            elem('subscopeWrap').html(el).show();
+            elem('subscopeWrap').empty();
+            elem('subscopeWrap').append(el).show();
             elem('panel').addClass("subscoped");
             
             elem('search').attr("placeholder", subscope.placeholder || "");
