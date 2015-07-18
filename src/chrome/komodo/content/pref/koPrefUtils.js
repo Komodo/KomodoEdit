@@ -116,8 +116,8 @@ function checkValidInterpreterSetting(prefset,
     if (typeof(languagePrefPageId) == "undefined") {
         languagePrefPageId = programmingLanguage.toLowerCase() + "Item";
     }
-    var defaultInterp = prefset.getStringPref(interpreterPrefName);
-    if (!defaultInterp) {
+    var defaultInterp = prefset.getString(interpreterPrefName, "");
+    if (!defaultInterp || defaultInterp == "") {
         return true;
     }
     var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].
