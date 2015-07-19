@@ -833,22 +833,14 @@
             log.debug(searchUuid + " - Skipping result for old search uuid");
             return;
         }
-
-        local.resultsReceived++;
-        local.resultCache.push(result);
-
-        window.clearTimeout(local.renderResultsTimer);
-        local.renderResultsTimer = window.setTimeout(function()
-        {
-            this.renderResults(local.resultCache, searchUuid, true);
-            local.resultCache = [];
-        }.bind(this), ko.prefs.getLong("commando_result_render_delay", 100));
+        
+        this.renderResults([result], searchUuid);
     }
 
-    this.renderResults = function(results, searchUuid, cacheOrigin)
+    this.renderResults = function(results, searchUuid, cacheOrigin, noDelay = false)
     {
         if ( ! results.length) return;
-
+        
         if (local.searchingUuid != searchUuid)
         {
             log.debug(searchUuid + " - Skipping "+results.length+" results for old search uuid: " + searchUuid);
@@ -857,6 +849,25 @@
 
         if ( ! cacheOrigin)
             local.resultsReceived += results.length;
+        
+        if ( ! noDelay)
+        {
+            local.resultCache = local.resultCache.concat(results);
+    
+            if ( ! local.renderResultsTimer)
+            {
+                log.debug("Setting result timer");
+                window.clearTimeout(local.renderResultsTimer);
+                local.renderResultsTimer = window.setTimeout(function()
+                {
+                    log.debug("Triggering result timer");
+                    this.renderResults(local.resultCache, searchUuid, true, true);
+                    local.resultCache = [];
+                    local.renderResultsTimer = false;
+                }.bind(this), ko.prefs.getLong("commando_result_render_delay", 100));
+            }
+            return;
+        }
 
         if (local.resultsRendered === 0)
             this.empty(); // Force empty results

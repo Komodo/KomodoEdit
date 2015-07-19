@@ -107,7 +107,7 @@
             for (let kind in kinds)
             {
                 if ( ! kinds.hasOwnProperty(kind)) continue;
-                commando.renderResults([{
+                commando.renderResult({
                     id: kind,
                     name: kinds[kind].locale,
                     icon: kinds[kind].icon,
@@ -115,7 +115,7 @@
                     scope: "scope-packages",
                     data: {},
                     allowMultiSelect: false
-                }], uuid);
+                }, uuid);
                 onComplete();
             }
             return;
@@ -143,7 +143,7 @@
                     //    icon = "koicon://ko-svg/chrome/icomoon/skin/checkmark-circle2.svg";
                     //if (pkg.name in upgradeable)
                     //    icon = "koicon://ko-svg/chrome/icomoon/skin/arrow-up13.svg";
-                    commando.renderResults([{
+                    commando.renderResult({
                         id: pkg.id,
                         name: pkg.name,
                         description: pkg.description,
@@ -155,7 +155,7 @@
                             //upgradeable: pkg.name in upgradeable
                         },
                         allowMultiSelect: false
-                    }], uuid);
+                    }, uuid);
                 }
                 catch (e)
                 {
