@@ -2183,12 +2183,12 @@
                                             oncommand="require('scope-packages/packages').openCategory('addons')"
                                                  />
                                         <menuitem
-                                            label="Install Toolbox Items"
-                                            oncommand="require('scope-packages/packages').openCategory('toolbox')"
-                                                 />
-                                        <menuitem
                                             label="Install Macros"
                                             oncommand="require('scope-packages/packages').openCategory('macros')"
+                                                 />
+                                        <menuitem
+                                            label="Install Toolbox Items"
+                                            oncommand="require('scope-packages/packages').openCategory('toolbox')"
                                                  />
                                         <menuitem
                                             label="Install Color Schemes"
@@ -2197,6 +2197,10 @@
                                         <menuitem
                                             label="Install Skins"
                                             oncommand="require('scope-packages/packages').openCategory('skins')"
+                                                 />
+                                        <menuitem
+                                            label="Install Languages"
+                                            oncommand="require('scope-packages/packages').openCategory('languages')"
                                                  />
                                         <menuitem
                                             label="Install Keybindings"

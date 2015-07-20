@@ -33,6 +33,7 @@
     const SCHEMES = "schemes";
     const SKINS = "skins";
     const KEYBINDS = "keybinds";
+    const LANGS = "languages";
     
     this.ADDONS = ADDONS;
     this.TOOLBOX = TOOLBOX;
@@ -40,6 +41,7 @@
     this.SCHEMES = SCHEMES;
     this.SKINS = SKINS;
     this.KEYBINDS = KEYBINDS;
+    this.LANGS = LANGS;
     
     log.setLevel(require("ko/logging").LOG_DEBUG);
     
@@ -89,6 +91,7 @@
             id: kind,
             name: kinds[kind].locale,
             icon: kinds[kind].icon,
+            weight: kinds[kind].weight,
             isScope: true,
             scope: "scope-packages",
             data: {},
@@ -225,27 +228,38 @@
         var results = {};
         results[ADDONS] = {
             locale: l.get(ADDONS),
-            icon: "koicon://ko-svg/chrome/icomoon/skin/plus-circle2.svg"
-        };
-        results[TOOLBOX] = {
-            locale: l.get(TOOLBOX),
-            icon: "koicon://ko-svg/chrome/icomoon/skin/briefcase3.svg"
+            icon: "koicon://ko-svg/chrome/icomoon/skin/plus-circle2.svg",
+            weight: 10
         };
         results[MACROS] = {
             locale: l.get(MACROS),
-            icon: "koicon://ko-svg/chrome/icomoon/skin/play3.svg"
+            icon: "koicon://ko-svg/chrome/icomoon/skin/play3.svg",
+            weight: 9
+        };
+        results[TOOLBOX] = {
+            locale: l.get(TOOLBOX),
+            icon: "koicon://ko-svg/chrome/icomoon/skin/briefcase3.svg",
+            weight: 8
         };
         results[SCHEMES] = {
             locale: l.get(SCHEMES),
-            icon: "koicon://ko-svg/chrome/icomoon/skin/text-color.svg"
+            icon: "koicon://ko-svg/chrome/icomoon/skin/text-color.svg",
+            weight: 7
         };
         results[SKINS] = {
             locale: l.get(SKINS),
-            icon: "koicon://ko-svg/chrome/icomoon/skin/palette.svg"
+            icon: "koicon://ko-svg/chrome/icomoon/skin/palette.svg",
+            weight: 6
+        };
+        results[LANGS] = {
+            locale: l.get(LANGS),
+            icon: "koicon://ko-svg/chrome/icomoon/skin/globe2.svg",
+            weight: 5
         };
         results[KEYBINDS] = {
             locale: l.get(KEYBINDS),
-            icon: "koicon://ko-svg/chrome/icomoon/skin/keyboard.svg"
+            icon: "koicon://ko-svg/chrome/icomoon/skin/keyboard.svg",
+            weight: 4
         };
         
         this.getPackageKinds.__cached = results;
@@ -355,7 +369,9 @@
         switch (kind)
         {
             case ADDONS:
-            case SKINS: // TODO: differentiate between the two.
+            case SKINS:
+            case LANGS:
+                // TODO: differentiate between these.
                 // Retrieve installed XPIs via Mozilla's AddonManager.
                 AddonManager.getAllAddons(function(aAddons)
                 {
@@ -532,7 +548,9 @@
         switch (pkg.kind)
         {
             case ADDONS:
-            case SKINS: // TODO: differentiate between the two and prompt for applying skin.
+            case SKINS:
+            case LANGS:
+                // TODO: differentiate between these and prompt for applying skin.
                 // Install the XPI via Mozilla's AddonManager.
                 AddonManager.getInstallForURL(asset.browser_download_url, function(aInstall)
                 {
@@ -648,6 +666,7 @@
                 {
                     case ADDONS:
                     case SKINS:
+                    case LANGS:
                         if (asset.browser_download_url.substr(-4) == '.xpi')
                             return result(release, asset);
                         break;
@@ -684,7 +703,9 @@
         switch (pkg.kind)
         {
             case ADDONS:
-            case SKINS: // TODO: differentiate between the two.
+            case SKINS:
+            case LANGS:
+                // TODO: differentiate between these.
                 // Uninstall the addon (XPI) package via Mozilla's AddonManager.
                 var addon = pkg.data;
                 if (addon.uninstall)
@@ -791,6 +812,8 @@
                 var locale;
                 if (this.package.kind == SKINS)
                     locale = l.get("restartKomodoAfterSkinInstall.prompt", this.package.name)
+                else if (this.package.kind == LANGS)
+                    locale = l.get("restartKomodoAfterLangInstall.prompt", this.package.name)
                 else
                     locale = l.get("restartKomodoAfterInstall.prompt");
                 if (dialog.confirm(locale,
