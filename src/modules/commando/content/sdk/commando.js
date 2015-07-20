@@ -10,6 +10,7 @@
     const _         = require("contrib/underscore");
     const controller= require("./controller");
     const prefs     = require("ko/prefs");
+    const _window   = require("ko/windows").getMain();
 
     const ioService = Cc["@mozilla.org/network/io-service;1"]
                         .getService(Ci.nsIIOService);
@@ -44,10 +45,13 @@
         altNumber: null,
         useQuickScope: false,
         quickScope: null,
-        blocked: null
+        blocked: null,
+        panelClone: null
     };
 
     var elems = {
+        panelWindow: function() { return $("#commando-panel", _window); },
+        editor: function() { return $("#komodo-editor-vbox"); },
         panel: function() { return $("#commando-panel"); },
         scope: function() { return $("#commando-scope"); },
         subscopeWrap: function() { return $("#commando-subscope-wrap"); },
@@ -73,25 +77,58 @@
     var init = function()
     {
         log.debug('Starting Commando');
+        
+        // If this is a secondary commando instance, load up the UI
+        // from the main window and register its scopes
+        if ( ! elem('panel').length)
+        {
+            var _c = _window.require("commando");
+            $(document.documentElement).append(
+                _c.getPanelClone()
+            );
+            var scopes = _c.getRegisteredScopes();
+            for (let id in scopes)
+            {
+                if (scopes.hasOwnProperty(id))
+                    c.registerScope(id, scopes[id]);
+            }
+            
+            var styleUtil = require("sdk/stylesheet/utils");
+            styleUtil.loadSheet(window, "less://commando/skin/commando.less", "author");
+            
+            local.elemCache = {}
+        }
+        else
+        {
+            local.panelClone = elem('panel').clone();
+        }
+        
         elem('search').on("input", onSearch.bind(this));
         elem('search').on("keydown", onKeyNav.bind(this));
         elem('search').on("keyup", onKeyUp.bind(this));
-        elem('quickSearch').on("input", onSearch.bind(this));
-        elem('quickSearch').on("keydown", onKeyNav.bind(this));
-        elem('quickSearch').on("keyup", onKeyUp.bind(this));
-        elem('quickSearch').on("focus", onQuickSearchFocus);
-        elem('quickSearch').on("click", onQuickSearchFocus);
         elem('scope').on("command", onChangeScope.bind(this));
         elem('results').on("keydown", onKeyNav.bind(this));
         elem('results').on("dblclick", onSelectResult.bind(this));
         
-        local.transitKeyBinds = prefs.getBoolean("transit_commando_keybinds", false);
-        if (local.transitKeyBinds)
+        if (elem('quickSearch').length)
         {
-            log.debug("Transitioning keybinds");
-            prefs.deletePref("transit_commando_keybinds");
+            elem('quickSearch').on("input", onSearch.bind(this));
+            elem('quickSearch').on("keydown", onKeyNav.bind(this));
+            elem('quickSearch').on("keyup", onKeyUp.bind(this));
+            elem('quickSearch').on("focus", onQuickSearchFocus);
+            elem('quickSearch').on("click", onQuickSearchFocus);
         }
-
+        
+        if (window == _window)
+        {
+            local.transitKeyBinds = prefs.getBoolean("transit_commando_keybinds", false);
+            if (local.transitKeyBinds)
+            {
+                log.debug("Transitioning keybinds");
+                prefs.deletePref("transit_commando_keybinds");
+            }
+        }
+        
         local.favourites = prefs.getPref('commando_favourites');
 
         var panel = elem('panel');
@@ -173,6 +210,7 @@
                 {
                     c.hide();
                 }
+                prevDefault = true;
                 break;
             case KeyEvent.DOM_VK_BACK_SPACE:
             case KeyEvent.DOM_VK_LEFT: 
@@ -452,8 +490,12 @@
         else
         {
             top = 100;
-            var bo = document.getElementById('komodo-editor-vbox');
-            bo = bo ? bo.boxObject : document.documentElement.boxObject;
+            var anchor = elem('editor').element();
+            if ( ! anchor || ! anchor.boxObject)
+            {
+                anchor = document.documentElement;
+            }
+            var bo = anchor.boxObject;
             
             left = bo.x + (bo.width / 2);
             left -= panel.element().width / 2;
@@ -479,9 +521,12 @@
     {
         elem('panel').element().hidePopup();
         
-        var view = ko.views.manager.currentView;
-        if (view && view.getAttribute("type") != "editor")
-            view.scintilla.focus();
+        if (window == _window)
+        {
+            var view = _window.ko.views.manager.currentView;
+            if (view && view.getAttribute("type") != "editor")
+                view.scintilla.focus();
+        }
     }
 
     this.search = function(value, callback, noDelay = false)
@@ -532,10 +577,13 @@
             else
             {
                 var quickSearch = elem("quickSearch");
-                quickSearch.attr({
-                    placeholder: "true",
-                    value: quickSearch.attr("placeholdervalue")
-                });
+                if (quickSearch.length)
+                {
+                    quickSearch.attr({
+                        placeholder: "true",
+                        value: quickSearch.attr("placeholdervalue")
+                    });
+                }
             }
 
             local.searchingUuid = uuid;
@@ -717,20 +765,25 @@
         var scopeElem = $(template('scopeMenuItem', opts)).element();
         scopeElem._scope = local.scopes[id];
 
-        // Register command
-        commands.register(id, this.show.bind(this, id), {
-            defaultBind: opts.keybind,
-            label: "Commando: Open Commando with the " + opts.name + " scope"
-        });
-
-        if (local.transitKeyBinds && opts.keybindTransit)
+        // Don't register command or keybindings if this is not the main
+        // commando instance
+        if (window == _window)
         {
-            log.debug("Checking keybind for " + opts.keybindTransit);
-            var keybind = keybinds.getKeybindFromCommand(opts.keybindTransit);
-            if (keybind)
+            // Register command
+            commands.register(id, this.show.bind(this, id), {
+                defaultBind: opts.keybind,
+                label: "Commando: Open Commando with the " + opts.name + " scope"
+            });
+    
+            if (local.transitKeyBinds && opts.keybindTransit)
             {
-                log.debug("Binding " + keybind + " to " + id);
-                keybinds.register(id, keybind, true);
+                log.debug("Checking keybind for " + opts.keybindTransit);
+                var keybind = keybinds.getKeybindFromCommand(opts.keybindTransit);
+                if (keybind)
+                {
+                    log.debug("Binding " + keybind + " to " + id);
+                    keybinds.register(id, keybind, true);
+                }
             }
         }
 
@@ -1258,6 +1311,11 @@
     this.getHistory = function()
     {
         return _.clone(local.history);
+    }
+    
+    this.getPanelClone = function()
+    {
+        return local.panelClone.clone();
     }
 
     this.execScopeHandler = function(method, args)
