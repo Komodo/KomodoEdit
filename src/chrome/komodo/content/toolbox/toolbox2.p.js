@@ -191,10 +191,8 @@ _fixCogPopupmenu: function() {
     var childNodes = src_popupmenu.childNodes;
     for (i = 0; i < childNodes.length; i++) {
         childNode = childNodes[i];
-        if (!childNode || childNode.nodeName != "menuitem") {
+        if (!childNode || childNode.getAttribute('disableIfInMenu') == 'standardToolbox') {
             continue;
-        } else if (childNode.id.indexOf("export") >= 0) {
-            break;
         }
         mi = document.createElementNS(XUL_NS, childNode.nodeName);
         mi.id = childNode.id + "_cog_contextMenu";

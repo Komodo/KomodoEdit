@@ -107,6 +107,9 @@
                           oncommand="schemePick(event)">
                     <menupopup id="schemespopup"/>
                 </menulist>
+                <button class="packages-icon"
+                        tooltip="Get More Color Schemes"
+                        oncommand="require('scope-packages/packages').openCategory('schemes')"/>
                 <button label="&new.label;"
                         accesskey="&new.accesskey;"
                         oncommand="doNew()"/>

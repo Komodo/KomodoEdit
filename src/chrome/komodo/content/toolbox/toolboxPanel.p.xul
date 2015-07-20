@@ -194,13 +194,34 @@
                              oncommand="ko.toolbox2.importPackageFromWeb(event)"
                              testDisableIf="t:multipleSelection"
                              />
-                   <menuseparator id="toolbox2ContextMenu_importExportSeparator" />
+                   <menuseparator id="toolbox2ContextMenu_importExportSeparator" disableIfInMenu="standardToolbox" />
                    <menuitem id="toolbox2ContextMenu_exportAsZipFile"
                              keep_background="true"
                              class="menuitem-iconic"
                              label="&exportAsZipFile.label;"
                              disableIfInMenu="standardToolbox"
                              oncommand="ko.toolbox2.exportAsZipFile(event)"
+                             />
+                   <menuseparator id="toolbox2ContextMenu_packageSeparator"/>
+                   <menuitem id="toolbox2ContextMenu_installMacro"
+                             class="menuitem-iconic"
+                             label="&getMacro.label;"
+                             oncommand="require('scope-packages/packages').openCategory('macros')"
+                             />
+                   <menuitem id="toolbox2ContextMenu_installToolbox"
+                             class="menuitem-iconic"
+                             label="&getToolbox.label;"
+                             oncommand="require('scope-packages/packages').openCategory('toolbox')"
+                             />
+                   <menuitem id="toolbox2ContextMenu_browsePackages"
+                             class="menuitem-iconic"
+                             label="&browsePackages.label;"
+                             oncommand="ko.browse.browseTag('packages')"
+                             />
+                   <menuitem id="toolbox2ContextMenu_contribute"
+                             class="menuitem-iconic"
+                             label="&contributePackages.label;"
+                             oncommand="ko.browse.browseTag('contribute')"
                              />
               </menupopup>
             </menu>
@@ -252,7 +273,12 @@
                       class="menuitem-iconic"
                       oncommand="ko.toolbox2.invoke_openURLInTab()"
                       hideUnless="URL"
+                      />
                       testDisableIf="t:multipleSelection"
+            <menuitem id="toolbox2ContextMenu_share"
+                      class="menuitem-iconic"
+                      label="&shareTool.label;"
+                      oncommand="ko.browse.browseTag('contribute')"
                       />
             <menuseparator anonid="primaryseparator"
                            />

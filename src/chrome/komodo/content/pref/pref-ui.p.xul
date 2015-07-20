@@ -42,6 +42,7 @@
 
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
@@ -97,6 +98,9 @@
 <!-- #endif -->
                     </menupopup>
                 </menulist>
+                <button class="packages-icon"
+                        tooltip="Get More Skins"
+                        oncommand="require('scope-packages/packages').openCategory('skins')"/>
             </hbox>
             <!-- Icons -->
             <hbox align="center">

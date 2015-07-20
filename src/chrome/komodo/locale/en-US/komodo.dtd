@@ -873,3 +873,10 @@
 <!ENTITY importPackage.label "Import kpz Package">
 <!ENTITY importPackageFromWeb.label "Import kpz Package From Web">
 
+<!ENTITY getMacro.label "Get More Macros">
+<!ENTITY getToolbox.label "Get More Toolbox Items">
+<!ENTITY browsePackages.label "Browse Available Packages">
+<!ENTITY contributePackages.label "Contribute Packages">
+<!ENTITY shareTool.label "Share this Tool">
+
+

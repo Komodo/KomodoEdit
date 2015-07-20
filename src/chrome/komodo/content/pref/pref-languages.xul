@@ -112,6 +112,12 @@
                               ondblclick="PrefLanguages_OnDblClick(event);"/>
             </tree>
        </groupbox>
+        
+        <hbox align="center" pack="center">
+            <button class="packages-icon with-icon"
+                    label="Get More Languages"
+                    oncommand="require('scope-packages/packages').openCategory('languages')"/>
+        </hbox>
 
     </vbox>
 

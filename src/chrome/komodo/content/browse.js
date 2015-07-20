@@ -315,7 +315,9 @@ var tag2uri = {
     'aspn': "http://code.activestate.com/", // This one
     'community': "http://forum.komodoide.com/",
     'contactus': "http://www.activestate.com/company/contact-us",
-    'bugs': "https://github.com/Komodo/KomodoEdit/issues"
+    'bugs': "https://github.com/Komodo/KomodoEdit/issues",
+    'packages': "http://komodoide.com/resources/",
+    'contribute': "http://komodoide.com/resources/submit-instructions/#pane-resources"
 };
 
 /**

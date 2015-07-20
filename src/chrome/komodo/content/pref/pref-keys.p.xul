@@ -84,6 +84,9 @@
                 <menulist flex="1" id="configurations">
                     <menupopup id="configpopup"/>
                 </menulist>
+                <button class="packages-icon"
+                        tooltip="Get More Color Schemes"
+                        oncommand="require('scope-packages/packages').openCategory('keybinds')"/>
                 <button id="newConfiguration"
                         accesskey="&newConfiguration.accesskey;"
                         oncommand="newConfiguration()"
