@@ -1716,7 +1716,7 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
         end_rev = guru.changenum_from_mar_path(pkg_path)
         html = changelog.changelog_html(start_rev, end_rev)
         if not dryRun:
-            open(changelog_path, 'w').write(html.decode('utf-8', 'ignore'))
+            open(changelog_path, 'w').write(html.encode('utf-8', 'ignore'))
         print "created '%s'" % changelog_path
     if not built_at_least_one_nightly_update:
         log.warn("no previous nightly complete .mar exists: skipping "
