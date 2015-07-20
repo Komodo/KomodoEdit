@@ -2152,6 +2152,7 @@
                                     <menupopup
                                         id="popup_mruFilesQL"
                                         class="popup_mru"
+                                        position="after_end"
                                         onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('file',0,'popup_mruFilesQL', true);"/>
                                 </button>
 
@@ -2162,6 +2163,7 @@
                                   <menupopup
                                         id="popup_mruProjectsQL"
                                         class="popup_mru"
+                                        position="after_end"
                                         onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('project',0,'popup_mruProjectsQL', true);"/>
                                 </button>
                                 
@@ -2170,6 +2172,38 @@
                                 <button label="Preferences"
                                         class="preferences-icon"
                                         oncommand="ko.commands.doCommandAsync('cmd_editPrefs', event)"/>
+                                
+                                <button label="Install Packages"
+                                        class="packages-icon"
+                                        type="menu-button"
+                                        oncommand="require('commando').show('scope-packages')">
+                                    <menupopup position="after_end">
+                                        <menuitem
+                                            label="Install Addons"
+                                            oncommand="require('scope-packages/packages').openCategory('addons')"
+                                                 />
+                                        <menuitem
+                                            label="Install Toolbox Items"
+                                            oncommand="require('scope-packages/packages').openCategory('toolbox')"
+                                                 />
+                                        <menuitem
+                                            label="Install Macros"
+                                            oncommand="require('scope-packages/packages').openCategory('macros')"
+                                                 />
+                                        <menuitem
+                                            label="Install Color Schemes"
+                                            oncommand="require('scope-packages/packages').openCategory('schemes')"
+                                                 />
+                                        <menuitem
+                                            label="Install Skins"
+                                            oncommand="require('scope-packages/packages').openCategory('skins')"
+                                                 />
+                                        <menuitem
+                                            label="Install Keybindings"
+                                            oncommand="require('scope-packages/packages').openCategory('keybinds')"
+                                                 />
+                                    </menupopup>
+                                </button>
 
                                 <button label="Customize Panes"
                                         class="customize-panes-icon"

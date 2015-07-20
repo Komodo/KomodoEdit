@@ -10,13 +10,7 @@ function loadIntoWindow(window) {
         commando.registerScope("scope-packages", {
             name: "Packages",
             description: "Install Komodo packages",
-            //icon: "koicon://ko-svg/chrome/icomoon/skin/bag.svg",
-            //icon: "koicon://ko-svg/chrome/icomoon/skin/box.svg",
             icon: "koicon://ko-svg/chrome/icomoon/skin/box-add.svg",
-            //icon: "koicon://ko-svg/chrome/icomoon/skin/download.svg",
-            //icon: "koicon://ko-svg/chrome/icomoon/skin/gift.svg",
-            //icon: "koicon://ko-svg/chrome/icomoon/skin/puzzle.svg",
-            //icon: "koicon://ko-svg/chrome/icomoon/skin/puzzle2.svg",
             handler: "scope-packages/packages"
         });
     } catch (e) {

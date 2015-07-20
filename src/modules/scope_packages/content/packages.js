@@ -83,6 +83,7 @@
         }
         
         commando.show('scope-packages');
+        commando.setSubscope();
         commando.setSubscope({
             id: kind,
             name: kinds[kind].locale,
