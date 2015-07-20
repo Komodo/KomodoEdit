@@ -3,10 +3,11 @@
     const log          = require("ko/logging").getLogger("commando-scope-packages");
     const commando     = require("commando/commando");
     const dialog       = require("ko/dialogs");
-    const toolbox      = ko.toolbox2;
-    const utils        = ko.utils;
-    const prefs        = ko.prefs;
-    const keybindings  = ko.keybindings;
+    const _window      = require("ko/windows").getMain();
+    const toolbox      = _window.ko.toolbox2;
+    const utils        = _window.ko.utils;
+    const prefs        = require("ko/prefs");
+    const keybindings  = _window.ko.keybindings;
     const l            = require("ko/locale");
     
     // Import the XPI addon manager as "AddonManager".
@@ -23,7 +24,7 @@
         createBundle("chrome://scope-packages/locale/scope-packages.properties");
     
     /** The root directory for package archives. */
-    const ROOT = ko.prefs.getString("package_api_endpoint");
+    const ROOT = prefs.getString("package_api_endpoint");
     
     /** The names of the files (no extension) that lists available packages of given kind. */
     const ADDONS = "addons";
