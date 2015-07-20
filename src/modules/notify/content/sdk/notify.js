@@ -11,23 +11,9 @@
     const logging   = require("ko/logging");
     const winUtils  = require("sdk/window/utils");
     const log       = logging.getLogger("notify");
+    const _window   = require("ko/windows").getMain();
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     
-    var _window;
-    try
-    {
-        _window = winUtils.getToplevelWindow(window);
-    }
-    catch (e)
-    {
-        log.debug("getTopLevelWindow failed, falling back on window mediator");
-        
-        var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
-        let windows = wm.getEnumerator("Komodo");
-        while (windows.hasMoreElements()) {
-            _window = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
-        }
-    }
     const _document = _window.document;
     const _ko = _window.ko;
 
