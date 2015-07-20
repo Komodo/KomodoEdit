@@ -736,7 +736,9 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         last: function() { return new queryObject(this.element(-1)); },
 
-        element:  function(k) { return this._elements.slice(k || 0)[0]; }
+        element:  function(k) {
+            return this._elements.slice(k || 0)[0] || undefined;
+        }
     }
 
     module.exports = $;
