@@ -9,6 +9,7 @@
     const commands  = require("ko/commands");
     const _         = require("contrib/underscore");
     const controller= require("./controller");
+    const prefs     = require("ko/prefs");
 
     const ioService = Cc["@mozilla.org/network/io-service;1"]
                         .getService(Ci.nsIIOService);
@@ -84,14 +85,14 @@
         elem('results').on("keydown", onKeyNav.bind(this));
         elem('results').on("dblclick", onSelectResult.bind(this));
         
-        local.transitKeyBinds = ko.prefs.getBoolean("transit_commando_keybinds", false);
+        local.transitKeyBinds = prefs.getBoolean("transit_commando_keybinds", false);
         if (local.transitKeyBinds)
         {
             log.debug("Transitioning keybinds");
-            ko.prefs.deletePref("transit_commando_keybinds");
+            prefs.deletePref("transit_commando_keybinds");
         }
 
-        local.favourites = ko.prefs.getPref('commando_favourites');
+        local.favourites = prefs.getPref('commando_favourites');
 
         var panel = elem('panel');
         panel.on("popupshown", function(e)
@@ -201,7 +202,7 @@
                 break;
         }
         
-        var numberNav = ko.prefs.getBoolean('commando_navigate_by_number', true);
+        var numberNav = prefs.getBoolean('commando_navigate_by_number', true);
         numberNav = numberNav && ! local.prevSearchValue;
         if (numberNav || (local.altPressed && e.keyCode != KeyEvent.DOM_VK_ALT))
         {
@@ -227,7 +228,7 @@
                         window.clearTimeout(local.numberSelectTimer);
                     }
                     
-                    var delay = ko.prefs.getLongPref('commando_number_select_delay');
+                    var delay = prefs.getLongPref('commando_number_select_delay');
                     local.numberSelectTimer = window.setTimeout(onNumberSelect.bind(this), delay);
                 }
             }
@@ -427,7 +428,7 @@
         if ( ! scope)
             local.useQuickScope = true;
 
-        var preserve = ko.prefs.getBooleanPref('commando_preserve_query');
+        var preserve = prefs.getBooleanPref('commando_preserve_query');
         if (scope && (scope != c.getScope().id || ! preserve))
             c.selectScope(scope);
         
@@ -498,7 +499,7 @@
         if (local.searchTimer && ! noDelay) return; // Search is already queued
 
         elem("panel").addClass("loading");
-        var searchDelay = ko.prefs.getLong('commando_search_delay', 200);
+        var searchDelay = prefs.getLong('commando_search_delay', 200);
 
         if (noDelay)
         {
@@ -519,7 +520,7 @@
             var searchValue = elem('search').value();
             
             // Update quick search value
-            var preserve = ko.prefs.getBooleanPref('commando_preserve_query');
+            var preserve = prefs.getBooleanPref('commando_preserve_query');
             if (preserve && searchValue.length)
             {
                 log.debug("Store value to quickSearch");
@@ -864,7 +865,7 @@
                     this.renderResults(local.resultCache, searchUuid, true, true);
                     local.resultCache = [];
                     local.renderResultsTimer = false;
-                }.bind(this), ko.prefs.getLong("commando_result_render_delay", 100));
+                }.bind(this), prefs.getLong("commando_result_render_delay", 100));
             }
             return;
         }
@@ -880,7 +881,7 @@
         resultElem.element().clearSelection();
         resultElem = $(resultElem.replaceWith(tmpResultElem));
         
-        var maxResults = ko.prefs.getLong("commando_search_max_results", 50);
+        var maxResults = prefs.getLong("commando_search_max_results", 50);
         maxResults -= local.resultsRendered;
         results = results.slice(0, maxResults);
         local.resultsRendered += results.length;
