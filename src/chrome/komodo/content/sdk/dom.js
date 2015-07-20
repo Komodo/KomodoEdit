@@ -18,6 +18,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
      */
     var $ = function(query, parent) {
         parent = parent || window.document;
+        
+        if (("document" in parent) && parent.constructor.toString().indexOf("Window()") !== -1)
+        {
+            parent = parent.document;
+        }
 
         if ((typeof query) == "object" && ("koDom" in query))
         {
