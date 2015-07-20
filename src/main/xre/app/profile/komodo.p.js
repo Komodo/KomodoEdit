@@ -174,6 +174,12 @@ pref("extensions.shownSelectionUI", true);
 // Allow for skin switching during runtime
 pref("extensions.dss.enabled", true);
 
+// Install addons packaged with the Komodo distribution.
+// This is necessary for activating XPI addons via their `startup()` and
+// `install()` functions. This is not necessary for addon SDK libraries and
+// languages.
+pref("extensions.installDistroAddons", true);
+
 // Used for the Help window
 pref("accessibility.typeaheadfind.flashBar", 1);
 

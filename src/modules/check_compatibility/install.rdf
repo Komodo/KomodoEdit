@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+    <Description about="urn:mozilla:install-manifest">
+        <em:id>check-compatibility@dactyl.googlecode.com</em:id>
+        <em:name>checkCompatibility</em:name>
+        <em:version>1.3.1</em:version>
+        <em:description>Reinstates the extensions.checkCompatibility preference.</em:description>
+        <em:creator>Kris Maglione</em:creator>
+        <em:homepageURL>https://addons.mozilla.org/firefox/addon/checkcompatibility/</em:homepageURL>
+        <em:type>2</em:type> <!-- type=extension -->
+        <em:bootstrap>true</em:bootstrap> <!-- Restartless Addon -->
+        <em:targetApplication>
+            <Description>
+                <!-- Komodo IDE's uuid -->
+                <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
+                <em:minVersion>8.*</em:minVersion> <!-- Workaround for alphanumeric versions - NOT tested on 8.* -->
+                <em:maxVersion>9.*</em:maxVersion>
+            </Description>
+        </em:targetApplication>
+        <em:targetApplication>
+            <Description>
+                <!-- Komodo Edit's uuid -->
+                <em:id>{b1042fb5-9e9c-11db-b107-000d935d3368}</em:id>
+                <em:minVersion>8.*</em:minVersion> <!-- Workaround for alphanumeric versions - NOT tested on 8.* -->
+                <em:maxVersion>9.*</em:maxVersion>
+            </Description>
+        </em:targetApplication>
+    </Description>
+</RDF>

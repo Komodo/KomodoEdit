@@ -455,6 +455,8 @@ Build(
     "$build/modules/iconset_radiance/Conscript",
     "$build/modules/icomoon/Conscript",
 
+    "$build/modules/check_compatibility/Conscript",
+
     # 3rd-party contributed code in contrib/...
     "$contribBuild/Conscript",
 );
