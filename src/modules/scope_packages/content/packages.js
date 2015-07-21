@@ -91,7 +91,6 @@
             id: kind,
             name: kinds[kind].locale,
             icon: kinds[kind].icon,
-            weight: kinds[kind].weight,
             isScope: true,
             scope: "scope-packages",
             data: {},
@@ -116,6 +115,7 @@
                     id: kind,
                     name: kinds[kind].locale,
                     icon: kinds[kind].icon,
+                    weight: kinds[kind].weight,
                     isScope: true,
                     scope: "scope-packages",
                     data: {},
@@ -186,6 +186,11 @@
             commando.unblock();
             commando.hide();
         });
+    }
+    
+    this.sort = function(current, previous)
+    {
+        return previous.name.localeCompare(current.name) > 0 ? 1 : -1;
     }
     
     // Package Logic.
