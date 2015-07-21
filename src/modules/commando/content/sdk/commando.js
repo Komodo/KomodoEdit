@@ -455,8 +455,22 @@
             c.search();
         }, 100);
     }
-
+    
     /* Public Methods */
+    this.toggle = function(scope)
+    {
+        log.debug("Toggling");
+        
+        // If calling show again, with the same scope, treat this as a toggle
+        if (c.isOpen() && (! scope || scope == c.getScope().id))
+        {
+            c.hide();
+            return;
+        }
+        
+        c.show(scope);
+    }
+    
     this.show = function(scope, quickSearch = false)
     {
         log.debug("Showing Commando");
@@ -510,6 +524,9 @@
             search.element().select();
             c.tip();
         }
+        
+        // Force local.open now for sync calls that depend on it
+        local.open = true;
     }
 
     this.isOpen = function()
@@ -770,9 +787,9 @@
         if (window == _window)
         {
             // Register command
-            commands.register(id, this.show.bind(this, id), {
+            commands.register(id, this.toggle.bind(this, id), {
                 defaultBind: opts.keybind,
-                label: "Commando: Open Commando with the " + opts.name + " scope"
+                label: "Commando: Toggle Commando with the " + opts.name + " scope"
             });
     
             if (local.transitKeyBinds && opts.keybindTransit)

@@ -23,8 +23,11 @@
 
         do_cmd_showCommando: function()
         {
-            commando().show();
-            commando().search();
+            commando().toggle();
+            if (commando().isOpen())
+            {
+                commando().search();
+            }
         },
         
         do_cmd_focusQuickCommando: function()
