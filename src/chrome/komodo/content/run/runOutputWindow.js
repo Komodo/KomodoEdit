@@ -82,6 +82,7 @@ function _ClearUI()
     var descWidget = document.getElementById("runoutput-desc");
     descWidget.removeAttribute("value");
     descWidget.removeAttribute("_command");
+    descWidget.style.removeProperty("color");
 }
 
 
