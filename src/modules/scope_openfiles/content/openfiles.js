@@ -42,8 +42,7 @@
                 continue;
 
             // Todo: Normalize weight?
-            var weight = editorView.koDoc.fileAccessNo;
-            weight += editorView.koDoc.fileLastAccessed;
+            var weight = editorView.koDoc.fileLastAccessed;
 
             var words = query.split(/\s+/);
             for (let word of words)
@@ -68,12 +67,6 @@
         }
 
         onComplete();
-    }
-
-    this.sort = function(current, previous)
-    {
-        if ( ! current || ! previous) return 0;
-        return previous.name.localeCompare(current.name) > 0 ? 1 : -1;
     }
 
     this.onSelectResult = function(selectedItems)
