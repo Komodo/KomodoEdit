@@ -73,6 +73,9 @@ function PrefServers_OnLoad() {
 
     parent.hPrefWindow.onpageload();
     checkAddButtonStatus();
+    
+    // fill out the associations tree - should cache this entire tree.
+    _setMenuList(null);
 }
 
 function OnPreferencePageOK(prefset) {
@@ -134,8 +137,6 @@ function OnPreferencePageLoading(prefset) {
     document.getElementById("buttonDelete").setAttribute('disabled', 'true');
     document.getElementById("buttonAdd").setAttribute('disabled', 'true');
     servers = data.servers;
-    // fill out the associations tree - should cache this entire tree.
-    _setMenuList(null);
 }
 
 
