@@ -1024,6 +1024,8 @@
         {
             resultElem.removeClass("scrollable");
         }
+        
+        c.reloadTip();
     }
 
     this.filter = function(results, query, field = "name")
@@ -1425,17 +1427,32 @@
                 tipMessage = "TIP: Press " + bindLabel + " to quickly Go To Anything.";
         }
         
-        elem("tip").removeAttr("height");
-        
         // todo: Use localized database of tips
         elem("tip").attr("tip-type", type);
         elem("tip").text(tipMessage ||
                              "TIP: Hit the right arrow key to \"expand\" your selection");
         
-        var height = elem("tip").element().boxObject.height;
-        elem("tip").attr("height", height);
+        c.reloadTip();
     }
-
+    
+    this.reloadTip = function()
+    {
+        var tip = elem("tip");
+        var results = elem('results');
+        
+        tip.removeAttr("height");
+        var height = tip.element().boxObject.height;
+        tip.attr("height", height);
+        
+        tip.css("margin-top", "1px");
+        results.css("margin-bottom", "-1px");
+        setTimeout(function()
+        {
+             tip.element().style.removeProperty("margin-top");
+             results.element().style.removeProperty("margin-bottom");
+        }, 50);
+    }
+    
     this.clearCache = function()
     {
         c.execScopeHandler("clearCache");
