@@ -110,9 +110,9 @@
 
                     <richlistbox id="commando-results" flex="1" seltype="multiple"></richlistbox>
                 </vbox>
-                <hbox id="commando-tip" class="docked" tip-type="normal" align="center">
-                    <description>TIP: Hit the right arrow key to "expand" your selection</description>
-                </hbox> 
+                <description id="commando-tip" class="docked" tip-type="normal" align="center">
+                    TIP: Hit the right arrow key to "expand" your selection
+                </description> 
             </vbox>
         </panel>
     </popupset>
