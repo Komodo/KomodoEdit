@@ -316,8 +316,12 @@ class KoInitService(object):
         else:
             sys._komodo_initsvc_init_count_sentinel = 1
 
-        self.startErrorReporter()
         self.upgradeUserSettings()
+        
+        # Cannot be called before upgradeUserSettings, as it initiates the
+        # prefs before they should be used
+        self.startErrorReporter()
+        
         self.installSamples(False)
         self.installSampleTools()
         self.installTemplates()
