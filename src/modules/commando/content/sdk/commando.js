@@ -64,7 +64,6 @@
         scopesSeparator: function() { return $("#scope-separator"); },
         menuItem: function() { return $("#menu_show_commando"); },
         tip: function() { return $("#commando-tip"); },
-        tipDesc: function() { return $("#commando-tip description"); },
         template: {
             scopeMenuItem: function() { return $("#tpl-co-scope-menuitem"); },
             scopeNavMenuItem: function() { return $("#tpl-co-scope-nav-menuitem"); },
@@ -1430,7 +1429,7 @@
         
         // todo: Use localized database of tips
         elem("tip").attr("tip-type", type);
-        elem("tipDesc").text(tipMessage ||
+        elem("tip").text(tipMessage ||
                              "TIP: Hit the right arrow key to \"expand\" your selection");
         
         var height = elem("tip").element().boxObject.height;
