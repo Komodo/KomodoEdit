@@ -14,4 +14,5 @@ Import(
     'unsiloedPythonExe',
 );
 
-$cons->KoExt("kodistinstall");
+#$cons->KoExt("kodistinstall");
+$cons->KoExt("koinstall --packed");
