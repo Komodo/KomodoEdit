@@ -46,7 +46,8 @@
         useQuickScope: false,
         quickScope: null,
         blocked: null,
-        panelClone: null
+        panelClone: null,
+        scopeOpener: null
     };
 
     var elems = {
@@ -462,7 +463,7 @@
         log.debug("Toggling");
         
         // If calling show again, with the same scope, treat this as a toggle
-        if (c.isOpen() && (! scope || scope == c.getScope().id))
+        if (c.isOpen() && (! scope || scope == local.scopeOpener))
         {
             c.hide();
             return;
@@ -484,6 +485,7 @@
         if (scope && (scope != c.getScope().id || ! preserve))
             c.selectScope(scope);
         
+        local.scopeOpener = scope;
         scope = c.getScope();
             
         if ("quickscope" in scope)
