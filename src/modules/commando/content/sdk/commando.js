@@ -1444,7 +1444,7 @@
         // todo: Use localized database of tips
         elem("tip").attr("tip-type", type);
         elem("tip").text(tipMessage ||
-                             "TIP: Hit the right arrow key to \"expand\" your selection");
+                             'TIP: Hit the right arrow key to "expand" your selection');
         
         c.reloadTip();
     }
