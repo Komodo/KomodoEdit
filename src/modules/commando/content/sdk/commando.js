@@ -618,17 +618,23 @@
             local.prevSearchValue = searchValue;
             
             elem('results').attr("dirty", "true");
+            
+            var _callback = function()
+            {
+                callback();
+                elem('results').removeAttr("dirty");
+            };
 
             var subscope = c.getSubscope();
             if (subscope && subscope.isExpanded)
             {
-                c.expandSearch(searchValue, local.searchingUuid, callback);
+                c.expandSearch(searchValue, local.searchingUuid, _callback);
             }
             else
             {
                 // perform onSearch
                 log.debug(local.searchingUuid + " - Starting Search for: " + searchValue);
-                c.execScopeHandler("onSearch", [searchValue, local.searchingUuid, callback])
+                c.execScopeHandler("onSearch", [searchValue, local.searchingUuid, _callback])
             }
             
         }.bind(this), noDelay ? 0 : searchDelay);
@@ -999,6 +1005,7 @@
         }
 
         resultElem.addClass("has-results");
+        resultElem.removeAttr("dirty");
         resultElem.css("maxHeight", (window.screen.availHeight / 2) + "px");
         
         var counter = 1;
