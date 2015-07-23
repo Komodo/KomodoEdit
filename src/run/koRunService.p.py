@@ -228,24 +228,24 @@ class KoInterpolationService:
         codeMap['node.js'] = codeMap["nodejs"]
         from os.path import basename, dirname, splitext
         if fileName is not None:
-            codeMap['b'] = splitext(basename(fileName))[0]
-            codeMap['f'] = basename(fileName)
-            codeMap['F'] = fileName
-            codeMap['d'] = basename(dirname(fileName))
-            codeMap['D'] = dirname(fileName)
+            codeMap['b'] = self._treat_blanks(splitext(basename(fileName))[0])
+            codeMap['f'] = self._treat_blanks(basename(fileName))
+            codeMap['F'] = self._treat_blanks(fileName)
+            codeMap['d'] = self._treat_blanks(basename(dirname(fileName)))
+            codeMap['D'] = self._treat_blanks(dirname(fileName))
         if lineNum > 0:
             codeMap['L'] = str(lineNum)
         if word:
             codeMap['w'] = word
             codeMap['W'] = word
         if projectFile:
-            codeMap['P'] = projectFile
-            codeMap['p'] = dirname(projectFile)
+            codeMap['P'] = self._treat_blanks(projectFile)
+            codeMap['p'] = self._treat_blanks(dirname(projectFile))
             partSvc = components.classes["@activestate.com/koPartService;1"]\
                       .getService(components.interfaces.koIPartService)
             project = partSvc.currentProject
             if project:
-                codeMap['i'] = project.liveDirectory
+                codeMap['i'] = self._treat_blanks(project.liveDirectory)
         if selection:
             codeMap['w'] = selection
             codeMap['s'] = selection
@@ -737,8 +737,21 @@ class KoInterpolationService:
 
         #print "GetBlockOffsets(s=%r): %r" % (s, offsets)
         return offsets
+    
+    def _treat_blanks(self, fl):
+        """Treats the file path
+        to make it executable
+        :param fl: the file path string"""
         
-
+        treated_file_dir = ''
+        
+        if os.name == 'nt':
+            treated_file_dir = '"'+fl+'"'
+        else:
+            for part in fl.split(" "):
+                treated_file_dir += part + "\ "   
+        
+        return treated_file_dir
 
 class KoRunService:
     _com_interfaces_ = components.interfaces.koIRunService
