@@ -43,7 +43,7 @@
     this.KEYBINDS = KEYBINDS;
     this.LANGS = LANGS;
     
-    log.setLevel(require("ko/logging").LOG_DEBUG);
+    //log.setLevel(require("ko/logging").LOG_DEBUG);
     
     //this.onShow = function()
     //{
