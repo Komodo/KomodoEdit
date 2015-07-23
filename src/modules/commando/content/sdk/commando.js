@@ -47,7 +47,8 @@
         quickScope: null,
         blocked: null,
         panelClone: null,
-        scopeOpener: null
+        scopeOpener: null,
+        firstShow: true
     };
 
     var elems = {
@@ -477,19 +478,19 @@
         
         local.quickSearch = quickSearch;
         
-        if ( ! scope)
+        if ( ! scope || scope == local.quickScope)
             local.useQuickScope = true;
-
+            
         var preserve = prefs.getBooleanPref('commando_preserve_query');
-        if (scope && (scope != c.getScope().id || ! preserve))
+        var scopeChanged = false;
+        if (scope && (scope != local.scopeOpener || ! preserve))
+        {
+            scopeChanged = true;
             c.selectScope(scope);
+        }
         
         local.scopeOpener = scope;
-        scope = c.getScope();
-            
-        if ("quickscope" in scope)
-            local.useQuickScope = true;
-
+        
         var panel = elem('panel');
         var search = elem('search');
         
@@ -528,6 +529,12 @@
         
         // Force local.open now for sync calls that depend on it
         local.open = true;
+        
+        if (scopeChanged || local.firstShow)
+        {
+            local.firstShow = false;
+            c.search();
+        }
     }
 
     this.isOpen = function()
