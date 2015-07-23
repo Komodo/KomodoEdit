@@ -1,0 +1,221 @@
+
+# HG changeset patch
+# User Ben Turner <bent.mozilla@gmail.com>
+# Date 1428604518 25200
+# Node ID 50d48228fd8c8613adca7fc36a99b3f3ffc15e85
+# Parent  b30ece767402b69eedc2b6a28a91022998f9a277
+Bug 1135344 - Don't let IPDL use names that are reserved for compilers, r=froydnj.
+
+diff --git a/ipc/ipdl/ipdl/lower.py b/ipc/ipdl/ipdl/lower.py
+--- a/ipc/ipdl/ipdl/lower.py
++++ b/ipc/ipdl/ipdl/lower.py
+@@ -1710,18 +1710,18 @@ class _GenerateProtocolCode(ipdl.ast.Vis
+                    _protocolId(p.decl.type),
+                    ExprVar(_messageStartName(p.decl.type) + 'Child')
+                    ])))
+         return openfunc
+ 
+ 
+     def genTransitionFunc(self):
+         ptype = self.protocol.decl.type
+-        usesend, sendvar = set(), ExprVar('__Send')
+-        userecv, recvvar = set(), ExprVar('__Recv')
++        usesend, sendvar = set(), ExprVar('Send__')
++        userecv, recvvar = set(), ExprVar('Recv__')
+ 
+         def sameTrigger(trigger, actionexpr):
+             if trigger is ipdl.ast.SEND or trigger is ipdl.ast.CALL:
+                 usesend.add('yes')
+                 return ExprBinary(sendvar, '==', actionexpr)
+             else:
+                 userecv.add('yes')
+                 return ExprBinary(recvvar, '==',
+@@ -1876,28 +1876,28 @@ def _generateMessageClass(clsname, msgid
+                                        ExprVar('ID'),
+                                        ExprVar(priorityEnum),
+                                        compression,
+                                        ExprLiteral.String(prettyName) ]) ])
+     cls.addstmts([ ctor, Whitespace.NL ])
+ 
+     # generate a logging function
+     # 'pfx' will be something like "[FooParent] sent"
+-    pfxvar = ExprVar('__pfx')
+-    otherprocess = ExprVar('__otherProcess')
+-    receiving = ExprVar('__receiving')
++    pfxvar = ExprVar('pfx__')
++    otherprocess = ExprVar('otherProcess__')
++    receiving = ExprVar('receiving__')
+     logger = MethodDefn(MethodDecl(
+         'Log',
+         params=([ Decl(Type('std::string', const=1, ref=1), pfxvar.name),
+                   Decl(Type('base::ProcessHandle'), otherprocess.name),
+                   Decl(Type('bool'), receiving.name) ]),
+         const=1))
+     # TODO/cjones: allow selecting what information is printed to
+     # the log
+-    msgvar = ExprVar('__logmsg')
++    msgvar = ExprVar('logmsg__')
+     logger.addstmt(StmtDecl(Decl(Type('std::string'), msgvar.name)))
+ 
+     def appendToMsg(thing):
+         return StmtExpr(ExprCall(ExprSelect(msgvar, '.', 'append'),
+                                  args=[ thing ]))
+     logger.addstmts([
+         StmtExpr(ExprCall(
+             ExprVar('StringAppendF'),
+@@ -3067,28 +3067,28 @@ class _GenerateProtocolActorCode(ipdl.as
+             p.stateMethod().name,
+             ret=p.fqStateType()))
+         statemethod.addstmt(StmtReturn(p.stateVar()))
+         self.cls.addstmts([ statemethod, Whitespace.NL ])
+ 
+         ## OnMessageReceived()/OnCallReceived()
+ 
+         # save these away for use in message handler case stmts
+-        msgvar = ExprVar('__msg')
++        msgvar = ExprVar('msg__')
+         self.msgvar = msgvar
+-        replyvar = ExprVar('__reply')
++        replyvar = ExprVar('reply__')
+         self.replyvar = replyvar
+-        itervar = ExprVar('__iter')
++        itervar = ExprVar('iter__')
+         self.itervar = itervar
+-        var = ExprVar('__v')
++        var = ExprVar('v__')
+         self.var = var
+         # for ctor recv cases, we can't read the actor ID into a PFoo*
+         # because it doesn't exist on this side yet.  Use a "special"
+         # actor handle instead
+-        handlevar = ExprVar('__handle')
++        handlevar = ExprVar('handle__')
+         self.handlevar = handlevar
+ 
+         msgtype = ExprCall(ExprSelect(msgvar, '.', 'type'), [ ])
+         self.asyncSwitch = StmtSwitch(msgtype)
+         self.syncSwitch = None
+         self.interruptSwitch = None
+         if toplevel.isSync() or toplevel.isInterrupt():
+             self.syncSwitch = StmtSwitch(msgtype)
+@@ -3131,24 +3131,24 @@ class _GenerateProtocolActorCode(ipdl.as
+ 
+             if not switch:
+               crash = StmtExpr(ExprCall(ExprVar('MOZ_ASSERT_UNREACHABLE'),
+                                args=[ExprLiteral.String('message protocol not supported')]))
+               method.addstmts([crash, StmtReturn(_Result.NotKnown)])
+               return method
+ 
+             if dispatches:
+-                routevar = ExprVar('__route')
++                routevar = ExprVar('route__')
+                 routedecl = StmtDecl(
+                     Decl(_actorIdType(), routevar.name),
+                     init=ExprCall(ExprSelect(msgvar, '.', 'routing_id')))
+ 
+                 routeif = StmtIf(ExprBinary(
+                     ExprVar('MSG_ROUTING_CONTROL'), '!=', routevar))
+-                routedvar = ExprVar('__routed')
++                routedvar = ExprVar('routed__')
+                 routeif.ifb.addstmt(
+                     StmtDecl(Decl(Type('ChannelListener', ptr=1),
+                                   routedvar.name),
+                              _lookupListener(routevar)))
+                 failif = StmtIf(ExprPrefixUnop(routedvar, '!'))
+                 failif.ifb.addstmt(StmtReturn(_Result.RouteError))
+                 routeif.ifb.addstmt(failif)
+ 
+@@ -4387,17 +4387,17 @@ class _GenerateProtocolActorCode(ipdl.as
+         var = self.var
+         idvar = ExprVar('id')
+         intype = _cxxConstRefType(actortype, self.side)
+         cxxtype = _cxxBareType(actortype, self.side)
+         outtype = _cxxPtrToType(actortype, self.side)
+ 
+         ## Write([const] PFoo* var)
+         write = MethodDefn(self.writeMethodDecl(intype, var))
+-        nullablevar = ExprVar('__nullable')
++        nullablevar = ExprVar('nullable__')
+         write.decl.params.append(Decl(Type.BOOL, nullablevar.name))
+         # id_t id;
+         # if (!var)
+         #   if(!nullable)
+         #     abort()
+         #   id = NULL_ID
+         write.addstmt(StmtDecl(Decl(_actorIdType(), idvar.name)))
+ 
+@@ -4687,17 +4687,17 @@ class _GenerateProtocolActorCode(ipdl.as
+     def implementUnionPickling(self, uniontype):
+         msgvar = self.msgvar
+         itervar = self.itervar
+         var = self.var
+         intype = _cxxConstRefType(uniontype, self.side)
+         outtype = _cxxPtrToType(uniontype, self.side)
+         ud = uniontype._ast
+ 
+-        typename = '__type'
++        typename = 'type__'
+         uniontdef = Typedef(_cxxBareType(uniontype, typename), typename)
+ 
+         typevar = ExprVar('type')
+         writeswitch = StmtSwitch(ud.callType(var))
+         readswitch = StmtSwitch(typevar)
+ 
+         for c in ud.components:
+             ct = c.ipdltype
+@@ -5293,34 +5293,34 @@ class _GenerateProtocolActorCode(ipdl.as
+                                  ExprAddrOf(self.itervar),
+                                  errfn, r.bareType(side).name)
+                 for r in md.returns ]
+             + [ self.endRead(self.replyvar, itervar) ])
+ 
+         return stmts
+ 
+     def sendAsync(self, md, msgexpr, actor=None):
+-        sendok = ExprVar('__sendok')
++        sendok = ExprVar('sendok__')
+         return (
+             sendok,
+             ([ Whitespace.NL,
+                self.logMessage(md, msgexpr, 'Sending ', actor),
+                self.profilerLabel('AsyncSend', md.decl.progname) ]
+             + self.transition(md, 'out', actor)
+             + [ Whitespace.NL,
+                 StmtDecl(Decl(Type.BOOL, sendok.name),
+                          init=ExprCall(
+                              ExprSelect(self.protocol.channelVar(actor),
+                                         self.protocol.channelSel(), 'Send'),
+                              args=[ msgexpr ]))
+             ])
+         )
+ 
+     def sendBlocking(self, md, msgexpr, replyexpr, actor=None):
+-        sendok = ExprVar('__sendok')
++        sendok = ExprVar('sendok__')
+         return (
+             sendok,
+             ([ Whitespace.NL,
+                self.logMessage(md, msgexpr, 'Sending ', actor),
+                self.profilerLabel('Send', md.decl.progname) ]
+             + self.transition(md, 'out', actor)
+             + [ Whitespace.NL,
+                 StmtDecl(
+@@ -5400,17 +5400,17 @@ class _GenerateProtocolActorCode(ipdl.as
+ 
+     def profilerLabel(self, tag, msgname):
+         return StmtExpr(ExprCall(ExprVar('PROFILER_LABEL'),
+                                  [ ExprLiteral.String('IPDL::' + self.protocol.name),
+                                    ExprLiteral.String(tag + msgname),
+                                    ExprVar('js::ProfileEntry::Category::OTHER') ]))
+ 
+     def saveActorId(self, md):
+-        idvar = ExprVar('__id')
++        idvar = ExprVar('id__')
+         if md.decl.type.hasReply():
+             # only save the ID if we're actually going to use it, to
+             # avoid unused-variable warnings
+             saveIdStmts = [ StmtDecl(Decl(_actorIdType(), idvar.name),
+                                      self.protocol.routingId()) ]
+         else:
+             saveIdStmts = [ ]
+         return idvar, saveIdStmts
+
