@@ -337,7 +337,7 @@ FindController.prototype._focusHandlerBase = function(e) {
     if ((!this._view) ||
         (!elem) ||
         (elem == this._view.findbar) ||
-        (elem.compareDocumentPosition(this._view.findbar) & Node.DOCUMENT_POSITION_CONTAINS))
+        (this._view.findbar && (elem.compareDocumentPosition(this._view.findbar) & Node.DOCUMENT_POSITION_CONTAINS)))
     {
         // The user clicked on the find bar or something in it; we don't
         // want to do anything here
