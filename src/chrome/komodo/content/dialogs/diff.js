@@ -151,14 +151,15 @@ function loadDiffResult(result, cwd) {
         // Remove the notification widget.
         diffView.notificationbox.removeAllNotifications(true /* false means to slide away */);
 
+        // On Mac OSX, ensure the Scintilla view is visible by forcing a repaint.
+        // TODO: investigate why this happens and come up with a better solution.
+        // NOTE: repainting a Scintilla view by itself is not sufficient;
+        // Mozilla needs to repaint the entire window.
         if (navigator.platform.match(/^Mac/)) {
-            // Bug 96209, bug 105056 - hack around scintilla display problems on
-            // the mac. Note that adjusting flex doesn't actually change
-            // anything substantial - as there is only one element. If there
-            // were more elements, it would appear jerky.
-            diffView.setAttribute("flex", "2");
-            setTimeout(function() { diffView.setAttribute("flex", "3"); }, 20);
-            setTimeout(function() { diffView.setAttribute("flex", "1"); }, 2000);
+            window.setTimeout(function() {
+                window.resizeBy(1, 0);
+                window.resizeBy(-1, 0);
+            }, 10);
         }
 
     } catch(ex) {

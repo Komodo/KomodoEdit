@@ -71,9 +71,15 @@ function TailOnLoad() {
         var dh = document.getElementById('dialogheader');
         dh.setAttribute('value',filepath);
         window.setInterval('CheckFile()', 200);
+        // On Mac OSX, ensure the Scintilla view is visible by forcing a repaint.
+        // TODO: investigate why this happens and come up with a better solution.
+        // NOTE: repainting a Scintilla view by itself is not sufficient;
+        // Mozilla needs to repaint the entire window.
         if (navigator.platform.match(/^Mac/)) {
-            // Bug 96209, bug 99277 - hack around scintilla display problems on the mac.
-            setTimeout(function() { gView.scintilla.setAttribute("flex", "2"); }, 1);
+            window.setTimeout(function() {
+                window.resizeBy(1, 0);
+                window.resizeBy(-1, 0);
+            }, 10);
         }
     } catch(e) {
         log.error(e);
