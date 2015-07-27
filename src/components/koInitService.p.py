@@ -429,7 +429,7 @@ class KoInitService(object):
                 "version": i.version,
                 "build": i.buildNumber,
                 "releaseStage": i.buildFlavour
-            })
+            }, user = {"id": prefs.getString("analytics_ga_uid", "")})
             
             # Hook it up to our loggers
             logger = logging.getLogger()
