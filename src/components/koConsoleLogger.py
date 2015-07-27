@@ -73,7 +73,8 @@ class KoConsoleLogger:
         'ReferenceError: reference to undefined property this._nm',
         'Bootstrapped manifest not allowed to use',
         'ReferenceError: reference to undefined property this.treeBoxObject.columns',
-        'SyntaxError: applying the \'delete\' operator to an unqualified name is deprecated (5) in resource://gre/modules/DownloadUtils.jsm'
+        'SyntaxError: applying the \'delete\' operator to an unqualified name is deprecated (5) in resource://gre/modules/DownloadUtils.jsm',
+        'No valid manifest directive'
     ]
     def _handleScriptError(self, error):
         try:
