@@ -391,7 +391,10 @@ Logger.prototype.report = function(e, message, level = "EXCEPTION") {
                         message: message,
                         stacktrace: e.stack ? require("ko/console")._parseStack(e.stack) : null
                     }
-                ]
+                ],
+                user: {
+                    id: prefs.getString('analytics_ga_uid', "")
+                }
             }
         ]
     }
