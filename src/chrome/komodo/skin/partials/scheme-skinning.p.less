@@ -45,12 +45,26 @@
             }
         }
     }
-    
+
+/* #if PLATFORM != "win" */
     #workspace_bottom_area,
     #editorvbox tabbox tabs
     {
         border-left: @panel-border !important;
         border-right: @panel-border !important;
+    }
+/* #endif */
+    
+    #workspace_left_area tabpanel,
+    #workspace_right_area tabpanel
+    {
+        border-left: 0 !important;
+        border-right: 0 !important;
+    }
+    
+    view tabbox:not(.tabs-bottom) > tabs
+    {
+        border-bottom: 0 !important;
     }
     
     #komodo-editor-vbox

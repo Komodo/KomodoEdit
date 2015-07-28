@@ -1,15 +1,46 @@
 @import url("chrome://komodo/skin/plat/shared/window.less");
 
-view tabbox:not(.tabs-bottom) > tabpanels,
-#workspace_bottom_area,
-#statusbarviewbox,
-#customizingPlaceHolder
+.blank-workspace
 {
-    border-left: @main-border;
+    background: transparent;
+}
+
+#workspace_left_area tabpanel
+{
     border-right: @main-border;
 }
 
-view tabbox:not(.tabs-bottom) > tabpanels
+#workspace_right_area tabpanel
 {
-    border-top: @main-border;
+    border-left: @main-border;
+}
+
+view tabbox:not(.tabs-bottom) > tabs
+{
+    border-bottom: @main-border;
+    
+    tab
+    {
+        margin-top: 1px;
+    }
+}
+
+splitter.workspace_splitter
+{
+    &[orient="horizontal"]
+    {
+        -moz-appearance: none;
+        min-width: 3px;
+        border: none;
+
+        &:not(.workspace_splitter_right)
+        {
+            margin-left: -3px;
+        }
+
+        &.workspace_splitter_right
+        {
+            margin-right: -3px;
+        }
+    }
 }
