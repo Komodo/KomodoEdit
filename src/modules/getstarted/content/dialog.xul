@@ -79,25 +79,25 @@
                 <hbox>
                     <button class="button-link list-item"
                             label="&extOne.label;"
-                            href="&extOne.href;"/>
+                            oncommand="window.opener.require('scope-packages/packages').openCategory('addons')"/>
                     <description value="&extOne.description;" flex="1"/>
                 </hbox>
                 <hbox>
                     <button class="button-link list-item"
                             label="&extTwo.label;"
-                            href="&extTwo.href;"/>
+                            oncommand="window.opener.require('scope-packages/packages').openCategory('macros')"/>
                     <description value="&extTwo.description;" flex="1"/>
                 </hbox>
                 <hbox>
                     <button class="button-link list-item"
                             label="&extThree.label;"
-                            href="&extThree.href;"/>
+                            oncommand="window.opener.require('scope-packages/packages').openCategory('schemes')"/>
                     <description value="&extThree.description;" flex="1"/>
                 </hbox>
                 <hbox>
                     <button class="button-link list-item"
                             label="&more.label;"
-                            href="http://community.activestate.com/addons"/>
+                            href="http://komodoide.com/packages/"/>
                 </hbox>
 
                 <hbox id="docBox">
@@ -121,7 +121,7 @@
                         href="http://kiwiirc.com/client/irc.mozilla.org/komodo?nick=komodo_user"/>
                 <button class="button-link list-item"
                         label="&readForums.label;"
-                        href="http://community.activestate.com/forums/komodo"/>
+                        href="http://forum.komodoide.com/"/>
                 <button class="button-link list-item"
                         label="&reportBug.label;"
                         oncommand="ko.browse.browseTag('bugs')"/>
