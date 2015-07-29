@@ -35,21 +35,18 @@
 <!ENTITY castThree.description "- automate your snippets">
 <!ENTITY castThree.href "http://komodoide.com/screencasts/watch/89728467-auto-abbreviations-snippets">
 
-<!ENTITY installExt.label "Install Extensions">
-<!ENTITY extOne.label "New Source Tree">
-<!ENTITY extOne.description "- code browser / source tree pane">
-<!ENTITY extOne.href "http://community.activestate.com/xpi/nst-new-source-tree">
-<!ENTITY extTwo.label "Emmet">
-<!ENTITY extTwo.description "- rapidly create HTML content">
-<!ENTITY extTwo.href "http://community.activestate.com/xpi/zen-coding">
-<!ENTITY extThree.label "Todo Panel">
-<!ENTITY extThree.description "- show todo markers in code">
-<!ENTITY extThree.href "http://community.activestate.com/xpi/todo-helper">
+<!ENTITY installExt.label "Install Packages">
+<!ENTITY extOne.label "Install Addons">
+<!ENTITY extOne.description "- extend Komodos functionality">
+<!ENTITY extTwo.label "Install Macros">
+<!ENTITY extTwo.description "- quickly add new features">
+<!ENTITY extThree.label "Install Color Schemes">
+<!ENTITY extThree.description "- color Komodo to your liking">
 
 <!ENTITY readDoc.label "You can also read the Komodo Documentation online.">
 
 <!ENTITY whatsNew.label "What's New">
-<!ENTITY whatsNew.description "Komodo 9.0: Modern, easily customized UI, new productivity tools, support for GO-lang, and a lot more.">
+<!ENTITY whatsNew.description "Komodo 9.2: Package installer, .EditorConfig, Focus mode, Crisper UI, ...">
 <!ENTITY readMore.label "Read More..">
 
 <!ENTITY needHelp.label "Need Help?">
