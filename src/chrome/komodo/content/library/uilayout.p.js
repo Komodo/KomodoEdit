@@ -194,17 +194,23 @@ this.toggleButtons = function uilayout_toggleButtons()
 }
 
 // #if PLATFORM != "darwin"
-var g_initialized_button_menu = false;
-
 this.toggleMenubar = function uilayout_toggleMenubar() {
     var broadcaster = document.getElementById('cmd_toggleMenubar');
     broadcaster.setAttribute('checked', !(broadcaster.getAttribute('checked') == 'true'));
     ko.uilayout.setMenubarVisibility();
 }
 
+// Copy the top-level menus into the button menus.
 this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems() {
-	// Copy the top-level menus into the button menus.
-	g_initialized_button_menu = true;
+    // Reset the menupopup each time its initialized
+    var wrapper = document.getElementById('unifiedMenuPopupHbox');
+    if ( ! ("__cloned" in this.cloneUnifiedMenuItems))
+    {
+        this.cloneUnifiedMenuItems.__cloned = wrapper.cloneNode(true);
+    }
+    var _wrapper = this.cloneUnifiedMenuItems.__cloned.cloneNode(true);
+    wrapper.parentNode.replaceChild(_wrapper, wrapper);
+    wrapper = _wrapper;
 
 	var menubar       = document.getElementById('menubar_main');
 	var popupFile     = document.getElementById('popup_file');
@@ -261,10 +267,6 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
         // Hide the menu button - as the menu is always showing.
         menuButton.collapsed = true;
     } else {
-        if (!g_initialized_button_menu) {
-            ko.uilayout.cloneUnifiedMenuItems();
-        }
-
         menuButton.collapsed = false;
         UpdateUnifiedMenuMru();
     }
@@ -1853,6 +1855,8 @@ this.onload = function uilayout_onload()
     // Also track click events, as not all menuitem's fire a command event
     document.getElementById('unifiedMenuButton').addEventListener('click', trackMenuItemMru);
     document.getElementById('menubar_main').addEventListener('click', trackMenuItemMru);
+    
+    document.getElementById('unifiedMenuPopup').addEventListener('popupshowing', ko.uilayout.cloneUnifiedMenuItems.bind(ko.uilayout));
 
     ko.uilayout.setMenubarVisibility();
 // #endif
