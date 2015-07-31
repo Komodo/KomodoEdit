@@ -255,3 +255,8 @@ class TALLangInfo(LangInfo):
     name = "TAL"
     conforms_to_bases = ["Text"]
     exts = [".tal"]
+
+class DockerLangInfo(LangInfo):
+    name = "Docker"
+    conforms_to_bases = ["Text"]
+    filename_patterns = ["Dockerfile"]
