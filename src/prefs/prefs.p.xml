@@ -428,7 +428,8 @@
  'Construct': 'Perl',
  'Gemfile': 'Ruby',
  'makefile': 'Makefile',
- 'rakefile': 'Ruby'
+ 'rakefile': 'Ruby',
+ 'Vagrantfile': 'Ruby'
 }</string>
 
   <string id="fileDefaultNew">Text</string>
