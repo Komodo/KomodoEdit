@@ -203,7 +203,6 @@ this.toggleMenubar = function uilayout_toggleMenubar() {
 // Copy the top-level menus into the button menus.
 this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems(event) {
     if (event.originalTarget != document.getElementById('unifiedMenuPopup')) return;
-    console.log('clone');
     
     // Reset the menupopup each time its initialized
     var wrapper = document.getElementById('unifiedMenuPopupHbox');
