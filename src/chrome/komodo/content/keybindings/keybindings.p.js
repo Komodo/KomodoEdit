@@ -1307,6 +1307,9 @@ this.Manager.prototype.saveAndApply = function(prefset) {
         var keybindings = '';
         var i, keybinding;
         this.prefset = prefset;
+        if (prefset.getStringPref('keybinding-scheme') != this.currentConfiguration) {
+            prefset.setStringPref('keybinding-scheme', this.currentConfiguration);
+        }
         if ( ! ko.windowManager.lastWindow()) {
             ko.dialogs.alert(_bundle.GetStringFromName("restartRequiredAfterKeybindingChange"),
                              null, null, // text, title
