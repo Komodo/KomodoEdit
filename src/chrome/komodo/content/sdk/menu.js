@@ -94,6 +94,23 @@
                 menuitem.setAttribute("disabled", opts.disabled || false);
                 menuitem.addEventListener("command", opts.command);
             }
+            
+            // Optionally set custom attributes
+            try
+            {
+                if (opts.attributes)
+                {
+                    for (let k in opts.attributes)
+                    {
+                        if ( ! opts.attributes.hasOwnProperty(k)) continue;
+                        menuitem.setAttribute(k, opts.attributes[k]);
+                    }
+                }
+            } catch (e)
+            {
+                log.exception(e, "Setting attributes failed");
+            }
+            
             menuitem.classList.add("sdk-menuitem");
     
             menuitem.sdkOpts = opts;
