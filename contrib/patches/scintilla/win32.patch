@@ -68,10 +68,9 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  private:
  	// For use in creating a system caret
  	bool HasCaretSizeChanged() const;
-@@ -336,6 +343,11 @@ private:
+@@ -336,5 +343,10 @@ private:
  	int sysCaretWidth;
  	int sysCaretHeight;
- 	bool keysAlwaysUnicode;
 +	
 +	// XXX ActiveState drag scroll support
 +	int scrollSpeed;
@@ -256,29 +255,10 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  
  	hInstance = hInstance_;
  	bool result;
--
-+#if 0
+ 
  	// Register the Scintilla class
- 	if (IsNT()) {
- 
-@@ -2870,7 +2939,7 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
- 		scintillaClassAtom = ::RegisterClassExW(&wndclass);
- 		result = 0 != scintillaClassAtom;
- 	} else {
--
-+#endif
- 		// Register Scintilla as a normal character window
- 		WNDCLASSEX wndclass;
- 		wndclass.cbSize = sizeof(wndclass);
-@@ -2887,7 +2956,6 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
- 		wndclass.hIconSm = 0;
- 		scintillaClassAtom = ::RegisterClassEx(&wndclass);
- 		result = 0 != scintillaClassAtom;
--	}
- 
- 	if (result) {
- 		// Register the CallTip class
-
+ 	// Register Scintilla as a wide character window
+ 	WNDCLASSEXW wndclass;
 diff -r -du win32/scintilla.mak win32/scintilla.mak
 --- win32/scintilla.mak	2005-05-27 04:29:46.000000000 -0700
 +++ win32/scintilla.mak	2007-05-01 17:00:17.000000000 -0700
@@ -286,8 +266,8 @@ diff -r -du win32/scintilla.mak win32/scintilla.mak
  NAME=-Fo
  LDFLAGS=-OPT:REF -LTCG -DEBUG
  LDDEBUG=
--LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.LIB
-+LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.LIB libpcre.lib
+-LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.LIB OLEAUT32.LIB
++LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.LIB OLEAUT32.LIB libpcre.lib
  NOLOGO=-nologo
  
  !IFDEF QUIET
