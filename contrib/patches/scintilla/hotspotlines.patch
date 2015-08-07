@@ -1,7 +1,7 @@
-diff -r -du lexers/LexOthers.cxx scintilla/lexers/LexOthers.cxx
---- lexers/LexOthers.cxx	2005-08-29 18:09:20.000000000 -0700
-+++ lexers/LexOthers.cxx	2007-05-01 17:00:17.000000000 -0700
-@@ -1037,7 +1037,14 @@
+diff -r -du lexers/LexErrorList.cxx scintilla/lexers/LexErrorList.cxx
+--- lexers/LexErrorList.cxx
++++ lexers/LexErrorList.cxx
+@@ -292,7 +292,14 @@
  		if (AtEOL(styler, i) || (linePos >= sizeof(lineBuffer) - 1)) {
  			// End of line (or of line buffer) met, colourise it
  			lineBuffer[linePos] = '\0';

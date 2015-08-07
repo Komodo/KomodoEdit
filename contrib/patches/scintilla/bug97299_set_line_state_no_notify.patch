@@ -3,10 +3,10 @@ Index: lexlib/LexAccessor.h
 --- lexlib/LexAccessor.h	(revision 76954)
 +++ lexlib/LexAccessor.h	(working copy)
 @@ -113,6 +152,9 @@
- 	int SetLineState(int line, int state) {
+ 	int SetLineState(Sci_Position line, int state) {
  		return pAccess->SetLineState(line, state);
  	}
-+	int SetLineStateNoNotify(int line, int state) {
++	int SetLineStateNoNotify(Sci_Position line, int state) {
 +		return pAccess->SetLineStateNoNotify(line, state);
 +	}
  	// Style setting
@@ -17,13 +17,13 @@ Index: include/ILexer.h
 --- include/ILexer.h	(revision 76954)
 +++ include/ILexer.h	(working copy)
 @@ -33,6 +33,7 @@
- 	virtual int SCI_METHOD SetLevel(int line, int level) = 0;
- 	virtual int SCI_METHOD GetLineState(int line) const = 0;
- 	virtual int SCI_METHOD SetLineState(int line, int state) = 0;
-+	virtual int SCI_METHOD SetLineStateNoNotify(int line, int state) = 0;
- 	virtual void SCI_METHOD StartStyling(int position, char mask) = 0;
- 	virtual bool SCI_METHOD SetStyleFor(int length, char style) = 0;
- 	virtual bool SCI_METHOD SetStyles(int length, const char *styles) = 0;
+ 	virtual int SCI_METHOD SetLevel(Sci_Position line, int level) = 0;
+ 	virtual int SCI_METHOD GetLineState(Sci_Position line) const = 0;
+ 	virtual int SCI_METHOD SetLineState(Sci_Position line, int state) = 0;
++	virtual int SCI_METHOD SetLineStateNoNotify(Sci_Position line, int state) = 0;
+ 	virtual void SCI_METHOD StartStyling(Sci_Position position, char mask) = 0;
+ 	virtual bool SCI_METHOD SetStyleFor(Sci_Position length, char style) = 0;
+ 	virtual bool SCI_METHOD SetStyles(Sci_Position length, const char *styles) = 0;
 Index: src/Document.cxx
 ===================================================================
 --- src/Document.cxx	(revision 76954)
@@ -31,7 +31,7 @@ Index: src/Document.cxx
 @@ -1724,7 +1777,7 @@
  }
  
- int SCI_METHOD Document::SetLineState(int line, int state) {
+ int SCI_METHOD Document::SetLineState(Sci_Position line, int state) {
 -	int statePrevious = static_cast<LineState *>(perLineData[ldState])->SetLineState(line, state);
 +	int statePrevious = SetLineStateNoNotify(line, state);
  	if (state != statePrevious) {
@@ -41,11 +41,11 @@ Index: src/Document.cxx
  	return statePrevious;
  }
  
-+int SCI_METHOD Document::SetLineStateNoNotify(int line, int state) {
++int SCI_METHOD Document::SetLineStateNoNotify(Sci_Position line, int state) {
 +	return static_cast<LineState *>(perLineData[ldState])->SetLineState(line, state);
 +}
 +
- int SCI_METHOD Document::GetLineState(int line) const {
+ int SCI_METHOD Document::GetLineState(Sci_Position line) const {
  	return static_cast<LineState *>(perLineData[ldState])->GetLineState(line);
  }
 Index: src/Document.h
@@ -53,10 +53,10 @@ Index: src/Document.h
 --- src/Document.h	(revision 76954)
 +++ src/Document.h	(working copy)
 @@ -377,6 +377,7 @@
- 	void SCI_METHOD DecorationFillRange(int position, int value, int fillLength);
+ 	void SCI_METHOD DecorationFillRange(Sci_Position position, int value, Sci_Position fillLength);
  
- 	int SCI_METHOD SetLineState(int line, int state);
-+	int SCI_METHOD SetLineStateNoNotify(int line, int state);
- 	int SCI_METHOD GetLineState(int line) const;
+ 	int SCI_METHOD SetLineState(Sci_Position line, int state);
++	int SCI_METHOD SetLineStateNoNotify(Sci_Position line, int state);
+ 	int SCI_METHOD GetLineState(Sci_Position line) const;
  	int GetMaxLineState();
- 	void SCI_METHOD ChangeLexerState(int start, int end);
+ 	void SCI_METHOD ChangeLexerState(Sci_Position start, Sci_Position end);

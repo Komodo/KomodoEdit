@@ -37,11 +37,11 @@ diff -u -r1.73 LexCPP.cxx
 +}
 +
 +
+ namespace {
+ 	// Use an unnamed namespace to protect the functions and classes from name conflicts
+ 
  /* kwCDef, kwCTypeName only used for Cython */
  enum kwType { kwOther, kwClass, kwDef, kwImport, kwCDef, kwCTypeName, kwCPDef };
- 
- static const int indicatorWhitespace = 1;
- 
 @@ -103,7 +135,11 @@
  	// Backtrack to previous line in case need to fix its tab whinging
  	int lineCurrent = styler.GetLine(startPos);

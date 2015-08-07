@@ -1,8 +1,8 @@
 Index: contrib/scintilla/lexers/LexPython.cxx
 ===================================================================
---- lexers/LexPython.cxx	(revision 76116)
-+++ lexers/LexPython.cxx	(working copy)
-@@ -94,25 +94,25 @@
+--- lexers/LexPython.cxx
++++ lexers/LexPython.cxx
+@@ -103,25 +103,25 @@ int GetPyStringState(Accessor &styler, Sci_Position i, Sci_PositionU *nextIndex,
  		*nextIndex = i + 1;
  
  		if (ch == '"')
@@ -12,21 +12,21 @@ Index: contrib/scintilla/lexers/LexPython.cxx
  	}
  }
  
- static inline bool IsAWordChar(int ch) {
+ inline bool IsAWordChar(int ch) {
 -	return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_');
 +	return ((unsigned int) ch >= 0x80) || isalnum(ch) || ch == '.' || ch == '_';
  }
  
- static inline bool IsAWordStart(int ch) {
+ inline bool IsAWordStart(int ch) {
 -	return (ch < 0x80) && (isalnum(ch) || ch == '_');
 +	return ((unsigned int) ch >= 0x80) || isalnum(ch) || ch == '_';
  }
  
- static void ColourisePyDoc(unsigned int startPos, int length, int initStyle,
-         WordList *keywordlists[], Accessor &styler) {
- 
- 	int endPos = startPos + length;
- 
- 	// Backtrack to previous line in case need to fix its tab whinging
- 	int lineCurrent = styler.GetLine(startPos);
- 	if (startPos > 0) {
+ // Options used for LexerPython
+ struct OptionsPython {
+ 	int whingeLevel;
+ 	bool base2or8Literals;
+ 	bool stringsU;
+ 	bool stringsB;
+ 	bool stringsOverNewline;
+ 	bool keywords2NoSubIdentifiers;
