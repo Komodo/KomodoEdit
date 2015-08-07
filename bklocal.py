@@ -2755,9 +2755,6 @@ class NormSCCBranch(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         sccBranch = black.configure.items["sccBranch"].Get()
-        if ".x" in sccBranch:
-            # We don't want to use ".x" names - use the Komodo version instead.
-            sccBranch = black.configure.items["komodoVersion"].Get()
         self.value = re.sub(r'[^\w\.]', '_', sccBranch).lower()
         self.determined = 1
 
