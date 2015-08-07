@@ -234,7 +234,7 @@ elsif ($platform eq "darwin") {
 
     $consLocal{'CPPPATH'} = "$scintillaBuildDir/include:$scintillaBuildDir/src:$scintillaBuildDir/cocoa:$scintillaBuildDir/lexlib:$mozIncludePath";
     $consLocal{'LIBPATH'} = "$mozLibPath:$mozBin";
-    $consLocal{'CXXFLAGS'} = " -Wall -Wno-non-virtual-dtor -fno-exceptions -fno-rtti -fno-common -fshort-wchar";
+    $consLocal{'CXXFLAGS'} = " -Wall -Wno-non-virtual-dtor -fno-rtti -fno-common -fshort-wchar";
     # Add the global FLAGS.
     $consLocal{'CXXFLAGS'} .= " $consLocal{ENV}{'CXXFLAGS'}";
     $consLocal{'CFLAGS'} = $consLocal{ENV}{'CFLAGS'};
@@ -263,6 +263,9 @@ elsif ($platform eq "darwin") {
         $consLocal{'CXXFLAGS'} .= " -g";
         #$consLocal{'CXXFLAGS'} .= " -Os ";
     }
+    
+    # Scintilla uses exceptions - remove any disabling of it from CXXFLAGS.
+    $consLocal{'CXXFLAGS'} =~ s/-fno-exceptions //g;
 
     $consLocal = new cons(%consLocal);
     $consLocal->Depends("SciMoz", "$scintillaBuildDir/bin/scintilla.a");
