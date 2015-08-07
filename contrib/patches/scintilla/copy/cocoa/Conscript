@@ -87,6 +87,7 @@ my @lexers = qw(
     Baan
     Bash
     Basic
+    Batch
     BibTeX
     Bullant
     Caml
@@ -103,9 +104,11 @@ my @lexers = qw(
     D
     DMAP
     DMIS
+    Diff
     ECL
     Eiffel
     Erlang
+    ErrorList
     EScript
     Flagship
     Forth
@@ -113,6 +116,7 @@ my @lexers = qw(
     GAP
     Gui4Cli
     Haskell
+    Hex
     HTML
     Inno
     Kix
@@ -122,6 +126,7 @@ my @lexers = qw(
     Lout
     Lua
     Magik
+    Make
     Markdown
     Matlab
     Metapost
@@ -132,9 +137,9 @@ my @lexers = qw(
     MySQL
     Nimrod
     Nsis
+    Null
     Opal
     OScript
-    Others
     Pascal
     PB
     Perl
@@ -144,6 +149,7 @@ my @lexers = qw(
     PowerPro
     PowerShell
     Progress
+    Props
     PS
     Python
     R
@@ -189,6 +195,7 @@ my @args = (
     "../include/ILexer.h",
     "../include/Platform.h",
     "../include/SciLexer.h",
+    "../include/Sci_Position.h",
     "../include/Scintilla.h",
     "../include/Scintilla.iface",
     "../include/ScintillaWidget.h",
@@ -259,6 +266,7 @@ my @args = (
     "../src/Partitioning.h",
     "../src/PerLine.cxx",
     "../src/PerLine.h",
+    "../src/Position.h",
     "../src/PositionCache.cxx",
     "../src/PositionCache.h",
     "../src/RESearch.cxx",

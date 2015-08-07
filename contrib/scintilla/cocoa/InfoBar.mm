@@ -32,7 +32,7 @@
 		NSSize textSize = [self cellSizeForBounds: theRect];
 
 		// Center that in the proposed rect
-		float heightDelta = newRect.size.height - textSize.height;
+		CGFloat heightDelta = newRect.size.height - textSize.height;
 		if (heightDelta > 0)
 		{
 			newRect.size.height -= heightDelta;
@@ -108,7 +108,7 @@
  * @param type The type of the notification.
  * @param message Carries the new status message if the type is a status message change.
  * @param location Carries the new location (e.g. caret) if the type is a caret change or similar type.
- * @param location Carries the new zoom value if the type is a zoom change.
+ * @param value Carries the new zoom value if the type is a zoom change.
  */
 - (void) notify: (NotificationType) type message: (NSString*) message location: (NSPoint) location
   value: (float) value
@@ -143,7 +143,7 @@ static NSString *DefaultScaleMenuLabels[] = {
   @"20%", @"30%", @"50%", @"75%", @"100%", @"130%", @"160%", @"200%", @"250%", @"300%"
 };
 static float DefaultScaleMenuFactors[] = {
-  0.2, 0.3, 0.5, 0.75, 1.0, 1.3, 1.6, 2.0, 2.5, 3.0
+  0.2f, 0.3f, 0.5f, 0.75f, 1.0f, 1.3f, 1.6f, 2.0f, 2.5f, 3.0f
 };
 static unsigned DefaultScaleMenuSelectedItemIndex = 4;
 static float BarFontSize = 10.0;
@@ -251,7 +251,7 @@ static float BarFontSize = 10.0;
 
   // Draw separator lines between items.
   NSRect verticalLineRect;
-  float component = 190.0 / 255.0;
+  CGFloat component = 190.0 / 255.0;
   NSColor* lineColor = [NSColor colorWithDeviceRed: component green: component blue: component alpha: 1];
 
   if (mDisplayMask & IBShowZoom)
@@ -301,7 +301,7 @@ static float BarFontSize = 10.0;
 
 - (void) positionSubViews
 {
-  NSRect currentBounds = {0, 0, 0, [self frame].size.height};
+  NSRect currentBounds = {{0, 0}, {0, [self frame].size.height}};
   if (mDisplayMask & IBShowZoom)
   {
     [mZoomPopup setHidden: NO];

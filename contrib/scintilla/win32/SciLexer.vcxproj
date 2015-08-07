@@ -111,6 +111,7 @@
     <ClCompile Include="..\lexers\*.cxx" />
     <ClCompile Include="..\lexlib\*.cxx" />
     <ClCompile Include="..\src\*.cxx" />
+    <ClCompile Include="..\win32\HanjaDic.cxx" />
     <ClCompile Include="..\win32\PlatWin.cxx" />
     <ClCompile Include="..\win32\ScintillaWin.cxx" />
   </ItemGroup>

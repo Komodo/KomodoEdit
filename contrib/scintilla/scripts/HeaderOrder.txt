@@ -20,12 +20,14 @@
 #include <cstring>
 #include <cctype>
 #include <cstdio>
+#include <cmath>
 
 // C++ standard library
 #include <stdexcept>
 #include <new>
 #include <string>
 #include <vector>
+#include <deque>
 #include <map>
 #include <set>
 #include <algorithm>
@@ -85,6 +87,7 @@
 // src
 #include "Catalogue.h"
 
+#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -122,6 +125,7 @@
 
 // win32
 #include "PlatWin.h"
+#include "HanjaDic.h"
 
 // gtk
 #include "Converter.h"

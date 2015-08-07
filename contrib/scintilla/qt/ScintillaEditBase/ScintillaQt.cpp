@@ -168,8 +168,8 @@ void ScintillaQt::SelectionChanged()
 
 bool ScintillaQt::DragThreshold(Point ptStart, Point ptNow)
 {
-	int xMove = abs(ptStart.x - ptNow.x);
-	int yMove = abs(ptStart.y - ptNow.y);
+	int xMove = std::abs(ptStart.x - ptNow.x);
+	int yMove = std::abs(ptStart.y - ptNow.y);
 	return (xMove > QApplication::startDragDistance()) ||
 		(yMove > QApplication::startDragDistance());
 }
@@ -498,7 +498,7 @@ QByteArray ScintillaQt::BytesForDocument(const QString &text) const
 class CaseFolderDBCS : public CaseFolderTable {
 	QTextCodec *codec;
 public:
-	CaseFolderDBCS(QTextCodec *codec_) : codec(codec_) {
+	explicit CaseFolderDBCS(QTextCodec *codec_) : codec(codec_) {
 		StandardASCII();
 	}
 	virtual size_t Fold(char *folded, size_t sizeFolded, const char *mixed, size_t lenMixed) {
