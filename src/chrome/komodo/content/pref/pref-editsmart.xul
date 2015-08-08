@@ -82,6 +82,10 @@
             widgets.autoAbbreviationTriggerCharacters_FactorySetting = prefset.getStringPref("autoAbbreviationTriggerCharacters_FactorySetting");
             widgets.restoreAutoAbbreviationTriggerCharacters = document.getElementById("restoreAutoAbbreviationTriggerCharacters");
             check_trigger_characters_changed();
+            if (!document.getElementById("enableAutoAbbreviations").checked) {
+                widgets.autoAbbreviationTriggerCharacters.disabled = true;
+                widgets.restoreAutoAbbreviationTriggerCharacters.disabled  = true;
+            }
         } catch (ex) {
             // Ignore any errors.
         }
