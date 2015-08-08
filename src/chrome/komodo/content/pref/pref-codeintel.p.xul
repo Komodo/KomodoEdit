@@ -89,7 +89,7 @@
             <separator class="thin"/>
             <checkbox id="codeintel_completion_auto_fillups_enabled"
                       label="&enableAutocompleteFillUpCharacters.label;"
-                      pref="true" prefattribute="checked"/>
+                      pref="true"/>
             <description style="margin-left: 27px;">
                 &codeIntelAutocompleteFillUpCharacters.description;
             </description>
