@@ -244,8 +244,6 @@ class CommonJSLinter(object):
                     if isMacro:
                         if lineNo > len(datalines) + 1:
                             lineNo = len(datalines)
-                        else:
-                            lineNo -= 1
                     errorType = firstLineMatch.group("type")
                     desc = firstLineMatch.group("desc")
                     state = _JS_STATE_EXP_CODE
