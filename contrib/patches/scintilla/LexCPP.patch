@@ -1,6 +1,6 @@
---- lexers/LexCPP.cxx	2011-01-03 12:22:32.000000000 -0800
-+++ lexers/LexCPP.cxx	2011-07-08 11:11:54.000000000 -0700
-@@ -38,6 +38,13 @@ using namespace Scintilla;
+--- lexers/LexCPP.cxx	2015-08-10 13:54:04.848804378 -0400
++++ lexers/LexCPP.cxx	2015-08-10 17:26:38.448353280 -0400
+@@ -38,6 +38,13 @@
  
  namespace {
  	// Use an unnamed namespace to protect the functions and classes from name conflicts
@@ -14,7 +14,7 @@
  
  bool IsSpaceEquiv(int state) {
  	return (state <= SCE_C_COMMENTDOC) ||
-@@ -64,6 +71,84 @@ bool FollowsPostfixOperator(StyleContext &sc, LexAccessor &styler) {
+@@ -64,6 +71,84 @@
  	return false;
  }
  
@@ -99,7 +99,16 @@
  bool followsReturnKeyword(StyleContext &sc, LexAccessor &styler) {
  	// Don't look at styles, so no need to flush.
  	int pos = (int) sc.currentPos;
-@@ -721,10 +811,14 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
+@@ -635,7 +720,7 @@
+ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle, IDocument *pAccess) {
+ 	LexAccessor styler(pAccess);
+ 
+-	CharacterSet setOKBeforeRE(CharacterSet::setNone, "([{=,:;!%^&*|?~+-");
++	CharacterSet setOKBeforeRE(CharacterSet::setNone, "([{}=,:;!%^&*|?~+-");
+ 	CharacterSet setCouldBePostOp(CharacterSet::setNone, "+-");
+ 
+ 	CharacterSet setDoxygen(CharacterSet::setAlpha, "$@\\&<>#{}[]");
+@@ -721,10 +806,14 @@
  		if (sc.atLineStart) {
  			// Using MaskActive() is not needed in the following statement.
  			// Inside inactive preprocessor declaration, state will be reset anyway at the end of this block.
@@ -116,7 +125,7 @@
  			}
  			if ((MaskActive(sc.state) == SCE_C_PREPROCESSOR) && (!continuationLine)) {
  				sc.SetState(SCE_C_DEFAULT|activitySet);
-@@ -790,7 +884,7 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
+@@ -790,7 +879,7 @@
  					sc.SetState(SCE_C_DEFAULT|activitySet);
  				break;
  			case SCE_C_IDENTIFIER:
@@ -125,7 +134,7 @@
  					char s[1000];
  					if (caseSensitive) {
  						sc.GetCurrent(s, sizeof(s));
-@@ -1093,7 +1191,7 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
+@@ -1093,7 +1182,7 @@
  				} else {
  					sc.SetState(SCE_C_NUMBER|activitySet);
  				}
@@ -134,7 +143,7 @@
  				if (lastWordWasUUID) {
  					sc.SetState(SCE_C_UUID|activitySet);
  					lastWordWasUUID = false;
-@@ -1108,16 +1206,18 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
+@@ -1108,16 +1197,19 @@
  				}
  				sc.Forward();	// Eat the * so it isn't used for the end of the comment
  			} else if (sc.Match('/', '/')) {
@@ -150,14 +159,15 @@
 -				   && (!setCouldBePostOp.Contains(chPrevNonWhite)
 -				       || !FollowsPostfixOperator(sc, styler))) {
 +				   && (((setOKBeforeRE.Contains(chPrevNonWhite)
-+					 || followsReturnKeyword(sc, styler))
++					 || followsReturnKeyword(sc, styler)
++					 || (startPos == 0 && chPrevNonWhite == ' ')) // the regex is the first token
 +					&& (!setCouldBePostOp.Contains(chPrevNonWhite)
 +					    || !FollowsPostfixOperator(sc, styler)))
 +				       || startsJavaScriptLambdaBody(sc, styler))) {
  				sc.SetState(SCE_C_REGEX|activitySet);	// JavaScript's RegEx
  				inRERange = false;
  			} else if (sc.ch == '\"') {
-@@ -1351,8 +1451,12 @@ void SCI_METHOD LexerCPP::Fold(unsigned int startPos, int length, int initStyle,
+@@ -1351,8 +1443,12 @@
  					levelMinCurrent = levelNext;
  				}
  				levelNext++;
