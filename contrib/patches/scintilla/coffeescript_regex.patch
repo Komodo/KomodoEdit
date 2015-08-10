@@ -1,0 +1,42 @@
+diff --git a/contrib/scintilla/lexers/LexCoffeeScript.cxx b/contrib/scintilla/lexers/LexCoffeeScript.cxx
+This patch was submitted to upstream Scintilla.
+index 2c02427..0660aeb 100644
+--- lexers/LexCoffeeScript.cxx
++++ lexers/LexCoffeeScript.cxx
+@@ -58,8 +58,7 @@ static bool FollowsPostfixOperator(StyleContext &sc, Accessor &styler) {
+ 	return false;
+ }
+ 
+-static bool followsReturnKeyword(StyleContext &sc, Accessor &styler) {
+-    // Don't look at styles, so no need to flush.
++static bool followsKeyword(StyleContext &sc, Accessor &styler) {
+ 	int pos = (int) sc.currentPos;
+ 	int currentLine = styler.GetLine(pos);
+ 	int lineStartPos = styler.LineStart(currentLine);
+@@ -69,15 +68,8 @@ static bool followsReturnKeyword(StyleContext &sc, Accessor &styler) {
+ 			break;
+ 		}
+ 	}
+-	const char *retBack = "nruter";
+-	const char *s = retBack;
+-	while (*s
+-	       && pos >= lineStartPos
+-	       && styler.SafeGetCharAt(pos) == *s) {
+-		s++;
+-		pos--;
+-	}
+-	return !*s;
++	styler.Flush();
++	return styler.StyleAt(pos) == SCE_COFFEESCRIPT_WORD;
+ }
+ 
+ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int initStyle, WordList *keywordlists[],
+@@ -242,7 +234,7 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
+ 				sc.Forward();
+ 			} else if (sc.ch == '/'
+ 				   && (setOKBeforeRE.Contains(chPrevNonWhite)
+-				       || followsReturnKeyword(sc, styler))
++				       || followsKeyword(sc, styler))
+ 				   && (!setCouldBePostOp.Contains(chPrevNonWhite)
+ 				       || !FollowsPostfixOperator(sc, styler))) {
+ 				sc.SetState(SCE_COFFEESCRIPT_REGEX);	// JavaScript's RegEx
