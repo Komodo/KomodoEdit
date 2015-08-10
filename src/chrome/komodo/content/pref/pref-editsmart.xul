@@ -81,6 +81,7 @@
             widgets.autoAbbreviationTriggerCharacters = document.getElementById("autoAbbreviationTriggerCharacters");
             widgets.autoAbbreviationTriggerCharacters_FactorySetting = prefset.getStringPref("autoAbbreviationTriggerCharacters_FactorySetting");
             widgets.restoreAutoAbbreviationTriggerCharacters = document.getElementById("restoreAutoAbbreviationTriggerCharacters");
+            widgets.enableAutoAbbreviations = document.getElementById("enableAutoAbbreviations");
             check_trigger_characters_changed();
         } catch (ex) {
             // Ignore any errors.
@@ -152,6 +153,7 @@
 
     function check_trigger_characters_changed() {
         widgets.restoreAutoAbbreviationTriggerCharacters.disabled = widgets.autoAbbreviationTriggerCharacters_FactorySetting == widgets.autoAbbreviationTriggerCharacters.value;
+        pref_autoAbbreviations_doEnabling(widgets.enableAutoAbbreviations);
     }
 
     ]]>
