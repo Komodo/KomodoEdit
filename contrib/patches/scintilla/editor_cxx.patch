@@ -34,8 +34,8 @@ Index: src/Editor.cxx
  }
 @@ -746,6 +760,10 @@ SelectionPosition Editor::MovePositionOutsideChar(SelectionPosition pos, int mov
  int Editor::MovePositionTo(SelectionPosition newPos, Selection::selTypes selt, bool ensureVisible) {
-	const SelectionPosition spCaret = ((sel.Count() == 1) && sel.Empty()) ?
-		sel.Last() : SelectionPosition(INVALID_POSITION);
+ 	bool simpleCaret = (sel.Count() == 1) && sel.Empty();
+ 	SelectionPosition spCaret = sel.Last();
 +	
 +	if (sel.enforceRectangular) {
 +		selt = Selection::selRectangle;

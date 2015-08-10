@@ -157,12 +157,14 @@
  				sc.SetState(SCE_C_REGEX|activitySet);	// JavaScript's RegEx
  				inRERange = false;
  			} else if (sc.ch == '\"') {
-@@ -1351,8 +1451,10 @@ void SCI_METHOD LexerCPP::Fold(unsigned int startPos, int length, int initStyle,
+@@ -1351,8 +1451,12 @@ void SCI_METHOD LexerCPP::Fold(unsigned int startPos, int length, int initStyle,
  					levelMinCurrent = levelNext;
  				}
  				levelNext++;
--			} else if (ch == '}' || ch == ']') {
+-			} else if (ch == '}') {
 -				levelNext--;
++			} else if (ch == '[') {
++				levelNext++;
 +			} else if (ch == '}' || ch == ']') {
 +				if ((levelNext & (SC_FOLDLEVELNUMBERMASK & ~SC_FOLDLEVELBASE)) > 0) {
 +					levelNext--;

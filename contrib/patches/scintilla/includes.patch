@@ -42,9 +42,9 @@
  fun int PrivateLexerCall=4013(int operation, int pointer)
  
 @@ -2719,6 +2753,9 @@ val SCLEX_AS=113
- val SCLEX_SREC=117
- val SCLEX_IHEX=118
- val SCLEX_TEHEX=119
+ val SCLEX_DMIS=114
+ val SCLEX_REGISTRY=115
+ val SCLEX_BIBTEX=116
 +val SCLEX_XSLT=200
 +# User-defined languages
 +val SCLEX_UDL=201
