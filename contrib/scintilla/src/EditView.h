@@ -51,7 +51,6 @@ class EditView {
 public:
 	PrintParameters printParameters;
 	PerLine *ldTabstops;
-	int tabWidthMinimumPixels;
 
 	bool hideSelection;
 	bool drawOverstrikeCaret;

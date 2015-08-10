@@ -168,12 +168,10 @@ public:
 	int Length() const;
 	void MovePositions(bool insertion, int startChange, int length);
 	void TrimSelection(SelectionRange range);
-	void TrimOtherSelections(size_t r, SelectionRange range);
 	void SetSelection(SelectionRange range);
 	void AddSelection(SelectionRange range);
 	void AddSelectionWithoutTrim(SelectionRange range);
 	void DropSelection(size_t r);
-	void DropAdditionalRanges();
 	void TentativeSelection(SelectionRange range);
 	void CommitTentative();
 	int CharacterInSelection(int posCharacter) const;

@@ -139,6 +139,7 @@ class TestSimple(unittest.TestCase):
 		data = b"x" * 70 + b"\n"
 		for i in range(5):
 			self.ed.AddText(len(data), data)
+			self.xite.DoEvents()
 			self.assertEquals(self.ed.LineCount, i + 2)
 		self.assert_(self.ed.Length > 0)
 
@@ -576,14 +577,6 @@ class TestSimple(unittest.TestCase):
 		self.assertEquals(self.ed.TargetStart, 4)
 		self.assertEquals(self.ed.TargetEnd, 5)
 
-	def testTargetWhole(self):
-		self.ed.SetContents(b"abcd")
-		self.ed.TargetStart = 1
-		self.ed.TargetEnd = 3
-		self.ed.TargetWholeDocument()
-		self.assertEquals(self.ed.TargetStart, 0)
-		self.assertEquals(self.ed.TargetEnd, 4)
-
 	def testTargetEscape(self):
 		# Checks that a literal \ can be in the replacement. Bug #2959876
 		self.ed.SetContents(b"abcd")
@@ -626,18 +619,6 @@ class TestSimple(unittest.TestCase):
 		self.assertEquals(self.ed.WordEndPosition(4, 0), 5)
 		self.assertEquals(self.ed.WordEndPosition(5, 0), 6)
 		self.assertEquals(self.ed.WordEndPosition(6, 0), 8)
-
-	def testWordRange(self):
-		text = b"ab cd\t++"
-		self.ed.AddText(len(text), text)
-		self.assertEquals(self.ed.IsRangeWord(0, 0), 0)
-		self.assertEquals(self.ed.IsRangeWord(0, 1), 0)
-		self.assertEquals(self.ed.IsRangeWord(0, 2), 1)
-		self.assertEquals(self.ed.IsRangeWord(0, 3), 0)
-		self.assertEquals(self.ed.IsRangeWord(0, 4), 0)
-		self.assertEquals(self.ed.IsRangeWord(0, 5), 1)
-		self.assertEquals(self.ed.IsRangeWord(6, 7), 0)
-		self.assertEquals(self.ed.IsRangeWord(6, 8), 1)
 
 MODI = 1
 UNDO = 2
@@ -1127,40 +1108,6 @@ class TestSearch(unittest.TestCase):
 		self.assertEquals(-1, self.ed.FindBytes(0, self.ed.Length, b"\\xAB", flags))
 		self.assertEquals(0, self.ed.FindBytes(0, self.ed.Length, b"\\xAD", flags))
 
-	def testMultipleAddSelection(self):
-		# Find both 'a'
-		self.assertEquals(self.ed.MultipleSelection, 0)
-		self.ed.MultipleSelection = 1
-		self.assertEquals(self.ed.MultipleSelection, 1)
-		self.ed.TargetWholeDocument()
-		self.ed.SearchFlags = 0
-		self.ed.SetSelection(1, 0)
-		self.assertEquals(self.ed.Selections, 1)
-		self.ed.MultipleSelectAddNext()
-		self.assertEquals(self.ed.Selections, 2)
-		self.assertEquals(self.ed.GetSelectionNAnchor(0), 0)
-		self.assertEquals(self.ed.GetSelectionNCaret(0), 1)
-		self.assertEquals(self.ed.GetSelectionNAnchor(1), 8)
-		self.assertEquals(self.ed.GetSelectionNCaret(1), 9)
-		self.ed.MultipleSelection = 0
-
-	def testMultipleAddEachSelection(self):
-		# Find each 'b'
-		self.assertEquals(self.ed.MultipleSelection, 0)
-		self.ed.MultipleSelection = 1
-		self.assertEquals(self.ed.MultipleSelection, 1)
-		self.ed.TargetWholeDocument()
-		self.ed.SearchFlags = 0
-		self.ed.SetSelection(3, 2)
-		self.assertEquals(self.ed.Selections, 1)
-		self.ed.MultipleSelectAddEach()
-		self.assertEquals(self.ed.Selections, 2)
-		self.assertEquals(self.ed.GetSelectionNAnchor(0), 2)
-		self.assertEquals(self.ed.GetSelectionNCaret(0), 3)
-		self.assertEquals(self.ed.GetSelectionNAnchor(1), 6)
-		self.assertEquals(self.ed.GetSelectionNCaret(1), 7)
-		self.ed.MultipleSelection = 0
-
 class TestRepresentations(unittest.TestCase):
 
 	def setUp(self):
@@ -1222,6 +1169,8 @@ class TestTextMargin(unittest.TestCase):
 		self.assertEquals(self.ed.ExtraAscent, 1)
 		self.ed.ExtraDescent = 2
 		self.assertEquals(self.ed.ExtraDescent, 2)
+		# Allow line height to recalculate
+		self.xite.DoEvents()
 		lineHeightIncreased = self.ed.TextHeight(0)
 		self.assertEquals(lineHeightIncreased, lineHeight + 2 + 1)
 

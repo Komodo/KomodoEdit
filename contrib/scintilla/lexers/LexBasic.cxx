@@ -255,13 +255,13 @@ public:
 	const char * SCI_METHOD DescribeProperty(const char *name) {
 		return osBasic.DescribeProperty(name);
 	}
-	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val);
+	int SCI_METHOD PropertySet(const char *key, const char *val);
 	const char * SCI_METHOD DescribeWordListSets() {
 		return osBasic.DescribeWordListSets();
 	}
-	Sci_Position SCI_METHOD WordListSet(int n, const char *wl);
-	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
-	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
+	int SCI_METHOD WordListSet(int n, const char *wl);
+	void SCI_METHOD Lex(unsigned int startPos, int length, int initStyle, IDocument *pAccess);
+	void SCI_METHOD Fold(unsigned int startPos, int length, int initStyle, IDocument *pAccess);
 
 	void * SCI_METHOD PrivateCall(int, void *) {
 		return 0;
@@ -277,14 +277,14 @@ public:
 	}
 };
 
-Sci_Position SCI_METHOD LexerBasic::PropertySet(const char *key, const char *val) {
+int SCI_METHOD LexerBasic::PropertySet(const char *key, const char *val) {
 	if (osBasic.PropertySet(&options, key, val)) {
 		return 0;
 	}
 	return -1;
 }
 
-Sci_Position SCI_METHOD LexerBasic::WordListSet(int n, const char *wl) {
+int SCI_METHOD LexerBasic::WordListSet(int n, const char *wl) {
 	WordList *wordListN = 0;
 	switch (n) {
 	case 0:
@@ -300,7 +300,7 @@ Sci_Position SCI_METHOD LexerBasic::WordListSet(int n, const char *wl) {
 		wordListN = &keywordlists[3];
 		break;
 	}
-	Sci_Position firstModification = -1;
+	int firstModification = -1;
 	if (wordListN) {
 		WordList wlNew;
 		wlNew.Set(wl);
@@ -312,7 +312,7 @@ Sci_Position SCI_METHOD LexerBasic::WordListSet(int n, const char *wl) {
 	return firstModification;
 }
 
-void SCI_METHOD LexerBasic::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) {
+void SCI_METHOD LexerBasic::Lex(unsigned int startPos, int length, int initStyle, IDocument *pAccess) {
 	LexAccessor styler(pAccess);
 
 	bool wasfirst = true, isfirst = true; // true if first token in a line
@@ -471,17 +471,17 @@ void SCI_METHOD LexerBasic::Lex(Sci_PositionU startPos, Sci_Position length, int
 }
 
 
-void SCI_METHOD LexerBasic::Fold(Sci_PositionU startPos, Sci_Position length, int /* initStyle */, IDocument *pAccess) {
+void SCI_METHOD LexerBasic::Fold(unsigned int startPos, int length, int /* initStyle */, IDocument *pAccess) {
 
 	if (!options.fold)
 		return;
 
 	LexAccessor styler(pAccess);
 
-	Sci_Position line = styler.GetLine(startPos);
+	int line = styler.GetLine(startPos);
 	int level = styler.LevelAt(line);
 	int go = 0, done = 0;
-	Sci_Position endPos = startPos + length;
+	int endPos = startPos + length;
 	char word[256];
 	int wordlen = 0;
 	const bool userDefinedFoldMarkers = !options.foldExplicitStart.empty() && !options.foldExplicitEnd.empty();
@@ -489,7 +489,7 @@ void SCI_METHOD LexerBasic::Fold(Sci_PositionU startPos, Sci_Position length, in
 
 	// Scan for tokens at the start of the line (they may include
 	// whitespace, for tokens like "End Function"
-	for (Sci_Position i = startPos; i < endPos; i++) {
+	for (int i = startPos; i < endPos; i++) {
 		int c = cNext;
 		cNext = styler.SafeGetCharAt(i + 1);
 		bool atEOL = (c == '\r' && cNext != '\n') || (c == '\n');

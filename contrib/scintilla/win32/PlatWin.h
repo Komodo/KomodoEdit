@@ -12,6 +12,7 @@
 namespace Scintilla {
 #endif
 
+extern bool IsNT();
 extern void Platform_Initialise(void *hInstance);
 extern void Platform_Finalise(bool fromDllMain);
 

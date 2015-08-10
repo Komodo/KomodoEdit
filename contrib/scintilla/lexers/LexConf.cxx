@@ -31,14 +31,14 @@
 using namespace Scintilla;
 #endif
 
-static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *keywordLists[], Accessor &styler)
+static void ColouriseConfDoc(unsigned int startPos, int length, int, WordList *keywordLists[], Accessor &styler)
 {
 	int state = SCE_CONF_DEFAULT;
 	char chNext = styler[startPos];
-	Sci_Position lengthDoc = startPos + length;
+	int lengthDoc = startPos + length;
 	// create a buffer large enough to take the largest chunk...
 	char *buffer = new char[length+1];
-	Sci_Position bufferCount = 0;
+	int bufferCount = 0;
 
 	// this assumes that we have 2 keyword list in conf.properties
 	WordList &directives = *keywordLists[0];
@@ -48,7 +48,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 	// using the hand-written state machine shown below
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
-	for (Sci_Position i = startPos; i < lengthDoc; i++) {
+	for (int i = startPos; i < lengthDoc; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
 

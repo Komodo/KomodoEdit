@@ -177,13 +177,13 @@ public:
 	const char * SCI_METHOD DescribeProperty(const char *name) {
 		return osD.DescribeProperty(name);
 	}
-	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val);
+	int SCI_METHOD PropertySet(const char *key, const char *val);
 	const char * SCI_METHOD DescribeWordListSets() {
 		return osD.DescribeWordListSets();
 	}
-	Sci_Position SCI_METHOD WordListSet(int n, const char *wl);
-	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
-	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
+	int SCI_METHOD WordListSet(int n, const char *wl);
+	void SCI_METHOD Lex(unsigned int startPos, int length, int initStyle, IDocument *pAccess);
+	void SCI_METHOD Fold(unsigned int startPos, int length, int initStyle, IDocument *pAccess);
 
 	void * SCI_METHOD PrivateCall(int, void *) {
 		return 0;
@@ -197,14 +197,14 @@ public:
 	}
 };
 
-Sci_Position SCI_METHOD LexerD::PropertySet(const char *key, const char *val) {
+int SCI_METHOD LexerD::PropertySet(const char *key, const char *val) {
 	if (osD.PropertySet(&options, key, val)) {
 		return 0;
 	}
 	return -1;
 }
 
-Sci_Position SCI_METHOD LexerD::WordListSet(int n, const char *wl) {
+int SCI_METHOD LexerD::WordListSet(int n, const char *wl) {
 	WordList *wordListN = 0;
 	switch (n) {
 	case 0:
@@ -229,7 +229,7 @@ Sci_Position SCI_METHOD LexerD::WordListSet(int n, const char *wl) {
 		wordListN = &keywords7;
 		break;
 	}
-	Sci_Position firstModification = -1;
+	int firstModification = -1;
 	if (wordListN) {
 		WordList wlNew;
 		wlNew.Set(wl);
@@ -241,14 +241,14 @@ Sci_Position SCI_METHOD LexerD::WordListSet(int n, const char *wl) {
 	return firstModification;
 }
 
-void SCI_METHOD LexerD::Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) {
+void SCI_METHOD LexerD::Lex(unsigned int startPos, int length, int initStyle, IDocument *pAccess) {
 	LexAccessor styler(pAccess);
 
 	int styleBeforeDCKeyword = SCE_D_DEFAULT;
 
 	StyleContext sc(startPos, length, initStyle, styler);
 
-	Sci_Position curLine = styler.GetLine(startPos);
+	int curLine = styler.GetLine(startPos);
 	int curNcLevel = curLine > 0? styler.GetLineState(curLine-1): 0;
 	bool numFloat = false; // Float literals have '+' and '-' signs
 	bool numHex = false;
@@ -471,16 +471,16 @@ void SCI_METHOD LexerD::Lex(Sci_PositionU startPos, Sci_Position length, int ini
 // level store to make it easy to pick up with each increment
 // and to make it possible to fiddle the current level for "} else {".
 
-void SCI_METHOD LexerD::Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) {
+void SCI_METHOD LexerD::Fold(unsigned int startPos, int length, int initStyle, IDocument *pAccess) {
 
 	if (!options.fold)
 		return;
 
 	LexAccessor styler(pAccess);
 
-	Sci_PositionU endPos = startPos + length;
+	unsigned int endPos = startPos + length;
 	int visibleChars = 0;
-	Sci_Position lineCurrent = styler.GetLine(startPos);
+	int lineCurrent = styler.GetLine(startPos);
 	int levelCurrent = SC_FOLDLEVELBASE;
 	if (lineCurrent > 0)
 		levelCurrent = styler.LevelAt(lineCurrent-1) >> 16;
@@ -491,7 +491,7 @@ void SCI_METHOD LexerD::Fold(Sci_PositionU startPos, Sci_Position length, int in
 	int style = initStyle;
 	bool foldAtElse = options.foldAtElseInt >= 0 ? options.foldAtElseInt != 0 : options.foldAtElse;
 	const bool userDefinedFoldMarkers = !options.foldExplicitStart.empty() && !options.foldExplicitEnd.empty();
-	for (Sci_PositionU i = startPos; i < endPos; i++) {
+	for (unsigned int i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
 		int stylePrev = style;

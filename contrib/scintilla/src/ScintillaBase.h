@@ -20,7 +20,7 @@ class LexState;
  */
 class ScintillaBase : public Editor {
 	// Private so ScintillaBase objects can not be copied
-	explicit ScintillaBase(const ScintillaBase &);
+	ScintillaBase(const ScintillaBase &);
 	ScintillaBase &operator=(const ScintillaBase &);
 
 protected:
@@ -75,7 +75,7 @@ protected:
 	int AutoCompleteGetCurrentText(char *buffer) const;
 	void AutoCompleteCharacterAdded(char ch);
 	void AutoCompleteCharacterDeleted();
-	void AutoCompleteCompleted(char ch, unsigned int completionMethod);
+	void AutoCompleteCompleted();
 	void AutoCompleteMoveToCurrentWord();
 	static void AutoCompleteDoubleClick(void *p);
 

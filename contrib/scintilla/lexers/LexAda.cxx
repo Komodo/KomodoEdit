@@ -34,8 +34,8 @@ using namespace Scintilla;
  */
 
 static void ColouriseDocument(
-    Sci_PositionU startPos,
-    Sci_Position length,
+    unsigned int startPos,
+    int length,
     int initStyle,
     WordList *keywordlists[],
     Accessor &styler);
@@ -222,8 +222,8 @@ static void ColouriseWord(StyleContext& sc, WordList& keywords, bool& apostrophe
 //
 
 static void ColouriseDocument(
-    Sci_PositionU startPos,
-    Sci_Position length,
+    unsigned int startPos,
+    int length,
     int initStyle,
     WordList *keywordlists[],
     Accessor &styler) {
@@ -231,7 +231,7 @@ static void ColouriseDocument(
 
 	StyleContext sc(startPos, length, initStyle, styler);
 
-	Sci_Position lineCurrent = styler.GetLine(startPos);
+	int lineCurrent = styler.GetLine(startPos);
 	bool apostropheStartsAttribute = (styler.GetLineState(lineCurrent) & 1) != 0;
 
 	while (sc.More()) {

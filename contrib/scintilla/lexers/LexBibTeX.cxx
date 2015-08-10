@@ -76,7 +76,7 @@ namespace {
 		return IsEntryStart(sc.chPrev, sc.ch);
 	}
 
-	void ColorizeBibTeX(Sci_PositionU start_pos, Sci_Position length, int /*init_style*/, WordList* keywordlists[], Accessor& styler)
+	void ColorizeBibTeX(unsigned start_pos, int length, int /*init_style*/, WordList* keywordlists[], Accessor& styler)
 	{
 	    WordList &EntryNames = *keywordlists[0];
 		bool fold_compact = styler.GetPropertyInt("fold.compact", 1) != 0;
@@ -94,7 +94,7 @@ namespace {
 		styler.StartAt(start_pos);
 		styler.StartSegment(start_pos);
 
-		Sci_Position current_line = styler.GetLine(start_pos);
+		int current_line = styler.GetLine(start_pos);
 		int prev_level = styler.LevelAt(current_line) & SC_FOLDLEVELNUMBERMASK;
 		int current_level = prev_level;
 		int visible_chars = 0;
@@ -153,7 +153,7 @@ namespace {
 					sc.SetState(SCE_BIBTEX_DEFAULT); // Don't colorize the =
 					sc.ForwardSetState(SCE_BIBTEX_VALUE); // Parameter value colorization
 
-					Sci_Position start = sc.currentPos;
+					int start = sc.currentPos;
 
 					// We need to handle multiple situations:
 					// 1. name"one two {three}"
@@ -227,12 +227,12 @@ namespace {
 						state = SCE_BIBTEX_DEFAULT;
 					}
 
-					Sci_Position end = sc.currentPos;
+					int end = sc.currentPos;
 					current_line = styler.GetLine(end);
 
 					// We have possibly skipped some lines, so the folding levels
 					// have to be adjusted separately
-					for (Sci_Position i = styler.GetLine(start); i <= styler.GetLine(end); ++i)
+					for (int i = styler.GetLine(start); i <= styler.GetLine(end); ++i)
 						styler.SetLevel(i, prev_level);
 
 					sc.ForwardSetState(state);

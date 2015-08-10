@@ -26,13 +26,13 @@ static inline int MakeLowerCase(int ch) {
 class StyleContext {
 	LexAccessor &styler;
 	IDocumentWithLineEnd *multiByteAccess;
-	Sci_PositionU endPos;
-	Sci_PositionU lengthDocument;
+	unsigned int endPos;
+	unsigned int lengthDocument;
 
 	// Used for optimizing GetRelativeCharacter
-	Sci_PositionU posRelative;
-	Sci_PositionU currentPosLastRelative;
-	Sci_Position offsetRelative;
+	unsigned int posRelative;
+	unsigned int currentPosLastRelative;
+	int offsetRelative;
 
 	StyleContext &operator=(const StyleContext &);
 
@@ -46,26 +46,26 @@ class StyleContext {
 		// End of line determined from line end position, allowing CR, LF,
 		// CRLF and Unicode line ends as set by document.
 		if (currentLine < lineDocEnd)
-			atLineEnd = static_cast<Sci_Position>(currentPos) >= (lineStartNext-1);
+			atLineEnd = static_cast<int>(currentPos) >= (lineStartNext-1);
 		else // Last line
-			atLineEnd = static_cast<Sci_Position>(currentPos) >= lineStartNext;
+			atLineEnd = static_cast<int>(currentPos) >= lineStartNext;
 	}
 
 public:
-	Sci_PositionU currentPos;
-	Sci_Position currentLine;
-	Sci_Position lineDocEnd;
-	Sci_Position lineStartNext;
+	unsigned int currentPos;
+	int currentLine;
+	int lineDocEnd;
+	int lineStartNext;
 	bool atLineStart;
 	bool atLineEnd;
 	int state;
 	int chPrev;
 	int ch;
-	Sci_Position width;
+	int width;
 	int chNext;
-	Sci_Position widthNext;
+	int widthNext;
 
-	StyleContext(Sci_PositionU startPos, Sci_PositionU length,
+	StyleContext(unsigned int startPos, unsigned int length,
                         int initStyle, LexAccessor &styler_, char chMask='\377') :
 		styler(styler_),
 		multiByteAccess(0),
@@ -90,11 +90,11 @@ public:
 		styler.StartSegment(startPos);
 		currentLine = styler.GetLine(startPos);
 		lineStartNext = styler.LineStart(currentLine+1);
-		lengthDocument = static_cast<Sci_PositionU>(styler.Length());
+		lengthDocument = static_cast<unsigned int>(styler.Length());
 		if (endPos == lengthDocument)
 			endPos++;
 		lineDocEnd = styler.GetLine(lengthDocument);
-		atLineStart = static_cast<Sci_PositionU>(styler.LineStart(currentLine)) == startPos;
+		atLineStart = static_cast<unsigned int>(styler.LineStart(currentLine)) == startPos;
 
 		// Variable width is now 0 so GetNextChar gets the char at currentPos into chNext/widthNext
 		width = 0;
@@ -131,13 +131,13 @@ public:
 			atLineEnd = true;
 		}
 	}
-	void Forward(Sci_Position nb) {
-		for (Sci_Position i = 0; i < nb; i++) {
+	void Forward(int nb) {
+		for (int i = 0; i < nb; i++) {
 			Forward();
 		}
 	}
-	void ForwardBytes(Sci_Position nb) {
-		Sci_PositionU forwardPos = currentPos + nb;
+	void ForwardBytes(int nb) {
+		size_t forwardPos = currentPos + nb;
 		while (forwardPos > currentPos) {
 			Forward();
 		}
@@ -154,13 +154,13 @@ public:
 		styler.ColourTo(currentPos - ((currentPos > lengthDocument) ? 2 : 1), state);
 		state = state_;
 	}
-	Sci_Position LengthCurrent() const {
+	int LengthCurrent() const {
 		return currentPos - styler.GetStartSegment();
 	}
-	int GetRelative(Sci_Position n) {
+	int GetRelative(int n) {
 		return static_cast<unsigned char>(styler.SafeGetCharAt(currentPos+n, 0));
 	}
-	int GetRelativeCharacter(Sci_Position n) {
+	int GetRelativeCharacter(int n) {
 		if (n == 0)
 			return ch;
 		if (multiByteAccess) {
@@ -170,8 +170,8 @@ public:
 				posRelative = currentPos;
 				offsetRelative = 0;
 			}
-			Sci_Position diffRelative = n - offsetRelative;
-			Sci_Position posNew = multiByteAccess->GetRelativePosition(posRelative, diffRelative);
+			int diffRelative = n - offsetRelative;
+			int posNew = multiByteAccess->GetRelativePosition(posRelative, diffRelative);
 			int chReturn = multiByteAccess->GetCharacterAndWidth(posNew, 0);
 			posRelative = posNew;
 			currentPosLastRelative = currentPos;
@@ -220,8 +220,8 @@ public:
 		return true;
 	}
 	// Non-inline
-	void GetCurrent(char *s, Sci_PositionU len);
-	void GetCurrentLowered(char *s, Sci_PositionU len);
+	void GetCurrent(char *s, unsigned int len);
+	void GetCurrentLowered(char *s, unsigned int len);
 };
 
 #ifdef SCI_NAMESPACE

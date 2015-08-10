@@ -25,7 +25,6 @@
 #include "Scintilla.h"
 
 #include "StringCopy.h"
-#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -66,7 +65,6 @@ EditModel::EditModel() {
 	imeInteraction = imeWindowed;
 	foldFlags = 0;
 	hotspot = Range(invalidPosition);
-	hoverIndicatorPos = invalidPosition;
 	wrapWidth = LineLayout::wrapWidthInfinite;
 	pdoc = new Document();
 	pdoc->AddRef();

@@ -33,7 +33,7 @@ static inline bool IsAWordChar(int ch) {
 	return (ch >= 0x80) || isalnum(ch) || ch == '_';
 }
 
-static Sci_Position tillEndOfTripleQuote(Accessor &styler, Sci_Position pos, Sci_Position max) {
+static int tillEndOfTripleQuote(Accessor &styler, int pos, int max) {
   /* search for """ */
   for (;;) {
     if (styler.SafeGetCharAt(pos, '\0') == '\0') return pos;
@@ -52,7 +52,7 @@ static bool inline isNewLine(int ch) {
   return ch == CR || ch == LF;
 }
 
-static Sci_Position scanString(Accessor &styler, Sci_Position pos, Sci_Position max, bool rawMode) {
+static int scanString(Accessor &styler, int pos, int max, bool rawMode) {
   for (;;) {
     if (pos >= max) return pos;
     char ch = styler.SafeGetCharAt(pos, '\0');
@@ -66,7 +66,7 @@ static Sci_Position scanString(Accessor &styler, Sci_Position pos, Sci_Position 
   }
 }
 
-static Sci_Position scanChar(Accessor &styler, Sci_Position pos, Sci_Position max) {
+static int scanChar(Accessor &styler, int pos, int max) {
   for (;;) {
     if (pos >= max) return pos;
     char ch = styler.SafeGetCharAt(pos, '\0');
@@ -81,9 +81,9 @@ static Sci_Position scanChar(Accessor &styler, Sci_Position pos, Sci_Position ma
   }
 }
 
-static Sci_Position scanIdent(Accessor &styler, Sci_Position pos, WordList &keywords) {
+static int scanIdent(Accessor &styler, int pos, WordList &keywords) {
   char buf[100]; /* copy to lowercase and ignore underscores */
-  Sci_Position i = 0;
+  int i = 0;
 
   for (;;) {
     char ch = styler.SafeGetCharAt(pos, '\0');
@@ -104,7 +104,7 @@ static Sci_Position scanIdent(Accessor &styler, Sci_Position pos, WordList &keyw
   return pos;
 }
 
-static Sci_Position scanNumber(Accessor &styler, Sci_Position pos) {
+static int scanNumber(Accessor &styler, int pos) {
   char ch, ch2;
   ch = styler.SafeGetCharAt(pos, '\0');
   ch2 = styler.SafeGetCharAt(pos+1, '\0');
@@ -179,10 +179,10 @@ static Sci_Position scanNumber(Accessor &styler, Sci_Position pos) {
 /* rewritten from scratch, because I couldn't get rid of the bugs...
    (A character based approach sucks!)
 */
-static void ColouriseNimrodDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
+static void ColouriseNimrodDoc(unsigned int startPos, int length, int initStyle,
                                 WordList *keywordlists[], Accessor &styler) {
-  Sci_Position pos = startPos;
-  Sci_Position max = startPos + length;
+  int pos = startPos;
+  int max = startPos + length;
   char ch;
   WordList &keywords = *keywordlists[0];
 
@@ -264,10 +264,10 @@ static void ColouriseNimrodDoc(Sci_PositionU startPos, Sci_Position length, int 
   }
 }
 
-static bool IsCommentLine(Sci_Position line, Accessor &styler) {
-	Sci_Position pos = styler.LineStart(line);
-	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
-	for (Sci_Position i = pos; i < eol_pos; i++) {
+static bool IsCommentLine(int line, Accessor &styler) {
+	int pos = styler.LineStart(line);
+	int eol_pos = styler.LineStart(line + 1) - 1;
+	for (int i = pos; i < eol_pos; i++) {
 		char ch = styler[i];
 		if (ch == '#')
 			return true;
@@ -277,18 +277,18 @@ static bool IsCommentLine(Sci_Position line, Accessor &styler) {
 	return false;
 }
 
-static bool IsQuoteLine(Sci_Position line, Accessor &styler) {
+static bool IsQuoteLine(int line, Accessor &styler) {
 	int style = styler.StyleAt(styler.LineStart(line)) & 31;
 	return ((style == SCE_P_TRIPLE) || (style == SCE_P_TRIPLEDOUBLE));
 }
 
 
-static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length,
+static void FoldNimrodDoc(unsigned int startPos, int length,
                           int /*initStyle - unused*/,
                           WordList *[], Accessor &styler) {
-	const Sci_Position maxPos = startPos + length;
-	const Sci_Position maxLines = styler.GetLine(maxPos - 1); // Requested last line
-	const Sci_Position docLines = styler.GetLine(styler.Length() - 1); // Available last line
+	const int maxPos = startPos + length;
+	const int maxLines = styler.GetLine(maxPos - 1); // Requested last line
+	const int docLines = styler.GetLine(styler.Length() - 1); // Available last line
 	const bool foldComment = styler.GetPropertyInt("fold.comment.nimrod") != 0;
 	const bool foldQuotes = styler.GetPropertyInt("fold.quotes.nimrod") != 0;
 
@@ -297,7 +297,7 @@ static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length,
 	// and so we can fix any preceding fold level (which is why we go back
 	// at least one line in all cases)
 	int spaceFlags = 0;
-	Sci_Position lineCurrent = styler.GetLine(startPos);
+	int lineCurrent = styler.GetLine(startPos);
 	int indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, NULL);
 	while (lineCurrent > 0) {
 		lineCurrent--;
@@ -328,7 +328,7 @@ static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length,
 
 		// Gather info
 		int lev = indentCurrent;
-		Sci_Position lineNext = lineCurrent + 1;
+		int lineNext = lineCurrent + 1;
 		int indentNext = indentCurrent;
 		int quote = false;
 		if (lineNext <= docLines) {
@@ -388,7 +388,7 @@ static void FoldNimrodDoc(Sci_PositionU startPos, Sci_Position length,
 		// which is indented more than the line after the end of
 		// the comment-block, use the level of the block before
 
-		Sci_Position skipLine = lineNext;
+		int skipLine = lineNext;
 		int skipLevel = levelAfterComments;
 
 		while (--skipLine > lineCurrent) {

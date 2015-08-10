@@ -62,7 +62,7 @@ static bool IsSpaceEquiv(int state) {
 	}
 }
 
-static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[],
+static void ColouriseEclDoc(unsigned int startPos, int length, int initStyle, WordList *keywordlists[],
                             Accessor &styler) {
 	WordList &keywords0 = *keywordlists[0];
 	WordList &keywords1 = *keywordlists[1];
@@ -90,7 +90,7 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 
 	if (initStyle == SCE_ECL_PREPROCESSOR) {
 		// Set continuationLine if last character of previous line is '\'
-		Sci_Position lineCurrent = styler.GetLine(startPos);
+		int lineCurrent = styler.GetLine(startPos);
 		if (lineCurrent > 0) {
 			int chBack = styler.SafeGetCharAt(startPos-1, 0);
 			int chBack2 = styler.SafeGetCharAt(startPos-2, 0);
@@ -106,7 +106,7 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 
 	// look back to set chPrevNonWhite properly for better regex colouring
 	if (startPos > 0) {
-		Sci_Position back = startPos;
+		int back = startPos;
 		while (--back && IsSpaceEquiv(styler.StyleAt(back)))
 			;
 		if (styler.StyleAt(back) == SCE_ECL_OPERATOR) {
@@ -311,7 +311,7 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 		}
 
 		// Determine if a new state should be entered.
-		Sci_Position lineCurrent = styler.GetLine(sc.currentPos);
+		int lineCurrent = styler.GetLine(sc.currentPos);
 		int lineState = styler.GetLineState(lineCurrent);
 		if (sc.state == SCE_ECL_DEFAULT) {
 			if (lineState) {
@@ -388,8 +388,8 @@ static bool IsStreamCommentStyle(int style) {
 		style == SCE_ECL_COMMENTDOCKEYWORDERROR;
 }
 
-bool MatchNoCase(Accessor & styler, Sci_PositionU & pos, const char *s) {
-	Sci_Position i=0;
+bool MatchNoCase(Accessor & styler, unsigned int & pos, const char *s) {
+	int i=0;
 	for (; *s; i++) {
 		char compare_char = tolower(*s);
 		char styler_char = tolower(styler.SafeGetCharAt(pos+i));
@@ -405,15 +405,15 @@ bool MatchNoCase(Accessor & styler, Sci_PositionU & pos, const char *s) {
 // Store both the current line's fold level and the next lines in the
 // level store to make it easy to pick up with each increment
 // and to make it possible to fiddle the current level for "} else {".
-static void FoldEclDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, 
+static void FoldEclDoc(unsigned int startPos, int length, int initStyle, 
 					   WordList *[], Accessor &styler) {
 	bool foldComment = true;
 	bool foldPreprocessor = true;
 	bool foldCompact = true;
 	bool foldAtElse = true;
-	Sci_PositionU endPos = startPos + length;
+	unsigned int endPos = startPos + length;
 	int visibleChars = 0;
-	Sci_Position lineCurrent = styler.GetLine(startPos);
+	int lineCurrent = styler.GetLine(startPos);
 	int levelCurrent = SC_FOLDLEVELBASE;
 	if (lineCurrent > 0)
 		levelCurrent = styler.LevelAt(lineCurrent-1) >> 16;
@@ -422,7 +422,7 @@ static void FoldEclDoc(Sci_PositionU startPos, Sci_Position length, int initStyl
 	char chNext = styler[startPos];
 	int styleNext = styler.StyleAt(startPos);
 	int style = initStyle;
-	for (Sci_PositionU i = startPos; i < endPos; i++) {
+	for (unsigned int i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
 		int stylePrev = style;
@@ -449,7 +449,7 @@ static void FoldEclDoc(Sci_PositionU startPos, Sci_Position length, int initStyl
 		}
 		if (foldPreprocessor && (style == SCE_ECL_PREPROCESSOR)) {
 			if (ch == '#') {
-				Sci_PositionU j = i + 1;
+				unsigned int j = i + 1;
 				while ((j < endPos) && IsASpaceOrTab(styler.SafeGetCharAt(j))) {
 					j++;
 				}
@@ -497,7 +497,7 @@ static void FoldEclDoc(Sci_PositionU startPos, Sci_Position length, int initStyl
 			lineCurrent++;
 			levelCurrent = levelNext;
 			levelMinCurrent = levelCurrent;
-			if (atEOL && (i == static_cast<Sci_PositionU>(styler.Length()-1))) {
+			if (atEOL && (i == static_cast<unsigned int>(styler.Length()-1))) {
 				// There is an empty line at end of file so give it same level and empty
 				styler.SetLevel(lineCurrent, (levelCurrent | levelCurrent << 16) | SC_FOLDLEVELWHITEFLAG);
 			}

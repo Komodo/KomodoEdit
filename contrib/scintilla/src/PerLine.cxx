@@ -7,14 +7,12 @@
 
 #include <string.h>
 
-#include <stdexcept>
 #include <vector>
 #include <algorithm>
 
 #include "Platform.h"
 
 #include "Scintilla.h"
-#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "CellBuffer.h"
@@ -110,12 +108,11 @@ bool MarkerHandleSet::RemoveNumber(int markerNum, bool all) {
 }
 
 void MarkerHandleSet::CombineWith(MarkerHandleSet *other) {
-	MarkerHandleNumber **pmhn = &other->root;
+	MarkerHandleNumber **pmhn = &root;
 	while (*pmhn) {
 		pmhn = &((*pmhn)->next);
 	}
-	*pmhn = root;
-	root = other->root;
+	*pmhn = other->root;
 	other->root = 0;
 }
 

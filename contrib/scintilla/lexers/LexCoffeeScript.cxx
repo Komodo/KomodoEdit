@@ -48,7 +48,7 @@ static bool IsSpaceEquiv(int state) {
 // Putting a space between the '++' post-inc operator and the '+' binary op
 // fixes this, and is highly recommended for readability anyway.
 static bool FollowsPostfixOperator(StyleContext &sc, Accessor &styler) {
-	Sci_Position pos = (Sci_Position) sc.currentPos;
+	int pos = (int) sc.currentPos;
 	while (--pos > 0) {
 		char ch = styler[pos];
 		if (ch == '+' || ch == '-') {
@@ -60,9 +60,9 @@ static bool FollowsPostfixOperator(StyleContext &sc, Accessor &styler) {
 
 static bool followsReturnKeyword(StyleContext &sc, Accessor &styler) {
     // Don't look at styles, so no need to flush.
-	Sci_Position pos = (Sci_Position) sc.currentPos;
-	Sci_Position currentLine = styler.GetLine(pos);
-	Sci_Position lineStartPos = styler.LineStart(currentLine);
+	int pos = (int) sc.currentPos;
+	int currentLine = styler.GetLine(pos);
+	int lineStartPos = styler.LineStart(currentLine);
 	while (--pos > lineStartPos) {
 		char ch = styler.SafeGetCharAt(pos);
 		if (ch != ' ' && ch != '\t') {
@@ -80,7 +80,7 @@ static bool followsReturnKeyword(StyleContext &sc, Accessor &styler) {
 	return !*s;
 }
 
-static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[],
+static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int initStyle, WordList *keywordlists[],
                             Accessor &styler) {
 
 	WordList &keywords = *keywordlists[0];
@@ -97,9 +97,9 @@ static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length
 	int visibleChars = 0;
 
 	// look back to set chPrevNonWhite properly for better regex colouring
-	Sci_Position endPos = startPos + length;
+	int endPos = startPos + length;
         if (startPos > 0 && IsSpaceEquiv(initStyle)) {
-		Sci_PositionU back = startPos;
+		unsigned int back = startPos;
 		styler.Flush();
 		while (back > 0 && IsSpaceEquiv(styler.StyleAt(--back)))
 			;
@@ -146,6 +146,8 @@ static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length
 						sc.ChangeState(SCE_COFFEESCRIPT_WORD2);
 					} else if (keywords4.InList(s)) {
 						sc.ChangeState(SCE_COFFEESCRIPT_GLOBALCLASS);
+					} else if (sc.LengthCurrent() > 0 && s[0] == '@') {
+						sc.ChangeState(SCE_COFFEESCRIPT_INSTANCEPROPERTY);
 					}
 					sc.SetState(SCE_COFFEESCRIPT_DEFAULT);
 				}
@@ -153,6 +155,7 @@ static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length
 			case SCE_COFFEESCRIPT_WORD:
 			case SCE_COFFEESCRIPT_WORD2:
 			case SCE_COFFEESCRIPT_GLOBALCLASS:
+			case SCE_COFFEESCRIPT_INSTANCEPROPERTY:
 				if (!setWord.Contains(sc.ch)) {
 					sc.SetState(SCE_COFFEESCRIPT_DEFAULT);
 				}
@@ -268,10 +271,10 @@ static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length
 	sc.Complete();
 }
 
-static bool IsCommentLine(Sci_Position line, Accessor &styler) {
-	Sci_Position pos = styler.LineStart(line);
-	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
-	for (Sci_Position i = pos; i < eol_pos; i++) {
+static bool IsCommentLine(int line, Accessor &styler) {
+	int pos = styler.LineStart(line);
+	int eol_pos = styler.LineStart(line + 1) - 1;
+	for (int i = pos; i < eol_pos; i++) {
 		char ch = styler[i];
 		if (ch == '#')
 			return true;
@@ -281,12 +284,12 @@ static bool IsCommentLine(Sci_Position line, Accessor &styler) {
 	return false;
 }
 
-static void FoldCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length, int,
+static void FoldCoffeeScriptDoc(unsigned int startPos, int length, int,
 				WordList *[], Accessor &styler) {
 	// A simplified version of FoldPyDoc
-	const Sci_Position maxPos = startPos + length;
-	const Sci_Position maxLines = styler.GetLine(maxPos - 1);             // Requested last line
-	const Sci_Position docLines = styler.GetLine(styler.Length() - 1);  // Available last line
+	const int maxPos = startPos + length;
+	const int maxLines = styler.GetLine(maxPos - 1);             // Requested last line
+	const int docLines = styler.GetLine(styler.Length() - 1);  // Available last line
 
 	// property fold.coffeescript.comment
 	const bool foldComment = styler.GetPropertyInt("fold.coffeescript.comment") != 0;
@@ -298,7 +301,7 @@ static void FoldCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length, int
 	// and so we can fix any preceding fold level (which is why we go back
 	// at least one line in all cases)
 	int spaceFlags = 0;
-	Sci_Position lineCurrent = styler.GetLine(startPos);
+	int lineCurrent = styler.GetLine(startPos);
 	int indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, NULL);
 	while (lineCurrent > 0) {
 		lineCurrent--;
@@ -321,7 +324,7 @@ static void FoldCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length, int
 
 		// Gather info
 		int lev = indentCurrent;
-		Sci_Position lineNext = lineCurrent + 1;
+		int lineNext = lineCurrent + 1;
 		int indentNext = indentCurrent;
 		if (lineNext <= docLines) {
 			// Information about next line is only available if not at end of document
@@ -365,7 +368,7 @@ static void FoldCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length, int
 		// which is indented more than the line after the end of
 		// the comment-block, use the level of the block before
 
-		Sci_Position skipLine = lineNext;
+		int skipLine = lineNext;
 		int skipLevel = levelAfterComments;
 
 		while (--skipLine > lineCurrent) {

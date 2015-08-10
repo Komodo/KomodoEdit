@@ -30,7 +30,6 @@
 #include "PropSetSimple.h"
 #endif
 
-#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -106,8 +105,6 @@ private:
 
   bool GetPasteboardData(NSPasteboard* board, SelectionText* selectedText);
   void SetPasteboardData(NSPasteboard* board, const SelectionText& selectedText);
-  int TargetAsUTF8(char *text);
-  int EncodedFromUTF8(char *utf8, char *encoded) const;
 
   int scrollSpeed;
   int scrollTicks;
@@ -198,14 +195,7 @@ public:
   virtual void IdleWork();
   virtual void QueueIdleWork(WorkNeeded::workItems items, int upTo);
   int InsertText(NSString* input);
-  NSRange PositionsFromCharacters(NSRange range) const;
-  NSRange CharactersFromPositions(NSRange range) const;
   void SelectOnlyMainSelection();
-  void ConvertSelectionVirtualSpace();
-  bool ClearAllSelections();
-  void CompositionStart();
-  void CompositionCommit();
-  void CompositionUndo();
   virtual void SetDocPointer(Document *document);
 
   bool KeyboardInput(NSEvent* event);
@@ -236,7 +226,6 @@ public:
   void HandleCommand(NSInteger command);
 
   virtual void ActiveStateChanged(bool isActive);
-  void WindowWillMove();
 
   // Find indicator
   void ShowFindIndicatorForRange(NSRange charRange, BOOL retaining);

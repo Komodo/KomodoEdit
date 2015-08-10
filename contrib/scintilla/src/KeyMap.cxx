@@ -7,7 +7,6 @@
 
 #include <stdlib.h>
 
-#include <stdexcept>
 #include <vector>
 #include <map>
 

@@ -7,8 +7,6 @@
 
 #include <string.h>
 
-#include <stdexcept>
-
 #include "Platform.h"
 
 #include "Scintilla.h"
@@ -165,5 +163,8 @@ void Style::ClearTo(const Style &source) {
 
 void Style::Copy(Font &font_, const FontMeasurements &fm_) {
 	font.MakeAlias(font_);
+#if PLAT_WX
+	font.SetAscent(fm_.ascent);
+#endif
 	(FontMeasurements &)(*this) = fm_;
 }

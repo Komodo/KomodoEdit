@@ -9,13 +9,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include <stdexcept>
 #include <algorithm>
 
 #include "Platform.h"
 
 #include "Scintilla.h"
-#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"

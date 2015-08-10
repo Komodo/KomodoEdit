@@ -51,7 +51,7 @@ static inline bool IsCsoundOperator(char ch) {
 	return false;
 }
 
-static void ColouriseCsoundDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[],
+static void ColouriseCsoundDoc(unsigned int startPos, int length, int initStyle, WordList *keywordlists[],
 				Accessor &styler) {
 
 	WordList &opcode = *keywordlists[0];
@@ -150,17 +150,17 @@ static void ColouriseCsoundDoc(Sci_PositionU startPos, Sci_Position length, int 
 	sc.Complete();
 }
 
-static void FoldCsoundInstruments(Sci_PositionU startPos, Sci_Position length, int /* initStyle */, WordList *[],
+static void FoldCsoundInstruments(unsigned int startPos, int length, int /* initStyle */, WordList *[],
 		Accessor &styler) {
-	Sci_PositionU lengthDoc = startPos + length;
+	unsigned int lengthDoc = startPos + length;
 	int visibleChars = 0;
-	Sci_Position lineCurrent = styler.GetLine(startPos);
+	int lineCurrent = styler.GetLine(startPos);
 	int levelPrev = styler.LevelAt(lineCurrent) & SC_FOLDLEVELNUMBERMASK;
 	int levelCurrent = levelPrev;
 	char chNext = styler[startPos];
 	int stylePrev = 0;
 	int styleNext = styler.StyleAt(startPos);
-	for (Sci_PositionU i = startPos; i < lengthDoc; i++) {
+	for (unsigned int i = startPos; i < lengthDoc; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
 		int style = styleNext;

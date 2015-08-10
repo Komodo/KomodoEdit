@@ -46,10 +46,10 @@ static inline bool isLispwordstart(char ch) {
 }
 
 
-static void classifyWordLisp(Sci_PositionU start, Sci_PositionU end, WordList &keywords, WordList &keywords_kw, Accessor &styler) {
+static void classifyWordLisp(unsigned int start, unsigned int end, WordList &keywords, WordList &keywords_kw, Accessor &styler) {
 	assert(end >= start);
 	char s[100];
-	Sci_PositionU i;
+	unsigned int i;
 	bool digit_flag = true;
 	for (i = 0; (i < end - start + 1) && (i < 99); i++) {
 		s[i] = styler[start + i];
@@ -74,7 +74,7 @@ static void classifyWordLisp(Sci_PositionU start, Sci_PositionU end, WordList &k
 }
 
 
-static void ColouriseLispDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[],
+static void ColouriseLispDoc(unsigned int startPos, int length, int initStyle, WordList *keywordlists[],
                             Accessor &styler) {
 
 	WordList &keywords = *keywordlists[0];
@@ -84,9 +84,9 @@ static void ColouriseLispDoc(Sci_PositionU startPos, Sci_Position length, int in
 
 	int state = initStyle, radix = -1;
 	char chNext = styler[startPos];
-	Sci_PositionU lengthDoc = startPos + length;
+	unsigned int lengthDoc = startPos + length;
 	styler.StartSegment(startPos);
-	for (Sci_PositionU i = startPos; i < lengthDoc; i++) {
+	for (unsigned int i = startPos; i < lengthDoc; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
 
@@ -233,16 +233,16 @@ static void ColouriseLispDoc(Sci_PositionU startPos, Sci_Position length, int in
 	styler.ColourTo(lengthDoc - 1, state);
 }
 
-static void FoldLispDoc(Sci_PositionU startPos, Sci_Position length, int /* initStyle */, WordList *[],
+static void FoldLispDoc(unsigned int startPos, int length, int /* initStyle */, WordList *[],
                             Accessor &styler) {
-	Sci_PositionU lengthDoc = startPos + length;
+	unsigned int lengthDoc = startPos + length;
 	int visibleChars = 0;
-	Sci_Position lineCurrent = styler.GetLine(startPos);
+	int lineCurrent = styler.GetLine(startPos);
 	int levelPrev = styler.LevelAt(lineCurrent) & SC_FOLDLEVELNUMBERMASK;
 	int levelCurrent = levelPrev;
 	char chNext = styler[startPos];
 	int styleNext = styler.StyleAt(startPos);
-	for (Sci_PositionU i = startPos; i < lengthDoc; i++) {
+	for (unsigned int i = startPos; i < lengthDoc; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
 		int style = styleNext;

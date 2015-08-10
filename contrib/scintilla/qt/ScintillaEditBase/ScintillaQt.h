@@ -17,7 +17,6 @@
 #include <assert.h>
 #include <ctype.h>
 #include <time.h>
-#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -27,7 +26,6 @@
 #include "Scintilla.h"
 #include "Platform.h"
 #include "ILexer.h"
-#include "Position.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -73,7 +71,7 @@ class ScintillaQt : public QObject, public ScintillaBase {
 	Q_OBJECT
 
 public:
-	explicit ScintillaQt(QAbstractScrollArea *parent);
+	ScintillaQt(QAbstractScrollArea *parent);
 	virtual ~ScintillaQt();
 
 signals:

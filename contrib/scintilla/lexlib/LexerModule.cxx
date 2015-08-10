@@ -85,20 +85,20 @@ ILexer *LexerModule::Create() const {
 		return new LexerSimple(this);
 }
 
-void LexerModule::Lex(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle,
+void LexerModule::Lex(unsigned int startPos, int lengthDoc, int initStyle,
 	  WordList *keywordlists[], Accessor &styler) const {
 	if (fnLexer)
 		fnLexer(startPos, lengthDoc, initStyle, keywordlists, styler);
 }
 
-void LexerModule::Fold(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle,
+void LexerModule::Fold(unsigned int startPos, int lengthDoc, int initStyle,
 	  WordList *keywordlists[], Accessor &styler) const {
 	if (fnFolder) {
-		Sci_Position lineCurrent = styler.GetLine(startPos);
+		int lineCurrent = styler.GetLine(startPos);
 		// Move back one line in case deletion wrecked current line fold state
 		if (lineCurrent > 0) {
 			lineCurrent--;
-			Sci_Position newStartPos = styler.LineStart(lineCurrent);
+			int newStartPos = styler.LineStart(lineCurrent);
 			lengthDoc += startPos - newStartPos;
 			startPos = newStartPos;
 			initStyle = 0;

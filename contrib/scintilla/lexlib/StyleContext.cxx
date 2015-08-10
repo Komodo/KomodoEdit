@@ -21,12 +21,12 @@
 using namespace Scintilla;
 #endif
 
-static void getRange(Sci_PositionU start,
-		Sci_PositionU end,
+static void getRange(unsigned int start,
+		unsigned int end,
 		LexAccessor &styler,
 		char *s,
-		Sci_PositionU len) {
-	Sci_PositionU i = 0;
+		unsigned int len) {
+	unsigned int i = 0;
 	while ((i < end - start + 1) && (i < len-1)) {
 		s[i] = styler[start + i];
 		i++;
@@ -34,16 +34,16 @@ static void getRange(Sci_PositionU start,
 	s[i] = '\0';
 }
 
-void StyleContext::GetCurrent(char *s, Sci_PositionU len) {
+void StyleContext::GetCurrent(char *s, unsigned int len) {
 	getRange(styler.GetStartSegment(), currentPos - 1, styler, s, len);
 }
 
-static void getRangeLowered(Sci_PositionU start,
-		Sci_PositionU end,
+static void getRangeLowered(unsigned int start,
+		unsigned int end,
 		LexAccessor &styler,
 		char *s,
-		Sci_PositionU len) {
-	Sci_PositionU i = 0;
+		unsigned int len) {
+	unsigned int i = 0;
 	while ((i < end - start + 1) && (i < len-1)) {
 		s[i] = static_cast<char>(tolower(styler[start + i]));
 		i++;
@@ -51,6 +51,6 @@ static void getRangeLowered(Sci_PositionU start,
 	s[i] = '\0';
 }
 
-void StyleContext::GetCurrentLowered(char *s, Sci_PositionU len) {
+void StyleContext::GetCurrentLowered(char *s, unsigned int len) {
 	getRangeLowered(styler.GetStartSegment(), currentPos - 1, styler, s, len);
 }
