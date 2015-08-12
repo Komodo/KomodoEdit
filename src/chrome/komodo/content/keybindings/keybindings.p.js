@@ -331,6 +331,7 @@ function cloneObject(what) {
  *       existing keybindings to move to the state you're implementing for N+1
  *
  * Version history:
+ * 46: Komodo 9.3 - removed cmd_addAdditionalCaret
  * 41,42: Komodo 9.0.0 - add commando commands: Ctrl+Shift+K, Ctrl+Shift+O, Ctrl+<
  * 40: Komodo 9.0.0 - add Vi commands: zz z. z-
  * 39: Komodo 8.5.0b3 - add Ctrl+D for cmd_addNextWordToCaretSet
@@ -375,7 +376,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 43;
+const currentKeybindingVersionNumber = 46;
 
 /**
  * Remove this dictionary of keybinds.
@@ -978,8 +979,13 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
                 "cmd_scope-files":              [ "Meta+Shift+O" ],
                 "cmd_scope-openfiles":          [ "Meta+<" ]
             });
-            break;
 // #endif
+            break;
+        case 46:
+            this._remove_keybinding_sequences({
+                'cmd_addAdditionalCaret': ["Ctrl+K, Ctrl+Y"],
+            });
+            break;
         }
         from_version += 1;
     }

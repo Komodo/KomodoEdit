@@ -1893,12 +1893,7 @@
                 // Bug 76721: Go to definition on Ctrl+click, but only if we
                 // aren't in the middle of a drag/drop, or have a selection, or
                 // a modified click, or are in a multi-selection session.
-                if (scintilla.inDragDrop) {
-                    this.removeHyperlinks("mouseup");
-                    return;
-                }
-                if (ko.selections.getMultiCaretSession(this).isGatheringCarets
-                    && scimoz.selections > 1) {
+                if (scintilla.inDragDrop || scimoz.selections > 1) {
                     this.removeHyperlinks("mouseup");
                     return;
                 }

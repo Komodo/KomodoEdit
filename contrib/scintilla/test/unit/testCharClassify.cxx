@@ -92,8 +92,7 @@ TEST_CASE_METHOD(CharClassifyTest, "CharsOfClass") {
 	for (int classVal = 0; classVal < 4; ++classVal) {
 		CharClassify::cc thisClass = CharClassify::cc(classVal % 4);
 		int size = pcc->GetCharsOfClass(thisClass, NULL);
-		unsigned char* buffer = reinterpret_cast<unsigned char*>(malloc(size + 1));
-		CHECK(buffer);
+		unsigned char* buffer = new unsigned char[size + 1];
 		buffer[size] = '\0';
 		pcc->GetCharsOfClass(thisClass, buffer);
 		for (int i = 1; i < 256; i++) {
@@ -117,6 +116,6 @@ TEST_CASE_METHOD(CharClassifyTest, "CharsOfClass") {
 				REQUIRE_FALSE(memchr(reinterpret_cast<char*>(buffer), i, size));
 			}
 		}
-		free(buffer);
+		delete []buffer;
 	}
 }

@@ -1,4 +1,4 @@
-version 43
+version 46
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -171,7 +171,6 @@ binding cmd_scope-openfiles Meta+<
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
 
-binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y
 binding cmd_addNextWordToCaretSet Ctrl+D
 binding cmd_htmlTagRelocator Ctrl+Shift+Z
 

@@ -2167,16 +2167,6 @@
             if (ignoreKey) {
                 return;
             }
-            // On all platforms, verify that we're gathering carets.  If we are,
-            // add another range or caret.  But we can't start a session 
-            // just by clicking.
-
-	    let multiCaretSession = ko.selections.getMultiCaretSession(this);
-            let scimoz = this.scimoz;
-            if (multiCaretSession.isGatheringCarets) {
-                multiCaretSession.addRange(scimoz.selectionStart,
-                                           scimoz.selectionEnd);
-            }
         ]]>
         </handler>
 

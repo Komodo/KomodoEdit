@@ -19,13 +19,14 @@ LEXLIB=Lexers.lib
 
 LD=link
 
-CXXFLAGS=-Zi -TP -MP -W4 -EHsc -Zc:forScope -Zc:wchar_t -D_CRT_SECURE_NO_DEPRECATE=1
+CRTFLAGS=-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1 -D_CRT_SECURE_NO_DEPRECATE=1
+CXXFLAGS=-Zi -TP -MP -W4 -EHsc -Zc:forScope -Zc:wchar_t $(CRTFLAGS)
 CXXDEBUG=-Od -MTd -DDEBUG
 CXXNDEBUG=-O1 -MT -DNDEBUG -GL
 NAME=-Fo
 LDFLAGS=-OPT:REF -LTCG -DEBUG
 LDDEBUG=
-LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.LIB
+LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.LIB OLEAUT32.LIB
 NOLOGO=-nologo
 
 !IFDEF QUIET
@@ -88,7 +89,8 @@ SHAREDOBJS=\
 	$(DIR_O)\Style.obj \
 	$(DIR_O)\UniConversion.obj \
 	$(DIR_O)\ViewStyle.obj \
-	$(DIR_O)\XPM.obj
+	$(DIR_O)\XPM.obj \
+	$(DIR_O)\HanjaDic.obj \
 
 SOBJS=\
 	$(SHAREDOBJS) \
@@ -136,6 +138,7 @@ LEXOBJS=\
 	$(DIR_O)\LexGAP.obj \
 	$(DIR_O)\LexGui4Cli.obj \
 	$(DIR_O)\LexHaskell.obj \
+	$(DIR_O)\LexHex.obj \
 	$(DIR_O)\LexHTML.obj \
 	$(DIR_O)\LexInno.obj \
 	$(DIR_O)\LexKix.obj \
@@ -530,6 +533,8 @@ $(DIR_O)\LexGui4Cli.obj: ..\lexers\LexGui4Cli.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexHaskell.obj: ..\lexers\LexHaskell.cxx $(LEX_HEADERS)
 
+$(DIR_O)\LexHex.obj: ..\lexers\LexHex.cxx $(LEX_HEADERS)
+
 $(DIR_O)\LexHTML.obj: ..\lexers\LexHTML.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexInno.obj: ..\lexers\LexInno.cxx $(LEX_HEADERS)
@@ -874,7 +879,8 @@ $(DIR_O)\ScintillaWin.obj: \
 	../src/Editor.h \
 	../src/AutoComplete.h \
 	../src/ScintillaBase.h \
-	PlatWin.h
+	PlatWin.h \
+	HanjaDic.h
 $(DIR_O)\ScintillaWinL.obj: \
 	ScintillaWin.cxx \
 	../include/Platform.h \
@@ -907,7 +913,8 @@ $(DIR_O)\ScintillaWinL.obj: \
 	../src/Editor.h \
 	../src/AutoComplete.h \
 	../src/ScintillaBase.h \
-	PlatWin.h
+	PlatWin.h \
+	HanjaDic.h
 $(DIR_O)\ScintillaWinS.obj: \
 	ScintillaWin.cxx \
 	../include/Platform.h \
@@ -940,7 +947,8 @@ $(DIR_O)\ScintillaWinS.obj: \
 	../src/Editor.h \
 	../src/AutoComplete.h \
 	../src/ScintillaBase.h \
-	PlatWin.h
+	PlatWin.h \
+	HanjaDic.h
 $(DIR_O)\Selection.obj: \
 	../src/Selection.cxx \
 	../include/Platform.h \
@@ -980,3 +988,5 @@ $(DIR_O)\XPM.obj: \
 	../src/XPM.cxx \
 	../include/Platform.h \
 	../src/XPM.h
+$(DIR_O)\HanjaDic: \
+	./HanjaDic.h

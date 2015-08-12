@@ -1502,11 +1502,6 @@
             disabled="true"
             desc="&editorTabAwarePaste.desc;"/>
         <command
-            id="cmd_addAdditionalCaret" key="key_cmd_addAdditionalCaret"
-            oncommand="ko.commands.doCommandAsync('cmd_addAdditionalCaret', event)"
-            disabled="true"
-            desc="&addAdditionalCaret.desc;"/>
-        <command
             id="cmd_addNextWordToCaretSet" key="key_cmd_addNextWordToCaretSet"
             oncommand="ko.commands.doCommandAsync('cmd_addNextWordToCaretSet', event)"
             disabled="true"

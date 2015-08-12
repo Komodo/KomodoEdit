@@ -461,20 +461,10 @@ var is_cmd_addAdditionalCaret_enabled_aux = function() {
     if (!scimoz) {
         return null;
     }
-    return ko.selections.allowMultiCaretSession(scimoz) ? view : null;
+    return (scimoz.selectionMode != scimoz.SC_SEL_RECTANGLE
+            || (scimoz.lineFromPosition(scimoz.selectionStart)
+                == scimoz.lineFromPosition(scimoz.selectionEnd))) ? view : null;
 };
-
-editor_editorController.prototype.is_cmd_addAdditionalCaret_enabled = function() {
-    return is_cmd_addAdditionalCaret_enabled_aux();
-}
-
-editor_editorController.prototype.do_cmd_addAdditionalCaret = function() {
-    var view = is_cmd_addAdditionalCaret_enabled_aux();
-    if (!view) {
-        return;
-    }
-    ko.selections.startOrContinueMultiCaretSession(view);
-}
 
 editor_editorController.prototype.is_cmd_addNextWordToCaretSet_enabled = function() {
     return !!is_cmd_addAdditionalCaret_enabled_aux();
@@ -485,7 +475,13 @@ editor_editorController.prototype.do_cmd_addNextWordToCaretSet = function() {
     if (!view) {
         return;
     }
-    ko.selections.addNextWordToCaretSet(view);
+    var scimoz = view.scimoz;
+    scimoz.targetWholeDocument();
+    scimoz.searchFlags = scimoz.SCFIND_MATCHCASE;
+    if (scimoz.selectionEmpty || scimoz.isRangeWord(scimoz.selectionStart, scimoz.selectionEnd)) {
+        scimoz.searchFlags |= scimoz.SCFIND_WHOLEWORD;
+    }
+    scimoz.multipleSelectAddNext();
 };
 
 editor_editorController.prototype._aux_is_cmd_rename_tag_enabled = function() {
@@ -595,10 +591,6 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
     }
     let atStartTag, s1, s2, e1, e2, sn1, en1;
     [atStartTag, s1, s2, e1, e2] = result.value;
-    var multiCaretSession = ko.selections.getMultiCaretSession(view);
-    if (multiCaretSession.isActive) {
-        multiCaretSession.endSession();
-    }
     // Now find the tag boundaries.
     s1 += 1;
     e1 += 2;
@@ -614,25 +606,9 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
     for (en1 = e1 + 1; en1 <= lim && scimoz.getStyleAt(en1) == scimoz.SCE_UDL_M_TAGNAME; ++en1) {
         // empty
     }
-    multiCaretSession.addRangesAtomically([[s1, sn1], [e1, en1]]);
-    multiCaretSession.setEndSessionCallback(function(newText) {
-        // If we started at the end-tag, move back there, and if we started
-        // on the n'th character of the tag, try to end up there as well.
-        var newTextLen = newText.length;
-        var tagSizeChange = newTextLen - tagName.length;
-        var finalPos = isStartTag ? s1 : e1 + tagSizeChange;
-        if (tagSizeChange > 0) {
-            finalPos += offset;
-        } else if (newTextLen <= offset) {
-            finalPos += newTextLen;
-        } else {
-            finalPos += offset;
-        }
-        var finalAnchor = finalPos - anchorOffset;
-        scimoz.currentPos = finalPos;
-        scimoz.anchor = finalAnchor;
-        scimoz.scrollCaret();
-    });
+    scimoz.setSelection(sn1, s1);
+    scimoz.addSelection(en1, e1);
+    scimoz.mainSelection = 0;
 }
 
 editor_editorController.prototype.is_cmd_launchColorPicker_enabled = function() {

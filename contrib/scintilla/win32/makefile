@@ -21,7 +21,7 @@ vpath %.h ../src ../include ../lexlib
 vpath %.cxx ../src ../lexlib ../lexers
 
 LDFLAGS=-shared -static -Wl,--enable-runtime-pseudo-reloc-v2 -mwindows -Wl,--add-stdcall-alias
-LIBS=-lstdc++ -limm32 -lole32 -luuid
+LIBS=-lstdc++ -limm32 -lole32 -luuid -loleaut32
 # Add -MMD to get dependencies
 INCLUDEDIRS=-I ../include -I ../src -I../lexlib
 
@@ -91,7 +91,8 @@ BASEOBJS = \
 	Style.o \
 	UniConversion.o \
 	ViewStyle.o \
-	XPM.o
+	XPM.o \
+	HanjaDic.o
 
 SOBJS = ScintillaWin.o ScintillaBase.o $(BASEOBJS)
 

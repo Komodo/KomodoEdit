@@ -101,6 +101,7 @@ my @lexers = qw(
     GAP
     Gui4Cli
     Haskell
+    Hex
     HTML
     Inno
     Kix

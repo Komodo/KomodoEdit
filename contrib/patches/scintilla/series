@@ -1,3 +1,4 @@
+backport_multi_caret_movement.patch
 bug96667a_unicode_lexer.patch
 bug97299_set_line_state_no_notify.patch
 cocoa_background_color.patch

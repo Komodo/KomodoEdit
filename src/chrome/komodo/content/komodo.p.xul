@@ -172,7 +172,6 @@
     <script src="chrome://komodo/content/codeintel/codeintel.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/eggs.js"                 type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/abbrev.js"                 type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/multipleCaret.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/snippets.js"                 type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/ejs.js"                 type="application/x-javascript;version=1.7"/>
 
@@ -275,10 +274,6 @@
                           accesskey="&selectToMatchingBrace.menu.accesskey;"
                           observes="cmd_selectToMatchingBrace"
                           />
-                <menuitem id="editor-context-addAdditionalCaret"
-                          label="&addAdditionalCaret.label;"
-                          observes="cmd_addAdditionalCaret"
-                          acceltext="&controlClick.accesskey;"/>
                 <menuitem id="editor-context-addNextWordToCaretSet"
                           label="&addNextWordToCaretSet.label;"
                           observes="cmd_addNextWordToCaretSet"/>
@@ -766,10 +761,6 @@
                                               id="menu_selectToMatchingBrace"
                                               accesskey="&selectToMatchingBrace.menu.accesskey;"
                                               observes="cmd_selectToMatchingBrace"
-                                              />
-                                    <menuitem label="&addAdditionalCaret.label;"
-                                              id="menu_addAdditionalCaret"
-                                              observes="cmd_addAdditionalCaret"
                                               />
                                     <menuitem label="&addNextWordToCaretSet.label;"
                                               id="menu_addNextWordToCaretSet"
