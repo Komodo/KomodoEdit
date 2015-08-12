@@ -260,3 +260,8 @@ class DockerLangInfo(LangInfo):
     name = "Docker"
     conforms_to_bases = ["Text"]
     filename_patterns = ["Dockerfile"]
+
+class RLangInfo(LangInfo):
+    name = "R"
+    conforms_to_bases = ["Text"]
+    exts = [".R", ".r", ".Rout", ".Rhistory", ".Rt", ".Rout.save", ".Rout.fail", ".S"]

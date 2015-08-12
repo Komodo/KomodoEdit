@@ -218,6 +218,12 @@ my @lexers = (
                udl_path => "docker-mainlex.udl",
                skel => "skel/Docker",
               },
+              {
+               language_name => "R",
+               codename => "r_language",
+               udl_path => "r-mainlex.udl",
+               skel => "skel/R",
+              },
              );
 foreach my $info (@lexers) {
     my $language_name = $info->{language_name};
