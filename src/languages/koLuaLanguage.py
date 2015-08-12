@@ -65,7 +65,7 @@ class koLuaLanguage(KoLanguageKeywordBase):
     supportsSmartIndent = "keyword"
     _indenting_statements = ['function', 'if', 'for', 'repeat', 'while', 'else',
                              'elseif', 'do']
-    _dedenting_statements = ['break', 'continue', 'return', 'error']
+    _dedenting_statements = ['break', 'return', 'error']
     # These trigger a dedent when entered, but then count +1
     # This might be better than putting 'else' in both
     # _indenting_statements and _keyword_dedenting_keywords
@@ -138,15 +138,68 @@ end
             self._lexer.supportsFolding = 1
         return self._lexer
 
-
+    # Reserved words.
     _keywords = ["and", "break", "do", "else", "elseif", "end", "false", "for", "function",
-                 "if", "in", "local", "nil", "not", "or", "repeat", "return", "then",
+                 "goto", "if", "in", "local", "nil", "not", "or", "repeat", "return", "then",
                  "true", "until", "while"]
-    _keywords1 = ['require', 'assert', 'string', 'table',
-                  'collectgarbage', 'dofile', 'error', '_G', 'getmetatable',
-                  'ipairs', 'load', 'loadfile', 'next', 'pairs', 'pcall',
-                  'print', 'rawequal', 'rawget', 'rawlen', 'rawset', 'select',
-                  'setmetatable', 'tonumber', 'tostring', 'type', '_VERSION', 'xpcall',]
+    # Global functions and constants, and libraries.
+    _keywords1 = ["assert", "collectgarbage", "dofile", "error", "getmetatable", "ipairs",
+                  "load", "loadfile", "next", "pairs", "pcall", "print", "rawequal", "rawget",
+                  "rawset", "require", "select", "setmetatable", "tonumber", "tostring", "type",
+                  "xpcall", "_G", "_VERSION",
+                  # New in Lua 5.2.
+                  "rawlen", "_ENV",
+                  # Deprecated in 5.2.
+                  "getfenv", "loadstring", "module", "setfenv", "unpack"
+                  
+                  "string", "string.byte", "string.char", "string.dump", "string.find",
+                  "string.format", "string.gmatch", "string.gsub", "string.len", "string.lower",
+                  "string.match", "string.rep", "string.reverse", "string.sub", "string.upper",
+                  # New in Lua 5.3.
+                  "string.pack", "string.packsize", "string.unpack",
+
+                  "table", "table.concat", "table.insert", "table.remove", "table.sort",
+                  # New in 5.2.
+                  "table.pack", "table.unpack",
+                  # New in in 5.3.
+                  "table.move",
+
+                  "math", "math.abs", "math.acos", "math.asin", "math.atan", "math.ceil",
+                  "math.cos", "math.deg", "math.exp", "math.floor", "math.fmod", "math.huge",
+                  "math.log", "math.max", "math.min", "math.modf", "math.pi", "math.rad",
+                  "math.random", "math.randomseed", "math.sin", "math.sqrt", "math.tan",
+                  # New in 5.3.
+                  "math.maxinteger", "math.mininteger", "math.tointeger", "math.type",
+                  "math.ult",
+
+                  "coroutine", "coroutine.create", "coroutine.resume", "coroutine.running",
+                  "coroutine.status", "coroutine.wrap", "coroutine.yield",
+                  # New in Lua 5.3.
+                  "coroutine.isyieldable",
+
+                  "package", "package.cpath", "package.loaded", "package.loadlib",
+                  "package.path", "package.preload",
+                  # New in 5.2.
+                  "package.config", "package.searchers", "package.searchpath",
+
+                  "utf8", "utf8.char", "utf8.charpattern", "utf8.codepoint", "utf8.codes",
+                  "utf8.len", "utf8.offset",
+
+                  "io", "io.close", "io.flush", "io.input", "io.lines", "io.open", "io.output",
+                  "io.popen", "io.read", "io.stderr", "io.stdin", "io.stdout", "io.tmpfile",
+                  "io.type", "io.write",
+
+                  "os", "os.clock", "os.date", "os.difftime", "os.execute", "os.exit",
+                  "os.getenv", "os.remove", "os.rename", "os.setlocale", "os.time",
+                  "os.tmpname",
+
+                  "debug", "debug.debug", "debug.gethook", "debug.getinfo", "debug.getlocal",
+                  "debug.getmetatable", "debug.getregistry", "debug.getupvalue",
+                  "debug.sethook", "debug.setlocal", "debug.setmetatable", "debug.setupvalue",
+                  "debug.traceback",
+                  # New in Lua 5.2.
+                  "debug.getuservalue", "debug.setuservalue", "debug.upvalueid",
+                  "debug.upvaluejoin"]
     
     #XXX: Override _indentingOrDedentingStatement looking for things like
     #   return function ...
