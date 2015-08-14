@@ -185,9 +185,21 @@ void SciMoz::DefaultSettings() {
     // Indentation.
     SendEditor(SCI_SETINDENT, 4);
     SendEditor(SCI_SETTABWIDTH, 4);
-    // Allow column editing through Scintilla.
-    SendEditor(SCI_SETMULTIPLESELECTION, 0);
+    // Enable multiple caret editing.
+    SendEditor(SCI_SETMULTIPLESELECTION, 1);
     SendEditor(SCI_SETADDITIONALSELECTIONTYPING, 1);
+    SendEditor(SCI_SETMULTIPASTE, SC_MULTIPASTE_EACH);
+#if !(defined(XP_MACOSX) || defined(_WINDOWS))
+    // On Windows and Mac OSX, Alt+Mouse creates rectangular
+    // selections. On Linux, Alt+Mouse is usually handled by the
+    // window manager and moves windows. Thus Scintilla uses
+    // Ctrl+Mouse for creating rectangular selections on Linux.
+    // However, this prevents creating multiple selections with
+    // Ctrl+Click (which is used on Windows and Mac OSX). We want
+    // Ctrl+Click to create multiple selections on all platforms, so
+    // redefine the modifier for rectangular selection creation.
+    SendEditor(SCI_SETRECTANGULARSELECTIONMODIFIER, SCMOD_SUPER);
+#endif
     // This allows a rectangular selection to extend past the
     // end of the line when there is a longer selected line.
     SendEditor(SCI_SETVIRTUALSPACEOPTIONS, SCVS_RECTANGULARSELECTION);

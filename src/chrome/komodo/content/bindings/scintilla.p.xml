@@ -640,22 +640,6 @@
                     scimoz.usePopUp(0);
                 }
                 
-                // Enable multiple caret editing.
-                scimoz.multipleSelection = true;
-                scimoz.additionalSelectionTyping = true;
-                scimoz.multiPaste = scimoz.SC_MULTIPASTE_EACH;
-<!-- #if PLATFORM == "linux" -->
-                // On Windows and Mac OSX, Alt+Mouse creates rectangular
-                // selections. On Linux, Alt+Mouse is usually handled by the
-                // window manager and moves windows. Thus Scintilla uses
-                // Ctrl+Mouse for creating rectangular selections on Linux.
-                // However, this prevents creating multiple selections with
-                // Ctrl+Click (which is used on Windows and Mac OSX). We want
-                // Ctrl+Click to create multiple selections on all platforms, so
-                // redefine the modifier for rectangular selection creation.
-                scimoz.rectangularSelectionModifier = scimoz.SCMOD_SUPER;
-<!-- #endif -->
-
                 scimoz.wrapVisualFlags = prefs.getLongPref("editWordWrapMarker");
                 scimoz.wrapIndentMode = prefs.getLongPref("editWordWrapIndentation");
                 // XXX this allows us to scroll the last line to the top of the
