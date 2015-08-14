@@ -804,6 +804,7 @@ VimController.prototype.updateCursorAndSelection = function(scimoz,
         gVimController.updateVisualModeSelection(scimoz,
                                                  newCurrentPos,
                                                  anchorPos);
+        scimoz.scrollCaret();
     } else if ((newCurrentPos != null) && (newCurrentPos != oldCurrentPos)) {
         vimlog.debug("updateCursorAndSelection:: Setting currentPos: "+newCurrentPos+
                      ", oldCurrentPos: "+oldCurrentPos);
