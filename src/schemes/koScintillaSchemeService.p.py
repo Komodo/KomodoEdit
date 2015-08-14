@@ -107,7 +107,7 @@ class Scheme(SchemeBase):
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 13
+    _current_scheme_version = 15
 
     def _execfile(self, fname):
         try:
@@ -313,6 +313,10 @@ class Scheme(SchemeBase):
                     if name not in self._colors:
                         self._colors[name] = newColors[name]
                 version += 1
+                    
+            if version == 15:
+                if 'multiple_caret_area' in self._indicators:
+                    del self._indicators['multiple_caret_area']
 
             try:
                 self.save()

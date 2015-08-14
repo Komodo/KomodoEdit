@@ -561,7 +561,6 @@ IndicatorNameMap = {
     'tabstop_pending': 'DECORATOR_TABSTOP_TS1',
     'find_highlighting': 'DECORATOR_FIND_HIGHLIGHT',
     'tag_matching': 'DECORATOR_TAG_MATCH_HIGHLIGHT',
-    'multiple_caret_area': 'INDICATOR_MULTIPLE_CARET_AREAS',
 }
 
 def addSharedStyles(langMap):
