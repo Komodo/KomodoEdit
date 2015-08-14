@@ -1,0 +1,15 @@
+Dragging and dropping text sets the stage for a crash when re-showing a side
+pane. For some reason, commenting out this line prevents a potential crash.
+Bug submitted upstream; this patch may need to be excluded when upgrading
+Scintilla later.
+--- cocoa/ScintillaCocoa.mm
++++ cocoa/ScintillaCocoa.mm
+@@ -1330,7 +1330,7 @@ void ScintillaCocoa::StartDrag()
+       CGContextRef gcsw = sw->GetContext();
+       NSGraphicsContext *nsgc = [NSGraphicsContext graphicsContextWithGraphicsPort: gcsw
+                                                                            flipped: YES];
+-      [NSGraphicsContext setCurrentContext:nsgc];
++      //[NSGraphicsContext setCurrentContext:nsgc];
+       CGContextTranslateCTM(gcsw, -client.left, -client.top);
+       Paint(sw, client);
+       paintState = notPainting;

@@ -5,6 +5,7 @@ cocoa_background_color.patch
 cocoa_core_animation.patch
 cocoa_crash_on_calltip_close.patch
 cocoa_cursor.patch
+cocoa_drag_drop_induces_later_crash.patch
 cocoa_marginclick.patch
 cocoa_margin_draw_recursion.patch
 cocoa_mouse_events.patch
