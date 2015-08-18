@@ -426,16 +426,10 @@ static bool isHashRocketSuccessorColon(int i, Accessor &styler) {
         }
     }
     
-    // Check for keyword-style arguments in Ruby 1.9+ method calls.
-    if (actual_style(styler.StyleAt(pos)) == SCE_RB_IDENTIFIER) {
-        while (--pos > 0) {
-            if (actual_style(styler.StyleAt(pos)) != SCE_RB_IDENTIFIER) {
-                return styler[pos] == '.';
-            }
-        }
-    }
-    
-    return (ch == ',' || ch == '{' || ch == '(');
+    return (ch == ',' || ch == '{' ||
+            // Also consider keyword-style arguments in method defs and calls.
+            ch == '(' || actual_style(styler.StyleAt(pos)) == SCE_RB_DEFNAME ||
+            actual_style(styler.StyleAt(pos)) == SCE_RB_IDENTIFIER);
 }
 
 // Look at chars up to but not including endPos
