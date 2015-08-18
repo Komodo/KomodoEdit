@@ -543,6 +543,7 @@ StateMap['Sass'] = StateMap['SCSS'].copy()
 StateMap['Less'] = StateMap['CSS'].copy()
 StateMap['Less']['mixins'] = ('SCE_CSS_MIXIN',)
 StateMap['Octave'] = StateMap['Matlab'].copy()
+StateMap['Swift'] = StateMap['C++'].copy()
 
 SharedStates = {
     'bracebad' : ('STYLE_BRACEBAD',),

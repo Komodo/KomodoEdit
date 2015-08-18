@@ -612,3 +612,8 @@ class CamlLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
     exts = [".ml", ".mli"]
 
+class SwiftScriptLangInfo(LangInfo):
+    """https://developer.apple.com/swift/"""
+    name = "Swift"
+    exts = ['.swift']
+

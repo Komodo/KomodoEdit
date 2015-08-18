@@ -131,6 +131,7 @@ $cons->InstallXpcomComponent('koSmalltalkLanguage.py');
 $cons->InstallXpcomComponent('koSorcusLanguage.py');
 $cons->InstallXpcomComponent('koSpecmanLanguage.py');
 $cons->InstallXpcomComponent('koSQLLanguage.py');
+$cons->InstallXpcomComponent('koSwiftLanguage.py');
 $cons->InstallXpcomComponent('koTandemComputerLanguage.py');
 $cons->InstallXpcomComponent('koTADS3Language.py');
 $cons->Preprocess('koTclLanguage.p.py', 'koTclLanguage.py');
