@@ -40,7 +40,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             return new queryObject($.createElement(query));
         }
         else
-            return new queryObject(query, parent)
+            return new queryObject(query, parent);
     }
 
     /* === HELPER FUNCTIONS === */
@@ -205,10 +205,12 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         koDom: true,
 
         /*
-         * on method
-         * event = string event type i.e 'click'
-         * action = function
-         * return this
+         * Add event handler
+         * 
+         * @param {Event} event         String event type i.e 'click'
+         * @param {Function} action     Function
+         * 
+         * @returns this
          */
         on: function(event, action)
         {
@@ -219,10 +221,12 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         },
         
         /*
-         * once method
-         * event = string event type i.e 'click'
-         * action = function
-         * return this
+         * Add an event listener which only receives a callback once
+         * 
+         * @param {Event} event     String event type i.e 'click'
+         * @param {Function} action
+         * 
+         * @returns this
          */
         once: function(event, action)
         {
@@ -244,10 +248,12 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         },
 
         /*
-         * off method
-         * event = string event type i.e 'click'
-         * action = function
-         * return this
+         * Remove event listener
+         * 
+         * @param {Event} event     String event type i.e 'click'
+         * @param {Function} action 
+         * 
+         * @returns this
          */
         off: function(event, action)
         {
@@ -277,11 +283,14 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         },
 
         /*
-         * each method
-         * use native forEach to iterate collection
-         * action = the function to call on each iteration
+         * Iterate over matched elements
+         * 
+         * @param {Function} action    he function to call on each iteration
+         *
+         * @returns this
          */
-        each: function(action) {
+        each: function(action)
+        {
             for (var k in this._elements)
             {
                 if ( ! this._elements.hasOwnProperty(k)) continue;
@@ -290,17 +299,23 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             return this;
         },
 
-        /*
+        /**
          * Reverse the element array
+         * 
+         * @returns this
          */
-        reverse: function(action) {
+        reverse: function()
+        {
             this._elements.reverse();
             return this;
         },
 
         /**
          * Set text content of elem
+         * 
          * @param   {string} value
+         *
+         * @returns this
          */
         text: function(value)
         {
@@ -315,7 +330,10 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Set html content of elem
+         * 
          * @param   {string|object} value String or queryObject
+         *
+         * @returns this
          */
         html: function(value)
         {
@@ -332,6 +350,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Get outer html of elem
+         * 
+         * @returns this
          */
         outerHtml: function()
         {
@@ -340,6 +360,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Empty the contents of an element
+         *
+         * @returns this
          */
         empty: function()
         {
@@ -348,7 +370,10 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Append content to elem
+         * 
          * @param   {string|object} value String or queryObject
+         *
+         * @returns this
          */
         append: function(elem)
         {
@@ -358,16 +383,23 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Prepend content to elem
+         * 
          * @param   {string|object} value String or queryObject
+         *
+         * @returns this
          */
         prepend: function(elem)
         {
             insertIntoElem(this, elem, {where: "prepend"});
+            return this;
         },
 
         /**
          * Insert content after element
+         * 
          * @param   {string|object} value String or queryObject
+         *
+         * @returns this
          */
         after: function(elem)
         {
@@ -377,7 +409,10 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Insert content before element
+         * 
          * @param   {string|object} value String or queryObject
+         *
+         * @returns this
          */
         before: function(elem)
         {
@@ -385,12 +420,24 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             return this;
         },
 
+        /**
+         * Replace matched element(s) with ..
+         * 
+         * @param   {Element} elem 
+         * 
+         * @returns {Element} returns replaced element
+         */
         replaceWith: function(elem)
         {
             if ("koDom" in elem) elem = elem.element();
             return this.element().parentNode.replaceChild(elem, this.element());
         },
 
+        /**
+         * Clone matched element
+         * 
+         * @returns {Element} matched element
+         */
         clone: function()
         {
             return $(this.element().cloneNode(true));
@@ -398,7 +445,10 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Set / get value
+         * 
          * @param   {String|Void} value
+         *
+         * @returns this
          */
         value: function(value)
         {
@@ -414,13 +464,20 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
+        /**
+         * Retrieve parent node
+         *
+         * @returns {Element}   Parent node
+         */
         parent: function()
         {
             return $(this.element().parentNode);
         },
 
         /**
-         * Delete element
+         * Delete matched elements
+         *
+         * @returns this
          */
         delete: function()
         {
@@ -431,7 +488,9 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         },
 
         /**
-         * Makes element visible
+         * Makes element visible by setting the visibility attribute
+         *
+         * @returns this
          */
         show: function()
         {
@@ -442,7 +501,9 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         },
 
         /**
-         * Makes element invisible
+         * Makes element invisible by setting the visibility attribute
+         *
+         * @returns this
          */
         hide: function()
         {
@@ -454,17 +515,31 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Check if element is visible
+         *
+         * @returns {Boolean}
          */
         visible: function()
         {
             return ["","visible","initial", "inherit"].indexOf(this.element().style.visibility) != -1;
         },
 
+        /**
+         * Checks if element exists
+         * 
+         * @returns {Boolean}
+         */
         exists: function()
         {
             return !! this.element().parentNode;
         },
 
+        /**
+         * Adds given class 
+         * 
+         * @param {String}  className
+         * 
+         * @returns this
+         */
         addClass: function(className)
         {
             return this.each(function()
@@ -473,6 +548,13 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
+        /**
+         * Remove given class
+         * 
+         * @param {String}  className
+         * 
+         * @returns this
+         */
         removeClass: function(className)
         {
             return this.each(function()
@@ -481,6 +563,14 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
+        /**
+         * Set/get CSS value(s)
+         * 
+         * @param   {String|Object} key  
+         * @param   {Mixed|Undefined} value
+         * 
+         * @returns this
+         */
         css: function(key, value)
         {
             var pxRules = ["width", "height", "top", "left", "bottom", "right", "font-size"];
@@ -513,6 +603,14 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
+        /**
+         * Set/get attributes
+         * 
+         * @param   {String|Object} key  
+         * @param   {Mixed|Undefined} value
+         * 
+         * @returns this
+         */
         attr: function(key, value)
         {
             if ((typeof key) == 'string' && value === undefined)
@@ -535,6 +633,13 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
         
+        /**
+         * Remove Attribute
+         * 
+         * @param   {String} key
+         * 
+         * @returns this
+         */
         removeAttr: function(key)
         {
             return this.each(function()
@@ -543,6 +648,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
+        /**
+         * Get a unique ID for the matched element
+         * 
+         * @returns {String}
+         */
         uniqueId: function()
         {
             var self = this;
@@ -557,6 +667,17 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             return this.element().id;
         },
 
+        /**
+         * Animate certain properties on the matched elements
+         *
+         * NOTE: This function is extremely experimental 
+         * 
+         * @param   {Object} props   
+         * @param   {Object} opts    
+         * @param   {Function|Null} callback
+         * 
+         * @returns this
+         */
         animate: function(props, opts = {}, callback = null)
         {
             if ((typeof opts) == 'function')
@@ -685,6 +806,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             this._animTimer = window.setTimeout(frameStep.bind(this), interval);
         },
 
+        /**
+         * Stop any running animations
+         * 
+         * @returns this
+         */
         stop: function()
         {
             if ("_animTimer" in this)
@@ -704,6 +830,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Focus on element
+         *
+         * @returns this
          */
         focus: function()
         {
@@ -713,17 +841,29 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Find within current element
+         *
+         * @returns {queryObject}
          */
         find: function(query)
         {
             return new queryObject(query, this.element());
         },
 
+        /**
+         * Get child nodes
+         * 
+         * @returns {queryObject}
+         */
         children: function()
         {
             return new queryObject(this.element().childNodes);
         },
 
+        /**
+         * Remove matched elements
+         * 
+         * @returns {Void}
+         */
         remove: function()
         {
             this.each(function()
@@ -732,15 +872,25 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
-        // for some reason is needed to get an array-like
-        // representation instead of an object
-        splice: function() { return this._elements.splice.call(arguments); },
-
-        // Use first entry
+        /**
+         * Get first matched element
+         * 
+         * @returns {queryObject}
+         */
         first: function() { return new queryObject(this.element(0)); },
 
+        /**
+         * Get last matched element
+         * 
+         * @returns {queryObject}
+         */
         last: function() { return new queryObject(this.element(-1)); },
 
+        /**
+         * Get first matched element, without wrapping it in a queryObject
+         * 
+         * @returns {Element}
+         */
         element:  function(k) {
             return this._elements.slice(k || 0)[0] || undefined;
         }
