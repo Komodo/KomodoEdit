@@ -1,3 +1,6 @@
+/**
+ * @module button
+ */
 (function(){
 
     var $ = require("ko/dom");
@@ -5,6 +8,15 @@
 
     const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
+    /**
+     * Register a new button
+     * 
+     * @param   {String|Object} label   Optionally this can holds the entire opts object, with a label and command entry
+     * @param   {Function} command
+     * @param   {Object} opts   
+     * 
+     * @returns {Void}
+     */
     this.register = (label, command, opts) =>
     {
         if ((typeof label) == "object")
@@ -43,6 +55,14 @@
         }
     };
 
+    /**
+     * Unregister given button
+     * 
+     * @param   {String} id  
+     * @param   {Object} opts       context, id
+     * 
+     * @returns {Void}
+     */
     this.unregister = (id, opts) =>
     {
         id = id.replace(/\W+/g, "");
@@ -112,12 +132,18 @@
         return context;
     }
 
+    /**
+     * Exception that is thrown when no valid context was found
+     */
     function exceptionInvalidContext(context)
     {
         this.message = "The context cannot be found";
     }
     this.exceptionInvalidContext = exceptionInvalidContext;
 
+    /**
+     * Exception that is thrown when a required property was not defined
+     */
     function exceptionMissingProp(prop)
     {
         this.message = "Button registration failed due to missing " + prop + " property";

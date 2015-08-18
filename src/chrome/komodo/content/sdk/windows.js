@@ -1,3 +1,6 @@
+/**
+ * @module windows
+ */
 (function() {
     
     const {Cc, Ci, Cu}  = require("chrome");
@@ -5,6 +8,11 @@
     
     var _window;
     
+    /**
+     * Retrieve the main komodo window
+     * 
+     * @returns {Window}
+     */
     this.getMain = function()
     {
         if (_window) return _window;

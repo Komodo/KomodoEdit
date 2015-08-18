@@ -1,3 +1,6 @@
+/**
+ * @module icons
+ */
 (function() {
 
     const {Cc, Ci, Cu}  = require("chrome");

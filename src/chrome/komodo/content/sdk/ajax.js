@@ -1,18 +1,45 @@
+/**
+ * @module ajax
+ */
 (function() {
     
     const log       = require("ko/logging").getLogger("sdk-ajax");
     const {Cc, Ci}  = require("chrome");
     
+    /**
+     * Query the given path/uri via a GET request
+     * 
+     * @param   {String} path    
+     * @param   {Function} callback
+     * 
+     * @returns {Void}
+     */
     this.get = function(path, callback)
     {
         return this.request({url: path, method: 'GET'}, callback);
     }
     
+    /**
+     * Query the given path/uri via a POST request
+     * 
+     * @param   {String} path    
+     * @param   {Function} callback
+     * 
+     * @returns {Void}
+     */
     this.post = function(path, callback)
     {
         return this.request({url: path, method: 'POST'}, callback);
     }
 
+    /**
+     * Manually construct a HTTP request
+     * 
+     * @param   {String} params         url, method, headers, body, withCredentials
+     * @param   {Function} callback
+     * 
+     * @returns {Void}
+     */
     this.request = function(params, callback)
     {
         if (typeof params == 'string') params = { url: params };

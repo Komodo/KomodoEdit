@@ -1,3 +1,6 @@
+/**
+ * @module shell
+ */
 (function() {
     
     const {Cc, Ci, Cu}  = require("chrome");
@@ -6,6 +9,11 @@
     const log           = require("ko/logging").getLogger("ko-shell");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     
+    /**
+     * Get the current working directory, based on the places pane
+     * 
+     * @returns {String}
+     */
     this.getCwd = function()
     {
         // Detect current working directory
@@ -17,6 +25,11 @@
         return cwd;
     }
     
+    /**
+     * Get the configured environment variables
+     * 
+     * @returns {Object}
+     */
     this.getEnv = function()
     {   
         var env = {};
@@ -28,6 +41,14 @@
         return env;
     }
     
+    /**
+     * Look up the location of the given executable
+     * 
+     * @param   {String} command
+     * @param   {Object} env    
+     * 
+     * @returns {String|Boolean}
+     */
     this.lookup = function(command, env)
     {
         var ioFile = require("sdk/io/file");
@@ -73,6 +94,15 @@
         return false;
     }
     
+    /**
+     * Run a shell command
+     * 
+     * @param   {String} binary     Executable
+     * @param   {Array} args  
+     * @param   {Object} opts       cwd, env, ..
+     * 
+     * @returns {Process}
+     */
     this.run = function(binary, args, opts)
     {
         var _opts = {
@@ -90,8 +120,21 @@
         
         return process;
     }
+    
+    /**
+     * Alias for run
+     */
     this.spawn = this.run;
     
+    /**
+     * Execute an encoded command
+     * 
+     * @param   {String} command 
+     * @param   {Object} opts           Can contain: runIn: hud to show the output in a hud window
+     * @param   {Function} callback
+     * 
+     * @returns {Process}
+     */
     this.exec = function(command, opts, callback)
     {
         var _opts = {
@@ -129,7 +172,12 @@
         return process;
     }
     
-    // Show the result of a command in the HUD
+    /**
+     * Show output for the given process in a HUD window
+     * 
+     * @param   {Process} process
+     * @param   {String} command        The (humanly readable) command that was used to start this process
+     */
     var showOutputInHud = function(process, command)
     {
         var running = true;

@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * @module commands
+ */
 (function() {
 
     const {Cc, Ci, Cu}  = require("chrome");
@@ -112,12 +115,18 @@
         delete local.registered[commandName];
     }
 
+    /**
+     * Exception that occurs when an invalid command name was given
+     */
     function exceptionInvalidCommandName(commandName)
     {
         this.message = "The command '"+commandName+"' is not formed properly (^[a-zA-Z0-9_\-]+$)";
     }
     this.exceptionInvalidCommandName = exceptionInvalidCommandName;
 
+    /**
+     * Exception that occurs when the given command name is already being used
+     */
     function exceptionAlreadyUsed(commandName)
     {
         this.message = "The command '"+commandName+"' is already in use";

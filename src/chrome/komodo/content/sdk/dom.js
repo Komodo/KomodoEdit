@@ -3,6 +3,10 @@
 * https://github.com/dciccale/ki.js
 */
 if (typeof module === 'undefined') module = {}; // debugging helper
+
+/**
+ * @module dom
+ */
 (function() {
 
     const log   = require("ko/logging").getLogger("ko-dom");
@@ -10,7 +14,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
     /* === MAIN CONSTRUCTION LOGIC === */
 
-    /*
+    /**
      * $ main function
      * query = css selector, dom object, or function
      * http://www.dustindiaz.com/smallest-domready-ever
@@ -171,7 +175,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
     /* === FUNCTION CHAIN === */
 
-    /*
+    /**
      * queryObject function (internal use)
      * query = selector, dom element or function
      */
@@ -204,7 +208,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         // Identify as special DOM element
         koDom: true,
 
-        /*
+        /**
          * Add event handler
          * 
          * @param {Event} event         String event type i.e 'click'
@@ -220,7 +224,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
         
-        /*
+        /**
          * Add an event listener which only receives a callback once
          * 
          * @param {Event} event     String event type i.e 'click'
@@ -247,7 +251,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
-        /*
+        /**
          * Remove event listener
          * 
          * @param {Event} event     String event type i.e 'click'
@@ -282,7 +286,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
-        /*
+        /**
          * Iterate over matched elements
          * 
          * @param {Function} action    he function to call on each iteration

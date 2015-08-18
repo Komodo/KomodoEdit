@@ -1,3 +1,6 @@
+/**
+ * @module locale
+ */
 (function() {
     
     const {Cc, Ci} = require("chrome");
@@ -9,6 +12,15 @@
     
     var used = {};
     
+    /**
+     * Use the given locale properties file
+     *
+     * Note this is optional when used from an addon context that has a properly structured localization file
+     * 
+     * @param   {String} properties
+     * 
+     * @returns {Void}
+     */
     this.use = function(properties)
     {
         log.debug("Using " + properties);
@@ -43,6 +55,11 @@
         }
     }
     
+    /**
+     * retrieve the matched bundle (properties) file uri for the current context
+     * 
+     * @returns {String}
+     */
     this.getBundleURI = function()
     {
         var stack = require("ko/console")._parseStack((new Error()).stack);
@@ -64,6 +81,14 @@
         return bundleUri;
     }
     
+    /**
+     * Get localization string
+     * 
+     * @param   {String} name
+     * @param   {String} ...    Formatted strings
+     * 
+     * @returns {String}
+     */
     this.get = function(name)
     {
         var bundleUri = this.getBundleURI();

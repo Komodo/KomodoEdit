@@ -1,3 +1,6 @@
+/**
+ * @module menu
+ */
 (function(){
 
     const $ = require("ko/dom");
@@ -9,6 +12,13 @@
         editorContext: "#editorContextMenu"
     }
 
+    /**
+     * Register a new menu item
+     * 
+     * @param   {String|Object} label      Can also be the opts object, containing a label and command entry
+     * @param   {Function} command
+     * @param   {Object} opts   
+     */
     this.register = (label, command, opts) =>
     {
         log.debug("Registering " + label);
@@ -49,6 +59,12 @@
         }
     };
 
+    /**
+     * Unregister a menu item
+     * 
+     * @param   {String} id  
+     * @param   {Object} opts       used for context
+     */
     this.unregister = (id, opts) =>
     {
         id = id.replace(/\W+/g, "");
@@ -196,12 +212,18 @@
         });
     }
 
+    /**
+     * Exception thrown when the context is not valid
+     */
     function exceptionInvalidContext(context)
     {
         this.message = "The context cannot be found or is not a menupopup";
     }
     this.exceptionInvalidContext = exceptionInvalidContext;
 
+    /**
+     * Exception thrown when a required property is missing
+     */
     function exceptionMissingProp(prop)
     {
         this.message = "Menu registration failed due to missing " + prop + " property";

@@ -17,6 +17,9 @@ var scintilla = function()
     return window.ko.views.manager.currentView.scintilla;
 }
 
+/**
+ * @module editor
+ */
 module.exports = {
 
     available: function() {
@@ -627,6 +630,13 @@ module.exports = {
 
     /** ****** Bookmarks ****** **/
 
+    /**
+     * Get all registered bookmarks
+     * 
+     * @param   {Long} type     See ko.markers
+     * 
+     * @returns {Array}
+     */
     getAllMarks: function(type = ko.markers.MARKNUM_BOOKMARK)
     {
         if ( ! scimoz()) return [];
@@ -653,7 +663,14 @@ module.exports = {
 
     /** ****** Helpers ****** **/
     
+    /**
+     * Access to the scimoz object
+     */
     scimoz: scimoz,
+    
+    /**
+     * Access to the scintilla object
+     */
     scintilla: scintilla,
 
     /**
