@@ -567,6 +567,8 @@
         kitt();
 
         if (local.searchTimer && ! noDelay) return; // Search is already queued
+        
+        c.stop();
 
         elem("panel").addClass("loading");
         var searchDelay = prefs.getLong('commando_search_delay', 200);
@@ -1386,6 +1388,12 @@
     {
         local.prevSearchValue = null;
         local.searchingUuid = null;
+        
+        if (local.renderResultsTimer)
+        {
+            window.clearTimeout(local.renderResultsTimer);
+            local.renderResultsTimer = false;
+        }
     }
 
     this.empty = function()
