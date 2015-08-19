@@ -304,5 +304,65 @@
             hud.element().hidePopup();
         });
     }
+    
+    /**
+     * Parses table information into a JS array
+     *
+     * Example:
+     *
+     * FOO      BAR
+     * val1a    val2a
+     * val1b    val2a
+     *
+     * Results in:
+     *
+     * [
+     *   {FOO: val1a, BAR: val2a},
+     *   {FOO: val1b, BAR: val2b}
+     * ]
+     * 
+     * @returns {Array}
+     */
+    this.parseTable = function(output)
+    {
+        var lines = output.split(/\n|\r/);
+        var headers = false, result = [];
+        for (let line of lines)
+        {
+            if ( ! line.trim().length) continue;
+            if ( ! headers)
+            {
+                let linebits = line.split(/\s{2,}/);
+                for (let entry of linebits)
+                {
+                    if ( ! entry.match(/^[A-Z ]+$/))
+                        break;
+                    
+                    headers = headers || [];
+                    
+                    var rx = new RegExp(entry + "\\s+");
+                    var match = line.match(rx);
+                    var iof = line.indexOf(entry);
+                    
+                    headers.push({
+                        name: entry.trim(),
+                        indexStart: iof,
+                        length: match ? match.pop().length : undefined
+                    })
+                }
+            }
+            else
+            {
+                let entry = {};
+                for (let header of headers)
+                {
+                    entry[header.name] = line.substr(header.indexStart, header.length).trim();
+                }
+                result.push(entry);
+            }
+        }
+        
+        return result;
+    }
 
 }).apply(module.exports)
