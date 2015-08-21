@@ -1602,11 +1602,39 @@
                                         tooltiptext="&komodoBugDatabase.tooltiptext;"
                                         observes="cmd_helpViewBugs"
                                         />
+                                    <menuseparator/>
                                     <menuitem
-                                        id="troubleshootingContactUsMenuItem"
-                                        accesskey="&helpTroubleshootingContactUs.accesskey;"
-                                        label="&helpTroubleshootingContactUs.label;"
-                                        observes="cmd_helpContactUs"
+                                        label="Restart in Safe-Mode"
+                                        oncommand="ko.main.restartWithFlag('tempProfile')"
+                                    />
+                                    <menuitem
+                                        label="Restart Without Addons"
+                                        oncommand="ko.main.restartWithFlag('tempNoAddons')"
+                                    />
+                                    <menuitem
+                                        label="Restart Without Tools"
+                                        oncommand="ko.main.restartWithFlag('tempNoToolbox')"
+                                    />
+                                    <menuseparator/>
+                                    <menuitem
+                                        label="Reset Everything"
+                                        oncommand="ko.main.restartWithFlag('cleanProfile')"
+                                    />
+                                    <menuitem
+                                        label="Reset File Preferences"
+                                        oncommand="ko.main.restartWithFlag('cleanDocState')"
+                                    />
+                                    <menuitem
+                                        label="Reset UI Setup"
+                                        oncommand="ko.main.restartWithFlag('cleanViewState')"
+                                    />
+                                    <menuitem
+                                        label="Reset CodeIntel Database"
+                                        oncommand="ko.main.restartWithFlag('cleanCodeintel')"
+                                    />
+                                    <menuitem
+                                        label="Reset Caches"
+                                        oncommand="ko.main.restartWithFlag('cleanCaches')"
                                     />
                                 </menupopup>
                             </menu>
@@ -2119,8 +2147,8 @@
                             <button label="&pane.customize.done.label;"
                                     oncommand="ko.uilayout._customizeComplete(true);"/>
                         </vbox>
-                        <hbox id="quicklaunch" pack="center" class="hud">
-                            <vbox pack="center" align="left">
+                        <vbox id="quicklaunch" pack="center" class="hud">
+                            <vbox pack="center" align="center" flex="1" class="inner">
 
                                 <button label="New File"
                                         class="new-file-icon"
@@ -2205,7 +2233,71 @@
                                         oncommand="ko.uilayout.customize()"/>
 
                             </vbox>
-                        </hbox>
+                            <hbox align="end" pack="end" class="footer">
+                                <button label="Troubleshooting"
+                                        class="help-icon"
+                                        type="menu">
+                                    <menupopup position="before_end">
+                                        <menuitem
+                                            label="Restart in Safe-Mode"
+                                            oncommand="ko.main.restartWithFlag('tempProfile')"
+                                        />
+                                        <menuitem
+                                            label="Restart Without Addons"
+                                            oncommand="ko.main.restartWithFlag('tempNoAddons')"
+                                        />
+                                        <menuitem
+                                            label="Restart Without Tools"
+                                            oncommand="ko.main.restartWithFlag('tempNoToolbox')"
+                                        />
+                                        <menuseparator/>
+                                        <menuitem
+                                            label="Reset Everything"
+                                            oncommand="ko.main.restartWithFlag('cleanProfile')"
+                                        />
+                                        <menuitem
+                                            label="Reset File Preferences"
+                                            oncommand="ko.main.restartWithFlag('cleanDocState')"
+                                        />
+                                        <menuitem
+                                            label="Reset UI Setup"
+                                            oncommand="ko.main.restartWithFlag('cleanViewState')"
+                                        />
+                                        <menuitem
+                                            label="Reset CodeIntel Database"
+                                            oncommand="ko.main.restartWithFlag('cleanCodeintel')"
+                                        />
+                                        <menuitem
+                                            label="Reset Caches"
+                                            oncommand="ko.main.restartWithFlag('cleanCaches')"
+                                        />
+                                        <menuseparator/>
+                                        <menuitem
+                                            id="troubleshootingQLViewErrorLogMenuItem"
+                                            accesskey="&helpTroubleshootingViewErrorLog.accesskey;"
+                                            label="&helpTroubleshootingViewErrorLog.label;"
+                                            observes="cmd_helpViewErrorLog"
+                                        />
+                                        <menuitem
+                                            id="troubleshootingQLAboutMemory"
+                                            accesskey="&helpTroubleshootingAboutMemory.accesskey;"
+                                            label="&helpTroubleshootingAboutMemory.label;"
+                                            observes="cmd_komodoMemoryUsage"
+                                        />
+                                        <menuitem
+                                            id="troubleshootingQLViewBugsMenuItem"
+                                            accesskey="&komodoBugDatabase.accesskey;"
+                                            label="&komodoBugDatabase.label;"
+                                            tooltiptext="&komodoBugDatabase.tooltiptext;"
+                                            observes="cmd_helpViewBugs"
+                                            />
+                                    </menupopup>
+                                </button>
+                                <button label="&komodoBugDatabase.label;"
+                                        class="bug-icon"
+                                        observes="cmd_helpViewBugs"/>
+                            </hbox>
+                        </vbox>
                     </deck>
 
                     <statusbar fullscreentoolbar="true" orient="horizontal"

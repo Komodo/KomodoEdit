@@ -334,21 +334,32 @@ toolbar#nav-bar
     border: 0 !important;
     border-radius: 0 !important;
     
-    :not(button) > button
+    .inner > button
     {
         width: 250px;
         padding: 6px 4px;
         margin: 2px 0 1px;
 
-        image.button-icon
-        {
-            display: block;
-            margin-right: 6px;
-        }
-
         label
         {
             text-align: left;
+        }
+    }
+    
+    image.button-icon
+    {
+        display: block;
+        margin-right: 6px;
+    }
+    
+    .footer
+    {
+        padding: 4px 6px;
+        
+        image
+        {
+            max-width: 12px;
+            max-height: 12px;
         }
     }
 

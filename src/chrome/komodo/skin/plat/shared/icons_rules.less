@@ -244,6 +244,12 @@ menulist dropmarker, textbox[type="autocomplete"] dropmarker,
     list-style-image: @icon-help;
 }
 
+.button-menu-dropmarker,
+.button-menubutton-dropmarker
+{
+    list-style-image: none;
+}
+
 menu .help-icon, menuitem .help-icon
 {
     list-style-image: @icon-menu-help;
@@ -569,6 +575,11 @@ treechildren::-moz-tree-image(remotefile)
 .textbox-search-icon
 {
     list-style-image: @icon-textbox-search;
+}
+
+.bug-icon
+{
+    list-style-image: @icon-bugs;
 }
 
 /* Komodo icons */
@@ -1859,6 +1870,16 @@ window.hud-skinning statusbar
     .button-menubutton-dropmarker,
     {
         list-style-image: @icon-hud-dropmarker !important;
+    }
+    
+    .help-icon
+    {
+        list-style-image: @icon-hud-help;
+    }
+    
+    .bug-icon
+    {
+        list-style-image: @icon-hud-bugs;
     }
     
     /**
