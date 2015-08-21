@@ -25,17 +25,24 @@
     border: 0 !important;
 }
 
-row > label {
+#find-box-wrap > hbox > label,
+#find-box-wrap > hbox > spacer
+{
+    width: 4.5em;
+}
+
+#find-box-wrap > hbox > spacer
+{
+    margin: 0 6px;
+}
+
+.buttons > *
+{
     width: 85px;
 }
 
 spacer.button-spacer {
     width: 96px; /* Add margin of label above */
-}
-
-#find-buttons button,
-#find-buttons checkbox {
-    width: 150px;
 }
 
 window:not(.mode-replace) #repl-row {
