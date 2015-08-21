@@ -52,7 +52,8 @@
         }
     }
 
-    textbox
+    textbox,
+    menulist
     {
         -moz-appearance: none !important;
         background-color: @hud-selection-background !important;
@@ -73,7 +74,7 @@
         background: @hud-dock-color;
         color: @hud-foreground;
         border: 0;
-        border-radius: 3px;
+        border-radius: 2px;
         padding: 2px 4px;
 
         &:hover
@@ -126,10 +127,14 @@
 
 /* Findbar */
 
-ko-findbar.hud
+ko-findbar.hud,
+#find2-window.hud
 {
     border-width: 1px 0 0 0 !important;
-    
+}
+
+ko-findbar.hud
+{
     toolbarbutton
     {
         width: 32px !important;

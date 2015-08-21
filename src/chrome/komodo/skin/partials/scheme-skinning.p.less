@@ -131,7 +131,8 @@
     richlistitem,
     listitem,
     row,
-    textbox
+    textbox,
+    menulist
     {
         color: @foreground !important;
         border-color: fade(@border, 0%) !important;
@@ -180,7 +181,8 @@
 statusbar#statusbarviewbox,
 .hud
 {
-    :not(menupopup) > textbox:not(.transparent)
+    :not(menupopup) > textbox:not(.transparent),
+    menulist
     {
         -moz-appearance: none !important;
         background: @background-input !important;

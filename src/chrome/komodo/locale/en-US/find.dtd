@@ -89,7 +89,7 @@
 <!ENTITY replaceAllButton.accesskey "A">
 <!ENTITY replaceButton.accesskey "R">
 <!ENTITY sAnyWhitespaceCharacter.label "\s : any whitespace character">
-<!ENTITY searchIn.label "Search in">
+<!ENTITY searchIn.label "Where:">
 <!ENTITY searchIn.title "Search In">
 <!ENTITY selection.label "Selection">
 <!ENTITY theResultOfTheMatchIsNOTAssignedAGroupNumber.tooltiptext "the result of the match is NOT assigned a group number">
@@ -121,7 +121,7 @@
 <!ENTITY context_menu_ignore.label "Exclude path">
 
 <!--find2.xul-->
-<!ENTITY findWhat.label "Find what:">
+<!ENTITY findWhat.label "Find:">
 <!ENTITY findWhat.accesskey "n">
 <!ENTITY regExpShortcut.tooltiptext "Regular Expression Shortcuts">
 <!ENTITY namedGroup.label "(?P&lt;name&gt;...) : named group">
@@ -131,7 +131,7 @@
 <!ENTITY positiveLookbehindAssertion.tooltiptext "matches if the current position is immediately preceded by a match for &lt;...&gt;">
 <!ENTITY negativeLookbehindAssertion.label "(?&lt;!...) : negative lookbehind assertion">
 <!ENTITY negativeLookbehindAssertion.tooltiptext "matches if the current position is NOT immediately preceded by a match for &lt;...&gt;">
-<!ENTITY replaceWith.label "Replace with:">
+<!ENTITY replaceWith.label "Replace:">
 <!ENTITY replaceWith.accesskey "l">
 <!ENTITY regex.label "Regex">
 <!ENTITY regex.accesskey "x">
