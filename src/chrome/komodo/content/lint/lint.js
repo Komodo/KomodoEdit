@@ -103,6 +103,7 @@ var global_pref_observer_topics = {
     "lintDelay": null,
     "lintEOLs" : null,
     "endOfLine" : null,
+    "lintShowResultsInline" : null,
     "lintClearOnTextChange" : null,
     "nodejsDefaultInterpreter" : NODEJS_LIST,
     "perlDefaultInterpreter" : PERL_LIST,
@@ -338,6 +339,7 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
                 }
                 // FALLTHRU
                 case "lintEOLs":
+                case "lintShowResultsInline":
                 case "endOfLine":
                 _log.info("LintBuffer["+this.view.title+
                           "].observed EOL pref change, re-linting");

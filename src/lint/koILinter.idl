@@ -97,6 +97,10 @@ interface koILintResult : nsISupports
   
     // Note: We can go up to 63 indicators, though any indicator above 31 will
     //       not work with the scimoz.indicatorAllOnFor() method.
+    
+    // Additional styles used by annotations.
+    const long ANNOTATION_ERROR = 0;
+    const long ANNOTATION_WARNING = 1;
 };
 
 [scriptable, uuid(D990E18E-807F-47f9-8C9D-5D2AC5D9A4CF)]

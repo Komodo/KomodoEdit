@@ -522,7 +522,8 @@
                 }
 
                 if (pos > 0 && pos < sm.length) {
-                    if (this.lintBuffer && this.lintBuffer.lintResults) {
+                    if (this.lintBuffer && this.lintBuffer.lintResults &&
+                        !this.prefs.getBoolean("lintShowResultsInline")) {
                         var charOffset = pos - sm.positionFromLine(lineNo) + 1;
                         var results = {};
                         var numResults = {};

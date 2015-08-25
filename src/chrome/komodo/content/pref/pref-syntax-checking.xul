@@ -46,6 +46,10 @@
                       style="margin-left: 27px;"
                       label="&lintEOLs.label;"
                       pref="true"/>
+            <checkbox id="lintShowResultsInline"
+                      style="margin-left: 27px;"
+                      label="&lintShowResultsInline.label;"
+                      pref="true"/>
             <checkbox id="lintClearOnTextChange"
                       style="margin-left: 27px;"
                       label="&lintClearResultsOnEachChange.label;"

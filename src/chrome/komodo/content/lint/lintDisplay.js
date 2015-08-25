@@ -25,6 +25,8 @@ _log.setLevel(ko.logging.LOG_INFO);
 
 const DECORATOR_ERROR = Components.interfaces.koILintResult.DECORATOR_ERROR;
 const DECORATOR_WARNING = Components.interfaces.koILintResult.DECORATOR_WARNING;
+const ANNOTATION_ERROR = Components.interfaces.koILintResult.ANNOTATION_ERROR;
+const ANNOTATION_WARNING = Components.interfaces.koILintResult.ANNOTATION_WARNING;
 const SEV_ERROR = Components.interfaces.koILintResult.SEV_ERROR;
 
 this._in_display = 0; // recursion protection.
@@ -44,6 +46,7 @@ this.displayClear = function(scimoz) {
             scimoz.indicatorCurrent = val;
             scimoz.indicatorClearRange(0, scimoz.length);
         });
+    scimoz.annotationClearAll();
     this._in_display = 0;
 };
 
@@ -104,6 +107,7 @@ this._display = function(lintBuffer, lintResults) {
             scimoz.indicatorCurrent = indicType;
             scimoz.indicatorClearRange(0, doclen);
         }
+        scimoz.annotationClearAll();
         return;
     } else if (lim > 50) {
         // Do only the indicators in the current view
@@ -141,6 +145,7 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
         scimoz.indicatorCurrent = indicType;
         scimoz.indicatorClearRange(startPos, docLen);
     }
+    scimoz.annotationClearAll();
 
     var startLine = scimoz.lineFromPosition(startPos);
     var endLine = scimoz.lineFromPosition(startPos + docLen);
@@ -190,7 +195,8 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
                 // Ignore zero-length results.
                 continue;
             }
-            offsetsAndValues.push([indicStart, indicLen, indic]);
+            var style = (r.severity == SEV_ERROR ? ANNOTATION_ERROR : ANNOTATION_WARNING);
+            offsetsAndValues.push([indicStart, indicLen, indic, lineEnd, style, r.description]);
 
         //} else {
         //    log.error("Suspicious lint result discarded (sanity "
@@ -218,7 +224,7 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
     var start, length, value;
     var finalNewIndicators = [];
     for each (var offsetAndValue in offsetsAndValues) {
-        [start, length, value] = offsetAndValue;
+        [start, length, value, line, style, description] = offsetAndValue;
         //log.debug("Draw squiggle:%d at pos[%d:%d], line %d:%d => %d:%d",
         //          value, start, start + length,
         //          scimoz.lineFromPosition(start),
@@ -227,6 +233,10 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
         //          start + length - 1 - scimoz.positionFromLine(scimoz.lineFromPosition(start + length - 1)))
         scimoz.indicatorCurrent = value;
         scimoz.indicatorFillRange(start, length);
+        if (ko.prefs.getBoolean("lintShowResultsInline")) {
+            scimoz.annotationSetText(line, description);
+            scimoz.annotationSetStyle(line, style);
+        }
     }
     //var time3 = new Date();
     //dump("                                       drawing: " + (time3 - time2) + "msec\n");
