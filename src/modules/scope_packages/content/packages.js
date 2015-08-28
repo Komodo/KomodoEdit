@@ -325,7 +325,11 @@
             {
                 pkg.kind = kind;
                 if ( ! this._getInstallable(pkg)) continue;
-                results[pkg.name] = pkg;
+                if (pkg.manifest_id) {
+                    results[pkg.manifest_id] = pkg;
+                } else {
+                    results[pkg.name] = pkg; // TODO: toolbox, macros, keybinds, and schemes need to have proper ID
+                }
             }
             
             cache[kind] = {result: results, time: time};
@@ -343,12 +347,13 @@
     
     /**
      * Retrieves a dictionary of installed packages of the given kind.
-     * Keys are package names and values are package metadata. Package metadata
-     * contains `name`, `kind`, `description`, `version`, and `data` fields.
-     * `data` is a kind-specific object. For example, for ADDONS, `data` is an
-     * Addon object, for MACROS, `data` is the tool's ID in the toolbox, etc.
-     * This kind of package metadata can be passed to `_uninstallPackage()` for
-     * uninstalling. Useful fields are `name`, `description`, and `version`.
+     * Keys are package IDs and values are package metadata. Package metadata
+     * contains `id`, `name`, `kind`, `description`, `version`, and `data`
+     * fields. `data` is a kind-specific object. For example, for ADDONS, `data`
+     * is an Addon object, for MACROS, `data` is the tool's ID in the toolbox,
+     * etc. This kind of package metadata can be passed to `_uninstallPackage()`
+     * for uninstalling. Useful fields are `id`, `name`, `description`, and
+     * `version`.
      * @param kind The kind of package to request. (At this time, available
      *   kinds are ADDONS, TOOLBOX, MACROS, SCHEMES, SKINS, and KEYBINDS.)
      * @param callback The callback to call with the dictionary retrieved.
@@ -384,12 +389,13 @@
                     for (let addon of aAddons)
                     {
                         let pkg = {};
+                        pkg.id = addon.id; // needed for checking for updates
                         pkg.name = addon.name;
                         pkg.kind = kind; // needed by _uninstallPackage()
                         pkg.description = addon.description;
                         pkg.version = addon.version;
                         pkg.data = addon; // needed by _uninstallPackage()
-                        packages[pkg.name] = pkg;
+                        packages[pkg.id] = pkg;
                         //log.debug("Found " + pkg.name + " v" + pkg.version);
                     }
                     cache[kind] = {result: packages, time: time};
@@ -407,10 +413,11 @@
                 {
                     // TODO: filter out default toolboxes and macros?
                     let pkg = {};
+                    pkg.id = view.getTool(i).name; // TODO: proper ID needed for checking for updates
                     pkg.name = view.getTool(i).name;
                     pkg.kind = kind; // needed by _uninstallPackage()
                     pkg.data = i; // needed by _uninstallPackage()
-                    packages[pkg.name] = pkg;
+                    packages[pkg.id] = pkg;
                     //log.debug("Found " + pkg.name);
                 }
                 cache[kind] = {result: packages, time: time};
@@ -434,9 +441,10 @@
                         continue; // filter out default schemes
                     }
                     let pkg = {};
+                    pkg.id = name; // TODO: proper ID needed for checking for updates
                     pkg.name = name;
                     pkg.kind = kind; // needed by _uninstallPackage()
-                    packages[pkg.name] = pkg;
+                    packages[pkg.id] = pkg;
                     //log.debug("Found " + pkg.name);
                 }
                 cache[kind] = {result: packages, time: time};
@@ -457,7 +465,7 @@
     
     /**
      * Retrieves a dictionary of upgradable packages of the given kind.
-     * Keys are package names and values are package metadata. Package metadata
+     * Keys are package IDs and values are package metadata. Package metadata
      * comes from Komodo's website:
      *     http://www.komodoide.com/json/*.json
      * where * is a kind, as described below.
@@ -476,16 +484,16 @@
                 var upgradable = {};
                 // Iterate over installed packages and check upstream to see if
                 // any updates are available.
-                for (let name in installed)
+                for (let id in installed)
                 {
-                    let installedPkg = installed[name];
-                    let upstreamPkg = available[name];
+                    let installedPkg = installed[id];
+                    let upstreamPkg = available[id];
                     if (!upstreamPkg)
                     {
-                        //log.debug("Installed package " + name + " does not exist upstream; ignoring.");
+                        //log.debug("Installed package " + id + " does not exist upstream; ignoring.");
                         continue;
                     }
-                    //log.debug("Installed package " + name + " exists upstream.");
+                    //log.debug("Installed package " + id + " exists upstream.");
                     // Verify the package has a release.
                     if (!(upstreamPkg.releases) || upstreamPkg.releases.length == 0)
                     {
@@ -509,9 +517,9 @@
                     // TODO: some packages do not store version information
                     // (like macros and schemes). Figure out a more reliable way
                     // to determine whether or not updates are available.
-                    if (installedPkg.version != release.name)
+                    if (installedPkg.version != release.version)
                     {
-                        upgradable[name] = upstreamPkg;
+                        upgradable[id] = upstreamPkg;
                         //log.debug("Package has a newer version; marking as upgradable.");
                     }
                     else
