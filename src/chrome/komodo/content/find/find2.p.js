@@ -75,8 +75,6 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 
 //---- public methods for the dialog
 
-if ( ! opener) opener = require("ko/windows").getMain();
-
 function on_load() {
     try {
         _g_prefs = Components.classes["@activestate.com/koPrefService;1"]
@@ -266,7 +264,7 @@ function update(changed /* =null */) {
         opts.patternType = (widgets.opt_regex.checked ?
             koIFindOptions.FOT_REGEX_PYTHON : koIFindOptions.FOT_SIMPLE);
         
-        //_collapse_widget(widgets.pattern_btn, !widgets.opt_regex.checked);
+        _collapse_widget(widgets.pattern_btn, !widgets.opt_regex.checked);
     }
     if (changed == "case") {
         // Skip this for initialization (changed=null).
@@ -889,7 +887,6 @@ function _init_widgets()
     widgets.excludes_row = document.getElementById('excludes-row');
     widgets.excludes = document.getElementById('excludes');
 
-    widgets.find_btn_wrap = document.getElementById('find-buttons');
     widgets.find_prev_btn = document.getElementById('find-prev-btn');
     widgets.find_next_btn = document.getElementById('find-next-btn');
     widgets.replace_btn = document.getElementById('replace-btn');
@@ -900,15 +897,18 @@ function _init_widgets()
     widgets.mark_all_btn = document.getElementById('mark-all-btn');
     //widgets.close_btn = document.getElementById('close-btn');
     //widgets.help_btn = document.getElementById('help-btn');
+    widgets.pin_btn = document.getElementById('pin-btn');
+    var pinned = _g_prefs.getBooleanPref("find-pinFindReplaceDialog");
+    widgets.pin_btn.checked = pinned;
+    pinDialog(pinned);
 }
 
 /**
  * Initialize the dialog from `opener.ko.launch.find2_dialog_args` data.
  */
 function _init() {
-    if (window.arguments) {
-        var [args] = window.arguments;
-    } else {
+    var [args] = window.arguments || [];
+    if (typeof(args) == "undefined") {
         args = opener.ko.launch.find2_dialog_args || {};
         opener.ko.launch.find2_dialog_args = null;
     }
@@ -1243,7 +1243,7 @@ function _update_mode_ui() {
         }
     }
     
-    //_collapse_widget(widgets.pattern_btn, !widgets.opt_regex.checked);
+    _collapse_widget(widgets.pattern_btn, !widgets.opt_regex.checked);
     
     // Set the default button.
     if (_g_curr_default_btn == default_btn) {
@@ -1418,8 +1418,6 @@ function _toggle_collapse(widget) {
     } else {
         widget.setAttribute("collapsed", "true");
     }
-    
-    updateWrapperHeight();
 }
 
 function _collapse_widget(widget, collapse) {
@@ -1429,8 +1427,6 @@ function _collapse_widget(widget, collapse) {
         if (widget.hasAttribute("collapsed"))
             widget.removeAttribute("collapsed");
     }
-    
-    updateWrapperHeight();
 }
 
 function _hide_widget(widget, hide) {
@@ -1440,25 +1436,44 @@ function _hide_widget(widget, hide) {
         if (widget.hasAttribute("hidden"))
             widget.removeAttribute("hidden");
     }
-    
-    updateWrapperHeight();
 }
 
 function _disable_widget(widget) {
     widget.setAttribute("disabled", "true");
-    updateWrapperHeight();
 }
 function _enable_widget(widget) {
     if (widget.hasAttribute("disabled")) {
         widget.removeAttribute("disabled");
     }
-    updateWrapperHeight();
 }
 
-function updateWrapperHeight()
-{
-    var elem = opener.document.getElementById("findReplaceWrap");
-    var bo = document.getElementById('find-box-wrap').boxObject;
-    elem.setAttribute("height", bo.height);
+/**
+ * Toggle whether the window is raised
+ */
+function toggle_pin() {
+    var pinned = widgets.pin_btn.checked;
+    _g_prefs.setBooleanPref("find-pinFindReplaceDialog", pinned);
+    pinDialog(pinned);
+}
+
+function pinDialog(pinned) {
+    function getXULWindowForDOMWindow(win)
+        win.QueryInterface(Ci.nsIInterfaceRequestor)
+           .getInterface(Ci.nsIWebNavigation)
+           .QueryInterface(Ci.nsIDocShellTreeItem)
+           .treeOwner
+           .QueryInterface(Ci.nsIInterfaceRequestor)
+           .getInterface(Ci.nsIXULWindow);
+    let rootWin = getXULWindowForDOMWindow(window);
+    let parentWin = ((opener && !opener.closed)
+                     ? getXULWindowForDOMWindow(opener)
+                     : null);
+    try {
+        Cc["@activestate.com/koIWindowManagerUtils;1"]
+          .getService(Ci.koIWindowManagerUtils)
+          .setOnTop(rootWin, parentWin, pinned);
+    } catch(ex) {
+        log.exception(ex, "pinDialog: Can't setOnTop");
+    }
 }
  

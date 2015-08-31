@@ -2216,10 +2216,6 @@
                             </vbox>
                         </hbox>
                     </deck>
-                    
-                    <hbox id="findReplaceWrap" height="200" collapsed="true">
-                        <browser id="findReplaceBrowser" type="chrome" flex="1"/>
-                    </hbox>
 
                     <statusbar fullscreentoolbar="true" orient="horizontal"
                                id="statusbarviewbox"
