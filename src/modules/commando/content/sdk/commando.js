@@ -571,7 +571,7 @@
         c.stop();
 
         elem("panel").addClass("loading");
-        var searchDelay = prefs.getLong('commando_search_delay', 200);
+        var searchDelay = prefs.getLong('commando_search_delay', 100);
 
         if (noDelay)
         {

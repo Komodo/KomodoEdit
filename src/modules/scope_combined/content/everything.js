@@ -1,6 +1,7 @@
 (function() {
     const log       = require("ko/logging").getLogger("commando-scope-combined-everything")
     const commando  = require("commando/commando");
+    const prefs     = require("ko/prefs");
 
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
@@ -27,13 +28,20 @@
             length++;
         }
 
+        var delay = 0;
         for (let id in _scopes)
         {
             let scope = _scopes[id];
-            require(scope.handler).onSearch(query, uuid, function()
-            {
-                if (--length === 0) onComplete();
-            }.bind(this));
+            
+            setTimeout(function() {
+                if (commando.getActiveSearchUuid() != uuid) return;
+                
+                require(scope.handler).onSearch(query, uuid, function(handler)
+                {
+                    if (--length === 0) onComplete();
+                }.bind(this, scope.handler));
+            }.bind(this), delay);
+            delay = delay + prefs.getLong("scope-everything-search-padding", 50);
         }
     }
     

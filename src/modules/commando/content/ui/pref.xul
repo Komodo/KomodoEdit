@@ -41,7 +41,7 @@
                          pref="true"
                          id="commando_search_delay"
                          preftype="long"
-                         prefdefault="200"
+                         prefdefault="100"
                          tooltiptext="Search input will be delayed/grouped by this interval"/>
             </hbox>
             <spacer/>
