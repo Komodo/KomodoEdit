@@ -900,7 +900,7 @@ function python3_setup() {
                         pep83StatusByExecutable[python3Exe] = appInfoEx.haveModules(1, ['pep8']);
                     }
                     if (!(python3Exe in pyflakes3StatusByExecutable)) {
-                        res = appInfoEx.haveModules(1, ['pyflakes3.scripts.pyflakes']);
+                        res = appInfoEx.haveModules(1, ['pyflakes']);
                         pyflakes3StatusByExecutable[python3Exe] = res;
                     }
                     languageInfo.Python3.updateUI(python3Exe);
