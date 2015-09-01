@@ -1,0 +1,11 @@
+family tpl
+
+sublanguage Mustache
+
+start_style TPL_DEFAULT
+end_style TPL_VARIABLE
+
+state IN_TPL_DEFAULT:
+/[^#\/&^>!]/ : paint(upto, TPL_DEFAULT), redo, => IN_TPL_VARIABLE
+/[#\/&^>]/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_TPL_VARIABLE
+'!' : paint(upto, TPL_DEFAULT), => IN_TPL_COMMENT

@@ -1,0 +1,5 @@
+family csl
+
+state IN_CSL_DEFAULT:
+/\{\{\{?/ : paint(upto, CSL_DEFAULT), paint(include, TPL_OPERATOR), \
+            spush_check(IN_CSL_DEFAULT) => IN_TPL_DEFAULT
