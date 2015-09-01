@@ -48,7 +48,8 @@
         blocked: null,
         panelClone: null,
         scopeOpener: null,
-        firstShow: true
+        firstShow: true,
+        state: {}
     };
 
     var elems = {
@@ -423,7 +424,7 @@
             log.debug(local.selectedScope);
 
             if (local.selectedScope)
-                scopeElem.element().selectedItem = scopeElem.find("#"+local.selectedScope).element();
+                scopeElem.element().selectedItem = scopeElem.find("#scope-"+local.selectedScope).element();
             else
                 scopeElem.element().selectedIndex = 0;
             return;
@@ -485,8 +486,13 @@
         var scopeChanged = false;
         if (scope && (scope != local.scopeOpener || ! preserve))
         {
-            scopeChanged = true;
-            c.selectScope(scope);
+            c.storeState();
+            
+            if ( ! c.restoreState(scope))
+            {
+                scopeChanged = true;
+                c.selectScope(scope);
+            }
         }
         
         local.scopeOpener = scope;
@@ -883,9 +889,20 @@
         }
     }
 
-    this.selectScope = function(scopeId)
+    this.selectScope = function(scopeId, hotSwap = false)
     {
-        log.debug("selectScope(): " + scopeId);
+        this._selectScope(scopeId);
+        
+        local.history = [];
+        
+        c.stop();
+        c.empty();
+        c.setSubscope(null); 
+    }
+    
+    this._selectScope = function(scopeId)
+    {
+        log.debug("_selectScope(): " + scopeId);
         
         var scopeElem = elem('scope');
         var selectedItem = scopeElem.element().selectedItem;
@@ -897,20 +914,14 @@
 
         if ( ! selectItem)
         {
-            log.error("selectScope: Scope could not be found: " + scopeId);
+            log.error("_selectScope: Scope could not be found: " + scopeId);
             return;
         }
 
         scopeElem.element().selectedItem = selectItem;
         scopeElem.attr("image", scopeElem.attr("image") + "?preset=hud");
 
-        local.selectedScope = selectItem.id;
-        
-        local.history = [];
-
-        c.stop();
-        c.empty();
-        c.setSubscope(null);
+        local.selectedScope = selectItem.id.substr(6);
     }
 
     this.renderResult = function(result, searchUuid)
@@ -1327,7 +1338,7 @@
             if (local.selectedScope)
             {
                 var scopeElem = elem('scope');
-                return scopeElem.find("#"+local.selectedScope).element()._scope;
+                return scopeElem.find("#scope-"+local.selectedScope).element()._scope;
             }
         }
         catch (e)
@@ -1383,6 +1394,52 @@
 
         return result;
     }
+    
+    this.restoreState = function(scope)
+    {
+        if ( ! prefs.getBooleanPref('commando_preserve_query')) return;
+        
+        var state = local.state[scope] || false;
+        if ( ! state) return false;
+        
+        log.debug("Restoring state for " + scope);
+        
+        for (let k in state.local)
+            local[k] = state.local[k];
+        
+        c._selectScope(local.selectedScope);
+            
+        elem('results').html(state.resultElemHtml);
+        elem('subscopeWrap').replaceWith(state.subscopeElem);
+        elem('search').value(local.prevSearchValue);
+        
+        local.elemCache = {};
+        
+        return true;
+    }
+    
+    this.storeState = function()
+    {
+        if ( ! prefs.getBooleanPref('commando_preserve_query')) return;
+        
+        var scope = local.scopeOpener;
+        if ( ! scope) return;
+        
+        log.debug("Storing state for " + scope);
+        
+        local.state[scope] = {
+            local: {
+                prevSearchValue: local.prevSearchValue,
+                resultsReceived: local.resultsReceived,
+                resultsRendered: local.resultsRendered,
+                selectedScope: local.selectedScope,
+                history: _.clone(local.history),
+                subscope: _.clone(local.subscope)
+            },
+            resultElemHtml: elem('results').html(),
+            subscopeElem: elem('subscopeWrap').clone(false)
+        }
+    }
 
     this.stop = function()
     {
@@ -1417,12 +1474,6 @@
         c.search();
     }
 
-    this.reset = function()
-    {
-        local.history = [];
-        c.clear();
-    }
-    
     this.block = function()
     {
         elem("panel").addClass("blocked");
