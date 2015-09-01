@@ -207,7 +207,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         // Identify as special DOM element
         koDom: true,
-
+        
         /**
          * Add event handler
          * 
@@ -218,8 +218,16 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          */
         on: function(event, action)
         {
+            this.off(event, action); // Prevent duplicate event listeners
+            
             return this.each(function()
             {
+                if ( ! ("__koListeners" in this))
+                    this.__koListeners = {};
+                if ( ! (event in this.__koListeners))
+                    this.__koListeners[event] = [];
+                this.__koListeners[event].push(action);
+                
                 this.addEventListener(event, action);
             });
         },
@@ -239,16 +247,10 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             var listener = function()
             {
                 action.apply(this, arguments);
-                elems.each(function()
-                {
-                    this.removeEventListener(event, listener);
-                });
+                this.off(event, listener);
             };
             
-            return this.each(function()
-            {
-                this.addEventListener(event, listener);
-            });
+            this.on(event, listener);
         },
 
         /**
@@ -263,6 +265,13 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         {
             return this.each(function()
             {
+                if (("__koListeners" in this) && (event in this.__koListeners))
+                {
+                    this.__koListeners[event].filter(function(value) {
+                        return value != action;
+                    });
+                }
+                
                 this.removeEventListener(event, action);
             });
         },
@@ -442,9 +451,23 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          * 
          * @returns {Element} matched element
          */
-        clone: function()
+        clone: function(deep = true)
         {
-            return $(this.element().cloneNode(true));
+            var el = this.element();
+            var result = $(el.cloneNode(deep));
+            
+            if ("__koListeners" in el)
+            {
+                for (let event in el.__koListeners)
+                {
+                    if ( ! el.__koListeners.hasOwnProperty(event)) continue;
+                    el.__koListeners[event].forEach(function(action) {
+                        result.on(event, action);
+                    });
+                }
+            }
+            
+            return result;
         },
 
         /**
