@@ -4635,6 +4635,22 @@ class DefnTestCase(CodeIntelTestCase):
             [("namespace", "FooBar"),
              ("namespace", "FooBoo")])
 
+    def testGroupedUse2(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            class Test {
+                function foobar() {}
+                function barbaz() {}
+            }
+            
+            use function Test\{foo as barfoo, barbaz};
+            
+            bar<1>
+        """)))
+        # Single base class
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("function", "barbaz"),
+             ("function", "barfoo")])
+
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"
     test_dir = join(os.getcwd(), "tmp")
