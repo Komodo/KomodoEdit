@@ -2477,6 +2477,11 @@ class PHPParser:
                         ids[-1] += "\\"
                     else:
                         ids.append("\\")
+                    if pos + 1 < len(styles) and text[pos + 1] == "{":
+                        # Skip over "{" in grouped "use" statements.
+                        # (Of the form: 'use function foo\{bar, baz};')
+                        # It is handled separately.
+                        pos += 1
                 elif ((t != "&" or last_style != self.PHP_OPERATOR) and \
                       (t != ":" or last_style != identifierStyle)):
                     break
@@ -2896,13 +2901,27 @@ class PHPParser:
 
     def _useKeywordHandler(self, styles, text, p):
         log.debug("_useKeywordHandler:: text: %r", text[p:])
+        text = text[:] # copy since this might be modified in place
+        original_p = p
         looped = False
         while p < len(styles):
             if looped:
                 if text[p] != ",":  # Use statements need to be comma delimited.
                     p += 1
                     continue
-                p += 1
+                elif "{" in text and text.index("{") < p:
+                    # Grouped "use" statements: new in PHP 7.
+                    # Simply remove the last identifier parsed and start over.
+                    # For example, given: 'use foo\{bar, baz}'
+                    # 'foo\bar' will be parsed out, the "," will be detected
+                    # here, and 'foo\{baz}' will be parsed, returning 'foo\baz'.
+                    while text[p] != "{":
+                        text.pop(p)
+                        styles.pop(p)
+                        p -= 1
+                    p = original_p
+                else:
+                    p += 1
             else:
                 looped = True
 
@@ -3322,8 +3341,10 @@ class PHPParser:
                         if text == op:
                             #log.debug("Entering S_IN_ASSIGNMENT state")
                             self.state = S_IN_ASSIGNMENT
-                    elif op == "{":
+                    elif op == "{" and \
+                         (self.text[0] != "use" or self.text[-2] != "\\"):
                         # Increasing depth/scope, could be an argument object
+                        # (Grouped "use" statements need to be handed below in '}'.)
                         self._addCodePiece()
                         self.incBlock()
                     elif op == "}":
