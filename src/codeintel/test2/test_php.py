@@ -4589,7 +4589,51 @@ class DefnTestCase(CodeIntelTestCase):
             self.assertDefnMatches2(buf, positions[pos], path=path,
                                     ilk="variable", name="subvalue",
                                     line=10)
+            
+    def testAnonymousClass(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            class SomeClass {}
+            interface SomeInterface {}
+            trait SomeTrait {}
+            
+            var_dump(new class() extends <1>SomeClass implements <2>SomeInterface {
+                private $num;
+                
+                public function __<3>construct($num)
+                {
+                    $this-><4>num = $num;
+                }
+                
+                use <5>SomeTrait;
+            });
+        """)))
+        # Single base class
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("class", "SomeClass")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("interface", "SomeInterface")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+            [("function", "__construct")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
+            [("variable", "num")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
+            [("trait", "SomeTrait")])
 
+    def testGroupedUse(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            namespace Test {
+                class FooBar {}
+                class BarBaz {}
+            }
+            
+            use Test\{FooBar, BarBaz as FooBoo}
+            
+            Foo<1>
+        """)))
+        # Single base class
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("namespace", "FooBar"),
+             ("namespace", "FooBoo")])
 
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"
