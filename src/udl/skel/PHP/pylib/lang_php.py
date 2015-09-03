@@ -2069,6 +2069,7 @@ class PHPParser:
         self.comment = None
         self.comments = []
         self.heredocMarker = None
+        self._anonid = 0
 
         # state : used to store the current JS lexing state
         # return_to_state : used to store JS state to return to
@@ -3185,6 +3186,19 @@ class PHPParser:
                     log.debug("Trait resolution: text: %r, pos: %d", text, pos)
                     # Stay in this state.
                     newstate = S_TRAIT_RESOLUTION
+                elif "new" in text and "class" in text and \
+                     text.index("new") + 1 == text.index("class"):
+                    # Anonymous classes: new in PHP 7.
+                    p = text.index("class") + 1
+                    extends = self._getExtendsArgument(styles, text, p)
+                    implements = self._getImplementsArgument(styles, text, p)
+                    #print "extends: %r" % (extends)
+                    #print "implements: %r" % (implements)
+                    self._anonid += 1
+                    self.addClass("(anonymous %d)" % self._anonid, extends=extends,
+                                  attributes=attributes,
+                                  interfaces=implements, doc=self.comment,
+                                  isTrait=False)
                 else:
                     log.debug("Ignoring when starting with identifier")
             elif firstStyle == self.PHP_VARIABLE:
