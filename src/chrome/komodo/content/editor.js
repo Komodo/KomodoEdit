@@ -164,33 +164,52 @@ editor_editorController.prototype.is_cmd_findPreviousSelected_enabled = function
     return v && !!v.scimoz;
 }
 
+
 editor_editorController.prototype.do_cmd_findPreviousSelected = function() {
     editor_controller_instance.do_cmd_findNextSelected(/* backwards */ true);
 }
 
+function setQuickBookmark(index, lineNo)
+{
+    if ( ! lineNo )
+    {
+        lineNo = this.getLineNumber;
+    }
+    var editor = require("ko/editor")
+    editor.setBookmark(lineNo);
+    var view = require("ko/views");
+    var docState = view.current().prefs
+    var quickBookmarkName = "quick_bookmarks_" + index;
+    var quickBookmarkPref = {};
+    
+    if (docState.hasPref(quickBookmarkName))
+    {
+        quickBookmarkPref = docState.getPref(quickBookmarkName);
+    }
+    else 
+    {
+        quickBookmarkPref = Cc['@activestate.com/koPreferenceSet;1'].createInstance();
+        docState.setPref(quickBookmarkName, quickBookmarkPref)
+    }
+    quickBookmarkPref.setLong(line_no);
+}
+
+[0,1,2,3,4,5,6,7,8,9].forEach(function(i)
+    {
+        editor_editorController.prototype["do_cmd_setQuickBookmark_"+i] = function() {
+            setQuickBookmark(i);
+        }
+        editor_editorController.prototype["is_cmd_setQuickBookmark_"+i+"_enabled"] = function() {
+            return !!_getCurrentScimozView();
+        }
+    })
+    
 editor_editorController.prototype.is_cmd_bookmarkToggle_enabled = function() {
     return !!_getCurrentScimozView();
 }
 editor_editorController.prototype.do_cmd_bookmarkToggle = function() {
     var v = _getCurrentScimozView();
-    if (!v) {
-        return;
-    }
-    var line_no = v.scimoz.lineFromPosition(v.scimoz.selectionStart);
-    var markerState = v.scimoz.markerGet(line_no);
-    var data = {
-        'line': line_no,
-    }
-    if (markerState & (1 << ko.markers.MARKNUM_BOOKMARK)) {
-        v.scimoz.markerDelete(line_no, ko.markers.MARKNUM_BOOKMARK);
-        window.dispatchEvent(new CustomEvent("bookmark_deleted",
-                                             { bubbles: true, detail: data }));
-    } else {
-        ko.history.note_curr_loc(v);
-        v.scimoz.markerAdd(line_no, ko.markers.MARKNUM_BOOKMARK);
-        window.dispatchEvent(new CustomEvent("bookmark_added",
-                                             { bubbles: true, detail: data }));
-    }
+    require("ko/editor").toggleBookmark();
 }
 
 editor_editorController.prototype.is_cmd_bookmarkRemoveAll_enabled = function() {

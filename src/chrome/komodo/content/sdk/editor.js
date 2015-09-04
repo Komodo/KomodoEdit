@@ -661,6 +661,116 @@ module.exports = {
         return bookmarkLines;
     },
 
+    /**
+     * Toggle a bookmark on a given line
+     *
+     * @param {number} line number. default is current line
+     * Line number is decremented by one if passed in to match scimoz lines
+     * starting from 0.
+     */
+    toggleBookmark: function(lineNum)
+    {
+        var bookMarknum = ko.markers.MARKNUM_BOOKMARK;
+        
+        if (this.bookmarkExists(lineNum))
+        {
+            this.unsetBookmark(lineNum);
+        }
+        else
+        {
+            this.setBookmark(lineNum);
+        }
+    },
+    
+    /**
+     * Create a bookmark at a given line if one doesn't exist.
+     *
+     * @param {number} line number. default is current line
+     */
+    setBookmark: function(lineNum)
+    {
+        if ( ! lineNum )
+        {
+            lineNum = scimoz().lineFromPosition(scimoz().currentPos);
+        }
+        else
+        {
+            --lineNum;
+        }
+        
+        // Scintilla keeps setting bookmarks if you tell it to
+        if (!this.bookmarkExists(lineNum))
+        {
+            let mainWindow = require("ko/windows").getMain();
+            let bookMarknum = ko.markers.MARKNUM_BOOKMARK;
+            let data = {
+                          'line': lineNum,
+                       }
+                       
+            ko.history.note_curr_loc(require("ko/views").current().get());
+            scimoz().markerAdd(lineNum, bookMarknum);
+            mainWindow.dispatchEvent(new mainWindow.CustomEvent("bookmark_added",
+                                                 { bubbles: true, detail: data }));
+        }
+    },
+    
+    /**
+     * Remove a bookmark at a given line
+     *
+     * @param {number} line number. default is current line
+     */
+    unsetBookmark: function(lineNum)
+    {
+        if ( ! lineNum )
+        {
+            lineNum = scimoz.lineFromPosition(scimoz.currentPos);
+        }
+        else
+        {
+            --lineNum;
+        }
+        
+        var bookMarknum = ko.markers.MARKNUM_BOOKMARK;
+        var data = {
+                      'line': lineNum,
+                    }  
+        var mainWindow = require("ko/windows").getMain();
+
+        if (this.bookmarkExists(lineNum))
+        {
+            // No point in firing an event when nothing happened, eg. bookmark
+            // didn't exist
+            scimoz().markerDelete(lineNum, bookMarknum);
+            mainWindow.dispatchEvent(new mainWindow.CustomEvent("bookmark_deleted",
+                                                 { bubbles: true, detail: data }));
+        }
+        
+    },
+
+    /**
+     * Check if there is already a bookmark set on a given line
+     *
+     * @param {number} line number, defaults to current line
+     */
+    bookmarkExists: function(lineNum)
+    {
+        if ( ! lineNum )
+        {
+            lineNum = scimoz().lineFromPosition(scimoz().currentPos);
+        }
+        else
+        {
+            --lineNum;
+        }
+        
+        var lineMarkerState = scimoz().markerGet(lineNum);
+        var bookMarknum = ko.markers.MARKNUM_BOOKMARK;
+        var bookmarkMask = (1 << bookMarknum)
+        // bitwise-AND to see if a marker is on the line
+        // using
+        return(lineMarkerState & bookmarkMask)
+    },
+    
     /** ****** Helpers ****** **/
     
     /**
