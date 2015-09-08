@@ -21,7 +21,7 @@ function docSyntaxCheckingOnLoad() {
         ko.lint.languageSetup = languageSetup;
         ko.lint.languageInfo = languageInfo;
         dialog.lintEOLs = document.getElementById("lintEOLs");
-        dialog.lintShowResultsInline = document.getElementById("lintShowResultsLinline");
+        dialog.lintShowResultsInline = document.getElementById("lintShowResultsInline");
         dialog.lintClearOnTextChange = document.getElementById("lintClearOnTextChange");
         dialog.lintDelay = document.getElementById("lintDelay");
         dialog.editUseLinting = document.getElementById("editUseLinting");
