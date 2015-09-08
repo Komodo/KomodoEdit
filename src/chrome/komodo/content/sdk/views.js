@@ -52,6 +52,7 @@
             koDoc: get("koDoc"),
             file: get("koDoc", "file"),
             filePath: get("koDoc", "file", "path"),
+            prefs: get("koDoc", "prefs"),
             language: get("koDoc", "language"),
             
             type: view ? view.getAttribute("type") : false
