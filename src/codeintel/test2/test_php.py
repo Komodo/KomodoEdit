@@ -852,7 +852,7 @@ class CplnTestCase(CodeIntelTestCase):
                 $b->something(<|>);
             }
        """))
-        calltip = "something(string $s)\n@param string $s"
+        calltip = "something(string $s)\n\n<string> $s  - "
         self.assertCalltipIs(markedup_content, calltip)
 
     @tag("bug101460")
@@ -868,7 +868,7 @@ class CplnTestCase(CodeIntelTestCase):
                 $b->something(<|>);
             }
        """))
-        calltip = "something(string $s)\n@param string $s"
+        calltip = "something(string $s)\n\n<string> $s  - "
         self.assertCalltipIs(markedup_content, calltip)
 
     def test_calltip_call_signature_for_builtins(self):
@@ -2331,9 +2331,9 @@ EOD;
             $hw_inst->printWorld(<2>);
         """)))
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
-                             "printHello()\nPrint the word hello.")
+                             "printHello()\n\nPrint the word hello.")
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
-                             "printWorld()\nPrint the word world.")
+                             "printWorld()\n\nPrint the word world.")
 
     @tag("bug83192", "php53")
     def test_php_namespace_completions(self):
@@ -2711,9 +2711,9 @@ EOD;
             $bar = new Bar(<2>); // should show Foo constructor calltip
         """)))
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
-                             "Foo(mixed $arg1)\nConstructor\n@param mixed $arg1")
+                             "Foo(mixed $arg1)\n\nConstructor\n<mixed> $arg1  - ")
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
-                             "Foo(mixed $arg1)\nConstructor\n@param mixed $arg1")
+                             "Foo(mixed $arg1)\n\nConstructor\n<mixed> $arg1  - ")
 
     @tag("bug90846")
     def test_class_chained_completion(self):
@@ -4650,6 +4650,23 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("function", "barbaz"),
              ("function", "barfoo")])
+        
+    @tag("bug 123")
+    def test_calltip_builtin_function(self):
+        markedup_content = php_markup(dedent("""\
+            date(<|>)
+        """))
+        calltip = "date(string format [, long timestamp])\nFormat a local date time"
+        self.assertCalltipIs(markedup_content, calltip)
+        
+        # Now test a variable whose name is the same as the builtin function.
+        markedup_content = php_markup(dedent("""\
+            $date = date("d");
+            date(<|>)
+        """))
+        calltip = "date(string format [, long timestamp])\nFormat a local date time"
+        self.assertCalltipIs(markedup_content, calltip)
+    
 
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"
@@ -4665,7 +4682,7 @@ class EscapingTestCase(CodeIntelTestCase):
         ?>
         """))
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
-                             "func_bug85176()\nA funky char  is here.")
+                             "func_bug85176()\n\nA funky char  is here.")
 
 
 #---- mainline

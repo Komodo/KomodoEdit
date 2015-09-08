@@ -1137,11 +1137,17 @@ class PHPTreeEvaluator(TreeEvaluator):
             elem = self._elem_from_scoperef(scoperef)
             if first_token in elem.names:
                 first_token_elem = elem.names[first_token]
-                if self._return_with_hit((first_token_elem, scoperef), 1):
-                    #TODO: skip __hidden__ names
-                    self.log("_hits_from_first_part:: pt1: is '%s' accessible on %s? "
-                             "yes: %s", first_token, scoperef, first_token_elem)
-                    return ([(first_token_elem, scoperef)], 1)
+                if not (first_token_elem.tag == "variable" and self.trg.form == TRG_FORM_CALLTIP and len(tokens) == 1):
+                    if self._return_with_hit((first_token_elem, scoperef), 1):
+                        #TODO: skip __hidden__ names
+                        self.log("_hits_from_first_part:: pt1: is '%s' accessible on %s? "
+                                 "yes: %s", first_token, scoperef, first_token_elem)
+                        return ([(first_token_elem, scoperef)], 1)                    
+                else:
+                    # This happens when there is a variable of the same name as
+                    # a builtin function, and an attempt to show a calltip for
+                    # that builtin function is made.
+                    self.log("_hits_from_first_part:: ignoring standalone variable hit when trying to show call tips: %r", first_token_elem)
 
             if first_token == elem.get("name"):
                 # The element itself is the thing we wanted...
