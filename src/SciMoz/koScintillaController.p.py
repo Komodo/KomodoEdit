@@ -686,17 +686,68 @@ class koScintillaController:
         return True
 
     def _do_cmd_lineDuplicateUp(self):
-        self.scimoz().lineDuplicate()
+        sm = self.scimoz()
+
+        startPos = sm.selectionStart
+        endPos = sm.selectionEnd
+        startLine = sm.lineFromPosition(startPos)
+        if startPos == endPos:
+            endLine = startLine + 1
+        else:
+            endLine = sm.lineFromPosition(endPos)
+            if sm.getColumn(endPos) != 0:
+                endLine = endLine + 1
+
+        cutStart = sm.positionFromLine(startLine)
+        cutStop = sm.positionFromLine(endLine)
+
+        sm.beginUndoAction()
+
+        try:
+            sm.setSel(cutStart, cutStop)
+            orig = sm.selText
+
+            pasteStart = sm.positionFromLine(endLine)
+            sm.setSel(pasteStart, pasteStart)
+            sm.replaceSel(orig)
+
+            sm.setSel(startPos, endPos)
+        finally:
+            sm.endUndoAction()
 
     def _is_cmd_lineDuplicateDown_enabled(self):
         return True
 
     def _do_cmd_lineDuplicateDown(self):
         sm = self.scimoz()
+
+        startPos = sm.selectionStart
+        endPos = sm.selectionEnd
+        startLine = sm.lineFromPosition(startPos)
+        if startPos == endPos:
+            endLine = startLine + 1
+        else:
+            endLine = sm.lineFromPosition(endPos)
+            if sm.getColumn(endPos) != 0:
+                endLine = endLine + 1
+
+        cutStart = sm.positionFromLine(startLine)
+        cutStop = sm.positionFromLine(endLine)
+
         sm.beginUndoAction()
-        sm.lineDuplicate()
-        sm.lineDown()
-        sm.endUndoAction()
+
+        try:
+            sm.setSel(cutStart, cutStop)
+            orig = sm.selText
+
+            pasteStart = sm.positionFromLine(endLine)
+            sm.setSel(pasteStart, pasteStart)
+            sm.replaceSel(orig)
+
+            offset = pasteStart - cutStart
+            sm.setSel(startPos + offset, endPos + offset)
+        finally:
+            sm.endUndoAction()
 
     def _is_cmd_lineTransposeDown_enabled(self):
         return True
