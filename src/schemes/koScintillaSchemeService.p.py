@@ -314,9 +314,10 @@ class Scheme(SchemeBase):
                         self._colors[name] = newColors[name]
                 version += 1
                     
-            if version == 15:
+            if version == 14:
                 if 'multiple_caret_area' in self._indicators:
                     del self._indicators['multiple_caret_area']
+                version += 1
 
             try:
                 self.save()
