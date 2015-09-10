@@ -5,6 +5,7 @@
 #commando-panel
 {
     padding: 0;
+    -moz-box-orient: horizontal;
     
     &.blocked
     {
@@ -13,7 +14,22 @@
             opacity: 0.4;
         }
     }
-
+    
+    #commando-preview
+    {
+        border-left: @hud-border;
+        width: 600px;
+    }
+    
+    #commando-panel-wrapper
+    {
+        width: 500px;
+    }
+    
+    &.previewing #commando-panel-wrapper
+    {
+        width: 250px;
+    }
     #commando-search-wrapper
     {
         margin-bottom: 1px;
@@ -79,6 +95,11 @@
         }
     }
     
+    &.previewing #commando-tip
+    {
+        max-width: 240px;
+    }
+    
     #commando-loader
     {
         height: 1px;
@@ -95,7 +116,12 @@
         background-repeat: no-repeat;
         animation: loading 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
     }
-
+    
+    &.previewing.loading:not(.kitt) #commando-loader
+    {
+        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @hud-loader-color 100px, @hud-loader-color 150px, rgba(0,0,0,0.0) 250px);
+        animation: loadingWithPreview 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
+    }
     &.loading.kitt #commando-loader
     {
         background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, rgba(225, 50, 50, 0.9) 200px, rgba(225, 50, 50, 0.9) 300px, rgba(0,0,0,0.0) 500px) !important;
@@ -120,11 +146,23 @@
            background-position: -300px 0;
         }
     }
-
-    #commando-scope
+    
+    @keyframes loadingWithPreview {
+        0% {
+           background-position: -150px 0;
+        }
+        50% {
+           background-position: 150px 0;
+        }
+        100% {
+           background-position: -150px 0;
+        }
+    }
+    
+    menulist#commando-scope
     {
         -moz-appearance: none;
-        background: transparent;
+        background-color: transparent !important;
         width: 40px;
         border: 0;
         margin: 0;
@@ -187,7 +225,11 @@
             {
                 font-size: 1.1rem;
             }
-
+            
+            .icon-wrapper
+            {
+                min-height: 1.5rem;
+            }
             .icon
             {
                 background-repeat: no-repeat;
@@ -219,7 +261,6 @@
                     font-style: italic;
                     max-width: 100px;
                     opacity: 0.7;
-                    margin: 0 0 0 6px;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -228,8 +269,27 @@
                 .description
                 {
                     opacity: 0.7;
-                    margin: 0 0 0 6px;
                 }
+            }
+            
+            &:not(.multiline) .entry-wrapper .descriptionPrefix .description
+            {
+                margin: 0 0 0 6px;
+            }
+            
+            &.multiline .entry-wrapper .descriptionPrefix .description
+            {
+                margin: 0 6px 0 0;
+            }
+    
+            &:not(.multiline) .entry-wrapper-outer
+            {
+                -moz-box-orient: horizontal;
+            }
+            
+            &.multiline .entry-wrapper-outer
+            {
+                -moz-box-orient: vertical;
             }
         }
 

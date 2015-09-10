@@ -33,8 +33,8 @@
     </menupopup>
 
     <popupset id="komodoMainPopupSet">
-        <panel id="commando-panel" width="500" class="hud" noautohide="true" level="floating">
-            <vbox flex="1">
+        <panel id="commando-panel" class="hud" noautohide="true" level="floating">
+            <vbox flex="1" id="commando-panel-wrapper">
                 <hbox id="commando-search-wrapper">
                     <!-- Menuitem template -->
                     <script id="tpl-co-scope-menuitem" type="x-dot-template">
@@ -45,8 +45,7 @@
                                   class="scope-item"
                                   key="key_cmd_{{=it.id}}"/>
                     </script>
-
-                    <menulist id="commando-scope" sizetopopup="none">
+                    <menulist id="commando-scope" class="unstyled" sizetopopup="none">
                         <menupopup id="commando-scope-menupopup">
                             <menuseparator id="scope-separator"/>
                             <menuitem label="Clear Cache"
@@ -83,28 +82,47 @@
                 <vbox flex="1" id="commando-results-wrapper">
                     <!-- Result template -->
                     <script id="tpl-co-result" type="x-dot-template">
-                        <richlistitem class="{{?it.classList}}{{=it.classList}}{{?}}" id="co-result-item-{{!it.id}}">
-                            <hbox>
-                                <hbox class="icon-wrapper" pack="center" align="center">
-                                    {{?it.favourite}}
-                                        <box class="icon favourite-icon"></box>
-                                    {{??it.icon}}
-                                        <box class="icon" style="background-image: url('{{=it.icon}}')"></box>
+                        <richlistitem class="{{?it.classList}}{{=it.classList}}{{?}} {{?it.multiline}}multiline{{?}}" id="co-result-item-{{!it.id}}">
+                            <box class="entry-wrapper-outer">
+                                <hbox>
+                                    <hbox class="icon-wrapper" pack="center" align="center">
+                                        {{?it.favourite}}
+                                            <box class="icon favourite-icon"></box>
+                                        {{??it.icon}}
+                                            <box class="icon" style="background-image: url('{{=it.icon}}')"></box>
+                                        {{?}}
+                                    </hbox>
+                                    <hbox class="number-wrapper" pack="end"><label class="number"/></hbox>
+                                    {{?!it.multiline}}
+                                        <hbox class="entry-wrapper" align="center" pack="center">
+                                            <hbox class="prefix">
+                                                <label class="title">{{!it.name}}</label>
+                                                {{?it.descriptionPrefix}}
+                                                    <label class="descriptionPrefix">{{!it.descriptionPrefix}}</label>
+                                                {{?}}
+                                            </hbox>
+                                            {{?it.description}}
+                                                <description class="description" flex="1">{{!it.description}}</description>
+                                            {{?}}
+                                        </hbox>
+                                    {{?}}
+                                    {{?it.multiline}}
+                                        <hbox class="entry-wrapper">
+                                            <label class="title">{{!it.name}}</label>
+                                        </hbox>
                                     {{?}}
                                 </hbox>
-                                <hbox class="number-wrapper" pack="end"><label class="number"/></hbox>
-                                <hbox class="entry-wrapper" align="center" pack="center">
-                                    <hbox class="prefix">
-                                        <label class="title">{{!it.name}}</label>
+                                {{?it.multiline}}
+                                    <hbox class="entry-wrapper multiline">
                                         {{?it.descriptionPrefix}}
                                             <label class="descriptionPrefix">{{!it.descriptionPrefix}}</label>
                                         {{?}}
+                                        {{?it.description}}
+                                            <description class="description" flex="1">{{!it.description}}</description>
+                                        {{?}}
                                     </hbox>
-                                    {{?it.description}}
-                                        <description class="description" flex="1">{{!it.description}}</description>
-                                    {{?}}
-                                </hbox>
-                            </hbox>
+                                {{?}}
+                            </box>
                         </richlistitem>
                     </script>
 
@@ -114,6 +132,7 @@
                     TIP: Hit the right arrow key to "expand" your selection
                 </description> 
             </vbox>
+            <vbox id="commando-preview" collapsed="true" flex="1"></vbox>
         </panel>
     </popupset>
     

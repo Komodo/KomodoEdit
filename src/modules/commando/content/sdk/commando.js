@@ -66,6 +66,7 @@
         scopesSeparator: function() { return $("#scope-separator"); },
         menuItem: function() { return $("#menu_show_commando"); },
         tip: function() { return $("#commando-tip"); },
+        preview: function() { return $("#commando-preview"); },
         template: {
             scopeMenuItem: function() { return $("#tpl-co-scope-menuitem"); },
             scopeNavMenuItem: function() { return $("#tpl-co-scope-nav-menuitem"); },
@@ -347,7 +348,8 @@
 
     var onNavDown = function(e)
     {
-        c.navDown(e && e.shiftKey);
+        c.navDown(e && e.shiftKey)
+        c.preview();
     }
 
     var onNavUp = function(e)
@@ -357,6 +359,7 @@
         } else {
             c.navUp(e && e.shiftKey);
         }
+        c.preview();
     }
 
     var onSearch = function(e)
@@ -438,12 +441,13 @@
     var onWindowClick = function(e)
     {
         if ( ! local.open) return;
-        var target = e.originalTarget || e.target;
-        while((target=target.parentNode) && target !== elem('panel').element() && target.nodeName != "dialog");
-        if ( ! target)
+        var bo = elem('panel').element().boxObject;
+        if ((e.screenX > bo.screenX && e.screenX < (bo.screenX + bo.width)) &&
+            (e.screenY > bo.screenY && e.screenY < (bo.screenY + bo.height)))
         {
-            c.hide();
+            return;
         }
+        c.hide();
     }
     
     var onQuickSearchFocus = function(e)
@@ -511,17 +515,7 @@
         }
         else
         {
-            top = 100;
-            var anchor = elem('editor').element();
-            if ( ! anchor || ! anchor.boxObject)
-            {
-                anchor = document.documentElement;
-            }
-            var bo = anchor.boxObject;
-            
-            left = bo.x + (bo.width / 2);
-            left -= panel.element().width / 2;
-            
+            [left, top] = this.center(true);
             panel.removeClass("quick-search");
         }
         
@@ -542,7 +536,32 @@
             c.search();
         }
     }
-
+    
+    this.center = function(returnValues)
+    {
+        if (local.quickSearch) return;
+        
+        var panel = elem('panel');
+        
+        var top = 100;
+        var anchor = elem('editor').element();
+        if ( ! anchor || ! anchor.boxObject)
+        {
+            anchor = document.documentElement;
+        }
+        var bo = anchor.boxObject;
+        
+        x = bo.x, y= bo.y;
+        if ( ! returnValues) x = bo.screenX, y = bo.screenY;
+        
+        left = x + (bo.width / 2);
+        left -= (panel.element().boxObject.width || 500) / 2;
+        
+        if (returnValues)
+            return [left, top];
+        else
+            panel.element().moveTo(left, y + top);
+    }
     this.isOpen = function()
     {
         return local.open;
@@ -1031,9 +1050,12 @@
 
         c.navDown();
         
+        elem('panel').css("min-height", "auto");
         elem('panel').removeAttr("height");
+        elem('panel').removeAttr("width");
         setTimeout(function() {
             elem('panel').removeAttr("height");
+            elem('panel').removeAttr("width");
         }, 100);
         
         // Work around weird XUL flex issue where the richlistbox shows a scrollbar
@@ -1053,6 +1075,8 @@
         }
         
         c.reloadTip();
+        c.preview();
+        c.center();
     }
 
     this.filter = function(results, query, field = "name")
@@ -1267,7 +1291,23 @@
             c.tip(description);
         }
     }
-
+    
+    this.preview = function()
+    {
+        if ( ! c.execScopeHandler("onPreview"))
+        {
+            elem('preview').hide();
+            elem('preview').empty();
+            elem('panel').removeClass("previewing");
+            return;
+        }
+        
+        elem('panel').css("min-height", "600px");
+        elem('panel').addClass("previewing");
+        elem('preview').show();
+        
+        this.center();
+    }
     this.getSelected = function()
     {
         return elem('results').element().selectedItems.slice();
