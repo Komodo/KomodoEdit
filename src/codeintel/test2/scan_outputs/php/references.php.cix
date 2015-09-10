@@ -3,11 +3,11 @@
     <scope ilk="blob" lang="PHP" name="references.php" src="scan_inputs/php/references.php">
       <variable citdl="string" line="7" name="b" />
       <variable citdl="b" line="8" name="a" />
-      <scope doc="Pass by reference" ilk="function" line="12" lineend="15" name="foo" signature="foo(&amp; $var)">
+      <scope doc="&#xA;Pass by reference&#xA;" ilk="function" line="12" lineend="15" name="foo" signature="foo(&amp; $var)">
         <variable ilk="argument" line="12" name="var" />
       </scope>
       <variable citdl="int" line="17" name="c" />
-      <scope doc="Function returning a reference:&#xA;  In this example, the property of the object returned by the find_var&#xA;  function would be set, not the copy, as it would be without using&#xA;  reference syntax." ilk="function" line="25" lineend="28" name="find_var" returns="found_var" signature="&amp;find_var($param)">
+      <scope doc="&#xA;Function returning a reference:&#xA;  In this example, the property of the object returned by the find_var&#xA;  function would be set, not the copy, as it would be without using&#xA;  reference syntax.&#xA;" ilk="function" line="25" lineend="28" name="find_var" returns="found_var" signature="&amp;find_var($param)">
         <variable ilk="argument" line="25" name="param" />
       </scope>
       <variable citdl="find_var()" line="30" name="foo" />
@@ -15,7 +15,7 @@
         <scope attributes="__ctor__" ilk="function" line="41" lineend="44" name="Controller" signature="Controller()" />
         <variable citdl="load_class()" line="43" name="load" />
       </scope>
-      <scope doc="Statically typed pass by reference" ilk="function" line="48" lineend="48" name="sendNow" signature="sendNow(Customer &amp; $customer)">
+      <scope doc="&#xA;Statically typed pass by reference&#xA;" ilk="function" line="48" lineend="48" name="sendNow" signature="sendNow(Customer &amp; $customer)">
         <variable citdl="Customer" ilk="argument" line="48" name="customer" />
       </scope>
     </scope>

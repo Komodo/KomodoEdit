@@ -1,8 +1,8 @@
 <codeintel version="2.0">
   <file lang="PHP" mtime="42" path="scan_inputs/php/comments.php">
     <scope ilk="blob" lang="PHP" name="comments.php" src="scan_inputs/php/comments.php">
-      <scope doc="Function returning a reference:&#xA;  In this example, the property of the object returned by the find_var&#xA;  function would be set, not the copy, as it would be without using&#xA;  reference syntax." ilk="function" line="7" lineend="7" name="ko_testing_php_comments_1" signature="ko_testing_php_comments_1()" />
-      <scope doc="Function returning a reference:&#xA;  In this example, the property of the object returned by the find_var&#xA;  function would be set, not the copy, as it would be without using&#xA;  reference syntax." ilk="function" line="13" lineend="13" name="ko_testing_php_comments_2" signature="ko_testing_php_comments_2()" />
+      <scope doc="&#xA;Function returning a reference:&#xA;  In this example, the property of the object returned by the find_var&#xA;  function would be set, not the copy, as it would be without using&#xA;  reference syntax.&#xA;" ilk="function" line="7" lineend="7" name="ko_testing_php_comments_1" signature="ko_testing_php_comments_1()" />
+      <scope doc="&#xA;Function returning a reference:&#xA;  In this example, the property of the object returned by the find_var&#xA;  function would be set, not the copy, as it would be without using&#xA;  reference syntax.&#xA;" ilk="function" line="13" lineend="13" name="ko_testing_php_comments_2" signature="ko_testing_php_comments_2()" />
     </scope>
   </file>
 </codeintel>
