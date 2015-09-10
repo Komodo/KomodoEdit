@@ -169,33 +169,108 @@ editor_editorController.prototype.do_cmd_findPreviousSelected = function() {
     editor_controller_instance.do_cmd_findNextSelected(/* backwards */ true);
 }
 
-function setQuickBookmark(index, lineNo)
-{
-    if ( ! lineNo )
-    {
-        lineNo = this.getLineNumber;
-    }
-    var editor = require("ko/editor")
-    editor.setBookmark(lineNo);
-    var view = require("ko/views");
-    var docState = view.current().prefs
-    var quickBookmarkName = "quick_bookmarks_" + index;
+/**
+ * Extract quick bookmark location from docstate by index and jump to thatline
+ *
+ * @param {numbers}  index, key number was saved under.
+ */
+function goToQuickBookmark(index) {
+    var docState = require("ko/views").current().prefs;
     var quickBookmarkPref = {};
-    
     if (docState.hasPref(quickBookmarkName))
     {
         quickBookmarkPref = docState.getPref(quickBookmarkName);
     }
+    var docState = require("ko/views").current().prefs;
+    var quickBookmarkName = "quick_bookmarks_" + index;
+    if (docState.hasPref(quickBookmarkName))
+    {
+        quickBookmarkPref = docState.getPref(quickBookmarkName);
+        // When the bookmarks are recovered on file load they will use the
+        // ko/editor bookmarks API which decrements line numbers so need to add
+        let line = quickBookmarkPref.getLong("line");
+        let editor = require("ko/editor");
+        let lineCount = editor.lineCount();
+        if(line <= lineCount)
+        {
+            editor.gotoLine(line);
+        }
+        else
+        {
+            log.warn("Saved bookmark line number is out of range for current " +
+                     "for current document line count.\n\t\lineCount: " +
+                     lineCount + "\n\tline: " + line);
+            // Set to -1, -1 does nothing when used with gotoLine.  Basically
+            // invalidates this entry
+            quickBookmarkPref.setLong("line",-1);
+        }
+    }
     else 
     {
-        quickBookmarkPref = Cc['@activestate.com/koPreferenceSet;1'].createInstance();
-        docState.setPref(quickBookmarkName, quickBookmarkPref)
+        log.info("There is no bookmark saved for this index.\n\tIndex: " + index);
     }
-    quickBookmarkPref.setLong(line_no);
 }
 
+//Easiest way to add the 10 goToQuickBookmark functions needs for this feature
 [0,1,2,3,4,5,6,7,8,9].forEach(function(i)
     {
+        //commands.register("setQuickBookmark_" + i, setQuickBookmark(i),{
+        //    label: "Quick Bookmark: Set quick bookmark for " + i + "key"
+        //});
+        editor_editorController.prototype["do_cmd_goToQuickBookmark_"+i] = function() {
+            goToQuickBookmark(i);
+        }
+        editor_editorController.prototype["is_cmd_goToQuickBookmark_"+i+"_enabled"] = function() {
+            return !!_getCurrentScimozView();
+        }
+    })
+
+/**
+ * Set a quick book mark and save it to the docstate for retrieval purposes
+ *
+ * @param {numbers}  index, key number was saved under.
+ */
+function setQuickBookmark(index)
+{
+    var editor = require("ko/editor")
+    var docState = require("ko/views").current().prefs;
+    var lineNo = editor.getLineNumber();
+    var quickBookmarkName = "quick_bookmarks_" + index;
+    var quickBookmarkPref = {};
+    try
+    {
+        if (docState.hasPref(quickBookmarkName))
+        {
+            quickBookmarkPref = docState.getPref(quickBookmarkName);
+        }
+        else 
+        {
+            quickBookmarkPref = Cc['@activestate.com/koPreferenceSet;1'].createInstance();
+            docState.setPref(quickBookmarkName, quickBookmarkPref)
+        }
+        
+        //Delete old marker if it's already set
+        if (quickBookmarkPref.hasPref("markerId")) {
+            editor.unsetBookmarkByHandle(quickBookmarkPref.getLong("markerId"));
+        }
+        
+        // When the bookmarks are recovered on file load they will use the
+        // ko/editor bookmarks API which decrements line numbers so need to add
+        var markerId = editor.setBookmark(lineNo);
+        quickBookmarkPref.setLong("line", lineNo);
+        quickBookmarkPref.setLong("markerId", markerId);
+    } catch (e){
+        log.exception("An error occurred while setting a quick bookmark: \n" + e);
+        editor.unsetBookmarkByHandle(markerId);   
+    }
+}
+
+//Easiest way to add the 10 setQuickBookmark functions needs for this feature
+[0,1,2,3,4,5,6,7,8,9].forEach(function(i)
+    {
+        //commands.register("setQuickBookmark_" + i, setQuickBookmark(i),{
+        //    label: "Quick Bookmark: Set quick bookmark for " + i + "key"
+        //});
         editor_editorController.prototype["do_cmd_setQuickBookmark_"+i] = function() {
             setQuickBookmark(i);
         }

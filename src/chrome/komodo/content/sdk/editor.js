@@ -22,6 +22,8 @@ var scintilla = function()
  */
 module.exports = {
 
+    log: require("ko/logging").getLogger("ko/editor"),
+
     available: function() {
         return ( !! scimoz() && !! scintilla() );
     },
@@ -680,11 +682,9 @@ module.exports = {
      */
     toggleBookmark: function(lineNum)
     {
-        var bookMarknum = ko.markers.MARKNUM_BOOKMARK;
-        
         if (this.bookmarkExists(lineNum))
         {
-            this.unsetBookmark(lineNum);
+            this.unsetBookmarkByLine(lineNum);
         }
         else
         {
@@ -695,7 +695,10 @@ module.exports = {
     /**
      * Create a bookmark at a given line if one doesn't exist.
      *
-     * @param {number} line number. default is current line
+     * @param {number} line number.  Default is current line.  Line is decremented
+     *   when passed in.
+     *
+     * @return {number} ID of marker according to Scimoz
      */
     setBookmark: function(lineNum)
     {
@@ -707,9 +710,10 @@ module.exports = {
         {
             --lineNum;
         }
-        
+
         // Scintilla keeps setting bookmarks if you tell it to
-        if (!this.bookmarkExists(lineNum))
+        var markerId=0;
+        if (!this.bookmarkExists(lineNum + 1))
         {
             let mainWindow = require("ko/windows").getMain();
             let bookMarknum = ko.markers.MARKNUM_BOOKMARK;
@@ -718,22 +722,35 @@ module.exports = {
                        }
                        
             ko.history.note_curr_loc(require("ko/views").current().get());
-            scimoz().markerAdd(lineNum, bookMarknum);
+            markerId = scimoz().markerAdd(lineNum, bookMarknum);
             mainWindow.dispatchEvent(new mainWindow.CustomEvent("bookmark_added",
                                                  { bubbles: true, detail: data }));
         }
+        return markerId;
     },
+    
+    /**
+     * Unset breakpoint by Marker handle
+     *
+     * param {number} A marker handle
+     */
+    unsetBookmarkByHandle: function(handle)
+    {
+        // Does nothing if handle doesn't exist.
+        scimoz().markerDeleteHandle(handle);
+    },
+
     
     /**
      * Remove a bookmark at a given line
      *
      * @param {number} line number. default is current line
      */
-    unsetBookmark: function(lineNum)
+    unsetBookmarkByLine: function(lineNum)
     {
         if ( ! lineNum )
         {
-            lineNum = scimoz.lineFromPosition(scimoz.currentPos);
+            lineNum = scimoz().lineFromPosition(scimoz().currentPos);
         }
         else
         {
@@ -746,15 +763,9 @@ module.exports = {
                     }  
         var mainWindow = require("ko/windows").getMain();
 
-        if (this.bookmarkExists(lineNum))
-        {
-            // No point in firing an event when nothing happened, eg. bookmark
-            // didn't exist
-            scimoz().markerDelete(lineNum, bookMarknum);
-            mainWindow.dispatchEvent(new mainWindow.CustomEvent("bookmark_deleted",
-                                                 { bubbles: true, detail: data }));
-        }
-        
+        scimoz().markerDelete(lineNum, bookMarknum);
+        mainWindow.dispatchEvent(new mainWindow.CustomEvent("bookmark_deleted",{
+                                                bubbles: true, detail: data }));
     },
 
     /**

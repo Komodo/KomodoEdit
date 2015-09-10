@@ -331,6 +331,9 @@ function cloneObject(what) {
  *       existing keybindings to move to the state you're implementing for N+1
  *
  * Version history:
+ * 47: Komodo 9.3 - Add keybindings for quick bookmarks
+ *                  Juggle help (and friends) and commenting keybindings to
+ *                  allow quick bookmarks to take their bindings.
  * 46: Komodo 9.3 - removed cmd_addAdditionalCaret
  * 41,42: Komodo 9.0.0 - add commando commands: Ctrl+Shift+K, Ctrl+Shift+O, Ctrl+<
  * 40: Komodo 9.0.0 - add Vi commands: zz z. z-
@@ -376,7 +379,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 46;
+const currentKeybindingVersionNumber = 47;
 
 /**
  * Remove this dictionary of keybinds.
@@ -984,6 +987,62 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
         case 46:
             this._remove_keybinding_sequences({
                 'cmd_addAdditionalCaret': ["Ctrl+K, Ctrl+Y"],
+            });
+            break;
+        case 47:
+// #if PLATFORM != 'darwin'
+            this._remove_keybinding_sequences({
+                'cmd_comment':  ["Ctrl+3"],
+                'cmd_uncomment':["Ctrl+2"],
+                'cmd_uncomment':["Ctrl+Shift+3"],
+                'cmd_viewIndentationGuides': ['Ctrl+Shift+5'],
+                'cmd_viewLineNumbers': ['Ctrl+Shift+4'],
+                'cmd_viewEOL': ['Ctrl+Shift+7'],
+                'cmd_viewWhitespace': ['Ctrl+Shift+8'],
+                'cmd_wordWrap': ['Ctrl+Shift+5'],
+                'cmd_viewIndentationGuides': ['Ctrl+Shift+9'],
+            });
+            this._add_keybinding_sequences({
+                'cmd_comment':  ["Ctrl+/"],
+                'cmd_uncomment':["Ctrl+Shift+?"]
+            });
+// #else
+            this._remove_keybinding_sequences({
+                'cmd_comment':  ["Ctrl+3"],
+                'cmd_uncomment':["Ctrl+2"],
+                'cmd_uncomment':["Ctrl+Shift+3"],
+                'cmd_helpHelp': ['Meta+?'],
+                'cmd_helpHelp': ['Meta+Shift+/'],
+                'cmd_helpLanguage': ['Meta+/'], // In favourite of new internal docs
+                'cmd_helpLanguageAlternate':  ['Ctrl+/']
+            });
+            this._add_keybinding_sequences({
+                'cmd_comment':  ["Meta+/"],
+                'cmd_uncomment':["Meta+Shift+?"],
+                'cmd_helpHelp': ['Ctrl+/']
+            });
+// #endif
+            this._add_keybinding_sequences({
+                'cmd_goToQuickBookmark_0':  ['Ctrl+0'],
+                'cmd_goToQuickBookmark_1':  ['Ctrl+1'],
+                'cmd_goToQuickBookmark_2':  ['Ctrl+2'],
+                'cmd_goToQuickBookmark_3':  ['Ctrl+3'],
+                'cmd_goToQuickBookmark_4':  ['Ctrl+4'],
+                'cmd_goToQuickBookmark_5':  ['Ctrl+5'],
+                'cmd_goToQuickBookmark_6':  ['Ctrl+6'],
+                'cmd_goToQuickBookmark_7':  ['Ctrl+7'],
+                'cmd_goToQuickBookmark_8':  ['Ctrl+8'],
+                'cmd_goToQuickBookmark_9':  ['Ctrl+9'],
+                'cmd_setQuickBookmark_0':  ['Ctrl+Shift+0'],
+                'cmd_setQuickBookmark_1':  ['Ctrl+Shift+1'],
+                'cmd_setQuickBookmark_2':  ['Ctrl+Shift+2'],
+                'cmd_setQuickBookmark_3':  ['Ctrl+Shift+3'],
+                'cmd_setQuickBookmark_4':  ['Ctrl+Shift+4'],
+                'cmd_setQuickBookmark_5':  ['Ctrl+Shift+5'],
+                'cmd_setQuickBookmark_6':  ['Ctrl+Shift+6'],
+                'cmd_setQuickBookmark_7':  ['Ctrl+Shift+7'],
+                'cmd_setQuickBookmark_9':  ['Ctrl+Shift+8'],
+                'cmd_setQuickBookmark_8':  ['Ctrl+Shift+9'],
             });
             break;
         }

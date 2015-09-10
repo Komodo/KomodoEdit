@@ -1,4 +1,4 @@
-version 46
+version 47
 
 # Movement and selection
 binding cmd_left  Left
@@ -81,9 +81,8 @@ binding cmd_editProperties Alt+Return
 binding cmd_toolsRunCommand Ctrl+R
 
 # Comment handling
-binding cmd_uncomment  Ctrl+2
-binding cmd_uncomment  Ctrl+Shift+3
-binding cmd_comment  Ctrl+3
+binding cmd_uncomment  Ctrl+Shift+?
+binding cmd_comment  Ctrl+/
 
 # Scintilla settings
 # #if PLATFORM == "linux"
@@ -93,11 +92,6 @@ binding cmd_viewEOL Ctrl+7
 binding cmd_viewWhitespace Ctrl+8
 binding cmd_wordWrap Ctrl+9
 # #endif
-binding cmd_viewIndentationGuides Ctrl+Shift+5
-binding cmd_viewLineNumbers Ctrl+Shift+4
-binding cmd_viewEOL Ctrl+Shift+7
-binding cmd_viewWhitespace Ctrl+Shift+8
-binding cmd_wordWrap Ctrl+Shift+9
 
 # Search
 binding cmd_jumpToMatchingBrace  Ctrl+]
@@ -150,6 +144,30 @@ binding cmd_bookmarkToggle  Ctrl+F2
 binding cmd_bookmarkRemoveAll  Ctrl+Shift+F2
 binding cmd_bookmarkGotoNext  F2 
 binding cmd_bookmarkGotoPrevious  Shift+F2
+
+# Quick Bookmarks
+# Set
+binding cmd_setQuickBookmark_0  Ctrl+Shift+0
+binding cmd_setQuickBookmark_1  Ctrl+Shift+1
+binding cmd_setQuickBookmark_2  Ctrl+Shift+2
+binding cmd_setQuickBookmark_3  Ctrl+Shift+3
+binding cmd_setQuickBookmark_4  Ctrl+Shift+4
+binding cmd_setQuickBookmark_5  Ctrl+Shift+5
+binding cmd_setQuickBookmark_6  Ctrl+Shift+6
+binding cmd_setQuickBookmark_7  Ctrl+Shift+7
+binding cmd_setQuickBookmark_8  Ctrl+Shift+8
+binding cmd_setQuickBookmark_9  Ctrl+Shift+9
+# GoTo
+binding cmd_goToQuickBookmark_0  Ctrl+0
+binding cmd_goToQuickBookmark_1  Ctrl+1
+binding cmd_goToQuickBookmark_2  Ctrl+2
+binding cmd_goToQuickBookmark_3  Ctrl+3
+binding cmd_goToQuickBookmark_4  Ctrl+4
+binding cmd_goToQuickBookmark_5  Ctrl+5
+binding cmd_goToQuickBookmark_6  Ctrl+6
+binding cmd_goToQuickBookmark_7  Ctrl+7
+binding cmd_goToQuickBookmark_8  Ctrl+8
+binding cmd_goToQuickBookmark_9  Ctrl+9
 
 # Code completion
 binding cmd_completeWord Ctrl+Space

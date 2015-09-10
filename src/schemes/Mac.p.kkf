@@ -1,4 +1,4 @@
-version 46
+version 47
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -32,9 +32,8 @@ binding cmd_closeAll Meta+Ctrl+W
 binding cmd_closeProject Ctrl+W
 binding cmd_goToDefinition Ctrl+K Ctrl+G
 
-binding cmd_uncomment  Ctrl+2
-binding cmd_uncomment  Ctrl+Shift+3
-binding cmd_comment  Ctrl+3
+binding cmd_uncomment  Meta+Shift+?
+binding cmd_comment  Meta+/
 binding cmd_completeWord Alt+Escape
 binding cmd_completeWordBack Alt+Shift+Escape
 binding cmd_completeWord F5
@@ -72,10 +71,7 @@ binding cmd_fontZoomOut Meta+-
 binding cmd_fontZoomIn Meta+Shift++
 binding cmd_fontZoomReset Meta+0
 binding cmd_gotoLine Meta+L
-binding cmd_helpHelp  Meta+?
-binding cmd_helpHelp  Meta+Shift+/
-binding cmd_helpLanguage  Meta+/
-binding cmd_helpLanguageAlternate  Ctrl+/
+binding cmd_helpHelp  Ctrl+/
 binding cmd_home  Home 
 binding cmd_home  Meta+Left 
 binding cmd_join Ctrl+K Ctrl+J
