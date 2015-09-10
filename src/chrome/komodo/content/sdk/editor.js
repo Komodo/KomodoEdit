@@ -507,6 +507,16 @@ module.exports = {
     },
 
     /**
+     * Move cursor to a specific line
+     *
+     * @param   (number) line number 
+     */
+    gotoLine: function(lineNum)
+    {
+        this.setCursor({line:lineNum});
+    },
+    
+    /**
      * Set the position of the cursor
      *
      * @param   {Int|Object} pos  relative or absolute position
@@ -847,7 +857,8 @@ module.exports = {
      */
     _posToAbsolute: function(pos)
     {
-        return scimoz().positionFromLine(pos.line-1) + pos.ch;
+        if ( ! pos.line ) pos.line = this.getLineNumber();
+        return scimoz().positionFromLine(pos.line-1) + (pos.ch || 0);
     }
 
 }
