@@ -243,13 +243,6 @@ this.findBrowser = function(args = {})
     var _findBrowser = document.getElementById("findReplaceBrowser");
     if ( ! _findBrowser.hasAttribute("src")) {
         _findBrowser.setAttribute("src", "chrome://komodo/content/find/embedded.xul");
-        
-        setTimeout(function() {
-            _findBrowser.contentWindow.addEventListener("keyup", function(e) {
-                if (e.keyCode == KeyEvent.DOM_VK_ESCAPE)
-                    wrapper.setAttribute("collapsed", "true");
-            });
-        }, 100);
     }
     else
         _findBrowser.contentWindow._init();

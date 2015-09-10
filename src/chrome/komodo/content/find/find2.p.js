@@ -89,6 +89,11 @@ function on_load() {
         window.focus();
 
         _init();
+        
+        document.addEventListener("keyup", function(e) {
+            if (e.keyCode == KeyEvent.DOM_VK_ESCAPE)
+                opener.document.getElementById("findReplaceWrap").setAttribute("collapsed", "true");
+        });
     } catch (ex) {
         log.exception(ex);
     }
@@ -1153,6 +1158,10 @@ function _init() {
     var findSessionSvc = Components.classes["@activestate.com/koFindSession;1"].
                             getService(Components.interfaces.koIFindSession);
     findSessionSvc.Reset();
+    
+    setTimeout(function() {
+        window.focus(); // focus hack
+    }, 50);
 }
 
 function _set_pattern_focus(select_all)
