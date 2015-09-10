@@ -290,7 +290,7 @@ class Searcher:
 
         for word in words:
             if word not in string:
-                continue
+                return 0
 
             # If sequence matter, record whether
             if not lazyMatch:
