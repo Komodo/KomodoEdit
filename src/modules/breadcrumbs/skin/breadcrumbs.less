@@ -13,9 +13,9 @@
     {
         -moz-binding: url("chrome://breadcrumbs/content/bindings/toolbarbutton.xml#toolbarbutton");
         position: relative;
-
-        margin-left: 6px !important;
-
+        padding: 0 !important;
+        margin-left: 0 !important;
+        
         &:empty
         {
             visibility: visible;
@@ -28,7 +28,7 @@
 
         &.first-child
         {
-            margin-left: 0 !important;
+            margin-left: 6px !important;
         }
 
         .toolbarbutton-text
@@ -36,13 +36,26 @@
             color: @statusbar-text-color;
             font-family: @statusbar-font;
             font-size: @statusbar-font-size;
+            padding: 0;
         }
-
+        
         .file-scc,
         .toolbarbutton-icon
         {
             visibility: collapse;
             /*margin-right: 4px !important;*/
+        }
+        
+        .breadcrumb-arrow
+        {
+            visibility: collapse;
+            //background-image: @icon-breadcrumb-arrow;
+            //background-size: 16px;
+            //margin-right: -16px;
+            //width: 16px;
+            //max-width: 16px;
+            //height: 16px;
+            //opacity: 0.6;
         }
     }
 

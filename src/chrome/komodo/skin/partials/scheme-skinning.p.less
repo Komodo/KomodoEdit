@@ -312,7 +312,11 @@ statusbar#statusbarviewbox
         border-radius: 0 !important;
 
         margin: 0;
-        padding: 0 2px !important;
+        
+        &:not(.breadcrumb)
+        {
+            padding: 0 2px !important;
+        }
 
         & > label
         {
