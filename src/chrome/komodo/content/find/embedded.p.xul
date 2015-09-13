@@ -21,10 +21,6 @@
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
-<!-- #if WITH_RX -->
-<!-- for rx-icon class -->
-<?xml-stylesheet href="chrome://komodo/skin/rxx/rxx-overlay.css" type="text/css"?>
-<!-- #endif -->
 <?xml-stylesheet href="chrome://komodo/skin/dialogs/find2.css" type="text/css"?>
 
 
@@ -221,15 +217,6 @@
               </menupopup>
             </button>
 -->
-<!-- #if WITH_RX -->
-<!--
-            <button id="open-in-rx-btn"
-                    class="rx-icon button-toolbar-a"
-                    tooltiptext="&openInRx.tooltiptext;"
-                    accesskey="/"
-                    oncommand="open_in_rx();"/>
--->
-<!-- #endif -->
 <!--
           </hbox>
           -->
