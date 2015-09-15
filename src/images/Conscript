@@ -229,12 +229,19 @@ $cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org.xpi", "openoffice/
 
 # install fileicons
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/template.svg", 'fileicons/template.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/apache.svg", 'fileicons/apache.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/bash.svg", 'fileicons/bash.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/c.svg", 'fileicons/c.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/c++.svg", 'fileicons/c++.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/coffeescript.svg", 'fileicons/coffeescript.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/css.svg", 'fileicons/css.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/html.svg", 'fileicons/html.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/html5.svg", 'fileicons/html5.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/java.svg", 'fileicons/java.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/javascript.svg", 'fileicons/javascript.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/komodoproject.svg", 'fileicons/komodoproject.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/less.svg", 'fileicons/less.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/markdown.svg", 'fileicons/markdown.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/node.js.svg", 'fileicons/node.js.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/perl.svg", 'fileicons/perl.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/php.svg", 'fileicons/php.svg');
@@ -243,5 +250,9 @@ $cons->InstallAs("$mozChromeDir/icons/default/fileicons/python3.svg", 'fileicons
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/ruby.svg", 'fileicons/ruby.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/sass.svg", 'fileicons/sass.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/scss.svg", 'fileicons/scss.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/sql.svg", 'fileicons/sql.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/tcl.svg", 'fileicons/tcl.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/txt.svg", 'fileicons/txt.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/text.svg", 'fileicons/text.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/unknown.svg", 'fileicons/unknown.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/xml.svg", 'fileicons/xml.svg');

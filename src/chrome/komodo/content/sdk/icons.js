@@ -155,12 +155,12 @@
                     log.debug("Using file association for ext");
                     info.ext = langPatterns.value[0].replace(/^\*\./, '')
                                                     .split('.').pop()
-                                                    .substr(0,4).toUpperCase();
+                                                    .substr(0,3).toUpperCase();
                 }
                 else
                 {
                     log.debug("Using language name for ext");
-                    info.ext = info.language.substr(0,4).toUpperCase();
+                    info.ext = info.language.substr(0,3).toUpperCase();
                 }
 
                 log.debug("Generating color based on language");
@@ -262,6 +262,9 @@
             }
 
             var svgPresetFile = FileUtils.getFile("AChrom", ["icons","default","fileicons", info.language.toLowerCase() + ".svg"], true);
+            if ( ! svgPresetFile.exists())
+                svgPresetFile = FileUtils.getFile("AChrom", ["icons","default","fileicons", info.ext + ".svg"], true);
+                
             if (svgPresetFile.exists())
             {
                 log.debug("Creating icon from SVG Preset: " + svgPresetFile.path);
