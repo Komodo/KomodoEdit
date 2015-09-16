@@ -16,8 +16,8 @@ end_style SSL_VARIABLE
 
 keyword_style SSL_IDENTIFIER => SSL_WORD
 keywords [
-    'ONBUILD', 'FROM', 'MAINTAINER', 'RUN', 'EXPOSE', 'ENV', 'ADD', 'COPY',
-    'VOLUME', 'USER', 'WORKDIR', 'CMD', 'ENTRYPOINT'
+    'ADD', 'CMD', 'COPY', 'ENTRYPOINT', 'ENV', 'EXPOSE', 'FROM', 'LABEL',
+    'MAINTAINER', 'ONBUILD', 'RUN', 'USER', 'VOLUME', 'WORKDIR'
 ]
 
 pattern FIRSTNAMECHAR = '_a-zA-Z\x80-\xff'
