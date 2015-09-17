@@ -1374,7 +1374,7 @@ class PerlCILEDriver(CILEDriver):
     def scan_purelang(self, buf):
         return perlcile.scan_purelang(buf)
     
-    def scan_multilang(self, buf, csl_cile_driver=None):
+    def scan_multilang(self, buf, csl_cile_driver=None, css_cile_driver=None):
         """Scan the given multilang (UDL-based) buffer and return a CIX
         element tree, and shuffle any CSL tokens to the CSL CileDriver.
         """
@@ -1384,7 +1384,7 @@ class PerlCILEDriver(CILEDriver):
             path = path.replace('\\', '/')
         file_node = SubElement(tree, "file", lang=buf.lang, path=path)
         # module = SubElement(file_node, "scope", ilk="blob", lang="Perl", name=basename(path))
-        csl_tokens, has_perl_code = perlcile.scan_multilang(buf.accessor.gen_tokens(), file_node)
+        csl_tokens, css_tokens, has_perl_code = perlcile.scan_multilang(buf.accessor.gen_tokens(), file_node)
         blob_node = file_node.getchildren()[0]
         if not has_perl_code:
             assert len(blob_node) == 0
@@ -1395,6 +1395,9 @@ class PerlCILEDriver(CILEDriver):
         if csl_cile_driver and csl_tokens:
             csl_cile_driver.scan_csl_tokens(file_node, basename(buf.path),
                                             csl_tokens)
+        if css_cile_driver and css_tokens:
+            css_cile_driver.scan_css_tokens(file_node, basename(buf.path),
+                                            css_tokens)
         return tree
 
 

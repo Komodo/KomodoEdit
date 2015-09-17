@@ -593,9 +593,11 @@ class _NotYetSet(object):
 class UDLCILEDriver(CILEDriver):
     ssl_lang = None   # Sub-classes must set one or both of these for
     csl_lang = None   #    citadel-scanning support.
+    css_lang = None
 
     _master_cile_driver = None
     slave_csl_cile_driver = _NotYetSet # to distinguish from None
+    slave_css_cile_driver = _NotYetSet # to distinguish from None
 
     @property
     def master_cile_driver(self):
@@ -607,6 +609,7 @@ class UDLCILEDriver(CILEDriver):
         Side effect: `self.slave_csl_cile_driver' is determined the
         first time this is called. A little gross, I know, but it
         avoids having a separate property.
+        Note: `self.slave_css_cile_driver` follows the same logic.
         """
         if self._master_cile_driver is None:
             if self.ssl_lang is not None:
@@ -618,11 +621,15 @@ class UDLCILEDriver(CILEDriver):
                 self._master_cile_driver \
                     = self.mgr.citadel.cile_driver_from_lang(self.csl_lang)
                 self.slave_csl_cile_driver = None
+            if self.css_lang is not None:
+                self.slave_css_cile_driver \
+                    = self.mgr.citadel.cile_driver_from_lang(self.css_lang)
         return self._master_cile_driver
 
     def scan_purelang(self, buf):
         return self.master_cile_driver.scan_multilang(
-                        buf, self.slave_csl_cile_driver)
+                        buf, self.slave_csl_cile_driver,
+                        self.slave_css_cile_driver)
 
 
 

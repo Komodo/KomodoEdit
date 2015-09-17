@@ -392,14 +392,21 @@ class OtherTestCase(CodeIntelTestCase):
                 color: #666;
                 font-size: smaller;
             }
+
+            #header<3> {
+                text-align: center;
+            }
         """))
         lines = lines_from_pos(content, pos)
         self.assertSectionIs(0, content, lang,
-            lang=lang, id="blockquote-address-before", line=lines[1],
-            title="blockquote address:before", type="production")
+            lang=lang, id="blockquote address:before", line=lines[1],
+            title="blockquote address:before", type="element")
         self.assertSectionIs(1, content, lang,
-            lang=lang, id="remark", line=lines[2],
-            title=".remark", type="production")
+            lang=lang, id=".remark", line=lines[2],
+            title=".remark", type="class")
+        self.assertSectionIs(2, content, lang,
+            lang=lang, id="#header", line=lines[3],
+            title="#header", type="id")
 
     def test_rst(self):
         lang = "reStructuredText"
@@ -489,7 +496,7 @@ class MultiLangTestCase(CodeIntelTestCase):
             type="function")
         self.assertSectionIs(1, content, lang,
             lang="CSS", id="body", line=11, title="body",
-            type="production")
+            type="element")
         self.assertSectionIs(2, content, lang,
             lang=lang, id="header", line=17, title="header (div)",
             type="element")
@@ -554,6 +561,9 @@ class MultiLangTestCase(CodeIntelTestCase):
                     alert('hi from foo');
                 }
             </script>
+            <style>
+                #header { /* stuff */ }
+            </style>
             </head>
             <body>
                 <div id="header">
@@ -575,17 +585,122 @@ class MultiLangTestCase(CodeIntelTestCase):
             lang="JavaScript", id="foo", line=6, title="foo",
             type="function")
         self.assertSectionIs(1, content, lang,
-            lang="HTML", id="header", line=12, title="header (div)",
-            type="element")
+            lang="CSS", id="#header", line=11, title="#header",
+            type="id")
         self.assertSectionIs(2, content, lang,
-            lang="HTML", id="here", line=13, title="here (p)",
+            lang="HTML", id="header", line=15, title="header (div)",
             type="element")
         self.assertSectionIs(3, content, lang,
-            lang="PHP", id="blah", line=16, title="blah",
-            type="function")
-        self.assertSectionIs(4, content, lang,
-            lang="HTML", id="footer", line=21, title="footer (div)",
+            lang="HTML", id="here", line=16, title="here (p)",
             type="element")
+        self.assertSectionIs(4, content, lang,
+            lang="PHP", id="blah", line=19, title="blah",
+            type="function")
+        self.assertSectionIs(5, content, lang,
+            lang="HTML", id="footer", line=24, title="footer (div)",
+            type="element")
+        
+    @tag("css", "mason")
+    def test_css_in_mason(self):
+        lang = "Mason"
+        content = dedent("""\
+            <html>
+            <head>
+                <style type="text/css">
+                    h3 { border-width: 1px; }
+                    .article { margin-left: 1em; }
+                </style>
+            </head>
+            <body>
+              <%class>
+              use Date::Format;
+              my $date_fmt = "%A, %B %d, %Y  %I:%M %p";
+              </%class>
+              
+              <%args>
+              $.article => (required => 1)
+              </%args>
+              
+              <div class="article">
+                <h3><% $.article->title %></h3>
+                <h4><% time2str($date_fmt, $.article->create_time) %></h4>
+                <% $.article->content %>
+              </div>
+            </body>
+            </html>
+        """)
+        self.assertSectionIs(0, content, lang,
+            lang="CSS", id="h3", line=4, title="h3",
+            type="element")
+        self.assertSectionIs(1, content, lang,
+            lang="CSS", id=".article", line=5, title=".article",
+            type="class")
+        
+    @tag("css", "rhtml")
+    def test_css_in_rhtml(self):
+        lang = "RHTML"
+        content = dedent("""\
+            <html>
+            <head>
+              <style type="text/css">
+                #content {
+                  /* something */
+                }
+                ul {
+                  /* something else */
+                }
+              </style>
+            </head>
+            <body>
+            <div id="content">
+              <ul>
+                <% @products.each do |p| %>
+                  <li><%=  @p.name %></li>
+                <% end %>
+              </ul>
+            </div>
+        """)
+        self.assertSectionIs(0, content, lang,
+            lang="CSS", id="#content", line=4, title="#content",
+            type="id")
+        self.assertSectionIs(1, content, lang,
+            lang="CSS", id="ul", line=7, title="ul",
+            type="element")
+        self.assertSectionIs(2, content, lang,
+            lang="HTML", id="content", line=13, title="content (div)",
+            type="element")
+        
+    @tag("css", "django")
+    def test_css_in_django(self):
+        lang = "Django"
+        content = dedent("""\
+            <html>
+            <head>
+              <style type="text/css">.hidden { display: none; }</style>
+            </head>
+            <body>
+            </body>
+            </html>
+        """)
+        self.assertSectionIs(0, content, lang,
+            lang="CSS", id=".hidden", line=3, title=".hidden",
+            type="class")
+        
+    @tag("css", "mustache")
+    def test_css_in_mustache(self):
+        lang = "Mustache"
+        content = dedent("""\
+            <html>
+            <head>
+              <style type="text/css">.hidden { display: none; }</style>
+            </head>
+            <body>
+            </body>
+            </html>
+        """)
+        self.assertSectionIs(0, content, lang,
+            lang="CSS", id=".hidden", line=3, title=".hidden",
+            type="class")
 
 
 #---- mainline

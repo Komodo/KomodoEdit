@@ -53,6 +53,7 @@ class MustacheCILEDriver(UDLCILEDriver):
     lang = lang
     csl_lang = "JavaScript"
     tpl_lang = lang
+    css_lang = "CSS"
 
 #---- registration
 

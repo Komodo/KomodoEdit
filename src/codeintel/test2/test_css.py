@@ -747,6 +747,60 @@ class CSS_UDL_HTMLStyleAttributes(CodeIntelTestCase):
         for i in range(3, 7):
             self.assertTriggerDoesNotMatch(markup_text(content, pos=positions[i]),
                                            name=name)
+            
+
+class CSS_UDL_HTML_Selectors(CodeIntelTestCase):
+    lang = "HTML"
+    
+    def test_completions(self):
+        content, positions = unmark_text(dedent("""\
+            <html>
+            <head>
+                <style type="text/css">
+                    #header, #footer { }
+                    #content { }
+                    #header:hover, #footer:hover { }
+                    .foo { }
+                    p .bar { }
+                    p > .baz[what=now] { }
+                    ul, ol { }
+                    li { }
+                </style>
+            </head>
+            <body>
+                <div id="<1>">
+                    <p class="<2>">
+                        <span style="<3>">
+        """))
+        self.assertTriggerMatches(markup_text(content, pos=positions[1]),
+                                  name="css-complete-anchors")
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+                                  [("id", "content"),
+                                   ("id", "footer"),
+                                   ("id", "header")])
+        self.assertTriggerMatches(markup_text(content, pos=positions[2]),
+                                  name="css-complete-class-names")
+        self.assertCompletionsAre(markup_text(content, pos=positions[2]),
+                                  [("class", "bar"),
+                                   ("class", "baz"),
+                                   ("class", "foo")])
+        self.assertTriggerMatches(markup_text(content, pos=positions[3]),
+                                  name="html-complete-attr-enum-values")
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[3]),
+                                           [("id", "header"),
+                                            ("id", "footer"),
+                                            ("id", "content"),
+                                            ("class", "foo"),
+                                            ("class", "bar"),
+                                            ("class", "baz")])
+        
+    def test_no_completions(self):
+        content, positions = unmark_text(dedent("""\
+            <div id="<1>">
+            <div class="<2>">
+        """))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]), None)
+        self.assertCompletionsAre(markup_text(content, pos=positions[2]), None)
 
 
 

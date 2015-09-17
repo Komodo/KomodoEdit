@@ -175,6 +175,7 @@ class PerlMultiLangLexer(_CommonLexer):
     def __init__(self, token_source):
         _CommonLexer.__init__(self)
         self.csl_tokens = []
+        self.css_tokens = []
         # http://www.mozilla.org/js/language/grammar14.html
         self.js_multi_char_ops = self.build_dict('++ -- << >> >>> <= >= == != === !== && || *= /= %= += -= <<= >>= >>>= &= ^= |=')
         self.string_types = [ScintillaConstants.SCE_UDL_SSL_STRING
@@ -214,6 +215,9 @@ class PerlMultiLangLexer(_CommonLexer):
             else:
                 self.complete_token_push(tok)
             self._contains_ssl = True
+        elif self.is_udl_css_family(ttype):
+            self.complete_token_push(tok, adjust_line=False,
+                                     dest_q=self.css_tokens)
         # See comment in RubyMultiLangLexer._fix_token_list
         # on why we probably don't need this code.
         #elif self.is_udl_tpl_family(ttype):
@@ -221,6 +225,9 @@ class PerlMultiLangLexer(_CommonLexer):
 
     def get_csl_tokens(self):
         return self.csl_tokens
+    
+    def get_css_tokens(self):
+        return self.css_tokens
 
     def has_perl_code(self):
         return self._contains_ssl

@@ -70,6 +70,26 @@ class HTMLLexer(UDLLexer):
 
 class HTMLLangIntel(XMLLangIntel):
     lang = lang
+    
+    def trg_from_pos(self, buf, pos, implicit=True, DEBUG=False):
+        """
+        Retrieves a codeintel completion trigger based on the current position,
+        taking into account an HTML-specific context.
+        In most cases, this will simply be XML code completion. However, if the
+        caret is within an "id" or "class" attribute value, a CSS anchor or
+        class completions trigger will be returned.
+        """
+        trg = XMLLangIntel.trg_from_pos(self, buf, pos, implicit, DEBUG)
+        if trg and trg.type == "attr-enum-values":
+            accessor = buf.accessor
+            attrName = accessor.text_range(*accessor.contiguous_style_range_from_pos(trg.pos-3))
+            if attrName.lower() == "id":
+                return Trigger("CSS", TRG_FORM_CPLN, "anchors",
+                               pos, implicit)
+            elif attrName.lower() == "class":
+                return Trigger("CSS", TRG_FORM_CPLN, "class-names",
+                               pos, implicit)
+        return trg
 
     def get_valid_tagnames(self, buf, pos, withPrefix=False):
         node = buf.xml_node_at_pos(pos)
@@ -132,11 +152,10 @@ class HTMLBuffer(UDLBuffer, XMLParsingBufferMixin):
     # - dropping '!' because causes problem with CSS "!important" (bug 78312)
     cpln_stop_chars = "'\" ;,~`@#%^&*()=+{}]|\\,.<>?/"
 
-
-
 class HTMLCILEDriver(UDLCILEDriver):
     lang = lang
     csl_lang = "JavaScript"
+    css_lang = "CSS"
 
 
 

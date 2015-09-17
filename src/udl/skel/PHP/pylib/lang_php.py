@@ -66,7 +66,7 @@ from SilverCity.ScintillaConstants import (SCE_UDL_SSL_DEFAULT,
 from codeintel2.parseutil import *
 from codeintel2.phpdoc import phpdoc_tags
 from codeintel2.citadel import ImportHandler, CitadelLangIntel
-from codeintel2.udl import UDLBuffer, UDLLexer, UDLCILEDriver, is_udl_csl_style, XMLParsingBufferMixin
+from codeintel2.udl import UDLBuffer, UDLLexer, UDLCILEDriver, is_udl_csl_style, is_udl_css_style, XMLParsingBufferMixin
 from codeintel2.common import *
 from codeintel2 import util
 from codeintel2.indexer import PreloadBufLibsRequest, PreloadLibRequest
@@ -1279,8 +1279,9 @@ class PHPCILEDriver(UDLCILEDriver):
     lang = lang
     ssl_lang = "PHP"
     csl_lang = "JavaScript"
+    css_lang = "CSS"
 
-    def scan_multilang(self, buf, csl_cile_driver=None):
+    def scan_multilang(self, buf, csl_cile_driver=None, css_cile_driver=None):
       #try:
         """Scan the given multilang (UDL-based) buffer and return a CIX
         element tree.
@@ -1306,12 +1307,14 @@ class PHPCILEDriver(UDLCILEDriver):
         cixblob = createCixModule(cixfile, basepath, "PHP", src=fullpath)
 
         phpciler = PHPParser(fullpath, buf.accessor.text, mtime)
-        csl_tokens = phpciler.scan_multilang_content(buf.accessor.text)
+        csl_tokens, css_tokens = phpciler.scan_multilang_content(buf.accessor.text)
         phpciler.convertToElementTreeModule(cixblob)
 
-        # Hand off the csl tokens if any
+        # Hand off the csl and css tokens if any
         if csl_cile_driver and csl_tokens:
             csl_cile_driver.scan_csl_tokens(cixfile, basepath, csl_tokens)
+        if css_cile_driver and css_tokens:
+            css_cile_driver.scan_css_tokens(cixfile, basepath, css_tokens)
 
         return cixtree
 
@@ -2061,6 +2064,7 @@ class PHPParser:
         self.currentNamespace = None
         self.currentFunction = None
         self.csl_tokens = []
+        self.css_tokens = []
         self.lineno = 0
         self.depth = 0
         self.styles = []
@@ -3401,13 +3405,18 @@ class PHPParser:
                                     "text": text,
                                     "start_column": start_column,
                                     "start_line": start_line})
+        elif is_udl_css_style(style):
+            self.css_tokens.append({"style": style,
+                                    "text": text,
+                                    "start_column": start_column,
+                                    "start_line": start_line})
         self.lastText = text
         self.lastStyle = style
 
     def scan_multilang_content(self, content):
         """Scan the given PHP content, only processes SSL styles"""
         PHPLexer().tokenize_by_style(content, self.token_next)
-        return self.csl_tokens
+        return self.csl_tokens, self.css_tokens
 
     def convertToElementTreeFile(self, cixelement):
         """Store PHP information into the cixelement as a file(s) sub element"""

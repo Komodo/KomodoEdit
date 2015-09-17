@@ -419,6 +419,7 @@ ko.codeintel = {};
         "property":     "chrome://komodo/skin/images/codeintel/cb_class.svg",
         "pseudo-class": "chrome://komodo/skin/images/codeintel/cb_interface.svg",
         "rule":         "chrome://komodo/skin/images/codeintel/cb_function.svg",
+        "id":           "chrome://komodo/skin/images/codeintel/cb_namespace.svg",
     };
 
     this.CompletionUIHandler.prototype.observe = function(prefSet, prefName, prefSetID)

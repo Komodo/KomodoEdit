@@ -466,7 +466,7 @@ class CILEDriver(object):
         """
         raise VirtualMethodError("CILEDriver.scan_binary")
 
-    def scan_multilang(self, buf, csl_cile_driver=None):
+    def scan_multilang(self, buf, csl_cile_driver=None, css_cile_driver=None):
         """Scan the given multilang (UDL-based) buffer and return a CIX
         element tree.
 
@@ -479,6 +479,9 @@ class CILEDriver(object):
                         file_elem, blob_name, csl_tokens)
                 The CSL scanner will append a CIX <scope ilk="blob">
                 element to the <file> element.
+            "css_cile_driver" (optional) is the CSS (style language)
+                CILE driver. While scanning, CSS tokens should be gathered and,
+                if any, passed to the CSS scanner like above.
 
         A language that supports being part of a multi-lang document
         must implement this method.
@@ -496,6 +499,17 @@ class CILEDriver(object):
         Python for the new Mozilla DOM_AGNOSTIC work.
         """
         raise VirtualMethodError("CILEDriver.scan_csl_tokens")
+    
+    def scan_css_tokens(self, file_elem, blob_name, css_tokens):
+        """Generate a CIX <scope ilk="blob"> tree for the given CSS
+        (style language) tokens and append the blob to the given
+        file element.
+
+        A language that supports being a style language in a
+        multi-lang document must implement this method. Realistically
+        this just means CSS for now.
+        """
+        raise VirtualMethodError("CILEDriver.scan_css_tokens")
 
 
 class EvalController(object):
