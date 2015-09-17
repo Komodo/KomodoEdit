@@ -15,21 +15,33 @@
         }
     }
     
-    #commando-preview
+    &.previewing:not(.maximized) #commando-preview
     {
         border-left: @hud-border;
+        width: 600px;
+    }
+    
+    &.previewing.maximized #commando-preview
+    {
         width: 600px;
     }
     
     #commando-panel-wrapper
     {
         width: 500px;
+        transition: visibility 10ms; /* Hack to prevent XUL from hiding the commando panel apparently */
     }
     
-    &.previewing #commando-panel-wrapper
+    &.previewing:not(.maximized) #commando-panel-wrapper
     {
         width: 250px;
     }
+    
+    &.previewing.maximized #commando-panel-wrapper
+    {
+        visibility: collapse;
+    }
+    
     #commando-search-wrapper
     {
         margin-bottom: 1px;

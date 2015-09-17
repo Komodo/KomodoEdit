@@ -15,7 +15,7 @@
     const ioService = Cc["@mozilla.org/network/io-service;1"]
                         .getService(Ci.nsIIOService);
 
-    const KeyEvent = window.KeyEvent; // Todo: Don't depend on window
+    const KeyEvent = _window.KeyEvent;
 
     // Short alias for the commando scope.
     const c = this;
@@ -349,7 +349,7 @@
     var onNavDown = function(e)
     {
         c.navDown(e && e.shiftKey)
-        c.preview();
+        onPreview(e);
     }
 
     var onNavUp = function(e)
@@ -359,8 +359,32 @@
         } else {
             c.navUp(e && e.shiftKey);
         }
+        onPreview(e);
+    }
+    
+    var onPreview = function(e)
+    {
+        if (elem('panel').hasClass("maximized"))
+        {
+            elem('panel').removeClass("maximized");
+        }
+        
+        if ( ! c.execScopeHandler("onPreview"))
+        {
+            if (elem('preview').visible())
+            {
+                elem('preview').hide();
+                elem('preview').empty();
+                elem('panel').removeClass("previewing");
+                c.center();
+            }
+            return;
+        }
+        
         c.preview();
     }
+    
+    this.onPreview = onPreview;
 
     var onSearch = function(e)
     {
@@ -560,7 +584,13 @@
         if (returnValues)
             return [left, top];
         else
+        {
             panel.element().moveTo(left, y + top);
+            // repeat on slight timeout, to deal with XUL oddities
+            setTimeout(function() {
+                c.center();
+            }, 25);
+        }
     }
     this.isOpen = function()
     {
@@ -1075,7 +1105,7 @@
         }
         
         c.reloadTip();
-        c.preview();
+        onPreview();
         c.center();
     }
 
@@ -1294,20 +1324,27 @@
     
     this.preview = function()
     {
-        if ( ! c.execScopeHandler("onPreview"))
-        {
-            elem('preview').hide();
-            elem('preview').empty();
-            elem('panel').removeClass("previewing");
-            return;
-        }
-        
         elem('panel').css("min-height", "600px");
         elem('panel').addClass("previewing");
         elem('preview').show();
         
-        this.center();
+        c.center();
     }
+    
+    this.maximizePreview = function()
+    {
+        if ( ! elem('panel').hasClass("previewing"))
+        {
+            log.warning("Cannot maximize nonexistant preview")
+            return;
+        }
+        
+        elem('panel').addClass("maximized");
+        elem('panel').css("min-height", "400px");
+        
+        c.center();
+    }
+    
     this.getSelected = function()
     {
         return elem('results').element().selectedItems.slice();
@@ -1583,6 +1620,7 @@
         window.focus();
         elem('panel').focus();
         elem('search').focus();
+        elem('search').element().select();
 
         if (document.activeElement.nodeName != "html:input")
         {
