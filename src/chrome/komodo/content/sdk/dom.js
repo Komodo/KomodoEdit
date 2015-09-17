@@ -561,6 +561,18 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         },
 
         /**
+         * Checks for given class 
+         * 
+         * @param {String}  className
+         * 
+         * @returns this
+         */
+        hasClass: function(className)
+        {
+            return this.element().classList.contains(className);
+        },
+
+        /**
          * Adds given class 
          * 
          * @param {String}  className
