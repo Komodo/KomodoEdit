@@ -565,6 +565,13 @@
     {
         if (local.quickSearch) return;
         
+        if ( ! returnValues)
+        {
+            // Hack to get around XUL magically adding width/height to elements, THANKS XUL!
+            elem('panel').removeAttr("height");
+            elem('panel').removeAttr("width");
+        }
+        
         var panel = elem('panel');
         
         var top = 100;
@@ -589,6 +596,7 @@
             // repeat on slight timeout, to deal with XUL oddities
             setTimeout(function() {
                 c.center();
+                c.focus(); // Work around XUL focus bugs
             }, 25);
         }
     }
@@ -1617,6 +1625,8 @@
     // XUL panel focus is buggy as hell, so we have to get crafty
     this.focus = function(times=0, timer = 10)
     {
+        if ( ! elem('search').visible()) return;
+        
         window.focus();
         elem('panel').focus();
         elem('search').focus();
