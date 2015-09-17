@@ -432,6 +432,26 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             insertIntoElem(this, elem, {where: "before"});
             return this;
         },
+        
+        /**
+         * Get the previous sibling for the first element in the selection
+         *
+         * @returns {queryObject}
+         */
+        prev: function()
+        {
+            return new queryObject(this.element().previousSibling);
+        },
+        
+        /**
+         * Get the next sibling for the first element in the selection
+         *
+         * @returns {queryObject}
+         */
+        next: function()
+        {
+            return new queryObject(this.element().nextSibling);
+        },
 
         /**
          * Replace matched element(s) with ..
