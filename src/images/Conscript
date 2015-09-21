@@ -77,6 +77,7 @@ $cons->InstallAs("$imagesDir/codeintel/cb_class.svg", "icons/codeintel/cb_class.
 $cons->InstallAs("$imagesDir/codeintel/cb_directory.svg", "icons/codeintel/cb_directory.svg");
 $cons->InstallAs("$imagesDir/codeintel/cb_function.svg", "icons/codeintel/cb_function.svg");
 $cons->InstallAs("$imagesDir/codeintel/cb_module.svg", "icons/codeintel/cb_module.svg");
+$cons->InstallAs("$imagesDir/codeintel/cb_property.svg", "icons/codeintel/cb_property.svg");
 $cons->InstallAs("$imagesDir/codeintel/cb_variable.svg", "icons/codeintel/cb_variable.svg");
 $cons->InstallAs("$imagesDir/codeintel/cb_variable_scalar.svg", "icons/codeintel/cb_variable_scalar.svg");
 $cons->InstallAs("$imagesDir/codeintel/cb_variable_array.svg", "icons/codeintel/cb_variable_array.svg");
