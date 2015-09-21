@@ -559,6 +559,8 @@
             local.firstShow = false;
             c.search();
         }
+        
+        elem('search').element().select();
     }
     
     this.center = function(returnValues)
@@ -1630,7 +1632,6 @@
         window.focus();
         elem('panel').focus();
         elem('search').focus();
-        elem('search').element().select();
 
         if (document.activeElement.nodeName != "html:input")
         {
