@@ -1351,6 +1351,7 @@ class CSSCile:
         self.whitespace = re.compile('^\\s+$')
         self.blockLevel = 0
         self.parenLevel = 0
+        self.ignoreStatement = False
         
     def handle_token(self, style, text, start_column, start_line, **otherArgs):
         """
@@ -1364,16 +1365,18 @@ class CSSCile:
         @param otherArgs Other token properties.
         """
         if self.styleClassifier.is_operator(style):
-            if text == '}' or text == ';':
+            if text == '}' or ';' in text:
                 if text == '}':
                     self.blockLevel = max(self.blockLevel - 1, 0)
                 if self.blockLevel == 0:
                     self.selector = [] # start looking for selectors
                     self.selectorStartLine = None # need to reset on ';' (Less)
+                    self.ignoreStatement = False
                 return
             elif (text == '{' or text == ',' or '(' in text) and \
                  self.selector and len(self.selector) > 0 and \
-                 self.blockLevel == 0 and self.parenLevel == 0:
+                 self.blockLevel == 0 and self.parenLevel == 0 and \
+                 not self.ignoreStatement:
                 selectorText = ''.join(self.selector).strip()
                 try:
                     self.cile.addSelector(CSSSelector(selectorText,
@@ -1399,6 +1402,10 @@ class CSSCile:
                 self.blockLevel += 1
             elif text == ')':
                 self.parenLevel = min(self.parenLevel - 1, 0)
+            elif text == '$':
+                # SCSS variable; stop looking for selectors until encountering
+                # ';'.
+                self.ignoreStatement = True
         elif self.styleClassifier.is_comment(style):
             # Embedded comments within selectors are unlikely, but handle them
             # anyway just in case.

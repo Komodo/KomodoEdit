@@ -452,6 +452,36 @@ class OtherTestCase(CodeIntelTestCase):
         self.assertSectionIs(3, content, lang,
             lang=lang, id="#foo", line=lines[4],
             title="#foo", type="id")
+        
+    def test_scss(self):
+        lang = "SCSS"
+        content, pos = unmark_text(dedent(u"""\
+            @mixin colors($text, $background, $border)<1> {
+              color: $text;
+              background-color: $background;
+              border-color: $border;
+            }
+            
+            $values: #ff0000, #00ff00, #0000ff;
+            .primary<2> {
+              @include colors($values...);
+            }
+            
+            $value-map: (text: #00ff00, background: #0000ff, border: #ff0000);
+            .secondary<3> {
+              @include colors($value-map...);
+            }
+        """))
+        lines = lines_from_pos(content, pos)
+        self.assertSectionIs(0, content, lang,
+            lang=lang, id="@mixin colors", line=lines[1],
+            title="@mixin colors", type="element")
+        self.assertSectionIs(1, content, lang,
+            lang=lang, id=".primary", line=lines[2],
+            title=".primary", type="class")
+        self.assertSectionIs(2, content, lang,
+            lang=lang, id=".secondary", line=lines[3],
+            title=".secondary", type="class")
 
     def test_rst(self):
         lang = "reStructuredText"
