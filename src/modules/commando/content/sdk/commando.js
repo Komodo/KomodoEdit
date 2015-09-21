@@ -597,7 +597,7 @@
             panel.element().moveTo(left, y + top);
             // repeat on slight timeout, to deal with XUL oddities
             setTimeout(function() {
-                c.center();
+                c.center(true);
                 c.focus(); // Work around XUL focus bugs
             }, 25);
         }
