@@ -136,7 +136,7 @@ class Environment(object):
         "Perl": ["*.pm", "*.pl"],
         "Tcl": ["*.tcl"],
         "Ruby": ["*.rb"],
-        "CSS": ["*.css"],
+        "CSS": ["*.css", "*.less", "*.css.less", "*.scss", "*.css.scss"],
     }
     def assoc_patterns_from_lang(self, lang):
         """Return a list of filename patterns identifying the given
