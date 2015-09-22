@@ -465,6 +465,10 @@ class OtherTestCase(CodeIntelTestCase):
             $values: #ff0000, #00ff00, #0000ff;
             .primary<2> {
               @include colors($values...);
+              .redbox {
+                background-color: #ff0000;
+                color: #000000;
+              }
             }
             
             $value-map: (text: #00ff00, background: #0000ff, border: #ff0000);

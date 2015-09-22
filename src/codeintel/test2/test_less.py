@@ -71,7 +71,7 @@ class Less_StraightTest(_BaseCSSTestCase):
             """),
             name=expected_trg_name)
         
-    def test_complete_classes(self):
+    def test_complete_less_classes(self):
         content, positions = unmark_text(dedent("""\
             @base: #f938ab;
             
@@ -99,3 +99,22 @@ class Less_StraightTest(_BaseCSSTestCase):
 
 class SCSS_StraightTest(Less_StraightTest):
     lang = "SCSS"
+
+    def test_complete_scss_classes(self):
+        content, positions = unmark_text(dedent("""\
+            .error {
+              border: 1px #f00;
+              background-color: #fdd;
+            }
+            .seriousError {
+              @extend .<1>error;
+              border-width: 3px;
+            }
+            .<2>
+        """))
+        for i in xrange(1, 2):
+            self.assertTriggerMatches(markup_text(content, pos=positions[i]),
+                                      name="css-complete-class-names")
+            self.assertCompletionsAre(markup_text(content, pos=positions[i]),
+                                      [("class", "error"),
+                                       ("class", "seriousError")])
