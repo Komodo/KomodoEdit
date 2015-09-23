@@ -148,15 +148,24 @@
         // Prepare platform command
         var platform = require("sdk/system").platform
         var file, cmdArgs;
-        if (platform.indexOf('win') === 0)
+        
+        if (opts.argv)
         {
-            file = 'C:\\Windows\\System32\\cmd.exe';
-            cmdArgs = ['/s', '/c', command];
+            file = command;
+            cmdArgs = opts.argv;
         }
         else
         {
-            file = '/bin/sh';
-            cmdArgs = ['-c', command];
+            if (platform.indexOf('win') === 0)
+            {
+                file = 'C:\\Windows\\System32\\cmd.exe';
+                cmdArgs = ['/s', '/c', command];
+            }
+            else
+            {
+                file = '/bin/sh';
+                cmdArgs = ['-c', command];
+            }
         }
       
         // Undocumented option from node being able to specify shell
@@ -167,7 +176,7 @@
         var process = proc.execFile(file, cmdArgs, _opts, callback);
         
         if ("runIn" in opts && opts.runIn == "hud")
-            showOutputInHud(process, command);
+            showOutputInHud(process, opts.readable || command);
         
         return process;
     }
@@ -241,8 +250,8 @@
             }
         }
         
-        process.stdout.on('data', onData)
-        process.stderr.on('data', onData)
+        process.stdout.on('data', onData);
+        process.stderr.on('data', onData);
         
         // Command finished executing
         process.on('close', function (code, signal)
@@ -304,6 +313,7 @@
             hud.element().hidePopup();
         });
     }
+    this._showOutputInHud = showOutputInHud;
     
     /**
      * Parses table information into a JS array
