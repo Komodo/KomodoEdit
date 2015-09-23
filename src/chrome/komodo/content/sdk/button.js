@@ -93,12 +93,20 @@
         var id = "sdk_button_" + context.uniqueId() + opts.id;
         context.parent().find(id).remove();
 
-        var button = document.createElementNS(XUL_NS, 'button');
+        var button = document.createElementNS(XUL_NS, opts.toolbar ? 'toolbarbutton' : 'button');
         button.setAttribute("id", id);
         button.setAttribute("label", opts.label);
+        button.setAttribute("tooltiptext", opts.tooltip || opts.label);
         button.setAttribute("class", opts.classList);
-
-        button.addEventListener("command", opts.command);
+        
+        if (typeof opts.command == "string")
+        {
+            button.setAttribute("oncommand", "ko.commands.doCommandAsync('"+opts.command+"', event)");
+            button.setAttribute("observes", opts.command);
+        }
+        else
+            button.addEventListener("command", opts.command);
+        
         button.classList.add("sdk-button");
 
         button.sdkOpts = opts;
