@@ -101,7 +101,7 @@
 <!ENTITY delete.label "Delete">
 <!ENTITY deleteBlankLines.desc "Editor: Delete Blank Lines">
 <!ENTITY edit.label "Edit">
-<!ENTITY editMacro.label "Edit Macro">
+<!ENTITY editMacro.label "Edit Userscript">
 <!ENTITY editSnippet.label "Edit Snippet">
 <!ENTITY editorInvokeHyperlink.desc "Editor: Invoke Hyperlink">
 <!ENTITY editorAddAsSnippetToToolbox.desc "Editor: Add as Snippet into Toolbox">
@@ -218,7 +218,7 @@
 <!ENTITY editorZoomFontSizeUp.desc "Editor: Zoom Font Size Up">
 <!ENTITY editorHTMLTagRelocator.desc "Editor: HTML Tag Relocator...">
 <!ENTITY enterNextCharacterAsRawLiteral.label "Enter Next Character as Raw Literal">
-<!ENTITY executeMacro.label "Execute Macro">
+<!ENTITY executeMacro.label "Execute Userscript">
 <!ENTITY existingFile.label "Existing File...">
 <!ENTITY existingRemoteFile.label "Existing Remote File...">
 <!ENTITY expand.label "Expand">
@@ -268,12 +268,12 @@
 <!ENTITY folderContextNewFile.accesskey "f">
 <!ENTITY folderContextNewFolder.accesskey "f">
 <!ENTITY folderContextNewLiveFolder.accesskey "L">
-<!ENTITY folderContextNewMacro.accesskey "m">
+<!ENTITY folderContextNewMacroaccesskey "u">
 <!ENTITY folderContextNewMenu.accesskey "n">
 <!ENTITY folderContextNewSnippet.accesskey "s">
 <!ENTITY folderContextNewTemplate.accesskey "t">
 <!ENTITY folderContextNewToolbar.accesskey "b">
-<!ENTITY folderContextNewURL.accesskey "u">
+<!ENTITY folderContextNewURL.accesskey "l">
 <!ENTITY folderContextRemoteFile.accesskey "r">
 <!ENTITY fullScreen.accesskey "F">
 <!ENTITY fullScreen.label "Full Screen">
@@ -421,6 +421,7 @@
 <!ENTITY listKeyBindings.label "List Key Bindings">
 <!ENTITY checkConfig.label "Check Configuration">
 <!ENTITY macro.label "Macro">
+<!ENTITY macros.label "Macros">
 <!ENTITY macroEndRecording.desc "Macro: End Recording">
 <!ENTITY macroExecuteLastMacro.desc "Macro: Execute Last Macro">
 <!ENTITY macroNew.menu.accesskey "C">
@@ -428,10 +429,9 @@
 <!ENTITY macroNew.toolbar.label "New Userscript">
 <!ENTITY macroNew.tooltiptext "Write new Userscript to save to Toolbox"><!ENTITY macroNew.command.desc "Macro: Create a new Toolbox Macro">
 <!ENTITY macroPauseRecording.desc "Macro: Pause Recording">
-<!ENTITY macroSaveToToolbox.desc "Macro: Save to Toolbox">
 <!ENTITY macroStartResumeRecording.desc "Macro: Start/Resume Recording">
 <!ENTITY macroToolbar.tooltiptext "Macro Toolbar">
-<!ENTITY macros.label "Macros">
+<!ENTITY macroSaveToToolbox.desc "Macro: Save to Toolbox as Userscript">
 <!ENTITY mailLists.label "Mail Lists">
 <!ENTITY makeLowercase.label "Make Lowercase">
 <!ENTITY makeUppercase.label "Make Uppercase">
@@ -526,7 +526,7 @@
 <!ENTITY newTab.label "New Tab">
 <!ENTITY newFolder.label "New Folder...">
 <!ENTITY newFromTemplate.label "New From Template">
-<!ENTITY newMacro.label "New Macro...">
+<!ENTITY newMacro.label "New Userscript...">
 <!ENTITY newProject.label "New Project...">
 <!ENTITY newProjectFromTemplate.label "New Project From Template...">
 <!ENTITY newSnippet.label "New Snippet...">
@@ -649,7 +649,7 @@
 <!ENTITY saveProject.label "Save Project">
 <!ENTITY saveProjectAs.label "Save Project As...">
 <!ENTITY renameProject.label "Rename Project...">
-<!ENTITY saveToToolbox.label "Save to Toolbox">
+<!ENTITY saveToToolbox.label "Save as Userscript"">
 <!ENTITY scrollCurrentLineToCenterOfScreen.label "Scroll Current Line to Center of Screen">
 <!ENTITY scrollCurrentLineToTopOfScreen.label "Scroll Current Line to Top of Screen">
 <!ENTITY select.menu.accesskey "S">
@@ -894,7 +894,7 @@
 <!ENTITY importPackage.label "Import kpz Package">
 <!ENTITY importPackageFromWeb.label "Import kpz Package From Web">
 
-<!ENTITY getMacro.label "Get More Macros">
+<!ENTITY getMacro.label "Get More Userscripts">
 <!ENTITY getToolbox.label "Get More Toolbox Items">
 <!ENTITY browsePackages.label "Browse Available Packages">
 <!ENTITY contributePackages.label "Contribute Packages">

@@ -83,7 +83,7 @@
     <hbox id="scintillaOverlayXul"/>
     <tabbox id="macroProperties" orient="vertical" flex="1">
         <tabs id="tabs" orient="horizontal">
-            <tab id="macro_tab" label="&macro.label;"/>
+            <tab id="macro_tab" label="&userscript.label;"/>
             <tab id="shortcut_tab" label="&keyBinding.label;" />
             <tab id="trigger_tab" label="&triggers.label;" />
         </tabs>

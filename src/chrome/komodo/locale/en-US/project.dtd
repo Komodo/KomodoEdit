@@ -49,8 +49,8 @@
 <!ENTITY async.accesskey "b">
 <!ENTITY AutoAbbreviation.label "Auto-Abbreviation">
 <!ENTITY bFileBaseNameWithoutExtension.label "[[&#37;b]]: file base name without extension">
-<!ENTITY beforeFileCloseTheMacroCanReturnTrueToPreventFileClose.label "Before file close (the macro can return true to prevent file close)">
-<!ENTITY beforeFileSaveTheMacroCanReturnTrueToPreventFileSave.label "Before file save (the macro can return true to prevent file save)">
+<!ENTITY beforeFileCloseTheMacroCanReturnTrueToPreventFileClose.label "Before file close (the userscript can return true to prevent file close)">
+<!ENTITY beforeFileSaveTheMacroCanReturnTrueToPreventFileSave.label "Before file save (the userscript can return true to prevent file save)">
 <!ENTITY changeIcon.accesskey "h">
 <!ENTITY changeIcon.label "Change Icon...">
 <!ENTITY dDirectoryBaseNameOfFile.label "[[&#37;d]]: directory base name of file">
@@ -65,12 +65,12 @@
 <!ENTITY k.accesskey "k">
 <!ENTITY keyBinding.label "Key Binding">
 <!ENTITY m.accesskey "m">
-<!ENTITY macro.label "Macro">
-<!ENTITY macroShouldTriggerOnAKomodoEvent.label "Macro should trigger on a Komodo event">
+<!ENTITY userscript.label "Userscript">
+<!ENTITY macroShouldTriggerOnAKomodoEvent.label "Userscript should trigger on a Komodo event">
 <!ENTITY maintainIndentationContextAfterInsertion.label "Maintain indentation context after insertion">
 <!ENTITY maintainSelectedTextOrCursorPositionAfterInsertion.label "Maintain selected text or cursor position after insertion">
 <!ENTITY onASystemNotification.label "On a system notification:">
-<!ENTITY onShutdownTheMacroCanReturnTrueToPreventShutdown.label "On shutdown (the macro can return true to prevent shutdown)">
+<!ENTITY onShutdownTheMacroCanReturnTrueToPreventShutdown.label "On shutdown (the userscript can return true to prevent shutdown)">
 <!ENTITY onStartup.label "On startup">
 <!ENTITY pDirectoryPathOfTheActiveProject.label "[[&#37;p]]: directory path for the active project file">
 <!ENTITY partvalue.accesskey "n">
