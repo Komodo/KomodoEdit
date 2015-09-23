@@ -6,6 +6,10 @@
     var ioFile      = require("sdk/io/file");
     var mkCommon    = ko.moreKomodo.MoreKomodoCommon;
 
+    var system      = require("sdk/system");
+    
+    this.separator = system.platform == "WINNT" ? "\\" : "/";
+
     /**
      * Returns the last component of the given path. For example, basename("/foo/bar/baz") returns "baz".
      * If the path has no components, the empty string is returned.
@@ -14,7 +18,11 @@
      *
      * @returns {String}
      */
-    this.basename = ioFile.basename;
+    this.basename = function(path)
+    {
+        // Mozilla's version throws an exception if the path is not up to their standards ..
+        return path.split(this.separator).pop();
+    };
     
     /**
      * Returns the path of the directory containing the given file. If the file is at the top of the volume,
@@ -24,7 +32,13 @@
      *
      * @returns {String}
      */
-    this.dirname = ioFile.dirname;
+    this.dirname = function(path)
+    {
+        // Mozilla's version throws an exception if the path is not up to their standards ..
+        path = path.split(this.separator);
+        path.pop();
+        return path.join(this.separator);
+    };
     
     /**
      * Returns true if a file exists at the given path and false otherwise.
