@@ -818,8 +818,8 @@ class CSSLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin):
                       CSSSelector.CLASS
                 
                 # Autocomplete anchors or class names from the current file.
-                if trg.lang in buf.blob_from_lang:
-                    blob = buf.blob_from_lang[trg.lang]
+                if self.lang in buf.blob_from_lang:
+                    blob = buf.blob_from_lang[self.lang]
                     for elem in blob:
                         if elem.get("ilk") == ilk:
                             cplns.add((ilk, elem.get("target")))
@@ -1202,17 +1202,17 @@ class CSSImportHandler(ImportHandler):
         return importables
 
 class CSSCILEDriver(CILEDriver):
-    lang = lang
-    
     """
     Invokes the CSS Code Intelligence Language Engine (CILE) on CSS content.
     """
+    lang = lang
+    
     def scan_purelang(self, buf):
         """
         Scans a CSS-only buffer, returning its CIX representation.
         @param buf The buffer to scan.
         """
-        cile = CSSCile(buf.path)
+        cile = CSSCile(buf.path, self.lang)
         cile.scan_purelang(buf.accessor.text)
         cixroot = createCixRoot()
         cile.appendToCixRoot(cixroot)
@@ -1228,7 +1228,7 @@ class CSSCILEDriver(CILEDriver):
         """
         cixmodule = createCixModule(file_elem, blob_name, self.lang,
                                     src=file_elem.get("path"))
-        cile = CSSCile(blob_name, UDLCSSStyleClassifier)
+        cile = CSSCile(blob_name, self.lang, UDLCSSStyleClassifier)
         for css_token in css_tokens:
             cile.handle_token(**css_token)
         cile.appendToCixModule(cixmodule)
@@ -1278,14 +1278,14 @@ class CSSFile:
     """
     A CILE object that represents a CSS file.
     """
-    lang = lang
     
-    def __init__(self, path):
+    def __init__(self, path, lang):
         """
         Creates a new representation for the CSS file with the given path.
         @param path The path to the CSS file.
         """
         self.path = path
+        self.lang = lang
         self.name = os.path.basename(path)
         self.parent = None
         self.cixname = self.__class__.__name__[2:].lower()
@@ -1332,7 +1332,8 @@ class CSSCile:
     """
     CSS Code Intelligence Language Engine (CILE).
     """
-    def __init__(self, path="", styleClassifier=StraightCSSStyleClassifier):
+    
+    def __init__(self, path, lang, styleClassifier=StraightCSSStyleClassifier):
         """
         Creates a new CILE for a CSS file with the given path.
         @param path The path of the CSS file this CILE is parsing.
@@ -1340,13 +1341,16 @@ class CSSCile:
         if sys.platform == "win32":
             path = path.replace('\\', '/') # normalize
         self.path = path
+        self.lang = lang
         self.styleClassifier = styleClassifier
         
-        self.cile = CSSFile(path)
+        self.cile = CSSFile(path, lang)
         
         self.selector = []
         self.selectorStartLine = None
         self.whitespace = re.compile('^\\s+$')
+        self.blockLevel = 0
+        self.parenLevel = 0
         
     def handle_token(self, style, text, start_column, start_line, **otherArgs):
         """
@@ -1360,22 +1364,41 @@ class CSSCile:
         @param otherArgs Other token properties.
         """
         if self.styleClassifier.is_operator(style):
-            if text == '}':
-                self.selector = [] # start looking for selectors
+            if text == '}' or text == ';':
+                if text == '}':
+                    self.blockLevel = max(self.blockLevel - 1, 0)
+                if self.blockLevel == 0:
+                    self.selector = [] # start looking for selectors
+                    self.selectorStartLine = None # need to reset on ';' (Less)
                 return
-            elif (text == '{' or text == ',') and \
-                 self.selector and len(self.selector) > 0:
+            elif (text == '{' or text == ',' or '(' in text) and \
+                 self.selector and len(self.selector) > 0 and \
+                 self.blockLevel == 0 and self.parenLevel == 0:
                 selectorText = ''.join(self.selector).strip()
-                self.cile.addSelector(CSSSelector(selectorText,
-                                                  self.selectorStartLine))
+                try:
+                    self.cile.addSelector(CSSSelector(selectorText,
+                                                      self.selectorStartLine))
+                except ValueError, e:
+                    log.warn(e)
                 if text == '{':
                     # Stop looking for selectors until encountering '}'.
                     self.selector = None
+                    self.blockLevel += 1
                 elif text == ',':
                     # Continue with the next selector.
                     self.selector = []
+                elif '(' in text:
+                    # Less mixin; stop looking for selectors until encountering
+                    # ')'.
+                    self.selector = None
+                    self.parenLevel += 1
                 self.selectorStartLine = None
                 return
+            elif text == '{':
+                # '{' encountered without a valid selector.
+                self.blockLevel += 1
+            elif text == ')':
+                self.parenLevel = min(self.parenLevel - 1, 0)
         elif self.styleClassifier.is_comment(style):
             # Embedded comments within selectors are unlikely, but handle them
             # anyway just in case.

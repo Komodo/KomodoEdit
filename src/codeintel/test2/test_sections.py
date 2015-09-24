@@ -407,6 +407,51 @@ class OtherTestCase(CodeIntelTestCase):
         self.assertSectionIs(2, content, lang,
             lang=lang, id="#header", line=lines[3],
             title="#header", type="id")
+        
+    def test_less(self):
+        lang = "Less"
+        content, pos = unmark_text(dedent(u"""\
+            @nice-blue: #5B83AD;
+            @light-blue: @nice-blue + #111;
+            
+            #header<1> {
+              color: @light-blue;
+              .navigation {
+                font-size: 12px;
+              }
+              .logo {
+                width: 300px;
+              }
+            }
+            
+            .post a<2> {
+              color: #111;
+              .bordered;
+            }
+            
+            .my-inline-block() when (@mode=huge)<3> {
+                display: inline-block;
+              font-size: 0;
+            }
+            
+            #foo (@bg: #f5f5f5, @color: #900)<4> {
+                background: @bg;
+                color: @color;
+            }
+        """))
+        lines = lines_from_pos(content, pos)
+        self.assertSectionIs(0, content, lang,
+            lang=lang, id="#header", line=lines[1],
+            title="#header", type="id")
+        self.assertSectionIs(1, content, lang,
+            lang=lang, id=".post a", line=lines[2],
+            title=".post a", type="class")
+        self.assertSectionIs(2, content, lang,
+            lang=lang, id=".my-inline-block", line=lines[3],
+            title=".my-inline-block", type="class")
+        self.assertSectionIs(3, content, lang,
+            lang=lang, id="#foo", line=lines[4],
+            title="#foo", type="id")
 
     def test_rst(self):
         lang = "reStructuredText"

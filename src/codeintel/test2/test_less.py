@@ -1,5 +1,5 @@
 from test_css import _BaseCSSTestCase
-from codeintel2.util import dedent, CompareNPunctLast
+from codeintel2.util import dedent, CompareNPunctLast, unmark_text, markup_text
 from testlib import tag
 
 class Less_StraightTest(_BaseCSSTestCase):
@@ -70,6 +70,31 @@ class Less_StraightTest(_BaseCSSTestCase):
                 }
             """),
             name=expected_trg_name)
+        
+    def test_complete_classes(self):
+        content, positions = unmark_text(dedent("""\
+            @base: #f938ab;
+            
+            .box-shadow(@style, @c) when (iscolor(@c)) {
+              -webkit-box-shadow: @style @c;
+              box-shadow:         @style @c;
+            }
+            .<1>box-shadow(@style, @alpha: 50%) when (isnumber(@alpha)) {
+              .<2>box-shadow(@style, rgba(0, 0, 0, @alpha));
+            }
+            .box {
+              color: saturate(@base, 5%);
+              border-color: lighten(@base, 30%);
+              div { .<3>box-shadow(0 0 5px, 30%) }
+            }
+        """))
+        for i in xrange(1, 3):
+            self.assertTriggerMatches(markup_text(content, pos=positions[i]),
+                                      name="css-complete-class-names")
+            self.assertCompletionsAre(markup_text(content, pos=positions[i]),
+                                  [("class", "box"),
+                                   ("class", "box-shadow")])
+
 
 
 class SCSS_StraightTest(Less_StraightTest):

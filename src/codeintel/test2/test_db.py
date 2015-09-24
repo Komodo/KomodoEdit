@@ -1587,6 +1587,39 @@ class CSSTestCase(DBTestCase):
             self.failUnless(len(blob) == 2)
             self.failUnless(blob.getchildren()[0].get("ilk") == "id")
             self.failUnless(blob.getchildren()[1].get("ilk") == "class")
+            
+    def test_less_import_handler(self):
+        """
+        Identical to the above CSS test case, but with a mixture of CSS and
+        Less files.
+        """
+        writefile(join(self.test_dir, "foo.less"), "#foo(@c) when (iscolor(@c)) { }\n.foobar { }\n")
+        writefile(join(self.test_dir, "bar.css"), "#bar { }\n.barfoo { }\n")
+        writefile(join(self.test_dir, "nested", "baz.less"), "#baz:extend(.a, .b) { }\n.bazfoo { }\n")
+        import_handler = self.mgr.citadel.import_handler_from_lang("CSS")
+        importables = import_handler.find_importables_in_dir(self.test_dir)
+        
+        buf = self.mgr.buf_from_path(join(self.test_dir, "foo.less"), lang="Less")
+        self.failUnless(buf)
+        blob = buf.blob_from_lang["Less"]
+        self.failUnless(len(blob) == 2)
+        self.failUnless(blob.getchildren()[0].get("ilk") == "id")
+        self.failUnless(blob.getchildren()[1].get("ilk") == "class")
+        
+        buf = self.mgr.buf_from_path(join(self.test_dir, "bar.css"), lang="CSS")
+        self.failUnless(buf)
+        blob = buf.blob_from_lang["CSS"]
+        self.failUnless(len(blob) == 2)
+        self.failUnless(blob.getchildren()[0].get("ilk") == "id")
+        self.failUnless(blob.getchildren()[1].get("ilk") == "class")
+
+        buf = self.mgr.buf_from_path(join(self.test_dir, join("nested", "baz.less")), lang="Less")
+        self.failUnless(buf)
+        blob = buf.blob_from_lang["Less"]
+        self.failUnless(len(blob) == 2)
+        self.failUnless(blob.getchildren()[0].get("ilk") == "id")
+        self.failUnless(blob.getchildren()[1].get("ilk") == "class")
+
 
 
 #---- internal support stuff
