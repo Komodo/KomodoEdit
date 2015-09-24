@@ -177,37 +177,28 @@ editor_editorController.prototype.do_cmd_findPreviousSelected = function() {
 function goToQuickBookmark(index) {
     var docState = require("ko/views").current().prefs;
     var quickBookmarkPref = {};
-    if (docState.hasPref(quickBookmarkName))
-    {
-        quickBookmarkPref = docState.getPref(quickBookmarkName);
-    }
-    var docState = require("ko/views").current().prefs;
     var quickBookmarkName = "quick_bookmarks_" + index;
-    if (docState.hasPref(quickBookmarkName))
-    {
-        quickBookmarkPref = docState.getPref(quickBookmarkName);
-        // When the bookmarks are recovered on file load they will use the
-        // ko/editor bookmarks API which decrements line numbers so need to add
-        let line = quickBookmarkPref.getLong("line");
-        let editor = require("ko/editor");
-        let lineCount = editor.lineCount();
-        if(line <= lineCount)
-        {
-            editor.gotoLine(line);
-        }
-        else
-        {
-            log.warn("Saved bookmark line number is out of range for current " +
-                     "for current document line count.\n\t\lineCount: " +
-                     lineCount + "\n\tline: " + line);
-            // Set to -1, -1 does nothing when used with gotoLine.  Basically
-            // invalidates this entry
-            quickBookmarkPref.setLong("line",-1);
-        }
-    }
-    else 
+    if (!docState.hasPref(quickBookmarkName))
     {
         log.info("There is no bookmark saved for this index.\n\tIndex: " + index);
+        return;
+    }
+    quickBookmarkPref = docState.getPref(quickBookmarkName);
+    if (!quickBookmarkPref.hasPref("markerId")) {
+        log.warn("Stale/broken quick bookmark ID. Removing quick bookmark index.");
+        docState.deletePref(quickBookmarkName);
+        return;
+    }
+    let markerid = quickBookmarkPref.getLong("markerId");
+    let editor = require("ko/editor");
+    let line = editor.bookmarkLineFromHandle(markerid);
+    // Above line sets -1 if not found
+    // Gotta check or else we'll go to line 0 
+    if (line >= 0) {
+        editor.gotoLine(line + 1);
+    }
+    else{
+        docState.deletePref(quickBookmarkName);
     }
 }
 
@@ -234,35 +225,26 @@ function setQuickBookmark(index)
 {
     var editor = require("ko/editor")
     var docState = require("ko/views").current().prefs;
-    var lineNo = editor.getLineNumber();
     var quickBookmarkName = "quick_bookmarks_" + index;
     var quickBookmarkPref = {};
-    try
+
+    if (docState.hasPref(quickBookmarkName))
     {
-        if (docState.hasPref(quickBookmarkName))
-        {
-            quickBookmarkPref = docState.getPref(quickBookmarkName);
-        }
-        else 
-        {
-            quickBookmarkPref = Cc['@activestate.com/koPreferenceSet;1'].createInstance();
-            docState.setPref(quickBookmarkName, quickBookmarkPref)
-        }
-        
-        //Delete old marker if it's already set
-        if (quickBookmarkPref.hasPref("markerId")) {
-            editor.unsetBookmarkByHandle(quickBookmarkPref.getLong("markerId"));
-        }
-        
-        // When the bookmarks are recovered on file load they will use the
-        // ko/editor bookmarks API which decrements line numbers so need to add
-        var markerId = editor.setBookmark(lineNo);
-        quickBookmarkPref.setLong("line", lineNo);
-        quickBookmarkPref.setLong("markerId", markerId);
-    } catch (e){
-        log.exception("An error occurred while setting a quick bookmark: \n" + e);
-        editor.unsetBookmarkByHandle(markerId);   
+        quickBookmarkPref = docState.getPref(quickBookmarkName);
     }
+    else 
+    {
+        quickBookmarkPref = Cc['@activestate.com/koPreferenceSet;1'].createInstance();
+        docState.setPref(quickBookmarkName, quickBookmarkPref)
+    }
+    
+    //Delete old quick bookmark if it's already set
+    if (quickBookmarkPref.hasPref("markerId")) {
+        editor.unsetBookmarkByHandle(quickBookmarkPref.getLong("markerId"));
+    }
+    
+    var markerId = editor.setBookmark(editor.getLineNumber());
+    quickBookmarkPref.setLong("markerId", markerId);
 }
 
 //Easiest way to add the 10 setQuickBookmark functions needs for this feature

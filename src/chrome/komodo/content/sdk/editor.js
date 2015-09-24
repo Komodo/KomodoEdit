@@ -693,6 +693,19 @@ module.exports = {
     },
     
     /**
+    * Retrieve the line a bookmark is at by handle
+    *
+    * @param {number} markerid,  Default is current line.  
+    *
+    * @return {number} line number from scintilla perspective
+    * (eg, starting from 0)
+    */
+    bookmarkLineFromHandle: function(handle)
+    {
+        return scimoz().markerLineFromHandle(handle);
+    },
+    
+    /**
      * Create a bookmark at a given line if one doesn't exist.
      *
      * @param {number} line number.  Default is current line.  Line is decremented
@@ -718,7 +731,7 @@ module.exports = {
                       'line': lineNum,
                    }
         // Clean the line of old markers and re-set it
-        this.unsetBookmarkByLine(lineNum);
+        this.unsetBookmarkByLine();
         ko.history.note_curr_loc(require("ko/views").current().get());
         markerId = scimoz().markerAdd(lineNum, bookMarknum);
         mainWindow.dispatchEvent(new mainWindow.CustomEvent("bookmark_added",
@@ -742,6 +755,7 @@ module.exports = {
      * Remove a bookmark at a given line
      *
      * @param {number} line number. default is current line
+     * Note, if using this
      */
     unsetBookmarkByLine: function(lineNum)
     {

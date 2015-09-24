@@ -1041,8 +1041,8 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
                 'cmd_setQuickBookmark_5':  ['Ctrl+Shift+5'],
                 'cmd_setQuickBookmark_6':  ['Ctrl+Shift+6'],
                 'cmd_setQuickBookmark_7':  ['Ctrl+Shift+7'],
-                'cmd_setQuickBookmark_9':  ['Ctrl+Shift+8'],
-                'cmd_setQuickBookmark_8':  ['Ctrl+Shift+9'],
+                'cmd_setQuickBookmark_8':  ['Ctrl+Shift+8'],
+                'cmd_setQuickBookmark_9':  ['Ctrl+Shift+9'],
             });
             break;
         }
