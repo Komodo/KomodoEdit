@@ -77,8 +77,22 @@
         addScrollListener();
     }
     
-    this.send = (message, category, opts) =>
+    var delay = 0;
+    var delayTimer;
+    this.send = (message, category, opts, now = false) =>
     {
+        if ( ! now)
+        {
+            // If called multiple time synchronously then notifications are incapable
+            // of replacing one another, this works around that issue and allows us
+            // to assume that two notifications are never called on the same pulse
+            delay = delay + 10;
+            timers.setTimeout(this.send.bind(this, message, category, opts, true), delay);
+            
+            timers.clearTimeout(delayTimer);
+            delayTimer = timers.setTimeout(function() { delay = 0; }, 50);
+        }
+        
         if ((typeof category) == "object")
         {
             opts = category;
@@ -251,8 +265,7 @@
             this.hideNotification();
         }
         
-        if ( ! queue[notif.opts.from].active || (! notif.opts.id &&
-            notif.opts.id == queue[notif.opts.from].activeId))
+        if ( ! queue[notif.opts.from].active || notif.opts.id == queue[notif.opts.from].activeId)
         {
             log.debug("Showing notification immediately");
             queue[notif.opts.from].active = true;
