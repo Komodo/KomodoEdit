@@ -1263,7 +1263,7 @@
                         if ((!("tabstops" in ko)
                                 || !ko.tabstops.textHasTabstops(scimoz.text))
                             && (scimoz.selectionIsRectangle
-                                || scimoz.multipleSelection))
+                                || scimoz.selections > 1))
                         {
                             // Bug 99068: rect-select tab and backTab
                             // aren't wrapped in an undo-block (but backTab is).
