@@ -716,6 +716,8 @@
         c.stop();
         c.search(query);
     }
+    
+    this.refresh = this.reSearch;
 
     this.expandSearch = function(query, uuid, callback)
     {
