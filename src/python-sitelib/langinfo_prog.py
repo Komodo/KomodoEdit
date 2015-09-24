@@ -176,6 +176,7 @@ class _JSLikeLangInfo(LangInfo):
                            "if", "import", "in", "instanceof",
                            "let",
                            "new", "null",
+                           "of",
                            "return",
                            "switch",
                            "this", "throw", "true", "try", "typeof",
