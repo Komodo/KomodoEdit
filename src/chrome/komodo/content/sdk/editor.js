@@ -711,21 +711,18 @@ module.exports = {
             --lineNum;
         }
 
-        // Scintilla keeps setting bookmarks if you tell it to
         var markerId=0;
-        if (!this.bookmarkExists(lineNum + 1))
-        {
-            let mainWindow = require("ko/windows").getMain();
-            let bookMarknum = ko.markers.MARKNUM_BOOKMARK;
-            let data = {
-                          'line': lineNum,
-                       }
-                       
-            ko.history.note_curr_loc(require("ko/views").current().get());
-            markerId = scimoz().markerAdd(lineNum, bookMarknum);
-            mainWindow.dispatchEvent(new mainWindow.CustomEvent("bookmark_added",
-                                                 { bubbles: true, detail: data }));
-        }
+        let mainWindow = require("ko/windows").getMain();
+        let bookMarknum = ko.markers.MARKNUM_BOOKMARK;
+        let data = {
+                      'line': lineNum,
+                   }
+        // Clean the line of old markers and re-set it
+        this.unsetBookmarkByLine(lineNum);
+        ko.history.note_curr_loc(require("ko/views").current().get());
+        markerId = scimoz().markerAdd(lineNum, bookMarknum);
+        mainWindow.dispatchEvent(new mainWindow.CustomEvent("bookmark_added",
+                                             { bubbles: true, detail: data }));
         return markerId;
     },
     
