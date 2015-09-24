@@ -826,8 +826,11 @@
             c.execScopeHandler("onSelectResult", [selected]);
     }
 
-    this.expandResult = function(selected)
+    this.expandResult = function(selected = null)
     {
+        if ( ! selected)
+            selected = this.getSelectedResult();
+        
         if (selected.allowExpand === false)
             return;
 
