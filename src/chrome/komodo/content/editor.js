@@ -180,7 +180,8 @@ function goToQuickBookmark(index) {
     var quickBookmarkName = "quick_bookmarks_" + index;
     if (!docState.hasPref(quickBookmarkName))
     {
-        log.info("There is no bookmark saved for this index.\n\tIndex: " + index);
+        require("notify/notify").send("No quick bookmark for index " + index,
+                                      "editor")
         return;
     }
     quickBookmarkPref = docState.getPref(quickBookmarkName);
@@ -191,11 +192,11 @@ function goToQuickBookmark(index) {
     }
     let markerid = quickBookmarkPref.getLong("markerId");
     let editor = require("ko/editor");
-    let line = editor.bookmarkLineFromHandle(markerid);
+    let line = editor.getBookmarkLineFromHandle(markerid);
     // Above line sets -1 if not found
     // Gotta check or else we'll go to line 0 
     if (line >= 0) {
-        editor.gotoLine(line + 1);
+        editor.gotoLine(line);
     }
     else{
         docState.deletePref(quickBookmarkName);
@@ -243,8 +244,10 @@ function setQuickBookmark(index)
         editor.unsetBookmarkByHandle(quickBookmarkPref.getLong("markerId"));
     }
     
+    ko.history.note_curr_loc(require("ko/views").current().get());
     var markerId = editor.setBookmark(editor.getLineNumber(),
                                       ko.markers['MARKNUM_BOOKMARK' + index]);
+    var markerId = editor.setBookmark(editor.getLineNumber());
     quickBookmarkPref.setLong("markerId", markerId);
 }
 

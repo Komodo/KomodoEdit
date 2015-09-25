@@ -705,9 +705,9 @@ module.exports = {
     * @return {number} line number from scintilla perspective
     * (eg, starting from 0)
     */
-    bookmarkLineFromHandle: function(handle)
+    getBookmarkLineFromHandle: function(handle)
     {
-        return scimoz().markerLineFromHandle(handle);
+        return scimoz().markerLineFromHandle(handle) + 1;
     },
     
     /**
@@ -738,10 +738,7 @@ module.exports = {
                    }
         // Clean the line of old markers and re-set it
         this.unsetBookmarkByLine();
-        ko.history.note_curr_loc(require("ko/views").current().get());
         markerId = scimoz().markerAdd(lineNum, bookMarknum);
-        mainWindow.dispatchEvent(new mainWindow.CustomEvent("bookmark_added",
-                                             { bubbles: true, detail: data }));
         return markerId;
     },
     
