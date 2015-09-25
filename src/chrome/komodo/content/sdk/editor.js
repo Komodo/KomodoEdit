@@ -655,10 +655,15 @@ module.exports = {
 
         var lineNo = 0;
         var bookmarkLines = {};
+        var marker_mask = 1 << type;
+        if (type == ko.markers.MARKNUM_BOOKMARK) {
+            for (let i = 0; i < 10; i++) {
+                marker_mask |= 1 << ko.markers['MARKNUM_BOOKMARK' + i];
+            }
+        }
 
         while (lineNo != -1)
         {
-            var marker_mask = 1 << type;
             var lineNo = scimoz().markerNext(lineNo, marker_mask);
 
             if (lineNo != -1)
@@ -710,10 +715,11 @@ module.exports = {
      *
      * @param {number} line number.  Default is current line.  Line is decremented
      *   when passed in.
+     * @param {number} Optional type of bookmark. See ko.markers.
      *
      * @return {number} ID of marker according to Scimoz
      */
-    setBookmark: function(lineNum)
+    setBookmark: function(lineNum, type = ko.markers.MARKNUM_BOOKMARK)
     {
         if ( ! lineNum )
         {
@@ -726,7 +732,7 @@ module.exports = {
 
         var markerId=0;
         let mainWindow = require("ko/windows").getMain();
-        let bookMarknum = ko.markers.MARKNUM_BOOKMARK;
+        let bookMarknum = type
         let data = {
                       'line': lineNum,
                    }
@@ -775,6 +781,9 @@ module.exports = {
         var mainWindow = require("ko/windows").getMain();
 
         scimoz().markerDelete(lineNum, bookMarknum);
+        for (let i = 0; i < 10; i++) {
+            scimoz().markerDelete(lineNum, ko.markers['MARKNUM_BOOKMARK' + i]);
+        }
         mainWindow.dispatchEvent(new mainWindow.CustomEvent("bookmark_deleted",{
                                                 bubbles: true, detail: data }));
     },
@@ -798,6 +807,9 @@ module.exports = {
         var lineMarkerState = scimoz().markerGet(lineNum);
         var bookMarknum = ko.markers.MARKNUM_BOOKMARK;
         var bookmarkMask = (1 << bookMarknum)
+        for (let i = 0; i < 10; i++) {
+            bookmarkMask |= 1 << ko.markers['MARKNUM_BOOKMARK' + i];
+        }
         // bitwise-AND to see if a marker is on the line
         // using
         return(lineMarkerState & bookmarkMask)
