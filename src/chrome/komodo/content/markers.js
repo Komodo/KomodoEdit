@@ -179,15 +179,13 @@ ko.markers =  function markers_module() {
             xtk.include("color");
             color = xtk.color;
         }
-        scimoz.markerDefine(ko.markers.MARKNUM_BOOKMARK, scimoz.SC_MARK_ARROWDOWN);
-        scimoz.markerSetFore(ko.markers.MARKNUM_BOOKMARK, color.RGBToBGR(0x00, 0x00, 0x00)); // black
-        scimoz.markerSetBack(ko.markers.MARKNUM_BOOKMARK, color.RGBToBGR(0x00, 0xFF, 0xFF)); // cyan
-    
+        scimoz.markerDefinePixmap(ko.markers.MARKNUM_BOOKMARK,
+                                  ko.markers.getPixmap("chrome://komodo/skin/images/bookmark.xpm"));
 
         // Quick bookmark markers.
         for (let c of ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']) {
-            scimoz.markerDefine(ko.markers['MARKNUM_BOOKMARK' + c], scimoz.SC_MARK_CHARACTER + c.charCodeAt(0));
-            scimoz.markerSetFore(ko.markers['MARKNUM_BOOKMARK' + c], isDarkBackground ? color.scintilla_white : color.scintilla_black);
+            scimoz.markerDefinePixmap(ko.markers['MARKNUM_BOOKMARK' + c],
+                                      ko.markers.getPixmap("chrome://komodo/skin/images/bookmark_" + c + ".xpm"));
         }
         
         if (terminal) {
