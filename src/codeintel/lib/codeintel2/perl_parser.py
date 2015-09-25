@@ -1796,7 +1796,7 @@ class Parser:
             self.skip_to_end_of_stmt()
         else:
             startLineNo = tok['start_line']
-            fnName = self.get_rest_of_subpath(tok['text'], 0)
+            fnName = self.get_rest_of_subpath(tok['text'], True)
             if fnName:
                 tok = self.tokenizer.get_next_token()
                 if self.classifier.is_operator(tok, "("):
