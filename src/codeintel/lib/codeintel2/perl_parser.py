@@ -210,7 +210,8 @@ class PerlCommonClassifier:
             return self._quote_patterns[SCE_PL_DEFAULT] # Fallback
 
 class UDLClassifier(PerlCommonClassifier, shared_parser.UDLClassifier):
-    pass
+    def is_sub_prototype(self, tok):
+        return False
 
 class PerlClassifier(PerlCommonClassifier, shared_parser.CommonClassifier):
     def get_builtin_type(self, tok, callback):
@@ -271,6 +272,10 @@ class PerlClassifier(PerlCommonClassifier, shared_parser.CommonClassifier):
 
     def is_symbol(self, tok):
         return False
+    
+    def is_sub_prototype(self, tok):
+        return tok['style'] == ScintillaConstants.SCE_PL_SUB_PROTOTYPE
+    
 
     def is_variable(self, tok):
         return SCE_PL_SCALAR <= tok['style'] <= SCE_PL_SYMBOLTABLE
@@ -1801,6 +1806,8 @@ class Parser:
                 tok = self.tokenizer.get_next_token()
                 if self.classifier.is_operator(tok, "("):
                     self.skip_to_close_paren()
+                    tok = self.tokenizer.get_next_token()
+                elif self.classifier.is_sub_prototype(tok):
                     tok = self.tokenizer.get_next_token()
                 if self.classifier.is_operator(tok, ";"):
                     # Don't process
