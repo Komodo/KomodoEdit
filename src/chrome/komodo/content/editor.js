@@ -243,7 +243,8 @@ function setQuickBookmark(index)
         editor.unsetBookmarkByHandle(quickBookmarkPref.getLong("markerId"));
     }
     
-    var markerId = editor.setBookmark(editor.getLineNumber());
+    var markerId = editor.setBookmark(editor.getLineNumber(),
+                                      ko.markers['MARKNUM_BOOKMARK' + index]);
     quickBookmarkPref.setLong("markerId", markerId);
 }
 
@@ -274,7 +275,12 @@ editor_editorController.prototype.is_cmd_bookmarkRemoveAll_enabled = function() 
 }
 editor_editorController.prototype.do_cmd_bookmarkRemoveAll = function() {
     var v = _getCurrentScimozView();
-    if (v) v.scimoz.markerDeleteAll(ko.markers.MARKNUM_BOOKMARK);
+    if (v) {
+        v.scimoz.markerDeleteAll(ko.markers.MARKNUM_BOOKMARK);
+        for (let i = 0; i < 10; i++) {
+            v.scimoz.markerDeleteAll(ko.markers['MARKNUM_BOOKMARK' + i]);
+        }
+    }
     window.dispatchEvent(new CustomEvent("bookmark_deleted",
                                          { bubbles: true, detail: { 'all': true } }));
 }
@@ -289,6 +295,9 @@ editor_editorController.prototype.do_cmd_bookmarkGotoNext = function() {
     }
     var thisLine = v.scimoz.lineFromPosition(v.scimoz.selectionStart);
     var marker_mask = 1 << ko.markers.MARKNUM_BOOKMARK;
+    for (let i = 0; i < 10; i++) {
+        marker_mask |= 1 << ko.markers['MARKNUM_BOOKMARK' + i];
+    }
     var nextLine = v.scimoz.markerNext(thisLine+1, marker_mask);
     if (nextLine < 0) {
         // try for search from top of file.
@@ -317,6 +326,9 @@ editor_editorController.prototype.do_cmd_bookmarkGotoPrevious = function() {
     }
     var thisLine = v.scimoz.lineFromPosition(v.scimoz.selectionStart);
     var marker_mask = 1 << ko.markers.MARKNUM_BOOKMARK;
+    for (let i = 0; i < 10; i++) {
+        marker_mask |= 1 << ko.markers['MARKNUM_BOOKMARK' + i];
+    }
     var prevLine = v.scimoz.markerPrevious(thisLine-1, marker_mask);
     if (prevLine < 0) {
         // try for search from bottom of file.
