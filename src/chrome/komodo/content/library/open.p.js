@@ -454,6 +454,15 @@ this.displayPath = function open_openDisplayPath(displayPath,
     ko.open.URI(displayPath, viewType, true, callback);
 }
 
+/**		
+ * Open quick start - the view will be opened synchronously.		
+ */		
+this.quickStart = function open_openStartPage() {		
+    ko.history.note_curr_loc();		
+    ko.views.manager._doFileOpen("chrome://komodo/content/quickstart.xml#view-quickstart",
+                                 "quickstart");
+}
+
 this.multipleURIs = function open_openMultipleURIs(urls, viewType, isRecent)
 {
     var i,j;

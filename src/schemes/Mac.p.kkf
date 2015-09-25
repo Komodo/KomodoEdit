@@ -1,4 +1,4 @@
-version 47
+version 48
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -79,7 +79,6 @@ binding cmd_end  End
 binding cmd_end  Meta+Right
 binding cmd_endOfWord Meta+E
 binding cmd_executeLastMacro Ctrl+K _
-binding cmd_expandAbbrev Meta+T
 # cmd_find unassigned
 binding cmd_findAllFunctions  Meta+F8
 binding cmd_findInFiles Meta+Shift+F
@@ -113,6 +112,7 @@ binding cmd_selectDocumentEnd   Meta+Shift+Down
 binding cmd_lineScrollDown  Meta+Alt+Down
 binding cmd_lineScrollUp  Meta+Alt+Up
 binding cmd_new Meta+N
+binding cmd_newTab Meta+T
 binding cmd_newProject Meta+Shift+N
 binding cmd_newTemplate Meta+Ctrl+N
 binding cmd_newline  Return

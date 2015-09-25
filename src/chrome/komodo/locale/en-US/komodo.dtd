@@ -286,6 +286,7 @@
 <!ENTITY generalMostRecentlyViewedFile.desc "General: Most Recently Viewed File">
 <!ENTITY generalNewFile.desc "General: New File...">
 <!ENTITY generalNewFileDefaultType.desc "General: New File (default type)">
+<!ENTITY generalNewTab.desc "General: New Tab">
 <!ENTITY generalNewProject.desc "General: New Project...">
 <!ENTITY generalNewWindow.desc "General: New Window">
 <!ENTITY generalNextFile.desc "General: Next File">
@@ -490,9 +491,12 @@
 <!ENTITY newCustomToolbar.label "New Custom Toolbar">
 <!ENTITY newFile.accesskey "F">
 <!ENTITY newFile.label "New File...">
+<!ENTITY newTab.label "New Tab...">
 <!ENTITY newFileFromTemplate.accesskey "T">
 <!ENTITY newFileFromTemplate.label "File from Template...">
 <!ENTITY newFileUsingDefaultLanguage.tooltiptext "New File Using Default Language">
+<!ENTITY newTab.tooltiptext "New Tab">
+<!ENTITY newTab.label "New Tab">
 <!ENTITY newFolder.label "New Folder...">
 <!ENTITY newFromTemplate.label "New From Template">
 <!ENTITY newMacro.label "New Macro...">

@@ -1,0 +1,257 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+  <!ENTITY % komodoDTD.INTERNAL SYSTEM "chrome://komodo/locale/komodo-internal.dtd">
+  %komodoDTD.INTERNAL;
+]>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<binding id="view-quickstart" display="xul:box"
+         extends="chrome://komodo/content/bindings/views.xml#view-base">
+    <resources>
+        <stylesheet src="chrome://komodo/skin/global/global.css"/>
+    </resources>
+    <content>
+        
+        <xul:vbox anonid="quickstart" pack="center" class="hud" flex="1">
+            <xul:vbox pack="center" align="center" flex="1" class="inner">
+
+                <xul:button label="New File"
+                        class="new-file-icon"
+                        oncommand="ko.commands.doCommandAsync('cmd_new', event)"/>
+
+                <xul:button label="New File from Template"
+                        class="new-template-icon"
+                        oncommand="ko.commands.doCommandAsync('cmd_newTemplate', event)"/>
+
+                <xul:button label="New Project"
+                        class="project-icon"
+                        oncommand="ko.commands.doCommandAsync('cmd_newProject', event)"/>
+
+                <xul:hbox height="15"/>
+
+                <xul:button label="Open File"
+                        class="open-file-icon"
+                        type="menu-button"
+                        oncommand="ko.commands.doCommandAsync('cmd_open', event)">
+                    <xul:menupopup
+                        id="popup_mruFilesQL"
+                        class="popup_mru"
+                        position="after_end"
+                        onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('file',0,'popup_mruFilesQL', true);"/>
+                </xul:button>
+
+                <xul:button label="Open Project"
+                        class="project-icon"
+                        type="menu-button"
+                        oncommand="ko.commands.doCommandAsync('cmd_openProject', event)">
+                  <xul:menupopup
+                        id="popup_mruProjectsQL"
+                        class="popup_mru"
+                        position="after_end"
+                        onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('project',0,'popup_mruProjectsQL', true);"/>
+                </xul:button>
+                
+                <!-- Add menupopup elem and Type attr as above -->
+                <!-- when workspace mru work is done -->
+                <xul:button label="&quicklaunchOpenWorkspace.label;"
+                        class="open-workspace-icon"
+                        observes="cmd_openWorkspace"/>
+
+                <xul:hbox height="15"/>
+
+                <xul:button label="Preferences"
+                        class="preferences-icon"
+                        oncommand="ko.commands.doCommandAsync('cmd_editPrefs', event)"/>
+                
+                <xul:button label="Install Packages"
+                        class="packages-icon"
+                        type="menu-button"
+                        oncommand="require('commando').show('scope-packages')">
+                    <xul:menupopup position="after_end">
+                        <xul:menuitem
+                            label="Install Addons"
+                            oncommand="require('scope-packages/packages').openCategory('addons')"
+                                 />
+                        <xul:menuitem
+                            label="Install Macros"
+                            oncommand="require('scope-packages/packages').openCategory('macros')"
+                                 />
+                        <xul:menuitem
+                            label="Install Toolbox Items"
+                            oncommand="require('scope-packages/packages').openCategory('toolbox')"
+                                 />
+                        <xul:menuitem
+                            label="Install Color Schemes"
+                            oncommand="require('scope-packages/packages').openCategory('schemes')"
+                                 />
+                        <xul:menuitem
+                            label="Install Skins"
+                            oncommand="require('scope-packages/packages').openCategory('skins')"
+                                 />
+                        <xul:menuitem
+                            label="Install Languages"
+                            oncommand="require('scope-packages/packages').openCategory('languages')"
+                                 />
+                        <xul:menuitem
+                            label="Install Keybindings"
+                            oncommand="require('scope-packages/packages').openCategory('keybinds')"
+                                 />
+                    </xul:menupopup>
+                </xul:button>
+
+                <xul:button label="Customize Panes"
+                        class="customize-panes-icon"
+                        oncommand="ko.uilayout.customize()"/>
+
+            </xul:vbox>
+            <xul:hbox align="end" pack="end" class="footer">
+                <xul:button label="Troubleshooting"
+                        class="help-icon"
+                        type="menu">
+                    <xul:menupopup position="before_end">
+                        <xul:menuitem
+                            label="Restart in Safe-Mode"
+                            oncommand="ko.main.restartWithFlag('tempProfile')"
+                        />
+                        <xul:menuitem
+                            label="Restart Without Addons"
+                            oncommand="ko.main.restartWithFlag('tempNoAddons')"
+                        />
+                        <xul:menuitem
+                            label="Restart Without Tools"
+                            oncommand="ko.main.restartWithFlag('tempNoToolbox')"
+                        />
+                        <menuseparator/>
+                        <xul:menuitem
+                            label="Reset Everything"
+                            oncommand="ko.main.restartWithFlag('cleanProfile')"
+                        />
+                        <xul:menuitem
+                            label="Reset File Preferences"
+                            oncommand="ko.main.restartWithFlag('cleanDocState')"
+                        />
+                        <xul:menuitem
+                            label="Reset UI Setup"
+                            oncommand="ko.main.restartWithFlag('cleanViewState')"
+                        />
+                        <xul:menuitem
+                            label="Reset CodeIntel Database"
+                            oncommand="ko.main.restartWithFlag('cleanCodeintel')"
+                        />
+                        <xul:menuitem
+                            label="Reset Caches"
+                            oncommand="ko.main.restartWithFlag('cleanCaches')"
+                        />
+                        <xul:menuseparator/>
+                        <xul:menuitem
+                            id="troubleshootingQLViewErrorLogMenuItem"
+                            accesskey="&helpTroubleshootingViewErrorLog.accesskey;"
+                            label="&helpTroubleshootingViewErrorLog.label;"
+                            observes="cmd_helpViewErrorLog"
+                        />
+                        <xul:menuitem
+                            id="troubleshootingQLAboutMemory"
+                            accesskey="&helpTroubleshootingAboutMemory.accesskey;"
+                            label="&helpTroubleshootingAboutMemory.label;"
+                            observes="cmd_komodoMemoryUsage"
+                        />
+                        <xul:menuitem
+                            id="troubleshootingQLViewBugsMenuItem"
+                            accesskey="&komodoBugDatabase.accesskey;"
+                            label="&komodoBugDatabase.label;"
+                            tooltiptext="&komodoBugDatabase.tooltiptext;"
+                            observes="cmd_helpViewBugs"
+                            />
+                    </xul:menupopup>
+                </xul:button>
+                <xul:button label="&komodoBugDatabase.label;"
+                        class="bug-icon"
+                        observes="cmd_helpViewBugs"/>
+            </xul:hbox>
+        </xul:vbox>
+        
+    </content>
+    <implementation name="view-quickstart" implements="koIQuickStartView, nsIObserver">
+
+        <property name="title" readonly="true" onget="return 'New Tab'"/>
+
+        <constructor><![CDATA[
+            
+        ]]></constructor>
+        
+        <method name="init">
+        <body> <![CDATA[
+        ]]></body>    
+        </method>
+        
+        <method name="replace">
+        <parameter name="command"/>
+        <parameter name="event"/>
+        <body> <![CDATA[
+            ko.commands.doCommandAsync(command, event);
+            this.close();
+        ]]> </body>
+        </method>
+        
+        <method name="close">
+        <body> <![CDATA[
+            this.log.info("close");
+            /////// copied from view-base.close due to xbl inheritance issues //////
+            xtk.domutils.fireEvent(this, 'view_closed');
+            try {
+                if (this.parentView)
+                    this.parentView.removeView(this);
+            } catch (e) {
+                this.log.exception(e,"Unable to remove the view from the parentView, logging and continuing.");
+            }
+            return true;
+            ////////////////////////////////////////////////////////////////////////
+        ]]> </body>
+        </method>
+
+        <method name="initWithDocument">
+        <parameter name="doc"/>
+        <body> <![CDATA[
+            this.koDoc = doc;
+            this.parentView.updateLeafName(this);
+            this.parentView.updateFileStatus(this);
+            xtk.domutils.fireEvent(this, 'view_document_attached');
+            xtk.domutils.fireEvent(this, 'current_view_changed');
+        ]]> </body>
+        </method>
+
+        <method name="doFocus">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+            // do nothing, just implements view api
+        ]]>
+        </body>
+        </method>
+
+        <method name="setFocus">
+        <body> <![CDATA[
+            try {
+                this.focus();
+            } catch(ex) {
+                this.log.error("setFocus error: "+ex);
+            }
+        ]]> </body>
+        </method>
+
+
+    </implementation>
+
+
+</binding>
+
+</bindings>

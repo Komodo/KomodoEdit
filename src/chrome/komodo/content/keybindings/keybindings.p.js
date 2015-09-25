@@ -331,6 +331,7 @@ function cloneObject(what) {
  *       existing keybindings to move to the state you're implementing for N+1
  *
  * Version history:
+ * 48: Komodo 9.3 - Ctrl+T is now used for new tabs
  * 47: Komodo 9.3 - Add keybindings for quick bookmarks
  *                  Juggle help (and friends) and commenting keybindings to
  *                  allow quick bookmarks to take their bindings.
@@ -379,7 +380,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 47;
+const currentKeybindingVersionNumber = 48;
 
 /**
  * Remove this dictionary of keybinds.
@@ -1044,6 +1045,23 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
                 'cmd_setQuickBookmark_8':  ['Ctrl+Shift+8'],
                 'cmd_setQuickBookmark_9':  ['Ctrl+Shift+9'],
             });
+            break;
+        case 48:
+// #if PLATFORM != 'darwin'
+            this._remove_keybinding_sequences({
+                'cmd_expandAbbrev':  ["Meta+T"]
+            });
+            this._add_keybinding_sequences({
+                'cmd_newTab':  ["Meta+T"]
+            });
+// #else
+            this._remove_keybinding_sequences({
+                'cmd_expandAbbrev':  ["Ctrl+T"]
+            });
+            this._add_keybinding_sequences({
+                'cmd_newTab':  ["Ctrl+T"]
+            });
+// #endif
             break;
         }
         from_version += 1;

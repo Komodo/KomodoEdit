@@ -70,3 +70,4 @@
 <!ENTITY showHideWhitespace.label "Show/Hide Whitespace">
 <!ENTITY stop.tooltiptext "Stop">
 <!ENTITY wordWrap.label "Word Wrap">
+<!ENTITY newTab.tooltiptext "New Tab">

@@ -887,6 +887,9 @@ viewManager.prototype.openViewAsync = function(viewType, uri, tabGroup, tabIndex
 
     var tabList = tabGroup ? document.getElementById(tabGroup) : null;
     switch (viewType) {
+    case "quickstart":
+        uri = "chrome://komodo/content/quickstart.xml#view-quickstart";
+        break;
     case "editor":
         ko.views.manager.doFileOpenAsync(uri, viewType, tabList, tabIndex, callback);
         break;

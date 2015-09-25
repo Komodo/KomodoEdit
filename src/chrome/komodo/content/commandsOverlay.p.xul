@@ -345,6 +345,10 @@
             oncommand="ko.commands.doCommandAsync('cmd_new', event);"
             desc="&generalNewFileDefaultType.desc;"/>
         <command
+            id="cmd_newTab" key="key_cmd_newTab"
+            oncommand="ko.commands.doCommandAsync('cmd_newTab', event);"
+            desc="&generalNewTab.desc;"/>
+        <command
             id="cmd_newTemplate" key="key_cmd_newTemplate"
             oncommand="ko.commands.doCommandAsync('cmd_newTemplate', event)"
             desc="&generalNewFile.desc;"/>

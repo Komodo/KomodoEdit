@@ -1,4 +1,4 @@
-version 47
+version 48
 
 # Movement and selection
 binding cmd_left  Left
@@ -63,7 +63,6 @@ binding cmd_undo Ctrl+Z
 binding cmd_undo Alt+Backspace
 binding cmd_cancel Escape
 binding cmd_editReflow Ctrl+Q
-binding cmd_expandAbbrev Ctrl+T
 binding cmd_toggleOvertype  Insert 
 binding cmd_convertUpperCase Ctrl+U
 
@@ -116,6 +115,7 @@ binding cmd_startIncrementalSearchBackwards Ctrl+Shift+I
 binding cmd_save Ctrl+S
 binding cmd_saveAll Ctrl+Shift+S
 binding cmd_new Ctrl+N
+binding cmd_newTab Ctrl+T
 binding cmd_newTemplate Ctrl+Shift+N
 binding cmd_open Ctrl+O
 binding cmd_openProject Ctrl+Shift+J

@@ -461,6 +461,10 @@ function _label_from_loc(loc) {
             baseName = loc.uri;
             lineNo = null;
             break;
+        case 'quickstart':
+            baseName = _komodoBundle.GetStringFromName("newTab");
+            lineNo = null;
+            break;
         default:
             return null;
         }
@@ -716,6 +720,9 @@ function _rctab_from_event(event) {
     case "browser":
         uri = view.koDoc.file.URI;
         break;
+    case "quickstart":
+        uri = view.koDoc.displayPath;
+        break;
     case "terminal":
         // Ignore closing terminal views
         return null;
@@ -846,6 +853,9 @@ this.open_rctab = function(idx) {
     }
     var tabList = document.getElementById(rctab.tabGroup);
     var uri = rctab.uri;
+    var uri = (rctab.viewType == "quickstart"
+               ? "chrome://komodo/content/quickstart.xml#view-quickstart"		
+               : rctab.uri);
     this.note_curr_loc();
     ko.views.manager.doFileOpenAsync(uri, rctab.viewType, tabList, rctab.tabIndex);
 };

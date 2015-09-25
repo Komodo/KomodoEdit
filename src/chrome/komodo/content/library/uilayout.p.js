@@ -1863,9 +1863,8 @@ this.onload = function uilayout_onload()
     ko.uilayout.setMenubarVisibility();
 // #endif
 
-    var deck = document.getElementById('editorviewbox');
     if ( ! ko.views.manager.getAllViews().length) {
-        deck.selectedPanel = document.getElementById("quicklaunch");
+        ko.open.quickStart();
     }
     
     this.updateViewRef();
@@ -1878,12 +1877,13 @@ this.updateViewRef = function(view) {
 
     var viewType = "";
     var deck = document.getElementById('editorviewbox');
-    if (deck.selectedPanel == document.getElementById("editorvbox") && view) {
-        viewType = view.getAttribute("type");
+    deck.selectedPanel = document.getElementById("editorvbox");
+    
+    var hasViews = tv.currentView.currentView || tv.otherView.currentView;
+    if ( ! hasViews) {
+        ko.open.quickStart();
     }
-
-    document.getElementById("komodo_main").setAttribute("view-type", viewType);
-}
+ }
 
 this.updateViewDeck = function() {
     var tv = document.getElementById("topview");
