@@ -1016,7 +1016,7 @@
                     && ko.macros.eventHandler.hookPreFileClose(this)) {
                     var msg = this.viewsPropertiesBundle.GetStringFromName(
                                 "macroInterruptedFileClosingProcedure.message");
-                    require("notify/notify").send(msg, "userscript");
+                    require("notify/notify").send(msg, "macros");
                     return false;
                 }
                     
@@ -1246,7 +1246,7 @@
             try {
                 if (ko.macros.eventHandler.hookPreFileSave(this)) {
                     var msg = "Macro interrupted file saving procedure.";
-                    require("notify/notify").send(msg, "userscript", {priority: "warning"});
+                    require("notify/notify").send(msg, "macros", {priority: "warning"});
                     return false;
                 }
 
