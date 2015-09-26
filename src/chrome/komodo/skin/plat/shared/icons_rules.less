@@ -1766,8 +1766,7 @@ ko-pane[type="icons"]
     list-style-image: @icon-statusbar-syntax-error !important;
 }
 
-window.hud-skinning .hud,
-window.hud-skinning statusbar
+.hud, statusbar
 {
     .new-file-icon
     {
@@ -1918,6 +1917,33 @@ window.hud-skinning statusbar
     #statusbar-check.syntax-error {
         list-style-image: @icon-hud-statusbar-syntax-error !important;
     }
+    
+    /* Run Output Pane */
+    .bulletlist-icon
+    {
+        list-style-image: @icon-hud-bulletlist !important;
+    }
+
+    .bulletlist-icon[disabled="true"]
+    {
+        list-style-image: @icon-hud-bulletlist-disabled !important;
+    }
+    
+    .find-stop-icon
+    {
+        list-style-image: @icon-hud-find-stop !important;
+    }
+
+    .find-stop-icon[disabled="true"]
+    {
+        list-style-image: @icon-hud-find-stop-disabled !important;
+    }
+    
+    .run-command-icon
+    {
+        list-style-image: @icon-hud-run-command;
+    }
+
 }
 
 .wordspace_open_icon
