@@ -81,8 +81,17 @@
     var delayTimer;
     this.send = (message, category, opts, now = false) =>
     {
+        if ((typeof category) == "object")
+        {
+            opts = category;
+            category = undefined;
+        }
+        
         if ( ! now)
         {
+            log.debug("Sending: " + message + " ("+category+")");
+            log.debug("Source: " + logging.getStack(null, 0, 4));
+            
             // If called multiple time synchronously then notifications are incapable
             // of replacing one another, this works around that issue and allows us
             // to assume that two notifications are never called on the same pulse
@@ -92,15 +101,6 @@
             timers.clearTimeout(delayTimer);
             delayTimer = timers.setTimeout(function() { delay = 0; }, 50);
         }
-        
-        if ((typeof category) == "object")
-        {
-            opts = category;
-            category = undefined;
-        }
-        
-        log.debug("Sending: " + message + " ("+category+")");
-        log.debug("Source: " + logging.getStack(null, 0, 4));
         
         var _ = require("contrib/underscore");
 
