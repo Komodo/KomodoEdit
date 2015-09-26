@@ -1837,6 +1837,11 @@ class koDocumentBase(object):
             return self._views[0]
         except IndexError, ex:
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
+        
+    def getViewIfExists(self):
+        if not 0 in self._views:
+            return False
+        return self._views[0]
 
     def get_numScintillas(self):
         return len(self._views)
