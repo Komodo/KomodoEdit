@@ -471,7 +471,7 @@
     
     this.hideNotificationsByProp = (prop, value) =>
     {
-        log.debug("Hide notification by prop " + prop + ": " + value);
+        //log.debug("Hide notification by prop " + prop + ": " + value);
         for (let k in activeNotifs)
         {
             let notif = activeNotifs[k];
