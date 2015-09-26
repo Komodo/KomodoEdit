@@ -397,9 +397,8 @@
 <!ENTITY macroExecuteLastMacro.desc "Macro: Execute Last Macro">
 <!ENTITY macroNew.menu.accesskey "C">
 <!ENTITY macroNew.menu.label "Create New Macro">
-<!ENTITY macroNew.toolbar.label "New Macro">
-<!ENTITY macroNew.tooltiptext "Create a new macro that can be saved into the toolbox">
-<!ENTITY macroNew.command.desc "Macro: Create a new Toolbox Macro">
+<!ENTITY macroNew.toolbar.label "New Userscript">
+<!ENTITY macroNew.tooltiptext "Write new Userscript to save to Toolbox"><!ENTITY macroNew.command.desc "Macro: Create a new Toolbox Macro">
 <!ENTITY macroPauseRecording.desc "Macro: Pause Recording">
 <!ENTITY macroSaveToToolbox.desc "Macro: Save to Toolbox">
 <!ENTITY macroStartResumeRecording.desc "Macro: Start/Resume Recording">
@@ -618,7 +617,7 @@
 <!ENTITY saveAsOther.label "Save As Other">
 <!ENTITY saveFile.label "Save File">
 <!ENTITY saveFile.tooltiptext "Save File">
-<!ENTITY saveLastMacroToToolbox.tooltiptext "Save Last Macro to Toolbox">
+<!ENTITY saveLastMacroToToolbox.tooltiptext "Save Macro to Toolbox as Userscript">
 <!ENTITY saveProject.label "Save Project">
 <!ENTITY saveProjectAs.label "Save Project As...">
 <!ENTITY renameProject.label "Rename Project...">
