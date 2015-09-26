@@ -237,7 +237,7 @@
             if (length == maxLength)
             {
                 this.send("Repeat notifications truncated, please check your Notifications panel",
-                          "internal", {force: "true"});
+                          "internal", {priority: "info", id: "notify-repeat", force: "true"});
             }
             return;
         }
