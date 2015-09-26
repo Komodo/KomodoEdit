@@ -225,6 +225,9 @@ $cons->KoExtUnpack("kodistunpack", SourcePath("famfamfam/famfamfam.xpi"));
 # Install the icomoon icon listing for the icon picker
 $cons->InstallAs("$mozChromeDir/komodo/content/dialogs/iconlist_icomoon.html", "icomoon/icomoon.html");
 
+# Install the fontawesome icon listing for the icon picker
+$cons->InstallAs("$mozChromeDir/komodo/content/dialogs/iconlist_fontawesome.html", "fontawesome/fontawesome.html");
+
 # install openoffice extension
 $cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org.xpi", "openoffice/industrial.xpi");
 

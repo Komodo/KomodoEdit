@@ -528,10 +528,10 @@
         {
             if ("size" in attrs)
             {
-                attrs.scaleAuto = parseInt(attrs.size);
+                //attrs.scaleAuto = parseInt(attrs.size);
                 attrs.width = parseInt(attrs.size);
                 attrs.height = parseInt(attrs.size);
-                attrs.viewBox = "0 0 " + attrs.size + " " + attrs.size;
+                //attrs.viewBox = "0 0 " + attrs.size + " " + attrs.size;
                 delete attrs.size;
             }
 
@@ -589,13 +589,13 @@
                     if (opts.delete)
                     {
                         log.debug("Deleting: " + svgPath);
-                        ioFile.remove(svgPath);
+                        //ioFile.remove(svgPath);
                     }
     
                     if (opts.deleteAlso)
                     {
                         log.debug("Also deleting: " + opts.deleteAlso);
-                        ioFile.remove(opts.deleteAlso);
+                        //ioFile.remove(opts.deleteAlso);
                     }
                 } catch (e)
                 {

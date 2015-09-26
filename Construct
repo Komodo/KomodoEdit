@@ -454,6 +454,7 @@ Build(
     "$build/modules/iconset_orange/Conscript",
     "$build/modules/iconset_radiance/Conscript",
     "$build/modules/icomoon/Conscript",
+    "$build/modules/fontawesome/Conscript",
 
     "$build/modules/check_compatibility/Conscript",
 
