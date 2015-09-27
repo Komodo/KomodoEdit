@@ -359,9 +359,59 @@ try {
                     [numErrors, numWarnings], 2));
         }
     }
+    
+    _updateCheckNewLintResult();
 } catch(ex) {
     _log.exception(ex);
 }
+}
+
+var _lintResults = {};
+function _updateCheckNewLintResult() {
+    var view = require("ko/views").current();
+    var res = view.get("lintBuffer", "lintResults");
+    
+    var results = {}, numResults = {};
+    res.getResults(results, numResults);
+    
+    if ( ! numResults.value) {
+        _lintResults = {};
+        return;
+    }
+    
+    var __lintResults = {};
+    for (let i=0;i<numResults.value;i++)
+    {
+        let result = results.value[i];
+        let id = "" + result.lineStart + result.lineEnd + result.columnStart + result.columnEnd + result.severity;
+        
+        if ( ! (id in _lintResults))
+        {
+            let prefix = "Ln: " + result.lineStart;
+            if (result.lineEnd != result.lineStart)
+                prefix += "-" + result.lineEnd;
+            
+            let severity = "INFO";
+            if (result.severity == result.SEV_WARNING)
+                severity = "WARNING";
+            if (result.severity == result.SEV_ERROR)
+                severity = "ERROR";
+            
+            require("notify/notify").send(
+                prefix + ", " + result.description + " (" + severity + ")",
+                "lint",
+                {command: function(result)
+                {
+                    var editor = require("ko/editor");
+                    editor.setCursor({line: result.lineStart, ch: result.columnStart});
+                }.bind(this, result)
+            });
+        }
+        
+        __lintResults[id] = true;
+    }
+    
+    _lintResults = __lintResults;
 }
 
 function _clear() {

@@ -570,6 +570,24 @@
             // Editor preset cant (shouldnt) be centered
             return normalize(pos);
         }
+        
+        // Use editor cursor position
+        else if (from == "lint-status" && editor.available()) // There is no statusbar if the editor isnt available
+        {
+            var button = $("#statusbar-check");
+            var bo = button.element().boxObject;
+            
+            var pos = {x: bo.screenX + bo.width, y: bo.screenY};
+            
+            var computed = _window.getComputedStyle(panel.element());
+            pos.y -= parseInt(computed.paddingBottom.replace(/px$/,''));
+            pos.y -= parseInt(computed.paddingTop.replace(/px$/,''));
+            pos.y -= parseInt(computed.height.replace(/px$/,''));
+            pos.x -= parseInt(computed.width.replace(/px$/,''));
+
+            return normalize(pos);
+        }
+        
         else
         {
             // Center horizontally on the window
