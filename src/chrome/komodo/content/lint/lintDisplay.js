@@ -224,7 +224,7 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
     var start, length, value;
     var finalNewIndicators = [];
     for each (var offsetAndValue in offsetsAndValues) {
-        [start, length, value, line, style, description] = offsetAndValue;
+        let [start, length, value, line, style, description] = offsetAndValue;
         //log.debug("Draw squiggle:%d at pos[%d:%d], line %d:%d => %d:%d",
         //          value, start, start + length,
         //          scimoz.lineFromPosition(start),
