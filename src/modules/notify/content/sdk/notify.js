@@ -100,6 +100,7 @@
             
             timers.clearTimeout(delayTimer);
             delayTimer = timers.setTimeout(function() { delay = 0; }, 50);
+            return;
         }
         
         var _ = require("contrib/underscore");
