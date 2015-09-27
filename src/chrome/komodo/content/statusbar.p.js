@@ -503,6 +503,58 @@ StatusBarPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
     }
 };
 
+function updateLinterPopup() {
+    var $ = require("ko/dom");
+    var wrapper = $("#context_lint_results");
+    var separator = $("#context_lint_separator");
+    wrapper.empty();
+    separator.hide();
+    
+    var view = require("ko/views").current();
+    var res = view.get("lintBuffer", "lintResults");
+    
+    var results = {}, numResults = {};
+    res.getResults(results, numResults);
+    
+    if ( ! numResults.value)
+        return;
+    
+    for (let i=0;i<numResults.value;i++)
+    {
+        let result = results.value[i];
+        let prefix = result.lineStart;
+        if (result.lineEnd != result.lineStart)
+            prefix += "-" + result.lineEnd;
+        
+        var severity = "INFO";
+        if (result.severity == result.SEV_WARNING)
+            severity = "WARNING";
+        if (result.severity == result.SEV_ERROR)
+            severity = "ERROR";
+        
+        var elem = $($.create("menuitem", {label: prefix + ":" + result.description, acceltext: severity}).toString());
+        elem.on("command", function(result)
+        {
+            var editor = require("ko/editor");
+            editor.setCursor({line: result.lineStart, ch: result.columnStart});
+        }.bind(this, result));
+        elem._lintResult = result;
+        wrapper.append(elem);
+    }
+    
+    wrapper.children().each(function()
+    {
+        var child = $(this);
+        var sibling = child.prev();
+        if ( ! sibling.length) return;
+        
+        if (child._lintResult.severity < sibling._lintResult.severity)
+            child.before(sibling);
+    });
+    
+    separator.show();
+}
+
 //---- public functions
 
 /**
@@ -622,6 +674,8 @@ window.addEventListener("komodo-ui-started", function() {
     _prefObserver = new StatusBarPrefObserver();
     // Update for the current view.
     update_view_information();
+    
+    document.getElementById("context_lint").addEventListener("popupshowing", updateLinterPopup.bind(ko.statusbar));
 });
 
 }).apply(ko.statusBar);
