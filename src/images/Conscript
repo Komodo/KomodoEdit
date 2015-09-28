@@ -73,6 +73,18 @@ $cons->Install($imagesDir, "icons/cb_trait.png");
 $cons->Install($imagesDir, "icons/cb_xml_element.png");
 $cons->Install($imagesDir, "icons/cb_xml_attribute.png");
 
+$cons->Install($imagesDir, "icons/bookmark.xpm");
+$cons->Install($imagesDir, "icons/bookmark_0.xpm");
+$cons->Install($imagesDir, "icons/bookmark_1.xpm");
+$cons->Install($imagesDir, "icons/bookmark_2.xpm");
+$cons->Install($imagesDir, "icons/bookmark_3.xpm");
+$cons->Install($imagesDir, "icons/bookmark_4.xpm");
+$cons->Install($imagesDir, "icons/bookmark_5.xpm");
+$cons->Install($imagesDir, "icons/bookmark_6.xpm");
+$cons->Install($imagesDir, "icons/bookmark_7.xpm");
+$cons->Install($imagesDir, "icons/bookmark_8.xpm");
+$cons->Install($imagesDir, "icons/bookmark_9.xpm");
+
 $cons->InstallAs("$imagesDir/codeintel/cb_class.svg", "icons/codeintel/cb_class.svg");
 $cons->InstallAs("$imagesDir/codeintel/cb_directory.svg", "icons/codeintel/cb_directory.svg");
 $cons->InstallAs("$imagesDir/codeintel/cb_function.svg", "icons/codeintel/cb_function.svg");
