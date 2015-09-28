@@ -182,6 +182,15 @@
                 let tab = this._createTab();
                 tabpanel = tab.linkedpanel;
               }
+              
+              // Focus on inner frame when switching to panel 
+              tabpanel.tab.addEventListener("command", function() {
+                setTimeout(function() {
+                  tabpanel.firstChild.focus();
+                  tabpanel.firstChild.contentWindow.focus();
+                }, 100);
+              });
+              
               // Things are easier to deal with if we just destroy all splitters
               for (let splitter of tabpanel.querySelectorAll("splitter")) {
                 tabpanel.removeChild(splitter);
