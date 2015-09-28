@@ -1044,6 +1044,10 @@
         </method>
 
         
+        <field name="codeintel_trigger_timeout">-1</field>
+        <property name="_codeintel_trigger_delay"
+            onget="return this.__globalPrefs.getLongPref('codeintel_trigger_delay')"/>
+
         <!-- Called in a timer from onUpdateUI. -->
         <method name="doUpdateUI">
         <body>
@@ -1135,7 +1139,10 @@
             if (this.lastCharAdded) {
                 if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
                     // Trigger completions or calltip.
-                    ko.codeintel.trigger(this);
+                    clearTimeout(this.codeintel_trigger_timeout);
+                    this.codeintel_trigger_timeout = setTimeout(function() {
+                        ko.codeintel.trigger(this);
+                    }.bind(this), this._codeintel_trigger_delay);
                 }
 
                 this.doCommandCompletion();

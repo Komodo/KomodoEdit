@@ -225,6 +225,7 @@
 <!ENTITY editor.label "Editor">
 <!ENTITY enableAutocompleteFillUpCharacters.label "Enable autocomplete fill-up characters">
 <!ENTITY enableAutomaticAutocompleteAndCalltipTriggeringWhileYouType.label "Enable automatic autocomplete and calltip triggering while you type">
+<!ENTITY showCompletionsAfter.label "Show completions after">
 <!ENTITY enableAutoAbbreviationsWithTriggerCharacters.label "Enable %autoAbbreviationName.name;s, with Trigger Characters:">
 <!ENTITY enableBackgroundSyntaxCheckingAfter.label "Enable background syntax checking after">
 <!ENTITY enableScrollingPastEndOfBufferOnlyAppliesToNewBuffers.label "Enable scrolling past end of buffer (only applies to new buffers)">
