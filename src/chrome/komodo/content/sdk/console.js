@@ -87,44 +87,13 @@
                 }).join(" ");
                 
                 var details = null;
-                var severity = Ci.koINotification.SEVERITY_INFO;
-                switch (aMessage.level)
-                {
-                    case "info":
-                        log.info(data);
-                        break;
-                    case "warn":
-                        log.warn(data);
-                        severity = Ci.koINotification.SEVERITY_WARNING;
-                        break;
-                    case "error":
-                        log.error(data);
-                        severity = Ci.koINotification.SEVERITY_ERROR;
-                        break;
-                    case "exception":
-                        log.exception(data);
-                        severity = Ci.koINotification.SEVERITY_ERROR;
-                        break;
-                    default:
-                        if (aMessage.level == "timeEnd")
-                            details = "'" + aMessage.timer.name + "' " + aMessage.timer.duration + "ms";
-                        if (aMessage.level == "time")
-                            details = "'" + aMessage.timer.name + "' @ " + (new Date());
-                        if (aMessage.level == "trace")
-                            details = "trace" + "\n" + formatTrace(aMessage.stacktrace);
-                        log.debug(details || data);
-                        break;
-                }
-                
-                try
-                {
-                    ko.notifications.add("console." + aMessage.level + ": " + data, ["console", aMessage.level], Date.now(),
-                         {severity: severity, notify: true, details: details});
-                }
-                catch (e)
-                {
-                    log.exception(e);
-                }
+                if (aMessage.level == "timeEnd")
+                    details = "'" + aMessage.timer.name + "' " + aMessage.timer.duration + "ms";
+                if (aMessage.level == "time")
+                    details = "'" + aMessage.timer.name + "' @ " + (new Date());
+                if (aMessage.level == "trace")
+                    details = "trace" + "\n" + formatTrace(aMessage.stacktrace);
+                log.debug(aMessage.level + ": " + (details || data));
             }
         }, "console-api-log-event", false);
     }
@@ -136,7 +105,7 @@
     {
         // Todo: Localize and add documentation link
         ko.dialogs.alert(
-            "Console messages are send to the Notifications pane, stdout and \
+            "Console messages are send to the Console pane, stdout and \
             Komodo's pystderr.log, for more information please check our documentation.",
             null, "Info on Console Messages", "consoleMessages"
         );
