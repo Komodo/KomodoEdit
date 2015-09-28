@@ -178,6 +178,11 @@
     }
 }
 
+.statusbar
+{
+    border-top: 1px solid @border-statusbar !important;
+}
+
 statusbar#statusbarviewbox,
 .hud
 {
@@ -198,6 +203,12 @@ statusbar#statusbarviewbox,
     :not(menupopup) > textbox
     {
         color: @foreground !important;
+    }
+    
+    .editor-field
+    {
+        color: @foreground !important;
+        background: @background !important;
     }
 }
 
