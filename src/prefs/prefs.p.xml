@@ -125,6 +125,7 @@
   <boolean id="showMatchingTagsOnClick">1</boolean>
   <boolean id="showMatchingTags_constrainSearchInViewPort">1</boolean>
   <long id="showMatchingTags_clearInterval">1000</long>
+  <boolean id="editMatchingTags">1</boolean>
   
   <!--
   These prefs are to keep Komodo from hanging when a document
