@@ -410,6 +410,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY resetToStandardValueOf15.tooltiptext "Reset to standard value of 1.5">
 <!ENTITY restoreFoldStateOnDocumentLoadSlowsDownFileOpening.label "Restore fold state on document load (slows down file opening)">
 <!ENTITY restoreLastWorkspace.label "Restore last workspace">
+<!ENTITY restoreWrapSelectionDelimiters.label "Restore default delimiters">
 <!ENTITY ruby.label "Ruby">
 <!ENTITY saveOptions.label "File Saving">
 <!ENTITY sassUseInterpreter.label "Use Sass Interpreter:">
@@ -467,6 +468,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY windowsIntegration.label "Windows Integration">
 <!ENTITY word.label "Word">
 <!ENTITY workspace.label "Workspace">
+<!ENTITY wrapSelection.label "Wrap selection with typed delimiter instead of overwriting it">
+<!ENTITY wrapSelectionDelimiters.label "Delimiters:">
 <!ENTITY xDefaultDateRepresentation.label "&#37;x : default date representation">
 <!ENTITY xmlXML.label ".xml: XML">
 <!ENTITY xslXSLT.label ".xsl: XSLT">

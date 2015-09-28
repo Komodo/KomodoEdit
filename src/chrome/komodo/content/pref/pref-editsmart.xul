@@ -78,6 +78,10 @@
             } else {
                 edgeCheckbox.setAttribute('label', highlightCharactersBeyondEdgeLine);
             }
+            widgets.wrapSelectionDelimiters = document.getElementById("wrapSelectionDelimiters");
+            widgets.wrapSelectionDelimiters_FactorySetting = prefset.getStringPref("wrapSelectionDelimiters_FactorySetting");
+            widgets.restoreWrapSelectionDelimiters = document.getElementById("restoreWrapSelectionDelimiters");
+            widgets.editSmartWrapSelection = document.getElementById("editSmartWrapSelection");
             widgets.autoAbbreviationTriggerCharacters = document.getElementById("autoAbbreviationTriggerCharacters");
             widgets.autoAbbreviationTriggerCharacters_FactorySetting = prefset.getStringPref("autoAbbreviationTriggerCharacters_FactorySetting");
             widgets.restoreAutoAbbreviationTriggerCharacters = document.getElementById("restoreAutoAbbreviationTriggerCharacters");
@@ -134,6 +138,26 @@
     function pref_softChars_doEnabling() {
         var enabled = document.getElementById("editSmartSoftCharacters").checked;
         _pref_setElementEnabledState("enableSmartSoftCharactersInsideLine", enabled);
+    }
+    
+    function pref_wrapSelection_doEnabling(checkbox) {
+        var enabled = document.getElementById("editSmartWrapSelection").checked;
+        if (checkbox.checked) {
+            widgets.wrapSelectionDelimiters.disabled = false;
+            check_wrap_delimiters_changed();
+        } else {
+            widgets.wrapSelectionDelimiters.disabled = true;
+            widgets.restoreWrapSelectionDelimiters.disabled = true;
+        }
+    }
+    
+    function pref_wrapSelection_restoreDefaults() {
+        widgets.wrapSelectionDelimiters.value = widgets.wrapSelectionDelimiters_FactorySetting;
+        check_wrap_delimiters_changed();
+    }
+    
+    function check_wrap_delimiters_changed() {
+        widgets.restoreWrapSelectionDelimiters.disabled = widgets.wrapSelectionDelimiters_FactorySetting == widgets.wrapSelectionDelimiters.value;
     }
     
     function pref_autoAbbreviations_doEnabling(checkbox) {
@@ -264,6 +288,25 @@
                       style="margin-left: 27px;"
                       label="&enableSmartTabSkipsSoftCharacters.label;"
                       pref="true" class="advanced"/>
+    
+            <separator class="thin"/>
+            <checkbox id="editSmartWrapSelection"
+                      label="&wrapSelection.label;"
+                      pref="true"
+                      oncommand="pref_wrapSelection_doEnabling(this);"/>
+            <vbox id="wrapSelectionDetails" class="indentedPref01 advanced">
+                <hbox align="center">
+                    <label value="&wrapSelectionDelimiters.label;"/>
+                    <textbox oninput="check_wrap_delimiters_changed();"
+                           pref="true" size="16" id="wrapSelectionDelimiters"
+                           prefstring="wrapSelectionDelimiters"
+                           prefattribute="value"/>
+                    <button class="green-undo-icon button-toolbar-a"
+                            id="restoreWrapSelectionDelimiters"
+                            tooltiptext="&restoreWrapSelectionDelimiters.label;"
+                            oncommand="pref_wrapSelection_restoreDefaults();"/>
+                </hbox>
+            </vbox>
     
             <separator class="thin"/>
             <checkbox id="editSmartCutCopyWithoutSelection"

@@ -261,6 +261,8 @@
             [
                 'debuggerMaxTooltipSize',
                 'editor-scheme',
+                'editSmartWrapSelection',
+                'wrapSelectionDelimiters',
                 'enableAutoAbbreviations',
                 'autoAbbreviationTriggerCharacters'
             ]
@@ -378,6 +380,7 @@
         }
         this.log.debug('scimoz code page after initWithDoc is '+this.scimoz.codePage);
         this.log.debug('document code page after initWithDoc is '+this.koDoc.codePage);
+        this._setWrapSelectionDelimiters(); // initialize
         this.enableAutoAbbreviations = ko.prefs.getBooleanPref("enableAutoAbbreviations");
         ]]>
         </body>
@@ -464,6 +467,14 @@
                 docPrefsThisTime.getBooleanPref('select_most_recent_buffer_on_buffer_close');
             this._setAutoAbbreviations();
         ]]></body>
+        </method>
+        
+        <method name="_setWrapSelectionDelimiters">
+        <body>//<![CDATA[
+            this.editSmartWrapSelection = ko.prefs.getBooleanPref("editSmartWrapSelection");
+            this.wrapSelectionDelimiters = ko.prefs.getStringPref("wrapSelectionDelimiters");
+        //]]>
+        </body>
         </method>
             
         <method name="_setAutoAbbreviations">
@@ -774,6 +785,11 @@
             case 'select_most_recent_buffer_on_buffer_close':
                 this.selectMostRecentBufferOnBufferClose =
                     (this.prefs || this.__globalPrefs).getBooleanPref('select_most_recent_buffer_on_buffer_close');
+                break;
+
+            case 'editSmartWrapSelection': // pref notification
+            case 'wrapSelectionDelimiters': // pref notification
+                this._setWrapSelectionDelimiters();
                 break;
 
             case 'enableAutoAbbreviations': // pref notification
@@ -2122,9 +2138,15 @@
                     charCodeChar = '\t';
                 }
             }
-            if (this.enableAutoAbbreviations && charCodeChar !== null
-                && !this.scintilla.autocomplete.active
-                && this.autoAbbreviationTriggerCharacters_Processed.indexOf(charCodeChar) >= 0) {
+            if (this.editSmartWrapSelection && charCodeChar !== null
+                && this.scimoz.selectionStart != this.scimoz.selectionEnd
+                && this.wrapSelectionDelimiters.indexOf(charCodeChar) >= 0) {
+                let pairs = {'(': ')', '[': ']', '{': '}', '<': '>'};
+                this.scimoz.replaceSel(charCodeChar + this.scimoz.selText + (pairs[charCodeChar] || charCodeChar));
+                return false;
+            } else if (this.enableAutoAbbreviations && charCodeChar !== null
+                       && !this.scintilla.autocomplete.active
+                       && this.autoAbbreviationTriggerCharacters_Processed.indexOf(charCodeChar) >= 0) {
                 
 <!-- #if PLATFORM != "darwin" -->
                 var cmdkey = event.ctrlKey || event.altKey || event.metaKey;
