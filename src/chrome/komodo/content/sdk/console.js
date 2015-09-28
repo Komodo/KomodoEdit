@@ -358,7 +358,9 @@
                 stack.push({
                     'file': parts[3],
                     'fileName': parts[3],
+                    'filename': parts[3],
                     'methodName': parts[1] || UNKNOWN_FUNCTION,
+                    'functionName': parts[1] || UNKNOWN_FUNCTION,
                     'name': parts[1] || UNKNOWN_FUNCTION,
                     'lineNumber': +parts[4],
                     'column': parts[5] ? +parts[5] : null,
