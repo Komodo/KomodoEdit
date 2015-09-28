@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://komodo/skin/bindings/scintilla.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
+
+<page xmlns:html="http://www.w3.org/1999/xhtml" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <view id="console-view" orient="vertical" type="terminal" flex="1"/>
+    <hbox id="scintillaOverlayXul"/>
+
+    <script>
+        addEventListener("load", function() scintillaOverlayOnLoad(), false);
+    </script>
+    
+    <script type="application/x-javascript" src="chrome://console/content/terminalHandler.js" />
+    <script type="application/x-javascript" src="chrome://console/content/console.js" />
+    
+</page>

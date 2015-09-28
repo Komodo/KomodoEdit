@@ -1,0 +1,214 @@
+html, body
+{
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font: message-box;
+    text-rendering: optimizeLegibility;
+    line-height: 1.5;
+}
+
+*, *:before, *:after
+{
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    border: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+input, textarea {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    font-size: 1rem;
+    width: 100%;
+    border-radius: 0;
+    -moz-appearance: none;
+}
+
+input {
+    padding: 2px;
+}
+
+/* HACK attempt to allow multiline */
+body {
+    overflow: auto;
+}
+
+ul, li
+{
+    margin: 0;
+    padding: 0;
+}
+
+a
+{
+    color: #4183C4;
+    cursor: pointer;
+}
+
+a:hover
+{
+    text-decoration: underline;
+}
+
+#console {
+    bottom: calc(1rem + 10px);
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding-bottom: 1rem;
+    margin-bottom: calc(1rem + 10px);
+    overflow: auto;
+}
+
+#output {
+    list-style: none;
+}
+
+#output li {
+    margin: 0;
+    padding: 0 5px;
+    white-space: pre-wrap;
+    clear: both;
+}
+
+#output li:last-child {
+    border-bottom: 0;
+}
+
+#output > li > div.message,
+#output > li > div.response {
+    margin-left: 20px;
+}
+
+#output > li > div.timestamp {
+    opacity: 0.7;
+    float: right;
+    margin-top: 5px;
+}
+
+#output > li > a.source {
+    opacity: 0.7;
+    float: right;
+    margin-top: 5px;
+    margin-right: 12px;
+    z-index: 10;
+    position: relative;
+}
+
+#console span.gutter {
+    float: left;
+    display: block;
+    width: 5px;
+}
+
+#output li div {
+    position: relative;
+}
+
+/* log types */
+#output span.gutter:before {
+    position: absolute;
+}
+
+#output .echo span.gutter:before {
+    content: '> ';
+    color: #3583FC;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#output .props span.gutter:before {
+    content: 'p ';
+    color: #8E8E8E;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#output .debug span.gutter:before {
+    content: 'd ';
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#output .info span.gutter:before {
+    content: 'i ';
+    color: #27A700;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#output .warn span.gutter:before {
+    content: '! ';
+    color: #E58E1D;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#output .error span.gutter:before {
+    content: 'x ';
+    color: #E81D20;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#output .response span.gutter:before {
+    content: '« ';
+    color: #9198A3;
+    font-size: 1rem;
+    font-weight: normal;
+}
+
+#output .response .response,
+#output .response .message
+{
+    opacity: 0.7;
+}
+
+#output li:first-child { border-width: 0; padding-top: 0; }
+
+/* input style - note: moz-shadow purposely omitted because it affects layout */
+form { padding: 5px; }
+#exec, .fakeInput { resize: none; position: absolute; left: 0; right: 0; border: 0; /*padding: 5px; */outline: 0; background: transparent; overflow: hidden; }
+
+/* HACK */
+form { position: fixed; bottom: 0; width: 100%; z-index: 2; }
+#exec, .fakeInput { position: relative; }
+
+/* font size control */
+#output li, #exec, .fakeInput { font-size: 1rem; font-family: "Menlo", consolas, monospace; }
+
+/* code complete visual tweaks */
+#cursor { display: inline-block; height: 1rem; min-width: 1px; outline: 0; top: 0; left: 0; z-index: 999;}
+
+/* HACK */
+#cursor { white-space: pre-wrap; }
+
+#exec, .fakeInput { cursor: text; }
+#exec .suggest { opacity: 0.6; }
+
+/* large command input */
+body.large #console { top: 0; padding-top: 0; bottom: 0; margin-bottom: 0; right: 40%; width: auto; position: absolute; }
+body.large form { right: 0; width: 40%; bottom: 0; background: none; border: 0; padding: 0; }
+body.large #exec { position: absolute; width: 100%; padding: 0; border-bottom: 0; top: 0; bottom: 0; height: 100%; z-index: 10; background: transparent; left: auto; }
+body.large #cursor { padding: 5px; }
+
+.error span, .error div.message { color: #E81D20;}
+
+.fakeInput {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 5px;
+  border: 0;
+  color: red;
+  opacity: 0;
+  /* pointer-events: auto !important;*/
+}
+

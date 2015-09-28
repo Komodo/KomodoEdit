@@ -442,6 +442,7 @@ Build(
     "$build/modules/notify/Conscript",
     "$build/modules/editorconfig/Conscript",
     "$build/modules/focusmode/Conscript",
+    "$build/modules/console/Conscript",
 
     "$build/modules/iconset_ambiance/Conscript",
     "$build/modules/iconset_blue/Conscript",
