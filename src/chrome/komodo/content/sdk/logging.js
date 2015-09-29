@@ -185,6 +185,31 @@ Logger.prototype.debug = function(message) {
     }
 }
 
+var gTimerRegistry = new Map();
+Logger.prototype.time = function(key) {
+    try {
+        if (this.isEnabledFor(LOG_DEBUG)) {
+            if (!gTimerRegistry.has(key)) {
+                gTimerRegistry.set(key, Date.now());
+            }
+        }
+    } catch(ex) {
+        dump("*** Error in logger.time: "+ex+"\n");
+    }
+}
+
+Logger.prototype.timeEnd = function(key) {
+    try {
+        if (this.isEnabledFor(LOG_DEBUG)) {
+            let duration = (Date.now()) - gTimerRegistry.get(key);
+            gTimerRegistry.delete(key);
+            this._logger.debug("timer " + key + ": " + duration + "ms");
+        }
+    } catch(ex) {
+        dump("*** Error in logger.time: "+ex+"\n");
+    }
+}
+
 /**
  * Log an info message
  * 
