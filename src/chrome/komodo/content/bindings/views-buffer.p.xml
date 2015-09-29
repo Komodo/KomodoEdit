@@ -1045,6 +1045,7 @@
 
         
         <field name="codeintel_trigger_timeout">-1</field>
+        <field name="codeintel_trigger_timeout_running">false</field>
         <property name="_codeintel_trigger_delay"
             onget="return this.__globalPrefs.getLongPref('codeintel_trigger_delay')"/>
 
@@ -1139,8 +1140,10 @@
             if (this.lastCharAdded) {
                 if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
                     // Trigger completions or calltip.
-                    clearTimeout(this.codeintel_trigger_timeout);
+                    if (this.codeintel_trigger_timeout_running) return;
+                    this.codeintel_trigger_timeout_running = true;
                     this.codeintel_trigger_timeout = setTimeout(function() {
+                        this.codeintel_trigger_timeout_running = false;
                         ko.codeintel.trigger(this);
                     }.bind(this), this._codeintel_trigger_delay);
                 }
