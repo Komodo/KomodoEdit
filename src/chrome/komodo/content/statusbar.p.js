@@ -371,6 +371,11 @@ function _updateCheckNewLintResult() {
     var view = require("ko/views").current();
     var res = view.get("lintBuffer", "lintResults");
     
+    if ( ! res) {
+        _lintResults = {};
+        return;
+    }
+    
     var results = {}, numResults = {};
     res.getResults(results, numResults);
     
@@ -562,6 +567,9 @@ function updateLinterPopup() {
     
     var view = require("ko/views").current();
     var res = view.get("lintBuffer", "lintResults");
+    
+    if ( ! res)
+        return;
     
     var results = {}, numResults = {};
     res.getResults(results, numResults);
