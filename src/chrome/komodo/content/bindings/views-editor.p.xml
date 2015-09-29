@@ -1684,17 +1684,17 @@
                 // a multiple selection to allow paired editing.
                 if ((updated & this.scimoz.SC_UPDATE_SELECTION) > 0
                     && this.prefs.getBooleanPref("editMatchingTags")
-                    && this.scimoz.selections == 1
-                    && this.scimoz.selectionStart != this.scimoz.selectionEnd) {
+                    && this.scimoz.selections == 1) {
                     var scimoz = this.scimoz;
-                    var actualLanguageObj = this.languageObj.supportsXMLIndentHere(scimoz, scimoz.currentPos);
-                    if (actualLanguageObj) {
-                        var startPos = scimoz.selectionStart;
-                        var endPos = scimoz.selectionEnd;
-                        if (scimoz.getStyleAt(startPos) == scimoz.SCE_UDL_M_TAGNAME
-                            && scimoz.getStyleAt(endPos - 1) == scimoz.SCE_UDL_M_TAGNAME
-                            && scimoz.wordStartPosition(startPos, true) == startPos
-                            && scimoz.wordEndPosition(endPos, true) == endPos) {
+                    var startPos = scimoz.selectionStart;
+                    var endPos = scimoz.selectionEnd;
+                    if (startPos != endPos
+                        && scimoz.getStyleAt(startPos) == scimoz.SCE_UDL_M_TAGNAME
+                        && scimoz.getStyleAt(endPos - 1) == scimoz.SCE_UDL_M_TAGNAME
+                        && scimoz.wordStartPosition(startPos, true) == startPos
+                        && scimoz.wordEndPosition(endPos, true) == endPos) {
+                        var actualLanguageObj = this.languageObj.supportsXMLIndentHere(scimoz, startPos);
+                        if (actualLanguageObj) {
                             var result = {};
                             actualLanguageObj.getMatchingTagInfo(scimoz, startPos, false, result, {});
                             if (result.value) {
