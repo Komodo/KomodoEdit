@@ -213,9 +213,6 @@ void SciMoz::DefaultSettings() {
     SendEditor(SCI_SETEOLMODE, SC_EOL_LF);
 #endif
 
-    // Annotation style, primarly for displaying inline lint results.
-    SendEditor(SCI_ANNOTATIONSETVISIBLE, ANNOTATION_INDENTED);
-
     // Caret slop controls.
     SendEditor(SCI_SETXCARETPOLICY, CARET_SLOP, 75);
 

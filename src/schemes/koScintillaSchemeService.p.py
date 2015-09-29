@@ -942,17 +942,6 @@ class Scheme(SchemeBase):
                         setter(i, value)
                 else:
                     setter(indic_no, value)
-        
-        # Set annotation styles for linter based on lint indicator colors.
-        cikoILR = components.interfaces.koILintResult
-        scimoz.releaseAllExtendedStyles()
-        scimoz.annotationStyleOffset = scimoz.allocateExtendedStyles(2)
-        scimoz.styleSetFore(scimoz.annotationStyleOffset + cikoILR.ANNOTATION_ERROR,
-                            scimoz.indicGetFore(cikoILR.DECORATOR_ERROR))
-        scimoz.styleSetItalic(scimoz.annotationStyleOffset + cikoILR.ANNOTATION_ERROR, True);
-        scimoz.styleSetFore(scimoz.annotationStyleOffset + cikoILR.ANNOTATION_WARNING,
-                            scimoz.indicGetFore(cikoILR.DECORATOR_WARNING))
-        scimoz.styleSetItalic(scimoz.annotationStyleOffset + cikoILR.ANNOTATION_WARNING, True);
 
         #XXX Note: we used to apply some style prefs for the foreground of
         #    some of our markers here. This was limited in scope (only some

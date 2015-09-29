@@ -21,7 +21,6 @@ function docSyntaxCheckingOnLoad() {
         ko.lint.languageSetup = languageSetup;
         ko.lint.languageInfo = languageInfo;
         dialog.lintEOLs = document.getElementById("lintEOLs");
-        dialog.lintShowResultsInline = document.getElementById("lintShowResultsInline");
         dialog.lintClearOnTextChange = document.getElementById("lintClearOnTextChange");
         dialog.lintDelay = document.getElementById("lintDelay");
         dialog.editUseLinting = document.getElementById("editUseLinting");
@@ -170,7 +169,6 @@ function pref_lint_doEnabling() {
     var enabled = dialog.editUseLinting.checked;
     pref_setElementEnabledState(dialog.lintDelay, enabled);
     pref_setElementEnabledState(dialog.lintEOLs, enabled);
-    pref_setElementEnabledState(dialog.lintShowResultsInline, enabled);
     pref_setElementEnabledState(dialog.lintClearOnTextChange, enabled);
 }
 
