@@ -951,9 +951,13 @@
         <method name="closeUnconditionally">
         <parameter name="shuttingDown"/>
             <body><![CDATA[
+                var type = this.getAttribute('type');
+                var log = ko.logging.getLogger('view.'+type); // this.log will be gone by the end of this function
+                
                 if (typeof(shuttingDown) == "undefined") {
                     shuttingDown = false;
                 }
+                log.time("closeUnconditionally-destroyMinimap");
                 if (this.minimap) {
                     try {
                         this.destroyMinimap();
@@ -961,6 +965,7 @@
                         this.log.exception(ex, "problem in destroyMinimap");
                     }
                 }
+                log.timeEnd("closeUnconditionally-destroyMinimap");
                 // isSpecial typically denotes sockets and such, is also
                 // used by us to identify things like dbgp files
                 // we don't want special files in our mru
@@ -978,7 +983,9 @@
                     ko.mru.addURL("mruFileList", this.koDoc.file.URI);
                 }
 
+                log.time("closeUnconditionally-saveState");
                 this.saveState();
+                log.timeEnd("closeUnconditionally-saveState");
                 this.koDoc = null;
                 if (this.preview) {
                     try {
@@ -1007,7 +1014,9 @@
                 this.removeEventListener('current_view_linecol_changed',
                     this.handle_current_view_linecol_changed, false);
 
-                return this.close_viewbufferbase();
+                log.time("closeUnconditionally-close_viewbufferbase");
+                this.close_viewbufferbase()
+                log.timeEnd("closeUnconditionally-close_viewbufferbase");
             ]]></body>
         </method>
 
