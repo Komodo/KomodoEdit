@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<overlay id="console-log" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-	<ko-pane id="workspace_bottom_area">
-        <browser type="ko-widget" id="console-widget" label="Console"
-                 position="100"
-                 src="chrome://console/content/console.xul"/>
-    </ko-pane>
-</overlay>
