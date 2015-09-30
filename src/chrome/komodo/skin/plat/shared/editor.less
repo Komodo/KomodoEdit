@@ -85,6 +85,13 @@
     & > button:not(.button-plain)
     {
         -moz-appearance: none !important;
+        border: 0;
+        background: transparent;
+    }
+    
+    :not(button) > button:not(.button-plain):not(.button-unstyled),
+    & > button:not(.button-plain):not(.button-unstyled)
+    {
         background: @hud-dock-color;
         color: @hud-foreground;
         border: 0;
