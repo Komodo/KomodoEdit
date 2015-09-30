@@ -47,7 +47,7 @@
     this.categories = require("./categories.js");
 
     var templates = {
-        "panel": () => { return $("#tpl-notify-panel"); }
+        "panel": () => { return $("#tpl-notify-panel", _window); }
     }
 
     templates.get = function(name, params)
@@ -197,7 +197,7 @@
             category: category,
             opts: opts
         };
-
+        
         // Tests do not have a window - don't run this code path in that case.
         if (typeof(window) == "undefined") {
             // Avoid spamming - just write a warning once.
@@ -355,7 +355,7 @@
         }
 
         panel.element().style.visibility = "hidden";
-        $("#komodoMainPopupSet").append(panel);
+        $("#komodoMainPopupSet", _window).append(panel);
         
         panel.on("popupshown", function(e)
         {
@@ -453,7 +453,7 @@
                 try
                 {
                     menu.register(action);
-                } catch (e) { log.exception(e); }
+                } catch (e) { log.exception(e, "Failed binding actions"); }
             }
         }
 
@@ -574,7 +574,7 @@
         // Use editor cursor position
         else if (from == "lint-status" && editor.available()) // There is no statusbar if the editor isnt available
         {
-            var button = $("#statusbar-check");
+            var button = $("#statusbar-check", _window);
             var bo = button.element().boxObject;
             
             var pos = {x: bo.screenX + bo.width, y: bo.screenY};
