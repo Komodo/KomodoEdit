@@ -317,7 +317,15 @@
                     
                     var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
                     var scheme = schemeService.getScheme(prefs.getString("editor-scheme"));
-                    params.fill = scheme.isDarkBackground ? "#C8C8C8" : "#4B4B4B";
+                    params.fill = scheme.foregroundColor;
+                }
+                else if (preset == "hud-selected")
+                {
+                    log.debug("Using hud preset");
+                    
+                    var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
+                    var scheme = schemeService.getScheme(prefs.getString("editor-scheme"));
+                    params.fill = scheme.getCommon("keywords", "fore");
                 }
                 else if (prefs.getString("iconset-" + preset + "-defs", '-1') != '-1')
                 {
