@@ -78,6 +78,7 @@
 <!ENTITY mNMToNCopiesOfThePrecedingBlockNonGreedy.label "{m,n}? : 'm' to 'n' copies of the preceding block (non-greedy)">
 <!ENTITY markAll.label "Mark All">
 <!ENTITY multiline.label "Multiline">
+<!ENTITY multiline.tooltiptext "Use Multiple Lines">
 <!ENTITY nonGroupingGroup.label "(?:...) : non-grouping group">
 <!ENTITY numberTheContentsOfTheGroupOfTheGivenNumber.label "\number : the contents of the group of the given number">
 <!ENTITY oneOrMoreOfThePrecedingBlock.label "+ : one or more of the preceding block">

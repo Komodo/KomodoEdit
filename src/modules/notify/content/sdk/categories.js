@@ -106,4 +106,6 @@ categories.register("dev", { label: "Development" });
 
 categories.register("packages", { label: "Packages", opts: { duration: 10000 } });
 
+categories.register("find", { label: "Find/Replace" });
+
 module.exports = categories;

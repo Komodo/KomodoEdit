@@ -1868,6 +1868,14 @@ this.onload = function uilayout_onload()
     }
     
     this.updateViewRef();
+    
+    // preload the embedded find replace frame (no rush)
+    setTimeout(function() {
+        var findBrowser = document.getElementById("findReplaceBrowser");
+        if ( ! findBrowser.hasAttribute("src")) {
+            findBrowser.setAttribute("src", "chrome://komodo/content/find/embedded.xul");
+        }
+    }, 1000);
 }
 
 this.updateViewRef = function(view) {

@@ -640,6 +640,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!--pref-find.xul-->
 <!ENTITY bytes.label "bytes">
 <!ENTITY find.label "Find">
+<!ENTITY findFrame.label "Find Frame">
+<!ENTITY pinFindFrame.label "Pin the Find Frame (use ESCAPE to close)">
 <!ENTITY findInFiles.label "Find in Files">
 <!ENTITY findHighlighting.label "Highlighting">
 <!ENTITY findHighlightEnabled.label "Enable highlighting of find and replace results">

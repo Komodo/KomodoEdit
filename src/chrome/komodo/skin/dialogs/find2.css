@@ -25,24 +25,9 @@
     border: 0 !important;
 }
 
-#find-box-wrap > hbox > label,
-#find-box-wrap > hbox > spacer
-{
-    width: 4.5em;
-}
-
 #find-box-wrap > hbox > spacer
 {
     margin: 0 6px;
-}
-
-.buttons > *
-{
-    width: 85px;
-}
-
-spacer.button-spacer {
-    width: 96px; /* Add margin of label above */
 }
 
 window:not(.mode-replace) #repl-row {
@@ -55,4 +40,32 @@ window:not(.mode-replace) #repl-row {
 
 #msg-deck {
     max-width: 600px;
+}
+
+button,
+button#pattern-shortcuts
+{
+    min-width: 16px;
+    min-height: 16px;
+}
+
+#find-row.multiline button,
+#repl-row.multiline button
+{
+    margin: 15px 0 14px;
+}
+
+button#pattern-shortcuts
+{
+    margin-left: -8px;
+}
+
+#find-next-btn, #find-prev-btn
+{
+    max-width: 26px;
+}
+
+#find-options
+{
+    padding-right: 2em;
 }

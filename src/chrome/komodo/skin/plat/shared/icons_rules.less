@@ -1950,3 +1950,130 @@ ko-pane[type="icons"]
 {
     list-style-image: @icon-workspace-open;
 }
+
+/* Find/Replace icons */
+
+#find2-window
+{
+    checkbox#opt-regex,
+    checkbox#opt-case,
+    checkbox#opt-word,
+    checkbox#opt-multiline,
+    checkbox#opt-repl,
+    checkbox#confirm-replacements-in-files,
+    checkbox#show-replace-all-results,
+    checkbox#search-in-subdirs
+    {
+        opacity: 0.8;
+        
+        &, .checkbox-spacer-box
+        {
+            -moz-appearance: none;
+        }
+        
+        .checkbox-label-center-box
+        {
+            visibility: collapse;
+        }
+        
+        .checkbox-check
+        {
+            width: 16px;
+            height: 16px;
+            background-size: 16px;
+            border: 0;
+            background: transparent;
+        }
+        
+        &:hover
+        {
+            opacity: 1.0;
+        }
+    }
+    
+    checkbox#opt-regex .checkbox-check {
+        background: @icon-hud-findpattern-regex no-repeat;
+        &[checked="true"] {
+            background: @icon-hud-findpattern-regex-selected no-repeat;
+        }
+    }
+    
+    checkbox#opt-case .checkbox-check {
+        background: @icon-hud-find-case no-repeat;
+        &[checked="true"] {
+            background: @icon-hud-find-case-selected no-repeat;
+        }
+    }
+    
+    checkbox#opt-case[value="smart-case"] .checkbox-check {
+        background: @icon-hud-find-case-smart no-repeat;
+        &[checked="true"] {
+            background: @icon-hud-find-case-smart-selected no-repeat;
+        }
+    }
+    
+    checkbox#opt-word .checkbox-check {
+        background: @icon-hud-find-word no-repeat;
+        &[checked="true"] {
+            background: @icon-hud-find-word-selected no-repeat;
+        }
+    }
+    
+    checkbox#opt-multiline .checkbox-check {
+        background: @icon-hud-find-multiline no-repeat;
+        &[checked="true"] {
+            background: @icon-hud-find-multiline-selected no-repeat;
+        }
+    }
+    
+    checkbox#opt-repl .checkbox-check {
+        background: @icon-hud-find-replace no-repeat;
+        &[checked="true"] {
+            background: @icon-hud-find-replace-selected no-repeat;
+        }
+    }
+    
+    checkbox#confirm-replacements-in-files .checkbox-check {
+        background: @icon-hud-find-confirm no-repeat;
+        &[checked="true"] {
+            background: @icon-hud-find-confirm-selected no-repeat;
+        }
+    }
+    
+    checkbox#show-replace-all-results .checkbox-check {
+        background: @icon-hud-find-show no-repeat;
+        &[checked="true"] {
+            background: @icon-hud-find-show-selected no-repeat;
+        }
+    }
+    
+    checkbox#search-in-subdirs .checkbox-check {
+        background: @icon-hud-find-subdirs no-repeat;
+        &[checked="true"] {
+            background: @icon-hud-find-subdirs-selected no-repeat;
+        }
+    }
+    
+    #pattern-shortcuts .button-icon { list-style-image: @icon-hud-find-shortcuts; }
+    
+    #open-in-rx-btn { list-style-image: @icon-hud-find-open-rx; }
+    
+    #find-next-btn, 
+    #find-prev-btn
+    {
+        .button-icon
+        {
+            display: inherit;
+        }
+        
+        label
+        {
+            visibility: collapse;
+        }
+    }
+    
+    #find-next-btn { list-style-image: @icon-hud-down; }
+    
+    #find-prev-btn { list-style-image: @icon-hud-up; }
+    
+}
