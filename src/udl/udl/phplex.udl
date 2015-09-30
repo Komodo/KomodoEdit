@@ -420,6 +420,9 @@ state IN_SSL_DEFAULT:
     sstack_set(IN_CSL_DEFAULT)
 # Ignore any others.
 
+/class\s+/ : paint(upto, SSL_DEFAULT), paint(include, SSL_WORD), => IN_CLASS_DEFINITION
+/function\s+/ : paint(upto, SSL_DEFAULT), paint(include, SSL_WORD), => IN_FUNCTION_DEFINITION
+
 /[$NMSTART][$CS]*/ : paint(upto, SSL_DEFAULT), paint(include, SSL_IDENTIFIER)
 
 # Now a bunch of operators
@@ -437,6 +440,16 @@ paint(include, SSL_OPERATOR), => IN_SSL_PRE_NOWDOC_1
 /[$OP]/ : paint(upto, SSL_DEFAULT), redo, => IN_SSL_OP1
 
 /\z/ : paint(include, SSL_DEFAULT)
+
+###### Class and Function definition handling #####
+
+state IN_CLASS_DEFINITION:
+/[$NMSTART][$CS]+/ : paint(include, SSL_CLASS), => IN_SSL_DEFAULT
+/./ : redo, => IN_SSL_DEFAULT
+
+state IN_FUNCTION_DEFINITION:
+/[$NMSTART][$CS]+/ : paint(include, SSL_FUNCTION), => IN_SSL_DEFAULT
+/./ : redo, => IN_SSL_DEFAULT
 
 ################ Here-doc handling ################
 
