@@ -285,7 +285,7 @@
             // Don't show notifications when the main window has no focus, bug #105975
             if ( ! _document.hasFocus())
             {
-                if (notif.opts.priority < this.P_WARNING)
+                if (notif.opts.priority < this.P_WARNING && ! notif.opts.ignoreFocus)
                 {
                     // if window has no focus and this is not an important notification,
                     // drop it and process the next one
