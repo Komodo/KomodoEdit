@@ -93,6 +93,8 @@
                     details = "'" + aMessage.timer.name + "' @ " + (new Date());
                 if (aMessage.level == "trace")
                     details = "trace" + "\n" + formatTrace(aMessage.stacktrace);
+                else if ("stacktrace" in aMessage)
+                    details = data + "\ntrace" + "\n" + formatTrace(aMessage.stacktrace);
                 log.debug(aMessage.level + ": " + (details || data));
             }
         }, "console-api-log-event", false);
