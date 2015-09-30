@@ -105,6 +105,9 @@ state IN_SSL_DEFAULT:
 /%[%qQwWx]([\{\[\(\<])/ : paint(upto, SSL_DEFAULT), set_opposite_delimiter(1), => IN_SSL_QSTRING_NESTED
 /%[%qQwWx]([^\w\d])/ : paint(upto, SSL_DEFAULT), set_opposite_delimiter(1), => IN_SSL_QSTRING
 
+/class\s+/ : paint(upto, SSL_DEFAULT), paint(include, SSL_WORD), => IN_CLASS_DEFINITION
+/def\s+/ : paint(upto, SSL_DEFAULT), paint(include, SSL_WORD), => IN_FUNCTION_DEFINITION
+
 /[$NMSTART]/ : paint(upto, SSL_DEFAULT), => IN_SSL_IDENTIFIER_1
 
 /[$OP]/ : paint(upto, SSL_DEFAULT), redo, => IN_SSL_OP1
@@ -185,6 +188,16 @@ state IN_SSL_SYMBOL_1:
 /[$NMCHAR]+/ : paint(include, SSL_STRING), => IN_SSL_DEFAULT # Restricted choice
 /./ : paint(upto, SSL_OPERATOR), redo => IN_SSL_DEFAULT
 /\z/ : paint(include, SSL_OPERATOR)
+
+#### Class and Function definitions ###
+
+state IN_CLASS_DEFINITION:
+/[$NMSTART][$CS]+/ : paint(include, SSL_CLASS), => IN_SSL_DEFAULT
+/./ : redo, => IN_SSL_DEFAULT
+
+state IN_FUNCTION_DEFINITION:
+/[$NMSTART][$CS]+/ : paint(include, SSL_FUNCTION), => IN_SSL_DEFAULT
+/./ : redo, => IN_SSL_DEFAULT
 
 ################ Names ################
 
