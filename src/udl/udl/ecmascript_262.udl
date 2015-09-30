@@ -104,6 +104,8 @@ state IN_CSL_DEFAULT:
 /function(?=\s*\((?:\s*\w+(?:\s*,\s*\w+)*)?\s*\)\s*\/(?![\*\/]))/: \
     paint(upto, CSL_DEFAULT), paint(include, CSL_WORD), => IN_CSL_LAMBDA_REGEX_1
 
+/function\s+/ : paint(upto, CSL_DEFAULT), paint(include, CSL_WORD), => IN_FUNCTION_DEFINITION
+
 # /$NAMESEQ/ : paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
 /[$NMSTART][$CS]*/ : paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
 
@@ -219,6 +221,12 @@ state IN_CSL_LAMBDA_REGEX_1:
 /[,()]/: paint(upto, CSL_DEFAULT), paint(include, CSL_OPERATOR) # stay 
 /\w+/: paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)  # stay
 /\z/: paint(upto, CSL_DEFAULT)
+
+########## Function Definitions ############
+
+state IN_FUNCTION_DEFINITION:
+/[$NMSTART][$CS]+/ : paint(include, CSL_FUNCTION), => IN_CSL_DEFAULT
+/./ : redo, => IN_CSL_DEFAULT
 
 ################ End States ################
 
