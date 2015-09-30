@@ -1273,6 +1273,16 @@ class KoInitService(object):
         else:
             # Host dir is the same directory as userDataDir.
             prevHostUserDataDir = prevUserDataDir
+            
+        # Get the current version.
+        infoSvc = components.classes["@activestate.com/koInfoService;1"].getService()
+        currVer = infoSvc.version.split(".", 2)[:2]
+        for i in range(len(currVer)):
+            try:
+                currVer[i] = int(currVer[i])
+            except ValueError:
+                pass
+        currVer = tuple(currVer) # e.g. (6,0)
 
         # Upgrade.
         log.info("upgrading user settings from '%s'" % prevUserDataDir)
