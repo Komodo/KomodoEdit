@@ -79,9 +79,6 @@ state IN_SSL_DEFAULT:
 /\d/ : paint(upto, SSL_DEFAULT), => IN_SSL_NUMBER_1
 /\.\d/ : paint(upto, SSL_DEFAULT), => IN_SSL_NUMBER_2
 
-/class\s+/ : paint(upto, SSL_DEFAULT), paint(include, SSL_WORD), => IN_CLASS_DEFINITION
-/def\s+/ : paint(upto, SSL_DEFAULT), paint(include, SSL_WORD), => IN_FUNCTION_DEFINITION
-
 /[$WS]+/  : #stay
 /[$OP]/  : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR)
 ################ Numeric Literals ################
@@ -153,16 +150,6 @@ state IN_SSL_DSTRING_LINECONT:
 '"' : paint(include, SSL_STRING), => IN_SSL_DEFAULT
 /./ : => IN_SSL_DSTRING
 /^$/ : paint(upto, SSL_STRING), => IN_SSL_DEFAULT # End empty lines here
-
-##### Class and Function definitions ######
-
-state IN_CLASS_DEFINITION:
-/[$NMSTART][$CS]+/ : paint(include, SSL_CLASS), => IN_SSL_DEFAULT
-/./ : redo, => IN_SSL_DEFAULT
-
-state IN_FUNCTION_DEFINITION:
-/[$NMSTART][$CS]+/ : paint(include, SSL_FUNCTION), => IN_SSL_DEFAULT
-/./ : redo, => IN_SSL_DEFAULT
 
 ################ Fold info ################
 
