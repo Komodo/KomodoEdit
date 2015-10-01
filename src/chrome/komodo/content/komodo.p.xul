@@ -2163,7 +2163,7 @@
                         </vbox>
                     </deck>
                     
-                    <hbox id="findReplaceWrap" height="200" collapsed="true">
+                    <hbox id="findReplaceWrap" height="200" collapsed="true" class="statusbar">
                         <browser id="findReplaceBrowser" type="chrome" flex="1"/>
                     </hbox>
 

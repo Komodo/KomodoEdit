@@ -160,8 +160,8 @@
         background: @special;
     }
     
-    :not(button) > button:not(.button-plain):not(.button-unstyled),
-    & > button:not(.button-plain):not(.button-unstyled)
+    :not(button) > button:not(.button-plain):not(.unstyled),
+    & > button:not(.button-plain):not(.unstyled)
     {
         background: @background-button !important;
         border: 1px solid @border !important;
@@ -172,7 +172,7 @@
         }
     }
 
-    button:not(.button-plain):not(.button-unstyled)
+    button:not(.button-plain):not(.unstyled)
     {
         color: @foreground !important;
     }
