@@ -253,7 +253,7 @@ Or to do it all at once (clean, build and run)
 ### Building Complications
 
 If any errors occur during your first built-time and it is not obvious how to fix
-the issue on your own please refer to the Feedback section on how to get in contact
+the issue on your own please refer to the [Feedback](#feedback) section on how to get in contact
 with us.
 
 Note that if building complications arise after you updated your repo with the latest
