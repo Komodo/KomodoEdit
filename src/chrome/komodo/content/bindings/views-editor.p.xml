@@ -1018,8 +1018,9 @@
                     this.handle_current_view_linecol_changed, false);
 
                 log.time("closeUnconditionally-close_viewbufferbase");
-                this.close_viewbufferbase()
+                var res = this.close_viewbufferbase();
                 log.timeEnd("closeUnconditionally-close_viewbufferbase");
+                return res;
             ]]></body>
         </method>
 
