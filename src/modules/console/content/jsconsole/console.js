@@ -114,6 +114,8 @@
             } catch (e) {
                 rawoutput = e.message;
                 className = 'error';
+                
+                console.exception(e);
             }
             return [className, cleanse(stringify(rawoutput))];
         }
@@ -600,8 +602,6 @@
         document.execCommand('delete', false, null);
         document.execCommand('insertHTML', false, str);
         cursor.focus();
-        
-        window.scrollTo(0, 0);
     };
 
     exec.onkeyup = function(event) {

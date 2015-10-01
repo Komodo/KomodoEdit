@@ -63,7 +63,6 @@ a:hover
     width: 100%;
     padding-bottom: 1rem;
     margin-bottom: calc(1rem + 10px);
-    overflow: auto;
 }
 
 #output {
@@ -73,7 +72,6 @@ a:hover
 #output li {
     margin: 0;
     padding: 0 5px;
-    white-space: pre-wrap;
     clear: both;
 }
 
@@ -84,6 +82,8 @@ a:hover
 #output > li > div.message,
 #output > li > div.response {
     margin-left: 20px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 #output > li > div.timestamp {
