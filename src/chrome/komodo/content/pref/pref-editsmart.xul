@@ -78,6 +78,7 @@
             } else {
                 edgeCheckbox.setAttribute('label', highlightCharactersBeyondEdgeLine);
             }
+            widgets.wrapSelectionSingleLine = document.getElementById("wrapSelectionSingleLine");
             widgets.wrapSelectionDelimiters = document.getElementById("wrapSelectionDelimiters");
             widgets.wrapSelectionDelimiters_FactorySetting = prefset.getStringPref("wrapSelectionDelimiters_FactorySetting");
             widgets.restoreWrapSelectionDelimiters = document.getElementById("restoreWrapSelectionDelimiters");
@@ -143,9 +144,11 @@
     function pref_wrapSelection_doEnabling(checkbox) {
         var enabled = document.getElementById("editSmartWrapSelection").checked;
         if (checkbox.checked) {
+            widgets.wrapSelectionSingleLine.disabled = false;
             widgets.wrapSelectionDelimiters.disabled = false;
             check_wrap_delimiters_changed();
         } else {
+            widgets.wrapSelectionSingleLine.disabled = true;
             widgets.wrapSelectionDelimiters.disabled = true;
             widgets.restoreWrapSelectionDelimiters.disabled = true;
         }
@@ -295,6 +298,9 @@
                       pref="true"
                       oncommand="pref_wrapSelection_doEnabling(this);"/>
             <vbox id="wrapSelectionDetails" class="indentedPref01 advanced">
+                <checkbox id="wrapSelectionSingleLine"
+                          label="&wrapSelectionSingleLine.label;"
+                          pref="true"/>
                 <hbox align="center">
                     <label value="&wrapSelectionDelimiters.label;"/>
                     <textbox oninput="check_wrap_delimiters_changed();"

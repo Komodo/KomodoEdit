@@ -469,6 +469,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY workspace.label "Workspace">
 <!ENTITY wrapSelection.label "Wrap selection with typed delimiter instead of overwriting it">
 <!ENTITY wrapSelectionDelimiters.label "Delimiters:">
+<!ENTITY wrapSelectionSingleLine.label "Do not wrap selections spanning multiple lines">
 <!ENTITY xDefaultDateRepresentation.label "&#37;x : default date representation">
 <!ENTITY xmlXML.label ".xml: XML">
 <!ENTITY xslXSLT.label ".xsl: XSLT">
