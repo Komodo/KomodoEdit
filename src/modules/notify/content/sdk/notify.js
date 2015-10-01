@@ -346,10 +346,12 @@
         {
             panel.find(".icon, .description").on("click", () => { notif.opts.command(); });
         }
+        
+        var animate = prefs.getBoolean("notify_use_animations", true);
 
         // Some Linux distro's have problems with setting *any* opacity on a popup -
         // as it can make the popup invisible/disappear.
-        if (prefs.getBoolean("notify_use_opacity", true))
+        if (animate && prefs.getBoolean("notify_use_opacity", true))
         {
             panel.css("opacity", 0);
         }
@@ -360,7 +362,7 @@
         panel.on("popupshown", function(e)
         {
             if (e.target != panel.element()) return;
-            this.doShowNotification(notif, ! replace);
+            this.doShowNotification(notif, animate && ! replace);
         }.bind(this));
         
         // Calculate initial pos, this will have to be re-calculated
@@ -369,7 +371,7 @@
         // initial position makes things look less glitchy
         // When opacity works this is a non-issue
         var pos = this._calculatePosition(notif.opts.from || null, panel);
-        panel.element().openPopupAtScreen(pos.x, pos.y + 30);
+        panel.element().openPopup($("#komodo-vbox", _window).element(), pos.x, animate ? pos.y + 30 : pos.y);
     }
 
     this.doShowNotification = (notif, animate = true) =>
@@ -380,20 +382,33 @@
         var pos = this._calculatePosition(notif.opts.from || null, panel);
         panel.attr("noautohide", true);
         panel.noautohide = true;
-        panel.element().moveTo(pos.x, pos.y + 30);
         panel.element().style.visibility = "";
-
-        panel.animate(
-            {
-                opacity: 1,
-                panelY: pos.y,
-                panelX: pos.x
-            },
-            {
-                start: {panelY: pos.y + 30, panelX: pos.x},
-                duration: animate ? 200 : 0
-            }
-        );
+        
+        if ( ! animate)
+        {
+            panel.element().moveTo(pos.x, pos.y);
+            
+            // First one sometimes doesn't take
+            setTimeout(function() {
+                panel.element().moveTo(pos.x, pos.y);
+            }, 50);
+        }
+        else
+        {
+            panel.element().moveTo(pos.x, pos.y + 30);
+        
+            panel.animate(
+                {
+                    opacity: 1,
+                    panelY: pos.y,
+                    panelX: pos.x
+                },
+                {
+                    start: {panelY: pos.y + 30, panelX: pos.x},
+                    duration: animate ? 200 : 0
+                }
+            );
+        }
 
         var time = notif.opts.duration || prefs.getLong("notify_duration", 4000);
         panel.timeout = timers.setTimeout(function()
@@ -519,19 +534,28 @@
         //    panel.on("blur", this.hideNotification.bind(this, panel, callback));
         //    return;
         //}
-
-        panel.animate(
-            {
-                opacity: 0,
-                panelY: panel.element().boxObject.screenY + 30,
-            },
-            { duration: 100 },
-            function()
-            {
-                panel.remove();
-                this.queue.process(notif.opts.from);
-            }.bind(this)
-        );
+        
+        var animate = prefs.getBoolean("notify_use_animations", true);
+        if ( ! animate)
+        {
+            panel.remove();
+            this.queue.process(notif.opts.from);
+        }
+        else
+        {
+            panel.animate(
+                {
+                    opacity: 0,
+                    panelY: panel.element().boxObject.screenY + 30,
+                },
+                { duration: 100 },
+                function()
+                {
+                    panel.remove();
+                    this.queue.process(notif.opts.from);
+                }.bind(this)
+            );
+        }
     }
 
     this._calculatePosition = (from, panel) =>
