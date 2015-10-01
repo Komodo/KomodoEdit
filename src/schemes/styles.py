@@ -228,12 +228,6 @@ StateMap = {
         'regex': ('SCE_UDL_CSL_REGEX',
                   'SCE_UDL_SSL_REGEX',
                   ),
-        'classes': ('SCE_UDL_CSL_CLASS',
-                    'SCE_UDL_SSL_CLASS'
-                    ),
-        'functions': ('SCE_UDL_CSL_FUNCTION',
-                      'SCE_UDL_SSL_FUNCTION'
-                      ),
         'pi content': ('SCE_UDL_M_PI',
                        ),
         'tags': ('SCE_UDL_M_STAGO',
