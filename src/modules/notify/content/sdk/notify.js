@@ -12,6 +12,7 @@
     const winUtils  = require("sdk/window/utils");
     const log       = logging.getLogger("notify");
     const _window   = require("ko/windows").getMain();
+    const _         = require("contrib/underscore");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     
     const _document = _window.document;
@@ -41,7 +42,8 @@
         priority: "notification",
         classlist: "",
         panel: true, /* Whether to add this to the notification panel */
-        command: false
+        command: false,
+        generic: true
     }
 
     this.categories = require("./categories.js");
@@ -77,9 +79,22 @@
         addScrollListener();
     }
     
+    this.interact = (message, category, opts = {}) =>
+    {
+        if ((typeof category) == "object")
+        {
+            opts = category;
+            category = undefined;
+        }
+        
+        opts = _.extend({generic: false, panel: false}, opts);
+        
+        this.send = (message, category, opts);
+    }
+    
     var delay = 0;
     var delayTimer;
-    this.send = (message, category, opts, now = false) =>
+    this.send = (message, category, opts = {}, now = false) =>
     {
         if ((typeof category) == "object")
         {
@@ -103,8 +118,6 @@
             return;
         }
         
-        var _ = require("contrib/underscore");
-
         var _defaultOpts = _.clone(defaultOpts);
         if (category && this.categories.get(category))
         {
@@ -120,11 +133,18 @@
         opts.message = message;
         
         opts.id = opts.id || Date.now();
-
+        
+        if (opts.generic)
+            opts.classlist += " generic ";
+        
+        if ( ! opts.from && opts.generic)
+            opts.from = "bottom-right";
+            
+        if (opts.priority == "notification" && opts.generic)
+            opts.priority = "info";
+        
         if (opts.command)
-        {
             opts.classlist += " clickable"
-        }
 
         if (isNaN(opts.priority))
         {
@@ -170,8 +190,12 @@
             // be merged into the notify module
             try
             {
+                var type = "info";
+                if (opts.priority == this.P_WARNING) type = "warning";
+                if (opts.priority == this.P_ERROR) type = "error";
+                
                 _ko.notifications.add(message, [category], opts.id || Date.now(),
-                                     {severity: opts.priority, notify: true});
+                                     {severity: opts.priority, type: type, notify: true});
             }
             catch (e)
             {
@@ -596,19 +620,20 @@
         }
         
         // Use editor cursor position
-        else if (from == "lint-status" && editor.available()) // There is no statusbar if the editor isnt available
+        else if (from == "bottom-right") // There is no statusbar if the editor isnt available
         {
-            var button = $("#statusbar-check", _window);
-            var bo = button.element().boxObject;
+            var wrapper = $("#editorviewbox", _window);
+            var bo = wrapper.element().boxObject;
             
-            var pos = {x: bo.screenX + bo.width, y: bo.screenY};
+            var pos = {x: bo.screenX + bo.width, y: bo.screenY + bo.height};
             
             var computed = _window.getComputedStyle(panel.element());
             pos.y -= parseInt(computed.paddingBottom.replace(/px$/,''));
             pos.y -= parseInt(computed.paddingTop.replace(/px$/,''));
             pos.y -= parseInt(computed.height.replace(/px$/,''));
             pos.x -= parseInt(computed.width.replace(/px$/,''));
-
+            pos.x -= 5; // padding
+            
             return normalize(pos);
         }
         
@@ -621,6 +646,7 @@
                 wy = bo.screenY,
                 ww = bo.width,
                 wh = bo.height;
+            
             pos = {x: (ww / 2) + wx, y: (wy + wh) - 100};
         }
 

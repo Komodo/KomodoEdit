@@ -92,7 +92,13 @@ categories.register("searchReplace", { label: "Search / Replace" });
 
 categories.register("unittest", { label: "Unit Testing" });
 
-categories.register("lint", { label: "Linter", opts: { priority: "info", from: "lint-status", classlist: "lint", duration: 6000 } });
+categories.register("lint", { label: "Linter", opts: {
+    priority: "info",
+    from: "bottom-right",
+    classlist: "lint",
+    duration: 6000,
+    icon: "koicon://ko-svg/chrome/icomoon/skin/cancel-circle2.svg"
+} });
 
 categories.register("refactoring", { label: "Refactoring" });
 
