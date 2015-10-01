@@ -81,7 +81,7 @@
         if ( ! useClipboard && ! showInBrowser)
         {
             locale = "Could not share code via kopy.io; both clipboard and browser settings are disabled";
-            require("notify/notify").send(locale, "kopy", {priority: "warning"});
+            require("notify/notify").interact(locale, "kopy", {priority: "warning"});
             return;
         }
 
@@ -144,7 +144,7 @@
             {
                 var errorMsg = "kopy.io: Code sharing failed, malformed response";
                 log.warn(errorMsg + ": " + this.responseText);
-                require("notify/notify").send(errorMsg, "kopy", {priority: "error"});
+                require("notify/notify").interact(errorMsg, "kopy", {priority: "error"});
             }
 
             var url = baseUrl + '/' + key;
@@ -152,7 +152,7 @@
             {
                 require("sdk/clipboard").set(url);
                 var msg = "URL copied to clipboard: " + url;
-                require("notify/notify").send(msg, "kopy",
+                require("notify/notify").interact(msg, "kopy",
                 {
                     command: () => { ko.browse.openUrlInDefaultBrowser(url) }
                 });
@@ -168,7 +168,7 @@
         {
             var errorMsg = "kopy.io: HTTP Request Failed: " + e.target.status;
             log.warn(errorMsg);
-            require("notify/notify").send(errorMsg, "kopy", {priority: "error"});
+            require("notify/notify").interact(errorMsg, "kopy", {priority: "error"});
         }
     }
     
@@ -183,7 +183,7 @@
         {
             log.exception(e);
             var errorMsg = "Sharing failed, exception occured: " + e.message;
-            require("notify/notify").send(errorMsg, "kopy", {priority: "error"});
+            require("notify/notify").interact(errorMsg, "kopy", {priority: "error"});
             return;
         }
 

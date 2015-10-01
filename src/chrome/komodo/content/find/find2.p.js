@@ -444,13 +444,13 @@ function msg_callback(level, context, msg) {
 }
 
 function msg_info(msg) {
-    require("notify/notify").send(msg, "find", {priority: "info", ignoreFocus: true})
+    require("notify/notify").interact(msg, "find", {priority: "info", ignoreFocus: true})
 }
 function msg_warn(msg) {
-    require("notify/notify").send(msg, "find", {priority: "warning", ignoreFocus: true})
+    require("notify/notify").interact(msg, "find", {priority: "warning", ignoreFocus: true})
 }
 function msg_error(msg) {
-    require("notify/notify").send(msg, "find", {priority: "error", ignoreFocus: true})
+    require("notify/notify").interact(msg, "find", {priority: "error", ignoreFocus: true})
 }
 
 

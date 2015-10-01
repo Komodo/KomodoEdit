@@ -180,7 +180,7 @@ function goToQuickBookmark(index) {
     var quickBookmarkName = "quick_bookmarks_" + index;
     if (!docState.hasPref(quickBookmarkName))
     {
-        require("notify/notify").send("No quick bookmark for index " + index,
+        require("notify/notify").interact("No quick bookmark for index " + index,
                                       "editor")
         return;
     }
@@ -307,7 +307,7 @@ editor_editorController.prototype.do_cmd_bookmarkGotoNext = function() {
         nextLine = v.scimoz.markerNext(0, marker_mask);
     }
     if (nextLine < 0 || nextLine == thisLine) {
-        require("notify/notify").send(
+        require("notify/notify").interact(
             _bundle.GetStringFromName("noNextBookmark.message"),
             "bookmark");
         
@@ -338,7 +338,7 @@ editor_editorController.prototype.do_cmd_bookmarkGotoPrevious = function() {
         prevLine = v.scimoz.markerPrevious(v.scimoz.lineCount-1, marker_mask);
     }
     if (prevLine < 0 || prevLine == thisLine) {
-        require("notify/notify").send(
+        require("notify/notify").interact(
             _bundle.GetStringFromName("noPreviousBookmark.message"),
             "bookmark.message");
     } else {

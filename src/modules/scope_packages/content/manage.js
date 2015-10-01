@@ -177,7 +177,7 @@
     
     this.installPackage = function(pkg, callback)
     {
-        require("notify/notify").send(l.get("installing", pkg.name), "packages", {id: "packageInstall"});
+        require("notify/notify").interact(l.get("installing", pkg.name), "packages", {id: "packageInstall"});
         
         commando.block();
         
@@ -185,7 +185,7 @@
         {
             window.clearTimeout(timeout);
             
-            require("notify/notify").send(l.get(locale, pkg.name), "packages", {id: "packageInstall", priority: priority});
+            require("notify/notify").interact(l.get(locale, pkg.name), "packages", {id: "packageInstall", priority: priority});
             commando.unblock();
             packages.clearCaches();
             
@@ -201,7 +201,7 @@
     
     this.uninstallPackage = function(pkg, callback)
     {
-        require("notify/notify").send(l.get("uninstalling", pkg.name), "packages", {id: "packageUninstall"});
+        require("notify/notify").interact(l.get("uninstalling", pkg.name), "packages", {id: "packageUninstall"});
         
         commando.block();
         
@@ -209,7 +209,7 @@
         {
             window.clearTimeout(timeout);
             
-            require("notify/notify").send(l.get(locale, pkg.name), "packages", {id: "packageUninstall"});
+            require("notify/notify").interact(l.get(locale, pkg.name), "packages", {id: "packageUninstall"});
             commando.unblock();
             packages.clearCaches();
             

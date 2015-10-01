@@ -2654,7 +2654,7 @@ this.Manager.prototype.keypressHandler = function (event, ignorePhase) {
             this.startPrefixCapture();
             this.currentPrefixMap = this.currentPrefixMap[key]
             var msg = this.currentPrefixString + " was pressed.  Awaiting further keys.";
-            require("notify/notify").send(msg, "keybindings", {id: "keyCompletion", priority: "now"});
+            require("notify/notify").interact(msg, "keybindings", {id: "keyCompletion", priority: "now"});
             event.cancelBubble = true;
             event.stopPropagation();
             event.preventDefault();

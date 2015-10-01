@@ -638,7 +638,7 @@
         callback = callback || function() {};
         errorCallback = errorCallback || function(msg)
         {
-            require('notify/notify').send(msg, 'packages', {priority: 'error'}); 
+            require('notify/notify').interact(msg, 'packages', {priority: 'error'}); 
         };
         
         if (pkg.mock)
@@ -732,7 +732,7 @@
                         }))
                     {
                         schemeService.activateScheme(scheme);
-                        require("notify/notify").send(l.get("schemeApplied", pkg.name), "packages", {id: "packageInstall"});
+                        require("notify/notify").interact(l.get("schemeApplied", pkg.name), "packages", {id: "packageInstall"});
                     }
                     commando.focus();
                     // TODO: delete temporary file.
@@ -758,7 +758,7 @@
                     {
                         log.debug("Applying scheme " + schemeName);
                         keybindings.manager.revertToPref(schemeName); // probably not the intended use, but it works
-                        require("notify/notify").send(l.get("keybindingsApplied", pkg.name), "packages", {id: "packageInstall"});
+                        require("notify/notify").interact(l.get("keybindingsApplied", pkg.name), "packages", {id: "packageInstall"});
                     }
                     commando.focus();
                 }, errorCallback, OS.Path.join(dirService.userDataDir, 'schemes'));

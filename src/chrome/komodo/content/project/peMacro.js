@@ -558,7 +558,7 @@ MacroEventHandler.prototype.hookPostFileClose = function(uri) {
 MacroEventHandler.prototype.hookOnQuit = function peMacro_hookOnQuit() {
     if (this.callHookedMacros('trigger_quit')) {
         var msg = "Userscript interrupted shutdown procedure.";
-        require("notify/notify").send(msg, "tools", {priority: "warning"});
+        require("notify/notify").interact(msg, "tools", {priority: "warning"});
         return false;
     }
     return true;
