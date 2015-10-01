@@ -147,16 +147,16 @@ binding cmd_bookmarkGotoPrevious  Shift+F2
 
 # Quick Bookmarks
 # Set
-binding cmd_setQuickBookmark_0  Ctrl+Shift+0
-binding cmd_setQuickBookmark_1  Ctrl+Shift+1
-binding cmd_setQuickBookmark_2  Ctrl+Shift+2
-binding cmd_setQuickBookmark_3  Ctrl+Shift+3
-binding cmd_setQuickBookmark_4  Ctrl+Shift+4
-binding cmd_setQuickBookmark_5  Ctrl+Shift+5
-binding cmd_setQuickBookmark_6  Ctrl+Shift+6
-binding cmd_setQuickBookmark_7  Ctrl+Shift+7
-binding cmd_setQuickBookmark_8  Ctrl+Shift+8
-binding cmd_setQuickBookmark_9  Ctrl+Shift+9
+binding cmd_toggleQuickBookmark_0  Ctrl+Shift+0
+binding cmd_toggleQuickBookmark_1  Ctrl+Shift+1
+binding cmd_toggleQuickBookmark_2  Ctrl+Shift+2
+binding cmd_toggleQuickBookmark_3  Ctrl+Shift+3
+binding cmd_toggleQuickBookmark_4  Ctrl+Shift+4
+binding cmd_toggleQuickBookmark_5  Ctrl+Shift+5
+binding cmd_toggleQuickBookmark_6  Ctrl+Shift+6
+binding cmd_toggleQuickBookmark_7  Ctrl+Shift+7
+binding cmd_toggleQuickBookmark_8  Ctrl+Shift+8
+binding cmd_toggleQuickBookmark_9  Ctrl+Shift+9
 # GoTo
 binding cmd_goToQuickBookmark_0  Ctrl+0
 binding cmd_goToQuickBookmark_1  Ctrl+1

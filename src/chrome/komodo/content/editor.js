@@ -216,9 +216,6 @@ function getValidMarkerLine(index)
 //Easiest way to add the 10 goToQuickBookmark functions needs for this feature
 [0,1,2,3,4,5,6,7,8,9].forEach(function(i)
     {
-        //commands.register("setQuickBookmark_" + i, setQuickBookmark(i),{
-        //    label: "Quick Bookmark: Set quick bookmark for " + i + "key"
-        //});
         editor_editorController.prototype["do_cmd_goToQuickBookmark_"+i] = function() {
             goToQuickBookmark(i);
         }
@@ -232,9 +229,9 @@ function getValidMarkerLine(index)
  *
  * @param {numbers}  index, key number was saved under.
  */
-function setQuickBookmark(index)
+function toggleQuickBookmark(index)
 {
-    var editor = require("ko/editor")
+   var editor = require("ko/editor")
     var docState = require("ko/views").current().prefs;
     var quickBookmarkName = "quick_bookmarks_" + index;
     var quickBookmarkPref = {};
@@ -249,14 +246,21 @@ function setQuickBookmark(index)
         docState.setPref(quickBookmarkName, quickBookmarkPref)
     }
     
-    //Delete old quick bookmark if it's already set
+    var curLine = editor.getLineNumber();
     if (quickBookmarkPref.hasPref("markerId")) {
-        editor.unsetBookmarkByHandle(quickBookmarkPref.getLong("markerId"));
+        let handle = quickBookmarkPref.getLong("markerId");
+        let prevLine = editor.getBookmarkLineFromHandle(handle)
+        // remove old bookmark
+        editor.unsetBookmarkByHandle(handle);
+        if( prevLine == curLine )
+        {
+            // Don't create a new one if it was on the same line. ie. toggle off
+            return;
+        }
     }
-    
-    var markerId = editor.setBookmark(editor.getLineNumber(),
+    // Otherwise, create a new one
+    var markerId = editor.setBookmark(curLine,
                                       ko.markers['MARKNUM_BOOKMARK' + index]);
-    var markerId = editor.setBookmark(editor.getLineNumber());
     quickBookmarkPref.setLong("markerId", markerId);
 }
 
@@ -266,10 +270,10 @@ function setQuickBookmark(index)
         //commands.register("setQuickBookmark_" + i, setQuickBookmark(i),{
         //    label: "Quick Bookmark: Set quick bookmark for " + i + "key"
         //});
-        editor_editorController.prototype["do_cmd_setQuickBookmark_"+i] = function() {
-            setQuickBookmark(i);
+        editor_editorController.prototype["do_cmd_toggleQuickBookmark_"+i] = function() {
+            toggleQuickBookmark(i);
         }
-        editor_editorController.prototype["is_cmd_setQuickBookmark_"+i+"_enabled"] = function() {
+        editor_editorController.prototype["is_cmd_toggleQuickBookmark_"+i+"_enabled"] = function() {
             return !!_getCurrentScimozView();
         }
     })
