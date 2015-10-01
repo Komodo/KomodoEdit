@@ -326,9 +326,17 @@ class KoInitService(object):
         # Cannot be called before upgradeUserSettings, as it initiates the
         # prefs before they should be used
         self.startErrorReporter()
-        
         self.installSamples(False)
-        self.installSampleTools()
+
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        currUserDataDir = koDirSvc.userDataDir
+        dataDirs = self._getProfileDirs()
+        # currUserDataDir already exists so must check deeper.
+        # This means that if there are no other profiles and you
+        # delete your tools folder, Komodo will reinstall your tools
+        if not os.path.isdir(currUserDataDir + "tools") and not dataDirs:
+            self.installSampleTools()
+
         self.installTemplates()
         self.setPlatformErrorMode()
         self.setEncoding()
@@ -1381,89 +1389,27 @@ class KoInitService(object):
             log.exception("installSamples")
 
     def installSampleTools(self):
-        pref_prefix = "haveInstalledSampleToolbox-Komodo"
-        try:
-            prefs = components.classes["@activestate.com/koPrefService;1"].\
-                    getService(components.interfaces.koIPrefService).prefs
-            infoSvc = components.classes["@activestate.com/koInfoService;1"].\
-                      getService(components.interfaces.koIInfoService)
-            lookAtPrefName = True
-            koDirs = components.classes["@activestate.com/koDirs;1"].\
-                     getService(components.interfaces.koIDirs)
-            stdToolsFolder = os.path.join(koDirs.userDataDir, 'tools')
-            obsoleteToolsFolder = os.path.join(koDirs.userDataDir, 'obsolete-tools')
-            if not os.path.exists(stdToolsFolder):
-                os.mkdir(stdToolsFolder)
-                lookAtPrefName = False
-                
-            prefName = pref_prefix + infoSvc.version
-            if lookAtPrefName and prefs.hasBooleanPref(prefName) and prefs.getBooleanPref(prefName):
-                return
+        koDirs = components.classes["@activestate.com/koDirs;1"].\
+                 getService(components.interfaces.koIDirs)
+        destDir = os.path.join(koDirs.userDataDir, 'tools')
 
-            folder_name = "Samples (%s)" % str(infoSvc.version)
-            destDir = os.path.join(stdToolsFolder, folder_name)
-            srcDir = os.path.join(koDirs.supportDir, 'samples', 'tools')
-            # Must ensure the destination directory exists - bug 87470.
-            if not os.path.exists(destDir):
-                os.makedirs(destDir)
-                
-            installedSampleTools = True
-            import fileutils
-            import shutil
-            for name in os.listdir(srcDir):
-                srcChild = os.path.join(srcDir, name)
-                try:
-                    if os.path.isdir(srcChild):
-                        fileutils.copyLocalFolder(srcChild, destDir)
-                    else:
-                        shutil.copy(srcChild, destDir)
-                except:
-                    # logging doesn't always work in this file, so print the
-                    # traceback as well.
-                    log.exception("Failed to copy srcChild:%s to dest destDir:%s", srcChild, destDir)
-                    installedSampleTools = False
-
-            # Remove old samples
-            import json
-            macro_template_path = os.path.join(koDirs.supportDir, 'toolbox',
-                                               'Restore Samples.komodotool')
-            with open(macro_template_path, "r") as macro_source:
-                macro_template = macro_source.read()
-            for existing_pref_name in prefs.getPrefIds():
-                try:
-                    if not existing_pref_name.startswith(pref_prefix):
-                        continue
-                    version = existing_pref_name[len(pref_prefix):]
-                    if version == str(infoSvc.version):
-                        continue # shouldn't have reached here!?
-                    folder_name = "Samples (%s)" % (version,)
-                    old_dir = os.path.join(stdToolsFolder, folder_name)
-                    if not os.path.isdir(old_dir):
-                        continue # already removed (by user or us)
-                    log.warn("%s is obsolete; moving it to %s",
-                             folder_name, obsoleteToolsFolder)
-                    if not os.path.exists(obsoleteToolsFolder):
-                        os.makedirs(obsoleteToolsFolder)
-                    dest_dir = os.path.join(obsoleteToolsFolder, folder_name)
-                    os.rename(old_dir, dest_dir)
-                    # Plop in a macro to restore the sample...
-                    macro_contents = macro_template\
-                                        .replace("{{version}}", version) \
-                                        .replace("{{script_version}}", str(infoSvc.version))
-                    macro_dir = os.path.join(stdToolsFolder, "Obsolete samples")
-                    if not os.path.isdir(macro_dir):
-                        os.makedirs(macro_dir)
-                    macro_name = json.loads(macro_contents)["name"]
-                    macro_path = os.path.join(macro_dir,
-                                              macro_name + ".komodotool")
-                    with open(macro_path, "w") as f:
-                        f.write(macro_contents)
-                except Exception:
-                    log.exception("Removing old samples")
-
-            prefs.setBooleanPref(prefName, installedSampleTools)
-        except Exception:
-            log.exception("installSampleTools")
+        if not os.path.isdir(destDir):
+            os.mkdir(destDir)
+        srcDir = os.path.join(koDirs.supportDir, 'samples', 'tools')
+            
+        import fileutils
+        import shutil
+        for name in os.listdir(srcDir):
+            srcChild = os.path.join(srcDir, name)
+            try:
+                if os.path.isdir(srcChild):
+                    fileutils.copyLocalFolder(srcChild, destDir)
+                else:
+                    shutil.copy(srcChild, destDir)
+            except:
+                # logging doesn't always work in this file, so print the
+                # traceback as well.
+                log.exception("Failed to copy srcChild:%s to dest destDir:%s", srcChild, destDir)
 
     def installTemplates(self):
         try:
