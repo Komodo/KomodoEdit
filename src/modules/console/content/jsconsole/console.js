@@ -260,6 +260,10 @@
         
         if (scroll)
             wrap.scrollTop = wrap.scrollTopMax;
+            
+        setTimeout(function() {
+            wrap.scrollTop = wrap.scrollTopMax;
+        }, 100);
     }
 
     function changeView(event) {
