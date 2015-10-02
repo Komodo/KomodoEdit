@@ -276,11 +276,26 @@
         }
 
         // Detect directory to search in
+        var paths = [];
         var curProject = partSvc.currentProject;
         var subscope = commando.getSubscope();
+        var isInSubscope = !! subscope;
         if ( ! subscope && curProject)
         {
             subscope = {name: curProject.name.split(".")[0], path: curProject.liveDirectory};
+            
+            // Add live folders
+            let length = {}, children = {};
+            curProject.getChildren(children, length);
+            if (length.value)
+            {
+                for (let i=0;i<length.value;i++)
+                {
+                    let child = children.value[i];
+                    if (child.type == "livefolder")
+                        paths.push(ko.uriparse.URIToLocalPath(child.url));
+                }
+            }
         }
         else if ( ! subscope)
         {
@@ -320,11 +335,13 @@
         opts["weightMatch"] = prefs.getBoolean('commando_files_weight_multiplier_match', 30);
         opts["weightHits"] = prefs.getBoolean('commando_files_weight_multiplier_hits', 20);
         opts["weightDepth"] = prefs.getBoolean('commando_files_weight_multiplier_depth', 10);
+        
+        paths.unshift(subscope.path);
 
         var _opts = JSON.stringify(opts);
-        log.debug(uuid + " - Query: "+ query +", Path: "+ subscope.path +", Opts: " + _opts);
+        log.debug(uuid + " - Query: "+ query +", Paths: "+ paths.join(" : ") + ", Opts: " + _opts);
 
-        scope.search(query, uuid, subscope.path, _opts, function(status, results)
+        scope.search(query, uuid, paths.join(","), _opts, function(status, results)
         {
             if (activeUuid != uuid)
             {
@@ -356,20 +373,17 @@
             {
                 let entry = results[x];
 
-                var [name, path, relativePath, type, description, weight] = entry;
-
-                var descriptionComplex = "<html:div class=\"crop rtl\" xmlns:html=\"http://www.w3.org/1999/xhtml\">";
-                descriptionComplex += "<html:span dir=\"ltr\">"+description+"</html:span></html:div>";
+                var [name, path, type, descriptionPrefix, description, weight] = entry;
 
                 _results.push({
                     id: path,
                     name: name,
-                    description: relativePath,
+                    description: description,
                     icon: type == 'dir' ? folderIcon : "koicon://" + encodeURIComponent(name) + "?size=16",
                     isScope: type == 'dir',
                     weight: weight,
                     scope: "scope-files",
-                    descriptionPrefix: subscope.name,
+                    descriptionPrefix: isInSubscope ? subscope.name : descriptionPrefix,
                     data: {
                         path: path,
                         type: type
