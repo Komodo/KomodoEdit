@@ -972,6 +972,7 @@
   <!-- See bug Bug #98484 - comments #4 and #5 -->
   <boolean id="donotask_placesAllowDragDropItemsToFolders">0</boolean>
   <string id="donotask_action_placesAllowDragDropItemsToFolders"></string>
+  <boolean id="places.multiple_project_view">0</boolean>
 
   <!-- Analytics -->
   <string id="analytics_ga_id">UA-47685083-3</string>

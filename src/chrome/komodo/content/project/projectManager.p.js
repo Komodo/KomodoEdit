@@ -100,7 +100,7 @@ function projectManager() {
     this._ensureProjectPaneVisible = true;
     this._lastCurrentProject = null;
     this.viewMgr = null;
-    this.single_project_view = !this.initProjectViewPref(ko.prefs);
+    this.single_project_view = ! ko.prefs.getBooleanPref("places.multiple_project_view");
     window.addEventListener("view_document_detaching",
                             this.handle_view_document_detaching,
                             false);
@@ -112,16 +112,6 @@ function projectManager() {
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
 projectManager.prototype = new ko.projects.BaseManager();
 projectManager.prototype.constructor = projectManager;
-
-projectManager.prototype.initProjectViewPref = function(prefset) {
-    // This is in terms of whether to use a multiple project view or not
-    const DEFAULT_MULTIPLE_PROJECT_VIEW_MODE = false;
-    if (!prefset.hasPref("places.multiple_project_view")) {
-        prefset.setBooleanPref("places.multiple_project_view", DEFAULT_MULTIPLE_PROJECT_VIEW_MODE);
-        return DEFAULT_MULTIPLE_PROJECT_VIEW_MODE;
-    }
-    return prefset.getBooleanPref("places.multiple_project_view");
-};
 
 projectManager.prototype.switchProjectView = function(single_project_view) {
     var i, listLen, urlList;
