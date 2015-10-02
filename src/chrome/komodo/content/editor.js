@@ -584,7 +584,9 @@ editor_editorController.prototype._aux_is_cmd_rename_tag_enabled = function() {
     if (!koDoc) {
         return [false];
     }
-    if (koDoc.languageObj.supportsSmartIndent != "XML") {
+    var scimoz = view.scimoz;
+    var languageObj = koDoc.languageObj.supportsXMLIndentHere(scimoz, scimoz.currentPos);
+    if (languageObj.supportsSmartIndent != "XML") {
         return [false];
     }
     return [true, view, koDoc];
@@ -673,7 +675,8 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
     }
     var tagName = scimoz.getTextRange(tagNameStartPos, tagNameEndPos);
     var result = {};
-    koDoc.languageObj.getMatchingTagInfo(scimoz, tagNameStartPos - 1, false, result, {});
+    var actualLanguageObj = koDoc.languageObj.supportsXMLIndentHere(scimoz, scimoz.currentPos);
+    actualLanguageObj.getMatchingTagInfo(scimoz, tagNameStartPos - 1, false, result, {});
     if (!result.value || !result.value.length) {
         var msg = _bundle.formatStringFromName("RenameTag Failed to find a matching tag for X",
                                                [tagName], 1);
