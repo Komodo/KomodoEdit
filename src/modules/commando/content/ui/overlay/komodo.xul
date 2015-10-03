@@ -35,7 +35,7 @@
     <popupset id="komodoMainPopupSet">
         <panel id="commando-panel" class="hud" noautohide="true" level="floating">
             <vbox flex="1" id="commando-panel-wrapper">
-                <hbox id="commando-search-wrapper">
+                <hbox id="commando-search-wrapper" class="input-field loader">
                     <!-- Menuitem template -->
                     <script id="tpl-co-scope-menuitem" type="x-dot-template">
                         <menuitem id="scope-{{=it.id}}"
@@ -56,9 +56,7 @@
                     </menulist>
                     <textbox flex="1" id="commando-search" class="transparent"/>
                 </hbox>
-                <hbox id="commando-loader" class="loader"></hbox>
-                <separator flex="1"/>
-                <vbox id="commando-subscope-wrap" class="docked" pack="start"></vbox>
+                <vbox id="commando-subscope-wrap" pack="start"></vbox>
                 <script id="tpl-co-subscope" type="x-dot-template">
                     <hbox>
                         <hbox class="icon-wrapper" pack="center" align="center">
@@ -128,7 +126,7 @@
 
                     <richlistbox id="commando-results" flex="1" seltype="multiple"></richlistbox>
                 </vbox>
-                <description id="commando-tip" class="docked" tip-type="normal" align="center">
+                <description id="commando-tip" tip-type="normal" align="center">
                     TIP: Hit the right arrow key to "expand" your selection
                 </description> 
             </vbox>

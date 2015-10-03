@@ -150,11 +150,6 @@
         }
     }
 
-    #commando-panel:not(.kitt) .loader
-    {
-        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @special 200px, @special 300px, rgba(0,0,0,0.0) 500px) !important;
-    }
-
     ::-moz-selection {
         color: @special-fore !important;
         background: @special;
@@ -178,6 +173,16 @@
     }
 }
 
+#commando-panel.loading .loader
+{
+    background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, fade(@special, 20%) 200px, fade(@special, 20%) 300px, rgba(0,0,0,0.0) 500px) !important;
+}
+
+#commando-panel.previewing.loading .loader
+{
+    background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, fade(@special, 20%) 100px, fade(@special, 20%) 150px, rgba(0,0,0,0.0) 250px) !important;
+}
+
 .statusbar
 {
     border-top: 1px solid @border-statusbar !important;
@@ -187,7 +192,7 @@ statusbar#statusbarviewbox,
 .hud
 {
     :not(menupopup) > textbox:not(.transparent),
-    menulist
+    menulist:not(.unstyled)
     {
         -moz-appearance: none !important;
         background: @background-input !important;
@@ -205,10 +210,15 @@ statusbar#statusbarviewbox,
         color: @foreground !important;
     }
     
+    .input-field
+    {
+        background-color: @background-input !important;
+    }
+    
     .editor-field
     {
         color: @foreground !important;
-        background: @background !important;
+        background-color: @background !important;
     }
 }
 

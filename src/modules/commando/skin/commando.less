@@ -4,7 +4,7 @@
 
 #commando-panel
 {
-    padding: 0;
+    border: 0;
     -moz-box-orient: horizontal;
     
     &.blocked
@@ -44,8 +44,7 @@
     
     #commando-search-wrapper
     {
-        margin-bottom: 1px;
-        background: transparent;
+        margin: 4px;
     }
 
     #commando-search
@@ -63,16 +62,11 @@
         -moz-appearance: none;
     }
 
-    separator
-    {
-        margin: 0;
-    }
-
     #commando-subscope-wrap
     {
         visibility: collapse;
         font-weight: bold;
-        padding: 5px;
+        padding: 4px;
         font-size: 1.1rem;
         max-width: 490px;
 
@@ -100,6 +94,8 @@
         max-width: 490px;
         margin: 0;
         padding: 4px;
+        background: transparent !important;
+        opacity: 0.6;
         
         &[tip-type="error"]
         {
@@ -122,29 +118,18 @@
         transform: translateZ(0);
     }
 
-    &.loading:not(.kitt) #commando-loader
+    &.loading #commando-search-wrapper
     {
         background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @hud-loader-color 200px, @hud-loader-color 300px, rgba(0,0,0,0.0) 500px);
         background-repeat: no-repeat;
         animation: loading 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
+        transform: translateZ(0);
     }
     
-    &.previewing.loading:not(.kitt) #commando-loader
+    &.previewing.loading #commando-search-wrapper
     {
         background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @hud-loader-color 100px, @hud-loader-color 150px, rgba(0,0,0,0.0) 250px);
         animation: loadingWithPreview 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
-    }
-    &.loading.kitt #commando-loader
-    {
-        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, rgba(225, 50, 50, 0.9) 200px, rgba(225, 50, 50, 0.9) 300px, rgba(0,0,0,0.0) 500px) !important;
-        background-repeat: no-repeat;
-        animation: loading 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
-    }
-
-    &.loading #commando-loader
-    {
-        opacity: 1.0;
-        visibility: visible;
     }
 
     @keyframes loading {
@@ -231,7 +216,7 @@
 
         richlistitem
         {
-            padding: 3px 0 3px 6px;
+            padding: 3px 4px 3px 10px;
             
             label, description
             {
