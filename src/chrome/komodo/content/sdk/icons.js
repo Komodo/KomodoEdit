@@ -276,10 +276,6 @@
             }
 
             var templateFile = FileUtils.getFile("AChrom", ["icons","default","fileicons", "template.svg"], true);
-            if (info.size == 16)
-                info["font-size"] = "0.9";
-            else
-                info["font-size"] = (info.size / 100) * (8 - (info.ext.length || 1));
 
             var tmpSvg = pngFile.path + ".template.svg";
             icons.createIconFromTemplate(tmpSvg, templateFile.path, info, function()
