@@ -407,10 +407,7 @@
             }, uuid);
         }
 
-        window.setTimeout(function()
-        {
-            elem("panel").removeClass("loading");
-        }, kitt.kitt ? 1000 : 0);
+        elem("panel").removeClass("loading");
     }
 
     var onSelectResult = function()
@@ -628,8 +625,6 @@
 
         if ( ! callback) // this is a manual search
             return onSearch();
-
-        kitt();
 
         if (local.searchTimer && ! noDelay) return; // Search is already queued
         
@@ -1688,23 +1683,6 @@
 
         panel.css("opacity", 1.0);
         return result;
-    }
-
-    var kitt = function()
-    {
-        // You didn't see this, you were never here
-        if (kitt.kitt)
-        {
-            elem("panel").removeClass("kitt");
-            delete kitt.kitt
-        }
-        if (["kitt", "michael"].indexOf(elem('search').value()) !== -1)
-        {
-            var sound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
-            sound.play(ioService.newURI('chrome://commando/content/loading.wav', null, null));
-            elem("panel").addClass("kitt");
-            kitt.kitt = true;
-        }
     }
 
     init();
