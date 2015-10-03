@@ -1443,8 +1443,15 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
  */
 this.findAll = function Find_FindAll(editor, context, pattern, patternAlias,
                       msgHandler /* =<statusbar notifier> */,
-                      highlightMatches /* =true */)
+                      highlightMatches /* =true */,
+                      resultsMgr, patternOverride)
 {
+    if (patternOverride) pattern = patternOverride;
+    if ( ! resultsMgr) {
+        ko.findresults.getTab(this.findAll.bind(this, editor, context, pattern, patternAlias, msgHandler, highlightMatches));
+        return;
+    }
+    
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
         msgHandler = ko.find.getStatusbarMsgHandler(editor);
     }
@@ -1469,9 +1476,6 @@ this.findAll = function Find_FindAll(editor, context, pattern, patternAlias,
     }
 
     var preferredResultsTab = lazy.findSvc.options.displayInFindResults2 ? 2 : 1;
-    var resultsMgr = editor.ko.findresults.getTab(preferredResultsTab);
-    if (resultsMgr == null)
-        return null;
     resultsMgr.configure(pattern, patternAlias, null, context,
                          lazy.findSvc.options);
     resultsMgr.show();
@@ -1747,8 +1751,18 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
                          showReplaceResults /* =false */,
                          firstOnLine /* =false */,
                          msgHandler /* =<statusbar notifier> */,
-                         highlightReplacements /* =true */)
+                         highlightReplacements /* =true */,
+                         resultsMgr, patternOverride)
 {
+    if (patternOverride) pattern = patternOverride;
+    if ( ! resultsMgr) {
+        ko.findresults.getTab(this.replaceAll.bind(
+                                            this, editor, context, pattern,
+                                            replacement, showReplaceResults,
+                                            firstOnLine, msgHandler, highlightReplacements));
+        return;
+    }
+    
     if (typeof(showReplaceResults) == "undefined") showReplaceResults = false;
     if (typeof(firstOnLine) == "undefined" || firstOnLine == null) {
         firstOnLine = false;
@@ -1782,15 +1796,11 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
                                     ");\n");
     }
 
-    var resultsMgr = null;
     var resultsView = null;
     var numFiles = null;
     var numFilesSearched = null;
     if (showReplaceResults) {
         var preferredResultsTab = lazy.findSvc.options.displayInFindResults2 ? 2 : 1;
-        resultsMgr = editor.ko.findresults.getTab(preferredResultsTab);
-        if (resultsMgr == null)
-            return false;
         resultsMgr.configure(pattern, null, replacement, context,
                              lazy.findSvc.options);
         resultsMgr.show();
@@ -1900,8 +1910,14 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
  *      was an error or find was aborted.
  */
 this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, patternAlias,
-                             msgHandler /* =<statusbar notifier> */)
+                             msgHandler /* =<statusbar notifier> */, resultsMgr, patternOverride)
 {
+    if (patternOverride) pattern = patternOverride;
+    if ( ! resultsMgr) {
+        ko.findresults.getTab(this.findAllInFiles.bind(this, editor, context, pattern, patternAlias, msgHandler));
+        return;
+    }
+    
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
         msgHandler = ko.find.getStatusbarMsgHandler(editor);
     }
@@ -1911,9 +1927,6 @@ this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, pat
 
     //TODO macro recording stuff for this
 
-    var resultsMgr = editor.ko.findresults.getTab();
-    if (resultsMgr == null)
-        return false;
     resultsMgr.configure(pattern, patternAlias, null, context,
                          lazy.findSvc.options);
     resultsMgr.show(true);
@@ -1948,8 +1961,16 @@ this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, pat
  */
 this.replaceAllInFiles = function Find_ReplaceAllInFiles(editor, context, pattern, repl,
                                 confirm /* =true */,
-                                msgHandler /* =<statusbar notifier> */)
+                                msgHandler /* =<statusbar notifier> */,
+                                resultsMgr, patternOverride)
 {
+    if (patternOverride) pattern = patternOverride;
+    if ( ! resultsMgr) {
+        ko.findresults.getTab(this.replaceAllInFiles.bind(this, editor, context, pattern,
+                                                                repl, confirm, msgHandler));
+        return;
+    }
+    
     if (typeof(confirm) == 'undefined' || confirm == null) confirm = true;
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
         msgHandler = ko.find.getStatusbarMsgHandler(editor);
@@ -1989,16 +2010,6 @@ this.replaceAllInFiles = function Find_ReplaceAllInFiles(editor, context, patter
         
         // The replacement completed, and there were hits.
         // I.e., we now have to make those replacements.
-        var resultsMgr = editor.ko.findresults.getTab();
-        if (resultsMgr == null) {
-            //TODO: It really isn't a good thing that we can abort the
-            //      "Replace in Files" at this point just because we
-            //      don't have a free "Find Results" tab in which to
-            //      show the results. The *best* fix for this is
-            //      to just have unlimited find results tabs (there is
-            //      a separate bug for this).
-            return false;
-        }
         resultsMgr.configure(pattern, null, repl, context,
                              lazy.findSvc.options,
                              true);  // opSupportsUndo
@@ -2008,9 +2019,6 @@ this.replaceAllInFiles = function Find_ReplaceAllInFiles(editor, context, patter
         return true;
 
     } else {
-        var resultsMgr = editor.ko.findresults.getTab();
-        if (resultsMgr == null)
-            return false;
         resultsMgr.configure(pattern, null, repl, context,
                              lazy.findSvc.options,
                              true); // opSupportsUndo
@@ -2029,5 +2037,72 @@ this.replaceAllInFiles = function Find_ReplaceAllInFiles(editor, context, patter
 
     return true;
 }
+
+    //(function() {
+    //    var nextTabId = 1;
+    //    
+    //    this.managers = {};
+    //
+    //    this.getTab = function FindResultsTab_GetTab(callback)
+    //    {
+    //        findResultsLog.debug("getTab()\n");
+    //        try {
+    //            var id = nextTabId++;
+    //            console.log(id);
+    //            this.create(id, function(manager) {
+    //                this.managers[id] = manager;
+    //                callback(manager);
+    //            }.bind(this));
+    //        } catch(ex) {
+    //            findResultsLog.exception(ex);
+    //        }
+    //        return null;
+    //    }
+    //    
+    //    this.getManager = function FindResultsTab_GetManager(id)
+    //    {
+    //        return this.managers[id];
+    //    }
+    //    
+    //    this.create = function _FindResultsTab_Create(id, callback)
+    //    {
+    //        var idstr = "findresults_tabpanel" + id;
+    //        ko.widgets.registerWidget(idstr, "Find Results", "chrome://komodo/content/find/findResultsTab.xul", {
+    //                defaultPane: "workspace_bottom_area",
+    //                persist: false,
+    //                show: true,
+    //                iconURL: "koicon://ko-svg/chrome/icomoon/skin/binoculars.svg"
+    //            });
+    //        
+    //        ko.widgets.getWidgetAsync(idstr, function(widget) {
+    //            var panel = widget.parentNode;
+    //            var tab = panel.tab;
+    //            
+    //            var manager = new ko.findresults.FindResultsTabManager();
+    //            manager.initialize(id);
+    //            
+    //            ["mousedown", "focus"].forEach(function(eventName) {
+    //                tab.addEventListener(eventName, function() {
+    //                    panel.tab.parentNode.selectedItem = tab;
+    //                    panel.focus();
+    //                    manager.doc.getElementById("findresults").focus();
+    //                }, false);
+    //            });
+    //            
+    //            tab.addEventListener("close-tab", function(e) {
+    //                manager.stopSearch();
+    //                ko.widgets.unregisterWidget(widget);
+    //                delete this.managers[id];
+    //                
+    //                e.preventDefault();
+    //                return false;
+    //            }.bind(this));
+    //            
+    //            callback(manager);
+    //        }.bind(this));
+    //    }
+    //
+    //    
+    //}).apply(this.widgets);
 
 }).apply(ko.find);

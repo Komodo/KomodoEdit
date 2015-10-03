@@ -237,6 +237,7 @@
 <!ENTITY find.label "Find...">
 <!ENTITY findAllFunctions.label "Find All Functions">
 <!ENTITY findFilter.tooltiptext "Only show matches containing these space-separated words. Use minus '-' at the start of a word to exclude matches.">
+<!ENTITY search.tooltiptext "Search Again..">
 <!ENTITY findFind.desc "Find: Find...">
 <!ENTITY findFindInCurrProject.desc "Find: Find in Current Project...">
 <!ENTITY findFindInFiles.desc "Find: Find in Files...">

@@ -118,7 +118,7 @@
             </handler>
         </handlers>
     </binding>
-
+    
     <!-- This is bound to <tabs type="sidebar">, and currently used for
          Komodo's side panes. -->
     <binding id="tabs-droplist" xbl:inherits="orient"
@@ -959,4 +959,51 @@
             </field>
         </implementation>
     </binding>
+    
+    <binding id="tab-close-button"
+             extends="chrome://global/content/bindings/tabbox.xml#tab">
+
+        <content>
+            <xul:hbox class="tab-middle box-inherit" xbl:inherits="align,dir,pack,orient,selected" flex="1">
+                <xul:image class="tab-icon" xbl:inherits="validate,src=image"/>
+                <xul:label class="tab-text" xbl:inherits="value=label,accesskey,crop,disabled,selected"
+                           flex="1" anonid="label" crop="right"/>
+                <xul:spacer flex="1"/>
+                <xul:toolbarbutton anonid="close-button" xbl:inherits="selected"
+                                   class="tab-close-button close-icon"/>
+            </xul:hbox>
+        </content>
+
+        <implementation>
+            <field name="_mouseDownOnCloseButton">false</field>
+        </implementation>
+        <handlers>
+            <!--
+            Something about Mozilla absolutely refuses to send ANY events from the
+            close button, so I had to get creative.
+            -->
+            <handler event="click" button="0" phase="capturing">
+            <![CDATA[
+                var b = document.getAnonymousElementByAttribute(this, "anonid", "close-button");
+                var d = {
+                    x: b.boxObject.x,
+                    y: b.boxObject.y,
+                    ex: b.boxObject.x + b.boxObject.width,
+                    ey: b.boxObject.y + b.boxObject.height
+                };
+                
+                if (event.clientX >= d.x && event.clientX <= d.ex &&
+                    event.clientY >= d.y && event.clientY <= d.ey)
+                {
+                    var canceled = ! this.dispatchEvent(new Event("close-tab", {cancelable: true}));
+                    if ( ! canceled)
+                    {
+                        this.parentNode.removeChild(this);
+                    }
+                }
+            ]]>
+            </handler>
+        </handlers>
+    </binding>
+    
 </bindings>

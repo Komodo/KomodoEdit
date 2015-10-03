@@ -76,6 +76,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 //---- public methods for the dialog
 
 if ( ! opener) opener = require("ko/windows").getMain();
+var ko = opener.ko;
 
 function on_load() {
     try {

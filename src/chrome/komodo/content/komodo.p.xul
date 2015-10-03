@@ -133,6 +133,7 @@
     <script src="chrome://komodo/content/library/test.js"                 type="application/x-javascript;version=1.7"/>
 <!-- #endif -->
 
+    <script src="chrome://komodo/content/find/findResultsTab.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/find/find_functions.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/find/findtoolbar.js"             type="application/x-javascript;version=1.7"/>
 
@@ -2287,18 +2288,6 @@
                              tab_onmousedown="document.getElementById('runoutput-desc-tabpanel').focus();"
                              tab_onfocus="document.getElementById('runoutput-desc-tabpanel').focus();"
                              icon="koicon://ko-svg/chrome/icomoon/skin/console.svg"/>
-
-                    <!-- The two Find Results tabs of the output pane -->
-                    <browser type="ko-widget"
-                             id="findresults1_tabpanel"
-                             collapsed="true" label="&findResults1.label;"
-                             src="chrome://komodo/content/find/findResultsTab.xul"
-                             icon="koicon://ko-svg/chrome/icomoon/skin/binoculars.svg"/>
-                    <browser type="ko-widget"
-                             id="findresults2_tabpanel"
-                             collapsed="true" label="&findResults2.label;"
-                             src="chrome://komodo/content/find/findResultsTab.xul"
-                             icon="koicon://ko-svg/chrome/icomoon/skin/binoculars.svg"/>
                 </ko-pane>
             </vbox>
             <splitter id="workspace_right_splitter"
