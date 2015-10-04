@@ -46,6 +46,7 @@
                  collapsed="true"
                  oncommand="gFindResultsTabManager.searchAgain();"
                  tooltiptext="&search.tooltiptext;"
+                 placeholder="&search.tooltiptext;"
                  />
         <textbox id="findresults-filter-textbox"
                  type="search"
@@ -54,6 +55,7 @@
                  collapsed="true"
                  oncommand="gFindResultsTabManager.updateFilter();"
                  tooltiptext="&findFilter.tooltiptext;"
+                 placeholder="Filter Results"
                  />
         <label id="findresults-desc" flex="1" crop="center"/>
         <separator flex="1"/>
