@@ -3,6 +3,6 @@
 	<ko-pane id="workspace_bottom_area">
         <browser type="ko-widget" id="console-widget" label="Console"
                  position="100"
-                 src="chrome://console/content/jsconsole/index.html"/>
+                 src="chrome://console/content/views/console.html"/>
     </ko-pane>
 </overlay>

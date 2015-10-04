@@ -29,10 +29,13 @@ window.addEventListener('load', function() {
                 
             var type = aMessage.level;
             if (["info", "warn", "error", "exception"].indexOf(aMessage.level) == -1)
+            {
                 type = "debug";
+                data = aMessage.level + ": " + data;
+            }
                 
             if (details) data = data + "\n" + details;
-            window.log(type, data);
+            window.app.print(type, data, true);
         }
     }, "console-api-log-event", false);
 });
