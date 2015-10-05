@@ -446,7 +446,6 @@
         log.debug("Showing for " + time + "ms");
 
         // Handle notification interactions
-        var focus = _document.activeElement;
         var interacting = false;
         var interact = () =>
         {
@@ -461,9 +460,6 @@
 
             interacting = false;
             panel.timeout = timers.setTimeout(this.hideNotification.bind(this, notif), 1000);
-
-            if ("focus" in focus)
-                focus.focus();
         };
 
         panel.on("mouseover", interact);

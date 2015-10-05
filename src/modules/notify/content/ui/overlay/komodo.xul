@@ -21,11 +21,7 @@
         <script id="tpl-notify-panel" type="x-dot-template">
             <panel anonid="notify-panel"
                    class="notify-panel {{=it.classlist}}"
-                   type="drag"
-                   noautofocus="true"
-                   noautohide="true"
-                   ignorekeys="true"
-                   level="parent">
+                   noautofocus="true">
                 <hbox class="wrapper">
                     {{?it.icon}}
                         <vbox pack="center">
