@@ -132,15 +132,16 @@ ul, li
         line-height: 1.5rem;
         font-weight: bold;
         margin: 0 4px;
+        flex-shrink: 0;
     }
     
-    &.input:before { content: '> '; color: #3583FC; }
-    &.output:before { content: '< '; color: #848484; }
-    &.debug:before { content: 'dbg '; color: #848484; }
-    &.info:before { content: 'nfo '; color: #27A700; }
-    &.warning:before { content: 'wrn '; color: #E58E1D; }
-    &.error:before { content: 'err '; color: #E81D20; }
-    &.exception:before { content: 'exc '; color: #C42B2B; }
+    &.input:before { content: '>'; color: #3583FC; }
+    &.output:before { content: '<'; color: #848484; }
+    &.debug:before { content: 'dbg'; color: #848484; }
+    &.info:before { content: 'nfo'; color: #27A700; }
+    &.warning:before { content: 'wrn'; color: #E58E1D; }
+    &.error:before { content: 'err'; color: #E81D20; }
+    &.exception:before { content: 'exc'; color: #C42B2B; }
     
     &.exception .message
     {
@@ -209,6 +210,7 @@ ul, li
     .timestamp
     {
         opacity: 0.6;
+        flex-shrink: 0;
     }
     
 }
@@ -220,26 +222,39 @@ ul, li
     min-height: 1.5rem;
     flex-shrink: 0;
     
+    #input-wrapper
+    {
+        padding-left: 1rem;
+        margin: 4px;
+        
+        & > *
+        {
+            display: inline-block;
+        }
+        
+        &:before
+        {
+            vertical-align: top;
+            content: '> ';
+            color: #3583FC;
+            font-size: 1rem;
+            line-height: 1.5rem;
+            font-weight: bold;
+            margin-left: -0.8rem;
+        }
+    }
+    
     #input
     {
         min-width: 300px;
         width: 50vw;
-        padding-left: 1rem;
-        font-size: 100%;
         line-height: 1.5rem;
-        margin: 4px;
         max-height: 6rem;
         overflow: auto;
         min-height: 1.5rem;
-        
-        &:before
-        {
-            content: '> ';
-            color: #3583FC;
-            font-size: 1rem;
-            font-weight: bold;
-            margin-left: -0.8rem;
-        }
+        font-size: 1rem;
+        background: transparent;
+        margin-bottom: -4px;
         
         &:focus
         {

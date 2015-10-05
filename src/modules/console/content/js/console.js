@@ -4,7 +4,7 @@ window.app = {};
     var prefs = require("ko/prefs");
     var win = require("ko/windows").getMain();
     var elem = {
-        statusbar: document.getElementById("input").parentNode,
+        statusbar: document.getElementById("statusbar"),
         input: document.getElementById("input"),
         console: document.getElementById("output").parentNode,
         output: document.getElementById("output")
