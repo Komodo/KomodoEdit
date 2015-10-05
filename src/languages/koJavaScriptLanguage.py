@@ -211,7 +211,6 @@ class koCoffeeScriptLanguage(koJSLikeLanguage):
     defaultExtension = ".coffee"
     commentDelimiterInfo = {
         "line": [ "#" ],
-        "block": [ ("/*", "*/") ],
         "markup": "*",
     }
     _indent_open_chars = "{[(:"
