@@ -443,6 +443,7 @@ Build(
     "$build/modules/editorconfig/Conscript",
     "$build/modules/focusmode/Conscript",
     "$build/modules/console/Conscript",
+    "$build/modules/elastic_tabstops/Conscript",
 
     "$build/modules/iconset_ambiance/Conscript",
     "$build/modules/iconset_blue/Conscript",

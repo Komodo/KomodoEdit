@@ -228,6 +228,7 @@
 <!ENTITY showCompletionsAfter.label "Show completions after">
 <!ENTITY enableAutoAbbreviationsWithTriggerCharacters.label "Enable %autoAbbreviationName.name;s, with Trigger Characters:">
 <!ENTITY enableBackgroundSyntaxCheckingAfter.label "Enable background syntax checking after">
+<!ENTITY enableElasticTabstops.label "Enable elastic tabstops">
 <!ENTITY enableScrollingPastEndOfBufferOnlyAppliesToNewBuffers.label "Enable scrolling past end of buffer (only applies to new buffers)">
 <!ENTITY enableSoftCharacters.label "Enable soft characters">
 <!ENTITY enableSoftCharacters.description "Inserts closing characters or matching delimiters.
