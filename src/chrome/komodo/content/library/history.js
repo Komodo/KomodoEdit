@@ -68,6 +68,10 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 var _komodoBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/komodo.properties");
+    
+var last_loc = {};
+
+var initialized = false;
 
 function HistoryController() {
     this.historySvc = Components.classes["@activestate.com/koHistoryService;1"].
@@ -159,6 +163,7 @@ this.init = function() {
                             this._handle_closing_view_setup, false);
     window.addEventListener('view_closed',
                             this._handle_closing_view_setup, false);
+    initialized = true;
 };
 
 this.destroy = function() {
@@ -266,10 +271,10 @@ function _mark_pos_info(view) {
  *      If not given the current view is used.
  */
 this.note_curr_loc = function note_curr_loc(view, /* = currentView */
-                                            check_section_change /* false */
-                                            ) {
+                                            check_section_change, /* false */
+                                            defer) {
     if (typeof(view) == "undefined" || view == null) view = ko.views.manager.currentView;
-    if (!view) {
+    if (!initialized || !view) {
         // No views, we could be at startup
         return;
     }
@@ -280,8 +285,14 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
             if (!view.scimoz) {
                 view = null;
             }
-            _mark_pos_info(view);
-            _controller.historySvc.note_loc(loc, check_section_change, view);
+
+            if ( ! last_loc || loc.uri != last_loc.uri || Math.max(loc.line, last_loc.line) - Math.min(loc.line, last_loc.line) > 5)
+            {
+                _mark_pos_info(view);
+                _controller.historySvc.note_loc(loc, check_section_change, view);
+            }
+            
+            last_loc = loc;
         }
     });
 };
@@ -408,7 +419,7 @@ this._go_to_location = function _go_to_location(loc, on_load_failure) {
     var this_ = this;
     var on_load_success = function(view, lineNo) {
         if (!view) return;
-        this_._recently_did_history = true;
+        this._recently_did_history = true;
         view.makeCurrent();
         if (loc.view_type == "editor") { // 
             var scimoz = view.scimoz;
@@ -417,7 +428,7 @@ this._go_to_location = function _go_to_location(loc, on_load_failure) {
             scimoz.gotoPos(targetPos);
         }
         window.updateCommands("history_changed");
-    }
+    }.bind(this);
     view_and_line_from_loc(loc, on_load_success, on_load_failure, true);
 };
 

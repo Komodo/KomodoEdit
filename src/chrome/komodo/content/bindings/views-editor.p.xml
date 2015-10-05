@@ -90,6 +90,7 @@
         <field name="lintingEnabled">false</field>
         <field name="_everLinted">false</field>
         <field name="_lintBuffer">null</field>
+        <field name="_noteLocTimer">null</field>
 
         <property name="lintBuffer">
             <setter><![CDATA[
@@ -1669,7 +1670,17 @@
         <parameter name="updated"/>
         <body>
         <![CDATA[
+        
+            if ( ! this.in_updateui && ((updated & this.scimoz.SC_UPDATE_SELECTION) || (updated & this.scimoz.SC_UPDATE_CONTENT)))
+            {
+                clearTimeout(this._noteLocTimer);
+                this._noteLocTimer = setTimeout(function() {
+                    ko.history.note_loc_unless_history_move(this);
+                }.bind(this), 200);
+            }
+            
             this.in_updateui = true;
+            
             try {
                 //TODO: Minimap pref
                 //dump(">> views-editor.p.xml: onUpdateUI\n");
