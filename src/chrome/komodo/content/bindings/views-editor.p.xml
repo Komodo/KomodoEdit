@@ -2183,7 +2183,7 @@
                 }
             }
             if (this.editSmartWrapSelection && charCodeChar !== null
-                && this.selections == 1
+                && this.scimoz.selections == 1
                 && this.scimoz.selectionStart != this.scimoz.selectionEnd
                 && this.wrapSelectionDelimiters.indexOf(charCodeChar) >= 0
                 && (this.scimoz.selText.match(/^[^\r\n]+$/)
