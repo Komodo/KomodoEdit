@@ -1,6 +1,7 @@
 window.app = {};
 (function() {
     
+    var prefs = require("ko/prefs");
     var win = require("ko/windows").getMain();
     var elem = {
         statusbar: document.getElementById("input").parentNode,
@@ -8,6 +9,8 @@ window.app = {};
         console: document.getElementById("output").parentNode,
         output: document.getElementById("output")
     }
+    var history = JSON.parse(prefs.getString("console_history", "[]"));
+    var historyPos = -1;
     
     this.init = function()
     {
@@ -19,7 +22,7 @@ window.app = {};
             onReset: this.onResetCompletion.bind(this)
         });
         
-        elem.input.addEventListener("keydown", this.onKeyNav.bind(this));
+        elem.input.addEventListener("keypress", this.onKeyNav.bind(this));
         elem.input.addEventListener("paste", this.onPaste.bind(this));
     }
     
@@ -27,6 +30,44 @@ window.app = {};
     {
         switch (e.keyCode)
         {
+            case 35:
+            case 36:
+            case 37:
+            case 39:
+                // Stop the parent window from stealing our events and messing
+                // up their intended use
+                e.stopPropagation();
+                break;
+            case 38:
+            case 40:
+                var sel = document.getSelection(),
+                    nd = sel.anchorNode,
+                    lines = nd.textContent.split("\n").length,
+                    text = nd.textContent.slice(0, sel.focusOffset);
+                var line = text.split("\n").length;
+                
+                if (e.keyCode == 38 && line == 1)
+                {
+                    var his = history.slice(++historyPos, historyPos+1)[0];
+                    if (his)
+                        elem.input.textContent = his;
+                    else
+                        historyPos--;
+                }
+                
+                if (e.keyCode == 40 && line == lines)
+                {
+                    var his = history.slice(--historyPos, historyPos+1)[0];
+                    if (his && historyPos > -1)
+                        elem.input.textContent = his;
+                    else
+                    {
+                        elem.input.textContent = "";
+                        historyPos = -1;
+                    }
+                }
+                e.preventDefault();
+                break;
             case 13: // enter
                 if ( ! e.shiftKey)
                 {
@@ -45,6 +86,10 @@ window.app = {};
                     e.preventDefault();
                 }
                 break;
+            default:
+                // todo: Figure out why keybindings wants to perform scintilla actions on our input
+                e.stopPropagation(); // keybindings.js for some reason is eating our keystrokes
+                break;
         }
     }
     
@@ -60,9 +105,10 @@ window.app = {};
         var input = elem.input.textContent;
         this.print("input", input, true);
         
+        var result;
         try
         {
-            var result = win.eval(input);
+            result = win.eval(input);
         }
         catch (e)
         {
@@ -70,7 +116,12 @@ window.app = {};
             result = false;
         }
         
-        if (result) this.print("output", result);
+        if (result !== undefined) this.print("output", result);
+        
+        history.unshift(input);
+        history = history.slice(0, 50);
+        historyPos = -1;
+        prefs.setString("console_history", JSON.stringify(history));
         
         elem.input.textContent = "";
     }
@@ -84,7 +135,7 @@ window.app = {};
         
         if ( ! dontFormat)
         {
-            data = this.formatData(data, dataType);
+            data = this.formatData(data, type);
         }
         else
             data = document.createTextNode(data);
@@ -327,7 +378,7 @@ window.app = {};
         sel.addRange(range);
     }
     
-    this.autoComplete = function(input, suggest)
+    this.autoComplete = function(input)
     {
         input = input.split(".");
         var scope = input.slice(0,input.length-1).join(".");

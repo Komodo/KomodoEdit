@@ -124,7 +124,7 @@ li {
   color: #E81D20;
 }
 #output > li.exception:before {
-  content: 'e ';
+  content: 'exc ';
   color: #C42B2B;
 }
 #output > li.exception .message {

@@ -179,7 +179,7 @@ var autoComplete = (function(){
         that.keydownHandler = function(e){
             var key = window.event ? e.keyCode : e.which;
             // down (40), up (38)
-            if ((key == 40 || key == 38) && that.sc.innerHTML) {
+            if ((key == 40 || key == 38) && that.sc.innerHTML && that.sc.style.display != 'none') {
                 var next, sel = that.sc.querySelector('.autocomplete-suggestion.selected');
                 if (!sel) {
                     next = (key == 40) ? that.sc.querySelector('.autocomplete-suggestion') : that.sc.childNodes[that.sc.childNodes.length - 1]; // first : last
@@ -198,23 +198,21 @@ var autoComplete = (function(){
                 e.preventDefault();
             }
             // esc
-            else if (key == 27) {
+            else if (key == 27 && that.sc.style.display != 'none') {
                 o.onReset(that.last_val);
                 that.sc.style.display = 'none';
                 e.preventDefault();
             }
             // enter
-            else if (key == 13) {
+            else if (key == 13 && that.sc.style.display != 'none') {
                 var sel = that.sc.querySelector('.autocomplete-suggestion.selected');
-                if (sel && that.sc.style.display != 'none') {
-                    o.onSelect(sel.getAttribute('data-val'));
-                    setTimeout(function(){ that.sc.style.display = 'none'; }, 20);
-                    e.preventDefault();
-                    that._suppressEnter = true;
-                }
+                o.onSelect(sel.getAttribute('data-val'));
+                setTimeout(function(){ that.sc.style.display = 'none'; }, 20);
+                e.preventDefault();
+                that._suppressEnter = true;
             }
             // tab
-            else if (key == 9) {
+            else if (key == 9 && that.sc.style.display != 'none') {
                 var completions = o.source(that.textContent);
                 e.preventDefault();
                 if ( ! completions || ! completions.length) return;
