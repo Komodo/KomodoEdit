@@ -8,7 +8,7 @@ function loadIntoWindow(window) {
         window.require.setRequirePath("elastic-tabstops/", "chrome://elastic-tabstops/content/");
         window.require("elastic-tabstops/elastic_tabstops").load();
     } catch (e) {
-        Cu.reportError("Spell Check: Exception while registering spell checker");
+        Cu.reportError("Elastic Tabstops: Exception while registering elastic tabstops");
         Cu.reportError(e);
     }
 }
