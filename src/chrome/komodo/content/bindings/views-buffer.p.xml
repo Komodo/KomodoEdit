@@ -1908,13 +1908,6 @@
             if (event.button == 0 && this._hyperlink) {
                 var scintilla = this.scintilla;
                 var scimoz = this.scimoz;
-                // Bug 76721: Go to definition on Ctrl+click, but only if we
-                // aren't in the middle of a drag/drop, or have a selection, or
-                // a modified click, or are in a multi-selection session.
-                if (scintilla.inDragDrop || scimoz.selections > 1) {
-                    this.removeHyperlinks("mouseup");
-                    return;
-                }
                 var x = event.clientX < 0 ? 0 : event.clientX - this.scintilla.boxObject.x;
                 var y = event.clientY - this.scintilla.boxObject.y;
                 var pos = scimoz.positionFromPointClose(x, y);
@@ -1926,12 +1919,31 @@
                     anchor = currentPos;
                     currentPos = temp;
                 }
+                // Bug 76721: Go to definition on Ctrl+click, but only if we
+                // aren't in the middle of a drag/drop, or have a selection, or
+                // a modified click, or are in a multi-selection session.
+                // Note: there is no way to prevent Scintilla from receiving
+                // Ctrl+click (the mousedown, mouseup, click XUL events in the
+                // "capturing" phase cannot prevent this); a caret will be
+                // placed at the Ctrl+clicked position.
+                if (scintilla.inDragDrop ||
+                    (scimoz.selections > 1 &&
+                     (scimoz.getSelectionNStart(1) != pos ||
+                      scimoz.getSelectionNEnd(1) != pos))) {
+                    this.removeHyperlinks("mouseup");
+                    return;
+                }
                 // Make sure that if there's a selection, we aren't clicking on it:
                 // Ctrl-click can be used to drag-copy a selection.
                 if (pos >= 0 &&
                     ((anchor == currentPos) ||
                      (pos < anchor) ||
                      (pos > currentPos))) {
+                    if (scimoz.selections == 2) {
+                        // Remove the additional caret unintentionally added by
+                        // Ctrl+click before handling the hyperlink.
+                        scimoz.dropSelectionN(1);
+                    }
                     scimoz.anchor = pos;
                     scimoz.currentPos = pos;
                     this._hyperlink.jump(this);
