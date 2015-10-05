@@ -2192,6 +2192,7 @@
                 return false;
             } else if (this.enableAutoAbbreviations && charCodeChar !== null
                        && !this.scintilla.autocomplete.active
+                       && this.scimoz.selections == 1
                        && this.autoAbbreviationTriggerCharacters_Processed.indexOf(charCodeChar) >= 0) {
                 
 <!-- #if PLATFORM != "darwin" -->
