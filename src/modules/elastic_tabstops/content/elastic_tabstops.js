@@ -273,6 +273,7 @@
                                 Ci.ISciMoz.SC_MOD_INSERTTEXT |
                                 Ci.ISciMoz.SC_MOD_DELETETEXT);
         this._onModify(view.scimoz, {value: 0}, {value: view.scimoz.length});
+        this._registeredOneModifiedHandler = true;
     }
     
     /**
@@ -280,19 +281,15 @@
      * @param view The view to disable elastic tabstops in.
      */
     this._disableElasticTabstops = function(view) {
-        if (view.getAttribute('type') != 'editor') {
+        if (view.getAttribute('type') != 'editor'
+            || !this._registeredOneModifiedHandler) {
             return;
         }
-        try {
-            view.removeModifiedHandler(this._onModifiedHandler);
-            // Clear tab stops unless detaching the view.
-            var scimoz = view.scimoz;
-            for (let i = 0; i < scimoz.lineCount; i++) {
-                scimoz.clearTabStops(i);
-            }
-        } catch (e) {
-            // Elastic tabstops were not enabled in the first place, so there is
-            // no SCN_MODIFIED handler to unregister.
+        view.removeModifiedHandler(this._onModifiedHandler);
+        // Clear tab stops unless detaching the view.
+        var scimoz = view.scimoz;
+        for (let i = 0; i < scimoz.lineCount; i++) {
+            scimoz.clearTabStops(i);
         }
     }
     
