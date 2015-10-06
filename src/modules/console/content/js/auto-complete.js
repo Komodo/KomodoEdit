@@ -66,7 +66,7 @@ var autoComplete = (function(){
             offsetx = offsetx || 0;
             offsety = offsety || 0;
         
-            var nodeLeft = $node.offsetLeft;
+            var nodeLeft = $node.offsetLeft,
                 nodeTop = $node.offsetTop;
         
             var pos = {left: 0, top: 0};
@@ -206,6 +206,7 @@ var autoComplete = (function(){
             // enter
             else if (key == 13 && that.sc.style.display != 'none') {
                 var sel = that.sc.querySelector('.autocomplete-suggestion.selected');
+                if ( ! sel) return;
                 o.onSelect(sel.getAttribute('data-val'));
                 setTimeout(function(){ that.sc.style.display = 'none'; }, 20);
                 e.preventDefault();

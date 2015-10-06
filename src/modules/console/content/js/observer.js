@@ -11,11 +11,14 @@ window.addEventListener('load', function() {
         {
             aMessage = aMessage.wrappedJSObject;
             
+            var len = 0;
             var args = aMessage.arguments;
             var data = args.map(function(arg)
             {
+                len++;
                 return consoleSdk._stringify(arg, true);
             }).join(" ");
+            if (len === 1) data = aMessage.arguments[0];
             
             var details = null;
             var severity = Components.interfaces.koINotification.SEVERITY_INFO;
@@ -31,11 +34,12 @@ window.addEventListener('load', function() {
             if (["info", "warn", "error", "exception"].indexOf(aMessage.level) == -1)
             {
                 type = "debug";
-                data = aMessage.level + ": " + data;
+                if ((typeof data) == "string")
+                    data = aMessage.level + ": " + data;
             }
                 
-            if (details) data = data + "\n" + details;
-            window.app.print(type, data, true);
+            if ((typeof data) != "object" && details) data = data + "\n" + details;
+            window.app.print(type, data);
         }
     }, "console-api-log-event", false);
 });

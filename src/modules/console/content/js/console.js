@@ -86,10 +86,6 @@ window.app = {};
                     e.preventDefault();
                 }
                 break;
-            default:
-                // todo: Figure out why keybindings wants to perform scintilla actions on our input
-                e.stopPropagation(); // keybindings.js for some reason is eating our keystrokes
-                break;
         }
     }
     
