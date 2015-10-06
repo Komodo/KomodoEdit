@@ -1755,7 +1755,7 @@ this.onload = function() {
     ko.projects.extensionManager.init();
     ko.projects.manager = new projectManager();
     ko.projects.active = this;
-    ko.main.addWillCloseHandler(ko.projects.manager.closeAllProjects,
+    ko.main.addCanCloseHandler(ko.projects.manager.closeAllProjects,
                                 ko.projects.manager);
 }
 
