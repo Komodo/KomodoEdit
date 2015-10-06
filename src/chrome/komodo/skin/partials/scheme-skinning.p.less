@@ -3,15 +3,14 @@
 
 .setVars() when (@dark = 1)
 {
-    @_background:           lighten(@background, 5%);
-    @background-primary:    darken(@background, 2%);
+    @background-primary:    lighten(@background, 5%);
     
     @foreground-focus:      lighten(@foreground, 20%);
-    @background-contrast:   darken(@_background, 10%);
-    @border:                lighten(@_background, 5%);
-    @background-button:     @_background;
-    @background-button-hover:darken(@_background, 2%);
-    @background-input:      lighten(@background-contrast, 10%);
+    @background-contrast:   darken(@background-primary, 5%);
+    @border:                @background;
+    @background-button:     @background-contrast;
+    @background-button-hover:darken(@background-contrast, 5%);
+    @background-input:      @background;
     @background-selected:   fade(desaturate(@special, 2%), 30%);
     
     @background-scrollbar:          @background;
@@ -75,15 +74,14 @@
 
 .setVars() when (@dark = 0)
 {
-    @_background:           darken(@background, 5%);
-    @background-primary:    darken(@background, 5%);
+    @background-primary:    darken(@background, 10%);
     
     @foreground-focus:      darken(@foreground, 10%);
-    @background-contrast:   darken(@_background, 5%);
-    @border:                darken(@_background, 10%);
+    @background-contrast:   darken(@background-primary, 5%);
+    @border:                @background;
     @background-button:     @background-contrast;
     @background-button-hover:lighten(@background-contrast, 5%);
-    @background-input:      darken(@background-contrast, 5%);
+    @background-input:      @background;
     @background-selected:   fade(desaturate(@special, 5%), 60%);
     
     @background-scrollbar:          @background;
@@ -187,6 +185,11 @@
 #commando-panel.previewing.loading .loader
 {
     background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, fade(@special, 20%) 100px, fade(@special, 20%) 150px, rgba(0,0,0,0.0) 250px) !important;
+}
+
+#commando-panel.previewing:not(.maximized) #commando-preview
+{
+    border-color: @border !important;
 }
 
 .statusbar
@@ -352,7 +355,7 @@ statusbar#statusbarviewbox
 
         &:hover
         {
-            background: fade(darken(@_background, 5%), 40%) !important;
+            background: fade(darken(@background-primary, 5%), 40%) !important;
             
             &, & > label
             {
@@ -364,7 +367,7 @@ statusbar#statusbarviewbox
     sectionlist textbox
     {
         -moz-appearance: none !important;
-        background: lighten(@_background, 5%) !important;
+        background: lighten(@background-primary, 5%) !important;
         color: @foreground !important;
         border: 0 !important;
         
