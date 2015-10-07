@@ -82,13 +82,14 @@ class KoCSSLinter:
             return os.path.join(self.mozBinDir, "xpcshell.exe")
         return os.path.join(self.mozBinDir, "xpcshell")
 
-    def _setLDLibraryPath(self):
+    def _setEnv(self):
         env = koprocessutils.getUserEnv()
         ldLibPath = env.get("LD_LIBRARY_PATH", None)
         if ldLibPath:
             env["LD_LIBRARY_PATH"] = self.mozBinDir + ":" + ldLibPath
         else:
             env["LD_LIBRARY_PATH"] = self.mozBinDir
+        env['PYTHONPATH'] = os.pathsep.join(sys.path)
         return env
 
     def lint(self, request):
@@ -125,7 +126,7 @@ class KoCSSLinter:
 
         # We only need the stdout result.
         try:
-            p = process.ProcessOpen(cmd, cwd=cwd, env=self._setLDLibraryPath(),
+            p = process.ProcessOpen(cmd, cwd=cwd, env=self._setEnv(),
                                     stdin=None)
             stdout, stderr = p.communicate()
             entries = json.loads(stdout or "[]")
