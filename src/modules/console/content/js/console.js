@@ -24,20 +24,14 @@ window.app = {};
         
         elem.input.addEventListener("keypress", this.onKeyNav.bind(this));
         elem.input.addEventListener("paste", this.onPaste.bind(this));
+        
+        window.addEventListener("keypress", function(e) { e.stopPropagation(); });
     }
     
     this.onKeyNav = function(e)
     {
         switch (e.keyCode)
         {
-            case 35:
-            case 36:
-            case 37:
-            case 39:
-                // Stop the parent window from stealing our events and messing
-                // up their intended use
-                e.stopPropagation();
-                break;
             case 38:
             case 40:
                 var sel = document.getSelection(),
