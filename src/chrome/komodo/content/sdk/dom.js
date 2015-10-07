@@ -188,6 +188,9 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         this._elements = [];
         
+        if (typeof query == "object" && query.length)
+            query = Array.prototype.slice.call(query);
+        
         // Use push.apply to force array type
         if(Object.prototype.toString.call(query) === '[object Array]')
             this._elements = query.slice(0);
