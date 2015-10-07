@@ -558,6 +558,7 @@
         }
         
         elem('search').element().select();
+        c.center();
     }
     
     this.center = function(returnValues)
@@ -1237,13 +1238,20 @@
         
         return true;
     }
+    
+    this.selectFirstResult = function()
+    {
+        var results = elem('results');
+        var resultElem = results.element();
+        resultElem.selectedIndex = 0;
+    }
 
     this.navDown = function(append = false)
     {
         var results = elem('results');
         var resultElem = results.element();
         var resultCount = resultElem.getRowCount();
-
+        
         var selIndex = resultElem.selectedIndex || 0;
         for (let item of resultElem.selectedItems)
         {
@@ -1496,11 +1504,17 @@
         
         c._selectScope(local.selectedScope);
             
-        elem('results').html(state.resultElemHtml);
+        elem('results').append(state.resultElemChildren.children());
         elem('subscopeWrap').replaceWith(state.subscopeElem);
-        elem('search').value(local.prevSearchValue);
         
         local.elemCache = {};
+        
+        elem('results').element().selectedIndex = state.resultIndex;
+        elem('results').element().ensureIndexIsVisible(index);
+        elem('search').value(local.prevSearchValue);
+        
+        c.center();
+        onPreview();
         
         return true;
     }
@@ -1514,6 +1528,13 @@
         
         log.debug("Storing state for " + scope);
         
+        var resultElem = elem('results');
+        var selectedIndex = elem('results').element().selectedIndex;
+        resultElem.element().clearSelection();
+        
+        var children = $("<box/>");
+        children.append(resultElem.children());
+        
         local.state[scope] = {
             local: {
                 prevSearchValue: local.prevSearchValue,
@@ -1523,8 +1544,9 @@
                 history: _.clone(local.history),
                 subscope: _.clone(local.subscope)
             },
-            resultElemHtml: elem('results').html(),
-            subscopeElem: elem('subscopeWrap').clone(false)
+            resultElemChildren: children,
+            resultIndex: selectedIndex,
+            subscopeElem: elem('subscopeWrap').clone(true)
         }
     }
 
