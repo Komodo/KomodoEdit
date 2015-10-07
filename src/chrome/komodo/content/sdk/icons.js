@@ -532,10 +532,10 @@
         {
             if ("size" in attrs)
             {
-                //attrs.scaleAuto = parseInt(attrs.size);
+                attrs.scaleAuto = parseInt(attrs.size);
                 attrs.width = parseInt(attrs.size);
                 attrs.height = parseInt(attrs.size);
-                //attrs.viewBox = "0 0 " + attrs.size + " " + attrs.size;
+                attrs.viewBox = "0 0 " + attrs.size + " " + attrs.size;
                 delete attrs.size;
             }
 
