@@ -334,7 +334,7 @@ class KoInitService(object):
         # currUserDataDir already exists so must check deeper.
         # This means that if there are no other profiles and you
         # delete your tools folder, Komodo will reinstall your tools
-        if not os.path.isdir(currUserDataDir + "tools") and not dataDirs:
+        if not os.path.isdir(os.path.join(currUserDataDir,"tools")) and not dataDirs:
             self.installSampleTools()
 
         self.installTemplates()
