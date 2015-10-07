@@ -1883,7 +1883,18 @@ this.updateViewRef = function(view) {
         view = ko.views.manager.currentView;
     }
 
+
     var viewType = "";
+    var deck = document.getElementById('editorviewbox');
+    if (deck.selectedPanel == document.getElementById("editorvbox") && view) {
+        viewType = view.getAttribute("type");
+    }
+
+    document.getElementById("komodo_main").setAttribute("view-type", viewType);
+ }
+
+this.updateViewDeck = function() {
+    var tv = document.getElementById("topview");
     var deck = document.getElementById('editorviewbox');
     deck.selectedPanel = document.getElementById("editorvbox");
     
@@ -1891,20 +1902,7 @@ this.updateViewRef = function(view) {
     if ( ! hasViews) {
         ko.open.quickStart();
     }
- }
-
-this.updateViewDeck = function() {
-    var tv = document.getElementById("topview");
-    var deck = document.getElementById('editorviewbox');
-    var hasViews = tv.currentView.currentView || tv.otherView.currentView;
-
-    if ( ! hasViews) {
-        deck.selectedPanel = document.getElementById("quicklaunch");
-    } else
-    {
-        deck.selectedPanel = document.getElementById("editorvbox");
-    }
- }
+}
 
 this._setTabPaneLayoutForTabbox = function(layout, pane, position) {
     if (position == "right" && layout != "vertical") {

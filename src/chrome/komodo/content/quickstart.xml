@@ -59,12 +59,6 @@
                         position="after_end"
                         onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('project',0,'popup_mruProjectsQL', true);"/>
                 </xul:button>
-                
-                <!-- Add menupopup elem and Type attr as above -->
-                <!-- when workspace mru work is done -->
-                <xul:button label="&quicklaunchOpenWorkspace.label;"
-                        class="open-workspace-icon"
-                        observes="cmd_openWorkspace"/>
 
                 <xul:hbox height="15"/>
 
