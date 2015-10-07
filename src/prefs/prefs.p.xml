@@ -507,7 +507,7 @@
   <boolean id="enableSmartTabSkipsSoftCharacters">1</boolean>
   
   <boolean id="editSmartWrapSelection">1</boolean>
-  <boolean id="wrapSelectionSingleLine">1</boolean>
+  <boolean id="wrapSelectionOnlyPlainText">1</boolean>
   <string id="wrapSelectionDelimiters_FactorySetting">([{&lt;&quot;&apos;`*+/_</string>
   <string id="wrapSelectionDelimiters">([{&lt;&quot;&apos;`*+/_</string>
   

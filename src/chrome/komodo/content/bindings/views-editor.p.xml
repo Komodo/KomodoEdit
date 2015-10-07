@@ -263,7 +263,7 @@
                 'debuggerMaxTooltipSize',
                 'editor-scheme',
                 'editSmartWrapSelection',
-                'wrapSelectionSingleLine',
+                'wrapSelectionOnlyPlainText',
                 'wrapSelectionDelimiters',
                 'enableAutoAbbreviations',
                 'autoAbbreviationTriggerCharacters'
@@ -474,7 +474,7 @@
         <method name="_setWrapSelectionDelimiters">
         <body>//<![CDATA[
             this.editSmartWrapSelection = ko.prefs.getBooleanPref("editSmartWrapSelection");
-            this.wrapSelectionSingleLine = ko.prefs.getBooleanPref("wrapSelectionSingleLine");
+            this.wrapSelectionOnlyPlainText = ko.prefs.getBooleanPref("wrapSelectionOnlyPlainText");
             this.wrapSelectionDelimiters = ko.prefs.getStringPref("wrapSelectionDelimiters");
         //]]>
         </body>
@@ -790,7 +790,7 @@
                 break;
 
             case 'editSmartWrapSelection': // pref notification
-            case 'wrapSelectionSingleLine': // pref notification
+            case 'wrapSelectionOnlyPlainText': // pref notification
             case 'wrapSelectionDelimiters': // pref notification
                 this._setWrapSelectionDelimiters();
                 break;
@@ -2197,8 +2197,8 @@
                 && this.scimoz.selections == 1
                 && this.scimoz.selectionStart != this.scimoz.selectionEnd
                 && this.wrapSelectionDelimiters.indexOf(charCodeChar) >= 0
-                && (this.scimoz.selText.match(/^[^\r\n]+$/)
-                    || !this.wrapSelectionSingleLine)) {
+                && (this.scimoz.selText.match(/^[\w_\s]+$/)
+                    || !this.wrapSelectionOnlyPlainText)) {
                 let pairs = {'(': ')', '[': ']', '{': '}', '<': '>'};
                 this.scimoz.replaceSel(charCodeChar + this.scimoz.selText + (pairs[charCodeChar] || charCodeChar));
                 return false;
