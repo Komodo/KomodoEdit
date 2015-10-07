@@ -304,18 +304,6 @@ class KoJavaScriptLinter(CommonJSLinter):
          ("category-komodo-linter", 'Node.js&type=jsShell'),
          ]
 
-class KoJSONLinter(CommonJSLinter):
-    _com_interfaces_ = [components.interfaces.koILinter]
-    _reg_desc_ = "Komodo XPCShell JSON Linter"
-    _reg_clsid_ = "{bcd7d132-734c-4d06-811c-383705ccb514}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=JSON;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", "JSON"),
-         ]
-
-    def lint_with_text(self, request, text):
-        return CommonJSLinter.lint_with_text(self, request, "var x = " + text)
-        
 class GenericJSLinter(CommonJSLinter):
 
     def lint(self):
