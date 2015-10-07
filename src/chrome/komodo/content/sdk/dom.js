@@ -145,6 +145,9 @@ if (typeof module === 'undefined') module = {}; // debugging helper
     var insertIntoElem = function(elems, insert, opts)
     {
         opts = opts || {};
+        
+        if (typeof insert == "object" && insert.koDom)
+            insert.each(function() { insertIntoElem(elems, this, opts); });
 
         var __insert = false
         if (typeof insert == 'string')
@@ -152,7 +155,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         return elems.each(function()
         {
-            if (insert.koDom)
+            if (typeof insert == "object" && insert.koDom)
                 var _insert = insert.element()
             else
                 var _insert = __insert ? __insert.cloneNode(true) : insert;
