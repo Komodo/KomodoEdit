@@ -1712,11 +1712,13 @@
                         if (actualLanguageObj) {
                             var result = {};
                             actualLanguageObj.getMatchingTagInfo(scimoz, startPos, false, result, {});
-                            if (result.value) {
-                                if (result.value[0]) {
+                            if (result.value && result.value.length == 5) {
+                                if (result.value[0]
+                                    && result.value[1] <= startPos && result.value[2] >= endPos) {
                                     // Selected start tag.
                                     scimoz.addSelection(result.value[4], result.value[3] + 2);
-                                } else {
+                                } else if (!result.value[0]
+                                           && result.value[3] <= startPos && result.value[4] >= endPos) {
                                     // Selected end tag.
                                     scimoz.addSelection(result.value[2], result.value[1] + 1);
                                 }
