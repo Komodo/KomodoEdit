@@ -514,7 +514,7 @@ class KoCoffeeScriptLinter(object):
         fout.close()
         textlines = text.splitlines()
         cwd = request.cwd
-        cmd = [coffeeExe, "-l", "-c", tmpfilename]
+        cmd = [coffeeExe, "-c", "-p", tmpfilename]
         # We only need the stderr result.
         try:
             p = process.ProcessOpen(cmd, cwd=cwd, stdin=None)
@@ -525,26 +525,15 @@ class KoCoffeeScriptLinter(object):
             warnLines = []
         finally:
             os.unlink(tmpfilename)
-        ptn = re.compile(r'^Error: In (.*),\s*(.*) on line (\d+):\s*(.*)')
-        syntaxErrorPtn = re.compile(r'^SyntaxError: In (.*),\s*(.*) on line (\d+)')
+        ptn = re.compile(r'^[^:]+:(\d+):(\d+): ([^\r\n]+)')
         results = koLintResults()
         for line in warnLines:
             m = ptn.match(line)
             if m:
-                part1 = m.group(2)
-                lineNo = int(m.group(3))
-                part2 = m.group(4)
-                desc = "%s on line %d: %s" % (part1, lineNo, part2)
+                lineNo = int(m.group(1))
+                colNo = int(m.group(2))
+                desc = "%s (on column %d)" % (m.group(3), colNo)
                 severity = koLintResult.SEV_ERROR
                 koLintResult.createAddResult(results, textlines, severity,
-                                             lineNo, desc)
-            else:
-                m = syntaxErrorPtn.match(line)
-                if m:
-                    part1 = m.group(2)
-                    lineNo = int(m.group(3))
-                    desc = "SyntaxError: %s on line %d" % (part1, lineNo)
-                    severity = koLintResult.SEV_ERROR
-                    koLintResult.createAddResult(results, textlines, severity,
-                                                 lineNo, desc)
+                                             lineNo, desc, columnStart=colNo)
         return results
