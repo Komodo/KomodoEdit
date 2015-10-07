@@ -577,6 +577,12 @@ ko.codeintel = {};
                         return;
                     }
                 }
+                // Abort if there is only one completion available and it has
+                // already been typed.
+                if (autoc.itemCount == 1 && typedAlready == autoc.selectedText) {
+                    autoc.close();
+                    return;
+                }
                 // Show the completions UI.
                 this._lastPrefix = typedAlready;
                 autoc.show(triggerPos, curPos, triggerPos, typedAlready);
@@ -723,9 +729,14 @@ ko.codeintel = {};
             var scimoz = this.view.scimoz;
             var scintilla = this.view.scintilla;
             var curPos = scimoz.currentPos;
+console.log(scimoz.getTextRange(triggerPos, curPos) + " " + completions[0]);
             if (curPos < triggerPos) {
                 log.info("aborting autocomplete at "+triggerPos+
                                      ": cursor is before trigger position");
+                return;
+            } else if (completions.length == 1 && (scimoz.getTextRange(triggerPos, curPos) == completions[0]) || scimoz.getTextRange(triggerPos, curPos + 1) == completions[0]) {
+                log.info("aborting autocomplete at "+triggerPos+
+                                     ": only completion already typed");
                 return;
             }
             // - if the line changed
