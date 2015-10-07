@@ -2235,7 +2235,7 @@
                                            onclick="if (event.button == 2)
                                             ko.lint.jumpToNextLintResult();">
                                 <menupopup id="context_lint" position="before_end">
-                                    <hbox id="context_lint_results"/>
+                                    <vbox id="context_lint_results"/>
                                     <menuseparator id="context_lint_separator"/>
                                     <menuitem id="context_doLint"
                                               class="statusbar-label"
