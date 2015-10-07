@@ -93,7 +93,6 @@ class KoJSONLinter:
                                     stdin=None)
             stdout, stderr = p.communicate()
             entries = json.loads(stdout or "[]")
-            print(cmd, stdout, stderr, entries)
         except:
             log.exception("Problem running xcshell: %r\n,output:%r\n", cmd, stdout)
             return results
