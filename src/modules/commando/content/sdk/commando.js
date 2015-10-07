@@ -1510,7 +1510,7 @@
         local.elemCache = {};
         
         elem('results').element().selectedIndex = state.resultIndex;
-        elem('results').element().ensureIndexIsVisible(index);
+        elem('results').element().ensureIndexIsVisible(state.resultIndex);
         elem('search').value(local.prevSearchValue);
         
         c.center();
