@@ -275,6 +275,9 @@ class koTerminalHandler:
             
             startLine = self._scintilla.lineCount - 1
             startPos = self._scintilla.positionFromLine(startLine)
+            lastVisibleLine = self._scintilla.firstVisibleLine + \
+                              self._scintilla.linesOnScreen
+            onLastLine = lastVisibleLine >= self._scintilla.lineCount
             startMarker = self._scintilla.markerGet(startLine)
             styleMask = (1 << self._scintilla.styleBits) - 1;
             if self.lastWritePosition > self._scintilla.length:
@@ -312,12 +315,11 @@ class koTerminalHandler:
                 self.lastWritePosition = self._scintilla.length - promptTextLength
             else:
                 #log.debug("no prompt line, adding text to end")
-                self._scintilla.addText(length, text)
+                self._scintilla.appendText(length, text)
                 self.lastWritePosition = self._scintilla.length
 
             endPos = startPos + length
             endLine = self._scintilla.lineFromPosition(endPos)
-            self._scintilla.gotoPos(self._scintilla.length)
 
             lastLine = self._scintilla.lineCount - 1
             
@@ -345,8 +347,8 @@ class koTerminalHandler:
             self._scintilla.setStyling(endPos - startPos, style)
             
             self._scintilla.readOnly = ro
-            self._scintilla.ensureVisible(self._scintilla.lineCount-1)
-            self._scintilla.scrollCaret()
+            if onLastLine:
+                self._scintilla.gotoPos(self._scintilla.length)
             self._scintilla.emptyUndoBuffer();
             if self._addTextCallbackHandler is not None:
                 self._addTextCallbackHandler.callback(0, text)
