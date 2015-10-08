@@ -346,7 +346,7 @@ class Searcher:
             pathEntry["filename"],
             pathEntry["path"],
             pathEntry["type"],
-            os.path.basename(parentPath),
+            os.path.basename(parentPath) or "",
             description,
             pathEntry["score"]
         ];
