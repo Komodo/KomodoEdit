@@ -48,7 +48,7 @@
     /**
      * Start Commando using the package scope and select the given category
      */
-    this.openCategory = function(kind)
+    this.openCategory = function(kind, name)
     {
         var kinds = this.getPackageKinds();
         if ( ! kind in kinds)
@@ -61,8 +61,8 @@
         commando.setSubscope();
         commando.setSubscope({
             id: kind,
-            name: kinds[kind].locale,
-            icon: kinds[kind].icon,
+            name: name || kinds[kind].locale,
+            icon: name ? undefined : kinds[kind].icon,
             isScope: true,
             scope: "scope-packages",
             data: {},
@@ -273,7 +273,7 @@
     this.clearCaches = function()
     {
         _cache.installed = {};
-        _cache,upgradeable = {};
+        _cache.upgradeable = {};
         _cache.outdated = {};
         _cache.age = 0;
         delete this.getPackageKinds.__cached;
@@ -358,7 +358,7 @@
      */
     this._getAvailablePackagesByKind = function(kind, callback)
     {
-        log.debug("Retrieving all packages for " + kind);
+        //log.debug("Retrieving all packages for " + kind);
         
         // Check if this request is already cached and if the cache is recent
         // we don't want to be spamming the web server
@@ -372,7 +372,7 @@
         }
         
         // Not cached or cache has expired, get a fresh copy
-        log.debug("Retrieving fresh copy");
+        //log.debug("Retrieving fresh copy");
         var ajax = require('ko/ajax');
         var url = ROOT + kind + '.json';
         ajax.get(url, function(code, response)
@@ -425,7 +425,7 @@
      */
     this._getInstalledPackagesByKind = function(kind, callback)
     {
-        log.debug("Retrieving all installed packages for " + kind);
+        //log.debug("Retrieving all installed packages for " + kind);
         
         // Check if this request is already cached and if the cache is recent
         // this cache clears whenever commando shows and is just intended to reduce
@@ -440,7 +440,7 @@
         }
         
         // Not cached or cache has expired, get a fresh copy
-        log.debug("Retrieving fresh copy");
+        //log.debug("Retrieving fresh copy");
         switch (kind)
         {
             case ADDONS:
@@ -626,6 +626,27 @@
         }.bind(this));
     }
     
+    this._installXpi = function(url, callback, errorCallback, pkg, contentType)
+    {
+        AddonManager.getInstallForURL(url, function(aInstall)
+        {
+            this._addonInstallListener.callback = callback;
+            this._addonInstallListener.errorCallback = errorCallback;
+            
+            if (pkg) this._addonInstallListener.package = pkg;
+            
+            try
+            {
+                aInstall.addListener(this._addonInstallListener);
+                aInstall.install();
+            } catch (e)
+            {
+                log.exception(e, "Exception while running install for " + url);
+                errorCallback();
+            }
+        }.bind(this), contentType || "application/x-xpinstall");
+    }
+    
     /**
      * Installs the given package.
      * @param pkg A package object obtained via `_getAvailablePackages()`.
@@ -678,22 +699,7 @@
                 // Install the XPI via Mozilla's AddonManager.
                 try
                 {
-                    AddonManager.getInstallForURL(asset.browser_download_url, function(aInstall)
-                    {
-                        this._addonInstallListener.callback = callback;
-                        this._addonInstallListener.errorCallback = errorCallback;
-                        this._addonInstallListener.package = pkg;
-                        
-                        try
-                        {
-                            aInstall.addListener(this._addonInstallListener);
-                            aInstall.install();
-                        } catch (e)
-                        {
-                            log.exception(e, "Exception while running install for " + pkg.id);
-                            errorCallback();
-                        }
-                    }.bind(this), asset.content_type);
+                    this._installXpi(asset.browser_download_url, callback, errorCallback, pkg, asset.content_type);
                 } catch (e)
                 {
                     log.exception(e, "Exception while retrieving install for " + pkg.id);
@@ -870,7 +876,16 @@
                 if (addon.uninstall)
                 {
                     log.info("Uninstalling package " + pkg.name + " v" + pkg.version);
-                    addon.uninstall();
+                    try
+                    {
+                        addon.uninstall();
+                    }
+                    catch (e)
+                    {
+                        log.exception(e, "addon uninstall failed for " + pkg.name);
+                        errorCallback();
+                        return;
+                    }
                     // Prompt for restart if necessary.
                     log.debug("Package pending operations: " + addon.pendingOperations);
                     callback(); // indicate success before potentially restarting
@@ -935,7 +950,7 @@
     this._addonInstallListener = {
         callback: null, // will be specified prior to each install
         errorCallback: null, // will be specified prior to each install
-        package: null,
+        package: {name: "addon", kind: ADDONS},
         /**
          * Checks for the addon's compatibility with this Komodo version.
          * If the check fails, prompts the user to abort the installation.

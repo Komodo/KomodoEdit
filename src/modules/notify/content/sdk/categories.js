@@ -110,7 +110,7 @@ categories.register("fs", { label: "Filesystem" });
 
 categories.register("dev", { label: "Development" });
 
-categories.register("packages", { label: "Packages", opts: { duration: 10000 } });
+categories.register("packages", { label: "Packages", opts: { duration: 5000, alwaysShow: true } });
 
 categories.register("find", { label: "Find/Replace" });
 

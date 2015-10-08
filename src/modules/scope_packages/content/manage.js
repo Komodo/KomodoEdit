@@ -199,6 +199,32 @@
         packages._installPackage(pkg, done.bind(this, "installed"), done.bind(this, "installFailed", "error"));
     }
     
+    this.installPackageByUrl = function(url, callback)
+    {
+        require("notify/notify").interact(l.get("installing", "addon"), "packages", {id: "packageInstall"});
+        
+        if (commando.isOpen()) commando.block();
+        
+        var done = function(locale, priority = "notification")
+        {
+            window.clearTimeout(timeout);
+            
+            require("notify/notify").interact(l.get(locale, "addon"), "packages", {id: "packageInstall", priority: priority});
+            if (commando.isOpen()) commando.unblock();
+            packages.clearCaches();
+            
+            if (callback)
+                callback();
+            else
+            {
+                if (commando.isOpen()) commando.refresh();
+            }
+        };
+        
+        var timeout = window.setTimeout(done.bind(this, "installTimeout", "warning"), 10000);
+        packages._installXpi(url, done.bind(this, "installed"), done.bind(this, "installFailed", "error"));
+    }
+    
     this.uninstallPackage = function(pkg, callback)
     {
         require("notify/notify").interact(l.get("uninstalling", pkg.name), "packages", {id: "packageUninstall"});

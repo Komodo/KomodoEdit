@@ -110,11 +110,11 @@
             // If called multiple time synchronously then notifications are incapable
             // of replacing one another, this works around that issue and allows us
             // to assume that two notifications are never called on the same pulse
-            delay = delay + 10;
+            delay = delay + 100;
             timers.setTimeout(this.send.bind(this, message, category, opts, true), delay);
             
             timers.clearTimeout(delayTimer);
-            delayTimer = timers.setTimeout(function() { delay = 0; }, 50);
+            delayTimer = timers.setTimeout(function() { delay = 0; }, 150);
             return;
         }
         
@@ -307,9 +307,9 @@
             log.debug("Processing next queued notification");
             
             // Don't show notifications when the main window has no focus, bug #105975
-            if ( ! _document.hasFocus())
+            if ( ! _document.hasFocus() && ! notif.opts.ignoreFocus)
             {
-                if (notif.opts.priority < this.P_WARNING && ! notif.opts.ignoreFocus)
+                if (notif.opts.priority < this.P_WARNING && ! notif.opts.alwaysShow)
                 {
                     // if window has no focus and this is not an important notification,
                     // drop it and process the next one

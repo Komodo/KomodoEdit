@@ -487,12 +487,15 @@ this.watchLocalFile = function() {
  */
 this.openAddonsMgr = function launch_openAddonsMgr()
 {
+    return require('scope-packages/packages').openCategory('packages-installed', "Installed Packages");
+}
+
+this.openLegacyAddonsMgr = function launch_openAddonsMgr()
+{
     return ko.windowManager.openOrFocusDialog("chrome://mozapps/content/extensions/extensions.xul",
                                        "Addons:Manager",
                                        "chrome,menubar,extra-chrome,toolbar,resizable");
-                                       
 }
-
 
 /**
  * Opens the update manager and checks for updates to the application.
