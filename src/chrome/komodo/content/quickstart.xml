@@ -22,7 +22,7 @@
     <content>
         
         <xul:vbox anonid="quickstart" pack="center" class="hud" flex="1">
-            <xul:vbox pack="center" align="center" flex="1" class="inner">
+            <xul:vbox pack="center" align="center" flex="1" class="inner editor-field">
 
                 <xul:button label="New File"
                         class="new-file-icon"
