@@ -110,7 +110,7 @@
             <xul:hbox align="end" pack="end" class="footer">
                 <xul:button label="Troubleshooting"
                         class="help-icon"
-                        type="menu">
+                        type="menu-button">
                     <xul:menupopup position="before_end">
                         <xul:menuitem
                             label="Restart in Safe-Mode"
@@ -124,7 +124,7 @@
                             label="Restart Without Tools"
                             oncommand="ko.main.restartWithFlag('tempNoToolbox')"
                         />
-                        <menuseparator/>
+                        <xul:menuseparator/>
                         <xul:menuitem
                             label="Reset Everything"
                             oncommand="ko.main.restartWithFlag('cleanProfile')"
