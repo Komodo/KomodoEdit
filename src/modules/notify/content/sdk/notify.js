@@ -89,7 +89,7 @@
         
         opts = _.extend({generic: false, panel: false}, opts);
         
-        this.send = (message, category, opts);
+        this.send(message, category, opts);
     }
     
     var delay = 0;
