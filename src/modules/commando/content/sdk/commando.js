@@ -582,10 +582,10 @@
         }
         var bo = anchor.boxObject;
         
-        x = bo.x, y= bo.y;
+        var x = bo.x, y= bo.y;
         if ( ! returnValues) x = bo.screenX, y = bo.screenY;
         
-        left = x + (bo.width / 2);
+        var left = x + (bo.width / 2);
         left -= (panel.element().boxObject.width || 500) / 2;
         
         if (returnValues)
