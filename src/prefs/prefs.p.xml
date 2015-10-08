@@ -508,8 +508,8 @@
   
   <boolean id="editSmartWrapSelection">1</boolean>
   <boolean id="wrapSelectionOnlyPlainText">1</boolean>
-  <string id="wrapSelectionDelimiters_FactorySetting">([{&lt;&quot;&apos;`*+/_</string>
-  <string id="wrapSelectionDelimiters">([{&lt;&quot;&apos;`*+/_</string>
+  <string id="wrapSelectionDelimiters_FactorySetting">([{&lt;&quot;&apos;`*/</string>
+  <string id="wrapSelectionDelimiters">([{&lt;&quot;&apos;`*/</string>
   
   <boolean id="enableElasticTabstops">0</boolean>
   
