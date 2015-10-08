@@ -683,10 +683,12 @@ class koScintillaController:
             sm.endUndoAction()
             
     def _is_cmd_lineDuplicateUp_enabled(self):
-        return True
+        return self.scimoz().selections == 1
 
     def _do_cmd_lineDuplicateUp(self):
         sm = self.scimoz()
+        if sm.selections > 1:
+            return # do not duplicate multiple or rectangular selections
 
         startPos = sm.selectionStart
         endPos = sm.selectionEnd
@@ -716,10 +718,12 @@ class koScintillaController:
             sm.endUndoAction()
 
     def _is_cmd_lineDuplicateDown_enabled(self):
-        return True
+        return self.scimoz().selections == 1
 
     def _do_cmd_lineDuplicateDown(self):
         sm = self.scimoz()
+        if sm.selections > 1:
+            return # do not duplicate multiple or rectangular selections
 
         startPos = sm.selectionStart
         endPos = sm.selectionEnd
@@ -750,10 +754,13 @@ class koScintillaController:
             sm.endUndoAction()
 
     def _is_cmd_lineTransposeDown_enabled(self):
-        return True
+        return self.scimoz().selections == 1
 
     def _do_cmd_lineTransposeDown(self):
         sm = self.scimoz()
+        if sm.selections > 1:
+            return # do not transpose multiple or rectangular selections
+        
         hasSelection = sm.selectionStart != sm.selectionEnd
 
         if not hasSelection:
@@ -773,10 +780,13 @@ class koScintillaController:
             sm.endUndoAction()
 
     def _is_cmd_lineTransposeUp_enabled(self):
-        return True
+        return self.scimoz().selections == 1
 
     def _do_cmd_lineTransposeUp(self):
         sm = self.scimoz()
+        if sm.selections > 1:
+            return # do not transpose multiple or rectangular selections
+        
         hasSelection = sm.selectionStart != sm.selectionEnd
 
         if not hasSelection:
