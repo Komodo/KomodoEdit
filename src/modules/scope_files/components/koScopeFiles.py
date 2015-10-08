@@ -184,8 +184,11 @@ class Searcher:
         
         self.stripPathRe = {}
 
-    def stop(self):
-        self._stop = True
+    def stop(self, soft = False):
+        log.debug(self.opts["uuid"] + " Stopping Searcher")
+        
+        if not soft:
+            self._stop = True
 
         for walker in self.walkers.itervalues():
             walker.stop()
@@ -279,7 +282,7 @@ class Searcher:
                 self.opts["numResults"] += 1
                 if self.opts["numResults"] >= self.opts.get("maxresults", 200):
                     log.debug(self.opts["uuid"] + " Max results reached")
-                    return self.stop()
+                    return self.stop(True)
                 
     def _matchScore(self, string, words, weight = 100, lazyMatch = False):
         # Doing a loop for some reason is faster than all()
