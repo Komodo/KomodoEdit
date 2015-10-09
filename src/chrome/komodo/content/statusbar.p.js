@@ -366,6 +366,7 @@ try {
 }
 }
 
+var _lintSuppressNext = false;
 var _lintResults = {};
 function _updateCheckNewLintResult() {
     var view = require("ko/views").current();
@@ -373,6 +374,7 @@ function _updateCheckNewLintResult() {
     
     if ( ! res) {
         _lintResults = {};
+        _lintSuppressNext = false;
         return;
     }
     
@@ -381,6 +383,7 @@ function _updateCheckNewLintResult() {
     
     if ( ! numResults.value) {
         _lintResults = {};
+        _lintSuppressNext = false;
         return;
     }
     
@@ -390,7 +393,7 @@ function _updateCheckNewLintResult() {
         let result = results.value[i];
         let id = "" + result.lineStart + result.lineEnd + result.columnStart + result.columnEnd + result.severity;
         
-        if ( ! (id in _lintResults))
+        if ( ! (id in _lintResults) && ! _lintSuppressNext)
         {
             let prefix = "Ln: " + result.lineStart;
             if (result.lineEnd != result.lineStart)
@@ -417,6 +420,7 @@ function _updateCheckNewLintResult() {
     }
     
     _lintResults = __lintResults;
+    _lintSuppressNext = false;
 }
 
 function _clear() {
@@ -483,6 +487,7 @@ function update_view_information(view) {
 }
 
 StatusBarObserver.prototype.handle_current_view_changed = function(event) {
+    _lintSuppressNext = true;
     if (ko.views.manager.batchMode) {
         // Update it later on.
         setTimeout(update_view_information, 10);
