@@ -612,7 +612,7 @@
         if (window == _window)
         {
             var view = _window.ko.views.manager.currentView;
-            if (view && view.getAttribute("type") != "editor")
+            if (view && view.getAttribute("type") == "editor")
                 view.scintilla.focus();
         }
     }
