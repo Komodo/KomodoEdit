@@ -4666,6 +4666,25 @@ class DefnTestCase(CodeIntelTestCase):
         """))
         calltip = "date(string format [, long timestamp])\nFormat a local date time"
         self.assertCalltipIs(markedup_content, calltip)
+        
+    @tag("bug 142")
+    def test_foreach_with_variable_annotation(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            class SubTest {
+                public $name = null;
+            }
+            class Test {
+                public $testName = null;
+                /** @var SubTest[] */
+                public $subTests = null;
+            }
+            $test = new Test();
+            // (do some setup here)
+            foreach($test->subTests as $subTest) {
+                $subTest-><1>
+        """)))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            [("variable", "name")])
     
 
 class EscapingTestCase(CodeIntelTestCase):

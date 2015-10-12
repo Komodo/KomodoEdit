@@ -1337,6 +1337,11 @@ class PHPTreeEvaluator(TreeEvaluator):
                 # Cix doesn't use "$" in member names, remove it - bug 90968.
                 static_member = True
                 first_token = first_token[1:]
+            elif first_token[-2:] == "[]" and elem.names.get(first_token) is None:
+                # `foreach ($foo->bar as $baz)` tacks on an extra '[]', which
+                # may not exist if `$foo->bar` is annotated as an array via
+                # `@var`. If so, strip '[]' for proper detection.
+                first_token = first_token[0:-2]
             attr = elem.names.get(first_token)
             if attr is not None:
                 self.log("_hit_from_getattr:: attr is %r in %r", attr, elem)
