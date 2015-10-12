@@ -239,6 +239,7 @@
                 var _ko= ko.windowManager.getMainWindow().ko;
                 _ko.places.manager.moveToProjectDir(_ko.projects.manager.currentProject)
             } catch (e) {
+                var log = require("ko/logging").getLogger("project-xul");
                 log.exception(e);
             }
         }, 0);
