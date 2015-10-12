@@ -93,7 +93,7 @@ class _CommonLexer(shared_lexer.Lexer):
     def __init__(self):
         shared_lexer.Lexer.__init__(self)
         self.q = []
-        self.multi_char_ops = self.build_dict('-> ++ -- ** =~ !~ << >> <= >= == != <=> && || ... .. => <<= >>= &&= ||= ~*= /= %= += -= .= &= |= ^= ::')
+        self.multi_char_ops = self.build_dict('-> ++ -- ** =~ !~ << >> <= >= == != <=> && || // ... .. => <<= >>= &&= ||= ~*= /= %= += -= .= &= |= ^= ::')
 
 class PerlLexer(_CommonLexer):
     def __init__(self, code, provide_full_docs=True):

@@ -894,7 +894,7 @@ class Parser:
         if self.classifier.is_keyword(tok, 'or'):
             return True
         elif self.classifier.is_any_operator(tok):
-            return tval in (';', '||')
+            return tval in (';', '||', '//')
         return False
 
     def _is_string(self, tok):
