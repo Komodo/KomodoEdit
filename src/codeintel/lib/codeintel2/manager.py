@@ -442,7 +442,11 @@ class Manager(threading.Thread, Queue):
             encoding = ti.encoding
             content = ti.text
         else:
-            content = codecs.open(path, 'rb', encoding).read()
+            try:
+                content = codecs.open(path, 'rb', encoding).read()
+            except:
+                log.info("Unable to read %s (likely not a text file)" % path)
+                content = ''
 
         #TODO: Re-instate this when have solution for CILE test failures
         #      that this causes.
