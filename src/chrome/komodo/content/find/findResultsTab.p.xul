@@ -87,5 +87,7 @@
                collapsed="true" hidden="true"
                style="padding-left: 3px;"
                src="chrome://global/skin/icons/loading_16.png"/>
+    </box>
+
 </page>
 
