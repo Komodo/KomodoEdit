@@ -16,6 +16,7 @@ cocoa_ScintillaView_mm.patch
 cocoa_scrollbar_notifications.patch
 cocoa_tab_close_crash.patch
 coffeescript_instance_props.patch
+coffeescript_ranges.patch
 coffeescript_regex.patch
 custom_scrollbars.patch
 editor_background2.patch
