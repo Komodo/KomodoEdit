@@ -1192,10 +1192,8 @@ ko.codeintel = {};
                 if (this.pending > 0) {
                     return; // wait for async defns to come back
                 }
+                this._last_highlight_async = null;
                 this.doHighlight();
-                if (Components.isSuccessCode(result)) {
-                    do_next_range();
-                }
             }
         };
 
@@ -1277,6 +1275,8 @@ ko.codeintel = {};
             findHitCallback.onHit = (function(hit) {
                 let start = scimoz.positionAtChar(0, hit.start_pos);
                 let end = scimoz.positionAtChar(0, hit.end_pos);
+                log.debug("hit: [" + hit.start_pos + ", " + hit.end_pos + "] = [" +
+                          start + ", " + end + "]");
                 if (reason != "manual") {
                     if (start > 0) {
                         let initialStyle = scimoz.getStyleAt(start);
@@ -1307,78 +1307,54 @@ ko.codeintel = {};
                 acceptHit(start, end);
             }).bind(findHitCallback);
         }
-        var do_next_range;
         var getResults = (function getResults() {
-            // everything's set up now, ready to actually do the searches
-            let firstLine = scimoz.firstVisibleLine;
-            let lastLine = firstLine + scimoz.linesOnScreen + 1; // last may be partial
-            let startPos = Math.max(scimoz.positionFromLine(firstLine), 0);
-            let endPos = scimoz.positionFromLine(lastLine);
-            if (endPos < 0) endPos = scimoz.length; // happens if we're at end of file
-            let ranges = [];
+            // everything's set up now, ready to actually do the search
+            let startPos = 0;
+            let endPos = scimoz.length
             if (sourceVarDefns.length > 0 && sourceVarDefns[0].scopestart > 0) {
                 // We have a variable definition, and we know its scope
                 let defn = sourceVarDefns[0];
-                let scopeStart = scimoz.positionFromLine(defn.scopestart - 1);
-                let scopeEnd = -1;
+                startPos = scimoz.positionFromLine(defn.scopestart - 1);
+                endPos = -1;
                 if (defn.scopeend != 0) {
-                    scopeEnd = scimoz.positionFromLine(defn.scopeend);
+                    endPos = scimoz.positionFromLine(defn.scopeend);
                 }
-                if (scopeEnd <= 0) {
-                    scopeEnd = scimoz.length; // if it's at the last line
+                if (endPos <= 0) {
+                    endPos = scimoz.length; // if it's at the last line
                 }
-                ranges = [[Math.max(startPos, scopeStart), Math.min(endPos, scopeEnd)],
-                          [scopeStart, startPos],
-                          [endPos, scopeEnd]];
                 log.debug("Found defn for " + defn.name + " at " +
-                          defn.scopestart + "~" + defn.scopeend + ", ranges=" +
-                          JSON.stringify(ranges));
-                // force lex to end of scope (the other parts should already be lexed)
-                scimoz.colourise(endPos, scopeEnd);
+                          defn.scopestart + "~" + defn.scopeend);
             } else {
-                ranges = [[startPos, endPos], [0, startPos], [endPos, scimoz.length]];
-                log.debug("No defn found for " + searchText + "; ranges = " +
-                          JSON.stringify(ranges));
-                // force lex to EOF (the other parts should already be lexed)
-                scimoz.colourise(endPos, -1);
+                log.debug("No defn found for " + searchText);
             }
-            do_next_range = (function do_next_range_() {
-                if (ranges.length < 1) {
-                    this._last_highlight_async = null;
-                    return;
+            // force lex to end of scope or EOF
+            if (scimoz.endStyled < endPos) {
+                scimoz.colourise(scimoz.endStyled, endPos);
+            }
+            let text = scimoz.getTextRange(startPos, endPos);
+            var opts = Cc["@activestate.com/koFindOptions;1"].createInstance();
+            opts.patternType = Ci.koIFindOptions.FOT_SIMPLE;
+            opts.matchWord = false;
+            opts.searchBackward = false;
+            opts.caseSensitivity = Ci.koIFindOptions.FOC_SENSITIVE; // TODO: depend on language
+            opts.preferredContextType = Ci.koIFindContext.FCT_CURRENT_DOC;
+            opts.showReplaceAllResults = false;
+            opts.displayInFindResults2 = false;
+            opts.multiline = false;
+            if (view.language === "Tcl") {
+                // Bug 95389: Tcl is one of the few non-shell langs that
+                // defines vars without a '$', but refers to them with one.
+                opts.patternType = Ci.koIFindOptions.FOT_REGEX_PYTHON;
+                if (searchText[0] === '$') {
+                    searchText = "\\$?" + searchText.substring(1);
+                } else {
+                    searchText = "\\$?" + searchText;
                 }
-                let [startPos, endPos] = ranges.shift();
-                if (startPos >= endPos) {
-                    log.debug("Skipping empty/invalid range " + startPos + "~" + endPos);
-                    do_next_range();
-                    return;
-                }
-                let text = scimoz.getTextRange(startPos, endPos);
-                var opts = Cc["@activestate.com/koFindOptions;1"].createInstance();
-                opts.patternType = Ci.koIFindOptions.FOT_SIMPLE;
-                opts.matchWord = false;
-                opts.searchBackward = false;
-                opts.caseSensitivity = Ci.koIFindOptions.FOC_SENSITIVE; // TODO: depend on language
-                opts.preferredContextType = Ci.koIFindContext.FCT_CURRENT_DOC;
-                opts.showReplaceAllResults = false;
-                opts.displayInFindResults2 = false;
-                opts.multiline = false;
-                if (view.language === "Tcl") {
-                    // Bug 95389: Tcl is one of the few non-shell langs that
-                    // defines vars without a '$', but refers to them with one.
-                    opts.patternType = Ci.koIFindOptions.FOT_REGEX_PYTHON;
-                    if (searchText[0] === '$') {
-                        searchText = "\\$?" + searchText.substring(1);
-                    } else {
-                        searchText = "\\$?" + searchText;
-                    }
-                }
-                this._last_highlight_async =
-                    Cc["@activestate.com/koFindService;1"]
-                      .getService(Ci.koIFindService)
-                      .findallasync(searchText, text, findHitCallback, startPos, opts);
-            }).bind(this);
-            do_next_range();
+            }
+            this._last_highlight_async =
+                Cc["@activestate.com/koFindService;1"]
+                  .getService(Ci.koIFindService)
+                  .findallasync(searchText, text, findHitCallback, startPos, opts);
             return true;
         }).bind(this);
 
