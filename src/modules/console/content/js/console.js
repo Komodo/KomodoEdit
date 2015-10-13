@@ -25,7 +25,27 @@ window.app = {};
         elem.input.addEventListener("keypress", this.onKeyNav.bind(this));
         elem.input.addEventListener("paste", this.onPaste.bind(this));
         
-        window.addEventListener("keypress", function(e) { e.stopPropagation(); });
+        window.addEventListener("keypress", this.keyDismisser.bind(this));
+        window.addEventListener("keydown", this.keyDismisser.bind(this));
+        window.addEventListener("keyup", this.keyDismisser.bind(this));
+    }
+    
+    this.keyDismisser = function(e)
+    {
+        switch (e.keyCode)
+        {
+            case 8: // backspace
+            case 35: // end
+            case 36: // home
+            case 37: // left
+            case 38: // up
+            case 39: // right
+            case 40: // down
+            case 46: // delete
+            case 65: // a (ctrl+a)
+                e.stopPropagation();
+                break;
+        }
     }
     
     this.onKeyNav = function(e)
@@ -61,6 +81,7 @@ window.app = {};
                     }
                 }
                 e.preventDefault();
+                e.stopPropagation();
                 break;
             case 13: // enter
                 if ( ! e.shiftKey)
