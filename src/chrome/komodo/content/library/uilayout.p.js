@@ -1721,6 +1721,7 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
     var preProjectPart, projectPart, postProjectPart;
     var postTitlePart = "";
     var projectRootName = ko.projects.manager.projectBaseName();
+    viewPart = view.title;
     if (view == null)  {
         if (projectRootName) {
             preProjectPart = "(";
@@ -1728,8 +1729,11 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
         } else {
             preProjectPart = postProjectPart = "";
         }
+    } else if (require("ko/views").current() &&
+               require("ko/views").current().type != "editor"){
+        _log.debug("Skipping quickstart view");
+        // do nothing 
     } else {
-        viewPart = view.title;
         if (view.isDirty)  {
             viewPart += "*";
         }
@@ -1748,16 +1752,17 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
             preProjectPart = " (";
             postProjectPart = ")";
         }
+        if (projectRootName) {
+            viewPart += (preProjectPart
+                         + _bundle.GetStringFromName("Project")
+                         + " "
+                         + projectRootName
+                         + postProjectPart
+                         );
+        }
+        viewPart += postTitlePart;
     }
-    if (projectRootName) {
-        viewPart += (preProjectPart
-                     + _bundle.GetStringFromName("Project")
-                     + " "
-                     + projectRootName
-                     + postProjectPart
-                     );
-    }
-    viewPart += postTitlePart;
+    
     var title = viewPart;
 
     var branding = '';
