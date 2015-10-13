@@ -1889,11 +1889,14 @@
         <command
             id="cmd_delete" key="key_cmd_delete"
             oncommand="
-                if (event.originalTarget.controllers.getControllerForCommand('cmd_deleteCharForward')) {
-                    ko.commands.doCommand('cmd_deleteCharForward', {suppressExceptions: true});
-                } else {
-                    ko.commands.doCommand('cmd_delete');
-                }"
+                var cont = true; 
+                if (event.originalTarget.controllers) {
+                    if (event.originalTarget.controllers.getControllerForCommand('cmd_deleteCharForward')) {
+                        ko.commands.doCommand('cmd_deleteCharForward', {suppressExceptions: true});
+                        cont = false;
+                    }
+                } 
+                if (cont) ko.commands.doCommand('cmd_delete');"
             disabled="true"
             desc="&editorDelete.desc;"/>
     </commandset>
