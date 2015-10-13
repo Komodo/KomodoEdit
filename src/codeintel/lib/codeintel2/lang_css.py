@@ -1240,28 +1240,32 @@ class CSSSelector:
     ELEMENT = "element"
     CLASS = "class"
     ID = "id"
-    CSS_IDENT = re.compile('([A-Za-z0-9-]+)(::?[A-Za-z-]+(\\([^\\)]+\\))?|\\[[^\\]]+\\])?$')
+    # Matcher for multiple ID and Class names in a selector.
+    CSS_ID_OR_CLASS = re.compile('([#.][A-Za-z0-9-]+)(::?[A-Za-z-]+(\\([^\\)]+\\))?|\\[[^\\]]+\\])?')
+    # Matcher for a single ID or Class name in a selector (at its end).
+    CSS_IDENT = re.compile('([#.]?[A-Za-z0-9-]+)(::?[A-Za-z-]+(\\([^\\)]+\\))?|\\[[^\\]]+\\])?$')
     
-    def __init__(self, text, line):
+    def __init__(self, text, line, target):
         """
         Creates a new representation for a CSS selector with the given text
         and type that occurs on the given line number.
         @param text The text of the CSS selector
         @param line The line number the CSS selector starts on.
+        @param target The element, class, or id (i.e. target) of the CSS
+               selector. This is the symbol used for autocompletions.
         """
         self.text = text
         self.line = line
         
         self.type = self.ELEMENT
-        if text.find('#') != -1:
+        if target.startswith('#'):
             self.type = self.ID
-        elif text.find('.') != -1:
+            self.target = target[1:]
+        elif target.startswith('.'):
             self.type = self.CLASS
-        
-        match = re.search(self.CSS_IDENT, self.text)
-        if not match:
-            raise ValueError("Selector '%s' does not have a valid CSS identifier name" % text)
-        self.target = match.group(1)
+            self.target = target[1:]
+        else:
+            self.target = target
         
     def appendElementTreeTo(self, cixmodule):
         """
@@ -1378,11 +1382,24 @@ class CSSCile:
                  self.blockLevel == 0 and self.parenLevel == 0 and \
                  not self.ignoreStatement:
                 selectorText = ''.join(self.selector).strip()
-                try:
-                    self.cile.addSelector(CSSSelector(selectorText,
-                                                      self.selectorStartLine))
-                except ValueError, e:
-                    log.warn(e)
+                if CSSSelector.CSS_ID_OR_CLASS.search(selectorText):
+                    # Parse out each id and class being used in the selector
+                    # and create an individual selector for that target.
+                    for selector in CSSSelector.CSS_ID_OR_CLASS.findall(selectorText):
+                        self.cile.addSelector(CSSSelector(selectorText,
+                                                          self.selectorStartLine,
+                                                          selector[0]))
+                else:
+                    # No ids or classes in the selector; use its last element as
+                    # the target.
+                    selector = CSSSelector.CSS_IDENT.search(selectorText)
+                    if selector:
+                        self.cile.addSelector(CSSSelector(selectorText,
+                                                          self.selectorStartLine,
+                                                          selector.group(1)))
+                    else:
+                        log.warn("Unable to process CSS selector '%s'" % selectorText)
+                
                 if text == '{':
                     # Stop looking for selectors until encountering '}'.
                     self.selector = None

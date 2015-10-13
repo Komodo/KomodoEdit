@@ -801,6 +801,27 @@ class CSS_UDL_HTML_Selectors(CodeIntelTestCase):
         """))
         self.assertCompletionsAre(markup_text(content, pos=positions[1]), None)
         self.assertCompletionsAre(markup_text(content, pos=positions[2]), None)
+        
+    def test_multi_selector_completions(self):
+        content, positions = unmark_text(dedent("""\
+            <html>
+            <head>
+                <style type="text/css">
+                    #header .foo, #footer .bar { }
+                    p .baz a { }
+                </style>
+            </head>
+            <body>
+                <div id="<1>">
+                    <p class="<2>">
+        """))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+                                  [("id", "footer"),
+                                   ("id", "header")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[2]),
+                                  [("class", "bar"),
+                                   ("class", "baz"),
+                                   ("class", "foo")])
 
 
 
