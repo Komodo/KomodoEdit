@@ -153,6 +153,7 @@ this.init = function() {
     ko.main.addWillCloseHandler(this.destroy, this);
     _curr_session_name = window._koNum.toString();
     this._recently_did_history = false;
+    this._marking = false;
     window.updateCommands('history_changed');
     window.addEventListener("AppCommand", _appCommandEventHandler, true);
     var this_ = this;
@@ -163,6 +164,8 @@ this.init = function() {
                             this._handle_closing_view_setup, false);
     window.addEventListener('view_closed',
                             this._handle_closing_view_setup, false);
+    window.addEventListener('current_view_changed',
+                            this.note_loc_unless_history_move.bind(this), false);
     initialized = true;
 };
 
@@ -171,6 +174,8 @@ this.destroy = function() {
                                this._handle_closing_view_setup, false);
     window.removeEventListener('view_closed',
                                this._handle_closing_view_setup, false);
+    window.removeEventListener('current_view_changed',
+                               this.note_loc_unless_history_move.bind(this), false);
     this._observerSvc.removeObserver(this, 'history_changed', false);
     window.removeEventListener("AppCommand", _appCommandEventHandler, true);
 };
@@ -273,13 +278,17 @@ function _mark_pos_info(view) {
 this.note_curr_loc = function note_curr_loc(view, /* = currentView */
                                             check_section_change, /* false */
                                             defer) {
+    
     if (typeof(view) == "undefined" || view == null) view = ko.views.manager.currentView;
-    if (!initialized || !view) {
+    if (!initialized || !view || this._marking) {
         // No views, we could be at startup
         return;
     }
+    
+    this._marking = true;
     if (typeof(check_section_change) == "undefined") check_section_change = false;
     this._recently_did_history = false;
+    
     _get_curr_loc(view, null, (loc) => {
         if (view.getAttribute("type") == "editor" && loc) {
             if (!view.scimoz) {
@@ -293,6 +302,7 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
             }
             
             last_loc = loc;
+            this._marking = false;
         }
     });
 };

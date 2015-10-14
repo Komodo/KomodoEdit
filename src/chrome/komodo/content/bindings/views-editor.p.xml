@@ -1670,14 +1670,6 @@
         <parameter name="updated"/>
         <body>
         <![CDATA[
-        
-            if ( ! this.in_updateui && ((updated & this.scimoz.SC_UPDATE_SELECTION) || (updated & this.scimoz.SC_UPDATE_CONTENT)))
-            {
-                clearTimeout(this._noteLocTimer);
-                this._noteLocTimer = setTimeout(function() {
-                    ko.history.note_loc_unless_history_move(this);
-                }.bind(this), 200);
-            }
             
             this.in_updateui = true;
             
