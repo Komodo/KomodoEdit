@@ -102,7 +102,10 @@ var autoComplete = (function(){
 
         that.updateSC = function(resize, next){
             var rect = that.getBoundingClientRect();
-            var pos = that.getCaretPixelPos();
+            var pos = {
+                left: that.caretX,
+                top: that.caretY
+            };
             that.sc.style.left = Math.round(pos.left) + rect.left + (window.pageXOffset || document.documentElement.scrollLeft) + 'px';
             that.sc.style.bottom = window.innerHeight - rect.top + (window.pageYOffset || document.documentElement.scrollTop) + 1 + 'px';
             if (!resize) {
@@ -145,7 +148,7 @@ var autoComplete = (function(){
             return;
             try { var over_sb = document.querySelector('.autocomplete-suggestions:hover'); } catch(e){ var over_sb = 0; }
             if (!over_sb) {
-                that.last_val = that.textContent;
+                that.last_val = that.value;
                 that.sc.style.display = 'none';
                 setTimeout(function(){ that.sc.style.display = 'none'; }, 350); // hide suggestions on fast input
             } else if (that !== document.activeElement) setTimeout(function(){ that.focus(); }, 20);
@@ -153,7 +156,7 @@ var autoComplete = (function(){
         addEvent(that, 'blur', that.blurHandler);
 
         var suggest = function(data){
-            var val = that.textContent;
+            var val = that.value;
             that.cache[val] = data;
             if (data.length && val.length >= o.minChars) {
                 var s = '';
@@ -176,7 +179,7 @@ var autoComplete = (function(){
                 that.sc.style.display = 'none';
         }
 
-        that.keydownHandler = function(e){
+        that.keypressHandler = function(e){
             var key = window.event ? e.keyCode : e.which;
             // down (40), up (38)
             if ((key == 40 || key == 38) && that.sc.innerHTML && that.sc.style.display != 'none') {
@@ -204,7 +207,7 @@ var autoComplete = (function(){
                 e.preventDefault();
             }
             // enter
-            else if (key == 13 && that.sc.style.display != 'none') {
+            else if (key == 13 && that.sc.style.display != 'none' && ! e.shiftKey) {
                 var sel = that.sc.querySelector('.autocomplete-suggestion.selected');
                 if ( ! sel) return;
                 o.onSelect(sel.getAttribute('data-val'));
@@ -214,7 +217,7 @@ var autoComplete = (function(){
             }
             // tab
             else if (key == 9 && that.sc.style.display != 'none') {
-                var completions = o.source(that.textContent);
+                var completions = o.source(that.caretValue);
                 e.preventDefault();
                 if ( ! completions || ! completions.length) return;
                 var completion = completions.slice(-1)[0];
@@ -235,12 +238,12 @@ var autoComplete = (function(){
                 if (completion.length) o.onSelect(completion);
             }
         };
-        addEvent(that, 'keydown', that.keydownHandler);
+        addEvent(that, 'keyup', that.keypressHandler);
 
         that.keyupHandler = function(e){
             var key = window.event ? e.keyCode : e.which;
             if ((key < 35 || key > 40) && key != 13 && key != 27) {
-                var val = that.textContent;
+                var val = that.caretValue;
                 if (val.length >= o.minChars) {
                     if (val != that.last_val) {
                         that.last_val = val;
@@ -277,7 +280,7 @@ var autoComplete = (function(){
                 removeEvent(window, 'resize', that.updateSC);
                 removeEvent(that, 'blur', that.blurHandler);
                 removeEvent(that, 'focus', that.focusHandler);
-                removeEvent(that, 'keydown', that.keydownHandler);
+                removeEvent(that, 'keyup', that.keypressHandler);
                 removeEvent(that, 'keyup', that.keyupHandler);
                 if (that.autocompleteAttr)
                     that.setAttribute('autocomplete', that.autocompleteAttr);

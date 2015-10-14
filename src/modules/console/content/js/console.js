@@ -6,14 +6,26 @@ window.app = {};
     var elem = {
         statusbar: document.getElementById("statusbar"),
         input: document.getElementById("input"),
+        inputMock: document.getElementById("input-mock"),
         console: document.getElementById("output").parentNode,
         output: document.getElementById("output")
     }
+    
     var history = JSON.parse(prefs.getString("console_history", "[]"));
     var historyPos = -1;
     
+    var charWidth = elem.inputMock.offsetWidth;
+    var charHeight = elem.inputMock.offsetHeight / 2;
+    
     this.init = function()
     {
+        elem.input.addEventListener("select", this.updateCaretPos.bind(this));
+        elem.input.addEventListener("click", this.updateCaretPos.bind(this));
+        elem.input.addEventListener("change", this.updateCaretPos.bind(this));
+        elem.input.addEventListener("keyup", this.updateCaretPos.bind(this));
+        
+        elem.input.addEventListener("keypress", this.onKeyNav.bind(this));
+        
         new autoComplete({
             selector: "#input",
             menuClass: "hud",
@@ -21,31 +33,25 @@ window.app = {};
             onSelect: this.onSelectCompletion.bind(this),
             onReset: this.onResetCompletion.bind(this)
         });
-        
-        elem.input.addEventListener("keypress", this.onKeyNav.bind(this));
-        elem.input.addEventListener("paste", this.onPaste.bind(this));
-        
-        window.addEventListener("keypress", this.keyDismisser.bind(this));
-        window.addEventListener("keydown", this.keyDismisser.bind(this));
-        window.addEventListener("keyup", this.keyDismisser.bind(this));
     }
     
-    this.keyDismisser = function(e)
+    this.updateCaretPos = function()
     {
-        switch (e.keyCode)
-        {
-            case 8: // backspace
-            case 35: // end
-            case 36: // home
-            case 37: // left
-            case 38: // up
-            case 39: // right
-            case 40: // down
-            case 46: // delete
-            case 65: // a (ctrl+a)
-                e.stopPropagation();
-                break;
-        }
+        var text = elem.input.value.substr(0, elem.input.selectionStart);
+        var lines = text.split(/\n/g);
+        var caretValue = lines.slice(-1)[0];
+        
+        var left = caretValue.length * charWidth - elem.input.scrollLeft;
+        var top = lines.length * charHeight - elem.input.scrollTop;
+        elem.input.caretX = left;
+        elem.input.caretY = top;
+        elem.input.caretValue = caretValue;
+        elem.input.caretLine = lines.length;
+        elem.input.lines = elem.input.value.split(/\n/g).length;
+        
+        var rows = elem.input.lines > 5 ? 5 : elem.input.lines;
+        if (rows == 1 && elem.input.scrollLeft) rows = 2;
+        elem.input.style.height = (rows * 1.5) + "rem";
     }
     
     this.onKeyNav = function(e)
@@ -54,38 +60,40 @@ window.app = {};
         {
             case 38:
             case 40:
-                var sel = document.getSelection(),
-                    nd = sel.anchorNode,
-                    lines = nd.textContent.split("\n").length,
-                    text = nd.textContent.slice(0, sel.focusOffset);
-                var line = text.split("\n").length;
-                
-                if (e.keyCode == 38 && line == 1)
+                if (e.keyCode == 38 && elem.input.caretLine == 1)
                 {
                     var his = history.slice(++historyPos, historyPos+1)[0];
                     if (his)
-                        elem.input.textContent = his;
+                        elem.input.value = his;
                     else
                         historyPos--;
+                        
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
                 
-                if (e.keyCode == 40 && line == lines)
+                if (e.keyCode == 40 && elem.input.caretLine == elem.input.lines)
                 {
                     var his = history.slice(--historyPos, historyPos+1)[0];
                     if (his && historyPos > -1)
-                        elem.input.textContent = his;
+                        elem.input.value = his;
                     else
                     {
-                        elem.input.textContent = "";
+                        elem.input.value = "";
                         historyPos = -1;
                     }
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
-                e.preventDefault();
-                e.stopPropagation();
                 break;
             case 13: // enter
                 if ( ! e.shiftKey)
                 {
+                    e.preventDefault();
+                    
+                    var sel = elem.input.sc.querySelector('.autocomplete-suggestion.selected');
+                    if (sel) return; // autocomplete will handle this
                     setTimeout(function()
                     {
                         if (elem.input._suppressEnter)
@@ -97,23 +105,27 @@ window.app = {};
                         this.execute();
                         elem.console.scrollTop = elem.console.scrollHeight - elem.console.clientHeight;
                     }.bind(this), 0);
-                    
-                    e.preventDefault();
                 }
+                
+                setTimeout(this.updateCaretPos.bind(this), 10);
+                break;
+            case 9:
+                if (elem.input.caretValue.trim() == "" && elem.input.selectionStart == elem.input.selectionEnd)
+                {
+                    var start = elem.input.selectionStart;
+                    var value = elem.input.value;
+                    elem.input.value = value.substr(0,start) + "    " + value.substr(start);
+                    elem.input.selectionStart = elem.input.selectionEnd = start + 4;
+                    
+                }
+                e.preventDefault();
                 break;
         }
     }
     
-    this.onPaste = function(e)
-    {
-        var text = e.clipboardData.getData("text/plain");
-        document.execCommand("insertText", false, text);
-        e.preventDefault();
-    };
-    
     this.execute = function()
     {
-        var input = elem.input.textContent;
+        var input = elem.input.value;
         this.print("input", input, true);
         
         var result;
@@ -134,7 +146,7 @@ window.app = {};
         historyPos = -1;
         prefs.setString("console_history", JSON.stringify(history));
         
-        elem.input.textContent = "";
+        elem.input.value = "";
     }
     
     this.print = function(type, data, dontFormat)
@@ -379,14 +391,6 @@ window.app = {};
     this.focus = function()
     {
         elem.input.focus();
-        
-        // Force selection to be at end of line
-        var range = document.createRange();
-        range.selectNodeContents(elem.input);
-        range.collapse(false);
-        var sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
     }
     
     this.autoComplete = function(input)
@@ -405,29 +409,35 @@ window.app = {};
         if (completions.length === 1 && completions[0] == pattern)
             return false;
         
-        completions.reverse()
         return completions;
     }
     
     this.onSelectCompletion = function(val)
     {
-        var input = elem.input.textContent.split(".");
+        var input = elem.input.caretValue.split(".");
         var scope = input.slice(0,input.length-1).join(".");
         if (scope.length) scope += ".";
         
-        elem.input.textContent = scope + val;
+        var start = elem.input.selectionStart - elem.input.caretValue.length;
+        var value = elem.input.value;
+        
+        var completion = scope + val;
+        elem.input.value = value.substr(0,start) + completion + value.substr(start + elem.input.caretValue.length);
+        elem.input.selectionStart = start + completion.length;
+        
         this.focus();
     }
     
     this.onResetCompletion = function(val)
     {
-        elem.input.textContent = val;
+        elem.input.value = val;
         this.focus();
     }
     
     this.completions = function(scope)
     {
         if (scope == "") scope = "window";
+        if ( ! scope.match(/^[\w\s\.\[\]]+$/)) return [];
         try
         {
             return win.eval('var _p = []; for (var k in ' + scope + ') { _p.push(k); }; _p;').sort();
