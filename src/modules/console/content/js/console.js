@@ -103,7 +103,6 @@ window.app = {};
                         }
                         
                         this.execute();
-                        elem.console.scrollTop = elem.console.scrollHeight - elem.console.clientHeight;
                     }.bind(this), 0);
                 }
                 
@@ -383,9 +382,9 @@ window.app = {};
         
         li.appendChild(timestamp);
         
-        var scroll = elem.console.clientHeight < elem.console.scrollHeight;
+        var scroll = Math.abs(elem.console.scrollTop - elem.console.scrollTopMax) < 5; // 5 pixel margin of error
         elem.output.appendChild(li);
-        if (scroll) elem.scrollTop = elem.scrollHeight - elem.clientHeight;
+        if (scroll) elem.console.scrollTop = elem.console.scrollTopMax;
     }
     
     this.focus = function()
