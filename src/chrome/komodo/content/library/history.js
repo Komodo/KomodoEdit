@@ -165,7 +165,7 @@ this.init = function() {
     window.addEventListener('view_closed',
                             this._handle_closing_view_setup, false);
     window.addEventListener('current_view_changed',
-                            this.note_loc_unless_history_move.bind(this), false);
+                            this.note_loc_unless_history_move.bind(this, null), false);
     initialized = true;
 };
 
