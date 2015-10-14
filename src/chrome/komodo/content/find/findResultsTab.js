@@ -958,12 +958,15 @@ this.nextResult = function FindResultsTab_NextResult()
 
         var tabName, tabId, tab, manager;
         for (tabName in this.managers) {
-            tabId = "findresults"+tabName+"_tab";
-            tab = document.getElementById(tabId);
-            if (tab && tab.selected) {
-                manager = this.managers[tabName];
-                manager.jumpToNextResult();
-                break;
+            tabId = "findresults_tabpanel" + tabName;
+            widget = ko.widgets.getWidget(tabId);
+            if(widget){
+                tab = widget.parentNode.tab;
+                if (tab && tab.selected) {
+                    manager = this.managers[tabName];
+                    manager.jumpToNextResult();
+                    break;
+                }
             }
         }
     } catch(ex) {
