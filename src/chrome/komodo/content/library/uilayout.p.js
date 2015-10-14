@@ -1717,11 +1717,10 @@ this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
 /* Update the titlebar
    Have to keep in mind debugging state */
 this.updateTitlebar = function uilayout_updateTitlebar(view)  {
-    var viewPart = "";
+    var viewPart = view ? view.title : "";
     var preProjectPart, projectPart, postProjectPart;
     var postTitlePart = "";
     var projectRootName = ko.projects.manager.projectBaseName();
-    viewPart = view.title;
     if (view == null)  {
         if (projectRootName) {
             preProjectPart = "(";
