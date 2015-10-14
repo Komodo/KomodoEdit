@@ -34,6 +34,13 @@
                             label="&groupFiles.label;"
                             checked="true"
                             type="checkbox"/>
+                        
+                        <menuitem
+                            id="openfilesPrefPopup_ToggleTabSorting"
+                            observes="cmd_openfilesTabSorting"
+                            label="&sortTabs.label;"
+                            checked="true"
+                            type="checkbox"/>
 
                         <menuseparator id="openfilesPrefPopupSeparatorGrouping"/>
 

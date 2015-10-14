@@ -45,6 +45,7 @@ if (typeof ko.openfiles == 'undefined')
     /* Pref Constants */
     const
         PREF_GROUPING       = 'openfiles_grouping',
+        PREF_TAB_SORTING    = 'openfiles_tab_sorting',
         PREF_GROUPING_TYPE  = 'openfiles_grouping_type',
         PREF_SORTING_TYPE   = 'openfiles_sorting_type',
         PREF_SORTING_DIR    = 'openfiles_sorting_direction',
@@ -148,6 +149,11 @@ if (typeof ko.openfiles == 'undefined')
                 document.getElementById("openfilesPrefPopup_ToggleGrouping").removeAttribute("checked");
             }
             
+            if ( ! ko.prefs.getBoolean(PREF_TAB_SORTING, true))
+            {
+                document.getElementById("openfilesPrefPopup_ToggleTabSorting").removeAttribute("checked");
+            }
+            
             // Bind listeners and reload (initialize) the list of open files 
             this.bindListeners();
             this.reload();
@@ -159,6 +165,13 @@ if (typeof ko.openfiles == 'undefined')
             do_cmd_openfilesGrouping: function()
             {
                 self.toggleGrouping();
+                this._updateCommands();
+            },
+            
+            // Tab sorting toggle
+            do_cmd_openfilesTabSorting: function()
+            {
+                self.toggleTabSorting();
                 this._updateCommands();
             },
 
@@ -1159,6 +1172,15 @@ if (typeof ko.openfiles == 'undefined')
                     break;
                 }
             }
+            
+            var nextItem = this.getNextItem(item);
+            if (ko.prefs.getBoolean(PREF_TAB_SORTING, true) && sortOption != this.sorters.byIndex && nextItem)
+            {
+                let editorViewNext = openViews[nextItem.getAttribute('id')];
+                let tab = editorView.parentNode._tab;
+                let nextTab = editorViewNext.parentNode._tab;
+                tab.parentNode.insertBefore(tab, nextTab);
+            }
         },
         
         // Built-in sorters
@@ -1718,6 +1740,13 @@ if (typeof ko.openfiles == 'undefined')
                 this.drawGroups();
             }
 
+            this.sort();
+        },
+        
+        toggleTabSorting: function openfiles_toggleTabSOrting()
+        {
+            var sorting = ! ko.prefs.getBoolean(PREF_TAB_SORTING, true);
+            ko.prefs.setBooleanPref(PREF_TAB_SORTING, sorting);
             this.sort();
         },
     
