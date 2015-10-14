@@ -732,8 +732,7 @@ function _rctab_from_event(event) {
         uri = view.koDoc.file.URI;
         break;
     case "quickstart":
-        uri = view.koDoc.displayPath;
-        break;
+        return null;
     case "terminal":
         // Ignore closing terminal views
         return null;
