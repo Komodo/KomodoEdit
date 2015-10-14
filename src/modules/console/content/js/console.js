@@ -92,8 +92,7 @@ window.app = {};
                 {
                     e.preventDefault();
                     
-                    var sel = elem.input.sc.querySelector('.autocomplete-suggestion.selected');
-                    if (sel) return; // autocomplete will handle this
+                    if (elem.input.sc.style.display != 'none') return; // autocomplete will handle this
                     setTimeout(function()
                     {
                         if (elem.input._suppressEnter)
@@ -408,6 +407,7 @@ window.app = {};
         if (completions.length === 1 && completions[0] == pattern)
             return false;
         
+        completions.reverse();
         return completions;
     }
     
