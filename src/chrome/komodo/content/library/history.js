@@ -70,6 +70,7 @@ var _komodoBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .createBundle("chrome://komodo/locale/komodo.properties");
     
 var last_loc = {};
+var last_view = null;
 
 var initialized = false;
 
@@ -157,6 +158,8 @@ this.init = function() {
     window.updateCommands('history_changed');
     window.addEventListener("AppCommand", _appCommandEventHandler, true);
     var this_ = this;
+    window._incrementer = window._incrementer || 0;
+    this._id = window._incrementer++
     this._handle_closing_view_setup = function(event) {
         this_._handle_closing_view(event);
     };
@@ -164,9 +167,11 @@ this.init = function() {
                             this._handle_closing_view_setup, false);
     window.addEventListener('view_closed',
                             this._handle_closing_view_setup, false);
-    window.addEventListener('current_view_changed',
-                            this.note_loc_unless_history_move.bind(this, null), false);
-    window.addEventListener('komodo-post-startup', function() { initialized = true; });
+    window.addEventListener('current_view_changed', this._handle_view_changed.bind(this), false);
+    window.addEventListener('komodo-post-startup', function() {
+        last_view = ko.views.manager.currentView;
+        initialized = true;
+    });
 };
 
 this.destroy = function() {
@@ -174,8 +179,7 @@ this.destroy = function() {
                                this._handle_closing_view_setup, false);
     window.removeEventListener('view_closed',
                                this._handle_closing_view_setup, false);
-    window.removeEventListener('current_view_changed',
-                               this.note_loc_unless_history_move.bind(this), false);
+    window.removeEventListener('current_view_changed', this._handle_view_changed.bind(this), false);
     this._observerSvc.removeObserver(this, 'history_changed', false);
     window.removeEventListener("AppCommand", _appCommandEventHandler, true);
 };
@@ -692,7 +696,13 @@ this.move_to_loc_before_last_jump = function(view, moveToFirstVisibleChar) {
 
 var _controller = new HistoryController();
 
-
+this._handle_view_changed = function(e)
+{
+    if (last_view)
+        this.note_loc_unless_history_move(last_view)
+    
+    last_view = e.originalTarget;
+}
 
 //---- RecentlyClosedTabs sub-system
 
