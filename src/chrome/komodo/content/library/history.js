@@ -69,8 +69,8 @@ var _komodoBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/komodo.properties");
     
-var last_loc = {};
 var last_view = null;
+var deferred_loc = null;
 
 var initialized = false;
 
@@ -289,6 +289,12 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
         return;
     }
     
+    if (deferred_loc)
+    {
+        this._note_loc.apply(this, deferred_loc);
+        deferred_loc = null;
+    }
+    
     this._marking = true;
     if (typeof(check_section_change) == "undefined") check_section_change = false;
     this._recently_did_history = false;
@@ -299,17 +305,21 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
                 view = null;
             }
 
-            if ( ! last_loc || loc.uri != last_loc.uri || Math.max(loc.line, last_loc.line) - Math.min(loc.line, last_loc.line) > 5)
-            {
-                _mark_pos_info(view);
-                _controller.historySvc.note_loc(loc, check_section_change, view);
-            }
+            if (defer)
+                deferred_loc = [view, loc, check_section_change];
+            else
+                this._note_loc(view, loc, check_section_change);
             
-            last_loc = loc;
             this._marking = false;
         }
     });
 };
+
+this._note_loc = function(view, loc, check_section_change)
+{
+    _mark_pos_info(view);
+    _controller.historySvc.note_loc(loc, check_section_change, view);
+}
 
 /**
  * Note the current location from functions like
@@ -319,12 +329,12 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
  * @returns {koILocation} The noted location (or null if could not determine
  *      a current loc).
  */
-this.note_loc_unless_history_move = function note_curr_loc(view) {
+this.note_loc_unless_history_move = function note_curr_loc(view, defer) {
     if (this._recently_did_history) {
         this._recently_did_history = false;
         return;
     }
-    this.note_curr_loc(view);
+    this.note_curr_loc(view, false, defer);
 };
 
 const _ko_temporary_matcher = new RegExp('kotemporary://({[-a-fA-F0-9]+})/(.*)$');

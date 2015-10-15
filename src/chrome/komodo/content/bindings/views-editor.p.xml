@@ -1665,13 +1665,26 @@
         
         <!-- Set to true when the editor is handling the onUpdateUI() call. -->
         <field name="in_updateui">false</field>
+        <field name="last_line">0</field>
 
         <method name="onUpdateUI">
         <parameter name="updated"/>
         <body>
         <![CDATA[
+        
+            var lineNo = this.scimoz.lineFromPosition(this.scimoz.currentPos);
+            if ( ! ko.history._marking && ! this.in_updateui &&
+                (updated & this.scimoz.SC_UPDATE_SELECTION) &&
+                Math.abs(lineNo - this.last_line) > 5)
+            {
+                clearTimeout(this._noteLocTimer);
+                this._noteLocTimer = setTimeout(function() {
+                    ko.history.note_loc_unless_history_move(this, true);		
+                }.bind(this), 200);
+            }
             
             this.in_updateui = true;
+            this.last_line = lineNo;
             
             try {
                 //TODO: Minimap pref
