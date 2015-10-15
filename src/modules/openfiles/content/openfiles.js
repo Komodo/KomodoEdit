@@ -421,6 +421,18 @@ if (typeof ko.openfiles == 'undefined')
                 this.selectItem(editorView);
             }.bind(this));
             
+            koWindow.addEventListener('view_document_attached', function(e)
+            {
+                log.debug("event: view_document_attached");
+                var editorView = e.originalTarget;
+                if ((editorView.uid.number in openViews))
+                {
+                    this.removeItem(editorView);
+                }
+                
+                this.addItem(editorView);
+            }.bind(this));
+            
             koWindow.addEventListener('current_view_language_changed', function(e)
             {
                 log.debug("event: current_view_language_changed");
