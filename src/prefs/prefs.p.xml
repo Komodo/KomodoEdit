@@ -518,7 +518,7 @@
   <boolean id="editSmartCutCopyWithoutSelection">1</boolean>
   <long id="autoSaveSeconds">30</long>
   <boolean id="checkDiskFile">1</boolean>
-  <boolean id="checkNetworkDiskFile">1</boolean>
+  <boolean id="checkNetworkDiskFile">0</boolean>
 
   <!-- Language Preferences; these are treated specially in koDocumentBase -->
   <boolean id="languages/Makefile/useTabs">1</boolean>
