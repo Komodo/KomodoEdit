@@ -2223,6 +2223,10 @@
                                         label="&noSelection.label;"
                                         tooltiptext="&selectionInformation.tooltiptext;"
                                         style="min-width: 8em;"/>
+                        
+                        <statusbarpanel id="statusbar-throbber">
+                            <box id="statusbar-throbber-inner"></box>
+                        </statusbarpanel>
 
                         <statusbarpanel id="statusbar-checker"
                                         style="min-width: 36px;">
@@ -2254,10 +2258,6 @@
                                               />
                                 </menupopup>
                             </toolbarbutton>
-                        </statusbarpanel>
-
-                        <statusbarpanel id="statusbar-throbber">
-                            <box id="statusbar-throbber-inner"></box>
                         </statusbarpanel>
 
                     </statusbar>
