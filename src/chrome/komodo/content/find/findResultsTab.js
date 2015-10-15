@@ -938,8 +938,30 @@ this.FindResultsTabManager.prototype.QueryInterface = function (iid) {
 }
 
 
-
 //---- interface routines
+
+/**
+ * Get the number of the find results tab that is currently focued
+ */
+this._getFocusedTabNum = function()
+{
+    var tabName, tabId, tab, manager;
+    for (tabName in this.managers)
+    {
+        tabId = "findresults_tabpanel" + tabName;
+        widget = ko.widgets.getWidget(tabId);
+        if(widget)
+        {
+            tab = widget.parentNode.tab;
+            if (tab && tab.selected)
+            {
+                return tabName;
+            }
+        }
+    }
+    return null;
+}
+
 
 // Called to handle the "Find Next Result" command.
 //
@@ -952,23 +974,41 @@ this.nextResult = function FindResultsTab_NextResult()
 {
     findResultsLog.info("nextResult()");
     try {
+        if (! ko.uilayout.outputPaneShown())
+        {
+            return;
+        }
+        tabNumber = this._getFocusedTabNum();
+        if(tabNumber)
+        {
+            manager = this.managers[tabNumber];
+            manager.jumpToNextResult();   
+        } 
+    } catch(ex) {
+        findResultsLog.exception(ex);
+    }
+}
+
+// Called to handle the "Find Prev Result" command.
+//
+// Seeing as there may now be multiple (or zero) find results tabs there is
+// a question of _which_ set of find results to use. Here is the chosen
+// algorithm: if there is a "Find Results N" tab visible, then use it,
+// silently do nothing.
+//
+this.prevResult = function FindResultsTab_PrevResult()
+{
+    findResultsLog.info("prevResult()");
+    try {
         if (! ko.uilayout.outputPaneShown()) {
             return;
         }
-
-        var tabName, tabId, tab, manager;
-        for (tabName in this.managers) {
-            tabId = "findresults_tabpanel" + tabName;
-            widget = ko.widgets.getWidget(tabId);
-            if(widget){
-                tab = widget.parentNode.tab;
-                if (tab && tab.selected) {
-                    manager = this.managers[tabName];
-                    manager.jumpToNextResult();
-                    break;
-                }
-            }
-        }
+        tabNumber = this._getFocusedTabNum();
+        if(tabNumber)
+        {
+            manager = this.managers[tabNumber];
+            manager.jumpToPrevResult();   
+        } 
     } catch(ex) {
         findResultsLog.exception(ex);
     }

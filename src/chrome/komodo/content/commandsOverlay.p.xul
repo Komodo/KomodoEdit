@@ -1085,6 +1085,11 @@
             disabled="true"
             desc="&findFindNextResult.desc;"/>
         <command
+            id="cmd_findPrevResult" key="key_cmd_findPrevResult"
+            oncommand="ko.commands.doCommandAsync('cmd_findPrevResult', event)"
+            disabled="true"
+            desc="&findFindPrevResult.desc;"/>
+        <command
             id="cmd_startIncrementalSearch" key="key_cmd_startIncrementalSearch"
             interactive="true"
             oncommand="ko.commands.doCommandAsync('cmd_startIncrementalSearch', event)"

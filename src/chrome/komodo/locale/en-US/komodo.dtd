@@ -243,6 +243,7 @@
 <!ENTITY findFindInFiles.desc "Find: Find in Files...">
 <!ENTITY findFindNext.desc "Find: Find Next">
 <!ENTITY findFindNextResult.desc "Find: Find Next Result">
+<!ENTITY findFindPrevResult.desc "Find: Find Prev Result">
 <!ENTITY findFindNextSelected.desc "Find: Find Next Selected">
 <!ENTITY findFindPrevious.desc "Find: Find Previous">
 <!ENTITY findFindPreviousSelected.desc "Find: Find Previous Selected">
