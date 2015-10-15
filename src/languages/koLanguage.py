@@ -873,30 +873,40 @@ class KoLanguageRegistryService:
         
     _jsDistinguisher = None
     def _distinguishJavaScriptOrNode(self, buffer):
+        prefs = self._globalPrefs
         currentProject = components.classes["@activestate.com/koPartService;1"]\
             .getService(components.interfaces.koIPartService).currentProject
         if currentProject:
-            if currentProject.prefset.getBoolean("preferJavaScriptOverNode", False):
-                return "JavaScript"
+            prefs = currentProject.prefset
 
-            prefset = currentProject.prefset
-            if prefset.hasPref("currentInvocationLanguage") \
-               and prefset.getStringPref("currentInvocationLanguage") == "Node.js":
-                return "Node.js"
-        elif self._globalPrefs.getBoolean("preferJavaScriptOverNode", False):
-            return "JavaScript"
+            if prefs.hasPref("currentInvocationLanguage"):
+                if prefset.getStringPref("currentInvocationLanguage") == "Node.js":
+                    return "Node.js"
+                else:
+                    return "JavaScript"
+                
+        preferred = "JavaScript"
+        if not prefs.getBoolean("preferJavaScriptOverNode"):
+            preferred = "Node.js"
+            
         if not buffer:
-            return "JavaScript"
+            return preferred
+            
         nodeJSAppInfo = components.classes["@activestate.com/koAppInfoEx?app=NodeJS;1"].\
                         getService(components.interfaces.koIAppInfoEx)
         if not nodeJSAppInfo.executablePath:
-            return "JavaScript"
-        import pythonVersionUtils
-        if self._jsDistinguisher is None:
-            self._jsDistinguisher = pythonVersionUtils.JavaScriptDistinguisher()
-        if self._jsDistinguisher.isNodeJS(buffer):
-            return "Node.js"
-        return "JavaScript"
+            return preferred
+        
+        if prefs.getBoolean("autoDetectJSvsNode"):
+            import pythonVersionUtils
+            if self._jsDistinguisher is None:
+                self._jsDistinguisher = pythonVersionUtils.JavaScriptDistinguisher()
+            if self._jsDistinguisher.isNodeJS(buffer):
+                return "Node.js"
+            else:
+                return "JavaScript"
+        
+        return preferred
 
     _pythonNameByVersion = {2: "Python", 3: "Python3"}
     def _distinguishPythonVersion(self, buffer, koDoc):

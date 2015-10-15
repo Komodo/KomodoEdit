@@ -452,6 +452,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY updateFileStatusAutomatically.label "Update file status automatically">
 <!ENTITY useEmacsStyleLocalModeVariableModeLocalVariables.label "Use Emacs-style local 'mode' variable (-*- mode: ... -*-, Local Variables: ...)">
 <!ENTITY preferJavaScriptOverNode.label "Prefer JavaScript over Node.js">
+<!ENTITY autoDetectJSvsNode.label "Auto Detect Javascript/Node.js">
 <!ENTITY useFileContentToDetermineLanguage.label "Use File Content to Determine Language">
 <!ENTITY useHorizontalLineOnFolds.label "Use horizontal line on folds">
 <!ENTITY useShebangLine.label "Use shebang line (#!...)">

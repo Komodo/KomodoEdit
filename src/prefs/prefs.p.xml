@@ -541,6 +541,8 @@
   <!-- Allow emacs local variables in file content to override file type
        association. -->
   <boolean id="emacsLocalModeVariableDetection">1</boolean>
+  <boolean id="autoDetectJSvsNode">1</boolean>
+  <boolean id="preferJavaScriptOverNode">1</boolean>
 
   <string id="diffDisplayStyle">diffwin</string>
   <boolean id="diskStatusEnabled">1</boolean>
