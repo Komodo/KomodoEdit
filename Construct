@@ -63,7 +63,6 @@ my @toExport = (
     'withWatchdogFSNotifications',
     'withPGOGeneration',
     'withPGOCollection',
-    'withDocs',
     'withKomodoCix',
     'universal', # universal binary builds for osx
 
@@ -80,8 +79,6 @@ my @toExport = (
     'supportDir',
     'sdkDir',
     'stubDir',
-    'docChromeDir',
-    'docDir',
     'readmeDir',
     'sysdllsDir',
     'installSupportDir',

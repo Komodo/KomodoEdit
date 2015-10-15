@@ -1461,36 +1461,14 @@ class WithJSLib(black.configure.BooleanDatum):
         self.value = black.configure.items["withCasper"].Get()
         self.determined = 1
 
-class WithDocs(black.configure.BooleanDatum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "withDocs",
-            desc="include Komodo's docs",
-            acceptedOptions=("", ["with-docs", "without-docs"]))
-    def _Determine_Do(self):
-        self.applicable = 1
-        configTokens = black.configure.items["configTokens"].Get()
-        productType = black.configure.items["productType"].Get()
-        buildFlavour = black.configure.items["buildFlavour"].Get()
-        self.value = True  # DO include by default
-        if buildFlavour == "dev":
-            self.value = False  # But not for dev builds
-        for opt, optarg in self.chosenOptions:
-            if opt == "--with-docs":
-                if not self.value: configTokens.append("docs")
-                self.value = True
-            elif opt == "--without-docs":
-                self.value = False
-        self.determined = 1
-
 class WithKomodoCix(black.configure.BooleanDatum):
     def __init__(self):
         black.configure.Datum.__init__(self, "withKomodoCix",
-            desc="build komodo.cix and the komodo JS API docs",
+            desc="build komodo.cix",
             acceptedOptions=("", ["with-komodo-cix", "without-komodo-cix"]))
     def _Determine_Do(self):
         self.applicable = 1
-        withDocs = black.configure.items["withDocs"].Get()
-        self.value = withDocs  # Only include it when we're making docs.
+        self.value = 0
         for opt, optarg in self.chosenOptions:
             if opt == "--with-komodo-cix":
                 self.value = 1
@@ -3420,42 +3398,6 @@ class StubDir(black.configure.Datum):
         self.value = join(mozDist, "komodo-bits", "stub")
         self.determined = 1
 
-class DocChromeDir(black.configure.Datum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "docChromeDir",
-            desc="Komodo's doc chrome (in a dev tree)")
-
-    def _Determine_Sufficient(self):
-        if self.value is None:
-            raise black.configure.ConfigureError(\
-                "Could not determine %s\n." % self.desc)
-
-    def _Determine_Do(self):
-        from os.path import dirname, join
-        self.applicable = 1
-        mozChrome = black.configure.items["mozChromeDir"].Get()
-        self.value = join(mozChrome, "komododoc")
-        self.determined = 1
-
-
-class DocDir(black.configure.Datum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "docDir",
-            desc="Komodo's doc dir (in a dev tree)")
-
-    def _Determine_Sufficient(self):
-        if self.value is None:
-            raise black.configure.ConfigureError(\
-                "Could not determine %s\n." % self.desc)
-
-    def _Determine_Do(self):
-        from os.path import dirname, join
-        self.applicable = 1
-        chrome = black.configure.items["docChromeDir"].Get()
-        self.value = join(chrome, "locale", "en-US")
-        self.determined = 1
-
-
 class ReadmeDir(black.configure.Datum):
     def __init__(self):
         black.configure.Datum.__init__(self, "readmeDir",
@@ -3785,27 +3727,6 @@ class ScintillaBuildDir(black.configure.Datum):
             self.value = os.path.join(buildRelDir_ForCons, "scintilla")
         else:
             self.value = None
-        self.determined = 1
-
-
-class DocsPackageName(black.configure.Datum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "docsPackageName",
-            desc="the base name of the Komodo 'docs' package")
-
-    def _Determine_Sufficient(self):
-        if self.value is None:
-            raise black.configure.ConfigureError(\
-                "Could not determine %s\n." % self.desc)
-
-    def _Determine_Do(self):
-        # e.g.: Komodo-3.0.0-12345-doc
-        self.applicable = 1
-        komodoMarketingVersion = black.configure.items["komodoMarketingVersion"].Get()
-        buildNum = black.configure.items["buildNum"].Get()
-        productType = black.configure.items["productType"].Get()
-        name = (productType == "openkomodo" and "OpenKomodo" or "Komodo")
-        self.value = "%s-%s-%s-docs" % (name, komodoMarketingVersion, buildNum)
         self.determined = 1
 
 class MozPatchesPackageName(black.configure.Datum):

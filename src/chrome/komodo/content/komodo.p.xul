@@ -1459,24 +1459,13 @@
                                 accesskey="&menuHelpHelp.accesskey;"
                                 class="menuitem-iconic help-icon"
                                 />
-                            <menuitem
-                                id="menu_helpReleaseNotes"
-                                label="&releaseNotes.label;"
-                                oncommand="ko.help.open('release_notes')"
-                                />
                             <menu
                                 id="helpLanguagesMenu"
                                 label="&helpForLanguages.label;"
                                 accesskey="&helpLanguagesMenu.accesskey;"
                                 >
                                 <menupopup
-                                    id="help-languages-popup"
-                                    onpopupshowing="ko.browse.updateHelpLanguagesPopup();">
-                                    <menuitem
-                                        id="menu_helpPerlRef_Local"
-                                        label="&perlReferenceLocal.label;"
-                                        observes="cmd_helpPerlRef_Local"
-                                    />
+                                    id="help-languages-popup">
                                     <menuitem
                                         id="menu_helpPerlRef_Web"
                                         label="&perlReferenceWeb.label;"
@@ -1489,11 +1478,6 @@
                                     />
                                     <menuseparator/>
                                     <menuitem
-                                        id="menu_helpPythonRef_Local"
-                                        label="&pythonReferenceLocal.label;"
-                                        observes="cmd_helpPythonRef_Local"
-                                    />
-                                    <menuitem
                                         id="menu_helpPythonRef_Web"
                                         label="&pythonReferenceWeb.label;"
                                         observes="cmd_helpPythonRef_Web"
@@ -1504,11 +1488,6 @@
                                         observes="cmd_helpPythonMailingLists"
                                     />
                                     <menuseparator/>
-                                    <menuitem
-                                        id="menu_helpPython3Ref_Local"
-                                        label="&python3ReferenceLocal.label;"
-                                        observes="cmd_helpPython3Ref_Local"
-                                    />
                                     <menuitem
                                         id="menu_helpPython3Ref_Web"
                                         label="&python3ReferenceWeb.label;"
@@ -1537,11 +1516,6 @@
                                         observes="cmd_helpRubyMailingLists"
                                     />
                                     <menuseparator/>
-                                    <menuitem
-                                        id="menu_helpTclRef_Local"
-                                        label="&tclReferenceLocal.label;"
-                                        observes="cmd_helpTclRef_Local"
-                                    />
                                     <menuitem
                                         id="menu_helpTclRef_Web"
                                         label="&tclReferenceWeb.label;"

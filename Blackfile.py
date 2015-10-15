@@ -56,7 +56,7 @@ Typical commands for building all Komodo bits:
                             # PKGNAME to build all packages that this
                             # platform can build
 
-PKGNAME's are docs, installer (aka msi, dbg, aspackage).
+PKGNAME's are installer (aka msi, dbg, aspackage).
 """
 
 import os, sys, os, shutil
@@ -796,8 +796,6 @@ configuration = {
     "supportDir": SupportDir(),
     "sdkDir": SDKDir(),
     "stubDir": StubDir(),       # the build dir for the Komodo starter stub
-    "docChromeDir": DocChromeDir(),         # the area in the dev-tree to place the docs
-    "docDir": DocDir(),         # the area in the dev-tree to place the docs
     "readmeDir": ReadmeDir(),   # prominent dir for a few standalone doc bits
     "sysdllsDir": SysdllsDir(), # dir for system DLLs to install (if necessary)
     "installSupportDir": InstallSupportDir(), # dir for installer support files
@@ -818,13 +816,11 @@ configuration = {
     "linuxDistro": LinuxDistro(),
     "komodoInstallerPackage": KomodoInstallerPackage(),
     "configTokens": ConfigTokens(),
-    "docsPackageName": DocsPackageName(),
     "mozPatchesPackageName": MozPatchesPackageName(),
 
     "withTests": WithTests(),
     "withCasper": WithCasper(),
     "withJSLib": WithJSLib(),
-    "withDocs": WithDocs(),
     "withKomodoCix": WithKomodoCix(),
     "withWatchdogFSNotifications": WithWatchdogFSNotifications(),
 
@@ -938,14 +934,6 @@ def FetchDependentSources(cfg, argv, update=True):
          both are relative to the root of the server.
     """
 
-    if cfg.withDocs:
-        children.append(
-            {   "name": "docs",
-                "sccType": "git",
-                "dir": join(cfg.komodoDevDir, "contrib", "komododoc"),
-                "url": "https://github.com/Komodo/komodo-documentation.git",
-            }
-        )
     for child in children:
         if child["sccType"] != cfg.sccType:
             continue
@@ -1022,8 +1010,6 @@ def ImageKomodo(cfg, argv):
         return join(cfg.supportDir, *parts)
     def sdkpath(*parts):
         return join(cfg.sdkDir, *parts)
-    def docchromepath(*parts):
-        return join(cfg.docChromeDir, *parts)
     def readmepath(*parts):
         return join(cfg.readmeDir, *parts)
     def sysdllspath(*parts):
@@ -1097,13 +1083,6 @@ def ImageKomodo(cfg, argv):
             return iisupportpath("sdk", *parts)
         else:
             return iicorepath("lib", "sdk", *parts)
-    def iidocchromepath(*parts):
-        """Install image dir for the Komodo docs."""
-        if sys.platform == "win32":
-            return ipkgpath("feature-docs", "INSTALLDIR", "lib", "mozilla",
-                            "chrome", "komododoc", *parts)
-        else:
-            return iimozbinpath("chrome", "komododoc", *parts)
     def iicorereadmepath(*parts):
         """Install image dir for the "prominent standalone doc bits"."""
         if sys.platform == "win32":     # ...in the root install dir
@@ -1182,22 +1161,6 @@ def ImageKomodo(cfg, argv):
         ("cp", readmepath("*"), iicorereadmepath()),
         ("cp", readmepath("*"), ipkgpath()),
     ]
-
-    # - The main Komodo docs. (Only need to worry about these separately
-    # on Windows because the MSI divides the install image by feature,
-    # and the docs are a separate "MSI feature".)
-    if sys.platform == "win32":
-        ibits += [
-            # First need to remove the komododoc chrome from the
-            # feature-core/... area where it was copied by steps above.
-            ("rmdir", iicorepath("lib", "mozilla", "chrome", "komododoc")),
-            ("rm", iicorepath("lib", "mozilla", "chrome", "komododoc.manifest")),
-            # The manifest.
-            ("cp", chromepath("komododoc.manifest"),
-             ipkgpath("feature-docs", "INSTALLDIR", "lib", "mozilla", 
-                      "chrome", "komododoc.manifest")),
-            ("cp", docchromepath(), iidocchromepath()),
-        ]
 
     # - Installer support files
     ibits += [
@@ -1576,7 +1539,7 @@ def _PackageKomodoMSI(cfg):
             join(wrkDir, "aswixui", "License.rtf")))
 
     # build the file lists
-    features = ("feature-core", "feature-docs")
+    features = ("feature-core")
     for feature in features:
         _run_in_dir("%s bin/gen-wxs.py %s.template.in %s.ini %s.wxs.in" %
                         (cfg.unsiloedPythonExe, feature, feature, feature),
@@ -1900,7 +1863,6 @@ def PackageKomodo(cfg, argv):
         installer       the native installer package (can also use
                         'msi', 'dmg', 'aspackage' aliases on the
                         appropriate platform)
-        docs            a zip of the Komodo docs (for docs.as.com)
         mozpatches      a zip of the Mozilla patches for the used moz build
         updates         update package(s) for the autoupdate system
         pad             PAD file
@@ -1914,7 +1876,7 @@ def PackageKomodo(cfg, argv):
     """
     args = argv[1:] or ["std"]
     if "all" in args:
-        packages = ["installer", "pad", "docs",
+        packages = ["installer", "pad", 
                     "mozpatches", "updates", "crashreportsymbols"]
     elif "std" in args:
         packages = ["installer", "pad", "crashreportsymbols"]
@@ -1928,9 +1890,7 @@ def PackageKomodo(cfg, argv):
 
     for package in packages:
         retval = None
-        if package == "docs":
-            retval = _PackageKomodoDocs(cfg)
-        elif package == "mozpatches":
+        if package == "mozpatches":
             retval = _PackageKomodoMozillaPatches(cfg)
         elif package in ("installer", installerName):
             if sys.platform == "win32":
@@ -1973,39 +1933,6 @@ def _PackageKomodoPAD(cfg):
     # The icon file.
     _cp(join("src", "main", "komodo32.%s.png" % cfg.productType),
         join(output_dir, "komodoedit_orb_32.png"))
-
-
-def _PackageKomodoDocs(cfg):
-    """Create Komodo's doc package.
-
-    This package is used for updating docs.activestate.com.
-
-    The 'mk ashelp' step in contrib/Conscript for "komododoc" should
-    have been run by now. We will just packages it up.
-    """
-    from os.path import isdir, join, basename, dirname, exists
-
-    buildDir = os.path.join(cfg.buildRelDir, cfg.docsPackageName)
-    print "packaging 'docs' in '%s'" % buildDir
-
-    # Trim some junk files
-    for dirpath, dirnames, filenames in os.walk(buildDir):
-        if ".consign" in filenames:
-            os.unlink(join(dirpath, ".consign"))
-
-    # Zip it up.
-    zipfile = join(cfg.buildRelDir, cfg.docsPackageName+".zip")
-    if exists(zipfile):
-        os.remove(zipfile)
-    cmd = "zip -rq %s %s" % (basename(zipfile), cfg.docsPackageName)
-    _run_in_dir(cmd, dirname(zipfile))
-    
-    # Copy it to packages dir.
-    if not isdir(cfg.packagesAbsDir):
-        os.makedirs(cfg.packagesAbsDir)
-    dst = join(cfg.packagesRelDir, basename(zipfile))
-    _copy(zipfile, dst)
-    print "created '%s'" % dst
 
 
 def _PackageKomodoMozillaPatches(cfg):
@@ -2184,8 +2111,6 @@ def _BuildKomodo(cfg, argv):
         return JarChrome("xtk", cfg, argv)
     if "jarkomodo" in argv:
         return JarChrome("komodo", cfg, argv)
-    if "jardocs" in argv:
-        return JarChrome("komododoc", cfg, argv)
     if "rebuildquickdb" in argv:
         return BuildQuickBuildDB(cfg, argv)
     if "quickdump" in argv:

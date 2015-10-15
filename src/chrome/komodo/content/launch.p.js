@@ -52,45 +52,15 @@ var _log = ko.logging.getLogger("ko.help");
 /* XXX duplicated from help/content/contextHelp.js.  We do NOT want
    alwaysRaised attribute on the window, that's obnoxious! */
 
-function openHelp(topic, contentPack)
+function openHelp(topic, path = 'Manual/')
 {
-  var helpFileURI = contentPack || helpFileURI;
-
-  var topWindow = locateHelpWindow(helpFileURI);
-
-  if ( topWindow ) {
-    topWindow.focus();
-    topWindow.displayTopic(topic);
-  } else {
-    const params = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
-                             .createInstance(Components.interfaces.nsIDialogParamBlock);
-    params.SetNumberStrings(2);
-    params.SetString(0, helpFileURI);
-    params.SetString(1, topic);
-    ko.windowManager.openOrFocusDialog(
-        "chrome://help/content/help.xul",
-        "mozilla:help",
-        "chrome,all,close=yes",
-        params);
-  }
+    console.log(topic);
+    
+    var url = ko.prefs.getString('doc_site');
+    if (topic) url += path + topic;
+    ko.browse.openUrlInDefaultBrowser(url);
 }
 
-function locateHelpWindow(contentPack) {
-    const windowManagerInterface = Components
-        .classes['@mozilla.org/appshell/window-mediator;1'].getService()
-        .QueryInterface(Components.interfaces.nsIWindowMediator);
-    const iterator = windowManagerInterface.getEnumerator("mozilla:help");
-    var topWindow = null;
-    var aWindow;
-
-    while (iterator.hasMoreElements()) {
-        aWindow = iterator.getNext();
-        if (aWindow.getHelpFileURI() == contentPack) {
-            topWindow = aWindow;
-        }
-    }
-    return topWindow;
-}
 /* end of contextHelp.js duplication */
 
 /**
@@ -98,8 +68,8 @@ function locateHelpWindow(contentPack) {
  *
  * @param {String} page A page tag as defined in toc.xml
  */
-this.open = function(page) {
-    openHelp(page, 'chrome://komododoc/locale/komodohelp.rdf');
+this.open = function(page, path) {
+    openHelp(page, path);
 }
 
 /**

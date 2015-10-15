@@ -60,7 +60,6 @@ Import(
     'sdkDir',
     'universal',
     'komodoDevDir',
-    'withDocs',
     'withKomodoCix',
     'withWatchdogFSNotifications',
 );
@@ -482,80 +481,6 @@ $consLocal->DependsRecursive($landmark, "scandir", ("build"));
 
 #----  Markdown2.
 $consLocal->InstallPythonUtility('smallstuff/markdown2.py');
-
-
-#---- komododoc
-# The Komodo documentation project.
-#
-# Note: must use $cons for the komododoc build, as it depends upon files that
-#       reside outside of the contrib area.
-
-if ($withDocs) {
-    my @opts = (
-        "--filter", "edit,".$productType."only",
-        "--lang", "en-US",
-        "--chrome-dir", $mozChromeDir,
-        "--miniset-dir", $readmeDir,
-        "--license-text-path", "%2:a",
-    );
-    if ($withKomodoCix) {
-        push @opts, ("--komodo-cix-path", "%3:a");
-    }
-    my $opts = join ' ', @opts;
-    my $komodoCix = "$komodoPythonUtilsDir/codeintel2/catalogs/komodo.cix";
-    if ($withKomodoCix) {
-        $cons->Command(
-            "komododoc/config.py",          # %0
-            "komododoc/configure.py",       # %1
-            "../license_text/LICENSE.mpl.txt",     # %2
-            $komodoCix,                     # %3
-            qq{
-                cd %1:d && $unsiloedPythonExe %1:f $opts
-            }
-        );
-    } else {
-        $cons->Command(
-            "komododoc/config.py",          # %0
-            "komododoc/configure.py",       # %1
-            "../license_text/LICENSE.mpl.txt",     # %2
-            qq{
-                cd %1:d && $unsiloedPythonExe %1:f $opts
-            }
-        );
-    }
-    
-    $landmark = "$mozChromeDir/komododoc.manifest";  # just a landmark file for now
-    $cons->Command(
-        $landmark,
-        "komododoc/Makefile.py",
-        "komododoc/config.py",
-        "$mozBin/chrome.manifest",
-        "$sdkDir/pylib/chromereg.py",
-        qq{
-            cd %1:d && mk mozhelp
-            $unsiloedPythonExe %4 %3 %0 "chrome"
-        }
-    );
-    if ($withKomodoCix) {
-        $cons->Depends($landmark, $komodoCix);
-    }
-    $cons->DependsRecursive($landmark, "komododoc",
-                            ("build", '\.svn', '\.consign'));
-
-    if ($platform ne "win") {
-        $landmark = "$readmeDir/relnotes.html";
-        $cons->Command(
-            $landmark,
-            "komododoc/Makefile.py",
-            "komododoc/config.py",
-            qq{
-                cd %1:d && mk miniset
-            }
-        );
-        $cons->DependsRecursive($landmark, "komododoc",
-                                ("build", '\.svn', '\.consign'));
-    }
-}
 
 if ($platform eq "win") {
     $consLocal->InstallPythonUtility('smallstuff/winprocess.py');

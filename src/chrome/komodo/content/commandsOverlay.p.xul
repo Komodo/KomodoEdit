@@ -205,10 +205,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_helpShowKeybindings', event)"
             desc="&helpShowKeybindings.desc;"/>
         <command
-            id="cmd_helpPerlRef_Local" key="key_cmd_helpPerlRef_Local"
-            oncommand="ko.commands.doCommandAsync('cmd_helpPerlRef_Local', event);"
-            desc="&helpPerlReferenceLocal.desc;"/>
-        <command
             id="cmd_helpPerlRef_Web" key="key_cmd_helpPerlRef_Web"
             oncommand="ko.commands.doCommandAsync('cmd_helpPerlRef_Web', event);"
             desc="&helpPerlReferenceWeb.desc;"/>
@@ -217,10 +213,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_helpPerlMailingLists', event);"
             desc="&helpPerlMailingLists.desc;"/>
         <command
-            id="cmd_helpPythonRef_Local" key="key_cmd_helpPythonRef_Local"
-            oncommand="ko.commands.doCommandAsync('cmd_helpPythonRef_Local', event);"
-            desc="&helpPythonReferenceLocal.desc;"/>
-        <command
             id="cmd_helpPythonRef_Web" key="key_cmd_helpPythonRef_Web"
             oncommand="ko.commands.doCommandAsync('cmd_helpPythonRef_Web', event);"
             desc="&helpPythonReferenceWeb.desc;"/>
@@ -228,10 +220,6 @@
             id="cmd_helpPythonMailingLists" key="key_cmd_helpPythonMailingLists"
             oncommand="ko.commands.doCommandAsync('cmd_helpPythonMailingLists', event);"
             desc="&helpPythonMailingLists.desc;"/>
-        <command
-            id="cmd_helpPython3Ref_Local" key="key_cmd_helpPython3Ref_Local"
-            oncommand="ko.commands.doCommandAsync('cmd_helpPython3Ref_Local', event);"
-            desc="&helpPython3ReferenceLocal.desc;"/>
         <command
             id="cmd_helpPython3Ref_Web" key="key_cmd_helpPython3Ref_Web"
             oncommand="ko.commands.doCommandAsync('cmd_helpPython3Ref_Web', event);"
@@ -252,10 +240,6 @@
             id="cmd_helpRubyMailingLists" key="key_cmd_helpRubyMailingLists"
             oncommand="ko.commands.doCommandAsync('cmd_helpRubyMailingLists', event);"
             desc="&helpRubyMailingLists.desc;"/>
-        <command
-            id="cmd_helpTclRef_Local" key="key_cmd_helpTclRef_Local"
-            oncommand="ko.commands.doCommandAsync('cmd_helpTclRef_Local', event);"
-            desc="&helpTclReferenceLocal.desc;"/>
         <command
             id="cmd_helpTclRef_Web" key="key_cmd_helpTclRef_Web"
             oncommand="ko.commands.doCommandAsync('cmd_helpTclRef_Web', event);"

@@ -1070,4 +1070,6 @@
   
   <boolean id="pin_find_frame">0</boolean>
   
+  <string id="doc_site">http://docs.komodoide.com/</string>
+  
 </preference-set>

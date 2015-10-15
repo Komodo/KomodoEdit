@@ -9,7 +9,6 @@ Import(
     "buildFlavour",
     "supportDir",
     "sysdllsDir",
-    "docDir",
     "platform",
     "architecture",
     "buildType",

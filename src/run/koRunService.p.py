@@ -516,7 +516,6 @@ class KoInterpolationService:
                                  "userCacheDir",
                                  "supportDir",
                                  "sdkDir",
-                                 "docDir",
                                  "installDir",
                                  "mozBinDir",
                                  "binDir",
