@@ -974,9 +974,6 @@
             </xul:hbox>
         </content>
 
-        <implementation>
-            <field name="_mouseDownOnCloseButton">false</field>
-        </implementation>
         <handlers>
             <!--
             Something about Mozilla absolutely refuses to send ANY events from the
@@ -984,11 +981,12 @@
             -->
             <handler event="click" button="0" phase="capturing">
             <![CDATA[
+                var s = this.parentNode.scrollBoxObject.element.scrollLeft;
                 var b = document.getAnonymousElementByAttribute(this, "anonid", "close-button");
                 var d = {
-                    x: b.boxObject.x,
+                    x: b.boxObject.x - s,
                     y: b.boxObject.y,
-                    ex: b.boxObject.x + b.boxObject.width,
+                    ex: b.boxObject.x - s + b.boxObject.width,
                     ey: b.boxObject.y + b.boxObject.height
                 };
                 
