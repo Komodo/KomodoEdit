@@ -163,6 +163,30 @@ button:-moz-any(.button-toolbar-a, .button-toolbar-b, .button-toolbar-c, .button
     }
 }
 
+.button-toolbar-a
+{
+    min-width: 32px !important;
+    -moz-box-pack: center;
+    
+    &, *
+    {
+        border: 0 !important;
+    }
+    
+    &:hover
+    {
+        &:-moz-any(button)
+        {
+            -moz-appearance: button;
+        }
+    
+        &:-moz-any(toolbarbutton)
+        {
+            -moz-appearance: toolbarbutton;
+        }
+    }
+}
+
 /* Button States */
 button:not([disabled="true"]):not(.button-link):not([type="menu"]),
 :not(toolbarbutton):not(toolbaritem) > toolbarbutton:not([disabled="true"])
