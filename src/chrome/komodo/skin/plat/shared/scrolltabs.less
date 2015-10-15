@@ -14,15 +14,10 @@ tab[type="file-tab"]
     max-width: 250px;
 }
 
-tab[widget^="findresults_tabpanel"]
+tab[widget^="findresults_tabpanel"],
+tab[widget^="debugsession"]
 {
     -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tab-close-button');
-    
-    .tab-close-button:hover
-    {
-        color: red;
-        opacity: 0.1;
-    }
 }
 
 .tabs-select-button

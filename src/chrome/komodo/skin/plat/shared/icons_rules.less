@@ -1000,9 +1000,16 @@ statusbar .menu-icon
 .close-button,
 #tabs-closebutton,
 .tabs-closebutton,
-.tab-close-button
+.tab-close-button,
+.close-icon
 {
     list-style-image: @icon-close;
+    background-image: none !important;
+    
+    & > image
+    {
+        min-height: 16px;
+    }
 }
 
 .tabs-closebutton
@@ -1943,7 +1950,7 @@ ko-pane[type="icons"]
     {
         list-style-image: @icon-hud-run-command;
     }
-
+    
 }
 
 .wordspace_open_icon
