@@ -212,6 +212,7 @@
 <!ENTITY doNotAlertMeOnLargeFileLoad.label "Do not alert me when a large buffer will be treated as plain text">
 <!ENTITY doNotRestoreLastWorkspace.label "Do not restore last workspace">
 <!ENTITY doNotWarnWhenFilesCannotBeReOpenedOnStartup.label "Do not warn when files cannot be re-opened on startup">
+<!ENTITY workspaceRestoreHistory.label "Restore Tab History">
 <!ENTITY documentMarkupSettings.label "Document Markup Settings">
 <!ENTITY donTAutoIndent.label "Don't auto-indent">
 <!ENTITY donTShowFoldMarks.label "Don't show fold marks">

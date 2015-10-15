@@ -166,7 +166,7 @@ this.init = function() {
                             this._handle_closing_view_setup, false);
     window.addEventListener('current_view_changed',
                             this.note_loc_unless_history_move.bind(this, null), false);
-    initialized = true;
+    window.addEventListener('komodo-post-startup', function() { initialized = true; });
 };
 
 this.destroy = function() {
@@ -891,7 +891,8 @@ this.save_prefs = function(prefs) {
 };
 
 this.restore_prefs = function(prefs) {
-    if (! prefs.hasPref("history_rctabs")) {
+    var globalPrefs = require("ko/prefs");
+    if ( ! globalPrefs.getBoolean('workspace_restory_history') || ! prefs.hasPref("history_rctabs")) {
         return;
     }
     var uriPrefSet = prefs.getPref("history_rctabs");

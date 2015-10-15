@@ -709,6 +709,7 @@
   -->
   <boolean id="donotask_restore_workspace">1</boolean>
   <string id="donotask_action_restore_workspace">Yes</string>
+  <boolean id="workspace_restory_history">0</boolean>
 
   <!-- Dealing with workspaces when Komodo did not shutdown correctly (crashed).
          komodo_normal_shutdown: set to false when Komodo initially starts up
