@@ -6,6 +6,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
      * to work well for developers. It is not intended to be fully backwards or
      * forward compatible with CodeMirror.
      */
+    
+    var _win = require("ko/windows").getMain();
 
     var scimoz = function()
     {
@@ -21,8 +23,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     {
         if (_scintilla !== undefined) return _scintilla;
         
-        if ( ! window.ko.views.manager.currentView) return undefined;
-        return window.ko.views.manager.currentView.scintilla;
+        if ( ! _win.ko.views.manager.currentView) return undefined;
+        return _win.ko.views.manager.currentView.scintilla;
     }
 
     this.editor = function(sci, scm) {
@@ -319,7 +321,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
      */
     this.getWord = function (pos, match)
     {
-        if (pos instanceof window.RegExp)
+        if (pos && pos.constructor.toString().indexOf("RegExp") != -1)
         {
             match = pos;
             pos = undefined;
@@ -329,7 +331,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
             match = /[\w_\-]/;
         
         if ( ! pos)
-            pos = this.getCursorPosition('absolute');
+        {
+            pos = scimoz().wordEndPosition(scimoz().currentPos, true);
+        }
         else
             pos = this._posFormat(pos, 'absolute');
             
