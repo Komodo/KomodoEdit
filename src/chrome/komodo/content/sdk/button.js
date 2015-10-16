@@ -112,7 +112,15 @@
         button.sdkOpts = opts;
 
         var sibling, appended;
-        if (context.where == "before")
+        if (contextOpts.where == "append")
+        {
+            context.append(button);
+        }
+        else if (contextOpts.where == "prepend")
+        {
+            context.prepend(button);
+        }
+        else if (contextOpts.where == "before")
         {
             context.before(button);
         }
