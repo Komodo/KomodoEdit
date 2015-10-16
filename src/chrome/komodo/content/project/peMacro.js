@@ -173,10 +173,10 @@ function _executeMacro(part, asynchronous, observer_arguments) {
                 }
                 break;
             default:
-                retval = "Macros written in '"+language+"' aren't supported."
+                retval = "Userscripts written in '"+language+"' aren't supported."
         }
         if (exception) {
-            ko.dialogs.alert("There was a problem executing the macro: " +
+            ko.dialogs.alert("There was a problem executing the userscript: " +
                          part.getStringAttribute('name'), exception);
             return true;
         } else {
@@ -871,7 +871,7 @@ _KomodoJSMacroAPI.prototype.destructor = function() {
 
 _KomodoJSMacroAPI.prototype.assertMacroVersion = function(version) {
     if (version < ko.macros.CURRENT_MACRO_VERSION) {
-        alert("This macro was generated with an older version of Komodo, "
+        alert("This userscript was generated with an older version of Komodo, "
               + "and might no longer work correctly.  \n"
               + "This message can be suppressed by editing the userscript "
               + "and changing the 'assertMacroVersion' value to "
