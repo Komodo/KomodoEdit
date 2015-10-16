@@ -1747,15 +1747,11 @@ class Parser:
                 tval = tok['text']
                 if tval == "(":
                     nestedCount += 1
-                    tok = self.tokenizer.get_next_token()
                 elif tval == ")":
                     nestedCount -= 1
                     if nestedCount <= 0:
                         break
-                else:
-                    tok = self.tokenizer.get_next_token()
-            else:
-                tok = self.tokenizer.get_next_token()
+            tok = self.tokenizer.get_next_token()
     #end skip_to_close_paren
     
     def skip_to_end_of_stmt(self):
