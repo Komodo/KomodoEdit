@@ -880,7 +880,7 @@ class KoLanguageRegistryService:
             prefs = currentProject.prefset
 
             if prefs.hasPref("currentInvocationLanguage"):
-                if prefset.getStringPref("currentInvocationLanguage") == "Node.js":
+                if prefs.getStringPref("currentInvocationLanguage") == "Node.js":
                     return "Node.js"
                 else:
                     return "JavaScript"
