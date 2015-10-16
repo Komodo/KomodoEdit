@@ -13,11 +13,15 @@
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <vbox flex="1" id="openfilesWrapper">
         <vbox flex="99">
-            <hbox id="openfilesPrefHbox">
+            <hbox id="openfilesPrefHbox" align="center">
                 <label
                        id="openFilesPaneLabel"
                        value="&openFiles.label;: 0"
                        class="panel-label desc"/>
+                <toolbarbutton
+                    id="openFilesCloseAll"
+                    class="file-close-button"
+                    tooltiptext="&closeFiles.tooltip;"/>
                 <spacer flex="1"/>
                 <toolbarbutton
                     id="openfilesPrefButton"
@@ -205,6 +209,11 @@
                     crop="start"
                     flex="1"
                     value="__group-title"/>
+                
+                <toolbarbutton
+                    anonid="close-button"
+                    class="file-close-button"
+                    tooltiptext="&closeFiles.tooltip;"/>
                 
             </richlistitem>
         </vbox>

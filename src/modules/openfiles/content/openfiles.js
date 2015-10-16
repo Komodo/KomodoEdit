@@ -401,6 +401,8 @@ if (typeof ko.openfiles == 'undefined')
          */
         bindListeners: function openfiles_bindListeners()
         {
+            document.getElementById('openFilesCloseAll').addEventListener("command", this.onClickCloseAll.bind(this));
+            
             /**** Komodo Events ******/
             koWindow.addEventListener('view_closed', function(e)
             {
@@ -498,6 +500,38 @@ if (typeof ko.openfiles == 'undefined')
         onClickItemClose: function openfiles_onClickItemClose(editorView)
         {
             editorView.close();
+        },
+        
+        /**
+         * Event triggered when a group has been closed
+         * 
+         * @param   {Element} groupItem
+         * 
+         * @returns {Void} 
+         */
+        onClickGroupClose: function openfiles_onClickGroupClose(groupItem)
+        {
+            var closeViews = [];
+            var item = groupItem;
+            while (item.nextSibling && item.nextSibling.classList.contains("file-item"))
+            {
+                item = item.nextSibling;
+                closeViews.push(openViews[item.getAttribute("id")]);
+            }
+            
+            for (let editorView of closeViews) 
+                editorView.close();
+        },
+        
+        /**
+         * Event triggered when all items have been closed
+         * 
+         * @returns {Void} 
+         */
+        onClickCloseAll: function openfiles_onClickGroupClose()
+        {
+            for (let id in openViews)
+                openViews[id].close();
         },
         
         /**
@@ -834,6 +868,27 @@ if (typeof ko.openfiles == 'undefined')
                 'value', groupInfo.name || ''
             );
             groupItem.classList.add(className); // append class
+            
+            groupItem.querySelector('.file-close-button').addEventListener(
+                "mousedown", function(e) {
+                    if (e.which != 1) // Only allow left click
+                        return;
+                    
+                    // Don't bubble mousedown events on the close button
+                    // We don't want to switch to a file that is being closed
+                    e.preventDefault();
+                }.bind(this)
+            );
+            
+            // Bind click event on the close button
+            groupItem.querySelector('.file-close-button').addEventListener(
+                "mouseup", function(e) {
+                    if (e.which != 1) // Only allow left click
+                        return;
+                    
+                    this.onClickGroupClose(groupItem);
+                }.bind(this)
+            );
             
             // Append custom classes as specified by the grouper
             if (groupInfo.classlist !== undefined)
