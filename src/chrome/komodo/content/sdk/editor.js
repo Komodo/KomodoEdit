@@ -310,6 +310,41 @@ var sdkEditor = function(_scintilla, _scimoz) {
     {
         return scimoz().text;
     };
+    
+    /**
+     * Get word to the left of the given position
+     *
+     * @param   {Null|Int|Object|Regexp}    pos     Absolute or relative position, if value is regex then this will be used as the match. Leave empty to use current cursor position.
+     * @param   {Null|RegExp}               match   The regex to match the word agains
+     */
+    this.getWord = function (pos, match)
+    {
+        if (pos instanceof window.RegExp)
+        {
+            match = pos;
+            pos = undefined;
+        }
+        
+        if ( ! match)
+            match = /[\w_\-]/;
+        
+        if ( ! pos)
+            pos = this.getCursorPosition('absolute');
+        else
+            pos = this._posFormat(pos, 'absolute');
+            
+        var lineNo = this.getLineNumber(pos);
+        var word = "";
+        
+        while (this.getLineNumber(pos) == lineNo)
+        {
+            let letter = this.getRange(--pos, pos+1)
+            if ( ! letter.match(match)) break;
+            word = letter + word;
+        }
+        
+        return word.trim();
+    };
 
     /**
      * Get the character length of the current buffer
@@ -414,11 +449,17 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get the current line number
      *
+     * @param   {Null|Object|Int} position   relative/absolute position to look from, leave empty to use current cursor position.
+     *
      * @returns {Int}
      */
-    this.getLineNumber = function()
+    this.getLineNumber = function(pos)
     {
-        var pos = this.getCursorPosition("relative");
+        if ( ! pos)
+            pos = this.getCursorPosition("relative");
+        else
+            pos = this._posFormat(pos, "relative");
+            
         return pos.line;
     };
 
