@@ -92,7 +92,7 @@ window.app = {};
                 {
                     e.preventDefault();
                     
-                    if (elem.input.sc.style.display != 'none') return; // autocomplete will handle this
+                    if (elem.input.sc.style.display == 'block') return; // autocomplete will handle this
                     setTimeout(function()
                     {
                         if (elem.input._suppressEnter)
