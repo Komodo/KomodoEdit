@@ -239,6 +239,7 @@ function _get_curr_loc(view /* =current view */,
         callback(null);
         return;
     }
+    if (!tabbedViewId) return;
     _controller.historySvc.loc_from_view_info(
         viewType,
         window._koNum,
@@ -256,6 +257,7 @@ function _mark_pos_info(view) {
         return;
     }
     var scimoz = view.scimoz;
+    if (!scimoz) return;
     if (typeof(view.pos_before_last_jump) != "undefined") {
         // Free up old marker handles
         var marker_handle = view.pos_before_last_jump.marker_handle;
@@ -300,6 +302,7 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
     this._recently_did_history = false;
     
     _get_curr_loc(view, null, (loc) => {
+        if (!loc) return;
         if (view.getAttribute("type") == "editor" && loc) {
             if (!view.scimoz) {
                 view = null;
