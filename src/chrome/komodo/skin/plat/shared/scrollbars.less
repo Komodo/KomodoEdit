@@ -24,7 +24,13 @@
     {
         .appearance(@id, wrapper, "");
         .sizing(@id, wrapper, @orient, "");
-
+        
+        & + scrollcorner
+        {
+            -moz-appearance: ~"@{scrollbar-@{id}-wrapper-appearance}" !important;
+            background: ~"@{scrollbar-@{id}-wrapper-background@{state}}";
+        }
+        
         slider {
             .appearance(@id, slider, "");
             .sizing(@id, slider, @orient, "");
