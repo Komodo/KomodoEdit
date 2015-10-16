@@ -18,7 +18,7 @@
     const _document = _window.document;
     const _ko = _window.ko;
 
-    var _window_test_warning_logged = false;
+    var _noWindowWarned = false;
 
     var notify = this;
     var queue = {};
@@ -223,10 +223,12 @@
         };
         
         // Tests do not have a window - don't run this code path in that case.
-        if (typeof(window) == "undefined") {
+        if (typeof(_window) == "undefined")
+        {
             // Avoid spamming - just write a warning once.
-            if (!_window_test_warning_logged) {
-                _window_test_warning_logged = true;
+            if ( ! _noWindowWarned)
+            {
+                _noWindowWarned = true;
                 log.warn("no window available for notify.queue");
             }
         } else {
