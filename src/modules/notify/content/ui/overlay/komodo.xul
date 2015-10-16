@@ -19,9 +19,13 @@
 
     <popupset id="komodoMainPopupSet">
         <script id="tpl-notify-panel" type="x-dot-template">
-            <panel anonid="notify-panel"
-                   class="notify-panel {{=it.classlist}}"
-                   noautofocus="true">
+            <panel  anonid="notify-panel"
+                    class="notify-panel {{=it.classlist}}"
+                    type="arrow"
+                    noautofocus="true"
+                    norestorefocus="true"
+                    ignorekeys="true"
+                    level="parent">
                 <hbox class="wrapper">
                     {{?it.icon}}
                         <vbox pack="center">

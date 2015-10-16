@@ -6,8 +6,8 @@
     const editor    = require("ko/editor");
     const timers    = require("sdk/timers");
     const doT       = require("contrib/dot");
-    const prefs     = Cc['@activestate.com/koPrefService;1']
-                        .getService(Ci.koIPrefService).prefs;
+    const prefs     = Cc['@activestate.com/koPrefService;1'].getService(Ci.koIPrefService).prefs;
+    const fm        = Cc["@mozilla.org/focus-manager;1"].getService(Ci.nsIFocusManager);
     const logging   = require("ko/logging");
     const winUtils  = require("sdk/window/utils");
     const log       = logging.getLogger("notify");
@@ -362,6 +362,8 @@
 
         var panel = $(templates.get("panel", notif.opts));
         this.bindActions(notif, panel);
+        
+        panel.focusedElement = document.commandDispatcher.focusedElement;
 
         queue[notif.opts.from].activeId = notif.opts.id;
         queue[notif.opts.from].activePanel = panel;
@@ -396,6 +398,7 @@
         // When opacity works this is a non-issue
         var pos = this._calculatePosition(notif.opts.from || null, panel);
         panel.element().openPopup($("#komodo-vbox", _window).element(), pos.x, animate ? pos.y + 30 : pos.y);
+        fm.setFocus(panel.focusedElement, fm.FLAG_BYMOUSE);
     }
 
     this.doShowNotification = (notif, animate = true) =>
@@ -404,9 +407,8 @@
         
         var panel = queue[notif.opts.from].activePanel;
         var pos = this._calculatePosition(notif.opts.from || null, panel);
-        panel.attr("noautohide", true);
-        panel.noautohide = true;
         panel.element().style.visibility = "";
+        fm.setFocus(panel.focusedElement, fm.FLAG_BYMOUSE);
         
         if ( ! animate)
         {
@@ -415,6 +417,7 @@
             // First one sometimes doesn't take
             setTimeout(function() {
                 panel.element().moveTo(pos.x, pos.y);
+                fm.setFocus(panel.focusedElement, fm.FLAG_BYMOUSE);
             }, 50);
         }
         else
@@ -430,6 +433,10 @@
                 {
                     start: {panelY: pos.y + 30, panelX: pos.x},
                     duration: animate ? 200 : 0
+                },
+                function ()
+                {
+                    fm.setFocus(panel.focusedElement, fm.FLAG_BYMOUSE);
                 }
             );
         }
@@ -461,7 +468,7 @@
             interacting = false;
             panel.timeout = timers.setTimeout(this.hideNotification.bind(this, notif), 1000);
         };
-
+        
         panel.on("mouseover", interact);
         panel.on("focus", interact);
 
