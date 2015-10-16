@@ -244,7 +244,6 @@ function setQuickBookmark(index)
         editor.unsetBookmarkByHandle(quickBookmarkPref.getLong("markerId"));
     }
     
-    ko.history.note_curr_loc(require("ko/views").current().get());
     var markerId = editor.setBookmark(editor.getLineNumber(),
                                       ko.markers['MARKNUM_BOOKMARK' + index]);
     var markerId = editor.setBookmark(editor.getLineNumber());
@@ -312,7 +311,6 @@ editor_editorController.prototype.do_cmd_bookmarkGotoNext = function() {
             "bookmark");
         
     } else {
-        ko.history.note_curr_loc(v);
         v.scimoz.ensureVisibleEnforcePolicy(nextLine);
         v.scimoz.gotoLine(nextLine);
     }
@@ -342,7 +340,6 @@ editor_editorController.prototype.do_cmd_bookmarkGotoPrevious = function() {
             _bundle.GetStringFromName("noPreviousBookmark.message"),
             "bookmark.message");
     } else {
-        ko.history.note_curr_loc(v);
         v.scimoz.ensureVisibleEnforcePolicy(prevLine);
         v.scimoz.gotoLine(prevLine);
     }

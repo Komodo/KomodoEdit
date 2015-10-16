@@ -988,7 +988,6 @@ ko.codeintel = {};
                     log.info("goto definition at "+triggerPos+
                                          ": found defn path '"+defn.path+
                                          "', line "+defn.line+".");
-                    ko.history.note_curr_loc();
                     ko.views.manager.doFileOpenAtLineAsync(ko.uriparse.pathToURI(defn.path), defn.line);
                 } else {
                     // No file, prompt to see if the user wants to view the online

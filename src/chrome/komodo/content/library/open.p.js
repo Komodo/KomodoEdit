@@ -236,7 +236,6 @@ this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" 
                 // Open the image for previewing, bug 85103.
                 viewType = "browser";
             }
-            ko.history.note_curr_loc();
             if (lineno) {
                 ko.views.manager.doFileOpenAtLineAsync(uri, lineno, viewType, null, -1, callback);
             } else {
@@ -382,7 +381,6 @@ this.displayPath = function open_openDisplayPath(displayPath,
             continue;
         }
         if (_fequal(typedView.koDoc.displayPath, displayPath)) {
-            ko.history.note_curr_loc();
             typedView.makeCurrent();
             if (callback) {
                 callback(typedView);
@@ -399,7 +397,6 @@ this.displayPath = function open_openDisplayPath(displayPath,
  * Open quick start - the view will be opened synchronously.		
  */		
 this.quickStart = function open_openStartPage() {		
-    ko.history.note_curr_loc();		
     ko.views.manager._doFileOpen("chrome://komodo/content/quickstart.xml#view-quickstart",
                                  "quickstart");
 }

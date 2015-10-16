@@ -878,10 +878,7 @@ this._displayFindResult = function _DisplayFindResult(editor, findResult)
         }
         // we don't want to focus when find dialog is up.
         var noFocus = (win != window);
-        win.ko.history.note_curr_loc(view);
         view.makeCurrent(noFocus);
-    } else {
-        win.ko.history.note_curr_loc(view);
     }
 
     // Jump to the find result and select it.
@@ -1821,10 +1818,6 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
         }
     }
     
-    // Really only want to note this location if the "replace all" actually
-    // replaces something. Good enough just always do it for now.
-    editor.ko.history.note_curr_loc();
-
     var numReplacements = lazy.findSession.GetNumReplacements();
     var nr;
     if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC

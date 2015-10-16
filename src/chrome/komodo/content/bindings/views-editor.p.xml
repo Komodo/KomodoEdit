@@ -1489,7 +1489,6 @@
                          "another open buffer.");
             return false;
         }
-        ko.history.note_curr_loc(this);
         try {
             var oldLargeDocument = (this.koDoc.isLargeDocument
                                     && (!this.koDoc.prefs.hasPrefHere("originalLanguage")

@@ -1249,7 +1249,6 @@
                     lineNo = Number(lineNo);
                     var os = Components.classes["@activestate.com/koOs;1"].createInstance();
                     if (os.path.exists(fname)) {
-                        ko.history.note_curr_loc();
                         ko.views.manager.doFileOpenAtLineAsync(ko.uriparse.pathToURI(fname), lineNo);
                     } else {
                         msg = "The file '" + fname + "' could not be found.";
