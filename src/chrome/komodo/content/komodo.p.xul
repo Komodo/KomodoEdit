@@ -295,6 +295,89 @@
         <menuitem id="editor-go-to-definition"
                 label="&goToDefinition.label;"
                 observes="cmd_goToDefinition"/>
+             
+        <menu id="editor_context_quick_bookmarks_menu"
+              label="&quickbookmark.menu.label;"
+              accesskey="&quickbookmark.menu.accesskey;">
+            <menupopup id="editor-context-quick-bookmarks"
+                onpopupshowing="ko.commands.updateCommandset(document.getElementById('cmdset_quickbookmarks'));">
+                <menuitem
+                    label="&quickbookmarkToggle_1.lable;"
+                    observes="cmd_toggleQuickBookmark_1"/>
+                <menuitem
+                    label="&quickbookmarkToggle_2.lable;"
+                    observes="cmd_toggleQuickBookmark_2"/>
+                <menuitem
+                    label="&quickbookmarkToggle_3.lable;"
+                    observes="cmd_toggleQuickBookmark_3"/>
+                <menuitem
+                    label="&quickbookmarkToggle_4.lable;"
+                    observes="cmd_toggleQuickBookmark_4"/>
+                <menuitem
+                    label="&quickbookmarkToggle_5.lable;"
+                    observes="cmd_toggleQuickBookmark_5"/>
+                <menuitem
+                    label="&quickbookmarkToggle_6.lable;"
+                    observes="cmd_toggleQuickBookmark_6"/>
+                <menuitem
+                    label="&quickbookmarkToggle_7.lable;"
+                    observes="cmd_toggleQuickBookmark_7"/>
+                <menuitem
+                    label="&quickbookmarkToggle_8.lable;"
+                    observes="cmd_toggleQuickBookmark_8"/>
+                <menuitem
+                    label="&quickbookmarkToggle_9.lable;"
+                    observes="cmd_toggleQuickBookmark_9"/>
+                <menuitem
+                    label="&quickbookmarkToggle_0.lable;"
+                    observes="cmd_toggleQuickBookmark_0"/>
+                
+                <menuseparator id="editor-context-sep-bookmarks"/>
+                
+                <menuitem
+                    class="go-to-bookmark"
+                    label="&quickbookmarkGoTo_1.lable;"
+                    observes="cmd_goToQuickBookmark_1"/>
+                <menuitem
+                    class="go-to-bookmark"
+                    label="&quickbookmarkGoTo_2.lable;"
+                    observes="cmd_goToQuickBookmark_2"/>
+                <menuitem
+                    class="go-to-bookmark"
+                    label="&quickbookmarkGoTo_3.lable;"
+                    observes="cmd_goToQuickBookmark_3"/>
+                <menuitem
+                    class="go-to-bookmark"
+                    label="&quickbookmarkGoTo_4.lable;"
+                    observes="cmd_goToQuickBookmark_4"/>
+                <menuitem
+                    class="go-to-bookmark"
+                    label="&quickbookmarkGoTo_5.lable;"
+                    observes="cmd_goToQuickBookmark_5"/>
+                <menuitem
+                    class="go-to-bookmark"
+                    label="&quickbookmarkGoTo_6.lable;"
+                    observes="cmd_goToQuickBookmark_6"/>
+                <menuitem
+                    class="go-to-bookmark"
+                    label="&quickbookmarkGoTo_7.lable;"
+                    observes="cmd_goToQuickBookmark_7"/>
+                <menuitem
+                    class="go-to-bookmark"
+                    label="&quickbookmarkGoTo_8.lable;"
+                    observes="cmd_goToQuickBookmark_8"/>
+                <menuitem
+                    class="go-to-bookmark"
+                    label="&quickbookmarkGoTo_9.lable;"
+                    observes="cmd_goToQuickBookmark_9"/>
+                <menuitem
+                    class="go-to-bookmark"
+                    label="&quickbookmarkGoTo_0.lable;"
+                    observes="cmd_goToQuickBookmark_0"/>
+                
+            </menupopup>
+         </menu>
+        
         <menuseparator id="editor-context-sep-extensions"/>
         <menuitem id="editor-context-makeSnippet"
                 label="&addAsSnippetInToolbox.label;"

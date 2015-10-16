@@ -174,33 +174,49 @@ editor_editorController.prototype.do_cmd_findPreviousSelected = function() {
  *
  * @param {numbers}  index, key number was saved under.
  */
-function goToQuickBookmark(index) {
-    var docState = require("ko/views").current().prefs;
-    var quickBookmarkPref = {};
-    var quickBookmarkName = "quick_bookmarks_" + index;
-    if (!docState.hasPref(quickBookmarkName))
+function goToQuickBookmark(index)
+{
+    let line = getValidMarkerLine(index);
+    // Above linereturns null if not found
+    if (line)
+    {
+        require("ko/editor").gotoLine(line);
+    }
+    else
     {
         require("notify/notify").interact("No quick bookmark for index " + index,
                                       "editor")
-        return;
-    }
-    quickBookmarkPref = docState.getPref(quickBookmarkName);
-    if (!quickBookmarkPref.hasPref("markerId")) {
-        log.warn("Stale/broken quick bookmark ID. Removing quick bookmark index.");
-        docState.deletePref(quickBookmarkName);
-        return;
-    }
-    let markerid = quickBookmarkPref.getLong("markerId");
-    let editor = require("ko/editor");
-    let line = editor.getBookmarkLineFromHandle(markerid);
-    // Above line sets -1 if not found
-    // Gotta check or else we'll go to line 0 
-    if (line >= 0) {
-        editor.gotoLine(line);
-    }
-    else{
         docState.deletePref(quickBookmarkName);
     }
+}
+
+/**
+ * Get the valid marker handle/id of the saved quickbookmark.
+ * Confirms the marker exists
+ * 
+ * @argument {number} index, The quickbookmark to be checked for a valid marker
+ * handle
+ * @returns {number} line, line number where marker is or null
+ */
+function getValidMarkerLine(index)
+{
+    //log.warn("cgch index " + index);
+    var docState = require("ko/views").current().prefs;
+    var quickBookmarkName = "quick_bookmarks_" + index;
+    if (!docState.hasPref(quickBookmarkName))
+    {
+        return null;
+    }
+    var quickBookmarkPref = docState.getPref(quickBookmarkName);
+    if (!quickBookmarkPref.hasPref("markerId"))
+    {
+        docState.deletePref(quickBookmarkName);
+        return null;
+    }
+    let markerId = quickBookmarkPref.getLong("markerId");
+    var line = require("ko/editor").getBookmarkLineFromHandle(markerId);
+    //log.warn("cgch line: " + line);
+    return line >= 1 ? line : null;
 }
 
 //Easiest way to add the 10 goToQuickBookmark functions needs for this feature
@@ -213,7 +229,7 @@ function goToQuickBookmark(index) {
             goToQuickBookmark(i);
         }
         editor_editorController.prototype["is_cmd_goToQuickBookmark_"+i+"_enabled"] = function() {
-            return !!_getCurrentScimozView();
+            return !!getValidMarkerLine(i);
         }
     })
 
