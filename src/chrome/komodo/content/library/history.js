@@ -302,7 +302,11 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
     this._recently_did_history = false;
     
     _get_curr_loc(view, null, (loc) => {
-        if (!loc) return;
+        if (!loc)
+        {
+            this._marking = false;
+            return;
+        }
         if (view.getAttribute("type") == "editor" && loc) {
             if (!view.scimoz) {
                 view = null;
