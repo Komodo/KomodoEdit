@@ -45,7 +45,7 @@ ko.open = {};
 (function() {
 var log = require("ko/logging").getLogger("open");
 
-var fileLineNoRE = /^(.*)[#:](\d+)$/;
+var fileLineNoRE = /^(.*)(?:[#:]|%23|%3A)(\d+)$/;
 
 var _viewsBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
