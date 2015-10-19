@@ -45,6 +45,19 @@
         }
     }
     
+    this.onExpandSearch = function(query, uuid, onComplete)
+    {
+        var result = commando.getSelectedResult();
+        var scope = result.scope;
+        var scopes = commando.getRegisteredScopes();
+        scope = require(scopes[scope].handler);
+        
+        if ("onExpandSearch" in scope)
+            return scope.onExpandSearch(query, uuid, onComplete);
+        
+        return false;
+    }
+    
     this.showScopes = function(uuid, onComplete)
     {
         var scopes = getScopes();
