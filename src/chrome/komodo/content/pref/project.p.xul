@@ -126,10 +126,8 @@
             // XXX until prefs are more worked out, don't do editor prefs
             // on project parts
             nodesToDrop = nodesToDrop.concat(["advancedFileProperties",
-                                              "previewProperties"]);
-            if (!isProject) {
-                nodesToDrop.concat(["editorProperties"]);
-            }
+                                              "previewProperties",
+                                              "editorProperties"]);
         }
         if (!isfolder) {
             // stuff that should only show up on folders
