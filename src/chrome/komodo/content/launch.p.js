@@ -215,7 +215,7 @@ this.findBrowser = function(args = {})
         _findBrowser.setAttribute("src", "chrome://komodo/content/find/embedded.xul");
     }
     else
-        _findBrowser.contentWindow._init();
+        _findBrowser.contentWindow.on_load();
         
     wrapper.removeAttribute("collapsed");
     

@@ -78,8 +78,16 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 if ( ! opener) opener = require("ko/windows").getMain();
 var ko = opener.ko;
 
+var innerHTML;
+var firstInit = true;
 function on_load() {
     try {
+        var wrap = document.getElementById('find-box-wrap');
+        if (innerHTML)
+            wrap.innerHTML = innerHTML;
+        else
+            innerHTML = wrap.innerHTML;
+        
         _g_prefs = Components.classes["@activestate.com/koPrefService;1"]
             .getService(Components.interfaces.koIPrefService).prefs;
         gFindSvc = Components.classes["@activestate.com/koFindService;1"].
@@ -91,13 +99,18 @@ function on_load() {
 
         _init();
         
-        document.addEventListener("keyup", function(e) {
-            if (e.keyCode == KeyEvent.DOM_VK_ESCAPE)
-                closeFindFrame();
-        });
+        if (firstInit)
+        {
+            document.addEventListener("keyup", function(e) {
+                if (e.keyCode == KeyEvent.DOM_VK_ESCAPE)
+                    closeFindFrame();
+            });
+        }
     } catch (ex) {
         log.exception(ex);
     }
+    
+    firstInit = false;
 }
 
 function on_unload() {
@@ -804,9 +817,6 @@ function replace_all() {
 // interesting elements in the dialog.
 function _init_widgets()
 {
-    if (widgets != null) {
-        return; // was already called
-    }
     widgets = new Object();
 
     widgets.pattern_deck = document.getElementById('pattern-deck');
@@ -856,13 +866,14 @@ function _init_widgets()
  * Initialize the dialog from `opener.ko.launch.find2_dialog_args` data.
  */
 function _init() {
+    var args;
     if (window.arguments) {
-        var [args] = window.arguments;
+        [args] = window.arguments;
     } else {
         args = opener.ko.launch.find2_dialog_args || {};
         opener.ko.launch.find2_dialog_args = null;
     }
-
+    
     // Close this dialog when the opener goes away
     opener.addEventListener("unload", function unload(event) {
         window.close();
