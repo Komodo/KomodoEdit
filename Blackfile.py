@@ -1539,7 +1539,7 @@ def _PackageKomodoMSI(cfg):
             join(wrkDir, "aswixui", "License.rtf")))
 
     # build the file lists
-    features = ("feature-core")
+    features = ["feature-core"]
     for feature in features:
         _run_in_dir("%s bin/gen-wxs.py %s.template.in %s.ini %s.wxs.in" %
                         (cfg.unsiloedPythonExe, feature, feature, feature),
