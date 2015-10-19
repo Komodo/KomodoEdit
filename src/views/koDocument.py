@@ -2074,7 +2074,8 @@ class koDocumentBase(object):
     _re_ending_eol = re.compile('\r?\n$')
     def getUnsavedChanges(self, joinLines=True):
         eolStr = eollib.eol2eolStr[self._eol]
-        ondisk = self.ondisk_lines
+        
+        ondisk = self._get_buffer_from_file(self.file).splitlines(True)
         inmemory = self.get_buffer().splitlines(True)
         difflines = list(difflibex.unified_diff(
             ondisk, inmemory,
