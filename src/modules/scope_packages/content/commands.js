@@ -9,7 +9,7 @@
     this.onSearch = function(query, uuid, onComplete)
     {
         var item = commando.getSubscope();
-        var pkg =item.data.package;
+        var pkg = item.data.package;
         
         var results = [];
         
@@ -27,6 +27,7 @@
                 scope: "scope-packages",
                 command: manage.installPackage.bind(manage, pkg)
             });
+            this._appendOptions(pkg, uuid);
         }
         else
         {
@@ -40,6 +41,32 @@
         
         commando.renderResults(results, uuid);
         onComplete();
+    }
+    
+    this._appendOptions = function (pkg, uuid)
+    {
+        if ( ! pkg.mock)
+        {
+            packages._getInstalledPackagesByKind(pkg.kind, function(installed)
+            {
+                if ( ! (pkg.id in installed)) return;
+                this._appendOptions(installed[pkg.id], uuid);
+            }.bind(this));
+            return;
+        }
+        
+        if ( ! pkg.data.optionsURL) return;
+        
+        commando.renderResult({
+            id: "pkg-options",
+            name: "Options",
+            scope: "scope-packages",
+            command: function()
+            {
+                commando.hide();
+                require("ko/windows").getMain().openDialog(pkg.data.optionsURL, "chrome,titlebar,toolbar,centerscreen,modal");
+            }
+        }, uuid);
     }
     
     
