@@ -497,7 +497,7 @@ class KoInitService(object):
         elif flag == "tempNoAddons":
             path = os.path.join(koDirSvc.userDataDir, "XRE", "extensions")
             newPath = "%s-kotemp-original" % (path)
-            if os.path.isfile(path):
+            if os.path.isdir(path):
                 os.rename(path, newPath)
             
         ## Start without toolbox items
