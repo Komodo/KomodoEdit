@@ -11,6 +11,9 @@
     // By default, tabstops are at least 32 pixels plus 12 pixels of padding.
     var tab_width_minimum = 32;
     var tab_width_padding = 12;
+    
+    // Keep track of whether or not modified handlers have been registered.
+    var registeredOneModifiedHandler = false;
 
     /** Loads elastic tabstops. */
     this.load = function() {
@@ -273,7 +276,7 @@
                                 Ci.ISciMoz.SC_MOD_INSERTTEXT |
                                 Ci.ISciMoz.SC_MOD_DELETETEXT);
         this._onModify(view.scimoz, {value: 0}, {value: view.scimoz.length});
-        this._registeredOneModifiedHandler = true;
+        registeredOneModifiedHandler = true;
     }
     
     /**
@@ -282,7 +285,7 @@
      */
     this._disableElasticTabstops = function(view) {
         if (view.getAttribute('type') != 'editor'
-            || !this._registeredOneModifiedHandler) {
+            || !registeredOneModifiedHandler) {
             return;
         }
         view.removeModifiedHandler(this._onModifiedHandler);
