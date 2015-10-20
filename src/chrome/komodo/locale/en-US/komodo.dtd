@@ -774,7 +774,7 @@
 <!ENTITY userInterfaceShowHideBottomPane.desc "User Interface: Show/Hide Bottom Pane">
 <!ENTITY userInterfaceShowHideLeftPane.desc "User Interface: Show/Hide Left Pane">
 <!ENTITY userInterfaceShowHideStandardToolbar.desc "User Interface: Show/Hide Standard Toolbar">
-<!ENTITY userInterfaceShowHideMenubar.desc "User Interface: Show/Hide All Toolbars">
+<!ENTITY userInterfaceShowHideMenubar.desc "User Interface: Show/Hide Menubar">
 <!ENTITY userInterfaceShowHideToolbars.desc "User Interface: Show/Hide All Toolbars">
 <!ENTITY userInterfaceShowHideToolbarButtonText.desc "User Interface: Show/Hide Toolbar Button Text">
 <!ENTITY userInterfaceShowHideRightPane.desc "User Interface: Show/Hide Right Pane">
