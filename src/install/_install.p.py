@@ -202,7 +202,7 @@ def _verifyDependencies(promptToContinue):
         # Verify gdk-2.0 installation if possible.
         gdk_pkg_name = 'gdk-2.0'
         gdk_pkg_version = '2.24'
-        if os.system('pkg-config --version') == 0:
+        if os.system('pkg-config --version &> /dev/null') == 0:
             # pkg-config exists. Check for gdk-2.0.
             gdk_okay = False
             if os.system('pkg-config --exists %s' % gdk_pkg_name) == 0:
