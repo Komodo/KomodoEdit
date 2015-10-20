@@ -38,7 +38,7 @@
 <!ENTITY installExt.label "Install Packages">
 <!ENTITY extOne.label "Install Addons">
 <!ENTITY extOne.description "- extend Komodos functionality">
-<!ENTITY extTwo.label "Install Macros">
+<!ENTITY extTwo.label "Install Userscripts">
 <!ENTITY extTwo.description "- quickly add new features">
 <!ENTITY extThree.label "Install Color Schemes">
 <!ENTITY extThree.description "- color Komodo to your liking">
