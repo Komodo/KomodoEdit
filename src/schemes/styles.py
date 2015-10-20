@@ -101,6 +101,7 @@ StateMap = {
         'numbers': ('SCE_C_NUMBER',),
         'strings': ('SCE_C_STRING',
                     'SCE_C_CHARACTER',
+                    'SCE_C_STRINGRAW',
                     ),
         'keywords': ('SCE_C_WORD',),
         'keywords2': ('SCE_C_WORD2',),
@@ -110,7 +111,7 @@ StateMap = {
         'preprocessor': ('SCE_C_PREPROCESSOR',),
         # these are specific to this lexer
         'UUIDs': ('SCE_C_UUID',),
-        'verbatim': ('SCE_C_VERBATIM', 'SCE_C_STRINGRAW', 'SCE_C_HASHQUOTEDSTRING', 'SCE_C_TRIPLEVERBATIM'),
+        'verbatim': ('SCE_C_VERBATIM', 'SCE_C_HASHQUOTEDSTRING', 'SCE_C_TRIPLEVERBATIM'),
         'regex': ('SCE_C_REGEX',),
         'commentdockeyword': ('SCE_C_COMMENTDOCKEYWORD',),
         'commentdockeyworderror': ('SCE_C_COMMENTDOCKEYWORDERROR',),
