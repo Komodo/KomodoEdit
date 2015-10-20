@@ -112,12 +112,20 @@
                                  enablehistory="true"
                                  completeselectedindex="true"
                                  onfocus="this.setSelectionRange(0, this.value.length);"
-                                 oninput="update('pattern');"/>
+                                 oninput="update('pattern');"
+                                 tabindex="100"/>
+                        <!-- TABINDEXes  have been grouped into 2 groups, 100 and 200.
+                            100 being items on the left of the find dialog, 200
+                            being items on the right.  XUL handles tabbing through
+                            ordered elements with the same index.  This helps with
+                            maintenance rather than numbering 1-12 and re-ordering
+                            when something is added or removed. -->
 
                         <textbox id="multiline-pattern" flex="1"
                                  multiline="true" rows="2"
                                  onfocus="this.setSelectionRange(0, this.value.length);"
-                                 oninput="update('pattern');"/>
+                                 oninput="update('pattern');"
+                                 tabindex="100"/>
                     </deck>
                     
                     <!-- field-options -->
@@ -267,9 +275,11 @@
                                 accesskey="&findPrev.accesskey;" oncommand="find_prev();"/>
                         <button id="find-all-btn" label="&findAll.label;" flex="1"
                                 _accesskey="&findAllButton.accesskey;" uses-accesskey="true"
-                                oncommand="find_all();"/>
+                                oncommand="find_all();"
+                                tabindex="200"/>
                         <button id="mark-all-btn" label="&markAll.label;" flex="1"
-                                accesskey="&markAll.accesskey;" oncommand="mark_all();"/>
+                                accesskey="&markAll.accesskey;" oncommand="mark_all();"
+                                tabindex="200"/>
                     </hbox>
                 </row>
                 
@@ -297,11 +307,13 @@
                                      autocompletepopup="popupTextboxAutoComplete"
                                      enablehistory="true"
                                      onfocus="this.setSelectionRange(0, this.value.length);"
-                                     completeselectedindex="true"/>
+                                     completeselectedindex="true"
+                                     tabindex="100"/>
                             <textbox id="multiline-repl" flex="1"
                                      multiline="true" rows="2"
                                      onfocus="this.setSelectionRange(0, this.value.length);"
-                                     oninput="update('repl');"/>
+                                     oninput="update('repl');"
+                                     tabindex="100"/>
                         </deck>
                     </hbox>
                     
@@ -322,11 +334,13 @@
                     <!--buttons -->
                     <hbox class="buttons">
                         <button id="replace-btn" label="&replace.label;" flex="1"
-                                    accesskey="&replaceButton.accesskey;" oncommand="replace();"/>
+                                    accesskey="&replaceButton.accesskey;" oncommand="replace();"
+                                    tabindex="200"/>
                         <button id="replace-all-btn" label="&replaceAll.label;" flex="1"
                                 collapsed="true"
                                 _accesskey="&replaceAllButton.accesskey;" uses-accesskey="true"
-                                oncommand="replace_all();"/>
+                                oncommand="replace_all();"
+                                tabindex="200"/>
                     </hbox>
                     
                 </row>
@@ -343,7 +357,8 @@
                     <hbox>
                         <menulist id="search-in-menu" oncommand="update('search-in')"
                                   crop="center"
-                                  flex="1">
+                                  flex="1"
+                                  tabindex="100">
                             <menupopup id="search-in-menupopup">
                                 <menuitem id="search-in-document" value="document" label="&currentDocument.label;"/>
                                 <menuitem id="search-in-selection" value="selection" label="&selectedText.label;"/>
@@ -379,7 +394,7 @@
                            onfocus="this.setSelectionRange(0, this.value.length);"
                            oninput="update('includes');"
                            style="min-width: 150px;"
-                           />
+                           tabindex="200"/>
                 </row>
                 
                 <row id="dirs-row" align="center">
@@ -409,11 +424,13 @@
                                tabscrolling="true"
                                completeselectedindex="true"
                                onfocus="dirs_on_focus(this, event);"
-                               oninput="update('dirs');"/>
+                               oninput="update('dirs');"
+                               tabindex="100"/>
                         <button label="&threeFullStop.label;" accesskey="&threeFullStop.accesskey;"
                               style="min-width: 0px;"
                               tooltiptext="&editListDirToSearch.tooltiptext;"
-                              oncommand="browse_for_dirs();"/>
+                              oncommand="browse_for_dirs();"
+                              tabindex="100"/>
                     </hbox>
                     
                     <!--field-options -->
@@ -433,7 +450,7 @@
                            onfocus="this.setSelectionRange(0, this.value.length);"
                            oninput="update('excludes');"
                            style="min-width: 150px;"
-                           />
+                           tabindex="200"/>
                 </row>
                 
             </rows>
