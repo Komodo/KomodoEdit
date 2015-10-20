@@ -325,7 +325,7 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
 this._note_loc = function(view, loc, check_section_change = false)
 {
     _mark_pos_info(view);
-    _controller.historySvc.note_loc(loc, check_section_change, view);
+    _controller.historySvc.note_loc(loc, !! check_section_change, view);
 }
 
 /**
