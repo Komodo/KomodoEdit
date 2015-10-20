@@ -1053,6 +1053,8 @@
   <string id="commando_shell_output">hud</string>
   <boolean id="commando_navigate_by_number">1</boolean>
   <long id="commando_number_select_delay">200</long>
+  <long id="commando_search_max_results">50</long>
+  <long id="commando_files_max_depth">8</long>
 
   <ordered-preference id="scope-files-shortcuts"/>
   

@@ -20,6 +20,8 @@ import os
 import logging
 import threading
 
+
+prefs = Cc["@activestate.com/koPrefService;1"].getService(Ci.koIPrefService).prefs
 log = logging.getLogger("commando-scope-files-py")
 #log.setLevel(10)
 
@@ -414,6 +416,8 @@ class Walker:
 
     def walk(self, path):
         dirnames = [path]
+        depth = 0
+        maxDepth = prefs.getLong("commando_files_max_depth")
         while (len(dirnames) > 0):
             if self._stop:
                 return 
@@ -422,7 +426,8 @@ class Walker:
             for dirname in dirnames:
                 _dirnames = _dirnames + (self.walkCache(dirname) or [])
 
-            if self.opts.get("recursive", True):
+            depth += 1
+            if self.opts.get("recursive", True) and depth < maxDepth:
                 dirnames = _dirnames
             else:
                 dirnames = []
