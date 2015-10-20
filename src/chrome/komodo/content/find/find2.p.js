@@ -1163,6 +1163,7 @@ function _update_mode_ui() {
             _collapse_widget(widgets.replace_all_btn, false);
             _collapse_widget(widgets.confirm_replacements_in_files, false);
             _collapse_widget(widgets.show_replace_all_results, true);
+            _collapse_widget(widgets.mark_all_btn, false);
             _collapse_widget(widgets.find_all_btn, true);
             default_btn = widgets.replace_all_btn;
             break
@@ -1174,6 +1175,7 @@ function _update_mode_ui() {
             _collapse_widget(widgets.replace_all_btn, false);
             _collapse_widget(widgets.confirm_replacements_in_files, true);
             _collapse_widget(widgets.show_replace_all_results, false);
+            _collapse_widget(widgets.mark_all_btn, false);
             _collapse_widget(widgets.find_all_btn, true);
             default_btn = widgets.replace_btn;
         }
