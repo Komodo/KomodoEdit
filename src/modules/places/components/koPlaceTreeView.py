@@ -2032,7 +2032,7 @@ class KoPlaceTreeView(TreeView):
 
     def _sameFiles(self, path1, path2):
         if os.path.normcase(path1) == os.path.normcase(path2):
-            return True
+            return os.path.basename(path1) == os.path.basename(path2)
         else:
             st1 = os.stat(path1)
             st2 = os.stat(path2)
