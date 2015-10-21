@@ -46,11 +46,17 @@
     }
 
 /* #if PLATFORM != "win" */
-    #workspace_bottom_area,
-    #editorvbox tabbox tabs
+    #editorvbox tabbox tabs,
+    #workspace_bottom_area
     {
         border-left: @panel-border !important;
         border-right: @panel-border !important;
+    }
+/* #else */
+    #workspace_bottom_area
+    {
+        border-left: @main-border !important;
+        border-right: @main-border !important;
     }
 /* #endif */
     
