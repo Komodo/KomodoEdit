@@ -33,7 +33,7 @@ var autoComplete = (function(){
             source: 0,
             minChars: 3,
             delay: 150,
-            cache: 1,
+            cache: 0,
             menuClass: '',
             renderItem: function (item, search){
                 // escape special characters
