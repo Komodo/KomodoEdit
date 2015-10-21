@@ -60,6 +60,11 @@ window.app = {};
         {
             case 38:
             case 40:
+                if (elem.input.sc.style.display == 'block')
+                {
+                    e.preventDefault();
+                    return; // autocomplete will handle this
+                }
                 if (e.keyCode == 38 && elem.input.caretLine == 1)
                 {
                     var his = history.slice(++historyPos, historyPos+1)[0];
