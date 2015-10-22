@@ -97,6 +97,11 @@
     
     @background-statusbar:      @background-primary;
     @border-statusbar:          darken(@background, 10%);
+    
+    view tabbox:not(.tabs-bottom) > tabs
+    {
+        border-top: 0 !important;
+    }
 }
 
 .setVars();
