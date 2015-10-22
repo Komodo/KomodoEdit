@@ -13,6 +13,8 @@ function loadIntoWindow(window) {
             icon: "koicon://ko-svg/chrome/icomoon/skin/box-add.svg",
             handler: "scope-packages/packages"
         });
+        
+        window.require("scope-packages/packages").checkForUpdates();
     } catch (e) {
         Cu.reportError("Commando: Exception while registering scope 'Packages'");
         Cu.reportError(e);

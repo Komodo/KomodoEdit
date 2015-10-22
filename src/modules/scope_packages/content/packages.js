@@ -70,7 +70,7 @@
         });
     }
     
-    var _cache = {installed: {}, upgradeable: {}, outdated: {}, age: 0};
+    var _cache = {installed: {length: 0}, upgradeable: {length: 0}, outdated: {length: 0}, age: 0};
     this._cache = _cache;
     this._buildCache = function(onComplete)
     {
@@ -92,11 +92,15 @@
             for (let k in packages)
             {
                 _cache.installed[packages[k].id] = true;
+                _cache.installed.length++;
                 
                 if ( ! packages[k].data.isCompatible || ! packages[k].data.isPlatformCompatible)
+                {
                     _cache.outdated[packages[k].id] = true;
+                    _cache.outdated.length++;
+                }
             }
-            if (++done == 2) _onComplete();
+            if ( ! packages && ++done == 2) _onComplete();
         }.bind(this));
         
         this._getUpgradablePackages(function(packages)
@@ -105,8 +109,27 @@
             {
                 _cache.upgradeable[packages[k].id] = true;
                 _cache.upgradeable[k] = true;
+                _cache.upgradeable.length++;
             }
-            if (++done == 2) _onComplete();
+            if ( ! packages && ++done == 2) _onComplete();
+        }.bind(this));
+    }
+    
+    this.checkForUpdates = function ()
+    {
+        this._buildCache(function()
+        {
+            if ( ! _cache.upgradeable.length) return;
+            var msg = _cache.upgradeable.length + " package updates are available";
+            if (_cache.upgradeable.length == 1) msg = "Package update available";
+            require('notify/notify').interact(msg, 'packages', {
+                command: function ()
+                {
+                    this.openCategory('packages-update', "Update Packages");
+                }.bind(this),
+                icon: "koicon://ko-svg/chrome/icomoon/skin/arrow-up13.svg",
+                duration: 10000 // 10 seconds
+            });
         }.bind(this));
     }
     
@@ -272,9 +295,9 @@
     
     this.clearCaches = function()
     {
-        _cache.installed = {};
-        _cache.upgradeable = {};
-        _cache.outdated = {};
+        _cache.installed = {length: 0};
+        _cache.upgradeable = {length: 0};
+        _cache.outdated = {length: 0};
         _cache.age = 0;
         delete this.getPackageKinds.__cached;
         delete this._getAvailablePackagesByKind.cache;
