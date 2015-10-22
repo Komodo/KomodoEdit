@@ -49,9 +49,13 @@ window.app = {};
         elem.input.caretLine = lines.length;
         elem.input.lines = elem.input.value.split(/\n/g).length;
         
+        var scroll = Math.abs(elem.console.scrollTop - elem.console.scrollTopMax) < 5; // 5 pixel margin of error
+        
         var rows = elem.input.lines > 5 ? 5 : elem.input.lines;
         if (rows == 1 && elem.input.scrollLeft) rows = 2;
         elem.input.style.height = (rows * 1.5) + "rem";
+        
+        if (scroll) elem.console.scrollTop = elem.console.scrollTopMax;
     }
     
     this.onKeyNav = function(e)
