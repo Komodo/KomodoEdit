@@ -177,16 +177,10 @@ editor_editorController.prototype.do_cmd_findPreviousSelected = function() {
 function goToQuickBookmark(index)
 {
     let line = getValidMarkerLine(index);
-    // Above linereturns null if not found
+    // Above line returns null if not found
     if (line)
     {
         require("ko/editor").gotoLine(line);
-    }
-    else
-    {
-        require("notify/notify").interact("No quick bookmark for index " + index,
-                                      "editor")
-        docState.deletePref(quickBookmarkName);
     }
 }
 
