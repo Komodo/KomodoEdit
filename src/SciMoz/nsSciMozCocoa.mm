@@ -532,11 +532,8 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 #endif
         return kNPEventNotHandled;
     }
-
-    NPCocoaEvent *event = (NPCocoaEvent *) ev;
-    if (event->type == NPCocoaEventWindowFocusChanged && event->data.focus.hasFocus)
-        [visibilityTimer startTimer]; // ensure view is visible after un-hide
 #ifdef SCIMOZ_COCOA_DEBUG
+    NPCocoaEvent *event = (NPCocoaEvent *) ev;
     if (event->type != NPCocoaEventMouseMoved)
         fprintf(stderr, "PlatformHandleEvent: event #%d\n", event->type);
 #endif

@@ -211,7 +211,6 @@ class TwigCILEDriver(UDLCILEDriver):
     lang = lang
     csl_lang = "JavaScript"
     tpl_lang = "Twig"
-    css_lang = "CSS"
 
 
 

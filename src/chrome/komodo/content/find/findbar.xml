@@ -489,7 +489,6 @@
         // Enter keypress to go to next search match
         this.controller.searchAgain();
         event.stopPropagation();
-        event.preventDefault();
       ]]>
       </handler>
       <handler event="blur" phase="capturing">

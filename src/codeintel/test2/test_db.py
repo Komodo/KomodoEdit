@@ -780,13 +780,13 @@ class MultiLangLibTestCase(DBTestCase):
         # scanning to fail in controlled ways.
         ruby_cile_driver = self.mgr.citadel.cile_driver_from_lang("Ruby")
         orig_scan_multilang = ruby_cile_driver.scan_multilang
-        def destructo_scan_multilang(buf, csl_cile_driver=None, css_cile_driver=None):
+        def destructo_scan_multilang(buf, csl_cile_driver=None):
             if buf.accessor.text == "go boom":
                 raise CodeIntelError("boom")
             elif buf.accessor.text == "go crazy":
                 raise OSError("crazy")
             else:
-                return orig_scan_multilang(buf, csl_cile_driver, css_cile_driver)
+                return orig_scan_multilang(buf, csl_cile_driver)
         ruby_cile_driver.scan_multilang = destructo_scan_multilang
 
         path = join(self.test_dir, "test_scanning_error.rhtml")
@@ -1556,106 +1556,6 @@ class MockProject(object):
             return self._base_dir
         else:
             return dirname(self.path)
-        
-class CSSTestCase(DBTestCase):
-    css_test_dir = join(os.getcwd(), "tmp", "css")
-    less_test_dir = join(os.getcwd(), "tmp", "less")
-    scss_test_dir = join(os.getcwd(), "tmp", "scss")
-    
-    def test_css_import_handler(self):
-        """
-        Tests that the CSS import handler loads all CSS files from a directory,
-        including nested CSS files. This test has the following folder
-        structure:
-        
-        css/
-            foo.css
-            bar.css
-            nested/
-                baz.css
-    
-        Each CSS file contains an id selector followed by a class selector.
-        This test verifies that all 3 CSS files have been loaded and scanned.
-        """
-        writefile(join(self.css_test_dir, "foo.css"), "#foo { }\n.foobar { }\n")
-        writefile(join(self.css_test_dir, "bar.css"), "#bar { }\n.barfoo { }\n")
-        writefile(join(self.css_test_dir, "nested", "baz.css"), "#baz { }\n.bazfoo { }\n")
-        import_handler = self.mgr.citadel.import_handler_from_lang("CSS")
-        importables = import_handler.find_importables_in_dir(self.css_test_dir)
-        self.failUnless(len(importables.keys()) == 3)
-        for name in ("foo.css", "bar.css", join("nested", "baz.css")):
-            buf = self.mgr.buf_from_path(join(self.css_test_dir, name), lang="CSS")
-            self.failUnless(buf)
-            blob = buf.blob_from_lang["CSS"]
-            self.failUnless(len(blob) == 2)
-            self.failUnless(blob.getchildren()[0].get("ilk") == "id")
-            self.failUnless(blob.getchildren()[1].get("ilk") == "class")
-            
-    def test_less_import_handler(self):
-        """
-        Identical to the above CSS test case, but with a mixture of CSS and
-        Less files.
-        """
-        writefile(join(self.less_test_dir, "foo.less"), "#foo(@c) when (iscolor(@c)) { }\n.foobar { }\n")
-        writefile(join(self.less_test_dir, "bar.css"), "#bar { }\n.barfoo { }\n")
-        writefile(join(self.less_test_dir, "nested", "baz.less"), "#baz:extend(.a, .b) { }\n.bazfoo { }\n")
-        import_handler = self.mgr.citadel.import_handler_from_lang("CSS")
-        importables = import_handler.find_importables_in_dir(self.less_test_dir)
-        self.failUnless(len(importables.keys()) == 3)
-        
-        buf = self.mgr.buf_from_path(join(self.less_test_dir, "foo.less"), lang="Less")
-        self.failUnless(buf)
-        blob = buf.blob_from_lang["Less"]
-        self.failUnless(len(blob) == 2)
-        self.failUnless(blob.getchildren()[0].get("ilk") == "id")
-        self.failUnless(blob.getchildren()[1].get("ilk") == "class")
-        
-        buf = self.mgr.buf_from_path(join(self.less_test_dir, "bar.css"), lang="CSS")
-        self.failUnless(buf)
-        blob = buf.blob_from_lang["CSS"]
-        self.failUnless(len(blob) == 2)
-        self.failUnless(blob.getchildren()[0].get("ilk") == "id")
-        self.failUnless(blob.getchildren()[1].get("ilk") == "class")
-
-        buf = self.mgr.buf_from_path(join(self.less_test_dir, join("nested", "baz.less")), lang="Less")
-        self.failUnless(buf)
-        blob = buf.blob_from_lang["Less"]
-        self.failUnless(len(blob) == 2)
-        self.failUnless(blob.getchildren()[0].get("ilk") == "id")
-        self.failUnless(blob.getchildren()[1].get("ilk") == "class")
-            
-    def test_scss_import_handler(self):
-        """
-        Identical to the above CSS test case, but with SCSS files.
-        """
-        writefile(join(self.scss_test_dir, "foo.scss"), "#foo { }\n.foobar { }\n")
-        writefile(join(self.scss_test_dir, "bar.scss"), "#bar { }\n.barfoo { }\n")
-        writefile(join(self.scss_test_dir, "nested", "baz.css.scss"), "#baz { }\n.bazfoo { }\n")
-        import_handler = self.mgr.citadel.import_handler_from_lang("CSS")
-        importables = import_handler.find_importables_in_dir(self.scss_test_dir)
-        self.failUnless(len(importables.keys()) == 3)
-        
-        buf = self.mgr.buf_from_path(join(self.scss_test_dir, "foo.scss"), lang="SCSS")
-        self.failUnless(buf)
-        blob = buf.blob_from_lang["SCSS"]
-        self.failUnless(len(blob) == 2)
-        self.failUnless(blob.getchildren()[0].get("ilk") == "id")
-        self.failUnless(blob.getchildren()[1].get("ilk") == "class")
-        
-        buf = self.mgr.buf_from_path(join(self.scss_test_dir, "bar.scss"), lang="SCSS")
-        self.failUnless(buf)
-        blob = buf.blob_from_lang["SCSS"]
-        self.failUnless(len(blob) == 2)
-        self.failUnless(blob.getchildren()[0].get("ilk") == "id")
-        self.failUnless(blob.getchildren()[1].get("ilk") == "class")
-
-        buf = self.mgr.buf_from_path(join(self.scss_test_dir, join("nested", "baz.css.scss")), lang="SCSS")
-        self.failUnless(buf)
-        blob = buf.blob_from_lang["SCSS"]
-        self.failUnless(len(blob) == 2)
-        self.failUnless(blob.getchildren()[0].get("ilk") == "id")
-        self.failUnless(blob.getchildren()[1].get("ilk") == "class")
-
 
 
 #---- internal support stuff

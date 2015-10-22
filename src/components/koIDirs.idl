@@ -53,6 +53,7 @@ interface koIDirs : nsISupports {
     // the Komodo install tree.
     readonly attribute wstring supportDir;
     readonly attribute wstring sdkDir;
+    readonly attribute wstring docDir;
     readonly attribute wstring installDir;
     readonly attribute wstring mozBinDir;
     readonly attribute wstring binDir;

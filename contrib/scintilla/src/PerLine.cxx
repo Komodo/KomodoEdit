@@ -108,12 +108,11 @@ bool MarkerHandleSet::RemoveNumber(int markerNum, bool all) {
 }
 
 void MarkerHandleSet::CombineWith(MarkerHandleSet *other) {
-	MarkerHandleNumber **pmhn = &other->root;
+	MarkerHandleNumber **pmhn = &root;
 	while (*pmhn) {
 		pmhn = &((*pmhn)->next);
 	}
-	*pmhn = root;
-	root = other->root;
+	*pmhn = other->root;
 	other->root = 0;
 }
 

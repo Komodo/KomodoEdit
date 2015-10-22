@@ -115,8 +115,6 @@
             // is called.  When terminalHandler.endSession is called, then
             // scimoz is made read only again.
             this.scimoz.readOnly = 1;
-            // Ensure terminal markers are set up properly.
-            ko.markers.setup(this.scimoz, this.scintilla.scheme.isDarkBackground, true);
         ]]>
         </body>
         </method>

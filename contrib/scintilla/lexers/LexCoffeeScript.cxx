@@ -146,6 +146,8 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 						sc.ChangeState(SCE_COFFEESCRIPT_WORD2);
 					} else if (keywords4.InList(s)) {
 						sc.ChangeState(SCE_COFFEESCRIPT_GLOBALCLASS);
+					} else if (sc.LengthCurrent() > 0 && s[0] == '@') {
+						sc.ChangeState(SCE_COFFEESCRIPT_INSTANCEPROPERTY);
 					}
 					sc.SetState(SCE_COFFEESCRIPT_DEFAULT);
 				}
@@ -153,6 +155,7 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 			case SCE_COFFEESCRIPT_WORD:
 			case SCE_COFFEESCRIPT_WORD2:
 			case SCE_COFFEESCRIPT_GLOBALCLASS:
+			case SCE_COFFEESCRIPT_INSTANCEPROPERTY:
 				if (!setWord.Contains(sc.ch)) {
 					sc.SetState(SCE_COFFEESCRIPT_DEFAULT);
 				}

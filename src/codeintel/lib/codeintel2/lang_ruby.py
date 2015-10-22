@@ -1610,7 +1610,7 @@ class RubyCILEDriver(CILEDriver):
         rubycile.check_insert_rails_env(buf.path, blob_scope)
         return tree
 
-    def scan_multilang(self, buf, csl_cile_driver=None, css_cile_driver=None):
+    def scan_multilang(self, buf, csl_cile_driver=None):
         """Scan the given multilang (UDL-based) buffer and return a CIX
         element tree.
 
@@ -1623,9 +1623,6 @@ class RubyCILEDriver(CILEDriver):
                         file_elem, blob_name, csl_tokens)
                 The CSL scanner will append a CIX <scope ilk="blob">
                 element to the <file> element.
-            "css_cile_driver" (optional) is the CSS (style language)
-                CILE driver. While scanning, CSS tokens should be gathered and,
-                if any, passed to the CSS scanner like the above.
         """
         tree = Element("codeintel", version="2.0")
         path = buf.path
@@ -1639,7 +1636,7 @@ class RubyCILEDriver(CILEDriver):
         #    SciMozAccessor.gen_tokens() or adapt rubycile to work with
         #    a SciMoz styled text stream. Whichever is easier and
         #    faster.
-        csl_tokens, css_tokens, has_ruby_code = \
+        csl_tokens, has_ruby_code = \
             rubycile.scan_multilang(buf.accessor.gen_tokens(), module)
         rubycile.check_insert_rails_env(path, module)
 
@@ -1651,9 +1648,6 @@ class RubyCILEDriver(CILEDriver):
         if csl_cile_driver and csl_tokens:
             csl_cile_driver.scan_csl_tokens(file, basename(buf.path),
                                             csl_tokens)
-        if css_cile_driver and css_tokens:
-            css_cile_driver.scan_css_tokens(file, basename(buf.path),
-                                            css_tokens)
 
         #XXX While still generating CIX 0.1, need to convert to CIX 2.0.
         #XXX Trent: This can all be deleted now, right?

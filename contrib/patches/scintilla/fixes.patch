@@ -224,17 +224,17 @@ diff -r -du src/Catalogue.cxx src/Catalogue.cxx
 --- src/Catalogue.cxx	2005-08-29 18:09:20.000000000 -0700
 +++ src/Catalogue.cxx	2007-05-01 17:00:17.000000000 -0700
 @@ -209,11 +213,10 @@
- 	LINK_LEXER(lmSrec);
- 	LINK_LEXER(lmSTTXT);
+ 	LINK_LEXER(lmSpice);
+ 	LINK_LEXER(lmSQL);
  	LINK_LEXER(lmTACL);
  	LINK_LEXER(lmTADS3);
  	LINK_LEXER(lmTAL);
 -	LINK_LEXER(lmTCL);
  	LINK_LEXER(lmTCMD);
- 	LINK_LEXER(lmTEHex);
  	LINK_LEXER(lmTeX);
  	LINK_LEXER(lmTxt2tags);
  	LINK_LEXER(lmVB);
+ 	LINK_LEXER(lmVBScript);
 @@ -217,7 +220,10 @@
  	LINK_LEXER(lmVHDL);
  	LINK_LEXER(lmVisualProlog);

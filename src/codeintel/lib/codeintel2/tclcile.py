@@ -129,15 +129,14 @@ def scan_multilang(tokens, module_elem):
         "module_elem" is the <module> element of a CIX element tree on
             which the Tcl module should be built.
 
-    This should return a list of the CSL and CSS tokens in the token stream.
+    This should return a list of the CSL tokens in the token stream.
     """
     tokenizer = tcl_lexer.TclMultiLangLexer(tokens)
     parser = tcl_parser.Parser(tokenizer, "AOL")  #TODO: What is AOL here?
     parse_tree = parser.parse()
     parser_cix.produce_elementTree_contents_cix(parse_tree, module_elem)
     csl_tokens = tokenizer.get_csl_tokens()
-    css_tokens = tokenizer.get_css_tokens()
-    return csl_tokens, css_tokens
+    return csl_tokens
 
 
 #---- mainline

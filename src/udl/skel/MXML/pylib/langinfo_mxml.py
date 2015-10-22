@@ -67,7 +67,6 @@ class MXMLBuffer(UDLBuffer, XMLParsingBufferMixin):
 class MXMLCILEDriver(UDLCILEDriver):
     lang = lang
     csl_lang = "JavaScript"
-    css_lang = "CSS"
 
 #---- registration
 

@@ -42,6 +42,8 @@
 <!ENTITY aboutMenu.accesskey "A">
 <!ENTITY aboutName.accesskey "A">
 <!ENTITY add.label "Add">
+<!ENTITY addAdditionalCaret.label "Multiple Selection - Add">
+<!ENTITY addAdditionalCaret.desc "Editor: Add Current Selection or Caret to a Multi-Caret Set">
 <!ENTITY addNextWordToCaretSet.label "Multiple Selection - Add Next Occurrence">
 <!ENTITY addNextWordToCaretSet.desc "Editor: Add Next Word to a Multi-Caret Set">
 <!ENTITY addAsSnippetInToolbox.label "Add as Snippet into Toolbox">
@@ -237,13 +239,11 @@
 <!ENTITY find.label "Find...">
 <!ENTITY findAllFunctions.label "Find All Functions">
 <!ENTITY findFilter.tooltiptext "Only show matches containing these space-separated words. Use minus '-' at the start of a word to exclude matches.">
-<!ENTITY search.tooltiptext "Search Again..">
 <!ENTITY findFind.desc "Find: Find...">
 <!ENTITY findFindInCurrProject.desc "Find: Find in Current Project...">
 <!ENTITY findFindInFiles.desc "Find: Find in Files...">
 <!ENTITY findFindNext.desc "Find: Find Next">
 <!ENTITY findFindNextResult.desc "Find: Find Next Result">
-<!ENTITY findFindPrevResult.desc "Find: Find Prev Result">
 <!ENTITY findFindNextSelected.desc "Find: Find Next Selected">
 <!ENTITY findFindPrevious.desc "Find: Find Previous">
 <!ENTITY findFindPreviousSelected.desc "Find: Find Previous Selected">
@@ -288,7 +288,6 @@
 <!ENTITY generalMostRecentlyViewedFile.desc "General: Most Recently Viewed File">
 <!ENTITY generalNewFile.desc "General: New File...">
 <!ENTITY generalNewFileDefaultType.desc "General: New File (default type)">
-<!ENTITY generalNewTab.desc "General: New Tab">
 <!ENTITY generalNewProject.desc "General: New Project...">
 <!ENTITY generalNewWindow.desc "General: New Window">
 <!ENTITY generalNextFile.desc "General: Next File">
@@ -330,32 +329,6 @@
 <!ENTITY generalSwitchToTab8.desc "General: Switch to Tab 8">
 <!ENTITY generalSwitchToTab9.desc "General: Switch to Tab 9">
 <!ENTITY generalTogglePanels.desc "General: Toggle Panels">
-
-<!ENTITY quickbookmark.menu.label "Quick Bookmarks">
-<!ENTITY quickbookmark.menu.accesskey "b">
-
-<!ENTITY quickbookmarkToggle_1.lable "Toggle bookmark 1">
-<!ENTITY quickbookmarkToggle_2.lable "Toggle bookmark 2">
-<!ENTITY quickbookmarkToggle_3.lable "Toggle bookmark 3">
-<!ENTITY quickbookmarkToggle_4.lable "Toggle bookmark 4">
-<!ENTITY quickbookmarkToggle_5.lable "Toggle bookmark 5">
-<!ENTITY quickbookmarkToggle_6.lable "Toggle bookmark 6">
-<!ENTITY quickbookmarkToggle_7.lable "Toggle bookmark 7">
-<!ENTITY quickbookmarkToggle_8.lable "Toggle bookmark 8">
-<!ENTITY quickbookmarkToggle_9.lable "Toggle bookmark 9">
-<!ENTITY quickbookmarkToggle_0.lable "Toggle bookmark 0">
-
-<!ENTITY quickbookmarkGoTo_1.lable "Go to bookmark 1">
-<!ENTITY quickbookmarkGoTo_2.lable "Go to bookmark 2">
-<!ENTITY quickbookmarkGoTo_3.lable "Go to bookmark 3">
-<!ENTITY quickbookmarkGoTo_4.lable "Go to bookmark 4">
-<!ENTITY quickbookmarkGoTo_5.lable "Go to bookmark 5">
-<!ENTITY quickbookmarkGoTo_6.lable "Go to bookmark 6">
-<!ENTITY quickbookmarkGoTo_7.lable "Go to bookmark 7">
-<!ENTITY quickbookmarkGoTo_8.lable "Go to bookmark 8">
-<!ENTITY quickbookmarkGoTo_9.lable "Go to bookmark 9">
-<!ENTITY quickbookmarkGoTo_0.lable "Go to bookmark 0">
-
 <!ENTITY goToDefinition.accesskey "D">
 <!ENTITY goToDefinition.label "Go to Definition">
 <!ENTITY gotoLine.accesskey "G">
@@ -425,8 +398,9 @@
 <!ENTITY macroExecuteLastMacro.desc "Macro: Execute Last Macro">
 <!ENTITY macroNew.menu.accesskey "C">
 <!ENTITY macroNew.menu.label "Create New Macro">
-<!ENTITY macroNew.toolbar.label "New Userscript">
-<!ENTITY macroNew.tooltiptext "Write new Userscript to save to Toolbox"><!ENTITY macroNew.command.desc "Macro: Create a new Toolbox Macro">
+<!ENTITY macroNew.toolbar.label "New Macro">
+<!ENTITY macroNew.tooltiptext "Create a new macro that can be saved into the toolbox">
+<!ENTITY macroNew.command.desc "Macro: Create a new Toolbox Macro">
 <!ENTITY macroPauseRecording.desc "Macro: Pause Recording">
 <!ENTITY macroSaveToToolbox.desc "Macro: Save to Toolbox">
 <!ENTITY macroStartResumeRecording.desc "Macro: Start/Resume Recording">
@@ -518,12 +492,9 @@
 <!ENTITY newCustomToolbar.label "New Custom Toolbar">
 <!ENTITY newFile.accesskey "F">
 <!ENTITY newFile.label "New File...">
-<!ENTITY newTab.label "New Tab...">
 <!ENTITY newFileFromTemplate.accesskey "T">
 <!ENTITY newFileFromTemplate.label "File from Template...">
 <!ENTITY newFileUsingDefaultLanguage.tooltiptext "New File Using Default Language">
-<!ENTITY newTab.tooltiptext "New Tab">
-<!ENTITY newTab.label "New Tab">
 <!ENTITY newFolder.label "New Folder...">
 <!ENTITY newFromTemplate.label "New From Template">
 <!ENTITY newMacro.label "New Macro...">
@@ -645,7 +616,7 @@
 <!ENTITY saveAsOther.label "Save As Other">
 <!ENTITY saveFile.label "Save File">
 <!ENTITY saveFile.tooltiptext "Save File">
-<!ENTITY saveLastMacroToToolbox.tooltiptext "Save Macro to Toolbox as Userscript">
+<!ENTITY saveLastMacroToToolbox.tooltiptext "Save Last Macro to Toolbox">
 <!ENTITY saveProject.label "Save Project">
 <!ENTITY saveProjectAs.label "Save Project As...">
 <!ENTITY renameProject.label "Rename Project...">
@@ -774,7 +745,7 @@
 <!ENTITY userInterfaceShowHideBottomPane.desc "User Interface: Show/Hide Bottom Pane">
 <!ENTITY userInterfaceShowHideLeftPane.desc "User Interface: Show/Hide Left Pane">
 <!ENTITY userInterfaceShowHideStandardToolbar.desc "User Interface: Show/Hide Standard Toolbar">
-<!ENTITY userInterfaceShowHideMenubar.desc "User Interface: Show/Hide Menubar">
+<!ENTITY userInterfaceShowHideMenubar.desc "User Interface: Show/Hide All Toolbars">
 <!ENTITY userInterfaceShowHideToolbars.desc "User Interface: Show/Hide All Toolbars">
 <!ENTITY userInterfaceShowHideToolbarButtonText.desc "User Interface: Show/Hide Toolbar Button Text">
 <!ENTITY userInterfaceShowHideRightPane.desc "User Interface: Show/Hide Right Pane">
@@ -815,32 +786,40 @@
 <!ENTITY helpForLanguages.label "Help for Languages">
 <!ENTITY helpLanguagesMenu.accesskey "L">
 <!ENTITY helpPerlMailingLists.desc "Help: Perl Mailing Lists">
-<!ENTITY helpPerlReferenceWeb.desc "Help: Perl Reference">
+<!ENTITY helpPerlReferenceLocal.desc "Help: Perl Reference (Local)">
+<!ENTITY helpPerlReferenceWeb.desc "Help: Perl Reference (Web)">
 <!ENTITY helpPythonMailingLists.desc "Help: Python Mailing Lists">
-<!ENTITY helpPythonReferenceWeb.desc "Help: Python Reference">
-<!ENTITY helpPython3ReferenceWeb.desc "Help: Python3 Reference">
+<!ENTITY helpPythonReferenceLocal.desc "Help: Python Reference (Local)">
+<!ENTITY helpPythonReferenceWeb.desc "Help: Python Reference (Web)">
+<!ENTITY helpPython3ReferenceLocal.desc "Help: Python3 Reference (Local)">
+<!ENTITY helpPython3ReferenceWeb.desc "Help: Python3 Reference (Web)">
 <!ENTITY helpPHPMailingLists.desc "Help: PHP Mailing Lists">
-<!ENTITY helpPHPReferenceWeb.desc "Help: PHP Reference">
+<!ENTITY helpPHPReferenceWeb.desc "Help: PHP Reference (Web)">
 <!ENTITY helpRubyMailingLists.desc "Help: Ruby Mailing Lists">
-<!ENTITY helpRubyReferenceWeb.desc "Help: Ruby Reference">
+<!ENTITY helpRubyReferenceWeb.desc "Help: Ruby Reference (Web)">
 <!ENTITY helpTclMailingLists.desc "Help: Tcl Mailing Lists">
-<!ENTITY helpTclReferenceWeb.desc "Help: Tcl Reference">
+<!ENTITY helpTclReferenceLocal.desc "Help: Tcl Reference (Local)">
+<!ENTITY helpTclReferenceWeb.desc "Help: Tcl Reference (Web)">
 <!ENTITY helpXSLTMailingLists.desc "Help: XSLT Mailing Lists">
-<!ENTITY helpXSLTReferenceWeb.desc "Help: XSLT Reference">
+<!ENTITY helpXSLTReferenceWeb.desc "Help: XSLT Reference (Web)">
 
 <!ENTITY perlMailingLists.label "Perl Mailing Lists">
-<!ENTITY perlReferenceWeb.label "Perl Reference">
+<!ENTITY perlReferenceLocal.label "Perl Reference (local)">
+<!ENTITY perlReferenceWeb.label "Perl Reference (web)">
 <!ENTITY pythonMailingLists.label "Python Mailing Lists">
-<!ENTITY pythonReferenceWeb.label "Python Reference">
-<!ENTITY python3ReferenceWeb.label "Python3 Reference">
+<!ENTITY pythonReferenceLocal.label "Python Reference (local)">
+<!ENTITY pythonReferenceWeb.label "Python Reference (web)">
+<!ENTITY python3ReferenceLocal.label "Python3 Reference (local)">
+<!ENTITY python3ReferenceWeb.label "Python3 Reference (web)">
 <!ENTITY PHPMailingLists.label "PHP Mailing Lists">
-<!ENTITY PHPReferenceWeb.label "PHP Reference">
+<!ENTITY PHPReferenceWeb.label "PHP Reference (web)">
 <!ENTITY rubyMailingLists.label "Ruby Mailing Lists">
-<!ENTITY rubyReferenceWeb.label "Ruby Reference">
+<!ENTITY rubyReferenceWeb.label "Ruby Reference (web)">
 <!ENTITY tclMailingLists.label "Tcl Mailing Lists">
-<!ENTITY tclReferenceWeb.label "Tcl Reference">
+<!ENTITY tclReferenceLocal.label "Tcl Reference (local)">
+<!ENTITY tclReferenceWeb.label "Tcl Reference (web)">
 <!ENTITY XSLTMailingLists.label "XSLT Mailing Lists">
-<!ENTITY XSLTReferenceWeb.label "XSLT Reference">
+<!ENTITY XSLTReferenceWeb.label "XSLT Reference (Web)">
 
 <!--about.dtd-->
 

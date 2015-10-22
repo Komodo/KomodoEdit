@@ -1,6 +1,3 @@
-/**
- * @module shell
- */
 (function() {
     
     const {Cc, Ci, Cu}  = require("chrome");
@@ -9,11 +6,6 @@
     const log           = require("ko/logging").getLogger("ko-shell");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     
-    /**
-     * Get the current working directory, based on the places pane
-     * 
-     * @returns {String}
-     */
     this.getCwd = function()
     {
         // Detect current working directory
@@ -25,11 +17,6 @@
         return cwd;
     }
     
-    /**
-     * Get the configured environment variables
-     * 
-     * @returns {Object}
-     */
     this.getEnv = function()
     {   
         var env = {};
@@ -41,14 +28,6 @@
         return env;
     }
     
-    /**
-     * Look up the location of the given executable
-     * 
-     * @param   {String} command
-     * @param   {Object} env    
-     * 
-     * @returns {String|Boolean}
-     */
     this.lookup = function(command, env)
     {
         var ioFile = require("sdk/io/file");
@@ -94,15 +73,6 @@
         return false;
     }
     
-    /**
-     * Run a shell command
-     * 
-     * @param   {String} binary     Executable
-     * @param   {Array} args  
-     * @param   {Object} opts       cwd, env, ..
-     * 
-     * @returns {Process}
-     */
     this.run = function(binary, args, opts)
     {
         var _opts = {
@@ -120,21 +90,8 @@
         
         return process;
     }
-    
-    /**
-     * Alias for run
-     */
     this.spawn = this.run;
     
-    /**
-     * Execute an encoded command
-     * 
-     * @param   {String} command 
-     * @param   {Object} opts           Can contain: runIn: hud to show the output in a hud window
-     * @param   {Function} callback
-     * 
-     * @returns {Process}
-     */
     this.exec = function(command, opts, callback)
     {
         var _opts = {
@@ -148,24 +105,15 @@
         // Prepare platform command
         var platform = require("sdk/system").platform
         var file, cmdArgs;
-        
-        if (opts.argv)
+        if (platform.indexOf('win') === 0)
         {
-            file = command;
-            cmdArgs = opts.argv;
+            file = 'C:\\Windows\\System32\\cmd.exe';
+            cmdArgs = ['/s', '/c', command];
         }
         else
         {
-            if (platform.indexOf('win') === 0)
-            {
-                file = 'C:\\Windows\\System32\\cmd.exe';
-                cmdArgs = ['/s', '/c', command];
-            }
-            else
-            {
-                file = '/bin/sh';
-                cmdArgs = ['-c', command];
-            }
+            file = '/bin/sh';
+            cmdArgs = ['-c', command];
         }
       
         // Undocumented option from node being able to specify shell
@@ -176,17 +124,12 @@
         var process = proc.execFile(file, cmdArgs, _opts, callback);
         
         if ("runIn" in opts && opts.runIn == "hud")
-            showOutputInHud(process, opts.readable || command);
+            showOutputInHud(process, command);
         
         return process;
     }
     
-    /**
-     * Show output for the given process in a HUD window
-     * 
-     * @param   {Process} process
-     * @param   {String} command        The (humanly readable) command that was used to start this process
-     */
+    // Show the result of a command in the HUD
     var showOutputInHud = function(process, command)
     {
         var running = true;
@@ -250,8 +193,8 @@
             }
         }
         
-        process.stdout.on('data', onData);
-        process.stderr.on('data', onData);
+        process.stdout.on('data', onData)
+        process.stderr.on('data', onData)
         
         // Command finished executing
         process.on('close', function (code, signal)
@@ -312,67 +255,6 @@
             if (running || e.keyCode != window.KeyEvent.DOM_VK_ESCAPE) return;
             hud.element().hidePopup();
         });
-    }
-    this._showOutputInHud = showOutputInHud;
-    
-    /**
-     * Parses table information into a JS array
-     *
-     * Example:
-     *
-     * FOO      BAR
-     * val1a    val2a
-     * val1b    val2a
-     *
-     * Results in:
-     *
-     * [
-     *   {FOO: val1a, BAR: val2a},
-     *   {FOO: val1b, BAR: val2b}
-     * ]
-     * 
-     * @returns {Array}
-     */
-    this.parseTable = function(output)
-    {
-        var lines = output.split(/\n|\r/);
-        var headers = false, result = [];
-        for (let line of lines)
-        {
-            if ( ! line.trim().length) continue;
-            if ( ! headers)
-            {
-                let linebits = line.split(/\s{2,}/);
-                for (let entry of linebits)
-                {
-                    if ( ! entry.match(/^[A-Z ]+$/))
-                        break;
-                    
-                    headers = headers || [];
-                    
-                    var rx = new RegExp(entry + "\\s+");
-                    var match = line.match(rx);
-                    var iof = line.indexOf(entry);
-                    
-                    headers.push({
-                        name: entry.trim(),
-                        indexStart: iof,
-                        length: match ? match.pop().length : undefined
-                    })
-                }
-            }
-            else
-            {
-                let entry = {};
-                for (let header of headers)
-                {
-                    entry[header.name] = line.substr(header.indexStart, header.length).trim();
-                }
-                result.push(entry);
-            }
-        }
-        
-        return result;
     }
 
 }).apply(module.exports)

@@ -1,6 +1,3 @@
-/**
- * @module console
- */
 (function() {
 
     var addObs = false;
@@ -28,44 +25,13 @@
     const obs           = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
     log.setLevel(logging.LOG_DEBUG);
 
-    /**
-     * Alias for console.log
-     */
     this.debug = console.debug;
-    
-    /**
-     * Output an error, see [https://developer.mozilla.org/en-US/docs/Web/API/Console/error]
-     */
     this.error = console.error;
-    
-    /**
-     * Alias for console.error
-     */
     this.exception = console.exception;
-    
-    /**
-     * Output informative data, see [https://developer.mozilla.org/en-US/docs/Web/API/Console/info]
-     */
     this.info = console.info;
-    
-    /**
-     * Start a timer, see [https://developer.mozilla.org/en-US/docs/Web/API/Console/time]
-     */
     this.time = console.time;
-    
-    /**
-     * End a timer, see [https://developer.mozilla.org/en-US/docs/Web/API/Console/timeEnd]
-     */
     this.timeEnd = console.timeEnd;
-    
-    /**
-     * Outputs a stack trace
-     */
     this.trace = console.trace;
-    
-    /**
-     * Outputs a warning message, see [https://developer.mozilla.org/en-US/docs/Web/API/Console/warn]
-     */
     this.warn = console.warn;
 
     if (addObs)
@@ -87,27 +53,53 @@
                 }).join(" ");
                 
                 var details = null;
-                if (aMessage.level == "timeEnd")
-                    details = "'" + aMessage.timer.name + "' " + aMessage.timer.duration + "ms";
-                if (aMessage.level == "time")
-                    details = "'" + aMessage.timer.name + "' @ " + (new Date());
-                if (aMessage.level == "trace")
-                    details = "trace" + "\n" + formatTrace(aMessage.stacktrace);
-                else if ("stacktrace" in aMessage)
-                    details = data + "\ntrace" + "\n" + formatTrace(aMessage.stacktrace);
-                log.debug(aMessage.level + ": " + (details || data));
+                var severity = Ci.koINotification.SEVERITY_INFO;
+                switch (aMessage.level)
+                {
+                    case "info":
+                        log.info(data);
+                        break;
+                    case "warn":
+                        log.warn(data);
+                        severity = Ci.koINotification.SEVERITY_WARNING;
+                        break;
+                    case "error":
+                        log.error(data);
+                        severity = Ci.koINotification.SEVERITY_ERROR;
+                        break;
+                    case "exception":
+                        log.exception(data);
+                        severity = Ci.koINotification.SEVERITY_ERROR;
+                        break;
+                    default:
+                        if (aMessage.level == "timeEnd")
+                            details = "'" + aMessage.timer.name + "' " + aMessage.timer.duration + "ms";
+                        if (aMessage.level == "time")
+                            details = "'" + aMessage.timer.name + "' @ " + (new Date());
+                        if (aMessage.level == "trace")
+                            details = "trace" + "\n" + formatTrace(aMessage.stacktrace);
+                        log.debug(details || data);
+                        break;
+                }
+                
+                try
+                {
+                    ko.notifications.add("console." + aMessage.level + ": " + data, ["console", aMessage.level], Date.now(),
+                         {severity: severity, notify: true, details: details});
+                }
+                catch (e)
+                {
+                    log.exception(e);
+                }
             }
         }, "console-api-log-event", false);
     }
 
-    /**
-     * Outputs general logging information, see [https://developer.mozilla.org/en-US/docs/Web/API/Console/log]
-     */
     this.log = () =>
     {
         // Todo: Localize and add documentation link
         ko.dialogs.alert(
-            "Console messages are send to the Console pane, stdout and \
+            "Console messages are send to the Notifications pane, stdout and \
             Komodo's pystderr.log, for more information please check our documentation.",
             null, "Info on Console Messages", "consoleMessages"
         );
@@ -329,9 +321,7 @@
                 stack.push({
                     'file': parts[3],
                     'fileName': parts[3],
-                    'filename': parts[3],
                     'methodName': parts[1] || UNKNOWN_FUNCTION,
-                    'functionName': parts[1] || UNKNOWN_FUNCTION,
                     'name': parts[1] || UNKNOWN_FUNCTION,
                     'lineNumber': +parts[4],
                     'column': parts[5] ? +parts[5] : null,

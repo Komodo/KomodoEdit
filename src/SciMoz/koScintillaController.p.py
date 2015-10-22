@@ -464,19 +464,79 @@ class koScintillaController:
         return str(ClipboardWrapper()._getTextFromClipboard())
 
     def _do_cmd_endOfWord(self):
-        self.scimoz().wordRightEnd()
+        sm = self.scimoz()
+        if sm.currentPos == sm.textLength:
+            return
+        sm.beginUndoAction()
+        try:
+            curChar = sm.getWCharAt(sm.currentPos)
+            nextChar = sm.getWCharAt(sm.positionAfter(sm.currentPos))
+            if charClass.get(curChar, 'special') != charClass.get(nextChar, 'special'):
+                sm.charRight()
+            while sm.currentPos < sm.textLength and charClass.get(curChar, 'special') == charClass.get(nextChar, 'special'):
+                sm.charRight()
+                curChar = nextChar
+                nextChar = sm.getWCharAt(sm.currentPos)
+        finally:
+            sm.endUndoAction()
         return 1
 
     def _do_cmd_endOfWordExtend(self):
-        self.scimoz().wordRightEndExtend()
+        sm = self.scimoz()
+        if sm.currentPos == sm.textLength:
+            return
+        sm.beginUndoAction()
+        try:
+            curChar = sm.getWCharAt(sm.currentPos)
+            nextChar = sm.getWCharAt(sm.positionAfter(sm.currentPos))
+            if charClass.get(curChar, 'special') != charClass.get(nextChar, 'special'):
+                sm.charRightExtend()
+            while sm.currentPos < sm.textLength and charClass.get(curChar, 'special') == charClass.get(nextChar, 'special'):
+                sm.charRightExtend()
+                curChar = nextChar
+                nextChar = sm.getWCharAt(sm.currentPos)
+        finally:
+            sm.endUndoAction()
         return 1
 
     def _do_cmd_beginningOfWord(self):
-        self.scimoz().wordLeftEnd()
+        sm = self.scimoz()
+        if sm.currentPos == 0:
+            return
+        sm.beginUndoAction()
+        try:
+            curChar = sm.getWCharAt(sm.currentPos)
+            nextChar = sm.getWCharAt(sm.positionBefore(sm.currentPos))
+            if charClass.get(curChar, 'special') != charClass.get(nextChar, 'special'):
+                sm.charLeft()
+            curChar = sm.getWCharAt(sm.currentPos)
+            nextChar = sm.getWCharAt(sm.positionBefore(sm.currentPos))
+            while sm.currentPos and charClass.get(curChar, 'special') == charClass.get(nextChar, 'special'):
+                sm.charLeft()
+                curChar = nextChar
+                nextChar = sm.getWCharAt(sm.positionBefore(sm.currentPos))
+        finally:
+            sm.endUndoAction()
         return 1
 
     def _do_cmd_beginningOfWordExtend(self):
-        self.scimoz().wordLeftEndExtend()
+        sm = self.scimoz()
+        if sm.currentPos == 0:
+            return
+        sm.beginUndoAction()
+        try:
+            curChar = sm.getWCharAt(sm.currentPos)
+            nextChar = sm.getWCharAt(sm.positionBefore(sm.currentPos))
+            if charClass.get(curChar, 'special') != charClass.get(nextChar, 'special'):
+                sm.charLeftExtend()
+            curChar = sm.getWCharAt(sm.currentPos)
+            nextChar = sm.getWCharAt(sm.positionBefore(sm.currentPos))
+            while sm.currentPos and charClass.get(curChar, 'special') == charClass.get(nextChar, 'special'):
+                sm.charLeftExtend()
+                curChar = nextChar
+                nextChar = sm.getWCharAt(sm.positionBefore(sm.currentPos))
+        finally:
+            sm.endUndoAction()
         return 1
 
     def _do_cmd_selectWordUnderCursor(self):
@@ -488,7 +548,12 @@ class koScintillaController:
         sm.currentPos = word_end
 
     def _do_cmd_lineTranspose(self):
-        self.scimoz().lineTranspose();
+        sm = self.scimoz()
+        sm.beginUndoAction()
+        try:
+            sm.lineTranspose();
+        finally:
+            sm.endUndoAction()
         return 1
     
     def _do_cmd_join(self):
@@ -533,34 +598,64 @@ class koScintillaController:
             sm.endUndoAction()
 
     def _do_cmd_linePrevious(self):
-        self.scimoz().lineUp()
+        sm = self.scimoz()
+        sm.currentPos = min(sm.currentPos, sm.anchor)
+        sm.lineUp()
         
     def _do_cmd_lineNext(self):
-        self.scimoz().lineDown()
+        sm = self.scimoz()
+        sm.currentPos = max(sm.currentPos, sm.anchor)
+        sm.lineDown()
         
     def _do_cmd_left(self):
-        self.scimoz().charLeft()
+        sm = self.scimoz()
+        curpos = sm.currentPos
+        anchorpos = sm.anchor
+        if curpos != anchorpos:
+            sm.currentPos = sm.anchor = min(curpos, anchorpos)
+        else:
+            sm.currentPos = min(curpos, anchorpos)
+            sm.charLeft()
 
     def _do_cmd_right(self):
-        self.scimoz().charRight()
+        sm = self.scimoz()
+        curpos = sm.currentPos
+        anchorpos = sm.anchor
+        if curpos != anchorpos:
+            sm.currentPos = sm.anchor = max(curpos, anchorpos)
+        else:
+            sm.currentPos = max(curpos, anchorpos)
+            sm.charRight()
 
     def _do_cmd_wordLeft(self):
-        self.scimoz().wordLeft()
+        sm = self.scimoz()
+        sm.currentPos = min(sm.currentPos, sm.anchor)
+        sm.wordLeft()
 
     def _do_cmd_wordRight(self):
-        self.scimoz().wordRight()
+        sm = self.scimoz()
+        sm.currentPos = max(sm.currentPos, sm.anchor)
+        sm.wordRight()
         
     def _do_cmd_wordPartLeft(self):
-        self.scimoz().wordPartLeft()
+        sm = self.scimoz()
+        sm.currentPos = min(sm.currentPos, sm.anchor)
+        sm.wordPartLeft()
         
     def _do_cmd_wordPartRight(self):
-        self.scimoz().wordPartRight()
+        sm = self.scimoz()
+        sm.currentPos = max(sm.currentPos, sm.anchor)
+        sm.wordPartRight()
 
     def _do_cmd_wordLeftEnd(self):
-        self.scimoz().wordLeftEnd()
+        sm = self.scimoz()
+        sm.currentPos = min(sm.currentPos, sm.anchor)
+        sm.wordLeftEnd()
 
     def _do_cmd_wordRightEnd(self):
-        self.scimoz().wordRightEnd()
+        sm = self.scimoz()
+        sm.currentPos = max(sm.currentPos, sm.anchor)
+        sm.wordRightEnd()
         
     def _do_cmd_pasteYankedLinesBefore(self):
         self._do_cmd_pasteYankedLines(pasteAfter=0)
@@ -592,15 +687,43 @@ class koScintillaController:
     def _do_cmd_clearLine(self):
         sm = self.scimoz()
         sm.beginUndoAction()
-        sm.delLineLeft()
-        sm.delLineRight()
-        sm.endUndoAction()
+        try:
+            sm.home()
+            sm.vCHomeWrap()
+            # delete all characters to the right of the cursor
+            lineNo = sm.lineFromPosition(sm.currentPos)
+            lineEndPos = sm.getLineEndPosition(lineNo)
+            sm.targetStart = sm.currentPos
+            sm.targetEnd = lineEndPos
+            sm.replaceTarget(0, "")
+        finally:
+            sm.endUndoAction()
 
     def _do_cmd_clearLineHome(self):
-        self.scimoz().delLineLeft()
+        sm = self.scimoz()
+        sm.beginUndoAction()
+        try:
+            lineNo = sm.lineFromPosition(sm.currentPos)
+            lineStartPos = sm.positionFromLine(lineNo)
+            # delete all characters to the right of the cursor
+            sm.targetStart = lineStartPos
+            sm.targetEnd = sm.currentPos
+            sm.replaceTarget(0, "")
+        finally:
+            sm.endUndoAction()
 
     def _do_cmd_clearLineEnd(self):
-        self.scimoz().delLineRight()
+        sm = self.scimoz()
+        sm.beginUndoAction()
+        try:
+            # delete all characters to the right of the cursor
+            lineNo = sm.lineFromPosition(sm.currentPos)
+            lineEndPos = sm.getLineEndPosition(lineNo)
+            sm.targetStart = sm.currentPos
+            sm.targetEnd = lineEndPos
+            sm.replaceTarget(0, "")
+        finally:
+            sm.endUndoAction()
 
     def _do_cmd_cutChar(self):
         sm = self.scimoz()
@@ -683,12 +806,10 @@ class koScintillaController:
             sm.endUndoAction()
             
     def _is_cmd_lineDuplicateUp_enabled(self):
-        return self.scimoz().selections == 1
+        return True
 
     def _do_cmd_lineDuplicateUp(self):
         sm = self.scimoz()
-        if sm.selections > 1:
-            return # do not duplicate multiple or rectangular selections
 
         startPos = sm.selectionStart
         endPos = sm.selectionEnd
@@ -718,12 +839,10 @@ class koScintillaController:
             sm.endUndoAction()
 
     def _is_cmd_lineDuplicateDown_enabled(self):
-        return self.scimoz().selections == 1
+        return True
 
     def _do_cmd_lineDuplicateDown(self):
         sm = self.scimoz()
-        if sm.selections > 1:
-            return # do not duplicate multiple or rectangular selections
 
         startPos = sm.selectionStart
         endPos = sm.selectionEnd
@@ -754,13 +873,10 @@ class koScintillaController:
             sm.endUndoAction()
 
     def _is_cmd_lineTransposeDown_enabled(self):
-        return self.scimoz().selections == 1
+        return True
 
     def _do_cmd_lineTransposeDown(self):
         sm = self.scimoz()
-        if sm.selections > 1:
-            return # do not transpose multiple or rectangular selections
-        
         hasSelection = sm.selectionStart != sm.selectionEnd
 
         if not hasSelection:
@@ -780,13 +896,10 @@ class koScintillaController:
             sm.endUndoAction()
 
     def _is_cmd_lineTransposeUp_enabled(self):
-        return self.scimoz().selections == 1
+        return True
 
     def _do_cmd_lineTransposeUp(self):
         sm = self.scimoz()
-        if sm.selections > 1:
-            return # do not transpose multiple or rectangular selections
-        
         hasSelection = sm.selectionStart != sm.selectionEnd
 
         if not hasSelection:
@@ -1063,19 +1176,36 @@ class koScintillaController:
 
     def _do_cmd_linePreviousHome(self):
         sm = self.scimoz()
+        sm.currentPos = min(sm.currentPos, sm.anchor)
         sm.lineUp()
         sm.home()
         sm.vCHomeWrap()
 
     def _do_cmd_lineNextHome(self):
         sm = self.scimoz()
-        if sm.lineFromPosition(sm.selectionEnd) + 1 >= sm.lineCount:
+        currentPos = max(sm.currentPos, sm.anchor)
+        if currentPos >= sm.length:
+            # We're there, go no further
             return
-        sm.lineDown()
+        nextLine = sm.lineFromPosition(currentPos) + 1
+        if nextLine >= sm.lineCount:
+            # We can't go any further
+            return
+        sm.gotoPos(sm.positionFromLine(nextLine))
         sm.vCHomeWrap()
 
     def _do_cmd_home(self):
         sm = self.scimoz()
+        if sm.currentPos != sm.anchor:
+            # bug 91199: set things up so after processing VCHomeWrap(),
+            # the cursor will be at the non-white start of the first
+            # line in the selection.
+            #
+            # Note that Shift-Home behaves differently, as it lets
+            # scintilla decide how to modify an existing selection.
+            sm.currentPos = sm.anchor = \
+                sm.positionFromLine(min(sm.lineFromPosition(sm.currentPos),
+                                        sm.lineFromPosition(sm.anchor)))
         # bug 91964 - Allow people to map Home key to always go to column 0.
         if self._koPrefs.getBooleanPref('editHomeKeyFavorsFirstNonSpace'):
             sm.vCHomeWrap()
@@ -1083,7 +1213,9 @@ class koScintillaController:
             sm.homeWrap()
 
     def _do_cmd_end(self):
-        self.scimoz().lineEndWrap()
+        sm = self.scimoz()
+        sm.currentPos = max(sm.currentPos, sm.anchor)
+        sm.lineEndWrap()
 
     def _is_cmd_transpose_enabled(self):
         return 1 # not really, but we'll deal with edge cases below

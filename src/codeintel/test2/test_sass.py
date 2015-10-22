@@ -389,13 +389,12 @@ class SassTestCase(CodeIntelTestCase):
                                       pseudo_results)
         self.assertNoTrigger(markup_text(content, pos=positions[2]))
 
-    @tag("css3")
-    def test_css3_transition_property_completions(self):
+    @tag("bug90681", "css3")
+    def test_empty_css3_property_completions(self):
         content = dedent("""
             body
                 transition-property: <|>""")
-        transitions = [("value", s) for s in ("all", "IDENT", "none", "<single-transition-property>")]
-        self.assertCompletionsAre(content, transitions)
+        self.assertCompletionsAre(content, [])
 
 #---- mainline
 if __name__ == "__main__":

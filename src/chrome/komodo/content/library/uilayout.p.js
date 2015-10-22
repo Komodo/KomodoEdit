@@ -194,25 +194,17 @@ this.toggleButtons = function uilayout_toggleButtons()
 }
 
 // #if PLATFORM != "darwin"
+var g_initialized_button_menu = false;
+
 this.toggleMenubar = function uilayout_toggleMenubar() {
     var broadcaster = document.getElementById('cmd_toggleMenubar');
     broadcaster.setAttribute('checked', !(broadcaster.getAttribute('checked') == 'true'));
     ko.uilayout.setMenubarVisibility();
 }
 
-// Copy the top-level menus into the button menus.
-this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems(event) {
-    if (event.originalTarget != document.getElementById('unifiedMenuPopup')) return;
-    
-    // Reset the menupopup each time its initialized
-    var wrapper = document.getElementById('unifiedMenuPopupHbox');
-    if ( ! ("__cloned" in this.cloneUnifiedMenuItems))
-    {
-        this.cloneUnifiedMenuItems.__cloned = wrapper.cloneNode(true);
-    }
-    var _wrapper = this.cloneUnifiedMenuItems.__cloned.cloneNode(true);
-    wrapper.parentNode.replaceChild(_wrapper, wrapper);
-    wrapper = _wrapper;
+this.cloneUnifiedMenuItems = function uilayout_cloneUnifiedMenuItems() {
+	// Copy the top-level menus into the button menus.
+	g_initialized_button_menu = true;
 
 	var menubar       = document.getElementById('menubar_main');
 	var popupFile     = document.getElementById('popup_file');
@@ -269,6 +261,10 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
         // Hide the menu button - as the menu is always showing.
         menuButton.collapsed = true;
     } else {
+        if (!g_initialized_button_menu) {
+            ko.uilayout.cloneUnifiedMenuItems();
+        }
+
         menuButton.collapsed = false;
         UpdateUnifiedMenuMru();
     }
@@ -1717,7 +1713,7 @@ this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
 /* Update the titlebar
    Have to keep in mind debugging state */
 this.updateTitlebar = function uilayout_updateTitlebar(view)  {
-    var viewPart = view ? view.title : "";
+    var viewPart = "";
     var preProjectPart, projectPart, postProjectPart;
     var postTitlePart = "";
     var projectRootName = ko.projects.manager.projectBaseName();
@@ -1728,11 +1724,8 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
         } else {
             preProjectPart = postProjectPart = "";
         }
-    } else if (require("ko/views").current() &&
-               require("ko/views").current().type != "editor"){
-        _log.debug("Skipping quickstart view");
-        // do nothing 
     } else {
+        viewPart = view.title;
         if (view.isDirty)  {
             viewPart += "*";
         }
@@ -1751,17 +1744,16 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
             preProjectPart = " (";
             postProjectPart = ")";
         }
-        if (projectRootName) {
-            viewPart += (preProjectPart
-                         + _bundle.GetStringFromName("Project")
-                         + " "
-                         + projectRootName
-                         + postProjectPart
-                         );
-        }
-        viewPart += postTitlePart;
     }
-    
+    if (projectRootName) {
+        viewPart += (preProjectPart
+                     + _bundle.GetStringFromName("Project")
+                     + " "
+                     + projectRootName
+                     + postProjectPart
+                     );
+    }
+    viewPart += postTitlePart;
     var title = viewPart;
 
     var branding = '';
@@ -1861,32 +1853,22 @@ this.onload = function uilayout_onload()
     // Also track click events, as not all menuitem's fire a command event
     document.getElementById('unifiedMenuButton').addEventListener('click', trackMenuItemMru);
     document.getElementById('menubar_main').addEventListener('click', trackMenuItemMru);
-    
-    document.getElementById('unifiedMenuPopup').addEventListener('popupshowing', ko.uilayout.cloneUnifiedMenuItems.bind(ko.uilayout));
 
     ko.uilayout.setMenubarVisibility();
 // #endif
 
+    var deck = document.getElementById('editorviewbox');
     if ( ! ko.views.manager.getAllViews().length) {
-        ko.open.quickStart();
+        deck.selectedPanel = document.getElementById("quicklaunch");
     }
     
     this.updateViewRef();
-    
-    // preload the embedded find replace frame (no rush)
-    setTimeout(function() {
-        var findBrowser = document.getElementById("findReplaceBrowser");
-        if ( ! findBrowser.hasAttribute("src")) {
-            findBrowser.setAttribute("src", "chrome://komodo/content/find/embedded.xul");
-        }
-    }, 1000);
 }
 
 this.updateViewRef = function(view) {
     if ( ! view) {
         view = ko.views.manager.currentView;
     }
-
 
     var viewType = "";
     var deck = document.getElementById('editorviewbox');
@@ -1895,18 +1877,20 @@ this.updateViewRef = function(view) {
     }
 
     document.getElementById("komodo_main").setAttribute("view-type", viewType);
- }
+}
 
 this.updateViewDeck = function() {
     var tv = document.getElementById("topview");
     var deck = document.getElementById('editorviewbox');
-    deck.selectedPanel = document.getElementById("editorvbox");
-    
     var hasViews = tv.currentView.currentView || tv.otherView.currentView;
+
     if ( ! hasViews) {
-        ko.open.quickStart();
+        deck.selectedPanel = document.getElementById("quicklaunch");
+    } else
+    {
+        deck.selectedPanel = document.getElementById("editorvbox");
     }
-}
+ }
 
 this._setTabPaneLayoutForTabbox = function(layout, pane, position) {
     if (position == "right" && layout != "vertical") {

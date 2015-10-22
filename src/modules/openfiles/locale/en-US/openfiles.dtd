@@ -2,13 +2,11 @@
 <!ENTITY viewEditorTabs.label "Show Editor Tabs">
 <!ENTITY viewEditorTabs.tooltip "Toggle Editor Tabs">
 <!ENTITY closeFile.tooltip "Close File">
-<!ENTITY closeFiles.tooltip "Close Files">
 
 <!ENTITY userInterfaceShowHideOpenFilesTab.desc "User Interface: Show/Hide Open Files Pane">
 <!ENTITY userInterfaceFocusOpenFilesTab.desc "User Interface: Focus on Open Files Pane">
 
 <!ENTITY groupFiles.label "Group Open Files">
-<!ENTITY sortTabs.label "Sort Tabs">
 <!ENTITY groupFiles.desc "OpenFiles Widget: Arrange Open Files in Groups">
 <!ENTITY groupByLang.label "Group By Language">
 <!ENTITY groupByLang.desc "OpenFiles Widget: Group Open Files by Language">

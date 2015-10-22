@@ -3,10 +3,6 @@
 * https://github.com/dciccale/ki.js
 */
 if (typeof module === 'undefined') module = {}; // debugging helper
-
-/**
- * @module dom
- */
 (function() {
 
     const log   = require("ko/logging").getLogger("ko-dom");
@@ -14,7 +10,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
     /* === MAIN CONSTRUCTION LOGIC === */
 
-    /**
+    /*
      * $ main function
      * query = css selector, dom object, or function
      * http://www.dustindiaz.com/smallest-domready-ever
@@ -44,7 +40,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             return new queryObject($.createElement(query));
         }
         else
-            return new queryObject(query, parent);
+            return new queryObject(query, parent)
     }
 
     /* === HELPER FUNCTIONS === */
@@ -145,9 +141,6 @@ if (typeof module === 'undefined') module = {}; // debugging helper
     var insertIntoElem = function(elems, insert, opts)
     {
         opts = opts || {};
-        
-        if (typeof insert == "object" && insert.koDom)
-            insert.each(function() { insertIntoElem(elems, this, opts); });
 
         var __insert = false
         if (typeof insert == 'string')
@@ -155,7 +148,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         return elems.each(function()
         {
-            if (typeof insert == "object" && insert.koDom)
+            if (insert.koDom)
                 var _insert = insert.element()
             else
                 var _insert = __insert ? __insert.cloneNode(true) : insert;
@@ -178,7 +171,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
     /* === FUNCTION CHAIN === */
 
-    /**
+    /*
      * queryObject function (internal use)
      * query = selector, dom element or function
      */
@@ -187,9 +180,6 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         var parent = window.document;
 
         this._elements = [];
-        
-        if (typeof query == "object" && query.length)
-            query = Array.prototype.slice.call(query);
         
         // Use push.apply to force array type
         if(Object.prototype.toString.call(query) === '[object Array]')
@@ -213,38 +203,26 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         // Identify as special DOM element
         koDom: true,
-        
-        /**
-         * Add event handler
-         * 
-         * @param {Event} event         String event type i.e 'click'
-         * @param {Function} action     Function
-         * 
-         * @returns this
+
+        /*
+         * on method
+         * event = string event type i.e 'click'
+         * action = function
+         * return this
          */
         on: function(event, action)
         {
-            this.off(event, action); // Prevent duplicate event listeners
-            
             return this.each(function()
             {
-                if ( ! ("__koListeners" in this))
-                    this.__koListeners = {};
-                if ( ! (event in this.__koListeners))
-                    this.__koListeners[event] = [];
-                this.__koListeners[event].push(action);
-                
                 this.addEventListener(event, action);
             });
         },
         
-        /**
-         * Add an event listener which only receives a callback once
-         * 
-         * @param {Event} event     String event type i.e 'click'
-         * @param {Function} action
-         * 
-         * @returns this
+        /*
+         * once method
+         * event = string event type i.e 'click'
+         * action = function
+         * return this
          */
         once: function(event, action)
         {
@@ -253,31 +231,28 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             var listener = function()
             {
                 action.apply(this, arguments);
-                this.off(event, listener);
+                elems.each(function()
+                {
+                    this.removeEventListener(event, listener);
+                });
             };
             
-            this.on(event, listener);
+            return this.each(function()
+            {
+                this.addEventListener(event, listener);
+            });
         },
 
-        /**
-         * Remove event listener
-         * 
-         * @param {Event} event     String event type i.e 'click'
-         * @param {Function} action 
-         * 
-         * @returns this
+        /*
+         * off method
+         * event = string event type i.e 'click'
+         * action = function
+         * return this
          */
         off: function(event, action)
         {
             return this.each(function()
             {
-                if (("__koListeners" in this) && (event in this.__koListeners))
-                {
-                    this.__koListeners[event].filter(function(value) {
-                        return value != action;
-                    });
-                }
-                
                 this.removeEventListener(event, action);
             });
         },
@@ -301,15 +276,12 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
-        /**
-         * Iterate over matched elements
-         * 
-         * @param {Function} action    he function to call on each iteration
-         *
-         * @returns this
+        /*
+         * each method
+         * use native forEach to iterate collection
+         * action = the function to call on each iteration
          */
-        each: function(action)
-        {
+        each: function(action) {
             for (var k in this._elements)
             {
                 if ( ! this._elements.hasOwnProperty(k)) continue;
@@ -318,23 +290,17 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             return this;
         },
 
-        /**
+        /*
          * Reverse the element array
-         * 
-         * @returns this
          */
-        reverse: function()
-        {
+        reverse: function(action) {
             this._elements.reverse();
             return this;
         },
 
         /**
          * Set text content of elem
-         * 
          * @param   {string} value
-         *
-         * @returns this
          */
         text: function(value)
         {
@@ -349,10 +315,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Set html content of elem
-         * 
          * @param   {string|object} value String or queryObject
-         *
-         * @returns this
          */
         html: function(value)
         {
@@ -369,8 +332,6 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Get outer html of elem
-         * 
-         * @returns this
          */
         outerHtml: function()
         {
@@ -379,8 +340,6 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Empty the contents of an element
-         *
-         * @returns this
          */
         empty: function()
         {
@@ -389,10 +348,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Append content to elem
-         * 
          * @param   {string|object} value String or queryObject
-         *
-         * @returns this
          */
         append: function(elem)
         {
@@ -402,23 +358,16 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Prepend content to elem
-         * 
          * @param   {string|object} value String or queryObject
-         *
-         * @returns this
          */
         prepend: function(elem)
         {
             insertIntoElem(this, elem, {where: "prepend"});
-            return this;
         },
 
         /**
          * Insert content after element
-         * 
          * @param   {string|object} value String or queryObject
-         *
-         * @returns this
          */
         after: function(elem)
         {
@@ -428,80 +377,28 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Insert content before element
-         * 
          * @param   {string|object} value String or queryObject
-         *
-         * @returns this
          */
         before: function(elem)
         {
             insertIntoElem(this, elem, {where: "before"});
             return this;
         },
-        
-        /**
-         * Get the previous sibling for the first element in the selection
-         *
-         * @returns {queryObject}
-         */
-        prev: function()
-        {
-            return new queryObject(this.element().previousSibling);
-        },
-        
-        /**
-         * Get the next sibling for the first element in the selection
-         *
-         * @returns {queryObject}
-         */
-        next: function()
-        {
-            return new queryObject(this.element().nextSibling);
-        },
 
-        /**
-         * Replace matched element(s) with ..
-         * 
-         * @param   {Element} elem 
-         * 
-         * @returns {Element} returns replaced element
-         */
         replaceWith: function(elem)
         {
             if ("koDom" in elem) elem = elem.element();
             return this.element().parentNode.replaceChild(elem, this.element());
         },
 
-        /**
-         * Clone matched element
-         * 
-         * @returns {Element} matched element
-         */
-        clone: function(deep = true)
+        clone: function()
         {
-            var el = this.element();
-            var result = $(el.cloneNode(deep));
-            
-            if ("__koListeners" in el)
-            {
-                for (let event in el.__koListeners)
-                {
-                    if ( ! el.__koListeners.hasOwnProperty(event)) continue;
-                    el.__koListeners[event].forEach(function(action) {
-                        result.on(event, action);
-                    });
-                }
-            }
-            
-            return result;
+            return $(this.element().cloneNode(true));
         },
 
         /**
          * Set / get value
-         * 
          * @param   {String|Void} value
-         *
-         * @returns this
          */
         value: function(value)
         {
@@ -517,20 +414,13 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
-        /**
-         * Retrieve parent node
-         *
-         * @returns {Element}   Parent node
-         */
         parent: function()
         {
             return $(this.element().parentNode);
         },
 
         /**
-         * Delete matched elements
-         *
-         * @returns this
+         * Delete element
          */
         delete: function()
         {
@@ -541,9 +431,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         },
 
         /**
-         * Makes element visible by setting the visibility attribute
-         *
-         * @returns this
+         * Makes element visible
          */
         show: function()
         {
@@ -554,9 +442,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         },
 
         /**
-         * Makes element invisible by setting the visibility attribute
-         *
-         * @returns this
+         * Makes element invisible
          */
         hide: function()
         {
@@ -568,43 +454,17 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Check if element is visible
-         *
-         * @returns {Boolean}
          */
         visible: function()
         {
             return ["","visible","initial", "inherit"].indexOf(this.element().style.visibility) != -1;
         },
 
-        /**
-         * Checks if element exists
-         * 
-         * @returns {Boolean}
-         */
         exists: function()
         {
             return !! this.element().parentNode;
         },
 
-        /**
-         * Checks for given class 
-         * 
-         * @param {String}  className
-         * 
-         * @returns this
-         */
-        hasClass: function(className)
-        {
-            return this.element().classList.contains(className);
-        },
-
-        /**
-         * Adds given class 
-         * 
-         * @param {String}  className
-         * 
-         * @returns this
-         */
         addClass: function(className)
         {
             return this.each(function()
@@ -613,13 +473,6 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
-        /**
-         * Remove given class
-         * 
-         * @param {String}  className
-         * 
-         * @returns this
-         */
         removeClass: function(className)
         {
             return this.each(function()
@@ -628,14 +481,6 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
-        /**
-         * Set/get CSS value(s)
-         * 
-         * @param   {String|Object} key  
-         * @param   {Mixed|Undefined} value
-         * 
-         * @returns this
-         */
         css: function(key, value)
         {
             var pxRules = ["width", "height", "top", "left", "bottom", "right", "font-size"];
@@ -668,14 +513,6 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
-        /**
-         * Set/get attributes
-         * 
-         * @param   {String|Object} key  
-         * @param   {Mixed|Undefined} value
-         * 
-         * @returns this
-         */
         attr: function(key, value)
         {
             if ((typeof key) == 'string' && value === undefined)
@@ -698,13 +535,6 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
         
-        /**
-         * Remove Attribute
-         * 
-         * @param   {String} key
-         * 
-         * @returns this
-         */
         removeAttr: function(key)
         {
             return this.each(function()
@@ -713,11 +543,6 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
-        /**
-         * Get a unique ID for the matched element
-         * 
-         * @returns {String}
-         */
         uniqueId: function()
         {
             var self = this;
@@ -732,17 +557,6 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             return this.element().id;
         },
 
-        /**
-         * Animate certain properties on the matched elements
-         *
-         * NOTE: This function is extremely experimental 
-         * 
-         * @param   {Object} props   
-         * @param   {Object} opts    
-         * @param   {Function|Null} callback
-         * 
-         * @returns this
-         */
         animate: function(props, opts = {}, callback = null)
         {
             if ((typeof opts) == 'function')
@@ -871,11 +685,6 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             this._animTimer = window.setTimeout(frameStep.bind(this), interval);
         },
 
-        /**
-         * Stop any running animations
-         * 
-         * @returns this
-         */
         stop: function()
         {
             if ("_animTimer" in this)
@@ -895,8 +704,6 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Focus on element
-         *
-         * @returns this
          */
         focus: function()
         {
@@ -906,29 +713,17 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Find within current element
-         *
-         * @returns {queryObject}
          */
         find: function(query)
         {
             return new queryObject(query, this.element());
         },
 
-        /**
-         * Get child nodes
-         * 
-         * @returns {queryObject}
-         */
         children: function()
         {
             return new queryObject(this.element().childNodes);
         },
 
-        /**
-         * Remove matched elements
-         * 
-         * @returns {Void}
-         */
         remove: function()
         {
             this.each(function()
@@ -937,25 +732,15 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
         },
 
-        /**
-         * Get first matched element
-         * 
-         * @returns {queryObject}
-         */
+        // for some reason is needed to get an array-like
+        // representation instead of an object
+        splice: function() { return this._elements.splice.call(arguments); },
+
+        // Use first entry
         first: function() { return new queryObject(this.element(0)); },
 
-        /**
-         * Get last matched element
-         * 
-         * @returns {queryObject}
-         */
         last: function() { return new queryObject(this.element(-1)); },
 
-        /**
-         * Get first matched element, without wrapping it in a queryObject
-         * 
-         * @returns {Element}
-         */
         element:  function(k) {
             return this._elements.slice(k || 0)[0] || undefined;
         }

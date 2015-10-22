@@ -244,6 +244,8 @@ class CommonJSLinter(object):
                     if isMacro:
                         if lineNo > len(datalines) + 1:
                             lineNo = len(datalines)
+                        else:
+                            lineNo -= 1
                     errorType = firstLineMatch.group("type")
                     desc = firstLineMatch.group("desc")
                     state = _JS_STATE_EXP_CODE
@@ -304,6 +306,18 @@ class KoJavaScriptLinter(CommonJSLinter):
          ("category-komodo-linter", 'Node.js&type=jsShell'),
          ]
 
+class KoJSONLinter(CommonJSLinter):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo XPCShell JSON Linter"
+    _reg_clsid_ = "{bcd7d132-734c-4d06-811c-383705ccb514}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=JSON;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", "JSON"),
+         ]
+
+    def lint_with_text(self, request, text):
+        return CommonJSLinter.lint_with_text(self, request, "var x = " + text)
+        
 class GenericJSLinter(CommonJSLinter):
 
     def lint(self):
@@ -514,7 +528,7 @@ class KoCoffeeScriptLinter(object):
         fout.close()
         textlines = text.splitlines()
         cwd = request.cwd
-        cmd = [coffeeExe, "-c", "-p", tmpfilename]
+        cmd = [coffeeExe, "-l", "-c", tmpfilename]
         # We only need the stderr result.
         try:
             p = process.ProcessOpen(cmd, cwd=cwd, stdin=None)
@@ -525,15 +539,26 @@ class KoCoffeeScriptLinter(object):
             warnLines = []
         finally:
             os.unlink(tmpfilename)
-        ptn = re.compile(r'^[^:]+:(\d+):(\d+): ([^\r\n]+)')
+        ptn = re.compile(r'^Error: In (.*),\s*(.*) on line (\d+):\s*(.*)')
+        syntaxErrorPtn = re.compile(r'^SyntaxError: In (.*),\s*(.*) on line (\d+)')
         results = koLintResults()
         for line in warnLines:
             m = ptn.match(line)
             if m:
-                lineNo = int(m.group(1))
-                colNo = int(m.group(2))
-                desc = "%s (on column %d)" % (m.group(3), colNo)
+                part1 = m.group(2)
+                lineNo = int(m.group(3))
+                part2 = m.group(4)
+                desc = "%s on line %d: %s" % (part1, lineNo, part2)
                 severity = koLintResult.SEV_ERROR
                 koLintResult.createAddResult(results, textlines, severity,
-                                             lineNo, desc, columnStart=colNo)
+                                             lineNo, desc)
+            else:
+                m = syntaxErrorPtn.match(line)
+                if m:
+                    part1 = m.group(2)
+                    lineNo = int(m.group(3))
+                    desc = "SyntaxError: %s on line %d" % (part1, lineNo)
+                    severity = koLintResult.SEV_ERROR
+                    koLintResult.createAddResult(results, textlines, severity,
+                                                 lineNo, desc)
         return results

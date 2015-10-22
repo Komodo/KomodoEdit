@@ -31,7 +31,10 @@ how.
    'bin/newstuff.py' in step (4). There are a few subtleties involved in
    getting all the Wix attributes just right.
 
-3. Removing a file: Find the <File> node for your file (just search for the
+3. Is the file part of the "docs" or "core" feature? This tells you if you
+   are editing "feature-docs.wxs.in" or "feature-core.wxs.in".
+
+4. Removing a file: Find the <File> node for your file (just search for the
    basename and make sure the "src" attribute is the right one). Delete
    that line (i.e. the whole <File/> tag).
 
@@ -42,10 +45,12 @@ how.
 
         <File Id="NEWFILE" src="feature-core\INSTALLDIR\path\to\your\new\file"/>
 
-4. Run the "newstuff.py" script to update things -- it knows how to massage
+5. Run the "newstuff.py" script to update things -- it knows how to massage
    your new <File> node to the right thing:
 
         python bin\newstuff.py feature-core.wxs.in
 
-5. Check it in.
+   (Make that "feature-docs.wxs.in" if that is the one you were updating.)
+
+6. Check it in.
 

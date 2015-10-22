@@ -15,7 +15,7 @@
     const ioService = Cc["@mozilla.org/network/io-service;1"]
                         .getService(Ci.nsIIOService);
 
-    const KeyEvent = _window.KeyEvent;
+    const KeyEvent = window.KeyEvent; // Todo: Don't depend on window
 
     // Short alias for the commando scope.
     const c = this;
@@ -48,8 +48,7 @@
         blocked: null,
         panelClone: null,
         scopeOpener: null,
-        firstShow: true,
-        state: {}
+        firstShow: true
     };
 
     var elems = {
@@ -66,7 +65,6 @@
         scopesSeparator: function() { return $("#scope-separator"); },
         menuItem: function() { return $("#menu_show_commando"); },
         tip: function() { return $("#commando-tip"); },
-        preview: function() { return $("#commando-preview"); },
         template: {
             scopeMenuItem: function() { return $("#tpl-co-scope-menuitem"); },
             scopeNavMenuItem: function() { return $("#tpl-co-scope-nav-menuitem"); },
@@ -348,8 +346,7 @@
 
     var onNavDown = function(e)
     {
-        c.navDown(e && e.shiftKey)
-        onPreview(e);
+        c.navDown(e && e.shiftKey);
     }
 
     var onNavUp = function(e)
@@ -359,32 +356,7 @@
         } else {
             c.navUp(e && e.shiftKey);
         }
-        onPreview(e);
     }
-    
-    var onPreview = function(e)
-    {
-        if (elem('panel').hasClass("maximized"))
-        {
-            elem('panel').removeClass("maximized");
-        }
-        
-        if ( ! c.execScopeHandler("onPreview"))
-        {
-            if (elem('preview').visible())
-            {
-                elem('preview').hide();
-                elem('preview').empty();
-                elem('panel').removeClass("previewing");
-                c.center();
-            }
-            return;
-        }
-        
-        c.preview();
-    }
-    
-    this.onPreview = onPreview;
 
     var onSearch = function(e)
     {
@@ -407,7 +379,10 @@
             }, uuid);
         }
 
-        elem("panel").removeClass("loading");
+        window.setTimeout(function()
+        {
+            elem("panel").removeClass("loading");
+        }, kitt.kitt ? 1000 : 0);
     }
 
     var onSelectResult = function()
@@ -448,7 +423,7 @@
             log.debug(local.selectedScope);
 
             if (local.selectedScope)
-                scopeElem.element().selectedItem = scopeElem.find("#scope-"+local.selectedScope).element();
+                scopeElem.element().selectedItem = scopeElem.find("#"+local.selectedScope).element();
             else
                 scopeElem.element().selectedIndex = 0;
             return;
@@ -462,13 +437,12 @@
     var onWindowClick = function(e)
     {
         if ( ! local.open) return;
-        var bo = elem('panel').element().boxObject;
-        if ((e.screenX > bo.screenX && e.screenX < (bo.screenX + bo.width)) &&
-            (e.screenY > bo.screenY && e.screenY < (bo.screenY + bo.height)))
+        var target = e.originalTarget || e.target;
+        while((target=target.parentNode) && target !== elem('panel').element() && target.nodeName != "dialog");
+        if ( ! target)
         {
-            return;
+            c.hide();
         }
-        c.hide();
     }
     
     var onQuickSearchFocus = function(e)
@@ -511,13 +485,8 @@
         var scopeChanged = false;
         if (scope && (scope != local.scopeOpener || ! preserve))
         {
-            c.storeState();
-            
-            if ( ! c.restoreState(scope))
-            {
-                scopeChanged = true;
-                c.selectScope(scope);
-            }
+            scopeChanged = true;
+            c.selectScope(scope);
         }
         
         local.scopeOpener = scope;
@@ -536,7 +505,17 @@
         }
         else
         {
-            [left, top] = this.center(true);
+            top = 100;
+            var anchor = elem('editor').element();
+            if ( ! anchor || ! anchor.boxObject)
+            {
+                anchor = document.documentElement;
+            }
+            var bo = anchor.boxObject;
+            
+            left = bo.x + (bo.width / 2);
+            left -= panel.element().width / 2;
+            
             panel.removeClass("quick-search");
         }
         
@@ -556,50 +535,8 @@
             local.firstShow = false;
             c.search();
         }
-        
-        elem('search').element().select();
-        c.center();
     }
-    
-    this.center = function(returnValues)
-    {
-        if (local.quickSearch) return;
-        
-        if ( ! returnValues)
-        {
-            // Hack to get around XUL magically adding width/height to elements, THANKS XUL!
-            elem('panel').removeAttr("height");
-            elem('panel').removeAttr("width");
-        }
-        
-        var panel = elem('panel');
-        
-        var top = 100;
-        var anchor = elem('editor').element();
-        if ( ! anchor || ! anchor.boxObject)
-        {
-            anchor = document.documentElement;
-        }
-        var bo = anchor.boxObject;
-        
-        var x = bo.x, y= bo.y;
-        if ( ! returnValues) x = bo.screenX, y = bo.screenY;
-        
-        var left = x + (bo.width / 2);
-        left -= (panel.element().boxObject.width || 500) / 2;
-        
-        if (returnValues)
-            return [left, top];
-        else
-        {
-            panel.element().moveTo(left, y + top);
-            // repeat on slight timeout, to deal with XUL oddities
-            setTimeout(function() {
-                c.center(true);
-                c.focus(); // Work around XUL focus bugs
-            }, 25);
-        }
-    }
+
     this.isOpen = function()
     {
         return local.open;
@@ -612,7 +549,7 @@
         if (window == _window)
         {
             var view = _window.ko.views.manager.currentView;
-            if (view && view.getAttribute("type") == "editor")
+            if (view && view.getAttribute("type") != "editor")
                 view.scintilla.focus();
         }
     }
@@ -627,12 +564,12 @@
         if ( ! callback) // this is a manual search
             return onSearch();
 
+        kitt();
+
         if (local.searchTimer && ! noDelay) return; // Search is already queued
-        
-        c.stop();
 
         elem("panel").addClass("loading");
-        var searchDelay = prefs.getLong('commando_search_delay', 100);
+        var searchDelay = prefs.getLong('commando_search_delay', 200);
 
         if (noDelay)
         {
@@ -712,8 +649,6 @@
         c.stop();
         c.search(query);
     }
-    
-    this.refresh = this.reSearch;
 
     this.expandSearch = function(query, uuid, callback)
     {
@@ -822,11 +757,8 @@
             c.execScopeHandler("onSelectResult", [selected]);
     }
 
-    this.expandResult = function(selected = null)
+    this.expandResult = function(selected)
     {
-        if ( ! selected)
-            selected = this.getSelectedResult();
-        
         if (selected.allowExpand === false)
             return;
 
@@ -949,20 +881,9 @@
         }
     }
 
-    this.selectScope = function(scopeId, hotSwap = false)
+    this.selectScope = function(scopeId)
     {
-        this._selectScope(scopeId);
-        
-        local.history = [];
-        
-        c.stop();
-        c.empty();
-        c.setSubscope(null); 
-    }
-    
-    this._selectScope = function(scopeId)
-    {
-        log.debug("_selectScope(): " + scopeId);
+        log.debug("selectScope(): " + scopeId);
         
         var scopeElem = elem('scope');
         var selectedItem = scopeElem.element().selectedItem;
@@ -974,14 +895,20 @@
 
         if ( ! selectItem)
         {
-            log.error("_selectScope: Scope could not be found: " + scopeId);
+            log.error("selectScope: Scope could not be found: " + scopeId);
             return;
         }
 
         scopeElem.element().selectedItem = selectItem;
         scopeElem.attr("image", scopeElem.attr("image") + "?preset=hud");
 
-        local.selectedScope = selectItem.id.substr(6);
+        local.selectedScope = selectItem.id;
+        
+        local.history = [];
+
+        c.stop();
+        c.empty();
+        c.setSubscope(null);
     }
 
     this.renderResult = function(result, searchUuid)
@@ -1091,12 +1018,9 @@
 
         c.navDown();
         
-        elem('panel').css("min-height", "auto");
         elem('panel').removeAttr("height");
-        elem('panel').removeAttr("width");
         setTimeout(function() {
             elem('panel').removeAttr("height");
-            elem('panel').removeAttr("width");
         }, 100);
         
         // Work around weird XUL flex issue where the richlistbox shows a scrollbar
@@ -1116,8 +1040,6 @@
         }
         
         c.reloadTip();
-        onPreview();
-        c.center();
     }
 
     this.filter = function(results, query, field = "name")
@@ -1238,20 +1160,13 @@
         
         return true;
     }
-    
-    this.selectFirstResult = function()
-    {
-        var results = elem('results');
-        var resultElem = results.element();
-        resultElem.selectedIndex = 0;
-    }
 
     this.navDown = function(append = false)
     {
         var results = elem('results');
         var resultElem = results.element();
         var resultCount = resultElem.getRowCount();
-        
+
         var selIndex = resultElem.selectedIndex || 0;
         for (let item of resultElem.selectedItems)
         {
@@ -1339,30 +1254,7 @@
             c.tip(description);
         }
     }
-    
-    this.preview = function()
-    {
-        elem('panel').css("min-height", "600px");
-        elem('panel').addClass("previewing");
-        elem('preview').show();
-        
-        c.center();
-    }
-    
-    this.maximizePreview = function()
-    {
-        if ( ! elem('panel').hasClass("previewing"))
-        {
-            log.warning("Cannot maximize nonexistant preview")
-            return;
-        }
-        
-        elem('panel').addClass("maximized");
-        elem('panel').css("min-height", "400px");
-        
-        c.center();
-    }
-    
+
     this.getSelected = function()
     {
         return elem('results').element().selectedItems.slice();
@@ -1433,7 +1325,7 @@
             if (local.selectedScope)
             {
                 var scopeElem = elem('scope');
-                return scopeElem.find("#scope-"+local.selectedScope).element()._scope;
+                return scopeElem.find("#"+local.selectedScope).element()._scope;
             }
         }
         catch (e)
@@ -1489,77 +1381,11 @@
 
         return result;
     }
-    
-    this.restoreState = function(scope)
-    {
-        if ( ! prefs.getBooleanPref('commando_preserve_query')) return;
-        
-        var state = local.state[scope] || false;
-        if ( ! state) return false;
-        
-        log.debug("Restoring state for " + scope);
-        
-        for (let k in state.local)
-            local[k] = state.local[k];
-        
-        c._selectScope(local.selectedScope);
-            
-        elem('results').append(state.resultElemChildren.children());
-        elem('subscopeWrap').replaceWith(state.subscopeElem);
-        
-        local.elemCache = {};
-        
-        elem('results').element().selectedIndex = state.resultIndex;
-        elem('results').element().ensureIndexIsVisible(state.resultIndex);
-        elem('search').value(local.prevSearchValue);
-        
-        c.center();
-        onPreview();
-        
-        return true;
-    }
-    
-    this.storeState = function()
-    {
-        if ( ! prefs.getBooleanPref('commando_preserve_query')) return;
-        
-        var scope = local.scopeOpener;
-        if ( ! scope) return;
-        
-        log.debug("Storing state for " + scope);
-        
-        var resultElem = elem('results');
-        var selectedIndex = elem('results').element().selectedIndex;
-        resultElem.element().clearSelection();
-        
-        var children = $("<box/>");
-        children.append(resultElem.children());
-        
-        local.state[scope] = {
-            local: {
-                prevSearchValue: local.prevSearchValue,
-                resultsReceived: local.resultsReceived,
-                resultsRendered: local.resultsRendered,
-                selectedScope: local.selectedScope,
-                history: _.clone(local.history),
-                subscope: _.clone(local.subscope)
-            },
-            resultElemChildren: children,
-            resultIndex: selectedIndex,
-            subscopeElem: elem('subscopeWrap').clone(true)
-        }
-    }
 
     this.stop = function()
     {
         local.prevSearchValue = null;
         local.searchingUuid = null;
-        
-        if (local.renderResultsTimer)
-        {
-            window.clearTimeout(local.renderResultsTimer);
-            local.renderResultsTimer = false;
-        }
     }
 
     this.empty = function()
@@ -1583,6 +1409,12 @@
         c.search();
     }
 
+    this.reset = function()
+    {
+        local.history = [];
+        c.clear();
+    }
+    
     this.block = function()
     {
         elem("panel").addClass("blocked");
@@ -1649,8 +1481,6 @@
     // XUL panel focus is buggy as hell, so we have to get crafty
     this.focus = function(times=0, timer = 10)
     {
-        if ( ! elem('search').visible()) return;
-        
         window.focus();
         elem('panel').focus();
         elem('search').focus();
@@ -1705,6 +1535,23 @@
 
         panel.css("opacity", 1.0);
         return result;
+    }
+
+    var kitt = function()
+    {
+        // You didn't see this, you were never here
+        if (kitt.kitt)
+        {
+            elem("panel").removeClass("kitt");
+            delete kitt.kitt
+        }
+        if (["kitt", "michael"].indexOf(elem('search').value()) !== -1)
+        {
+            var sound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
+            sound.play(ioService.newURI('chrome://commando/content/loading.wav', null, null));
+            elem("panel").addClass("kitt");
+            kitt.kitt = true;
+        }
     }
 
     init();

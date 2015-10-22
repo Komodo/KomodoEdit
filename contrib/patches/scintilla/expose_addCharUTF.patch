@@ -26,9 +26,9 @@ Index: /Users/toddw/as/komodo-devel_play/src/scintilla/src/Editor.h
  	int InsertSpace(int position, unsigned int spaces);
  	void AddChar(char ch);
 -	virtual void AddCharUTF(const char *s, unsigned int len, bool treatAsDBCS=false);
- 	void FillVirtualSpace();
  	void InsertPaste(const char *text, int len);
  	enum PasteShape { pasteStream=0, pasteRectangular = 1, pasteLine = 2 };
+ 	void InsertPasteShape(const char *text, int len, PasteShape shape);
 @@ -583,6 +582,8 @@
  	int errorStatus;
  	friend class AutoSurface;

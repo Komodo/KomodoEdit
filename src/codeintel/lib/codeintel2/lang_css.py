@@ -47,8 +47,6 @@ from cStringIO import StringIO
 import logging
 import traceback
 from pprint import pprint
-import operator
-import re
 
 import SilverCity
 from SilverCity.Lexer import Lexer
@@ -63,14 +61,11 @@ from SilverCity.ScintillaConstants import (
 )
 from SilverCity import Keywords
 
-from ciElementTree import SubElement
-from codeintel2.citadel import CitadelBuffer, CitadelLangIntel, ImportHandler
 from codeintel2.common import *
 from codeintel2.buffer import Buffer
 from codeintel2.util import (OrdPunctLast, make_short_name_dict,
-                             makePerformantLogger, walk2)
-from codeintel2.langintel import ParenStyleCalltipIntelMixin
-from codeintel2.gencix_utils import *
+                             makePerformantLogger)
+from codeintel2.langintel import LangIntel, ParenStyleCalltipIntelMixin
 from codeintel2.udl import UDLBuffer, is_udl_css_style
 from codeintel2.accessor import AccessorCache
 
@@ -421,7 +416,7 @@ class _UDLCSSStyleClassifier(_StraightCSSStyleClassifier):
 StraightCSSStyleClassifier = _StraightCSSStyleClassifier()
 UDLCSSStyleClassifier      = _UDLCSSStyleClassifier()
 
-class CSSLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin):
+class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
     lang = "CSS"
 
     @LazyClassAttribute
@@ -811,43 +806,25 @@ class CSSLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin):
                 if cplns:
                     ctlr.set_cplns( [ ("element", v) for v in cplns ] )
                 ctlr.done("success")
-            elif trg.id == ("CSS", TRG_FORM_CPLN, "anchors") or \
-                 trg.id == ("CSS", TRG_FORM_CPLN, "class-names"):
-                cplns = set() # prevent duplicates (#foo, #foo:hover, etc.).
-                ilk = CSSSelector.ID if trg.id[2] == "anchors" else \
-                      CSSSelector.CLASS
-                
-                # Autocomplete anchors or class names from the current file.
-                if self.lang in buf.blob_from_lang:
-                    blob = buf.blob_from_lang[self.lang]
-                    for elem in blob:
-                        if elem.get("ilk") == ilk:
-                            cplns.add((ilk, elem.get("target")))
-                
-                # Autocomplete anchors or class names from all CSS files in the
-                # current directory or sub-directories.
-                cwd = dirname(buf.path)
-                if cwd != "<Unsaved>":
-                    import_handler = \
-                        self.mgr.citadel.import_handler_from_lang(trg.lang)
-                    importables = import_handler.find_importables_in_dir(cwd)
-                    files = [i[0] for i in importables.values()]
-                    for file in files:
-                        try:
-                            buf = self.mgr.buf_from_path(file, lang=trg.lang)
-                            blob = buf.blob_from_lang[trg.lang]
-                            for elem in blob:
-                                if elem.get("ilk") == ilk:
-                                    cplns.add((ilk, elem.get("target")))
-                        except (EnvironmentError, CodeIntelError), ex:
-                            # This can occur if the path does not exist, such as
-                            # a broken symlink, or we don't have permission to
-                            # read the file, or the file does not contain text.
-                            continue                            
-                
-                # Sort and return completions.
-                if cplns:
-                    ctlr.set_cplns(sorted([v for v in cplns]))
+            elif trg.id == ("CSS", TRG_FORM_CPLN, "anchors"):
+                # Can be a colour or an id tag, depending upon what the
+                # previous char/style is
+                # The previous style must be an op style or alphanumeric ch
+                #i = 0
+                #max_total_lookback = 100 # Up to 100 chars back
+                #while i < max_total_lookback:
+                #    p, ch, style = ac.getPrecedingPosCharStyle(last_style,
+                #                    ignore_styles=styleClassifier.ignore_styles)
+                #    if not is_udl_css_style(style) or \
+                #       (styleClassifier.is_operator(style, ac) and \
+                #        ch in "};"):
+                #    i = last_pos - p
+                # XXX - Needs to lookup the project HTML files for anchors...
+                #anchors = self._get_all_anchors_names_in_project(accessor)
+                ctlr.done("success")
+            elif trg.id == ("CSS", TRG_FORM_CPLN, "class-names"):
+                #raise NotImplementedError("not yet implemented: completion for "
+                #                          "most css triggers")
                 ctlr.done("success")
             elif trg.id == ("CSS", TRG_FORM_CPLN, "property-names"):
                 cplns = self.CSS_PROPERTY_NAMES
@@ -1158,7 +1135,7 @@ class CSSLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin):
         return (property, current_value, values)
 
 
-class CSSBuffer(CitadelBuffer):
+class CSSBuffer(Buffer):
     lang = "CSS"
     sce_prefixes = ["SCE_CSS_"]
     # Removed '(' - double braces for completions that contain a '(' (bug 80063)
@@ -1170,300 +1147,6 @@ class CSSBuffer(CitadelBuffer):
     cpln_stop_chars = " ('\";:{},.>/"
 
 
-class CSSImportHandler(ImportHandler):
-    """
-    Handles finding CSS files contained within a particular directory.
-    """
-    sep = '/'
-
-    def find_importables_in_dir(self, dir):
-        """
-        Returns all CSS files in the given directory and its sub-directories.
-        The return value is a dictionary of the form:
-            {'/path/to/css/file1': ('/path/to/css/file1', None, False),
-             '/path/to/css/file2': ('/path/to/css/file2', None, False),
-             ...}
-        """
-        from os.path import join
-        from fnmatch import fnmatch
-
-        if dir == "<Unsaved>":
-            return {}
-
-        importables = {}
-        patterns = self.mgr.env.assoc_patterns_from_lang("CSS")
-        for dirpath, _, filenames in walk2(dir):
-            for name in filenames:
-                for pattern in patterns:
-                    if fnmatch(name, pattern):
-                        name = join(dirpath, name)
-                        importables[name] = (name, None, False)
-                        break
-        return importables
-
-class CSSCILEDriver(CILEDriver):
-    """
-    Invokes the CSS Code Intelligence Language Engine (CILE) on CSS content.
-    """
-    lang = lang
-    
-    def scan_purelang(self, buf):
-        """
-        Scans a CSS-only buffer, returning its CIX representation.
-        @param buf The buffer to scan.
-        """
-        cile = CSSCile(buf.path, self.lang)
-        cile.scan_purelang(buf.accessor.text)
-        cixroot = createCixRoot()
-        cile.appendToCixRoot(cixroot)
-        return cixroot
-    
-    def scan_css_tokens(self, file_elem, blob_name, css_tokens):
-        """
-        Scans the given CSS tokens parsed from a multi-language buffer,
-        appending that CSS's CIX representation to the given CixFile.
-        @param file_elem The CixFile to append CIX entries to.
-        @param blob_name The filepath to use for CIX entries.
-        @param css_tokens The CSS tokens parsed from a multi-language buffer.
-        """
-        cixmodule = createCixModule(file_elem, blob_name, self.lang,
-                                    src=file_elem.get("path"))
-        cile = CSSCile(blob_name, self.lang, UDLCSSStyleClassifier)
-        for css_token in css_tokens:
-            cile.handle_token(**css_token)
-        cile.appendToCixModule(cixmodule)
-    
-class CSSSelector:
-    """
-    A CILE object that represents a CSS selector.
-    """
-    ELEMENT = "element"
-    CLASS = "class"
-    ID = "id"
-    # Matcher for multiple ID and Class names in a selector.
-    CSS_ID_OR_CLASS = re.compile('([#.][A-Za-z0-9_-]+)(::?[A-Za-z-]+(\\([^\\)]+\\))?|\\[[^\\]]+\\])?')
-    # Matcher for a single ID or Class name in a selector (at its end).
-    CSS_IDENT = re.compile('([#.]?[A-Za-z0-9_-]+)(::?[A-Za-z-]+(\\([^\\)]+\\))?|\\[[^\\]]+\\])?$')
-    
-    def __init__(self, text, line, target):
-        """
-        Creates a new representation for a CSS selector with the given text
-        and type that occurs on the given line number.
-        @param text The text of the CSS selector
-        @param line The line number the CSS selector starts on.
-        @param target The element, class, or id (i.e. target) of the CSS
-               selector. This is the symbol used for autocompletions.
-        """
-        self.text = text
-        self.line = line
-        
-        self.type = self.ELEMENT
-        if target.startswith('#'):
-            self.type = self.ID
-            self.target = target[1:]
-        elif target.startswith('.'):
-            self.type = self.CLASS
-            self.target = target[1:]
-        else:
-            self.target = target
-        
-    def appendElementTreeTo(self, cixmodule):
-        """
-        Creates a CIX representation of this selector and appends it to the
-        given CixModule.
-        @param cixmodule The CixModule to append the CIX representation of this
-               selector to.
-        """
-        cixobject = SubElement(cixmodule, "scope", ilk=self.type, name=self.text)
-        cixobject.attrib["target"] = self.target
-        cixobject.attrib["line"] = str(self.line + 1)
-
-class CSSFile:
-    """
-    A CILE object that represents a CSS file.
-    """
-    
-    def __init__(self, path, lang):
-        """
-        Creates a new representation for the CSS file with the given path.
-        @param path The path to the CSS file.
-        """
-        self.path = path
-        self.lang = lang
-        self.name = os.path.basename(path)
-        self.parent = None
-        self.cixname = self.__class__.__name__[2:].lower()
-        
-        # Selectors defined within this file.
-        self.elements = {}
-        self.classes = {}
-        self.ids = {}
-        
-    def addSelector(self, selector):
-        """
-        Adds the given CSSSelector to this CSS file.
-        @param selector The CSSSelector to add.
-        """
-        if selector.type == CSSSelector.ELEMENT:
-            self.elements[selector.text] = selector
-        elif selector.type == CSSSelector.CLASS:
-            self.classes[selector.text] = selector
-        elif selector.type == CSSSelector.ID:
-            self.ids[selector.text] = selector
-            
-    def appendCixToModule(self, cixmodule):
-        """
-        Appends the individual CixElements to the given CixModule.
-        @param cixmodule The CixModule to append the CIX representation of this
-               file to.
-        """
-        for v in sorted(self.elements.values() + self.classes.values() + self.ids.values(),
-                        key=operator.attrgetter("line", "text")):
-            v.appendElementTreeTo(cixmodule)
-        
-    def appendCixFileTo(self, cixtree):
-        """
-        Creates a CixFile representation of this file and appends it to the
-        given CixRoot.
-        @param cixtree The CixRoot to append the CIX representation of this
-               file to.
-        """
-        cixfile = createCixFile(cixtree, self.path, lang=self.lang)
-        cixmodule = createCixModule(cixfile, self.name, self.lang, src=self.path)
-        self.appendCixToModule(cixmodule)
-    
-class CSSCile:
-    """
-    CSS Code Intelligence Language Engine (CILE).
-    """
-    
-    def __init__(self, path, lang, styleClassifier=StraightCSSStyleClassifier):
-        """
-        Creates a new CILE for a CSS file with the given path.
-        @param path The path of the CSS file this CILE is parsing.
-        """
-        if sys.platform == "win32":
-            path = path.replace('\\', '/') # normalize
-        self.path = path
-        self.lang = lang
-        self.styleClassifier = styleClassifier
-        
-        self.cile = CSSFile(path, lang)
-        
-        self.selector = []
-        self.selectorStartLine = None
-        self.whitespace = re.compile('^\\s+$')
-        self.blockLevel = 0
-        self.parenLevel = 0
-        self.ignoreStatement = False
-        
-    def handle_token(self, style, text, start_column, start_line, **otherArgs):
-        """
-        Called for each token parsed by a Scintilla lexer.
-        This CILE only looks for a subset of tokens.
-        Parses out element, class, and id selectors.
-        @param style The style of the parsed token.
-        @param text The text of the parsed token.
-        @param start_column The column number the parsed token is on.
-        @param start_line The line number the parsed token is on.
-        @param otherArgs Other token properties.
-        """
-        if self.styleClassifier.is_operator(style):
-            if text == '}' or ';' in text:
-                if text == '}':
-                    self.blockLevel = max(self.blockLevel - 1, 0)
-                if self.blockLevel == 0:
-                    self.selector = [] # start looking for selectors
-                    self.selectorStartLine = None # need to reset on ';' (Less)
-                    self.ignoreStatement = False
-                return
-            elif (text == '{' or text == ',' or '(' in text) and \
-                 self.selector and len(self.selector) > 0 and \
-                 self.blockLevel == 0 and self.parenLevel == 0 and \
-                 not self.ignoreStatement:
-                selectorText = ''.join(self.selector).strip()
-                if CSSSelector.CSS_ID_OR_CLASS.search(selectorText):
-                    # Parse out each id and class being used in the selector
-                    # and create an individual selector for that target.
-                    for selector in CSSSelector.CSS_ID_OR_CLASS.findall(selectorText):
-                        self.cile.addSelector(CSSSelector(selectorText,
-                                                          self.selectorStartLine,
-                                                          selector[0]))
-                else:
-                    # No ids or classes in the selector; use its last element as
-                    # the target.
-                    selector = CSSSelector.CSS_IDENT.search(selectorText)
-                    if selector:
-                        self.cile.addSelector(CSSSelector(selectorText,
-                                                          self.selectorStartLine,
-                                                          selector.group(1)))
-                    else:
-                        log.warn("Unable to process CSS selector '%s'" % selectorText)
-                
-                if text == '{':
-                    # Stop looking for selectors until encountering '}'.
-                    self.selector = None
-                    self.blockLevel += 1
-                elif text == ',':
-                    # Continue with the next selector.
-                    self.selector = []
-                elif '(' in text:
-                    # Less mixin; stop looking for selectors until encountering
-                    # ')'.
-                    self.selector = None
-                    self.parenLevel += 1
-                self.selectorStartLine = None
-                return
-            elif text == '{':
-                # '{' encountered without a valid selector.
-                self.blockLevel += 1
-            elif text == ')':
-                self.parenLevel = min(self.parenLevel - 1, 0)
-            elif text == '$':
-                # SCSS variable; stop looking for selectors until encountering
-                # ';'.
-                self.ignoreStatement = True
-        elif self.styleClassifier.is_comment(style):
-            # Embedded comments within selectors are unlikely, but handle them
-            # anyway just in case.
-            return
-        
-        if self.selector == None:
-            return # not looking for selectors right now
-        
-        if len(self.selector) > 0 or not re.match(self.whitespace, text):
-            self.selector.append(text)
-            if not self.selectorStartLine:
-                self.selectorStartLine = start_line
-        
-    def scan_purelang(self, text):
-        """
-        Scans the given CSS buffer text, feeding parsed tokens to this CILE's
-        processor.
-        Instead of passing in multi-language text (e.g. HTML, CSS, JS),
-        pre-parse out the CSS tokens and then feed them directly to
-        `handle_token()`.
-        @param text The CSS text to parse and process.
-        """
-        CSSLexer().tokenize_by_style(text, self.handle_token)
-        
-    def appendToCixRoot(self, cixroot):
-        """
-        Appends to the given CixRoot the CIX representation of the parsed CSS.
-        @param cixroot The CixRoot to append to.
-        """
-        self.cile.appendCixFileTo(cixroot)
-        
-    def appendToCixModule(self, cixmodule):
-        """
-        Appends to the given CixModule the CIX representation of the parsed CSS.
-        This is used to append parsed CSS to a multi-language file currently
-        being processed.
-        @param cixmodule The CixModule to append to.
-        """
-        self.cile.appendCixToModule(cixmodule)
-    
-    
 
 #---- internal support stuff
 
@@ -1497,7 +1180,5 @@ def register(mgr):
                       silvercity_lexer=CSSLexer(),
                       buf_class=CSSBuffer,
                       langintel_class=CSSLangIntel,
-                      import_handler_class=CSSImportHandler,
-                      cile_driver_class=CSSCILEDriver,
                       is_cpln_lang=True)
 

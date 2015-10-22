@@ -126,8 +126,8 @@ def mkenvconf():
     ]
 
     # Make the zope directory a package.
-    if not exists(join(komodo_src_dir, "contrib" ,"zope", "cachedescriptors", "src", "zope", "__init__.py")):
-        file(join(komodo_src_dir, "contrib" ,"zope", "cachedescriptors", "src", "zope", "__init__.py"), "w").write("")
+    if not exists(join(komodo_src_dir, "contrib" ,"zope" ,"__init__.py")):
+        file(join(komodo_src_dir, "contrib" ,"zope" ,"__init__.py"), "w").write("")
 
     udl_skel_dir = join(komodo_src_dir, "src", "udl", "skel")
     for d in os.listdir(udl_skel_dir):

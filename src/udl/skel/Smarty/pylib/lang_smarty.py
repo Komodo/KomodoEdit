@@ -79,7 +79,6 @@ class SmartyCILEDriver(UDLCILEDriver):
     lang = lang
     csl_lang = "JavaScript"
     ssl_lang = "PHP"
-    css_lang = "CSS"
 
 
 

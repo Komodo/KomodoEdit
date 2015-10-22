@@ -90,7 +90,6 @@
         <field name="lintingEnabled">false</field>
         <field name="_everLinted">false</field>
         <field name="_lintBuffer">null</field>
-        <field name="_noteLocTimer">null</field>
 
         <property name="lintBuffer">
             <setter><![CDATA[
@@ -262,9 +261,6 @@
             [
                 'debuggerMaxTooltipSize',
                 'editor-scheme',
-                'editSmartWrapSelection',
-                'wrapSelectionOnlyPlainText',
-                'wrapSelectionDelimiters',
                 'enableAutoAbbreviations',
                 'autoAbbreviationTriggerCharacters'
             ]
@@ -382,7 +378,6 @@
         }
         this.log.debug('scimoz code page after initWithDoc is '+this.scimoz.codePage);
         this.log.debug('document code page after initWithDoc is '+this.koDoc.codePage);
-        this._setWrapSelectionDelimiters(); // initialize
         this.enableAutoAbbreviations = ko.prefs.getBooleanPref("enableAutoAbbreviations");
         ]]>
         </body>
@@ -469,15 +464,6 @@
                 docPrefsThisTime.getBooleanPref('select_most_recent_buffer_on_buffer_close');
             this._setAutoAbbreviations();
         ]]></body>
-        </method>
-        
-        <method name="_setWrapSelectionDelimiters">
-        <body>//<![CDATA[
-            this.editSmartWrapSelection = ko.prefs.getBooleanPref("editSmartWrapSelection");
-            this.wrapSelectionOnlyPlainText = ko.prefs.getBooleanPref("wrapSelectionOnlyPlainText");
-            this.wrapSelectionDelimiters = ko.prefs.getStringPref("wrapSelectionDelimiters");
-        //]]>
-        </body>
         </method>
             
         <method name="_setAutoAbbreviations">
@@ -789,12 +775,6 @@
                     (this.prefs || this.__globalPrefs).getBooleanPref('select_most_recent_buffer_on_buffer_close');
                 break;
 
-            case 'editSmartWrapSelection': // pref notification
-            case 'wrapSelectionOnlyPlainText': // pref notification
-            case 'wrapSelectionDelimiters': // pref notification
-                this._setWrapSelectionDelimiters();
-                break;
-
             case 'enableAutoAbbreviations': // pref notification
             case 'autoAbbreviationTriggerCharacters': // pref notification
                 this._setAutoAbbreviations();
@@ -955,13 +935,9 @@
         <method name="closeUnconditionally">
         <parameter name="shuttingDown"/>
             <body><![CDATA[
-                var type = this.getAttribute('type');
-                var log = ko.logging.getLogger('view.'+type); // this.log will be gone by the end of this function
-                
                 if (typeof(shuttingDown) == "undefined") {
                     shuttingDown = false;
                 }
-                log.time("closeUnconditionally-destroyMinimap");
                 if (this.minimap) {
                     try {
                         this.destroyMinimap();
@@ -969,7 +945,6 @@
                         this.log.exception(ex, "problem in destroyMinimap");
                     }
                 }
-                log.timeEnd("closeUnconditionally-destroyMinimap");
                 // isSpecial typically denotes sockets and such, is also
                 // used by us to identify things like dbgp files
                 // we don't want special files in our mru
@@ -987,9 +962,7 @@
                     ko.mru.addURL("mruFileList", this.koDoc.file.URI);
                 }
 
-                log.time("closeUnconditionally-saveState");
                 this.saveState();
-                log.timeEnd("closeUnconditionally-saveState");
                 this.koDoc = null;
                 if (this.preview) {
                     try {
@@ -1018,10 +991,7 @@
                 this.removeEventListener('current_view_linecol_changed',
                     this.handle_current_view_linecol_changed, false);
 
-                log.time("closeUnconditionally-close_viewbufferbase");
-                var res = this.close_viewbufferbase();
-                log.timeEnd("closeUnconditionally-close_viewbufferbase");
-                return res;
+                return this.close_viewbufferbase();
             ]]></body>
         </method>
 
@@ -1368,7 +1338,7 @@
         </body>
         </method>
 
-        <!-- Open Remote path 
+        <!-- Open Remote path
                - Determine the default path and default file name
              No return value -->
         <method name="openRemote">
@@ -1489,6 +1459,7 @@
                          "another open buffer.");
             return false;
         }
+        ko.history.note_curr_loc(this);
         try {
             var oldLargeDocument = (this.koDoc.isLargeDocument
                                     && (!this.koDoc.prefs.hasPrefHere("originalLanguage")
@@ -1664,27 +1635,12 @@
         
         <!-- Set to true when the editor is handling the onUpdateUI() call. -->
         <field name="in_updateui">false</field>
-        <field name="last_line">0</field>
 
         <method name="onUpdateUI">
         <parameter name="updated"/>
         <body>
         <![CDATA[
-        
-            var lineNo = this.scimoz.lineFromPosition(this.scimoz.currentPos);
-            if ( ! ko.history._marking && ! this.in_updateui &&
-                (updated & this.scimoz.SC_UPDATE_SELECTION) &&
-                Math.abs(lineNo - this.last_line) > 5)
-            {
-                clearTimeout(this._noteLocTimer);
-                this._noteLocTimer = setTimeout(function() {
-                    ko.history.note_loc_unless_history_move(this, true);		
-                }.bind(this), 200);
-            }
-            
             this.in_updateui = true;
-            this.last_line = lineNo;
-            
             try {
                 //TODO: Minimap pref
                 //dump(">> views-editor.p.xml: onUpdateUI\n");
@@ -1698,40 +1654,6 @@
                         this.minimap.updateEditorViewBoundaries();
                     }
                 }
-                
-                // When an HTML/XML tag is selected, select its complement as
-                // a multiple selection to allow paired editing.
-                if ((updated & this.scimoz.SC_UPDATE_SELECTION) > 0
-                    && this.prefs.getBooleanPref("editMatchingTags")
-                    && this.scimoz.selections == 1) {
-                    var scimoz = this.scimoz;
-                    var startPos = scimoz.selectionStart;
-                    var endPos = scimoz.selectionEnd;
-                    if (startPos != endPos
-                        && scimoz.getStyleAt(startPos) == scimoz.SCE_UDL_M_TAGNAME
-                        && scimoz.getStyleAt(endPos - 1) == scimoz.SCE_UDL_M_TAGNAME
-                        && scimoz.wordStartPosition(startPos, true) == startPos
-                        && scimoz.wordEndPosition(endPos, true) == endPos) {
-                        var actualLanguageObj = this.languageObj.supportsXMLIndentHere(scimoz, startPos);
-                        if (actualLanguageObj) {
-                            var result = {};
-                            actualLanguageObj.getMatchingTagInfo(scimoz, startPos, false, result, {});
-                            if (result.value && result.value.length == 5) {
-                                if (result.value[0]
-                                    && result.value[1] <= startPos && result.value[2] >= endPos) {
-                                    // Selected start tag.
-                                    scimoz.addSelection(result.value[4], result.value[3] + 2);
-                                } else if (!result.value[0]
-                                           && result.value[3] <= startPos && result.value[4] >= endPos) {
-                                    // Selected end tag.
-                                    scimoz.addSelection(result.value[2], result.value[1] + 1);
-                                }
-                                scimoz.mainSelection = 0;
-                            }
-                        }
-                    }
-                }
-                
                 return this.__proto__.__proto__.onUpdateUI.call(this, updated);
             } finally {
                 this.in_updateui = false;
@@ -2199,19 +2121,9 @@
                     charCodeChar = '\t';
                 }
             }
-            if (this.editSmartWrapSelection && charCodeChar !== null
-                && this.scimoz.selections == 1
-                && this.scimoz.selectionStart != this.scimoz.selectionEnd
-                && this.wrapSelectionDelimiters.indexOf(charCodeChar) >= 0
-                && (this.scimoz.selText.match(/^[\w_\s]+$/)
-                    || !this.wrapSelectionOnlyPlainText)) {
-                let pairs = {'(': ')', '[': ']', '{': '}', '<': '>'};
-                this.scimoz.replaceSel(charCodeChar + this.scimoz.selText + (pairs[charCodeChar] || charCodeChar));
-                return false;
-            } else if (this.enableAutoAbbreviations && charCodeChar !== null
-                       && !this.scintilla.autocomplete.active
-                       && this.scimoz.selections == 1
-                       && this.autoAbbreviationTriggerCharacters_Processed.indexOf(charCodeChar) >= 0) {
+            if (this.enableAutoAbbreviations && charCodeChar !== null
+                && !this.scintilla.autocomplete.active
+                && this.autoAbbreviationTriggerCharacters_Processed.indexOf(charCodeChar) >= 0) {
                 
 <!-- #if PLATFORM != "darwin" -->
                 var cmdkey = event.ctrlKey || event.altKey || event.metaKey;
@@ -2254,6 +2166,16 @@
                             );
             if (ignoreKey) {
                 return;
+            }
+            // On all platforms, verify that we're gathering carets.  If we are,
+            // add another range or caret.  But we can't start a session 
+            // just by clicking.
+
+	    let multiCaretSession = ko.selections.getMultiCaretSession(this);
+            let scimoz = this.scimoz;
+            if (multiCaretSession.isGatheringCarets) {
+                multiCaretSession.addRange(scimoz.selectionStart,
+                                           scimoz.selectionEnd);
             }
         ]]>
         </handler>

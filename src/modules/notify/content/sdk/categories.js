@@ -92,13 +92,7 @@ categories.register("searchReplace", { label: "Search / Replace" });
 
 categories.register("unittest", { label: "Unit Testing" });
 
-categories.register("lint", { label: "Linter", opts: {
-    priority: "info",
-    from: "bottom-right",
-    classlist: "lint",
-    duration: 6000,
-    icon: "koicon://ko-svg/chrome/icomoon/skin/cancel-circle2.svg"
-} });
+categories.register("lint", { label: "Linter" });
 
 categories.register("refactoring", { label: "Refactoring" });
 
@@ -110,8 +104,6 @@ categories.register("fs", { label: "Filesystem" });
 
 categories.register("dev", { label: "Development" });
 
-categories.register("packages", { label: "Packages", opts: { duration: 5000, alwaysShow: true } });
-
-categories.register("find", { label: "Find/Replace" });
+categories.register("packages", { label: "Packages" });
 
 module.exports = categories;

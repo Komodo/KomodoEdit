@@ -52,10 +52,6 @@ view[type='editor']  {
   -moz-binding: url('chrome://komodo/content/bindings/views-editor.xml#view-editor');
 }
 
-view[type='quickstart']  {
-  -moz-binding: url('chrome://komodo/content/quickstart.xml#view-quickstart');
-}
-
 view[type='diff']  {
   -moz-binding: url('chrome://komodo/content/bindings/views-diff.xml#view-diff');
 }

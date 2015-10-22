@@ -934,8 +934,6 @@ this.handleEnterKey = function dialogs_handleEnterKey() {
     // NOTE: This presumes that if a button has something to do it *is*
     // its oncommand handler (i.e. 'onclick' is no good)
     var element = document.commandDispatcher.focusedElement;
-    var doc = document;
-    if (element) doc = element.ownerDocument;
     var command = null;
     if (element && element.nodeName == "button") {
         // a button has the focus:
@@ -944,7 +942,7 @@ this.handleEnterKey = function dialogs_handleEnterKey() {
     } else {
         // no button has the focus:
         // - do default button's oncommand if there is one
-        var buttons = doc.getElementsByTagName("button");
+        var buttons = document.getElementsByTagName("button");
         for (var i=0; i<buttons.length; i++) {
             var button = buttons[i];
             if (!button.disabled
@@ -956,7 +954,7 @@ this.handleEnterKey = function dialogs_handleEnterKey() {
         }
     }
     if (command) {
-        doc.defaultView.eval(command);
+        eval(command);
     }
 }
 

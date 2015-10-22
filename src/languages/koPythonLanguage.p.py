@@ -104,9 +104,7 @@ class KoPython3LexerLanguageService(KoPythonCommonLexerLanguageService):
                       'class', 'continue', 'def', 'del', 'elif', 'else',
                       'except', 'finally', 'for', 'from', 'global', 'if',
                       'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or',
-                      'pass', 'raise', 'return', 'try', 'while', 'with', 'yield',
-                      # New in 3.5
-                      'async', 'await']
+                      'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']
                      )
         kwlist2 = set(['False', 'None', 'True', 'self',
                        ## built-in functions

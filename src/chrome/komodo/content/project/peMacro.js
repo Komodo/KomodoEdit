@@ -50,7 +50,7 @@ var log = ko.logging.getLogger('ko.projects');
     if (typeof(part) == "undefined") {
         part = parent.project.createPartFromType('macro');
     }
-    part.setStringAttribute('name', 'New Userscript');
+    part.setStringAttribute('name', 'New Macro');
     var obj = new Object();
     obj.item = part;
     obj.parent = parent;
@@ -173,10 +173,10 @@ function _executeMacro(part, asynchronous, observer_arguments) {
                 }
                 break;
             default:
-                retval = "Userscripts written in '"+language+"' aren't supported."
+                retval = "Macros written in '"+language+"' aren't supported."
         }
         if (exception) {
-            ko.dialogs.alert("There was a problem executing the userscript: " +
+            ko.dialogs.alert("There was a problem executing the macro: " +
                          part.getStringAttribute('name'), exception);
             return true;
         } else {
@@ -369,11 +369,11 @@ MacroEventHandler.prototype.addMacro = function(macropart) {
         if (idx >= 0) {
             // This routinely happens when a toolbox or project containing
             // trigger macros is reloaded.
-            this.log.info("Couldn't add userscript "
+            this.log.info("Couldn't add macro "
                           + macropart.id
                           + " ("
                           + macropart.name
-                          + ") to list of hooked userscripts for trigger "
+                          + ") to list of hooked macros for trigger "
                           + trigger
                           + ": it was already in the list.");
             return;
@@ -383,7 +383,7 @@ MacroEventHandler.prototype.addMacro = function(macropart) {
             this._addObserverMacro(macropart);
         }
     } else {
-        this.log.debug("Userscript " + macropart.name + " has no trigger");
+        this.log.debug("Macro " + macropart.name + " has no trigger");
     }
 }
 
@@ -420,7 +420,7 @@ MacroEventHandler.prototype._removeObserverMacro = function(macropart, topic) {
         this.log.warn("Unexpected precondition failure: "
                       + "Removing an unused observer ("
                       + topic
-                      + "), userscript "
+                      + "), macro "
                       + macropart.name
                       + ", project "
                       + macropart.project.url
@@ -459,7 +459,7 @@ MacroEventHandler.prototype.updateMacroHooks = function(item, old_props, new_pro
         if (idx >= 0) {
             macro_list.splice(idx, 1); // remove it
         } else {
-            this.log.info("Expected to find userscript "
+            this.log.info("Expected to find macro "
                           + item.name
                           + " on the list for "
                           + new_props.trigger
@@ -506,7 +506,7 @@ MacroEventHandler.prototype.removeMacro = function(macropart, trigger, topic) {
     } catch (e) {
         this.log.exception(e);
     }
-    this.log.error("Couldn't remove userscript from list of hooked userscripts.");
+    this.log.error("Couldn't remove macro from list of hooked macros.");
 }
 
 // IMPORTANT: Macros need to wait for the toolbox to load, which may occur after
@@ -557,8 +557,8 @@ MacroEventHandler.prototype.hookPostFileClose = function(uri) {
 
 MacroEventHandler.prototype.hookOnQuit = function peMacro_hookOnQuit() {
     if (this.callHookedMacros('trigger_quit')) {
-        var msg = "Userscript interrupted shutdown procedure.";
-        require("notify/notify").interact(msg, "tools", {priority: "warning"});
+        var msg = "Macro interrupted shutdown procedure.";
+        require("notify/notify").send(msg, "tools", {priority: "warning"});
         return false;
     }
     return true;
@@ -749,7 +749,7 @@ this.evalAsJavaScript = function macro_evalAsJavascript(__code,
                 .getService(Components.interfaces.nsIStringBundleService)
                 .createBundle("chrome://komodo/locale/project/macro.properties");
             if (!part) {
-                ex.fileName = bundle.GetStringFromName("The current userscript");
+                ex.fileName = bundle.GetStringFromName("The current macro");
             } else {
                 try {
                     if (part.url) {
@@ -871,9 +871,9 @@ _KomodoJSMacroAPI.prototype.destructor = function() {
 
 _KomodoJSMacroAPI.prototype.assertMacroVersion = function(version) {
     if (version < ko.macros.CURRENT_MACRO_VERSION) {
-        alert("This userscript was generated with an older version of Komodo, "
+        alert("This macro was generated with an older version of Komodo, "
               + "and might no longer work correctly.  \n"
-              + "This message can be suppressed by editing the userscript "
+              + "This message can be suppressed by editing the macro "
               + "and changing the 'assertMacroVersion' value to "
               + ko.macros.CURRENT_MACRO_VERSION);
     }

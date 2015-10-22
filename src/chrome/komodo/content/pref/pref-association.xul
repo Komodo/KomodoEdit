@@ -135,12 +135,9 @@
             <checkbox id="emacsLocalModeVariableDetection"
                       label="&useEmacsStyleLocalModeVariableModeLocalVariables.label;"
                       pref="true" prefattribute="checked"/>
-            <checkbox id="autoDetectJSvsNode"
-                      label="&autoDetectJSvsNode.label;"
-                      pref="true" preftype="boolean" prefattribute="checked"/>
             <checkbox id="preferJavaScriptOverNode"
                       label="&preferJavaScriptOverNode.label;"
-                      pref="true" preftype="boolean" prefattribute="checked"/>
+                      pref="true" prefdefault="false" preftype="boolean" prefattribute="checked"/>
        </groupbox>
 
     </vbox>

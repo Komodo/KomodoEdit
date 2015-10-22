@@ -1074,7 +1074,7 @@ if (typeof ko.breadcrumbs == 'undefined')
 
             // Set basic crumb attributes
             crumb.setAttribute('id' , uid);
-            crumb.setAttribute('label', (name || "(root)") + "/");
+            crumb.setAttribute('label', name || "(root)");
             crumb.setAttribute(
                 'style',
                 'z-index: ' +

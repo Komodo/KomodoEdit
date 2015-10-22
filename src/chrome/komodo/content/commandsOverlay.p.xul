@@ -205,6 +205,10 @@
             oncommand="ko.commands.doCommandAsync('cmd_helpShowKeybindings', event)"
             desc="&helpShowKeybindings.desc;"/>
         <command
+            id="cmd_helpPerlRef_Local" key="key_cmd_helpPerlRef_Local"
+            oncommand="ko.commands.doCommandAsync('cmd_helpPerlRef_Local', event);"
+            desc="&helpPerlReferenceLocal.desc;"/>
+        <command
             id="cmd_helpPerlRef_Web" key="key_cmd_helpPerlRef_Web"
             oncommand="ko.commands.doCommandAsync('cmd_helpPerlRef_Web', event);"
             desc="&helpPerlReferenceWeb.desc;"/>
@@ -213,6 +217,10 @@
             oncommand="ko.commands.doCommandAsync('cmd_helpPerlMailingLists', event);"
             desc="&helpPerlMailingLists.desc;"/>
         <command
+            id="cmd_helpPythonRef_Local" key="key_cmd_helpPythonRef_Local"
+            oncommand="ko.commands.doCommandAsync('cmd_helpPythonRef_Local', event);"
+            desc="&helpPythonReferenceLocal.desc;"/>
+        <command
             id="cmd_helpPythonRef_Web" key="key_cmd_helpPythonRef_Web"
             oncommand="ko.commands.doCommandAsync('cmd_helpPythonRef_Web', event);"
             desc="&helpPythonReferenceWeb.desc;"/>
@@ -220,6 +228,10 @@
             id="cmd_helpPythonMailingLists" key="key_cmd_helpPythonMailingLists"
             oncommand="ko.commands.doCommandAsync('cmd_helpPythonMailingLists', event);"
             desc="&helpPythonMailingLists.desc;"/>
+        <command
+            id="cmd_helpPython3Ref_Local" key="key_cmd_helpPython3Ref_Local"
+            oncommand="ko.commands.doCommandAsync('cmd_helpPython3Ref_Local', event);"
+            desc="&helpPython3ReferenceLocal.desc;"/>
         <command
             id="cmd_helpPython3Ref_Web" key="key_cmd_helpPython3Ref_Web"
             oncommand="ko.commands.doCommandAsync('cmd_helpPython3Ref_Web', event);"
@@ -240,6 +252,10 @@
             id="cmd_helpRubyMailingLists" key="key_cmd_helpRubyMailingLists"
             oncommand="ko.commands.doCommandAsync('cmd_helpRubyMailingLists', event);"
             desc="&helpRubyMailingLists.desc;"/>
+        <command
+            id="cmd_helpTclRef_Local" key="key_cmd_helpTclRef_Local"
+            oncommand="ko.commands.doCommandAsync('cmd_helpTclRef_Local', event);"
+            desc="&helpTclReferenceLocal.desc;"/>
         <command
             id="cmd_helpTclRef_Web" key="key_cmd_helpTclRef_Web"
             oncommand="ko.commands.doCommandAsync('cmd_helpTclRef_Web', event);"
@@ -328,10 +344,6 @@
             id="cmd_new" key="key_cmd_new"
             oncommand="ko.commands.doCommandAsync('cmd_new', event);"
             desc="&generalNewFileDefaultType.desc;"/>
-        <command
-            id="cmd_newTab" key="key_cmd_newTab"
-            oncommand="ko.commands.doCommandAsync('cmd_newTab', event);"
-            desc="&generalNewTab.desc;"/>
         <command
             id="cmd_newTemplate" key="key_cmd_newTemplate"
             oncommand="ko.commands.doCommandAsync('cmd_newTemplate', event)"
@@ -1069,11 +1081,6 @@
             disabled="true"
             desc="&findFindNextResult.desc;"/>
         <command
-            id="cmd_findPrevResult" key="key_cmd_findPrevResult"
-            oncommand="ko.commands.doCommandAsync('cmd_findPrevResult', event)"
-            disabled="true"
-            desc="&findFindPrevResult.desc;"/>
-        <command
             id="cmd_startIncrementalSearch" key="key_cmd_startIncrementalSearch"
             interactive="true"
             oncommand="ko.commands.doCommandAsync('cmd_startIncrementalSearch', event)"
@@ -1120,7 +1127,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_lintNow', event)"
             disabled="true"
             desc="&sourceCodeRunSyntaxCheck.desc;"/>
-        
         <command
             id="cmd_bookmarkToggle" key="key_cmd_bookmarkToggle"
             oncommand="ko.commands.doCommandAsync('cmd_bookmarkToggle', event)"
@@ -1496,6 +1502,11 @@
             disabled="true"
             desc="&editorTabAwarePaste.desc;"/>
         <command
+            id="cmd_addAdditionalCaret" key="key_cmd_addAdditionalCaret"
+            oncommand="ko.commands.doCommandAsync('cmd_addAdditionalCaret', event)"
+            disabled="true"
+            desc="&addAdditionalCaret.desc;"/>
+        <command
             id="cmd_addNextWordToCaretSet" key="key_cmd_addNextWordToCaretSet"
             oncommand="ko.commands.doCommandAsync('cmd_addNextWordToCaretSet', event)"
             disabled="true"
@@ -1772,15 +1783,10 @@
         <command
             id="cmd_delete" key="key_cmd_delete"
             oncommand="
-                if (typeof event != 'undefined') {
-                    var cont = true; 
-                    if (event.originalTarget.controllers) {
-                        if (event.originalTarget.controllers.getControllerForCommand('cmd_deleteCharForward')) {
-                            ko.commands.doCommand('cmd_deleteCharForward', {suppressExceptions: true});
-                            cont = false;
-                        }
-                    } 
-                    if (cont) ko.commands.doCommand('cmd_delete');
+                if (event.originalTarget.controllers.getControllerForCommand('cmd_deleteCharForward')) {
+                    ko.commands.doCommand('cmd_deleteCharForward', {suppressExceptions: true});
+                } else {
+                    ko.commands.doCommand('cmd_delete');
                 }"
             disabled="true"
             desc="&editorDelete.desc;"/>
@@ -1797,116 +1803,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_showHideMinimap', event)"
             disabled="true"
             desc="&userInterfaceShowHideMinimap.desc;"/>
-    </commandset>
-
-    <commandset
-        id="cmdset_quickbookmarks"
-        oncommandupdate="ko.commands.updateCommandset(this)">
-<!--Quick Bookmarks-->
-        <command
-            id="cmd_toggleQuickBookmark_1" key="key_cmd_toggleQuickBookmark_1"
-            oncommand="ko.commands.doCommandAsync('cmd_toggleQuickBookmark_1', event)"
-            disabled="true"
-            desc="Quick Bookmark 1: Set bookmark for number key."/>
-        <command
-            id="cmd_toggleQuickBookmark_2" key="key_cmd_toggleQuickBookmark_2"
-            oncommand="ko.commands.doCommandAsync('cmd_toggleQuickBookmark_2', event)"
-            disabled="true"
-            desc="Quick Bookmark 2: Set bookmark for number key."/>
-        <command
-            id="cmd_toggleQuickBookmark_3" key="key_cmd_toggleQuickBookmark_3"
-            oncommand="ko.commands.doCommandAsync('cmd_toggleQuickBookmark_3', event)"
-            disabled="true"
-            desc="Quick Bookmark 3: Set bookmark for number key."/>
-        <command
-            id="cmd_toggleQuickBookmark_4" key="key_cmd_toggleQuickBookmark_4"
-            oncommand="ko.commands.doCommandAsync('cmd_toggleQuickBookmark_4', event)"
-            disabled="true"
-            desc="Quick Bookmark 4: Set bookmark for number key."/>
-        <command
-            id="cmd_toggleQuickBookmark_5" key="key_cmd_toggleQuickBookmark_5"
-            oncommand="ko.commands.doCommandAsync('cmd_toggleQuickBookmark_5', event)"
-            disabled="true"
-            desc="Quick Bookmark 5: Set bookmark for number key."/>
-        <command
-            id="cmd_toggleQuickBookmark_6" key="key_cmd_toggleQuickBookmark_6"
-            oncommand="ko.commands.doCommandAsync('cmd_toggleQuickBookmark_6', event)"
-            disabled="true"
-            desc="Quick Bookmark 6: Set bookmark for number key."/>
-        <command
-            id="cmd_toggleQuickBookmark_7" key="key_cmd_toggleQuickBookmark_7"
-            oncommand="ko.commands.doCommandAsync('cmd_toggleQuickBookmark_7', event)"
-            disabled="true"
-            desc="Quick Bookmark 7: Set bookmark for number key."/>
-        <command
-            id="cmd_toggleQuickBookmark_8" key="key_cmd_toggleQuickBookmark_8"
-            oncommand="ko.commands.doCommandAsync('cmd_toggleQuickBookmark_8', event)"
-            disabled="true"
-            desc="Quick Bookmark 8: Set bookmark for number key."/>
-        <command
-            id="cmd_toggleQuickBookmark_9" key="key_cmd_toggleQuickBookmark_9"
-            oncommand="ko.commands.doCommandAsync('cmd_toggleQuickBookmark_9', event)"
-            disabled="true"
-            desc="Quick Bookmark 9: Set bookmark for number key."/>
-        <command
-            id="cmd_toggleQuickBookmark_0" key="key_cmd_toggleQuickBookmark_0"
-            oncommand="ko.commands.doCommandAsync('cmd_toggleQuickBookmark_0', event)"
-            disabled="true"
-            desc="Quick Bookmark 0: Set bookmark for number key."/>
-        
-        <command
-            id="cmd_goToQuickBookmark_1" key="key_cmd_goToQuickBookmark_1"
-            oncommand="ko.commands.doCommandAsync('cmd_goToQuickBookmark_1', event)"
-            disabled="true"
-            desc="Quick Bookmark 1: Go to bookmark for number key."/>
-        <command
-            id="cmd_goToQuickBookmark_2" key="key_cmd_goToQuickBookmark_2"
-            oncommand="ko.commands.doCommandAsync('cmd_goToQuickBookmark_2', event)"
-            disabled="true"
-            desc="Quick Bookmark 2: Go to bookmark for number key."/>
-        <command
-            id="cmd_goToQuickBookmark_3" key="key_cmd_goToQuickBookmark_3"
-            oncommand="ko.commands.doCommandAsync('cmd_goToQuickBookmark_3', event)"
-            disabled="true"
-            desc="Quick Bookmark 3: Go to bookmark for number key."/>
-        <command
-            id="cmd_goToQuickBookmark_4" key="key_cmd_goToQuickBookmark_4"
-            oncommand="ko.commands.doCommandAsync('cmd_goToQuickBookmark_4', event)"
-            disabled="true"
-            desc="Quick Bookmark 4: Go to bookmark for number key."/>
-        <command
-            id="cmd_goToQuickBookmark_5" key="key_cmd_goToQuickBookmark_5"
-            oncommand="ko.commands.doCommandAsync('cmd_goToQuickBookmark_5', event)"
-            disabled="true"
-            desc="Quick Bookmark 5: Go to bookmark for number key."/>
-        <command
-            id="cmd_goToQuickBookmark_6" key="key_cmd_goToQuickBookmark_6"
-            oncommand="ko.commands.doCommandAsync('cmd_goToQuickBookmark_6', event)"
-            disabled="true"
-            desc="Quick Bookmark 6: Go to bookmark for number key."/>
-        <command
-            id="cmd_goToQuickBookmark_7" key="key_cmd_goToQuickBookmark_7"
-            oncommand="ko.commands.doCommandAsync('cmd_goToQuickBookmark_7', event)"
-            disabled="true"
-            desc="Quick Bookmark 7: Go to bookmark for number key."/>
-        <command
-            id="cmd_goToQuickBookmark_8" key="key_cmd_goToQuickBookmark_8"
-            oncommand="ko.commands.doCommandAsync('cmd_goToQuickBookmark_8', event)"
-            disabled="true"
-            desc="Quick Bookmark 8: Go to bookmark for number key."/>
-        <command
-            id="cmd_goToQuickBookmark_9" key="key_cmd_goToQuickBookmark_9"
-            oncommand="ko.commands.doCommandAsync('cmd_goToQuickBookmark_9', event)"
-            disabled="true"
-            desc="Quick Bookmark 9: Go to bookmark for number key."/>
-        <command
-            id="cmd_goToQuickBookmark_0" key="key_cmd_goToQuickBookmark_0"
-            oncommand="ko.commands.doCommandAsync('cmd_goToQuickBookmark_0', event)"
-            disabled="true"
-            desc="Quick Bookmark 0: Go to bookmark for number key."/>
-        
-        <!--Quick Bookmarks-->
-
     </commandset>
 
     <commandset id="cmdset_parts"/>

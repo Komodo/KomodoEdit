@@ -135,7 +135,7 @@ function xpcAddon(aAddon) {
         QueryInterface: XPCOMUtils.generateQI([Ci.koamIAddon,
                                                Ci.nsISupportsWeakReference])
     };
-    wrapped.__proto__ = aAddon;
+    wrapped = Object.create(aAddon, wrapped);
     gAddonCache[aAddon.id].push([aAddon, wrapped]);
     return wrapped;
 }

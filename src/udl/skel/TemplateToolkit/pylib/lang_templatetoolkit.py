@@ -79,7 +79,6 @@ class TemplateToolkitCILEDriver(UDLCILEDriver):
     lang = lang
     csl_lang = "JavaScript"
     ssl_lang = "Perl"
-    css_lang = "CSS"
 
 
 

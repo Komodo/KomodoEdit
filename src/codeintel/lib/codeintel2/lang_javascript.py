@@ -88,7 +88,7 @@ from codeintel2.indexer import PreloadBufLibsRequest, PreloadLibRequest
 from codeintel2.jsdoc import JSDoc, JSDocParameter, jsdoc_tags
 from codeintel2.gencix_utils import *
 from codeintel2.database.langlib import LangDirsLib
-from codeintel2.udl import UDLBuffer, is_udl_csl_style, is_udl_css_style
+from codeintel2.udl import UDLBuffer, is_udl_csl_style
 from codeintel2.accessor import AccessorCache
 from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin,
@@ -992,7 +992,7 @@ class JavaScriptCILEDriver(CILEDriver):
 
         return tree
 
-    def scan_multilang(self, buf, csl_cile_driver=None, css_cile_driver=None):
+    def scan_multilang(self, buf, csl_cile_driver=None):
         """Given the buffer, scan the buffer tokens for CSL UDL tokens."""
 
         #print >> sys.stderr, buf.path
@@ -1005,8 +1005,6 @@ class JavaScriptCILEDriver(CILEDriver):
         #XXX Remove mtime when move to CIX 2.0.
         mtime = "XXX"
         jscile = JavaScriptCiler(self.mgr, norm_path, mtime)
-        
-        css_tokens = []
 
         jscile.setStyleValues(wordStyle=SCE_UDL_CSL_WORD,
                               identiferStyle=SCE_UDL_CSL_IDENTIFIER,
@@ -1019,22 +1017,13 @@ class JavaScriptCILEDriver(CILEDriver):
             # etc.). Need to parse out the tokens that are not CSL.
             if is_udl_csl_style(token['style']):
                 jscile.token_next(**token)
-            elif is_udl_css_style(token['style']):
-                css_tokens.append(token)
         # Ensure we take notice of any text left in the ciler
         jscile._endOfScanReached()
         # We've parsed up the JavaScript, fix any variables types
         jscile.cile.updateAllScopeNames()
 
         tree = createCixRoot()
-        cixfile = createCixFile(tree, norm_path, lang=buf.lang)
-        cixblob = createCixModule(cixfile, os.path.basename(norm_path), self.lang, src=norm_path)
-        jscile.convertToElementTreeModule(cixblob)
-        
-        # Hand off the CSS tokens, if any.
-        if css_cile_driver and css_tokens:
-            css_cile_driver.scan_css_tokens(cixfile, norm_path, css_tokens)
-        
+        jscile.convertToElementTreeFile(tree, file_lang=buf.lang, module_lang=self.lang)
         return tree
 
     def scan_csl_tokens(self, file_elem, blob_name, csl_tokens):

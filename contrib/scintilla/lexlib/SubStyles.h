@@ -166,8 +166,7 @@ public:
 	}
 
 	const WordClassifier &Classifier(int baseStyle) const {
-		const int block = BlockFromBaseStyle(baseStyle);
-		return classifiers[block >= 0 ? block : 0];
+		return classifiers[BlockFromBaseStyle(baseStyle)];
 	}
 };
 

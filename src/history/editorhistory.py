@@ -11,8 +11,6 @@ Dev Notes:
 - Requires Python 2.6: for `with` statement, and `maxlen` argument to `deque`.
 """
 
-from xpcom.components import interfaces as Ci
-from xpcom.components import classes as Cc
 import os
 from os.path import exists, expanduser
 import re
@@ -714,8 +712,8 @@ class HistorySession(object):
         #       The location for the next "go_back" is at the start.
         #   forward_visits: furthest forward first:
         #       The location for the next "go_forward" is at the end.
-        self.recent_back_visits = deque()
-        self.forward_visits = deque()
+        self.recent_back_visits = None
+        self.forward_visits = None
         
         # The last visit returned by `go_back` or `go_forward`.
         self._last_visit = None
@@ -739,9 +737,6 @@ class HistorySession(object):
         
     def load(self, cu=None):
         """Load recent history from the database."""
-        prefs = Cc["@activestate.com/koPrefService;1"].getService(Ci.koIPrefService).prefs
-        if not prefs.getBoolean("workspace_restory_history"):
-            return
         with self.db.connect(commit=True, cu=cu) as cu:
             # `num_forward_visits` and `top_loc_id` in the meta table help
             # us reconstruct the back/forward state. `num_forward_visits == -1`

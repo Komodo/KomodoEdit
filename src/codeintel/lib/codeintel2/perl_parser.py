@@ -60,12 +60,9 @@ from SilverCity.ScintillaConstants import (
     SCE_PL_REGSUBST, SCE_PL_LONGQUOTE, SCE_PL_BACKTICKS, SCE_PL_DATASECTION,
     SCE_PL_HERE_DELIM, SCE_PL_HERE_Q, SCE_PL_HERE_QQ, SCE_PL_HERE_QX,
     SCE_PL_STRING_Q, SCE_PL_STRING_QQ, SCE_PL_STRING_QX, SCE_PL_STRING_QR,
-    SCE_PL_STRING_QW, SCE_PL_POD_VERB, SCE_PL_SUB_PROTOTYPE,
-    SCE_PL_FORMAT_IDENT, SCE_PL_FORMAT, SCE_PL_STRING_VAR, SCE_PL_XLAT,
-    SCE_PL_REGEX_VAR, SCE_PL_REGSUBST_VAR, SCE_PL_BACKTICKS_VAR,
-    SCE_PL_HERE_QQ_VAR, SCE_PL_HERE_QX_VAR, SCE_PL_STRING_QQ_VAR,
-    SCE_PL_STRING_QX_VAR, SCE_PL_STRING_QR_VAR,
-)
+    SCE_PL_STRING_QW, SCE_PL_POD_VERB, SCE_PL_SUB, SCE_PL_SUB_ARGS,
+    SCE_PL_UNKNOWN_FIELD, SCE_PL_STDIN, SCE_PL_STDOUT, SCE_PL_STDERR,
+    SCE_PL_FORMAT, SCE_PL_UPPER_BOUND)
 
 from codeintel2.common import CILEError
 from codeintel2 import perl_lexer
@@ -210,8 +207,7 @@ class PerlCommonClassifier:
             return self._quote_patterns[SCE_PL_DEFAULT] # Fallback
 
 class UDLClassifier(PerlCommonClassifier, shared_parser.UDLClassifier):
-    def is_sub_prototype(self, tok):
-        return False
+    pass
 
 class PerlClassifier(PerlCommonClassifier, shared_parser.CommonClassifier):
     def get_builtin_type(self, tok, callback):
@@ -272,10 +268,6 @@ class PerlClassifier(PerlCommonClassifier, shared_parser.CommonClassifier):
 
     def is_symbol(self, tok):
         return False
-    
-    def is_sub_prototype(self, tok):
-        return tok['style'] == ScintillaConstants.SCE_PL_SUB_PROTOTYPE
-    
 
     def is_variable(self, tok):
         return SCE_PL_SCALAR <= tok['style'] <= SCE_PL_SYMBOLTABLE
@@ -894,7 +886,7 @@ class Parser:
         if self.classifier.is_keyword(tok, 'or'):
             return True
         elif self.classifier.is_any_operator(tok):
-            return tval in (';', '||', '//')
+            return tval in (';', '||')
         return False
 
     def _is_string(self, tok):
@@ -1747,11 +1739,15 @@ class Parser:
                 tval = tok['text']
                 if tval == "(":
                     nestedCount += 1
+                    tok = self.tokenizer.get_next_token()
                 elif tval == ")":
                     nestedCount -= 1
                     if nestedCount <= 0:
                         break
-            tok = self.tokenizer.get_next_token()
+                else:
+                    tok = self.tokenizer.get_next_token()
+            else:
+                tok = self.tokenizer.get_next_token()
     #end skip_to_close_paren
     
     def skip_to_end_of_stmt(self):
@@ -1797,13 +1793,11 @@ class Parser:
             self.skip_to_end_of_stmt()
         else:
             startLineNo = tok['start_line']
-            fnName = self.get_rest_of_subpath(tok['text'], True)
+            fnName = self.get_rest_of_subpath(tok['text'], 0)
             if fnName:
                 tok = self.tokenizer.get_next_token()
                 if self.classifier.is_operator(tok, "("):
                     self.skip_to_close_paren()
-                    tok = self.tokenizer.get_next_token()
-                elif self.classifier.is_sub_prototype(tok):
                     tok = self.tokenizer.get_next_token()
                 if self.classifier.is_operator(tok, ";"):
                     # Don't process

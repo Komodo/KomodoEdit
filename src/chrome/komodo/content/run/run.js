@@ -115,13 +115,11 @@ function OnLoad()
         // Insert any text from the input buffer and give the command textbox the
         // initial focus.
         var inputBufferContents = opener.ko.inputBuffer.finish();
-        if (inputBufferContents && inputBufferContents.length) {
+        if (inputBufferContents) {
             dialog.commandTextbox.setAttribute('value', inputBufferContents);
         }
-        else {
-            var mruName = dialog.commandTextbox.getAttribute("autocompletesearchparam");
-            dialog.commandTextbox.value = ko.mru.get(mruName);
-        }
+        var mruName = dialog.commandTextbox.getAttribute("autocompletesearchparam");
+        dialog.commandTextbox.value = ko.mru.get(mruName);
         dialog.commandTextbox.focus();
         dialog.commandTextbox.select();
         UpdateCommand();

@@ -101,7 +101,6 @@ class RHTMLCILEDriver(UDLCILEDriver):
     lang = lang
     ssl_lang = "Ruby"
     csl_lang = "JavaScript"
-    css_lang = "CSS"
 
 
 

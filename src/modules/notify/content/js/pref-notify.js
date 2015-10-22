@@ -52,7 +52,7 @@
 
     window.OnPreferencePageOK = (prefset) =>
     {
-        $("#enabled-notifications checkbox").each(function()
+        $("checkbox").each(function()
         {
             var pref = prefset.getPref(this.getAttribute("ownerPrefName"));
             var id = this.getAttribute("value");

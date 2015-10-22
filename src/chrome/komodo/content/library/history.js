@@ -68,11 +68,6 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 var _komodoBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/komodo.properties");
-    
-var last_view = null;
-var deferred_loc = null;
-
-var initialized = false;
 
 function HistoryController() {
     this.historySvc = Components.classes["@activestate.com/koHistoryService;1"].
@@ -154,12 +149,9 @@ this.init = function() {
     ko.main.addWillCloseHandler(this.destroy, this);
     _curr_session_name = window._koNum.toString();
     this._recently_did_history = false;
-    this._marking = false;
     window.updateCommands('history_changed');
     window.addEventListener("AppCommand", _appCommandEventHandler, true);
     var this_ = this;
-    window._incrementer = window._incrementer || 0;
-    this._id = window._incrementer++
     this._handle_closing_view_setup = function(event) {
         this_._handle_closing_view(event);
     };
@@ -167,11 +159,6 @@ this.init = function() {
                             this._handle_closing_view_setup, false);
     window.addEventListener('view_closed',
                             this._handle_closing_view_setup, false);
-    window.addEventListener('current_view_changed', this._handle_view_changed.bind(this), false);
-    window.addEventListener('komodo-post-startup', function() {
-        last_view = ko.views.manager.currentView;
-        initialized = true;
-    });
 };
 
 this.destroy = function() {
@@ -179,7 +166,6 @@ this.destroy = function() {
                                this._handle_closing_view_setup, false);
     window.removeEventListener('view_closed',
                                this._handle_closing_view_setup, false);
-    window.removeEventListener('current_view_changed', this._handle_view_changed.bind(this), false);
     this._observerSvc.removeObserver(this, 'history_changed', false);
     window.removeEventListener("AppCommand", _appCommandEventHandler, true);
 };
@@ -239,7 +225,6 @@ function _get_curr_loc(view /* =current view */,
         callback(null);
         return;
     }
-    if (!tabbedViewId) return;
     _controller.historySvc.loc_from_view_info(
         viewType,
         window._koNum,
@@ -257,7 +242,6 @@ function _mark_pos_info(view) {
         return;
     }
     var scimoz = view.scimoz;
-    if (!scimoz) return;
     if (typeof(view.pos_before_last_jump) != "undefined") {
         // Free up old marker handles
         var marker_handle = view.pos_before_last_jump.marker_handle;
@@ -282,51 +266,25 @@ function _mark_pos_info(view) {
  *      If not given the current view is used.
  */
 this.note_curr_loc = function note_curr_loc(view, /* = currentView */
-                                            check_section_change, /* false */
-                                            defer) {
-    
+                                            check_section_change /* false */
+                                            ) {
     if (typeof(view) == "undefined" || view == null) view = ko.views.manager.currentView;
-    if (!initialized || !view || this._marking) {
+    if (!view) {
         // No views, we could be at startup
         return;
     }
-    
-    if (deferred_loc)
-    {
-        this._note_loc.apply(this, deferred_loc);
-        deferred_loc = null;
-    }
-    
-    this._marking = true;
     if (typeof(check_section_change) == "undefined") check_section_change = false;
     this._recently_did_history = false;
-    
     _get_curr_loc(view, null, (loc) => {
-        if (!loc)
-        {
-            this._marking = false;
-            return;
-        }
         if (view.getAttribute("type") == "editor" && loc) {
             if (!view.scimoz) {
                 view = null;
             }
-
-            if (defer)
-                deferred_loc = [view, loc, check_section_change];
-            else
-                this._note_loc(view, loc, check_section_change);
-            
-            this._marking = false;
+            _mark_pos_info(view);
+            _controller.historySvc.note_loc(loc, check_section_change, view);
         }
     });
 };
-
-this._note_loc = function(view, loc, check_section_change = false)
-{
-    _mark_pos_info(view);
-    _controller.historySvc.note_loc(loc, check_section_change, view);
-}
 
 /**
  * Note the current location from functions like
@@ -336,12 +294,12 @@ this._note_loc = function(view, loc, check_section_change = false)
  * @returns {koILocation} The noted location (or null if could not determine
  *      a current loc).
  */
-this.note_loc_unless_history_move = function note_curr_loc(view, defer) {
+this.note_loc_unless_history_move = function note_curr_loc(view) {
     if (this._recently_did_history) {
         this._recently_did_history = false;
         return;
     }
-    this.note_curr_loc(view, false, defer);
+    this.note_curr_loc(view);
 };
 
 const _ko_temporary_matcher = new RegExp('kotemporary://({[-a-fA-F0-9]+})/(.*)$');
@@ -450,7 +408,7 @@ this._go_to_location = function _go_to_location(loc, on_load_failure) {
     var this_ = this;
     var on_load_success = function(view, lineNo) {
         if (!view) return;
-        this._recently_did_history = true;
+        this_._recently_did_history = true;
         view.makeCurrent();
         if (loc.view_type == "editor") { // 
             var scimoz = view.scimoz;
@@ -459,7 +417,7 @@ this._go_to_location = function _go_to_location(loc, on_load_failure) {
             scimoz.gotoPos(targetPos);
         }
         window.updateCommands("history_changed");
-    }.bind(this);
+    }
     view_and_line_from_loc(loc, on_load_success, on_load_failure, true);
 };
 
@@ -501,10 +459,6 @@ function _label_from_loc(loc) {
             break;
         case 'browser':
             baseName = loc.uri;
-            lineNo = null;
-            break;
-        case 'quickstart':
-            baseName = _komodoBundle.GetStringFromName("newTab");
             lineNo = null;
             break;
         default:
@@ -713,13 +667,7 @@ this.move_to_loc_before_last_jump = function(view, moveToFirstVisibleChar) {
 
 var _controller = new HistoryController();
 
-this._handle_view_changed = function(e)
-{
-    if (last_view)
-        this.note_loc_unless_history_move(last_view)
-    
-    last_view = e.originalTarget;
-}
+
 
 //---- RecentlyClosedTabs sub-system
 
@@ -763,12 +711,11 @@ function _rctab_from_event(event) {
         if (!koDocument || !koDocument.file) {
             return null;
         }
+        ko.history.note_curr_loc(view);
         // FALLTHRU
     case "browser":
         uri = view.koDoc.file.URI;
         break;
-    case "quickstart":
-        return null;
     case "terminal":
         // Ignore closing terminal views
         return null;
@@ -899,9 +846,7 @@ this.open_rctab = function(idx) {
     }
     var tabList = document.getElementById(rctab.tabGroup);
     var uri = rctab.uri;
-    var uri = (rctab.viewType == "quickstart"
-               ? "chrome://komodo/content/quickstart.xml#view-quickstart"		
-               : rctab.uri);
+    this.note_curr_loc();
     ko.views.manager.doFileOpenAsync(uri, rctab.viewType, tabList, rctab.tabIndex);
 };
 
@@ -916,8 +861,7 @@ this.save_prefs = function(prefs) {
 };
 
 this.restore_prefs = function(prefs) {
-    var globalPrefs = require("ko/prefs");
-    if ( ! globalPrefs.getBoolean('workspace_restory_history') || ! prefs.hasPref("history_rctabs")) {
+    if (! prefs.hasPref("history_rctabs")) {
         return;
     }
     var uriPrefSet = prefs.getPref("history_rctabs");

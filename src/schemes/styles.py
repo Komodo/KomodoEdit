@@ -101,7 +101,6 @@ StateMap = {
         'numbers': ('SCE_C_NUMBER',),
         'strings': ('SCE_C_STRING',
                     'SCE_C_CHARACTER',
-                    'SCE_C_STRINGRAW',
                     ),
         'keywords': ('SCE_C_WORD',),
         'keywords2': ('SCE_C_WORD2',),
@@ -111,7 +110,7 @@ StateMap = {
         'preprocessor': ('SCE_C_PREPROCESSOR',),
         # these are specific to this lexer
         'UUIDs': ('SCE_C_UUID',),
-        'verbatim': ('SCE_C_VERBATIM', 'SCE_C_HASHQUOTEDSTRING', 'SCE_C_TRIPLEVERBATIM'),
+        'verbatim': ('SCE_C_VERBATIM', 'SCE_C_STRINGRAW', 'SCE_C_HASHQUOTEDSTRING', 'SCE_C_TRIPLEVERBATIM'),
         'regex': ('SCE_C_REGEX',),
         'commentdockeyword': ('SCE_C_COMMENTDOCKEYWORD',),
         'commentdockeyworderror': ('SCE_C_COMMENTDOCKEYWORDERROR',),
@@ -246,7 +245,9 @@ StateMap = {
     },
     'Text': {'default': ('SCE_P_DEFAULT',)},
     'Perl': {
-        'default':('SCE_PL_DEFAULT',),
+        'default':('SCE_PL_DEFAULT',
+                   'SCE_PL_UNKNOWN_FIELD',
+                   'SCE_PL_SUB_ARGS',),
         'errors': ('SCE_PL_ERROR',),
         'comments': ('SCE_PL_COMMENTLINE',
                      'SCE_PL_POD',
@@ -261,36 +262,28 @@ StateMap = {
                     'SCE_PL_STRING_QR',
                     'SCE_PL_STRING_QW',
                     'SCE_PL_LONGQUOTE',
-                    'SCE_PL_FORMAT_IDENT',
                     'SCE_PL_FORMAT',
-                    'SCE_PL_STRING_VAR',
-                    'SCE_PL_STRING_QQ_VAR',
-                    'SCE_PL_STRING_QX_VAR',
                     ),
         'identifiers': ('SCE_PL_IDENTIFIER',),
         'operators': ('SCE_PL_OPERATOR',
                       'SCE_PL_BACKTICKS',
-                      'SCE_PL_VARIABLE_INDEXER',
-                      'SCE_PL_BACKTICKS_VAR'),
-        'functions': ('SCE_PL_SUB_PROTOTYPE',),
+                      'SCE_PL_VARIABLE_INDEXER'),
+        'functions': ('SCE_PL_SUB',),
         'here documents': ('SCE_PL_HERE_DELIM',
                            'SCE_PL_HERE_Q',
                            'SCE_PL_HERE_QQ',
-                           'SCE_PL_HERE_QX',
-                           'SCE_PL_HERE_QQ_VAR',
-                           'SCE_PL_HERE_QX_VAR'),
+                           'SCE_PL_HERE_QX'),
         'arrays': ('SCE_PL_ARRAY',),
         'hashes': ('SCE_PL_HASH',),
         'symbol tables': ('SCE_PL_SYMBOLTABLE',),
         'regex': ('SCE_PL_REGEX',
-                  'SCE_PL_REGSUBST',
-                  'SCE_PL_XLAT',
-                  'SCE_PL_REGEX_VAR',
-                  'SCE_PL_REGSUBST_VAR',
-                  'SCE_PL_STRING_QR_VAR',),
+                  'SCE_PL_REGSUBST',),
         'preprocessor': ('SCE_PL_PREPROCESSOR',),
         'variables': ('SCE_PL_SCALAR',),
         'data sections': ('SCE_PL_DATASECTION',),
+        'stdin': ('SCE_PL_STDIN',),
+        'stdout': ('SCE_PL_STDOUT',),
+        'stderr' : ('SCE_PL_STDERR',),
         'text': ('SCE_PL_DATASECTION',),
     },
     'Properties': {
@@ -550,7 +543,6 @@ StateMap['Sass'] = StateMap['SCSS'].copy()
 StateMap['Less'] = StateMap['CSS'].copy()
 StateMap['Less']['mixins'] = ('SCE_CSS_MIXIN',)
 StateMap['Octave'] = StateMap['Matlab'].copy()
-StateMap['Swift'] = StateMap['C++'].copy()
 
 SharedStates = {
     'bracebad' : ('STYLE_BRACEBAD',),
@@ -569,6 +561,7 @@ IndicatorNameMap = {
     'tabstop_pending': 'DECORATOR_TABSTOP_TS1',
     'find_highlighting': 'DECORATOR_FIND_HIGHLIGHT',
     'tag_matching': 'DECORATOR_TAG_MATCH_HIGHLIGHT',
+    'multiple_caret_area': 'INDICATOR_MULTIPLE_CARET_AREAS',
 }
 
 def addSharedStyles(langMap):

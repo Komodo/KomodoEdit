@@ -57,21 +57,109 @@ if (typeof(ko.findresults)!='undefined') {
 //---- locals
 
 var findResultsLog = ko.logging.getLogger('findResultsTab');
-var nextTabId = 1;
 //findResultsLog.setLevel(ko.logging.LOG_DEBUG);
 
-if (!("managers" in this))
-    this.managers = {};
 
-this.getTab = function FindResultsTab_GetTab(callback)
+//---- the new FindResultsTab functionality (new ones are created on the fly)
+//
+// Usage:
+//      var manager = ko.findresults.getTab(1); // or 2
+//      if (manager == null) {
+//          // user aborted
+//      }
+//      manager.configure(...find info...);
+//      // Use mananger.view and the manager's koIFindResultsManager
+//      // interface to fill in the data. The FindSvc provides methods
+//      // to do most of this...
+//
+
+// Mapping from find results tab id (1 or 2) to a tab manager instance.
+// If the key's value is null the tab XUL needs to be created.
+if (!("managers" in this))
+    this.managers = {1: null, 2: null};
+
+// Return a usable (not busy, not locked, cleared) Find Results tab manager.
+//
+//  "preferredId" must be 1 or 2, the number of the requested tab.
+//      Note that the returned tab might not be the requested one if it
+//      is busy.
+//
+// The number of Find Results tabs is limited (here) to two. This function
+// will return a working tab manager if a free one could be had. Otherwise it
+// will return null. If the requested one is busy it may ask the user if it
+// the other one would be fine or if the current busy operation should be
+// stopped and overridden.
+//
+// XXX: Am I going to go to the trouble of ensuring synchronicity here? I.e.
+// this "GetTab" method would have to lock out other requests for this one
+// until released. Dunno.
+this.getTab = function FindResultsTab_GetTab(preferredId /* =1 */)
 {
-    findResultsLog.debug("getTab()\n");
+    if (typeof(preferredId) == "undefined" || preferredId == null) preferredId = 1;
+
+    findResultsLog.debug("getTab(preferredId="+preferredId+")\n");
     try {
-        var id = nextTabId++;
-        this.create(id, callback, function(manager) {
+        var otherId = null;
+        if (preferredId == 1) {
+            otherId = 2;
+        } else if (preferredId == 2) {
+            otherId = 1;
+        } else {
+            throw new Error("Illegal Find Results tab preferredId: "+preferredId+"\n");
+        }
+
+        // Determine which find results tab will be used.
+        var id, answer;
+        if (this.managers[preferredId] == null) {
+            id = preferredId;
+        } else if (!this.managers[preferredId].isBusy()
+                   && !this.managers[preferredId].is_locked) {
+            id = preferredId;
+        } else if (this.managers[otherId] == null ||
+                   (!this.managers[otherId].isBusy()
+                    && !this.managers[otherId].is_locked)) {
+            // The preferred tab is busy or locked, but the other one is
+            // available: just use the other one.
+            id = otherId;
+        } else {
+            // Both are busy or locked. Offer to stop/unlock the current one.
+            var action_1 = (this.managers[1].isBusy()
+                            ? "Stop" : "Unlock");
+            var action_2 = (this.managers[2].isBusy()
+                            ? "Stop" : "Unlock");
+            answer = ko.dialogs.customButtons(
+                "Both Find Results tabs are busy or locked. Would you "
+                + "like to override or cancel this search?",
+                [action_1+" and Use Tab &1",
+                 action_2+" and Use Tab &2",
+                 "Cancel"],
+                action_1+" and Use Tab 1",  // default button
+                null, // text
+                null); // title
+            if (answer == "Stop and Use Tab 1") {
+                this.managers[1].stopSearch()
+                id = 1;
+            } else if (answer == "Stop and Use Tab 2") {
+                this.managers[2].stopSearch()
+                id = 2;
+            } else if (answer == "Unlock and Use Tab 1") {
+                id = 1;
+            } else if (answer == "Unlock and Use Tab 2") {
+                id = 2;
+            } else { // answer == "Cancel"
+                return null;
+            }
+        }
+
+        // Create the tab or clear it and return its manager.
+        var manager = this.managers[id];
+        if (manager == null) {
+            manager = this.create(id);
             this.managers[id] = manager;
-            callback(manager);
-        }.bind(this));
+        } else {
+            manager.clear();
+        }
+        return manager;
     } catch(ex) {
         findResultsLog.exception(ex);
     }
@@ -92,54 +180,35 @@ this.getManager = function FindResultsTab_GetManager(id)
 // (1) we are limiting to two so we can and (2) dynamically creating them
 // ran into the old Komodo problem of the UI not updating until the mouse
 // is moved.
-this.create = function _FindResultsTab_Create(id, searchAgain, callback)
+this.create = function _FindResultsTab_Create(id)
 {
-    var idstr = "findresults_tabpanel" + id;
-    ko.widgets.registerWidget(idstr, "Find Results", "chrome://komodo/content/find/findResultsTab.xul", {
-            defaultPane: "workspace_bottom_area",
-            persist: false,
-            show: true,
-            iconURL: "koicon://ko-svg/chrome/icomoon/skin/binoculars.svg"
-        });
-    
-    ko.widgets.getWidgetAsync(idstr, function(widget) {
-        var panel = widget.parentNode;
-        var tab = panel.tab;
-        
-        var manager = new ko.findresults.FindResultsTabManager();
-        manager.initialize(id, searchAgain);
-        
-        ["mousedown", "focus"].forEach(function(eventName) {
-            tab.addEventListener(eventName, function() {
-                panel.tab.parentNode.selectedItem = tab;
-                panel.focus();
-                manager.doc.getElementById("findresults").focus();
-            }, false);
-        });
-        
-        tab.addEventListener("close-tab", function(e) {
-            manager.stopSearch();
-            ko.widgets.unregisterWidget(widget);
-            delete this.managers[id];
-            
-            e.preventDefault();
-            return false;
-        }.bind(this));
-        
-        callback(manager);
-    }.bind(this));
+    var panel = ko.widgets.getWidget("findresults"+id+"_tabpanel");
+    var tab = panel.tab;
+    tab.removeAttribute("collapsed");
+    // <tabbox> Ctrl+Tab handling uses the "hidden" attribute.
+    tab.removeAttribute("hidden");
+    panel.removeAttribute("collapsed");
+
+    var manager = new ko.findresults.FindResultsTabManager();
+    manager.initialize(id);
+    ["mousedown", "focus"].forEach(function(eventName) {
+        tab.addEventListener(eventName, function() {
+            panel.tabbox.selectedTab = tab;
+            panel.focus();
+            manager.doc.getElementById("findresults").focus();
+        }, false);
+    });
+    return manager;
 }
 
 
 this.FindResultsTabManager = function FindResultsTabManager() { }
 this.FindResultsTabManager.prototype.constructor = this.FindResultsTabManager;
 
-this.FindResultsTabManager.prototype.initialize = function(id, searchAgain)
+this.FindResultsTabManager.prototype.initialize = function(id)
 {
     try {
         this.id = id; // Number identifying this FindResultsTabManager from others.
-        this._searchAgain = searchAgain;
-        this._isSearchingAgain = false;
         this._idprefix = "findresults"+this.id;
 
         // Should be called in the onload handler for the window containing the
@@ -155,7 +224,7 @@ this.FindResultsTabManager.prototype.initialize = function(id, searchAgain)
         // depend on |window| or |document| (or other normally window-specific
         // globals) to help us distinguish which document we want.  We need
         // to go ask the containing browser instead.
-        var widget = ko.widgets.getWidget("findresults_tabpanel" + id);
+        var widget = ko.widgets.getWidget("findresults" + id + "_tabpanel");
         this.doc = widget.contentDocument;
 
         // Ensure the nsITreeView instance is bound to the <tree>.
@@ -195,7 +264,7 @@ this.FindResultsTabManager.prototype.show = function(focus /* =false */)
         if (focus) {
             // Give the find results tab the focus. See bug 79487 for why
             // this *isn't* the default.
-            this.doc.documentElement.firstChild.focus();
+            document.documentElement.firstChild.focus();
         }
     } catch(ex) {
         findResultsLog.exception(ex);
@@ -213,6 +282,8 @@ this.FindResultsTabManager.prototype.clear = function()
     this._repl = null;
     this.context_ = null;
     this._options = null;
+    this.is_locked = true;
+    this.toggleLockResults();
 
     // Clear the UI.
     this.view.Clear(0);
@@ -221,9 +292,9 @@ this.FindResultsTabManager.prototype.clear = function()
     descWidget.setAttribute("value", "No current find/replace results.");
     descWidget.removeAttribute("baseDesc");
     descWidget.classList.remove("find-description-highlight");
-    this.doc.getElementById("findresults-jumptonext-button")
+    document.getElementById("findresults-jumptonext-button")
             .setAttribute("disabled", "true");
-    this.doc.getElementById("findresults-jumptoprev-button")
+    document.getElementById("findresults-jumptoprev-button")
             .setAttribute("disabled", "true");
     var searchTextbox = this.doc.getElementById("findresults-filter-textbox");
     if (searchTextbox) {  // May not exist (i.e. not yet in the TODO extension).
@@ -231,13 +302,6 @@ this.FindResultsTabManager.prototype.clear = function()
     }
 }
 
-this.FindResultsTabManager.prototype.searchAgain = function()
-{
-    var searchWidget = this.doc.getElementById('findresults-search-textbox');
-    this.clear();
-    this._isSearchingAgain = true;
-    this._searchAgain(this, searchWidget.value);
-}
 
 this.FindResultsTabManager.prototype.updateFilter = function()
 {
@@ -323,6 +387,33 @@ this.FindResultsTabManager.prototype.copyResults = function()
         findResultsLog.exception(ex);
     }
 }
+
+
+this.FindResultsTabManager.prototype.toggleLockResults = function()
+{
+    findResultsLog.info("FindResultsTabManager.toggleLockResults()");
+    try {
+        this.is_locked = ! this.is_locked;
+        var lockButton = this.doc.getElementById("findresults-lock-button");
+        if (!lockButton) {
+            // This is to allow the TODO extension to work. It is piggybacking
+            // on the Find Results tab stuff.
+            return;
+        }
+        if (this.is_locked) {
+            lockButton.setAttribute("locked", "true");
+            lockButton.setAttribute("tooltiptext",
+                "Find results are locked (click to unlock)");
+        } else {
+            lockButton.removeAttribute("locked");
+            lockButton.setAttribute("tooltiptext",
+                "Find results are unlocked (click to lock)");
+        }
+    } catch (ex) {
+        findResultsLog.exception(ex);
+    }
+}
+
 
 this.FindResultsTabManager.prototype.stopSearch = function()
 {
@@ -434,17 +525,21 @@ this.FindResultsTabManager.prototype._getBaseDescription = function(tense)
     var baseDesc = "";
     if (tense == "present") {
         if (this._repl != null) {
-            baseDesc += "Replacing ";
+            baseDesc += "Replacing all ";
         } else {
-            baseDesc += "Finding ";
+            baseDesc += "Finding all ";
         }
     } else if (tense == "past") {
-        return "";
+        if (this._repl != null) {
+            baseDesc += "Replaced all ";
+        } else {
+            baseDesc += "Found all ";
+        }
     } else {
         throw new Error("illegal tense value: '"+tense+"'");
     }
     if (!this._patternAlias) {
-        baseDesc += this._pattern;
+        baseDesc += "occurrences of " + this._options.searchDescFromPattern(this._pattern);
     } else {
         baseDesc += this._patternAlias;
     }
@@ -452,7 +547,21 @@ this.FindResultsTabManager.prototype._getBaseDescription = function(tense)
         baseDesc += " with '"+this._repl+"'";
     }
     if (this.context_.type == Components.interfaces.koIFindContext.FCT_IN_FILES) {
-        baseDesc += " in '"+this._options.encodedFolders+"'.";
+        if (!this._options.encodedIncludeFiletypes
+            && !this._options.encodedExcludeFiletypes) {
+            baseDesc += " in all files in '"+this._options.encodedFolders+"'.";
+        } else if (!this._options.encodedExcludeFiletypes) {
+            baseDesc += " in all '"+this._options.encodedIncludeFiletypes+
+                        "' files in '"+this._options.encodedFolders+"'.";
+        } else if (!this._options.encodedIncludeFiletypes) {
+            baseDesc += " in all files except '"+
+                        this._options.encodedExcludeFiletypes+
+                        "' files in '"+this._options.encodedFolders+"'.";
+        } else {
+            baseDesc += " in all '"+this._options.encodedIncludeFiletypes+
+                        "' files except '"+this._options.encodedExcludeFiletypes+
+                        "' files in '"+this._options.encodedFolders+"'.";
+        }
     } else {
         baseDesc += " in "+this.context_.name+".";
     }
@@ -498,20 +607,6 @@ this.FindResultsTabManager.prototype.configure = function(
     var descWidget = this.doc.getElementById("findresults-desc");
     descWidget.setAttribute("baseDesc", baseDesc);
     this.setDescription();
-    
-    var filterWidget = this.doc.getElementById("findresults-filter-textbox");
-    filterWidget.setAttribute("collapsed", true);
-    var searchWidget = this.doc.getElementById("findresults-search-textbox");
-    searchWidget.value = this._pattern;
-    searchWidget.setAttribute("collapsed", true);
-    
-    var widget = ko.widgets.getWidget("findresults_tabpanel" + this.id);
-    var tab = widget.parentNode.tab;
-    var prefix = this._repl ? 'Replace "' : 'Find "';
-    var _pattern = pattern;
-    if (pattern.length > 15) _pattern = pattern.substr(0,15) + "..";
-    this._patternShort = _pattern;
-    tab.setAttribute("label", prefix + _pattern + '"');
 
     var filenameCol = this.doc.getElementById("findresults-filename");
     if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
@@ -620,14 +715,6 @@ this.FindResultsTabManager.prototype.searchFinished = function(
 //        redoButton.removeAttribute("disabled");
     var stopButton = this.doc.getElementById("findresults-stopsearch-button");
     stopButton.setAttribute("disabled", "true");
-    
-    var filterWidget = this.doc.getElementById("findresults-filter-textbox");
-    filterWidget.removeAttribute("collapsed");
-    var searchWidget = this.doc.getElementById("findresults-search-textbox");
-    searchWidget.removeAttribute("collapsed");
-    
-    if (this._isSearchingAgain)
-        searchWidget.focus();
 
     var desc;
     if (success) {
@@ -890,7 +977,7 @@ this.FindResultsTabManager.prototype._doubleClick = function()
             }
         );
     } catch (ex) {
-        findResultsLog.exception(ex);
+        log.exception(ex);
     }
 }
 
@@ -901,7 +988,7 @@ this.FindResultsTabManager.prototype._updateSortIndicators = function(sortId)
 
     // set the sort indicator on the column we are sorted by
     if (sortId) {
-        sortedColumn = this.doc.getElementById(sortId);
+        sortedColumn = document.getElementById(sortId);
         if (sortedColumn) {
             var sortDirection = sortedColumn.getAttribute("sortDirection");
             if (sortDirection && sortDirection == "ascending") {
@@ -938,30 +1025,8 @@ this.FindResultsTabManager.prototype.QueryInterface = function (iid) {
 }
 
 
+
 //---- interface routines
-
-/**
- * Get the number of the find results tab that is currently focued
- */
-this._getFocusedTabNum = function()
-{
-    var tabName, tabId, tab, manager;
-    for (tabName in this.managers)
-    {
-        tabId = "findresults_tabpanel" + tabName;
-        widget = ko.widgets.getWidget(tabId);
-        if(widget)
-        {
-            tab = widget.parentNode.tab;
-            if (tab && tab.selected)
-            {
-                return tabName;
-            }
-        }
-    }
-    return null;
-}
-
 
 // Called to handle the "Find Next Result" command.
 //
@@ -974,41 +1039,20 @@ this.nextResult = function FindResultsTab_NextResult()
 {
     findResultsLog.info("nextResult()");
     try {
-        if (! ko.uilayout.outputPaneShown())
-        {
-            return;
-        }
-        tabNumber = this._getFocusedTabNum();
-        if(tabNumber)
-        {
-            manager = this.managers[tabNumber];
-            manager.jumpToNextResult();   
-        } 
-    } catch(ex) {
-        findResultsLog.exception(ex);
-    }
-}
-
-// Called to handle the "Find Prev Result" command.
-//
-// Seeing as there may now be multiple (or zero) find results tabs there is
-// a question of _which_ set of find results to use. Here is the chosen
-// algorithm: if there is a "Find Results N" tab visible, then use it,
-// silently do nothing.
-//
-this.prevResult = function FindResultsTab_PrevResult()
-{
-    findResultsLog.info("prevResult()");
-    try {
         if (! ko.uilayout.outputPaneShown()) {
             return;
         }
-        tabNumber = this._getFocusedTabNum();
-        if(tabNumber)
-        {
-            manager = this.managers[tabNumber];
-            manager.jumpToPrevResult();   
-        } 
+
+        var tabName, tabId, tab, manager;
+        for (tabName in this.managers) {
+            tabId = "findresults"+tabName+"_tab";
+            tab = document.getElementById(tabId);
+            if (tab && tab.selected) {
+                manager = this.managers[tabName];
+                manager.jumpToNextResult();
+                break;
+            }
+        }
     } catch(ex) {
         findResultsLog.exception(ex);
     }

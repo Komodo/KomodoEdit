@@ -852,7 +852,7 @@ class CplnTestCase(CodeIntelTestCase):
                 $b->something(<|>);
             }
        """))
-        calltip = "something(string $s)\n\n<string> $s  - "
+        calltip = "something(string $s)\n@param string $s"
         self.assertCalltipIs(markedup_content, calltip)
 
     @tag("bug101460")
@@ -868,7 +868,7 @@ class CplnTestCase(CodeIntelTestCase):
                 $b->something(<|>);
             }
        """))
-        calltip = "something(string $s)\n\n<string> $s  - "
+        calltip = "something(string $s)\n@param string $s"
         self.assertCalltipIs(markedup_content, calltip)
 
     def test_calltip_call_signature_for_builtins(self):
@@ -2331,9 +2331,9 @@ EOD;
             $hw_inst->printWorld(<2>);
         """)))
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
-                             "printHello()\n\nPrint the word hello.")
+                             "printHello()\nPrint the word hello.")
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
-                             "printWorld()\n\nPrint the word world.")
+                             "printWorld()\nPrint the word world.")
 
     @tag("bug83192", "php53")
     def test_php_namespace_completions(self):
@@ -2711,9 +2711,9 @@ EOD;
             $bar = new Bar(<2>); // should show Foo constructor calltip
         """)))
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
-                             "Foo(mixed $arg1)\n\nConstructor\n<mixed> $arg1  - ")
+                             "Foo(mixed $arg1)\nConstructor\n@param mixed $arg1")
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
-                             "Foo(mixed $arg1)\n\nConstructor\n<mixed> $arg1  - ")
+                             "Foo(mixed $arg1)\nConstructor\n@param mixed $arg1")
 
     @tag("bug90846")
     def test_class_chained_completion(self):
@@ -4589,103 +4589,7 @@ class DefnTestCase(CodeIntelTestCase):
             self.assertDefnMatches2(buf, positions[pos], path=path,
                                     ilk="variable", name="subvalue",
                                     line=10)
-            
-    def testAnonymousClass(self):
-        content, positions = unmark_text(php_markup(dedent("""\
-            class SomeClass {}
-            interface SomeInterface {}
-            trait SomeTrait {}
-            
-            var_dump(new class() extends <1>SomeClass implements <2>SomeInterface {
-                private $num;
-                
-                public function __<3>construct($num)
-                {
-                    $this-><4>num = $num;
-                }
-                
-                use <5>SomeTrait;
-            });
-        """)))
-        # Single base class
-        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("class", "SomeClass")])
-        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("interface", "SomeInterface")])
-        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-            [("function", "__construct")])
-        self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
-            [("variable", "num")])
-        self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
-            [("trait", "SomeTrait")])
 
-    def testGroupedUse(self):
-        content, positions = unmark_text(php_markup(dedent("""\
-            namespace Test {
-                class FooBar {}
-                class BarBaz {}
-            }
-            
-            use Test\{FooBar, BarBaz as FooBoo}
-            
-            Foo<1>
-        """)))
-        # Single base class
-        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("namespace", "FooBar"),
-             ("namespace", "FooBoo")])
-
-    def testGroupedUse2(self):
-        content, positions = unmark_text(php_markup(dedent("""\
-            class Test {
-                function foobar() {}
-                function barbaz() {}
-            }
-            
-            use function Test\{foo as barfoo, barbaz};
-            
-            bar<1>
-        """)))
-        # Single base class
-        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("function", "barbaz"),
-             ("function", "barfoo")])
-        
-    @tag("bug 123")
-    def test_calltip_builtin_function(self):
-        markedup_content = php_markup(dedent("""\
-            date(<|>)
-        """))
-        calltip = "date(string format [, long timestamp])\nFormat a local date time"
-        self.assertCalltipIs(markedup_content, calltip)
-        
-        # Now test a variable whose name is the same as the builtin function.
-        markedup_content = php_markup(dedent("""\
-            $date = date("d");
-            date(<|>)
-        """))
-        calltip = "date(string format [, long timestamp])\nFormat a local date time"
-        self.assertCalltipIs(markedup_content, calltip)
-        
-    @tag("bug 142")
-    def test_foreach_with_variable_annotation(self):
-        content, positions = unmark_text(php_markup(dedent("""\
-            class SubTest {
-                public $name = null;
-            }
-            class Test {
-                public $testName = null;
-                /** @var SubTest[] */
-                public $subTests = null;
-            }
-            $test = new Test();
-            // (do some setup here)
-            foreach($test->subTests as $subTest) {
-                $subTest-><1>
-        """)))
-        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
-            [("variable", "name")])
-    
 
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"
@@ -4701,7 +4605,7 @@ class EscapingTestCase(CodeIntelTestCase):
         ?>
         """))
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
-                             "func_bug85176()\n\nA funky char  is here.")
+                             "func_bug85176()\nA funky char  is here.")
 
 
 #---- mainline

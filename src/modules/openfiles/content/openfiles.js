@@ -45,7 +45,6 @@ if (typeof ko.openfiles == 'undefined')
     /* Pref Constants */
     const
         PREF_GROUPING       = 'openfiles_grouping',
-        PREF_TAB_SORTING    = 'openfiles_tab_sorting',
         PREF_GROUPING_TYPE  = 'openfiles_grouping_type',
         PREF_SORTING_TYPE   = 'openfiles_sorting_type',
         PREF_SORTING_DIR    = 'openfiles_sorting_direction',
@@ -149,11 +148,6 @@ if (typeof ko.openfiles == 'undefined')
                 document.getElementById("openfilesPrefPopup_ToggleGrouping").removeAttribute("checked");
             }
             
-            if ( ! ko.prefs.getBoolean(PREF_TAB_SORTING, true))
-            {
-                document.getElementById("openfilesPrefPopup_ToggleTabSorting").removeAttribute("checked");
-            }
-            
             // Bind listeners and reload (initialize) the list of open files 
             this.bindListeners();
             this.reload();
@@ -165,13 +159,6 @@ if (typeof ko.openfiles == 'undefined')
             do_cmd_openfilesGrouping: function()
             {
                 self.toggleGrouping();
-                this._updateCommands();
-            },
-            
-            // Tab sorting toggle
-            do_cmd_openfilesTabSorting: function()
-            {
-                self.toggleTabSorting();
                 this._updateCommands();
             },
 
@@ -401,8 +388,6 @@ if (typeof ko.openfiles == 'undefined')
          */
         bindListeners: function openfiles_bindListeners()
         {
-            document.getElementById('openFilesCloseAll').addEventListener("command", this.onClickCloseAll.bind(this));
-            
             /**** Komodo Events ******/
             koWindow.addEventListener('view_closed', function(e)
             {
@@ -421,18 +406,6 @@ if (typeof ko.openfiles == 'undefined')
                 }
 
                 this.selectItem(editorView);
-            }.bind(this));
-            
-            koWindow.addEventListener('view_document_attached', function(e)
-            {
-                log.debug("event: view_document_attached");
-                var editorView = e.originalTarget;
-                if ((editorView.uid.number in openViews))
-                {
-                    this.removeItem(editorView);
-                }
-                
-                this.addItem(editorView);
             }.bind(this));
             
             koWindow.addEventListener('current_view_language_changed', function(e)
@@ -500,38 +473,6 @@ if (typeof ko.openfiles == 'undefined')
         onClickItemClose: function openfiles_onClickItemClose(editorView)
         {
             editorView.close();
-        },
-        
-        /**
-         * Event triggered when a group has been closed
-         * 
-         * @param   {Element} groupItem
-         * 
-         * @returns {Void} 
-         */
-        onClickGroupClose: function openfiles_onClickGroupClose(groupItem)
-        {
-            var closeViews = [];
-            var item = groupItem;
-            while (item.nextSibling && item.nextSibling.classList.contains("file-item"))
-            {
-                item = item.nextSibling;
-                closeViews.push(openViews[item.getAttribute("id")]);
-            }
-            
-            for (let editorView of closeViews) 
-                editorView.close();
-        },
-        
-        /**
-         * Event triggered when all items have been closed
-         * 
-         * @returns {Void} 
-         */
-        onClickCloseAll: function openfiles_onClickGroupClose()
-        {
-            for (let id in openViews)
-                openViews[id].close();
         },
         
         /**
@@ -868,27 +809,6 @@ if (typeof ko.openfiles == 'undefined')
                 'value', groupInfo.name || ''
             );
             groupItem.classList.add(className); // append class
-            
-            groupItem.querySelector('.file-close-button').addEventListener(
-                "mousedown", function(e) {
-                    if (e.which != 1) // Only allow left click
-                        return;
-                    
-                    // Don't bubble mousedown events on the close button
-                    // We don't want to switch to a file that is being closed
-                    e.preventDefault();
-                }.bind(this)
-            );
-            
-            // Bind click event on the close button
-            groupItem.querySelector('.file-close-button').addEventListener(
-                "mouseup", function(e) {
-                    if (e.which != 1) // Only allow left click
-                        return;
-                    
-                    this.onClickGroupClose(groupItem);
-                }.bind(this)
-            );
             
             // Append custom classes as specified by the grouper
             if (groupInfo.classlist !== undefined)
@@ -1238,15 +1158,6 @@ if (typeof ko.openfiles == 'undefined')
                     log.debug("Sorting: Done");
                     break;
                 }
-            }
-            
-            var nextItem = this.getNextItem(item);
-            if (ko.prefs.getBoolean(PREF_TAB_SORTING, true) && sortOption != this.sorters.byIndex && nextItem)
-            {
-                let editorViewNext = openViews[nextItem.getAttribute('id')];
-                let tab = editorView.parentNode._tab;
-                let nextTab = editorViewNext.parentNode._tab;
-                tab.parentNode.insertBefore(tab, nextTab);
             }
         },
         
@@ -1807,13 +1718,6 @@ if (typeof ko.openfiles == 'undefined')
                 this.drawGroups();
             }
 
-            this.sort();
-        },
-        
-        toggleTabSorting: function openfiles_toggleTabSOrting()
-        {
-            var sorting = ! ko.prefs.getBoolean(PREF_TAB_SORTING, true);
-            ko.prefs.setBooleanPref(PREF_TAB_SORTING, sorting);
             this.sort();
         },
     

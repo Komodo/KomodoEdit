@@ -72,11 +72,6 @@
                       style="padding-top: 5px;"
                       pref="true" prefstring="donotask_startup_reopen_file_error_dialog"
                       prefattribute="checked"/>
-            <checkbox id="workspace_restory_history"
-                      label="&workspaceRestoreHistory.label;"
-                      style="padding-top: 5px;"
-                      pref="true" 
-                      prefattribute="checked"/>
         </groupbox>
     
         <groupbox orient="vertical">

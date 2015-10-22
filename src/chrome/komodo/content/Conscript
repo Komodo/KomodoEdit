@@ -100,8 +100,6 @@ $cons->InstallInChrome("testscintilla.xul");
 $cons->InstallInChrome("printPreview.xul");
 $cons->InstallInChrome("hiddenWindow.xul");
 
-$cons->InstallInChrome("quickstart.xml");
-
 # "About" dialog files.
 $cons->Preprocess('about/credits.p.html', 'about/credits.html',
     {'PP_CONTRIBUTORS_PATH' => "$komodoDevDir/CONTRIBUTORS.txt"});

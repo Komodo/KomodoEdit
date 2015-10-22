@@ -48,7 +48,7 @@ ORCA="C:\Program Files\Orca\Orca.exe"
 MAKE=nmake -nologo
 
 PRODNAME=komodo
-OBJECTS=$(PRODNAME).wixobj feature-core.wixobj feature-env.wixobj
+OBJECTS=$(PRODNAME).wixobj feature-core.wixobj feature-docs.wixobj feature-env.wixobj
 INCLUDES=config.wxi guids.wxi
 LIBS=$(UILIB)
 
@@ -67,6 +67,8 @@ $(PRODNAME).wixobj: $(PRODNAME).wxs $(INCLUDES)
 	$(CANDLE) $(PRODNAME).wxs
 feature-core.wixobj: feature-core.wxs $(INCLUDES)
 	$(CANDLE) feature-core.wxs
+feature-docs.wixobj: feature-docs.wxs $(INCLUDES)
+	$(CANDLE) feature-docs.wxs
 feature-env.wixobj: feature-env.wxs $(INCLUDES)
 	$(CANDLE) feature-env.wxs
 

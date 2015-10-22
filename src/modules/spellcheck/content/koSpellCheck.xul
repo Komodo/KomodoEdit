@@ -99,8 +99,7 @@ thunderbird/comm/content/editor/EdSpellCheck.xul
       <row flex="1">
         <!-- BUG! setting class="MinWidth20em" on tree doesn't work (width=0) -->
         <listbox  rows="6" id="SuggestedList" onselect="ko.extensions.spellchecker.SelectSuggestedWord()"
-                  ondblclick="if (ko.extensions.spellchecker.allowSelectWord()) ko.extensions.spellchecker.Replace(event.target.getAttribute('label'));"
-                  maxheight="115px" />
+                  ondblclick="if (ko.extensions.spellchecker.allowSelectWord()) ko.extensions.spellchecker.Replace(event.target.getAttribute('label'));"/>
         <vbox>
           <grid flex="1">
             <columns><column class="spell-check" flex="1"/><column class="spell-check" flex="1"/></columns>

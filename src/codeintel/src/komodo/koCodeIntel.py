@@ -787,12 +787,6 @@ class KoCodeIntelManager(threading.Thread):
                    join(koDirSvc.supportDir, "codeintel", "oop-driver.py"),
                    "--import-path", koDirSvc.komodoPythonLibDir,
                    "--database-dir", join(koDirSvc.userDataDir, "codeintel")]
-            # Ensure OOP codeintel has access to user extensions' Python library
-            # paths so custom language codeintel drivers can be found.
-            for path in sys.path:
-                if 'XRE/extensions/' in path or 'XRE\\extensions\\' in path:
-                    cmd.append("--import-path")
-                    cmd.append(path)
 
             mode = (Cc["@activestate.com/koPrefService;1"]
                       .getService().prefs

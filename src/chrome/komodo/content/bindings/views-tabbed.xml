@@ -200,13 +200,9 @@
         <![CDATA[
             try {
                 var vi = this.getViewIndex(view); // just to make sure we have it
-                this.log.time("removeView-removeTab");
                 this.removeTab(view.parentNode._tab);
-                this.log.timeEnd("removeView-removeTab");
                 if (this.currentView) {
-                    this.log.time("removeView-makeCurrent");
                     this.currentView.makeCurrent();
-                    this.log.timeEnd("removeView-makeCurrent");
                 }
             } catch(e) {
                 this.log.exception(e);

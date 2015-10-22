@@ -1,3 +1,0 @@
-content console content/
-skin console classic/1.0 skin/
-overlay chrome://komodo/content/komodo.xul chrome://console/content/overlay.xul

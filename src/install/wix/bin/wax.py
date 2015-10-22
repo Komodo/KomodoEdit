@@ -112,12 +112,23 @@
                 doodle.exe
                 doodle.dll
 
+    Perhaps you also have some documentation that you would want
+    optionally installable in a separate feature:
+
+        <Feature Id="docs" ...>
+          ...
+        </Feature>
+
     Then your install image should be:
 
         feature-core/
             INSTALLDIR/
                 doodle.exe
                 doodle.dll
+        feature-docs/
+            INSTALLDIR/
+                readme.html
+                relnotes.html
 
     Now run "wax" to generate the appropriate WiX fragment for your
     project.
@@ -130,6 +141,8 @@
           <Fragment>
             <DirectoryRef Id="INSTALLDIR">
               <Component Id="component0" DiskId="1" Guid="$(autowix.guid)">
+        ...
+        wax: generate WiX <Fragment> for feature 'docs' from 'feature-docs/...'
         ...
 
     Wax spits out complete Wix fragment documents that can be linked in

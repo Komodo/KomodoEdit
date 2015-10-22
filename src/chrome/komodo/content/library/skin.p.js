@@ -401,8 +401,10 @@ if (ko.skin == undefined)
         {
             this.unloadVirtualStyle("scheme-skinning-partial");
             
+            document.documentElement.classList.add("hud-skinning");
             if ( ! prefs.getBoolean(PREF_SCHEME_SKINNING))
             {
+                document.documentElement.classList.remove("hud-skinning");
                 return;
             }
             

@@ -279,7 +279,6 @@ public:
 	int NextPosition(int pos, int moveDir) const;
 	bool NextCharacter(int &pos, int moveDir) const;	// Returns true if pos changed
 	int SCI_METHOD GetRelativePosition(int positionStart, int characterOffset) const;
-	int GetRelativePositionUTF16(int positionStart, int characterOffset) const;
 	int SCI_METHOD GetCharacterAndWidth(int position, int *pWidth) const;
 	int SCI_METHOD CodePage() const;
 	bool SCI_METHOD IsDBCSLeadByte(char ch) const;
@@ -323,7 +322,6 @@ public:
 	int GetLineIndentPosition(int line) const;
 	int GetColumn(int position);
 	int CountCharacters(int startPos, int endPos) const;
-	int CountUTF16(int startPos, int endPos) const;
 	int FindColumn(int line, int column);
 	void Indent(bool forwards, int lineBottom, int lineTop);
 	static std::string TransformLineEnds(const char *s, size_t len, int eolModeWanted);
@@ -381,14 +379,11 @@ public:
 	};
 	CharacterExtracted ExtractCharacter(int position) const;
 
-	bool IsWordStartAt(int pos) const;
-	bool IsWordEndAt(int pos) const;
-	bool IsWordAt(int start, int end) const;
-
 	bool MatchesWordOptions(bool word, bool wordStart, int pos, int length) const;
 	bool HasCaseFolder(void) const;
 	void SetCaseFolder(CaseFolder *pcf_);
-	long FindText(int minPos, int maxPos, const char *search, int flags, int *length);
+	long FindText(int minPos, int maxPos, const char *search, bool caseSensitive, bool word,
+		bool wordStart, bool regExp, int flags, int *length);
 	const char *SubstituteByPosition(const char *text, int *length);
 	int LinesTotal() const;
 
@@ -441,6 +436,10 @@ public:
 	int BraceMatch(int position, int maxReStyle);
 
 private:
+	bool IsWordStartAt(int pos) const;
+	bool IsWordEndAt(int pos) const;
+	bool IsWordAt(int start, int end) const;
+
 	void NotifyModifyAttempt();
 	void NotifySavePoint(bool atSavePoint);
 	void NotifyModified(DocModification mh);

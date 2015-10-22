@@ -238,6 +238,26 @@ class KoDirs:
                 sdkDir = join(dirname(self.get_mozBinDir()), "sdk")
         return sdkDir
 
+    def get_docDir(self):
+        if self._isDevTree(): # in a development tree
+            docDir = join(self._getKomodoBitsDir(), "doc")
+        else:
+            if sys.platform == "win32":
+                # mozBinDir: <installdir>/lib/mozilla
+                # docDir:    <installdir>/doc
+                docDir = join(dirname(dirname(self.get_mozBinDir())), "doc")
+            elif sys.platform == "darwin":
+                # mozBinDir: /Applications/Komodo.app/Contents/MacOS
+                # docDir:    /Applications/Komodo.app/Contents/Resources/en.lproj/KomodoHelp
+                docDir = join(dirname(self.get_mozBinDir()),
+                              "Resources", "en.lproj", "KomodoHelp")
+            else:
+                # mozBinDir: <installdir>/lib/mozilla
+                # docDir:    <installdir>/share/doc
+                docDir = join(dirname(dirname(self.get_mozBinDir())),
+                              "share", "doc")
+        return docDir
+
     def get_installDir(self):
         # mozBinDir (Mac OS X): <installdir>/Contents/MacOS
         # mozBinDir (others):   <installdir>/lib/mozilla
@@ -255,6 +275,10 @@ class KoDirs:
             else:
                 binDir = join(self.get_installDir(), "bin")
         return binDir
+
+#XXX Coming later. See specs/tech/install_layout.txt
+##    def get_etcDir(self):
+##    def get_docDir(self):
 
     def get_pythonExe(self):
         if sys.platform == "darwin":

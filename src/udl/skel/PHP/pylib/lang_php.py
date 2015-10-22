@@ -66,7 +66,7 @@ from SilverCity.ScintillaConstants import (SCE_UDL_SSL_DEFAULT,
 from codeintel2.parseutil import *
 from codeintel2.phpdoc import phpdoc_tags
 from codeintel2.citadel import ImportHandler, CitadelLangIntel
-from codeintel2.udl import UDLBuffer, UDLLexer, UDLCILEDriver, is_udl_csl_style, is_udl_css_style, XMLParsingBufferMixin
+from codeintel2.udl import UDLBuffer, UDLLexer, UDLCILEDriver, is_udl_csl_style, XMLParsingBufferMixin
 from codeintel2.common import *
 from codeintel2 import util
 from codeintel2.indexer import PreloadBufLibsRequest, PreloadLibRequest
@@ -1279,9 +1279,8 @@ class PHPCILEDriver(UDLCILEDriver):
     lang = lang
     ssl_lang = "PHP"
     csl_lang = "JavaScript"
-    css_lang = "CSS"
 
-    def scan_multilang(self, buf, csl_cile_driver=None, css_cile_driver=None):
+    def scan_multilang(self, buf, csl_cile_driver=None):
       #try:
         """Scan the given multilang (UDL-based) buffer and return a CIX
         element tree.
@@ -1307,14 +1306,12 @@ class PHPCILEDriver(UDLCILEDriver):
         cixblob = createCixModule(cixfile, basepath, "PHP", src=fullpath)
 
         phpciler = PHPParser(fullpath, buf.accessor.text, mtime)
-        csl_tokens, css_tokens = phpciler.scan_multilang_content(buf.accessor.text)
+        csl_tokens = phpciler.scan_multilang_content(buf.accessor.text)
         phpciler.convertToElementTreeModule(cixblob)
 
-        # Hand off the csl and css tokens if any
+        # Hand off the csl tokens if any
         if csl_cile_driver and csl_tokens:
             csl_cile_driver.scan_csl_tokens(cixfile, basepath, csl_tokens)
-        if css_cile_driver and css_tokens:
-            css_cile_driver.scan_css_tokens(cixfile, basepath, css_tokens)
 
         return cixtree
 
@@ -2064,7 +2061,6 @@ class PHPParser:
         self.currentNamespace = None
         self.currentFunction = None
         self.csl_tokens = []
-        self.css_tokens = []
         self.lineno = 0
         self.depth = 0
         self.styles = []
@@ -2073,7 +2069,6 @@ class PHPParser:
         self.comment = None
         self.comments = []
         self.heredocMarker = None
-        self._anonid = 0
 
         # state : used to store the current JS lexing state
         # return_to_state : used to store JS state to return to
@@ -2481,11 +2476,6 @@ class PHPParser:
                         ids[-1] += "\\"
                     else:
                         ids.append("\\")
-                    if pos + 1 < len(styles) and text[pos + 1] == "{":
-                        # Skip over "{" in grouped "use" statements.
-                        # (Of the form: 'use function foo\{bar, baz};')
-                        # It is handled separately.
-                        pos += 1
                 elif ((t != "&" or last_style != self.PHP_OPERATOR) and \
                       (t != ":" or last_style != identifierStyle)):
                     break
@@ -2905,27 +2895,13 @@ class PHPParser:
 
     def _useKeywordHandler(self, styles, text, p):
         log.debug("_useKeywordHandler:: text: %r", text[p:])
-        text = text[:] # copy since this might be modified in place
-        original_p = p
         looped = False
         while p < len(styles):
             if looped:
                 if text[p] != ",":  # Use statements need to be comma delimited.
                     p += 1
                     continue
-                elif "{" in text and text.index("{") < p:
-                    # Grouped "use" statements: new in PHP 7.
-                    # Simply remove the last identifier parsed and start over.
-                    # For example, given: 'use foo\{bar, baz}'
-                    # 'foo\bar' will be parsed out, the "," will be detected
-                    # here, and 'foo\{baz}' will be parsed, returning 'foo\baz'.
-                    while text[p] != "{":
-                        text.pop(p)
-                        styles.pop(p)
-                        p -= 1
-                    p = original_p
-                else:
-                    p += 1
+                p += 1
             else:
                 looped = True
 
@@ -3209,19 +3185,6 @@ class PHPParser:
                     log.debug("Trait resolution: text: %r, pos: %d", text, pos)
                     # Stay in this state.
                     newstate = S_TRAIT_RESOLUTION
-                elif "new" in text and "class" in text and \
-                     text.index("new") + 1 == text.index("class"):
-                    # Anonymous classes: new in PHP 7.
-                    p = text.index("class") + 1
-                    extends = self._getExtendsArgument(styles, text, p)
-                    implements = self._getImplementsArgument(styles, text, p)
-                    #print "extends: %r" % (extends)
-                    #print "implements: %r" % (implements)
-                    self._anonid += 1
-                    self.addClass("(anonymous %d)" % self._anonid, extends=extends,
-                                  attributes=attributes,
-                                  interfaces=implements, doc=self.comment,
-                                  isTrait=False)
                 else:
                     log.debug("Ignoring when starting with identifier")
             elif firstStyle == self.PHP_VARIABLE:
@@ -3345,10 +3308,8 @@ class PHPParser:
                         if text == op:
                             #log.debug("Entering S_IN_ASSIGNMENT state")
                             self.state = S_IN_ASSIGNMENT
-                    elif op == "{" and \
-                         (self.text[0] != "use" or self.text[-2] != "\\"):
+                    elif op == "{":
                         # Increasing depth/scope, could be an argument object
-                        # (Grouped "use" statements need to be handed below in '}'.)
                         self._addCodePiece()
                         self.incBlock()
                     elif op == "}":
@@ -3405,18 +3366,13 @@ class PHPParser:
                                     "text": text,
                                     "start_column": start_column,
                                     "start_line": start_line})
-        elif is_udl_css_style(style):
-            self.css_tokens.append({"style": style,
-                                    "text": text,
-                                    "start_column": start_column,
-                                    "start_line": start_line})
         self.lastText = text
         self.lastStyle = style
 
     def scan_multilang_content(self, content):
         """Scan the given PHP content, only processes SSL styles"""
         PHPLexer().tokenize_by_style(content, self.token_next)
-        return self.csl_tokens, self.css_tokens
+        return self.csl_tokens
 
     def convertToElementTreeFile(self, cixelement):
         """Store PHP information into the cixelement as a file(s) sub element"""

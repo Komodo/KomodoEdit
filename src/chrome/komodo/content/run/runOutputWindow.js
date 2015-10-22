@@ -83,9 +83,6 @@ function _ClearUI()
     descWidget.removeAttribute("value");
     descWidget.removeAttribute("_command");
     descWidget.style.removeProperty("color");
-    
-    var cmdWidget = document.getElementById("runoutput-command");
-    cmdWidget.removeAttribute("value");
 }
 
 
@@ -127,9 +124,6 @@ this.initialize = function RunOutput_Init() {
                 }
             }, false);
         });
-        
-        document.getElementById('runoutput-command').addEventListener("command", ko.run.output.runQuickCommand.bind(ko.run.output));
-        
         window.frameElement.hookupObservers("runoutput-commandset");
         scintillaOverlayOnLoad();
     } finally {
@@ -137,23 +131,6 @@ this.initialize = function RunOutput_Init() {
     }
 }
 
-this.openRunCommand = function RunOpenRunCommand()
-{
-    // Hack to get our search value in there without fiddling around too much
-    var quickrun = document.getElementById('runoutput-command');
-    var buffer = (parent||window).document.getElementById(ko.inputBuffer.id);
-    
-    if (quickrun.value && quickrun.value.length)
-        buffer.value = quickrun.value;
-    
-    ko.launch.runCommand();
-}
-
-this.runQuickCommand = function RunQuickCommand()
-{
-    var command = document.getElementById('runoutput-command').value;
-    ko.run.command(command, lastSession || {});
-}
 
 this.finalize = function RunOutput_Fini()
 {
@@ -174,7 +151,6 @@ this.getTerminal = function RunOutput_GetTerminal()
     return _gTerminalHandler;
 }
 
-var lastSession;
 /**
  * Start a terminal session in the output window with the given command.
  * This raises an exception if the run output window is currently busy.
@@ -191,18 +167,9 @@ var lastSession;
  *      cleared).
  */
 this.startSession = function RunOutput_StartSession(command, parseOutput, parseRegex, cwd,
-                                filename, clearContent /* =true */, env = null, operateOnSelection = null)
+                                filename, clearContent /* =true */)
 {
     if (typeof clearContent == 'undefined') clearContent = true;
-    
-    lastSession = {
-        parseOutput: parseOutput,
-        parseRegex: parseRegex,
-        cwd: cwd,
-        filename: filename,
-        env: env,
-        operateOnSelection: operateOnSelection
-    };
 
     if (_gTerminalHandler.active) {
         throw new Error(_bundle.GetStringFromName("aPreviousCommandIsRunning.message"));
@@ -236,12 +203,9 @@ this.startSession = function RunOutput_StartSession(command, parseOutput, parseR
     //    things to komodo.xul.
     // XXX Maybe want to add cwd to this string?
         descWidget.setAttribute("value",
-            _bundle.GetStringFromName("running.message"));
+            _bundle.formatStringFromName("running.message", [command], 1));
     // Store the command name for later use.
     descWidget.setAttribute("_command", command);
-    
-    var cmdWidget = document.getElementById("runoutput-command");
-    cmdWidget.value = command;
 
     // If not clearing the output window and we are not parsing output this
     // time around, do not muck with the parsed output view (no need to disturb
@@ -285,25 +249,22 @@ this.endSession = function RunOutput_EndSession(retval)
 {
     //dump("XXX RunOutput_EndSession(retval="+retval+")\n");
     _gTerminalView.endSession();
-    
+
     var descWidget = document.getElementById("runoutput-desc");
-    var cmdWidget = document.getElementById("runoutput-command");
     var command = descWidget.getAttribute("_command");
     var msg = null;
     var osSvc = Components.classes["@activestate.com/koOs;1"]
                        .getService(Components.interfaces.koIOs);
     if (retval < 0 && osSvc.name == "posix") {
-        msg = _bundle.formatStringFromName("commandWasTerminatedBySignal.message", [(-retval)], 1);
+        msg = _bundle.formatStringFromName("commandWasTerminatedBySignal.message", [command, (-retval)], 2);
     } else {
-        msg = _bundle.formatStringFromName("commandReturned.message", [(retval)], 1);
+        msg = _bundle.formatStringFromName("commandReturned.message", [command, (retval)], 2);
     }
     if (retval != 0) {
         descWidget.style.setProperty("color", "#bb0000", ""); // dark red to not appear "neon" against grey.
     }
-    
     descWidget.setAttribute("value", msg);
-    cmdWidget.setAttribute("value", command);
-    
+
     _gProcess = null;
     var closeButton = document.getElementById("runoutput-close-button");
     closeButton.setAttribute("disabled", "true");

@@ -18,14 +18,14 @@
           <variable attributes="__local__" line="43" name="$digest" />
         </scope>
       </scope>
-      <scope ilk="class" line="48" lineend="61" name="Buffer2::Part2::Part3">
+      <scope ilk="class" line="48" lineend="56" name="Buffer2::Part2::Part3">
         <scope ilk="function" line="50" lineend="51" name="sub3" signature="sub3()" />
         <scope ilk="function" line="53" lineend="54" name="Other::Package::sub4" signature="Other::Package::sub4()" />
       </scope>
-      <scope ilk="class" line="57" lineend="60" name="Buffer1::InnerPart1">
+      <scope ilk="class" line="57" lineend="61" name="Buffer1::InnerPart1">
         <scope ilk="function" line="58" lineend="60" name="sub4" signature="sub4()" />
       </scope>
-      <scope ilk="class" line="69" lineend="72" name="Buffer1::InnerPart2">
+      <scope ilk="class" line="69" lineend="73" name="Buffer1::InnerPart2">
         <scope ilk="function" line="70" lineend="72" name="sub6" signature="sub6()" />
       </scope>
       <scope ilk="function" line="20" lineend="21" name="sub1" signature="sub1()" />

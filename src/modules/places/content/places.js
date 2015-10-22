@@ -110,7 +110,7 @@ viewMgrClass.prototype = {
         this.view.initialize();
         var placePrefs = _globalPrefs.getPref("places");
         var sortDir = placePrefs.getString("sortDirection", "") || "natural";
-        this.single_project_view = ! ko.prefs.getBooleanPref("places.multiple_project_view");
+        this.single_project_view = !ko.projects.manager.initProjectViewPref(_globalPrefs);
         
         if (!widgets.placeView_treeViewDeck) {
             widgets.placeView_treeViewDeck = document.getElementById("placesSubpanelDeck");
@@ -3215,7 +3215,7 @@ this.onLoad_aux = function places_onLoad_aux() {
     // Wait until ko.projects.manager exists before
     // init'ing the projects view tree.
     var mruProjectViewerID;
-    this.single_project_view = ! ko.prefs.getBooleanPref("places.multiple_project_view");
+    this.single_project_view = !ko.projects.manager.initProjectViewPref(_globalPrefs);
     var launch_createProjectMRUView = function() {
         if (ko.projects && ko.projects.manager
             && ko.places.projects.PlacesProjectManager

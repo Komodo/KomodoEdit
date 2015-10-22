@@ -112,6 +112,10 @@ pears 1
 oranges 3
 """
 
+    styleStdin = sci_constants.SCE_PL_STDIN
+    styleStdout = sci_constants.SCE_PL_STDOUT
+    styleStderr = sci_constants.SCE_PL_STDERR
+
     def __init__(self):
         KoLanguageBase.__init__(self)
         self._style_info.update(

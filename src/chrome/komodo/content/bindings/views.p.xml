@@ -476,7 +476,6 @@
         <![CDATA[
             if (typeof(index) == 'undefined' || index == null) index = -1;
             try {
-                var previous = this.currentView;
                 var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
                 var box = this.createNewViewContainer(index);
                 var v = document.createElementNS(XUL_NS, 'view');
@@ -493,10 +492,6 @@
                 } catch (ex) {
                     this.log.error("Unable to register view: " + v);
                 }
-                
-                if (previous && previous.getAttribute("type") == "quickstart")
-                    previous.close();
-                
                 return v;
             } catch(e) {
                 this.log.exception(e);

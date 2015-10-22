@@ -423,22 +423,15 @@ class koPreferenceSetBase(object):
             pref.container = self
         self._setPrefValue(prefName, "object", pref)
 
-    @components.ProxyToMainThreadAsync
     def setString(self, prefName, pref):
         self._checkPrefType(prefName, "string", 0, pref)
         self._setPrefValue(prefName, "string", unicode(pref))
-        
-    @components.ProxyToMainThreadAsync
     def setLong(self, prefName, pref):
         self._checkPrefType(prefName, "long", 0, pref)
         self._setPrefValue(prefName, "long", long(pref))
-    
-    @components.ProxyToMainThreadAsync
     def setDouble(self, prefName, pref):
         self._checkPrefType(prefName, "double", 0, pref)
         self._setPrefValue(prefName, "double", float(pref))
-    
-    @components.ProxyToMainThreadAsync
     def setBoolean(self, prefName, pref):
         self._checkPrefType(prefName, "boolean", 0, pref)
         self._setPrefValue(prefName, "boolean", bool(pref))

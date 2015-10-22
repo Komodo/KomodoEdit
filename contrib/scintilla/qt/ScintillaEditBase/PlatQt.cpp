@@ -33,7 +33,6 @@
 #include <QTextLayout>
 #include <QTextLine>
 #include <QLibrary>
-#include <QElapsedTimer>
 #include <cstdio>
 
 #ifdef SCI_NAMESPACE
@@ -182,7 +181,7 @@ void SurfaceImpl::Init(SurfaceID sid, WindowID /*wid*/)
 
 void SurfaceImpl::InitPixMap(int width,
         int height,
-        Surface *surface,
+        Surface * /*surface*/,
         WindowID /*wid*/)
 {
 	Release();
@@ -190,9 +189,6 @@ void SurfaceImpl::InitPixMap(int width,
 	if (height < 1) height = 1;
 	deviceOwned = true;
 	device = new QPixmap(width, height);
-	SurfaceImpl *psurfOther = static_cast<SurfaceImpl *>(surface);
-	SetUnicodeMode(psurfOther->unicodeMode);
-	SetDBCSMode(psurfOther->codePage);
 }
 
 void SurfaceImpl::Release()
@@ -296,13 +292,15 @@ void SurfaceImpl::RectangleDraw(PRectangle rc,
 {
 	PenColour(fore);
 	BrushColour(back);
-	QRectF rect(rc.left, rc.top, rc.Width() - 1, rc.Height() - 1);
+	QRect rect = QRect(rc.left, rc.top, rc.Width() - 1, rc.Height() - 1);
 	GetPainter()->drawRect(rect);
 }
 
 void SurfaceImpl::FillRectangle(PRectangle rc, ColourDesired back)
 {
-	GetPainter()->fillRect(QRectFFromPRect(rc), QColorFromCA(back));
+	BrushColour(back);
+	GetPainter()->setPen(Qt::NoPen);
+	GetPainter()->drawRect(QRectFromPRect(rc));
 }
 
 void SurfaceImpl::FillRectangle(PRectangle rc, Surface &surfacePattern)
@@ -330,7 +328,7 @@ void SurfaceImpl::RoundedRectangle(PRectangle rc,
 {
 	PenColour(fore);
 	BrushColour(back);
-	GetPainter()->drawRoundRect(QRectFFromPRect(rc));
+	GetPainter()->drawRoundRect(QRectFromPRect(rc));
 }
 
 void SurfaceImpl::AlphaRectangle(PRectangle rc,
@@ -351,7 +349,7 @@ void SurfaceImpl::AlphaRectangle(PRectangle rc,
 
 	// A radius of 1 shows no curve so add 1
 	qreal radius = cornerSize+1;
-	QRectF rect(rc.left, rc.top, rc.Width() - 1, rc.Height() - 1);
+	QRect rect(rc.left, rc.top, rc.Width() - 1, rc.Height() - 1);
 	GetPainter()->drawRoundedRect(rect, radius, radius);
 }
 
@@ -379,7 +377,7 @@ void SurfaceImpl::Ellipse(PRectangle rc,
 {
 	PenColour(fore);
 	BrushColour(back);
-	GetPainter()->drawEllipse(QRectFFromPRect(rc));
+	GetPainter()->drawEllipse(QRectFromPRect(rc));
 }
 
 void SurfaceImpl::Copy(PRectangle rc, Point from, Surface &surfaceSource)
@@ -437,7 +435,7 @@ void SurfaceImpl::DrawTextTransparent(PRectangle rc,
 
 void SurfaceImpl::SetClip(PRectangle rc)
 {
-	GetPainter()->setClipRect(QRectFFromPRect(rc));
+	GetPainter()->setClipRect(QRectFromPRect(rc));
 }
 
 static size_t utf8LengthFromLead(unsigned char uch)
@@ -476,11 +474,11 @@ void SurfaceImpl::MeasureWidths(Font &font,
 			int codeUnits = (lenChar < 4) ? 1 : 2;
 			qreal xPosition = tl.cursorToX(ui+codeUnits);
 			for (unsigned int bytePos=0; (bytePos<lenChar) && (i<len); bytePos++) {
-				positions[i++] = xPosition;
+				positions[i++] = qRound(xPosition);
 			}
 			ui += codeUnits;
 		}
-		XYPOSITION lastPos = 0;
+		int lastPos = 0;
 		if (i > 0)
 			lastPos = positions[i-1];
 		while (i<len) {
@@ -493,21 +491,21 @@ void SurfaceImpl::MeasureWidths(Font &font,
 			size_t lenChar = Platform::IsDBCSLeadByte(codePage, s[i]) ? 2 : 1;
 			qreal xPosition = tl.cursorToX(ui+1);
 			for (unsigned int bytePos=0; (bytePos<lenChar) && (i<len); bytePos++) {
-				positions[i++] = xPosition;
+				positions[i++] = qRound(xPosition);
 			}
 			ui++;
 		}
 	} else {
 		// Single byte encoding
 		for (int i=0; i<len; i++) {
-			positions[i] = tl.cursorToX(i+1);
+			positions[i] = qRound(tl.cursorToX(i+1));
 		}
 	}
 }
 
 XYPOSITION SurfaceImpl::WidthText(Font &font, const char *s, int len)
 {
-	QFontMetricsF metrics(*FontPointer(font), device);
+	QFontMetrics metrics(*FontPointer(font), device);
 	SetCodec(font);
 	QString string = codec->toUnicode(s, len);
 	return metrics.width(string);
@@ -515,19 +513,19 @@ XYPOSITION SurfaceImpl::WidthText(Font &font, const char *s, int len)
 
 XYPOSITION SurfaceImpl::WidthChar(Font &font, char ch)
 {
-	QFontMetricsF metrics(*FontPointer(font), device);
+	QFontMetrics metrics(*FontPointer(font), device);
 	return metrics.width(ch);
 }
 
 XYPOSITION SurfaceImpl::Ascent(Font &font)
 {
-	QFontMetricsF metrics(*FontPointer(font), device);
+	QFontMetrics metrics(*FontPointer(font), device);
 	return metrics.ascent();
 }
 
 XYPOSITION SurfaceImpl::Descent(Font &font)
 {
-	QFontMetricsF metrics(*FontPointer(font), device);
+	QFontMetrics metrics(*FontPointer(font), device);
 	// Qt returns 1 less than true descent
 	// See: QFontEngineWin::descent which says:
 	// ### we subtract 1 to even out the historical +1 in QFontMetrics's
@@ -542,19 +540,19 @@ XYPOSITION SurfaceImpl::InternalLeading(Font & /* font */)
 
 XYPOSITION SurfaceImpl::ExternalLeading(Font &font)
 {
-	QFontMetricsF metrics(*FontPointer(font), device);
+	QFontMetrics metrics(*FontPointer(font), device);
 	return metrics.leading();
 }
 
 XYPOSITION SurfaceImpl::Height(Font &font)
 {
-	QFontMetricsF metrics(*FontPointer(font), device);
+	QFontMetrics metrics(*FontPointer(font), device);
 	return metrics.height();
 }
 
 XYPOSITION SurfaceImpl::AverageCharWidth(Font &font)
 {
-	QFontMetricsF metrics(*FontPointer(font), device);
+	QFontMetrics metrics(*FontPointer(font), device);
 	return metrics.averageCharWidth();
 }
 
@@ -783,7 +781,7 @@ private:
 
 class ListWidget : public QListWidget {
 public:
-	explicit ListWidget(QWidget *parent);
+	ListWidget(QWidget *parent);
 	virtual ~ListWidget();
 
 	void setDoubleClickAction(CallBackAction action, void *data);
@@ -1113,7 +1111,7 @@ class DynamicLibraryImpl : public DynamicLibrary {
 protected:
 	QLibrary *lib;
 public:
-	explicit DynamicLibraryImpl(const char *modulePath) {
+	DynamicLibraryImpl(const char *modulePath) {
 		QString path = QString::fromUtf8(modulePath);
 		lib = new QLibrary(path);
 	}
@@ -1306,28 +1304,21 @@ int Platform::DBCSCharMaxLength()
 
 //----------------------------------------------------------------------
 
-static QElapsedTimer timer;
+static QTime timer;
 
 ElapsedTime::ElapsedTime() : bigBit(0), littleBit(0)
 {
-	if (!timer.isValid()) {
-		timer.start();
-	}
-	qint64 ns64Now = timer.nsecsElapsed();
-	bigBit = static_cast<unsigned long>(ns64Now >> 32);
-	littleBit = static_cast<unsigned long>(ns64Now & 0xFFFFFFFF);
+	timer.start();
 }
 
 double ElapsedTime::Duration(bool reset)
 {
-	qint64 ns64Now = timer.nsecsElapsed();
-	qint64 ns64Start = (static_cast<qint64>(static_cast<unsigned long>(bigBit)) << 32) + static_cast<unsigned long>(littleBit);
-	double result = ns64Now - ns64Start;
+	double result = timer.elapsed();
 	if (reset) {
-		bigBit = static_cast<unsigned long>(ns64Now >> 32);
-		littleBit = static_cast<unsigned long>(ns64Now & 0xFFFFFFFF);
+		timer.restart();
 	}
-	return result / 1000000000.0;	// 1 billion nanoseconds in a second
+	result /= 1000.0;
+	return result;
 }
 
 #ifdef SCI_NAMESPACE

@@ -74,19 +74,7 @@ class KoConsoleLogger:
         'Bootstrapped manifest not allowed to use',
         'ReferenceError: reference to undefined property this.treeBoxObject.columns',
         'SyntaxError: applying the \'delete\' operator to an unqualified name is deprecated (5) in resource://gre/modules/DownloadUtils.jsm',
-        'No valid manifest directive',
-        'JavaScript strict warning: chrome://komodo/content/contrib/less.js',
-        'JavaScript strict warning: http://www.google-analytics.com/analytics_debug.js',
-        'JavaScript strict warning: chrome://global/content/bindings/tree.xml',
-        'JavaScript strict warning: resource://gre/modules/notifications.js',
-        'SyntaxError: test for equality (==) mistyped as assignment (=)?',
-        'SyntaxError: in strict mode code, functions may be declared only at top level or immediately within another function',
-        'JavaScript strict warning: , line 0: TypeError: "XPCOMUtils" is read-only',
-        'JavaScript strict warning: , line 0: TypeError: "Services" is read-only',
-        'Unexpected value  parsing y1 attribute',
-        'Unexpected value  parsing y2 attribute',
-        'Unexpected value  parsing x1 attribute',
-        'Unexpected value  parsing x2 attribute'
+        'No valid manifest directive'
     ]
     def _handleScriptError(self, error):
         try:

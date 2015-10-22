@@ -1,11 +1,9 @@
-backport_multi_caret_movement.patch
 bug96667a_unicode_lexer.patch
 bug97299_set_line_state_no_notify.patch
 cocoa_background_color.patch
 cocoa_core_animation.patch
 cocoa_crash_on_calltip_close.patch
 cocoa_cursor.patch
-cocoa_drag_drop_induces_later_crash.patch
 cocoa_marginclick.patch
 cocoa_margin_draw_recursion.patch
 cocoa_mouse_events.patch
@@ -15,9 +13,6 @@ cocoa_ScintillaCocoa_mm.patch
 cocoa_ScintillaView_mm.patch
 cocoa_scrollbar_notifications.patch
 cocoa_tab_close_crash.patch
-coffeescript_instance_props.patch
-coffeescript_ranges.patch
-coffeescript_regex.patch
 custom_scrollbars.patch
 editor_background2.patch
 editor_cxx.patch
@@ -47,7 +42,6 @@ wordList_cxx.patch
 expose_dpi.patch
 cocoa_perf_no_abandon_paint.patch
 marker_increase_leftrect_size.diff
-markdown_term_start.patch
 find_style.patch
 expose_setticking.patch
 expose_addCharUTF.patch

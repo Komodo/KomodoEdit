@@ -7,8 +7,7 @@
 import logging
 
 from codeintel2.common import _xpcom_
-from codeintel2.lang_css import CSSLexer, CSSLangIntel, CSSBuffer, \
-                                CSSImportHandler, CSSCILEDriver
+from codeintel2.lang_css import CSSLexer, CSSLangIntel, CSSBuffer
 from codeintel2.lang_css import isident, WHITESPACE
 from codeintel2.accessor import AccessorCache
 from codeintel2.common import Trigger, TRG_FORM_CPLN, TRG_FORM_CALLTIP
@@ -438,15 +437,6 @@ class SassBuffer(CSSBuffer):
     lang = "Sass"
     cpln_fillup_chars = CSSBuffer.cpln_fillup_chars.replace(" ", "")
     cpln_stop_chars = CSSBuffer.cpln_stop_chars.replace(" ", "")
-    
-class LessCILEDriver(CSSCILEDriver):
-    lang = "Less"
-    
-class SCSSCILEDriver(CSSCILEDriver):
-    lang = "SCSS"
-    
-class SassCILEDriver(CSSCILEDriver):
-    lang = "Sass"
 
 #---- registration
 
@@ -455,22 +445,16 @@ def register(mgr):
     mgr.set_lang_info("Less",
                       silvercity_lexer=LessLexer(),
                       buf_class=LessBuffer,
-                      import_handler_class=CSSImportHandler,
                       langintel_class=LessLangIntel,
-                      cile_driver_class=LessCILEDriver,
                       is_cpln_lang=True)
     mgr.set_lang_info("SCSS",
                       silvercity_lexer=SCSSLexer(),
                       buf_class=SCSSBuffer,
-                      import_handler_class=CSSImportHandler,
                       langintel_class=SCSSLangIntel,
-                      cile_driver_class=SCSSCILEDriver,
                       is_cpln_lang=True)
     mgr.set_lang_info("Sass",
                       silvercity_lexer=SassLexer(),
                       buf_class=SassBuffer,
-                      import_handler_class=CSSImportHandler,
                       langintel_class=SassLangIntel,
-                      cile_driver_class=SassCILEDriver,
                       is_cpln_lang=True)
 

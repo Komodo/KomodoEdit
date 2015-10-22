@@ -1044,14 +1044,6 @@
         </method>
 
         
-        <field name="codeintel_trigger_timeout">-1</field>
-        <field name="codeintel_trigger_timeout_running">false</field>
-        <property name="_codeintel_trigger_delay"
-            onget="return this.__globalPrefs.getLongPref('codeintel_trigger_delay')"/>
-        
-        <property name="_codeintel_trigger_wait"
-            onget="return this.__globalPrefs.getBooleanPref('codeintel_trigger_wait')"/>
-
         <!-- Called in a timer from onUpdateUI. -->
         <method name="doUpdateUI">
         <body>
@@ -1143,17 +1135,7 @@
             if (this.lastCharAdded) {
                 if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
                     // Trigger completions or calltip.
-                    if (this.codeintel_trigger_timeout_running) {
-                        if (this._codeintel_trigger_wait)
-                            clearTimeout(this.codeintel_trigger_timeout);
-                        else
-                            return;
-                    }
-                    this.codeintel_trigger_timeout_running = true;
-                    this.codeintel_trigger_timeout = setTimeout(function() {
-                        this.codeintel_trigger_timeout_running = false;
-                        ko.codeintel.trigger(this);
-                    }.bind(this), this._codeintel_trigger_delay);
+                    ko.codeintel.trigger(this);
                 }
 
                 this.doCommandCompletion();
@@ -1249,6 +1231,7 @@
                     lineNo = Number(lineNo);
                     var os = Components.classes["@activestate.com/koOs;1"].createInstance();
                     if (os.path.exists(fname)) {
+                        ko.history.note_curr_loc();
                         ko.views.manager.doFileOpenAtLineAsync(ko.uriparse.pathToURI(fname), lineNo);
                     } else {
                         msg = "The file '" + fname + "' could not be found.";
@@ -1907,6 +1890,18 @@
             if (event.button == 0 && this._hyperlink) {
                 var scintilla = this.scintilla;
                 var scimoz = this.scimoz;
+                // Bug 76721: Go to definition on Ctrl+click, but only if we
+                // aren't in the middle of a drag/drop, or have a selection, or
+                // a modified click, or are in a multi-selection session.
+                if (scintilla.inDragDrop) {
+                    this.removeHyperlinks("mouseup");
+                    return;
+                }
+                if (ko.selections.getMultiCaretSession(this).isGatheringCarets
+                    && scimoz.selections > 1) {
+                    this.removeHyperlinks("mouseup");
+                    return;
+                }
                 var x = event.clientX < 0 ? 0 : event.clientX - this.scintilla.boxObject.x;
                 var y = event.clientY - this.scintilla.boxObject.y;
                 var pos = scimoz.positionFromPointClose(x, y);
@@ -1918,31 +1913,12 @@
                     anchor = currentPos;
                     currentPos = temp;
                 }
-                // Bug 76721: Go to definition on Ctrl+click, but only if we
-                // aren't in the middle of a drag/drop, or have a selection, or
-                // a modified click, or are in a multi-selection session.
-                // Note: there is no way to prevent Scintilla from receiving
-                // Ctrl+click (the mousedown, mouseup, click XUL events in the
-                // "capturing" phase cannot prevent this); a caret will be
-                // placed at the Ctrl+clicked position.
-                if (scintilla.inDragDrop ||
-                    (scimoz.selections > 1 &&
-                     (scimoz.getSelectionNStart(1) != pos ||
-                      scimoz.getSelectionNEnd(1) != pos))) {
-                    this.removeHyperlinks("mouseup");
-                    return;
-                }
                 // Make sure that if there's a selection, we aren't clicking on it:
                 // Ctrl-click can be used to drag-copy a selection.
                 if (pos >= 0 &&
                     ((anchor == currentPos) ||
                      (pos < anchor) ||
                      (pos > currentPos))) {
-                    if (scimoz.selections == 2) {
-                        // Remove the additional caret unintentionally added by
-                        // Ctrl+click before handling the hyperlink.
-                        scimoz.dropSelectionN(1);
-                    }
                     scimoz.anchor = pos;
                     scimoz.currentPos = pos;
                     this._hyperlink.jump(this);

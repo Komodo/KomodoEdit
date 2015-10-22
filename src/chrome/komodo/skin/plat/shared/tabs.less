@@ -74,11 +74,6 @@ spacer.tabs-left, spacer.tabs-right
     border-top: @main-toolbox-border-bottom !important;
 }
 
-:not(#tabbed-view) > tabs toolbarbutton[anonid="tabs-new"]
-{
-    visibility: collapse;
-}
-
 tabs:not(.tabs-bottom)
 {
     border: none;
@@ -173,16 +168,6 @@ tabs:not(.tabs-bottom)
     }
 }
 
-tabs .tabstrip-box > toolbarbutton
-{
-    opacity: 0.7;
-
-    &:hover 
-    {
-        opacity: 1.0;
-    }
-}
-
 /**
  * Tab selection.
  */
@@ -192,6 +177,16 @@ tabs .tabstrip-box > toolbarbutton
     padding-left: 0;
     padding-right: 0;
     background: inherit;
+
+    & > image
+    {
+       opacity: 0.7;
+    }
+
+    &:hover > image
+    {
+        opacity: 1.0;
+    }
 
     & > .toolbarbutton-menu-dropmarker
     {
@@ -366,16 +361,6 @@ tabs:not(.tabs-bottom) tab
         width: 8px;
         margin: 0px;
         padding: 0px;
-    }
-    
-    &[alt_image="quickstart"] .tab-icons
-    {
-        visibility: collapse;
-    }
-    
-    &[alt_image="quickstart"]:first-child:last-child .tab-close-button
-    {
-        visibility: collapse;
     }
 
 }

@@ -84,15 +84,6 @@
 
             <checkbox id="codeintel_completion_triggering_enabled"
                       label="&enableAutomaticAutocompleteAndCalltipTriggeringWhileYouType.label;"
-                      pref="true" prefattribute="checked"
-                      oncommand="PrefCodeIntel_DoEnabling();"/>
-            <hbox align="center" class="advanced">
-                <label value="&showCompletionsAfter.label;"/>
-                <textbox id="codeintel_trigger_delay" size="4" pref="true"/>
-                <label value="&msecs.label;"/>
-            </hbox>
-            <checkbox id="codeintel_trigger_wait"
-                      label="&showCompletionsWait.label;"
                       pref="true" prefattribute="checked"/>
     
             <separator class="thin"/>

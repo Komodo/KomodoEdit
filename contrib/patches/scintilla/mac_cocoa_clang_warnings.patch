@@ -5,8 +5,8 @@ diff -r -U3 scintilla.old/cocoa/ScintillaCocoa.mm scintilla/cocoa/ScintillaCocoa
  			(wrapState == eWrapNone);
  		if (!showHorizontalScroll)
  			docWidth = clipRect.size.width;
--		NSRect contentRect = {{0, 0}, {docWidth, docHeight}};
-+		NSRect contentRect = {{0, 0}, {static_cast<CGFloat>(docWidth), static_cast<CGFloat>(docHeight)}};
+-		NSRect contentRect = {0, 0, docWidth, docHeight};
++		NSRect contentRect = {0, 0, static_cast<CGFloat>(docWidth), static_cast<CGFloat>(docHeight)};
  		NSRect contentRectNow = [inner frame];
  		changes = (contentRect.size.width != contentRectNow.size.width) ||
  			(contentRect.size.height != contentRectNow.size.height);
@@ -18,8 +18,8 @@ Index: /Users/toddw/as/komodo-devel/src/scintilla/cocoa/ScintillaView.mm
    // Horizontal offset of the content. Almost always 0 unless the vertical scroller
    // is on the left side.
 -  CGFloat contentX = 0;
--  NSRect scrollRect = {{contentX, 0}, {size.width, size.height}};
-+  NSRect scrollRect = {{0, 0}, {size.width, size.height}};
+-  NSRect scrollRect = {contentX, 0, size.width, size.height};
++  NSRect scrollRect = {0, 0, size.width, size.height};
  
    // Info bar frame.
    if (infoBarVisible)

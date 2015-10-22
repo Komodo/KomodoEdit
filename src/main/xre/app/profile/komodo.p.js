@@ -60,13 +60,14 @@ pref("security.dialog_enable_delay", 500);
 
 // Preferences for the Get Add-ons pane
 pref("extensions.getAddons.showPane", true);
-pref("extensions.getAddons.browseAddons", "http://komodoide.com/packages");
+pref("extensions.getAddons.browseAddons", "http://community.activestate.com/addons");
 pref("extensions.getAddons.maxResults", 5);
-pref("extensions.getAddons.recommended.browseURL", "http://komodoide.com/packages");
-pref("extensions.getAddons.recommended.url", "http://komodoide.com/packages");
-pref("extensions.getAddons.search.browseURL", "http://komodoide.com/packages");
-pref("extensions.getAddons.search.url", "http://komodoide.com/packages");
-pref("extensions.webservice.discoverURL", "");
+pref("extensions.getAddons.recommended.browseURL", "http://community.activestate.com/addons/recommended");
+pref("extensions.getAddons.recommended.url", "http://community.activestate.com/xpi/api/%API_VERSION%/list/featured/all/10");
+pref("extensions.getAddons.search.browseURL", "http://community.activestate.com/search/node/%TERMS%+type%3Axpi");
+pref("extensions.getAddons.search.url", "http://community.activestate.com/xpi/api/%API_VERSION%/search/%TERMS%");
+pref("extensions.webservice.discoverURL", "http://community.activestate.com/addons/recommended8?id=%ID%&version=%VERSION%&os=%OS%&abi=%XPCOMABI%");
+
 // Blocklist preferences
 pref("extensions.blocklist.enabled", false);
 
@@ -106,15 +107,15 @@ pref("app.update.showInstalledUI", false);
 //  extensions.{GUID}.update.interval
 //  .. etc ..
 //
-pref("extensions.update.enabled", false);
-pref("extensions.showMismatchUI", false);
+pref("extensions.update.enabled", true);
 // Change add-on auto updating to once every 5 days (default is 1 day), to
 // lessen the community.as.com server load. Note that users can still bypass
 // this by manually checking for updates via the add-on dialog.
+pref("extensions.update.interval", 432000);
 pref("extensions.update.url", "https://komodo.activestate.com/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%");
 // Non-symmetric (not shared by extensions) extension-specific [update] preferences
-pref("extensions.getMoreExtensionsURL", "http://komodoide.com/packages");
-pref("extensions.getMoreThemesURL", "http://komodoide.com/packages");
+pref("extensions.getMoreExtensionsURL", "http://community.activestate.com/addons");
+pref("extensions.getMoreThemesURL", "http://community.activestate.com/addons");
 // Add-on metadata query (screenshots, description, ratings, downloads, ...)
 // Not used by Komodo - and it actually causes our ads to be blocked - bug 97923.
 pref("extensions.getAddons.cache.enabled", false);

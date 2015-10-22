@@ -126,8 +126,10 @@
             // XXX until prefs are more worked out, don't do editor prefs
             // on project parts
             nodesToDrop = nodesToDrop.concat(["advancedFileProperties",
-                                              "previewProperties",
-                                              "editorProperties"]);
+                                              "previewProperties"]);
+            if (!isProject) {
+                nodesToDrop.concat(["editorProperties"]);
+            }
         }
         if (!isfolder) {
             // stuff that should only show up on folders
@@ -237,7 +239,6 @@
                 var _ko= ko.windowManager.getMainWindow().ko;
                 _ko.places.manager.moveToProjectDir(_ko.projects.manager.currentProject)
             } catch (e) {
-                var log = require("ko/logging").getLogger("project-xul");
                 log.exception(e);
             }
         }, 0);

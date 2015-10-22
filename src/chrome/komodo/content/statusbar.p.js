@@ -359,68 +359,9 @@ try {
                     [numErrors, numWarnings], 2));
         }
     }
-    
-    _updateCheckNewLintResult();
 } catch(ex) {
     _log.exception(ex);
 }
-}
-
-var _lintSuppressNext = false;
-var _lintResults = {};
-function _updateCheckNewLintResult() {
-    var view = require("ko/views").current();
-    var res = view.get("lintBuffer", "lintResults");
-    
-    if ( ! res) {
-        _lintResults = {};
-        _lintSuppressNext = false;
-        return;
-    }
-    
-    var results = {}, numResults = {};
-    res.getResults(results, numResults);
-    
-    if ( ! numResults.value) {
-        _lintResults = {};
-        _lintSuppressNext = false;
-        return;
-    }
-    
-    var __lintResults = {};
-    for (let i=0;i<numResults.value;i++)
-    {
-        let result = results.value[i];
-        let id = "" + result.lineStart + result.lineEnd + result.columnStart + result.columnEnd + result.severity;
-        
-        if ( ! (id in _lintResults) && ! _lintSuppressNext)
-        {
-            let prefix = "Ln: " + result.lineStart;
-            if (result.lineEnd != result.lineStart)
-                prefix += "-" + result.lineEnd;
-            
-            let severity = "INFO";
-            if (result.severity == result.SEV_WARNING)
-                severity = "WARNING";
-            if (result.severity == result.SEV_ERROR)
-                severity = "ERROR";
-            
-            require("notify/notify").send(
-                prefix + ", " + result.description + " (" + severity + ")",
-                "lint",
-                {command: function(result)
-                {
-                    var editor = require("ko/editor");
-                    editor.setCursor({line: result.lineStart, ch: result.columnStart});
-                }.bind(this, result)
-            });
-        }
-        
-        __lintResults[id] = true;
-    }
-    
-    _lintResults = __lintResults;
-    _lintSuppressNext = false;
 }
 
 function _clear() {
@@ -487,7 +428,6 @@ function update_view_information(view) {
 }
 
 StatusBarObserver.prototype.handle_current_view_changed = function(event) {
-    _lintSuppressNext = true;
     if (ko.views.manager.batchMode) {
         // Update it later on.
         setTimeout(update_view_information, 10);
@@ -562,61 +502,6 @@ StatusBarPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
         break;
     }
 };
-
-function updateLinterPopup() {
-    var $ = require("ko/dom");
-    var wrapper = $("#context_lint_results");
-    var separator = $("#context_lint_separator");
-    wrapper.empty();
-    separator.hide();
-    
-    var view = require("ko/views").current();
-    var res = view.get("lintBuffer", "lintResults");
-    
-    if ( ! res)
-        return;
-    
-    var results = {}, numResults = {};
-    res.getResults(results, numResults);
-    
-    if ( ! numResults.value)
-        return;
-    
-    for (let i=0;i<numResults.value;i++)
-    {
-        let result = results.value[i];
-        let prefix = result.lineStart;
-        if (result.lineEnd != result.lineStart)
-            prefix += "-" + result.lineEnd;
-        
-        var severity = "INFO";
-        if (result.severity == result.SEV_WARNING)
-            severity = "WARNING";
-        if (result.severity == result.SEV_ERROR)
-            severity = "ERROR";
-        
-        var elem = $($.create("menuitem", {label: prefix + ":" + result.description, acceltext: severity}).toString());
-        elem.on("command", function(result)
-        {
-            var editor = require("ko/editor");
-            editor.setCursor({line: result.lineStart, ch: result.columnStart});
-        }.bind(this, result));
-        elem._lintResult = result;
-        wrapper.append(elem);
-    }
-    
-    wrapper.children().each(function()
-    {
-        var child = $(this);
-        var sibling = child.prev();
-        if ( ! sibling.length) return;
-        
-        if (child._lintResult.severity < sibling._lintResult.severity)
-            child.before(sibling);
-    });
-    
-    separator.show();
-}
 
 //---- public functions
 
@@ -737,8 +622,6 @@ window.addEventListener("komodo-ui-started", function() {
     _prefObserver = new StatusBarPrefObserver();
     // Update for the current view.
     update_view_information();
-    
-    document.getElementById("context_lint").addEventListener("popupshowing", updateLinterPopup.bind(ko.statusbar));
 });
 
 }).apply(ko.statusBar);

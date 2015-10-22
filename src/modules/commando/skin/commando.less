@@ -4,8 +4,7 @@
 
 #commando-panel
 {
-    border: 0;
-    -moz-box-orient: horizontal;
+    padding: 0;
     
     &.blocked
     {
@@ -14,37 +13,11 @@
             opacity: 0.4;
         }
     }
-    
-    &.previewing:not(.maximized) #commando-preview
-    {
-        border-left: @hud-border;
-        width: 600px;
-    }
-    
-    &.previewing.maximized #commando-preview
-    {
-        width: 600px;
-    }
-    
-    #commando-panel-wrapper
-    {
-        width: 500px;
-        transition: visibility 10ms; /* Hack to prevent XUL from hiding the commando panel apparently */
-    }
-    
-    &.previewing:not(.maximized) #commando-panel-wrapper
-    {
-        width: 250px;
-    }
-    
-    &.previewing.maximized #commando-panel-wrapper
-    {
-        visibility: collapse;
-    }
-    
+
     #commando-search-wrapper
     {
-        margin: 4px;
+        margin-bottom: 1px;
+        background: transparent;
     }
 
     #commando-search
@@ -62,11 +35,16 @@
         -moz-appearance: none;
     }
 
+    separator
+    {
+        margin: 0;
+    }
+
     #commando-subscope-wrap
     {
         visibility: collapse;
         font-weight: bold;
-        padding: 4px;
+        padding: 5px;
         font-size: 1.1rem;
         max-width: 490px;
 
@@ -94,18 +72,11 @@
         max-width: 490px;
         margin: 0;
         padding: 4px;
-        background: transparent !important;
-        opacity: 0.6;
         
         &[tip-type="error"]
         {
             color: #894343 !important;
         }
-    }
-    
-    &.previewing #commando-tip
-    {
-        max-width: 240px;
     }
     
     #commando-loader
@@ -118,18 +89,24 @@
         transform: translateZ(0);
     }
 
-    &.loading #commando-search-wrapper
+    &.loading:not(.kitt) #commando-loader
     {
         background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @hud-loader-color 200px, @hud-loader-color 300px, rgba(0,0,0,0.0) 500px);
         background-repeat: no-repeat;
         animation: loading 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
-        transform: translateZ(0);
     }
-    
-    &.previewing.loading #commando-search-wrapper
+
+    &.loading.kitt #commando-loader
     {
-        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @hud-loader-color 100px, @hud-loader-color 150px, rgba(0,0,0,0.0) 250px);
-        animation: loadingWithPreview 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
+        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, rgba(225, 50, 50, 0.9) 200px, rgba(225, 50, 50, 0.9) 300px, rgba(0,0,0,0.0) 500px) !important;
+        background-repeat: no-repeat;
+        animation: loading 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
+    }
+
+    &.loading #commando-loader
+    {
+        opacity: 1.0;
+        visibility: visible;
     }
 
     @keyframes loading {
@@ -143,23 +120,11 @@
            background-position: -300px 0;
         }
     }
-    
-    @keyframes loadingWithPreview {
-        0% {
-           background-position: -150px 0;
-        }
-        50% {
-           background-position: 150px 0;
-        }
-        100% {
-           background-position: -150px 0;
-        }
-    }
-    
-    menulist#commando-scope
+
+    #commando-scope
     {
         -moz-appearance: none;
-        background-color: transparent !important;
+        background: transparent;
         width: 40px;
         border: 0;
         margin: 0;
@@ -216,17 +181,13 @@
 
         richlistitem
         {
-            padding: 3px 4px 3px 10px;
+            padding: 3px 0 3px 6px;
             
             label, description
             {
                 font-size: 1.1rem;
             }
-            
-            .icon-wrapper
-            {
-                min-height: 1.5rem;
-            }
+
             .icon
             {
                 background-repeat: no-repeat;
@@ -258,6 +219,7 @@
                     font-style: italic;
                     max-width: 100px;
                     opacity: 0.7;
+                    margin: 0 0 0 6px;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -266,40 +228,8 @@
                 .description
                 {
                     opacity: 0.7;
+                    margin: 0 0 0 6px;
                 }
-            }
-            
-            .entry-wrapper
-            {
-                &, .title, .descriptionPrefix, .description
-                {
-                    margin-top: 0;
-                    margin-bottom: 0;
-                    padding-top: 0;
-                    padding-bottom: 0;
-                    line-height: 1rem;
-                    height: 1rem;
-                }
-            }
-            
-            &:not(.multiline) .entry-wrapper .descriptionPrefix .description
-            {
-                margin: 0 0 0 6px;
-            }
-            
-            &.multiline .entry-wrapper .descriptionPrefix .description
-            {
-                margin: 0 6px 0 0;
-            }
-    
-            &:not(.multiline) .entry-wrapper-outer
-            {
-                -moz-box-orient: horizontal;
-            }
-            
-            &.multiline .entry-wrapper-outer
-            {
-                -moz-box-orient: vertical;
             }
         }
 

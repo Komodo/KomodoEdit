@@ -18,11 +18,6 @@
   <vbox flex="1">
     <richlistbox id="message-container" seltype="multiple" flex="999"/>
     <box class="widgetToolbarWrap centered">
-        <textbox id="filter-search" flex="1"
-		 emptytext="&filterSearchEmpty;" type="search"
-                 oninput="NotificationsWidgetController.updateFilters()"
-                 oncommand="NotificationsWidgetController.updateFilters()"/>
-        <separator flex="1"/>
         <toolbar id="toolbar" class="widgetToolbar">
           <toolbargroup class="solo-toolbaritem">
             <toolbarbutton type="checkbox" id="filter-error"
@@ -40,6 +35,11 @@
                            oncommand="NotificationsWidgetController.updateFilters()"/>
           </toolbargroup>
         </toolbar>
+        <separator flex="1"/>
+        <textbox id="filter-search" flex="1"
+		 emptytext="&filterSearchEmpty;" type="search"
+                 oninput="NotificationsWidgetController.updateFilters()"
+                 oncommand="NotificationsWidgetController.updateFilters()"/>
     </box>
   </vbox>
 

@@ -104,10 +104,10 @@ function onLoad() {
         gRank = document.getElementById('rank');
         gRunInBackground = document.getElementById('async');
         if (window.arguments[0].task == 'new') {
-            document.title = bundle.GetStringFromName("Create New Userscript");
+            document.title = bundle.GetStringFromName("Create New Macro");
             gApplyButton.setAttribute('collapsed', 'true');
         } else {
-            document.title = bundle.GetStringFromName("Userscript Properties");
+            document.title = bundle.GetStringFromName("Macro Properties");
         }
 
         gKeybinding = document.getElementById('keybindings');
@@ -164,7 +164,7 @@ function onLoad() {
 
         if (! _gPrefSvc.prefs.getBooleanPref("triggering_macros_enabled")) {
             gTriggerCheckbox.setAttribute('disabled', 'true');
-            gTriggerCheckbox.setAttribute('tooltiptext', bundle.GetStringFromName("Triggering of Userscripts on events has been disabled"));
+            gTriggerCheckbox.setAttribute('tooltiptext', bundle.GetStringFromName("Triggering of macros on events has been disabled"));
         }
         if (gPart.hasAttribute('trigger_enabled') &&
             gPart.getBooleanAttribute('trigger_enabled')) {

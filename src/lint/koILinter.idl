@@ -94,6 +94,7 @@ interface koILintResult : nsISupports
     const long INDICATOR_HYPERLINK = 28;
     const long DECORATOR_TAG_MATCH_HIGHLIGHT = 29; // currently also used for
             // automatic variable highlighting (kd 0277, bug 80095)
+    const long INDICATOR_MULTIPLE_CARET_AREAS = 30;
   
     // Note: We can go up to 63 indicators, though any indicator above 31 will
     //       not work with the scimoz.indicatorAllOnFor() method.

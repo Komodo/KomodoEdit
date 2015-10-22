@@ -45,7 +45,7 @@ ko.open = {};
 (function() {
 var log = require("ko/logging").getLogger("open");
 
-var fileLineNoRE = /^(.*)(?:[#:]|%23|%3A)(\d+)$/;
+var fileLineNoRE = /^(.*)[#:](\d+)$/;
 
 var _viewsBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
@@ -236,6 +236,7 @@ this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" 
                 // Open the image for previewing, bug 85103.
                 viewType = "browser";
             }
+            ko.history.note_curr_loc();
             if (lineno) {
                 ko.views.manager.doFileOpenAtLineAsync(uri, lineno, viewType, null, -1, callback);
             } else {
@@ -249,7 +250,66 @@ this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" 
 }
 
 this._installAddon = function(uri) {
-    require("scope-packages/manage").installPackageByUrl(uri);
+    Components.utils.import("resource://gre/modules/AddonManager.jsm", this);
+    // if we're opening a new window, it won't get the install failed message
+    // (because it fires before the window is ready?).  This means we'll have to
+    // dispatch that manually...
+    function gotInstallCallback(aInstall) {
+        var addonMgr = ko.launch.openAddonsMgr();
+        aInstall.addListener({
+            doCommand: function(command, installs) {
+                /* poll until the overlay loads */
+                var tries = 0; // don't try forever, give up at some point
+                var callback = function() {
+                    if (!addonMgr.gkoAMActionObserver) {
+                        if (++tries < 20) {
+                            setTimeout(callback, 10);
+                        }
+                        return;
+                    }
+                    addonMgr.gkoAMActionObserver.observe({installs: installs},
+                                                         "addon-install-" + command);
+                };
+                callback();
+            },
+            onDownloadCancelled: function(install) {
+                // nothing here
+            },
+            onDownloadFailed: function(install) {
+                Components.utils.reportError("Failed to download " +
+                                             install.name +
+                                             " from " +
+                                             (install.sourceURI || {}).spec);
+                this.doCommand("failed", [install]);
+            },
+            onInstallEnded: function(install) {
+                if (install && install.addon && !install.addon.isCompatible) {
+                    // lies! the install actually failed
+                    Components.utils.reportError("Addon " +
+                                                 install.name +
+                                                 " is not compatible");
+                    this.doCommand("failed", [install]);
+                } else {
+                    this.doCommand("complete", [install]);
+                }
+            },
+            onInstallCancelled: function(install) {
+                // nothing here; this can happen if we install the same thing
+                // twice in a row, for example
+            },
+            onInstallFailed: function(install) {
+                Components.utils.reportError("Installation of " +
+                                             install.name +
+                                             " failed for unknown reasons");
+                this.doCommand("failed", [install]);
+            }
+        });
+        aInstall.install();
+        //log.debug("Installed " + uri);
+    }
+    this.AddonManager.getInstallForURL(uri,
+                                       gotInstallCallback,
+                                       "application/x-xpinstall");
 }
 
 /**
@@ -381,6 +441,7 @@ this.displayPath = function open_openDisplayPath(displayPath,
             continue;
         }
         if (_fequal(typedView.koDoc.displayPath, displayPath)) {
+            ko.history.note_curr_loc();
             typedView.makeCurrent();
             if (callback) {
                 callback(typedView);
@@ -391,14 +452,6 @@ this.displayPath = function open_openDisplayPath(displayPath,
 
     // Fallback to open URI.
     ko.open.URI(displayPath, viewType, true, callback);
-}
-
-/**		
- * Open quick start - the view will be opened synchronously.		
- */		
-this.quickStart = function open_openStartPage() {		
-    ko.views.manager._doFileOpen("chrome://komodo/content/quickstart.xml#view-quickstart",
-                                 "quickstart");
 }
 
 this.multipleURIs = function open_openMultipleURIs(urls, viewType, isRecent)

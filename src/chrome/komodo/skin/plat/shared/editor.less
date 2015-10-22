@@ -9,14 +9,9 @@
     background: @hud-background;
     background-image: @hud-background-image;
     color: @hud-foreground;
+    border: @hud-border;
     border-radius: @hud-border-radius;
     box-shadow: @hud-shadow;
-    
-    &.statusbar
-    {
-        border: 0 !important;
-        border-radius: 0 !important;
-    }
 
     .docked
     {
@@ -33,13 +28,6 @@
     {
         -moz-appearance: none;
         background: transparent !important;
-    }
-    
-    .selected
-    {
-        background-color: @hud-selection-background;
-        color: @hud-selection-foreground;
-        border: @hud-selected-border;
     }
 
     richlistitem,
@@ -63,21 +51,8 @@
             border: @hud-focused-border;
         }
     }
-    
-    .input-field
-    {
-        background-color: @hud-selection-background;
-        color: @hud-selection-foreground;
-    }
-    
-    .editor-field
-    {
-        background-color: @hud-selection-background;
-        color: @hud-selection-foreground;
-    }
 
-    textbox,
-    menulist
+    textbox
     {
         -moz-appearance: none !important;
         background-color: @hud-selection-background !important;
@@ -95,17 +70,10 @@
     & > button:not(.button-plain)
     {
         -moz-appearance: none !important;
-        border: 0;
-        background: transparent;
-    }
-    
-    :not(button) > button:not(.button-plain):not(.unstyled),
-    & > button:not(.button-plain):not(.unstyled)
-    {
         background: @hud-dock-color;
         color: @hud-foreground;
         border: 0;
-        border-radius: 2px;
+        border-radius: 3px;
         padding: 2px 4px;
 
         &:hover
@@ -143,8 +111,6 @@
     dropmarker
     {
         -moz-appearance: none !important;
-        background: transparent;
-        border: 0;
     }
 
 }
@@ -162,6 +128,8 @@
 
 ko-findbar.hud
 {
+    border-width: 1px 0 0 0 !important;
+    
     toolbarbutton
     {
         width: 32px !important;

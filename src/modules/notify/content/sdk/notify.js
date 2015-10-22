@@ -6,18 +6,18 @@
     const editor    = require("ko/editor");
     const timers    = require("sdk/timers");
     const doT       = require("contrib/dot");
-    const prefs     = Cc['@activestate.com/koPrefService;1'].getService(Ci.koIPrefService).prefs;
+    const prefs     = Cc['@activestate.com/koPrefService;1']
+                        .getService(Ci.koIPrefService).prefs;
     const logging   = require("ko/logging");
     const winUtils  = require("sdk/window/utils");
     const log       = logging.getLogger("notify");
     const _window   = require("ko/windows").getMain();
-    const _         = require("contrib/underscore");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     
     const _document = _window.document;
     const _ko = _window.ko;
 
-    var _noWindowWarned = false;
+    var _window_test_warning_logged = false;
 
     var notify = this;
     var queue = {};
@@ -41,14 +41,13 @@
         priority: "notification",
         classlist: "",
         panel: true, /* Whether to add this to the notification panel */
-        command: false,
-        generic: true
+        command: false
     }
 
     this.categories = require("./categories.js");
 
     var templates = {
-        "panel": () => { return $("#tpl-notify-panel", _window); }
+        "panel": () => { return $("#tpl-notify-panel"); }
     }
 
     templates.get = function(name, params)
@@ -78,7 +77,7 @@
         addScrollListener();
     }
     
-    this.interact = (message, category, opts = {}) =>
+    this.send = (message, category, opts) =>
     {
         if ((typeof category) == "object")
         {
@@ -86,37 +85,11 @@
             category = undefined;
         }
         
-        opts = _.extend({generic: false, panel: false}, opts);
+        log.debug("Sending: " + message + " ("+category+")");
+        log.debug("Source: " + logging.getStack(null, 0, 4));
         
-        this.send(message, category, opts);
-    }
-    
-    var delay = 0;
-    var delayTimer;
-    this.send = (message, category, opts = {}, now = false) =>
-    {
-        if ((typeof category) == "object")
-        {
-            opts = category;
-            category = undefined;
-        }
-        
-        if ( ! now)
-        {
-            log.debug("Sending: " + message + " ("+category+")");
-            log.debug("Source: " + logging.getStack(null, 0, 4));
-            
-            // If called multiple time synchronously then notifications are incapable
-            // of replacing one another, this works around that issue and allows us
-            // to assume that two notifications are never called on the same pulse
-            delay = delay + 100;
-            timers.setTimeout(this.send.bind(this, message, category, opts, true), delay);
-            
-            timers.clearTimeout(delayTimer);
-            delayTimer = timers.setTimeout(function() { delay = 0; }, 150);
-            return;
-        }
-        
+        var _ = require("contrib/underscore");
+
         var _defaultOpts = _.clone(defaultOpts);
         if (category && this.categories.get(category))
         {
@@ -132,18 +105,11 @@
         opts.message = message;
         
         opts.id = opts.id || Date.now();
-        
-        if (opts.generic)
-            opts.classlist += " generic ";
-        
-        if ( ! opts.from && opts.generic)
-            opts.from = "bottom-right";
-            
-        if (opts.priority == "notification" && opts.generic)
-            opts.priority = "info";
-        
+
         if (opts.command)
+        {
             opts.classlist += " clickable"
+        }
 
         if (isNaN(opts.priority))
         {
@@ -189,12 +155,8 @@
             // be merged into the notify module
             try
             {
-                var type = "info";
-                if (opts.priority == this.P_WARNING) type = "warning";
-                if (opts.priority == this.P_ERROR) type = "error";
-                
                 _ko.notifications.add(message, [category], opts.id || Date.now(),
-                                     {severity: opts.priority, type: type, notify: true});
+                                     {severity: opts.priority, notify: true});
             }
             catch (e)
             {
@@ -220,14 +182,12 @@
             category: category,
             opts: opts
         };
-        
+
         // Tests do not have a window - don't run this code path in that case.
-        if (typeof(_window) == "undefined")
-        {
+        if (typeof(window) == "undefined") {
             // Avoid spamming - just write a warning once.
-            if ( ! _noWindowWarned)
-            {
-                _noWindowWarned = true;
+            if (!_window_test_warning_logged) {
+                _window_test_warning_logged = true;
                 log.warn("no window available for notify.queue");
             }
         } else {
@@ -263,7 +223,7 @@
             if (length == maxLength)
             {
                 this.send("Repeat notifications truncated, please check your Notifications panel",
-                          "internal", {priority: "info", id: "notify-repeat", force: "true"});
+                          "internal", {force: "true"});
             }
             return;
         }
@@ -291,7 +251,8 @@
             this.hideNotification();
         }
         
-        if ( ! queue[notif.opts.from].active || notif.opts.id == queue[notif.opts.from].activeId)
+        if ( ! queue[notif.opts.from].active || (! notif.opts.id &&
+            notif.opts.id == queue[notif.opts.from].activeId))
         {
             log.debug("Showing notification immediately");
             queue[notif.opts.from].active = true;
@@ -308,9 +269,9 @@
             log.debug("Processing next queued notification");
             
             // Don't show notifications when the main window has no focus, bug #105975
-            if ( ! _document.hasFocus() && ! notif.opts.ignoreFocus)
+            if ( ! _document.hasFocus())
             {
-                if (notif.opts.priority < this.P_WARNING && ! notif.opts.alwaysShow)
+                if (notif.opts.priority < this.P_WARNING)
                 {
                     // if window has no focus and this is not an important notification,
                     // drop it and process the next one
@@ -363,8 +324,6 @@
 
         var panel = $(templates.get("panel", notif.opts));
         this.bindActions(notif, panel);
-        
-        panel.focusedElement = document.commandDispatcher.focusedElement;
 
         queue[notif.opts.from].activeId = notif.opts.id;
         queue[notif.opts.from].activePanel = panel;
@@ -373,23 +332,21 @@
         {
             panel.find(".icon, .description").on("click", () => { notif.opts.command(); });
         }
-        
-        var animate = prefs.getBoolean("notify_use_animations", true);
 
         // Some Linux distro's have problems with setting *any* opacity on a popup -
         // as it can make the popup invisible/disappear.
-        if (animate && prefs.getBoolean("notify_use_opacity", true))
+        if (prefs.getBoolean("notify_use_opacity", true))
         {
             panel.css("opacity", 0);
         }
 
         panel.element().style.visibility = "hidden";
-        $("#komodoMainPopupSet", _window).append(panel);
+        $("#komodoMainPopupSet").append(panel);
         
         panel.on("popupshown", function(e)
         {
             if (e.target != panel.element()) return;
-            this.doShowNotification(notif, animate && ! replace);
+            this.doShowNotification(notif, ! replace);
         }.bind(this));
         
         // Calculate initial pos, this will have to be re-calculated
@@ -398,7 +355,7 @@
         // initial position makes things look less glitchy
         // When opacity works this is a non-issue
         var pos = this._calculatePosition(notif.opts.from || null, panel);
-        panel.element().openPopup($("#komodo-vbox", _window).element(), pos.x, animate ? pos.y + 30 : pos.y);
+        panel.element().openPopupAtScreen(pos.x, pos.y + 30);
     }
 
     this.doShowNotification = (notif, animate = true) =>
@@ -407,33 +364,22 @@
         
         var panel = queue[notif.opts.from].activePanel;
         var pos = this._calculatePosition(notif.opts.from || null, panel);
+        panel.attr("noautohide", true);
+        panel.noautohide = true;
+        panel.element().moveTo(pos.x, pos.y + 30);
         panel.element().style.visibility = "";
-        
-        if ( ! animate)
-        {
-            panel.element().moveTo(pos.x, pos.y);
-            
-            // First one sometimes doesn't take
-            setTimeout(function() {
-                panel.element().moveTo(pos.x, pos.y);
-            }, 50);
-        }
-        else
-        {
-            panel.element().moveTo(pos.x, pos.y + 30);
-        
-            panel.animate(
-                {
-                    opacity: 1,
-                    panelY: pos.y,
-                    panelX: pos.x
-                },
-                {
-                    start: {panelY: pos.y + 30, panelX: pos.x},
-                    duration: animate ? 200 : 0
-                }
-            );
-        }
+
+        panel.animate(
+            {
+                opacity: 1,
+                panelY: pos.y,
+                panelX: pos.x
+            },
+            {
+                start: {panelY: pos.y + 30, panelX: pos.x},
+                duration: animate ? 200 : 0
+            }
+        );
 
         var time = notif.opts.duration || prefs.getLong("notify_duration", 4000);
         panel.timeout = timers.setTimeout(function()
@@ -447,6 +393,7 @@
         log.debug("Showing for " + time + "ms");
 
         // Handle notification interactions
+        var focus = _document.activeElement;
         var interacting = false;
         var interact = () =>
         {
@@ -461,8 +408,11 @@
 
             interacting = false;
             panel.timeout = timers.setTimeout(this.hideNotification.bind(this, notif), 1000);
+
+            if ("focus" in focus)
+                focus.focus();
         };
-        
+
         panel.on("mouseover", interact);
         panel.on("focus", interact);
 
@@ -489,7 +439,7 @@
                 try
                 {
                     menu.register(action);
-                } catch (e) { log.exception(e, "Failed binding actions"); }
+                } catch (e) { log.exception(e); }
             }
         }
 
@@ -508,7 +458,7 @@
     
     this.hideNotificationsByProp = (prop, value) =>
     {
-        //log.debug("Hide notification by prop " + prop + ": " + value);
+        log.debug("Hide notification by prop " + prop + ": " + value);
         for (let k in activeNotifs)
         {
             let notif = activeNotifs[k];
@@ -555,28 +505,19 @@
         //    panel.on("blur", this.hideNotification.bind(this, panel, callback));
         //    return;
         //}
-        
-        var animate = prefs.getBoolean("notify_use_animations", true);
-        if ( ! animate)
-        {
-            panel.remove();
-            this.queue.process(notif.opts.from);
-        }
-        else
-        {
-            panel.animate(
-                {
-                    opacity: 0,
-                    panelY: panel.element().boxObject.screenY + 30,
-                },
-                { duration: 100 },
-                function()
-                {
-                    panel.remove();
-                    this.queue.process(notif.opts.from);
-                }.bind(this)
-            );
-        }
+
+        panel.animate(
+            {
+                opacity: 0,
+                panelY: panel.element().boxObject.screenY + 30,
+            },
+            { duration: 100 },
+            function()
+            {
+                panel.remove();
+                this.queue.process(notif.opts.from);
+            }.bind(this)
+        );
     }
 
     this._calculatePosition = (from, panel) =>
@@ -615,25 +556,6 @@
             // Editor preset cant (shouldnt) be centered
             return normalize(pos);
         }
-        
-        // Use editor cursor position
-        else if (from == "bottom-right") // There is no statusbar if the editor isnt available
-        {
-            var wrapper = $("#editorviewbox", _window);
-            var bo = wrapper.element().boxObject;
-            
-            var pos = {x: bo.screenX + bo.width, y: bo.screenY + bo.height};
-            
-            var computed = _window.getComputedStyle(panel.element());
-            pos.y -= parseInt(computed.paddingBottom.replace(/px$/,''));
-            pos.y -= parseInt(computed.paddingTop.replace(/px$/,''));
-            pos.y -= parseInt(computed.height.replace(/px$/,''));
-            pos.x -= parseInt(computed.width.replace(/px$/,''));
-            pos.x -= 5; // padding
-            
-            return normalize(pos);
-        }
-        
         else
         {
             // Center horizontally on the window
@@ -643,7 +565,6 @@
                 wy = bo.screenY,
                 ww = bo.width,
                 wh = bo.height;
-            
             pos = {x: (ww / 2) + wx, y: (wy + wh) - 100};
         }
 

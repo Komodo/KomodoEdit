@@ -2,7 +2,7 @@
 
 # Default docker image to use.
 if [ -z "$DOCKER_IMAGE_NAME" ]; then
-    DOCKER_IMAGE_NAME="komodoedit"
+    DOCKER_IMAGE_NAME="komodo"
 fi
 
 # local name for the container
@@ -63,7 +63,7 @@ function start {
 
     else
         echo -n "container '${DOCKER_CONTAINER_NAME}' not found, creating..."
-        TMP=$(docker run -d -P --name ${DOCKER_CONTAINER_NAME} -v ${KODIRNAME}:/komodo/dev -v /home/${USERNAME}/.ActiveState:/komodo/.ActiveState -v /home/${USERNAME}/.komodoide:/komodo/.komodoide -v /home/${USERNAME}/.komodo-dev-docker:/komodo/.komodo-dev ${DOCKER_IMAGE_NAME})
+        TMP=$(docker run -d -P --name ${DOCKER_CONTAINER_NAME} -v ${KODIRNAME}:/komodo/dev -v /home/${USERNAME}/.ActiveState:/komodo/.ActiveState -v /home/${USERNAME}/.komodoide:/komodo/.komodoide ${DOCKER_IMAGE_NAME})
 
         sleep 2
 
@@ -144,17 +144,14 @@ function clean {
     ${SSH_CMD} "PATH=/komodo/dev/util/black:\$PATH && cd /komodo/dev && bk distclean"
 }
 
-function build {
+function run {
     setSshCmd
     ${SSH_CMD} "PATH=/komodo/dev/util/black:\$PATH && cd /komodo/dev && bk build"
-}
-
-function run {
     cd $KODIRNAME
     ./mozilla/build/moz3500-ko9.10/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
 }
 
-function image {
+function build {
     flavour=$1
     if [ -z "${flavour}" ]; then
         flavour="."
@@ -172,13 +169,12 @@ function help {
     echo "Manage Komodo-Dev container"
     echo " "
     echo "options:"
-    echo "image [--flavour DIR]     build the image; flavour defaults to the current dir"
-    echo "reimage                   rebuild the image (deletes image and containers)"
+    echo "build [--flavour DIR]     build the image; flavour defaults to the current dir"
+    echo "rebuild                   rebuild the image (deletes image and containers)"
     echo "start                     start container"    
     echo "stop                      stop container"
     echo "clean                     bk distclean"
-    echo "build                     build Komodo"
-    echo "run                       run Komodo on host"
+    echo "run                       build & run Komodo on host"
     echo "status                    show container status"    
     echo "ssh                       ssh into container"
     echo "-h, --help                show brief help"
@@ -211,26 +207,22 @@ while true; do
             clean
             shift
             ;;
-        build)
-            build
-            shift
-            ;;
         run)
             run
             shift
             ;;
-        image)
+        build)
             flavour=""
             if [ "$2" == "--flavour" ]; then
                 flavour=$3
                 shift 2
             fi
-            image $flavour
+            build $flavour
             shift
             ;;
-        reimage)
+        rebuild)
             deleteBuild
-            image
+            build
             shift
             ;;
         -h|--help)
@@ -239,7 +231,7 @@ while true; do
             ;;
     esac
     sleep 1
-    if [ -z "$1" ]; then
+    if [ -z "$VAR" ]; then
         break
     fi
 done;

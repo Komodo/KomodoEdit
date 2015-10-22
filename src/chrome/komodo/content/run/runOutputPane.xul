@@ -58,17 +58,7 @@
             </deck>
         </hbox>
 
-        <box id="runoutput-desc-tabpanel-toolbar" class="widgetToolbarWrap hud statusbar">
-            <hbox valign="middle" style="width: 50vw; min-width: 400px;">
-                <textbox id="runoutput-command" placeholder="&gt; enter your command" type="search" searchbutton="true" flex="1"/>
-                <toolbarbutton id="run-command-button"
-                        class="run-command-icon"
-                        tooltiptext="&runCommand.label;"
-                        oncommand="ko.run.output.openRunCommand();"/>
-            </hbox>
-            <hbox valign="middle" flex="1">
-                <label id="runoutput-desc" class="desc" crop="center" />
-            </hbox>
+        <box id="runoutput-desc-tabpanel-toolbar" class="widgetToolbarWrap">
             <toolbar class="widgetToolbar">
                 <toolbarbutton id="runoutput-list-button"
                         class="bulletlist-icon"
@@ -81,6 +71,9 @@
                         oncommand="ko.run.output.kill(-1);"
                         disabled="true"/>
             </toolbar>
+            <hbox valign="middle">
+                <label id="runoutput-desc" class="desc" crop="center" />
+            </hbox>
         </box>
 
     </vbox>

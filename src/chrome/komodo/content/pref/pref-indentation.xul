@@ -219,9 +219,6 @@ function changeNewLanguage(item, name)  {
       
             <checkbox id="editBackspaceDedents" label="&backspaceDecreasesIndentationInLeadingWhitespace.label;" pref="true"
                       prefstring="editBackspaceDedents" prefattribute="checked"/>
-                      
-            <checkbox id="enableElasticTabstops" label="&enableElasticTabstops.label;" pref="true"
-                      prefstring="enableElasticTabstops" prefattribute="checked"/>
       
         </groupbox>
       

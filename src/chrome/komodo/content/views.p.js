@@ -887,9 +887,6 @@ viewManager.prototype.openViewAsync = function(viewType, uri, tabGroup, tabIndex
 
     var tabList = tabGroup ? document.getElementById(tabGroup) : null;
     switch (viewType) {
-    case "quickstart":
-        uri = "chrome://komodo/content/quickstart.xml#view-quickstart";
-        break;
     case "editor":
         ko.views.manager.doFileOpenAsync(uri, viewType, tabList, tabIndex, callback);
         break;
@@ -2739,6 +2736,7 @@ this.gotoLine_onkeypress_handler = function ko_views_gotoLine_onkeypress_handler
     gotoLinePanel.hidePopup();
 
     var view = ko.views.manager.currentView;
+    ko.history.note_curr_loc(view);
     
     var scimoz = view.scintilla.scimoz;
     var currentPos = scimoz.currentPos;
@@ -2891,7 +2889,6 @@ function _view_checkDiskFiles(event) {
         var conflictedItems = [];
         var view, url, i, j;
         var views, file, prompt, title, item, items;
-        var checkNetworkFiles = ko.prefs.getBoolean('checkNetworkDiskFile');
 
         // Deal with views first
         views = ko.views.manager.topView.getDocumentViewList(true);
@@ -2904,13 +2901,14 @@ function _view_checkDiskFiles(event) {
                 !view.koDoc ||
                 view.koDoc.isUntitled) continue;
             file = view.koDoc.file;
-            if (!checkNetworkFiles && (!file.isLocal || file.isNetworkFile)) continue; // stop outright
             file.updateStats();
+            // onFocus: Don't check file changed for remote files
+            if (!file.isLocal || file.isNetworkFile) continue;
             item = new Object;
             item.type = 'view';
             item.view = view;
             item.file = file;
-            if (!file.exists && file.isLocal) {
+            if (!file.exists) {
                 // Force a file stat update by calling updateStats(), this is so
                 // we get the latest information for this file, as sometimes
                 // this information is stale - bug 94121.

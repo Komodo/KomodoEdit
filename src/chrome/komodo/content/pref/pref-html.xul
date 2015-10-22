@@ -144,13 +144,6 @@ function matchingTag_toggle(checkbox) {
                           />
             </vbox>
         </groupbox>
-        
-        <groupbox>
-            <caption label="Tag Editing"/>
-            <checkbox id="editMatchingTags"
-                      label="&editMatchingTags.label;"
-                      pref="true"/>
-        </groupbox>
 
     </vbox>
 

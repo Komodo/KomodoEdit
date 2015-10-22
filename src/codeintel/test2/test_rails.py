@@ -48,7 +48,6 @@ import unittest
 import subprocess
 import logging
 
-from codeintel2.environment import SimplePrefsEnvironment
 from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
 
 from testlib import TestError, TestSkipped, TestFailed, tag
@@ -92,19 +91,6 @@ class PureRailsTestCase(_BaseTestCase):
     lang = "Ruby"
     ext = ".rb"
     heredoc_support = True
-    env = SimplePrefsEnvironment(codeintel_selected_catalogs=['rails'])
-    
-    def test_catalog(self):
-        catalogs_zone = self.mgr.db.get_catalogs_zone()
-        for catalog_info in catalogs_zone.avail_catalogs(["rails"]):
-            if catalog_info['selected']:
-                rails_info = catalog_info
-                break
-        else:
-            self.fail("rails not found in the available catalogs")
-
-        self.failUnlessEqual(rails_info["name"], "Rails")
-        self.failUnless(rails_info["description"] is not None)
 
     def test_railsenv_model_basic(self):
         test_dir = join(self.test_dir, "railsapp01", "app", "models")

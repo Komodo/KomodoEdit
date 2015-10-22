@@ -639,7 +639,7 @@
                 if (this._mozcontext || this.getAttribute('context')) {
                     scimoz.usePopUp(0);
                 }
-                
+
                 scimoz.wrapVisualFlags = prefs.getLongPref("editWordWrapMarker");
                 scimoz.wrapIndentMode = prefs.getLongPref("editWordWrapIndentation");
                 // XXX this allows us to scroll the last line to the top of the
@@ -1263,7 +1263,7 @@
                         if ((!("tabstops" in ko)
                                 || !ko.tabstops.textHasTabstops(scimoz.text))
                             && (scimoz.selectionIsRectangle
-                                || scimoz.selections > 1))
+                                || scimoz.multipleSelection))
                         {
                             // Bug 99068: rect-select tab and backTab
                             // aren't wrapped in an undo-block (but backTab is).
@@ -1307,8 +1307,6 @@
                             event.preventDefault();
                             event.cancelBubble = true;
                             return;
-                        } else if (scimoz.selections > 1) {
-                            scimoz.cancel(); // cancel multiple selections
                         } else if (view) {
                             if (ko.tabstops) {
                                 ko.tabstops.clearTabstopInfo(view);

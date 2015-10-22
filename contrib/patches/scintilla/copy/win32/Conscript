@@ -101,7 +101,6 @@ my @lexers = qw(
     GAP
     Gui4Cli
     Haskell
-    Hex
     HTML
     Inno
     Kix
@@ -270,8 +269,6 @@ $cons->Command(
 #    "Margin.cur",
 #    "PlatformRes.h",
     #"CheckD2D.cxx",
-    "HanjaDic.h",
-    "HanjaDic.cxx",
     "PlatWin.h",
     "PlatWin.cxx",
     "Scintilla.def",

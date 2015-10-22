@@ -153,7 +153,7 @@ struct WrapPending {
  */
 class Editor : public EditModel, public DocWatcher {
 	// Private so Editor objects can not be copied
-	explicit Editor(const Editor &);
+	Editor(const Editor &);
 	Editor &operator=(const Editor &);
 
 protected:	// ScintillaBase subclass needs access to much of Editor
@@ -313,21 +313,18 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void SetRectangularRange();
 	void ThinRectangularRange();
 	void InvalidateSelection(SelectionRange newMain, bool invalidateWholeSelection=false);
-	void InvalidateWholeSelection();
 	void SetSelection(SelectionPosition currentPos_, SelectionPosition anchor_);
 	void SetSelection(int currentPos_, int anchor_);
 	void SetSelection(SelectionPosition currentPos_);
 	void SetSelection(int currentPos_);
 	void SetEmptySelection(SelectionPosition currentPos_);
 	void SetEmptySelection(int currentPos_);
-	enum AddNumber { addOne, addEach };
-	void MultipleSelectAdd(AddNumber addNumber);
 	bool RangeContainsProtected(int start, int end) const;
 	bool SelectionContainsProtected();
 	int MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd=true) const;
 	SelectionPosition MovePositionOutsideChar(SelectionPosition pos, int moveDir, bool checkLineEnd=true) const;
-	void MovePositionTo(SelectionPosition newPos, Selection::selTypes selt=Selection::noSel, bool ensureVisible=true);
-	void MovePositionTo(int newPos, Selection::selTypes selt=Selection::noSel, bool ensureVisible=true);
+	int MovePositionTo(SelectionPosition newPos, Selection::selTypes selt=Selection::noSel, bool ensureVisible=true);
+	int MovePositionTo(int newPos, Selection::selTypes selt=Selection::noSel, bool ensureVisible=true);
 	SelectionPosition MovePositionSoVisible(SelectionPosition pos, int moveDir);
 	SelectionPosition MovePositionSoVisible(int pos, int moveDir);
 	Point PointMainCaret();
@@ -391,7 +388,6 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	int InsertSpace(int position, unsigned int spaces);
 	void AddChar(char ch);
 	virtual void AddCharUTF(const char *s, unsigned int len, bool treatAsDBCS=false);
-	void FillVirtualSpace();
 	void InsertPaste(const char *text, int len);
 	enum PasteShape { pasteStream=0, pasteRectangular = 1, pasteLine = 2 };
 	void InsertPasteShape(const char *text, int len, PasteShape shape);
@@ -458,8 +454,8 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void Duplicate(bool forLine);
 	virtual void CancelModes();
 	void NewLine();
-	void CursorUpOrDown(int direction, Selection::selTypes selt);
-	void ParaUpOrDown(int direction, Selection::selTypes selt);
+	void CursorUpOrDown(int direction, Selection::selTypes selt=Selection::noSel);
+	void ParaUpOrDown(int direction, Selection::selTypes selt=Selection::noSel);
 	int StartEndDisplayLine(int pos, bool start);
 	virtual int KeyCommand(unsigned int iMessage);
 	virtual int KeyDefault(int /* key */, int /*modifiers*/);
@@ -548,8 +544,6 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	bool PointIsHotspot(Point pt);
 	void SetHotSpotRange(Point *pt);
 	Range GetHotSpotRange() const;
-	void SetHoverIndicatorPosition(int position);
-	void SetHoverIndicatorPoint(Point pt);
 
 	int CodePage() const;
 	virtual bool ValidCodePage(int /* codePage */) const { return true; }

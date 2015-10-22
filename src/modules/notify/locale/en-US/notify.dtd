@@ -3,6 +3,3 @@
 <!ENTITY disableNotificationsOfType.label "Disable Notifications of this Type">
 <!ENTITY disableThisNotification.label "Disable This Notification">
 <!ENTITY enabledNotifyCategories.label "Enabled Notification Categories">
-<!ENTITY behaviour.label "Behaviour">
-<!ENTITY useOpacity.label "Use Opacity - This can cause problems on some Linux distros and desktop environments">
-<!ENTITY useAnimations.label "Use Animations - This can cause problems on some Linux distros and desktop environments">

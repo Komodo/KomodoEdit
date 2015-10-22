@@ -168,7 +168,7 @@
           <variable attributes="__local__ private" citdl="String" line="138" name="copyOfS" />
         </scope>
       </scope>
-      <variable citdl="otherfunc" line="145" name="_of" />
+      <variable citdl="otherfunc" line="145" name="of" />
       <variable citdl="String" line="146" name="s2" />
       <scope ilk="function" line="150" lineend="150" name="foo" signature="foo()" />
     </scope>

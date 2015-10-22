@@ -1837,12 +1837,6 @@ class koDocumentBase(object):
             return self._views[0]
         except IndexError, ex:
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
-        
-    def getViewIfExists(self):
-        try:
-            return self.getView()
-        except ServerException:
-            return False
 
     def get_numScintillas(self):
         return len(self._views)
@@ -1965,31 +1959,28 @@ class koDocumentBase(object):
                 break
 
         if linesChecked:
+            log.info("guessed useTabs = %r, tabcount %d, spacecount %d",
+                     useTabs, tabcount, spacecount)
             # We found some lines with indentation
             if tabcount > spacecount:
                 # If only tab indentation was found, set the indentWidth
                 # to the tabWidth, so we essentially always use tabs.
-                useTabs = True
+                self._useTabs = True
             elif spacecount and not tabcount:
-                useTabs = False
+                self._useTabs = False
             else:
                 # indeterminate, so use global prefs to decide
-                useTabs = self.prefs.getBoolean("useTabs")
-            if useTabs:
+                self._useTabs = self.prefs.getBoolean("useTabs")
+            if self._useTabs:
                 self._indentWidth = self.tabWidth
             elif self._indentWidth is None:
                 # Make sure we have a default value here (from prefs)
                 _, value = self._getLangPref(('%lang/indentWidth', 'getLong'),
                                              ('indentWidth', 'getLong'))
                 self._indentWidth = value
-                
-            log.info("guessed useTabs = %r, tabcount %d, spacecount %d",
-                     useTabs, tabcount, spacecount)
-                
             for v in self._views:
-                self._useTabs = useTabs
-                v.scimoz.useTabs = useTabs
-                v.scimoz.indent = self._indentWidth
+                v.scimoz.useTabs = self.useTabs
+                v.scimoz.indent = self.indentWidth
 
         else:
             # Lacking better information, fallback to the pref values.
@@ -2003,9 +1994,9 @@ class koDocumentBase(object):
                 _, self._tabWidth = self._getLangPref(('%lang/tabWidth', 'getLong'),
                                                       ('tabWidth', 'getLong'))
             for v in self._views:
-                v.scimoz.useTabs = self._useTabs
-                v.scimoz.indent = self._indentWidth
-                v.scimoz.tabWidth = self._tabWidth
+                v.scimoz.useTabs = self.useTabs
+                v.scimoz.indent = self.indentWidth
+                v.scimoz.tabWidth = self.tabWidth
 
     # Guess indent-width from text content. (Taken from IDLE.)
     #
@@ -2048,13 +2039,14 @@ class koDocumentBase(object):
 
         log.info("_guessIndentWidth: indentWidth=%d, useTabs=%d",
                  indentWidth, useTabs)
-        
         self._indentWidth = indentWidth
         self._useTabs = useTabs
-        
-        for v in self._views:
-            v.scimoz.useTabs = self._useTabs
-            v.scimoz.indent = self._indentWidth
+
+        # Store the guessed values if they are different to the default values.
+        if indentWidth != defaultIndentWidth:
+            self.indentWidth = indentWidth  # Save to prefs.
+        if useTabs != defaultUseTabs:
+            self.useTabs = useTabs  # Save to prefs.
 
     @components.ProxyToMainThreadAsync
     def _statusBarMessage(self, message):
@@ -2074,8 +2066,7 @@ class koDocumentBase(object):
     _re_ending_eol = re.compile('\r?\n$')
     def getUnsavedChanges(self, joinLines=True):
         eolStr = eollib.eol2eolStr[self._eol]
-        
-        ondisk = self._get_buffer_from_file(self.file).splitlines(True)
+        ondisk = self.ondisk_lines
         inmemory = self.get_buffer().splitlines(True)
         difflines = list(difflibex.unified_diff(
             ondisk, inmemory,

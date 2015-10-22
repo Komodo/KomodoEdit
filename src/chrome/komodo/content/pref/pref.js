@@ -105,9 +105,7 @@ function canHelp() {
 }
 
 function doHelp() {
-    var tag = getHelpTag();
-    tag = "prefs#preferences_"+tag.replace(/\-/g,"_").toLowerCase();
-    ko.windowManager.getMainWindow().ko.help.open(tag);
+    ko.windowManager.getMainWindow().ko.help.open(getHelpTag());
 }
 
 function setupFilteredTree() {

@@ -205,12 +205,9 @@ menu .menu-right
 
 menulist dropmarker, textbox[type="autocomplete"] dropmarker,
 .button-menubutton-dropmarker,
-.toolbarbutton-menu-dropmarker
 {
-    -moz-appearance: none !important;
     list-style-image: @icon-dropmarker !important;
-    width: 14px;
-    height: 14px;
+    width: 16px;
 }
 
 /* General Icons */
@@ -245,12 +242,6 @@ menulist dropmarker, textbox[type="autocomplete"] dropmarker,
 .help-icon
 {
     list-style-image: @icon-help;
-}
-
-.button-menu-dropmarker,
-.button-menubutton-dropmarker
-{
-    list-style-image: none;
 }
 
 menu .help-icon, menuitem .help-icon
@@ -320,12 +311,12 @@ menu .help-icon, menuitem .help-icon
 
 .bulletlist-icon
 {
-    list-style-image: @icon-bulletlist !important;
+    list-style-image: @icon-bulletlist;
 }
 
 .bulletlist-icon[disabled="true"]
 {
-    list-style-image: @icon-bulletlist-disabled !important;
+    list-style-image: @icon-bulletlist-disabled;
 }
 
 .scrollright-arrow-mini-icon
@@ -394,12 +385,12 @@ menu .help-icon, menuitem .help-icon
 
 .find-stop-icon
 {
-    list-style-image: @icon-find-stop !important;
+    list-style-image: @icon-find-stop;
 }
 
 .find-stop-icon[disabled="true"]
 {
-    list-style-image: @icon-find-stop-disabled !important;
+    list-style-image: @icon-find-stop-disabled;
 }
 
 .find-undo-icon, /* deprecated since Komodo 7 */
@@ -492,11 +483,6 @@ page .cog-icon,
     list-style-image: @icon-run-command;
 }
 
-.power-icon
-{
-    list-style-image: @icon-power;
-}
-
 .next-buffer-icon
 {
     list-style-image: @icon-next-buffer;
@@ -583,11 +569,6 @@ treechildren::-moz-tree-image(remotefile)
 .textbox-search-icon
 {
     list-style-image: @icon-textbox-search;
-}
-
-.bug-icon
-{
-    list-style-image: @icon-bugs;
 }
 
 /* Komodo icons */
@@ -1000,16 +981,9 @@ statusbar .menu-icon
 .close-button,
 #tabs-closebutton,
 .tabs-closebutton,
-.tab-close-button,
-.close-icon
+.tab-close-button
 {
     list-style-image: @icon-close;
-    background-image: none !important;
-    
-    & > image
-    {
-        min-height: 16px;
-    }
 }
 
 .tabs-closebutton
@@ -1569,11 +1543,6 @@ ko-pane[type="icons"]
 
 }
 
-.newtab-icon
-{
-    list-style-image: @icon-tab !important;
-}
-
 /* Notification Widget */
 
 #notificationWidget
@@ -1773,7 +1742,8 @@ ko-pane[type="icons"]
     list-style-image: @icon-statusbar-syntax-error !important;
 }
 
-.hud, statusbar
+window.hud-skinning .hud,
+window.hud-skinning statusbar
 {
     .new-file-icon
     {
@@ -1879,11 +1849,6 @@ ko-pane[type="icons"]
     {
         list-style-image: @icon-hud-findpattern-regex !important;
     }
-    
-    .power-icon
-    {
-        list-style-image: @icon-hud-power;
-    }
 
     toolbarbutton > dropmarker
     {
@@ -1894,16 +1859,6 @@ ko-pane[type="icons"]
     .button-menubutton-dropmarker,
     {
         list-style-image: @icon-hud-dropmarker !important;
-    }
-    
-    .help-icon
-    {
-        list-style-image: @icon-hud-help;
-    }
-    
-    .bug-icon
-    {
-        list-style-image: @icon-hud-bugs;
     }
     
     /**
@@ -1924,171 +1879,9 @@ ko-pane[type="icons"]
     #statusbar-check.syntax-error {
         list-style-image: @icon-hud-statusbar-syntax-error !important;
     }
-    
-    /* Run Output Pane */
-    .bulletlist-icon
-    {
-        list-style-image: @icon-hud-bulletlist !important;
-    }
-
-    .bulletlist-icon[disabled="true"]
-    {
-        list-style-image: @icon-hud-bulletlist-disabled !important;
-    }
-    
-    .find-stop-icon
-    {
-        list-style-image: @icon-hud-find-stop !important;
-    }
-
-    .find-stop-icon[disabled="true"]
-    {
-        list-style-image: @icon-hud-find-stop-disabled !important;
-    }
-    
-    .run-command-icon
-    {
-        list-style-image: @icon-hud-run-command;
-    }
-    
 }
 
 .wordspace_open_icon
 {
     list-style-image: @icon-workspace-open;
-}
-
-/* Find/Replace icons */
-
-#find2-window
-{
-    checkbox#opt-regex,
-    checkbox#opt-case,
-    checkbox#opt-word,
-    checkbox#opt-multiline,
-    checkbox#opt-repl,
-    checkbox#confirm-replacements-in-files,
-    checkbox#show-replace-all-results,
-    checkbox#search-in-subdirs
-    {
-        opacity: 0.8;
-        
-        &, .checkbox-spacer-box, .checkbox-check
-        {
-            -moz-appearance: none;
-        }
-        
-        .checkbox-label-center-box,
-        .checkbox-label-box
-        {
-            visibility: collapse;
-        }
-        
-        .checkbox-check
-        {
-            width: 16px;
-            height: 16px;
-            background-size: 16px;
-            border: 0;
-            background: transparent;
-        }
-        
-        &:hover
-        {
-            opacity: 1.0;
-        }
-    }
-    
-    checkbox#opt-regex .checkbox-check {
-        background: @icon-hud-findpattern-regex no-repeat;
-        &[checked="true"] {
-            background: @icon-hud-findpattern-regex-selected no-repeat;
-        }
-    }
-    
-    checkbox#opt-case .checkbox-check {
-        background: @icon-hud-find-case no-repeat;
-        &[checked="true"] {
-            background: @icon-hud-find-case-selected no-repeat;
-        }
-    }
-    
-    checkbox#opt-case[value="smart-case"] .checkbox-check {
-        background: @icon-hud-find-case-smart no-repeat;
-        &[checked="true"] {
-            background: @icon-hud-find-case-smart-selected no-repeat;
-        }
-    }
-    
-    checkbox#opt-word .checkbox-check {
-        background: @icon-hud-find-word no-repeat;
-        &[checked="true"] {
-            background: @icon-hud-find-word-selected no-repeat;
-        }
-    }
-    
-    checkbox#opt-multiline .checkbox-check {
-        background: @icon-hud-find-multiline no-repeat;
-        &[checked="true"] {
-            background: @icon-hud-find-multiline-selected no-repeat;
-        }
-    }
-    
-    checkbox#opt-repl .checkbox-check {
-        background: @icon-hud-find-replace no-repeat;
-        &[checked="true"] {
-            background: @icon-hud-find-replace-selected no-repeat;
-        }
-    }
-    
-    checkbox#confirm-replacements-in-files .checkbox-check {
-        background: @icon-hud-find-confirm no-repeat;
-        &[checked="true"] {
-            background: @icon-hud-find-confirm-selected no-repeat;
-        }
-    }
-    
-    checkbox#show-replace-all-results .checkbox-check {
-        background: @icon-hud-find-show no-repeat;
-        &[checked="true"] {
-            background: @icon-hud-find-show-selected no-repeat;
-        }
-    }
-    
-    checkbox#search-in-subdirs .checkbox-check {
-        background: @icon-hud-find-subdirs no-repeat;
-        &[checked="true"] {
-            background: @icon-hud-find-subdirs-selected no-repeat;
-        }
-    }
-    
-    #pattern-shortcuts .button-icon { list-style-image: @icon-hud-find-shortcuts; }
-    
-    #open-in-rx-btn { list-style-image: @icon-hud-find-open-rx; }
-    
-    #find-next-btn, 
-    #find-prev-btn
-    {
-        .button-icon
-        {
-            display: inherit;
-        }
-        
-        label
-        {
-            visibility: collapse;
-        }
-    }
-    
-    #find-next-btn { list-style-image: @icon-hud-down; }
-    
-    #find-prev-btn { list-style-image: @icon-hud-up; }
-    
-}
-
-/* Find Results window */
-
-#findresults-filter-textbox .textbox-search-icon
-{
-    list-style-image: @icon-filter;
 }

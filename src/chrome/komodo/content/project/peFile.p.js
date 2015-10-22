@@ -488,7 +488,7 @@ this.setFileStatusAttributesFromDoc = function peFile_setFileStatusAttributesFro
 
 this.setFileStatusAttributesFromView = function peFile_setFileStatusAttributesFromView(element, view) {
     var viewType = view.getAttribute("type");
-    if (viewType != "browser" && viewType != "quickstart") {
+    if (viewType != "browser") {
         let koFile = view && view.koDoc && view.koDoc.file;
         if (koFile && view.koDoc.isUntitled) {
             koFile = null;

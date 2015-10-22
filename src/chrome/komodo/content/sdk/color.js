@@ -14,17 +14,6 @@
  * Common functions for color processing
  */
 
-/**
- * @module color
- */
-
-/**
- * Parses hex string to a consistent format
- * 
- * @param   {String} hexstring
- * 
- * @returns {String}
- */
 function StandardizeHexString(hexstring) {
     if (!hexstring.startsWith("#") || (hexstring.length != 4 && hexstring.length != 7)) {
         throw Error("Invalid hex color string '" + hexstring + "', expected a string in the form: '#abc' or '#aabbcc'");
