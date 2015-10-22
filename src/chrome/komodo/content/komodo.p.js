@@ -94,39 +94,42 @@ this.quitApplication = function() {
 this.restartWithFlag = function(flag) {
     var koDirSvc = Cc["@activestate.com/koDirs;1"].getService()
     var ioFile = require('sdk/io/file');
-    
+    var opts = {
+        title:'Komodo Restart'
+    }
     switch (flag)
     {
         case 'tempProfile':
         case 'tempNoAddons':
         case 'tempNoToolbox':
-            if ( ! require("ko/dialogs").confirm("Komodo will restart, to go back to your current setup simply restart Komodo again."))
+            var message = "Komodo will restart, to go back to your current setup simply restart Komodo again.";
+            if ( ! require("ko/dialogs").confirm(message, opts))
                 return
             break;
         case 'cleanProfile':
             var message = "This will reset all your settings, including addons, keybindings and color schemes. Are you sure you want to do this?" +
                           "Your current profile folder will be backed up at " + koDirSvc.userDataDir + "-backup";
-            if ( ! require("ko/dialogs").confirm(message))
+            if ( ! require("ko/dialogs").confirm(message, opts))
                 return
             break;
         case 'cleanDocState':
             var message = "This will reset all your file settings, all your files will inherit their settings from your global or project level preferences.";
-            if ( ! require("ko/dialogs").confirm(message))
+            if ( ! require("ko/dialogs").confirm(message, opts))
                 return
             break;
         case 'cleanViewState':
             var message = "This will reset your recently used files, tab ordering, panel configuration, etc.";
-            if ( ! require("ko/dialogs").confirm(message))
+            if ( ! require("ko/dialogs").confirm(message, opts))
                 return
             break;
         case 'cleanCodeintel':
             var message = "This will reset your CodeIntel database, prompting Komodo to re-generate it from scratch. Depending on the size of your project this may take a while.";
-            if ( ! require("ko/dialogs").confirm(message))
+            if ( ! require("ko/dialogs").confirm(message, opts))
                 return
             break;
         case 'cleanCaches':
             var message = "This will reset Komodo's main caches, prompting it to regenerate any cached data.";
-            if ( ! require("ko/dialogs").confirm(message))
+            if ( ! require("ko/dialogs").confirm(message, opts))
                 return
             break;
     }
