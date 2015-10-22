@@ -397,6 +397,9 @@ state IN_URL_2:
 fold "{" CSS_OPERATOR +
 fold "}" CSS_OPERATOR -
 
+fold /\/\*\s*#region[^*]+\*\// CSS_OPERATOR +
+fold /\/\*\s*#endregion[^*]+\*\// CSS_OPERATOR -
+
 fold "{{{" CSS_COMMENT +
 fold "}}}" CSS_COMMENT -
 
