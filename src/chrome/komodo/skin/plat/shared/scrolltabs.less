@@ -14,6 +14,23 @@ tab[type="file-tab"]
     max-width: 250px;
 }
 
+ko-pane[type="sidebar"] tabs:not([type])
+{
+    .tab-text + .tab-close-button
+    {
+        visibility: collapse;
+    }
+    
+    &[widget-id^="findresults_tabpanel"],
+    &[widget-id^="debugsession"]
+    {
+        .tab-text + .tab-close-button
+        {
+            visibility: visible;
+        }
+    }
+}
+
 tab[widget^="findresults_tabpanel"],
 tab[widget^="debugsession"]
 {

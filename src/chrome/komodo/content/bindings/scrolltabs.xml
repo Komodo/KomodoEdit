@@ -126,11 +126,12 @@
         <content>
             <xul:box xbl:inherits="orient,pack,dir" flex="1"
                      align="center" pack="center">
-                <xul:hbox flex="1" pack="start" align="stretch"
+                <xul:hbox flex="1" pack="start" align="center"
                           anonid="label-box" xbl:inherits="align">
                     <xul:label anonid="label"
                                class="tab-text"
                                xbl:inherits="value=label"/>
+                    <xul:toolbarbutton anonid="close-button" class="tab-close-button close-icon"/>
                 </xul:hbox>
                 <xul:hbox class="noborder sidebar-buttons">
                     <xul:toolbarbutton anonid="tabs-list"
@@ -157,6 +158,15 @@
         <implementation>
             <property name="menuListPopup" readonly="true"
                 onget="return document.getAnonymousElementByAttribute(this,'anonid','tabs-list-popup');"/>
+            
+            <constructor>
+                var closeBtn = document.getAnonymousElementByAttribute(this, "anonid", "close-button");
+                closeBtn.addEventListener("mousedown", function(e) {
+                    this._mouseDownOnCloseButton = true;
+                    e.stopPropagation();
+                }.bind(this));
+            </constructor>
+            <field name="_mouseDownOnCloseButton">false</field>
 
             <method name="_createMenuItem">
                 <parameter name="tab"/>
@@ -214,9 +224,22 @@
             </method>
         </implementation>
         <handlers>
+            <handler event="mouseup" button="0" phase="capturing">
+            <![CDATA[
+                var anonid = event.originalTarget.getAttribute("anonid");
+                if (anonid == "close-button" && this._mouseDownOnCloseButton) {
+                    // Don't handle this event ourselves, as some tabs may not want to be closed
+                    // and we want this to be opt-in
+                    selectedItem.dispatchEvent(new Event("close-tab"));
+                }
+                this._mouseDownOnCloseButton = false;
+            ]]>
+            </handler>
+            
             <handler event="select" phase="capturing">
             <![CDATA[
                 this.setAttribute("label", selectedItem.label);
+                this.setAttribute("widget-id", selectedItem.getAttribute("widget"));
             ]]>
             </handler>
         </handlers>
@@ -958,6 +981,15 @@
                 document.getAnonymousNodes(this)[0]
             </field>
         </implementation>
+        <handlers>
+            <handler event="click" button="1" phase="capturing">
+            <![CDATA[
+                // Don't handle this event ourselves, as some tabs may not want to be closed
+                // and we want this to be opt-in
+                this.dispatchEvent(new Event("close-tab"));
+            ]]>
+            </handler>
+        </handlers>
     </binding>
     
     <binding id="tab-close-button"
@@ -999,6 +1031,14 @@
                         this.parentNode.removeChild(this);
                     }
                 }
+            ]]>
+            </handler>
+            
+            <handler event="click" button="1" phase="capturing">
+            <![CDATA[
+                // Don't handle this event ourselves, as some tabs may not want to be closed
+                // and we want this to be opt-in
+                this.dispatchEvent(new Event("close-tab"));
             ]]>
             </handler>
         </handlers>
