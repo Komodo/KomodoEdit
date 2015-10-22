@@ -231,6 +231,12 @@
                                           false);
               }
               widget.tab = tabpanel.tab;
+              
+              var icon = widget.getAttribute("icon");
+              if (icon) {
+                widget.tab.setAttribute("style", "list-style-image: url("+icon+")");
+              }
+              
               // hook up the mutation observer
               this._refreshTab(tabpanel);
               this._mutationObserver.observe(widget, {attributes: true});
