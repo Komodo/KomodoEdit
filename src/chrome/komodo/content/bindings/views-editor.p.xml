@@ -1036,6 +1036,7 @@
                 // Note: This isn't sent for other view types even
                 // though both "view_opened" and "view_closed" *are*.
                 xtk.domutils.fireEvent(this, 'view_closing');
+                this._isClosing = true;
 
                 var isLastDocumentInstance = (this.koDoc
                             && this.koDoc.numScintillas == 1);

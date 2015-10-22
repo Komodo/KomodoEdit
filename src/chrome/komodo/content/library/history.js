@@ -167,6 +167,11 @@ this.init = function() {
                             this._handle_closing_view_setup, false);
     window.addEventListener('view_closed',
                             this._handle_closing_view_setup, false);
+    window.addEventListener('view_closing', function(){
+        if ( ! deferred_loc) return;
+        this._note_loc.apply(this, deferred_loc);
+        deferred_loc = null;
+    }.bind(this));
     window.addEventListener('current_view_changed', this._handle_view_changed.bind(this), false);
     window.addEventListener('komodo-post-startup', function() {
         last_view = ko.views.manager.currentView;
@@ -286,7 +291,7 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
                                             defer) {
     
     if (typeof(view) == "undefined" || view == null) view = ko.views.manager.currentView;
-    if (!initialized || !view || this._marking) {
+    if (!initialized || !view || this._marking || view._isClosing) {
         // No views, we could be at startup
         return;
     }
@@ -324,14 +329,16 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
 
 this._note_loc = function(view, loc, check_section_change = false)
 {
+    if (view._isClosing) return;
+    
     try
     {
         _controller.historySvc.note_loc(loc, !! check_section_change, view);
     }
     catch (e)
     {
-        log.exception(e, "Could not note location");
-        returnl;
+        _log.exception(e, "Could not note location");
+        return;
     }
     _mark_pos_info(view);
 }
