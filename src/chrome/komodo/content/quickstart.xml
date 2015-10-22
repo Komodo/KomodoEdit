@@ -107,7 +107,7 @@
                         oncommand="ko.uilayout.customize()"/>
 
             </xul:vbox>
-            <xul:hbox align="end" pack="end" class="footer">
+            <xul:hbox align="end" pack="end" class="footer editor-field">
                 <xul:button label="Troubleshooting"
                         class="help-icon"
                         type="menu-button">
