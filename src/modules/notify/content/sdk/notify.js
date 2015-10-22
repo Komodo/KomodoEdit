@@ -371,7 +371,12 @@
 
         if (notif.opts.command)
         {
-            panel.find(".icon, .description").on("click", () => { notif.opts.command(); });
+            panel.find(".icon, .description").on("click", () => {
+                this.hideNotification(notif, false);
+                timers.setTimeout(() => {
+                    notif.opts.command();
+                }, 100);
+            });
         }
         
         var animate = prefs.getBoolean("notify_use_animations", true);
@@ -414,7 +419,7 @@
             panel.element().moveTo(pos.x, pos.y);
             
             // First one sometimes doesn't take
-            setTimeout(function() {
+            timers.setTimeout(function() {
                 panel.element().moveTo(pos.x, pos.y);
             }, 50);
         }
@@ -519,7 +524,7 @@
         }
     }
     
-    this.hideNotification = (notif) =>
+    this.hideNotification = (notif, animate) =>
     {
         log.debug("Hiding Notification");
         
@@ -556,7 +561,7 @@
         //    return;
         //}
         
-        var animate = prefs.getBoolean("notify_use_animations", true);
+        if (animate === undefined) animate = prefs.getBoolean("notify_use_animations", true);
         if ( ! animate)
         {
             panel.remove();
