@@ -391,7 +391,7 @@ if (typeof(ko.dragdrop)=='undefined') {
             case "application/x-moz-file":
                 local.log.debug("unpack:: x-moz-file: " + dragData);
                 // Ensure we decode the URI, bug 72873.
-                this.value = decodeURI(fileProtocolHandler.getURLSpecFromFile(dragData));
+                this.value = decodeURI(local.fileProtocolHandler.getURLSpecFromFile(dragData));
                 this.isURL = true;
                 break;
             case "application/x-moz-url":

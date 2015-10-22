@@ -273,6 +273,7 @@ class DjangoCILEDriver(UDLCILEDriver):
     lang = lang
     csl_lang = "JavaScript"
     tpl_lang = "Django"
+    css_lang = "CSS"
 
 
 

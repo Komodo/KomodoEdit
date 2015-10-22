@@ -59,6 +59,12 @@ $cons->Preprocess('find2.p.xul', 'find2.xul',
                   {"BOOGABOOGA" => "BOOGABOOGA"});
 $cons->InstallInChrome('find2.xul');
 
+$cons->Preprocess('embedded.p.xul', 'embedded.xul',
+                  # Third arg to turn on substitution (of internal
+                  # defines:
+                  {"BOOGABOOGA" => "BOOGABOOGA"});
+$cons->InstallInChrome('embedded.xul');
+
 $cons->InstallInChrome('findbar.xml');
 
 $cons->Preprocess('browseForDirs.p.js', 'browseForDirs.js');

@@ -1,0 +1,311 @@
+/* Delete this */
+/*
+#console
+{
+    background: rgb(240,240,240);
+}
+
+.statusbar
+{
+    background: rgb(210,210,210);
+}
+
+.hud
+{
+    background: rgb(190,190,190);
+    
+    .selected
+    {
+        background: blue;
+        color: white;
+    }
+}
+
+#input
+{
+    background: #FFF;
+}
+*/
+/* Delete this */
+
+*, *:before, *:after
+{
+    box-sizing: border-box;
+}
+
+html, body
+{
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font: message-box;
+    text-rendering: optimizeLegibility;
+    line-height: 1.5;
+}
+
+body {
+    overflow: hidden;
+    border: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+ul, li
+{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#console
+{
+    flex-grow: 1;
+    overflow: auto;
+}
+
+#output > li
+{
+    display: flex;
+    flex-direction: row;
+    font-family: monospace;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    
+    label
+    {
+        input[type="checkbox"]
+        {
+            position: absolute;
+            visibility: collapse;
+            clear: none;
+            float: left;
+            width: 0;
+            
+            & + *
+            {
+                cursor: pointer;
+                
+                &:after
+                {
+                    content: " -";
+                    font-weight: bold;
+                }
+                
+                &:hover
+                {
+                    text-decoration: underline;
+                }
+            }
+            
+            &:not(:checked)
+            {
+                & + * ~ *
+                {
+                    display: none !important;
+                }
+                
+                & + *
+                {
+                    &:after
+                    {
+                        content: " +";
+                    }
+                }
+            }
+            
+            &:checked
+            {
+                & + * ~ *
+                {
+                    display: block !important;
+                }
+            }
+        }
+    }
+    
+    &:before
+    {
+        display: inline-block;
+        width: 2rem;
+        text-align: center;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        font-weight: bold;
+        margin: 0 4px;
+        flex-shrink: 0;
+    }
+    
+    &.input:before { content: '>'; color: #3583FC; }
+    &.output:before { content: '<'; color: #848484; }
+    &.debug:before { content: 'dbg'; color: #848484; }
+    &.info:before { content: 'nfo'; color: #27A700; }
+    &.warning:before { content: 'wrn'; color: #E58E1D; }
+    &.error:before { content: 'err'; color: #E81D20; }
+    &.exception:before { content: 'exc'; color: #C42B2B; }
+    
+    &.exception .message
+    {
+        font-style: italic;
+    }
+    
+    & > div
+    {
+        display: inline-block;
+        padding: 0 4px;
+        line-height: 1.5rem;
+    }
+    
+    .type-indicator
+    {
+        vertical-align: top;
+        font-weight: bold;
+    }
+    
+    .message
+    {
+        flex-grow: 1;
+        
+        li.complex-format
+        {
+            ul
+            {
+                font-size: 0.8rem;
+                line-height: 1rem;
+                margin-left: 1rem;
+            }
+            
+            li.prototype
+            {
+                opacity: 0.8;
+                font-style: italic;
+            }
+            
+            & > *, label > *
+            {
+                display: inline-block;
+            }
+            
+            & > ul
+            {
+                display: block;
+            }
+        }
+    }
+    
+    &:not(.input) 
+    {
+        .message { color: #6B6B6B; } /* default */
+        
+        .type-string { color: #51A552; }
+        .type-number { color: #D6AC39; }
+        .type-object { color: #55A8C6; }
+        .type-array { color: #7F20D8; }
+        .type-undefined { color: #A0A0A0; }
+        .type-boolean { color: #CE44C5; }
+        .type-element { color: #54C4CE; }
+        .type-function { color: #8E8466; }
+        .type-exception { color: #C42B2B; }
+    }
+    
+    .timestamp
+    {
+        opacity: 0.6;
+        flex-shrink: 0;
+    }
+    
+}
+
+.statusbar
+{
+    display: flex;
+    align-items: center;
+    min-height: 1.5rem;
+    flex-shrink: 0;
+    
+    #input-wrapper
+    {
+        width: 100vw;
+        padding-left: 1rem;
+        margin: 4px;
+        
+        & > *
+        {
+            display: inline-block;
+        }
+        
+        &:before
+        {
+            vertical-align: top;
+            content: '> ';
+            color: #3583FC;
+            font-size: 1rem;
+            line-height: 1.5rem;
+            font-weight: bold;
+            margin-left: -0.8rem;
+        }
+    }
+    
+    #input, #input-mock
+    {
+        line-height: 1.5rem;
+        font-size: 1rem;
+        white-space: pre;
+        font-family: monospace;
+        
+        * { /* yay xbl bindings */
+            white-space: pre;
+        }
+    }
+    
+    #input
+    {
+        width: ~"calc(100vw - 25px)";
+        max-height: 6rem;
+        overflow: auto;
+        height: 1.5rem;
+        background: transparent;
+        border: 0;
+        margin: 0;
+        border: 0;
+        color: inherit;
+        resize: none;
+        vertical-align: middle;
+        
+        &:focus
+        {
+            outline: 0;
+        }
+    }
+    
+    #input-mock
+    {
+        visibility: hidden;
+        position: absolute;
+    }
+}
+
+.autocomplete-suggestions
+{
+    position: absolute;
+    display: none;
+    z-index: 9999;
+    max-height: 200px;
+    overflow: hidden;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+.autocomplete-suggestion
+{
+    position: relative;
+    padding: 0 .6em;
+    line-height: 23px;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 1.02em;
+    width: auto;
+}
+.autocomplete-suggestion b
+{
+    font-weight: normal;
+    color: #1f8dd6;
+}

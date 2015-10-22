@@ -700,8 +700,8 @@ this._getLoadedMacros = function(paths) {
         }
     }
     if (dirtyMacros.length) {
-        var title = "Save unchanged macros?";
-        var prompt = "Some of the macros to move are loaded in the editor with unsaved changes";
+        var title = "Save unchanged userscripts?";
+        var prompt = "Some of the userscripts to move are loaded in the editor with unsaved changes";
         var selectionCondition = "zero-or-more";
         var i = 0;      
         var itemsToSave = ko.dialogs.selectFromList(title, prompt, dirtyMacros, selectionCondition);
@@ -936,7 +936,7 @@ this.deleteItem = function(event) {
             if (ko.views.manager.getViewForURI(url)) {
                 var response = "No";
                 var text = null;
-                var title = ("Do you want to close the macro "
+                var title = ("Do you want to close the userscript "
                              + tool.name
                              + "?");
                 var result = ko.dialogs.yesNoCancel(question, response, text, title);

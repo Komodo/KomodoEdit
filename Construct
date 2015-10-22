@@ -63,7 +63,6 @@ my @toExport = (
     'withWatchdogFSNotifications',
     'withPGOGeneration',
     'withPGOCollection',
-    'withDocs',
     'withKomodoCix',
     'universal', # universal binary builds for osx
 
@@ -80,8 +79,6 @@ my @toExport = (
     'supportDir',
     'sdkDir',
     'stubDir',
-    'docChromeDir',
-    'docDir',
     'readmeDir',
     'sysdllsDir',
     'installSupportDir',
@@ -394,6 +391,7 @@ Build(
     "$build/lint/Conscript",
     "$build/lint/CSS/Conscript",
     "$build/lint/javascript/Conscript",
+    "$build/lint/JSON/Conscript",
     "$build/lint/perl/Conscript",
     "$build/main/Conscript",
     "$build/components/Conscript",
@@ -442,6 +440,8 @@ Build(
     "$build/modules/notify/Conscript",
     "$build/modules/editorconfig/Conscript",
     "$build/modules/focusmode/Conscript",
+    "$build/modules/console/Conscript",
+    "$build/modules/elastic_tabstops/Conscript",
 
     "$build/modules/iconset_ambiance/Conscript",
     "$build/modules/iconset_blue/Conscript",
@@ -454,6 +454,7 @@ Build(
     "$build/modules/iconset_orange/Conscript",
     "$build/modules/iconset_radiance/Conscript",
     "$build/modules/icomoon/Conscript",
+    "$build/modules/fontawesome/Conscript",
 
     "$build/modules/check_compatibility/Conscript",
 

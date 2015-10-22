@@ -24,7 +24,7 @@
     {
         .appearance(@id, wrapper, "");
         .sizing(@id, wrapper, @orient, "");
-
+        
         slider {
             .appearance(@id, slider, "");
             .sizing(@id, slider, @orient, "");
@@ -98,7 +98,7 @@ page:hover scrollbar:not([for="scintilla"]) { opacity: 1.0; }
 /* Mainly intended for commando result richlistbox, where we need to force
    scrollbar visibility manually because XUL flex and scrolling do not go well
    together */
-richlistbox:not(.scrollable) scrollbar
+richlistbox#commando-results:not(.scrollable) scrollbar
 {
     visibility: collapse;
 }

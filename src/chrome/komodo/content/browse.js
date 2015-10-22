@@ -150,18 +150,6 @@ this.showCommandIds = function browse_ShowCommandIds()
 }
 
 /**
- * show the url defined in "localHelpFile" in an instance of koIAppInfoEx
- *
- * @param {String} app the app identifier from the CID of a koIAppInfoEx
- *                 implementation (eg. @activestate.com/koAppInfoEx?app=Perl)
- */
-this.localHelp = function(app) {
-    var info = Components.classes["@activestate.com/koAppInfoEx?app="+app+";1"]
-                      .getService(Components.interfaces.koIAppInfoEx);
-    ko.browse.openUrlInDefaultBrowser(info.localHelpFile);
-}
-
-/**
  * show the url defined in "webHelpURL" in an instance of koIAppInfoEx
  *
  * @param {String} app the app identifier from the CID of a koIAppInfoEx
@@ -182,61 +170,6 @@ this.aspnMailingList = function(topic) {
     var url = "http://code.activestate.com/lists/#"+topic;
     ko.browse.openUrlInDefaultBrowser(url);
 }
-
-/**
- * Hide or show the local help entries in the Help->Languages popup
- * depending on whether an actual help file to launch can be found.
- */
-this.updateHelpLanguagesPopup = function browse_UpdateHelpLanguagesPopup() {
-    var perlInfoSvc = Components.classes['@activestate.com/koAppInfoEx?app=Perl;1'].
-                      getService(Components.interfaces.koIAppInfoEx);
-    var perlWidget = document.getElementById("menu_helpPerlRef_Local");
-    var perlHelpFile = perlInfoSvc.localHelpFile;
-    if (perlHelpFile) {
-        perlWidget.removeAttribute("hidden");
-        perlWidget.removeAttribute("collapsed");
-    } else {
-        perlWidget.setAttribute("hidden", true);
-        perlWidget.setAttribute("collapsed", true);
-    }
-
-    var pythonInfoSvc = Components.classes['@activestate.com/koAppInfoEx?app=Python;1'].
-                        getService(Components.interfaces.koIAppInfoEx);
-    var pythonWidget = document.getElementById("menu_helpPythonRef_Local");
-    var pythonHelpFile = pythonInfoSvc.localHelpFile;
-    if (pythonHelpFile) {
-        pythonWidget.removeAttribute("hidden");
-        pythonWidget.removeAttribute("collapsed");
-    } else {
-        pythonWidget.setAttribute("hidden", true);
-        pythonWidget.setAttribute("collapsed", true);
-    }    
-
-    pythonInfoSvc = Components.classes['@activestate.com/koAppInfoEx?app=Python3;1'].
-                        getService(Components.interfaces.koIAppInfoEx);
-    pythonWidget = document.getElementById("menu_helpPython3Ref_Local");
-    pythonHelpFile = pythonInfoSvc.localHelpFile;
-    if (pythonHelpFile) {
-        pythonWidget.removeAttribute("hidden");
-        pythonWidget.removeAttribute("collapsed");
-    } else {
-        pythonWidget.setAttribute("hidden", true);
-        pythonWidget.setAttribute("collapsed", true);
-    }
-
-    var tclInfoSvc = Components.classes['@activestate.com/koAppInfoEx?app=Tcl;1'].
-                     getService(Components.interfaces.koIAppInfoEx);
-    var tclWidget = document.getElementById("menu_helpTclRef_Local");
-    var tclHelpFile = tclInfoSvc.localHelpFile;
-    if (tclHelpFile) {
-        tclWidget.removeAttribute("hidden");
-        tclWidget.removeAttribute("collapsed");
-    } else {
-        tclWidget.setAttribute("hidden", true);
-        tclWidget.setAttribute("collapsed", true);
-    }
-}
-
 
 // About build info (copied from about.js).
 function _getAboutBuildInfo() {

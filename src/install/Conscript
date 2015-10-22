@@ -121,8 +121,6 @@ if ($buildFlavour eq "full") {
             "wix/komodo.wxs.in",
             "wix/feature-core.template.in",
             "wix/feature-core.ini",
-            "wix/feature-docs.template.in",
-            "wix/feature-docs.ini",
             "wix/feature-env.wxs.in",
             "wix/config.wxi",
             "wix/guids.wxi",

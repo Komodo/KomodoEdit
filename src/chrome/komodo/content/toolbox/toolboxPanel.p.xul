@@ -273,8 +273,8 @@
                       class="menuitem-iconic"
                       oncommand="ko.toolbox2.invoke_openURLInTab()"
                       hideUnless="URL"
-                      />
                       testDisableIf="t:multipleSelection"
+                      />
             <menuitem id="toolbox2ContextMenu_share"
                       class="menuitem-iconic"
                       label="&shareTool.label;"

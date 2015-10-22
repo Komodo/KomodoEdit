@@ -82,7 +82,7 @@
 
     <h1>Scintilla Documentation</h1>
 
-    <p>Last edited 24 November 2014 NH</p>
+    <p>Last edited 11 June 2015 NH</p>
 
     <p>There is <a class="jump" href="Design.html">an overview of the internal design of
     Scintilla</a>.<br />
@@ -169,7 +169,9 @@
           <td>Arguments point at text buffers that Scintilla will fill with text. In some cases,
           another argument will tell Scintilla the buffer size. In others, you must make sure that
           the buffer is big enough to hold the requested text. If a NULL pointer (0) is passed
-          then, for SCI_* calls, the length that should be allocated is returned.</td>
+          then, for SCI_* calls, the length that should be allocated, not including any terminating
+          NUL, is returned. Some calls (marked "NUL-terminated") add a NUL character to the result but other calls do
+          not: to generically handle both types, allocate one more byte than indicated and set it to NUL.</td>
         </tr>
 
         <tr>
@@ -417,7 +419,7 @@
      <a class="message" href="#SCI_SETLENGTHFORENCODE">SCI_SETLENGTHFORENCODE(int bytes)</a><br />
     </code>
 
-    <p><b id="SCI_GETTEXT">SCI_GETTEXT(int length, char *text)</b><br />
+    <p><b id="SCI_GETTEXT">SCI_GETTEXT(int length, char *text NUL-terminated)</b><br />
      This returns <code>length</code>-1 characters of text from the start of the document plus one
     terminating 0 character. To collect all the text in a document, use <code>SCI_GETLENGTH</code>
     to get the number of characters in the document (<code>nLen</code>), allocate a character
@@ -585,12 +587,14 @@ struct Sci_TextRange {
 };
 </pre>
 
-    <h3 id="EncodedAccess">GTK+-specific: Access to encoded text</h3>
+    <h3 id="EncodedAccess">Specific to GTK+, Cocoa and Windows only: Access to encoded text</h3>
 
     <p><b id="SCI_TARGETASUTF8">SCI_TARGETASUTF8(&lt;unused&gt;, char *s)</b><br />
      This method retrieves the value of the target encoded as UTF-8 which is the default
      encoding of GTK+ so is useful for retrieving text for use in other parts of the user interface,
      such as find and replace dialogs. The length of the encoded text in bytes is returned.
+     Cocoa uses UTF-16 which is easily converted from UTF-8 so this method can be used to perform the
+     more complex work of transcoding from the various encodings supported.
     </p>
 
     <p><b id="SCI_ENCODEDFROMUTF8">SCI_ENCODEDFROMUTF8(const char *utf8, char *encoded)</b><br />
@@ -635,11 +639,15 @@ struct Sci_TextRange {
      <a class="message" href="#SCI_GETTARGETSTART">SCI_GETTARGETSTART</a><br />
      <a class="message" href="#SCI_SETTARGETEND">SCI_SETTARGETEND(int pos)</a><br />
      <a class="message" href="#SCI_GETTARGETEND">SCI_GETTARGETEND</a><br />
+     <a class="message" href="#SCI_SETTARGETRANGE">SCI_SETTARGETRANGE(int start, int end)</a><br />
      <a class="message" href="#SCI_TARGETFROMSELECTION">SCI_TARGETFROMSELECTION</a><br />
+     <a class="message" href="#SCI_TARGETWHOLEDOCUMENT">SCI_TARGETWHOLEDOCUMENT</a><br />
      <a class="message" href="#SCI_SETSEARCHFLAGS">SCI_SETSEARCHFLAGS(int searchFlags)</a><br />
      <a class="message" href="#SCI_GETSEARCHFLAGS">SCI_GETSEARCHFLAGS</a><br />
      <a class="message" href="#SCI_SEARCHINTARGET">SCI_SEARCHINTARGET(int length, const char
     *text)</a><br />
+     <a class="message" href="#SCI_GETTARGETTEXT">SCI_GETTARGETTEXT(&lt;unused&gt;,
+     char *text)</a><br />
      <a class="message" href="#SCI_REPLACETARGET">SCI_REPLACETARGET(int length, const char
     *text)</a><br />
      <a class="message" href="#SCI_REPLACETARGETRE">SCI_REPLACETARGETRE(int length, const char
@@ -651,6 +659,7 @@ struct Sci_TextRange {
      <b id="SCI_GETTARGETSTART">SCI_GETTARGETSTART</b><br />
      <b id="SCI_SETTARGETEND">SCI_SETTARGETEND(int pos)</b><br />
      <b id="SCI_GETTARGETEND">SCI_GETTARGETEND</b><br />
+     <b id="SCI_SETTARGETRANGE">SCI_SETTARGETRANGE(int start, int end)</b><br />
      These functions set and return the start and end of the target. When searching
      you can set start greater than end to find the last matching text in the
     target rather than the first matching text. The target is also set by a successful
@@ -658,6 +667,9 @@ struct Sci_TextRange {
 
      <p><b id="SCI_TARGETFROMSELECTION">SCI_TARGETFROMSELECTION</b><br />
      Set the target start and end to the start and end positions of the selection.</p>
+
+     <p><b id="SCI_TARGETWHOLEDOCUMENT">SCI_TARGETWHOLEDOCUMENT</b><br />
+     Set the target start to the start of the document and target end to the end of the document.</p>
 
     <p><b id="SCI_SETSEARCHFLAGS">SCI_SETSEARCHFLAGS(int searchFlags)</b><br />
      <b id="SCI_GETSEARCHFLAGS">SCI_GETSEARCHFLAGS</b><br />
@@ -672,6 +684,9 @@ struct Sci_TextRange {
     set by <code>SCI_SETSEARCHFLAGS</code>. If the search succeeds, the target is set to the found
     text and the return value is the position of the start of the matching text. If the search
     fails, the result is -1.</p>
+
+    <p><b id="SCI_GETTARGETTEXT">SCI_GETTARGETTEXT(&lt;unused&gt;, char *text)</b><br />
+     Retrieve the value in the target.</p>
 
     <p><b id="SCI_REPLACETARGET">SCI_REPLACETARGET(int length, const char *text)</b><br />
      If <code>length</code> is -1, <code>text</code> is a zero terminated string, otherwise
@@ -691,7 +706,7 @@ struct Sci_TextRange {
            After replacement, the target range refers to the replacement text.
            The return value is the length of the replacement string.</p>
 
-    <p><b id="SCI_GETTAG">SCI_GETTAG(int tagNumber, char *tagValue)</b><br />
+    <p><b id="SCI_GETTAG">SCI_GETTAG(int tagNumber, char *tagValue NUL-terminated)</b><br />
      Discover what text was matched by tagged expressions in a regular expression search.
      This is useful if the application wants to interpret the replacement string itself.</p>
 
@@ -1164,6 +1179,7 @@ struct Sci_TextToFind {
     onlyWordCharacters)</a><br />
      <a class="message" href="#SCI_WORDSTARTPOSITION">SCI_WORDSTARTPOSITION(int position, bool
     onlyWordCharacters)</a><br />
+     <a class="message" href="#SCI_ISRANGEWORD">SCI_ISRANGEWORD(int start, int end)</a><br />
      <a class="message" href="#SCI_POSITIONBEFORE">SCI_POSITIONBEFORE(int position)</a><br />
      <a class="message" href="#SCI_POSITIONAFTER">SCI_POSITIONAFTER(int position)</a><br />
      <a class="message" href="#SCI_POSITIONRELATIVE">SCI_POSITIONRELATIVE(int position, int relative)</a><br />
@@ -1322,7 +1338,7 @@ struct Sci_TextToFind {
     href="#SCI_GETLINEENDPOSITION"><code>SCI_GETLINEENDPOSITION(line)</code></a> - <a class="message"
     href="#SCI_POSITIONFROMLINE"><code>SCI_POSITIONFROMLINE(line)</code></a>.</p>
 
-    <p><b id="SCI_GETSELTEXT">SCI_GETSELTEXT(&lt;unused&gt;, char *text)</b><br />
+    <p><b id="SCI_GETSELTEXT">SCI_GETSELTEXT(&lt;unused&gt;, char *text NUL-terminated)</b><br />
      This copies the currently selected text and a terminating 0 byte to the <code>text</code>
     buffer. The buffer size should be determined by calling with a NULL pointer for the <code>text</code> argument
     <code>SCI_GETSELTEXT(0,0)</code>.
@@ -1337,7 +1353,7 @@ struct Sci_TextToFind {
     <a class="message" href="#SCI_GETTEXTRANGE">SCI_GETTEXTRANGE</a>
     </code></p>
 
-    <p><b id="SCI_GETCURLINE">SCI_GETCURLINE(int textLen, char *text)</b><br />
+    <p><b id="SCI_GETCURLINE">SCI_GETCURLINE(int textLen, char *text NUL-terminated)</b><br />
      This retrieves the text of the line containing the caret and returns the position within the
     line of the caret. Pass in <code>char* text</code> pointing at a buffer large enough to hold
     the text you wish to retrieve and a terminating 0 character.
@@ -1387,6 +1403,12 @@ struct Sci_TextToFind {
     <a class="message" href="#SCI_SETWORDCHARS"><code>SCI_SETWORDCHARS</code></a>. The position
     sets the start or the search, which is forwards when searching for the end and backwards when
     searching for the start.</p>
+
+    <p><b id="SCI_ISRANGEWORD">SCI_ISRANGEWORD(int start, int end)</b><br />
+     Is the range start..end a word or set of words? This message checks that start is at a word start transition and that
+     end is at a word end transition. It does not check whether there are any spaces inside the range.</p>
+
+     <a class="message" href="#SCI_ISRANGEWORD">SCI_ISRANGEWORD(int start, int end)</a><br />
 
     <p>Set <code>onlyWordCharacters</code> to <code>true</code> (1) to stop searching at the first
     non-word character in the search direction. If <code>onlyWordCharacters</code> is
@@ -1613,6 +1635,8 @@ struct Sci_TextToFind {
 
      <a class="message" href="#SCI_SWAPMAINANCHORCARET">SCI_SWAPMAINANCHORCARET</a><br />
      <a class="message" href="#SCI_ROTATESELECTION">SCI_ROTATESELECTION</a><br />
+     <a class="message" href="#SCI_MULTIPLESELECTADDNEXT">SCI_MULTIPLESELECTADDNEXT</a><br />
+     <a class="message" href="#SCI_MULTIPLESELECTADDEACH">SCI_MULTIPLESELECTADDEACH</a><br />
     </code>
 
     <p>
@@ -1676,7 +1700,7 @@ struct Sci_TextToFind {
 
     <p>
     <b id="SCI_GETSELECTIONS">SCI_GETSELECTIONS</b><br />
-     Return the number of selections currently active.</p>
+     Return the number of selections currently active. There is always at least one selection.</p>
 
     <p>
     <b id="SCI_GETSELECTIONEMPTY">SCI_GETSELECTIONEMPTY</b><br />
@@ -1727,7 +1751,7 @@ struct Sci_TextToFind {
      <b id="SCI_SETSELECTIONNEND">SCI_SETSELECTIONNEND(int selection, int pos)</b><br />
      <b id="SCI_GETSELECTIONNEND">SCI_GETSELECTIONNEND(int selection)</b><br />
      Set or query the start and end position of each already existing selection.
-     Mostly of use to query each range for its text.</p>
+     Mostly of use to query each range for its text. The selection parameter is zero-based. </p>
 
     <p>
      <b id="SCI_SETRECTANGULARSELECTIONCARET">SCI_SETRECTANGULARSELECTIONCARET(int pos)</b><br />
@@ -1778,9 +1802,17 @@ struct Sci_TextToFind {
     <p>
      <b id="SCI_SWAPMAINANCHORCARET">SCI_SWAPMAINANCHORCARET</b><br />
      <b id="SCI_ROTATESELECTION">SCI_ROTATESELECTION</b><br />
+     <b id="SCI_MULTIPLESELECTADDNEXT">SCI_MULTIPLESELECTADDNEXT</b><br />
+     <b id="SCI_MULTIPLESELECTADDEACH">SCI_MULTIPLESELECTADDEACH</b><br />
      These commands may be assigned to keys to make it possible to manipulate multiple selections.
      <code>SCI_SWAPMAINANCHORCARET</code> moves the caret to the opposite end of the main selection.
-     <code>SCI_ROTATESELECTION</code> makes the next selection be the main selection.
+     <code>SCI_ROTATESELECTION</code> makes the next selection be the main selection.<br />
+     <code>SCI_MULTIPLESELECTADDNEXT</code> adds the next occurrence of the main selection
+     within the target to the set of selections as main. If the current selection is empty then select word around caret.
+      The current <a class="jump" href="#searchFlags"><code>searchFlags</code></a>
+      are used so the application may choose case sensitivity and word search options.<br />
+     <code>SCI_MULTIPLESELECTADDEACH</code> is similar to
+     <code>SCI_MULTIPLESELECTADDNEXT</code> but adds multiple occurrences instead of just one.
      </p>
 
     <h2 id="ScrollingAndAutomaticScrolling">Scrolling and automatic scrolling</h2>
@@ -2361,18 +2393,21 @@ struct Sci_TextToFind {
      The unused argument was used in earlier versions but is now ignored.
      After
     <code>SCI_STARTSTYLING</code>, send multiple <code>SCI_SETSTYLING</code> messages for each
-    lexical entity to style.</p>
+    lexical entity to style or send <code>SCI_SETSTYLINGEX</code> to style in blocks.</p>
 
     <p><b id="SCI_SETSTYLING">SCI_SETSTYLING(int length, int style)</b><br />
      This message sets the style of <code>length</code> characters starting at the styling position
-    and then increases the styling position by <code>length</code>, ready for the next call.<br />
+    and then increases the styling position by <code>length</code>, ready for the next call.
+    <code>SCI_STARTSTYLING</code> should be called before the first call to this.
     </p>
 
     <p><b id="SCI_SETSTYLINGEX">SCI_SETSTYLINGEX(int length, const char *styles)</b><br />
      As an alternative to <code>SCI_SETSTYLING</code>, which applies the same style to each byte,
     you can use this message which specifies the styles for each of <code>length</code> bytes from
     the styling position and then increases the styling position by <code>length</code>, ready for
-    the next call.</p>
+    the next call.
+    <code>SCI_STARTSTYLING</code> should be called before the first call to this.
+    </p>
 
     <p><b id="SCI_SETLINESTATE">SCI_SETLINESTATE(int line, int value)</b><br />
      <b id="SCI_GETLINESTATE">SCI_GETLINESTATE(int line)</b><br />
@@ -2564,7 +2599,7 @@ struct Sci_TextToFind {
      3. Set the style attributes that make your lexical styles different.</p>
 
     <p><b id="SCI_STYLESETFONT">SCI_STYLESETFONT(int styleNumber, const char *fontName)</b><br />
-    <b id="SCI_STYLEGETFONT">SCI_STYLEGETFONT(int styleNumber, char *fontName)</b><br />
+    <b id="SCI_STYLEGETFONT">SCI_STYLEGETFONT(int styleNumber, char *fontName NUL-terminated)</b><br />
     <b id="SCI_STYLESETSIZE">SCI_STYLESETSIZE(int styleNumber, int sizeInPoints)</b><br />
     <b id="SCI_STYLEGETSIZE">SCI_STYLEGETSIZE(int styleNumber)</b><br />
     <b id="SCI_STYLESETSIZEFRACTIONAL">SCI_STYLESETSIZEFRACTIONAL(int styleNumber, int sizeInHundredthPoints)</b><br />
@@ -2577,11 +2612,15 @@ struct Sci_TextToFind {
     <b id="SCI_STYLEGETITALIC">SCI_STYLEGETITALIC(int styleNumber)</b><br />
      These messages (plus <a class="message"
     href="#SCI_STYLESETCHARACTERSET"><code>SCI_STYLESETCHARACTERSET</code></a>) set the font
-    attributes that are used to match the fonts you request to those available. The
+    attributes that are used to match the fonts you request to those available.</p>
+    <p>The
     <code>fontName</code> is a zero terminated string holding the name of a font. Under Windows,
-    only the first 32 characters of the name are used and the name is not case sensitive. For
+    only the first 32 characters of the name are used, the name is decoded as UTF-8, and the name is not case sensitive. For
     internal caching, Scintilla tracks fonts by name and does care about the casing of font names,
-    so please be consistent. On GTK+, Pango is used to display text.</p>
+    so please be consistent.
+    On GTK+, Pango is used to display text and the name is sent directly to Pango without transformation.
+    On Qt, the name is decoded as UTF-8.
+    On Cocoa, the name is decoded as MacRoman.</p>
     <p>Sizes can be set to a whole number of points with <code>SCI_STYLESETSIZE</code>
     or to a fractional point size in hundredths of a point with <code>SCI_STYLESETSIZEFRACTIONAL</code>
     by multiplying the size by 100 (<code>SC_FONT_SIZE_MULTIPLIER</code>).
@@ -2865,7 +2904,7 @@ struct Sci_TextToFind {
     </code>
 
     <p><b id="SCI_SETREPRESENTATION">SCI_SETREPRESENTATION(const char *encodedCharacter, const char *representation)</b><br />
-     <b id="SCI_GETREPRESENTATION">SCI_GETREPRESENTATION(const char *encodedCharacter, char *representation)</b><br />
+     <b id="SCI_GETREPRESENTATION">SCI_GETREPRESENTATION(const char *encodedCharacter, char *representation NUL-terminated)</b><br />
      <b id="SCI_CLEARREPRESENTATION">SCI_CLEARREPRESENTATION(const char *encodedCharacter)</b><br />
     Any character, including those normally displayed  as mnemonics may be represented by a
     string inverted in a rounded rectangle.</p>
@@ -3201,8 +3240,6 @@ struct Sci_TextToFind {
      <a class="message" href="#SCI_GETCODEPAGE">SCI_GETCODEPAGE</a><br />
      <a class="message" href="#SCI_SETIMEINTERACTION">SCI_SETIMEINTERACTION(int imeInteraction)</a><br />
      <a class="message" href="#SCI_GETIMEINTERACTION">SCI_GETIMEINTERACTION</a><br />
-     <a class="message" href="#SCI_SETKEYSUNICODE">SCI_SETKEYSUNICODE(bool keysUnicode)</a><br />
-     <a class="message" href="#SCI_GETKEYSUNICODE">SCI_GETKEYSUNICODE</a><br />
      <a class="message" href="#SCI_SETWORDCHARS">SCI_SETWORDCHARS(&lt;unused&gt;, const char *characters)</a><br />
      <a class="message" href="#SCI_GETWORDCHARS">SCI_GETWORDCHARS(&lt;unused&gt;, char *characters)</a><br />
      <a class="message" href="#SCI_SETWHITESPACECHARS">SCI_SETWHITESPACECHARS(&lt;unused&gt;, const char *characters)</a><br />
@@ -3329,12 +3366,6 @@ struct Sci_TextToFind {
      <p>The windowed behaviour can be chosen with <code>SCI_SETIMEINTERACTION(SC_IME_WINDOWED)</code>
      and the inline behaviour with <code>SCI_SETIMEINTERACTION(SC_IME_INLINE)</code>.
      Scintilla may ignore this call in some cases. For example, the inline behaviour might only be supported for some languages.</p>
-
-    <p><b id="SCI_SETKEYSUNICODE">SCI_SETKEYSUNICODE(bool keysUnicode)</b><br />
-     <b id="SCI_GETKEYSUNICODE">SCI_GETKEYSUNICODE</b><br />
-     On Windows, character keys are normally handled differently depending on whether Scintilla is a wide
-     or narrow character window with character messages treated as Unicode when wide and as 8 bit otherwise.
-     Set this property to always treat as Unicode. This option is needed for Delphi.</p>
 
     <p><b id="SCI_SETWORDCHARS">SCI_SETWORDCHARS(&lt;unused&gt;, const char *characters)</b><br />
      Scintilla has several functions that operate on words, which are defined to be contiguous
@@ -3896,8 +3927,12 @@ struct Sci_TextToFind {
     They can be used to show, for example, syntax errors, deprecated names and bad indentation
     by drawing underlines under text or boxes around text.</p>
 
+    <p>Indicators may have a different "hover" colour and style when the mouse is over them or the caret is moved into them.
+    This may be used, for example, to indicate that a URL can be clicked.</p>
+
     <p>Indicators may be displayed as simple underlines, squiggly underlines, a
-    line of small 'T' shapes, a line of diagonal hatching, a strike-out or a rectangle around the text.</p>
+    line of small 'T' shapes, a line of diagonal hatching, a strike-out or a rectangle around the text.
+    They may also be invisible when used to track pieces of content for the application as <code>INDIC_HIDDEN</code>.</p>
 
     <p>The <code>SCI_INDIC*</code> messages allow you to get and set the visual appearance of the
     indicators. They all use an <code>indicatorNumber</code> argument in the range 0 to INDIC_MAX(35)
@@ -3905,6 +3940,11 @@ struct Sci_TextToFind {
     by lexers (0..7) a range for use by containers
     (8=<code>INDIC_CONTAINER</code> .. 31=<code>INDIC_IME-1</code>)
     and a range for IME indicators (32=<code>INDIC_IME</code> .. 35=<code>INDIC_IME_MAX</code>).</p>
+
+    <p>Indicators are stored in a format similar to run length encoding which is efficient in both
+    speed and storage for sparse information.</p>
+    <p>An indicator may store different values for each range but currently all values are drawn the same.
+    In the future, it may be possible to draw different values in different styles.</p>
 
     <p>Originally, Scintilla used a different technique for indicators but this
     has been <a href="#RemovedFeatures">removed</a>
@@ -3924,6 +3964,15 @@ struct Sci_TextToFind {
      <a class="message" href="#SCI_INDICGETOUTLINEALPHA">SCI_INDICGETOUTLINEALPHA(int indicatorNumber)</a><br />
      <a class="message" href="#SCI_INDICSETUNDER">SCI_INDICSETUNDER(int indicatorNumber, bool under)</a><br />
      <a class="message" href="#SCI_INDICGETUNDER">SCI_INDICGETUNDER(int indicatorNumber)</a><br />
+    <a class="message" href="#SCI_INDICSETHOVERSTYLE">SCI_INDICSETHOVERSTYLE(int indicatorNumber, int
+    indicatorStyle)</a><br />
+     <a class="message" href="#SCI_INDICGETHOVERSTYLE">SCI_INDICGETHOVERSTYLE(int indicatorNumber)</a><br />
+     <a class="message" href="#SCI_INDICSETHOVERFORE">SCI_INDICSETHOVERFORE(int indicatorNumber, int
+    colour)</a><br />
+     <a class="message" href="#SCI_INDICGETHOVERFORE">SCI_INDICGETHOVERFORE(int indicatorNumber)</a><br />
+     <a class="message" href="#SCI_INDICSETFLAGS">SCI_INDICSETFLAGS(int indicatorNumber, int flags)</a><br />
+     <a class="message" href="#SCI_INDICGETFLAGS">SCI_INDICGETFLAGS(int indicatorNumber)</a><br />
+     <br />
 
      <a class="message" href="#SCI_SETINDICATORCURRENT">SCI_SETINDICATORCURRENT(int indicator)</a><br />
      <a class="message" href="#SCI_GETINDICATORCURRENT">SCI_GETINDICATORCURRENT</a><br />
@@ -4038,7 +4087,18 @@ struct Sci_TextToFind {
               interior usually more transparent than the border. You can use
               <a class="message" href="#SCI_INDICSETALPHA">SCI_INDICSETALPHA</a> and
 			  <a class="message" href="#SCI_INDICSETOUTLINEALPHA">SCI_INDICSETOUTLINEALPHA</a>
-              to control the alpha transparency values. The default alpha values are 30 for fill colour and 50 for outline colour.</td>
+              to control the alpha transparency values. The default alpha values are 30 for fill colour and 50 for outline colour.
+              This indicator does not colour the top pixel of the line so that indicators on contiguous lines are visually distinct
+              and disconnected.</td>
+        </tr>
+
+        <tr>
+          <td align="left"><code>INDIC_FULLBOX</code></td>
+
+          <td align="center">16</td>
+
+          <td>A rectangle around the text using translucent drawing similar to <code>INDIC_STRAIGHTBOX</code>
+              but covering the entire character area.</td>
         </tr>
 
         <tr>
@@ -4097,7 +4157,25 @@ struct Sci_TextToFind {
 
           <td>A 2-pixel thick underline located at the bottom of the line to try to avoid touching the character base.
 	  Each side is inset 1 pixel so that different indicators in this style covering a range appear isolated.
-	  This is similar to an appearance used for Asian language input composition.</td>
+	  This is similar to an appearance used for the target in Asian language input composition.</td>
+        </tr>
+
+        <tr>
+          <td align="left"><code>INDIC_COMPOSITIONTHIN</code></td>
+
+          <td align="center">15</td>
+
+          <td>A 1-pixel thick underline located just before the bottom of the line.
+	  Each side is inset 1 pixel so that different indicators in this style covering a range appear isolated.
+	  This is similar to an appearance used for non-target ranges in Asian language input composition.</td>
+        </tr>
+
+        <tr>
+          <td align="left"><code>INDIC_TEXTFORE</code></td>
+
+          <td align="center">17</td>
+
+          <td>Change the colour of the text to the indicator's fore colour.</td>
         </tr>
 
       </tbody>
@@ -4136,10 +4214,29 @@ struct Sci_TextToFind {
      Drawing under text works only for indicators when <a class="message" href="#SCI_SETTWOPHASEDRAW">two phase drawing</a>
      is enabled.</p>
 
-    <p>Indicators are stored in a format similar to run length encoding which is efficient in both
-    speed and storage for sparse information.</p>
-    <p>An indicator may store different values for each range but currently all values are drawn the same.
-    In the future, it may be possible to draw different values in different styles.</p>
+    <p><b id="SCI_INDICSETHOVERSTYLE">SCI_INDICSETHOVERSTYLE(int indicatorNumber, int
+    indicatorStyle)</b><br />
+     <b id="SCI_INDICGETHOVERSTYLE">SCI_INDICGETHOVERSTYLE(int indicatorNumber)</b><br />
+     <b id="SCI_INDICSETHOVERFORE">SCI_INDICSETHOVERFORE(int indicatorNumber, int <a class="jump" href="#colour">colour</a>)</b><br />
+     <b id="SCI_INDICGETHOVERFORE">SCI_INDICGETHOVERFORE(int indicatorNumber)</b><br />
+     These messages set and get the colour and style used to draw indicators when the mouse is over them or the caret moved into them.
+     The mouse cursor also changes when an indicator is drawn in hover style. 
+     The default is for the hover appearance to be the same as the normal appearance and calling
+     <a class="message" href="#SCI_INDICSETFORE">SCI_INDICSETFORE</a> or 
+     <a class="message" href="#SCI_INDICSETSTYLE">SCI_INDICSETSTYLE</a> will
+     also reset the hover attribute.</p>
+
+    <p><b id="SCI_INDICSETFLAGS">SCI_INDICSETFLAGS(int indicatorNumber, int flags)</b><br />
+     <b id="SCI_INDICGETFLAGS">SCI_INDICGETFLAGS(int indicatorNumber)</b><br />
+     These messages set and get the flags associated with an indicator.
+     There is currently one flag defined, <code>SC_INDICFLAG_VALUEFORE</code>: when this flag is set
+     the colour used by the indicator is not from the indicator's fore setting but instead from the value of the indicator at
+     that point in the file. This allows many colours to be displayed for a single indicator. The value is an <a class="jump"
+    href="#colour">RGB integer colour</a> that has been ored with <code>SC_INDICVALUEBIT</code>(0x1000000)
+    when calling <a class="message" href="#SCI_SETINDICATORVALUE">SCI_SETINDICATORVALUE</a>.
+    To find the colour from the value, and the value with <code>SC_INDICVALUEMASK</code>(0xFFFFFF).
+     </p>
+
     <p>
     <b id="SCI_SETINDICATORCURRENT">SCI_SETINDICATORCURRENT(int indicator)</b><br />
     <b id="SCI_GETINDICATORCURRENT">SCI_GETINDICATORCURRENT</b><br />
@@ -4334,7 +4431,7 @@ struct Sci_TextToFind {
     href="#SCI_AUTOCSETAUTOHIDE"><code>SCI_AUTOCSETAUTOHIDE</code></a>).<br />
     The current selection index can be retrieved with <code>SCI_AUTOCGETCURRENT</code>.</p>
 
-    <p><b id="SCI_AUTOCGETCURRENTTEXT">SCI_AUTOCGETCURRENTTEXT(&lt;unused&gt;, char *text)</b><br />
+    <p><b id="SCI_AUTOCGETCURRENTTEXT">SCI_AUTOCGETCURRENTTEXT(&lt;unused&gt;, char *text NUL-terminated)</b><br />
      This message retrieves the current selected text in the autocompletion list. Normally the
     <a class="message" href="#SCN_AUTOCSELECTION"><code>SCN_AUTOCSELECTION</code></a> notification
     is used instead.</p>
@@ -6031,7 +6128,7 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
     assigns unused lexer numbers to.</p>
 
     <p><b id="SCI_SETLEXERLANGUAGE">SCI_SETLEXERLANGUAGE(&lt;unused&gt;, const char *name)</b><br />
-    <b id="SCI_GETLEXERLANGUAGE">SCI_GETLEXERLANGUAGE(&lt;unused&gt;, char *name)</b><br />
+    <b id="SCI_GETLEXERLANGUAGE">SCI_GETLEXERLANGUAGE(&lt;unused&gt;, char *name NUL-terminated)</b><br />
      <code>SCI_SETLEXERLANGUAGE</code> lets you select a lexer by name, and is the only method if you are using an
     external lexer or if you have written a lexer module for a language of your own and do not wish
     to assign it an explicit lexer number. To select an existing lexer, set <code>name</code> to
@@ -6062,9 +6159,9 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
     Indicate that the internal state of a lexer has changed over a range and therefore
     there may be a need to redraw.</p>
 
-    <p><b id="SCI_PROPERTYNAMES">SCI_PROPERTYNAMES(&lt;unused&gt;, char *names)</b><br />
+    <p><b id="SCI_PROPERTYNAMES">SCI_PROPERTYNAMES(&lt;unused&gt;, char *names NUL-terminated)</b><br />
     <b id="SCI_PROPERTYTYPE">SCI_PROPERTYTYPE(const char *name)</b><br />
-    <b id="SCI_DESCRIBEPROPERTY">SCI_DESCRIBEPROPERTY(const char *name, char *description)</b><br />
+    <b id="SCI_DESCRIBEPROPERTY">SCI_DESCRIBEPROPERTY(const char *name, char *description NUL-terminated)</b><br />
     Information may be retrieved about the properties that can be set for the current lexer.
     This information is only available for newer lexers.
     <code>SCI_PROPERTYNAMES</code> returns a string with all of the valid properties separated by "\n".
@@ -6103,7 +6200,7 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
     Documentation for the property may be located above the call as a multi-line comment starting with
     <br/><code>// property &lt;property-name&gt;</code></p>
 
-    <p><b id="SCI_GETPROPERTY">SCI_GETPROPERTY(const char *key, char *value)</b><br />
+    <p><b id="SCI_GETPROPERTY">SCI_GETPROPERTY(const char *key, char *value NUL-terminated)</b><br />
     Lookup a keyword:value pair using the specified key; if found, copy the value to the user-supplied
     buffer and return the length (not including the terminating 0).  If not found, copy an empty string
     to the buffer and return 0.</p>
@@ -6155,7 +6252,7 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
     There is nothing to stop you building your own keyword lists into the lexer, but this means
     that the lexer must be rebuilt if more keywords are added.</p>
 
-    <p><b id="SCI_DESCRIBEKEYWORDSETS">SCI_DESCRIBEKEYWORDSETS(&lt;unused&gt;, char *descriptions)</b><br />
+    <p><b id="SCI_DESCRIBEKEYWORDSETS">SCI_DESCRIBEKEYWORDSETS(&lt;unused&gt;, char *descriptions NUL-terminated)</b><br />
     A description of all of the keyword sets separated by "\n" is returned by <code>SCI_DESCRIBEKEYWORDSETS</code>.</p>
 
     <h3 id="Substyles">Substyles</h3>
@@ -6166,7 +6263,7 @@ sptr_t CallScintilla(unsigned int iMessage, uptr_t wParam, sptr_t lParam){
     each purpose.
     Lexers have to explicitly support this feature by implementing the methods in <code>ILexerWithSubStyles</code>.</p>
 
-    <p><b id="SCI_GETSUBSTYLEBASES">SCI_GETSUBSTYLEBASES(&lt;unused&gt;, char *styles)</b><br />
+    <p><b id="SCI_GETSUBSTYLEBASES">SCI_GETSUBSTYLEBASES(&lt;unused&gt;, char *styles NUL-terminated)</b><br />
      Fill <code>styles</code> with a byte for each style that can be split into substyles.</p>
 
     <p><b id="SCI_DISTANCETOSECONDARYSTYLES">SCI_DISTANCETOSECONDARYSTYLES</b><br />
@@ -7320,6 +7417,7 @@ for line = lineStart to lineEnd do SCI_ENSUREVISIBLE(line) next
      These notifications are generated when the user clicks or double clicks on
      text that is in a style with the hotspot attribute set.
     This notification can be used to link to variable definitions or web pages.
+    In the notification handler, you should avoid calling any function that modifies the current selection or caret position.
     The <code>position</code> field is set the text position of the click or
     double click and the <code>modifiers</code> field set to the key modifiers
     held down in a similar manner to <a class="message" href="#SCN_KEY">SCN_KEY</a>.
@@ -7534,6 +7632,10 @@ EM_FORMATRANGE
     <b id="SCI_GETUSEPALETTE">SCI_GETUSEPALETTE</b> Deprecated<br />
      Scintilla no longer supports palette mode. The last version to support palettes was 2.29.
      Any calls to these methods should be removed.</p>
+ 
+    <p><b id="SCI_SETKEYSUNICODE">SCI_SETKEYSUNICODE(bool keysUnicode)</b> Deprecated<br />
+     <b id="SCI_GETKEYSUNICODE">SCI_GETKEYSUNICODE</b> Deprecated<br />
+     On Windows, Scintilla no longer supports narrow character windows so input is always treated as Unicode.</p>
 
     <p>The following are features that should be removed from calling code but are still
     defined to avoid breaking callers.</p>

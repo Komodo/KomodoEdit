@@ -1,0 +1,4 @@
+family markup
+
+state IN_M_DEFAULT:
+/\{\{\{?/ : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), => IN_TPL_DEFAULT

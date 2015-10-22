@@ -1,0 +1,57 @@
+# UDL lexer for Docker.
+
+language Docker
+
+family markup
+initial IN_M_DEFAULT
+state IN_M_DEFAULT:
+/./ : redo, => IN_SSL_DEFAULT
+
+################ Language Start ################
+
+family ssl # server side language
+
+start_style SSL_DEFAULT
+end_style SSL_VARIABLE
+
+keyword_style SSL_IDENTIFIER => SSL_WORD
+keywords [
+    'ADD', 'CMD', 'COPY', 'ENTRYPOINT', 'ENV', 'EXPOSE', 'FROM', 'LABEL',
+    'MAINTAINER', 'ONBUILD', 'RUN', 'USER', 'VOLUME', 'WORKDIR'
+]
+
+pattern FIRSTNAMECHAR = '_a-zA-Z\x80-\xff'
+pattern NAMECHAR = '$FIRSTNAMECHAR\d'
+pattern WS = '\s\t\r\n'
+
+################ Default Style ################
+
+state IN_SSL_DEFAULT:
+
+# ----------- Entering Comments ---------- #
+'#' : paint(upto, SSL_DEFAULT),  => IN_SSL_COMMENT_TO_EOL
+
+# ----------- Entering Whitespace ---------- #
+/[$WS]+/  : #stay
+
+# ----------- Entering Strings ---------- #
+'"' : paint(upto, SSL_DEFAULT), => IN_SSL_DSTRING
+'\'' : paint(upto, SSL_DEFAULT), => IN_SSL_SSTRING
+
+# ----------- Entering Identifiers ---------- #
+/[$FIRSTNAMECHAR][$NAMECHAR]*/ : paint(upto, SSL_DEFAULT), paint(include, SSL_IDENTIFIER)
+
+################ In Comments - determines how we exit a comment ################
+
+state IN_SSL_COMMENT_TO_EOL: 
+/[\r\n]/ : paint(upto, SSL_COMMENT), => IN_SSL_DEFAULT
+
+################ In Strings - determines how we exit a string ################
+
+state IN_SSL_DSTRING:
+'"' : paint(include, SSL_STRING), => IN_SSL_DEFAULT
+/\\./ : #stay
+
+state IN_SSL_SSTRING:
+'\'' : paint(include, SSL_STRING), => IN_SSL_DEFAULT
+/\\./ : #stay

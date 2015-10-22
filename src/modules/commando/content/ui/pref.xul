@@ -56,6 +56,15 @@
                          tooltiptext="Groups multiple results together in the given timeframe and renders them together"/>
             </hbox>
             <spacer/>
+            <hbox align="center">
+                <label value="Max Search Depth:" />
+                <textbox size="2"
+                         pref="true"
+                         id="commando_files_max_depth"
+                         preftype="long"
+                         tooltiptext="How many folders deep should Commando search?"/>
+            </hbox>
+            <spacer/>
             
         </vbox>
         <vbox>

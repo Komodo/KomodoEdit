@@ -1,6 +1,7 @@
 (function() {
     const log       = require("ko/logging").getLogger("commando-scope-combined-everything")
     const commando  = require("commando/commando");
+    const prefs     = require("ko/prefs");
 
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
@@ -21,20 +22,40 @@
         var length = 0;
         for (let id in scopes)
         {
-            if (id.indexOf("scope-combined") != -1 || id == "scope-shell" || id == "scope-packages") continue;
+            if (id.indexOf("scope-combined") != -1 || id == "scope-shell" || id == "scope-packages" || id == "scope-docs") continue;
             if (subscope && subscope.scope != id) continue;
             _scopes[id] = scopes[id];
             length++;
         }
 
+        var delay = 0;
         for (let id in _scopes)
         {
             let scope = _scopes[id];
-            require(scope.handler).onSearch(query, uuid, function()
-            {
-                if (--length === 0) onComplete();
-            }.bind(this));
+            
+            setTimeout(function() {
+                if (commando.getActiveSearchUuid() != uuid) return;
+                
+                require(scope.handler).onSearch(query, uuid, function(handler)
+                {
+                    if (--length === 0) onComplete();
+                }.bind(this, scope.handler));
+            }.bind(this), delay);
+            delay = delay + prefs.getLong("scope-everything-search-padding", 50);
         }
+    }
+    
+    this.onExpandSearch = function(query, uuid, onComplete)
+    {
+        var result = commando.getSelectedResult();
+        var scope = result.scope;
+        var scopes = commando.getRegisteredScopes();
+        scope = require(scopes[scope].handler);
+        
+        if ("onExpandSearch" in scope)
+            return scope.onExpandSearch(query, uuid, onComplete);
+        
+        return false;
     }
     
     this.showScopes = function(uuid, onComplete)

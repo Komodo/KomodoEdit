@@ -75,8 +75,19 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 
 //---- public methods for the dialog
 
+if ( ! opener) opener = require("ko/windows").getMain();
+var ko = opener.ko;
+
+var innerHTML;
+var firstInit = true;
 function on_load() {
     try {
+        var wrap = document.getElementById('find-box-wrap');
+        if (innerHTML)
+            wrap.innerHTML = innerHTML;
+        else
+            innerHTML = wrap.innerHTML;
+        
         _g_prefs = Components.classes["@activestate.com/koPrefService;1"]
             .getService(Components.interfaces.koIPrefService).prefs;
         gFindSvc = Components.classes["@activestate.com/koFindService;1"].
@@ -87,9 +98,19 @@ function on_load() {
         window.focus();
 
         _init();
+        
+        if (firstInit)
+        {
+            document.addEventListener("keyup", function(e) {
+                if (e.keyCode == KeyEvent.DOM_VK_ESCAPE)
+                    closeFindFrame();
+            });
+        }
     } catch (ex) {
         log.exception(ex);
     }
+    
+    firstInit = false;
 }
 
 function on_unload() {
@@ -149,6 +170,8 @@ function update(changed /* =null */) {
                 widgets.multiline_repl.value = widgets.curr_repl.value;
             }
             widgets.curr_repl = widgets.multiline_repl;
+            widgets.find_row.classList.add("multiline");
+            widgets.repl_row.classList.add("multiline");
         } else {
             _collapse_widget(widgets.pattern, false);
             _collapse_widget(widgets.multiline_pattern, true);
@@ -165,6 +188,8 @@ function update(changed /* =null */) {
                 widgets.repl.value = widgets.curr_repl.value;
             }
             widgets.curr_repl = widgets.repl;
+            widgets.find_row.classList.remove("multiline");
+            widgets.repl_row.classList.remove("multiline");
         }
         ui_changed = true;
 
@@ -213,15 +238,9 @@ function update(changed /* =null */) {
         switch (search_in) {
         case "files":
             _collapse_widget(widgets.dirs_row, false);
-            _collapse_widget(widgets.subdirs_row, false);
-            _collapse_widget(widgets.includes_row, false);
-            _collapse_widget(widgets.excludes_row, false);
             break;
         default:
             _collapse_widget(widgets.dirs_row, true);
-            _collapse_widget(widgets.subdirs_row, true);
-            _collapse_widget(widgets.includes_row, true);
-            _collapse_widget(widgets.excludes_row, true);
 
             // Persist the context type in some cases. This is used
             // to tell cmd_findNext and cmd_findPrevious whether to
@@ -422,10 +441,6 @@ function regex_insert_shortcut(widget)
  * Functions to adding info/warn/error level message notifications to
  * the dialog.
  */
-function msg_clear() {
-    _msg_erase();
-    widgets.msg_deck.selectedIndex = 0;
-}
 function msg_callback(level, context, msg) {
     switch (level) {
     case "info":
@@ -441,50 +456,15 @@ function msg_callback(level, context, msg) {
         log.error("unexpected msg level: "+level);
     }
 }
-function _msg_erase() {
-    widgets.msg_deck.parentNode.classList.add("collapsed");
-    // Clear text nodes from the current panel <description>.
-    if (widgets.msg_deck.selectedIndex != 0) {
-        var elem = widgets.msg_deck.selectedPanel;
-        elem = document.getElementsByTagName("description")[0];
-        while (elem.firstChild) {
-            elem.removeChild(elem.firstChild);
-        }
-        // Intentionally put some "empty" content in here because
-        // window.sizeToContent() on "<description/>" is slightly shorter
-        // than on "<description>blank</description>" and we don't want
-        // the dialog size jitter.
-        elem.appendChild(document.createTextNode("blank"));
-    }
-}
-function _msg_write(deck_idx, desc, msg) {
-    _msg_erase();
-    widgets.msg_deck.parentNode.classList.remove("collapsed");
-    desc.removeChild(desc.firstChild); // remove the "blank" text node
-    desc.appendChild(document.createTextNode(msg));
-    widgets.msg_deck.selectedIndex = deck_idx;
-    window.sizeToContent();
-}
+
 function msg_info(msg) {
-    try {
-        _msg_write(1, widgets.msg_info, msg);
-    } catch (ex) {
-        log.exception(ex);
-    }
+    require("notify/notify").interact(msg, "find", {priority: "info", ignoreFocus: true})
 }
 function msg_warn(msg) {
-    try {
-        _msg_write(2, widgets.msg_warn, msg);
-    } catch (ex) {
-        log.exception(ex);
-    }
+    require("notify/notify").interact(msg, "find", {priority: "warning", ignoreFocus: true})
 }
 function msg_error(msg) {
-    try {
-        _msg_write(3, widgets.msg_error, msg);
-    } catch (ex) {
-        log.exception(ex);
-    }
+    require("notify/notify").interact(msg, "find", {priority: "error", ignoreFocus: true})
 }
 
 
@@ -552,8 +532,6 @@ function find_next(backward /* =false */) {
     if (typeof(backward) == "undefined" || backward == null) backward = false;
 
     try {
-        msg_clear();
-        
         var pattern = widgets.curr_pattern.value;
         if (! pattern) {
             return;
@@ -604,7 +582,6 @@ function find_next(backward /* =false */) {
 
 function find_all() {
     try {
-        msg_clear();
         var pattern = widgets.curr_pattern.value;
         if (! pattern) {
             return;
@@ -670,8 +647,6 @@ function find_all() {
 
 function mark_all() {
     try {
-        msg_clear();
-        
         var pattern = widgets.curr_pattern.value;
         if (! pattern) {
             return;
@@ -721,8 +696,6 @@ function mark_all() {
 
 function replace() {
     try {
-        msg_clear();
-        
         var pattern = widgets.curr_pattern.value;
         if (! pattern) {
             return;
@@ -766,8 +739,6 @@ function replace() {
 
 function replace_all() {
     try {
-        msg_clear();
-        
         var pattern = widgets.curr_pattern.value;
         if (! pattern) {
             return;
@@ -846,9 +817,6 @@ function replace_all() {
 // interesting elements in the dialog.
 function _init_widgets()
 {
-    if (widgets != null) {
-        return; // was already called
-    }
     widgets = new Object();
 
     widgets.pattern_deck = document.getElementById('pattern-deck');
@@ -856,6 +824,7 @@ function _init_widgets()
     widgets.pattern_btn = document.getElementById('pattern-shortcuts');
     widgets.multiline_pattern = document.getElementById('multiline-pattern');
     widgets.curr_pattern = widgets.pattern;
+    widgets.find_row = document.getElementById('find-row');
     widgets.repl_row = document.getElementById('repl-row');
     widgets.repl_deck = document.getElementById('repl-deck');
     widgets.repl = document.getElementById('repl');
@@ -868,11 +837,6 @@ function _init_widgets()
     widgets.opt_multiline = document.getElementById('opt-multiline');
     widgets.opt_repl = document.getElementById('opt-repl');
 
-    widgets.msg_deck = document.getElementById('msg-deck');
-    widgets.msg_info = document.getElementById('msg-info');
-    widgets.msg_warn = document.getElementById('msg-warn');
-    widgets.msg_error = document.getElementById('msg-error');
-    
     widgets.search_in_menu = document.getElementById('search-in-menu');
     widgets.search_in_curr_project = document.getElementById('search-in-curr-project');
     widgets.search_in_collection = document.getElementById('search-in-collection');
@@ -882,11 +846,10 @@ function _init_widgets()
     widgets.dirs = document.getElementById('dirs');
     widgets.subdirs_row = document.getElementById('subdirs-row');
     widgets.search_in_subdirs = document.getElementById('search-in-subdirs');
-    widgets.includes_row = document.getElementById('includes-row');
     widgets.includes = document.getElementById('includes');
-    widgets.excludes_row = document.getElementById('excludes-row');
     widgets.excludes = document.getElementById('excludes');
 
+    widgets.find_btn_wrap = document.getElementById('find-buttons');
     widgets.find_prev_btn = document.getElementById('find-prev-btn');
     widgets.find_next_btn = document.getElementById('find-next-btn');
     widgets.replace_btn = document.getElementById('replace-btn');
@@ -897,22 +860,20 @@ function _init_widgets()
     widgets.mark_all_btn = document.getElementById('mark-all-btn');
     //widgets.close_btn = document.getElementById('close-btn');
     //widgets.help_btn = document.getElementById('help-btn');
-    widgets.pin_btn = document.getElementById('pin-btn');
-    var pinned = _g_prefs.getBooleanPref("find-pinFindReplaceDialog");
-    widgets.pin_btn.checked = pinned;
-    pinDialog(pinned);
 }
 
 /**
  * Initialize the dialog from `opener.ko.launch.find2_dialog_args` data.
  */
 function _init() {
-    var [args] = window.arguments || [];
-    if (typeof(args) == "undefined") {
+    var args;
+    if (window.arguments) {
+        [args] = window.arguments;
+    } else {
         args = opener.ko.launch.find2_dialog_args || {};
         opener.ko.launch.find2_dialog_args = null;
     }
-
+    
     // Close this dialog when the opener goes away
     opener.addEventListener("unload", function unload(event) {
         window.close();
@@ -1153,6 +1114,11 @@ function _init() {
     var findSessionSvc = Components.classes["@activestate.com/koFindSession;1"].
                             getService(Components.interfaces.koIFindSession);
     findSessionSvc.Reset();
+    
+    setTimeout(function() {
+        window.focus(); // focus hack
+        _set_pattern_focus(select_all_pattern);
+    }, 50);
 }
 
 function _set_pattern_focus(select_all)
@@ -1194,11 +1160,11 @@ function _update_mode_ui() {
             _collapse_widget(widgets.find_prev_btn, true);
             _collapse_widget(widgets.find_next_btn, true);
             _collapse_widget(widgets.replace_btn, true);
-            _collapse_widget(widgets.find_all_btn, true);
             _collapse_widget(widgets.replace_all_btn, false);
             _collapse_widget(widgets.confirm_replacements_in_files, false);
             _collapse_widget(widgets.show_replace_all_results, true);
-            _collapse_widget(widgets.mark_all_btn, true);
+            _collapse_widget(widgets.mark_all_btn, false);
+            _collapse_widget(widgets.find_all_btn, true);
             default_btn = widgets.replace_all_btn;
             break
         default:
@@ -1206,11 +1172,11 @@ function _update_mode_ui() {
             _collapse_widget(widgets.find_prev_btn, false);
             _collapse_widget(widgets.find_next_btn, false);
             _collapse_widget(widgets.replace_btn, false);
-            _collapse_widget(widgets.find_all_btn, true);
             _collapse_widget(widgets.replace_all_btn, false);
             _collapse_widget(widgets.confirm_replacements_in_files, true);
             _collapse_widget(widgets.show_replace_all_results, false);
-            _collapse_widget(widgets.mark_all_btn, true);
+            _collapse_widget(widgets.mark_all_btn, false);
+            _collapse_widget(widgets.find_all_btn, true);
             default_btn = widgets.replace_btn;
         }
     } else {
@@ -1289,7 +1255,6 @@ function reset_find_context(reason /* =null */) {
     if (typeof(reason) == "undefined" || reason == null) reason = "(no reason given)";
     
     var context = null;
-    msg_clear();
 
     switch (widgets.search_in_menu.value) {
     case "document":
@@ -1339,12 +1304,10 @@ function reset_find_context(reason /* =null */) {
 
     case "curr-project":
         context = _g_curr_project_context;
-        msg_clear();
         break;
 
     case "collection":
         context = _g_collection_context;
-        msg_clear();
         break;
 
     case "open-files":
@@ -1371,7 +1334,6 @@ function reset_find_context(reason /* =null */) {
             context.cwd = gFindSvc.options.cwd;
         }
 
-        msg_clear();
         break;
 
     default:
@@ -1390,18 +1352,21 @@ function _set_case_widget(value) {
         w.value = "ignore-case";
         w.label = _bundle.GetStringFromName("matchCase");
         w.checked = false;
+        w.setAttribute("value", w.value);
         w.setAttribute("tooltiptext", _bundle.GetStringFromName("ignoreCase"));
         break;
     case "match-case":
         w.value = "match-case";
         w.label = _bundle.GetStringFromName("matchCase");
         w.checked = true;
+        w.setAttribute("value", w.value);
         w.setAttribute("tooltiptext", _bundle.GetStringFromName("matchCase"));
         break;
     case "smart-case":
         w.value = "smart-case";
         w.label = _bundle.GetStringFromName("smartCase");
         w.checked = true;
+        w.setAttribute("value", w.value);
         w.setAttribute("tooltiptext",
             _bundle.GetStringFromName("smartCase.tooltip"));
         break;
@@ -1418,6 +1383,8 @@ function _toggle_collapse(widget) {
     } else {
         widget.setAttribute("collapsed", "true");
     }
+    
+    updateWrapperHeight();
 }
 
 function _collapse_widget(widget, collapse) {
@@ -1427,6 +1394,8 @@ function _collapse_widget(widget, collapse) {
         if (widget.hasAttribute("collapsed"))
             widget.removeAttribute("collapsed");
     }
+    
+    updateWrapperHeight();
 }
 
 function _hide_widget(widget, hide) {
@@ -1436,44 +1405,38 @@ function _hide_widget(widget, hide) {
         if (widget.hasAttribute("hidden"))
             widget.removeAttribute("hidden");
     }
+    
+    updateWrapperHeight();
 }
 
 function _disable_widget(widget) {
     widget.setAttribute("disabled", "true");
+    updateWrapperHeight();
 }
 function _enable_widget(widget) {
     if (widget.hasAttribute("disabled")) {
         widget.removeAttribute("disabled");
     }
+    updateWrapperHeight();
 }
 
-/**
- * Toggle whether the window is raised
- */
-function toggle_pin() {
-    var pinned = widgets.pin_btn.checked;
-    _g_prefs.setBooleanPref("find-pinFindReplaceDialog", pinned);
-    pinDialog(pinned);
+function updateWrapperHeight(repeat=true)
+{
+    var elem = opener.document.getElementById("findReplaceWrap");
+    var bo = document.getElementById('find-box-wrap').boxObject;
+    elem.setAttribute("height", bo.height);
+    
+    if (repeat) setTimeout(updateWrapperHeight.bind(null, false), 100);
 }
 
-function pinDialog(pinned) {
-    function getXULWindowForDOMWindow(win)
-        win.QueryInterface(Ci.nsIInterfaceRequestor)
-           .getInterface(Ci.nsIWebNavigation)
-           .QueryInterface(Ci.nsIDocShellTreeItem)
-           .treeOwner
-           .QueryInterface(Ci.nsIInterfaceRequestor)
-           .getInterface(Ci.nsIXULWindow);
-    let rootWin = getXULWindowForDOMWindow(window);
-    let parentWin = ((opener && !opener.closed)
-                     ? getXULWindowForDOMWindow(opener)
-                     : null);
-    try {
-        Cc["@activestate.com/koIWindowManagerUtils;1"]
-          .getService(Ci.koIWindowManagerUtils)
-          .setOnTop(rootWin, parentWin, pinned);
-    } catch(ex) {
-        log.exception(ex, "pinDialog: Can't setOnTop");
-    }
+function closeFindFrame()
+{
+    opener.document.getElementById("findReplaceWrap").setAttribute("collapsed", "true");
 }
- 
+
+window.addEventListener("resize", updateWrapperHeight);
+window.addEventListener("blur", function()
+{
+    if ( ! _g_prefs.getBooleanPref("pin_find_frame"))
+        closeFindFrame();
+});

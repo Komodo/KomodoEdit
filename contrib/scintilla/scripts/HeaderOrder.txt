@@ -20,12 +20,14 @@
 #include <cstring>
 #include <cctype>
 #include <cstdio>
+#include <cmath>
 
 // C++ standard library
 #include <stdexcept>
 #include <new>
 #include <string>
 #include <vector>
+#include <deque>
 #include <map>
 #include <set>
 #include <algorithm>
@@ -122,6 +124,7 @@
 
 // win32
 #include "PlatWin.h"
+#include "HanjaDic.h"
 
 // gtk
 #include "Converter.h"

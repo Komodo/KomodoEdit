@@ -20,7 +20,9 @@ if sys.platform == "win32":
     contents = contents.replace("WinL.obj", "HeadlessL.obj")
     contents = contents.replace("WinS.obj", "HeadlessS.obj")
     contents = contents.replace("Win.cxx", "Headless.cxx")
+    contents = contents.replace("$(DIR_O)\\HanjaDic.obj", "")
     contents = contents.replace("../src/ScintillaBase.h \\\n	PlatWin.h", "../src/ScintillaBase.h")
+    contents = contents.replace("../src/ScintillaBase.h \\\n	HanjaDic.h", "../src/ScintillaBase.h")
 
     # Change library name.
     contents = contents.replace("SciLexer.dll", "ScintillaHeadless.dll")

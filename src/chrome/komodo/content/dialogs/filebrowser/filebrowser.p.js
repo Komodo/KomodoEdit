@@ -1463,6 +1463,15 @@ function setupServerMenuList(selectServerWithAlias)
         document.getElementById("serverMenuList").selectedIndex = selectedServerIndex;
     else if (serverInfo.base_uri)
         document.getElementById("serverMenuList").label = serverInfo.base_uri;
+        
+    if (RemoteFileBrowserOnly) {
+        menuitem = document.createElementNS(XUL_NS, 'menuitem');
+        menuitem.setAttribute('label', "Add Server");
+        menuitem.setAttribute('oncommand', 'goServerPrefs(); event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation();');
+        menuitem.setAttribute('style', 'font-weight: bold');
+        menulist.appendChild(menuitem);
+    }
+        
     log.debug("setupServerMenuList done");
 }
 

@@ -60,6 +60,9 @@ Alternatively, on the command line used to launch komodo,
     komodo --raw -log logger_name:DEBUG
 */
 
+/**
+ * @module logging
+ */
 (function() {
 
 if (typeof(require) === "function") {
@@ -80,11 +83,34 @@ var _gLoggingMgr = null;
 var _gSeenDeprectatedMsg = {};
 var _gLoggers = {};
 
+/**
+ * Logging level - none
+ */
 const LOG_NOTSET = 0;
+
+/**
+ * Logging level - Debug
+ */
 const LOG_DEBUG = 10;
+
+/**
+ * Logging level - Info
+ */
 const LOG_INFO = 20;
+
+/**
+ * Logging level - Warn
+ */
 const LOG_WARN = 30;
+
+/**
+ * Logging level - Error
+ */
 const LOG_ERROR = 40;
+
+/**
+ * Logging level - Critical
+ */
 const LOG_CRITICAL = 50;
 
 Object.defineProperty(exports, "LOG_NOTSET", {value: LOG_NOTSET, enumerable: true});
@@ -117,6 +143,11 @@ Logger.prototype = {
     CRITICAL: LOG_CRITICAL,
 };
 
+/**
+ * Set the logging level for the current logger, eg. logging.LOG_DEBUG
+ * 
+ * @param   {Long} level
+ */
 Logger.prototype.setLevel = function(level) {
     this._logger.setLevel(level);
 };
@@ -139,6 +170,11 @@ Logger.prototype.isEnabledFor = function(level) {
     return this._logger.isEnabledFor(level);
 };
 
+/**
+ * Log a debug message
+ * 
+ * @param   {String} message
+ */
 Logger.prototype.debug = function(message) {
     try {
         if (this.isEnabledFor(LOG_DEBUG)) {
@@ -149,6 +185,36 @@ Logger.prototype.debug = function(message) {
     }
 }
 
+var gTimerRegistry = new Map();
+Logger.prototype.time = function(key) {
+    try {
+        if (this.isEnabledFor(LOG_DEBUG)) {
+            if (!gTimerRegistry.has(key)) {
+                gTimerRegistry.set(key, Date.now());
+            }
+        }
+    } catch(ex) {
+        dump("*** Error in logger.time: "+ex+"\n");
+    }
+}
+
+Logger.prototype.timeEnd = function(key) {
+    try {
+        if (this.isEnabledFor(LOG_DEBUG)) {
+            let duration = (Date.now()) - gTimerRegistry.get(key);
+            gTimerRegistry.delete(key);
+            this._logger.debug("timer " + key + ": " + duration + "ms");
+        }
+    } catch(ex) {
+        dump("*** Error in logger.time: "+ex+"\n");
+    }
+}
+
+/**
+ * Log an info message
+ * 
+ * @param   {String} message
+ */
 Logger.prototype.info = function(message) {
     try {
         if (this.isEnabledFor(LOG_INFO)) {
@@ -159,6 +225,11 @@ Logger.prototype.info = function(message) {
     }
 }
 
+/**
+ * Log a warning message
+ * 
+ * @param   {String} message
+ */
 Logger.prototype.warn = function(message) {
     try {
         if (this.isEnabledFor(LOG_WARN)) {
@@ -286,7 +357,12 @@ function(object, deprecatedName, replacementName, logger) {
     });
 };
 
-
+/**
+ * Log an error message
+ * 
+ * @param   {String} message    
+ * @param   {Boolean} noTraceback       Whether to log a backtrace
+ */
 Logger.prototype.error = function(message, noTraceback=false) {
     try {
         if (this.isEnabledFor(LOG_ERROR)) {
@@ -307,6 +383,11 @@ Logger.prototype.error = function(message, noTraceback=false) {
     }
 };
 
+/**
+ * Log a critical message
+ * 
+ * @param   {String} message
+ */
 Logger.prototype.critical = function(message) {
     try {
         if (this.isEnabledFor(LOG_CRITICAL)) {
@@ -319,7 +400,12 @@ Logger.prototype.critical = function(message) {
     }
 };
 
-
+/**
+ * Log an exception
+ * 
+ * @param   {Exception} e      
+ * @param   {String} message
+ */
 Logger.prototype.exception = function(e, message="") {
     try {
         if (this.isEnabledFor(LOG_ERROR)) {
@@ -806,6 +892,13 @@ const getLoggingMgr = exports.getLoggingMgr = function() {
     return _gLoggingMgr;
 }
 
+/**
+ * Retrieve the given logger
+ * 
+ * @param   {String} logger_name
+ * 
+ * @returns {Logger}
+ */
 const getLogger = exports.getLogger = function(logger_name) {
     _gLoggers[logger_name] = true;
     return getLoggingMgr().getLogger(logger_name);

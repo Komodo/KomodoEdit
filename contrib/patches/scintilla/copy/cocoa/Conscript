@@ -113,6 +113,7 @@ my @lexers = qw(
     GAP
     Gui4Cli
     Haskell
+    Hex
     HTML
     Inno
     Kix
@@ -333,6 +334,8 @@ $consLocal{ENV}{'CXXFLAGS'} .= " $makeFlags";
 $consLocal{ENV}{'CXXFLAGS'} =~ s/-fvisibility=hidden//;
 # Scintilla uses exceptions - remove any disabling of it from CXXFLAGS.
 $consLocal{ENV}{'CXXFLAGS'} =~ s/-fno-exceptions //g;
+# Scintilla uses dynamic casts - remove any disabling of it from CXXFLAGS.
+$consLocal{ENV}{'CXXFLAGS'} =~ s/-fno-rtti //g;
 # This flag isn't support on gcc-4.2; remove it if it exists
 $consLocal{ENV}{'CXXFLAGS'} =~ s/-Werror=return-type //g;
 $consLocal{ENV}{'LDFLAGS'} .= " $makeFlags";

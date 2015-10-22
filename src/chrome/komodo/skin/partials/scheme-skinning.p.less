@@ -3,15 +3,14 @@
 
 .setVars() when (@dark = 1)
 {
-    @_background:           lighten(@background, 5%);
-    @background-primary:    darken(@background, 2%);
+    @background-primary:    lighten(@background, 5%);
     
     @foreground-focus:      lighten(@foreground, 20%);
-    @background-contrast:   darken(@_background, 10%);
-    @border:                lighten(@_background, 5%);
-    @background-button:     @_background;
-    @background-button-hover:darken(@_background, 2%);
-    @background-input:      lighten(@background-contrast, 10%);
+    @background-contrast:   darken(@background-primary, 10%);
+    @border:                @background;
+    @background-button:     @background-contrast;
+    @background-button-hover:darken(@background-contrast, 5%);
+    @background-input:      @background;
     @background-selected:   fade(desaturate(@special, 2%), 30%);
     
     @background-scrollbar:          @background;
@@ -47,11 +46,17 @@
     }
 
 /* #if PLATFORM != "win" */
-    #workspace_bottom_area,
-    #editorvbox tabbox tabs
+    #editorvbox tabbox tabs,
+    #workspace_bottom_area
     {
         border-left: @panel-border !important;
         border-right: @panel-border !important;
+    }
+/* #else */
+    #workspace_bottom_area
+    {
+        border-left: @main-border !important;
+        border-right: @main-border !important;
     }
 /* #endif */
     
@@ -75,15 +80,14 @@
 
 .setVars() when (@dark = 0)
 {
-    @_background:           darken(@background, 5%);
-    @background-primary:    darken(@background, 5%);
+    @background-primary:    darken(@background, 10%);
     
     @foreground-focus:      darken(@foreground, 10%);
-    @background-contrast:   darken(@_background, 5%);
-    @border:                darken(@_background, 10%);
+    @background-contrast:   darken(@background-primary, 3%);
+    @border:                @background;
     @background-button:     @background-contrast;
     @background-button-hover:lighten(@background-contrast, 5%);
-    @background-input:      darken(@background-contrast, 5%);
+    @background-input:      @background;
     @background-selected:   fade(desaturate(@special, 5%), 60%);
     
     @background-scrollbar:          @background;
@@ -127,11 +131,18 @@
         background: @special !important;
         color: @special-fore !important;
     }
+    
+    .selected
+    {
+        color: @foreground-selected !important;
+        background: @background-selected !important;
+    }
 
     richlistitem,
     listitem,
     row,
-    textbox
+    textbox,
+    menulist
     {
         color: @foreground !important;
         border-color: fade(@border, 0%) !important;
@@ -149,21 +160,15 @@
         }
     }
 
-    #commando-panel:not(.kitt) .loader
-    {
-        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @special 200px, @special 300px, rgba(0,0,0,0.0) 500px) !important;
-    }
-
     ::-moz-selection {
         color: @special-fore !important;
         background: @special;
     }
     
-    :not(button) > button:not(.button-plain),
-    & > button:not(.button-plain)
+    :not(button) > button:not(.button-plain):not(.unstyled),
+    & > button:not(.button-plain):not(.unstyled)
     {
         background: @background-button !important;
-        border: 1px solid @border !important;
 
         &:hover
         {
@@ -171,16 +176,32 @@
         }
     }
 
-    button:not(.button-plain)
+    button:not(.button-plain):not(.unstyled)
     {
         color: @foreground !important;
     }
 }
 
+#commando-panel.loading .loader
+{
+    background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, fade(@special, 20%) 200px, fade(@special, 20%) 300px, rgba(0,0,0,0.0) 500px) !important;
+}
+
+#commando-panel.previewing.loading .loader
+{
+    background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, fade(@special, 20%) 100px, fade(@special, 20%) 150px, rgba(0,0,0,0.0) 250px) !important;
+}
+
+#commando-panel.previewing:not(.maximized) #commando-preview
+{
+    border-color: @border !important;
+}
+
 statusbar#statusbarviewbox,
 .hud
 {
-    :not(menupopup) > textbox:not(.transparent)
+    :not(menupopup) > textbox:not(.transparent),
+    menulist:not(.unstyled)
     {
         -moz-appearance: none !important;
         background: @background-input !important;
@@ -197,6 +218,18 @@ statusbar#statusbarviewbox,
     {
         color: @foreground !important;
     }
+    
+    .input-field
+    {
+        color: @foreground !important;
+        background-color: @background-input !important;
+    }
+    
+    .editor-field
+    {
+        color: @foreground !important;
+        background-color: @background !important;
+    }
 }
 
 scintilla[virtualScrollbars="true"] row > scrollbar,
@@ -205,7 +238,7 @@ scintilla[virtualScrollbars="true"] row > scrollbar,
     border: 0;
     background: transparent;
     -moz-appearance: none !important;
-
+    
     slider
     {
         -moz-appearance: none !important;
@@ -267,6 +300,12 @@ scintilla[virtualScrollbars="true"] row > scrollbar,
 {
     .skinnedScrollbars();
 }
+
+.hud scrollcorner
+{
+    background: transparent;
+    -moz-appearance: none !important;
+}
 /* #endif */
 
 /* Statusbar */
@@ -286,7 +325,6 @@ statusbar#statusbarviewbox
     background-image: none !important;
     color: fade(@foreground, 60%) !important;
     border: 0 !important;
-    border-top: 1px solid @border-statusbar !important;
 
     statusbarpanel
     {
@@ -310,7 +348,11 @@ statusbar#statusbarviewbox
         border-radius: 0 !important;
 
         margin: 0;
-        padding: 0 2px !important;
+        
+        &:not(.breadcrumb)
+        {
+            padding: 0 2px !important;
+        }
 
         & > label
         {
@@ -319,7 +361,7 @@ statusbar#statusbarviewbox
 
         &:hover
         {
-            background: fade(darken(@_background, 5%), 40%) !important;
+            background: fade(darken(@background-primary, 5%), 40%) !important;
             
             &, & > label
             {
@@ -331,7 +373,7 @@ statusbar#statusbarviewbox
     sectionlist textbox
     {
         -moz-appearance: none !important;
-        background: lighten(@_background, 5%) !important;
+        background: lighten(@background-primary, 5%) !important;
         color: @foreground !important;
         border: 0 !important;
         
@@ -349,7 +391,7 @@ statusbar#statusbarviewbox
 
 }
 
-#quicklaunch
+vbox[anonid="quickstart"]
 {
     background-image: none !important;
 }

@@ -53,6 +53,7 @@ class KoJavaScriptLexerLanguageService(KoLexerLanguageService):
         self.setLexer(components.interfaces.ISciMoz.SCLEX_CPP)
         self.supportsFolding = 1
         self.setProperty('lexer.cpp.allow.dollars', '1')
+        self.setProperty('lexer.cpp.backquoted.strings', '1')
         self.setProperty('fold.cpp.syntax.based', '1')
         self.setKeywords(0, JavaScriptLangInfo.keywords)
 
@@ -211,7 +212,6 @@ class koCoffeeScriptLanguage(koJSLikeLanguage):
     defaultExtension = ".coffee"
     commentDelimiterInfo = {
         "line": [ "#" ],
-        "block": [ ("/*", "*/") ],
         "markup": "*",
     }
     _indent_open_chars = "{[(:"

@@ -293,7 +293,7 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
  */
 
 #statusbar-line-col, #statusbar-selection {
-    min-width: 100px !important;
+    min-width: 75px !important;
 }
 
 #statusbar-encoding {
@@ -512,8 +512,9 @@ tab > .tab-text {
 /* Notifications / progress button */
 #statusbar-throbber {
     -moz-box-align: center;
+    width: 24px;
 }
-#statusbar-throbber:not([active]) {
+#statusbar-throbber:not([active]) #statusbar-throbber-inner {
     visibility: collapse;
 }
 

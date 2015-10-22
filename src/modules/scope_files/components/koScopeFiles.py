@@ -20,6 +20,8 @@ import os
 import logging
 import threading
 
+
+prefs = Cc["@activestate.com/koPrefService;1"].getService(Ci.koIPrefService).prefs
 log = logging.getLogger("commando-scope-files-py")
 #log.setLevel(10)
 
@@ -51,8 +53,10 @@ class koScopeFiles:
                 self.searches[uuid].stop()
                 del self.searches[uuid]
 
-    def search(self, query, uuid, path, opts, callback):
+    def search(self, query, uuid, paths, opts, callback):
         log.debug(uuid + " - Starting Search: " + query)
+        
+        paths = paths.split(",")
 
         self.activeUuid = uuid
         self.stopExpiredSearches()
@@ -63,7 +67,7 @@ class koScopeFiles:
         opts["getShortcuts"] = self.getShortcuts
 
         self.searches[uuid] = Searcher(self, opts, self.onSearchResults, self.onSearchComplete)
-        t = threading.Thread(target=self.searches[uuid].start, args=(query, path),
+        t = threading.Thread(target=self.searches[uuid].start, args=(query, paths),
                              name="Scope files search")
         t.setDaemon(True)
         t.start()
@@ -84,7 +88,7 @@ class koScopeFiles:
         opts = json.loads(opts)
         opts["uuid"] = "cache-builder"
         walker = Walker(self, opts)
-        t = threading.Thread(target=walker.start, args=(path, ),
+        t = threading.Thread(target=walker.start, args=(path, ""),
                              name="Scope files build cache")
         t.setDaemon(True)
         t.start()
@@ -177,23 +181,28 @@ class Searcher:
         self.resultsPending = []
         self.resultTimer = None
 
-        self.walker = None
+        self.walkers = {}
         self.searchComplete = False
+        
+        self.stripPathRe = {}
 
-    def stop(self):
-        self._stop = True
+    def stop(self, soft = False):
+        log.debug(self.opts["uuid"] + " Stopping Searcher")
+        
+        if not soft:
+            self._stop = True
 
-        if self.walker:
-            self.walker.stop()
+        for walker in self.walkers.itervalues():
+            walker.stop()
 
-    def start(self, query, path):
+    def start(self, query, paths):
         self.opts["numResults"] = 0
         self.opts["queryOriginal"] = query
         self.opts["query"] = []
-
-        path = os.path.realpath(path)
+        self.paths = paths
+        self.pathsCompleted = 0
         
-        log.debug(self.opts["uuid"] + " Searching for " + query + " under " + path)
+        log.debug(self.opts["uuid"] + " Searching for " + query + " under " + ", ".join(paths))
 
         if self.opts["queryOriginal"] != "":
             # Prepare Regex Object
@@ -203,18 +212,25 @@ class Searcher:
             for word in self.opts["query"]:
                 words.append(re.escape(word))
 
-            self.opts["queryRe"] = re.compile("("+ "|".join(words) +")", re.IGNORECASE)
-        
         # Check shortcuts - and we only care about the first word.
         if self.opts.get("allowShortcuts") and len(self.opts["query"]) == 1:
             self.searchShortcuts(self.opts["query"][0])
+            
+        for path in paths:
+            self.searchPath(query, path)
 
-        # Prepate Path
-        self.opts["path"] = path
-        self.opts["stripPathRe"] = re.compile("^" + re.escape(path) + "/??")
-
-        self.walker = Walker(self.scopeFiles, self.opts, self.onWalk, self.onWalkComplete)
-        self.walker.start(path)
+    def searchPath(self, query, path):
+        _path = os.path.realpath(path)
+        
+        log.debug(self.opts["uuid"] + " Searching for " + query + " under " + _path)
+        
+        self.stripPathRe[path] = re.compile("^" + re.escape(_path) + "/??")
+        
+        self.walkers[path] = Walker(self.scopeFiles, self.opts, self.onWalk, self.onWalkComplete)
+        t = threading.Thread(target=self.walkers[path].start, args=(_path, path),
+                             name="Path Walker " + path)
+        t.setDaemon(True)
+        t.start()
 
     def searchShortcuts(self, word):
         getShortcuts = self.opts.get("getShortcuts")
@@ -239,13 +255,13 @@ class Searcher:
                 ]
                 self.returnResult(result)
 
-    def onWalk(self, path, dirnames, filenames):
+    def onWalk(self, path, parentPath, dirnames, filenames):
         for filename in dirnames + filenames:
             if self._stop:
                 return
 
             subPath = os.path.join(path, filename)
-            if subPath is self.opts["path"]:
+            if subPath is parentPath:
                 continue;
 
             matchScore = 0
@@ -263,13 +279,13 @@ class Searcher:
                     "score": matchScore
                 }
 
-                self.processResult(pathEntry)
+                self.processResult(pathEntry, parentPath)
 
                 self.opts["numResults"] += 1
                 if self.opts["numResults"] >= self.opts.get("maxresults", 200):
                     log.debug(self.opts["uuid"] + " Max results reached")
-                    return self.walker.stop()
-
+                    return self.stop(True)
+                
     def _matchScore(self, string, words, weight = 100, lazyMatch = False):
         # Doing a loop for some reason is faster than all()
         # This isn't part of the main loop as this will be triggered far
@@ -290,7 +306,7 @@ class Searcher:
 
         for word in words:
             if word not in string:
-                continue
+                return 0
 
             # If sequence matter, record whether
             if not lazyMatch:
@@ -315,16 +331,12 @@ class Searcher:
 
         return matchScore
 
-    def processResult(self, pathEntry):
+    def processResult(self, pathEntry, parentPath):
         relativePath = pathEntry["path"]
         description = pathEntry["path"]
 
-        if self.opts["queryOriginal"] != "":
-            description = self.opts["queryRe"].sub("<html:strong>\\1</html:strong>", description)
-
         if not self.opts.get("fullpath", False):
-            description = self.opts["stripPathRe"].sub("", description)
-            relativePath = self.opts["stripPathRe"].sub("", relativePath)
+            description = self.stripPathRe[parentPath].sub("", description)
 
         # cant be accessed outside of main thread
         # we should track our own usage numbers to make this more relevant
@@ -335,8 +347,8 @@ class Searcher:
         result = [
             pathEntry["filename"],
             pathEntry["path"],
-            relativePath,
             pathEntry["type"],
+            os.path.basename(parentPath) or "",
             description,
             pathEntry["score"]
         ];
@@ -361,7 +373,12 @@ class Searcher:
         if self.searchComplete:
             self.onWalkComplete()
 
-    def onWalkComplete(self):
+    def onWalkComplete(self, path = "forced"):
+        log.debug(self.opts["uuid"] + " - Walk complete for " + path);
+        self.pathsCompleted = self.pathsCompleted + 1
+        if (self.pathsCompleted < len(self.paths)):
+            return
+        
         self.searchComplete = True
         
         if self._stop or self.resultsPending:
@@ -388,16 +405,19 @@ class Walker:
 
         if self.callbackComplete:
             log.debug(self.opts["uuid"] + " Walker Stop called, forcing callbackComplete")
-            self.callbackComplete()
+            self.callbackComplete(self.parentPath)
             self.callbackComplete = False
 
     # Start a new search
-    def start(self, path):
+    def start(self, path, parentPath):
+        self.parentPath = parentPath
         log.debug(self.opts["uuid"] + " Scanning path: " + path)
         self.walk(path)
 
     def walk(self, path):
         dirnames = [path]
+        depth = 0
+        maxDepth = prefs.getLong("commando_files_max_depth")
         while (len(dirnames) > 0):
             if self._stop:
                 return 
@@ -406,14 +426,15 @@ class Walker:
             for dirname in dirnames:
                 _dirnames = _dirnames + (self.walkCache(dirname) or [])
 
-            if self.opts.get("recursive", True):
+            depth += 1
+            if self.opts.get("recursive", True) and depth < maxDepth:
                 dirnames = _dirnames
             else:
                 dirnames = []
 
         if self.callbackComplete:
             log.debug(self.opts["uuid"] + " Done walking directory structure")
-            self.callbackComplete()
+            self.callbackComplete(self.parentPath)
             self.callbackComplete = False
 
     # Walk our cache for the given path
@@ -433,7 +454,7 @@ class Walker:
         [dirnames, filenames] = result;
         
         if self.callback:
-            self.callback(path, dirnames, filenames)
+            self.callback(path, self.parentPath, dirnames, filenames)
 
         return [ os.path.join(path,dirname) for dirname in dirnames ]
 

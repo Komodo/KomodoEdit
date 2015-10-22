@@ -215,8 +215,8 @@ var ko = {
             // don't bother with words that start or end with an apostrophe.
             // Yes, check for words that are at least two characters long.
             // 
-            var word_match = /[\w_][\w\d\-\.'_]*[\w_]/;
-            var skip_word_ptns = [/[\._]/, /[a-z].*[A-Z]/, /[\d]/, /-/, /'.*'/]; // skip anything containing one of these
+            var word_match = /[\w_][\w\d\.'_\-]*[\w_]/;
+            var skip_word_ptns = [/[\._]/, /[a-z].*[A-Z]/, /[\d]/, /'.*'/]; // skip anything containing one of these
             
             function expand_ptn(ptn) {
                 var s =  ptn.replace(/\\w/g, 'a-zA-Z\\x80-\\xff').replace(/\\d/g, '0-9');

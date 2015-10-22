@@ -804,6 +804,7 @@ VimController.prototype.updateCursorAndSelection = function(scimoz,
         gVimController.updateVisualModeSelection(scimoz,
                                                  newCurrentPos,
                                                  anchorPos);
+        scimoz.scrollCaret();
     } else if ((newCurrentPos != null) && (newCurrentPos != oldCurrentPos)) {
         vimlog.debug("updateCursorAndSelection:: Setting currentPos: "+newCurrentPos+
                      ", oldCurrentPos: "+oldCurrentPos);
@@ -2065,8 +2066,8 @@ VimController.prototype.runCommandDetails = function(command_details) {
     }
     ko.dialogs.alert("Unrecognized command: '" + commandName + "'\n\n" +
                  "You can implement additional commands by creating a toolbox folder\n" +
-                 "named 'Vi Commands' and then creating a macro named '" + commandName + "'.\n" +
-                 "This macro will then be executed in it's place.");
+                 "named 'Vi Commands' and then creating a userscript named '" + commandName + "'.\n" +
+                 "This userscript will then be executed in it's place.");
 }
 
 // Regex for testing if this is a goto line command.

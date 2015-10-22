@@ -1,3 +1,6 @@
+/**
+ * @module dialogs
+ */
 (function () {
 
     const log       = require("ko/logging").getLogger("sdk/dialogs");
@@ -6,6 +9,9 @@
 
     /*
      * A dialog to query the user for a string in a textbox.
+     *
+     * @param {String} message
+     * @param {Object} opts
      *
      * Possible opt properties:
      *  "prompt" is text to place before the input textbox.
@@ -31,6 +37,8 @@
      * It returns null if the dialog was cancelled. Otherwise it returns an array
      * containing the two values entered by the user if label2 was provided,
      * otherwise it just returns the first value.
+     *
+     * @returns {String|Null}
      */
     this.prompt = (message, opts = {}) =>
     {
@@ -76,6 +84,9 @@
     /*
      * Ask the user for confirmation
      *
+     * @param {String} message
+     * @param {Object} opts
+     *
      * All opts can be left blank or specified as null to get a default value.
      *  "response" is the default response. This button is shown as the default.
      *      Must be one of "Yes" or "No". If left empty or null the default
@@ -91,6 +102,8 @@
      *      not provided (or null) then no Help button will be shown.
      *  "yes", override the label for the yes button (defaults to Ok)
      *  "no", override the label for the no button (defaults to Cancel)
+     *
+     * @returns {Boolean}
      */
     this.confirm = (message, opts = {}) =>
     {
@@ -147,6 +160,14 @@
         return _opts.response == _opts.yes;
     }
 
+    /**
+     * Show an alert message
+     * 
+     * @param   {String} message
+     * @param   {Object} opts
+     * 
+     * @returns {Void}
+     */
     this.alert = (message, opts = {}) =>
     {
         var _opts = {};

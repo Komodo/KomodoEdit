@@ -1,3 +1,6 @@
+/**
+ * @module icons
+ */
 (function() {
 
     const {Cc, Ci, Cu}  = require("chrome");
@@ -152,12 +155,12 @@
                     log.debug("Using file association for ext");
                     info.ext = langPatterns.value[0].replace(/^\*\./, '')
                                                     .split('.').pop()
-                                                    .substr(0,4).toUpperCase();
+                                                    .substr(0,3).toUpperCase();
                 }
                 else
                 {
                     log.debug("Using language name for ext");
-                    info.ext = info.language.substr(0,4).toUpperCase();
+                    info.ext = info.language.substr(0,3).toUpperCase();
                 }
 
                 log.debug("Generating color based on language");
@@ -259,6 +262,9 @@
             }
 
             var svgPresetFile = FileUtils.getFile("AChrom", ["icons","default","fileicons", info.language.toLowerCase() + ".svg"], true);
+            if ( ! svgPresetFile.exists())
+                svgPresetFile = FileUtils.getFile("AChrom", ["icons","default","fileicons", info.ext + ".svg"], true);
+                
             if (svgPresetFile.exists())
             {
                 log.debug("Creating icon from SVG Preset: " + svgPresetFile.path);
@@ -270,10 +276,6 @@
             }
 
             var templateFile = FileUtils.getFile("AChrom", ["icons","default","fileicons", "template.svg"], true);
-            if (info.size == 16)
-                info["font-size"] = "0.9";
-            else
-                info["font-size"] = (info.size / 100) * (8 - (info.ext.length || 1));
 
             var tmpSvg = pngFile.path + ".template.svg";
             icons.createIconFromTemplate(tmpSvg, templateFile.path, info, function()
@@ -311,7 +313,15 @@
                     
                     var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
                     var scheme = schemeService.getScheme(prefs.getString("editor-scheme"));
-                    params.fill = scheme.isDarkBackground ? "#C8C8C8" : "#4B4B4B";
+                    params.fill = scheme.foregroundColor;
+                }
+                else if (preset == "hud-selected")
+                {
+                    log.debug("Using hud preset");
+                    
+                    var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
+                    var scheme = schemeService.getScheme(prefs.getString("editor-scheme"));
+                    params.fill = scheme.getCommon("keywords", "fore");
                 }
                 else if (prefs.getString("iconset-" + preset + "-defs", '-1') != '-1')
                 {
@@ -583,13 +593,13 @@
                     if (opts.delete)
                     {
                         log.debug("Deleting: " + svgPath);
-                        ioFile.remove(svgPath);
+                        //ioFile.remove(svgPath);
                     }
     
                     if (opts.deleteAlso)
                     {
                         log.debug("Also deleting: " + opts.deleteAlso);
-                        ioFile.remove(opts.deleteAlso);
+                        //ioFile.remove(opts.deleteAlso);
                     }
                 } catch (e)
                 {

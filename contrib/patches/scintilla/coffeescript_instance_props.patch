@@ -1,0 +1,29 @@
+--- include/Scintilla.iface	2015-08-12 12:54:59.984518980 -0400
++++ include/Scintilla.iface	2015-08-13 16:04:10.806080857 -0400
+@@ -4401,6 +4401,7 @@
+ val SCE_COFFEESCRIPT_COMMENTBLOCK=22
+ val SCE_COFFEESCRIPT_VERBOSE_REGEX=23
+ val SCE_COFFEESCRIPT_VERBOSE_REGEX_COMMENT=24
++val SCE_COFFEESCRIPT_INSTANCEPROPERTY=25
+ # Lexical states for SCLEX_AVS
+ lex AVS=SCLEX_AVS SCE_AVS_
+ val SCE_AVS_DEFAULT=0
+--- lexers/LexCoffeeScript.cxx	2015-08-12 12:54:59.984518980 -0400
++++ lexers/LexCoffeeScript.cxx	2015-08-13 16:04:10.806080857 -0400
+@@ -146,6 +138,8 @@
+ 						sc.ChangeState(SCE_COFFEESCRIPT_WORD2);
+ 					} else if (keywords4.InList(s)) {
+ 						sc.ChangeState(SCE_COFFEESCRIPT_GLOBALCLASS);
++					} else if (sc.LengthCurrent() > 0 && s[0] == '@') {
++						sc.ChangeState(SCE_COFFEESCRIPT_INSTANCEPROPERTY);
+ 					}
+ 					sc.SetState(SCE_COFFEESCRIPT_DEFAULT);
+ 				}
+@@ -153,6 +147,7 @@
+ 			case SCE_COFFEESCRIPT_WORD:
+ 			case SCE_COFFEESCRIPT_WORD2:
+ 			case SCE_COFFEESCRIPT_GLOBALCLASS:
++			case SCE_COFFEESCRIPT_INSTANCEPROPERTY:
+ 				if (!setWord.Contains(sc.ch)) {
+ 					sc.SetState(SCE_COFFEESCRIPT_DEFAULT);
+ 				}

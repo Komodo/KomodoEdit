@@ -76,6 +76,16 @@ function wrapOnLoad() {
             isNew:            false,
             __EOF_:           null // allow comma on last real item.
         };
+        if (prefName == CURRENT_PROJECT_FILTER_NAME) {
+            // Re-synchronize with project prefs. This is necessary because
+            // project filters are stored in project files while places filters
+            // are stored in the user's preferences file.
+            // TODO: ideally project filter pref strings would sync up with
+            // filter pref strings, and this 'if' block wouldn't be necessary.
+            var projectPrefs = opener.ko.projects.manager.currentProject.prefset;
+            filterPrefValues[prefName].exclude_matches = projectPrefs.getStringPref("import_exclude_matches");
+            filterPrefValues[prefName].include_matches = projectPrefs.getStringPref("import_include_matches");
+        }
         if (filter.hasPref("builtin")
             && filter.getBooleanPref("builtin")
             && prefName == _bundle.GetStringFromName("currentProject.filterName")
@@ -219,11 +229,28 @@ function grabCurrentWidgetValues(filterName) {
     if (!filter.readonly && !filter.isNew) {
         // Did it change?
         var oldPref = filterPrefs.getPref(filterName);
+        if (filterName == CURRENT_PROJECT_FILTER_NAME) {
+            // Ensure synchronization. This is necessary because project filters
+            // are stored in project files while places filters are stored in
+            // the user's preferences file.
+            // TODO: ideally filterPrefs.getPref(filterName) would return the
+            // project prefset so this 'if' block wouldn't be necessary.
+            oldPref = opener.ko.projects.manager.currentProject.prefset;
+        }
         for (var prefName in items) {
             //dump("grabCurrentWidgetValues: prefName(2): [" + prefName + "]\n");
-            if (widgets[prefName].value != oldPref.getStringPref(prefName)) {
-                //dump("val " + prefName + " changed\n");
-                filter.dirty = true;
+            if (filterName != CURRENT_PROJECT_FILTER_NAME) {
+                if (widgets[prefName].value != oldPref.getStringPref(prefName)) {
+                    //dump("val " + prefName + " changed\n");
+                    filter.dirty = true;
+                }
+            } else {
+                // TODO: ideally project filter pref strings would sync up with
+                // filter pref strings, and this 'if-else' block wouldn't be
+                // necessary. See synchronization note above.
+                if (widgets[prefName].value != oldPref.getStringPref("import_" + prefName)) {
+                    filter.dirty = true;
+                }
             }
         }
     }

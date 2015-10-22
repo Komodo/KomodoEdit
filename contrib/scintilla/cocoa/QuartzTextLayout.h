@@ -85,7 +85,7 @@ public:
 		if (mLine == NULL)
 			return 0.0f;
 
-		return ::CTLineGetTypographicBounds(mLine, NULL, NULL, NULL);
+		return static_cast<float>(::CTLineGetTypographicBounds(mLine, NULL, NULL, NULL));
 	}
 
     CTLineRef getCTLine() {

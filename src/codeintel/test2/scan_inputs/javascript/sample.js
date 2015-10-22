@@ -142,10 +142,10 @@ otherfunc.prototype.strFunc = function(s /* s is a string */)
     // Do whatever you do
 }
 
-var of = new otherfunc();
-var s2 = of.classVar2;
-of.list();
-of.strFunc(s2);
+var _of = new otherfunc();
+var s2 = _of.classVar2;
+_of.list();
+_of.strFunc(s2);
 
 var foo = function() { };
 

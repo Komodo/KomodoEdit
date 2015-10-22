@@ -1,5 +1,8 @@
 <codeintel version="2.0">
   <file lang="Mason" mtime="42" path="scan_inputs/mason/mason-js-test02.mason.html">
+    <scope ilk="blob" lang="CSS" name="mason-js-test02.mason.html" src="scan_inputs/mason/mason-js-test02.mason.html">
+      <scope ilk="id" line="6" name="#tag" target="tag" />
+    </scope>
     <scope ilk="blob" lang="JavaScript" name="mason-js-test02.mason.html" src="scan_inputs/mason/mason-js-test02.mason.html">
       <variable citdl="Number" line="11" name="a" />
       <variable citdl="$ab.cd" line="12" name="b" />

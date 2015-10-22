@@ -2,7 +2,7 @@
   <file lang="PHP" mtime="42" path="scan_inputs/php/php5_sample.php">
     <scope ilk="blob" lang="PHP" name="php5_sample.php" src="scan_inputs/php/php5_sample.php">
       <import line="2" module="soap.php" />
-      <scope doc="simpleFunc&#xA;&#xA;an example doc string in php" ilk="function" line="9" lineend="10" name="simpleFunc" signature="simpleFunc($ttt)">
+      <scope doc="&#xA;simpleFunc&#xA;an example doc string in php&#xA;" ilk="function" line="9" lineend="10" name="simpleFunc" signature="simpleFunc($ttt)">
         <variable ilk="argument" line="9" name="ttt" />
       </scope>
       <scope ilk="class" line="12" lineend="16" name="SimpleClass">
@@ -11,7 +11,7 @@
       </scope>
       <scope classrefs="SimpleClass" ilk="class" line="18" lineend="37" name="SimpleClass2">
         <variable line="19" name="x" />
-        <scope doc="foo&#xA;&#xA;since php functions can retrieve arguments dynamically, base arguments&#xA;could appear in the comments, but not in the code&#xA;&#xA;@param string $x&#xA;@param integer $y&#xA;@param MyClass $z&#xA;&#xA;@return string" ilk="function" line="33" lineend="36" name="foo" returns="string" signature="string foo(string $x, integer $y, MyClass $z)">
+        <scope doc="&#xA;foo&#xA;since php functions can retrieve arguments dynamically, base arguments&#xA;could appear in the comments, but not in the code&#xA;&lt;string&gt; $x  - &#xA;&lt;integer&gt; $y  - &#xA;&lt;myclass&gt; $z  - &#xA;Returns string &#xA;" ilk="function" line="33" lineend="36" name="foo" returns="string" signature="string foo(string $x, integer $y, MyClass $z)">
           <variable citdl="string" ilk="argument" line="33" name="x" />
           <variable citdl="integer" ilk="argument" line="33" name="y" />
           <variable citdl="MyClass" ilk="argument" line="33" name="z" />
@@ -30,7 +30,7 @@
           <variable ilk="argument" line="55" name="y" />
           <variable default="NULL" ilk="argument" line="55" name="z" />
         </scope>
-        <scope attributes="abstract public" doc="@param string $x&#xA;@param integer $y&#xA;@param MyClass $z&#xA;&#xA;@return string" ilk="function" line="65" lineend="65" name="test2" returns="string" signature="string test2(string $x, integer $y, MyClass $z = NULL)">
+        <scope attributes="abstract public" doc="&#xA;&lt;string&gt; $x  - &#xA;&lt;integer&gt; $y  - &#xA;&lt;myclass&gt; $z  - &#xA;Returns string &#xA;" ilk="function" line="65" lineend="65" name="test2" returns="string" signature="string test2(string $x, integer $y, MyClass $z = NULL)">
           <variable citdl="string" ilk="argument" line="65" name="x" />
           <variable citdl="integer" ilk="argument" line="65" name="y" />
           <variable citdl="MyClass" default="NULL" ilk="argument" line="65" name="z" />

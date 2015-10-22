@@ -19,9 +19,6 @@ using namespace Scintilla;
 static NSCursor* reverseArrowCursor;
 static NSCursor* waitCursor;
 
-// The scintilla indicator used for keyboard input.
-#define INPUT_INDICATOR INDIC_MAX - 1
-
 NSString *const SCIUpdateUINotification = @"SCIUpdateUI";
 
 /**
@@ -62,7 +59,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
     owner = nil;
     marginWidth = 20;
     currentCursors = [[NSMutableArray arrayWithCapacity:0] retain];
-    for (size_t i=0; i<5; i++)
+    for (size_t i=0; i<=SC_MAX_MARGIN; i++)
     {
       [currentCursors addObject: [reverseArrowCursor retain]];
     }
@@ -137,8 +134,8 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   size_t co = [currentCursors count];
   for (size_t i=0; i<co; i++)
   {
-    int cursType = owner.backend->WndProc(SCI_GETMARGINCURSORN, i, 0);
-    int width =owner.backend->WndProc(SCI_GETMARGINWIDTHN, i, 0);
+    long cursType = owner.backend->WndProc(SCI_GETMARGINCURSORN, i, 0);
+    long width =owner.backend->WndProc(SCI_GETMARGINWIDTHN, i, 0);
     NSCursor *cc = cursorFromEnum(static_cast<Window::Cursor>(cursType));
     [currentCursors replaceObjectAtIndex:i withObject: cc];
     marginRect.origin.x = x;
@@ -347,14 +344,52 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
 - (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange
 {
-  return nil;
+  const NSRange posRange = mOwner.backend->PositionsFromCharacters(aRange);
+  // The backend validated aRange and may have removed characters beyond the end of the document.
+  const NSRange charRange = mOwner.backend->CharactersFromPositions(posRange);
+  if (!NSEqualRanges(aRange, charRange))
+  {
+    *actualRange = charRange;
+  }
+
+  [mOwner message: SCI_SETTARGETRANGE wParam: posRange.location lParam: NSMaxRange(posRange)];
+  std::string text([mOwner message: SCI_TARGETASUTF8] + 1, 0);
+  [mOwner message: SCI_TARGETASUTF8 wParam: 0 lParam: reinterpret_cast<sptr_t>(&text[0])];
+  NSString *result = [NSString stringWithUTF8String: text.c_str()];
+  NSMutableAttributedString *asResult = [[[NSMutableAttributedString alloc] initWithString:result] autorelease];
+
+  const NSRange rangeAS = NSMakeRange(0, [asResult length]);
+  const long style = [mOwner message: SCI_GETSTYLEAT wParam:posRange.location];
+  std::string fontName([mOwner message: SCI_STYLEGETFONT wParam:style lParam:0] + 1, 0);
+  [mOwner message: SCI_STYLEGETFONT wParam:style lParam:(sptr_t)&fontName[0]];
+  const CGFloat fontSize = [mOwner message: SCI_STYLEGETSIZEFRACTIONAL wParam:style] / 100.0f;
+  NSString *sFontName = [NSString stringWithUTF8String: fontName.c_str()];
+  NSFont *font = [NSFont fontWithName:sFontName size:fontSize];
+  [asResult addAttribute:NSFontAttributeName value:font range:rangeAS];
+
+  return asResult;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 - (NSUInteger) characterIndexForPoint: (NSPoint) point
 {
-  return NSNotFound;
+  const NSRect rectPoint = {point, NSZeroSize};
+  const NSRect rectInWindow = [self.window convertRectFromScreen:rectPoint];
+  const NSRect rectLocal = [[[self superview] superview] convertRect:rectInWindow fromView:nil];
+
+  const long position = [mOwner message: SCI_CHARPOSITIONFROMPOINT
+                                 wParam: rectLocal.origin.x
+                                 lParam: rectLocal.origin.y];
+  if (position == INVALID_POSITION)
+  {
+    return NSNotFound;
+  }
+  else
+  {
+    const NSRange index = mOwner.backend->CharactersFromPositions(NSMakeRange(position, 0));
+    return index.location;
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,39 +404,19 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
 - (NSRect) firstRectForCharacterRange: (NSRange) aRange actualRange: (NSRangePointer) actualRange
 {
-  NSRect rect;
-  rect.origin.x = [ScintillaView directCall: mOwner
-				    message: SCI_POINTXFROMPOSITION
-				     wParam: 0
-				     lParam: aRange.location];
-  rect.origin.y = [ScintillaView directCall: mOwner
-				    message: SCI_POINTYFROMPOSITION
-				     wParam: 0
-				     lParam: aRange.location];
-  int rangeEnd = aRange.location + aRange.length;
-  rect.size.width = [ScintillaView directCall: mOwner
-				      message: SCI_POINTXFROMPOSITION
-				       wParam: 0
-				       lParam: rangeEnd] - rect.origin.x;
-  rect.size.height = [ScintillaView directCall: mOwner
-				       message: SCI_POINTYFROMPOSITION
-					wParam: 0
-					lParam: rangeEnd] - rect.origin.y;
-  rect.size.height += [ScintillaView directCall: mOwner
-					message: SCI_TEXTHEIGHT
-					 wParam: 0
-					 lParam: 0];
-  rect = [[[self superview] superview] convertRect:rect toView:nil];
-#if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_6
-  if ([self.window respondsToSelector:@selector(convertRectToScreen:)])
-      rect = [self.window convertRectToScreen:rect];
-  else // convertRectToScreen not available on 10.6
-      rect.origin = [self.window convertBaseToScreen:rect.origin];
-#else
-  rect.origin = [self.window convertBaseToScreen:rect.origin];
-#endif
+  const NSRange posRange = mOwner.backend->PositionsFromCharacters(aRange);
 
-  return rect;
+  NSRect rect;
+  rect.origin.x = [mOwner message: SCI_POINTXFROMPOSITION wParam: 0 lParam: posRange.location];
+  rect.origin.y = [mOwner message: SCI_POINTYFROMPOSITION wParam: 0 lParam: posRange.location];
+  const NSUInteger rangeEnd = NSMaxRange(posRange);
+  rect.size.width = [mOwner message: SCI_POINTXFROMPOSITION wParam: 0 lParam: rangeEnd] - rect.origin.x;
+  rect.size.height = [mOwner message: SCI_POINTYFROMPOSITION wParam: 0 lParam: rangeEnd] - rect.origin.y;
+  rect.size.height += [mOwner message: SCI_TEXTHEIGHT wParam: 0 lParam: 0];
+  const NSRect rectInWindow = [[[self superview] superview] convertRect:rect toView:nil];
+  const NSRect rectScreen = [self.window convertRectToScreen:rectInWindow];
+
+  return rectScreen;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -420,15 +435,33 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  */
 - (void) insertText: (id) aString replacementRange: (NSRange) replacementRange
 {
+	if ((mMarkedTextRange.location != NSNotFound) && (replacementRange.location != NSNotFound))
+	{
+		NSLog(@"Trying to insertText when there is both a marked range and a replacement range");
+	}
+
 	// Remove any previously marked text first.
-	[self removeMarkedText];
+	mOwner.backend->CompositionUndo();
+	if (mMarkedTextRange.location != NSNotFound)
+	{
+		const NSRange posRangeMark = mOwner.backend->PositionsFromCharacters(mMarkedTextRange);
+		[mOwner message: SCI_SETEMPTYSELECTION wParam: posRangeMark.location];
+	}
+	mMarkedTextRange = NSMakeRange(NSNotFound, 0);
 
 	if (replacementRange.location == (NSNotFound-1))
 		// This occurs when the accent popup is visible and menu selected.
 		// Its replacing a non-existent position so do nothing.
 		return;
 
-	[mOwner deleteRange: replacementRange];
+	if (replacementRange.location != NSNotFound)
+	{
+		const NSRange posRangeReplacement = mOwner.backend->PositionsFromCharacters(replacementRange);
+		[mOwner message: SCI_DELETERANGE
+			 wParam: posRangeReplacement.location
+			 lParam: posRangeReplacement.length];
+		[mOwner message: SCI_SETEMPTYSELECTION wParam: posRangeReplacement.location];
+	}
 
 	NSString* newText = @"";
 	if ([aString isKindOfClass:[NSString class]])
@@ -450,9 +483,10 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
 - (NSRange) selectedRange
 {
-  long begin = [mOwner getGeneralProperty: SCI_GETSELECTIONSTART parameter: 0];
-  long end = [mOwner getGeneralProperty: SCI_GETSELECTIONEND parameter: 0];
-  return NSMakeRange(begin, end - begin);
+  const long positionBegin = [mOwner message: SCI_GETSELECTIONSTART];
+  const long positionEnd = [mOwner message: SCI_GETSELECTIONEND];
+  NSRange posRangeSel = NSMakeRange(positionBegin, positionEnd-positionBegin);
+  return mOwner.backend->CharactersFromPositions(posRangeSel);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -475,65 +509,85 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
     if ([aString isKindOfClass:[NSAttributedString class]])
       newText = (NSString*) [aString string];
 
-  long currentPosition = [mOwner getGeneralProperty: SCI_GETCURRENTPOS parameter: 0];
-
   // Replace marked text if there is one.
   if (mMarkedTextRange.length > 0)
   {
-    [mOwner setGeneralProperty: SCI_SETSELECTIONSTART
-                         value: mMarkedTextRange.location];
-    [mOwner setGeneralProperty: SCI_SETSELECTIONEND
-                         value: mMarkedTextRange.location + mMarkedTextRange.length];
-    currentPosition = mMarkedTextRange.location;
+    mOwner.backend->CompositionUndo();
+    if (replacementRange.location != NSNotFound)
+    {
+      // This situation makes no sense and has not occurred in practice.
+      NSLog(@"Can not handle a replacement range when there is also a marked range");
+    }
+    else
+    {
+      replacementRange = mMarkedTextRange;
+      const NSRange posRangeMark = mOwner.backend->PositionsFromCharacters(mMarkedTextRange);
+      [mOwner message: SCI_SETEMPTYSELECTION wParam: posRangeMark.location];
+    }
   }
   else
   {
-    // Switching into composition so remember if collecting undo.
-    undoCollectionWasActive = [mOwner getGeneralProperty: SCI_GETUNDOCOLLECTION] != 0;
+    // Must perform deletion before entering composition mode or else
+    // both document and undo history will not contain the deleted text
+    // leading to an inaccurate and unusable undo history.
+    
+    // Convert selection virtual space into real space
+    mOwner.backend->ConvertSelectionVirtualSpace();
 
-    // Keep Scintilla from collecting undo actions for the composition task.
-    [mOwner setGeneralProperty: SCI_SETUNDOCOLLECTION value: 0];
-
-    // Ensure only a single selection
-    mOwner.backend->SelectOnlyMainSelection();
+    if (replacementRange.location != NSNotFound)
+    {
+      const NSRange posRangeReplacement = mOwner.backend->PositionsFromCharacters(replacementRange);
+      [mOwner message: SCI_DELETERANGE
+               wParam: posRangeReplacement.location
+               lParam: posRangeReplacement.length];
+    }
+    else  // No marked or replacement range, so replace selection
+    {
+      if (!mOwner.backend->ScintillaCocoa::ClearAllSelections()) {
+        // Some of the selection is protected so can not perform composition here
+        return;
+      }
+      // Ensure only a single selection.
+      mOwner.backend->SelectOnlyMainSelection();
+      replacementRange = [self selectedRange];
+    }
   }
 
-  [mOwner deleteRange: replacementRange];
+  // To support IME input to multiple selections, the following code would
+  // need to insert newText at each selection, mark each piece of new text and then
+  // select range relative to each insertion.
 
-  // Note: Scintilla internally works almost always with bytes instead chars, so we need to take
-  //       this into account when determining selection ranges and such.
-  std::string raw_text = [newText UTF8String];
-  int lengthInserted = mOwner.backend->InsertText(newText);
-
-  mMarkedTextRange.location = currentPosition;
-  mMarkedTextRange.length = lengthInserted;
-
-  if (lengthInserted > 0)
+  if ([newText length])
   {
+    // Switching into composition.
+    mOwner.backend->CompositionStart();
+    
+    NSRange posRangeCurrent = mOwner.backend->PositionsFromCharacters(NSMakeRange(replacementRange.location, 0));
+    // Note: Scintilla internally works almost always with bytes instead chars, so we need to take
+    //       this into account when determining selection ranges and such.
+    int lengthInserted = mOwner.backend->InsertText(newText);
+    posRangeCurrent.length = lengthInserted;
+    mMarkedTextRange = mOwner.backend->CharactersFromPositions(posRangeCurrent);
     // Mark the just inserted text. Keep the marked range for later reset.
-    [mOwner setGeneralProperty: SCI_SETINDICATORCURRENT value: INPUT_INDICATOR];
+    [mOwner setGeneralProperty: SCI_SETINDICATORCURRENT value: INDIC_IME];
     [mOwner setGeneralProperty: SCI_INDICATORFILLRANGE
-                     parameter: mMarkedTextRange.location
-                         value: mMarkedTextRange.length];
+                     parameter: posRangeCurrent.location
+                         value: posRangeCurrent.length];
   }
   else
   {
+    mMarkedTextRange = NSMakeRange(NSNotFound, 0);
     // Re-enable undo action collection if composition ended (indicated by an empty mark string).
-    if (undoCollectionWasActive)
-      [mOwner setGeneralProperty: SCI_SETUNDOCOLLECTION value: range.length == 0];
+    mOwner.backend->CompositionCommit();
   }
 
   // Select the part which is indicated in the given range. It does not scroll the caret into view.
   if (range.length > 0)
   {
     // range is in characters so convert to bytes for selection.
-    int rangeStart = currentPosition;
-    for (size_t characterInComposition=0; characterInComposition<range.location; characterInComposition++)
-      rangeStart = [mOwner getGeneralProperty: SCI_POSITIONAFTER parameter: rangeStart];
-    int rangeEnd = rangeStart;
-    for (size_t characterInRange=0; characterInRange<range.length; characterInRange++)
-      rangeEnd = [mOwner getGeneralProperty: SCI_POSITIONAFTER parameter: rangeEnd];
-    [mOwner setGeneralProperty: SCI_SETSELECTION parameter: rangeEnd value: rangeStart];
+    range.location += replacementRange.location;
+    NSRange posRangeSelect = mOwner.backend->PositionsFromCharacters(range);
+    [mOwner setGeneralProperty: SCI_SETSELECTION parameter: NSMaxRange(posRangeSelect) value: posRangeSelect.location];
   }
 }
 
@@ -543,35 +597,8 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 {
   if (mMarkedTextRange.length > 0)
   {
-    [mOwner setGeneralProperty: SCI_SETINDICATORCURRENT value: INPUT_INDICATOR];
-    [mOwner setGeneralProperty: SCI_INDICATORCLEARRANGE
-                     parameter: mMarkedTextRange.location
-                         value: mMarkedTextRange.length];
+    mOwner.backend->CompositionCommit();
     mMarkedTextRange = NSMakeRange(NSNotFound, 0);
-
-    // Reenable undo action collection, after we are done with text composition.
-    if (undoCollectionWasActive)
-      [mOwner setGeneralProperty: SCI_SETUNDOCOLLECTION value: 1];
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Removes any currently marked text.
- */
-- (void) removeMarkedText
-{
-  if (mMarkedTextRange.length > 0)
-  {
-    // We have already marked text. Replace that.
-    [mOwner deleteRange: mMarkedTextRange];
-
-    mMarkedTextRange = NSMakeRange(NSNotFound, 0);
-
-    // Reenable undo action collection, after we are done with text composition.
-    if (undoCollectionWasActive)
-      [mOwner setGeneralProperty: SCI_SETUNDOCOLLECTION value: 1];
   }
 }
 
@@ -673,8 +700,8 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   if ((rc.origin.y > 0) && (NSMaxY(rc) < contentRect.size.height)) {
     // Only snap for positions inside the document - allow outside
     // for overshoot.
-    int lineHeight = mOwner.backend->WndProc(SCI_TEXTHEIGHT, 0, 0);
-    rc.origin.y = roundf(rc.origin.y / lineHeight) * lineHeight;
+    long lineHeight = mOwner.backend->WndProc(SCI_TEXTHEIGHT, 0, 0);
+    rc.origin.y = roundf(static_cast<XYPOSITION>(rc.origin.y) / lineHeight) * lineHeight;
   }
   return rc;
 }
@@ -700,6 +727,45 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   mOwner.backend->WndProc(SCI_SETFOCUS, 0, 0);
   return YES;
 }
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Implement NSDraggingSource.
+ */
+
+- (NSDragOperation)draggingSession: (NSDraggingSession *) session
+sourceOperationMaskForDraggingContext: (NSDraggingContext) context
+{
+  switch(context)
+  {
+    case NSDraggingContextOutsideApplication:
+      return NSDragOperationCopy | NSDragOperationMove | NSDragOperationDelete;
+      
+    case NSDraggingContextWithinApplication:
+    default:
+      return NSDragOperationCopy | NSDragOperationMove | NSDragOperationDelete;
+  }
+}
+
+- (void)draggingSession:(NSDraggingSession *)session
+           movedToPoint:(NSPoint)screenPoint
+{
+}
+
+- (void)draggingSession:(NSDraggingSession *)session
+           endedAtPoint:(NSPoint)screenPoint
+              operation:(NSDragOperation)operation
+{
+  if (operation == NSDragOperationDelete)
+  {
+    mOwner.backend->WndProc(SCI_CLEAR, 0, 0);
+  }
+}
+
+/**
+ * Implement NSDraggingDestination.
+ */
 
 //--------------------------------------------------------------------------------------------------
 
@@ -749,28 +815,6 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Returns operations we allow as drag source.
- */
-- (NSDragOperation) draggingSourceOperationMaskForLocal: (BOOL) flag
-{
-  return NSDragOperationCopy | NSDragOperationMove | NSDragOperationDelete;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Finished a drag: may need to delete selection.
- */
-
-- (void)draggedImage:(NSImage *)image endedAt:(NSPoint)screenPoint operation:(NSDragOperation)operation {
-    if (operation == NSDragOperationDelete) {
-        mOwner.backend->WndProc(SCI_CLEAR, 0, 0);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
  * Drag operation is done. Notify editor.
  */
 - (void) concludeDragOperation: (id <NSDraggingInfo>) sender
@@ -810,12 +854,24 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 - (void) paste: (id) sender
 {
 #pragma unused(sender)
+  if (mMarkedTextRange.location != NSNotFound)
+  {
+    [[NSTextInputContext currentInputContext] discardMarkedText];
+    mOwner.backend->CompositionCommit();
+    mMarkedTextRange = NSMakeRange(NSNotFound, 0);
+  }
   mOwner.backend->Paste();
 }
 
 - (void) undo: (id) sender
 {
 #pragma unused(sender)
+  if (mMarkedTextRange.location != NSNotFound)
+  {
+    [[NSTextInputContext currentInputContext] discardMarkedText];
+    mOwner.backend->CompositionCommit();
+    mMarkedTextRange = NSMakeRange(NSNotFound, 0);
+  }
   mOwner.backend->Undo();
 }
 
@@ -827,7 +883,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
 - (BOOL) canUndo
 {
-  return mOwner.backend->CanUndo();
+  return mOwner.backend->CanUndo() && (mMarkedTextRange.location == NSNotFound);
 }
 
 - (BOOL) canRedo
@@ -929,8 +985,8 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 #if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
   zoomDelta += event.magnification * 10.0;
 
-  if (fabsf(zoomDelta)>=1.0) {
-    long zoomFactor = [self getGeneralProperty: SCI_GETZOOM] + zoomDelta;
+  if (fabs(zoomDelta)>=1.0) {
+    long zoomFactor = static_cast<long>([self getGeneralProperty: SCI_GETZOOM] + zoomDelta);
     [self setGeneralProperty: SCI_SETZOOM parameter: zoomFactor value:0];
     zoomDelta = 0.0;
   }
@@ -939,6 +995,8 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
 - (void) beginGestureWithEvent: (NSEvent *) event
 {
+// Scintilla is only interested in this event as the starft of a zoom
+#pragma unused(event)
   zoomDelta = 0.0;
 }
 
@@ -961,11 +1019,14 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  * @param type The type of the notification.
  * @param message Carries the new status message if the type is a status message change.
  * @param location Carries the new location (e.g. caret) if the type is a caret change or similar type.
- * @param location Carries the new zoom value if the type is a zoom change.
+ * @param value Carries the new zoom value if the type is a zoom change.
  */
 - (void) notify: (NotificationType) type message: (NSString*) message location: (NSPoint) location
           value: (float) value
 {
+// These parameters are just to conform to the protocol
+#pragma unused(message)
+#pragma unused(location)
   switch (type)
   {
     case IBNZoomChanged:
@@ -985,7 +1046,8 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
 - (void) setCallback: (id <InfoBarCommunicator>) callback
 {
-  // Not used. Only here to satisfy protocol.
+// Not used. Only here to satisfy protocol.
+#pragma unused(callback)
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1114,10 +1176,10 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 
     // Setup a special indicator used in the editor to provide visual feedback for
     // input composition, depending on language, keyboard etc.
-    [self setColorProperty: SCI_INDICSETFORE parameter: INPUT_INDICATOR fromHTML: @"#FF0000"];
-    [self setGeneralProperty: SCI_INDICSETUNDER parameter: INPUT_INDICATOR value: 1];
-    [self setGeneralProperty: SCI_INDICSETSTYLE parameter: INPUT_INDICATOR value: INDIC_PLAIN];
-    [self setGeneralProperty: SCI_INDICSETALPHA parameter: INPUT_INDICATOR value: 100];
+    [self setColorProperty: SCI_INDICSETFORE parameter: INDIC_IME fromHTML: @"#FF0000"];
+    [self setGeneralProperty: SCI_INDICSETUNDER parameter: INDIC_IME value: 1];
+    [self setGeneralProperty: SCI_INDICSETSTYLE parameter: INDIC_IME value: INDIC_PLAIN];
+    [self setGeneralProperty: SCI_INDICSETALPHA parameter: INDIC_IME value: 100];
 
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center addObserver:self
@@ -1182,16 +1244,17 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  */
 - (void) positionSubViews
 {
-  int scrollerWidth = [NSScroller scrollerWidth];
+  CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize:NSRegularControlSize
+						scrollerStyle:NSScrollerStyleLegacy];
 
   NSSize size = [self frame].size;
-  NSRect barFrame = {0, size.height - scrollerWidth, size.width, static_cast<CGFloat>(scrollerWidth)};
+  NSRect barFrame = {{0, size.height - scrollerWidth}, {size.width, scrollerWidth}};
   BOOL infoBarVisible = mInfoBar != nil && ![mInfoBar isHidden];
 
   // Horizontal offset of the content. Almost always 0 unless the vertical scroller
   // is on the left side.
   CGFloat contentX = 0;
-  NSRect scrollRect = {contentX, 0, size.width, size.height};
+  NSRect scrollRect = {{contentX, 0}, {size.width, size.height}};
 
   // Info bar frame.
   if (infoBarVisible)
@@ -1290,7 +1353,8 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 {
   if (aRange.length > 0)
   {
-    [self message: SCI_DELETERANGE wParam: aRange.location lParam: aRange.length];
+    NSRange posRange = mBackend->PositionsFromCharacters(aRange);
+    [self message: SCI_DELETERANGE wParam: posRange.location lParam: posRange.length];
   }
 }
 
@@ -1478,9 +1542,9 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 {
   if ([value colorSpaceName] != NSDeviceRGBColorSpace)
     value = [value colorUsingColorSpaceName: NSDeviceRGBColorSpace];
-  long red = [value redComponent] * 255;
-  long green = [value greenComponent] * 255;
-  long blue = [value blueComponent] * 255;
+  long red = static_cast<long>([value redComponent] * 255);
+  long green = static_cast<long>([value greenComponent] * 255);
+  long blue = static_cast<long>([value blueComponent] * 255);
 
   long color = (blue << 16) + (green << 8) + red;
   mBackend->WndProc(property, parameter, color);
@@ -1500,27 +1564,27 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
     int index = 1;
 
     char value[3] = {0, 0, 0};
-    value[0] = [fromHTML characterAtIndex: index++];
+    value[0] = static_cast<char>([fromHTML characterAtIndex: index++]);
     if (longVersion)
-      value[1] = [fromHTML characterAtIndex: index++];
+      value[1] = static_cast<char>([fromHTML characterAtIndex: index++]);
     else
       value[1] = value[0];
 
     unsigned rawRed;
     [[NSScanner scannerWithString: [NSString stringWithUTF8String: value]] scanHexInt: &rawRed];
 
-    value[0] = [fromHTML characterAtIndex: index++];
+    value[0] = static_cast<char>([fromHTML characterAtIndex: index++]);
     if (longVersion)
-      value[1] = [fromHTML characterAtIndex: index++];
+      value[1] = static_cast<char>([fromHTML characterAtIndex: index++]);
     else
       value[1] = value[0];
 
     unsigned rawGreen;
     [[NSScanner scannerWithString: [NSString stringWithUTF8String: value]] scanHexInt: &rawGreen];
 
-    value[0] = [fromHTML characterAtIndex: index++];
+    value[0] = static_cast<char>([fromHTML characterAtIndex: index++]);
     if (longVersion)
-      value[1] = [fromHTML characterAtIndex: index++];
+      value[1] = static_cast<char>([fromHTML characterAtIndex: index++]);
     else
       value[1] = value[0];
 
@@ -1540,9 +1604,9 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 - (NSColor*) getColorProperty: (int) property parameter: (long) parameter
 {
   long color = mBackend->WndProc(property, parameter, 0);
-  float red = (color & 0xFF) / 255.0;
-  float green = ((color >> 8) & 0xFF) / 255.0;
-  float blue = ((color >> 16) & 0xFF) / 255.0;
+  CGFloat red = (color & 0xFF) / 255.0;
+  CGFloat green = ((color >> 8) & 0xFF) / 255.0;
+  CGFloat blue = ((color >> 16) & 0xFF) / 255.0;
   NSColor* result = [NSColor colorWithDeviceRed: red green: green blue: blue alpha: 1];
   return result;
 }
@@ -1717,8 +1781,8 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   if (wholeWord)
     searchFlags |= SCFIND_WHOLEWORD;
 
-  int selectionStart = [self getGeneralProperty: SCI_GETSELECTIONSTART parameter: 0];
-  int selectionEnd = [self getGeneralProperty: SCI_GETSELECTIONEND parameter: 0];
+  long selectionStart = [self getGeneralProperty: SCI_GETSELECTIONSTART parameter: 0];
+  long selectionEnd = [self getGeneralProperty: SCI_GETSELECTIONEND parameter: 0];
 
   // Sets the start point for the coming search to the beginning of the current selection.
   // For forward searches we have therefore to set the selection start to the current selection end
@@ -1797,13 +1861,13 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 {
   // The current position is where we start searching for single occurrences. Otherwise we start at
   // the beginning of the document.
-  int startPosition;
+  long startPosition;
   if (doAll)
     startPosition = 0; // Start at the beginning of the text if we replace all occurrences.
   else
     // For a single replacement we start at the current caret position.
     startPosition = [self getGeneralProperty: SCI_GETCURRENTPOS];
-  int endPosition = [self getGeneralProperty: SCI_GETTEXTLENGTH];
+  long endPosition = [self getGeneralProperty: SCI_GETTEXTLENGTH];
 
   int searchFlags= 0;
   if (matchCase)
@@ -1815,9 +1879,9 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
   [self setGeneralProperty: SCI_SETTARGETEND value: endPosition];
 
   const char* textToSearch = [searchText UTF8String];
-  int sourceLength = strlen(textToSearch); // Length in bytes.
+  long sourceLength = strlen(textToSearch); // Length in bytes.
   const char* replacement = [newText UTF8String];
-  int targetLength = strlen(replacement);  // Length in bytes.
+  long targetLength = strlen(replacement);  // Length in bytes.
   sptr_t result;
 
   int replaceCount = 0;

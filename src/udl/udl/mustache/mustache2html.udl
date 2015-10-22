@@ -1,0 +1,7 @@
+family tpl
+
+state IN_TPL_VARIABLE:
+/\}\}\}?/ : paint(upto, TPL_VARIABLE), paint(include, TPL_OPERATOR), spop_check, => IN_M_DEFAULT
+
+state IN_TPL_COMMENT:
+/\}\}\}?/ : paint(upto, TPL_COMMENT), paint(include, TPL_OPERATOR), spop_check, => IN_M_DEFAULT

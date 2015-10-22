@@ -16,3 +16,5 @@ MXML            20ad0b15-bc55-4674-ab8e-8d65c74381ce
 ActionScript    4dd22f3a-52e2-426d-8a21-6f7ea2ba91ac
 reStructuredText d98cc808-2981-4aa0-841b-e5e920d83177
 TracWiki        b843faa8-aeea-4fcb-aeb9-36c4483c6f95
+Docker          54072a7f-a845-4b78-b63f-fc47c583e0b8
+R               ec4a2833-5994-4c94-9be5-db6a8952029f

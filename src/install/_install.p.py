@@ -191,6 +191,42 @@ def _validateInstallDir(installDir):
                     % installDir)
 
 
+def _verifyDependencies(promptToContinue):
+    """
+    Attempts to (crudely) verify the proper dependencies are installed in order
+    for Komodo to run.
+    @param promptToContinue Whether or not to prompt the user to continue.
+    """
+    
+    if sys.platform.startswith("linux"):
+        # Verify gdk-2.0 installation if possible.
+        gdk_pkg_name = 'gdk-2.0'
+        gdk_pkg_version = '2.24'
+        if os.system('pkg-config --version &> /dev/null') == 0:
+            # pkg-config exists. Check for gdk-2.0.
+            gdk_okay = False
+            if os.system('pkg-config --exists %s' % gdk_pkg_name) == 0:
+                # gdk-2.0 exists. Check for proper version.
+                if os.system('pkg-config --atleast-version=%s %s' % \
+                             (gdk_pkg_version, gdk_pkg_name)) == 0:
+                    log.warn("Your system's version of %s is not up to date.")
+                else:
+                    gdk_okay = True
+            else:
+                log.warn("Your system does not appear to have %s installed.")
+            if not gdk_okay:
+                log.warn("Komodo requires version %s or greater. Please "
+                         "update %s. While Komodo will still install "
+                         "correctly, it will not run." % \
+                         (gdk_pkg_version, gdk_pkg_name))
+                if promptToContinue:
+                    if _askYesNo("Proceed?", default="no") == "no":
+                        print "Aborting install."
+                        return False
+                
+    return True
+
+
 # Recipe: run (0.5.3) in C:\trentm\tm\recipes\cookbook
 _RUN_DEFAULT_LOGSTREAM = ("RUN", "DEFAULT", "LOGSTREAM")
 def __run_log(logstream, msg, *args, **kwargs):
@@ -582,6 +618,9 @@ Thank you for using Komodo.
 #---- main public functions
 
 def interactiveInstall(suppressShortcut):
+    if not _verifyDependencies(True):
+        return
+    
     default = _getDefaultInstallDir()
     sys.stdout.write("""\
 Enter directory in which to install Komodo. Leave blank and
@@ -611,6 +650,8 @@ sure you would like to proceed with the installation?
     install(installDir, suppressShortcut)
 
 def install(installDir, suppressShortcut, destDir=None):
+    if not _verifyDependencies(False):
+        return
     # Redirect the "user data dir" to a temp location to avoid
     # the problem described in bug 32270 ("sudo ./install.sh" results in
     # interfering root-owned stuff in ~/.komodo).
