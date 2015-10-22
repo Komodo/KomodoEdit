@@ -69,6 +69,7 @@
 <!ENTITY escapedPercentSign.label "[[&#37;&#37;]] : escaped percent sign">
 <!ENTITY fFileBaseName.label "[[&#37;f]] : file base name">
 <!ENTITY icomoon.label "IcoMoon (1000+ icons)">
+<!ENTITY fontawesome.label "FontAwesome (600+ icons)">
 <!ENTITY featureControlPanel.title "Feature Control Panel">
 <!ENTITY globalPreferences.label "Global Preferences">
 <!ENTITY helpOnBackgroundSyntaxChecking.tooltiptext "Help on Background Syntax Checking">

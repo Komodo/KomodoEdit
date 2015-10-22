@@ -2,12 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * @module commands
+ */
 (function() {
 
     const {Cc, Ci, Cu}  = require("chrome");
     const $             = require("ko/dom");
     const prefs         = ko.prefs;
-    const keybinds      = require("ko/keybindings");
+    const _window       = require("ko/windows").getMain();
 
     const log           = require("ko/logging").getLogger("ko-commands");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
@@ -19,7 +22,7 @@
      */
     var init = () =>
     {
-        window.controllers.appendController(controller);
+        _window.controllers.appendController(controller);
     }
 
     /**
@@ -69,18 +72,21 @@
         if (document.getElementById(commandName))
             throw new this.exceptionAlreadyUsed;
 
-        var commandNode = $("<command/>");
+        var commandNode = $("<command/>", _window);
         commandNode.attr({
             id: commandName,
             key: "key_" + commandName,
             onCommand: "ko.commands.doCommandAsync('"+commandName+"', event)",
             desc: opts.label || commandName
         });
-        $("#allcommands").append(commandNode);
+        $("#allcommands", _window).append(commandNode);
 
         log.debug(("defaultBind" in opts));
         if (("defaultBind" in opts) && opts.defaultBind)
+        {
+            var keybinds = require("ko/keybindings");
             keybinds.register(commandName, opts.defaultBind, opts.forceBind);
+        }
 
         local.registered[commandName] = {
             command: command,
@@ -106,18 +112,26 @@
 
         var opts = local.registered[commandName].opts;
         var label = local.registered[commandName].opts.label || commandName;
+        
+        var keybinds = require("ko/keybindings");
         keybinds.unregister(commandName,label);
 
-        $("#"+commandName).remove();
+        $("#"+commandName, _window).remove();
         delete local.registered[commandName];
     }
 
+    /**
+     * Exception that occurs when an invalid command name was given
+     */
     function exceptionInvalidCommandName(commandName)
     {
         this.message = "The command '"+commandName+"' is not formed properly (^[a-zA-Z0-9_\-]+$)";
     }
     this.exceptionInvalidCommandName = exceptionInvalidCommandName;
 
+    /**
+     * Exception that occurs when the given command name is already being used
+     */
     function exceptionAlreadyUsed(commandName)
     {
         this.message = "The command '"+commandName+"' is already in use";

@@ -288,17 +288,9 @@ wizard#accountSetup
 
     .breadcrumb
     {
-        margin-right: 4px;
-        
-        &.folder .breadcrumb-arrow
+        .breadcrumb-arrow
         {
             background-image: @icon-breadcrumb-arrow;
-            background-size: 16px;
-            margin-right: -16px;
-            width: 16px;
-            max-width: 16px;
-            height: 16px;
-            opacity: 0.6;
         }
 
     }
@@ -329,27 +321,70 @@ toolbar#nav-bar
 
 /* Quick Launch */
 
-#quicklaunch
+vbox[anonid="quickstart"]
 {
     border: 0 !important;
     border-radius: 0 !important;
     
-    :not(button) > button
+    .inner > button
     {
         width: 250px;
         padding: 6px 4px;
         margin: 2px 0 1px;
-
-        image.button-icon
-        {
-            display: block;
-            margin-right: 6px;
-        }
 
         label
         {
             text-align: left;
         }
     }
+    
+    image.button-icon
+    {
+        display: block;
+        margin-right: 6px;
+    }
+    
+    .footer
+    {
+        padding: 4px 6px;
+        
+        image.button-icon
+        {
+            max-width: 12px;
+            max-height: 12px;
+        }
+    }
 
+}
+
+/* Run Output Pane */
+
+#runoutput-command .textbox-search-icons
+{
+    visibility: collapse;
+}
+
+/* Statusbar Notifications */
+#statusbar-notifications-wrap label
+{
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 4px;
+    font-weight: bold;
+}
+
+#statusbar-notif-info
+{
+    color: rgb(81, 79, 117);
+}
+
+#statusbar-notif-warning
+{
+    color: rgb(107, 94, 56);
+}
+
+#statusbar-notif-error
+{
+    color: rgb(114, 78, 78);
 }

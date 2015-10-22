@@ -206,9 +206,9 @@ linux distros).
 
 #### Prepare Docker Image
 
- * Build the docker image: `./docklet build`
- * Start your container: `./docklet start`
- * SSH into your container to start working: `./docklet ssh`
+ * Build the docker image: `./util/docker/docklet image`
+ * Start your container: `./util/docker/docklet start`
+ * SSH into your container to start working: `./util/docker/docklet ssh`
 
 Your project files will be mounted at `/komodo/dev`
 
@@ -226,7 +226,29 @@ You will also need to redo your build (distclean mozilla and komodo).
 #### Building Steps
 
 Once your image is prepared you can follow the building steps for linux as
-described below.
+described below. You will be running these from the docker container, so ssh into
+it using the command above and then run the commands from `/komodo/dev`
+
+#### Running
+
+Once your build is complete you exit out of the container (`exit`) and can then
+run Komodo with
+
+`./util/docker/docklet run`
+
+To rebuild Komodo (after making changes) and run it again you can use
+
+`./util/docker/docklet build run`
+
+If your changes are not being reflected you may need to clean your build, to do
+this use
+
+`./util/docker/docklet clean`
+
+Or to do it all at once (clean, build and run)
+
+`./util/docker/docklet clean build run`
+
 
 ### Building Complications
 
@@ -238,7 +260,7 @@ Note that if building complications arise after you updated your repo with the l
 changes you might need to clear your local cache as it might be conflicting with the
 new changes, to do this run `bk distclean` before running your build steps.
 
-#### Pro-Tips
+### Pro-Tips
 
 **Build a single piece**
 

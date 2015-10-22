@@ -93,7 +93,7 @@
   <boolean id="foldSeparateBlockParts">0</boolean>
   <boolean id="editUseLinting">1</boolean>
   <boolean id="editHomeKeyFavorsFirstNonSpace">1</boolean>
-  <long id="lintDelay">1000</long>
+  <long id="lintDelay">2000</long>
   <boolean id="lintEOLs">1</boolean>
   <boolean id="lintClearOnTextChange">0</boolean>
   <boolean id="colorizing_enabled">1</boolean>
@@ -124,6 +124,7 @@
   <boolean id="showMatchingTagsOnClick">1</boolean>
   <boolean id="showMatchingTags_constrainSearchInViewPort">1</boolean>
   <long id="showMatchingTags_clearInterval">1000</long>
+  <boolean id="editMatchingTags">1</boolean>
   
   <!--
   These prefs are to keep Komodo from hanging when a document
@@ -428,7 +429,8 @@
  'Construct': 'Perl',
  'Gemfile': 'Ruby',
  'makefile': 'Makefile',
- 'rakefile': 'Ruby'
+ 'rakefile': 'Ruby',
+ 'Vagrantfile': 'Ruby'
 }</string>
 
   <string id="fileDefaultNew">Text</string>
@@ -504,12 +506,19 @@
   <boolean id="enableSmartSoftCharactersInsideLine">0</boolean>
   <boolean id="enableSmartTabSkipsSoftCharacters">1</boolean>
   
+  <boolean id="editSmartWrapSelection">1</boolean>
+  <boolean id="wrapSelectionOnlyPlainText">1</boolean>
+  <string id="wrapSelectionDelimiters_FactorySetting">([{&lt;&quot;&apos;`*/</string>
+  <string id="wrapSelectionDelimiters">([{&lt;&quot;&apos;`*/</string>
+  
+  <boolean id="enableElasticTabstops">0</boolean>
+  
   <!-- Have the Cut/Copy commands cut/copy the current line if there is no
        selection. -->
   <boolean id="editSmartCutCopyWithoutSelection">1</boolean>
   <long id="autoSaveSeconds">30</long>
   <boolean id="checkDiskFile">1</boolean>
-  <boolean id="checkNetworkDiskFile">1</boolean>
+  <boolean id="checkNetworkDiskFile">0</boolean>
 
   <!-- Language Preferences; these are treated specially in koDocumentBase -->
   <boolean id="languages/Makefile/useTabs">1</boolean>
@@ -532,6 +541,8 @@
   <!-- Allow emacs local variables in file content to override file type
        association. -->
   <boolean id="emacsLocalModeVariableDetection">1</boolean>
+  <boolean id="autoDetectJSvsNode">1</boolean>
+  <boolean id="preferJavaScriptOverNode">1</boolean>
 
   <string id="diffDisplayStyle">diffwin</string>
   <boolean id="diskStatusEnabled">1</boolean>
@@ -700,6 +711,7 @@
   -->
   <boolean id="donotask_restore_workspace">1</boolean>
   <string id="donotask_action_restore_workspace">Yes</string>
+  <boolean id="workspace_restory_history">0</boolean>
 
   <!-- Dealing with workspaces when Komodo did not shutdown correctly (crashed).
          komodo_normal_shutdown: set to false when Komodo initially starts up
@@ -858,6 +870,8 @@
   <boolean id="codeintel_enabled">1</boolean>
   <string id="codeintel_sort_codebrowser_by">file-order</string>
   <boolean id="codeintel_completion_triggering_enabled">1</boolean>
+  <long id="codeintel_trigger_delay">250</long>
+  <boolean id="codeintel_trigger_wait">1</boolean>
   <boolean id="codeintel_rescan_while_typing_enabled">1</boolean>
   <boolean id="codeintel_scanning_imports_enabled">1</boolean>
   <boolean id="codeintel_browser_show_projects">0</boolean> <!-- not implemented -->
@@ -962,6 +976,7 @@
   <!-- See bug Bug #98484 - comments #4 and #5 -->
   <boolean id="donotask_placesAllowDragDropItemsToFolders">0</boolean>
   <string id="donotask_action_placesAllowDragDropItemsToFolders"></string>
+  <boolean id="places.multiple_project_view">0</boolean>
 
   <!-- Analytics -->
   <string id="analytics_ga_id">UA-47685083-3</string>
@@ -1038,15 +1053,25 @@
   <string id="commando_shell_output">hud</string>
   <boolean id="commando_navigate_by_number">1</boolean>
   <long id="commando_number_select_delay">200</long>
+  <long id="commando_search_max_results">50</long>
+  <long id="commando_files_max_depth">8</long>
 
   <ordered-preference id="scope-files-shortcuts"/>
   
   <!-- #if PLATFORM == "linux" -->
   <boolean id="notify_use_opacity">0</boolean>
   <!-- #endif -->
+  <!-- #if PLATFORM != "linux" -->
+  <boolean id="notify_use_opacity">1</boolean>
+  <!-- #endif -->
+  <boolean id="notify_use_animations">1</boolean>
 
   <string id="bugsnag_key">a0ffb67a805253227e906fb6ec1a1cde</string>
 
   <string id="package_api_endpoint">http://komodoide.com/json/resources/</string>
+  
+  <boolean id="pin_find_frame">0</boolean>
+  
+  <string id="doc_site">http://docs.komodoide.com/</string>
   
 </preference-set>

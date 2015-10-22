@@ -1,0 +1,10 @@
+
+
+
+
+
+
+content elastic-tabstops jar:elastic-tabstops.jar!/content/
+skin elastic-tabstops classic/1.0 jar:elastic-tabstops.jar!/skin/
+locale elastic-tabstops en-US jar:elastic-tabstops.jar!/locale/en-US/
+

@@ -571,7 +571,7 @@ this.command = function Run_RunCommand(command, options)
                 try {
                     editor.ko.run.output.startSession(icommandForDisplay, parseOutput,
                                                   parseRegex, icwdForDisplay, filename,
-                                                  clearOutputWindow);
+                                                  clearOutputWindow, env, operateOnSelection);
                 } catch (ex) {
                     alert(ex);
                     return false;

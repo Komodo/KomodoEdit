@@ -17,6 +17,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <time.h>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -71,7 +72,7 @@ class ScintillaQt : public QObject, public ScintillaBase {
 	Q_OBJECT
 
 public:
-	ScintillaQt(QAbstractScrollArea *parent);
+	explicit ScintillaQt(QAbstractScrollArea *parent);
 	virtual ~ScintillaQt();
 
 signals:

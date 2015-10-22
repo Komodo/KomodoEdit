@@ -316,14 +316,27 @@ class KoInitService(object):
         else:
             sys._komodo_initsvc_init_count_sentinel = 1
 
+        try:
+            self.checkStartupFlags()
+        except Exception (e):
+            log.exception(e, "Exception while checking for startup flags")
+            
         self.upgradeUserSettings()
         
         # Cannot be called before upgradeUserSettings, as it initiates the
         # prefs before they should be used
         self.startErrorReporter()
-        
         self.installSamples(False)
-        self.installSampleTools()
+
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        currUserDataDir = koDirSvc.userDataDir
+        dataDirs = self._getProfileDirs()
+        # currUserDataDir already exists so must check deeper.
+        # This means that if there are no other profiles and you
+        # delete your tools folder, Komodo will reinstall your tools
+        if not os.path.isdir(os.path.join(currUserDataDir,"tools")) and not dataDirs:
+            self.installSampleTools()
+
         self.installTemplates()
         self.setPlatformErrorMode()
         self.setEncoding()
@@ -401,7 +414,121 @@ class KoInitService(object):
             except ImportError:
                 log.error("Could not import ctypes to set the "\
                          "Win32 Error Mode.")
+    
+    def checkStartupFlags(self):
+        import shutil
+        
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        
+        ## Clean up after temp profile use
+        path = "%s-kotemp-original" % (koDirSvc.userDataDir)
+        if os.path.isdir(path):
+            if os.path.isdir(koDirSvc.userDataDir):
+                shutil.rmtree(koDirSvc.userDataDir)
+            os.rename(path, koDirSvc.userDataDir)
+            
+        ## Clean up after startup with no addons
+        path = os.path.join(koDirSvc.userDataDir, "XRE", "extensions")
+        tmpPath = "%s-kotemp-original" % (path)
+        if os.path.isdir(tmpPath):
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+            os.rename(tmpPath, path)
+            
+        ## Clean up after startup with no toolbox
+        path = os.path.join(koDirSvc.userDataDir, "tools")
+        tmpPath = "%s-kotemp-original" % (path)
+        if os.path.isdir(tmpPath):
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+            os.rename(tmpPath, path)
+        
+        ## Check if a flag was set
+        path = os.path.join(koDirSvc.userDataDir, "flags")
+        try:
+            f = open(path)
+            flag = f.read().strip()
+            f.close()
+            os.remove(path)
+        except IOError:
+            return
+        
+        ## Delete any file level preferences
+        if flag == "cleanDocState":
+            path = os.path.join(koDirSvc.userDataDir, "doc-state.xmlc")
+            if os.path.isfile(path):
+                os.remove(path)
+            
+        ## Delete the codeintel database
+        elif flag == "cleanViewState":
+            path = os.path.join(koDirSvc.userDataDir, "view-state.xmlc")
+            if os.path.isfile(path):
+                os.remove(path)
+        
+        ## Start with a clean profile
+        elif flag == "cleanProfile":
+            paths = [koDirSvc.userDataDir]
+            profds = self._getProfileDirs()
+            
+            for d in profds:
+                paths.push(d[2])
+            
+            for path in paths:
+                n = 0
+                newPath = "%s-backup" % (path)
+                while os.path.isdir(newPath):
+                    n = n + 1
+                    newPath = "%s-backup-%d" % (path,n)
                 
+                if os.path.isfile(path):
+                    os.rename(path, newPath)
+        
+        ## Start with a temporary profile
+        elif flag == "tempProfile":
+            path = koDirSvc.userDataDir
+            newPath = "%s-kotemp-original" % (path)
+            
+            if os.path.isfile(path):
+                os.rename(path, newPath)
+            
+            self.disableImportProfile = true
+            
+        ## Start without addons
+        elif flag == "tempNoAddons":
+            path = os.path.join(koDirSvc.userDataDir, "XRE", "extensions")
+            newPath = "%s-kotemp-original" % (path)
+            if os.path.isdir(path):
+                os.rename(path, newPath)
+            
+        ## Start without toolbox items
+        elif flag == "tempNoToolbox":
+            path = os.path.join(koDirSvc.userDataDir, "tools")
+            newPath = "%s-kotemp-original" % (path)
+            if os.path.isfile(path):
+                os.rename(path, newPath)
+        
+        ## Delete the codeintel database
+        elif flag == "cleanCodeintel":
+            import shutil
+            path = os.path.join(koDirSvc.userDataDir, "codeintel")
+            self._rmtree(path)
+            
+        ## Delete the codeintel database
+        elif flag == "cleanCaches":
+            import shutil
+            self._rmtree(os.path.join(koDirSvc.userDataDir, "cache2"))
+            self._rmtree(os.path.join(koDirSvc.userDataDir, "fileicons"))
+            self._rmtree(os.path.join(koDirSvc.userDataDir, "icons"))
+            self._rmtree(os.path.join(koDirSvc.userDataDir, "lessCache"))
+            self._rmtree(os.path.join(koDirSvc.userDataDir, "OfflineCache"))
+            self._rmtree(os.path.join(koDirSvc.userDataDir, "startupCache"))
+            self._rmtree(os.path.join(koDirSvc.userDataDir, "userstyleCache"))
+    
+    def _rmtree(self, path):
+        import shutil
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+
     def startErrorReporter(self):
         prefs = components.classes["@activestate.com/koPrefService;1"]\
                 .getService(components.interfaces.koIPrefService).prefs
@@ -1010,6 +1137,65 @@ class KoInitService(object):
             # Another cache, but name is too common to use in ignoredDirNames.
             if os.path.exists(os.path.join(currXREDir, "icons")):
                 _rmtree(os.path.join(currXREDir, "icons"))
+                
+    def _getProfileDirs(self):
+        from os.path import dirname, basename, join, exists
+        
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        currUserDataDir = koDirSvc.userDataDir
+        
+        # Get the current version.
+        infoSvc = components.classes["@activestate.com/koInfoService;1"].getService()
+        currVer = infoSvc.version.split(".", 2)[:2]
+        for i in range(len(currVer)):
+            try:
+                currVer[i] = int(currVer[i])
+            except ValueError:
+                pass
+        currVer = tuple(currVer) # e.g. (6,0)
+        
+        # Determine from which Komodo userdatadir we should upgrade.
+        basedir, base = os.path.split(dirname(currUserDataDir))
+        if base not in ("KomodoEdit", ".komodoedit"):
+            # Looks like KOMODO_USERDATADIR is being used.
+            datadirs = [dirname(currUserDataDir)]
+        elif sys.platform in ("win32", "darwin"):
+            datadirs = [join(basedir, d) for d in ("Komodo", "KomodoEdit")]
+            if sys.platform == "win32":
+                # Komodo 6 on Windows moved the profile directory from the
+                # roaming app data dir, to the local app data dir (applies to
+                # Vista and Windows 7). Add these older roaming user data
+                # directories as well.
+                roaming_komodo_data_dir = dirname(dirname(koDirSvc.roamingUserDataDir))
+                if roaming_komodo_data_dir != currUserDataDir:
+                    datadirs += [join(roaming_komodo_data_dir, d) for d in
+                                ("Komodo", "KomodoEdit")]
+        else:
+            datadirs = [join(basedir, d) for d in (".komodo", ".komodoedit")]
+        ver_pat = re.compile(r"^\d+\.\d+$")
+        vers_and_userdatadirs = []
+        for datadir in datadirs:
+            try:
+                ver_strs = os.listdir(datadir)  # e.g. ["3.5", "4.0", "bogus"]
+            except EnvironmentError, ex:
+                continue
+            for ver_str in ver_strs:
+                if not ver_pat.match(ver_str):  # e.g. "bogus" doesn't match
+                    continue
+                ver = tuple(map(int, ver_str.split('.')))
+                if ver < (4, 0):
+                    log.debug("Skipping Komodo profile: %r - too old", ver)
+                    continue # Skip versions prior to 4.0.
+                if ver > currVer:
+                    continue # Skip future versions, we don't downgrade.
+                userdatadir = join(datadir, ver_str)
+                if userdatadir == currUserDataDir:
+                    continue # Skip: can't upgrade from self.
+                vers_and_userdatadirs.append(
+                    (ver, _splitall(userdatadir), userdatadir))
+        vers_and_userdatadirs.sort()
+        
+        return vers_and_userdatadirs
 
     def _upgradeUserDataDirFiles(self):
         """Upgrade files under the USERDATADIR if necessary.
@@ -1059,15 +1245,7 @@ class KoInitService(object):
             "autosave": "autosave",
         }
 
-        # Get the current version.
-        infoSvc = components.classes["@activestate.com/koInfoService;1"].getService()
-        currVer = infoSvc.version.split(".", 2)[:2]
-        for i in range(len(currVer)):
-            try:
-                currVer[i] = int(currVer[i])
-            except ValueError:
-                pass
-        currVer = tuple(currVer) # e.g. (6,0)
+
 
         # First determine if we need to upgrade at all.
         # If any of the above exist in the current version's user data
@@ -1083,46 +1261,8 @@ class KoInitService(object):
                 log.debug("not upgrading userdatadir files: '%s' exists", path)
                 return
 
-        # Determine from which Komodo userdatadir we should upgrade.
-        basedir, base = os.path.split(dirname(currUserDataDir))
-        if base not in ("KomodoEdit", ".komodoedit"):
-            # Looks like KOMODO_USERDATADIR is being used.
-            datadirs = [dirname(currUserDataDir)]
-        elif sys.platform in ("win32", "darwin"):
-            datadirs = [join(basedir, d) for d in ("Komodo", "KomodoEdit")]
-            if sys.platform == "win32":
-                # Komodo 6 on Windows moved the profile directory from the
-                # roaming app data dir, to the local app data dir (applies to
-                # Vista and Windows 7). Add these older roaming user data
-                # directories as well.
-                roaming_komodo_data_dir = dirname(dirname(koDirSvc.roamingUserDataDir))
-                if roaming_komodo_data_dir != currUserDataDir:
-                    datadirs += [join(roaming_komodo_data_dir, d) for d in
-                                ("Komodo", "KomodoEdit")]
-        else:
-            datadirs = [join(basedir, d) for d in (".komodo", ".komodoedit")]
-        ver_pat = re.compile(r"^\d+\.\d+$")
-        vers_and_userdatadirs = []
-        for datadir in datadirs:
-            try:
-                ver_strs = os.listdir(datadir)  # e.g. ["3.5", "4.0", "bogus"]
-            except EnvironmentError, ex:
-                continue
-            for ver_str in ver_strs:
-                if not ver_pat.match(ver_str):  # e.g. "bogus" doesn't match
-                    continue
-                ver = tuple(map(int, ver_str.split('.')))
-                if ver < (4, 0):
-                    log.debug("Skipping Komodo profile: %r - too old", ver)
-                    continue # Skip versions prior to 4.0.
-                if ver > currVer:
-                    continue # Skip future versions, we don't downgrade.
-                userdatadir = join(datadir, ver_str)
-                if userdatadir == currUserDataDir:
-                    continue # Skip: can't upgrade from self.
-                vers_and_userdatadirs.append(
-                    (ver, _splitall(userdatadir), userdatadir))
-        vers_and_userdatadirs.sort()
+        vers_and_userdatadirs = self._getProfileDirs()
+
         # This now looks like, e.g.:
         #   [((4, 0), ['C:\\', ..., 'Komodo', '4.0'],     'C:\\...\\Komodo\\4.0'),
         #    ((5, 2), ['C:\\', ..., 'KomodoEdit', '5.2'], 'C:\\...\\KomodoEdit\\5.2')]
@@ -1141,6 +1281,16 @@ class KoInitService(object):
         else:
             # Host dir is the same directory as userDataDir.
             prevHostUserDataDir = prevUserDataDir
+            
+        # Get the current version.
+        infoSvc = components.classes["@activestate.com/koInfoService;1"].getService()
+        currVer = infoSvc.version.split(".", 2)[:2]
+        for i in range(len(currVer)):
+            try:
+                currVer[i] = int(currVer[i])
+            except ValueError:
+                pass
+        currVer = tuple(currVer) # e.g. (6,0)
 
         # Upgrade.
         log.info("upgrading user settings from '%s'" % prevUserDataDir)
@@ -1161,6 +1311,10 @@ class KoInitService(object):
 
     def upgradeUserSettings(self):
         """Called every time Komodo starts up to initialize the user profile."""
+        
+        if hasattr(self, 'disableImportProfile') and self.disableImportProfile:
+            return
+        
         try:
             self._upgradeUserDataDirFiles()
             prefs = components.classes["@activestate.com/koPrefService;1"]\
@@ -1235,89 +1389,27 @@ class KoInitService(object):
             log.exception("installSamples")
 
     def installSampleTools(self):
-        pref_prefix = "haveInstalledSampleToolbox-Komodo"
-        try:
-            prefs = components.classes["@activestate.com/koPrefService;1"].\
-                    getService(components.interfaces.koIPrefService).prefs
-            infoSvc = components.classes["@activestate.com/koInfoService;1"].\
-                      getService(components.interfaces.koIInfoService)
-            lookAtPrefName = True
-            koDirs = components.classes["@activestate.com/koDirs;1"].\
-                     getService(components.interfaces.koIDirs)
-            stdToolsFolder = os.path.join(koDirs.userDataDir, 'tools')
-            obsoleteToolsFolder = os.path.join(koDirs.userDataDir, 'obsolete-tools')
-            if not os.path.exists(stdToolsFolder):
-                os.mkdir(stdToolsFolder)
-                lookAtPrefName = False
-                
-            prefName = pref_prefix + infoSvc.version
-            if lookAtPrefName and prefs.hasBooleanPref(prefName) and prefs.getBooleanPref(prefName):
-                return
+        koDirs = components.classes["@activestate.com/koDirs;1"].\
+                 getService(components.interfaces.koIDirs)
+        destDir = os.path.join(koDirs.userDataDir, 'tools')
 
-            folder_name = "Samples (%s)" % str(infoSvc.version)
-            destDir = os.path.join(stdToolsFolder, folder_name)
-            srcDir = os.path.join(koDirs.supportDir, 'samples', 'tools')
-            # Must ensure the destination directory exists - bug 87470.
-            if not os.path.exists(destDir):
-                os.makedirs(destDir)
-                
-            installedSampleTools = True
-            import fileutils
-            import shutil
-            for name in os.listdir(srcDir):
-                srcChild = os.path.join(srcDir, name)
-                try:
-                    if os.path.isdir(srcChild):
-                        fileutils.copyLocalFolder(srcChild, destDir)
-                    else:
-                        shutil.copy(srcChild, destDir)
-                except:
-                    # logging doesn't always work in this file, so print the
-                    # traceback as well.
-                    log.exception("Failed to copy srcChild:%s to dest destDir:%s", srcChild, destDir)
-                    installedSampleTools = False
-
-            # Remove old samples
-            import json
-            macro_template_path = os.path.join(koDirs.supportDir, 'toolbox',
-                                               'Restore Samples.komodotool')
-            with open(macro_template_path, "r") as macro_source:
-                macro_template = macro_source.read()
-            for existing_pref_name in prefs.getPrefIds():
-                try:
-                    if not existing_pref_name.startswith(pref_prefix):
-                        continue
-                    version = existing_pref_name[len(pref_prefix):]
-                    if version == str(infoSvc.version):
-                        continue # shouldn't have reached here!?
-                    folder_name = "Samples (%s)" % (version,)
-                    old_dir = os.path.join(stdToolsFolder, folder_name)
-                    if not os.path.isdir(old_dir):
-                        continue # already removed (by user or us)
-                    log.warn("%s is obsolete; moving it to %s",
-                             folder_name, obsoleteToolsFolder)
-                    if not os.path.exists(obsoleteToolsFolder):
-                        os.makedirs(obsoleteToolsFolder)
-                    dest_dir = os.path.join(obsoleteToolsFolder, folder_name)
-                    os.rename(old_dir, dest_dir)
-                    # Plop in a macro to restore the sample...
-                    macro_contents = macro_template\
-                                        .replace("{{version}}", version) \
-                                        .replace("{{script_version}}", str(infoSvc.version))
-                    macro_dir = os.path.join(stdToolsFolder, "Obsolete samples")
-                    if not os.path.isdir(macro_dir):
-                        os.makedirs(macro_dir)
-                    macro_name = json.loads(macro_contents)["name"]
-                    macro_path = os.path.join(macro_dir,
-                                              macro_name + ".komodotool")
-                    with open(macro_path, "w") as f:
-                        f.write(macro_contents)
-                except Exception:
-                    log.exception("Removing old samples")
-
-            prefs.setBooleanPref(prefName, installedSampleTools)
-        except Exception:
-            log.exception("installSampleTools")
+        if not os.path.isdir(destDir):
+            os.mkdir(destDir)
+        srcDir = os.path.join(koDirs.supportDir, 'samples', 'tools')
+            
+        import fileutils
+        import shutil
+        for name in os.listdir(srcDir):
+            srcChild = os.path.join(srcDir, name)
+            try:
+                if os.path.isdir(srcChild):
+                    fileutils.copyLocalFolder(srcChild, destDir)
+                else:
+                    shutil.copy(srcChild, destDir)
+            except:
+                # logging doesn't always work in this file, so print the
+                # traceback as well.
+                log.exception("Failed to copy srcChild:%s to dest destDir:%s", srcChild, destDir)
 
     def installTemplates(self):
         try:

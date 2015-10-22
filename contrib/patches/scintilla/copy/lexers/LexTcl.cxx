@@ -526,6 +526,10 @@ static void ColouriseTclDoc(unsigned int startPos_,
 			colourString(i - 1, state, styler);
 			colourString(i, SCE_TCL_OPERATOR, styler);
 			state = SCE_TCL_DEFAULT;
+			// Update fold level.
+			if ((levelCurrent & SC_FOLDLEVELNUMBERMASK) > SC_FOLDLEVELBASE) {
+				--levelCurrent;
+			}
 		    }
 		}
 	    } else if (state == SCE_TCL_STRING && !inEscape) {

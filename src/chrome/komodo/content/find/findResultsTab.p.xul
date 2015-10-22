@@ -39,6 +39,26 @@
 
     <box id="findresults_tabpanel-toolbarbox"
         class="widgetToolbarWrap">
+        <textbox id="findresults-search-textbox"
+                 type="search"
+                 searchbutton="true"
+                 style="width: 20vw; min-width: 200px;"
+                 collapsed="true"
+                 oncommand="gFindResultsTabManager.searchAgain();"
+                 tooltiptext="&search.tooltiptext;"
+                 placeholder="&search.tooltiptext;"
+                 />
+        <textbox id="findresults-filter-textbox"
+                 type="search"
+                 timeout="200"
+                 style="width: 20vw; min-width: 200px;"
+                 collapsed="true"
+                 oncommand="gFindResultsTabManager.updateFilter();"
+                 tooltiptext="&findFilter.tooltiptext;"
+                 placeholder="Filter Results"
+                 />
+        <label id="findresults-desc" flex="1" crop="center"/>
+        <separator flex="1"/>
         <toolbar id="findtoolbar-button-box" class="widgetToolbar">
             <toolbarbutton id="findresults-jumptoprev-button"
                     class="list-item-up-icon"
@@ -48,41 +68,26 @@
                     class="list-item-down-icon"
                     tooltiptext="&jumpToNextResult.tooltiptext;"
                     oncommand="gFindResultsTabManager.jumpToNextResult();"/>
-            <toolbarseparator style="width: 10px;"/>
-            <toolbarbutton id="findresults-stopsearch-button"
-                    class="find-stop-icon"
-                    tooltiptext="&stopSearch.tooltiptext;"
-                    oncommand="gFindResultsTabManager.stopSearch();"
-                    disabled="true"/>
             <toolbarbutton id="findresults-undoreplace-button"
                     class="find-undo-icon"
                     tooltiptext="&undoReplacements.tooltiptext;"
                     oncommand="gFindResultsTabManager.undoReplace();"
                     disabled="true"/>
-            <toolbarseparator style="width: 10px;"/>
             <toolbarbutton id="findresults-copy-button"
                     class="find-copy-icon"
                     tooltiptext="&copyFindResults.tooltiptext;"
                     oncommand="gFindResultsTabManager.copyResults();"/>
-            <toolbarbutton id="findresults-lock-button"
-                    class="find-lock-icon"
-                    tooltiptext="&lockUnlockFindResults.tooltiptext;"
-                    oncommand="gFindResultsTabManager.toggleLockResults();"/>
+            <toolbarbutton id="findresults-stopsearch-button"
+                    class="find-stop-icon"
+                    tooltiptext="&stopSearch.tooltiptext;"
+                    oncommand="gFindResultsTabManager.stopSearch();"
+                     disabled="true"/>
         </toolbar>
         <image id="findresults-icon"
                collapsed="true" hidden="true"
                style="padding-left: 3px;"
                src="chrome://global/skin/icons/loading_16.png"/>
-        <label id="findresults-desc" flex="1" crop="center"/>
-        <separator flex="1"/>
-        <textbox id="findresults-filter-textbox"
-                 type="search"
-                 timeout="200"
-                 oncommand="gFindResultsTabManager.updateFilter();"
-                 tooltiptext="&findFilter.tooltiptext;"
-                 />
     </box>
 
-    <script src="chrome://komodo/content/find/findResultsTab.js"          type="application/x-javascript;version=1.7"/>
 </page>
 

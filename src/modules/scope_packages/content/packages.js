@@ -45,38 +45,10 @@
     
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     
-    //this.onShow = function()
-    //{
-    //    this._getInstalledPackagesByKind.cache = {};
-    //}
-    //
-    //this.onSearch = function(query, uuid, onComplete)
-    //{
-    //    var done = 0;
-    //    var installed, upgradeable;
-    //    this._getInstalledPackages(function(packages)
-    //    {
-    //        installed = packages;
-    //        if (++done == 2)
-    //        {
-    //            this._onSearch(query, uuid, onComplete, installed, upgradeable);
-    //        }
-    //    }.bind(this));
-    //    
-    //    this._getUpgradablePackages(function(packages)
-    //    {
-    //        upgradeable = upgradeable;
-    //        if (++done == 2)
-    //        {
-    //            this._onSearch(query, uuid, onComplete, installed, upgradeable);
-    //        }
-    //    }.bind(this));
-    //}
-    
     /**
      * Start Commando using the package scope and select the given category
      */
-    this.openCategory = function(kind)
+    this.openCategory = function(kind, name)
     {
         var kinds = this.getPackageKinds();
         if ( ! kind in kinds)
@@ -89,8 +61,8 @@
         commando.setSubscope();
         commando.setSubscope({
             id: kind,
-            name: kinds[kind].locale,
-            icon: kinds[kind].icon,
+            name: name || kinds[kind].locale,
+            icon: name ? undefined : kinds[kind].icon,
             isScope: true,
             scope: "scope-packages",
             data: {},
@@ -98,10 +70,55 @@
         });
     }
     
-    //this._onSearch = function(query, uuid, onComplete, installed = {}, upgradeable = {})
-    this.onSearch = function(query, uuid, onComplete)
+    var _cache = {installed: {}, upgradeable: {}, outdated: {}, age: 0};
+    this._cache = _cache;
+    this._buildCache = function(onComplete)
+    {
+        var time = Math.floor(Date.now() / 1000);
+        if (_cache.age && (time - _cache.age) < 600)
+            return onComplete();
+
+        log.debug("Building cache");
+        
+        var _onComplete = function()
+        {
+            _cache.age = Math.floor(Date.now() / 1000);
+            if (onComplete) onComplete();
+        }.bind(this)
+        
+        var done = 0;
+        this._getInstalledPackages(function(packages)
+        {
+            for (let k in packages)
+            {
+                _cache.installed[packages[k].id] = true;
+                
+                if ( ! packages[k].data.isCompatible || ! packages[k].data.isPlatformCompatible)
+                    _cache.outdated[packages[k].id] = true;
+            }
+            if (++done == 2) _onComplete();
+        }.bind(this));
+        
+        this._getUpgradablePackages(function(packages)
+        {
+            for (let k in packages)
+            {
+                _cache.upgradeable[packages[k].id] = true;
+                _cache.upgradeable[k] = true;
+            }
+            if (++done == 2) _onComplete();
+        }.bind(this));
+    }
+    
+    this.onSearch = function(query, uuid, onComplete, now = false)
     {
         log.debug(uuid + " - Starting Scoped Search");
+        
+        if ( ! now)
+        {
+            this._buildCache(this.onSearch.bind(this, query, uuid, onComplete, true));
+            return;
+        }
         
         var kinds = this.getPackageKinds();
         var subscope = commando.getSubscope();
@@ -123,6 +140,22 @@
                 }, uuid);
                 onComplete();
             }
+            
+            commando.renderResult({
+                id: "packages-manage",
+                name: "Manage Packages",
+                icon: "koicon://ko-svg/chrome/icomoon/skin/cog.svg",
+                isScope: true,
+                scope: "scope-packages"
+            }, uuid);
+            
+            return;
+        }
+        
+        if (subscope && subscope.id.indexOf("packages-") === 0)
+        {
+            log.debug(10);
+            require("./manage").onSearch(query, uuid, onComplete);
             return;
         }
         
@@ -131,36 +164,20 @@
         if (subscope)
             caller = this._getAvailablePackagesByKind.bind(this, subscope.id)
             
-        caller(function(packages) {
+        caller(function(packages)
+        {
             if ( ! packages) return onComplete();
             
             if (query.length)
                 packages = commando.filter(packages, query);
-            
+                
             for (let name in packages)
             {
                 if ( ! packages.hasOwnProperty(name)) continue;
                 let pkg = packages[name];
                 try
                 {
-                    //var icon = "koicon://ko-svg/chrome/icomoon/skin/circle.svg";
-                    //if (pkg.name in installed)
-                    //    icon = "koicon://ko-svg/chrome/icomoon/skin/checkmark-circle2.svg";
-                    //if (pkg.name in upgradeable)
-                    //    icon = "koicon://ko-svg/chrome/icomoon/skin/arrow-up13.svg";
-                    commando.renderResult({
-                        id: pkg.id,
-                        name: pkg.name,
-                        description: pkg.description,
-                        descriptionPrefix: subscope ? undefined : kinds[pkg.kind].locale + " /",
-                        scope: "scope-packages",
-                        data: {
-                            package: pkg,
-                            //installed: pkg.name in installed,
-                            //upgradeable: pkg.name in upgradeable
-                        },
-                        allowMultiSelect: false
-                    }, uuid);
+                    this._renderPackage(pkg, uuid);
                 }
                 catch (e)
                 {
@@ -170,21 +187,54 @@
             
             // If searching with a subscope there will only be one callback
             if (subscope) onComplete();
-        });
+        }.bind(this));
+    }
+    
+    this.onExpandSearch = function(query, uuid, onComplete)
+    {
+        require("./commands").onSearch(query, uuid, onComplete);
+    }
+    
+    this._renderPackage = function(pkg, uuid, override)
+    {
+        var kinds = this.getPackageKinds();
+        
+        var icon = "koicon://ko-svg/chrome/icomoon/skin/arrow-down13.svg";
+        if (pkg.id in _cache.installed)
+            icon = "koicon://ko-svg/chrome/icomoon/skin/checkmark-circle2.svg";
+        if (pkg.id in _cache.upgradeable)
+            icon = "koicon://ko-svg/chrome/icomoon/skin/arrow-up13.svg";
+        if (pkg.id in _cache.outdated)
+            icon = "koicon://ko-svg/chrome/icomoon/skin/cancel-circle2.svg";
+        
+        var result = {
+            id: pkg.id,
+            name: pkg.name,
+            description: pkg.description,
+            descriptionPrefix: kinds[pkg.kind].locale + " /",
+            icon: icon,
+            scope: "scope-packages",
+            data: {
+                package: pkg,
+                installed: pkg.id in _cache.installed,
+                upgradeable: pkg.id in _cache.upgradeable
+            },
+            allowMultiSelect: false
+        };
+        
+        for (let k in override)
+            result[k] = override[k];
+        
+        commando.renderResult(result, uuid);
     }
     
     this.onSelectResult = function()
     {
         var result = commando.getSelectedResult();
-        
-        require("notify/notify").send(l.get("installing", result.name), "packages", {id: "packageInstall"});
-        
-        commando.block();
-        this._installPackage(result.data.package, function()
+        require("./manage").installPackage(result.data.package, function()
         {
-            require("notify/notify").send(l.get("installed", result.name), "packages", {id: "packageInstall"});
-            commando.unblock();
-            commando.hide();
+            commando.refresh();
+            commando.hide.bind(commando);
         });
     }
     
@@ -218,6 +268,20 @@
                 if (total === 0) callback();
             });
         }
+    }
+    
+    this.clearCaches = function()
+    {
+        _cache.installed = {};
+        _cache.upgradeable = {};
+        _cache.outdated = {};
+        _cache.age = 0;
+        delete this.getPackageKinds.__cached;
+        delete this._getAvailablePackagesByKind.cache;
+        delete this._getInstalledPackagesByKind.cache;
+        delete this._getUpgradablePackagesByKind.cache;
+        
+        this._buildCache();
     }
     
     /**
@@ -294,7 +358,7 @@
      */
     this._getAvailablePackagesByKind = function(kind, callback)
     {
-        log.debug("Retrieving all packages for " + kind);
+        //log.debug("Retrieving all packages for " + kind);
         
         // Check if this request is already cached and if the cache is recent
         // we don't want to be spamming the web server
@@ -308,7 +372,7 @@
         }
         
         // Not cached or cache has expired, get a fresh copy
-        log.debug("Retrieving fresh copy");
+        //log.debug("Retrieving fresh copy");
         var ajax = require('ko/ajax');
         var url = ROOT + kind + '.json';
         ajax.get(url, function(code, response)
@@ -317,7 +381,6 @@
             {
                 var msg = "Unable to retrieve package listing for " + kind;
                 log.error(msg);
-                require('notify/notify').send(msg, 'packages', {priority: 'error'});
                 return;
             }
             var results = {};
@@ -325,7 +388,13 @@
             {
                 pkg.kind = kind;
                 if ( ! this._getInstallable(pkg)) continue;
-                results[pkg.name] = pkg;
+                if (pkg.manifest_id) {
+                    pkg.id = pkg.manifest_id;
+                    results[pkg.manifest_id] = pkg;
+                } else {
+                    pkg.id = pkg.name;
+                    results[pkg.name] = pkg; // TODO: toolbox, macros, keybinds, and schemes need to have proper ID
+                }
             }
             
             cache[kind] = {result: results, time: time};
@@ -343,19 +412,20 @@
     
     /**
      * Retrieves a dictionary of installed packages of the given kind.
-     * Keys are package names and values are package metadata. Package metadata
-     * contains `name`, `kind`, `description`, `version`, and `data` fields.
-     * `data` is a kind-specific object. For example, for ADDONS, `data` is an
-     * Addon object, for MACROS, `data` is the tool's ID in the toolbox, etc.
-     * This kind of package metadata can be passed to `_uninstallPackage()` for
-     * uninstalling. Useful fields are `name`, `description`, and `version`.
+     * Keys are package IDs and values are package metadata. Package metadata
+     * contains `id`, `name`, `kind`, `description`, `version`, and `data`
+     * fields. `data` is a kind-specific object. For example, for ADDONS, `data`
+     * is an Addon object, for MACROS, `data` is the tool's ID in the toolbox,
+     * etc. This kind of package metadata can be passed to `_uninstallPackage()`
+     * for uninstalling. Useful fields are `id`, `name`, `description`, and
+     * `version`.
      * @param kind The kind of package to request. (At this time, available
      *   kinds are ADDONS, TOOLBOX, MACROS, SCHEMES, SKINS, and KEYBINDS.)
      * @param callback The callback to call with the dictionary retrieved.
      */
     this._getInstalledPackagesByKind = function(kind, callback)
     {
-        log.debug("Retrieving all installed packages for " + kind);
+        //log.debug("Retrieving all installed packages for " + kind);
         
         // Check if this request is already cached and if the cache is recent
         // this cache clears whenever commando shows and is just intended to reduce
@@ -370,77 +440,93 @@
         }
         
         // Not cached or cache has expired, get a fresh copy
-        log.debug("Retrieving fresh copy");
+        //log.debug("Retrieving fresh copy");
         switch (kind)
         {
             case ADDONS:
-            case SKINS:
-            case LANGS:
+            //case SKINS:
+            //case LANGS:
                 // TODO: differentiate between these.
                 // Retrieve installed XPIs via Mozilla's AddonManager.
-                AddonManager.getAllAddons(function(aAddons)
+                AddonManager.getAddonsByTypes(["extension"], function(aAddons)
                 {
                     var packages = {};
                     for (let addon of aAddons)
                     {
+                        if (addon.scope == AddonManager.SCOPE_APPLICATION || addon.scope == AddonManager.SCOPE_SYSTEM)
+                            continue;
+                        
                         let pkg = {};
+                        pkg.id = addon.id; // needed for checking for updates
                         pkg.name = addon.name;
                         pkg.kind = kind; // needed by _uninstallPackage()
                         pkg.description = addon.description;
                         pkg.version = addon.version;
                         pkg.data = addon; // needed by _uninstallPackage()
-                        packages[pkg.name] = pkg;
+                        pkg.mock = true;
+                        packages[pkg.id] = pkg;
                         //log.debug("Found " + pkg.name + " v" + pkg.version);
                     }
                     cache[kind] = {result: packages, time: time};
                     callback(packages);
                 });
                 break;
+            // The rest is currently disabled as we cannot identify which were installed via packages
+            //case TOOLBOX:
+            //case MACROS:
+            //    // TODO: differentiate between the two.
+            //    // Retrieve installed toolbox items via Komodo's toolbox
+            //    // manager.
+            //    var view = toolbox.manager.view;
+            //    var packages = {};
+            //    for (let i = 0; i < view.rowCount; i++)
+            //    {
+            //        // TODO: filter out default toolboxes and macros?
+            //        let pkg = {};
+            //        pkg.id = view.getTool(i).name; // TODO: proper ID needed for checking for updates
+            //        pkg.name = view.getTool(i).name;
+            //        pkg.kind = kind; // needed by _uninstallPackage()
+            //        pkg.data = i; // needed by _uninstallPackage()
+            //        packages[pkg.id] = pkg;
+            //        //log.debug("Found " + pkg.name);
+            //    }
+            //    cache[kind] = {result: packages, time: time};
+            //    callback(packages);
+            //    break;
+            //case SCHEMES:
+            //case KEYBINDS:
+            //    // Retrieve installed schemes via Komodo's appropriate scheme
+            //    // service.
+            //    var serviceName = (kind == SCHEMES) ? 'koScintillaSchemeService' : 'koKeybindingSchemeService';
+            //    var schemeService = Cc['@activestate.com/' + serviceName + ';1'].getService();
+            //    var packages = {};
+            //    var schemes = {};
+            //    schemeService.getSchemeNames(schemes, {});
+            //    for (let name of schemes.value)
+            //    {
+            //        if ((kind == SCHEMES && !schemeService.getScheme(name).writeable) ||
+            //            (kind == KEYBINDS && !keybindings.manager.configurationWriteable(name)))
+            //        {
+            //            //log.debug("Scheme " + name + " is a default scheme (not writable); ignoring");
+            //            continue; // filter out default schemes
+            //        }
+            //        let pkg = {};
+            //        pkg.id = name; // TODO: proper ID needed for checking for updates
+            //        pkg.name = name;
+            //        pkg.kind = kind; // needed by _uninstallPackage()
+            //        packages[pkg.id] = pkg;
+            //        //log.debug("Found " + pkg.name);
+            //    }
+            //    cache[kind] = {result: packages, time: time};
+            //    callback(packages);
+            //    break;
+            case SKINS:
+            case LANGS:
             case TOOLBOX:
             case MACROS:
-                // TODO: differentiate between the two.
-                // Retrieve installed toolbox items via Komodo's toolbox
-                // manager.
-                var view = toolbox.manager.view;
-                var packages = {};
-                for (let i = 0; i < view.rowCount; i++)
-                {
-                    // TODO: filter out default toolboxes and macros?
-                    let pkg = {};
-                    pkg.name = view.getTool(i).name;
-                    pkg.kind = kind; // needed by _uninstallPackage()
-                    pkg.data = i; // needed by _uninstallPackage()
-                    packages[pkg.name] = pkg;
-                    //log.debug("Found " + pkg.name);
-                }
-                cache[kind] = {result: packages, time: time};
-                callback(packages);
-                break;
             case SCHEMES:
             case KEYBINDS:
-                // Retrieve installed schemes via Komodo's appropriate scheme
-                // service.
-                var serviceName = (kind == SCHEMES) ? 'koScintillaSchemeService' : 'koKeybindingSchemeService';
-                var schemeService = Cc['@activestate.com/' + serviceName + ';1'].getService();
-                var packages = {};
-                var schemes = {};
-                schemeService.getSchemeNames(schemes, {});
-                for (let name of schemes.value)
-                {
-                    if ((kind == SCHEMES && !schemeService.getScheme(name).writeable) ||
-                        (kind == KEYBINDS && !keybindings.manager.configurationWriteable(name)))
-                    {
-                        //log.debug("Scheme " + name + " is a default scheme (not writable); ignoring");
-                        continue; // filter out default schemes
-                    }
-                    let pkg = {};
-                    pkg.name = name;
-                    pkg.kind = kind; // needed by _uninstallPackage()
-                    packages[pkg.name] = pkg;
-                    //log.debug("Found " + pkg.name);
-                }
-                cache[kind] = {result: packages, time: time};
-                callback(packages);
+                callback({});
                 break;
             default:
                 log.error("Unknown package kind: " + kind);
@@ -457,7 +543,7 @@
     
     /**
      * Retrieves a dictionary of upgradable packages of the given kind.
-     * Keys are package names and values are package metadata. Package metadata
+     * Keys are package IDs and values are package metadata. Package metadata
      * comes from Komodo's website:
      *     http://www.komodoide.com/json/*.json
      * where * is a kind, as described below.
@@ -469,6 +555,17 @@
      */
     this._getUpgradablePackagesByKind = function(kind, callback)
     {
+        // Check if this request is already cached and if the cache is recent
+        // we don't want to be spamming the web server
+        var time = Math.floor(Date.now() / 1000);
+        if ( ! ("cache" in this._getUpgradablePackagesByKind))
+            this._getUpgradablePackagesByKind.cache = {};
+        var cache = this._getUpgradablePackagesByKind.cache;
+        if ((kind in cache) && (time - cache[kind].time) < 3600)
+        {
+            return callback(cache[kind].result);
+        }
+        
         this._getAvailablePackagesByKind(kind, function(available)
         {
             this._getInstalledPackagesByKind(kind, function(installed)
@@ -476,16 +573,16 @@
                 var upgradable = {};
                 // Iterate over installed packages and check upstream to see if
                 // any updates are available.
-                for (let name in installed)
+                for (let id in installed)
                 {
-                    let installedPkg = installed[name];
-                    let upstreamPkg = available[name];
+                    let installedPkg = installed[id];
+                    let upstreamPkg = available[id];
                     if (!upstreamPkg)
                     {
-                        //log.debug("Installed package " + name + " does not exist upstream; ignoring.");
+                        //log.debug("Installed package " + id + " does not exist upstream; ignoring.");
                         continue;
                     }
-                    //log.debug("Installed package " + name + " exists upstream.");
+                    //log.debug("Installed package " + id + " exists upstream.");
                     // Verify the package has a release.
                     if (!(upstreamPkg.releases) || upstreamPkg.releases.length == 0)
                     {
@@ -509,9 +606,11 @@
                     // TODO: some packages do not store version information
                     // (like macros and schemes). Figure out a more reliable way
                     // to determine whether or not updates are available.
-                    if (installedPkg.version != release.name)
+                    if (installedPkg.version != release.version)
                     {
-                        upgradable[name] = upstreamPkg;
+                        upgradable[id] = upstreamPkg;
+                        upgradable[id].currentVersion = installedPkg.version;
+                        upgradable[id].availableVersion = release.version;
                         //log.debug("Package has a newer version; marking as upgradable.");
                     }
                     else
@@ -519,9 +618,33 @@
                         //log.debug("Package is up to date.");
                     }
                 }
+                
+                cache[kind] = {result: upgradable, time: time};
+                
                 callback(upgradable);
             });
         }.bind(this));
+    }
+    
+    this._installXpi = function(url, callback, errorCallback, pkg, contentType)
+    {
+        AddonManager.getInstallForURL(url, function(aInstall)
+        {
+            this._addonInstallListener.callback = callback;
+            this._addonInstallListener.errorCallback = errorCallback;
+            
+            if (pkg) this._addonInstallListener.package = pkg;
+            
+            try
+            {
+                aInstall.addListener(this._addonInstallListener);
+                aInstall.install();
+            } catch (e)
+            {
+                log.exception(e, "Exception while running install for " + url);
+                errorCallback();
+            }
+        }.bind(this), contentType || "application/x-xpinstall");
     }
     
     /**
@@ -536,8 +659,25 @@
         callback = callback || function() {};
         errorCallback = errorCallback || function(msg)
         {
-            require('notify/notify').send(msg, 'packages', {priority: 'error'}); 
+            require('notify/notify').interact(msg, 'packages', {priority: 'error'}); 
         };
+        
+        if (pkg.mock)
+        {
+            // This pkg data is mocked, we need to retrieve the real data
+            this._getAvailablePackagesByKind(pkg.kind, function(available)
+            {
+                if ( ! (pkg.id in available))
+                {
+                    log.info("No installable version for package " + pkg.name + "; aborting.");
+                    errorCallback("No installable version for package " + pkg.name);
+                    return;
+                }
+                
+                this._installPackage(available[pkg.id], callback, errorCallback);
+            }.bind(this));
+            return;
+        }
         
         // Verify if the package has any installable assets
         var asset = this._getInstallable(pkg, 'asset');
@@ -557,14 +697,14 @@
             case LANGS:
                 // TODO: differentiate between these and prompt for applying skin.
                 // Install the XPI via Mozilla's AddonManager.
-                AddonManager.getInstallForURL(asset.browser_download_url, function(aInstall)
+                try
                 {
-                    this._addonInstallListener.callback = callback;
-                    this._addonInstallListener.errorCallback = errorCallback;
-                    this._addonInstallListener.package = pkg;
-                    aInstall.addListener(this._addonInstallListener);
-                    aInstall.install();
-                }.bind(this), asset.content_type);
+                    this._installXpi(asset.browser_download_url, callback, errorCallback, pkg, asset.content_type);
+                } catch (e)
+                {
+                    log.exception(e, "Exception while retrieving install for " + pkg.id);
+                    errorCallback();
+                }
                 break;
             case TOOLBOX:
             case MACROS:
@@ -598,8 +738,9 @@
                         }))
                     {
                         schemeService.activateScheme(scheme);
-                        require("notify/notify").send(l.get("schemeApplied", pkg.name), "packages", {id: "packageInstall"});
+                        require("notify/notify").interact(l.get("schemeApplied", pkg.name), "packages", {id: "packageInstall"});
                     }
+                    commando.focus();
                     // TODO: delete temporary file.
                     callback();
                 }, errorCallback);
@@ -623,8 +764,9 @@
                     {
                         log.debug("Applying scheme " + schemeName);
                         keybindings.manager.revertToPref(schemeName); // probably not the intended use, but it works
-                        require("notify/notify").send(l.get("keybindingsApplied", pkg.name), "packages", {id: "packageInstall"});
+                        require("notify/notify").interact(l.get("keybindingsApplied", pkg.name), "packages", {id: "packageInstall"});
                     }
+                    commando.focus();
                 }, errorCallback, OS.Path.join(dirService.userDataDir, 'schemes'));
                 break;
             default:
@@ -704,7 +846,25 @@
      */
     this._uninstallPackage = function(pkg, callback, errorCallback)
     {
-        log.debug("Attempting to uninstall package " + pkg.name);
+        log.debug("Attempting to uninstall package " + pkg.id);
+        
+        if ( ! pkg.mock)
+        {
+            // This pkg data is not mocked, we need to retrieve the mocked data
+            this._getInstalledPackagesByKind(pkg.kind, function(installed)
+            {
+                if ( ! (pkg.id in installed))
+                {
+                    log.info("No uninstallable version for package " + pkg.id + "; aborting.");
+                    errorCallback("No uninstallable version for package " + pkg.id);
+                    return;
+                }
+                
+                this._uninstallPackage(installed[pkg.id], callback, errorCallback);
+            }.bind(this));
+            return;
+        }
+        
         switch (pkg.kind)
         {
             case ADDONS:
@@ -716,7 +876,16 @@
                 if (addon.uninstall)
                 {
                     log.info("Uninstalling package " + pkg.name + " v" + pkg.version);
-                    addon.uninstall();
+                    try
+                    {
+                        addon.uninstall();
+                    }
+                    catch (e)
+                    {
+                        log.exception(e, "addon uninstall failed for " + pkg.name);
+                        errorCallback();
+                        return;
+                    }
                     // Prompt for restart if necessary.
                     log.debug("Package pending operations: " + addon.pendingOperations);
                     callback(); // indicate success before potentially restarting
@@ -733,6 +902,7 @@
                         {
                             utils.restart(false);
                         }
+                        commando.focus();
                     }
                 }
                 break;
@@ -780,7 +950,7 @@
     this._addonInstallListener = {
         callback: null, // will be specified prior to each install
         errorCallback: null, // will be specified prior to each install
-        package: null,
+        package: {name: "addon", kind: ADDONS},
         /**
          * Checks for the addon's compatibility with this Komodo version.
          * If the check fails, prompts the user to abort the installation.
@@ -799,6 +969,7 @@
                     this.errorCallback("Package installation cancelled by user.");
                     return false;
                 }
+                commando.focus();
             }
         },
         /**
@@ -830,6 +1001,7 @@
                 {
                     utils.restart(false);
                 }
+                commando.focus();
             }
             else
             {
@@ -839,12 +1011,20 @@
                     {
                         prefs_doGlobalPrefs('appearance');
                     }
+                    commando.focus();
                 }
             }
         },
         /** Notifies the user that installation of the addon failed. */
         onInstallFailed: function(aInstall) {
-            this.errorCallback("Unable to install " + aInstall.name + ": " + aInstall.error);
+            var locale = "Unable to install " + aInstall.name + ": " + aInstall.error;
+            log.error(locale);
+            this.errorCallback(locale);
+        },
+        onDownloadFailed: function(aInstall) {
+            var locale = "Unable to download " + aInstall.name + ": " + aInstall.error;
+            log.error(locale);
+            this.errorCallback(locale);
         }
     }
     

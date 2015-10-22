@@ -425,7 +425,11 @@ static bool isHashRocketSuccessorColon(int i, Accessor &styler) {
             }
         }
     }
-    return (ch == ',' || ch == '{');
+    
+    return (ch == ',' || ch == '{' ||
+            // Also consider keyword-style arguments in method defs and calls.
+            ch == '(' || actual_style(styler.StyleAt(pos)) == SCE_RB_DEFNAME ||
+            actual_style(styler.StyleAt(pos)) == SCE_RB_IDENTIFIER);
 }
 
 // Look at chars up to but not including endPos

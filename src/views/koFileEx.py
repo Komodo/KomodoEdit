@@ -63,6 +63,9 @@ class koFileEx:
 
             elif scheme in RemoteURISchemeTypes: # Imported from URIlib
                 handler = RemoteURIHandler(self._URI.URI)
+                
+            elif self._URI.URI == "chrome://komodo/content/quickstart.xml#view-quickstart":
+                handler = QuickstartHandler(self._URI.URI)
 
             elif scheme in ['chrome', 'dbgp']:
                 # pass through to mozilla's uri handling

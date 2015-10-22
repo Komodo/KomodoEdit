@@ -204,6 +204,23 @@ class Parser:
             if tok['start_column'] == col and self.classifier.is_operator(tok, "::"):
                 name_start += tok['text']
                 col += 2
+            elif tok['start_column'] == col and \
+                 tok['style'] == ScintillaConstants.SCE_TCL_OPERATOR and \
+                 tok['text'] != '{':
+                # Since identifier names can contain any text at all (including
+                # symbols like '-' and '+'), assume '{' marks the end of the
+                # name and look for more of the fully qualified name.
+                while 1:
+                    name_start += tok['text']
+                    col = tok['end_column'] + 1
+                    if tok['text'] == '::':
+                        break # continue with original behavior below
+                    tok = self.tokenizer.get_next_token()
+                    if tok['start_column'] != col or \
+                       tok['style'] != ScintillaConstants.SCE_TCL_OPERATOR or \
+                       tok['text'] == '{':
+                        self.tokenizer.put_back(tok)
+                        return (name_start, line_start)
             else:
                 self.tokenizer.put_back(tok)
                 break
@@ -399,12 +416,33 @@ class Parser:
                     # XXX: Needs to handle lappend, append, incr, variable
                     # XXX: possibly dict set, array set, upvar, lassign,
                     # XXX: foreach, regsub (non-inline)
+                    isLocal = isinstance(curr_node, MethodNode)
                     tok = self.tokenizer.get_next_token()
+                    if self.classifier.is_operator(tok, '::'):
+                        # Possibly a global variable. Check the next two tokens.
+                        ident = self.tokenizer.get_next_token()
+                        afterIdent = self.tokenizer.get_next_token()
+                        if not self.classifier.is_operator(afterIdent, '::'):
+                            # Valid global variable. Put back second token.
+                            tok = ident
+                            isLocal = False
+                            self.tokenizer.put_back(afterIdent)
+                        else:
+                            # Not a valid global variable
+                            # (e.g. "set ::foo::bar ..."). Put back both tokens.
+                            self.tokenizer.put_back(afterIdent)
+                            self.tokenizer.put_back(ident)
                     if self.classifier.is_identifier(tok, True):
                         if curr_globals.has_key(tok['text']):
                             pass
                         else:
-                            self.parse_assignment(tok['text'], tok['start_line'], isinstance(curr_node, MethodNode))
+                            self.parse_assignment(tok['text'], tok['start_line'], isLocal)
+                elif text == "variable" and isinstance(curr_node, ModuleNode):
+                    # "variable" declarations in namespaces are considered
+                    # namespace variables.
+                    tok = self.tokenizer.get_next_token()
+                    if self.classifier.is_identifier(tok, True):
+                        self.parse_assignment(tok['text'], tok['start_line'], True)
                 elif text == "lassign":
                     tok = self.tokenizer.get_next_token()
                     if self.classifier.is_operator(tok, "{"):

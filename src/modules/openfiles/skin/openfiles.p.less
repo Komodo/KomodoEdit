@@ -37,42 +37,6 @@
             height: 16px;
             max-height: 16px;
         }
-        
-        toolbarbutton.file-close-button
-        {
-            -moz-appearance: none;
-            opacity: 0;
-            margin: 0 10px 0 0;
-            padding: 0;
-            list-style-image: url("chrome://global/skin/icons/close.png");
-            -moz-image-region: rect(0px, 16px, 16px, 0px);
-            -moz-transition: opacity 0.15s ease;
-            
-            &:hover
-            {
-                opacity: 1;
-                -moz-image-region: rect(0px, 32px, 16px, 16px);
-                border-color: transparent;
-            }
-            
-            &:focus
-            {
-                outline: none !important;
-            }
-            
-            &:active
-            {
-                -moz-image-region: rect(0px, 48px, 16px, 32px);
-            }
-        }
-        
-        &:hover
-        {
-            toolbarbutton.file-close-button
-            {
-                opacity: 0.8;
-            }
-        }
     }
     
     richlistitem.group-item
@@ -114,6 +78,39 @@
     }
 }
 
+toolbarbutton.file-close-button
+{
+    -moz-appearance: none;
+    opacity: 0;
+    margin: 0 10px 0 0;
+    padding: 0;
+    list-style-image: url("chrome://global/skin/icons/close.png");
+    -moz-image-region: rect(0px, 16px, 16px, 0px);
+    -moz-transition: opacity 0.15s ease;
+    
+    &:hover
+    {
+        opacity: 1;
+        -moz-image-region: rect(0px, 32px, 16px, 16px);
+        border-color: transparent;
+    }
+    
+    &:focus
+    {
+        outline: none !important;
+    }
+    
+    &:active
+    {
+        -moz-image-region: rect(0px, 48px, 16px, 32px);
+    }
+}
+
+richlistitem:hover toolbarbutton.file-close-button
+{
+    opacity: 0.8;
+}
+
 #openfilesPrefHbox
 {
     margin: 0;
@@ -127,4 +124,9 @@
     {
         visibility: collapse;
     }
+}
+
+#openFilesCloseAll
+{
+    opacity: 1 !important;
 }

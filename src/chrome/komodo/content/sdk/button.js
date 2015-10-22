@@ -1,3 +1,6 @@
+/**
+ * @module button
+ */
 (function(){
 
     var $ = require("ko/dom");
@@ -5,6 +8,15 @@
 
     const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
+    /**
+     * Register a new button
+     * 
+     * @param   {String|Object} label   Optionally this can holds the entire opts object, with a label and command entry
+     * @param   {Function} command
+     * @param   {Object} opts   
+     * 
+     * @returns {Void}
+     */
     this.register = (label, command, opts) =>
     {
         if ((typeof label) == "object")
@@ -43,6 +55,14 @@
         }
     };
 
+    /**
+     * Unregister given button
+     * 
+     * @param   {String} id  
+     * @param   {Object} opts       context, id
+     * 
+     * @returns {Void}
+     */
     this.unregister = (id, opts) =>
     {
         id = id.replace(/\W+/g, "");
@@ -73,18 +93,34 @@
         var id = "sdk_button_" + context.uniqueId() + opts.id;
         context.parent().find(id).remove();
 
-        var button = document.createElementNS(XUL_NS, 'button');
+        var button = document.createElementNS(XUL_NS, opts.toolbar ? 'toolbarbutton' : 'button');
         button.setAttribute("id", id);
         button.setAttribute("label", opts.label);
+        button.setAttribute("tooltiptext", opts.tooltip || opts.label);
         button.setAttribute("class", opts.classList);
-
-        button.addEventListener("command", opts.command);
+        
+        if (typeof opts.command == "string")
+        {
+            button.setAttribute("oncommand", "ko.commands.doCommandAsync('"+opts.command+"', event)");
+            button.setAttribute("observes", opts.command);
+        }
+        else
+            button.addEventListener("command", opts.command);
+        
         button.classList.add("sdk-button");
 
         button.sdkOpts = opts;
 
         var sibling, appended;
-        if (context.where == "before")
+        if (contextOpts.where == "append")
+        {
+            context.append(button);
+        }
+        else if (contextOpts.where == "prepend")
+        {
+            context.prepend(button);
+        }
+        else if (contextOpts.where == "before")
         {
             context.before(button);
         }
@@ -112,12 +148,18 @@
         return context;
     }
 
+    /**
+     * Exception that is thrown when no valid context was found
+     */
     function exceptionInvalidContext(context)
     {
         this.message = "The context cannot be found";
     }
     this.exceptionInvalidContext = exceptionInvalidContext;
 
+    /**
+     * Exception that is thrown when a required property was not defined
+     */
     function exceptionMissingProp(prop)
     {
         this.message = "Button registration failed due to missing " + prop + " property";

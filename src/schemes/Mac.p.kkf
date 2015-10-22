@@ -1,4 +1,4 @@
-version 43
+version 48
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -7,6 +7,31 @@ binding cmd_bookmarkGotoNext  F2
 binding cmd_bookmarkGotoPrevious  Shift+F2
 binding cmd_bookmarkRemoveAll  Meta+Shift+F2
 binding cmd_bookmarkToggle  Meta+F2
+
+# Quick Bookmarks
+# Set
+binding cmd_setQuickBookmark_0  Ctrl+Shift+0
+binding cmd_setQuickBookmark_1  Ctrl+Shift+1
+binding cmd_setQuickBookmark_2  Ctrl+Shift+2
+binding cmd_setQuickBookmark_3  Ctrl+Shift+3
+binding cmd_setQuickBookmark_4  Ctrl+Shift+4
+binding cmd_setQuickBookmark_5  Ctrl+Shift+5
+binding cmd_setQuickBookmark_6  Ctrl+Shift+6
+binding cmd_setQuickBookmark_7  Ctrl+Shift+7
+binding cmd_setQuickBookmark_8  Ctrl+Shift+8
+binding cmd_setQuickBookmark_9  Ctrl+Shift+9
+# GoTo
+binding cmd_goToQuickBookmark_0  Ctrl+0
+binding cmd_goToQuickBookmark_1  Ctrl+1
+binding cmd_goToQuickBookmark_2  Ctrl+2
+binding cmd_goToQuickBookmark_3  Ctrl+3
+binding cmd_goToQuickBookmark_4  Ctrl+4
+binding cmd_goToQuickBookmark_5  Ctrl+5
+binding cmd_goToQuickBookmark_6  Ctrl+6
+binding cmd_goToQuickBookmark_7  Ctrl+7
+binding cmd_goToQuickBookmark_8  Ctrl+8
+binding cmd_goToQuickBookmark_9  Ctrl+9
+
 binding cmd_browserPreview Ctrl+K Ctrl+V
 binding cmd_reloadBrowserPreview Ctrl+K Ctrl+R
 binding cmd_bufferClose Meta+W
@@ -32,9 +57,8 @@ binding cmd_closeAll Meta+Ctrl+W
 binding cmd_closeProject Ctrl+W
 binding cmd_goToDefinition Ctrl+K Ctrl+G
 
-binding cmd_uncomment  Ctrl+2
-binding cmd_uncomment  Ctrl+Shift+3
-binding cmd_comment  Ctrl+3
+binding cmd_uncomment  Meta+Shift+?
+binding cmd_comment  Meta+/
 binding cmd_completeWord Alt+Escape
 binding cmd_completeWordBack Alt+Shift+Escape
 binding cmd_completeWord F5
@@ -55,7 +79,6 @@ binding cmd_end  End
 binding cmd_end  Meta+Right
 binding cmd_endOfWord Meta+E
 binding cmd_executeLastMacro Ctrl+K _
-binding cmd_expandAbbrev Meta+T
 # cmd_find unassigned
 binding cmd_findAllFunctions  Meta+F8
 binding cmd_findInFiles Meta+Shift+F
@@ -72,10 +95,7 @@ binding cmd_fontZoomOut Meta+-
 binding cmd_fontZoomIn Meta+Shift++
 binding cmd_fontZoomReset Meta+0
 binding cmd_gotoLine Meta+L
-binding cmd_helpHelp  Meta+?
-binding cmd_helpHelp  Meta+Shift+/
-binding cmd_helpLanguage  Meta+/
-binding cmd_helpLanguageAlternate  Ctrl+/
+binding cmd_helpHelp  Ctrl+/
 binding cmd_home  Home 
 binding cmd_home  Meta+Left 
 binding cmd_join Ctrl+K Ctrl+J
@@ -92,6 +112,7 @@ binding cmd_selectDocumentEnd   Meta+Shift+Down
 binding cmd_lineScrollDown  Meta+Alt+Down
 binding cmd_lineScrollUp  Meta+Alt+Up
 binding cmd_new Meta+N
+binding cmd_newTab Meta+T
 binding cmd_newProject Meta+Shift+N
 binding cmd_newTemplate Meta+Ctrl+N
 binding cmd_newline  Return
@@ -171,7 +192,6 @@ binding cmd_scope-openfiles Meta+<
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
 
-binding cmd_addAdditionalCaret Ctrl+K Ctrl+Y
 binding cmd_addNextWordToCaretSet Ctrl+D
 binding cmd_htmlTagRelocator Ctrl+Shift+Z
 

@@ -289,7 +289,7 @@ def scan_multilang(tokens, module_elem):
             which the Ruby module should be built.
 
     This should return a tuple of:
-    * the list of the CSL tokens in the token stream,
+    * the list of the CSL and CSS tokens in the token stream,
     * whether or not the document contains any Ruby tokens (style UDL_SSL...)
     """
         
@@ -298,7 +298,8 @@ def scan_multilang(tokens, module_elem):
     parse_tree = parser.parse()
     parser_cix.produce_elementTree_contents_cix(parse_tree, module_elem)
     csl_tokens = tokenizer.get_csl_tokens()
-    return csl_tokens, tokenizer.has_ruby_code()
+    css_tokens = tokenizer.get_css_tokens()
+    return csl_tokens, css_tokens, tokenizer.has_ruby_code()
 
 
 #---- mainline

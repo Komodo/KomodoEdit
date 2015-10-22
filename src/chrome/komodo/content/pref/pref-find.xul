@@ -63,6 +63,14 @@
     <vbox id="find-prefs-vbox" flex="1" class="autoscroll">
 
         <groupbox orient="vertical">
+            <caption label="&findFrame.label;" />
+            <checkbox id="pin_find_frame"
+                      label="&pinFindFrame.label;"
+                      pref="true"
+                      prefattribute="checked" />
+        </groupbox>
+
+        <groupbox orient="vertical">
             <caption label="&findInFiles.label;" />
             <checkbox id="find-skipLargeFilesEnabled"
                       label="&findSkipLargeFilesEnabled.label;"

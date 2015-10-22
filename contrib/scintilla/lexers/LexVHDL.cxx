@@ -72,6 +72,7 @@ static void ColouriseVHDLDoc(
   WordList &User       = *keywordlists[6];
 
   StyleContext sc(startPos, length, initStyle, styler);
+  bool isExtendedId = false;    // true when parsing an extended identifier
 
   for (; sc.More(); sc.Forward())
   {
@@ -84,7 +85,7 @@ static void ColouriseVHDLDoc(
         sc.SetState(SCE_VHDL_DEFAULT);
       }
     } else if (sc.state == SCE_VHDL_IDENTIFIER) {
-      if (!IsAWordChar(sc.ch) || (sc.ch == '.')) {
+      if (!isExtendedId && (!IsAWordChar(sc.ch) || (sc.ch == '.'))) {
         char s[100];
         sc.GetCurrentLowered(s, sizeof(s));
         if (Keywords.InList(s)) {
@@ -103,6 +104,10 @@ static void ColouriseVHDLDoc(
           sc.ChangeState(SCE_VHDL_USERWORD);
         }
         sc.SetState(SCE_VHDL_DEFAULT);
+      } else if (isExtendedId && ((sc.ch == '\\') || sc.atLineEnd)) {
+        // extended identifiers are terminated by backslash, check for end of line in case we have invalid syntax
+        isExtendedId = false;
+        sc.ForwardSetState(SCE_VHDL_DEFAULT);
       }
     } else if (sc.state == SCE_VHDL_COMMENT || sc.state == SCE_VHDL_COMMENTLINEBANG) {
       if (sc.atLineEnd) {
@@ -141,6 +146,9 @@ static void ColouriseVHDLDoc(
         sc.SetState(SCE_VHDL_BLOCK_COMMENT);
       } else if (sc.ch == '\"') {
         sc.SetState(SCE_VHDL_STRING);
+      } else if (sc.ch == '\\') {
+        isExtendedId = true;
+        sc.SetState(SCE_VHDL_IDENTIFIER);
       } else if (isoperator(static_cast<char>(sc.ch))) {
         sc.SetState(SCE_VHDL_OPERATOR);
       }
@@ -208,7 +216,7 @@ static void FoldNoBoxVHDLDoc(
   // don't check if the style for the keywords that I use to adjust the levels.
   char words[] =
     "architecture begin block case component else elsif end entity generate loop package process record then "
-    "procedure function when";
+    "procedure function when units";
   WordList keywords;
   keywords.Set(words);
 
@@ -374,7 +382,8 @@ static void FoldNoBoxVHDLDoc(
             strcmp(s, "package") ==0        ||
             strcmp(s, "process") == 0       ||
             strcmp(s, "record") == 0        ||
-            strcmp(s, "then") == 0)
+            strcmp(s, "then") == 0          ||
+            strcmp(s, "units") == 0)
           {
             if (strcmp(prevWord, "end") != 0)
             {
@@ -388,13 +397,14 @@ static void FoldNoBoxVHDLDoc(
             strcmp(s, "entity") == 0         ||
             strcmp(s, "configuration") == 0 )
           {
-            if (strcmp(prevWord, "end") != 0)
+            if (strcmp(prevWord, "end") != 0 && lastStart)
             { // check for instantiated unit by backward searching for the colon.
-              unsigned pos = lastStart-1;
+              unsigned pos = lastStart;
               char chAtPos, styleAtPos;
               do{// skip white spaces
+                pos--;
                 styleAtPos = styler.StyleAt(pos);
-                chAtPos = styler.SafeGetCharAt(pos--);
+                chAtPos = styler.SafeGetCharAt(pos);
               }while(pos>0 &&
                      (chAtPos == ' ' || chAtPos == '\t' ||
                       chAtPos == '\n' || chAtPos == '\r' ||
@@ -428,7 +438,7 @@ static void FoldNoBoxVHDLDoc(
                   (!IsCommentStyle(styleAtPos)) &&
                   (styleAtPos != SCE_VHDL_STRING) &&
                   !iswordchar(styler.SafeGetCharAt(pos-1)) &&
-                  styler.Match(pos, "is") &&
+                  (chAtPos|' ')=='i' && (styler.SafeGetCharAt(pos+1)|' ')=='s' &&
                   !iswordchar(styler.SafeGetCharAt(pos+2)))
                 {
                   if (levelMinCurrentElse > levelNext) {

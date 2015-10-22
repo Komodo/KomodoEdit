@@ -61,14 +61,28 @@ ko.markers =  function markers_module() {
 
     // 25-31 are dedicated to folding
     // 22-24 are dedicated to tracking (insert, delete, modify)
-    MAX_MARKNUM: 13,
+    // Note: In order to conserve marker numbers, view-specific markers may
+    // overlap. For example, bookmarks cannot be set in terminal/shell views,
+    // and interactive prompt lines do not occur in editing views. Therefore
+    // their marker numbers may overlap due to differing contexts.
+    MAX_MARKNUM: 18,
+    MARKNUM_BOOKMARK0: 18,
+    MARKNUM_BOOKMARK9: 17,
+    MARKNUM_BOOKMARK8: 16,
+    MARKNUM_BOOKMARK7: 15,
+    MARKNUM_BOOKMARK6: 14,
     MARKNUM_HISTORYLOC: 13,
-    MARKNUM_STDERR: 12, // used in terminal view
-    MARKNUM_STDOUT: 11, // used in terminal view
+    MARKNUM_STDERR: 12, // only used in terminal view
+    MARKNUM_BOOKMARK5: 12,
+    MARKNUM_STDOUT: 11, // only used in terminal view
+    MARKNUM_BOOKMARK4: 11,
     MARKNUM_CURRENT_LINE_BACKGROUND: 10,
-    MARKNUM_STDIN_PROMPT: 9, // used in terminal view
-    MARKNUM_INTERACTIVE_PROMPT_MORE: 8, // used in interactive shell
-    MARKNUM_INTERACTIVE_PROMPT: 7, // used in interactive shell
+    MARKNUM_STDIN_PROMPT: 9, // only used in terminal view
+    MARKNUM_BOOKMARK3: 9,
+    MARKNUM_INTERACTIVE_PROMPT_MORE: 8, // only used in interactive shell
+    MARKNUM_BOOKMARK2: 8,
+    MARKNUM_INTERACTIVE_PROMPT: 7, // only used in interactive shell
+    MARKNUM_BOOKMARK1: 7,
     MARKNUM_BOOKMARK: 6,
     MARKNUM_TRANSIENTMARK: 0, // used in buffer view
     
@@ -152,8 +166,11 @@ ko.markers =  function markers_module() {
      * 
      * @param {Components.interfaces.ISciMoz} scimoz - A plugin instance.
      * @param {Boolean} isDarkBackground - whether scimoz is using a dark bg.
+     * @param {Boolean} terminal - whether to initialize markers for terminal
+     *   or shell views, rather than for editing views. The default is false.
+     *   Terminal/shell views being initialized must set this to true.
      */
-    setup: function(scimoz, isDarkBackground) {
+    setup: function(scimoz, isDarkBackground, terminal) {
         var color;
         if (typeof(require) == "function") {
             color = require("ko/color");
@@ -162,14 +179,25 @@ ko.markers =  function markers_module() {
             xtk.include("color");
             color = xtk.color;
         }
-        scimoz.markerDefine(ko.markers.MARKNUM_BOOKMARK, scimoz.SC_MARK_ARROWDOWN);
-        scimoz.markerSetFore(ko.markers.MARKNUM_BOOKMARK, color.RGBToBGR(0x00, 0x00, 0x00)); // black
-        scimoz.markerSetBack(ko.markers.MARKNUM_BOOKMARK, color.RGBToBGR(0x00, 0xFF, 0xFF)); // cyan
-    
-        scimoz.markerDefine(ko.markers.MARKNUM_STDIN_PROMPT, scimoz.SC_MARK_CHARACTER+'%'.charCodeAt(0));
-        scimoz.markerSetFore(ko.markers.MARKNUM_STDIN_PROMPT, color.scintilla_red);
-        scimoz.markerDefine(ko.markers.MARKNUM_STDOUT, scimoz.SC_MARK_EMPTY);
-        scimoz.markerDefine(ko.markers.MARKNUM_STDERR, scimoz.SC_MARK_EMPTY);
+        scimoz.markerDefinePixmap(ko.markers.MARKNUM_BOOKMARK,
+                                  ko.markers.getPixmap("chrome://komodo/skin/images/bookmark.xpm"));
+
+        // Quick bookmark markers.
+        for (let c of ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']) {
+            scimoz.markerDefinePixmap(ko.markers['MARKNUM_BOOKMARK' + c],
+                                      ko.markers.getPixmap("chrome://komodo/skin/images/bookmark_" + c + ".xpm"));
+        }
+        
+        if (terminal) {
+            scimoz.markerDefine(ko.markers.MARKNUM_STDIN_PROMPT, scimoz.SC_MARK_CHARACTER+'%'.charCodeAt(0));
+            scimoz.markerSetFore(ko.markers.MARKNUM_STDIN_PROMPT, color.scintilla_red);
+        
+            scimoz.markerDefine(ko.markers.MARKNUM_STDOUT, scimoz.SC_MARK_EMPTY);
+            //scimoz.markerSetBack(ko.markers.MARKNUM_STDOUT, color.RGBToBGR(0xFA, 0xFA, 0xFF));
+            scimoz.markerDefine(ko.markers.MARKNUM_STDERR, scimoz.SC_MARK_EMPTY);
+            //scimoz.markerSetBack(ko.markers.MARKNUM_STDERR, color.RGBToBGR(0xFF, 0xFA, 0xFA));
+        }
+
         scimoz.markerDefine(ko.markers.MARKNUM_HISTORYLOC, scimoz.SC_MARK_EMPTY);
         scimoz.markerDefine(ko.markers.MARKNUM_TRANSIENTMARK, scimoz.SC_MARK_EMPTY);
     

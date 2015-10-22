@@ -30,12 +30,10 @@ variableScope:scintilla/lexers/LexRuby.cxx
 uninitMemberVar:scintilla/lexers/LexRuby.cxx
 variableScope:scintilla/lexers/LexSpecman.cxx
 unreadVariable:scintilla/lexers/LexSpice.cxx
+clarifyCalculation:scintilla/lexers/LexTADS3.cxx
 invalidscanf:scintilla/lexers/LexTCMD.cxx
 variableScope:scintilla/lexers/LexTeX.cxx
 variableScope:scintilla/lexers/LexVHDL.cxx
-
-// Suppress C-style pointer casting for Qt code as won't be changing
-cstyleCast:scintilla/qt/ScintillaEdit/ScintillaDocument.cpp
 
 // Suppress everything in catch.hpp as won't be changing
 *:scintilla/test/unit/catch.hpp

@@ -1,12 +1,12 @@
 <codeintel version="2.0">
   <file lang="PHP" mtime="42" path="scan_inputs/php/greedy_comments.php">
     <scope ilk="blob" lang="PHP" name="greedy_comments.php" src="scan_inputs/php/greedy_comments.php">
-      <scope doc="Function TestFunction&#xA;@param PDO $model&#xA;@param DOMDocument $node&#xA;@return DOMDocument" ilk="function" line="16" lineend="18" name="TestFunction" returns="DOMDocument" signature="DOMDocument TestFunction(PDO $model, DOMDocument $node)">
+      <scope doc="&#xA;Function TestFunction&#xA;&lt;pdo&gt; $model  - &#xA;&lt;domdocument&gt; $node  - &#xA;Returns domdocument &#xA;" ilk="function" line="16" lineend="18" name="TestFunction" returns="DOMDocument" signature="DOMDocument TestFunction(PDO $model, DOMDocument $node)">
         <variable citdl="PDO" ilk="argument" line="16" name="model" />
         <variable citdl="DOMDocument" ilk="argument" line="16" name="node" />
       </scope>
-      <scope doc="Line 1 of comment.&#xA;Line 2 of comment." ilk="function" line="24" lineend="24" name="TestFunction1" signature="TestFunction1()" />
-      <scope doc="test function 2" ilk="function" line="29" lineend="32" name="TestFunction2" signature="TestFunction2($model, $node)">
+      <scope doc="&#xA;Line 1 of comment.&#xA;Line 2 of comment.&#xA;" ilk="function" line="24" lineend="24" name="TestFunction1" signature="TestFunction1()" />
+      <scope doc="&#xA;test function 2&#xA;" ilk="function" line="29" lineend="32" name="TestFunction2" signature="TestFunction2($model, $node)">
         <variable ilk="argument" line="29" name="model" />
         <variable ilk="argument" line="29" name="node" />
       </scope>

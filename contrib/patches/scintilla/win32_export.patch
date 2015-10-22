@@ -228,11 +228,10 @@ Index: win32/scintilla_vc6.mak
 --- win32/scintilla.mak	(revision 518)
 +++ win32/scintilla.mak	(working copy)
 @@ -21,7 +21,7 @@
- RC=rc
  LD=link
  
--CXXFLAGS=-Zi -TP -MP -W4 -EHsc -Zc:forScope -Zc:wchar_t -D_CRT_SECURE_NO_DEPRECATE=1
-+CXXFLAGS=-Zi -TP -MP -W4 -EHsc -Zc:forScope -Zc:wchar_t -D_CRT_SECURE_NO_DEPRECATE=1 -DSCIAPI_DLL
+ CRTFLAGS=-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1 -D_CRT_SECURE_NO_DEPRECATE=1
+-CXXFLAGS=-Zi -TP -MP -W4 -EHsc -Zc:forScope -Zc:wchar_t $(CRTFLAGS)
++CXXFLAGS=-Zi -TP -MP -W4 -EHsc -Zc:forScope -Zc:wchar_t $(CRTFLAGS) -DSCIAPI_DLL -DCXXDEBUG=-Od -MTd -DDEBUG
  CXXDEBUG=-Od -MTd -DDEBUG
  CXXNDEBUG=-O1 -MT -DNDEBUG -GL
- NAME=-Fo

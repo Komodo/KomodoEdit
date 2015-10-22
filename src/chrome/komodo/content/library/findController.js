@@ -177,6 +177,11 @@ FindController.prototype.is_cmd_findNextResult_enabled = viewIsCurrentView;
 
 FindController.prototype.do_cmd_findNextResult = function() ko.findresults.nextResult();
 
+// cmd_findPrevResult
+FindController.prototype.is_cmd_findPrevResult_enabled = viewIsCurrentView;
+
+FindController.prototype.do_cmd_findPrevResult = function() ko.findresults.prevResult();
+
 // cmd_findNextFunction, cmd_findPreviousFunction, cmd_findAllFunctions
 
 // Auxiliary function used by the find*Function(s) methods.

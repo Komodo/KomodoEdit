@@ -164,33 +164,128 @@ editor_editorController.prototype.is_cmd_findPreviousSelected_enabled = function
     return v && !!v.scimoz;
 }
 
+
 editor_editorController.prototype.do_cmd_findPreviousSelected = function() {
     editor_controller_instance.do_cmd_findNextSelected(/* backwards */ true);
 }
 
+/**
+ * Extract quick bookmark location from docstate by index and jump to thatline
+ *
+ * @param {numbers}  index, key number was saved under.
+ */
+function goToQuickBookmark(index)
+{
+    let line = getValidMarkerLine(index);
+    // Above linereturns null if not found
+    if (line)
+    {
+        require("ko/editor").gotoLine(line);
+    }
+    else
+    {
+        require("notify/notify").interact("No quick bookmark for index " + index,
+                                      "editor")
+        docState.deletePref(quickBookmarkName);
+    }
+}
+
+/**
+ * Get the valid marker handle/id of the saved quickbookmark.
+ * Confirms the marker exists
+ * 
+ * @argument {number} index, The quickbookmark to be checked for a valid marker
+ * handle
+ * @returns {number} line, line number where marker is or null
+ */
+function getValidMarkerLine(index)
+{
+    //log.warn("cgch index " + index);
+    var docState = require("ko/views").current().prefs;
+    var quickBookmarkName = "quick_bookmarks_" + index;
+    if (!docState.hasPref(quickBookmarkName))
+    {
+        return null;
+    }
+    var quickBookmarkPref = docState.getPref(quickBookmarkName);
+    if (!quickBookmarkPref.hasPref("markerId"))
+    {
+        docState.deletePref(quickBookmarkName);
+        return null;
+    }
+    let markerId = quickBookmarkPref.getLong("markerId");
+    var line = require("ko/editor").getBookmarkLineFromHandle(markerId);
+    //log.warn("cgch line: " + line);
+    return line >= 1 ? line : null;
+}
+
+//Easiest way to add the 10 goToQuickBookmark functions needs for this feature
+[0,1,2,3,4,5,6,7,8,9].forEach(function(i)
+    {
+        //commands.register("setQuickBookmark_" + i, setQuickBookmark(i),{
+        //    label: "Quick Bookmark: Set quick bookmark for " + i + "key"
+        //});
+        editor_editorController.prototype["do_cmd_goToQuickBookmark_"+i] = function() {
+            goToQuickBookmark(i);
+        }
+        editor_editorController.prototype["is_cmd_goToQuickBookmark_"+i+"_enabled"] = function() {
+            return !!getValidMarkerLine(i);
+        }
+    })
+
+/**
+ * Set a quick book mark and save it to the docstate for retrieval purposes
+ *
+ * @param {numbers}  index, key number was saved under.
+ */
+function setQuickBookmark(index)
+{
+    var editor = require("ko/editor")
+    var docState = require("ko/views").current().prefs;
+    var quickBookmarkName = "quick_bookmarks_" + index;
+    var quickBookmarkPref = {};
+
+    if (docState.hasPref(quickBookmarkName))
+    {
+        quickBookmarkPref = docState.getPref(quickBookmarkName);
+    }
+    else 
+    {
+        quickBookmarkPref = Cc['@activestate.com/koPreferenceSet;1'].createInstance();
+        docState.setPref(quickBookmarkName, quickBookmarkPref)
+    }
+    
+    //Delete old quick bookmark if it's already set
+    if (quickBookmarkPref.hasPref("markerId")) {
+        editor.unsetBookmarkByHandle(quickBookmarkPref.getLong("markerId"));
+    }
+    
+    var markerId = editor.setBookmark(editor.getLineNumber(),
+                                      ko.markers['MARKNUM_BOOKMARK' + index]);
+    var markerId = editor.setBookmark(editor.getLineNumber());
+    quickBookmarkPref.setLong("markerId", markerId);
+}
+
+//Easiest way to add the 10 setQuickBookmark functions needs for this feature
+[0,1,2,3,4,5,6,7,8,9].forEach(function(i)
+    {
+        //commands.register("setQuickBookmark_" + i, setQuickBookmark(i),{
+        //    label: "Quick Bookmark: Set quick bookmark for " + i + "key"
+        //});
+        editor_editorController.prototype["do_cmd_setQuickBookmark_"+i] = function() {
+            setQuickBookmark(i);
+        }
+        editor_editorController.prototype["is_cmd_setQuickBookmark_"+i+"_enabled"] = function() {
+            return !!_getCurrentScimozView();
+        }
+    })
+    
 editor_editorController.prototype.is_cmd_bookmarkToggle_enabled = function() {
     return !!_getCurrentScimozView();
 }
 editor_editorController.prototype.do_cmd_bookmarkToggle = function() {
     var v = _getCurrentScimozView();
-    if (!v) {
-        return;
-    }
-    var line_no = v.scimoz.lineFromPosition(v.scimoz.selectionStart);
-    var markerState = v.scimoz.markerGet(line_no);
-    var data = {
-        'line': line_no,
-    }
-    if (markerState & (1 << ko.markers.MARKNUM_BOOKMARK)) {
-        v.scimoz.markerDelete(line_no, ko.markers.MARKNUM_BOOKMARK);
-        window.dispatchEvent(new CustomEvent("bookmark_deleted",
-                                             { bubbles: true, detail: data }));
-    } else {
-        ko.history.note_curr_loc(v);
-        v.scimoz.markerAdd(line_no, ko.markers.MARKNUM_BOOKMARK);
-        window.dispatchEvent(new CustomEvent("bookmark_added",
-                                             { bubbles: true, detail: data }));
-    }
+    require("ko/editor").toggleBookmark();
 }
 
 editor_editorController.prototype.is_cmd_bookmarkRemoveAll_enabled = function() {
@@ -198,7 +293,12 @@ editor_editorController.prototype.is_cmd_bookmarkRemoveAll_enabled = function() 
 }
 editor_editorController.prototype.do_cmd_bookmarkRemoveAll = function() {
     var v = _getCurrentScimozView();
-    if (v) v.scimoz.markerDeleteAll(ko.markers.MARKNUM_BOOKMARK);
+    if (v) {
+        v.scimoz.markerDeleteAll(ko.markers.MARKNUM_BOOKMARK);
+        for (let i = 0; i < 10; i++) {
+            v.scimoz.markerDeleteAll(ko.markers['MARKNUM_BOOKMARK' + i]);
+        }
+    }
     window.dispatchEvent(new CustomEvent("bookmark_deleted",
                                          { bubbles: true, detail: { 'all': true } }));
 }
@@ -213,18 +313,20 @@ editor_editorController.prototype.do_cmd_bookmarkGotoNext = function() {
     }
     var thisLine = v.scimoz.lineFromPosition(v.scimoz.selectionStart);
     var marker_mask = 1 << ko.markers.MARKNUM_BOOKMARK;
+    for (let i = 0; i < 10; i++) {
+        marker_mask |= 1 << ko.markers['MARKNUM_BOOKMARK' + i];
+    }
     var nextLine = v.scimoz.markerNext(thisLine+1, marker_mask);
     if (nextLine < 0) {
         // try for search from top of file.
         nextLine = v.scimoz.markerNext(0, marker_mask);
     }
     if (nextLine < 0 || nextLine == thisLine) {
-        require("notify/notify").send(
+        require("notify/notify").interact(
             _bundle.GetStringFromName("noNextBookmark.message"),
             "bookmark");
         
     } else {
-        ko.history.note_curr_loc(v);
         v.scimoz.ensureVisibleEnforcePolicy(nextLine);
         v.scimoz.gotoLine(nextLine);
     }
@@ -241,17 +343,19 @@ editor_editorController.prototype.do_cmd_bookmarkGotoPrevious = function() {
     }
     var thisLine = v.scimoz.lineFromPosition(v.scimoz.selectionStart);
     var marker_mask = 1 << ko.markers.MARKNUM_BOOKMARK;
+    for (let i = 0; i < 10; i++) {
+        marker_mask |= 1 << ko.markers['MARKNUM_BOOKMARK' + i];
+    }
     var prevLine = v.scimoz.markerPrevious(thisLine-1, marker_mask);
     if (prevLine < 0) {
         // try for search from bottom of file.
         prevLine = v.scimoz.markerPrevious(v.scimoz.lineCount-1, marker_mask);
     }
     if (prevLine < 0 || prevLine == thisLine) {
-        require("notify/notify").send(
+        require("notify/notify").interact(
             _bundle.GetStringFromName("noPreviousBookmark.message"),
             "bookmark.message");
     } else {
-        ko.history.note_curr_loc(v);
         v.scimoz.ensureVisibleEnforcePolicy(prevLine);
         v.scimoz.gotoLine(prevLine);
     }
@@ -461,20 +565,10 @@ var is_cmd_addAdditionalCaret_enabled_aux = function() {
     if (!scimoz) {
         return null;
     }
-    return ko.selections.allowMultiCaretSession(scimoz) ? view : null;
+    return (scimoz.selectionMode != scimoz.SC_SEL_RECTANGLE
+            || (scimoz.lineFromPosition(scimoz.selectionStart)
+                == scimoz.lineFromPosition(scimoz.selectionEnd))) ? view : null;
 };
-
-editor_editorController.prototype.is_cmd_addAdditionalCaret_enabled = function() {
-    return is_cmd_addAdditionalCaret_enabled_aux();
-}
-
-editor_editorController.prototype.do_cmd_addAdditionalCaret = function() {
-    var view = is_cmd_addAdditionalCaret_enabled_aux();
-    if (!view) {
-        return;
-    }
-    ko.selections.startOrContinueMultiCaretSession(view);
-}
 
 editor_editorController.prototype.is_cmd_addNextWordToCaretSet_enabled = function() {
     return !!is_cmd_addAdditionalCaret_enabled_aux();
@@ -485,7 +579,13 @@ editor_editorController.prototype.do_cmd_addNextWordToCaretSet = function() {
     if (!view) {
         return;
     }
-    ko.selections.addNextWordToCaretSet(view);
+    var scimoz = view.scimoz;
+    scimoz.targetWholeDocument();
+    scimoz.searchFlags = scimoz.SCFIND_MATCHCASE;
+    if (scimoz.selectionEmpty || scimoz.isRangeWord(scimoz.selectionStart, scimoz.selectionEnd)) {
+        scimoz.searchFlags |= scimoz.SCFIND_WHOLEWORD;
+    }
+    scimoz.multipleSelectAddNext();
 };
 
 editor_editorController.prototype._aux_is_cmd_rename_tag_enabled = function() {
@@ -497,7 +597,9 @@ editor_editorController.prototype._aux_is_cmd_rename_tag_enabled = function() {
     if (!koDoc) {
         return [false];
     }
-    if (koDoc.languageObj.supportsSmartIndent != "XML") {
+    var scimoz = view.scimoz;
+    var languageObj = koDoc.languageObj.supportsXMLIndentHere(scimoz, scimoz.currentPos);
+    if ( ! languageObj || languageObj.supportsSmartIndent != "XML") {
         return [false];
     }
     return [true, view, koDoc];
@@ -586,7 +688,8 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
     }
     var tagName = scimoz.getTextRange(tagNameStartPos, tagNameEndPos);
     var result = {};
-    koDoc.languageObj.getMatchingTagInfo(scimoz, tagNameStartPos - 1, false, result, {});
+    var actualLanguageObj = koDoc.languageObj.supportsXMLIndentHere(scimoz, scimoz.currentPos);
+    actualLanguageObj.getMatchingTagInfo(scimoz, tagNameStartPos - 1, false, result, {});
     if (!result.value || !result.value.length) {
         var msg = _bundle.formatStringFromName("RenameTag Failed to find a matching tag for X",
                                                [tagName], 1);
@@ -595,10 +698,6 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
     }
     let atStartTag, s1, s2, e1, e2, sn1, en1;
     [atStartTag, s1, s2, e1, e2] = result.value;
-    var multiCaretSession = ko.selections.getMultiCaretSession(view);
-    if (multiCaretSession.isActive) {
-        multiCaretSession.endSession();
-    }
     // Now find the tag boundaries.
     s1 += 1;
     e1 += 2;
@@ -614,25 +713,9 @@ editor_editorController.prototype.do_cmd_rename_tag = function() {
     for (en1 = e1 + 1; en1 <= lim && scimoz.getStyleAt(en1) == scimoz.SCE_UDL_M_TAGNAME; ++en1) {
         // empty
     }
-    multiCaretSession.addRangesAtomically([[s1, sn1], [e1, en1]]);
-    multiCaretSession.setEndSessionCallback(function(newText) {
-        // If we started at the end-tag, move back there, and if we started
-        // on the n'th character of the tag, try to end up there as well.
-        var newTextLen = newText.length;
-        var tagSizeChange = newTextLen - tagName.length;
-        var finalPos = isStartTag ? s1 : e1 + tagSizeChange;
-        if (tagSizeChange > 0) {
-            finalPos += offset;
-        } else if (newTextLen <= offset) {
-            finalPos += newTextLen;
-        } else {
-            finalPos += offset;
-        }
-        var finalAnchor = finalPos - anchorOffset;
-        scimoz.currentPos = finalPos;
-        scimoz.anchor = finalAnchor;
-        scimoz.scrollCaret();
-    });
+    scimoz.setSelection(sn1, s1);
+    scimoz.addSelection(en1, e1);
+    scimoz.mainSelection = 0;
 }
 
 editor_editorController.prototype.is_cmd_launchColorPicker_enabled = function() {

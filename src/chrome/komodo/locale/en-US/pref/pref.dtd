@@ -212,6 +212,7 @@
 <!ENTITY doNotAlertMeOnLargeFileLoad.label "Do not alert me when a large buffer will be treated as plain text">
 <!ENTITY doNotRestoreLastWorkspace.label "Do not restore last workspace">
 <!ENTITY doNotWarnWhenFilesCannotBeReOpenedOnStartup.label "Do not warn when files cannot be re-opened on startup">
+<!ENTITY workspaceRestoreHistory.label "Restore Tab History">
 <!ENTITY documentMarkupSettings.label "Document Markup Settings">
 <!ENTITY donTAutoIndent.label "Don't auto-indent">
 <!ENTITY donTShowFoldMarks.label "Don't show fold marks">
@@ -225,8 +226,11 @@
 <!ENTITY editor.label "Editor">
 <!ENTITY enableAutocompleteFillUpCharacters.label "Enable autocomplete fill-up characters">
 <!ENTITY enableAutomaticAutocompleteAndCalltipTriggeringWhileYouType.label "Enable automatic autocomplete and calltip triggering while you type">
+<!ENTITY showCompletionsAfter.label "Show completions after">
+<!ENTITY showCompletionsWait.label "Wait to stop typing before showing completions">
 <!ENTITY enableAutoAbbreviationsWithTriggerCharacters.label "Enable %autoAbbreviationName.name;s, with Trigger Characters:">
 <!ENTITY enableBackgroundSyntaxCheckingAfter.label "Enable background syntax checking after">
+<!ENTITY enableElasticTabstops.label "Enable elastic tabstops">
 <!ENTITY enableScrollingPastEndOfBufferOnlyAppliesToNewBuffers.label "Enable scrolling past end of buffer (only applies to new buffers)">
 <!ENTITY enableSoftCharacters.label "Enable soft characters">
 <!ENTITY enableSoftCharacters.description "Inserts closing characters or matching delimiters.
@@ -234,7 +238,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY enableSmartSoftCharactersInsideLine.label "Enable soft characters inside lines">
 <!ENTITY enableSmartTabSkipsSoftCharacters.label "Pressing tab moves to right of soft characters">
 <!ENTITY cutCopyWithoutSelection.label "Cut/Copy with no selection will cut/copy the current line">
-<!ENTITY enableTriggeringOfMacrosOnKomodoEvents.label "Enable triggering of macros on Komodo events">
+<!ENTITY enableTriggeringOfMacrosOnKomodoEvents.label "Enable triggering of userscripts on Komodo events">
 <!ENTITY enableViEmulation.label "Enable Vi emulation">
 <!ENTITY endOfLine.label "End of line">
 <!ENTITY ensureFileEndsWithEOLMarker.label "Ensure file ends with EOL marker">
@@ -408,6 +412,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY resetToStandardValueOf15.tooltiptext "Reset to standard value of 1.5">
 <!ENTITY restoreFoldStateOnDocumentLoadSlowsDownFileOpening.label "Restore fold state on document load (slows down file opening)">
 <!ENTITY restoreLastWorkspace.label "Restore last workspace">
+<!ENTITY restoreWrapSelectionDelimiters.label "Restore default delimiters">
 <!ENTITY ruby.label "Ruby">
 <!ENTITY saveOptions.label "File Saving">
 <!ENTITY sassUseInterpreter.label "Use Sass Interpreter:">
@@ -423,7 +428,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY settingOnlyAppliesWhenTheCursorStyleIsLine.tooltiptext "Setting only applies when the cursor style is line">
 <!ENTITY setupCommonKomodoFileAssociations.title "Setup Common Komodo File Associations">
 <!ENTITY shortNameYouWishToCallThisServerConnection.tooltiptext "Short name you wish to call this server connection.">
-<!ENTITY showAdvanced.label "Show Advanced">
+<!ENTITY showAdvanced.label "Show All Settings">
 <!ENTITY showEdgeLine.label "Draw the edge line column">
 <!ENTITY showEndOfLineCharacters.label "Show end-of-line (EOL) characters">
 <!ENTITY showIndentationGuides.label "Show indentation guides">
@@ -441,12 +446,13 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY tPerlTestScript.label ".t: Perl Test Script">
 <!ENTITY templates.label "Templates">
 <!ENTITY theServerNameToConnectToEitherADomainNameOrAIPAddress.tooltiptext "The server name to connect to, either a domain name or a IP address.">
-<!ENTITY triggeringMacros.label "Triggering Macros">
+<!ENTITY triggeringMacros.label "Triggering Userscripts">
 <!ENTITY type.label "Type">
 <!ENTITY update.label "Update">
 <!ENTITY updateFileStatusAutomatically.label "Update file status automatically">
 <!ENTITY useEmacsStyleLocalModeVariableModeLocalVariables.label "Use Emacs-style local 'mode' variable (-*- mode: ... -*-, Local Variables: ...)">
 <!ENTITY preferJavaScriptOverNode.label "Prefer JavaScript over Node.js">
+<!ENTITY autoDetectJSvsNode.label "Auto Detect Javascript/Node.js">
 <!ENTITY useFileContentToDetermineLanguage.label "Use File Content to Determine Language">
 <!ENTITY useHorizontalLineOnFolds.label "Use horizontal line on folds">
 <!ENTITY useShebangLine.label "Use shebang line (#!...)">
@@ -465,6 +471,9 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY windowsIntegration.label "Windows Integration">
 <!ENTITY word.label "Word">
 <!ENTITY workspace.label "Workspace">
+<!ENTITY wrapSelection.label "Wrap selection with typed delimiter instead of overwriting it">
+<!ENTITY wrapSelectionDelimiters.label "Delimiters:">
+<!ENTITY wrapSelectionOnlyPlainText.label "Only wrap plain text selections">
 <!ENTITY xDefaultDateRepresentation.label "&#37;x : default date representation">
 <!ENTITY xmlXML.label ".xml: XML">
 <!ENTITY xslXSLT.label ".xsl: XSLT">
@@ -635,6 +644,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!--pref-find.xul-->
 <!ENTITY bytes.label "bytes">
 <!ENTITY find.label "Find">
+<!ENTITY findFrame.label "Find Frame">
+<!ENTITY pinFindFrame.label "Pin the Find Frame (use ESCAPE to close)">
 <!ENTITY findInFiles.label "Find in Files">
 <!ENTITY findHighlighting.label "Highlighting">
 <!ENTITY findHighlightEnabled.label "Enable highlighting of find and replace results">
@@ -669,6 +680,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY highlightMatchingTag.label "Highlight matching tag on mouse click">
 <!ENTITY highlightMatchingTagRemoveAfter.label "Remove tag highlighting after">
 <!ENTITY highlightMatchingTagConstrain.label "Constrain tag matching to the visible region">
+<!ENTITY editMatchingTags.label "Edit matching tags on select">
 
 <!--pref-indentation.xul-->
 <!ENTITY autoIndentStyle.label "Auto-indent style:">

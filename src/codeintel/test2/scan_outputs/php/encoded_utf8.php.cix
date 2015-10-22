@@ -1,8 +1,8 @@
 <codeintel version="2.0">
   <file lang="PHP" mtime="42" path="scan_inputs/php/encoded_utf8.php">
     <scope ilk="blob" lang="PHP" name="encoded_utf8.php" src="scan_inputs/php/encoded_utf8.php">
-      <scope doc="&#1083;&#1086;&#1082;&#1072;&#1083;&#1080;&#1079;&#1072;&#1094;&#1080;&#1080;" ilk="function" line="6" lineend="6" name="russion_function" signature="russion_function()" />
-      <scope doc="&#8364;" ilk="function" line="11" lineend="11" name="euro_function" signature="euro_function()" />
+      <scope doc="&#xA;&#1083;&#1086;&#1082;&#1072;&#1083;&#1080;&#1079;&#1072;&#1094;&#1080;&#1080;&#xA;" ilk="function" line="6" lineend="6" name="russion_function" signature="russion_function()" />
+      <scope doc="&#xA;&#8364;&#xA;" ilk="function" line="11" lineend="11" name="euro_function" signature="euro_function()" />
     </scope>
   </file>
 </codeintel>

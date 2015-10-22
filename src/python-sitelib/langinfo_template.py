@@ -173,3 +173,7 @@ class GroovyServerPagesLangInfo(LangInfo):
     conforms_to_bases = ["HTML"]
     exts = [".gsp"]
     komodo_name = "HTML"
+
+class MustacheLangInfo(LangInfo):
+    name = "Mustache"
+    conforms_to_bases = ["Text"]

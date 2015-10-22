@@ -142,7 +142,8 @@ def scan_multilang(tokens, module_elem):
     parser.parse()
     parse_tree = parser.produce_CIX_NoHeader(module_elem)
     csl_tokens = tokenizer.get_csl_tokens()
-    return csl_tokens, tokenizer.has_perl_code()
+    css_tokens = tokenizer.get_css_tokens()
+    return csl_tokens, css_tokens, tokenizer.has_perl_code()
 
 #---- mainline
 

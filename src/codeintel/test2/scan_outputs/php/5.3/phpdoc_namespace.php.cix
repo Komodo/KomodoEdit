@@ -3,7 +3,7 @@
     <scope ilk="blob" lang="PHP" name="phpdoc_namespace.php" src="scan_inputs/php/5.3/phpdoc_namespace.php">
       <scope ilk="class" line="3" lineend="17" name="ExtraOrdinary">
         <variable attributes="private" citdl="\Lib\DataRow" doc="@var \Lib\DataRow" line="8" name="_anyRow" />
-        <scope attributes="public" doc="Test for basic namespace resolution.&#xA;&#xA;@param \Lib\DataRow $row&#xA;@return \Lib\DataRow" ilk="function" line="16" lineend="16" name="test1" returns="\Lib\DataRow" signature="\Lib\DataRow test1(\Lib\DataRow $row)">
+        <scope attributes="public" doc="&#xA;Test for basic namespace resolution.&#xA;&lt;\Lib\DataRow&gt; $row  - &#xA;Returns \Lib\DataRow &#xA;" ilk="function" line="16" lineend="16" name="test1" returns="\Lib\DataRow" signature="\Lib\DataRow test1(\Lib\DataRow $row)">
           <variable citdl="\Lib\DataRow" ilk="argument" line="16" name="row" />
         </scope>
       </scope>

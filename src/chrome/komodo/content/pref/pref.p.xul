@@ -411,7 +411,7 @@
             </deck>
             <hbox style="padding-top: 5px">
                 <checkbox id="toggleAdvanced" label="&showAdvanced.label;"
-                      oncommand="toggleAdvanced()"/>
+                      oncommand="toggleAdvanced()" style="font-weight: bold;"/>
                 <!-- Ensure same height as buttons box -->
                 <button label="X" style="visibility: hidden"/> 
             </hbox>

@@ -10,6 +10,7 @@
         Decoration
         DecorationList
         CellBuffer
+        UnicodeFromUTF8
 
     To do:
         PerLine *

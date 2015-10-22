@@ -330,7 +330,7 @@ TestKoFind.prototype.test_findAll = function test_findAll() {
                                      msgHandler, /* message handler */
                                      highlight /* hightlight matches */);
 
-            let tab = ko.findresults.getTab();
+            let tab = ko.findresults.getTab("");
             this.assertTrue(tab.success, "Find results claimed failure");
             this.assertEquals(tab.numFiles, null, "Not expecting file counts for current doc");
             this.assertEquals(tab.numFilesSearched, null, "Not expecting file counts for current doc");
@@ -427,7 +427,7 @@ TestKoFind.prototype.test_findAllInFiles = function test_findAllInFiles() {
         this.context.cwd = dirName;
         var abort = false;
         try {
-            var resultsTab = ko.findresults.getTab();
+            var resultsTab = ko.findresults.getTab("");
             var data = {
                 "hello.txt": ["Hello Hello", "Hello"],
                 "world.txt": ["Hello, world!"],
@@ -505,7 +505,7 @@ TestKoFind.prototype.test_findAllInMacro = function test_findAllInMacro() {
 
     for each (let [[fot, foc, pattern, shouldMatch], backwards] in permute(setups, [false, true])) {
         try {
-            let tab = ko.findresults.getTab();
+            let tab = ko.findresults.getTab("");
             ko.find.findAllInMacro(this.scope, /* editor window */
                                    Ci.koIFindContext.FCT_CURRENT_DOC, /* context type */
                                    pattern, /* pattern */
@@ -808,7 +808,7 @@ TestKoFind.prototype.test_replaceAllInFiles = function test_replaceAllInFiles() 
     this.context.cwd = dirName;
     var abort = false;
     try {
-        var resultsTab = ko.findresults.getTab();
+        var resultsTab = ko.findresults.getTab("");
         var data = {
             "hello.txt": ["hello", "hello", "hello"],
             "world.txt": ["hello, world!"],
@@ -889,7 +889,7 @@ TestKoFind.prototype.test_replaceAllInFilesWithBOM = function test_replaceAllInF
     this.context.cwd = dirName;
     var abort = false;
     try {
-        var resultsTab = ko.findresults.getTab();
+        var resultsTab = ko.findresults.getTab("");
         var byteArray1 = [0xef, 0xbb, 0xbf];
         var contents1 = ("abcdef ?\n"
             + "an acute: ");

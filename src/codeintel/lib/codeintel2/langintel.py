@@ -94,7 +94,7 @@ class LangIntel(object):
                 self._langinfo_cache = self.mgr.lidb.langinfo_from_komodo_lang(self.lang)
             except langinfo.LangInfoError, ex:
                 self._langinfo_cache = None
-                log.exception("error getting langinfo for '%s'", self.lang)
+                log.warn("Unable to retrieve langinfo for '%s'; no codeintel will be available for that language", self.lang)
         return self._langinfo_cache
 
     # Code Browser integration.

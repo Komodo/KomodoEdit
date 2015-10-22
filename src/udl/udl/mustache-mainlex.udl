@@ -1,0 +1,18 @@
+language Mustache
+
+include "mustache/html2mustache.udl"
+include "html2css.udl"
+include "html2js.udl"
+
+include "mustache/css2mustache.udl"
+include "css2html.udl"
+
+include "mustache/js2mustache.udl"
+include "js2html.udl"
+
+include "mustache/mustache2html.udl"
+
+include "html.udl"
+include "csslex.udl"
+include "jslex.udl"
+include "mustache/mustachelex.udl"

@@ -185,9 +185,11 @@ void SciMoz::DefaultSettings() {
     // Indentation.
     SendEditor(SCI_SETINDENT, 4);
     SendEditor(SCI_SETTABWIDTH, 4);
-    // Allow column editing through Scintilla.
-    SendEditor(SCI_SETMULTIPLESELECTION, 0);
+    // Enable multiple caret editing.
+    SendEditor(SCI_SETMULTIPLESELECTION, 1);
     SendEditor(SCI_SETADDITIONALSELECTIONTYPING, 1);
+    SendEditor(SCI_SETMULTIPASTE, SC_MULTIPASTE_EACH);
+    SendEditor(SCI_SETMOUSESELECTIONRECTANGULARSWITCH, 1);
     // This allows a rectangular selection to extend past the
     // end of the line when there is a longer selected line.
     SendEditor(SCI_SETVIRTUALSPACEOPTIONS, SCVS_RECTANGULARSELECTION);

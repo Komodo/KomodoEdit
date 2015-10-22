@@ -897,7 +897,7 @@ class RubyTreeEvaluator(TreeEvaluatorHelper):
         
         for scoperef in self._base_scoperefs[1:]:
             elem = self._elem_from_scoperef(scoperef)
-            if first_token in elem.names:
+            if elem is not None and first_token in elem.names:
                 #TODO: skip __hidden__ names
                 self.log("_hit_from_first_part: is '%s' accessible on %s? yes: %s",
                          first_token, scoperef, elem.names[first_token])
