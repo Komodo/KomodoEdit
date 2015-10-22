@@ -382,7 +382,11 @@ window.app = {};
         timestamp.classList.add("timestamp");
         
         var date = new Date();
-        timestamp.textContent = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + " " + date.getMilliseconds() + "ms";
+        var hours = ("0" + date.getHours()).substr(-2),
+            minutes = ("0" + date.getMinutes()).substr(-2),
+            seconds = ("0" + date.getSeconds()).substr(-2),
+            milliseconds = ("00" + date.getMilliseconds()).substr(-3);
+        timestamp.textContent = hours + ":" + minutes + ":" + seconds + " " + milliseconds + "ms";
         
         li.appendChild(timestamp);
         
