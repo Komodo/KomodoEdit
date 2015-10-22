@@ -189,6 +189,9 @@ void SciMoz::DefaultSettings() {
     SendEditor(SCI_SETMULTIPLESELECTION, 1);
     SendEditor(SCI_SETADDITIONALSELECTIONTYPING, 1);
     SendEditor(SCI_SETMULTIPASTE, SC_MULTIPASTE_EACH);
+#if !(defined(XP_MACOSX) || defined(_WINDOWS))
+    SendEditor(SCI_SETRECTANGULARSELECTIONMODIFIER, SCMOD_ALT);
+#endif
     SendEditor(SCI_SETMOUSESELECTIONRECTANGULARSWITCH, 1);
     // This allows a rectangular selection to extend past the
     // end of the line when there is a longer selected line.
