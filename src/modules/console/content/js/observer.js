@@ -31,9 +31,9 @@ window.addEventListener('load', function() {
                 details = "trace" + "\n" + consoleSdk._formatTrace(aMessage.stacktrace);
                 
             var type = aMessage.level;
-            if (["info", "warn", "error", "exception"].indexOf(aMessage.level) == -1)
+            if (["log", "info", "warn", "error", "exception"].indexOf(aMessage.level) == -1)
             {
-                type = "debug";
+                type = "log";
                 if ((typeof data) == "string")
                     data = aMessage.level + ": " + data;
             }

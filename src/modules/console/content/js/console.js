@@ -254,11 +254,11 @@ window.app = {};
                 if (type == "element")
                     inner.appendChild(this.formatElement(aThing));
                 else
-                    {
+                {
                     
                     var innerStr = start;
                     var children = [], len = 0, childType, childValue, hasMore = false;
-                    for (var k in aThing)
+                    for (var k of Object.getOwnPropertyNames(aThing))
                     {
                         if (++len == 5)
                         {
@@ -272,6 +272,7 @@ window.app = {};
                             childValue = JSON.stringify(aThing[k]);
                         else
                             childValue = _ucFirst(childType)
+                        childValue = _ellipsis(childValue, 10);
                         children.push(k + ": " + childValue);
                     }
                     
@@ -306,7 +307,10 @@ window.app = {};
                             subLi.appendChild(document.createTextNode("<inaccessible>"));
                         }
                         if (proto) subLi.classList.add("prototype");
-                        subLi.insertBefore(document.createTextNode(k + ": "), subLi.firstChild);
+                        var key = document.createElement("span");
+                        key.classList.add("object-key");
+                        key.textContent = k + ": ";
+                        subLi.insertBefore(key, subLi.firstChild);
                         ul.appendChild(subLi);
                     }.bind(this));
                     
@@ -326,17 +330,11 @@ window.app = {};
                 str = "" // The type gives all the information needed
             else
                 str = aThing.toString();
-                
-            if (str.length > 50 || str.match(/\n/))
+             
+            var _str = _ellipsis(str, 50);
+            if (str != _str)
             {
-                var _str = str.replace(/\n/g, " ");
-                if (_str.length > 50)
-                {
-                    _str = _str.substr(0,50);
-                    if (type == "string") _str += '"';
-                    _str += " .."
-                }
-                
+                if (type == "string") _str = `"${_str}"`;
                 var label = document.createElement("label");
                 var checkbox = document.createElement("input");
                 checkbox.setAttribute("type", "checkbox");
@@ -347,6 +345,7 @@ window.app = {};
                 label.appendChild(elem);
                 
                 elem = document.createElement("div");
+                elem.classList.add("expanded");
                 elem.textContent = str;
                 label.appendChild(elem);
                 
@@ -452,7 +451,8 @@ window.app = {};
         if ( ! scope.match(/^[\w\s\.\[\]]+$/)) return [];
         try
         {
-            return win.eval('var _p = []; for (var k in ' + scope + ') { _p.push(k); }; _p;').sort();
+            win._consoleKeysSorted = _keysSorted;
+            return win.eval('_consoleKeysSorted(' + scope + ')');
         } catch (e) {}
         return [];
     }
@@ -482,16 +482,59 @@ window.app = {};
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
     
+    var _obProperties = function(ob)
+    {
+        var keys = Object.getOwnPropertyNames(ob);
+        
+        keys = keys.concat(keys, Object.getOwnPropertyNames(ob.constructor));
+        keys = keys.concat(keys, Object.getOwnPropertyNames(Object));
+        keys = keys.concat(keys, Object.getOwnPropertyNames(Object.prototype));
+        
+        var _keys = [];
+        var _processed = {};
+        
+        var k;
+        for (k of keys)
+        {
+            if (k in _processed) continue;
+            
+            if (ob.hasOwnProperty(k))
+            {
+                var descriptor = Object.getOwnPropertyDescriptor(ob, k);
+                if (descriptor.get) continue;
+            }
+            
+            _processed[k] = true;
+            _keys.push(k);
+        }
+        
+        return _keys;
+    }
+    
     var _keysSorted = function(ob)
     {
-        var keys = [];
-        for (var k in ob)
-            keys.push(k);
-            
         if (Array.isArray(ob))
-            return keys.sort(function(a,b){return a - b});
+            return Object.getOwnPropertyNames(ob).sort(function(a,b){return a - b});
         else
+        {
+            var keys = _obProperties(ob);
             return keys.sort();
+        }
+    }
+    
+    var _ellipsis = function (str, length = 50)
+    {
+        if (str.length <= length && ! str.match(/\n/))
+            return str;
+        
+        str = str.replace(/\n/g, " ");
+        if (str.length > length)
+        {
+            str = str.substr(0,length);
+            str += " .."
+        }
+        
+        return str;
     }
     
     this.init();

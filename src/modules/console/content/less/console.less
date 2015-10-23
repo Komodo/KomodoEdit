@@ -39,6 +39,7 @@ html, body
     margin: 0;
     padding: 0;
     font: message-box;
+    font-size: 0.9rem;
     text-rendering: optimizeLegibility;
     line-height: 1.5;
 }
@@ -128,7 +129,7 @@ ul, li
         display: inline-block;
         width: 2rem;
         text-align: center;
-        font-size: 1rem;
+        font-size: 0.9rem;
         line-height: 1.5rem;
         font-weight: bold;
         margin: 0 4px;
@@ -137,9 +138,11 @@ ul, li
     
     &.input:before { content: '>'; color: #3583FC; }
     &.output:before { content: '<'; color: #848484; }
+    &.log:before { content: 'log'; color: #848484; }
     &.debug:before { content: 'dbg'; color: #848484; }
     &.info:before { content: 'nfo'; color: #27A700; }
     &.warning:before { content: 'wrn'; color: #E58E1D; }
+    &.warn:before { content: 'wrn'; color: #E58E1D; }
     &.error:before { content: 'err'; color: #E81D20; }
     &.exception:before { content: 'exc'; color: #C42B2B; }
     
@@ -153,6 +156,17 @@ ul, li
         display: inline-block;
         padding: 0 4px;
         line-height: 1.5rem;
+    }
+    
+    .object-key
+    {
+        vertical-align: top;
+    }
+    
+    .expanded
+    {
+        margin: 6px;
+        font-style: italic;
     }
     
     .type-indicator
@@ -176,7 +190,8 @@ ul, li
             
             li.prototype
             {
-                opacity: 0.8;
+                paddin-left: 6px;
+                opacity: 0.6;
                 font-style: italic;
             }
             
@@ -238,7 +253,7 @@ ul, li
             vertical-align: top;
             content: '> ';
             color: #3583FC;
-            font-size: 1rem;
+            font-size: 0.9rem;
             line-height: 1.5rem;
             font-weight: bold;
             margin-left: -0.8rem;
@@ -248,7 +263,7 @@ ul, li
     #input, #input-mock
     {
         line-height: 1.5rem;
-        font-size: 1rem;
+        font-size: 0.9rem;
         white-space: pre;
         font-family: monospace;
         
@@ -297,11 +312,11 @@ ul, li
 .autocomplete-suggestion
 {
     position: relative;
-    padding: 0 .6em;
+    padding: 0 .6rem;
     line-height: 23px;
     white-space: nowrap;
     overflow: hidden;
-    font-size: 1.02em;
+    font-size: 0.9rem;
     width: auto;
 }
 .autocomplete-suggestion b
