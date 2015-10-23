@@ -2227,8 +2227,7 @@
 
                     <statusbar fullscreentoolbar="true" orient="horizontal"
                                id="statusbarviewbox"
-                               class="chromeclass-status"
-                               style="min-height: 1.5em;">
+                               class="chromeclass-status">
                         <html:canvas id="canvas-proxy" style="display: none"/>
 
                         <statusbarpanel id="statusbar-message-panel" flex="1">

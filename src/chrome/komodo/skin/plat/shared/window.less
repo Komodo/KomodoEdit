@@ -307,6 +307,33 @@ button.with-icon .button-icon
 
 statusbar
 {
+    /* smaller font
+    & > statusbarpanel > :-moz-any(label, button, toolbarbutton),
+    #breadcrumbBar > toolbarbutton,
+    sectionlist > deck > hbox > label
+    {
+        &, & > label
+        {
+            font-size: 0.9rem;
+        }
+    }
+     */
+    
+    &,
+    & > *, /* statusbarpanel */
+    & > * > :-moz-any(button, toolbarbutton, deck)
+    {
+        min-height: 22px;
+    }
+    
+    & > * > :-moz-any(label, description)
+    {
+        height: 18px;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 2px 0;
+    }
+    
     .statusbar-resizerpanel
     {
         visibility: collapse;
