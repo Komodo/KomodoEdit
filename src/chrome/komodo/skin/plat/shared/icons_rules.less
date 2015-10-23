@@ -2005,9 +2005,10 @@ ko-pane[type="icons"]
         {
             width: 16px;
             height: 16px;
-            background-size: 16px;
             border: 0;
-            background: transparent;
+            background-color: transparent;
+            background-size: 16px;
+            background-repeat: no-repeat;
         }
         
         &:hover
@@ -2017,65 +2018,65 @@ ko-pane[type="icons"]
     }
     
     checkbox#opt-regex .checkbox-check {
-        background: @icon-hud-findpattern-regex no-repeat;
+        background-image: @icon-hud-findpattern-regex;
         &[checked="true"] {
-            background: @icon-hud-findpattern-regex-selected no-repeat;
+            background-image: @icon-hud-findpattern-regex-selected;
         }
     }
     
     checkbox#opt-case .checkbox-check {
-        background: @icon-hud-find-case no-repeat;
+        background-image: @icon-hud-find-case;
         &[checked="true"] {
-            background: @icon-hud-find-case-selected no-repeat;
+            background-image: @icon-hud-find-case-selected;
         }
     }
     
     checkbox#opt-case[value="smart-case"] .checkbox-check {
-        background: @icon-hud-find-case-smart no-repeat;
+        background-image: @icon-hud-find-case-smart;
         &[checked="true"] {
-            background: @icon-hud-find-case-smart-selected no-repeat;
+            background-image: @icon-hud-find-case-smart-selected;
         }
     }
     
     checkbox#opt-word .checkbox-check {
-        background: @icon-hud-find-word no-repeat;
+        background-image: @icon-hud-find-word;
         &[checked="true"] {
-            background: @icon-hud-find-word-selected no-repeat;
+            background-image: @icon-hud-find-word-selected;
         }
     }
     
     checkbox#opt-multiline .checkbox-check {
-        background: @icon-hud-find-multiline no-repeat;
+        background-image: @icon-hud-find-multiline;
         &[checked="true"] {
-            background: @icon-hud-find-multiline-selected no-repeat;
+            background-image: @icon-hud-find-multiline-selected;
         }
     }
     
     checkbox#opt-repl .checkbox-check {
-        background: @icon-hud-find-replace no-repeat;
+        background-image: @icon-hud-find-replace;
         &[checked="true"] {
-            background: @icon-hud-find-replace-selected no-repeat;
+            background-image: @icon-hud-find-replace-selected;
         }
     }
     
     checkbox#confirm-replacements-in-files .checkbox-check {
-        background: @icon-hud-find-confirm no-repeat;
+        background-image: @icon-hud-find-confirm;
         &[checked="true"] {
-            background: @icon-hud-find-confirm-selected no-repeat;
+            background-image: @icon-hud-find-confirm-selected;
         }
     }
     
     checkbox#show-replace-all-results .checkbox-check {
-        background: @icon-hud-find-show no-repeat;
+        background-image: @icon-hud-find-show;
         &[checked="true"] {
-            background: @icon-hud-find-show-selected no-repeat;
+            background-image: @icon-hud-find-show-selected;
         }
     }
     
     checkbox#search-in-subdirs .checkbox-check {
-        background: @icon-hud-find-subdirs no-repeat;
+        background-image: @icon-hud-find-subdirs;
         &[checked="true"] {
-            background: @icon-hud-find-subdirs-selected no-repeat;
+            background-image: @icon-hud-find-subdirs-selected;
         }
     }
     
