@@ -90,7 +90,7 @@
                                             <box class="icon" style="background-image: url('{{=it.icon}}')"></box>
                                         {{?}}
                                     </hbox>
-                                    <hbox class="number-wrapper" pack="end"><label class="number"/></hbox>
+                                    <hbox class="number-wrapper" align="center" pack="end"><label class="number"/></hbox>
                                     {{?!it.multiline}}
                                         <hbox class="entry-wrapper" align="center" pack="center">
                                             <hbox class="prefix">
