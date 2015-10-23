@@ -28,6 +28,7 @@
         handlers: {},
         elemCache: {},
         templateCache: {},
+        resultUuid: [],
         resultCache: [],
         resultsReceived: 0,
         resultsRendered: 0,
@@ -632,7 +633,7 @@
         c.stop();
 
         elem("panel").addClass("loading");
-        var searchDelay = prefs.getLong('commando_search_delay', 100);
+        var searchDelay = prefs.getLong('commando_search_delay');
 
         if (noDelay)
         {
@@ -675,9 +676,6 @@
             }
 
             local.searchingUuid = uuid;
-            local.resultCache = [];
-            local.resultsReceived = 0;
-            local.resultsRendered = 0;
             local.prevSearchValue = searchValue;
             
             elem('results').attr("dirty", "true");
@@ -986,12 +984,6 @@
 
     this.renderResult = function(result, searchUuid)
     {
-        if (local.searchingUuid != searchUuid)
-        {
-            log.debug(searchUuid + " - Skipping result for old search uuid");
-            return;
-        }
-        
         this.renderResults([result], searchUuid);
     }
 
@@ -999,12 +991,20 @@
     {
         if ( ! results.length) return;
         
-        if (local.searchingUuid != searchUuid)
+        if (local.searchingUuid != searchUuid && local.resultUuid == searchUuid)
         {
             log.debug(searchUuid + " - Skipping "+results.length+" results for old search uuid: " + searchUuid);
             return;
         }
-
+        
+        if (local.searchingUuid == searchUuid && local.resultUuid != searchUuid)
+        {
+            local.resultCache = [];
+            local.resultsReceived = 0;
+            local.resultsRendered = 0;
+            local.resultUuid = searchUuid;
+        }
+        
         if ( ! cacheOrigin)
             local.resultsReceived += results.length;
         
@@ -1022,11 +1022,11 @@
                     this.renderResults(local.resultCache, searchUuid, true, true);
                     local.resultCache = [];
                     local.renderResultsTimer = false;
-                }.bind(this), prefs.getLong("commando_result_render_delay", 100));
+                }.bind(this), prefs.getLong("commando_result_render_delay"));
             }
             return;
         }
-
+        
         if (local.resultsRendered === 0)
             this.empty(); // Force empty results
 

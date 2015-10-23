@@ -3,7 +3,7 @@
     const commando  = require("commando/commando");
     const {Cc, Ci}  = require("chrome");
     const system    = require("sdk/system");
-    const ioFile    = require("sdk/io/file");
+    const ioFile    = require("ko/file");
     const $         = require("ko/dom");
     const sep       = system.platform == "winnt" ? "\\" : "/";
     const isep      = sep == "/" ? /\\/g : /\//g;

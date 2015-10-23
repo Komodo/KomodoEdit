@@ -30,7 +30,6 @@
                          pref="true"
                          id="commando_search_max_results"
                          preftype="long"
-                         prefdefault="100"
                          tooltiptext="Setting this to a high value (100+) may result in sluggish search results"/>
             </hbox>
             <spacer/>
@@ -41,7 +40,6 @@
                          pref="true"
                          id="commando_search_delay"
                          preftype="long"
-                         prefdefault="200"
                          tooltiptext="Search input will be delayed/grouped by this interval"/>
             </hbox>
             <spacer/>
@@ -52,7 +50,6 @@
                          pref="true"
                          id="commando_result_render_delay"
                          preftype="long"
-                         prefdefault="100"
                          tooltiptext="Groups multiple results together in the given timeframe and renders them together"/>
             </hbox>
             <spacer/>
