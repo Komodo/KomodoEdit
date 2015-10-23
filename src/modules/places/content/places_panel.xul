@@ -449,13 +449,13 @@
                 />
       <menuitem id="folder_context_remoteFile"
                 label="&existingRemoteFile.label;"
-                class="menuitem-iconic remote-folder-icon"
+                class="menuitem-iconic remote-file-icon"
                 accesskey="&folderContextRemoteFile.accesskey;"
                 oncommand="ko.places.projects.manager.addRemoteFile(event, this);"
                 />
       <menuitem id="folder_context_remoteFolder"
                 label="&existingRemoteFolder.label;"
-                class="menuitem-iconic remote-file-icon"
+                class="menuitem-iconic remote-folder-icon"
                 accesskey="&existingRemoteFolder.accesskey;"
                 oncommand="ko.places.projects.manager.addRemoteFolder(event, this);"
                 />
