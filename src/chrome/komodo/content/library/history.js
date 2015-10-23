@@ -329,7 +329,7 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
 
 this._note_loc = function(view, loc, check_section_change = false)
 {
-    if (view._isClosing) return;
+    if ( ! view || view._isClosing) return;
     
     try
     {
