@@ -1075,5 +1075,6 @@
   <boolean id="pin_find_frame">0</boolean>
   
   <string id="doc_site">http://docs.komodoide.com/</string>
+  <string id="doc_site_reset">http://docs.komodoide.com/Troubleshooting/How-do-I-Start-Komodo-with-Default-Settings#how-do-i-start-komodo-with-default-settings_completely-reset-your-settings</string>
   
 </preference-set>

@@ -318,8 +318,8 @@ class KoInitService(object):
 
         try:
             self.checkStartupFlags()
-        except Exception (e):
-            log.exception(e, "Exception while checking for startup flags")
+        except Exception, e:
+            log.exception(e)
             
         self.upgradeUserSettings()
         
@@ -480,18 +480,8 @@ class KoInitService(object):
                     n = n + 1
                     newPath = "%s-backup-%d" % (path,n)
                 
-                if os.path.isfile(path):
+                if os.path.isdir(path):
                     os.rename(path, newPath)
-        
-        ## Start with a temporary profile
-        elif flag == "tempProfile":
-            path = koDirSvc.userDataDir
-            newPath = "%s-kotemp-original" % (path)
-            
-            if os.path.isfile(path):
-                os.rename(path, newPath)
-            
-            self.disableImportProfile = true
             
         ## Start without addons
         elif flag == "tempNoAddons":
@@ -504,7 +494,7 @@ class KoInitService(object):
         elif flag == "tempNoToolbox":
             path = os.path.join(koDirSvc.userDataDir, "tools")
             newPath = "%s-kotemp-original" % (path)
-            if os.path.isfile(path):
+            if os.path.isdir(path):
                 os.rename(path, newPath)
         
         ## Delete the codeintel database

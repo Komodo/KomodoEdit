@@ -107,6 +107,11 @@ this.restartWithFlag = function(flag) {
                 return
             break;
         case 'cleanProfile':
+            if (require("sdk/system").platform.toLowerCase() == "winnt")
+            {
+                ko.browse.openUrlInDefaultBrowser(ko.prefs.getString('doc_site_reset'));
+                return;
+            }
             var message = "This will reset all your settings, including addons, keybindings and color schemes. Are you sure you want to do this?" +
                           "Your current profile folder will be backed up at " + koDirSvc.userDataDir + "-backup";
             if ( ! require("ko/dialogs").confirm(message, opts))
@@ -134,11 +139,25 @@ this.restartWithFlag = function(flag) {
             break;
     }
     
-    path = ioFile.join(koDirSvc.userDataDir, "flags");
-    
-    var f= ioFile.open(path, "w");
-    f.write(flag);
-    f.close();
+    if (flag == 'tempProfile')
+    {
+        var env = Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment);
+        var temp = require('sdk/system').pathFor('TmpD');
+        var tempDir = ioFile.join(temp, "ko-temp");
+        var c = 1;
+        while (ioFile.exists(tempDir))
+            tempDir = ioFile.join(temp, "ko-temp-" + (c++));
+        
+        env.set("KOMODO_USERDATADIR", tempDir);
+    }
+    else
+    {
+        path = ioFile.join(koDirSvc.userDataDir, "flags");
+        
+        var f = ioFile.open(path, "w");
+        f.write(flag);
+        f.close();
+    }
     
     let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].
                      createInstance(Ci.nsISupportsPRBool);
