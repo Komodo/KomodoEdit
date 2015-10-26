@@ -42,7 +42,7 @@ family css
 
 sublanguage CSS
 
-pattern CS = '-\w\d._\x80-\xff'   # inside cset
+pattern CS = '\w\d._\x80-\xff-'   # inside cset
 pattern WS = '\s\t\r\n'           # inside cset
 pattern NONASCII = '[^\x00-\x7f]'
 pattern UNICODE = '\\[0-9a-f]{1,6}'

@@ -41,7 +41,7 @@
 
 family markup
 
-pattern CS = '-\w\d._\x80-\xff'
+pattern CS = '\w\d._\x80-\xff-'
 pattern WS = '\s\t\r\n'
 
 # \z in a pattern means end-of-buffer

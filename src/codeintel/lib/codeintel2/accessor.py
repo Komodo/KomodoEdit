@@ -177,6 +177,8 @@ class SilverCityAccessor(Accessor):
         # loop.
         for iter_count in range(int(math.ceil(math.log(upper, 2)) + 1)):
             idx = ((upper - lower) / 2) + lower
+            if idx >= len(self.tokens):
+                return self.tokens[-1]
             token = self.tokens[idx]
             #print "_token_at_pos %d: token idx=%d text[%d:%d]=%r"\
             #      % (pos, idx, token["start_index"], token["end_index"],

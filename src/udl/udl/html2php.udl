@@ -58,7 +58,7 @@ state IN_M_PI_1:
 
 # Allow for escaped processing/xml declarations in PHP files
 state IN_M_STAG_EXP_TNAME:
-/<\?\?>\?[-\w._\x80-\xff]?[-\w\d._\x80-\xff:]*/: paint(include, M_PI), => IN_M_PI_2
+/<\?\?>\?[\w._\x80-\xff-]?[\w\d._\x80-\xff:-]*/: paint(include, M_PI), => IN_M_PI_2
 
 # Bug 94167: <script language="php"... => php script mode
 state IN_H2CSL_STAG_POST_TAGNAME:
