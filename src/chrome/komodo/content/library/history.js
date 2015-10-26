@@ -244,7 +244,11 @@ function _get_curr_loc(view /* =current view */,
         callback(null);
         return;
     }
-    if (!tabbedViewId) return;
+    if (!tabbedViewId)
+    {
+        callback(null);
+        return;
+    }
     _controller.historySvc.loc_from_view_info(
         viewType,
         window._koNum,
