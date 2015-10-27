@@ -268,7 +268,7 @@
 <!ENTITY folderContextNewFile.accesskey "f">
 <!ENTITY folderContextNewFolder.accesskey "f">
 <!ENTITY folderContextNewLiveFolder.accesskey "L">
-<!ENTITY folderContextNewMacroaccesskey "u">
+<!ENTITY folderContextNewMacro.accesskey "u">
 <!ENTITY folderContextNewMenu.accesskey "n">
 <!ENTITY folderContextNewSnippet.accesskey "s">
 <!ENTITY folderContextNewTemplate.accesskey "t">
@@ -649,7 +649,7 @@
 <!ENTITY saveProject.label "Save Project">
 <!ENTITY saveProjectAs.label "Save Project As...">
 <!ENTITY renameProject.label "Rename Project...">
-<!ENTITY saveToToolbox.label "Save as Userscript"">
+<!ENTITY saveToToolbox.label "Save as Userscript">
 <!ENTITY scrollCurrentLineToCenterOfScreen.label "Scroll Current Line to Center of Screen">
 <!ENTITY scrollCurrentLineToTopOfScreen.label "Scroll Current Line to Top of Screen">
 <!ENTITY select.menu.accesskey "S">
