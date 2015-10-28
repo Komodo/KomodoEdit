@@ -57,7 +57,6 @@
   <?define KomodoId = "PP_MSI_KOMODO_ID" ?>
   <?define KomodoVersion = "PP_MSI_KOMODO_VERSION" ?>
   <?define KomodoRegistryId = "PP_MSI_REGISTRY_ID" ?>
-  <?define KomodoHelpFile = "[INSTALLDIR]lib\mozilla\chrome\komododoc\locale\en-US\top.html" ?>
   <?if $(var.ProductType) = "edit" ?>
     <?define ProductURL = "http://komodoide.com/komodo-edit/" ?>
   <?else ?>
