@@ -399,7 +399,7 @@
     {
         if (local.searchingUuid != uuid) return;
 
-        if (local.resultsReceived == 0)
+        if (local.resultUuid != uuid || local.resultsReceived == 0)
         {
             c.renderResult({
                 id: "",
