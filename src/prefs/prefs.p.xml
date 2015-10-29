@@ -487,7 +487,7 @@
 
   <long id="editWrapType">0</long>
   <long id="editWordWrapMarker">0</long>
-  <long id="editWordWrapIndentation">0</long>
+  <long id="editWordWrapIndentation">1</long>
   <boolean id="editUseEdge">0</boolean>
   <!-- editAutoIndentStyle:
      'smart': adjust auto-indent after newline _in brace languages_
