@@ -825,8 +825,8 @@ class CSSLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin):
                             cplns.add((ilk, elem.get("target")))
                 
                 # Autocomplete anchors or class names from all CSS files in the
-                # current directory or sub-directories.
-                cwd = dirname(buf.path)
+                # project or the current directory and its sub-directories.
+                cwd = buf.env and buf.env.get_proj_base_dir() or dirname(buf.path)
                 if cwd != "<Unsaved>":
                     import_handler = \
                         self.mgr.citadel.import_handler_from_lang(trg.lang)
