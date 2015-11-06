@@ -1,0 +1,9 @@
+# Makefile for the GDK version checker for Linux installers.
+
+CC=gcc
+GTK_CFLAGS=$(shell pkg-config --cflags gtk+-2.0)
+GTK_LIBS=$(shell pkg-config --libs gtk+-2.0)
+EXE=gdk_check
+
+all: $(EXE)
+$(EXE): gdk_check.c ; $(CC) $(GTK_CFLAGS) -o $@ $< $(GTK_LIBS)

@@ -154,6 +154,14 @@ if ($buildFlavour eq "full") {
         $cons->Install("$installSupportDir/support", "selinuxlib.py");
         $cons->Install("$installSupportDir/support",
                        "../python-sitelib/which.py");
+        local $build = substr($build, 1, length($build)); # drop the leading '#'
+        %consLocal = $cons->copy();
+        $consLocal = new cons(%consLocal);
+        $consLocal->Command("./gdk_check",
+                            "./Makefile.gdk_check",
+                            "./gdk_check.c",
+                            qq{cd $build/install && make -f Makefile.gdk_check});
+        $consLocal->Install("$installSupportDir/support", "gdk_check")
     }
 }
 
