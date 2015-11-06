@@ -534,14 +534,15 @@
             left = qs.x + qs.width - panel.element().width + 2;
             
             panel.addClass("quick-search");
+            panel.element().openPopup(elem('quickSearch').element(), "after_end", undefined, 0-qs.height);
         }
         else
         {
             [left, top] = this.center(true);
             panel.removeClass("quick-search");
+            panel.element().openPopup(undefined, undefined, left, top);
         }
         
-        panel.element().openPopup(undefined, undefined, left, top);
         
         if (c.execScopeHandler("onShow") === false)
         {
