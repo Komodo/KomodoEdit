@@ -387,6 +387,7 @@ function _updateCheckNewLintResult() {
         return;
     }
     
+    var topResult;
     var __lintResults = {};
     for (let i=0;i<numResults.value;i++)
     {
@@ -395,28 +396,34 @@ function _updateCheckNewLintResult() {
         
         if ( ! (id in _lintResults) && ! _lintSuppressNext)
         {
-            let prefix = "Ln: " + result.lineStart;
-            if (result.lineEnd != result.lineStart)
-                prefix += "-" + result.lineEnd;
-            
-            let severity = "INFO";
-            if (result.severity == result.SEV_WARNING)
-                severity = "WARNING";
-            if (result.severity == result.SEV_ERROR)
-                severity = "ERROR";
-            
-            require("notify/notify").send(
-                prefix + ", " + result.description + " (" + severity + ")",
-                "lint",
-                {command: function(result)
-                {
-                    var editor = require("ko/editor");
-                    editor.setCursor({line: result.lineStart, ch: result.columnStart});
-                }.bind(this, result)
-            });
+            if ( ! topResult || topResult.severity < result.severity)
+                topResult = result;
         }
         
         __lintResults[id] = true;
+    }
+    
+    if (topResult)
+    {
+        let prefix = "Ln: " + topResult.lineStart;
+        if (topResult.lineEnd != topResult.lineStart)
+            prefix += "-" + topResult.lineEnd;
+        
+        let severity = "INFO";
+        if (topResult.severity == topResult.SEV_WARNING)
+            severity = "WARNING";
+        if (topResult.severity == topResult.SEV_ERROR)
+            severity = "ERROR";
+        
+        require("notify/notify").send(
+            prefix + ", " + topResult.description + " (" + severity + ")",
+            "lint",
+            {command: function(topResult)
+            {
+                var editor = require("ko/editor");
+                editor.setCursor({line: topResult.lineStart, ch: topResult.columnStart});
+            }.bind(this, topResult)
+        });
     }
     
     _lintResults = __lintResults;
