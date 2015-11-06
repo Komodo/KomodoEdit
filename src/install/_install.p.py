@@ -199,32 +199,28 @@ def _verifyDependencies(promptToContinue):
     """
     
     if sys.platform.startswith("linux"):
-        # Verify gdk-2.0 installation if possible.
-        gdk_pkg_name = 'gdk-2.0'
-        gdk_pkg_version = '2.24'
-        if os.system('pkg-config --version > /dev/null 2>&1') == 0:
-            # pkg-config exists. Check for gdk-2.0.
-            gdk_okay = False
-            if os.system('pkg-config --exists %s' % gdk_pkg_name) == 0:
-                # gdk-2.0 exists. Check for proper version.
-                if os.system('pkg-config --atleast-version=%s %s' % \
-                             (gdk_pkg_version, gdk_pkg_name)) != 0:
-                    log.warn("Your system's version of %s is not up to date." \
-                             % gdk_pkg_name)
-                else:
-                    gdk_okay = True
-            else:
-                log.warn("Your system does not appear to have %s installed." \
-                         % gdk_pkg_name)
-            if not gdk_okay:
-                log.warn("Komodo requires version %s or greater. Please "
-                         "update %s. While Komodo will still install "
-                         "correctly, it will not run." % \
-                         (gdk_pkg_version, gdk_pkg_name))
-                if promptToContinue:
-                    if _askYesNo("Proceed?", default="no") == "no":
-                        print "Aborting install."
-                        return False
+        # Verify gdk-2.0 installation.
+        # Note that gdk and gtk are typically linked. Since we depend on a
+        # specific GDK symbol, but GDK exists in the GTK package, we'll notify
+        # the user their GTK is outdated/nonexistent.
+        gtk_pkg_name = 'gtk-2.0'
+        gtk_pkg_version = '2.24'
+        if os.system('gdk_check > /dev/null 2>&1') != 0:
+            log.warn("It appears that either your system does not have %s "
+                     "installed, or your system's version of %s is not up to "
+                     "date.\n"
+                     "Komodo requires version %s or greater. Please update %s. "
+                     "While Komodo will still install correctly, it may not "
+                     "run.\n"
+                     "This diagnostic is not fool-proof. If you are sure the "
+                     "package is installed and up to date, you may safely "
+                     "ignore this warning." \
+                     % (gtk_pkg_name, gtk_pkg_name, gtk_pkg_version,
+                        gtk_pkg_name))
+            if promptToContinue:
+                if _askYesNo("Proceed?", default="no") == "no":
+                    print "Aborting install."
+                    return False
                 
     return True
 
