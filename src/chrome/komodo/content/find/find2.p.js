@@ -1432,6 +1432,10 @@ function updateWrapperHeight(repeat=true)
 function closeFindFrame()
 {
     opener.document.getElementById("findReplaceWrap").setAttribute("collapsed", "true");
+    
+    var editor = require("ko/editor");
+    var scintilla = editor.scintilla();
+    if (scintilla) scintilla.focus();
 }
 
 window.addEventListener("resize", updateWrapperHeight);
