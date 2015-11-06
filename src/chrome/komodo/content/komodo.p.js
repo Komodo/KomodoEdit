@@ -139,7 +139,7 @@ this.restartWithFlag = function(flag) {
             break;
     }
     
-    if (flag == 'tempProfile')
+    if (flag == 'tempProfile' && require("sdk/system").platform.toLowerCase() == "winnt")
     {
         var env = Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment);
         var temp = require('sdk/system').pathFor('TmpD');

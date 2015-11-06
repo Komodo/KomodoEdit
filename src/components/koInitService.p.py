@@ -482,6 +482,16 @@ class KoInitService(object):
                 
                 if os.path.isdir(path):
                     os.rename(path, newPath)
+
+        ## Start with a temporary profile
+        elif flag == "tempProfile":
+            path = koDirSvc.userDataDir
+            newPath = "%s-kotemp-original" % (path)
+
+            if os.path.isdir(path):
+                os.rename(path, newPath)
+
+            self.disableImportProfile = True
             
         ## Start without addons
         elif flag == "tempNoAddons":
