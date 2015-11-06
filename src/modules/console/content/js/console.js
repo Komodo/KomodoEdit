@@ -486,6 +486,10 @@ window.app = {};
     {
         var keys = Object.getOwnPropertyNames(ob);
         
+        var k
+        for (k in ob) 
+            keys.push(k);
+        
         keys = keys.concat(keys, Object.getOwnPropertyNames(ob.constructor));
         keys = keys.concat(keys, Object.getOwnPropertyNames(Object));
         keys = keys.concat(keys, Object.getOwnPropertyNames(Object.prototype));
