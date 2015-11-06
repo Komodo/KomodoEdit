@@ -149,7 +149,7 @@ if (typeof ko.openfiles == 'undefined')
                 document.getElementById("openfilesPrefPopup_ToggleGrouping").removeAttribute("checked");
             }
             
-            if ( ! ko.prefs.getBoolean(PREF_TAB_SORTING, true))
+            if ( ! ko.prefs.getBoolean(PREF_TAB_SORTING, false))
             {
                 document.getElementById("openfilesPrefPopup_ToggleTabSorting").removeAttribute("checked");
             }
@@ -1241,7 +1241,7 @@ if (typeof ko.openfiles == 'undefined')
             }
             
             var nextItem = this.getNextItem(item);
-            if (ko.prefs.getBoolean(PREF_TAB_SORTING, true) && sortOption != this.sorters.byIndex && nextItem)
+            if (ko.prefs.getBoolean(PREF_TAB_SORTING, false) && sortOption != this.sorters.byIndex && nextItem)
             {
                 let editorViewNext = openViews[nextItem.getAttribute('id')];
                 let tab = editorView.parentNode._tab;
@@ -1812,7 +1812,7 @@ if (typeof ko.openfiles == 'undefined')
         
         toggleTabSorting: function openfiles_toggleTabSOrting()
         {
-            var sorting = ! ko.prefs.getBoolean(PREF_TAB_SORTING, true);
+            var sorting = ! ko.prefs.getBoolean(PREF_TAB_SORTING, false);
             ko.prefs.setBooleanPref(PREF_TAB_SORTING, sorting);
             this.sort();
         },
