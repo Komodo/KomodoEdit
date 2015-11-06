@@ -7,9 +7,10 @@
     
     /** The preference that enables/disables elastic tabstops. */
     const PREF_ENABLE_ELASTIC_TABSTOPS = "enableElasticTabstops";
+    /** The preference that configures tabwidth of elastic tabstops. */
+    const PREF_TAB_WIDTH = "tabWidth";
     
-    // By default, tabstops are at least 32 pixels plus 12 pixels of padding.
-    var tab_width_minimum = 32;
+    // By default, tabstops have at least 12 pixels of padding.
     var tab_width_padding = 12;
     
     // Keep track of whether or not modified handlers have been registered.
@@ -17,8 +18,9 @@
 
     /** Loads elastic tabstops. */
     this.load = function() {
-        // Listen for enable/disable elastic tabstops preference.
+        // Listen for enable/disable elastic tabstops preferences.
         prefs.prefObserverService.addObserver(this, PREF_ENABLE_ELASTIC_TABSTOPS, false);
+        prefs.prefObserverService.addObserver(this, PREF_TAB_WIDTH, false);
         
         // Enable elastic tabstops in new views as necessary.
         window.addEventListener('view_document_attached', this._onViewDocumentAttached);
@@ -29,6 +31,7 @@
         // TODO: this is a hack.
         window.setTimeout(function() {
             this.observe(null, PREF_ENABLE_ELASTIC_TABSTOPS, null);
+            this.observe(null, PREF_TAB_WIDTH, null);
         }.bind(this), 2500);
         
         log.setLevel(ko.logging.LOG_INFO);
@@ -38,6 +41,7 @@
     /** Unloads elastic tabstops. */
     this.unload = function() {
         prefs.prefObserverService.removeObserver(this, PREF_ENABLE_ELASTIC_TABSTOPS);
+        prefs.prefObserverService.removeObserver(this, PREF_TAB_WIDTH);
         log.info("Elastic tabstops unloaded.");
     }
     
@@ -66,7 +70,10 @@
         return scimoz.textWidth(style, range);
     }
     
-    this._calcTabWidth = function(text_width_in_tab) {
+    this._calcTabWidth = function(scimoz, text_width_in_tab) {
+        var tab_width_minimum = scimoz.tabWidth *
+                                scimoz.textWidth(scimoz.STYLE_DEFAULT, ' ') -
+                                tab_width_padding;
         if (text_width_in_tab < tab_width_minimum) {
             text_width_in_tab = tab_width_minimum;
         }
@@ -175,7 +182,7 @@
                         text_width_in_tab = this._getTextWidth(scimoz, cell_start, current_pos);
                     }
                     grid[l][current_tab_num].ends_in_tab = true;
-                    grid[l][current_tab_num].text_width_pix.value = this._calcTabWidth(text_width_in_tab);
+                    grid[l][current_tab_num].text_width_pix.value = this._calcTabWidth(scimoz, text_width_in_tab);
                     current_tab_num++;
                     lines[l].num_tabs++;
                     text_width_in_tab = 0;
@@ -341,6 +348,12 @@
                 } else {
                     this._disableElasticTabstops(view);
                 }
+            }
+        } else if (topic == PREF_TAB_WIDTH &&
+                   prefs.getBoolean(PREF_ENABLE_ELASTIC_TABSTOPS)) {
+            for (let view of views.editors()) {
+                // Refresh with new tab width.
+                this._onModify(view.scimoz, {value: 0}, {value: view.scimoz.length});
             }
         }
     }
