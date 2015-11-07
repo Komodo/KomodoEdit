@@ -123,7 +123,7 @@
 
 <!ENTITY % StyleSheet "CDATA" -- style sheet data -->
 
-<!ENTITY % FrameTarget "(_blank | _parent | _self | _top">
+<!ENTITY % FrameTarget "(_blank | _parent | _self | _top)">
     <!-- render in this frame -->
 
 
