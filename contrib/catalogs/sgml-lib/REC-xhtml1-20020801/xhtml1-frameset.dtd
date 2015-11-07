@@ -85,7 +85,7 @@
 <!ENTITY % Text "CDATA">
     <!-- used for titles etc. -->
 
-<!ENTITY % FrameTarget "(_blank | _parent | _self | _top">
+<!ENTITY % FrameTarget "(_blank | _parent | _self | _top)">
     <!-- render in this frame -->
 
 <!ENTITY % Length "CDATA">
