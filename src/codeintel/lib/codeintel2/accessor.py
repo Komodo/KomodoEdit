@@ -172,6 +172,8 @@ class SilverCityAccessor(Accessor):
         #XXX Locality of reference should offer an optimization here.
         # Binary search for appropriate token.
         lower, upper = 0, len(self.tokens)  # [lower-limit, upper-limit)
+        if upper == 1:
+            return self.tokens[0]
         # This being a binary search, we should have a maximum of log2(upper)
         # iterations.  Enforce that in case we have an issue and hit an infinite
         # loop.
