@@ -113,7 +113,7 @@
         if (query == "") return [query, subscope, opts];
         
         var _query = query.split(sep); // Convert query to array (split by path separators)
-        var recursive = _query.length >= 1 ? !! _query.slice(-1)[0].match(/^\W/) : false;
+        var recursive = _query.length >= 1 ? !! _query.slice(-1)[0].match(/^\s/) : false;
         
         // Shortcuts
         if (opts["allowShortcuts"]) {
