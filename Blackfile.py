@@ -1564,6 +1564,16 @@ def _PackageKomodoMSI(cfg):
     if not exists(dirname(cfg.komodoInstallerPackage)):
         os.makedirs(dirname(cfg.komodoInstallerPackage))
     shutil.copyfile(join(wrkDir, "komodo.msi"), cfg.komodoInstallerPackage)
+    
+         # signtool sign /v /f c:\ActiveStateSPC.pfx /t http://timestamp.verisign.com/scripts/timestamp.dll %1
+    print "---- sign MSI to packages"
+    #   All elements to this of the command below should be part of the config file
+    #   and configured during bk configure
+    key = "C:\\bb\\certificates\\ActiveStateSPC.pfx" # this should be a config set during bk configure
+    command = "signtool  sign /v /f \"%s\" /t http://timestamp.verisign.com/scripts/timestamp.dll \"%s\"" %(key, cfg.komodoInstallerPackage)
+    print("---- run command: %s", command)
+    _run(command)
+    
     print "'%s' created" % cfg.komodoInstallerPackage
 
 
