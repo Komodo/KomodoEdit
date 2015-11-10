@@ -229,6 +229,12 @@
             key="key_cmd_openfilesGrouping"
             oncommand="ko.commands.doCommand('cmd_openfilesGrouping', event)"
             desc="&groupFiles.desc;"/>
+        
+        <command
+            id="cmd_openfilesTabSorting"
+            key="key_cmd_openfilesTabSorting"
+            oncommand="ko.commands.doCommand('cmd_openfilesTabSorting', event)"
+            desc="&sortTabs.desc;"/>
 
         <command
             id="cmd_openfilesGroupByLang"

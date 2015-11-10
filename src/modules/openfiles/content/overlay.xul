@@ -54,6 +54,13 @@
             key="key_cmd_openfilesGrouping"
             desc="&groupFiles.desc;"
             autoCheck="false"/>
+        
+        <broadcaster
+            id="cmd_openfilesTabSorting"
+            observes="cmd_openfilesTabSorting"
+            key="key_cmd_openfilesTabSorting"
+            desc="&sortTabs.desc;"
+            autoCheck="false"/>
 
         <broadcaster
             id="cmd_openfilesGroupByLang"
