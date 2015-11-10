@@ -10,6 +10,7 @@
 <!ENTITY groupFiles.label "Group Open Files">
 <!ENTITY sortTabs.label "Sort Tabs">
 <!ENTITY groupFiles.desc "OpenFiles Widget: Arrange Open Files in Groups">
+<!ENTITY sortTabs.desc "OpenFiles Widget: Sort Tabs">
 <!ENTITY groupByLang.label "Group By Language">
 <!ENTITY groupByLang.desc "OpenFiles Widget: Group Open Files by Language">
 <!ENTITY groupByExt.label "Group By Extension">
