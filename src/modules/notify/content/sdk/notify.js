@@ -336,7 +336,19 @@
                 return;
             }
             
-            timers.setTimeout(this.showNotification.bind(this, notif), 0);
+            timers.setTimeout(function() {
+                try
+                {
+                    this.showNotification(notif);
+                }
+                catch (e)
+                {
+                    log.exception(e, "showNotification failed");
+                    queue[from].activeId = null;
+                    queue[from].activePanel = null;
+                    this.queue.process(from);
+                }
+            }.bind(this), 0);
         }
         else
         {
