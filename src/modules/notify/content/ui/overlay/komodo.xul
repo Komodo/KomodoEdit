@@ -34,7 +34,7 @@
                     {{?}}
                     <vbox> <!-- Description max-width is not respected unless its in a vbox -->
                         <description class="description">
-                            {{=it.message}}
+                            {{!it.message}}
                         </description>
                     </vbox>
                     {{?it.undo}}
