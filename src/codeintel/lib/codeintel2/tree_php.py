@@ -790,9 +790,10 @@ class PHPTreeEvaluator(TreeEvaluator):
             # add the element, we've already checked private|protected scopes
             members.update(self._members_from_elem(child, name_prefix))
         elem_ilk = elem.get("ilk")
-        if elem_ilk == "class" or elem_ilk == "trait":
+        if elem_ilk == "class" or elem_ilk == "trait" or elem_ilk == "interface":
             for classref in elem.get("classrefs", "").split() + \
-                            elem.get("traitrefs", "").split():
+                            elem.get("traitrefs", "").split() + \
+                            elem.get("interfacerefs", "").split():
                 ns_elem = self._namespace_elem_from_scoperef(scoperef)
                 if ns_elem is not None:
                     # For class reference inside a namespace, *always* use the
@@ -1357,7 +1358,8 @@ class PHPTreeEvaluator(TreeEvaluator):
                     class_scoperef = scoperef
                 return (attr, class_scoperef), 1
             for classref in elem.get("traitrefs", "").split() + \
-                            elem.get("classrefs", "").split():
+                            elem.get("classrefs", "").split() + \
+                            elem.get("interfacerefs", "").split():
                 #TODO: update _hit_from_citdl to accept optional node type,
                 #      i.e. to only return classes in this case.
                 self.log("_hit_from_getattr:: is '%s' available on parent "

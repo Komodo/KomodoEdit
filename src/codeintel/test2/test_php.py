@@ -4686,6 +4686,31 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
             [("variable", "name")])
     
+    @tag("bug 751")
+    def test_interface_method_inheritence(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            Interface A
+            {
+                public function foo();
+            }
+
+            Interface B extends A
+            {
+                public function bar();
+            }
+
+            class classB
+            {
+                public function __construct(B $b)
+                {
+                    $b-><1>
+                }
+            }
+        """)))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            [("function", "bar"),
+             ("function", "foo")])
+    
 
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"
