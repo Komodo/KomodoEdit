@@ -2212,6 +2212,8 @@
             } else if (this.enableAutoAbbreviations && charCodeChar !== null
                        && !this.scintilla.autocomplete.active
                        && this.scimoz.selections == 1
+                       && !this.scimoz.selectionIsRectangle
+                       && ko.macros.recorder.mode != 'recording'
                        && this.autoAbbreviationTriggerCharacters_Processed.indexOf(charCodeChar) >= 0) {
                 
 <!-- #if PLATFORM != "darwin" -->
