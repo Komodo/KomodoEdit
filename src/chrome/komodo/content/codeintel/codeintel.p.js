@@ -1310,7 +1310,9 @@ ko.codeintel = {};
             // everything's set up now, ready to actually do the search
             let startPos = 0;
             let endPos = scimoz.length
-            if (sourceVarDefns.length > 0 && sourceVarDefns[0].scopestart > 0) {
+            if (sourceVarDefns.length > 0
+                && Object.keys(sourceVarDefns[0]).length > 0 // non-empty
+                && sourceVarDefns[0].scopestart > 0) {
                 // We have a variable definition, and we know its scope
                 let defn = sourceVarDefns[0];
                 startPos = scimoz.positionFromLine(defn.scopestart - 1);
