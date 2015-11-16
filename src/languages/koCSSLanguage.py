@@ -142,6 +142,12 @@ class koSCSSLanguage(koCSSCommonLanguage):
     _reg_clsid_ = "b35862ad-7349-453e-8bf6-73177f98c98e"
     _reg_categories_ = [("komodo-language", name)]
 
+    commentDelimiterInfo = {
+        "block": [ ("/*", "*/") ],
+        "markup": "*",
+        "line": ["//"],
+    }
+
     primary = 1
     
     def get_lexer(self):
