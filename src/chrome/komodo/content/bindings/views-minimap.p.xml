@@ -56,6 +56,10 @@
             for (var i=0; i <= mm_scimoz.SC_MAX_MARGIN; i++) {
                 mm_scimoz.setMarginWidthN(i, 0);
             }
+            // Hide all markers.
+            for (var i=0; i <= mm_scimoz.MARKER_MAX; i++) {
+                mm_scimoz.markerDefine(i, mm_scimoz.SC_MARK_EMPTY);
+            }
             mm_scimoz.selEOLFilled = true;
             mm_scimoz.caretStyle = mm_scimoz.CARETSTYLE_INVISIBLE;
             mm_scimoz.setXCaretPolicy(0, 0);
