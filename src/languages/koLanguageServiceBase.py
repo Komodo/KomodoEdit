@@ -2876,47 +2876,51 @@ class KoLanguageBase:
                 targetEnd = scimoz.targetEnd
                 searchFlags = scimoz.searchFlags
                 try:
-                    scimoz.targetStart = currentPos
-                    scimoz.searchFlags = 0
-                    while True:
-                        # Bug 94854: look for start-tag-start characters,
-                        # Skip <%= ... %> internal PHP things
-                        # Set scimoz.targetEnd before each search, not just the first.
-                        scimoz.targetEnd = 0
-                        tagStart = scimoz.searchInTarget(1, "<")
-                        if tagStart == -1:
-                            # we shouldn't get here (how did we end up in
-                            # START_TAG_CLOSE!?), but we should deal gracefully
-                            log.warning("KoLanguageBase::_keyPressed: Failed to "
-                                        "find start of tag in START_TAG_CLOSE")
-                            return
-                        tagStartStyle = scimoz.getStyleAt(tagStart)
-                        if tagStartStyle == scimoz.SCE_UDL_M_STAGO:
-                            break
-                        scimoz.targetStart = scimoz.positionBefore(tagStart)
-                        # And keep looking for a true start-tag "<"
-                            
-                    tagText = scimoz.getTextRange(tagStart, currentPos)
-                    endTag = self.getEndTagForStartTag(tagText)
-                    if endTag:
-                        # check that the end tag doesn't already exist at the
-                        # cursor position. (bug 91796)
-                        posEnd = currentPos
-                        for i in range(len(endTag)):
-                            posEnd = scimoz.positionAfter(posEnd)
-                        existingText = scimoz.getTextRange(currentPos, posEnd)
-                        if endTag != existingText:
-                            try:
-                                scimoz.beginUndoAction()
-                                scimoz.insertText(currentPos, endTag)
-                                # Don't make the new text soft characters; that
-                                # produces odd problems (they never harden
-                                # correctly; deleting the start tag will only delete
-                                # the first soft character, not the range).  It
-                                # turns out to be a better experience to make
-                                # everything hard (but undo-able).
-                            finally:
-                                scimoz.endUndoAction()
+                    for i in xrange(scimoz.selections):
+                        selectionPos = scimoz.getSelectionNCaret(i)
+                        scimoz.targetStart = selectionPos
+                        scimoz.searchFlags = 0
+                        while True:
+                            # Bug 94854: look for start-tag-start characters,
+                            # Skip <%= ... %> internal PHP things
+                            # Set scimoz.targetEnd before each search, not just the first.
+                            scimoz.targetEnd = 0
+                            tagStart = scimoz.searchInTarget(1, "<")
+                            if tagStart == -1:
+                                # we shouldn't get here (how did we end up in
+                                # START_TAG_CLOSE!?), but we should deal gracefully
+                                log.warning("KoLanguageBase::_keyPressed: Failed to "
+                                            "find start of tag in START_TAG_CLOSE")
+                                return
+                            tagStartStyle = scimoz.getStyleAt(tagStart)
+                            if tagStartStyle == scimoz.SCE_UDL_M_STAGO:
+                                break
+                            scimoz.targetStart = scimoz.positionBefore(tagStart)
+                            # And keep looking for a true start-tag "<"
+                                
+                        tagText = scimoz.getTextRange(tagStart, selectionPos)
+                        endTag = self.getEndTagForStartTag(tagText)
+                        if endTag:
+                            # check that the end tag doesn't already exist at the
+                            # cursor position. (bug 91796)
+                            posEnd = selectionPos
+                            for i in range(len(endTag)):
+                                posEnd = scimoz.positionAfter(posEnd)
+                            existingText = scimoz.getTextRange(selectionPos, posEnd)
+                            if endTag != existingText:
+                                try:
+                                    scimoz.beginUndoAction()
+                                    scimoz.targetStart = selectionPos
+                                    scimoz.targetEnd = selectionPos
+                                    scimoz.replaceTarget(endTag)
+                                    # Don't make the new text soft characters; that
+                                    # produces odd problems (they never harden
+                                    # correctly; deleting the start tag will only delete
+                                    # the first soft character, not the range).  It
+                                    # turns out to be a better experience to make
+                                    # everything hard (but undo-able).
+                                finally:
+                                    scimoz.endUndoAction()
                 finally:
                     # restore search states
                     scimoz.targetStart = targetStart
