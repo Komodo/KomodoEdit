@@ -134,6 +134,7 @@
     function pref_hyperlinks_doEnabling() {
         var enabled = document.getElementById("hyperlinksEnabled").checked;
         _pref_setElementEnabledState("hyperlinksEnableGotoDefinition", enabled);
+        _pref_setElementEnabledState("hyperlinksEnableColorPicker", enabled);
     }
 
     function pref_softChars_doEnabling() {
@@ -353,6 +354,7 @@
     
         <!-- hyperlinksEnabled is used with doc prefs, but
              hyperlinksEnableGotoDefinition is used only with global prefs
+             hyperlinksEnableColorPicker is used only with global prefs
         -->
         <groupbox orient="vertical" class="load-context-check" showIfLoadContext="global">
             <caption label="&hyperlinks.label;"/>
@@ -360,9 +362,14 @@
                       label="&hyperlinksEnabled.label;"
                       pref="true"
                       oncommand="pref_hyperlinks_doEnabling();"/>
+            <description style="margin-left: 27px;">&hyperlinksEnabled.description;</description>
             <checkbox id="hyperlinksEnableGotoDefinition"
                       style="margin-left: 27px;"
                       label="&hyperlinksEnableGotoDefinition.label;"
+                      pref="true"/>
+            <checkbox id="hyperlinksEnableColorPicker"
+                      style="margin-left: 27px;"
+                      label="&hyperlinksEnableColorPicker.label;"
                       pref="true"/>
         </groupbox>
     

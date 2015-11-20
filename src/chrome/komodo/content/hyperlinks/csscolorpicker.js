@@ -53,11 +53,35 @@ ko.hyperlinks.ColorPickerHandler = function()
         
     var regex_args = [name, find_regex, fn, replace_str, lang_names, indic_style, indic_color];
     ko.hyperlinks.RegexHandler.apply(this, regex_args);
+    
+    // Listen for enabled pref changes.
+    this.enabledPrefName = "hyperlinksEnableColorPicker";
+    var prefs = Components.classes["@activestate.com/koPrefService;1"].
+                getService(Components.interfaces.koIPrefService).prefs;
+    prefs.prefObserverService.addObserver(this, this.enabledPrefName, 0);
+    this.enabled = prefs.getBooleanPref(this.enabledPrefName);
+    ko.main.addWillCloseHandler(this.destroy, this);
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
 ko.hyperlinks.ColorPickerHandler.prototype = new ko.hyperlinks.RegexHandler();
 ko.hyperlinks.ColorPickerHandler.prototype.constructor = ko.hyperlinks.ColorPickerHandler;
+
+ko.hyperlinks.ColorPickerHandler.prototype.destroy = function()
+{
+    var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
+                  getService(Components.interfaces.koIPrefService);
+    prefSvc.prefs.prefObserverService.removeObserver(this, this.enabledPrefName);
+}
+
+ko.hyperlinks.ColorPickerHandler.prototype.observe = function(prefSet, prefName, prefSetID)
+{
+    switch (prefName) {
+        case this.enabledPrefName:
+            this.enabled = prefSet.getBooleanPref(this.enabledPrefName);
+            break;
+    }
+};
 
 ko.hyperlinks.ColorPickerHandler.named_css_colors = [
     "aliceblue",
@@ -225,6 +249,10 @@ ko.hyperlinks.ColorPickerHandler.named_css_colors = [
 ko.hyperlinks.ColorPickerHandler.prototype.show = function(
                 view, scimoz, position, line, lineStartPos, lineEndPos, reason)
 {
+    if (!this.enabled) {
+        return null;
+    }
+
     var start = scimoz.wordStartPosition(position, true);
     var end = scimoz.wordEndPosition(position, true);
     var hyperlink;

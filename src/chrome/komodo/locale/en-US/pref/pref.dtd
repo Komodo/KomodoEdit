@@ -287,7 +287,10 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY httpWwwRubyLangOrg.label "http://www.ruby-lang.org/">
 <!ENTITY hyperlinks.label "Hyperlinks">
 <!ENTITY hyperlinksEnabled.label "Enable hyperlinks (underlining of text under mouse pointer)">
+<!ENTITY hyperlinksEnabled.description "Ctrl+Clicking on hyperlinks activates them instead of
+adding an additional caret at the clicked position.">
 <!ENTITY hyperlinksEnableGotoDefinition.label "Enable hyperlinking to definition">
+<!ENTITY hyperlinksEnableColorPicker.label "Open color picker when clicking on colors">
 <!ENTITY ifClearedYouWillBePromptedForThisValueTheNextTimeYouPreview.tooltiptext "If cleared, you will be prompted for this value the next time you preview.">
 <!ENTITY ifNoPasswordIsGivenYouLlBePromptedForItUponFirstConnecting.tooltiptext "If no password is given, you'll be prompted for it upon first connecting.">
 <!ENTITY ifNoPathIsGivenTheDefaultPathIsTheCurrentDirectoryAfterLogin.tooltiptext "If no path is given, the default path is the current directory after login.">

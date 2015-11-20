@@ -922,6 +922,7 @@
   <!-- Hyperlinks -->
   <boolean id="hyperlinksEnabled">1</boolean>
   <boolean id="hyperlinksEnableGotoDefinition">1</boolean>
+  <boolean id="hyperlinksEnableColorPicker">1</boolean>
 
   <!-- Color picker -->
   <string id="colorpicker_cid"></string>
@@ -988,6 +989,7 @@
     <string>activestate_notification_messages_enabled</string>
     <string>hyperlinksEnabled</string>
     <string>hyperlinksEnableGotoDefinition</string>
+    <string>hyperlinksEnableColorPicker</string>
     <string>ui.tabs.sidepanes.left.layout</string>
     <string>ui.tabs.sidepanes.right.layout</string>
     <string>ui.tabs.sidepanes.bottom.layout</string>
