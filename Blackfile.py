@@ -752,6 +752,9 @@ configuration = {
     # OSX packaging:
     "osxCodeSignExecutable": OSXCodeSignExecutable(),
     "osxCodeSigningCert": OSXCodeSigningCert(),
+    
+    # Windows msi signing:
+    "winCodeSigningCert": WinCodeSigningCert(),
 
     "komodoPackageBase": KomodoPackageBase(),
     "komodoUpdateManualURL": KomodoUpdateManualURL(),
@@ -1571,6 +1574,10 @@ def _PackageKomodoMSI(cfg):
     #   and configured during bk configure
     key = "C:\\bb\\certificates\\ActiveStateSPC.pfx" # this should be a config set during bk configure
     command = "signtool  sign /v /f \"%s\" /t http://timestamp.verisign.com/scripts/timestamp.dll \"%s\"" %(key, cfg.komodoInstallerPackage)
+# =======
+#     key = cfg.winCodeSigningCert
+#     command = "signtool sign /v /f \"%s\" /t http://timestamp.verisign.com/scripts/timestamp.dll \"%s\"" %(key, cfg.komodoInstallerPackage)
+# >>>>>>> Stashed changes
     print("---- run command: %s", command)
     _run(command)
     
