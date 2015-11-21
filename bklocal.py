@@ -3284,6 +3284,54 @@ class OSXCodeSigningCert(black.configure.Datum):
             self.applicable = False
         self.determined = True
 
+class WinCodeSigningCert(black.configure.Datum):
+    """The code signing certificate to use to sign the Windows code objects.
+   It should be a code-signing (SPC) PFX certificate.  DO NOT REGENERATE
+   THIS KEY.  IT WOULD RESET OUR "REPUTATION" WITH MS.
+   
+   BUT having said that...
+   
+   The following batch commands will generate one called "ActiveStateSPC.pfx":
+   
+        rem In all password prompts, use "ActiveState" (or whatever password you
+        rem deem fit; a blank password is not allowed). This password is not used
+   
+        rem Create the CA certificate.
+        makecert -r -pe -n "CN=ActiveState Software Inc." -ss CA ^
+            -a sha256 -cy authority -sky signature -sv ActiveStateCA.pvk ActiveStateCA.cer
+   
+        rem Create the Code-signing certificate.
+         makecert -pe -n "CN=ActiveState Software Inc." -a sha256 -cy end ^
+            -sky signature ^
+            -ic ActiveStateCA.cer -iv ActiveStateCA.pvk ^
+            -sv ActiveStateSPC.pvk ActiveStateSPC.cer
+   
+        rem Convert the cert and key into a PFX file.
+         pvk2pfx -pvk ActiveStateSPC.pvk -spc ActiveStateSPC.cer -pfx ActiveStateSPC.pfx"""
+    def __init__(self):
+        self.longopt = "with-win-codesign-certificate"
+        black.configure.Datum.__init__(self, "winCodeSigningCert",
+            desc="Path to code certificate for Windows code signing",
+            acceptedOptions=("", [self.longopt + "="]))
+
+    def _Determine_Sufficient(self):
+        if not self.applicable:
+            return
+        if self.value is not None:
+            if not os.path.exists(self.value):
+                raise black.configure.ConfigureError(
+                    "Windows code-signing certificate %s does not exist" % (self.value,))
+
+    def _Determine_Do(self):
+        if sys.platform == "win32":
+            self.applicable = True
+            for opt, optarg in self.chosenOptions:
+                if opt == "--"+self.longopt:
+                    self.value = os.path.abspath(optarg)
+                    break
+        else:
+            self.applicable = False
+        self.determined = True
 
 class InstallRelDir(black.configure.Datum):
     """The root of the Komodo installation image dir relative to the root of

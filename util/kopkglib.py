@@ -62,6 +62,8 @@ import buildutils
 #---- globals
 
 log = logging.getLogger("kopkglib")
+#log.setLevel(logging.DEBUG)
+
 
 g_short_ver_pat = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:([abc])(\d+))?$")
 
