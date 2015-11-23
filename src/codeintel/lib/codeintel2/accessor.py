@@ -174,6 +174,8 @@ class SilverCityAccessor(Accessor):
         lower, upper = 0, len(self.tokens)  # [lower-limit, upper-limit)
         if upper == 1:
             return self.tokens[0]
+        elif upper == 0:
+            return {"style": 0, "start_index": 0, "end_index": 0} # blank document
         # This being a binary search, we should have a maximum of log2(upper)
         # iterations.  Enforce that in case we have an issue and hit an infinite
         # loop.
