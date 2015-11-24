@@ -242,6 +242,11 @@ def createCixModule(cixfile, name, lang, src=None):
     if src is None:
         return SubElement(cixfile, "scope", ilk="blob", name=name, lang=lang)
     else:
+        if sys.platform.startswith("win"):
+            # When searching for scannable files, the language import handlers
+            # use lower-case directory and file names.
+            name = name.lower()
+            src = src.lower()
         return SubElement(cixfile, "scope", ilk="blob", name=name, lang=lang, src=src)
 
 def createOrFindCixModule(cixfile, name, lang, src=None):
