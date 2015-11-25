@@ -697,7 +697,11 @@ class koScintillaController:
             endLine = startLine + 1
         else:
             endLine = sm.lineFromPosition(endPos)
-            if sm.getColumn(endPos) != 0:
+            if startLine == endLine:
+                # Duplicate the in-line selection left.
+                sm.selectionDuplicate()
+                return
+            elif sm.getColumn(endPos) != 0:
                 endLine = endLine + 1
 
         cutStart = sm.positionFromLine(startLine)
@@ -732,7 +736,13 @@ class koScintillaController:
             endLine = startLine + 1
         else:
             endLine = sm.lineFromPosition(endPos)
-            if sm.getColumn(endPos) != 0:
+            if startLine == endLine:
+                # Duplicate the in-line selection right.
+                sm.selectionDuplicate()
+                selLen = endPos - startPos
+                sm.setSel(sm.anchor + selLen, sm.currentPos + selLen)
+                return
+            elif sm.getColumn(endPos) != 0:
                 endLine = endLine + 1
 
         cutStart = sm.positionFromLine(startLine)
