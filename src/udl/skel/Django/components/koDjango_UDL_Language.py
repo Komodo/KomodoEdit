@@ -108,9 +108,14 @@ class KoDjangoLinter(object):
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         self._pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=Python;1"]\
             .createInstance(components.interfaces.koIAppInfoEx)
+        self._python3Info = components.classes["@activestate.com/koAppInfoEx?app=Python3;1"]\
+            .createInstance(components.interfaces.koIAppInfoEx)
         self._djangoLinterPath = join(dirname(dirname(__file__)),
                                      "pylib",
                                      "djangoLinter.py")
+        self._djangoLinter3Path = join(dirname(dirname(__file__)),
+                                      "pylib",
+                                      "djangoLinter3.py")
         self._settingsForDirs = {}
         self._lineSplitterRE = re.compile(r'\r?\n')
         self._html_linter = koLintService.getLinterForLanguage("HTML")
@@ -228,21 +233,36 @@ class KoDjangoLinter(object):
                 elif env.has_key("PYTHONPATH"):
                     del env["PYTHONPATH"]
 
+                # First try to use Python2 to run the django linter. If django
+                # is not found, use Python3 instead.
                 results = koLintResults()
                 pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
-                argv = [pythonExe, self._djangoLinterPath,
+                djangoLinterPath = self._djangoLinterPath
+                if pythonExe:
+                    p = process.ProcessOpen([pythonExe, "-c", "import django"], env=env, stdin=None)
+                    output, error = p.communicate()
+                    #log.debug("Django output: output:[%s], error:[%s]", output, error)
+                    if error.find('ImportError:') >= 0 and \
+                       self._python3Info.getExecutableFromDocument(request.koDoc):
+                        pythonExe = self._python3Info.getExecutableFromDocument(request.koDoc)
+                        djangoLinterPath = self._djangoLinter3Path
+                else:
+                    pythonExe = self._python3Info.getExecutableFromDocument(request.koDoc)
+                    djangoLinterPath = self._djangoLinter3Path
+                #log.debug("pythonExe = " + pythonExe)
+                #log.debug("djangoLinterPath = " + djangoLinterPath)
+                argv = [pythonExe, djangoLinterPath,
                         tmpFileName, settingsDir]
                 p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
                 output, error = p.communicate()
-                #log.debug("Django output: output:[%s], error:[%s]", output, error)
                 retval = p.returncode
+                #log.debug("Django output: output:[%s], error:[%s], retval:%d", output, error)
             finally:
                 os.unlink(tmpFileName)
-            if retval == 1:
-                if error:
-                    results.addResult(self._buildResult(text, error))
-                else:
-                    results.addResult(self._buildResult(text, "Unexpected error"))
+            if error:
+                results.addResult(self._buildResult(text, error))
+            elif retval != 0:
+                results.addResult(self._buildResult(text, "Unexpected error"))
         else:
             result = KoLintResult()
             result.lineStart = 1
