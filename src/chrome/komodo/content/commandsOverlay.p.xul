@@ -1567,6 +1567,11 @@
             disabled="true"
             desc="&generalPrintPreviewSelection.desc;"/>
 <!-- #endif -->
+        <command
+            id="cmd_removePrevWordInCaretSet" key="key_cmd_removePrevWordInCaretSet"
+            oncommand="ko.commands.doCommandAsync('cmd_removePrevWordInCaretSet', event)"
+            disabled="true"
+            desc="&removePrevWordInCaretSet.desc;"/>
     </commandset>
     
     <!-- These commands need to be updated on window open,
