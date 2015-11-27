@@ -1,5 +1,14 @@
 /**
- * @module menu
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * The menu SDK allows you to easily register new menu items
+ *
+ * @module ko/menu
  */
 (function(){
 
@@ -14,10 +23,19 @@
 
     /**
      * Register a new menu item
+     *
+     * Sample context:
      * 
-     * @param   {String|Object} label      Can also be the opts object, containing a label and command entry
-     * @param   {Function} command
-     * @param   {Object} opts   
+     * ```
+     * context: [ {
+     *              select: "#popup_view",
+     *              before: "#menu_view_tabs"
+     *          } ]
+     * ```
+     * 
+     * @param   {String|Object} label       Can also be the opts object, containing a label and command entry, doubles as ID
+     * @param   {Function} command          Callback function  
+     * @param   {Object} opts               Options {image, command, classList, context, label, id}
      */
     this.register = (label, command, opts) =>
     {
@@ -62,8 +80,8 @@
     /**
      * Unregister a menu item
      * 
-     * @param   {String} id  
-     * @param   {Object} opts       used for context
+     * @param   {String} id         Identifier
+     * @param   {Object} opts       Provide the context that was used to register {context: ..}
      */
     this.unregister = (id, opts) =>
     {

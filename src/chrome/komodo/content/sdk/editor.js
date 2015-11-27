@@ -1,3 +1,15 @@
+/**
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * The editor SDK
+ *
+ * @module ko/editor
+ */
 var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
@@ -27,10 +39,23 @@ var sdkEditor = function(_scintilla, _scimoz) {
         return _win.ko.views.manager.currentView.scintilla;
     }
 
+    /**
+     * Returns the editor SDK for a custom scintilla instance
+     * 
+     * @param   {Object} sci Scintilla
+     * @param   {Object} scm  Scimoz
+     * 
+     * @returns {sdkEditor} 
+     */
     this.editor = function(sci, scm) {
         return new sdkEditor(sci, scm);
     };
 
+    /**
+     * Checks whether scintilla is available for the current editor
+     * 
+     * @returns {Boolean} 
+     */
     this.available = function() {
         return ( !! scimoz() && !! scintilla() );
     };

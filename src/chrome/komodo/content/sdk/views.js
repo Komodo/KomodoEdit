@@ -1,5 +1,14 @@
 /**
- * @module views
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * Easily interface with Komodo's views (tabs/editors)
+ *
+ * @module ko/views
  */
 (function()
 {
@@ -14,12 +23,24 @@
      *
      * Returns an object containing:
      *
-     * get() - returns a propery from the currentView object
-     * scintilla
-     * scimoz
-     * koDoc
-     * file
-     * language
+     * get() - returns a propery from the currentView object, possible properties:
+     *
+     *  - scintilla
+     *  - scimoz
+     *  - koDoc
+     *  - file
+     *  - filePath
+     *  - prefs
+     *  - language
+     *  - type
+     *
+     * For example:
+     * 
+     * ```
+     * require("ko/views").current().get("language")
+     * ```
+     * 
+     * gets the language for the current view
      * 
      * @returns {Object}
      */
@@ -27,6 +48,11 @@
     {
         var view = ko.views.manager.currentView;
         
+        /**
+         * Get a property
+         * 
+         * @returns {Mixed} 
+         */
         var get = function()
         {
             var result = view;
@@ -62,6 +88,8 @@
     /**
      * Retrieve all views
      *
+     * @function all
+     *
      * @returns {Array}
      */
     this.all = this.manager.getAllViews.bind(this.manager);
@@ -69,17 +97,23 @@
     /**
      * Retrieve all editor views
      *
+     * @function editors
+     *
      * @returns {Array}
      */
     this.editors = this.manager.getAllViews.bind(this.manager, "editor");
     
     /**
      * Split the view
+     *
+     * @function split
      */
     this.split = ko.commands.doCommandAsync.bind(ko.commands, 'cmd_splittab')
     
     /**
      * Rotate the split view
+     *
+     * @function rotate
      */
     this.rotate = ko.commands.doCommandAsync.bind(ko.commands, 'cmd_rotateSplitter')
     

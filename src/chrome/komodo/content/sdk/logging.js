@@ -1,3 +1,10 @@
+/**
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license MPL 1.1/GPL 2.0/LGPL 2.1
+ * @author ActiveState
+ * @overview -
+ */
+
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  * 
@@ -61,7 +68,7 @@ Alternatively, on the command line used to launch komodo,
 */
 
 /**
- * @module logging
+ * @module ko/logging
  */
 (function() {
 
@@ -142,6 +149,43 @@ Logger.prototype = {
     ERROR: LOG_ERROR,
     CRITICAL: LOG_CRITICAL,
 };
+
+const LoggingMgr = exports.LoggingMgr = function() {
+    this.LoggerMap = {}
+    this.loggingSvc = Cc["@activestate.com/koLoggingService;1"]
+                        .getService(Ci.koILoggingService);
+
+    this.getLogger = function(logger_name) {
+        if (!(logger_name in this.LoggerMap)) {
+            var logger = this.loggingSvc.getLogger(logger_name);
+            this.LoggerMap[logger_name] = new Logger(logger, logger_name);
+        }
+        return this.LoggerMap[logger_name];
+    }
+}
+
+// Use this function to always get the logging manager
+// (which may not be a global in your namespace)
+const getLoggingMgr = exports.getLoggingMgr = function() {
+    if (!_gLoggingMgr) {
+        _gLoggingMgr = new LoggingMgr();
+    }
+    return _gLoggingMgr;
+}
+
+/**
+ * Retrieve the given logger
+ * 
+ * @function getLogger
+ * 
+ * @param   {String} logger_name    Name of the logger (creates it if it does not exist)
+ * 
+ * @returns {Logger}
+ */
+const getLogger = exports.getLogger = function(logger_name) {
+    _gLoggers[logger_name] = true;
+    return getLoggingMgr().getLogger(logger_name);
+}
 
 /**
  * Set the logging level for the current logger, eg. logging.LOG_DEBUG
@@ -352,7 +396,7 @@ function(object, deprecatedName, replacementName, logger) {
                                            + "\n"
                                            );
             }
-            return (function() eval(replacementName)).call(object);
+            return (function() { return eval(replacementName) }).call(object);
         }
     });
 };
@@ -867,41 +911,6 @@ exports.setGlobalLevel = function(level) {
     {
         getLogger(k).setLevel(level);
     }
-}
-
-const LoggingMgr = exports.LoggingMgr = function() {
-    this.LoggerMap = {}
-    this.loggingSvc = Cc["@activestate.com/koLoggingService;1"]
-                        .getService(Ci.koILoggingService);
-
-    this.getLogger = function(logger_name) {
-        if (!(logger_name in this.LoggerMap)) {
-            var logger = this.loggingSvc.getLogger(logger_name);
-            this.LoggerMap[logger_name] = new Logger(logger, logger_name);
-        }
-        return this.LoggerMap[logger_name];
-    }
-}
-
-// Use this function to always get the logging manager
-// (which may not be a global in your namespace)
-const getLoggingMgr = exports.getLoggingMgr = function() {
-    if (!_gLoggingMgr) {
-        _gLoggingMgr = new LoggingMgr();
-    }
-    return _gLoggingMgr;
-}
-
-/**
- * Retrieve the given logger
- * 
- * @param   {String} logger_name
- * 
- * @returns {Logger}
- */
-const getLogger = exports.getLogger = function(logger_name) {
-    _gLoggers[logger_name] = true;
-    return getLoggingMgr().getLogger(logger_name);
 }
 
 })();

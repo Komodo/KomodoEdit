@@ -1,13 +1,8 @@
 /**
- * Copyright (c) 2006-2014 ActiveState Software Inc.
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Contributors:
- *   Todd Whiteman <toddw@activestate.com>
- *   Shane Caraveo <shanec@activestate.com>
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
  */
 
 /**
@@ -15,7 +10,9 @@
  */
 
 /**
- * @module color
+ * The color SDK offers various useful helper methods to convert color formats
+ *
+ * @module ko/color
  */
 
 /**
@@ -329,10 +326,10 @@ exports.rgb2hsv = function(r, g, b) {
     //
     // Input: 3 integers, representing r,g,b, each in [0 .. 255]
     // Output: Array of float in [0 .. 1)
-    if ([r, g, b].some(function(c) c < 0 || c > 255)) {
+    if ([r, g, b].some(function(c) { return c < 0 || c > 255; })) {
         throw new Error("color.rgb2hsv: input '" + [r, g, b] + "' not three values in 0:255");
     }
-    [r, g, b] = [r, g, b].map(function(c) c / 255.0);
+    [r, g, b] = [r, g, b].map(function(c) { return c / 255.0; } );
     const minRGB = Math.min(r, g, b);
     const maxRGB = Math.max(r, g, b);
     if (minRGB == maxRGB) {
@@ -363,7 +360,7 @@ exports.rgb2hsv = function(r, g, b) {
 exports.hsv2rgb = function(h, s, v) {
     // Input: 3 values in [0 .. 1]
     // Output: 3 integers in [0 .. 255] representing an RGB value.
-    if ([h, s, v].some(function(c) c < 0 || c >= 1)) {
+    if ([h, s, v].some(function(c) { return c < 0 || c >= 1; })) {
         throw new Error("color.rgb2hsv: input '" + [h, s, v] + "' not three values in [0 .. 1)");
     }
     if (s == 0) {
@@ -396,7 +393,7 @@ exports.hsv2rgb = function(h, s, v) {
            [r, g, b] = [v, m, n];
            break;
     }
-    return [r, g, b].map(function(c) Math.round(c * 255));
+    return [r, g, b].map(function(c) { return Math.round(c * 255); });
 }
 
 /**

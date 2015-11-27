@@ -1,5 +1,22 @@
+/**
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * Some simple helper functions useful when debugging.
+ *
+ * This module will likely be merged into the [console] SDK soon.
+ *
+ * @module ko/debug
+ */
 (function() {
     
+    /**
+     * @function sizeof
+     */
     this.sizeof = function(object, giveSummary = true)
     {
         var processed = {};

@@ -1,9 +1,15 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/. */
+/**
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
 
 /**
- * @module commands
+ * The commands SDK allows you to register your own commands. This will allow
+ * users to connect keybindings to it.
+ *
+ * @module ko/commands
  */
 (function() {
 
@@ -53,9 +59,9 @@
      *
      * A command is a function which can be bound to a key
      *
-     * @param {string}      commandName
-     * @param {function}    command
-     * @param {object}      opts         {defaultBind: "Ctrl+U", isEnabled: fn, forceBind: false}
+     * @param {string}      commandName     Name of the command
+     * @param {function}    command         The callback
+     * @param {object}      opts            {defaultBind: "Ctrl+U", isEnabled: fn, forceBind: false}
      *
      * Can throw:
      *  - keybindings.exceptionInvalidCommandName
@@ -97,7 +103,7 @@
     /**
      * Unregister the given command
      *
-     * @param {string}      commandName
+     * @param {string}      commandName     Name of the Command
      */
     this.unregister = (commandName) =>
     {

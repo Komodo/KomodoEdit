@@ -1,5 +1,16 @@
 /**
- * @module button
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * The button SDK allows you to easily register and insert buttons without
+ * having to write the required markup, ensuring forward compatibility as
+ * much as possible.
+ *
+ * @module ko/button
  */
 (function(){
 
@@ -11,9 +22,9 @@
     /**
      * Register a new button
      * 
-     * @param   {String|Object} label   Optionally this can holds the entire opts object, with a label and command entry
-     * @param   {Function} command
-     * @param   {Object} opts   
+     * @param   {String|Object} label       Optionally this can hold the entire opts object, with a label and command entry
+     * @param   {Function}      command     The callback function
+     * @param   {Object}        opts        Options
      * 
      * @returns {Void}
      */
@@ -58,7 +69,7 @@
     /**
      * Unregister given button
      * 
-     * @param   {String} id  
+     * @param   {String} id         Command ID
      * @param   {Object} opts       context, id
      * 
      * @returns {Void}

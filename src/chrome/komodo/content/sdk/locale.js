@@ -1,5 +1,18 @@
 /**
- * @module locale
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * This module interfaces with Mozilla's nsIStringBundleService, it allows you
+ * to use it with as little logic as possible.
+ *
+ * If used from a module you can place your properties file in locale/en-US/modulename.properties
+ * to bypass having to call .use()
+ *
+ * @module ko/locale
  */
 (function() {
     

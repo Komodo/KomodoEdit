@@ -1,5 +1,14 @@
 /**
- * @module shell
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * The Shell module allows you to interact with the shell and processes
+ * 
+ * @module ko/shell
  */
 (function() {
     
@@ -44,8 +53,8 @@
     /**
      * Look up the location of the given executable
      * 
-     * @param   {String} command
-     * @param   {Object} env    
+     * @param   {String} command    The executable 
+     * @param   {Object} env        The environment to work with, defaults to getEnv()
      * 
      * @returns {String|Boolean}
      */
@@ -98,7 +107,7 @@
      * Run a shell command
      * 
      * @param   {String} binary     Executable
-     * @param   {Array} args  
+     * @param   {Array} args        Arguments
      * @param   {Object} opts       cwd, env, ..
      * 
      * @returns {Process}
@@ -129,9 +138,9 @@
     /**
      * Execute an encoded command
      * 
-     * @param   {String} command 
+     * @param   {String} command        The command to execute
      * @param   {Object} opts           Can contain: runIn: hud to show the output in a hud window
-     * @param   {Function} callback
+     * @param   {Function} callback     The callback function
      * 
      * @returns {Process}
      */
@@ -183,8 +192,10 @@
     
     /**
      * Show output for the given process in a HUD window
+     *
+     * @function _showOutputInHud
      * 
-     * @param   {Process} process
+     * @param   {Process} process       The process to show output for
      * @param   {String} command        The (humanly readable) command that was used to start this process
      */
     var showOutputInHud = function(process, command)

@@ -1,5 +1,14 @@
 /**
- * @module ajax
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * The Ajax SDK, allows you to easily send HTTP requests
+ *
+ * @module ko/ajax
  */
 (function() {
     
@@ -9,8 +18,8 @@
     /**
      * Query the given path/uri via a GET request
      * 
-     * @param   {String} path    
-     * @param   {Function} callback
+     * @param   {String}    path        The path
+     * @param   {Function}  callback    Callback function
      * 
      * @returns {Void}
      */
@@ -22,8 +31,8 @@
     /**
      * Query the given path/uri via a POST request
      * 
-     * @param   {String} path    
-     * @param   {Function} callback
+     * @param   {String}    path        The path
+     * @param   {Function}  callback    Callback function
      * 
      * @returns {Void}
      */
@@ -35,8 +44,8 @@
     /**
      * Manually construct a HTTP request
      * 
-     * @param   {String} params         url, method, headers, body, withCredentials
-     * @param   {Function} callback
+     * @param   {String}    params          url, method, headers, body, withCredentials
+     * @param   {Function}  callback        Callback function
      * 
      * @returns {Void}
      */

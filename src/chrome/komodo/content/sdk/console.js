@@ -1,5 +1,15 @@
 /**
- * @module console
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * The console SDK emulates the console class you use in your browser, it allows
+ * you to quickly debug your code.
+ *
+ * @module ko/console
  */
 (function() {
 
@@ -29,44 +39,44 @@
     log.setLevel(logging.LOG_DEBUG);
 
     /**
-     * Alias for console.log
+     * Alias for mozilla's [console.debug](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.debug(...))
      */
-    this.debug = console.debug;
+    this.debug = () => console.debug.apply(console, arguments);
     
     /**
-     * Output an error, see [https://developer.mozilla.org/en-US/docs/Web/API/Console/error]
+     * Alias for mozilla's [console.error](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.error(...))
      */
-    this.error = console.error;
+    this.error = () => console.error.apply(console, arguments);
     
     /**
-     * Alias for console.error
+     * Alias for mozilla's [console.exception](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.exception(...))
      */
-    this.exception = console.exception;
+    this.exception = () => console.exception.apply(console, arguments);
     
     /**
-     * Output informative data, see [https://developer.mozilla.org/en-US/docs/Web/API/Console/info]
+     * Alias for mozilla's [console.info](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.info(...))
      */
-    this.info = console.info;
+    this.info = () => console.info.apply(console, arguments);
     
     /**
-     * Start a timer, see [https://developer.mozilla.org/en-US/docs/Web/API/Console/time]
+     * Alias for mozilla's [console.time](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.time(...))
      */
-    this.time = console.time;
+    this.time = () => console.time.apply(console, arguments);
     
     /**
-     * End a timer, see [https://developer.mozilla.org/en-US/docs/Web/API/Console/timeEnd]
+     * Alias for mozilla's [console.timeEnd](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.timeEnd(...))
      */
-    this.timeEnd = console.timeEnd;
+    this.timeEnd = () => console.timeEnd.apply(console, arguments);
     
     /**
-     * Outputs a stack trace
+     * Alias for mozilla's [console.trace](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.trace(...))
      */
-    this.trace = console.trace;
+    this.trace = () => console.trace.apply(console, arguments);
     
     /**
-     * Outputs a warning message, see [https://developer.mozilla.org/en-US/docs/Web/API/Console/warn]
+     * Alias for mozilla's [console.warn](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.warn(...))
      */
-    this.warn = console.warn;
+    this.warn = () => console.warn.apply(console, arguments);
 
     if (addObs)
     {
@@ -101,7 +111,7 @@
     }
 
     /**
-     * Outputs general logging information, see [https://developer.mozilla.org/en-US/docs/Web/API/Console/log]
+     * Alias for mozilla's [console.log](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.log(...))
      */
     this.log = () =>
     {

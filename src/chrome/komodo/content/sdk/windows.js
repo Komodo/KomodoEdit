@@ -1,5 +1,17 @@
 /**
- * @module windows
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * Mediates with all the windows existing within Komodo
+ *
+ * A window can refer both to an internal window (eg. an iframe) as well as
+ * a standalone application window
+ *
+ * @module ko/windows
  */
 (function() {
     
@@ -17,6 +29,11 @@
         return wm.getMostRecentWindow("Komodo");
     }
     
+    /**
+     * Retrieve all windows (including internal)
+     * 
+     * @returns {Array} 
+     */
     this.getAll = function()
     {
         var windows = [];
@@ -34,6 +51,11 @@
         return windows;
     }
     
+    /**
+     * Get windows belonging to widgets (side panes)
+     * 
+     * @returns {Array} 
+     */
     this.getWidgetWindows = function()
     {
         var windows = [];
@@ -53,6 +75,14 @@
         return windows;
     }
     
+    /**
+     * Get browser windows residing within the given window
+     * 
+     * @param   {Window}    _window     Window to search in
+     * @param   {Boolean}   recursive   Recursively search within each window
+     * 
+     * @returns {Array} 
+     */
     this.getBrowserWindows = function(_window, recursive = false)
     {
         _window = _window || this.getMain();

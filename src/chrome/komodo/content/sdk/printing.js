@@ -1,5 +1,15 @@
-/* Copyright (c) 2000-2013 ActiveState Software Inc.
-   See the file LICENSE.txt for licensing information. */
+/**
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * The printing SDK allows you to access Komodo's printing facilities
+ *
+ * @module ko/printing
+ */
 
 /**
  * Printing APIs -- stolen and adapted from mailWindowOverlay.js
@@ -96,6 +106,14 @@ exports.browserPrint = function()
     } catch(e) { log.exception(e); }
 }
 
+/**
+ * Print the given view (editor)
+ * 
+ * @param   {Object}    view            Editor view
+ * @param   {Boolean}   preview         Whether to preview the print
+ * @param   {Boolean}   tofile          Print to a file
+ * @param   {Boolean}   selectionOnly   Only print the selection
+ */
 exports.print = function(view, preview, tofile, selectionOnly)
 {
     try {

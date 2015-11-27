@@ -1,5 +1,14 @@
 /**
- * @module dialogs
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * Easily spawn dialogs without fiddling in their markup
+ *
+ * @module ko/dialogs
  */
 (function () {
 
@@ -7,13 +16,10 @@
     const _         = require('contrib/underscore');
     const prefs     = ko.prefs;
 
-    /*
+    /**
      * A dialog to query the user for a string in a textbox.
      *
-     * @param {String} message
-     * @param {Object} opts
-     *
-     * Possible opt properties:
+     * Possible opts properties:
      *  "prompt" is text to place before the input textbox.
      *  "label1" is a label to place on the first textbox.
      *  "value1" is a default value for the first textbox.
@@ -37,6 +43,9 @@
      * It returns null if the dialog was cancelled. Otherwise it returns an array
      * containing the two values entered by the user if label2 was provided,
      * otherwise it just returns the first value.
+     *
+     * @param {String} message  The message
+     * @param {Object} opts     Optional object with options
      *
      * @returns {String|Null}
      */
@@ -81,11 +90,8 @@
         }
     }
 
-    /*
+    /**
      * Ask the user for confirmation
-     *
-     * @param {String} message
-     * @param {Object} opts
      *
      * All opts can be left blank or specified as null to get a default value.
      *  "response" is the default response. This button is shown as the default.
@@ -96,12 +102,15 @@
      *      then this textbox will no be shown.
      *  "title" is the dialog title.
      *  "doNotAskPref", uses/requires the following two prefs:
-     *      boolean donotask_<doNotAskPref>: whether to not show the dialog
-     *      string donotask_action_<doNotAskPref>: "Yes" or "No"
+     *      boolean donotask_`<doNotAskPref>`: whether to not show the dialog
+     *      string donotask_action_`<doNotAskPref>`: "Yes" or "No"
      *  "helpTopic",  the help topic, to be passed to "ko.help.open()". If
      *      not provided (or null) then no Help button will be shown.
      *  "yes", override the label for the yes button (defaults to Ok)
      *  "no", override the label for the no button (defaults to Cancel)
+     *
+     * @param {String} message  The message
+     * @param {Object} opts     Optional object with options
      *
      * @returns {Boolean}
      */
@@ -162,9 +171,12 @@
 
     /**
      * Show an alert message
+     *
+     * All opts can be left blank or specified as null to get a default value.
+     *  "title" is the dialog title.
      * 
-     * @param   {String} message
-     * @param   {Object} opts
+     * @param {String} message  The message
+     * @param {Object} opts     Optional object with options
      * 
      * @returns {Void}
      */

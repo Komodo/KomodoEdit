@@ -1,5 +1,15 @@
 /**
- * @module icons
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * The icons SDK provides various ways of rendering icons, it is primarily
+ * intended for internal use. Most of this is called via the koicon:// protocol
+ *
+ * @module ko/icons
  */
 (function() {
 
@@ -28,6 +38,9 @@
 
     this.handlers = {};
 
+    /**
+     * File icon handler
+     */
     this.handlers.fileicon = new function()
     {
         var init = () =>
@@ -492,6 +505,12 @@
      * - Svg has a root <svg> element with the attributes "width" and "height"
      * - Both width and height use the same value (ie. svg canvas is square)
      * - the root <svg> element is not using a transform attribute
+     *
+     * @param {String}  svgPath     Path of the .svg
+     * @param {String}  savePath    Path where .png is saved
+     * @param {Object}  opts        {delete: boolean} Delete the .svg when done
+     * @param {Object}  attrs       Forced attributes, use "size" instead of width/height (if width and height are the same)
+     * @param {Function} callback   Function to call when done
      */
     this.createPngFromSvg = (svgPath, savePath, opts = {}, attrs = false, callback = false) =>
     {
@@ -619,6 +638,12 @@
         return svgPath;
     }
 
+    /**
+     * Get the file icon for the given URI
+     *
+     * @param {String}      uri         URI
+     * @param {Function}    callback    Callback function
+     */
     this.getIconForUri = (uri, callback) =>
     {
         if ( ! ("cached" in this.getIconForUri))
@@ -718,7 +743,11 @@
             return ("0" + charCode.toString(16)).slice(-2);
         }
 
-        return [toHexString(res.charCodeAt(i)) for (i in res)].join("");
+        var a = [];
+        for (i in res)
+            a.push(toHexString(res.charCodeAt(i)));
+            
+        return a.join("");
     }
 
 }).apply(module.exports);

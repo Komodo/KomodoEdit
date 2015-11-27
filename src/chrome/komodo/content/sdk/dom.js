@@ -1,11 +1,14 @@
-/*!
-* Based on ki.js - jQuery-like API super-tiny JavaScript library
-* https://github.com/dciccale/ki.js
-*/
+/**
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
 if (typeof module === 'undefined') module = {}; // debugging helper
 
 /**
- * @module dom
+ * @module ko/dom
  */
 (function() {
 
@@ -52,7 +55,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
     /**
      * Create element from complex string input
      *
-     * @param   {String} html
+     * @param   {String} html   HTML string, must validate properly (no syntax errors)
      *
      * @returns {Node}
      */
@@ -136,9 +139,9 @@ if (typeof module === 'undefined') module = {}; // debugging helper
     /**
      * Manipulation helper for inserting DOM content
      *
-     * @param   {Object} elems
-     * @param   {string|object} insert
-     * @param   {object} opts {where: prepend|after|before}
+     * @param   {Object} elems          Element
+     * @param   {string|object} insert  HTML string or object to be inserted
+     * @param   {object} opts           {where: prepend|after|before}
      *
      * @returns {void} 
      */
@@ -241,8 +244,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Add an event listener which only receives a callback once
          * 
-         * @param {Event} event     String event type i.e 'click'
-         * @param {Function} action
+         * @param {Event} event         String event type i.e 'click'
+         * @param {Function} action     Callback function
          * 
          * @returns this
          */
@@ -262,8 +265,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Remove event listener
          * 
-         * @param {Event} event     String event type i.e 'click'
-         * @param {Function} action 
+         * @param {Event} event         String event type i.e 'click'
+         * @param {Function} action     Callback function
          * 
          * @returns this
          */
@@ -304,7 +307,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Iterate over matched elements
          * 
-         * @param {Function} action    he function to call on each iteration
+         * @param {Function} action    The function to call on each iteration
          *
          * @returns this
          */
@@ -332,7 +335,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Set text content of elem
          * 
-         * @param   {string} value
+         * @param   {string} value      The value
          *
          * @returns this
          */
@@ -462,7 +465,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Replace matched element(s) with ..
          * 
-         * @param   {Element} elem 
+         * @param   {Element} elem  The element
          * 
          * @returns {Element} returns replaced element
          */
@@ -499,7 +502,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Set / get value
          * 
-         * @param   {String|Void} value
+         * @param   {String|Void} value  The value
          *
          * @returns this
          */
@@ -589,7 +592,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Checks for given class 
          * 
-         * @param {String}  className
+         * @param {String}  className   The class name
          * 
          * @returns this
          */
@@ -601,7 +604,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Adds given class 
          * 
-         * @param {String}  className
+         * @param {String}  className   The class name
          * 
          * @returns this
          */
@@ -616,7 +619,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Remove given class
          * 
-         * @param {String}  className
+         * @param {String}  className   The class name
          * 
          * @returns this
          */
@@ -631,8 +634,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Set/get CSS value(s)
          * 
-         * @param   {String|Object} key  
-         * @param   {Mixed|Undefined} value
+         * @param   {String|Object} key         The CSS property name, or an object with css properties/values
+         * @param   {Mixed|Undefined} value     The CSS property value, or undefined if first arg was an object
          * 
          * @returns this
          */
@@ -671,8 +674,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Set/get attributes
          * 
-         * @param   {String|Object} key  
-         * @param   {Mixed|Undefined} value
+         * @param   {String|Object} key         The attribute key
+         * @param   {Mixed|Undefined} value     The attribute value, or empty if you just want to retrieve it
          * 
          * @returns this
          */
@@ -701,7 +704,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Remove Attribute
          * 
-         * @param   {String} key
+         * @param   {String} key    The attribute key
          * 
          * @returns this
          */
@@ -737,9 +740,9 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          *
          * NOTE: This function is extremely experimental 
          * 
-         * @param   {Object} props   
-         * @param   {Object} opts    
-         * @param   {Function|Null} callback
+         * @param   {Object} props     The properties to animate
+         * @param   {Object} opts      Options
+         * @param   {Function|Null}    callback
          * 
          * @returns this
          */

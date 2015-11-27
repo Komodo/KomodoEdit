@@ -1,6 +1,9 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/**
+ * @copyright (c) 2015 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
 
 /**
  * Benchmark APIs -- wraps around the XPCOM koIBenchmark service.
@@ -10,7 +13,10 @@ const {Cc, Ci} = require("chrome");
 var koBenchmark = Cc["@activestate.com/koBenchmark;1"].getService(Ci.koIBenchmark);
 
 /**
- * @module benchmark
+ * Benchmarking methods helpful for debugging, this library is mostly
+ * succeeded by the [console] SDK
+ *
+ * @module ko/benchmark
  */
 
 /**
