@@ -1557,7 +1557,7 @@ def _PackageKomodoMSI(cfg):
     _run_in_dir("%s bin/check-wxs.py %s" %
                     (cfg.unsiloedPythonExe, " ".join(features)),
                 wrkDir)
-
+    
     print "---- build the MSI"
     dirs = [os.curdir] # implied by Windows shell
     dirs.extend(os.environ.get("PATH", "").split(os.pathsep))
@@ -1568,18 +1568,13 @@ def _PackageKomodoMSI(cfg):
         os.makedirs(dirname(cfg.komodoInstallerPackage))
     shutil.copyfile(join(wrkDir, "komodo.msi"), cfg.komodoInstallerPackage)
     
-         # signtool sign /v /f c:\ActiveStateSPC.pfx /t http://timestamp.verisign.com/scripts/timestamp.dll %1
-    print "---- sign MSI to packages"
-    #   All elements to this of the command below should be part of the config file
-    #   and configured during bk configure
-    key = "C:\\bb\\certificates\\ActiveStateSPC.pfx" # this should be a config set during bk configure
-    command = "signtool  sign /v /f \"%s\" /t http://timestamp.verisign.com/scripts/timestamp.dll \"%s\"" %(key, cfg.komodoInstallerPackage)
-# =======
-#     key = cfg.winCodeSigningCert
-#     command = "signtool sign /v /f \"%s\" /t http://timestamp.verisign.com/scripts/timestamp.dll \"%s\"" %(key, cfg.komodoInstallerPackage)
-# >>>>>>> Stashed changes
-    print("---- run command: %s", command)
-    _run(command)
+    print "---- checking for signing key to sign MSI package"
+    if exists(cfg.winCodeSigningCert):
+        # signtool sign /v /f c:\ActiveStateSPC.pfx /t http://timestamp.verisign.com/scripts/timestamp.dll %1
+        print "---- signing MSI to packages"
+        command = "signtool  sign /v /f \"%s\" /t http://timestamp.verisign.com/scripts/timestamp.dll \"%s\"" %(cfg.winCodeSigningCert, cfg.komodoInstallerPackage)
+        print("---- run command: %s", command)
+        _run(command)
     
     print "'%s' created" % cfg.komodoInstallerPackage
 
